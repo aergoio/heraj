@@ -11,9 +11,6 @@ The heraj provides the next:
 * Rapid development tools
 * Boilerplate and examples
 
-## License
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-
 ## Modules
 The repository contains next:
 * core/annotation
