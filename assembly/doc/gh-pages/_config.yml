@@ -5,7 +5,12 @@ baseurl: "/heraj"
 url: "https://aergo.github.com"
 show_downloads: false
 google_analytics:
+github:
+  is_project_page: true
+  owner_url: https://github.com/aergoio
+  owner_name: aergo
 
 markdown: kramdown
 theme: jekyll-theme-minimal
+
 

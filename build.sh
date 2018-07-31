@@ -58,7 +58,7 @@ function execute-test() {
 }
 function execute-documentation() {
   gem install bundler
-  bundle install
+  bundle install --gemfile $PROJECT_HOME/assembly/doc/gh-pages/Gemfile
   git clone $(git remote get-url origin) $BUILD_WORKSPACE/heraj-doc -b gh-pages
   git -C $BUILD_WORKSPACE/heraj-doc config user.email $(git config user.email)
   git -C $BUILD_WORKSPACE/heraj-doc config user.name $(git config user.name)
@@ -70,6 +70,7 @@ function execute-documentation() {
   mv $BUILD_WORKSPACE/docs/javadoc $BUILD_WORKSPACE/heraj-doc/javadoc
   mv $BUILD_WORKSPACE/reports/jacoco/alljacoco/html $BUILD_WORKSPACE/heraj-doc/coverage
 }
+
 
 if [ 0 == $# ]; then
   clean-workspace
