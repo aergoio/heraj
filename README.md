@@ -1,3 +1,5 @@
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 # Introduction
 The hera is the client-side framework for the aergo.
 This repository, heraj is java implementation for hera.
@@ -73,3 +75,6 @@ We provides next in https://aergoio.github.io/heraj
 ```console
 $ ./build.sh docs
 ```
+
+# Contribution
+
