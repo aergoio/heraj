@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BlockChainTemplate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.client</a> &gt; <span class="el_source">BlockChainTemplate.java</span></div><h1>BlockChainTemplate.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.client;
+
+import static java.util.stream.Collectors.toList;
+
+import hera.api.BlockChainOperation;
+import hera.api.model.BlockchainStatus;
+import hera.api.model.PeerAddress;
+import hera.transport.BlockchainConverterFactory;
+import hera.transport.ModelConverter;
+import hera.transport.PeerAddressConverterFactory;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import types.AergoRPCServiceGrpc.AergoRPCServiceBlockingStub;
+import types.Rpc;
+import types.Rpc.Empty;
+
+<span class="fc" id="L21">@RequiredArgsConstructor</span>
+public class BlockChainTemplate implements BlockChainOperation {
+
+  protected final AergoRPCServiceBlockingStub aergoService;
+
+  protected final ModelConverter&lt;BlockchainStatus, Rpc.BlockchainStatus&gt; blockchainConverter;
+
+  protected final ModelConverter&lt;PeerAddress, types.Node.PeerAddress&gt; peerAddressConverter;
+
+  public BlockChainTemplate(AergoRPCServiceBlockingStub aergoService) {
+<span class="fc" id="L31">    this(aergoService, new BlockchainConverterFactory().create(),</span>
+<span class="fc" id="L32">        new PeerAddressConverterFactory().create());</span>
+<span class="fc" id="L33">  }</span>
+
+  @Override
+  public BlockchainStatus getStatus() {
+<span class="fc" id="L37">    final Empty empty = Empty.newBuilder().build();</span>
+<span class="fc" id="L38">    return blockchainConverter.convertToDomainModel(aergoService.blockchain(empty));</span>
+  }
+
+  @Override
+  public List&lt;PeerAddress&gt; listPeers() {
+<span class="fc" id="L43">    final Empty empty = Empty.newBuilder().build();</span>
+<span class="fc" id="L44">    return aergoService.getPeers(empty).getPeersList().stream()</span>
+<span class="fc" id="L45">        .map(peerAddressConverter::convertToDomainModel)</span>
+<span class="fc" id="L46">        .collect(toList());</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

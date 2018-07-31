@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FilenameUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util</a> &gt; <span class="el_source">FilenameUtils.java</span></div><h1>FilenameUtils.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.util;
+
+import static hera.util.StringUtils.isEmpty;
+import static hera.util.StringUtils.nvl;
+
+<span class="nc" id="L10">public class FilenameUtils {</span>
+
+  private static final char EXTENSION_SEPARATOR = '.';
+
+  /**
+   * Return the extension from {@code filename}.
+   * &lt;p&gt;
+   *   Extract the last fragment from {@link #EXTENSION_SEPARATOR} separated strings
+   * &lt;/p&gt;
+   *
+   * @param filename file name
+   *
+   * @return file's extension
+   */
+  public static String getExtension(final String filename) {
+<span class="fc" id="L25">    return getExtension(filename, false);</span>
+  }
+
+  /**
+   * Return the extension part from {@code filename}.
+   * &lt;p&gt;
+   *   Extract the last fragment from {@link #EXTENSION_SEPARATOR} separated string
+   *   if {@code isGreedy} is {@code false}
+   *   Extract from hte second fragment to last if {@code isGreedy} is {@code true}
+   * &lt;/p&gt;
+   *
+   * @param filename file name
+   * @param isGreedy  flag if greedy
+   *
+   * @return extension
+   */
+  public static String getExtension(final String filename, final boolean isGreedy) {
+<span class="fc bfc" id="L42" title="All 2 branches covered.">    if (null == filename) {</span>
+<span class="fc" id="L43">      return null;</span>
+    }
+<span class="fc bfc" id="L45" title="All 2 branches covered.">    final int dotIndex = isGreedy ? filename.indexOf(EXTENSION_SEPARATOR)</span>
+<span class="fc" id="L46">        : filename.lastIndexOf(EXTENSION_SEPARATOR);</span>
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">    return (dotIndex &lt; 0) ? &quot;&quot; : filename.substring(dotIndex + 1);</span>
+  }
+
+  /**
+   * Remove extension from {@code filename}.
+   * &lt;p&gt;
+   *   Use {@link #EXTENSION_SEPARATOR} as separator
+   * &lt;/p&gt;
+   *
+   * @param filename filename
+   * @return extension removed string
+   */
+  public static String stripExtension(final String filename) {
+<span class="fc bfc" id="L60" title="All 2 branches covered.">    if (null == filename) {</span>
+<span class="fc" id="L61">      return null;</span>
+    }
+<span class="fc" id="L63">    final int index = filename.lastIndexOf(EXTENSION_SEPARATOR);</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">    return (index &lt; 0) ? filename : filename.substring(0, index);</span>
+  }
+
+  /**
+   * Concatenate file basename and extension.
+   *
+   * @param name file's base name
+   * @param ext  file's extension
+   *
+   * @return filename
+   */
+  public static String makeFilename(final String name, final String ext) {
+<span class="fc bfc" id="L76" title="All 4 branches covered.">    if (null == name || null == ext) {</span>
+<span class="fc" id="L77">      return null;</span>
+    }
+<span class="fc bfc" id="L79" title="All 2 branches covered.">    if (isEmpty(ext)) {</span>
+<span class="fc" id="L80">      return name;</span>
+    }
+<span class="fc" id="L82">    final StringBuilder buffer = new StringBuilder();</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">    if (!isEmpty(name)) {</span>
+<span class="fc" id="L84">      buffer.append(nvl(name));</span>
+    }
+<span class="fc" id="L86">    buffer.append('.');</span>
+<span class="fc" id="L87">    buffer.append(ext);</span>
+
+<span class="fc" id="L89">    return buffer.toString();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

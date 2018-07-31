@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ModelConverter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.transport</a> &gt; <span class="el_source">ModelConverter.java</span></div><h1>ModelConverter.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.transport;
+
+import java.util.function.Function;
+import lombok.RequiredArgsConstructor;
+
+<span class="fc" id="L10">@RequiredArgsConstructor</span>
+public class ModelConverter&lt;DomainModelT, RpcModelT&gt; {
+  protected final Function&lt;DomainModelT, RpcModelT&gt; domainConverter;
+
+  protected final Function&lt;RpcModelT, DomainModelT&gt; rpcConverter;
+
+  public RpcModelT convertToRpcModel(DomainModelT domainModel) {
+<span class="fc" id="L17">    return domainConverter.apply(domainModel);</span>
+  }
+
+  public DomainModelT convertToDomainModel(RpcModelT grpcModel) {
+<span class="fc" id="L21">    return rpcConverter.apply(grpcModel);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

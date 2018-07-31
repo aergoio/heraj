@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExceptionUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util</a> &gt; <span class="el_source">ExceptionUtils.java</span></div><h1>ExceptionUtils.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.util;
+
+import static hera.util.ValidationUtils.assertTrue;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+<span class="nc" id="L12">public class ExceptionUtils {</span>
+
+  /**
+   * Assemble exception message from {@code message} and {@code cause}.
+   *
+   * @param message message
+   * @param cause   exception
+   * @return message to be made
+   */
+  public static String buildExceptionMessage(
+      final String message,
+      final Throwable cause) {
+<span class="fc bfc" id="L24" title="All 2 branches covered.">    if (null == cause) {</span>
+<span class="fc" id="L25">      return message;</span>
+    }
+<span class="fc" id="L27">    final StringBuilder sb = new StringBuilder();</span>
+<span class="pc bpc" id="L28" title="1 of 2 branches missed.">    if (null != message) {</span>
+<span class="fc" id="L29">      sb.append(message).append(&quot;; &quot;);</span>
+    }
+
+<span class="fc" id="L32">    sb.append(&quot;nested exception is &quot;).append(cause);</span>
+<span class="fc" id="L33">    return sb.toString();</span>
+  }
+
+  /**
+   * Print the current thread's stacktrace.
+   * &lt;p&gt;
+   * Print stacktrace the upper part from {@link ExceptionUtils#trace()}.
+   * &lt;/p&gt;
+   *
+   * @return StackTraceElement's information
+   *
+   * @see #trace(StackTraceElement[], int, int)
+   */
+  public static String trace() {
+<span class="fc" id="L47">    final Thread th = Thread.currentThread();</span>
+<span class="fc" id="L48">    final StackTraceElement[] elements = th.getStackTrace();</span>
+<span class="fc" id="L49">    return trace(elements, 2, elements.length);</span>
+  }
+
+  /**
+   * Print the stacktrace.
+   * &lt;p&gt;
+   * return {@code null} if stacktrace is {@code null}
+   * &lt;/P&gt;
+   *
+   * @param elements array of {@link StackTraceElement}
+   *
+   * @return stacktrace string
+   *
+   * @see #trace(StackTraceElement[], int, int)
+   */
+  public static String trace(
+      final StackTraceElement[] elements) {
+<span class="fc bfc" id="L66" title="All 2 branches covered.">    if (null == elements) {</span>
+<span class="fc" id="L67">      return null;</span>
+    }
+<span class="fc" id="L69">    return trace(elements, 0, elements.length);</span>
+  }
+
+  /**
+   * Print the partial stacktrace.
+   * &lt;p&gt;
+   * {@code start} is less than {@code end} and both are in a range of {@code elements}.
+   * return {@code null} if stacktrace is {@code null}
+   * &lt;/p&gt;
+   *
+   * @param elements array of {@link StackTraceElement}
+   * @param start    start index
+   * @param end      end index
+   * @return stacktrace string
+   */
+  public static String trace(
+      final StackTraceElement[] elements,
+      final int start,
+      final int end) {
+    // Check input
+<span class="fc bfc" id="L89" title="All 2 branches covered.">    if (null == elements) {</span>
+<span class="fc" id="L90">      return null;</span>
+    }
+
+<span class="fc bfc" id="L93" title="All 2 branches covered.">    if (start &lt; 0) {</span>
+<span class="fc" id="L94">      throw new ArrayIndexOutOfBoundsException();</span>
+    }
+<span class="fc bfc" id="L96" title="All 2 branches covered.">    if (elements.length &lt; end) {</span>
+<span class="fc" id="L97">      throw new ArrayIndexOutOfBoundsException();</span>
+    }
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">    assertTrue(start &lt; end);</span>
+
+    // Build the stack trace information.
+<span class="fc" id="L102">    final StringBuilder buffer = new StringBuilder();</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">    for (int i = start; i &lt; end; ++i) {</span>
+<span class="fc" id="L104">      buffer.append(elements[i].toString());</span>
+<span class="fc" id="L105">      buffer.append(&quot;\n&quot;);</span>
+    }
+<span class="fc" id="L107">    return buffer.toString();</span>
+  }
+
+  /**
+   * Build printable string from {@code e}.
+   * &lt;p&gt;
+   * return {@code null} if {@code e} is {@code null}
+   * &lt;/p&gt;
+   *
+   * @param e {@link Throwable} to print
+   * @return information about &lt;code&gt;e&lt;/code&gt;
+   */
+  public static String getStackTraceOf(
+      final Throwable e) {
+<span class="fc bfc" id="L121" title="All 2 branches covered.">    if (null == e) {</span>
+<span class="fc" id="L122">      return null;</span>
+    }
+<span class="fc" id="L124">    final StringWriter writer = new StringWriter();</span>
+<span class="fc" id="L125">    final PrintWriter w = new PrintWriter(writer);</span>
+<span class="fc" id="L126">    e.printStackTrace(w);</span>
+<span class="fc" id="L127">    return writer.toString();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

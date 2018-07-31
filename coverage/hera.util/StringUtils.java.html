@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StringUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util</a> &gt; <span class="el_source">StringUtils.java</span></div><h1>StringUtils.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.util;
+
+import static java.util.Arrays.asList;
+
+import java.util.ArrayList;
+import java.util.List;
+
+<span class="nc" id="L12">public class StringUtils {</span>
+
+  protected static final String NULL_STRING = &quot;&lt;&lt;null&gt;&gt;&quot;;
+
+  protected static final String EMPTY_STRING = &quot;&quot;;
+
+
+
+  /* Inspection */
+
+  /**
+   * Return true if &lt;code&gt;str&lt;/code&gt; is either null or meaningless string. Otherwise return false.
+   *
+   * @param str string to inspect
+   * @return whether a string is meaningless or not
+   * @see StringUtils#hasText(CharSequence)
+   */
+  public static boolean isEmpty(final CharSequence str) {
+<span class="fc bfc" id="L30" title="All 2 branches covered.">    if (null == str) {</span>
+<span class="fc" id="L31">      return true;</span>
+    }
+
+<span class="fc bfc" id="L34" title="All 2 branches covered.">    for (int i = 0, n = str.length(); i &lt; n; ++i) {</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">      if (Character.isWhitespace(str.charAt(i))) {</span>
+<span class="fc" id="L36">        continue;</span>
+      }
+<span class="fc" id="L38">      return false;</span>
+    }
+<span class="fc" id="L40">    return true;</span>
+  }
+
+  /**
+   * &lt;p&gt;
+   * Get length of &lt;code&gt;str&lt;/code&gt;. If &lt;code&gt;str&lt;/code&gt; is &lt;code&gt;null&lt;/code&gt;, then return 0.
+   * &lt;/p&gt;
+   *
+   * @param str string to get length
+   * @return a length of &lt;code&gt;str&lt;/code&gt;
+   */
+  public static int length(final CharSequence str) {
+<span class="fc bfc" id="L52" title="All 2 branches covered.">    if (null == str) {</span>
+<span class="fc" id="L53">      return 0;</span>
+    }
+<span class="fc" id="L55">    return str.length();</span>
+  }
+
+  /**
+   * Return true if &lt;code&gt;str&lt;/code&gt; is neither &lt;code&gt;null&lt;/code&gt; nor empty. Otherwise, return
+   * false.
+   *
+   * @param str string to inspect
+   * @return whether string has a length or not
+   */
+  public static boolean hasLength(final CharSequence str) {
+<span class="fc bfc" id="L66" title="All 2 branches covered.">    return 0 &lt; length(str);</span>
+  }
+
+  /**
+   * Check whether &lt;code&gt;str&lt;/code&gt; is a meaningful string or not.
+   *
+   * @param str string to inspect
+   * @return whether str is meanful or not
+   * @see StringUtils#isEmpty(CharSequence)
+   */
+  public static boolean hasText(final CharSequence str) {
+<span class="fc bfc" id="L77" title="All 2 branches covered.">    return !isEmpty(str);</span>
+  }
+
+  /* Conversion */
+
+  /**
+   * Return an &lt;code&gt;non-null&lt;/code&gt; string by inspecting array &lt;code&gt;strs&lt;/code&gt;. If
+   * &lt;code&gt;strs&lt;/code&gt; is null, return empty string &lt;code&gt;&quot;&quot;&lt;/code&gt;.
+   *
+   * @param strs variable argument of string
+   * @return converted string
+   */
+  public static String nvl(final String... strs) {
+<span class="fc" id="L90">    String val = ObjectUtils.nvl(strs);</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">    if (null == val) {</span>
+<span class="fc" id="L92">      return EMPTY_STRING;</span>
+    }
+<span class="fc" id="L94">    return val;</span>
+  }
+
+  /**
+   * Split {@code string} with a {@code delimiter}.
+   *
+   * @param string string to split
+   * @param delimiter a delimiter
+   * @return list of string splitted by a delimiter
+   */
+  public static List&lt;String&gt; split(final String string, final String delimiter) {
+<span class="fc bfc" id="L105" title="All 4 branches covered.">    if (null == string || null == delimiter) {</span>
+<span class="fc" id="L106">      return null;</span>
+    }
+<span class="fc" id="L108">    final ArrayList&lt;String&gt; words = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L110">    int from = 0;</span>
+<span class="fc" id="L111">    int to = 0;</span>
+<span class="fc" id="L112">    int wordLength = delimiter.length();</span>
+
+<span class="fc bfc" id="L114" title="All 2 branches covered.">    while (0 &lt;= (to = string.indexOf(delimiter, from))) {</span>
+<span class="fc" id="L115">      words.add(string.substring(from, to));</span>
+<span class="fc" id="L116">      from = to + wordLength;</span>
+    }
+
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">    if (from &lt; string.length()) {</span>
+<span class="fc" id="L120">      words.add(string.substring(from));</span>
+    }
+
+<span class="fc" id="L123">    return words;</span>
+  }
+
+  /**
+   * Split {@code string} with a {@code delimiter} and return {@code index}-th string.
+   *
+   * @param string string to split
+   * @param delimiter a delimiter
+   * @param index string index
+   * @return index-th string splitted by a delimiter
+   */
+  public static String split(final String string, final String delimiter, final int index) {
+<span class="fc" id="L135">    List&lt;String&gt; words = split(string, delimiter);</span>
+<span class="fc bfc" id="L136" title="All 6 branches covered.">    if (words != null &amp;&amp; 0 &lt;= index &amp;&amp; index &lt; words.size()) {</span>
+<span class="fc" id="L137">      return words.get(index);</span>
+    }
+
+<span class="fc" id="L140">    return null;</span>
+  }
+
+  /**
+   * Remove space in left of the &lt;code&gt;str&lt;/code&gt;.
+   *
+   * @param str target string
+   * @return string with left space removed
+   */
+  public static String ltrim(final String str) {
+<span class="fc bfc" id="L150" title="All 2 branches covered.">    if (str == null) {</span>
+<span class="fc" id="L151">      return EMPTY_STRING;</span>
+    }
+
+<span class="fc bfc" id="L154" title="All 2 branches covered.">    if (!hasLength(str)) {</span>
+<span class="fc" id="L155">      return str;</span>
+    }
+
+<span class="fc" id="L158">    final char[] chs = str.toCharArray();</span>
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">    for (int i = 0, n = chs.length; i &lt; n; ++i) {</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">      if (!Character.isWhitespace(chs[i])) {</span>
+<span class="fc" id="L161">        return new String(chs, i, str.length() - i);</span>
+      }
+    }
+<span class="nc" id="L164">    return EMPTY_STRING;</span>
+  }
+
+  /**
+   * Remove space in right of the &lt;code&gt;str&lt;/code&gt;.
+   *
+   * @param str target string
+   * @return string with right space removed
+   */
+  public static String rtrim(final String str) {
+<span class="fc bfc" id="L174" title="All 2 branches covered.">    if (str == null) {</span>
+<span class="fc" id="L175">      return EMPTY_STRING;</span>
+    }
+
+<span class="fc bfc" id="L178" title="All 2 branches covered.">    if (!hasLength(str)) {</span>
+<span class="fc" id="L179">      return str;</span>
+    }
+
+<span class="fc" id="L182">    final char[] chs = str.toCharArray();</span>
+<span class="pc bpc" id="L183" title="1 of 2 branches missed.">    for (int i = chs.length - 1, j = chs.length; 0 &lt; j; --i, --j) {</span>
+<span class="fc bfc" id="L184" title="All 2 branches covered.">      if (!Character.isWhitespace(chs[i])) {</span>
+<span class="fc" id="L185">        return new String(chs, 0, j);</span>
+      }
+    }
+<span class="nc" id="L188">    return EMPTY_STRING;</span>
+  }
+
+
+  /**
+   * Remove space on both sides of &lt;code&gt;str&lt;/code&gt;.
+   *
+   * @param str target string
+   * @return string with both sides of space removed
+   */
+  public static String trim(final String str) {
+<span class="fc" id="L199">    return rtrim(ltrim(str));</span>
+  }
+
+  /**
+   * &lt;p&gt;
+   * Concat {@code values} to {@code token}. If {@code values} is empty, return an empty string.
+   * &lt;/p&gt;
+   *
+   * @param values {@link Iterable} which contain strings
+   * @param token concat target
+   * @return concatted string
+   */
+  public static String join(final Iterable&lt;?&gt; values, final String token) {
+<span class="fc" id="L212">    boolean init = false;</span>
+
+<span class="fc" id="L214">    final StringBuilder buffer = new StringBuilder();</span>
+
+<span class="fc bfc" id="L216" title="All 2 branches covered.">    for (final Object value : values) {</span>
+<span class="fc bfc" id="L217" title="All 2 branches covered.">      if (init) {</span>
+<span class="fc" id="L218">        buffer.append(token);</span>
+      }
+<span class="fc" id="L220">      init = true;</span>
+<span class="fc" id="L221">      buffer.append(value);</span>
+<span class="fc" id="L222">    }</span>
+
+<span class="fc" id="L224">    return buffer.toString();</span>
+  }
+
+  /**
+   * &lt;p&gt;
+   * Concat {@code values} to {@code token}. If {@code values} is empty, return an empty string.
+   * &lt;/p&gt;
+   *
+   * @param values {@link Object} which contain strings
+   * @param token concat target
+   * @return concatenated string
+   */
+  public static String join(final Object[] values, final String token) {
+<span class="fc" id="L237">    return join(asList(values), token);</span>
+  }
+
+  /**
+   * Make a string by repeating &lt;code&gt;symbol&lt;/code&gt; &lt;code&gt;n&lt;/code&gt; times.
+   *
+   * @param word word to repeat
+   * @param repeat repeat times
+   * @return generated string
+   */
+  public static String multiply(final String word, final int repeat) {
+<span class="fc bfc" id="L248" title="All 2 branches covered.">    if (null == word) {</span>
+<span class="fc" id="L249">      return EMPTY_STRING;</span>
+    }
+
+<span class="fc" id="L252">    final StringBuilder buffer = new StringBuilder();</span>
+<span class="fc" id="L253">    multiply(buffer, word, repeat);</span>
+<span class="fc" id="L254">    return buffer.toString();</span>
+  }
+
+  /**
+   * Make a string by repeating &lt;code&gt;symbol&lt;/code&gt; &lt;code&gt;n&lt;/code&gt; times.
+   *
+   * @param buffer {@link StringBuilder} to append word
+   * @param word word to repeat
+   * @param repeat repeat times
+   */
+  public static void multiply(final StringBuilder buffer, final String word, final int repeat) {
+<span class="fc bfc" id="L265" title="All 2 branches covered.">    if (null == word) {</span>
+<span class="fc" id="L266">      return;</span>
+    }
+
+<span class="fc bfc" id="L269" title="All 2 branches covered.">    for (int i = 0; i &lt; repeat; ++i) {</span>
+<span class="fc" id="L270">      buffer.append(word);</span>
+    }
+<span class="fc" id="L272">  }</span>
+
+  /**
+   * Alias of {@link #multiply(String, int)}.
+   *
+   * @param word word to repeat
+   * @param repeat repeat times
+   * @return generated string
+   * @see #multiply(String, int)
+   */
+  public static String repeat(final String word, final int repeat) {
+<span class="fc" id="L283">    return multiply(word, repeat);</span>
+  }
+
+  /**
+   * Set 1st character to lower case.
+   *
+   * @param str target string
+   * @return string with 1st character in lower case
+   */
+  public static String uncapitalize(final String str) {
+<span class="fc bfc" id="L293" title="All 2 branches covered.">    if (null == str) {</span>
+<span class="fc" id="L294">      return null;</span>
+    }
+
+<span class="fc" id="L297">    return Character.toLowerCase(str.charAt(0)) + str.substring(1);</span>
+  }
+
+  /**
+   * Return count of matching character in &lt;code&gt;str&lt;/code&gt;.
+   * 
+   * @param str target string
+   * @param ch character to match
+   * @return matching count
+   */
+  public static int countMatches(final String str, final char ch) {
+<span class="fc bfc" id="L308" title="All 2 branches covered.">    if (isEmpty(str)) {</span>
+<span class="fc" id="L309">      return 0;</span>
+    }
+<span class="fc" id="L311">    int count = 0;</span>
+<span class="fc bfc" id="L312" title="All 2 branches covered.">    for (int i = 0; i &lt; str.length(); i++) {</span>
+<span class="fc bfc" id="L313" title="All 2 branches covered.">      if (ch == str.charAt(i)) {</span>
+<span class="fc" id="L314">        count++;</span>
+      }
+    }
+<span class="fc" id="L317">    return count;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

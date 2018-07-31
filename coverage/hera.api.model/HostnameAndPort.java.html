@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HostnameAndPort.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.model</a> &gt; <span class="el_source">HostnameAndPort.java</span></div><h1>HostnameAndPort.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.api.model;
+
+import static java.util.Optional.ofNullable;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+import org.slf4j.Logger;
+
+/**
+ * Class containing hostname and port.
+ * &lt;p&gt;
+ *   This is used for connection to server like aergo node.
+ * &lt;/p&gt;
+ */
+<span class="fc" id="L21">@RequiredArgsConstructor</span>
+<span class="nc" id="L22">@ToString</span>
+public class HostnameAndPort {
+
+<span class="fc" id="L25">  protected static final Logger logger = getLogger(HostnameAndPort.class);</span>
+
+<span class="fc" id="L27">  @Getter</span>
+  protected final String hostname;
+
+<span class="nc" id="L30">  @Getter</span>
+  protected final int port;
+
+  public int getPort(int defaultPort) {
+<span class="pc bpc" id="L34" title="1 of 2 branches missed.">    return (port &lt; 0) ? defaultPort : port;</span>
+  }
+
+
+  /**
+   * Create {@link HostnameAndPort} from string.
+   *
+   * @param str string to parse
+   *
+   * @return parsed {@link HostnameAndPort}
+   */
+  public static HostnameAndPort of(final String str) {
+<span class="fc" id="L46">    logger.debug(&quot;Hostname and port: {}&quot;, str);</span>
+<span class="fc" id="L47">    final String separator = &quot;:&quot;;</span>
+<span class="fc" id="L48">    final int separatorIndex = str.indexOf(separator);</span>
+<span class="fc" id="L49">    logger.trace(&quot;Separator index: {}&quot;, separatorIndex);</span>
+<span class="fc" id="L50">    final int portIndex = separatorIndex + separator.length();</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">    final String hostname = (separatorIndex &lt; 0) ? str : str.substring(0, separatorIndex);</span>
+<span class="fc" id="L52">    logger.trace(&quot;Hostname: {}&quot;, hostname);</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">    final String portStr = (separatorIndex &lt; 0) ? null : str.substring(portIndex);</span>
+<span class="fc" id="L54">    logger.trace(&quot;Port: {}&quot;, portStr);</span>
+<span class="fc" id="L55">    final int port = ofNullable(portStr).map(Integer::new).orElse(-1);</span>
+<span class="fc" id="L56">    return new HostnameAndPort(hostname, port);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

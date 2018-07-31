@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Project.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera</a> &gt; <span class="el_source">Project.java</span></div><h1>Project.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+
+@JsonInclude(Include.NON_NULL)
+<span class="fc" id="L14">public class Project {</span>
+<span class="fc" id="L15">  @Getter</span>
+<span class="nc" id="L16">  @Setter</span>
+  protected String name;
+
+<span class="fc" id="L19">  @Getter</span>
+<span class="nc" id="L20">  @Setter</span>
+  protected String branch;
+
+<span class="fc" id="L23">  @Getter</span>
+<span class="nc" id="L24">  @Setter</span>
+  protected List&lt;Project&gt; dependencies;
+
+<span class="fc" id="L27">  @Getter</span>
+<span class="nc" id="L28">  @Setter</span>
+  protected List&lt;String&gt; sources;
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

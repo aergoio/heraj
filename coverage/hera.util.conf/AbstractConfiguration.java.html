@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util.conf</a> &gt; <span class="el_source">AbstractConfiguration.java</span></div><h1>AbstractConfiguration.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.util.conf;
+
+import static hera.util.ValidationUtils.assertFalse;
+import static java.util.Arrays.stream;
+import static java.util.Collections.EMPTY_LIST;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.util.Configuration;
+import hera.util.ParsingUtils;
+import java.util.List;
+import java.util.Optional;
+import lombok.Getter;
+import org.slf4j.Logger;
+
+public abstract class AbstractConfiguration implements Configuration {
+
+<span class="fc" id="L23">  protected final Logger logger = getLogger(getClass());</span>
+
+<span class="nc" id="L25">  @Getter</span>
+  protected final boolean readOnly;
+
+  public AbstractConfiguration() {
+<span class="fc" id="L29">    this(true);</span>
+<span class="fc" id="L30">  }</span>
+
+<span class="fc" id="L32">  public AbstractConfiguration(final boolean readOnly) {</span>
+<span class="fc" id="L33">    this.readOnly = readOnly;</span>
+<span class="fc" id="L34">  }</span>
+
+  protected String[] getFragments(final String qualifiedName) {
+<span class="fc" id="L37">    final String[] splits = qualifiedName.split(&quot;\\.&quot;);</span>
+<span class="fc" id="L38">    assertFalse(stream(splits).anyMatch(String::isEmpty));</span>
+<span class="fc" id="L39">    return splits;</span>
+  }
+
+  public Configuration getSubconfiguration(String key) {
+<span class="nc" id="L43">    return null;</span>
+  }
+
+  protected abstract Object getValue(String key);
+
+  /**
+   * get configuration value.
+   */
+  public Object get(final String key) {
+<span class="fc" id="L52">    int dotIndex = key.indexOf('.');</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">    if (dotIndex &lt; 0) {</span>
+<span class="fc" id="L54">      return getValue(key);</span>
+    } else {
+<span class="fc" id="L56">      final String subconfigurationName = key.substring(0, dotIndex);</span>
+<span class="fc" id="L57">      final String remainder = key.substring(dotIndex + 1);</span>
+<span class="fc" id="L58">      return ofNullable(getSubconfiguration(subconfigurationName))</span>
+<span class="fc" id="L59">          .map(subconfiguration -&gt; subconfiguration.get(remainder)).orElse(null);</span>
+    }
+  }
+
+  @Override
+  public Optional&lt;Object&gt; getAsOptional(final String key) {
+<span class="fc" id="L65">    return ofNullable(get(key));</span>
+  }
+
+  @Override
+  public String getAsString(final String key, final String defaultValue) {
+<span class="fc" id="L70">    return (String) getAsOptional(key).map(value -&gt; {</span>
+<span class="nc" id="L71">      logger.trace(&quot;Value type: {}&quot;, value.getClass());</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">      if (value instanceof String) {</span>
+<span class="nc" id="L73">        return value;</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">      } else if (value instanceof CharSequence) {</span>
+<span class="nc" id="L75">        return value.toString();</span>
+      } else {
+<span class="nc" id="L77">        return value.toString();</span>
+      }
+<span class="fc" id="L79">    }).orElse(defaultValue);</span>
+  }
+
+  @Override
+  public boolean getAsBoolean(final String key, final boolean defaultValue) {
+<span class="nc" id="L84">    return ofNullable(getAsString(key, null))</span>
+<span class="nc" id="L85">        .map(ParsingUtils::convertToBoolean)</span>
+<span class="nc" id="L86">        .orElse(defaultValue);</span>
+  }
+
+  @Override
+  public int getAsInt(final String key, final int defaultValue) {
+<span class="nc" id="L91">    return ofNullable(getAsString(key, null))</span>
+<span class="nc" id="L92">        .map(ParsingUtils::convertToInt)</span>
+<span class="nc" id="L93">        .orElse(defaultValue);</span>
+  }
+
+  @Override
+  public long getAsLong(final String key, final long defaultValue) {
+<span class="nc" id="L98">    return ofNullable(getAsString(key, null))</span>
+<span class="nc" id="L99">        .map(ParsingUtils::convertToLong)</span>
+<span class="nc" id="L100">        .orElse(defaultValue);</span>
+  }
+
+  @Override
+  public double getAsDouble(final String key, final double defaultValue) {
+<span class="nc" id="L105">    return ofNullable(getAsString(key, null))</span>
+<span class="nc" id="L106">        .map(ParsingUtils::convertToDouble).orElse(defaultValue);</span>
+  }
+
+  @Override
+  public List&lt;String&gt; getAsList(final String key) {
+<span class="nc" id="L111">    return parse(getAsString(key, null));</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  protected List&lt;String&gt; parse(final String value) {
+<span class="fc" id="L116">    return ofNullable(value)</span>
+<span class="fc" id="L117">        .map(v -&gt; stream(v.split(&quot;,&quot;)).flatMap(v1 -&gt; stream(v1.split(&quot;\\r?\\n&quot;)))</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">            .map(String::trim).filter(v2 -&gt; !v2.isEmpty()).collect(toList()))</span>
+<span class="fc" id="L119">        .orElse(EMPTY_LIST);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

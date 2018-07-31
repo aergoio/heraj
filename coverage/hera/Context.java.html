@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Context.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera</a> &gt; <span class="el_source">Context.java</span></div><h1>Context.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera;
+
+import hera.api.AergoApi;
+import hera.strategy.ApiStrategy;
+import hera.strategy.FailoverStrategy;
+import hera.strategy.TransactionStrategy;
+import hera.util.Configurable;
+import hera.util.Configuration;
+import hera.util.conf.DummyConfiguration;
+import java.util.HashSet;
+import java.util.Optional;
+import lombok.Setter;
+
+<span class="fc" id="L18">public class Context {</span>
+
+<span class="pc" id="L20">  @Setter</span>
+<span class="fc" id="L21">  protected Configuration configuration = DummyConfiguration.getInstance();</span>
+
+  protected TransactionStrategy transactionStrategy;
+
+  protected FailoverStrategy failoverStrategy;
+
+<span class="fc" id="L27">  protected final HashSet&lt;Strategy&gt; strategies = new HashSet&lt;&gt;();</span>
+
+<span class="fc" id="L29">  protected final HashSet&lt;Strategy&gt; usings = new HashSet&lt;&gt;();</span>
+
+  /**
+   * Return {@link AergoApi}.
+   *
+   * @return AergoApi in context
+   */
+  public AergoApi api() {
+<span class="fc" id="L37">    return getStrategy(ApiStrategy.class)</span>
+<span class="fc" id="L38">        .map(ApiStrategy::getApi)</span>
+<span class="fc" id="L39">        .orElseThrow(IllegalStateException::new);</span>
+  }
+
+  public Context addStrategy(final Strategy strategy) {
+<span class="fc" id="L43">    strategies.add(strategy);</span>
+<span class="fc" id="L44">    return this;</span>
+  }
+
+  /**
+   * Return strategy if exists.
+   *
+   * @param &lt;StrategyT&gt;   strategy type
+   * @param strategyClass strategy class
+   *
+   * @return strategy matching type
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public &lt;StrategyT extends Strategy&gt; Optional&lt;StrategyT&gt; getStrategy(
+      final Class&lt;StrategyT&gt; strategyClass) {
+<span class="fc" id="L58">    final Optional&lt;StrategyT&gt; using =</span>
+<span class="fc" id="L59">        (Optional&lt;StrategyT&gt;) usings.stream().filter(strategyClass::isInstance).findFirst();</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">    if (using.isPresent()) {</span>
+<span class="nc" id="L61">      return using;</span>
+    }
+<span class="fc" id="L63">    final Optional&lt;StrategyT&gt; unusedOptional =</span>
+<span class="fc" id="L64">        (Optional&lt;StrategyT&gt;) strategies.stream().filter(strategyClass::isInstance).findFirst();</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">    if (unusedOptional.isPresent()) {</span>
+<span class="fc" id="L66">      final StrategyT unused = unusedOptional.get();</span>
+<span class="fc" id="L67">      strategies.remove(unused);</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">      if (unused instanceof Configurable) {</span>
+<span class="fc" id="L69">        ((Configurable) unused).setConfiguration(configuration);</span>
+      }
+<span class="fc bfc" id="L71" title="All 2 branches covered.">      if (unused instanceof ContextAware) {</span>
+<span class="fc" id="L72">        ((ContextAware) unused).setContext(this);</span>
+      }
+<span class="fc" id="L74">      usings.add(unused);</span>
+    }
+<span class="fc" id="L76">    return unusedOptional;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CryptoUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util</a> &gt; <span class="el_source">CryptoUtils.java</span></div><h1>CryptoUtils.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.util;
+
+import static java.lang.System.arraycopy;
+
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Arrays;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
+
+<span class="nc" id="L20">public class CryptoUtils {</span>
+
+  public static final String CIPHER_CHARSET = &quot;UTF-8&quot;;
+  public static final String CIPHER_NAME = &quot;AES/ECB/PKCS5Padding&quot;;
+  protected static final String DEFAULT_PASSWORD = &quot;tn595hil2n9kolh9&quot;;
+
+  protected static SecureRandom random;
+  protected static MessageDigest sha;
+  protected static MessageDigest md5;
+  protected static SecretKeySpec keySpec;
+
+  static {
+    try {
+<span class="fc" id="L33">      random = SecureRandom.getInstance(&quot;SHA1PRNG&quot;);</span>
+<span class="fc" id="L34">      sha = MessageDigest.getInstance(&quot;SHA-1&quot;);</span>
+<span class="fc" id="L35">      md5 = MessageDigest.getInstance(&quot;MD5&quot;);</span>
+<span class="fc" id="L36">      keySpec = new SecretKeySpec(DEFAULT_PASSWORD.getBytes(&quot;UTF-8&quot;), &quot;AES&quot;);</span>
+<span class="nc" id="L37">    } catch (final Throwable th) {</span>
+<span class="nc" id="L38">      throw new IllegalStateException(th);</span>
+<span class="fc" id="L39">    }</span>
+<span class="fc" id="L40">  }</span>
+
+  /**
+   * Create secret from password.
+   *
+   * @param password string to create secret from
+   * @param length secret length
+   *
+   * @return secret to be created
+   */
+  public static SecretKeySpec createSecret(final byte[] password, final int length) {
+<span class="fc" id="L51">    final byte[] fixedLengthPassword = new byte[length];</span>
+<span class="fc" id="L52">    Arrays.fill(fixedLengthPassword, (byte) 0);</span>
+<span class="fc" id="L53">    arraycopy(password, 0, fixedLengthPassword, 0,</span>
+<span class="fc" id="L54">        Math.min(fixedLengthPassword.length, password.length));</span>
+<span class="fc" id="L55">    return new SecretKeySpec(fixedLengthPassword, &quot;AES&quot;);</span>
+  }
+
+
+  /**
+   * Encoding with Base64 and Aes128Ecb.
+   *
+   * @param source string to encode
+   *
+   * @return encoded string
+   *
+   * @throws NoSuchAlgorithmException if no algorithm
+   * @throws NoSuchPaddingException if no padding exist
+   * @throws InvalidKeyException if invalid key used
+   * @throws IllegalBlockSizeException if wrong block size
+   * @throws BadPaddingException if padding violate rule
+   */
+  public static String encryptToAes128EcbWithBase64(
+      final String source)
+      throws NoSuchAlgorithmException, NoSuchPaddingException,
+      InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+<span class="fc" id="L76">    return encryptToAes128EcbWithBase64(source, DEFAULT_PASSWORD);</span>
+  }
+
+  /**
+   * Encoding with Base64 and Aes128Ecb.
+   *
+   * @param source    string to encode
+   * @param password  password to encode with
+   *
+   * @return encoded string
+   *
+   * @throws NoSuchAlgorithmException if no algorithm
+   * @throws NoSuchPaddingException if no padding exist
+   * @throws InvalidKeyException if invalid key used
+   * @throws IllegalBlockSizeException if wrong block size
+   * @throws BadPaddingException if padding violate rule
+   */
+  public static String encryptToAes128EcbWithBase64(
+      final String source,
+      final String password)
+      throws NoSuchAlgorithmException, NoSuchPaddingException,
+      InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    try {
+<span class="fc" id="L99">      SecretKeySpec secretKeySpec = new SecretKeySpec(password.getBytes(&quot;UTF-8&quot;), &quot;AES&quot;);</span>
+<span class="fc" id="L100">      return encryptToAes128EcbWithBase64(source.getBytes(CIPHER_CHARSET), secretKeySpec);</span>
+<span class="nc" id="L101">    } catch (final UnsupportedEncodingException e) {</span>
+<span class="nc" id="L102">      throw new IllegalStateException(e);</span>
+    }
+  }
+
+  /**
+   * Encoding with Base64 and Aes128Ecb.
+   *
+   * @param message byte array to encode
+   * @param secretKeySpec secret key information
+   * @return encoded string
+   * @throws NoSuchAlgorithmException if no algorithm
+   * @throws NoSuchPaddingException if no padding exist
+   * @throws InvalidKeyException if invalid key used
+   * @throws IllegalBlockSizeException if wrong block size
+   * @throws BadPaddingException if padding violate rule
+   */
+  public static String encryptToAes128EcbWithBase64(
+      final byte[] message,
+      final SecretKeySpec secretKeySpec)
+      throws NoSuchAlgorithmException, NoSuchPaddingException,
+      InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    // Encrypt in 16 bytes (128bit) Block
+<span class="fc" id="L124">    final javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CIPHER_NAME);</span>
+<span class="fc" id="L125">    cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, secretKeySpec);</span>
+<span class="fc" id="L126">    final byte[] aes128ecb = cipher.doFinal(message);</span>
+<span class="fc" id="L127">    return java.util.Base64.getEncoder().encodeToString(aes128ecb);</span>
+  }
+
+  /**
+   * Decode with Base64 and Aes128Ecb.
+   *
+   * @param source string to decode
+   * @return decoded string
+   * @throws NoSuchAlgorithmException if no algorithm
+   * @throws NoSuchPaddingException if no padding exist
+   * @throws InvalidKeyException if invalid key used
+   * @throws IllegalBlockSizeException if wrong block size
+   * @throws BadPaddingException if padding violate rule
+   */
+  public static byte[] decryptFromAes128EcbWithBase64(
+      final String source)
+      throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
+      IllegalBlockSizeException, BadPaddingException {
+<span class="fc" id="L145">    return decryptFromAes128EcbWithBase64(source, DEFAULT_PASSWORD);</span>
+  }
+
+  /**
+   * Decode with Base64 and Aes128Ecb.
+   *
+   * @param source string to decode
+   * @param password spring to decode with
+   *
+   * @return decoded string
+   * @throws NoSuchAlgorithmException if no algorithm
+   * @throws NoSuchPaddingException if no padding exist
+   * @throws InvalidKeyException if invalid key used
+   * @throws IllegalBlockSizeException if wrong block size
+   * @throws BadPaddingException if padding violate rule
+   */
+  public static byte[] decryptFromAes128EcbWithBase64(
+      final String source,
+      final String password)
+      throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
+      IllegalBlockSizeException, BadPaddingException {
+    try {
+<span class="fc" id="L167">      SecretKeySpec secretKeySpec = new SecretKeySpec(password.getBytes(&quot;UTF-8&quot;), &quot;AES&quot;);</span>
+<span class="fc" id="L168">      return decryptFromAes128EcbWithBase64(source, secretKeySpec);</span>
+<span class="nc" id="L169">    } catch (UnsupportedEncodingException e) {</span>
+<span class="nc" id="L170">      throw new IllegalStateException(e);</span>
+    }
+  }
+
+  /**
+   * Decode with Base64 and Aes128Ecb.
+   *
+   * @param source string to decode
+   * @param secretKeySpec secret to decode with
+   *
+   * @return decoded string
+   * @throws NoSuchAlgorithmException if no algorithm
+   * @throws NoSuchPaddingException if no padding exist
+   * @throws InvalidKeyException if invalid key used
+   * @throws IllegalBlockSizeException if wrong block size
+   * @throws BadPaddingException if padding violate rule
+   */
+  public static byte[] decryptFromAes128EcbWithBase64(
+      final String source,
+      final SecretKeySpec secretKeySpec)
+      throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
+      IllegalBlockSizeException, BadPaddingException {
+<span class="fc" id="L192">    final byte[] decodedBase64 = java.util.Base64.getDecoder().decode(source);</span>
+<span class="fc" id="L193">    final javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CIPHER_NAME);</span>
+<span class="fc" id="L194">    cipher.init(javax.crypto.Cipher.DECRYPT_MODE, secretKeySpec);</span>
+<span class="fc" id="L195">    final byte[] decoded = cipher.doFinal(decodedBase64);</span>
+<span class="fc" id="L196">    return decoded;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

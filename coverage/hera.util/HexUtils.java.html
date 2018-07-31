@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HexUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util</a> &gt; <span class="el_source">HexUtils.java</span></div><h1>HexUtils.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.util;
+
+import static com.google.common.io.Closeables.close;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+
+<span class="nc" id="L16">public class HexUtils {</span>
+  /* Dump Format */
+  protected static final char CONTROL_CHARS_SHOWER = '.';
+
+<span class="fc" id="L20">  protected static final char[] HEXA_CHARS =</span>
+      new char[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+  protected static final int N_INT_BY_BYTE = 4;
+
+  protected static final int WIDTH_PER_LINE = 32;
+
+  protected static final char TWO_BYTES_CHARS_SHOWER = '?';
+
+  /**
+   * Append hex value of {@code ch} to {@code buffer}.
+   *
+   * @param buffer  buffer to append to
+   * @param ch      value to append
+   */
+  public static void appendHexa(final StringBuilder buffer, final int ch) {
+<span class="fc bfc" id="L36" title="All 2 branches covered.">    if (ch &lt; 16) {</span>
+<span class="fc" id="L37">      buffer.append('0');</span>
+<span class="fc" id="L38">      buffer.append(HEXA_CHARS[(0x0f &amp; (ch))]);</span>
+    } else {
+<span class="fc" id="L40">      buffer.append(HEXA_CHARS[(0x0f &amp; (ch &gt;&gt; 4))]);</span>
+<span class="fc" id="L41">      buffer.append(HEXA_CHARS[(0x0f &amp; (ch))]);</span>
+    }
+<span class="fc" id="L43">  }</span>
+
+  /**
+   * Append hex values of {@code bytes} to {@code buffer}.
+   *
+   * @param buffer  buffer to append to
+   * @param bytes   values to append
+   */
+  public static void appendHexa(final StringBuilder buffer, final byte[] bytes) {
+<span class="fc" id="L52">    try (final ByteArrayInputStream byteIn = new ByteArrayInputStream(bytes)) {</span>
+<span class="fc" id="L53">      int ch = 0;</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">      while (0 &lt;= (ch = byteIn.read())) {</span>
+<span class="fc" id="L55">        appendHexa(buffer, ch);</span>
+      }
+<span class="nc" id="L57">    } catch (final IOException e) {</span>
+<span class="nc" id="L58">      throw new IllegalStateException(e);</span>
+<span class="fc" id="L59">    }</span>
+<span class="fc" id="L60">  }</span>
+
+  /**
+   * Encode byte array to hexa.
+   * 
+   * @param bytes byte array to encode
+   * 
+   * @return encoded string
+   */
+  public static String encode(final byte[] bytes) {
+<span class="fc" id="L70">    final StringBuilder buffer = new StringBuilder();</span>
+<span class="fc" id="L71">    appendHexa(buffer, bytes);</span>
+<span class="fc" id="L72">    return buffer.toString();</span>
+  }
+
+  /**
+   * Decode hex string to byte array.
+   *
+   * @param str hex string
+   *
+   * @return decoded byte array
+   */
+  public static byte[] decode(final String str) {
+<span class="fc" id="L83">    final StringReader reader = new StringReader(str);</span>
+<span class="fc" id="L84">    ByteArrayOutputStream byteOut = new ByteArrayOutputStream();</span>
+<span class="fc" id="L85">    int ch = 0;</span>
+    try {
+<span class="fc bfc" id="L87" title="All 2 branches covered.">      while (0 &lt; (ch = reader.read())) {</span>
+<span class="pc bpc" id="L88" title="1 of 4 branches missed.">        if ('0' &lt;= ch &amp;&amp; ch &lt;= '9') {</span>
+<span class="fc" id="L89">          byteOut.write(ch - '0');</span>
+<span class="pc bpc" id="L90" title="2 of 4 branches missed.">        } else if ('A' &lt;= ch &amp;&amp; ch &lt;= 'F') {</span>
+<span class="fc" id="L91">          byteOut.write(10 + ch - 'A');</span>
+<span class="nc bnc" id="L92" title="All 4 branches missed.">        } else if ('a' &lt;= ch &amp;&amp; ch &lt;= 'f') {</span>
+<span class="nc" id="L93">          byteOut.write(10 + ch - 'a');</span>
+        } else {
+<span class="nc" id="L95">          throw new IllegalArgumentException();</span>
+        }
+      }
+<span class="fc" id="L98">      return byteOut.toByteArray();</span>
+<span class="nc" id="L99">    } catch (final IOException e) {</span>
+<span class="nc" id="L100">      throw new IllegalStateException(e);</span>
+    }
+  }
+
+  protected static void lineEnd(final StringBuilder hexPart, final StringBuilder textPart,
+      final StringBuilder ret) {
+<span class="fc" id="L106">    hexPart.append(&quot;     |&quot;);</span>
+
+<span class="fc" id="L108">    textPart.append(&quot;|\n&quot;);</span>
+
+<span class="fc" id="L110">    ret.append(hexPart);</span>
+<span class="fc" id="L111">    ret.append(textPart);</span>
+
+<span class="fc" id="L113">    hexPart.delete(0, hexPart.capacity());</span>
+<span class="fc" id="L114">    textPart.delete(0, textPart.capacity());</span>
+<span class="fc" id="L115">  }</span>
+
+  /**
+   * Convert {@code data} to readable dump for human.
+   *
+   * @param data byte array to convert
+   *
+   * @return converted string
+   */
+  public static String dump(final byte[] data) {
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">    if (null == data) {</span>
+<span class="nc" id="L126">      return &quot;&lt;&lt;null&gt;&gt;&quot;;</span>
+    }
+<span class="fc" id="L128">    return dump(data, 0, data.length);</span>
+  }
+
+  /**
+   * Convert {@code data}'s subsequence to readable dump for human.
+   *
+   * @param data    byte array to convert
+   * @param offset  sequence start index
+   * @param length  sequence length
+   *
+   * @return converted string
+   */
+  public static String dump(final byte[] data, final int offset, final int length) {
+<span class="fc" id="L141">    final StringWriter writer = new StringWriter();</span>
+<span class="fc" id="L142">    dump(data, offset, length, writer);</span>
+<span class="fc" id="L143">    return writer.toString();</span>
+  }
+
+  /**
+   * Convert {@code data}'s subsequence to readable dump for human and write to {@code writer}.
+   *
+   * @param data    byte array to convert
+   * @param offset  sequence start index
+   * @param length  sequence length
+   * @param writer  writer to write result
+   */
+  public static void dump(final byte[] data, final int offset, final int length,
+      final Writer writer) {
+
+    try {
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">      if (null == data) {</span>
+<span class="nc" id="L159">        writer.write(&quot;&lt;&lt;null&gt;&gt;&quot;);</span>
+<span class="nc" id="L160">        return;</span>
+      }
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">      if (data.length &lt;= 0) {</span>
+<span class="nc" id="L163">        writer.write(&quot;&lt;&lt;EMPTY BYTES&gt;&gt;&quot;);</span>
+<span class="nc" id="L164">        return;</span>
+      }
+
+<span class="fc" id="L167">      final ByteArrayInputStream reader = new ByteArrayInputStream(data, offset, length);</span>
+<span class="fc" id="L168">      final StringBuilder ret = new StringBuilder();</span>
+<span class="fc" id="L169">      final StringBuilder hexPart = new StringBuilder();</span>
+<span class="fc" id="L170">      final StringBuilder textPart = new StringBuilder();</span>
+
+<span class="fc" id="L172">      int address = 0;</span>
+<span class="fc" id="L173">      int cnt = 0;</span>
+
+<span class="fc" id="L175">      hexPart.append(&quot;          &quot;);</span>
+
+<span class="fc bfc" id="L177" title="All 2 branches covered.">      for (int i = 0, n = WIDTH_PER_LINE / 4; i &lt; n; i++) {</span>
+<span class="fc" id="L178">        hexPart.append(&quot;+-------&quot;);</span>
+<span class="fc" id="L179">        textPart.append(&quot;+---&quot;);</span>
+      }
+
+<span class="fc" id="L182">      lineEnd(hexPart, textPart, ret);</span>
+
+      int ch;
+<span class="fc bfc" id="L185" title="All 2 branches covered.">      while (0 &lt;= (ch = reader.read())) {</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">        if (0 == cnt) {</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">          for (int i = N_INT_BY_BYTE - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L188">            final int printByte = 0xFF &amp; (address &gt;&gt; (8 * i));</span>
+<span class="fc" id="L189">            appendHexa(hexPart, printByte);</span>
+          }
+<span class="fc" id="L191">          hexPart.append(&quot;  &quot;);</span>
+<span class="fc" id="L192">          address += WIDTH_PER_LINE;</span>
+        }
+
+<span class="fc" id="L195">        appendHexa(hexPart, ch);</span>
+<span class="fc bfc" id="L196" title="All 4 branches covered.">        if (ch &lt; 32 || 127 &lt;= ch) {</span>
+<span class="fc" id="L197">          textPart.append(CONTROL_CHARS_SHOWER);</span>
+        } else {
+<span class="fc" id="L199">          textPart.append((char) ch);</span>
+        }
+<span class="fc" id="L201">        cnt++;</span>
+
+<span class="fc bfc" id="L203" title="All 2 branches covered.">        if (WIDTH_PER_LINE == cnt) {</span>
+<span class="fc" id="L204">          lineEnd(hexPart, textPart, ret);</span>
+<span class="fc" id="L205">          cnt = 0;</span>
+        }
+      } // END of while ( 0 &lt;= (ch = reader.read() ) )
+
+<span class="fc bfc" id="L209" title="All 2 branches covered.">      if (0 != cnt) {</span>
+<span class="fc bfc" id="L210" title="All 2 branches covered.">        for (; cnt &lt; WIDTH_PER_LINE; ++cnt) {</span>
+<span class="fc" id="L211">          hexPart.append(&quot;  &quot;);</span>
+<span class="fc" id="L212">          textPart.append(' ');</span>
+        }
+<span class="fc" id="L214">        lineEnd(hexPart, textPart, ret);</span>
+      }
+
+<span class="fc" id="L217">      writer.write(ret.toString());</span>
+<span class="fc" id="L218">      close(writer, true);</span>
+<span class="nc" id="L219">    } catch (final IOException e) {</span>
+<span class="nc" id="L220">      throw new IllegalStateException(e);</span>
+<span class="fc" id="L221">    }</span>
+<span class="fc" id="L222">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

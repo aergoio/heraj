@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SystemPropertiesConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util.conf</a> &gt; <span class="el_source">SystemPropertiesConfiguration.java</span></div><h1>SystemPropertiesConfiguration.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.util.conf;
+
+import static hera.util.ValidationUtils.assertFalse;
+import static java.lang.System.getProperties;
+import static java.lang.System.getProperty;
+import static java.util.Collections.unmodifiableMap;
+
+import hera.util.Configuration;
+import java.util.Map;
+
+<span class="fc" id="L15">public class SystemPropertiesConfiguration extends AbstractConfiguration implements Configuration {</span>
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  @Override
+  public Map&lt;String, Object&gt; asMap() {
+<span class="fc" id="L20">    final Map&lt;?, ?&gt; map = getProperties();</span>
+<span class="fc" id="L21">    return unmodifiableMap((Map&lt;String, String&gt;) map);</span>
+  }
+
+  @Override
+  public void define(final String key, final Object value) {
+<span class="nc" id="L26">    throw new UnsupportedOperationException(&quot;JVM Properties could NOT be changed&quot;);</span>
+  }
+
+  @Override
+  public Configuration getSubconfiguration(final String key) {
+<span class="nc" id="L31">    final String prefix = key + &quot;.&quot;;</span>
+<span class="nc" id="L32">    final InMemoryConfiguration subconfiguration = new InMemoryConfiguration();</span>
+
+<span class="nc" id="L34">    getProperties().stringPropertyNames().stream().filter(name -&gt; name.startsWith(prefix))</span>
+<span class="nc" id="L35">        .forEach(name -&gt; {</span>
+<span class="nc" id="L36">          final String subname = name.substring(prefix.length());</span>
+<span class="nc" id="L37">          subconfiguration.define(subname, getProperty(name));</span>
+<span class="nc" id="L38">        });</span>
+<span class="nc" id="L39">    return subconfiguration;</span>
+  }
+
+  @Override
+  public Object getValue(final String key) {
+<span class="nc" id="L44">    assertFalse(key.contains(&quot;.&quot;));</span>
+<span class="nc" id="L45">    return getProperty(key);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

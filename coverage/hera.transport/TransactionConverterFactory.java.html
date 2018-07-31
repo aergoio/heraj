@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransactionConverterFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.transport</a> &gt; <span class="el_source">TransactionConverterFactory.java</span></div><h1>TransactionConverterFactory.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.transport;
+
+import static com.google.protobuf.ByteString.copyFrom;
+import static java.util.Optional.ofNullable;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import com.google.protobuf.ByteString;
+import hera.api.model.AccountAddress;
+import hera.api.model.BytesValue;
+import hera.api.model.Hash;
+import hera.api.model.Signature;
+import hera.api.model.Transaction;
+import java.util.function.Function;
+import org.slf4j.Logger;
+import types.Blockchain.Tx;
+import types.Blockchain.TxBody;
+
+<span class="fc" id="L22">public class TransactionConverterFactory {</span>
+
+<span class="fc" id="L24">  protected final Logger logger = getLogger(getClass());</span>
+
+<span class="fc" id="L26">  protected final Function&lt;Transaction, Tx&gt; domainConverter = domainTransaction -&gt; {</span>
+<span class="fc" id="L27">    logger.trace(&quot;Domain status: {}&quot;, domainTransaction);</span>
+
+<span class="fc" id="L29">    final TxBody.Builder txBodyBuilder = TxBody.newBuilder();</span>
+<span class="fc" id="L30">    txBodyBuilder.setNonce(domainTransaction.getNonce());</span>
+<span class="fc" id="L31">    txBodyBuilder.setAmount(domainTransaction.getAmount());</span>
+<span class="fc" id="L32">    txBodyBuilder.setAccount(copyFrom(domainTransaction.getSender().getValue()));</span>
+<span class="fc" id="L33">    txBodyBuilder.setRecipient(copyFrom(domainTransaction.getRecipient().getValue()));</span>
+
+<span class="fc" id="L35">    final Tx.Builder txBuilder = Tx.newBuilder();</span>
+<span class="fc" id="L36">    ofNullable(domainTransaction.getSignature()).ifPresent(signature -&gt; {</span>
+<span class="nc" id="L37">      txBodyBuilder.setSign(copyFrom(signature.getSign().getValue()));</span>
+<span class="nc" id="L38">      txBuilder.setHash(copyFrom(signature.getHash().getValue()));</span>
+<span class="nc" id="L39">    });</span>
+<span class="fc" id="L40">    txBuilder.setBody(txBodyBuilder.build());</span>
+
+<span class="fc" id="L42">    return txBuilder.build();</span>
+  };
+
+<span class="fc" id="L45">  protected final Function&lt;Tx, Transaction&gt; rpcConverter = rpcTransaction -&gt; {</span>
+<span class="fc" id="L46">    logger.trace(&quot;Blockchain status: {}&quot;, rpcTransaction);</span>
+
+<span class="fc" id="L48">    final Transaction domainTransaction = new Transaction();</span>
+<span class="fc" id="L49">    domainTransaction.setNonce(rpcTransaction.getBody().getNonce());</span>
+<span class="fc" id="L50">    domainTransaction.setAmount(rpcTransaction.getBody().getAmount());</span>
+<span class="fc" id="L51">    domainTransaction.setSender(</span>
+<span class="fc" id="L52">        AccountAddress.of(rpcTransaction.getBody().getAccount().toByteArray()));</span>
+<span class="fc" id="L53">    domainTransaction.setRecipient(</span>
+<span class="fc" id="L54">        AccountAddress.of(rpcTransaction.getBody().getRecipient().toByteArray()));</span>
+<span class="pc bpc" id="L55" title="3 of 4 branches missed.">    if (null != rpcTransaction.getHash() || null != rpcTransaction.getBody().getSign()) {</span>
+<span class="fc" id="L56">      final Signature signature = new Signature();</span>
+<span class="fc" id="L57">      ofNullable(rpcTransaction.getHash())</span>
+<span class="fc" id="L58">          .map(ByteString::toByteArray)</span>
+<span class="fc" id="L59">          .map(Hash::new)</span>
+<span class="fc" id="L60">          .ifPresent(signature::setHash);</span>
+<span class="fc" id="L61">      ofNullable(rpcTransaction.getBody().getSign())</span>
+<span class="fc" id="L62">          .map(ByteString::toByteArray).ifPresent(BytesValue::of);</span>
+<span class="fc" id="L63">      domainTransaction.setSignature(signature);</span>
+    }
+<span class="fc" id="L65">    return domainTransaction;</span>
+  };
+
+  public ModelConverter&lt;Transaction, Tx&gt; create() {
+<span class="fc" id="L69">    return new ModelConverter&lt;&gt;(domainConverter, rpcConverter);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

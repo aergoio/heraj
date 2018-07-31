@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BlockTemplate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.client</a> &gt; <span class="el_source">BlockTemplate.java</span></div><h1>BlockTemplate.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.client;
+
+import static java.util.stream.Collectors.toList;
+import static types.AergoRPCServiceGrpc.newBlockingStub;
+
+import com.google.protobuf.ByteString;
+import hera.api.BlockOperation;
+import hera.api.model.Block;
+import hera.api.model.BlockHeader;
+import hera.api.model.Hash;
+import hera.transport.BlockConverterFactory;
+import hera.transport.ModelConverter;
+import io.grpc.ManagedChannel;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import types.AergoRPCServiceGrpc.AergoRPCServiceBlockingStub;
+import types.Blockchain;
+import types.Rpc.ListParams;
+import types.Rpc.SingleBytes;
+
+<span class="fc" id="L25">@RequiredArgsConstructor</span>
+public class BlockTemplate implements BlockOperation {
+
+  protected final AergoRPCServiceBlockingStub aergoService;
+
+  protected final ModelConverter&lt;Block, Blockchain.Block&gt; blockConverter;
+
+  public BlockTemplate(final ManagedChannel channel) {
+<span class="nc" id="L33">    this(newBlockingStub(channel));</span>
+<span class="nc" id="L34">  }</span>
+
+  public BlockTemplate(final AergoRPCServiceBlockingStub aergoService) {
+<span class="nc" id="L37">    this(aergoService, new BlockConverterFactory().create());</span>
+<span class="nc" id="L38">  }</span>
+
+  @Override
+  public Block getBlock(final Hash hash) {
+<span class="fc" id="L42">    final ByteString byteString = ByteString.copyFrom(hash.getValue());</span>
+<span class="fc" id="L43">    final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();</span>
+<span class="fc" id="L44">    return blockConverter.convertToDomainModel(aergoService.getBlock(bytes));</span>
+  }
+
+  @Override
+  public List&lt;BlockHeader&gt; listBlockHeaders(final Hash hash, final int size) {
+<span class="fc" id="L49">    final ListParams listParams = ListParams.newBuilder()</span>
+<span class="fc" id="L50">        .setHash(ByteString.copyFrom(hash.getValue()))</span>
+<span class="fc" id="L51">        .setSize(size)</span>
+<span class="fc" id="L52">        .build();</span>
+<span class="fc" id="L53">    return aergoService.listBlockHeaders(listParams).getBlocksList().stream()</span>
+<span class="pc" id="L54">        .map(b -&gt; blockConverter.convertToDomainModel(b))</span>
+<span class="fc" id="L55">        .map(BlockHeader.class::cast)</span>
+<span class="fc" id="L56">        .collect(toList());</span>
+  }
+
+  @Override
+  public List&lt;BlockHeader&gt; listBlockHeaders(final long height, final int size) {
+<span class="fc" id="L61">    final ListParams listParams = ListParams.newBuilder()</span>
+<span class="fc" id="L62">        .setHeight(height)</span>
+<span class="fc" id="L63">        .setSize(size)</span>
+<span class="fc" id="L64">        .build();</span>
+<span class="fc" id="L65">    return aergoService.listBlockHeaders(listParams).getBlocksList().stream()</span>
+<span class="pc" id="L66">        .map(b -&gt; blockConverter.convertToDomainModel(b))</span>
+<span class="fc" id="L67">        .map(BlockHeader.class::cast)</span>
+<span class="fc" id="L68">        .collect(toList());</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

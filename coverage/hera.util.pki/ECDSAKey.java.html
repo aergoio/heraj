@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ECDSAKey.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util.pki</a> &gt; <span class="el_source">ECDSAKey.java</span></div><h1>ECDSAKey.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.util.pki;
+
+import static hera.util.IoUtils.stream;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.exception.SignException;
+import java.io.InputStream;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+
+<span class="fc" id="L19">@RequiredArgsConstructor</span>
+public class ECDSAKey {
+
+  protected static final String SIGN_ALGORITHM = &quot;SHA256WithECDSA&quot;;
+
+<span class="fc" id="L24">  protected final Logger logger = getLogger(getClass());</span>
+
+<span class="fc" id="L26">  @Getter</span>
+  protected final PrivateKey privateKey;
+
+<span class="fc" id="L29">  @Getter</span>
+  protected final PublicKey publicKey;
+
+  /**
+   * Sign to plain text.
+   *
+   * @param plainText text to sign to
+   *
+   * @return signature
+   */
+  public byte[] sign(final InputStream plainText) {
+    try {
+<span class="fc" id="L41">      final Signature signature = Signature.getInstance(SIGN_ALGORITHM);</span>
+<span class="fc" id="L42">      signature.initSign(privateKey);</span>
+<span class="fc" id="L43">      stream(plainText, (bytes, offset, length) -&gt; signature.update(bytes, offset, length));</span>
+<span class="fc" id="L44">      final byte[] signed = signature.sign();</span>
+
+<span class="fc" id="L46">      return signed;</span>
+<span class="nc" id="L47">    } catch (final Throwable e) {</span>
+<span class="nc" id="L48">      throw new SignException(e);</span>
+    }
+  }
+
+  /**
+   * Check if {@code signature} is valid for {@code plainText}.
+   *
+   * @param plainText plain text
+   * @param signature signature
+   *
+   * @return if valid
+   */
+  public boolean verify(final InputStream plainText, final byte[] signature) {
+    try {
+<span class="fc" id="L62">      final Signature verifier = Signature.getInstance(SIGN_ALGORITHM);</span>
+<span class="fc" id="L63">      verifier.initVerify(publicKey);</span>
+<span class="fc" id="L64">      stream(plainText, (bytes, offset, length) -&gt; verifier.update(bytes, offset, length));</span>
+
+<span class="fc" id="L66">      return verifier.verify(signature);</span>
+<span class="nc" id="L67">    } catch (final Throwable e) {</span>
+<span class="nc" id="L68">      throw new SignException(e);</span>
+    }
+
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

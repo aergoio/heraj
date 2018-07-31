@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransactionTemplate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.client</a> &gt; <span class="el_source">TransactionTemplate.java</span></div><h1>TransactionTemplate.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.client;
+
+import static com.google.protobuf.ByteString.copyFrom;
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
+import static org.slf4j.LoggerFactory.getLogger;
+import static types.AergoRPCServiceGrpc.newBlockingStub;
+
+import com.google.protobuf.ByteString;
+import hera.api.TransactionOperation;
+import hera.api.model.BytesValue;
+import hera.api.model.Hash;
+import hera.api.model.Signature;
+import hera.api.model.Transaction;
+import hera.transport.ModelConverter;
+import hera.transport.TransactionConverterFactory;
+import io.grpc.ManagedChannel;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import types.AergoRPCServiceGrpc.AergoRPCServiceBlockingStub;
+import types.Blockchain.Tx;
+import types.Blockchain.TxList;
+import types.Rpc.CommitStatus;
+import types.Rpc.SingleBytes;
+import types.Rpc.VerifyResult;
+
+<span class="fc" id="L34">@RequiredArgsConstructor</span>
+public class TransactionTemplate implements TransactionOperation {
+
+<span class="fc" id="L37">  protected final Logger logger = getLogger(getClass());</span>
+
+  protected final AergoRPCServiceBlockingStub aergoService;
+
+  protected final ModelConverter&lt;Transaction, Tx&gt; transactionConverter;
+
+  public TransactionTemplate(final ManagedChannel channel) {
+<span class="nc" id="L44">    this(newBlockingStub(channel));</span>
+<span class="nc" id="L45">  }</span>
+
+  public TransactionTemplate(final AergoRPCServiceBlockingStub aergoService) {
+<span class="nc" id="L48">    this(aergoService, new TransactionConverterFactory().create());</span>
+<span class="nc" id="L49">  }</span>
+
+  @Override
+  public Optional&lt;Transaction&gt; getTransaction(final Hash hash) {
+    try {
+<span class="fc" id="L54">      final ByteString byteString = copyFrom(hash.getValue());</span>
+<span class="fc" id="L55">      final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();</span>
+<span class="fc" id="L56">      final Tx tx = aergoService.getTX(bytes);</span>
+<span class="fc" id="L57">      return ofNullable(transactionConverter.convertToDomainModel(tx));</span>
+<span class="nc" id="L58">    } catch (final StatusRuntimeException e) {</span>
+<span class="nc" id="L59">      logger.trace(&quot;Unexpected exception: {}&quot;, e.getStatus());</span>
+<span class="nc" id="L60">      if (ofNullable(e.getStatus()).map(Status::getCode)</span>
+<span class="nc bnc" id="L61" title="All 4 branches missed.">          .filter(code -&gt; Status.NOT_FOUND.getCode() == code).isPresent()) {</span>
+<span class="nc" id="L62">        return empty();</span>
+      }
+<span class="nc" id="L64">      throw e;</span>
+    }
+  }
+
+  @Override
+  public Signature sign(final Transaction transaction) {
+<span class="fc" id="L70">    final Tx tx = transactionConverter.convertToRpcModel(transaction);</span>
+<span class="fc" id="L71">    final Tx resultTx = aergoService.signTX(tx);</span>
+<span class="fc" id="L72">    final BytesValue sign = ofNullable(resultTx.getBody().getSign())</span>
+<span class="fc" id="L73">        .map(ByteString::toByteArray)</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        .filter(bytes -&gt; 0 != bytes.length)</span>
+<span class="fc" id="L75">        .map(BytesValue::of)</span>
+<span class="fc" id="L76">        .orElseThrow(IllegalArgumentException::new);</span>
+<span class="fc" id="L77">    final Hash hash = ofNullable(resultTx.getHash())</span>
+<span class="fc" id="L78">        .map(ByteString::toByteArray)</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        .filter(bytes -&gt; 0 != bytes.length)</span>
+<span class="fc" id="L80">        .map(Hash::new)</span>
+<span class="fc" id="L81">        .orElseThrow(IllegalArgumentException::new);</span>
+<span class="fc" id="L82">    return Signature.of(sign, hash);</span>
+  }
+
+  @Override
+  public boolean verify(final Transaction transaction) {
+<span class="fc" id="L87">    final Tx tx = transactionConverter.convertToRpcModel(transaction);</span>
+    try {
+<span class="fc" id="L89">      final VerifyResult verifyResult = aergoService.verifyTX(tx);</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">      return 0 == verifyResult.getErrorValue();</span>
+<span class="nc" id="L91">    } catch (StatusRuntimeException e) {</span>
+<span class="nc" id="L92">      return false;</span>
+    }
+  }
+
+  @Override
+  public Optional&lt;Hash&gt; commit(final Transaction transaction) {
+    try {
+<span class="fc" id="L99">      final Tx tx = transactionConverter.convertToRpcModel(transaction);</span>
+<span class="fc" id="L100">      final TxList txList = TxList.newBuilder().addTxs(tx).build();</span>
+<span class="fc" id="L101">      return aergoService.commitTX(txList).getResultsList().stream()</span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">          .filter(r -&gt; r.getError() == CommitStatus.COMMIT_STATUS_OK)</span>
+<span class="fc" id="L103">          .map(r -&gt; r.getHash().toByteArray())</span>
+<span class="fc" id="L104">          .map(Hash::new)</span>
+<span class="fc" id="L105">          .findFirst();</span>
+<span class="nc" id="L106">    } catch (StatusRuntimeException e) {</span>
+<span class="nc" id="L107">      logger.trace(&quot;Unexpected exception: {}&quot;, e.getStatus());</span>
+<span class="nc" id="L108">      if (ofNullable(e.getStatus()).map(Status::getCode)</span>
+<span class="nc bnc" id="L109" title="All 4 branches missed.">          .filter(code -&gt; Status.NOT_FOUND.getCode() == code).isPresent()) {</span>
+<span class="nc" id="L110">        return empty();</span>
+      }
+<span class="nc" id="L112">      throw e;</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

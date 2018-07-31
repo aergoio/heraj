@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileSet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera</a> &gt; <span class="el_source">FileSet.java</span></div><h1>FileSet.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera;
+
+import static hera.util.IoUtils.from;
+import static java.util.Optional.ofNullable;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Stream;
+
+<span class="fc" id="L18">public class FileSet {</span>
+<span class="fc" id="L19">  protected Set&lt;FileContent&gt; fileSet = new TreeSet&lt;&gt;();</span>
+
+  public void add(final FileContent file) {
+<span class="nc" id="L22">    ofNullable(file).ifPresent(fileSet::add);</span>
+<span class="nc" id="L23">  }</span>
+
+  public Stream&lt;FileContent&gt; stream() {
+<span class="nc" id="L26">    return fileSet.stream();</span>
+  }
+
+  /**
+   * Copy files to {@code base}.
+   *
+   * @param base target path
+   *
+   * @throws IOException On failure to write files.
+   */
+  public void copyTo(final Path base) throws IOException {
+<span class="fc" id="L37">    Files.createDirectories(base);</span>
+
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">    for (final FileContent fileContent: fileSet) {</span>
+<span class="nc" id="L40">      final Path filePath = base.resolve(fileContent.getPath());</span>
+<span class="nc" id="L41">      Files.createDirectory(filePath.getParent());</span>
+<span class="nc" id="L42">      try (final InputStream in = fileContent.open()) {</span>
+<span class="nc" id="L43">        Files.write(filePath, from(in));</span>
+<span class="nc" id="L44">      } catch (final IOException e) {</span>
+<span class="nc" id="L45">        throw new IllegalStateException(e);</span>
+<span class="nc" id="L46">      }</span>
+<span class="nc" id="L47">    }</span>
+<span class="fc" id="L48">  }</span>
+
+  @Override
+  public String toString() {
+<span class="nc" id="L52">    return fileSet.size() + &quot; file(s)&quot;;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

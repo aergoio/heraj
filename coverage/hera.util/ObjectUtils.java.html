@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ObjectUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util</a> &gt; <span class="el_source">ObjectUtils.java</span></div><h1>ObjectUtils.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.util;
+
+import static java.lang.String.format;
+import static java.lang.System.identityHashCode;
+import static java.util.Arrays.stream;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.security.SecureRandom;
+import java.util.Objects;
+
+<span class="nc" id="L16">public class ObjectUtils {</span>
+<span class="fc" id="L17">  private static final SecureRandom SEEDER = new SecureRandom();</span>
+<span class="fc" id="L18">  private static String hexServerIP = null;</span>
+
+  protected static int getInt(
+      final byte[] bytes) {
+<span class="fc" id="L22">    int i = 0;</span>
+<span class="fc" id="L23">    int j = 24;</span>
+<span class="fc bfc" id="L24" title="All 2 branches covered.">    for (int k = 0; 0 &lt;= j; ++k) {</span>
+<span class="fc" id="L25">      int l = bytes[k] &amp; 0xff;</span>
+<span class="fc" id="L26">      i += l &lt;&lt; j;</span>
+<span class="fc" id="L27">      j -= 8;</span>
+    }
+<span class="fc" id="L29">    return i;</span>
+  }
+
+  protected static String hex(
+      final int value) {
+<span class="fc" id="L34">    return format(&quot;%08x&quot;, value);</span>
+  }
+
+  public static String guid() {
+<span class="nc" id="L38">    return guid(null);</span>
+  }
+
+  /**
+   * Genrate global unique identifier for {@code obj}.
+   *
+   * @param obj object to use for generation
+   * @return guid generated guid
+   */
+  public static String guid(
+      final Object obj) {
+<span class="fc" id="L49">    final StringBuilder guid = new StringBuilder(32);</span>
+
+    // time value
+<span class="fc" id="L52">    long timeNow = System.currentTimeMillis();</span>
+<span class="fc" id="L53">    int timeLow = (int) timeNow &amp; 0xFFFFFFFF;</span>
+<span class="fc" id="L54">    guid.append(hex(timeLow));</span>
+
+    // server IP
+<span class="fc bfc" id="L57" title="All 2 branches covered.">    if (null == hexServerIP) {</span>
+<span class="fc" id="L58">      InetAddress localInetAddress = null;</span>
+      try {
+        // get the inet address
+<span class="fc" id="L61">        localInetAddress = InetAddress.getLocalHost();</span>
+<span class="nc" id="L62">      } catch (final UnknownHostException uhe) {</span>
+        try {
+<span class="nc" id="L64">          localInetAddress = InetAddress.getByName(&quot;localhost&quot;);</span>
+<span class="nc" id="L65">        } catch (final UnknownHostException e) {</span>
+<span class="nc" id="L66">          e.printStackTrace();</span>
+<span class="nc" id="L67">          return null;</span>
+<span class="nc" id="L68">        }</span>
+<span class="fc" id="L69">      }</span>
+
+<span class="fc" id="L71">      byte[] address = localInetAddress.getAddress();</span>
+      
+<span class="fc" id="L73">      hexServerIP = hex(getInt(address));</span>
+    }
+
+<span class="fc" id="L76">    guid.append(hexServerIP);</span>
+
+    // hash of object
+<span class="fc" id="L79">    guid.append(hex(identityHashCode(obj)));</span>
+
+    // pseudo random
+<span class="fc" id="L82">    int node = -1;</span>
+<span class="fc" id="L83">    synchronized (SEEDER) {</span>
+<span class="fc" id="L84">      node = SEEDER.nextInt();</span>
+<span class="fc" id="L85">    }</span>
+<span class="fc" id="L86">    guid.append(hex(node));</span>
+
+<span class="fc" id="L88">    return guid.toString();</span>
+
+  }
+
+  /**
+   * Check if two object is equal.
+   *
+   * @param obj1 first object to compare
+   * @param obj2 second object to compare
+   * @return if equal
+   */
+  public static boolean equal(
+      final Object obj1,
+      final Object obj2) {
+
+<span class="fc bfc" id="L103" title="All 2 branches covered.">    if (obj1 == obj2) {</span>
+<span class="fc" id="L104">      return true;</span>
+    }
+<span class="fc bfc" id="L106" title="All 4 branches covered.">    if (obj1 == null || obj2 == null) {</span>
+<span class="fc" id="L107">      return false;</span>
+    }
+<span class="fc" id="L109">    return obj1.equals(obj2);</span>
+  }
+
+  /**
+   * Compare two object.
+   *
+   * @param &lt;T&gt; object type
+   * @param o1  first object to compare
+   * @param o2  second object to compre
+   *
+   * @return reulst of comparision
+   *
+   * @see Comparable
+   */
+  public static &lt;T&gt; int compare(
+      final Comparable&lt;T&gt; o1,
+      final T o2) {
+<span class="fc bfc" id="L126" title="All 2 branches covered.">    if (o1 == o2) {</span>
+<span class="fc" id="L127">      return 0;</span>
+    }
+<span class="fc bfc" id="L129" title="All 2 branches covered.">    if (null == o1) {</span>
+<span class="fc" id="L130">      return -1;</span>
+    }
+<span class="fc" id="L132">    return o1.compareTo(o2);</span>
+  }
+
+  /**
+   * Return the first object which is not null.
+   * &lt;p&gt;
+   *   Return {@code null}, if @{code objs} is {@code null}
+   *   Return {@code null}, if all elements in @{code objs} are null
+   * &lt;/p&gt;
+   *
+   * @param &lt;K&gt;   object type
+   * @param objs  object array to check
+   *
+   * @return found object
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public static &lt;K&gt; K nvl(
+      final K... objs
+  ) {
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">    if (null == objs) {</span>
+<span class="nc" id="L152">      return null;</span>
+    }
+<span class="fc" id="L154">    return stream(objs).filter(Objects::nonNull).findFirst().orElse(null);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

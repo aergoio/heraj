@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ParsingUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util</a> &gt; <span class="el_source">ParsingUtils.java</span></div><h1>ParsingUtils.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.util;
+
+import static hera.util.StringUtils.trim;
+import static java.lang.Character.toLowerCase;
+import static java.util.Arrays.asList;
+
+import java.text.ParseException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import lombok.RequiredArgsConstructor;
+
+<span class="nc" id="L19">public class ParsingUtils {</span>
+
+  /**
+   * strings meaning boolean's true.
+   */
+<span class="fc" id="L24">  protected static final Collection&lt;String&gt; TRUES = new HashSet&lt;&gt;(asList(&quot;yes&quot;, &quot;y&quot;, &quot;true&quot;, &quot;1&quot;));</span>
+
+  /**
+   * strings meaning boolean's false.
+   */
+<span class="fc" id="L29">  protected static final Collection&lt;String&gt; FALSES = new HashSet&lt;&gt;(asList(&quot;no&quot;, &quot;n&quot;, &quot;false&quot;, &quot;0&quot;));</span>
+
+  /**
+   * Parsing Interval.
+   * &lt;p&gt;
+   * time units, which is based on milliseconds
+   * &lt;/p&gt;
+   */
+<span class="fc" id="L37">  protected static final List&lt;ScaleUnit&gt; INTERVALS =</span>
+<span class="fc" id="L38">      Collections.unmodifiableList(asList(</span>
+          new ScaleUnit(&quot;milliseconds&quot;, 1),
+          new ScaleUnit(&quot;ms&quot;, 1),
+          new ScaleUnit(&quot;seconds&quot;, 1000),
+          new ScaleUnit(&quot;sec&quot;, 1000),
+          new ScaleUnit(&quot;minutes&quot;, 60000),
+          new ScaleUnit(&quot;min&quot;, 60000),
+          new ScaleUnit(&quot;m&quot;, 60000),
+          new ScaleUnit(&quot;hours&quot;, 3600000),
+          new ScaleUnit(&quot;hr&quot;, 3600000),
+          new ScaleUnit(&quot;h&quot;, 3600000),
+          new ScaleUnit(&quot;s&quot;, 1000)));
+
+  /**
+   * Parse {@code str} and convert to {@code boolean}.
+   * &lt;p&gt;
+   *   Check {@code str} means {@code true} if {@code defaultValue} is {@code false}.
+   *   Check {@code str} means {@code false} if {@code defaultValue} is {@code true}.
+   * &lt;/p&gt;
+   *
+   * @param str                 string to parse
+   * @param defaultValueIsTrue  default value
+   * @return boolean value from {@code str}
+   *
+   * @see ParsingUtils#TRUES
+   * @see ParsingUtils#FALSES
+   */
+  public static boolean convertToBoolean(final String str, final boolean defaultValueIsTrue) {
+<span class="fc bfc" id="L66" title="All 2 branches covered.">    if (null == str) {</span>
+<span class="fc" id="L67">      return defaultValueIsTrue;</span>
+    }
+
+<span class="fc" id="L70">    final String safeStr = trim(str).toLowerCase();</span>
+
+<span class="fc bfc" id="L72" title="All 2 branches covered.">    if (defaultValueIsTrue) {</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">      return !FALSES.contains(safeStr);</span>
+    } else {
+<span class="fc" id="L75">      return TRUES.contains(safeStr);</span>
+    }
+  }
+
+  /**
+   * Parse {@code val} and convert to {@code boolean} type.
+   *
+   * @param val string to parse
+   *
+   * @return boolean value
+   *
+   * @see ParsingUtils#convertToBoolean(String, boolean)
+   */
+  public static boolean convertToBoolean(final String val) {
+<span class="fc" id="L89">    return convertToBoolean(val, false);</span>
+  }
+
+  /**
+   * Parse {@code val} and convert to {@code int} type.
+   *
+   * @param val string to parse
+   *
+   * @return int value
+   *
+   * @see ParsingUtils#convertToInt(String, int)
+   */
+  public static int convertToInt(final String val) {
+<span class="fc" id="L102">    return convertToInt(val, 0);</span>
+  }
+
+  /**
+   * Parse {@code val} and convert to {@code int} type.
+   * &lt;p&gt;
+   *   Return {@code defaultValue} if can't parse.
+   * &lt;/p&gt;
+   *
+   * @param val          string to parse
+   * @param defaultValue default value
+   *
+   * @return int value
+   *
+   * @see NumberUtils#parse(String, Class)
+   */
+  public static int convertToInt(final String val, final int defaultValue) {
+    try {
+<span class="fc" id="L120">      return NumberUtils.parse(val, int.class);</span>
+<span class="fc" id="L121">    } catch (final Throwable e) {</span>
+<span class="fc" id="L122">      return defaultValue;</span>
+    }
+  }
+
+  /**
+   * Parse {@code val} and convert to {@code long} type.
+   *
+   * @param val string to parse
+   *
+   * @return long value
+   *
+   * @see ParsingUtils#convertToLong(String)
+   */
+  public static long convertToLong(final String val) {
+<span class="fc" id="L136">    return convertToLong(val, 0);</span>
+  }
+
+  /**
+   * Parse {@code val} and convert to {@code long} type.
+   * &lt;p&gt;
+   *   Return {@code defaultValue} if can't parse.
+   * &lt;/p&gt;
+   *
+   * @param val          string to parse
+   * @param defaultValue default value
+   *
+   * @return long value
+   *
+   * @see NumberUtils#parse(String, Class)
+   */
+  public static long convertToLong(final String val, final int defaultValue) {
+    try {
+<span class="fc" id="L154">      return NumberUtils.parse(val, long.class);</span>
+<span class="fc" id="L155">    } catch (final Throwable e) {</span>
+<span class="fc" id="L156">      return defaultValue;</span>
+    }
+  }
+
+  /**
+   * Parse {@code val} and convert to {@code long} type.
+   * &lt;p&gt;
+   *   Return default value if can't parse
+   * &lt;/p&gt;
+   *
+   * @param val          string to parse
+   * @param defaultValue default value
+   *
+   * @return long value
+   *
+   * @see NumberUtils#parse(String, Class)
+   */
+  public static long convertToLong(final String val, final long defaultValue) {
+<span class="pc bpc" id="L174" title="1 of 2 branches missed.">    if (null == val) {</span>
+<span class="nc" id="L175">      return defaultValue;</span>
+    }
+    try {
+<span class="fc" id="L178">      return NumberUtils.parse(val, long.class);</span>
+<span class="fc" id="L179">    } catch (final Throwable e) {</span>
+<span class="fc" id="L180">      return defaultValue;</span>
+    }
+  }
+
+  /**
+   * Parse {@code val} and convert to {@code double} type.
+   *
+   * @param val string to parse
+   *
+   * @return double value
+   *
+   * @see ParsingUtils#convertToDouble(String, double)
+   */
+  public static double convertToDouble(final String val) {
+<span class="fc" id="L194">    return convertToDouble(val, 0);</span>
+  }
+
+  /**
+   * Parse {@code val} and convert to {@code double} type.
+   * &lt;p&gt;
+   *   Return {@code defaultValue} if can't parse.
+   * &lt;/p&gt;
+   *
+   * @param val          string to parse
+   * @param defaultValue default value
+   *
+   * @return double value
+   *
+   * @see NumberUtils#parse(String, Class)
+   */
+  public static double convertToDouble(final String val, final double defaultValue) {
+<span class="fc bfc" id="L211" title="All 2 branches covered.">    if (null == val) {</span>
+<span class="fc" id="L212">      return defaultValue;</span>
+    }
+    try {
+<span class="fc" id="L215">      return NumberUtils.parse(val, double.class);</span>
+<span class="fc" id="L216">    } catch (final Throwable e) {</span>
+<span class="fc" id="L217">      return defaultValue;</span>
+    }
+  }
+
+  /**
+   * Parse {@code str} and convert capacity in bytes.
+   * &lt;p&gt;
+   *   Return {@code defaultValue} if can't parse
+   * &lt;/p&gt;
+   *
+   * @param str          string to parse
+   * @param defaultValue default value
+   *
+   * @return parsed value
+   */
+  public static long convertToCapacity(
+      final String str,
+      final long defaultValue) {
+<span class="fc bfc" id="L235" title="All 2 branches covered.">    if (null == str) {</span>
+<span class="fc" id="L236">      return defaultValue;</span>
+    }
+<span class="fc" id="L238">    String safe = str.trim();</span>
+<span class="fc" id="L239">    char unit = safe.charAt(safe.length() - 1);</span>
+<span class="fc" id="L240">    String valuePart = safe.substring(0, safe.length() - 1);</span>
+<span class="fc" id="L241">    long value = Long.parseLong(valuePart);</span>
+<span class="fc bfc" id="L242" title="All 2 branches covered.">    if ('k' == toLowerCase(unit)) {</span>
+<span class="fc" id="L243">      return 1000 * value;</span>
+<span class="fc bfc" id="L244" title="All 2 branches covered.">    } else if ('m' == toLowerCase(unit)) {</span>
+<span class="fc" id="L245">      return 1000000 * value;</span>
+<span class="pc bpc" id="L246" title="1 of 2 branches missed.">    } else if ('g' == toLowerCase(unit)) {</span>
+<span class="fc" id="L247">      return 1000000000 * value;</span>
+    }
+<span class="nc" id="L249">    return value;</span>
+  }
+
+  /**
+   * Parse {@code val} and convert time in milliseconds.
+   *
+   * @param val string to parse
+   *
+   * @return time in milliseconds
+   *
+   * @throws ParseException Fail to parse
+   */
+  public static long convertToTime(final String val) throws ParseException {
+<span class="fc bfc" id="L262" title="All 2 branches covered.">    if (null == val) {</span>
+<span class="fc" id="L263">      return 0;</span>
+    }
+
+<span class="fc" id="L266">    final String lowerVal = val.toLowerCase();</span>
+<span class="fc bfc" id="L267" title="All 2 branches covered.">    for (final ScaleUnit unit : INTERVALS) {</span>
+<span class="fc" id="L268">      final String units = unit.units;</span>
+<span class="fc bfc" id="L269" title="All 2 branches covered.">      if (lowerVal.endsWith(units)) {</span>
+<span class="fc" id="L270">        final String digits = lowerVal.substring(0, lowerVal.length() - units.length()).trim();</span>
+<span class="fc" id="L271">        return (unit.scale * Integer.parseInt(digits));</span>
+      }
+<span class="fc" id="L273">    }</span>
+
+<span class="fc" id="L275">    throw new ParseException(val, 0);</span>
+  }
+
+  /**
+   * Parse {@code val} and convert time in {@code unit}.
+   *
+   * @param val  string to parse
+   * @param unit time unit to convert
+   *
+   * @return time in {@code unit}
+   *
+   * @throws ParseException Fail to parse
+   *
+   * @see ParsingUtils#convertToTime(String)
+   */
+  public static long parse(
+      final String val,
+      final TimeUnit unit)
+      throws ParseException {
+<span class="fc" id="L294">    long time = convertToTime(val);</span>
+<span class="fc" id="L295">    return TimeUnit.MILLISECONDS.convert(time, unit);</span>
+  }
+
+  /**
+   * ScaleUnit.
+   */
+<span class="fc" id="L301">  @RequiredArgsConstructor</span>
+  public static class ScaleUnit {
+
+    /**
+     * time unit.
+     */
+    protected final String units;
+
+    /**
+     * Scale for a standard unit.
+     */
+    protected final long scale;
+  }
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

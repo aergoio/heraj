@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Dependencies.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera</a> &gt; <span class="el_source">Dependencies.java</span></div><h1>Dependencies.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera;
+
+import static java.util.Optional.ofNullable;
+
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+<span class="nc" id="L17">public class Dependencies {</span>
+<span class="nc" id="L18">  protected HashSet&lt;Project&gt; nodes = new HashSet&lt;&gt;();</span>
+
+<span class="nc" id="L20">  protected ListMultimap&lt;Project, Project&gt; from2to = LinkedListMultimap.create();</span>
+<span class="nc" id="L21">  protected ListMultimap&lt;Project, Project&gt; to2from = LinkedListMultimap.create();</span>
+
+  public void add(final Project node) {
+<span class="nc" id="L24">    this.nodes.add(node);</span>
+<span class="nc" id="L25">  }</span>
+
+  public boolean contains(final Project node) {
+<span class="nc" id="L28">    return this.nodes.contains(node);</span>
+  }
+
+  public boolean contains(final String name) {
+<span class="nc" id="L32">    return nodes.stream().map(Project::getName).anyMatch(name::equals);</span>
+  }
+
+  public void addDependency(final Project source, final Project target) {
+<span class="nc" id="L36">    from2to.put(source, target);</span>
+<span class="nc" id="L37">    to2from.put(target, source);</span>
+<span class="nc" id="L38">  }</span>
+
+  /**
+   * Sort topologically for build sequence.
+   *
+   * @return build sequence
+   */
+  public List&lt;Project&gt; sort() {
+<span class="nc" id="L46">    final ListMultimap&lt;Project, Project&gt; from2to = LinkedListMultimap.create();</span>
+<span class="nc" id="L47">    final ListMultimap&lt;Project, Project&gt; to2from = LinkedListMultimap.create();</span>
+<span class="nc" id="L48">    this.from2to.keys().forEach(key -&gt; from2to.putAll(key, this.from2to.get(key)));</span>
+<span class="nc" id="L49">    this.to2from.keys().forEach(key -&gt; to2from.putAll(key, this.to2from.get(key)));</span>
+
+<span class="nc" id="L51">    final Set&lt;Project&gt; incommingNodes = from2to.values().stream().collect(Collectors.toSet());</span>
+<span class="nc" id="L52">    final List&lt;Project&gt; startingNodes =</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        nodes.stream().filter(node -&gt; !incommingNodes.contains(node)).collect(Collectors.toList());</span>
+
+<span class="nc" id="L55">    final List&lt;Project&gt; sortedList = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L57" title="All 2 branches missed.">    while (!startingNodes.isEmpty()) {</span>
+<span class="nc" id="L58">      final Project from = startingNodes.remove(0);</span>
+<span class="nc" id="L59">      sortedList.add(from);</span>
+
+<span class="nc" id="L61">      from2to.get(from).forEach(to -&gt; {</span>
+<span class="nc" id="L62">        to2from.remove(to, from);</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (ofNullable(to2from.get(to)).map(List::isEmpty).orElse(true)) {</span>
+<span class="nc" id="L64">          startingNodes.add(to);</span>
+        }
+<span class="nc" id="L66">      });</span>
+<span class="nc" id="L67">      from2to.removeAll(from);</span>
+<span class="nc" id="L68">    }</span>
+
+<span class="nc bnc" id="L70" title="All 2 branches missed.">    if (to2from.isEmpty()) {</span>
+<span class="nc" id="L71">      return sortedList;</span>
+    } else {
+<span class="nc" id="L73">      return null;</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

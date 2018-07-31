@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IoUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util</a> &gt; <span class="el_source">IoUtils.java</span></div><h1>IoUtils.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.util;
+
+import static hera.util.ValidationUtils.assertNotNull;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.Flushable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import org.slf4j.Logger;
+
+<span class="nc" id="L25">public class IoUtils {</span>
+<span class="fc" id="L26">  protected static final Logger logger = getLogger(IoUtils.class);</span>
+
+  /**
+   * Call #close if possible.
+   * &lt;p&gt;
+   *   Call #close if the element of {@code closeables} is next:
+   * &lt;/p&gt;
+   * &lt;ul&gt;
+   *   &lt;li&gt;{@link Closeable}&lt;/li&gt;
+   *   &lt;li&gt;{@link AutoCloseable}&lt;/li&gt;
+   * &lt;/ul&gt;
+   * &lt;p&gt;
+   *   Ignore on exception
+   * &lt;/p&gt;
+   *
+   * @param closeables object instances to close
+   */
+  public static void tryClose(final Object... closeables) {
+<span class="fc bfc" id="L44" title="All 2 branches covered.">    for (final Object obj : closeables) {</span>
+      try {
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        if (obj instanceof Closeable) {</span>
+<span class="fc" id="L47">          final Closeable closeable = (Closeable) obj;</span>
+<span class="fc" id="L48">          closeable.close();</span>
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">        } else if (obj instanceof AutoCloseable) {</span>
+<span class="fc" id="L50">          final AutoCloseable closeable = (AutoCloseable) obj;</span>
+<span class="fc" id="L51">          closeable.close();</span>
+        }
+<span class="nc" id="L53">      } catch (final Throwable th) {</span>
+<span class="nc" id="L54">        logger.trace(&quot;Ignore exception: {}&quot;, th);</span>
+<span class="fc" id="L55">      }</span>
+    }
+<span class="fc" id="L57">  }</span>
+
+  /**
+   * Call #flush if possible.
+   * &lt;p&gt;
+   *   Call #flush if the element of {@code flushables} is next:
+   * &lt;/p&gt;
+   * &lt;ul&gt;
+   *   &lt;li&gt;{@link Flushable}&lt;/li&gt;
+   * &lt;/ul&gt;
+   *
+   * @param flushable object instances to flush
+   */
+  public static void tryFlush(final Object... flushable) {
+<span class="fc bfc" id="L71" title="All 2 branches covered.">    for (final Object obj : flushable) {</span>
+      try {
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        if (obj instanceof Flushable) {</span>
+<span class="fc" id="L74">          ((Flushable) obj).flush();</span>
+        }
+<span class="nc" id="L76">      } catch (final Throwable th) {</span>
+<span class="nc" id="L77">        logger.trace(&quot;Ignore exception: {}&quot;, th);</span>
+<span class="fc" id="L78">      }</span>
+    }
+<span class="fc" id="L80">  }</span>
+
+  /**
+   * Process streaming.
+   *
+   * @param in        {@link InputStream}
+   * @param consumer  instance to use streaming
+   *
+   * @return read bytes
+   *
+   * @throws IOException If fail to read or process
+   */
+  public static int stream(final InputStream in, final StreamConsumer consumer) throws Exception {
+<span class="fc" id="L93">    assertNotNull(in);</span>
+
+<span class="fc" id="L95">    final byte[] buffer = new byte[1024];</span>
+    int readBytes;
+<span class="fc" id="L97">    int sum = 0;</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">    while (0 &lt; (readBytes = in.read(buffer))) {</span>
+<span class="fc" id="L99">      consumer.apply(buffer, 0, readBytes);</span>
+<span class="fc" id="L100">      sum += readBytes;</span>
+    }
+
+<span class="fc" id="L103">    return sum;</span>
+  }
+
+  /**
+   * Redirect {@code from} to {@code to}.
+   *
+   * @param from {@link InputStream} to read
+   * @param to   {@link OutputStream} to write
+   *
+   * @return the number of bytes to redirect
+   *
+   * @throws IOException Fail to read or write
+   */
+  public static int redirect(final InputStream from, final OutputStream to) throws IOException {
+<span class="fc" id="L117">    assertNotNull(to);</span>
+    try {
+<span class="fc" id="L119">      return stream(from, to::write);</span>
+<span class="nc" id="L120">    } catch (final Exception e) {</span>
+<span class="nc" id="L121">      throw (IOException) e;</span>
+    }
+  }
+
+  /**
+   * Redirect {@code from} to {@code to}.
+   *
+   * @param from {@link Reader} to read
+   * @param to {@link Writer} to write
+   *
+   * @return the number of bytes to redirect
+   *
+   * @throws IOException Fail to read or write
+   */
+  public static int redirect(final Reader from, final Writer to) throws IOException {
+<span class="nc" id="L136">    assertNotNull(from);</span>
+<span class="nc" id="L137">    assertNotNull(to);</span>
+
+<span class="nc" id="L139">    final char[] buffer = new char[1024];</span>
+    int readBytes;
+<span class="nc" id="L141">    int sum = 0;</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">    while (0 &lt; (readBytes = from.read(buffer))) {</span>
+<span class="nc" id="L143">      to.write(buffer, 0, readBytes);</span>
+<span class="nc" id="L144">      sum += readBytes;</span>
+    }
+
+<span class="nc" id="L147">    return sum;</span>
+  }
+
+  /**
+   * Read from {@code in} and return all bytes.
+   *
+   * @param in {@link InputStream} to read
+   *
+   * @return read bytes
+   *
+   * @throws IOException Fail to read
+   */
+  public static byte[] from(
+      final InputStream in)
+      throws IOException {
+<span class="fc" id="L162">    final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();</span>
+
+<span class="fc" id="L164">    final byte[] bytes = new byte[10000];</span>
+    int readBytes;
+<span class="fc bfc" id="L166" title="All 2 branches covered.">    while (0 &lt; (readBytes = in.read(bytes))) {</span>
+<span class="fc" id="L167">      byteOut.write(bytes, 0, readBytes);</span>
+    }
+<span class="fc" id="L169">    return byteOut.toByteArray();</span>
+  }
+
+  /**
+   * Read from {@code reader} and return string.
+   *
+   * @param reader {@link Reader} to read
+   * @return read string
+   *
+   * @throws IOException Fail to read
+   */
+  public static String from(
+      final Reader reader)
+      throws IOException {
+<span class="fc" id="L183">    final StringWriter writer = new StringWriter();</span>
+
+<span class="fc" id="L185">    final char[] bytes = new char[10000];</span>
+    int readBytes;
+<span class="fc bfc" id="L187" title="All 2 branches covered.">    while (0 &lt; (readBytes = reader.read(bytes))) {</span>
+<span class="fc" id="L188">      writer.write(bytes, 0, readBytes);</span>
+    }
+<span class="fc" id="L190">    return writer.toString();</span>
+  }
+
+  /**
+   * Calculate checksum.
+   *
+   * @param   in {@link InputStream} containing content
+   * @return  checksum
+   * @throws  IOException              Fail to read content
+   * @throws  NoSuchAlgorithmException No MD5 algorithm
+   */
+  public static byte[] getChecksum(final InputStream in)
+      throws IOException, NoSuchAlgorithmException {
+<span class="fc" id="L203">    final MessageDigest checksumGenerator = MessageDigest.getInstance(&quot;MD5&quot;);</span>
+
+<span class="fc" id="L205">    final DigestInputStream dis = new DigestInputStream(in, checksumGenerator);</span>
+<span class="fc" id="L206">    int readBytes = redirect(dis, new ByteArrayOutputStream());</span>
+<span class="fc" id="L207">    logger.debug(&quot;{} byte(s) read&quot;, readBytes);</span>
+<span class="fc" id="L208">    return checksumGenerator.digest();</span>
+  }
+
+  /**
+   * Calculate checksum as string.
+   *
+   * @param   in {@link InputStream} containing content
+   * @return  checksum
+   * @throws  IOException              Fail to read content
+   * @throws  NoSuchAlgorithmException No MD5 algorithm
+   */
+  public static String getChecksumAsString(final InputStream in)
+      throws IOException, NoSuchAlgorithmException {
+<span class="fc" id="L221">    final byte[] bytes = getChecksum(in);</span>
+<span class="fc" id="L222">    return Base64.getEncoder().encodeToString(bytes);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

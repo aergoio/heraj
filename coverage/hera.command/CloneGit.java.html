@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CloneGit.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.command</a> &gt; <span class="el_source">CloneGit.java</span></div><h1>CloneGit.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.command;
+
+import static org.eclipse.jgit.lib.Constants.HEAD;
+
+import hera.FileContent;
+import hera.FileSet;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.stream.Stream;
+import lombok.Getter;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
+import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ObjectLoader;
+import org.eclipse.jgit.lib.ProgressMonitor;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTree;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.transport.FetchResult;
+import org.eclipse.jgit.transport.URIish;
+import org.eclipse.jgit.treewalk.TreeWalk;
+
+<span class="nc" id="L30">public class CloneGit extends AbstractCommand implements ProgressMonitor {</span>
+
+<span class="nc" id="L32">  @Getter</span>
+  protected FileSet fileSet = new FileSet();
+
+  @Override
+  public void execute() throws Exception {
+<span class="nc" id="L37">    final String packageName = getArgument(0);</span>
+<span class="nc" id="L38">    final String branch = getOptionalArgument(1).orElse(&quot;master&quot;);</span>
+<span class="nc" id="L39">    final String remoteUri = &quot;https://github.com/&quot; + packageName + &quot;.git&quot;;</span>
+
+<span class="nc" id="L41">    final InMemoryRepository repository = new InMemoryRepository(new DfsRepositoryDescription());</span>
+<span class="nc" id="L42">    final Git git = new Git(repository);</span>
+<span class="nc" id="L43">    git.remoteAdd().setName(&quot;origin&quot;).setUri(new URIish(remoteUri)).call();</span>
+
+<span class="nc" id="L45">    final FetchResult fetchResult = git.fetch()</span>
+<span class="nc" id="L46">        .setRemote(&quot;origin&quot;)</span>
+<span class="nc" id="L47">        .setRefSpecs(&quot;+refs/heads/&quot; + branch + &quot;:refs/remotes/origin/&quot; + branch)</span>
+<span class="nc" id="L48">        .call();</span>
+
+<span class="nc" id="L50">    logger.debug(&quot;Refs: {}&quot;, fetchResult.getAdvertisedRefs());</span>
+<span class="nc" id="L51">    final Ref fetchHead = fetchResult.getAdvertisedRef(HEAD);</span>
+
+<span class="nc" id="L53">    final ObjectId commitId = fetchHead.getObjectId();</span>
+<span class="nc" id="L54">    logger.debug(&quot;Commit id: {}&quot;, commitId);</span>
+
+<span class="nc" id="L56">    final FileSet fileSet = new FileSet();</span>
+<span class="nc" id="L57">    try (final RevWalk revWalk = new RevWalk(repository)) {</span>
+<span class="nc" id="L58">      final RevCommit revCommit = revWalk.parseCommit(commitId);</span>
+<span class="nc" id="L59">      final RevTree revTree = revCommit.getTree();</span>
+<span class="nc" id="L60">      logger.debug(&quot;Having tree: &quot; + revTree);</span>
+
+      // now try to find a specific file
+<span class="nc" id="L63">      try (final TreeWalk treeWalk = new TreeWalk(repository)) {</span>
+<span class="nc" id="L64">        treeWalk.addTree(revTree);</span>
+<span class="nc" id="L65">        treeWalk.setRecursive(true);</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        while (treeWalk.next()) {</span>
+<span class="nc" id="L67">          final String path = treeWalk.getPathString();</span>
+<span class="nc" id="L68">          logger.debug(&quot;Path: {}&quot;, path);</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">          if (treeWalk.isSubtree()) {</span>
+<span class="nc" id="L70">            treeWalk.enterSubtree();</span>
+          } else {
+<span class="nc" id="L72">            final ObjectId objectId = treeWalk.getObjectId(0);</span>
+<span class="nc" id="L73">            final FileContent file = new FileContent(path, () -&gt; {</span>
+              try {
+<span class="nc" id="L75">                final ObjectLoader loader = repository.open(objectId);</span>
+<span class="nc" id="L76">                final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();</span>
+<span class="nc" id="L77">                loader.copyTo(byteOut);</span>
+<span class="nc" id="L78">                return new ByteArrayInputStream(byteOut.toByteArray());</span>
+<span class="nc" id="L79">              } catch (final IOException e) {</span>
+<span class="nc" id="L80">                throw new IllegalStateException(e);</span>
+              }
+            });
+<span class="nc" id="L83">            fileSet.add(file);</span>
+          }
+<span class="nc" id="L85">        }</span>
+      }
+<span class="nc" id="L87">      revWalk.dispose();</span>
+    }
+
+<span class="nc" id="L90">    this.fileSet = fileSet;</span>
+<span class="nc" id="L91">    logger.debug(&quot;FileSet: {}&quot;, fileSet);</span>
+<span class="nc" id="L92">  }</span>
+
+  public Stream&lt;FileContent&gt; stream() {
+<span class="nc" id="L95">    return fileSet.stream();</span>
+  }
+
+  @Override
+  public void start(final int totalTasks) {
+<span class="nc" id="L100">    logger.debug(&quot;Start: {}&quot;, totalTasks);</span>
+<span class="nc" id="L101">  }</span>
+
+  @Override
+  public void beginTask(final String title, final int totalWork) {
+<span class="nc" id="L105">    logger.debug(&quot;Start {}: {}&quot;, title, totalWork);</span>
+<span class="nc" id="L106">  }</span>
+
+  @Override
+  public void update(final int completed) {
+<span class="nc" id="L110">    logger.trace(&quot;Update {}&quot;, completed);</span>
+<span class="nc" id="L111">  }</span>
+
+  @Override
+  public void endTask() {
+<span class="nc" id="L115">    logger.debug(&quot;End&quot;);</span>
+<span class="nc" id="L116">  }</span>
+
+  @Override
+  public boolean isCancelled() {
+<span class="nc" id="L120">    logger.trace(&quot;Check cancelled&quot;);</span>
+<span class="nc" id="L121">    return false;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
