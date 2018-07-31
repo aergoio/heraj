@@ -1,0 +1,14 @@
+/*
+ * @copyright defined in LICENSE.txt
+ */
+rootProject.name = 'heraj'
+
+include 'core:annotation'
+include 'core:util'
+include 'core:transport'
+include 'core:common'
+include 'client:repl'
+include 'client:wallet'
+include 'client:smart-contract'
+include 'client:apm'
+include 'assembly'

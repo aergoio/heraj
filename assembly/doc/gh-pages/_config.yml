@@ -1,0 +1,11 @@
+title: heraj
+logo: /assets/img/logo.png
+description: Java Client for Aergo
+baseurl: "/heraj"
+url: "https://aergo.github.com"
+show_downloads: false
+google_analytics:
+
+markdown: kramdown
+theme: jekyll-theme-minimal
+

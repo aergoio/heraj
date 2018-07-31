@@ -1,0 +1,255 @@
+/*
+ * @copyright defined in LICENSE.txt
+ */
+
+group 'io.blocko'
+
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+    google()
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'me.champeau.gradle:jmh-gradle-plugin:0.4.7'
+    classpath "gradle.plugin.io.morethan.jmhreport:gradle-jmh-report:0.8.0"
+    classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0"
+  }
+}
+
+repositories {
+  mavenLocal()
+  maven {
+    url 'https://nexus.blocko.io/repository/blocko-maven-repository'
+  }
+  maven {
+    url "http://sevntu-checkstyle.github.com/sevntu.checkstyle/maven2"
+  }
+  maven {
+    url "http://dist.wso2.org/maven2"
+  }
+  mavenCentral()
+  jcenter()
+}
+
+allprojects {
+  version '0.1-SNAPSHOT'
+}
+def javaProjects = [
+  project('core:annotation'),
+  project('core:util'),
+  project('core:common'),
+  project('core:transport'),
+  project('client:smart-contract'),
+  project('client:repl'),
+  project('client:apm'),
+  project('client:wallet'),
+  project('assembly')]
+
+def jmhProjects = [
+  project('core:transport')
+]
+
+configure(javaProjects) {
+  // do Java specific configurations
+  apply plugin: 'java'
+  apply plugin: 'maven'
+  apply plugin: 'jacoco'
+  apply plugin: 'checkstyle'
+  apply plugin: 'com.github.hierynomus.license-report'
+  apply plugin: 'idea'
+  apply plugin: 'eclipse'
+
+  sourceCompatibility = JavaVersion.VERSION_1_8
+  targetCompatibility = JavaVersion.VERSION_1_8
+
+  eclipseJdt.doLast( {
+    ant.propertyfile(file: ".settings/org.eclipse.core.resources.prefs") {
+      ant.entry(key: "eclipse.preferences.version", value: "1")
+      ant.entry(key: "encoding/<project>", value: "utf8")
+    }
+  } )
+
+  idea {
+    module {
+      outputDir file('build/classes/java/main')
+      testOutputDir file('build/classes/java/test')
+    }
+  }
+
+  compileJava.options.encoding = 'UTF-8'
+  compileTestJava.options.encoding = 'UTF-8'
+
+  repositories {
+    mavenLocal()
+    maven {
+      url 'https://nexus.blocko.io/repository/blocko-maven-repository'
+    }
+    maven {
+      url "http://sevntu-checkstyle.github.com/sevntu.checkstyle/maven2"
+    }
+    maven {
+      url "http://dist.wso2.org/maven2"
+    }
+    mavenCentral()
+    jcenter()
+  }
+
+  dependencies {
+    compileOnly 'org.projectlombok:lombok:1.16.6'
+    implementation 'org.slf4j:slf4j-api:1.7.25'
+
+    testImplementation 'ch.qos.logback:logback-classic:1.2.3'
+    testImplementation 'org.projectlombok:lombok:1.16.6'
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.powermock:powermock-api-mockito2:2.0.0-beta.5'
+    testImplementation 'org.powermock:powermock-module-junit4:2.0.0-beta.5'
+  }
+
+  test {
+    maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors())
+    exclude '**/*Tests.class'
+    exclude '**/*IT.class'
+  }
+
+  checkstyle {
+    project.ext.checkstyleVersion = '8.7'
+    project.ext.sevntuChecksVersion = '1.26.0'
+    sourceSets = [project.sourceSets.main]
+
+    ignoreFailures = true
+    configFile = file("${rootProject.projectDir}/styles.xml")
+    reportsDir = file("${buildDir}/checkstyle-reports")
+    configurations {
+      checkstyle
+    }
+    checkstyleMain {
+      reportsDir = checkstyle.reportsDir
+    }
+    dependencies{
+      assert project.hasProperty("checkstyleVersion")
+
+      checkstyle "com.puppycrawl.tools:checkstyle:${checkstyleVersion}"
+      checkstyle "com.github.sevntu-checkstyle:sevntu-checks:${sevntuChecksVersion}"
+    }
+  }
+
+  uploadArchives {
+    repositories {
+      mavenDeployer {
+        pom.version = project.version
+        if (!project.hasProperty('mavenUser')) {
+          ext.mavenUser = ''
+        }
+        if (!project.hasProperty('mavenPassword')) {
+          ext.mavenPassword = ''
+        }
+        repository(url: "https://nexus.blocko.io/repository/blocko-maven-release-repository/") {
+          authentication(userName: mavenUser, password: mavenPassword)
+        }
+        snapshotRepository(url: "https://nexus.blocko.io/repository/blocko-maven-snapshot-repository/") {
+          authentication(userName: mavenUser, password: mavenPassword)
+        }
+      }
+    }
+  }
+  task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+  }
+ 
+  artifacts {
+    archives sourcesJar
+  }
+
+  jacoco {
+    toolVersion = "0.8.1"
+  }
+  jacocoTestReport {
+    group = "Reporting"
+    additionalSourceDirs = files(sourceSets.main.allSource.srcDirs)
+    sourceDirectories = files(sourceSets.main.allSource.srcDirs)
+    classDirectories = files(sourceSets.main.output)
+    reports {
+      xml.enabled true
+      html.enabled true
+      csv.enabled false
+    }
+  }
+}
+
+task alljavadoc(type: Javadoc) {
+  source javaProjects.collect { it.sourceSets.main.allJava }    											  
+  classpath = files(javaProjects.collect { it.sourceSets.main.compileClasspath })
+  destinationDir = file("${buildDir}/docs/javadoc")
+}
+
+apply plugin: 'java'
+apply plugin: 'jacoco'
+jacoco {
+  toolVersion = "0.8.1"
+}
+
+task alljacoco(type: org.gradle.testing.jacoco.tasks.JacocoReport) {
+  dependsOn = javaProjects.test
+  additionalSourceDirs = files(javaProjects.sourceSets.main.allSource.srcDirs)
+  sourceDirectories = files(javaProjects.sourceSets.main.allSource.srcDirs)
+  classDirectories =  files(javaProjects.sourceSets.main.output)
+  def executionDataPath = []
+  executionData = files((javaProjects.findAll { p ->
+    def coverageFileLocation = "$p.buildDir/jacoco/test.exec"
+    new File(coverageFileLocation).exists()
+  }).jacocoTestReport.executionData)
+  reports {
+      html.enabled = true
+      xml.enabled = false
+      csv.enabled = false
+  }
+  afterEvaluate {
+    classDirectories = files(classDirectories.files.collect {
+      fileTree(dir: it, exclude: ['types/**'])
+    })
+  }
+}
+
+configure(jmhProjects) {
+  apply plugin: "me.champeau.gradle.jmh"
+  apply plugin: "io.morethan.jmhreport"
+
+  eclipse {
+    classpath {
+      plusConfigurations.add(configurations.jmhCompile)
+      defaultOutputDir = file('build/classes-jmh-ide')
+    }
+  }
+  sourceSets {
+    jmh {
+      compileClasspath += sourceSets.main.output + sourceSets.test.output + sourceSets.main.compileClasspath
+      runtimeClasspath += configurations.jmh + sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
+    }
+  }
+
+  dependencies {
+    jmhCompile project
+    jmhCompile 'org.openjdk.jmh:jmh-core:1.21'
+    jmhCompile 'org.openjdk.jmh:jmh-generator-annprocess:1.21'
+
+    jmhRuntime 'org.slf4j:jul-to-slf4j:1.7.25'
+  }
+
+  jmh {
+    duplicateClassesStrategy = 'warn'
+    resultFormat = 'JSON'
+    benchmarkMode = ['thrpt']
+    timeUnit = 's'
+    include += '.*Benchmark'
+    threads = 8
+    fork = 2
+  }
+  jmhReport {
+    jmhResultPath = project.file('build/reports/jmh/results.json')
+    jmhReportOutput = project.file('build/reports/jmh')
+  }
+}

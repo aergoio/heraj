@@ -1,0 +1,24 @@
+/*
+ * @copyright defined in LICENSE.txt
+ */
+
+apply plugin: 'distribution'
+uploadArchives.enabled = false
+
+dependencies {
+  compile project(':client:apm')
+  compile project(':client:repl')
+  compile 'ch.qos.logback:logback-classic:1.2.3'
+}
+
+distributions {
+  main {
+    baseName = 'hera'
+    contents {
+      from { 'src' }
+      into('lib') {
+        from configurations.runtime
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+/*
+ * @copyright defined in LICENSE.txt
+ */
+
+dependencies {
+  implementation project(":core:common")
+  implementation project(":core:transport")
+}

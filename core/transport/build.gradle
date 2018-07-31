@@ -1,0 +1,41 @@
+/*
+ * @copyright defined in LICENSE.txt
+ */
+
+apply plugin: 'com.google.protobuf'
+
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    // ASSUMES GRADLE 2.12 OR HIGHER. Use plugin version 0.7.5 with earlier
+    // gradle versions
+    classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.6'
+  }
+}
+
+protobuf {
+  protoc {
+    artifact = "com.google.protobuf:protoc:3.6.0"
+  }
+  plugins {
+    grpc {
+      artifact = 'io.grpc:protoc-gen-grpc-java:1.13.1'
+    }
+  }
+  generateProtoTasks {
+    all()*.plugins {
+      grpc {}
+    }
+  }
+}
+
+dependencies {
+  implementation project(":core:annotation")
+  implementation project(":core:util")
+  implementation project(":core:common")
+  implementation 'io.grpc:grpc-netty:1.13.1'
+  implementation 'io.grpc:grpc-protobuf:1.13.1'
+  implementation 'io.grpc:grpc-stub:1.13.1'
+}

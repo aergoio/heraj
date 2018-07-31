@@ -1,0 +1,9 @@
+/*
+ * @copyright defined in LICENSE.txt
+ */
+
+dependencies {
+  implementation project(":core:annotation")
+  implementation 'com.google.guava:guava:20.0'
+  implementation 'org.bouncycastle:bcprov-jdk16:1.46'
+}

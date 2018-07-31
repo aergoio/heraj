@@ -1,0 +1,12 @@
+/*
+ * @copyright defined in LICENSE.txt
+ */
+
+dependencies {
+  implementation project(":core:util")
+  implementation project(":core:common")
+  implementation project(":core:transport")
+  implementation 'jline:jline:3.0.0.M1'
+  implementation 'com.h2database:h2:1.4.197'
+  implementation 'io.grpc:grpc-netty:1.13.1'
+}
