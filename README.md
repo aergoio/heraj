@@ -9,6 +9,9 @@ The heraj provides the next:
 * Rapid development tools
 * Boilerplate and examples
 
+## License
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 ## Modules
 The repository contains next:
 * core/annotation
@@ -73,3 +76,6 @@ We provides next in https://aergoio.github.io/heraj
 ```console
 $ ./build.sh docs
 ```
+
+# Contribution
+
