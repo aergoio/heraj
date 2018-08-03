@@ -38,7 +38,7 @@ function print-usage() {
 
 function update-protobuf() {
   PROTO_TARGET=$PROJECT_HOME/core/transport/src/main/proto
-  git clone git@github.com:aergoio/aergo.git $BUILD_WORKSPACE/aergo
+  git clone https://github.com/aergoio/aergo.git $BUILD_WORKSPACE/aergo
   rm -rf $PROTO_TARGET
   mkdir -p $PROTO_TARGET
 
