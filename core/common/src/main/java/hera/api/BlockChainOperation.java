@@ -5,6 +5,7 @@
 package hera.api;
 
 import hera.api.model.BlockchainStatus;
+import hera.api.model.NodeStatus;
 import hera.api.model.PeerAddress;
 import java.util.List;
 
@@ -15,7 +16,7 @@ public interface BlockChainOperation {
    *
    * @return blockchain status
    */
-  BlockchainStatus getStatus();
+  BlockchainStatus getBlockchainStatus();
 
   /**
    * Get blockchain peer addresses.
@@ -23,4 +24,12 @@ public interface BlockChainOperation {
    * @return peer addresses
    */
   List<PeerAddress> listPeers();
+
+  /**
+   * Get status of current node.
+   *
+   * @return node status
+   */
+  NodeStatus getNodeStatus();
+
 }
