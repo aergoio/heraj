@@ -4,7 +4,7 @@
 
 package hera.transport;
 
-import static com.google.protobuf.ByteString.copyFrom;
+import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.BytesValue;
@@ -20,7 +20,7 @@ public class PeerAddressConverterFactory {
       domainPeerAddress -> {
         logger.trace("Domain status: {}", domainPeerAddress);
         return types.Node.PeerAddress.newBuilder()
-            .setAddress(copyFrom(domainPeerAddress.getAddress().getValue()))
+            .setAddress(copyFrom(domainPeerAddress.getAddress()))
             .setPort(domainPeerAddress.getPort())
             .setPeerID(copyFrom(domainPeerAddress.getPeerId()))
             .build();
@@ -32,7 +32,7 @@ public class PeerAddressConverterFactory {
         final PeerAddress domainStatus = new PeerAddress();
         domainStatus.setAddress(BytesValue.of(rpcStatus.getAddress().toByteArray()));
         domainStatus.setPort(rpcStatus.getPort());
-        domainStatus.setPeerId(rpcStatus.getPeerID().toByteArray());
+        domainStatus.setPeerId(BytesValue.of(rpcStatus.getPeerID().toByteArray()));
         return domainStatus;
       };
 

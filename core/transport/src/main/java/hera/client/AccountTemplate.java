@@ -4,7 +4,7 @@
 
 package hera.client;
 
-import static com.google.protobuf.ByteString.copyFrom;
+import static hera.util.TransportUtils.copyFrom;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
@@ -102,7 +102,7 @@ public class AccountTemplate implements AccountOperation {
   @Override
   public Optional<AccountState> getState(final AccountAddress address) {
     try {
-      final ByteString byteString = copyFrom(address.getValue());
+      final ByteString byteString = copyFrom(address);
       final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
       final State state = aergoService.getState(bytes);
       return ofNullable(accountStateConverter.convertToDomainModel(state));

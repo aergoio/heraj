@@ -4,7 +4,7 @@
 
 package hera.client;
 
-import static com.google.protobuf.ByteString.copyFrom;
+import static hera.util.TransportUtils.copyFrom;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -51,7 +51,7 @@ public class TransactionTemplate implements TransactionOperation {
   @Override
   public Optional<Transaction> getTransaction(final Hash hash) {
     try {
-      final ByteString byteString = copyFrom(hash.getValue());
+      final ByteString byteString = copyFrom(hash);
       final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
       final Tx tx = aergoService.getTX(bytes);
       return ofNullable(transactionConverter.convertToDomainModel(tx));

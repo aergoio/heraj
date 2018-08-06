@@ -23,11 +23,11 @@ public class Transaction {
 
   @Getter
   @Setter
-  protected AccountAddress sender;
+  protected AccountAddress sender = new AccountAddress(null);
 
   @Getter
   @Setter
-  protected AccountAddress recipient;
+  protected AccountAddress recipient = new AccountAddress(null);
 
   @Getter
   @Setter

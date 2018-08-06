@@ -4,7 +4,7 @@
 
 package hera.transport;
 
-import static com.google.protobuf.ByteString.copyFrom;
+import static hera.util.TransportUtils.copyFrom;
 import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -30,13 +30,13 @@ public class BlockConverterFactory {
     logger.trace("Domain status: {}", domainBlock);
 
     final BlockHeader blockHeader = BlockHeader.newBuilder()
-        .setPrevBlockHash(copyFrom(domainBlock.getPreviousBlockHash().getBytesValue()))
+        .setPrevBlockHash(copyFrom(domainBlock.getPreviousBlockHash()))
         .setBlockNo(domainBlock.getBlockNumber())
         .setTimestamp(domainBlock.getTimestamp())
-        .setBlocksRootHash(copyFrom(domainBlock.getRootHash().getBytesValue()))
-        .setTxsRootHash(copyFrom(domainBlock.getTransactionsRootHash().getBytesValue()))
-        .setPubKey(copyFrom(domainBlock.getPublicKey().getBytesValue()))
-        .setSign(copyFrom(domainBlock.getSign().getBytesValue()))
+        .setBlocksRootHash(copyFrom(domainBlock.getRootHash()))
+        .setTxsRootHash(copyFrom(domainBlock.getTransactionsRootHash()))
+        .setPubKey(copyFrom(domainBlock.getPublicKey()))
+        .setSign(copyFrom(domainBlock.getSign()))
         .build();
 
     final List<Blockchain.Tx> rpcTransactions = domainBlock.getTransactions().stream()
@@ -47,7 +47,7 @@ public class BlockConverterFactory {
         .build();
 
     return Blockchain.Block.newBuilder()
-        .setHash(copyFrom(domainBlock.getHash().getBytesValue()))
+        .setHash(copyFrom(domainBlock.getHash()))
         .setHeader(blockHeader)
         .setBody(blockBody)
         .build();

@@ -4,9 +4,9 @@
 
 package hera.transport;
 
+import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import com.google.protobuf.ByteString;
 import hera.api.model.Account;
 import java.util.function.Function;
 import org.slf4j.Logger;
@@ -20,7 +20,7 @@ public class AccountConverterFactory {
       domainAccount -> {
         logger.trace("Domain status: {}", domainAccount);
         return AccountOuterClass.Account.newBuilder()
-            .setAddress(ByteString.copyFrom(domainAccount.getAddress().getValue()))
+            .setAddress(copyFrom(domainAccount.getAddress()))
             .build();
       };
 

@@ -15,11 +15,11 @@ public class Signature {
 
   @Getter
   @Setter
-  protected BytesValue sign;
+  protected BytesValue sign = new BytesValue(null);
 
   @Getter
   @Setter
-  protected Hash hash;
+  protected Hash hash = new Hash(null);
 
   /**
    * Create {@link Signature}.

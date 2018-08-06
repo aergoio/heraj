@@ -4,12 +4,11 @@
 
 package hera.transport;
 
-import static com.google.protobuf.ByteString.copyFrom;
+import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.BlockchainStatus;
 import hera.api.model.Hash;
-import java.io.IOException;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Rpc;
@@ -22,7 +21,7 @@ public class BlockchainConverterFactory {
       domainBlockchainStatus -> {
         logger.trace("Domain status: {}", domainBlockchainStatus);
         return Rpc.BlockchainStatus.newBuilder()
-            .setBestBlockHash(copyFrom(domainBlockchainStatus.getBestBlockHash().getBytesValue()))
+            .setBestBlockHash(copyFrom(domainBlockchainStatus.getBestBlockHash()))
             .setBestHeight(domainBlockchainStatus.getBestHeight())
             .build();
       };

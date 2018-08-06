@@ -11,7 +11,7 @@ import java.util.List;
 
 public class StringUtils {
 
-  protected static final String NULL_STRING = "<<null>>";
+  public static final String NULL_STRING = "<<null>>";
 
   protected static final String EMPTY_STRING = "";
 

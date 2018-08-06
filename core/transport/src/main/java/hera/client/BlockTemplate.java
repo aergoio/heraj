@@ -4,6 +4,7 @@
 
 package hera.client;
 
+import static hera.util.TransportUtils.copyFrom;
 import static java.util.stream.Collectors.toList;
 import static types.AergoRPCServiceGrpc.newBlockingStub;
 
@@ -39,7 +40,7 @@ public class BlockTemplate implements BlockOperation {
 
   @Override
   public Block getBlock(final Hash hash) {
-    final ByteString byteString = ByteString.copyFrom(hash.getValue());
+    final ByteString byteString = copyFrom(hash);
     final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
     return blockConverter.convertToDomainModel(aergoService.getBlock(bytes));
   }
@@ -47,7 +48,7 @@ public class BlockTemplate implements BlockOperation {
   @Override
   public List<BlockHeader> listBlockHeaders(final Hash hash, final int size) {
     final ListParams listParams = ListParams.newBuilder()
-        .setHash(ByteString.copyFrom(hash.getValue()))
+        .setHash(copyFrom(hash))
         .setSize(size)
         .build();
     return aergoService.listBlockHeaders(listParams).getBlocksList().stream()

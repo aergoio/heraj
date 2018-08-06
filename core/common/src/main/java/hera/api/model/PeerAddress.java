@@ -19,5 +19,5 @@ public class PeerAddress {
 
   @Getter
   @Setter
-  protected byte[] peerId;
+  protected BytesValue peerId;
 }

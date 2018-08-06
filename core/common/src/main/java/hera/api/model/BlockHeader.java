@@ -10,11 +10,11 @@ import lombok.Setter;
 public class BlockHeader {
   @Getter
   @Setter
-  protected Hash hash;
+  protected Hash hash = new Hash(null);
 
   @Getter
   @Setter
-  protected Hash previousBlockHash;
+  protected Hash previousBlockHash = new Hash(null);
 
   @Getter
   @Setter
@@ -26,17 +26,17 @@ public class BlockHeader {
 
   @Getter
   @Setter
-  protected Hash rootHash;
+  protected Hash rootHash = new Hash(null);
 
   @Getter
   @Setter
-  protected Hash transactionsRootHash;
+  protected Hash transactionsRootHash = new Hash(null);
 
   @Getter
   @Setter
-  protected Hash publicKey;
+  protected Hash publicKey = new Hash(null);
 
   @Getter
   @Setter
-  protected Hash sign;
+  protected Hash sign = new Hash(null);
 }

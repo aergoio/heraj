@@ -4,7 +4,7 @@
 
 package hera.transport;
 
-import static com.google.protobuf.ByteString.copyFrom;
+import static hera.util.TransportUtils.copyFrom;
 import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -29,13 +29,13 @@ public class TransactionConverterFactory {
     final TxBody.Builder txBodyBuilder = TxBody.newBuilder();
     txBodyBuilder.setNonce(domainTransaction.getNonce());
     txBodyBuilder.setAmount(domainTransaction.getAmount());
-    txBodyBuilder.setAccount(copyFrom(domainTransaction.getSender().getValue()));
-    txBodyBuilder.setRecipient(copyFrom(domainTransaction.getRecipient().getValue()));
+    txBodyBuilder.setAccount(copyFrom(domainTransaction.getSender()));
+    txBodyBuilder.setRecipient(copyFrom(domainTransaction.getRecipient()));
 
     final Tx.Builder txBuilder = Tx.newBuilder();
     ofNullable(domainTransaction.getSignature()).ifPresent(signature -> {
-      txBodyBuilder.setSign(copyFrom(signature.getSign().getValue()));
-      txBuilder.setHash(copyFrom(signature.getHash().getValue()));
+      txBodyBuilder.setSign(copyFrom(signature.getSign()));
+      txBuilder.setHash(copyFrom(signature.getHash()));
     });
     txBuilder.setBody(txBodyBuilder.build());
 
