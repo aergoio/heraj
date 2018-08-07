@@ -35,7 +35,23 @@ public class Transaction {
 
   @Getter
   @Setter
+  protected BytesValue payload = new BytesValue(null);
+
+  @Getter
+  @Setter
+  protected long limit;
+
+  @Getter
+  @Setter
+  protected long price;
+
+  @Getter
+  @Setter
   protected Signature signature;
+
+  @Getter
+  @Setter
+  protected long size;
 
   /**
    * Copy deep.
@@ -52,7 +68,11 @@ public class Transaction {
     ofNullable(source.getSender()).ifPresent(copy::setSender);
     ofNullable(source.getRecipient()).ifPresent(copy::setRecipient);
     copy.setAmount(source.getAmount());
+    ofNullable(source.getPayload()).ifPresent(copy::setPayload);
+    copy.setLimit(source.getLimit());
+    copy.setPrice(source.getPrice());
     copy.setSignature(Signature.copyOf(source.getSignature()));
+    copy.setSize(source.getSize());
 
     return copy;
   }
@@ -70,6 +90,9 @@ public class Transaction {
       dataOut.write(getSender().getValue());
       dataOut.write(getRecipient().getValue());
       dataOut.writeLong(getAmount());
+      dataOut.write(getPayload().getValue());
+      dataOut.writeLong(getLimit());
+      dataOut.writeLong(getPrice());
       ofNullable(signature).map(Signature::getSign).map(BytesValue::getValue).ifPresent(b -> {
         try {
           dataOut.write(b);
@@ -77,6 +100,7 @@ public class Transaction {
           throw new IllegalStateException(e);
         }
       });
+      dataOut.writeLong(getSize());
       dataOut.flush();
       return new Hash(digest(raw.toByteArray()));
     } catch (final IOException e) {
