@@ -21,8 +21,6 @@ public class PeerAddressConverterTest extends AbstractTestCase {
         .create();
 
     final PeerAddress domainPeerAddress = new PeerAddress();
-    domainPeerAddress.setAddress(BytesValue.of(randomUUID().toString().getBytes()));
-    domainPeerAddress.setPeerId(BytesValue.of(randomUUID().toString().getBytes()));
     final Node.PeerAddress rpcPeerAddress = converter.convertToRpcModel(domainPeerAddress);
     final PeerAddress actualDomainPeerAddress = converter.convertToDomainModel(rpcPeerAddress);
     assertNotNull(actualDomainPeerAddress);

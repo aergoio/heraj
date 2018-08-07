@@ -21,7 +21,6 @@ public class BlockchainConverterTest extends AbstractTestCase {
         .create();
 
     final BlockchainStatus domainBlockchainStatus = new BlockchainStatus();
-    domainBlockchainStatus.setBestBlockHash(new Hash(randomUUID().toString().getBytes()));
     final Rpc.BlockchainStatus rpcBlockchainStatus = converter
         .convertToRpcModel(domainBlockchainStatus);
     final BlockchainStatus actualDomainBlockchainStatus = converter

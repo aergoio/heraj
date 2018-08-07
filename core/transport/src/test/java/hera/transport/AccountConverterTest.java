@@ -21,7 +21,6 @@ public class AccountConverterTest extends AbstractTestCase {
         .create();
 
     final Account domainAccount = new Account();
-    domainAccount.setAddress(AccountAddress.of(randomUUID().toString().getBytes()));
     final AccountOuterClass.Account rpcAccount = converter.convertToRpcModel(domainAccount);
     final Account actualDomainAccount = converter.convertToDomainModel(rpcAccount);
     assertNotNull(actualDomainAccount);

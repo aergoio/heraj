@@ -21,7 +21,6 @@ public class AccountStateConverterTest extends AbstractTestCase {
         .create();
 
     final AccountState domainAccountState = new AccountState();
-    domainAccountState.setAddress(AccountAddress.of(randomUUID().toString().getBytes()));
     final State rpcAccountState = converter.convertToRpcModel(domainAccountState);
     final AccountState actualDomainAccountState = converter.convertToDomainModel(rpcAccountState);
     assertNotNull(actualDomainAccountState);

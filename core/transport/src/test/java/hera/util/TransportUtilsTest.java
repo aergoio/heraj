@@ -6,8 +6,8 @@ package hera.util;
 
 import static hera.util.TransportUtils.copyFrom;
 import static java.util.UUID.randomUUID;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import com.google.protobuf.ByteString;
 import hera.AbstractTestCase;
@@ -20,20 +20,20 @@ public class TransportUtilsTest extends AbstractTestCase {
   public void testCopyFrom() {
     BytesValue bytesValue = BytesValue.of(randomUUID().toString().getBytes());
     ByteString result = copyFrom(bytesValue);
-    assertNotNull(result);
+    assertTrue(!result.isEmpty());
   }
 
   @Test
   public void testCopyFromWithNullBytesValue() {
     BytesValue bytesValue = BytesValue.of(null);
-    ByteString result = copyFrom(bytesValue);
-    assertNull(result);
+    ByteString actualResult = copyFrom(bytesValue);
+    assertEquals(ByteString.EMPTY, actualResult);
   }
 
   @Test
-  public void testCopyFromWithNullInput() {
-    ByteString result = copyFrom(null);
-    assertNull(result);
+  public void testCopyFromWithNullArgument() {
+    ByteString actualResult = copyFrom(null);
+    assertEquals(ByteString.EMPTY, actualResult);
   }
 
 }

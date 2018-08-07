@@ -21,8 +21,6 @@ public class TransactionConverterTest extends AbstractTestCase {
         .create();
 
     final Transaction domainTransaction = new Transaction();
-    domainTransaction.setSender(AccountAddress.of(randomUUID().toString().getBytes()));
-    domainTransaction.setRecipient(AccountAddress.of(randomUUID().toString().getBytes()));
     final Blockchain.Tx rpcTransaction = converter.convertToRpcModel(domainTransaction);
     final Transaction actualDomainTransaction = converter.convertToDomainModel(rpcTransaction);
     assertNotNull(actualDomainTransaction);

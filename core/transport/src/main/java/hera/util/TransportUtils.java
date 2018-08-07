@@ -11,7 +11,7 @@ public class TransportUtils {
 
   /**
    * Transform {@link BytesValue} to {@link ByteString} in protobuf. If either bytesValue or value
-   * of bytesValue is null, return null.
+   * of bytesValue is null, return {@code ByteString.EMPTY}
    *
    * @param bytesValue {@link BytesValue}
    * @return protobuf {@link ByteString}
@@ -20,7 +20,7 @@ public class TransportUtils {
     if (null != bytesValue && null != bytesValue.getValue()) {
       return ByteString.copyFrom(bytesValue.getValue());
     }
-    return null;
+    return ByteString.EMPTY;
   }
 
 }
