@@ -1,5 +1,5 @@
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![LoC](https://tokei.rs/b1/github/aergoio/heraj)](https://github.com/aergoio/heraj).
+[![LoC](https://tokei.rs/b1/github/aergoio/heraj)](https://github.com/aergoio/heraj)
 
 # Introduction
 The hera is the client-side framework for the aergo.
