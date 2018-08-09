@@ -29,4 +29,8 @@ public class ProjectFile {
   @Getter
   @Setter
   protected List<ProjectFile> dependencies;
+
+  @Getter
+  @Setter
+  protected List<String> tests;
 }
