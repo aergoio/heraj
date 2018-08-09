@@ -12,7 +12,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hera.AbstractTestCase;
-import hera.Project;
+import hera.ProjectFile;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -25,7 +25,7 @@ public class ReadProjectFileTest extends AbstractTestCase {
   @Test
   @PrepareForTest(ReadProjectFile.class)
   public void testExecute() throws IOException {
-    final String projectFileContent = new ObjectMapper().writeValueAsString(new Project());
+    final String projectFileContent = new ObjectMapper().writeValueAsString(new ProjectFile());
 
     // Given
     mockStatic(Files.class);

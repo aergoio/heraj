@@ -19,6 +19,6 @@ import org.slf4j.Logger;
     "javax.security.*"})
 public abstract class AbstractTestCase {
 
-  protected Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
 }

@@ -6,11 +6,10 @@ package hera.command;
 
 import static hera.util.ValidationUtils.assertFalse;
 import static hera.util.ValidationUtils.assertTrue;
-import static java.nio.file.Files.exists;
 import static java.nio.file.Files.newBufferedWriter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hera.Project;
+import hera.ProjectFile;
 import java.io.BufferedWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,7 +20,7 @@ public class WriteProjectFile extends AbstractCommand {
 
   @Getter
   @Setter
-  protected Project project = new Project();
+  protected ProjectFile project = new ProjectFile();
 
   @Override
   public void execute() throws Exception {

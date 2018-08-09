@@ -21,7 +21,7 @@ public class ECDSAKey {
 
   protected static final String SIGN_ALGORITHM = "SHA256WithECDSA";
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   @Getter
   protected final PrivateKey privateKey;

@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 
 public abstract class AbstractIT {
 
-  protected Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   protected ManagedChannel channel = null;
 

@@ -34,7 +34,7 @@ import types.Rpc.VerifyResult;
 @RequiredArgsConstructor
 public class TransactionTemplate implements TransactionOperation {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   protected final AergoRPCServiceBlockingStub aergoService;
 

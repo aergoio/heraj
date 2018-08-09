@@ -11,10 +11,10 @@
   <root level="WARN">
     <appender-ref ref="STDOUT"/>
   </root>
-  <logger name="ch.qos.logback" level="error"></logger>
+  <logger name="ch.qos.logback" level="error"/>
 
-  <logger name="hera" level="warn"></logger>
-  <logger name="hera.util" level="error"></logger>
-  <logger name="hera.command.CloneGit" level="debug"></logger>
-  <logger name="hera.command.CloneGitIT" level="trace"></logger>
+  <logger name="hera" level="warn"/>
+  <logger name="hera.util" level="error"/>
+  <logger name="hera.command.CloneGit" level="debug"/>
+  <logger name="hera.command.CloneGitIT" level="trace"/>
 </configuration>

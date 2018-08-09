@@ -21,7 +21,7 @@ import types.Blockchain.TxBody;
 
 public class TransactionConverterFactory {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   protected final Function<Transaction, Tx> domainConverter = domainTransaction -> {
     logger.trace("Domain status: {}", domainTransaction);

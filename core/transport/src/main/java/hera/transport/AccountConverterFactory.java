@@ -14,7 +14,7 @@ import types.AccountOuterClass;
 
 public class AccountConverterFactory {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   protected final Function<Account, AccountOuterClass.Account> domainConverter =
       domainAccount -> {

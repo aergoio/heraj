@@ -15,7 +15,7 @@ import types.Rpc;
 
 public class BlockchainConverterFactory {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   protected final Function<BlockchainStatus, Rpc.BlockchainStatus> domainConverter =
       domainBlockchainStatus -> {

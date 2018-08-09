@@ -71,6 +71,11 @@ function execute-documentation() {
   mv $BUILD_WORKSPACE/reports/jacoco/alljacoco/html $BUILD_WORKSPACE/heraj-doc/coverage
 }
 
+function execute-assemble() {
+  $PROJECT_HOME/gradlew assemble
+  cd $PROJECT_HOME/assembly/build/distributions && tar -xvf hera-0.1-SNAPSHOT.tar && cd -
+}
+
 
 if [ 0 == $# ]; then
   clean-workspace
@@ -93,6 +98,9 @@ else
         ;;
       "docs")
         execute-documentation
+        ;;
+      "assemble")
+        execute-assemble
         ;;
       *)
         print-usage

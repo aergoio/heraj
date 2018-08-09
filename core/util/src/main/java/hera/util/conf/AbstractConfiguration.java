@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 
 public abstract class AbstractConfiguration implements Configuration {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   @Getter
   protected final boolean readOnly;

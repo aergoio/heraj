@@ -20,6 +20,6 @@ import org.slf4j.Logger;
 public abstract class AbstractTestCase {
   protected static final int N_TEST = 100;
 
-  protected Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
 }

@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 
 public class PeerAddressConverterFactory {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   protected final Function<PeerAddress, types.Node.PeerAddress> domainConverter =
       domainPeerAddress -> {

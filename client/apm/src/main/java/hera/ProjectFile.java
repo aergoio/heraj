@@ -9,22 +9,24 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @JsonInclude(Include.NON_NULL)
-public class Project {
+@ToString
+public class ProjectFile {
   @Getter
   @Setter
   protected String name;
 
   @Getter
   @Setter
-  protected String branch;
+  protected String source;
 
   @Getter
   @Setter
-  protected List<Project> dependencies;
+  protected String target;
 
   @Getter
   @Setter
-  protected List<String> sources;
+  protected List<ProjectFile> dependencies;
 }

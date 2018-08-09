@@ -4,11 +4,11 @@
 
 package hera.command;
 
-import hera.Project;
+import hera.ProjectFile;
 
 public class UpdatePackage extends AbstractCommand {
   @Override
   public void execute() throws Exception {
-    final Project project = readProject();
+    final ProjectFile project = readProject();
   }
 }

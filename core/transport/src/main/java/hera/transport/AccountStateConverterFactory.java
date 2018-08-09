@@ -14,8 +14,7 @@ import org.slf4j.Logger;
 import types.Blockchain.State;
 
 public class AccountStateConverterFactory {
-
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   protected final Function<AccountState, State> domainConverter =
       domainAccountState -> {

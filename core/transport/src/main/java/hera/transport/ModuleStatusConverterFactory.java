@@ -17,7 +17,7 @@ import types.Rpc.InternalStat;
 
 public class ModuleStatusConverterFactory {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   protected final Function<ModuleStatus, Rpc.ModuleStatus> domainConverter =
       domainModuleStatus -> {

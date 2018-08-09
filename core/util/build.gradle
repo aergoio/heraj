@@ -2,6 +2,10 @@
  * @copyright defined in LICENSE.txt
  */
 
+jar {
+  archivesBaseName = 'hera-util'
+}
+
 dependencies {
   implementation project(":core:annotation")
   implementation 'com.google.guava:guava:20.0'

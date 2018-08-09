@@ -48,7 +48,7 @@ public class JdbcAccountRepository implements AccountRepository {
   protected static final String SAVE_QUERY =
       "INSERT INTO AERGO_ACCOUNT (ADDRESS, PRIVATE_KEY) VALUES (?, ?)";
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   @Getter
   protected final Supplier<Connection> connectionSupplier;

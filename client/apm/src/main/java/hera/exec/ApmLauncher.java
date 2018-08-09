@@ -25,6 +25,7 @@ public class ApmLauncher {
    * @param args user arguments
    */
   public static void main(final String[] args) {
+    logger.info("Apm launched");
     if (args.length < 1) {
       printHelp();
       exit(-1);
@@ -39,6 +40,7 @@ public class ApmLauncher {
 
     commandOpt.ifPresent(command -> {
       try {
+        logger.trace("{} starting...", command);
         command.execute();
         exit(0);
       } catch (final Throwable throwable) {
@@ -46,6 +48,8 @@ public class ApmLauncher {
         if (null != errorMessage) {
           System.err.println(errorMessage);
           logger.error("Fail to execute {}", command, throwable);
+        } else {
+          throwable.printStackTrace();
         }
         exit(-1);
       }

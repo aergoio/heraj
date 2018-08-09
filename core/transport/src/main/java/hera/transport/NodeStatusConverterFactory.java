@@ -16,7 +16,7 @@ import types.Rpc;
 
 public class NodeStatusConverterFactory {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   protected final ModelConverter<ModuleStatus, Rpc.ModuleStatus> moduleStatusConverter =
       new ModuleStatusConverterFactory().create();

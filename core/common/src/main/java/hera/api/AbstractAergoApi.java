@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 
 public class AbstractAergoApi implements AergoApi, Adaptor {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   public SignOperation getSignOperation() {
     throw new UnsupportedOperationException();

@@ -10,5 +10,6 @@ import org.slf4j.Logger;
 
 public abstract class AbstractIT {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
+
 }

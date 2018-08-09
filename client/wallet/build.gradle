@@ -2,6 +2,10 @@
  * @copyright defined in LICENSE.txt
  */
 
+jar {
+  archivesBaseName = 'hera-wallet'
+}
+
 dependencies {
   implementation project(":core:util")
   implementation project(":core:common")

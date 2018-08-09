@@ -21,7 +21,7 @@ import types.Blockchain.Tx;
 
 public class BlockConverterFactory {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   protected final ModelConverter<Transaction, Tx> transactionConverter =
       new TransactionConverterFactory().create();

@@ -8,7 +8,7 @@ import static hera.util.ValidationUtils.assertTrue;
 import static java.nio.file.Files.newBufferedReader;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hera.Project;
+import hera.ProjectFile;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -19,7 +19,7 @@ import lombok.Setter;
 public class ReadProjectFile extends AbstractCommand {
   @Getter
   @Setter
-  protected Project project = new Project();
+  protected ProjectFile project = new ProjectFile();
 
   @Override
   public void execute() throws IOException {
@@ -27,7 +27,7 @@ public class ReadProjectFile extends AbstractCommand {
     final Path projectFilePath = Paths.get(arguments.get(0));
     try (final BufferedReader reader = newBufferedReader(projectFilePath)) {
       final ObjectMapper mapper = new ObjectMapper();
-      project = mapper.readValue(reader, Project.class);
+      project = mapper.readValue(reader, ProjectFile.class);
     }
   }
 }

@@ -2,6 +2,10 @@
  * @copyright defined in LICENSE.txt
  */
 
+jar {
+  archivesBaseName = 'hera-smart-contract'
+}
+
 dependencies {
   implementation project(":core:common")
   implementation project(":core:transport")

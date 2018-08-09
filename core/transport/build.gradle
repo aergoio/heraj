@@ -31,6 +31,10 @@ protobuf {
   }
 }
 
+jar {
+  archivesBaseName = 'hera-transport'
+}
+
 dependencies {
   implementation project(":core:annotation")
   implementation project(":core:util")

@@ -13,7 +13,7 @@ import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Command;
-import hera.Project;
+import hera.ProjectFile;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 
 public abstract class AbstractCommand implements Command {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   @Getter
   @Setter
@@ -73,7 +73,7 @@ public abstract class AbstractCommand implements Command {
    *
    * @throws IOException On failure to read project file
    */
-  public Project readProject() throws IOException {
+  public ProjectFile readProject() throws IOException {
     ReadProjectFile readProjectFile = new ReadProjectFile();
     readProjectFile.setArguments(asList(getProjectFile().toString()));
     readProjectFile.execute();

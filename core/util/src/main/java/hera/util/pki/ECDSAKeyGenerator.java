@@ -34,7 +34,7 @@ public class ECDSAKeyGenerator implements KeyGenerator {
     addProvider(new BouncyCastleProvider());
   }
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   protected KeyPairGenerator getKeyPairGenerator()
       throws NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
