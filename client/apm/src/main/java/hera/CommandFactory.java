@@ -8,9 +8,10 @@ import static java.util.Arrays.asList;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 
-import hera.command.BuildPackage;
+import hera.command.BuildProject;
 import hera.command.CreateProject;
 import hera.command.InstallPackage;
+import hera.command.PublishPackage;
 import java.util.Optional;
 
 public class CommandFactory {
@@ -35,7 +36,9 @@ public class CommandFactory {
       case "install":
         return ofNullable(new InstallPackage());
       case "build":
-        return ofNullable(new BuildPackage());
+        return ofNullable(new BuildProject());
+      case "publish":
+        return ofNullable(new PublishPackage());
       default:
         return empty();
     }

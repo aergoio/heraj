@@ -12,7 +12,7 @@ import hera.ProjectFile;
 import lombok.Getter;
 import lombok.Setter;
 
-public class BuildPackage extends AbstractCommand {
+public class BuildProject extends AbstractCommand {
 
   @Getter
   @Setter
