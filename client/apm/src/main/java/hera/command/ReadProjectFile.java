@@ -17,6 +17,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class ReadProjectFile extends AbstractCommand {
+
   @Getter
   @Setter
   protected ProjectFile project = new ProjectFile();
