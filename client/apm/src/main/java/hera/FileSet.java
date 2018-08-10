@@ -4,9 +4,13 @@
 
 package hera;
 
-import static hera.util.IoUtils.from;
+import static com.google.common.io.MoreFiles.createParentDirectories;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+import static org.slf4j.LoggerFactory.getLogger;
 
+import com.google.common.io.MoreFiles;
+import hera.util.IoUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -14,8 +18,56 @@ import java.nio.file.Path;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Stream;
+import org.slf4j.Logger;
 
 public class FileSet {
+
+  /**
+   * Build from filesystem.
+   *
+   * @param path base path
+   *
+   * @return built fileset
+   *
+   * @throws IOException Fail to access path or sub path
+   */
+  public static FileSet from(final Path path) throws IOException {
+    final FileSet fileSet = new FileSet();
+    rake(path, fileSet, path);
+    return fileSet;
+  }
+
+  /**
+   * Rake fileset from filesystem.
+   *
+   * @param base base path
+   * @param fileSet collected fileset
+   * @param path current path
+   *
+   * @throws IOException Fail to access path or sub path
+   */
+  public static void rake(
+      final Path base,
+      final FileSet fileSet,
+      final Path path) throws IOException {
+    if (!Files.exists(path)) {
+      return;
+    }
+    if (Files.isDirectory(path)) {
+      for (final Path p : Files.list(path).collect(toList())) {
+        rake(base, fileSet, p);
+      }
+    } else {
+      final FileContent fileContent = new FileContent(
+          base.relativize(path).toString(),
+          () -> Files.newInputStream(path)
+      );
+      fileSet.add(fileContent);
+    }
+  }
+
+  protected final transient Logger logger = getLogger(getClass());
+
   protected Set<FileContent> fileSet = new TreeSet<>();
 
   public void add(final FileContent file) {
@@ -26,6 +78,10 @@ public class FileSet {
     return fileSet.stream();
   }
 
+  public void addAll(FileSet that) {
+    this.fileSet.addAll(that.fileSet);
+  }
+
   /**
    * Copy files to {@code base}.
    *
@@ -34,13 +90,15 @@ public class FileSet {
    * @throws IOException On failure to write files.
    */
   public void copyTo(final Path base) throws IOException {
+    logger.trace("Copying to {}...", base);
     Files.createDirectories(base);
 
+    logger.debug("Files: {}", fileSet);
     for (final FileContent fileContent: fileSet) {
       final Path filePath = base.resolve(fileContent.getPath());
-      Files.createDirectory(filePath.getParent());
+      createParentDirectories(filePath);
       try (final InputStream in = fileContent.open()) {
-        Files.write(filePath, from(in));
+        Files.write(filePath, IoUtils.from(in));
       } catch (final IOException e) {
         throw new IllegalStateException(e);
       }

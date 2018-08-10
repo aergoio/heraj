@@ -4,10 +4,10 @@
 
 package hera;
 
+import hera.util.DangerousSupplier;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +18,23 @@ public class FileContent implements Comparable<FileContent> {
   @NonNull
   protected final String path;
 
-  protected final Supplier<InputStream> conentSupplier;
+  protected final DangerousSupplier<InputStream> conentSupplier;
 
+  /**
+   * Open stream for content.
+   *
+   * @return input stream
+   *
+   * @throws IOException Fail to access I/O
+   */
   public InputStream open() throws IOException {
-    return conentSupplier.get();
+    try {
+      return conentSupplier.get();
+    } catch (final IOException ex) {
+      throw ex;
+    } catch (final Throwable ex) {
+      throw new IOException(ex);
+    }
   }
 
   @Override
