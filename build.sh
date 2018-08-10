@@ -72,6 +72,7 @@ function execute-documentation() {
 }
 
 function execute-assemble() {
+  rm -rf $PROJECT_HOME/assembly/build/distributions
   $PROJECT_HOME/gradlew assemble && \
 	  (cd $PROJECT_HOME/assembly/build/distributions && tar -xvf hera-0.1-SNAPSHOT.tar && cd -)
 }

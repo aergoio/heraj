@@ -39,7 +39,14 @@ dependencies {
   implementation project(":core:annotation")
   implementation project(":core:util")
   implementation project(":core:common")
-  implementation 'io.grpc:grpc-netty:1.13.1'
-  implementation 'io.grpc:grpc-protobuf:1.13.1'
-  implementation 'io.grpc:grpc-stub:1.13.1'
+  implementation ('com.google.guava:guava:22.0')
+  implementation ('io.grpc:grpc-netty:1.13.1') {
+    exclude group: 'com.google.guava', module: 'guava'
+  }
+  implementation ('io.grpc:grpc-protobuf:1.13.1') {
+    exclude group: 'com.google.guava', module: 'guava'
+  }
+  implementation ('io.grpc:grpc-stub:1.13.1') {
+    exclude group: 'com.google.guava', module: 'guava'
+  }
 }
