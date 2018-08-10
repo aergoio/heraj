@@ -4,16 +4,20 @@
 
 package hera.command;
 
-import static hera.ApmConstants.PROJECT_FILENAME;
+import static com.google.common.io.MoreFiles.deleteRecursively;
+import static com.google.common.io.RecursiveDeleteOption.ALLOW_INSECURE;
 import static hera.util.FilepathUtils.append;
 import static hera.util.ValidationUtils.assertNotNull;
+import static java.nio.file.Files.copy;
 import static java.nio.file.Files.createDirectories;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static java.nio.file.Files.exists;
+import static java.nio.file.Files.isDirectory;
+import static java.nio.file.Files.list;
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 
 import hera.ProjectFile;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -31,26 +35,30 @@ public class PublishPackage extends AbstractCommand {
     final String buildTarget = rootProject.getTarget();
     assertNotNull(buildTarget, "No target!! add target field to aergo.json.");
 
-    if (!Files.exists(Paths.get(buildTarget))) {
+    if (!exists(Paths.get(buildTarget))) {
       new BuildProject().execute();
     }
 
-    copy(rootProject);
+    final String publishRepository = append(System.getProperty("user.home"), ".aergo_modules");
+    final Path publishPath = Paths.get(append(publishRepository, rootProject.getName()));
+    if (exists(publishPath)) {
+      deleteRecursively(publishPath, ALLOW_INSECURE);
+    }
+    createDirectories(publishPath);
+    copyRecursively(Paths.get("."), publishPath);
   }
 
-  protected void copy(final ProjectFile rootProject) throws IOException {
-    final Path distributionSource = Paths.get(rootProject.getTarget());
-    final String publishRepository = append(System.getProperty("user.home"), ".aergo_modules");
-    final String publishProject = append(publishRepository, rootProject.getName());
-    final Path distributionTarget = Paths.get(append(publishProject, rootProject.getTarget()));
-
-    logger.debug("Project artifact: {}", publishProject);
-    createDirectories(Paths.get(publishProject));
-
-    Files.copy(distributionSource, distributionTarget, REPLACE_EXISTING);
-
-    final Path aergoSource = Paths.get(PROJECT_FILENAME);
-    final Path aergoTarget = Paths.get(append(publishProject, PROJECT_FILENAME));
-    Files.copy(aergoSource, aergoTarget, REPLACE_EXISTING);
+  protected void copyRecursively(final Path source, final Path destination) throws IOException {
+    if (!exists(source)) {
+      return;
+    }
+    if (isDirectory(source)) {
+      createDirectories(destination);
+      for (final Path child : list(source).collect(toList())) {
+        copyRecursively(child, destination.resolve(child.getFileName()));
+      }
+    } else {
+      copy(source, destination);
+    }
   }
 }

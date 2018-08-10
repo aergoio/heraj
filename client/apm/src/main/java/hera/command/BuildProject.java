@@ -9,6 +9,7 @@ import static java.util.Arrays.asList;
 import hera.Builder;
 import hera.FileContent;
 import hera.ProjectFile;
+import hera.build.res.Project;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,8 +27,9 @@ public class BuildProject extends AbstractCommand {
     readProjectFile.setArguments(asList(getProjectFile().toString()));
     readProjectFile.execute();
 
-    final ProjectFile rootProject = readProjectFile.getProject();
-    final Builder builder = new Builder(rootProject);
+    final ProjectFile projectFile = readProjectFile.getProject();
+    final Project project = new Project(".", projectFile);
+    final Builder builder = new Builder(project);
     builder.build();
   }
 }

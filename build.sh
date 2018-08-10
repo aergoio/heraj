@@ -34,6 +34,7 @@ function print-usage() {
   echo "  protobuf    generate code from protobuf declaration"
   echo "  gradle      compile source to executable using gradle"
   echo "  test        test built executable"
+  echo "  assemble    assemble distributions"
 }
 
 function update-protobuf() {

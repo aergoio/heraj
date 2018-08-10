@@ -29,7 +29,7 @@ public class FileSet {
   /**
    * Copy files to {@code base}.
    *
-   * @param base target path
+   * @param base target location
    *
    * @throws IOException On failure to write files.
    */

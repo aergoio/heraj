@@ -78,8 +78,9 @@ public class Graph<NodeT, EdgeT extends Edge<NodeT>> {
    * @return this
    */
   public Graph<NodeT, EdgeT> add(final EdgeT edge) {
-    assertNotNull(edge.getSource());
-    assertNotNull(edge.getDestination());
+    logger.trace("Adding {}...", edge);
+    assertNotNull(edge.getSource(), "The source of edge must not be null");
+    assertNotNull(edge.getDestination(), "The destination of edge must not be null");
     from2to.put(edge.getSource(), edge.getDestination());
     to2from.put(edge.getDestination(), edge.getSource());
     return this;

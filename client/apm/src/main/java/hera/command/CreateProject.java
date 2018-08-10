@@ -19,7 +19,7 @@ public class CreateProject extends AbstractCommand implements Command {
     logger.debug("Arguments: {}", arguments);
     assertTrue(0 == arguments.size());
     final Path projectPath = Paths.get(".").toAbsolutePath();
-    logger.trace("Project path: {}", projectPath);
+    logger.trace("Project location: {}", projectPath);
 
     final Path projectFilePath = Paths.get(projectPath.toString(), PROJECT_FILENAME);
 
