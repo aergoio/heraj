@@ -4,114 +4,86 @@
 
 package hera.client;
 
-import static hera.util.TransportUtils.copyFrom;
-import static java.util.Optional.empty;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
-import static types.AergoRPCServiceGrpc.newBlockingStub;
+import static hera.TransportConstants.TIMEOUT;
+import static types.AergoRPCServiceGrpc.newFutureStub;
 
-import com.google.protobuf.ByteString;
+import hera.api.AccountAsyncOperation;
 import hera.api.AccountOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
-import hera.transport.AccountConverterFactory;
-import hera.transport.AccountStateConverterFactory;
-import hera.transport.ModelConverter;
+import hera.exception.HerajException;
 import io.grpc.ManagedChannel;
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
-import types.AccountOuterClass;
-import types.AergoRPCServiceGrpc.AergoRPCServiceBlockingStub;
-import types.Blockchain.State;
-import types.Rpc.Empty;
-import types.Rpc.Personal;
-import types.Rpc.SingleBytes;
+import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
 @RequiredArgsConstructor
 public class AccountTemplate implements AccountOperation {
 
-  protected final AergoRPCServiceBlockingStub aergoService;
-
-  protected final ModelConverter<Account, AccountOuterClass.Account> accountConverter;
-
-  protected final ModelConverter<AccountState, State> accountStateConverter;
+  protected final AccountAsyncOperation accountAsyncOperation;
 
   public AccountTemplate(final ManagedChannel channel) {
-    this(newBlockingStub(channel));
+    this(newFutureStub(channel));
   }
 
-  public AccountTemplate(final AergoRPCServiceBlockingStub aergoService) {
-    this(aergoService, new AccountConverterFactory().create(),
-        new AccountStateConverterFactory().create());
+  public AccountTemplate(final AergoRPCServiceFutureStub aergoService) {
+    this(new AccountAsyncTemplate(aergoService));
   }
 
   @Override
   public List<Account> list() {
-    return aergoService
-        .getAccounts(Empty.newBuilder().build())
-        .getAccountsList().stream()
-        .map(accountConverter::convertToDomainModel)
-        .collect(toList());
-  }
-
-  @Override
-  public Optional<Account> get(final AccountAddress address) {
-    if (null == address) {
-      return empty();
-    }
-    return list().stream()
-        .filter(account -> address.equals(account.getAddress()))
-        .findFirst();
-  }
-
-  @Override
-  public Account create(final String password) {
-    final Personal personal = Personal.newBuilder().setPassphrase(password).build();
-    final AccountOuterClass.Account account = aergoService.createAccount(personal);
-    final Account domainAccount = accountConverter.convertToDomainModel(account);
-    domainAccount.setPassword(password);
-    return domainAccount;
-  }
-
-
-  @Override
-  public boolean unlock(final Account domainAccount) {
-    final AccountOuterClass.Account rpcAccount = accountConverter.convertToRpcModel(domainAccount);
-    final Personal rpcPersonal = Personal.newBuilder()
-        .setAccount(rpcAccount)
-        .setPassphrase(domainAccount.getPassword()).build();
-    final AccountOuterClass.Account responseAccount = aergoService.unlockAccount(rpcPersonal);
-    return null != responseAccount.getAddress();
-  }
-
-
-  @Override
-  public boolean lock(final Account domainAccount) {
-    final AccountOuterClass.Account rpcAccount = accountConverter.convertToRpcModel(domainAccount);
-    final Personal rpcPersonal = Personal.newBuilder()
-        .setAccount(rpcAccount)
-        .setPassphrase(domainAccount.getPassword()).build();
-    final AccountOuterClass.Account responseAccount = aergoService.lockAccount(rpcPersonal);
-    return null != responseAccount.getAddress();
-  }
-
-  @Override
-  public Optional<AccountState> getState(final AccountAddress address) {
     try {
-      final ByteString byteString = copyFrom(address);
-      final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
-      final State state = aergoService.getState(bytes);
-      return ofNullable(accountStateConverter.convertToDomainModel(state));
-    } catch (final StatusRuntimeException e) {
-      if (ofNullable(e.getStatus()).map(Status::getCode)
-          .filter(code -> Status.NOT_FOUND.getCode() == code).isPresent()) {
-        return empty();
-      }
-      throw e;
+      return accountAsyncOperation.list().get(TIMEOUT, TimeUnit.MILLISECONDS);
+    } catch (Exception e) {
+      throw new HerajException(e);
+    }
+  }
+
+  @Override
+  public Account create(String password) {
+    try {
+      return accountAsyncOperation.create(password).get(TIMEOUT, TimeUnit.MILLISECONDS);
+    } catch (Exception e) {
+      throw new HerajException(e);
+    }
+  }
+
+  @Override
+  public Optional<Account> get(AccountAddress address) {
+    try {
+      return accountAsyncOperation.get(address).get(TIMEOUT, TimeUnit.MILLISECONDS);
+    } catch (Exception e) {
+      throw new HerajException(e);
+    }
+  }
+
+  @Override
+  public boolean lock(Account domainAccount) {
+    try {
+      return accountAsyncOperation.lock(domainAccount).get(TIMEOUT, TimeUnit.MILLISECONDS);
+    } catch (Exception e) {
+      throw new HerajException(e);
+    }
+  }
+
+  @Override
+  public boolean unlock(Account domainAccount) {
+    try {
+      return accountAsyncOperation.unlock(domainAccount).get(TIMEOUT, TimeUnit.MILLISECONDS);
+    } catch (Exception e) {
+      throw new HerajException(e);
+    }
+  }
+
+  @Override
+  public Optional<AccountState> getState(AccountAddress address) {
+    try {
+      return accountAsyncOperation.getState(address).get(TIMEOUT, TimeUnit.MILLISECONDS);
+    } catch (Exception e) {
+      throw new HerajException(e);
     }
   }
 }

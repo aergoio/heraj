@@ -4,137 +4,110 @@
 
 package hera.client;
 
-import static com.google.protobuf.ByteString.copyFrom;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import hera.AbstractTestCase;
+import hera.api.AccountAsyncOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
-import hera.transport.ModelConverter;
 import java.util.List;
 import java.util.Optional;
-import org.junit.BeforeClass;
+import java.util.concurrent.CompletableFuture;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import types.AccountOuterClass;
-import types.AccountOuterClass.AccountList;
-import types.AergoRPCServiceGrpc.AergoRPCServiceBlockingStub;
-import types.Blockchain.State;
+import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
-@PrepareForTest({AergoRPCServiceBlockingStub.class, AccountList.class,
-    AccountOuterClass.Account.class, State.class})
+@PrepareForTest({AergoRPCServiceFutureStub.class})
 public class AccountTemplateTest extends AbstractTestCase {
 
-  protected final byte[] ADDRESS = randomUUID().toString().getBytes();
+  @Test
+  public void testList() throws Exception {
+    CompletableFuture<List<Account>> futureMock = mock(CompletableFuture.class);
+    when(futureMock.get(anyLong(), any())).thenReturn(mock(List.class));
+    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
+    when(asyncOperationMock.list()).thenReturn(futureMock);
 
-  protected static final ModelConverter<Account, AccountOuterClass.Account> accountConverter = mock(
-      ModelConverter.class);
+    final AccountTemplate accountTemplate = new AccountTemplate(asyncOperationMock);
 
-  protected static final ModelConverter<AccountState, State> accountStateConverter = mock(
-      ModelConverter.class);
-
-  @BeforeClass
-  public static void setUpBeforeClass() {
-    when(accountConverter.convertToDomainModel(any(AccountOuterClass.Account.class)))
-        .thenReturn(mock(Account.class));
-    when(accountConverter.convertToRpcModel(any(Account.class)))
-        .thenReturn(mock(AccountOuterClass.Account.class));
-    when(accountStateConverter.convertToDomainModel(any(State.class)))
-        .thenReturn(mock(AccountState.class));
-    when(accountStateConverter.convertToRpcModel(any(AccountState.class)))
-        .thenReturn(mock(State.class));
+    final List<Account> accountListFuture = accountTemplate.list();
+    assertNotNull(accountListFuture);
   }
 
   @Test
-  public void testList() {
-    final AergoRPCServiceBlockingStub aergoService = mock(AergoRPCServiceBlockingStub.class);
-    when(aergoService.getAccounts(any())).thenReturn(mock(AccountList.class));
+  public void testCreate() throws Exception {
+    CompletableFuture<Account> futureMock = mock(CompletableFuture.class);
+    when(futureMock.get(anyLong(), any())).thenReturn(mock(Account.class));
+    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
+    when(asyncOperationMock.create(anyString())).thenReturn(futureMock);
 
-    final AccountTemplate accountTemplate = new AccountTemplate(aergoService, accountConverter,
-        accountStateConverter);
+    final AccountTemplate accountTemplate = new AccountTemplate(asyncOperationMock);
 
-    final List<Account> accountList = accountTemplate.list();
-    assertNotNull(accountList);
+    final Account createdAccount = accountTemplate.create(randomUUID().toString());
+    assertNotNull(createdAccount);
   }
 
   @Test
-  public void testCreate() {
-    final AergoRPCServiceBlockingStub aergoService = mock(AergoRPCServiceBlockingStub.class);
-    when(aergoService.createAccount(any())).thenReturn(mock(AccountOuterClass.Account.class));
+  public void testGet() throws Exception {
+    CompletableFuture<Optional<Account>> futureMock = mock(CompletableFuture.class);
+    when(futureMock.get(anyLong(), any())).thenReturn(Optional.empty());
+    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
+    when(asyncOperationMock.get(any())).thenReturn(futureMock);
 
-    final AccountTemplate accountTemplate = new AccountTemplate(aergoService, accountConverter,
-        accountStateConverter);
+    final AccountTemplate accountTemplate = new AccountTemplate(asyncOperationMock);
 
-    final Account account = accountTemplate.create(randomUUID().toString());
+    final Optional<Account> account = accountTemplate
+        .get(AccountAddress.of(randomUUID().toString().getBytes()));
     assertNotNull(account);
   }
 
   @Test
-  public void testGet() {
-    final AccountOuterClass.Account account = AccountOuterClass.Account.newBuilder()
-        .setAddress(copyFrom(ADDRESS))
-        .build();
-    final AccountList blockchainAccountList = AccountList.newBuilder()
-        .addAccounts(account)
-        .build();
-    final AergoRPCServiceBlockingStub aergoService = mock(AergoRPCServiceBlockingStub.class);
-    when(aergoService.getAccounts(any())).thenReturn(blockchainAccountList);
+  public void testLock() throws Exception {
+    CompletableFuture<Boolean> futureMock = mock(CompletableFuture.class);
+    when(futureMock.get(anyLong(), any())).thenReturn(true);
+    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
+    when(asyncOperationMock.lock(any())).thenReturn(futureMock);
 
-    final AccountTemplate accountTemplate = new AccountTemplate(aergoService);
+    final AccountTemplate accountTemplate = new AccountTemplate(asyncOperationMock);
 
-    final Optional<Account> acocunt = accountTemplate
-        .get(AccountAddress.of(ADDRESS));
-    assertTrue(acocunt.isPresent());
-  }
-
-  @Test
-  public void testLock() {
-    final AccountOuterClass.Account blockchainAccount = AccountOuterClass.Account.newBuilder()
-        .setAddress(copyFrom(ADDRESS))
-        .build();
-    final AergoRPCServiceBlockingStub aergoService = mock(AergoRPCServiceBlockingStub.class);
-    when(aergoService.lockAccount(any())).thenReturn(blockchainAccount);
-
-    final AccountTemplate accountTemplate = new AccountTemplate(aergoService, accountConverter,
-        accountStateConverter);
-
-    final Account account = Account.of(ADDRESS, randomUUID().toString());
-    final boolean lockResult = accountTemplate.lock(account);
+    boolean lockResult = accountTemplate
+        .lock(Account.of(randomUUID().toString().getBytes(), randomUUID().toString()));
     assertTrue(lockResult);
   }
 
   @Test
-  public void testUnlock() {
-    final AccountOuterClass.Account blockchainAccount = AccountOuterClass.Account.newBuilder()
-        .setAddress(copyFrom(ADDRESS))
-        .build();
-    final AergoRPCServiceBlockingStub aergoService = mock(AergoRPCServiceBlockingStub.class);
-    when(aergoService.unlockAccount(any())).thenReturn(blockchainAccount);
+  public void testUnlock() throws Exception {
+    CompletableFuture<Boolean> futureMock = mock(CompletableFuture.class);
+    when(futureMock.get(anyLong(), any())).thenReturn(true);
+    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
+    when(asyncOperationMock.unlock(any())).thenReturn(futureMock);
 
-    final AccountTemplate accountTemplate = new AccountTemplate(aergoService, accountConverter,
-        accountStateConverter);
+    final AccountTemplate accountTemplate = new AccountTemplate(asyncOperationMock);
 
-    final Account account = Account.of(ADDRESS, randomUUID().toString());
-    final boolean unlockResult = accountTemplate.unlock(account);
-    assertTrue(unlockResult);
+    boolean lockResult = accountTemplate
+        .unlock(Account.of(randomUUID().toString().getBytes(), randomUUID().toString()));
+    assertTrue(lockResult);
   }
 
   @Test
-  public void testGetState() {
-    final AergoRPCServiceBlockingStub aergoService = mock(AergoRPCServiceBlockingStub.class);
-    when(aergoService.getState(any())).thenReturn(mock(State.class));
+  public void testGetState() throws Exception {
+    CompletableFuture<Optional<AccountState>> futureMock = mock(CompletableFuture.class);
+    when(futureMock.get(anyLong(), any())).thenReturn(Optional.empty());
+    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
+    when(asyncOperationMock.getState(any())).thenReturn(futureMock);
 
-    final AccountTemplate accountTemplate = new AccountTemplate(aergoService, accountConverter,
-        accountStateConverter);
+    final AccountTemplate accountTemplate = new AccountTemplate(asyncOperationMock);
 
-    final Optional<AccountState> state = accountTemplate.getState(AccountAddress.of(ADDRESS));
-    assertTrue(state.isPresent());
+    final Optional<AccountState> createdAccount = accountTemplate
+        .getState(AccountAddress.of(randomUUID().toString().getBytes()));
+    assertNotNull(createdAccount);
   }
 
 }

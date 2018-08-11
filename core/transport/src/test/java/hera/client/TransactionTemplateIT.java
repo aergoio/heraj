@@ -9,6 +9,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static types.AergoRPCServiceGrpc.newBlockingStub;
+import static types.AergoRPCServiceGrpc.newFutureStub;
 
 import hera.api.SignTemplate;
 import hera.api.model.Account;
@@ -40,12 +41,12 @@ public class TransactionTemplateIT extends AbstractIT {
   @Before
   public void setUp() {
     super.setUp();
-    accountTemplate = new AccountTemplate((newBlockingStub(channel)));
+    accountTemplate = new AccountTemplate(channel);
     sender = accountTemplate.create(PASSWORD);
     recipient = accountTemplate.create(PASSWORD);
     sender.setPassword(PASSWORD);
     accountTemplate.unlock(sender);
-    transactionTemplate = new TransactionTemplate(newBlockingStub(channel));
+    transactionTemplate = new TransactionTemplate(channel);
   }
 
   @Test

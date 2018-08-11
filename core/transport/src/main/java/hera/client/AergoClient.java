@@ -4,8 +4,6 @@
 
 package hera.client;
 
-import static types.AergoRPCServiceGrpc.newBlockingStub;
-
 import hera.api.AbstractAergoApi;
 import hera.api.AccountOperation;
 import hera.api.BlockOperation;
@@ -28,14 +26,13 @@ public class AergoClient extends AbstractAergoApi implements Closeable, AutoClos
   private final SignOperation signOperation = new SignTemplate();
 
   @Getter(lazy = true)
-  private final AccountOperation accountOperation = new AccountTemplate(newBlockingStub(channel));
+  private final AccountOperation accountOperation = new AccountTemplate(channel);
 
   @Getter(lazy = true)
-  private final TransactionOperation transactionOperation =
-      new TransactionTemplate(newBlockingStub(channel));
+  private final TransactionOperation transactionOperation = new TransactionTemplate(channel);
 
   @Getter(lazy = true)
-  private final BlockOperation blockOperation = new BlockTemplate(newBlockingStub(channel));
+  private final BlockOperation blockOperation = new BlockTemplate(channel);
 
   @Override
   public void close() throws IOException {

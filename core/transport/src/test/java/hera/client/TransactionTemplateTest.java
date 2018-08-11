@@ -4,27 +4,25 @@
 
 package hera.client;
 
-import static com.google.protobuf.ByteString.copyFrom;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import hera.AbstractTestCase;
+import hera.api.TransactionAsyncOperation;
 import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
-import hera.transport.ModelConverter;
 import java.util.Optional;
-import org.junit.BeforeClass;
+import java.util.concurrent.CompletableFuture;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceBlockingStub;
 import types.Blockchain;
-import types.Blockchain.TxBody;
-import types.Rpc;
 import types.Rpc.CommitResult;
 import types.Rpc.VerifyResult;
 
@@ -32,84 +30,57 @@ import types.Rpc.VerifyResult;
     CommitResult.class})
 public class TransactionTemplateTest extends AbstractTestCase {
 
-  protected final byte[] TXHASH = randomUUID().toString().getBytes();
+  @Test
+  public void testGetTransaction() throws Exception {
+    CompletableFuture<Optional<Transaction>> futureMock = mock(CompletableFuture.class);
+    when(futureMock.get(anyLong(), any())).thenReturn(Optional.empty());
+    TransactionAsyncOperation asyncOperationMock = mock(TransactionAsyncOperation.class);
+    when(asyncOperationMock.getTransaction(any(Hash.class))).thenReturn(futureMock);
 
-  protected static final ModelConverter<Transaction, Blockchain.Tx> converter = mock(
-      ModelConverter.class);
+    final TransactionTemplate transactionTemplate = new TransactionTemplate(asyncOperationMock);
 
-  @BeforeClass
-  public static void setUpBeforeClass() {
-    when(converter.convertToRpcModel(any(Transaction.class))).thenReturn(mock(Blockchain.Tx.class));
-    when(converter.convertToDomainModel(any(Blockchain.Tx.class)))
-        .thenReturn(mock(Transaction.class));
+    final Optional<Transaction> transaction = transactionTemplate
+        .getTransaction(new Hash(randomUUID().toString().getBytes()));
+    assertNotNull(transaction);
   }
 
   @Test
-  public void testGetTransaction() {
-    final AergoRPCServiceBlockingStub aergoService = mock(AergoRPCServiceBlockingStub.class);
-    when(aergoService.getTX(any())).thenReturn(mock(Blockchain.Tx.class));
+  public void testSign() throws Exception {
+    CompletableFuture<Signature> futureMock = mock(CompletableFuture.class);
+    when(futureMock.get(anyLong(), any())).thenReturn(mock(Signature.class));
+    TransactionAsyncOperation asyncOperationMock = mock(TransactionAsyncOperation.class);
+    when(asyncOperationMock.sign(any(Transaction.class))).thenReturn(futureMock);
 
-    final TransactionTemplate transactionTemplate = new TransactionTemplate(aergoService,
-        converter);
+    final TransactionTemplate transactionTemplate = new TransactionTemplate(asyncOperationMock);
 
-    final Hash hash = new Hash(TXHASH);
-    final Optional<Transaction> transaction = transactionTemplate.getTransaction(hash);
-    assertTrue(transaction.isPresent());
-  }
-
-  @Test
-  public void testSign() {
-    final AergoRPCServiceBlockingStub aergoService = mock(AergoRPCServiceBlockingStub.class);
-    final TxBody txBody = TxBody.newBuilder()
-        .setSign(copyFrom(randomUUID().toString().getBytes()))
-        .build();
-    final Blockchain.Tx resultTx = Blockchain.Tx.newBuilder()
-        .setHash(copyFrom(TXHASH))
-        .setBody(txBody)
-        .build();
-    when(aergoService.signTX(any())).thenReturn(resultTx);
-
-    final TransactionTemplate transactionTemplate = new TransactionTemplate(aergoService,
-        converter);
-
-    final Transaction transaction = new Transaction();
-    final Signature signature = transactionTemplate.sign(transaction);
+    final Signature signature = transactionTemplate.sign(new Transaction());
     assertNotNull(signature);
   }
 
   @Test
-  public void testVerify() {
-    final AergoRPCServiceBlockingStub aergoService = mock(AergoRPCServiceBlockingStub.class);
-    final VerifyResult blockchainVerifyResult = mock(VerifyResult.class);
-    when(aergoService.verifyTX(any())).thenReturn(blockchainVerifyResult);
-    when(blockchainVerifyResult.getErrorValue()).thenReturn(0);
+  public void testVerify() throws Exception {
+    CompletableFuture<Boolean> futureMock = mock(CompletableFuture.class);
+    when(futureMock.get(anyLong(), any())).thenReturn(true);
+    TransactionAsyncOperation asyncOperationMock = mock(TransactionAsyncOperation.class);
+    when(asyncOperationMock.verify(any(Transaction.class))).thenReturn(futureMock);
 
-    final TransactionTemplate transactionTemplate = new TransactionTemplate(aergoService,
-        converter);
+    final TransactionTemplate transactionTemplate = new TransactionTemplate(asyncOperationMock);
 
-    final Transaction transaction = new Transaction();
-    final boolean verifyResult = transactionTemplate.verify(transaction);
+    boolean verifyResult = transactionTemplate.verify(new Transaction());
     assertTrue(verifyResult);
   }
 
   @Test
-  public void testCommit() {
-    final AergoRPCServiceBlockingStub aergoService = mock(AergoRPCServiceBlockingStub.class);
-    CommitResult commitResult = CommitResult.newBuilder()
-        .setHash(copyFrom(TXHASH))
-        .build();
-    final Rpc.CommitResultList commitResultList = Rpc.CommitResultList.newBuilder()
-        .addResults(commitResult)
-        .build();
-    when(aergoService.commitTX(any())).thenReturn(commitResultList);
+  public void testCommit() throws Exception {
+    CompletableFuture<Optional<Hash>> futureMock = mock(CompletableFuture.class);
+    when(futureMock.get(anyLong(), any())).thenReturn(Optional.empty());
+    TransactionAsyncOperation asyncOperationMock = mock(TransactionAsyncOperation.class);
+    when(asyncOperationMock.commit(any(Transaction.class))).thenReturn(futureMock);
 
-    final TransactionTemplate transactionTemplate = new TransactionTemplate(aergoService,
-        converter);
+    final TransactionTemplate transactionTemplate = new TransactionTemplate(asyncOperationMock);
 
-    final Transaction transaction = new Transaction();
-    final Optional<Hash> txHash = transactionTemplate.commit(transaction);
-    assertTrue(txHash.isPresent());
+    final Optional<Hash> hash = transactionTemplate.commit(new Transaction());
+    assertNotNull(hash);
   }
 
 }
-

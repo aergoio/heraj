@@ -23,8 +23,8 @@ public class BlockTemplateIT extends AbstractIT {
   @Before
   public void setUp() {
     super.setUp();
-    blockTemplate = new BlockTemplate(newBlockingStub(channel));
-    blockChainTemplate = new BlockChainTemplate(newBlockingStub(channel));
+    blockTemplate = new BlockTemplate(channel);
+    blockChainTemplate = new BlockChainTemplate(channel);
   }
 
   @Test
