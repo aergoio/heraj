@@ -48,8 +48,8 @@ public class TransactionTemplateBenchmark {
           .forAddress("localhost", 7845)
           .usePlaintext()
           .build();
-      accountTemplate = new AccountTemplate((newBlockingStub(channel)));
-      transactionTemplate = new TransactionTemplate(newBlockingStub(channel));
+      accountTemplate = new AccountTemplate(channel);
+      transactionTemplate = new TransactionTemplate(channel);
       sender = accountTemplate.create(PASSWORD);
       recipient = accountTemplate.create(PASSWORD);
       sender.setPassword(PASSWORD);
