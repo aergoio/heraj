@@ -6,16 +6,14 @@ package hera.api.model;
 
 import hera.api.Encoder;
 import hera.util.HexUtils;
-import hera.util.StringUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.Supplier;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 public class BytesValue implements Supplier<InputStream> {
 
   /**
@@ -31,16 +29,15 @@ public class BytesValue implements Supplier<InputStream> {
     return new BytesValue(Arrays.copyOf(bytes, bytes.length));
   }
 
+  public BytesValue(final byte[] bytes) {
+    this.value = Optional.ofNullable(bytes).orElse(new byte[0]);
+  }
+
   protected transient int hash;
 
   @Getter
   protected final byte[] value;
 
-  /**
-   * Get encoded bytes value with a default encoder.
-   *
-   * @return encoded bytes value if a value isn't null. Otherwise, null
-   */
   public String getEncodedValue() throws IOException {
     return getEncodedValue(Encoder.defaultEncoder);
   }
@@ -49,10 +46,10 @@ public class BytesValue implements Supplier<InputStream> {
    * Get encoded bytes value with a provided encoder.
    *
    * @param encoder encoder
-   * @return encoded bytes value if a value and an encoder isn't null. Otherwise, null
+   * @return encoded bytes value if an encoder isn't null. Otherwise, null
    */
   public String getEncodedValue(final Encoder encoder) throws IOException {
-    if (null == value || null == encoder) {
+    if (null == encoder) {
       return null;
     }
     return encoder.encode(new ByteArrayInputStream(value)).toString();
@@ -60,17 +57,11 @@ public class BytesValue implements Supplier<InputStream> {
 
   @Override
   public String toString() {
-    if (null == value) {
-      return StringUtils.NULL_STRING;
-    }
     return HexUtils.encode(value);
   }
 
   @Override
   public int hashCode() {
-    if (null == this.value) {
-      return 0;
-    }
     int h = this.hash;
     if (h == 0 && this.value.length > 0) {
       for (final byte byteValue : this.value) {
@@ -96,9 +87,6 @@ public class BytesValue implements Supplier<InputStream> {
 
   @Override
   public InputStream get() {
-    if (null == getValue()) {
-      return null;
-    }
     return new ByteArrayInputStream(getValue());
   }
 }
