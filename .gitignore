@@ -5,3 +5,5 @@
 build
 *.proto
 Gemfile.lock
+
+!.travis.yml

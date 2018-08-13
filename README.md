@@ -1,5 +1,6 @@
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![LoC](https://tokei.rs/b1/github/aergoio/heraj)](https://github.com/aergoio/heraj)
+[![Travis_ci](https://travis-ci.org/aergoio/heraj.svg?branch=master)](https://travis-ci.org/aergoio/heraj)
 
 # Introduction
 The hera is the client-side framework for the aergo.

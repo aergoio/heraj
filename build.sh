@@ -75,7 +75,7 @@ function execute-documentation() {
 function execute-assemble() {
   rm -rf $PROJECT_HOME/assembly/build/distributions
   $PROJECT_HOME/gradlew assemble && \
-	  (cd $PROJECT_HOME/assembly/build/distributions && tar -xvf hera-0.1-SNAPSHOT.tar && cd -)
+    (cd $PROJECT_HOME/assembly/build/distributions && tar -xvf hera-0.1-SNAPSHOT.tar && cd -)
 }
 
 
@@ -87,7 +87,7 @@ else
   while (( $# )); do
     case $1 in
       "clean")
-	clean-workspace
+        clean-workspace
         ;;
       "protobuf")
         update-protobuf
@@ -106,8 +106,9 @@ else
         ;;
       *)
         print-usage
-	;;
+        ;;
     esac
+    [[ $? != 0 ]] && exit 1
     shift
   done
 fi
