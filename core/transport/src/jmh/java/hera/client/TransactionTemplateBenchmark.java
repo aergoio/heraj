@@ -52,8 +52,7 @@ public class TransactionTemplateBenchmark {
       transactionTemplate = new TransactionTemplate(channel);
       sender = accountTemplate.create(PASSWORD);
       recipient = accountTemplate.create(PASSWORD);
-      sender.setPassword(PASSWORD);
-      accountTemplate.unlock(sender);
+      accountTemplate.unlock(sender.getAddress(), PASSWORD);
     }
 
     @TearDown(Level.Trial)

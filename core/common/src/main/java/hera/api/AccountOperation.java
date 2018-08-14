@@ -38,18 +38,20 @@ public interface AccountOperation {
   /**
    * Lock an account.
    *
-   * @param domainAccount account
+   * @param address account address
+   * @param password account password
    * @return whether account is locked or not
    */
-  boolean lock(Account domainAccount);
+  boolean lock(AccountAddress address, String password);
 
   /**
    * Unlock an account.
    *
-   * @param domainAccount account
+   * @param address account address
+   * @param password account password
    * @return whether account is unlocked or not
    */
-  boolean unlock(Account domainAccount);
+  boolean unlock(AccountAddress address, String password);
 
   /**
    * Get account state by account address.

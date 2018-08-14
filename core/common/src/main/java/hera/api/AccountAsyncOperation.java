@@ -39,18 +39,20 @@ public interface AccountAsyncOperation {
   /**
    * Lock an account asynchronously.
    *
-   * @param domainAccount account
+   * @param address account address
+   * @param password account password
    * @return whether account is locked or not
    */
-  CompletableFuture<Boolean> lock(Account domainAccount);
+  CompletableFuture<Boolean> lock(AccountAddress address, String password);
 
   /**
    * Unlock an account asynchronously.
    *
-   * @param domainAccount account
+   * @param address account address
+   * @param password account password
    * @return whether account is unlocked or not
    */
-  CompletableFuture<Boolean> unlock(Account domainAccount);
+  CompletableFuture<Boolean> unlock(AccountAddress address, String password);
 
   /**
    * Get account state by account address asynchronously.

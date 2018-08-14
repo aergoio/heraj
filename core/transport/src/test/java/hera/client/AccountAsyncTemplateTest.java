@@ -9,7 +9,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
-
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
 import hera.api.model.Account;
@@ -30,13 +29,16 @@ import types.Blockchain.State;
 @PrepareForTest({AergoRPCServiceFutureStub.class, AccountOuterClass.Account.class, State.class})
 public class AccountAsyncTemplateTest extends AbstractTestCase {
 
-  protected final byte[] ADDRESS = randomUUID().toString().getBytes();
+  protected final AccountAddress ACCOUNT_ADDRESS =
+      AccountAddress.of(randomUUID().toString().getBytes());
 
-  protected static final ModelConverter<Account, AccountOuterClass.Account> accountConverter = mock(
-      ModelConverter.class);
+  protected final String PASSWORD = randomUUID().toString();
 
-  protected static final ModelConverter<AccountState, State> accountStateConverter = mock(
-      ModelConverter.class);
+  protected static final ModelConverter<Account, AccountOuterClass.Account> accountConverter =
+      mock(ModelConverter.class);
+
+  protected static final ModelConverter<AccountState, State> accountStateConverter =
+      mock(ModelConverter.class);
 
   @BeforeClass
   public static void setUpBeforeClass() {
@@ -56,9 +58,8 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.getAccounts(any())).thenReturn(mockListenableFuture);
 
-    final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
-        accountConverter,
-        accountStateConverter);
+    final AccountAsyncTemplate accountAsyncTemplate =
+        new AccountAsyncTemplate(aergoService, accountConverter, accountStateConverter);
 
     final CompletableFuture<List<Account>> accountListFuture = accountAsyncTemplate.list();
     assertNotNull(accountListFuture);
@@ -70,12 +71,11 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.createAccount(any())).thenReturn(mockListenableFuture);
 
-    final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
-        accountConverter,
-        accountStateConverter);
+    final AccountAsyncTemplate accountAsyncTemplate =
+        new AccountAsyncTemplate(aergoService, accountConverter, accountStateConverter);
 
-    final CompletableFuture<Account> accountFuture = accountAsyncTemplate
-        .create(randomUUID().toString());
+    final CompletableFuture<Account> accountFuture =
+        accountAsyncTemplate.create(randomUUID().toString());
     assertNotNull(accountFuture);
   }
 
@@ -85,12 +85,11 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.getAccounts(any())).thenReturn(mockListenableFuture);
 
-    final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
-        accountConverter,
-        accountStateConverter);
+    final AccountAsyncTemplate accountAsyncTemplate =
+        new AccountAsyncTemplate(aergoService, accountConverter, accountStateConverter);
 
-    final CompletableFuture<Optional<Account>> accountFuture = accountAsyncTemplate
-        .get(AccountAddress.of(ADDRESS));
+    final CompletableFuture<Optional<Account>> accountFuture =
+        accountAsyncTemplate.get(ACCOUNT_ADDRESS);
     assertNotNull(accountFuture);
   }
 
@@ -100,12 +99,11 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.lockAccount(any())).thenReturn(mockListenableFuture);
 
-    final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
-        accountConverter,
-        accountStateConverter);
+    final AccountAsyncTemplate accountAsyncTemplate =
+        new AccountAsyncTemplate(aergoService, accountConverter, accountStateConverter);
 
-    final Account account = Account.of(ADDRESS, randomUUID().toString());
-    final CompletableFuture<Boolean> lockResult = accountAsyncTemplate.lock(account);
+    final CompletableFuture<Boolean> lockResult =
+        accountAsyncTemplate.lock(ACCOUNT_ADDRESS, PASSWORD);
     assertNotNull(lockResult);
   }
 
@@ -115,12 +113,11 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.unlockAccount(any())).thenReturn(mockListenableFuture);
 
-    final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
-        accountConverter,
-        accountStateConverter);
+    final AccountAsyncTemplate accountAsyncTemplate =
+        new AccountAsyncTemplate(aergoService, accountConverter, accountStateConverter);
 
-    final Account account = Account.of(ADDRESS, randomUUID().toString());
-    final CompletableFuture<Boolean> accountFuture = accountAsyncTemplate.unlock(account);
+    final CompletableFuture<Boolean> accountFuture =
+        accountAsyncTemplate.unlock(ACCOUNT_ADDRESS, PASSWORD);
     assertNotNull(accountFuture);
   }
 
@@ -130,12 +127,11 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.getState(any())).thenReturn(mockListenableFuture);
 
-    final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
-        accountConverter,
-        accountStateConverter);
+    final AccountAsyncTemplate accountAsyncTemplate =
+        new AccountAsyncTemplate(aergoService, accountConverter, accountStateConverter);
 
-    final CompletableFuture<Optional<AccountState>> accountFuture = accountAsyncTemplate
-        .getState(AccountAddress.of(ADDRESS));
+    final CompletableFuture<Optional<AccountState>> accountFuture =
+        accountAsyncTemplate.getState(ACCOUNT_ADDRESS);
     assertNotNull(accountFuture);
   }
 

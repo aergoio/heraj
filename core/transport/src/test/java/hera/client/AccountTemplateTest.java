@@ -12,7 +12,6 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
 import hera.AbstractTestCase;
 import hera.api.AccountAsyncOperation;
 import hera.api.model.Account;
@@ -27,6 +26,11 @@ import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
 @PrepareForTest({AergoRPCServiceFutureStub.class})
 public class AccountTemplateTest extends AbstractTestCase {
+
+  protected final AccountAddress ACCOUNT_ADDRESS =
+      AccountAddress.of(randomUUID().toString().getBytes());
+
+  protected final String PASSWORD = randomUUID().toString();
 
   @Test
   public void testList() throws Exception {
@@ -63,8 +67,7 @@ public class AccountTemplateTest extends AbstractTestCase {
 
     final AccountTemplate accountTemplate = new AccountTemplate(asyncOperationMock);
 
-    final Optional<Account> account = accountTemplate
-        .get(AccountAddress.of(randomUUID().toString().getBytes()));
+    final Optional<Account> account = accountTemplate.get(ACCOUNT_ADDRESS);
     assertNotNull(account);
   }
 
@@ -73,12 +76,11 @@ public class AccountTemplateTest extends AbstractTestCase {
     CompletableFuture<Boolean> futureMock = mock(CompletableFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(true);
     AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
-    when(asyncOperationMock.lock(any())).thenReturn(futureMock);
+    when(asyncOperationMock.lock(any(), anyString())).thenReturn(futureMock);
 
     final AccountTemplate accountTemplate = new AccountTemplate(asyncOperationMock);
 
-    boolean lockResult = accountTemplate
-        .lock(Account.of(randomUUID().toString().getBytes(), randomUUID().toString()));
+    boolean lockResult = accountTemplate.lock(ACCOUNT_ADDRESS, PASSWORD);
     assertTrue(lockResult);
   }
 
@@ -87,12 +89,11 @@ public class AccountTemplateTest extends AbstractTestCase {
     CompletableFuture<Boolean> futureMock = mock(CompletableFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(true);
     AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
-    when(asyncOperationMock.unlock(any())).thenReturn(futureMock);
+    when(asyncOperationMock.unlock(any(), anyString())).thenReturn(futureMock);
 
     final AccountTemplate accountTemplate = new AccountTemplate(asyncOperationMock);
 
-    boolean lockResult = accountTemplate
-        .unlock(Account.of(randomUUID().toString().getBytes(), randomUUID().toString()));
+    boolean lockResult = accountTemplate.unlock(ACCOUNT_ADDRESS, PASSWORD);
     assertTrue(lockResult);
   }
 
@@ -105,8 +106,7 @@ public class AccountTemplateTest extends AbstractTestCase {
 
     final AccountTemplate accountTemplate = new AccountTemplate(asyncOperationMock);
 
-    final Optional<AccountState> createdAccount = accountTemplate
-        .getState(AccountAddress.of(randomUUID().toString().getBytes()));
+    final Optional<AccountState> createdAccount = accountTemplate.getState(ACCOUNT_ADDRESS);
     assertNotNull(createdAccount);
   }
 

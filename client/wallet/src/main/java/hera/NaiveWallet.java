@@ -75,12 +75,12 @@ public class NaiveWallet implements Wallet {
 
   public void unlock(Object authentication) {
     final AergoApi api = this.context.api();
-    api.getAccountOperation().unlock(null);
+    api.getAccountOperation().unlock(null, null);
   }
 
   public void lock() {
     final AergoApi api = this.context.api();
-    api.getAccountOperation().lock(null);
+    api.getAccountOperation().lock(null, null);
   }
 
   /**

@@ -44,8 +44,7 @@ public class TransactionTemplateIT extends AbstractIT {
     accountTemplate = new AccountTemplate(channel);
     sender = accountTemplate.create(PASSWORD);
     recipient = accountTemplate.create(PASSWORD);
-    sender.setPassword(PASSWORD);
-    accountTemplate.unlock(sender);
+    accountTemplate.unlock(sender.getAddress(), PASSWORD);
     transactionTemplate = new TransactionTemplate(channel);
   }
 

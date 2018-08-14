@@ -61,18 +61,18 @@ public class AccountTemplate implements AccountOperation {
   }
 
   @Override
-  public boolean lock(Account domainAccount) {
+  public boolean lock(AccountAddress address, String password) {
     try {
-      return accountAsyncOperation.lock(domainAccount).get(TIMEOUT, TimeUnit.MILLISECONDS);
+      return accountAsyncOperation.lock(address, password).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
       throw new HerajException(e);
     }
   }
 
   @Override
-  public boolean unlock(Account domainAccount) {
+  public boolean unlock(AccountAddress address, String password) {
     try {
-      return accountAsyncOperation.unlock(domainAccount).get(TIMEOUT, TimeUnit.MILLISECONDS);
+      return accountAsyncOperation.unlock(address, password).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
       throw new HerajException(e);
     }

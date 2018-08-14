@@ -73,13 +73,13 @@ public class ServerAccountRepository implements AccountRepository {
   @Override
   public void unlock(String address, String password) throws IOException {
     final AccountOperation accountOperation = aergoApi.getAccountOperation();
-    accountOperation.unlock(Account.of(HexUtils.decode(address), password));
+    accountOperation.unlock(AccountAddress.of(HexUtils.decode(address)), password);
   }
 
   @Override
   public void lock(String address, String password) throws IOException {
     final AccountOperation accountOperation = aergoApi.getAccountOperation();
-    accountOperation.lock(Account.of(HexUtils.decode(address), password));
+    accountOperation.lock(AccountAddress.of(HexUtils.decode(address)), password);
   }
 
   @Override

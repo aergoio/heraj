@@ -92,9 +92,10 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
   }
 
   @Override
-  public CompletableFuture<Boolean> unlock(Account domainAccount) {
+  public CompletableFuture<Boolean> unlock(AccountAddress address, String password) {
     CompletableFuture<Boolean> nextFuture = new CompletableFuture<>();
 
+    final Account domainAccount = Account.of(address, password);
     final Personal rpcPersonal = Personal.newBuilder()
         .setAccount(accountConverter.convertToRpcModel(domainAccount))
         .setPassphrase(domainAccount.getPassword()).build();
@@ -109,9 +110,10 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
   }
 
   @Override
-  public CompletableFuture<Boolean> lock(Account domainAccount) {
+  public CompletableFuture<Boolean> lock(AccountAddress address, String password) {
     CompletableFuture<Boolean> nextFuture = new CompletableFuture<>();
 
+    final Account domainAccount = Account.of(address, password);
     final Personal rpcPersonal = Personal.newBuilder()
         .setAccount(accountConverter.convertToRpcModel(domainAccount))
         .setPassphrase(domainAccount.getPassword()).build();
