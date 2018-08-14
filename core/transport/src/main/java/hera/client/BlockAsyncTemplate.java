@@ -5,6 +5,7 @@
 package hera.client;
 
 import static hera.util.TransportUtils.copyFrom;
+import static hera.util.TransportUtils.longToByteArray;
 import static java.util.stream.Collectors.toList;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
@@ -16,6 +17,7 @@ import hera.FutureChainer;
 import hera.api.BlockAsyncOperation;
 import hera.api.model.Block;
 import hera.api.model.BlockHeader;
+import hera.api.model.BytesValue;
 import hera.api.model.Hash;
 import hera.transport.BlockConverterFactory;
 import hera.transport.ModelConverter;
@@ -53,6 +55,20 @@ public class BlockAsyncTemplate implements BlockAsyncOperation {
     ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(bytes);
     FutureChainer<Blockchain.Block, Block> callback = new FutureChainer<>(nextFuture,
         b -> blockConverter.convertToDomainModel(b));
+    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+
+    return nextFuture;
+  }
+
+  @Override
+  public CompletableFuture<Block> getBlock(final long height) {
+    final CompletableFuture<Block> nextFuture = new CompletableFuture<>();
+
+    final ByteString byteString = copyFrom(BytesValue.of(longToByteArray(height)));
+    final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
+    ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(bytes);
+    FutureChainer<Blockchain.Block, Block> callback =
+        new FutureChainer<>(nextFuture, b -> blockConverter.convertToDomainModel(b));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;

@@ -13,12 +13,20 @@ import java.util.concurrent.CompletableFuture;
 public interface BlockAsyncOperation {
 
   /**
-   * Get block asynchronously.
+   * Get block by hash asynchronously.
    *
    * @param hash block's hash
    * @return block
    */
   CompletableFuture<Block> getBlock(Hash hash);
+
+  /**
+   * Get block by height asynchronously.
+   *
+   * @param height block's height
+   * @return block
+   */
+  CompletableFuture<Block> getBlock(long height);
 
   /**
    * Get block headers of size starting from block for provided hash asynchronously.

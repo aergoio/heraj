@@ -17,12 +17,8 @@ import hera.api.BlockAsyncOperation;
 import hera.api.model.Block;
 import hera.api.model.BlockHeader;
 import hera.api.model.Hash;
-import hera.transport.ModelConverter;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceBlockingStub;
@@ -34,7 +30,7 @@ import types.Rpc;
 public class BlockTemplateTest extends AbstractTestCase {
 
   @Test
-  public void testGetBlock() throws Exception {
+  public void testGetBlockByHash() throws Exception {
     CompletableFuture<Block> futureMock = mock(CompletableFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(Block.class));
     BlockAsyncOperation asyncOperationMock = mock(BlockAsyncOperation.class);
@@ -43,6 +39,19 @@ public class BlockTemplateTest extends AbstractTestCase {
     final BlockTemplate blockTemplate = new BlockTemplate(asyncOperationMock);
 
     final Block block = blockTemplate.getBlock(new Hash(randomUUID().toString().getBytes()));
+    assertNotNull(block);
+  }
+
+  @Test
+  public void testGetBlockByHeight() throws Exception {
+    CompletableFuture<Block> futureMock = mock(CompletableFuture.class);
+    when(futureMock.get(anyLong(), any())).thenReturn(mock(Block.class));
+    BlockAsyncOperation asyncOperationMock = mock(BlockAsyncOperation.class);
+    when(asyncOperationMock.getBlock(anyLong())).thenReturn(futureMock);
+
+    final BlockTemplate blockTemplate = new BlockTemplate(asyncOperationMock);
+
+    final Block block = blockTemplate.getBlock(randomUUID().hashCode());
     assertNotNull(block);
   }
 
@@ -69,8 +78,8 @@ public class BlockTemplateTest extends AbstractTestCase {
 
     final BlockTemplate blockTemplate = new BlockTemplate(asyncOperationMock);
 
-    final List<BlockHeader> block = blockTemplate
-        .listBlockHeaders(randomUUID().hashCode(), randomUUID().hashCode());
+    final List<BlockHeader> block =
+        blockTemplate.listBlockHeaders(randomUUID().hashCode(), randomUUID().hashCode());
     assertNotNull(block);
   }
 }

@@ -42,6 +42,15 @@ public class BlockTemplate implements BlockOperation {
   }
 
   @Override
+  public Block getBlock(final long height) {
+    try {
+      return blockAsyncOperation.getBlock(height).get(TIMEOUT, TimeUnit.MILLISECONDS);
+    } catch (Exception e) {
+      throw new HerajException(e);
+    }
+  }
+
+  @Override
   public List<BlockHeader> listBlockHeaders(Hash hash, int size) {
     try {
       return blockAsyncOperation.listBlockHeaders(hash, size).get(TIMEOUT, TimeUnit.MILLISECONDS);

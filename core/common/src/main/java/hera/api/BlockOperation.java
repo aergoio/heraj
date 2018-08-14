@@ -12,12 +12,20 @@ import java.util.List;
 public interface BlockOperation {
 
   /**
-   * Get block.
+   * Get block by hash.
    *
    * @param hash block's hash
    * @return block
    */
   Block getBlock(Hash hash);
+
+  /**
+   * Get block by height.
+   *
+   * @param height block's height
+   * @return block
+   */
+  Block getBlock(long height);
 
   /**
    * Get block headers of size starting from block for provided hash.

@@ -6,6 +6,7 @@ package hera.util;
 
 import com.google.protobuf.ByteString;
 import hera.api.model.BytesValue;
+import java.nio.ByteBuffer;
 
 public class TransportUtils {
 
@@ -21,6 +22,21 @@ public class TransportUtils {
       return ByteString.copyFrom(bytesValue.getValue());
     }
     return ByteString.EMPTY;
+  }
+
+  /**
+   * Convert long value to byte array in a little endian.
+   *
+   * @param longValue long value
+   * @return converted byte array in a little endian
+   */
+  public static byte[] longToByteArray(final long longValue) {
+    final ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+    for (int i = 0; i < 8; ++i) {
+      int shift = 8 * i;
+      buffer.put((byte) (longValue >> shift));
+    }
+    return buffer.array();
   }
 
 }

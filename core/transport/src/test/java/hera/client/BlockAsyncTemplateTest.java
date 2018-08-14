@@ -30,8 +30,8 @@ import types.Rpc;
     Rpc.BlockHeaderList.class})
 public class BlockAsyncTemplateTest extends AbstractTestCase {
 
-  protected static final ModelConverter<Block, Blockchain.Block> blockConverter = mock(
-      ModelConverter.class);
+  protected static final ModelConverter<Block, Blockchain.Block> blockConverter =
+      mock(ModelConverter.class);
 
   @BeforeClass
   public static void setUpBeforeClass() {
@@ -42,16 +42,29 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetBlock() {
+  public void testGetBlockByHash() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.getBlock(any())).thenReturn(mockListenableFuture);
 
-    final BlockAsyncTemplate blockAsyncTemplate = new BlockAsyncTemplate(
-        aergoService, blockConverter);
+    final BlockAsyncTemplate blockAsyncTemplate =
+        new BlockAsyncTemplate(aergoService, blockConverter);
 
-    final CompletableFuture<Block> block = blockAsyncTemplate
-        .getBlock(new Hash(randomUUID().toString().getBytes()));
+    final CompletableFuture<Block> block =
+        blockAsyncTemplate.getBlock(new Hash(randomUUID().toString().getBytes()));
+    assertNotNull(block);
+  }
+
+  @Test
+  public void testGetBlockByHeight() {
+    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
+    ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
+    when(aergoService.getBlock(any())).thenReturn(mockListenableFuture);
+
+    final BlockAsyncTemplate blockAsyncTemplate =
+        new BlockAsyncTemplate(aergoService, blockConverter);
+
+    final CompletableFuture<Block> block = blockAsyncTemplate.getBlock(randomUUID().hashCode());
     assertNotNull(block);
   }
 
@@ -61,8 +74,8 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.listBlockHeaders(any())).thenReturn(mockListenableFuture);
 
-    final BlockAsyncTemplate blockAsyncTemplate = new BlockAsyncTemplate(
-        aergoService, blockConverter);
+    final BlockAsyncTemplate blockAsyncTemplate =
+        new BlockAsyncTemplate(aergoService, blockConverter);
 
     final CompletableFuture<List<BlockHeader>> blockHeaders = blockAsyncTemplate
         .listBlockHeaders(new Hash(randomUUID().toString().getBytes()), randomUUID().hashCode());
@@ -75,11 +88,11 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.listBlockHeaders(any())).thenReturn(mockListenableFuture);
 
-    final BlockAsyncTemplate blockAsyncTemplate = new BlockAsyncTemplate(
-        aergoService, blockConverter);
+    final BlockAsyncTemplate blockAsyncTemplate =
+        new BlockAsyncTemplate(aergoService, blockConverter);
 
-    final CompletableFuture<List<BlockHeader>> blockHeaders = blockAsyncTemplate
-        .listBlockHeaders(randomUUID().hashCode(), randomUUID().hashCode());
+    final CompletableFuture<List<BlockHeader>> blockHeaders =
+        blockAsyncTemplate.listBlockHeaders(randomUUID().hashCode(), randomUUID().hashCode());
     assertNotNull(blockHeaders);
   }
 }
