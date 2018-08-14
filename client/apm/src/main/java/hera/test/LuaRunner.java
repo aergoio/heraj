@@ -48,7 +48,7 @@ public class LuaRunner {
       final String lineNumberStr = info.substring(colonIndex + 1, messageIndex).trim();
       final int lineNumber = Integer.parseInt(lineNumberStr);
       final int columnNumber = -1;
-      logger.debug("{}:{} - Message: {}", lineNumber, colonIndex, info);
+      logger.debug("{}:{} - Message: {}", lineNumber, columnNumber, info);
       return fail(message, lineNumber, columnNumber);
     }
   }

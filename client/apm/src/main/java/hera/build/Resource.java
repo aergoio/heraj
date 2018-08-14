@@ -6,6 +6,7 @@ package hera.build;
 
 import static java.util.Collections.EMPTY_LIST;
 import static java.util.Optional.of;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.build.res.Project;
 import hera.util.Adaptor;
@@ -16,9 +17,13 @@ import java.util.List;
 import java.util.Optional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
 
 @RequiredArgsConstructor
 public class Resource implements Adaptor {
+
+  protected final transient Logger logger = getLogger(getClass());
+
   @Getter
   protected final Project project;
 
@@ -40,5 +45,10 @@ public class Resource implements Adaptor {
       return (Optional<T>) of(this);
     }
     return Optional.empty();
+  }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + "@" + location + "(" + project.getLocation() + ")";
   }
 }

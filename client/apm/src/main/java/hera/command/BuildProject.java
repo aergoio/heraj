@@ -4,8 +4,6 @@
 
 package hera.command;
 
-import static java.util.Arrays.asList;
-
 import hera.Builder;
 import hera.FileContent;
 import hera.FileSet;
@@ -25,11 +23,7 @@ public class BuildProject extends AbstractCommand {
   public void execute() throws Exception {
     logger.trace("Starting {}...", this);
 
-    final ReadProjectFile readProjectFile = new ReadProjectFile();
-    readProjectFile.setArguments(asList(getProjectFile().toString()));
-    readProjectFile.execute();
-
-    final ProjectFile projectFile = readProjectFile.getProject();
+    final ProjectFile projectFile = readProject();
     final Project project = new Project(".", projectFile);
     final Builder builder = new BuilderFactory().create(project);
     final String buildTarget = projectFile.getTarget();

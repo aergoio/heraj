@@ -6,7 +6,6 @@ package hera.command;
 
 import static hera.ApmConstants.MODULES_BASE;
 import static hera.ApmConstants.PROJECT_FILENAME;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
@@ -74,10 +73,7 @@ public abstract class AbstractCommand implements Command {
    * @throws IOException On failure to read project file
    */
   public ProjectFile readProject() throws IOException {
-    final ReadProjectFile readProjectFile = new ReadProjectFile();
-    readProjectFile.setArguments(asList(getProjectFile().toString()));
-    readProjectFile.execute();
-    return readProjectFile.getProject();
+    return ProjectFile.from(getProjectFile());
   }
 
 }

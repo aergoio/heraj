@@ -16,7 +16,19 @@ public class File extends Resource {
     super(project, path);
   }
 
+  /**
+   * Open file and return {@link BufferedReader}.
+   *
+   * @return buffered reader
+   *
+   * @throws IOException Fail to open
+   */
   public BufferedReader open() throws IOException {
-    return newBufferedReader(getPath());
+    try {
+      return newBufferedReader(getPath());
+    } catch (final IOException ex) {
+      logger.error("Fail to open {}", getPath());
+      throw ex;
+    }
   }
 }

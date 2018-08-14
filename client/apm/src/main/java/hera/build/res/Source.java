@@ -33,8 +33,8 @@ public class Source extends File {
     final ArrayList<Resource> dependencies = new ArrayList<>();
     dependencies.addAll(super.getDependencies(resourceManager));
     readImports().stream()
-        .map(importPath -> append(getParentPath(getLocation()), importPath))
-        .map(resourceManager::get).forEach(dependencies::add);
+        .map(importPath -> this.bind(resourceManager, importPath))
+        .forEach(dependencies::add);
     return dependencies;
   }
 
@@ -76,6 +76,14 @@ public class Source extends File {
     } catch (final NoSuchFileException e) {
       logger.trace("{} not found", location);
       return emptyList();
+    }
+  }
+
+  protected Resource bind(final ResourceManager resourceManager, final String importPath) {
+    if (importPath.startsWith("./") || importPath.startsWith("../")) {
+      return resourceManager.getResource(append(getParentPath(getLocation()), importPath));
+    } else {
+      return resourceManager.getPackage(importPath);
     }
   }
 

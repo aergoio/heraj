@@ -22,7 +22,7 @@ public class BuildResource extends Resource {
     final ArrayList<Resource> dependencies = new ArrayList<>();
     dependencies.addAll(super.getDependencies(resourceManager));
 
-    dependencies.add(resourceManager.get(projectFile.getSource()));
+    dependencies.add(resourceManager.getResource(projectFile.getSource()));
 
     return dependencies;
   }

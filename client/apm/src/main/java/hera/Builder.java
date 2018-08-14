@@ -12,8 +12,8 @@ import hera.build.Resource;
 import hera.build.ResourceManager;
 import hera.build.res.BuildResource;
 import hera.build.res.TestResource;
-import hera.util.HexUtils;
 import java.io.ByteArrayInputStream;
+import java.util.Optional;
 import lombok.Getter;
 import org.slf4j.Logger;
 
@@ -43,15 +43,21 @@ public class Builder {
    * @return Build result fileset
    */
   public FileSet build(final String resourcePath) {
-    final Resource resource = resourceManager.get(resourcePath);
+    final Resource resource = resourceManager.getResource(resourcePath);
     logger.trace("{}: {}", resourcePath, resource);
     final Concatenator concatenator = new Concatenator(resourceManager);
-    resource.adapt(BuildResource.class).ifPresent(concatenator::visit);
-    resource.adapt(TestResource.class).ifPresent(concatenator::visit);
-    final byte[] buildResult = concatenator.getResult();
-    logger.trace("Build result: {}", HexUtils.dump(buildResult));
-
-    return new FileSet(asList(
-        new FileContent(resourcePath, () -> new ByteArrayInputStream(buildResult))));
+    final Optional<BuildResource> buildResourceOpt = resource.adapt(BuildResource.class);
+    final Optional<TestResource> testResourceOpt = resource.adapt(TestResource.class);
+    if (buildResourceOpt.isPresent()) {
+      final byte[] contents = concatenator.visit(buildResourceOpt.get());
+      return new FileSet(asList(
+          new FileContent(resourcePath, () -> new ByteArrayInputStream(contents))));
+    } else if (testResourceOpt.isPresent()) {
+      final byte[] contents = concatenator.visit(testResourceOpt.get());
+      return new FileSet(asList(
+          new FileContent(resourcePath, () -> new ByteArrayInputStream(contents))));
+    } else {
+      return new FileSet();
+    }
   }
 }

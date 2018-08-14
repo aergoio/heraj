@@ -10,7 +10,6 @@ import static hera.util.FilepathUtils.append;
 import static hera.util.ValidationUtils.assertNotNull;
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.exists;
-import static java.util.Arrays.asList;
 
 import hera.FileSet;
 import hera.ProjectFile;
@@ -23,11 +22,7 @@ public class PublishPackage extends AbstractCommand {
   public void execute() throws Exception {
     logger.trace("Starting {}...", this);
 
-    final ReadProjectFile readProjectFile = new ReadProjectFile();
-    readProjectFile.setArguments(asList(getProjectFile().toString()));
-    readProjectFile.execute();
-
-    final ProjectFile rootProject = readProjectFile.getProject();
+    final ProjectFile rootProject = readProject();
     final String buildTarget = rootProject.getTarget();
     assertNotNull(buildTarget, "No target!! add target field to aergo.json.");
 

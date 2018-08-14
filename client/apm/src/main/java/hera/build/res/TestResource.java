@@ -20,7 +20,7 @@ public class TestResource extends Source {
     final ProjectFile projectFile = project.getProjectFile();
 
     final ArrayList<Resource> dependencies = new ArrayList<>();
-    dependencies.add(resourceManager.get(projectFile.getSource()));
+    dependencies.add(resourceManager.getResource(projectFile.getSource()));
     dependencies.addAll(super.getDependencies(resourceManager));
     return dependencies;
   }
