@@ -9,12 +9,12 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import com.google.common.io.MoreFiles;
 import hera.util.IoUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Stream;
@@ -25,11 +25,11 @@ public class FileSet {
   /**
    * Build from filesystem.
    *
-   * @param path base path
+   * @param path base location
    *
    * @return built fileset
    *
-   * @throws IOException Fail to access path or sub path
+   * @throws IOException Fail to access location or sub location
    */
   public static FileSet from(final Path path) throws IOException {
     final FileSet fileSet = new FileSet();
@@ -40,11 +40,11 @@ public class FileSet {
   /**
    * Rake fileset from filesystem.
    *
-   * @param base base path
+   * @param base base location
    * @param fileSet collected fileset
-   * @param path current path
+   * @param path current location
    *
-   * @throws IOException Fail to access path or sub path
+   * @throws IOException Fail to access location or sub location
    */
   public static void rake(
       final Path base,
@@ -68,7 +68,15 @@ public class FileSet {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected Set<FileContent> fileSet = new TreeSet<>();
+  protected final Set<FileContent> fileSet;
+
+  public FileSet() {
+    this(new TreeSet<>());
+  }
+
+  public FileSet(final Collection<FileContent> fileSet) {
+    this.fileSet = new TreeSet<>(fileSet);
+  }
 
   public void add(final FileContent file) {
     ofNullable(file).ifPresent(fileSet::add);

@@ -7,8 +7,6 @@ package hera.client;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static types.AergoRPCServiceGrpc.newBlockingStub;
-import static types.AergoRPCServiceGrpc.newFutureStub;
 
 import hera.api.model.Account;
 import org.junit.Before;

@@ -1,3 +1,7 @@
+/*
+ * @copyright defined in LICENSE.txt
+ */
+
 package hera.build.res;
 
 import hera.util.DangerousConsumer;
@@ -11,6 +15,10 @@ import lombok.RequiredArgsConstructor;
 public class Text {
 
   protected final DangerousSupplier<InputStream> textSupplier;
+
+  public byte[] getBytes() throws Exception {
+    return IoUtils.from(textSupplier.get());
+  }
 
   /**
    * Read using {@link DangerousSupplier}.

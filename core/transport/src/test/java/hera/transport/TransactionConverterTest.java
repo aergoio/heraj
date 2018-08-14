@@ -4,11 +4,9 @@
 
 package hera.transport;
 
-import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 
 import hera.AbstractTestCase;
-import hera.api.model.AccountAddress;
 import hera.api.model.Transaction;
 import org.junit.Test;
 import types.Blockchain;

@@ -4,12 +4,10 @@
 
 package hera.transport;
 
-import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 
 import hera.AbstractTestCase;
 import hera.api.model.Account;
-import hera.api.model.AccountAddress;
 import org.junit.Test;
 import types.AccountOuterClass;
 

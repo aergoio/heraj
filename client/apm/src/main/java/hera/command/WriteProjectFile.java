@@ -4,7 +4,6 @@
 
 package hera.command;
 
-import static hera.util.ValidationUtils.assertFalse;
 import static hera.util.ValidationUtils.assertTrue;
 import static java.nio.file.Files.newBufferedWriter;
 

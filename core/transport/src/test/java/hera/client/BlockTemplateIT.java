@@ -6,11 +6,10 @@ package hera.client;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static types.AergoRPCServiceGrpc.newBlockingStub;
 
-import hera.api.model.Hash;
 import hera.api.model.Block;
 import hera.api.model.BlockchainStatus;
+import hera.api.model.Hash;
 import org.junit.Before;
 import org.junit.Test;
 

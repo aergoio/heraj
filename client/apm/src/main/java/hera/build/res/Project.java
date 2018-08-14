@@ -1,45 +1,48 @@
+/*
+ * @copyright defined in LICENSE.txt
+ */
+
 package hera.build.res;
 
-import static java.util.Arrays.asList;
-import static java.util.Optional.ofNullable;
-
 import hera.ProjectFile;
-import hera.build.Resource;
-import hera.build.ResourceDependency;
-import hera.build.dep.BuildEntry;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Optional;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 @RequiredArgsConstructor
-@ToString(of = "location")
-public class Project implements Resource {
+public class Project {
 
   @Getter
+  @NonNull
   protected final String location;
 
   @Getter
+  @NonNull
   protected final ProjectFile projectFile;
 
-  @Override
   public Path getPath() {
     return Paths.get(location);
   }
 
   @Override
-  public List<ResourceDependency> getDependencies() {
-    return asList(new BuildEntry(this, projectFile.getSource()));
+  public int hashCode() {
+    return location.hashCode();
   }
 
   @Override
-  public <T> Optional<T> adapt(Class<T> adaptor) {
-    if (adaptor.isInstance(projectFile)) {
-      return (Optional<T>) ofNullable(projectFile);
+  public boolean equals(final Object obj) {
+    if (!(obj instanceof Project)) {
+      return false;
     }
-    return Optional.empty();
+    final Project that = (Project) obj;
+
+    return location.equals(that.location);
+  }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + "[" + location + "]";
   }
 }

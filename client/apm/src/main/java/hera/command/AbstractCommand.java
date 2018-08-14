@@ -74,7 +74,7 @@ public abstract class AbstractCommand implements Command {
    * @throws IOException On failure to read project file
    */
   public ProjectFile readProject() throws IOException {
-    ReadProjectFile readProjectFile = new ReadProjectFile();
+    final ReadProjectFile readProjectFile = new ReadProjectFile();
     readProjectFile.setArguments(asList(getProjectFile().toString()));
     readProjectFile.execute();
     return readProjectFile.getProject();

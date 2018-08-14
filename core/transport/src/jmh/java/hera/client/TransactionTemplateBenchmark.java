@@ -5,7 +5,6 @@
 package hera.client;
 
 import static java.util.UUID.randomUUID;
-import static types.AergoRPCServiceGrpc.newBlockingStub;
 
 import hera.api.model.Account;
 import hera.api.model.Signature;

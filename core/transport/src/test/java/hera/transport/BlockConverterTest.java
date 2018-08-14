@@ -6,12 +6,9 @@ package hera.transport;
 
 import static hera.util.ValidationUtils.assertNotNull;
 import static java.util.Arrays.asList;
-import static java.util.UUID.randomUUID;
 
 import hera.AbstractTestCase;
-import hera.api.model.AccountAddress;
 import hera.api.model.Block;
-import hera.api.model.Hash;
 import hera.api.model.Transaction;
 import org.junit.Test;
 import types.Blockchain;

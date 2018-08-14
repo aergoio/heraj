@@ -4,11 +4,9 @@
 
 package hera.transport;
 
-import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 
 import hera.AbstractTestCase;
-import hera.api.model.BytesValue;
 import hera.api.model.PeerAddress;
 import org.junit.Test;
 import types.Node;

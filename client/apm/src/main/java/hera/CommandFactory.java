@@ -6,12 +6,13 @@ package hera;
 
 import static java.util.Arrays.asList;
 import static java.util.Optional.empty;
-import static java.util.Optional.ofNullable;
+import static java.util.Optional.of;
 
 import hera.command.BuildProject;
 import hera.command.CreateProject;
 import hera.command.InstallPackage;
 import hera.command.PublishPackage;
+import hera.command.TestProject;
 import java.util.Optional;
 
 public class CommandFactory {
@@ -32,13 +33,15 @@ public class CommandFactory {
   protected Optional<Command> create(final String keyword) {
     switch (keyword) {
       case "init":
-        return ofNullable(new CreateProject());
+        return of(new CreateProject());
       case "install":
-        return ofNullable(new InstallPackage());
+        return of(new InstallPackage());
       case "build":
-        return ofNullable(new BuildProject());
+        return of(new BuildProject());
+      case "test":
+        return of(new TestProject());
       case "publish":
-        return ofNullable(new PublishPackage());
+        return of(new PublishPackage());
       default:
         return empty();
     }

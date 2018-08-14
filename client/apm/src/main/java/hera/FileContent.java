@@ -39,7 +39,7 @@ public class FileContent implements Comparable<FileContent> {
 
   @Override
   public String toString() {
-    return path;
+    return getClass().getSimpleName() + "[" + path + "]";
   }
 
   @Override
