@@ -12,7 +12,9 @@ import hera.FileContent;
 import hera.FileSet;
 import hera.ProjectFile;
 import hera.build.res.Project;
+import hera.test.AthenaContext;
 import hera.test.LuaRunner;
+import hera.test.TestReporter;
 import hera.util.IoUtils;
 import java.io.InputStream;
 import java.util.List;
@@ -33,15 +35,26 @@ public class TestProject extends AbstractCommand {
     final Builder builder = new BuilderFactory().create(project);
 
     final List<String> testPaths = nvl(projectFile.getTests(), EMPTY_LIST);
-    for (final String testPath : testPaths) {
-
-      final FileSet fileSet = builder.build(testPath);
-      logger.trace("Test build: {}", fileSet);
-      final FileContent fileContent = fileSet.stream().findFirst().orElse(null);
-      try (final InputStream in = fileContent.open()) {
-        final String script = new String(IoUtils.from(in));
-        new LuaRunner().run(script);
+    AthenaContext.clear();
+    try {
+      for (final String testPath : testPaths) {
+        final FileSet fileSet = builder.build(testPath);
+        logger.trace("Test build: {}", fileSet);
+        final FileContent fileContent = fileSet.stream().findFirst().orElse(null);
+        try (final InputStream in = fileContent.open()) {
+          final String script = new String(IoUtils.from(in));
+          new LuaRunner().run(script);
+        }
       }
+    } finally {
+      final AthenaContext context = AthenaContext.getContext();
+      final TestReporter testReporter = context.getTestReporter();
+      testReporter.getResults().forEach(testSuite -> {
+        System.out.println("* " + testSuite.getName() + " " + testSuite.getSuccesses() + "/" + testSuite.getTests());
+        testSuite.getTestCases().forEach(testCase -> {
+          System.out.println("   " + testCase.getName() + " --> " + (testCase.isSuccess()?"success":"failure"));
+        });
+      });
     }
   }
 }
