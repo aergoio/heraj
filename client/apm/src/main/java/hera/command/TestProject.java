@@ -50,9 +50,9 @@ public class TestProject extends AbstractCommand {
       final AthenaContext context = AthenaContext.getContext();
       final TestReporter testReporter = context.getTestReporter();
       testReporter.getResults().forEach(testSuite -> {
-        System.out.println("* " + testSuite.getName() + " " + testSuite.getSuccesses() + "/" + testSuite.getTests());
+        System.out.println(testSuite.toString());
         testSuite.getTestCases().forEach(testCase -> {
-          System.out.println("   " + testCase.getName() + " --> " + (testCase.isSuccess()?"success":"failure"));
+          System.out.println("   " + testCase);
         });
       });
     }

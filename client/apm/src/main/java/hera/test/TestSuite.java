@@ -33,4 +33,9 @@ public class TestSuite {
   public long getFailures() {
     return this.testCases.stream().filter(testCase -> !testCase.isSuccess()).count();
   }
+
+  @Override
+  public String toString() {
+    return "* " + getName() + " " + getSuccesses() + "/" + getTests();
+  }
 }

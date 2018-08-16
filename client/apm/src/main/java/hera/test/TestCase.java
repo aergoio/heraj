@@ -31,4 +31,9 @@ public class TestCase {
   @Getter
   @Setter
   protected String errorMessage;
+
+  @Override
+  public String toString() {
+    return getName() + " --> " + (isSuccess() ? "success" : "failure");
+  }
 }

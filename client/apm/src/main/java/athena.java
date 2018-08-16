@@ -24,7 +24,7 @@ public class athena extends TwoArgFunction {
     library.set("startTest", context.startTest);
     library.set("endTest", context.endTest);
     library.set("recordError", context.recordError);
-    env.set("TestReporter", library );
+    env.set("TestReporter", library);
     return library;
   }
 }

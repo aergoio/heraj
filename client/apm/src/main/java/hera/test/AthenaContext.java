@@ -15,12 +15,13 @@ import org.slf4j.Logger;
 
 public class AthenaContext {
 
-  protected static final ThreadLocal<AthenaContext> cabinet = new InheritableThreadLocal<AthenaContext>() {
-    @Override
-    protected AthenaContext initialValue() {
-      return new AthenaContext();
-    }
-  };
+  protected static final ThreadLocal<AthenaContext> cabinet =
+      new InheritableThreadLocal<AthenaContext>() {
+        @Override
+        protected AthenaContext initialValue() {
+          return new AthenaContext();
+        }
+      };
 
   public static AthenaContext getContext() {
     return cabinet.get();
