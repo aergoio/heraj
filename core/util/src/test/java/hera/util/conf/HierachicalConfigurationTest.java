@@ -7,7 +7,7 @@ package hera.util.conf;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 
-import hera.util.AbstractTestCase;
+import hera.AbstractTestCase;
 import hera.util.Configuration;
 import org.junit.Test;
 

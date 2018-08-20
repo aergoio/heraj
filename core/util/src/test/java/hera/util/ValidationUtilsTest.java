@@ -12,6 +12,7 @@ import static hera.util.ValidationUtils.assertNull;
 import static hera.util.ValidationUtils.assertTrue;
 import static org.junit.Assert.fail;
 
+import hera.AbstractTestCase;
 import org.junit.Test;
 
 public class ValidationUtilsTest extends AbstractTestCase {

@@ -8,7 +8,7 @@ import static hera.util.HexUtils.dump;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.*;
 
-import hera.util.AbstractTestCase;
+import hera.AbstractTestCase;
 import java.io.ByteArrayInputStream;
 import org.junit.Test;
 

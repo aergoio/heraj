@@ -10,6 +10,7 @@ import static hera.util.HexUtils.dump;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import hera.AbstractTestCase;
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.util.Random;

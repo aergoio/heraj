@@ -8,7 +8,7 @@ import static hera.util.HexUtils.dump;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
 
-import hera.util.AbstractTestCase;
+import hera.AbstractTestCase;
 import org.junit.Test;
 
 public class ECDSAKeyGeneratorTest extends AbstractTestCase {

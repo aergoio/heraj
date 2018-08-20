@@ -15,6 +15,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import hera.AbstractTestCase;
 import org.junit.Test;
 
 public class ObjectUtilsTest extends AbstractTestCase {

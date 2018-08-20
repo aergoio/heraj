@@ -6,6 +6,7 @@ package hera.util;
 
 import static org.junit.Assert.assertEquals;
 
+import hera.AbstractTestCase;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import org.junit.Test;

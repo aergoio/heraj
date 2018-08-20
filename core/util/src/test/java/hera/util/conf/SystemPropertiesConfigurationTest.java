@@ -6,7 +6,7 @@ package hera.util.conf;
 
 import static org.junit.Assert.assertNotNull;
 
-import hera.util.AbstractTestCase;
+import hera.AbstractTestCase;
 import org.junit.Test;
 
 public class SystemPropertiesConfigurationTest extends AbstractTestCase {
