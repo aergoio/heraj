@@ -38,7 +38,7 @@ public class Builder {
   /**
    * Build {@link BuildResource} or {@link TestResource}.
    *
-   * @param resourcePath path to resource
+   * @param resourcePath basePath to resource
    *
    * @return Build result fileset
    */

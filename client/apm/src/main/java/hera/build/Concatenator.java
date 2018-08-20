@@ -6,7 +6,6 @@ package hera.build;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import hera.build.res.BuildResource;
 import hera.build.res.Source;
 import hera.exception.BuildException;
 import hera.exception.CyclicDependencyException;

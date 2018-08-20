@@ -13,5 +13,6 @@ dependencies {
   implementation 'com.google.guava:guava:22.0'
   implementation "com.fasterxml.jackson.core:jackson-databind:2.9.3"
   implementation "org.eclipse.jgit:org.eclipse.jgit:5.0.1.201806211838-r"
+  implementation "org.eclipse.jetty:jetty-server:9.4.11.v20180605"
   implementation "org.luaj:luaj-jse:3.0.1"
 }

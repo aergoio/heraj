@@ -4,6 +4,7 @@
 
 package hera.server;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -12,22 +13,26 @@ public class ServerEvent {
   /**
    * Server where event occurred.
    */
-  public final Server server;
+  @Getter
+  protected final Server server;
 
   /**
    * Event type.
    */
-  public final int type;
+  @Getter
+  protected final int type;
 
   /**
    * Data before event.
    */
-  public final Object old;
+  @Getter
+  protected final Object oldData;
 
   /**
    * Data after event.
    */
-  public final Object data;
+  @Getter
+  protected final Object newData;
 
   /**
    * Constructor with server and event type.
@@ -57,6 +62,6 @@ public class ServerEvent {
    */
   @Override
   public String toString() {
-    return this.type + "@" + this.server + "[" + this.data + "]";
+    return this.type + "@" + this.server + "[" + this.newData + "]";
   }
 }
