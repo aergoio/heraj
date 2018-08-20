@@ -34,7 +34,7 @@ TBD
 
 # Build
 ## Prerequisites
-* [JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+* [JDK 8](http://openjdk.java.net/)
 
 ## build and package
 * Clean
