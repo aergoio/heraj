@@ -14,7 +14,11 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "bootstrap-vue": "^2.0.0-rc.11",
+    "highlightjs": "^9.10.0",
     "vue": "^2.5.2",
+    "vue-codemirror": "^4.0.5",
+    "vue-highlightjs": "^1.3.3",
     "vue-router": "^3.0.1"
   },
   "devDependencies": {
@@ -32,6 +36,7 @@
     "babel-preset-env": "^1.3.2",
     "babel-preset-stage-2": "^6.22.0",
     "babel-register": "^6.22.0",
+    "callback-loader": "^0.2.4",
     "chalk": "^2.0.1",
     "chromedriver": "^2.27.2",
     "copy-webpack-plugin": "^4.0.1",
@@ -61,6 +66,7 @@
     "shelljs": "^0.7.6",
     "uglifyjs-webpack-plugin": "^1.1.1",
     "url-loader": "^0.5.8",
+    "vue-icons": "^2.0.0",
     "vue-jest": "^1.0.2",
     "vue-loader": "^13.3.0",
     "vue-style-loader": "^3.0.1",
