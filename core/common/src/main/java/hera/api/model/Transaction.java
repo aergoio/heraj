@@ -49,10 +49,6 @@ public class Transaction {
   @Setter
   protected Signature signature;
 
-  @Getter
-  @Setter
-  protected long size;
-
   /**
    * Copy deep.
    *
@@ -72,7 +68,6 @@ public class Transaction {
     copy.setLimit(source.getLimit());
     copy.setPrice(source.getPrice());
     copy.setSignature(Signature.copyOf(source.getSignature()));
-    copy.setSize(source.getSize());
 
     return copy;
   }
@@ -100,7 +95,6 @@ public class Transaction {
           throw new IllegalStateException(e);
         }
       });
-      dataOut.writeLong(getSize());
       dataOut.flush();
       return new Hash(digest(raw.toByteArray()));
     } catch (final IOException e) {

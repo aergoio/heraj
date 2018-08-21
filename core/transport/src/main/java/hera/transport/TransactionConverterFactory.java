@@ -41,7 +41,6 @@ public class TransactionConverterFactory {
       txBuilder.setHash(copyFrom(signature.getHash()));
     });
     txBuilder.setBody(txBodyBuilder.build());
-    txBuilder.setSize(domainTransaction.getSize());
 
     return txBuilder.build();
   };
@@ -70,7 +69,6 @@ public class TransactionConverterFactory {
           .ifPresent(signature::setSign);
       domainTransaction.setSignature(signature);
     }
-    domainTransaction.setSize(rpcTransaction.getSize());
     return domainTransaction;
   };
 
