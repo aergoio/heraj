@@ -1,0 +1,14 @@
+!.babelrc
+!.editorconfig
+!.eslintignore
+!.eslintrc.js
+!.postcssrc.js
+node_modules/
+/dist/
+npm-debug.log*
+yarn.lock
+yarn-debug.log*
+yarn-error.log*
+/test/unit/coverage/
+/test/e2e/reports/
+selenium-debug.log
