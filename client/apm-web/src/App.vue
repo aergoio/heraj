@@ -35,7 +35,6 @@
   html, body {
     position: relative;
     margin: 0;
-    padding-bottom: 6rem;
     min-height: 100%;
   }
 
