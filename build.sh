@@ -51,6 +51,13 @@ function clean-workspace() {
   $PROJECT_HOME/gradlew clean
   rm -rf $BUILD_WORKSPACE
 }
+function execute-npm() {
+  cd $PROJECT_HOME/client/apm-web
+  npm run build
+  rm -rf $PROJECT_HOME/client/apm/src/main/resources/public
+  mkdir -p $PROJECT_HOME/client/apm/src/main/resources/public
+  cp -r $PROJECT_HOME/client/apm-web/dist/* $PROJECT_HOME/client/apm/src/main/resources/public
+}
 function execute-gradle() {
   $PROJECT_HOME/gradlew build
 }
@@ -91,6 +98,9 @@ else
         ;;
       "protobuf")
         update-protobuf
+        ;;
+      "npm")
+        execute-npm
         ;;
       "gradle")
         execute-gradle

@@ -5,6 +5,8 @@
 package hera.command;
 
 import static hera.util.ValidationUtils.assertTrue;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 
 import hera.BuildResult;
 import hera.Builder;
@@ -18,12 +20,12 @@ import hera.build.res.BuildResource;
 import hera.build.res.PackageResource;
 import hera.build.res.Project;
 import hera.build.res.TestResource;
-import hera.build.web.service.BuildService;
 import hera.exception.NoBuildTargetException;
 import hera.util.FileWatcher;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.WatchService;
+import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -31,11 +33,7 @@ public class BuildProject extends AbstractCommand {
 
   @Getter
   @Setter
-  protected BuildService buildService = new BuildService();
-
-  @Getter
-  @Setter
-  protected MonitorServer monitorServer;
+  protected Optional<MonitorServer> monitorServer = empty();
 
   @Getter
   @Setter
@@ -46,11 +44,11 @@ public class BuildProject extends AbstractCommand {
   protected Project project;
 
   protected MonitorServer createMonitorServer(final int port) {
-    monitorServer = new MonitorServer();
+    final MonitorServer monitorServer = new MonitorServer();
     if (0 < port) {
       monitorServer.setPort(port);
     }
-    monitorServer.addHandler(buildService);
+    this.monitorServer = of(monitorServer);
     return monitorServer;
   }
 
@@ -69,6 +67,9 @@ public class BuildProject extends AbstractCommand {
       throw new NoBuildTargetException();
     }
     final BuildResult buildResult = builder.build(buildTarget);
+    monitorServer.ifPresent(server -> {
+      server.getBuildService().save(buildResult);
+    });
     final FileSet fileSet = buildResult.getFileSet();
     logger.info("Fileset: {}", fileSet);
     fileSet.copyTo(project.getPath());

@@ -15,6 +15,7 @@
 
   <logger name="hera" level="warn"/>
   <logger name="hera.build" level="info"/>
+  <logger name="hera.build.web" level="debug"/>
   <logger name="hera.build.web.service" level="trace"/>
   <logger name="hera.test" level="trace"/>
   <logger name="hera.util" level="error"/>

@@ -4,16 +4,19 @@
 
 package hera.build;
 
+import static org.eclipse.jetty.servlet.ServletContextHandler.SESSIONS;
+
+import hera.build.web.Endpoint;
+import hera.build.web.service.BuildService;
 import hera.server.ServerStatus;
 import hera.server.ThreadServer;
 import hera.util.ThreadUtils;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import org.eclipse.jetty.server.Handler;
+import lombok.Getter;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 
 public class MonitorServer extends ThreadServer {
 
@@ -21,7 +24,8 @@ public class MonitorServer extends ThreadServer {
 
   protected Server server;
 
-  protected final Set<Handler> handlers = new LinkedHashSet<>();
+  @Getter
+  protected BuildService buildService = new BuildService();
 
   /**
    * Get server port.
@@ -54,24 +58,20 @@ public class MonitorServer extends ThreadServer {
     }
   }
 
-  public void addHandler(final Handler handler) {
-    this.handlers.add(handler);
-  }
-
   @Override
   protected void initialize() throws Exception {
     super.initialize();
     final int port = getPort();
     server = new Server(port);
-    ResourceHandler resourceHandler = new ResourceHandler();
+    ServletContextHandler context = new ServletContextHandler(SESSIONS);
+    context.setContextPath("/");
+    context.setResourceBase(getClass().getResource("/public").toString());
+    final Endpoint endpoint = new Endpoint();
+    endpoint.setBuildService(buildService);
+    context.addServlet(new ServletHolder(endpoint), "/");
 
-    resourceHandler.setDirectoriesListed(true);
-    resourceHandler.setWelcomeFiles(new String[]{ "index.html" });
-    resourceHandler.setResourceBase(getClass().getResource("/public").toString());
-
-    HandlerList handlers = new HandlerList();
-    this.handlers.stream().forEach(handlers::addHandler);
-    handlers.addHandler(resourceHandler);
+    final HandlerList handlers = new HandlerList();
+    handlers.addHandler(context);
     handlers.addHandler(new DefaultHandler());
     server.setHandler(handlers);
     server.start();
@@ -88,6 +88,7 @@ public class MonitorServer extends ThreadServer {
   protected void terminate() {
     try {
       server.stop();
+      server.join();
     } catch (Throwable ex) {
       this.exception = ex;
     }
