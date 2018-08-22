@@ -51,7 +51,7 @@ public class Transaction {
 
   @Getter
   @Setter
-  protected TransactionType txType;
+  protected TransactionType txType = TransactionType.UNRECOGNIZED;
 
   /**
    * Copy deep.

@@ -58,7 +58,9 @@ public class TransactionConverterFactory {
     txBodyBuilder.setPayload(copyFrom(domainTransaction.getPayload()));
     txBodyBuilder.setLimit(domainTransaction.getLimit());
     txBodyBuilder.setPrice(domainTransaction.getPrice());
-    txBodyBuilder.setType(txTypeDomainConverter.apply(domainTransaction.getTxType()));
+    if (TransactionType.UNRECOGNIZED != domainTransaction.getTxType()) {
+      txBodyBuilder.setType(txTypeDomainConverter.apply(domainTransaction.getTxType()));
+    }
 
     final Tx.Builder txBuilder = Tx.newBuilder();
     ofNullable(domainTransaction.getSignature()).ifPresent(signature -> {
