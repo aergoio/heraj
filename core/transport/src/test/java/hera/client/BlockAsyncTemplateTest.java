@@ -15,9 +15,9 @@ import hera.AbstractTestCase;
 import hera.api.model.Block;
 import hera.api.model.BlockHeader;
 import hera.api.model.Hash;
+import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.ModelConverter;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -49,7 +49,7 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
     final BlockAsyncTemplate blockAsyncTemplate =
         new BlockAsyncTemplate(aergoService, blockConverter);
 
-    final CompletableFuture<Block> block =
+    final ResultOrErrorFuture<Block> block =
         blockAsyncTemplate.getBlock(new Hash(randomUUID().toString().getBytes()));
     assertNotNull(block);
   }
@@ -63,7 +63,7 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
     final BlockAsyncTemplate blockAsyncTemplate =
         new BlockAsyncTemplate(aergoService, blockConverter);
 
-    final CompletableFuture<Block> block = blockAsyncTemplate.getBlock(randomUUID().hashCode());
+    final ResultOrErrorFuture<Block> block = blockAsyncTemplate.getBlock(randomUUID().hashCode());
     assertNotNull(block);
   }
 
@@ -76,7 +76,7 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
     final BlockAsyncTemplate blockAsyncTemplate =
         new BlockAsyncTemplate(aergoService, blockConverter);
 
-    final CompletableFuture<List<BlockHeader>> blockHeaders = blockAsyncTemplate
+    final ResultOrErrorFuture<List<BlockHeader>> blockHeaders = blockAsyncTemplate
         .listBlockHeaders(new Hash(randomUUID().toString().getBytes()), randomUUID().hashCode());
     assertNotNull(blockHeaders);
   }
@@ -90,7 +90,7 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
     final BlockAsyncTemplate blockAsyncTemplate =
         new BlockAsyncTemplate(aergoService, blockConverter);
 
-    final CompletableFuture<List<BlockHeader>> blockHeaders =
+    final ResultOrErrorFuture<List<BlockHeader>> blockHeaders =
         blockAsyncTemplate.listBlockHeaders(randomUUID().hashCode(), randomUUID().hashCode());
     assertNotNull(blockHeaders);
   }

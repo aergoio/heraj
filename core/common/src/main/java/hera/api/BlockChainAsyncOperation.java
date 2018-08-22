@@ -7,30 +7,30 @@ package hera.api;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.PeerAddress;
+import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public interface BlockChainAsyncOperation {
 
   /**
    * Get blockchain status asynchronously.
    *
-   * @return blockchain status
+   * @return future of blockchain status or error
    */
-  CompletableFuture<BlockchainStatus> getBlockchainStatus();
+  ResultOrErrorFuture<BlockchainStatus> getBlockchainStatus();
 
   /**
    * Get blockchain peer addresses asynchronously.
    *
-   * @return peer addresses
+   * @return future of peer addresses or error
    */
-  CompletableFuture<List<PeerAddress>> listPeers();
+  ResultOrErrorFuture<List<PeerAddress>> listPeers();
 
   /**
    * Get status of current node asynchronously.
    *
-   * @return node status
+   * @return future of node status or error
    */
-  CompletableFuture<NodeStatus> getNodeStatus();
+  ResultOrErrorFuture<NodeStatus> getNodeStatus();
 
 }

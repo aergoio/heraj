@@ -1,3 +1,7 @@
+/*
+ * @copyright defined in LICENSE.txt
+ */
+
 package hera;
 
 import hera.client.AccountTemplateIT;

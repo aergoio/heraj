@@ -12,6 +12,7 @@ import hera.api.AccountOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.tupleorerror.ResultOrError;
 import hera.exception.HerajException;
 import io.grpc.ManagedChannel;
 import java.util.List;
@@ -34,7 +35,7 @@ public class AccountTemplate implements AccountOperation {
   }
 
   @Override
-  public List<Account> list() {
+  public ResultOrError<List<Account>> list() {
     try {
       return accountAsyncOperation.list().get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
@@ -43,7 +44,7 @@ public class AccountTemplate implements AccountOperation {
   }
 
   @Override
-  public Account create(String password) {
+  public ResultOrError<Account> create(String password) {
     try {
       return accountAsyncOperation.create(password).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
@@ -52,7 +53,7 @@ public class AccountTemplate implements AccountOperation {
   }
 
   @Override
-  public Optional<Account> get(AccountAddress address) {
+  public ResultOrError<Optional<Account>> get(AccountAddress address) {
     try {
       return accountAsyncOperation.get(address).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
@@ -61,7 +62,7 @@ public class AccountTemplate implements AccountOperation {
   }
 
   @Override
-  public boolean lock(AccountAddress address, String password) {
+  public ResultOrError<Boolean> lock(AccountAddress address, String password) {
     try {
       return accountAsyncOperation.lock(address, password).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
@@ -70,7 +71,7 @@ public class AccountTemplate implements AccountOperation {
   }
 
   @Override
-  public boolean unlock(AccountAddress address, String password) {
+  public ResultOrError<Boolean> unlock(AccountAddress address, String password) {
     try {
       return accountAsyncOperation.unlock(address, password).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
@@ -79,7 +80,7 @@ public class AccountTemplate implements AccountOperation {
   }
 
   @Override
-  public Optional<AccountState> getState(AccountAddress address) {
+  public ResultOrError<Optional<AccountState>> getState(AccountAddress address) {
     try {
       return accountAsyncOperation.getState(address).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {

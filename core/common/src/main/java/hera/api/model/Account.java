@@ -11,7 +11,7 @@ public class Account {
 
   @Getter
   @Setter
-  protected AccountAddress address;
+  protected AccountAddress address = new AccountAddress(null);
 
   @Getter
   @Setter

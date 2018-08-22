@@ -7,59 +7,58 @@ package hera.api;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 public interface AccountAsyncOperation {
 
   /**
    * Get account list asynchronously.
    *
-   * @return account list
+   * @return future of account list or error
    */
-  CompletableFuture<List<Account>> list();
+  ResultOrErrorFuture<List<Account>> list();
 
   /**
    * Create an account with password asynchronously.
    *
    * @param password account password
-   * @return created account if success, otherwise null
+   * @return future of created account or error
    */
-  CompletableFuture<Account> create(String password);
+  ResultOrErrorFuture<Account> create(String password);
 
   /**
    * Get account by address asynchronously.
    *
    * @param address account address
-   * @return an Optional account if an account with address is present, otherwise an empty Optional
+   * @return future of an Optional account or error
    */
-  CompletableFuture<Optional<Account>> get(AccountAddress address);
+  ResultOrErrorFuture<Optional<Account>> get(AccountAddress address);
 
   /**
    * Lock an account asynchronously.
    *
    * @param address account address
    * @param password account password
-   * @return whether account is locked or not
+   * @return future of lock result or error
    */
-  CompletableFuture<Boolean> lock(AccountAddress address, String password);
+  ResultOrErrorFuture<Boolean> lock(AccountAddress address, String password);
 
   /**
    * Unlock an account asynchronously.
    *
    * @param address account address
    * @param password account password
-   * @return whether account is unlocked or not
+   * @return future of unlock result or error
    */
-  CompletableFuture<Boolean> unlock(AccountAddress address, String password);
+  ResultOrErrorFuture<Boolean> unlock(AccountAddress address, String password);
 
   /**
    * Get account state by account address asynchronously.
    *
    * @param address account address
-   * @return an Optional account state if an account with address is present, otherwise an empty
-   *         Optional
+   * @return future of an Optional account state or error
    */
-  CompletableFuture<Optional<AccountState>> getState(AccountAddress address);
+  ResultOrErrorFuture<Optional<AccountState>> getState(AccountAddress address);
 }

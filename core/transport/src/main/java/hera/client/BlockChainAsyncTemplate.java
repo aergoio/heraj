@@ -15,13 +15,13 @@ import hera.api.BlockChainAsyncOperation;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.PeerAddress;
+import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.BlockchainConverterFactory;
 import hera.transport.ModelConverter;
 import hera.transport.NodeStatusConverterFactory;
 import hera.transport.PeerAddressConverterFactory;
 import io.grpc.ManagedChannel;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Node;
@@ -50,8 +50,8 @@ public class BlockChainAsyncTemplate implements BlockChainAsyncOperation {
   }
 
   @Override
-  public CompletableFuture<BlockchainStatus> getBlockchainStatus() {
-    CompletableFuture<BlockchainStatus> nextFuture = new CompletableFuture<>();
+  public ResultOrErrorFuture<BlockchainStatus> getBlockchainStatus() {
+    ResultOrErrorFuture<BlockchainStatus> nextFuture = new ResultOrErrorFuture<>();
 
     final Empty empty = Empty.newBuilder().build();
     ListenableFuture<Rpc.BlockchainStatus> listenableFuture = aergoService.blockchain(empty);
@@ -63,23 +63,22 @@ public class BlockChainAsyncTemplate implements BlockChainAsyncOperation {
   }
 
   @Override
-  public CompletableFuture<List<PeerAddress>> listPeers() {
-    CompletableFuture<List<PeerAddress>> nextFuture = new CompletableFuture<>();
+  public ResultOrErrorFuture<List<PeerAddress>> listPeers() {
+    ResultOrErrorFuture<List<PeerAddress>> nextFuture = new ResultOrErrorFuture<>();
 
     final Empty empty = Empty.newBuilder().build();
     ListenableFuture<PeerList> listenableFuture = aergoService.getPeers(empty);
-    FutureChainer<PeerList, List<PeerAddress>> callback = new FutureChainer<>(nextFuture,
-        peerlist -> peerlist.getPeersList().stream()
-            .map(peerAddressConverter::convertToDomainModel)
-            .collect(toList()));
+    FutureChainer<PeerList, List<PeerAddress>> callback =
+        new FutureChainer<>(nextFuture, peerlist -> peerlist.getPeersList().stream()
+            .map(peerAddressConverter::convertToDomainModel).collect(toList()));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;
   }
 
   @Override
-  public CompletableFuture<NodeStatus> getNodeStatus() {
-    CompletableFuture<NodeStatus> nextFuture = new CompletableFuture<>();
+  public ResultOrErrorFuture<NodeStatus> getNodeStatus() {
+    ResultOrErrorFuture<NodeStatus> nextFuture = new ResultOrErrorFuture<>();
 
     final Empty empty = Empty.newBuilder().build();
     ListenableFuture<Rpc.NodeStatus> listenableFuture = aergoService.nodeState(empty);

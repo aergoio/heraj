@@ -14,9 +14,9 @@ import hera.AbstractTestCase;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.PeerAddress;
+import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.ModelConverter;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -28,14 +28,14 @@ import types.Rpc;
     Node.PeerAddress.class, Rpc.NodeStatus.class})
 public class BlockChainAsyncTemplateTest extends AbstractTestCase {
 
-  protected static final ModelConverter<BlockchainStatus, Rpc.BlockchainStatus> blockchainConverter
-      = mock(ModelConverter.class);
+  protected static final ModelConverter<BlockchainStatus, Rpc.BlockchainStatus> blockchainConverter =
+      mock(ModelConverter.class);
 
-  protected static final ModelConverter<PeerAddress, Node.PeerAddress> peerAddressConverter = mock(
-      ModelConverter.class);
+  protected static final ModelConverter<PeerAddress, Node.PeerAddress> peerAddressConverter =
+      mock(ModelConverter.class);
 
-  protected static final ModelConverter<NodeStatus, Rpc.NodeStatus> nodeStatusConverter = mock(
-      ModelConverter.class);
+  protected static final ModelConverter<NodeStatus, Rpc.NodeStatus> nodeStatusConverter =
+      mock(ModelConverter.class);
 
   @BeforeClass
   public static void setUpBeforeClass() {
@@ -62,8 +62,8 @@ public class BlockChainAsyncTemplateTest extends AbstractTestCase {
     final BlockChainAsyncTemplate blockChainAsyncTemplate = new BlockChainAsyncTemplate(
         aergoService, blockchainConverter, peerAddressConverter, nodeStatusConverter);
 
-    final CompletableFuture<BlockchainStatus> blockchainStatus = blockChainAsyncTemplate
-        .getBlockchainStatus();
+    final ResultOrErrorFuture<BlockchainStatus> blockchainStatus =
+        blockChainAsyncTemplate.getBlockchainStatus();
     assertNotNull(blockchainStatus);
   }
 
@@ -76,7 +76,7 @@ public class BlockChainAsyncTemplateTest extends AbstractTestCase {
     final BlockChainAsyncTemplate blockChainAsyncTemplate = new BlockChainAsyncTemplate(
         aergoService, blockchainConverter, peerAddressConverter, nodeStatusConverter);
 
-    final CompletableFuture<List<PeerAddress>> peers = blockChainAsyncTemplate.listPeers();
+    final ResultOrErrorFuture<List<PeerAddress>> peers = blockChainAsyncTemplate.listPeers();
     assertNotNull(peers);
   }
 
@@ -89,7 +89,7 @@ public class BlockChainAsyncTemplateTest extends AbstractTestCase {
     final BlockChainAsyncTemplate blockChainAsyncTemplate = new BlockChainAsyncTemplate(
         aergoService, blockchainConverter, peerAddressConverter, nodeStatusConverter);
 
-    final CompletableFuture<NodeStatus> nodeStatus = blockChainAsyncTemplate.getNodeStatus();
+    final ResultOrErrorFuture<NodeStatus> nodeStatus = blockChainAsyncTemplate.getNodeStatus();
     assertNotNull(nodeStatus);
   }
 

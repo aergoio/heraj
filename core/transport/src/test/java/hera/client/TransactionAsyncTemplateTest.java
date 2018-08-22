@@ -15,9 +15,9 @@ import hera.AbstractTestCase;
 import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
+import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.ModelConverter;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -51,7 +51,7 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
     final TransactionAsyncTemplate transactionAsyncTemplate = new TransactionAsyncTemplate(
         aergoService, converter);
 
-    final CompletableFuture<Optional<Transaction>> transaction = transactionAsyncTemplate
+    final ResultOrErrorFuture<Optional<Transaction>> transaction = transactionAsyncTemplate
         .getTransaction(new Hash(randomUUID().toString().getBytes()));
     assertNotNull(transaction);
   }
@@ -65,7 +65,7 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
     final TransactionAsyncTemplate transactionAsyncTemplate = new TransactionAsyncTemplate(
         aergoService, converter);
 
-    final CompletableFuture<Signature> signature = transactionAsyncTemplate
+    final ResultOrErrorFuture<Signature> signature = transactionAsyncTemplate
         .sign(new Transaction());
     assertNotNull(signature);
   }
@@ -79,7 +79,7 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
     final TransactionAsyncTemplate transactionAsyncTemplate = new TransactionAsyncTemplate(
         aergoService, converter);
 
-    final CompletableFuture<Boolean> verifyResult = transactionAsyncTemplate
+    final ResultOrErrorFuture<Boolean> verifyResult = transactionAsyncTemplate
         .verify(new Transaction());
     assertNotNull(verifyResult);
   }
@@ -93,7 +93,7 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
     final TransactionAsyncTemplate transactionAsyncTemplate = new TransactionAsyncTemplate(
         aergoService, converter);
 
-    final CompletableFuture<Optional<Hash>> hash = transactionAsyncTemplate
+    final ResultOrErrorFuture<Optional<Hash>> hash = transactionAsyncTemplate
         .commit(new Transaction());
     assertNotNull(hash);
   }
