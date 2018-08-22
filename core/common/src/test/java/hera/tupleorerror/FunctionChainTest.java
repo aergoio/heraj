@@ -13,6 +13,7 @@ import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import org.junit.Test;
 
+@SuppressWarnings("unchecked")
 public class FunctionChainTest {
 
   @Test
