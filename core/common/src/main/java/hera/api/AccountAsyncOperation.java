@@ -9,7 +9,6 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.List;
-import java.util.Optional;
 
 public interface AccountAsyncOperation {
 
@@ -32,9 +31,9 @@ public interface AccountAsyncOperation {
    * Get account by address asynchronously.
    *
    * @param address account address
-   * @return future of an Optional account or error
+   * @return future of an account or error
    */
-  ResultOrErrorFuture<Optional<Account>> get(AccountAddress address);
+  ResultOrErrorFuture<Account> get(AccountAddress address);
 
   /**
    * Lock an account asynchronously.
@@ -58,7 +57,7 @@ public interface AccountAsyncOperation {
    * Get account state by account address asynchronously.
    *
    * @param address account address
-   * @return future of an Optional account state or error
+   * @return future of an account state or error
    */
-  ResultOrErrorFuture<Optional<AccountState>> getState(AccountAddress address);
+  ResultOrErrorFuture<AccountState> getState(AccountAddress address);
 }

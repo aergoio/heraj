@@ -15,7 +15,6 @@ import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrError;
 import hera.exception.HerajException;
 import io.grpc.ManagedChannel;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -34,7 +33,7 @@ public class TransactionTemplate implements TransactionOperation {
   }
 
   @Override
-  public ResultOrError<Optional<Transaction>> getTransaction(Hash hash) {
+  public ResultOrError<Transaction> getTransaction(Hash hash) {
     try {
       return transactionAsyncOperation.getTransaction(hash).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
@@ -61,7 +60,7 @@ public class TransactionTemplate implements TransactionOperation {
   }
 
   @Override
-  public ResultOrError<Optional<Hash>> commit(Transaction transaction) {
+  public ResultOrError<Hash> commit(Transaction transaction) {
     try {
       return transactionAsyncOperation.commit(transaction).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {

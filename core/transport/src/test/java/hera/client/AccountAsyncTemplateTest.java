@@ -18,7 +18,6 @@ import hera.api.model.AccountState;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.ModelConverter;
 import java.util.List;
-import java.util.Optional;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -26,6 +25,7 @@ import types.AccountOuterClass;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Blockchain.State;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 @PrepareForTest({AergoRPCServiceFutureStub.class, AccountOuterClass.Account.class, State.class})
 public class AccountAsyncTemplateTest extends AbstractTestCase {
 
@@ -88,8 +88,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     final AccountAsyncTemplate accountAsyncTemplate =
         new AccountAsyncTemplate(aergoService, accountConverter, accountStateConverter);
 
-    final ResultOrErrorFuture<Optional<Account>> accountFuture =
-        accountAsyncTemplate.get(ACCOUNT_ADDRESS);
+    final ResultOrErrorFuture<Account> accountFuture = accountAsyncTemplate.get(ACCOUNT_ADDRESS);
     assertNotNull(accountFuture);
   }
 
@@ -130,7 +129,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     final AccountAsyncTemplate accountAsyncTemplate =
         new AccountAsyncTemplate(aergoService, accountConverter, accountStateConverter);
 
-    final ResultOrErrorFuture<Optional<AccountState>> accountFuture =
+    final ResultOrErrorFuture<AccountState> accountFuture =
         accountAsyncTemplate.getState(ACCOUNT_ADDRESS);
     assertNotNull(accountFuture);
   }

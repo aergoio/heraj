@@ -6,6 +6,8 @@ package hera.exception;
 
 public class HerajException extends RuntimeException {
 
+  private static final long serialVersionUID = 1429103468497275409L;
+
   public HerajException(String message) {
     super(message);
   }

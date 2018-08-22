@@ -16,7 +16,6 @@ import hera.api.tupleorerror.ResultOrError;
 import hera.exception.HerajException;
 import io.grpc.ManagedChannel;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -53,7 +52,7 @@ public class AccountTemplate implements AccountOperation {
   }
 
   @Override
-  public ResultOrError<Optional<Account>> get(AccountAddress address) {
+  public ResultOrError<Account> get(AccountAddress address) {
     try {
       return accountAsyncOperation.get(address).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
@@ -80,7 +79,7 @@ public class AccountTemplate implements AccountOperation {
   }
 
   @Override
-  public ResultOrError<Optional<AccountState>> getState(AccountAddress address) {
+  public ResultOrError<AccountState> getState(AccountAddress address) {
     try {
       return accountAsyncOperation.getState(address).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {

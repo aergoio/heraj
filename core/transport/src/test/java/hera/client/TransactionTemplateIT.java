@@ -15,9 +15,9 @@ import hera.api.model.BytesValue;
 import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
+import hera.api.tupleorerror.ResultOrError;
 import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSAKeyGenerator;
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -58,12 +58,12 @@ public class TransactionTemplateIT extends AbstractIT {
     transaction.setSignature(signature);
     transactionTemplate.commit(transaction);
 
-    final Optional<Transaction> queried =
-        transactionTemplate.getTransaction(signature.getHash()).getResult();
-    assertTrue(queried.isPresent());
-    assertEquals(sender.getAddress(), queried.get().getSender());
-    assertEquals(recipient.getAddress(), queried.get().getRecipient());
-    logger.debug("Transaction: {}", queried.get());
+    final ResultOrError<Transaction> queried =
+        transactionTemplate.getTransaction(signature.getHash());
+    assertTrue(!queried.hasError());
+    assertEquals(sender.getAddress(), queried.getResult().getSender());
+    assertEquals(recipient.getAddress(), queried.getResult().getRecipient());
+    logger.debug("Transaction: {}", queried.getResult());
   }
 
   @Test
@@ -88,11 +88,11 @@ public class TransactionTemplateIT extends AbstractIT {
 
     transactionTemplate.commit(transaction);
 
-    final Optional<Transaction> queried =
-        transactionTemplate.getTransaction(signature.getHash()).getResult();
-    assertTrue(queried.isPresent());
-    assertEquals(sender.getAddress(), queried.get().getSender());
-    assertEquals(recipient.getAddress(), queried.get().getRecipient());
-    logger.debug("Transaction: {}", queried.get());
+    final ResultOrError<Transaction> queried =
+        transactionTemplate.getTransaction(signature.getHash());
+    assertTrue(!queried.hasError());
+    assertEquals(sender.getAddress(), queried.getResult().getSender());
+    assertEquals(recipient.getAddress(), queried.getResult().getRecipient());
+    logger.debug("Transaction: {}", queried.getResult());
   }
 }

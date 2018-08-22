@@ -21,7 +21,6 @@ import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.repl.SecuredAccount;
 import java.io.IOException;
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -58,7 +57,7 @@ public class ServerAccountRepositoryTest extends AbstractTestCase {
 
   @Test
   public void testFind() throws IOException {
-    when(accountOperation.get(any())).thenReturn(success(Optional.empty()));
+    when(accountOperation.get(any())).thenReturn(success(new Account()));
     assertNotNull(accountRepository.find(address));
   }
 

@@ -51,8 +51,8 @@ public class ServerAccountRepository implements AccountRepository {
   @Override
   public Optional<SecuredAccount> find(final String encodedAddress) throws IOException {
     final AccountOperation accountOperation = aergoApi.getAccountOperation();
-    return accountOperation.get(AccountAddress.of(HexUtils.decode(encodedAddress))).getResult()
-        .map(this::toSecureAccount);
+    return Optional.of(accountOperation.get(AccountAddress.of(HexUtils.decode(encodedAddress)))
+        .thenApply(this::toSecureAccount).getResult());
   }
 
   @Override

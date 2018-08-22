@@ -9,7 +9,6 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.tupleorerror.ResultOrError;
 import java.util.List;
-import java.util.Optional;
 
 public interface AccountOperation {
 
@@ -32,9 +31,9 @@ public interface AccountOperation {
    * Get account by address.
    *
    * @param address account address
-   * @return an Optional account or error
+   * @return an account or error
    */
-  ResultOrError<Optional<Account>> get(AccountAddress address);
+  ResultOrError<Account> get(AccountAddress address);
 
   /**
    * Lock an account.
@@ -58,7 +57,7 @@ public interface AccountOperation {
    * Get account state by account address.
    *
    * @param address account address
-   * @return an Optional account state or error
+   * @return an account state or error
    */
-  ResultOrError<Optional<AccountState>> getState(AccountAddress address);
+  ResultOrError<AccountState> getState(AccountAddress address);
 }

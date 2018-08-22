@@ -8,7 +8,6 @@ import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrError;
-import java.util.Optional;
 
 public interface TransactionOperation {
 
@@ -18,7 +17,7 @@ public interface TransactionOperation {
    * @param hash transaction's hash
    * @return transaction or error
    */
-  ResultOrError<Optional<Transaction>> getTransaction(Hash hash);
+  ResultOrError<Transaction> getTransaction(Hash hash);
 
   /**
    * Sign for transaction.
@@ -42,6 +41,6 @@ public interface TransactionOperation {
    * @param transaction transaction to commit
    * @return transaction hash or error
    */
-  ResultOrError<Optional<Hash>> commit(Transaction transaction);
+  ResultOrError<Hash> commit(Transaction transaction);
 
 }

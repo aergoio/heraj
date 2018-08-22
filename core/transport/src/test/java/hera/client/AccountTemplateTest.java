@@ -20,11 +20,11 @@ import hera.api.model.AccountState;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.List;
-import java.util.Optional;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
+@SuppressWarnings("unchecked")
 @PrepareForTest({AergoRPCServiceFutureStub.class})
 public class AccountTemplateTest extends AbstractTestCase {
 
@@ -61,14 +61,14 @@ public class AccountTemplateTest extends AbstractTestCase {
 
   @Test
   public void testGet() throws Exception {
-    ResultOrErrorFuture<Optional<Account>> futureMock = mock(ResultOrErrorFuture.class);
+    ResultOrErrorFuture<Account> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
     when(asyncOperationMock.get(any())).thenReturn(futureMock);
 
     final AccountTemplate accountTemplate = new AccountTemplate(asyncOperationMock);
 
-    final ResultOrError<Optional<Account>> account = accountTemplate.get(ACCOUNT_ADDRESS);
+    final ResultOrError<Account> account = accountTemplate.get(ACCOUNT_ADDRESS);
     assertNotNull(account);
   }
 
@@ -100,15 +100,14 @@ public class AccountTemplateTest extends AbstractTestCase {
 
   @Test
   public void testGetState() throws Exception {
-    ResultOrErrorFuture<Optional<AccountState>> futureMock = mock(ResultOrErrorFuture.class);
+    ResultOrErrorFuture<AccountState> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
     when(asyncOperationMock.getState(any())).thenReturn(futureMock);
 
     final AccountTemplate accountTemplate = new AccountTemplate(asyncOperationMock);
 
-    final ResultOrError<Optional<AccountState>> createdAccount =
-        accountTemplate.getState(ACCOUNT_ADDRESS);
+    final ResultOrError<AccountState> createdAccount = accountTemplate.getState(ACCOUNT_ADDRESS);
     assertNotNull(createdAccount);
   }
 

@@ -4,9 +4,7 @@
 
 package hera.client;
 
-import static hera.api.tupleorerror.FunctionChain.success;
 import static hera.util.TransportUtils.copyFrom;
-import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
@@ -25,9 +23,6 @@ import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.ModelConverter;
 import hera.transport.TransactionConverterFactory;
 import io.grpc.ManagedChannel;
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -56,27 +51,14 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
   }
 
   @Override
-  public ResultOrErrorFuture<Optional<Transaction>> getTransaction(final Hash hash) {
-    ResultOrErrorFuture<Optional<Transaction>> nextFuture = new ResultOrErrorFuture<>();
+  public ResultOrErrorFuture<Transaction> getTransaction(final Hash hash) {
+    ResultOrErrorFuture<Transaction> nextFuture = new ResultOrErrorFuture<>();
 
     final ByteString byteString = copyFrom(hash);
     final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
     ListenableFuture<Tx> listenableFuture = aergoService.getTX(bytes);
-    FutureChainer<Tx, Optional<Transaction>> callback =
-        new FutureChainer<Tx, Optional<Transaction>>(nextFuture,
-            tx -> ofNullable(transactionConverter.convertToDomainModel(tx))) {
-          // TODO : remove it
-          @Override
-          public void onFailure(Throwable throwable) {
-            if (throwable instanceof StatusRuntimeException) {
-              StatusRuntimeException e = (StatusRuntimeException) throwable;
-              if (ofNullable(e.getStatus()).map(Status::getCode)
-                  .filter(code -> Status.NOT_FOUND.getCode() == code).isPresent()) {
-                getNextFuture().complete(success(empty()));
-              }
-            }
-          }
-        };
+    FutureChainer<Tx, Transaction> callback = new FutureChainer<Tx, Transaction>(nextFuture,
+        tx -> transactionConverter.convertToDomainModel(tx));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;
@@ -116,16 +98,16 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
   }
 
   @Override
-  public ResultOrErrorFuture<Optional<Hash>> commit(final Transaction transaction) {
-    ResultOrErrorFuture<Optional<Hash>> nextFuture = new ResultOrErrorFuture<>();
+  public ResultOrErrorFuture<Hash> commit(final Transaction transaction) {
+    ResultOrErrorFuture<Hash> nextFuture = new ResultOrErrorFuture<>();
 
     final Tx tx = transactionConverter.convertToRpcModel(transaction);
     final TxList txList = TxList.newBuilder().addTxs(tx).build();
     ListenableFuture<CommitResultList> listenableFuture = aergoService.commitTX(txList);
-    FutureChainer<CommitResultList, Optional<Hash>> callback = new FutureChainer<>(nextFuture,
+    FutureChainer<CommitResultList, Hash> callback = new FutureChainer<>(nextFuture,
         commitResultList -> commitResultList.getResultsList().stream()
             .filter(r -> r.getError() == CommitStatus.COMMIT_STATUS_OK)
-            .map(r -> r.getHash().toByteArray()).map(Hash::new).findFirst());
+            .map(r -> r.getHash().toByteArray()).map(Hash::new).findFirst().get());
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;

@@ -17,7 +17,6 @@ import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.ModelConverter;
-import java.util.Optional;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -26,14 +25,15 @@ import types.Blockchain;
 import types.Rpc.CommitResult;
 import types.Rpc.VerifyResult;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 @PrepareForTest({AergoRPCServiceFutureStub.class, Blockchain.Tx.class, VerifyResult.class,
     CommitResult.class})
 public class TransactionAsyncTemplateTest extends AbstractTestCase {
 
   protected final byte[] TXHASH = randomUUID().toString().getBytes();
 
-  protected static final ModelConverter<Transaction, Blockchain.Tx> converter = mock(
-      ModelConverter.class);
+  protected static final ModelConverter<Transaction, Blockchain.Tx> converter =
+      mock(ModelConverter.class);
 
   @BeforeClass
   public static void setUpBeforeClass() {
@@ -48,11 +48,11 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.getTX(any())).thenReturn(mockListenableFuture);
 
-    final TransactionAsyncTemplate transactionAsyncTemplate = new TransactionAsyncTemplate(
-        aergoService, converter);
+    final TransactionAsyncTemplate transactionAsyncTemplate =
+        new TransactionAsyncTemplate(aergoService, converter);
 
-    final ResultOrErrorFuture<Optional<Transaction>> transaction = transactionAsyncTemplate
-        .getTransaction(new Hash(randomUUID().toString().getBytes()));
+    final ResultOrErrorFuture<Transaction> transaction =
+        transactionAsyncTemplate.getTransaction(new Hash(randomUUID().toString().getBytes()));
     assertNotNull(transaction);
   }
 
@@ -62,11 +62,11 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.signTX(any())).thenReturn(mockListenableFuture);
 
-    final TransactionAsyncTemplate transactionAsyncTemplate = new TransactionAsyncTemplate(
-        aergoService, converter);
+    final TransactionAsyncTemplate transactionAsyncTemplate =
+        new TransactionAsyncTemplate(aergoService, converter);
 
-    final ResultOrErrorFuture<Signature> signature = transactionAsyncTemplate
-        .sign(new Transaction());
+    final ResultOrErrorFuture<Signature> signature =
+        transactionAsyncTemplate.sign(new Transaction());
     assertNotNull(signature);
   }
 
@@ -76,11 +76,11 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.verifyTX(any())).thenReturn(mockListenableFuture);
 
-    final TransactionAsyncTemplate transactionAsyncTemplate = new TransactionAsyncTemplate(
-        aergoService, converter);
+    final TransactionAsyncTemplate transactionAsyncTemplate =
+        new TransactionAsyncTemplate(aergoService, converter);
 
-    final ResultOrErrorFuture<Boolean> verifyResult = transactionAsyncTemplate
-        .verify(new Transaction());
+    final ResultOrErrorFuture<Boolean> verifyResult =
+        transactionAsyncTemplate.verify(new Transaction());
     assertNotNull(verifyResult);
   }
 
@@ -90,11 +90,10 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.commitTX(any())).thenReturn(mockListenableFuture);
 
-    final TransactionAsyncTemplate transactionAsyncTemplate = new TransactionAsyncTemplate(
-        aergoService, converter);
+    final TransactionAsyncTemplate transactionAsyncTemplate =
+        new TransactionAsyncTemplate(aergoService, converter);
 
-    final ResultOrErrorFuture<Optional<Hash>> hash = transactionAsyncTemplate
-        .commit(new Transaction());
+    final ResultOrErrorFuture<Hash> hash = transactionAsyncTemplate.commit(new Transaction());
     assertNotNull(hash);
   }
 

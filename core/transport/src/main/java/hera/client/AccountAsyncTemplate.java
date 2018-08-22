@@ -23,7 +23,6 @@ import hera.transport.AccountStateConverterFactory;
 import hera.transport.ModelConverter;
 import io.grpc.ManagedChannel;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import types.AccountOuterClass;
 import types.AccountOuterClass.AccountList;
@@ -85,10 +84,11 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
   }
 
   @Override
-  public ResultOrErrorFuture<Optional<Account>> get(AccountAddress address) {
+  public ResultOrErrorFuture<Account> get(AccountAddress address) {
+    // TODO : replace with getState
     return list().thenApply(list -> list.stream()
         .filter(account -> address.equals(account.getAddress()))
-        .findFirst());
+        .findFirst().get());
   }
 
   @Override
@@ -127,15 +127,14 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
   }
 
   @Override
-  public ResultOrErrorFuture<Optional<AccountState>> getState(AccountAddress address) {
-    ResultOrErrorFuture<Optional<AccountState>> nextFuture = new ResultOrErrorFuture<>();
+  public ResultOrErrorFuture<AccountState> getState(AccountAddress address) {
+    ResultOrErrorFuture<AccountState> nextFuture = new ResultOrErrorFuture<>();
 
     final ByteString byteString = copyFrom(address.getValue());
     final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
     ListenableFuture<State> listenableFuture = aergoService.getState(bytes);
-    FutureChainer<State, Optional<AccountState>> callback = new FutureChainer<>(nextFuture,
-        state -> Optional
-            .ofNullable(accountStateConverter.convertToDomainModel(state)));
+    FutureChainer<State, AccountState> callback = new FutureChainer<>(nextFuture,
+        state -> accountStateConverter.convertToDomainModel(state));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;
