@@ -4,14 +4,12 @@
 
 package hera.util;
 
-import static com.sun.nio.file.ExtendedWatchEventModifier.FILE_TREE;
 import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
-import com.sun.nio.file.ExtendedWatchEventModifier;
 import hera.server.ServerEvent;
 import hera.server.ThreadServer;
 import java.io.IOException;
