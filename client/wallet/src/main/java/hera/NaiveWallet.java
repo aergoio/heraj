@@ -70,7 +70,7 @@ public class NaiveWallet implements Wallet {
 
   public void createAccount(final String password) {
     final AergoApi api = context.api();
-    final Account account = api.getAccountOperation().create(password);
+    final Account account = api.getAccountOperation().create(password).getResult();
   }
 
   public void unlock(Object authentication) {
@@ -92,7 +92,7 @@ public class NaiveWallet implements Wallet {
     final AergoApi api = this.context.api();
     final TransactionOperation transactionOperation = api.getTransactionOperation();
 
-    final Signature signature = transactionOperation.sign(transaction);
+    final Signature signature = transactionOperation.sign(transaction).getResult();
     final Transaction signedTransaction = Transaction.copyOf(transaction);
     signedTransaction.setSignature(signature);
     transactionOperation.commit(signedTransaction);

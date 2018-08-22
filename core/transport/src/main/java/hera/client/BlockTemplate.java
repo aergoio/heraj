@@ -12,6 +12,7 @@ import hera.api.BlockOperation;
 import hera.api.model.Block;
 import hera.api.model.BlockHeader;
 import hera.api.model.Hash;
+import hera.api.tupleorerror.ResultOrError;
 import hera.exception.HerajException;
 import io.grpc.ManagedChannel;
 import java.util.List;
@@ -33,7 +34,7 @@ public class BlockTemplate implements BlockOperation {
   }
 
   @Override
-  public Block getBlock(Hash hash) {
+  public ResultOrError<Block> getBlock(Hash hash) {
     try {
       return blockAsyncOperation.getBlock(hash).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
@@ -42,7 +43,7 @@ public class BlockTemplate implements BlockOperation {
   }
 
   @Override
-  public Block getBlock(final long height) {
+  public ResultOrError<Block> getBlock(final long height) {
     try {
       return blockAsyncOperation.getBlock(height).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
@@ -51,7 +52,7 @@ public class BlockTemplate implements BlockOperation {
   }
 
   @Override
-  public List<BlockHeader> listBlockHeaders(Hash hash, int size) {
+  public ResultOrError<List<BlockHeader>> listBlockHeaders(Hash hash, int size) {
     try {
       return blockAsyncOperation.listBlockHeaders(hash, size).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
@@ -60,7 +61,7 @@ public class BlockTemplate implements BlockOperation {
   }
 
   @Override
-  public List<BlockHeader> listBlockHeaders(long height, int size) {
+  public ResultOrError<List<BlockHeader>> listBlockHeaders(long height, int size) {
     try {
       return blockAsyncOperation.listBlockHeaders(height, size).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {

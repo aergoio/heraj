@@ -11,6 +11,7 @@ import hera.api.BlockChainOperation;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.PeerAddress;
+import hera.api.tupleorerror.ResultOrError;
 import hera.exception.HerajException;
 import io.grpc.ManagedChannel;
 import java.util.List;
@@ -33,7 +34,7 @@ public class BlockChainTemplate implements BlockChainOperation {
   }
 
   @Override
-  public BlockchainStatus getBlockchainStatus() {
+  public ResultOrError<BlockchainStatus> getBlockchainStatus() {
     try {
       return blockChainAsyncOperation.getBlockchainStatus().get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
@@ -42,7 +43,7 @@ public class BlockChainTemplate implements BlockChainOperation {
   }
 
   @Override
-  public List<PeerAddress> listPeers() {
+  public ResultOrError<List<PeerAddress>> listPeers() {
     try {
       return blockChainAsyncOperation.listPeers().get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
@@ -51,7 +52,7 @@ public class BlockChainTemplate implements BlockChainOperation {
   }
 
   @Override
-  public NodeStatus getNodeStatus() {
+  public ResultOrError<NodeStatus> getNodeStatus() {
     try {
       return blockChainAsyncOperation.getNodeStatus().get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {

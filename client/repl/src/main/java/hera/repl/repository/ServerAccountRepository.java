@@ -42,7 +42,7 @@ public class ServerAccountRepository implements AccountRepository {
   @Override
   public List<SecuredAccount> list() throws IOException {
     final AccountOperation accountOperation = aergoApi.getAccountOperation();
-    final List<Account> accounts = accountOperation.list();
+    final List<Account> accounts = accountOperation.list().getResult();
     return accounts.stream()
         .map(this::toSecureAccount)
         .collect(Collectors.toList());
@@ -51,14 +51,14 @@ public class ServerAccountRepository implements AccountRepository {
   @Override
   public Optional<SecuredAccount> find(final String encodedAddress) throws IOException {
     final AccountOperation accountOperation = aergoApi.getAccountOperation();
-    return accountOperation.get(AccountAddress.of(HexUtils.decode(encodedAddress)))
+    return accountOperation.get(AccountAddress.of(HexUtils.decode(encodedAddress))).getResult()
         .map(this::toSecureAccount);
   }
 
   @Override
   public SecuredAccount create(final String password) throws Exception {
     final AccountOperation accountOperation = aergoApi.getAccountOperation();
-    return toSecureAccount(accountOperation.create(password));
+    return toSecureAccount(accountOperation.create(password).getResult());
   }
 
   @Override
@@ -85,7 +85,7 @@ public class ServerAccountRepository implements AccountRepository {
   @Override
   public void sendTransaction(final Transaction transaction) throws IOException {
     final TransactionOperation transactionOperation = aergoApi.getTransactionOperation();
-    final Signature signature = transactionOperation.sign(transaction);
+    final Signature signature = transactionOperation.sign(transaction).getResult();
     transaction.setSignature(signature);
     transactionOperation.commit(transaction);
   }

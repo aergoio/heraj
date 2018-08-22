@@ -4,6 +4,7 @@
 
 package hera.repl.repository;
 
+import static hera.api.tupleorerror.FunctionChain.success;
 import static hera.util.HexUtils.encode;
 import static java.util.Collections.emptyList;
 import static java.util.UUID.randomUUID;
@@ -11,14 +12,16 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import hera.api.model.Signature;
-import hera.api.model.Transaction;
+import hera.AbstractTestCase;
 import hera.api.AccountOperation;
 import hera.api.AergoApi;
 import hera.api.TransactionOperation;
-import hera.AbstractTestCase;
+import hera.api.model.Account;
+import hera.api.model.Signature;
+import hera.api.model.Transaction;
 import hera.repl.SecuredAccount;
 import java.io.IOException;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -49,17 +52,19 @@ public class ServerAccountRepositoryTest extends AbstractTestCase {
 
   @Test
   public void testList() throws IOException {
-    when(accountOperation.list()).thenReturn(emptyList());
+    when(accountOperation.list()).thenReturn(success(emptyList()));
     accountRepository.list();
   }
 
   @Test
   public void testFind() throws IOException {
+    when(accountOperation.get(any())).thenReturn(success(Optional.empty()));
     assertNotNull(accountRepository.find(address));
   }
 
   @Test
   public void testCreate() throws Exception {
+    when(accountOperation.create(any())).thenReturn(success(new Account()));
     accountRepository.create(password);
   }
 
@@ -86,7 +91,7 @@ public class ServerAccountRepositoryTest extends AbstractTestCase {
 
   @Test
   public void testSendTransaction() throws IOException {
-    when(transactionOperation.sign(any(Transaction.class))).thenReturn(new Signature());
+    when(transactionOperation.sign(any(Transaction.class))).thenReturn(success(new Signature()));
     final Transaction transaction = new Transaction();
     accountRepository.sendTransaction(transaction);
   }

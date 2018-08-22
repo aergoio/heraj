@@ -36,8 +36,8 @@ public class TransactionTemplateIT extends AbstractIT {
   public void setUp() {
     super.setUp();
     accountTemplate = new AccountTemplate(channel);
-    sender = accountTemplate.create(PASSWORD);
-    recipient = accountTemplate.create(PASSWORD);
+    sender = accountTemplate.create(PASSWORD).getResult();
+    recipient = accountTemplate.create(PASSWORD).getResult();
     accountTemplate.unlock(sender.getAddress(), PASSWORD);
     transactionTemplate = new TransactionTemplate(channel);
   }
@@ -49,7 +49,7 @@ public class TransactionTemplateIT extends AbstractIT {
     transaction.setAmount(30);
     transaction.setSender(sender.getAddress());
     transaction.setRecipient(recipient.getAddress());
-    Signature signature = transactionTemplate.sign(transaction);
+    Signature signature = transactionTemplate.sign(transaction).getResult();
     logger.debug("Signature: {}", signature);
 
     assertNotNull(signature);
@@ -58,7 +58,8 @@ public class TransactionTemplateIT extends AbstractIT {
     transaction.setSignature(signature);
     transactionTemplate.commit(transaction);
 
-    final Optional<Transaction> queried = transactionTemplate.getTransaction(signature.getHash());
+    final Optional<Transaction> queried =
+        transactionTemplate.getTransaction(signature.getHash()).getResult();
     assertTrue(queried.isPresent());
     assertEquals(sender.getAddress(), queried.get().getSender());
     assertEquals(recipient.getAddress(), queried.get().getRecipient());
@@ -87,7 +88,8 @@ public class TransactionTemplateIT extends AbstractIT {
 
     transactionTemplate.commit(transaction);
 
-    final Optional<Transaction> queried = transactionTemplate.getTransaction(signature.getHash());
+    final Optional<Transaction> queried =
+        transactionTemplate.getTransaction(signature.getHash()).getResult();
     assertTrue(queried.isPresent());
     assertEquals(sender.getAddress(), queried.get().getSender());
     assertEquals(recipient.getAddress(), queried.get().getRecipient());

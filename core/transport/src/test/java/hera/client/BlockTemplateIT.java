@@ -28,16 +28,16 @@ public class BlockTemplateIT extends AbstractIT {
 
   @Test
   public void testGetBlockchainStatus() {
-    final BlockchainStatus status = blockChainTemplate.getBlockchainStatus();
+    final BlockchainStatus status = blockChainTemplate.getBlockchainStatus().getResult();
     assertNotNull(status);
     assertTrue(0 < status.getBestHeight());
   }
 
   @Test
   public void testGetBlock() {
-    final BlockchainStatus status = blockChainTemplate.getBlockchainStatus();
+    final BlockchainStatus status = blockChainTemplate.getBlockchainStatus().getResult();
     final Hash bestBlockHash = status.getBestBlockHash();
-    final Block block = blockTemplate.getBlock(bestBlockHash);
+    final Block block = blockTemplate.getBlock(bestBlockHash).getResult();
     assertNotNull(block.getHash());
     assertNotNull(block.getRootHash());
     assertNotNull(block.getTransactionsRootHash());

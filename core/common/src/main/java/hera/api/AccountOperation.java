@@ -7,6 +7,7 @@ package hera.api;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.tupleorerror.ResultOrError;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,50 +16,49 @@ public interface AccountOperation {
   /**
    * Get account list.
    *
-   * @return account list
+   * @return account list or error
    */
-  List<Account> list();
+  ResultOrError<List<Account>> list();
 
   /**
    * Create an account with password.
    *
    * @param password account password
-   * @return created account if success, otherwise null
+   * @return created account or error
    */
-  Account create(String password);
+  ResultOrError<Account> create(String password);
 
   /**
    * Get account by address.
    *
    * @param address account address
-   * @return an Optional account if an account with address is present, otherwise an empty Optional
+   * @return an Optional account or error
    */
-  Optional<Account> get(AccountAddress address);
+  ResultOrError<Optional<Account>> get(AccountAddress address);
 
   /**
    * Lock an account.
    *
    * @param address account address
    * @param password account password
-   * @return whether account is locked or not
+   * @return lock result or error
    */
-  boolean lock(AccountAddress address, String password);
+  ResultOrError<Boolean> lock(AccountAddress address, String password);
 
   /**
    * Unlock an account.
    *
    * @param address account address
    * @param password account password
-   * @return whether account is unlocked or not
+   * @return unlock result or error
    */
-  boolean unlock(AccountAddress address, String password);
+  ResultOrError<Boolean> unlock(AccountAddress address, String password);
 
   /**
    * Get account state by account address.
    *
    * @param address account address
-   * @return an Optional account state if an account with address is present, otherwise an empty
-   *         Optional
+   * @return an Optional account state or error
    */
-  Optional<AccountState> getState(AccountAddress address);
+  ResultOrError<Optional<AccountState>> getState(AccountAddress address);
 }

@@ -17,8 +17,9 @@ import hera.api.BlockAsyncOperation;
 import hera.api.model.Block;
 import hera.api.model.BlockHeader;
 import hera.api.model.Hash;
+import hera.api.tupleorerror.ResultOrError;
+import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceBlockingStub;
@@ -31,54 +32,55 @@ public class BlockTemplateTest extends AbstractTestCase {
 
   @Test
   public void testGetBlockByHash() throws Exception {
-    CompletableFuture<Block> futureMock = mock(CompletableFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(Block.class));
+    ResultOrErrorFuture<Block> futureMock = mock(ResultOrErrorFuture.class);
+    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     BlockAsyncOperation asyncOperationMock = mock(BlockAsyncOperation.class);
     when(asyncOperationMock.getBlock(any())).thenReturn(futureMock);
 
     final BlockTemplate blockTemplate = new BlockTemplate(asyncOperationMock);
 
-    final Block block = blockTemplate.getBlock(new Hash(randomUUID().toString().getBytes()));
+    final ResultOrError<Block> block =
+        blockTemplate.getBlock(new Hash(randomUUID().toString().getBytes()));
     assertNotNull(block);
   }
 
   @Test
   public void testGetBlockByHeight() throws Exception {
-    CompletableFuture<Block> futureMock = mock(CompletableFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(Block.class));
+    ResultOrErrorFuture<Block> futureMock = mock(ResultOrErrorFuture.class);
+    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     BlockAsyncOperation asyncOperationMock = mock(BlockAsyncOperation.class);
     when(asyncOperationMock.getBlock(anyLong())).thenReturn(futureMock);
 
     final BlockTemplate blockTemplate = new BlockTemplate(asyncOperationMock);
 
-    final Block block = blockTemplate.getBlock(randomUUID().hashCode());
+    final ResultOrError<Block> block = blockTemplate.getBlock(randomUUID().hashCode());
     assertNotNull(block);
   }
 
   @Test
   public void testListBlockHeadersByHash() throws Exception {
-    CompletableFuture<List<BlockHeader>> futureMock = mock(CompletableFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(List.class));
+    ResultOrErrorFuture<List<BlockHeader>> futureMock = mock(ResultOrErrorFuture.class);
+    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     BlockAsyncOperation asyncOperationMock = mock(BlockAsyncOperation.class);
     when(asyncOperationMock.listBlockHeaders(any(Hash.class), anyInt())).thenReturn(futureMock);
 
     final BlockTemplate blockTemplate = new BlockTemplate(asyncOperationMock);
 
-    final List<BlockHeader> block = blockTemplate
+    final ResultOrError<List<BlockHeader>> block = blockTemplate
         .listBlockHeaders(new Hash(randomUUID().toString().getBytes()), randomUUID().hashCode());
     assertNotNull(block);
   }
 
   @Test
   public void testListBlockHeadersByHeight() throws Exception {
-    CompletableFuture<List<BlockHeader>> futureMock = mock(CompletableFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(List.class));
+    ResultOrErrorFuture<List<BlockHeader>> futureMock = mock(ResultOrErrorFuture.class);
+    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     BlockAsyncOperation asyncOperationMock = mock(BlockAsyncOperation.class);
     when(asyncOperationMock.listBlockHeaders(anyLong(), anyInt())).thenReturn(futureMock);
 
     final BlockTemplate blockTemplate = new BlockTemplate(asyncOperationMock);
 
-    final List<BlockHeader> block =
+    final ResultOrError<List<BlockHeader>> block =
         blockTemplate.listBlockHeaders(randomUUID().hashCode(), randomUUID().hashCode());
     assertNotNull(block);
   }

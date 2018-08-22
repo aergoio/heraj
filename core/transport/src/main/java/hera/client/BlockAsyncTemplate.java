@@ -19,11 +19,11 @@ import hera.api.model.Block;
 import hera.api.model.BlockHeader;
 import hera.api.model.BytesValue;
 import hera.api.model.Hash;
+import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.BlockConverterFactory;
 import hera.transport.ModelConverter;
 import io.grpc.ManagedChannel;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Blockchain;
@@ -47,22 +47,22 @@ public class BlockAsyncTemplate implements BlockAsyncOperation {
   }
 
   @Override
-  public CompletableFuture<Block> getBlock(final Hash hash) {
-    final CompletableFuture<Block> nextFuture = new CompletableFuture<>();
+  public ResultOrErrorFuture<Block> getBlock(final Hash hash) {
+    final ResultOrErrorFuture<Block> nextFuture = new ResultOrErrorFuture<>();
 
     final ByteString byteString = copyFrom(hash);
     final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
     ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(bytes);
-    FutureChainer<Blockchain.Block, Block> callback = new FutureChainer<>(nextFuture,
-        b -> blockConverter.convertToDomainModel(b));
+    FutureChainer<Blockchain.Block, Block> callback =
+        new FutureChainer<>(nextFuture, b -> blockConverter.convertToDomainModel(b));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;
   }
 
   @Override
-  public CompletableFuture<Block> getBlock(final long height) {
-    final CompletableFuture<Block> nextFuture = new CompletableFuture<>();
+  public ResultOrErrorFuture<Block> getBlock(final long height) {
+    final ResultOrErrorFuture<Block> nextFuture = new ResultOrErrorFuture<>();
 
     final ByteString byteString = copyFrom(BytesValue.of(longToByteArray(height)));
     final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
@@ -75,36 +75,30 @@ public class BlockAsyncTemplate implements BlockAsyncOperation {
   }
 
   @Override
-  public CompletableFuture<List<BlockHeader>> listBlockHeaders(final Hash hash, final int size) {
-    final CompletableFuture<List<BlockHeader>> nextFuture = new CompletableFuture<>();
+  public ResultOrErrorFuture<List<BlockHeader>> listBlockHeaders(final Hash hash, final int size) {
+    final ResultOrErrorFuture<List<BlockHeader>> nextFuture = new ResultOrErrorFuture<>();
 
-    final ListParams listParams = ListParams.newBuilder()
-        .setHash(copyFrom(hash))
-        .setSize(size)
-        .build();
+    final ListParams listParams =
+        ListParams.newBuilder().setHash(copyFrom(hash)).setSize(size).build();
     ListenableFuture<BlockHeaderList> listenableFuture = aergoService.listBlockHeaders(listParams);
-    FutureChainer<BlockHeaderList, List<BlockHeader>> callback = new FutureChainer<>(nextFuture,
-        blockHeaders -> blockHeaders.getBlocksList().stream()
-            .map(BlockHeader.class::cast)
-            .collect(toList()));
+    FutureChainer<BlockHeaderList, List<BlockHeader>> callback =
+        new FutureChainer<>(nextFuture, blockHeaders -> blockHeaders.getBlocksList().stream()
+            .map(BlockHeader.class::cast).collect(toList()));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;
   }
 
   @Override
-  public CompletableFuture<List<BlockHeader>> listBlockHeaders(final long height, final int size) {
-    final CompletableFuture<List<BlockHeader>> nextFuture = new CompletableFuture<>();
+  public ResultOrErrorFuture<List<BlockHeader>> listBlockHeaders(final long height,
+      final int size) {
+    final ResultOrErrorFuture<List<BlockHeader>> nextFuture = new ResultOrErrorFuture<>();
 
-    final ListParams listParams = ListParams.newBuilder()
-        .setHeight(height)
-        .setSize(size)
-        .build();
+    final ListParams listParams = ListParams.newBuilder().setHeight(height).setSize(size).build();
     ListenableFuture<BlockHeaderList> listenableFuture = aergoService.listBlockHeaders(listParams);
-    FutureChainer<BlockHeaderList, List<BlockHeader>> callback = new FutureChainer<>(nextFuture,
-        blockHeaders -> blockHeaders.getBlocksList().stream()
-            .map(BlockHeader.class::cast)
-            .collect(toList()));
+    FutureChainer<BlockHeaderList, List<BlockHeader>> callback =
+        new FutureChainer<>(nextFuture, blockHeaders -> blockHeaders.getBlocksList().stream()
+            .map(BlockHeader.class::cast).collect(toList()));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;

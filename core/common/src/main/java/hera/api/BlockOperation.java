@@ -7,6 +7,7 @@ package hera.api;
 import hera.api.model.Block;
 import hera.api.model.BlockHeader;
 import hera.api.model.Hash;
+import hera.api.tupleorerror.ResultOrError;
 import java.util.List;
 
 public interface BlockOperation {
@@ -15,33 +16,33 @@ public interface BlockOperation {
    * Get block by hash.
    *
    * @param hash block's hash
-   * @return block
+   * @return block or error
    */
-  Block getBlock(Hash hash);
+  ResultOrError<Block> getBlock(Hash hash);
 
   /**
    * Get block by height.
    *
    * @param height block's height
-   * @return block
+   * @return block or error
    */
-  Block getBlock(long height);
+  ResultOrError<Block> getBlock(long height);
 
   /**
    * Get block headers of size starting from block for provided hash.
    *
    * @param hash block's hash
    * @param size block list size whose upper bound is 1000
-   * @return block list
+   * @return block list or error
    */
-  List<BlockHeader> listBlockHeaders(Hash hash, int size);
+  ResultOrError<List<BlockHeader>> listBlockHeaders(Hash hash, int size);
 
   /**
    * Get block headers of size starting from block for provided height.
    *
    * @param height block's height
    * @param size block list size whose upper bound is 1000
-   * @return block list
+   * @return block list or error
    */
-  List<BlockHeader> listBlockHeaders(long height, int size);
+  ResultOrError<List<BlockHeader>> listBlockHeaders(long height, int size);
 }

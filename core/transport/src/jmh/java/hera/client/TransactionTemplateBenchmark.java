@@ -49,8 +49,8 @@ public class TransactionTemplateBenchmark {
           .build();
       accountTemplate = new AccountTemplate(channel);
       transactionTemplate = new TransactionTemplate(channel);
-      sender = accountTemplate.create(PASSWORD);
-      recipient = accountTemplate.create(PASSWORD);
+      sender = accountTemplate.create(PASSWORD).getResult();
+      recipient = accountTemplate.create(PASSWORD).getResult();
       accountTemplate.unlock(sender.getAddress(), PASSWORD);
     }
 
@@ -65,7 +65,7 @@ public class TransactionTemplateBenchmark {
       transaction.setAmount(30);
       transaction.setSender(sender.getAddress());
       transaction.setRecipient(recipient.getAddress());
-      final Signature signature = transactionTemplate.sign(transaction);
+      final Signature signature = transactionTemplate.sign(transaction).getResult();
 
       transaction.setSignature(signature);
       transactionTemplate.commit(transaction);

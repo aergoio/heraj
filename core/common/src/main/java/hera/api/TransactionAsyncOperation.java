@@ -7,8 +7,8 @@ package hera.api;
 import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
+import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 public interface TransactionAsyncOperation {
 
@@ -16,33 +16,32 @@ public interface TransactionAsyncOperation {
    * Get transaction asynchronously.
    *
    * @param hash transaction's hash
-   * @return transaction
+   * @return future of an Optional transaction or error
    */
-  CompletableFuture<Optional<Transaction>> getTransaction(Hash hash);
+  ResultOrErrorFuture<Optional<Transaction>> getTransaction(Hash hash);
 
   /**
    * Sign for transaction asynchronously.
    *
    * @param transaction transaction to sign
-   * @return signing result
+   * @return future of signing result or error
    */
-  CompletableFuture<Signature> sign(Transaction transaction);
-
+  ResultOrErrorFuture<Signature> sign(Transaction transaction);
 
   /**
    * Verify transaction asynchronously.
    *
    * @param transaction transaction to verify
-   * @return verify result
+   * @return future of verify result or error
    */
-  CompletableFuture<Boolean> verify(Transaction transaction);
+  ResultOrErrorFuture<Boolean> verify(Transaction transaction);
 
   /**
    * Commit transaction asynchronously.
    *
    * @param transaction transaction to commit
-   * @return transaction hash
+   * @return future of transaction hash or error
    */
-  CompletableFuture<Optional<Hash>> commit(Transaction transaction);
+  ResultOrErrorFuture<Optional<Hash>> commit(Transaction transaction);
 
 }

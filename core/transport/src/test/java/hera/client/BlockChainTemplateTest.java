@@ -15,8 +15,9 @@ import hera.api.BlockChainAsyncOperation;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.PeerAddress;
+import hera.api.tupleorerror.ResultOrError;
+import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -29,40 +30,41 @@ public class BlockChainTemplateTest extends AbstractTestCase {
 
   @Test
   public void testGetBlockchainStatus() throws Exception {
-    CompletableFuture<BlockchainStatus> futureMock = mock(CompletableFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(BlockchainStatus.class));
+    ResultOrErrorFuture<BlockchainStatus> futureMock = mock(ResultOrErrorFuture.class);
+    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     BlockChainAsyncOperation asyncOperationMock = mock(BlockChainAsyncOperation.class);
     when(asyncOperationMock.getBlockchainStatus()).thenReturn(futureMock);
 
     final BlockChainTemplate blockChainTemplate = new BlockChainTemplate(asyncOperationMock);
 
-    final BlockchainStatus blockchainStatus = blockChainTemplate.getBlockchainStatus();
+    final ResultOrError<BlockchainStatus> blockchainStatus =
+        blockChainTemplate.getBlockchainStatus();
     assertNotNull(blockchainStatus);
   }
 
   @Test
   public void testListPeers() throws Exception {
-    CompletableFuture<List<PeerAddress>> futureMock = mock(CompletableFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(List.class));
+    ResultOrErrorFuture<List<PeerAddress>> futureMock = mock(ResultOrErrorFuture.class);
+    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     BlockChainAsyncOperation asyncOperationMock = mock(BlockChainAsyncOperation.class);
     when(asyncOperationMock.listPeers()).thenReturn(futureMock);
 
     final BlockChainTemplate blockChainTemplate = new BlockChainTemplate(asyncOperationMock);
 
-    final List<PeerAddress> peerAddresses = blockChainTemplate.listPeers();
+    final ResultOrError<List<PeerAddress>> peerAddresses = blockChainTemplate.listPeers();
     assertNotNull(peerAddresses);
   }
 
   @Test
   public void testGetNodeStatus() throws Exception {
-    CompletableFuture<NodeStatus> futureMock = mock(CompletableFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(NodeStatus.class));
+    ResultOrErrorFuture<NodeStatus> futureMock = mock(ResultOrErrorFuture.class);
+    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     BlockChainAsyncOperation asyncOperationMock = mock(BlockChainAsyncOperation.class);
     when(asyncOperationMock.getNodeStatus()).thenReturn(futureMock);
 
     final BlockChainTemplate blockChainTemplate = new BlockChainTemplate(asyncOperationMock);
 
-    final NodeStatus nodeStatus = blockChainTemplate.getNodeStatus();
+    final ResultOrError<NodeStatus> nodeStatus = blockChainTemplate.getNodeStatus();
     assertNotNull(nodeStatus);
   }
 

@@ -15,10 +15,10 @@ import hera.AbstractTestCase;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.ModelConverter;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -61,7 +61,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     final AccountAsyncTemplate accountAsyncTemplate =
         new AccountAsyncTemplate(aergoService, accountConverter, accountStateConverter);
 
-    final CompletableFuture<List<Account>> accountListFuture = accountAsyncTemplate.list();
+    final ResultOrErrorFuture<List<Account>> accountListFuture = accountAsyncTemplate.list();
     assertNotNull(accountListFuture);
   }
 
@@ -74,7 +74,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     final AccountAsyncTemplate accountAsyncTemplate =
         new AccountAsyncTemplate(aergoService, accountConverter, accountStateConverter);
 
-    final CompletableFuture<Account> accountFuture =
+    final ResultOrErrorFuture<Account> accountFuture =
         accountAsyncTemplate.create(randomUUID().toString());
     assertNotNull(accountFuture);
   }
@@ -88,7 +88,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     final AccountAsyncTemplate accountAsyncTemplate =
         new AccountAsyncTemplate(aergoService, accountConverter, accountStateConverter);
 
-    final CompletableFuture<Optional<Account>> accountFuture =
+    final ResultOrErrorFuture<Optional<Account>> accountFuture =
         accountAsyncTemplate.get(ACCOUNT_ADDRESS);
     assertNotNull(accountFuture);
   }
@@ -102,7 +102,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     final AccountAsyncTemplate accountAsyncTemplate =
         new AccountAsyncTemplate(aergoService, accountConverter, accountStateConverter);
 
-    final CompletableFuture<Boolean> lockResult =
+    final ResultOrErrorFuture<Boolean> lockResult =
         accountAsyncTemplate.lock(ACCOUNT_ADDRESS, PASSWORD);
     assertNotNull(lockResult);
   }
@@ -116,7 +116,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     final AccountAsyncTemplate accountAsyncTemplate =
         new AccountAsyncTemplate(aergoService, accountConverter, accountStateConverter);
 
-    final CompletableFuture<Boolean> accountFuture =
+    final ResultOrErrorFuture<Boolean> accountFuture =
         accountAsyncTemplate.unlock(ACCOUNT_ADDRESS, PASSWORD);
     assertNotNull(accountFuture);
   }
@@ -130,7 +130,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     final AccountAsyncTemplate accountAsyncTemplate =
         new AccountAsyncTemplate(aergoService, accountConverter, accountStateConverter);
 
-    final CompletableFuture<Optional<AccountState>> accountFuture =
+    final ResultOrErrorFuture<Optional<AccountState>> accountFuture =
         accountAsyncTemplate.getState(ACCOUNT_ADDRESS);
     assertNotNull(accountFuture);
   }

@@ -12,6 +12,7 @@ import hera.api.TransactionOperation;
 import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
+import hera.api.tupleorerror.ResultOrError;
 import hera.exception.HerajException;
 import io.grpc.ManagedChannel;
 import java.util.Optional;
@@ -33,7 +34,7 @@ public class TransactionTemplate implements TransactionOperation {
   }
 
   @Override
-  public Optional<Transaction> getTransaction(Hash hash) {
+  public ResultOrError<Optional<Transaction>> getTransaction(Hash hash) {
     try {
       return transactionAsyncOperation.getTransaction(hash).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
@@ -42,7 +43,7 @@ public class TransactionTemplate implements TransactionOperation {
   }
 
   @Override
-  public Signature sign(Transaction transaction) {
+  public ResultOrError<Signature> sign(Transaction transaction) {
     try {
       return transactionAsyncOperation.sign(transaction).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
@@ -51,7 +52,7 @@ public class TransactionTemplate implements TransactionOperation {
   }
 
   @Override
-  public boolean verify(Transaction transaction) {
+  public ResultOrError<Boolean> verify(Transaction transaction) {
     try {
       return transactionAsyncOperation.verify(transaction).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
@@ -60,7 +61,7 @@ public class TransactionTemplate implements TransactionOperation {
   }
 
   @Override
-  public Optional<Hash> commit(Transaction transaction) {
+  public ResultOrError<Optional<Hash>> commit(Transaction transaction) {
     try {
       return transactionAsyncOperation.commit(transaction).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {

@@ -17,13 +17,13 @@ import hera.api.AccountAsyncOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.AccountConverterFactory;
 import hera.transport.AccountStateConverterFactory;
 import hera.transport.ModelConverter;
 import io.grpc.ManagedChannel;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import types.AccountOuterClass;
 import types.AccountOuterClass.AccountList;
@@ -52,8 +52,8 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
   }
 
   @Override
-  public CompletableFuture<List<Account>> list() {
-    CompletableFuture<List<Account>> nextFuture = new CompletableFuture<>();
+  public ResultOrErrorFuture<List<Account>> list() {
+    ResultOrErrorFuture<List<Account>> nextFuture = new ResultOrErrorFuture<>();
 
     ListenableFuture<AccountList> listenableFuture = aergoService
         .getAccounts(Empty.newBuilder().build());
@@ -67,8 +67,8 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
   }
 
   @Override
-  public CompletableFuture<Account> create(String password) {
-    CompletableFuture<Account> nextFuture = new CompletableFuture<>();
+  public ResultOrErrorFuture<Account> create(String password) {
+    ResultOrErrorFuture<Account> nextFuture = new ResultOrErrorFuture<>();
 
     final Personal personal = Personal.newBuilder().setPassphrase(password).build();
     ListenableFuture<AccountOuterClass.Account> listenableFuture = aergoService
@@ -85,15 +85,15 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
   }
 
   @Override
-  public CompletableFuture<Optional<Account>> get(AccountAddress address) {
+  public ResultOrErrorFuture<Optional<Account>> get(AccountAddress address) {
     return list().thenApply(list -> list.stream()
         .filter(account -> address.equals(account.getAddress()))
         .findFirst());
   }
 
   @Override
-  public CompletableFuture<Boolean> unlock(AccountAddress address, String password) {
-    CompletableFuture<Boolean> nextFuture = new CompletableFuture<>();
+  public ResultOrErrorFuture<Boolean> unlock(AccountAddress address, String password) {
+    ResultOrErrorFuture<Boolean> nextFuture = new ResultOrErrorFuture<>();
 
     final Account domainAccount = Account.of(address, password);
     final Personal rpcPersonal = Personal.newBuilder()
@@ -110,8 +110,8 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
   }
 
   @Override
-  public CompletableFuture<Boolean> lock(AccountAddress address, String password) {
-    CompletableFuture<Boolean> nextFuture = new CompletableFuture<>();
+  public ResultOrErrorFuture<Boolean> lock(AccountAddress address, String password) {
+    ResultOrErrorFuture<Boolean> nextFuture = new ResultOrErrorFuture<>();
 
     final Account domainAccount = Account.of(address, password);
     final Personal rpcPersonal = Personal.newBuilder()
@@ -127,8 +127,8 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
   }
 
   @Override
-  public CompletableFuture<Optional<AccountState>> getState(AccountAddress address) {
-    CompletableFuture<Optional<AccountState>> nextFuture = new CompletableFuture<>();
+  public ResultOrErrorFuture<Optional<AccountState>> getState(AccountAddress address) {
+    ResultOrErrorFuture<Optional<AccountState>> nextFuture = new ResultOrErrorFuture<>();
 
     final ByteString byteString = copyFrom(address.getValue());
     final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
