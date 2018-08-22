@@ -6,17 +6,19 @@ package hera.command;
 
 import static hera.util.ValidationUtils.assertTrue;
 
+import hera.BuildResult;
 import hera.Builder;
-import hera.FileContent;
 import hera.FileSet;
 import hera.ProjectFile;
 import hera.build.MonitorServer;
 import hera.build.Resource;
+import hera.build.ResourceChangeEvent;
 import hera.build.ResourceManager;
 import hera.build.res.BuildResource;
 import hera.build.res.PackageResource;
 import hera.build.res.Project;
 import hera.build.res.TestResource;
+import hera.build.web.service.BuildService;
 import hera.exception.NoBuildTargetException;
 import hera.util.FileWatcher;
 import java.io.IOException;
@@ -29,9 +31,36 @@ public class BuildProject extends AbstractCommand {
 
   @Getter
   @Setter
-  protected FileContent output;
+  protected BuildService buildService = new BuildService();
+
+  @Getter
+  @Setter
+  protected MonitorServer monitorServer;
+
+  @Getter
+  @Setter
+  protected FileWatcher fileWatcher;
 
   protected Builder builder;
+
+  protected Project project;
+
+  protected MonitorServer createMonitorServer(final int port) {
+    monitorServer = new MonitorServer();
+    if (0 < port) {
+      monitorServer.setPort(port);
+    }
+    monitorServer.addHandler(buildService);
+    return monitorServer;
+  }
+
+  protected FileWatcher createFileWatcher() throws IOException {
+    final WatchService watchService = FileSystems.getDefault().newWatchService();
+    fileWatcher = new FileWatcher(watchService, project.getPath());
+    fileWatcher.addServerListener(builder.getResourceManager());
+    fileWatcher.run();
+    return fileWatcher;
+  }
 
   protected void build(final Project project) throws IOException {
     final ProjectFile projectFile = project.getProjectFile();
@@ -39,7 +68,8 @@ public class BuildProject extends AbstractCommand {
     if (null == buildTarget) {
       throw new NoBuildTargetException();
     }
-    final FileSet fileSet = builder.build(buildTarget);
+    final BuildResult buildResult = builder.build(buildTarget);
+    final FileSet fileSet = buildResult.getFileSet();
     logger.info("Fileset: {}", fileSet);
     fileSet.copyTo(project.getPath());
   }
@@ -61,41 +91,34 @@ public class BuildProject extends AbstractCommand {
     }
 
     final ProjectFile projectFile = readProject();
-    final Project project = new Project(".", projectFile);
+    project = new Project(".", projectFile);
     builder = new BuilderFactory().create(project);
     build(project);
     if (serverMode) {
-      final MonitorServer server = new MonitorServer();
-      if (0 < port) {
-        server.setPort(port);
-      }
-      server.boot();
-
-
+      createMonitorServer(port).boot();
       final ResourceManager resourceManager = builder.getResourceManager();
-      resourceManager.addResourceChangeListener((event) -> {
-        logger.info("Resource changed: {}", event.getResource());
-        final Resource changedResource = event.getResource();
-        if (changedResource instanceof BuildResource) {
-          logger.trace("Skip build resource: {}", changedResource.getLocation());
-          return;
-        } else if (changedResource instanceof PackageResource) {
-          logger.trace("Skip package resource: {}", changedResource.getLocation());
-          return;
-        } else if (changedResource instanceof TestResource) {
-          logger.trace("Skip test resource: {}", changedResource.getLocation());
-          return;
-        }
-        try {
-          build(project);
-        } catch (IOException ex) {
-          // Handle exception
-        }
-      });
-      final WatchService watchService = FileSystems.getDefault().newWatchService();
-      final FileWatcher fileWatcher = new FileWatcher(watchService, project.getPath());
-      fileWatcher.addServerListener(resourceManager);
-      fileWatcher.run();
+      resourceManager.addResourceChangeListener(this::resourceChanged);
+      createFileWatcher();
+    }
+  }
+
+  protected void resourceChanged(final ResourceChangeEvent event) {
+    logger.info("Resource changed: {}", event.getResource());
+    final Resource changedResource = event.getResource();
+    if (changedResource instanceof BuildResource) {
+      logger.trace("Skip build resource: {}", changedResource.getLocation());
+      return;
+    } else if (changedResource instanceof PackageResource) {
+      logger.trace("Skip package resource: {}", changedResource.getLocation());
+      return;
+    } else if (changedResource instanceof TestResource) {
+      logger.trace("Skip test resource: {}", changedResource.getLocation());
+      return;
+    }
+    try {
+      build(project);
+    } catch (IOException ex) {
+      // Handle exception
     }
   }
 }

@@ -7,6 +7,8 @@ package hera.build;
 import hera.server.ServerStatus;
 import hera.server.ThreadServer;
 import hera.util.ThreadUtils;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.DefaultHandler;
@@ -18,6 +20,8 @@ public class MonitorServer extends ThreadServer {
   protected int port = -1;
 
   protected Server server;
+
+  protected final Set<Handler> handlers = new LinkedHashSet<>();
 
   /**
    * Get server port.
@@ -50,6 +54,10 @@ public class MonitorServer extends ThreadServer {
     }
   }
 
+  public void addHandler(final Handler handler) {
+    this.handlers.add(handler);
+  }
+
   @Override
   protected void initialize() throws Exception {
     super.initialize();
@@ -62,7 +70,9 @@ public class MonitorServer extends ThreadServer {
     resourceHandler.setResourceBase(getClass().getResource("/public").toString());
 
     HandlerList handlers = new HandlerList();
-    handlers.setHandlers(new Handler[] { resourceHandler, new DefaultHandler() });
+    this.handlers.stream().forEach(handlers::addHandler);
+    handlers.addHandler(resourceHandler);
+    handlers.addHandler(new DefaultHandler());
     server.setHandler(handlers);
     server.start();
     logger.info("Open browser and connect to http://localhost:{}", port);

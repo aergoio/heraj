@@ -7,6 +7,7 @@ package hera.command;
 import static hera.util.ObjectUtils.nvl;
 import static java.util.Collections.EMPTY_LIST;
 
+import hera.BuildResult;
 import hera.Builder;
 import hera.FileContent;
 import hera.FileSet;
@@ -38,7 +39,8 @@ public class TestProject extends AbstractCommand {
     AthenaContext.clear();
     try {
       for (final String testPath : testPaths) {
-        final FileSet fileSet = builder.build(testPath);
+        final BuildResult buildResult = builder.build(testPath);
+        final FileSet fileSet = buildResult.getFileSet();
         logger.trace("Test build: {}", fileSet);
         final FileContent fileContent = fileSet.stream().findFirst().orElse(null);
         try (final InputStream in = fileContent.open()) {

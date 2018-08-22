@@ -9,6 +9,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import hera.util.IoUtils;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +19,8 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Stream;
+import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 
 public class FileSet {
@@ -46,10 +49,8 @@ public class FileSet {
    *
    * @throws IOException Fail to access location or sub location
    */
-  public static void rake(
-      final Path base,
-      final FileSet fileSet,
-      final Path path) throws IOException {
+  public static void rake(final Path base, final FileSet fileSet, final Path path)
+      throws IOException {
     if (!Files.exists(path)) {
       return;
     }
@@ -66,9 +67,12 @@ public class FileSet {
     }
   }
 
+  @JsonIgnore
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final Set<FileContent> fileSet;
+  @Getter
+  @Setter
+  protected Set<FileContent> fileSet;
 
   public FileSet() {
     this(new TreeSet<>());
@@ -86,7 +90,7 @@ public class FileSet {
     return fileSet.stream();
   }
 
-  public void addAll(FileSet that) {
+  public void addAll(final FileSet that) {
     this.fileSet.addAll(that.fileSet);
   }
 

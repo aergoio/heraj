@@ -4,7 +4,6 @@
 
 package hera;
 
-import static java.util.Arrays.asList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.build.Concatenator;
@@ -42,22 +41,24 @@ public class Builder {
    *
    * @return Build result fileset
    */
-  public FileSet build(final String resourcePath) {
+  public BuildResult build(final String resourcePath) {
     final Resource resource = resourceManager.getResource(resourcePath);
     logger.trace("{}: {}", resourcePath, resource);
     final Concatenator concatenator = new Concatenator(resourceManager);
     final Optional<BuildResource> buildResourceOpt = resource.adapt(BuildResource.class);
     final Optional<TestResource> testResourceOpt = resource.adapt(TestResource.class);
+    final FileSet fileSet = new FileSet();
     if (buildResourceOpt.isPresent()) {
       final byte[] contents = concatenator.visit(buildResourceOpt.get());
-      return new FileSet(asList(
-          new FileContent(resourcePath, () -> new ByteArrayInputStream(contents))));
+      fileSet.add(new FileContent(resourcePath, () -> new ByteArrayInputStream(contents)));
     } else if (testResourceOpt.isPresent()) {
       final byte[] contents = concatenator.visit(testResourceOpt.get());
-      return new FileSet(asList(
-          new FileContent(resourcePath, () -> new ByteArrayInputStream(contents))));
-    } else {
-      return new FileSet();
+      fileSet.add(new FileContent(resourcePath, () -> new ByteArrayInputStream(contents)));
     }
+
+    final BuildResult buildResult = new BuildResult();
+    buildResult.setFileSet(fileSet);
+
+    return buildResult;
   }
 }
