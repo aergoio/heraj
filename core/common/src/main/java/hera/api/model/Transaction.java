@@ -49,6 +49,10 @@ public class Transaction {
   @Setter
   protected Signature signature;
 
+  @Getter
+  @Setter
+  protected TransactionType txType;
+
   /**
    * Copy deep.
    *

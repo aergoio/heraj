@@ -10,6 +10,7 @@ import static java.util.Arrays.asList;
 import hera.AbstractTestCase;
 import hera.api.model.Block;
 import hera.api.model.Transaction;
+import hera.api.model.TransactionType;
 import org.junit.Test;
 import types.Blockchain;
 
@@ -22,6 +23,7 @@ public class BlockConverterTest extends AbstractTestCase {
 
     final Block domainBlock = new Block();
     final Transaction domainTransaction = new Transaction();
+    domainTransaction.setTxType(TransactionType.NORMAL);
     domainBlock.setTransactions(asList(domainTransaction));
 
     final Blockchain.Block rpcBlock = converter.convertToRpcModel(domainBlock);
