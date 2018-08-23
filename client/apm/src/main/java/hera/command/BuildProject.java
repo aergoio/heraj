@@ -22,6 +22,7 @@ import hera.build.res.Project;
 import hera.build.res.TestResource;
 import hera.exception.NoBuildTargetException;
 import hera.util.FileWatcher;
+import hera.util.ThreadUtils;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.WatchService;
@@ -101,6 +102,7 @@ public class BuildProject extends AbstractCommand {
       resourceManager.addResourceChangeListener(this::resourceChanged);
       createFileWatcher();
     }
+
   }
 
   protected void resourceChanged(final ResourceChangeEvent event) {

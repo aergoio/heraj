@@ -1,14 +1,16 @@
 <template>
   <div class="timeline-container">
-    <build-timeline></build-timeline>
+    <build-timeline v-bind:items="builds" />
   </div>
 </template>
 
 <script>
   import BuildTimeline from '../components/BuildTimeline'
+
   export default {
     name: 'PageHeader',
-    components: {BuildTimeline}
+    components: {BuildTimeline},
+    props: ['builds']
   }
 </script>
 

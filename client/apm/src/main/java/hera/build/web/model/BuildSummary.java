@@ -21,6 +21,9 @@ public class BuildSummary {
   @Setter
   protected boolean success;
 
+  public BuildSummary() {
+  }
+
   /**
    * Constructor with {@link BuildResult}.
    *

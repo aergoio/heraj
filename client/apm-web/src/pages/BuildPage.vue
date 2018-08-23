@@ -3,7 +3,7 @@
     <div class="container">
       <b-tabs>
         <b-tab title="Result">
-          <codemirror :value="code" :options="cmOptions"/>
+          <codemirror :value="contents" :options="cmOptions"/>
         </b-tab>
         <b-tab title="Dependencies">
           <tree v-bind="dependencies"></tree>
@@ -28,8 +28,8 @@
     name: 'BuildPage',
     components: {
       Tree
-
     },
+    props: ['contents'],
     data() {
       return {
         code:

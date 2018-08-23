@@ -7,6 +7,7 @@ package hera.build.web.service;
 import static java.util.stream.Collectors.toList;
 
 import hera.BuildResult;
+import hera.build.web.model.BuildDetails;
 import hera.build.web.model.BuildSummary;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +23,7 @@ public class BuildService extends AbstractService {
 
   protected final List<String> uuids = new ArrayList<>();
 
-  protected final Map<String, BuildResult> uuid2buildResult = new HashMap<>();
+  protected final Map<String, BuildDetails> uuid2buildResult = new HashMap<>();
 
   /**
    * Save build result for web request.
@@ -30,7 +31,7 @@ public class BuildService extends AbstractService {
    * @param buildResult build result
    */
   public void save(final BuildResult buildResult) {
-    uuid2buildResult.put(buildResult.getUuid(), buildResult);
+    uuid2buildResult.put(buildResult.getUuid(), new BuildDetails(buildResult));
     uuids.add(buildResult.getUuid());
     try {
       liveUpdateService.notifyChange(new BuildSummary(buildResult));
@@ -39,7 +40,7 @@ public class BuildService extends AbstractService {
     }
   }
 
-  public Optional<BuildResult> get(final String uuid) {
+  public Optional<BuildDetails> get(final String uuid) {
     return Optional.ofNullable(uuid2buildResult.get(uuid));
   }
 
@@ -59,7 +60,7 @@ public class BuildService extends AbstractService {
     } else {
       return uuids.subList(fromIndex, toIndex).stream()
           .map(uuid2buildResult::get)
-          .map(BuildSummary::new)
+          .map(BuildDetails::getSummary)
           .collect(toList());
     }
   }

@@ -1,8 +1,6 @@
 <template>
   <ul class="timeline timeline-horizontal">
-    <timeline-item type="primary"></timeline-item>
-    <timeline-item type="danger"></timeline-item>
-    <timeline-item type="primary"></timeline-item>
+    <timeline-item v-for="item in items" :type="item.success ? 'primary' : 'danger'" :key="item.uuid" v-bind="item"/>
   </ul>
 </template>
 
@@ -10,16 +8,29 @@
   import Vue from 'vue'
   const TimelineItem = {
     name: 'TimelineItem',
-    props: ['type'],
+    props: ['type', 'uuid', 'timestamp'],
     template:
 `<li class="timeline-item">
-  <div class="timeline-badge" :class="type"><i name="glyphicon-check"></i></div>
-</li>`
+  <div class="timestamp">{{timestampDisplay(timestamp)}}</div>
+  <router-link :to="'/' + uuid + '/build'">
+    <div class="timeline-badge" :class="type"><i name="glyphicon-check"></i></div>
+  </router-link>
+</li>`,
+    methods: {
+      timestampDisplay(ts) {
+        let seconds = Vue.moment().diff(ts, 'seconds');
+        if (seconds < 60) {
+          return seconds + ' seconds ago';
+        }
+        return Vue.moment(ts).fromNow();
+      }
+    }
   }
   Vue.component(TimelineItem)
   export default {
     name: 'BuildTimeline',
-    components: {TimelineItem: TimelineItem}
+    props: ['items'],
+    components: { TimelineItem: TimelineItem },
   }
 </script>
 
@@ -181,7 +192,7 @@
     display: table-cell;
     height: 20px;
     width: 20%;
-    min-width: 320px;
+    min-width: 150px;
     float: none !important;
     padding-left: 0px;
     padding-right: 20px;
@@ -220,5 +231,9 @@
     top: auto;
     bottom: 0px;
     left: 43px;
+  }
+
+  .timeline .timeline-item .timestamp {
+    font-size: 13px;
   }
 </style>

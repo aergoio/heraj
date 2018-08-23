@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <page-header class="row" />
+    <page-header class="row" :builds="builds"/>
     <div class="row">
       <side-menu class="left"/>
       <router-view/>
@@ -16,7 +16,24 @@
 
   export default {
     name: 'App',
-    components: {PageHeader, PageFooter, SideMenu}
+    components: {PageHeader, PageFooter, SideMenu },
+    data() {
+      return {
+        builds: [],
+        currentBuild: {}
+      }
+    },
+    mounted() {
+      this.$http.get('/builds').then((res) => {
+        console.log('Res', res)
+        this.$data.builds = res.data;
+        if (res.data.length && 0 < res.data.length) {
+          const path = '/' + res.data[0].uuid + '/build';
+          console.log('Move to ' + path)
+          this.$router.push({ path: path })
+        }
+      })
+    }
   }
 </script>
 

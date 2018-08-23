@@ -15,6 +15,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import hera.BuildResult;
 import hera.build.web.exception.HttpException;
 import hera.build.web.exception.ResourceNotFoundException;
+import hera.build.web.model.BuildDetails;
+import hera.build.web.model.BuildSummary;
 import hera.build.web.service.BuildService;
 import hera.build.web.service.LiveUpdateSession;
 import hera.util.FilepathUtils;
@@ -23,11 +25,14 @@ import hera.util.IoUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import org.eclipse.jetty.http.MimeTypes;
+import org.eclipse.jetty.http.MimeTypes.Type;
 import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 import org.slf4j.Logger;
@@ -35,6 +40,8 @@ import org.slf4j.Logger;
 public class Endpoint extends WebSocketServlet {
 
   protected final transient Logger logger = getLogger(getClass());
+
+  protected final ObjectMapper mapper = new ObjectMapper();
 
   @Getter
   protected BuildService buildService;
@@ -59,27 +66,18 @@ public class Endpoint extends WebSocketServlet {
     logger.debug("Request uri: {}", requestUri);
     final String[] fragments = getCanonicalFragments(requestUri);
     logger.debug("Path fragments: {}", asList(fragments));
-    if (2 != fragments.length) {
-      getResource(req, resp);
-      return;
-    }
-    if (!"build".equals(fragments[0])) {
-      getResource(req, resp);
-      return;
-    }
-    final String buildUuid = fragments[1];
-
-    final ObjectMapper mapper = new ObjectMapper();
     try {
-      final BuildResult build = buildService.get(buildUuid)
-          .orElseThrow(ResourceNotFoundException::new);
-      final byte[] body = mapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(build);
-      logger.debug("Body:\n{}", HexUtils.dump(body));
-      try (final OutputStream in = resp.getOutputStream()) {
-        in.write(body);
-        resp.setContentType("application/json");
-        resp.setContentLength(body.length);
-        resp.setStatus(SC_OK);
+      if (Arrays.equals(new String[]{"builds"}, fragments)) {
+        final List<BuildSummary> summaries = buildService.list(null, 5);
+        writeResponse(summaries, resp);
+      } else if (2 == fragments.length && "build".equals(fragments[0])) {
+        final String buildUuid = fragments[1];
+
+        final BuildDetails build = buildService.get(buildUuid)
+            .orElseThrow(ResourceNotFoundException::new);
+        writeResponse(build, resp);
+      } else {
+        getResource(req, resp);
       }
     } catch (final HttpException ex) {
       logger.debug("Status code: {}", ex.getStatusCode());
@@ -100,11 +98,21 @@ public class Endpoint extends WebSocketServlet {
         resp.setStatus(SC_NOT_FOUND);
         return;
       }
+      resp.setContentType(MimeTypes.getDefaultMimeByExtension(requestUri));
       try (final OutputStream out = resp.getOutputStream()) {
         IoUtils.redirect(in, out);
-        resp.setContentType(MimeTypes.getDefaultMimeByExtension(requestUri));
         resp.setStatus(SC_OK);
       }
+    }
+  }
+
+  protected void writeResponse(final Object obj, final HttpServletResponse res) throws IOException {
+    final byte[] body = mapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(obj);
+    logger.debug("Body:\n{}", HexUtils.dump(body));
+    res.setContentType(Type.APPLICATION_JSON.asString());
+    try (final OutputStream in = res.getOutputStream()) {
+      res.setStatus(SC_OK);
+      in.write(body);
     }
   }
 }
