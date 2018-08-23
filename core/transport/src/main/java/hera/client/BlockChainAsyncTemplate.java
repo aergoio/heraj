@@ -4,12 +4,14 @@
 
 package hera.client;
 
+import static hera.util.TransportUtils.longToByteArray;
 import static java.util.stream.Collectors.toList;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.protobuf.ByteString;
 import hera.FutureChainer;
 import hera.api.BlockChainAsyncOperation;
 import hera.api.model.BlockchainStatus;
@@ -28,6 +30,7 @@ import types.Node;
 import types.Rpc;
 import types.Rpc.Empty;
 import types.Rpc.PeerList;
+import types.Rpc.SingleBytes;
 
 @RequiredArgsConstructor
 public class BlockChainAsyncTemplate implements BlockChainAsyncOperation {
@@ -38,7 +41,7 @@ public class BlockChainAsyncTemplate implements BlockChainAsyncOperation {
 
   protected final ModelConverter<PeerAddress, Node.PeerAddress> peerAddressConverter;
 
-  protected final ModelConverter<NodeStatus, Rpc.NodeStatus> nodeStatusConverter;
+  protected final ModelConverter<NodeStatus, Rpc.SingleBytes> nodeStatusConverter;
 
   public BlockChainAsyncTemplate(final ManagedChannel channel) {
     this(newFutureStub(channel));
@@ -80,9 +83,10 @@ public class BlockChainAsyncTemplate implements BlockChainAsyncOperation {
   public ResultOrErrorFuture<NodeStatus> getNodeStatus() {
     ResultOrErrorFuture<NodeStatus> nextFuture = new ResultOrErrorFuture<>();
 
-    final Empty empty = Empty.newBuilder().build();
-    ListenableFuture<Rpc.NodeStatus> listenableFuture = aergoService.nodeState(empty);
-    FutureChainer<Rpc.NodeStatus, NodeStatus> callback = new FutureChainer<>(nextFuture,
+    ByteString byteString = ByteString.copyFrom(longToByteArray(3000L));
+    SingleBytes rawTimeout = SingleBytes.newBuilder().setValue(byteString).build();
+    ListenableFuture<Rpc.SingleBytes> listenableFuture = aergoService.nodeState(rawTimeout);
+    FutureChainer<Rpc.SingleBytes, NodeStatus> callback = new FutureChainer<>(nextFuture,
         nodeStatus -> nodeStatusConverter.convertToDomainModel(nodeStatus));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 

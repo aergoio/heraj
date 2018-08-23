@@ -25,7 +25,7 @@ import types.Node;
 import types.Rpc;
 
 @PrepareForTest({AergoRPCServiceFutureStub.class, Rpc.BlockchainStatus.class, Rpc.PeerList.class,
-    Node.PeerAddress.class, Rpc.NodeStatus.class})
+    Node.PeerAddress.class, Rpc.SingleBytes.class})
 public class BlockChainAsyncTemplateTest extends AbstractTestCase {
 
   protected static final ModelConverter<BlockchainStatus, Rpc.BlockchainStatus> blockchainConverter =
@@ -34,7 +34,7 @@ public class BlockChainAsyncTemplateTest extends AbstractTestCase {
   protected static final ModelConverter<PeerAddress, Node.PeerAddress> peerAddressConverter =
       mock(ModelConverter.class);
 
-  protected static final ModelConverter<NodeStatus, Rpc.NodeStatus> nodeStatusConverter =
+  protected static final ModelConverter<NodeStatus, Rpc.SingleBytes> nodeStatusConverter =
       mock(ModelConverter.class);
 
   @BeforeClass
@@ -48,8 +48,8 @@ public class BlockChainAsyncTemplateTest extends AbstractTestCase {
     when(peerAddressConverter.convertToDomainModel(any(Node.PeerAddress.class)))
         .thenReturn(mock(PeerAddress.class));
     when(nodeStatusConverter.convertToRpcModel(any(NodeStatus.class)))
-        .thenReturn(mock(Rpc.NodeStatus.class));
-    when(nodeStatusConverter.convertToDomainModel(any(Rpc.NodeStatus.class)))
+        .thenReturn(mock(Rpc.SingleBytes.class));
+    when(nodeStatusConverter.convertToDomainModel(any(Rpc.SingleBytes.class)))
         .thenReturn(mock(NodeStatus.class));
   }
 

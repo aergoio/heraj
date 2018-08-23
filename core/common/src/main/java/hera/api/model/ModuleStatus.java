@@ -4,8 +4,6 @@
 
 package hera.api.model;
 
-import hera.util.Pair;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,6 +15,22 @@ public class ModuleStatus {
 
   @Getter
   @Setter
-  protected List<Pair<String, Double>> internalStatus;
+  protected String status;
+
+  @Getter
+  @Setter
+  protected long processedMessageCount;
+
+  @Getter
+  @Setter
+  protected long queuedMessageCount;
+
+  @Getter
+  @Setter
+  protected double latencyInMicroseconds;
+
+  @Getter
+  @Setter
+  protected String error;
 
 }
