@@ -2,8 +2,6 @@
  * @copyright defined in LICENSE.txt
  */
 
-group 'io.blocko'
-
 buildscript {
   repositories {
     maven {
@@ -18,6 +16,11 @@ buildscript {
     classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0"
   }
 }
+plugins {
+  id 'com.github.kt3k.coveralls' version '2.6.3'
+}
+group 'io.blocko'
+
 
 repositories {
   mavenLocal()

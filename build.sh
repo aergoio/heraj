@@ -62,7 +62,7 @@ function execute-gradle() {
   $PROJECT_HOME/gradlew build
 }
 function execute-test() {
-  $PROJECT_HOME/gradlew test jmh jacocoTestReport
+  $PROJECT_HOME/gradlew test jacocoTestReport coveralls
 }
 function execute-documentation() {
   gem install bundler
