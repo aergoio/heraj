@@ -27,6 +27,8 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Blockchain.Tx;
+import types.Blockchain.TxIdx;
+import types.Blockchain.TxInBlock;
 import types.Blockchain.TxList;
 import types.Rpc.CommitResultList;
 import types.Rpc.CommitStatus;
@@ -55,10 +57,28 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
     ResultOrErrorFuture<Transaction> nextFuture = new ResultOrErrorFuture<>();
 
     final ByteString byteString = copyFrom(hash);
-    final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
-    ListenableFuture<Tx> listenableFuture = aergoService.getTX(bytes);
-    FutureChainer<Tx, Transaction> callback = new FutureChainer<Tx, Transaction>(nextFuture,
-        tx -> transactionConverter.convertToDomainModel(tx));
+    final SingleBytes hashBytes = SingleBytes.newBuilder().setValue(byteString).build();
+    ListenableFuture<TxInBlock> listenableFuture = aergoService.getBlockTX(hashBytes);
+    FutureChainer<TxInBlock, Transaction> callback =
+        new FutureChainer<TxInBlock, Transaction>(nextFuture, txInBlock -> {
+          final Tx tx = txInBlock.getTx();
+          final TxIdx txIdx = txInBlock.getTxIdx();
+          Transaction domainTransaction = transactionConverter.convertToDomainModel(tx);
+          domainTransaction.setBlockHash(Hash.of(txIdx.getBlockHash().toByteArray()));
+          domainTransaction.setIndexInBlock(txIdx.getIdx());
+          return domainTransaction;
+        }) {
+          @Override
+          public void onFailure(Throwable throwable) {
+            try {
+              // if not in a block chain, check memory pool
+              Tx tx = aergoService.getTX(hashBytes).get();
+              super.onSuccess(TxInBlock.newBuilder().setTx(tx).build());
+            } catch (Throwable e) {
+              super.onFailure(e);
+            }
+          }
+        };
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;

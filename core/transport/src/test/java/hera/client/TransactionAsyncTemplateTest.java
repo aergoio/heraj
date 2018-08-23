@@ -46,7 +46,7 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
   public void testGetTransaction() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
-    when(aergoService.getTX(any())).thenReturn(mockListenableFuture);
+    when(aergoService.getBlockTX(any())).thenReturn(mockListenableFuture);
 
     final TransactionAsyncTemplate transactionAsyncTemplate =
         new TransactionAsyncTemplate(aergoService, converter);

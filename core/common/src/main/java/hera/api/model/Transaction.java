@@ -19,6 +19,14 @@ public class Transaction {
 
   @Getter
   @Setter
+  protected Hash blockHash;
+
+  @Getter
+  @Setter
+  protected long indexInBlock;
+
+  @Getter
+  @Setter
   protected long nonce;
 
   @Getter
