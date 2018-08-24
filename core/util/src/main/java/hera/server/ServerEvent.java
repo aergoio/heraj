@@ -39,7 +39,6 @@ public class ServerEvent {
    *
    * @param server server
    * @param type event type
-   * @see #ServerEvent(Server, int, Object)
    */
   public ServerEvent(final Server server, final int type) {
     this(server, type, null);
@@ -51,7 +50,6 @@ public class ServerEvent {
    * @param server server
    * @param type event type
    * @param data data
-   * @see #ServerEvent(Server, int, Object, Object)
    */
   public ServerEvent(final Server server, final int type, final Object data) {
     this(server, type, null, data);

@@ -27,8 +27,6 @@ public class Builder {
    * Constructor with project file(aergo.json).
    *
    * @param resourceManager manager for resource
-   *
-   * @throws Exception Fail to initialize build topology
    */
   public Builder(final ResourceManager resourceManager) {
     this.resourceManager = resourceManager;

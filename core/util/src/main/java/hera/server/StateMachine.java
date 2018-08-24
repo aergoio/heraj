@@ -165,6 +165,8 @@ public class StateMachine<StateT> {
    * @param state     state to change
    * @param condition condition to check
    * @param args      arguments which next state have
+   *
+   * @return if state is changed
    */
   public boolean changeState(final StateT state, final StateCondition<StateT> condition,
       final Object... args) {

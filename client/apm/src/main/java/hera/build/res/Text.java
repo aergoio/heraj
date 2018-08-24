@@ -36,7 +36,7 @@ public class Text {
   /**
    * Read using {@link DangerousConsumer}.
    *
-   * @param consumer @{@link InputStream} supplier
+   * @param consumer {@link InputStream} consumer
    *
    * @throws Exception Fail to read
    */
