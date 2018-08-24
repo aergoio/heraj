@@ -7,17 +7,14 @@ package hera.command;
 import static hera.util.ObjectUtils.nvl;
 import static java.util.Collections.EMPTY_LIST;
 
-import hera.BuildResult;
 import hera.Builder;
-import hera.FileContent;
-import hera.FileSet;
+import hera.BuilderFactory;
 import hera.ProjectFile;
 import hera.build.res.Project;
+import hera.build.web.model.BuildDetails;
 import hera.test.AthenaContext;
 import hera.test.LuaRunner;
 import hera.test.TestReporter;
-import hera.util.IoUtils;
-import java.io.InputStream;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,14 +36,9 @@ public class TestProject extends AbstractCommand {
     AthenaContext.clear();
     try {
       for (final String testPath : testPaths) {
-        final BuildResult buildResult = builder.build(testPath);
-        final FileSet fileSet = buildResult.getFileSet();
-        logger.trace("Test build: {}", fileSet);
-        final FileContent fileContent = fileSet.stream().findFirst().orElse(null);
-        try (final InputStream in = fileContent.open()) {
-          final String script = new String(IoUtils.from(in));
-          new LuaRunner().run(script);
-        }
+        final BuildDetails buildDetails = builder.build(testPath);
+        final String script = new String(buildDetails.getResult());
+        new LuaRunner().run(script);
       }
     } finally {
       final AthenaContext context = AthenaContext.getContext();

@@ -8,9 +8,8 @@ import static hera.util.ValidationUtils.assertTrue;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
-import hera.BuildResult;
 import hera.Builder;
-import hera.FileSet;
+import hera.BuilderFactory;
 import hera.ProjectFile;
 import hera.build.MonitorServer;
 import hera.build.Resource;
@@ -20,11 +19,13 @@ import hera.build.res.BuildResource;
 import hera.build.res.PackageResource;
 import hera.build.res.Project;
 import hera.build.res.TestResource;
+import hera.build.web.model.BuildDetails;
 import hera.exception.NoBuildTargetException;
 import hera.util.FileWatcher;
-import hera.util.ThreadUtils;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.WatchService;
 import java.util.Optional;
 import lombok.Getter;
@@ -67,13 +68,14 @@ public class BuildProject extends AbstractCommand {
     if (null == buildTarget) {
       throw new NoBuildTargetException();
     }
-    final BuildResult buildResult = builder.build(buildTarget);
+    final BuildDetails buildDetails = builder.build(buildTarget);
     monitorServer.ifPresent(server -> {
-      server.getBuildService().save(buildResult);
+      server.getBuildService().save(buildDetails);
     });
-    final FileSet fileSet = buildResult.getFileSet();
-    logger.info("Fileset: {}", fileSet);
-    fileSet.copyTo(project.getPath());
+    final byte[] contents = buildDetails.getResult();
+    try (final OutputStream out = Files.newOutputStream(project.getPath().resolve(buildTarget))) {
+      out.write(contents);
+    }
   }
 
   @Override

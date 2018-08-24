@@ -4,18 +4,19 @@
 
 package hera.build.web.model;
 
-import hera.BuildResult;
+import static java.util.UUID.randomUUID;
+
 import lombok.Getter;
 import lombok.Setter;
 
 public class BuildSummary {
   @Getter
   @Setter
-  protected String uuid;
+  protected String uuid = randomUUID().toString();
 
   @Getter
   @Setter
-  protected long timestamp;
+  protected long timestamp = System.currentTimeMillis();
 
   @Getter
   @Setter
@@ -25,13 +26,13 @@ public class BuildSummary {
   }
 
   /**
-   * Constructor with {@link BuildResult}.
+   * Constructor with {@link BuildDetails}.
    *
-   * @param buildResult build result
+   * @param buildDetails build result
    */
-  public BuildSummary(final BuildResult buildResult) {
-    this.uuid = buildResult.getUuid();
-    this.timestamp = buildResult.getTimestamp();
-    this.success = buildResult.isSuccess();
+  public BuildSummary(final BuildDetails buildDetails) {
+    this.uuid = buildDetails.getUuid();
+    this.timestamp = buildDetails.getTimestamp();
+    this.success = buildDetails.isSuccess();
   }
 }

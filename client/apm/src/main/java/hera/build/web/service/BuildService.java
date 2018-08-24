@@ -6,7 +6,6 @@ package hera.build.web.service;
 
 import static java.util.stream.Collectors.toList;
 
-import hera.BuildResult;
 import hera.build.web.model.BuildDetails;
 import hera.build.web.model.BuildSummary;
 import java.util.ArrayList;
@@ -28,13 +27,13 @@ public class BuildService extends AbstractService {
   /**
    * Save build result for web request.
    *
-   * @param buildResult build result
+   * @param buildDetails build result
    */
-  public void save(final BuildResult buildResult) {
-    uuid2buildResult.put(buildResult.getUuid(), new BuildDetails(buildResult));
-    uuids.add(buildResult.getUuid());
+  public void save(final BuildDetails buildDetails) {
+    uuid2buildResult.put(buildDetails.getUuid(), buildDetails);
+    uuids.add(buildDetails.getUuid());
     try {
-      liveUpdateService.notifyChange(new BuildSummary(buildResult));
+      liveUpdateService.notifyChange(new BuildSummary(buildDetails));
     } catch (final Throwable ex) {
       logger.trace("Ignore exception: {}", ex.getClass());
     }

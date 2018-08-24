@@ -12,7 +12,6 @@ import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hera.BuildResult;
 import hera.build.web.exception.HttpException;
 import hera.build.web.exception.ResourceNotFoundException;
 import hera.build.web.model.BuildDetails;

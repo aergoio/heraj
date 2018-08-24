@@ -4,47 +4,31 @@
 
 package hera.build.web.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import hera.BuildResult;
-import hera.util.IoUtils;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+@RequiredArgsConstructor
 public class BuildDetails extends BuildSummary {
   @Getter
   @Setter
-  protected String contents;
+  protected byte[] result;
+
+  @Getter
+  @Setter
+  protected BuildDependency dependencies;
 
   /**
-   * Constructor with {@link BuildResult}.
+   * Build summary from this build details.
    *
-   * @param buildResult build result
+   * @return build summary
    */
-  public BuildDetails(final BuildResult buildResult) {
-    super(buildResult);
-    buildResult.getFileSet().stream().findFirst().ifPresent(fileContent -> {
-      try (final InputStream in = fileContent.open()) {
-        contents = IoUtils.from(new InputStreamReader(in));
-      } catch (final IOException e) {
-        throw new IllegalStateException(e);
-      }
-    });
-  }
-
-  /**
-   * Get summary for this.
-   *
-   * @return BuildSummary
-   */
-  @JsonIgnore
   public BuildSummary getSummary() {
     final BuildSummary summary = new BuildSummary();
-    summary.setUuid(this.getUuid());
-    summary.setTimestamp(this.getTimestamp());
-    summary.setSuccess(this.isSuccess());
+    summary.setUuid(getUuid());
+    summary.setTimestamp(getTimestamp());
+    summary.setSuccess(isSuccess());
+
     return summary;
   }
 }

@@ -2,9 +2,8 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.command;
+package hera;
 
-import hera.Builder;
 import hera.build.ResourceManager;
 import hera.build.res.Project;
 

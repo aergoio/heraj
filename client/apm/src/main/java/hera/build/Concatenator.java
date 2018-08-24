@@ -7,10 +7,11 @@ package hera.build;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.build.res.Source;
+import hera.build.web.model.BuildDependency;
+import hera.build.web.model.BuildDetails;
 import hera.exception.BuildException;
 import hera.exception.CyclicDependencyException;
 import java.io.ByteArrayOutputStream;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -31,10 +32,11 @@ public class Concatenator {
   @Getter
   protected final ResourceManager resourceManager;
 
-  protected final Set<Resource> alreadyVisits;
+  @Getter
+  protected final Set<Resource> visitedResources;
 
   public Concatenator(final ResourceManager resourceManager) {
-    this(resourceManager, new HashSet<>());
+    this(resourceManager, new LinkedHashSet<>());
   }
 
   @Getter
@@ -42,7 +44,7 @@ public class Concatenator {
   protected String delimiter = "\n";
 
   protected byte[] visit(final Source source) {
-    if (alreadyVisits.contains(source)) {
+    if (visitedResources.contains(source)) {
       return null;
     }
     try {
@@ -59,9 +61,28 @@ public class Concatenator {
    *
    * @return concatenated result
    */
-  public byte[] visit(final Resource resource) {
+  public BuildDetails visit(final Resource resource) {
+    final BuildDependency dependencyRoot = new BuildDependency();
+    dependencyRoot.setName(resource.getLocation());
+    byte[] contents = visit(resource, dependencyRoot);
+
+    final BuildDetails buildDetails = new BuildDetails();
+    buildDetails.setResult(contents);
+    buildDetails.setDependencies(dependencyRoot);
+    return buildDetails;
+  }
+
+  /**
+   * Visit resource with dependency.
+   *
+   * @param resource resource to concatenate
+   * @param resourceDependency object to record dependencies
+   *
+   * @return concatenated bytes
+   */
+  public byte[] visit(final Resource resource, final BuildDependency resourceDependency) {
     logger.trace("Resource: {}", resource);
-    if (alreadyVisits.contains(resource)) {
+    if (visitedResources.contains(resource)) {
       return null;
     }
     if (processing.contains(resource)) {
@@ -78,17 +99,20 @@ public class Concatenator {
       processing.add(resource);
 
       final Optional<ResourceManager> resouceManagerOpt = resource.adapt(ResourceManager.class);
-      final Concatenator nextConcatenator = resouceManagerOpt
-          .map(newResourceManager -> new Concatenator(newResourceManager, alreadyVisits))
+      final Concatenator next = resouceManagerOpt
+          .map(newResourceManager -> new Concatenator(newResourceManager, visitedResources))
           .orElse(this);
-      if (this != nextConcatenator) {
-        logger.info("Resource manager changed: {} -> {}", this, nextConcatenator);
+      if (this != next) {
+        logger.info("Resource manager changed: {} -> {}", this, next);
       }
-      final ResourceManager nextResourceManager = nextConcatenator.getResourceManager();
+      final ResourceManager nextResourceManager = next.getResourceManager();
       final List<Resource> dependencies = resource.getDependencies(nextResourceManager);
       logger.debug("Dependencies of {}: {}", resource, dependencies);
       for (final Resource dependency : dependencies) {
-        byte[] contents = nextConcatenator.visit(dependency);
+        final BuildDependency childDependency = new BuildDependency();
+        childDependency.setName(dependency.getLocation());
+        final byte[] contents = next.visit(dependency, childDependency);
+        resourceDependency.add(childDependency);
         if (null == contents) {
           continue;
         }
@@ -98,8 +122,7 @@ public class Concatenator {
         byteOut.write(contents);
         needsDelimiter = true;
       }
-      dependencies.stream().map(nextConcatenator::visit);
-      byte[] contents = resource.adapt(Source.class).map(nextConcatenator::visit).orElse(null);
+      final byte[] contents = resource.adapt(Source.class).map(next::visit).orElse(null);
       if (null != contents) {
         if (needsDelimiter) {
           byteOut.write("\n".getBytes());
@@ -109,7 +132,7 @@ public class Concatenator {
       }
 
       processing.remove(resource);
-      alreadyVisits.add(resource);
+      visitedResources.add(resource);
       if (needsDelimiter) {
         return byteOut.toByteArray();
       } else {
