@@ -29,6 +29,7 @@ public class Tuple2OrError<T0, T1> extends AbstractTupleOrError {
   /**
    * Apply function to tuple0, tuple1 if no error. Otherwise, don't apply and just keeping error.
    *
+   * @param <R> type of applied result
    * @param fn function to apply
    * @return {@code ResultOrError} with values as result of fn
    */

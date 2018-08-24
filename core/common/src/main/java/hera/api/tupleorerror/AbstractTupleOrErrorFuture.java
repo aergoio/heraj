@@ -32,7 +32,8 @@ public abstract class AbstractTupleOrErrorFuture<TupleOrErrorT extends AbstractT
    * 
    * @see java.util.concurrent.CompletableFuture#allOf
    * @param futures futures to wait
-   * @return
+   * @return a new CompletableFuture that is completed when all of the given CompletableFutures
+   *         complete
    */
   public static CompletableFuture<Void> allOf(ResultOrErrorFuture<?>... futures) {
     final CompletableFuture<Void> completableFuture = CompletableFuture.allOf(Arrays.asList(futures)

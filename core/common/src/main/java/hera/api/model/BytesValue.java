@@ -47,6 +47,7 @@ public class BytesValue implements Supplier<InputStream> {
    *
    * @param encoder encoder
    * @return encoded bytes value if an encoder isn't null. Otherwise, null
+   * @throws IOException when encoding error occurs
    */
   public String getEncodedValue(final Encoder encoder) throws IOException {
     if (null == encoder) {

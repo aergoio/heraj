@@ -15,6 +15,7 @@ public interface ErrorOperation<ResultT> {
   /**
    * Get result or throws exception if error exists.
    *
+   * @param <X> Type of the exception to be thrown
    * @param exceptionSupplier exception supplier
    * @return result if no error
    * @throws X exception to throw when error exists
@@ -30,6 +31,7 @@ public interface ErrorOperation<ResultT> {
   /**
    * Get result or throws exception if error matches.
    *
+   * @param <X> Type of the exception to be thrown
    * @param exceptionMatcher exception matcher
    * @return result if no error
    * @throws X exception to throw when error exists

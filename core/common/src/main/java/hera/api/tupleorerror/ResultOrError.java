@@ -23,6 +23,7 @@ public class ResultOrError<T> extends AbstractTupleOrError
   /**
    * Apply function to result if no error. Otherwise, don't apply and just keeping error.
    *
+   * @param <R> type of applied result
    * @param fn function to apply
    * @return {@code ResultOrError} with values as result of fn
    */
