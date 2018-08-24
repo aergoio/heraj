@@ -6,7 +6,6 @@ package hera.api;
 
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.AccountState;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.List;
 
@@ -52,12 +51,4 @@ public interface AccountAsyncOperation {
    * @return future of unlock result or error
    */
   ResultOrErrorFuture<Boolean> unlock(AccountAddress address, String password);
-
-  /**
-   * Get account state by account address asynchronously.
-   *
-   * @param address account address
-   * @return future of an account state or error
-   */
-  ResultOrErrorFuture<AccountState> getState(AccountAddress address);
 }

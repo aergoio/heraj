@@ -14,7 +14,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.AccountState;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.ModelConverter;
 import java.util.List;
@@ -23,10 +22,11 @@ import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AccountOuterClass;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
-import types.Blockchain.State;
+import types.Blockchain;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-@PrepareForTest({AergoRPCServiceFutureStub.class, AccountOuterClass.Account.class, State.class})
+@PrepareForTest({AergoRPCServiceFutureStub.class, AccountOuterClass.Account.class,
+    Blockchain.State.class})
 public class AccountAsyncTemplateTest extends AbstractTestCase {
 
   protected final AccountAddress ACCOUNT_ADDRESS =
@@ -37,7 +37,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
   protected static final ModelConverter<Account, AccountOuterClass.Account> accountConverter =
       mock(ModelConverter.class);
 
-  protected static final ModelConverter<AccountState, State> accountStateConverter =
+  protected static final ModelConverter<Account, Blockchain.State> accountStateConverter =
       mock(ModelConverter.class);
 
   @BeforeClass
@@ -46,10 +46,8 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
         .thenReturn(mock(Account.class));
     when(accountConverter.convertToRpcModel(any(Account.class)))
         .thenReturn(mock(AccountOuterClass.Account.class));
-    when(accountStateConverter.convertToDomainModel(any(State.class)))
-        .thenReturn(mock(AccountState.class));
-    when(accountStateConverter.convertToRpcModel(any(AccountState.class)))
-        .thenReturn(mock(State.class));
+    when(accountStateConverter.convertToDomainModel(any(Blockchain.State.class)))
+        .thenReturn(mock(Account.class));
   }
 
   @Test
@@ -83,7 +81,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
   public void testGetAsync() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
-    when(aergoService.getAccounts(any())).thenReturn(mockListenableFuture);
+    when(aergoService.getState(any())).thenReturn(mockListenableFuture);
 
     final AccountAsyncTemplate accountAsyncTemplate =
         new AccountAsyncTemplate(aergoService, accountConverter, accountStateConverter);
@@ -117,20 +115,6 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
 
     final ResultOrErrorFuture<Boolean> accountFuture =
         accountAsyncTemplate.unlock(ACCOUNT_ADDRESS, PASSWORD);
-    assertNotNull(accountFuture);
-  }
-
-  @Test
-  public void testGetState() {
-    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
-    when(aergoService.getState(any())).thenReturn(mockListenableFuture);
-
-    final AccountAsyncTemplate accountAsyncTemplate =
-        new AccountAsyncTemplate(aergoService, accountConverter, accountStateConverter);
-
-    final ResultOrErrorFuture<AccountState> accountFuture =
-        accountAsyncTemplate.getState(ACCOUNT_ADDRESS);
     assertNotNull(accountFuture);
   }
 

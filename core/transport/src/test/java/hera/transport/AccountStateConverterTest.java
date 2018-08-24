@@ -7,21 +7,20 @@ package hera.transport;
 import static org.junit.Assert.assertNotNull;
 
 import hera.AbstractTestCase;
-import hera.api.model.AccountState;
+import hera.api.model.Account;
 import org.junit.Test;
-import types.Blockchain.State;
+import types.Blockchain;
 
 public class AccountStateConverterTest extends AbstractTestCase {
 
   @Test
   public void testConvert() {
-    final ModelConverter<AccountState, State> converter = new AccountStateConverterFactory()
-        .create();
+    final ModelConverter<Account, Blockchain.State> converter =
+        new AccountStateConverterFactory().create();
 
-    final AccountState domainAccountState = new AccountState();
-    final State rpcAccountState = converter.convertToRpcModel(domainAccountState);
-    final AccountState actualDomainAccountState = converter.convertToDomainModel(rpcAccountState);
-    assertNotNull(actualDomainAccountState);
+    final Blockchain.State rpcAccountState = Blockchain.State.newBuilder().build();
+    final Account domainAccount = converter.convertToDomainModel(rpcAccountState);
+    assertNotNull(domainAccount);
   }
 
 }

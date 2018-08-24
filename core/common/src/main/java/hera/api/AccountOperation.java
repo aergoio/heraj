@@ -6,7 +6,6 @@ package hera.api;
 
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.AccountState;
 import hera.api.tupleorerror.ResultOrError;
 import java.util.List;
 
@@ -52,12 +51,4 @@ public interface AccountOperation {
    * @return unlock result or error
    */
   ResultOrError<Boolean> unlock(AccountAddress address, String password);
-
-  /**
-   * Get account state by account address.
-   *
-   * @param address account address
-   * @return an account state or error
-   */
-  ResultOrError<AccountState> getState(AccountAddress address);
 }

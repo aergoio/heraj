@@ -16,7 +16,6 @@ import hera.FutureChainer;
 import hera.api.AccountAsyncOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.AccountState;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.AccountConverterFactory;
 import hera.transport.AccountStateConverterFactory;
@@ -27,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 import types.AccountOuterClass;
 import types.AccountOuterClass.AccountList;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
-import types.Blockchain.State;
+import types.Blockchain;
 import types.Rpc.Empty;
 import types.Rpc.Personal;
 import types.Rpc.SingleBytes;
@@ -39,7 +38,7 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
 
   protected final ModelConverter<Account, AccountOuterClass.Account> accountConverter;
 
-  protected final ModelConverter<AccountState, State> accountStateConverter;
+  protected final ModelConverter<Account, Blockchain.State> accountStateConverter;
 
   public AccountAsyncTemplate(final ManagedChannel channel) {
     this(newFutureStub(channel));
@@ -85,10 +84,16 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
 
   @Override
   public ResultOrErrorFuture<Account> get(AccountAddress address) {
-    // TODO : replace with getState
-    return list().thenApply(list -> list.stream()
-        .filter(account -> address.equals(account.getAddress()))
-        .findFirst().get());
+    ResultOrErrorFuture<Account> nextFuture = new ResultOrErrorFuture<>();
+
+    final ByteString byteString = copyFrom(address.getValue());
+    final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
+    ListenableFuture<Blockchain.State> listenableFuture = aergoService.getState(bytes);
+    FutureChainer<Blockchain.State, Account> callback = new FutureChainer<>(nextFuture,
+        state -> accountStateConverter.convertToDomainModel(state));
+    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+
+    return nextFuture;
   }
 
   @Override
@@ -121,20 +126,6 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
         .lockAccount(rpcPersonal);
     FutureChainer<AccountOuterClass.Account, Boolean> callback = new FutureChainer<>(nextFuture,
         account -> null != account.getAddress());
-    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
-
-    return nextFuture;
-  }
-
-  @Override
-  public ResultOrErrorFuture<AccountState> getState(AccountAddress address) {
-    ResultOrErrorFuture<AccountState> nextFuture = new ResultOrErrorFuture<>();
-
-    final ByteString byteString = copyFrom(address.getValue());
-    final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
-    ListenableFuture<State> listenableFuture = aergoService.getState(bytes);
-    FutureChainer<State, AccountState> callback = new FutureChainer<>(nextFuture,
-        state -> accountStateConverter.convertToDomainModel(state));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;

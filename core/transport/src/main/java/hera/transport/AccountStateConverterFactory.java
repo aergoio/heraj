@@ -4,40 +4,31 @@
 
 package hera.transport;
 
-import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.AccountState;
 import java.util.function.Function;
 import org.slf4j.Logger;
-import types.Blockchain.State;
+import types.Blockchain;
 
 public class AccountStateConverterFactory {
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final Function<AccountState, State> domainConverter =
-      domainAccountState -> {
-        logger.trace("Domain status: {}", domainAccountState);
-        return State.newBuilder()
-            .setAccount(copyFrom(domainAccountState.getAddress()))
-            .setNonce(domainAccountState.getNonce())
-            .setBalance(domainAccountState.getBalance())
-            .build();
-      };
+  protected final Function<Account, Blockchain.State> domainConverter = domainAccountState -> {
+    throw new UnsupportedOperationException();
+  };
 
-  protected final Function<State, AccountState> rpcConverter =
-      rpcAccountState -> {
-        logger.trace("Blockchain status: {}", rpcAccountState);
-        final AccountState domainAccountState = new AccountState();
-        domainAccountState
-            .setAddress(AccountAddress.of(rpcAccountState.getAccount().toByteArray()));
-        domainAccountState.setNonce(rpcAccountState.getNonce());
-        domainAccountState.setBalance(rpcAccountState.getBalance());
-        return domainAccountState;
-      };
+  protected final Function<Blockchain.State, Account> rpcConverter = rpcAccountState -> {
+    logger.trace("Blockchain status: {}", rpcAccountState);
+    final Account domainAccount = new Account();
+    domainAccount.setAddress(AccountAddress.of(rpcAccountState.getAccount().toByteArray()));
+    domainAccount.setNonce(rpcAccountState.getNonce());
+    domainAccount.setBalance(rpcAccountState.getBalance());
+    return domainAccount;
+  };
 
-  public ModelConverter<AccountState, State> create() {
+  public ModelConverter<Account, Blockchain.State> create() {
     return new ModelConverter<>(domainConverter, rpcConverter);
   }
 

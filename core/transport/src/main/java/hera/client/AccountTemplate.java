@@ -11,7 +11,6 @@ import hera.api.AccountAsyncOperation;
 import hera.api.AccountOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.AccountState;
 import hera.api.tupleorerror.ResultOrError;
 import hera.exception.HerajException;
 import io.grpc.ManagedChannel;
@@ -73,15 +72,6 @@ public class AccountTemplate implements AccountOperation {
   public ResultOrError<Boolean> unlock(AccountAddress address, String password) {
     try {
       return accountAsyncOperation.unlock(address, password).get(TIMEOUT, TimeUnit.MILLISECONDS);
-    } catch (Exception e) {
-      throw new HerajException(e);
-    }
-  }
-
-  @Override
-  public ResultOrError<AccountState> getState(AccountAddress address) {
-    try {
-      return accountAsyncOperation.getState(address).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
       throw new HerajException(e);
     }

@@ -16,7 +16,6 @@ import hera.AbstractTestCase;
 import hera.api.AccountAsyncOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.AccountState;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.List;
@@ -96,19 +95,6 @@ public class AccountTemplateTest extends AbstractTestCase {
 
     ResultOrError<Boolean> lockResult = accountTemplate.unlock(ACCOUNT_ADDRESS, PASSWORD);
     assertNotNull(lockResult);
-  }
-
-  @Test
-  public void testGetState() throws Exception {
-    ResultOrErrorFuture<AccountState> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
-    when(asyncOperationMock.getState(any())).thenReturn(futureMock);
-
-    final AccountTemplate accountTemplate = new AccountTemplate(asyncOperationMock);
-
-    final ResultOrError<AccountState> createdAccount = accountTemplate.getState(ACCOUNT_ADDRESS);
-    assertNotNull(createdAccount);
   }
 
 }

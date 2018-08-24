@@ -17,6 +17,13 @@ public class Account {
   @Setter
   protected String password;
 
+  @Getter
+  @Setter
+  protected long nonce;
+
+  @Getter
+  @Setter
+  protected long balance;
 
   /**
    * Create {@link Account}.
@@ -33,8 +40,8 @@ public class Account {
   /**
    * Create {@link Account}.
    *
-   * @param address   address of account
-   * @param password  password of account
+   * @param address address of account
+   * @param password password of account
    *
    * @return created account
    */
