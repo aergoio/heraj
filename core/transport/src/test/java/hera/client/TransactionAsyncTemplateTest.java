@@ -26,19 +26,27 @@ import types.Rpc.CommitResult;
 import types.Rpc.VerifyResult;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-@PrepareForTest({AergoRPCServiceFutureStub.class, Blockchain.Tx.class, VerifyResult.class,
-    CommitResult.class})
+@PrepareForTest({AergoRPCServiceFutureStub.class, Blockchain.Tx.class, Blockchain.TxInBlock.class,
+    VerifyResult.class, CommitResult.class})
 public class TransactionAsyncTemplateTest extends AbstractTestCase {
 
   protected final byte[] TXHASH = randomUUID().toString().getBytes();
 
-  protected static final ModelConverter<Transaction, Blockchain.Tx> converter =
+  protected static final ModelConverter<Transaction, Blockchain.Tx> transactionConverter =
+      mock(ModelConverter.class);
+
+  protected static final ModelConverter<Transaction, Blockchain.TxInBlock> transactionInBlockConverter =
       mock(ModelConverter.class);
 
   @BeforeClass
   public static void setUpBeforeClass() {
-    when(converter.convertToRpcModel(any(Transaction.class))).thenReturn(mock(Blockchain.Tx.class));
-    when(converter.convertToDomainModel(any(Blockchain.Tx.class)))
+    when(transactionConverter.convertToRpcModel(any(Transaction.class)))
+        .thenReturn(mock(Blockchain.Tx.class));
+    when(transactionConverter.convertToDomainModel(any(Blockchain.Tx.class)))
+        .thenReturn(mock(Transaction.class));
+    when(transactionInBlockConverter.convertToRpcModel(any(Transaction.class)))
+        .thenReturn(mock(Blockchain.TxInBlock.class));
+    when(transactionInBlockConverter.convertToDomainModel(any(Blockchain.TxInBlock.class)))
         .thenReturn(mock(Transaction.class));
   }
 
@@ -48,8 +56,8 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.getBlockTX(any())).thenReturn(mockListenableFuture);
 
-    final TransactionAsyncTemplate transactionAsyncTemplate =
-        new TransactionAsyncTemplate(aergoService, converter);
+    final TransactionAsyncTemplate transactionAsyncTemplate = new TransactionAsyncTemplate(
+        aergoService, transactionConverter, transactionInBlockConverter);
 
     final ResultOrErrorFuture<Transaction> transaction =
         transactionAsyncTemplate.getTransaction(new Hash(randomUUID().toString().getBytes()));
@@ -62,8 +70,8 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.signTX(any())).thenReturn(mockListenableFuture);
 
-    final TransactionAsyncTemplate transactionAsyncTemplate =
-        new TransactionAsyncTemplate(aergoService, converter);
+    final TransactionAsyncTemplate transactionAsyncTemplate = new TransactionAsyncTemplate(
+        aergoService, transactionConverter, transactionInBlockConverter);
 
     final ResultOrErrorFuture<Signature> signature =
         transactionAsyncTemplate.sign(new Transaction());
@@ -76,8 +84,8 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.verifyTX(any())).thenReturn(mockListenableFuture);
 
-    final TransactionAsyncTemplate transactionAsyncTemplate =
-        new TransactionAsyncTemplate(aergoService, converter);
+    final TransactionAsyncTemplate transactionAsyncTemplate = new TransactionAsyncTemplate(
+        aergoService, transactionConverter, transactionInBlockConverter);
 
     final ResultOrErrorFuture<Boolean> verifyResult =
         transactionAsyncTemplate.verify(new Transaction());
@@ -90,8 +98,8 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.commitTX(any())).thenReturn(mockListenableFuture);
 
-    final TransactionAsyncTemplate transactionAsyncTemplate =
-        new TransactionAsyncTemplate(aergoService, converter);
+    final TransactionAsyncTemplate transactionAsyncTemplate = new TransactionAsyncTemplate(
+        aergoService, transactionConverter, transactionInBlockConverter);
 
     final ResultOrErrorFuture<Hash> hash = transactionAsyncTemplate.commit(new Transaction());
     assertNotNull(hash);

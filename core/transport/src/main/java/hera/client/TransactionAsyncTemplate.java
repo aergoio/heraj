@@ -22,12 +22,13 @@ import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.ModelConverter;
 import hera.transport.TransactionConverterFactory;
+import hera.transport.TransactionInBlockConverterFactory;
 import io.grpc.ManagedChannel;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
+import types.Blockchain;
 import types.Blockchain.Tx;
-import types.Blockchain.TxIdx;
 import types.Blockchain.TxInBlock;
 import types.Blockchain.TxList;
 import types.Rpc.CommitResultList;
@@ -42,14 +43,17 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
 
   protected final AergoRPCServiceFutureStub aergoService;
 
-  protected final ModelConverter<Transaction, Tx> transactionConverter;
+  protected final ModelConverter<Transaction, Blockchain.Tx> transactionConverter;
+
+  protected final ModelConverter<Transaction, Blockchain.TxInBlock> transactionInBlockConverter;
 
   public TransactionAsyncTemplate(final ManagedChannel channel) {
     this(newFutureStub(channel));
   }
 
   public TransactionAsyncTemplate(final AergoRPCServiceFutureStub aergoService) {
-    this(aergoService, new TransactionConverterFactory().create());
+    this(aergoService, new TransactionConverterFactory().create(),
+        new TransactionInBlockConverterFactory().create());
   }
 
   @Override
@@ -59,26 +63,19 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
     final ByteString byteString = copyFrom(hash);
     final SingleBytes hashBytes = SingleBytes.newBuilder().setValue(byteString).build();
     ListenableFuture<TxInBlock> listenableFuture = aergoService.getBlockTX(hashBytes);
-    FutureChainer<TxInBlock, Transaction> callback =
-        new FutureChainer<TxInBlock, Transaction>(nextFuture, txInBlock -> {
-          final Tx tx = txInBlock.getTx();
-          final TxIdx txIdx = txInBlock.getTxIdx();
-          Transaction domainTransaction = transactionConverter.convertToDomainModel(tx);
-          domainTransaction.setBlockHash(Hash.of(txIdx.getBlockHash().toByteArray()));
-          domainTransaction.setIndexInBlock(txIdx.getIdx());
-          return domainTransaction;
-        }) {
-          @Override
-          public void onFailure(Throwable throwable) {
-            try {
-              // if not in a block chain, check memory pool
-              Tx tx = aergoService.getTX(hashBytes).get();
-              super.onSuccess(TxInBlock.newBuilder().setTx(tx).build());
-            } catch (Throwable e) {
-              super.onFailure(e);
-            }
-          }
-        };
+    FutureChainer<TxInBlock, Transaction> callback = new FutureChainer<TxInBlock, Transaction>(
+        nextFuture, txInBlock -> transactionInBlockConverter.convertToDomainModel(txInBlock)) {
+      @Override
+      public void onFailure(Throwable throwable) {
+        try {
+          // if not in a block chain, check memory pool
+          final Blockchain.Tx tx = aergoService.getTX(hashBytes).get();
+          super.onSuccess(TxInBlock.newBuilder().setTx(tx).build());
+        } catch (Throwable e) {
+          super.onFailure(e);
+        }
+      }
+    };
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;

@@ -23,7 +23,7 @@ public class Transaction {
 
   @Getter
   @Setter
-  protected long indexInBlock;
+  protected int indexInBlock;
 
   @Getter
   @Setter
