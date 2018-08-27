@@ -97,12 +97,14 @@ public class BuildProject extends AbstractCommand {
     final ProjectFile projectFile = readProject();
     project = new Project(".", projectFile);
     builder = new BuilderFactory().create(project);
-    build(project);
     if (serverMode) {
-      createMonitorServer(port).boot();
+      createMonitorServer(port).boot(true);
+      build(project);
       final ResourceManager resourceManager = builder.getResourceManager();
       resourceManager.addResourceChangeListener(this::resourceChanged);
       createFileWatcher();
+    } else {
+      build(project);
     }
 
   }
