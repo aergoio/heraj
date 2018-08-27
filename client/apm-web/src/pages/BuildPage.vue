@@ -29,7 +29,7 @@
     components: {
       Tree
     },
-    props: ['result'],
+    props: ['result', 'dependencies'],
     data() {
       return {
         cmOptions: {
@@ -39,29 +39,6 @@
           lineNumbers: true,
           line: true,
           readOnly: "nocursor"
-        },
-        dependencies: {
-          nodes: [
-            {
-              text: 'N1',
-              children: [
-                {
-                  text: 'N1-1'
-                },
-                {
-                  text: 'N1-2'
-                }
-              ]
-            },
-            {
-              text: 'N2',
-              children: [
-                {
-                  text: 'N2-1'
-                }
-              ]
-            }
-          ]
         }
       }
     }

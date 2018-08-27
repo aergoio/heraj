@@ -1,5 +1,5 @@
 <template>
-  <li><span>{{text}}</span>
+  <li><span>{{name}}</span>
     <ul v-show="hasChildren()">
       <tree-item v-for="node in children" v-bind:key="node.uuid" v-bind="node"></tree-item>
     </ul>
@@ -9,7 +9,7 @@
 <script>
   export default {
     name: 'TreeItem',
-    props: ['text', 'children'],
+    props: ['name', 'children'],
     methods: {
       hasChildren() {
         return this.children && this.children.length && 0 < this.children.length;
