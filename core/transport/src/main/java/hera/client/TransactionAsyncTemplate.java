@@ -20,6 +20,7 @@ import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.exception.CommitException;
 import hera.exception.TransactionVerificationException;
 import hera.transport.ModelConverter;
 import hera.transport.TransactionConverterFactory;
@@ -34,7 +35,6 @@ import types.Blockchain.TxInBlock;
 import types.Blockchain.TxList;
 import types.Rpc;
 import types.Rpc.CommitResultList;
-import types.Rpc.CommitStatus;
 import types.Rpc.SingleBytes;
 import types.Rpc.VerifyResult;
 
@@ -132,10 +132,19 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
     final Tx tx = transactionConverter.convertToRpcModel(transaction);
     final TxList txList = TxList.newBuilder().addTxs(tx).build();
     ListenableFuture<CommitResultList> listenableFuture = aergoService.commitTX(txList);
-    FutureChainer<CommitResultList, Hash> callback = new FutureChainer<>(nextFuture,
-        commitResultList -> commitResultList.getResultsList().stream()
-            .filter(r -> r.getError() == CommitStatus.COMMIT_STATUS_OK)
-            .map(r -> r.getHash().toByteArray()).map(Hash::new).findFirst().get());
+    FutureChainer<CommitResultList, Hash> callback = new FutureChainer<CommitResultList, Hash>(
+        nextFuture, commitResultList -> commitResultList.getResultsList().stream()
+            .map(r -> r.getHash().toByteArray()).map(Hash::new).findFirst().get()) {
+      @Override
+      public void onSuccess(CommitResultList t) {
+        final Rpc.CommitResult commitResult = t.getResults(0);
+        if (Rpc.CommitStatus.COMMIT_STATUS_OK == commitResult.getError()) {
+          super.onSuccess(t);
+        } else {
+          super.onFailure(new CommitException(commitResult.getError()));
+        }
+      }
+    };
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;
