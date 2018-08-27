@@ -110,11 +110,11 @@ public class BuildProject extends AbstractCommand {
   protected void resourceChanged(final ResourceChangeEvent event) {
     logger.info("Resource changed: {}", event.getResource());
     final Resource changedResource = event.getResource();
-    if (changedResource instanceof BuildResource) {
-      logger.trace("Skip build resource: {}", changedResource.getLocation());
-      return;
-    } else if (changedResource instanceof PackageResource) {
+    if (changedResource instanceof PackageResource) {
       logger.trace("Skip package resource: {}", changedResource.getLocation());
+      return;
+    } else if (changedResource instanceof BuildResource) {
+      logger.trace("Skip build resource: {}", changedResource.getLocation());
       return;
     } else if (changedResource instanceof TestResource) {
       logger.trace("Skip test resource: {}", changedResource.getLocation());
