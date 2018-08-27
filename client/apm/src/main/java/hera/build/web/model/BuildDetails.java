@@ -12,7 +12,7 @@ import lombok.Setter;
 public class BuildDetails extends BuildSummary {
   @Getter
   @Setter
-  protected byte[] result;
+  protected String result;
 
   @Getter
   @Setter

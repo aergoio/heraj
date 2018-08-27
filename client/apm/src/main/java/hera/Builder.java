@@ -45,7 +45,6 @@ public class Builder {
     final Concatenator concatenator = new Concatenator(resourceManager);
     final Optional<BuildResource> buildResourceOpt = resource.adapt(BuildResource.class);
     final Optional<TestResource> testResourceOpt = resource.adapt(TestResource.class);
-    final FileSet fileSet = new FileSet();
     if (buildResourceOpt.isPresent()) {
       return concatenator.visit(buildResourceOpt.get());
     } else if (testResourceOpt.isPresent()) {

@@ -20,7 +20,7 @@ public class BuildSummary {
 
   @Getter
   @Setter
-  protected boolean success;
+  protected boolean success = true;
 
   public BuildSummary() {
   }

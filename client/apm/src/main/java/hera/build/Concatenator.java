@@ -11,7 +11,7 @@ import hera.build.web.model.BuildDependency;
 import hera.build.web.model.BuildDetails;
 import hera.exception.BuildException;
 import hera.exception.CyclicDependencyException;
-import java.io.ByteArrayOutputStream;
+import java.io.StringWriter;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -43,12 +43,12 @@ public class Concatenator {
   @Setter
   protected String delimiter = "\n";
 
-  protected byte[] visit(final Source source) {
+  protected String visit(final Source source) {
     if (visitedResources.contains(source)) {
       return null;
     }
     try {
-      return source.getBody().getBytes();
+      return source.getBody().toString();
     } catch (final Throwable e) {
       throw new BuildException(e);
     }
@@ -64,7 +64,7 @@ public class Concatenator {
   public BuildDetails visit(final Resource resource) {
     final BuildDependency dependencyRoot = new BuildDependency();
     dependencyRoot.setName(resource.getLocation());
-    byte[] contents = visit(resource, dependencyRoot);
+    String contents = visit(resource, dependencyRoot);
 
     final BuildDetails buildDetails = new BuildDetails();
     buildDetails.setResult(contents);
@@ -80,7 +80,7 @@ public class Concatenator {
    *
    * @return concatenated bytes
    */
-  public byte[] visit(final Resource resource, final BuildDependency resourceDependency) {
+  public String visit(final Resource resource, final BuildDependency resourceDependency) {
     logger.trace("Resource: {}", resource);
     if (visitedResources.contains(resource)) {
       return null;
@@ -93,7 +93,7 @@ public class Concatenator {
     }
 
     boolean needsDelimiter = false;
-    final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+    StringWriter contentWriter = new StringWriter();
 
     try {
       processing.add(resource);
@@ -111,30 +111,30 @@ public class Concatenator {
       for (final Resource dependency : dependencies) {
         final BuildDependency childDependency = new BuildDependency();
         childDependency.setName(dependency.getLocation());
-        final byte[] contents = next.visit(dependency, childDependency);
+        final String contents = next.visit(dependency, childDependency);
         resourceDependency.add(childDependency);
         if (null == contents) {
           continue;
         }
         if (needsDelimiter) {
-          byteOut.write("\n".getBytes());
+          contentWriter.write("\n");
         }
-        byteOut.write(contents);
+        contentWriter.write(contents);
         needsDelimiter = true;
       }
-      final byte[] contents = resource.adapt(Source.class).map(next::visit).orElse(null);
+      final String contents = resource.adapt(Source.class).map(next::visit).orElse(null);
       if (null != contents) {
         if (needsDelimiter) {
-          byteOut.write("\n".getBytes());
+          contentWriter.write("\n");
         }
-        byteOut.write(contents);
+        contentWriter.write(contents);
         needsDelimiter = true;
       }
 
       processing.remove(resource);
       visitedResources.add(resource);
       if (needsDelimiter) {
-        return byteOut.toByteArray();
+        return contentWriter.toString();
       } else {
         return null;
       }

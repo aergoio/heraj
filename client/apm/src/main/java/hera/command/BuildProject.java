@@ -23,7 +23,7 @@ import hera.build.web.model.BuildDetails;
 import hera.exception.NoBuildTargetException;
 import hera.util.FileWatcher;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.Writer;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.WatchService;
@@ -72,8 +72,8 @@ public class BuildProject extends AbstractCommand {
     monitorServer.ifPresent(server -> {
       server.getBuildService().save(buildDetails);
     });
-    final byte[] contents = buildDetails.getResult();
-    try (final OutputStream out = Files.newOutputStream(project.getPath().resolve(buildTarget))) {
+    final String contents = buildDetails.getResult();
+    try (final Writer out = Files.newBufferedWriter(project.getPath().resolve(buildTarget))) {
       out.write(contents);
     }
   }
