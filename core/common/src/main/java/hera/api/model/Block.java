@@ -13,4 +13,9 @@ public class Block extends BlockHeader {
   @Getter
   @Setter
   protected List<Transaction> transactions;
+
+  @Override
+  public String toString() {
+    return String.format("Block(%s, transactions=%s)", super.toString(), transactions.toString());
+  }
 }
