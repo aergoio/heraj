@@ -17,7 +17,7 @@ public class ResultOrError<T> extends AbstractTupleOrError
   }
 
   public T getResult() {
-    return (T) unapply()[0];
+    return !getValues().isEmpty() ? (T) unapply()[0] : null;
   }
 
   /**

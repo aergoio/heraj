@@ -21,10 +21,10 @@ public class Tuple {
   public Object[] unapply() {
     return values.toArray();
   }
-  
+
   @Override
   public String toString() {
-    return values.size() > 0 ? values.toString() : "";
+    return !values.isEmpty() ? values.toString() : "";
   }
 
 }

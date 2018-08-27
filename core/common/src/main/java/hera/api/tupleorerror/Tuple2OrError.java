@@ -19,11 +19,11 @@ public class Tuple2OrError<T0, T1> extends AbstractTupleOrError {
   }
 
   public T0 getT0() {
-    return (T0) unapply()[0];
+    return !getValues().isEmpty() ? (T0) unapply()[0] : null;
   }
 
   public T1 getT1() {
-    return (T1) unapply()[1];
+    return !getValues().isEmpty() ? (T1) unapply()[1] : null;
   }
 
   /**
