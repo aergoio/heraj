@@ -20,6 +20,7 @@ import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.exception.TransactionVerificationException;
 import hera.transport.ModelConverter;
 import hera.transport.TransactionConverterFactory;
 import hera.transport.TransactionInBlockConverterFactory;
@@ -31,6 +32,7 @@ import types.Blockchain;
 import types.Blockchain.Tx;
 import types.Blockchain.TxInBlock;
 import types.Blockchain.TxList;
+import types.Rpc;
 import types.Rpc.CommitResultList;
 import types.Rpc.CommitStatus;
 import types.Rpc.SingleBytes;
@@ -107,8 +109,17 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
 
     final Tx tx = transactionConverter.convertToRpcModel(transaction);
     ListenableFuture<VerifyResult> listenableFuture = aergoService.verifyTX(tx);
-    FutureChainer<VerifyResult, Boolean> callback =
-        new FutureChainer<>(nextFuture, verifyResult -> 0 == verifyResult.getErrorValue());
+    FutureChainer<VerifyResult, Boolean> callback = new FutureChainer<VerifyResult, Boolean>(
+        nextFuture, verifyResult -> Rpc.VerifyStatus.VERIFY_STATUS_OK == verifyResult.getError()) {
+      @Override
+      public void onSuccess(VerifyResult t) {
+        if (Rpc.VerifyStatus.VERIFY_STATUS_OK == t.getError()) {
+          super.onSuccess(t);
+        } else {
+          super.onFailure(new TransactionVerificationException(t.getError()));
+        }
+      }
+    };
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;
