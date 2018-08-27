@@ -106,8 +106,9 @@ public class Endpoint extends WebSocketServlet {
   }
 
   protected void writeResponse(final Object obj, final HttpServletResponse res) throws IOException {
+    logger.debug("Response: {}", obj);
     final byte[] body = mapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(obj);
-    logger.debug("Body:\n{}", HexUtils.dump(body));
+    logger.trace("Body:\n{}", HexUtils.dump(body));
     res.setContentType(Type.APPLICATION_JSON.asString());
     try (final OutputStream in = res.getOutputStream()) {
       res.setStatus(SC_OK);

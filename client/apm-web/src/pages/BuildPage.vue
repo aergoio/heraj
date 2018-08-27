@@ -3,7 +3,7 @@
     <div class="container">
       <b-tabs>
         <b-tab title="Result">
-          <codemirror :value="contents" :options="cmOptions"/>
+          <codemirror :value="result" :options="cmOptions"/>
         </b-tab>
         <b-tab title="Dependencies">
           <tree v-bind="dependencies"></tree>
@@ -29,13 +29,9 @@
     components: {
       Tree
     },
-    props: ['contents'],
+    props: ['result'],
     data() {
       return {
-        code:
-          `function abc()
-  run()
-end`,
         cmOptions: {
           tabSize: 2,
           mode: 'lua',
