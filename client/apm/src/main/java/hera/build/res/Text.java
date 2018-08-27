@@ -6,9 +6,7 @@ package hera.build.res;
 
 import hera.util.DangerousConsumer;
 import hera.util.DangerousSupplier;
-import hera.util.ExceptionUtils;
 import hera.util.IoUtils;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -19,12 +17,6 @@ import lombok.RequiredArgsConstructor;
 public class Text {
 
   protected final DangerousSupplier<InputStream> textSupplier;
-
-  public byte[] getBytes() throws Exception {
-    try (final InputStream in = textSupplier.get()) {
-      return IoUtils.from(in);
-    }
-  }
 
   /**
    * Read using {@link DangerousSupplier}.

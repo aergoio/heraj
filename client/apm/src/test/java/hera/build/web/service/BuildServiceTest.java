@@ -33,9 +33,9 @@ public class BuildServiceTest {
 
   @Test
   public void testList() {
-    assertEquals(3, buildService.list(result2.getUuid(), 3).size());
+    assertEquals(2, buildService.list(result2.getUuid(), 3).size());
     assertEquals(3, buildService.list(null, 3).size());
-    assertEquals(1, buildService.list(result5.getUuid(), 3).size());
+    assertEquals(3, buildService.list(result5.getUuid(), 3).size());
     assertNull(buildService.list(randomUUID().toString(), 3));
   }
 

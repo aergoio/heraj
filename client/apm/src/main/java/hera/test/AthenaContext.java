@@ -31,7 +31,7 @@ public class AthenaContext {
 
   @Getter
   @Setter
-  protected TestReporter testReporter = new TestReporter();
+  protected TestResultCollector testReporter = new TestResultCollector();
 
   public OneArgFunction startSuite = new OneArgFunction() {
     @Override

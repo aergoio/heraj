@@ -24,6 +24,10 @@ public class BuildSummary {
   @Setter
   protected boolean success = true;
 
+  @Getter
+  @Setter
+  protected String error;
+
   public BuildSummary() {
   }
 

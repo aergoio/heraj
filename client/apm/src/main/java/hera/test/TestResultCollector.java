@@ -12,8 +12,10 @@ import static java.lang.System.currentTimeMillis;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import lombok.ToString;
 
-public class TestReporter {
+@ToString(of = "testSuites")
+public class TestResultCollector {
 
   protected TestSuite currentTestSuite;
 

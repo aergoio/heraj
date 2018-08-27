@@ -6,8 +6,10 @@ package hera.test;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 @RequiredArgsConstructor
+@ToString
 public class TestResult {
   public static TestResult success(final Object result) {
     return new TestResult(result, null, 0, 0);
@@ -23,9 +25,14 @@ public class TestResult {
   @Getter
   protected final String errorMessage;
 
+  public boolean isSuccess() {
+    return null == errorMessage;
+  }
+
   @Getter
   protected final int lineNumber;
 
   @Getter
   protected final int columnNumber;
+
 }

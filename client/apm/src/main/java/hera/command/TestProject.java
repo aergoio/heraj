@@ -14,8 +14,11 @@ import hera.build.res.Project;
 import hera.build.web.model.BuildDetails;
 import hera.test.AthenaContext;
 import hera.test.LuaRunner;
-import hera.test.TestReporter;
+import hera.test.TestResult;
+import hera.test.TestResultCollector;
+import hera.util.SourcePrinter;
 import java.util.List;
+import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,6 +27,16 @@ public class TestProject extends AbstractCommand {
   @Getter
   @Setter
   protected BuilderFactory builderFactory = new BuilderFactory();
+
+  @Setter
+  protected Consumer<TestResultCollector> reporter = (testReporter) -> {
+    testReporter.getResults().forEach(testSuite -> {
+      System.out.println(testSuite.toString());
+      testSuite.getTestCases().forEach(testCase -> {
+        System.out.println("   " + testCase);
+      });
+    });
+  };
 
   @Override
   public void execute() throws Exception {
@@ -37,18 +50,18 @@ public class TestProject extends AbstractCommand {
     try {
       for (final String testPath : testPaths) {
         final BuildDetails buildDetails = builder.build(testPath);
-        final String script = new String(buildDetails.getResult());
-        new LuaRunner().run(script);
+        final String script = buildDetails.getResult();
+        final TestResult testResult = new LuaRunner().run(script);
+        logger.debug("Test {} => {}", testPath, testResult);
+        if (!testResult.isSuccess()) {
+          logger.debug("Lua Script:\n{}", new SourcePrinter().apply(script));
+        }
       }
     } finally {
       final AthenaContext context = AthenaContext.getContext();
-      final TestReporter testReporter = context.getTestReporter();
-      testReporter.getResults().forEach(testSuite -> {
-        System.out.println(testSuite.toString());
-        testSuite.getTestCases().forEach(testCase -> {
-          System.out.println("   " + testCase);
-        });
-      });
+      final TestResultCollector testResultCollector = context.getTestReporter();
+      logger.debug("TestResultCollector: {}", testResultCollector);
+      reporter.accept(testResultCollector);
     }
   }
 }
