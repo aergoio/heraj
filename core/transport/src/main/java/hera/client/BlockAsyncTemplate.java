@@ -83,6 +83,7 @@ public class BlockAsyncTemplate implements BlockAsyncOperation {
     ListenableFuture<BlockHeaderList> listenableFuture = aergoService.listBlockHeaders(listParams);
     FutureChainer<BlockHeaderList, List<BlockHeader>> callback =
         new FutureChainer<>(nextFuture, blockHeaders -> blockHeaders.getBlocksList().stream()
+            .map(blockConverter::convertToDomainModel)
             .map(BlockHeader.class::cast).collect(toList()));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
@@ -98,6 +99,7 @@ public class BlockAsyncTemplate implements BlockAsyncOperation {
     ListenableFuture<BlockHeaderList> listenableFuture = aergoService.listBlockHeaders(listParams);
     FutureChainer<BlockHeaderList, List<BlockHeader>> callback =
         new FutureChainer<>(nextFuture, blockHeaders -> blockHeaders.getBlocksList().stream()
+            .map(blockConverter::convertToDomainModel)
             .map(BlockHeader.class::cast).collect(toList()));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
