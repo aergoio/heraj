@@ -13,6 +13,40 @@
   import SideMenu from "./components/SideMenu";
   import PageFooter from "./components/PageFooter";
   import PageHeader from "./components/PageHeader";
+  class Connection {
+    constructor() {
+      this.connect();
+    }
+    connect() {
+      if (this.socket) {
+        return ;
+      }
+      this.socket = new WebSocket("ws://localhost:2000");
+      this.socket.onopen = this.onOpen
+      this.socket.onerror = this.onError
+      this.socket.onclose = this.onClose
+      this.socket.onmessage = this.onReceive
+    }
+
+    onOpen() {
+      console.log('Socket opened')
+    }
+    onError() {
+      console.log('Socket error')
+    }
+
+    onClose() {
+      console.log('Socket closed')
+      this.socket = null;
+      setTimeout(this.connect, 3000);
+    }
+
+    onReceive(message) {
+      console.log('Message received', message)
+    }
+  }
+
+  const connection = new Connection();
 
   export default {
     name: 'App',

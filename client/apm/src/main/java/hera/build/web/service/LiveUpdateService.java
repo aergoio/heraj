@@ -13,12 +13,24 @@ public class LiveUpdateService extends AbstractService {
 
   protected final Set<LiveUpdateSession> sessions = new HashSet<>();
 
+  /**
+   * Add session to managed area.
+   *
+   * @param liveUpdateSession session to add
+   */
   public void add(final LiveUpdateSession liveUpdateSession) {
     sessions.add(liveUpdateSession);
+    logger.info("{} created", liveUpdateSession);
   }
 
+  /**
+   * Remove session from managed area.
+   *
+   * @param liveUpdateSession session to remove
+   */
   public void remove(final LiveUpdateSession liveUpdateSession) {
     sessions.remove(liveUpdateSession);
+    logger.info("{} removed", liveUpdateSession);
   }
 
   /**
@@ -30,6 +42,7 @@ public class LiveUpdateService extends AbstractService {
    */
   public void notifyChange(final Object message) throws IOException {
     final String text = new ObjectMapper().writeValueAsString(message);
+    logger.debug("{} receiver(s)", sessions.size());
     for (final LiveUpdateSession session : sessions) {
       try {
         session.getRemote().sendString(text);

@@ -25,4 +25,9 @@ public class LiveUpdateSession extends WebSocketAdapter {
     super.onWebSocketClose(statusCode, reason);
     manager.remove(this);
   }
+
+  @Override
+  public String toString() {
+    return "WsSession[" + getSession() + "]";
+  }
 }
