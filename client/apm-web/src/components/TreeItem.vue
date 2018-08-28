@@ -1,7 +1,7 @@
 <template>
   <li v-on:click.stop="clicked"><span>{{name}}</span>
     <ul v-show="hasChildren()">
-      <tree-item v-for="node in children" v-bind:key="node.uuid" v-bind="node" v-on:clicked="childClicked"></tree-item>
+      <tree-item v-for="node in children" v-bind:key="node.uuid" v-bind="node" v-on:click="childClicked"></tree-item>
     </ul>
   </li>
 </template>
@@ -15,10 +15,10 @@
         return this.children && this.children.length && 0 < this.children.length;
       },
       clicked() {
-        this.$emit('clicked', this.data)
+        this.$emit('click', this.data)
       },
       childClicked(data) {
-        this.$emit('clicked', data)
+        this.$emit('click', data)
       }
     }
   }

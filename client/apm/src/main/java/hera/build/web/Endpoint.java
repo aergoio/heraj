@@ -17,7 +17,7 @@ import hera.build.web.exception.ResourceNotFoundException;
 import hera.build.web.model.BuildDetails;
 import hera.build.web.model.BuildSummary;
 import hera.build.web.service.BuildService;
-import hera.build.web.service.DeployService;
+import hera.build.web.service.ContractService;
 import hera.build.web.service.LiveUpdateSession;
 import hera.util.FilepathUtils;
 import hera.util.HexUtils;
@@ -31,6 +31,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.Getter;
+import lombok.Setter;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.http.MimeTypes.Type;
 import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
@@ -47,15 +48,12 @@ public class Endpoint extends WebSocketServlet {
   protected BuildService buildService;
 
   @Getter
-  protected DeployService deployService;
+  @Setter
+  protected ContractService contractService;
 
   public void setBuildService(final BuildService buildService) {
     this.buildService = buildService;
     LiveUpdateSession.setManager(buildService.getLiveUpdateService());
-  }
-
-  public void setDeployService(final DeployService deployService) {
-    this.deployService = deployService;
   }
 
   @Override
@@ -86,7 +84,7 @@ public class Endpoint extends WebSocketServlet {
           final String target = req.getParameter("target");
           final BuildDetails buildDetails = buildService.get(uuid)
               .orElseThrow(() -> new ResourceNotFoundException(uuid + " not found"));
-          deployService.deploy(target, buildDetails);
+          contractService.deploy(target, buildDetails);
           writeResponse(null, resp);
           return;
         } else if (2 == fragments.length && "build".equals(fragments[0])) {

@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import BuildPage from '@/pages/BuildPage'
 import UnitTestPage from '@/pages/UnitTestPage'
 import DeployPage from '@/pages/DeployPage'
+import RunnerPage from '@/pages/RunnerPage'
 
 Vue.use(Router)
 
@@ -22,7 +23,7 @@ export default new Router({
     },
     {
       path: '/runner',
-      component: DeployPage
+      component: RunnerPage
     }
   ]
 })

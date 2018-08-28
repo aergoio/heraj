@@ -1,6 +1,6 @@
 <template>
   <ul class="tree">
-    <tree-item v-for="node in children" v-bind="node" v-bind:key="node.uuid" v-on:clicked="itemClicked"></tree-item>
+    <tree-item v-for="node in children" v-bind="node" v-bind:key="node.uuid" v-on:click="itemClicked"></tree-item>
   </ul>
 </template>
 
@@ -13,7 +13,7 @@
     props: ['children'],
     methods: {
       itemClicked(data) {
-        this.$emit('item-clicked', data)
+        this.$emit('click-item', data)
       }
     }
   }

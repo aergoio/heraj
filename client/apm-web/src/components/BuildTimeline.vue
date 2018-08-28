@@ -37,7 +37,7 @@
     components: { TimelineItem: TimelineItem },
     methods: {
       itemClicked(item) {
-        this.$emit("item-click", item)
+        this.$emit("click-item", item)
       }
     }
   }

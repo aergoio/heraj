@@ -20,10 +20,9 @@
 
   export default {
     components: {DeployProgress},
-    props: ['builds', 'text'],
+    props: ['builds', 'targets', 'text'],
     data() {
       return {
-        targets: [],
         form: {
           name: ''
         },
@@ -54,7 +53,7 @@
         this.$data.form.name = '';
       },
       okClicked() {
-        this.$data.targets.push({name: this.$data.form.name});
+        this.$emit('add-target', this.$data.form.name);
       },
     }
   }

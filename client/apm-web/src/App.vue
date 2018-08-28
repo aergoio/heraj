@@ -3,7 +3,7 @@
     <page-header class="row" :builds="builds" :build="currentBuild" @select-build="buildSelected"/>
     <div class="row">
       <side-menu class="left"/>
-      <router-view class="main" v-bind="currentBuild" :builds="builds"/>
+      <router-view class="main" v-bind="currentBuild" :builds="builds" :targets="targets" @add-target="targetAdded"/>
     </div>
     <page-footer class="row"/>
   </div>
@@ -20,7 +20,8 @@
     data() {
       return {
         builds: [],
-        currentBuild: {}
+        currentBuild: {},
+        targets: [],
       }
     },
     mounted() {
@@ -37,6 +38,9 @@
         this.$http.get('/build/' + uuid).then((res) => {
           this.$data.currentBuild = res.data;
         })
+      },
+      targetAdded(name) {
+        this.$data.targets.push({name: name});
       }
     }
   }
