@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Endpoint.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.build.web</a> &gt; <span class="el_source">Endpoint.java</span></div><h1>Endpoint.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.build.web;
+
+import static hera.util.FilepathUtils.getCanonicalFragments;
+import static java.util.Arrays.asList;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import hera.build.web.exception.HttpException;
+import hera.build.web.exception.ResourceNotFoundException;
+import hera.build.web.model.BuildDetails;
+import hera.build.web.model.BuildSummary;
+import hera.build.web.service.BuildService;
+import hera.build.web.service.ContractService;
+import hera.build.web.service.LiveUpdateSession;
+import hera.util.FilepathUtils;
+import hera.util.HexUtils;
+import hera.util.IoUtils;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.List;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import lombok.Getter;
+import lombok.Setter;
+import org.eclipse.jetty.http.MimeTypes;
+import org.eclipse.jetty.http.MimeTypes.Type;
+import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
+import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
+import org.slf4j.Logger;
+
+<span class="fc" id="L41">public class Endpoint extends WebSocketServlet {</span>
+
+<span class="fc" id="L43">  protected final transient Logger logger = getLogger(getClass());</span>
+
+<span class="fc" id="L45">  protected final ObjectMapper mapper = new ObjectMapper();</span>
+
+<span class="nc" id="L47">  @Getter</span>
+  protected BuildService buildService;
+
+<span class="nc" id="L50">  @Getter</span>
+<span class="fc" id="L51">  @Setter</span>
+  protected ContractService contractService;
+
+  public void setBuildService(final BuildService buildService) {
+<span class="fc" id="L55">    this.buildService = buildService;</span>
+<span class="fc" id="L56">    LiveUpdateSession.setManager(buildService.getLiveUpdateService());</span>
+<span class="fc" id="L57">  }</span>
+
+  @Override
+  public void configure(final WebSocketServletFactory factory) {
+<span class="fc" id="L61">    factory.register(LiveUpdateSession.class);</span>
+<span class="fc" id="L62">  }</span>
+
+
+  @Override
+  protected void doGet(final HttpServletRequest req, final HttpServletResponse resp)
+      throws ServletException, IOException {
+<span class="nc" id="L68">    logger.trace(&quot;Request: {}, Response: {}&quot;, req, resp);</span>
+
+<span class="nc" id="L70">    final String requestUri = req.getRequestURI();</span>
+<span class="nc" id="L71">    logger.debug(&quot;Request uri: {}&quot;, requestUri);</span>
+<span class="nc" id="L72">    final String[] fragments = getCanonicalFragments(requestUri);</span>
+<span class="nc" id="L73">    logger.debug(&quot;Path fragments: {}&quot;, asList(fragments));</span>
+    try {
+<span class="nc bnc" id="L75" title="All 2 branches missed.">      if (Arrays.equals(new String[]{&quot;builds&quot;}, fragments)) {</span>
+        // /builds
+<span class="nc" id="L77">        final List&lt;BuildSummary&gt; summaries = buildService.list(null, 5);</span>
+<span class="nc" id="L78">        writeResponse(summaries, resp);</span>
+<span class="nc" id="L79">        return;</span>
+<span class="nc bnc" id="L80" title="All 4 branches missed.">      } else if (0 &lt; fragments.length &amp;&amp; &quot;build&quot;.equals(fragments[0])) {</span>
+<span class="nc bnc" id="L81" title="All 4 branches missed.">        if (3 == fragments.length &amp;&amp; &quot;deploy&quot;.equals(fragments[2])) {</span>
+          // /build/{uuid}/deploy
+<span class="nc" id="L83">          final String uuid = fragments[1];</span>
+<span class="nc" id="L84">          final String target = req.getParameter(&quot;target&quot;);</span>
+<span class="nc" id="L85">          final BuildDetails buildDetails = buildService.get(uuid)</span>
+<span class="nc" id="L86">              .orElseThrow(() -&gt; new ResourceNotFoundException(uuid + &quot; not found&quot;));</span>
+<span class="nc" id="L87">          contractService.deploy(target, buildDetails);</span>
+<span class="nc" id="L88">          writeResponse(null, resp);</span>
+<span class="nc" id="L89">          return;</span>
+<span class="nc bnc" id="L90" title="All 4 branches missed.">        } else if (2 == fragments.length &amp;&amp; &quot;build&quot;.equals(fragments[0])) {</span>
+          // /build/{uuid}
+<span class="nc" id="L92">          final String buildUuid = fragments[1];</span>
+
+<span class="nc" id="L94">          final BuildDetails build = buildService.get(buildUuid)</span>
+<span class="nc" id="L95">              .orElseThrow(ResourceNotFoundException::new);</span>
+<span class="nc" id="L96">          writeResponse(build, resp);</span>
+<span class="nc" id="L97">          return;</span>
+        }
+      }
+<span class="nc" id="L100">      getResource(req, resp);</span>
+<span class="nc" id="L101">    } catch (final HttpException ex) {</span>
+<span class="nc" id="L102">      logger.debug(&quot;Status code: {}&quot;, ex.getStatusCode());</span>
+<span class="nc" id="L103">      resp.setStatus(ex.getStatusCode());</span>
+<span class="nc" id="L104">    } catch (final Throwable ex) {</span>
+<span class="nc" id="L105">      logger.error(&quot;Unexpected exception:&quot;, ex);</span>
+<span class="nc" id="L106">      resp.setStatus(SC_INTERNAL_SERVER_ERROR);</span>
+<span class="nc" id="L107">    }</span>
+<span class="nc" id="L108">  }</span>
+
+  protected void getResource(final HttpServletRequest req, final HttpServletResponse resp)
+      throws IOException {
+<span class="nc" id="L112">    final String requestUri = req.getRequestURI();</span>
+<span class="nc" id="L113">    final String resourcePath = FilepathUtils.append(&quot;/public&quot;, requestUri);</span>
+<span class="nc" id="L114">    logger.debug(&quot;Resource path: {}&quot;, resourcePath);</span>
+<span class="nc" id="L115">    try (final InputStream in = getClass().getResourceAsStream(resourcePath)) {</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">      if (null == in) {</span>
+<span class="nc" id="L117">        resp.setStatus(SC_NOT_FOUND);</span>
+<span class="nc" id="L118">        return;</span>
+      }
+<span class="nc" id="L120">      resp.setContentType(MimeTypes.getDefaultMimeByExtension(requestUri));</span>
+<span class="nc" id="L121">      try (final OutputStream out = resp.getOutputStream()) {</span>
+<span class="nc" id="L122">        IoUtils.redirect(in, out);</span>
+<span class="nc" id="L123">        resp.setStatus(SC_OK);</span>
+      }
+    }
+<span class="nc" id="L126">  }</span>
+
+  protected void writeResponse(final Object obj, final HttpServletResponse res) throws IOException {
+<span class="nc" id="L129">    logger.debug(&quot;Response: {}&quot;, obj);</span>
+<span class="nc" id="L130">    res.setStatus(SC_OK);</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">    if (null != obj) {</span>
+<span class="nc" id="L132">      final byte[] body = mapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(obj);</span>
+<span class="nc" id="L133">      logger.trace(&quot;Body:\n{}&quot;, HexUtils.dump(body));</span>
+<span class="nc" id="L134">      res.setContentType(Type.APPLICATION_JSON.asString());</span>
+<span class="nc" id="L135">      try (final OutputStream in = res.getOutputStream()) {</span>
+<span class="nc" id="L136">        in.write(body);</span>
+      }
+    }
+<span class="nc" id="L139">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

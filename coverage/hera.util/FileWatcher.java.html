@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileWatcher.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util</a> &gt; <span class="el_source">FileWatcher.java</span></div><h1>FileWatcher.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.util;
+
+import static java.nio.file.FileVisitResult.CONTINUE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
+import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
+
+import hera.server.ServerEvent;
+import hera.server.ThreadServer;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchEvent.Kind;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashMap;
+import java.util.Map;
+
+public class FileWatcher extends ThreadServer implements Runnable {
+
+  /**
+   * Reset.
+   */
+  public static final int RESET = 0x11;
+
+  /**
+   * File add event type.
+   */
+  public static final int FILE_ADDED = 0x12;
+
+  /**
+   * File remove event type.
+   */
+  public static final int FILE_REMOVED = 0x13;
+
+  /**
+   * File modification event type.
+   */
+  public static final int FILE_CHANGED = 0x14;
+
+  protected final WatchService watchService;
+
+  protected final Path basePath;
+
+<span class="nc" id="L54">  protected final Map&lt;WatchKey, Path&gt; key2path = new HashMap&lt;&gt;();</span>
+
+  /**
+   * Constructor with watch service and base path.
+   *
+   * @param watchService watch service
+   * @param basePath path to monitor
+   * @throws IOException Fail to register monitor using nio api
+   */
+<span class="nc" id="L63">  public FileWatcher(final WatchService watchService, final Path basePath) throws IOException {</span>
+<span class="nc" id="L64">    this.watchService = watchService;</span>
+<span class="nc" id="L65">    this.basePath = basePath;</span>
+<span class="nc" id="L66">    logger.info(&quot;Watch {}&quot;, basePath);</span>
+
+<span class="nc" id="L68">    Files.walkFileTree(basePath, new SimpleFileVisitor&lt;Path&gt;() {</span>
+      @Override
+      public FileVisitResult preVisitDirectory(
+          final Path dir, final BasicFileAttributes attrs) throws IOException {
+<span class="nc" id="L72">        attach(dir);</span>
+<span class="nc" id="L73">        return CONTINUE;</span>
+      }
+    });
+<span class="nc" id="L76">  }</span>
+
+  protected void attach(final Path dir) throws IOException {
+<span class="nc" id="L79">    final WatchKey watchKey =</span>
+<span class="nc" id="L80">        dir.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY, OVERFLOW);</span>
+<span class="nc" id="L81">    key2path.put(watchKey, dir.toAbsolutePath());</span>
+<span class="nc" id="L82">  }</span>
+
+  protected void detach(final Path dir) throws IOException {
+<span class="nc" id="L85">    key2path.keySet().stream()</span>
+<span class="nc" id="L86">        .filter(key -&gt; dir.equals(key2path.get(key)))</span>
+<span class="nc" id="L87">        .forEach(key2path::remove);</span>
+<span class="nc" id="L88">  }</span>
+
+  @Override
+  protected void process() throws Exception {
+<span class="nc" id="L92">    final WatchKey key = watchService.take();</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">    if (null == key) {</span>
+<span class="nc" id="L94">      return;</span>
+    }
+
+<span class="nc bnc" id="L97" title="All 2 branches missed.">    for (final WatchEvent&lt;?&gt; event : key.pollEvents()) {</span>
+<span class="nc" id="L98">      logger.trace(&quot;Event: {}&quot;, event);</span>
+<span class="nc" id="L99">      ServerEvent serverEvent = null;</span>
+
+<span class="nc" id="L101">      Path path = null;</span>
+<span class="nc" id="L102">      int eventType = -1;</span>
+<span class="nc" id="L103">      final Kind kind = event.kind();</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">      if (ENTRY_CREATE.equals(kind)) {</span>
+<span class="nc" id="L105">        eventType = FILE_ADDED;</span>
+<span class="nc" id="L106">        final Path parent = key2path.get(key);</span>
+<span class="nc" id="L107">        path = parent.resolve((Path) event.context());</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (Files.isDirectory(path)) {</span>
+<span class="nc" id="L109">          attach(path);</span>
+        }
+<span class="nc bnc" id="L111" title="All 2 branches missed.">      } else if (ENTRY_MODIFY.equals(kind)) {</span>
+<span class="nc" id="L112">        eventType = FILE_CHANGED;</span>
+<span class="nc" id="L113">        final Path parent = key2path.get(key);</span>
+<span class="nc" id="L114">        path = parent.resolve((Path) event.context());</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">      } else if (ENTRY_DELETE.equals(kind)) {</span>
+<span class="nc" id="L116">        eventType = FILE_REMOVED;</span>
+<span class="nc" id="L117">        final Path parent = key2path.get(key);</span>
+<span class="nc" id="L118">        path = parent.resolve((Path) event.context());</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        if (Files.isDirectory(path)) {</span>
+<span class="nc" id="L120">          detach(path);</span>
+        }
+<span class="nc bnc" id="L122" title="All 2 branches missed.">      } else if (OVERFLOW.equals(kind)) {</span>
+<span class="nc" id="L123">        eventType = RESET;</span>
+      } else {
+<span class="nc" id="L125">        throw new IllegalStateException(&quot;Unknown kind: &quot; + kind);</span>
+      }
+<span class="nc" id="L127">      serverEvent = new ServerEvent(this, eventType, null, path);</span>
+<span class="nc" id="L128">      fireEvent(serverEvent);</span>
+<span class="nc" id="L129">    }</span>
+<span class="nc" id="L130">    key.reset();</span>
+<span class="nc" id="L131">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

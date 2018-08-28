@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MonitorServer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.build</a> &gt; <span class="el_source">MonitorServer.java</span></div><h1>MonitorServer.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.build;
+
+import static org.eclipse.jetty.servlet.ServletContextHandler.SESSIONS;
+
+import hera.build.web.Endpoint;
+import hera.build.web.service.BuildService;
+import hera.build.web.service.ContractService;
+import hera.server.ServerStatus;
+import hera.server.ThreadServer;
+import hera.util.ThreadUtils;
+import lombok.Getter;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.DefaultHandler;
+import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+
+<span class="fc" id="L22">public class MonitorServer extends ThreadServer {</span>
+
+<span class="fc" id="L24">  protected int port = -1;</span>
+
+  protected Server server;
+
+<span class="pc" id="L28">  @Getter</span>
+  protected BuildService buildService = new BuildService();
+
+<span class="pc" id="L31">  @Getter</span>
+  protected ContractService contractService = new ContractService();
+
+  /**
+   * Get server port.
+   * &lt;p&gt;
+   * Return 8080 as default port if not specified.
+   * &lt;/p&gt;
+   * @return server port
+   */
+  public int getPort() {
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">    if (port &lt; 0) {</span>
+<span class="nc" id="L43">      return 8080;</span>
+    } else {
+<span class="fc" id="L45">      return port;</span>
+    }
+  }
+
+  /**
+   * Set server port.
+   * &lt;p&gt;
+   * Specify negative value if you want default port.
+   * &lt;/p&gt;
+   *
+   * @param port server port
+   */
+  public void setPort(final int port) {
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">    if (isStatus(ServerStatus.TERMINATED)) {</span>
+<span class="fc" id="L59">      this.port = port;</span>
+    } else {
+<span class="nc" id="L61">      throw new IllegalStateException(&quot;Server already started&quot;);</span>
+    }
+<span class="fc" id="L63">  }</span>
+
+  @Override
+  protected void initialize() throws Exception {
+<span class="fc" id="L67">    super.initialize();</span>
+<span class="fc" id="L68">    final int port = getPort();</span>
+<span class="fc" id="L69">    server = new Server(port);</span>
+<span class="fc" id="L70">    ServletContextHandler context = new ServletContextHandler(SESSIONS);</span>
+<span class="fc" id="L71">    context.setContextPath(&quot;/&quot;);</span>
+<span class="fc" id="L72">    context.setResourceBase(getClass().getResource(&quot;/public&quot;).toString());</span>
+<span class="fc" id="L73">    final Endpoint endpoint = new Endpoint();</span>
+<span class="fc" id="L74">    endpoint.setBuildService(buildService);</span>
+<span class="fc" id="L75">    endpoint.setContractService(contractService);</span>
+<span class="fc" id="L76">    context.addServlet(new ServletHolder(endpoint), &quot;/&quot;);</span>
+
+<span class="fc" id="L78">    final HandlerList handlers = new HandlerList();</span>
+<span class="fc" id="L79">    handlers.addHandler(context);</span>
+<span class="fc" id="L80">    handlers.addHandler(new DefaultHandler());</span>
+<span class="fc" id="L81">    server.setHandler(handlers);</span>
+<span class="fc" id="L82">    server.start();</span>
+<span class="fc" id="L83">    logger.info(&quot;Open browser and connect to http://localhost:{}&quot;, port);</span>
+<span class="fc" id="L84">  }</span>
+
+  @Override
+  protected void process() throws Exception {
+<span class="fc" id="L88">    super.process();</span>
+<span class="fc" id="L89">    ThreadUtils.trySleep(2000);</span>
+<span class="fc" id="L90">  }</span>
+
+  @Override
+  protected void terminate() {
+    try {
+<span class="fc" id="L95">      server.stop();</span>
+<span class="fc" id="L96">      server.join();</span>
+<span class="nc" id="L97">    } catch (Throwable ex) {</span>
+<span class="nc" id="L98">      this.exception = ex;</span>
+<span class="fc" id="L99">    }</span>
+<span class="fc" id="L100">    super.terminate();</span>
+<span class="fc" id="L101">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

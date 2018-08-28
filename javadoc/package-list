@@ -1,7 +1,15 @@
+
 hera
 hera.annotation
 hera.api
 hera.api.model
+hera.api.tupleorerror
+hera.build
+hera.build.res
+hera.build.web
+hera.build.web.exception
+hera.build.web.model
+hera.build.web.service
 hera.client
 hera.command
 hera.custom
@@ -10,7 +18,9 @@ hera.exec
 hera.repl
 hera.repl.command
 hera.repl.repository
+hera.server
 hera.strategy
+hera.test
 hera.transport
 hera.util
 hera.util.conf

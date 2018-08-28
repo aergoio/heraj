@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TestSuite.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.test</a> &gt; <span class="el_source">TestSuite.java</span></div><h1>TestSuite.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.test;
+
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+
+<span class="nc" id="L12">public class TestSuite {</span>
+<span class="nc" id="L13">  @Getter</span>
+<span class="nc" id="L14">  @Setter</span>
+  protected String name;
+
+<span class="nc" id="L17">  @Getter</span>
+<span class="nc" id="L18">  @Setter</span>
+  protected List&lt;TestCase&gt; testCases = new ArrayList&lt;&gt;();
+
+  public void addTestCase(final TestCase testCase) {
+<span class="nc" id="L22">    this.testCases.add(testCase);</span>
+<span class="nc" id="L23">  }</span>
+
+  public long getTests() {
+<span class="nc" id="L26">    return this.testCases.size();</span>
+  }
+
+  public long getSuccesses() {
+<span class="nc" id="L30">    return this.testCases.stream().filter(TestCase::isSuccess).count();</span>
+  }
+
+  public long getFailures() {
+<span class="nc bnc" id="L34" title="All 2 branches missed.">    return this.testCases.stream().filter(testCase -&gt; !testCase.isSuccess()).count();</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="nc" id="L39">    return &quot;* &quot; + getName() + &quot; &quot; + getSuccesses() + &quot;/&quot; + getTests();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

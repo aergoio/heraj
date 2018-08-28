@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FunctionChain.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.tupleorerror</a> &gt; <span class="el_source">FunctionChain.java</span></div><h1>FunctionChain.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.api.tupleorerror;
+
+import java.util.concurrent.CompletableFuture;
+
+@SuppressWarnings({&quot;rawtypes&quot;, &quot;unchecked&quot;})
+<span class="nc" id="L10">public final class FunctionChain {</span>
+
+  /**
+   * Make a sequence of future with ResultOrErrorFutures.
+   *
+   * @param &lt;T0&gt; type of 1st element of tuple
+   * @param &lt;T1&gt; type of 2nd element of tuple
+   * @param f0 a function suppling future0
+   * @param f1 a function suppling future1
+   * @return sequence of future
+   */
+  public static &lt;T0, T1&gt; Tuple2OrErrorFuture&lt;T0, T1&gt; seqf(Function0&lt;ResultOrErrorFuture&lt;T0&gt;&gt; f0,
+      Function0&lt;ResultOrErrorFuture&lt;T1&gt;&gt; f1) {
+    try {
+<span class="fc" id="L24">      ResultOrErrorFuture&lt;T0&gt; future0 = f0.apply();</span>
+<span class="fc" id="L25">      ResultOrErrorFuture&lt;T1&gt; future1 = f1.apply();</span>
+
+<span class="fc" id="L27">      CompletableFuture&lt;Tuple2OrError&gt; deligate =</span>
+<span class="fc" id="L28">          AbstractTupleOrErrorFuture.allOf(future0, future1).thenApply(futureVoid -&gt; {</span>
+            try {
+<span class="fc" id="L30">              ResultOrError&lt;T0&gt; r0 = future0.get();</span>
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">              if (r0.hasError()) {</span>
+<span class="nc" id="L32">                return new Tuple2OrError&lt;&gt;(r0.getError());</span>
+              }
+<span class="fc" id="L34">              ResultOrError&lt;T1&gt; r1 = future1.get();</span>
+<span class="pc bpc" id="L35" title="1 of 2 branches missed.">              if (r1.hasError()) {</span>
+<span class="nc" id="L36">                return new Tuple2OrError&lt;&gt;(r1.getError());</span>
+              }
+<span class="fc" id="L38">              return success(r0.getResult(), r1.getResult());</span>
+<span class="nc" id="L39">            } catch (Throwable e) {</span>
+<span class="nc" id="L40">              return new Tuple2OrError&lt;&gt;(e);</span>
+            }
+          });
+<span class="fc" id="L43">      return Tuple2OrErrorFuture.withDeligate(() -&gt; deligate);</span>
+<span class="nc" id="L44">    } catch (Throwable e) {</span>
+<span class="nc" id="L45">      return Tuple2OrErrorFuture.supply(() -&gt; new Tuple2OrError&lt;&gt;(e));</span>
+    }
+  }
+
+  /**
+   * Make a sequence of future with ResultOrErrorFutures.
+   *
+   * @param &lt;T0&gt; type of 1st element of tuple
+   * @param &lt;T1&gt; type of 2nd element of tuple
+   * @param &lt;T2&gt; type of 3rd element of tuple
+   * @param f0 a function suppling future0
+   * @param f1 a function suppling future1
+   * @param f2 a function suppling future2
+   * @return sequence of future
+   */
+  public static &lt;T0, T1, T2&gt; Tuple3OrErrorFuture&lt;T0, T1, T2&gt; seqf(
+      Function0&lt;ResultOrErrorFuture&lt;T0&gt;&gt; f0, Function0&lt;ResultOrErrorFuture&lt;T1&gt;&gt; f1,
+      Function0&lt;ResultOrErrorFuture&lt;T2&gt;&gt; f2) {
+    try {
+<span class="fc" id="L64">      ResultOrErrorFuture&lt;T0&gt; future0 = f0.apply();</span>
+<span class="fc" id="L65">      ResultOrErrorFuture&lt;T1&gt; future1 = f1.apply();</span>
+<span class="fc" id="L66">      ResultOrErrorFuture&lt;T2&gt; future2 = f2.apply();</span>
+
+<span class="fc" id="L68">      CompletableFuture&lt;Tuple3OrError&gt; deligate =</span>
+<span class="fc" id="L69">          AbstractTupleOrErrorFuture.allOf(future0, future1).thenApply(futureVoid -&gt; {</span>
+            try {
+<span class="fc" id="L71">              ResultOrError&lt;T0&gt; r0 = future0.get();</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">              if (r0.hasError()) {</span>
+<span class="nc" id="L73">                return new Tuple3OrError&lt;&gt;(r0.getError());</span>
+              }
+<span class="fc" id="L75">              ResultOrError&lt;T1&gt; r1 = future1.get();</span>
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">              if (r1.hasError()) {</span>
+<span class="nc" id="L77">                return new Tuple3OrError&lt;&gt;(r1.getError());</span>
+              }
+<span class="fc" id="L79">              ResultOrError&lt;T2&gt; r2 = future2.get();</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">              if (r2.hasError()) {</span>
+<span class="nc" id="L81">                return new Tuple3OrError&lt;&gt;(r2.getError());</span>
+              }
+<span class="fc" id="L83">              return success(r0.getResult(), r1.getResult(), r2.getResult());</span>
+<span class="nc" id="L84">            } catch (Throwable e) {</span>
+<span class="nc" id="L85">              return new Tuple3OrError&lt;&gt;(e);</span>
+            }
+          });
+<span class="fc" id="L88">      return Tuple3OrErrorFuture.withDeligate(() -&gt; deligate);</span>
+<span class="nc" id="L89">    } catch (Throwable e) {</span>
+<span class="nc" id="L90">      return Tuple3OrErrorFuture.supply(() -&gt; new Tuple3OrError&lt;&gt;(e));</span>
+    }
+  }
+
+  /**
+   * Make a sequence of future with ResultOrErrorFutures.
+   *
+   * @param &lt;T0&gt; type of 1st element of tuple
+   * @param &lt;T1&gt; type of 2nd element of tuple
+   * @param &lt;T2&gt; type of 3rd element of tuple
+   * @param &lt;T3&gt; type of 4th element of tuple
+   * @param f0 a function suppling future0
+   * @param f1 a function suppling future1
+   * @param f2 a function suppling future2
+   * @param f3 a function suppling future3
+   * @return sequence of future
+   */
+  public static &lt;T0, T1, T2, T3&gt; Tuple4OrErrorFuture&lt;T0, T1, T2, T3&gt; seqf(
+      Function0&lt;ResultOrErrorFuture&lt;T0&gt;&gt; f0, Function0&lt;ResultOrErrorFuture&lt;T1&gt;&gt; f1,
+      Function0&lt;ResultOrErrorFuture&lt;T2&gt;&gt; f2, Function0&lt;ResultOrErrorFuture&lt;T3&gt;&gt; f3) {
+    try {
+<span class="fc" id="L111">      ResultOrErrorFuture&lt;T0&gt; future0 = f0.apply();</span>
+<span class="fc" id="L112">      ResultOrErrorFuture&lt;T1&gt; future1 = f1.apply();</span>
+<span class="fc" id="L113">      ResultOrErrorFuture&lt;T2&gt; future2 = f2.apply();</span>
+<span class="fc" id="L114">      ResultOrErrorFuture&lt;T3&gt; future3 = f3.apply();</span>
+
+<span class="fc" id="L116">      CompletableFuture&lt;Tuple4OrError&gt; deligate =</span>
+<span class="fc" id="L117">          AbstractTupleOrErrorFuture.allOf(future0, future1).thenApply(futureVoid -&gt; {</span>
+            try {
+<span class="fc" id="L119">              ResultOrError&lt;T0&gt; r0 = future0.get();</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">              if (r0.hasError()) {</span>
+<span class="nc" id="L121">                return new Tuple4OrError&lt;&gt;(r0.getError());</span>
+              }
+<span class="fc" id="L123">              ResultOrError&lt;T1&gt; r1 = future1.get();</span>
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">              if (r1.hasError()) {</span>
+<span class="nc" id="L125">                return new Tuple4OrError&lt;&gt;(r1.getError());</span>
+              }
+<span class="fc" id="L127">              ResultOrError&lt;T2&gt; r2 = future2.get();</span>
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">              if (r2.hasError()) {</span>
+<span class="nc" id="L129">                return new Tuple4OrError&lt;&gt;(r2.getError());</span>
+              }
+<span class="fc" id="L131">              ResultOrError&lt;T3&gt; r3 = future3.get();</span>
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">              if (r3.hasError()) {</span>
+<span class="nc" id="L133">                return new Tuple4OrError&lt;&gt;(r3.getError());</span>
+              }
+<span class="fc" id="L135">              return success(r0.getResult(), r1.getResult(), r2.getResult(), r3.getResult());</span>
+<span class="nc" id="L136">            } catch (Throwable e) {</span>
+<span class="nc" id="L137">              return new Tuple4OrError&lt;&gt;(e);</span>
+            }
+          });
+<span class="fc" id="L140">      return Tuple4OrErrorFuture.withDeligate(() -&gt; deligate);</span>
+<span class="nc" id="L141">    } catch (Throwable e) {</span>
+<span class="nc" id="L142">      return Tuple4OrErrorFuture.supply(() -&gt; new Tuple4OrError&lt;&gt;(e));</span>
+    }
+  }
+
+  /**
+   * Make a sequence of with ResultOrErrors.
+   *
+   * @param &lt;T0&gt; type of 1st element of tuple
+   * @param &lt;T1&gt; type of 2nd element of tuple
+   * @param f0 a function suppling {@code ResultOrError}
+   * @param f1 a function suppling {@code ResultOrError}
+   * @return sequence of result or error
+   */
+  public static &lt;T0, T1&gt; Tuple2OrError&lt;T0, T1&gt; seq(Function0&lt;ResultOrError&lt;T0&gt;&gt; f0,
+      Function0&lt;ResultOrError&lt;T1&gt;&gt; f1) {
+<span class="fc" id="L157">    ResultOrErrorFuture future0 = ResultOrErrorFuture.supply(() -&gt; f0.apply());</span>
+<span class="fc" id="L158">    ResultOrErrorFuture future1 = ResultOrErrorFuture.supply(() -&gt; f1.apply());</span>
+
+<span class="fc" id="L160">    Tuple2OrErrorFuture&lt;T0, T1&gt; future = seqf(() -&gt; future0, () -&gt; future1);</span>
+<span class="fc" id="L161">    return future.get();</span>
+  }
+
+  /**
+   * Make a sequence of with ResultOrErrors.
+   *
+   * @param &lt;T0&gt; type of 1st element of tuple
+   * @param &lt;T1&gt; type of 2nd element of tuple
+   * @param &lt;T2&gt; type of 3rd element of tuple
+   * @param f0 a function suppling {@code ResultOrError}
+   * @param f1 a function suppling {@code ResultOrError}
+   * @param f2 a function suppling {@code ResultOrError}
+   * @return sequence of result or error
+   */
+  public static &lt;T0, T1, T2&gt; Tuple3OrError&lt;T0, T1, T2&gt; seq(Function0&lt;ResultOrError&lt;T0&gt;&gt; f0,
+      Function0&lt;ResultOrError&lt;T1&gt;&gt; f1, Function0&lt;ResultOrError&lt;T2&gt;&gt; f2) {
+<span class="fc" id="L177">    ResultOrErrorFuture future0 = ResultOrErrorFuture.supply(() -&gt; f0.apply());</span>
+<span class="fc" id="L178">    ResultOrErrorFuture future1 = ResultOrErrorFuture.supply(() -&gt; f1.apply());</span>
+<span class="fc" id="L179">    ResultOrErrorFuture future2 = ResultOrErrorFuture.supply(() -&gt; f2.apply());</span>
+
+<span class="fc" id="L181">    Tuple3OrErrorFuture&lt;T0, T1, T2&gt; future = seqf(() -&gt; future0, () -&gt; future1, () -&gt; future2);</span>
+<span class="fc" id="L182">    return future.get();</span>
+  }
+
+  /**
+   * Make a sequence of with ResultOrErrors.
+   *
+   * @param &lt;T0&gt; type of 1st element of tuple
+   * @param &lt;T1&gt; type of 2nd element of tuple
+   * @param &lt;T2&gt; type of 3rd element of tuple
+   * @param &lt;T3&gt; type of 4th element of tuple
+   * @param f0 a function suppling {@code ResultOrError}
+   * @param f1 a function suppling {@code ResultOrError}
+   * @param f2 a function suppling {@code ResultOrError}
+   * @param f3 a function suppling {@code ResultOrError}
+   * @return sequence of result or error
+   */
+  public static &lt;T0, T1, T2, T3&gt; Tuple4OrError&lt;T0, T1, T2, T3&gt; seq(Function0&lt;ResultOrError&lt;T0&gt;&gt; f0,
+      Function0&lt;ResultOrError&lt;T1&gt;&gt; f1, Function0&lt;ResultOrError&lt;T2&gt;&gt; f2,
+      Function0&lt;ResultOrError&lt;T3&gt;&gt; f3) {
+<span class="fc" id="L201">    ResultOrErrorFuture future0 = ResultOrErrorFuture.supply(() -&gt; f0.apply());</span>
+<span class="fc" id="L202">    ResultOrErrorFuture future1 = ResultOrErrorFuture.supply(() -&gt; f1.apply());</span>
+<span class="fc" id="L203">    ResultOrErrorFuture future2 = ResultOrErrorFuture.supply(() -&gt; f2.apply());</span>
+<span class="fc" id="L204">    ResultOrErrorFuture future3 = ResultOrErrorFuture.supply(() -&gt; f3.apply());</span>
+<span class="fc" id="L205">    Tuple4OrErrorFuture&lt;T0, T1, T2, T3&gt; future =</span>
+<span class="fc" id="L206">        seqf(() -&gt; future0, () -&gt; future1, () -&gt; future2, () -&gt; future3);</span>
+<span class="fc" id="L207">    return future.get();</span>
+  }
+
+
+  public static &lt;T&gt; ResultOrError&lt;T&gt; success(T t) {
+<span class="fc" id="L212">    return new ResultOrError&lt;&gt;(t, null);</span>
+  }
+
+  public static &lt;T0, T1&gt; Tuple2OrError&lt;T0, T1&gt; success(T0 t0, T1 t1) {
+<span class="fc" id="L216">    return new Tuple2OrError&lt;&gt;(t0, t1);</span>
+  }
+
+  public static &lt;T0, T1, T2&gt; Tuple3OrError&lt;T0, T1, T2&gt; success(T0 t0, T1 t1, T2 t2) {
+<span class="fc" id="L220">    return new Tuple3OrError&lt;&gt;(t0, t1, t2);</span>
+  }
+
+  public static &lt;T0, T1, T2, T3&gt; Tuple4OrError&lt;T0, T1, T2, T3&gt; success(T0 t0, T1 t1, T2 t2, T3 t3) {
+<span class="fc" id="L224">    return new Tuple4OrError&lt;&gt;(t0, t1, t2, t3);</span>
+  }
+
+  public static ResultOrError fail(Throwable error) {
+<span class="nc" id="L228">    return new ResultOrError(null, error);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

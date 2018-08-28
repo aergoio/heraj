@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Source.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.build.res</a> &gt; <span class="el_source">Source.java</span></div><h1>Source.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.build.res;
+
+import static hera.util.FilepathUtils.append;
+import static hera.util.FilepathUtils.getParentPath;
+import static java.util.Collections.emptyList;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.build.Resource;
+import hera.build.ResourceManager;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.file.NoSuchFileException;
+import java.util.ArrayList;
+import java.util.List;
+import org.slf4j.Logger;
+
+public class Source extends File {
+
+<span class="nc" id="L25">  protected final transient Logger logger = getLogger(getClass());</span>
+
+  public Source(final Project project, final String location) {
+<span class="nc" id="L28">    super(project, location);</span>
+<span class="nc" id="L29">  }</span>
+
+  @Override
+  public List&lt;Resource&gt; getDependencies(ResourceManager resourceManager) throws Exception {
+<span class="nc" id="L33">    final ArrayList&lt;Resource&gt; dependencies = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L34">    dependencies.addAll(super.getDependencies(resourceManager));</span>
+<span class="nc" id="L35">    readImports().stream()</span>
+<span class="nc" id="L36">        .map(importPath -&gt; this.bind(resourceManager, importPath))</span>
+<span class="nc" id="L37">        .forEach(dependencies::add);</span>
+<span class="nc" id="L38">    return dependencies;</span>
+  }
+
+  protected String fromImport(final String line) {
+<span class="nc" id="L42">    final String importPrefix = &quot;import&quot;;</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">    if (!line.startsWith(importPrefix)) {</span>
+<span class="nc" id="L44">      return null;</span>
+    }
+<span class="nc bnc" id="L46" title="All 2 branches missed.">    if (!Character.isWhitespace(line.charAt(importPrefix.length()))) {</span>
+<span class="nc" id="L47">      return null;</span>
+    }
+<span class="nc" id="L49">    final String literals = line.substring(importPrefix.length()).trim();</span>
+<span class="nc bnc" id="L50" title="All 4 branches missed.">    if (!literals.startsWith(&quot;\&quot;&quot;) || !literals.endsWith(&quot;\&quot;&quot;)) {</span>
+<span class="nc" id="L51">      return null;</span>
+    }
+<span class="nc" id="L53">    return literals.substring(1, literals.length() - 1).trim();</span>
+  }
+
+  /**
+   * Read import clause and convert to import target.
+   *
+   * @return import target list
+   *
+   * @throws IOException Fail to read source file.
+   */
+  public List&lt;String&gt; readImports() throws IOException {
+<span class="nc" id="L64">    final List&lt;String&gt; imports = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L65">    try (final BufferedReader sourceIn = open()) {</span>
+      // Read line by line
+<span class="nc" id="L67">      String line = null;</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">      while (null != (line = sourceIn.readLine())) {</span>
+<span class="nc" id="L69">        final String importStr = fromImport(line);</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        if (null == importStr) {</span>
+<span class="nc" id="L71">          return imports;</span>
+        }
+<span class="nc" id="L73">        imports.add(importStr);</span>
+<span class="nc" id="L74">      }</span>
+<span class="nc" id="L75">      return imports;</span>
+<span class="nc" id="L76">    } catch (final NoSuchFileException e) {</span>
+<span class="nc" id="L77">      logger.trace(&quot;{} not found&quot;, location);</span>
+<span class="nc" id="L78">      return emptyList();</span>
+    }
+  }
+
+  protected Resource bind(final ResourceManager resourceManager, final String importPath) {
+<span class="nc bnc" id="L83" title="All 4 branches missed.">    if (importPath.startsWith(&quot;./&quot;) || importPath.startsWith(&quot;../&quot;)) {</span>
+<span class="nc" id="L84">      return resourceManager.getResource(append(getParentPath(getLocation()), importPath));</span>
+    } else {
+<span class="nc" id="L86">      return resourceManager.getPackage(importPath);</span>
+    }
+  }
+
+  /**
+   * Return text without upper import part.
+   *
+   * @return body text
+   */
+  public Text getBody() {
+<span class="nc" id="L96">    return new Text(() -&gt; {</span>
+<span class="nc" id="L97">      try (final BufferedReader sourceIn = open()) {</span>
+        // Read line by line
+<span class="nc" id="L99">        String line = null;</span>
+<span class="nc" id="L100">        boolean isBodyPart = false;</span>
+<span class="nc" id="L101">        final StringWriter writer = new StringWriter();</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        while (null != (line = sourceIn.readLine())) {</span>
+<span class="nc" id="L103">          logger.trace(&quot;Line: {}&quot;, line);</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">          if (isBodyPart) {</span>
+<span class="nc" id="L105">            writer.write(&quot;\n&quot;);</span>
+<span class="nc" id="L106">            writer.write(line);</span>
+          } else {
+<span class="nc" id="L108">            final String importStr = fromImport(line);</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">            if (null == importStr) {</span>
+<span class="nc" id="L110">              writer.write(line);</span>
+<span class="nc" id="L111">              isBodyPart = true;</span>
+            }
+<span class="nc" id="L113">          }</span>
+        }
+<span class="nc" id="L115">        return new ByteArrayInputStream(writer.toString().getBytes());</span>
+      }
+    });
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

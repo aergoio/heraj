@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TestResource.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.build.res</a> &gt; <span class="el_source">TestResource.java</span></div><h1>TestResource.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.build.res;
+
+import hera.ProjectFile;
+import hera.build.Resource;
+import hera.build.ResourceManager;
+import java.util.ArrayList;
+import java.util.List;
+
+public class TestResource extends Source {
+  public TestResource(final Project project, final String path) {
+<span class="nc" id="L15">    super(project, path);</span>
+<span class="nc" id="L16">  }</span>
+
+  @Override
+  public List&lt;Resource&gt; getDependencies(final ResourceManager resourceManager) throws Exception {
+<span class="nc" id="L20">    final ProjectFile projectFile = project.getProjectFile();</span>
+
+<span class="nc" id="L22">    final ArrayList&lt;Resource&gt; dependencies = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L23">    dependencies.add(resourceManager.getResource(projectFile.getSource()));</span>
+<span class="nc" id="L24">    dependencies.addAll(super.getDependencies(resourceManager));</span>
+<span class="nc" id="L25">    return dependencies;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AthenaContext.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.test</a> &gt; <span class="el_source">AthenaContext.java</span></div><h1>AthenaContext.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.test;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
+import lombok.Getter;
+import lombok.Setter;
+import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.lib.OneArgFunction;
+import org.luaj.vm2.lib.TwoArgFunction;
+import org.slf4j.Logger;
+
+<span class="nc" id="L16">public class AthenaContext {</span>
+
+<span class="nc" id="L18">  protected static final ThreadLocal&lt;AthenaContext&gt; cabinet =</span>
+<span class="nc" id="L19">      new InheritableThreadLocal&lt;AthenaContext&gt;() {</span>
+        @Override
+        protected AthenaContext initialValue() {
+<span class="nc" id="L22">          return new AthenaContext();</span>
+        }
+      };
+
+  public static AthenaContext getContext() {
+<span class="nc" id="L27">    return cabinet.get();</span>
+  }
+
+<span class="nc" id="L30">  protected final transient Logger logger = getLogger(getClass());</span>
+
+<span class="nc" id="L32">  @Getter</span>
+<span class="nc" id="L33">  @Setter</span>
+  protected TestResultCollector testReporter = new TestResultCollector();
+
+<span class="nc" id="L36">  public OneArgFunction startSuite = new OneArgFunction() {</span>
+    @Override
+    public LuaValue call(final LuaValue name) {
+<span class="nc" id="L39">      testReporter.startSuite(name.tojstring());</span>
+<span class="nc" id="L40">      return null;</span>
+    }
+  };
+
+<span class="nc" id="L44">  public OneArgFunction endSuite = new OneArgFunction() {</span>
+    @Override
+    public LuaValue call(final LuaValue name) {
+<span class="nc" id="L47">      testReporter.endSuite(name.tojstring());</span>
+<span class="nc" id="L48">      return null;</span>
+    }
+  };
+
+<span class="nc" id="L52">  public OneArgFunction startTest = new OneArgFunction() {</span>
+    @Override
+    public LuaValue call(final LuaValue name) {
+<span class="nc" id="L55">      logger.trace(&quot;Starting {}...&quot;, name);</span>
+<span class="nc" id="L56">      testReporter.start(name.tojstring());</span>
+<span class="nc" id="L57">      return null;</span>
+    }
+  };
+<span class="nc" id="L60">  public TwoArgFunction endTest = new TwoArgFunction() {</span>
+    @Override
+    public LuaValue call(final LuaValue name, LuaValue testResult) {
+<span class="nc" id="L63">      logger.trace(&quot;{} end&quot;, name);</span>
+<span class="nc" id="L64">      testReporter.end(name.tojstring(), testResult.toboolean());</span>
+<span class="nc" id="L65">      return null;</span>
+    }
+  };
+<span class="nc" id="L68">  public TwoArgFunction recordError = new TwoArgFunction() {</span>
+    @Override
+    public LuaValue call(LuaValue name, LuaValue error) {
+<span class="nc" id="L71">      logger.info(&quot;{} throw {}&quot;, name, error);</span>
+<span class="nc" id="L72">      testReporter.error(name.tojstring(), error.tojstring());</span>
+<span class="nc" id="L73">      return null;</span>
+    }
+  };
+
+  public static void clear() {
+<span class="nc" id="L78">    cabinet.remove();</span>
+<span class="nc" id="L79">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

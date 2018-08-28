@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BlockAsyncTemplate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.client</a> &gt; <span class="el_source">BlockAsyncTemplate.java</span></div><h1>BlockAsyncTemplate.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.client;
+
+import static hera.util.TransportUtils.copyFrom;
+import static hera.util.TransportUtils.longToByteArray;
+import static java.util.stream.Collectors.toList;
+import static types.AergoRPCServiceGrpc.newFutureStub;
+
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.protobuf.ByteString;
+import hera.FutureChainer;
+import hera.api.BlockAsyncOperation;
+import hera.api.model.Block;
+import hera.api.model.BlockHeader;
+import hera.api.model.BytesValue;
+import hera.api.model.Hash;
+import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.transport.BlockConverterFactory;
+import hera.transport.ModelConverter;
+import io.grpc.ManagedChannel;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
+import types.Blockchain;
+import types.Rpc.BlockHeaderList;
+import types.Rpc.ListParams;
+import types.Rpc.SingleBytes;
+
+<span class="fc" id="L34">@RequiredArgsConstructor</span>
+public class BlockAsyncTemplate implements BlockAsyncOperation {
+
+  protected final AergoRPCServiceFutureStub aergoService;
+
+  protected final ModelConverter&lt;Block, Blockchain.Block&gt; blockConverter;
+
+  public BlockAsyncTemplate(final ManagedChannel channel) {
+<span class="nc" id="L42">    this(newFutureStub(channel));</span>
+<span class="nc" id="L43">  }</span>
+
+  public BlockAsyncTemplate(final AergoRPCServiceFutureStub aergoService) {
+<span class="nc" id="L46">    this(aergoService, new BlockConverterFactory().create());</span>
+<span class="nc" id="L47">  }</span>
+
+  @Override
+  public ResultOrErrorFuture&lt;Block&gt; getBlock(final Hash hash) {
+<span class="fc" id="L51">    final ResultOrErrorFuture&lt;Block&gt; nextFuture = new ResultOrErrorFuture&lt;&gt;();</span>
+
+<span class="fc" id="L53">    final ByteString byteString = copyFrom(hash);</span>
+<span class="fc" id="L54">    final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();</span>
+<span class="fc" id="L55">    ListenableFuture&lt;Blockchain.Block&gt; listenableFuture = aergoService.getBlock(bytes);</span>
+<span class="fc" id="L56">    FutureChainer&lt;Blockchain.Block, Block&gt; callback =</span>
+<span class="nc" id="L57">        new FutureChainer&lt;&gt;(nextFuture, b -&gt; blockConverter.convertToDomainModel(b));</span>
+<span class="fc" id="L58">    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());</span>
+
+<span class="fc" id="L60">    return nextFuture;</span>
+  }
+
+  @Override
+  public ResultOrErrorFuture&lt;Block&gt; getBlock(final long height) {
+<span class="fc" id="L65">    final ResultOrErrorFuture&lt;Block&gt; nextFuture = new ResultOrErrorFuture&lt;&gt;();</span>
+
+<span class="fc" id="L67">    final ByteString byteString = copyFrom(BytesValue.of(longToByteArray(height)));</span>
+<span class="fc" id="L68">    final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();</span>
+<span class="fc" id="L69">    ListenableFuture&lt;Blockchain.Block&gt; listenableFuture = aergoService.getBlock(bytes);</span>
+<span class="fc" id="L70">    FutureChainer&lt;Blockchain.Block, Block&gt; callback =</span>
+<span class="nc" id="L71">        new FutureChainer&lt;&gt;(nextFuture, b -&gt; blockConverter.convertToDomainModel(b));</span>
+<span class="fc" id="L72">    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());</span>
+
+<span class="fc" id="L74">    return nextFuture;</span>
+  }
+
+  @Override
+  public ResultOrErrorFuture&lt;List&lt;BlockHeader&gt;&gt; listBlockHeaders(final Hash hash, final int size) {
+<span class="fc" id="L79">    final ResultOrErrorFuture&lt;List&lt;BlockHeader&gt;&gt; nextFuture = new ResultOrErrorFuture&lt;&gt;();</span>
+
+    final ListParams listParams =
+<span class="fc" id="L82">        ListParams.newBuilder().setHash(copyFrom(hash)).setSize(size).build();</span>
+<span class="fc" id="L83">    ListenableFuture&lt;BlockHeaderList&gt; listenableFuture = aergoService.listBlockHeaders(listParams);</span>
+<span class="fc" id="L84">    FutureChainer&lt;BlockHeaderList, List&lt;BlockHeader&gt;&gt; callback =</span>
+<span class="nc" id="L85">        new FutureChainer&lt;&gt;(nextFuture, blockHeaders -&gt; blockHeaders.getBlocksList().stream()</span>
+<span class="nc" id="L86">            .map(blockConverter::convertToDomainModel)</span>
+<span class="nc" id="L87">            .map(BlockHeader.class::cast).collect(toList()));</span>
+<span class="fc" id="L88">    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());</span>
+
+<span class="fc" id="L90">    return nextFuture;</span>
+  }
+
+  @Override
+  public ResultOrErrorFuture&lt;List&lt;BlockHeader&gt;&gt; listBlockHeaders(final long height,
+      final int size) {
+<span class="fc" id="L96">    final ResultOrErrorFuture&lt;List&lt;BlockHeader&gt;&gt; nextFuture = new ResultOrErrorFuture&lt;&gt;();</span>
+
+<span class="fc" id="L98">    final ListParams listParams = ListParams.newBuilder().setHeight(height).setSize(size).build();</span>
+<span class="fc" id="L99">    ListenableFuture&lt;BlockHeaderList&gt; listenableFuture = aergoService.listBlockHeaders(listParams);</span>
+<span class="fc" id="L100">    FutureChainer&lt;BlockHeaderList, List&lt;BlockHeader&gt;&gt; callback =</span>
+<span class="nc" id="L101">        new FutureChainer&lt;&gt;(nextFuture, blockHeaders -&gt; blockHeaders.getBlocksList().stream()</span>
+<span class="nc" id="L102">            .map(blockConverter::convertToDomainModel)</span>
+<span class="nc" id="L103">            .map(BlockHeader.class::cast).collect(toList()));</span>
+<span class="fc" id="L104">    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());</span>
+
+<span class="fc" id="L106">    return nextFuture;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

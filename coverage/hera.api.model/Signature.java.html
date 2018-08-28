@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Signature.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.model</a> &gt; <span class="el_source">Signature.java</span></div><h1>Signature.java</h1><pre class="source lang-java linenums">/*
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Signature.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.model</a> &gt; <span class="el_source">Signature.java</span></div><h1>Signature.java</h1><pre class="source lang-java linenums">/*
  * @copyright defined in LICENSE.txt
  */
 
@@ -13,13 +13,13 @@ import lombok.ToString;
 <span class="nc" id="L13">@ToString</span>
 <span class="fc" id="L14">public class Signature {</span>
 
-<span class="nc" id="L16">  @Getter</span>
+<span class="pc" id="L16">  @Getter</span>
 <span class="fc" id="L17">  @Setter</span>
-  protected BytesValue sign;
+  protected BytesValue sign = new BytesValue(null);
 
-<span class="nc" id="L20">  @Getter</span>
+<span class="pc" id="L20">  @Getter</span>
 <span class="fc" id="L21">  @Setter</span>
-  protected Hash hash;
+  protected Hash hash = new Hash(null);
 
   /**
    * Create {@link Signature}.
@@ -30,10 +30,10 @@ import lombok.ToString;
    * @return created signature
    */
   public static Signature of(final BytesValue sign, final Hash hash) {
-<span class="fc" id="L33">    final Signature signature = new Signature();</span>
-<span class="fc" id="L34">    signature.setSign(sign);</span>
-<span class="fc" id="L35">    signature.setHash(hash);</span>
-<span class="fc" id="L36">    return signature;</span>
+<span class="nc" id="L33">    final Signature signature = new Signature();</span>
+<span class="nc" id="L34">    signature.setSign(sign);</span>
+<span class="nc" id="L35">    signature.setHash(hash);</span>
+<span class="nc" id="L36">    return signature;</span>
   }
 
   /**

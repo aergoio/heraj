@@ -1,117 +1,79 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AccountTemplate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.client</a> &gt; <span class="el_source">AccountTemplate.java</span></div><h1>AccountTemplate.java</h1><pre class="source lang-java linenums">/*
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AccountTemplate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.client</a> &gt; <span class="el_source">AccountTemplate.java</span></div><h1>AccountTemplate.java</h1><pre class="source lang-java linenums">/*
  * @copyright defined in LICENSE.txt
  */
 
 package hera.client;
 
-import static com.google.protobuf.ByteString.copyFrom;
-import static java.util.Optional.empty;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
-import static types.AergoRPCServiceGrpc.newBlockingStub;
+import static hera.TransportConstants.TIMEOUT;
+import static types.AergoRPCServiceGrpc.newFutureStub;
 
-import com.google.protobuf.ByteString;
+import hera.api.AccountAsyncOperation;
 import hera.api.AccountOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.AccountState;
-import hera.transport.AccountConverterFactory;
-import hera.transport.AccountStateConverterFactory;
-import hera.transport.ModelConverter;
+import hera.api.tupleorerror.ResultOrError;
+import hera.exception.HerajException;
 import io.grpc.ManagedChannel;
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
-import types.AccountOuterClass;
-import types.AergoRPCServiceGrpc.AergoRPCServiceBlockingStub;
-import types.Blockchain.State;
-import types.Rpc.Empty;
-import types.Rpc.Personal;
-import types.Rpc.SingleBytes;
+import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
-<span class="fc" id="L34">@RequiredArgsConstructor</span>
+<span class="fc" id="L22">@RequiredArgsConstructor</span>
 public class AccountTemplate implements AccountOperation {
 
-  protected final AergoRPCServiceBlockingStub aergoService;
-
-  protected final ModelConverter&lt;Account, AccountOuterClass.Account&gt; accountConverter;
-
-  protected final ModelConverter&lt;AccountState, State&gt; accountStateConverter;
+  protected final AccountAsyncOperation accountAsyncOperation;
 
   public AccountTemplate(final ManagedChannel channel) {
-<span class="nc" id="L44">    this(newBlockingStub(channel));</span>
-<span class="nc" id="L45">  }</span>
+<span class="fc" id="L28">    this(newFutureStub(channel));</span>
+<span class="fc" id="L29">  }</span>
 
-  public AccountTemplate(final AergoRPCServiceBlockingStub aergoService) {
-<span class="fc" id="L48">    this(aergoService, new AccountConverterFactory().create(),</span>
-<span class="fc" id="L49">        new AccountStateConverterFactory().create());</span>
-<span class="fc" id="L50">  }</span>
-
-  @Override
-  public List&lt;Account&gt; list() {
-<span class="fc" id="L54">    return aergoService</span>
-<span class="fc" id="L55">        .getAccounts(Empty.newBuilder().build())</span>
-<span class="fc" id="L56">        .getAccountsList().stream()</span>
-<span class="fc" id="L57">        .map(accountConverter::convertToDomainModel)</span>
-<span class="fc" id="L58">        .collect(toList());</span>
-  }
+  public AccountTemplate(final AergoRPCServiceFutureStub aergoService) {
+<span class="fc" id="L32">    this(new AccountAsyncTemplate(aergoService));</span>
+<span class="fc" id="L33">  }</span>
 
   @Override
-  public Optional&lt;Account&gt; get(final AccountAddress address) {
-<span class="pc bpc" id="L63" title="1 of 2 branches missed.">    if (null == address) {</span>
-<span class="nc" id="L64">      return empty();</span>
-    }
-<span class="fc" id="L66">    return list().stream()</span>
-<span class="fc" id="L67">        .filter(account -&gt; address.equals(account.getAddress()))</span>
-<span class="fc" id="L68">        .findFirst();</span>
-  }
-
-  @Override
-  public Account create(final String password) {
-<span class="fc" id="L73">    final Personal personal = Personal.newBuilder().setPassphrase(password).build();</span>
-<span class="fc" id="L74">    final AccountOuterClass.Account account = aergoService.createAccount(personal);</span>
-<span class="fc" id="L75">    final Account domainAccount = accountConverter.convertToDomainModel(account);</span>
-<span class="fc" id="L76">    domainAccount.setPassword(password);</span>
-<span class="fc" id="L77">    return domainAccount;</span>
-  }
-
-
-  @Override
-  public boolean unlock(final Account domainAccount) {
-<span class="fc" id="L83">    final AccountOuterClass.Account rpcAccount = accountConverter.convertToRpcModel(domainAccount);</span>
-<span class="fc" id="L84">    final Personal rpcPersonal = Personal.newBuilder()</span>
-<span class="fc" id="L85">        .setAccount(rpcAccount)</span>
-<span class="fc" id="L86">        .setPassphrase(domainAccount.getPassword()).build();</span>
-<span class="fc" id="L87">    final AccountOuterClass.Account responseAccount = aergoService.unlockAccount(rpcPersonal);</span>
-<span class="pc bpc" id="L88" title="1 of 2 branches missed.">    return null != responseAccount.getAddress();</span>
-  }
-
-
-  @Override
-  public boolean lock(final Account domainAccount) {
-<span class="fc" id="L94">    final AccountOuterClass.Account rpcAccount = accountConverter.convertToRpcModel(domainAccount);</span>
-<span class="fc" id="L95">    final Personal rpcPersonal = Personal.newBuilder()</span>
-<span class="fc" id="L96">        .setAccount(rpcAccount)</span>
-<span class="fc" id="L97">        .setPassphrase(domainAccount.getPassword()).build();</span>
-<span class="fc" id="L98">    final AccountOuterClass.Account responseAccount = aergoService.lockAccount(rpcPersonal);</span>
-<span class="pc bpc" id="L99" title="1 of 2 branches missed.">    return null != responseAccount.getAddress();</span>
-  }
-
-  @Override
-  public Optional&lt;AccountState&gt; getState(final AccountAddress address) {
+  public ResultOrError&lt;List&lt;Account&gt;&gt; list() {
     try {
-<span class="fc" id="L105">      final ByteString byteString = copyFrom(address.getValue());</span>
-<span class="fc" id="L106">      final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();</span>
-<span class="fc" id="L107">      final State state = aergoService.getState(bytes);</span>
-<span class="fc" id="L108">      return ofNullable(accountStateConverter.convertToDomainModel(state));</span>
-<span class="nc" id="L109">    } catch (final StatusRuntimeException e) {</span>
-<span class="nc" id="L110">      if (ofNullable(e.getStatus()).map(Status::getCode)</span>
-<span class="nc bnc" id="L111" title="All 4 branches missed.">          .filter(code -&gt; Status.NOT_FOUND.getCode() == code).isPresent()) {</span>
-<span class="nc" id="L112">        return empty();</span>
-      }
-<span class="nc" id="L114">      throw e;</span>
+<span class="fc" id="L38">      return accountAsyncOperation.list().get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
+<span class="nc" id="L39">    } catch (Exception e) {</span>
+<span class="nc" id="L40">      throw new HerajException(e);</span>
+    }
+  }
+
+  @Override
+  public ResultOrError&lt;Account&gt; create(String password) {
+    try {
+<span class="fc" id="L47">      return accountAsyncOperation.create(password).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
+<span class="nc" id="L48">    } catch (Exception e) {</span>
+<span class="nc" id="L49">      throw new HerajException(e);</span>
+    }
+  }
+
+  @Override
+  public ResultOrError&lt;Account&gt; get(AccountAddress address) {
+    try {
+<span class="fc" id="L56">      return accountAsyncOperation.get(address).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
+<span class="nc" id="L57">    } catch (Exception e) {</span>
+<span class="nc" id="L58">      throw new HerajException(e);</span>
+    }
+  }
+
+  @Override
+  public ResultOrError&lt;Boolean&gt; lock(AccountAddress address, String password) {
+    try {
+<span class="fc" id="L65">      return accountAsyncOperation.lock(address, password).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
+<span class="nc" id="L66">    } catch (Exception e) {</span>
+<span class="nc" id="L67">      throw new HerajException(e);</span>
+    }
+  }
+
+  @Override
+  public ResultOrError&lt;Boolean&gt; unlock(AccountAddress address, String password) {
+    try {
+<span class="fc" id="L74">      return accountAsyncOperation.unlock(address, password).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
+<span class="nc" id="L75">    } catch (Exception e) {</span>
+<span class="nc" id="L76">      throw new HerajException(e);</span>
     }
   }
 }

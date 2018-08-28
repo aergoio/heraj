@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Tuple2OrErrorFuture.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.tupleorerror</a> &gt; <span class="el_source">Tuple2OrErrorFuture.java</span></div><h1>Tuple2OrErrorFuture.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.api.tupleorerror;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
+
+@SuppressWarnings({&quot;rawtypes&quot;, &quot;unchecked&quot;})
+public class Tuple2OrErrorFuture&lt;T0, T1&gt; extends AbstractTupleOrErrorFuture&lt;Tuple2OrError&lt;T0, T1&gt;&gt; {
+
+  private Tuple2OrErrorFuture(final CompletableFuture&lt;Tuple2OrError&lt;T0, T1&gt;&gt; deligate) {
+<span class="fc" id="L14">    super(deligate);</span>
+<span class="fc" id="L15">  }</span>
+
+  public static &lt;U extends CompletableFuture&gt; Tuple2OrErrorFuture withDeligate(
+      final Supplier&lt;U&gt; deligateSupplier) {
+<span class="fc" id="L19">    return new Tuple2OrErrorFuture(deligateSupplier.get());</span>
+  }
+
+  public static &lt;U extends Tuple2OrError&gt; Tuple2OrErrorFuture supply(final Supplier&lt;U&gt; supplier) {
+<span class="nc" id="L23">    return new Tuple2OrErrorFuture(CompletableFuture.supplyAsync(supplier));</span>
+  }
+
+  public &lt;R&gt; ResultOrErrorFuture&lt;R&gt; thenApply(Function2&lt;T0, T1, R&gt; f) {
+<span class="fc" id="L27">    CompletableFuture&lt;ResultOrError&lt;R&gt;&gt; next = getDeligate().thenApply(r -&gt; r.thenApply(f));</span>
+<span class="fc" id="L28">    return new ResultOrErrorFuture&lt;R&gt;(next);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TestResultCollector.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.test</a> &gt; <span class="el_source">TestResultCollector.java</span></div><h1>TestResultCollector.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.test;
+
+import static hera.util.ValidationUtils.assertNotNull;
+import static hera.util.ValidationUtils.assertNull;
+import static hera.util.ValidationUtils.assertTrue;
+import static java.lang.System.currentTimeMillis;
+
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import lombok.ToString;
+
+<span class="nc" id="L17">@ToString(of = &quot;testSuites&quot;)</span>
+<span class="nc" id="L18">public class TestResultCollector {</span>
+
+  protected TestSuite currentTestSuite;
+
+  protected TestCase currentTestCase;
+
+<span class="nc" id="L24">  protected Map&lt;String, TestSuite&gt; testSuites = new LinkedHashMap&lt;&gt;();</span>
+
+  /**
+   * Start test suite.
+   *
+   * @param suiteName test suite name
+   */
+  public void startSuite(final String suiteName) {
+<span class="nc" id="L32">    assertNull(this.currentTestSuite);</span>
+<span class="nc" id="L33">    assertNotNull(suiteName);</span>
+<span class="nc" id="L34">    currentTestSuite = new TestSuite();</span>
+<span class="nc" id="L35">    currentTestSuite.setName(suiteName);</span>
+<span class="nc" id="L36">    testSuites.put(suiteName, currentTestSuite);</span>
+<span class="nc" id="L37">  }</span>
+
+  /**
+   * End test suite.
+   *
+   * @param suiteName test suite name
+   */
+  public void endSuite(final String suiteName) {
+<span class="nc" id="L45">    assertNotNull(this.currentTestSuite);</span>
+<span class="nc" id="L46">    assertTrue(this.currentTestSuite.getName().equals(suiteName));</span>
+<span class="nc" id="L47">    this.currentTestSuite = null;</span>
+<span class="nc" id="L48">  }</span>
+
+  /**
+   * Start test case.
+   *
+   * @param testCaseName test case name
+   */
+  public void start(final String testCaseName) {
+<span class="nc" id="L56">    assertNull(this.currentTestCase);</span>
+<span class="nc" id="L57">    assertNotNull(testCaseName);</span>
+<span class="nc" id="L58">    currentTestCase = new TestCase(testCaseName);</span>
+<span class="nc" id="L59">    this.currentTestSuite.addTestCase(currentTestCase);</span>
+<span class="nc" id="L60">  }</span>
+
+  /**
+   * Catch error from test case.
+   *
+   * @param testCaseName test case name
+   *
+   * @param error error message
+   */
+  public void error(final String testCaseName, final String error) {
+<span class="nc" id="L70">    assertNotNull(currentTestCase);</span>
+<span class="nc" id="L71">    assertTrue(currentTestCase.getName().equals(testCaseName));</span>
+<span class="nc" id="L72">    currentTestCase.setErrorMessage(error);</span>
+<span class="nc" id="L73">  }</span>
+
+  /**
+   * End test case.
+   *
+   * @param testCaseName test case name
+   *
+   * @param success test case result
+   */
+  public void end(final String testCaseName, final boolean success) {
+<span class="nc" id="L83">    assertNotNull(currentTestCase);</span>
+<span class="nc" id="L84">    assertTrue(currentTestCase.getName().equals(testCaseName));</span>
+<span class="nc" id="L85">    currentTestCase.setSuccess(success);</span>
+<span class="nc" id="L86">    currentTestCase.setEndTime(currentTimeMillis());</span>
+<span class="nc" id="L87">    this.currentTestCase = null;</span>
+<span class="nc" id="L88">  }</span>
+
+  /**
+   * Result test suites.
+   *
+   * @return test suites
+   */
+  public Collection&lt;TestSuite&gt; getResults() {
+<span class="nc" id="L96">    return testSuites.values();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

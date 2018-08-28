@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AccountStateConverterFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.transport</a> &gt; <span class="el_source">AccountStateConverterFactory.java</span></div><h1>AccountStateConverterFactory.java</h1><pre class="source lang-java linenums">/*
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AccountStateConverterFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.transport</a> &gt; <span class="el_source">AccountStateConverterFactory.java</span></div><h1>AccountStateConverterFactory.java</h1><pre class="source lang-java linenums">/*
  * @copyright defined in LICENSE.txt
  */
 
@@ -6,40 +6,30 @@ package hera.transport;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import com.google.protobuf.ByteString;
+import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.AccountState;
 import java.util.function.Function;
 import org.slf4j.Logger;
-import types.Blockchain.State;
+import types.Blockchain;
 
-<span class="fc" id="L16">public class AccountStateConverterFactory {</span>
+<span class="fc" id="L15">public class AccountStateConverterFactory {</span>
+<span class="fc" id="L16">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L18">  protected final Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L18">  protected final Function&lt;Account, Blockchain.State&gt; domainConverter = domainAccountState -&gt; {</span>
+<span class="nc" id="L19">    throw new UnsupportedOperationException();</span>
+  };
 
-<span class="fc" id="L20">  protected final Function&lt;AccountState, State&gt; domainConverter =</span>
-      domainAccountState -&gt; {
-<span class="fc" id="L22">        logger.trace(&quot;Domain status: {}&quot;, domainAccountState);</span>
-<span class="fc" id="L23">        return State.newBuilder()</span>
-<span class="fc" id="L24">            .setAccount(ByteString.copyFrom(domainAccountState.getAddress().getValue()))</span>
-<span class="fc" id="L25">            .setNonce(domainAccountState.getNonce())</span>
-<span class="fc" id="L26">            .setBalance(domainAccountState.getBalance())</span>
-<span class="fc" id="L27">            .build();</span>
-      };
+<span class="fc" id="L22">  protected final Function&lt;Blockchain.State, Account&gt; rpcConverter = rpcAccountState -&gt; {</span>
+<span class="fc" id="L23">    logger.trace(&quot;Blockchain status: {}&quot;, rpcAccountState);</span>
+<span class="fc" id="L24">    final Account domainAccount = new Account();</span>
+<span class="fc" id="L25">    domainAccount.setAddress(AccountAddress.of(rpcAccountState.getAccount().toByteArray()));</span>
+<span class="fc" id="L26">    domainAccount.setNonce(rpcAccountState.getNonce());</span>
+<span class="fc" id="L27">    domainAccount.setBalance(rpcAccountState.getBalance());</span>
+<span class="fc" id="L28">    return domainAccount;</span>
+  };
 
-<span class="fc" id="L30">  protected final Function&lt;State, AccountState&gt; rpcConverter =</span>
-      rpcAccountState -&gt; {
-<span class="fc" id="L32">        logger.trace(&quot;Blockchain status: {}&quot;, rpcAccountState);</span>
-<span class="fc" id="L33">        final AccountState domainAccountState = new AccountState();</span>
-<span class="fc" id="L34">        domainAccountState</span>
-<span class="fc" id="L35">            .setAddress(AccountAddress.of(rpcAccountState.getAccount().toByteArray()));</span>
-<span class="fc" id="L36">        domainAccountState.setNonce(rpcAccountState.getNonce());</span>
-<span class="fc" id="L37">        domainAccountState.setBalance(rpcAccountState.getBalance());</span>
-<span class="fc" id="L38">        return domainAccountState;</span>
-      };
-
-  public ModelConverter&lt;AccountState, State&gt; create() {
-<span class="fc" id="L42">    return new ModelConverter&lt;&gt;(domainConverter, rpcConverter);</span>
+  public ModelConverter&lt;Account, Blockchain.State&gt; create() {
+<span class="fc" id="L32">    return new ModelConverter&lt;&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

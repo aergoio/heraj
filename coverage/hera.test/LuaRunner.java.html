@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LuaRunner.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.test</a> &gt; <span class="el_source">LuaRunner.java</span></div><h1>LuaRunner.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.test;
+
+import static hera.test.TestResult.fail;
+import static hera.test.TestResult.success;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import org.luaj.vm2.LuaError;
+import org.slf4j.Logger;
+
+<span class="fc" id="L17">public class LuaRunner {</span>
+
+<span class="fc" id="L19">  protected final transient Logger logger = getLogger(getClass());</span>
+
+  /**
+   * Execute lua script.
+   *
+   * @param source lua script to run
+   *
+   * @return result to be run
+   */
+  public TestResult run(final LuaSource source) {
+    try {
+<span class="fc" id="L30">      logger.trace(&quot;Lua Script:\n{}&quot;, source);</span>
+<span class="fc" id="L31">      final ScriptEngineManager mgr = new ScriptEngineManager();</span>
+<span class="fc" id="L32">      final ScriptEngine engine = mgr.getEngineByName(&quot;lua&quot;);</span>
+<span class="fc" id="L33">      final Object result = engine.eval(source.getScript());</span>
+<span class="fc" id="L34">      logger.debug(&quot;Result: {}&quot;, result);</span>
+<span class="fc" id="L35">      return success(result);</span>
+<span class="nc" id="L36">    } catch (final ScriptException e) {</span>
+<span class="nc" id="L37">      final String message = e.getMessage();</span>
+<span class="nc" id="L38">      final int lineNumber = e.getLineNumber();</span>
+<span class="nc" id="L39">      final int columnNumber = e.getColumnNumber();</span>
+<span class="nc" id="L40">      final LuaErrorInformation errorInformation =</span>
+          new LuaErrorInformation(message, lineNumber, columnNumber);
+
+<span class="nc" id="L43">      logger.debug(&quot;Error: {}&quot;, errorInformation);</span>
+<span class="nc" id="L44">      return fail(errorInformation);</span>
+<span class="nc" id="L45">    } catch (final LuaError e) {</span>
+<span class="nc" id="L46">      LuaErrorInformation errorInformation = new LuaErrorInformation(e.getMessage());</span>
+<span class="nc" id="L47">      logger.debug(&quot;Error: {}&quot;, errorInformation);</span>
+<span class="nc" id="L48">      return fail(errorInformation);</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

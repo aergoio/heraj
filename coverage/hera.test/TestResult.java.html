@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TestResult.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.test</a> &gt; <span class="el_source">TestResult.java</span></div><h1>TestResult.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.test;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+
+<span class="fc" id="L11">@RequiredArgsConstructor</span>
+<span class="nc" id="L12">@ToString</span>
+public class TestResult {
+  public static TestResult success(final Object result) {
+<span class="fc" id="L15">    return new TestResult(result, null);</span>
+  }
+
+  public static TestResult fail(final LuaErrorInformation error) {
+<span class="nc" id="L19">    return new TestResult(null, error);</span>
+  }
+
+<span class="fc" id="L22">  @Getter</span>
+  protected final Object result;
+
+<span class="nc" id="L25">  @Getter</span>
+  protected final LuaErrorInformation error;
+
+  public boolean isSuccess() {
+<span class="nc bnc" id="L29" title="All 2 branches missed.">    return null == error;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

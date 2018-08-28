@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BytesValue.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.model</a> &gt; <span class="el_source">BytesValue.java</span></div><h1>BytesValue.java</h1><pre class="source lang-java linenums">/*
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BytesValue.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.model</a> &gt; <span class="el_source">BytesValue.java</span></div><h1>BytesValue.java</h1><pre class="source lang-java linenums">/*
  * @copyright defined in LICENSE.txt
  */
 
@@ -10,72 +10,85 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.Supplier;
 import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
-<span class="pc bpc" id="L18" title="1 of 2 branches missed.">@RequiredArgsConstructor</span>
 public class BytesValue implements Supplier&lt;InputStream&gt; {
 
   /**
    * Factory method.
    *
    * @param bytes value
-   *
    * @return created {@link BytesValue}
    */
   public static BytesValue of(final byte[] bytes) {
+<span class="fc bfc" id="L26" title="All 2 branches covered.">    if (null == bytes) {</span>
+<span class="fc" id="L27">      return new BytesValue(null);</span>
+    }
 <span class="fc" id="L29">    return new BytesValue(Arrays.copyOf(bytes, bytes.length));</span>
   }
 
+<span class="fc" id="L32">  public BytesValue(final byte[] bytes) {</span>
+<span class="fc" id="L33">    this.value = Optional.ofNullable(bytes).orElse(new byte[0]);</span>
+<span class="fc" id="L34">  }</span>
+
   protected transient int hash;
 
-<span class="fc" id="L34">  @Getter</span>
-  @NonNull
+<span class="fc" id="L38">  @Getter</span>
   protected final byte[] value;
 
   public String getEncodedValue() throws IOException {
-<span class="nc" id="L39">    return getEncodedValue(Encoder.defaultEncoder);</span>
+<span class="fc" id="L42">    return getEncodedValue(Encoder.defaultEncoder);</span>
   }
 
+  /**
+   * Get encoded bytes value with a provided encoder.
+   *
+   * @param encoder encoder
+   * @return encoded bytes value if an encoder isn't null. Otherwise, null
+   * @throws IOException when encoding error occurs
+   */
   public String getEncodedValue(final Encoder encoder) throws IOException {
-<span class="nc" id="L43">    return encoder.encode(new ByteArrayInputStream(value)).toString();</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">    if (null == encoder) {</span>
+<span class="nc" id="L54">      return null;</span>
+    }
+<span class="fc" id="L56">    return encoder.encode(new ByteArrayInputStream(value)).toString();</span>
   }
 
   @Override
   public String toString() {
-<span class="nc" id="L48">    return HexUtils.encode(value);</span>
+<span class="nc" id="L61">    return HexUtils.encode(value);</span>
   }
 
   @Override
   public int hashCode() {
-<span class="fc" id="L53">    int h = this.hash;</span>
-<span class="pc bpc" id="L54" title="2 of 4 branches missed.">    if (h == 0 &amp;&amp; this.value.length &gt; 0) {</span>
-<span class="fc bfc" id="L55" title="All 2 branches covered.">      for (final byte byteValue : this.value) {</span>
-<span class="fc" id="L56">        h = 31 * h + byteValue;</span>
+<span class="fc" id="L66">    int h = this.hash;</span>
+<span class="pc bpc" id="L67" title="2 of 4 branches missed.">    if (h == 0 &amp;&amp; this.value.length &gt; 0) {</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">      for (final byte byteValue : this.value) {</span>
+<span class="fc" id="L69">        h = 31 * h + byteValue;</span>
       }
 
-<span class="fc" id="L59">      this.hash = h;</span>
+<span class="fc" id="L72">      this.hash = h;</span>
     }
-<span class="fc" id="L61">    return h;</span>
+<span class="fc" id="L74">    return h;</span>
   }
 
   @Override
   public boolean equals(final Object obj) {
-<span class="pc bpc" id="L66" title="1 of 2 branches missed.">    if (null == obj) {</span>
-<span class="nc" id="L67">      return false;</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">    if (null == obj) {</span>
+<span class="nc" id="L80">      return false;</span>
     }
-<span class="pc bpc" id="L69" title="1 of 2 branches missed.">    if (!obj.getClass().equals(getClass())) {</span>
-<span class="nc" id="L70">      return false;</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">    if (!obj.getClass().equals(getClass())) {</span>
+<span class="nc" id="L83">      return false;</span>
     }
-<span class="fc" id="L72">    final BytesValue other = (BytesValue) obj;</span>
-<span class="fc" id="L73">    return Arrays.equals(this.value, other.value);</span>
+<span class="fc" id="L85">    final BytesValue other = (BytesValue) obj;</span>
+<span class="fc" id="L86">    return Arrays.equals(this.value, other.value);</span>
   }
 
   @Override
   public InputStream get() {
-<span class="fc" id="L78">    return new ByteArrayInputStream(getValue());</span>
+<span class="fc" id="L91">    return new ByteArrayInputStream(getValue());</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

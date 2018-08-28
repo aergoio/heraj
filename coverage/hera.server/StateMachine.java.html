@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StateMachine.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.server</a> &gt; <span class="el_source">StateMachine.java</span></div><h1>StateMachine.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.server;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.concurrent.Callable;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import org.slf4j.Logger;
+
+public class StateMachine&lt;StateT&gt; {
+
+<span class="fc" id="L18">  protected final Logger logger = getLogger(getClass());</span>
+
+<span class="fc" id="L20">  protected ReentrantReadWriteLock lock = new ReentrantReadWriteLock();</span>
+
+<span class="fc" id="L22">  protected Collection&lt;StateChangeListener&lt;StateT&gt;&gt; listeners = new LinkedHashSet&lt;&gt;();</span>
+
+  protected StateT state;
+
+  protected Object[] args;
+
+  public StateMachine(final StateT initialState) {
+<span class="fc" id="L29">    super();</span>
+<span class="fc" id="L30">    this.state = initialState;</span>
+<span class="fc" id="L31">  }</span>
+
+  public ReadWriteLock getLock() {
+<span class="fc" id="L34">    return lock;</span>
+  }
+
+  public void addListener(final StateChangeListener&lt;StateT&gt; listener) {
+<span class="nc" id="L38">    this.listeners.add(listener);</span>
+<span class="nc" id="L39">  }</span>
+
+  public void removeListener(final StateChangeListener&lt;StateT&gt; listener) {
+<span class="nc" id="L42">    this.listeners.remove(listener);</span>
+<span class="nc" id="L43">  }</span>
+
+  /**
+   * Check if current state is one of {@code states}.
+   *
+   * @param states states to check
+   *
+   * @return if current state is one of {@code states}
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public boolean isState(final StateT... states) {
+<span class="fc" id="L54">    StateT temp = null;</span>
+<span class="fc" id="L55">    lock.readLock().lock();</span>
+    try {
+<span class="fc" id="L57">      temp = this.state;</span>
+    } finally {
+<span class="fc" id="L59">      lock.readLock().unlock();</span>
+    }
+
+<span class="fc bfc" id="L62" title="All 2 branches covered.">    for (final StateT st : states) {</span>
+
+<span class="fc bfc" id="L64" title="All 2 branches covered.">      if (temp == st) {</span>
+<span class="fc" id="L65">        return true;</span>
+      }
+    }
+
+<span class="fc" id="L69">    return false;</span>
+  }
+
+  /**
+   * Wait that current state is one of {@code states}.
+   *
+   * @param states states to wait for
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public void waitState(final StateT... states) {
+    while (true) {
+<span class="fc" id="L80">      boolean isLocked = false;</span>
+<span class="fc" id="L81">      lock.readLock().lock();</span>
+      try {
+<span class="fc" id="L83">        isLocked = true;</span>
+
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (isState(states)) {</span>
+<span class="fc" id="L86">          return;</span>
+        }
+<span class="fc" id="L88">        synchronized (this) {</span>
+<span class="fc" id="L89">          lock.readLock().unlock();</span>
+<span class="fc" id="L90">          isLocked = false;</span>
+          try {
+<span class="fc" id="L92">            wait();</span>
+<span class="nc" id="L93">          } catch (final InterruptedException e) {</span>
+<span class="nc" id="L94">            logger.warn(&quot;Interrupt waiting&quot;);</span>
+<span class="fc" id="L95">          }</span>
+<span class="fc" id="L96">        }</span>
+      } finally {
+<span class="fc bfc" id="L98" title="All 2 branches covered.">        if (isLocked) {</span>
+<span class="fc" id="L99">          lock.readLock().unlock();</span>
+        }
+      }
+<span class="fc" id="L102">    }</span>
+  }
+
+  /**
+   * Return current state.
+   *
+   * @return current state
+   */
+  public StateT getState() {
+<span class="nc" id="L111">    lock.readLock().lock();</span>
+    try {
+<span class="nc" id="L113">      return this.state;</span>
+    } finally {
+<span class="nc" id="L115">      lock.readLock().unlock();</span>
+    }
+  }
+
+  /**
+   * Get arguments.
+   *
+   * @return current state's arguments
+   */
+  public Object[] getArguments() {
+<span class="nc" id="L125">    lock.readLock().lock();</span>
+
+    try {
+<span class="nc" id="L128">      return this.args;</span>
+    } finally {
+<span class="nc" id="L130">      lock.readLock().unlock();</span>
+    }
+  }
+
+  /**
+   * Change current status to {@code state}.
+   * &lt;p&gt;
+   * Use lock for write.
+   * &lt;/p&gt;
+   *
+   * @param state state to change
+   * @param args arguments which next state have
+   */
+  public void changeState(final StateT state, final Object... args) {
+<span class="fc" id="L144">    lock.writeLock().lock();</span>
+    try {
+<span class="fc" id="L146">      final StateT old = this.state;</span>
+<span class="fc" id="L147">      this.state = state;</span>
+<span class="fc" id="L148">      this.args = args;</span>
+<span class="fc" id="L149">      logger.info(&quot;Status: {} -&gt; {}&quot;, old, this.state);</span>
+<span class="fc" id="L150">      synchronized (this) {</span>
+<span class="fc" id="L151">        notifyAll();</span>
+<span class="fc" id="L152">      }</span>
+<span class="fc" id="L153">      fireChangeEvent(old, this.state, args);</span>
+    } finally {
+<span class="fc" id="L155">      lock.writeLock().unlock();</span>
+    }
+<span class="fc" id="L157">  }</span>
+
+  /**
+   * Change current state to {@code state} if condition is true.
+   * &lt;p&gt;
+   * Use lock for write
+   * &lt;/p&gt;
+   *
+   * @param state     state to change
+   * @param condition condition to check
+   * @param args      arguments which next state have
+   *
+   * @return if state is changed
+   */
+  public boolean changeState(final StateT state, final StateCondition&lt;StateT&gt; condition,
+      final Object... args) {
+<span class="fc" id="L173">    lock.writeLock().lock();</span>
+    try {
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">      if (!condition.evaluate(this)) {</span>
+<span class="nc" id="L176">        return false;</span>
+      }
+<span class="fc" id="L178">      changeState(state);</span>
+<span class="fc" id="L179">      return true;</span>
+    } finally {
+<span class="fc" id="L181">      lock.writeLock().unlock();</span>
+    }
+  }
+
+
+  /**
+   * Execute and change state as the result.
+   *
+   * @param process {@link Callable} to execute
+   * @param success state to transit when succeed
+   * @param fail    state to transit when fail
+   */
+  public void execute(final Callable&lt;Void&gt; process, final StateT success, final StateT fail) {
+<span class="nc" id="L194">    lock.writeLock().lock();</span>
+    try {
+<span class="nc" id="L196">      process.call();</span>
+<span class="nc" id="L197">      logger.trace(&quot;Success to execute {}&quot;, process);</span>
+<span class="nc bnc" id="L198" title="All 2 branches missed.">      if (null != success) {</span>
+<span class="nc" id="L199">        changeState(success);</span>
+      }
+<span class="nc" id="L201">    } catch (Throwable th) {</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">      if (null != fail) {</span>
+<span class="nc" id="L203">        logger.trace(&quot;Fail to execute {}&quot;, process);</span>
+<span class="nc" id="L204">        changeState(fail);</span>
+      }
+    } finally {
+<span class="nc" id="L207">      lock.writeLock().unlock();</span>
+    }
+<span class="nc" id="L209">  }</span>
+
+  protected void fireChangeEvent(final StateT from, final StateT to, final Object... args) {
+<span class="pc bpc" id="L212" title="1 of 2 branches missed.">    for (final StateChangeListener&lt;StateT&gt; listener : listeners) {</span>
+      try {
+<span class="nc" id="L214">        listener.stateChanged(from, to, args);</span>
+<span class="nc" id="L215">      } catch (final Throwable e) {</span>
+<span class="nc" id="L216">        logger.debug(&quot;Unexpected exception in listener&quot;, e);</span>
+<span class="nc" id="L217">      }</span>
+<span class="nc" id="L218">    }</span>
+<span class="fc" id="L219">  }</span>
+
+  @Override
+  public String toString() {
+<span class="nc" id="L223">    return super.toString() + &quot;[&quot; + getState() + &quot;]&quot;;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

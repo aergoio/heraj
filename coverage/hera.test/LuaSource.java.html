@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LuaSource.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.test</a> &gt; <span class="el_source">LuaSource.java</span></div><h1>LuaSource.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.test;
+
+import static hera.util.ValidationUtils.assertTrue;
+import static java.lang.String.format;
+
+import java.util.StringJoiner;
+import java.util.stream.IntStream;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+public class LuaSource {
+
+  protected static String[] splitToLines(final String script) {
+<span class="fc" id="L18">    return script.split(&quot;\\r?\\n&quot;);</span>
+  }
+
+  protected static String[] select(String[] lines, final int from, final int to) {
+<span class="nc bnc" id="L22" title="All 2 branches missed.">    assertTrue(from &lt; to);</span>
+<span class="nc" id="L23">    final int index1 = Math.max(0, Math.min(from, lines.length));</span>
+<span class="nc" id="L24">    final int index2 = Math.max(0, Math.min(from, lines.length));</span>
+<span class="nc" id="L25">    final String[] part = new String[index2 - index1];</span>
+<span class="nc" id="L26">    System.arraycopy(lines, index1, part, index2, part.length);</span>
+<span class="nc" id="L27">    return part;</span>
+  }
+
+<span class="fc" id="L30">  @RequiredArgsConstructor</span>
+  class SourceLine {
+
+<span class="nc" id="L33">    @Getter</span>
+    protected final int linenumber;
+<span class="nc" id="L35">    @Getter</span>
+    protected final String text;
+  }
+
+<span class="fc" id="L39">  @Getter</span>
+  protected final String script;
+
+<span class="nc" id="L42">  @Getter</span>
+  protected final SourceLine[] lines;
+
+  /**
+   * Constructor with raw script content.
+   *
+   * @param script raw text
+   */
+<span class="fc" id="L50">  public LuaSource(final String script) {</span>
+<span class="fc" id="L51">    this.script = script;</span>
+<span class="fc" id="L52">    final String[] lines = splitToLines(script);</span>
+<span class="fc" id="L53">    this.lines = new SourceLine[lines.length];</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">    for (int i = 0, n = lines.length; i &lt; n; ++i) {</span>
+<span class="fc" id="L55">      this.lines[i] = new SourceLine(i + 1, lines[i]);</span>
+    }
+<span class="fc" id="L57">  }</span>
+
+  /**
+   * Create source with left-side linenumber.
+   *
+   * @return formatted string
+   */
+  @Override
+  public String toString() {
+<span class="fc" id="L66">    return toString(0, lines.length);</span>
+  }
+
+  /**
+   * Create source with left-side linenumber.
+   *
+   * @param from start line number
+   * @param to end line number
+   * @return formatted string
+   */
+  public String toString(final int from, final int to) {
+<span class="fc" id="L77">    final int digit = (int) (Math.log10(lines.length) + 1);</span>
+
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">    assertTrue(from &lt; to);</span>
+<span class="fc" id="L80">    final int index1 = Math.max(0, Math.min(from, lines.length));</span>
+<span class="fc" id="L81">    final int index2 = Math.max(0, Math.min(from, lines.length));</span>
+
+<span class="fc" id="L83">    StringJoiner joiner = new StringJoiner(&quot;\n&quot;);</span>
+<span class="fc" id="L84">    IntStream.range(index1, index2)</span>
+<span class="pc" id="L85">        .mapToObj(lineNumber -&gt; format(&quot;%1$&quot; + digit + &quot;s |&quot;, lines[lineNumber].getLinenumber())</span>
+<span class="nc" id="L86">            + lines[lineNumber].getText())</span>
+<span class="fc" id="L87">        .forEach(joiner::add);</span>
+<span class="fc" id="L88">    return joiner.toString();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
