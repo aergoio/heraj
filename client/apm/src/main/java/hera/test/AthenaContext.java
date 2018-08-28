@@ -68,7 +68,7 @@ public class AthenaContext {
   public TwoArgFunction recordError = new TwoArgFunction() {
     @Override
     public LuaValue call(LuaValue name, LuaValue error) {
-      logger.trace("{} throw {}", name, error);
+      logger.info("{} throw {}", name, error);
       testReporter.error(name.tojstring(), error.tojstring());
       return null;
     }

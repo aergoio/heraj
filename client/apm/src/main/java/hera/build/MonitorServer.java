@@ -8,6 +8,7 @@ import static org.eclipse.jetty.servlet.ServletContextHandler.SESSIONS;
 
 import hera.build.web.Endpoint;
 import hera.build.web.service.BuildService;
+import hera.build.web.service.DeployService;
 import hera.server.ServerStatus;
 import hera.server.ThreadServer;
 import hera.util.ThreadUtils;
@@ -26,6 +27,9 @@ public class MonitorServer extends ThreadServer {
 
   @Getter
   protected BuildService buildService = new BuildService();
+
+  @Getter
+  protected DeployService deployService = new DeployService();
 
   /**
    * Get server port.
@@ -68,6 +72,7 @@ public class MonitorServer extends ThreadServer {
     context.setResourceBase(getClass().getResource("/public").toString());
     final Endpoint endpoint = new Endpoint();
     endpoint.setBuildService(buildService);
+    endpoint.setDeployService(deployService);
     context.addServlet(new ServletHolder(endpoint), "/");
 
     final HandlerList handlers = new HandlerList();

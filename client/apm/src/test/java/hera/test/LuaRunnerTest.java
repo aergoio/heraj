@@ -13,7 +13,8 @@ public class LuaRunnerTest extends AbstractTestCase {
   @Test
   public void shouldNotReservePreviousScript() {
     final LuaRunner runner = new LuaRunner();
-    runner.run("a = 3\nb = 3");
-    assertNull(runner.run("return b").getResult());
+    final LuaSource luaSource = new LuaSource("a = 3\nb=3");
+    runner.run(luaSource);
+    assertNull(runner.run(new LuaSource("return b")).getResult());
   }
 }

@@ -17,6 +17,7 @@ import hera.build.web.exception.ResourceNotFoundException;
 import hera.build.web.model.BuildDetails;
 import hera.build.web.model.BuildSummary;
 import hera.build.web.service.BuildService;
+import hera.build.web.service.DeployService;
 import hera.build.web.service.LiveUpdateSession;
 import hera.util.FilepathUtils;
 import hera.util.HexUtils;
@@ -45,9 +46,16 @@ public class Endpoint extends WebSocketServlet {
   @Getter
   protected BuildService buildService;
 
+  @Getter
+  protected DeployService deployService;
+
   public void setBuildService(final BuildService buildService) {
     this.buildService = buildService;
     LiveUpdateSession.setManager(buildService.getLiveUpdateService());
+  }
+
+  public void setDeployService(final DeployService deployService) {
+    this.deployService = deployService;
   }
 
   @Override
@@ -67,17 +75,31 @@ public class Endpoint extends WebSocketServlet {
     logger.debug("Path fragments: {}", asList(fragments));
     try {
       if (Arrays.equals(new String[]{"builds"}, fragments)) {
+        // /builds
         final List<BuildSummary> summaries = buildService.list(null, 5);
         writeResponse(summaries, resp);
-      } else if (2 == fragments.length && "build".equals(fragments[0])) {
-        final String buildUuid = fragments[1];
+        return;
+      } else if (0 < fragments.length && "build".equals(fragments[0])) {
+        if (3 == fragments.length && "deploy".equals(fragments[2])) {
+          // /build/{uuid}/deploy
+          final String uuid = fragments[1];
+          final String target = req.getParameter("target");
+          final BuildDetails buildDetails = buildService.get(uuid)
+              .orElseThrow(() -> new ResourceNotFoundException(uuid + " not found"));
+          deployService.deploy(target, buildDetails);
+          writeResponse(null, resp);
+          return;
+        } else if (2 == fragments.length && "build".equals(fragments[0])) {
+          // /build/{uuid}
+          final String buildUuid = fragments[1];
 
-        final BuildDetails build = buildService.get(buildUuid)
-            .orElseThrow(ResourceNotFoundException::new);
-        writeResponse(build, resp);
-      } else {
-        getResource(req, resp);
+          final BuildDetails build = buildService.get(buildUuid)
+              .orElseThrow(ResourceNotFoundException::new);
+          writeResponse(build, resp);
+          return;
+        }
       }
+      getResource(req, resp);
     } catch (final HttpException ex) {
       logger.debug("Status code: {}", ex.getStatusCode());
       resp.setStatus(ex.getStatusCode());
@@ -107,12 +129,14 @@ public class Endpoint extends WebSocketServlet {
 
   protected void writeResponse(final Object obj, final HttpServletResponse res) throws IOException {
     logger.debug("Response: {}", obj);
-    final byte[] body = mapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(obj);
-    logger.trace("Body:\n{}", HexUtils.dump(body));
-    res.setContentType(Type.APPLICATION_JSON.asString());
-    try (final OutputStream in = res.getOutputStream()) {
-      res.setStatus(SC_OK);
-      in.write(body);
+    res.setStatus(SC_OK);
+    if (null != obj) {
+      final byte[] body = mapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(obj);
+      logger.trace("Body:\n{}", HexUtils.dump(body));
+      res.setContentType(Type.APPLICATION_JSON.asString());
+      try (final OutputStream in = res.getOutputStream()) {
+        in.write(body);
+      }
     }
   }
 }

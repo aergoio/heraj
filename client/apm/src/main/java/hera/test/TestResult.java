@@ -12,27 +12,21 @@ import lombok.ToString;
 @ToString
 public class TestResult {
   public static TestResult success(final Object result) {
-    return new TestResult(result, null, 0, 0);
+    return new TestResult(result, null);
   }
 
-  public static TestResult fail(final String errorMessage, final int line, final int column) {
-    return new TestResult(null, errorMessage, line, column);
+  public static TestResult fail(final LuaErrorInformation error) {
+    return new TestResult(null, error);
   }
 
   @Getter
   protected final Object result;
 
   @Getter
-  protected final String errorMessage;
+  protected final LuaErrorInformation error;
 
   public boolean isSuccess() {
-    return null == errorMessage;
+    return null == error;
   }
-
-  @Getter
-  protected final int lineNumber;
-
-  @Getter
-  protected final int columnNumber;
 
 }

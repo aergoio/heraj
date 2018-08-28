@@ -38,9 +38,8 @@
         if (this.$props.builds && 0 < this.$props.builds.length) {
           const latestBuild = this.$props.builds[0];
           if (latestBuild.success) {
-            this.$http.post('/deploy', {
-              target: target,
-              uuid: latestBuild.uuid
+            this.$http.post('/build/' + uuid + '/build', {
+              target: target
             }).then(res => {
               console.log('Response: ', res)
             })
