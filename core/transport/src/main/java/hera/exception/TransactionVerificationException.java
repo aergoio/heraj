@@ -38,4 +38,9 @@ public class TransactionVerificationException extends RpcException {
     }
   }
 
+  @Override
+  public String getLocalizedMessage() {
+    return verifyStatus.toString();
+  }
+
 }

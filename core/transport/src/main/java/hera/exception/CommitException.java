@@ -46,4 +46,9 @@ public class CommitException extends RpcException {
     }
   }
 
+  @Override
+  public String getLocalizedMessage() {
+    return commitStatus.toString();
+  }
+
 }
