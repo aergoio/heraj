@@ -1,37 +1,28 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import PageContainer from '@/pages/PageContainer'
 import BuildPage from '@/pages/BuildPage'
+import UnitTestPage from '@/pages/UnitTestPage'
+import DeployPage from '@/pages/DeployPage'
 
 Vue.use(Router)
 
 export default new Router({
   routes: [
     {
-      path: '/:build',
-      component: PageContainer,
-      children: [
-        {
-          path: 'build',
-          component: BuildPage
-        },
-        {
-          path: 'lint',
-          component: BuildPage
-        },
-        {
-          path: 'unittest',
-          component: BuildPage
-        },
-        {
-          path: 'deploy',
-          component: BuildPage
-        },
-        {
-          path: 'runner',
-          component: BuildPage
-        }
-      ]
+      path: '/build',
+      component: BuildPage
+    },
+    {
+      path: '/unittest',
+      component: UnitTestPage
+    },
+    {
+      path: '/deploy',
+      component: DeployPage
+    },
+    {
+      path: '/runner',
+      component: DeployPage
     }
   ]
 })

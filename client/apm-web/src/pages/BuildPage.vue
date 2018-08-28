@@ -22,13 +22,10 @@
   import 'codemirror/lib/codemirror.css'
   import 'codemirror/theme/base16-dark.css'
   import 'codemirror/mode/lua/lua.js'
-  import Tree from "../components/Tree";
+  import Tree from '@/components/Tree';
 
   export default {
-    name: 'BuildPage',
-    components: {
-      Tree
-    },
+    components: {Tree},
     props: ['result', 'dependencies'],
     data() {
       return {
@@ -46,7 +43,6 @@
 </script>
 
 <style>
-  /* Tabs*/
   section {
     padding: 10px 0;
   }

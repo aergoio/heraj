@@ -1,9 +1,9 @@
 <template>
   <div id="app">
-    <page-header class="row" :builds="builds"/>
+    <page-header class="row" :builds="builds" :build="currentBuild" @select-build="buildSelected"/>
     <div class="row">
       <side-menu class="left"/>
-      <router-view/>
+      <router-view class="main" v-bind="currentBuild" :builds="builds"/>
     </div>
     <page-footer class="row"/>
   </div>
@@ -25,14 +25,19 @@
     },
     mounted() {
       this.$http.get('/builds').then((res) => {
-        console.log('Res', res)
+        console.log('Res', res);
         this.$data.builds = res.data;
         if (res.data.length && 0 < res.data.length) {
-          const path = '/' + res.data[0].uuid + '/build';
-          console.log('Move to ' + path)
-          this.$router.push({ path: path })
+          this.buildSelected(res.data[0].uuid);
         }
       })
+    },
+    methods: {
+      buildSelected(uuid) {
+        this.$http.get('/build/' + uuid).then((res) => {
+          this.$data.currentBuild = res.data;
+        })
+      }
     }
   }
 </script>
@@ -55,7 +60,9 @@
     min-height: 100%;
   }
 
-  .row {
-    width: 1024px;
+  .main {
+    margin-left: 200px; /* Same as the width of the sidebar */
+    padding: 0px 10px;
   }
+
 </style>

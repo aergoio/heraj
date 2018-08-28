@@ -1,6 +1,6 @@
 <template>
   <ul class="timeline timeline-horizontal">
-    <timeline-item v-for="item in items" :type="item.success ? 'primary' : 'danger'" :key="item.uuid" v-bind="item"/>
+    <timeline-item v-for="item in items" :type="item.success ? 'primary' : 'danger'" :key="item.uuid" v-bind="item" @click="itemClicked"/>
   </ul>
 </template>
 
@@ -12,9 +12,9 @@
     template:
 `<li class="timeline-item">
   <div class="timestamp">{{timestampDisplay(timestamp)}}</div>
-  <router-link :to="'/' + uuid + '/build'">
+  <a @click="clicked">
     <div class="timeline-badge" :class="type"><i name="glyphicon-check"></i></div>
-  </router-link>
+  </a>
 </li>`,
     methods: {
       timestampDisplay(ts) {
@@ -23,6 +23,10 @@
           return seconds + ' seconds ago';
         }
         return Vue.moment(ts).fromNow();
+      },
+
+      clicked() {
+        this.$emit('click', this)
       }
     }
   }
@@ -31,6 +35,11 @@
     name: 'BuildTimeline',
     props: ['items'],
     components: { TimelineItem: TimelineItem },
+    methods: {
+      itemClicked(item) {
+        this.$emit("item-click", item)
+      }
+    }
   }
 </script>
 

@@ -1,6 +1,6 @@
 <template>
   <div class="timeline-container">
-    <build-timeline v-bind:items="builds" />
+    <build-timeline :items="builds" @item-click="itemClicked"/>
   </div>
 </template>
 
@@ -10,7 +10,19 @@
   export default {
     name: 'PageHeader',
     components: {BuildTimeline},
-    props: ['builds']
+    props: ['builds', 'build'],
+    methods: {
+      itemClicked(item) {
+        const oldUuid = this.$props.build.uuid;
+        const newUuid = item.$props.uuid
+
+        if (oldUuid == newUuid) {
+          return ;
+        }
+        console.log('Current uuid: ' + oldUuid + ', New uuid: ' + newUuid);
+        this.$emit('select-build', newUuid)
+      }
+    }
   }
 </script>
 
