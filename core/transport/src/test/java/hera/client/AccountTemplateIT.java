@@ -25,8 +25,12 @@ public class AccountTemplateIT extends AbstractIT {
   @Test
   public void testCreate() {
     final String password = randomUUID().toString();
-    final Account account = accountTemplate.create(password).getResult();
-    assertNotNull(account);
-    assertTrue(0 < accountTemplate.list().thenApply(l -> l.size()).getResult());
+    final Account createdAccount = accountTemplate.create(password).getResult();
+    assertNotNull(createdAccount);
+
+    assertTrue(0 < accountTemplate.list().getResult().size());
+
+    final Account queriedAccount = accountTemplate.get(createdAccount.getAddress()).getResult();
+    assertTrue(queriedAccount.getAddress().equals(createdAccount.getAddress()));
   }
 }

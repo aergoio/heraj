@@ -8,8 +8,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import hera.api.model.Block;
+import hera.api.model.BlockHeader;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.Hash;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,19 +29,44 @@ public class BlockTemplateIT extends AbstractIT {
   }
 
   @Test
-  public void testGetBlockchainStatus() {
-    final BlockchainStatus status = blockChainTemplate.getBlockchainStatus().getResult();
-    assertNotNull(status);
-    assertTrue(0 < status.getBestHeight());
-  }
-
-  @Test
-  public void testGetBlock() {
+  public void testGetBlockByHash() {
     final BlockchainStatus status = blockChainTemplate.getBlockchainStatus().getResult();
     final Hash bestBlockHash = status.getBestBlockHash();
     final Block block = blockTemplate.getBlock(bestBlockHash).getResult();
-    assertNotNull(block.getHash());
-    assertNotNull(block.getRootHash());
-    assertNotNull(block.getTransactionsRootHash());
+    assertNotNull(block);
+    assertTrue(0 < block.getHash().getBytesValue().length);
+    assertTrue(0 < block.getPreviousBlockHash().getBytesValue().length);
+  }
+
+  @Test
+  public void testGetBlockByHeight() {
+    final BlockchainStatus status = blockChainTemplate.getBlockchainStatus().getResult();
+    final long bestBlockHeight = status.getBestHeight();
+    final Block block = blockTemplate.getBlock(bestBlockHeight).getResult();
+    assertNotNull(block);
+    assertTrue(0 < block.getHash().getBytesValue().length);
+    assertTrue(0 < block.getPreviousBlockHash().getBytesValue().length);
+  }
+
+  @Test
+  public void testListBlockHeadersByHash() {
+    final BlockchainStatus status = blockChainTemplate.getBlockchainStatus().getResult();
+    final Hash bestBlockHash = status.getBestBlockHash();
+    final int size = 3;
+    final List<BlockHeader> blockHeaders =
+        blockTemplate.listBlockHeaders(bestBlockHash, size).getResult();
+    assertNotNull(blockHeaders);
+    assertTrue(blockHeaders.size() == size);
+  }
+
+  @Test
+  public void testListBlockHeadersByHeight() {
+    final BlockchainStatus status = blockChainTemplate.getBlockchainStatus().getResult();
+    final long bestBlockHeight = status.getBestHeight();
+    final int size = 3;
+    final List<BlockHeader> blockHeaders =
+        blockTemplate.listBlockHeaders(bestBlockHeight, size).getResult();
+    assertNotNull(blockHeaders);
+    assertTrue(blockHeaders.size() == size);
   }
 }

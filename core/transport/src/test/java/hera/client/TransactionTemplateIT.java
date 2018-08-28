@@ -15,7 +15,6 @@ import hera.api.model.BytesValue;
 import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
-import hera.api.tupleorerror.ResultOrError;
 import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSAKeyGenerator;
 import org.junit.Before;
@@ -38,36 +37,45 @@ public class TransactionTemplateIT extends AbstractIT {
     accountTemplate = new AccountTemplate(channel);
     sender = accountTemplate.create(PASSWORD).getResult();
     recipient = accountTemplate.create(PASSWORD).getResult();
-    accountTemplate.unlock(sender.getAddress(), PASSWORD);
     transactionTemplate = new TransactionTemplate(channel);
   }
 
   @Test
   public void testSignAndCommit() {
+    final Boolean unlockResult = accountTemplate.unlock(sender.getAddress(), PASSWORD).getResult();
+    assertTrue(unlockResult);
+
     final Transaction transaction = new Transaction();
     transaction.setNonce(1);
     transaction.setAmount(30);
     transaction.setSender(sender.getAddress());
     transaction.setRecipient(recipient.getAddress());
-    Signature signature = transactionTemplate.sign(transaction).getResult();
-    logger.debug("Signature: {}", signature);
 
+    Signature signature = transactionTemplate.sign(transaction).getResult();
     assertNotNull(signature);
     assertNotNull(signature.getSign());
     assertNotNull(signature.getHash());
-    transaction.setSignature(signature);
-    transactionTemplate.commit(transaction);
+    logger.debug("Signature: {}", signature);
 
-    final ResultOrError<Transaction> queried =
-        transactionTemplate.getTransaction(signature.getHash());
-    assertTrue(!queried.hasError());
-    assertEquals(sender.getAddress(), queried.getResult().getSender());
-    assertEquals(recipient.getAddress(), queried.getResult().getRecipient());
-    logger.debug("Transaction: {}", queried.getResult());
+    transaction.setSignature(signature);
+    final Hash hash = transactionTemplate.commit(transaction).getResult();
+    logger.debug("Hash: {}", hash);
+    assertNotNull(hash);
+
+    final Transaction queried = transactionTemplate.getTransaction(signature.getHash()).getResult();
+    assertNotNull(queried);
+    assertEquals(sender.getAddress(), queried.getSender());
+    assertEquals(recipient.getAddress(), queried.getRecipient());
+    logger.debug("Transaction: {}", queried);
+
+    final Boolean lockResult = accountTemplate.lock(sender.getAddress(), PASSWORD).getResult();
+    assertTrue(lockResult);
   }
 
   @Test
   public void testSignLocallyAndCommit() throws Exception {
+    accountTemplate.unlock(sender.getAddress(), PASSWORD);
+
     final Transaction transaction = new Transaction();
     transaction.setNonce(1);
     transaction.setAmount(30);
@@ -88,11 +96,12 @@ public class TransactionTemplateIT extends AbstractIT {
 
     transactionTemplate.commit(transaction);
 
-    final ResultOrError<Transaction> queried =
-        transactionTemplate.getTransaction(signature.getHash());
-    assertTrue(!queried.hasError());
-    assertEquals(sender.getAddress(), queried.getResult().getSender());
-    assertEquals(recipient.getAddress(), queried.getResult().getRecipient());
-    logger.debug("Transaction: {}", queried.getResult());
+    final Transaction queried = transactionTemplate.getTransaction(signature.getHash()).getResult();
+    assertNotNull(queried);
+    assertEquals(sender.getAddress(), queried.getSender());
+    assertEquals(recipient.getAddress(), queried.getRecipient());
+    logger.debug("Transaction: {}", queried);
+
+    accountTemplate.lock(sender.getAddress(), PASSWORD);
   }
 }
