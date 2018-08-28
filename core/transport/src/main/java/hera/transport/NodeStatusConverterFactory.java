@@ -76,8 +76,7 @@ public class NodeStatusConverterFactory {
         ModuleStatus moduleStatus = new ModuleStatus();
         moduleStatus.setModuleName(moduleName);
 
-        JsonNode moduleStatusNode = nodeStatusNode.get(moduleName);
-        JsonNode componentStatus = moduleStatusNode.get("component");
+        JsonNode componentStatus = nodeStatusNode.get(moduleName);
         moduleStatus.setStatus(componentStatus.get("status").asText());
         moduleStatus.setProcessedMessageCount(componentStatus.get("acc_processed_msg").asLong());
         moduleStatus.setQueuedMessageCount(componentStatus.get("acc_queued_msg").asLong());
