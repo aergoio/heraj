@@ -7,7 +7,6 @@ package hera.transport;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.Account;
-import hera.api.model.AccountAddress;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Blockchain;
