@@ -22,7 +22,6 @@ public class AccountStateConverterFactory {
   protected final Function<Blockchain.State, Account> rpcConverter = rpcAccountState -> {
     logger.trace("Blockchain status: {}", rpcAccountState);
     final Account domainAccount = new Account();
-    domainAccount.setAddress(AccountAddress.of(rpcAccountState.getAccount().toByteArray()));
     domainAccount.setNonce(rpcAccountState.getNonce());
     domainAccount.setBalance(rpcAccountState.getBalance());
     return domainAccount;

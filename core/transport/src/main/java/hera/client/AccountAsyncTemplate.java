@@ -89,8 +89,11 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
     final ByteString byteString = copyFrom(address.getValue());
     final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
     ListenableFuture<Blockchain.State> listenableFuture = aergoService.getState(bytes);
-    FutureChainer<Blockchain.State, Account> callback = new FutureChainer<>(nextFuture,
-        state -> accountStateConverter.convertToDomainModel(state));
+    FutureChainer<Blockchain.State, Account> callback = new FutureChainer<>(nextFuture, state -> {
+      final Account account = accountStateConverter.convertToDomainModel(state);
+      account.setAddress(address);
+      return account;
+    });
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;
