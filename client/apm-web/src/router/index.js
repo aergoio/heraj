@@ -24,6 +24,10 @@ export default new Router({
     {
       path: '/runner',
       component: RunnerPage
+    },
+    {
+      path: '*',
+      redirect: '/build'
     }
   ]
 })

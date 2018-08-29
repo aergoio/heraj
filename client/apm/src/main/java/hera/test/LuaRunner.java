@@ -8,6 +8,10 @@ import static hera.test.TestResult.fail;
 import static hera.test.TestResult.success;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -34,15 +38,28 @@ public class LuaRunner {
       logger.debug("Result: {}", result);
       return success(result);
     } catch (final ScriptException e) {
-      final String message = e.getMessage();
-      final int lineNumber = e.getLineNumber();
-      final int columnNumber = e.getColumnNumber();
-      final LuaErrorInformation errorInformation =
-          new LuaErrorInformation(message, lineNumber, columnNumber);
+      logger.trace("=== ScriptException ===", e);
+      final String rawMessage = e.getMessage();
+      final String prefix = "eval threw javax.script.ScriptException: ";
+      final MessageFormat messageFormat = new MessageFormat("eval threw javax.script.ScriptException: [string \"script\"]:{0}: {1}");
+      LuaErrorInformation errorInformation = null;
+      try {
+        final Object[] args = messageFormat.parse(rawMessage);
+        final String rowStr = (String) args[0];
+        final String message = (String) args[1];
+        final int lineNumber = Integer.parseInt(rowStr);
+        errorInformation = new LuaErrorInformation(message, lineNumber, -1);
+      } catch (ParseException e1) {
+        final String message = e.getMessage();
+        final int lineNumber = e.getLineNumber();
+        final int columnNumber = e.getColumnNumber();
+        errorInformation = new LuaErrorInformation(message, lineNumber, columnNumber);
+      }
 
       logger.debug("Error: {}", errorInformation);
       return fail(errorInformation);
     } catch (final LuaError e) {
+      logger.trace("=== LuaError ===", e);
       LuaErrorInformation errorInformation = new LuaErrorInformation(e.getMessage());
       logger.debug("Error: {}", errorInformation);
       return fail(errorInformation);

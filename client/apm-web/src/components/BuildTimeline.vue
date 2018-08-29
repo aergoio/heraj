@@ -30,6 +30,7 @@
       }
     }
   }
+
   Vue.component(TimelineItem)
   export default {
     name: 'BuildTimeline',
@@ -37,6 +38,7 @@
     components: { TimelineItem: TimelineItem },
     methods: {
       itemClicked(item) {
+        console.log(item + ' clicked')
         this.$emit("click-item", item)
       }
     }

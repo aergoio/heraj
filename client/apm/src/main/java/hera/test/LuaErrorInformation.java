@@ -50,6 +50,6 @@ public class LuaErrorInformation {
 
   @Override
   public String toString() {
-    return lineNumber + ":" + columnNumber + "- Message: " + message;
+    return lineNumber + ":" + columnNumber + " - Message: " + message;
   }
 }

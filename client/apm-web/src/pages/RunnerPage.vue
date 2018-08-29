@@ -1,6 +1,6 @@
 <template>
   <div class="row">
-    <b-dropdown id="target-selector" :text="text" class="m-md-2">
+    <b-dropdown id="target-selector" :text="(null == text)?'Select target...':text" class="m-md-2">
       <b-dropdown-item v-for="item in targets" :key="item.name" @click="itemSelected(item)">{{item.name}}</b-dropdown-item>
     </b-dropdown>
 
@@ -11,7 +11,8 @@
       <b-form-input v-model="address" placeholder="Input your privatekey."></b-form-input>
     </b-input-group>
 
-    <b-button @click="loadClicked">Load</b-button>
+    <b-button @click="loadClicked" :disabled="null === text || '' === this.address">Load</b-button>
+    <b-button @click="runClicked" :disabled="0 === parameters.length">Run</b-button>
   </div>
 </template>
 
@@ -20,21 +21,23 @@
     props: ['targets'],
     data() {
       return {
-        text: 'Select target...',
+        text: null,
         address: '',
-        addresses: []
+        addresses: [],
+        parameters: []
       }
     },
     methods: {
       itemSelected(item) {
         console.log('Selected');
-        this.$data.text = item.uuid;
+        this.$data.text = item.name;
       },
       addressSelected(item) {
         this.$data.address = item.name;
       },
       loadClicked() {
-        if (this.$data.address || '' == this.$data.address) {
+        console.log('Address:' + this.$data.address)
+        if (!this.$data.address || '' == this.$data.address) {
           alert('No target address');
           return ;
         }
@@ -48,6 +51,9 @@
           console.log('Response', res);
         });
         console.log('Request contract information for ' + address);
+      },
+      runClicked() {
+        console.log('Run');
       }
     }
   }

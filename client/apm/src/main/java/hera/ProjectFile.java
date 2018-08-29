@@ -8,6 +8,8 @@ import static java.nio.file.Files.newInputStream;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +38,7 @@ public class ProjectFile {
 
   public static ProjectFile from(final InputStream in) throws IOException {
     final ObjectMapper mapper = new ObjectMapper();
+    mapper.configure(Feature.ALLOW_COMMENTS, true);
     return mapper.readValue(in, ProjectFile.class);
   }
 

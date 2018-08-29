@@ -14,39 +14,54 @@
   import PageFooter from "./components/PageFooter";
   import PageHeader from "./components/PageHeader";
   class Connection {
-    constructor() {
+    constructor(app) {
+      this.app = app;
+      this.running = true;
       this.connect();
     }
     connect() {
       if (this.socket) {
         return ;
       }
+      if (!this.running) {
+        return ;
+      }
       this.socket = new WebSocket("ws://localhost:2000");
-      this.socket.onopen = this.onOpen
-      this.socket.onerror = this.onError
-      this.socket.onclose = this.onClose
-      this.socket.onmessage = this.onReceive
+      this.socket.onopen    = this.onOpen.bind(this);
+      this.socket.onerror   = this.onError.bind(this);
+      this.socket.onclose   = this.onClose.bind(this);
+      this.socket.onmessage = this.onReceive.bind(this);
+    }
+
+    close() {
+      this.running = false;
+      if (this.socket) {
+        this.socket.close();
+      }
     }
 
     onOpen() {
-      console.log('Socket opened')
+      console.log('[WS] Socket opened')
     }
     onError() {
-      console.log('Socket error')
+      console.log('[WS] Socket error')
     }
 
     onClose() {
-      console.log('Socket closed')
+      console.log('[WS} Socket closed');
       this.socket = null;
-      setTimeout(this.connect, 3000);
+      if (this.running) {
+        setTimeout(this.connect, 3000);
+      }
     }
 
     onReceive(message) {
-      console.log('Message received', message)
+      console.log('[WS} Message received', message);
+      const data = JSON.parse(message.data);
+      console.log('App', this);
+      this.app.updateBuilds();
     }
   }
-
-  const connection = new Connection();
 
   export default {
     name: 'App',
@@ -58,17 +73,30 @@
         targets: [],
       }
     },
+    created() {
+      this.connection = new Connection(this);
+    },
+    destroyed() {
+      this.connection.close();
+    },
     mounted() {
-      this.$http.get('/builds').then((res) => {
-        console.log('Res', res);
-        this.$data.builds = res.data;
-        if (res.data.length && 0 < res.data.length) {
-          this.buildSelected(res.data[0].uuid);
-        }
-      })
+      this.updateBuilds();
     },
     methods: {
+      updateBuilds() {
+        console.log("=>Start update builds")
+        this.$http.get('/builds').then((res) => {
+          console.log('==>Response received');
+          this.$data.builds = res.data;
+          if (res.data.length && 0 < res.data.length) {
+            if (!this.$data.currentBuild || !this.$data.currentBuild.uuid) {
+              this.buildSelected(res.data[0].uuid);
+            }
+          }
+        })
+      },
       buildSelected(uuid) {
+        console.log(uuid + ' selected');
         this.$http.get('/build/' + uuid).then((res) => {
           this.$data.currentBuild = res.data;
         })

@@ -1,6 +1,6 @@
 <template>
   <div class="timeline-container">
-    <build-timeline :items="builds" @item-click="itemClicked"/>
+    <build-timeline :items="builds" @click-item="itemClicked"/>
   </div>
 </template>
 

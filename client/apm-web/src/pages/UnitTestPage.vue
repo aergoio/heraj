@@ -14,7 +14,7 @@
     </div>
     <div class="row">
       <div class="col-6">
-        <tree v-bind="reports" @item-clicked="itemSelected"></tree>
+        <tree v-bind="reports" @item-click="itemSelected"></tree>
       </div>
 
     </div>
@@ -27,6 +27,11 @@
   export default {
     components: {Tree},
     props: ['unitTestReport'],
+    data() {
+      return {
+        selectedItem: null
+      }
+    },
     computed: {
       successes() {
         if (this.$props.unitTestReport) {
@@ -57,7 +62,7 @@
     },
     methods: {
       itemSelected(item) {
-        console.log('Item :',item)
+        this.$data.selectedItem = item;
       }
     }
   }
