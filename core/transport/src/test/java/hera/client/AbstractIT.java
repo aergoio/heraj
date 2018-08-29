@@ -18,7 +18,7 @@ public abstract class AbstractIT {
 
   protected ManagedChannel channel = null;
 
-  @Before()
+  @Before
   public void setUp() {
     channel = NettyChannelBuilder
         .forAddress("localhost", 7845)
@@ -29,6 +29,10 @@ public abstract class AbstractIT {
   @After
   public void tearDown() {
     channel.shutdown();
+  }
+
+  protected void waitForNextBlockToGenerate() throws InterruptedException {
+    Thread.sleep(2500L);
   }
 
 }

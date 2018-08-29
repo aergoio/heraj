@@ -7,6 +7,7 @@ package hera;
 import hera.client.AccountTemplateIT;
 import hera.client.BlockChainTemplateIT;
 import hera.client.BlockTemplateIT;
+import hera.client.ContractTemplateIT;
 import hera.client.TransactionTemplateIT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -17,7 +18,8 @@ import org.junit.runners.Suite.SuiteClasses;
     AccountTemplateIT.class,
     BlockChainTemplateIT.class,
     BlockTemplateIT.class,
-    TransactionTemplateIT.class
+    TransactionTemplateIT.class,
+    ContractTemplateIT.class
 })
 public class ITTests {
 
