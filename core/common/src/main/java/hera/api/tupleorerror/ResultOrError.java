@@ -6,10 +6,11 @@ package hera.api.tupleorerror;
 
 import static hera.api.tupleorerror.FunctionChain.fail;
 import static hera.api.tupleorerror.FunctionChain.success;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
-@SuppressWarnings({"unchecked", "rawtypes"})
-public class ResultOrError<T> extends AbstractTupleOrError
-    implements ErrorOperation<ResultOrError> {
+@SuppressWarnings("unchecked")
+public class ResultOrError<T> extends AbstractTupleOrError {
 
   public ResultOrError(T result, Throwable error) {
     apply(new Object[] {result});
@@ -42,6 +43,21 @@ public class ResultOrError<T> extends AbstractTupleOrError
   @Override
   public String toString() {
     return super.toString();
+  }
+
+  /**
+   * Get result or throws exception if error exists.
+   *
+   * @param <X> Type of the exception to be thrown
+   * @param exceptionSupplier exception supplier
+   * @return result if no error
+   * @throws X exception to throw when error exists
+   */
+  public <X extends Throwable> T getOrThrows(Supplier<? extends X> exceptionSupplier) throws X {
+    if (null == getError()) {
+      throw exceptionSupplier.get();
+    }
+    return getResult();
   }
 
 }
