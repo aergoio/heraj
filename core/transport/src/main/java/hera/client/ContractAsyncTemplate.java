@@ -14,12 +14,17 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 import hera.FutureChainer;
 import hera.api.ContractAsyncOperation;
+import hera.api.model.Abi;
+import hera.api.model.AbiSet;
+import hera.api.model.AccountAddress;
 import hera.api.model.Hash;
 import hera.api.model.Receipt;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.ModelConverter;
 import hera.transport.ReceiptConverterFactory;
+import hera.util.DangerousSupplier;
 import io.grpc.ManagedChannel;
+import java.io.InputStream;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -55,6 +60,38 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;
+  }
+
+  @Override
+  public ResultOrErrorFuture<Hash> deploy(AccountAddress creator,
+      DangerousSupplier<InputStream> bytecode, AbiSet abiSet) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public ResultOrErrorFuture<AbiSet> getAbiSet(AccountAddress contract) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public ResultOrErrorFuture<Abi> getAbiSet(AccountAddress contract, String functionName) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public ResultOrErrorFuture<Hash> execute(AccountAddress executor, AccountAddress contract,
+      Abi abi, Object... args) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public ResultOrErrorFuture<Object> query(AccountAddress contract) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }
