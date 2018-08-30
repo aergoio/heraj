@@ -12,11 +12,13 @@ import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hera.ProjectFile;
 import hera.build.web.exception.HttpException;
 import hera.build.web.exception.ResourceNotFoundException;
 import hera.build.web.model.BuildDetails;
 import hera.build.web.model.BuildSummary;
 import hera.build.web.service.BuildService;
+import hera.build.web.service.ConfigurationService;
 import hera.build.web.service.ContractService;
 import hera.build.web.service.LiveUpdateSession;
 import hera.util.FilepathUtils;
@@ -27,7 +29,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.Getter;
@@ -43,6 +44,10 @@ public class Endpoint extends WebSocketServlet {
   protected final transient Logger logger = getLogger(getClass());
 
   protected final ObjectMapper mapper = new ObjectMapper();
+
+  @Getter
+  @Setter
+  protected ConfigurationService configurationService;
 
   @Getter
   protected BuildService buildService;
@@ -63,8 +68,7 @@ public class Endpoint extends WebSocketServlet {
 
 
   @Override
-  protected void doGet(final HttpServletRequest req, final HttpServletResponse resp)
-      throws ServletException, IOException {
+  protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) {
     logger.trace("Request: {}, Response: {}", req, resp);
 
     final String requestUri = req.getRequestURI();
@@ -72,7 +76,11 @@ public class Endpoint extends WebSocketServlet {
     final String[] fragments = getCanonicalFragments(requestUri);
     logger.debug("Path fragments: {}", asList(fragments));
     try {
-      if (Arrays.equals(new String[]{"builds"}, fragments)) {
+      if (Arrays.equals(new String[] {"project"}, fragments)) {
+        final ProjectFile projectFile = configurationService.getProjectFile()
+            .orElseThrow(ResourceNotFoundException::new);
+        writeResponse(projectFile, resp);
+      } else if (Arrays.equals(new String[] {"builds"}, fragments)) {
         // /builds
         final List<BuildSummary> summaries = buildService.list(null, 5);
         writeResponse(summaries, resp);
@@ -99,6 +107,7 @@ public class Endpoint extends WebSocketServlet {
       }
       getResource(req, resp);
     } catch (final HttpException ex) {
+      logger.trace("Http exception:", ex);
       logger.debug("Status code: {}", ex.getStatusCode());
       resp.setStatus(ex.getStatusCode());
     } catch (final Throwable ex) {

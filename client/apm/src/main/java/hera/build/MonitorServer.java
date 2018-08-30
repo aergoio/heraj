@@ -4,15 +4,20 @@
 
 package hera.build;
 
+import static hera.util.ValidationUtils.assertNotNull;
 import static org.eclipse.jetty.servlet.ServletContextHandler.SESSIONS;
 
 import hera.build.web.Endpoint;
 import hera.build.web.service.BuildService;
+import hera.build.web.service.ConfigurationService;
 import hera.build.web.service.ContractService;
 import hera.server.ServerStatus;
 import hera.server.ThreadServer;
 import hera.util.ThreadUtils;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import lombok.Getter;
+import lombok.Setter;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
@@ -23,13 +28,20 @@ public class MonitorServer extends ThreadServer {
 
   protected int port = -1;
 
+  @Getter
+  @Setter
+  protected Path projectFilePath;
+
   protected Server server;
 
   @Getter
-  protected BuildService buildService = new BuildService();
+  protected ConfigurationService configurationService;
 
   @Getter
-  protected ContractService contractService = new ContractService();
+  protected BuildService buildService;
+
+  @Getter
+  protected ContractService contractService;
 
   /**
    * Get server port.
@@ -65,12 +77,18 @@ public class MonitorServer extends ThreadServer {
   @Override
   protected void initialize() throws Exception {
     super.initialize();
+    assertNotNull(projectFilePath);
+    configurationService = new ConfigurationService(projectFilePath);
+    buildService = new BuildService();
+    contractService = new ContractService();
+
     final int port = getPort();
     server = new Server(port);
     ServletContextHandler context = new ServletContextHandler(SESSIONS);
     context.setContextPath("/");
     context.setResourceBase(getClass().getResource("/public").toString());
     final Endpoint endpoint = new Endpoint();
+    endpoint.setConfigurationService(configurationService);
     endpoint.setBuildService(buildService);
     endpoint.setContractService(contractService);
     context.addServlet(new ServletHolder(endpoint), "/");

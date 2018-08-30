@@ -4,7 +4,10 @@
 
 package hera;
 
+import static com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_COMMENTS;
+import static hera.DefaultConstants.DEFAULT_ENDPOINT;
 import static java.nio.file.Files.newInputStream;
+import static java.util.Arrays.asList;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -36,9 +39,18 @@ public class ProjectFile {
     }
   }
 
+  /**
+   * Bulid project file from input stream.
+   *
+   * @param in input stream for content
+   *
+   * @return project file
+   *
+   * @throws IOException if fail to read stream
+   */
   public static ProjectFile from(final InputStream in) throws IOException {
     final ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(Feature.ALLOW_COMMENTS, true);
+    mapper.configure(ALLOW_COMMENTS, true);
     return mapper.readValue(in, ProjectFile.class);
   }
 
@@ -61,4 +73,8 @@ public class ProjectFile {
   @Getter
   @Setter
   protected List<String> tests;
+
+  @Getter
+  @Setter
+  protected List<String> endpoints = asList(DEFAULT_ENDPOINT);
 }

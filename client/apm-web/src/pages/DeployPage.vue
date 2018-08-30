@@ -1,13 +1,7 @@
 <template>
   <div class="container">
     <div class="row">
-      <b-btn v-b-modal.modal1>Add new target</b-btn>
-      <b-modal id="modal1" title="New target" @ok="okClicked" @shown="resetModal">
-        <b-form-group label="Your Name:" label-for="targetInput">
-          <b-form-input id="targetInput" type="text" v-model="form.name" required placeholder="localhost:7845" />
-        </b-form-group>
-      </b-modal>
-      <b-btn v-for="target in targets" :key="target.name" @click="deployClicked(target.name)">{{target.name}}</b-btn>
+      <b-btn v-for="target in targets" :key="target" @click="deployClicked(target)">{{target}}</b-btn>
     </div>
     <div class="row">
       <deploy-progress :text="progress.text" />
@@ -23,9 +17,6 @@
     props: ['builds', 'targets', 'text'],
     data() {
       return {
-        form: {
-          name: ''
-        },
         progress: {
           text: ''
         }
@@ -48,13 +39,7 @@
         } else {
           alert("No build!!")
         }
-      },
-      resetModal() {
-        this.$data.form.name = '';
-      },
-      okClicked() {
-        this.$emit('add-target', this.$data.form.name);
-      },
+      }
     }
   }
 </script>

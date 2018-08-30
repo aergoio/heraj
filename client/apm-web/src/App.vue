@@ -81,11 +81,17 @@
     },
     mounted() {
       this.updateBuilds();
+      this.updateTargets();
     },
     methods: {
+      updateTargets() {
+        this.$http.get('/project').then(res => {
+          this.$data.targets = res.data.endpoints;
+        })
+      },
       updateBuilds() {
         console.log("=>Start update builds")
-        this.$http.get('/builds').then((res) => {
+        this.$http.get('/builds').then(res => {
           console.log('==>Response received');
           this.$data.builds = res.data;
           if (res.data.length && 0 < res.data.length) {
@@ -97,7 +103,7 @@
       },
       buildSelected(uuid) {
         console.log(uuid + ' selected');
-        this.$http.get('/build/' + uuid).then((res) => {
+        this.$http.get('/build/' + uuid).then(res => {
           this.$data.currentBuild = res.data;
         })
       },

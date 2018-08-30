@@ -1,7 +1,7 @@
 <template>
   <div class="row">
     <b-dropdown id="target-selector" :text="(null == text)?'Select target...':text" class="m-md-2">
-      <b-dropdown-item v-for="item in targets" :key="item.name" @click="itemSelected(item)">{{item.name}}</b-dropdown-item>
+      <b-dropdown-item v-for="item in targets" :key="item" @click="itemSelected(item)">{{item}}</b-dropdown-item>
     </b-dropdown>
 
     <b-input-group>
@@ -30,7 +30,7 @@
     methods: {
       itemSelected(item) {
         console.log('Selected');
-        this.$data.text = item.name;
+        this.$data.text = item;
       },
       addressSelected(item) {
         this.$data.address = item.name;
@@ -43,7 +43,7 @@
         }
 
         const address = this.$data.address
-        const alreadyExists = this.$data.addresses.find(address => address.name == address)
+        const alreadyExists = this.$data.addresses.find(address => address == address)
         if (!alreadyExists) {
           this.$data.addresses.push({ name: address });
         }

@@ -4,8 +4,10 @@
 
 package hera.client;
 
+import static hera.DefaultConstants.DEFAULT_ENDPOINT;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.model.HostnameAndPort;
 import io.grpc.ManagedChannel;
 import io.grpc.netty.NettyChannelBuilder;
 import org.junit.After;
@@ -20,8 +22,9 @@ public abstract class AbstractIT {
 
   @Before
   public void setUp() {
+    final HostnameAndPort hostnameAndPort = HostnameAndPort.of(DEFAULT_ENDPOINT);
     channel = NettyChannelBuilder
-        .forAddress("localhost", 7845)
+        .forAddress(hostnameAndPort.getHostname(), hostnameAndPort.getPort())
         .usePlaintext()
         .build();
   }

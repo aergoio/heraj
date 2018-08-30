@@ -22,14 +22,12 @@ import hera.build.res.Project;
 import hera.build.res.TestResource;
 import hera.build.web.model.BuildDetails;
 import hera.exception.NoBuildTargetException;
-import hera.util.ExceptionUtils;
 import hera.util.FileWatcher;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.WatchService;
-import java.util.ArrayList;
 import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
@@ -53,6 +51,7 @@ public class BuildProject extends AbstractCommand {
     if (0 < port) {
       monitorServer.setPort(port);
     }
+    monitorServer.setProjectFilePath(getProjectFile());
     this.monitorServer = of(monitorServer);
     return monitorServer;
   }

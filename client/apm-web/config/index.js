@@ -24,6 +24,13 @@ module.exports = {
         pathRewrite: {
           '^/build': 'build'
         }
+      },
+      '/project': {
+        target: 'http://localhost:2000',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/project': 'project'
+        }
       }
     },
 

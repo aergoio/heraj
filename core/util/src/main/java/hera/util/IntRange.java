@@ -10,6 +10,17 @@ public class IntRange extends Pair<Integer, Integer> {
     super(Math.min(v1, v2), Math.max(v1, v2));
   }
 
+  /**
+   * Select subrange from this range.
+   *
+   * <p>
+   *   This means intersection of two ranges.
+   * </p>
+   *
+   * @param sub subrange
+   *
+   * @return intersection range
+   */
   public IntRange select(final IntRange sub) {
     final int index1 = Math.min(Math.max(sub.v1, this.v1), this.v2);
     final int index2 = Math.min(Math.max(sub.v2, this.v1), this.v2);
