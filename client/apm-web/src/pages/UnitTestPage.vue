@@ -7,7 +7,7 @@
 
       <div class="col-6">
         <span class="progress">
-          <div class="progress-bar bg-success" role="progressbar" style="width: 100%"
+          <div class="progress-bar" :class="{'bg-success': (failures == 0), 'bg-danger': (failures != 0)}" role="progressbar" style="width: 100%"
                aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
         </span>
       </div>
@@ -16,7 +16,9 @@
       <div class="col-6">
         <tree v-bind="reports" @item-click="itemSelected"></tree>
       </div>
-
+      <div class="col-6">
+        <b-form-textarea v-bind="null == selectedItem?'':selectedItem.errorMessage" :rows="20" :max-rows="20" />
+      </div>
     </div>
 
   </div>
@@ -35,9 +37,19 @@
     computed: {
       successes() {
         if (this.$props.unitTestReport) {
-          var sum = 0;
+          let sum = 0;
           for (let suite of this.$props.unitTestReport) {
-            sum += suite.tests
+            sum += suite.successes
+          }
+          return sum;
+        }
+        return 0;
+      },
+      failures() {
+        if (this.$props.unitTestReport) {
+          let sum = 0;
+          for (let suite of this.$props.unitTestReport) {
+            sum += suite.failures
           }
           return sum;
         }

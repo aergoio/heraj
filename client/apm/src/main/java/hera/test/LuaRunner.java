@@ -10,8 +10,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.text.MessageFormat;
 import java.text.ParseException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -40,8 +38,9 @@ public class LuaRunner {
     } catch (final ScriptException e) {
       logger.trace("=== ScriptException ===", e);
       final String rawMessage = e.getMessage();
-      final String prefix = "eval threw javax.script.ScriptException: ";
-      final MessageFormat messageFormat = new MessageFormat("eval threw javax.script.ScriptException: [string \"script\"]:{0}: {1}");
+      final String pattern =
+          "eval threw javax.script.ScriptException: [string \"script\"]:{0}: {1}";
+      final MessageFormat messageFormat = new MessageFormat(pattern);
       LuaErrorInformation errorInformation = null;
       try {
         final Object[] args = messageFormat.parse(rawMessage);
@@ -55,14 +54,22 @@ public class LuaRunner {
         final int columnNumber = e.getColumnNumber();
         errorInformation = new LuaErrorInformation(message, lineNumber, columnNumber);
       }
-
-      logger.debug("Error: {}", errorInformation);
-      return fail(errorInformation);
+      return apply(source, errorInformation);
     } catch (final LuaError e) {
       logger.trace("=== LuaError ===", e);
-      LuaErrorInformation errorInformation = new LuaErrorInformation(e.getMessage());
-      logger.debug("Error: {}", errorInformation);
-      return fail(errorInformation);
+      final LuaErrorInformation errorInformation = new LuaErrorInformation(e.getMessage());
+      return apply(source, errorInformation);
+
+    }
+  }
+
+  protected TestResult apply(LuaSource source, LuaErrorInformation errorInformation) {
+    logger.debug("Error: {}", errorInformation);
+    final int lineNumber = errorInformation.getLineNumber();
+    if (lineNumber < 0) {
+      return fail(errorInformation, null);
+    } else {
+      return fail(errorInformation, source.toString(lineNumber - 10, lineNumber + 10));
     }
   }
 }
