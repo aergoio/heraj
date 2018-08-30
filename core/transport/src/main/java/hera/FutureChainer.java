@@ -55,7 +55,7 @@ public class FutureChainer<T, R> implements FutureCallback<T> {
             default:
               return new RpcException(e);
           }
-        }).orElse(new RpcException(e));
+        }).orElse(e instanceof RpcException ? (RpcException) e : new RpcException(e));
     nextFuture.complete(fail(convertedError));
   }
 
