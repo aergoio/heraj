@@ -4,27 +4,46 @@
 
 package hera.client;
 
+import static hera.api.tupleorerror.FunctionChain.fail;
+import static hera.util.IoUtils.from;
 import static hera.util.TransportUtils.copyFrom;
+import static hera.util.TransportUtils.inputStreamToByteArray;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 import hera.FutureChainer;
+import hera.api.AccountAsyncOperation;
 import hera.api.ContractAsyncOperation;
+import hera.api.Decoder;
+import hera.api.TransactionAsyncOperation;
 import hera.api.model.Abi;
 import hera.api.model.AbiSet;
+import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.BytesValue;
 import hera.api.model.Hash;
 import hera.api.model.Receipt;
+import hera.api.model.Signature;
+import hera.api.model.Transaction;
+import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.transport.AbiSetConverterFactory;
 import hera.transport.ModelConverter;
 import hera.transport.ReceiptConverterFactory;
+import hera.util.Base58Utils;
 import hera.util.DangerousSupplier;
 import io.grpc.ManagedChannel;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -37,14 +56,32 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
 
   protected final AergoRPCServiceFutureStub aergoService;
 
-  protected final ModelConverter<Receipt, Blockchain.Receipt> contractConverter;
+  protected final AccountAsyncOperation accountAsyncOperation;
+
+  protected final TransactionAsyncOperation transactionAsyncOperation;
+
+  protected final ModelConverter<Receipt, Blockchain.Receipt> receiptConverter;
+
+  protected final ModelConverter<AbiSet, Blockchain.ABI> abiSetConverter;
+
+  protected final Decoder base58Decoder =
+      reader -> new ByteArrayInputStream(Base58Utils.decode(from(reader)));
+
+  protected final ObjectMapper objectMapper = new ObjectMapper();
 
   public ContractAsyncTemplate(final ManagedChannel channel) {
     this(newFutureStub(channel));
   }
 
+  /**
+   * ContractAsyncTemplate constructor.
+   *
+   * @param aergoService aergo service
+   */
   public ContractAsyncTemplate(final AergoRPCServiceFutureStub aergoService) {
-    this(aergoService, new ReceiptConverterFactory().create());
+    this(aergoService, new AccountAsyncTemplate(aergoService),
+        new TransactionAsyncTemplate(aergoService), new ReceiptConverterFactory().create(),
+        new AbiSetConverterFactory().create());
   }
 
   @Override
@@ -56,42 +93,95 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
     final ListenableFuture<Blockchain.Receipt> listenableFuture =
         aergoService.getReceipt(hashBytes);
     FutureChainer<Blockchain.Receipt, Receipt> callback =
-        new FutureChainer<>(nextFuture, r -> contractConverter.convertToDomainModel(r));
+        new FutureChainer<>(nextFuture, r -> receiptConverter.convertToDomainModel(r));
+    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+
+    return nextFuture;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public ResultOrErrorFuture<Hash> deploy(final AccountAddress creator,
+      final DangerousSupplier<InputStream> contractCodePayload) {
+    // TODO : make getting nonce, sign, commit asynchronously
+    final Long nonce =
+        accountAsyncOperation.get(creator).thenApply(a -> a.getNonce() + 1).get().getResult();
+
+    final Transaction transaction = new Transaction();
+    transaction.setNonce(nonce);
+    transaction.setSender(creator);
+    try {
+      final InputStream base58Decoded =
+          base58Decoder.decode(new InputStreamReader(contractCodePayload.get()));
+      transaction.setPayload(BytesValue.of(inputStreamToByteArray(base58Decoded)));
+    } catch (Throwable e) {
+      return ResultOrErrorFuture.supply(() -> fail(e));
+    }
+
+    final ResultOrError<Signature> signature = transactionAsyncOperation.sign(transaction).get();
+    transaction.setSignature(signature.getResult());
+
+    return transactionAsyncOperation.commit(transaction);
+  }
+
+  @Override
+  public ResultOrErrorFuture<AbiSet> getAbiSet(final AccountAddress contract) {
+    ResultOrErrorFuture<AbiSet> nextFuture = new ResultOrErrorFuture<>();
+
+    final ByteString byteString = copyFrom(contract);
+    final Rpc.SingleBytes hashBytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
+    final ListenableFuture<Blockchain.ABI> listenableFuture = aergoService.getABI(hashBytes);
+    FutureChainer<Blockchain.ABI, AbiSet> callback =
+        new FutureChainer<>(nextFuture, a -> abiSetConverter.convertToDomainModel(a));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;
   }
 
   @Override
-  public ResultOrErrorFuture<Hash> deploy(AccountAddress creator,
-      DangerousSupplier<InputStream> bytecode, AbiSet abiSet) {
-    // TODO Auto-generated method stub
-    return null;
+  public ResultOrErrorFuture<Abi> getAbi(final AccountAddress contract, final String functionName) {
+    return getAbiSet(contract).thenApply(a -> a.findAbiByName(functionName).get());
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public ResultOrErrorFuture<Hash> execute(final AccountAddress executor,
+      final AccountAddress contract, final Abi abi, final Object... args) {
+    // TODO : make getting nonce, sign, commit asynchronously
+    final ResultOrError<Account> account = accountAsyncOperation.get(executor).get();
+    long nonce = account.thenApply(a -> a.getNonce()).getResult();
+
+    final Transaction transaction = new Transaction();
+    transaction.setNonce(nonce + 1);
+    transaction.setSender(executor);
+    transaction.setRecipient(contract);
+    try {
+      transaction.setPayload(BytesValue.of(toFunctionCallJsonString(abi, args).getBytes()));
+    } catch (JsonProcessingException e) {
+      return ResultOrErrorFuture.supply(() -> fail(e));
+    }
+
+    final ResultOrError<Signature> signature = transactionAsyncOperation.sign(transaction).get();
+    transaction.setSignature(signature.getResult());
+
+    return transactionAsyncOperation.commit(transaction);
   }
 
   @Override
-  public ResultOrErrorFuture<AbiSet> getAbiSet(AccountAddress contract) {
-    // TODO Auto-generated method stub
-    return null;
+  public ResultOrErrorFuture<Object> query(final AccountAddress contract, final Abi abi,
+      final Object... args) {
+    // TODO server not implemented
+    throw new UnsupportedOperationException();
   }
 
-  @Override
-  public ResultOrErrorFuture<Abi> getAbiSet(AccountAddress contract, String functionName) {
-    // TODO Auto-generated method stub
-    return null;
+  protected String toFunctionCallJsonString(final Abi abi, final Object... args)
+      throws JsonProcessingException {
+    ObjectNode node = objectMapper.createObjectNode();
+    node.put("Name", abi.getName());
+    ArrayNode argsNode = node.putArray("Args");
+    for (Object arg : args) {
+      argsNode.add(arg.toString());
+    }
+    return node.toString();
   }
-
-  @Override
-  public ResultOrErrorFuture<Hash> execute(AccountAddress executor, AccountAddress contract,
-      Abi abi, Object... args) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public ResultOrErrorFuture<Object> query(AccountAddress contract) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
 }

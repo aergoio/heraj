@@ -24,15 +24,14 @@ public interface ContractOperation {
   ResultOrError<Receipt> getReceipt(Hash hash);
 
   /**
-   * Deploy smart contract with byte code and abi set.
+   * Deploy smart contract contract code in payload form encoded with base58.
    *
    * @param creator smart contract creator
-   * @param bytecode byte code
-   * @param abiSet abi set
+   * @param contractCodePayload contract code in payload form encoded with base58
    * @return contract definition transaction hash or error
    */
-  ResultOrError<Hash> deploy(AccountAddress creator, DangerousSupplier<InputStream> bytecode,
-      AbiSet abiSet);
+  ResultOrError<Hash> deploy(AccountAddress creator,
+      DangerousSupplier<InputStream> contractCodePayload);
 
   /**
    * Get abi set corresponding to contract address.
@@ -49,7 +48,7 @@ public interface ContractOperation {
    * @param functionName function name
    * @return abi or error
    */
-  ResultOrError<Abi> getAbiSet(AccountAddress contract, String functionName);
+  ResultOrError<Abi> getAbi(AccountAddress contract, String functionName);
 
   /**
    * Execute the smart contract.
@@ -67,8 +66,10 @@ public interface ContractOperation {
    * Query the smart contract state.
    *
    * @param contract contract address
+   * @param abi abi
+   * @param args contract function arguments
    * @return query result or error
    */
-  ResultOrError<Object> query(AccountAddress contract);
+  ResultOrError<Object> query(AccountAddress contract, Abi abi, Object... args);
 
 }

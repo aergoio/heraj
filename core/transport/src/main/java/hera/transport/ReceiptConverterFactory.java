@@ -25,6 +25,7 @@ public class ReceiptConverterFactory {
     final Receipt domainReceipt = new Receipt();
     domainReceipt.setReceipt(AccountAddress.of(rpcReceipt.getContractAddress().toByteArray()));
     domainReceipt.setStatus(rpcReceipt.getStatus());
+    domainReceipt.setRet(rpcReceipt.getRet());
     return domainReceipt;
   };
 

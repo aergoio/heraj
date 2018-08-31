@@ -17,6 +17,7 @@ public class Base58Utils {
   protected static final char ENCODED_ZERO = BASE58_CHARS[0];
 
   protected static final int[] INDEXES = new int[128];
+
   static {
     Arrays.fill(INDEXES, -1);
     for (int i = 0; i < BASE58_CHARS.length; i++) {

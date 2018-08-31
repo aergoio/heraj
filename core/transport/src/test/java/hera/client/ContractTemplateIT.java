@@ -9,24 +9,21 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import hera.api.model.Abi;
+import hera.api.model.AbiSet;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.BytesValue;
 import hera.api.model.Hash;
 import hera.api.model.Receipt;
-import hera.api.model.Transaction;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
+import java.io.FileInputStream;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Before;
 import org.junit.Test;
 
 public class ContractTemplateIT extends AbstractIT {
 
-  protected static final String CONTRACT_CODE = "src/test/resources/contract.luabc";
-
-  protected static final String EXECUTION_CODE = "src/test/resources/execution.json";
+  protected static final String CONTRACT_IN_PAYLOAD = "src/test/resources/contract.payload";
 
   protected static final String PASSWORD = randomUUID().toString();
 
@@ -49,52 +46,45 @@ public class ContractTemplateIT extends AbstractIT {
     contractTemplate = new ContractTemplate(channel);
   }
 
-  protected byte[] readBytesFromFile(final String filename) throws IOException {
-    final File file = new File(filename);
-    assertTrue(file.exists());
-    return Files.readAllBytes(file.toPath());
-  }
-
   @Test
-  public void testLuaContractDeployAndExecuteByPayload() throws Throwable {
+  public void testLuaContractDeployAndExecute() throws Throwable {
     final Boolean unlockResult = accountTemplate.unlock(creator.getAddress(), PASSWORD).getResult();
     assertTrue(unlockResult);
 
-    final Transaction definitionTransaction = new Transaction();
-    definitionTransaction.setNonce(atomicInteger.getAndIncrement());
-    definitionTransaction.setSender(creator.getAddress());
-    definitionTransaction.setPayload(BytesValue.of(readBytesFromFile(CONTRACT_CODE)));
-
-    definitionTransaction.setSignature(transactionTemplate.sign(definitionTransaction).getResult());
-    final Hash definitionTxHash = transactionTemplate.commit(definitionTransaction).getResult();
-    assertNotNull(definitionTxHash);
-    logger.debug("Hash: {}", definitionTxHash);
+    final Hash deployTxHash = contractTemplate
+        .deploy(creator.getAddress(), () -> new FileInputStream(new File(CONTRACT_IN_PAYLOAD)))
+        .getResult();
+    assertNotNull(deployTxHash);
+    logger.debug("Deploy hash: {}", deployTxHash);
 
     waitForNextBlockToGenerate();
 
-    final Receipt definitionReceipt = contractTemplate.getReceipt(definitionTxHash).getResult();
+    final Receipt definitionReceipt = contractTemplate.getReceipt(deployTxHash).getResult();
     assertTrue(0 < definitionReceipt.getReceipt().getValue().length);
     assertEquals("CREATED", definitionReceipt.getStatus());
 
     final AccountAddress contractAddress = definitionReceipt.getReceipt();
     logger.debug("ContractAddress: {}", contractAddress);
 
-    final Transaction executionTransaction = new Transaction();
-    executionTransaction.setNonce(atomicInteger.getAndIncrement());
-    executionTransaction.setSender(creator.getAddress());
-    executionTransaction.setRecipient(contractAddress);
-    executionTransaction.setPayload(BytesValue.of(readBytesFromFile(EXECUTION_CODE)));
+    final AbiSet abiSet = contractTemplate.getAbiSet(contractAddress).getResult();
+    assertNotNull(abiSet);
+    logger.debug("Abi set: {}", abiSet);
 
-    executionTransaction.setSignature(transactionTemplate.sign(executionTransaction).getResult());
-    final Hash executionTxHash = transactionTemplate.commit(executionTransaction).getResult();
+    final Abi abi = contractTemplate.getAbi(contractAddress, "helloReturn").getResult();
+    assertNotNull(abi);
+    logger.debug("Abi: {}", abi);
+
+    final Hash executionTxHash = contractTemplate
+        .execute(creator.getAddress(), contractAddress, abi, "Hello aergo").getResult();
     assertNotNull(executionTxHash);
-    logger.debug("Hash: {}", executionTxHash);
+    logger.debug("Execution hash: {}", executionTxHash);
 
     waitForNextBlockToGenerate();
 
     final Receipt executionReceipt = contractTemplate.getReceipt(executionTxHash).getResult();
     assertTrue(0 < executionReceipt.getReceipt().getValue().length);
     assertEquals("SUCCESS", executionReceipt.getStatus());
+    assertTrue(0 < executionReceipt.getRet().length());
 
     final Boolean lockResult = accountTemplate.lock(creator.getAddress(), PASSWORD).getResult();
     assertTrue(lockResult);

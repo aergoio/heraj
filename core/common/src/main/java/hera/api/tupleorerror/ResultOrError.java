@@ -6,7 +6,7 @@ package hera.api.tupleorerror;
 
 import static hera.api.tupleorerror.FunctionChain.fail;
 import static hera.api.tupleorerror.FunctionChain.success;
-import java.util.function.Function;
+
 import java.util.function.Supplier;
 
 @SuppressWarnings("unchecked")

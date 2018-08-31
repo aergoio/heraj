@@ -45,35 +45,54 @@ public class ContractTemplate implements ContractOperation {
   }
 
   @Override
-  public ResultOrError<Hash> deploy(AccountAddress creator, DangerousSupplier<InputStream> bytecode,
-      AbiSet abiSet) {
-    // TODO Auto-generated method stub
-    return null;
+  public ResultOrError<Hash> deploy(final AccountAddress creator,
+      final DangerousSupplier<InputStream> contractCodePayload) {
+    try {
+      return contractAsyncOperation.deploy(creator, contractCodePayload).get(TIMEOUT,
+          TimeUnit.MILLISECONDS);
+    } catch (Exception e) {
+      throw new HerajException(e);
+    }
   }
 
   @Override
-  public ResultOrError<AbiSet> getAbiSet(AccountAddress contract) {
-    // TODO Auto-generated method stub
-    return null;
+  public ResultOrError<AbiSet> getAbiSet(final AccountAddress contract) {
+    try {
+      return contractAsyncOperation.getAbiSet(contract).get(TIMEOUT, TimeUnit.MILLISECONDS);
+    } catch (Exception e) {
+      throw new HerajException(e);
+    }
   }
 
   @Override
-  public ResultOrError<Abi> getAbiSet(AccountAddress contract, String functionName) {
-    // TODO Auto-generated method stub
-    return null;
+  public ResultOrError<Abi> getAbi(final AccountAddress contract, final String functionName) {
+    try {
+      return contractAsyncOperation.getAbi(contract, functionName).get(TIMEOUT,
+          TimeUnit.MILLISECONDS);
+    } catch (Exception e) {
+      throw new HerajException(e);
+    }
   }
 
   @Override
-  public ResultOrError<Hash> execute(AccountAddress executor, AccountAddress contract, Abi abi,
-      Object... args) {
-    // TODO Auto-generated method stub
-    return null;
+  public ResultOrError<Hash> execute(final AccountAddress executor, final AccountAddress contract,
+      final Abi abi, final Object... args) {
+    try {
+      return contractAsyncOperation.execute(executor, contract, abi, args).get(TIMEOUT,
+          TimeUnit.MILLISECONDS);
+    } catch (Exception e) {
+      throw new HerajException(e);
+    }
   }
 
   @Override
-  public ResultOrError<Object> query(AccountAddress contract) {
-    // TODO Auto-generated method stub
-    return null;
+  public ResultOrError<Object> query(final AccountAddress contract, final Abi abi,
+      final Object... args) {
+    try {
+      return contractAsyncOperation.query(contract, abi, args).get(TIMEOUT, TimeUnit.MILLISECONDS);
+    } catch (Exception e) {
+      throw new HerajException(e);
+    }
   }
 
 }

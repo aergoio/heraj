@@ -18,4 +18,8 @@ public class Receipt {
   @Getter
   @Setter
   protected String status;
+
+  @Getter
+  @Setter
+  protected String ret;
 }
