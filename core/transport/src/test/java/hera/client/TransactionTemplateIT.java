@@ -8,6 +8,7 @@ import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
 import hera.api.SignTemplate;
 import hera.api.model.Account;
 import hera.api.model.Authentication;
@@ -15,6 +16,7 @@ import hera.api.model.BytesValue;
 import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSAKeyGenerator;
 import org.junit.Before;
@@ -55,7 +57,7 @@ public class TransactionTemplateIT extends AbstractIT {
     Signature signature = transactionTemplate.sign(transaction).getResult();
     assertNotNull(signature);
     assertNotNull(signature.getSign());
-    assertNotNull(signature.getHash());
+    assertNotNull(signature.getTxHash());
     logger.debug("Signature: {}", signature);
 
     transaction.setSignature(signature);
@@ -63,7 +65,7 @@ public class TransactionTemplateIT extends AbstractIT {
     logger.debug("Hash: {}", hash);
     assertNotNull(hash);
 
-    final Transaction queried = transactionTemplate.getTransaction(signature.getHash()).getResult();
+    final Transaction queried = transactionTemplate.getTransaction(signature.getTxHash()).getResult();
     assertNotNull(queried);
     assertEquals(sender.getAddress(), queried.getSender());
     assertEquals(recipient.getAddress(), queried.getRecipient());
@@ -90,7 +92,7 @@ public class TransactionTemplateIT extends AbstractIT {
     final ECDSAKey key = new ECDSAKeyGenerator().create();
     final BytesValue sign = signTemplate.sign(key, hashWithoutSign);
     transaction.setSignature(Signature.of(sign, null));
-    final Hash hash = transaction.calculateHash();
+    final TxHash hash = transaction.calculateHash();
 
     final Signature signature = Signature.of(sign, hash);
     logger.debug("Signature: {}", signature);
@@ -98,7 +100,7 @@ public class TransactionTemplateIT extends AbstractIT {
 
     transactionTemplate.commit(transaction);
 
-    final Transaction queried = transactionTemplate.getTransaction(signature.getHash()).getResult();
+    final Transaction queried = transactionTemplate.getTransaction(signature.getTxHash()).getResult();
     assertNotNull(queried);
     assertEquals(sender.getAddress(), queried.getSender());
     assertEquals(recipient.getAddress(), queried.getRecipient());

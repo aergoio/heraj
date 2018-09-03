@@ -70,7 +70,7 @@ public class TransactionTemplateBenchmark {
 
       transaction.setSignature(signature);
       transactionTemplate.commit(transaction);
-      transactionTemplate.getTransaction(signature.getHash());
+      transactionTemplate.getTransaction(signature.getTxHash());
     }
   }
 

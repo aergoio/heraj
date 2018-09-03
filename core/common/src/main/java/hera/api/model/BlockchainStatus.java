@@ -17,5 +17,5 @@ public class BlockchainStatus {
 
   @Getter
   @Setter
-  protected Hash bestBlockHash = new Hash(null);
+  protected BlockHash bestBlockHash = new BlockHash(null);
 }

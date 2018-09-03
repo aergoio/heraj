@@ -8,9 +8,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import hera.api.model.Block;
+import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
 import hera.api.model.BlockchainStatus;
-import hera.api.model.Hash;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,11 +31,11 @@ public class BlockTemplateIT extends AbstractIT {
   @Test
   public void testGetBlockByHash() {
     final BlockchainStatus status = blockChainTemplate.getBlockchainStatus().getResult();
-    final Hash bestBlockHash = status.getBestBlockHash();
+    final BlockHash bestBlockHash = status.getBestBlockHash();
     final Block block = blockTemplate.getBlock(bestBlockHash).getResult();
     assertNotNull(block);
     assertTrue(0 < block.getHash().getBytesValue().length);
-    assertTrue(0 < block.getPreviousBlockHash().getBytesValue().length);
+    assertTrue(0 < block.getPreviousHash().getBytesValue().length);
   }
 
   @Test
@@ -45,13 +45,13 @@ public class BlockTemplateIT extends AbstractIT {
     final Block block = blockTemplate.getBlock(bestBlockHeight).getResult();
     assertNotNull(block);
     assertTrue(0 < block.getHash().getBytesValue().length);
-    assertTrue(0 < block.getPreviousBlockHash().getBytesValue().length);
+    assertTrue(0 < block.getPreviousHash().getBytesValue().length);
   }
 
   @Test
   public void testListBlockHeadersByHash() {
     final BlockchainStatus status = blockChainTemplate.getBlockchainStatus().getResult();
-    final Hash bestBlockHash = status.getBestBlockHash();
+    final BlockHash bestBlockHash = status.getBestBlockHash();
     final int size = 3;
     final List<BlockHeader> blockHeaders =
         blockTemplate.listBlockHeaders(bestBlockHash, size).getResult();

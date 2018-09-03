@@ -12,9 +12,9 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
-import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.ModelConverter;
 import org.junit.BeforeClass;
@@ -60,7 +60,7 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
         aergoService, transactionConverter, transactionInBlockConverter);
 
     final ResultOrErrorFuture<Transaction> transaction =
-        transactionAsyncTemplate.getTransaction(new Hash(randomUUID().toString().getBytes()));
+        transactionAsyncTemplate.getTransaction(new TxHash(randomUUID().toString().getBytes()));
     assertNotNull(transaction);
   }
 
@@ -101,8 +101,8 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
     final TransactionAsyncTemplate transactionAsyncTemplate = new TransactionAsyncTemplate(
         aergoService, transactionConverter, transactionInBlockConverter);
 
-    final ResultOrErrorFuture<Hash> hash = transactionAsyncTemplate.commit(new Transaction());
-    assertNotNull(hash);
+    final ResultOrErrorFuture<TxHash> txHash = transactionAsyncTemplate.commit(new Transaction());
+    assertNotNull(txHash);
   }
 
 }

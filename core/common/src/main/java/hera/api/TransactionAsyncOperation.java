@@ -4,9 +4,9 @@
 
 package hera.api;
 
-import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 
 public interface TransactionAsyncOperation {
@@ -14,10 +14,10 @@ public interface TransactionAsyncOperation {
   /**
    * Get transaction asynchronously.
    *
-   * @param hash transaction's hash
+   * @param txHash transaction's hash
    * @return future of an transaction or error
    */
-  ResultOrErrorFuture<Transaction> getTransaction(Hash hash);
+  ResultOrErrorFuture<Transaction> getTransaction(TxHash txHash);
 
   /**
    * Sign for transaction asynchronously.
@@ -41,6 +41,6 @@ public interface TransactionAsyncOperation {
    * @param transaction transaction to commit
    * @return future of transaction hash or error
    */
-  ResultOrErrorFuture<Hash> commit(Transaction transaction);
+  ResultOrErrorFuture<TxHash> commit(Transaction transaction);
 
 }

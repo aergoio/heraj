@@ -14,7 +14,7 @@ import hera.api.model.AbiSet;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
-import hera.api.model.Hash;
+import hera.api.model.ContractTxHash;
 import hera.api.model.Receipt;
 import java.io.File;
 import java.io.FileInputStream;
@@ -53,7 +53,7 @@ public class ContractTemplateIT extends AbstractIT {
         accountTemplate.unlock(Authentication.of(creator.getAddress(), PASSWORD)).getResult();
     assertTrue(unlockResult);
 
-    final Hash deployTxHash = contractTemplate
+    final ContractTxHash deployTxHash = contractTemplate
         .deploy(creator.getAddress(), () -> new FileInputStream(new File(CONTRACT_IN_PAYLOAD)))
         .getResult();
     assertNotNull(deployTxHash);
@@ -76,7 +76,7 @@ public class ContractTemplateIT extends AbstractIT {
     assertNotNull(abi);
     logger.debug("Abi: {}", abi);
 
-    final Hash executionTxHash = contractTemplate
+    final ContractTxHash executionTxHash = contractTemplate
         .execute(creator.getAddress(), contractAddress, abi, "Hello aergo").getResult();
     assertNotNull(executionTxHash);
     logger.debug("Execution hash: {}", executionTxHash);

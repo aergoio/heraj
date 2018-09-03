@@ -10,6 +10,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
+
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
 import hera.api.AccountAsyncOperation;
@@ -18,6 +19,7 @@ import hera.api.model.Abi;
 import hera.api.model.AbiSet;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.ContractTxHash;
 import hera.api.model.Hash;
 import hera.api.model.Receipt;
 import hera.api.model.Signature;
@@ -67,7 +69,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
             mock(TransactionAsyncOperation.class), receiptConverter, abiConverter);
 
     final ResultOrErrorFuture<Receipt> receipt =
-        contractAsyncTemplate.getReceipt(Hash.of(randomUUID().toString().getBytes()));
+        contractAsyncTemplate.getReceipt(ContractTxHash.of(randomUUID().toString().getBytes()));
     assertNotNull(receipt);
   }
 
@@ -88,7 +90,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     final ContractAsyncTemplate contractAsyncTemplate = new ContractAsyncTemplate(aergoService,
         mockAccountAsyncOperation, mockTransactionAsyncOperation, receiptConverter, abiConverter);
 
-    final ResultOrErrorFuture<Hash> deployTxHash =
+    final ResultOrErrorFuture<ContractTxHash> deployTxHash =
         contractAsyncTemplate.deploy(AccountAddress.of(randomUUID().toString().getBytes()),
             () -> new ByteArrayInputStream(CONTRACT_PAYLOAD));
     assertNotNull(deployTxHash);
@@ -140,7 +142,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     final ContractAsyncTemplate contractAsyncTemplate = new ContractAsyncTemplate(aergoService,
         mockAccountAsyncOperation, mockTransactionAsyncOperation, receiptConverter, abiConverter);
 
-    final ResultOrErrorFuture<Hash> executionTxHash =
+    final ResultOrErrorFuture<ContractTxHash> executionTxHash =
         contractAsyncTemplate.execute(EXECUTOR_ADDRESS, EXECUTOR_ADDRESS, new Abi(), randomUUID());
     assertNotNull(executionTxHash);
   }

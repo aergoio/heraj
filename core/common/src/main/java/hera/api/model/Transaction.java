@@ -19,7 +19,7 @@ public class Transaction {
 
   @Getter
   @Setter
-  protected Hash blockHash;
+  protected BlockHash blockHash;
 
   @Getter
   @Setter
@@ -89,7 +89,7 @@ public class Transaction {
    *
    * @return hash value
    */
-  public Hash calculateHash() {
+  public TxHash calculateHash() {
     try {
       final ByteArrayOutputStream raw = new ByteArrayOutputStream();
       final DataOutputStream dataOut = new DataOutputStream(raw);
@@ -108,7 +108,7 @@ public class Transaction {
         }
       });
       dataOut.flush();
-      return new Hash(digest(raw.toByteArray()));
+      return new TxHash(digest(raw.toByteArray()));
     } catch (final IOException e) {
       throw new IllegalStateException(e);
     }

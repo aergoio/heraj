@@ -7,7 +7,7 @@ package hera.api;
 import hera.api.model.Abi;
 import hera.api.model.AbiSet;
 import hera.api.model.AccountAddress;
-import hera.api.model.Hash;
+import hera.api.model.ContractTxHash;
 import hera.api.model.Receipt;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.util.DangerousSupplier;
@@ -18,10 +18,10 @@ public interface ContractAsyncOperation {
   /**
    * Get receipt of transaction asynchronously.
    *
-   * @param hash transaction hash
+   * @param contractTxHash contract transaction hash
    * @return future of receipt of transaction or error
    */
-  ResultOrErrorFuture<Receipt> getReceipt(Hash hash);
+  ResultOrErrorFuture<Receipt> getReceipt(ContractTxHash contractTxHash);
 
   /**
    * Deploy smart contract contract code in payload form encoded with base58.
@@ -30,7 +30,7 @@ public interface ContractAsyncOperation {
    * @param contractCodePayload contract code in payload form encoded with base58
    * @return future of contract definition transaction hash or error
    */
-  ResultOrErrorFuture<Hash> deploy(AccountAddress creator,
+  ResultOrErrorFuture<ContractTxHash> deploy(AccountAddress creator,
       DangerousSupplier<InputStream> contractCodePayload);
 
   /**
@@ -57,10 +57,10 @@ public interface ContractAsyncOperation {
    * @param contract contract address
    * @param abi abi
    * @param args contract function arguments
-   * @return future of contract definition transaction hash or error
+   * @return future of contract execution transaction hash or error
    */
-  ResultOrErrorFuture<Hash> execute(AccountAddress executor, AccountAddress contract, Abi abi,
-      Object... args);
+  ResultOrErrorFuture<ContractTxHash> execute(AccountAddress executor, AccountAddress contract,
+      Abi abi, Object... args);
 
   /**
    * Query the smart contract state.

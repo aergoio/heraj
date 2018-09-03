@@ -9,8 +9,10 @@ import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.Block;
+import hera.api.model.BlockHash;
 import hera.api.model.Hash;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import java.util.List;
 import java.util.function.Function;
 import org.slf4j.Logger;
@@ -30,11 +32,11 @@ public class BlockConverterFactory {
     logger.trace("Domain status: {}", domainBlock);
 
     final BlockHeader blockHeader = BlockHeader.newBuilder()
-        .setPrevBlockHash(copyFrom(domainBlock.getPreviousBlockHash()))
+        .setPrevBlockHash(copyFrom(domainBlock.getPreviousHash()))
         .setBlockNo(domainBlock.getBlockNumber())
         .setTimestamp(domainBlock.getTimestamp())
         .setBlocksRootHash(copyFrom(domainBlock.getRootHash()))
-        .setTxsRootHash(copyFrom(domainBlock.getTransactionsRootHash()))
+        .setTxsRootHash(copyFrom(domainBlock.getTxRootHash()))
         .setPubKey(copyFrom(domainBlock.getPublicKey()))
         .setSign(copyFrom(domainBlock.getSign()))
         .build();
@@ -60,12 +62,12 @@ public class BlockConverterFactory {
     final BlockBody rpcBlockBody = rpcBlock.getBody();
 
     final Block domainBlock = new Block();
-    domainBlock.setHash(new Hash(rpcBlock.getHash().toByteArray()));
+    domainBlock.setHash(new BlockHash(rpcBlock.getHash().toByteArray()));
     domainBlock.setBlockNumber(rpcBlockHeader.getBlockNo());
-    domainBlock.setRootHash(new Hash(rpcBlockHeader.getBlocksRootHash().toByteArray()));
+    domainBlock.setRootHash(new BlockHash(rpcBlockHeader.getBlocksRootHash().toByteArray()));
     domainBlock.setTimestamp(rpcBlockHeader.getTimestamp());
-    domainBlock.setPreviousBlockHash(new Hash(rpcBlockHeader.getPrevBlockHash().toByteArray()));
-    domainBlock.setTransactionsRootHash(new Hash(rpcBlockHeader.getTxsRootHash().toByteArray()));
+    domainBlock.setPreviousHash(new BlockHash(rpcBlockHeader.getPrevBlockHash().toByteArray()));
+    domainBlock.setTxRootHash(new TxHash(rpcBlockHeader.getTxsRootHash().toByteArray()));
     domainBlock.setPublicKey(new Hash(rpcBlockHeader.getPubKey().toByteArray()));
     domainBlock.setSign(new Hash(rpcBlockHeader.getSign().toByteArray()));
 

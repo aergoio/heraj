@@ -10,8 +10,8 @@ import static types.AergoRPCServiceGrpc.newFutureStub;
 import hera.api.BlockAsyncOperation;
 import hera.api.BlockOperation;
 import hera.api.model.Block;
+import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
-import hera.api.model.Hash;
 import hera.api.tupleorerror.ResultOrError;
 import hera.exception.HerajException;
 import io.grpc.ManagedChannel;
@@ -34,9 +34,9 @@ public class BlockTemplate implements BlockOperation {
   }
 
   @Override
-  public ResultOrError<Block> getBlock(Hash hash) {
+  public ResultOrError<Block> getBlock(BlockHash blockHash) {
     try {
-      return blockAsyncOperation.getBlock(hash).get(TIMEOUT, TimeUnit.MILLISECONDS);
+      return blockAsyncOperation.getBlock(blockHash).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
       throw new HerajException(e);
     }
@@ -52,9 +52,10 @@ public class BlockTemplate implements BlockOperation {
   }
 
   @Override
-  public ResultOrError<List<BlockHeader>> listBlockHeaders(Hash hash, int size) {
+  public ResultOrError<List<BlockHeader>> listBlockHeaders(BlockHash blockHash, int size) {
     try {
-      return blockAsyncOperation.listBlockHeaders(hash, size).get(TIMEOUT, TimeUnit.MILLISECONDS);
+      return blockAsyncOperation.listBlockHeaders(blockHash, size).get(TIMEOUT,
+          TimeUnit.MILLISECONDS);
     } catch (Exception e) {
       throw new HerajException(e);
     }

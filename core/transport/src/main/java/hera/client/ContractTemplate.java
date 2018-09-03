@@ -12,7 +12,7 @@ import hera.api.ContractOperation;
 import hera.api.model.Abi;
 import hera.api.model.AbiSet;
 import hera.api.model.AccountAddress;
-import hera.api.model.Hash;
+import hera.api.model.ContractTxHash;
 import hera.api.model.Receipt;
 import hera.api.tupleorerror.ResultOrError;
 import hera.exception.HerajException;
@@ -36,16 +36,16 @@ public class ContractTemplate implements ContractOperation {
   }
 
   @Override
-  public ResultOrError<Receipt> getReceipt(final Hash hash) {
+  public ResultOrError<Receipt> getReceipt(final ContractTxHash deployTxHash) {
     try {
-      return contractAsyncOperation.getReceipt(hash).get(TIMEOUT, TimeUnit.MILLISECONDS);
+      return contractAsyncOperation.getReceipt(deployTxHash).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
       throw new HerajException(e);
     }
   }
 
   @Override
-  public ResultOrError<Hash> deploy(final AccountAddress creator,
+  public ResultOrError<ContractTxHash> deploy(final AccountAddress creator,
       final DangerousSupplier<InputStream> contractCodePayload) {
     try {
       return contractAsyncOperation.deploy(creator, contractCodePayload).get(TIMEOUT,
@@ -75,8 +75,8 @@ public class ContractTemplate implements ContractOperation {
   }
 
   @Override
-  public ResultOrError<Hash> execute(final AccountAddress executor, final AccountAddress contract,
-      final Abi abi, final Object... args) {
+  public ResultOrError<ContractTxHash> execute(final AccountAddress executor,
+      final AccountAddress contract, final Abi abi, final Object... args) {
     try {
       return contractAsyncOperation.execute(executor, contract, abi, args).get(TIMEOUT,
           TimeUnit.MILLISECONDS);

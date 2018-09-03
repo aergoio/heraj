@@ -5,8 +5,8 @@
 package hera.api;
 
 import hera.api.model.Block;
+import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
-import hera.api.model.Hash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.List;
 
@@ -15,10 +15,10 @@ public interface BlockAsyncOperation {
   /**
    * Get block by hash asynchronously.
    *
-   * @param hash block's hash
+   * @param blockHash block hash
    * @return future of block or error
    */
-  ResultOrErrorFuture<Block> getBlock(Hash hash);
+  ResultOrErrorFuture<Block> getBlock(BlockHash blockHash);
 
   /**
    * Get block by height asynchronously.
@@ -31,11 +31,11 @@ public interface BlockAsyncOperation {
   /**
    * Get block headers of size starting from block for provided hash asynchronously.
    *
-   * @param hash block's hash
+   * @param blockHash block hash
    * @param size block list size whose upper bound is 1000
    * @return future of block list or error
    */
-  ResultOrErrorFuture<List<BlockHeader>> listBlockHeaders(Hash hash, int size);
+  ResultOrErrorFuture<List<BlockHeader>> listBlockHeaders(BlockHash blockHash, int size);
 
   /**
    * Get block headers of size starting from block for provided height asynchronously.

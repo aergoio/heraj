@@ -7,7 +7,7 @@ package hera.api;
 import hera.api.model.Abi;
 import hera.api.model.AbiSet;
 import hera.api.model.AccountAddress;
-import hera.api.model.Hash;
+import hera.api.model.ContractTxHash;
 import hera.api.model.Receipt;
 import hera.api.tupleorerror.ResultOrError;
 import hera.util.DangerousSupplier;
@@ -18,10 +18,10 @@ public interface ContractOperation {
   /**
    * Get receipt of transaction.
    *
-   * @param hash transaction hash
+   * @param contractTxHash contract transaction hash
    * @return receipt of transaction or error
    */
-  ResultOrError<Receipt> getReceipt(Hash hash);
+  ResultOrError<Receipt> getReceipt(ContractTxHash contractTxHash);
 
   /**
    * Deploy smart contract contract code in payload form encoded with base58.
@@ -30,7 +30,7 @@ public interface ContractOperation {
    * @param contractCodePayload contract code in payload form encoded with base58
    * @return contract definition transaction hash or error
    */
-  ResultOrError<Hash> deploy(AccountAddress creator,
+  ResultOrError<ContractTxHash> deploy(AccountAddress creator,
       DangerousSupplier<InputStream> contractCodePayload);
 
   /**
@@ -57,9 +57,9 @@ public interface ContractOperation {
    * @param contract contract address
    * @param abi abi
    * @param args contract function arguments
-   * @return contract definition transaction hash or error
+   * @return contract execution transaction hash or error
    */
-  ResultOrError<Hash> execute(AccountAddress executor, AccountAddress contract, Abi abi,
+  ResultOrError<ContractTxHash> execute(AccountAddress executor, AccountAddress contract, Abi abi,
       Object... args);
 
   /**

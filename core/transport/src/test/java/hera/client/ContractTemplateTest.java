@@ -17,7 +17,7 @@ import hera.api.ContractAsyncOperation;
 import hera.api.model.Abi;
 import hera.api.model.AbiSet;
 import hera.api.model.AccountAddress;
-import hera.api.model.Hash;
+import hera.api.model.ContractTxHash;
 import hera.api.model.Receipt;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -46,20 +46,20 @@ public class ContractTemplateTest extends AbstractTestCase {
     final ContractTemplate contractTemplate = new ContractTemplate(asyncOperationMock);
 
     final ResultOrError<Receipt> receipt =
-        contractTemplate.getReceipt(Hash.of(randomUUID().toString().getBytes()));
+        contractTemplate.getReceipt(ContractTxHash.of(randomUUID().toString().getBytes()));
     assertNotNull(receipt);
   }
 
   @Test
   public void testDeploy() {
-    ResultOrErrorFuture<Hash> futureMock = mock(ResultOrErrorFuture.class);
+    ResultOrErrorFuture<ContractTxHash> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     ContractAsyncOperation asyncOperationMock = mock(ContractAsyncOperation.class);
     when(asyncOperationMock.deploy(any(), any())).thenReturn(futureMock);
 
     final ContractTemplate contractTemplate = new ContractTemplate(asyncOperationMock);
 
-    final ResultOrError<Hash> deployTxHash =
+    final ResultOrError<ContractTxHash> deployTxHash =
         contractTemplate.deploy(EXECUTOR_ADDRESS, () -> mock(InputStream.class));
     assertNotNull(deployTxHash);
   }
@@ -93,14 +93,14 @@ public class ContractTemplateTest extends AbstractTestCase {
 
   @Test
   public void testExecute() {
-    ResultOrErrorFuture<Hash> futureMock = mock(ResultOrErrorFuture.class);
+    ResultOrErrorFuture<ContractTxHash> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     ContractAsyncOperation asyncOperationMock = mock(ContractAsyncOperation.class);
     when(asyncOperationMock.execute(any(), any(), any(), any())).thenReturn(futureMock);
 
     final ContractTemplate contractTemplate = new ContractTemplate(asyncOperationMock);
 
-    final ResultOrError<Hash> executionTxHash =
+    final ResultOrError<ContractTxHash> executionTxHash =
         contractTemplate.execute(EXECUTOR_ADDRESS, CONTRACT_ADDRESS, new Abi(), randomUUID());
     assertNotNull(executionTxHash);
 

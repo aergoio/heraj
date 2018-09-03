@@ -29,6 +29,7 @@ import hera.api.model.AbiSet;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
+import hera.api.model.ContractTxHash;
 import hera.api.model.Hash;
 import hera.api.model.Receipt;
 import hera.api.model.Signature;
@@ -85,10 +86,10 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
   }
 
   @Override
-  public ResultOrErrorFuture<Receipt> getReceipt(final Hash hash) {
+  public ResultOrErrorFuture<Receipt> getReceipt(final ContractTxHash deployTxHash) {
     ResultOrErrorFuture<Receipt> nextFuture = new ResultOrErrorFuture<>();
 
-    final ByteString byteString = copyFrom(hash);
+    final ByteString byteString = copyFrom(deployTxHash);
     final Rpc.SingleBytes hashBytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
     final ListenableFuture<Blockchain.Receipt> listenableFuture =
         aergoService.getReceipt(hashBytes);
@@ -101,7 +102,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
 
   @SuppressWarnings("unchecked")
   @Override
-  public ResultOrErrorFuture<Hash> deploy(final AccountAddress creator,
+  public ResultOrErrorFuture<ContractTxHash> deploy(final AccountAddress creator,
       final DangerousSupplier<InputStream> contractCodePayload) {
     // TODO : make getting nonce, sign, commit asynchronously
     final Long nonce =
@@ -121,7 +122,8 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
     final ResultOrError<Signature> signature = transactionAsyncOperation.sign(transaction).get();
     transaction.setSignature(signature.getResult());
 
-    return transactionAsyncOperation.commit(transaction);
+    return transactionAsyncOperation.commit(transaction)
+        .thenApply(h -> ContractTxHash.of(h.getBytesValue()));
   }
 
   @Override
@@ -145,7 +147,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
 
   @SuppressWarnings("unchecked")
   @Override
-  public ResultOrErrorFuture<Hash> execute(final AccountAddress executor,
+  public ResultOrErrorFuture<ContractTxHash> execute(final AccountAddress executor,
       final AccountAddress contract, final Abi abi, final Object... args) {
     // TODO : make getting nonce, sign, commit asynchronously
     final ResultOrError<Account> account = accountAsyncOperation.get(executor).get();
@@ -164,7 +166,8 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
     final ResultOrError<Signature> signature = transactionAsyncOperation.sign(transaction).get();
     transaction.setSignature(signature.getResult());
 
-    return transactionAsyncOperation.commit(transaction);
+    return transactionAsyncOperation.commit(transaction)
+        .thenApply(h -> ContractTxHash.of(h.getBytesValue()));
   }
 
   @Override

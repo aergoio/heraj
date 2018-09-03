@@ -11,10 +11,10 @@ import static org.slf4j.LoggerFactory.getLogger;
 import com.google.protobuf.ByteString;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
-import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TransactionType;
+import hera.api.model.TxHash;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Blockchain.Tx;
@@ -65,7 +65,7 @@ public class TransactionConverterFactory {
     final Tx.Builder txBuilder = Tx.newBuilder();
     ofNullable(domainTransaction.getSignature()).ifPresent(signature -> {
       txBodyBuilder.setSign(copyFrom(signature.getSign()));
-      txBuilder.setHash(copyFrom(signature.getHash()));
+      txBuilder.setHash(copyFrom(signature.getTxHash()));
     });
     txBuilder.setBody(txBodyBuilder.build());
 
@@ -86,8 +86,8 @@ public class TransactionConverterFactory {
     domainTransaction.setPrice(txBody.getPrice());
     if (null != rpcTransaction.getHash() || null != txBody.getSign()) {
       final Signature signature = new Signature();
-      ofNullable(rpcTransaction.getHash()).map(ByteString::toByteArray).map(Hash::new)
-          .ifPresent(signature::setHash);
+      ofNullable(rpcTransaction.getHash()).map(ByteString::toByteArray).map(TxHash::new)
+          .ifPresent(signature::setTxHash);
       ofNullable(txBody.getSign()).map(ByteString::toByteArray).map(BytesValue::of)
           .ifPresent(signature::setSign);
       domainTransaction.setSignature(signature);

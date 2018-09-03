@@ -13,9 +13,9 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 import hera.AbstractTestCase;
 import hera.api.TransactionAsyncOperation;
-import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import org.junit.Test;
@@ -34,12 +34,12 @@ public class TransactionTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<Transaction> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     TransactionAsyncOperation asyncOperationMock = mock(TransactionAsyncOperation.class);
-    when(asyncOperationMock.getTransaction(any(Hash.class))).thenReturn(futureMock);
+    when(asyncOperationMock.getTransaction(any())).thenReturn(futureMock);
 
     final TransactionTemplate transactionTemplate = new TransactionTemplate(asyncOperationMock);
 
     final ResultOrError<Transaction> transaction =
-        transactionTemplate.getTransaction(new Hash(randomUUID().toString().getBytes()));
+        transactionTemplate.getTransaction(new TxHash(randomUUID().toString().getBytes()));
     assertNotNull(transaction);
   }
 
@@ -71,15 +71,15 @@ public class TransactionTemplateTest extends AbstractTestCase {
 
   @Test
   public void testCommit() throws Exception {
-    ResultOrErrorFuture<Hash> futureMock = mock(ResultOrErrorFuture.class);
+    ResultOrErrorFuture<TxHash> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     TransactionAsyncOperation asyncOperationMock = mock(TransactionAsyncOperation.class);
     when(asyncOperationMock.commit(any(Transaction.class))).thenReturn(futureMock);
 
     final TransactionTemplate transactionTemplate = new TransactionTemplate(asyncOperationMock);
 
-    final ResultOrError<Hash> hash = transactionTemplate.commit(new Transaction());
-    assertNotNull(hash);
+    final ResultOrError<TxHash> txHash = transactionTemplate.commit(new Transaction());
+    assertNotNull(txHash);
   }
 
 }

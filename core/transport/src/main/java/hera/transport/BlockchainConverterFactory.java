@@ -7,8 +7,8 @@ package hera.transport;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.model.BlockHash;
 import hera.api.model.BlockchainStatus;
-import hera.api.model.Hash;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Rpc;
@@ -32,7 +32,7 @@ public class BlockchainConverterFactory {
         final BlockchainStatus domainBlockchainStatus = new BlockchainStatus();
         domainBlockchainStatus.setBestHeight(rpcBlockchainStatus.getBestHeight());
         domainBlockchainStatus.setBestBlockHash(
-            new Hash(rpcBlockchainStatus.getBestBlockHash().toByteArray()));
+            new BlockHash(rpcBlockchainStatus.getBestBlockHash().toByteArray()));
         return domainBlockchainStatus;
       };
 

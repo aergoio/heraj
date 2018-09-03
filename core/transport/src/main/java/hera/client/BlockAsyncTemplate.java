@@ -16,9 +16,9 @@ import com.google.protobuf.ByteString;
 import hera.FutureChainer;
 import hera.api.BlockAsyncOperation;
 import hera.api.model.Block;
+import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
 import hera.api.model.BytesValue;
-import hera.api.model.Hash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.BlockConverterFactory;
 import hera.transport.ModelConverter;
@@ -47,10 +47,10 @@ public class BlockAsyncTemplate implements BlockAsyncOperation {
   }
 
   @Override
-  public ResultOrErrorFuture<Block> getBlock(final Hash hash) {
+  public ResultOrErrorFuture<Block> getBlock(final BlockHash blockHash) {
     final ResultOrErrorFuture<Block> nextFuture = new ResultOrErrorFuture<>();
 
-    final ByteString byteString = copyFrom(hash);
+    final ByteString byteString = copyFrom(blockHash);
     final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
     ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(bytes);
     FutureChainer<Blockchain.Block, Block> callback =
@@ -75,11 +75,12 @@ public class BlockAsyncTemplate implements BlockAsyncOperation {
   }
 
   @Override
-  public ResultOrErrorFuture<List<BlockHeader>> listBlockHeaders(final Hash hash, final int size) {
+  public ResultOrErrorFuture<List<BlockHeader>> listBlockHeaders(final BlockHash blockHash,
+      final int size) {
     final ResultOrErrorFuture<List<BlockHeader>> nextFuture = new ResultOrErrorFuture<>();
 
     final ListParams listParams =
-        ListParams.newBuilder().setHash(copyFrom(hash)).setSize(size).build();
+        ListParams.newBuilder().setHash(copyFrom(blockHash)).setSize(size).build();
     ListenableFuture<BlockHeaderList> listenableFuture = aergoService.listBlockHeaders(listParams);
     FutureChainer<BlockHeaderList, List<BlockHeader>> callback =
         new FutureChainer<>(nextFuture, blockHeaders -> blockHeaders.getBlocksList().stream()

@@ -4,9 +4,9 @@
 
 package hera.api;
 
-import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrError;
 
 public interface TransactionOperation {
@@ -14,10 +14,10 @@ public interface TransactionOperation {
   /**
    * Get transaction.
    *
-   * @param hash transaction's hash
+   * @param txHash transaction's hash
    * @return transaction or error
    */
-  ResultOrError<Transaction> getTransaction(Hash hash);
+  ResultOrError<Transaction> getTransaction(TxHash txHash);
 
   /**
    * Sign for transaction.
@@ -41,6 +41,6 @@ public interface TransactionOperation {
    * @param transaction transaction to commit
    * @return transaction hash or error
    */
-  ResultOrError<Hash> commit(Transaction transaction);
+  ResultOrError<TxHash> commit(Transaction transaction);
 
 }

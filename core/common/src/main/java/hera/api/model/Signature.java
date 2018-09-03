@@ -19,7 +19,7 @@ public class Signature {
 
   @Getter
   @Setter
-  protected Hash hash = new Hash(null);
+  protected TxHash txHash = new TxHash(null);
 
   /**
    * Create {@link Signature}.
@@ -29,10 +29,10 @@ public class Signature {
    *
    * @return created signature
    */
-  public static Signature of(final BytesValue sign, final Hash hash) {
+  public static Signature of(final BytesValue sign, final TxHash hash) {
     final Signature signature = new Signature();
     signature.setSign(sign);
-    signature.setHash(hash);
+    signature.setTxHash(hash);
     return signature;
   }
 
@@ -49,7 +49,7 @@ public class Signature {
     }
     final Signature copy = new Signature();
     ofNullable(source.getSign()).ifPresent(copy::setSign);
-    ofNullable(source.getHash()).ifPresent(copy::setHash);
+    ofNullable(source.getTxHash()).ifPresent(copy::setTxHash);
     return copy;
   }
 }

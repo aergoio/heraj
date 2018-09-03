@@ -12,11 +12,11 @@ import lombok.ToString;
 public class BlockHeader {
   @Getter
   @Setter
-  protected Hash hash = new Hash(null);
+  protected BlockHash hash = new BlockHash(null);
 
   @Getter
   @Setter
-  protected Hash previousBlockHash = new Hash(null);
+  protected BlockHash previousHash = new BlockHash(null);
 
   @Getter
   @Setter
@@ -28,11 +28,11 @@ public class BlockHeader {
 
   @Getter
   @Setter
-  protected Hash rootHash = new Hash(null);
+  protected BlockHash rootHash = new BlockHash(null);
 
   @Getter
   @Setter
-  protected Hash transactionsRootHash = new Hash(null);
+  protected TxHash txRootHash = new TxHash(null);
 
   @Getter
   @Setter

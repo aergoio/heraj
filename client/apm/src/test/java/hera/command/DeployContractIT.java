@@ -59,7 +59,7 @@ public class DeployContractIT extends AbstractIT {
 
     ThreadUtils.trySleep(3000);
     final ContractOperation contractOperation = aergoApi.getContractOperation();
-    final Receipt definitionReceipt = contractOperation.getReceipt(deployContract.getContractAddress()).getResult();
+    final Receipt definitionReceipt = contractOperation.getReceipt(deployContract.getContractTxHash()).getResult();
     final AccountAddress contractAddress = definitionReceipt.getReceipt();
     final Abi abi = contractOperation.getAbi(contractAddress, "hello").getResult();
     logger.info("ABI: {}", abi);

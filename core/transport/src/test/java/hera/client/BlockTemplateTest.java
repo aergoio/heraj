@@ -15,8 +15,8 @@ import static org.mockito.Mockito.when;
 import hera.AbstractTestCase;
 import hera.api.BlockAsyncOperation;
 import hera.api.model.Block;
+import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
-import hera.api.model.Hash;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.List;
@@ -40,7 +40,7 @@ public class BlockTemplateTest extends AbstractTestCase {
     final BlockTemplate blockTemplate = new BlockTemplate(asyncOperationMock);
 
     final ResultOrError<Block> block =
-        blockTemplate.getBlock(new Hash(randomUUID().toString().getBytes()));
+        blockTemplate.getBlock(new BlockHash(randomUUID().toString().getBytes()));
     assertNotNull(block);
   }
 
@@ -62,12 +62,12 @@ public class BlockTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<List<BlockHeader>> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     BlockAsyncOperation asyncOperationMock = mock(BlockAsyncOperation.class);
-    when(asyncOperationMock.listBlockHeaders(any(Hash.class), anyInt())).thenReturn(futureMock);
+    when(asyncOperationMock.listBlockHeaders(any(), anyInt())).thenReturn(futureMock);
 
     final BlockTemplate blockTemplate = new BlockTemplate(asyncOperationMock);
 
-    final ResultOrError<List<BlockHeader>> block = blockTemplate
-        .listBlockHeaders(new Hash(randomUUID().toString().getBytes()), randomUUID().hashCode());
+    final ResultOrError<List<BlockHeader>> block = blockTemplate.listBlockHeaders(
+        new BlockHash(randomUUID().toString().getBytes()), randomUUID().hashCode());
     assertNotNull(block);
   }
 

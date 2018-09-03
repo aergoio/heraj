@@ -15,6 +15,7 @@ import hera.api.model.AbiSet;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
+import hera.api.model.ContractTxHash;
 import hera.api.model.Hash;
 import hera.api.model.HostnameAndPort;
 import hera.build.web.exception.ResourceNotFoundException;
@@ -87,7 +88,7 @@ public class ContractService extends AbstractService {
     try (final AergoClient client = new AergoClient(connectStrategy.connect(hostnameAndPort))) {
       final ContractOperation contractOperation = client.getContractOperation();
       final byte[] decoded = from(Decoder.defaultDecoder.decode(new StringReader(contractAddress)));
-      return contractOperation.getReceipt(Hash.of(decoded))
+      return contractOperation.getReceipt(ContractTxHash.of(decoded))
           .flatMap(receipt -> contractOperation.getAbiSet(AccountAddress.of(decoded)))
           .getOrThrows(ResourceNotFoundException::new);
     }

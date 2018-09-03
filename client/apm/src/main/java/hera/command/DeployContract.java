@@ -10,7 +10,7 @@ import hera.api.AergoApi;
 import hera.api.ContractOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.Hash;
+import hera.api.model.ContractTxHash;
 import hera.util.DangerousSupplier;
 import java.io.InputStream;
 import lombok.Getter;
@@ -31,7 +31,7 @@ public class DeployContract extends AbstractCommand {
   protected DangerousSupplier<InputStream> payload;
 
   @Getter
-  protected Hash contractAddress;
+  protected ContractTxHash contractTxHash;
 
   @Override
   public void execute() throws Exception {
@@ -39,7 +39,7 @@ public class DeployContract extends AbstractCommand {
     final ContractOperation contractOperation = aergoApi.getContractOperation();
     final AccountAddress accountAddress = this.account.get().getAddress();
     logger.debug("Address: {}", accountAddress);
-    contractAddress = contractOperation.deploy(accountAddress, payload).getResult();
-    assertNotNull(contractAddress);
+    contractTxHash = contractOperation.deploy(accountAddress, payload).getResult();
+    assertNotNull(contractTxHash);
   }
 }

@@ -16,9 +16,9 @@ import com.google.protobuf.ByteString;
 import hera.FutureChainer;
 import hera.api.TransactionAsyncOperation;
 import hera.api.model.BytesValue;
-import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.exception.CommitException;
 import hera.exception.TransactionVerificationException;
@@ -59,10 +59,10 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
   }
 
   @Override
-  public ResultOrErrorFuture<Transaction> getTransaction(final Hash hash) {
+  public ResultOrErrorFuture<Transaction> getTransaction(final TxHash txHash) {
     ResultOrErrorFuture<Transaction> nextFuture = new ResultOrErrorFuture<>();
 
-    final ByteString byteString = copyFrom(hash);
+    final ByteString byteString = copyFrom(txHash);
     final SingleBytes hashBytes = SingleBytes.newBuilder().setValue(byteString).build();
     ListenableFuture<TxInBlock> listenableFuture = aergoService.getBlockTX(hashBytes);
     FutureChainer<TxInBlock, Transaction> callback = new FutureChainer<TxInBlock, Transaction>(
@@ -93,9 +93,9 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
       final BytesValue sign = ofNullable(tx.getBody().getSign()).map(ByteString::toByteArray)
           .filter(bytes -> 0 != bytes.length).map(BytesValue::of)
           .orElseThrow(IllegalArgumentException::new);
-      final Hash hash =
+      final TxHash hash =
           ofNullable(tx.getHash()).map(ByteString::toByteArray).filter(bytes -> 0 != bytes.length)
-              .map(Hash::new).orElseThrow(IllegalArgumentException::new);
+              .map(TxHash::new).orElseThrow(IllegalArgumentException::new);
       return Signature.of(sign, hash);
     });
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
@@ -126,15 +126,15 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
   }
 
   @Override
-  public ResultOrErrorFuture<Hash> commit(final Transaction transaction) {
-    ResultOrErrorFuture<Hash> nextFuture = new ResultOrErrorFuture<>();
+  public ResultOrErrorFuture<TxHash> commit(final Transaction transaction) {
+    ResultOrErrorFuture<TxHash> nextFuture = new ResultOrErrorFuture<>();
 
     final Tx tx = transactionConverter.convertToRpcModel(transaction);
     final TxList txList = TxList.newBuilder().addTxs(tx).build();
     ListenableFuture<CommitResultList> listenableFuture = aergoService.commitTX(txList);
-    FutureChainer<CommitResultList, Hash> callback = new FutureChainer<CommitResultList, Hash>(
+    FutureChainer<CommitResultList, TxHash> callback = new FutureChainer<CommitResultList, TxHash>(
         nextFuture, commitResultList -> commitResultList.getResultsList().stream()
-            .map(r -> r.getHash().toByteArray()).map(Hash::new).findFirst().get()) {
+            .map(r -> r.getHash().toByteArray()).map(TxHash::new).findFirst().get()) {
       @Override
       public void onSuccess(CommitResultList t) {
         final Rpc.CommitResult commitResult = t.getResults(0);

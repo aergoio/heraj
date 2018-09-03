@@ -13,8 +13,8 @@ import static org.mockito.Mockito.when;
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
 import hera.api.model.Block;
+import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
-import hera.api.model.Hash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.ModelConverter;
 import java.util.List;
@@ -50,7 +50,7 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
         new BlockAsyncTemplate(aergoService, blockConverter);
 
     final ResultOrErrorFuture<Block> block =
-        blockAsyncTemplate.getBlock(new Hash(randomUUID().toString().getBytes()));
+        blockAsyncTemplate.getBlock(new BlockHash(randomUUID().toString().getBytes()));
     assertNotNull(block);
   }
 
@@ -76,8 +76,8 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
     final BlockAsyncTemplate blockAsyncTemplate =
         new BlockAsyncTemplate(aergoService, blockConverter);
 
-    final ResultOrErrorFuture<List<BlockHeader>> blockHeaders = blockAsyncTemplate
-        .listBlockHeaders(new Hash(randomUUID().toString().getBytes()), randomUUID().hashCode());
+    final ResultOrErrorFuture<List<BlockHeader>> blockHeaders = blockAsyncTemplate.listBlockHeaders(
+        new BlockHash(randomUUID().toString().getBytes()), randomUUID().hashCode());
     assertNotNull(blockHeaders);
   }
 
