@@ -22,7 +22,7 @@ public class ResultOrErrorImpl<T> implements ResultOrError<T> {
   protected final Throwable error;
 
   @Override
-  public <R> ResultOrError<R> thenApply(Function1<T, R> fn) {
+  public <R> ResultOrError<R> map(Function1<T, R> fn) {
     if (hasResult()) {
       try {
         R next = fn.apply(getResult());

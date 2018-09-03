@@ -15,12 +15,12 @@ public interface ResultOrError<T> extends Tuple1<T>, WithError {
    * @param fn function to apply
    * @return {@code ResultOrError} with values as result of fn
    */
-  <R> ResultOrError<R> thenApply(Function1<T, R> fn);
+  <R> ResultOrError<R> map(Function1<T, R> fn);
 
   /**
    * Apply function to result if no error. Otherwise, don't apply and just keeping error. This
-   * method is similar to {@link #map(Function1uncion1}, but the provided mapper is one whose result
-   * is already an {@code ResultOrError},
+   * method is similar to {@link #map(Function1)}, but the provided mapper is one whose result is
+   * already an {@code ResultOrError},
    *
    * @param <R> type of applied result
    * @param fn function to apply

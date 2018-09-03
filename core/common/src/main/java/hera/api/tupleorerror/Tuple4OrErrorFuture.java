@@ -24,8 +24,8 @@ public class Tuple4OrErrorFuture<T0, T1, T2, T3>
     return new Tuple4OrErrorFuture(CompletableFuture.supplyAsync(supplier));
   }
 
-  public <R> ResultOrErrorFuture<R> thenApply(Function4<T0, T1, T2, T3, R> f) {
-    CompletableFuture<ResultOrError<R>> next = getDeligate().thenApply(r -> r.thenApply(f));
+  public <R> ResultOrErrorFuture<R> map(Function4<T0, T1, T2, T3, R> f) {
+    CompletableFuture<ResultOrError<R>> next = getDeligate().thenApply(r -> r.map(f));
     return new ResultOrErrorFuture<R>(next);
   }
 

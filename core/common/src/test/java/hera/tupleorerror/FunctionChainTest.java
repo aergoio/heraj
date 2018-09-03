@@ -23,7 +23,7 @@ public class FunctionChainTest {
     ResultOrErrorFuture<Integer> future1 =
         ResultOrErrorFuture.supply(() -> success(new Integer(2)));
     ResultOrErrorFuture<Integer> future =
-        seqf(() -> future0, () -> future1).thenApply((a, b) -> a + b);
+        seqf(() -> future0, () -> future1).map((a, b) -> a + b);
     assertEquals(3, future.get().getResult().intValue());
   }
 
@@ -36,7 +36,7 @@ public class FunctionChainTest {
     ResultOrErrorFuture<Integer> future2 =
         ResultOrErrorFuture.supply(() -> success(new Integer(4)));
     ResultOrErrorFuture<Integer> future =
-        seqf(() -> future0, () -> future1, () -> future2).thenApply((a, b, c) -> a + b + c);
+        seqf(() -> future0, () -> future1, () -> future2).map((a, b, c) -> a + b + c);
     assertEquals(7, future.get().getResult().intValue());
   }
 
@@ -52,7 +52,7 @@ public class FunctionChainTest {
         ResultOrErrorFuture.supply(() -> success(new Integer(8)));
     ResultOrErrorFuture<Integer> future =
         seqf(() -> future0, () -> future1, () -> future2, () -> future3)
-            .thenApply((a, b, c, d) -> a + b + c + d);
+            .map((a, b, c, d) -> a + b + c + d);
     assertEquals(15, future.get().getResult().intValue());
   }
 
@@ -60,7 +60,7 @@ public class FunctionChainTest {
   public void testSeqFor2Args() {
     ResultOrError<Integer> seqResult =
         seq(() -> success(new Integer(1)), () -> success(new Integer(2)))
-            .thenApply((a, b) -> a + b);
+            .map((a, b) -> a + b);
     assertEquals(3, seqResult.getResult().intValue());
   }
 
@@ -68,7 +68,7 @@ public class FunctionChainTest {
   public void testSeqFor3Args() {
     ResultOrError<Integer> seqResult =
         seq(() -> success(new Integer(1)), () -> success(new Integer(2)),
-            () -> success(new Integer(4))).thenApply((a, b, c) -> a + b + c);
+            () -> success(new Integer(4))).map((a, b, c) -> a + b + c);
     assertEquals(7, seqResult.getResult().intValue());
   }
 
@@ -76,7 +76,7 @@ public class FunctionChainTest {
   public void testSeqFor4Args() {
     ResultOrError<Integer> seqResult = seq(() -> success(new Integer(1)),
         () -> success(new Integer(2)), () -> success(new Integer(4)), () -> success(new Integer(8)))
-            .thenApply((a, b, c, d) -> a + b + c + d);
+            .map((a, b, c, d) -> a + b + c + d);
     assertEquals(15, seqResult.getResult().intValue());
   }
 

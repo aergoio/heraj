@@ -149,7 +149,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
       final AccountAddress contract, final Abi abi, final Object... args) {
     // TODO : make getting nonce, sign, commit asynchronously
     final ResultOrError<Account> account = accountAsyncOperation.get(executor).get();
-    long nonce = account.thenApply(a -> a.getNonce()).getResult();
+    long nonce = account.map(a -> a.getNonce()).getResult();
 
     final Transaction transaction = new Transaction();
     transaction.setNonce(nonce + 1);

@@ -23,8 +23,8 @@ public class Tuple2OrErrorFuture<T0, T1> extends AbstractTupleOrErrorFuture<Tupl
     return new Tuple2OrErrorFuture(CompletableFuture.supplyAsync(supplier));
   }
 
-  public <R> ResultOrErrorFuture<R> thenApply(Function2<T0, T1, R> f) {
-    CompletableFuture<ResultOrError<R>> next = getDeligate().thenApply(r -> r.thenApply(f));
+  public <R> ResultOrErrorFuture<R> map(Function2<T0, T1, R> f) {
+    CompletableFuture<ResultOrError<R>> next = getDeligate().thenApply(r -> r.map(f));
     return new ResultOrErrorFuture<R>(next);
   }
 

@@ -42,7 +42,7 @@ public class Tuple4OrError<T0, T1, T2, T3> extends AbstractTupleOrError {
    * @param fn function to apply
    * @return {@code ResultOrError} with values as result of fn
    */
-  public <R> ResultOrError<R> thenApply(Function4<T0, T1, T2, T3, R> fn) {
+  public <R> ResultOrError<R> map(Function4<T0, T1, T2, T3, R> fn) {
     if (!hasError()) {
       try {
         R next = fn.apply(getT0(), getT1(), getT2(), getT3());
