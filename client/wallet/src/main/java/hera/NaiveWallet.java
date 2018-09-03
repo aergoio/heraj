@@ -9,6 +9,7 @@ import static hera.util.ValidationUtils.assertNull;
 import hera.api.AergoApi;
 import hera.api.TransactionOperation;
 import hera.api.model.Account;
+import hera.api.model.Authentication;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.util.pki.ECDSAKey;
@@ -75,12 +76,12 @@ public class NaiveWallet implements Wallet {
 
   public void unlock(Object authentication) {
     final AergoApi api = this.context.api();
-    api.getAccountOperation().unlock(null, null);
+    api.getAccountOperation().unlock(Authentication.of(null, null));
   }
 
   public void lock() {
     final AergoApi api = this.context.api();
-    api.getAccountOperation().lock(null, null);
+    api.getAccountOperation().lock(Authentication.of(null, null));
   }
 
   /**

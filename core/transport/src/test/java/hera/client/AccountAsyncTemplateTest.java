@@ -14,6 +14,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.Authentication;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.ModelConverter;
 import java.util.List;
@@ -100,7 +101,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
         new AccountAsyncTemplate(aergoService, accountConverter, accountStateConverter);
 
     final ResultOrErrorFuture<Boolean> lockResult =
-        accountAsyncTemplate.lock(ACCOUNT_ADDRESS, PASSWORD);
+        accountAsyncTemplate.lock(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
     assertNotNull(lockResult);
   }
 
@@ -114,7 +115,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
         new AccountAsyncTemplate(aergoService, accountConverter, accountStateConverter);
 
     final ResultOrErrorFuture<Boolean> accountFuture =
-        accountAsyncTemplate.unlock(ACCOUNT_ADDRESS, PASSWORD);
+        accountAsyncTemplate.unlock(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
     assertNotNull(accountFuture);
   }
 

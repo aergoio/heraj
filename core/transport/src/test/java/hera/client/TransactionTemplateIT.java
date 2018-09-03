@@ -8,9 +8,9 @@ import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-
 import hera.api.SignTemplate;
 import hera.api.model.Account;
+import hera.api.model.Authentication;
 import hera.api.model.BytesValue;
 import hera.api.model.Hash;
 import hera.api.model.Signature;
@@ -42,7 +42,8 @@ public class TransactionTemplateIT extends AbstractIT {
 
   @Test
   public void testSignAndCommit() {
-    final Boolean unlockResult = accountTemplate.unlock(sender.getAddress(), PASSWORD).getResult();
+    final Boolean unlockResult =
+        accountTemplate.unlock(Authentication.of(sender.getAddress(), PASSWORD)).getResult();
     assertTrue(unlockResult);
 
     final Transaction transaction = new Transaction();
@@ -68,13 +69,14 @@ public class TransactionTemplateIT extends AbstractIT {
     assertEquals(recipient.getAddress(), queried.getRecipient());
     logger.debug("Transaction: {}", queried);
 
-    final Boolean lockResult = accountTemplate.lock(sender.getAddress(), PASSWORD).getResult();
+    final Boolean lockResult =
+        accountTemplate.lock(Authentication.of(sender.getAddress(), PASSWORD)).getResult();
     assertTrue(lockResult);
   }
 
   @Test
   public void testSignLocallyAndCommit() throws Exception {
-    accountTemplate.unlock(sender.getAddress(), PASSWORD);
+    accountTemplate.unlock(Authentication.of(sender.getAddress(), PASSWORD)).getResult();
 
     final Transaction transaction = new Transaction();
     transaction.setNonce(1);
@@ -102,6 +104,6 @@ public class TransactionTemplateIT extends AbstractIT {
     assertEquals(recipient.getAddress(), queried.getRecipient());
     logger.debug("Transaction: {}", queried);
 
-    accountTemplate.lock(sender.getAddress(), PASSWORD);
+    accountTemplate.lock(Authentication.of(sender.getAddress(), PASSWORD)).getResult();
   }
 }

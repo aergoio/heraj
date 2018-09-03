@@ -9,6 +9,7 @@ import hera.api.AergoApi;
 import hera.api.TransactionOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.Authentication;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.repl.AccountRepository;
@@ -73,13 +74,14 @@ public class ServerAccountRepository implements AccountRepository {
   @Override
   public void unlock(String address, String password) throws IOException {
     final AccountOperation accountOperation = aergoApi.getAccountOperation();
-    accountOperation.unlock(AccountAddress.of(HexUtils.decode(address)), password);
+    accountOperation
+        .unlock(Authentication.of(AccountAddress.of(HexUtils.decode(address)), password));
   }
 
   @Override
   public void lock(String address, String password) throws IOException {
     final AccountOperation accountOperation = aergoApi.getAccountOperation();
-    accountOperation.lock(AccountAddress.of(HexUtils.decode(address)), password);
+    accountOperation.lock(Authentication.of(AccountAddress.of(HexUtils.decode(address)), password));
   }
 
   @Override

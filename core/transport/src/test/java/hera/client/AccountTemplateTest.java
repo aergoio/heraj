@@ -16,6 +16,7 @@ import hera.AbstractTestCase;
 import hera.api.AccountAsyncOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.Authentication;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.List;
@@ -76,11 +77,12 @@ public class AccountTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<Boolean> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
-    when(asyncOperationMock.lock(any(), anyString())).thenReturn(futureMock);
+    when(asyncOperationMock.lock(any())).thenReturn(futureMock);
 
     final AccountTemplate accountTemplate = new AccountTemplate(asyncOperationMock);
 
-    ResultOrError<Boolean> lockResult = accountTemplate.lock(ACCOUNT_ADDRESS, PASSWORD);
+    ResultOrError<Boolean> lockResult =
+        accountTemplate.lock(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
     assertNotNull(lockResult);
   }
 
@@ -89,11 +91,12 @@ public class AccountTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<Boolean> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
-    when(asyncOperationMock.unlock(any(), anyString())).thenReturn(futureMock);
+    when(asyncOperationMock.unlock(any())).thenReturn(futureMock);
 
     final AccountTemplate accountTemplate = new AccountTemplate(asyncOperationMock);
 
-    ResultOrError<Boolean> lockResult = accountTemplate.unlock(ACCOUNT_ADDRESS, PASSWORD);
+    ResultOrError<Boolean> lockResult =
+        accountTemplate.unlock(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
     assertNotNull(lockResult);
   }
 

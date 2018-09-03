@@ -6,6 +6,7 @@ package hera.api;
 
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.Authentication;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.List;
 
@@ -37,18 +38,16 @@ public interface AccountAsyncOperation {
   /**
    * Lock an account asynchronously.
    *
-   * @param address account address
-   * @param password account password
+   * @param authentication account authentication
    * @return future of lock result or error
    */
-  ResultOrErrorFuture<Boolean> lock(AccountAddress address, String password);
+  ResultOrErrorFuture<Boolean> lock(Authentication authentication);
 
   /**
    * Unlock an account asynchronously.
    *
-   * @param address account address
-   * @param password account password
+   * @param authentication account authentication
    * @return future of unlock result or error
    */
-  ResultOrErrorFuture<Boolean> unlock(AccountAddress address, String password);
+  ResultOrErrorFuture<Boolean> unlock(Authentication authentication);
 }

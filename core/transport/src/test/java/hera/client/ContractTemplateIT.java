@@ -13,6 +13,7 @@ import hera.api.model.Abi;
 import hera.api.model.AbiSet;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.Authentication;
 import hera.api.model.Hash;
 import hera.api.model.Receipt;
 import java.io.File;
@@ -48,7 +49,8 @@ public class ContractTemplateIT extends AbstractIT {
 
   @Test
   public void testLuaContractDeployAndExecute() throws Throwable {
-    final Boolean unlockResult = accountTemplate.unlock(creator.getAddress(), PASSWORD).getResult();
+    final Boolean unlockResult =
+        accountTemplate.unlock(Authentication.of(creator.getAddress(), PASSWORD)).getResult();
     assertTrue(unlockResult);
 
     final Hash deployTxHash = contractTemplate
@@ -86,7 +88,8 @@ public class ContractTemplateIT extends AbstractIT {
     assertEquals("SUCCESS", executionReceipt.getStatus());
     assertTrue(0 < executionReceipt.getRet().length());
 
-    final Boolean lockResult = accountTemplate.lock(creator.getAddress(), PASSWORD).getResult();
+    final Boolean lockResult =
+        accountTemplate.lock(Authentication.of(creator.getAddress(), PASSWORD)).getResult();
     assertTrue(lockResult);
   }
 }

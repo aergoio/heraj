@@ -16,6 +16,7 @@ import hera.FutureChainer;
 import hera.api.AccountAsyncOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.Authentication;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.AccountConverterFactory;
 import hera.transport.AccountStateConverterFactory;
@@ -100,10 +101,11 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
   }
 
   @Override
-  public ResultOrErrorFuture<Boolean> unlock(AccountAddress address, String password) {
+  public ResultOrErrorFuture<Boolean> unlock(final Authentication authentication) {
     ResultOrErrorFuture<Boolean> nextFuture = new ResultOrErrorFuture<>();
 
-    final Account domainAccount = Account.of(address, password);
+    final Account domainAccount =
+        Account.of(authentication.getAddress(), authentication.getPassword());
     final Personal rpcPersonal = Personal.newBuilder()
         .setAccount(accountConverter.convertToRpcModel(domainAccount))
         .setPassphrase(domainAccount.getPassword()).build();
@@ -118,10 +120,11 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
   }
 
   @Override
-  public ResultOrErrorFuture<Boolean> lock(AccountAddress address, String password) {
+  public ResultOrErrorFuture<Boolean> lock(final Authentication authentication) {
     ResultOrErrorFuture<Boolean> nextFuture = new ResultOrErrorFuture<>();
 
-    final Account domainAccount = Account.of(address, password);
+    final Account domainAccount =
+        Account.of(authentication.getAddress(), authentication.getPassword());
     final Personal rpcPersonal = Personal.newBuilder()
         .setAccount(accountConverter.convertToRpcModel(domainAccount))
         .setPassphrase(domainAccount.getPassword()).build();

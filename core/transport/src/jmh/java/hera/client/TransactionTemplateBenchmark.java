@@ -7,6 +7,7 @@ package hera.client;
 import static java.util.UUID.randomUUID;
 
 import hera.api.model.Account;
+import hera.api.model.Authentication;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import io.grpc.ManagedChannel;
@@ -51,7 +52,7 @@ public class TransactionTemplateBenchmark {
       transactionTemplate = new TransactionTemplate(channel);
       sender = accountTemplate.create(PASSWORD).getResult();
       recipient = accountTemplate.create(PASSWORD).getResult();
-      accountTemplate.unlock(sender.getAddress(), PASSWORD);
+      accountTemplate.unlock(Authentication.of(sender.getAddress(), PASSWORD));
     }
 
     @TearDown(Level.Trial)

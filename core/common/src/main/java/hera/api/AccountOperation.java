@@ -6,6 +6,7 @@ package hera.api;
 
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.Authentication;
 import hera.api.tupleorerror.ResultOrError;
 import java.util.List;
 
@@ -37,18 +38,16 @@ public interface AccountOperation {
   /**
    * Lock an account.
    *
-   * @param address account address
-   * @param password account password
+   * @param authentication account authentication
    * @return lock result or error
    */
-  ResultOrError<Boolean> lock(AccountAddress address, String password);
+  ResultOrError<Boolean> lock(Authentication authentication);
 
   /**
    * Unlock an account.
    *
-   * @param address account address
-   * @param password account password
+   * @param authentication account authentication
    * @return unlock result or error
    */
-  ResultOrError<Boolean> unlock(AccountAddress address, String password);
+  ResultOrError<Boolean> unlock(Authentication authentication);
 }
