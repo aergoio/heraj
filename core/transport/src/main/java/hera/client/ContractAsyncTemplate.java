@@ -30,8 +30,7 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractTxHash;
-import hera.api.model.Hash;
-import hera.api.model.Receipt;
+import hera.api.model.ContractTxReceipt;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrError;
@@ -61,7 +60,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
 
   protected final TransactionAsyncOperation transactionAsyncOperation;
 
-  protected final ModelConverter<Receipt, Blockchain.Receipt> receiptConverter;
+  protected final ModelConverter<ContractTxReceipt, Blockchain.Receipt> receiptConverter;
 
   protected final ModelConverter<AbiSet, Blockchain.ABI> abiSetConverter;
 
@@ -86,14 +85,14 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
   }
 
   @Override
-  public ResultOrErrorFuture<Receipt> getReceipt(final ContractTxHash deployTxHash) {
-    ResultOrErrorFuture<Receipt> nextFuture = new ResultOrErrorFuture<>();
+  public ResultOrErrorFuture<ContractTxReceipt> getReceipt(final ContractTxHash deployTxHash) {
+    ResultOrErrorFuture<ContractTxReceipt> nextFuture = new ResultOrErrorFuture<>();
 
     final ByteString byteString = copyFrom(deployTxHash);
     final Rpc.SingleBytes hashBytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
     final ListenableFuture<Blockchain.Receipt> listenableFuture =
         aergoService.getReceipt(hashBytes);
-    FutureChainer<Blockchain.Receipt, Receipt> callback =
+    FutureChainer<Blockchain.Receipt, ContractTxReceipt> callback =
         new FutureChainer<>(nextFuture, r -> receiptConverter.convertToDomainModel(r));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 

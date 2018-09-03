@@ -15,7 +15,7 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.ContractTxHash;
-import hera.api.model.Receipt;
+import hera.api.model.ContractTxReceipt;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -61,11 +61,12 @@ public class ContractTemplateIT extends AbstractIT {
 
     waitForNextBlockToGenerate();
 
-    final Receipt definitionReceipt = contractTemplate.getReceipt(deployTxHash).getResult();
-    assertTrue(0 < definitionReceipt.getReceipt().getValue().length);
+    final ContractTxReceipt definitionReceipt =
+        contractTemplate.getReceipt(deployTxHash).getResult();
+    assertTrue(0 < definitionReceipt.getContractAddress().getValue().length);
     assertEquals("CREATED", definitionReceipt.getStatus());
 
-    final AccountAddress contractAddress = definitionReceipt.getReceipt();
+    final AccountAddress contractAddress = definitionReceipt.getContractAddress();
     logger.debug("ContractAddress: {}", contractAddress);
 
     final AbiSet abiSet = contractTemplate.getAbiSet(contractAddress).getResult();
@@ -83,8 +84,9 @@ public class ContractTemplateIT extends AbstractIT {
 
     waitForNextBlockToGenerate();
 
-    final Receipt executionReceipt = contractTemplate.getReceipt(executionTxHash).getResult();
-    assertTrue(0 < executionReceipt.getReceipt().getValue().length);
+    final ContractTxReceipt executionReceipt =
+        contractTemplate.getReceipt(executionTxHash).getResult();
+    assertTrue(0 < executionReceipt.getContractAddress().getValue().length);
     assertEquals("SUCCESS", executionReceipt.getStatus());
     assertTrue(0 < executionReceipt.getRet().length());
 

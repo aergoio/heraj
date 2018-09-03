@@ -9,11 +9,11 @@ import lombok.Setter;
 import lombok.ToString;
 
 @ToString
-public class Receipt {
+public class ContractTxReceipt {
 
   @Getter
   @Setter
-  protected AccountAddress receipt = new AccountAddress(null);
+  protected AccountAddress contractAddress = new AccountAddress(null);
 
   @Getter
   @Setter

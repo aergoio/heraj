@@ -21,7 +21,7 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractTxHash;
 import hera.api.model.Hash;
-import hera.api.model.Receipt;
+import hera.api.model.ContractTxReceipt;
 import hera.api.model.Signature;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.ModelConverter;
@@ -46,7 +46,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
   protected static final byte[] CONTRACT_PAYLOAD =
       Base58Utils.encode(randomUUID().toString().getBytes()).getBytes();
 
-  protected static final ModelConverter<Receipt, Blockchain.Receipt> receiptConverter =
+  protected static final ModelConverter<ContractTxReceipt, Blockchain.Receipt> receiptConverter =
       mock(ModelConverter.class);
 
   protected static final ModelConverter<AbiSet, Blockchain.ABI> abiConverter =
@@ -55,7 +55,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
   @BeforeClass
   public static void setUpBeforeClass() {
     when(receiptConverter.convertToDomainModel(any(Blockchain.Receipt.class)))
-        .thenReturn(mock(Receipt.class));
+        .thenReturn(mock(ContractTxReceipt.class));
   }
 
   @Test
@@ -68,7 +68,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
         new ContractAsyncTemplate(aergoService, mock(AccountAsyncOperation.class),
             mock(TransactionAsyncOperation.class), receiptConverter, abiConverter);
 
-    final ResultOrErrorFuture<Receipt> receipt =
+    final ResultOrErrorFuture<ContractTxReceipt> receipt =
         contractAsyncTemplate.getReceipt(ContractTxHash.of(randomUUID().toString().getBytes()));
     assertNotNull(receipt);
   }

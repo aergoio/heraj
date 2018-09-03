@@ -18,7 +18,7 @@ import hera.api.model.Abi;
 import hera.api.model.AbiSet;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractTxHash;
-import hera.api.model.Receipt;
+import hera.api.model.ContractTxReceipt;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.io.InputStream;
@@ -38,14 +38,14 @@ public class ContractTemplateTest extends AbstractTestCase {
 
   @Test
   public void testGetReceipt() {
-    ResultOrErrorFuture<Receipt> futureMock = mock(ResultOrErrorFuture.class);
+    ResultOrErrorFuture<ContractTxReceipt> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     ContractAsyncOperation asyncOperationMock = mock(ContractAsyncOperation.class);
     when(asyncOperationMock.getReceipt(any())).thenReturn(futureMock);
 
     final ContractTemplate contractTemplate = new ContractTemplate(asyncOperationMock);
 
-    final ResultOrError<Receipt> receipt =
+    final ResultOrError<ContractTxReceipt> receipt =
         contractTemplate.getReceipt(ContractTxHash.of(randomUUID().toString().getBytes()));
     assertNotNull(receipt);
   }

@@ -16,7 +16,7 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.HostnameAndPort;
-import hera.api.model.Receipt;
+import hera.api.model.ContractTxReceipt;
 import hera.client.AergoClient;
 import hera.strategy.NettyConnectStrategy;
 import hera.util.DangerousSupplier;
@@ -59,8 +59,8 @@ public class DeployContractIT extends AbstractIT {
 
     ThreadUtils.trySleep(3000);
     final ContractOperation contractOperation = aergoApi.getContractOperation();
-    final Receipt definitionReceipt = contractOperation.getReceipt(deployContract.getContractTxHash()).getResult();
-    final AccountAddress contractAddress = definitionReceipt.getReceipt();
+    final ContractTxReceipt definitionReceipt = contractOperation.getReceipt(deployContract.getContractTxHash()).getResult();
+    final AccountAddress contractAddress = definitionReceipt.getContractAddress();
     final Abi abi = contractOperation.getAbi(contractAddress, "hello").getResult();
     logger.info("ABI: {}", abi);
   }

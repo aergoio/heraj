@@ -13,7 +13,7 @@ import hera.api.model.Abi;
 import hera.api.model.AbiSet;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractTxHash;
-import hera.api.model.Receipt;
+import hera.api.model.ContractTxReceipt;
 import hera.api.tupleorerror.ResultOrError;
 import hera.exception.HerajException;
 import hera.util.DangerousSupplier;
@@ -36,7 +36,7 @@ public class ContractTemplate implements ContractOperation {
   }
 
   @Override
-  public ResultOrError<Receipt> getReceipt(final ContractTxHash deployTxHash) {
+  public ResultOrError<ContractTxReceipt> getReceipt(final ContractTxHash deployTxHash) {
     try {
       return contractAsyncOperation.getReceipt(deployTxHash).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
