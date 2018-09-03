@@ -7,6 +7,7 @@ package hera.build;
 import static hera.util.ValidationUtils.assertNotNull;
 import static org.eclipse.jetty.servlet.ServletContextHandler.SESSIONS;
 
+import hera.ProjectFile;
 import hera.build.web.Endpoint;
 import hera.build.web.service.BuildService;
 import hera.build.web.service.ConfigurationService;
@@ -81,6 +82,9 @@ public class MonitorServer extends ThreadServer {
     configurationService = new ConfigurationService(projectFilePath);
     buildService = new BuildService();
     contractService = new ContractService();
+    configurationService.getProjectFile()
+        .map(ProjectFile::getEndpoint)
+        .ifPresent(contractService::setEndpoint);
 
     final int port = getPort();
     server = new Server(port);

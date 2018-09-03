@@ -13,14 +13,15 @@ import hera.api.SignTemplate;
 import hera.api.TransactionOperation;
 import io.grpc.ManagedChannel;
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class AergoClient extends AbstractAergoApi implements Closeable, AutoCloseable {
 
+  @NonNull
   protected final ManagedChannel channel;
 
   @Getter(lazy = true)
@@ -39,11 +40,11 @@ public class AergoClient extends AbstractAergoApi implements Closeable, AutoClos
   private final ContractOperation contractOperation = new ContractTemplate(channel);
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     try {
       channel.shutdown().awaitTermination(3, TimeUnit.SECONDS);
-    } catch (final InterruptedException e) {
-      throw new IOException(e);
+    } catch (final Throwable e) {
+      logger.debug("Fail to close aergo client", e);
     }
   }
 }

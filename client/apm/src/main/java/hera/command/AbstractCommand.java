@@ -75,5 +75,4 @@ public abstract class AbstractCommand implements Command {
   public ProjectFile readProject() throws IOException {
     return ProjectFile.from(getProjectFile());
   }
-
 }

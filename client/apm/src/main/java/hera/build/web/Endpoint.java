@@ -80,6 +80,16 @@ public class Endpoint extends WebSocketServlet {
         final ProjectFile projectFile = configurationService.getProjectFile()
             .orElseThrow(ResourceNotFoundException::new);
         writeResponse(projectFile, resp);
+        return;
+      } else if (0 < fragments.length && "contract".equals(fragments[0])) {
+        if (1 < fragments.length) {
+          final String contractAddress = fragments[1];
+          if (2 < fragments.length && "abi".equals(fragments[2])) {
+            final String endpoint = req.getParameter("endpoint");
+            writeResponse(contractService.getAbi(contractAddress), resp);
+            return;
+          }
+        }
       } else if (Arrays.equals(new String[] {"builds"}, fragments)) {
         // /builds
         final List<BuildSummary> summaries = buildService.list(null, 5);
@@ -89,10 +99,9 @@ public class Endpoint extends WebSocketServlet {
         if (3 == fragments.length && "deploy".equals(fragments[2])) {
           // /build/{uuid}/deploy
           final String uuid = fragments[1];
-          final String target = req.getParameter("target");
           final BuildDetails buildDetails = buildService.get(uuid)
               .orElseThrow(() -> new ResourceNotFoundException(uuid + " not found"));
-          contractService.deploy(target, buildDetails);
+          contractService.deploy(buildDetails);
           writeResponse(null, resp);
           return;
         } else if (2 == fragments.length && "build".equals(fragments[0])) {

@@ -13,13 +13,9 @@
   </root>
   <logger name="ch.qos.logback" level="error"/>
 
+  <logger name="io.netty" level="warn"/>
+
   <logger name="hera" level="warn"/>
-  <logger name="hera.command" level="trace"/>
-  <logger name="hera.build" level="info"/>
-  <logger name="hera.build.web" level="debug"/>
-  <logger name="hera.build.web.service" level="trace"/>
-  <logger name="hera.test" level="trace"/>
+  <logger name="hera.transport" level="trace"/>
   <logger name="hera.util" level="error"/>
-  <logger name="hera.command.CloneGit" level="debug"/>
-  <logger name="hera.command.CloneGitIT" level="trace"/>
 </configuration>

@@ -10,6 +10,7 @@ import static java.util.Optional.of;
 
 import hera.command.BuildProject;
 import hera.command.CreateProject;
+import hera.command.DeployContract;
 import hera.command.InstallPackage;
 import hera.command.PublishPackage;
 import hera.command.TestProject;

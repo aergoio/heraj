@@ -24,7 +24,14 @@ public class NettyConnectStrategy
     return HostnameAndPort.of(configuration.getAsString("endpoint", DEFAULT_ENDPOINT));
   }
 
-  protected ManagedChannel connect(final HostnameAndPort endpoint) {
+  /**
+   * Connect to {@code endpoint}.
+   *
+   * @param endpoint endpoint to connect to
+   *
+   * @return channel to be connected
+   */
+  public ManagedChannel connect(final HostnameAndPort endpoint) {
     return NettyChannelBuilder
         .forAddress(endpoint.getHostname(), endpoint.getPort(DEFAULT_RPC_PORT))
         .usePlaintext()

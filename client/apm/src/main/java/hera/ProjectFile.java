@@ -68,6 +68,14 @@ public class ProjectFile {
 
   @Getter
   @Setter
+  protected String binaryFile;
+
+  @Getter
+  @Setter
+  protected String abiFile;
+
+  @Getter
+  @Setter
   protected List<String> dependencies;
 
   @Getter
@@ -76,5 +84,5 @@ public class ProjectFile {
 
   @Getter
   @Setter
-  protected List<String> endpoints = asList(DEFAULT_ENDPOINT);
+  protected String endpoint = DEFAULT_ENDPOINT;
 }
