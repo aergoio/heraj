@@ -7,10 +7,8 @@ package hera.api.tupleorerror;
 import static hera.api.tupleorerror.FunctionChain.fail;
 import static hera.api.tupleorerror.FunctionChain.success;
 
-@SuppressWarnings({"unchecked", "rawtypes"})
-public class Tuple4OrError<T0, T1, T2, T3> extends AbstractTupleOrError
-    implements ErrorOperation<Tuple4OrError> {
-
+@SuppressWarnings("unchecked")
+public class Tuple4OrError<T0, T1, T2, T3> extends AbstractTupleOrError {
 
   public Tuple4OrError(T0 t0, T1 t1, T2 t2, T3 t3) {
     apply(new Object[] {t0, t1, t2, t3});

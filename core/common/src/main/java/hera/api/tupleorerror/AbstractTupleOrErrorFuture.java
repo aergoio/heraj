@@ -16,7 +16,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class AbstractTupleOrErrorFuture<TupleOrErrorT extends AbstractTupleOrError>
+public abstract class AbstractTupleOrErrorFuture<TupleOrErrorT>
     implements Future<TupleOrErrorT> {
 
   @Getter(value = AccessLevel.PROTECTED)

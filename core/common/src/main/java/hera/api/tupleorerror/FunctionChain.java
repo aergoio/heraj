@@ -209,7 +209,7 @@ public final class FunctionChain {
 
 
   public static <T> ResultOrError<T> success(T t) {
-    return new ResultOrError<>(t, null);
+    return new ResultOrErrorImpl<>(t, null);
   }
 
   public static <T0, T1> Tuple2OrError<T0, T1> success(T0 t0, T1 t1) {
@@ -225,7 +225,7 @@ public final class FunctionChain {
   }
 
   public static ResultOrError fail(Throwable error) {
-    return new ResultOrError(null, error);
+    return new ResultOrErrorImpl(null, error);
   }
 
 }
