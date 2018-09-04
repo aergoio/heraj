@@ -65,16 +65,6 @@ public class ContractTemplate implements ContractOperation {
   }
 
   @Override
-  public ResultOrError<Abi> getAbi(final AccountAddress contract, final String functionName) {
-    try {
-      return contractAsyncOperation.getAbi(contract, functionName).get(TIMEOUT,
-          TimeUnit.MILLISECONDS);
-    } catch (Exception e) {
-      throw new HerajException(e);
-    }
-  }
-
-  @Override
   public ResultOrError<ContractTxHash> execute(final AccountAddress executor,
       final AccountAddress contract, final Abi abi, final Object... args) {
     try {

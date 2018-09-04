@@ -42,15 +42,6 @@ public interface ContractOperation {
   ResultOrError<AbiSet> getAbiSet(AccountAddress contract);
 
   /**
-   * Get abi set corresponding to contract address and function name.
-   *
-   * @param contract contract address
-   * @param functionName function name
-   * @return abi or error
-   */
-  ResultOrError<Abi> getAbi(AccountAddress contract, String functionName);
-
-  /**
    * Execute the smart contract.
    *
    * @param executor contract executor

@@ -42,15 +42,6 @@ public interface ContractAsyncOperation {
   ResultOrErrorFuture<AbiSet> getAbiSet(AccountAddress contract);
 
   /**
-   * Get abi set corresponding to contract address and function name.
-   *
-   * @param contract contract address
-   * @param functionName function name
-   * @return future of abi or error
-   */
-  ResultOrErrorFuture<Abi> getAbi(AccountAddress contract, String functionName);
-
-  /**
    * Execute the smart contract.
    *
    * @param executor contract executor

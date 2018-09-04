@@ -139,11 +139,6 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
     return nextFuture;
   }
 
-  @Override
-  public ResultOrErrorFuture<Abi> getAbi(final AccountAddress contract, final String functionName) {
-    return getAbiSet(contract).thenApply(a -> a.findAbiByName(functionName).get());
-  }
-
   @SuppressWarnings("unchecked")
   @Override
   public ResultOrErrorFuture<ContractTxHash> execute(final AccountAddress executor,
