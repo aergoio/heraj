@@ -5,6 +5,7 @@
 package hera.client;
 
 import static hera.TransportConstants.TIMEOUT;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
 import hera.api.ContractAsyncOperation;
@@ -18,8 +19,6 @@ import hera.api.tupleorerror.ResultOrError;
 import hera.exception.HerajException;
 import hera.util.DangerousSupplier;
 import io.grpc.ManagedChannel;
-import java.io.InputStream;
-import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
@@ -38,7 +37,7 @@ public class ContractTemplate implements ContractOperation {
   @Override
   public ResultOrError<ContractTxReceipt> getReceipt(final ContractTxHash deployTxHash) {
     try {
-      return contractAsyncOperation.getReceipt(deployTxHash).get(TIMEOUT, TimeUnit.MILLISECONDS);
+      return contractAsyncOperation.getReceipt(deployTxHash).get(TIMEOUT, MILLISECONDS);
     } catch (Exception e) {
       throw new HerajException(e);
     }
@@ -46,10 +45,9 @@ public class ContractTemplate implements ContractOperation {
 
   @Override
   public ResultOrError<ContractTxHash> deploy(final AccountAddress creator,
-      final DangerousSupplier<InputStream> contractCodePayload) {
+      final DangerousSupplier<byte[]> contractCodePayload) {
     try {
-      return contractAsyncOperation.deploy(creator, contractCodePayload).get(TIMEOUT,
-          TimeUnit.MILLISECONDS);
+      return contractAsyncOperation.deploy(creator, contractCodePayload).get(TIMEOUT, MILLISECONDS);
     } catch (Exception e) {
       throw new HerajException(e);
     }
@@ -58,7 +56,7 @@ public class ContractTemplate implements ContractOperation {
   @Override
   public ResultOrError<AbiSet> getAbiSet(final AccountAddress contract) {
     try {
-      return contractAsyncOperation.getAbiSet(contract).get(TIMEOUT, TimeUnit.MILLISECONDS);
+      return contractAsyncOperation.getAbiSet(contract).get(TIMEOUT, MILLISECONDS);
     } catch (Exception e) {
       throw new HerajException(e);
     }
@@ -69,7 +67,7 @@ public class ContractTemplate implements ContractOperation {
       final AccountAddress contract, final Abi abi, final Object... args) {
     try {
       return contractAsyncOperation.execute(executor, contract, abi, args).get(TIMEOUT,
-          TimeUnit.MILLISECONDS);
+          MILLISECONDS);
     } catch (Exception e) {
       throw new HerajException(e);
     }
@@ -79,7 +77,7 @@ public class ContractTemplate implements ContractOperation {
   public ResultOrError<Object> query(final AccountAddress contract, final Abi abi,
       final Object... args) {
     try {
-      return contractAsyncOperation.query(contract, abi, args).get(TIMEOUT, TimeUnit.MILLISECONDS);
+      return contractAsyncOperation.query(contract, abi, args).get(TIMEOUT, MILLISECONDS);
     } catch (Exception e) {
       throw new HerajException(e);
     }

@@ -4,6 +4,7 @@
 
 package hera.test;
 
+import static hera.util.IoUtils.from;
 import static hera.util.IoUtils.redirect;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -39,19 +40,26 @@ public class LuaCompiler {
       final DangerousSupplier<InputStream> source)
       throws BuildException {
     try {
-      final Process process = Runtime.getRuntime().exec(buildCommand());
+      final String[] envParameters = System.getenv().entrySet().stream()
+          .map(e -> e.getKey() + "=" + e.getValue())
+          .toArray(String[]::new);
+      final Process process = Runtime.getRuntime().exec(buildCommand(), envParameters);
       try (
-          final InputStream sourceIn = source.get();
-          final OutputStream compilerIn = process.getOutputStream();
-          final InputStream compilerOut = process.getInputStream();
-          final Reader reader = new InputStreamReader(compilerOut)
+          final Reader compilerStdErr = new InputStreamReader(process.getErrorStream());
+          final Reader compilerStdOut = new InputStreamReader(process.getInputStream())
       ) {
-        redirect(sourceIn, compilerIn);
+        try (
+            final InputStream sourceIn = source.get();
+            final OutputStream compilerIn = process.getOutputStream()) {
+          redirect(sourceIn, compilerIn);
+        }
         final int exitCode = process.waitFor();
         if (0 != exitCode) {
+          final String errorOut = from(compilerStdErr);
+          logger.warn("Compiler Error: {}", errorOut);
           throw new BuildException("Fail to aergoluac");
         }
-        final String base58Encoded = IoUtils.from(reader);
+        final String base58Encoded = IoUtils.from(compilerStdOut);
         logger.info("Encoded: {}", base58Encoded);
         return new LuaBinary(() -> new ByteArrayInputStream(Base58Utils.decode(base58Encoded)));
       }

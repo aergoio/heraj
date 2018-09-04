@@ -1,16 +1,26 @@
 <template>
-  <section id="tabs">
-    <div class="container">
-      <b-tabs>
-        <b-tab title="Result">
-          <codemirror :value="result" :options="cmOptions"/>
-        </b-tab>
-        <b-tab title="Dependencies">
-          <tree v-bind="dependencies"></tree>
-        </b-tab>
-      </b-tabs>
+  <div class="container">
+    <div class="row">
+      <b-button @click="deployClicked">DEPLOY</b-button>
     </div>
-  </section>
+    <div class="row">
+      <section id="tabs">
+        <div class="container">
+          <div class="row">
+            <b-tabs>
+              <b-tab title="Result">
+                <codemirror :value="result" :options="cmOptions"/>
+              </b-tab>
+              <b-tab title="Dependencies">
+                <tree v-bind="dependencies"></tree>
+              </b-tab>
+            </b-tabs>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
 </template>
 
 <script>
@@ -26,7 +36,7 @@
 
   export default {
     components: {Tree},
-    props: ['result', 'dependencies'],
+    props: ['uuid', 'result', 'dependencies'],
     data() {
       return {
         cmOptions: {
@@ -37,6 +47,14 @@
           line: true,
           readOnly: "nocursor"
         }
+      }
+    },
+    methods: {
+      deployClicked() {
+        console.log('Deploy clicked');
+        this.$http.post('/build/' + this.$props.uuid + '/deploy').then(function (res) {
+          console.log('Response:', res);
+        })
       }
     }
   }
@@ -76,7 +94,6 @@
 
   .CodeMirror {
     padding: 10px;
-    width: 100%;
     height: 300px;
   }
 

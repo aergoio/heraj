@@ -12,7 +12,6 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractTxHash;
 import hera.util.DangerousSupplier;
-import java.io.InputStream;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,7 +27,7 @@ public class DeployContract extends AbstractCommand {
 
   @Getter
   @Setter
-  protected DangerousSupplier<InputStream> payload;
+  protected DangerousSupplier<byte[]> payload;
 
   @Getter
   protected ContractTxHash contractTxHash;

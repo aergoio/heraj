@@ -59,7 +59,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     final ContractTemplate contractTemplate = new ContractTemplate(asyncOperationMock);
 
     final ResultOrError<ContractTxHash> deployTxHash =
-        contractTemplate.deploy(EXECUTOR_ADDRESS, () -> mock(InputStream.class));
+        contractTemplate.deploy(EXECUTOR_ADDRESS, () -> new byte[] {});
     assertNotNull(deployTxHash);
   }
 

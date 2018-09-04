@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.Getter;
@@ -66,6 +67,37 @@ public class Endpoint extends WebSocketServlet {
     factory.register(LiveUpdateSession.class);
   }
 
+  @Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    logger.trace("Request: {}, Response: {}", req, resp);
+
+    final String requestUri = req.getRequestURI();
+    logger.debug("Request uri: {}", requestUri);
+    final String[] fragments = getCanonicalFragments(requestUri);
+    logger.debug("Path fragments: {}", asList(fragments));
+    try {
+      if (0 < fragments.length && "build".equals(fragments[0])) {
+        if (3 == fragments.length && "deploy".equals(fragments[2])) {
+          // /build/{uuid}/deploy
+          final String uuid = fragments[1];
+          final BuildDetails buildDetails = buildService.get(uuid)
+              .orElseThrow(() -> new ResourceNotFoundException(uuid + " not found"));
+          contractService.deploy(buildDetails);
+          writeResponse(null, resp);
+          return;
+        }
+      }
+      getResource(req, resp);
+    } catch (final HttpException ex) {
+      logger.trace("Http exception:", ex);
+      logger.debug("Status code: {}", ex.getStatusCode());
+      resp.setStatus(ex.getStatusCode());
+    } catch (final Throwable ex) {
+      logger.error("Unexpected exception:", ex);
+      resp.setStatus(SC_INTERNAL_SERVER_ERROR);
+    }
+  }
 
   @Override
   protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) {
@@ -96,15 +128,7 @@ public class Endpoint extends WebSocketServlet {
         writeResponse(summaries, resp);
         return;
       } else if (0 < fragments.length && "build".equals(fragments[0])) {
-        if (3 == fragments.length && "deploy".equals(fragments[2])) {
-          // /build/{uuid}/deploy
-          final String uuid = fragments[1];
-          final BuildDetails buildDetails = buildService.get(uuid)
-              .orElseThrow(() -> new ResourceNotFoundException(uuid + " not found"));
-          contractService.deploy(buildDetails);
-          writeResponse(null, resp);
-          return;
-        } else if (2 == fragments.length && "build".equals(fragments[0])) {
+        if (2 == fragments.length && "build".equals(fragments[0])) {
           // /build/{uuid}
           final String buildUuid = fragments[1];
 

@@ -4,6 +4,7 @@
 
 package hera.build.web.service;
 
+import static hera.util.HexUtils.dump;
 import static hera.util.IoUtils.from;
 import static java.util.UUID.randomUUID;
 
@@ -26,6 +27,8 @@ import hera.client.AergoClient;
 import hera.strategy.NettyConnectStrategy;
 import hera.test.LuaBinary;
 import hera.test.LuaCompiler;
+import hera.util.HexUtils;
+import hera.util.IoUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
@@ -54,24 +57,30 @@ public class ContractService extends AbstractService {
    *
    * @return deployment result
    */
-  public DeploymentResult deploy(final BuildDetails buildDetails) {
+  public DeploymentResult deploy(final BuildDetails buildDetails) throws Exception {
     final NettyConnectStrategy connectStrategy = new NettyConnectStrategy();
     final HostnameAndPort hostnameAndPort = HostnameAndPort.of(endpoint);
+    logger.debug("Hostname and port: {}", hostnameAndPort);
     try (final AergoClient aergoApi = new AergoClient(connectStrategy.connect(hostnameAndPort))) {
       final AccountOperation accountOperation = aergoApi.getAccountOperation();
       final String password = randomUUID().toString();
+      logger.trace("Password: {}", password);
       final Account account = accountOperation.create(password).getResult();
-      final Authentication authentication = new Authentication(account.getAddress(), password);
+      final AccountAddress accountAddress = account.getAddress();
+      final Authentication authentication = new Authentication(accountAddress, password);
       accountOperation.unlock(authentication);
+      logger.debug("{} unlocked", authentication);
       final byte[] buildResult = buildDetails.getResult().getBytes();
       final LuaBinary luaBinary = luaCompiler.compile(() -> new ByteArrayInputStream(buildResult));
+      logger.trace("Successful to compile:\n{}", dump(from(luaBinary.getPayload())));
       final ContractOperation contractOperation = aergoApi.getContractOperation();
-      final Hash contractAddress =
-          contractOperation.deploy(account.getAddress(), luaBinary::getPayload).getResult();
-      buildUuid2contractAddresses.put(buildDetails.getUuid(), contractAddress);
+      final ContractTxHash contractTransactionHash =
+          contractOperation.deploy(accountAddress, () -> from(luaBinary.getPayload())).getResult();
+      logger.debug("Contract transaction hash: {}", contractTransactionHash);
+      buildUuid2contractAddresses.put(buildDetails.getUuid(), contractTransactionHash);
       final DeploymentResult deploymentResult = new DeploymentResult();
       deploymentResult.setBuildUuid(buildDetails.getUuid());
-      deploymentResult.setContractAddress(contractAddress.toString());
+      deploymentResult.setContractAddress(contractTransactionHash.toString());
       deployHistory.add(deploymentResult);
       return deploymentResult;
     }

@@ -15,12 +15,11 @@ import hera.api.model.Abi;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
-import hera.api.model.HostnameAndPort;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.HostnameAndPort;
 import hera.client.AergoClient;
 import hera.strategy.NettyConnectStrategy;
 import hera.util.DangerousSupplier;
-import hera.util.HexUtils;
 import hera.util.IoUtils;
 import hera.util.ThreadUtils;
 import java.io.InputStream;
@@ -41,8 +40,6 @@ public class DeployContractIT extends AbstractIT {
     final AccountOperation accountOperation = aergo.getAccountOperation();
     final String password = randomUUID().toString();
 
-    final ContractOperation contractOperation = aergoApi.getContractOperation();
-
     account = accountOperation.create(password).getResult();
     final Boolean unlockResult = accountOperation
         .unlock(new Authentication(account.getAddress(), password)).getResult();
@@ -52,7 +49,7 @@ public class DeployContractIT extends AbstractIT {
   @Test
   public void testExecute() throws Exception {
     final DangerousSupplier<Account> accountSupplier      = () -> account;
-    final DangerousSupplier<InputStream> payloadSupplier  = () -> open("payload");
+    final DangerousSupplier<byte[]> payloadSupplier  = () -> IoUtils.from(open("payload"));
     deployContract.setAccount(accountSupplier);
     deployContract.setPayload(payloadSupplier);
     deployContract.execute();

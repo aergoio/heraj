@@ -8,8 +8,8 @@ import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import org.slf4j.Logger;
 
 /**
@@ -19,11 +19,11 @@ import org.slf4j.Logger;
  * </p>
  */
 @RequiredArgsConstructor
-@ToString
 public class HostnameAndPort {
 
   protected static final Logger logger = getLogger(HostnameAndPort.class);
 
+  @NonNull
   @Getter
   protected final String hostname;
 
@@ -54,5 +54,10 @@ public class HostnameAndPort {
     logger.trace("Port: {}", portStr);
     final int port = ofNullable(portStr).map(Integer::new).orElse(-1);
     return new HostnameAndPort(hostname, port);
+  }
+
+  @Override
+  public String toString() {
+    return (port < 0) ? hostname : (hostname + ":" + port);
   }
 }

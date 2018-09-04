@@ -102,7 +102,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
   @SuppressWarnings("unchecked")
   @Override
   public ResultOrErrorFuture<ContractTxHash> deploy(final AccountAddress creator,
-      final DangerousSupplier<InputStream> contractCodePayload) {
+      final DangerousSupplier<byte[]> rawContractCode) {
     // TODO : make getting nonce, sign, commit asynchronously
     final Long nonce =
         accountAsyncOperation.get(creator).thenApply(a -> a.getNonce() + 1).get().getResult();
@@ -111,9 +111,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
     transaction.setNonce(nonce);
     transaction.setSender(creator);
     try {
-      final InputStream base58Decoded =
-          base58Decoder.decode(new InputStreamReader(contractCodePayload.get()));
-      transaction.setPayload(BytesValue.of(inputStreamToByteArray(base58Decoded)));
+      transaction.setPayload(BytesValue.of(rawContractCode.get()));
     } catch (Throwable e) {
       return ResultOrErrorFuture.supply(() -> fail(e));
     }

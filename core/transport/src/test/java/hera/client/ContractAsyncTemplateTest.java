@@ -92,7 +92,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
 
     final ResultOrErrorFuture<ContractTxHash> deployTxHash =
         contractAsyncTemplate.deploy(AccountAddress.of(randomUUID().toString().getBytes()),
-            () -> new ByteArrayInputStream(CONTRACT_PAYLOAD));
+            () -> CONTRACT_PAYLOAD);
     assertNotNull(deployTxHash);
   }
 

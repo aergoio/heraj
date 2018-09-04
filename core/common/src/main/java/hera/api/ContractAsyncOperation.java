@@ -11,7 +11,6 @@ import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.util.DangerousSupplier;
-import java.io.InputStream;
 
 public interface ContractAsyncOperation {
 
@@ -27,11 +26,11 @@ public interface ContractAsyncOperation {
    * Deploy smart contract contract code in payload form encoded with base58.
    *
    * @param creator smart contract creator
-   * @param contractCodePayload contract code in payload form encoded with base58
+   * @param rawContractCode contract code in payload
    * @return future of contract definition transaction hash or error
    */
   ResultOrErrorFuture<ContractTxHash> deploy(AccountAddress creator,
-      DangerousSupplier<InputStream> contractCodePayload);
+      DangerousSupplier<byte[]> rawContractCode);
 
   /**
    * Get abi set corresponding to contract address.

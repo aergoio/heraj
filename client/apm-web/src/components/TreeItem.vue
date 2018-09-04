@@ -1,7 +1,7 @@
 <template>
   <li class="tree-item" @click.stop.prevent="clicked"><span>{{name}}</span>
     <ul v-show="hasChildren()">
-      <tree-item v-for="node in children" v-bind:key="node.uuid" v-bind="node" @click="childClicked" @dblclick="childDblclicked"></tree-item>
+      <tree-item :class="[classes]" v-for="node in children" v-bind:key="node.uuid" v-bind="node" @click="childClicked" @dblclick="childDblclicked"/>
     </ul>
   </li>
 </template>
@@ -9,7 +9,7 @@
 <script>
   export default {
     name: 'TreeItem',
-    props: ['name', 'children', 'data'],
+    props: ['name', 'classes', 'children', 'data'],
     created() {
       this.clickCount = 0;
     },
@@ -49,6 +49,10 @@
     -moz-user-select: none; /* mozilla browsers */
     -khtml-user-select: none; /* webkit (konqueror) browsers */
     -ms-user-select: none; /* IE10+ */
+  }
+
+  .tree-item.error {
+    background-color: red;
   }
 
 </style>

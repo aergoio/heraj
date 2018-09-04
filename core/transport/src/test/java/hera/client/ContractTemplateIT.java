@@ -16,15 +16,16 @@ import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
-import java.io.File;
-import java.io.FileInputStream;
+import hera.util.Base58Utils;
+import hera.util.IoUtils;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Before;
 import org.junit.Test;
 
 public class ContractTemplateIT extends AbstractIT {
-
-  protected static final String CONTRACT_IN_PAYLOAD = "src/test/resources/contract.payload";
 
   protected static final String PASSWORD = randomUUID().toString();
 
@@ -54,7 +55,13 @@ public class ContractTemplateIT extends AbstractIT {
     assertTrue(unlockResult);
 
     final ContractTxHash deployTxHash = contractTemplate
-        .deploy(creator.getAddress(), () -> new FileInputStream(new File(CONTRACT_IN_PAYLOAD)))
+        .deploy(creator.getAddress(), () -> {
+          try (
+              final InputStream in = open("payload");
+              final Reader reader = new InputStreamReader(in)) {
+            return Base58Utils.decode(IoUtils.from(reader));
+          }
+        })
         .getResult();
     assertNotNull(deployTxHash);
     logger.debug("Deploy hash: {}", deployTxHash);

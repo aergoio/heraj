@@ -61,9 +61,11 @@
             return {
               name: suite.name,
               data: suite,
+              classes: (0 < suite.failures)?['error']:[],
               children: (suite.testCases || []).map(testCase => {
                 return {
                   name: testCase.name,
+                  classes: testCase.success?[]:['error'],
                   data: testCase
                 }
               })
