@@ -20,8 +20,8 @@ import hera.api.model.AbiSet;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractTxHash;
-import hera.api.model.Hash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.ModelConverter;
@@ -108,21 +108,6 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
 
     final ResultOrErrorFuture<AbiSet> abiSet = contractAsyncTemplate.getAbiSet(CONTRACT_ADDRESS);
     assertNotNull(abiSet);
-  }
-
-  @Test
-  public void testGetAbi() {
-    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
-    when(aergoService.getABI(any())).thenReturn(mockListenableFuture);
-
-    final ContractAsyncTemplate contractAsyncTemplate =
-        new ContractAsyncTemplate(aergoService, mock(AccountAsyncOperation.class),
-            mock(TransactionAsyncOperation.class), receiptConverter, abiConverter);
-
-    final ResultOrErrorFuture<Abi> abi =
-        contractAsyncTemplate.getAbi(CONTRACT_ADDRESS, randomUUID().toString());
-    assertNotNull(abi);
   }
 
   @Test

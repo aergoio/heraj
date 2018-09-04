@@ -8,7 +8,6 @@ import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -75,20 +74,6 @@ public class ContractTemplateTest extends AbstractTestCase {
 
     final ResultOrError<AbiSet> abiSet = contractTemplate.getAbiSet(CONTRACT_ADDRESS);
     assertNotNull(abiSet);
-  }
-
-  @Test
-  public void testGetAbi() {
-    ResultOrErrorFuture<Abi> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    ContractAsyncOperation asyncOperationMock = mock(ContractAsyncOperation.class);
-    when(asyncOperationMock.getAbi(any(), anyString())).thenReturn(futureMock);
-
-    final ContractTemplate contractTemplate = new ContractTemplate(asyncOperationMock);
-
-    final ResultOrError<Abi> abi =
-        contractTemplate.getAbi(CONTRACT_ADDRESS, randomUUID().toString());
-    assertNotNull(abi);
   }
 
   @Test

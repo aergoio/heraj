@@ -73,7 +73,7 @@ public class ContractTemplateIT extends AbstractIT {
     assertNotNull(abiSet);
     logger.debug("Abi set: {}", abiSet);
 
-    final Abi abi = contractTemplate.getAbi(contractAddress, "helloReturn").getResult();
+    final Abi abi = abiSet.findAbiByName("helloReturn").get();
     assertNotNull(abi);
     logger.debug("Abi: {}", abi);
 
