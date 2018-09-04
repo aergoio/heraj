@@ -27,7 +27,7 @@ public class ResultOrErrorFuture<T> extends AbstractTupleOrErrorFuture<ResultOrE
     return new ResultOrErrorFuture(CompletableFuture.supplyAsync(supplier));
   }
 
-  public <R> ResultOrErrorFuture<R> thenApply(Function1<T, R> f) {
+  public <R> ResultOrErrorFuture<R> map(Function1<T, R> f) {
     CompletableFuture<ResultOrError<R>> next = getDeligate().thenApply(r -> r.map(f));
     return new ResultOrErrorFuture<R>(next);
   }

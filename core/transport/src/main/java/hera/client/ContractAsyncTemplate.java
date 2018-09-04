@@ -105,7 +105,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
       final DangerousSupplier<byte[]> rawContractCode) {
     // TODO : make getting nonce, sign, commit asynchronously
     final Long nonce =
-        accountAsyncOperation.get(creator).thenApply(a -> a.getNonce() + 1).get().getResult();
+        accountAsyncOperation.get(creator).map(a -> a.getNonce() + 1).get().getResult();
 
     final Transaction transaction = new Transaction();
     transaction.setNonce(nonce);
@@ -120,7 +120,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
     transaction.setSignature(signature.getResult());
 
     return transactionAsyncOperation.commit(transaction)
-        .thenApply(h -> ContractTxHash.of(h.getBytesValue()));
+        .map(h -> ContractTxHash.of(h.getBytesValue()));
   }
 
   @Override
@@ -159,7 +159,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
     transaction.setSignature(signature.getResult());
 
     return transactionAsyncOperation.commit(transaction)
-        .thenApply(h -> ContractTxHash.of(h.getBytesValue()));
+        .map(h -> ContractTxHash.of(h.getBytesValue()));
   }
 
   @Override
