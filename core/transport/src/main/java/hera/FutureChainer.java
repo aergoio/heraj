@@ -43,7 +43,7 @@ public class FutureChainer<T, R> implements FutureCallback<T> {
 
   @Override
   public void onFailure(Throwable e) {
-    logger.trace("Error: {}", e);
+    logger.trace("Error: {}", e.toString());
     final RpcException convertedError = Optional.of(findStatusRuntimeException(e))
         .filter(t -> t instanceof StatusRuntimeException).map(StatusRuntimeException.class::cast)
         .filter(s -> null != s.getStatus()).map(s -> s.getStatus().getCode()).map(c -> {
