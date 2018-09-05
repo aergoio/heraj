@@ -7,6 +7,7 @@ package hera.api;
 import hera.api.model.Abi;
 import hera.api.model.AbiSet;
 import hera.api.model.AccountAddress;
+import hera.api.model.ContractAddress;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -35,31 +36,31 @@ public interface ContractAsyncOperation {
   /**
    * Get abi set corresponding to contract address.
    *
-   * @param contract contract address
+   * @param contractAddress contract address
    * @return future of abi set or error
    */
-  ResultOrErrorFuture<AbiSet> getAbiSet(AccountAddress contract);
+  ResultOrErrorFuture<AbiSet> getAbiSet(ContractAddress contractAddress);
 
   /**
    * Execute the smart contract.
    *
    * @param executor contract executor
-   * @param contract contract address
+   * @param contractAddress contract address
    * @param abi abi
    * @param args contract function arguments
    * @return future of contract execution transaction hash or error
    */
-  ResultOrErrorFuture<ContractTxHash> execute(AccountAddress executor, AccountAddress contract,
-      Abi abi, Object... args);
+  ResultOrErrorFuture<ContractTxHash> execute(AccountAddress executor,
+      ContractAddress contractAddress, Abi abi, Object... args);
 
   /**
    * Query the smart contract state.
    *
-   * @param contract contract address
+   * @param contractAddress contract address
    * @param abi abi
    * @param args contract function arguments
    * @return future of query result or error
    */
-  ResultOrErrorFuture<Object> query(AccountAddress contract, Abi abi, Object... args);
+  ResultOrErrorFuture<Object> query(ContractAddress contractAddress, Abi abi, Object... args);
 
 }

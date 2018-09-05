@@ -16,6 +16,7 @@ import hera.api.model.AbiSet;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
+import hera.api.model.ContractAddress;
 import hera.api.model.ContractTxHash;
 import hera.api.model.Hash;
 import hera.api.model.HostnameAndPort;
@@ -98,7 +99,7 @@ public class ContractService extends AbstractService {
       final ContractOperation contractOperation = client.getContractOperation();
       final byte[] decoded = from(Decoder.defaultDecoder.decode(new StringReader(contractAddress)));
       return contractOperation.getReceipt(ContractTxHash.of(decoded))
-          .flatMap(receipt -> contractOperation.getAbiSet(AccountAddress.of(decoded)))
+          .flatMap(receipt -> contractOperation.getAbiSet(ContractAddress.of(decoded)))
           .getOrThrows(ResourceNotFoundException::new);
     }
   }
@@ -128,7 +129,7 @@ public class ContractService extends AbstractService {
       final byte[] decoded =
           from(Decoder.defaultDecoder.decode(new StringReader(encodedContractAddress)));
       final AccountAddress executor = AccountAddress.of(decoded);
-      final AccountAddress contractAddress = AccountAddress.of(decoded);
+      final ContractAddress contractAddress = ContractAddress.of(decoded);
       final Object[] argumentValues = abi.getArgumentNames().stream().map(arguments::get).toArray();
       final Hash resultHash =
           contractOperation.execute(executor, contractAddress, abi, argumentValues).getResult();

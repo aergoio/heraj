@@ -6,20 +6,20 @@ package hera.api.model;
 
 import java.util.Optional;
 
-public class AccountAddress extends BytesValue {
+public class ContractAddress extends AccountAddress {
 
-  public static AccountAddress of(final byte[] bytes) {
-    return new AccountAddress(bytes);
+  public static ContractAddress of(final byte[] bytes) {
+    return new ContractAddress(bytes);
   }
 
-  public AccountAddress(final byte[] value) {
+  public ContractAddress(final byte[] value) {
     super(value);
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public <T> Optional<T> adapt(Class<T> adaptor) {
-    if (adaptor.isAssignableFrom(AccountAddress.class)) {
+    if (adaptor.isAssignableFrom(ContractAddress.class)) {
       return (Optional<T>) Optional.of(this);
     }
     return Optional.empty();

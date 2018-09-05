@@ -7,7 +7,6 @@ package hera.client;
 import static hera.api.tupleorerror.FunctionChain.fail;
 import static hera.util.IoUtils.from;
 import static hera.util.TransportUtils.copyFrom;
-import static hera.util.TransportUtils.inputStreamToByteArray;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
@@ -29,6 +28,7 @@ import hera.api.model.AbiSet;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
+import hera.api.model.ContractAddress;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Signature;
@@ -42,8 +42,6 @@ import hera.util.Base58Utils;
 import hera.util.DangerousSupplier;
 import io.grpc.ManagedChannel;
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -124,10 +122,10 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
   }
 
   @Override
-  public ResultOrErrorFuture<AbiSet> getAbiSet(final AccountAddress contract) {
+  public ResultOrErrorFuture<AbiSet> getAbiSet(final ContractAddress contractAddress) {
     ResultOrErrorFuture<AbiSet> nextFuture = new ResultOrErrorFuture<>();
 
-    final ByteString byteString = copyFrom(contract);
+    final ByteString byteString = copyFrom(contractAddress);
     final Rpc.SingleBytes hashBytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
     final ListenableFuture<Blockchain.ABI> listenableFuture = aergoService.getABI(hashBytes);
     FutureChainer<Blockchain.ABI, AbiSet> callback =
@@ -140,7 +138,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
   @SuppressWarnings("unchecked")
   @Override
   public ResultOrErrorFuture<ContractTxHash> execute(final AccountAddress executor,
-      final AccountAddress contract, final Abi abi, final Object... args) {
+      final ContractAddress contractAddress, final Abi abi, final Object... args) {
     // TODO : make getting nonce, sign, commit asynchronously
     final ResultOrError<Account> account = accountAsyncOperation.get(executor).get();
     long nonce = account.map(a -> a.getNonce()).getResult();
@@ -148,7 +146,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
     final Transaction transaction = new Transaction();
     transaction.setNonce(nonce + 1);
     transaction.setSender(executor);
-    transaction.setRecipient(contract);
+    transaction.setRecipient(contractAddress);
     try {
       transaction.setPayload(BytesValue.of(toFunctionCallJsonString(abi, args).getBytes()));
     } catch (JsonProcessingException e) {
@@ -163,7 +161,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
   }
 
   @Override
-  public ResultOrErrorFuture<Object> query(final AccountAddress contract, final Abi abi,
+  public ResultOrErrorFuture<Object> query(final ContractAddress contractAddress, final Abi abi,
       final Object... args) {
     // TODO server not implemented
     throw new UnsupportedOperationException();

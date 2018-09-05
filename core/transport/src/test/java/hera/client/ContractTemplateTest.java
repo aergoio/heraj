@@ -16,11 +16,11 @@ import hera.api.ContractAsyncOperation;
 import hera.api.model.Abi;
 import hera.api.model.AbiSet;
 import hera.api.model.AccountAddress;
+import hera.api.model.ContractAddress;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
-import java.io.InputStream;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -32,8 +32,8 @@ public class ContractTemplateTest extends AbstractTestCase {
   protected static final AccountAddress EXECUTOR_ADDRESS =
       AccountAddress.of(randomUUID().toString().getBytes());
 
-  protected static final AccountAddress CONTRACT_ADDRESS =
-      AccountAddress.of(randomUUID().toString().getBytes());
+  protected static final ContractAddress CONTRACT_ADDRESS =
+      ContractAddress.of(randomUUID().toString().getBytes());
 
   @Test
   public void testGetReceipt() {

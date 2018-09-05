@@ -13,7 +13,7 @@ public class ContractTxReceipt {
 
   @Getter
   @Setter
-  protected AccountAddress contractAddress = new AccountAddress(null);
+  protected ContractAddress contractAddress = new ContractAddress(null);
 
   @Getter
   @Setter

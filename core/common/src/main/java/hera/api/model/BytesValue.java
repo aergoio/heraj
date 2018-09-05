@@ -5,6 +5,7 @@
 package hera.api.model;
 
 import hera.api.Encoder;
+import hera.util.Adaptor;
 import hera.util.HexUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -14,7 +15,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import lombok.Getter;
 
-public class BytesValue implements Supplier<InputStream> {
+public class BytesValue implements Supplier<InputStream>, Adaptor {
 
   /**
    * Factory method.
@@ -90,4 +91,14 @@ public class BytesValue implements Supplier<InputStream> {
   public InputStream get() {
     return new ByteArrayInputStream(getValue());
   }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> Optional<T> adapt(Class<T> adaptor) {
+    if (adaptor.isAssignableFrom(BytesValue.class)) {
+      return (Optional<T>) Optional.of(this);
+    }
+    return Optional.empty();
+  }
+
 }

@@ -19,6 +19,7 @@ import hera.api.model.Abi;
 import hera.api.model.AbiSet;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.ContractAddress;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Hash;
@@ -26,7 +27,6 @@ import hera.api.model.Signature;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.ModelConverter;
 import hera.util.Base58Utils;
-import java.io.ByteArrayInputStream;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -40,8 +40,8 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
   protected static final AccountAddress EXECUTOR_ADDRESS =
       AccountAddress.of(randomUUID().toString().getBytes());
 
-  protected static final AccountAddress CONTRACT_ADDRESS =
-      AccountAddress.of(randomUUID().toString().getBytes());
+  protected static final ContractAddress CONTRACT_ADDRESS =
+      ContractAddress.of(randomUUID().toString().getBytes());
 
   protected static final byte[] CONTRACT_PAYLOAD =
       Base58Utils.encode(randomUUID().toString().getBytes()).getBytes();
@@ -128,7 +128,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
         mockAccountAsyncOperation, mockTransactionAsyncOperation, receiptConverter, abiConverter);
 
     final ResultOrErrorFuture<ContractTxHash> executionTxHash =
-        contractAsyncTemplate.execute(EXECUTOR_ADDRESS, EXECUTOR_ADDRESS, new Abi(), randomUUID());
+        contractAsyncTemplate.execute(EXECUTOR_ADDRESS, CONTRACT_ADDRESS, new Abi(), randomUUID());
     assertNotNull(executionTxHash);
   }
 

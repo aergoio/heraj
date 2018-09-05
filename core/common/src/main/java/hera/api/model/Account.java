@@ -4,12 +4,14 @@
 
 package hera.api.model;
 
+import hera.util.Adaptor;
+import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 @ToString
-public class Account {
+public class Account implements Adaptor {
 
   @Getter
   @Setter
@@ -52,6 +54,17 @@ public class Account {
     account.setAddress(address);
     account.setPassword(password);
     return account;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> Optional<T> adapt(Class<T> adaptor) {
+    if (adaptor.isAssignableFrom(Account.class)) {
+      return (Optional<T>) Optional.of(this);
+    } else if (adaptor.isAssignableFrom(AccountAddress.class)) {
+      return (Optional<T>) Optional.of(getAddress());
+    }
+    return Optional.empty();
   }
 
 }

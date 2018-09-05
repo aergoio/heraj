@@ -12,8 +12,8 @@ import static org.junit.Assert.assertTrue;
 import hera.api.model.Abi;
 import hera.api.model.AbiSet;
 import hera.api.model.Account;
-import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
+import hera.api.model.ContractAddress;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.util.Base58Utils;
@@ -73,7 +73,7 @@ public class ContractTemplateIT extends AbstractIT {
     assertTrue(0 < definitionReceipt.getContractAddress().getValue().length);
     assertEquals("CREATED", definitionReceipt.getStatus());
 
-    final AccountAddress contractAddress = definitionReceipt.getContractAddress();
+    final ContractAddress contractAddress = definitionReceipt.getContractAddress();
     logger.debug("ContractAddress: {}", contractAddress);
 
     final AbiSet abiSet = contractTemplate.getAbiSet(contractAddress).getResult();
