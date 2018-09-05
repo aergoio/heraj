@@ -6,7 +6,7 @@ package hera.api.model;
 
 import hera.api.Encoder;
 import hera.util.Adaptor;
-import hera.util.HexUtils;
+import hera.util.Base58Utils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,7 +59,7 @@ public class BytesValue implements Supplier<InputStream>, Adaptor {
 
   @Override
   public String toString() {
-    return HexUtils.encode(value);
+    return Base58Utils.encode(value);
   }
 
   @Override
