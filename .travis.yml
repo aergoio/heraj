@@ -17,4 +17,4 @@ install:
   - ./build.sh protobuf
 
 script:
-  - ./build.sh gradle test
+  - ./build.sh gradle
