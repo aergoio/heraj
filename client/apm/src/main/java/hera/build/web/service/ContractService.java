@@ -4,6 +4,8 @@
 
 package hera.build.web.service;
 
+import static hera.api.Decoder.defaultDecoder;
+import static hera.api.Encoder.defaultEncoder;
 import static hera.util.HexUtils.dump;
 import static hera.util.IoUtils.from;
 import static java.util.UUID.randomUUID;
@@ -11,6 +13,7 @@ import static java.util.UUID.randomUUID;
 import hera.api.AccountOperation;
 import hera.api.ContractOperation;
 import hera.api.Decoder;
+import hera.api.Encoder;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
@@ -18,6 +21,7 @@ import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInferface;
 import hera.api.model.ContractTxHash;
+import hera.api.model.ContractTxReceipt;
 import hera.api.model.Hash;
 import hera.api.model.HostnameAndPort;
 import hera.build.web.exception.AergoNodeException;
@@ -26,10 +30,12 @@ import hera.build.web.model.BuildDetails;
 import hera.build.web.model.DeploymentResult;
 import hera.build.web.model.ExecutionResult;
 import hera.client.AergoClient;
+import hera.exception.RpcConnectionException;
 import hera.exception.RpcException;
 import hera.strategy.NettyConnectStrategy;
 import hera.test.LuaBinary;
 import hera.test.LuaCompiler;
+import hera.util.HexUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
@@ -81,28 +87,50 @@ public class ContractService extends AbstractService {
       buildUuid2contractAddresses.put(buildDetails.getUuid(), contractTransactionHash);
       final DeploymentResult deploymentResult = new DeploymentResult();
       deploymentResult.setBuildUuid(buildDetails.getUuid());
-      deploymentResult.setContractAddress(contractTransactionHash.toString());
+      deploymentResult.setContractTxHash(contractTransactionHash.getEncodedValue(defaultEncoder));
       deployHistory.add(deploymentResult);
       return deploymentResult;
+    } catch (final RpcConnectionException ex) {
+      throw new AergoNodeException(
+          "Fail to connect aergo[" + endpoint + "]. Check your aergo node.", ex);
     } catch (final RpcException ex) {
       throw new AergoNodeException("Fail to deploy contract", ex);
     }
   }
 
+  public DeploymentResult getLatestContractInformation() {
+    if (deployHistory.isEmpty()) {
+      throw new ResourceNotFoundException("No deployment!! Deploy your contract first.");
+    }
+    final DeploymentResult latest = deployHistory.get(deployHistory.size() - 1);
+    logger.debug("Latest deployment: {}", latest);
+    if (null == latest.getContractInterface()) {
+      final ContractInferface contractInferface = getInterface(latest.getContractTxHash());
+      latest.setContractInterface(contractInferface);
+    }
+    return latest;
+  }
+
   /**
-   * Get application blockchain interface for {@code contractAddress} from {@code endpoint}.
+   * Get application blockchain interface for {@code contractTxHash} from {@code endpoint}.
    *
    * @return abi set
    */
-  public ContractInferface getAbi(final String contractAddress) throws IOException {
+  public ContractInferface getInterface(final String encodedContractTxHash) {
+    logger.trace("Encoded tx hash: {}", encodedContractTxHash);
     final NettyConnectStrategy connectStrategy = new NettyConnectStrategy();
     final HostnameAndPort hostnameAndPort = HostnameAndPort.of(endpoint);
     try (final AergoClient client = new AergoClient(connectStrategy.connect(hostnameAndPort))) {
       final ContractOperation contractOperation = client.getContractOperation();
-      final byte[] decoded = from(Decoder.defaultDecoder.decode(new StringReader(contractAddress)));
-      return contractOperation.getReceipt(ContractTxHash.of(decoded))
-          .flatMap(receipt -> contractOperation.getContractInterface(ContractAddress.of(decoded)))
+      final byte[] decoded = from(defaultDecoder.decode(new StringReader(encodedContractTxHash)));
+      logger.debug("Decoded contract hash:\n{}", HexUtils.dump(decoded));
+      final ContractTxHash contractTxHash = ContractTxHash.of(decoded);
+      return contractOperation.getReceipt(contractTxHash)
+          .map(ContractTxReceipt::getContractAddress)
+          .flatMap(contractOperation::getContractInterface)
           .getOrThrows(ResourceNotFoundException::new);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Invalid contract address: " + encodedContractTxHash);
     }
   }
 
@@ -122,7 +150,7 @@ public class ContractService extends AbstractService {
       final String functionName,
       final Map<String, String> arguments)
       throws IOException {
-    final ContractInferface abiSet = getAbi(encodedContractAddress);
+    final ContractInferface abiSet = getInterface(encodedContractAddress);
     final ContractFunction abi = 
         abiSet.findFunctionByName(functionName).orElseThrow(ResourceNotFoundException::new);
     final NettyConnectStrategy connectStrategy = new NettyConnectStrategy();
@@ -130,7 +158,7 @@ public class ContractService extends AbstractService {
     try (final AergoClient client = new AergoClient(connectStrategy.connect(hostnameAndPort))) {
       final ContractOperation contractOperation =  client.getContractOperation();
       final byte[] decoded =
-          from(Decoder.defaultDecoder.decode(new StringReader(encodedContractAddress)));
+          from(defaultDecoder.decode(new StringReader(encodedContractAddress)));
       final AccountAddress executor = AccountAddress.of(decoded);
       final ContractAddress contractAddress = ContractAddress.of(decoded);
       final Object[] argumentValues = abi.getArgumentNames().stream().map(arguments::get).toArray();

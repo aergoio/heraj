@@ -5,6 +5,7 @@
 package hera.util;
 
 import static com.google.common.io.Closeables.close;
+import static hera.util.ValidationUtils.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -72,6 +73,18 @@ public class HexUtils {
     return buffer.toString();
   }
 
+  protected static  int convert(final int ch) {
+    if ('0' <= ch && ch <= '9') {
+      return ch - '0';
+    } else if ('A' <= ch && ch <= 'F') {
+      return 10 + ch - 'A';
+    } else if ('a' <= ch && ch <= 'f') {
+      return 10 + ch - 'a';
+    } else {
+      throw new IllegalArgumentException();
+    }
+  }
+
   /**
    * Decode hex string to byte array.
    *
@@ -81,19 +94,13 @@ public class HexUtils {
    */
   public static byte[] decode(final String str) {
     final StringReader reader = new StringReader(str);
-    ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-    int ch = 0;
+    final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+    int ch1 = 0;
     try {
-      while (0 < (ch = reader.read())) {
-        if ('0' <= ch && ch <= '9') {
-          byteOut.write(ch - '0');
-        } else if ('A' <= ch && ch <= 'F') {
-          byteOut.write(10 + ch - 'A');
-        } else if ('a' <= ch && ch <= 'f') {
-          byteOut.write(10 + ch - 'a');
-        } else {
-          throw new IllegalArgumentException();
-        }
+      while (0 < (ch1 = reader.read())) {
+        int ch2 = reader.read();
+        assertTrue(0 <= ch2);
+        byteOut.write(convert(ch1) << 4 | convert(ch2));
       }
       return byteOut.toByteArray();
     } catch (final IOException e) {

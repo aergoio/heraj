@@ -4,9 +4,12 @@
 
 package hera.build.web.model;
 
+import hera.api.model.ContractInferface;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
+@ToString
 public class DeploymentResult {
   @Getter
   @Setter
@@ -14,5 +17,9 @@ public class DeploymentResult {
 
   @Getter
   @Setter
-  protected String contractAddress;
+  protected String contractTxHash;
+
+  @Getter
+  @Setter
+  protected ContractInferface contractInterface;
 }

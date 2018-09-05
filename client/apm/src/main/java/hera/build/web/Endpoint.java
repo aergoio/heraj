@@ -114,11 +114,14 @@ public class Endpoint extends WebSocketServlet {
         writeResponse(projectFile, resp);
         return;
       } else if (0 < fragments.length && "contract".equals(fragments[0])) {
-        if (1 < fragments.length) {
+        if (1 == fragments.length) {
+          writeResponse(contractService.getLatestContractInformation(), resp);
+          return;
+        } else if (1 < fragments.length) {
           final String contractAddress = fragments[1];
           if (2 < fragments.length && "abi".equals(fragments[2])) {
             final String endpoint = req.getParameter("endpoint");
-            writeResponse(contractService.getAbi(contractAddress), resp);
+            writeResponse(contractService.getInterface(contractAddress), resp);
             return;
           }
         }

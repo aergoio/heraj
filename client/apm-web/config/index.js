@@ -31,6 +31,13 @@ module.exports = {
         pathRewrite: {
           '^/project': 'project'
         }
+      },
+      '/contract': {
+        target: 'http://localhost:2000',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/contract': 'contract'
+        }
       }
     },
 

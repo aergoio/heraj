@@ -4,9 +4,12 @@
 
 package hera.api.model;
 
+import static hera.util.IoUtils.from;
+
 import hera.api.Encoder;
 import hera.util.Adaptor;
 import hera.util.Base58Utils;
+import hera.util.IoUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,7 +57,7 @@ public class BytesValue implements Supplier<InputStream>, Adaptor {
     if (null == encoder) {
       return null;
     }
-    return encoder.encode(new ByteArrayInputStream(value)).toString();
+    return from(encoder.encode(new ByteArrayInputStream(value)));
   }
 
   @Override
