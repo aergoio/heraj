@@ -13,10 +13,10 @@ import static org.mockito.Mockito.when;
 
 import hera.AbstractTestCase;
 import hera.api.ContractAsyncOperation;
-import hera.api.model.Abi;
-import hera.api.model.AbiSet;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
+import hera.api.model.ContractFunction;
+import hera.api.model.ContractInferface;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.tupleorerror.ResultOrError;
@@ -64,16 +64,17 @@ public class ContractTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetAbiSet() {
-    ResultOrErrorFuture<AbiSet> futureMock = mock(ResultOrErrorFuture.class);
+  public void testGetContractInterface() {
+    ResultOrErrorFuture<ContractInferface> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     ContractAsyncOperation asyncOperationMock = mock(ContractAsyncOperation.class);
-    when(asyncOperationMock.getAbiSet(any())).thenReturn(futureMock);
+    when(asyncOperationMock.getContractInterface(any())).thenReturn(futureMock);
 
     final ContractTemplate contractTemplate = new ContractTemplate(asyncOperationMock);
 
-    final ResultOrError<AbiSet> abiSet = contractTemplate.getAbiSet(CONTRACT_ADDRESS);
-    assertNotNull(abiSet);
+    final ResultOrError<ContractInferface> contractInterface =
+        contractTemplate.getContractInterface(CONTRACT_ADDRESS);
+    assertNotNull(contractInterface);
   }
 
   @Test
@@ -85,8 +86,8 @@ public class ContractTemplateTest extends AbstractTestCase {
 
     final ContractTemplate contractTemplate = new ContractTemplate(asyncOperationMock);
 
-    final ResultOrError<ContractTxHash> executionTxHash =
-        contractTemplate.execute(EXECUTOR_ADDRESS, CONTRACT_ADDRESS, new Abi(), randomUUID());
+    final ResultOrError<ContractTxHash> executionTxHash = contractTemplate.execute(EXECUTOR_ADDRESS,
+        CONTRACT_ADDRESS, new ContractFunction(), randomUUID());
     assertNotNull(executionTxHash);
 
   }
@@ -101,7 +102,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     final ContractTemplate contractTemplate = new ContractTemplate(asyncOperationMock);
 
     final ResultOrError<Object> queryResult =
-        contractTemplate.query(CONTRACT_ADDRESS, new Abi(), randomUUID());
+        contractTemplate.query(CONTRACT_ADDRESS, new ContractFunction(), randomUUID());
     assertNotNull(queryResult);
   }
 

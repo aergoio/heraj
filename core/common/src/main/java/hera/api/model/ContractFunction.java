@@ -12,7 +12,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 @ToString
-public class Abi {
+public class ContractFunction {
 
   @Getter
   @Setter

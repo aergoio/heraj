@@ -11,7 +11,7 @@ import static org.junit.Assert.assertTrue;
 import hera.api.AccountOperation;
 import hera.api.AergoApi;
 import hera.api.ContractOperation;
-import hera.api.model.Abi;
+import hera.api.model.ContractFunction;
 import hera.api.model.Account;
 import hera.api.model.Authentication;
 import hera.api.model.ContractAddress;
@@ -58,7 +58,7 @@ public class DeployContractIT extends AbstractIT {
     final ContractOperation contractOperation = aergoApi.getContractOperation();
     final ContractTxReceipt definitionReceipt = contractOperation.getReceipt(deployContract.getContractTxHash()).getResult();
     final ContractAddress contractAddress = definitionReceipt.getContractAddress();
-    final Abi abi = contractOperation.getAbiSet(contractAddress).getResult().findAbiByName("hello").get();
+    final ContractFunction abi = contractOperation.getContractInterface(contractAddress).getResult().findFunctionByName("hello").get();
     logger.info("ABI: {}", abi);
   }
 }

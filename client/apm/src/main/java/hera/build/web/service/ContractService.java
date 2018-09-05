@@ -11,12 +11,12 @@ import static java.util.UUID.randomUUID;
 import hera.api.AccountOperation;
 import hera.api.ContractOperation;
 import hera.api.Decoder;
-import hera.api.model.Abi;
-import hera.api.model.AbiSet;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.ContractAddress;
+import hera.api.model.ContractFunction;
+import hera.api.model.ContractInferface;
 import hera.api.model.ContractTxHash;
 import hera.api.model.Hash;
 import hera.api.model.HostnameAndPort;
@@ -92,14 +92,14 @@ public class ContractService extends AbstractService {
    *
    * @return abi set
    */
-  public AbiSet getAbi(final String contractAddress) throws IOException {
+  public ContractInferface getAbi(final String contractAddress) throws IOException {
     final NettyConnectStrategy connectStrategy = new NettyConnectStrategy();
     final HostnameAndPort hostnameAndPort = HostnameAndPort.of(endpoint);
     try (final AergoClient client = new AergoClient(connectStrategy.connect(hostnameAndPort))) {
       final ContractOperation contractOperation = client.getContractOperation();
       final byte[] decoded = from(Decoder.defaultDecoder.decode(new StringReader(contractAddress)));
       return contractOperation.getReceipt(ContractTxHash.of(decoded))
-          .flatMap(receipt -> contractOperation.getAbiSet(ContractAddress.of(decoded)))
+          .flatMap(receipt -> contractOperation.getContractInterface(ContractAddress.of(decoded)))
           .getOrThrows(ResourceNotFoundException::new);
     }
   }
@@ -120,8 +120,9 @@ public class ContractService extends AbstractService {
       final String functionName,
       final Map<String, String> arguments)
       throws IOException {
-    final AbiSet abiSet = getAbi(encodedContractAddress);
-    final Abi abi = abiSet.findAbiByName(functionName).orElseThrow(ResourceNotFoundException::new);
+    final ContractInferface abiSet = getAbi(encodedContractAddress);
+    final ContractFunction abi = 
+        abiSet.findFunctionByName(functionName).orElseThrow(ResourceNotFoundException::new);
     final NettyConnectStrategy connectStrategy = new NettyConnectStrategy();
     final HostnameAndPort hostnameAndPort = HostnameAndPort.of(endpoint);
     try (final AergoClient client = new AergoClient(connectStrategy.connect(hostnameAndPort))) {

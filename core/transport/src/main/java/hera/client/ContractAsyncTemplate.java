@@ -23,19 +23,19 @@ import hera.api.AccountAsyncOperation;
 import hera.api.ContractAsyncOperation;
 import hera.api.Decoder;
 import hera.api.TransactionAsyncOperation;
-import hera.api.model.Abi;
-import hera.api.model.AbiSet;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
+import hera.api.model.ContractFunction;
+import hera.api.model.ContractInferface;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
-import hera.transport.AbiSetConverterFactory;
+import hera.transport.ContractInterfaceConverterFactory;
 import hera.transport.ModelConverter;
 import hera.transport.ReceiptConverterFactory;
 import hera.util.Base58Utils;
@@ -60,7 +60,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
 
   protected final ModelConverter<ContractTxReceipt, Blockchain.Receipt> receiptConverter;
 
-  protected final ModelConverter<AbiSet, Blockchain.ABI> abiSetConverter;
+  protected final ModelConverter<ContractInferface, Blockchain.ABI> contractInterfaceConverter;
 
   protected final Decoder base58Decoder =
       reader -> new ByteArrayInputStream(Base58Utils.decode(from(reader)));
@@ -79,7 +79,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
   public ContractAsyncTemplate(final AergoRPCServiceFutureStub aergoService) {
     this(aergoService, new AccountAsyncTemplate(aergoService),
         new TransactionAsyncTemplate(aergoService), new ReceiptConverterFactory().create(),
-        new AbiSetConverterFactory().create());
+        new ContractInterfaceConverterFactory().create());
   }
 
   @Override
@@ -122,14 +122,15 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
   }
 
   @Override
-  public ResultOrErrorFuture<AbiSet> getAbiSet(final ContractAddress contractAddress) {
-    ResultOrErrorFuture<AbiSet> nextFuture = new ResultOrErrorFuture<>();
+  public ResultOrErrorFuture<ContractInferface> getContractInterface(
+      final ContractAddress contractAddress) {
+    ResultOrErrorFuture<ContractInferface> nextFuture = new ResultOrErrorFuture<>();
 
     final ByteString byteString = copyFrom(contractAddress);
     final Rpc.SingleBytes hashBytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
     final ListenableFuture<Blockchain.ABI> listenableFuture = aergoService.getABI(hashBytes);
-    FutureChainer<Blockchain.ABI, AbiSet> callback =
-        new FutureChainer<>(nextFuture, a -> abiSetConverter.convertToDomainModel(a));
+    FutureChainer<Blockchain.ABI, ContractInferface> callback =
+        new FutureChainer<>(nextFuture, a -> contractInterfaceConverter.convertToDomainModel(a));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;
@@ -138,7 +139,8 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
   @SuppressWarnings("unchecked")
   @Override
   public ResultOrErrorFuture<ContractTxHash> execute(final AccountAddress executor,
-      final ContractAddress contractAddress, final Abi abi, final Object... args) {
+      final ContractAddress contractAddress, final ContractFunction contractFunction,
+      final Object... args) {
     // TODO : make getting nonce, sign, commit asynchronously
     final ResultOrError<Account> account = accountAsyncOperation.get(executor).get();
     long nonce = account.map(a -> a.getNonce()).getResult();
@@ -148,7 +150,8 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
     transaction.setSender(executor);
     transaction.setRecipient(contractAddress);
     try {
-      transaction.setPayload(BytesValue.of(toFunctionCallJsonString(abi, args).getBytes()));
+      transaction
+          .setPayload(BytesValue.of(toFunctionCallJsonString(contractFunction, args).getBytes()));
     } catch (JsonProcessingException e) {
       return ResultOrErrorFuture.supply(() -> fail(e));
     }
@@ -161,16 +164,16 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
   }
 
   @Override
-  public ResultOrErrorFuture<Object> query(final ContractAddress contractAddress, final Abi abi,
-      final Object... args) {
+  public ResultOrErrorFuture<Object> query(final ContractAddress contractAddress,
+      final ContractFunction contractFunction, final Object... args) {
     // TODO server not implemented
     throw new UnsupportedOperationException();
   }
 
-  protected String toFunctionCallJsonString(final Abi abi, final Object... args)
-      throws JsonProcessingException {
+  protected String toFunctionCallJsonString(final ContractFunction contractFunction,
+      final Object... args) throws JsonProcessingException {
     ObjectNode node = objectMapper.createObjectNode();
-    node.put("Name", abi.getName());
+    node.put("Name", contractFunction.getName());
     ArrayNode argsNode = node.putArray("Args");
     for (Object arg : args) {
       argsNode.add(arg.toString());

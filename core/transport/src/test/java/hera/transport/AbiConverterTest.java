@@ -7,7 +7,7 @@ package hera.transport;
 import static org.junit.Assert.assertNotNull;
 
 import hera.AbstractTestCase;
-import hera.api.model.Abi;
+import hera.api.model.ContractFunction;
 import org.junit.Test;
 import types.Blockchain;
 
@@ -15,11 +15,11 @@ public class AbiConverterTest extends AbstractTestCase {
 
   @Test
   public void testConvert() {
-    final ModelConverter<Abi, Blockchain.Function> converter = new AbiConverterFactory().create();
+    final ModelConverter<ContractFunction, Blockchain.Function> converter = new ContractFunctionConverterFactory().create();
 
-    final Abi domainAbi = new Abi();
+    final ContractFunction domainAbi = new ContractFunction();
     final Blockchain.Function rpcAbi = converter.convertToRpcModel(domainAbi);
-    final Abi actualAbi = converter.convertToDomainModel(rpcAbi);
+    final ContractFunction actualAbi = converter.convertToDomainModel(rpcAbi);
     assertNotNull(actualAbi);
   }
 

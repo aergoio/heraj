@@ -9,8 +9,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import hera.api.model.Abi;
-import hera.api.model.AbiSet;
+import hera.api.model.ContractFunction;
+import hera.api.model.ContractInferface;
 import hera.api.model.Account;
 import hera.api.model.Authentication;
 import hera.api.model.ContractAddress;
@@ -76,11 +76,11 @@ public class ContractTemplateIT extends AbstractIT {
     final ContractAddress contractAddress = definitionReceipt.getContractAddress();
     logger.debug("ContractAddress: {}", contractAddress);
 
-    final AbiSet abiSet = contractTemplate.getAbiSet(contractAddress).getResult();
+    final ContractInferface abiSet = contractTemplate.getContractInterface(contractAddress).getResult();
     assertNotNull(abiSet);
     logger.debug("Abi set: {}", abiSet);
 
-    final Abi abi = abiSet.findAbiByName("helloReturn").get();
+    final ContractFunction abi = abiSet.findFunctionByName("helloReturn").get();
     assertNotNull(abi);
     logger.debug("Abi: {}", abi);
 

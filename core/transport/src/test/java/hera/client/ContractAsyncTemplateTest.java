@@ -15,8 +15,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
 import hera.api.AccountAsyncOperation;
 import hera.api.TransactionAsyncOperation;
-import hera.api.model.Abi;
-import hera.api.model.AbiSet;
+import hera.api.model.ContractFunction;
+import hera.api.model.ContractInferface;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
@@ -49,7 +49,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
   protected static final ModelConverter<ContractTxReceipt, Blockchain.Receipt> receiptConverter =
       mock(ModelConverter.class);
 
-  protected static final ModelConverter<AbiSet, Blockchain.ABI> abiConverter =
+  protected static final ModelConverter<ContractInferface, Blockchain.ABI> abiConverter =
       mock(ModelConverter.class);
 
   @BeforeClass
@@ -106,7 +106,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
         new ContractAsyncTemplate(aergoService, mock(AccountAsyncOperation.class),
             mock(TransactionAsyncOperation.class), receiptConverter, abiConverter);
 
-    final ResultOrErrorFuture<AbiSet> abiSet = contractAsyncTemplate.getAbiSet(CONTRACT_ADDRESS);
+    final ResultOrErrorFuture<ContractInferface> abiSet = contractAsyncTemplate.getContractInterface(CONTRACT_ADDRESS);
     assertNotNull(abiSet);
   }
 
@@ -128,7 +128,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
         mockAccountAsyncOperation, mockTransactionAsyncOperation, receiptConverter, abiConverter);
 
     final ResultOrErrorFuture<ContractTxHash> executionTxHash =
-        contractAsyncTemplate.execute(EXECUTOR_ADDRESS, CONTRACT_ADDRESS, new Abi(), randomUUID());
+        contractAsyncTemplate.execute(EXECUTOR_ADDRESS, CONTRACT_ADDRESS, new ContractFunction(), randomUUID());
     assertNotNull(executionTxHash);
   }
 

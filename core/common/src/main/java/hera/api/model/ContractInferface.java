@@ -13,7 +13,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 @ToString
-public class AbiSet {
+public class ContractInferface {
 
   @Getter
   @Setter
@@ -25,9 +25,9 @@ public class AbiSet {
 
   @Getter
   @Setter
-  protected List<Abi> abis = Collections.emptyList();
+  protected List<ContractFunction> functions = Collections.emptyList();
 
-  public Optional<Abi> findAbiByName(final String functionName) {
-    return getAbis().stream().filter(n -> functionName.equals(n.getName())).findFirst();
+  public Optional<ContractFunction> findFunctionByName(final String functionName) {
+    return getFunctions().stream().filter(n -> functionName.equals(n.getName())).findFirst();
   }
 }

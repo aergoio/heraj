@@ -4,10 +4,10 @@
 
 package hera.api;
 
-import hera.api.model.Abi;
-import hera.api.model.AbiSet;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
+import hera.api.model.ContractFunction;
+import hera.api.model.ContractInferface;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -34,33 +34,34 @@ public interface ContractAsyncOperation {
       DangerousSupplier<byte[]> rawContractCode);
 
   /**
-   * Get abi set corresponding to contract address.
+   * Get smart contract interface corresponding to contract address.
    *
    * @param contractAddress contract address
-   * @return future of abi set or error
+   * @return future of contract interface or error
    */
-  ResultOrErrorFuture<AbiSet> getAbiSet(ContractAddress contractAddress);
+  ResultOrErrorFuture<ContractInferface> getContractInterface(ContractAddress contractAddress);
 
   /**
    * Execute the smart contract.
    *
    * @param executor contract executor
    * @param contractAddress contract address
-   * @param abi abi
+   * @param contractFunction contract function
    * @param args contract function arguments
    * @return future of contract execution transaction hash or error
    */
   ResultOrErrorFuture<ContractTxHash> execute(AccountAddress executor,
-      ContractAddress contractAddress, Abi abi, Object... args);
+      ContractAddress contractAddress, ContractFunction contractFunction, Object... args);
 
   /**
    * Query the smart contract state.
    *
    * @param contractAddress contract address
-   * @param abi abi
+   * @param contractFunction contract function
    * @param args contract function arguments
    * @return future of query result or error
    */
-  ResultOrErrorFuture<Object> query(ContractAddress contractAddress, Abi abi, Object... args);
+  ResultOrErrorFuture<Object> query(ContractAddress contractAddress,
+      ContractFunction contractFunction, Object... args);
 
 }
