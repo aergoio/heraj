@@ -17,10 +17,12 @@ import hera.build.web.exception.HttpException;
 import hera.build.web.exception.ResourceNotFoundException;
 import hera.build.web.model.BuildDetails;
 import hera.build.web.model.BuildSummary;
+import hera.build.web.model.ServiceError;
 import hera.build.web.service.BuildService;
 import hera.build.web.service.ConfigurationService;
 import hera.build.web.service.ContractService;
 import hera.build.web.service.LiveUpdateSession;
+import hera.util.ExceptionUtils;
 import hera.util.FilepathUtils;
 import hera.util.HexUtils;
 import hera.util.IoUtils;
@@ -68,7 +70,7 @@ public class Endpoint extends WebSocketServlet {
   }
 
   @Override
-  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+  protected void doPost(final HttpServletRequest req, final HttpServletResponse resp)
       throws ServletException, IOException {
     logger.trace("Request: {}, Response: {}", req, resp);
 
@@ -89,18 +91,16 @@ public class Endpoint extends WebSocketServlet {
         }
       }
       getResource(req, resp);
-    } catch (final HttpException ex) {
-      logger.trace("Http exception:", ex);
-      logger.debug("Status code: {}", ex.getStatusCode());
-      resp.setStatus(ex.getStatusCode());
     } catch (final Throwable ex) {
       logger.error("Unexpected exception:", ex);
-      resp.setStatus(SC_INTERNAL_SERVER_ERROR);
+      writeError(ex, resp);
     }
   }
 
   @Override
-  protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) {
+  protected void doGet(
+      final HttpServletRequest req,
+      final HttpServletResponse resp) throws IOException {
     logger.trace("Request: {}, Response: {}", req, resp);
 
     final String requestUri = req.getRequestURI();
@@ -139,13 +139,8 @@ public class Endpoint extends WebSocketServlet {
         }
       }
       getResource(req, resp);
-    } catch (final HttpException ex) {
-      logger.trace("Http exception:", ex);
-      logger.debug("Status code: {}", ex.getStatusCode());
-      resp.setStatus(ex.getStatusCode());
     } catch (final Throwable ex) {
-      logger.error("Unexpected exception:", ex);
-      resp.setStatus(SC_INTERNAL_SERVER_ERROR);
+      writeError(ex, resp);
     }
   }
 
@@ -164,6 +159,23 @@ public class Endpoint extends WebSocketServlet {
         IoUtils.redirect(in, out);
         resp.setStatus(SC_OK);
       }
+    }
+  }
+
+  protected void writeError(final Throwable ex, final HttpServletResponse res) throws IOException {
+    logger.debug("Exception:", ex);
+    if (ex instanceof HttpException) {
+      final HttpException httpException = (HttpException) ex;
+      res.setStatus(httpException.getStatusCode());
+      final byte[] body = mapper.writerWithDefaultPrettyPrinter()
+          .writeValueAsBytes(new ServiceError(ex.getMessage(), ExceptionUtils.getStackTraceOf(ex)));
+      logger.trace("Body:\n{}", HexUtils.dump(body));
+      res.setContentType(Type.APPLICATION_JSON.asString());
+      try (final OutputStream in = res.getOutputStream()) {
+        in.write(body);
+      }
+    } else {
+      res.setStatus(SC_INTERNAL_SERVER_ERROR);
     }
   }
 

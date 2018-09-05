@@ -1,10 +1,19 @@
 <template>
   <nav class="sidenav">
-    <ul class="menu-container">
-      <li v-for="item in items()" v-bind:key="item.name">
-        <router-link :to="item.to">{{item.name}}</router-link>
-      </li>
-    </ul>
+    <img src="/static/aergo-logo.png" srcset="/static/aergo-logo@2x.png 2x, /static/aergo-logo@3x.png 3x" class="aergo_logo">
+    <div>
+      <ul>
+        <li :class="{active: active() == item.to}" v-for="item in items()" v-bind:key="item.name">
+          <span v-if="active() == item.to" class="activebar" />
+          <span class="text">
+            <router-link :to="item.to">{{item.name}}</router-link>
+          </span>
+        </li>
+      </ul>
+    </div>
+    <div class="copyright">
+      © 2018 AERGO, Inc. All rights reserved.
+    </div>
   </nav>
 </template>
 <script>
@@ -14,6 +23,9 @@
       return {};
     },
     methods: {
+      active() {
+        return this.$route.path;
+      },
       items() {
         return [
           {
@@ -23,10 +35,6 @@
           {
             name: 'Unit test',
             to: '/unittest'
-          },
-          {
-            name: 'Deploy',
-            to: '/deploy'
           },
           {
             name: 'Runner',
@@ -40,40 +48,72 @@
 
 <style scoped>
   .sidenav {
-    height: 100%; /* Full-height: remove this if you want "auto" height */
-    width: 160px; /* Set the width of the sidebar */
-    position: fixed; /* Fixed Sidebar (stay in place on scroll) */
-    z-index: 1; /* Stay on top */
-    top: 80px; /* Stay at the top */
-    left: 0;
-    background-color: #111; /* Black */
-    overflow-x: hidden; /* Disable horizontal scroll */
-    padding-top: 20px;
+    position: relative;
+    height: 100%;
+    width: 150pt;
+    overflow-x: hidden;
+    box-shadow: inset -1pt 0 0 0 rgba(0, 0, 0, 0.2);
   }
 
-  /* The navigation menu links */
-  .sidenav a {
-    padding: 6px 8px 6px 16px;
-    text-decoration: none;
-    font-size: 25px;
-    color: #818181;
+  .aergo_logo {
+    margin: 45pt 0pt 0pt 20pt;
+  }
+  .sidenav ul {
+    position: absolute;
+    top: 110pt;
+    margin: 0; /* To remove default bottom margin */
+    padding: 0; /* To remove default left padding */
+  }
+
+  .sidenav li {
     display: block;
-  }
-
-  /* When you mouse over the navigation links, change their color */
-  .sidenav a:hover {
-    color: #f1f1f1;
-  }
-
-  /* On smaller screens, where height is less than 450px, change the style of the sidebar (less padding and a smaller font size) */
-  @media screen and (max-height: 450px) {
-    .sidenav {padding-top: 15px;}
-    .sidenav a {font-size: 18px;}
-  }
-
-  li {
-    font-size: 20px;
+    position: relative;
     list-style: none;
+    height: 36pt;
+    width: 155pt;
+    letter-spacing: -0.2pt;
+  }
+
+  .sidenav li .text a {
+    font-family: NanumSquareOTFR;
+    font-size: 12pt;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    color: #576171;
+  }
+  .sidenav li.active .text a {
+    color: #000021;
+  }
+
+  .sidenav .activebar {
+    position: absolute;
+    display: inline-block;
+    width: 6pt;
+    height: 36pt;
+    background-color: #f80f5f;
+  }
+
+  .sidenav .text {
+    position: absolute;
+    left: 20pt;
+    top: 12pt;
+  }
+
+  .copyright {
+    position: absolute;
+    left: 20pt;
+    bottom: 20pt;
+    width: 77pt;
+    height: 22pt;
+    font-family: NanumSquareOTFB;
+    font-size: 8pt;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: 1.38;
+    letter-spacing: normal;
+    color: #99a4b4;
   }
 
 </style>

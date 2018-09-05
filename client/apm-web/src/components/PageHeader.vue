@@ -1,7 +1,5 @@
 <template>
-  <div class="timeline-container">
-    <build-timeline :items="builds" @click-item="itemClicked"/>
-  </div>
+  <build-timeline :items="builds" :selection="build" @click-item="itemClicked"/>
 </template>
 
 <script>
@@ -28,6 +26,6 @@
 
 <style>
   .timeline-container {
-    padding: 30px;
+    padding: 30pt;
   }
 </style>

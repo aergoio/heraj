@@ -1,7 +1,11 @@
 <template>
-  <li class="tree-item" @click.stop.prevent="clicked"><span>{{name}}</span>
-    <ul v-show="hasChildren()">
-      <tree-item :class="[classes]" v-for="node in children" v-bind:key="node.uuid" v-bind="node" @click="childClicked" @dblclick="childDblclicked"/>
+  <li class="tree-item" :class="[classes, selected ? 'selected' : '']" @click.stop.prevent="clicked">
+    <div class="item">
+      <span><div class="image"></div></span>
+      <span class="text">{{name}}</span>
+    </div>
+    <ul v-show="hasChildren()" class="tree-indent child">
+      <tree-item v-for="node in children" v-bind:key="node.uuid" v-bind="node" @click="childClicked" @dblclick="childDblclicked"/>
     </ul>
   </li>
 </template>
@@ -13,7 +17,15 @@
     created() {
       this.clickCount = 0;
     },
+    data() {
+      return {
+        selected: false
+      }
+    },
     methods: {
+      setSelection(selected) {
+        this.$data.selected = selected;
+      },
       hasChildren() {
         return this.children && this.children.length && 0 < this.children.length;
       },
@@ -24,35 +36,40 @@
           this.clickTimer = setTimeout(() => {
             this.clickCount = 0;
             console.log('[USER] Click tree-item:', this.data);
-            self.$emit('click', this.data)
+            self.$emit('click', this)
           }, 200)
         } else if (this.clickCount === 2) {
           clearTimeout(this.clickTimer);
           this.clickCount = 0
           console.log('[USER] Double click tree-item:', this.data);
-          this.$emit('dblclick', this.data)
+          this.$emit('dblclick', this)
         }
       },
-      childClicked(data) {
-        this.$emit('click', data);
+      childClicked(item) {
+        this.$emit('click', item);
       },
-      childDblclicked(data) {
-        this.$emit('dblclick', data);
+      childDblclicked(item) {
+        this.$emit('dblclick', item);
       }
     }
   }
 </script>
 
-<style>
+<style scoped>
   .tree-item {
     -webkit-user-select: none; /* webkit (safari, chrome) browsers */
     -moz-user-select: none; /* mozilla browsers */
     -khtml-user-select: none; /* webkit (konqueror) browsers */
     -ms-user-select: none; /* IE10+ */
+    list-style: none;
+  }
+  .tree-indent {
+    padding-left: 10px;
   }
 
-  .tree-item.error {
-    background-color: red;
+  .tree-item .item>* {
+    display: inline-block;
+    vertical-align: middle;
   }
 
 </style>

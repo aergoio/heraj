@@ -79,6 +79,7 @@ public class BuildProject extends AbstractCommand {
     if (runTests) {
       try {
         final TestProject testProject = new TestProject();
+        testProject.setBuilderFactory(p -> builder);
         testProject.setReporter(testResultCollector -> {
           buildDetails.setUnitTestReport(testResultCollector.getResults());
         });
@@ -110,7 +111,7 @@ public class BuildProject extends AbstractCommand {
 
     final ProjectFile projectFile = readProject();
     project = new Project(".", projectFile);
-    builder = new BuilderFactory().create(project);
+    builder = new Builder(new ResourceManager(project));
     if (serverMode) {
       createMonitorServer(port).boot(true);
       build(project, true);
@@ -130,9 +131,6 @@ public class BuildProject extends AbstractCommand {
       return;
     } else if (changedResource instanceof BuildResource) {
       logger.trace("Skip build resource: {}", changedResource.getLocation());
-      return;
-    } else if (changedResource instanceof TestResource) {
-      logger.trace("Skip test resource: {}", changedResource.getLocation());
       return;
     }
     try {

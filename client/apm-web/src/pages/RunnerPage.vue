@@ -1,59 +1,46 @@
 <template>
-  <div class="row">
-    <b-dropdown id="target-selector" :text="(null == text)?'Select target...':text" class="m-md-2">
-      <b-dropdown-item v-for="item in targets" :key="item" @click="itemSelected(item)">{{item}}</b-dropdown-item>
-    </b-dropdown>
-
-    <b-input-group>
-      <b-dropdown text="Select" variant="info" slot="prepend">
-        <b-dropdown-item v-for="item in addresses" :key="item.name" @click="addressSelected(item)">{{item.name}}</b-dropdown-item>
-      </b-dropdown>
-      <b-form-input v-model="address" placeholder="Input your privatekey."></b-form-input>
-    </b-input-group>
-
-    <b-button @click="loadClicked" :disabled="null === text || '' === this.address">Load</b-button>
-    <b-button @click="runClicked" :disabled="0 === parameters.length">Run</b-button>
+  <div class="container">
+    <div class="row">
+      <b-form>
+        <b-button variant="primary">Execute</b-button>
+        <b-button variant="danger" @click="reloadClicked">Reload</b-button>
+        <argument v-for="arg of parameters" v-bind="arg" :key="arg"/>
+      </b-form>
+    </div>
   </div>
 </template>
 
 <script>
+  import Vue from 'vue'
+
+  const Argument = {
+    name: 'Argument',
+    props: ['name'],
+    data() {
+      return {
+        value: ''
+      };
+    },
+    template:
+      `<b-form-group :label="name" :label-for="'input-' + name">
+<b-form-input :id="name" type="text" v-model="name" />
+</b-form-group>`
+  };
+  Vue.component(Argument);
+
   export default {
+    components: { Argument: Argument },
     props: ['targets'],
     data() {
       return {
-        text: null,
-        address: '',
-        addresses: [],
         parameters: []
       }
     },
     methods: {
-      itemSelected(item) {
-        console.log('Selected');
-        this.$data.text = item;
-      },
-      addressSelected(item) {
-        this.$data.address = item.name;
-      },
-      loadClicked() {
-        console.log('Address:' + this.$data.address)
-        if (!this.$data.address || '' == this.$data.address) {
-          alert('No target address');
-          return ;
-        }
-
-        const address = this.$data.address
-        const alreadyExists = this.$data.addresses.find(address => address == address)
-        if (!alreadyExists) {
-          this.$data.addresses.push({ name: address });
-        }
-        this.$http.get('/contract/' + address).then((res) => {
-          console.log('Response', res);
+      reloadClicked() {
+        this.$http.get("/contract").then(function (res) {
+          console.log('Response', res.data);
         });
-        console.log('Request contract information for ' + address);
-      },
-      runClicked() {
-        console.log('Run');
       }
     }
   }

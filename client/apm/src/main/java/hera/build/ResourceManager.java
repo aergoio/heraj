@@ -100,6 +100,7 @@ public class ResourceManager implements ServerListener {
       }
     }
     cache.put(canonicalPath, created);
+    logger.debug("{} added", canonicalPath);
     return created;
   }
 
@@ -136,7 +137,8 @@ public class ResourceManager implements ServerListener {
         logger.trace("Project relative path: {}", canonicalPath);
         final Resource cached = cache.get(canonicalPath);
         if (null == cached) {
-          logger.trace("No resource in cache");
+          logger.debug("No resource in cache: {}", canonicalPath);
+          logger.debug("Cache: {}", cache);
           return;
         }
 

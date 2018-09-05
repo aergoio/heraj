@@ -114,9 +114,9 @@ public abstract class AbstractServer implements Server, StateChangeListener<Serv
       listener.handle(event);
     }
     if (listeners.isEmpty()) {
-      logger.trace("Event[{}] is fired", event);
+      logger.trace("Event[{}] is discarded", event);
     } else {
-      logger.trace("Event[{}] is fired to {} listeners", event, listeners.size());
+      logger.info("Event[{}] is fired to {} listeners", event, listeners.size());
     }
   }
 

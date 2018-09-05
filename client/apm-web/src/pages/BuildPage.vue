@@ -1,23 +1,19 @@
 <template>
   <div class="container">
     <div class="row">
-      <b-button @click="deployClicked">DEPLOY</b-button>
     </div>
     <div class="row">
-      <section id="tabs">
-        <div class="container">
-          <div class="row">
-            <b-tabs>
-              <b-tab title="Result">
-                <codemirror :value="result" :options="cmOptions"/>
-              </b-tab>
-              <b-tab title="Dependencies">
-                <tree v-bind="dependencies"></tree>
-              </b-tab>
-            </b-tabs>
-          </div>
-        </div>
-      </section>
+      <div class="tabs">
+        <div class="tab" :class="{active: activePane == 'result'}" @click="resultClicked">Result</div>
+        <div class="tab" :class="{active: activePane == 'dependencies'}" @click="dependenciesClicked">Dependencies</div>
+        <b-button class="deploy-button btn-success btn-sm" @click="deployClicked">DEPLOY</b-button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="tab-pane">
+        <codemirror v-if="activePane=='result'" :value="result" :options="cmOptions"/>
+        <tree v-if="activePane=='dependencies'" v-bind="dependencies" class="dependency-tree"></tree>
+      </div>
     </div>
   </div>
 
@@ -39,6 +35,7 @@
     props: ['uuid', 'result', 'dependencies'],
     data() {
       return {
+        activePane: "result",
         cmOptions: {
           tabSize: 2,
           mode: 'lua',
@@ -51,18 +48,58 @@
     },
     methods: {
       deployClicked() {
-        console.log('Deploy clicked');
-        this.$http.post('/build/' + this.$props.uuid + '/deploy').then(function (res) {
-          console.log('Response:', res);
+        console.log('Deploy clicked: ' + this.$props.uuid);
+        this.$http.post('/build/' + this.$props.uuid + '/deploy').then(res => {
+          console.log('Deploy result:', res);
+          alert('Successful to deploy')
+        }).catch(error => {
+          console.log('Error:', error)
+          alert(error.response.data.message);
         })
+      },
+      resultClicked() {
+        this.$data.activePane = "result";
+      },
+      dependenciesClicked() {
+        this.$data.activePane = "dependencies";
       }
     }
   }
 </script>
 
 <style>
-  section {
-    padding: 10px 0;
+  .tabs {
+    position: relative;
+    height: 40pt;
+    width: 745pt;
+    display: inline-block;
+  }
+  .tabs .tab {
+    display: inline-block;
+    width: 150pt;
+    line-height: 40pt;
+    font-family: NanumSquareOTFR;
+    font-size: 11pt;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    letter-spacing: -0.1pt;
+    text-align: center;
+    color: #4a4a4a;
+    vertical-align: middle;
+  }
+  .tabs .tab:not(.active) {
+    cursor: pointer;
+  }
+  .tabs .tab.active {
+    border-top:solid #171928 3pt;
+    letter-spacing: normal;
+    color: #000000;
+  }
+  .deploy-button {
+    position: absolute;
+    right: 30pt;
+    top:10pt;
   }
 
   #tabs {
@@ -71,31 +108,24 @@
   }
 
   #tabs .container {
-    width:750px;
-    height: 350px;
-  }
-
-  #tabs .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
-    color: #f3f3f3;
-    background-color: transparent;
-    border-color: transparent transparent #f3f3f3;
-    border-bottom: 4px solid !important;
-    font-size: 20px;
-    font-weight: bold;
-  }
-
-  #tabs .nav-tabs .nav-link {
-    border: 1px solid transparent;
-    border-top-left-radius: .25rem;
-    border-top-right-radius: .25rem;
-    color: #eee;
-    font-size: 20px;
+    width:750pt;
+    height: 350pt;
   }
 
   .CodeMirror {
-    padding: 10px;
-    height: 300px;
+    padding: 10pt;
+    height: 500pt;
+    width: 590pt;
+    font-size: 10pt;
   }
 
+  .dependency-tree .tree-item {
+    list-style: none;
+    background-image: url('/static/file-icon.svg');
+    background-size: 10px 14px;
+    background-repeat: no-repeat;
+    background-position: 4pt 4px;
+    padding-left: 18px;
+  }
 
 </style>

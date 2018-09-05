@@ -1,8 +1,8 @@
 <template>
-  <div class="container">
-    <div class="row">
-      <div class="col-6">
-        Runs <span>{{successes}}</span>
+  <div class="container" id="unittest-page">
+    <div class="row title">
+      <div class="col-6 runs">
+        Runs <span class="total-successes">{{successes}}</span> / <span class="total-runs">{{successes + failures}}</span>
       </div>
 
       <div class="col-6">
@@ -12,12 +12,16 @@
         </span>
       </div>
     </div>
-    <div class="row">
+    <div class="row body">
       <div class="col-6">
-        <tree v-bind="reports" @item-click="itemSelected"></tree>
+        <tree v-bind="reports" class="test-tree" @item-select="itemSelected"></tree>
       </div>
       <div class="col-6">
-        <b-form-textarea v-bind="null == selectedItem?'':selectedItem.errorMessage" :rows="20" :max-rows="20" />
+        <div class="failure-title">
+          <img src="/static/failure-icon.svg" style="width: 10pt; height: 7pt;">
+          <span>Failure message</span>
+        </div>
+        <div class="failure-detail">{{errorMessage}}</div>
       </div>
     </div>
 
@@ -31,7 +35,7 @@
     props: ['unitTestReport'],
     data() {
       return {
-        selectedItem: null
+        errorMessage: ''
       }
     },
     computed: {
@@ -75,12 +79,79 @@
       }
     },
     methods: {
-      itemSelected(item) {
-        this.$data.selectedItem = item;
+      itemSelected(data) {
+        this.$data.errorMessage = (null == data.errorMessage)?'':data.errorMessage;
       }
     }
   }
 
 </script>
 
-<style></style>
+<style>
+  #unittest-page .title {
+    height: 40pt;
+    padding: 13pt 0pt;
+    background-color: #f4f4f4;
+  }
+  .runs {
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 9pt;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #4a4a4a;
+  }
+
+  #unittest-page .body {
+    padding: 10px 0px;
+  }
+
+  #unittest-page .failure-detail {
+    width: 100%;
+    height: 200pt;
+    overflow: auto;
+    outline: none;
+    background-color: transparent;
+  }
+
+  .total-runs,.total-successes {
+    font-size: 13pt;
+    color: #000000;
+  }
+
+  .test-tree .tree-item .item {
+    line-height: 22pt;
+  }
+
+  .test-tree .tree-item .image {
+    width: 16pt;
+    height: 18pt;
+    background-repeat: no-repeat;
+    background-image: url('/static/unit-icon-okay.svg');
+    background-position: 4pt 4px;
+    background-size: 8pt 10pt;
+  }
+
+  .test-tree .tree-item.error .image {
+    background-image: url('/static/unit-icon-error.svg');
+  }
+
+  .test-tree .tree-item.selected>.item {
+    background-color: #d4d6da;
+  }
+
+  #unittest-page .failure-title {
+    height: 20pt;
+    font-size: 10pt;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: 20pt;
+    letter-spacing: normal;
+    color: #000000;
+  }
+
+</style>

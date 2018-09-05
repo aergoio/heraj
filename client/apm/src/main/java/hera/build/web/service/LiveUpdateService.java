@@ -42,7 +42,7 @@ public class LiveUpdateService extends AbstractService {
    */
   public void notifyChange(final Object message) throws IOException {
     final String text = new ObjectMapper().writeValueAsString(message);
-    logger.debug("{} receiver(s)", sessions.size());
+    logger.info("{} receiver(s)", sessions.size());
     for (final LiveUpdateSession session : sessions) {
       try {
         session.getRemote().sendString(text);

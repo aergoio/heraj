@@ -31,6 +31,7 @@ public class BuildService extends AbstractService {
    */
   public void save(final BuildDetails buildDetails) {
     uuid2buildResult.put(buildDetails.getUuid(), buildDetails);
+    logger.info("New build detected: {}", buildDetails);
     uuids.add(0, buildDetails.getUuid());
     try {
       liveUpdateService.notifyChange(new BuildSummary(buildDetails));

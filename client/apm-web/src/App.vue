@@ -1,17 +1,19 @@
 <template>
   <div id="app">
-    <page-header class="row" :builds="builds" :build="currentBuild" @select-build="buildSelected"/>
-    <div class="row">
-      <side-menu class="left"/>
+    <side-menu class="left"/>
+    <div>
+      <div class="container">
+        <div class="row">
+          <page-header :builds="builds" :build="currentBuild" @select-build="buildSelected"/>
+        </div>
+      </div>
       <router-view class="main" v-bind="currentBuild" :builds="builds" :targets="targets" @add-target="targetAdded"/>
     </div>
-    <page-footer class="row"/>
   </div>
 </template>
 
 <script>
   import SideMenu from "./components/SideMenu";
-  import PageFooter from "./components/PageFooter";
   import PageHeader from "./components/PageHeader";
   class Connection {
     constructor(app) {
@@ -65,7 +67,7 @@
 
   export default {
     name: 'App',
-    components: {PageHeader, PageFooter, SideMenu },
+    components: {PageHeader, SideMenu},
     data() {
       return {
         builds: [],
@@ -104,7 +106,10 @@
       buildSelected(uuid) {
         console.log(uuid + ' selected');
         this.$http.get('/build/' + uuid).then(res => {
+          console.log('res', res);
           this.$data.currentBuild = res.data;
+        }).catch(error => {
+            alert('Fail to server request: ' + error.data.message);
         })
       },
       targetAdded(name) {
@@ -115,11 +120,19 @@
 </script>
 
 <style>
+  @media
+  (-webkit-min-device-pixel-ratio: 2),
+  (min-resolution: 192dpi) {
+    -webkit-min-device-pixel-ratio: 2;
+    min--moz-device-pixel-ratio: 2;
+  }
+
   #app {
-    font-family: 'Avenir', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: #2c3e50;
+    display: inline-block;
+    height: 100%;
   }
 
   .left {
@@ -127,14 +140,11 @@
   }
 
   html, body {
+    font-family: NanumSquareOTFB;
     position: relative;
     margin: 0;
+    height: 100%;
     min-height: 100%;
+    -webkit-text-size-adjust: auto;
   }
-
-  .main {
-    margin-left: 200px; /* Same as the width of the sidebar */
-    padding: 0px 10px;
-  }
-
 </style>

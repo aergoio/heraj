@@ -20,16 +20,16 @@ import hera.api.model.ContractInferface;
 import hera.api.model.ContractTxHash;
 import hera.api.model.Hash;
 import hera.api.model.HostnameAndPort;
+import hera.build.web.exception.AergoNodeException;
 import hera.build.web.exception.ResourceNotFoundException;
 import hera.build.web.model.BuildDetails;
 import hera.build.web.model.DeploymentResult;
 import hera.build.web.model.ExecutionResult;
 import hera.client.AergoClient;
+import hera.exception.RpcException;
 import hera.strategy.NettyConnectStrategy;
 import hera.test.LuaBinary;
 import hera.test.LuaCompiler;
-import hera.util.HexUtils;
-import hera.util.IoUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
@@ -84,6 +84,8 @@ public class ContractService extends AbstractService {
       deploymentResult.setContractAddress(contractTransactionHash.toString());
       deployHistory.add(deploymentResult);
       return deploymentResult;
+    } catch (final RpcException ex) {
+      throw new AergoNodeException("Fail to deploy contract", ex);
     }
   }
 

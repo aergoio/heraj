@@ -1,21 +1,29 @@
 <template>
-  <ul class="timeline timeline-horizontal">
-    <timeline-item v-for="item in items" :type="item.success ? 'primary' : 'danger'" :key="item.uuid" v-bind="item" @click="itemClicked"/>
-  </ul>
+  <div class="timeline">
+    <div class="horizontal-line"></div>
+    <div class="item-container">
+      <timeline-item v-for="item in items" :type="item.success ? 'primary' : 'danger'" :key="item.uuid"
+                     :selected="selection.uuid == item.uuid" v-bind="item" @click="itemClicked"/>
+    </div>
+  </div>
 </template>
 
 <script>
   import Vue from 'vue'
+
   const TimelineItem = {
     name: 'TimelineItem',
-    props: ['type', 'uuid', 'timestamp'],
+    props: ['type', 'uuid', 'success', 'timestamp', 'selected'],
     template:
-`<li class="timeline-item">
-  <div class="timestamp">{{timestampDisplay(timestamp)}}</div>
-  <a @click="clicked">
-    <div class="timeline-badge" :class="type"><i name="glyphicon-check"></i></div>
-  </a>
-</li>`,
+`<div class="timeline-item">
+  <div v-if="selected" class="selection" />
+  <div class="icon" @click="clicked"/>
+  <div class="status" @click="clicked">
+    <img v-if="success" src="/static/okay-icon.svg" class="status-text" style="width: 30pt; height: 12pt;">
+    <img v-if="!success" src="/static/error-icon.svg" class="status-text" style="width: 30pt; height: 12pt;">
+    <span class="timestamp">{{timestampDisplay(timestamp)}}</span>
+  </div>
+</div>`,
     methods: {
       timestampDisplay(ts) {
         let seconds = Vue.moment().diff(ts, 'seconds');
@@ -29,12 +37,12 @@
         this.$emit('click', this)
       }
     }
-  }
+  };
 
-  Vue.component(TimelineItem)
+  Vue.component(TimelineItem);
   export default {
     name: 'BuildTimeline',
-    props: ['items'],
+    props: ['items', 'selection'],
     components: { TimelineItem: TimelineItem },
     methods: {
       itemClicked(item) {
@@ -46,205 +54,83 @@
 </script>
 
 <style>
-  /* Timeline */
-  .timeline,
-  .timeline-horizontal {
-    list-style: none;
-    padding: 20px;
+  .timeline {
     position: relative;
+    height: 70pt;
+    width: 745pt;
+    background-color: #f9f9f9;
+    overflow: hidden;
   }
-
-  .timeline:before {
-    top: 40px;
-    bottom: 0;
+  .horizontal-line {
     position: absolute;
-    content: " ";
-    width: 3px;
-    background-color: #eeeeee;
-    left: 50%;
-    margin-left: -1.5px;
+    top: 24pt;
+    left: 70pt;
+    width: 653pt;
+    height: 2pt;
+    background-color: #d4d6da;
+    border: solid 1pt #d4d6da;
   }
 
-  .timeline .timeline-item {
-    margin-bottom: 20px;
+  .timeline-item {
+    display: inline-block;
+    width: 110pt;
+    height: 70pt;
     position: relative;
   }
 
-  .timeline .timeline-item:before,
-  .timeline .timeline-item:after {
-    content: "";
-    display: table;
+  .timeline-item .selection {
+    position:absolute;
+    top:18pt;
+    left: 66pt;
+    width: 15pt;
+    height: 15pt;
+    border-radius: 50%;
+    background-color: #D2D3D5;
+    border: solid 1pt rgba(0, 0, 0, .097);
   }
 
-  .timeline .timeline-item:after {
-    clear: both;
+  .timeline-item.error .selection {
+    background-color: #F3CFCF;
+    border: solid 1pt rgba(215, 61, 62, .3);
   }
 
-  .timeline .timeline-item .timeline-badge {
-    color: #fff;
-    width: 54px;
-    height: 54px;
-    line-height: 52px;
-    font-size: 22px;
-    text-align: center;
+  .timeline-item .icon {
+    position:absolute;
+    top:23pt;
+    left: 71pt;
+    width: 5pt;
+    height: 5pt;
+    border-radius: 50%;
+    background-color: #171f28;
+    cursor: pointer;
+  }
+
+  .timeline-item.error .icon {
+    background-color: #d73d3e;
+  }
+  .timeline-item .status {
     position: absolute;
-    top: 18px;
-    left: 50%;
-    margin-left: -25px;
-    background-color: #7c7c7c;
-    border: 3px solid #ffffff;
-    z-index: 100;
-    border-top-right-radius: 50%;
-    border-top-left-radius: 50%;
-    border-bottom-right-radius: 50%;
-    border-bottom-left-radius: 50%;
+    cursor: pointer;
+    top: 32pt;
+    left: 68pt;
+    width: 150pt;
   }
 
-  .timeline .timeline-item .timeline-badge i,
-  .timeline .timeline-item .timeline-badge .fa,
-  .timeline .timeline-item .timeline-badge .glyphicon {
-    top: 2px;
-    left: 0px;
-  }
-
-  .timeline .timeline-item .timeline-badge.primary {
-    background-color: #1f9eba;
-  }
-
-  .timeline .timeline-item .timeline-badge.info {
-    background-color: #5bc0de;
-  }
-
-  .timeline .timeline-item .timeline-badge.success {
-    background-color: #59ba1f;
-  }
-
-  .timeline .timeline-item .timeline-badge.warning {
-    background-color: #d1bd10;
-  }
-
-  .timeline .timeline-item .timeline-badge.danger {
-    background-color: #ba1f1f;
-  }
-
-  .timeline .timeline-item .timeline-panel {
+  .timeline-item .status-text {
     position: relative;
-    width: 46%;
-    float: left;
-    right: 16px;
-    border: 1px solid #c0c0c0;
-    background: #ffffff;
-    border-radius: 2px;
-    padding: 20px;
-    -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.175);
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.175);
   }
 
-  .timeline .timeline-item .timeline-panel:before {
-    position: absolute;
-    top: 26px;
-    right: -16px;
-    display: inline-block;
-    border-top: 16px solid transparent;
-    border-left: 16px solid #c0c0c0;
-    border-right: 0 solid #c0c0c0;
-    border-bottom: 16px solid transparent;
-    content: " ";
-  }
-
-  .timeline .timeline-item .timeline-panel .timeline-title {
-    margin-top: 0;
-    color: inherit;
-  }
-
-  .timeline .timeline-item .timeline-panel .timeline-body > p,
-  .timeline .timeline-item .timeline-panel .timeline-body > ul {
-    margin-bottom: 0;
-  }
-
-  .timeline .timeline-item .timeline-panel .timeline-body > p + p {
-    margin-top: 5px;
-  }
-
-  .timeline .timeline-item:last-child:nth-child(even) {
-    float: right;
-  }
-
-  .timeline .timeline-item:nth-child(even) .timeline-panel {
-    float: right;
-    left: 16px;
-  }
-
-  .timeline .timeline-item:nth-child(even) .timeline-panel:before {
-    border-left-width: 0;
-    border-right-width: 14px;
-    left: -14px;
-    right: auto;
-  }
-
-  .timeline-horizontal {
-    list-style: none;
+  .timeline-item .timestamp {
     position: relative;
-    padding: 20px 0px 20px 0px;
-    display: inline-block;
+    height: 9pt;
+    font-family: NanumSquareOTFR;
+    font-size: 8pt;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #000000;
   }
 
-  .timeline-horizontal:before {
-    height: 3px;
-    top: auto;
-    bottom: 26px;
-    left: 56px;
-    right: 0;
-    width: 100%;
-    margin-bottom: 20px;
-  }
-
-  .timeline-horizontal .timeline-item {
-    display: table-cell;
-    height: 20px;
-    width: 20%;
-    min-width: 150px;
-    float: none !important;
-    padding-left: 0px;
-    padding-right: 20px;
-    margin: 0 auto;
-    vertical-align: bottom;
-  }
-
-  .timeline-horizontal .timeline-item .timeline-panel {
-    top: auto;
-    bottom: 64px;
-    display: inline-block;
-    float: none !important;
-    left: 0 !important;
-    right: 0 !important;
-    width: 100%;
-    margin-bottom: 20px;
-  }
-
-  .timeline-horizontal .timeline-item .timeline-panel:before {
-    top: auto;
-    bottom: -16px;
-    left: 28px !important;
-    right: auto;
-    border-right: 16px solid transparent !important;
-    border-top: 16px solid #c0c0c0 !important;
-    border-bottom: 0 solid #c0c0c0 !important;
-    border-left: 16px solid transparent !important;
-  }
-
-  .timeline-horizontal .timeline-item:before,
-  .timeline-horizontal .timeline-item:after {
-    display: none;
-  }
-
-  .timeline-horizontal .timeline-item .timeline-badge {
-    top: auto;
-    bottom: 0px;
-    left: 43px;
-  }
-
-  .timeline .timeline-item .timestamp {
-    font-size: 13px;
-  }
 </style>

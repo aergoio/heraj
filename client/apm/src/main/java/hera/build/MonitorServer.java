@@ -16,7 +16,6 @@ import hera.server.ServerStatus;
 import hera.server.ThreadServer;
 import hera.util.ThreadUtils;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import lombok.Getter;
 import lombok.Setter;
 import org.eclipse.jetty.server.Server;
@@ -88,7 +87,7 @@ public class MonitorServer extends ThreadServer {
 
     final int port = getPort();
     server = new Server(port);
-    ServletContextHandler context = new ServletContextHandler(SESSIONS);
+    final ServletContextHandler context = new ServletContextHandler(SESSIONS);
     context.setContextPath("/");
     context.setResourceBase(getClass().getResource("/public").toString());
     final Endpoint endpoint = new Endpoint();

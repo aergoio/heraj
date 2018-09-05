@@ -10,6 +10,7 @@ import static java.util.Collections.EMPTY_LIST;
 import hera.Builder;
 import hera.BuilderFactory;
 import hera.ProjectFile;
+import hera.build.ResourceManager;
 import hera.build.res.Project;
 import hera.build.web.model.BuildDetails;
 import hera.test.AthenaContext;
@@ -27,7 +28,7 @@ public class TestProject extends AbstractCommand {
 
   @Getter
   @Setter
-  protected BuilderFactory builderFactory = new BuilderFactory();
+  protected BuilderFactory builderFactory = project -> new Builder(new ResourceManager(project));
 
   @Setter
   protected Consumer<TestResultCollector> reporter = (testReporter) -> {
@@ -44,8 +45,7 @@ public class TestProject extends AbstractCommand {
     logger.trace("Starting {}...", this);
     final ProjectFile projectFile = readProject();
     final Project project = new Project(".", projectFile);
-    final Builder builder = new BuilderFactory().create(project);
-
+    final Builder builder = builderFactory.create(project);
     final List<String> testPaths = nvl(projectFile.getTests(), EMPTY_LIST);
     AthenaContext.clear();
     try {
