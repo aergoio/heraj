@@ -1,4 +1,4 @@
-/*
+package hera.test;/*
  * @copyright defined in LICENSE.txt
  */
 
@@ -9,7 +9,7 @@ import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;
 import org.slf4j.Logger;
 
-public class athena extends TwoArgFunction {
+public class Athena extends TwoArgFunction {
 
   protected final transient Logger logger = getLogger(getClass());
 
