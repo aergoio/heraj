@@ -20,8 +20,6 @@ public class BuildResource extends Resource {
     final ProjectFile projectFile = project.getProjectFile();
 
     final ArrayList<Resource> dependencies = new ArrayList<>();
-    dependencies.addAll(super.getDependencies(resourceManager));
-
     dependencies.add(resourceManager.getResource(projectFile.getSource()));
 
     return dependencies;

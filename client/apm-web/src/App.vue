@@ -97,9 +97,7 @@
           console.log('==>Response received');
           this.$data.builds = res.data;
           if (res.data.length && 0 < res.data.length) {
-            if (!this.$data.currentBuild || !this.$data.currentBuild.uuid) {
-              this.buildSelected(res.data[0].uuid);
-            }
+            this.buildSelected(res.data[0].uuid);
           }
         })
       },

@@ -1,7 +1,7 @@
 <template>
   <li class="tree-item" :class="[classes, selected ? 'selected' : '']" @click.stop.prevent="clicked">
     <div class="item">
-      <span><div class="image"></div></span>
+      <div class="image"></div>
       <span class="text">{{name}}</span>
     </div>
     <ul v-show="hasChildren()" class="tree-indent child">

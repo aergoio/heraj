@@ -93,13 +93,13 @@ public class Concatenator {
     }
 
     boolean needsDelimiter = false;
-    StringWriter contentWriter = new StringWriter();
+    final StringWriter contentWriter = new StringWriter();
 
     try {
       processing.add(resource);
 
-      final Optional<ResourceManager> resouceManagerOpt = resource.adapt(ResourceManager.class);
-      final Concatenator next = resouceManagerOpt
+      final Optional<ResourceManager> resourceManagerOpt = resource.adapt(ResourceManager.class);
+      final Concatenator next = resourceManagerOpt
           .map(newResourceManager -> new Concatenator(newResourceManager, visitedResources))
           .orElse(this);
       if (this != next) {

@@ -4,10 +4,7 @@
 
 package hera.build;
 
-import static hera.util.FileWatcher.FILE_ADDED;
-import static hera.util.FileWatcher.FILE_CHANGED;
-import static hera.util.FileWatcher.FILE_REMOVED;
-import static hera.util.FileWatcher.RESET;
+import static hera.util.FileWatcher.ANY_CHANGED;
 import static hera.util.FilepathUtils.getCanonicalForm;
 import static hera.util.ObjectUtils.equal;
 import static hera.util.ObjectUtils.nvl;
@@ -32,9 +29,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import javax.swing.text.html.Option;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -43,7 +40,7 @@ import org.slf4j.Logger;
 @RequiredArgsConstructor
 public class ResourceManager implements ServerListener {
   protected static final Set<Integer> eventFilter =
-      unmodifiableSet(new HashSet(asList(FILE_ADDED, FILE_CHANGED, FILE_REMOVED, RESET)));
+      unmodifiableSet(new HashSet(asList(ANY_CHANGED)));
 
   protected final transient Logger logger = getLogger(getClass());
 
@@ -123,12 +120,7 @@ public class ResourceManager implements ServerListener {
     final int eventType = event.getType();
     logger.trace("Event type: {}", eventType);
     switch (eventType) {
-      case RESET:
-        logger.info("Reset builder");
-        break;
-      case FILE_ADDED:
-      case FILE_CHANGED:
-      case FILE_REMOVED:
+      case ANY_CHANGED:
         final Collection<File> files = (Collection<File>) event.getNewData();
         final Optional<Resource> cachedResourceOpt = files.stream().map(file -> {
           final String path = getCanonicalForm(file.getAbsolutePath());
@@ -141,7 +133,7 @@ public class ResourceManager implements ServerListener {
           final String canonicalPath = getCanonicalForm(relativePath.toString());
           logger.trace("Project relative path: {}", canonicalPath);
           return cache.get(canonicalPath);
-        }).filter(cached -> null !=cached).findFirst();
+        }).filter(Objects::nonNull).findFirst();
         if (cachedResourceOpt.isPresent()) {
           final Resource cached = cachedResourceOpt.get();
           logger.info("{} changed: {}", cached, event.getType());
@@ -149,7 +141,7 @@ public class ResourceManager implements ServerListener {
         }
         break;
       default:
-        throw new IllegalStateException("Unreachable branch");
+        break;
     }
   }
 }

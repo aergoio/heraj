@@ -7,7 +7,6 @@ package hera.util;
 import static hera.util.ArrayUtils.isEmpty;
 import static hera.util.ObjectUtils.nvl;
 import static hera.util.ThreadUtils.trySleep;
-import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.Collections.unmodifiableCollection;
 import static java.util.stream.Collectors.toList;
@@ -23,7 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -50,6 +48,11 @@ public class FileWatcher extends ThreadServer implements Runnable {
   public static final int FILE_CHANGED = 0x14;
 
   /**
+   * Any change event type.
+   */
+  public static final int ANY_CHANGED = 0x18;
+
+  /**
    * Interval to check.
    */
   @Getter
@@ -65,7 +68,7 @@ public class FileWatcher extends ThreadServer implements Runnable {
 
   protected final File base;
 
-  protected List<String> ignores = new ArrayList<>();
+  protected Set<String> ignores = new HashSet<>();
 
   /**
    * Constructor with watch service and base path.
@@ -110,7 +113,8 @@ public class FileWatcher extends ThreadServer implements Runnable {
 
       if (!isEmpty(children)) {
         logger.trace("Find {} files", children.length);
-        files.addAll(stream(children).filter(child -> !ignores.contains(child.getName())).collect(toList()));
+        files.addAll(stream(children)
+            .filter(child -> !ignores.contains(child.getName())).collect(toList()));
       }
     }
     logger.debug("Changed: {}", changed);
@@ -128,7 +132,6 @@ public class FileWatcher extends ThreadServer implements Runnable {
     base2lastModified.put(base, max);
     previouslyChecked = checkedFiles;
 
-
     if (!added.isEmpty()) {
       logger.info("{} added", added);
       fireEvent(new ServerEvent(this, FILE_ADDED, unmodifiableCollection(added)));
@@ -140,6 +143,14 @@ public class FileWatcher extends ThreadServer implements Runnable {
     if (!changed.isEmpty()) {
       logger.info("{} changed", changed);
       fireEvent(new ServerEvent(this, FILE_CHANGED, unmodifiableCollection(changed)));
+    }
+
+    final Set<File> any = new HashSet<>();
+    any.addAll(added);
+    any.addAll(removed);
+    any.addAll(changed);
+    if (!any.isEmpty()) {
+      fireEvent(new ServerEvent(this, ANY_CHANGED, unmodifiableCollection(any)));
     }
   }
 }

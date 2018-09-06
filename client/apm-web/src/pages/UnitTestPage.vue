@@ -126,7 +126,7 @@
     line-height: 22pt;
   }
 
-  .test-tree .tree-item .image {
+  .test-tree .tree-item>.item>.image {
     width: 16pt;
     height: 18pt;
     background-repeat: no-repeat;
@@ -135,7 +135,7 @@
     background-size: 8pt 10pt;
   }
 
-  .test-tree .tree-item.error .image {
+  .test-tree .tree-item.error>.item>.image {
     background-image: url('/static/unit-icon-error.svg');
   }
 
