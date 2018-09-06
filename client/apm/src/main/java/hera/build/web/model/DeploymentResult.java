@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-@ToString
 public class DeploymentResult {
   @Getter
   @Setter
@@ -17,9 +16,13 @@ public class DeploymentResult {
 
   @Getter
   @Setter
-  protected String contractTxHash;
+  protected String encodedContractTransactionHash;
 
   @Getter
   @Setter
   protected ContractInferface contractInterface;
+
+  public String toString() {
+    return "Transaction[" + getEncodedContractTransactionHash() + "]";
+  }
 }

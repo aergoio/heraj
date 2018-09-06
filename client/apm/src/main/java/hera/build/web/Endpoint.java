@@ -17,6 +17,7 @@ import hera.build.web.exception.HttpException;
 import hera.build.web.exception.ResourceNotFoundException;
 import hera.build.web.model.BuildDetails;
 import hera.build.web.model.BuildSummary;
+import hera.build.web.model.ContractInput;
 import hera.build.web.model.ServiceError;
 import hera.build.web.service.BuildService;
 import hera.build.web.service.ConfigurationService;
@@ -85,8 +86,16 @@ public class Endpoint extends WebSocketServlet {
           final String uuid = fragments[1];
           final BuildDetails buildDetails = buildService.get(uuid)
               .orElseThrow(() -> new ResourceNotFoundException(uuid + " not found"));
-          contractService.deploy(buildDetails);
-          writeResponse(null, resp);
+          writeResponse(contractService.deploy(buildDetails), resp);
+          return;
+        }
+      } else if (0 < fragments.length && "contract".equals(fragments[0])) {
+        if (3 == fragments.length) {
+          final ContractInput input =
+              new ObjectMapper().readValue(req.getInputStream(), ContractInput.class);
+          final String contractTxHash = fragments[1];
+          final String functionName = fragments[2];
+          writeResponse(contractService.execute(contractTxHash, functionName, input), resp);
           return;
         }
       }
@@ -117,13 +126,6 @@ public class Endpoint extends WebSocketServlet {
         if (1 == fragments.length) {
           writeResponse(contractService.getLatestContractInformation(), resp);
           return;
-        } else if (1 < fragments.length) {
-          final String contractAddress = fragments[1];
-          if (2 < fragments.length && "abi".equals(fragments[2])) {
-            final String endpoint = req.getParameter("endpoint");
-            writeResponse(contractService.getInterface(contractAddress), resp);
-            return;
-          }
         }
       } else if (Arrays.equals(new String[] {"builds"}, fragments)) {
         // /builds

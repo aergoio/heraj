@@ -1,12 +1,14 @@
 <template>
-  <div class="container">
-    <div class="row">
+  <div class="contract-execution-container">
       <b-form>
-        <b-form-select v-model="selected" :options="functions.map(function(func) {return {value: func.name, text:func.name};})" class="mb-3" />
-        <b-button variant="primary" @click="reloadClicked">Reload</b-button>
-        <argument v-for="arg of parameters" v-bind="arg" :key="arg"/>
+        <b-row>
+          <b-col sm="8"><b-form-select size="sm" v-model="selected" :options="functions.map(function(func) {return {value: func, text:func.name};})" class="mb-3"/></b-col>
+          <b-col sm="1"><b-button variant="primary" size="sm" @click="reloadClicked">Reload</b-button></b-col>
+          <b-col sm="1"><b-button :variant="(null == selected.argumentNames)?'':'primary'" size="sm" @click="executeClicked">Execute</b-button></b-col>
+          <b-col sm="1"><b-button :variant="(null == selected.argumentNames)?'':'primary'" size="sm" @click="queryClicked">Query</b-button></b-col>
+        </b-row>
+        <argument v-for="arg of selected.argumentNames" :key="arg" :name="arg" @value-change="valueChanged"/>
       </b-form>
-    </div>
   </div>
 </template>
 
@@ -22,9 +24,14 @@
       };
     },
     template:
-      `<b-form-group :label="name" :label-for="'input-' + name">
-<b-form-input :id="name" type="text" v-model="name" />
-</b-form-group>`
+      `<b-form-group :label="name" :label-for="'input-' + name" horizontal breakpoint="lg" :label-cols="2">
+<b-form-input :id="'input-' + name" type="text" size="sm" v-model="value" @change="valueChanged"/>
+</b-form-group>`,
+    methods: {
+      valueChanged(value) {
+        this.$emit('value-change', this.$props.name, value);
+      }
+    }
   };
   Vue.component(Argument);
 
@@ -33,21 +40,51 @@
     props: ['targets'],
     data() {
       return {
-        functions: [],
-        selected: null,
-        parameters: []
+        buildUuid: null,
+        contractTransactionHash: null,
+        selected: {},
+        values: {},
+        functions: []
       }
     },
     methods: {
       reloadClicked() {
         this.$http.get("/contract").then(res => {
-          this.$data.functions = res.data.contractInterface.functions
+          console.log('Response:', res.data);
+          this.$data.buildUuid = res.data.buildUuid;
+          this.$data.contractTransactionHash = res.data.encodedContractTransactionHash;
+          this.$data.functions = res.data.contractInterface.functions;
+          this.$data.selected = res.data.contractInterface.functions[0];
+          this.$data.values = {};
         }).catch(error => {
           alert(error.response.data.message);
         });
+      },
+      valueChanged(key, value) {
+        this.$data.values[key] = value;
+      },
+      executeClicked() {
+        const parameters = {
+          arguments: this.$data.selected.argumentNames.map(argumentName => {
+            return this.$data.values[argumentName];
+          })
+        };
+        console.log('Execute ', parameters);
+        this.$http.post('/contract/' + this.$data.contractTransactionHash + '/' + this.$data.selected.name, parameters).then(res => {
+
+        });
+      },
+
+      queryClicked() {
+
       }
     }
   }
 </script>
 
-<style></style>
+<style>
+  .contract-execution-container {
+    padding-top: 10pt;
+    padding-left: 160pt;
+  }
+</style>
