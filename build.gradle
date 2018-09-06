@@ -88,12 +88,6 @@ configure(javaProjects) {
   repositories {
     mavenLocal()
     maven {
-      url 'https://nexus.blocko.io/repository/blocko-maven-repository'
-    }
-    maven {
-      url "http://sevntu-checkstyle.github.com/sevntu.checkstyle/maven2"
-    }
-    maven {
       url "http://dist.wso2.org/maven2"
     }
     mavenCentral()
@@ -118,7 +112,7 @@ configure(javaProjects) {
   }
 
   checkstyle {
-    project.ext.checkstyleVersion = '8.7'
+    project.ext.checkstyleVersion = '8.11'
     project.ext.sevntuChecksVersion = '1.26.0'
     sourceSets = [project.sourceSets.main]
 
