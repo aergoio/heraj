@@ -25,9 +25,9 @@ import lombok.Setter;
 public class ProjectFile {
 
   /**
-   * Create {@link ProjectFile} from file basePath.
+   * Create {@link ProjectFile} from file base.
    *
-   * @param path aergo.json file basePath
+   * @param path aergo.json file base
    *
    * @return project file
    *

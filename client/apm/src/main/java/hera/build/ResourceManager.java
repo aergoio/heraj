@@ -24,13 +24,17 @@ import hera.build.res.TestResource;
 import hera.server.ServerEvent;
 import hera.server.ServerListener;
 import hera.util.FilepathUtils;
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import javax.swing.text.html.Option;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -69,17 +73,17 @@ public class ResourceManager implements ServerListener {
   }
 
   /**
-   * Return resouce for {@code basePath}.
+   * Return resouce for {@code base}.
    *
-   * @param path resoruce basePath
+   * @param path resoruce base
    *
-   * @return resoruce for basePath
+   * @return resoruce for base
    */
   public synchronized Resource getResource(final String path) {
     logger.trace("Path: {}", path);
     final ProjectFile projectFile = project.getProjectFile();
     final String canonicalPath = getCanonicalForm(path);
-    logger.trace("Canonical basePath: {}", canonicalPath);
+    logger.trace("Canonical base: {}", canonicalPath);
     final Resource cached = cache.get(canonicalPath);
     if (null != cached) {
       return cached;
@@ -125,25 +129,24 @@ public class ResourceManager implements ServerListener {
       case FILE_ADDED:
       case FILE_CHANGED:
       case FILE_REMOVED:
-        final String path =
-            getCanonicalForm(((Path) event.getNewData()).toAbsolutePath().toString());
-        final String projectPath =
-            getCanonicalForm(project.getPath().toAbsolutePath().toString());
-        final Path relativePath =
-            Paths.get(projectPath).relativize(Paths.get(path));
-        logger.trace("Project path: {}, Path: {}, Relative path: {}",
-            projectPath, path, relativePath);
-        final String canonicalPath = getCanonicalForm(relativePath.toString());
-        logger.trace("Project relative path: {}", canonicalPath);
-        final Resource cached = cache.get(canonicalPath);
-        if (null == cached) {
-          logger.debug("No resource in cache: {}", canonicalPath);
-          logger.debug("Cache: {}", cache);
-          return;
+        final Collection<File> files = (Collection<File>) event.getNewData();
+        final Optional<Resource> cachedResourceOpt = files.stream().map(file -> {
+          final String path = getCanonicalForm(file.getAbsolutePath());
+          final String projectPath =
+              getCanonicalForm(project.getPath().toAbsolutePath().toString());
+          final Path relativePath =
+              Paths.get(projectPath).relativize(Paths.get(path));
+          logger.trace("Project path: {}, Path: {}, Relative path: {}",
+              projectPath, path, relativePath);
+          final String canonicalPath = getCanonicalForm(relativePath.toString());
+          logger.trace("Project relative path: {}", canonicalPath);
+          return cache.get(canonicalPath);
+        }).filter(cached -> null !=cached).findFirst();
+        if (cachedResourceOpt.isPresent()) {
+          final Resource cached = cachedResourceOpt.get();
+          logger.info("{} changed: {}", cached, event.getType());
+          fireEvent(new ResourceChangeEvent(cached));
         }
-
-        logger.info("{} changed: {}", cached, event.getType());
-        fireEvent(new ResourceChangeEvent(cached));
         break;
       default:
         throw new IllegalStateException("Unreachable branch");

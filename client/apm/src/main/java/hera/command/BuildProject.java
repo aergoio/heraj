@@ -10,7 +10,6 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
 import hera.Builder;
-import hera.BuilderFactory;
 import hera.ProjectFile;
 import hera.build.MonitorServer;
 import hera.build.Resource;
@@ -19,15 +18,12 @@ import hera.build.ResourceManager;
 import hera.build.res.BuildResource;
 import hera.build.res.PackageResource;
 import hera.build.res.Project;
-import hera.build.res.TestResource;
 import hera.build.web.model.BuildDetails;
 import hera.exception.NoBuildTargetException;
 import hera.util.FileWatcher;
 import java.io.IOException;
 import java.io.Writer;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.WatchService;
 import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
@@ -57,8 +53,8 @@ public class BuildProject extends AbstractCommand {
   }
 
   protected FileWatcher createFileWatcher() throws IOException {
-    final WatchService watchService = FileSystems.getDefault().newWatchService();
-    fileWatcher = new FileWatcher(watchService, project.getPath());
+    fileWatcher = new FileWatcher(project.getPath().toFile());
+    fileWatcher.addIgnore(".git");
     fileWatcher.addServerListener(builder.getResourceManager());
     fileWatcher.run();
     return fileWatcher;
