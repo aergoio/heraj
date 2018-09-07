@@ -79,7 +79,7 @@ public class NodeStatusConverterFactory {
         JsonNode componentStatus = nodeStatusNode.get(moduleName);
         moduleStatus.setStatus(componentStatus.get("status").asText());
         moduleStatus.setProcessedMessageCount(componentStatus.get("acc_processed_msg").asLong());
-        moduleStatus.setQueuedMessageCount(componentStatus.get("acc_queued_msg").asLong());
+        moduleStatus.setQueuedMessageCount(componentStatus.get("msg_queue_len").asLong());
         String latencyInStr = componentStatus.get("msg_latency").asText();
         double latency = Double.parseDouble(latencyInStr.substring(0, latencyInStr.length() - 2));
         moduleStatus.setLatencyInMicroseconds(latency);
