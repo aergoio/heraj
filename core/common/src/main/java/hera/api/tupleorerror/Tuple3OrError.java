@@ -1,58 +1,62 @@
-/*
- * @copyright defined in LICENSE.txt
- */
-
 package hera.api.tupleorerror;
 
-import static hera.api.tupleorerror.FunctionChain.fail;
-import static hera.api.tupleorerror.FunctionChain.success;
+import hera.exception.HerajException;
 
-@SuppressWarnings("unchecked")
-public class Tuple3OrError<T0, T1, T2> extends AbstractTupleOrError {
-
-  public Tuple3OrError(T0 t0, T1 t1, T2 t2) {
-    apply(new Object[] {t0, t1, t2});
-  }
-
-  public Tuple3OrError(Throwable error) {
-    setError(error);
-  }
-
-  public T0 getT0() {
-    return !getValues().isEmpty() ? (T0) unapply()[0] : null;
-  }
-
-  public T1 getT1() {
-    return !getValues().isEmpty() ? (T1) unapply()[1] : null;
-  }
-
-  public T2 getT2() {
-    return !getValues().isEmpty() ? (T2) unapply()[2] : null;
-  }
+public interface Tuple3OrError<T1, T2, T3> extends WithError {
 
   /**
-   * Apply function to tuple0, tuple1, tuple2 if no error. Otherwise, don't apply and just keeping
-   * error.
+   * If a 1st element of tuple is present, returns the value, otherwise throws
+   * {@code HerajException}.
+   *
+   * @return the non-null result
+   * @throws HerajException if there is no result present
+   */
+  T1 get1();
+
+  /**
+   * If a 2nd element of tuple is present, returns the value, otherwise throws
+   * {@code HerajException}.
+   *
+   * @return the non-null result
+   * @throws HerajException if there is no result present
+   */
+  T2 get2();
+
+  /**
+   * If a 3rd element of tuple is present, returns the value, otherwise throws
+   * {@code HerajException}.
+   *
+   * @return the non-null result
+   * @throws HerajException if there is no result present
+   */
+  T3 get3();
+
+  /**
+   * If a result is present, invoke the specified consumer with the value, otherwise do nothing.
+   *
+   * @param consumer block to be executed if a result is present
+   */
+  void ifPresent(Consumer3<? super T1, ? super T2, ? super T3> consumer);
+
+  /**
+   * If a result is present, and the values matches the given predicate, return a
+   * {@code Tuple3OrError} describing the value, otherwise return a {@code Tuple3OrError} with
+   * {@code HerajException}.
+   *
+   * @param predicate a predicate to apply to the value, if present
+   * @return a {@code Tuple3OrError} describing the value of this {@code Tuple3OrError} if a value
+   *         is present and the value matches the given predicate, otherwise a {@code Tuple3OrError}
+   *         with {@code HerajException}
+   */
+  Tuple3OrError<T1, T2, T3> filter(Predicate3<? super T1, ? super T2, ? super T3> predicate);
+
+  /**
+   * Apply function to values if no error. Otherwise, don't apply and just keeping error.
    *
    * @param <R> type of applied result
    * @param fn function to apply
    * @return {@code ResultOrError} with values as result of fn
    */
-  public <R> ResultOrError<R> map(Function3<T0, T1, T2, R> fn) {
-    if (!hasError()) {
-      try {
-        R next = fn.apply(getT0(), getT1(), getT2());
-        return success(next);
-      } catch (Throwable error) {
-        return fail(error);
-      }
-    }
-    return fail(getError());
-  }
-
-  @Override
-  public String toString() {
-    return super.toString();
-  }
+  <R> ResultOrError<R> map(Function3<? super T1, ? super T2, ? super T3, ? extends R> fn);
 
 }

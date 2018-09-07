@@ -2,15 +2,18 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.api.tupleorerror;
+package hera.api.tupleorerror.impl;
 
 import static hera.api.tupleorerror.FunctionChain.fail;
 import static hera.api.tupleorerror.FunctionChain.success;
 
+import hera.api.tupleorerror.Consumer1;
+import hera.api.tupleorerror.Function1;
+import hera.api.tupleorerror.Predicate1;
+import hera.api.tupleorerror.ResultOrError;
 import hera.exception.HerajException;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -33,14 +36,26 @@ public class ResultOrErrorImpl<T> implements ResultOrError<T> {
   }
 
   @Override
-  public void ifPresent(Consumer<? super T> consumer) {
+  public void ifPresent(Consumer1<? super T> consumer) {
     if (hasResult()) {
       consumer.accept(result);
     }
   }
 
   @Override
-  public <R> ResultOrError<R> map(Function1<T, R> fn) {
+  public ResultOrError<T> filter(Predicate1<? super T> predicate) {
+    Objects.requireNonNull(predicate);
+    if (hasResult()) {
+      return predicate.test(result) ? this
+          : fail(new HerajException("No such element matching predicate"));
+    } else {
+      return this;
+    }
+  }
+
+
+  @Override
+  public <R> ResultOrError<R> map(Function1<? super T, ? extends R> fn) {
     if (hasResult()) {
       try {
         R next = fn.apply(result);
@@ -53,7 +68,7 @@ public class ResultOrErrorImpl<T> implements ResultOrError<T> {
   }
 
   @Override
-  public <R> ResultOrError<R> flatMap(Function1<T, ResultOrError<R>> fn) {
+  public <R> ResultOrError<R> flatMap(Function1<? super T, ResultOrError<R>> fn) {
     if (hasResult()) {
       try {
         return fn.apply(result);

@@ -4,14 +4,13 @@
 
 package hera.api.tupleorerror;
 
-public interface Function2<T0, T1, R> {
+public interface Consumer2<T0, T1> {
 
   /**
-   * Applies this function to the given arguments.
+   * Performs this operation on the given argument.
    *
    * @param t0 the 1st argument
    * @param t1 the 2nd argument
-   * @return the function result
    */
-  R apply(T0 t0, T1 t1);
+  void accept(T0 t0, T1 t1);
 }

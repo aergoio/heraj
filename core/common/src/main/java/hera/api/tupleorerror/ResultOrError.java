@@ -1,10 +1,9 @@
 package hera.api.tupleorerror;
 
 import hera.exception.HerajException;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public interface ResultOrError<T> extends Tuple1<T>, WithError {
+public interface ResultOrError<T> extends WithError {
 
   /**
    * If a result is present, returns the value, otherwise throws {@code HerajException}.
@@ -30,7 +29,19 @@ public interface ResultOrError<T> extends Tuple1<T>, WithError {
    *
    * @param consumer block to be executed if a result is present
    */
-  void ifPresent(Consumer<? super T> consumer);
+  void ifPresent(Consumer1<? super T> consumer);
+
+  /**
+   * If a result is present, and the value matches the given predicate, return a
+   * {@code ResultOrError} describing the value, otherwise return a {@code ResultOrError} with
+   * {@code HerajException}.
+   *
+   * @param predicate a predicate to apply to the value, if present
+   * @return a {@code ResultOrError} describing the value of this {@code ResultOrError} if a value
+   *         is present and the value matches the given predicate, otherwise a {@code ResultOrError}
+   *         with {@code HerajException}
+   */
+  ResultOrError<T> filter(Predicate1<? super T> predicate);
 
   /**
    * Apply function to result if no error. Otherwise, don't apply and just keeping error.
@@ -39,18 +50,18 @@ public interface ResultOrError<T> extends Tuple1<T>, WithError {
    * @param fn function to apply
    * @return {@code ResultOrError} with values as result of fn
    */
-  <R> ResultOrError<R> map(Function1<T, R> fn);
+  <R> ResultOrError<R> map(Function1<? super T, ? extends R> fn);
 
   /**
    * Apply function to result if no error. Otherwise, don't apply and just keeping error. This
    * method is similar to {@link #map(Function1)}, but the provided mapper is one whose result is
-   * already an {@code ResultOrError},
+   * already a {@code ResultOrError},
    *
    * @param <R> type of applied result
    * @param fn function to apply
    * @return {@code ResultOrError} with values as result of fn
    */
-  <R> ResultOrError<R> flatMap(Function1<T, ResultOrError<R>> fn);
+  <R> ResultOrError<R> flatMap(Function1<? super T, ResultOrError<R>> fn);
 
   /**
    * Return the value if present, otherwise return {@code other}.

@@ -5,8 +5,9 @@
 package hera.tupleorerror;
 
 import static hera.api.tupleorerror.FunctionChain.seq;
-import static hera.api.tupleorerror.FunctionChain.seqf;
 import static hera.api.tupleorerror.FunctionChain.success;
+
+import static hera.api.tupleorerror.FutureFunctionChain.seq;
 import static org.junit.Assert.assertEquals;
 
 import hera.api.tupleorerror.ResultOrError;
@@ -23,7 +24,7 @@ public class FunctionChainTest {
     ResultOrErrorFuture<Integer> future1 =
         ResultOrErrorFuture.supply(() -> success(new Integer(2)));
     ResultOrErrorFuture<Integer> future =
-        seqf(() -> future0, () -> future1).map((a, b) -> a + b);
+        seq(() -> future0, () -> future1).map((a, b) -> a + b);
     assertEquals(3, future.get().getResult().intValue());
   }
 
@@ -36,7 +37,7 @@ public class FunctionChainTest {
     ResultOrErrorFuture<Integer> future2 =
         ResultOrErrorFuture.supply(() -> success(new Integer(4)));
     ResultOrErrorFuture<Integer> future =
-        seqf(() -> future0, () -> future1, () -> future2).map((a, b, c) -> a + b + c);
+        seq(() -> future0, () -> future1, () -> future2).map((a, b, c) -> a + b + c);
     assertEquals(7, future.get().getResult().intValue());
   }
 
@@ -51,7 +52,7 @@ public class FunctionChainTest {
     ResultOrErrorFuture<Integer> future3 =
         ResultOrErrorFuture.supply(() -> success(new Integer(8)));
     ResultOrErrorFuture<Integer> future =
-        seqf(() -> future0, () -> future1, () -> future2, () -> future3)
+        seq(() -> future0, () -> future1, () -> future2, () -> future3)
             .map((a, b, c, d) -> a + b + c + d);
     assertEquals(15, future.get().getResult().intValue());
   }
