@@ -8,6 +8,7 @@ import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInferface;
+import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -59,9 +60,9 @@ public interface ContractAsyncOperation {
    * @param contractAddress contract address
    * @param contractFunction contract function
    * @param args contract function arguments
-   * @return future of query result or error
+   * @return future of contract result or error
    */
-  ResultOrErrorFuture<Object> query(ContractAddress contractAddress,
+  ResultOrErrorFuture<ContractResult> query(ContractAddress contractAddress,
       ContractFunction contractFunction, Object... args);
 
 }

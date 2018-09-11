@@ -29,6 +29,7 @@ import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInferface;
+import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Signature;
@@ -36,6 +37,7 @@ import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.ContractInterfaceConverterFactory;
+import hera.transport.ContractResultConverterFactory;
 import hera.transport.ModelConverter;
 import hera.transport.ReceiptConverterFactory;
 import hera.util.Base58Utils;
@@ -47,6 +49,7 @@ import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Blockchain;
 import types.Rpc;
+import types.Rpc.SingleBytes;
 
 @RequiredArgsConstructor
 public class ContractAsyncTemplate implements ContractAsyncOperation {
@@ -61,6 +64,8 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
   protected final ModelConverter<ContractTxReceipt, Blockchain.Receipt> receiptConverter;
 
   protected final ModelConverter<ContractInferface, Blockchain.ABI> contractInterfaceConverter;
+
+  protected final ModelConverter<ContractResult, Rpc.SingleBytes> contractResultConverter;
 
   protected final Decoder base58Decoder =
       reader -> new ByteArrayInputStream(Base58Utils.decode(from(reader)));
@@ -79,7 +84,8 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
   public ContractAsyncTemplate(final AergoRPCServiceFutureStub aergoService) {
     this(aergoService, new AccountAsyncTemplate(aergoService),
         new TransactionAsyncTemplate(aergoService), new ReceiptConverterFactory().create(),
-        new ContractInterfaceConverterFactory().create());
+        new ContractInterfaceConverterFactory().create(),
+        new ContractResultConverterFactory().create());
   }
 
   @Override
@@ -163,11 +169,27 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
         .map(h -> ContractTxHash.of(h.getBytesValue()));
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public ResultOrErrorFuture<Object> query(final ContractAddress contractAddress,
+  public ResultOrErrorFuture<ContractResult> query(final ContractAddress contractAddress,
       final ContractFunction contractFunction, final Object... args) {
-    // TODO server not implemented
-    throw new UnsupportedOperationException();
+    ResultOrErrorFuture<ContractResult> nextFuture = new ResultOrErrorFuture<>();
+
+    ByteString queryInfo = null;
+    try {
+      queryInfo = ByteString.copyFrom(toFunctionCallJsonString(contractFunction, args).getBytes());
+    } catch (JsonProcessingException e) {
+      return ResultOrErrorFuture.supply(() -> fail(e));
+    }
+
+    final Blockchain.Query query = Blockchain.Query.newBuilder()
+        .setContractAddress(copyFrom(contractAddress)).setQueryinfo(queryInfo).build();
+    final ListenableFuture<SingleBytes> listenableFuture = aergoService.queryContract(query);
+    FutureChainer<SingleBytes, ContractResult> callback =
+        new FutureChainer<>(nextFuture, s -> contractResultConverter.convertToDomainModel(s));
+    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+
+    return nextFuture;
   }
 
   protected String toFunctionCallJsonString(final ContractFunction contractFunction,
@@ -180,4 +202,5 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
     }
     return node.toString();
   }
+
 }

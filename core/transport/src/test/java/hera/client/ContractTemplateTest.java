@@ -17,6 +17,7 @@ import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInferface;
+import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.tupleorerror.ResultOrError;
@@ -94,14 +95,14 @@ public class ContractTemplateTest extends AbstractTestCase {
 
   @Test
   public void query() {
-    ResultOrErrorFuture<Object> futureMock = mock(ResultOrErrorFuture.class);
+    ResultOrErrorFuture<ContractResult> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     ContractAsyncOperation asyncOperationMock = mock(ContractAsyncOperation.class);
     when(asyncOperationMock.query(any(), any(), any())).thenReturn(futureMock);
 
     final ContractTemplate contractTemplate = new ContractTemplate(asyncOperationMock);
 
-    final ResultOrError<Object> queryResult =
+    final ResultOrError<ContractResult> queryResult =
         contractTemplate.query(CONTRACT_ADDRESS, new ContractFunction(), randomUUID());
     assertNotNull(queryResult);
   }

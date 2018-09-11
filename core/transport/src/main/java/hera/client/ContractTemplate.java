@@ -14,6 +14,7 @@ import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInferface;
+import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.tupleorerror.ResultOrError;
@@ -78,7 +79,7 @@ public class ContractTemplate implements ContractOperation {
   }
 
   @Override
-  public ResultOrError<Object> query(final ContractAddress contractAddress,
+  public ResultOrError<ContractResult> query(final ContractAddress contractAddress,
       final ContractFunction contractFunction, final Object... args) {
     try {
       return contractAsyncOperation.query(contractAddress, contractFunction, args).get(TIMEOUT,
