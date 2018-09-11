@@ -4,6 +4,9 @@
 
 package hera.command;
 
+import static hera.build.web.model.BuildSummary.BUILD_FAIL;
+import static hera.build.web.model.BuildSummary.SUCCESS;
+import static hera.build.web.model.BuildSummary.TEST_FAIL;
 import static hera.util.ExceptionUtils.buildExceptionMessage;
 import static hera.util.ValidationUtils.assertTrue;
 import static java.util.Optional.empty;
@@ -19,11 +22,12 @@ import hera.build.res.BuildResource;
 import hera.build.res.PackageResource;
 import hera.build.res.Project;
 import hera.build.web.model.BuildDetails;
-import hera.exception.NoBuildTargetException;
+import hera.test.TestSuite;
 import hera.util.FileWatcher;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
+import java.util.Collection;
 import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
@@ -63,30 +67,42 @@ public class BuildProject extends AbstractCommand {
   protected void build(final Project project, final boolean runTests) throws IOException {
     final ProjectFile projectFile = project.getProjectFile();
     final String buildTarget = projectFile.getTarget();
+    final BuildDetails buildDetails = new BuildDetails();
     if (null == buildTarget) {
-      throw new NoBuildTargetException();
-    }
-    final BuildDetails buildDetails = builder.build(buildTarget);
-    final String contents = buildDetails.getResult();
-    try (final Writer out = Files.newBufferedWriter(project.getPath().resolve(buildTarget))) {
-      out.write(contents);
-    }
-
-    if (runTests) {
+      buildDetails.setState(BUILD_FAIL);
+    } else {
       try {
-        final TestProject testProject = new TestProject();
-        testProject.setBuilderFactory(p -> builder);
-        testProject.setReporter(testResultCollector -> {
-          buildDetails.setUnitTestReport(testResultCollector.getResults());
-        });
-        testProject.execute();
-      } catch (final Throwable ex) {
-        buildDetails.setError(buildExceptionMessage("Error in unit test", ex));
+        buildDetails.copyFrom(builder.build(buildTarget));
+        final String contents = buildDetails.getResult();
+        try (final Writer out = Files.newBufferedWriter(project.getPath().resolve(buildTarget))) {
+          out.write(contents);
+        }
+        if (runTests) {
+          try {
+            final TestProject testProject = new TestProject();
+            testProject.setBuilderFactory(p -> builder);
+            testProject.setReporter(testResultCollector -> {
+              final Collection<TestSuite> testResults = testResultCollector.getResults();
+              if (buildDetails.getState() == SUCCESS
+                  && testResults.stream().anyMatch(suite -> 0 < suite.getFailures())) {
+                buildDetails.setState(TEST_FAIL);
+              }
+              buildDetails.setUnitTestReport(testResults);
+            });
+            testProject.execute();
+          } catch (final Throwable ex) {
+            buildDetails.setError(buildExceptionMessage("Error in unit test", ex));
+          }
+        }
+      } catch (final Throwable buildException) {
+        buildDetails.setState(BUILD_FAIL);
+        buildDetails.setError(buildException.getMessage());
       }
     }
-    monitorServer.ifPresent(server -> {
-      server.getBuildService().save(buildDetails);
-    });
+
+    monitorServer
+        .map(MonitorServer::getBuildService)
+        .ifPresent(service -> service.save(buildDetails));
   }
 
   @Override

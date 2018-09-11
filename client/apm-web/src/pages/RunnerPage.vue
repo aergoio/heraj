@@ -69,14 +69,27 @@
             return this.$data.values[argumentName];
           })
         };
-        console.log('Execute ', parameters);
-        this.$http.post('/contract/' + this.$data.contractTransactionHash + '/' + this.$data.selected.name, parameters).then(res => {
-
+        this.$http.post(
+          '/contract/' + this.$data.contractTransactionHash + '/' + this.$data.selected.name,
+          parameters).then(res => {
+          alert('Transaction hash: ' + res.data)
         });
       },
 
       queryClicked() {
-
+        const parameters = {
+          params: {
+            arguments: this.$data.selected.argumentNames.map(argumentName => {
+              return this.$data.values[argumentName];
+            })
+          }
+        };
+        console.log('Parameters', parameters);
+        this.$http.get(
+          '/contract/' + this.$data.contractTransactionHash + '/' + this.$data.selected.name,
+          parameters).then(res => {
+          alert('Transaction hash: ' + res.data.result)
+        });
       }
     }
   }

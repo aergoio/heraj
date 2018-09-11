@@ -10,6 +10,7 @@ import static java.nio.file.Files.newBufferedWriter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hera.ProjectFile;
 import java.io.BufferedWriter;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import lombok.Getter;
@@ -26,6 +27,10 @@ public class WriteProjectFile extends AbstractCommand {
     assertTrue(1 == arguments.size());
     final Path projectFilePath = Paths.get(arguments.get(0));
     final ObjectMapper mapper = new ObjectMapper();
+    if (Files.exists(projectFilePath)) {
+      logger.warn("Project file already exists");
+      return;
+    }
     try (final BufferedWriter writer = newBufferedWriter(projectFilePath)) {
       mapper.writerWithDefaultPrettyPrinter().writeValue(writer, project);
     }

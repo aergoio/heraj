@@ -34,7 +34,7 @@ public class BuildService extends AbstractService {
     logger.info("New build detected: {}", buildDetails);
     uuids.add(0, buildDetails.getUuid());
     try {
-      liveUpdateService.notifyChange(new BuildSummary(buildDetails));
+      liveUpdateService.notifyChange(buildDetails.getSummary());
     } catch (final Throwable ex) {
       logger.trace("Ignore exception: {}", ex.getClass());
     }

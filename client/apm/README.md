@@ -3,13 +3,15 @@ The apm makes your development rapid. It suggests the cycle to import, refer, an
 
 # Project structure
 <pre>
+$USER_HOME/
+  +.aergo_modules/
+
 $PROJECT_HOME/
-  + .contract_modules/
   | + xxxx/
   + aergo.json
 </pre>
 * aergo.json - project description file
-* .contract_modules - modules to be downloaded by apm   
+* .aergo_modules - modules to be downloaded by apm   
 
 ## Command(Proposal)
 * apm create ${PROJECT_NAME}

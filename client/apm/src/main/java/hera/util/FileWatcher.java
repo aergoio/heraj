@@ -74,7 +74,6 @@ public class FileWatcher extends ThreadServer implements Runnable {
    * Constructor with watch service and base path.
    *
    * @param basePath path to monitor
-   * @throws IOException Fail to register monitor using nio api
    */
   public FileWatcher(final File basePath) {
     this.base = basePath;

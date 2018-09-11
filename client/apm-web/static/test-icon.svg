@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="12" viewBox="0 0 40 12">
     <g fill="none" fill-rule="evenodd">
-        <rect width="40" height="12" fill="#1D2635" rx="6"/>
+        <rect width="40" height="12" fill="#D73D3E" rx="6"/>
         <text fill="#FFF" font-family="NanumSquareOTFEB, NanumSquareOTF" font-size="8" font-weight="600" letter-spacing="-.1">
-            <tspan x="15.354" y="8">oka</tspan> <tspan x="29.174" y="8">y</tspan>
+            <tspan x="16.124" y="8.5">Test</tspan>
         </text>
         <g transform="translate(6 3)">
             <circle cx="3" cy="3" r="3" fill="#FFF"/>
-            <path fill="#1D2635" fill-rule="nonzero" stroke="#1D2635" stroke-width=".2" d="M2.567 3.43l1.825-1.82.128-.012.337.237.014.153L2.704 4.15l-.13.01L1.143 3.13l-.015-.149.256-.276.13-.014 1.054.74z"/>
+            <path fill="#D0021B" d="M2.605 5.075v-.65h.66v.65h-.66zm.59-1.135h-.52L2.58 1h.71l-.095 2.94z"/>
         </g>
     </g>
 </svg>

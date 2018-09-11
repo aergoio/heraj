@@ -12,6 +12,10 @@ import lombok.ToString;
 
 @ToString
 public class BuildSummary {
+  public static final int SUCCESS = 0;
+  public static final int BUILD_FAIL = 1;
+  public static final int TEST_FAIL = 2;
+
   @Getter
   @Setter
   protected String uuid = randomUUID().toString();
@@ -22,23 +26,12 @@ public class BuildSummary {
 
   @Getter
   @Setter
-  protected boolean success = true;
+  protected int state = SUCCESS;
 
   @Getter
   @Setter
   protected String error;
 
   public BuildSummary() {
-  }
-
-  /**
-   * Constructor with {@link BuildDetails}.
-   *
-   * @param buildDetails build result
-   */
-  public BuildSummary(final BuildDetails buildDetails) {
-    this.uuid = buildDetails.getUuid();
-    this.timestamp = buildDetails.getTimestamp();
-    this.success = buildDetails.isSuccess();
   }
 }

@@ -49,6 +49,8 @@ public class Concatenator {
     }
     try {
       return source.getBody().toString();
+    } catch (final BuildException e) {
+      throw e;
     } catch (final Throwable e) {
       throw new BuildException(e);
     }
@@ -138,6 +140,8 @@ public class Concatenator {
       } else {
         return null;
       }
+    } catch (final BuildException e) {
+      throw e;
     } catch (final Throwable ex) {
       throw new BuildException(ex);
     }

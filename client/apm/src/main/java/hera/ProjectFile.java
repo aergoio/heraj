@@ -7,12 +7,9 @@ package hera;
 import static com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_COMMENTS;
 import static hera.DefaultConstants.DEFAULT_ENDPOINT;
 import static java.nio.file.Files.newInputStream;
-import static java.util.Arrays.asList;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,14 +62,6 @@ public class ProjectFile {
   @Getter
   @Setter
   protected String target;
-
-  @Getter
-  @Setter
-  protected String binaryFile;
-
-  @Getter
-  @Setter
-  protected String abiFile;
 
   @Getter
   @Setter

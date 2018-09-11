@@ -20,14 +20,6 @@ The repository contains next:
 * core/common
 * core/transport
 * client/wallet
-* client/smart-contract
-* client/aergo-mockup
-* tool/aergo-maven-plugin
-* tool/aergo-gradle-plugin
-* integration/spring-aergo
-* doc/getting-started
-* examples/boilerplate
-* examples/XXXX
 
 # Integration
 TBD

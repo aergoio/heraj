@@ -2,7 +2,7 @@
   <div class="timeline">
     <div class="horizontal-line"></div>
     <div class="item-container">
-      <timeline-item v-for="item in items" :type="item.success ? 'primary' : 'danger'" :key="item.uuid"
+      <timeline-item v-for="item in items" :key="item.uuid"
                      :selected="selection.uuid == item.uuid" v-bind="item" @click="itemClicked"/>
     </div>
   </div>
@@ -13,14 +13,15 @@
 
   const TimelineItem = {
     name: 'TimelineItem',
-    props: ['type', 'uuid', 'success', 'timestamp', 'selected'],
+    props: ['uuid', 'state', 'timestamp', 'selected'],
     template:
 `<div class="timeline-item">
   <div v-if="selected" class="selection" />
   <div class="icon" @click="clicked"/>
   <div class="status" @click="clicked">
-    <img v-if="success" src="/static/okay-icon.svg" class="status-text" style="width: 30pt; height: 12pt;">
-    <img v-if="!success" src="/static/error-icon.svg" class="status-text" style="width: 30pt; height: 12pt;">
+    <img v-if="0 == state" src="/static/okay-icon.svg" class="status-text">
+    <img v-if="1 == state" src="/static/build-icon.svg" class="status-text">
+    <img v-if="2 == state" src="/static/test-icon.svg" class="status-text">
     <span class="timestamp">{{timestampDisplay(timestamp)}}</span>
   </div>
 </div>`,
@@ -118,6 +119,8 @@
 
   .timeline-item .status-text {
     position: relative;
+    width: 40pt;
+    height: 12pt;
   }
 
   .timeline-item .timestamp {

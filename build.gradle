@@ -46,7 +46,6 @@ def javaProjects = [
   project('core:common'),
   project('core:transport'),
   project('client:smart-contract'),
-  project('client:repl'),
   project('client:apm'),
   project('client:wallet'),
   project('assembly')]

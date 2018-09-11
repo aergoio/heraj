@@ -5,6 +5,7 @@
 package hera.build.web;
 
 import static hera.util.FilepathUtils.getCanonicalFragments;
+import static hera.util.ObjectUtils.nvl;
 import static java.util.Arrays.asList;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
@@ -90,6 +91,7 @@ public class Endpoint extends WebSocketServlet {
           return;
         }
       } else if (0 < fragments.length && "contract".equals(fragments[0])) {
+        // /contract/{txhash}/{function}
         if (3 == fragments.length) {
           final ContractInput input =
               new ObjectMapper().readValue(req.getInputStream(), ContractInput.class);
@@ -118,13 +120,26 @@ public class Endpoint extends WebSocketServlet {
     logger.debug("Path fragments: {}", asList(fragments));
     try {
       if (Arrays.equals(new String[] {"project"}, fragments)) {
+        // /project
         final ProjectFile projectFile = configurationService.getProjectFile()
             .orElseThrow(ResourceNotFoundException::new);
         writeResponse(projectFile, resp);
         return;
       } else if (0 < fragments.length && "contract".equals(fragments[0])) {
         if (1 == fragments.length) {
+          // /contract
           writeResponse(contractService.getLatestContractInformation(), resp);
+          return;
+        } else if (3 == fragments.length) {
+          // /contract/{txhash}/{function}
+          final ContractInput input = new ContractInput();
+          final String[] arguments = nvl(req.getParameterValues("arguments"), new String[] {});
+          logger.debug("Arguments: {}", asList(arguments));
+          input.setArguments(arguments);
+
+          final String contractTxHash = fragments[1];
+          final String functionName = fragments[2];
+          writeResponse(contractService.query(contractTxHash, functionName, input), resp);
           return;
         }
       } else if (Arrays.equals(new String[] {"builds"}, fragments)) {

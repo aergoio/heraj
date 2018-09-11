@@ -26,6 +26,7 @@ import hera.build.web.exception.ResourceNotFoundException;
 import hera.build.web.model.BuildDetails;
 import hera.build.web.model.DeploymentResult;
 import hera.build.web.model.ExecutionResult;
+import hera.build.web.model.QueryResult;
 import hera.client.AergoClient;
 import hera.exception.RpcConnectionException;
 import hera.exception.RpcException;
@@ -88,6 +89,8 @@ public class ContractService extends AbstractService {
    * @param buildDetails build result
    *
    * @return deployment result
+   *
+   * @throws Exception Fail to deploy
    */
   public DeploymentResult deploy(final BuildDetails buildDetails) throws Exception {
     ensureAccount();
@@ -147,7 +150,8 @@ public class ContractService extends AbstractService {
       final DeploymentResult deploymentResult =
           encodedContractTxHash2contractAddresses.get(encodedContractTxHash);
       final ContractFunction contractFunction = deploymentResult.getContractInterface()
-          .findFunctionByName(functionName).orElseThrow(ResourceNotFoundException::new);
+          .findFunctionByName(functionName)
+          .orElseThrow(() -> new ResourceNotFoundException("No " + functionName + " function."));
 
       logger.trace("Executing...");
       final ContractTxHash executionContractHash = contractOperation.execute(
@@ -160,6 +164,45 @@ public class ContractService extends AbstractService {
       final ExecutionResult executionResult = new ExecutionResult();
       executionResult.setContractTransactionHash(executionContractHash.getEncodedValue());
       return executionResult;
+    }
+  }
+
+  /**
+   * Query smart contract.
+   *
+   * @param encodedContractTxHash contract transaction hash
+   * @param functionName          function's name to execute
+   * @param args                  function's arguments to execute
+   *
+   * @return query result
+   *
+   * @throws IOException Fail to query
+   */
+  public QueryResult query(final String encodedContractTxHash, final String functionName,
+      final Object... args) throws IOException {
+    logger.trace("Encoded tx hash: {}", encodedContractTxHash);
+    final byte[] decoded = from(defaultDecoder.decode(new StringReader(encodedContractTxHash)));
+    logger.debug("Decoded contract hash:\n{}", HexUtils.dump(decoded));
+    final ContractTxHash contractTxHash = ContractTxHash.of(decoded);
+    ensureAccount();
+    final NettyConnectStrategy connectStrategy = new NettyConnectStrategy();
+    final HostnameAndPort hostnameAndPort = HostnameAndPort.of(endpoint);
+    try (final AergoClient client = new AergoClient(connectStrategy.connect(hostnameAndPort))) {
+      final ContractOperation contractOperation = client.getContractOperation();
+      final ContractTxReceipt contractTxReceipt =
+          contractOperation.getReceipt(contractTxHash).getResult();
+      logger.debug("Receipt: {}", contractTxReceipt);
+      final ContractAddress contractAddress = contractTxReceipt.getContractAddress();
+      final DeploymentResult deploymentResult =
+          encodedContractTxHash2contractAddresses.get(encodedContractTxHash);
+      final ContractFunction contractFunction = deploymentResult.getContractInterface()
+          .findFunctionByName(functionName)
+          .orElseThrow(() -> new ResourceNotFoundException("No " + functionName + " function."));
+
+      logger.trace("Querying...");
+      final Object obj = contractOperation.query(contractAddress, contractFunction, args)
+          .getResult();
+      return new QueryResult(obj);
     }
   }
 
@@ -194,6 +237,8 @@ public class ContractService extends AbstractService {
    * Get application blockchain interface for {@code encodedContractTransactionHash}
    * from {@code endpoint}.
    *
+   * @param contractTxHash contract's transaction hash
+   *
    * @return abi set
    */
   public ContractInferface getInterface(final ContractTxHash contractTxHash) {
@@ -204,7 +249,8 @@ public class ContractService extends AbstractService {
       return contractOperation.getReceipt(contractTxHash)
           .map(ContractTxReceipt::getContractAddress)
           .flatMap(contractOperation::getContractInterface)
-          .getOrThrows(ResourceNotFoundException::new);
+          .getOrThrows(() -> new ResourceNotFoundException(
+              "Application Binary Interface not found for " + contractTxHash.toString()));
     }
   }
 }

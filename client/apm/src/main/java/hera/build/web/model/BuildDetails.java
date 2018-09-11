@@ -37,8 +37,21 @@ public class BuildDetails extends BuildSummary {
     final BuildSummary summary = new BuildSummary();
     summary.setUuid(getUuid());
     summary.setTimestamp(getTimestamp());
-    summary.setSuccess(isSuccess());
+    summary.setState(getState());
 
     return summary;
+  }
+
+  /**
+   * Copy from {@code source}.
+   *
+   * @param source {@link BuildDetails} to copy from
+   */
+  public void copyFrom(final BuildDetails source) {
+    this.state = source.getState();
+    this.error = source.getError();
+    this.result = source.getResult();
+    this.dependencies = source.getDependencies();
+    this.unitTestReport = source.getUnitTestReport();
   }
 }

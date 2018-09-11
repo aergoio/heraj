@@ -4,15 +4,16 @@
     </div>
     <div class="row">
       <div class="tabs">
-        <div class="tab" :class="{active: activePane == 'result'}" @click="resultClicked">Result</div>
-        <div class="tab" :class="{active: activePane == 'dependencies'}" @click="dependenciesClicked">Dependencies</div>
+        <div class="tab" :class="{active: activePane === 'result'}" @click="resultClicked">Result</div>
+        <div class="tab" :class="{active: activePane === 'dependencies'}" @click="dependenciesClicked">Dependencies</div>
         <b-button class="deploy-button btn-success btn-sm" @click="deployClicked">DEPLOY</b-button>
       </div>
     </div>
     <div class="row">
       <div class="tab-pane">
-        <codemirror v-if="activePane=='result'" :value="result" :options="cmOptions"/>
-        <tree v-if="activePane=='dependencies'" v-bind="dependencies" class="dependency-tree"></tree>
+        <codemirror v-if="activePane === 'result' && 1 != state" :value="result" :options="cmOptions"/>
+        <div v-if="activePane === 'result' && 1 == state" class="failure-detail">{{error}}</div>
+        <tree v-if="activePane === 'dependencies'" v-bind="dependencies" class="dependency-tree"></tree>
       </div>
     </div>
   </div>
@@ -32,7 +33,7 @@
 
   export default {
     components: {Tree},
-    props: ['uuid', 'result', 'dependencies'],
+    props: ['uuid', 'result', 'state', 'error', 'dependencies'],
     data() {
       return {
         activePane: "result",
