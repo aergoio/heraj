@@ -5,12 +5,21 @@
 package hera.api.model;
 
 public interface ContractResult {
+
   /**
    * Bind contract result to class.
    *
    * @param clazz class to bind
    * @return binded class instance
-   * @throws Exception when error occurred
+   * @throws Exception when binding error occured
    */
-  public <T> T bind(Class<T> clazz) throws Exception;
+  <T> T bind(Class<T> clazz) throws Exception;
+
+  /**
+   * Get contract result in a raw bytes.
+   *
+   * @return contract result in a raw bytes
+   */
+  BytesValue getResultInRawBytes();
+
 }

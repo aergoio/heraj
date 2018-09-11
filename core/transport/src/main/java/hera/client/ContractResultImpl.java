@@ -5,6 +5,7 @@
 package hera.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hera.api.model.BytesValue;
 import hera.api.model.ContractResult;
 import lombok.RequiredArgsConstructor;
 
@@ -18,6 +19,11 @@ public class ContractResultImpl implements ContractResult {
   @Override
   public <T> T bind(final Class<T> clazz) throws Exception {
     return mapper.readValue(result, clazz);
+  }
+
+  @Override
+  public BytesValue getResultInRawBytes() {
+    return BytesValue.of(result);
   }
 
   @Override
