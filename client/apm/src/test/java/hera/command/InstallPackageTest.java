@@ -21,13 +21,13 @@ public class InstallPackageTest extends AbstractTestCase {
   @PrepareForTest(InstallPackage.class)
   public void testExecute() throws Exception {
     // Given
-    final CloneGit subCommand1 = mock(CloneGit.class);
-    whenNew(CloneGit.class).withAnyArguments().thenReturn(subCommand1);
-    when(subCommand1.getFileSet()).thenReturn(new FileSet());
+    final CloneGit cloneGit = mock(CloneGit.class);
+    whenNew(CloneGit.class).withAnyArguments().thenReturn(cloneGit);
+    when(cloneGit.getFileSet()).thenReturn(new FileSet());
 
     // When
     final InstallPackage command = new InstallPackage();
-    command.setArguments(singletonList(randomUUID().toString()));
+    command.setArguments(singletonList(randomUUID().toString() + "/" + randomUUID().toString()));
     command.execute();
 
     // Then
