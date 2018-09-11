@@ -37,7 +37,6 @@
 
   export default {
     components: { Argument: Argument },
-    props: ['targets'],
     data() {
       return {
         buildUuid: null,

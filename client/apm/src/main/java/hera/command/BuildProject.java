@@ -10,7 +10,7 @@ import static hera.build.web.model.BuildSummary.TEST_FAIL;
 import static hera.util.ExceptionUtils.buildExceptionMessage;
 import static hera.util.ValidationUtils.assertTrue;
 import static java.util.Optional.empty;
-import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 
 import hera.Builder;
 import hera.ProjectFile;
@@ -22,6 +22,7 @@ import hera.build.res.BuildResource;
 import hera.build.res.PackageResource;
 import hera.build.res.Project;
 import hera.build.web.model.BuildDetails;
+import hera.build.web.service.BuildService;
 import hera.test.TestSuite;
 import hera.util.FileWatcher;
 import java.io.IOException;
@@ -36,25 +37,15 @@ public class BuildProject extends AbstractCommand {
 
   @Getter
   @Setter
-  protected Optional<MonitorServer> monitorServer = empty();
+  protected FileWatcher fileWatcher;
 
   @Getter
   @Setter
-  protected FileWatcher fileWatcher;
+  protected MonitorServer monitorServer;
 
   protected Builder builder;
 
   protected Project project;
-
-  protected MonitorServer createMonitorServer(final int port) {
-    final MonitorServer monitorServer = new MonitorServer();
-    if (0 < port) {
-      monitorServer.setPort(port);
-    }
-    monitorServer.setProjectFilePath(getProjectFile());
-    this.monitorServer = of(monitorServer);
-    return monitorServer;
-  }
 
   protected FileWatcher createFileWatcher() throws IOException {
     fileWatcher = new FileWatcher(project.getPath().toFile());
@@ -62,6 +53,15 @@ public class BuildProject extends AbstractCommand {
     fileWatcher.addServerListener(builder.getResourceManager());
     fileWatcher.run();
     return fileWatcher;
+  }
+
+  protected MonitorServer createMonitorServer(final int port) {
+    final MonitorServer monitorServer = new MonitorServer();
+    if (0 < port) {
+      monitorServer.setPort(port);
+    }
+    this.monitorServer = monitorServer;
+    return monitorServer;
   }
 
   protected void build(final Project project, final boolean runTests) throws IOException {
@@ -100,7 +100,7 @@ public class BuildProject extends AbstractCommand {
       }
     }
 
-    monitorServer
+    ofNullable(this.monitorServer)
         .map(MonitorServer::getBuildService)
         .ifPresent(service -> service.save(buildDetails));
   }

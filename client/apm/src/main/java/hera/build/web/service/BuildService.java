@@ -13,12 +13,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.inject.Inject;
+import javax.inject.Named;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
+@Named
 public class BuildService extends AbstractService {
 
   @Getter
-  protected LiveUpdateService liveUpdateService = new LiveUpdateService();
+  @Inject
+  protected LiveUpdateService liveUpdateService;
 
   protected final List<String> uuids = new ArrayList<>();
 

@@ -8,7 +8,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import javax.inject.Named;
 
+@Named
 public class LiveUpdateService extends AbstractService {
 
   protected final Set<LiveUpdateSession> sessions = new HashSet<>();
@@ -45,7 +47,7 @@ public class LiveUpdateService extends AbstractService {
     logger.info("{} receiver(s)", sessions.size());
     for (final LiveUpdateSession session : sessions) {
       try {
-        session.getRemote().sendString(text);
+        session.sendMessage(text);
       } catch (final IOException e) {
         logger.debug("Unexpected exception:", e);
       }

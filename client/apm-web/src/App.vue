@@ -7,7 +7,7 @@
           <page-header :builds="builds" :build="currentBuild" @select-build="buildSelected"/>
         </div>
       </div>
-      <router-view class="main" v-bind="currentBuild" :builds="builds" :targets="targets" @add-target="targetAdded"/>
+      <router-view class="main" v-bind="currentBuild" :builds="builds"/>
     </div>
   </div>
 </template>
@@ -28,7 +28,7 @@
       if (!this.running) {
         return ;
       }
-      this.socket = new WebSocket("ws://localhost:2000");
+      this.socket = new WebSocket("ws://localhost:2000/event");
       this.socket.onopen    = this.onOpen.bind(this);
       this.socket.onerror   = this.onError.bind(this);
       this.socket.onclose   = this.onClose.bind(this);
@@ -71,8 +71,7 @@
     data() {
       return {
         builds: [],
-        currentBuild: {},
-        targets: [],
+        currentBuild: {}
       }
     },
     created() {
@@ -83,14 +82,8 @@
     },
     mounted() {
       this.updateBuilds();
-      this.updateTargets();
     },
     methods: {
-      updateTargets() {
-        this.$http.get('/project').then(res => {
-          this.$data.targets = res.data.endpoints;
-        })
-      },
       updateBuilds() {
         console.log("=>Start update builds")
         this.$http.get('/builds').then(res => {
@@ -109,9 +102,6 @@
         }).catch(error => {
             alert('Fail to server request: ' + error.data.message);
         })
-      },
-      targetAdded(name) {
-        this.$data.targets.push({name: name});
       }
     }
   }

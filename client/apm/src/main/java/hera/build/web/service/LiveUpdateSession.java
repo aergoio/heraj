@@ -4,30 +4,36 @@
 
 package hera.build.web.service;
 
-import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.WebSocketAdapter;
+import java.io.IOException;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 
-public class LiveUpdateSession extends WebSocketAdapter {
-  protected static LiveUpdateService manager;
+@RequiredArgsConstructor
+public class LiveUpdateSession {
 
-  public static void setManager(final LiveUpdateService manager) {
-    LiveUpdateSession.manager = manager;
+  @Getter
+  @NonNull
+  protected final WebSocketSession session;
+
+  public void sendMessage(final String message) throws IOException {
+    TextMessage textMessage = new TextMessage(message);
+    session.sendMessage(textMessage);
   }
 
   @Override
-  public void onWebSocketConnect(Session sess) {
-    super.onWebSocketConnect(sess);
-    manager.add(this);
+  public int hashCode() {
+    return session.hashCode();
   }
 
   @Override
-  public void onWebSocketClose(int statusCode, String reason) {
-    super.onWebSocketClose(statusCode, reason);
-    manager.remove(this);
-  }
-
-  @Override
-  public String toString() {
-    return "WsSession[" + getSession() + "]";
+  public boolean equals(Object obj) {
+    if (!(obj instanceof  LiveUpdateSession)) {
+      return false;
+    }
+    final LiveUpdateSession other = (LiveUpdateSession) obj;
+    return this.session.equals(other.session);
   }
 }

@@ -4,44 +4,22 @@
 
 package hera.build;
 
-import static hera.util.ValidationUtils.assertNotNull;
-import static org.eclipse.jetty.servlet.ServletContextHandler.SESSIONS;
-
-import hera.ProjectFile;
-import hera.build.web.Endpoint;
+import hera.build.web.SpringWebLauncher;
 import hera.build.web.service.BuildService;
-import hera.build.web.service.ConfigurationService;
-import hera.build.web.service.ContractService;
 import hera.server.ServerStatus;
 import hera.server.ThreadServer;
 import hera.util.ThreadUtils;
-import java.nio.file.Path;
-import lombok.Getter;
-import lombok.Setter;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.DefaultHandler;
-import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
+import java.util.HashMap;
+import java.util.Map;
+import org.springframework.boot.Banner.Mode;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
 
 public class MonitorServer extends ThreadServer {
 
   protected int port = -1;
 
-  @Getter
-  @Setter
-  protected Path projectFilePath;
-
-  protected Server server;
-
-  @Getter
-  protected ConfigurationService configurationService;
-
-  @Getter
-  protected BuildService buildService;
-
-  @Getter
-  protected ContractService contractService;
+  protected ConfigurableApplicationContext applicationContext;
 
   /**
    * Get server port.
@@ -56,6 +34,18 @@ public class MonitorServer extends ThreadServer {
     } else {
       return port;
     }
+  }
+
+  /**
+   * Get build service from server.
+   *
+   * @return build service
+   */
+  public BuildService getBuildService() {
+    if (null == applicationContext) {
+      return null;
+    }
+    return applicationContext.getBean(BuildService.class);
   }
 
   /**
@@ -77,31 +67,17 @@ public class MonitorServer extends ThreadServer {
   @Override
   protected void initialize() throws Exception {
     super.initialize();
-    assertNotNull(projectFilePath);
-    configurationService = new ConfigurationService(projectFilePath);
-    buildService = new BuildService();
-    contractService = new ContractService();
-    configurationService.getProjectFile()
-        .map(ProjectFile::getEndpoint)
-        .ifPresent(contractService::setEndpoint);
+    final SpringApplicationBuilder builder = new SpringApplicationBuilder(SpringWebLauncher.class);
+    builder.bannerMode(Mode.OFF);
 
-    final int port = getPort();
-    server = new Server(port);
-    final ServletContextHandler context = new ServletContextHandler(SESSIONS);
-    context.setContextPath("/");
-    context.setResourceBase(getClass().getResource("/public").toString());
-    final Endpoint endpoint = new Endpoint();
-    endpoint.setConfigurationService(configurationService);
-    endpoint.setBuildService(buildService);
-    endpoint.setContractService(contractService);
-    context.addServlet(new ServletHolder(endpoint), "/");
-
-    final HandlerList handlers = new HandlerList();
-    handlers.addHandler(context);
-    handlers.addHandler(new DefaultHandler());
-    server.setHandler(handlers);
-    server.start();
-    logger.info("Open browser and connect to http://localhost:{}", port);
+    final Map<String, Object> properties = new HashMap<>();
+    if (0 <= port) {
+      properties.put("server.port", port);
+    }
+    if (!properties.isEmpty()) {
+      builder.properties(properties);
+    }
+    applicationContext = builder.run();
   }
 
   @Override
@@ -113,8 +89,7 @@ public class MonitorServer extends ThreadServer {
   @Override
   protected void terminate() {
     try {
-      server.stop();
-      server.join();
+      applicationContext.close();;
     } catch (Throwable ex) {
       this.exception = ex;
     }

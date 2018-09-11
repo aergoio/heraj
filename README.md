@@ -39,6 +39,11 @@ $ ./build.sh clean
 $ ./build.sh protobuf
 ```
 
+* Create apm web ui
+```console
+$ ./build.sh npm
+```
+
 * Run gradle
 ```console
 $ ./build.sh gradle

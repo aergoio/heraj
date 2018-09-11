@@ -8,8 +8,11 @@ import static hera.api.Decoder.defaultDecoder;
 import static hera.api.Encoder.defaultEncoder;
 import static hera.util.HexUtils.dump;
 import static hera.util.IoUtils.from;
+import static hera.util.IoUtils.stream;
+import static java.util.Arrays.stream;
 import static java.util.UUID.randomUUID;
 
+import com.google.common.collect.Streams;
 import hera.api.AccountOperation;
 import hera.api.ContractOperation;
 import hera.api.model.Account;
@@ -38,12 +41,17 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.inject.Named;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@NoArgsConstructor
+@Named
 public class ContractService extends AbstractService {
   @Getter
   @Setter
@@ -133,7 +141,7 @@ public class ContractService extends AbstractService {
    * @throws IOException Fail to execute
    */
   public ExecutionResult execute(final String encodedContractTxHash, final String functionName,
-      final Object... args) throws IOException {
+      final String... args) throws IOException {
     logger.trace("Encoded tx hash: {}", encodedContractTxHash);
     final byte[] decoded = from(defaultDecoder.decode(new StringReader(encodedContractTxHash)));
     logger.debug("Decoded contract hash:\n{}", HexUtils.dump(decoded));
@@ -158,7 +166,7 @@ public class ContractService extends AbstractService {
           account.getAddress(),
           contractAddress,
           contractFunction,
-          args
+          stream(args).toArray()
       ).getResult();
 
       final ExecutionResult executionResult = new ExecutionResult();
@@ -179,7 +187,7 @@ public class ContractService extends AbstractService {
    * @throws IOException Fail to query
    */
   public QueryResult query(final String encodedContractTxHash, final String functionName,
-      final Object... args) throws IOException {
+      final String... args) throws IOException {
     logger.trace("Encoded tx hash: {}", encodedContractTxHash);
     final byte[] decoded = from(defaultDecoder.decode(new StringReader(encodedContractTxHash)));
     logger.debug("Decoded contract hash:\n{}", HexUtils.dump(decoded));
@@ -200,8 +208,11 @@ public class ContractService extends AbstractService {
           .orElseThrow(() -> new ResourceNotFoundException("No " + functionName + " function."));
 
       logger.trace("Querying...");
-      final Object obj = contractOperation.query(contractAddress, contractFunction, args)
-          .getResult();
+      final Object obj = contractOperation.query(
+          contractAddress,
+          contractFunction,
+          stream(args).toArray()
+      ).getResult();
       return new QueryResult(obj);
     }
   }

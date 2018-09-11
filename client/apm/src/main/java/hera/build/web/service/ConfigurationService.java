@@ -13,15 +13,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
+import javax.inject.Named;
+import lombok.NoArgsConstructor;
 
-@RequiredArgsConstructor
+@NoArgsConstructor
 public class ConfigurationService extends AbstractService {
 
   /**
    * Project file path.
    */
-  protected final Path projectFilePath;
+  protected Path projectFilePath;
 
   /**
    * Provide project file.

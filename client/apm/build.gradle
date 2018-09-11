@@ -6,6 +6,11 @@ jar {
   archivesBaseName = 'hera-apm'
 }
 
+ext {
+  springBootVersion = '2.0.2.RELEASE'
+}
+
+
 dependencies {
   implementation project(":core:util")
   implementation project(":core:common")
@@ -18,8 +23,8 @@ dependencies {
     exclude group: 'com.google.guava', module: 'guava'
   }
   implementation "org.eclipse.jgit:org.eclipse.jgit:5.0.1.201806211838-r"
-  implementation "org.eclipse.jetty:jetty-server:9.4.11.v20180605"
-  implementation "org.eclipse.jetty.websocket:websocket-api:9.4.11.v20180605"
-  implementation "org.eclipse.jetty.websocket:websocket-server:9.4.11.v20180605"
   implementation "org.luaj:luaj-jse:3.0.1"
+  implementation "javax.inject:javax.inject:1"
+  implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+  implementation "org.springframework.boot:spring-boot-starter-websocket:${springBootVersion}"
 }
