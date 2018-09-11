@@ -60,6 +60,7 @@ public class BuildProject extends AbstractCommand {
     if (0 < port) {
       monitorServer.setPort(port);
     }
+    monitorServer.setProjectFile(this.project.getProjectFile());
     this.monitorServer = monitorServer;
     return monitorServer;
   }

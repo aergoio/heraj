@@ -45,13 +45,13 @@ import java.util.Map;
 import javax.inject.Named;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
 
 @NoArgsConstructor
 @Named
 public class ContractService extends AbstractService {
   @Getter
-  @Setter
+  @Value("${project.endpoint}")
   protected String endpoint;
 
   protected String password = randomUUID().toString();

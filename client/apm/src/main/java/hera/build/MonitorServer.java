@@ -4,13 +4,20 @@
 
 package hera.build;
 
+import static hera.DefaultConstants.DEFAULT_ENDPOINT;
+import static hera.util.StringUtils.nvl;
+
+import hera.ProjectFile;
 import hera.build.web.SpringWebLauncher;
 import hera.build.web.service.BuildService;
 import hera.server.ServerStatus;
 import hera.server.ThreadServer;
+import hera.util.StringUtils;
 import hera.util.ThreadUtils;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.Banner.Mode;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -18,6 +25,9 @@ import org.springframework.context.ConfigurableApplicationContext;
 public class MonitorServer extends ThreadServer {
 
   protected int port = -1;
+
+  @Setter
+  protected ProjectFile projectFile;
 
   protected ConfigurableApplicationContext applicationContext;
 
@@ -74,6 +84,7 @@ public class MonitorServer extends ThreadServer {
     if (0 <= port) {
       properties.put("server.port", port);
     }
+    properties.put("project.endpoint", nvl(projectFile.getEndpoint(), DEFAULT_ENDPOINT));
     if (!properties.isEmpty()) {
       builder.properties(properties);
     }
