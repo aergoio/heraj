@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Base58Utils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util</a> &gt; <span class="el_source">Base58Utils.java</span></div><h1>Base58Utils.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.util;
+
+import java.util.Arrays;
+
+/**
+ * Base58 utils class. Encoding, decoding logic is copied from bitcoinj.
+ */
+<span class="nc" id="L12">public class Base58Utils {</span>
+
+<span class="fc" id="L14">  protected static final char[] BASE58_CHARS =</span>
+<span class="fc" id="L15">      &quot;123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz&quot;.toCharArray();</span>
+
+<span class="fc" id="L17">  protected static final char ENCODED_ZERO = BASE58_CHARS[0];</span>
+
+<span class="fc" id="L19">  protected static final int[] INDEXES = new int[128];</span>
+
+  static {
+<span class="fc" id="L22">    Arrays.fill(INDEXES, -1);</span>
+<span class="fc bfc" id="L23" title="All 2 branches covered.">    for (int i = 0; i &lt; BASE58_CHARS.length; i++) {</span>
+<span class="fc" id="L24">      INDEXES[BASE58_CHARS[i]] = i;</span>
+    }
+<span class="fc" id="L26">  }</span>
+
+  /**
+   * Encodes the given bytes as a base58 string (no checksum is appended).
+   *
+   * @param input the bytes to encode
+   * @return the base58-encoded string
+   */
+  public static String encode(byte[] input) {
+<span class="fc bfc" id="L35" title="All 2 branches covered.">    if (input.length == 0) {</span>
+<span class="fc" id="L36">      return &quot;&quot;;</span>
+    }
+    // Count leading zeros.
+<span class="fc" id="L39">    int zeros = 0;</span>
+<span class="pc bpc" id="L40" title="2 of 4 branches missed.">    while (zeros &lt; input.length &amp;&amp; input[zeros] == 0) {</span>
+<span class="nc" id="L41">      ++zeros;</span>
+    }
+    // Convert base-256 digits to base-58 digits (plus conversion to ASCII characters)
+<span class="fc" id="L44">    input = Arrays.copyOf(input, input.length); // since we modify it in-place</span>
+<span class="fc" id="L45">    char[] encoded = new char[input.length * 2]; // upper bound</span>
+<span class="fc" id="L46">    int outputStart = encoded.length;</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">    for (int inputStart = zeros; inputStart &lt; input.length;) {</span>
+<span class="fc" id="L48">      encoded[--outputStart] = BASE58_CHARS[divmod(input, inputStart, 256, 58)];</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">      if (input[inputStart] == 0) {</span>
+<span class="fc" id="L50">        ++inputStart; // optimization - skip leading zeros</span>
+      }
+    }
+    // Preserve exactly as many leading encoded zeros in output as there were leading zeros in
+    // input.
+<span class="pc bpc" id="L55" title="2 of 4 branches missed.">    while (outputStart &lt; encoded.length &amp;&amp; encoded[outputStart] == ENCODED_ZERO) {</span>
+<span class="nc" id="L56">      ++outputStart;</span>
+    }
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">    while (--zeros &gt;= 0) {</span>
+<span class="nc" id="L59">      encoded[--outputStart] = ENCODED_ZERO;</span>
+    }
+    // Return encoded string (including encoded leading zeros).
+<span class="fc" id="L62">    return new String(encoded, outputStart, encoded.length - outputStart);</span>
+  }
+
+  /**
+   * Decodes the given base58 string into the original data bytes.
+   *
+   * @param input the base58-encoded string to decode
+   * @return the decoded data bytes
+   */
+  public static byte[] decode(String input) {
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">    if (input.length() == 0) {</span>
+<span class="nc" id="L73">      return new byte[0];</span>
+    }
+    // Convert the base58-encoded ASCII chars to a base58 byte sequence (base58 digits).
+<span class="fc" id="L76">    byte[] input58 = new byte[input.length()];</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">    for (int i = 0; i &lt; input.length(); ++i) {</span>
+<span class="fc" id="L78">      char c = input.charAt(i);</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">      int digit = c &lt; 128 ? INDEXES[c] : -1;</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">      if (digit &lt; 0) {</span>
+<span class="nc" id="L81">        throw new IllegalStateException();</span>
+      }
+<span class="fc" id="L83">      input58[i] = (byte) digit;</span>
+    }
+    // Count leading zeros.
+<span class="fc" id="L86">    int zeros = 0;</span>
+<span class="pc bpc" id="L87" title="2 of 4 branches missed.">    while (zeros &lt; input58.length &amp;&amp; input58[zeros] == 0) {</span>
+<span class="nc" id="L88">      ++zeros;</span>
+    }
+    // Convert base-58 digits to base-256 digits.
+<span class="fc" id="L91">    byte[] decoded = new byte[input.length()];</span>
+<span class="fc" id="L92">    int outputStart = decoded.length;</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">    for (int inputStart = zeros; inputStart &lt; input58.length;) {</span>
+<span class="fc" id="L94">      decoded[--outputStart] = divmod(input58, inputStart, 58, 256);</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">      if (input58[inputStart] == 0) {</span>
+<span class="fc" id="L96">        ++inputStart; // optimization - skip leading zeros</span>
+      }
+    }
+    // Ignore extra leading zeroes that were added during the calculation.
+<span class="pc bpc" id="L100" title="1 of 4 branches missed.">    while (outputStart &lt; decoded.length &amp;&amp; decoded[outputStart] == 0) {</span>
+<span class="fc" id="L101">      ++outputStart;</span>
+    }
+    // Return decoded data (including original number of leading zeros).
+<span class="fc" id="L104">    return Arrays.copyOfRange(decoded, outputStart - zeros, decoded.length);</span>
+  }
+
+  /**
+   * Divides a number, represented as an array of bytes each containing a single digit in the
+   * specified base, by the given divisor. The given number is modified in-place to contain the
+   * quotient, and the return value is the remainder.
+   *
+   * @param number the number to divide
+   * @param firstDigit the index within the array of the first non-zero digit (this is used for
+   *        optimization by skipping the leading zeros)
+   * @param base the base in which the number's digits are represented (up to 256)
+   * @param divisor the number to divide by (up to 256)
+   * @return the remainder of the division operation
+   */
+  private static byte divmod(byte[] number, int firstDigit, int base, int divisor) {
+    // this is just long division which accounts for the base of the input digits
+<span class="fc" id="L121">    int remainder = 0;</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">    for (int i = firstDigit; i &lt; number.length; i++) {</span>
+<span class="fc" id="L123">      int digit = (int) number[i] &amp; 0xFF;</span>
+<span class="fc" id="L124">      int temp = remainder * base + digit;</span>
+<span class="fc" id="L125">      number[i] = (byte) (temp / divisor);</span>
+<span class="fc" id="L126">      remainder = temp % divisor;</span>
+    }
+<span class="fc" id="L128">    return (byte) remainder;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -46,5 +46,10 @@ public class CommitException extends RpcException {
     }
 <span class="nc" id="L47">  }</span>
 
+  @Override
+  public String getLocalizedMessage() {
+<span class="nc" id="L51">    return commitStatus.toString();</span>
+  }
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

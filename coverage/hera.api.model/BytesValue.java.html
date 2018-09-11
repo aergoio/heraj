@@ -4,8 +4,12 @@
 
 package hera.api.model;
 
+import static hera.util.IoUtils.from;
+
 import hera.api.Encoder;
-import hera.util.HexUtils;
+import hera.util.Adaptor;
+import hera.util.Base58Utils;
+import hera.util.IoUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,7 +18,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import lombok.Getter;
 
-public class BytesValue implements Supplier&lt;InputStream&gt; {
+public class BytesValue implements Supplier&lt;InputStream&gt;, Adaptor {
 
   /**
    * Factory method.
@@ -23,23 +27,23 @@ public class BytesValue implements Supplier&lt;InputStream&gt; {
    * @return created {@link BytesValue}
    */
   public static BytesValue of(final byte[] bytes) {
-<span class="fc bfc" id="L26" title="All 2 branches covered.">    if (null == bytes) {</span>
-<span class="fc" id="L27">      return new BytesValue(null);</span>
+<span class="fc bfc" id="L30" title="All 2 branches covered.">    if (null == bytes) {</span>
+<span class="fc" id="L31">      return new BytesValue(null);</span>
     }
-<span class="fc" id="L29">    return new BytesValue(Arrays.copyOf(bytes, bytes.length));</span>
+<span class="fc" id="L33">    return new BytesValue(Arrays.copyOf(bytes, bytes.length));</span>
   }
 
-<span class="fc" id="L32">  public BytesValue(final byte[] bytes) {</span>
-<span class="fc" id="L33">    this.value = Optional.ofNullable(bytes).orElse(new byte[0]);</span>
-<span class="fc" id="L34">  }</span>
+<span class="fc" id="L36">  public BytesValue(final byte[] bytes) {</span>
+<span class="fc" id="L37">    this.value = Optional.ofNullable(bytes).orElse(new byte[0]);</span>
+<span class="fc" id="L38">  }</span>
 
   protected transient int hash;
 
-<span class="fc" id="L38">  @Getter</span>
+<span class="fc" id="L42">  @Getter</span>
   protected final byte[] value;
 
   public String getEncodedValue() throws IOException {
-<span class="fc" id="L42">    return getEncodedValue(Encoder.defaultEncoder);</span>
+<span class="nc" id="L46">    return getEncodedValue(Encoder.defaultEncoder);</span>
   }
 
   /**
@@ -50,45 +54,55 @@ public class BytesValue implements Supplier&lt;InputStream&gt; {
    * @throws IOException when encoding error occurs
    */
   public String getEncodedValue(final Encoder encoder) throws IOException {
-<span class="pc bpc" id="L53" title="1 of 2 branches missed.">    if (null == encoder) {</span>
-<span class="nc" id="L54">      return null;</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">    if (null == encoder) {</span>
+<span class="nc" id="L58">      return null;</span>
     }
-<span class="fc" id="L56">    return encoder.encode(new ByteArrayInputStream(value)).toString();</span>
+<span class="nc" id="L60">    return from(encoder.encode(new ByteArrayInputStream(value)));</span>
   }
 
   @Override
   public String toString() {
-<span class="nc" id="L61">    return HexUtils.encode(value);</span>
+<span class="fc" id="L65">    return Base58Utils.encode(value);</span>
   }
 
   @Override
   public int hashCode() {
-<span class="fc" id="L66">    int h = this.hash;</span>
-<span class="pc bpc" id="L67" title="2 of 4 branches missed.">    if (h == 0 &amp;&amp; this.value.length &gt; 0) {</span>
-<span class="fc bfc" id="L68" title="All 2 branches covered.">      for (final byte byteValue : this.value) {</span>
-<span class="fc" id="L69">        h = 31 * h + byteValue;</span>
+<span class="fc" id="L70">    int h = this.hash;</span>
+<span class="pc bpc" id="L71" title="2 of 4 branches missed.">    if (h == 0 &amp;&amp; this.value.length &gt; 0) {</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">      for (final byte byteValue : this.value) {</span>
+<span class="fc" id="L73">        h = 31 * h + byteValue;</span>
       }
 
-<span class="fc" id="L72">      this.hash = h;</span>
+<span class="fc" id="L76">      this.hash = h;</span>
     }
-<span class="fc" id="L74">    return h;</span>
+<span class="fc" id="L78">    return h;</span>
   }
 
   @Override
   public boolean equals(final Object obj) {
-<span class="pc bpc" id="L79" title="1 of 2 branches missed.">    if (null == obj) {</span>
-<span class="nc" id="L80">      return false;</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">    if (null == obj) {</span>
+<span class="nc" id="L84">      return false;</span>
     }
-<span class="pc bpc" id="L82" title="1 of 2 branches missed.">    if (!obj.getClass().equals(getClass())) {</span>
-<span class="nc" id="L83">      return false;</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">    if (!obj.getClass().equals(getClass())) {</span>
+<span class="nc" id="L87">      return false;</span>
     }
-<span class="fc" id="L85">    final BytesValue other = (BytesValue) obj;</span>
-<span class="fc" id="L86">    return Arrays.equals(this.value, other.value);</span>
+<span class="fc" id="L89">    final BytesValue other = (BytesValue) obj;</span>
+<span class="fc" id="L90">    return Arrays.equals(this.value, other.value);</span>
   }
 
   @Override
   public InputStream get() {
-<span class="fc" id="L91">    return new ByteArrayInputStream(getValue());</span>
+<span class="fc" id="L95">    return new ByteArrayInputStream(getValue());</span>
   }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  @Override
+  public &lt;T&gt; Optional&lt;T&gt; adapt(Class&lt;T&gt; adaptor) {
+<span class="nc bnc" id="L101" title="All 2 branches missed.">    if (adaptor.isAssignableFrom(BytesValue.class)) {</span>
+<span class="nc" id="L102">      return (Optional&lt;T&gt;) Optional.of(this);</span>
+    }
+<span class="nc" id="L104">    return Optional.empty();</span>
+  }
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

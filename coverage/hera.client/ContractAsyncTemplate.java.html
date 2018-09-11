@@ -4,9 +4,181 @@
 
 package hera.client;
 
+import static hera.api.tupleorerror.FunctionChain.fail;
+import static hera.util.IoUtils.from;
+import static hera.util.TransportUtils.copyFrom;
+import static org.slf4j.LoggerFactory.getLogger;
+import static types.AergoRPCServiceGrpc.newFutureStub;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.protobuf.ByteString;
+import hera.FutureChainer;
+import hera.api.AccountAsyncOperation;
 import hera.api.ContractAsyncOperation;
+import hera.api.Decoder;
+import hera.api.TransactionAsyncOperation;
+import hera.api.model.Account;
+import hera.api.model.AccountAddress;
+import hera.api.model.BytesValue;
+import hera.api.model.ContractAddress;
+import hera.api.model.ContractFunction;
+import hera.api.model.ContractInferface;
+import hera.api.model.ContractTxHash;
+import hera.api.model.ContractTxReceipt;
+import hera.api.model.Signature;
+import hera.api.model.Transaction;
+import hera.api.tupleorerror.ResultOrError;
+import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.transport.ContractInterfaceConverterFactory;
+import hera.transport.ModelConverter;
+import hera.transport.ReceiptConverterFactory;
+import hera.util.Base58Utils;
+import hera.util.DangerousSupplier;
+import io.grpc.ManagedChannel;
+import java.io.ByteArrayInputStream;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
+import types.Blockchain;
+import types.Rpc;
 
-<span class="nc" id="L9">public class ContractAsyncTemplate implements ContractAsyncOperation {</span>
+<span class="fc" id="L51">@RequiredArgsConstructor</span>
+public class ContractAsyncTemplate implements ContractAsyncOperation {
+<span class="fc" id="L53">  protected final Logger logger = getLogger(getClass());</span>
 
+  protected final AergoRPCServiceFutureStub aergoService;
+
+  protected final AccountAsyncOperation accountAsyncOperation;
+
+  protected final TransactionAsyncOperation transactionAsyncOperation;
+
+  protected final ModelConverter&lt;ContractTxReceipt, Blockchain.Receipt&gt; receiptConverter;
+
+  protected final ModelConverter&lt;ContractInferface, Blockchain.ABI&gt; contractInterfaceConverter;
+
+<span class="fc" id="L65">  protected final Decoder base58Decoder =</span>
+<span class="nc" id="L66">      reader -&gt; new ByteArrayInputStream(Base58Utils.decode(from(reader)));</span>
+
+<span class="fc" id="L68">  protected final ObjectMapper objectMapper = new ObjectMapper();</span>
+
+  public ContractAsyncTemplate(final ManagedChannel channel) {
+<span class="nc" id="L71">    this(newFutureStub(channel));</span>
+<span class="nc" id="L72">  }</span>
+
+  /**
+   * ContractAsyncTemplate constructor.
+   *
+   * @param aergoService aergo service
+   */
+  public ContractAsyncTemplate(final AergoRPCServiceFutureStub aergoService) {
+<span class="nc" id="L80">    this(aergoService, new AccountAsyncTemplate(aergoService),</span>
+<span class="nc" id="L81">        new TransactionAsyncTemplate(aergoService), new ReceiptConverterFactory().create(),</span>
+<span class="nc" id="L82">        new ContractInterfaceConverterFactory().create());</span>
+<span class="nc" id="L83">  }</span>
+
+  @Override
+  public ResultOrErrorFuture&lt;ContractTxReceipt&gt; getReceipt(final ContractTxHash deployTxHash) {
+<span class="fc" id="L87">    ResultOrErrorFuture&lt;ContractTxReceipt&gt; nextFuture = new ResultOrErrorFuture&lt;&gt;();</span>
+
+<span class="fc" id="L89">    final ByteString byteString = copyFrom(deployTxHash);</span>
+<span class="fc" id="L90">    final Rpc.SingleBytes hashBytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();</span>
+<span class="fc" id="L91">    final ListenableFuture&lt;Blockchain.Receipt&gt; listenableFuture =</span>
+<span class="fc" id="L92">        aergoService.getReceipt(hashBytes);</span>
+<span class="fc" id="L93">    FutureChainer&lt;Blockchain.Receipt, ContractTxReceipt&gt; callback =</span>
+<span class="nc" id="L94">        new FutureChainer&lt;&gt;(nextFuture, r -&gt; receiptConverter.convertToDomainModel(r));</span>
+<span class="fc" id="L95">    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());</span>
+
+<span class="fc" id="L97">    return nextFuture;</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  @Override
+  public ResultOrErrorFuture&lt;ContractTxHash&gt; deploy(final AccountAddress creator,
+      final DangerousSupplier&lt;byte[]&gt; rawContractCode) {
+    // TODO : make getting nonce, sign, commit asynchronously
+<span class="fc" id="L105">    final Long nonce =</span>
+<span class="fc" id="L106">        accountAsyncOperation.get(creator).map(a -&gt; a.getNonce() + 1).get().getResult();</span>
+
+<span class="fc" id="L108">    final Transaction transaction = new Transaction();</span>
+<span class="fc" id="L109">    transaction.setNonce(nonce);</span>
+<span class="fc" id="L110">    transaction.setSender(creator);</span>
+    try {
+<span class="fc" id="L112">      transaction.setPayload(BytesValue.of(rawContractCode.get()));</span>
+<span class="nc" id="L113">    } catch (Throwable e) {</span>
+<span class="nc" id="L114">      return ResultOrErrorFuture.supply(() -&gt; fail(e));</span>
+<span class="fc" id="L115">    }</span>
+
+<span class="fc" id="L117">    final ResultOrError&lt;Signature&gt; signature = transactionAsyncOperation.sign(transaction).get();</span>
+<span class="fc" id="L118">    transaction.setSignature(signature.getResult());</span>
+
+<span class="fc" id="L120">    return transactionAsyncOperation.commit(transaction)</span>
+<span class="pc" id="L121">        .map(h -&gt; ContractTxHash.of(h.getBytesValue()));</span>
+  }
+
+  @Override
+  public ResultOrErrorFuture&lt;ContractInferface&gt; getContractInterface(
+      final ContractAddress contractAddress) {
+<span class="fc" id="L127">    ResultOrErrorFuture&lt;ContractInferface&gt; nextFuture = new ResultOrErrorFuture&lt;&gt;();</span>
+
+<span class="fc" id="L129">    final ByteString byteString = copyFrom(contractAddress);</span>
+<span class="fc" id="L130">    final Rpc.SingleBytes hashBytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();</span>
+<span class="fc" id="L131">    final ListenableFuture&lt;Blockchain.ABI&gt; listenableFuture = aergoService.getABI(hashBytes);</span>
+<span class="fc" id="L132">    FutureChainer&lt;Blockchain.ABI, ContractInferface&gt; callback =</span>
+<span class="nc" id="L133">        new FutureChainer&lt;&gt;(nextFuture, a -&gt; contractInterfaceConverter.convertToDomainModel(a));</span>
+<span class="fc" id="L134">    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());</span>
+
+<span class="fc" id="L136">    return nextFuture;</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  @Override
+  public ResultOrErrorFuture&lt;ContractTxHash&gt; execute(final AccountAddress executor,
+      final ContractAddress contractAddress, final ContractFunction contractFunction,
+      final Object... args) {
+    // TODO : make getting nonce, sign, commit asynchronously
+<span class="fc" id="L145">    final ResultOrError&lt;Account&gt; account = accountAsyncOperation.get(executor).get();</span>
+<span class="fc" id="L146">    long nonce = account.map(a -&gt; a.getNonce()).getResult();</span>
+
+<span class="fc" id="L148">    final Transaction transaction = new Transaction();</span>
+<span class="fc" id="L149">    transaction.setNonce(nonce + 1);</span>
+<span class="fc" id="L150">    transaction.setSender(executor);</span>
+<span class="fc" id="L151">    transaction.setRecipient(contractAddress);</span>
+    try {
+<span class="fc" id="L153">      transaction</span>
+<span class="fc" id="L154">          .setPayload(BytesValue.of(toFunctionCallJsonString(contractFunction, args).getBytes()));</span>
+<span class="nc" id="L155">    } catch (JsonProcessingException e) {</span>
+<span class="nc" id="L156">      return ResultOrErrorFuture.supply(() -&gt; fail(e));</span>
+<span class="fc" id="L157">    }</span>
+
+<span class="fc" id="L159">    final ResultOrError&lt;Signature&gt; signature = transactionAsyncOperation.sign(transaction).get();</span>
+<span class="fc" id="L160">    transaction.setSignature(signature.getResult());</span>
+
+<span class="fc" id="L162">    return transactionAsyncOperation.commit(transaction)</span>
+<span class="pc" id="L163">        .map(h -&gt; ContractTxHash.of(h.getBytesValue()));</span>
+  }
+
+  @Override
+  public ResultOrErrorFuture&lt;Object&gt; query(final ContractAddress contractAddress,
+      final ContractFunction contractFunction, final Object... args) {
+    // TODO server not implemented
+<span class="nc" id="L170">    throw new UnsupportedOperationException();</span>
+  }
+
+  protected String toFunctionCallJsonString(final ContractFunction contractFunction,
+      final Object... args) throws JsonProcessingException {
+<span class="fc" id="L175">    ObjectNode node = objectMapper.createObjectNode();</span>
+<span class="fc" id="L176">    node.put(&quot;Name&quot;, contractFunction.getName());</span>
+<span class="fc" id="L177">    ArrayNode argsNode = node.putArray(&quot;Args&quot;);</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">    for (Object arg : args) {</span>
+<span class="fc" id="L179">      argsNode.add(arg.toString());</span>
+    }
+<span class="fc" id="L181">    return node.toString();</span>
+  }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

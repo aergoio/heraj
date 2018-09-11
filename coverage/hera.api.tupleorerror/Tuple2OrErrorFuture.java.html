@@ -23,8 +23,8 @@ public class Tuple2OrErrorFuture&lt;T0, T1&gt; extends AbstractTupleOrErrorFutur
 <span class="nc" id="L23">    return new Tuple2OrErrorFuture(CompletableFuture.supplyAsync(supplier));</span>
   }
 
-  public &lt;R&gt; ResultOrErrorFuture&lt;R&gt; thenApply(Function2&lt;T0, T1, R&gt; f) {
-<span class="fc" id="L27">    CompletableFuture&lt;ResultOrError&lt;R&gt;&gt; next = getDeligate().thenApply(r -&gt; r.thenApply(f));</span>
+  public &lt;R&gt; ResultOrErrorFuture&lt;R&gt; map(Function2&lt;T0, T1, R&gt; f) {
+<span class="fc" id="L27">    CompletableFuture&lt;ResultOrError&lt;R&gt;&gt; next = getDeligate().thenApply(r -&gt; r.map(f));</span>
 <span class="fc" id="L28">    return new ResultOrErrorFuture&lt;R&gt;(next);</span>
   }
 

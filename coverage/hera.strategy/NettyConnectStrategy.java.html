@@ -17,23 +17,30 @@ import lombok.Setter;
 <span class="fc" id="L17">public class NettyConnectStrategy</span>
     implements ConnectStrategy&lt;ManagedChannel&gt;, Configurable&lt;Configuration&gt; {
 
-<span class="fc" id="L20">  @Setter</span>
+<span class="nc" id="L20">  @Setter</span>
   protected Configuration configuration;
 
   protected HostnameAndPort getEndpoint() {
-<span class="fc" id="L24">    return HostnameAndPort.of(configuration.getAsString(&quot;endpoint&quot;, DEFAULT_ENDPOINT));</span>
+<span class="nc" id="L24">    return HostnameAndPort.of(configuration.getAsString(&quot;endpoint&quot;, DEFAULT_ENDPOINT));</span>
   }
 
-  protected ManagedChannel connect(final HostnameAndPort endpoint) {
-<span class="fc" id="L28">    return NettyChannelBuilder</span>
-<span class="fc" id="L29">        .forAddress(endpoint.getHostname(), endpoint.getPort(DEFAULT_RPC_PORT))</span>
-<span class="fc" id="L30">        .usePlaintext()</span>
-<span class="fc" id="L31">        .build();</span>
+  /**
+   * Connect to {@code endpoint}.
+   *
+   * @param endpoint endpoint to connect to
+   *
+   * @return channel to be connected
+   */
+  public ManagedChannel connect(final HostnameAndPort endpoint) {
+<span class="fc" id="L35">    return NettyChannelBuilder</span>
+<span class="fc" id="L36">        .forAddress(endpoint.getHostname(), endpoint.getPort(DEFAULT_RPC_PORT))</span>
+<span class="fc" id="L37">        .usePlaintext()</span>
+<span class="fc" id="L38">        .build();</span>
   }
 
   @Override
   public ManagedChannel connect() {
-<span class="fc" id="L36">    return connect(getEndpoint());</span>
+<span class="nc" id="L43">    return connect(getEndpoint());</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

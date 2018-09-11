@@ -10,36 +10,29 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-<span class="nc" id="L13">@ToString</span>
+<span class="fc" id="L13">@ToString</span>
 public class BuildSummary {
-<span class="fc" id="L15">  @Getter</span>
-<span class="fc" id="L16">  @Setter</span>
-<span class="fc" id="L17">  protected String uuid = randomUUID().toString();</span>
+  public static final int SUCCESS = 0;
+  public static final int BUILD_FAIL = 1;
+  public static final int TEST_FAIL = 2;
 
 <span class="fc" id="L19">  @Getter</span>
 <span class="fc" id="L20">  @Setter</span>
-<span class="fc" id="L21">  protected long timestamp = System.currentTimeMillis();</span>
+<span class="fc" id="L21">  protected String uuid = randomUUID().toString();</span>
 
 <span class="fc" id="L23">  @Getter</span>
 <span class="fc" id="L24">  @Setter</span>
-  protected boolean success = true;
+<span class="fc" id="L25">  protected long timestamp = System.currentTimeMillis();</span>
 
 <span class="fc" id="L27">  @Getter</span>
-<span class="nc" id="L28">  @Setter</span>
+<span class="fc" id="L28">  @Setter</span>
+  protected int state = SUCCESS;
+
+<span class="fc" id="L31">  @Getter</span>
+<span class="nc" id="L32">  @Setter</span>
   protected String error;
 
-<span class="fc" id="L31">  public BuildSummary() {</span>
-<span class="fc" id="L32">  }</span>
-
-  /**
-   * Constructor with {@link BuildDetails}.
-   *
-   * @param buildDetails build result
-   */
-<span class="fc" id="L39">  public BuildSummary(final BuildDetails buildDetails) {</span>
-<span class="fc" id="L40">    this.uuid = buildDetails.getUuid();</span>
-<span class="fc" id="L41">    this.timestamp = buildDetails.getTimestamp();</span>
-<span class="fc" id="L42">    this.success = buildDetails.isSuccess();</span>
-<span class="fc" id="L43">  }</span>
+<span class="fc" id="L35">  public BuildSummary() {</span>
+<span class="fc" id="L36">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

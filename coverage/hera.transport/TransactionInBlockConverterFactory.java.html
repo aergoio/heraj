@@ -7,7 +7,7 @@ package hera.transport;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import hera.api.model.Hash;
+import hera.api.model.BlockHash;
 import hera.api.model.Transaction;
 import java.util.function.Function;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ import types.Blockchain;
 <span class="fc" id="L35">    final Blockchain.TxIdx rpcTxIdx = rpcTransaction.getTxIdx();</span>
 <span class="fc" id="L36">    final Blockchain.Tx rpcTx = rpcTransaction.getTx();</span>
 <span class="fc" id="L37">    final Transaction domainTransaction = transactionConverter.convertToDomainModel(rpcTx);</span>
-<span class="fc" id="L38">    domainTransaction.setBlockHash(Hash.of(rpcTxIdx.getBlockHash().toByteArray()));</span>
+<span class="fc" id="L38">    domainTransaction.setBlockHash(BlockHash.of(rpcTxIdx.getBlockHash().toByteArray()));</span>
 <span class="fc" id="L39">    domainTransaction.setIndexInBlock(rpcTxIdx.getIdx());</span>
 <span class="fc" id="L40">    return domainTransaction;</span>
   };

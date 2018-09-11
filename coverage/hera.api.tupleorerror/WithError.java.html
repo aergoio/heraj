@@ -6,10 +6,20 @@ package hera.api.tupleorerror;
 
 public interface WithError {
 
+  /**
+   * Get error.
+   *
+   * @return error
+   */
   Throwable getError();
 
+  /**
+   * Return if error exists or not.
+   *
+   * @return error existence
+   */
   default boolean hasError() {
-<span class="pc bpc" id="L12" title="1 of 2 branches missed.">    return null != getError();</span>
+<span class="pc bpc" id="L22" title="1 of 2 branches missed.">    return null != getError();</span>
   }
 
 }

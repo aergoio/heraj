@@ -11,10 +11,10 @@ import static org.slf4j.LoggerFactory.getLogger;
 import com.google.protobuf.ByteString;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
-import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TransactionType;
+import hera.api.model.TxHash;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Blockchain.Tx;
@@ -65,7 +65,7 @@ import types.Blockchain.TxType;
 <span class="fc" id="L65">    final Tx.Builder txBuilder = Tx.newBuilder();</span>
 <span class="fc" id="L66">    ofNullable(domainTransaction.getSignature()).ifPresent(signature -&gt; {</span>
 <span class="nc" id="L67">      txBodyBuilder.setSign(copyFrom(signature.getSign()));</span>
-<span class="nc" id="L68">      txBuilder.setHash(copyFrom(signature.getHash()));</span>
+<span class="nc" id="L68">      txBuilder.setHash(copyFrom(signature.getTxHash()));</span>
 <span class="nc" id="L69">    });</span>
 <span class="fc" id="L70">    txBuilder.setBody(txBodyBuilder.build());</span>
 
@@ -86,8 +86,8 @@ import types.Blockchain.TxType;
 <span class="fc" id="L86">    domainTransaction.setPrice(txBody.getPrice());</span>
 <span class="pc bpc" id="L87" title="3 of 4 branches missed.">    if (null != rpcTransaction.getHash() || null != txBody.getSign()) {</span>
 <span class="fc" id="L88">      final Signature signature = new Signature();</span>
-<span class="fc" id="L89">      ofNullable(rpcTransaction.getHash()).map(ByteString::toByteArray).map(Hash::new)</span>
-<span class="fc" id="L90">          .ifPresent(signature::setHash);</span>
+<span class="fc" id="L89">      ofNullable(rpcTransaction.getHash()).map(ByteString::toByteArray).map(TxHash::new)</span>
+<span class="fc" id="L90">          .ifPresent(signature::setTxHash);</span>
 <span class="fc" id="L91">      ofNullable(txBody.getSign()).map(ByteString::toByteArray).map(BytesValue::of)</span>
 <span class="fc" id="L92">          .ifPresent(signature::setSign);</span>
 <span class="fc" id="L93">      domainTransaction.setSignature(signature);</span>

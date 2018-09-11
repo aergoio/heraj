@@ -4,26 +4,26 @@
 
 package hera.util;
 
-import static java.nio.file.FileVisitResult.CONTINUE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
-import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
+import static hera.util.ArrayUtils.isEmpty;
+import static hera.util.ObjectUtils.nvl;
+import static hera.util.ThreadUtils.trySleep;
+import static java.util.Arrays.stream;
+import static java.util.Collections.unmodifiableCollection;
+import static java.util.stream.Collectors.toList;
 
 import hera.server.ServerEvent;
 import hera.server.ThreadServer;
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchEvent.Kind;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 
 public class FileWatcher extends ThreadServer implements Runnable {
 
@@ -47,87 +47,110 @@ public class FileWatcher extends ThreadServer implements Runnable {
    */
   public static final int FILE_CHANGED = 0x14;
 
-  protected final WatchService watchService;
+  /**
+   * Any change event type.
+   */
+  public static final int ANY_CHANGED = 0x18;
 
-  protected final Path basePath;
+  /**
+   * Interval to check.
+   */
+<span class="nc" id="L58">  @Getter</span>
+<span class="nc" id="L59">  @Setter</span>
+  protected long interval = 300;
 
-<span class="nc" id="L54">  protected final Map&lt;WatchKey, Path&gt; key2path = new HashMap&lt;&gt;();</span>
+  /**
+   * File's last changed time.
+   */
+<span class="nc" id="L65">  protected HashMap&lt;File, Long&gt; base2lastModified = new HashMap&lt;&gt;();</span>
+
+<span class="nc" id="L67">  protected Set&lt;File&gt; previouslyChecked = new HashSet&lt;&gt;();</span>
+
+  protected final File base;
+
+<span class="nc" id="L71">  protected Set&lt;String&gt; ignores = new HashSet&lt;&gt;();</span>
 
   /**
    * Constructor with watch service and base path.
    *
-   * @param watchService watch service
    * @param basePath path to monitor
-   * @throws IOException Fail to register monitor using nio api
    */
-<span class="nc" id="L63">  public FileWatcher(final WatchService watchService, final Path basePath) throws IOException {</span>
-<span class="nc" id="L64">    this.watchService = watchService;</span>
-<span class="nc" id="L65">    this.basePath = basePath;</span>
-<span class="nc" id="L66">    logger.info(&quot;Watch {}&quot;, basePath);</span>
+<span class="nc" id="L78">  public FileWatcher(final File basePath) {</span>
+<span class="nc" id="L79">    this.base = basePath;</span>
+<span class="nc" id="L80">  }</span>
 
-<span class="nc" id="L68">    Files.walkFileTree(basePath, new SimpleFileVisitor&lt;Path&gt;() {</span>
-      @Override
-      public FileVisitResult preVisitDirectory(
-          final Path dir, final BasicFileAttributes attrs) throws IOException {
-<span class="nc" id="L72">        attach(dir);</span>
-<span class="nc" id="L73">        return CONTINUE;</span>
-      }
-    });
-<span class="nc" id="L76">  }</span>
-
-  protected void attach(final Path dir) throws IOException {
-<span class="nc" id="L79">    final WatchKey watchKey =</span>
-<span class="nc" id="L80">        dir.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY, OVERFLOW);</span>
-<span class="nc" id="L81">    key2path.put(watchKey, dir.toAbsolutePath());</span>
-<span class="nc" id="L82">  }</span>
-
-  protected void detach(final Path dir) throws IOException {
-<span class="nc" id="L85">    key2path.keySet().stream()</span>
-<span class="nc" id="L86">        .filter(key -&gt; dir.equals(key2path.get(key)))</span>
-<span class="nc" id="L87">        .forEach(key2path::remove);</span>
-<span class="nc" id="L88">  }</span>
+  public void addIgnore(final String name) {
+<span class="nc" id="L83">    ignores.add(name);</span>
+<span class="nc" id="L84">  }</span>
 
   @Override
   protected void process() throws Exception {
-<span class="nc" id="L92">    final WatchKey key = watchService.take();</span>
-<span class="nc bnc" id="L93" title="All 2 branches missed.">    if (null == key) {</span>
-<span class="nc" id="L94">      return;</span>
+<span class="nc" id="L88">    trySleep(getInterval());</span>
+
+<span class="nc" id="L90">    logger.trace(&quot;Base: {}&quot;, base);</span>
+<span class="nc" id="L91">    final Long lastModifiedInCache = nvl(this.base2lastModified.get(base), Long.valueOf(0));</span>
+<span class="nc" id="L92">    long max = 0;</span>
+
+<span class="nc" id="L94">    logger.trace(&quot;Base's last modified - Cache: {}&quot;, lastModifiedInCache);</span>
+
+<span class="nc" id="L96">    final HashSet&lt;File&gt; checkedFiles = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L97">    final HashSet&lt;File&gt; changed = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L98">    final Queue&lt;File&gt; files = new LinkedList&lt;&gt;();</span>
+<span class="nc" id="L99">    files.add(base);</span>
+
+<span class="nc bnc" id="L101" title="All 2 branches missed.">    while (!files.isEmpty()) {</span>
+<span class="nc" id="L102">      final File file = files.remove();</span>
+<span class="nc" id="L103">      logger.trace(&quot;File: {}&quot;, file);</span>
+<span class="nc" id="L104">      final long lastModifiedInFile = file.lastModified();</span>
+<span class="nc" id="L105">      max = Math.max(lastModifiedInFile, max);</span>
+
+<span class="nc bnc" id="L107" title="All 2 branches missed.">      if (lastModifiedInCache &lt; lastModifiedInFile) {</span>
+<span class="nc" id="L108">        changed.add(file);</span>
+      }
+<span class="nc" id="L110">      checkedFiles.add(file);</span>
+<span class="nc" id="L111">      final File[] children = file.listFiles();</span>
+
+<span class="nc bnc" id="L113" title="All 2 branches missed.">      if (!isEmpty(children)) {</span>
+<span class="nc" id="L114">        logger.trace(&quot;Find {} files&quot;, children.length);</span>
+<span class="nc" id="L115">        files.addAll(stream(children)</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">            .filter(child -&gt; !ignores.contains(child.getName())).collect(toList()));</span>
+      }
+<span class="nc" id="L118">    }</span>
+<span class="nc" id="L119">    logger.debug(&quot;Changed: {}&quot;, changed);</span>
+
+<span class="nc" id="L121">    HashSet&lt;File&gt; intersect = (HashSet&lt;File&gt;) checkedFiles.clone();</span>
+<span class="nc" id="L122">    intersect.retainAll(previouslyChecked);</span>
+
+<span class="nc" id="L124">    logger.debug(&quot;Intersection: {}&quot;, intersect);</span>
+
+<span class="nc" id="L126">    final HashSet&lt;File&gt; added = new HashSet&lt;&gt;(checkedFiles);</span>
+<span class="nc" id="L127">    added.removeAll(intersect);</span>
+<span class="nc" id="L128">    final HashSet&lt;File&gt; removed = new HashSet&lt;&gt;(previouslyChecked);</span>
+<span class="nc" id="L129">    removed.removeAll(intersect);</span>
+
+<span class="nc" id="L131">    base2lastModified.put(base, max);</span>
+<span class="nc" id="L132">    previouslyChecked = checkedFiles;</span>
+
+<span class="nc bnc" id="L134" title="All 2 branches missed.">    if (!added.isEmpty()) {</span>
+<span class="nc" id="L135">      logger.info(&quot;{} added&quot;, added);</span>
+<span class="nc" id="L136">      fireEvent(new ServerEvent(this, FILE_ADDED, unmodifiableCollection(added)));</span>
+    }
+<span class="nc bnc" id="L138" title="All 2 branches missed.">    if (!removed.isEmpty()) {</span>
+<span class="nc" id="L139">      logger.info(&quot;{} removed&quot;, removed);</span>
+<span class="nc" id="L140">      fireEvent(new ServerEvent(this, FILE_REMOVED, unmodifiableCollection(removed)));</span>
+    }
+<span class="nc bnc" id="L142" title="All 2 branches missed.">    if (!changed.isEmpty()) {</span>
+<span class="nc" id="L143">      logger.info(&quot;{} changed&quot;, changed);</span>
+<span class="nc" id="L144">      fireEvent(new ServerEvent(this, FILE_CHANGED, unmodifiableCollection(changed)));</span>
     }
 
-<span class="nc bnc" id="L97" title="All 2 branches missed.">    for (final WatchEvent&lt;?&gt; event : key.pollEvents()) {</span>
-<span class="nc" id="L98">      logger.trace(&quot;Event: {}&quot;, event);</span>
-<span class="nc" id="L99">      ServerEvent serverEvent = null;</span>
-
-<span class="nc" id="L101">      Path path = null;</span>
-<span class="nc" id="L102">      int eventType = -1;</span>
-<span class="nc" id="L103">      final Kind kind = event.kind();</span>
-<span class="nc bnc" id="L104" title="All 2 branches missed.">      if (ENTRY_CREATE.equals(kind)) {</span>
-<span class="nc" id="L105">        eventType = FILE_ADDED;</span>
-<span class="nc" id="L106">        final Path parent = key2path.get(key);</span>
-<span class="nc" id="L107">        path = parent.resolve((Path) event.context());</span>
-<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (Files.isDirectory(path)) {</span>
-<span class="nc" id="L109">          attach(path);</span>
-        }
-<span class="nc bnc" id="L111" title="All 2 branches missed.">      } else if (ENTRY_MODIFY.equals(kind)) {</span>
-<span class="nc" id="L112">        eventType = FILE_CHANGED;</span>
-<span class="nc" id="L113">        final Path parent = key2path.get(key);</span>
-<span class="nc" id="L114">        path = parent.resolve((Path) event.context());</span>
-<span class="nc bnc" id="L115" title="All 2 branches missed.">      } else if (ENTRY_DELETE.equals(kind)) {</span>
-<span class="nc" id="L116">        eventType = FILE_REMOVED;</span>
-<span class="nc" id="L117">        final Path parent = key2path.get(key);</span>
-<span class="nc" id="L118">        path = parent.resolve((Path) event.context());</span>
-<span class="nc bnc" id="L119" title="All 2 branches missed.">        if (Files.isDirectory(path)) {</span>
-<span class="nc" id="L120">          detach(path);</span>
-        }
-<span class="nc bnc" id="L122" title="All 2 branches missed.">      } else if (OVERFLOW.equals(kind)) {</span>
-<span class="nc" id="L123">        eventType = RESET;</span>
-      } else {
-<span class="nc" id="L125">        throw new IllegalStateException(&quot;Unknown kind: &quot; + kind);</span>
-      }
-<span class="nc" id="L127">      serverEvent = new ServerEvent(this, eventType, null, path);</span>
-<span class="nc" id="L128">      fireEvent(serverEvent);</span>
-<span class="nc" id="L129">    }</span>
-<span class="nc" id="L130">    key.reset();</span>
-<span class="nc" id="L131">  }</span>
+<span class="nc" id="L147">    final Set&lt;File&gt; any = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L148">    any.addAll(added);</span>
+<span class="nc" id="L149">    any.addAll(removed);</span>
+<span class="nc" id="L150">    any.addAll(changed);</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">    if (!any.isEmpty()) {</span>
+<span class="nc" id="L152">      fireEvent(new ServerEvent(this, ANY_CHANGED, unmodifiableCollection(any)));</span>
+    }
+<span class="nc" id="L154">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

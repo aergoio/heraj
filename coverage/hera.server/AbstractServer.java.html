@@ -114,9 +114,9 @@ import org.slf4j.Logger;
 <span class="nc" id="L114">      listener.handle(event);</span>
 <span class="nc" id="L115">    }</span>
 <span class="nc bnc" id="L116" title="All 2 branches missed.">    if (listeners.isEmpty()) {</span>
-<span class="nc" id="L117">      logger.trace(&quot;Event[{}] is fired&quot;, event);</span>
+<span class="nc" id="L117">      logger.trace(&quot;Event[{}] is discarded&quot;, event);</span>
     } else {
-<span class="nc" id="L119">      logger.trace(&quot;Event[{}] is fired to {} listeners&quot;, event, listeners.size());</span>
+<span class="nc" id="L119">      logger.info(&quot;Event[{}] is fired to {} listeners&quot;, event, listeners.size());</span>
     }
 <span class="nc" id="L121">  }</span>
 
@@ -154,7 +154,7 @@ import org.slf4j.Logger;
    * &lt;/p&gt;
    */
   protected void terminate() {
-<span class="fc" id="L157">  }</span>
+<span class="nc" id="L157">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

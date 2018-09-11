@@ -14,12 +14,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-<span class="nc" id="L17">@ToString</span>
+<span class="fc" id="L17">@ToString</span>
 <span class="fc" id="L18">public class Transaction {</span>
 
 <span class="fc" id="L20">  @Getter</span>
 <span class="fc" id="L21">  @Setter</span>
-  protected Hash blockHash;
+  protected BlockHash blockHash;
 
 <span class="fc" id="L24">  @Getter</span>
 <span class="fc" id="L25">  @Setter</span>
@@ -89,7 +89,7 @@ import lombok.ToString;
    *
    * @return hash value
    */
-  public Hash calculateHash() {
+  public TxHash calculateHash() {
     try {
 <span class="nc" id="L94">      final ByteArrayOutputStream raw = new ByteArrayOutputStream();</span>
 <span class="nc" id="L95">      final DataOutputStream dataOut = new DataOutputStream(raw);</span>
@@ -108,7 +108,7 @@ import lombok.ToString;
 <span class="nc" id="L108">        }</span>
 <span class="nc" id="L109">      });</span>
 <span class="nc" id="L110">      dataOut.flush();</span>
-<span class="nc" id="L111">      return new Hash(digest(raw.toByteArray()));</span>
+<span class="nc" id="L111">      return new TxHash(digest(raw.toByteArray()));</span>
 <span class="nc" id="L112">    } catch (final IOException e) {</span>
 <span class="nc" id="L113">      throw new IllegalStateException(e);</span>
     }

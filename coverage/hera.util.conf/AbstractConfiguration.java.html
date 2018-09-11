@@ -62,12 +62,12 @@ public abstract class AbstractConfiguration implements Configuration {
 
   @Override
   public Optional&lt;Object&gt; getAsOptional(final String key) {
-<span class="fc" id="L65">    return ofNullable(get(key));</span>
+<span class="nc" id="L65">    return ofNullable(get(key));</span>
   }
 
   @Override
   public String getAsString(final String key, final String defaultValue) {
-<span class="fc" id="L70">    return (String) getAsOptional(key).map(value -&gt; {</span>
+<span class="nc" id="L70">    return (String) getAsOptional(key).map(value -&gt; {</span>
 <span class="nc" id="L71">      logger.trace(&quot;Value type: {}&quot;, value.getClass());</span>
 <span class="nc bnc" id="L72" title="All 2 branches missed.">      if (value instanceof String) {</span>
 <span class="nc" id="L73">        return value;</span>
@@ -76,7 +76,7 @@ public abstract class AbstractConfiguration implements Configuration {
       } else {
 <span class="nc" id="L77">        return value.toString();</span>
       }
-<span class="fc" id="L79">    }).orElse(defaultValue);</span>
+<span class="nc" id="L79">    }).orElse(defaultValue);</span>
   }
 
   @Override

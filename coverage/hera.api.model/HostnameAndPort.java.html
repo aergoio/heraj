@@ -8,8 +8,8 @@ import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import org.slf4j.Logger;
 
 /**
@@ -18,12 +18,12 @@ import org.slf4j.Logger;
  *   This is used for connection to server like aergo node.
  * &lt;/p&gt;
  */
-<span class="fc" id="L21">@RequiredArgsConstructor</span>
-<span class="nc" id="L22">@ToString</span>
+<span class="pc bpc" id="L21" title="1 of 2 branches missed.">@RequiredArgsConstructor</span>
 public class HostnameAndPort {
 
-<span class="fc" id="L25">  protected static final Logger logger = getLogger(HostnameAndPort.class);</span>
+<span class="fc" id="L24">  protected static final Logger logger = getLogger(HostnameAndPort.class);</span>
 
+  @NonNull
 <span class="fc" id="L27">  @Getter</span>
   protected final String hostname;
 
@@ -54,6 +54,11 @@ public class HostnameAndPort {
 <span class="fc" id="L54">    logger.trace(&quot;Port: {}&quot;, portStr);</span>
 <span class="fc" id="L55">    final int port = ofNullable(portStr).map(Integer::new).orElse(-1);</span>
 <span class="fc" id="L56">    return new HostnameAndPort(hostname, port);</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="nc bnc" id="L61" title="All 2 branches missed.">    return (port &lt; 0) ? hostname : (hostname + &quot;:&quot; + port);</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

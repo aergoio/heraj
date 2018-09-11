@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IntRange.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util</a> &gt; <span class="el_source">IntRange.java</span></div><h1>IntRange.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.util;
+
+public class IntRange extends Pair&lt;Integer, Integer&gt; {
+
+  public IntRange(final Integer v1, final Integer v2) {
+<span class="fc" id="L10">    super(Math.min(v1, v2), Math.max(v1, v2));</span>
+<span class="fc" id="L11">  }</span>
+
+  /**
+   * Select subrange from this range.
+   *
+   * &lt;p&gt;
+   *   This means intersection of two ranges.
+   * &lt;/p&gt;
+   *
+   * @param sub subrange
+   *
+   * @return intersection range
+   */
+  public IntRange select(final IntRange sub) {
+<span class="fc" id="L25">    final int index1 = Math.min(Math.max(sub.v1, this.v1), this.v2);</span>
+<span class="fc" id="L26">    final int index2 = Math.min(Math.max(sub.v2, this.v1), this.v2);</span>
+
+<span class="pc bpc" id="L28" title="2 of 4 branches missed.">    if (index1 == sub.v1 &amp;&amp; index2 == sub.v2) {</span>
+<span class="fc" id="L29">      return sub;</span>
+    }
+
+<span class="nc" id="L32">    return new IntRange(index1, index2);</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="nc" id="L37">    return v1 + &quot;~&quot; + v2;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

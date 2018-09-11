@@ -4,6 +4,8 @@
 
 package hera;
 
+import static com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_COMMENTS;
+import static hera.DefaultConstants.DEFAULT_ENDPOINT;
 import static java.nio.file.Files.newInputStream;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -17,46 +19,60 @@ import lombok.Getter;
 import lombok.Setter;
 
 @JsonInclude(Include.NON_NULL)
-<span class="fc" id="L20">public class ProjectFile {</span>
+<span class="fc" id="L22">public class ProjectFile {</span>
 
   /**
-   * Create {@link ProjectFile} from file basePath.
+   * Create {@link ProjectFile} from file base.
    *
-   * @param path aergo.json file basePath
+   * @param path aergo.json file base
    *
    * @return project file
    *
    * @throws IOException Fail to read file
    */
   public static ProjectFile from(final Path path) throws IOException {
-<span class="nc" id="L32">    try (final InputStream in = newInputStream(path)) {</span>
-<span class="nc" id="L33">      return ProjectFile.from(in);</span>
+<span class="nc" id="L34">    try (final InputStream in = newInputStream(path)) {</span>
+<span class="nc" id="L35">      return ProjectFile.from(in);</span>
     }
   }
 
+  /**
+   * Bulid project file from input stream.
+   *
+   * @param in input stream for content
+   *
+   * @return project file
+   *
+   * @throws IOException if fail to read stream
+   */
   public static ProjectFile from(final InputStream in) throws IOException {
-<span class="nc" id="L38">    final ObjectMapper mapper = new ObjectMapper();</span>
-<span class="nc" id="L39">    return mapper.readValue(in, ProjectFile.class);</span>
+<span class="nc" id="L49">    final ObjectMapper mapper = new ObjectMapper();</span>
+<span class="nc" id="L50">    mapper.configure(ALLOW_COMMENTS, true);</span>
+<span class="nc" id="L51">    return mapper.readValue(in, ProjectFile.class);</span>
   }
 
-<span class="fc" id="L42">  @Getter</span>
-<span class="nc" id="L43">  @Setter</span>
+<span class="fc" id="L54">  @Getter</span>
+<span class="fc" id="L55">  @Setter</span>
   protected String name;
 
-<span class="fc" id="L46">  @Getter</span>
-<span class="nc" id="L47">  @Setter</span>
+<span class="fc" id="L58">  @Getter</span>
+<span class="fc" id="L59">  @Setter</span>
   protected String source;
 
-<span class="fc" id="L50">  @Getter</span>
-<span class="nc" id="L51">  @Setter</span>
+<span class="fc" id="L62">  @Getter</span>
+<span class="fc" id="L63">  @Setter</span>
   protected String target;
 
-<span class="fc" id="L54">  @Getter</span>
-<span class="nc" id="L55">  @Setter</span>
+<span class="fc" id="L66">  @Getter</span>
+<span class="nc" id="L67">  @Setter</span>
   protected List&lt;String&gt; dependencies;
 
-<span class="fc" id="L58">  @Getter</span>
-<span class="nc" id="L59">  @Setter</span>
+<span class="fc" id="L70">  @Getter</span>
+<span class="nc" id="L71">  @Setter</span>
   protected List&lt;String&gt; tests;
+
+<span class="fc" id="L74">  @Getter</span>
+<span class="fc" id="L75">  @Setter</span>
+  protected String endpoint = DEFAULT_ENDPOINT;
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -27,9 +27,9 @@ public class ResultOrErrorFuture&lt;T&gt; extends AbstractTupleOrErrorFuture&lt;
 <span class="fc" id="L27">    return new ResultOrErrorFuture(CompletableFuture.supplyAsync(supplier));</span>
   }
 
-  public &lt;R&gt; ResultOrErrorFuture&lt;R&gt; thenApply(Function1&lt;T, R&gt; f) {
-<span class="nc" id="L31">    CompletableFuture&lt;ResultOrError&lt;R&gt;&gt; next = getDeligate().thenApply(r -&gt; r.thenApply(f));</span>
-<span class="nc" id="L32">    return new ResultOrErrorFuture&lt;R&gt;(next);</span>
+  public &lt;R&gt; ResultOrErrorFuture&lt;R&gt; map(Function1&lt;T, R&gt; f) {
+<span class="fc" id="L31">    CompletableFuture&lt;ResultOrError&lt;R&gt;&gt; next = getDeligate().thenApply(r -&gt; r.map(f));</span>
+<span class="fc" id="L32">    return new ResultOrErrorFuture&lt;R&gt;(next);</span>
   }
 
 }

@@ -10,8 +10,8 @@ import static types.AergoRPCServiceGrpc.newFutureStub;
 import hera.api.BlockAsyncOperation;
 import hera.api.BlockOperation;
 import hera.api.model.Block;
+import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
-import hera.api.model.Hash;
 import hera.api.tupleorerror.ResultOrError;
 import hera.exception.HerajException;
 import io.grpc.ManagedChannel;
@@ -34,9 +34,9 @@ public class BlockTemplate implements BlockOperation {
 <span class="nc" id="L34">  }</span>
 
   @Override
-  public ResultOrError&lt;Block&gt; getBlock(Hash hash) {
+  public ResultOrError&lt;Block&gt; getBlock(BlockHash blockHash) {
     try {
-<span class="fc" id="L39">      return blockAsyncOperation.getBlock(hash).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
+<span class="fc" id="L39">      return blockAsyncOperation.getBlock(blockHash).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
 <span class="nc" id="L40">    } catch (Exception e) {</span>
 <span class="nc" id="L41">      throw new HerajException(e);</span>
     }
@@ -52,20 +52,21 @@ public class BlockTemplate implements BlockOperation {
   }
 
   @Override
-  public ResultOrError&lt;List&lt;BlockHeader&gt;&gt; listBlockHeaders(Hash hash, int size) {
+  public ResultOrError&lt;List&lt;BlockHeader&gt;&gt; listBlockHeaders(BlockHash blockHash, int size) {
     try {
-<span class="fc" id="L57">      return blockAsyncOperation.listBlockHeaders(hash, size).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
-<span class="nc" id="L58">    } catch (Exception e) {</span>
-<span class="nc" id="L59">      throw new HerajException(e);</span>
+<span class="fc" id="L57">      return blockAsyncOperation.listBlockHeaders(blockHash, size).get(TIMEOUT,</span>
+          TimeUnit.MILLISECONDS);
+<span class="nc" id="L59">    } catch (Exception e) {</span>
+<span class="nc" id="L60">      throw new HerajException(e);</span>
     }
   }
 
   @Override
   public ResultOrError&lt;List&lt;BlockHeader&gt;&gt; listBlockHeaders(long height, int size) {
     try {
-<span class="fc" id="L66">      return blockAsyncOperation.listBlockHeaders(height, size).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
-<span class="nc" id="L67">    } catch (Exception e) {</span>
-<span class="nc" id="L68">      throw new HerajException(e);</span>
+<span class="fc" id="L67">      return blockAsyncOperation.listBlockHeaders(height, size).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
+<span class="nc" id="L68">    } catch (Exception e) {</span>
+<span class="nc" id="L69">      throw new HerajException(e);</span>
     }
   }
 }

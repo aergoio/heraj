@@ -19,7 +19,7 @@ import lombok.ToString;
 
 <span class="pc" id="L20">  @Getter</span>
 <span class="fc" id="L21">  @Setter</span>
-  protected Hash hash = new Hash(null);
+  protected TxHash txHash = new TxHash(null);
 
   /**
    * Create {@link Signature}.
@@ -29,10 +29,10 @@ import lombok.ToString;
    *
    * @return created signature
    */
-  public static Signature of(final BytesValue sign, final Hash hash) {
+  public static Signature of(final BytesValue sign, final TxHash hash) {
 <span class="nc" id="L33">    final Signature signature = new Signature();</span>
 <span class="nc" id="L34">    signature.setSign(sign);</span>
-<span class="nc" id="L35">    signature.setHash(hash);</span>
+<span class="nc" id="L35">    signature.setTxHash(hash);</span>
 <span class="nc" id="L36">    return signature;</span>
   }
 
@@ -49,7 +49,7 @@ import lombok.ToString;
     }
 <span class="nc" id="L50">    final Signature copy = new Signature();</span>
 <span class="nc" id="L51">    ofNullable(source.getSign()).ifPresent(copy::setSign);</span>
-<span class="nc" id="L52">    ofNullable(source.getHash()).ifPresent(copy::setHash);</span>
+<span class="nc" id="L52">    ofNullable(source.getTxHash()).ifPresent(copy::setTxHash);</span>
 <span class="nc" id="L53">    return copy;</span>
   }
 }

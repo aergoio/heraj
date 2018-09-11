@@ -7,40 +7,45 @@ package hera.client;
 import hera.api.AbstractAergoApi;
 import hera.api.AccountOperation;
 import hera.api.BlockOperation;
+import hera.api.ContractOperation;
 import hera.api.SignOperation;
 import hera.api.SignTemplate;
 import hera.api.TransactionOperation;
 import io.grpc.ManagedChannel;
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
-<span class="fc" id="L20">@RequiredArgsConstructor</span>
+<span class="pc bpc" id="L21" title="1 of 2 branches missed.">@RequiredArgsConstructor</span>
 public class AergoClient extends AbstractAergoApi implements Closeable, AutoCloseable {
 
+  @NonNull
   protected final ManagedChannel channel;
 
-<span class="pc bnc" id="L25" title="All 8 branches missed.">  @Getter(lazy = true)</span>
+<span class="pc bnc" id="L27" title="All 8 branches missed.">  @Getter(lazy = true)</span>
   private final SignOperation signOperation = new SignTemplate();
 
-<span class="pc bpc" id="L28" title="4 of 8 branches missed.">  @Getter(lazy = true)</span>
+<span class="pc bpc" id="L30" title="4 of 8 branches missed.">  @Getter(lazy = true)</span>
   private final AccountOperation accountOperation = new AccountTemplate(channel);
 
-<span class="pc bnc" id="L31" title="All 8 branches missed.">  @Getter(lazy = true)</span>
+<span class="pc bnc" id="L33" title="All 8 branches missed.">  @Getter(lazy = true)</span>
   private final TransactionOperation transactionOperation = new TransactionTemplate(channel);
 
-<span class="pc bnc" id="L34" title="All 8 branches missed.">  @Getter(lazy = true)</span>
+<span class="pc bnc" id="L36" title="All 8 branches missed.">  @Getter(lazy = true)</span>
   private final BlockOperation blockOperation = new BlockTemplate(channel);
 
+<span class="pc bnc" id="L39" title="All 8 branches missed.">  @Getter(lazy = true)</span>
+  private final ContractOperation contractOperation = new ContractTemplate(channel);
+
   @Override
-  public void close() throws IOException {
+  public void close() {
     try {
-<span class="fc" id="L40">      channel.shutdown().awaitTermination(3, TimeUnit.SECONDS);</span>
-<span class="nc" id="L41">    } catch (final InterruptedException e) {</span>
-<span class="nc" id="L42">      throw new IOException(e);</span>
-<span class="fc" id="L43">    }</span>
-<span class="fc" id="L44">  }</span>
+<span class="fc" id="L45">      channel.shutdown().awaitTermination(3, TimeUnit.SECONDS);</span>
+<span class="nc" id="L46">    } catch (final Throwable e) {</span>
+<span class="nc" id="L47">      logger.debug(&quot;Fail to close aergo client&quot;, e);</span>
+<span class="fc" id="L48">    }</span>
+<span class="fc" id="L49">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -11,6 +11,7 @@ import hera.api.AccountAsyncOperation;
 import hera.api.AccountOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.Authentication;
 import hera.api.tupleorerror.ResultOrError;
 import hera.exception.HerajException;
 import io.grpc.ManagedChannel;
@@ -19,61 +20,61 @@ import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
-<span class="fc" id="L22">@RequiredArgsConstructor</span>
+<span class="fc" id="L23">@RequiredArgsConstructor</span>
 public class AccountTemplate implements AccountOperation {
 
   protected final AccountAsyncOperation accountAsyncOperation;
 
   public AccountTemplate(final ManagedChannel channel) {
-<span class="fc" id="L28">    this(newFutureStub(channel));</span>
-<span class="fc" id="L29">  }</span>
+<span class="fc" id="L29">    this(newFutureStub(channel));</span>
+<span class="fc" id="L30">  }</span>
 
   public AccountTemplate(final AergoRPCServiceFutureStub aergoService) {
-<span class="fc" id="L32">    this(new AccountAsyncTemplate(aergoService));</span>
-<span class="fc" id="L33">  }</span>
+<span class="fc" id="L33">    this(new AccountAsyncTemplate(aergoService));</span>
+<span class="fc" id="L34">  }</span>
 
   @Override
   public ResultOrError&lt;List&lt;Account&gt;&gt; list() {
     try {
-<span class="fc" id="L38">      return accountAsyncOperation.list().get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
-<span class="nc" id="L39">    } catch (Exception e) {</span>
-<span class="nc" id="L40">      throw new HerajException(e);</span>
+<span class="fc" id="L39">      return accountAsyncOperation.list().get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
+<span class="nc" id="L40">    } catch (Exception e) {</span>
+<span class="nc" id="L41">      throw new HerajException(e);</span>
     }
   }
 
   @Override
   public ResultOrError&lt;Account&gt; create(String password) {
     try {
-<span class="fc" id="L47">      return accountAsyncOperation.create(password).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
-<span class="nc" id="L48">    } catch (Exception e) {</span>
-<span class="nc" id="L49">      throw new HerajException(e);</span>
+<span class="fc" id="L48">      return accountAsyncOperation.create(password).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
+<span class="nc" id="L49">    } catch (Exception e) {</span>
+<span class="nc" id="L50">      throw new HerajException(e);</span>
     }
   }
 
   @Override
   public ResultOrError&lt;Account&gt; get(AccountAddress address) {
     try {
-<span class="fc" id="L56">      return accountAsyncOperation.get(address).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
-<span class="nc" id="L57">    } catch (Exception e) {</span>
-<span class="nc" id="L58">      throw new HerajException(e);</span>
+<span class="fc" id="L57">      return accountAsyncOperation.get(address).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
+<span class="nc" id="L58">    } catch (Exception e) {</span>
+<span class="nc" id="L59">      throw new HerajException(e);</span>
     }
   }
 
   @Override
-  public ResultOrError&lt;Boolean&gt; lock(AccountAddress address, String password) {
+  public ResultOrError&lt;Boolean&gt; lock(final Authentication authentication) {
     try {
-<span class="fc" id="L65">      return accountAsyncOperation.lock(address, password).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
-<span class="nc" id="L66">    } catch (Exception e) {</span>
-<span class="nc" id="L67">      throw new HerajException(e);</span>
+<span class="fc" id="L66">      return accountAsyncOperation.lock(authentication).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
+<span class="nc" id="L67">    } catch (Exception e) {</span>
+<span class="nc" id="L68">      throw new HerajException(e);</span>
     }
   }
 
   @Override
-  public ResultOrError&lt;Boolean&gt; unlock(AccountAddress address, String password) {
+  public ResultOrError&lt;Boolean&gt; unlock(final Authentication authentication) {
     try {
-<span class="fc" id="L74">      return accountAsyncOperation.unlock(address, password).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
-<span class="nc" id="L75">    } catch (Exception e) {</span>
-<span class="nc" id="L76">      throw new HerajException(e);</span>
+<span class="fc" id="L75">      return accountAsyncOperation.unlock(authentication).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
+<span class="nc" id="L76">    } catch (Exception e) {</span>
+<span class="nc" id="L77">      throw new HerajException(e);</span>
     }
   }
 }

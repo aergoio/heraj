@@ -12,11 +12,11 @@ import lombok.ToString;
 <span class="nc" id="L12">@ToString</span>
 public class TestResult {
   public static TestResult success(final Object result) {
-<span class="fc" id="L15">    return new TestResult(result, null);</span>
+<span class="fc" id="L15">    return new TestResult(result, null, null);</span>
   }
 
-  public static TestResult fail(final LuaErrorInformation error) {
-<span class="nc" id="L19">    return new TestResult(null, error);</span>
+  public static TestResult fail(final LuaErrorInformation error, final String codeSnippet) {
+<span class="nc" id="L19">    return new TestResult(null, error, codeSnippet);</span>
   }
 
 <span class="fc" id="L22">  @Getter</span>
@@ -25,8 +25,11 @@ public class TestResult {
 <span class="nc" id="L25">  @Getter</span>
   protected final LuaErrorInformation error;
 
+<span class="nc" id="L28">  @Getter</span>
+  protected final String codeSnippet;
+
   public boolean isSuccess() {
-<span class="nc bnc" id="L29" title="All 2 branches missed.">    return null == error;</span>
+<span class="nc bnc" id="L32" title="All 2 branches missed.">    return null == error;</span>
   }
 
 }

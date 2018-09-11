@@ -10,6 +10,7 @@ import static java.util.Collections.EMPTY_LIST;
 import hera.Builder;
 import hera.BuilderFactory;
 import hera.ProjectFile;
+import hera.build.ResourceManager;
 import hera.build.res.Project;
 import hera.build.web.model.BuildDetails;
 import hera.test.AthenaContext;
@@ -23,29 +24,28 @@ import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 
-<span class="nc" id="L26">public class TestProject extends AbstractCommand {</span>
+<span class="nc" id="L27">public class TestProject extends AbstractCommand {</span>
 
-<span class="nc" id="L28">  @Getter</span>
-<span class="nc" id="L29">  @Setter</span>
-  protected BuilderFactory builderFactory = new BuilderFactory();
+<span class="nc" id="L29">  @Getter</span>
+<span class="nc" id="L30">  @Setter</span>
+<span class="nc" id="L31">  protected BuilderFactory builderFactory = project -&gt; new Builder(new ResourceManager(project));</span>
 
-<span class="nc" id="L32">  @Setter</span>
+<span class="nc" id="L33">  @Setter</span>
   protected Consumer&lt;TestResultCollector&gt; reporter = (testReporter) -&gt; {
-<span class="nc" id="L34">    testReporter.getResults().forEach(testSuite -&gt; {</span>
-<span class="nc" id="L35">      System.out.println(testSuite.toString());</span>
-<span class="nc" id="L36">      testSuite.getTestCases().forEach(testCase -&gt; {</span>
-<span class="nc" id="L37">        System.out.println(&quot;   &quot; + testCase);</span>
-<span class="nc" id="L38">      });</span>
-<span class="nc" id="L39">    });</span>
-<span class="nc" id="L40">  };</span>
+<span class="nc" id="L35">    testReporter.getResults().forEach(testSuite -&gt; {</span>
+<span class="nc" id="L36">      System.out.println(testSuite.toString());</span>
+<span class="nc" id="L37">      testSuite.getTestCases().forEach(testCase -&gt; {</span>
+<span class="nc" id="L38">        System.out.println(&quot;   &quot; + testCase);</span>
+<span class="nc" id="L39">      });</span>
+<span class="nc" id="L40">    });</span>
+<span class="nc" id="L41">  };</span>
 
   @Override
   public void execute() throws Exception {
-<span class="nc" id="L44">    logger.trace(&quot;Starting {}...&quot;, this);</span>
-<span class="nc" id="L45">    final ProjectFile projectFile = readProject();</span>
-<span class="nc" id="L46">    final Project project = new Project(&quot;.&quot;, projectFile);</span>
-<span class="nc" id="L47">    final Builder builder = new BuilderFactory().create(project);</span>
-
+<span class="nc" id="L45">    logger.trace(&quot;Starting {}...&quot;, this);</span>
+<span class="nc" id="L46">    final ProjectFile projectFile = readProject();</span>
+<span class="nc" id="L47">    final Project project = new Project(&quot;.&quot;, projectFile);</span>
+<span class="nc" id="L48">    final Builder builder = builderFactory.create(project);</span>
 <span class="nc" id="L49">    final List&lt;String&gt; testPaths = nvl(projectFile.getTests(), EMPTY_LIST);</span>
 <span class="nc" id="L50">    AthenaContext.clear();</span>
     try {

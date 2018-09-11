@@ -7,29 +7,27 @@ package hera.transport;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.Account;
-import hera.api.model.AccountAddress;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Blockchain;
 
-<span class="fc" id="L15">public class AccountStateConverterFactory {</span>
-<span class="fc" id="L16">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L14">public class AccountStateConverterFactory {</span>
+<span class="fc" id="L15">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L18">  protected final Function&lt;Account, Blockchain.State&gt; domainConverter = domainAccountState -&gt; {</span>
-<span class="nc" id="L19">    throw new UnsupportedOperationException();</span>
+<span class="fc" id="L17">  protected final Function&lt;Account, Blockchain.State&gt; domainConverter = domainAccountState -&gt; {</span>
+<span class="nc" id="L18">    throw new UnsupportedOperationException();</span>
   };
 
-<span class="fc" id="L22">  protected final Function&lt;Blockchain.State, Account&gt; rpcConverter = rpcAccountState -&gt; {</span>
-<span class="fc" id="L23">    logger.trace(&quot;Blockchain status: {}&quot;, rpcAccountState);</span>
-<span class="fc" id="L24">    final Account domainAccount = new Account();</span>
-<span class="fc" id="L25">    domainAccount.setAddress(AccountAddress.of(rpcAccountState.getAccount().toByteArray()));</span>
-<span class="fc" id="L26">    domainAccount.setNonce(rpcAccountState.getNonce());</span>
-<span class="fc" id="L27">    domainAccount.setBalance(rpcAccountState.getBalance());</span>
-<span class="fc" id="L28">    return domainAccount;</span>
+<span class="fc" id="L21">  protected final Function&lt;Blockchain.State, Account&gt; rpcConverter = rpcAccountState -&gt; {</span>
+<span class="fc" id="L22">    logger.trace(&quot;Blockchain status: {}&quot;, rpcAccountState);</span>
+<span class="fc" id="L23">    final Account domainAccount = new Account();</span>
+<span class="fc" id="L24">    domainAccount.setNonce(rpcAccountState.getNonce());</span>
+<span class="fc" id="L25">    domainAccount.setBalance(rpcAccountState.getBalance());</span>
+<span class="fc" id="L26">    return domainAccount;</span>
   };
 
   public ModelConverter&lt;Account, Blockchain.State&gt; create() {
-<span class="fc" id="L32">    return new ModelConverter&lt;&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L30">    return new ModelConverter&lt;&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

@@ -13,7 +13,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 <span class="fc" id="L15">@RequiredArgsConstructor</span>
-<span class="nc" id="L16">@ToString(callSuper = true)</span>
+<span class="fc" id="L16">@ToString(callSuper = true)</span>
 public class BuildDetails extends BuildSummary {
 <span class="fc" id="L18">  @Getter</span>
 <span class="nc" id="L19">  @Setter</span>
@@ -37,9 +37,22 @@ public class BuildDetails extends BuildSummary {
 <span class="fc" id="L37">    final BuildSummary summary = new BuildSummary();</span>
 <span class="fc" id="L38">    summary.setUuid(getUuid());</span>
 <span class="fc" id="L39">    summary.setTimestamp(getTimestamp());</span>
-<span class="fc" id="L40">    summary.setSuccess(isSuccess());</span>
+<span class="fc" id="L40">    summary.setState(getState());</span>
 
 <span class="fc" id="L42">    return summary;</span>
   }
+
+  /**
+   * Copy from {@code source}.
+   *
+   * @param source {@link BuildDetails} to copy from
+   */
+  public void copyFrom(final BuildDetails source) {
+<span class="nc" id="L51">    this.state = source.getState();</span>
+<span class="nc" id="L52">    this.error = source.getError();</span>
+<span class="nc" id="L53">    this.result = source.getResult();</span>
+<span class="nc" id="L54">    this.dependencies = source.getDependencies();</span>
+<span class="nc" id="L55">    this.unitTestReport = source.getUnitTestReport();</span>
+<span class="nc" id="L56">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

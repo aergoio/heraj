@@ -12,8 +12,15 @@ public class HttpException extends RuntimeException {
 <span class="nc" id="L12">  @Getter</span>
   protected final int statusCode;
 
-<span class="nc" id="L15">  @Getter</span>
-  protected final String message;
+  public HttpException(final int statusCode, final String message, final Throwable cause) {
+<span class="nc" id="L16">    super(message, cause);</span>
+<span class="nc" id="L17">    this.statusCode = statusCode;</span>
+<span class="nc" id="L18">  }</span>
+
+  public HttpException(final int statusCode, final String message) {
+<span class="nc" id="L21">    super(message);</span>
+<span class="nc" id="L22">    this.statusCode = statusCode;</span>
+<span class="nc" id="L23">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

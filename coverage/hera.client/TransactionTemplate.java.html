@@ -9,9 +9,9 @@ import static types.AergoRPCServiceGrpc.newFutureStub;
 
 import hera.api.TransactionAsyncOperation;
 import hera.api.TransactionOperation;
-import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrError;
 import hera.exception.HerajException;
 import io.grpc.ManagedChannel;
@@ -33,9 +33,9 @@ public class TransactionTemplate implements TransactionOperation {
 <span class="nc" id="L33">  }</span>
 
   @Override
-  public ResultOrError&lt;Transaction&gt; getTransaction(Hash hash) {
+  public ResultOrError&lt;Transaction&gt; getTransaction(TxHash txHash) {
     try {
-<span class="fc" id="L38">      return transactionAsyncOperation.getTransaction(hash).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
+<span class="fc" id="L38">      return transactionAsyncOperation.getTransaction(txHash).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
 <span class="nc" id="L39">    } catch (Exception e) {</span>
 <span class="nc" id="L40">      throw new HerajException(e);</span>
     }
@@ -60,7 +60,7 @@ public class TransactionTemplate implements TransactionOperation {
   }
 
   @Override
-  public ResultOrError&lt;Hash&gt; commit(Transaction transaction) {
+  public ResultOrError&lt;TxHash&gt; commit(Transaction transaction) {
     try {
 <span class="fc" id="L65">      return transactionAsyncOperation.commit(transaction).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
 <span class="nc" id="L66">    } catch (Exception e) {</span>

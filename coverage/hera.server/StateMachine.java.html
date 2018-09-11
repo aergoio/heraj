@@ -172,8 +172,8 @@ public class StateMachine&lt;StateT&gt; {
       final Object... args) {
 <span class="fc" id="L173">    lock.writeLock().lock();</span>
     try {
-<span class="pc bpc" id="L175" title="1 of 2 branches missed.">      if (!condition.evaluate(this)) {</span>
-<span class="nc" id="L176">        return false;</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">      if (!condition.evaluate(this)) {</span>
+<span class="fc" id="L176">        return false;</span>
       }
 <span class="fc" id="L178">      changeState(state);</span>
 <span class="fc" id="L179">      return true;</span>

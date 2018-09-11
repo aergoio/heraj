@@ -10,25 +10,30 @@ import static java.nio.file.Files.newBufferedWriter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hera.ProjectFile;
 import java.io.BufferedWriter;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import lombok.Getter;
 import lombok.Setter;
 
-<span class="nc" id="L18">public class WriteProjectFile extends AbstractCommand {</span>
+<span class="nc" id="L19">public class WriteProjectFile extends AbstractCommand {</span>
 
-<span class="nc" id="L20">  @Getter</span>
-<span class="nc" id="L21">  @Setter</span>
+<span class="nc" id="L21">  @Getter</span>
+<span class="nc" id="L22">  @Setter</span>
   protected ProjectFile project = new ProjectFile();
 
   @Override
   public void execute() throws Exception {
-<span class="nc bnc" id="L26" title="All 2 branches missed.">    assertTrue(1 == arguments.size());</span>
-<span class="nc" id="L27">    final Path projectFilePath = Paths.get(arguments.get(0));</span>
-<span class="nc" id="L28">    final ObjectMapper mapper = new ObjectMapper();</span>
-<span class="nc" id="L29">    try (final BufferedWriter writer = newBufferedWriter(projectFilePath)) {</span>
-<span class="nc" id="L30">      mapper.writerWithDefaultPrettyPrinter().writeValue(writer, project);</span>
+<span class="nc bnc" id="L27" title="All 2 branches missed.">    assertTrue(1 == arguments.size());</span>
+<span class="nc" id="L28">    final Path projectFilePath = Paths.get(arguments.get(0));</span>
+<span class="nc" id="L29">    final ObjectMapper mapper = new ObjectMapper();</span>
+<span class="nc bnc" id="L30" title="All 2 branches missed.">    if (Files.exists(projectFilePath)) {</span>
+<span class="nc" id="L31">      logger.warn(&quot;Project file already exists&quot;);</span>
+<span class="nc" id="L32">      return;</span>
     }
-<span class="nc" id="L32">  }</span>
+<span class="nc" id="L34">    try (final BufferedWriter writer = newBufferedWriter(projectFilePath)) {</span>
+<span class="nc" id="L35">      mapper.writerWithDefaultPrettyPrinter().writeValue(writer, project);</span>
+    }
+<span class="nc" id="L37">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

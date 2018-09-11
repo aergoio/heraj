@@ -4,9 +4,89 @@
 
 package hera.client;
 
-import hera.api.ContractOperation;
+import static hera.TransportConstants.TIMEOUT;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static types.AergoRPCServiceGrpc.newFutureStub;
 
-<span class="nc" id="L9">public class ContractTemplate implements ContractOperation {</span>
+import hera.api.ContractAsyncOperation;
+import hera.api.ContractOperation;
+import hera.api.model.AccountAddress;
+import hera.api.model.ContractAddress;
+import hera.api.model.ContractFunction;
+import hera.api.model.ContractInferface;
+import hera.api.model.ContractTxHash;
+import hera.api.model.ContractTxReceipt;
+import hera.api.tupleorerror.ResultOrError;
+import hera.exception.HerajException;
+import hera.util.DangerousSupplier;
+import io.grpc.ManagedChannel;
+import lombok.RequiredArgsConstructor;
+import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
+
+<span class="fc" id="L26">@RequiredArgsConstructor</span>
+public class ContractTemplate implements ContractOperation {
+  protected final ContractAsyncOperation contractAsyncOperation;
+
+  public ContractTemplate(final ManagedChannel channel) {
+<span class="nc" id="L31">    this(newFutureStub(channel));</span>
+<span class="nc" id="L32">  }</span>
+
+  public ContractTemplate(final AergoRPCServiceFutureStub aergoService) {
+<span class="nc" id="L35">    this(new ContractAsyncTemplate(aergoService));</span>
+<span class="nc" id="L36">  }</span>
+
+  @Override
+  public ResultOrError&lt;ContractTxReceipt&gt; getReceipt(final ContractTxHash deployTxHash) {
+    try {
+<span class="fc" id="L41">      return contractAsyncOperation.getReceipt(deployTxHash).get(TIMEOUT, MILLISECONDS);</span>
+<span class="nc" id="L42">    } catch (Exception e) {</span>
+<span class="nc" id="L43">      throw new HerajException(e);</span>
+    }
+  }
+
+  @Override
+  public ResultOrError&lt;ContractTxHash&gt; deploy(final AccountAddress creator,
+      final DangerousSupplier&lt;byte[]&gt; contractCodePayload) {
+    try {
+<span class="fc" id="L51">      return contractAsyncOperation.deploy(creator, contractCodePayload).get(TIMEOUT, MILLISECONDS);</span>
+<span class="nc" id="L52">    } catch (Exception e) {</span>
+<span class="nc" id="L53">      throw new HerajException(e);</span>
+    }
+  }
+
+  @Override
+  public ResultOrError&lt;ContractInferface&gt; getContractInterface(
+      final ContractAddress contractAddress) {
+    try {
+<span class="fc" id="L61">      return contractAsyncOperation.getContractInterface(contractAddress).get(TIMEOUT,</span>
+          MILLISECONDS);
+<span class="nc" id="L63">    } catch (Exception e) {</span>
+<span class="nc" id="L64">      throw new HerajException(e);</span>
+    }
+  }
+
+  @Override
+  public ResultOrError&lt;ContractTxHash&gt; execute(final AccountAddress executor,
+      final ContractAddress contractAddress, final ContractFunction contractFunction,
+      final Object... args) {
+    try {
+<span class="fc" id="L73">      return contractAsyncOperation.execute(executor, contractAddress, contractFunction, args)</span>
+<span class="fc" id="L74">          .get(TIMEOUT, MILLISECONDS);</span>
+<span class="nc" id="L75">    } catch (Exception e) {</span>
+<span class="nc" id="L76">      throw new HerajException(e);</span>
+    }
+  }
+
+  @Override
+  public ResultOrError&lt;Object&gt; query(final ContractAddress contractAddress,
+      final ContractFunction contractFunction, final Object... args) {
+    try {
+<span class="fc" id="L84">      return contractAsyncOperation.query(contractAddress, contractFunction, args).get(TIMEOUT,</span>
+          MILLISECONDS);
+<span class="nc" id="L86">    } catch (Exception e) {</span>
+<span class="nc" id="L87">      throw new HerajException(e);</span>
+    }
+  }
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

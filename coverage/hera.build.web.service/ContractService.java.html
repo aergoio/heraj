@@ -4,11 +4,254 @@
 
 package hera.build.web.service;
 
+import static hera.api.Decoder.defaultDecoder;
+import static hera.api.Encoder.defaultEncoder;
+import static hera.util.HexUtils.dump;
+import static hera.util.IoUtils.from;
+import static java.util.UUID.randomUUID;
+
+import hera.api.AccountOperation;
+import hera.api.ContractOperation;
+import hera.api.model.Account;
+import hera.api.model.AccountAddress;
+import hera.api.model.Authentication;
+import hera.api.model.ContractAddress;
+import hera.api.model.ContractFunction;
+import hera.api.model.ContractInferface;
+import hera.api.model.ContractTxHash;
+import hera.api.model.ContractTxReceipt;
+import hera.api.model.HostnameAndPort;
+import hera.build.web.exception.AergoNodeException;
+import hera.build.web.exception.ResourceNotFoundException;
 import hera.build.web.model.BuildDetails;
+import hera.build.web.model.DeploymentResult;
+import hera.build.web.model.ExecutionResult;
+import hera.build.web.model.QueryResult;
+import hera.client.AergoClient;
+import hera.exception.RpcConnectionException;
+import hera.exception.RpcException;
+import hera.strategy.NettyConnectStrategy;
+import hera.test.LuaBinary;
+import hera.test.LuaCompiler;
+import hera.util.HexUtils;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 
-<span class="fc" id="L9">public class ContractService extends AbstractService {</span>
-  public void deploy(final String target,final BuildDetails buildDetails) {
+<span class="nc" id="L47">public class ContractService extends AbstractService {</span>
+<span class="nc" id="L48">  @Getter</span>
+<span class="nc" id="L49">  @Setter</span>
+  protected String endpoint;
 
-<span class="nc" id="L12">  }</span>
+<span class="nc" id="L52">  protected String password = randomUUID().toString();</span>
+
+  protected Account account;
+
+<span class="nc" id="L56">  protected LuaCompiler luaCompiler = new LuaCompiler();</span>
+
+<span class="nc" id="L58">  protected List&lt;DeploymentResult&gt; deployHistory = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L60">  protected Map&lt;String, DeploymentResult&gt; encodedContractTxHash2contractAddresses = new HashMap&lt;&gt;();</span>
+
+  protected synchronized void ensureAccount() {
+<span class="nc bnc" id="L63" title="All 2 branches missed.">    if (null != account) {</span>
+<span class="nc" id="L64">      return;</span>
+    }
+<span class="nc" id="L66">    final NettyConnectStrategy connectStrategy = new NettyConnectStrategy();</span>
+<span class="nc" id="L67">    final HostnameAndPort hostnameAndPort = HostnameAndPort.of(endpoint);</span>
+
+<span class="nc" id="L69">    try (final AergoClient aergoApi = new AergoClient(connectStrategy.connect(hostnameAndPort))) {</span>
+<span class="nc" id="L70">      final AccountOperation accountOperation = aergoApi.getAccountOperation();</span>
+<span class="nc" id="L71">      logger.trace(&quot;Password: {}&quot;, password);</span>
+<span class="nc" id="L72">      account = accountOperation.create(password).getResult();</span>
+<span class="nc" id="L73">      final AccountAddress accountAddress = account.getAddress();</span>
+<span class="nc" id="L74">      final Authentication authentication = new Authentication(accountAddress, password);</span>
+<span class="nc" id="L75">      accountOperation.unlock(authentication);</span>
+<span class="nc" id="L76">      logger.debug(&quot;{} unlocked&quot;, authentication);</span>
+<span class="nc" id="L77">    } catch (final RpcConnectionException ex) {</span>
+<span class="nc" id="L78">      throw new AergoNodeException(</span>
+          &quot;Fail to connect aergo[&quot; + endpoint + &quot;]. Check your aergo node.&quot;, ex);
+<span class="nc" id="L80">    } catch (final RpcException ex) {</span>
+<span class="nc" id="L81">      throw new AergoNodeException(&quot;Fail to deploy contract&quot;, ex);</span>
+<span class="nc" id="L82">    }</span>
+
+<span class="nc" id="L84">  }</span>
+
+  /**
+   * Deploy {@code buildDetails}'s result.
+   *
+   * @param buildDetails build result
+   *
+   * @return deployment result
+   *
+   * @throws Exception Fail to deploy
+   */
+  public DeploymentResult deploy(final BuildDetails buildDetails) throws Exception {
+<span class="nc" id="L96">    ensureAccount();</span>
+<span class="nc" id="L97">    final NettyConnectStrategy connectStrategy = new NettyConnectStrategy();</span>
+<span class="nc" id="L98">    final HostnameAndPort hostnameAndPort = HostnameAndPort.of(endpoint);</span>
+<span class="nc" id="L99">    logger.debug(&quot;Hostname and port: {}&quot;, hostnameAndPort);</span>
+<span class="nc" id="L100">    try (final AergoClient aergoApi = new AergoClient(connectStrategy.connect(hostnameAndPort))) {</span>
+<span class="nc" id="L101">      final byte[] buildResult = buildDetails.getResult().getBytes();</span>
+<span class="nc" id="L102">      final LuaBinary luaBinary = luaCompiler.compile(() -&gt; new ByteArrayInputStream(buildResult));</span>
+<span class="nc" id="L103">      logger.trace(&quot;Successful to compile:\n{}&quot;, dump(from(luaBinary.getPayload())));</span>
+<span class="nc" id="L104">      final ContractOperation contractOperation = aergoApi.getContractOperation();</span>
+<span class="nc" id="L105">      final ContractTxHash contractTransactionHash =</span>
+<span class="nc" id="L106">          contractOperation.deploy(account.getAddress(), () -&gt; from(luaBinary.getPayload()))</span>
+<span class="nc" id="L107">              .getResult();</span>
+<span class="nc" id="L108">      logger.debug(&quot;Contract transaction hash: {}&quot;, contractTransactionHash);</span>
+<span class="nc" id="L109">      final String encodedContractTxHash = contractTransactionHash.getEncodedValue(defaultEncoder);</span>
+<span class="nc" id="L110">      final DeploymentResult deploymentResult = new DeploymentResult();</span>
+<span class="nc" id="L111">      deploymentResult.setBuildUuid(buildDetails.getUuid());</span>
+<span class="nc" id="L112">      deploymentResult.setEncodedContractTransactionHash(encodedContractTxHash);</span>
+<span class="nc" id="L113">      encodedContractTxHash2contractAddresses.put(encodedContractTxHash, deploymentResult);</span>
+<span class="nc" id="L114">      deployHistory.add(deploymentResult);</span>
+<span class="nc" id="L115">      return deploymentResult;</span>
+<span class="nc" id="L116">    } catch (final RpcConnectionException ex) {</span>
+<span class="nc" id="L117">      throw new AergoNodeException(</span>
+          &quot;Fail to connect aergo[&quot; + endpoint + &quot;]. Check your aergo node.&quot;, ex);
+<span class="nc" id="L119">    } catch (final RpcException ex) {</span>
+<span class="nc" id="L120">      throw new AergoNodeException(&quot;Fail to deploy contract&quot;, ex);</span>
+    }
+  }
+
+  /**
+   * Execute smart contract.
+   *
+   * @param encodedContractTxHash contract transaction hash
+   * @param functionName          function's name to execute
+   * @param args                  function's arguments to execute
+   *
+   * @return execution result
+   *
+   * @throws IOException Fail to execute
+   */
+  public ExecutionResult execute(final String encodedContractTxHash, final String functionName,
+      final Object... args) throws IOException {
+<span class="nc" id="L137">    logger.trace(&quot;Encoded tx hash: {}&quot;, encodedContractTxHash);</span>
+<span class="nc" id="L138">    final byte[] decoded = from(defaultDecoder.decode(new StringReader(encodedContractTxHash)));</span>
+<span class="nc" id="L139">    logger.debug(&quot;Decoded contract hash:\n{}&quot;, HexUtils.dump(decoded));</span>
+<span class="nc" id="L140">    final ContractTxHash contractTxHash = ContractTxHash.of(decoded);</span>
+<span class="nc" id="L141">    ensureAccount();</span>
+<span class="nc" id="L142">    final NettyConnectStrategy connectStrategy = new NettyConnectStrategy();</span>
+<span class="nc" id="L143">    final HostnameAndPort hostnameAndPort = HostnameAndPort.of(endpoint);</span>
+<span class="nc" id="L144">    try (final AergoClient client = new AergoClient(connectStrategy.connect(hostnameAndPort))) {</span>
+<span class="nc" id="L145">      final ContractOperation contractOperation = client.getContractOperation();</span>
+<span class="nc" id="L146">      final ContractTxReceipt contractTxReceipt =</span>
+<span class="nc" id="L147">          contractOperation.getReceipt(contractTxHash).getResult();</span>
+<span class="nc" id="L148">      logger.debug(&quot;Receipt: {}&quot;, contractTxReceipt);</span>
+<span class="nc" id="L149">      final ContractAddress contractAddress = contractTxReceipt.getContractAddress();</span>
+<span class="nc" id="L150">      final DeploymentResult deploymentResult =</span>
+<span class="nc" id="L151">          encodedContractTxHash2contractAddresses.get(encodedContractTxHash);</span>
+<span class="nc" id="L152">      final ContractFunction contractFunction = deploymentResult.getContractInterface()</span>
+<span class="nc" id="L153">          .findFunctionByName(functionName)</span>
+<span class="nc" id="L154">          .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;No &quot; + functionName + &quot; function.&quot;));</span>
+
+<span class="nc" id="L156">      logger.trace(&quot;Executing...&quot;);</span>
+<span class="nc" id="L157">      final ContractTxHash executionContractHash = contractOperation.execute(</span>
+<span class="nc" id="L158">          account.getAddress(),</span>
+          contractAddress,
+          contractFunction,
+          args
+<span class="nc" id="L162">      ).getResult();</span>
+
+<span class="nc" id="L164">      final ExecutionResult executionResult = new ExecutionResult();</span>
+<span class="nc" id="L165">      executionResult.setContractTransactionHash(executionContractHash.getEncodedValue());</span>
+<span class="nc" id="L166">      return executionResult;</span>
+    }
+  }
+
+  /**
+   * Query smart contract.
+   *
+   * @param encodedContractTxHash contract transaction hash
+   * @param functionName          function's name to execute
+   * @param args                  function's arguments to execute
+   *
+   * @return query result
+   *
+   * @throws IOException Fail to query
+   */
+  public QueryResult query(final String encodedContractTxHash, final String functionName,
+      final Object... args) throws IOException {
+<span class="nc" id="L183">    logger.trace(&quot;Encoded tx hash: {}&quot;, encodedContractTxHash);</span>
+<span class="nc" id="L184">    final byte[] decoded = from(defaultDecoder.decode(new StringReader(encodedContractTxHash)));</span>
+<span class="nc" id="L185">    logger.debug(&quot;Decoded contract hash:\n{}&quot;, HexUtils.dump(decoded));</span>
+<span class="nc" id="L186">    final ContractTxHash contractTxHash = ContractTxHash.of(decoded);</span>
+<span class="nc" id="L187">    ensureAccount();</span>
+<span class="nc" id="L188">    final NettyConnectStrategy connectStrategy = new NettyConnectStrategy();</span>
+<span class="nc" id="L189">    final HostnameAndPort hostnameAndPort = HostnameAndPort.of(endpoint);</span>
+<span class="nc" id="L190">    try (final AergoClient client = new AergoClient(connectStrategy.connect(hostnameAndPort))) {</span>
+<span class="nc" id="L191">      final ContractOperation contractOperation = client.getContractOperation();</span>
+<span class="nc" id="L192">      final ContractTxReceipt contractTxReceipt =</span>
+<span class="nc" id="L193">          contractOperation.getReceipt(contractTxHash).getResult();</span>
+<span class="nc" id="L194">      logger.debug(&quot;Receipt: {}&quot;, contractTxReceipt);</span>
+<span class="nc" id="L195">      final ContractAddress contractAddress = contractTxReceipt.getContractAddress();</span>
+<span class="nc" id="L196">      final DeploymentResult deploymentResult =</span>
+<span class="nc" id="L197">          encodedContractTxHash2contractAddresses.get(encodedContractTxHash);</span>
+<span class="nc" id="L198">      final ContractFunction contractFunction = deploymentResult.getContractInterface()</span>
+<span class="nc" id="L199">          .findFunctionByName(functionName)</span>
+<span class="nc" id="L200">          .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;No &quot; + functionName + &quot; function.&quot;));</span>
+
+<span class="nc" id="L202">      logger.trace(&quot;Querying...&quot;);</span>
+<span class="nc" id="L203">      final Object obj = contractOperation.query(contractAddress, contractFunction, args)</span>
+<span class="nc" id="L204">          .getResult();</span>
+<span class="nc" id="L205">      return new QueryResult(obj);</span>
+    }
+  }
+
+  /**
+   * Get latest contract.
+   *
+   * @return latest deployed contract
+   */
+  public DeploymentResult getLatestContractInformation() {
+<span class="nc bnc" id="L215" title="All 2 branches missed.">    if (deployHistory.isEmpty()) {</span>
+<span class="nc" id="L216">      throw new ResourceNotFoundException(&quot;No deployment!! Deploy your contract first.&quot;);</span>
+    }
+<span class="nc" id="L218">    final DeploymentResult latest = deployHistory.get(deployHistory.size() - 1);</span>
+<span class="nc" id="L219">    logger.debug(&quot;Latest deployment: {}&quot;, latest);</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">    if (null == latest.getContractInterface()) {</span>
+<span class="nc" id="L221">      final String encodedContractTxHash = latest.getEncodedContractTransactionHash();</span>
+<span class="nc" id="L222">      logger.trace(&quot;Encoded tx hash: {}&quot;, encodedContractTxHash);</span>
+      try {
+<span class="nc" id="L224">        final byte[] decoded = from(defaultDecoder.decode(new StringReader(encodedContractTxHash)));</span>
+<span class="nc" id="L225">        logger.debug(&quot;Decoded contract hash:\n{}&quot;, HexUtils.dump(decoded));</span>
+<span class="nc" id="L226">        final ContractTxHash contractTxHash = ContractTxHash.of(decoded);</span>
+<span class="nc" id="L227">        final ContractInferface contractInferface = getInterface(contractTxHash);</span>
+<span class="nc" id="L228">        latest.setContractInterface(contractInferface);</span>
+<span class="nc" id="L229">      } catch (IOException ex) {</span>
+<span class="nc" id="L230">        throw new ResourceNotFoundException(latest + &quot; not found.&quot;);</span>
+<span class="nc" id="L231">      }</span>
+    }
+<span class="nc" id="L233">    return latest;</span>
+  }
+
+  /**
+   * Get application blockchain interface for {@code encodedContractTransactionHash}
+   * from {@code endpoint}.
+   *
+   * @param contractTxHash contract's transaction hash
+   *
+   * @return abi set
+   */
+  public ContractInferface getInterface(final ContractTxHash contractTxHash) {
+<span class="nc" id="L245">    final NettyConnectStrategy connectStrategy = new NettyConnectStrategy();</span>
+<span class="nc" id="L246">    final HostnameAndPort hostnameAndPort = HostnameAndPort.of(endpoint);</span>
+<span class="nc" id="L247">    try (final AergoClient client = new AergoClient(connectStrategy.connect(hostnameAndPort))) {</span>
+<span class="nc" id="L248">      final ContractOperation contractOperation = client.getContractOperation();</span>
+<span class="nc" id="L249">      return contractOperation.getReceipt(contractTxHash)</span>
+<span class="nc" id="L250">          .map(ContractTxReceipt::getContractAddress)</span>
+<span class="nc" id="L251">          .flatMap(contractOperation::getContractInterface)</span>
+<span class="nc" id="L252">          .getOrThrows(() -&gt; new ResourceNotFoundException(</span>
+<span class="nc" id="L253">              &quot;Application Binary Interface not found for &quot; + contractTxHash.toString()));</span>
+    }
+  }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

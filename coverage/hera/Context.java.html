@@ -65,11 +65,11 @@ import lombok.Setter;
 <span class="fc bfc" id="L65" title="All 2 branches covered.">    if (unusedOptional.isPresent()) {</span>
 <span class="fc" id="L66">      final StrategyT unused = unusedOptional.get();</span>
 <span class="fc" id="L67">      strategies.remove(unused);</span>
-<span class="fc bfc" id="L68" title="All 2 branches covered.">      if (unused instanceof Configurable) {</span>
-<span class="fc" id="L69">        ((Configurable) unused).setConfiguration(configuration);</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">      if (unused instanceof Configurable) {</span>
+<span class="nc" id="L69">        ((Configurable) unused).setConfiguration(configuration);</span>
       }
-<span class="fc bfc" id="L71" title="All 2 branches covered.">      if (unused instanceof ContextAware) {</span>
-<span class="fc" id="L72">        ((ContextAware) unused).setContext(this);</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">      if (unused instanceof ContextAware) {</span>
+<span class="nc" id="L72">        ((ContextAware) unused).setContext(this);</span>
       }
 <span class="fc" id="L74">      usings.add(unused);</span>
     }

@@ -9,8 +9,10 @@ import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.Block;
+import hera.api.model.BlockHash;
 import hera.api.model.Hash;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import java.util.List;
 import java.util.function.Function;
 import org.slf4j.Logger;
@@ -19,64 +21,64 @@ import types.Blockchain.BlockBody;
 import types.Blockchain.BlockHeader;
 import types.Blockchain.Tx;
 
-<span class="fc" id="L22">public class BlockConverterFactory {</span>
+<span class="fc" id="L24">public class BlockConverterFactory {</span>
 
-<span class="fc" id="L24">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L26">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L26">  protected final ModelConverter&lt;Transaction, Tx&gt; transactionConverter =</span>
-<span class="fc" id="L27">      new TransactionConverterFactory().create();</span>
+<span class="fc" id="L28">  protected final ModelConverter&lt;Transaction, Tx&gt; transactionConverter =</span>
+<span class="fc" id="L29">      new TransactionConverterFactory().create();</span>
 
-<span class="fc" id="L29">  protected final Function&lt;Block, Blockchain.Block&gt; domainConverter = domainBlock -&gt; {</span>
-<span class="fc" id="L30">    logger.trace(&quot;Domain status: {}&quot;, domainBlock);</span>
+<span class="fc" id="L31">  protected final Function&lt;Block, Blockchain.Block&gt; domainConverter = domainBlock -&gt; {</span>
+<span class="fc" id="L32">    logger.trace(&quot;Domain status: {}&quot;, domainBlock);</span>
 
-<span class="fc" id="L32">    final BlockHeader blockHeader = BlockHeader.newBuilder()</span>
-<span class="fc" id="L33">        .setPrevBlockHash(copyFrom(domainBlock.getPreviousBlockHash()))</span>
-<span class="fc" id="L34">        .setBlockNo(domainBlock.getBlockNumber())</span>
-<span class="fc" id="L35">        .setTimestamp(domainBlock.getTimestamp())</span>
-<span class="fc" id="L36">        .setBlocksRootHash(copyFrom(domainBlock.getRootHash()))</span>
-<span class="fc" id="L37">        .setTxsRootHash(copyFrom(domainBlock.getTransactionsRootHash()))</span>
-<span class="fc" id="L38">        .setPubKey(copyFrom(domainBlock.getPublicKey()))</span>
-<span class="fc" id="L39">        .setSign(copyFrom(domainBlock.getSign()))</span>
-<span class="fc" id="L40">        .build();</span>
+<span class="fc" id="L34">    final BlockHeader blockHeader = BlockHeader.newBuilder()</span>
+<span class="fc" id="L35">        .setPrevBlockHash(copyFrom(domainBlock.getPreviousHash()))</span>
+<span class="fc" id="L36">        .setBlockNo(domainBlock.getBlockNumber())</span>
+<span class="fc" id="L37">        .setTimestamp(domainBlock.getTimestamp())</span>
+<span class="fc" id="L38">        .setBlocksRootHash(copyFrom(domainBlock.getRootHash()))</span>
+<span class="fc" id="L39">        .setTxsRootHash(copyFrom(domainBlock.getTxRootHash()))</span>
+<span class="fc" id="L40">        .setPubKey(copyFrom(domainBlock.getPublicKey()))</span>
+<span class="fc" id="L41">        .setSign(copyFrom(domainBlock.getSign()))</span>
+<span class="fc" id="L42">        .build();</span>
 
-<span class="fc" id="L42">    final List&lt;Blockchain.Tx&gt; rpcTransactions = domainBlock.getTransactions().stream()</span>
-<span class="fc" id="L43">        .map(transactionConverter::convertToRpcModel)</span>
-<span class="fc" id="L44">        .collect(toList());</span>
-<span class="fc" id="L45">    final BlockBody blockBody = BlockBody.newBuilder()</span>
-<span class="fc" id="L46">        .addAllTxs(rpcTransactions)</span>
-<span class="fc" id="L47">        .build();</span>
+<span class="fc" id="L44">    final List&lt;Blockchain.Tx&gt; rpcTransactions = domainBlock.getTransactions().stream()</span>
+<span class="fc" id="L45">        .map(transactionConverter::convertToRpcModel)</span>
+<span class="fc" id="L46">        .collect(toList());</span>
+<span class="fc" id="L47">    final BlockBody blockBody = BlockBody.newBuilder()</span>
+<span class="fc" id="L48">        .addAllTxs(rpcTransactions)</span>
+<span class="fc" id="L49">        .build();</span>
 
-<span class="fc" id="L49">    return Blockchain.Block.newBuilder()</span>
-<span class="fc" id="L50">        .setHash(copyFrom(domainBlock.getHash()))</span>
-<span class="fc" id="L51">        .setHeader(blockHeader)</span>
-<span class="fc" id="L52">        .setBody(blockBody)</span>
-<span class="fc" id="L53">        .build();</span>
+<span class="fc" id="L51">    return Blockchain.Block.newBuilder()</span>
+<span class="fc" id="L52">        .setHash(copyFrom(domainBlock.getHash()))</span>
+<span class="fc" id="L53">        .setHeader(blockHeader)</span>
+<span class="fc" id="L54">        .setBody(blockBody)</span>
+<span class="fc" id="L55">        .build();</span>
   };
 
-<span class="fc" id="L56">  protected final Function&lt;Blockchain.Block, Block&gt; rpcConverter = rpcBlock -&gt; {</span>
-<span class="fc" id="L57">    logger.trace(&quot;Blockchain status: {}&quot;, rpcBlock);</span>
+<span class="fc" id="L58">  protected final Function&lt;Blockchain.Block, Block&gt; rpcConverter = rpcBlock -&gt; {</span>
+<span class="fc" id="L59">    logger.trace(&quot;Blockchain status: {}&quot;, rpcBlock);</span>
 
-<span class="fc" id="L59">    final BlockHeader rpcBlockHeader = rpcBlock.getHeader();</span>
-<span class="fc" id="L60">    final BlockBody rpcBlockBody = rpcBlock.getBody();</span>
+<span class="fc" id="L61">    final BlockHeader rpcBlockHeader = rpcBlock.getHeader();</span>
+<span class="fc" id="L62">    final BlockBody rpcBlockBody = rpcBlock.getBody();</span>
 
-<span class="fc" id="L62">    final Block domainBlock = new Block();</span>
-<span class="fc" id="L63">    domainBlock.setHash(new Hash(rpcBlock.getHash().toByteArray()));</span>
-<span class="fc" id="L64">    domainBlock.setBlockNumber(rpcBlockHeader.getBlockNo());</span>
-<span class="fc" id="L65">    domainBlock.setRootHash(new Hash(rpcBlockHeader.getBlocksRootHash().toByteArray()));</span>
-<span class="fc" id="L66">    domainBlock.setTimestamp(rpcBlockHeader.getTimestamp());</span>
-<span class="fc" id="L67">    domainBlock.setPreviousBlockHash(new Hash(rpcBlockHeader.getPrevBlockHash().toByteArray()));</span>
-<span class="fc" id="L68">    domainBlock.setTransactionsRootHash(new Hash(rpcBlockHeader.getTxsRootHash().toByteArray()));</span>
-<span class="fc" id="L69">    domainBlock.setPublicKey(new Hash(rpcBlockHeader.getPubKey().toByteArray()));</span>
-<span class="fc" id="L70">    domainBlock.setSign(new Hash(rpcBlockHeader.getSign().toByteArray()));</span>
+<span class="fc" id="L64">    final Block domainBlock = new Block();</span>
+<span class="fc" id="L65">    domainBlock.setHash(new BlockHash(rpcBlock.getHash().toByteArray()));</span>
+<span class="fc" id="L66">    domainBlock.setBlockNumber(rpcBlockHeader.getBlockNo());</span>
+<span class="fc" id="L67">    domainBlock.setRootHash(new BlockHash(rpcBlockHeader.getBlocksRootHash().toByteArray()));</span>
+<span class="fc" id="L68">    domainBlock.setTimestamp(rpcBlockHeader.getTimestamp());</span>
+<span class="fc" id="L69">    domainBlock.setPreviousHash(new BlockHash(rpcBlockHeader.getPrevBlockHash().toByteArray()));</span>
+<span class="fc" id="L70">    domainBlock.setTxRootHash(new TxHash(rpcBlockHeader.getTxsRootHash().toByteArray()));</span>
+<span class="fc" id="L71">    domainBlock.setPublicKey(new Hash(rpcBlockHeader.getPubKey().toByteArray()));</span>
+<span class="fc" id="L72">    domainBlock.setSign(new Hash(rpcBlockHeader.getSign().toByteArray()));</span>
 
-<span class="fc" id="L72">    final List&lt;Transaction&gt; transactions = rpcBlockBody.getTxsList().stream()</span>
-<span class="fc" id="L73">        .map(transactionConverter::convertToDomainModel).collect(toList());</span>
-<span class="fc" id="L74">    domainBlock.setTransactions(transactions);</span>
-<span class="fc" id="L75">    return domainBlock;</span>
+<span class="fc" id="L74">    final List&lt;Transaction&gt; transactions = rpcBlockBody.getTxsList().stream()</span>
+<span class="fc" id="L75">        .map(transactionConverter::convertToDomainModel).collect(toList());</span>
+<span class="fc" id="L76">    domainBlock.setTransactions(transactions);</span>
+<span class="fc" id="L77">    return domainBlock;</span>
   };
 
   public ModelConverter&lt;Block, Blockchain.Block&gt; create() {
-<span class="fc" id="L79">    return new ModelConverter&lt;&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L81">    return new ModelConverter&lt;&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

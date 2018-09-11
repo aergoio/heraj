@@ -20,11 +20,9 @@ public class BuildResource extends Resource {
 <span class="nc" id="L20">    final ProjectFile projectFile = project.getProjectFile();</span>
 
 <span class="nc" id="L22">    final ArrayList&lt;Resource&gt; dependencies = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L23">    dependencies.addAll(super.getDependencies(resourceManager));</span>
+<span class="nc" id="L23">    dependencies.add(resourceManager.getResource(projectFile.getSource()));</span>
 
-<span class="nc" id="L25">    dependencies.add(resourceManager.getResource(projectFile.getSource()));</span>
-
-<span class="nc" id="L27">    return dependencies;</span>
+<span class="nc" id="L25">    return dependencies;</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

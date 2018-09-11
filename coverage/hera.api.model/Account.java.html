@@ -4,27 +4,29 @@
 
 package hera.api.model;
 
+import hera.util.Adaptor;
+import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-<span class="nc" id="L11">@ToString</span>
-<span class="fc" id="L12">public class Account {</span>
+<span class="fc" id="L13">@ToString</span>
+<span class="fc" id="L14">public class Account implements Adaptor {</span>
 
-<span class="fc" id="L14">  @Getter</span>
-<span class="fc" id="L15">  @Setter</span>
+<span class="fc" id="L16">  @Getter</span>
+<span class="fc" id="L17">  @Setter</span>
   protected AccountAddress address = new AccountAddress(null);
 
-<span class="fc" id="L18">  @Getter</span>
-<span class="fc" id="L19">  @Setter</span>
+<span class="fc" id="L20">  @Getter</span>
+<span class="fc" id="L21">  @Setter</span>
   protected String password;
 
-<span class="nc" id="L22">  @Getter</span>
-<span class="fc" id="L23">  @Setter</span>
+<span class="fc" id="L24">  @Getter</span>
+<span class="fc" id="L25">  @Setter</span>
   protected long nonce;
 
-<span class="nc" id="L26">  @Getter</span>
-<span class="fc" id="L27">  @Setter</span>
+<span class="fc" id="L28">  @Getter</span>
+<span class="fc" id="L29">  @Setter</span>
   protected long balance;
 
   /**
@@ -36,7 +38,7 @@ import lombok.ToString;
    * @return created account
    */
   public static Account of(final byte[] address, final String password) {
-<span class="fc" id="L39">    return of(AccountAddress.of(address), password);</span>
+<span class="fc" id="L41">    return of(AccountAddress.of(address), password);</span>
   }
 
   /**
@@ -48,10 +50,21 @@ import lombok.ToString;
    * @return created account
    */
   public static Account of(AccountAddress address, final String password) {
-<span class="fc" id="L51">    final Account account = new Account();</span>
-<span class="fc" id="L52">    account.setAddress(address);</span>
-<span class="fc" id="L53">    account.setPassword(password);</span>
-<span class="fc" id="L54">    return account;</span>
+<span class="fc" id="L53">    final Account account = new Account();</span>
+<span class="fc" id="L54">    account.setAddress(address);</span>
+<span class="fc" id="L55">    account.setPassword(password);</span>
+<span class="fc" id="L56">    return account;</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  @Override
+  public &lt;T&gt; Optional&lt;T&gt; adapt(Class&lt;T&gt; adaptor) {
+<span class="nc bnc" id="L62" title="All 2 branches missed.">    if (adaptor.isAssignableFrom(Account.class)) {</span>
+<span class="nc" id="L63">      return (Optional&lt;T&gt;) Optional.of(this);</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">    } else if (adaptor.isAssignableFrom(AccountAddress.class)) {</span>
+<span class="nc" id="L65">      return (Optional&lt;T&gt;) Optional.of(getAddress());</span>
+    }
+<span class="nc" id="L67">    return Optional.empty();</span>
   }
 
 }

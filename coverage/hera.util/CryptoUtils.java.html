@@ -48,11 +48,11 @@ import javax.crypto.spec.SecretKeySpec;
    * @return secret to be created
    */
   public static SecretKeySpec createSecret(final byte[] password, final int length) {
-<span class="fc" id="L51">    final byte[] fixedLengthPassword = new byte[length];</span>
-<span class="fc" id="L52">    Arrays.fill(fixedLengthPassword, (byte) 0);</span>
-<span class="fc" id="L53">    arraycopy(password, 0, fixedLengthPassword, 0,</span>
-<span class="fc" id="L54">        Math.min(fixedLengthPassword.length, password.length));</span>
-<span class="fc" id="L55">    return new SecretKeySpec(fixedLengthPassword, &quot;AES&quot;);</span>
+<span class="nc" id="L51">    final byte[] fixedLengthPassword = new byte[length];</span>
+<span class="nc" id="L52">    Arrays.fill(fixedLengthPassword, (byte) 0);</span>
+<span class="nc" id="L53">    arraycopy(password, 0, fixedLengthPassword, 0,</span>
+<span class="nc" id="L54">        Math.min(fixedLengthPassword.length, password.length));</span>
+<span class="nc" id="L55">    return new SecretKeySpec(fixedLengthPassword, &quot;AES&quot;);</span>
   }
 
 

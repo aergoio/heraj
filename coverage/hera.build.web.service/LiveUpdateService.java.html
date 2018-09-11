@@ -42,7 +42,7 @@ import java.util.Set;
    */
   public void notifyChange(final Object message) throws IOException {
 <span class="fc" id="L44">    final String text = new ObjectMapper().writeValueAsString(message);</span>
-<span class="fc" id="L45">    logger.debug(&quot;{} receiver(s)&quot;, sessions.size());</span>
+<span class="fc" id="L45">    logger.info(&quot;{} receiver(s)&quot;, sessions.size());</span>
 <span class="pc bpc" id="L46" title="1 of 2 branches missed.">    for (final LiveUpdateSession session : sessions) {</span>
       try {
 <span class="nc" id="L48">        session.getRemote().sendString(text);</span>

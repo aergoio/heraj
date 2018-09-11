@@ -16,9 +16,9 @@ import com.google.protobuf.ByteString;
 import hera.FutureChainer;
 import hera.api.TransactionAsyncOperation;
 import hera.api.model.BytesValue;
-import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.exception.CommitException;
 import hera.exception.TransactionVerificationException;
@@ -59,10 +59,10 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
 <span class="nc" id="L59">  }</span>
 
   @Override
-  public ResultOrErrorFuture&lt;Transaction&gt; getTransaction(final Hash hash) {
+  public ResultOrErrorFuture&lt;Transaction&gt; getTransaction(final TxHash txHash) {
 <span class="fc" id="L63">    ResultOrErrorFuture&lt;Transaction&gt; nextFuture = new ResultOrErrorFuture&lt;&gt;();</span>
 
-<span class="fc" id="L65">    final ByteString byteString = copyFrom(hash);</span>
+<span class="fc" id="L65">    final ByteString byteString = copyFrom(txHash);</span>
 <span class="fc" id="L66">    final SingleBytes hashBytes = SingleBytes.newBuilder().setValue(byteString).build();</span>
 <span class="fc" id="L67">    ListenableFuture&lt;TxInBlock&gt; listenableFuture = aergoService.getBlockTX(hashBytes);</span>
 <span class="fc" id="L68">    FutureChainer&lt;TxInBlock, Transaction&gt; callback = new FutureChainer&lt;TxInBlock, Transaction&gt;(</span>
@@ -93,9 +93,9 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
 <span class="nc" id="L93">      final BytesValue sign = ofNullable(tx.getBody().getSign()).map(ByteString::toByteArray)</span>
 <span class="nc bnc" id="L94" title="All 2 branches missed.">          .filter(bytes -&gt; 0 != bytes.length).map(BytesValue::of)</span>
 <span class="nc" id="L95">          .orElseThrow(IllegalArgumentException::new);</span>
-<span class="nc" id="L96">      final Hash hash =</span>
+<span class="nc" id="L96">      final TxHash hash =</span>
 <span class="nc bnc" id="L97" title="All 2 branches missed.">          ofNullable(tx.getHash()).map(ByteString::toByteArray).filter(bytes -&gt; 0 != bytes.length)</span>
-<span class="nc" id="L98">              .map(Hash::new).orElseThrow(IllegalArgumentException::new);</span>
+<span class="nc" id="L98">              .map(TxHash::new).orElseThrow(IllegalArgumentException::new);</span>
 <span class="nc" id="L99">      return Signature.of(sign, hash);</span>
     });
 <span class="fc" id="L101">    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());</span>
@@ -126,15 +126,15 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
   }
 
   @Override
-  public ResultOrErrorFuture&lt;Hash&gt; commit(final Transaction transaction) {
-<span class="fc" id="L130">    ResultOrErrorFuture&lt;Hash&gt; nextFuture = new ResultOrErrorFuture&lt;&gt;();</span>
+  public ResultOrErrorFuture&lt;TxHash&gt; commit(final Transaction transaction) {
+<span class="fc" id="L130">    ResultOrErrorFuture&lt;TxHash&gt; nextFuture = new ResultOrErrorFuture&lt;&gt;();</span>
 
 <span class="fc" id="L132">    final Tx tx = transactionConverter.convertToRpcModel(transaction);</span>
 <span class="fc" id="L133">    final TxList txList = TxList.newBuilder().addTxs(tx).build();</span>
 <span class="fc" id="L134">    ListenableFuture&lt;CommitResultList&gt; listenableFuture = aergoService.commitTX(txList);</span>
-<span class="fc" id="L135">    FutureChainer&lt;CommitResultList, Hash&gt; callback = new FutureChainer&lt;CommitResultList, Hash&gt;(</span>
+<span class="fc" id="L135">    FutureChainer&lt;CommitResultList, TxHash&gt; callback = new FutureChainer&lt;CommitResultList, TxHash&gt;(</span>
 <span class="nc" id="L136">        nextFuture, commitResultList -&gt; commitResultList.getResultsList().stream()</span>
-<span class="pc" id="L137">            .map(r -&gt; r.getHash().toByteArray()).map(Hash::new).findFirst().get()) {</span>
+<span class="pc" id="L137">            .map(r -&gt; r.getHash().toByteArray()).map(TxHash::new).findFirst().get()) {</span>
       @Override
       public void onSuccess(CommitResultList t) {
 <span class="nc" id="L140">        final Rpc.CommitResult commitResult = t.getResults(0);</span>

@@ -7,8 +7,8 @@ package hera.transport;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.model.BlockHash;
 import hera.api.model.BlockchainStatus;
-import hera.api.model.Hash;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Rpc;
@@ -32,7 +32,7 @@ import types.Rpc;
 <span class="fc" id="L32">        final BlockchainStatus domainBlockchainStatus = new BlockchainStatus();</span>
 <span class="fc" id="L33">        domainBlockchainStatus.setBestHeight(rpcBlockchainStatus.getBestHeight());</span>
 <span class="fc" id="L34">        domainBlockchainStatus.setBestBlockHash(</span>
-<span class="fc" id="L35">            new Hash(rpcBlockchainStatus.getBestBlockHash().toByteArray()));</span>
+<span class="fc" id="L35">            new BlockHash(rpcBlockchainStatus.getBestBlockHash().toByteArray()));</span>
 <span class="fc" id="L36">        return domainBlockchainStatus;</span>
       };
 

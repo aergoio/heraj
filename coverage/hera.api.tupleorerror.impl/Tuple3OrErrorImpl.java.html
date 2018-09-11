@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Tuple3OrErrorImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.tupleorerror.impl</a> &gt; <span class="el_source">Tuple3OrErrorImpl.java</span></div><h1>Tuple3OrErrorImpl.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.api.tupleorerror.impl;
+
+import static hera.api.tupleorerror.FunctionChain.fail;
+import static hera.api.tupleorerror.FunctionChain.success;
+
+import hera.api.tupleorerror.Consumer3;
+import hera.api.tupleorerror.Function3;
+import hera.api.tupleorerror.Predicate3;
+import hera.api.tupleorerror.ResultOrError;
+import hera.api.tupleorerror.Tuple3OrError;
+import hera.exception.HerajException;
+import java.util.Arrays;
+import java.util.Objects;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L23">@RequiredArgsConstructor(access = AccessLevel.PRIVATE)</span>
+public class Tuple3OrErrorImpl&lt;T1, T2, T3&gt; implements Tuple3OrError&lt;T1, T2, T3&gt; {
+
+  protected final T1 v1;
+
+  protected final T2 v2;
+
+  protected final T3 v3;
+
+<span class="fc" id="L32">  @Getter</span>
+  protected final Throwable error;
+
+  /**
+   * Tuple3OrErrorImpl constructor with values.
+   * 
+   * @param v1 1st value
+   * @param v2 2nd value
+   * @param v3 3rd value
+   */
+  public Tuple3OrErrorImpl(T1 v1, T2 v2, T3 v3) {
+<span class="fc" id="L43">    this(v1, v2, v3, null);</span>
+<span class="fc" id="L44">  }</span>
+
+  /**
+   * Tuple3OrErrorImpl constructor with error.
+   * 
+   * @param error an error
+   */
+  public Tuple3OrErrorImpl(Throwable error) {
+<span class="nc" id="L52">    this(null, null, null, error);</span>
+<span class="nc" id="L53">  }</span>
+
+  @Override
+  public T1 get1() {
+<span class="nc bnc" id="L57" title="All 2 branches missed.">    if (hasError()) {</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">      throw error instanceof HerajException ? (HerajException) error : new HerajException(error);</span>
+    }
+<span class="nc" id="L60">    return v1;</span>
+  }
+
+  @Override
+  public T2 get2() {
+<span class="nc bnc" id="L65" title="All 2 branches missed.">    if (hasError()) {</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">      throw error instanceof HerajException ? (HerajException) error : new HerajException(error);</span>
+    }
+<span class="nc" id="L68">    return v2;</span>
+  }
+
+  @Override
+  public T3 get3() {
+<span class="nc bnc" id="L73" title="All 2 branches missed.">    if (hasError()) {</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">      throw error instanceof HerajException ? (HerajException) error : new HerajException(error);</span>
+    }
+<span class="nc" id="L76">    return v3;</span>
+  }
+
+  @Override
+  public void ifPresent(Consumer3&lt;? super T1, ? super T2, ? super T3&gt; consumer) {
+<span class="nc bnc" id="L81" title="All 2 branches missed.">    if (!hasError()) {</span>
+<span class="nc" id="L82">      consumer.accept(v1, v2, v3);</span>
+    }
+<span class="nc" id="L84">  }</span>
+
+  @Override
+  public Tuple3OrError&lt;T1, T2, T3&gt; filter(
+      Predicate3&lt;? super T1, ? super T2, ? super T3&gt; predicate) {
+<span class="nc" id="L89">    Objects.requireNonNull(predicate);</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">    if (!hasError()) {</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">      return predicate.test(v1, v2, v3) ? this</span>
+          : new Tuple3OrErrorImpl&lt;&gt;(new HerajException(&quot;No such element matching predicate&quot;));
+    } else {
+<span class="nc" id="L94">      return this;</span>
+    }
+  }
+
+
+  @Override
+  public &lt;R&gt; ResultOrError&lt;R&gt; map(Function3&lt;? super T1, ? super T2, ? super T3, ? extends R&gt; fn) {
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">    if (!hasError()) {</span>
+      try {
+<span class="fc" id="L103">        R next = fn.apply(v1, v2, v3);</span>
+<span class="fc" id="L104">        return success(next);</span>
+<span class="nc" id="L105">      } catch (Throwable e) {</span>
+<span class="nc" id="L106">        return fail(e);</span>
+      }
+    }
+<span class="nc" id="L109">    return fail(getError());</span>
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+<span class="nc bnc" id="L114" title="All 2 branches missed.">    if (this == obj) {</span>
+<span class="nc" id="L115">      return true;</span>
+    }
+<span class="nc bnc" id="L117" title="All 2 branches missed.">    if (!(obj instanceof Tuple3OrErrorImpl)) {</span>
+<span class="nc" id="L118">      return false;</span>
+    }
+
+<span class="nc" id="L121">    Tuple3OrErrorImpl&lt;?, ?, ?&gt; other = (Tuple3OrErrorImpl&lt;?, ?, ?&gt;) obj;</span>
+<span class="nc bnc" id="L122" title="All 4 branches missed.">    return Objects.equals(v1, other.v1) &amp;&amp; Objects.equals(v2, other.v2)</span>
+<span class="nc bnc" id="L123" title="All 4 branches missed.">        &amp;&amp; Objects.equals(v3, other.v3) &amp;&amp; Objects.equals(error, other.error);</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="nc" id="L128">    return Arrays.hashCode(new Object[] {v1, v2, v3, error});</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="nc bnc" id="L133" title="All 2 branches missed.">    return !hasError() ? String.format(&quot;Tuple[%s, %s, %s]&quot;, v1, v2, v3)</span>
+<span class="nc" id="L134">        : String.format(&quot;Error[%s]&quot;, error);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

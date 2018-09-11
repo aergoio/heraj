@@ -43,10 +43,10 @@ public class FutureChainer&lt;T, R&gt; implements FutureCallback&lt;T&gt; {
 
   @Override
   public void onFailure(Throwable e) {
-<span class="nc" id="L46">    logger.trace(&quot;Error: {}&quot;, e);</span>
+<span class="nc" id="L46">    logger.trace(&quot;Error: {}&quot;, e.toString());</span>
 <span class="nc" id="L47">    final RpcException convertedError = Optional.of(findStatusRuntimeException(e))</span>
 <span class="nc" id="L48">        .filter(t -&gt; t instanceof StatusRuntimeException).map(StatusRuntimeException.class::cast)</span>
-<span class="nc bnc" id="L49" title="All 2 branches missed.">        .filter(s -&gt; null != s.getStatus()).map(s -&gt; s.getStatus().getCode()).map(c -&gt; {</span>
+<span class="nc bnc" id="L49" title="All 4 branches missed.">        .filter(s -&gt; null != s.getStatus()).map(s -&gt; s.getStatus().getCode()).map(c -&gt; {</span>
 <span class="nc bnc" id="L50" title="All 3 branches missed.">          switch (c) {</span>
             case UNAVAILABLE:
 <span class="nc" id="L52">              return new RpcConnectionException(e);</span>
@@ -55,7 +55,7 @@ public class FutureChainer&lt;T, R&gt; implements FutureCallback&lt;T&gt; {
             default:
 <span class="nc" id="L56">              return new RpcException(e);</span>
           }
-<span class="nc" id="L58">        }).orElse(new RpcException(e));</span>
+<span class="nc" id="L58">        }).orElse(e instanceof RpcException ? (RpcException) e : new RpcException(e));</span>
 <span class="nc" id="L59">    nextFuture.complete(fail(convertedError));</span>
 <span class="nc" id="L60">  }</span>
 

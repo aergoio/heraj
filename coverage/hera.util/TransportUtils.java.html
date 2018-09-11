@@ -6,9 +6,12 @@ package hera.util;
 
 import com.google.protobuf.ByteString;
 import hera.api.model.BytesValue;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 
-<span class="nc" id="L11">public class TransportUtils {</span>
+<span class="nc" id="L14">public class TransportUtils {</span>
 
   /**
    * Transform {@link BytesValue} to {@link ByteString} in protobuf. If either bytesValue or value
@@ -18,10 +21,10 @@ import java.nio.ByteBuffer;
    * @return protobuf {@link ByteString}
    */
   public static ByteString copyFrom(final BytesValue bytesValue) {
-<span class="pc bpc" id="L21" title="1 of 4 branches missed.">    if (null != bytesValue &amp;&amp; null != bytesValue.getValue()) {</span>
-<span class="fc" id="L22">      return ByteString.copyFrom(bytesValue.getValue());</span>
+<span class="pc bpc" id="L24" title="1 of 4 branches missed.">    if (null != bytesValue &amp;&amp; null != bytesValue.getValue()) {</span>
+<span class="fc" id="L25">      return ByteString.copyFrom(bytesValue.getValue());</span>
     }
-<span class="fc" id="L24">    return ByteString.EMPTY;</span>
+<span class="fc" id="L27">    return ByteString.EMPTY;</span>
   }
 
   /**
@@ -31,12 +34,34 @@ import java.nio.ByteBuffer;
    * @return converted byte array in a little endian
    */
   public static byte[] longToByteArray(final long longValue) {
-<span class="fc" id="L34">    final ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);</span>
-<span class="fc bfc" id="L35" title="All 2 branches covered.">    for (int i = 0; i &lt; 8; ++i) {</span>
-<span class="fc" id="L36">      int shift = 8 * i;</span>
-<span class="fc" id="L37">      buffer.put((byte) (longValue &gt;&gt; shift));</span>
+<span class="fc" id="L37">    final ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">    for (int i = 0; i &lt; 8; ++i) {</span>
+<span class="fc" id="L39">      int shift = 8 * i;</span>
+<span class="fc" id="L40">      buffer.put((byte) (longValue &gt;&gt; shift));</span>
     }
-<span class="fc" id="L39">    return buffer.array();</span>
+<span class="fc" id="L42">    return buffer.array();</span>
+  }
+
+  /**
+   * Convert input stream to byte array.
+   *
+   * @param in input stream
+   * @return converted byte array
+   */
+  public static byte[] inputStreamToByteArray(final InputStream in) {
+<span class="fc" id="L52">    final ByteArrayOutputStream bos = new ByteArrayOutputStream();</span>
+<span class="fc" id="L53">    byte[] buffer = new byte[1024];</span>
+<span class="fc" id="L54">    int read = -1;</span>
+    try {
+<span class="fc bfc" id="L56" title="All 2 branches covered.">      while ((read = in.read(buffer)) != -1) {</span>
+<span class="fc" id="L57">        bos.write(buffer, 0, read);</span>
+      }
+<span class="fc" id="L59">      bos.close();</span>
+<span class="nc" id="L60">    } catch (IOException e) {</span>
+<span class="nc" id="L61">      throw new IllegalStateException(e);</span>
+<span class="fc" id="L62">    }</span>
+
+<span class="fc" id="L64">    return bos.toByteArray();</span>
   }
 
 }

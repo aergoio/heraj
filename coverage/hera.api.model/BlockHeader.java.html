@@ -8,15 +8,15 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-<span class="nc" id="L11">@ToString</span>
+<span class="fc" id="L11">@ToString</span>
 <span class="fc" id="L12">public class BlockHeader {</span>
 <span class="fc" id="L13">  @Getter</span>
 <span class="fc" id="L14">  @Setter</span>
-  protected Hash hash = new Hash(null);
+  protected BlockHash hash = new BlockHash(null);
 
 <span class="fc" id="L17">  @Getter</span>
 <span class="fc" id="L18">  @Setter</span>
-  protected Hash previousBlockHash = new Hash(null);
+  protected BlockHash previousHash = new BlockHash(null);
 
 <span class="fc" id="L21">  @Getter</span>
 <span class="fc" id="L22">  @Setter</span>
@@ -28,11 +28,11 @@ import lombok.ToString;
 
 <span class="fc" id="L29">  @Getter</span>
 <span class="fc" id="L30">  @Setter</span>
-  protected Hash rootHash = new Hash(null);
+  protected BlockHash rootHash = new BlockHash(null);
 
 <span class="fc" id="L33">  @Getter</span>
 <span class="fc" id="L34">  @Setter</span>
-  protected Hash transactionsRootHash = new Hash(null);
+  protected TxHash txRootHash = new TxHash(null);
 
 <span class="fc" id="L37">  @Getter</span>
 <span class="fc" id="L38">  @Setter</span>

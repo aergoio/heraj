@@ -20,8 +20,8 @@ public class TestResource extends Source {
 <span class="nc" id="L20">    final ProjectFile projectFile = project.getProjectFile();</span>
 
 <span class="nc" id="L22">    final ArrayList&lt;Resource&gt; dependencies = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L23">    dependencies.add(resourceManager.getResource(projectFile.getSource()));</span>
-<span class="nc" id="L24">    dependencies.addAll(super.getDependencies(resourceManager));</span>
+<span class="nc" id="L23">    dependencies.addAll(super.getDependencies(resourceManager));</span>
+<span class="nc" id="L24">    dependencies.add(resourceManager.getResource(projectFile.getSource()));</span>
 <span class="nc" id="L25">    return dependencies;</span>
   }
 }

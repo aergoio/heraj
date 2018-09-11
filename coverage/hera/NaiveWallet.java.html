@@ -9,16 +9,17 @@ import static hera.util.ValidationUtils.assertNull;
 import hera.api.AergoApi;
 import hera.api.TransactionOperation;
 import hera.api.model.Account;
+import hera.api.model.Authentication;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSAKeyGenerator;
 import java.io.Reader;
 
-<span class="nc" id="L18">public class NaiveWallet implements Wallet {</span>
+<span class="nc" id="L19">public class NaiveWallet implements Wallet {</span>
 
   public static Wallet newWallet() throws Exception {
-<span class="nc" id="L21">    return newWallet(ImplicitContext.get());</span>
+<span class="nc" id="L22">    return newWallet(ImplicitContext.get());</span>
   }
 
   /**
@@ -31,14 +32,14 @@ import java.io.Reader;
    * @throws Exception failure on creation
    */
   public static Wallet newWallet(final Context context) throws Exception {
-<span class="nc" id="L34">    final NaiveWallet wallet = new NaiveWallet();</span>
-<span class="nc" id="L35">    wallet.keyPair = new ECDSAKeyGenerator().create();</span>
-<span class="nc" id="L36">    wallet.bind(context);</span>
-<span class="nc" id="L37">    return wallet;</span>
+<span class="nc" id="L35">    final NaiveWallet wallet = new NaiveWallet();</span>
+<span class="nc" id="L36">    wallet.keyPair = new ECDSAKeyGenerator().create();</span>
+<span class="nc" id="L37">    wallet.bind(context);</span>
+<span class="nc" id="L38">    return wallet;</span>
   }
 
   public static Wallet importWallet(final byte[] encodedPrivateKey) throws Exception {
-<span class="nc" id="L41">    return importWallet(encodedPrivateKey, ImplicitContext.get());</span>
+<span class="nc" id="L42">    return importWallet(encodedPrivateKey, ImplicitContext.get());</span>
   }
 
   /**
@@ -53,9 +54,9 @@ import java.io.Reader;
    */
   public static Wallet importWallet(final byte[] encodedPrivateKey, final Context context)
       throws Exception {
-<span class="nc" id="L56">    final NaiveWallet wallet = new NaiveWallet();</span>
-<span class="nc" id="L57">    wallet.keyPair = new ECDSAKeyGenerator().create(encodedPrivateKey);</span>
-<span class="nc" id="L58">    return wallet;</span>
+<span class="nc" id="L57">    final NaiveWallet wallet = new NaiveWallet();</span>
+<span class="nc" id="L58">    wallet.keyPair = new ECDSAKeyGenerator().create(encodedPrivateKey);</span>
+<span class="nc" id="L59">    return wallet;</span>
   }
 
   protected Context context;
@@ -64,24 +65,24 @@ import java.io.Reader;
 
   @Override
   public void bind(final Context context) {
-<span class="nc" id="L67">    assertNull(this.context, &quot;The context already bound&quot;);</span>
-<span class="nc" id="L68">    this.context = context;</span>
-<span class="nc" id="L69">  }</span>
+<span class="nc" id="L68">    assertNull(this.context, &quot;The context already bound&quot;);</span>
+<span class="nc" id="L69">    this.context = context;</span>
+<span class="nc" id="L70">  }</span>
 
   public void createAccount(final String password) {
-<span class="nc" id="L72">    final AergoApi api = context.api();</span>
-<span class="nc" id="L73">    final Account account = api.getAccountOperation().create(password).getResult();</span>
-<span class="nc" id="L74">  }</span>
+<span class="nc" id="L73">    final AergoApi api = context.api();</span>
+<span class="nc" id="L74">    final Account account = api.getAccountOperation().create(password).getResult();</span>
+<span class="nc" id="L75">  }</span>
 
   public void unlock(Object authentication) {
-<span class="nc" id="L77">    final AergoApi api = this.context.api();</span>
-<span class="nc" id="L78">    api.getAccountOperation().unlock(null, null);</span>
-<span class="nc" id="L79">  }</span>
+<span class="nc" id="L78">    final AergoApi api = this.context.api();</span>
+<span class="nc" id="L79">    api.getAccountOperation().unlock(Authentication.of(null, null));</span>
+<span class="nc" id="L80">  }</span>
 
   public void lock() {
-<span class="nc" id="L82">    final AergoApi api = this.context.api();</span>
-<span class="nc" id="L83">    api.getAccountOperation().lock(null, null);</span>
-<span class="nc" id="L84">  }</span>
+<span class="nc" id="L83">    final AergoApi api = this.context.api();</span>
+<span class="nc" id="L84">    api.getAccountOperation().lock(Authentication.of(null, null));</span>
+<span class="nc" id="L85">  }</span>
 
   /**
    * Send transaction.
@@ -89,14 +90,14 @@ import java.io.Reader;
    * @param transaction transaction to send
    */
   public void sendTransaction(final Transaction transaction) {
-<span class="nc" id="L92">    final AergoApi api = this.context.api();</span>
-<span class="nc" id="L93">    final TransactionOperation transactionOperation = api.getTransactionOperation();</span>
+<span class="nc" id="L93">    final AergoApi api = this.context.api();</span>
+<span class="nc" id="L94">    final TransactionOperation transactionOperation = api.getTransactionOperation();</span>
 
-<span class="nc" id="L95">    final Signature signature = transactionOperation.sign(transaction).getResult();</span>
-<span class="nc" id="L96">    final Transaction signedTransaction = Transaction.copyOf(transaction);</span>
-<span class="nc" id="L97">    signedTransaction.setSignature(signature);</span>
-<span class="nc" id="L98">    transactionOperation.commit(signedTransaction);</span>
-<span class="nc" id="L99">  }</span>
+<span class="nc" id="L96">    final Signature signature = transactionOperation.sign(transaction).getResult();</span>
+<span class="nc" id="L97">    final Transaction signedTransaction = Transaction.copyOf(transaction);</span>
+<span class="nc" id="L98">    signedTransaction.setSignature(signature);</span>
+<span class="nc" id="L99">    transactionOperation.commit(signedTransaction);</span>
+<span class="nc" id="L100">  }</span>
 
   /**
    * Define contract.
@@ -105,7 +106,7 @@ import java.io.Reader;
    * @param reader contract content reader
    */
   public void defineContract(final String address, final Reader reader) {
-<span class="nc" id="L108">  }</span>
+<span class="nc" id="L109">  }</span>
 
   /**
    * Execute contract.
@@ -114,7 +115,7 @@ import java.io.Reader;
    */
   public void executeContract(final String address) {
 
-<span class="nc" id="L117">  }</span>
+<span class="nc" id="L118">  }</span>
 
   /**
    * Query contract.
@@ -125,7 +126,7 @@ import java.io.Reader;
    * @return query result
    */
   public Object queryContract(final String address, Object... args) {
-<span class="nc" id="L128">    return null;</span>
+<span class="nc" id="L129">    return null;</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

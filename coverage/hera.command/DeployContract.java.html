@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DeployContract.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.command</a> &gt; <span class="el_source">DeployContract.java</span></div><h1>DeployContract.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.command;
+
+import static hera.util.ValidationUtils.assertNotNull;
+
+import hera.api.AergoApi;
+import hera.api.ContractOperation;
+import hera.api.model.Account;
+import hera.api.model.AccountAddress;
+import hera.api.model.ContractTxHash;
+import hera.util.DangerousSupplier;
+import lombok.Getter;
+import lombok.Setter;
+
+<span class="nc" id="L18">public class DeployContract extends AbstractCommand {</span>
+
+<span class="nc" id="L20">  @Getter</span>
+<span class="nc" id="L21">  @Setter</span>
+  protected DangerousSupplier&lt;AergoApi&gt; apiSupplier;
+
+<span class="nc" id="L24">  @Getter</span>
+<span class="nc" id="L25">  @Setter</span>
+  protected DangerousSupplier&lt;Account&gt; account;
+
+<span class="nc" id="L28">  @Getter</span>
+<span class="nc" id="L29">  @Setter</span>
+  protected DangerousSupplier&lt;byte[]&gt; payload;
+
+<span class="nc" id="L32">  @Getter</span>
+  protected ContractTxHash contractTxHash;
+
+  @Override
+  public void execute() throws Exception {
+<span class="nc" id="L37">    final AergoApi aergoApi = apiSupplier.get();</span>
+<span class="nc" id="L38">    final ContractOperation contractOperation = aergoApi.getContractOperation();</span>
+<span class="nc" id="L39">    final AccountAddress accountAddress = this.account.get().getAddress();</span>
+<span class="nc" id="L40">    logger.debug(&quot;Address: {}&quot;, accountAddress);</span>
+<span class="nc" id="L41">    contractTxHash = contractOperation.deploy(accountAddress, payload).getResult();</span>
+<span class="nc" id="L42">    assertNotNull(contractTxHash);</span>
+<span class="nc" id="L43">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
