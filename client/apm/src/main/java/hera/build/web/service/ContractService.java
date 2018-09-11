@@ -19,6 +19,7 @@ import hera.api.model.Authentication;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInferface;
+import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.HostnameAndPort;
@@ -37,6 +38,7 @@ import hera.test.LuaCompiler;
 import hera.util.HexUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -205,12 +207,19 @@ public class ContractService extends AbstractService {
           .orElseThrow(() -> new ResourceNotFoundException("No " + functionName + " function."));
 
       logger.trace("Querying...");
-      final Object obj = contractOperation.query(
+      final ContractResult contractResult = contractOperation.query(
           contractAddress,
           contractFunction,
           stream(args).toArray()
       ).getResult();
-      return new QueryResult(obj);
+      final String resultString = contractResult.getResultInRawBytes().getEncodedValue(in -> {
+        try {
+          return new InputStreamReader(in);
+        } catch (final Throwable ex) {
+          throw new IllegalStateException(ex);
+        }
+      });
+      return new QueryResult(resultString);
     }
   }
 

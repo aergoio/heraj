@@ -1,14 +1,18 @@
 <template>
   <div class="contract-execution-container">
-      <b-form>
-        <b-row>
-          <b-col sm="8"><b-form-select size="sm" v-model="selected" :options="functions.map(function(func) {return {value: func, text:func.name};})" class="mb-3"/></b-col>
-          <b-col sm="1"><b-button variant="primary" size="sm" @click="reloadClicked">Reload</b-button></b-col>
-          <b-col sm="1"><b-button :variant="(null == selected.argumentNames)?'':'primary'" size="sm" @click="executeClicked">Execute</b-button></b-col>
-          <b-col sm="1"><b-button :variant="(null == selected.argumentNames)?'':'primary'" size="sm" @click="queryClicked">Query</b-button></b-col>
-        </b-row>
-        <argument v-for="arg of selected.argumentNames" :key="arg" :name="arg" @value-change="valueChanged"/>
-      </b-form>
+    <b-form>
+      <b-row>
+        <b-col sm="8"><b-form-select size="sm" v-model="selected" :options="functions.map(function(func) {return {value: func, text:func.name};})" class="mb-3"/></b-col>
+        <b-col sm="1"><b-button variant="primary" size="sm" @click="reloadClicked">Reload</b-button></b-col>
+        <b-col sm="1"><b-button :variant="(null == selected.argumentNames)?'':'primary'" size="sm" @click="executeClicked">Execute</b-button></b-col>
+        <b-col sm="1"><b-button :variant="(null == selected.argumentNames)?'':'primary'" size="sm" @click="queryClicked">Query</b-button></b-col>
+      </b-row>
+      <argument v-for="arg of selected.argumentNames" :key="arg" :name="arg" @value-change="valueChanged"/>
+    </b-form>
+    <b-modal id="query-result" title="Query result" v-if="resultOpen">
+      <p class="">{{queryResult}}</p>
+      <b-btn class="mt-3" variant="outline-danger" block @click="resultOpen = false">Close</b-btn>
+    </b-modal>
   </div>
 </template>
 
@@ -43,6 +47,8 @@
         contractTransactionHash: null,
         selected: {},
         values: {},
+        resultOpen: false,
+        queryResult: '',
         functions: []
       }
     },
@@ -87,7 +93,8 @@
         this.$http.get(
           '/contract/' + this.$data.contractTransactionHash + '/' + this.$data.selected.name,
           parameters).then(res => {
-          alert('Transaction hash: ' + res.data.result)
+            this.$data.queryResult = res.data.result;
+            this.$data.resultOpen = true;
         });
       }
     }

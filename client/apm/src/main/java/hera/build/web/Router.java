@@ -5,8 +5,8 @@
 package hera.build.web;
 
 import static hera.util.ExceptionUtils.getStackTraceOf;
+import static org.slf4j.LoggerFactory.getLogger;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import hera.build.web.exception.HttpException;
 import hera.build.web.exception.ResourceNotFoundException;
 import hera.build.web.model.BuildDetails;
@@ -18,10 +18,10 @@ import hera.build.web.model.QueryResult;
 import hera.build.web.model.ServiceError;
 import hera.build.web.service.BuildService;
 import hera.build.web.service.ContractService;
-import hera.util.ExceptionUtils;
 import java.io.IOException;
 import java.util.List;
 import javax.inject.Inject;
+import org.slf4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -38,6 +38,9 @@ import org.springframework.web.context.request.WebRequest;
 @RestController
 @ControllerAdvice
 public class Router {
+
+  protected final transient Logger logger = getLogger(getClass());
+
   @Inject
   protected BuildService buildService;
 
@@ -88,7 +91,9 @@ public class Router {
   public QueryResult query(
       @PathVariable("tx") final String contractTransactionHash,
       @PathVariable("function") final String functionName,
-      @RequestParam("arguments") final String[] arguments) throws IOException {
+      @RequestParam("arguments[]") final String[] arguments) throws IOException {
+    logger.trace("Transaction Hash: {}, Function: {}, Arguments: {}",
+        contractTransactionHash, functionName, arguments);
     return contractService.query(contractTransactionHash, functionName, arguments);
   }
 

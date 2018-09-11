@@ -9,7 +9,6 @@ import static hera.util.IoUtils.from;
 import hera.api.Encoder;
 import hera.util.Adaptor;
 import hera.util.Base58Utils;
-import hera.util.IoUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
