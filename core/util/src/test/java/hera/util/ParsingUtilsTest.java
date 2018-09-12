@@ -153,9 +153,9 @@ public class ParsingUtilsTest {
 
   @Test
   public void testConvertToTime() throws ParseException {
-    final Object[][] testParameters = new Object[][] {{"1ms", 1L}, {"1milliseconds", 1L},
-        {"1s", 1000L}, {"1sec", 1000L}, {"1seconds", 1000L}, {"1m", 60000L}, {"1min", 60000L},
-        {"1minutes", 60000L}, {"1h", 3600000L}, {"1hr", 3600000L}, {"1hours", 3600000L}};
+    final Object[][] testParameters = new Object[][] {{"1ms", 1_000L}, {"1milliseconds", 1_000L},
+        {"1s", 1_000_000L}, {"1sec", 1_000_000L}, {"1seconds", 1_000_000L}, {"1m", 60_000_000L}, {"1min", 60_000_000L},
+        {"1minutes", 60_000_000L}, {"1h", 3_600_000_000L}, {"1hr", 3_600_000_000L}, {"1hours", 3_600_000_000L}};
 
     try {
       ParsingUtils.convertToTime("Not");
@@ -173,17 +173,17 @@ public class ParsingUtilsTest {
 
   @Test
   public void testParse() throws ParseException {
-    final Object[][] testParameters = new Object[][] {{"1ms", TimeUnit.NANOSECONDS, 0L},
-        {"1ms", TimeUnit.MICROSECONDS, 0L}, {"1ms", TimeUnit.MILLISECONDS, 1L},
-        {"1ms", TimeUnit.SECONDS, 1000L}, {"1ms", TimeUnit.MINUTES, 60000L},
-        {"1ms", TimeUnit.HOURS, 3600000L}, {"1ms", TimeUnit.DAYS, 86400000L},
-        {"1s", TimeUnit.NANOSECONDS, 0L}, {"1s", TimeUnit.MICROSECONDS, 1L},
-        {"1s", TimeUnit.MILLISECONDS, 1000L}, {"1s", TimeUnit.SECONDS, 1000000L},
-        {"1s", TimeUnit.MINUTES, 60000000L}, {"1s", TimeUnit.HOURS, 3600000000L},
-        {"1s", TimeUnit.DAYS, 86400000000L}, {"1m", TimeUnit.NANOSECONDS, 0L},
-        {"1m", TimeUnit.MICROSECONDS, 60L}, {"1m", TimeUnit.MILLISECONDS, 60000L},
-        {"1m", TimeUnit.SECONDS, 60000000L}, {"1m", TimeUnit.MINUTES, 3600000000L},
-        {"1m", TimeUnit.HOURS, 216000000000L}, {"1m", TimeUnit.DAYS, 5184000000000L}};
+    final Object[][] testParameters = new Object[][] {{"1ms", TimeUnit.NANOSECONDS, 1_000_000L},
+        {"1ms", TimeUnit.MICROSECONDS, 1_000L}, {"1ms", TimeUnit.MILLISECONDS, 1L},
+        {"1ms", TimeUnit.SECONDS, 0L}, {"1ms", TimeUnit.MINUTES, 0L},
+        {"1ms", TimeUnit.HOURS, 0L}, {"1ms", TimeUnit.DAYS, 0L},
+        {"1s", TimeUnit.NANOSECONDS, 1_000_000_000L}, {"1s", TimeUnit.MICROSECONDS, 1_000_000L},
+        {"1s", TimeUnit.MILLISECONDS, 1_000L}, {"1s", TimeUnit.SECONDS, 1L},
+        {"1s", TimeUnit.MINUTES, 0L}, {"1s", TimeUnit.HOURS, 0L},
+        {"1s", TimeUnit.DAYS, 0L}, {"1m", TimeUnit.NANOSECONDS, 60_000_000_000L},
+        {"1m", TimeUnit.MICROSECONDS, 60_000_000L}, {"1m", TimeUnit.MILLISECONDS, 60_000L},
+        {"1m", TimeUnit.SECONDS, 60L}, {"1m", TimeUnit.MINUTES, 1L},
+        {"1m", TimeUnit.HOURS, 0L}, {"1m", TimeUnit.DAYS, 0L}};
 
     for (final Object[] testParameter : testParameters) {
       long expected = (long) testParameter[2];

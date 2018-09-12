@@ -294,7 +294,7 @@ public class ParsingUtils {
       final TimeUnit unit)
       throws ParseException {
     long time = convertToTime(val);
-    return TimeUnit.MILLISECONDS.convert(time, unit);
+    return unit.convert(time, TimeUnit.MICROSECONDS);
   }
 
   /**
