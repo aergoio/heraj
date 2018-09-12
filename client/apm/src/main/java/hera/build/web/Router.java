@@ -87,6 +87,17 @@ public class Router {
     return contractService.execute(contractTransactionHash, functionName, arguments);
   }
 
+  /**
+   * Query contract.
+   *
+   * @param contractTransactionHash transaction hash
+   * @param functionName            function'name to call
+   * @param arguments               argument for function
+   * 
+   * @return function's result
+   *
+   * @throws IOException Fail to invoke function
+   */
   @GetMapping(value = "contract/{tx}/{function}")
   public QueryResult query(
       @PathVariable("tx") final String contractTransactionHash,
