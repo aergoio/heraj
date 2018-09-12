@@ -51,3 +51,15 @@ dependencies {
   }
   implementation "com.fasterxml.jackson.core:jackson-databind:2.9.3"
 }
+
+eclipse {
+     classpath {
+         file {
+             withXml {
+                 def node = it.asNode()
+                 node.appendNode('classpathentry', [kind: 'src', path: "build/generated/source/proto/main/grpc"])
+                 node.appendNode('classpathentry', [kind: 'src', path: "build/generated/source/proto/main/java"])
+            }
+         }
+     }
+ }
