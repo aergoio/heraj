@@ -19,7 +19,7 @@ buildscript {
 plugins {
   id 'com.github.kt3k.coveralls' version '2.6.3'
 }
-group 'io.blocko'
+group 'io.aergo'
 
 
 repositories {
@@ -38,6 +38,7 @@ repositories {
 }
 
 allprojects {
+  group 'io.aergo'
   version '0.1-SNAPSHOT'
 }
 def javaProjects = [
@@ -58,6 +59,7 @@ configure(javaProjects) {
   // do Java specific configurations
   apply plugin: 'java'
   apply plugin: 'maven'
+  apply plugin: 'maven-publish'
   apply plugin: 'jacoco'
   apply plugin: 'checkstyle'
   apply plugin: 'com.github.hierynomus.license-report'
@@ -132,25 +134,15 @@ configure(javaProjects) {
     }
   }
 
-  uploadArchives {
-    repositories {
-      mavenDeployer {
-        pom.version = project.version
-        if (!project.hasProperty('mavenUser')) {
-          ext.mavenUser = ''
-        }
-        if (!project.hasProperty('mavenPassword')) {
-          ext.mavenPassword = ''
-        }
-        repository(url: "https://nexus.blocko.io/repository/blocko-maven-release-repository/") {
-          authentication(userName: mavenUser, password: mavenPassword)
-        }
-        snapshotRepository(url: "https://nexus.blocko.io/repository/blocko-maven-snapshot-repository/") {
-          authentication(userName: mavenUser, password: mavenPassword)
-        }
+  publishing {
+    publications {
+      maven(MavenPublication) {
+        artifactId = 'heraj-' + project.name
       }
     }
   }
+
+
   task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
