@@ -9,8 +9,8 @@
       </b-row>
       <argument v-for="arg of selected.argumentNames" :key="arg" :name="arg" @value-change="valueChanged"/>
     </b-form>
-    <b-modal id="query-result" title="Query result" v-if="resultOpen">
-      <p class="">{{queryResult}}</p>
+    <b-modal id="query-result" :title="contractResultTitle" v-model="resultOpen" hide-footer>
+      <div class="contract-result">{{contractResult}}</div>
       <b-btn class="mt-3" variant="outline-danger" block @click="resultOpen = false">Close</b-btn>
     </b-modal>
   </div>
@@ -18,6 +18,7 @@
 
 <script>
   import Vue from 'vue'
+  import qs from 'qs'
 
   const Argument = {
     name: 'Argument',
@@ -48,7 +49,8 @@
         selected: {},
         values: {},
         resultOpen: false,
-        queryResult: '',
+        contractResultTitle: '',
+        contractResult: '',
         functions: []
       }
     },
@@ -71,13 +73,16 @@
       executeClicked() {
         const parameters = {
           arguments: this.$data.selected.argumentNames.map(argumentName => {
-            return this.$data.values[argumentName];
+            return this.$data.values[argumentName] || '';
           })
         };
         this.$http.post(
           '/contract/' + this.$data.contractTransactionHash + '/' + this.$data.selected.name,
-          parameters).then(res => {
-          alert('Transaction hash: ' + res.data)
+          parameters
+        ).then(res => {
+          this.$data.contractResultTitle = 'Transaction hash:';
+          this.$data.contractResult = res.data.contractTransactionHash;
+          this.$data.resultOpen = true;
         });
       },
 
@@ -85,16 +90,21 @@
         const parameters = {
           params: {
             arguments: this.$data.selected.argumentNames.map(argumentName => {
-              return this.$data.values[argumentName];
+              return this.$data.values[argumentName] || '';
             })
-          }
+          },
+          paramsSerializer(params) {
+            return qs.stringify(params, {arrayFormat: 'repeat'})
+          },
         };
         console.log('Parameters', parameters);
         this.$http.get(
           '/contract/' + this.$data.contractTransactionHash + '/' + this.$data.selected.name,
-          parameters).then(res => {
-            this.$data.queryResult = res.data.result;
-            this.$data.resultOpen = true;
+          parameters
+        ).then(res => {
+          this.$data.contractResultTitle = ''
+          this.$data.contractResult = res.data.result;
+          this.$data.resultOpen = true;
         });
       }
     }
@@ -105,5 +115,8 @@
   .contract-execution-container {
     padding-top: 10pt;
     padding-left: 160pt;
+  }
+  .contract-result {
+    word-break: break-all;
   }
 </style>

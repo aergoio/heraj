@@ -93,7 +93,7 @@ public class Router {
    * @param contractTransactionHash transaction hash
    * @param functionName            function'name to call
    * @param arguments               argument for function
-   * 
+   *
    * @return function's result
    *
    * @throws IOException Fail to invoke function
@@ -102,7 +102,7 @@ public class Router {
   public QueryResult query(
       @PathVariable("tx") final String contractTransactionHash,
       @PathVariable("function") final String functionName,
-      @RequestParam("arguments[]") final String[] arguments) throws IOException {
+      @RequestParam("arguments") final String[] arguments) throws IOException {
     logger.trace("Transaction Hash: {}, Function: {}, Arguments: {}",
         contractTransactionHash, functionName, arguments);
     return contractService.query(contractTransactionHash, functionName, arguments);
