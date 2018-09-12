@@ -34,19 +34,21 @@ public class ParsingUtils {
    * time units, which is based on milliseconds
    * </p>
    */
-  protected static final List<ScaleUnit> INTERVALS =
+  public static final List<ScaleUnit> INTERVALS =
       Collections.unmodifiableList(asList(
-          new ScaleUnit("milliseconds", 1),
-          new ScaleUnit("ms", 1),
-          new ScaleUnit("seconds", 1000),
-          new ScaleUnit("sec", 1000),
-          new ScaleUnit("minutes", 60000),
-          new ScaleUnit("min", 60000),
-          new ScaleUnit("m", 60000),
-          new ScaleUnit("hours", 3600000),
-          new ScaleUnit("hr", 3600000),
-          new ScaleUnit("h", 3600000),
-          new ScaleUnit("s", 1000)));
+          new ScaleUnit("µs", 1),
+          new ScaleUnit("milliseconds", 1_000),
+          new ScaleUnit("ms", 1_000),
+          new ScaleUnit("seconds", 1_000_000),
+          new ScaleUnit("sec", 1_000_000),
+          new ScaleUnit("minutes", 60_000_000),
+          new ScaleUnit("min", 60_000_000),
+          new ScaleUnit("m", 60_000_000),
+          new ScaleUnit("hours", 3_600_000_000L),
+          new ScaleUnit("hr", 3_600_000_000L),
+          new ScaleUnit("h", 3_600_000_000L),
+          new ScaleUnit("s", 1_000_000L))
+      );
 
   /**
    * Parse {@code str} and convert to {@code boolean}.
@@ -304,12 +306,12 @@ public class ParsingUtils {
     /**
      * time unit.
      */
-    protected final String units;
+    public final String units;
 
     /**
      * Scale for a standard unit.
      */
-    protected final long scale;
+    public final long scale;
   }
 
 }
