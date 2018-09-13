@@ -4,6 +4,8 @@
 
 package hera.api.model;
 
+import java.util.Collections;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -34,5 +36,9 @@ public class ModuleStatus {
   @Getter
   @Setter
   protected String error;
+
+  @Getter
+  @Setter
+  protected Map<String, Object> actor = Collections.emptyMap();
 
 }

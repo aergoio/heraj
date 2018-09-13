@@ -23,6 +23,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Rpc;
@@ -62,6 +63,7 @@ public class NodeStatusConverterFactory {
 
   private class NodeStatusDeserializer extends JsonDeserializer<NodeStatus> {
 
+    @SuppressWarnings("unchecked")
     @Override
     public NodeStatus deserialize(JsonParser parser, DeserializationContext context)
         throws IOException {
@@ -86,6 +88,7 @@ public class NodeStatusConverterFactory {
         double latency = convertToTime(latencyInStr);
         moduleStatus.setLatencyInMicroseconds(latency);
         moduleStatus.setError(componentStatus.get("error").asText());
+        moduleStatus.setActor(mapper.convertValue(componentStatus.get("actor"), Map.class));
 
         moduleStatusList.add(moduleStatus);
       }
