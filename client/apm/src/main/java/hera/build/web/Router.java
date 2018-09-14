@@ -113,10 +113,15 @@ public class Router {
   public QueryResult query(
       @PathVariable("tx") final String contractTransactionHash,
       @PathVariable("function") final String functionName,
-      @RequestParam("arguments") final String[] arguments) throws IOException {
+      @RequestParam(value = "arguments", required = false) final String[] arguments
+  ) throws IOException {
     logger.trace("Transaction Hash: {}, Function: {}, Arguments: {}",
         contractTransactionHash, functionName, arguments);
-    return contractService.query(contractTransactionHash, functionName, arguments);
+    if (null == arguments) {
+      return contractService.query(contractTransactionHash, functionName, new String[0]);
+    } else {
+      return contractService.query(contractTransactionHash, functionName, arguments);
+    }
   }
 
   @ExceptionHandler(value = { HttpException.class })
