@@ -141,7 +141,7 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
       @Override
       public void onSuccess(CommitResultList t) {
         final Rpc.CommitResult commitResult = t.getResults(0);
-        if (Rpc.CommitStatus.COMMIT_STATUS_OK == commitResult.getError()) {
+        if (Rpc.CommitStatus.TX_OK == commitResult.getError()) {
           super.onSuccess(t);
         } else {
           super.onFailure(new CommitException(commitResult.getError()));

@@ -12,10 +12,13 @@ public class CommitException extends RpcException {
 
   enum CommitStatus {
     UNRECOGNIZED,
-    COMMIT_STATUS_NONCE_TOO_LOW,
-    COMMIT_STATUS_INVALID_ARGUMENT,
-    COMMIT_STATUS_TX_ALREADY_EXISTS,
-    COMMIT_STATUS_TX_INTERNAL_ERROR
+    OK,
+    NONCE_TOO_LOW,
+    TX_ALREADY_EXISTS,
+    TX_INVALID_HASH,
+    TX_INVALID_FORMAT,
+    INSUFFICIENT_BALANCE,
+    INTERNAL_ERROR
   }
 
   @Getter
@@ -28,17 +31,26 @@ public class CommitException extends RpcException {
    */
   public CommitException(types.Rpc.CommitStatus rpcCommitStatus) {
     switch (rpcCommitStatus) {
-      case COMMIT_STATUS_NONCE_TOO_LOW:
-        this.commitStatus = CommitStatus.COMMIT_STATUS_NONCE_TOO_LOW;
+      case TX_OK:
+        this.commitStatus = CommitStatus.OK;
         break;
-      case COMMIT_STATUS_INVALID_ARGUMENT:
-        this.commitStatus = CommitStatus.COMMIT_STATUS_INVALID_ARGUMENT;
+      case TX_NONCE_TOO_LOW:
+        this.commitStatus = CommitStatus.NONCE_TOO_LOW;
         break;
-      case COMMIT_STATUS_TX_ALREADY_EXISTS:
-        this.commitStatus = CommitStatus.COMMIT_STATUS_TX_ALREADY_EXISTS;
+      case TX_ALREADY_EXISTS:
+        this.commitStatus = CommitStatus.TX_ALREADY_EXISTS;
         break;
-      case COMMIT_STATUS_TX_INTERNAL_ERROR:
-        this.commitStatus = CommitStatus.COMMIT_STATUS_TX_INTERNAL_ERROR;
+      case TX_INVALID_HASH:
+        this.commitStatus = CommitStatus.TX_INVALID_HASH;
+        break;
+      case TX_INVALID_FORMAT:
+        this.commitStatus = CommitStatus.TX_INVALID_FORMAT;
+        break;
+      case TX_INSUFFICIENT_BALANCE:
+        this.commitStatus = CommitStatus.INSUFFICIENT_BALANCE;
+        break;
+      case TX_INTERNAL_ERROR:
+        this.commitStatus = CommitStatus.INTERNAL_ERROR;
         break;
       default:
         this.commitStatus = CommitStatus.UNRECOGNIZED;
