@@ -27,6 +27,7 @@ TBD
 # Build
 ## Prerequisites
 * [JDK 8](http://openjdk.java.net/)
+* [NPM](https://www.npmjs.com/)
 
 ## build and package
 * Clean
@@ -41,7 +42,8 @@ $ ./build.sh protobuf
 
 * Create apm web ui
 ```console
-$ ./build.sh npm
+$ cd client/apm-web ; npm install
+$ cd $PROJECT_HOME ; ./build.sh npm
 ```
 
 * Run gradle

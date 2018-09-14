@@ -5,7 +5,7 @@
 package hera.build.web.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import hera.test.TestSuite;
+import hera.test.TestFile;
 import java.util.Collection;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +15,11 @@ import lombok.ToString;
 @RequiredArgsConstructor
 @ToString(callSuper = true)
 public class BuildDetails extends BuildSummary {
+
+  @Getter
+  @Setter
+  protected int sequence;
+
   @Getter
   @Setter
   protected String result;
@@ -25,7 +30,7 @@ public class BuildDetails extends BuildSummary {
 
   @Getter
   @Setter
-  protected Collection<TestSuite> unitTestReport;
+  protected Collection<TestFile> unitTestReport;
 
   /**
    * Build summary from this build details.
@@ -36,8 +41,9 @@ public class BuildDetails extends BuildSummary {
   public BuildSummary getSummary() {
     final BuildSummary summary = new BuildSummary();
     summary.setUuid(getUuid());
-    summary.setTimestamp(getTimestamp());
+    summary.setElapsedTime(getElapsedTime());
     summary.setState(getState());
+    summary.setError(getError());
 
     return summary;
   }
@@ -49,6 +55,7 @@ public class BuildDetails extends BuildSummary {
    */
   public void copyFrom(final BuildDetails source) {
     this.state = source.getState();
+    this.elapsedTime = source.getElapsedTime();
     this.error = source.getError();
     this.result = source.getResult();
     this.dependencies = source.getDependencies();

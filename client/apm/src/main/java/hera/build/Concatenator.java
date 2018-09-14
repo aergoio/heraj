@@ -11,7 +11,9 @@ import hera.build.web.model.BuildDependency;
 import hera.build.web.model.BuildDetails;
 import hera.exception.BuildException;
 import hera.exception.CyclicDependencyException;
+import java.io.FileNotFoundException;
 import java.io.StringWriter;
+import java.nio.file.NoSuchFileException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -48,9 +50,11 @@ public class Concatenator {
       return null;
     }
     try {
-      return source.getBody().toString();
+      return source.getBody().get();
     } catch (final BuildException e) {
       throw e;
+    } catch (final FileNotFoundException | NoSuchFileException ex) {
+      throw new BuildException(source.getPath().toFile().getAbsolutePath() + " not found");
     } catch (final Throwable e) {
       throw new BuildException(e);
     }

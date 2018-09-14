@@ -12,17 +12,18 @@ import hera.build.web.SpringWebLauncher;
 import hera.build.web.service.BuildService;
 import hera.server.ServerStatus;
 import hera.server.ThreadServer;
-import hera.util.StringUtils;
 import hera.util.ThreadUtils;
 import java.util.HashMap;
 import java.util.Map;
-import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.boot.Banner.Mode;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.context.ConfigurableApplicationContext;
 
-public class MonitorServer extends ThreadServer {
+@NoArgsConstructor
+public class WebServer extends ThreadServer {
 
   protected int port = -1;
 
@@ -30,6 +31,10 @@ public class MonitorServer extends ThreadServer {
   protected ProjectFile projectFile;
 
   protected ConfigurableApplicationContext applicationContext;
+
+  public WebServer(final int port) {
+    this.port = port;
+  }
 
   /**
    * Get server port.
@@ -79,6 +84,7 @@ public class MonitorServer extends ThreadServer {
     super.initialize();
     final SpringApplicationBuilder builder = new SpringApplicationBuilder(SpringWebLauncher.class);
     builder.bannerMode(Mode.OFF);
+    builder.logStartupInfo(false);
 
     final Map<String, Object> properties = new HashMap<>();
     if (0 <= port) {

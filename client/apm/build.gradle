@@ -10,7 +10,6 @@ ext {
   springBootVersion = '2.0.2.RELEASE'
 }
 
-
 dependencies {
   implementation project(":core:util")
   implementation project(":core:common")
@@ -25,8 +24,12 @@ dependencies {
   implementation "org.eclipse.jgit:org.eclipse.jgit:5.0.1.201806211838-r"
   implementation "org.luaj:luaj-jse:3.0.1"
   implementation "javax.inject:javax.inject:1"
-  implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
-  implementation "org.springframework.boot:spring-boot-starter-websocket:${springBootVersion}"
+  implementation ("org.springframework.boot:spring-boot-starter-web:${springBootVersion}") {
+    exclude module : 'spring-boot-starter-logging'
+  }
+  implementation ("org.springframework.boot:spring-boot-starter-websocket:${springBootVersion}") {
+    exclude module : 'spring-boot-starter-logging'
+  }
 
   testImplementation "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
 }

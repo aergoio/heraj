@@ -15,7 +15,7 @@ public class MonitorServerTest {
 
   @Test
   public void testServer() {
-    final MonitorServer monitorServer = new MonitorServer();
+    final WebServer monitorServer = new WebServer();
     monitorServer.setPort(0);
     monitorServer.boot(true);
     logger.info("Server boot");

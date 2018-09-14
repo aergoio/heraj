@@ -12,16 +12,50 @@ import static java.lang.System.currentTimeMillis;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import lombok.Getter;
 import lombok.ToString;
 
-@ToString(of = "testSuites")
+@ToString(of = "testFiles")
 public class TestResultCollector {
 
+  @Getter
+  protected TestFile currentTestFile;
+
+  @Getter
   protected TestSuite currentTestSuite;
 
+  @Getter
   protected TestCase currentTestCase;
 
-  protected Map<String, TestSuite> testSuites = new LinkedHashMap<>();
+  protected Map<String, TestFile> testFiles = new LinkedHashMap<>();
+
+  public void clear() {
+    this.currentTestSuite = null;
+    this.currentTestCase = null;
+  }
+
+  /**
+   * Start to run test file.
+   *
+   * @param filename file name
+   */
+  public void start(final String filename) {
+    assertNull(this.currentTestFile);
+    assertNull(this.currentTestSuite);
+    assertNull(this.currentTestCase);
+    currentTestFile = new TestFile();
+    currentTestFile.setFilename(filename);
+    testFiles.put(filename, currentTestFile);
+  }
+
+  /**
+   * End to run test file.
+   */
+  public void end() {
+    this.currentTestCase = null;
+    this.currentTestSuite = null;
+    this.currentTestFile = null;
+  }
 
   /**
    * Start test suite.
@@ -33,7 +67,7 @@ public class TestResultCollector {
     assertNotNull(suiteName);
     currentTestSuite = new TestSuite();
     currentTestSuite.setName(suiteName);
-    testSuites.put(suiteName, currentTestSuite);
+    this.currentTestFile.addSuite(currentTestSuite);
   }
 
   /**
@@ -52,7 +86,7 @@ public class TestResultCollector {
    *
    * @param testCaseName test case name
    */
-  public void start(final String testCaseName) {
+  public void startCase(final String testCaseName) {
     assertNull(this.currentTestCase);
     assertNotNull(testCaseName);
     currentTestCase = new TestCase(testCaseName);
@@ -70,6 +104,10 @@ public class TestResultCollector {
     assertNotNull(currentTestCase);
     assertTrue(currentTestCase.getName().equals(testCaseName));
     currentTestCase.setErrorMessage(error);
+    if (currentTestSuite.isSuccess()) {
+      currentTestSuite.setError(error);
+    }
+    currentTestFile.setSuccess(false);
   }
 
   /**
@@ -79,7 +117,7 @@ public class TestResultCollector {
    *
    * @param success test case result
    */
-  public void end(final String testCaseName, final boolean success) {
+  public void endCase(final String testCaseName, final boolean success) {
     assertNotNull(currentTestCase);
     assertTrue(currentTestCase.getName().equals(testCaseName));
     currentTestCase.setSuccess(success);
@@ -92,8 +130,8 @@ public class TestResultCollector {
    *
    * @return test suites
    */
-  public Collection<TestSuite> getResults() {
-    return testSuites.values();
+  public Collection<TestFile> getResults() {
+    return testFiles.values();
   }
 
 }

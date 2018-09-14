@@ -9,66 +9,59 @@ import static hera.build.web.model.BuildSummary.SUCCESS;
 import static hera.build.web.model.BuildSummary.TEST_FAIL;
 import static hera.util.ExceptionUtils.buildExceptionMessage;
 import static hera.util.ValidationUtils.assertTrue;
-import static java.util.Optional.empty;
-import static java.util.Optional.ofNullable;
+import static java.lang.System.currentTimeMillis;
+import static java.util.Arrays.asList;
 
 import hera.Builder;
 import hera.ProjectFile;
-import hera.build.MonitorServer;
+import hera.build.ConsoleServer;
 import hera.build.Resource;
 import hera.build.ResourceChangeEvent;
 import hera.build.ResourceManager;
+import hera.build.WebServer;
 import hera.build.res.BuildResource;
 import hera.build.res.PackageResource;
 import hera.build.res.Project;
 import hera.build.web.model.BuildDetails;
-import hera.build.web.service.BuildService;
-import hera.test.TestSuite;
+import hera.test.TestFile;
+import hera.util.DangerousConsumer;
 import hera.util.FileWatcher;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Optional;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.List;
+import java.util.StringJoiner;
 
 public class BuildProject extends AbstractCommand {
-
-  @Getter
-  @Setter
-  protected FileWatcher fileWatcher;
-
-  @Getter
-  @Setter
-  protected MonitorServer monitorServer;
 
   protected Builder builder;
 
   protected Project project;
 
-  protected FileWatcher createFileWatcher() throws IOException {
-    fileWatcher = new FileWatcher(project.getPath().toFile());
+  protected List<DangerousConsumer<BuildDetails>> buildListeners = new ArrayList<>();
+
+  protected FileWatcher createFileWatcher() {
+    final FileWatcher fileWatcher = new FileWatcher(project.getPath().toFile());
     fileWatcher.addIgnore(".git");
     fileWatcher.addServerListener(builder.getResourceManager());
     fileWatcher.run();
     return fileWatcher;
   }
 
-  protected MonitorServer createMonitorServer(final int port) {
-    final MonitorServer monitorServer = new MonitorServer();
-    if (0 < port) {
-      monitorServer.setPort(port);
-    }
-    monitorServer.setProjectFile(this.project.getProjectFile());
-    this.monitorServer = monitorServer;
-    return monitorServer;
-  }
-
   protected void build(final Project project, final boolean runTests) throws IOException {
+    if (logger.isTraceEnabled()) {
+      final StringJoiner joiner = new StringJoiner("\n\t", "\t", "");
+      asList(new Exception().getStackTrace()).stream()
+          .map(StackTraceElement::toString)
+          .forEach(joiner::add);
+      logger.trace("Build triggered:\n{}", joiner.toString());
+    }
     final ProjectFile projectFile = project.getProjectFile();
     final String buildTarget = projectFile.getTarget();
     final BuildDetails buildDetails = new BuildDetails();
+    final long startTimestamp = currentTimeMillis();
     if (null == buildTarget) {
       buildDetails.setState(BUILD_FAIL);
     } else {
@@ -83,9 +76,9 @@ public class BuildProject extends AbstractCommand {
             final TestProject testProject = new TestProject();
             testProject.setBuilderFactory(p -> builder);
             testProject.setReporter(testResultCollector -> {
-              final Collection<TestSuite> testResults = testResultCollector.getResults();
+              final Collection<TestFile> testResults = testResultCollector.getResults();
               if (buildDetails.getState() == SUCCESS
-                  && testResults.stream().anyMatch(suite -> 0 < suite.getFailures())) {
+                  && testResults.stream().anyMatch(testFile -> !testFile.isSuccess())) {
                 buildDetails.setState(TEST_FAIL);
               }
               buildDetails.setUnitTestReport(testResults);
@@ -100,22 +93,47 @@ public class BuildProject extends AbstractCommand {
         buildDetails.setError(buildException.getMessage());
       }
     }
+    final long endTimestamp = currentTimeMillis();
+    buildDetails.setElapsedTime(endTimestamp - startTimestamp);
 
-    ofNullable(this.monitorServer)
-        .map(MonitorServer::getBuildService)
-        .ifPresent(service -> service.save(buildDetails));
+    this.buildListeners.forEach(listener -> {
+      try {
+        listener.accept(buildDetails);
+      } catch (final Throwable ex) {
+        logger.trace("Listener {} throws exception", listener, ex);
+      }
+    });
+  }
+
+  protected void startWebServer(final int port) {
+    final WebServer webServer = new WebServer(port);
+    webServer.setProjectFile(this.project.getProjectFile());
+    webServer.boot(true);
+    this.buildListeners.add(webServer.getBuildService()::save);
+  }
+
+  protected void startConsoleServer() {
+    final ConsoleServer consoleServer = new ConsoleServer();
+    this.buildListeners.add(consoleServer::process);
+    consoleServer.boot();
   }
 
   @Override
   public void execute() throws Exception {
     logger.trace("Starting {}...", this);
-    boolean serverMode = false;
+    final int COMMAND_MODE = 1;
+    final int CONSOLE_MODE = 2;
+    final int WEB_MODE = 3;
+    int mode = COMMAND_MODE;
     int port = -1;
     for (int i = 0, n = arguments.size(); i < n; ++i) {
       final String argument = arguments.get(i);
       if ("--watch".equals(argument)) {
-        serverMode = true;
+        if (mode == COMMAND_MODE) {
+          mode = CONSOLE_MODE;
+        }
       } else if ("--port".equals(argument)) {
+        mode = WEB_MODE;
         assertTrue(++i < arguments.size());
         final String portStr = arguments.get(i);
         port = Integer.parseInt(portStr);
@@ -124,15 +142,27 @@ public class BuildProject extends AbstractCommand {
 
     final ProjectFile projectFile = readProject();
     project = new Project(".", projectFile);
-    builder = new Builder(new ResourceManager(project));
-    if (serverMode) {
-      createMonitorServer(port).boot(true);
-      build(project, true);
-      final ResourceManager resourceManager = builder.getResourceManager();
-      resourceManager.addResourceChangeListener(this::resourceChanged);
-      createFileWatcher();
-    } else {
-      build(project, false);
+    final ResourceManager resourceManager = new ResourceManager(project);
+    builder = new Builder(resourceManager);
+    switch (mode) {
+      case COMMAND_MODE:
+        build(project, false);
+        break;
+      case WEB_MODE:
+        startWebServer(port);
+        build(project, true);
+        resourceManager.addResourceChangeListener(this::resourceChanged);
+        createFileWatcher();
+        break;
+      case CONSOLE_MODE:
+        startWebServer(port);
+        startConsoleServer();
+        build(project, true);
+        resourceManager.addResourceChangeListener(this::resourceChanged);
+        createFileWatcher();
+        break;
+      default:
+        throw new IllegalStateException();
     }
   }
 
@@ -148,7 +178,7 @@ public class BuildProject extends AbstractCommand {
     }
     try {
       build(project, true);
-    } catch (IOException ex) {
+    } catch (final IOException ex) {
       // Handle exception
     }
   }

@@ -26,5 +26,8 @@ export APM_LIB=${APM_LIB:-$APM_HOME/lib}
 
 JARS=$(find "$APM_LIB" -name '*.jar' | tr '\n' ':')
 
-echo "java -cp $APM_CONF:$JARS -Dlogback.configurationFile=$APM_CONF/apm-logger.xml hera.exec.ApmLauncher $@"
-java -cp $APM_CONF:$JARS -Dlogback.configurationFile=$APM_CONF/apm-logger.xml hera.exec.ApmLauncher $@
+COMMAND="java -cp $APM_CONF:$JARS \
+	-Dlogback.verbose=true \
+	-Dlogging.config=$APM_CONF/apm-logger.xml \
+	-Dlogback.configurationFile=$APM_CONF/apm-logger.xml hera.exec.ApmLauncher $@"
+$COMMAND

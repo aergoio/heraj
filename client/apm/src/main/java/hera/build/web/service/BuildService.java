@@ -8,27 +8,31 @@ import static java.util.stream.Collectors.toList;
 
 import hera.build.web.model.BuildDetails;
 import hera.build.web.model.BuildSummary;
+import hera.util.DangerousConsumer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.inject.Inject;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.inject.Named;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Named
 public class BuildService extends AbstractService {
+  protected final AtomicInteger sequence = new AtomicInteger();
 
-  @Getter
-  @Inject
-  protected LiveUpdateService liveUpdateService;
-
-  protected final List<String> uuids = new ArrayList<>();
+  protected final LinkedList<String> uuids = new LinkedList<>();
 
   protected final Map<String, BuildDetails> uuid2buildResult = new HashMap<>();
+
+  protected final List<DangerousConsumer<BuildSummary>> listeners = new ArrayList<>();
+
+  public void addListener(final DangerousConsumer<BuildSummary> listener) {
+    this.listeners.add(listener);
+  }
 
   /**
    * Save build result for web request.
@@ -36,13 +40,20 @@ public class BuildService extends AbstractService {
    * @param buildDetails build result
    */
   public void save(final BuildDetails buildDetails) {
+    buildDetails.setSequence(sequence.incrementAndGet());
     uuid2buildResult.put(buildDetails.getUuid(), buildDetails);
     logger.info("New build detected: {}", buildDetails);
-    uuids.add(0, buildDetails.getUuid());
-    try {
-      liveUpdateService.notifyChange(buildDetails.getSummary());
-    } catch (final Throwable ex) {
-      logger.trace("Ignore exception: {}", ex.getClass());
+    uuids.addFirst(buildDetails.getUuid());
+    while (100 < uuids.size()) {
+      final String uuid = uuids.removeLast();
+      uuid2buildResult.remove(uuid);
+    }
+    for (final DangerousConsumer<BuildSummary> listener : listeners) {
+      try {
+        listener.accept(buildDetails.getSummary());
+      } catch (final Throwable ex) {
+        logger.trace("Ignore exception: {}", ex.getClass());
+      }
     }
   }
 

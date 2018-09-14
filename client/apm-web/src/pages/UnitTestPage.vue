@@ -7,7 +7,7 @@
 
       <div class="col-6">
         <span class="progress">
-          <div class="progress-bar" :class="{'bg-success': (failures == 0), 'bg-danger': (failures != 0)}" role="progressbar" style="width: 100%"
+          <div class="progress-bar" :class="{'bg-success': 0 == state, 'bg-danger': 0 != state}" role="progressbar" style="width: 100%"
                aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
         </span>
       </div>
@@ -32,7 +32,7 @@
   import Tree from "../components/Tree";
   export default {
     components: {Tree},
-    props: ['unitTestReport'],
+    props: ['unitTestReport', 'state'],
     data() {
       return {
         errorMessage: ''
@@ -61,21 +61,27 @@
       },
       reports() {
         return {
-          children: (this.$props.unitTestReport || []).map(suite => {
+          children: (this.$props.unitTestReport || []).map(file => {
             return {
-              name: suite.name,
-              data: suite,
-              classes: (0 < suite.failures)?['error']:[],
-              children: (suite.testCases || []).map(testCase => {
+              name: file.filename,
+              data: file,
+              classes: file.success ? [] : ['error'],
+              children: (file.suites || []).map(testSuite => {
                 return {
-                  name: testCase.name,
-                  classes: testCase.success?[]:['error'],
-                  data: testCase
-                }
+                  name: testSuite.name,
+                  data: testSuite,
+                  children: (testSuite.testCases || []).map(testCase => {
+                    return {
+                      name: testCase.name,
+                      data: testCase,
+                      classes: testCase.success ? [] : ['error']
+                    }
+                  })
+                };
               })
-            }
+            };
           })
-        }
+        };
       }
     },
     methods: {

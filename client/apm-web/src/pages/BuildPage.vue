@@ -5,7 +5,7 @@
     <div class="row">
       <div class="tabs">
         <div class="tab" :class="{active: activePane === 'result'}" @click="resultClicked">Result</div>
-        <div class="tab" :class="{active: activePane === 'dependencies'}" @click="dependenciesClicked">Dependencies</div>
+        <div class="tab" :class="{active: activePane === 'dependencies'}" @click="dependenciesClicked">Information</div>
         <b-button class="deploy-button btn-success btn-sm" @click="deployClicked">DEPLOY</b-button>
       </div>
     </div>

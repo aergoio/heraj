@@ -10,9 +10,18 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class TestSuite {
+
+  @Getter
+  @Setter
+  protected String filename;
+
   @Getter
   @Setter
   protected String name;
+
+  @Getter
+  @Setter
+  protected String error;
 
   @Getter
   @Setter
@@ -32,6 +41,10 @@ public class TestSuite {
 
   public long getFailures() {
     return this.testCases.stream().filter(testCase -> !testCase.isSuccess()).count();
+  }
+
+  public boolean isSuccess() {
+    return (null == error) && getFailures() <= 0;
   }
 
   @Override

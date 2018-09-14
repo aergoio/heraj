@@ -4,7 +4,6 @@ package hera.test;/*
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import hera.test.AthenaContext;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;
 import org.slf4j.Logger;

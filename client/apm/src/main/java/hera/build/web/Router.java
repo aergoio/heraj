@@ -18,10 +18,13 @@ import hera.build.web.model.QueryResult;
 import hera.build.web.model.ServiceError;
 import hera.build.web.service.BuildService;
 import hera.build.web.service.ContractService;
+import hera.build.web.service.LiveUpdateService;
 import java.io.IOException;
 import java.util.List;
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -46,6 +49,14 @@ public class Router {
 
   @Inject
   protected ContractService contractService;
+
+  @Inject
+  protected LiveUpdateService liveUpdateService;
+
+  @PostConstruct
+  public void initialize() {
+    buildService.addListener(liveUpdateService::notifyChange);
+  }
 
   @GetMapping("contract")
   public DeploymentResult getLatestContract() {

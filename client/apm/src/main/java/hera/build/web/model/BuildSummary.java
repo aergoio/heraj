@@ -7,10 +7,12 @@ package hera.build.web.model;
 import static java.util.UUID.randomUUID;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 @ToString
+@NoArgsConstructor
 public class BuildSummary {
   public static final int SUCCESS = 0;
   public static final int BUILD_FAIL = 1;
@@ -22,7 +24,7 @@ public class BuildSummary {
 
   @Getter
   @Setter
-  protected long timestamp = System.currentTimeMillis();
+  protected long elapsedTime;
 
   @Getter
   @Setter
@@ -31,7 +33,4 @@ public class BuildSummary {
   @Getter
   @Setter
   protected String error;
-
-  public BuildSummary() {
-  }
 }

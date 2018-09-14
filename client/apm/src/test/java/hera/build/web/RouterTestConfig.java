@@ -2,6 +2,7 @@ package hera.build.web;
 
 import hera.build.web.service.BuildService;
 import hera.build.web.service.ContractService;
+import hera.build.web.service.LiveUpdateService;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScan.Filter;
@@ -24,5 +25,8 @@ public class RouterTestConfig {
 
   @MockBean
   protected ContractService contractService;
+
+  @MockBean
+  protected LiveUpdateService liveUpdateService;
 
 }

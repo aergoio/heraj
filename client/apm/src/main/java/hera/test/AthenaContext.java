@@ -53,7 +53,7 @@ public class AthenaContext {
     @Override
     public LuaValue call(final LuaValue name) {
       logger.trace("Starting {}...", name);
-      testReporter.start(name.tojstring());
+      testReporter.startCase(name.tojstring());
       return null;
     }
   };
@@ -61,7 +61,7 @@ public class AthenaContext {
     @Override
     public LuaValue call(final LuaValue name, LuaValue testResult) {
       logger.trace("{} end", name);
-      testReporter.end(name.tojstring(), testResult.toboolean());
+      testReporter.endCase(name.tojstring(), testResult.toboolean());
       return null;
     }
   };
