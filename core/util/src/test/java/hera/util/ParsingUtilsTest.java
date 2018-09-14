@@ -8,7 +8,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.net.InetSocketAddress;
 import java.text.ParseException;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
@@ -153,9 +152,12 @@ public class ParsingUtilsTest {
 
   @Test
   public void testConvertToTime() throws ParseException {
-    final Object[][] testParameters = new Object[][] {{"1ms", 1_000L}, {"1milliseconds", 1_000L},
-        {"1s", 1_000_000L}, {"1sec", 1_000_000L}, {"1seconds", 1_000_000L}, {"1m", 60_000_000L}, {"1min", 60_000_000L},
-        {"1minutes", 60_000_000L}, {"1h", 3_600_000_000L}, {"1hr", 3_600_000_000L}, {"1hours", 3_600_000_000L}};
+    final Object[][] testParameters = new Object[][] {{"1µs", 1L}, {"1.1µs", 1L},
+        {"1microseconds", 1L}, {"1ms", 1_000L}, {"1.1ms", 1_100L}, {"1milliseconds", 1_000L},
+        {"1.1s", 1_100_000L}, {"1s", 1_000_000L}, {"1sec", 1_000_000L}, {"1seconds", 1_000_000L},
+        {"1m", 60_000_000L}, {"1.1m", 66_000_000L}, {"1min", 60_000_000L},
+        {"1minutes", 60_000_000L}, {"1h", 3_600_000_000L}, {"1.1h", 3_960_000_000L},
+        {"1hr", 3_600_000_000L}, {"1hours", 3_600_000_000L}};
 
     try {
       ParsingUtils.convertToTime("Not");

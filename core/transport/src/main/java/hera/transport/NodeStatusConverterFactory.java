@@ -15,14 +15,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import hera.api.model.ModuleStatus;
 import hera.api.model.NodeStatus;
+import hera.api.model.Time;
 import hera.exception.HerajException;
 import hera.util.ParsingUtils;
-import hera.util.ParsingUtils.ScaleUnit;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Rpc;
@@ -82,9 +83,7 @@ public class NodeStatusConverterFactory {
         moduleStatus.setStatus(componentStatus.get("status").asText());
         moduleStatus.setProcessedMessageCount(componentStatus.get("acc_processed_msg").asLong());
         moduleStatus.setQueuedMessageCount(componentStatus.get("msg_queue_len").asLong());
-        String latencyInStr = componentStatus.get("msg_latency").asText();
-        double latency = convertToTime(latencyInStr);
-        moduleStatus.setLatencyInMicroseconds(latency);
+        moduleStatus.setLatency(convertToTime(componentStatus.get("msg_latency").asText()));
         moduleStatus.setError(componentStatus.get("error").asText());
 
         moduleStatusList.add(moduleStatus);
@@ -96,31 +95,26 @@ public class NodeStatusConverterFactory {
   }
 
   /**
-   * Parse {@code val} and convert time in milliseconds.
+   * Parse {@code val} and convert time in microseconds.
    *
    * @param val string to parse
    *
-   * @return time in milliseconds
+   * @return time in microseconds
    *
-   * @throws ParseException Fail to parse
+   * @throws IOException Fail to parse
    *
    * @see ParsingUtils#convertToTime(String)
    */
-  public static double convertToTime(final String val) throws IOException {
+  protected Time convertToTime(final String val) throws IOException {
     if (null == val) {
-      return 0;
+      throw new IOException("Can't parse " + val);
     }
-
-    final String lowerVal = val.toLowerCase();
-    for (final ScaleUnit unit : ParsingUtils.INTERVALS) {
-      final String units = unit.units;
-      if (lowerVal.endsWith(units)) {
-        final String digits = lowerVal.substring(0, lowerVal.length() - units.length()).trim();
-        return (unit.scale * Double.parseDouble(digits));
-      }
+    try {
+      long time = ParsingUtils.convertToTime(val);
+      return Time.of(time, TimeUnit.MICROSECONDS);
+    } catch (ParseException e) {
+      throw new IOException("Can't parse " + val);
     }
-
-    throw new IOException("Can't parse " + val);
   }
 
 }

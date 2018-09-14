@@ -21,6 +21,8 @@ import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.exception.CommitException;
+import hera.exception.RpcException;
+import hera.exception.SignException;
 import hera.exception.TransactionVerificationException;
 import hera.transport.ModelConverter;
 import hera.transport.TransactionConverterFactory;
@@ -92,10 +94,11 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
     FutureChainer<Tx, Signature> callback = new FutureChainer<>(nextFuture, tx -> {
       final BytesValue sign = ofNullable(tx.getBody().getSign()).map(ByteString::toByteArray)
           .filter(bytes -> 0 != bytes.length).map(BytesValue::of)
-          .orElseThrow(IllegalArgumentException::new);
-      final TxHash hash =
-          ofNullable(tx.getHash()).map(ByteString::toByteArray).filter(bytes -> 0 != bytes.length)
-              .map(TxHash::new).orElseThrow(IllegalArgumentException::new);
+          .orElseThrow(() -> new RpcException(
+              new SignException("Signing failed: sign field is not found at sign result")));
+      final TxHash hash = ofNullable(tx.getHash()).map(ByteString::toByteArray)
+          .filter(bytes -> 0 != bytes.length).map(TxHash::new).orElseThrow(() -> new RpcException(
+              new SignException("Signing failed: txHash field is not found at sign result")));
       return Signature.of(sign, hash);
     });
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
