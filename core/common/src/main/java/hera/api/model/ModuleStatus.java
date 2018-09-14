@@ -31,7 +31,7 @@ public class ModuleStatus {
 
   @Getter
   @Setter
-  protected double latencyInMicroseconds;
+  protected Time latency;
 
   @Getter
   @Setter
