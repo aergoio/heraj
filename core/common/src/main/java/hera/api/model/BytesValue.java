@@ -12,6 +12,7 @@ import hera.util.Base58Utils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -36,13 +37,15 @@ public class BytesValue implements Supplier<InputStream>, Adaptor {
     this.value = Optional.ofNullable(bytes).orElse(new byte[0]);
   }
 
+  protected final Encoder defaultEncoder = in -> new StringReader(Base58Utils.encode(from(in)));
+
   protected transient int hash;
 
   @Getter
   protected final byte[] value;
 
   public String getEncodedValue() throws IOException {
-    return getEncodedValue(Encoder.defaultEncoder);
+    return getEncodedValue(defaultEncoder);
   }
 
   /**

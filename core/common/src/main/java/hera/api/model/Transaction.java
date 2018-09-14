@@ -7,10 +7,11 @@ package hera.api.model;
 import static hera.util.Sha256Utils.digest;
 import static java.util.Optional.ofNullable;
 
+import hera.util.LittleEndianDataOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -61,6 +62,7 @@ public class Transaction {
   @Setter
   protected TransactionType txType = TransactionType.UNRECOGNIZED;
 
+
   /**
    * Copy deep.
    *
@@ -92,7 +94,7 @@ public class Transaction {
   public TxHash calculateHash() {
     try {
       final ByteArrayOutputStream raw = new ByteArrayOutputStream();
-      final DataOutputStream dataOut = new DataOutputStream(raw);
+      final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(raw);
       dataOut.writeLong(getNonce());
       dataOut.write(getSender().getValue());
       dataOut.write(getRecipient().getValue());
@@ -100,6 +102,7 @@ public class Transaction {
       dataOut.write(getPayload().getValue());
       dataOut.writeLong(getLimit());
       dataOut.writeLong(getPrice());
+      dataOut.writeInt(getTxType().getIntValue());
       ofNullable(signature).map(Signature::getSign).map(BytesValue::getValue).ifPresent(b -> {
         try {
           dataOut.write(b);
@@ -108,6 +111,7 @@ public class Transaction {
         }
       });
       dataOut.flush();
+      dataOut.close();
       return new TxHash(digest(raw.toByteArray()));
     } catch (final IOException e) {
       throw new IllegalStateException(e);
