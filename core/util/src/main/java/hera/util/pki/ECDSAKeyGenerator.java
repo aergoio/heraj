@@ -60,7 +60,7 @@ public class ECDSAKeyGenerator implements KeyGenerator {
   /**
    * Create keypair from encoded private key.
    *
-   * @param encodedPrivateKey private key
+   * @param encodedPrivateKey PKCS #8 encoded private key
    *
    * @return key pair to be recovered
    *
