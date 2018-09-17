@@ -71,6 +71,7 @@ public abstract class AbstractCommand implements Command {
   public String getProjectHomePath() {
     return getCanonicalForm(getProjectHome().toFile().getAbsolutePath());
   }
+
   public String getProjectFilePath() {
     return getCanonicalForm(getProjectFile().toFile().getAbsolutePath());
   }
