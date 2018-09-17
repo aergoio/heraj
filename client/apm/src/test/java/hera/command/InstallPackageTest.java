@@ -12,6 +12,7 @@ import static org.powermock.api.mockito.PowerMockito.whenNew;
 
 import hera.AbstractTestCase;
 import hera.FileSet;
+import hera.util.MessagePrinter;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
@@ -22,11 +23,13 @@ public class InstallPackageTest extends AbstractTestCase {
   public void testExecute() throws Exception {
     // Given
     final CloneGit cloneGit = mock(CloneGit.class);
+    cloneGit.setPrinter(mock(MessagePrinter.class));
     whenNew(CloneGit.class).withAnyArguments().thenReturn(cloneGit);
     when(cloneGit.getFileSet()).thenReturn(new FileSet());
 
     // When
     final InstallPackage command = new InstallPackage();
+    command.setPrinter(mock(MessagePrinter.class));
     command.setArguments(singletonList(randomUUID().toString() + "/" + randomUUID().toString()));
     command.execute();
 
