@@ -9,7 +9,7 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import org.junit.Test;
 
-public class MessagePrinterTest extends AbstractTestCase {
+public class AnsiMessagePrinterTest extends AbstractTestCase {
 
   @Test
   public void testFormat() {
@@ -17,7 +17,7 @@ public class MessagePrinterTest extends AbstractTestCase {
     final String blue = randomUUID().toString();
     final HashMap<String, String> colors = new HashMap<>();
     colors.put("blue", blue);
-    final MessagePrinter printer = new MessagePrinter(mock(PrintStream.class));
+    final AnsiMessagePrinter printer = new AnsiMessagePrinter(mock(PrintStream.class));
     printer.setResetCode(resetCode);
     printer.setColors(colors);
     final String encoded = printer.format("<blue>hello, world</blue>");

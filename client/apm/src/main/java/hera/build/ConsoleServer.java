@@ -12,6 +12,7 @@ import hera.test.TestCase;
 import hera.test.TestFile;
 import hera.test.TestSuite;
 import hera.util.MessagePrinter;
+import java.io.IOException;
 import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
@@ -54,7 +55,11 @@ public class ConsoleServer extends AbstractServer {
       printError(details);
     }
 
-    printer.flush();
+    try {
+      printer.flush();
+    } catch (final IOException e) {
+      logger.trace("Ignore exception", e);
+    }
   }
 
   protected void clearScreen() {

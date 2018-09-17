@@ -13,6 +13,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Command;
 import hera.ProjectFile;
+import hera.util.DummyMessagePrinter;
 import hera.util.MessagePrinter;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -33,7 +34,7 @@ public abstract class AbstractCommand implements Command {
 
   @Getter
   @Setter
-  protected MessagePrinter printer;
+  protected MessagePrinter printer = DummyMessagePrinter.getInstance();
 
   public String getArgument(final int index) {
     return arguments.get(index);

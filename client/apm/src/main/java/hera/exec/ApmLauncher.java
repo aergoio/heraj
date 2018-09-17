@@ -10,6 +10,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import hera.Command;
 import hera.CommandFactory;
 import hera.exception.CommandException;
+import hera.util.AnsiMessagePrinter;
 import hera.util.MessagePrinter;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -32,7 +33,7 @@ public class ApmLauncher {
       printHelp();
       exit(-1);
     }
-    final MessagePrinter messagePrinter = new MessagePrinter(System.out);
+    final MessagePrinter messagePrinter = new AnsiMessagePrinter(System.out);
     final CommandFactory commandFactory = new CommandFactory(messagePrinter);
     final Optional<Command> commandOpt = commandFactory.create(args);
     if (!commandOpt.isPresent()) {
