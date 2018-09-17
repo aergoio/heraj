@@ -16,6 +16,8 @@ public interface AergoApi {
 
   BlockOperation getBlockOperation();
 
+  BlockChainOperation getBlockChainOperation();
+
   TransactionOperation getTransactionOperation();
 
   ContractOperation getContractOperation();
