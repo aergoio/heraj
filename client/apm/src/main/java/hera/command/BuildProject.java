@@ -114,6 +114,7 @@ public class BuildProject extends AbstractCommand {
 
   protected void startConsoleServer() {
     final ConsoleServer consoleServer = new ConsoleServer();
+    consoleServer.setPrinter(getPrinter());
     this.buildListeners.add(consoleServer::process);
     consoleServer.boot();
   }

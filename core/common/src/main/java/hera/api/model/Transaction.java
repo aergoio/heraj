@@ -11,7 +11,6 @@ import hera.util.LittleEndianDataOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 

@@ -11,10 +11,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.build.Resource;
 import hera.build.ResourceManager;
-import hera.exception.BuildException;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.NoSuchFileException;

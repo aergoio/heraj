@@ -4,7 +4,6 @@
 
 package hera.exec;
 
-import static java.lang.System.err;
 import static java.lang.System.exit;
 import static org.slf4j.LoggerFactory.getLogger;
 

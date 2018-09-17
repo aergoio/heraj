@@ -3,7 +3,6 @@ package hera.build;
 import static hera.build.web.model.BuildSummary.BUILD_FAIL;
 import static hera.build.web.model.BuildSummary.SUCCESS;
 import static hera.build.web.model.BuildSummary.TEST_FAIL;
-import static hera.util.StringUtils.multiply;
 
 import hera.build.web.model.BuildDetails;
 import hera.build.web.model.BuildSummary;
@@ -14,13 +13,17 @@ import hera.test.TestFile;
 import hera.test.TestSuite;
 import hera.util.MessagePrinter;
 import java.util.Date;
+import lombok.Getter;
+import lombok.Setter;
 
 public class ConsoleServer extends AbstractServer {
 
   protected static final String CLEAR_SCREEN = "\033[2J";
   protected static final String GO_HOME = "\033[H";
 
-  protected MessagePrinter printer = new MessagePrinter(System.out);
+  @Getter
+  @Setter
+  protected MessagePrinter printer;
 
   @Override
   public void boot() {

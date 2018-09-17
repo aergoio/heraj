@@ -1,7 +1,7 @@
 package hera.util;
 
 import static java.util.UUID.randomUUID;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import hera.AbstractTestCase;
