@@ -41,5 +41,7 @@ public class InstallPackage extends AbstractCommand {
     }
     createDirectories(publishPath);
     fileSet.copyTo(publishPath);
+    printer.println("Successful to install %s.", packageName);
+    printer.println("Install path: <green>%s</green>", publishPath);
   }
 }
