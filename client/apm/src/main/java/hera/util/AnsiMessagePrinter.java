@@ -160,7 +160,7 @@ public class AnsiMessagePrinter implements MessagePrinter {
               tags.push(colorName);
               color.delete(0, color.length());
               final String colorCode = colors.get(colorName);
-              assertNotNull(colorCode);
+              assertNotNull(colorCode, "Unknown color: " + colorName);
               writer.write(colorCode);
               state = ST_NORMAL;
             } else {
@@ -172,7 +172,8 @@ public class AnsiMessagePrinter implements MessagePrinter {
               final String colorName = color.toString();
               // check valid
               final String openColorName = tags.pop();
-              assertEquals(openColorName, colorName);
+              assertEquals(openColorName, colorName,
+                  "The closing tag not matched: " + openColorName + ", " + colorName);
               color.delete(0, color.length());
               if (tags.isEmpty()) {
                 writer.write(resetCode);
@@ -192,8 +193,8 @@ public class AnsiMessagePrinter implements MessagePrinter {
     } catch (IOException ex) {
       throw new IllegalStateException();
     }
-    assertEquals(ST_NORMAL, state);
-    assertTrue(tags.isEmpty());
+    assertEquals(ST_NORMAL, state, "Expression is invalid");
+    assertTrue(tags.isEmpty(), "The closing tag missed: " + tags);
     return writer.toString();
   }
 

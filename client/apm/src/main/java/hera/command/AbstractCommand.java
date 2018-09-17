@@ -6,6 +6,7 @@ package hera.command;
 
 import static hera.ApmConstants.MODULES_BASE;
 import static hera.ApmConstants.PROJECT_FILENAME;
+import static hera.util.FilepathUtils.getCanonicalForm;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
@@ -14,6 +15,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import hera.Command;
 import hera.ProjectFile;
 import hera.util.DummyMessagePrinter;
+import hera.util.FilepathUtils;
 import hera.util.MessagePrinter;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -66,10 +68,12 @@ public abstract class AbstractCommand implements Command {
     return Paths.get(getProjectHome().toString(), PROJECT_FILENAME);
   }
 
-  public Path getModuleBasePath() {
-    return Paths.get(getProjectHome().toString(), MODULES_BASE);
+  public String getProjectHomePath() {
+    return getCanonicalForm(getProjectHome().toFile().getAbsolutePath());
   }
-
+  public String getProjectFilePath() {
+    return getCanonicalForm(getProjectFile().toFile().getAbsolutePath());
+  }
 
   /**
    * Read project file.

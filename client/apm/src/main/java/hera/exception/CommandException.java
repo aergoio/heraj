@@ -23,4 +23,11 @@ public class CommandException extends RuntimeException {
     this.userMessage = userMessage;
   }
 
+  @Override
+  public String getMessage() {
+    if (null != userMessage) {
+      return userMessage;
+    }
+    return super.getMessage();
+  }
 }

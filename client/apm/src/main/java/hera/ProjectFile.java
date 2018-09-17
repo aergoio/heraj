@@ -6,12 +6,15 @@ package hera;
 
 import static com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_COMMENTS;
 import static hera.DefaultConstants.DEFAULT_ENDPOINT;
+import static hera.util.FilepathUtils.append;
+import static hera.util.FilepathUtils.getCanonicalForm;
 import static java.nio.file.Files.newInputStream;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hera.util.FilepathUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -63,6 +66,10 @@ public class ProjectFile {
   @Getter
   @Setter
   protected String target;
+
+  public String getTargetPath(final Path project) {
+    return getCanonicalForm(append(project.toFile().getAbsolutePath(), target));
+  }
 
   @Getter
   @Setter

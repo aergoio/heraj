@@ -26,7 +26,6 @@ import hera.build.web.model.BuildDetails;
 import hera.test.TestFile;
 import hera.util.DangerousConsumer;
 import hera.util.FileWatcher;
-import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -50,7 +49,7 @@ public class BuildProject extends AbstractCommand {
     return fileWatcher;
   }
 
-  protected void build(final Project project, final boolean runTests) throws IOException {
+  protected BuildDetails build(final Project project, final boolean runTests) {
     if (logger.isTraceEnabled()) {
       final StringJoiner joiner = new StringJoiner("\n\t", "\t", "");
       asList(new Exception().getStackTrace()).stream()
@@ -103,6 +102,7 @@ public class BuildProject extends AbstractCommand {
         logger.trace("Listener {} throws exception", listener, ex);
       }
     });
+    return buildDetails;
   }
 
   protected void startWebServer(final int port) {
@@ -147,7 +147,23 @@ public class BuildProject extends AbstractCommand {
     builder = new Builder(resourceManager);
     switch (mode) {
       case COMMAND_MODE:
-        build(project, false);
+        final BuildDetails buildDetails = build(project, false);
+        switch (buildDetails.getState()) {
+          case SUCCESS:
+            getPrinter().println("Successful to build.");
+            getPrinter().println("Target: <green>%s</green>",
+                projectFile.getTargetPath(getProjectHome()));
+            break;
+          case BUILD_FAIL:
+            getPrinter().println("<red>Fail to build.</red>");
+            final String errorMessage = buildDetails.getError();
+            getPrinter().println("Cause: %s", errorMessage);
+            break;
+          case TEST_FAIL:
+            throw new IllegalStateException();
+          default:
+            throw new IllegalStateException();
+        }
         break;
       case WEB_MODE:
         startWebServer(port);
@@ -177,10 +193,6 @@ public class BuildProject extends AbstractCommand {
       logger.trace("Skip build resource: {}", changedResource.getLocation());
       return;
     }
-    try {
-      build(project, true);
-    } catch (final IOException ex) {
-      // Handle exception
-    }
+    build(project, true);
   }
 }

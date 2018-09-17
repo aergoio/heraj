@@ -4,6 +4,7 @@
 
 package hera.build;
 
+import static hera.util.FilepathUtils.getCanonicalForm;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.build.res.Source;
@@ -11,6 +12,7 @@ import hera.build.web.model.BuildDependency;
 import hera.build.web.model.BuildDetails;
 import hera.exception.BuildException;
 import hera.exception.CyclicDependencyException;
+import hera.util.FilepathUtils;
 import java.io.FileNotFoundException;
 import java.io.StringWriter;
 import java.nio.file.NoSuchFileException;
@@ -54,7 +56,8 @@ public class Concatenator {
     } catch (final BuildException e) {
       throw e;
     } catch (final FileNotFoundException | NoSuchFileException ex) {
-      throw new BuildException(source.getPath().toFile().getAbsolutePath() + " not found");
+      throw new BuildException("<green>"
+          + getCanonicalForm(source.getPath().toFile().getAbsolutePath()) + "</green> not found");
     } catch (final Throwable e) {
       throw new BuildException(e);
     }
