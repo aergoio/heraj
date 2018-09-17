@@ -20,6 +20,7 @@ import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.exception.CommitException;
 import hera.exception.RpcException;
 import hera.exception.SignException;
@@ -40,6 +41,7 @@ import types.Rpc.CommitResultList;
 import types.Rpc.SingleBytes;
 import types.Rpc.VerifyResult;
 
+@SuppressWarnings("unchecked")
 @RequiredArgsConstructor
 public class TransactionAsyncTemplate implements TransactionAsyncOperation {
 
@@ -62,7 +64,7 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
 
   @Override
   public ResultOrErrorFuture<Transaction> getTransaction(final TxHash txHash) {
-    ResultOrErrorFuture<Transaction> nextFuture = new ResultOrErrorFuture<>();
+    ResultOrErrorFuture<Transaction> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final ByteString byteString = copyFrom(txHash);
     final SingleBytes hashBytes = SingleBytes.newBuilder().setValue(byteString).build();
@@ -87,7 +89,7 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
 
   @Override
   public ResultOrErrorFuture<Signature> sign(final Transaction transaction) {
-    ResultOrErrorFuture<Signature> nextFuture = new ResultOrErrorFuture<>();
+    ResultOrErrorFuture<Signature> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final Tx rpcTransaction = transactionConverter.convertToRpcModel(transaction);
     final ListenableFuture<Tx> listenableFuture = aergoService.signTX(rpcTransaction);
@@ -108,7 +110,7 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
 
   @Override
   public ResultOrErrorFuture<Boolean> verify(final Transaction transaction) {
-    ResultOrErrorFuture<Boolean> nextFuture = new ResultOrErrorFuture<>();
+    ResultOrErrorFuture<Boolean> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final Tx tx = transactionConverter.convertToRpcModel(transaction);
     ListenableFuture<VerifyResult> listenableFuture = aergoService.verifyTX(tx);
@@ -130,7 +132,7 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
 
   @Override
   public ResultOrErrorFuture<TxHash> commit(final Transaction transaction) {
-    ResultOrErrorFuture<TxHash> nextFuture = new ResultOrErrorFuture<>();
+    ResultOrErrorFuture<TxHash> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final Tx tx = transactionConverter.convertToRpcModel(transaction);
     final TxList txList = TxList.newBuilder().addTxs(tx).build();

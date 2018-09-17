@@ -20,6 +20,7 @@ import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
 import hera.api.model.BytesValue;
 import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.transport.BlockConverterFactory;
 import hera.transport.ModelConverter;
 import io.grpc.ManagedChannel;
@@ -31,6 +32,7 @@ import types.Rpc.BlockHeaderList;
 import types.Rpc.ListParams;
 import types.Rpc.SingleBytes;
 
+@SuppressWarnings("unchecked")
 @RequiredArgsConstructor
 public class BlockAsyncTemplate implements BlockAsyncOperation {
 
@@ -48,7 +50,7 @@ public class BlockAsyncTemplate implements BlockAsyncOperation {
 
   @Override
   public ResultOrErrorFuture<Block> getBlock(final BlockHash blockHash) {
-    final ResultOrErrorFuture<Block> nextFuture = new ResultOrErrorFuture<>();
+    final ResultOrErrorFuture<Block> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final ByteString byteString = copyFrom(blockHash);
     final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
@@ -62,7 +64,7 @@ public class BlockAsyncTemplate implements BlockAsyncOperation {
 
   @Override
   public ResultOrErrorFuture<Block> getBlock(final long height) {
-    final ResultOrErrorFuture<Block> nextFuture = new ResultOrErrorFuture<>();
+    final ResultOrErrorFuture<Block> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final ByteString byteString = copyFrom(BytesValue.of(longToByteArray(height)));
     final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
@@ -77,7 +79,8 @@ public class BlockAsyncTemplate implements BlockAsyncOperation {
   @Override
   public ResultOrErrorFuture<List<BlockHeader>> listBlockHeaders(final BlockHash blockHash,
       final int size) {
-    final ResultOrErrorFuture<List<BlockHeader>> nextFuture = new ResultOrErrorFuture<>();
+    final ResultOrErrorFuture<List<BlockHeader>> nextFuture =
+        ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final ListParams listParams =
         ListParams.newBuilder().setHash(copyFrom(blockHash)).setSize(size).build();
@@ -94,7 +97,8 @@ public class BlockAsyncTemplate implements BlockAsyncOperation {
   @Override
   public ResultOrErrorFuture<List<BlockHeader>> listBlockHeaders(final long height,
       final int size) {
-    final ResultOrErrorFuture<List<BlockHeader>> nextFuture = new ResultOrErrorFuture<>();
+    final ResultOrErrorFuture<List<BlockHeader>> nextFuture =
+        ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final ListParams listParams = ListParams.newBuilder().setHeight(height).setSize(size).build();
     ListenableFuture<BlockHeaderList> listenableFuture = aergoService.listBlockHeaders(listParams);
@@ -108,3 +112,4 @@ public class BlockAsyncTemplate implements BlockAsyncOperation {
   }
 
 }
+

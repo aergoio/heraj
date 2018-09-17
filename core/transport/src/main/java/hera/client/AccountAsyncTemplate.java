@@ -18,6 +18,7 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.transport.AccountConverterFactory;
 import hera.transport.AccountStateConverterFactory;
 import hera.transport.ModelConverter;
@@ -32,6 +33,7 @@ import types.Rpc.Empty;
 import types.Rpc.Personal;
 import types.Rpc.SingleBytes;
 
+@SuppressWarnings("unchecked")
 @RequiredArgsConstructor
 public class AccountAsyncTemplate implements AccountAsyncOperation {
 
@@ -52,7 +54,7 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
 
   @Override
   public ResultOrErrorFuture<List<Account>> list() {
-    ResultOrErrorFuture<List<Account>> nextFuture = new ResultOrErrorFuture<>();
+    ResultOrErrorFuture<List<Account>> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     ListenableFuture<AccountList> listenableFuture = aergoService
         .getAccounts(Empty.newBuilder().build());
@@ -67,7 +69,7 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
 
   @Override
   public ResultOrErrorFuture<Account> create(String password) {
-    ResultOrErrorFuture<Account> nextFuture = new ResultOrErrorFuture<>();
+    ResultOrErrorFuture<Account> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final Personal personal = Personal.newBuilder().setPassphrase(password).build();
     ListenableFuture<AccountOuterClass.Account> listenableFuture = aergoService
@@ -85,7 +87,7 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
 
   @Override
   public ResultOrErrorFuture<Account> get(AccountAddress address) {
-    ResultOrErrorFuture<Account> nextFuture = new ResultOrErrorFuture<>();
+    ResultOrErrorFuture<Account> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final ByteString byteString = copyFrom(address.getValue());
     final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
@@ -102,7 +104,7 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
 
   @Override
   public ResultOrErrorFuture<Boolean> unlock(final Authentication authentication) {
-    ResultOrErrorFuture<Boolean> nextFuture = new ResultOrErrorFuture<>();
+    ResultOrErrorFuture<Boolean> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final Account domainAccount =
         Account.of(authentication.getAddress(), authentication.getPassword());
@@ -121,7 +123,7 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
 
   @Override
   public ResultOrErrorFuture<Boolean> lock(final Authentication authentication) {
-    ResultOrErrorFuture<Boolean> nextFuture = new ResultOrErrorFuture<>();
+    ResultOrErrorFuture<Boolean> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final Account domainAccount =
         Account.of(authentication.getAddress(), authentication.getPassword());

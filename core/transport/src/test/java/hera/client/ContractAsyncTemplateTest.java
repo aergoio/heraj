@@ -23,9 +23,10 @@ import hera.api.model.ContractInferface;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
-import hera.api.model.Hash;
 import hera.api.model.Signature;
+import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.transport.ModelConverter;
 import hera.util.Base58Utils;
 import org.junit.BeforeClass;
@@ -87,12 +88,12 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     final Account account = new Account();
     account.setNonce(0);
     when(mockAccountAsyncOperation.get(any()))
-        .thenReturn(ResultOrErrorFuture.supply(() -> success(account)));
+        .thenReturn(ResultOrErrorFutureFactory.supply(() -> success(account)));
     TransactionAsyncOperation mockTransactionAsyncOperation = mock(TransactionAsyncOperation.class);
     when(mockTransactionAsyncOperation.sign(any()))
-        .thenReturn(ResultOrErrorFuture.supply(() -> success(mock(Signature.class))));
+        .thenReturn(ResultOrErrorFutureFactory.supply(() -> success(mock(Signature.class))));
     when(mockTransactionAsyncOperation.commit(any()))
-        .thenReturn(ResultOrErrorFuture.supply(() -> success(mock(Hash.class))));
+        .thenReturn(ResultOrErrorFutureFactory.supply(() -> success(mock(TxHash.class))));
 
     final ContractAsyncTemplate contractAsyncTemplate = new ContractAsyncTemplate(aergoService,
         mockAccountAsyncOperation, mockTransactionAsyncOperation, receiptConverter,
@@ -104,7 +105,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetAbiSet() {
+  public void testGetContractInterface() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.getABI(any())).thenReturn(mockListenableFuture);
@@ -125,12 +126,12 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     final Account account = new Account();
     account.setNonce(0);
     when(mockAccountAsyncOperation.get(any()))
-        .thenReturn(ResultOrErrorFuture.supply(() -> success(account)));
+        .thenReturn(ResultOrErrorFutureFactory.supply(() -> success(account)));
     TransactionAsyncOperation mockTransactionAsyncOperation = mock(TransactionAsyncOperation.class);
     when(mockTransactionAsyncOperation.sign(any()))
-        .thenReturn(ResultOrErrorFuture.supply(() -> success(mock(Signature.class))));
+        .thenReturn(ResultOrErrorFutureFactory.supply(() -> success(mock(Signature.class))));
     when(mockTransactionAsyncOperation.commit(any()))
-        .thenReturn(ResultOrErrorFuture.supply(() -> success(mock(Hash.class))));
+        .thenReturn(ResultOrErrorFutureFactory.supply(() -> success(mock(TxHash.class))));
 
     final ContractAsyncTemplate contractAsyncTemplate = new ContractAsyncTemplate(aergoService,
         mockAccountAsyncOperation, mockTransactionAsyncOperation, receiptConverter,

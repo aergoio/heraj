@@ -36,6 +36,7 @@ import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.transport.ContractInterfaceConverterFactory;
 import hera.transport.ContractResultConverterFactory;
 import hera.transport.ModelConverter;
@@ -51,6 +52,7 @@ import types.Blockchain;
 import types.Rpc;
 import types.Rpc.SingleBytes;
 
+@SuppressWarnings("unchecked")
 @RequiredArgsConstructor
 public class ContractAsyncTemplate implements ContractAsyncOperation {
   protected final Logger logger = getLogger(getClass());
@@ -90,7 +92,8 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
 
   @Override
   public ResultOrErrorFuture<ContractTxReceipt> getReceipt(final ContractTxHash deployTxHash) {
-    ResultOrErrorFuture<ContractTxReceipt> nextFuture = new ResultOrErrorFuture<>();
+    ResultOrErrorFuture<ContractTxReceipt> nextFuture =
+        ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final ByteString byteString = copyFrom(deployTxHash);
     final Rpc.SingleBytes hashBytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
@@ -103,7 +106,6 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
     return nextFuture;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public ResultOrErrorFuture<ContractTxHash> deploy(final AccountAddress creator,
       final DangerousSupplier<byte[]> rawContractCode) {
@@ -117,7 +119,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
     try {
       transaction.setPayload(BytesValue.of(rawContractCode.get()));
     } catch (Throwable e) {
-      return ResultOrErrorFuture.supply(() -> fail(e));
+      return ResultOrErrorFutureFactory.supply(() -> fail(e));
     }
 
     final ResultOrError<Signature> signature = transactionAsyncOperation.sign(transaction).get();
@@ -130,7 +132,8 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
   @Override
   public ResultOrErrorFuture<ContractInferface> getContractInterface(
       final ContractAddress contractAddress) {
-    ResultOrErrorFuture<ContractInferface> nextFuture = new ResultOrErrorFuture<>();
+    ResultOrErrorFuture<ContractInferface> nextFuture =
+        ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final ByteString byteString = copyFrom(contractAddress);
     final Rpc.SingleBytes hashBytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
@@ -142,7 +145,6 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
     return nextFuture;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public ResultOrErrorFuture<ContractTxHash> execute(final AccountAddress executor,
       final ContractAddress contractAddress, final ContractFunction contractFunction,
@@ -159,7 +161,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
       transaction
           .setPayload(BytesValue.of(toFunctionCallJsonString(contractFunction, args).getBytes()));
     } catch (JsonProcessingException e) {
-      return ResultOrErrorFuture.supply(() -> fail(e));
+      return ResultOrErrorFutureFactory.supply(() -> fail(e));
     }
 
     final ResultOrError<Signature> signature = transactionAsyncOperation.sign(transaction).get();
@@ -169,17 +171,16 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
         .map(h -> ContractTxHash.of(h.getBytesValue()));
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public ResultOrErrorFuture<ContractResult> query(final ContractAddress contractAddress,
       final ContractFunction contractFunction, final Object... args) {
-    ResultOrErrorFuture<ContractResult> nextFuture = new ResultOrErrorFuture<>();
+    ResultOrErrorFuture<ContractResult> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     ByteString queryInfo = null;
     try {
       queryInfo = ByteString.copyFrom(toFunctionCallJsonString(contractFunction, args).getBytes());
     } catch (JsonProcessingException e) {
-      return ResultOrErrorFuture.supply(() -> fail(e));
+      return ResultOrErrorFutureFactory.supply(() -> fail(e));
     }
 
     final Blockchain.Query query = Blockchain.Query.newBuilder()

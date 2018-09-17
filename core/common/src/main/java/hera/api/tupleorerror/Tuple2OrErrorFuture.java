@@ -4,28 +4,46 @@
 
 package hera.api.tupleorerror;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
+public interface Tuple2OrErrorFuture<T1, T2> extends GetNotThrowingFuture<Tuple2OrError<T1, T2>> {
 
-@SuppressWarnings({"rawtypes", "unchecked"})
-public class Tuple2OrErrorFuture<T0, T1> extends AbstractTupleOrErrorFuture<Tuple2OrError<T0, T1>> {
+  /**
+   * Complete Tuple2OrErrorFuture with Tuple2OrError.
+   *
+   * @param tuple2OrError Tuple2OrError
+   * @return complete result
+   */
+  boolean complete(Tuple2OrError<T1, T2> tuple2OrError);
 
-  private Tuple2OrErrorFuture(final CompletableFuture<Tuple2OrError<T0, T1>> deligate) {
-    super(deligate);
-  }
+  /**
+   * If a future operation is complete and a values are present, invoke the specified consumer with
+   * the values and hold result as true. If invoke fails with exception. then hold corresponding
+   * error in {@code ResultOrError}.
+   *
+   * @param consumer block to be executed if a values are present
+   * @return a {@code ResultOrErrorFuture} describing consumer result
+   */
+  ResultOrErrorFuture<Boolean> ifPresent(Consumer2<? super T1, ? super T2> consumer);
 
-  public static <U extends CompletableFuture> Tuple2OrErrorFuture withDeligate(
-      final Supplier<U> deligateSupplier) {
-    return new Tuple2OrErrorFuture(deligateSupplier.get());
-  }
+  /**
+   * If a future operation is complete and a values are present, and the values match the given
+   * predicate, return a {@code ResultOrErrorFuture} describing the value, otherwise return a
+   * {@code ResultOrErrorFuture} with {@code ResultOrError} holding {@code HerajException}.
+   *
+   * @param predicate a predicate to apply to the values, if present
+   * @return a {@code Tuple2OrErrorFuture} describing the value of this {@code Tuple2OrErrorFuture}
+   *         if a value is present and the values match the given predicate, otherwise a
+   *         {@code Tuple2OrErrorFuture} with {@code Tuple2OrError} holding {@code HerajException}
+   */
+  Tuple2OrErrorFuture<T1, T2> filter(Predicate2<? super T1, ? super T2> predicate);
 
-  public static <U extends Tuple2OrError> Tuple2OrErrorFuture supply(final Supplier<U> supplier) {
-    return new Tuple2OrErrorFuture(CompletableFuture.supplyAsync(supplier));
-  }
-
-  public <R> ResultOrErrorFuture<R> map(Function2<T0, T1, R> f) {
-    CompletableFuture<ResultOrError<R>> next = getDeligate().thenApply(r -> r.map(f));
-    return new ResultOrErrorFuture<R>(next);
-  }
+  /**
+   * Apply function to values when it's complete without error. Otherwise, don't apply and just
+   * keeping error.
+   *
+   * @param <R> type of next ResultOrErrorFuture
+   * @param fn function to apply
+   * @return {@code ResultOrErrorFuture} with values as result of fn
+   */
+  <R> ResultOrErrorFuture<R> map(Function2<? super T1, ? super T2, ? extends R> fn);
 
 }
