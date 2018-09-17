@@ -6,6 +6,7 @@ package hera.client;
 
 import hera.api.AbstractAergoApi;
 import hera.api.AccountOperation;
+import hera.api.BlockChainOperation;
 import hera.api.BlockOperation;
 import hera.api.ContractOperation;
 import hera.api.SignOperation;
@@ -35,6 +36,9 @@ public class AergoClient extends AbstractAergoApi implements Closeable, AutoClos
 
   @Getter(lazy = true)
   private final BlockOperation blockOperation = new BlockTemplate(channel);
+
+  @Getter(lazy = true)
+  private final BlockChainOperation blockChainOperation = new BlockChainTemplate(channel);
 
   @Getter(lazy = true)
   private final ContractOperation contractOperation = new ContractTemplate(channel);

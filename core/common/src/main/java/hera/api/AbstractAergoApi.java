@@ -33,6 +33,11 @@ public class AbstractAergoApi implements AergoApi, Adaptor {
   }
 
   @Override
+  public BlockChainOperation getBlockChainOperation() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public TransactionOperation getTransactionOperation() {
     throw new UnsupportedOperationException();
   }
