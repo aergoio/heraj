@@ -5,6 +5,7 @@
 package hera.command;
 
 import static com.google.common.io.MoreFiles.deleteRecursively;
+import static com.google.common.io.MoreFiles.getFileExtension;
 import static com.google.common.io.RecursiveDeleteOption.ALLOW_INSECURE;
 import static hera.util.FilepathUtils.append;
 import static hera.util.ValidationUtils.assertTrue;
@@ -41,5 +42,7 @@ public class InstallPackage extends AbstractCommand {
     }
     createDirectories(publishPath);
     fileSet.copyTo(publishPath);
+    printer.println("Successful to install %s.", packageName);
+    printer.println("Install path: <green>%s</green>", publishPath);
   }
 }
