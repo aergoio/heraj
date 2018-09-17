@@ -37,5 +37,7 @@ public class PublishPackage extends AbstractCommand {
     }
     createDirectories(publishPath);
     FileSet.from(Paths.get(".")).copyTo(publishPath);
+    printer.println("Successful to publish %s.", rootProject.getName());
+    printer.println("Publish path: <green>%s</green>", publishPath);
   }
 }
