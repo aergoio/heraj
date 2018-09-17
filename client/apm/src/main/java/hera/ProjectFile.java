@@ -10,6 +10,7 @@ import static java.nio.file.Files.newInputStream;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,4 +75,8 @@ public class ProjectFile {
   @Getter
   @Setter
   protected String endpoint = DEFAULT_ENDPOINT;
+
+  public String toJson() throws JsonProcessingException {
+    return new ObjectMapper().writeValueAsString(this);
+  }
 }

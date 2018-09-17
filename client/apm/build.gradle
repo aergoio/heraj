@@ -30,6 +30,7 @@ dependencies {
   implementation ("org.springframework.boot:spring-boot-starter-websocket:${springBootVersion}") {
     exclude module : 'spring-boot-starter-logging'
   }
+  implementation "com.beust:jcommander:1.72"
 
   testImplementation "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
 }

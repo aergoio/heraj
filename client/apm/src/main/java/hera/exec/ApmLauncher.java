@@ -4,11 +4,14 @@
 
 package hera.exec;
 
+import static java.lang.System.err;
 import static java.lang.System.exit;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Command;
 import hera.CommandFactory;
+import hera.exception.CommandException;
+import hera.util.MessagePrinter;
 import java.util.Optional;
 import org.slf4j.Logger;
 
@@ -30,8 +33,8 @@ public class ApmLauncher {
       printHelp();
       exit(-1);
     }
-
-    final CommandFactory commandFactory = new CommandFactory();
+    final MessagePrinter messagePrinter = new MessagePrinter(System.out);
+    final CommandFactory commandFactory = new CommandFactory(messagePrinter);
     final Optional<Command> commandOpt = commandFactory.create(args);
     if (!commandOpt.isPresent()) {
       printHelp();
@@ -43,14 +46,18 @@ public class ApmLauncher {
         logger.trace("{} starting...", command);
         command.execute();
         exit(0);
-      } catch (final Throwable throwable) {
-        final String errorMessage = throwable.getMessage();
-        if (null != errorMessage) {
-          System.err.println(errorMessage);
+      } catch (final CommandException throwable) {
+        final String userMessage = throwable.getUserMessage();
+        if (null != userMessage) {
+          messagePrinter.println("<bg_red> ERROR </bg_red>: " + userMessage);
           logger.error("Fail to execute {}", command, throwable);
         } else {
-          throwable.printStackTrace();
+          logger.error("{}", throwable.getMessage(), throwable);
         }
+        exit(-1);
+      } catch (final Throwable throwable) {
+        System.err.println("Unexpected exception!! Report the bug to support@aergo.io");
+        throwable.printStackTrace();
         exit(-1);
       }
     });

@@ -4,11 +4,7 @@
 
 package hera.exception;
 
-public class BuildException extends RuntimeException {
-  public BuildException() {
-    super();
-  }
-
+public class BuildException extends CommandException {
   public BuildException(final String message) {
     super(message);
   }

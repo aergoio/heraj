@@ -317,4 +317,42 @@ public class StringUtils {
     return count;
   }
 
+  /**
+   * Remove prefix if exists.
+   *
+   * @param str     string to remove
+   * @param prefix  prefix to remove
+   *
+   * @return removed string
+   */
+  public static String removePrefix(final String str, String prefix) {
+    if (null == str) {
+      return null;
+    }
+    if (str.startsWith(prefix)) {
+      return str.substring(prefix.length());
+    } else {
+      return str;
+    }
+  }
+
+  /**
+   * Remove suffix if exists.
+   *
+   * @param str     string to remove
+   * @param suffix  suffix to remove
+   *
+   * @return removed string
+   */
+  public static String removeSuffix(final String str, String suffix) {
+    if (null == str) {
+      return null;
+    }
+    if (str.endsWith(suffix)) {
+      return str.substring(0, str.length() - suffix.length());
+    } else {
+      return str;
+    }
+  }
+
 }
