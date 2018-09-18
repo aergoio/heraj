@@ -29,7 +29,7 @@ public class TransportUtilsTest extends AbstractTestCase {
 
   @Test
   public void testCopyFromWithNullBytesValue() {
-    BytesValue bytesValue = BytesValue.of(null);
+    BytesValue bytesValue = new BytesValue(null);
     ByteString actualResult = copyFrom(bytesValue);
     assertEquals(ByteString.EMPTY, actualResult);
   }
