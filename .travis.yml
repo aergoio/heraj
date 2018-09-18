@@ -25,7 +25,7 @@ after_success:
 notifications:
   email: false
   slack:
-    room: blocko:LwABz6vDzniWNDuDgtYIeqrf#aergochain-dev
+    room: blocko:LwABz6vDzniWNDuDgtYIeqrf
     on_success: never
     on_failure: always
 
