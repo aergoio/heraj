@@ -13,7 +13,6 @@ import static org.bouncycastle.jce.ECNamedCurveTable.getParameterSpec;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.exception.SignException;
-import hera.util.Base58Utils;
 import hera.util.HexUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -27,7 +26,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bouncycastle.crypto.params.ECDomainParameters;
-import org.bouncycastle.jce.interfaces.ECPublicKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.jce.spec.ECPrivateKeySpec;
@@ -58,17 +56,17 @@ public class ECDSAKey implements KeyPair {
   }
 
   /**
-   * Recover keypair from base58 encoded private key.
+   * Recover encoded private key.
    *
-   * @param encodedPrivatekey base58 encoded private key
+   * @param rawPrivatekey private key
    * @return recovered key pair
    *
    * @throws Exception on failure of recovery
    */
-  public static ECDSAKey recover(final String encodedPrivatekey) throws Exception {
+  public static ECDSAKey recover(final byte[] rawPrivatekey) throws Exception {
     final KeyFactory factory = KeyFactory.getInstance(KEY_ALGORITHM);
 
-    final BigInteger d = new BigInteger(1, Base58Utils.decode(encodedPrivatekey));
+    final BigInteger d = new BigInteger(1, rawPrivatekey);
     final ECPrivateKeySpec spec = new ECPrivateKeySpec(d, ecSpec);
     final PrivateKey privateKey = factory.generatePrivate(spec);
 
@@ -181,7 +179,8 @@ public class ECDSAKey implements KeyPair {
   protected boolean verify(final PublicKey publicKey, final byte[] message,
       final ECDSASignature signature) {
 
-    final ECPublicKey ecPublicKey = (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
+    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =
+        (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
 
     final BigInteger r = signature.getR();
     final BigInteger s = signature.getS();
@@ -217,6 +216,15 @@ public class ECDSAKey implements KeyPair {
     }
 
     return 0 == x.mod(n).compareTo(r);
+  }
+
+  @Override
+  public String toString() {
+    final org.bouncycastle.jce.interfaces.ECPrivateKey ecPrivateKey =
+        (org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey;
+    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =
+        (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
+    return String.format("%s\n%s", ecPrivateKey.toString(), ecPublicKey.toString());
   }
 
   protected byte[] toByteArray(final InputStream plainText) throws Exception {

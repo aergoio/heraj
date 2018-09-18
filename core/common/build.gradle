@@ -8,4 +8,5 @@ jar {
 dependencies {
   implementation project(":core:annotation")
   implementation project(":core:util")
+  implementation 'org.bouncycastle:bcprov-jdk16:1.46'
 }

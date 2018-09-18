@@ -8,9 +8,9 @@ import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertTrue;
 
 import hera.AbstractTestCase;
+import hera.AergoKey;
+import hera.AergoKeyGenerator;
 import hera.api.model.BytesValue;
-import hera.util.pki.ECDSAKey;
-import hera.util.pki.ECDSAKeyGenerator;
 import org.junit.Test;
 
 public class SignTemplateTest extends AbstractTestCase {
@@ -18,7 +18,7 @@ public class SignTemplateTest extends AbstractTestCase {
   @Test
   public void test() throws Exception {
     final BytesValue plainText = new BytesValue(randomUUID().toString().getBytes());
-    final ECDSAKey key = new ECDSAKeyGenerator().create();
+    final AergoKey key = new AergoKeyGenerator().create();
     final SignTemplate signTemplate = new SignTemplate();
     final BytesValue bytesValue = signTemplate.sign(key, plainText);
 

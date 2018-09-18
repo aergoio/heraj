@@ -9,6 +9,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import hera.AergoKey;
+import hera.AergoKeyGenerator;
 import hera.api.SignTemplate;
 import hera.api.model.Account;
 import hera.api.model.Authentication;
@@ -17,8 +19,6 @@ import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.util.pki.ECDSAKey;
-import hera.util.pki.ECDSAKeyGenerator;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -89,7 +89,7 @@ public class TransactionTemplateIT extends AbstractIT {
     final SignTemplate signTemplate = new SignTemplate();
 
     final Hash hashWithoutSign = transaction.calculateHash();
-    final ECDSAKey key = new ECDSAKeyGenerator().create();
+    final AergoKey key = new AergoKeyGenerator().create();
     final BytesValue sign = signTemplate.sign(key, hashWithoutSign);
     transaction.setSignature(Signature.of(sign, null));
     final TxHash hash = transaction.calculateHash();

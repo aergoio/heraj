@@ -6,7 +6,9 @@ package hera.api.model;
 
 import static hera.util.IoUtils.from;
 
+import hera.api.Base58Transformer;
 import hera.api.Encoder;
+import hera.api.Transformer;
 import hera.util.Adaptor;
 import hera.util.Base58Utils;
 import java.io.ByteArrayInputStream;
@@ -21,7 +23,7 @@ import lombok.Getter;
 public class BytesValue implements Supplier<InputStream>, Adaptor {
 
   /**
-   * Factory method.
+   * Create {@code BytesValue} with a raw bytes array.
    *
    * @param bytes value
    * @return created {@link BytesValue}
@@ -33,11 +35,25 @@ public class BytesValue implements Supplier<InputStream>, Adaptor {
     return new BytesValue(Arrays.copyOf(bytes, bytes.length));
   }
 
+  /**
+   * Create {@code BytesValue} with a base58 encoded value.
+   *
+   * @param encoded base58 encoded value
+   * @return created {@link BytesValue}
+   * @throws IOException when decoding error
+   */
+  public static BytesValue of(final String encoded) throws IOException {
+    if (null == encoded) {
+      return new BytesValue(null);
+    }
+    return of(from(transformer.decode(new StringReader(encoded))));
+  }
+
   public BytesValue(final byte[] bytes) {
     this.value = Optional.ofNullable(bytes).orElse(new byte[0]);
   }
 
-  protected final Encoder defaultEncoder = in -> new StringReader(Base58Utils.encode(from(in)));
+  protected static final Transformer transformer = new Base58Transformer();
 
   protected transient int hash;
 
@@ -45,7 +61,7 @@ public class BytesValue implements Supplier<InputStream>, Adaptor {
   protected final byte[] value;
 
   public String getEncodedValue() throws IOException {
-    return getEncodedValue(defaultEncoder);
+    return getEncodedValue(transformer);
   }
 
   /**

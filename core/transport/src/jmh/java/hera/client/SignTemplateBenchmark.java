@@ -6,12 +6,12 @@ package hera.client;
 
 import static java.util.UUID.randomUUID;
 
+import hera.AergoKey;
+import hera.AergoKeyGenerator;
 import hera.api.SignTemplate;
 import hera.api.model.AccountAddress;
 import hera.api.model.Hash;
 import hera.api.model.Transaction;
-import hera.util.pki.ECDSAKey;
-import hera.util.pki.ECDSAKeyGenerator;
 import java.util.concurrent.atomic.AtomicLong;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -31,14 +31,14 @@ public class SignTemplateBenchmark {
 
     protected SignTemplate signTemplate;
 
-    protected ECDSAKey senderKey;
+    protected AergoKey senderKey;
 
     protected AtomicLong nonce = new AtomicLong(1);
 
     @Setup(Level.Trial)
     public synchronized void setUp() throws Exception {
       signTemplate = new SignTemplate();
-      senderKey = new ECDSAKeyGenerator().create();
+      senderKey = new AergoKeyGenerator().create();
     }
 
     public void sendTransaction() throws Exception {
