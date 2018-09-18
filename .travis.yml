@@ -13,6 +13,9 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
+env:
+  - IS_TRAVIS=true
+
 install:
   - ./build.sh protobuf
 
