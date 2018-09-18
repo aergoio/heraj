@@ -26,6 +26,6 @@ notifications:
   email: false
   slack:
     room: blocko:LwABz6vDzniWNDuDgtYIeqrf
-    on_success: never
+    on_success: change
     on_failure: always
 
