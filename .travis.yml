@@ -23,8 +23,8 @@ after_success:
   - bash <(curl -s https://codecov.io/bash)
 
 notifications:
-  - email: false
-  - slack: blocko:LwABz6vDzniWNDuDgtYIeqrf
-    - on_success: never
-    - on_failure: always
+  email: false
+  slack: blocko:LwABz6vDzniWNDuDgtYIeqrf
+    on_success: never
+    on_failure: always
 
