@@ -18,6 +18,8 @@ public class Base58Utils {
 
   protected static final int[] INDEXES = new int[128];
 
+  protected static final int CHECKSUM_LEN = 4;
+
   static {
     Arrays.fill(INDEXES, -1);
     for (int i = 0; i < BASE58_CHARS.length; i++) {
@@ -127,4 +129,48 @@ public class Base58Utils {
     }
     return (byte) remainder;
   }
+
+  /**
+   * Encode byte array to base58 with checksum.
+   *
+   * @param rawData raw byte array
+   * @return base58 encoded strihgn with checksum
+   */
+  public static String encodeWithCheck(final byte[] rawData) {
+    final byte[] checkSum = calculateCheckSum(rawData);
+    final byte[] rawTotal = new byte[rawData.length + CHECKSUM_LEN];
+    System.arraycopy(rawData, 0, rawTotal, 0, rawData.length);
+    System.arraycopy(checkSum, 0, rawTotal, rawTotal.length - CHECKSUM_LEN, CHECKSUM_LEN);
+    return encode(rawTotal);
+  }
+
+  /**
+   * Decode base58 string with checksum to byte array.
+   *
+   * @param encoded base58 encoded string
+   * @return decoded byte array
+   */
+  public static byte[] decodeWithCheck(final String encoded) {
+    final byte[] rawTotal = decode(encoded);
+    final byte[] rawData = Arrays.copyOfRange(rawTotal, 0, rawTotal.length - CHECKSUM_LEN);
+    final byte[] checkSum =
+        Arrays.copyOfRange(rawTotal, rawTotal.length - CHECKSUM_LEN, rawTotal.length);
+    final byte[] calculatedCheckSum = calculateCheckSum(rawData);
+    if (!Arrays.equals(checkSum, calculatedCheckSum)) {
+      throw new IllegalArgumentException("Checksum is mismatch");
+    }
+    return rawData;
+  }
+
+  /**
+   * Calculate checksum with a {@code rawData}.
+   *
+   * @param rawData raw data
+   * @return calculated checksum
+   */
+  protected static byte[] calculateCheckSum(final byte[] rawData) {
+    final byte[] doubleHashed = Sha256Utils.digest(Sha256Utils.digest(rawData));
+    return Arrays.copyOfRange(doubleHashed, 0, CHECKSUM_LEN);
+  }
+
 }
