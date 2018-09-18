@@ -17,43 +17,43 @@ import lombok.Setter;
 
 public class AnsiMessagePrinter implements MessagePrinter {
 
-  protected static final String COLOR_RESET   = "\u001B[0m";
+  public static final String COLOR_RESET   = "\u001B[0m";
 
-  protected static final String COLOR_BLACK   = "\u001B[30m";
-  protected static final String COLOR_RED     = "\u001B[31m";
-  protected static final String COLOR_GREEN   = "\u001B[32m";
-  protected static final String COLOR_YELLOW  = "\u001B[33m";
-  protected static final String COLOR_BLUE    = "\u001B[34m";
-  protected static final String COLOR_MAGENTA = "\u001B[35m";
-  protected static final String COLOR_CYAN    = "\u001B[36m";
-  protected static final String COLOR_WHITE   = "\u001B[37m";
+  public static final String COLOR_BLACK   = "\u001B[30m";
+  public static final String COLOR_RED     = "\u001B[31m";
+  public static final String COLOR_GREEN   = "\u001B[32m";
+  public static final String COLOR_YELLOW  = "\u001B[33m";
+  public static final String COLOR_BLUE    = "\u001B[34m";
+  public static final String COLOR_MAGENTA = "\u001B[35m";
+  public static final String COLOR_CYAN    = "\u001B[36m";
+  public static final String COLOR_WHITE   = "\u001B[37m";
 
-  protected static final String COLOR_BRIGHT_BLACK    = removeSuffix(COLOR_BLACK, "m") + ";1m";
-  protected static final String COLOR_BRIGHT_RED      = removeSuffix(COLOR_RED, "m") + ";1m";
-  protected static final String COLOR_BRIGHT_GREEN    = removeSuffix(COLOR_GREEN, "m") + ";1m";
-  protected static final String COLOR_BRIGHT_YELLOW   = removeSuffix(COLOR_YELLOW, "m") + ";1m";
-  protected static final String COLOR_BRIGHT_BLUE     = removeSuffix(COLOR_BLUE, "m") + ";1m";
-  protected static final String COLOR_BRIGHT_MAGENTA  = removeSuffix(COLOR_MAGENTA, "m") + ";1m";
-  protected static final String COLOR_BRIGHT_CYAN     = removeSuffix(COLOR_CYAN, "m") + ";1m";
-  protected static final String COLOR_BRIGHT_WHITE    = removeSuffix(COLOR_WHITE, "m") + ";1m";
+  public static final String COLOR_BRIGHT_BLACK    = removeSuffix(COLOR_BLACK, "m") + ";1m";
+  public static final String COLOR_BRIGHT_RED      = removeSuffix(COLOR_RED, "m") + ";1m";
+  public static final String COLOR_BRIGHT_GREEN    = removeSuffix(COLOR_GREEN, "m") + ";1m";
+  public static final String COLOR_BRIGHT_YELLOW   = removeSuffix(COLOR_YELLOW, "m") + ";1m";
+  public static final String COLOR_BRIGHT_BLUE     = removeSuffix(COLOR_BLUE, "m") + ";1m";
+  public static final String COLOR_BRIGHT_MAGENTA  = removeSuffix(COLOR_MAGENTA, "m") + ";1m";
+  public static final String COLOR_BRIGHT_CYAN     = removeSuffix(COLOR_CYAN, "m") + ";1m";
+  public static final String COLOR_BRIGHT_WHITE    = removeSuffix(COLOR_WHITE, "m") + ";1m";
 
-  protected static final String BG_BLACK = "\u001B[40m";
-  protected static final String BG_RED = "\u001B[41m";
-  protected static final String BG_GREEN = "\u001B[42m";
-  protected static final String BG_YELLOW = "\u001B[43m";
-  protected static final String BG_BLUE = "\u001B[44m";
-  protected static final String BG_MAGENTA = "\u001B[45m";
-  protected static final String BG_CYAN = "\u001B[46m";
-  protected static final String BG_WHITE = "\u001B[47m";
+  public static final String BG_BLACK = "\u001B[40m";
+  public static final String BG_RED = "\u001B[41m";
+  public static final String BG_GREEN = "\u001B[42m";
+  public static final String BG_YELLOW = "\u001B[43m";
+  public static final String BG_BLUE = "\u001B[44m";
+  public static final String BG_MAGENTA = "\u001B[45m";
+  public static final String BG_CYAN = "\u001B[46m";
+  public static final String BG_WHITE = "\u001B[47m";
 
-  protected static final String BG_BRIGHT_BLACK = removeSuffix(BG_BLACK, "m") + ";1m";
-  protected static final String BG_BRIGHT_RED = removeSuffix(BG_RED, "m") + ";1m";
-  protected static final String BG_BRIGHT_GREEN = removeSuffix(BG_GREEN, "m") + ";1m";
-  protected static final String BG_BRIGHT_YELLOW = removeSuffix(BG_YELLOW, "m") + ";1m";
-  protected static final String BG_BRIGHT_BLUE = removeSuffix(BG_BLUE, "m") + ";1m";
-  protected static final String BG_BRIGHT_MAGENTA = removeSuffix(BG_MAGENTA, "m") + ";1m";
-  protected static final String BG_BRIGHT_CYAN = removeSuffix(BG_CYAN, "m") + ";1m";
-  protected static final String BG_BRIGHT_WHITE = removeSuffix(BG_WHITE, "m") + ";1m";
+  public static final String BG_BRIGHT_BLACK = removeSuffix(BG_BLACK, "m") + ";1m";
+  public static final String BG_BRIGHT_RED = removeSuffix(BG_RED, "m") + ";1m";
+  public static final String BG_BRIGHT_GREEN = removeSuffix(BG_GREEN, "m") + ";1m";
+  public static final String BG_BRIGHT_YELLOW = removeSuffix(BG_YELLOW, "m") + ";1m";
+  public static final String BG_BRIGHT_BLUE = removeSuffix(BG_BLUE, "m") + ";1m";
+  public static final String BG_BRIGHT_MAGENTA = removeSuffix(BG_MAGENTA, "m") + ";1m";
+  public static final String BG_BRIGHT_CYAN = removeSuffix(BG_CYAN, "m") + ";1m";
+  public static final String BG_BRIGHT_WHITE = removeSuffix(BG_WHITE, "m") + ";1m";
 
   @Getter
   @Setter
@@ -109,9 +109,16 @@ public class AnsiMessagePrinter implements MessagePrinter {
     colors.put("bg_bright_white", BG_BRIGHT_WHITE);
   }
 
-  protected String format(String message) {
+  /**
+   * Format tagged message with ansi color.
+   *
+   * @param message message to format
+   *
+   * @return text with ansi code
+   */
+  public String format(final String message) {
     if (null == message) {
-      return message;
+      return null;
     }
     final StringReader reader = new StringReader(message);
     final StringWriter writer = new StringWriter();
@@ -193,7 +200,7 @@ public class AnsiMessagePrinter implements MessagePrinter {
     } catch (IOException ex) {
       throw new IllegalStateException();
     }
-    assertEquals(ST_NORMAL, state, "Expression is invalid");
+    assertEquals(ST_NORMAL, state, "Expression is invalid: " + state);
     assertTrue(tags.isEmpty(), "The closing tag missed: " + tags);
     return writer.toString();
   }

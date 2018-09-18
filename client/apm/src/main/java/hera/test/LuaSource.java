@@ -4,11 +4,17 @@
 
 package hera.test;
 
+import static hera.util.AnsiMessagePrinter.COLOR_GREEN;
+import static hera.util.AnsiMessagePrinter.COLOR_RESET;
 import static hera.util.ValidationUtils.assertTrue;
 import static java.lang.String.format;
+import static java.util.Collections.EMPTY_LIST;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.util.AnsiMessagePrinter;
 import hera.util.IntRange;
+import java.util.Collections;
+import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
 import lombok.Getter;
@@ -70,7 +76,7 @@ public class LuaSource {
    */
   @Override
   public String toString() {
-    return toString(0, lines.length);
+    return toString(0, lines.length, EMPTY_LIST);
   }
 
   /**
@@ -80,7 +86,7 @@ public class LuaSource {
    * @param to end line number
    * @return formatted string
    */
-  public String toString(final int from, final int to) {
+  public String toString(final int from, final int to, final List<Integer> highlights) {
     logger.debug("{} ~ {}", from, to);
     final int digit = (int) (Math.log10(lines.length) + 1);
 
@@ -88,10 +94,17 @@ public class LuaSource {
     final IntRange range = new IntRange(0, lines.length).select(new IntRange(from, to));
     logger.trace("{}", range);
 
-    StringJoiner joiner = new StringJoiner("\n");
+    final StringJoiner joiner = new StringJoiner("\n");
     IntStream.range(range.v1, range.v2)
-        .mapToObj(lineNumber -> format("%1$" + digit + "s |", lines[lineNumber].getLinenumber())
-            + lines[lineNumber].getText())
+        .mapToObj(lineNumber -> {
+          final SourceLine line = lines[lineNumber];
+          final int n = line.getLinenumber();
+          if (highlights.contains(line.getLinenumber())) {
+            return format("%" + digit + "s |%s%s%s", n, COLOR_GREEN, line.getText(), COLOR_RESET);
+          } else {
+            return format("%" + digit + "s |%s", n, line.getText());
+          }
+        })
         .forEach(joiner::add);
     return joiner.toString();
   }

@@ -5,7 +5,9 @@
 package hera.command;
 
 import static hera.util.ObjectUtils.nvl;
+import static java.util.Arrays.asList;
 import static java.util.Collections.EMPTY_LIST;
+import static java.util.Optional.ofNullable;
 
 import hera.Builder;
 import hera.BuilderFactory;
@@ -23,6 +25,7 @@ import hera.test.TestResultCollector;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,11 +39,34 @@ public class TestProject extends AbstractCommand {
   @Setter
   protected Consumer<TestResultCollector> reporter = (testReporter) -> {
     testReporter.getResults().forEach(testFile -> {
-      System.out.println(testFile.toString());
+      if (testFile.isSuccess()) {
+        getPrinter().println(" <green>o</green> %s", testFile.getFilename());
+      } else {
+        final Optional<String> errorMessage =
+            ofNullable(testFile.getError()).map(LuaErrorInformation::getMessage);
+        if (errorMessage.isPresent()) {
+          getPrinter().println(" <red>x</red> %s - <red>%s</red>",
+              testFile.getFilename(), errorMessage.get());
+        } else {
+          getPrinter().println(" <red>x</red> %s",
+              testFile.getFilename());
+        }
+      }
       testFile.getSuites().forEach(testSuite -> {
-        System.out.println(testSuite.toString());
+        if (testSuite.isSuccess()) {
+          getPrinter().println("  <green>o</green> %s (%d/%d)",
+              testSuite.getName(), testSuite.getSuccesses(), testSuite.getTests());
+        } else {
+          getPrinter().println("  <red>x</red> %s (%d/%d)",
+              testSuite.getName(), testSuite.getSuccesses(), testSuite.getTests());
+        }
         testSuite.getTestCases().forEach(testCase -> {
-          System.out.println("   " + testCase);
+          if (testCase.isSuccess()) {
+            getPrinter().println("   <green>o</green> %s", testCase.getName());
+          } else {
+            getPrinter().println("   <red>x</red> %s - <red>%s</red>",
+                testCase.getName(), testCase.getErrorMessage());
+          }
         });
       });
     });
@@ -77,7 +103,8 @@ public class TestProject extends AbstractCommand {
         if (!testResult.isSuccess()) {
           final LuaErrorInformation error = testResult.getError();
           final int lineNumber = error.getLineNumber();
-          logger.debug("Lua Script:\n{}", executable.toString(lineNumber - 5, lineNumber + 5));
+          logger.debug("Lua Script:\n{}",
+              executable.toString(lineNumber - 5, lineNumber + 5, asList(lineNumber)));
         }
         testReporter.end();
       }
