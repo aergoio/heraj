@@ -180,7 +180,7 @@ jacoco {
   toolVersion = "0.8.1"
 }
 
-task alljacoco(type: org.gradle.testing.jacoco.tasks.JacocoReport) {
+task alljacoco(type: JacocoReport) {
   dependsOn = javaProjects.test
   additionalSourceDirs = files(javaProjects.sourceSets.main.allSource.srcDirs)
   sourceDirectories = files(javaProjects.sourceSets.main.allSource.srcDirs)
@@ -191,9 +191,10 @@ task alljacoco(type: org.gradle.testing.jacoco.tasks.JacocoReport) {
     new File(coverageFileLocation).exists()
   }).jacocoTestReport.executionData)
   reports {
-      html.enabled = true
-      xml.enabled = false
-      csv.enabled = false
+    html.enabled = true
+    xml.enabled = true
+    xml.destination file("${buildDir}/reports/jacoco/report.xml")
+    csv.enabled = false
   }
   afterEvaluate {
     classDirectories = files(classDirectories.files.collect {

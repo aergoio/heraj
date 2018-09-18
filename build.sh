@@ -20,6 +20,7 @@ fi
 ################################################################################
 # Definition
 VERSION=$(grep ' version ' $PROJECT_HOME/build.gradle | cut -d"'" -f2)
+
 export BUILD_WORKSPACE=$PROJECT_HOME/build
 
 if [ -z "$VERSION" ]; then
@@ -59,7 +60,7 @@ function execute-npm() {
   cp -r $PROJECT_HOME/client/apm-web/dist/* $PROJECT_HOME/client/apm/src/main/resources/public
 }
 function execute-gradle() {
-  $PROJECT_HOME/gradlew build
+  $PROJECT_HOME/gradlew build alljacoco
 }
 function execute-test() {
   $PROJECT_HOME/gradlew test jacocoTestReport coveralls
