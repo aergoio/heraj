@@ -82,4 +82,17 @@ public class TransactionTemplateTest extends AbstractTestCase {
     assertNotNull(txHash);
   }
 
+  @Test
+  public void testSend() throws Exception {
+    ResultOrErrorFuture<TxHash> futureMock = mock(ResultOrErrorFuture.class);
+    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
+    TransactionAsyncOperation asyncOperationMock = mock(TransactionAsyncOperation.class);
+    when(asyncOperationMock.send(any(Transaction.class))).thenReturn(futureMock);
+
+    final TransactionTemplate transactionTemplate = new TransactionTemplate(asyncOperationMock);
+
+    final ResultOrError<TxHash> txHash = transactionTemplate.send(new Transaction());
+    assertNotNull(txHash);
+  }
+
 }

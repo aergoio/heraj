@@ -43,4 +43,12 @@ public interface TransactionOperation {
    */
   ResultOrError<TxHash> commit(Transaction transaction);
 
+  /**
+   * Send transaction. This method automatically fill nonce, hash and sign in a server.
+   *
+   * @param transaction transaction to commit
+   * @return transaction hash or error
+   */
+  ResultOrError<TxHash> send(Transaction transaction);
+
 }

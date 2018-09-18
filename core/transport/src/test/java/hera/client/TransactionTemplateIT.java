@@ -65,7 +65,8 @@ public class TransactionTemplateIT extends AbstractIT {
     logger.debug("Hash: {}", hash);
     assertNotNull(hash);
 
-    final Transaction queried = transactionTemplate.getTransaction(signature.getTxHash()).getResult();
+    final Transaction queried =
+        transactionTemplate.getTransaction(signature.getTxHash()).getResult();
     assertNotNull(queried);
     assertEquals(sender.getAddress(), queried.getSender());
     assertEquals(recipient.getAddress(), queried.getRecipient());
@@ -100,7 +101,8 @@ public class TransactionTemplateIT extends AbstractIT {
 
     transactionTemplate.commit(transaction);
 
-    final Transaction queried = transactionTemplate.getTransaction(signature.getTxHash()).getResult();
+    final Transaction queried =
+        transactionTemplate.getTransaction(signature.getTxHash()).getResult();
     assertNotNull(queried);
     assertEquals(sender.getAddress(), queried.getSender());
     assertEquals(recipient.getAddress(), queried.getRecipient());
@@ -108,4 +110,31 @@ public class TransactionTemplateIT extends AbstractIT {
 
     accountTemplate.lock(Authentication.of(sender.getAddress(), PASSWORD)).getResult();
   }
+
+  @Test
+  public void testSend() {
+    final Boolean unlockResult =
+        accountTemplate.unlock(Authentication.of(sender.getAddress(), PASSWORD)).getResult();
+    assertTrue(unlockResult);
+
+    final Transaction transaction = new Transaction();
+    transaction.setAmount(30);
+    transaction.setSender(sender.getAddress());
+    transaction.setRecipient(recipient.getAddress());
+
+    final TxHash hash = transactionTemplate.send(transaction).getResult();
+    logger.debug("Hash: {}", hash);
+    assertNotNull(hash);
+
+    final Transaction queried = transactionTemplate.getTransaction(hash).getResult();
+    assertNotNull(queried);
+    assertEquals(sender.getAddress(), queried.getSender());
+    assertEquals(recipient.getAddress(), queried.getRecipient());
+    logger.debug("Transaction: {}", queried);
+
+    final Boolean lockResult =
+        accountTemplate.lock(Authentication.of(sender.getAddress(), PASSWORD)).getResult();
+    assertTrue(lockResult);
+  }
+
 }

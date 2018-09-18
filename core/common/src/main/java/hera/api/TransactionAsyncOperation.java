@@ -43,4 +43,13 @@ public interface TransactionAsyncOperation {
    */
   ResultOrErrorFuture<TxHash> commit(Transaction transaction);
 
+  /**
+   * Send transaction asynchronously. This method automatically fill nonce, hash and sign in a
+   * server.
+   *
+   * @param transaction transaction to commit
+   * @return transaction hash or error
+   */
+  ResultOrErrorFuture<TxHash> send(Transaction transaction);
+
 }

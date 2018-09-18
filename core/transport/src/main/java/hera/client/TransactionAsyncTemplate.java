@@ -154,4 +154,21 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
 
     return nextFuture;
   }
+
+  @Override
+  public ResultOrErrorFuture<TxHash> send(final Transaction transaction) {
+    ResultOrErrorFuture<TxHash> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
+
+    final Tx tx = transactionConverter.convertToRpcModel(transaction);
+    ListenableFuture<Rpc.CommitResult> listenableFuture = aergoService.sendTX(tx);
+    FutureChainer<Rpc.CommitResult, TxHash> callback =
+        new FutureChainer<Rpc.CommitResult, TxHash>(nextFuture,
+            c -> ofNullable(c).filter(v -> Rpc.CommitStatus.TX_OK == v.getError())
+                .map(v -> v.getHash().toByteArray()).map(TxHash::of)
+                .orElseThrow(() -> new CommitException(c.getError())));
+    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+
+    return nextFuture;
+  }
+
 }

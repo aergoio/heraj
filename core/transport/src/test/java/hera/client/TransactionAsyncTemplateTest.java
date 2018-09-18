@@ -105,5 +105,18 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
     assertNotNull(txHash);
   }
 
+  @Test
+  public void testSend() {
+    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
+    ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
+    when(aergoService.sendTX(any())).thenReturn(mockListenableFuture);
+
+    final TransactionAsyncTemplate transactionAsyncTemplate = new TransactionAsyncTemplate(
+        aergoService, transactionConverter, transactionInBlockConverter);
+
+    final ResultOrErrorFuture<TxHash> txHash = transactionAsyncTemplate.send(new Transaction());
+    assertNotNull(txHash);
+  }
+
 }
 
