@@ -8,10 +8,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import javax.inject.Named;
 
-<span class="fc" id="L12">public class LiveUpdateService extends AbstractService {</span>
+@Named
+<span class="nc" id="L14">public class LiveUpdateService extends AbstractService {</span>
 
-<span class="fc" id="L14">  protected final Set&lt;LiveUpdateSession&gt; sessions = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L16">  protected final Set&lt;LiveUpdateSession&gt; sessions = new HashSet&lt;&gt;();</span>
 
   /**
    * Add session to managed area.
@@ -19,9 +21,9 @@ import java.util.Set;
    * @param liveUpdateSession session to add
    */
   public void add(final LiveUpdateSession liveUpdateSession) {
-<span class="nc" id="L22">    sessions.add(liveUpdateSession);</span>
-<span class="nc" id="L23">    logger.info(&quot;{} created&quot;, liveUpdateSession);</span>
-<span class="nc" id="L24">  }</span>
+<span class="nc" id="L24">    sessions.add(liveUpdateSession);</span>
+<span class="nc" id="L25">    logger.info(&quot;{} created&quot;, liveUpdateSession);</span>
+<span class="nc" id="L26">  }</span>
 
   /**
    * Remove session from managed area.
@@ -29,9 +31,9 @@ import java.util.Set;
    * @param liveUpdateSession session to remove
    */
   public void remove(final LiveUpdateSession liveUpdateSession) {
-<span class="nc" id="L32">    sessions.remove(liveUpdateSession);</span>
-<span class="nc" id="L33">    logger.info(&quot;{} removed&quot;, liveUpdateSession);</span>
-<span class="nc" id="L34">  }</span>
+<span class="nc" id="L34">    sessions.remove(liveUpdateSession);</span>
+<span class="nc" id="L35">    logger.info(&quot;{} removed&quot;, liveUpdateSession);</span>
+<span class="nc" id="L36">  }</span>
 
   /**
    * Push message to connected client via websocket.
@@ -41,15 +43,15 @@ import java.util.Set;
    * @throws IOException Fail to send
    */
   public void notifyChange(final Object message) throws IOException {
-<span class="fc" id="L44">    final String text = new ObjectMapper().writeValueAsString(message);</span>
-<span class="fc" id="L45">    logger.info(&quot;{} receiver(s)&quot;, sessions.size());</span>
-<span class="pc bpc" id="L46" title="1 of 2 branches missed.">    for (final LiveUpdateSession session : sessions) {</span>
+<span class="nc" id="L46">    final String text = new ObjectMapper().writeValueAsString(message);</span>
+<span class="nc" id="L47">    logger.info(&quot;{} receiver(s)&quot;, sessions.size());</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">    for (final LiveUpdateSession session : sessions) {</span>
       try {
-<span class="nc" id="L48">        session.getRemote().sendString(text);</span>
-<span class="nc" id="L49">      } catch (final IOException e) {</span>
-<span class="nc" id="L50">        logger.debug(&quot;Unexpected exception:&quot;, e);</span>
-<span class="nc" id="L51">      }</span>
-<span class="nc" id="L52">    }</span>
-<span class="fc" id="L53">  }</span>
+<span class="nc" id="L50">        session.sendMessage(text);</span>
+<span class="nc" id="L51">      } catch (final IOException e) {</span>
+<span class="nc" id="L52">        logger.debug(&quot;Unexpected exception:&quot;, e);</span>
+<span class="nc" id="L53">      }</span>
+<span class="nc" id="L54">    }</span>
+<span class="nc" id="L55">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

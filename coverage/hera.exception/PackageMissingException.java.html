@@ -4,7 +4,10 @@
 
 package hera.exception;
 
-<span class="nc" id="L7">public class PackageMissingException extends BuildException {</span>
+public class PackageMissingException extends BuildException {
+  public PackageMissingException(final String userMessage) {
+<span class="nc" id="L9">    super(userMessage);</span>
+<span class="nc" id="L10">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

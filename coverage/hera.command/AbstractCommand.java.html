@@ -4,8 +4,8 @@
 
 package hera.command;
 
-import static hera.ApmConstants.MODULES_BASE;
 import static hera.ApmConstants.PROJECT_FILENAME;
+import static hera.util.FilepathUtils.getCanonicalForm;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
@@ -13,6 +13,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Command;
 import hera.ProjectFile;
+import hera.util.DummyMessagePrinter;
+import hera.util.MessagePrinter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,16 +24,20 @@ import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
 
-<span class="nc" id="L25">public abstract class AbstractCommand implements Command {</span>
+<span class="nc" id="L27">public abstract class AbstractCommand implements Command {</span>
 
-<span class="nc" id="L27">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="nc" id="L29">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="nc" id="L29">  @Getter</span>
-<span class="nc" id="L30">  @Setter</span>
-<span class="nc" id="L31">  protected List&lt;String&gt; arguments = emptyList();</span>
+<span class="nc" id="L31">  @Getter</span>
+<span class="nc" id="L32">  @Setter</span>
+<span class="nc" id="L33">  protected List&lt;String&gt; arguments = emptyList();</span>
+
+<span class="nc" id="L35">  @Getter</span>
+<span class="nc" id="L36">  @Setter</span>
+<span class="nc" id="L37">  protected MessagePrinter printer = DummyMessagePrinter.getInstance();</span>
 
   public String getArgument(final int index) {
-<span class="nc" id="L34">    return arguments.get(index);</span>
+<span class="nc" id="L40">    return arguments.get(index);</span>
   }
 
   /**
@@ -42,28 +48,31 @@ import org.slf4j.Logger;
    * @return argument if exists
    */
   public Optional&lt;String&gt; getOptionalArgument(int index) {
-<span class="nc bnc" id="L45" title="All 2 branches missed.">    if (index &lt; 0) {</span>
-<span class="nc" id="L46">      return empty();</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">    if (index &lt; 0) {</span>
+<span class="nc" id="L52">      return empty();</span>
     }
-<span class="nc bnc" id="L48" title="All 2 branches missed.">    if (index &lt; arguments.size()) {</span>
-<span class="nc" id="L49">      return ofNullable(arguments.get(index));</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">    if (index &lt; arguments.size()) {</span>
+<span class="nc" id="L55">      return ofNullable(arguments.get(index));</span>
     } else {
-<span class="nc" id="L51">      return empty();</span>
+<span class="nc" id="L57">      return empty();</span>
     }
   }
 
   public Path getProjectHome() {
-<span class="nc" id="L56">    return Paths.get(&quot;.&quot;);</span>
+<span class="nc" id="L62">    return Paths.get(&quot;.&quot;);</span>
   }
 
   public Path getProjectFile() {
-<span class="nc" id="L60">    return Paths.get(getProjectHome().toString(), PROJECT_FILENAME);</span>
+<span class="nc" id="L66">    return Paths.get(getProjectHome().toString(), PROJECT_FILENAME);</span>
   }
 
-  public Path getModuleBasePath() {
-<span class="nc" id="L64">    return Paths.get(getProjectHome().toString(), MODULES_BASE);</span>
+  public String getProjectHomePath() {
+<span class="nc" id="L70">    return getCanonicalForm(getProjectHome().toFile().getAbsolutePath());</span>
   }
 
+  public String getProjectFilePath() {
+<span class="nc" id="L74">    return getCanonicalForm(getProjectFile().toFile().getAbsolutePath());</span>
+  }
 
   /**
    * Read project file.
@@ -73,7 +82,7 @@ import org.slf4j.Logger;
    * @throws IOException On failure to read project file
    */
   public ProjectFile readProject() throws IOException {
-<span class="nc" id="L76">    return ProjectFile.from(getProjectFile());</span>
+<span class="nc" id="L85">    return ProjectFile.from(getProjectFile());</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

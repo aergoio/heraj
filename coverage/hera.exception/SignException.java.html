@@ -5,8 +5,15 @@
 package hera.exception;
 
 public class SignException extends RuntimeException {
+
+  private static final long serialVersionUID = 1000342726629917623L;
+
+  public SignException(String message) {
+<span class="nc" id="L12">    super(message);</span>
+<span class="nc" id="L13">  }</span>
+
   public SignException(final Throwable cause) {
-<span class="nc" id="L9">    super(cause);</span>
-<span class="nc" id="L10">  }</span>
+<span class="nc" id="L16">    super(cause);</span>
+<span class="nc" id="L17">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

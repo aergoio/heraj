@@ -8,20 +8,62 @@ import static hera.util.ValidationUtils.assertNotNull;
 import static hera.util.ValidationUtils.assertNull;
 import static hera.util.ValidationUtils.assertTrue;
 import static java.lang.System.currentTimeMillis;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import lombok.Getter;
 import lombok.ToString;
+import org.slf4j.Logger;
 
-<span class="nc" id="L17">@ToString(of = &quot;testSuites&quot;)</span>
-<span class="nc" id="L18">public class TestResultCollector {</span>
+<span class="nc" id="L20">@ToString(of = &quot;testFiles&quot;)</span>
+<span class="nc" id="L21">public class TestResultCollector {</span>
 
+<span class="nc" id="L23">  protected final transient Logger logger = getLogger(getClass());</span>
+
+<span class="nc" id="L25">  @Getter</span>
+  protected TestFile currentTestFile;
+
+<span class="nc" id="L28">  @Getter</span>
   protected TestSuite currentTestSuite;
 
+<span class="nc" id="L31">  @Getter</span>
   protected TestCase currentTestCase;
 
-<span class="nc" id="L24">  protected Map&lt;String, TestSuite&gt; testSuites = new LinkedHashMap&lt;&gt;();</span>
+<span class="nc" id="L34">  protected Map&lt;String, TestFile&gt; testFiles = new LinkedHashMap&lt;&gt;();</span>
+
+  /**
+   * Clear state fields.
+   */
+  public void clear() {
+<span class="nc" id="L40">    this.currentTestFile = null;</span>
+<span class="nc" id="L41">    this.currentTestSuite = null;</span>
+<span class="nc" id="L42">    this.currentTestCase = null;</span>
+<span class="nc" id="L43">  }</span>
+
+  /**
+   * Start to run test file.
+   *
+   * @param filename file name
+   */
+  public void start(final String filename) {
+<span class="nc" id="L51">    assertNull(this.currentTestFile);</span>
+<span class="nc" id="L52">    assertNull(this.currentTestSuite);</span>
+<span class="nc" id="L53">    assertNull(this.currentTestCase);</span>
+<span class="nc" id="L54">    currentTestFile = new TestFile();</span>
+<span class="nc" id="L55">    currentTestFile.setFilename(filename);</span>
+<span class="nc" id="L56">    testFiles.put(filename, currentTestFile);</span>
+<span class="nc" id="L57">  }</span>
+
+  /**
+   * End to run test file.
+   */
+  public void end() {
+<span class="nc" id="L63">    this.currentTestCase = null;</span>
+<span class="nc" id="L64">    this.currentTestSuite = null;</span>
+<span class="nc" id="L65">    this.currentTestFile = null;</span>
+<span class="nc" id="L66">  }</span>
 
   /**
    * Start test suite.
@@ -29,12 +71,12 @@ import lombok.ToString;
    * @param suiteName test suite name
    */
   public void startSuite(final String suiteName) {
-<span class="nc" id="L32">    assertNull(this.currentTestSuite);</span>
-<span class="nc" id="L33">    assertNotNull(suiteName);</span>
-<span class="nc" id="L34">    currentTestSuite = new TestSuite();</span>
-<span class="nc" id="L35">    currentTestSuite.setName(suiteName);</span>
-<span class="nc" id="L36">    testSuites.put(suiteName, currentTestSuite);</span>
-<span class="nc" id="L37">  }</span>
+<span class="nc" id="L74">    assertNull(this.currentTestSuite);</span>
+<span class="nc" id="L75">    assertNotNull(suiteName);</span>
+<span class="nc" id="L76">    currentTestSuite = new TestSuite();</span>
+<span class="nc" id="L77">    currentTestSuite.setName(suiteName);</span>
+<span class="nc" id="L78">    this.currentTestFile.addSuite(currentTestSuite);</span>
+<span class="nc" id="L79">  }</span>
 
   /**
    * End test suite.
@@ -42,22 +84,22 @@ import lombok.ToString;
    * @param suiteName test suite name
    */
   public void endSuite(final String suiteName) {
-<span class="nc" id="L45">    assertNotNull(this.currentTestSuite);</span>
-<span class="nc" id="L46">    assertTrue(this.currentTestSuite.getName().equals(suiteName));</span>
-<span class="nc" id="L47">    this.currentTestSuite = null;</span>
-<span class="nc" id="L48">  }</span>
+<span class="nc" id="L87">    assertNotNull(this.currentTestSuite);</span>
+<span class="nc" id="L88">    assertTrue(this.currentTestSuite.getName().equals(suiteName));</span>
+<span class="nc" id="L89">    this.currentTestSuite = null;</span>
+<span class="nc" id="L90">  }</span>
 
   /**
    * Start test case.
    *
    * @param testCaseName test case name
    */
-  public void start(final String testCaseName) {
-<span class="nc" id="L56">    assertNull(this.currentTestCase);</span>
-<span class="nc" id="L57">    assertNotNull(testCaseName);</span>
-<span class="nc" id="L58">    currentTestCase = new TestCase(testCaseName);</span>
-<span class="nc" id="L59">    this.currentTestSuite.addTestCase(currentTestCase);</span>
-<span class="nc" id="L60">  }</span>
+  public void startCase(final String testCaseName) {
+<span class="nc" id="L98">    assertNull(this.currentTestCase);</span>
+<span class="nc" id="L99">    assertNotNull(testCaseName);</span>
+<span class="nc" id="L100">    currentTestCase = new TestCase(testCaseName);</span>
+<span class="nc" id="L101">    this.currentTestSuite.addTestCase(currentTestCase);</span>
+<span class="nc" id="L102">  }</span>
 
   /**
    * Catch error from test case.
@@ -67,33 +109,35 @@ import lombok.ToString;
    * @param error error message
    */
   public void error(final String testCaseName, final String error) {
-<span class="nc" id="L70">    assertNotNull(currentTestCase);</span>
-<span class="nc" id="L71">    assertTrue(currentTestCase.getName().equals(testCaseName));</span>
-<span class="nc" id="L72">    currentTestCase.setErrorMessage(error);</span>
-<span class="nc" id="L73">  }</span>
+<span class="nc" id="L112">    assertNotNull(currentTestCase);</span>
+<span class="nc" id="L113">    assertTrue(currentTestCase.getName().equals(testCaseName));</span>
+<span class="nc" id="L114">    currentTestCase.setErrorMessage(error);</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">    if (!currentTestCase.isSuccess()) {</span>
+<span class="nc" id="L116">      currentTestSuite.setError(error);</span>
+<span class="nc" id="L117">      currentTestFile.setSuccess(false);</span>
+    }
+<span class="nc" id="L119">    logger.info(&quot;{} failed&quot;, currentTestFile.getFilename());</span>
+<span class="nc" id="L120">  }</span>
 
   /**
    * End test case.
    *
    * @param testCaseName test case name
-   *
-   * @param success test case result
    */
-  public void end(final String testCaseName, final boolean success) {
-<span class="nc" id="L83">    assertNotNull(currentTestCase);</span>
-<span class="nc" id="L84">    assertTrue(currentTestCase.getName().equals(testCaseName));</span>
-<span class="nc" id="L85">    currentTestCase.setSuccess(success);</span>
-<span class="nc" id="L86">    currentTestCase.setEndTime(currentTimeMillis());</span>
-<span class="nc" id="L87">    this.currentTestCase = null;</span>
-<span class="nc" id="L88">  }</span>
+  public void endCase(final String testCaseName) {
+<span class="nc" id="L128">    assertNotNull(currentTestCase);</span>
+<span class="nc" id="L129">    assertTrue(currentTestCase.getName().equals(testCaseName));</span>
+<span class="nc" id="L130">    currentTestCase.setEndTime(currentTimeMillis());</span>
+<span class="nc" id="L131">    this.currentTestCase = null;</span>
+<span class="nc" id="L132">  }</span>
 
   /**
    * Result test suites.
    *
    * @return test suites
    */
-  public Collection&lt;TestSuite&gt; getResults() {
-<span class="nc" id="L96">    return testSuites.values();</span>
+  public Collection&lt;TestFile&gt; getResults() {
+<span class="nc" id="L140">    return testFiles.values();</span>
   }
 
 }

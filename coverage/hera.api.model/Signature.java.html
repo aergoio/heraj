@@ -13,7 +13,7 @@ import lombok.ToString;
 <span class="nc" id="L13">@ToString</span>
 <span class="fc" id="L14">public class Signature {</span>
 
-<span class="pc" id="L16">  @Getter</span>
+<span class="fc" id="L16">  @Getter</span>
 <span class="fc" id="L17">  @Setter</span>
   protected BytesValue sign = new BytesValue(null);
 
@@ -30,10 +30,10 @@ import lombok.ToString;
    * @return created signature
    */
   public static Signature of(final BytesValue sign, final TxHash hash) {
-<span class="nc" id="L33">    final Signature signature = new Signature();</span>
-<span class="nc" id="L34">    signature.setSign(sign);</span>
-<span class="nc" id="L35">    signature.setTxHash(hash);</span>
-<span class="nc" id="L36">    return signature;</span>
+<span class="fc" id="L33">    final Signature signature = new Signature();</span>
+<span class="fc" id="L34">    signature.setSign(sign);</span>
+<span class="fc" id="L35">    signature.setTxHash(hash);</span>
+<span class="fc" id="L36">    return signature;</span>
   }
 
   /**

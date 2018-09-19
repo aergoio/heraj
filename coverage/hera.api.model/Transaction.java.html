@@ -7,8 +7,8 @@ package hera.api.model;
 import static hera.util.Sha256Utils.digest;
 import static java.util.Optional.ofNullable;
 
+import hera.util.LittleEndianDataOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import lombok.Getter;
 import lombok.Setter;
@@ -59,7 +59,8 @@ import lombok.ToString;
 
 <span class="fc" id="L60">  @Getter</span>
 <span class="fc" id="L61">  @Setter</span>
-  protected TransactionType txType = TransactionType.UNRECOGNIZED;
+  protected TransactionType txType = TransactionType.NORMAL;
+
 
   /**
    * Copy deep.
@@ -68,20 +69,21 @@ import lombok.ToString;
    * @return copied transaction
    */
   public static Transaction copyOf(final Transaction source) {
-<span class="nc bnc" id="L71" title="All 2 branches missed.">    if (null == source) {</span>
-<span class="nc" id="L72">      return null;</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">    if (null == source) {</span>
+<span class="nc" id="L73">      return null;</span>
     }
-<span class="nc" id="L74">    final Transaction copy = new Transaction();</span>
-<span class="nc" id="L75">    copy.setNonce(source.getNonce());</span>
-<span class="nc" id="L76">    ofNullable(source.getSender()).ifPresent(copy::setSender);</span>
-<span class="nc" id="L77">    ofNullable(source.getRecipient()).ifPresent(copy::setRecipient);</span>
-<span class="nc" id="L78">    copy.setAmount(source.getAmount());</span>
-<span class="nc" id="L79">    ofNullable(source.getPayload()).ifPresent(copy::setPayload);</span>
-<span class="nc" id="L80">    copy.setLimit(source.getLimit());</span>
-<span class="nc" id="L81">    copy.setPrice(source.getPrice());</span>
-<span class="nc" id="L82">    copy.setSignature(Signature.copyOf(source.getSignature()));</span>
+<span class="nc" id="L75">    final Transaction copy = new Transaction();</span>
+<span class="nc" id="L76">    copy.setNonce(source.getNonce());</span>
+<span class="nc" id="L77">    ofNullable(source.getSender()).ifPresent(copy::setSender);</span>
+<span class="nc" id="L78">    ofNullable(source.getRecipient()).ifPresent(copy::setRecipient);</span>
+<span class="nc" id="L79">    copy.setAmount(source.getAmount());</span>
+<span class="nc" id="L80">    ofNullable(source.getPayload()).ifPresent(copy::setPayload);</span>
+<span class="nc" id="L81">    copy.setLimit(source.getLimit());</span>
+<span class="nc" id="L82">    copy.setPrice(source.getPrice());</span>
+<span class="nc" id="L83">    copy.setTxType(source.getTxType());</span>
+<span class="nc" id="L84">    copy.setSignature(Signature.copyOf(source.getSignature()));</span>
 
-<span class="nc" id="L84">    return copy;</span>
+<span class="nc" id="L86">    return copy;</span>
   }
 
   /**
@@ -91,26 +93,28 @@ import lombok.ToString;
    */
   public TxHash calculateHash() {
     try {
-<span class="nc" id="L94">      final ByteArrayOutputStream raw = new ByteArrayOutputStream();</span>
-<span class="nc" id="L95">      final DataOutputStream dataOut = new DataOutputStream(raw);</span>
-<span class="nc" id="L96">      dataOut.writeLong(getNonce());</span>
-<span class="nc" id="L97">      dataOut.write(getSender().getValue());</span>
-<span class="nc" id="L98">      dataOut.write(getRecipient().getValue());</span>
-<span class="nc" id="L99">      dataOut.writeLong(getAmount());</span>
-<span class="nc" id="L100">      dataOut.write(getPayload().getValue());</span>
-<span class="nc" id="L101">      dataOut.writeLong(getLimit());</span>
-<span class="nc" id="L102">      dataOut.writeLong(getPrice());</span>
-<span class="nc" id="L103">      ofNullable(signature).map(Signature::getSign).map(BytesValue::getValue).ifPresent(b -&gt; {</span>
+<span class="fc" id="L96">      final ByteArrayOutputStream raw = new ByteArrayOutputStream();</span>
+<span class="fc" id="L97">      final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(raw);</span>
+<span class="fc" id="L98">      dataOut.writeLong(getNonce());</span>
+<span class="fc" id="L99">      dataOut.write(getSender().getValue());</span>
+<span class="fc" id="L100">      dataOut.write(getRecipient().getValue());</span>
+<span class="fc" id="L101">      dataOut.writeLong(getAmount());</span>
+<span class="fc" id="L102">      dataOut.write(getPayload().getValue());</span>
+<span class="fc" id="L103">      dataOut.writeLong(getLimit());</span>
+<span class="fc" id="L104">      dataOut.writeLong(getPrice());</span>
+<span class="fc" id="L105">      dataOut.writeInt(getTxType().getIntValue());</span>
+<span class="fc" id="L106">      ofNullable(signature).map(Signature::getSign).map(BytesValue::getValue).ifPresent(b -&gt; {</span>
         try {
-<span class="nc" id="L105">          dataOut.write(b);</span>
-<span class="nc" id="L106">        } catch (final IOException e) {</span>
-<span class="nc" id="L107">          throw new IllegalStateException(e);</span>
-<span class="nc" id="L108">        }</span>
-<span class="nc" id="L109">      });</span>
-<span class="nc" id="L110">      dataOut.flush();</span>
-<span class="nc" id="L111">      return new TxHash(digest(raw.toByteArray()));</span>
-<span class="nc" id="L112">    } catch (final IOException e) {</span>
-<span class="nc" id="L113">      throw new IllegalStateException(e);</span>
+<span class="fc" id="L108">          dataOut.write(b);</span>
+<span class="nc" id="L109">        } catch (final IOException e) {</span>
+<span class="nc" id="L110">          throw new IllegalStateException(e);</span>
+<span class="fc" id="L111">        }</span>
+<span class="fc" id="L112">      });</span>
+<span class="fc" id="L113">      dataOut.flush();</span>
+<span class="fc" id="L114">      dataOut.close();</span>
+<span class="fc" id="L115">      return new TxHash(digest(raw.toByteArray()));</span>
+<span class="nc" id="L116">    } catch (final IOException e) {</span>
+<span class="nc" id="L117">      throw new IllegalStateException(e);</span>
     }
   }
 

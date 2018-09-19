@@ -33,7 +33,7 @@ public class TransactionTemplate implements TransactionOperation {
 <span class="nc" id="L33">  }</span>
 
   @Override
-  public ResultOrError&lt;Transaction&gt; getTransaction(TxHash txHash) {
+  public ResultOrError&lt;Transaction&gt; getTransaction(final TxHash txHash) {
     try {
 <span class="fc" id="L38">      return transactionAsyncOperation.getTransaction(txHash).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
 <span class="nc" id="L39">    } catch (Exception e) {</span>
@@ -42,7 +42,7 @@ public class TransactionTemplate implements TransactionOperation {
   }
 
   @Override
-  public ResultOrError&lt;Signature&gt; sign(Transaction transaction) {
+  public ResultOrError&lt;Signature&gt; sign(final Transaction transaction) {
     try {
 <span class="fc" id="L47">      return transactionAsyncOperation.sign(transaction).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
 <span class="nc" id="L48">    } catch (Exception e) {</span>
@@ -51,7 +51,7 @@ public class TransactionTemplate implements TransactionOperation {
   }
 
   @Override
-  public ResultOrError&lt;Boolean&gt; verify(Transaction transaction) {
+  public ResultOrError&lt;Boolean&gt; verify(final Transaction transaction) {
     try {
 <span class="fc" id="L56">      return transactionAsyncOperation.verify(transaction).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
 <span class="nc" id="L57">    } catch (Exception e) {</span>
@@ -60,11 +60,20 @@ public class TransactionTemplate implements TransactionOperation {
   }
 
   @Override
-  public ResultOrError&lt;TxHash&gt; commit(Transaction transaction) {
+  public ResultOrError&lt;TxHash&gt; commit(final Transaction transaction) {
     try {
 <span class="fc" id="L65">      return transactionAsyncOperation.commit(transaction).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
 <span class="nc" id="L66">    } catch (Exception e) {</span>
 <span class="nc" id="L67">      throw new HerajException(e);</span>
+    }
+  }
+
+  @Override
+  public ResultOrError&lt;TxHash&gt; send(final Transaction transaction) {
+    try {
+<span class="fc" id="L74">      return transactionAsyncOperation.send(transaction).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
+<span class="nc" id="L75">    } catch (Exception e) {</span>
+<span class="nc" id="L76">      throw new HerajException(e);</span>
     }
   }
 }

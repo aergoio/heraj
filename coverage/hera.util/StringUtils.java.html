@@ -317,5 +317,43 @@ import java.util.List;
 <span class="fc" id="L317">    return count;</span>
   }
 
+  /**
+   * Remove prefix if exists.
+   *
+   * @param str     string to remove
+   * @param prefix  prefix to remove
+   *
+   * @return removed string
+   */
+  public static String removePrefix(final String str, String prefix) {
+<span class="nc bnc" id="L329" title="All 2 branches missed.">    if (null == str) {</span>
+<span class="nc" id="L330">      return null;</span>
+    }
+<span class="nc bnc" id="L332" title="All 2 branches missed.">    if (str.startsWith(prefix)) {</span>
+<span class="nc" id="L333">      return str.substring(prefix.length());</span>
+    } else {
+<span class="nc" id="L335">      return str;</span>
+    }
+  }
+
+  /**
+   * Remove suffix if exists.
+   *
+   * @param str     string to remove
+   * @param suffix  suffix to remove
+   *
+   * @return removed string
+   */
+  public static String removeSuffix(final String str, String suffix) {
+<span class="pc bpc" id="L348" title="1 of 2 branches missed.">    if (null == str) {</span>
+<span class="nc" id="L349">      return null;</span>
+    }
+<span class="pc bpc" id="L351" title="1 of 2 branches missed.">    if (str.endsWith(suffix)) {</span>
+<span class="fc" id="L352">      return str.substring(0, str.length() - suffix.length());</span>
+    } else {
+<span class="nc" id="L354">      return str;</span>
+    }
+  }
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

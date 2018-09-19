@@ -34,19 +34,22 @@ import lombok.RequiredArgsConstructor;
    * time units, which is based on milliseconds
    * &lt;/p&gt;
    */
-<span class="fc" id="L37">  protected static final List&lt;ScaleUnit&gt; INTERVALS =</span>
+<span class="fc" id="L37">  public static final List&lt;ScaleUnit&gt; INTERVALS =</span>
 <span class="fc" id="L38">      Collections.unmodifiableList(asList(</span>
-          new ScaleUnit(&quot;milliseconds&quot;, 1),
-          new ScaleUnit(&quot;ms&quot;, 1),
-          new ScaleUnit(&quot;seconds&quot;, 1000),
-          new ScaleUnit(&quot;sec&quot;, 1000),
-          new ScaleUnit(&quot;minutes&quot;, 60000),
-          new ScaleUnit(&quot;min&quot;, 60000),
-          new ScaleUnit(&quot;m&quot;, 60000),
-          new ScaleUnit(&quot;hours&quot;, 3600000),
-          new ScaleUnit(&quot;hr&quot;, 3600000),
-          new ScaleUnit(&quot;h&quot;, 3600000),
-          new ScaleUnit(&quot;s&quot;, 1000)));
+          new ScaleUnit(&quot;microseconds&quot;, 1L),
+          new ScaleUnit(&quot;µs&quot;, 1L),
+          new ScaleUnit(&quot;milliseconds&quot;, 1_000L),
+          new ScaleUnit(&quot;ms&quot;, 1_000L),
+          new ScaleUnit(&quot;seconds&quot;, 1_000_000L),
+          new ScaleUnit(&quot;sec&quot;, 1_000_000L),
+          new ScaleUnit(&quot;minutes&quot;, 60_000_000L),
+          new ScaleUnit(&quot;min&quot;, 60_000_000L),
+          new ScaleUnit(&quot;m&quot;, 60_000_000L),
+          new ScaleUnit(&quot;hours&quot;, 3_600_000_000L),
+          new ScaleUnit(&quot;hr&quot;, 3_600_000_000L),
+          new ScaleUnit(&quot;h&quot;, 3_600_000_000L),
+          new ScaleUnit(&quot;s&quot;, 1_000_000L))
+      );
 
   /**
    * Parse {@code str} and convert to {@code boolean}.
@@ -63,16 +66,16 @@ import lombok.RequiredArgsConstructor;
    * @see ParsingUtils#FALSES
    */
   public static boolean convertToBoolean(final String str, final boolean defaultValueIsTrue) {
-<span class="fc bfc" id="L66" title="All 2 branches covered.">    if (null == str) {</span>
-<span class="fc" id="L67">      return defaultValueIsTrue;</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">    if (null == str) {</span>
+<span class="fc" id="L70">      return defaultValueIsTrue;</span>
     }
 
-<span class="fc" id="L70">    final String safeStr = trim(str).toLowerCase();</span>
+<span class="fc" id="L73">    final String safeStr = trim(str).toLowerCase();</span>
 
-<span class="fc bfc" id="L72" title="All 2 branches covered.">    if (defaultValueIsTrue) {</span>
-<span class="fc bfc" id="L73" title="All 2 branches covered.">      return !FALSES.contains(safeStr);</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">    if (defaultValueIsTrue) {</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">      return !FALSES.contains(safeStr);</span>
     } else {
-<span class="fc" id="L75">      return TRUES.contains(safeStr);</span>
+<span class="fc" id="L78">      return TRUES.contains(safeStr);</span>
     }
   }
 
@@ -86,7 +89,7 @@ import lombok.RequiredArgsConstructor;
    * @see ParsingUtils#convertToBoolean(String, boolean)
    */
   public static boolean convertToBoolean(final String val) {
-<span class="fc" id="L89">    return convertToBoolean(val, false);</span>
+<span class="fc" id="L92">    return convertToBoolean(val, false);</span>
   }
 
   /**
@@ -99,7 +102,7 @@ import lombok.RequiredArgsConstructor;
    * @see ParsingUtils#convertToInt(String, int)
    */
   public static int convertToInt(final String val) {
-<span class="fc" id="L102">    return convertToInt(val, 0);</span>
+<span class="fc" id="L105">    return convertToInt(val, 0);</span>
   }
 
   /**
@@ -117,9 +120,9 @@ import lombok.RequiredArgsConstructor;
    */
   public static int convertToInt(final String val, final int defaultValue) {
     try {
-<span class="fc" id="L120">      return NumberUtils.parse(val, int.class);</span>
-<span class="fc" id="L121">    } catch (final Throwable e) {</span>
-<span class="fc" id="L122">      return defaultValue;</span>
+<span class="fc" id="L123">      return NumberUtils.parse(val, int.class);</span>
+<span class="fc" id="L124">    } catch (final Throwable e) {</span>
+<span class="fc" id="L125">      return defaultValue;</span>
     }
   }
 
@@ -133,7 +136,7 @@ import lombok.RequiredArgsConstructor;
    * @see ParsingUtils#convertToLong(String)
    */
   public static long convertToLong(final String val) {
-<span class="fc" id="L136">    return convertToLong(val, 0);</span>
+<span class="fc" id="L139">    return convertToLong(val, 0);</span>
   }
 
   /**
@@ -151,9 +154,9 @@ import lombok.RequiredArgsConstructor;
    */
   public static long convertToLong(final String val, final int defaultValue) {
     try {
-<span class="fc" id="L154">      return NumberUtils.parse(val, long.class);</span>
-<span class="fc" id="L155">    } catch (final Throwable e) {</span>
-<span class="fc" id="L156">      return defaultValue;</span>
+<span class="fc" id="L157">      return NumberUtils.parse(val, long.class);</span>
+<span class="fc" id="L158">    } catch (final Throwable e) {</span>
+<span class="fc" id="L159">      return defaultValue;</span>
     }
   }
 
@@ -171,13 +174,13 @@ import lombok.RequiredArgsConstructor;
    * @see NumberUtils#parse(String, Class)
    */
   public static long convertToLong(final String val, final long defaultValue) {
-<span class="pc bpc" id="L174" title="1 of 2 branches missed.">    if (null == val) {</span>
-<span class="nc" id="L175">      return defaultValue;</span>
+<span class="pc bpc" id="L177" title="1 of 2 branches missed.">    if (null == val) {</span>
+<span class="nc" id="L178">      return defaultValue;</span>
     }
     try {
-<span class="fc" id="L178">      return NumberUtils.parse(val, long.class);</span>
-<span class="fc" id="L179">    } catch (final Throwable e) {</span>
-<span class="fc" id="L180">      return defaultValue;</span>
+<span class="fc" id="L181">      return NumberUtils.parse(val, long.class);</span>
+<span class="fc" id="L182">    } catch (final Throwable e) {</span>
+<span class="fc" id="L183">      return defaultValue;</span>
     }
   }
 
@@ -191,7 +194,7 @@ import lombok.RequiredArgsConstructor;
    * @see ParsingUtils#convertToDouble(String, double)
    */
   public static double convertToDouble(final String val) {
-<span class="fc" id="L194">    return convertToDouble(val, 0);</span>
+<span class="fc" id="L197">    return convertToDouble(val, 0);</span>
   }
 
   /**
@@ -208,13 +211,13 @@ import lombok.RequiredArgsConstructor;
    * @see NumberUtils#parse(String, Class)
    */
   public static double convertToDouble(final String val, final double defaultValue) {
-<span class="fc bfc" id="L211" title="All 2 branches covered.">    if (null == val) {</span>
-<span class="fc" id="L212">      return defaultValue;</span>
+<span class="fc bfc" id="L214" title="All 2 branches covered.">    if (null == val) {</span>
+<span class="fc" id="L215">      return defaultValue;</span>
     }
     try {
-<span class="fc" id="L215">      return NumberUtils.parse(val, double.class);</span>
-<span class="fc" id="L216">    } catch (final Throwable e) {</span>
-<span class="fc" id="L217">      return defaultValue;</span>
+<span class="fc" id="L218">      return NumberUtils.parse(val, double.class);</span>
+<span class="fc" id="L219">    } catch (final Throwable e) {</span>
+<span class="fc" id="L220">      return defaultValue;</span>
     }
   }
 
@@ -232,47 +235,48 @@ import lombok.RequiredArgsConstructor;
   public static long convertToCapacity(
       final String str,
       final long defaultValue) {
-<span class="fc bfc" id="L235" title="All 2 branches covered.">    if (null == str) {</span>
-<span class="fc" id="L236">      return defaultValue;</span>
+<span class="fc bfc" id="L238" title="All 2 branches covered.">    if (null == str) {</span>
+<span class="fc" id="L239">      return defaultValue;</span>
     }
-<span class="fc" id="L238">    String safe = str.trim();</span>
-<span class="fc" id="L239">    char unit = safe.charAt(safe.length() - 1);</span>
-<span class="fc" id="L240">    String valuePart = safe.substring(0, safe.length() - 1);</span>
-<span class="fc" id="L241">    long value = Long.parseLong(valuePart);</span>
-<span class="fc bfc" id="L242" title="All 2 branches covered.">    if ('k' == toLowerCase(unit)) {</span>
-<span class="fc" id="L243">      return 1000 * value;</span>
-<span class="fc bfc" id="L244" title="All 2 branches covered.">    } else if ('m' == toLowerCase(unit)) {</span>
-<span class="fc" id="L245">      return 1000000 * value;</span>
-<span class="pc bpc" id="L246" title="1 of 2 branches missed.">    } else if ('g' == toLowerCase(unit)) {</span>
-<span class="fc" id="L247">      return 1000000000 * value;</span>
+<span class="fc" id="L241">    String safe = str.trim();</span>
+<span class="fc" id="L242">    char unit = safe.charAt(safe.length() - 1);</span>
+<span class="fc" id="L243">    String valuePart = safe.substring(0, safe.length() - 1);</span>
+<span class="fc" id="L244">    long value = Long.parseLong(valuePart);</span>
+<span class="fc bfc" id="L245" title="All 2 branches covered.">    if ('k' == toLowerCase(unit)) {</span>
+<span class="fc" id="L246">      return 1000 * value;</span>
+<span class="fc bfc" id="L247" title="All 2 branches covered.">    } else if ('m' == toLowerCase(unit)) {</span>
+<span class="fc" id="L248">      return 1000000 * value;</span>
+<span class="pc bpc" id="L249" title="1 of 2 branches missed.">    } else if ('g' == toLowerCase(unit)) {</span>
+<span class="fc" id="L250">      return 1000000000 * value;</span>
     }
-<span class="nc" id="L249">    return value;</span>
+<span class="nc" id="L252">    return value;</span>
   }
 
   /**
-   * Parse {@code val} and convert time in milliseconds.
+   * Parse {@code val} and convert time in microseconds.
    *
    * @param val string to parse
    *
-   * @return time in milliseconds
+   * @return time in microseconds
    *
    * @throws ParseException Fail to parse
    */
   public static long convertToTime(final String val) throws ParseException {
-<span class="fc bfc" id="L262" title="All 2 branches covered.">    if (null == val) {</span>
-<span class="fc" id="L263">      return 0;</span>
+<span class="fc bfc" id="L265" title="All 2 branches covered.">    if (null == val) {</span>
+<span class="fc" id="L266">      return 0;</span>
     }
 
-<span class="fc" id="L266">    final String lowerVal = val.toLowerCase();</span>
-<span class="fc bfc" id="L267" title="All 2 branches covered.">    for (final ScaleUnit unit : INTERVALS) {</span>
-<span class="fc" id="L268">      final String units = unit.units;</span>
-<span class="fc bfc" id="L269" title="All 2 branches covered.">      if (lowerVal.endsWith(units)) {</span>
-<span class="fc" id="L270">        final String digits = lowerVal.substring(0, lowerVal.length() - units.length()).trim();</span>
-<span class="fc" id="L271">        return (unit.scale * Integer.parseInt(digits));</span>
+<span class="fc" id="L269">    final String lowerVal = val.toLowerCase();</span>
+<span class="fc bfc" id="L270" title="All 2 branches covered.">    for (final ScaleUnit unit : INTERVALS) {</span>
+<span class="fc" id="L271">      final String units = unit.units;</span>
+<span class="fc bfc" id="L272" title="All 2 branches covered.">      if (lowerVal.endsWith(units)) {</span>
+<span class="fc" id="L273">        final String digits = lowerVal.substring(0, lowerVal.length() - units.length()).trim();</span>
+<span class="fc" id="L274">        final Double microSeconds = Double.parseDouble(digits) * unit.scale;</span>
+<span class="fc" id="L275">        return microSeconds.longValue();</span>
       }
-<span class="fc" id="L273">    }</span>
+<span class="fc" id="L277">    }</span>
 
-<span class="fc" id="L275">    throw new ParseException(val, 0);</span>
+<span class="fc" id="L279">    throw new ParseException(val, 0);</span>
   }
 
   /**
@@ -291,25 +295,25 @@ import lombok.RequiredArgsConstructor;
       final String val,
       final TimeUnit unit)
       throws ParseException {
-<span class="fc" id="L294">    long time = convertToTime(val);</span>
-<span class="fc" id="L295">    return TimeUnit.MILLISECONDS.convert(time, unit);</span>
+<span class="fc" id="L298">    long time = convertToTime(val);</span>
+<span class="fc" id="L299">    return unit.convert(time, TimeUnit.MICROSECONDS);</span>
   }
 
   /**
    * ScaleUnit.
    */
-<span class="fc" id="L301">  @RequiredArgsConstructor</span>
+<span class="fc" id="L305">  @RequiredArgsConstructor</span>
   public static class ScaleUnit {
 
     /**
      * time unit.
      */
-    protected final String units;
+    public final String units;
 
     /**
      * Scale for a standard unit.
      */
-    protected final long scale;
+    public final long scale;
   }
 
 }

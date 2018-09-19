@@ -4,31 +4,37 @@
 
 package hera.build.web.service;
 
-import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.WebSocketAdapter;
+import java.io.IOException;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 
-<span class="nc" id="L10">public class LiveUpdateSession extends WebSocketAdapter {</span>
-  protected static LiveUpdateService manager;
+<span class="nc bnc" id="L14" title="All 2 branches missed.">@RequiredArgsConstructor</span>
+public class LiveUpdateSession {
 
-  public static void setManager(final LiveUpdateService manager) {
-<span class="nc" id="L14">    LiveUpdateSession.manager = manager;</span>
-<span class="nc" id="L15">  }</span>
+<span class="nc" id="L17">  @Getter</span>
+  @NonNull
+  protected final WebSocketSession session;
 
-  @Override
-  public void onWebSocketConnect(Session sess) {
-<span class="nc" id="L19">    super.onWebSocketConnect(sess);</span>
-<span class="nc" id="L20">    manager.add(this);</span>
-<span class="nc" id="L21">  }</span>
-
-  @Override
-  public void onWebSocketClose(int statusCode, String reason) {
-<span class="nc" id="L25">    super.onWebSocketClose(statusCode, reason);</span>
-<span class="nc" id="L26">    manager.remove(this);</span>
-<span class="nc" id="L27">  }</span>
+  public void sendMessage(final String message) throws IOException {
+<span class="nc" id="L22">    TextMessage textMessage = new TextMessage(message);</span>
+<span class="nc" id="L23">    session.sendMessage(textMessage);</span>
+<span class="nc" id="L24">  }</span>
 
   @Override
-  public String toString() {
-<span class="nc" id="L31">    return &quot;WsSession[&quot; + getSession() + &quot;]&quot;;</span>
+  public int hashCode() {
+<span class="nc" id="L28">    return session.hashCode();</span>
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+<span class="nc bnc" id="L33" title="All 2 branches missed.">    if (!(obj instanceof  LiveUpdateSession)) {</span>
+<span class="nc" id="L34">      return false;</span>
+    }
+<span class="nc" id="L36">    final LiveUpdateSession other = (LiveUpdateSession) obj;</span>
+<span class="nc" id="L37">    return this.session.equals(other.session);</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

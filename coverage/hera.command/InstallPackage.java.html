@@ -4,29 +4,45 @@
 
 package hera.command;
 
+import static com.google.common.io.MoreFiles.deleteRecursively;
+import static com.google.common.io.RecursiveDeleteOption.ALLOW_INSECURE;
+import static hera.util.FilepathUtils.append;
 import static hera.util.ValidationUtils.assertTrue;
+import static java.nio.file.Files.createDirectories;
+import static java.nio.file.Files.exists;
 import static java.util.Arrays.asList;
 
 import hera.FileSet;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
-<span class="nc" id="L14">public class InstallPackage extends AbstractCommand {</span>
+<span class="nc" id="L20">public class InstallPackage extends AbstractCommand {</span>
 
   @Override
   public void execute() throws Exception {
-<span class="nc bnc" id="L18" title="All 4 branches missed.">    assertTrue(0 &lt; arguments.size() &amp;&amp; arguments.size() &lt; 3);</span>
-<span class="nc" id="L19">    final String url = getArgument(0);</span>
-<span class="nc" id="L20">    final Optional&lt;String&gt; checkout = getOptionalArgument(1);</span>
+<span class="nc bnc" id="L24" title="All 4 branches missed.">    assertTrue(0 &lt; arguments.size() &amp;&amp; arguments.size() &lt; 3);</span>
+<span class="nc" id="L25">    final String packageName = getArgument(0);</span>
+<span class="nc" id="L26">    logger.debug(&quot;URL: {}&quot;, packageName);</span>
+<span class="nc" id="L27">    final int separatorIndex = packageName.indexOf(&quot;/&quot;);</span>
+<span class="nc bnc" id="L28" title="All 2 branches missed.">    assertTrue(0 &lt; separatorIndex, &quot;Invalid argument: &quot; + packageName);</span>
+<span class="nc" id="L29">    final Optional&lt;String&gt; checkout = getOptionalArgument(1);</span>
 
-<span class="nc" id="L22">    final CloneGit cloneGit = new CloneGit();</span>
-<span class="nc" id="L23">    cloneGit.setArguments(asList(url, checkout.orElse(&quot;master&quot;)));</span>
-<span class="nc" id="L24">    cloneGit.execute();</span>
+<span class="nc" id="L31">    final CloneGit cloneGit = new CloneGit();</span>
+<span class="nc" id="L32">    cloneGit.setArguments(asList(packageName, checkout.orElse(&quot;master&quot;)));</span>
+<span class="nc" id="L33">    cloneGit.execute();</span>
+<span class="nc" id="L34">    final FileSet fileSet = cloneGit.getFileSet();</span>
+<span class="nc" id="L35">    logger.debug(&quot;FileSet: {}&quot;, fileSet.getFileSet());</span>
 
-<span class="nc" id="L26">    final Path base = getModuleBasePath();</span>
-
-<span class="nc" id="L28">    final FileSet fileSet = cloneGit.getFileSet();</span>
-<span class="nc" id="L29">    fileSet.copyTo(base);</span>
-<span class="nc" id="L30">  }</span>
+<span class="nc" id="L37">    final String publishRepository = append(System.getProperty(&quot;user.home&quot;), &quot;.aergo_modules&quot;);</span>
+<span class="nc" id="L38">    final Path publishPath = Paths.get(append(publishRepository, packageName));</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">    if (exists(publishPath)) {</span>
+<span class="nc" id="L40">      deleteRecursively(publishPath, ALLOW_INSECURE);</span>
+    }
+<span class="nc" id="L42">    createDirectories(publishPath);</span>
+<span class="nc" id="L43">    fileSet.copyTo(publishPath);</span>
+<span class="nc" id="L44">    printer.println(&quot;Successful to install %s.&quot;, packageName);</span>
+<span class="nc" id="L45">    printer.println(&quot;Install path: &lt;green&gt;%s&lt;/green&gt;&quot;, publishPath);</span>
+<span class="nc" id="L46">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

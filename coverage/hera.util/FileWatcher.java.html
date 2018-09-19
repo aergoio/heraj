@@ -14,12 +14,9 @@ import static java.util.stream.Collectors.toList;
 import hera.server.ServerEvent;
 import hera.server.ThreadServer;
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import lombok.Getter;
@@ -55,102 +52,102 @@ public class FileWatcher extends ThreadServer implements Runnable {
   /**
    * Interval to check.
    */
-<span class="nc" id="L58">  @Getter</span>
-<span class="nc" id="L59">  @Setter</span>
+<span class="nc" id="L55">  @Getter</span>
+<span class="nc" id="L56">  @Setter</span>
   protected long interval = 300;
 
   /**
    * File's last changed time.
    */
-<span class="nc" id="L65">  protected HashMap&lt;File, Long&gt; base2lastModified = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L62">  protected HashMap&lt;File, Long&gt; base2lastModified = new HashMap&lt;&gt;();</span>
 
-<span class="nc" id="L67">  protected Set&lt;File&gt; previouslyChecked = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L64">  protected Set&lt;File&gt; previouslyChecked = new HashSet&lt;&gt;();</span>
 
   protected final File base;
 
-<span class="nc" id="L71">  protected Set&lt;String&gt; ignores = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L68">  protected Set&lt;String&gt; ignores = new HashSet&lt;&gt;();</span>
 
   /**
    * Constructor with watch service and base path.
    *
    * @param basePath path to monitor
    */
-<span class="nc" id="L78">  public FileWatcher(final File basePath) {</span>
-<span class="nc" id="L79">    this.base = basePath;</span>
-<span class="nc" id="L80">  }</span>
+<span class="nc" id="L75">  public FileWatcher(final File basePath) {</span>
+<span class="nc" id="L76">    this.base = basePath;</span>
+<span class="nc" id="L77">  }</span>
 
   public void addIgnore(final String name) {
-<span class="nc" id="L83">    ignores.add(name);</span>
-<span class="nc" id="L84">  }</span>
+<span class="nc" id="L80">    ignores.add(name);</span>
+<span class="nc" id="L81">  }</span>
 
   @Override
   protected void process() throws Exception {
-<span class="nc" id="L88">    trySleep(getInterval());</span>
+<span class="nc" id="L85">    trySleep(getInterval());</span>
 
-<span class="nc" id="L90">    logger.trace(&quot;Base: {}&quot;, base);</span>
-<span class="nc" id="L91">    final Long lastModifiedInCache = nvl(this.base2lastModified.get(base), Long.valueOf(0));</span>
-<span class="nc" id="L92">    long max = 0;</span>
+<span class="nc" id="L87">    logger.trace(&quot;Base: {}&quot;, base);</span>
+<span class="nc" id="L88">    final Long lastModifiedInCache = nvl(this.base2lastModified.get(base), Long.valueOf(0));</span>
+<span class="nc" id="L89">    long max = 0;</span>
 
-<span class="nc" id="L94">    logger.trace(&quot;Base's last modified - Cache: {}&quot;, lastModifiedInCache);</span>
+<span class="nc" id="L91">    logger.trace(&quot;Base's last modified - Cache: {}&quot;, lastModifiedInCache);</span>
 
-<span class="nc" id="L96">    final HashSet&lt;File&gt; checkedFiles = new HashSet&lt;&gt;();</span>
-<span class="nc" id="L97">    final HashSet&lt;File&gt; changed = new HashSet&lt;&gt;();</span>
-<span class="nc" id="L98">    final Queue&lt;File&gt; files = new LinkedList&lt;&gt;();</span>
-<span class="nc" id="L99">    files.add(base);</span>
+<span class="nc" id="L93">    final HashSet&lt;File&gt; checkedFiles = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L94">    final HashSet&lt;File&gt; changed = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L95">    final Queue&lt;File&gt; files = new LinkedList&lt;&gt;();</span>
+<span class="nc" id="L96">    files.add(base);</span>
 
-<span class="nc bnc" id="L101" title="All 2 branches missed.">    while (!files.isEmpty()) {</span>
-<span class="nc" id="L102">      final File file = files.remove();</span>
-<span class="nc" id="L103">      logger.trace(&quot;File: {}&quot;, file);</span>
-<span class="nc" id="L104">      final long lastModifiedInFile = file.lastModified();</span>
-<span class="nc" id="L105">      max = Math.max(lastModifiedInFile, max);</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">    while (!files.isEmpty()) {</span>
+<span class="nc" id="L99">      final File file = files.remove();</span>
+<span class="nc" id="L100">      logger.trace(&quot;File: {}&quot;, file);</span>
+<span class="nc" id="L101">      final long lastModifiedInFile = file.lastModified();</span>
+<span class="nc" id="L102">      max = Math.max(lastModifiedInFile, max);</span>
 
-<span class="nc bnc" id="L107" title="All 2 branches missed.">      if (lastModifiedInCache &lt; lastModifiedInFile) {</span>
-<span class="nc" id="L108">        changed.add(file);</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">      if (lastModifiedInCache &lt; lastModifiedInFile) {</span>
+<span class="nc" id="L105">        changed.add(file);</span>
       }
-<span class="nc" id="L110">      checkedFiles.add(file);</span>
-<span class="nc" id="L111">      final File[] children = file.listFiles();</span>
+<span class="nc" id="L107">      checkedFiles.add(file);</span>
+<span class="nc" id="L108">      final File[] children = file.listFiles();</span>
 
-<span class="nc bnc" id="L113" title="All 2 branches missed.">      if (!isEmpty(children)) {</span>
-<span class="nc" id="L114">        logger.trace(&quot;Find {} files&quot;, children.length);</span>
-<span class="nc" id="L115">        files.addAll(stream(children)</span>
-<span class="nc bnc" id="L116" title="All 2 branches missed.">            .filter(child -&gt; !ignores.contains(child.getName())).collect(toList()));</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">      if (!isEmpty(children)) {</span>
+<span class="nc" id="L111">        logger.trace(&quot;Find {} files&quot;, children.length);</span>
+<span class="nc" id="L112">        files.addAll(stream(children)</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">            .filter(child -&gt; !ignores.contains(child.getName())).collect(toList()));</span>
       }
-<span class="nc" id="L118">    }</span>
-<span class="nc" id="L119">    logger.debug(&quot;Changed: {}&quot;, changed);</span>
+<span class="nc" id="L115">    }</span>
+<span class="nc" id="L116">    logger.debug(&quot;Changed: {}&quot;, changed);</span>
 
-<span class="nc" id="L121">    HashSet&lt;File&gt; intersect = (HashSet&lt;File&gt;) checkedFiles.clone();</span>
-<span class="nc" id="L122">    intersect.retainAll(previouslyChecked);</span>
+<span class="nc" id="L118">    HashSet&lt;File&gt; intersect = (HashSet&lt;File&gt;) checkedFiles.clone();</span>
+<span class="nc" id="L119">    intersect.retainAll(previouslyChecked);</span>
 
-<span class="nc" id="L124">    logger.debug(&quot;Intersection: {}&quot;, intersect);</span>
+<span class="nc" id="L121">    logger.debug(&quot;Intersection: {}&quot;, intersect);</span>
 
-<span class="nc" id="L126">    final HashSet&lt;File&gt; added = new HashSet&lt;&gt;(checkedFiles);</span>
-<span class="nc" id="L127">    added.removeAll(intersect);</span>
-<span class="nc" id="L128">    final HashSet&lt;File&gt; removed = new HashSet&lt;&gt;(previouslyChecked);</span>
-<span class="nc" id="L129">    removed.removeAll(intersect);</span>
+<span class="nc" id="L123">    final HashSet&lt;File&gt; added = new HashSet&lt;&gt;(checkedFiles);</span>
+<span class="nc" id="L124">    added.removeAll(intersect);</span>
+<span class="nc" id="L125">    final HashSet&lt;File&gt; removed = new HashSet&lt;&gt;(previouslyChecked);</span>
+<span class="nc" id="L126">    removed.removeAll(intersect);</span>
 
-<span class="nc" id="L131">    base2lastModified.put(base, max);</span>
-<span class="nc" id="L132">    previouslyChecked = checkedFiles;</span>
+<span class="nc" id="L128">    base2lastModified.put(base, max);</span>
+<span class="nc" id="L129">    previouslyChecked = checkedFiles;</span>
 
-<span class="nc bnc" id="L134" title="All 2 branches missed.">    if (!added.isEmpty()) {</span>
-<span class="nc" id="L135">      logger.info(&quot;{} added&quot;, added);</span>
-<span class="nc" id="L136">      fireEvent(new ServerEvent(this, FILE_ADDED, unmodifiableCollection(added)));</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">    if (!added.isEmpty()) {</span>
+<span class="nc" id="L132">      logger.info(&quot;{} added&quot;, added);</span>
+<span class="nc" id="L133">      fireEvent(new ServerEvent(this, FILE_ADDED, unmodifiableCollection(added)));</span>
     }
-<span class="nc bnc" id="L138" title="All 2 branches missed.">    if (!removed.isEmpty()) {</span>
-<span class="nc" id="L139">      logger.info(&quot;{} removed&quot;, removed);</span>
-<span class="nc" id="L140">      fireEvent(new ServerEvent(this, FILE_REMOVED, unmodifiableCollection(removed)));</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">    if (!removed.isEmpty()) {</span>
+<span class="nc" id="L136">      logger.info(&quot;{} removed&quot;, removed);</span>
+<span class="nc" id="L137">      fireEvent(new ServerEvent(this, FILE_REMOVED, unmodifiableCollection(removed)));</span>
     }
-<span class="nc bnc" id="L142" title="All 2 branches missed.">    if (!changed.isEmpty()) {</span>
-<span class="nc" id="L143">      logger.info(&quot;{} changed&quot;, changed);</span>
-<span class="nc" id="L144">      fireEvent(new ServerEvent(this, FILE_CHANGED, unmodifiableCollection(changed)));</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">    if (!changed.isEmpty()) {</span>
+<span class="nc" id="L140">      logger.info(&quot;{} changed&quot;, changed);</span>
+<span class="nc" id="L141">      fireEvent(new ServerEvent(this, FILE_CHANGED, unmodifiableCollection(changed)));</span>
     }
 
-<span class="nc" id="L147">    final Set&lt;File&gt; any = new HashSet&lt;&gt;();</span>
-<span class="nc" id="L148">    any.addAll(added);</span>
-<span class="nc" id="L149">    any.addAll(removed);</span>
-<span class="nc" id="L150">    any.addAll(changed);</span>
-<span class="nc bnc" id="L151" title="All 2 branches missed.">    if (!any.isEmpty()) {</span>
-<span class="nc" id="L152">      fireEvent(new ServerEvent(this, ANY_CHANGED, unmodifiableCollection(any)));</span>
+<span class="nc" id="L144">    final Set&lt;File&gt; any = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L145">    any.addAll(added);</span>
+<span class="nc" id="L146">    any.addAll(removed);</span>
+<span class="nc" id="L147">    any.addAll(changed);</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">    if (!any.isEmpty()) {</span>
+<span class="nc" id="L149">      fireEvent(new ServerEvent(this, ANY_CHANGED, unmodifiableCollection(any)));</span>
     }
-<span class="nc" id="L154">  }</span>
+<span class="nc" id="L151">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

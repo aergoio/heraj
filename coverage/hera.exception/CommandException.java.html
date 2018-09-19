@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CommandException.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.exception</a> &gt; <span class="el_source">CommandException.java</span></div><h1>CommandException.java</h1><pre class="source lang-java linenums">package hera.exception;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+<span class="nc" id="L6">@RequiredArgsConstructor</span>
+public class CommandException extends RuntimeException {
+<span class="nc" id="L8">  @Getter</span>
+  protected final String userMessage;
+
+  public CommandException(final Throwable cause) {
+<span class="nc" id="L12">    super(cause);</span>
+<span class="nc" id="L13">    this.userMessage = null;</span>
+<span class="nc" id="L14">  }</span>
+
+  public CommandException(final String userMessage, final String developerMessage) {
+<span class="nc" id="L17">    super(developerMessage);</span>
+<span class="nc" id="L18">    this.userMessage = userMessage;</span>
+<span class="nc" id="L19">  }</span>
+
+  public CommandException(final String userMessage, final Throwable cause) {
+<span class="nc" id="L22">    super(cause);</span>
+<span class="nc" id="L23">    this.userMessage = userMessage;</span>
+<span class="nc" id="L24">  }</span>
+
+  @Override
+  public String getMessage() {
+<span class="nc bnc" id="L28" title="All 2 branches missed.">    if (null != userMessage) {</span>
+<span class="nc" id="L29">      return userMessage;</span>
+    }
+<span class="nc" id="L31">    return super.getMessage();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

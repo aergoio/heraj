@@ -6,27 +6,27 @@ package hera.test;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
-<span class="fc" id="L11">@RequiredArgsConstructor</span>
-<span class="nc" id="L12">@ToString</span>
+<span class="fc" id="L12">@RequiredArgsConstructor</span>
+<span class="nc" id="L13">@ToString</span>
 public class TestResult {
-  public static TestResult success(final Object result) {
-<span class="fc" id="L15">    return new TestResult(result, null, null);</span>
-  }
+<span class="fc" id="L15">  @Getter</span>
+<span class="fc" id="L16">  @Setter</span>
+  protected Object result;
 
-  public static TestResult fail(final LuaErrorInformation error, final String codeSnippet) {
-<span class="nc" id="L19">    return new TestResult(null, error, codeSnippet);</span>
-  }
+<span class="nc" id="L19">  @Getter</span>
+<span class="fc" id="L20">  @Setter</span>
+  protected String output;
 
-<span class="fc" id="L22">  @Getter</span>
-  protected final Object result;
+<span class="nc" id="L23">  @Getter</span>
+<span class="nc" id="L24">  @Setter</span>
+  protected LuaErrorInformation error;
 
-<span class="nc" id="L25">  @Getter</span>
-  protected final LuaErrorInformation error;
-
-<span class="nc" id="L28">  @Getter</span>
-  protected final String codeSnippet;
+<span class="nc" id="L27">  @Getter</span>
+<span class="nc" id="L28">  @Setter</span>
+  protected String codeSnippet;
 
   public boolean isSuccess() {
 <span class="nc bnc" id="L32" title="All 2 branches missed.">    return null == error;</span>

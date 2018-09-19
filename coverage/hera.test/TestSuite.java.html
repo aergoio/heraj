@@ -10,33 +10,46 @@ import lombok.Getter;
 import lombok.Setter;
 
 <span class="nc" id="L12">public class TestSuite {</span>
-<span class="nc" id="L13">  @Getter</span>
-<span class="nc" id="L14">  @Setter</span>
+
+<span class="nc" id="L14">  @Getter</span>
+<span class="nc" id="L15">  @Setter</span>
+  protected String filename;
+
+<span class="nc" id="L18">  @Getter</span>
+<span class="nc" id="L19">  @Setter</span>
   protected String name;
 
-<span class="nc" id="L17">  @Getter</span>
-<span class="nc" id="L18">  @Setter</span>
+<span class="nc" id="L22">  @Getter</span>
+<span class="nc" id="L23">  @Setter</span>
+  protected String error;
+
+<span class="nc" id="L26">  @Getter</span>
+<span class="nc" id="L27">  @Setter</span>
   protected List&lt;TestCase&gt; testCases = new ArrayList&lt;&gt;();
 
   public void addTestCase(final TestCase testCase) {
-<span class="nc" id="L22">    this.testCases.add(testCase);</span>
-<span class="nc" id="L23">  }</span>
+<span class="nc" id="L31">    this.testCases.add(testCase);</span>
+<span class="nc" id="L32">  }</span>
 
   public long getTests() {
-<span class="nc" id="L26">    return this.testCases.size();</span>
+<span class="nc" id="L35">    return this.testCases.size();</span>
   }
 
   public long getSuccesses() {
-<span class="nc" id="L30">    return this.testCases.stream().filter(TestCase::isSuccess).count();</span>
+<span class="nc" id="L39">    return this.testCases.stream().filter(TestCase::isSuccess).count();</span>
   }
 
   public long getFailures() {
-<span class="nc bnc" id="L34" title="All 2 branches missed.">    return this.testCases.stream().filter(testCase -&gt; !testCase.isSuccess()).count();</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">    return this.testCases.stream().filter(testCase -&gt; !testCase.isSuccess()).count();</span>
+  }
+
+  public boolean isSuccess() {
+<span class="nc bnc" id="L47" title="All 4 branches missed.">    return (null == error) &amp;&amp; getFailures() &lt;= 0;</span>
   }
 
   @Override
   public String toString() {
-<span class="nc" id="L39">    return &quot;* &quot; + getName() + &quot; &quot; + getSuccesses() + &quot;/&quot; + getTests();</span>
+<span class="nc" id="L52">    return &quot;* &quot; + getName() + &quot; &quot; + getSuccesses() + &quot;/&quot; + getTests();</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

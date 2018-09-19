@@ -37,6 +37,8 @@ import java.nio.file.Paths;
     }
 <span class="nc" id="L38">    createDirectories(publishPath);</span>
 <span class="nc" id="L39">    FileSet.from(Paths.get(&quot;.&quot;)).copyTo(publishPath);</span>
-<span class="nc" id="L40">  }</span>
+<span class="nc" id="L40">    printer.println(&quot;Successful to publish %s.&quot;, rootProject.getName());</span>
+<span class="nc" id="L41">    printer.println(&quot;Publish path: &lt;green&gt;%s&lt;/green&gt;&quot;, publishPath);</span>
+<span class="nc" id="L42">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

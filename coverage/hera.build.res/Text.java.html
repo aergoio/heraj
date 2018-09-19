@@ -44,14 +44,17 @@ public class Text {
     }
 <span class="nc" id="L45">  }</span>
 
-  @Override
-  public String toString() {
-<span class="nc" id="L49">    try (</span>
-<span class="nc" id="L50">        final InputStream in = textSupplier.get();</span>
-<span class="nc" id="L51">        final Reader reader = new InputStreamReader(in)) {</span>
-<span class="nc" id="L52">      return IoUtils.from(reader);</span>
-<span class="nc" id="L53">    } catch (final Throwable e) {</span>
-<span class="nc" id="L54">      throw new IllegalStateException(e);</span>
+  /**
+   * Get content text as String.
+   *
+   * @return content
+   *
+   * @throws Exception Fail to get content
+   */
+  public String get() throws Exception {
+<span class="nc" id="L55">    final InputStream in = textSupplier.get();</span>
+<span class="nc" id="L56">    try (final Reader reader = new InputStreamReader(in)) {</span>
+<span class="nc" id="L57">      return IoUtils.from(reader);</span>
     }
   }
 }

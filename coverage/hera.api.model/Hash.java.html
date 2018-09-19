@@ -4,24 +4,45 @@
 
 package hera.api.model;
 
+import hera.util.Base58Utils;
+import java.io.IOException;
+import java.util.Arrays;
+
 public class Hash extends BytesValue {
 
   /**
-   * Factory method.
+   * Create {@code Hash} with a raw bytes array.
    *
    * @param bytes value
    * @return created {@link Hash}
    */
   public static Hash of(final byte[] bytes) {
-<span class="nc" id="L16">    return new Hash(bytes);</span>
+<span class="nc bnc" id="L20" title="All 2 branches missed.">    if (null == bytes) {</span>
+<span class="nc" id="L21">      return new Hash(null);</span>
+    }
+<span class="nc" id="L23">    return new Hash(Arrays.copyOf(bytes, bytes.length));</span>
+  }
+
+  /**
+   * Create {@code Hash} with a base58 encoded value.
+   *
+   * @param encoded base58 encoded value
+   * @return created {@link Hash}
+   * @throws IOException when decoding error
+   */
+  public static Hash of(final String encoded) throws IOException {
+<span class="nc bnc" id="L34" title="All 2 branches missed.">    if (null == encoded) {</span>
+<span class="nc" id="L35">      return new Hash(null);</span>
+    }
+<span class="nc" id="L37">    return of(Base58Utils.decode(encoded));</span>
   }
 
   public Hash(final byte[] value) {
-<span class="fc" id="L20">    super(value);</span>
-<span class="fc" id="L21">  }</span>
+<span class="fc" id="L41">    super(value);</span>
+<span class="fc" id="L42">  }</span>
 
   public byte[] getBytesValue() {
-<span class="nc" id="L24">    return value;</span>
+<span class="nc" id="L45">    return value;</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

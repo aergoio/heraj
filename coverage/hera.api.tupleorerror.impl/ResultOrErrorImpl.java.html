@@ -60,8 +60,8 @@ public class ResultOrErrorImpl&lt;T&gt; implements ResultOrError&lt;T&gt; {
       try {
 <span class="fc" id="L61">        R next = fn.apply(result);</span>
 <span class="fc" id="L62">        return success(next);</span>
-<span class="fc" id="L63">      } catch (Throwable e) {</span>
-<span class="fc" id="L64">        return fail(e);</span>
+<span class="nc" id="L63">      } catch (Throwable e) {</span>
+<span class="nc" id="L64">        return fail(e);</span>
       }
     }
 <span class="nc" id="L67">    return fail(getError());</span>

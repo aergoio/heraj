@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LuaDebug.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.test</a> &gt; <span class="el_source">LuaDebug.java</span></div><h1>LuaDebug.java</h1><pre class="source lang-java linenums">package hera.test;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.exception.LuaStackOverflowException;
+import java.util.Stack;
+import org.luaj.vm2.LuaClosure;
+import org.luaj.vm2.LuaFunction;
+import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.Varargs;
+import org.luaj.vm2.lib.DebugLib;
+import org.slf4j.Logger;
+
+<span class="nc" id="L14">public class LuaDebug extends DebugLib {</span>
+
+<span class="nc" id="L16">  protected final transient Logger logger = getLogger(getClass());</span>
+
+<span class="nc" id="L18">  protected Stack&lt;LuaClosure&gt; callStack = new Stack&lt;&gt;();</span>
+
+  @Override
+  public void onCall(LuaFunction f) {
+<span class="nc" id="L22">    logger.debug(&quot;Function: {}&quot;, f);</span>
+<span class="nc" id="L23">    super.onCall(f);</span>
+<span class="nc" id="L24">  }</span>
+
+  @Override
+  public void onCall(LuaClosure c, Varargs varargs, LuaValue[] stack) {
+<span class="nc" id="L28">    logger.trace(&quot;Stack size: {}&quot;, callStack.size());</span>
+<span class="nc bnc" id="L29" title="All 2 branches missed.">    if (128 &lt; callStack.size()) {</span>
+<span class="nc" id="L30">      throw new LuaStackOverflowException();</span>
+    }
+<span class="nc" id="L32">    logger.debug(&quot;Closure: {}, Arguments: {}, Stack: {}&quot;, c, varargs, stack);</span>
+<span class="nc" id="L33">    super.onCall(c, varargs, stack);</span>
+<span class="nc" id="L34">    callStack.push(c);</span>
+<span class="nc" id="L35">    logger.debug(&quot;END of Call&quot;);</span>
+<span class="nc" id="L36">  }</span>
+
+  @Override
+  public Varargs onInvoke(Varargs args) {
+<span class="nc" id="L40">    logger.debug(&quot;Arguments: {}&quot;, args);</span>
+<span class="nc" id="L41">    return super.onInvoke(args);</span>
+  }
+
+  @Override
+  public void onReturn() {
+<span class="nc" id="L46">    callStack.pop();</span>
+<span class="nc" id="L47">    super.onReturn();</span>
+<span class="nc" id="L48">  }</span>
+
+  @Override
+  public void onInstruction(int pc, Varargs v, int top) {
+<span class="nc" id="L52">    logger.debug(&quot;PROGRAM COUNTER: {}, Arguments: {}, Top: {}&quot;, pc, v, top);</span>
+<span class="nc" id="L53">    super.onInstruction(pc, v, top);</span>
+<span class="nc" id="L54">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

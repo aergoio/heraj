@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DirectoryNotEmptyException.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.command</a> &gt; <span class="el_source">DirectoryNotEmptyException.java</span></div><h1>DirectoryNotEmptyException.java</h1><pre class="source lang-java linenums">package hera.command;
+
+import hera.exception.CommandException;
+import java.nio.file.Path;
+
+public class DirectoryNotEmptyException extends CommandException {
+  public DirectoryNotEmptyException(Path path) {
+<span class="nc" id="L8">    super(&quot;&lt;yellow&gt;&quot; + path.toString() + &quot;&lt;/yellow&gt; is not empty.&quot;</span>
+        + &quot; You can reset project with &lt;blue&gt;-f&lt;/blue&gt; but It make aergo.json overwritten!!&quot;);
+<span class="nc" id="L10">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

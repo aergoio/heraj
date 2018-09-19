@@ -4,6 +4,7 @@
 
 package hera.build;
 
+import static hera.util.FilepathUtils.getCanonicalForm;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.build.res.Source;
@@ -11,7 +12,10 @@ import hera.build.web.model.BuildDependency;
 import hera.build.web.model.BuildDetails;
 import hera.exception.BuildException;
 import hera.exception.CyclicDependencyException;
+import hera.util.FilepathUtils;
+import java.io.FileNotFoundException;
 import java.io.StringWriter;
+import java.nio.file.NoSuchFileException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -22,37 +26,40 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.slf4j.Logger;
 
-<span class="nc" id="L25">@RequiredArgsConstructor</span>
+<span class="nc" id="L29">@RequiredArgsConstructor</span>
 public class Concatenator {
 
-<span class="nc" id="L28">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="nc" id="L32">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="nc" id="L30">  protected final Set&lt;Resource&gt; processing = new LinkedHashSet&lt;&gt;();</span>
+<span class="nc" id="L34">  protected final Set&lt;Resource&gt; processing = new LinkedHashSet&lt;&gt;();</span>
 
-<span class="nc" id="L32">  @Getter</span>
+<span class="nc" id="L36">  @Getter</span>
   protected final ResourceManager resourceManager;
 
-<span class="nc" id="L35">  @Getter</span>
+<span class="nc" id="L39">  @Getter</span>
   protected final Set&lt;Resource&gt; visitedResources;
 
   public Concatenator(final ResourceManager resourceManager) {
-<span class="nc" id="L39">    this(resourceManager, new LinkedHashSet&lt;&gt;());</span>
-<span class="nc" id="L40">  }</span>
+<span class="nc" id="L43">    this(resourceManager, new LinkedHashSet&lt;&gt;());</span>
+<span class="nc" id="L44">  }</span>
 
-<span class="nc" id="L42">  @Getter</span>
-<span class="nc" id="L43">  @Setter</span>
+<span class="nc" id="L46">  @Getter</span>
+<span class="nc" id="L47">  @Setter</span>
   protected String delimiter = &quot;\n&quot;;
 
   protected String visit(final Source source) {
-<span class="nc bnc" id="L47" title="All 2 branches missed.">    if (visitedResources.contains(source)) {</span>
-<span class="nc" id="L48">      return null;</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">    if (visitedResources.contains(source)) {</span>
+<span class="nc" id="L52">      return null;</span>
     }
     try {
-<span class="nc" id="L51">      return source.getBody().toString();</span>
-<span class="nc" id="L52">    } catch (final BuildException e) {</span>
-<span class="nc" id="L53">      throw e;</span>
-<span class="nc" id="L54">    } catch (final Throwable e) {</span>
-<span class="nc" id="L55">      throw new BuildException(e);</span>
+<span class="nc" id="L55">      return source.getBody().get();</span>
+<span class="nc" id="L56">    } catch (final BuildException e) {</span>
+<span class="nc" id="L57">      throw e;</span>
+<span class="nc" id="L58">    } catch (final FileNotFoundException | NoSuchFileException ex) {</span>
+<span class="nc" id="L59">      throw new BuildException(&quot;&lt;green&gt;&quot;</span>
+<span class="nc" id="L60">          + getCanonicalForm(source.getPath().toFile().getAbsolutePath()) + &quot;&lt;/green&gt; not found&quot;);</span>
+<span class="nc" id="L61">    } catch (final Throwable e) {</span>
+<span class="nc" id="L62">      throw new BuildException(e);</span>
     }
   }
 
@@ -64,14 +71,14 @@ public class Concatenator {
    * @return concatenated result
    */
   public BuildDetails visit(final Resource resource) {
-<span class="nc" id="L67">    final BuildDependency dependencyRoot = new BuildDependency();</span>
-<span class="nc" id="L68">    dependencyRoot.setName(resource.getLocation());</span>
-<span class="nc" id="L69">    String contents = visit(resource, dependencyRoot);</span>
+<span class="nc" id="L74">    final BuildDependency dependencyRoot = new BuildDependency();</span>
+<span class="nc" id="L75">    dependencyRoot.setName(resource.getLocation());</span>
+<span class="nc" id="L76">    String contents = visit(resource, dependencyRoot);</span>
 
-<span class="nc" id="L71">    final BuildDetails buildDetails = new BuildDetails();</span>
-<span class="nc" id="L72">    buildDetails.setResult(contents);</span>
-<span class="nc" id="L73">    buildDetails.setDependencies(dependencyRoot);</span>
-<span class="nc" id="L74">    return buildDetails;</span>
+<span class="nc" id="L78">    final BuildDetails buildDetails = new BuildDetails();</span>
+<span class="nc" id="L79">    buildDetails.setResult(contents);</span>
+<span class="nc" id="L80">    buildDetails.setDependencies(dependencyRoot);</span>
+<span class="nc" id="L81">    return buildDetails;</span>
   }
 
   /**
@@ -83,67 +90,67 @@ public class Concatenator {
    * @return concatenated bytes
    */
   public String visit(final Resource resource, final BuildDependency resourceDependency) {
-<span class="nc" id="L86">    logger.trace(&quot;Resource: {}&quot;, resource);</span>
-<span class="nc bnc" id="L87" title="All 2 branches missed.">    if (visitedResources.contains(resource)) {</span>
-<span class="nc" id="L88">      return null;</span>
+<span class="nc" id="L93">    logger.trace(&quot;Resource: {}&quot;, resource);</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">    if (visitedResources.contains(resource)) {</span>
+<span class="nc" id="L95">      return null;</span>
     }
-<span class="nc bnc" id="L90" title="All 2 branches missed.">    if (processing.contains(resource)) {</span>
-<span class="nc" id="L91">      final StringJoiner joiner = new StringJoiner(&quot;-&gt;&quot;);</span>
-<span class="nc" id="L92">      processing.stream().map(Object::toString).forEach(joiner::add);</span>
-<span class="nc" id="L93">      joiner.add(resource.toString());</span>
-<span class="nc" id="L94">      throw new CyclicDependencyException(joiner.toString());</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">    if (processing.contains(resource)) {</span>
+<span class="nc" id="L98">      final StringJoiner joiner = new StringJoiner(&quot;-&gt;&quot;);</span>
+<span class="nc" id="L99">      processing.stream().map(Object::toString).forEach(joiner::add);</span>
+<span class="nc" id="L100">      joiner.add(resource.toString());</span>
+<span class="nc" id="L101">      throw new CyclicDependencyException(joiner.toString());</span>
     }
 
-<span class="nc" id="L97">    boolean needsDelimiter = false;</span>
-<span class="nc" id="L98">    final StringWriter contentWriter = new StringWriter();</span>
+<span class="nc" id="L104">    boolean needsDelimiter = false;</span>
+<span class="nc" id="L105">    final StringWriter contentWriter = new StringWriter();</span>
 
     try {
-<span class="nc" id="L101">      processing.add(resource);</span>
+<span class="nc" id="L108">      processing.add(resource);</span>
 
-<span class="nc" id="L103">      final Optional&lt;ResourceManager&gt; resourceManagerOpt = resource.adapt(ResourceManager.class);</span>
-<span class="nc" id="L104">      final Concatenator next = resourceManagerOpt</span>
-<span class="nc" id="L105">          .map(newResourceManager -&gt; new Concatenator(newResourceManager, visitedResources))</span>
-<span class="nc" id="L106">          .orElse(this);</span>
-<span class="nc bnc" id="L107" title="All 2 branches missed.">      if (this != next) {</span>
-<span class="nc" id="L108">        logger.info(&quot;Resource manager changed: {} -&gt; {}&quot;, this, next);</span>
+<span class="nc" id="L110">      final Optional&lt;ResourceManager&gt; resourceManagerOpt = resource.adapt(ResourceManager.class);</span>
+<span class="nc" id="L111">      final Concatenator next = resourceManagerOpt</span>
+<span class="nc" id="L112">          .map(newResourceManager -&gt; new Concatenator(newResourceManager, visitedResources))</span>
+<span class="nc" id="L113">          .orElse(this);</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">      if (this != next) {</span>
+<span class="nc" id="L115">        logger.info(&quot;Resource manager changed: {} -&gt; {}&quot;, this, next);</span>
       }
-<span class="nc" id="L110">      final ResourceManager nextResourceManager = next.getResourceManager();</span>
-<span class="nc" id="L111">      final List&lt;Resource&gt; dependencies = resource.getDependencies(nextResourceManager);</span>
-<span class="nc" id="L112">      logger.debug(&quot;Dependencies of {}: {}&quot;, resource, dependencies);</span>
-<span class="nc bnc" id="L113" title="All 2 branches missed.">      for (final Resource dependency : dependencies) {</span>
-<span class="nc" id="L114">        final BuildDependency childDependency = new BuildDependency();</span>
-<span class="nc" id="L115">        childDependency.setName(dependency.getLocation());</span>
-<span class="nc" id="L116">        final String contents = next.visit(dependency, childDependency);</span>
-<span class="nc" id="L117">        resourceDependency.add(childDependency);</span>
-<span class="nc bnc" id="L118" title="All 2 branches missed.">        if (null == contents) {</span>
-<span class="nc" id="L119">          continue;</span>
+<span class="nc" id="L117">      final ResourceManager nextResourceManager = next.getResourceManager();</span>
+<span class="nc" id="L118">      final List&lt;Resource&gt; dependencies = resource.getDependencies(nextResourceManager);</span>
+<span class="nc" id="L119">      logger.debug(&quot;Dependencies of {}: {}&quot;, resource, dependencies);</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">      for (final Resource dependency : dependencies) {</span>
+<span class="nc" id="L121">        final BuildDependency childDependency = new BuildDependency();</span>
+<span class="nc" id="L122">        childDependency.setName(dependency.getLocation());</span>
+<span class="nc" id="L123">        final String contents = next.visit(dependency, childDependency);</span>
+<span class="nc" id="L124">        resourceDependency.add(childDependency);</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (null == contents) {</span>
+<span class="nc" id="L126">          continue;</span>
         }
-<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (needsDelimiter) {</span>
-<span class="nc" id="L122">          contentWriter.write(&quot;\n&quot;);</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        if (needsDelimiter) {</span>
+<span class="nc" id="L129">          contentWriter.write(&quot;\n&quot;);</span>
         }
-<span class="nc" id="L124">        contentWriter.write(contents);</span>
-<span class="nc" id="L125">        needsDelimiter = true;</span>
-<span class="nc" id="L126">      }</span>
-<span class="nc" id="L127">      final String contents = resource.adapt(Source.class).map(next::visit).orElse(null);</span>
-<span class="nc bnc" id="L128" title="All 2 branches missed.">      if (null != contents) {</span>
-<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (needsDelimiter) {</span>
-<span class="nc" id="L130">          contentWriter.write(&quot;\n&quot;);</span>
+<span class="nc" id="L131">        contentWriter.write(contents);</span>
+<span class="nc" id="L132">        needsDelimiter = true;</span>
+<span class="nc" id="L133">      }</span>
+<span class="nc" id="L134">      final String contents = resource.adapt(Source.class).map(next::visit).orElse(null);</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">      if (null != contents) {</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">        if (needsDelimiter) {</span>
+<span class="nc" id="L137">          contentWriter.write(&quot;\n&quot;);</span>
         }
-<span class="nc" id="L132">        contentWriter.write(contents);</span>
-<span class="nc" id="L133">        needsDelimiter = true;</span>
+<span class="nc" id="L139">        contentWriter.write(contents);</span>
+<span class="nc" id="L140">        needsDelimiter = true;</span>
       }
 
-<span class="nc" id="L136">      processing.remove(resource);</span>
-<span class="nc" id="L137">      visitedResources.add(resource);</span>
-<span class="nc bnc" id="L138" title="All 2 branches missed.">      if (needsDelimiter) {</span>
-<span class="nc" id="L139">        return contentWriter.toString();</span>
+<span class="nc" id="L143">      processing.remove(resource);</span>
+<span class="nc" id="L144">      visitedResources.add(resource);</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">      if (needsDelimiter) {</span>
+<span class="nc" id="L146">        return contentWriter.toString();</span>
       } else {
-<span class="nc" id="L141">        return null;</span>
+<span class="nc" id="L148">        return null;</span>
       }
-<span class="nc" id="L143">    } catch (final BuildException e) {</span>
-<span class="nc" id="L144">      throw e;</span>
-<span class="nc" id="L145">    } catch (final Throwable ex) {</span>
-<span class="nc" id="L146">      throw new BuildException(ex);</span>
+<span class="nc" id="L150">    } catch (final BuildException e) {</span>
+<span class="nc" id="L151">      throw e;</span>
+<span class="nc" id="L152">    } catch (final Throwable ex) {</span>
+<span class="nc" id="L153">      throw new BuildException(ex);</span>
     }
   }
 }

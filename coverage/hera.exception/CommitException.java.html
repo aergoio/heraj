@@ -12,13 +12,16 @@ public class CommitException extends RpcException {
 
 <span class="nc" id="L13">  enum CommitStatus {</span>
 <span class="nc" id="L14">    UNRECOGNIZED,</span>
-<span class="nc" id="L15">    COMMIT_STATUS_NONCE_TOO_LOW,</span>
-<span class="nc" id="L16">    COMMIT_STATUS_INVALID_ARGUMENT,</span>
-<span class="nc" id="L17">    COMMIT_STATUS_TX_ALREADY_EXISTS,</span>
-<span class="nc" id="L18">    COMMIT_STATUS_TX_INTERNAL_ERROR</span>
+<span class="nc" id="L15">    OK,</span>
+<span class="nc" id="L16">    NONCE_TOO_LOW,</span>
+<span class="nc" id="L17">    TX_ALREADY_EXISTS,</span>
+<span class="nc" id="L18">    TX_INVALID_HASH,</span>
+<span class="nc" id="L19">    TX_INVALID_FORMAT,</span>
+<span class="nc" id="L20">    INSUFFICIENT_BALANCE,</span>
+<span class="nc" id="L21">    INTERNAL_ERROR</span>
   }
 
-<span class="nc" id="L21">  @Getter</span>
+<span class="nc" id="L24">  @Getter</span>
   protected CommitStatus commitStatus = CommitStatus.UNRECOGNIZED;
 
   /**
@@ -26,29 +29,38 @@ public class CommitException extends RpcException {
    *
    * @param rpcCommitStatus rpc commit status
    */
-<span class="nc" id="L29">  public CommitException(types.Rpc.CommitStatus rpcCommitStatus) {</span>
-<span class="nc bnc" id="L30" title="All 5 branches missed.">    switch (rpcCommitStatus) {</span>
-      case COMMIT_STATUS_NONCE_TOO_LOW:
-<span class="nc" id="L32">        this.commitStatus = CommitStatus.COMMIT_STATUS_NONCE_TOO_LOW;</span>
-<span class="nc" id="L33">        break;</span>
-      case COMMIT_STATUS_INVALID_ARGUMENT:
-<span class="nc" id="L35">        this.commitStatus = CommitStatus.COMMIT_STATUS_INVALID_ARGUMENT;</span>
+<span class="nc" id="L32">  public CommitException(types.Rpc.CommitStatus rpcCommitStatus) {</span>
+<span class="nc bnc" id="L33" title="All 8 branches missed.">    switch (rpcCommitStatus) {</span>
+      case TX_OK:
+<span class="nc" id="L35">        this.commitStatus = CommitStatus.OK;</span>
 <span class="nc" id="L36">        break;</span>
-      case COMMIT_STATUS_TX_ALREADY_EXISTS:
-<span class="nc" id="L38">        this.commitStatus = CommitStatus.COMMIT_STATUS_TX_ALREADY_EXISTS;</span>
+      case TX_NONCE_TOO_LOW:
+<span class="nc" id="L38">        this.commitStatus = CommitStatus.NONCE_TOO_LOW;</span>
 <span class="nc" id="L39">        break;</span>
-      case COMMIT_STATUS_TX_INTERNAL_ERROR:
-<span class="nc" id="L41">        this.commitStatus = CommitStatus.COMMIT_STATUS_TX_INTERNAL_ERROR;</span>
+      case TX_ALREADY_EXISTS:
+<span class="nc" id="L41">        this.commitStatus = CommitStatus.TX_ALREADY_EXISTS;</span>
 <span class="nc" id="L42">        break;</span>
+      case TX_INVALID_HASH:
+<span class="nc" id="L44">        this.commitStatus = CommitStatus.TX_INVALID_HASH;</span>
+<span class="nc" id="L45">        break;</span>
+      case TX_INVALID_FORMAT:
+<span class="nc" id="L47">        this.commitStatus = CommitStatus.TX_INVALID_FORMAT;</span>
+<span class="nc" id="L48">        break;</span>
+      case TX_INSUFFICIENT_BALANCE:
+<span class="nc" id="L50">        this.commitStatus = CommitStatus.INSUFFICIENT_BALANCE;</span>
+<span class="nc" id="L51">        break;</span>
+      case TX_INTERNAL_ERROR:
+<span class="nc" id="L53">        this.commitStatus = CommitStatus.INTERNAL_ERROR;</span>
+<span class="nc" id="L54">        break;</span>
       default:
-<span class="nc" id="L44">        this.commitStatus = CommitStatus.UNRECOGNIZED;</span>
+<span class="nc" id="L56">        this.commitStatus = CommitStatus.UNRECOGNIZED;</span>
         break;
     }
-<span class="nc" id="L47">  }</span>
+<span class="nc" id="L59">  }</span>
 
   @Override
   public String getLocalizedMessage() {
-<span class="nc" id="L51">    return commitStatus.toString();</span>
+<span class="nc" id="L63">    return commitStatus.toString();</span>
   }
 
 }

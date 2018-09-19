@@ -14,90 +14,90 @@ import java.util.function.Supplier;
 <span class="nc" id="L14">public final class FunctionChain {</span>
 
   /**
-   * Make a sequence of with ResultOrErrors.
+   * Make a sequence of ResultOrErrors.
    *
-   * @param &lt;T0&gt; type of 1st element of tuple
-   * @param &lt;T1&gt; type of 2nd element of tuple
-   * @param f0 {@code ResultOrError} supplier
-   * @param f1 {@code ResultOrError} supplier
-   * @return sequence of result or error
-   */
-  public static &lt;T0, T1&gt; Tuple2OrError&lt;T0, T1&gt; seq(Supplier&lt;ResultOrError&lt;T0&gt;&gt; f0,
-      Supplier&lt;ResultOrError&lt;T1&gt;&gt; f1) {
-<span class="fc" id="L27">    ResultOrErrorFuture future0 = ResultOrErrorFuture.supply(() -&gt; f0.get());</span>
-<span class="fc" id="L28">    ResultOrErrorFuture future1 = ResultOrErrorFuture.supply(() -&gt; f1.get());</span>
-
-<span class="fc" id="L30">    Tuple2OrErrorFuture&lt;T0, T1&gt; future =</span>
-<span class="fc" id="L31">        hera.api.tupleorerror.FutureFunctionChain.seq(() -&gt; future0, () -&gt; future1);</span>
-<span class="fc" id="L32">    return future.get();</span>
-  }
-
-  /**
-   * Make a sequence of with ResultOrErrors.
-   *
-   * @param &lt;T0&gt; type of 1st element of tuple
-   * @param &lt;T1&gt; type of 2nd element of tuple
-   * @param &lt;T2&gt; type of 3rd element of tuple
-   * @param f0 {@code ResultOrError} supplier
+   * @param &lt;T1&gt; type of 1st element of tuple
+   * @param &lt;T2&gt; type of 2nd element of tuple
    * @param f1 {@code ResultOrError} supplier
    * @param f2 {@code ResultOrError} supplier
    * @return sequence of result or error
    */
-  public static &lt;T0, T1, T2&gt; Tuple3OrError&lt;T0, T1, T2&gt; seq(Supplier&lt;ResultOrError&lt;T0&gt;&gt; f0,
-      Supplier&lt;ResultOrError&lt;T1&gt;&gt; f1, Supplier&lt;ResultOrError&lt;T2&gt;&gt; f2) {
-<span class="fc" id="L48">    ResultOrErrorFuture future0 = ResultOrErrorFuture.supply(() -&gt; f0.get());</span>
-<span class="fc" id="L49">    ResultOrErrorFuture future1 = ResultOrErrorFuture.supply(() -&gt; f1.get());</span>
-<span class="fc" id="L50">    ResultOrErrorFuture future2 = ResultOrErrorFuture.supply(() -&gt; f2.get());</span>
+  public static &lt;T1, T2&gt; Tuple2OrError&lt;T1, T2&gt; seq(Supplier&lt;ResultOrError&lt;T1&gt;&gt; f1,
+      Supplier&lt;ResultOrError&lt;T2&gt;&gt; f2) {
+<span class="fc" id="L27">    ResultOrErrorFuture future1 = ResultOrErrorFutureFactory.supply(() -&gt; f1.get());</span>
+<span class="fc" id="L28">    ResultOrErrorFuture future2 = ResultOrErrorFutureFactory.supply(() -&gt; f2.get());</span>
 
-<span class="fc" id="L52">    Tuple3OrErrorFuture&lt;T0, T1, T2&gt; future =</span>
-<span class="fc" id="L53">        hera.api.tupleorerror.FutureFunctionChain.seq(() -&gt; future0, () -&gt; future1, () -&gt; future2);</span>
-<span class="fc" id="L54">    return future.get();</span>
+<span class="fc" id="L30">    Tuple2OrErrorFuture&lt;T1, T2&gt; future =</span>
+<span class="fc" id="L31">        hera.api.tupleorerror.FutureFunctionChain.seq(() -&gt; future1, () -&gt; future2);</span>
+<span class="fc" id="L32">    return future.get();</span>
   }
 
   /**
-   * Make a sequence of with ResultOrErrors.
+   * Make a sequence of ResultOrErrors.
    *
-   * @param &lt;T0&gt; type of 1st element of tuple
-   * @param &lt;T1&gt; type of 2nd element of tuple
-   * @param &lt;T2&gt; type of 3rd element of tuple
-   * @param &lt;T3&gt; type of 4th element of tuple
-   * @param f0 {@code ResultOrError} supplier
+   * @param &lt;T1&gt; type of 1st element of tuple
+   * @param &lt;T2&gt; type of 2nd element of tuple
+   * @param &lt;T3&gt; type of 3rd element of tuple
    * @param f1 {@code ResultOrError} supplier
    * @param f2 {@code ResultOrError} supplier
    * @param f3 {@code ResultOrError} supplier
    * @return sequence of result or error
    */
-  public static &lt;T0, T1, T2, T3&gt; Tuple4OrError&lt;T0, T1, T2, T3&gt; seq(Supplier&lt;ResultOrError&lt;T0&gt;&gt; f0,
-      Supplier&lt;ResultOrError&lt;T1&gt;&gt; f1, Supplier&lt;ResultOrError&lt;T2&gt;&gt; f2,
-      Supplier&lt;ResultOrError&lt;T3&gt;&gt; f3) {
-<span class="fc" id="L73">    ResultOrErrorFuture future0 = ResultOrErrorFuture.supply(() -&gt; f0.get());</span>
-<span class="fc" id="L74">    ResultOrErrorFuture future1 = ResultOrErrorFuture.supply(() -&gt; f1.get());</span>
-<span class="fc" id="L75">    ResultOrErrorFuture future2 = ResultOrErrorFuture.supply(() -&gt; f2.get());</span>
-<span class="fc" id="L76">    ResultOrErrorFuture future3 = ResultOrErrorFuture.supply(() -&gt; f3.get());</span>
-<span class="fc" id="L77">    Tuple4OrErrorFuture&lt;T0, T1, T2, T3&gt; future = hera.api.tupleorerror.FutureFunctionChain</span>
-<span class="fc" id="L78">        .seq(() -&gt; future0, () -&gt; future1, () -&gt; future2, () -&gt; future3);</span>
-<span class="fc" id="L79">    return future.get();</span>
+  public static &lt;T1, T2, T3&gt; Tuple3OrError&lt;T1, T2, T3&gt; seq(Supplier&lt;ResultOrError&lt;T1&gt;&gt; f1,
+      Supplier&lt;ResultOrError&lt;T2&gt;&gt; f2, Supplier&lt;ResultOrError&lt;T3&gt;&gt; f3) {
+<span class="fc" id="L48">    ResultOrErrorFuture future1 = ResultOrErrorFutureFactory.supply(() -&gt; f1.get());</span>
+<span class="fc" id="L49">    ResultOrErrorFuture future2 = ResultOrErrorFutureFactory.supply(() -&gt; f2.get());</span>
+<span class="fc" id="L50">    ResultOrErrorFuture future3 = ResultOrErrorFutureFactory.supply(() -&gt; f3.get());</span>
+
+<span class="fc" id="L52">    Tuple3OrErrorFuture&lt;T1, T2, T3&gt; future =</span>
+<span class="fc" id="L53">        hera.api.tupleorerror.FutureFunctionChain.seq(() -&gt; future1, () -&gt; future2, () -&gt; future3);</span>
+<span class="fc" id="L54">    return future.get();</span>
   }
 
+  /**
+   * Make a sequence of ResultOrErrors.
+   *
+   * @param &lt;T1&gt; type of 1st element of tuple
+   * @param &lt;T2&gt; type of 2nd element of tuple
+   * @param &lt;T3&gt; type of 3rd element of tuple
+   * @param &lt;T4&gt; type of 4th element of tuple
+   * @param f1 {@code ResultOrError} supplier
+   * @param f2 {@code ResultOrError} supplier
+   * @param f3 {@code ResultOrError} supplier
+   * @param f4 {@code ResultOrError} supplier
+   * @return sequence of result or error
+   */
+  public static &lt;T1, T2, T3, T4&gt; Tuple4OrError&lt;T1, T2, T3, T4&gt; seq(Supplier&lt;ResultOrError&lt;T1&gt;&gt; f1,
+      Supplier&lt;ResultOrError&lt;T2&gt;&gt; f2, Supplier&lt;ResultOrError&lt;T3&gt;&gt; f3,
+      Supplier&lt;ResultOrError&lt;T4&gt;&gt; f4) {
+<span class="fc" id="L73">    ResultOrErrorFuture future1 = ResultOrErrorFutureFactory.supply(() -&gt; f1.get());</span>
+<span class="fc" id="L74">    ResultOrErrorFuture future2 = ResultOrErrorFutureFactory.supply(() -&gt; f2.get());</span>
+<span class="fc" id="L75">    ResultOrErrorFuture future3 = ResultOrErrorFutureFactory.supply(() -&gt; f3.get());</span>
+<span class="fc" id="L76">    ResultOrErrorFuture future4 = ResultOrErrorFutureFactory.supply(() -&gt; f4.get());</span>
+
+<span class="fc" id="L78">    Tuple4OrErrorFuture&lt;T1, T2, T3, T4&gt; future = hera.api.tupleorerror.FutureFunctionChain</span>
+<span class="fc" id="L79">        .seq(() -&gt; future1, () -&gt; future2, () -&gt; future3, () -&gt; future4);</span>
+<span class="fc" id="L80">    return future.get();</span>
+  }
 
   public static &lt;T&gt; ResultOrError&lt;T&gt; success(T t) {
 <span class="fc" id="L84">    return new ResultOrErrorImpl&lt;&gt;(t, null);</span>
   }
 
-  public static &lt;T0, T1&gt; Tuple2OrError&lt;T0, T1&gt; success(T0 t0, T1 t1) {
-<span class="fc" id="L88">    return new Tuple2OrErrorImpl&lt;&gt;(t0, t1);</span>
+  public static &lt;T1, T2&gt; Tuple2OrError&lt;T1, T2&gt; success(T1 t1, T2 t2) {
+<span class="fc" id="L88">    return new Tuple2OrErrorImpl&lt;&gt;(t1, t2);</span>
   }
 
-  public static &lt;T0, T1, T2&gt; Tuple3OrError&lt;T0, T1, T2&gt; success(T0 t0, T1 t1, T2 t2) {
-<span class="fc" id="L92">    return new Tuple3OrErrorImpl&lt;&gt;(t0, t1, t2);</span>
+  public static &lt;T1, T2, T3&gt; Tuple3OrError&lt;T1, T2, T3&gt; success(T1 t1, T2 t2, T3 t3) {
+<span class="fc" id="L92">    return new Tuple3OrErrorImpl&lt;&gt;(t1, t2, t3);</span>
   }
 
-  public static &lt;T0, T1, T2, T3&gt; Tuple4OrError&lt;T0, T1, T2, T3&gt; success(T0 t0, T1 t1, T2 t2, T3 t3) {
-<span class="fc" id="L96">    return new Tuple4OrErrorImpl&lt;&gt;(t0, t1, t2, t3);</span>
+  public static &lt;T1, T2, T3, T4&gt; Tuple4OrError&lt;T1, T2, T3, T4&gt; success(T1 t1, T2 t2, T3 t3, T4 t4) {
+<span class="fc" id="L96">    return new Tuple4OrErrorImpl&lt;&gt;(t1, t2, t3, t4);</span>
   }
 
   public static ResultOrError fail(Throwable error) {
-<span class="fc" id="L100">    return new ResultOrErrorImpl(null, error);</span>
+<span class="fc" id="L100">    return new ResultOrErrorImpl&lt;&gt;(null, error);</span>
   }
 
 }

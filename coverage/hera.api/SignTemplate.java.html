@@ -5,7 +5,7 @@
 package hera.api;
 
 import hera.api.model.BytesValue;
-import hera.util.pki.ECDSAKey;
+import hera.util.pki.KeyPair;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.function.Supplier;
@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 
   @Override
   public BytesValue sign(
-      final ECDSAKey key,
+      final KeyPair key,
       final Supplier&lt;InputStream&gt; plainText) throws IOException {
 <span class="fc" id="L19">    try (final InputStream in = plainText.get()) {</span>
 <span class="fc" id="L20">      return new BytesValue(key.sign(in));</span>
@@ -23,7 +23,7 @@ import java.util.function.Supplier;
 
   @Override
   public boolean verify(
-      final ECDSAKey key,
+      final KeyPair key,
       final Supplier&lt;InputStream&gt; plainText,
       final BytesValue signature) throws IOException {
 <span class="fc" id="L29">    try (final InputStream in = plainText.get()) {</span>

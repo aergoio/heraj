@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RFC6979Utils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util.pki</a> &gt; <span class="el_source">RFC6979Utils.java</span></div><h1>RFC6979Utils.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.util.pki;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.util.HexUtils;
+import java.io.ByteArrayOutputStream;
+import java.math.BigInteger;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import org.slf4j.Logger;
+
+<span class="nc" id="L18">public class RFC6979Utils {</span>
+
+<span class="fc" id="L20">  protected static final Logger logger = getLogger(RFC6979Utils.class);</span>
+
+  /**
+   * Generate k according to rfc6979.
+   *
+   * @see &lt;a href=&quot;https://tools.ietf.org/html/rfc6979#section-3.2&quot;&gt;rfc6979 section-3.2&lt;/a&gt;
+   *
+   * @param d D value of private key
+   * @param n order of the DSA generator used in the signature
+   * @param mac mac algorithm
+   * @param message message data
+   * @return generated k
+   * @throws Exception Fail to generate k
+   */
+  public static BigInteger generatek(final BigInteger d, final BigInteger n, final Mac mac,
+      final byte[] message) throws Exception {
+
+<span class="fc" id="L37">    int qlen = n.bitLength();</span>
+<span class="fc" id="L38">    int holen = mac.getMacLength(); // hash octets length?</span>
+<span class="fc" id="L39">    int rolen = (qlen + 7) &gt;&gt;&gt; 3;</span>
+
+<span class="fc" id="L41">    logger.trace(&quot;qlen: {}&quot;, qlen);</span>
+<span class="fc" id="L42">    logger.trace(&quot;holen: {}&quot;, holen);</span>
+<span class="fc" id="L43">    logger.trace(&quot;rolen: {}&quot;, rolen);</span>
+
+<span class="fc" id="L45">    byte[] bx = concat(int2octets(d, rolen), bits2octets(message, n, rolen));</span>
+<span class="fc" id="L46">    logger.trace(&quot;bx: {}&quot;, HexUtils.encode(bx));</span>
+
+<span class="fc" id="L48">    final ByteArrayOutputStream os = new ByteArrayOutputStream();</span>
+
+    // step b.
+<span class="fc" id="L51">    byte[] u = new byte[holen];</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">    for (int i = 0; i &lt; holen; i++) {</span>
+<span class="fc" id="L53">      u[i] = 0x01;</span>
+    }
+<span class="fc" id="L55">    logger.trace(&quot;Step B: {}&quot;, HexUtils.encode(u));</span>
+
+    // step c
+<span class="fc" id="L58">    byte[] k = new byte[holen];</span>
+<span class="fc" id="L59">    logger.trace(&quot;Step C: {}&quot;, HexUtils.encode(k));</span>
+
+    // step d
+<span class="fc" id="L62">    os.reset();</span>
+<span class="fc" id="L63">    os.write(u);</span>
+<span class="fc" id="L64">    os.write((byte) 0x00);</span>
+<span class="fc" id="L65">    os.write(bx);</span>
+<span class="fc" id="L66">    os.flush();</span>
+<span class="fc" id="L67">    k = generateHash(mac, k, os.toByteArray());</span>
+<span class="fc" id="L68">    logger.trace(&quot;Step D: {}&quot;, HexUtils.encode(k));</span>
+
+    // step e
+<span class="fc" id="L71">    u = generateHash(mac, k, u);</span>
+<span class="fc" id="L72">    logger.trace(&quot;Step E: {}&quot;, HexUtils.encode(u));</span>
+
+    // step f
+<span class="fc" id="L75">    os.reset();</span>
+<span class="fc" id="L76">    os.write(u);</span>
+<span class="fc" id="L77">    os.write((byte) 0x01);</span>
+<span class="fc" id="L78">    os.write(bx);</span>
+<span class="fc" id="L79">    k = generateHash(mac, k, os.toByteArray());</span>
+<span class="fc" id="L80">    logger.trace(&quot;Step F: {}&quot;, HexUtils.encode(k));</span>
+
+    // step g
+<span class="fc" id="L83">    u = generateHash(mac, k, u);</span>
+<span class="fc" id="L84">    logger.trace(&quot;Step G: {}&quot;, HexUtils.encode(u));</span>
+
+    // step h
+<span class="fc" id="L87">    byte[] t = new byte[rolen];</span>
+    while (true) {
+      /*
+       * We want qlen bits, but we support only hash functions with an output length multiple of
+       * 8;acd hence, we will gather rlen bits, i.e., rolen octets.
+       */
+<span class="fc" id="L93">      int toff = 0;</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">      while (toff &lt; rolen) {</span>
+<span class="fc" id="L95">        u = generateHash(mac, k, u);</span>
+<span class="fc" id="L96">        int cc = Math.min(u.length, t.length - toff);</span>
+<span class="fc" id="L97">        System.arraycopy(u, 0, t, toff, cc);</span>
+<span class="fc" id="L98">        toff += cc;</span>
+<span class="fc" id="L99">      }</span>
+<span class="fc" id="L100">      BigInteger generatedK = bits2int(t, qlen);</span>
+<span class="pc bpc" id="L101" title="2 of 4 branches missed.">      if (generatedK.signum() &gt; 0 &amp;&amp; generatedK.compareTo(n) &lt; 0) {</span>
+<span class="fc" id="L102">        logger.trace(&quot;Generted k: {}&quot;, generatedK);</span>
+<span class="fc" id="L103">        return generatedK;</span>
+      }
+
+      /*
+       * k is not in the proper range; update K and V, and loop.
+       */
+
+<span class="nc" id="L110">      os.reset();</span>
+<span class="nc" id="L111">      os.write(u);</span>
+<span class="nc" id="L112">      os.write((byte) 0x00);</span>
+<span class="nc" id="L113">      os.flush();</span>
+<span class="nc" id="L114">      k = generateHash(mac, k, os.toByteArray());</span>
+
+<span class="nc" id="L116">      u = generateHash(mac, k, u);</span>
+<span class="nc" id="L117">    }</span>
+  }
+
+  protected static byte[] generateHash(final Mac mac, final byte[] key, byte[] message)
+      throws NoSuchAlgorithmException, InvalidKeyException {
+<span class="fc" id="L122">    final String algorithm = mac.getAlgorithm();</span>
+<span class="fc" id="L123">    final Mac macClone = Mac.getInstance(algorithm);</span>
+<span class="fc" id="L124">    macClone.init(new SecretKeySpec(key, algorithm));</span>
+<span class="fc" id="L125">    macClone.update(message);</span>
+<span class="fc" id="L126">    return macClone.doFinal();</span>
+  }
+
+  /**
+   * Converts a hash value to an integer.
+   *
+   * @see &lt;a href=&quot;https://tools.ietf.org/html/rfc6979#section-2.3.2&quot;&gt;rfc6979 section-2.3.2&lt;/a&gt;
+   *
+   * @param hash input hash
+   * @param nbitslen bit length of subgroup order n of the base point
+   * @return converted integer
+   */
+  public static BigInteger bits2int(byte[] hash, int nbitslen) {
+<span class="fc" id="L139">    BigInteger v = new BigInteger(1, hash);</span>
+<span class="fc" id="L140">    int vbitslen = hash.length * 8;</span>
+<span class="fc bfc" id="L141" title="All 2 branches covered.">    if (vbitslen &gt; nbitslen) {</span>
+<span class="fc" id="L142">      v = v.shiftRight(vbitslen - nbitslen);</span>
+    }
+<span class="fc" id="L144">    return v;</span>
+  }
+
+  /**
+   * Convert integer to octet string.
+   *
+   * @see &lt;a href=&quot;https://tools.ietf.org/html/rfc6979#section-2.3.3&quot;&gt;rfc6979 section-2.3.3&lt;/a&gt;
+   *
+   * @param v integer value
+   * @param rolen (qlen + 7) / 8 where qlen = n.bitLength, byte length of n
+   * @return converted octec string
+   */
+  public static byte[] int2octets(final BigInteger v, final int rolen) {
+<span class="fc" id="L157">    byte[] out = v.toByteArray();</span>
+
+    // left pad with zeros if it's too short
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">    if (out.length &lt; rolen) {</span>
+<span class="nc" id="L161">      byte[] out2 = new byte[rolen];</span>
+<span class="nc" id="L162">      System.arraycopy(out, 0, out2, rolen - out.length, out.length);</span>
+<span class="nc" id="L163">      return out2;</span>
+    }
+
+    // drop most significant bytes if it's too long
+<span class="fc bfc" id="L167" title="All 2 branches covered.">    if (out.length &gt; rolen) {</span>
+<span class="fc" id="L168">      byte[] out2 = new byte[rolen];</span>
+<span class="fc" id="L169">      System.arraycopy(out, out.length - rolen, out2, 0, rolen);</span>
+<span class="fc" id="L170">      return out2;</span>
+    }
+
+<span class="fc" id="L173">    return out;</span>
+  }
+
+  /**
+   * Convert bit string to octet string.
+   *
+   * @see &lt;a href=&quot;https://tools.ietf.org/html/rfc6979#section-2.3.4&quot;&gt;rfc6979 section-2.3.4&lt;/a&gt;
+   *
+   * @param in input bits
+   * @param n subgroup order of the base point
+   * @param rolen (qlen + 7) / 8 where qlen = n.bigLength, byte length of n
+   * @return octet string
+   */
+  public static byte[] bits2octets(byte[] in, BigInteger n, final int rolen) {
+<span class="fc" id="L187">    BigInteger z1 = bits2int(in, n.bitLength());</span>
+<span class="fc" id="L188">    BigInteger z2 = z1.subtract(n);</span>
+<span class="pc bpc" id="L189" title="1 of 2 branches missed.">    return int2octets(z2.signum() &lt; 0 ? z1 : z2, rolen);</span>
+  }
+
+  /**
+   * Concat two arrays.
+   *
+   * @param a first array
+   * @param b second array
+   * @return a concated array
+   */
+  public static byte[] concat(final byte[] a, final byte[] b) {
+<span class="fc" id="L200">    byte[] concated = new byte[a.length + b.length];</span>
+<span class="fc" id="L201">    System.arraycopy(a, 0, concated, 0, a.length);</span>
+<span class="fc" id="L202">    System.arraycopy(b, 0, concated, a.length, b.length);</span>
+<span class="fc" id="L203">    return concated;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

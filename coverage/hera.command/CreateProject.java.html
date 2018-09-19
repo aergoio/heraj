@@ -6,37 +6,71 @@ package hera.command;
 
 import static hera.ApmConstants.PROJECT_FILENAME;
 import static hera.util.FilepathUtils.getFilename;
-import static hera.util.ValidationUtils.assertTrue;
 import static java.util.Collections.singletonList;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
 import hera.Command;
 import hera.ProjectFile;
+import hera.util.IoUtils;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-<span class="nc" id="L17">public class CreateProject extends AbstractCommand implements Command {</span>
+<span class="nc" id="L26">public class CreateProject extends AbstractCommand implements Command {</span>
+<span class="nc" id="L27">  @ToString</span>
+<span class="nc" id="L28">  class Options {</span>
+<span class="nc" id="L29">    @Parameter(names = {&quot;-f&quot;, &quot;--force&quot;},</span>
+        description = &quot;Force to set aergo.json up though it exists.&quot;)
+<span class="nc" id="L31">    @Getter</span>
+<span class="nc" id="L32">    @Setter</span>
+    protected boolean force = false;
+  }
+
   @Override
   public void execute() throws Exception {
-<span class="nc" id="L20">    logger.trace(&quot;Starting {}...&quot;, this);</span>
-<span class="nc" id="L21">    logger.debug(&quot;Arguments: {}&quot;, arguments);</span>
-<span class="nc bnc" id="L22" title="All 2 branches missed.">    assertTrue(0 == arguments.size());</span>
-<span class="nc" id="L23">    final Path projectPath = Paths.get(&quot;.&quot;).toAbsolutePath();</span>
-<span class="nc" id="L24">    logger.trace(&quot;Project location: {}&quot;, projectPath);</span>
+<span class="nc" id="L38">    logger.trace(&quot;Starting {}...&quot;, this);</span>
+<span class="nc" id="L39">    logger.debug(&quot;Arguments: {}&quot;, arguments);</span>
 
-<span class="nc" id="L26">    final Path projectFilePath = Paths.get(projectPath.toString(), PROJECT_FILENAME);</span>
+<span class="nc" id="L41">    final Options options = new Options();</span>
+<span class="nc" id="L42">    JCommander.newBuilder().addObject(options).build().parse(arguments.toArray(new String[0]));</span>
+<span class="nc" id="L43">    logger.debug(&quot;Options: {}&quot;, options);</span>
 
-<span class="nc" id="L28">    final WriteProjectFile writeProjectFile = new WriteProjectFile();</span>
-<span class="nc" id="L29">    final String projectDirectoryName = getFilename(projectPath.toFile().getAbsolutePath());</span>
-<span class="nc" id="L30">    final String projectName = System.getProperty(&quot;user.name&quot;) + &quot;/&quot; + projectDirectoryName;</span>
-<span class="nc" id="L31">    logger.debug(&quot;Project name: {}&quot;, projectName);</span>
-<span class="nc" id="L32">    final ProjectFile projectFile = writeProjectFile.getProject();</span>
-<span class="nc" id="L33">    projectFile.setName(projectName);</span>
-<span class="nc" id="L34">    projectFile.setSource(&quot;src/main/lua/main.lua&quot;);</span>
-<span class="nc" id="L35">    projectFile.setTarget(&quot;app.lua&quot;);</span>
-<span class="nc" id="L36">    projectFile.setEndpoint(null);</span>
-<span class="nc" id="L37">    logger.trace(&quot;Project file: {}&quot;, projectFile);</span>
-<span class="nc" id="L38">    writeProjectFile.setArguments(singletonList(projectFilePath.toAbsolutePath().toString()));</span>
-<span class="nc" id="L39">    writeProjectFile.execute();</span>
-<span class="nc" id="L40">  }</span>
+<span class="nc" id="L45">    final Path projectPath = Paths.get(&quot;.&quot;).toFile().getAbsoluteFile().getCanonicalFile().toPath();</span>
+<span class="nc" id="L46">    logger.trace(&quot;Project location: {}&quot;, projectPath);</span>
+
+<span class="nc" id="L48">    final Path projectFilePath = Paths.get(projectPath.toString(), PROJECT_FILENAME);</span>
+
+<span class="nc" id="L50">    final WriteProjectFile writeProjectFile = new WriteProjectFile();</span>
+<span class="nc" id="L51">    final String projectDirectoryName = getFilename(projectPath.toFile().getCanonicalPath());</span>
+<span class="nc bnc" id="L52" title="All 4 branches missed.">    if (!options.isForce() &amp;&amp; 0 &lt; Files.list(projectPath).count()) {</span>
+<span class="nc" id="L53">      logger.trace(&quot;Force: {}&quot;, options.isForce());</span>
+<span class="nc" id="L54">      throw new DirectoryNotEmptyException(projectPath);</span>
+    }
+<span class="nc" id="L56">    final String projectName = System.getProperty(&quot;user.name&quot;) + &quot;/&quot; + projectDirectoryName;</span>
+<span class="nc" id="L57">    logger.debug(&quot;Project name: {}&quot;, projectName);</span>
+<span class="nc" id="L58">    final ProjectFile projectFile = writeProjectFile.getProject();</span>
+<span class="nc" id="L59">    projectFile.setName(projectName);</span>
+<span class="nc" id="L60">    projectFile.setSource(&quot;src/main/lua/main.lua&quot;);</span>
+<span class="nc" id="L61">    projectFile.setTarget(&quot;app.lua&quot;);</span>
+<span class="nc" id="L62">    projectFile.setEndpoint(null);</span>
+<span class="nc" id="L63">    logger.trace(&quot;Project file: {}&quot;, projectFile);</span>
+<span class="nc" id="L64">    writeProjectFile.setArguments(singletonList(projectFilePath.toAbsolutePath().toString()));</span>
+<span class="nc" id="L65">    writeProjectFile.execute();</span>
+
+<span class="nc" id="L67">    printer.println(&quot;Congratulation!! %s initialized.&quot;, projectPath);</span>
+<span class="nc" id="L68">    try (</span>
+<span class="nc" id="L69">        final InputStream in = Files.newInputStream(projectFilePath);</span>
+<span class="nc" id="L70">        final Reader reader = new InputStreamReader(in)) {</span>
+<span class="nc" id="L71">      printer.println(&quot;Edit &lt;green&gt;%s&lt;/green&gt; as your needs.&quot;, projectFilePath);</span>
+<span class="nc" id="L72">      printer.println(IoUtils.from(reader));</span>
+    }
+<span class="nc" id="L74">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -26,9 +26,9 @@ import types.Blockchain.TxType;
 <span class="fc" id="L26">  protected final transient Logger logger = getLogger(getClass());</span>
 
 <span class="fc" id="L28">  protected final Function&lt;TransactionType, TxType&gt; txTypeDomainConverter = domainTxType -&gt; {</span>
-<span class="pc bnc" id="L29" title="All 3 branches missed.">    switch (domainTxType) {</span>
+<span class="pc bpc" id="L29" title="2 of 3 branches missed.">    switch (domainTxType) {</span>
       case NORMAL:
-<span class="nc" id="L31">        return TxType.NORMAL;</span>
+<span class="fc" id="L31">        return TxType.NORMAL;</span>
       case GOVERNANCE:
 <span class="nc" id="L33">        return TxType.GOVERNANCE;</span>
       default:
@@ -59,7 +59,7 @@ import types.Blockchain.TxType;
 <span class="fc" id="L59">    txBodyBuilder.setLimit(domainTransaction.getLimit());</span>
 <span class="fc" id="L60">    txBodyBuilder.setPrice(domainTransaction.getPrice());</span>
 <span class="pc bpc" id="L61" title="1 of 2 branches missed.">    if (TransactionType.UNRECOGNIZED != domainTransaction.getTxType()) {</span>
-<span class="nc" id="L62">      txBodyBuilder.setType(txTypeDomainConverter.apply(domainTransaction.getTxType()));</span>
+<span class="fc" id="L62">      txBodyBuilder.setType(txTypeDomainConverter.apply(domainTransaction.getTxType()));</span>
     }
 
 <span class="fc" id="L65">    final Tx.Builder txBuilder = Tx.newBuilder();</span>

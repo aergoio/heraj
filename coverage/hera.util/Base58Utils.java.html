@@ -18,12 +18,14 @@ import java.util.Arrays;
 
 <span class="fc" id="L19">  protected static final int[] INDEXES = new int[128];</span>
 
+  protected static final int CHECKSUM_LEN = 4;
+
   static {
-<span class="fc" id="L22">    Arrays.fill(INDEXES, -1);</span>
-<span class="fc bfc" id="L23" title="All 2 branches covered.">    for (int i = 0; i &lt; BASE58_CHARS.length; i++) {</span>
-<span class="fc" id="L24">      INDEXES[BASE58_CHARS[i]] = i;</span>
+<span class="fc" id="L24">    Arrays.fill(INDEXES, -1);</span>
+<span class="fc bfc" id="L25" title="All 2 branches covered.">    for (int i = 0; i &lt; BASE58_CHARS.length; i++) {</span>
+<span class="fc" id="L26">      INDEXES[BASE58_CHARS[i]] = i;</span>
     }
-<span class="fc" id="L26">  }</span>
+<span class="fc" id="L28">  }</span>
 
   /**
    * Encodes the given bytes as a base58 string (no checksum is appended).
@@ -32,34 +34,34 @@ import java.util.Arrays;
    * @return the base58-encoded string
    */
   public static String encode(byte[] input) {
-<span class="fc bfc" id="L35" title="All 2 branches covered.">    if (input.length == 0) {</span>
-<span class="fc" id="L36">      return &quot;&quot;;</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">    if (input.length == 0) {</span>
+<span class="fc" id="L38">      return &quot;&quot;;</span>
     }
     // Count leading zeros.
-<span class="fc" id="L39">    int zeros = 0;</span>
-<span class="pc bpc" id="L40" title="2 of 4 branches missed.">    while (zeros &lt; input.length &amp;&amp; input[zeros] == 0) {</span>
-<span class="nc" id="L41">      ++zeros;</span>
+<span class="fc" id="L41">    int zeros = 0;</span>
+<span class="pc bpc" id="L42" title="2 of 4 branches missed.">    while (zeros &lt; input.length &amp;&amp; input[zeros] == 0) {</span>
+<span class="nc" id="L43">      ++zeros;</span>
     }
     // Convert base-256 digits to base-58 digits (plus conversion to ASCII characters)
-<span class="fc" id="L44">    input = Arrays.copyOf(input, input.length); // since we modify it in-place</span>
-<span class="fc" id="L45">    char[] encoded = new char[input.length * 2]; // upper bound</span>
-<span class="fc" id="L46">    int outputStart = encoded.length;</span>
-<span class="fc bfc" id="L47" title="All 2 branches covered.">    for (int inputStart = zeros; inputStart &lt; input.length;) {</span>
-<span class="fc" id="L48">      encoded[--outputStart] = BASE58_CHARS[divmod(input, inputStart, 256, 58)];</span>
-<span class="fc bfc" id="L49" title="All 2 branches covered.">      if (input[inputStart] == 0) {</span>
-<span class="fc" id="L50">        ++inputStart; // optimization - skip leading zeros</span>
+<span class="fc" id="L46">    input = Arrays.copyOf(input, input.length); // since we modify it in-place</span>
+<span class="fc" id="L47">    char[] encoded = new char[input.length * 2]; // upper bound</span>
+<span class="fc" id="L48">    int outputStart = encoded.length;</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">    for (int inputStart = zeros; inputStart &lt; input.length;) {</span>
+<span class="fc" id="L50">      encoded[--outputStart] = BASE58_CHARS[divmod(input, inputStart, 256, 58)];</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">      if (input[inputStart] == 0) {</span>
+<span class="fc" id="L52">        ++inputStart; // optimization - skip leading zeros</span>
       }
     }
     // Preserve exactly as many leading encoded zeros in output as there were leading zeros in
     // input.
-<span class="pc bpc" id="L55" title="2 of 4 branches missed.">    while (outputStart &lt; encoded.length &amp;&amp; encoded[outputStart] == ENCODED_ZERO) {</span>
-<span class="nc" id="L56">      ++outputStart;</span>
+<span class="pc bpc" id="L57" title="2 of 4 branches missed.">    while (outputStart &lt; encoded.length &amp;&amp; encoded[outputStart] == ENCODED_ZERO) {</span>
+<span class="nc" id="L58">      ++outputStart;</span>
     }
-<span class="pc bpc" id="L58" title="1 of 2 branches missed.">    while (--zeros &gt;= 0) {</span>
-<span class="nc" id="L59">      encoded[--outputStart] = ENCODED_ZERO;</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">    while (--zeros &gt;= 0) {</span>
+<span class="nc" id="L61">      encoded[--outputStart] = ENCODED_ZERO;</span>
     }
     // Return encoded string (including encoded leading zeros).
-<span class="fc" id="L62">    return new String(encoded, outputStart, encoded.length - outputStart);</span>
+<span class="fc" id="L64">    return new String(encoded, outputStart, encoded.length - outputStart);</span>
   }
 
   /**
@@ -69,39 +71,39 @@ import java.util.Arrays;
    * @return the decoded data bytes
    */
   public static byte[] decode(String input) {
-<span class="pc bpc" id="L72" title="1 of 2 branches missed.">    if (input.length() == 0) {</span>
-<span class="nc" id="L73">      return new byte[0];</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">    if (input.length() == 0) {</span>
+<span class="nc" id="L75">      return new byte[0];</span>
     }
     // Convert the base58-encoded ASCII chars to a base58 byte sequence (base58 digits).
-<span class="fc" id="L76">    byte[] input58 = new byte[input.length()];</span>
-<span class="fc bfc" id="L77" title="All 2 branches covered.">    for (int i = 0; i &lt; input.length(); ++i) {</span>
-<span class="fc" id="L78">      char c = input.charAt(i);</span>
-<span class="pc bpc" id="L79" title="1 of 2 branches missed.">      int digit = c &lt; 128 ? INDEXES[c] : -1;</span>
-<span class="pc bpc" id="L80" title="1 of 2 branches missed.">      if (digit &lt; 0) {</span>
-<span class="nc" id="L81">        throw new IllegalStateException();</span>
+<span class="fc" id="L78">    byte[] input58 = new byte[input.length()];</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">    for (int i = 0; i &lt; input.length(); ++i) {</span>
+<span class="fc" id="L80">      char c = input.charAt(i);</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">      int digit = c &lt; 128 ? INDEXES[c] : -1;</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">      if (digit &lt; 0) {</span>
+<span class="nc" id="L83">        throw new IllegalStateException();</span>
       }
-<span class="fc" id="L83">      input58[i] = (byte) digit;</span>
+<span class="fc" id="L85">      input58[i] = (byte) digit;</span>
     }
     // Count leading zeros.
-<span class="fc" id="L86">    int zeros = 0;</span>
-<span class="pc bpc" id="L87" title="2 of 4 branches missed.">    while (zeros &lt; input58.length &amp;&amp; input58[zeros] == 0) {</span>
-<span class="nc" id="L88">      ++zeros;</span>
+<span class="fc" id="L88">    int zeros = 0;</span>
+<span class="pc bpc" id="L89" title="2 of 4 branches missed.">    while (zeros &lt; input58.length &amp;&amp; input58[zeros] == 0) {</span>
+<span class="nc" id="L90">      ++zeros;</span>
     }
     // Convert base-58 digits to base-256 digits.
-<span class="fc" id="L91">    byte[] decoded = new byte[input.length()];</span>
-<span class="fc" id="L92">    int outputStart = decoded.length;</span>
-<span class="fc bfc" id="L93" title="All 2 branches covered.">    for (int inputStart = zeros; inputStart &lt; input58.length;) {</span>
-<span class="fc" id="L94">      decoded[--outputStart] = divmod(input58, inputStart, 58, 256);</span>
-<span class="pc bpc" id="L95" title="1 of 2 branches missed.">      if (input58[inputStart] == 0) {</span>
-<span class="fc" id="L96">        ++inputStart; // optimization - skip leading zeros</span>
+<span class="fc" id="L93">    byte[] decoded = new byte[input.length()];</span>
+<span class="fc" id="L94">    int outputStart = decoded.length;</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">    for (int inputStart = zeros; inputStart &lt; input58.length;) {</span>
+<span class="fc" id="L96">      decoded[--outputStart] = divmod(input58, inputStart, 58, 256);</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">      if (input58[inputStart] == 0) {</span>
+<span class="fc" id="L98">        ++inputStart; // optimization - skip leading zeros</span>
       }
     }
     // Ignore extra leading zeroes that were added during the calculation.
-<span class="pc bpc" id="L100" title="1 of 4 branches missed.">    while (outputStart &lt; decoded.length &amp;&amp; decoded[outputStart] == 0) {</span>
-<span class="fc" id="L101">      ++outputStart;</span>
+<span class="pc bpc" id="L102" title="1 of 4 branches missed.">    while (outputStart &lt; decoded.length &amp;&amp; decoded[outputStart] == 0) {</span>
+<span class="fc" id="L103">      ++outputStart;</span>
     }
     // Return decoded data (including original number of leading zeros).
-<span class="fc" id="L104">    return Arrays.copyOfRange(decoded, outputStart - zeros, decoded.length);</span>
+<span class="fc" id="L106">    return Arrays.copyOfRange(decoded, outputStart - zeros, decoded.length);</span>
   }
 
   /**
@@ -118,14 +120,58 @@ import java.util.Arrays;
    */
   private static byte divmod(byte[] number, int firstDigit, int base, int divisor) {
     // this is just long division which accounts for the base of the input digits
-<span class="fc" id="L121">    int remainder = 0;</span>
-<span class="fc bfc" id="L122" title="All 2 branches covered.">    for (int i = firstDigit; i &lt; number.length; i++) {</span>
-<span class="fc" id="L123">      int digit = (int) number[i] &amp; 0xFF;</span>
-<span class="fc" id="L124">      int temp = remainder * base + digit;</span>
-<span class="fc" id="L125">      number[i] = (byte) (temp / divisor);</span>
-<span class="fc" id="L126">      remainder = temp % divisor;</span>
+<span class="fc" id="L123">    int remainder = 0;</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">    for (int i = firstDigit; i &lt; number.length; i++) {</span>
+<span class="fc" id="L125">      int digit = (int) number[i] &amp; 0xFF;</span>
+<span class="fc" id="L126">      int temp = remainder * base + digit;</span>
+<span class="fc" id="L127">      number[i] = (byte) (temp / divisor);</span>
+<span class="fc" id="L128">      remainder = temp % divisor;</span>
     }
-<span class="fc" id="L128">    return (byte) remainder;</span>
+<span class="fc" id="L130">    return (byte) remainder;</span>
   }
+
+  /**
+   * Encode byte array to base58 with checksum.
+   *
+   * @param rawData raw byte array
+   * @return base58 encoded strihgn with checksum
+   */
+  public static String encodeWithCheck(final byte[] rawData) {
+<span class="fc" id="L140">    final byte[] checkSum = calculateCheckSum(rawData);</span>
+<span class="fc" id="L141">    final byte[] rawTotal = new byte[rawData.length + CHECKSUM_LEN];</span>
+<span class="fc" id="L142">    System.arraycopy(rawData, 0, rawTotal, 0, rawData.length);</span>
+<span class="fc" id="L143">    System.arraycopy(checkSum, 0, rawTotal, rawTotal.length - CHECKSUM_LEN, CHECKSUM_LEN);</span>
+<span class="fc" id="L144">    return encode(rawTotal);</span>
+  }
+
+  /**
+   * Decode base58 string with checksum to byte array.
+   *
+   * @param encoded base58 encoded string
+   * @return decoded byte array
+   */
+  public static byte[] decodeWithCheck(final String encoded) {
+<span class="fc" id="L154">    final byte[] rawTotal = decode(encoded);</span>
+<span class="fc" id="L155">    final byte[] rawData = Arrays.copyOfRange(rawTotal, 0, rawTotal.length - CHECKSUM_LEN);</span>
+<span class="fc" id="L156">    final byte[] checkSum =</span>
+<span class="fc" id="L157">        Arrays.copyOfRange(rawTotal, rawTotal.length - CHECKSUM_LEN, rawTotal.length);</span>
+<span class="fc" id="L158">    final byte[] calculatedCheckSum = calculateCheckSum(rawData);</span>
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">    if (!Arrays.equals(checkSum, calculatedCheckSum)) {</span>
+<span class="nc" id="L160">      throw new IllegalArgumentException(&quot;Checksum is mismatch&quot;);</span>
+    }
+<span class="fc" id="L162">    return rawData;</span>
+  }
+
+  /**
+   * Calculate checksum with a {@code rawData}.
+   *
+   * @param rawData raw data
+   * @return calculated checksum
+   */
+  protected static byte[] calculateCheckSum(final byte[] rawData) {
+<span class="fc" id="L172">    final byte[] doubleHashed = Sha256Utils.digest(Sha256Utils.digest(rawData));</span>
+<span class="fc" id="L173">    return Arrays.copyOfRange(doubleHashed, 0, CHECKSUM_LEN);</span>
+  }
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

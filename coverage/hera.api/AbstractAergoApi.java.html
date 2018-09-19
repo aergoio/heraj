@@ -33,32 +33,37 @@ import org.slf4j.Logger;
   }
 
   @Override
-  public TransactionOperation getTransactionOperation() {
+  public BlockChainOperation getBlockChainOperation() {
 <span class="nc" id="L37">    throw new UnsupportedOperationException();</span>
   }
 
   @Override
-  public ContractOperation getContractOperation() {
+  public TransactionOperation getTransactionOperation() {
 <span class="nc" id="L42">    throw new UnsupportedOperationException();</span>
+  }
+
+  @Override
+  public ContractOperation getContractOperation() {
+<span class="nc" id="L47">    throw new UnsupportedOperationException();</span>
   }
 
   public &lt;AdapteeT&gt; List&lt;? extends AdapteeT&gt; getCandidates(
       final Class&lt;AdapteeT&gt; candidateClass) {
-<span class="nc" id="L47">    return AdaptorManager.getInstance().getAdaptors(candidateClass);</span>
+<span class="nc" id="L52">    return AdaptorManager.getInstance().getAdaptors(candidateClass);</span>
   }
 
   @Override
   public &lt;OperationT&gt; Optional&lt;OperationT&gt; adapt(final Class&lt;OperationT&gt; operationClass) {
-<span class="nc" id="L52">    final List&lt;? extends OperationT&gt; candidates = getCandidates(operationClass);</span>
-<span class="nc bnc" id="L53" title="All 2 branches missed.">    if (candidates.isEmpty()) {</span>
-<span class="nc" id="L54">      return empty();</span>
+<span class="nc" id="L57">    final List&lt;? extends OperationT&gt; candidates = getCandidates(operationClass);</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">    if (candidates.isEmpty()) {</span>
+<span class="nc" id="L59">      return empty();</span>
     }
-<span class="nc bnc" id="L56" title="All 2 branches missed.">    if (1 &lt; candidates.size()) {</span>
-<span class="nc" id="L57">      throw new IllegalStateException();</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">    if (1 &lt; candidates.size()) {</span>
+<span class="nc" id="L62">      throw new IllegalStateException();</span>
     }
-<span class="nc" id="L59">    final OperationT op = candidates.get(0);</span>
-<span class="nc" id="L60">    logger.debug(&quot;Custom operation: {}&quot;, op);</span>
-<span class="nc" id="L61">    return ofNullable(op);</span>
+<span class="nc" id="L64">    final OperationT op = candidates.get(0);</span>
+<span class="nc" id="L65">    logger.debug(&quot;Custom operation: {}&quot;, op);</span>
+<span class="nc" id="L66">    return ofNullable(op);</span>
   }
 
 }

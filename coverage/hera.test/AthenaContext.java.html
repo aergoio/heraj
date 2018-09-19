@@ -53,15 +53,15 @@ import org.slf4j.Logger;
     @Override
     public LuaValue call(final LuaValue name) {
 <span class="nc" id="L55">      logger.trace(&quot;Starting {}...&quot;, name);</span>
-<span class="nc" id="L56">      testReporter.start(name.tojstring());</span>
+<span class="nc" id="L56">      testReporter.startCase(name.tojstring());</span>
 <span class="nc" id="L57">      return null;</span>
     }
   };
-<span class="nc" id="L60">  public TwoArgFunction endTest = new TwoArgFunction() {</span>
+<span class="nc" id="L60">  public OneArgFunction endTest = new OneArgFunction() {</span>
     @Override
-    public LuaValue call(final LuaValue name, LuaValue testResult) {
+    public LuaValue call(final LuaValue name) {
 <span class="nc" id="L63">      logger.trace(&quot;{} end&quot;, name);</span>
-<span class="nc" id="L64">      testReporter.end(name.tojstring(), testResult.toboolean());</span>
+<span class="nc" id="L64">      testReporter.endCase(name.tojstring());</span>
 <span class="nc" id="L65">      return null;</span>
     }
   };

@@ -46,8 +46,8 @@ public class Tuple2OrErrorImpl&lt;T1, T2&gt; implements Tuple2OrError&lt;T1, T2&
    * @param error an error
    */
   public Tuple2OrErrorImpl(Throwable error) {
-<span class="nc" id="L49">    this(null, null, error);</span>
-<span class="nc" id="L50">  }</span>
+<span class="fc" id="L49">    this(null, null, error);</span>
+<span class="fc" id="L50">  }</span>
 
   @Override
   public T1 get1() {
@@ -86,7 +86,7 @@ public class Tuple2OrErrorImpl&lt;T1, T2&gt; implements Tuple2OrError&lt;T1, T2&
 
   @Override
   public &lt;R&gt; ResultOrError&lt;R&gt; map(Function2&lt;? super T1, ? super T2, ? extends R&gt; fn) {
-<span class="pc bpc" id="L89" title="1 of 2 branches missed.">    if (!hasError()) {</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">    if (!hasError()) {</span>
       try {
 <span class="fc" id="L91">        R next = fn.apply(v1, v2);</span>
 <span class="fc" id="L92">        return success(next);</span>
@@ -94,7 +94,7 @@ public class Tuple2OrErrorImpl&lt;T1, T2&gt; implements Tuple2OrError&lt;T1, T2&
 <span class="nc" id="L94">        return fail(e);</span>
       }
     }
-<span class="nc" id="L97">    return fail(getError());</span>
+<span class="fc" id="L97">    return fail(getError());</span>
   }
 
   @Override

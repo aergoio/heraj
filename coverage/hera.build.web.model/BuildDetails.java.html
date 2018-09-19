@@ -5,7 +5,7 @@
 package hera.build.web.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import hera.test.TestSuite;
+import hera.test.TestFile;
 import java.util.Collection;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -15,17 +15,22 @@ import lombok.ToString;
 <span class="fc" id="L15">@RequiredArgsConstructor</span>
 <span class="fc" id="L16">@ToString(callSuper = true)</span>
 public class BuildDetails extends BuildSummary {
-<span class="fc" id="L18">  @Getter</span>
-<span class="nc" id="L19">  @Setter</span>
+
+<span class="fc" id="L19">  @Getter</span>
+<span class="fc" id="L20">  @Setter</span>
+  protected int sequence;
+
+<span class="fc" id="L23">  @Getter</span>
+<span class="nc" id="L24">  @Setter</span>
   protected String result;
 
-<span class="fc" id="L22">  @Getter</span>
-<span class="nc" id="L23">  @Setter</span>
+<span class="fc" id="L27">  @Getter</span>
+<span class="nc" id="L28">  @Setter</span>
   protected BuildDependency dependencies;
 
-<span class="fc" id="L26">  @Getter</span>
-<span class="nc" id="L27">  @Setter</span>
-  protected Collection&lt;TestSuite&gt; unitTestReport;
+<span class="fc" id="L31">  @Getter</span>
+<span class="nc" id="L32">  @Setter</span>
+  protected Collection&lt;TestFile&gt; unitTestReport;
 
   /**
    * Build summary from this build details.
@@ -34,12 +39,13 @@ public class BuildDetails extends BuildSummary {
    */
   @JsonIgnore
   public BuildSummary getSummary() {
-<span class="fc" id="L37">    final BuildSummary summary = new BuildSummary();</span>
-<span class="fc" id="L38">    summary.setUuid(getUuid());</span>
-<span class="fc" id="L39">    summary.setTimestamp(getTimestamp());</span>
-<span class="fc" id="L40">    summary.setState(getState());</span>
+<span class="fc" id="L42">    final BuildSummary summary = new BuildSummary();</span>
+<span class="fc" id="L43">    summary.setUuid(getUuid());</span>
+<span class="fc" id="L44">    summary.setElapsedTime(getElapsedTime());</span>
+<span class="fc" id="L45">    summary.setState(getState());</span>
+<span class="fc" id="L46">    summary.setError(getError());</span>
 
-<span class="fc" id="L42">    return summary;</span>
+<span class="fc" id="L48">    return summary;</span>
   }
 
   /**
@@ -48,11 +54,12 @@ public class BuildDetails extends BuildSummary {
    * @param source {@link BuildDetails} to copy from
    */
   public void copyFrom(final BuildDetails source) {
-<span class="nc" id="L51">    this.state = source.getState();</span>
-<span class="nc" id="L52">    this.error = source.getError();</span>
-<span class="nc" id="L53">    this.result = source.getResult();</span>
-<span class="nc" id="L54">    this.dependencies = source.getDependencies();</span>
-<span class="nc" id="L55">    this.unitTestReport = source.getUnitTestReport();</span>
-<span class="nc" id="L56">  }</span>
+<span class="nc" id="L57">    this.state = source.getState();</span>
+<span class="nc" id="L58">    this.elapsedTime = source.getElapsedTime();</span>
+<span class="nc" id="L59">    this.error = source.getError();</span>
+<span class="nc" id="L60">    this.result = source.getResult();</span>
+<span class="nc" id="L61">    this.dependencies = source.getDependencies();</span>
+<span class="nc" id="L62">    this.unitTestReport = source.getUnitTestReport();</span>
+<span class="nc" id="L63">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

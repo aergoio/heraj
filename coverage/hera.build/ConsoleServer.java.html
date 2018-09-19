@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConsoleServer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.build</a> &gt; <span class="el_source">ConsoleServer.java</span></div><h1>ConsoleServer.java</h1><pre class="source lang-java linenums">package hera.build;
+
+import static hera.build.web.model.BuildSummary.BUILD_FAIL;
+import static hera.build.web.model.BuildSummary.SUCCESS;
+import static hera.build.web.model.BuildSummary.TEST_FAIL;
+
+import hera.build.web.model.BuildDetails;
+import hera.build.web.model.BuildSummary;
+import hera.server.AbstractServer;
+import hera.server.ServerStatus;
+import hera.test.TestCase;
+import hera.test.TestFile;
+import hera.test.TestSuite;
+import hera.util.MessagePrinter;
+import java.io.IOException;
+import java.util.Date;
+import lombok.Getter;
+import lombok.Setter;
+
+<span class="nc" id="L20">public class ConsoleServer extends AbstractServer {</span>
+
+  protected static final String CLEAR_SCREEN = &quot;\033[2J&quot;;
+  protected static final String GO_HOME = &quot;\033[H&quot;;
+
+<span class="nc" id="L25">  @Getter</span>
+<span class="nc" id="L26">  @Setter</span>
+  protected MessagePrinter printer;
+
+  @Override
+  public void boot() {
+<span class="nc" id="L31">    changeStatus(ServerStatus.PROCESSING);</span>
+<span class="nc" id="L32">  }</span>
+
+  @Override
+  public void down() {
+<span class="nc" id="L36">    changeStatus(ServerStatus.TERMINATED);</span>
+<span class="nc" id="L37">  }</span>
+
+  /**
+   * Process build result.
+   *
+   * @param details build result
+   */
+  public void process(final BuildDetails details) {
+<span class="nc bnc" id="L45" title="All 2 branches missed.">    if (!isStatus(ServerStatus.PROCESSING)) {</span>
+<span class="nc" id="L46">      return;</span>
+    }
+
+<span class="nc" id="L49">    clearScreen();</span>
+<span class="nc" id="L50">    printResult(details);</span>
+<span class="nc" id="L51">    printer.println();</span>
+<span class="nc bnc" id="L52" title="All 4 branches missed.">    if (SUCCESS == details.getState() || null == details.getError()) {</span>
+<span class="nc" id="L53">      printTest(details);</span>
+    } else {
+<span class="nc" id="L55">      printError(details);</span>
+    }
+
+    try {
+<span class="nc" id="L59">      printer.flush();</span>
+<span class="nc" id="L60">    } catch (final IOException e) {</span>
+<span class="nc" id="L61">      logger.trace(&quot;Ignore exception&quot;, e);</span>
+<span class="nc" id="L62">    }</span>
+<span class="nc" id="L63">  }</span>
+
+  protected void clearScreen() {
+<span class="nc" id="L66">    printer.print(CLEAR_SCREEN);</span>
+<span class="nc" id="L67">    printer.print(GO_HOME);</span>
+<span class="nc" id="L68">  }</span>
+
+  protected void printResult(final BuildSummary summary) {
+<span class="nc" id="L71">    final String now = new Date().toString();</span>
+<span class="nc bnc" id="L72" title="All 4 branches missed.">    switch (summary.getState()) {</span>
+      case SUCCESS:
+<span class="nc" id="L74">        printer.println(&quot;&lt;bg_green&gt;&lt;black&gt; SUCCESS &lt;/black&gt;&lt;/bg_green&gt;      &quot;</span>
+                + &quot;&lt;green&gt;%-30s&lt;/green&gt;&lt;bright_black&gt;%s&lt;/bright_black&gt;&quot;,
+<span class="nc" id="L76">            summary.getElapsedTime() + &quot; ms elapsed&quot;, now);</span>
+<span class="nc" id="L77">        break;</span>
+      case BUILD_FAIL:
+<span class="nc" id="L79">        printer.println(&quot;&lt;bg_red&gt;&lt;black&gt; ERROR! &lt;/black&gt;&lt;/bg_red&gt;       &quot;</span>
+                + &quot;%30s&lt;bright_black&gt;%s&lt;/bright_black&gt;&quot;,
+            &quot; &quot;, now);
+<span class="nc" id="L82">        break;</span>
+      case TEST_FAIL:
+<span class="nc" id="L84">        printer.println(&quot;&lt;bg_red&gt;&lt;black&gt; TEST FAILURE! &lt;/black&gt;&lt;/bg_red&gt;&quot;</span>
+                + &quot;%30s&lt;bright_black&gt;%s&lt;/bright_black&gt;&quot;,
+            &quot; &quot;, now);
+<span class="nc" id="L87">        break;</span>
+      default:
+<span class="nc" id="L89">        throw new IllegalArgumentException(&quot;Unknown state: &quot; + summary.getState());</span>
+    }
+<span class="nc" id="L91">  }</span>
+
+  protected void printError(final BuildDetails buildDetails) {
+<span class="nc" id="L94">    printer.println(&quot;&lt;red&gt;%s&lt;/red&gt;&quot;, buildDetails.getError());</span>
+<span class="nc" id="L95">  }</span>
+
+  protected void printTest(final BuildDetails buildDetails) {
+<span class="nc" id="L98">    buildDetails.getUnitTestReport().forEach(this::print);</span>
+<span class="nc" id="L99">  }</span>
+
+  protected void print(final TestFile testFile) {
+<span class="nc bnc" id="L102" title="All 2 branches missed.">    if (testFile.isSuccess()) {</span>
+<span class="nc" id="L103">      printer.println(&quot; &lt;bg_blue&gt; F &lt;/bg_blue&gt; %s&quot;, testFile.getFilename());</span>
+    } else {
+<span class="nc" id="L105">      printer.println(&quot; &lt;bg_blue&gt; F &lt;/bg_blue&gt; &lt;red&gt;$s&lt;/red&gt;&quot;, testFile.getFilename());</span>
+    }
+<span class="nc" id="L107">    testFile.getSuites().forEach(this::print);</span>
+<span class="nc" id="L108">  }</span>
+
+  protected void print(final TestSuite testSuite) {
+<span class="nc" id="L111">    final long nFailures = testSuite.getFailures();</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">    if (0 &lt; nFailures) {</span>
+<span class="nc" id="L113">      printer.print(&quot;    * %s(&lt;red&gt;%s&lt;/red&gt; / %s)&quot;,</span>
+<span class="nc" id="L114">          testSuite.getName(), testSuite.getSuccesses(), testSuite.getTests());</span>
+    } else {
+<span class="nc" id="L116">      printer.println(&quot;   * %s(%s / %s)&quot;,</span>
+<span class="nc" id="L117">          testSuite.getName(), testSuite.getSuccesses(), testSuite.getTests());</span>
+    }
+<span class="nc" id="L119">    testSuite.getTestCases().forEach(this::print);</span>
+<span class="nc" id="L120">  }</span>
+
+  protected void print(final TestCase testCase) {
+<span class="nc bnc" id="L123" title="All 2 branches missed.">    if (testCase.isSuccess()) {</span>
+<span class="nc" id="L124">      printer.println(&quot;     -  %s &lt;bright_black&gt;%s ms&lt;/bright_black&gt;&quot;,</span>
+<span class="nc" id="L125">          testCase.getName(), (testCase.getEndTime() - testCase.getStartTime()));</span>
+    } else {
+<span class="nc" id="L127">      printer.println(&quot;    &lt;bg_red&gt; - %s - %s &lt;/bg_red&gt;&quot;,</span>
+<span class="nc" id="L128">          testCase.getName(), testCase.getErrorMessage());</span>
+    }
+<span class="nc" id="L130">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

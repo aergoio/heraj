@@ -4,12 +4,12 @@
 
 package hera.test;
 
-import static hera.test.TestResult.fail;
-import static hera.test.TestResult.success;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.io.StringWriter;
 import java.text.MessageFormat;
 import java.text.ParseException;
+import java.util.Arrays;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -28,49 +28,63 @@ import org.slf4j.Logger;
    * @return result to be run
    */
   public TestResult run(final LuaSource source) {
+<span class="fc" id="L31">    final StringWriter stringWriter = new StringWriter();</span>
+<span class="fc" id="L32">    final TestResult testResult = new TestResult();</span>
     try {
-<span class="fc" id="L32">      logger.trace(&quot;Lua Script:\n{}&quot;, source);</span>
-<span class="fc" id="L33">      final ScriptEngineManager mgr = new ScriptEngineManager();</span>
-<span class="fc" id="L34">      final ScriptEngine engine = mgr.getEngineByName(&quot;lua&quot;);</span>
-<span class="fc" id="L35">      final Object result = engine.eval(source.getScript());</span>
-<span class="fc" id="L36">      logger.debug(&quot;Result: {}&quot;, result);</span>
-<span class="fc" id="L37">      return success(result);</span>
-<span class="nc" id="L38">    } catch (final ScriptException e) {</span>
-<span class="nc" id="L39">      logger.trace(&quot;=== ScriptException ===&quot;, e);</span>
-<span class="nc" id="L40">      final String rawMessage = e.getMessage();</span>
-<span class="nc" id="L41">      final String pattern =</span>
-          &quot;eval threw javax.script.ScriptException: [string \&quot;script\&quot;]:{0}: {1}&quot;;
-<span class="nc" id="L43">      final MessageFormat messageFormat = new MessageFormat(pattern);</span>
-<span class="nc" id="L44">      LuaErrorInformation errorInformation = null;</span>
-      try {
-<span class="nc" id="L46">        final Object[] args = messageFormat.parse(rawMessage);</span>
-<span class="nc" id="L47">        final String rowStr = (String) args[0];</span>
-<span class="nc" id="L48">        final String message = (String) args[1];</span>
-<span class="nc" id="L49">        final int lineNumber = Integer.parseInt(rowStr);</span>
-<span class="nc" id="L50">        errorInformation = new LuaErrorInformation(message, lineNumber, -1);</span>
-<span class="nc" id="L51">      } catch (ParseException e1) {</span>
-<span class="nc" id="L52">        final String message = e.getMessage();</span>
-<span class="nc" id="L53">        final int lineNumber = e.getLineNumber();</span>
-<span class="nc" id="L54">        final int columnNumber = e.getColumnNumber();</span>
-<span class="nc" id="L55">        errorInformation = new LuaErrorInformation(message, lineNumber, columnNumber);</span>
-<span class="nc" id="L56">      }</span>
-<span class="nc" id="L57">      return apply(source, errorInformation);</span>
-<span class="nc" id="L58">    } catch (final LuaError e) {</span>
-<span class="nc" id="L59">      logger.trace(&quot;=== LuaError ===&quot;, e);</span>
-<span class="nc" id="L60">      final LuaErrorInformation errorInformation = new LuaErrorInformation(e.getMessage());</span>
-<span class="nc" id="L61">      return apply(source, errorInformation);</span>
+<span class="fc" id="L34">      logger.trace(&quot;Lua Script:\n{}&quot;, source);</span>
+<span class="fc" id="L35">      final ScriptEngineManager mgr = new ScriptEngineManager();</span>
+<span class="fc" id="L36">      final ScriptEngine engine = mgr.getEngineByName(&quot;lua&quot;);</span>
 
+<span class="fc" id="L38">      engine.getContext().setWriter(stringWriter);</span>
+<span class="fc" id="L39">      final Object result = engine.eval(source.getScript());</span>
+<span class="fc" id="L40">      logger.debug(&quot;Result: {}&quot;, result);</span>
+<span class="fc" id="L41">      testResult.setResult(result);</span>
+<span class="fc" id="L42">      return testResult;</span>
+<span class="nc" id="L43">    } catch (final ScriptException e) {</span>
+<span class="nc" id="L44">      logger.trace(&quot;=== ScriptException ===&quot;, e);</span>
+<span class="nc" id="L45">      final String rawMessage = e.getMessage();</span>
+<span class="nc" id="L46">      final String pattern =</span>
+          &quot;eval threw javax.script.ScriptException: [string \&quot;script\&quot;]:{0}: {1}&quot;;
+<span class="nc" id="L48">      final MessageFormat messageFormat = new MessageFormat(pattern);</span>
+<span class="nc" id="L49">      LuaErrorInformation errorInformation = null;</span>
+      try {
+<span class="nc" id="L51">        final Object[] args = messageFormat.parse(rawMessage);</span>
+<span class="nc" id="L52">        final String rowStr = (String) args[0];</span>
+<span class="nc" id="L53">        final String message = (String) args[1];</span>
+<span class="nc" id="L54">        final int lineNumber = Integer.parseInt(rowStr);</span>
+<span class="nc" id="L55">        errorInformation = new LuaErrorInformation(message, lineNumber, -1);</span>
+<span class="nc" id="L56">      } catch (final ParseException e1) {</span>
+<span class="nc" id="L57">        final String message = e.getMessage();</span>
+<span class="nc" id="L58">        final int lineNumber = e.getLineNumber();</span>
+<span class="nc" id="L59">        final int columnNumber = e.getColumnNumber();</span>
+<span class="nc" id="L60">        errorInformation = new LuaErrorInformation(message, lineNumber, columnNumber);</span>
+<span class="nc" id="L61">      }</span>
+<span class="nc" id="L62">      return apply(testResult, source, errorInformation);</span>
+<span class="nc" id="L63">    } catch (final LuaError e) {</span>
+<span class="nc" id="L64">      logger.trace(&quot;=== LuaError ===&quot;, e);</span>
+<span class="nc" id="L65">      final LuaErrorInformation errorInformation = new LuaErrorInformation(e.getMessage());</span>
+<span class="nc" id="L66">      return apply(testResult, source, errorInformation);</span>
+    } finally {
+<span class="fc" id="L68">      final String output = stringWriter.toString();</span>
+<span class="fc" id="L69">      logger.debug(&quot;Output: {}&quot;, output);</span>
+<span class="fc" id="L70">      testResult.setOutput(output);</span>
     }
   }
 
-  protected TestResult apply(LuaSource source, LuaErrorInformation errorInformation) {
-<span class="nc" id="L67">    logger.debug(&quot;Error: {}&quot;, errorInformation);</span>
-<span class="nc" id="L68">    final int lineNumber = errorInformation.getLineNumber();</span>
-<span class="nc bnc" id="L69" title="All 2 branches missed.">    if (lineNumber &lt; 0) {</span>
-<span class="nc" id="L70">      return fail(errorInformation, null);</span>
-    } else {
-<span class="nc" id="L72">      return fail(errorInformation, source.toString(lineNumber - 10, lineNumber + 10));</span>
+  protected TestResult apply(
+      final TestResult testResult,
+      final LuaSource source,
+      final LuaErrorInformation errorInformation) {
+<span class="nc" id="L78">    logger.debug(&quot;Error: {}&quot;, errorInformation);</span>
+<span class="nc" id="L79">    final int lineNumber = errorInformation.getLineNumber();</span>
+<span class="nc" id="L80">    testResult.setError(errorInformation);</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">    if (0 &lt; lineNumber) {</span>
+<span class="nc" id="L82">      final String codeSnippet =</span>
+<span class="nc" id="L83">          source.toString(lineNumber - 10, lineNumber + 10, Arrays.asList(lineNumber));</span>
+<span class="nc" id="L84">      testResult.setCodeSnippet(codeSnippet);</span>
     }
+
+<span class="nc" id="L87">    return testResult;</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

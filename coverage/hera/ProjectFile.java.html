@@ -6,11 +6,15 @@ package hera;
 
 import static com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_COMMENTS;
 import static hera.DefaultConstants.DEFAULT_ENDPOINT;
+import static hera.util.FilepathUtils.append;
+import static hera.util.FilepathUtils.getCanonicalForm;
 import static java.nio.file.Files.newInputStream;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hera.util.FilepathUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -19,7 +23,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @JsonInclude(Include.NON_NULL)
-<span class="fc" id="L22">public class ProjectFile {</span>
+<span class="fc" id="L26">public class ProjectFile {</span>
 
   /**
    * Create {@link ProjectFile} from file base.
@@ -31,8 +35,8 @@ import lombok.Setter;
    * @throws IOException Fail to read file
    */
   public static ProjectFile from(final Path path) throws IOException {
-<span class="nc" id="L34">    try (final InputStream in = newInputStream(path)) {</span>
-<span class="nc" id="L35">      return ProjectFile.from(in);</span>
+<span class="nc" id="L38">    try (final InputStream in = newInputStream(path)) {</span>
+<span class="nc" id="L39">      return ProjectFile.from(in);</span>
     }
   }
 
@@ -46,33 +50,41 @@ import lombok.Setter;
    * @throws IOException if fail to read stream
    */
   public static ProjectFile from(final InputStream in) throws IOException {
-<span class="nc" id="L49">    final ObjectMapper mapper = new ObjectMapper();</span>
-<span class="nc" id="L50">    mapper.configure(ALLOW_COMMENTS, true);</span>
-<span class="nc" id="L51">    return mapper.readValue(in, ProjectFile.class);</span>
+<span class="nc" id="L53">    final ObjectMapper mapper = new ObjectMapper();</span>
+<span class="nc" id="L54">    mapper.configure(ALLOW_COMMENTS, true);</span>
+<span class="nc" id="L55">    return mapper.readValue(in, ProjectFile.class);</span>
   }
-
-<span class="fc" id="L54">  @Getter</span>
-<span class="fc" id="L55">  @Setter</span>
-  protected String name;
 
 <span class="fc" id="L58">  @Getter</span>
 <span class="fc" id="L59">  @Setter</span>
-  protected String source;
+  protected String name;
 
 <span class="fc" id="L62">  @Getter</span>
 <span class="fc" id="L63">  @Setter</span>
-  protected String target;
+  protected String source;
 
 <span class="fc" id="L66">  @Getter</span>
-<span class="nc" id="L67">  @Setter</span>
-  protected List&lt;String&gt; dependencies;
+<span class="fc" id="L67">  @Setter</span>
+  protected String target;
 
-<span class="fc" id="L70">  @Getter</span>
-<span class="nc" id="L71">  @Setter</span>
-  protected List&lt;String&gt; tests;
+  public String getTargetPath(final Path project) {
+<span class="nc" id="L71">    return getCanonicalForm(append(project.toFile().getAbsolutePath(), target));</span>
+  }
 
 <span class="fc" id="L74">  @Getter</span>
-<span class="fc" id="L75">  @Setter</span>
+<span class="nc" id="L75">  @Setter</span>
+  protected List&lt;String&gt; dependencies;
+
+<span class="fc" id="L78">  @Getter</span>
+<span class="nc" id="L79">  @Setter</span>
+  protected List&lt;String&gt; tests;
+
+<span class="fc" id="L82">  @Getter</span>
+<span class="fc" id="L83">  @Setter</span>
   protected String endpoint = DEFAULT_ENDPOINT;
+
+  public String toJson() throws JsonProcessingException {
+<span class="nc" id="L87">    return new ObjectMapper().writeValueAsString(this);</span>
+  }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

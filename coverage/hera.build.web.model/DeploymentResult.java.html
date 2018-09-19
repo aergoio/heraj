@@ -7,23 +7,22 @@ package hera.build.web.model;
 import hera.api.model.ContractInferface;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
-<span class="nc" id="L12">public class DeploymentResult {</span>
-<span class="nc" id="L13">  @Getter</span>
-<span class="nc" id="L14">  @Setter</span>
+<span class="nc" id="L11">public class DeploymentResult {</span>
+<span class="nc" id="L12">  @Getter</span>
+<span class="nc" id="L13">  @Setter</span>
   protected String buildUuid;
 
-<span class="nc" id="L17">  @Getter</span>
-<span class="nc" id="L18">  @Setter</span>
+<span class="nc" id="L16">  @Getter</span>
+<span class="nc" id="L17">  @Setter</span>
   protected String encodedContractTransactionHash;
 
-<span class="nc" id="L21">  @Getter</span>
-<span class="nc" id="L22">  @Setter</span>
+<span class="nc" id="L20">  @Getter</span>
+<span class="nc" id="L21">  @Setter</span>
   protected ContractInferface contractInterface;
 
   public String toString() {
-<span class="nc" id="L26">    return &quot;Transaction[&quot; + getEncodedContractTransactionHash() + &quot;]&quot;;</span>
+<span class="nc" id="L25">    return &quot;Transaction[&quot; + getEncodedContractTransactionHash() + &quot;]&quot;;</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

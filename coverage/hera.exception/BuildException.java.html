@@ -4,17 +4,13 @@
 
 package hera.exception;
 
-public class BuildException extends RuntimeException {
-  public BuildException() {
-<span class="nc" id="L9">    super();</span>
+public class BuildException extends CommandException {
+  public BuildException(final String message) {
+<span class="nc" id="L9">    super(message);</span>
 <span class="nc" id="L10">  }</span>
 
-  public BuildException(final String message) {
-<span class="nc" id="L13">    super(message);</span>
-<span class="nc" id="L14">  }</span>
-
   public BuildException(final Throwable cause) {
-<span class="nc" id="L17">    super(cause);</span>
-<span class="nc" id="L18">  }</span>
+<span class="nc" id="L13">    super(cause);</span>
+<span class="nc" id="L14">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

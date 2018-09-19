@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Tuple2OrErrorFutureImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.tupleorerror.impl</a> &gt; <span class="el_source">Tuple2OrErrorFutureImpl.java</span></div><h1>Tuple2OrErrorFutureImpl.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.api.tupleorerror.impl;
+
+import static hera.api.tupleorerror.FunctionChain.fail;
+import static hera.api.tupleorerror.FunctionChain.success;
+
+import hera.api.tupleorerror.Consumer2;
+import hera.api.tupleorerror.Function2;
+import hera.api.tupleorerror.Predicate2;
+import hera.api.tupleorerror.ResultOrError;
+import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.api.tupleorerror.Tuple2OrError;
+import hera.api.tupleorerror.Tuple2OrErrorFuture;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+<span class="fc" id="L22">@RequiredArgsConstructor</span>
+public class Tuple2OrErrorFutureImpl&lt;T1, T2&gt; implements Tuple2OrErrorFuture&lt;T1, T2&gt; {
+
+<span class="nc" id="L25">  @Getter</span>
+  protected final CompletableFuture&lt;Tuple2OrError&lt;T1, T2&gt;&gt; deligate;
+
+  @Override
+  public boolean cancel(boolean mayInterruptIfRunning) {
+<span class="nc" id="L30">    return deligate.cancel(mayInterruptIfRunning);</span>
+  }
+
+  @Override
+  public boolean isCancelled() {
+<span class="nc" id="L35">    return deligate.isCancelled();</span>
+  }
+
+  @Override
+  public boolean isDone() {
+<span class="nc" id="L40">    return deligate.isDone();</span>
+  }
+
+  @Override
+  public Tuple2OrError&lt;T1, T2&gt; get() {
+    try {
+<span class="fc" id="L46">      return deligate.get();</span>
+<span class="nc" id="L47">    } catch (Throwable error) {</span>
+<span class="nc" id="L48">      return new Tuple2OrErrorImpl&lt;&gt;(error);</span>
+    }
+  }
+
+  @Override
+  public Tuple2OrError&lt;T1, T2&gt; get(long timeout, TimeUnit unit) {
+    try {
+<span class="nc" id="L55">      return deligate.get(timeout, unit);</span>
+<span class="nc" id="L56">    } catch (Throwable error) {</span>
+<span class="nc" id="L57">      return new Tuple2OrErrorImpl&lt;&gt;(error);</span>
+    }
+  }
+
+  @Override
+  public boolean complete(Tuple2OrError&lt;T1, T2&gt; tuple2OrError) {
+<span class="nc" id="L63">    return deligate.complete(tuple2OrError);</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  @Override
+  public ResultOrErrorFuture&lt;Boolean&gt; ifPresent(Consumer2&lt;? super T1, ? super T2&gt; consumer) {
+<span class="nc" id="L69">    CompletableFuture&lt;ResultOrError&lt;Boolean&gt;&gt; next = deligate.thenComposeAsync(r -&gt; {</span>
+      try {
+<span class="nc" id="L71">        consumer.accept(r.get1(), r.get2());</span>
+<span class="nc" id="L72">        return CompletableFuture.supplyAsync(() -&gt; success(true));</span>
+<span class="nc" id="L73">      } catch (Throwable e) {</span>
+<span class="nc" id="L74">        return CompletableFuture.supplyAsync(() -&gt; fail(e));</span>
+      }
+    });
+<span class="nc" id="L77">    return new ResultOrErrorFutureImpl&lt;&gt;(next);</span>
+  }
+
+  @Override
+  public Tuple2OrErrorFuture&lt;T1, T2&gt; filter(Predicate2&lt;? super T1, ? super T2&gt; predicate) {
+<span class="nc" id="L82">    CompletableFuture&lt;Tuple2OrError&lt;T1, T2&gt;&gt; next =</span>
+<span class="nc" id="L83">        deligate.thenApplyAsync(r -&gt; r.filter(predicate));</span>
+<span class="nc" id="L84">    return new Tuple2OrErrorFutureImpl&lt;&gt;(next);</span>
+  }
+
+  @Override
+  public &lt;R&gt; ResultOrErrorFuture&lt;R&gt; map(Function2&lt;? super T1, ? super T2, ? extends R&gt; f) {
+<span class="fc" id="L89">    CompletableFuture&lt;ResultOrError&lt;R&gt;&gt; next = deligate.thenApplyAsync(r -&gt; r.map(f));</span>
+<span class="fc" id="L90">    return new ResultOrErrorFutureImpl&lt;&gt;(next);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -4,21 +4,42 @@
 
 package hera.api.model;
 
+import hera.util.Base58Utils;
+import java.io.IOException;
+import java.util.Arrays;
+
 public class TxHash extends Hash {
 
   /**
-   * Factory method.
+   * Create {@code TxHash} with a raw bytes array.
    *
    * @param bytes value
    * @return created {@link TxHash}
    */
   public static TxHash of(final byte[] bytes) {
-<span class="nc" id="L16">    return new TxHash(bytes);</span>
+<span class="nc bnc" id="L20" title="All 2 branches missed.">    if (null == bytes) {</span>
+<span class="nc" id="L21">      return new TxHash(null);</span>
+    }
+<span class="nc" id="L23">    return new TxHash(Arrays.copyOf(bytes, bytes.length));</span>
+  }
+
+  /**
+   * Create {@code TxHash} with a base58 encoded value.
+   *
+   * @param encoded base58 encoded value
+   * @return created {@link TxHash}
+   * @throws IOException when decoding error
+   */
+  public static TxHash of(final String encoded) throws IOException {
+<span class="nc bnc" id="L34" title="All 2 branches missed.">    if (null == encoded) {</span>
+<span class="nc" id="L35">      return new TxHash(null);</span>
+    }
+<span class="nc" id="L37">    return of(Base58Utils.decode(encoded));</span>
   }
 
   public TxHash(final byte[] value) {
-<span class="fc" id="L20">    super(value);</span>
-<span class="fc" id="L21">  }</span>
+<span class="fc" id="L41">    super(value);</span>
+<span class="fc" id="L42">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

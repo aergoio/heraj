@@ -52,8 +52,8 @@ public class Tuple4OrErrorImpl&lt;T1, T2, T3, T4&gt; implements Tuple4OrError&lt
    * @param error an error
    */
   public Tuple4OrErrorImpl(Throwable error) {
-<span class="nc" id="L55">    this(null, null, null, null, error);</span>
-<span class="nc" id="L56">  }</span>
+<span class="fc" id="L55">    this(null, null, null, null, error);</span>
+<span class="fc" id="L56">  }</span>
 
   @Override
   public T1 get1() {
@@ -110,7 +110,7 @@ public class Tuple4OrErrorImpl&lt;T1, T2, T3, T4&gt; implements Tuple4OrError&lt
   @Override
   public &lt;R&gt; ResultOrError&lt;R&gt; map(
       Function4&lt;? super T1, ? super T2, ? super T3, ? super T4, ? extends R&gt; fn) {
-<span class="pc bpc" id="L113" title="1 of 2 branches missed.">    if (!hasError()) {</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">    if (!hasError()) {</span>
       try {
 <span class="fc" id="L115">        R next = fn.apply(v1, v2, v3, v4);</span>
 <span class="fc" id="L116">        return success(next);</span>
@@ -118,7 +118,7 @@ public class Tuple4OrErrorImpl&lt;T1, T2, T3, T4&gt; implements Tuple4OrError&lt
 <span class="nc" id="L118">        return fail(e);</span>
       }
     }
-<span class="nc" id="L121">    return fail(getError());</span>
+<span class="fc" id="L121">    return fail(getError());</span>
   }
 
   @Override
