@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PackageManager {
 
-  protected final String repostiroyLocation;
+  protected final String repositoryLocation;
 
   public PackageManager() {
     this(append(nvl(System.getProperty("user.home"), System.getenv("HOME")),MODULES_BASE));
@@ -35,7 +35,7 @@ public class PackageManager {
    */
   public ResourceManager find(final String packageName) {
     try {
-      final String packageLocation = append(repostiroyLocation, packageName);
+      final String packageLocation = append(repositoryLocation, packageName);
       final String projectFileLocation = append(packageLocation, PROJECT_FILENAME);
       final Path projectFilePath = Paths.get(projectFileLocation);
       final ProjectFile projectFile = ProjectFile.from(projectFilePath);
