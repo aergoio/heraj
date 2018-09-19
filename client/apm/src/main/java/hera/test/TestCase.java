@@ -26,7 +26,7 @@ public class TestCase {
 
   @Getter
   @Setter
-  protected boolean success;
+  protected boolean success = true;
 
   @Getter
   @Setter

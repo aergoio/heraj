@@ -1,6 +1,8 @@
-package hera.test;/*
+/*
  * @copyright defined in LICENSE.txt
  */
+
+package hera.test;
 
 import static org.slf4j.LoggerFactory.getLogger;
 

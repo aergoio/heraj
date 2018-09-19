@@ -8,15 +8,19 @@ import static hera.util.ValidationUtils.assertNotNull;
 import static hera.util.ValidationUtils.assertNull;
 import static hera.util.ValidationUtils.assertTrue;
 import static java.lang.System.currentTimeMillis;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.Getter;
 import lombok.ToString;
+import org.slf4j.Logger;
 
 @ToString(of = "testFiles")
 public class TestResultCollector {
+
+  protected final transient Logger logger = getLogger(getClass());
 
   @Getter
   protected TestFile currentTestFile;
@@ -29,7 +33,11 @@ public class TestResultCollector {
 
   protected Map<String, TestFile> testFiles = new LinkedHashMap<>();
 
+  /**
+   * Clear state fields.
+   */
   public void clear() {
+    this.currentTestFile = null;
     this.currentTestSuite = null;
     this.currentTestCase = null;
   }
@@ -104,23 +112,21 @@ public class TestResultCollector {
     assertNotNull(currentTestCase);
     assertTrue(currentTestCase.getName().equals(testCaseName));
     currentTestCase.setErrorMessage(error);
-    if (currentTestSuite.isSuccess()) {
+    if (!currentTestCase.isSuccess()) {
       currentTestSuite.setError(error);
+      currentTestFile.setSuccess(false);
     }
-    currentTestFile.setSuccess(false);
+    logger.info("{} failed", currentTestFile.getFilename());
   }
 
   /**
    * End test case.
    *
    * @param testCaseName test case name
-   *
-   * @param success test case result
    */
-  public void endCase(final String testCaseName, final boolean success) {
+  public void endCase(final String testCaseName) {
     assertNotNull(currentTestCase);
     assertTrue(currentTestCase.getName().equals(testCaseName));
-    currentTestCase.setSuccess(success);
     currentTestCase.setEndTime(currentTimeMillis());
     this.currentTestCase = null;
   }

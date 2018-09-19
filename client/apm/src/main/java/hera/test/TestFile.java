@@ -14,7 +14,7 @@ public class TestFile {
 
   @Getter
   @Setter
-  protected boolean success;
+  protected boolean success = true;
 
   @Getter
   @Setter

@@ -94,6 +94,7 @@ public class TestProject extends AbstractCommand {
         final TestResult testResult = new LuaRunner().run(executable);
         final TestFile testFile = testReporter.getCurrentTestFile();
         if (!testResult.isSuccess()) {
+          logger.info("{} failed", testFile.getFilename());
           testFile.setSuccess(false);
           testFile.setError(testResult.getError());
         }

@@ -57,11 +57,11 @@ public class AthenaContext {
       return null;
     }
   };
-  public TwoArgFunction endTest = new TwoArgFunction() {
+  public OneArgFunction endTest = new OneArgFunction() {
     @Override
-    public LuaValue call(final LuaValue name, LuaValue testResult) {
+    public LuaValue call(final LuaValue name) {
       logger.trace("{} end", name);
-      testReporter.endCase(name.tojstring(), testResult.toboolean());
+      testReporter.endCase(name.tojstring());
       return null;
     }
   };
