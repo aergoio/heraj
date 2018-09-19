@@ -16,6 +16,7 @@
   <logger name="hera" level="warn"/>
   <logger name="hera.command" level="trace"/>
   <logger name="hera.build" level="info"/>
+  <logger name="hera.build.ResourceManagerMock" level="debug"/>
   <logger name="hera.build.web" level="debug"/>
   <logger name="hera.build.web.Router" level="trace"/>
   <logger name="hera.build.web.service" level="trace"/>

@@ -22,10 +22,14 @@ public abstract class AbstractTestCase {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected InputStream open(final String ext) {
-    final String path = "/" + getClass().getName().replace('.', '/') + "." + ext;
+  protected InputStream open(final String path) {
     logger.trace("Path: {}", path);
     return getClass().getResourceAsStream(path);
+  }
+
+  protected InputStream openWithExtensionAs(final String ext) {
+    final String path = "/" + getClass().getName().replace('.', '/') + "." + ext;
+    return open(path);
   }
 
 }
