@@ -9,8 +9,9 @@ public interface ContractResult {
   /**
    * Bind contract result to class.
    *
+   * @param <T> return type
    * @param clazz class to bind
-   * @return binded class instance
+   * @return bound class instance
    * @throws Exception when binding error occured
    */
   <T> T bind(Class<T> clazz) throws Exception;

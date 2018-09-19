@@ -84,6 +84,8 @@ public class LuaSource {
    *
    * @param from start line number
    * @param to end line number
+   * @param highlights need to highlight lines
+   *
    * @return formatted string
    */
   public String toString(final int from, final int to, final List<Integer> highlights) {

@@ -71,19 +71,19 @@ public class ConsoleServer extends AbstractServer {
     final String now = new Date().toString();
     switch (summary.getState()) {
       case SUCCESS:
-        printer.println("<bg_green><black> SUCCESS </black></gb_green>      "
-                + "<green>%-30s</green><bright_black>$30s</bright_black>",
-            summary.getElapsedTime() + "elapsed", now);
+        printer.println("<bg_green><black> SUCCESS </black></bg_green>      "
+                + "<green>%-30s</green><bright_black>%s</bright_black>",
+            summary.getElapsedTime() + " ms elapsed", now);
         break;
       case BUILD_FAIL:
         printer.println("<bg_red><black> ERROR! </black></bg_red>       "
-                + "<bright_black>%30s</bright_black>",
-            now);
+                + "%30s<bright_black>%s</bright_black>",
+            " ", now);
         break;
       case TEST_FAIL:
         printer.println("<bg_red><black> TEST FAILURE! </black></bg_red>"
-                + "<bright_black>$30s</bright_black>",
-            now);
+                + "%30s<bright_black>%s</bright_black>",
+            " ", now);
         break;
       default:
         throw new IllegalArgumentException("Unknown state: " + summary.getState());
@@ -121,7 +121,7 @@ public class ConsoleServer extends AbstractServer {
 
   protected void print(final TestCase testCase) {
     if (testCase.isSuccess()) {
-      printer.println("     -  %s<bright_black>%sms</bright_black>",
+      printer.println("     -  %s <bright_black>%s ms</bright_black>",
           testCase.getName(), (testCase.getEndTime() - testCase.getStartTime()));
     } else {
       printer.println("    <bg_red> - %s - %s </bg_red>",

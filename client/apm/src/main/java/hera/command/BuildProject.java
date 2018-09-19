@@ -167,12 +167,12 @@ public class BuildProject extends AbstractCommand {
         break;
       case WEB_MODE:
         startWebServer(port);
+        startConsoleServer();
         build(project, true);
         resourceManager.addResourceChangeListener(this::resourceChanged);
         createFileWatcher();
         break;
       case CONSOLE_MODE:
-        startWebServer(port);
         startConsoleServer();
         build(project, true);
         resourceManager.addResourceChangeListener(this::resourceChanged);

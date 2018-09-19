@@ -29,6 +29,7 @@ public class RFC6979Utils {
    * @param mac mac algorithm
    * @param message message data
    * @return generated k
+   * @throws Exception Fail to generate k
    */
   public static BigInteger generatek(final BigInteger d, final BigInteger n, final Mac mac,
       final byte[] message) throws Exception {
@@ -180,7 +181,7 @@ public class RFC6979Utils {
    * @param in input bits
    * @param n subgroup order of the base point
    * @param rolen (qlen + 7) / 8 where qlen = n.bigLength, byte length of n
-   * @return
+   * @return octet string
    */
   public static byte[] bits2octets(byte[] in, BigInteger n, final int rolen) {
     BigInteger z1 = bits2int(in, n.bitLength());

@@ -28,6 +28,7 @@ public class AergoKey implements BlockChainKeyPair {
    * Create a key pair with base58 encoded private key.
    *
    * @param encodedPrivateKey base58 encoded private key
+   * @return key instance
    *
    * @throws Exception on failure of recovery
    */
@@ -39,6 +40,7 @@ public class AergoKey implements BlockChainKeyPair {
    * Create a key pair with raw private key.
    *
    * @param rawPrivateKey raw private key
+   * @return key instance to be recovered
    *
    * @throws Exception on failure of recovery
    */
