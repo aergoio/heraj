@@ -19,8 +19,11 @@ The repository contains next:
 * core/annotation
 * core/util
 * core/common
+* core/protobuf
 * core/transport
 * client/wallet
+* client/apm
+* client/apm-web
 
 # Integration
 TBD
@@ -30,7 +33,17 @@ TBD
 * [JDK 8](http://openjdk.java.net/)
 * [NPM](https://www.npmjs.com/)
 
+## Clone
+```console
+$ git clone --recurse-submodule https://github.com/aergoio/heraj.git
+```
+
 ## Build and package
+* Initialize submodule (if not initialized)
+```console
+$ git submodule init
+```
+
 * Update submodule
 ```console
 $ git submodule update

@@ -32,8 +32,10 @@ function print-usage() {
   echo "build.sh [command]"
   echo "Commands: "
   echo "  clean       delete and reset intermediate obj in build"
+  echo "  npm         run npm for apm web ui"
   echo "  gradle      compile source to executable using gradle"
   echo "  test        test built executable"
+  echo "  docs        generate documents"
   echo "  assemble    assemble distributions"
 }
 

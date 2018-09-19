@@ -42,11 +42,11 @@ def javaProjects = [
   project('core:annotation'),
   project('core:util'),
   project('core:common'),
-  project('core:transport'),
   project('core:protobuf'),
+  project('core:transport'),
   project('client:smart-contract'),
-  project('client:apm'),
   project('client:wallet'),
+  project('client:apm'),
   project('assembly')]
 
 def jmhProjects = [

@@ -9,8 +9,8 @@ jar {
 dependencies {
   implementation project(":core:annotation")
   implementation project(":core:util")
-  implementation project(":core:common")
   implementation project(":core:protobuf")
+  implementation project(":core:common")
   implementation ('com.google.guava:guava:22.0')
   implementation ('io.grpc:grpc-netty:1.13.1') {
     exclude group: 'com.google.guava', module: 'guava'
