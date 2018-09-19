@@ -30,15 +30,15 @@ TBD
 * [JDK 8](http://openjdk.java.net/)
 * [NPM](https://www.npmjs.com/)
 
-## build and package
-* Clean
+## Build and package
+* Update submodule
 ```console
-$ ./build.sh clean 
+$ git submodule update
 ```
 
-* Compile protobuf
+* Clean
 ```console
-$ ./build.sh protobuf
+$ ./build.sh clean
 ```
 
 * Create apm web ui
@@ -79,4 +79,3 @@ $ ./build.sh docs
 ```
 
 # Contribution
-

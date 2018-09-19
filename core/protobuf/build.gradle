@@ -1,0 +1,65 @@
+/*
+ * @copyright defined in LICENSE.txt
+ */
+
+apply plugin: 'java'
+apply plugin: 'com.google.protobuf'
+
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    // ASSUMES GRADLE 2.12 OR HIGHER. Use plugin version 0.7.5 with earlier
+    // gradle versions
+    classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.6'
+  }
+}
+
+protobuf {
+  generatedFilesBaseDir = "$projectDir/generated/src"
+  protoc {
+    artifact = "com.google.protobuf:protoc:3.6.0"
+  }
+  plugins {
+    grpc {
+      artifact = 'io.grpc:protoc-gen-grpc-java:1.13.1'
+    }
+  }
+  generateProtoTasks {
+    all()*.plugins {
+      grpc {}
+    }
+  }
+}
+
+jar {
+  archivesBaseName = 'hera-protobuf'
+}
+
+dependencies {
+  implementation ('com.google.guava:guava:22.0')
+  implementation ('io.grpc:grpc-netty:1.13.1') {
+    exclude group: 'com.google.guava', module: 'guava'
+  }
+  implementation ('io.grpc:grpc-protobuf:1.13.1') {
+    exclude group: 'com.google.guava', module: 'guava'
+  }
+  implementation ('io.grpc:grpc-stub:1.13.1') {
+    exclude group: 'com.google.guava', module: 'guava'
+  }
+}
+
+sourceSets {
+  main {
+    proto {
+      srcDir 'src/proto'
+    }
+  }
+  generated {
+    java {
+      srcDirs 'generated/src/main/grpc'
+      srcDirs 'generated/src/main/java'
+    }
+  }
+}

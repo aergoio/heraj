@@ -32,22 +32,11 @@ function print-usage() {
   echo "build.sh [command]"
   echo "Commands: "
   echo "  clean       delete and reset intermediate obj in build"
-  echo "  protobuf    generate code from protobuf declaration"
   echo "  gradle      compile source to executable using gradle"
   echo "  test        test built executable"
   echo "  assemble    assemble distributions"
 }
 
-function update-protobuf() {
-  PROTO_TARGET=$PROJECT_HOME/core/transport/src/main/proto
-  git clone https://github.com/aergoio/aergo-protobuf.git $BUILD_WORKSPACE/aergo-protobuf
-  rm -rf $PROTO_TARGET
-  mkdir -p $PROTO_TARGET
-
-  pushd $BUILD_WORKSPACE/aergo-protobuf/proto
-  tar -cf - `find . -name "*.proto" -print` | ( cd $PROTO_TARGET && tar xBf - )
-  popd
-}
 function clean-workspace() {
   $PROJECT_HOME/gradlew clean
   rm -rf $BUILD_WORKSPACE
@@ -89,16 +78,12 @@ function execute-assemble() {
 
 if [ 0 == $# ]; then
   clean-workspace
-  update-protobuf
   execute-gradle
 else
   while (( $# )); do
     case $1 in
       "clean")
         clean-workspace
-        ;;
-      "protobuf")
-        update-protobuf
         ;;
       "npm")
         execute-npm
