@@ -23,6 +23,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import org.slf4j.Logger;
@@ -63,6 +64,7 @@ public class NodeStatusConverterFactory {
 
   private class NodeStatusDeserializer extends JsonDeserializer<NodeStatus> {
 
+    @SuppressWarnings("unchecked")
     @Override
     public NodeStatus deserialize(JsonParser parser, DeserializationContext context)
         throws IOException {
@@ -85,6 +87,7 @@ public class NodeStatusConverterFactory {
         moduleStatus.setQueuedMessageCount(componentStatus.get("msg_queue_len").asLong());
         moduleStatus.setLatency(convertToTime(componentStatus.get("msg_latency").asText()));
         moduleStatus.setError(componentStatus.get("error").asText());
+        moduleStatus.setActor(mapper.convertValue(componentStatus.get("actor"), Map.class));
 
         moduleStatusList.add(moduleStatus);
       }
