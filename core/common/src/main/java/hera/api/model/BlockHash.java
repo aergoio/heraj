@@ -4,10 +4,6 @@
 
 package hera.api.model;
 
-import hera.util.Base58Utils;
-import java.io.IOException;
-import java.util.Arrays;
-
 public class BlockHash extends Hash {
 
   /**
@@ -17,10 +13,7 @@ public class BlockHash extends Hash {
    * @return created {@link BlockHash}
    */
   public static BlockHash of(final byte[] bytes) {
-    if (null == bytes) {
-      return new BlockHash(null);
-    }
-    return new BlockHash(Arrays.copyOf(bytes, bytes.length));
+    return of(bytes, BlockHash::new);
   }
 
   /**
@@ -28,13 +21,9 @@ public class BlockHash extends Hash {
    *
    * @param encoded base58 encoded value
    * @return created {@link BlockHash}
-   * @throws IOException when decoding error
    */
-  public static BlockHash of(final String encoded) throws IOException {
-    if (null == encoded) {
-      return new BlockHash(null);
-    }
-    return of(Base58Utils.decode(encoded));
+  public static BlockHash of(final String encoded) {
+    return of(encoded, BlockHash::new);
   }
 
   public BlockHash(final byte[] value) {

@@ -16,10 +16,30 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import lombok.Getter;
 
 public class BytesValue implements Supplier<InputStream>, Adaptor {
+
+  protected static <T> T of(final byte[] bytes, final Function<byte[], T> factory) {
+    if (null == bytes) {
+      return factory.apply(null);
+    }
+    return factory.apply(Arrays.copyOf(bytes, bytes.length));
+  }
+
+  protected static <T> T of(final String encoded, final Function<byte[], T> factory) {
+    return of(encoded, e -> Base58Utils.decode(e), factory);
+  }
+
+  protected static <T> T of(final String encoded, final Function<String, byte[]> decoder,
+      final Function<byte[], T> factory) {
+    if (null == encoded) {
+      return factory.apply(null);
+    }
+    return factory.apply(decoder.apply(encoded));
+  }
 
   /**
    * Create {@code BytesValue} with a raw bytes array.
@@ -28,10 +48,7 @@ public class BytesValue implements Supplier<InputStream>, Adaptor {
    * @return created {@link BytesValue}
    */
   public static BytesValue of(final byte[] bytes) {
-    if (null == bytes) {
-      return new BytesValue(null);
-    }
-    return new BytesValue(Arrays.copyOf(bytes, bytes.length));
+    return of(bytes, BytesValue::new);
   }
 
   /**
@@ -39,13 +56,9 @@ public class BytesValue implements Supplier<InputStream>, Adaptor {
    *
    * @param encoded base58 encoded value
    * @return created {@link BytesValue}
-   * @throws IOException when decoding error
    */
-  public static BytesValue of(final String encoded) throws IOException {
-    if (null == encoded) {
-      return new BytesValue(null);
-    }
-    return of(Base58Utils.decode(encoded));
+  public static BytesValue of(final String encoded) {
+    return of(encoded, BytesValue::new);
   }
 
   protected transient int hash;

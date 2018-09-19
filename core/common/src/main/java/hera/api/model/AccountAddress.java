@@ -20,10 +20,7 @@ public class AccountAddress extends BytesValue {
    * @return created {@link AccountAddress}
    */
   public static AccountAddress of(final byte[] bytes) {
-    if (null == bytes) {
-      return new AccountAddress(null);
-    }
-    return new AccountAddress(Arrays.copyOf(bytes, bytes.length));
+    return of(bytes, AccountAddress::new);
   }
 
   /**
@@ -31,14 +28,12 @@ public class AccountAddress extends BytesValue {
    *
    * @param encoded base58 encoded value
    * @return created {@link AccountAddress}
-   * @throws IOException when decoding error
    */
-  public static AccountAddress of(final String encoded) throws IOException {
-    if (null == encoded) {
-      return new AccountAddress(null);
-    }
-    final byte[] withVersion = Base58Utils.decodeWithCheck(encoded);
-    return of(Arrays.copyOfRange(withVersion, 1, withVersion.length));
+  public static AccountAddress of(final String encoded) {
+    return of(encoded, e -> {
+      final byte[] withVersion = Base58Utils.decodeWithCheck(encoded);
+      return Arrays.copyOfRange(withVersion, 1, withVersion.length);
+    }, AccountAddress::new);
   }
 
   public AccountAddress(final byte[] value) {

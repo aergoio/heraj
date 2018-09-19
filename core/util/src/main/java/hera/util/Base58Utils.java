@@ -80,7 +80,7 @@ public class Base58Utils {
       char c = input.charAt(i);
       int digit = c < 128 ? INDEXES[c] : -1;
       if (digit < 0) {
-        throw new IllegalStateException();
+        throw new IllegalArgumentException("Base58 decoding failed");
       }
       input58[i] = (byte) digit;
     }

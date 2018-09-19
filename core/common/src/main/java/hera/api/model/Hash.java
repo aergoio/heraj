@@ -4,10 +4,6 @@
 
 package hera.api.model;
 
-import hera.util.Base58Utils;
-import java.io.IOException;
-import java.util.Arrays;
-
 public class Hash extends BytesValue {
 
   /**
@@ -17,10 +13,7 @@ public class Hash extends BytesValue {
    * @return created {@link Hash}
    */
   public static Hash of(final byte[] bytes) {
-    if (null == bytes) {
-      return new Hash(null);
-    }
-    return new Hash(Arrays.copyOf(bytes, bytes.length));
+    return of(bytes, Hash::new);
   }
 
   /**
@@ -28,13 +21,9 @@ public class Hash extends BytesValue {
    *
    * @param encoded base58 encoded value
    * @return created {@link Hash}
-   * @throws IOException when decoding error
    */
-  public static Hash of(final String encoded) throws IOException {
-    if (null == encoded) {
-      return new Hash(null);
-    }
-    return of(Base58Utils.decode(encoded));
+  public static Hash of(final String encoded) {
+    return of(encoded, Hash::new);
   }
 
   public Hash(final byte[] value) {

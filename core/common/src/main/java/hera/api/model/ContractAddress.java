@@ -5,7 +5,6 @@
 package hera.api.model;
 
 import hera.util.Base58Utils;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -18,10 +17,7 @@ public class ContractAddress extends AccountAddress {
    * @return created {@link ContractAddress}
    */
   public static ContractAddress of(final byte[] bytes) {
-    if (null == bytes) {
-      return new ContractAddress(null);
-    }
-    return new ContractAddress(Arrays.copyOf(bytes, bytes.length));
+    return of(bytes, ContractAddress::new);
   }
 
   /**
@@ -29,14 +25,12 @@ public class ContractAddress extends AccountAddress {
    *
    * @param encoded base58 encoded value
    * @return created {@link ContractAddress}
-   * @throws IOException when decoding error
    */
-  public static ContractAddress of(final String encoded) throws IOException {
-    if (null == encoded) {
-      return new ContractAddress(null);
-    }
-    final byte[] withVersion = Base58Utils.decodeWithCheck(encoded);
-    return of(Arrays.copyOfRange(withVersion, 1, withVersion.length));
+  public static ContractAddress of(final String encoded) {
+    return of(encoded, e -> {
+      final byte[] withVersion = Base58Utils.decodeWithCheck(encoded);
+      return Arrays.copyOfRange(withVersion, 1, withVersion.length);
+    }, ContractAddress::new);
   }
 
   public ContractAddress(final byte[] value) {

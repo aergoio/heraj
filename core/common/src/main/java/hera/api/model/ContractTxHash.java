@@ -4,10 +4,6 @@
 
 package hera.api.model;
 
-import hera.util.Base58Utils;
-import java.io.IOException;
-import java.util.Arrays;
-
 public class ContractTxHash extends Hash {
 
   /**
@@ -17,10 +13,7 @@ public class ContractTxHash extends Hash {
    * @return created {@link ContractTxHash}
    */
   public static ContractTxHash of(final byte[] bytes) {
-    if (null == bytes) {
-      return new ContractTxHash(null);
-    }
-    return new ContractTxHash(Arrays.copyOf(bytes, bytes.length));
+    return of(bytes, ContractTxHash::new);
   }
 
   /**
@@ -28,13 +21,9 @@ public class ContractTxHash extends Hash {
    *
    * @param encoded base58 encoded value
    * @return created {@link ContractTxHash}
-   * @throws IOException when decoding error
    */
-  public static ContractTxHash of(final String encoded) throws IOException {
-    if (null == encoded) {
-      return new ContractTxHash(null);
-    }
-    return of(Base58Utils.decode(encoded));
+  public static ContractTxHash of(final String encoded) {
+    return of(encoded, ContractTxHash::new);
   }
 
   public ContractTxHash(final byte[] value) {
