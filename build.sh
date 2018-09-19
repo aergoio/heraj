@@ -40,11 +40,11 @@ function print-usage() {
 
 function update-protobuf() {
   PROTO_TARGET=$PROJECT_HOME/core/transport/src/main/proto
-  git clone https://github.com/aergoio/aergo.git $BUILD_WORKSPACE/aergo
+  git clone https://github.com/aergoio/aergo-protobuf.git $BUILD_WORKSPACE/aergo-protobuf
   rm -rf $PROTO_TARGET
   mkdir -p $PROTO_TARGET
 
-  pushd $BUILD_WORKSPACE/aergo/types
+  pushd $BUILD_WORKSPACE/aergo-protobuf/proto
   tar -cf - `find . -name "*.proto" -print` | ( cd $PROTO_TARGET && tar xBf - )
   popd
 }
