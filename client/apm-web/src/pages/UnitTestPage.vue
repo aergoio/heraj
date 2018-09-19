@@ -2,7 +2,7 @@
   <div class="container" id="unittest-page">
     <div class="row title">
       <div class="col-6 runs">
-        Runs <span class="total-successes">{{successes}}</span> / <span class="total-runs">{{successes + failures}}</span>
+        Runs <span class="total-successes">{{theNumberOfSuccesses}}</span> / <span class="total-runs">{{theNumberOfTests}}</span>
       </div>
 
       <div class="col-6">
@@ -39,21 +39,21 @@
       }
     },
     computed: {
-      successes() {
+      theNumberOfSuccesses() {
         if (this.$props.unitTestReport) {
           let sum = 0;
           for (let suite of this.$props.unitTestReport) {
-            sum += suite.successes
+            sum += suite.theNumberOfSuccesses
           }
           return sum;
         }
         return 0;
       },
-      failures() {
+      theNumberOfTests() {
         if (this.$props.unitTestReport) {
           let sum = 0;
           for (let suite of this.$props.unitTestReport) {
-            sum += suite.failures
+            sum += suite.theNumberOfTests
           }
           return sum;
         }
@@ -63,14 +63,14 @@
         return {
           children: (this.$props.unitTestReport || []).map(file => {
             return {
-              name: file.filename,
+              name: file.name,
               data: file,
               classes: file.success ? [] : ['error'],
-              children: (file.suites || []).map(testSuite => {
+              children: (file.children || []).map(testSuite => {
                 return {
                   name: testSuite.name,
                   data: testSuite,
-                  children: (testSuite.testCases || []).map(testCase => {
+                  children: (testSuite.children || []).map(testCase => {
                     return {
                       name: testCase.name,
                       data: testCase,

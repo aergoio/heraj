@@ -12,6 +12,7 @@ import lombok.ToString;
 @RequiredArgsConstructor
 @ToString
 public class TestResult {
+
   @Getter
   @Setter
   protected Object result;

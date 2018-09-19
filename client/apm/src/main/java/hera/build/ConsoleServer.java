@@ -3,14 +3,14 @@ package hera.build;
 import static hera.build.web.model.BuildSummary.BUILD_FAIL;
 import static hera.build.web.model.BuildSummary.SUCCESS;
 import static hera.build.web.model.BuildSummary.TEST_FAIL;
+import static java.util.Optional.ofNullable;
 
 import hera.build.web.model.BuildDetails;
 import hera.build.web.model.BuildSummary;
 import hera.server.AbstractServer;
 import hera.server.ServerStatus;
-import hera.test.TestCase;
-import hera.test.TestFile;
-import hera.test.TestSuite;
+import hera.test.TestReportNode;
+import hera.util.DummyMessagePrinter;
 import hera.util.MessagePrinter;
 import java.io.IOException;
 import java.util.Date;
@@ -24,7 +24,7 @@ public class ConsoleServer extends AbstractServer {
 
   @Getter
   @Setter
-  protected MessagePrinter printer;
+  protected MessagePrinter printer = DummyMessagePrinter.getInstance();
 
   @Override
   public void boot() {
@@ -95,37 +95,39 @@ public class ConsoleServer extends AbstractServer {
   }
 
   protected void printTest(final BuildDetails buildDetails) {
-    buildDetails.getUnitTestReport().forEach(this::print);
+    ofNullable(buildDetails).map(BuildDetails::getUnitTestReport).ifPresent(testReport -> {
+      testReport.forEach(this::print);
+    });
   }
 
-  protected void print(final TestFile testFile) {
-    if (testFile.isSuccess()) {
-      printer.println(" <bg_blue> F </bg_blue> %s", testFile.getFilename());
+  protected void print(final TestReportNode node) {
+    if (node.isSuccess()) {
+      printer.println(" <bg_blue> F </bg_blue> %s", node.getName());
     } else {
-      printer.println(" <bg_blue> F </bg_blue> <red>$s</red>", testFile.getFilename());
+      printer.println(" <bg_blue> F </bg_blue> <red>$s</red>", node.getName());
     }
-    testFile.getSuites().forEach(this::print);
+    node.getChildren().forEach(child -> this.printSuite((TestReportNode) child));
   }
 
-  protected void print(final TestSuite testSuite) {
-    final long nFailures = testSuite.getFailures();
+  protected void printSuite(final TestReportNode node) {
+    final long nFailures = node.getTheNumberOfFailures();
     if (0 < nFailures) {
       printer.print("    * %s(<red>%s</red> / %s)",
-          testSuite.getName(), testSuite.getSuccesses(), testSuite.getTests());
+          node.getName(), node.getTheNumberOfSuccesses(), node.getTheNumberOfTests());
     } else {
       printer.println("   * %s(%s / %s)",
-          testSuite.getName(), testSuite.getSuccesses(), testSuite.getTests());
+          node.getName(), node.getTheNumberOfSuccesses(), node.getTheNumberOfTests());
     }
-    testSuite.getTestCases().forEach(this::print);
+    node.getChildren().forEach(child -> this.printCase((TestReportNode) child));
   }
 
-  protected void print(final TestCase testCase) {
-    if (testCase.isSuccess()) {
+  protected void printCase(final TestReportNode node) {
+    if (node.isSuccess()) {
       printer.println("     -  %s <bright_black>%s ms</bright_black>",
-          testCase.getName(), (testCase.getEndTime() - testCase.getStartTime()));
+          node.getName(), (node.getEndTime() - node.getStartTime()));
     } else {
       printer.println("    <bg_red> - %s - %s </bg_red>",
-          testCase.getName(), testCase.getErrorMessage());
+          node.getName(), node.getResultDetail());
     }
   }
 }

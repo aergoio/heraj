@@ -23,7 +23,7 @@ import hera.build.res.BuildResource;
 import hera.build.res.PackageResource;
 import hera.build.res.Project;
 import hera.build.web.model.BuildDetails;
-import hera.test.TestFile;
+import hera.test.TestReportNode;
 import hera.util.DangerousConsumer;
 import hera.util.FileWatcher;
 import java.io.Writer;
@@ -75,7 +75,7 @@ public class BuildProject extends AbstractCommand {
             final TestProject testProject = new TestProject();
             testProject.setBuilderFactory(p -> builder);
             testProject.setReporter(testResultCollector -> {
-              final Collection<TestFile> testResults = testResultCollector.getResults();
+              final Collection<TestReportNode> testResults = testResultCollector.getResults();
               if (buildDetails.getState() == SUCCESS
                   && testResults.stream().anyMatch(testFile -> !testFile.isSuccess())) {
                 buildDetails.setState(TEST_FAIL);

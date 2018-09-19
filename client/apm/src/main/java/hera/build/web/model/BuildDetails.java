@@ -4,8 +4,11 @@
 
 package hera.build.web.model;
 
+import static java.util.Collections.EMPTY_LIST;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import hera.test.TestFile;
+import hera.test.TestReportNode;
+import java.util.ArrayList;
 import java.util.Collection;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +33,7 @@ public class BuildDetails extends BuildSummary {
 
   @Getter
   @Setter
-  protected Collection<TestFile> unitTestReport;
+  protected Collection<TestReportNode> unitTestReport = new ArrayList<>();
 
   /**
    * Build summary from this build details.

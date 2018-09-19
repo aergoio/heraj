@@ -4,6 +4,7 @@
 
 package hera.command;
 
+import static hera.test.TestReportNodeResult.Failure;
 import static hera.util.ObjectUtils.nvl;
 import static java.util.Arrays.asList;
 import static java.util.Collections.EMPTY_LIST;
@@ -19,7 +20,7 @@ import hera.test.AthenaContext;
 import hera.test.LuaErrorInformation;
 import hera.test.LuaRunner;
 import hera.test.LuaSource;
-import hera.test.TestFile;
+import hera.test.TestReportNode;
 import hera.test.TestResult;
 import hera.test.TestResultCollector;
 import java.util.HashMap;
@@ -40,32 +41,35 @@ public class TestProject extends AbstractCommand {
   protected Consumer<TestResultCollector> reporter = (testReporter) -> {
     testReporter.getResults().forEach(testFile -> {
       if (testFile.isSuccess()) {
-        getPrinter().println(" <green>o</green> %s", testFile.getFilename());
+        getPrinter().println(" <green>o</green> %s", testFile.getName());
       } else {
         final Optional<String> errorMessage =
-            ofNullable(testFile.getError()).map(LuaErrorInformation::getMessage);
+            ofNullable(testFile.getResultDetail())
+                .map(obj -> (LuaErrorInformation) obj)
+                .map(LuaErrorInformation::getMessage);
         if (errorMessage.isPresent()) {
           getPrinter().println(" <red>x</red> %s - <red>%s</red>",
-              testFile.getFilename(), errorMessage.get());
+              testFile.getName(), errorMessage.get());
         } else {
           getPrinter().println(" <red>x</red> %s",
-              testFile.getFilename());
+              testFile.getName());
         }
       }
-      testFile.getSuites().forEach(testSuite -> {
-        if (testSuite.isSuccess()) {
+      testFile.getChildren().forEach(child -> {
+        final TestReportNode<?> node = (TestReportNode<?>) child;
+        if (node.isSuccess()) {
           getPrinter().println("  <green>o</green> %s (%d/%d)",
-              testSuite.getName(), testSuite.getSuccesses(), testSuite.getTests());
+              node.getName(), node.getTheNumberOfSuccesses(), node.getTheNumberOfTests());
         } else {
           getPrinter().println("  <red>x</red> %s (%d/%d)",
-              testSuite.getName(), testSuite.getSuccesses(), testSuite.getTests());
+              node.getName(), node.getTheNumberOfSuccesses(), node.getTheNumberOfTests());
         }
-        testSuite.getTestCases().forEach(testCase -> {
+        node.getChildren().forEach(testCase -> {
           if (testCase.isSuccess()) {
             getPrinter().println("   <green>o</green> %s", testCase.getName());
           } else {
             getPrinter().println("   <red>x</red> %s - <red>%s</red>",
-                testCase.getName(), testCase.getErrorMessage());
+                testCase.getName(), testCase.getResultDetail());
           }
         });
       });
@@ -92,11 +96,11 @@ public class TestProject extends AbstractCommand {
         logger.trace("Executing test...");
         testReporter.start(testPath);
         final TestResult testResult = new LuaRunner().run(executable);
-        final TestFile testFile = testReporter.getCurrentTestFile();
+        final TestReportNode<LuaErrorInformation> testFile = testReporter.getCurrentTestFile();
         if (!testResult.isSuccess()) {
-          logger.info("{} failed", testFile.getFilename());
-          testFile.setSuccess(false);
-          testFile.setError(testResult.getError());
+          logger.info("{} failed", testFile.getName());
+          testFile.setResult(Failure);
+          testFile.setResultDetail(testResult.getError());
         }
 
         path2result.put(testPath, executable);

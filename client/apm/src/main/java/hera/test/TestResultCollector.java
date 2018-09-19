@@ -4,6 +4,7 @@
 
 package hera.test;
 
+import static hera.test.TestReportNodeResult.Failure;
 import static hera.util.ValidationUtils.assertNotNull;
 import static hera.util.ValidationUtils.assertNull;
 import static hera.util.ValidationUtils.assertTrue;
@@ -23,15 +24,15 @@ public class TestResultCollector {
   protected final transient Logger logger = getLogger(getClass());
 
   @Getter
-  protected TestFile currentTestFile;
+  protected TestReportNode currentTestFile;
 
   @Getter
-  protected TestSuite currentTestSuite;
+  protected TestReportNode currentTestSuite;
 
   @Getter
-  protected TestCase currentTestCase;
+  protected TestReportNode currentTestCase;
 
-  protected Map<String, TestFile> testFiles = new LinkedHashMap<>();
+  protected Map<String, TestReportNode> testFiles = new LinkedHashMap<>();
 
   /**
    * Clear state fields.
@@ -51,8 +52,8 @@ public class TestResultCollector {
     assertNull(this.currentTestFile);
     assertNull(this.currentTestSuite);
     assertNull(this.currentTestCase);
-    currentTestFile = new TestFile();
-    currentTestFile.setFilename(filename);
+    currentTestFile = new TestReportNode();
+    currentTestFile.setName(filename);
     testFiles.put(filename, currentTestFile);
   }
 
@@ -73,9 +74,9 @@ public class TestResultCollector {
   public void startSuite(final String suiteName) {
     assertNull(this.currentTestSuite);
     assertNotNull(suiteName);
-    currentTestSuite = new TestSuite();
+    currentTestSuite = new TestReportNode();
     currentTestSuite.setName(suiteName);
-    this.currentTestFile.addSuite(currentTestSuite);
+    this.currentTestFile.addChild(currentTestSuite);
   }
 
   /**
@@ -97,8 +98,9 @@ public class TestResultCollector {
   public void startCase(final String testCaseName) {
     assertNull(this.currentTestCase);
     assertNotNull(testCaseName);
-    currentTestCase = new TestCase(testCaseName);
-    this.currentTestSuite.addTestCase(currentTestCase);
+    currentTestCase = new TestReportNode();
+    currentTestCase.setName(testCaseName);
+    this.currentTestSuite.addChild(currentTestCase);
   }
 
   /**
@@ -111,12 +113,8 @@ public class TestResultCollector {
   public void error(final String testCaseName, final String error) {
     assertNotNull(currentTestCase);
     assertTrue(currentTestCase.getName().equals(testCaseName));
-    currentTestCase.setErrorMessage(error);
-    if (!currentTestCase.isSuccess()) {
-      currentTestSuite.setError(error);
-      currentTestFile.setSuccess(false);
-    }
-    logger.info("{} failed", currentTestFile.getFilename());
+    currentTestCase.setResult(Failure);
+    currentTestCase.setResultDetail(error);
   }
 
   /**
@@ -136,7 +134,7 @@ public class TestResultCollector {
    *
    * @return test suites
    */
-  public Collection<TestFile> getResults() {
+  public Collection<TestReportNode> getResults() {
     return testFiles.values();
   }
 
