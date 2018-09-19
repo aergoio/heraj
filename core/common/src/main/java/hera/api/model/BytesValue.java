@@ -6,11 +6,10 @@ package hera.api.model;
 
 import static hera.util.IoUtils.from;
 
-import hera.api.Base58Transformer;
 import hera.api.Encoder;
-import hera.api.Transformer;
 import hera.util.Adaptor;
 import hera.util.Base58Utils;
+import hera.util.HexUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,22 +45,20 @@ public class BytesValue implements Supplier<InputStream>, Adaptor {
     if (null == encoded) {
       return new BytesValue(null);
     }
-    return of(from(transformer.decode(new StringReader(encoded))));
+    return of(Base58Utils.decode(encoded));
   }
-
-  public BytesValue(final byte[] bytes) {
-    this.value = Optional.ofNullable(bytes).orElse(new byte[0]);
-  }
-
-  protected static final Transformer transformer = new Base58Transformer();
 
   protected transient int hash;
 
   @Getter
   protected final byte[] value;
 
+  public BytesValue(final byte[] bytes) {
+    this.value = Optional.ofNullable(bytes).orElse(new byte[0]);
+  }
+
   public String getEncodedValue() throws IOException {
-    return getEncodedValue(transformer);
+    return getEncodedValue(in -> new StringReader(Base58Utils.encode(from(in))));
   }
 
   /**
@@ -80,7 +77,11 @@ public class BytesValue implements Supplier<InputStream>, Adaptor {
 
   @Override
   public String toString() {
-    return Base58Utils.encode(value);
+    try {
+      return getEncodedValue();
+    } catch (IOException e) {
+      return String.format("Default decoding error.. show as hexa: %s\n", HexUtils.encode(value));
+    }
   }
 
   @Override

@@ -14,6 +14,7 @@ import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TransactionType;
 import hera.util.Base58Utils;
+import java.io.IOException;
 import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,36 +24,24 @@ public class TransactionTest {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  // base58 encoded "sender"
-  protected static final String SENDER = "zTuiFm13";
+  protected static final String HASH_RESOURCE =
+      "AtmxbVvjDN5LYwaf5QrCZPc3FoAqUCMVegVXjf8CMCz59wL21X6j";
 
-  // base58 encoded "recipient"
-  protected static final String RECIPIENT = "2TTMxAeyKKB71";
+  protected static final String HASH_WITHOUT_SIGN = "CNmX88skCK1hPdmmqV6KKWYUCPwahTVfMmkmh477cNYt";
 
-  // base58 encoded "payload"
-  protected static final String PAYLOAD = "5G1Mm97rxT";
-
-  // base58 encoded "signature"
-  protected static final String SIGNATURE =
-      "7yDUQzV8VJSuUkXMdkKpPmQTGnSfvaZArB6YifZfJRxErsTcsFaFr3ENVcV8sM7p24NZq6KsxzwrSeUNqLttwL2";
-
-  // base58 encoded "hash"
-  protected static final String HASH_WITHOUT_SIGN = "Area2ukmPb4e7zvip8hCnM3eLuUygmfnfUJ9eqHg5reQ";
-
-  // base58 encoded "hash with sign"
-  protected static final String HASH_WITH_SIGN = "8R2hTc6MqSMmPCM3anWFYbCu8JnzKWrHoP3HV6MUUetX";
+  protected static final String HASH_WITH_SIGN = "4qcmY2sVSshi7awqxNUzo2MQihcJntk9gZX9e2Q6FkPU";
 
 
   protected Transaction transaction = null;
 
   @Before
-  public void setup() {
+  public void setup() throws IOException {
     transaction = new Transaction();
     transaction.setNonce(1L);
-    transaction.setSender(AccountAddress.of(Base58Utils.decode(SENDER)));
-    transaction.setRecipient(AccountAddress.of(Base58Utils.decode(RECIPIENT)));
+    transaction.setSender(AccountAddress.of(HASH_RESOURCE));
+    transaction.setRecipient(AccountAddress.of(HASH_RESOURCE));
     transaction.setAmount(1L);
-    transaction.setPayload(BytesValue.of(Base58Utils.decode(PAYLOAD)));
+    transaction.setPayload(BytesValue.of(Base58Utils.decode(HASH_RESOURCE)));
     transaction.setLimit(1L);
     transaction.setPrice(1L);
     transaction.setTxType(TransactionType.NORMAL);
@@ -78,7 +67,7 @@ public class TransactionTest {
 
   @Test
   public void testCalculateHashWithign() throws Exception {
-    transaction.setSignature(Signature.of(BytesValue.of(Base58Utils.decode(SIGNATURE)), null));
+    transaction.setSignature(Signature.of(BytesValue.of(HASH_RESOURCE), null));
     final String expected = HASH_WITH_SIGN;
     final String actual = transaction.calculateHash().getEncodedValue();
     assertEquals(expected, actual);

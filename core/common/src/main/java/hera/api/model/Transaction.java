@@ -59,7 +59,7 @@ public class Transaction {
 
   @Getter
   @Setter
-  protected TransactionType txType = TransactionType.UNRECOGNIZED;
+  protected TransactionType txType = TransactionType.NORMAL;
 
 
   /**
@@ -80,6 +80,7 @@ public class Transaction {
     ofNullable(source.getPayload()).ifPresent(copy::setPayload);
     copy.setLimit(source.getLimit());
     copy.setPrice(source.getPrice());
+    copy.setTxType(source.getTxType());
     copy.setSignature(Signature.copyOf(source.getSignature()));
 
     return copy;
