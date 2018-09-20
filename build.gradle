@@ -108,7 +108,7 @@ configure(javaProjects) {
     maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors())
     exclude '**/*Tests.class'
     exclude '**/*IT.class'
-    if (null != System.env['IS_TRAVIS']) {
+    if (null != System.env['TRAVIS']) {
       forkEvery 1
     }
   }
