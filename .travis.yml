@@ -19,7 +19,7 @@ env:
 
 script:
   - ./build.sh npm
-  - ./gradlew clean build test alljacoco
+  - ./gradlew clean build test alljacoco --debug
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
