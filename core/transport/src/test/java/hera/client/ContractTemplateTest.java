@@ -55,7 +55,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<ContractTxHash> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     ContractAsyncOperation asyncOperationMock = mock(ContractAsyncOperation.class);
-    when(asyncOperationMock.deploy(any(), any())).thenReturn(futureMock);
+    when(asyncOperationMock.deploy(any(AccountAddress.class), any())).thenReturn(futureMock);
 
     final ContractTemplate contractTemplate = new ContractTemplate(asyncOperationMock);
 
@@ -83,7 +83,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<ContractTxHash> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     ContractAsyncOperation asyncOperationMock = mock(ContractAsyncOperation.class);
-    when(asyncOperationMock.execute(any(), any(), any(), any())).thenReturn(futureMock);
+    when(asyncOperationMock.execute(any(AccountAddress.class), any(), any(), any())).thenReturn(futureMock);
 
     final ContractTemplate contractTemplate = new ContractTemplate(asyncOperationMock);
 

@@ -64,7 +64,7 @@ public class AccountTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<Account> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
-    when(asyncOperationMock.get(any())).thenReturn(futureMock);
+    when(asyncOperationMock.get(any(AccountAddress.class))).thenReturn(futureMock);
 
     final AccountTemplate accountTemplate = new AccountTemplate(asyncOperationMock);
 
