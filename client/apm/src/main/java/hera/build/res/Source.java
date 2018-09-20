@@ -22,6 +22,23 @@ import org.slf4j.Logger;
 
 public class Source extends File {
 
+  protected static String fromImport(final String line) {
+    final String importPrefix = "import";
+    if (!line.startsWith(importPrefix)) {
+      return null;
+    }
+    if (!Character.isWhitespace(line.charAt(importPrefix.length()))) {
+      return null;
+    }
+    final String literals = line.substring(importPrefix.length()).trim();
+    if (literals.startsWith("\"") && literals.endsWith("\"")) {
+      return literals.substring(1, literals.length() - 1).trim();
+    } else if (literals.startsWith("'") && literals.endsWith("'")) {
+      return literals.substring(1, literals.length() - 1).trim();
+    }
+    return null;
+  }
+
   protected final transient Logger logger = getLogger(getClass());
 
   public Source(final Project project, final String location) {
@@ -38,21 +55,6 @@ public class Source extends File {
     return dependencies;
   }
 
-  protected String fromImport(final String line) {
-    final String importPrefix = "import";
-    if (!line.startsWith(importPrefix)) {
-      return null;
-    }
-    if (!Character.isWhitespace(line.charAt(importPrefix.length()))) {
-      return null;
-    }
-    final String literals = line.substring(importPrefix.length()).trim();
-    if (!literals.startsWith("\"") || !literals.endsWith("\"")) {
-      return null;
-    }
-    return literals.substring(1, literals.length() - 1).trim();
-  }
-
   /**
    * Read import clause and convert to import target.
    *
@@ -66,6 +68,9 @@ public class Source extends File {
       // Read line by line
       String line = null;
       while (null != (line = sourceIn.readLine())) {
+        if (line.trim().isEmpty()) {
+          continue;
+        }
         final String importStr = fromImport(line);
         if (null == importStr) {
           return imports;

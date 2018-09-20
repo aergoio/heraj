@@ -12,9 +12,9 @@ import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
-@PrepareForTest(ProjectFile.class)
 public class PackageManagerTest extends AbstractTestCase {
   @Test
+  @PrepareForTest(ProjectFile.class)
   public void testFind() throws IOException {
     final String packageName = randomUUID().toString();
     final ProjectFile projectFile = new ProjectFile();

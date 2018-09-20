@@ -4,6 +4,7 @@
 
 package hera.build;
 
+import static hera.util.FilepathUtils.append;
 import static java.util.Collections.EMPTY_LIST;
 import static java.util.Optional.of;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -35,7 +36,7 @@ public class Resource implements Adaptor {
   }
 
   public Path getPath() {
-    final String path = FilepathUtils.append(project.getLocation(), location);
+    final String path = append(project.getLocation(), location);
     return Paths.get(path);
   }
 
