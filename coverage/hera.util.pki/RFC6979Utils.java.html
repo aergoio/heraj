@@ -157,10 +157,10 @@ import org.slf4j.Logger;
 <span class="fc" id="L157">    byte[] out = v.toByteArray();</span>
 
     // left pad with zeros if it's too short
-<span class="fc bfc" id="L160" title="All 2 branches covered.">    if (out.length &lt; rolen) {</span>
-<span class="fc" id="L161">      byte[] out2 = new byte[rolen];</span>
-<span class="fc" id="L162">      System.arraycopy(out, 0, out2, rolen - out.length, out.length);</span>
-<span class="fc" id="L163">      return out2;</span>
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">    if (out.length &lt; rolen) {</span>
+<span class="nc" id="L161">      byte[] out2 = new byte[rolen];</span>
+<span class="nc" id="L162">      System.arraycopy(out, 0, out2, rolen - out.length, out.length);</span>
+<span class="nc" id="L163">      return out2;</span>
     }
 
     // drop most significant bytes if it's too long

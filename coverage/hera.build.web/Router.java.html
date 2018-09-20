@@ -39,9 +39,9 @@ import org.springframework.web.context.request.WebRequest;
 
 @RestController
 @ControllerAdvice
-<span class="fc" id="L42">public class Router {</span>
+<span class="nc" id="L42">public class Router {</span>
 
-<span class="fc" id="L44">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="nc" id="L44">  protected final transient Logger logger = getLogger(getClass());</span>
 
   @Inject
   protected BuildService buildService;
@@ -54,8 +54,8 @@ import org.springframework.web.context.request.WebRequest;
 
   @PostConstruct
   public void initialize() {
-<span class="fc" id="L57">    buildService.addListener(liveUpdateService::notifyChange);</span>
-<span class="fc" id="L58">  }</span>
+<span class="nc" id="L57">    buildService.addListener(liveUpdateService::notifyChange);</span>
+<span class="nc" id="L58">  }</span>
 
   @GetMapping(&quot;contract&quot;)
   public DeploymentResult getLatestContract() {
@@ -114,12 +114,12 @@ import org.springframework.web.context.request.WebRequest;
       @PathVariable(&quot;function&quot;) final String functionName,
       @RequestParam(value = &quot;arguments&quot;, required = false) final String[] arguments
   ) throws IOException {
-<span class="fc" id="L117">    logger.trace(&quot;Transaction Hash: {}, Function: {}, Arguments: {}&quot;,</span>
+<span class="nc" id="L117">    logger.trace(&quot;Transaction Hash: {}, Function: {}, Arguments: {}&quot;,</span>
         contractTransactionHash, functionName, arguments);
-<span class="pc bpc" id="L119" title="1 of 2 branches missed.">    if (null == arguments) {</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">    if (null == arguments) {</span>
 <span class="nc" id="L120">      return contractService.query(contractTransactionHash, functionName, new String[0]);</span>
     } else {
-<span class="fc" id="L122">      return contractService.query(contractTransactionHash, functionName, arguments);</span>
+<span class="nc" id="L122">      return contractService.query(contractTransactionHash, functionName, arguments);</span>
     }
   }
 
