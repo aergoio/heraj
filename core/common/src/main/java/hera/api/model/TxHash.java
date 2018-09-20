@@ -4,6 +4,8 @@
 
 package hera.api.model;
 
+import java.util.Optional;
+
 public class TxHash extends Hash {
 
   /**
@@ -28,6 +30,21 @@ public class TxHash extends Hash {
 
   public TxHash(final byte[] value) {
     super(value);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> Optional<T> adapt(Class<T> adaptor) {
+    if (adaptor.isAssignableFrom(TxHash.class)) {
+      return (Optional<T>) Optional.of(this);
+    } else if (adaptor.isAssignableFrom(Hash.class)) {
+      return (Optional<T>) Optional.ofNullable(Hash.of(getValue()));
+    } else if (adaptor.isAssignableFrom(BlockHash.class)) {
+      return (Optional<T>) Optional.ofNullable(BlockHash.of(getValue()));
+    } else if (adaptor.isAssignableFrom(ContractTxHash.class)) {
+      return (Optional<T>) Optional.ofNullable(ContractTxHash.of(getValue()));
+    }
+    return Optional.empty();
   }
 
 }

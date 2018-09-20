@@ -23,7 +23,6 @@ import hera.api.AccountAsyncOperation;
 import hera.api.ContractAsyncOperation;
 import hera.api.Decoder;
 import hera.api.TransactionAsyncOperation;
-import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
@@ -32,11 +31,11 @@ import hera.api.model.ContractInferface;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
-import hera.api.model.Signature;
 import hera.api.model.Transaction;
-import hera.api.tupleorerror.ResultOrError;
+import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
+import hera.exception.AdaptException;
 import hera.transport.ContractInterfaceConverterFactory;
 import hera.transport.ContractResultConverterFactory;
 import hera.transport.ModelConverter;
@@ -109,24 +108,16 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
   @Override
   public ResultOrErrorFuture<ContractTxHash> deploy(final AccountAddress creator,
       final DangerousSupplier<byte[]> rawContractCode) {
-    // TODO : make getting nonce, sign, commit asynchronously
-    final Long nonce =
-        accountAsyncOperation.get(creator).map(a -> a.getNonce() + 1).get().getResult();
-
-    final Transaction transaction = new Transaction();
-    transaction.setNonce(nonce);
-    transaction.setSender(creator);
     try {
+      final Transaction transaction = new Transaction();
+      transaction.setSender(creator);
       transaction.setPayload(BytesValue.of(rawContractCode.get()));
+      return transactionAsyncOperation.send(transaction)
+          .map(txHash -> txHash.adapt(ContractTxHash.class)
+              .orElseThrow(() -> new AdaptException(TxHash.class, ContractTxHash.class)));
     } catch (Throwable e) {
       return ResultOrErrorFutureFactory.supply(() -> fail(e));
     }
-
-    final ResultOrError<Signature> signature = transactionAsyncOperation.sign(transaction).get();
-    transaction.setSignature(signature.getResult());
-
-    return transactionAsyncOperation.commit(transaction)
-        .map(h -> ContractTxHash.of(h.getBytesValue()));
   }
 
   @Override
@@ -149,26 +140,18 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
   public ResultOrErrorFuture<ContractTxHash> execute(final AccountAddress executor,
       final ContractAddress contractAddress, final ContractFunction contractFunction,
       final Object... args) {
-    // TODO : make getting nonce, sign, commit asynchronously
-    final ResultOrError<Account> account = accountAsyncOperation.get(executor).get();
-    long nonce = account.map(a -> a.getNonce()).getResult();
-
-    final Transaction transaction = new Transaction();
-    transaction.setNonce(nonce + 1);
-    transaction.setSender(executor);
-    transaction.setRecipient(contractAddress);
     try {
+      final Transaction transaction = new Transaction();
+      transaction.setSender(executor);
+      transaction.setRecipient(contractAddress);
       transaction
           .setPayload(BytesValue.of(toFunctionCallJsonString(contractFunction, args).getBytes()));
-    } catch (JsonProcessingException e) {
+      return transactionAsyncOperation.send(transaction)
+          .map(txHash -> txHash.adapt(ContractTxHash.class)
+              .orElseThrow(() -> new AdaptException(TxHash.class, ContractTxHash.class)));
+    } catch (Throwable e) {
       return ResultOrErrorFutureFactory.supply(() -> fail(e));
     }
-
-    final ResultOrError<Signature> signature = transactionAsyncOperation.sign(transaction).get();
-    transaction.setSignature(signature.getResult());
-
-    return transactionAsyncOperation.commit(transaction)
-        .map(h -> ContractTxHash.of(h.getBytesValue()));
   }
 
   @Override
