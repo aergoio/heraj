@@ -108,9 +108,7 @@ configure(javaProjects) {
     maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors())
     exclude '**/*Tests.class'
     exclude '**/*IT.class'
-    if (null != System.env['TRAVIS']) {
-      forkEvery = 1
-    }
+    forkEvery = 1
   }
 
   checkstyle {
@@ -143,7 +141,6 @@ configure(javaProjects) {
     }
   }
 
-
   task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
@@ -160,7 +157,7 @@ configure(javaProjects) {
     group = "Reporting"
     additionalSourceDirs = files(sourceSets.main.allSource.srcDirs)
     sourceDirectories = files(sourceSets.main.allSource.srcDirs)
-    classDirectories = files(sourceSets.main.output)
+    classDirectories = files(sourceSets.main.output.classesDir)
     reports {
       xml.enabled true
       html.enabled true
@@ -183,9 +180,8 @@ jacoco {
 
 task alljacoco(type: JacocoReport) {
   dependsOn = javaProjects.test
-  additionalSourceDirs = files(javaProjects.sourceSets.main.allSource.srcDirs)
   sourceDirectories = files(javaProjects.sourceSets.main.allSource.srcDirs)
-  classDirectories =  files(javaProjects.sourceSets.main.output)
+  classDirectories =  files(javaProjects.sourceSets.main.output.classesDir)
   def executionDataPath = []
   executionData = files((javaProjects.findAll { p ->
     def coverageFileLocation = "$p.buildDir/jacoco/test.exec"
@@ -196,11 +192,6 @@ task alljacoco(type: JacocoReport) {
     xml.enabled = true
     xml.destination file("${buildDir}/reports/jacoco/report.xml")
     csv.enabled = false
-  }
-  afterEvaluate {
-    classDirectories = files(classDirectories.files.collect {
-      fileTree(dir: it, exclude: ['types/**'])
-    })
   }
 }
 
