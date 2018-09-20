@@ -18,7 +18,8 @@ env:
     - CODECOV_TOKEN="713e2a19-e591-42d1-bd24-872a8e497683"
 
 script:
-  - ./build.sh clean gradle
+  - ./build.sh npm
+  - ./gradlew clean build test alljacoco
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

@@ -40,18 +40,19 @@ function print-usage() {
 }
 
 function clean-workspace() {
-  $PROJECT_HOME/gradlew clean
   rm -rf $BUILD_WORKSPACE
+  $PROJECT_HOME/gradlew clean
 }
 function execute-npm() {
   cd $PROJECT_HOME/client/apm-web
+  npm install
   npm run build
   rm -rf $PROJECT_HOME/client/apm/src/main/resources/public
   mkdir -p $PROJECT_HOME/client/apm/src/main/resources/public
   cp -r $PROJECT_HOME/client/apm-web/dist/* $PROJECT_HOME/client/apm/src/main/resources/public
 }
 function execute-gradle() {
-  $PROJECT_HOME/gradlew clean build alljacoco
+  $PROJECT_HOME/gradlew clean build test alljacoco
 }
 function execute-test() {
   $PROJECT_HOME/gradlew test jacocoTestReport coveralls
