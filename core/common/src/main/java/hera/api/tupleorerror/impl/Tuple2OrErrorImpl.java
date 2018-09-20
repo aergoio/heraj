@@ -20,7 +20,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @SuppressWarnings("unchecked")
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class Tuple2OrErrorImpl<T1, T2> implements Tuple2OrError<T1, T2> {
 
   protected final T1 v1;
@@ -51,7 +51,7 @@ public class Tuple2OrErrorImpl<T1, T2> implements Tuple2OrError<T1, T2> {
 
   @Override
   public T1 get1() {
-    if (hasError()) {
+    if (null == v1) {
       throw error instanceof HerajException ? (HerajException) error : new HerajException(error);
     }
     return v1;
@@ -59,7 +59,7 @@ public class Tuple2OrErrorImpl<T1, T2> implements Tuple2OrError<T1, T2> {
 
   @Override
   public T2 get2() {
-    if (hasError()) {
+    if (null == v2) {
       throw error instanceof HerajException ? (HerajException) error : new HerajException(error);
     }
     return v2;
