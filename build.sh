@@ -51,7 +51,7 @@ function execute-npm() {
   cp -r $PROJECT_HOME/client/apm-web/dist/* $PROJECT_HOME/client/apm/src/main/resources/public
 }
 function execute-gradle() {
-  $PROJECT_HOME/gradlew build alljacoco
+  $PROJECT_HOME/gradlew clean build alljacoco
 }
 function execute-test() {
   $PROJECT_HOME/gradlew test jacocoTestReport coveralls
