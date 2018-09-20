@@ -14,6 +14,7 @@ cache:
     - $HOME/.gradle/wrapper/
 
 env:
+  - CODECOV_TOKEN="713e2a19-e591-42d1-bd24-872a8e497683"
   - IS_TRAVIS=true
 
 install:
