@@ -193,6 +193,11 @@ task alljacoco(type: JacocoReport) {
     xml.destination file("${buildDir}/reports/jacoco/report.xml")
     csv.enabled = false
   }
+  afterEvaluate {
+    classDirectories = files(classDirectories.files.collect {
+      fileTree(dir: it, exclude: ['types/**'])
+    })
+  }
 }
 
 configure(jmhProjects) {

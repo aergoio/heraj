@@ -9,6 +9,7 @@ import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @ComponentScan(
     basePackageClasses = {Router.class},
@@ -19,6 +20,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 )
 @Configuration
 @WebAppConfiguration
+@EnableWebMvc
 public class RouterTestConfig {
   @MockBean
   protected BuildService buildService;
