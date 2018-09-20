@@ -13,11 +13,11 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
-install: true
+install: ant deps
 
 script:
   - ./build.sh npm
-  - ./gradlew clean build test alljacoco
+  - ./gradlew clean alljacoco
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
