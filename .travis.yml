@@ -13,13 +13,11 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
-env:
-  global:
-    - CODECOV_TOKEN="713e2a19-e591-42d1-bd24-872a8e497683"
+install: true
 
 script:
   - ./build.sh npm
-  - ./gradlew clean build test alljacoco --debug
+  - ./gradlew clean build test alljacoco
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
