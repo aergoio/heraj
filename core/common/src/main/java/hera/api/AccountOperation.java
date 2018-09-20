@@ -4,10 +4,13 @@
 
 package hera.api;
 
+import static hera.api.tupleorerror.FunctionChain.fail;
+
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.tupleorerror.ResultOrError;
+import hera.exception.AdaptException;
 import java.util.List;
 
 public interface AccountOperation {
@@ -34,6 +37,18 @@ public interface AccountOperation {
    * @return an account or error
    */
   ResultOrError<Account> get(AccountAddress address);
+
+  /**
+   * Get account by account.
+   *
+   * @param account account
+   * @return an account or error
+   */
+  @SuppressWarnings("unchecked")
+  default ResultOrError<Account> get(Account account) {
+    return account.adapt(AccountAddress.class).map(a -> get(a))
+        .orElse(fail(new AdaptException(account.getClass(), AccountAddress.class)));
+  }
 
   /**
    * Lock an account.

@@ -87,7 +87,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     AccountAsyncOperation mockAccountAsyncOperation = mock(AccountAsyncOperation.class);
     final Account account = new Account();
     account.setNonce(0);
-    when(mockAccountAsyncOperation.get(any()))
+    when(mockAccountAsyncOperation.get(any(AccountAddress.class)))
         .thenReturn(ResultOrErrorFutureFactory.supply(() -> success(account)));
     TransactionAsyncOperation mockTransactionAsyncOperation = mock(TransactionAsyncOperation.class);
     when(mockTransactionAsyncOperation.sign(any()))
@@ -125,7 +125,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     AccountAsyncOperation mockAccountAsyncOperation = mock(AccountAsyncOperation.class);
     final Account account = new Account();
     account.setNonce(0);
-    when(mockAccountAsyncOperation.get(any()))
+    when(mockAccountAsyncOperation.get(any(AccountAddress.class)))
         .thenReturn(ResultOrErrorFutureFactory.supply(() -> success(account)));
     TransactionAsyncOperation mockTransactionAsyncOperation = mock(TransactionAsyncOperation.class);
     when(mockTransactionAsyncOperation.sign(any()))

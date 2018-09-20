@@ -4,10 +4,14 @@
 
 package hera.api;
 
+import static hera.api.tupleorerror.FunctionChain.fail;
+
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.api.tupleorerror.ResultOrErrorFutureFactory;
+import hera.exception.AdaptException;
 import java.util.List;
 
 public interface AccountAsyncOperation {
@@ -34,6 +38,18 @@ public interface AccountAsyncOperation {
    * @return future of an account or error
    */
   ResultOrErrorFuture<Account> get(AccountAddress address);
+
+  /**
+   * Get account by account.
+   *
+   * @param account account
+   * @return future of an account or error
+   */
+  @SuppressWarnings("unchecked")
+  default ResultOrErrorFuture<Account> get(Account account) {
+    return account.adapt(AccountAddress.class).map(a -> get(a)).orElse(ResultOrErrorFutureFactory
+        .supply(() -> fail(new AdaptException(account.getClass(), AccountAddress.class))));
+  }
 
   /**
    * Lock an account asynchronously.
