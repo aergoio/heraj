@@ -17,7 +17,6 @@ buildscript {
 }
 
 protobuf {
-  generatedFilesBaseDir = "$projectDir/generated/src"
   protoc {
     artifact = "com.google.protobuf:protoc:3.6.0"
   }
@@ -51,15 +50,10 @@ dependencies {
 }
 
 sourceSets {
-  main {
-    proto {
-      srcDir 'src/proto'
-    }
-  }
   generated {
     java {
-      srcDirs 'generated/src/main/grpc'
-      srcDirs 'generated/src/main/java'
+      srcDirs "${projectDir}/src/generated/main/java"
+      srcDirs "${projectDir}/src/generated/main/java"
     }
   }
 }

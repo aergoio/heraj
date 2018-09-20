@@ -1,4 +1,4 @@
-[submodule "core/protobuf/src"]
-	path = core/protobuf/src
-	url = https://github.com/aergoio/aergo-protobuf.git
+[submodule "core/protobuf/src/main"]
+	path = core/protobuf/src/main
+	url = git@github.com:aergoio/aergo-protobuf.git
 	branch = master
