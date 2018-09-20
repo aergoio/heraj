@@ -54,44 +54,44 @@ public class Tuple3OrErrorImpl&lt;T1, T2, T3&gt; implements Tuple3OrError&lt;T1,
 
   @Override
   public T1 get1() {
-<span class="nc bnc" id="L57" title="All 2 branches missed.">    if (hasError()) {</span>
-<span class="nc bnc" id="L58" title="All 2 branches missed.">      throw error instanceof HerajException ? (HerajException) error : new HerajException(error);</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">    if (null == v1) {</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">      throw error instanceof HerajException ? (HerajException) error : new HerajException(error);</span>
     }
-<span class="nc" id="L60">    return v1;</span>
+<span class="fc" id="L60">    return v1;</span>
   }
 
   @Override
   public T2 get2() {
-<span class="nc bnc" id="L65" title="All 2 branches missed.">    if (hasError()) {</span>
-<span class="nc bnc" id="L66" title="All 2 branches missed.">      throw error instanceof HerajException ? (HerajException) error : new HerajException(error);</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">    if (null == v2) {</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">      throw error instanceof HerajException ? (HerajException) error : new HerajException(error);</span>
     }
-<span class="nc" id="L68">    return v2;</span>
+<span class="fc" id="L68">    return v2;</span>
   }
 
   @Override
   public T3 get3() {
-<span class="nc bnc" id="L73" title="All 2 branches missed.">    if (hasError()) {</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">      throw error instanceof HerajException ? (HerajException) error : new HerajException(error);</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">    if (null == v3) {</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">      throw error instanceof HerajException ? (HerajException) error : new HerajException(error);</span>
     }
-<span class="nc" id="L76">    return v3;</span>
+<span class="fc" id="L76">    return v3;</span>
   }
 
   @Override
   public void ifPresent(Consumer3&lt;? super T1, ? super T2, ? super T3&gt; consumer) {
-<span class="nc bnc" id="L81" title="All 2 branches missed.">    if (!hasError()) {</span>
-<span class="nc" id="L82">      consumer.accept(v1, v2, v3);</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">    if (!hasError()) {</span>
+<span class="fc" id="L82">      consumer.accept(v1, v2, v3);</span>
     }
-<span class="nc" id="L84">  }</span>
+<span class="fc" id="L84">  }</span>
 
   @Override
   public Tuple3OrError&lt;T1, T2, T3&gt; filter(
       Predicate3&lt;? super T1, ? super T2, ? super T3&gt; predicate) {
-<span class="nc" id="L89">    Objects.requireNonNull(predicate);</span>
-<span class="nc bnc" id="L90" title="All 2 branches missed.">    if (!hasError()) {</span>
-<span class="nc bnc" id="L91" title="All 2 branches missed.">      return predicate.test(v1, v2, v3) ? this</span>
+<span class="fc" id="L89">    Objects.requireNonNull(predicate);</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">    if (!hasError()) {</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">      return predicate.test(v1, v2, v3) ? this</span>
           : new Tuple3OrErrorImpl&lt;&gt;(new HerajException(&quot;No such element matching predicate&quot;));
     } else {
-<span class="nc" id="L94">      return this;</span>
+<span class="fc" id="L94">      return this;</span>
     }
   }
 
@@ -111,21 +111,21 @@ public class Tuple3OrErrorImpl&lt;T1, T2, T3&gt; implements Tuple3OrError&lt;T1,
 
   @Override
   public boolean equals(Object obj) {
-<span class="nc bnc" id="L114" title="All 2 branches missed.">    if (this == obj) {</span>
-<span class="nc" id="L115">      return true;</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">    if (this == obj) {</span>
+<span class="fc" id="L115">      return true;</span>
     }
-<span class="nc bnc" id="L117" title="All 2 branches missed.">    if (!(obj instanceof Tuple3OrErrorImpl)) {</span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">    if (!(obj instanceof Tuple3OrErrorImpl)) {</span>
 <span class="nc" id="L118">      return false;</span>
     }
 
-<span class="nc" id="L121">    Tuple3OrErrorImpl&lt;?, ?, ?&gt; other = (Tuple3OrErrorImpl&lt;?, ?, ?&gt;) obj;</span>
-<span class="nc bnc" id="L122" title="All 4 branches missed.">    return Objects.equals(v1, other.v1) &amp;&amp; Objects.equals(v2, other.v2)</span>
-<span class="nc bnc" id="L123" title="All 4 branches missed.">        &amp;&amp; Objects.equals(v3, other.v3) &amp;&amp; Objects.equals(error, other.error);</span>
+<span class="fc" id="L121">    Tuple3OrErrorImpl&lt;?, ?, ?&gt; other = (Tuple3OrErrorImpl&lt;?, ?, ?&gt;) obj;</span>
+<span class="pc bpc" id="L122" title="2 of 4 branches missed.">    return Objects.equals(v1, other.v1) &amp;&amp; Objects.equals(v2, other.v2)</span>
+<span class="pc bpc" id="L123" title="2 of 4 branches missed.">        &amp;&amp; Objects.equals(v3, other.v3) &amp;&amp; Objects.equals(error, other.error);</span>
   }
 
   @Override
   public int hashCode() {
-<span class="nc" id="L128">    return Arrays.hashCode(new Object[] {v1, v2, v3, error});</span>
+<span class="fc" id="L128">    return Arrays.hashCode(new Object[] {v1, v2, v3, error});</span>
   }
 
   @Override

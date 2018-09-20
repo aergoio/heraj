@@ -13,7 +13,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import lombok.RequiredArgsConstructor;
 
-<span class="nc" id="L16">@RequiredArgsConstructor</span>
+<span class="fc" id="L16">@RequiredArgsConstructor</span>
 public class Text {
 
   protected final DangerousSupplier&lt;InputStream&gt; textSupplier;
@@ -52,9 +52,9 @@ public class Text {
    * @throws Exception Fail to get content
    */
   public String get() throws Exception {
-<span class="nc" id="L55">    final InputStream in = textSupplier.get();</span>
-<span class="nc" id="L56">    try (final Reader reader = new InputStreamReader(in)) {</span>
-<span class="nc" id="L57">      return IoUtils.from(reader);</span>
+<span class="fc" id="L55">    final InputStream in = textSupplier.get();</span>
+<span class="fc" id="L56">    try (final Reader reader = new InputStreamReader(in)) {</span>
+<span class="fc" id="L57">      return IoUtils.from(reader);</span>
     }
   }
 }

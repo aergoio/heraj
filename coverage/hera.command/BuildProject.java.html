@@ -23,7 +23,7 @@ import hera.build.res.BuildResource;
 import hera.build.res.PackageResource;
 import hera.build.res.Project;
 import hera.build.web.model.BuildDetails;
-import hera.test.TestFile;
+import hera.test.TestReportNode;
 import hera.util.DangerousConsumer;
 import hera.util.FileWatcher;
 import java.io.Writer;
@@ -75,7 +75,7 @@ import java.util.StringJoiner;
 <span class="nc" id="L75">            final TestProject testProject = new TestProject();</span>
 <span class="nc" id="L76">            testProject.setBuilderFactory(p -&gt; builder);</span>
 <span class="nc" id="L77">            testProject.setReporter(testResultCollector -&gt; {</span>
-<span class="nc" id="L78">              final Collection&lt;TestFile&gt; testResults = testResultCollector.getResults();</span>
+<span class="nc" id="L78">              final Collection&lt;TestReportNode&gt; testResults = testResultCollector.getResults();</span>
 <span class="nc bnc" id="L79" title="All 2 branches missed.">              if (buildDetails.getState() == SUCCESS</span>
 <span class="nc bnc" id="L80" title="All 4 branches missed.">                  &amp;&amp; testResults.stream().anyMatch(testFile -&gt; !testFile.isSuccess())) {</span>
 <span class="nc" id="L81">                buildDetails.setState(TEST_FAIL);</span>

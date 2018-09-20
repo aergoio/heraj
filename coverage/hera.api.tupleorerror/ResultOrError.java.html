@@ -21,7 +21,7 @@ public interface ResultOrError&lt;T&gt; extends WithError {
    * @return whether a result is present or not
    */
   default boolean hasResult() {
-<span class="pc bpc" id="L24" title="1 of 2 branches missed.">    return false == hasError();</span>
+<span class="fc bfc" id="L24" title="All 2 branches covered.">    return false == hasError();</span>
   }
 
   /**

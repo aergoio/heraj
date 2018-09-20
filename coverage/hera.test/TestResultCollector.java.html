@@ -4,6 +4,7 @@
 
 package hera.test;
 
+import static hera.test.TestReportNodeResult.Failure;
 import static hera.util.ValidationUtils.assertNotNull;
 import static hera.util.ValidationUtils.assertNull;
 import static hera.util.ValidationUtils.assertTrue;
@@ -17,30 +18,30 @@ import lombok.Getter;
 import lombok.ToString;
 import org.slf4j.Logger;
 
-<span class="nc" id="L20">@ToString(of = &quot;testFiles&quot;)</span>
-<span class="nc" id="L21">public class TestResultCollector {</span>
+<span class="nc" id="L21">@ToString(of = &quot;testFiles&quot;)</span>
+<span class="nc" id="L22">public class TestResultCollector {</span>
 
-<span class="nc" id="L23">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="nc" id="L24">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="nc" id="L25">  @Getter</span>
-  protected TestFile currentTestFile;
+<span class="nc" id="L26">  @Getter</span>
+  protected TestReportNode currentTestFile;
 
-<span class="nc" id="L28">  @Getter</span>
-  protected TestSuite currentTestSuite;
+<span class="nc" id="L29">  @Getter</span>
+  protected TestReportNode currentTestSuite;
 
-<span class="nc" id="L31">  @Getter</span>
-  protected TestCase currentTestCase;
+<span class="nc" id="L32">  @Getter</span>
+  protected TestReportNode currentTestCase;
 
-<span class="nc" id="L34">  protected Map&lt;String, TestFile&gt; testFiles = new LinkedHashMap&lt;&gt;();</span>
+<span class="nc" id="L35">  protected Map&lt;String, TestReportNode&gt; testFiles = new LinkedHashMap&lt;&gt;();</span>
 
   /**
    * Clear state fields.
    */
   public void clear() {
-<span class="nc" id="L40">    this.currentTestFile = null;</span>
-<span class="nc" id="L41">    this.currentTestSuite = null;</span>
-<span class="nc" id="L42">    this.currentTestCase = null;</span>
-<span class="nc" id="L43">  }</span>
+<span class="nc" id="L41">    this.currentTestFile = null;</span>
+<span class="nc" id="L42">    this.currentTestSuite = null;</span>
+<span class="nc" id="L43">    this.currentTestCase = null;</span>
+<span class="nc" id="L44">  }</span>
 
   /**
    * Start to run test file.
@@ -48,22 +49,22 @@ import org.slf4j.Logger;
    * @param filename file name
    */
   public void start(final String filename) {
-<span class="nc" id="L51">    assertNull(this.currentTestFile);</span>
-<span class="nc" id="L52">    assertNull(this.currentTestSuite);</span>
-<span class="nc" id="L53">    assertNull(this.currentTestCase);</span>
-<span class="nc" id="L54">    currentTestFile = new TestFile();</span>
-<span class="nc" id="L55">    currentTestFile.setFilename(filename);</span>
-<span class="nc" id="L56">    testFiles.put(filename, currentTestFile);</span>
-<span class="nc" id="L57">  }</span>
+<span class="nc" id="L52">    assertNull(this.currentTestFile);</span>
+<span class="nc" id="L53">    assertNull(this.currentTestSuite);</span>
+<span class="nc" id="L54">    assertNull(this.currentTestCase);</span>
+<span class="nc" id="L55">    currentTestFile = new TestReportNode();</span>
+<span class="nc" id="L56">    currentTestFile.setName(filename);</span>
+<span class="nc" id="L57">    testFiles.put(filename, currentTestFile);</span>
+<span class="nc" id="L58">  }</span>
 
   /**
    * End to run test file.
    */
   public void end() {
-<span class="nc" id="L63">    this.currentTestCase = null;</span>
-<span class="nc" id="L64">    this.currentTestSuite = null;</span>
-<span class="nc" id="L65">    this.currentTestFile = null;</span>
-<span class="nc" id="L66">  }</span>
+<span class="nc" id="L64">    this.currentTestCase = null;</span>
+<span class="nc" id="L65">    this.currentTestSuite = null;</span>
+<span class="nc" id="L66">    this.currentTestFile = null;</span>
+<span class="nc" id="L67">  }</span>
 
   /**
    * Start test suite.
@@ -71,12 +72,12 @@ import org.slf4j.Logger;
    * @param suiteName test suite name
    */
   public void startSuite(final String suiteName) {
-<span class="nc" id="L74">    assertNull(this.currentTestSuite);</span>
-<span class="nc" id="L75">    assertNotNull(suiteName);</span>
-<span class="nc" id="L76">    currentTestSuite = new TestSuite();</span>
-<span class="nc" id="L77">    currentTestSuite.setName(suiteName);</span>
-<span class="nc" id="L78">    this.currentTestFile.addSuite(currentTestSuite);</span>
-<span class="nc" id="L79">  }</span>
+<span class="nc" id="L75">    assertNull(this.currentTestSuite);</span>
+<span class="nc" id="L76">    assertNotNull(suiteName);</span>
+<span class="nc" id="L77">    currentTestSuite = new TestReportNode();</span>
+<span class="nc" id="L78">    currentTestSuite.setName(suiteName);</span>
+<span class="nc" id="L79">    this.currentTestFile.addChild(currentTestSuite);</span>
+<span class="nc" id="L80">  }</span>
 
   /**
    * End test suite.
@@ -84,10 +85,10 @@ import org.slf4j.Logger;
    * @param suiteName test suite name
    */
   public void endSuite(final String suiteName) {
-<span class="nc" id="L87">    assertNotNull(this.currentTestSuite);</span>
-<span class="nc" id="L88">    assertTrue(this.currentTestSuite.getName().equals(suiteName));</span>
-<span class="nc" id="L89">    this.currentTestSuite = null;</span>
-<span class="nc" id="L90">  }</span>
+<span class="nc" id="L88">    assertNotNull(this.currentTestSuite);</span>
+<span class="nc" id="L89">    assertTrue(this.currentTestSuite.getName().equals(suiteName));</span>
+<span class="nc" id="L90">    this.currentTestSuite = null;</span>
+<span class="nc" id="L91">  }</span>
 
   /**
    * Start test case.
@@ -95,11 +96,12 @@ import org.slf4j.Logger;
    * @param testCaseName test case name
    */
   public void startCase(final String testCaseName) {
-<span class="nc" id="L98">    assertNull(this.currentTestCase);</span>
-<span class="nc" id="L99">    assertNotNull(testCaseName);</span>
-<span class="nc" id="L100">    currentTestCase = new TestCase(testCaseName);</span>
-<span class="nc" id="L101">    this.currentTestSuite.addTestCase(currentTestCase);</span>
-<span class="nc" id="L102">  }</span>
+<span class="nc" id="L99">    assertNull(this.currentTestCase);</span>
+<span class="nc" id="L100">    assertNotNull(testCaseName);</span>
+<span class="nc" id="L101">    currentTestCase = new TestReportNode();</span>
+<span class="nc" id="L102">    currentTestCase.setName(testCaseName);</span>
+<span class="nc" id="L103">    this.currentTestSuite.addChild(currentTestCase);</span>
+<span class="nc" id="L104">  }</span>
 
   /**
    * Catch error from test case.
@@ -109,15 +111,11 @@ import org.slf4j.Logger;
    * @param error error message
    */
   public void error(final String testCaseName, final String error) {
-<span class="nc" id="L112">    assertNotNull(currentTestCase);</span>
-<span class="nc" id="L113">    assertTrue(currentTestCase.getName().equals(testCaseName));</span>
-<span class="nc" id="L114">    currentTestCase.setErrorMessage(error);</span>
-<span class="nc bnc" id="L115" title="All 2 branches missed.">    if (!currentTestCase.isSuccess()) {</span>
-<span class="nc" id="L116">      currentTestSuite.setError(error);</span>
-<span class="nc" id="L117">      currentTestFile.setSuccess(false);</span>
-    }
-<span class="nc" id="L119">    logger.info(&quot;{} failed&quot;, currentTestFile.getFilename());</span>
-<span class="nc" id="L120">  }</span>
+<span class="nc" id="L114">    assertNotNull(currentTestCase);</span>
+<span class="nc" id="L115">    assertTrue(currentTestCase.getName().equals(testCaseName));</span>
+<span class="nc" id="L116">    currentTestCase.setResult(Failure);</span>
+<span class="nc" id="L117">    currentTestCase.setResultDetail(error);</span>
+<span class="nc" id="L118">  }</span>
 
   /**
    * End test case.
@@ -125,19 +123,19 @@ import org.slf4j.Logger;
    * @param testCaseName test case name
    */
   public void endCase(final String testCaseName) {
-<span class="nc" id="L128">    assertNotNull(currentTestCase);</span>
-<span class="nc" id="L129">    assertTrue(currentTestCase.getName().equals(testCaseName));</span>
-<span class="nc" id="L130">    currentTestCase.setEndTime(currentTimeMillis());</span>
-<span class="nc" id="L131">    this.currentTestCase = null;</span>
-<span class="nc" id="L132">  }</span>
+<span class="nc" id="L126">    assertNotNull(currentTestCase);</span>
+<span class="nc" id="L127">    assertTrue(currentTestCase.getName().equals(testCaseName));</span>
+<span class="nc" id="L128">    currentTestCase.setEndTime(currentTimeMillis());</span>
+<span class="nc" id="L129">    this.currentTestCase = null;</span>
+<span class="nc" id="L130">  }</span>
 
   /**
    * Result test suites.
    *
    * @return test suites
    */
-  public Collection&lt;TestFile&gt; getResults() {
-<span class="nc" id="L140">    return testFiles.values();</span>
+  public Collection&lt;TestReportNode&gt; getResults() {
+<span class="nc" id="L138">    return testFiles.values();</span>
   }
 
 }

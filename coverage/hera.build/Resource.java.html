@@ -4,6 +4,7 @@
 
 package hera.build;
 
+import static hera.util.FilepathUtils.append;
 import static java.util.Collections.EMPTY_LIST;
 import static java.util.Optional.of;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -19,37 +20,37 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 
-<span class="nc" id="L22">@RequiredArgsConstructor</span>
+<span class="fc" id="L23">@RequiredArgsConstructor</span>
 public class Resource implements Adaptor {
 
-<span class="nc" id="L25">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L26">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="nc" id="L27">  @Getter</span>
+<span class="nc" id="L28">  @Getter</span>
   protected final Project project;
 
-<span class="nc" id="L30">  @Getter</span>
+<span class="fc" id="L31">  @Getter</span>
   protected final String location;
 
   public List&lt;Resource&gt; getDependencies(final ResourceManager resourceManager) throws Exception {
-<span class="nc" id="L34">    return EMPTY_LIST;</span>
+<span class="fc" id="L35">    return EMPTY_LIST;</span>
   }
 
   public Path getPath() {
-<span class="nc" id="L38">    final String path = FilepathUtils.append(project.getLocation(), location);</span>
-<span class="nc" id="L39">    return Paths.get(path);</span>
+<span class="fc" id="L39">    final String path = append(project.getLocation(), location);</span>
+<span class="fc" id="L40">    return Paths.get(path);</span>
   }
 
   @Override
   public &lt;T&gt; Optional&lt;T&gt; adapt(final Class&lt;T&gt; adaptor) {
-<span class="nc bnc" id="L44" title="All 2 branches missed.">    if (adaptor.isInstance(this)) {</span>
-<span class="nc" id="L45">      return (Optional&lt;T&gt;) of(this);</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">    if (adaptor.isInstance(this)) {</span>
+<span class="fc" id="L46">      return (Optional&lt;T&gt;) of(this);</span>
     }
-<span class="nc" id="L47">    return Optional.empty();</span>
+<span class="fc" id="L48">    return Optional.empty();</span>
   }
 
   @Override
   public String toString() {
-<span class="nc" id="L52">    return getClass().getSimpleName() + &quot;@&quot; + location + &quot;(&quot; + project.getLocation() + &quot;)&quot;;</span>
+<span class="nc" id="L53">    return getClass().getSimpleName() + &quot;@&quot; + location + &quot;(&quot; + project.getLocation() + &quot;)&quot;;</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

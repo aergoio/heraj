@@ -17,14 +17,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import lombok.RequiredArgsConstructor;
 
-<span class="nc" id="L20">@RequiredArgsConstructor</span>
+<span class="fc" id="L20">@RequiredArgsConstructor</span>
 public class PackageManager {
 
-  protected final String repostiroyLocation;
+  protected final String repositoryLocation;
 
   public PackageManager() {
-<span class="nc" id="L26">    this(append(nvl(System.getProperty(&quot;user.home&quot;), System.getenv(&quot;HOME&quot;)),MODULES_BASE));</span>
-<span class="nc" id="L27">  }</span>
+<span class="fc" id="L26">    this(append(nvl(System.getProperty(&quot;user.home&quot;), System.getenv(&quot;HOME&quot;)),MODULES_BASE));</span>
+<span class="fc" id="L27">  }</span>
 
   /**
    * Find {@link ResourceManager} with package name.
@@ -35,11 +35,11 @@ public class PackageManager {
    */
   public ResourceManager find(final String packageName) {
     try {
-<span class="nc" id="L38">      final String packageLocation = append(repostiroyLocation, packageName);</span>
-<span class="nc" id="L39">      final String projectFileLocation = append(packageLocation, PROJECT_FILENAME);</span>
-<span class="nc" id="L40">      final Path projectFilePath = Paths.get(projectFileLocation);</span>
-<span class="nc" id="L41">      final ProjectFile projectFile = ProjectFile.from(projectFilePath);</span>
-<span class="nc" id="L42">      return new ResourceManager(new Project(packageLocation, projectFile));</span>
+<span class="fc" id="L38">      final String packageLocation = append(repositoryLocation, packageName);</span>
+<span class="fc" id="L39">      final String projectFileLocation = append(packageLocation, PROJECT_FILENAME);</span>
+<span class="fc" id="L40">      final Path projectFilePath = Paths.get(projectFileLocation);</span>
+<span class="fc" id="L41">      final ProjectFile projectFile = ProjectFile.from(projectFilePath);</span>
+<span class="fc" id="L42">      return new ResourceManager(new Project(packageLocation, projectFile));</span>
 <span class="nc" id="L43">    } catch (final IOException ex) {</span>
 <span class="nc" id="L44">      throw new PackageNotFoundException(ex);</span>
     }

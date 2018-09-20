@@ -4,10 +4,6 @@
 
 package hera.api.model;
 
-import hera.util.Base58Utils;
-import java.io.IOException;
-import java.util.Arrays;
-
 public class ContractTxHash extends Hash {
 
   /**
@@ -17,10 +13,7 @@ public class ContractTxHash extends Hash {
    * @return created {@link ContractTxHash}
    */
   public static ContractTxHash of(final byte[] bytes) {
-<span class="fc bfc" id="L20" title="All 2 branches covered.">    if (null == bytes) {</span>
-<span class="fc" id="L21">      return new ContractTxHash(null);</span>
-    }
-<span class="fc" id="L23">    return new ContractTxHash(Arrays.copyOf(bytes, bytes.length));</span>
+<span class="fc" id="L16">    return of(bytes, ContractTxHash::new);</span>
   }
 
   /**
@@ -28,18 +21,14 @@ public class ContractTxHash extends Hash {
    *
    * @param encoded base58 encoded value
    * @return created {@link ContractTxHash}
-   * @throws IOException when decoding error
    */
-  public static ContractTxHash of(final String encoded) throws IOException {
-<span class="nc bnc" id="L34" title="All 2 branches missed.">    if (null == encoded) {</span>
-<span class="nc" id="L35">      return new ContractTxHash(null);</span>
-    }
-<span class="nc" id="L37">    return of(Base58Utils.decode(encoded));</span>
+  public static ContractTxHash of(final String encoded) {
+<span class="nc" id="L26">    return of(encoded, ContractTxHash::new);</span>
   }
 
   public ContractTxHash(final byte[] value) {
-<span class="fc" id="L41">    super(value);</span>
-<span class="fc" id="L42">  }</span>
+<span class="fc" id="L30">    super(value);</span>
+<span class="fc" id="L31">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

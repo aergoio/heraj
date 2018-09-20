@@ -20,7 +20,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @SuppressWarnings(&quot;unchecked&quot;)
-<span class="fc" id="L23">@RequiredArgsConstructor(access = AccessLevel.PRIVATE)</span>
+<span class="fc" id="L23">@RequiredArgsConstructor(access = AccessLevel.PACKAGE)</span>
 public class Tuple2OrErrorImpl&lt;T1, T2&gt; implements Tuple2OrError&lt;T1, T2&gt; {
 
   protected final T1 v1;
@@ -51,35 +51,35 @@ public class Tuple2OrErrorImpl&lt;T1, T2&gt; implements Tuple2OrError&lt;T1, T2&
 
   @Override
   public T1 get1() {
-<span class="nc bnc" id="L54" title="All 2 branches missed.">    if (hasError()) {</span>
-<span class="nc bnc" id="L55" title="All 2 branches missed.">      throw error instanceof HerajException ? (HerajException) error : new HerajException(error);</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">    if (null == v1) {</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">      throw error instanceof HerajException ? (HerajException) error : new HerajException(error);</span>
     }
-<span class="nc" id="L57">    return v1;</span>
+<span class="fc" id="L57">    return v1;</span>
   }
 
   @Override
   public T2 get2() {
-<span class="nc bnc" id="L62" title="All 2 branches missed.">    if (hasError()) {</span>
-<span class="nc bnc" id="L63" title="All 2 branches missed.">      throw error instanceof HerajException ? (HerajException) error : new HerajException(error);</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">    if (null == v2) {</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">      throw error instanceof HerajException ? (HerajException) error : new HerajException(error);</span>
     }
-<span class="nc" id="L65">    return v2;</span>
+<span class="fc" id="L65">    return v2;</span>
   }
 
   @Override
   public void ifPresent(Consumer2&lt;? super T1, ? super T2&gt; consumer) {
-<span class="nc bnc" id="L70" title="All 2 branches missed.">    if (!hasError()) {</span>
-<span class="nc" id="L71">      consumer.accept(v1, v2);</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">    if (!hasError()) {</span>
+<span class="fc" id="L71">      consumer.accept(v1, v2);</span>
     }
-<span class="nc" id="L73">  }</span>
+<span class="fc" id="L73">  }</span>
 
   @Override
   public Tuple2OrError&lt;T1, T2&gt; filter(Predicate2&lt;? super T1, ? super T2&gt; predicate) {
-<span class="nc" id="L77">    Objects.requireNonNull(predicate);</span>
-<span class="nc bnc" id="L78" title="All 2 branches missed.">    if (!hasError()) {</span>
-<span class="nc bnc" id="L79" title="All 2 branches missed.">      return predicate.test(v1, v2) ? this</span>
+<span class="fc" id="L77">    Objects.requireNonNull(predicate);</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">    if (!hasError()) {</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">      return predicate.test(v1, v2) ? this</span>
           : new Tuple2OrErrorImpl&lt;&gt;(new HerajException(&quot;No such element matching predicate&quot;));
     } else {
-<span class="nc" id="L82">      return this;</span>
+<span class="fc" id="L82">      return this;</span>
     }
   }
 
@@ -99,21 +99,21 @@ public class Tuple2OrErrorImpl&lt;T1, T2&gt; implements Tuple2OrError&lt;T1, T2&
 
   @Override
   public boolean equals(Object obj) {
-<span class="nc bnc" id="L102" title="All 2 branches missed.">    if (this == obj) {</span>
-<span class="nc" id="L103">      return true;</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">    if (this == obj) {</span>
+<span class="fc" id="L103">      return true;</span>
     }
-<span class="nc bnc" id="L105" title="All 2 branches missed.">    if (!(obj instanceof Tuple2OrErrorImpl)) {</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">    if (!(obj instanceof Tuple2OrErrorImpl)) {</span>
 <span class="nc" id="L106">      return false;</span>
     }
 
-<span class="nc" id="L109">    Tuple2OrErrorImpl&lt;?, ?&gt; other = (Tuple2OrErrorImpl&lt;?, ?&gt;) obj;</span>
-<span class="nc bnc" id="L110" title="All 4 branches missed.">    return Objects.equals(v1, other.v1) &amp;&amp; Objects.equals(v2, other.v2)</span>
-<span class="nc bnc" id="L111" title="All 2 branches missed.">        &amp;&amp; Objects.equals(error, other.error);</span>
+<span class="fc" id="L109">    Tuple2OrErrorImpl&lt;?, ?&gt; other = (Tuple2OrErrorImpl&lt;?, ?&gt;) obj;</span>
+<span class="pc bpc" id="L110" title="2 of 4 branches missed.">    return Objects.equals(v1, other.v1) &amp;&amp; Objects.equals(v2, other.v2)</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">        &amp;&amp; Objects.equals(error, other.error);</span>
   }
 
   @Override
   public int hashCode() {
-<span class="nc" id="L116">    return Arrays.hashCode(new Object[] {v1, v2, error});</span>
+<span class="fc" id="L116">    return Arrays.hashCode(new Object[] {v1, v2, error});</span>
   }
 
   @Override

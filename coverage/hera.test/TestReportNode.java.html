@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TestReportNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.test</a> &gt; <span class="el_source">TestReportNode.java</span></div><h1>TestReportNode.java</h1><pre class="source lang-java linenums">package hera.test;
+
+import static hera.test.TestReportNodeResult.Failure;
+import static hera.test.TestReportNodeResult.Success;
+import static hera.test.TestReportNodeResult.Unknown;
+import static java.lang.System.currentTimeMillis;
+import static java.util.Arrays.asList;
+
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.Setter;
+
+<span class="fc" id="L16">@NoArgsConstructor</span>
+public class TestReportNode&lt;ResultDetailT&gt; {
+
+<span class="fc" id="L19">  @Getter</span>
+<span class="nc" id="L20">  @Setter</span>
+  protected String name;
+
+<span class="pc" id="L23">  @Getter</span>
+<span class="nc" id="L24">  @Setter</span>
+  protected TestReportNodeResult result = Unknown;
+
+<span class="pc" id="L27">  @Getter</span>
+<span class="nc" id="L28">  @Setter</span>
+<span class="pc" id="L29">  protected long startTime = currentTimeMillis();</span>
+
+<span class="nc" id="L31">  @Getter</span>
+<span class="nc" id="L32">  @Setter</span>
+  protected long endTime;
+
+<span class="nc" id="L35">  @Getter</span>
+<span class="nc" id="L36">  @Setter</span>
+  protected ResultDetailT resultDetail;
+
+<span class="pc" id="L39">  @Getter</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">  @Setter</span>
+  @NonNull
+  protected List&lt;TestReportNode&lt;?&gt;&gt; children = new ArrayList&lt;&gt;();
+
+  /**
+   * Constructor with name, result, resultDetail and children.
+   *
+   * @param name node name
+   * @param result test result
+   * @param resultDetail result details
+   * @param children child nodes
+   */
+  public TestReportNode(
+      final String name,
+      final TestReportNodeResult result,
+      final ResultDetailT resultDetail,
+<span class="nc" id="L56">      final TestReportNode&lt;?&gt;... children) {</span>
+<span class="nc" id="L57">    this.name = name;</span>
+<span class="nc" id="L58">    this.result = result;</span>
+<span class="nc" id="L59">    this.resultDetail = resultDetail;</span>
+<span class="nc" id="L60">    this.children.addAll(asList(children));</span>
+<span class="nc" id="L61">  }</span>
+
+  /**
+   * Return if this node is success.
+   *
+   * @return if success
+   */
+  public boolean isSuccess() {
+<span class="pc bpc" id="L69" title="2 of 3 branches missed.">    switch (this.result) {</span>
+      case Success:
+<span class="nc" id="L71">        return true;</span>
+      case Failure:
+<span class="nc" id="L73">        return false;</span>
+      default:
+<span class="pc" id="L75">        return children.stream().allMatch(child -&gt; child.isSuccess());</span>
+    }
+  }
+
+  /**
+   * Return if this node is failure.
+   *
+   * @return if failure
+   */
+  public boolean isFailure() {
+<span class="nc bnc" id="L85" title="All 3 branches missed.">    switch (this.result) {</span>
+      case Success:
+<span class="nc" id="L87">        return false;</span>
+      case Failure:
+<span class="nc" id="L89">        return true;</span>
+      default:
+<span class="nc" id="L91">        return children.stream().anyMatch(child -&gt; child.isFailure());</span>
+    }
+  }
+
+  /**
+   * Return how many tests this node has.
+   *
+   * @return the number of tests
+   */
+  public int getTheNumberOfTests() {
+<span class="nc bnc" id="L101" title="All 2 branches missed.">    if (children.isEmpty()) {</span>
+<span class="nc" id="L102">      return 1;</span>
+    } else {
+<span class="nc" id="L104">      return children.stream().map(TestReportNode::getTheNumberOfTests)</span>
+<span class="nc" id="L105">          .reduce((a, b) -&gt; a + b).orElse(0);</span>
+    }
+  }
+
+  /**
+   * Return how many successes this node has.
+   *
+   * @return the number of successes
+   */
+  public int getTheNumberOfSuccesses() {
+<span class="nc bnc" id="L115" title="All 2 branches missed.">    if (children.isEmpty()) {</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">      if (this.resultDetail == Success) {</span>
+<span class="nc" id="L117">        return 1;</span>
+      } else {
+<span class="nc" id="L119">        return 0;</span>
+      }
+    } else {
+<span class="nc" id="L122">      return children.stream().map(TestReportNode::getTheNumberOfSuccesses)</span>
+<span class="nc" id="L123">          .reduce((a, b) -&gt; a + b).orElse(0);</span>
+    }
+  }
+
+  /**
+   * Return how many failures this node has.
+   *
+   * @return the number of failures
+   */
+  public int getTheNumberOfFailures() {
+<span class="nc bnc" id="L133" title="All 2 branches missed.">    if (children.isEmpty()) {</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">      if (this.resultDetail == Failure) {</span>
+<span class="nc" id="L135">        return 1;</span>
+      } else {
+<span class="nc" id="L137">        return 0;</span>
+      }
+    } else {
+<span class="nc" id="L140">      return children.stream().map(TestReportNode::getTheNumberOfFailures)</span>
+<span class="nc" id="L141">          .reduce((a, b) -&gt; a + b).orElse(0);</span>
+    }
+  }
+
+  /**
+   * Add child node.
+   *
+   * @param child node to add
+   */
+  public void addChild(TestReportNode&lt;?&gt; child) {
+<span class="nc" id="L151">    this.children.add(child);</span>
+<span class="nc" id="L152">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

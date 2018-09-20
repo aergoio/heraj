@@ -4,6 +4,7 @@
 
 package hera.command;
 
+import static hera.test.TestReportNodeResult.Failure;
 import static hera.util.ObjectUtils.nvl;
 import static java.util.Arrays.asList;
 import static java.util.Collections.EMPTY_LIST;
@@ -19,7 +20,7 @@ import hera.test.AthenaContext;
 import hera.test.LuaErrorInformation;
 import hera.test.LuaRunner;
 import hera.test.LuaSource;
-import hera.test.TestFile;
+import hera.test.TestReportNode;
 import hera.test.TestResult;
 import hera.test.TestResultCollector;
 import java.util.HashMap;
@@ -30,91 +31,94 @@ import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 
-<span class="nc" id="L33">public class TestProject extends AbstractCommand {</span>
+<span class="nc" id="L34">public class TestProject extends AbstractCommand {</span>
 
-<span class="nc" id="L35">  @Getter</span>
-<span class="nc" id="L36">  @Setter</span>
-<span class="nc" id="L37">  protected BuilderFactory builderFactory = project -&gt; new Builder(new ResourceManager(project));</span>
+<span class="nc" id="L36">  @Getter</span>
+<span class="nc" id="L37">  @Setter</span>
+<span class="nc" id="L38">  protected BuilderFactory builderFactory = project -&gt; new Builder(new ResourceManager(project));</span>
 
-<span class="nc" id="L39">  @Setter</span>
+<span class="nc" id="L40">  @Setter</span>
   protected Consumer&lt;TestResultCollector&gt; reporter = (testReporter) -&gt; {
-<span class="nc" id="L41">    testReporter.getResults().forEach(testFile -&gt; {</span>
-<span class="nc bnc" id="L42" title="All 2 branches missed.">      if (testFile.isSuccess()) {</span>
-<span class="nc" id="L43">        getPrinter().println(&quot; &lt;green&gt;o&lt;/green&gt; %s&quot;, testFile.getFilename());</span>
+<span class="nc" id="L42">    testReporter.getResults().forEach(testFile -&gt; {</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">      if (testFile.isSuccess()) {</span>
+<span class="nc" id="L44">        getPrinter().println(&quot; &lt;green&gt;o&lt;/green&gt; %s&quot;, testFile.getName());</span>
       } else {
-<span class="nc" id="L45">        final Optional&lt;String&gt; errorMessage =</span>
-<span class="nc" id="L46">            ofNullable(testFile.getError()).map(LuaErrorInformation::getMessage);</span>
-<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (errorMessage.isPresent()) {</span>
-<span class="nc" id="L48">          getPrinter().println(&quot; &lt;red&gt;x&lt;/red&gt; %s - &lt;red&gt;%s&lt;/red&gt;&quot;,</span>
-<span class="nc" id="L49">              testFile.getFilename(), errorMessage.get());</span>
+<span class="nc" id="L46">        final Optional&lt;String&gt; errorMessage =</span>
+<span class="nc" id="L47">            ofNullable(testFile.getResultDetail())</span>
+<span class="nc" id="L48">                .map(obj -&gt; (LuaErrorInformation) obj)</span>
+<span class="nc" id="L49">                .map(LuaErrorInformation::getMessage);</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        if (errorMessage.isPresent()) {</span>
+<span class="nc" id="L51">          getPrinter().println(&quot; &lt;red&gt;x&lt;/red&gt; %s - &lt;red&gt;%s&lt;/red&gt;&quot;,</span>
+<span class="nc" id="L52">              testFile.getName(), errorMessage.get());</span>
         } else {
-<span class="nc" id="L51">          getPrinter().println(&quot; &lt;red&gt;x&lt;/red&gt; %s&quot;,</span>
-<span class="nc" id="L52">              testFile.getFilename());</span>
+<span class="nc" id="L54">          getPrinter().println(&quot; &lt;red&gt;x&lt;/red&gt; %s&quot;,</span>
+<span class="nc" id="L55">              testFile.getName());</span>
         }
       }
-<span class="nc" id="L55">      testFile.getSuites().forEach(testSuite -&gt; {</span>
-<span class="nc bnc" id="L56" title="All 2 branches missed.">        if (testSuite.isSuccess()) {</span>
-<span class="nc" id="L57">          getPrinter().println(&quot;  &lt;green&gt;o&lt;/green&gt; %s (%d/%d)&quot;,</span>
-<span class="nc" id="L58">              testSuite.getName(), testSuite.getSuccesses(), testSuite.getTests());</span>
+<span class="nc" id="L58">      testFile.getChildren().forEach(child -&gt; {</span>
+<span class="nc" id="L59">        final TestReportNode&lt;?&gt; node = (TestReportNode&lt;?&gt;) child;</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (node.isSuccess()) {</span>
+<span class="nc" id="L61">          getPrinter().println(&quot;  &lt;green&gt;o&lt;/green&gt; %s (%d/%d)&quot;,</span>
+<span class="nc" id="L62">              node.getName(), node.getTheNumberOfSuccesses(), node.getTheNumberOfTests());</span>
         } else {
-<span class="nc" id="L60">          getPrinter().println(&quot;  &lt;red&gt;x&lt;/red&gt; %s (%d/%d)&quot;,</span>
-<span class="nc" id="L61">              testSuite.getName(), testSuite.getSuccesses(), testSuite.getTests());</span>
+<span class="nc" id="L64">          getPrinter().println(&quot;  &lt;red&gt;x&lt;/red&gt; %s (%d/%d)&quot;,</span>
+<span class="nc" id="L65">              node.getName(), node.getTheNumberOfSuccesses(), node.getTheNumberOfTests());</span>
         }
-<span class="nc" id="L63">        testSuite.getTestCases().forEach(testCase -&gt; {</span>
-<span class="nc bnc" id="L64" title="All 2 branches missed.">          if (testCase.isSuccess()) {</span>
-<span class="nc" id="L65">            getPrinter().println(&quot;   &lt;green&gt;o&lt;/green&gt; %s&quot;, testCase.getName());</span>
+<span class="nc" id="L67">        node.getChildren().forEach(testCase -&gt; {</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">          if (testCase.isSuccess()) {</span>
+<span class="nc" id="L69">            getPrinter().println(&quot;   &lt;green&gt;o&lt;/green&gt; %s&quot;, testCase.getName());</span>
           } else {
-<span class="nc" id="L67">            getPrinter().println(&quot;   &lt;red&gt;x&lt;/red&gt; %s - &lt;red&gt;%s&lt;/red&gt;&quot;,</span>
-<span class="nc" id="L68">                testCase.getName(), testCase.getErrorMessage());</span>
+<span class="nc" id="L71">            getPrinter().println(&quot;   &lt;red&gt;x&lt;/red&gt; %s - &lt;red&gt;%s&lt;/red&gt;&quot;,</span>
+<span class="nc" id="L72">                testCase.getName(), testCase.getResultDetail());</span>
           }
-<span class="nc" id="L70">        });</span>
-<span class="nc" id="L71">      });</span>
-<span class="nc" id="L72">    });</span>
-<span class="nc" id="L73">  };</span>
+<span class="nc" id="L74">        });</span>
+<span class="nc" id="L75">      });</span>
+<span class="nc" id="L76">    });</span>
+<span class="nc" id="L77">  };</span>
 
   @Override
   public void execute() throws Exception {
-<span class="nc" id="L77">    logger.trace(&quot;Starting {}...&quot;, this);</span>
-<span class="nc" id="L78">    final ProjectFile projectFile = readProject();</span>
-<span class="nc" id="L79">    final Project project = new Project(&quot;.&quot;, projectFile);</span>
-<span class="nc" id="L80">    final Builder builder = builderFactory.create(project);</span>
-<span class="nc" id="L81">    final List&lt;String&gt; testPaths = nvl(projectFile.getTests(), EMPTY_LIST);</span>
-<span class="nc" id="L82">    final Map&lt;String, LuaSource&gt; path2result = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L81">    logger.trace(&quot;Starting {}...&quot;, this);</span>
+<span class="nc" id="L82">    final ProjectFile projectFile = readProject();</span>
+<span class="nc" id="L83">    final Project project = new Project(&quot;.&quot;, projectFile);</span>
+<span class="nc" id="L84">    final Builder builder = builderFactory.create(project);</span>
+<span class="nc" id="L85">    final List&lt;String&gt; testPaths = nvl(projectFile.getTests(), EMPTY_LIST);</span>
+<span class="nc" id="L86">    final Map&lt;String, LuaSource&gt; path2result = new HashMap&lt;&gt;();</span>
 
-<span class="nc" id="L84">    AthenaContext.clear();</span>
+<span class="nc" id="L88">    AthenaContext.clear();</span>
     try {
-<span class="nc" id="L86">      final TestResultCollector testReporter = AthenaContext.getContext().getTestReporter();</span>
-<span class="nc bnc" id="L87" title="All 2 branches missed.">      for (final String testPath : testPaths) {</span>
-<span class="nc" id="L88">        final BuildDetails buildDetails = builder.build(testPath);</span>
-<span class="nc" id="L89">        final LuaSource executable = new LuaSource(buildDetails.getResult());</span>
-<span class="nc" id="L90">        testReporter.clear();</span>
+<span class="nc" id="L90">      final TestResultCollector testReporter = AthenaContext.getContext().getTestReporter();</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">      for (final String testPath : testPaths) {</span>
+<span class="nc" id="L92">        final BuildDetails buildDetails = builder.build(testPath);</span>
+<span class="nc" id="L93">        final LuaSource executable = new LuaSource(buildDetails.getResult());</span>
+<span class="nc" id="L94">        testReporter.clear();</span>
 
-<span class="nc" id="L92">        logger.trace(&quot;Executing test...&quot;);</span>
-<span class="nc" id="L93">        testReporter.start(testPath);</span>
-<span class="nc" id="L94">        final TestResult testResult = new LuaRunner().run(executable);</span>
-<span class="nc" id="L95">        final TestFile testFile = testReporter.getCurrentTestFile();</span>
-<span class="nc bnc" id="L96" title="All 2 branches missed.">        if (!testResult.isSuccess()) {</span>
-<span class="nc" id="L97">          logger.info(&quot;{} failed&quot;, testFile.getFilename());</span>
-<span class="nc" id="L98">          testFile.setSuccess(false);</span>
-<span class="nc" id="L99">          testFile.setError(testResult.getError());</span>
+<span class="nc" id="L96">        logger.trace(&quot;Executing test...&quot;);</span>
+<span class="nc" id="L97">        testReporter.start(testPath);</span>
+<span class="nc" id="L98">        final TestResult testResult = new LuaRunner().run(executable);</span>
+<span class="nc" id="L99">        final TestReportNode&lt;LuaErrorInformation&gt; testFile = testReporter.getCurrentTestFile();</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (!testResult.isSuccess()) {</span>
+<span class="nc" id="L101">          logger.info(&quot;{} failed&quot;, testFile.getName());</span>
+<span class="nc" id="L102">          testFile.setResult(Failure);</span>
+<span class="nc" id="L103">          testFile.setResultDetail(testResult.getError());</span>
         }
 
-<span class="nc" id="L102">        path2result.put(testPath, executable);</span>
-<span class="nc" id="L103">        logger.debug(&quot;Test {} =&gt; {}&quot;, testPath, testResult);</span>
-<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (!testResult.isSuccess()) {</span>
-<span class="nc" id="L105">          final LuaErrorInformation error = testResult.getError();</span>
-<span class="nc" id="L106">          final int lineNumber = error.getLineNumber();</span>
-<span class="nc" id="L107">          logger.debug(&quot;Lua Script:\n{}&quot;,</span>
-<span class="nc" id="L108">              executable.toString(lineNumber - 5, lineNumber + 5, asList(lineNumber)));</span>
+<span class="nc" id="L106">        path2result.put(testPath, executable);</span>
+<span class="nc" id="L107">        logger.debug(&quot;Test {} =&gt; {}&quot;, testPath, testResult);</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (!testResult.isSuccess()) {</span>
+<span class="nc" id="L109">          final LuaErrorInformation error = testResult.getError();</span>
+<span class="nc" id="L110">          final int lineNumber = error.getLineNumber();</span>
+<span class="nc" id="L111">          logger.debug(&quot;Lua Script:\n{}&quot;,</span>
+<span class="nc" id="L112">              executable.toString(lineNumber - 5, lineNumber + 5, asList(lineNumber)));</span>
         }
-<span class="nc" id="L110">        testReporter.end();</span>
-<span class="nc" id="L111">      }</span>
+<span class="nc" id="L114">        testReporter.end();</span>
+<span class="nc" id="L115">      }</span>
     } finally {
-<span class="nc" id="L113">      final AthenaContext context = AthenaContext.getContext();</span>
-<span class="nc" id="L114">      final TestResultCollector testResultCollector = context.getTestReporter();</span>
-<span class="nc" id="L115">      logger.debug(&quot;TestResultCollector: {}&quot;, testResultCollector);</span>
-<span class="nc" id="L116">      reporter.accept(testResultCollector);</span>
+<span class="nc" id="L117">      final AthenaContext context = AthenaContext.getContext();</span>
+<span class="nc" id="L118">      final TestResultCollector testResultCollector = context.getTestReporter();</span>
+<span class="nc" id="L119">      logger.debug(&quot;TestResultCollector: {}&quot;, testResultCollector);</span>
+<span class="nc" id="L120">      reporter.accept(testResultCollector);</span>
     }
-<span class="nc" id="L118">  }</span>
+<span class="nc" id="L122">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

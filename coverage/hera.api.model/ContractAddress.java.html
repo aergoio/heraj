@@ -5,7 +5,6 @@
 package hera.api.model;
 
 import hera.util.Base58Utils;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -18,10 +17,7 @@ public class ContractAddress extends AccountAddress {
    * @return created {@link ContractAddress}
    */
   public static ContractAddress of(final byte[] bytes) {
-<span class="pc bpc" id="L21" title="1 of 2 branches missed.">    if (null == bytes) {</span>
-<span class="nc" id="L22">      return new ContractAddress(null);</span>
-    }
-<span class="fc" id="L24">    return new ContractAddress(Arrays.copyOf(bytes, bytes.length));</span>
+<span class="fc" id="L20">    return of(bytes, ContractAddress::new);</span>
   }
 
   /**
@@ -29,27 +25,25 @@ public class ContractAddress extends AccountAddress {
    *
    * @param encoded base58 encoded value
    * @return created {@link ContractAddress}
-   * @throws IOException when decoding error
    */
-  public static ContractAddress of(final String encoded) throws IOException {
-<span class="nc bnc" id="L35" title="All 2 branches missed.">    if (null == encoded) {</span>
-<span class="nc" id="L36">      return new ContractAddress(null);</span>
-    }
-<span class="nc" id="L38">    final byte[] withVersion = Base58Utils.decodeWithCheck(encoded);</span>
-<span class="nc" id="L39">    return of(Arrays.copyOfRange(withVersion, 1, withVersion.length));</span>
+  public static ContractAddress of(final String encoded) {
+<span class="nc" id="L30">    return of(encoded, e -&gt; {</span>
+<span class="nc" id="L31">      final byte[] withVersion = Base58Utils.decodeWithCheck(encoded);</span>
+<span class="nc" id="L32">      return Arrays.copyOfRange(withVersion, 1, withVersion.length);</span>
+    }, ContractAddress::new);
   }
 
   public ContractAddress(final byte[] value) {
-<span class="fc" id="L43">    super(value);</span>
-<span class="fc" id="L44">  }</span>
+<span class="fc" id="L37">    super(value);</span>
+<span class="fc" id="L38">  }</span>
 
   @SuppressWarnings(&quot;unchecked&quot;)
   @Override
   public &lt;T&gt; Optional&lt;T&gt; adapt(Class&lt;T&gt; adaptor) {
-<span class="nc bnc" id="L49" title="All 2 branches missed.">    if (adaptor.isAssignableFrom(ContractAddress.class)) {</span>
-<span class="nc" id="L50">      return (Optional&lt;T&gt;) Optional.of(this);</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">    if (adaptor.isAssignableFrom(ContractAddress.class)) {</span>
+<span class="nc" id="L44">      return (Optional&lt;T&gt;) Optional.of(this);</span>
     }
-<span class="nc" id="L52">    return Optional.empty();</span>
+<span class="nc" id="L46">    return Optional.empty();</span>
   }
 
 }

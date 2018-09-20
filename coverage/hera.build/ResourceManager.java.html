@@ -37,23 +37,23 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.slf4j.Logger;
 
-<span class="nc" id="L40">@RequiredArgsConstructor</span>
+<span class="fc" id="L40">@RequiredArgsConstructor</span>
 public class ResourceManager implements ServerListener {
-<span class="nc" id="L42">  protected static final Set&lt;Integer&gt; eventFilter =</span>
-<span class="nc" id="L43">      unmodifiableSet(new HashSet(asList(ANY_CHANGED)));</span>
+<span class="fc" id="L42">  protected static final Set&lt;Integer&gt; eventFilter =</span>
+<span class="fc" id="L43">      unmodifiableSet(new HashSet(asList(ANY_CHANGED)));</span>
 
-<span class="nc" id="L45">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L45">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="nc" id="L47">  protected final Map&lt;String, Resource&gt; cache = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L47">  protected final Map&lt;String, Resource&gt; cache = new HashMap&lt;&gt;();</span>
 
 <span class="nc" id="L49">  @Getter</span>
   protected final Project project;
 
-<span class="nc" id="L52">  @Getter</span>
+<span class="pc" id="L52">  @Getter</span>
 <span class="nc" id="L53">  @Setter</span>
   protected PackageManager packageManager = new PackageManager();
 
-<span class="nc" id="L56">  protected final Set&lt;ResourceChangeListener&gt; resourceChangeListeners = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L56">  protected final Set&lt;ResourceChangeListener&gt; resourceChangeListeners = new HashSet&lt;&gt;();</span>
 
   public void addResourceChangeListener(final ResourceChangeListener listener) {
 <span class="nc" id="L59">    resourceChangeListeners.add(listener);</span>

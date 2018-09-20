@@ -20,10 +20,7 @@ public class AccountAddress extends BytesValue {
    * @return created {@link AccountAddress}
    */
   public static AccountAddress of(final byte[] bytes) {
-<span class="pc bpc" id="L23" title="1 of 2 branches missed.">    if (null == bytes) {</span>
-<span class="nc" id="L24">      return new AccountAddress(null);</span>
-    }
-<span class="fc" id="L26">    return new AccountAddress(Arrays.copyOf(bytes, bytes.length));</span>
+<span class="fc" id="L23">    return of(bytes, AccountAddress::new);</span>
   }
 
   /**
@@ -31,35 +28,33 @@ public class AccountAddress extends BytesValue {
    *
    * @param encoded base58 encoded value
    * @return created {@link AccountAddress}
-   * @throws IOException when decoding error
    */
-  public static AccountAddress of(final String encoded) throws IOException {
-<span class="pc bpc" id="L37" title="1 of 2 branches missed.">    if (null == encoded) {</span>
-<span class="nc" id="L38">      return new AccountAddress(null);</span>
-    }
-<span class="fc" id="L40">    final byte[] withVersion = Base58Utils.decodeWithCheck(encoded);</span>
-<span class="fc" id="L41">    return of(Arrays.copyOfRange(withVersion, 1, withVersion.length));</span>
+  public static AccountAddress of(final String encoded) {
+<span class="fc" id="L33">    return of(encoded, e -&gt; {</span>
+<span class="fc" id="L34">      final byte[] withVersion = Base58Utils.decodeWithCheck(encoded);</span>
+<span class="fc" id="L35">      return Arrays.copyOfRange(withVersion, 1, withVersion.length);</span>
+    }, AccountAddress::new);
   }
 
   public AccountAddress(final byte[] value) {
-<span class="fc" id="L45">    super(value);</span>
-<span class="fc" id="L46">  }</span>
+<span class="fc" id="L40">    super(value);</span>
+<span class="fc" id="L41">  }</span>
 
   @Override
   public String getEncodedValue() throws IOException {
-<span class="fc" id="L50">    final byte[] withVersion = new byte[value.length + 1];</span>
-<span class="fc" id="L51">    withVersion[0] = VERSION;</span>
-<span class="fc" id="L52">    System.arraycopy(value, 0, withVersion, 1, value.length);</span>
-<span class="fc" id="L53">    return Base58Utils.encodeWithCheck(withVersion);</span>
+<span class="fc" id="L45">    final byte[] withVersion = new byte[value.length + 1];</span>
+<span class="fc" id="L46">    withVersion[0] = VERSION;</span>
+<span class="fc" id="L47">    System.arraycopy(value, 0, withVersion, 1, value.length);</span>
+<span class="fc" id="L48">    return Base58Utils.encodeWithCheck(withVersion);</span>
   }
 
   @SuppressWarnings(&quot;unchecked&quot;)
   @Override
   public &lt;T&gt; Optional&lt;T&gt; adapt(Class&lt;T&gt; adaptor) {
-<span class="nc bnc" id="L59" title="All 2 branches missed.">    if (adaptor.isAssignableFrom(AccountAddress.class)) {</span>
-<span class="nc" id="L60">      return (Optional&lt;T&gt;) Optional.of(this);</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">    if (adaptor.isAssignableFrom(AccountAddress.class)) {</span>
+<span class="nc" id="L55">      return (Optional&lt;T&gt;) Optional.of(this);</span>
     }
-<span class="nc" id="L62">    return Optional.empty();</span>
+<span class="nc" id="L57">    return Optional.empty();</span>
   }
 
 }

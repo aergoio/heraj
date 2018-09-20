@@ -29,34 +29,34 @@ public class ResultOrErrorImpl&lt;T&gt; implements ResultOrError&lt;T&gt; {
 
   @Override
   public T getResult() {
-<span class="pc bpc" id="L32" title="1 of 2 branches missed.">    if (hasError()) {</span>
-<span class="nc bnc" id="L33" title="All 2 branches missed.">      throw error instanceof HerajException ? (HerajException) error : new HerajException(error);</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">    if (hasError()) {</span>
+<span class="fc bfc" id="L33" title="All 2 branches covered.">      throw error instanceof HerajException ? (HerajException) error : new HerajException(error);</span>
     }
 <span class="fc" id="L35">    return result;</span>
   }
 
   @Override
   public void ifPresent(Consumer1&lt;? super T&gt; consumer) {
-<span class="nc bnc" id="L40" title="All 2 branches missed.">    if (hasResult()) {</span>
-<span class="nc" id="L41">      consumer.accept(result);</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">    if (hasResult()) {</span>
+<span class="fc" id="L41">      consumer.accept(result);</span>
     }
-<span class="nc" id="L43">  }</span>
+<span class="fc" id="L43">  }</span>
 
   @Override
   public ResultOrError&lt;T&gt; filter(Predicate1&lt;? super T&gt; predicate) {
-<span class="nc" id="L47">    Objects.requireNonNull(predicate);</span>
-<span class="nc bnc" id="L48" title="All 2 branches missed.">    if (hasResult()) {</span>
-<span class="nc bnc" id="L49" title="All 2 branches missed.">      return predicate.test(result) ? this</span>
-<span class="nc" id="L50">          : fail(new HerajException(&quot;No such element matching predicate&quot;));</span>
+<span class="fc" id="L47">    Objects.requireNonNull(predicate);</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">    if (hasResult()) {</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">      return predicate.test(result) ? this</span>
+<span class="fc" id="L50">          : fail(new HerajException(&quot;No such element matching predicate&quot;));</span>
     } else {
-<span class="nc" id="L52">      return this;</span>
+<span class="fc" id="L52">      return this;</span>
     }
   }
 
 
   @Override
   public &lt;R&gt; ResultOrError&lt;R&gt; map(Function1&lt;? super T, ? extends R&gt; fn) {
-<span class="pc bpc" id="L59" title="1 of 2 branches missed.">    if (hasResult()) {</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">    if (hasResult()) {</span>
       try {
 <span class="fc" id="L61">        R next = fn.apply(result);</span>
 <span class="fc" id="L62">        return success(next);</span>
@@ -64,55 +64,55 @@ public class ResultOrErrorImpl&lt;T&gt; implements ResultOrError&lt;T&gt; {
 <span class="nc" id="L64">        return fail(e);</span>
       }
     }
-<span class="nc" id="L67">    return fail(getError());</span>
+<span class="fc" id="L67">    return fail(getError());</span>
   }
 
   @Override
   public &lt;R&gt; ResultOrError&lt;R&gt; flatMap(Function1&lt;? super T, ResultOrError&lt;R&gt;&gt; fn) {
-<span class="nc bnc" id="L72" title="All 2 branches missed.">    if (hasResult()) {</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">    if (hasResult()) {</span>
       try {
-<span class="nc" id="L74">        return fn.apply(result);</span>
+<span class="fc" id="L74">        return fn.apply(result);</span>
 <span class="nc" id="L75">      } catch (Throwable e) {</span>
 <span class="nc" id="L76">        return fail(e);</span>
       }
     }
-<span class="nc" id="L79">    return fail(getError());</span>
+<span class="fc" id="L79">    return fail(getError());</span>
   }
 
   @Override
   public T orElse(T other) {
-<span class="nc bnc" id="L84" title="All 2 branches missed.">    return hasResult() ? result : other;</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">    return hasResult() ? result : other;</span>
   }
 
   @Override
   public T orElseGet(Supplier&lt;? extends T&gt; other) {
-<span class="nc bnc" id="L89" title="All 2 branches missed.">    return hasResult() ? result : other.get();</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">    return hasResult() ? result : other.get();</span>
   }
 
   @Override
   public &lt;X extends Throwable&gt; T getOrThrows(Supplier&lt;? extends X&gt; exceptionSupplier) throws X {
-<span class="nc bnc" id="L94" title="All 2 branches missed.">    if (hasError()) {</span>
-<span class="nc" id="L95">      throw exceptionSupplier.get();</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">    if (hasError()) {</span>
+<span class="fc" id="L95">      throw exceptionSupplier.get();</span>
     }
-<span class="nc" id="L97">    return result;</span>
+<span class="fc" id="L97">    return result;</span>
   }
 
   @Override
   public boolean equals(Object obj) {
-<span class="nc bnc" id="L102" title="All 2 branches missed.">    if (this == obj) {</span>
-<span class="nc" id="L103">      return true;</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">    if (this == obj) {</span>
+<span class="fc" id="L103">      return true;</span>
     }
-<span class="nc bnc" id="L105" title="All 2 branches missed.">    if (!(obj instanceof ResultOrErrorImpl)) {</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">    if (!(obj instanceof ResultOrErrorImpl)) {</span>
 <span class="nc" id="L106">      return false;</span>
     }
 
-<span class="nc" id="L109">    ResultOrErrorImpl&lt;?&gt; other = (ResultOrErrorImpl&lt;?&gt;) obj;</span>
-<span class="nc bnc" id="L110" title="All 4 branches missed.">    return Objects.equals(result, other.result) &amp;&amp; Objects.equals(error, other.error);</span>
+<span class="fc" id="L109">    ResultOrErrorImpl&lt;?&gt; other = (ResultOrErrorImpl&lt;?&gt;) obj;</span>
+<span class="pc bpc" id="L110" title="2 of 4 branches missed.">    return Objects.equals(result, other.result) &amp;&amp; Objects.equals(error, other.error);</span>
   }
 
   @Override
   public int hashCode() {
-<span class="nc" id="L115">    return Arrays.hashCode(new Object[] {result, error});</span>
+<span class="fc" id="L115">    return Arrays.hashCode(new Object[] {result, error});</span>
   }
 
   @Override
