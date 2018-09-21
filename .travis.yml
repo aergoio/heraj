@@ -16,7 +16,6 @@ cache:
 install: true
 
 script:
-  - ./build.sh npm
   - ./gradlew build jacocoTestReport
 
 after_success:
