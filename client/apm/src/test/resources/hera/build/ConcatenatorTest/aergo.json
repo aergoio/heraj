@@ -1,5 +1,0 @@
-{
-  "name" : "aergoio/test",
-  "source" : "source.lua",
-  "target" : "target.lua"
-}

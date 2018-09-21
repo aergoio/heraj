@@ -6,7 +6,6 @@ apply plugin: 'distribution'
 uploadArchives.enabled = false
 
 dependencies {
-  compile project(':client:apm')
   compile 'ch.qos.logback:logback-classic:1.2.3'
 }
 

@@ -22,9 +22,6 @@ group 'io.aergo'
 repositories {
   mavenLocal()
   maven {
-    url 'https://nexus.blocko.io/repository/blocko-maven-repository'
-  }
-  maven {
     url "http://sevntu-checkstyle.github.com/sevntu.checkstyle/maven2"
   }
   maven {
@@ -46,7 +43,6 @@ def javaProjects = [
   project('core:transport'),
   project('client:smart-contract'),
   project('client:wallet'),
-  project('client:apm'),
   project('assembly')]
 
 def jmhProjects = [

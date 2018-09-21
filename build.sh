@@ -32,7 +32,6 @@ function print-usage() {
   echo "build.sh [command]"
   echo "Commands: "
   echo "  clean       delete and reset intermediate obj in build"
-  echo "  npm         run npm for apm web ui"
   echo "  gradle      compile source to executable using gradle"
   echo "  test        test built executable"
   echo "  docs        generate documents"
@@ -42,14 +41,6 @@ function print-usage() {
 function clean-workspace() {
   rm -rf $BUILD_WORKSPACE
   $PROJECT_HOME/gradlew clean
-}
-function execute-npm() {
-  cd $PROJECT_HOME/client/apm-web
-  npm install
-  npm run build
-  rm -rf $PROJECT_HOME/client/apm/src/main/resources/public
-  mkdir -p $PROJECT_HOME/client/apm/src/main/resources/public
-  cp -r $PROJECT_HOME/client/apm-web/dist/* $PROJECT_HOME/client/apm/src/main/resources/public
 }
 function execute-gradle() {
   $PROJECT_HOME/gradlew clean build test alljacoco
@@ -75,7 +66,7 @@ function execute-documentation() {
 function execute-assemble() {
   rm -rf $PROJECT_HOME/assembly/build/distributions
   $PROJECT_HOME/gradlew assemble && \
-    (cd $PROJECT_HOME/assembly/build/distributions && tar -xvf hera-0.1-SNAPSHOT.tar && cd -)
+    (cd $PROJECT_HOME/assembly/build/distributions && tar -xvf *.tar && cd -)
 }
 
 
@@ -87,9 +78,6 @@ else
     case $1 in
       "clean")
         clean-workspace
-        ;;
-      "npm")
-        execute-npm
         ;;
       "gradle")
         execute-gradle

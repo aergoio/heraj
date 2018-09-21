@@ -22,8 +22,6 @@ The repository contains next:
 * core/protobuf
 * core/transport
 * client/wallet
-* client/apm
-* client/apm-web
 
 # Integration
 TBD
@@ -31,7 +29,6 @@ TBD
 # Build
 ## Prerequisites
 * [JDK 8](http://openjdk.java.net/)
-* [NPM](https://www.npmjs.com/)
 
 ## Clone
 ```console
