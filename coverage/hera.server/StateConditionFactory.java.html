@@ -7,21 +7,21 @@ package hera.server;
 <span class="nc" id="L7">public class StateConditionFactory {</span>
 
   public static &lt;StateT&gt; StateCondition&lt;StateT&gt; when(final StateCondition&lt;StateT&gt; condition) {
-<span class="fc" id="L10">    return condition;</span>
+<span class="nc" id="L10">    return condition;</span>
   }
 
   @SuppressWarnings({
       &quot;unchecked&quot;, &quot;rawtypes&quot;
   })
   public static &lt;StateT&gt; StateCondition&lt;StateT&gt; when(final StateT... condition) {
-<span class="fc" id="L17">    return (state) -&gt; state.isState(condition);</span>
+<span class="nc" id="L17">    return (state) -&gt; state.isState(condition);</span>
   }
 
   @SuppressWarnings({
       &quot;unchecked&quot;, &quot;rawtypes&quot;
   })
   public static &lt;StateT&gt; StateCondition&lt;StateT&gt; not(final StateT... states) {
-<span class="pc bpc" id="L24" title="1 of 2 branches missed.">    return (state) -&gt; !state.isState(states);</span>
+<span class="nc bnc" id="L24" title="All 2 branches missed.">    return (state) -&gt; !state.isState(states);</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

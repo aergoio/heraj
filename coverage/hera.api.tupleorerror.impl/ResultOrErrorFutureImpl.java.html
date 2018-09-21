@@ -83,8 +83,8 @@ public class ResultOrErrorFutureImpl&lt;T&gt; implements ResultOrErrorFuture&lt;
 
   @Override
   public &lt;R&gt; ResultOrErrorFuture&lt;R&gt; map(Function1&lt;? super T, ? extends R&gt; f) {
-<span class="fc" id="L86">    CompletableFuture&lt;ResultOrError&lt;R&gt;&gt; next = deligate.thenApplyAsync(r -&gt; r.map(f));</span>
-<span class="fc" id="L87">    return new ResultOrErrorFutureImpl&lt;R&gt;(next);</span>
+<span class="nc" id="L86">    CompletableFuture&lt;ResultOrError&lt;R&gt;&gt; next = deligate.thenApplyAsync(r -&gt; r.map(f));</span>
+<span class="nc" id="L87">    return new ResultOrErrorFutureImpl&lt;R&gt;(next);</span>
   }
 
   @SuppressWarnings(&quot;unchecked&quot;)

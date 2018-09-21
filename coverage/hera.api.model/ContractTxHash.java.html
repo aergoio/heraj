@@ -4,6 +4,8 @@
 
 package hera.api.model;
 
+import java.util.Optional;
+
 public class ContractTxHash extends Hash {
 
   /**
@@ -13,7 +15,7 @@ public class ContractTxHash extends Hash {
    * @return created {@link ContractTxHash}
    */
   public static ContractTxHash of(final byte[] bytes) {
-<span class="fc" id="L16">    return of(bytes, ContractTxHash::new);</span>
+<span class="fc" id="L18">    return of(bytes, ContractTxHash::new);</span>
   }
 
   /**
@@ -23,12 +25,27 @@ public class ContractTxHash extends Hash {
    * @return created {@link ContractTxHash}
    */
   public static ContractTxHash of(final String encoded) {
-<span class="nc" id="L26">    return of(encoded, ContractTxHash::new);</span>
+<span class="nc" id="L28">    return of(encoded, ContractTxHash::new);</span>
   }
 
   public ContractTxHash(final byte[] value) {
-<span class="fc" id="L30">    super(value);</span>
-<span class="fc" id="L31">  }</span>
+<span class="fc" id="L32">    super(value);</span>
+<span class="fc" id="L33">  }</span>
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  @Override
+  public &lt;T&gt; Optional&lt;T&gt; adapt(Class&lt;T&gt; adaptor) {
+<span class="nc bnc" id="L38" title="All 2 branches missed.">    if (adaptor.isAssignableFrom(ContractTxHash.class)) {</span>
+<span class="nc" id="L39">      return (Optional&lt;T&gt;) Optional.of(this);</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">    } else if (adaptor.isAssignableFrom(Hash.class)) {</span>
+<span class="nc" id="L41">      return (Optional&lt;T&gt;) Optional.ofNullable(Hash.of(getValue()));</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">    } else if (adaptor.isAssignableFrom(TxHash.class)) {</span>
+<span class="nc" id="L43">      return (Optional&lt;T&gt;) Optional.ofNullable(TxHash.of(getValue()));</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">    } else if (adaptor.isAssignableFrom(BlockHash.class)) {</span>
+<span class="nc" id="L45">      return (Optional&lt;T&gt;) Optional.ofNullable(BlockHash.of(getValue()));</span>
+    }
+<span class="nc" id="L47">    return Optional.empty();</span>
+  }
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AccountOperation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api</a> &gt; <span class="el_source">AccountOperation.java</span></div><h1>AccountOperation.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.api;
+
+import static hera.api.tupleorerror.FunctionChain.fail;
+
+import hera.api.model.Account;
+import hera.api.model.AccountAddress;
+import hera.api.model.Authentication;
+import hera.api.tupleorerror.ResultOrError;
+import hera.exception.AdaptException;
+import java.util.List;
+
+public interface AccountOperation {
+
+  /**
+   * Get account list.
+   *
+   * @return account list or error
+   */
+  ResultOrError&lt;List&lt;Account&gt;&gt; list();
+
+  /**
+   * Create an account with password.
+   *
+   * @param password account password
+   * @return created account or error
+   */
+  ResultOrError&lt;Account&gt; create(String password);
+
+  /**
+   * Get account by address.
+   *
+   * @param address account address
+   * @return an account or error
+   */
+  ResultOrError&lt;Account&gt; get(AccountAddress address);
+
+  /**
+   * Get account by account.
+   *
+   * @param account account
+   * @return an account or error
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+  default ResultOrError&lt;Account&gt; get(Account account) {
+<span class="nc" id="L49">    return account.adapt(AccountAddress.class).map(a -&gt; get(a))</span>
+<span class="nc" id="L50">        .orElse(fail(new AdaptException(account.getClass(), AccountAddress.class)));</span>
+  }
+
+  /**
+   * Lock an account.
+   *
+   * @param authentication account authentication
+   * @return lock result or error
+   */
+  ResultOrError&lt;Boolean&gt; lock(Authentication authentication);
+
+  /**
+   * Unlock an account.
+   *
+   * @param authentication account authentication
+   * @return unlock result or error
+   */
+  ResultOrError&lt;Boolean&gt; unlock(Authentication authentication);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

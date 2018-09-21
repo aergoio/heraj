@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AccountAsyncOperation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api</a> &gt; <span class="el_source">AccountAsyncOperation.java</span></div><h1>AccountAsyncOperation.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.api;
+
+import static hera.api.tupleorerror.FunctionChain.fail;
+
+import hera.api.model.Account;
+import hera.api.model.AccountAddress;
+import hera.api.model.Authentication;
+import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.api.tupleorerror.ResultOrErrorFutureFactory;
+import hera.exception.AdaptException;
+import java.util.List;
+
+public interface AccountAsyncOperation {
+
+  /**
+   * Get account list asynchronously.
+   *
+   * @return future of account list or error
+   */
+  ResultOrErrorFuture&lt;List&lt;Account&gt;&gt; list();
+
+  /**
+   * Create an account with password asynchronously.
+   *
+   * @param password account password
+   * @return future of created account or error
+   */
+  ResultOrErrorFuture&lt;Account&gt; create(String password);
+
+  /**
+   * Get account by address asynchronously.
+   *
+   * @param address account address
+   * @return future of an account or error
+   */
+  ResultOrErrorFuture&lt;Account&gt; get(AccountAddress address);
+
+  /**
+   * Get account by account.
+   *
+   * @param account account
+   * @return future of an account or error
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+  default ResultOrErrorFuture&lt;Account&gt; get(Account account) {
+<span class="nc" id="L50">    return account.adapt(AccountAddress.class).map(a -&gt; get(a)).orElse(ResultOrErrorFutureFactory</span>
+<span class="nc" id="L51">        .supply(() -&gt; fail(new AdaptException(account.getClass(), AccountAddress.class))));</span>
+  }
+
+  /**
+   * Lock an account asynchronously.
+   *
+   * @param authentication account authentication
+   * @return future of lock result or error
+   */
+  ResultOrErrorFuture&lt;Boolean&gt; lock(Authentication authentication);
+
+  /**
+   * Unlock an account asynchronously.
+   *
+   * @param authentication account authentication
+   * @return future of unlock result or error
+   */
+  ResultOrErrorFuture&lt;Boolean&gt; unlock(Authentication authentication);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -15,23 +15,23 @@ import org.slf4j.Logger;
 
 public class StateMachine&lt;StateT&gt; {
 
-<span class="fc" id="L18">  protected final Logger logger = getLogger(getClass());</span>
+<span class="nc" id="L18">  protected final Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L20">  protected ReentrantReadWriteLock lock = new ReentrantReadWriteLock();</span>
+<span class="nc" id="L20">  protected ReentrantReadWriteLock lock = new ReentrantReadWriteLock();</span>
 
-<span class="fc" id="L22">  protected Collection&lt;StateChangeListener&lt;StateT&gt;&gt; listeners = new LinkedHashSet&lt;&gt;();</span>
+<span class="nc" id="L22">  protected Collection&lt;StateChangeListener&lt;StateT&gt;&gt; listeners = new LinkedHashSet&lt;&gt;();</span>
 
   protected StateT state;
 
   protected Object[] args;
 
   public StateMachine(final StateT initialState) {
-<span class="fc" id="L29">    super();</span>
-<span class="fc" id="L30">    this.state = initialState;</span>
-<span class="fc" id="L31">  }</span>
+<span class="nc" id="L29">    super();</span>
+<span class="nc" id="L30">    this.state = initialState;</span>
+<span class="nc" id="L31">  }</span>
 
   public ReadWriteLock getLock() {
-<span class="fc" id="L34">    return lock;</span>
+<span class="nc" id="L34">    return lock;</span>
   }
 
   public void addListener(final StateChangeListener&lt;StateT&gt; listener) {
@@ -51,22 +51,22 @@ public class StateMachine&lt;StateT&gt; {
    */
   @SuppressWarnings(&quot;unchecked&quot;)
   public boolean isState(final StateT... states) {
-<span class="fc" id="L54">    StateT temp = null;</span>
-<span class="fc" id="L55">    lock.readLock().lock();</span>
+<span class="nc" id="L54">    StateT temp = null;</span>
+<span class="nc" id="L55">    lock.readLock().lock();</span>
     try {
-<span class="fc" id="L57">      temp = this.state;</span>
+<span class="nc" id="L57">      temp = this.state;</span>
     } finally {
-<span class="fc" id="L59">      lock.readLock().unlock();</span>
+<span class="nc" id="L59">      lock.readLock().unlock();</span>
     }
 
-<span class="fc bfc" id="L62" title="All 2 branches covered.">    for (final StateT st : states) {</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">    for (final StateT st : states) {</span>
 
-<span class="fc bfc" id="L64" title="All 2 branches covered.">      if (temp == st) {</span>
-<span class="fc" id="L65">        return true;</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">      if (temp == st) {</span>
+<span class="nc" id="L65">        return true;</span>
       }
     }
 
-<span class="fc" id="L69">    return false;</span>
+<span class="nc" id="L69">    return false;</span>
   }
 
   /**
@@ -77,29 +77,29 @@ public class StateMachine&lt;StateT&gt; {
   @SuppressWarnings(&quot;unchecked&quot;)
   public void waitState(final StateT... states) {
     while (true) {
-<span class="fc" id="L80">      boolean isLocked = false;</span>
-<span class="fc" id="L81">      lock.readLock().lock();</span>
+<span class="nc" id="L80">      boolean isLocked = false;</span>
+<span class="nc" id="L81">      lock.readLock().lock();</span>
       try {
-<span class="fc" id="L83">        isLocked = true;</span>
+<span class="nc" id="L83">        isLocked = true;</span>
 
-<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (isState(states)) {</span>
-<span class="fc" id="L86">          return;</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        if (isState(states)) {</span>
+<span class="nc" id="L86">          return;</span>
         }
-<span class="fc" id="L88">        synchronized (this) {</span>
-<span class="fc" id="L89">          lock.readLock().unlock();</span>
-<span class="fc" id="L90">          isLocked = false;</span>
+<span class="nc" id="L88">        synchronized (this) {</span>
+<span class="nc" id="L89">          lock.readLock().unlock();</span>
+<span class="nc" id="L90">          isLocked = false;</span>
           try {
-<span class="fc" id="L92">            wait();</span>
+<span class="nc" id="L92">            wait();</span>
 <span class="nc" id="L93">          } catch (final InterruptedException e) {</span>
 <span class="nc" id="L94">            logger.warn(&quot;Interrupt waiting&quot;);</span>
-<span class="fc" id="L95">          }</span>
-<span class="fc" id="L96">        }</span>
+<span class="nc" id="L95">          }</span>
+<span class="nc" id="L96">        }</span>
       } finally {
-<span class="fc bfc" id="L98" title="All 2 branches covered.">        if (isLocked) {</span>
-<span class="fc" id="L99">          lock.readLock().unlock();</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">        if (isLocked) {</span>
+<span class="nc" id="L99">          lock.readLock().unlock();</span>
         }
       }
-<span class="fc" id="L102">    }</span>
+<span class="nc" id="L102">    }</span>
   }
 
   /**
@@ -141,20 +141,20 @@ public class StateMachine&lt;StateT&gt; {
    * @param args arguments which next state have
    */
   public void changeState(final StateT state, final Object... args) {
-<span class="fc" id="L144">    lock.writeLock().lock();</span>
+<span class="nc" id="L144">    lock.writeLock().lock();</span>
     try {
-<span class="fc" id="L146">      final StateT old = this.state;</span>
-<span class="fc" id="L147">      this.state = state;</span>
-<span class="fc" id="L148">      this.args = args;</span>
-<span class="fc" id="L149">      logger.info(&quot;Status: {} -&gt; {}&quot;, old, this.state);</span>
-<span class="fc" id="L150">      synchronized (this) {</span>
-<span class="fc" id="L151">        notifyAll();</span>
-<span class="fc" id="L152">      }</span>
-<span class="fc" id="L153">      fireChangeEvent(old, this.state, args);</span>
+<span class="nc" id="L146">      final StateT old = this.state;</span>
+<span class="nc" id="L147">      this.state = state;</span>
+<span class="nc" id="L148">      this.args = args;</span>
+<span class="nc" id="L149">      logger.info(&quot;Status: {} -&gt; {}&quot;, old, this.state);</span>
+<span class="nc" id="L150">      synchronized (this) {</span>
+<span class="nc" id="L151">        notifyAll();</span>
+<span class="nc" id="L152">      }</span>
+<span class="nc" id="L153">      fireChangeEvent(old, this.state, args);</span>
     } finally {
-<span class="fc" id="L155">      lock.writeLock().unlock();</span>
+<span class="nc" id="L155">      lock.writeLock().unlock();</span>
     }
-<span class="fc" id="L157">  }</span>
+<span class="nc" id="L157">  }</span>
 
   /**
    * Change current state to {@code state} if condition is true.
@@ -170,15 +170,15 @@ public class StateMachine&lt;StateT&gt; {
    */
   public boolean changeState(final StateT state, final StateCondition&lt;StateT&gt; condition,
       final Object... args) {
-<span class="fc" id="L173">    lock.writeLock().lock();</span>
+<span class="nc" id="L173">    lock.writeLock().lock();</span>
     try {
-<span class="fc bfc" id="L175" title="All 2 branches covered.">      if (!condition.evaluate(this)) {</span>
-<span class="fc" id="L176">        return false;</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">      if (!condition.evaluate(this)) {</span>
+<span class="nc" id="L176">        return false;</span>
       }
-<span class="fc" id="L178">      changeState(state);</span>
-<span class="fc" id="L179">      return true;</span>
+<span class="nc" id="L178">      changeState(state);</span>
+<span class="nc" id="L179">      return true;</span>
     } finally {
-<span class="fc" id="L181">      lock.writeLock().unlock();</span>
+<span class="nc" id="L181">      lock.writeLock().unlock();</span>
     }
   }
 
@@ -209,14 +209,14 @@ public class StateMachine&lt;StateT&gt; {
 <span class="nc" id="L209">  }</span>
 
   protected void fireChangeEvent(final StateT from, final StateT to, final Object... args) {
-<span class="pc bpc" id="L212" title="1 of 2 branches missed.">    for (final StateChangeListener&lt;StateT&gt; listener : listeners) {</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">    for (final StateChangeListener&lt;StateT&gt; listener : listeners) {</span>
       try {
 <span class="nc" id="L214">        listener.stateChanged(from, to, args);</span>
 <span class="nc" id="L215">      } catch (final Throwable e) {</span>
 <span class="nc" id="L216">        logger.debug(&quot;Unexpected exception in listener&quot;, e);</span>
 <span class="nc" id="L217">      }</span>
 <span class="nc" id="L218">    }</span>
-<span class="fc" id="L219">  }</span>
+<span class="nc" id="L219">  }</span>
 
   @Override
   public String toString() {

@@ -78,7 +78,7 @@ public class AergoKey implements BlockChainKeyPair {
 <span class="fc" id="L78">    System.arraycopy(xbyteArray, extraBytesCount, rawAddress, 0,</span>
         xbyteArray.length - extraBytesCount);
 <span class="fc" id="L80">    rawAddress[ADDRESS_LENGTH - 1] =</span>
-<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        (byte) (ecPublicKey.getQ().getY().toBigInteger().testBit(0) ? 0x03 : 0x02);</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        (byte) (ecPublicKey.getQ().getY().toBigInteger().testBit(0) ? 0x03 : 0x02);</span>
 <span class="fc" id="L82">    this.address = AccountAddress.of(rawAddress);</span>
 <span class="fc" id="L83">  }</span>
 

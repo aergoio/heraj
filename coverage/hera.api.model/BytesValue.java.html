@@ -23,8 +23,8 @@ import lombok.Getter;
 public class BytesValue implements Supplier&lt;InputStream&gt;, Adaptor {
 
   protected static &lt;T&gt; T of(final byte[] bytes, final Function&lt;byte[], T&gt; factory) {
-<span class="fc bfc" id="L26" title="All 2 branches covered.">    if (null == bytes) {</span>
-<span class="fc" id="L27">      return factory.apply(null);</span>
+<span class="pc bpc" id="L26" title="1 of 2 branches missed.">    if (null == bytes) {</span>
+<span class="nc" id="L27">      return factory.apply(null);</span>
     }
 <span class="fc" id="L29">    return factory.apply(Arrays.copyOf(bytes, bytes.length));</span>
   }

@@ -16,12 +16,12 @@ import static hera.server.StateConditionFactory.when;
 
 import hera.util.StringUtils;
 
-<span class="fc" id="L19">public class ThreadServer extends AbstractServer implements Runnable {</span>
+<span class="nc" id="L19">public class ThreadServer extends AbstractServer implements Runnable {</span>
 
   /**
    * Thread for current server.
    */
-<span class="fc" id="L24">  protected Thread thread = null;</span>
+<span class="nc" id="L24">  protected Thread thread = null;</span>
 
   /**
    * Template method for execution.
@@ -33,33 +33,33 @@ import hera.util.StringUtils;
    */
   @Override
   public void run() {
-<span class="fc" id="L36">    logger.trace(&quot;Starting {} server...&quot;, getName());</span>
+<span class="nc" id="L36">    logger.trace(&quot;Starting {} server...&quot;, getName());</span>
 
     // Prevent halt.
-<span class="fc" id="L39">    state.getLock().writeLock().lock();</span>
+<span class="nc" id="L39">    state.getLock().writeLock().lock();</span>
     try {
-<span class="pc bpc" id="L41" title="1 of 2 branches missed.">      if (isStatus(DOWNING)) {</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">      if (isStatus(DOWNING)) {</span>
 <span class="nc" id="L42">        logger.info(&quot;Starting is cancelled.&quot;);</span>
 <span class="nc" id="L43">        changeStatus(TERMINATED);</span>
 <span class="nc" id="L44">        return;</span>
       }
-<span class="fc" id="L46">      logger.debug(&quot;Doing pre-process...&quot;);</span>
-<span class="fc" id="L47">      changeStatus(INITIALIZING);</span>
+<span class="nc" id="L46">      logger.debug(&quot;Doing pre-process...&quot;);</span>
+<span class="nc" id="L47">      changeStatus(INITIALIZING);</span>
 <span class="nc" id="L48">    } catch (final Throwable e) {</span>
 <span class="nc" id="L49">      logger.error(&quot;Server got unexpected exception:&quot;, e);</span>
     } finally {
-<span class="fc" id="L51">      state.getLock().writeLock().unlock();</span>
+<span class="nc" id="L51">      state.getLock().writeLock().unlock();</span>
     }
 
-<span class="fc" id="L54">    clearException();</span>
+<span class="nc" id="L54">    clearException();</span>
     try {
 <span class="nc" id="L56">      initialize();</span>
 <span class="nc" id="L57">      logger.info(&quot;Pre-process done.&quot;);</span>
-<span class="fc" id="L58">    } catch (final Throwable e) {</span>
-<span class="fc" id="L59">      this.exception = e;</span>
-<span class="fc" id="L60">      logger.error(&quot;Exception occurred in pre-process.&quot;, e);</span>
-<span class="fc" id="L61">      changeStatus(TERMINATED);</span>
-<span class="fc" id="L62">      return;</span>
+<span class="nc" id="L58">    } catch (final Throwable e) {</span>
+<span class="nc" id="L59">      this.exception = e;</span>
+<span class="nc" id="L60">      logger.error(&quot;Exception occurred in pre-process.&quot;, e);</span>
+<span class="nc" id="L61">      changeStatus(TERMINATED);</span>
+<span class="nc" id="L62">      return;</span>
 <span class="nc" id="L63">    }</span>
 
 <span class="nc" id="L65">    state.getLock().writeLock().lock();</span>
@@ -93,8 +93,8 @@ import hera.util.StringUtils;
     }
 <span class="nc" id="L94">  }</span>
 
-<span class="fc" id="L96">  protected final ServerStatus[] loopCondition = new ServerStatus[]{PROCESSING, SKIP};</span>
-<span class="fc" id="L97">  protected final ServerStatus[] processingCondition = new ServerStatus[]{PROCESSING};</span>
+<span class="nc" id="L96">  protected final ServerStatus[] loopCondition = new ServerStatus[]{PROCESSING, SKIP};</span>
+<span class="nc" id="L97">  protected final ServerStatus[] processingCondition = new ServerStatus[]{PROCESSING};</span>
 
   /**
    * Loop for task.
@@ -146,25 +146,25 @@ import hera.util.StringUtils;
    * @param isBlock wait flag
    */
   public void boot(final boolean isBlock) {
-<span class="pc bpc" id="L149" title="1 of 2 branches missed.">    if (!state.changeState(BOOTING, when(TERMINATED))) {</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">    if (!state.changeState(BOOTING, when(TERMINATED))) {</span>
 <span class="nc" id="L150">      logger.error(&quot;{} is not terminated status. status: {}&quot;, this, state);</span>
 
 <span class="nc" id="L152">      throw new IllegalStateException();</span>
     }
 
-<span class="fc" id="L155">    thread = new Thread(this, getName());</span>
-<span class="fc" id="L156">    logger.debug(&quot;Starting {}...&quot;, this);</span>
-<span class="fc" id="L157">    thread.start();</span>
+<span class="nc" id="L155">    thread = new Thread(this, getName());</span>
+<span class="nc" id="L156">    logger.debug(&quot;Starting {}...&quot;, this);</span>
+<span class="nc" id="L157">    thread.start();</span>
 
-<span class="fc" id="L159">    logger.trace(&quot;Staring post-process for boot.&quot;);</span>
-<span class="fc" id="L160">    postBoot();</span>
-<span class="pc bpc" id="L161" title="1 of 2 branches missed.">    if (isBlock) {</span>
-<span class="fc" id="L162">      waitStatus(PROCESSING, TERMINATED);</span>
+<span class="nc" id="L159">    logger.trace(&quot;Staring post-process for boot.&quot;);</span>
+<span class="nc" id="L160">    postBoot();</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">    if (isBlock) {</span>
+<span class="nc" id="L162">      waitStatus(PROCESSING, TERMINATED);</span>
     }
-<span class="fc" id="L164">  }</span>
+<span class="nc" id="L164">  }</span>
 
   protected void postBoot() {
-<span class="fc" id="L167">  }</span>
+<span class="nc" id="L167">  }</span>
 
   @Override
   public void down() {
@@ -177,9 +177,9 @@ import hera.util.StringUtils;
    * @param isBlock flag if wait to be done
    */
   public void down(final boolean isBlock) {
-<span class="pc bpc" id="L180" title="1 of 2 branches missed.">    if (!state.changeState(DOWNING, when(not(DOWNING, TERMINATING, TERMINATED)))) {</span>
-<span class="fc" id="L181">      logger.error(&quot;{} is already stopped.&quot;, this);</span>
-<span class="fc" id="L182">      return;</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">    if (!state.changeState(DOWNING, when(not(DOWNING, TERMINATING, TERMINATED)))) {</span>
+<span class="nc" id="L181">      logger.error(&quot;{} is already stopped.&quot;, this);</span>
+<span class="nc" id="L182">      return;</span>
     }
 
 <span class="nc" id="L185">    logger.trace(&quot;Staring pre-process for down...&quot;);</span>
@@ -201,7 +201,7 @@ import hera.util.StringUtils;
 
   @Override
   public String toString() {
-<span class="fc" id="L204">    return &quot;Server[&quot; + getName() + &quot;]&quot;;</span>
+<span class="nc" id="L204">    return &quot;Server[&quot; + getName() + &quot;]&quot;;</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
