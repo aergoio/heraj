@@ -110,7 +110,7 @@ public class AergoKey implements BlockChainKeyPair {
   public String getEncodedPrivateKey() {
     try {
       final org.bouncycastle.jce.interfaces.ECPrivateKey ecPrivateKey =
-          (org.bouncycastle.jce.interfaces.ECPrivateKey) ecdsakey;
+          (org.bouncycastle.jce.interfaces.ECPrivateKey) getPrivateKey();
       final BigInteger d = ecPrivateKey.getD();
       final byte[] mayHaveExtraSignByte = d.toByteArray();
       final int byteLen = (d.bitLength() + 7) >>> 3;
