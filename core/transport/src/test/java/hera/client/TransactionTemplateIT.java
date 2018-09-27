@@ -19,6 +19,7 @@ import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.util.HexUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -79,18 +80,17 @@ public class TransactionTemplateIT extends AbstractIT {
 
   @Test
   public void testSignLocallyAndCommit() throws Exception {
-    accountTemplate.unlock(Authentication.of(sender.getAddress(), PASSWORD)).getResult();
+    final AergoKey key = new AergoKeyGenerator().create();
 
     final Transaction transaction = new Transaction();
     transaction.setNonce(1);
     transaction.setAmount(30);
-    transaction.setSender(sender.getAddress());
+    transaction.setSender(key.getAddress());
     transaction.setRecipient(recipient.getAddress());
 
     final SignTemplate signTemplate = new SignTemplate();
 
     final Hash hashWithoutSign = transaction.calculateHash();
-    final AergoKey key = new AergoKeyGenerator().create();
     final BytesValue sign = signTemplate.sign(key, hashWithoutSign);
     transaction.setSignature(Signature.of(sign, null));
     final TxHash hash = transaction.calculateHash();
@@ -99,16 +99,12 @@ public class TransactionTemplateIT extends AbstractIT {
     logger.debug("Signature: {}", signature);
     transaction.setSignature(signature);
 
-    transactionTemplate.commit(transaction);
-
-    final Transaction queried =
-        transactionTemplate.getTransaction(signature.getTxHash()).getResult();
+    final Transaction queried = transactionTemplate.commit(transaction)
+        .flatMap(r -> transactionTemplate.getTransaction(signature.getTxHash())).getResult();
     assertNotNull(queried);
-    assertEquals(sender.getAddress(), queried.getSender());
+    assertEquals(key.getAddress(), queried.getSender());
     assertEquals(recipient.getAddress(), queried.getRecipient());
     logger.debug("Transaction: {}", queried);
-
-    accountTemplate.lock(Authentication.of(sender.getAddress(), PASSWORD)).getResult();
   }
 
   @Test
@@ -123,7 +119,7 @@ public class TransactionTemplateIT extends AbstractIT {
     transaction.setRecipient(recipient.getAddress());
 
     final TxHash hash = transactionTemplate.send(transaction).getResult();
-    logger.debug("Hash: {}", hash);
+    logger.debug("Hash: {}", HexUtils.encode(hash.getValue()));
     assertNotNull(hash);
 
     final Transaction queried = transactionTemplate.getTransaction(hash).getResult();

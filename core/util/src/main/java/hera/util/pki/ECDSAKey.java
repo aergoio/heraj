@@ -6,7 +6,6 @@ package hera.util.pki;
 
 import static hera.util.IoUtils.stream;
 import static hera.util.pki.RFC6979Utils.bits2int;
-import static hera.util.pki.RFC6979Utils.concat;
 import static hera.util.pki.RFC6979Utils.generatek;
 import static java.security.Security.addProvider;
 import static org.bouncycastle.jce.ECNamedCurveTable.getParameterSpec;
@@ -20,7 +19,6 @@ import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.util.Arrays;
 import javax.crypto.Mac;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -34,7 +32,7 @@ import org.bouncycastle.math.ec.ECPoint;
 import org.slf4j.Logger;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-public class ECDSAKey implements KeyPair {
+public class ECDSAKey {
 
   protected static final String KEY_ALGORITHM = "ECDSA";
 
@@ -48,7 +46,7 @@ public class ECDSAKey implements KeyPair {
 
   protected static final ECNamedCurveParameterSpec ecSpec = getParameterSpec(CURVE_NAME);
 
-  protected static final ECDomainParameters ecParams = new ECDomainParameters(ecSpec.getCurve(),
+  public static final ECDomainParameters ecParams = new ECDomainParameters(ecSpec.getCurve(),
       ecSpec.getG(), ecSpec.getN(), ecSpec.getH(), ecSpec.getSeed());
 
   static {
@@ -84,19 +82,20 @@ public class ECDSAKey implements KeyPair {
   @Getter
   protected final PublicKey publicKey;
 
-  @Override
-  public byte[] sign(final InputStream plainText) {
+  /**
+   * Sign to plain text.
+   *
+   * @param plainText text to sign to
+   *
+   * @return signature ECDSA signature
+   */
+  public ECDSASignature sign(final InputStream plainText) {
     try {
       final byte[] message = toByteArray(plainText);
       final ECDSASignature signature =
           sign(((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD(), message);
       logger.debug("ECDSASignature signature: {}", signature);
-
-      final int nByteslen = (ecParams.getN().bitLength() + 7) >>> 3;
-      final byte[] rByteArray = adjustToLen(signature.getR().toByteArray(), nByteslen);
-      final byte[] sByteArray = adjustToLen(signature.getS().toByteArray(), nByteslen);
-
-      return concat(rByteArray, sByteArray);
+      return signature;
     } catch (final Throwable e) {
       throw new SignException(e);
     }
@@ -147,17 +146,17 @@ public class ECDSAKey implements KeyPair {
     return ECDSASignature.of(r, s);
   }
 
-  @Override
-  public boolean verify(final InputStream plainText, final byte[] signature) {
+  /**
+   * Check if {@code signature} is valid for {@code plainText}.
+   *
+   * @param plainText plain text
+   * @param signature ECDSA signature
+   *
+   * @return if valid
+   */
+  public boolean verify(final InputStream plainText, final ECDSASignature signature) {
     try {
-      final int nByteslen = (ecParams.getN().bitLength() + 7) >>> 3;
-      final byte[] rByteArray = Arrays.copyOfRange(signature, 0, nByteslen);
-      final byte[] sByteArray = Arrays.copyOfRange(signature, nByteslen, signature.length);
-      final ECDSASignature recoveredSignature =
-          ECDSASignature.of(new BigInteger(1, rByteArray), new BigInteger(1, sByteArray));
-      logger.debug("Recovered signature: {}", recoveredSignature);
-
-      return verify(getPublicKey(), toByteArray(plainText), recoveredSignature);
+      return verify(getPublicKey(), toByteArray(plainText), signature);
     } catch (final Throwable e) {
       throw new SignException(e);
     }
@@ -231,19 +230,6 @@ public class ECDSAKey implements KeyPair {
     final ByteArrayOutputStream os = new ByteArrayOutputStream();
     stream(plainText, (bytes, offset, length) -> os.write(bytes));
     return os.toByteArray();
-  }
-
-  protected byte[] adjustToLen(final byte[] source, final int length) {
-    final byte[] destination = new byte[length];
-    final int diff = source.length - length;
-    if (diff < 0) { // fill extra diff bytes with 0
-      System.arraycopy(source, 0, destination, Math.abs(diff), source.length);
-    } else if (diff > 0) { // copy rightmost length bytes
-      System.arraycopy(source, diff, destination, 0, source.length - diff);
-    } else { // diff == 0
-      System.arraycopy(source, 0, destination, 0, source.length);
-    }
-    return destination;
   }
 
 }

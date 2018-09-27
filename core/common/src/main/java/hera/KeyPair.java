@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.util.pki;
+package hera;
 
 import java.io.InputStream;
 import java.security.PrivateKey;
@@ -42,5 +42,19 @@ public interface KeyPair {
    * @return if valid
    */
   boolean verify(final InputStream plainText, final byte[] signature);
+
+  /**
+   * Return encoded private key.
+   *
+   * @return an encoded private key
+   */
+  String getEncodedPrivateKey();
+
+  /**
+   * Return address corresponding to public key in a encoded form.
+   *
+   * @return an encoded address
+   */
+  String getEncodedAddress();
 
 }

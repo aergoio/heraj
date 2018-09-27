@@ -4,7 +4,6 @@
 
 package hera.util.pki;
 
-import static hera.util.HexUtils.dump;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -15,7 +14,6 @@ import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import org.bouncycastle.jce.interfaces.ECPrivateKey;
 import org.bouncycastle.jce.interfaces.ECPublicKey;
-import org.bouncycastle.util.Arrays;
 import org.junit.Test;
 
 public class ECDSAKeyTest extends AbstractTestCase {
@@ -49,18 +47,24 @@ public class ECDSAKeyTest extends AbstractTestCase {
   public void testSign() throws Exception {
     final ECDSAKey key = ECDSAKey.recover(PRIVATE_KEY);
     final byte[] message = Base58Utils.decode(MESSAGE);
-    final byte[] expected = Base58Utils.decode(
-        "5zTFN6emy1jKwRfR2AvqrVX4v3xukr9xZzvf3LADTVYr6viuW14u41yErh2ytYgz8DkzvwhnC65819H3X1RzTMqG");
-    final byte[] actual = key.sign(new ByteArrayInputStream(message));
-    assertTrue(Arrays.areEqual(expected, actual));
+    final ECDSASignature expected = new ECDSASignature(
+        new BigInteger(
+            "112903116466171247254957852742074885675578841047850429300671823964741881940578"),
+        new BigInteger(
+            "48378612163565051950304976934001209911695304131357129876678389874012900275807"));
+    final ECDSASignature actual = key.sign(new ByteArrayInputStream(message));
+    assertEquals(expected, actual);
   }
 
   @Test
   public void testVerify() throws Exception {
     final ECDSAKey key = ECDSAKey.recover(PRIVATE_KEY);
     final byte[] message = Base58Utils.decode(MESSAGE);
-    final byte[] signature = Base58Utils.decode(
-        "5zTFN6emy1jKwRfR2AvqrVX4v3xukr9xZzvf3LADTVYr6viuW14u41yErh2ytYgz8DkzvwhnC65819H3X1RzTMqG");
+    final ECDSASignature signature = new ECDSASignature(
+        new BigInteger(
+            "112903116466171247254957852742074885675578841047850429300671823964741881940578"),
+        new BigInteger(
+            "48378612163565051950304976934001209911695304131357129876678389874012900275807"));
     assertTrue(key.verify(new ByteArrayInputStream(message), signature));
   }
 
@@ -70,25 +74,9 @@ public class ECDSAKeyTest extends AbstractTestCase {
       final ECDSAKey key = new ECDSAKeyGenerator().create();
       final String plainText = randomUUID().toString();
       logger.debug("Plain text: {}", plainText);
-      final byte[] signature = key.sign(new ByteArrayInputStream(plainText.getBytes()));
-      if (logger.isDebugEnabled()) {
-        logger.debug("Signed:\n{}", dump(signature));
-      }
+      final ECDSASignature signature = key.sign(new ByteArrayInputStream(plainText.getBytes()));
       assertTrue(key.verify(new ByteArrayInputStream(plainText.getBytes()), signature));
     }
-  }
-
-  @Test
-  public void testECDSASign() throws Exception {
-    final ECDSAKey key = ECDSAKey.recover(PRIVATE_KEY);
-    byte[] message = Base58Utils.decode(MESSAGE);
-    final ECDSASignature expected = new ECDSASignature(
-        new BigInteger(
-            "112903116466171247254957852742074885675578841047850429300671823964741881940578"),
-        new BigInteger(
-            "48378612163565051950304976934001209911695304131357129876678389874012900275807"));
-    final ECDSASignature actual = key.sign(((ECPrivateKey) key.getPrivateKey()).getD(), message);
-    assertEquals(expected, actual);
   }
 
 }

@@ -4,8 +4,8 @@
 
 package hera.api;
 
+import hera.KeyPair;
 import hera.api.model.BytesValue;
-import hera.util.pki.KeyPair;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.function.Supplier;
