@@ -32,6 +32,8 @@ public class TransactionTemplateIT extends AbstractIT {
 
   protected AccountTemplate accountTemplate = null;
 
+  protected SignTemplate signTemplate = null;
+
   protected TransactionTemplate transactionTemplate = null;
 
   @Before
@@ -40,6 +42,7 @@ public class TransactionTemplateIT extends AbstractIT {
     accountTemplate = new AccountTemplate(channel);
     sender = accountTemplate.create(PASSWORD).getResult();
     recipient = accountTemplate.create(PASSWORD).getResult();
+    signTemplate = new SignTemplate(channel);
     transactionTemplate = new TransactionTemplate(channel);
   }
 
@@ -55,7 +58,7 @@ public class TransactionTemplateIT extends AbstractIT {
     transaction.setSender(sender.getAddress());
     transaction.setRecipient(recipient.getAddress());
 
-    Signature signature = transactionTemplate.sign(transaction).getResult();
+    Signature signature = signTemplate.sign(transaction).getResult();
     assertNotNull(signature);
     assertNotNull(signature.getSign());
     assertNotNull(signature.getTxHash());
