@@ -10,6 +10,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import hera.api.Base58Transformer;
 import hera.api.Transformer;
 import hera.api.model.AccountAddress;
+import hera.api.model.BytesValue;
 import hera.exception.HerajException;
 import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSASignature;
@@ -101,8 +102,8 @@ public class AergoKey implements KeyPair {
   }
 
   @Override
-  public byte[] sign(InputStream plainText) {
-    return serialize(ecdsakey.sign(plainText));
+  public BytesValue sign(InputStream plainText) {
+    return BytesValue.of(serialize(ecdsakey.sign(plainText)));
   }
 
   protected byte[] serialize(final ECDSASignature signature) {
@@ -134,7 +135,7 @@ public class AergoKey implements KeyPair {
   }
 
   @Override
-  public boolean verify(InputStream plainText, byte[] signature) {
+  public boolean verify(final InputStream plainText, final BytesValue signature) {
     // TODO : not yet implemented, do we need it?
     return true;
   }

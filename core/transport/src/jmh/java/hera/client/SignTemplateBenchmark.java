@@ -6,7 +6,7 @@ package hera.client;
 
 import static java.util.UUID.randomUUID;
 
-import hera.api.SignTemplate;
+import hera.api.SignLocalTemplate;
 import hera.api.model.AccountAddress;
 import hera.api.model.Hash;
 import hera.api.model.Transaction;
@@ -29,7 +29,7 @@ public class SignTemplateBenchmark {
   @State(Scope.Thread)
   public static class User {
 
-    protected SignTemplate signTemplate;
+    protected SignLocalTemplate signTemplate;
 
     protected AergoKey senderKey;
 
@@ -37,7 +37,7 @@ public class SignTemplateBenchmark {
 
     @Setup(Level.Trial)
     public synchronized void setUp() throws Exception {
-      signTemplate = new SignTemplate();
+      signTemplate = new SignLocalTemplate(senderKey);
       senderKey = new AergoKeyGenerator().create();
     }
 
@@ -48,8 +48,7 @@ public class SignTemplateBenchmark {
       transaction.setSender(AccountAddress.of(randomUUID().toString().getBytes()));
       transaction.setRecipient(AccountAddress.of(randomUUID().toString().getBytes()));
 
-      final Hash hashWithoutSign = transaction.calculateHash();
-      signTemplate.sign(senderKey, hashWithoutSign);
+      signTemplate.sign(transaction);
     }
   }
 

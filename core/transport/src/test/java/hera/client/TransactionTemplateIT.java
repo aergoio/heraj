@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import hera.api.SignTemplate;
+import hera.api.SignLocalTemplate;
 import hera.api.model.Account;
 import hera.api.model.Authentication;
 import hera.api.model.BytesValue;
@@ -88,16 +88,10 @@ public class TransactionTemplateIT extends AbstractIT {
     transaction.setSender(key.getAddress());
     transaction.setRecipient(recipient.getAddress());
 
-    final SignTemplate signTemplate = new SignTemplate();
-
-    final Hash hashWithoutSign = transaction.calculateHash();
-    final BytesValue sign = signTemplate.sign(key, hashWithoutSign);
-    transaction.setSignature(Signature.of(sign, null));
-    final TxHash hash = transaction.calculateHash();
-
-    final Signature signature = Signature.of(sign, hash);
-    logger.debug("Signature: {}", signature);
+    final SignLocalTemplate signTemplate = new SignLocalTemplate(key);
+    final Signature signature = signTemplate.sign(transaction).getResult();
     transaction.setSignature(signature);
+    logger.debug("Signature: {}", transaction.getSignature());
 
     final Transaction queried = transactionTemplate.commit(transaction)
         .flatMap(r -> transactionTemplate.getTransaction(signature.getTxHash())).getResult();

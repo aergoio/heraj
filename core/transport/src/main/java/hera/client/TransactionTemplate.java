@@ -43,6 +43,15 @@ public class TransactionTemplate implements TransactionOperation {
     }
   }
 
+  /**
+   * Sign for transaction.
+   *
+   * @param transaction transaction to sign
+   * @return signing result or error
+   *
+   * @deprecated please use {@link SignTemplate#sign(Transaction)}.
+   */
+  @Deprecated
   @Override
   public ResultOrError<Signature> sign(final Transaction transaction) {
     try {
@@ -52,6 +61,15 @@ public class TransactionTemplate implements TransactionOperation {
     }
   }
 
+  /**
+   * Verify transaction.
+   *
+   * @param transaction transaction to verify
+   * @return verify result or error
+   *
+   * @deprecated please use {@link SignTemplate#verify(Transaction)}
+   */
+  @Deprecated
   @Override
   public ResultOrError<Boolean> verify(final Transaction transaction) {
     try {

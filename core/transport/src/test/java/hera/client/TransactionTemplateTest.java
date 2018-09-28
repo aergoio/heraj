@@ -25,6 +25,7 @@ import types.Blockchain;
 import types.Rpc.CommitResult;
 import types.Rpc.VerifyResult;
 
+@SuppressWarnings("unchecked")
 @PrepareForTest({AergoRPCServiceBlockingStub.class, Blockchain.Tx.class, VerifyResult.class,
     CommitResult.class})
 public class TransactionTemplateTest extends AbstractTestCase {
@@ -43,6 +44,7 @@ public class TransactionTemplateTest extends AbstractTestCase {
     assertNotNull(transaction);
   }
 
+  @SuppressWarnings("deprecation")
   @Test
   public void testSign() throws Exception {
     ResultOrErrorFuture<Signature> futureMock = mock(ResultOrErrorFuture.class);
@@ -56,6 +58,7 @@ public class TransactionTemplateTest extends AbstractTestCase {
     assertNotNull(signature);
   }
 
+  @SuppressWarnings("deprecation")
   @Test
   public void testVerify() throws Exception {
     ResultOrErrorFuture<Boolean> futureMock = mock(ResultOrErrorFuture.class);

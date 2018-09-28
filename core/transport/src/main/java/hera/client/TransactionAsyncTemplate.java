@@ -87,6 +87,15 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
     return nextFuture;
   }
 
+  /**
+   * Sign for transaction asynchronously.
+   *
+   * @param transaction transaction to sign
+   * @return future of signing result or error
+   *
+   * @deprecated please use {@link SignAsyncTemplate#sign(Transaction)}.
+   */
+  @Deprecated
   @Override
   public ResultOrErrorFuture<Signature> sign(final Transaction transaction) {
     ResultOrErrorFuture<Signature> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
@@ -108,6 +117,15 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
     return nextFuture;
   }
 
+  /**
+   * Verify transaction asynchronously.
+   *
+   * @param transaction transaction to verify
+   * @return future of verify result or error
+   *
+   * @deprecated please use {@link SignAsyncTemplate#verify(Transaction)}.
+   */
+  @Deprecated
   @Override
   public ResultOrErrorFuture<Boolean> verify(final Transaction transaction) {
     ResultOrErrorFuture<Boolean> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();

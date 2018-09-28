@@ -10,7 +10,6 @@ import hera.api.BlockChainOperation;
 import hera.api.BlockOperation;
 import hera.api.ContractOperation;
 import hera.api.SignOperation;
-import hera.api.SignTemplate;
 import hera.api.TransactionOperation;
 import io.grpc.ManagedChannel;
 import java.io.Closeable;
@@ -26,7 +25,7 @@ public class AergoClient extends AbstractAergoApi implements Closeable, AutoClos
   protected final ManagedChannel channel;
 
   @Getter(lazy = true)
-  private final SignOperation signOperation = new SignTemplate();
+  private final SignOperation signOperation = new SignTemplate(channel);
 
   @Getter(lazy = true)
   private final AccountOperation accountOperation = new AccountTemplate(channel);

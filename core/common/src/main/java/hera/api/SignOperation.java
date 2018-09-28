@@ -4,16 +4,26 @@
 
 package hera.api;
 
-import hera.api.model.BytesValue;
-import hera.key.KeyPair;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.function.Supplier;
+import hera.api.model.Signature;
+import hera.api.model.Transaction;
+import hera.api.tupleorerror.ResultOrError;
 
 public interface SignOperation {
 
-  BytesValue sign(KeyPair key, Supplier<InputStream> plainText) throws IOException;
+  /**
+   * Sign for transaction.
+   *
+   * @param transaction transaction to sign
+   * @return signing result or error
+   */
+  ResultOrError<Signature> sign(Transaction transaction);
 
-  boolean verify(KeyPair key, Supplier<InputStream> plainText, BytesValue signature)
-      throws IOException;
+  /**
+   * Verify transaction.
+   *
+   * @param transaction transaction to verify
+   * @return verify result or error
+   */
+  ResultOrError<Boolean> verify(Transaction transaction);
+
 }

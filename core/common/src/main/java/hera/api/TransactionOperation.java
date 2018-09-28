@@ -24,7 +24,10 @@ public interface TransactionOperation {
    *
    * @param transaction transaction to sign
    * @return signing result or error
+   *
+   * @deprecated please use {@link SignOperation#sign(Transaction)}.
    */
+  @Deprecated
   ResultOrError<Signature> sign(Transaction transaction);
 
   /**
@@ -32,7 +35,10 @@ public interface TransactionOperation {
    *
    * @param transaction transaction to verify
    * @return verify result or error
+   *
+   * @deprecated please use {@link SignOperation#verify(Transaction)}
    */
+  @Deprecated
   ResultOrError<Boolean> verify(Transaction transaction);
 
   /**
