@@ -5,6 +5,7 @@
 package hera.client;
 
 import static hera.TransportConstants.TIMEOUT;
+import static hera.api.tupleorerror.FunctionChain.fail;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
@@ -18,12 +19,13 @@ import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.tupleorerror.ResultOrError;
-import hera.exception.HerajException;
+import hera.exception.RpcException;
 import hera.util.DangerousSupplier;
 import io.grpc.ManagedChannel;
 import lombok.RequiredArgsConstructor;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
+@SuppressWarnings("unchecked")
 @RequiredArgsConstructor
 public class ContractTemplate implements ContractOperation {
   protected final ContractAsyncOperation contractAsyncOperation;
@@ -41,7 +43,7 @@ public class ContractTemplate implements ContractOperation {
     try {
       return contractAsyncOperation.getReceipt(deployTxHash).get(TIMEOUT, MILLISECONDS);
     } catch (Exception e) {
-      throw new HerajException(e);
+      return fail(new RpcException(e));
     }
   }
 
@@ -51,7 +53,7 @@ public class ContractTemplate implements ContractOperation {
     try {
       return contractAsyncOperation.deploy(creator, contractCodePayload).get(TIMEOUT, MILLISECONDS);
     } catch (Exception e) {
-      throw new HerajException(e);
+      return fail(new RpcException(e));
     }
   }
 
@@ -62,7 +64,7 @@ public class ContractTemplate implements ContractOperation {
       return contractAsyncOperation.getContractInterface(contractAddress).get(TIMEOUT,
           MILLISECONDS);
     } catch (Exception e) {
-      throw new HerajException(e);
+      return fail(new RpcException(e));
     }
   }
 
@@ -74,7 +76,7 @@ public class ContractTemplate implements ContractOperation {
       return contractAsyncOperation.execute(executor, contractAddress, contractFunction, args)
           .get(TIMEOUT, MILLISECONDS);
     } catch (Exception e) {
-      throw new HerajException(e);
+      return fail(new RpcException(e));
     }
   }
 
@@ -85,7 +87,7 @@ public class ContractTemplate implements ContractOperation {
       return contractAsyncOperation.query(contractAddress, contractFunction, args).get(TIMEOUT,
           MILLISECONDS);
     } catch (Exception e) {
-      throw new HerajException(e);
+      return fail(new RpcException(e));
     }
   }
 

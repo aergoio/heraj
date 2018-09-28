@@ -5,6 +5,7 @@
 package hera.client;
 
 import static hera.TransportConstants.TIMEOUT;
+import static hera.api.tupleorerror.FunctionChain.fail;
 
 import hera.api.BlockChainAsyncOperation;
 import hera.api.BlockChainOperation;
@@ -12,7 +13,7 @@ import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.PeerAddress;
 import hera.api.tupleorerror.ResultOrError;
-import hera.exception.HerajException;
+import hera.exception.RpcException;
 import io.grpc.ManagedChannel;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import types.AergoRPCServiceGrpc;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
+@SuppressWarnings("unchecked")
 @RequiredArgsConstructor
 public class BlockChainTemplate implements BlockChainOperation {
 
@@ -38,7 +40,7 @@ public class BlockChainTemplate implements BlockChainOperation {
     try {
       return blockChainAsyncOperation.getBlockchainStatus().get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
-      throw new HerajException(e);
+      return fail(new RpcException(e));
     }
   }
 
@@ -47,7 +49,7 @@ public class BlockChainTemplate implements BlockChainOperation {
     try {
       return blockChainAsyncOperation.listPeers().get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
-      throw new HerajException(e);
+      return fail(new RpcException(e));
     }
   }
 
@@ -56,7 +58,7 @@ public class BlockChainTemplate implements BlockChainOperation {
     try {
       return blockChainAsyncOperation.getNodeStatus().get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
-      throw new HerajException(e);
+      return fail(new RpcException(e));
     }
   }
 }

@@ -5,6 +5,7 @@
 package hera.client;
 
 import static hera.TransportConstants.TIMEOUT;
+import static hera.api.tupleorerror.FunctionChain.fail;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
 import hera.api.TransactionAsyncOperation;
@@ -13,12 +14,13 @@ import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrError;
-import hera.exception.HerajException;
+import hera.exception.RpcException;
 import io.grpc.ManagedChannel;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
+@SuppressWarnings("unchecked")
 @RequiredArgsConstructor
 public class TransactionTemplate implements TransactionOperation {
 
@@ -37,7 +39,7 @@ public class TransactionTemplate implements TransactionOperation {
     try {
       return transactionAsyncOperation.getTransaction(txHash).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
-      throw new HerajException(e);
+      return fail(new RpcException(e));
     }
   }
 
@@ -46,7 +48,7 @@ public class TransactionTemplate implements TransactionOperation {
     try {
       return transactionAsyncOperation.sign(transaction).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
-      throw new HerajException(e);
+      return fail(new RpcException(e));
     }
   }
 
@@ -55,7 +57,7 @@ public class TransactionTemplate implements TransactionOperation {
     try {
       return transactionAsyncOperation.verify(transaction).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
-      throw new HerajException(e);
+      return fail(new RpcException(e));
     }
   }
 
@@ -64,7 +66,7 @@ public class TransactionTemplate implements TransactionOperation {
     try {
       return transactionAsyncOperation.commit(transaction).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
-      throw new HerajException(e);
+      return fail(new RpcException(e));
     }
   }
 
@@ -73,7 +75,7 @@ public class TransactionTemplate implements TransactionOperation {
     try {
       return transactionAsyncOperation.send(transaction).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
-      throw new HerajException(e);
+      return fail(new RpcException(e));
     }
   }
 }
