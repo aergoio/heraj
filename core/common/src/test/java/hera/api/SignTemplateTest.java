@@ -7,9 +7,9 @@ package hera.api;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertTrue;
 
-import hera.AergoKey;
-import hera.AergoKeyGenerator;
 import hera.api.model.BytesValue;
+import hera.key.AergoKey;
+import hera.key.AergoKeyGenerator;
 import org.junit.Test;
 
 public class SignTemplateTest {

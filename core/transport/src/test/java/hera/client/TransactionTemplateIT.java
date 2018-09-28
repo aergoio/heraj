@@ -9,8 +9,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import hera.AergoKey;
-import hera.AergoKeyGenerator;
 import hera.api.SignTemplate;
 import hera.api.model.Account;
 import hera.api.model.Authentication;
@@ -19,6 +17,8 @@ import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.key.AergoKey;
+import hera.key.AergoKeyGenerator;
 import hera.util.HexUtils;
 import org.junit.Before;
 import org.junit.Test;

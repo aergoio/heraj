@@ -2,12 +2,13 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera;
+package hera.key;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import hera.AbstractTestCase;
 import hera.util.HexUtils;
 import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSASignature;

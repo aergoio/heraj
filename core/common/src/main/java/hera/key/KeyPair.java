@@ -2,8 +2,9 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera;
+package hera.key;
 
+import hera.api.model.AccountAddress;
 import java.io.InputStream;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -49,6 +50,13 @@ public interface KeyPair {
    * @return an encoded private key
    */
   String getEncodedPrivateKey();
+
+  /**
+   * Get account address.
+   *
+   * @return account address
+   */
+  AccountAddress getAddress();
 
   /**
    * Return address corresponding to public key in a encoded form.

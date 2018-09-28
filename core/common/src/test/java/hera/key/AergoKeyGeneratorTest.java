@@ -2,9 +2,10 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera;
+package hera.key;
 
 import static org.junit.Assert.assertNotNull;
+import hera.AbstractTestCase;
 import org.junit.Test;
 
 public class AergoKeyGeneratorTest extends AbstractTestCase {

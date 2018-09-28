@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera;
+package hera.key;
 
 import hera.util.pki.ECDSAKeyGenerator;
 
