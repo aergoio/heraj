@@ -4,10 +4,13 @@
 
 package hera.api;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import hera.api.model.AccountAddress;
+import hera.exception.InvalidVersionException;
+import hera.util.Base58Utils;
 import java.io.IOException;
 import java.util.Arrays;
 import org.junit.Test;
@@ -19,6 +22,9 @@ public class AccountAddressTest {
 
   public static final String ENCODED_ADDRESS =
       "AmJaNDXoPbBRn9XHh9onKbDKuAzj88n5Bzt7KniYA78qUEc5EwBd";
+
+  public static final String ENCODED_ADDRESS_WITHOUT_VERSION =
+      Base58Utils.encodeWithCheck(("noversion" + randomUUID().toString()).getBytes());
 
   @Test
   public void testOfWithRaw() throws IOException {
@@ -42,6 +48,11 @@ public class AccountAddressTest {
   public void testGetEncodedValueWithEncodedOf() throws IOException {
     final AccountAddress address = AccountAddress.of(ENCODED_ADDRESS);
     assertEquals(ENCODED_ADDRESS, address.getEncodedValue());
+  }
+
+  @Test(expected = InvalidVersionException.class)
+  public void testOfWithEncodedWithoutVersion() {
+    AccountAddress.of(ENCODED_ADDRESS_WITHOUT_VERSION);
   }
 
 }

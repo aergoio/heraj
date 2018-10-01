@@ -4,7 +4,7 @@
 
 package hera.api.model;
 
-import hera.exception.HerajException;
+import hera.exception.InvalidVersionException;
 import hera.util.Base58Utils;
 import java.io.IOException;
 import java.util.Arrays;
@@ -34,7 +34,7 @@ public class EncryptedPrivateKey extends BytesValue {
     return of(encoded, e -> {
       final byte[] withVersion = Base58Utils.decodeWithCheck(encoded);
       if (PRIVATE_KEY_VERSION != withVersion[0]) {
-        throw new HerajException("Invalid private key version");
+        throw new InvalidVersionException(PRIVATE_KEY_VERSION, withVersion[0]);
       }
       return Arrays.copyOfRange(withVersion, 1, withVersion.length);
     }, EncryptedPrivateKey::new);

@@ -4,6 +4,7 @@
 
 package hera.api.model;
 
+import hera.exception.InvalidVersionException;
 import hera.util.Base58Utils;
 import java.io.IOException;
 import java.util.Arrays;
@@ -32,6 +33,9 @@ public class AccountAddress extends BytesValue {
   public static AccountAddress of(final String encoded) {
     return of(encoded, e -> {
       final byte[] withVersion = Base58Utils.decodeWithCheck(encoded);
+      if (ADDRESS_VERSION != withVersion[0]) {
+        throw new InvalidVersionException(ADDRESS_VERSION, withVersion[0]);
+      }
       return Arrays.copyOfRange(withVersion, 1, withVersion.length);
     }, AccountAddress::new);
   }
