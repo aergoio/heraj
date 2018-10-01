@@ -22,6 +22,7 @@ import hera.util.IoUtils;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,7 +59,8 @@ public class ContractTemplateIT extends AbstractIT {
     final ContractTxHash deployTxHash = contractTemplate.deploy(creator.getAddress(), () -> {
       try (final InputStream in = open("payload");
           final Reader reader = new InputStreamReader(in)) {
-        return Base58Utils.decode(IoUtils.from(reader));
+        final byte[] withVersion = Base58Utils.decodeWithCheck(IoUtils.from(reader));
+        return Arrays.copyOfRange(withVersion, 1, withVersion.length);
       }
     }).getResult();
     assertNotNull(deployTxHash);

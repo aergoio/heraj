@@ -22,6 +22,7 @@ import hera.FutureChainer;
 import hera.api.AccountAsyncOperation;
 import hera.api.ContractAsyncOperation;
 import hera.api.Decoder;
+import hera.api.SignAsyncOperation;
 import hera.api.TransactionAsyncOperation;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
@@ -42,8 +43,10 @@ import hera.transport.ModelConverter;
 import hera.transport.ReceiptConverterFactory;
 import hera.util.Base58Utils;
 import hera.util.DangerousSupplier;
+import hera.util.LittleEndianDataOutputStream;
 import io.grpc.ManagedChannel;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -57,6 +60,8 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
   protected final Logger logger = getLogger(getClass());
 
   protected final AergoRPCServiceFutureStub aergoService;
+
+  protected final SignAsyncOperation signAsyncOperation;
 
   protected final AccountAsyncOperation accountAsyncOperation;
 
@@ -83,7 +88,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
    * @param aergoService aergo service
    */
   public ContractAsyncTemplate(final AergoRPCServiceFutureStub aergoService) {
-    this(aergoService, new AccountAsyncTemplate(aergoService),
+    this(aergoService, new SignAsyncTemplate(aergoService), new AccountAsyncTemplate(aergoService),
         new TransactionAsyncTemplate(aergoService), new ReceiptConverterFactory().create(),
         new ContractInterfaceConverterFactory().create(),
         new ContractResultConverterFactory().create());
@@ -108,16 +113,31 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
   @Override
   public ResultOrErrorFuture<ContractTxHash> deploy(final AccountAddress creator,
       final DangerousSupplier<byte[]> rawContractCode) {
-    try {
-      final Transaction transaction = new Transaction();
-      transaction.setSender(creator);
-      transaction.setPayload(BytesValue.of(rawContractCode.get()));
-      return transactionAsyncOperation.send(transaction)
-          .map(txHash -> txHash.adapt(ContractTxHash.class)
-              .orElseThrow(() -> new AdaptException(TxHash.class, ContractTxHash.class)));
-    } catch (Throwable e) {
-      return ResultOrErrorFutureFactory.supply(() -> fail(e));
-    }
+    return accountAsyncOperation.get(creator).map(a -> a.getNonce()).flatMap(nonce -> {
+      try {
+        final Transaction transaction = new Transaction();
+        transaction.setNonce(1 + nonce);
+        transaction.setSender(creator);
+
+        final byte[] rawCode = rawContractCode.get();
+        final ByteArrayOutputStream raw = new ByteArrayOutputStream();
+        final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(raw);
+        dataOut.writeInt(rawCode.length + 4);
+        dataOut.write(rawCode);
+        dataOut.close();
+        transaction.setPayload(BytesValue.of(raw.toByteArray()));
+
+        return signAsyncOperation.sign(transaction).flatMap(signature -> {
+          transaction.setSignature(signature);
+          return transactionAsyncOperation.commit(transaction)
+              .map(txHash -> txHash.adapt(ContractTxHash.class)
+                  .orElseThrow(() -> new AdaptException(TxHash.class, ContractTxHash.class)));
+        });
+
+      } catch (Throwable e) {
+        return ResultOrErrorFutureFactory.supply(() -> fail(e));
+      }
+    });
   }
 
   @Override
