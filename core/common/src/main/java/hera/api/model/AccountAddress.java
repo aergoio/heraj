@@ -11,16 +11,16 @@ import java.util.Optional;
 
 public class AccountAddress extends BytesValue {
 
-  public static final byte VERSION = 0x42;
+  public static final byte ADDRESS_VERSION = 0x42;
 
   /**
    * Create {@code AccountAddress} with a raw bytes array.
    *
-   * @param bytes value
+   * @param rawBytes value
    * @return created {@link AccountAddress}
    */
-  public static AccountAddress of(final byte[] bytes) {
-    return of(bytes, AccountAddress::new);
+  public static AccountAddress of(final byte[] rawBytes) {
+    return of(rawBytes, AccountAddress::new);
   }
 
   /**
@@ -43,7 +43,7 @@ public class AccountAddress extends BytesValue {
   @Override
   public String getEncodedValue() throws IOException {
     final byte[] withVersion = new byte[value.length + 1];
-    withVersion[0] = VERSION;
+    withVersion[0] = ADDRESS_VERSION;
     System.arraycopy(value, 0, withVersion, 1, value.length);
     return Base58Utils.encodeWithCheck(withVersion);
   }

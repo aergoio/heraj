@@ -13,6 +13,7 @@ import hera.api.AccountOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
+import hera.api.model.EncryptedPrivateKey;
 import hera.api.tupleorerror.ResultOrError;
 import hera.exception.RpcException;
 import io.grpc.ManagedChannel;
@@ -75,6 +76,27 @@ public class AccountTemplate implements AccountOperation {
   public ResultOrError<Boolean> unlock(final Authentication authentication) {
     try {
       return accountAsyncOperation.unlock(authentication).get(TIMEOUT, TimeUnit.MILLISECONDS);
+    } catch (Exception e) {
+      return fail(new RpcException(e));
+    }
+  }
+
+  @Override
+  public ResultOrError<Account> importKey(final EncryptedPrivateKey encryptedKey,
+      final String oldPassword, final String newPassword) {
+    try {
+      return accountAsyncOperation.importKey(encryptedKey, oldPassword, newPassword).get(TIMEOUT,
+          TimeUnit.MILLISECONDS);
+    } catch (Exception e) {
+      return fail(new RpcException(e));
+    }
+  }
+
+  @Override
+  public ResultOrError<EncryptedPrivateKey> exportKey(final Authentication authentication) {
+
+    try {
+      return accountAsyncOperation.exportKey(authentication).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
       return fail(new RpcException(e));
     }

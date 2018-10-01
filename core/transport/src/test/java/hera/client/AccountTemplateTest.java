@@ -17,6 +17,7 @@ import hera.api.AccountAsyncOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
+import hera.api.model.EncryptedPrivateKey;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.List;
@@ -29,7 +30,7 @@ import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 public class AccountTemplateTest extends AbstractTestCase {
 
   protected final AccountAddress ACCOUNT_ADDRESS =
-      AccountAddress.of(randomUUID().toString().getBytes());
+      AccountAddress.of(new byte[] {AccountAddress.ADDRESS_VERSION});
 
   protected final String PASSWORD = randomUUID().toString();
 
@@ -98,6 +99,34 @@ public class AccountTemplateTest extends AbstractTestCase {
     ResultOrError<Boolean> lockResult =
         accountTemplate.unlock(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
     assertNotNull(lockResult);
+  }
+
+  @Test
+  public void testImportKey() throws Exception {
+    ResultOrErrorFuture<Account> futureMock = mock(ResultOrErrorFuture.class);
+    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
+    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
+    when(asyncOperationMock.importKey(any(), any(), any())).thenReturn(futureMock);
+
+    final AccountTemplate accountTemplate = new AccountTemplate(asyncOperationMock);
+
+    ResultOrError<Account> importedAccount = accountTemplate.importKey(
+        EncryptedPrivateKey.of(new byte[] {EncryptedPrivateKey.PRIVATE_KEY_VERSION}), PASSWORD);
+    assertNotNull(importedAccount);
+  }
+
+  @Test
+  public void testExportKey() throws Exception {
+    ResultOrErrorFuture<EncryptedPrivateKey> futureMock = mock(ResultOrErrorFuture.class);
+    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
+    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
+    when(asyncOperationMock.exportKey(any())).thenReturn(futureMock);
+
+    final AccountTemplate accountTemplate = new AccountTemplate(asyncOperationMock);
+
+    ResultOrError<EncryptedPrivateKey> exportedKey =
+        accountTemplate.exportKey(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
+    assertNotNull(exportedKey);
   }
 
 }
