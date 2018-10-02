@@ -4,9 +4,10 @@
 
 package hera.transport;
 
-import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import com.google.protobuf.ByteString;
+import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import java.util.function.Function;
 import org.slf4j.Logger;
@@ -17,11 +18,16 @@ public class AuthenticationConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
 
+  protected final ModelConverter<AccountAddress, ByteString> accountAddressConverter =
+      new AccountAddressConverterFactory().create();
+
   protected final Function<Authentication, Rpc.Personal> domainConverter = domainAuthentication -> {
-    logger.trace("Domain status: {}", domainAuthentication);
+    logger.trace("Domain authentication: {}", domainAuthentication);
     return Rpc.Personal.newBuilder()
         .setAccount(AccountOuterClass.Account.newBuilder()
-            .setAddress(copyFrom(domainAuthentication.getAddress())).build())
+            .setAddress(
+                accountAddressConverter.convertToRpcModel(domainAuthentication.getAddress()))
+            .build())
         .setPassphrase(domainAuthentication.getPassword()).build();
   };
 

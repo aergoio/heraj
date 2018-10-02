@@ -40,7 +40,7 @@ public class NodeStatusConverterFactory {
   };
 
   protected final Function<Rpc.SingleBytes, NodeStatus> rpcConverter = rpcNodeStatus -> {
-    logger.trace("Blockchain status: {}", rpcNodeStatus);
+    logger.trace("Rpc node status: {}", rpcNodeStatus);
     try {
       return mapper.readValue(rpcNodeStatus.getValue().toByteArray(), NodeStatus.class);
     } catch (Throwable e) {

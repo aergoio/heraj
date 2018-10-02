@@ -7,8 +7,6 @@ package hera.client;
 import static java.util.UUID.randomUUID;
 
 import hera.api.SignLocalTemplate;
-import hera.api.model.AccountAddress;
-import hera.api.model.Hash;
 import hera.api.model.Transaction;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
@@ -32,6 +30,7 @@ public class SignTemplateBenchmark {
     protected SignLocalTemplate signTemplate;
 
     protected AergoKey senderKey;
+    protected AergoKey receiptKey;
 
     protected AtomicLong nonce = new AtomicLong(1);
 
@@ -39,14 +38,15 @@ public class SignTemplateBenchmark {
     public synchronized void setUp() throws Exception {
       signTemplate = new SignLocalTemplate(senderKey);
       senderKey = new AergoKeyGenerator().create();
+      receiptKey = new AergoKeyGenerator().create();
     }
 
     public void sendTransaction() throws Exception {
       final Transaction transaction = new Transaction();
       transaction.setNonce(nonce.getAndIncrement());
       transaction.setAmount(30);
-      transaction.setSender(AccountAddress.of(randomUUID().toString().getBytes()));
-      transaction.setRecipient(AccountAddress.of(randomUUID().toString().getBytes()));
+      transaction.setSender(senderKey.getAddress());
+      transaction.setRecipient(receiptKey.getAddress());
 
       signTemplate.sign(transaction);
     }

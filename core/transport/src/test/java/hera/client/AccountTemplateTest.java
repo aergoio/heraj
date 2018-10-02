@@ -4,6 +4,7 @@
 
 package hera.client;
 
+import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,7 +31,7 @@ import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 public class AccountTemplateTest extends AbstractTestCase {
 
   protected final AccountAddress ACCOUNT_ADDRESS =
-      AccountAddress.of(new byte[] {AccountAddress.ADDRESS_VERSION});
+      new AccountAddress(of(new byte[] {AccountAddress.ADDRESS_VERSION}));
 
   protected final String PASSWORD = randomUUID().toString();
 
@@ -111,7 +112,8 @@ public class AccountTemplateTest extends AbstractTestCase {
     final AccountTemplate accountTemplate = new AccountTemplate(asyncOperationMock);
 
     ResultOrError<Account> importedAccount = accountTemplate.importKey(
-        EncryptedPrivateKey.of(new byte[] {EncryptedPrivateKey.PRIVATE_KEY_VERSION}), PASSWORD);
+        new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.PRIVATE_KEY_VERSION})),
+        PASSWORD);
     assertNotNull(importedAccount);
   }
 

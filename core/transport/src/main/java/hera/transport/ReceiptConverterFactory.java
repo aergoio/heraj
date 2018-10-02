@@ -6,6 +6,8 @@ package hera.transport;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import com.google.protobuf.ByteString;
+import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractTxReceipt;
 import java.util.function.Function;
@@ -16,16 +18,20 @@ public class ReceiptConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
 
+  protected final ModelConverter<AccountAddress, ByteString> accountAddressConverter =
+      new AccountAddressConverterFactory().create();
+
   protected final Function<ContractTxReceipt, Blockchain.Receipt> domainConverter =
       domainRecepit -> {
         throw new UnsupportedOperationException();
       };
 
   protected final Function<Blockchain.Receipt, ContractTxReceipt> rpcConverter = rpcReceipt -> {
-    logger.trace("Blockchain status: {}", rpcReceipt);
+    logger.trace("Rpc contract tx receipt: {}", rpcReceipt);
     final ContractTxReceipt domainReceipt = new ContractTxReceipt();
-    domainReceipt
-        .setContractAddress(ContractAddress.of(rpcReceipt.getContractAddress().toByteArray()));
+    final AccountAddress accountAddress =
+        accountAddressConverter.convertToDomainModel(rpcReceipt.getContractAddress());
+    domainReceipt.setContractAddress(accountAddress.adapt(ContractAddress.class).get());
     domainReceipt.setStatus(rpcReceipt.getStatus());
     domainReceipt.setRet(rpcReceipt.getRet());
     return domainReceipt;

@@ -4,6 +4,7 @@
 
 package hera.client;
 
+import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,7 +41,7 @@ public class BlockTemplateTest extends AbstractTestCase {
     final BlockTemplate blockTemplate = new BlockTemplate(asyncOperationMock);
 
     final ResultOrError<Block> block =
-        blockTemplate.getBlock(new BlockHash(randomUUID().toString().getBytes()));
+        blockTemplate.getBlock(new BlockHash(of(randomUUID().toString().getBytes())));
     assertNotNull(block);
   }
 
@@ -67,7 +68,7 @@ public class BlockTemplateTest extends AbstractTestCase {
     final BlockTemplate blockTemplate = new BlockTemplate(asyncOperationMock);
 
     final ResultOrError<List<BlockHeader>> block = blockTemplate.listBlockHeaders(
-        new BlockHash(randomUUID().toString().getBytes()), randomUUID().hashCode());
+        new BlockHash(of(randomUUID().toString().getBytes())), randomUUID().hashCode());
     assertNotNull(block);
   }
 

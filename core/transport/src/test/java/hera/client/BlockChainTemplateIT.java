@@ -29,7 +29,7 @@ public class BlockChainTemplateIT extends AbstractIT {
     final BlockchainStatus status = blockChainTemplate.getBlockchainStatus().getResult();
     assertNotNull(status);
     assertTrue(0 < status.getBestHeight());
-    assertTrue(0 < status.getBestBlockHash().getBytesValue().length);
+    assertTrue(!status.getBestBlockHash().getBytesValue().isEmpty());
   }
 
   @Test

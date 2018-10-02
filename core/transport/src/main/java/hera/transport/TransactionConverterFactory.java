@@ -47,13 +47,18 @@ public class TransactionConverterFactory {
     }
   };
 
+  protected final ModelConverter<AccountAddress, ByteString> accountAddressConverter =
+      new AccountAddressConverterFactory().create();
+
   protected final Function<Transaction, Tx> domainConverter = domainTransaction -> {
-    logger.trace("Domain status: {}", domainTransaction);
+    logger.trace("Domain transaction: {}", domainTransaction);
 
     final TxBody.Builder txBodyBuilder = TxBody.newBuilder();
     txBodyBuilder.setNonce(domainTransaction.getNonce());
-    txBodyBuilder.setAccount(copyFrom(domainTransaction.getSender()));
-    txBodyBuilder.setRecipient(copyFrom(domainTransaction.getRecipient()));
+    txBodyBuilder
+        .setAccount(accountAddressConverter.convertToRpcModel(domainTransaction.getSender()));
+    txBodyBuilder
+        .setRecipient(accountAddressConverter.convertToRpcModel(domainTransaction.getRecipient()));
     txBodyBuilder.setAmount(domainTransaction.getAmount());
     txBodyBuilder.setPayload(copyFrom(domainTransaction.getPayload()));
     txBodyBuilder.setLimit(domainTransaction.getLimit());
@@ -65,7 +70,7 @@ public class TransactionConverterFactory {
     final Tx.Builder txBuilder = Tx.newBuilder();
     ofNullable(domainTransaction.getSignature()).ifPresent(signature -> {
       txBodyBuilder.setSign(copyFrom(signature.getSign()));
-      txBuilder.setHash(copyFrom(signature.getTxHash()));
+      txBuilder.setHash(copyFrom(signature.getTxHash().getBytesValue()));
     });
     txBuilder.setBody(txBodyBuilder.build());
 
@@ -73,21 +78,22 @@ public class TransactionConverterFactory {
   };
 
   protected final Function<Tx, Transaction> rpcConverter = rpcTransaction -> {
-    logger.trace("Blockchain status: {}", rpcTransaction);
+    logger.trace("Rpc transaction: {}", rpcTransaction);
 
     final TxBody txBody = rpcTransaction.getBody();
     final Transaction domainTransaction = new Transaction();
     domainTransaction.setNonce(txBody.getNonce());
-    domainTransaction.setSender(AccountAddress.of(txBody.getAccount().toByteArray()));
-    domainTransaction.setRecipient(AccountAddress.of(txBody.getRecipient().toByteArray()));
+    domainTransaction.setSender(accountAddressConverter.convertToDomainModel(txBody.getAccount()));
+    domainTransaction
+        .setRecipient(accountAddressConverter.convertToDomainModel(txBody.getRecipient()));
     domainTransaction.setAmount(txBody.getAmount());
     domainTransaction.setPayload(BytesValue.of(txBody.getPayload().toByteArray()));
     domainTransaction.setLimit(txBody.getLimit());
     domainTransaction.setPrice(txBody.getPrice());
     if (null != rpcTransaction.getHash() || null != txBody.getSign()) {
       final Signature signature = new Signature();
-      ofNullable(rpcTransaction.getHash()).map(ByteString::toByteArray).map(TxHash::new)
-          .ifPresent(signature::setTxHash);
+      ofNullable(rpcTransaction.getHash()).map(ByteString::toByteArray).map(BytesValue::new)
+          .map(TxHash::new).ifPresent(signature::setTxHash);
       ofNullable(txBody.getSign()).map(ByteString::toByteArray).map(BytesValue::of)
           .ifPresent(signature::setSign);
       domainTransaction.setSignature(signature);

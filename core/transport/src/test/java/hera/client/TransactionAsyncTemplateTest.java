@@ -4,6 +4,7 @@
 
 package hera.client;
 
+import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -60,7 +61,7 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
         aergoService, transactionConverter, transactionInBlockConverter);
 
     final ResultOrErrorFuture<Transaction> transaction =
-        transactionAsyncTemplate.getTransaction(new TxHash(randomUUID().toString().getBytes()));
+        transactionAsyncTemplate.getTransaction(new TxHash(of(randomUUID().toString().getBytes())));
     assertNotNull(transaction);
   }
 

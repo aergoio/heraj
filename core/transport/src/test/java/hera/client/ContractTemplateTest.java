@@ -4,6 +4,7 @@
 
 package hera.client;
 
+import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -31,10 +32,10 @@ import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 public class ContractTemplateTest extends AbstractTestCase {
 
   protected static final AccountAddress EXECUTOR_ADDRESS =
-      AccountAddress.of(randomUUID().toString().getBytes());
+      new AccountAddress(of(new byte[] {AccountAddress.ADDRESS_VERSION}));
 
   protected static final ContractAddress CONTRACT_ADDRESS =
-      ContractAddress.of(randomUUID().toString().getBytes());
+      new ContractAddress(of(new byte[] {AccountAddress.ADDRESS_VERSION}));
 
   @Test
   public void testGetReceipt() {
@@ -46,7 +47,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     final ContractTemplate contractTemplate = new ContractTemplate(asyncOperationMock);
 
     final ResultOrError<ContractTxReceipt> receipt =
-        contractTemplate.getReceipt(ContractTxHash.of(randomUUID().toString().getBytes()));
+        contractTemplate.getReceipt(new ContractTxHash(of(randomUUID().toString().getBytes())));
     assertNotNull(receipt);
   }
 
@@ -83,7 +84,8 @@ public class ContractTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<ContractTxHash> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     ContractAsyncOperation asyncOperationMock = mock(ContractAsyncOperation.class);
-    when(asyncOperationMock.execute(any(AccountAddress.class), any(), any(), any())).thenReturn(futureMock);
+    when(asyncOperationMock.execute(any(AccountAddress.class), any(), any(), any()))
+        .thenReturn(futureMock);
 
     final ContractTemplate contractTemplate = new ContractTemplate(asyncOperationMock);
 

@@ -5,6 +5,7 @@
 package hera.client;
 
 import static com.google.protobuf.ByteString.copyFrom;
+import static hera.api.model.BytesValue.of;
 import static hera.util.TransportUtils.copyFrom;
 import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -95,7 +96,7 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
   public ResultOrErrorFuture<Account> get(AccountAddress address) {
     ResultOrErrorFuture<Account> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-    final ByteString byteString = copyFrom(address.getValue());
+    final ByteString byteString = copyFrom(address.getBytesValue().getValue());
     final Rpc.SingleBytes bytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
     ListenableFuture<Blockchain.State> listenableFuture = aergoService.getState(bytes);
     FutureChainer<Blockchain.State, Account> callback = new FutureChainer<>(nextFuture, state -> {
@@ -141,7 +142,8 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
     ResultOrErrorFuture<Account> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final Rpc.ImportFormat importFormat = Rpc.ImportFormat.newBuilder()
-        .setWif(Rpc.SingleBytes.newBuilder().setValue(copyFrom(encryptedKey)).build())
+        .setWif(
+            Rpc.SingleBytes.newBuilder().setValue(copyFrom(encryptedKey.getBytesValue())).build())
         .setOldpass(oldPassword).setNewpass(newPassword).build();
     ListenableFuture<AccountOuterClass.Account> listenableFuture =
         aergoService.importAccount(importFormat);
@@ -160,7 +162,7 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
     ListenableFuture<Rpc.SingleBytes> listenableFuture =
         aergoService.exportAccount(authenticationConverter.convertToRpcModel(authentication));
     FutureChainer<Rpc.SingleBytes, EncryptedPrivateKey> callback = new FutureChainer<>(nextFuture,
-        raw -> EncryptedPrivateKey.of(raw.getValue().toByteArray()));
+        raw -> new EncryptedPrivateKey(of(raw.getValue().toByteArray())));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;

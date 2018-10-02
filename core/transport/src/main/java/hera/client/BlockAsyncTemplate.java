@@ -52,7 +52,7 @@ public class BlockAsyncTemplate implements BlockAsyncOperation {
   public ResultOrErrorFuture<Block> getBlock(final BlockHash blockHash) {
     final ResultOrErrorFuture<Block> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-    final ByteString byteString = copyFrom(blockHash);
+    final ByteString byteString = copyFrom(blockHash.getBytesValue());
     final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
     ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(bytes);
     FutureChainer<Blockchain.Block, Block> callback =
@@ -83,12 +83,12 @@ public class BlockAsyncTemplate implements BlockAsyncOperation {
         ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final ListParams listParams =
-        ListParams.newBuilder().setHash(copyFrom(blockHash)).setSize(size).build();
+        ListParams.newBuilder().setHash(copyFrom(blockHash.getBytesValue())).setSize(size).build();
     ListenableFuture<BlockHeaderList> listenableFuture = aergoService.listBlockHeaders(listParams);
-    FutureChainer<BlockHeaderList, List<BlockHeader>> callback =
-        new FutureChainer<>(nextFuture, blockHeaders -> blockHeaders.getBlocksList().stream()
-            .map(blockConverter::convertToDomainModel)
-            .map(BlockHeader.class::cast).collect(toList()));
+    FutureChainer<BlockHeaderList, List<BlockHeader>> callback = new FutureChainer<>(nextFuture,
+        blockHeaders -> blockHeaders.getBlocksList().stream()
+            .map(blockConverter::convertToDomainModel).map(BlockHeader.class::cast)
+            .collect(toList()));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;
@@ -102,10 +102,10 @@ public class BlockAsyncTemplate implements BlockAsyncOperation {
 
     final ListParams listParams = ListParams.newBuilder().setHeight(height).setSize(size).build();
     ListenableFuture<BlockHeaderList> listenableFuture = aergoService.listBlockHeaders(listParams);
-    FutureChainer<BlockHeaderList, List<BlockHeader>> callback =
-        new FutureChainer<>(nextFuture, blockHeaders -> blockHeaders.getBlocksList().stream()
-            .map(blockConverter::convertToDomainModel)
-            .map(BlockHeader.class::cast).collect(toList()));
+    FutureChainer<BlockHeaderList, List<BlockHeader>> callback = new FutureChainer<>(nextFuture,
+        blockHeaders -> blockHeaders.getBlocksList().stream()
+            .map(blockConverter::convertToDomainModel).map(BlockHeader.class::cast)
+            .collect(toList()));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;

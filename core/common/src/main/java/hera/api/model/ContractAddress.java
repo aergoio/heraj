@@ -4,37 +4,56 @@
 
 package hera.api.model;
 
-import hera.util.Base58Utils;
-import java.util.Arrays;
+import hera.api.encode.Encoded;
+import hera.exception.InvalidVersionException;
 import java.util.Optional;
 
 public class ContractAddress extends AccountAddress {
 
   /**
-   * Create {@code ContractAddress} with a raw bytes array.
+   * Create {@code ContractAddress} with an encoded value.
    *
-   * @param bytes value
+   * @param encoded an encoded value
    * @return created {@link ContractAddress}
+   *
+   * @throws InvalidVersionException when address version mismatch
    */
-  public static ContractAddress of(final byte[] bytes) {
-    return of(bytes, ContractAddress::new);
+  public static ContractAddress of(final Encoded encoded) {
+    return new ContractAddress(encoded);
   }
 
   /**
-   * Create {@code ContractAddress} with a base58 encoded value.
+   * Create {@code ContractAddress}.
    *
-   * @param encoded base58 encoded value
+   * @param bytesValue {@link BytesValue}
    * @return created {@link ContractAddress}
+   *
+   * @throws InvalidVersionException when address version mismatch
    */
-  public static ContractAddress of(final String encoded) {
-    return of(encoded, e -> {
-      final byte[] withVersion = Base58Utils.decodeWithCheck(encoded);
-      return Arrays.copyOfRange(withVersion, 1, withVersion.length);
-    }, ContractAddress::new);
+  public static ContractAddress of(final BytesValue bytesValue) {
+    return new ContractAddress(bytesValue);
   }
 
-  public ContractAddress(final byte[] value) {
-    super(value);
+  /**
+   * ContractAddress constructor.
+   *
+   * @param encoded an encoded value
+   *
+   * @throws InvalidVersionException when address version mismatch
+   */
+  public ContractAddress(final Encoded encoded) {
+    super(encoded);
+  }
+
+  /**
+   * ContractAddress constructor.
+   *
+   * @param bytesValue {@link BytesValue}
+   *
+   * @throws InvalidVersionException when address version mismatch
+   */
+  public ContractAddress(final BytesValue bytesValue) {
+    super(bytesValue);
   }
 
   @SuppressWarnings("unchecked")

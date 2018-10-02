@@ -21,7 +21,7 @@ public class Authentication {
 
   @Getter
   @Setter
-  protected AccountAddress address = new AccountAddress(null);
+  protected AccountAddress address;
 
   @Getter
   @Setter

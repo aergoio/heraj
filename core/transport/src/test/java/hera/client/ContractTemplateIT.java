@@ -70,7 +70,7 @@ public class ContractTemplateIT extends AbstractIT {
 
     final ContractTxReceipt definitionReceipt =
         contractTemplate.getReceipt(deployTxHash).getResult();
-    assertTrue(0 < definitionReceipt.getContractAddress().getValue().length);
+    assertTrue(!definitionReceipt.getContractAddress().getBytesValue().isEmpty());
     assertEquals("CREATED", definitionReceipt.getStatus());
 
     final ContractAddress contractAddress = definitionReceipt.getContractAddress();
@@ -95,7 +95,7 @@ public class ContractTemplateIT extends AbstractIT {
 
     final ContractTxReceipt executionReceipt =
         contractTemplate.getReceipt(executionTxHash).getResult();
-    assertTrue(0 < executionReceipt.getContractAddress().getValue().length);
+    assertTrue(!executionReceipt.getContractAddress().getBytesValue().isEmpty());
     assertEquals("SUCCESS", executionReceipt.getStatus());
     assertTrue(0 < executionReceipt.getRet().length());
 

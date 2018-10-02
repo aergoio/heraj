@@ -4,6 +4,7 @@
 
 package hera.client;
 
+import static hera.api.model.BytesValue.of;
 import static hera.util.TransportUtils.copyFrom;
 import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -66,7 +67,7 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
   public ResultOrErrorFuture<Transaction> getTransaction(final TxHash txHash) {
     ResultOrErrorFuture<Transaction> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-    final ByteString byteString = copyFrom(txHash);
+    final ByteString byteString = copyFrom(txHash.getBytesValue());
     final SingleBytes hashBytes = SingleBytes.newBuilder().setValue(byteString).build();
     ListenableFuture<TxInBlock> listenableFuture = aergoService.getBlockTX(hashBytes);
     FutureChainer<TxInBlock, Transaction> callback = new FutureChainer<TxInBlock, Transaction>(
@@ -107,9 +108,10 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
           .filter(bytes -> 0 != bytes.length).map(BytesValue::of)
           .orElseThrow(() -> new RpcException(
               new SignException("Signing failed: sign field is not found at sign result")));
-      final TxHash hash = ofNullable(tx.getHash()).map(ByteString::toByteArray)
-          .filter(bytes -> 0 != bytes.length).map(TxHash::new).orElseThrow(() -> new RpcException(
-              new SignException("Signing failed: txHash field is not found at sign result")));
+      final TxHash hash =
+          ofNullable(tx.getHash()).map(ByteString::toByteArray).filter(bytes -> 0 != bytes.length)
+              .map(b -> new TxHash(of(b))).orElseThrow(() -> new RpcException(
+                  new SignException("Signing failed: txHash field is not found at sign result")));
       return Signature.of(sign, hash);
     });
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
@@ -157,7 +159,7 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
     ListenableFuture<CommitResultList> listenableFuture = aergoService.commitTX(txList);
     FutureChainer<CommitResultList, TxHash> callback = new FutureChainer<CommitResultList, TxHash>(
         nextFuture, commitResultList -> commitResultList.getResultsList().stream()
-            .map(r -> r.getHash().toByteArray()).map(TxHash::new).findFirst().get()) {
+            .map(r -> r.getHash().toByteArray()).map(b -> new TxHash(of(b))).findFirst().get()) {
       @Override
       public void onSuccess(CommitResultList t) {
         final Rpc.CommitResult commitResult = t.getResults(0);
@@ -182,7 +184,7 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
     FutureChainer<Rpc.CommitResult, TxHash> callback =
         new FutureChainer<Rpc.CommitResult, TxHash>(nextFuture,
             c -> ofNullable(c).filter(v -> Rpc.CommitStatus.TX_OK == v.getError())
-                .map(v -> v.getHash().toByteArray()).map(TxHash::of)
+                .map(v -> v.getHash().toByteArray()).map(b -> new TxHash(of(b)))
                 .orElseThrow(() -> new CommitException(c.getError())));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 

@@ -4,6 +4,7 @@
 
 package hera.api.model;
 
+import static hera.api.model.BytesValue.of;
 import static hera.util.Sha256Utils.digest;
 import static java.util.Optional.ofNullable;
 
@@ -19,7 +20,7 @@ public class Transaction {
 
   @Getter
   @Setter
-  protected BlockHash blockHash;
+  protected BlockHash blockHash = new BlockHash(BytesValue.EMPTY);
 
   @Getter
   @Setter
@@ -31,11 +32,11 @@ public class Transaction {
 
   @Getter
   @Setter
-  protected AccountAddress sender = new AccountAddress(null);
+  protected AccountAddress sender = new AccountAddress(BytesValue.EMPTY);
 
   @Getter
   @Setter
-  protected AccountAddress recipient = new AccountAddress(null);
+  protected AccountAddress recipient = new AccountAddress(BytesValue.EMPTY);
 
   @Getter
   @Setter
@@ -43,7 +44,7 @@ public class Transaction {
 
   @Getter
   @Setter
-  protected BytesValue payload = new BytesValue(null);
+  protected BytesValue payload = BytesValue.EMPTY;
 
   @Getter
   @Setter
@@ -55,7 +56,7 @@ public class Transaction {
 
   @Getter
   @Setter
-  protected Signature signature;
+  protected Signature signature = Signature.of(BytesValue.EMPTY, new TxHash(BytesValue.EMPTY));
 
   @Getter
   @Setter
@@ -96,8 +97,8 @@ public class Transaction {
       final ByteArrayOutputStream raw = new ByteArrayOutputStream();
       final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(raw);
       dataOut.writeLong(getNonce());
-      dataOut.write(getSender().getValue());
-      dataOut.write(getRecipient().getValue());
+      dataOut.write(getSender().getBytesValueWithoutVersion().getValue());
+      dataOut.write(getRecipient().getBytesValueWithoutVersion().getValue());
       dataOut.writeLong(getAmount());
       dataOut.write(getPayload().getValue());
       dataOut.writeLong(getLimit());
@@ -112,7 +113,7 @@ public class Transaction {
       });
       dataOut.flush();
       dataOut.close();
-      return new TxHash(digest(raw.toByteArray()));
+      return new TxHash(of(digest(raw.toByteArray())));
     } catch (final IOException e) {
       throw new IllegalStateException(e);
     }

@@ -22,7 +22,7 @@ public class ContractInterfaceConverterFactory {
 
   protected final Function<ContractInferface, Blockchain.ABI> domainConverter = 
       domainContractInterface -> {
-        logger.trace("Domain status: {}", domainContractInterface);
+        logger.trace("Domain contract interface: {}", domainContractInterface);
         return Blockchain.ABI.newBuilder()
             .setVersion(domainContractInterface.getVersion())
             .setLanguage(domainContractInterface.getLanguage())
@@ -34,7 +34,7 @@ public class ContractInterfaceConverterFactory {
 
   protected final Function<Blockchain.ABI, ContractInferface> rpcConverter = 
       rpcContractInterface -> {
-        logger.trace("Blockchain status: {}", rpcContractInterface);
+        logger.trace("Rpc contract interface: {}", rpcContractInterface);
         final ContractInferface domainContractInterface = new ContractInferface();
         domainContractInterface.setVersion(rpcContractInterface.getVersion());
         domainContractInterface.setLanguage(rpcContractInterface.getLanguage());

@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.api;
+package hera.api.encode;
 
 import static hera.util.IoUtils.from;
 

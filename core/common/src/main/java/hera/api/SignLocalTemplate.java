@@ -26,7 +26,7 @@ public class SignLocalTemplate implements SignOperation {
   @Override
   public ResultOrError<Signature> sign(Transaction transaction) {
     try {
-      final BytesValue signature = keyPair.sign(transaction.calculateHash().get());
+      final BytesValue signature = keyPair.sign(transaction.calculateHash().getBytesValue().get());
       transaction.setSignature(Signature.of(signature, null));
       return success(Signature.of(signature, transaction.calculateHash()));
     } catch (Exception e) {
@@ -39,7 +39,7 @@ public class SignLocalTemplate implements SignOperation {
     try {
       final BytesValue signature = transaction.getSignature().getSign();
       transaction.setSignature(null);
-      return success(keyPair.verify(transaction.calculateHash().get(), signature));
+      return success(keyPair.verify(transaction.calculateHash().getBytesValue().get(), signature));
     } catch (Exception e) {
       return fail(new HerajException(e));
     }

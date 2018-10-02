@@ -18,7 +18,7 @@ public class PeerAddressConverterFactory {
 
   protected final Function<PeerAddress, types.Node.PeerAddress> domainConverter =
       domainPeerAddress -> {
-        logger.trace("Domain status: {}", domainPeerAddress);
+        logger.trace("Domain peer address: {}", domainPeerAddress);
         return types.Node.PeerAddress.newBuilder()
             .setAddress(copyFrom(domainPeerAddress.getAddress()))
             .setPort(domainPeerAddress.getPort())
@@ -28,7 +28,7 @@ public class PeerAddressConverterFactory {
 
   protected final Function<types.Node.PeerAddress, PeerAddress> rpcConverter =
       rpcStatus -> {
-        logger.trace("Blockchain status: {}", rpcStatus);
+        logger.trace("Rpc peer address: {}", rpcStatus);
         final PeerAddress domainStatus = new PeerAddress();
         domainStatus.setAddress(BytesValue.of(rpcStatus.getAddress().toByteArray()));
         domainStatus.setPort(rpcStatus.getPort());

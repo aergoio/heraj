@@ -34,8 +34,8 @@ public class BlockTemplateIT extends AbstractIT {
     final BlockHash bestBlockHash = status.getBestBlockHash();
     final Block block = blockTemplate.getBlock(bestBlockHash).getResult();
     assertNotNull(block);
-    assertTrue(0 < block.getHash().getBytesValue().length);
-    assertTrue(0 < block.getPreviousHash().getBytesValue().length);
+    assertTrue(!block.getHash().getBytesValue().isEmpty());
+    assertTrue(!block.getPreviousHash().getBytesValue().isEmpty());
   }
 
   @Test
@@ -44,8 +44,8 @@ public class BlockTemplateIT extends AbstractIT {
     final long bestBlockHeight = status.getBestHeight();
     final Block block = blockTemplate.getBlock(bestBlockHeight).getResult();
     assertNotNull(block);
-    assertTrue(0 < block.getHash().getBytesValue().length);
-    assertTrue(0 < block.getPreviousHash().getBytesValue().length);
+    assertTrue(!block.getHash().getBytesValue().isEmpty());
+    assertTrue(!block.getPreviousHash().getBytesValue().isEmpty());
   }
 
   @Test

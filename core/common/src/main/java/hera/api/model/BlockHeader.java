@@ -10,13 +10,14 @@ import lombok.ToString;
 
 @ToString
 public class BlockHeader {
-  @Getter
-  @Setter
-  protected BlockHash hash = new BlockHash(null);
 
   @Getter
   @Setter
-  protected BlockHash previousHash = new BlockHash(null);
+  protected BlockHash hash = new BlockHash(BytesValue.EMPTY);
+
+  @Getter
+  @Setter
+  protected BlockHash previousHash = new BlockHash(BytesValue.EMPTY);
 
   @Getter
   @Setter
@@ -28,17 +29,18 @@ public class BlockHeader {
 
   @Getter
   @Setter
-  protected BlockHash rootHash = new BlockHash(null);
+  protected BlockHash rootHash = new BlockHash(BytesValue.EMPTY);
 
   @Getter
   @Setter
-  protected TxHash txRootHash = new TxHash(null);
+  protected TxHash txRootHash = new TxHash(BytesValue.EMPTY);
 
   @Getter
   @Setter
-  protected Hash publicKey = new Hash(null);
+  protected Hash publicKey = new Hash(BytesValue.EMPTY);
 
   @Getter
   @Setter
-  protected Hash sign = new Hash(null);
+  protected Hash sign = new Hash(BytesValue.EMPTY);
+
 }

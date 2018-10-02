@@ -15,7 +15,7 @@ public class Account implements Adaptor {
 
   @Getter
   @Setter
-  protected AccountAddress address = new AccountAddress(null);
+  protected AccountAddress address = new AccountAddress(BytesValue.EMPTY);
 
   @Getter
   @Setter
@@ -32,24 +32,12 @@ public class Account implements Adaptor {
   /**
    * Create {@link Account}.
    *
-   * @param address address of account in byte array
-   * @param password password of account
-   *
-   * @return created account
-   */
-  public static Account of(final byte[] address, final String password) {
-    return of(AccountAddress.of(address), password);
-  }
-
-  /**
-   * Create {@link Account}.
-   *
    * @param address address of account
    * @param password password of account
    *
    * @return created account
    */
-  public static Account of(AccountAddress address, final String password) {
+  public static Account of(final AccountAddress address, final String password) {
     final Account account = new Account();
     account.setAddress(address);
     account.setPassword(password);

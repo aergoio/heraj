@@ -63,9 +63,10 @@ public class SignAsyncTemplate implements SignAsyncOperation {
           .filter(bytes -> 0 != bytes.length).map(BytesValue::of)
           .orElseThrow(() -> new RpcException(
               new SignException("Signing failed: sign field is not found at sign result")));
-      final TxHash hash = ofNullable(tx.getHash()).map(ByteString::toByteArray)
-          .filter(bytes -> 0 != bytes.length).map(TxHash::new).orElseThrow(() -> new RpcException(
-              new SignException("Signing failed: txHash field is not found at sign result")));
+      final TxHash hash =
+          ofNullable(tx.getHash()).map(ByteString::toByteArray).filter(bytes -> 0 != bytes.length)
+              .map(BytesValue::new).map(TxHash::new).orElseThrow(() -> new RpcException(
+                  new SignException("Signing failed: txHash field is not found at sign result")));
       return Signature.of(sign, hash);
     });
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());

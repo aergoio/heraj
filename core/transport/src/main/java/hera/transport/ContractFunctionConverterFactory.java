@@ -18,7 +18,7 @@ public class ContractFunctionConverterFactory {
 
   protected final Function<ContractFunction, Blockchain.Function> domainConverter =
       domainContractFunction -> {
-        logger.trace("Domain status: {}", domainContractFunction);
+        logger.trace("Domain contract function: {}", domainContractFunction);
         return Blockchain.Function.newBuilder().setName(domainContractFunction.getName())
             .addAllArguments(domainContractFunction.getArgumentNames().stream()
                 .map(n -> Blockchain.FnArgument.newBuilder().setName(n).build()).collect(toList()))
@@ -27,7 +27,7 @@ public class ContractFunctionConverterFactory {
 
   protected final Function<Blockchain.Function, ContractFunction> rpcConverter =
       rpcContractFunction -> {
-        logger.trace("Blockchain status: {}", rpcContractFunction);
+        logger.trace("Rpc contract function: {}", rpcContractFunction);
         final ContractFunction domainContractFunction = new ContractFunction();
         domainContractFunction.setName(rpcContractFunction.getName());
         domainContractFunction.setArgumentNames(rpcContractFunction.getArgumentsList().stream()

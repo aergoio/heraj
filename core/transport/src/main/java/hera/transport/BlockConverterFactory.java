@@ -4,6 +4,7 @@
 
 package hera.transport;
 
+import static hera.api.model.BytesValue.of;
 import static hera.util.TransportUtils.copyFrom;
 import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -29,47 +30,39 @@ public class BlockConverterFactory {
       new TransactionConverterFactory().create();
 
   protected final Function<Block, Blockchain.Block> domainConverter = domainBlock -> {
-    logger.trace("Domain status: {}", domainBlock);
+    logger.trace("Domain block: {}", domainBlock);
 
     final BlockHeader blockHeader = BlockHeader.newBuilder()
-        .setPrevBlockHash(copyFrom(domainBlock.getPreviousHash()))
-        .setBlockNo(domainBlock.getBlockNumber())
-        .setTimestamp(domainBlock.getTimestamp())
-        .setBlocksRootHash(copyFrom(domainBlock.getRootHash()))
-        .setTxsRootHash(copyFrom(domainBlock.getTxRootHash()))
-        .setPubKey(copyFrom(domainBlock.getPublicKey()))
-        .setSign(copyFrom(domainBlock.getSign()))
-        .build();
+        .setPrevBlockHash(copyFrom(domainBlock.getPreviousHash().getBytesValue()))
+        .setBlockNo(domainBlock.getBlockNumber()).setTimestamp(domainBlock.getTimestamp())
+        .setBlocksRootHash(copyFrom(domainBlock.getRootHash().getBytesValue()))
+        .setTxsRootHash(copyFrom(domainBlock.getTxRootHash().getBytesValue()))
+        .setPubKey(copyFrom(domainBlock.getPublicKey().getBytesValue()))
+        .setSign(copyFrom(domainBlock.getSign().getBytesValue())).build();
 
     final List<Blockchain.Tx> rpcTransactions = domainBlock.getTransactions().stream()
-        .map(transactionConverter::convertToRpcModel)
-        .collect(toList());
-    final BlockBody blockBody = BlockBody.newBuilder()
-        .addAllTxs(rpcTransactions)
-        .build();
+        .map(transactionConverter::convertToRpcModel).collect(toList());
+    final BlockBody blockBody = BlockBody.newBuilder().addAllTxs(rpcTransactions).build();
 
-    return Blockchain.Block.newBuilder()
-        .setHash(copyFrom(domainBlock.getHash()))
-        .setHeader(blockHeader)
-        .setBody(blockBody)
-        .build();
+    return Blockchain.Block.newBuilder().setHash(copyFrom(domainBlock.getHash().getBytesValue()))
+        .setHeader(blockHeader).setBody(blockBody).build();
   };
 
   protected final Function<Blockchain.Block, Block> rpcConverter = rpcBlock -> {
-    logger.trace("Blockchain status: {}", rpcBlock);
+    logger.trace("Rpc block: {}", rpcBlock);
 
     final BlockHeader rpcBlockHeader = rpcBlock.getHeader();
     final BlockBody rpcBlockBody = rpcBlock.getBody();
 
     final Block domainBlock = new Block();
-    domainBlock.setHash(new BlockHash(rpcBlock.getHash().toByteArray()));
+    domainBlock.setHash(new BlockHash(of(rpcBlock.getHash().toByteArray())));
     domainBlock.setBlockNumber(rpcBlockHeader.getBlockNo());
-    domainBlock.setRootHash(new BlockHash(rpcBlockHeader.getBlocksRootHash().toByteArray()));
+    domainBlock.setRootHash(new BlockHash(of(rpcBlockHeader.getBlocksRootHash().toByteArray())));
     domainBlock.setTimestamp(rpcBlockHeader.getTimestamp());
-    domainBlock.setPreviousHash(new BlockHash(rpcBlockHeader.getPrevBlockHash().toByteArray()));
-    domainBlock.setTxRootHash(new TxHash(rpcBlockHeader.getTxsRootHash().toByteArray()));
-    domainBlock.setPublicKey(new Hash(rpcBlockHeader.getPubKey().toByteArray()));
-    domainBlock.setSign(new Hash(rpcBlockHeader.getSign().toByteArray()));
+    domainBlock.setPreviousHash(new BlockHash(of(rpcBlockHeader.getPrevBlockHash().toByteArray())));
+    domainBlock.setTxRootHash(new TxHash(of(rpcBlockHeader.getTxsRootHash().toByteArray())));
+    domainBlock.setPublicKey(new Hash(of(rpcBlockHeader.getPubKey().toByteArray())));
+    domainBlock.setSign(new Hash(of(rpcBlockHeader.getSign().toByteArray())));
 
     final List<Transaction> transactions = rpcBlockBody.getTxsList().stream()
         .map(transactionConverter::convertToDomainModel).collect(toList());

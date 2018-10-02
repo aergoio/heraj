@@ -19,7 +19,7 @@ public class AccountStateConverterFactory {
   };
 
   protected final Function<Blockchain.State, Account> rpcConverter = rpcAccountState -> {
-    logger.trace("Blockchain status: {}", rpcAccountState);
+    logger.trace("Rpc account state: {}", rpcAccountState);
     final Account domainAccount = new Account();
     domainAccount.setNonce(rpcAccountState.getNonce());
     domainAccount.setBalance(rpcAccountState.getBalance());

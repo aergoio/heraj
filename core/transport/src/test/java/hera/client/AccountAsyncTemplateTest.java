@@ -4,6 +4,7 @@
 
 package hera.client;
 
+import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -33,10 +34,10 @@ import types.Rpc;
 public class AccountAsyncTemplateTest extends AbstractTestCase {
 
   protected static final EncryptedPrivateKey ENCRYPTED_PRIVATE_KEY =
-      EncryptedPrivateKey.of(new byte[] {EncryptedPrivateKey.PRIVATE_KEY_VERSION});
+      new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.PRIVATE_KEY_VERSION}));
 
   protected static final AccountAddress ACCOUNT_ADDRESS =
-      AccountAddress.of(new byte[] {AccountAddress.ADDRESS_VERSION});
+      new AccountAddress(of(new byte[] {AccountAddress.ADDRESS_VERSION}));
 
   protected static final String PASSWORD = randomUUID().toString();
 

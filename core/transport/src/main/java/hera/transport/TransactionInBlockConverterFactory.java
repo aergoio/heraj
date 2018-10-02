@@ -4,6 +4,7 @@
 
 package hera.transport;
 
+import static hera.api.model.BytesValue.of;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -22,20 +23,20 @@ public class TransactionInBlockConverterFactory {
 
   protected final Function<Transaction, Blockchain.TxInBlock> domainConverter =
       domainTransaction -> {
-        logger.trace("Domain status: {}", domainTransaction);
-        final Blockchain.TxIdx rpcTxIdx =
-            Blockchain.TxIdx.newBuilder().setBlockHash(copyFrom(domainTransaction.getBlockHash()))
-                .setIdx(domainTransaction.getIndexInBlock()).build();
+        logger.trace("Domain transaction in block: {}", domainTransaction);
+        final Blockchain.TxIdx rpcTxIdx = Blockchain.TxIdx.newBuilder()
+            .setBlockHash(copyFrom(domainTransaction.getBlockHash().getBytesValue()))
+            .setIdx(domainTransaction.getIndexInBlock()).build();
         final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(domainTransaction);
         return Blockchain.TxInBlock.newBuilder().setTxIdx(rpcTxIdx).setTx(rpcTx).build();
       };
 
   protected final Function<Blockchain.TxInBlock, Transaction> rpcConverter = rpcTransaction -> {
-    logger.trace("Blockchain status: {}", rpcTransaction);
+    logger.trace("Rpc transaction in block: {}", rpcTransaction);
     final Blockchain.TxIdx rpcTxIdx = rpcTransaction.getTxIdx();
     final Blockchain.Tx rpcTx = rpcTransaction.getTx();
     final Transaction domainTransaction = transactionConverter.convertToDomainModel(rpcTx);
-    domainTransaction.setBlockHash(BlockHash.of(rpcTxIdx.getBlockHash().toByteArray()));
+    domainTransaction.setBlockHash(new BlockHash(of(rpcTxIdx.getBlockHash().toByteArray())));
     domainTransaction.setIndexInBlock(rpcTxIdx.getIdx());
     return domainTransaction;
   };

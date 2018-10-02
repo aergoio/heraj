@@ -4,52 +4,106 @@
 
 package hera.api.model;
 
+import hera.api.encode.Encoded;
 import hera.exception.InvalidVersionException;
+import hera.util.Adaptor;
 import hera.util.Base58Utils;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
+import lombok.Getter;
 
-public class AccountAddress extends BytesValue {
+public class AccountAddress implements Adaptor {
 
   public static final byte ADDRESS_VERSION = 0x42;
 
   /**
-   * Create {@code AccountAddress} with a raw bytes array.
+   * Create {@code AccountAddress} with a base58 with checksum encoded value.
    *
-   * @param rawBytes value
+   * @param encoded an encoded value
    * @return created {@link AccountAddress}
+   *
+   * @throws InvalidVersionException when address version mismatch
    */
-  public static AccountAddress of(final byte[] rawBytes) {
-    return of(rawBytes, AccountAddress::new);
+  public static AccountAddress of(final Encoded encoded) {
+    return new AccountAddress(encoded);
   }
 
   /**
-   * Create {@code AccountAddress} with a base58 with checksum encoded value.
+   * Create {@code AccountAddress}.
    *
-   * @param encoded base58 encoded value
+   * @param bytesValue {@link BytesValue}
    * @return created {@link AccountAddress}
+   *
+   * @throws InvalidVersionException when address version mismatch
    */
-  public static AccountAddress of(final String encoded) {
-    return of(encoded, e -> {
-      final byte[] withVersion = Base58Utils.decodeWithCheck(encoded);
-      if (ADDRESS_VERSION != withVersion[0]) {
-        throw new InvalidVersionException(ADDRESS_VERSION, withVersion[0]);
-      }
-      return Arrays.copyOfRange(withVersion, 1, withVersion.length);
-    }, AccountAddress::new);
+  public static AccountAddress of(final BytesValue bytesValue) {
+    return new AccountAddress(bytesValue);
   }
 
-  public AccountAddress(final byte[] value) {
-    super(value);
+  @Getter
+  protected final BytesValue bytesValue;
+
+  /**
+   * AccountAddress constructor.
+   *
+   * @param encoded an encoded value
+   *
+   * @throws InvalidVersionException when address version mismatch
+   */
+  public AccountAddress(final Encoded encoded) {
+    this(encoded.decode());
+  }
+
+  /**
+   * AccountAddress constructor.
+   *
+   * @param bytesValue {@link BytesValue}
+   *
+   * @throws InvalidVersionException when address version mismatch
+   */
+  public AccountAddress(final BytesValue bytesValue) {
+    if (BytesValue.EMPTY != bytesValue) {
+      final byte[] rawBytes = bytesValue.getValue();
+      if (ADDRESS_VERSION != rawBytes[0]) {
+        throw new InvalidVersionException(ADDRESS_VERSION, rawBytes[0]);
+      }
+    }
+    this.bytesValue = bytesValue;
+  }
+
+  /**
+   * Get {@code BytesValue} without version byte.
+   *
+   * @return bytesValue
+   */
+  public BytesValue getBytesValueWithoutVersion() {
+    if (BytesValue.EMPTY == bytesValue) {
+      return bytesValue;
+    }
+    final byte[] withVersion = bytesValue.getValue();
+    return BytesValue.of(Arrays.copyOfRange(withVersion, 1, withVersion.length));
   }
 
   @Override
-  public String getEncodedValue() throws IOException {
-    final byte[] withVersion = new byte[value.length + 1];
-    withVersion[0] = ADDRESS_VERSION;
-    System.arraycopy(value, 0, withVersion, 1, value.length);
-    return Base58Utils.encodeWithCheck(withVersion);
+  public int hashCode() {
+    return bytesValue.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (null == obj) {
+      return false;
+    }
+    if (!obj.getClass().equals(getClass())) {
+      return false;
+    }
+    final AccountAddress other = (AccountAddress) obj;
+    return bytesValue.equals(other.bytesValue);
+  }
+
+  @Override
+  public String toString() {
+    return Base58Utils.encodeWithCheck(bytesValue.getValue());
   }
 
   @SuppressWarnings("unchecked")
@@ -57,6 +111,8 @@ public class AccountAddress extends BytesValue {
   public <T> Optional<T> adapt(Class<T> adaptor) {
     if (adaptor.isAssignableFrom(AccountAddress.class)) {
       return (Optional<T>) Optional.of(this);
+    } else if (adaptor.isAssignableFrom(ContractAddress.class)) {
+      return (Optional<T>) Optional.ofNullable(ContractAddress.of(getBytesValue()));
     }
     return Optional.empty();
   }

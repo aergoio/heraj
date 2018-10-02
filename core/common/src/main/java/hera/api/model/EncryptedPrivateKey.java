@@ -4,61 +4,90 @@
 
 package hera.api.model;
 
+import hera.api.encode.Encoded;
 import hera.exception.InvalidVersionException;
 import hera.util.Base58Utils;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Optional;
+import lombok.Getter;
 
-public class EncryptedPrivateKey extends BytesValue {
+public class EncryptedPrivateKey {
 
   public static final byte PRIVATE_KEY_VERSION = (byte) 0xAA;
 
   /**
-   * Create {@code EncryptedPrivateKey} with a raw bytes array.
+   * Create {@code EncryptedPrivateKey} with an encoded value.
    *
-   * @param bytes value
+   * @param encoded an encoded value
    * @return created {@link EncryptedPrivateKey}
+   *
+   * @throws InvalidVersionException when address version mismatch
    */
-  public static EncryptedPrivateKey of(final byte[] bytes) {
-    return of(bytes, EncryptedPrivateKey::new);
+  public static EncryptedPrivateKey of(final Encoded encoded) {
+    return new EncryptedPrivateKey(encoded);
   }
 
   /**
-   * Create {@code EncryptedPrivateKey} with a base58 with checksum encoded value.
+   * Create {@code EncryptedPrivateKey}.
    *
-   * @param encoded base58 with checksum encoded value
+   * @param bytesValue {@link BytesValue}
    * @return created {@link EncryptedPrivateKey}
+   *
+   * @throws InvalidVersionException when address version mismatch
    */
-  public static EncryptedPrivateKey of(final String encoded) {
-    return of(encoded, e -> {
-      final byte[] withVersion = Base58Utils.decodeWithCheck(encoded);
-      if (PRIVATE_KEY_VERSION != withVersion[0]) {
-        throw new InvalidVersionException(PRIVATE_KEY_VERSION, withVersion[0]);
+  public static EncryptedPrivateKey of(final BytesValue bytesValue) {
+    return new EncryptedPrivateKey(bytesValue);
+  }
+
+  @Getter
+  protected final BytesValue bytesValue;
+
+  /**
+   * EncryptedPrivateKey constructor.
+   *
+   * @param encoded an encoded value
+   *
+   * @throws InvalidVersionException when address version mismatch
+   */
+  public EncryptedPrivateKey(final Encoded encoded) {
+    this(encoded.decode());
+  }
+
+  /**
+   * EncryptedPrivateKey constructor.
+   *
+   * @param bytesValue {@link BytesValue}
+   *
+   * @throws InvalidVersionException when address version mismatch
+   */
+  public EncryptedPrivateKey(final BytesValue bytesValue) {
+    if (BytesValue.EMPTY != bytesValue) {
+      final byte[] rawBytes = bytesValue.getValue();
+      if (PRIVATE_KEY_VERSION != rawBytes[0]) {
+        throw new InvalidVersionException(PRIVATE_KEY_VERSION, rawBytes[0]);
       }
-      return Arrays.copyOfRange(withVersion, 1, withVersion.length);
-    }, EncryptedPrivateKey::new);
-  }
-
-  public EncryptedPrivateKey(final byte[] value) {
-    super(value);
-  }
-
-  @Override
-  public String getEncodedValue() throws IOException {
-    final byte[] withVersion = new byte[value.length + 1];
-    withVersion[0] = PRIVATE_KEY_VERSION;
-    System.arraycopy(value, 0, withVersion, 1, value.length);
-    return Base58Utils.encodeWithCheck(withVersion);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public <T> Optional<T> adapt(Class<T> adaptor) {
-    if (adaptor.isAssignableFrom(EncryptedPrivateKey.class)) {
-      return (Optional<T>) Optional.of(this);
     }
-    return Optional.empty();
+    this.bytesValue = bytesValue;
+  }
+
+  @Override
+  public int hashCode() {
+    return bytesValue.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (null == obj) {
+      return false;
+    }
+    if (!obj.getClass().equals(getClass())) {
+      return false;
+    }
+    final EncryptedPrivateKey other = (EncryptedPrivateKey) obj;
+    return bytesValue.equals(other.bytesValue);
+  }
+
+  @Override
+  public String toString() {
+    return Base58Utils.encodeWithCheck(bytesValue.getValue());
   }
 
 }

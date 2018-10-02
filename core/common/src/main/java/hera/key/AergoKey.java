@@ -4,11 +4,12 @@
 
 package hera.key;
 
+import static hera.api.model.BytesValue.of;
 import static hera.util.IoUtils.from;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import hera.api.Base58Transformer;
-import hera.api.Transformer;
+import hera.api.encode.Base58Transformer;
+import hera.api.encode.Transformer;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.exception.HerajException;
@@ -55,8 +56,8 @@ public class AergoKey implements KeyPair {
   // publickey.x
   protected static final int PUBLIC_X_LEN = 32;
 
-  // publickey.x + [odd|even] of publickey.y
-  protected static final int ADDRESS_LENGTH = PUBLIC_X_LEN + 1;
+  // <address version> + [odd|even] of publickey.y + publickey.x
+  protected static final int ADDRESS_LENGTH = 1 + 1 + PUBLIC_X_LEN;
 
   protected static final Transformer transformer = new Base58Transformer();
 
@@ -76,19 +77,20 @@ public class AergoKey implements KeyPair {
     final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =
         (org.bouncycastle.jce.interfaces.ECPublicKey) this.ecdsakey.getPublicKey();
     final byte[] rawAddress = new byte[ADDRESS_LENGTH];
-    rawAddress[0] = (byte) (ecPublicKey.getQ().getY().toBigInteger().testBit(0) ? 0x03 : 0x02);
+    rawAddress[0] = AccountAddress.ADDRESS_VERSION;
+    rawAddress[1] = (byte) (ecPublicKey.getQ().getY().toBigInteger().testBit(0) ? 0x03 : 0x02);
 
     byte[] xbyteArray = ecPublicKey.getQ().getX().toBigInteger().toByteArray();
     // xbyteArray may have an extra sign bit
     final int extraBytesCount = xbyteArray.length - PUBLIC_X_LEN;
     if (extraBytesCount >= 1) {
-      System.arraycopy(xbyteArray, extraBytesCount, rawAddress, 1,
+      System.arraycopy(xbyteArray, extraBytesCount, rawAddress, 2,
           xbyteArray.length - extraBytesCount);
     } else {
-      System.arraycopy(xbyteArray, 0, rawAddress, 1, xbyteArray.length);
+      System.arraycopy(xbyteArray, 0, rawAddress, 2, xbyteArray.length);
     }
 
-    this.address = AccountAddress.of(rawAddress);
+    this.address = AccountAddress.of(of(rawAddress));
   }
 
   @Override
@@ -164,7 +166,8 @@ public class AergoKey implements KeyPair {
   @Override
   public String getEncodedAddress() {
     try {
-      return getAddress().getEncodedValue();
+      return from(
+          transformer.encode(new ByteArrayInputStream(getAddress().getBytesValue().getValue())));
     } catch (IOException e) {
       throw new HerajException(e);
     }

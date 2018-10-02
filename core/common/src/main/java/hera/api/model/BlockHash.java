@@ -4,32 +4,47 @@
 
 package hera.api.model;
 
+import hera.api.encode.Base58;
 import java.util.Optional;
 
 public class BlockHash extends Hash {
 
   /**
-   * Create {@code BlockHash} with a raw bytes array.
+   * Create {@code Hash} with a base58 encoded value.
    *
-   * @param bytes value
+   * @param encoded Base58 with checksum encoded
    * @return created {@link BlockHash}
    */
-  public static BlockHash of(final byte[] bytes) {
-    return of(bytes, BlockHash::new);
+  public static BlockHash of(final Base58 encoded) {
+    return new BlockHash(encoded);
   }
 
   /**
-   * Create {@code BlockHash} with a base58 encoded value.
+   * Create {@code Hash}.
    *
-   * @param encoded base58 encoded value
+   * @param bytesValue {@link BytesValue}
    * @return created {@link BlockHash}
    */
-  public static BlockHash of(final String encoded) {
-    return of(encoded, BlockHash::new);
+  public static BlockHash of(final BytesValue bytesValue) {
+    return new BlockHash(bytesValue);
   }
 
-  public BlockHash(final byte[] value) {
-    super(value);
+  /**
+   * BlockHash constructor.
+   *
+   * @param encoded Base58 encoded value
+   */
+  public BlockHash(final Base58 encoded) {
+    super(encoded);
+  }
+
+  /**
+   * BlockHash constructor.
+   *
+   * @param bytesValue {@link BytesValue}
+   */
+  public BlockHash(final BytesValue bytesValue) {
+    super(bytesValue);
   }
 
   @SuppressWarnings("unchecked")
@@ -37,12 +52,10 @@ public class BlockHash extends Hash {
   public <T> Optional<T> adapt(Class<T> adaptor) {
     if (adaptor.isAssignableFrom(BlockHash.class)) {
       return (Optional<T>) Optional.of(this);
-    } else if (adaptor.isAssignableFrom(Hash.class)) {
-      return (Optional<T>) Optional.ofNullable(Hash.of(getValue()));
-    } else if (adaptor.isAssignableFrom(TxHash.class)) {
-      return (Optional<T>) Optional.ofNullable(TxHash.of(getValue()));
     } else if (adaptor.isAssignableFrom(ContractTxHash.class)) {
-      return (Optional<T>) Optional.ofNullable(ContractTxHash.of(getValue()));
+      return (Optional<T>) Optional.ofNullable(ContractTxHash.of(getBytesValue()));
+    } else if (adaptor.isAssignableFrom(TxHash.class)) {
+      return (Optional<T>) Optional.ofNullable(TxHash.of(getBytesValue()));
     }
     return Optional.empty();
   }

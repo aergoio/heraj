@@ -4,12 +4,14 @@
 
 package hera.client;
 
+import static hera.api.model.BytesValue.of;
 import static hera.api.tupleorerror.FunctionChain.success;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
+
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
 import hera.api.AccountAsyncOperation;
@@ -41,10 +43,10 @@ import types.Rpc;
 public class ContractAsyncTemplateTest extends AbstractTestCase {
 
   protected static final AccountAddress EXECUTOR_ADDRESS =
-      AccountAddress.of(randomUUID().toString().getBytes());
+      new AccountAddress(of(new byte[] {AccountAddress.ADDRESS_VERSION}));
 
   protected static final ContractAddress CONTRACT_ADDRESS =
-      ContractAddress.of(randomUUID().toString().getBytes());
+      new ContractAddress(of(new byte[] {AccountAddress.ADDRESS_VERSION}));
 
   protected static final byte[] CONTRACT_PAYLOAD =
       Base58Utils.encode(randomUUID().toString().getBytes()).getBytes();
@@ -77,8 +79,8 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
             mock(AccountAsyncOperation.class), mock(TransactionAsyncOperation.class),
             receiptConverter, interfaceConverter, contractResultConverter);
 
-    final ResultOrErrorFuture<ContractTxReceipt> receipt =
-        contractAsyncTemplate.getReceipt(ContractTxHash.of(randomUUID().toString().getBytes()));
+    final ResultOrErrorFuture<ContractTxReceipt> receipt = contractAsyncTemplate
+        .getReceipt(new ContractTxHash(of(randomUUID().toString().getBytes())));
     assertNotNull(receipt);
   }
 
@@ -102,8 +104,8 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
         mockSignAsyncOperation, mockAccountAsyncOperation, mockTransactionAsyncOperation,
         receiptConverter, interfaceConverter, contractResultConverter);
 
-    final ResultOrErrorFuture<ContractTxHash> deployTxHash = contractAsyncTemplate
-        .deploy(AccountAddress.of(randomUUID().toString().getBytes()), () -> CONTRACT_PAYLOAD);
+    final ResultOrErrorFuture<ContractTxHash> deployTxHash =
+        contractAsyncTemplate.deploy(EXECUTOR_ADDRESS, () -> CONTRACT_PAYLOAD);
     assertNotNull(deployTxHash);
   }
 

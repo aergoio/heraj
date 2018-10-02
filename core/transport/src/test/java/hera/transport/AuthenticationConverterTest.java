@@ -4,6 +4,7 @@
 
 package hera.transport;
 
+import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 
@@ -16,7 +17,7 @@ import types.Rpc;
 public class AuthenticationConverterTest extends AbstractTestCase {
 
   protected static final AccountAddress ACCOUNT_ADDRESS =
-      AccountAddress.of(new byte[] {AccountAddress.ADDRESS_VERSION});
+      new AccountAddress(of(new byte[] {AccountAddress.ADDRESS_VERSION}));
 
   @Test
   public void testConvert() {

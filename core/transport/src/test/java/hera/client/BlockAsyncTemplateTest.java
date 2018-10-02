@@ -4,6 +4,7 @@
 
 package hera.client;
 
+import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -50,7 +51,7 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
         new BlockAsyncTemplate(aergoService, blockConverter);
 
     final ResultOrErrorFuture<Block> block =
-        blockAsyncTemplate.getBlock(new BlockHash(randomUUID().toString().getBytes()));
+        blockAsyncTemplate.getBlock(new BlockHash(of(randomUUID().toString().getBytes())));
     assertNotNull(block);
   }
 
@@ -77,7 +78,7 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
         new BlockAsyncTemplate(aergoService, blockConverter);
 
     final ResultOrErrorFuture<List<BlockHeader>> blockHeaders = blockAsyncTemplate.listBlockHeaders(
-        new BlockHash(randomUUID().toString().getBytes()), randomUUID().hashCode());
+        new BlockHash(of(randomUUID().toString().getBytes())), randomUUID().hashCode());
     assertNotNull(blockHeaders);
   }
 

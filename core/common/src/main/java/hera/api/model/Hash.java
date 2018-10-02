@@ -4,33 +4,83 @@
 
 package hera.api.model;
 
-public class Hash extends BytesValue {
+import hera.api.encode.Encoded;
+import hera.util.Adaptor;
+import hera.util.Base58Utils;
+import java.util.Optional;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+public class Hash implements Adaptor {
 
   /**
-   * Create {@code Hash} with a raw bytes array.
+   * Create {@code Hash} with an encoded value.
    *
-   * @param bytes value
+   * @param encoded an encoded value
    * @return created {@link Hash}
    */
-  public static Hash of(final byte[] bytes) {
-    return of(bytes, Hash::new);
+  public static Hash of(final Encoded encoded) {
+    return new Hash(encoded);
   }
 
   /**
-   * Create {@code Hash} with a base58 encoded value.
+   * Create {@code Hash}.
    *
-   * @param encoded base58 encoded value
+   * @param bytesValue {@link BytesValue}
    * @return created {@link Hash}
    */
-  public static Hash of(final String encoded) {
-    return of(encoded, Hash::new);
+  public static Hash of(final BytesValue bytesValue) {
+    return new Hash(bytesValue);
   }
 
-  public Hash(final byte[] value) {
-    super(value);
+  @Getter
+  protected final BytesValue bytesValue;
+
+  /**
+   * Hash constructor.
+   *
+   * @param encoded an encoded value
+   */
+  public Hash(final Encoded encoded) {
+    this(encoded.decode());
   }
 
-  public byte[] getBytesValue() {
-    return value;
+  @Override
+  public int hashCode() {
+    return bytesValue.hashCode();
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (null == obj) {
+      return false;
+    }
+    if (!obj.getClass().equals(getClass())) {
+      return false;
+    }
+    final Hash other = (Hash) obj;
+    return bytesValue.equals(other.bytesValue);
+  }
+
+  @Override
+  public String toString() {
+    return Base58Utils.encode(bytesValue.getValue());
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> Optional<T> adapt(Class<T> adaptor) {
+    if (adaptor.isAssignableFrom(Hash.class)) {
+      return (Optional<T>) Optional.of(this);
+    } else if (adaptor.isAssignableFrom(BlockHash.class)) {
+      return (Optional<T>) Optional.ofNullable(BlockHash.of(getBytesValue()));
+    } else if (adaptor.isAssignableFrom(ContractTxHash.class)) {
+      return (Optional<T>) Optional.ofNullable(ContractTxHash.of(getBytesValue()));
+    } else if (adaptor.isAssignableFrom(TxHash.class)) {
+      return (Optional<T>) Optional.ofNullable(TxHash.of(getBytesValue()));
+    }
+    return Optional.empty();
+  }
+
 }

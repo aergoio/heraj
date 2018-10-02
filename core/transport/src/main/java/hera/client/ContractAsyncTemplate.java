@@ -21,9 +21,9 @@ import com.google.protobuf.ByteString;
 import hera.FutureChainer;
 import hera.api.AccountAsyncOperation;
 import hera.api.ContractAsyncOperation;
-import hera.api.Decoder;
 import hera.api.SignAsyncOperation;
 import hera.api.TransactionAsyncOperation;
+import hera.api.encode.Decoder;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
@@ -99,7 +99,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
     ResultOrErrorFuture<ContractTxReceipt> nextFuture =
         ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-    final ByteString byteString = copyFrom(deployTxHash);
+    final ByteString byteString = copyFrom(deployTxHash.getBytesValue());
     final Rpc.SingleBytes hashBytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
     final ListenableFuture<Blockchain.Receipt> listenableFuture =
         aergoService.getReceipt(hashBytes);
@@ -146,7 +146,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
     ResultOrErrorFuture<ContractInferface> nextFuture =
         ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-    final ByteString byteString = copyFrom(contractAddress);
+    final ByteString byteString = copyFrom(contractAddress.getBytesValue());
     final Rpc.SingleBytes hashBytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
     final ListenableFuture<Blockchain.ABI> listenableFuture = aergoService.getABI(hashBytes);
     FutureChainer<Blockchain.ABI, ContractInferface> callback =
@@ -186,8 +186,9 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
       return ResultOrErrorFutureFactory.supply(() -> fail(e));
     }
 
-    final Blockchain.Query query = Blockchain.Query.newBuilder()
-        .setContractAddress(copyFrom(contractAddress)).setQueryinfo(queryInfo).build();
+    final Blockchain.Query query =
+        Blockchain.Query.newBuilder().setContractAddress(copyFrom(contractAddress.getBytesValue()))
+            .setQueryinfo(queryInfo).build();
     final ListenableFuture<SingleBytes> listenableFuture = aergoService.queryContract(query);
     FutureChainer<SingleBytes, ContractResult> callback =
         new FutureChainer<>(nextFuture, s -> contractResultConverter.convertToDomainModel(s));

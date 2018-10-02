@@ -12,7 +12,6 @@ import static org.junit.Assert.assertTrue;
 import hera.api.SignLocalTemplate;
 import hera.api.model.Account;
 import hera.api.model.Authentication;
-import hera.api.model.BytesValue;
 import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
@@ -116,7 +115,7 @@ public class TransactionTemplateIT extends AbstractIT {
     transaction.setRecipient(recipient.getAddress());
 
     final TxHash hash = transactionTemplate.send(transaction).getResult();
-    logger.debug("Hash: {}", HexUtils.encode(hash.getValue()));
+    logger.debug("Hash: {}", HexUtils.encode(hash.getBytesValue().getValue()));
     assertNotNull(hash);
 
     final Transaction queried = transactionTemplate.getTransaction(hash).getResult();
