@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.client;
+package hera.client.it;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -11,6 +11,8 @@ import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
 import hera.api.model.BlockchainStatus;
+import hera.client.BlockChainEitherTemplate;
+import hera.client.BlockEitherTemplate;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;

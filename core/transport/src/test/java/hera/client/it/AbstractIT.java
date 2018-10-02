@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.client;
+package hera.client.it;
 
 import static hera.DefaultConstants.DEFAULT_ENDPOINT;
 import static org.slf4j.LoggerFactory.getLogger;

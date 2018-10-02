@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.client;
+package hera.client.it;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
@@ -16,6 +16,9 @@ import hera.api.model.Hash;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.client.AccountEitherTemplate;
+import hera.client.SignEitherTemplate;
+import hera.client.TransactionEitherTemplate;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.util.HexUtils;

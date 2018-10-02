@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.client;
+package hera.client.it;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
@@ -12,6 +12,7 @@ import static org.junit.Assert.assertTrue;
 import hera.api.model.Account;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.client.AccountEitherTemplate;
 import hera.util.HexUtils;
 import org.junit.Before;
 import org.junit.Test;

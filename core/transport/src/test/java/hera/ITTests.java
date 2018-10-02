@@ -4,11 +4,11 @@
 
 package hera;
 
-import hera.client.AccountTemplateIT;
-import hera.client.BlockChainTemplateIT;
-import hera.client.BlockTemplateIT;
-import hera.client.ContractTemplateIT;
-import hera.client.TransactionTemplateIT;
+import hera.client.it.AccountTemplateIT;
+import hera.client.it.BlockChainTemplateIT;
+import hera.client.it.BlockTemplateIT;
+import hera.client.it.ContractTemplateIT;
+import hera.client.it.TransactionTemplateIT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
