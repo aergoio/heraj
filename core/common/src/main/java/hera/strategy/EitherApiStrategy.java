@@ -8,5 +8,5 @@ import hera.Strategy;
 import hera.api.AergoEitherApi;
 
 public interface EitherApiStrategy extends Strategy {
-  AergoEitherApi getEitherApi();
+  AergoEitherApi getApi();
 }

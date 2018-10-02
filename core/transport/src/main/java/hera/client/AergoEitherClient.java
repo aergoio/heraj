@@ -29,24 +29,25 @@ public class AergoEitherClient extends AbstractEitherAergoApi implements Closeab
   protected final ManagedChannel channel;
 
   @Getter(lazy = true)
-  private final SignEitherOperation signOperation = new SignEitherTemplate(channel);
+  private final SignEitherOperation signEitherOperation = new SignEitherTemplate(channel);
 
   @Getter(lazy = true)
-  private final AccountEitherOperation accountOperation = new AccountEitherTemplate(channel);
+  private final AccountEitherOperation accountEitherOperation = new AccountEitherTemplate(channel);
 
   @Getter(lazy = true)
-  private final TransactionEitherOperation transactionOperation =
+  private final TransactionEitherOperation transactionEitherOperation =
       new TransactionEitherTemplate(channel);
 
   @Getter(lazy = true)
-  private final BlockEitherOperation blockOperation = new BlockEitherTemplate(channel);
+  private final BlockEitherOperation blockEitherOperation = new BlockEitherTemplate(channel);
 
   @Getter(lazy = true)
-  private final BlockChainEitherOperation blockChainOperation =
+  private final BlockChainEitherOperation blockChainEitherOperation =
       new BlockChainEitherTemplate(channel);
 
   @Getter(lazy = true)
-  private final ContractEitherOperation contractOperation = new ContractEitherTemplate(channel);
+  private final ContractEitherOperation contractEitherOperation =
+      new ContractEitherTemplate(channel);
 
   @Override
   public void close() {

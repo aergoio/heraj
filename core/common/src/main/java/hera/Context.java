@@ -35,7 +35,7 @@ public class Context {
    */
   public AergoEitherApi api() {
     return getStrategy(EitherApiStrategy.class)
-        .map(EitherApiStrategy::getEitherApi)
+        .map(EitherApiStrategy::getApi)
         .orElseThrow(IllegalStateException::new);
   }
 

@@ -16,12 +16,13 @@ public class AergoEitherClientApiStrategy implements EitherApiStrategy, ContextA
   @Setter
   protected Context context;
 
+  @SuppressWarnings("rawtypes")
   private static AergoEitherClient apply(ConnectStrategy strategy) {
     return new AergoEitherClient((ManagedChannel) strategy.connect());
   }
 
   @Override
-  public AergoEitherApi getEitherApi() {
+  public AergoEitherApi getApi() {
     return context.getStrategy(ConnectStrategy.class)
         .map(AergoEitherClientApiStrategy::apply).get();
   }
