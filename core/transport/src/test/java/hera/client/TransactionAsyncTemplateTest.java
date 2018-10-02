@@ -13,7 +13,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
-import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -63,34 +62,6 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
     final ResultOrErrorFuture<Transaction> transaction =
         transactionAsyncTemplate.getTransaction(new TxHash(of(randomUUID().toString().getBytes())));
     assertNotNull(transaction);
-  }
-
-  @Test
-  public void testSign() {
-    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
-    when(aergoService.signTX(any())).thenReturn(mockListenableFuture);
-
-    final TransactionAsyncTemplate transactionAsyncTemplate = new TransactionAsyncTemplate(
-        aergoService, transactionConverter, transactionInBlockConverter);
-
-    final ResultOrErrorFuture<Signature> signature =
-        transactionAsyncTemplate.sign(new Transaction());
-    assertNotNull(signature);
-  }
-
-  @Test
-  public void testVerify() {
-    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
-    when(aergoService.verifyTX(any())).thenReturn(mockListenableFuture);
-
-    final TransactionAsyncTemplate transactionAsyncTemplate = new TransactionAsyncTemplate(
-        aergoService, transactionConverter, transactionInBlockConverter);
-
-    final ResultOrErrorFuture<Boolean> verifyResult =
-        transactionAsyncTemplate.verify(new Transaction());
-    assertNotNull(verifyResult);
   }
 
   @Test

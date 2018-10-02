@@ -90,13 +90,6 @@ public class NaiveWallet implements Wallet {
    * @param transaction transaction to send
    */
   public void sendTransaction(final Transaction transaction) {
-    final AergoApi api = this.context.api();
-    final TransactionOperation transactionOperation = api.getTransactionOperation();
-
-    final Signature signature = transactionOperation.sign(transaction).getResult();
-    final Transaction signedTransaction = Transaction.copyOf(transaction);
-    signedTransaction.setSignature(signature);
-    transactionOperation.commit(signedTransaction);
   }
 
   /**

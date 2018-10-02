@@ -32,6 +32,8 @@ public class TransactionTemplateBenchmark {
 
     protected ManagedChannel channel = null;
 
+    protected SignTemplate signTemplate = null;
+
     protected AccountTemplate accountTemplate = null;
 
     protected TransactionTemplate transactionTemplate = null;
@@ -48,6 +50,7 @@ public class TransactionTemplateBenchmark {
           .forAddress("localhost", 7845)
           .usePlaintext()
           .build();
+      signTemplate = new SignTemplate(channel);
       accountTemplate = new AccountTemplate(channel);
       transactionTemplate = new TransactionTemplate(channel);
       sender = accountTemplate.create(PASSWORD).getResult();
@@ -66,7 +69,7 @@ public class TransactionTemplateBenchmark {
       transaction.setAmount(30);
       transaction.setSender(sender.getAddress());
       transaction.setRecipient(recipient.getAddress());
-      final Signature signature = transactionTemplate.sign(transaction).getResult();
+      final Signature signature = signTemplate.sign(transaction).getResult();
 
       transaction.setSignature(signature);
       transactionTemplate.commit(transaction);

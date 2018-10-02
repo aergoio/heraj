@@ -14,7 +14,6 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 import hera.AbstractTestCase;
 import hera.api.TransactionAsyncOperation;
-import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrError;
@@ -43,34 +42,6 @@ public class TransactionTemplateTest extends AbstractTestCase {
     final ResultOrError<Transaction> transaction =
         transactionTemplate.getTransaction(new TxHash(of(randomUUID().toString().getBytes())));
     assertNotNull(transaction);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testSign() throws Exception {
-    ResultOrErrorFuture<Signature> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    TransactionAsyncOperation asyncOperationMock = mock(TransactionAsyncOperation.class);
-    when(asyncOperationMock.sign(any(Transaction.class))).thenReturn(futureMock);
-
-    final TransactionTemplate transactionTemplate = new TransactionTemplate(asyncOperationMock);
-
-    final ResultOrError<Signature> signature = transactionTemplate.sign(new Transaction());
-    assertNotNull(signature);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testVerify() throws Exception {
-    ResultOrErrorFuture<Boolean> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    TransactionAsyncOperation asyncOperationMock = mock(TransactionAsyncOperation.class);
-    when(asyncOperationMock.verify(any(Transaction.class))).thenReturn(futureMock);
-
-    final TransactionTemplate transactionTemplate = new TransactionTemplate(asyncOperationMock);
-
-    ResultOrError<Boolean> verifyResult = transactionTemplate.verify(new Transaction());
-    assertNotNull(verifyResult);
   }
 
   @Test

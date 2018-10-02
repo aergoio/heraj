@@ -10,7 +10,6 @@ import static types.AergoRPCServiceGrpc.newFutureStub;
 
 import hera.api.TransactionAsyncOperation;
 import hera.api.TransactionOperation;
-import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrError;
@@ -38,42 +37,6 @@ public class TransactionTemplate implements TransactionOperation {
   public ResultOrError<Transaction> getTransaction(final TxHash txHash) {
     try {
       return transactionAsyncOperation.getTransaction(txHash).get(TIMEOUT, TimeUnit.MILLISECONDS);
-    } catch (Exception e) {
-      return fail(new RpcException(e));
-    }
-  }
-
-  /**
-   * Sign for transaction.
-   *
-   * @param transaction transaction to sign
-   * @return signing result or error
-   *
-   * @deprecated please use {@link SignTemplate#sign(Transaction)}.
-   */
-  @Deprecated
-  @Override
-  public ResultOrError<Signature> sign(final Transaction transaction) {
-    try {
-      return transactionAsyncOperation.sign(transaction).get(TIMEOUT, TimeUnit.MILLISECONDS);
-    } catch (Exception e) {
-      return fail(new RpcException(e));
-    }
-  }
-
-  /**
-   * Verify transaction.
-   *
-   * @param transaction transaction to verify
-   * @return verify result or error
-   *
-   * @deprecated please use {@link SignTemplate#verify(Transaction)}
-   */
-  @Deprecated
-  @Override
-  public ResultOrError<Boolean> verify(final Transaction transaction) {
-    try {
-      return transactionAsyncOperation.verify(transaction).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
       return fail(new RpcException(e));
     }

@@ -20,28 +20,6 @@ public interface TransactionAsyncOperation {
   ResultOrErrorFuture<Transaction> getTransaction(TxHash txHash);
 
   /**
-   * Sign for transaction asynchronously.
-   *
-   * @param transaction transaction to sign
-   * @return future of signing result or error
-   *
-   * @deprecated please use {@link SignAsyncOperation#sign(Transaction)}.
-   */
-  @Deprecated
-  ResultOrErrorFuture<Signature> sign(Transaction transaction);
-
-  /**
-   * Verify transaction asynchronously.
-   *
-   * @param transaction transaction to verify
-   * @return future of verify result or error
-   *
-   * @deprecated please use {@link SignAsyncOperation#verify(Transaction)}.
-   */
-  @Deprecated
-  ResultOrErrorFuture<Boolean> verify(Transaction transaction);
-
-  /**
    * Commit transaction asynchronously.
    *
    * @param transaction transaction to commit

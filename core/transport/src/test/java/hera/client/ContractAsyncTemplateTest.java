@@ -11,7 +11,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
-
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
 import hera.AbstractTestCase;
@@ -136,19 +135,22 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
   @Test
   public void testExecute() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
+
+    SignAsyncOperation mockSignAsyncOperation = mock(SignAsyncOperation.class);
+    when(mockSignAsyncOperation.sign(any()))
+        .thenReturn(ResultOrErrorFutureFactory.supply(() -> success(mock(Signature.class))));
+
     AccountAsyncOperation mockAccountAsyncOperation = mock(AccountAsyncOperation.class);
     final Account account = new Account();
     account.setNonce(0);
     when(mockAccountAsyncOperation.get(any(AccountAddress.class)))
         .thenReturn(ResultOrErrorFutureFactory.supply(() -> success(account)));
     TransactionAsyncOperation mockTransactionAsyncOperation = mock(TransactionAsyncOperation.class);
-    when(mockTransactionAsyncOperation.sign(any()))
-        .thenReturn(ResultOrErrorFutureFactory.supply(() -> success(mock(Signature.class))));
     when(mockTransactionAsyncOperation.commit(any()))
         .thenReturn(ResultOrErrorFutureFactory.supply(() -> success(mock(TxHash.class))));
 
     final ContractAsyncTemplate contractAsyncTemplate = new ContractAsyncTemplate(aergoService,
-        mock(SignAsyncOperation.class), mockAccountAsyncOperation, mockTransactionAsyncOperation,
+        mockSignAsyncOperation, mockAccountAsyncOperation, mockTransactionAsyncOperation,
         accountAddressConverter, receiptConverter, interfaceConverter, contractResultConverter);
 
     final ResultOrErrorFuture<ContractTxHash> executionTxHash = contractAsyncTemplate
