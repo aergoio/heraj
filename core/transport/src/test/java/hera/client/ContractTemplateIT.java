@@ -35,19 +35,19 @@ public class ContractTemplateIT extends AbstractIT {
 
   protected Account creator = null;
 
-  protected AccountTemplate accountTemplate = null;
+  protected AccountEitherTemplate accountTemplate = null;
 
-  protected TransactionTemplate transactionTemplate = null;
+  protected TransactionEitherTemplate transactionTemplate = null;
 
-  protected ContractTemplate contractTemplate = null;
+  protected ContractEitherTemplate contractTemplate = null;
 
   @Before
   public void setUp() {
     super.setUp();
-    accountTemplate = new AccountTemplate(channel);
+    accountTemplate = new AccountEitherTemplate(channel);
     creator = accountTemplate.create(PASSWORD).getResult();
-    transactionTemplate = new TransactionTemplate(channel);
-    contractTemplate = new ContractTemplate(channel);
+    transactionTemplate = new TransactionEitherTemplate(channel);
+    contractTemplate = new ContractEitherTemplate(channel);
   }
 
   @Test

@@ -9,8 +9,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-import hera.api.AergoApi;
-import hera.strategy.ApiStrategy;
+import hera.api.AergoEitherApi;
+import hera.strategy.EitherApiStrategy;
 import hera.strategy.ConnectStrategy;
 import org.junit.Test;
 
@@ -27,8 +27,8 @@ public class ContextTest extends AbstractTestCase {
   @Test
   public void testApi() {
     final Context context = new Context()
-        .addStrategy((ApiStrategy) () -> mock(AergoApi.class));
-    final AergoApi aergoApi = context.api();
+        .addStrategy((EitherApiStrategy) () -> mock(AergoEitherApi.class));
+    final AergoEitherApi aergoApi = context.api();
     assertNotNull(aergoApi);
   }
 }

@@ -16,12 +16,12 @@ import org.junit.Test;
 
 public class BlockChainTemplateIT extends AbstractIT {
 
-  protected BlockChainTemplate blockChainTemplate = null;
+  protected BlockChainEitherTemplate blockChainTemplate = null;
 
   @Before
   public void setUp() {
     super.setUp();
-    blockChainTemplate = new BlockChainTemplate(channel);
+    blockChainTemplate = new BlockChainEitherTemplate(channel);
   }
 
   @Test

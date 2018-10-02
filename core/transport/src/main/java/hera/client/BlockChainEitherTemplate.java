@@ -10,7 +10,7 @@ import static hera.api.tupleorerror.FunctionChain.fail;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.BlockChainAsyncOperation;
-import hera.api.BlockChainOperation;
+import hera.api.BlockChainEitherOperation;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.PeerAddress;
@@ -27,15 +27,15 @@ import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
-public class BlockChainTemplate implements BlockChainOperation {
+public class BlockChainEitherTemplate implements BlockChainEitherOperation {
 
   protected final BlockChainAsyncOperation blockChainAsyncOperation;
 
-  public BlockChainTemplate(final ManagedChannel channel) {
+  public BlockChainEitherTemplate(final ManagedChannel channel) {
     this(AergoRPCServiceGrpc.newFutureStub(channel));
   }
 
-  public BlockChainTemplate(final AergoRPCServiceFutureStub aergoService) {
+  public BlockChainEitherTemplate(final AergoRPCServiceFutureStub aergoService) {
     this(new BlockChainAsyncTemplate(aergoService));
   }
 

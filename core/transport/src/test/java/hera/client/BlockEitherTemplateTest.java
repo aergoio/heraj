@@ -29,7 +29,7 @@ import types.Rpc;
 
 @PrepareForTest({AergoRPCServiceBlockingStub.class, Blockchain.Block.class,
     Rpc.BlockHeaderList.class})
-public class BlockTemplateTest extends AbstractTestCase {
+public class BlockEitherTemplateTest extends AbstractTestCase {
 
   @Test
   public void testGetBlockByHash() throws Exception {
@@ -38,7 +38,7 @@ public class BlockTemplateTest extends AbstractTestCase {
     BlockAsyncOperation asyncOperationMock = mock(BlockAsyncOperation.class);
     when(asyncOperationMock.getBlock(any())).thenReturn(futureMock);
 
-    final BlockTemplate blockTemplate = new BlockTemplate(asyncOperationMock);
+    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate(asyncOperationMock);
 
     final ResultOrError<Block> block =
         blockTemplate.getBlock(new BlockHash(of(randomUUID().toString().getBytes())));
@@ -52,7 +52,7 @@ public class BlockTemplateTest extends AbstractTestCase {
     BlockAsyncOperation asyncOperationMock = mock(BlockAsyncOperation.class);
     when(asyncOperationMock.getBlock(anyLong())).thenReturn(futureMock);
 
-    final BlockTemplate blockTemplate = new BlockTemplate(asyncOperationMock);
+    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate(asyncOperationMock);
 
     final ResultOrError<Block> block = blockTemplate.getBlock(randomUUID().hashCode());
     assertNotNull(block);
@@ -65,7 +65,7 @@ public class BlockTemplateTest extends AbstractTestCase {
     BlockAsyncOperation asyncOperationMock = mock(BlockAsyncOperation.class);
     when(asyncOperationMock.listBlockHeaders(any(), anyInt())).thenReturn(futureMock);
 
-    final BlockTemplate blockTemplate = new BlockTemplate(asyncOperationMock);
+    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate(asyncOperationMock);
 
     final ResultOrError<List<BlockHeader>> block = blockTemplate.listBlockHeaders(
         new BlockHash(of(randomUUID().toString().getBytes())), randomUUID().hashCode());
@@ -79,7 +79,7 @@ public class BlockTemplateTest extends AbstractTestCase {
     BlockAsyncOperation asyncOperationMock = mock(BlockAsyncOperation.class);
     when(asyncOperationMock.listBlockHeaders(anyLong(), anyInt())).thenReturn(futureMock);
 
-    final BlockTemplate blockTemplate = new BlockTemplate(asyncOperationMock);
+    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate(asyncOperationMock);
 
     final ResultOrError<List<BlockHeader>> block =
         blockTemplate.listBlockHeaders(randomUUID().hashCode(), randomUUID().hashCode());

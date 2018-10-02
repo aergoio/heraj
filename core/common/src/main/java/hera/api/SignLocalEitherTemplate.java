@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
-public class SignLocalTemplate implements SignOperation {
+public class SignLocalEitherTemplate implements SignEitherOperation {
 
   @Getter
   protected final KeyPair keyPair;

@@ -13,13 +13,13 @@ import io.grpc.ManagedChannel;
 import java.io.IOException;
 import org.junit.Test;
 
-public class AergoClientTest extends AbstractTestCase {
+public class AergoEitherClientTest extends AbstractTestCase {
 
   @Test
   public void testGetAccountOperation() throws IOException {
     final ManagedChannel channel = mock(ManagedChannel.class);
     when(channel.shutdown()).thenReturn(channel);
-    try(final AergoClient client = new AergoClient(channel)) {
+    try(final AergoEitherClient client = new AergoEitherClient(channel)) {
       assertNotNull(client.getAccountOperation());
     }
 

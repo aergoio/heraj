@@ -6,8 +6,8 @@ package hera;
 
 import static hera.util.ValidationUtils.assertNull;
 
-import hera.api.AergoApi;
-import hera.api.TransactionOperation;
+import hera.api.AergoEitherApi;
+import hera.api.TransactionEitherOperation;
 import hera.api.model.Account;
 import hera.api.model.Authentication;
 import hera.api.model.Signature;
@@ -70,18 +70,18 @@ public class NaiveWallet implements Wallet {
   }
 
   public void createAccount(final String password) {
-    final AergoApi api = context.api();
-    final Account account = api.getAccountOperation().create(password).getResult();
+    final AergoEitherApi api = context.api();
+    final Account account = api.getAccountEitherOperation().create(password).getResult();
   }
 
   public void unlock(Object authentication) {
-    final AergoApi api = this.context.api();
-    api.getAccountOperation().unlock(Authentication.of(null, null));
+    final AergoEitherApi api = this.context.api();
+    api.getAccountEitherOperation().unlock(Authentication.of(null, null));
   }
 
   public void lock() {
-    final AergoApi api = this.context.api();
-    api.getAccountOperation().lock(Authentication.of(null, null));
+    final AergoEitherApi api = this.context.api();
+    api.getAccountEitherOperation().lock(Authentication.of(null, null));
   }
 
   /**

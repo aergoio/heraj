@@ -26,7 +26,7 @@ import types.Rpc.VerifyResult;
 @SuppressWarnings("unchecked")
 @PrepareForTest({AergoRPCServiceBlockingStub.class, Blockchain.Tx.class, VerifyResult.class,
     CommitResult.class})
-public class SignTemplateTest extends AbstractTestCase {
+public class SignEitherTemplateTest extends AbstractTestCase {
 
   @Test
   public void testSign() throws Exception {
@@ -35,7 +35,7 @@ public class SignTemplateTest extends AbstractTestCase {
     SignAsyncOperation asyncOperationMock = mock(SignAsyncOperation.class);
     when(asyncOperationMock.sign(any(Transaction.class))).thenReturn(futureMock);
 
-    final SignTemplate signTemplate = new SignTemplate(asyncOperationMock);
+    final SignEitherTemplate signTemplate = new SignEitherTemplate(asyncOperationMock);
 
     final ResultOrError<Signature> signature = signTemplate.sign(new Transaction());
     assertNotNull(signature);
@@ -48,7 +48,7 @@ public class SignTemplateTest extends AbstractTestCase {
     SignAsyncOperation asyncOperationMock = mock(SignAsyncOperation.class);
     when(asyncOperationMock.verify(any(Transaction.class))).thenReturn(futureMock);
 
-    final SignTemplate signTemplate = new SignTemplate(asyncOperationMock);
+    final SignEitherTemplate signTemplate = new SignEitherTemplate(asyncOperationMock);
 
     ResultOrError<Boolean> verifyResult = signTemplate.verify(new Transaction());
     assertNotNull(verifyResult);

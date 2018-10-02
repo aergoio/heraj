@@ -12,7 +12,7 @@ import hera.api.tupleorerror.ResultOrError;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public interface SignOperation {
+public interface SignEitherOperation {
 
   /**
    * Sign for transaction.

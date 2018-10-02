@@ -12,7 +12,7 @@ import hera.api.tupleorerror.ResultOrError;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public interface TransactionOperation {
+public interface TransactionEitherOperation {
 
   /**
    * Get transaction.

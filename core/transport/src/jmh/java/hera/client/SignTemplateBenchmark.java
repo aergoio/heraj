@@ -6,7 +6,7 @@ package hera.client;
 
 import static java.util.UUID.randomUUID;
 
-import hera.api.SignLocalTemplate;
+import hera.api.SignLocalEitherTemplate;
 import hera.api.model.Transaction;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
@@ -27,7 +27,7 @@ public class SignTemplateBenchmark {
   @State(Scope.Thread)
   public static class User {
 
-    protected SignLocalTemplate signTemplate;
+    protected SignLocalEitherTemplate signTemplate;
 
     protected AergoKey senderKey;
     protected AergoKey receiptKey;
@@ -36,7 +36,7 @@ public class SignTemplateBenchmark {
 
     @Setup(Level.Trial)
     public synchronized void setUp() throws Exception {
-      signTemplate = new SignLocalTemplate(senderKey);
+      signTemplate = new SignLocalEitherTemplate(senderKey);
       senderKey = new AergoKeyGenerator().create();
       receiptKey = new AergoKeyGenerator().create();
     }

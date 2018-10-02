@@ -4,8 +4,8 @@
 
 package hera;
 
-import hera.api.AergoApi;
-import hera.strategy.ApiStrategy;
+import hera.api.AergoEitherApi;
+import hera.strategy.EitherApiStrategy;
 import hera.strategy.FailoverStrategy;
 import hera.strategy.TransactionStrategy;
 import hera.util.Configurable;
@@ -29,13 +29,13 @@ public class Context {
   protected final HashSet<Strategy> usings = new HashSet<>();
 
   /**
-   * Return {@link AergoApi}.
+   * Return {@link AergoEitherApi}.
    *
    * @return AergoApi in context
    */
-  public AergoApi api() {
-    return getStrategy(ApiStrategy.class)
-        .map(ApiStrategy::getApi)
+  public AergoEitherApi api() {
+    return getStrategy(EitherApiStrategy.class)
+        .map(EitherApiStrategy::getEitherApi)
         .orElseThrow(IllegalStateException::new);
   }
 

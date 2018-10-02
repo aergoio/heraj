@@ -28,7 +28,7 @@ import types.Rpc.VerifyResult;
 @SuppressWarnings("unchecked")
 @PrepareForTest({AergoRPCServiceBlockingStub.class, Blockchain.Tx.class, VerifyResult.class,
     CommitResult.class})
-public class TransactionTemplateTest extends AbstractTestCase {
+public class TransactionEitherTemplateTest extends AbstractTestCase {
 
   @Test
   public void testGetTransaction() throws Exception {
@@ -37,7 +37,8 @@ public class TransactionTemplateTest extends AbstractTestCase {
     TransactionAsyncOperation asyncOperationMock = mock(TransactionAsyncOperation.class);
     when(asyncOperationMock.getTransaction(any())).thenReturn(futureMock);
 
-    final TransactionTemplate transactionTemplate = new TransactionTemplate(asyncOperationMock);
+    final TransactionEitherTemplate transactionTemplate =
+        new TransactionEitherTemplate(asyncOperationMock);
 
     final ResultOrError<Transaction> transaction =
         transactionTemplate.getTransaction(new TxHash(of(randomUUID().toString().getBytes())));
@@ -51,7 +52,8 @@ public class TransactionTemplateTest extends AbstractTestCase {
     TransactionAsyncOperation asyncOperationMock = mock(TransactionAsyncOperation.class);
     when(asyncOperationMock.commit(any(Transaction.class))).thenReturn(futureMock);
 
-    final TransactionTemplate transactionTemplate = new TransactionTemplate(asyncOperationMock);
+    final TransactionEitherTemplate transactionTemplate =
+        new TransactionEitherTemplate(asyncOperationMock);
 
     final ResultOrError<TxHash> txHash = transactionTemplate.commit(new Transaction());
     assertNotNull(txHash);
@@ -64,7 +66,8 @@ public class TransactionTemplateTest extends AbstractTestCase {
     TransactionAsyncOperation asyncOperationMock = mock(TransactionAsyncOperation.class);
     when(asyncOperationMock.send(any(Transaction.class))).thenReturn(futureMock);
 
-    final TransactionTemplate transactionTemplate = new TransactionTemplate(asyncOperationMock);
+    final TransactionEitherTemplate transactionTemplate =
+        new TransactionEitherTemplate(asyncOperationMock);
 
     final ResultOrError<TxHash> txHash = transactionTemplate.send(new Transaction());
     assertNotNull(txHash);

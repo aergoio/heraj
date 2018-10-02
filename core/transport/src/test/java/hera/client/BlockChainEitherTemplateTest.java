@@ -27,7 +27,7 @@ import types.Rpc;
 @SuppressWarnings("unchecked")
 @PrepareForTest({AergoRPCServiceFutureStub.class, Rpc.BlockchainStatus.class, Rpc.PeerList.class,
     Node.PeerAddress.class, Rpc.SingleBytes.class})
-public class BlockChainTemplateTest extends AbstractTestCase {
+public class BlockChainEitherTemplateTest extends AbstractTestCase {
 
   @Test
   public void testGetBlockchainStatus() throws Exception {
@@ -36,7 +36,8 @@ public class BlockChainTemplateTest extends AbstractTestCase {
     BlockChainAsyncOperation asyncOperationMock = mock(BlockChainAsyncOperation.class);
     when(asyncOperationMock.getBlockchainStatus()).thenReturn(futureMock);
 
-    final BlockChainTemplate blockChainTemplate = new BlockChainTemplate(asyncOperationMock);
+    final BlockChainEitherTemplate blockChainTemplate =
+        new BlockChainEitherTemplate(asyncOperationMock);
 
     final ResultOrError<BlockchainStatus> blockchainStatus =
         blockChainTemplate.getBlockchainStatus();
@@ -50,7 +51,8 @@ public class BlockChainTemplateTest extends AbstractTestCase {
     BlockChainAsyncOperation asyncOperationMock = mock(BlockChainAsyncOperation.class);
     when(asyncOperationMock.listPeers()).thenReturn(futureMock);
 
-    final BlockChainTemplate blockChainTemplate = new BlockChainTemplate(asyncOperationMock);
+    final BlockChainEitherTemplate blockChainTemplate =
+        new BlockChainEitherTemplate(asyncOperationMock);
 
     final ResultOrError<List<PeerAddress>> peerAddresses = blockChainTemplate.listPeers();
     assertNotNull(peerAddresses);
@@ -63,7 +65,8 @@ public class BlockChainTemplateTest extends AbstractTestCase {
     BlockChainAsyncOperation asyncOperationMock = mock(BlockChainAsyncOperation.class);
     when(asyncOperationMock.getNodeStatus()).thenReturn(futureMock);
 
-    final BlockChainTemplate blockChainTemplate = new BlockChainTemplate(asyncOperationMock);
+    final BlockChainEitherTemplate blockChainTemplate =
+        new BlockChainEitherTemplate(asyncOperationMock);
 
     final ResultOrError<NodeStatus> nodeStatus = blockChainTemplate.getNodeStatus();
     assertNotNull(nodeStatus);

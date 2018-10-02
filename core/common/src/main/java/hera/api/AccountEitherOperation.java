@@ -18,7 +18,7 @@ import java.util.List;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public interface AccountOperation {
+public interface AccountEitherOperation {
 
   /**
    * Get account list.

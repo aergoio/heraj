@@ -11,7 +11,7 @@ import static types.AergoRPCServiceGrpc.newFutureStub;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.TransactionAsyncOperation;
-import hera.api.TransactionOperation;
+import hera.api.TransactionEitherOperation;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrError;
@@ -25,15 +25,15 @@ import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
-public class TransactionTemplate implements TransactionOperation {
+public class TransactionEitherTemplate implements TransactionEitherOperation {
 
   protected final TransactionAsyncOperation transactionAsyncOperation;
 
-  public TransactionTemplate(final ManagedChannel channel) {
+  public TransactionEitherTemplate(final ManagedChannel channel) {
     this(newFutureStub(channel));
   }
 
-  public TransactionTemplate(final AergoRPCServiceFutureStub aergoService) {
+  public TransactionEitherTemplate(final AergoRPCServiceFutureStub aergoService) {
     this(new TransactionAsyncTemplate(aergoService));
   }
 

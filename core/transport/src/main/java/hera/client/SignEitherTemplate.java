@@ -11,7 +11,7 @@ import static types.AergoRPCServiceGrpc.newFutureStub;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.SignAsyncOperation;
-import hera.api.SignOperation;
+import hera.api.SignEitherOperation;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrError;
@@ -25,15 +25,15 @@ import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
-public class SignTemplate implements SignOperation {
+public class SignEitherTemplate implements SignEitherOperation {
 
   protected final SignAsyncOperation signAsyncOperation;
 
-  public SignTemplate(final ManagedChannel channel) {
+  public SignEitherTemplate(final ManagedChannel channel) {
     this(newFutureStub(channel));
   }
 
-  public SignTemplate(final AergoRPCServiceFutureStub aergoService) {
+  public SignEitherTemplate(final AergoRPCServiceFutureStub aergoService) {
     this(new SignAsyncTemplate(aergoService));
   }
 

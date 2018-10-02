@@ -22,7 +22,7 @@ import hera.util.DangerousSupplier;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public interface ContractOperation {
+public interface ContractEitherOperation {
 
   /**
    * Get receipt of transaction.

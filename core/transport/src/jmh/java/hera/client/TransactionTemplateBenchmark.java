@@ -32,11 +32,11 @@ public class TransactionTemplateBenchmark {
 
     protected ManagedChannel channel = null;
 
-    protected SignTemplate signTemplate = null;
+    protected SignEitherTemplate signTemplate = null;
 
-    protected AccountTemplate accountTemplate = null;
+    protected AccountEitherTemplate accountTemplate = null;
 
-    protected TransactionTemplate transactionTemplate = null;
+    protected TransactionEitherTemplate transactionTemplate = null;
 
     protected Account sender;
 
@@ -50,9 +50,9 @@ public class TransactionTemplateBenchmark {
           .forAddress("localhost", 7845)
           .usePlaintext()
           .build();
-      signTemplate = new SignTemplate(channel);
-      accountTemplate = new AccountTemplate(channel);
-      transactionTemplate = new TransactionTemplate(channel);
+      signTemplate = new SignEitherTemplate(channel);
+      accountTemplate = new AccountEitherTemplate(channel);
+      transactionTemplate = new TransactionEitherTemplate(channel);
       sender = accountTemplate.create(PASSWORD).getResult();
       recipient = accountTemplate.create(PASSWORD).getResult();
       accountTemplate.unlock(Authentication.of(sender.getAddress(), PASSWORD));

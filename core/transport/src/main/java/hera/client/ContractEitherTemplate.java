@@ -12,7 +12,7 @@ import static types.AergoRPCServiceGrpc.newFutureStub;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.ContractAsyncOperation;
-import hera.api.ContractOperation;
+import hera.api.ContractEitherOperation;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
@@ -31,14 +31,14 @@ import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
-public class ContractTemplate implements ContractOperation {
+public class ContractEitherTemplate implements ContractEitherOperation {
   protected final ContractAsyncOperation contractAsyncOperation;
 
-  public ContractTemplate(final ManagedChannel channel) {
+  public ContractEitherTemplate(final ManagedChannel channel) {
     this(newFutureStub(channel));
   }
 
-  public ContractTemplate(final AergoRPCServiceFutureStub aergoService) {
+  public ContractEitherTemplate(final AergoRPCServiceFutureStub aergoService) {
     this(new ContractAsyncTemplate(aergoService));
   }
 

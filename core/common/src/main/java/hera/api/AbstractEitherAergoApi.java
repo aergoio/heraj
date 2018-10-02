@@ -18,36 +18,36 @@ import org.slf4j.Logger;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public class AbstractAergoApi implements AergoApi, Adaptor {
+public class AbstractEitherAergoApi implements AergoEitherApi, Adaptor {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  public SignOperation getSignOperation() {
+  public SignEitherOperation getSignEitherOperation() {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public AccountOperation getAccountOperation() {
+  public AccountEitherOperation getAccountEitherOperation() {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public BlockOperation getBlockOperation() {
+  public BlockEitherOperation getBlockEitherOperation() {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public BlockChainOperation getBlockChainOperation() {
+  public BlockChainEitherOperation getBlockChainEitherOperation() {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public TransactionOperation getTransactionOperation() {
+  public TransactionEitherOperation getTransactionEitherOperation() {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public ContractOperation getContractOperation() {
+  public ContractEitherOperation getContractEitherOperation() {
     throw new UnsupportedOperationException();
   }
 

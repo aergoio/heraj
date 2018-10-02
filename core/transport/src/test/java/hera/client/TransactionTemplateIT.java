@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import hera.api.SignLocalTemplate;
+import hera.api.SignLocalEitherTemplate;
 import hera.api.model.Account;
 import hera.api.model.Authentication;
 import hera.api.model.Hash;
@@ -29,20 +29,20 @@ public class TransactionTemplateIT extends AbstractIT {
   protected Account sender = null;
   protected Account recipient = null;
 
-  protected AccountTemplate accountTemplate = null;
+  protected AccountEitherTemplate accountTemplate = null;
 
-  protected SignTemplate signTemplate = null;
+  protected SignEitherTemplate signTemplate = null;
 
-  protected TransactionTemplate transactionTemplate = null;
+  protected TransactionEitherTemplate transactionTemplate = null;
 
   @Before
   public void setUp() {
     super.setUp();
-    accountTemplate = new AccountTemplate(channel);
+    accountTemplate = new AccountEitherTemplate(channel);
     sender = accountTemplate.create(PASSWORD).getResult();
     recipient = accountTemplate.create(PASSWORD).getResult();
-    signTemplate = new SignTemplate(channel);
-    transactionTemplate = new TransactionTemplate(channel);
+    signTemplate = new SignEitherTemplate(channel);
+    transactionTemplate = new TransactionEitherTemplate(channel);
   }
 
   @Test
@@ -90,7 +90,7 @@ public class TransactionTemplateIT extends AbstractIT {
     transaction.setSender(key.getAddress());
     transaction.setRecipient(recipient.getAddress());
 
-    final SignLocalTemplate signTemplate = new SignLocalTemplate(key);
+    final SignLocalEitherTemplate signTemplate = new SignLocalEitherTemplate(key);
     final Signature signature = signTemplate.sign(transaction).getResult();
     transaction.setSignature(signature);
     logger.debug("Signature: {}", transaction.getSignature());

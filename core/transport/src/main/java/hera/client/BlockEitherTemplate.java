@@ -11,7 +11,7 @@ import static types.AergoRPCServiceGrpc.newFutureStub;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.BlockAsyncOperation;
-import hera.api.BlockOperation;
+import hera.api.BlockEitherOperation;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
@@ -27,15 +27,15 @@ import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
-public class BlockTemplate implements BlockOperation {
+public class BlockEitherTemplate implements BlockEitherOperation {
 
   protected final BlockAsyncOperation blockAsyncOperation;
 
-  public BlockTemplate(final ManagedChannel channel) {
+  public BlockEitherTemplate(final ManagedChannel channel) {
     this(newFutureStub(channel));
   }
 
-  public BlockTemplate(final AergoRPCServiceFutureStub aergoService) {
+  public BlockEitherTemplate(final AergoRPCServiceFutureStub aergoService) {
     this(new BlockAsyncTemplate(aergoService));
   }
 

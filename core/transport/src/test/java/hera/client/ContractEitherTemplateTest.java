@@ -29,7 +29,7 @@ import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
 @SuppressWarnings("unchecked")
 @PrepareForTest({AergoRPCServiceFutureStub.class})
-public class ContractTemplateTest extends AbstractTestCase {
+public class ContractEitherTemplateTest extends AbstractTestCase {
 
   protected static final AccountAddress EXECUTOR_ADDRESS =
       new AccountAddress(of(new byte[] {AccountAddress.ADDRESS_VERSION}));
@@ -44,7 +44,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     ContractAsyncOperation asyncOperationMock = mock(ContractAsyncOperation.class);
     when(asyncOperationMock.getReceipt(any())).thenReturn(futureMock);
 
-    final ContractTemplate contractTemplate = new ContractTemplate(asyncOperationMock);
+    final ContractEitherTemplate contractTemplate = new ContractEitherTemplate(asyncOperationMock);
 
     final ResultOrError<ContractTxReceipt> receipt =
         contractTemplate.getReceipt(new ContractTxHash(of(randomUUID().toString().getBytes())));
@@ -58,7 +58,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     ContractAsyncOperation asyncOperationMock = mock(ContractAsyncOperation.class);
     when(asyncOperationMock.deploy(any(AccountAddress.class), any())).thenReturn(futureMock);
 
-    final ContractTemplate contractTemplate = new ContractTemplate(asyncOperationMock);
+    final ContractEitherTemplate contractTemplate = new ContractEitherTemplate(asyncOperationMock);
 
     final ResultOrError<ContractTxHash> deployTxHash =
         contractTemplate.deploy(EXECUTOR_ADDRESS, () -> new byte[] {});
@@ -72,7 +72,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     ContractAsyncOperation asyncOperationMock = mock(ContractAsyncOperation.class);
     when(asyncOperationMock.getContractInterface(any())).thenReturn(futureMock);
 
-    final ContractTemplate contractTemplate = new ContractTemplate(asyncOperationMock);
+    final ContractEitherTemplate contractTemplate = new ContractEitherTemplate(asyncOperationMock);
 
     final ResultOrError<ContractInferface> contractInterface =
         contractTemplate.getContractInterface(CONTRACT_ADDRESS);
@@ -87,7 +87,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.execute(any(AccountAddress.class), any(), any(), any()))
         .thenReturn(futureMock);
 
-    final ContractTemplate contractTemplate = new ContractTemplate(asyncOperationMock);
+    final ContractEitherTemplate contractTemplate = new ContractEitherTemplate(asyncOperationMock);
 
     final ResultOrError<ContractTxHash> executionTxHash = contractTemplate.execute(EXECUTOR_ADDRESS,
         CONTRACT_ADDRESS, new ContractFunction(), randomUUID());
@@ -102,7 +102,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     ContractAsyncOperation asyncOperationMock = mock(ContractAsyncOperation.class);
     when(asyncOperationMock.query(any(), any(), any())).thenReturn(futureMock);
 
-    final ContractTemplate contractTemplate = new ContractTemplate(asyncOperationMock);
+    final ContractEitherTemplate contractTemplate = new ContractEitherTemplate(asyncOperationMock);
 
     final ResultOrError<ContractResult> queryResult =
         contractTemplate.query(CONTRACT_ADDRESS, new ContractFunction(), randomUUID());

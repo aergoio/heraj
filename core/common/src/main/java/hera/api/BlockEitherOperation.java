@@ -14,7 +14,7 @@ import java.util.List;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public interface BlockOperation {
+public interface BlockEitherOperation {
 
   /**
    * Get block by hash.

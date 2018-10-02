@@ -11,7 +11,7 @@ import static types.AergoRPCServiceGrpc.newFutureStub;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.AccountAsyncOperation;
-import hera.api.AccountOperation;
+import hera.api.AccountEitherOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
@@ -28,15 +28,15 @@ import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
-public class AccountTemplate implements AccountOperation {
+public class AccountEitherTemplate implements AccountEitherOperation {
 
   protected final AccountAsyncOperation accountAsyncOperation;
 
-  public AccountTemplate(final ManagedChannel channel) {
+  public AccountEitherTemplate(final ManagedChannel channel) {
     this(newFutureStub(channel));
   }
 
-  public AccountTemplate(final AergoRPCServiceFutureStub aergoService) {
+  public AccountEitherTemplate(final AergoRPCServiceFutureStub aergoService) {
     this(new AccountAsyncTemplate(aergoService));
   }
 

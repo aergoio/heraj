@@ -14,7 +14,7 @@ import java.util.List;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public interface BlockChainOperation {
+public interface BlockChainEitherOperation {
 
   /**
    * Get blockchain status.

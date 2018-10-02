@@ -18,12 +18,12 @@ import org.junit.Test;
 
 public class AccountTemplateIT extends AbstractIT {
 
-  protected AccountTemplate accountTemplate = null;
+  protected AccountEitherTemplate accountTemplate = null;
 
   @Before
   public void setUp() {
     super.setUp();
-    accountTemplate = new AccountTemplate(channel);
+    accountTemplate = new AccountEitherTemplate(channel);
   }
 
   @Test
