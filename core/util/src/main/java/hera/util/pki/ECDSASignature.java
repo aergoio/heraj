@@ -22,9 +22,11 @@ public class ECDSASignature {
     return new ECDSASignature(r, s);
   }
 
+  @SuppressWarnings("checkstyle:MemberName")
   @Getter
   protected final BigInteger r;
 
+  @SuppressWarnings("checkstyle:MemberName")
   @Getter
   protected final BigInteger s;
 
