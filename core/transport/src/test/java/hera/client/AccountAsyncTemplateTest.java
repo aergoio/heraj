@@ -30,7 +30,7 @@ import types.Rpc;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 @PrepareForTest({AergoRPCServiceFutureStub.class, AccountOuterClass.Account.class,
-    Blockchain.State.class, Rpc.Personal.class})
+    Blockchain.State.class, Rpc.Personal.class, Rpc.SingleBytes.class})
 public class AccountAsyncTemplateTest extends AbstractTestCase {
 
   protected static final EncryptedPrivateKey ENCRYPTED_PRIVATE_KEY =
@@ -40,6 +40,9 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
       new AccountAddress(of(new byte[] {AccountAddress.ADDRESS_VERSION}));
 
   protected static final String PASSWORD = randomUUID().toString();
+
+  protected static final ModelConverter<EncryptedPrivateKey, Rpc.SingleBytes> encryptedPrivateKeyConverter =
+      mock(ModelConverter.class);
 
   protected static final ModelConverter<Account, AccountOuterClass.Account> accountConverter =
       mock(ModelConverter.class);
@@ -52,6 +55,8 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
 
   @BeforeClass
   public static void setUpBeforeClass() {
+    when(encryptedPrivateKeyConverter.convertToDomainModel(any(Rpc.SingleBytes.class)))
+        .thenReturn(mock(EncryptedPrivateKey.class));
     when(accountConverter.convertToDomainModel(any(AccountOuterClass.Account.class)))
         .thenReturn(mock(Account.class));
     when(accountConverter.convertToRpcModel(any(Account.class)))
@@ -68,8 +73,9 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.getAccounts(any())).thenReturn(mockListenableFuture);
 
-    final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
-        accountConverter, accountStateConverter, authenticationConverter);
+    final AccountAsyncTemplate accountAsyncTemplate =
+        new AccountAsyncTemplate(aergoService, encryptedPrivateKeyConverter, accountConverter,
+            accountStateConverter, authenticationConverter);
 
     final ResultOrErrorFuture<List<Account>> accountListFuture = accountAsyncTemplate.list();
     assertNotNull(accountListFuture);
@@ -81,8 +87,9 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.createAccount(any())).thenReturn(mockListenableFuture);
 
-    final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
-        accountConverter, accountStateConverter, authenticationConverter);
+    final AccountAsyncTemplate accountAsyncTemplate =
+        new AccountAsyncTemplate(aergoService, encryptedPrivateKeyConverter, accountConverter,
+            accountStateConverter, authenticationConverter);
 
     final ResultOrErrorFuture<Account> accountFuture =
         accountAsyncTemplate.create(randomUUID().toString());
@@ -95,8 +102,9 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.getState(any())).thenReturn(mockListenableFuture);
 
-    final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
-        accountConverter, accountStateConverter, authenticationConverter);
+    final AccountAsyncTemplate accountAsyncTemplate =
+        new AccountAsyncTemplate(aergoService, encryptedPrivateKeyConverter, accountConverter,
+            accountStateConverter, authenticationConverter);
 
     final ResultOrErrorFuture<Account> accountFuture = accountAsyncTemplate.get(ACCOUNT_ADDRESS);
     assertNotNull(accountFuture);
@@ -108,8 +116,9 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.lockAccount(any())).thenReturn(mockListenableFuture);
 
-    final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
-        accountConverter, accountStateConverter, authenticationConverter);
+    final AccountAsyncTemplate accountAsyncTemplate =
+        new AccountAsyncTemplate(aergoService, encryptedPrivateKeyConverter, accountConverter,
+            accountStateConverter, authenticationConverter);
 
     final ResultOrErrorFuture<Boolean> lockResult =
         accountAsyncTemplate.lock(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
@@ -122,8 +131,9 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.unlockAccount(any())).thenReturn(mockListenableFuture);
 
-    final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
-        accountConverter, accountStateConverter, authenticationConverter);
+    final AccountAsyncTemplate accountAsyncTemplate =
+        new AccountAsyncTemplate(aergoService, encryptedPrivateKeyConverter, accountConverter,
+            accountStateConverter, authenticationConverter);
 
     final ResultOrErrorFuture<Boolean> accountFuture =
         accountAsyncTemplate.unlock(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
@@ -136,8 +146,9 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.importAccount(any())).thenReturn(mockListenableFuture);
 
-    final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
-        accountConverter, accountStateConverter, authenticationConverter);
+    final AccountAsyncTemplate accountAsyncTemplate =
+        new AccountAsyncTemplate(aergoService, encryptedPrivateKeyConverter, accountConverter,
+            accountStateConverter, authenticationConverter);
 
     final ResultOrErrorFuture<Account> accountFuture =
         accountAsyncTemplate.importKey(ENCRYPTED_PRIVATE_KEY, PASSWORD);
@@ -150,8 +161,9 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
     when(aergoService.exportAccount(any())).thenReturn(mockListenableFuture);
 
-    final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
-        accountConverter, accountStateConverter, authenticationConverter);
+    final AccountAsyncTemplate accountAsyncTemplate =
+        new AccountAsyncTemplate(aergoService, encryptedPrivateKeyConverter, accountConverter,
+            accountStateConverter, authenticationConverter);
 
     final ResultOrErrorFuture<EncryptedPrivateKey> accountFuture =
         accountAsyncTemplate.exportKey(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));

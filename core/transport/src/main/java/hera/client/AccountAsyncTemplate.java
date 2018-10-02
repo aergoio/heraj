@@ -5,7 +5,6 @@
 package hera.client;
 
 import static com.google.protobuf.ByteString.copyFrom;
-import static hera.api.model.BytesValue.of;
 import static hera.util.TransportUtils.copyFrom;
 import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -26,6 +25,7 @@ import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.transport.AccountConverterFactory;
 import hera.transport.AccountStateConverterFactory;
 import hera.transport.AuthenticationConverterFactory;
+import hera.transport.EncryptedPrivateKeyConverterFactory;
 import hera.transport.ModelConverter;
 import io.grpc.ManagedChannel;
 import java.util.List;
@@ -45,6 +45,8 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
 
   protected final AergoRPCServiceFutureStub aergoService;
 
+  protected final ModelConverter<EncryptedPrivateKey, Rpc.SingleBytes> encryptedPrivateKeyConverter;
+
   protected final ModelConverter<Account, AccountOuterClass.Account> accountConverter;
 
   protected final ModelConverter<Account, Blockchain.State> accountStateConverter;
@@ -55,9 +57,15 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
     this(newFutureStub(channel));
   }
 
+  /**
+   * AccountAsyncTemplate constructor.
+   *
+   * @param aergoService aergo service
+   */
   public AccountAsyncTemplate(final AergoRPCServiceFutureStub aergoService) {
-    this(aergoService, new AccountConverterFactory().create(),
-        new AccountStateConverterFactory().create(), new AuthenticationConverterFactory().create());
+    this(aergoService, new EncryptedPrivateKeyConverterFactory().create(),
+        new AccountConverterFactory().create(), new AccountStateConverterFactory().create(),
+        new AuthenticationConverterFactory().create());
   }
 
   @Override
@@ -162,7 +170,7 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
     ListenableFuture<Rpc.SingleBytes> listenableFuture =
         aergoService.exportAccount(authenticationConverter.convertToRpcModel(authentication));
     FutureChainer<Rpc.SingleBytes, EncryptedPrivateKey> callback = new FutureChainer<>(nextFuture,
-        raw -> new EncryptedPrivateKey(of(raw.getValue().toByteArray())));
+        sb -> encryptedPrivateKeyConverter.convertToDomainModel(sb));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;
