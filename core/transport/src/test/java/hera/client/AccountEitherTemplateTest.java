@@ -97,9 +97,9 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
 
     final AccountEitherTemplate accountTemplate = new AccountEitherTemplate(asyncOperationMock);
 
-    ResultOrError<Boolean> lockResult =
+    ResultOrError<Boolean> unlockResult =
         accountTemplate.unlock(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
-    assertNotNull(lockResult);
+    assertNotNull(unlockResult);
   }
 
   @Test

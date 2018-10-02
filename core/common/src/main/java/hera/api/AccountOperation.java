@@ -57,7 +57,7 @@ public interface AccountOperation {
    * @param authentication account authentication
    * @return lock result
    */
-  Boolean lock(Authentication authentication);
+  boolean lock(Authentication authentication);
 
   /**
    * Unlock an account.
@@ -65,7 +65,7 @@ public interface AccountOperation {
    * @param authentication account authentication
    * @return unlock result
    */
-  Boolean unlock(Authentication authentication);
+  boolean unlock(Authentication authentication);
 
   /**
    * Import an encrypted private key. An {@code password} is used to decrypt private key passed by

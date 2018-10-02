@@ -26,7 +26,7 @@ import types.Rpc;
 
 @PrepareForTest({AergoRPCServiceFutureStub.class, Rpc.BlockchainStatus.class, Rpc.PeerList.class,
     Node.PeerAddress.class, Rpc.SingleBytes.class})
-public class BlockChainEitherAsyncTemplateTest extends AbstractTestCase {
+public class BlockChainAsyncTemplateTest extends AbstractTestCase {
 
   protected static final ModelConverter<BlockchainStatus, Rpc.BlockchainStatus> blockchainConverter =
       mock(ModelConverter.class);
