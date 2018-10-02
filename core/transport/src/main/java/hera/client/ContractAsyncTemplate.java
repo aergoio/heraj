@@ -37,6 +37,7 @@ import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.exception.AdaptException;
+import hera.transport.AccountAddressConverterFactory;
 import hera.transport.ContractInterfaceConverterFactory;
 import hera.transport.ContractResultConverterFactory;
 import hera.transport.ModelConverter;
@@ -57,6 +58,7 @@ import types.Rpc.SingleBytes;
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
 public class ContractAsyncTemplate implements ContractAsyncOperation {
+
   protected final Logger logger = getLogger(getClass());
 
   protected final AergoRPCServiceFutureStub aergoService;
@@ -66,6 +68,8 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
   protected final AccountAsyncOperation accountAsyncOperation;
 
   protected final TransactionAsyncOperation transactionAsyncOperation;
+
+  protected final ModelConverter<AccountAddress, ByteString> accountAddressConverter;
 
   protected final ModelConverter<ContractTxReceipt, Blockchain.Receipt> receiptConverter;
 
@@ -89,8 +93,8 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
    */
   public ContractAsyncTemplate(final AergoRPCServiceFutureStub aergoService) {
     this(aergoService, new SignAsyncTemplate(aergoService), new AccountAsyncTemplate(aergoService),
-        new TransactionAsyncTemplate(aergoService), new ReceiptConverterFactory().create(),
-        new ContractInterfaceConverterFactory().create(),
+        new TransactionAsyncTemplate(aergoService), new AccountAddressConverterFactory().create(),
+        new ReceiptConverterFactory().create(), new ContractInterfaceConverterFactory().create(),
         new ContractResultConverterFactory().create());
   }
 
@@ -146,7 +150,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
     ResultOrErrorFuture<ContractInferface> nextFuture =
         ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-    final ByteString byteString = copyFrom(contractAddress.getBytesValue());
+    final ByteString byteString = accountAddressConverter.convertToRpcModel(contractAddress);
     final Rpc.SingleBytes hashBytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
     final ListenableFuture<Blockchain.ABI> listenableFuture = aergoService.getABI(hashBytes);
     FutureChainer<Blockchain.ABI, ContractInferface> callback =
@@ -186,9 +190,9 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
       return ResultOrErrorFutureFactory.supply(() -> fail(e));
     }
 
-    final Blockchain.Query query =
-        Blockchain.Query.newBuilder().setContractAddress(copyFrom(contractAddress.getBytesValue()))
-            .setQueryinfo(queryInfo).build();
+    final Blockchain.Query query = Blockchain.Query.newBuilder()
+        .setContractAddress(accountAddressConverter.convertToRpcModel(contractAddress))
+        .setQueryinfo(queryInfo).build();
     final ListenableFuture<SingleBytes> listenableFuture = aergoService.queryContract(query);
     FutureChainer<SingleBytes, ContractResult> callback =
         new FutureChainer<>(nextFuture, s -> contractResultConverter.convertToDomainModel(s));

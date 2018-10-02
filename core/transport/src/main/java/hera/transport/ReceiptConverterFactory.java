@@ -34,6 +34,7 @@ public class ReceiptConverterFactory {
     domainReceipt.setContractAddress(accountAddress.adapt(ContractAddress.class).get());
     domainReceipt.setStatus(rpcReceipt.getStatus());
     domainReceipt.setRet(rpcReceipt.getRet());
+    logger.trace("Converted rpc contract tx receipt: {}", domainReceipt);
     return domainReceipt;
   };
 

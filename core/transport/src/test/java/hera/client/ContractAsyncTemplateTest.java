@@ -13,6 +13,7 @@ import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.protobuf.ByteString;
 import hera.AbstractTestCase;
 import hera.api.AccountAsyncOperation;
 import hera.api.SignAsyncOperation;
@@ -51,6 +52,9 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
   protected static final byte[] CONTRACT_PAYLOAD =
       Base58Utils.encode(randomUUID().toString().getBytes()).getBytes();
 
+  protected static final ModelConverter<AccountAddress, ByteString> accountAddressConverter =
+      mock(ModelConverter.class);
+
   protected static final ModelConverter<ContractTxReceipt, Blockchain.Receipt> receiptConverter =
       mock(ModelConverter.class);
 
@@ -62,6 +66,10 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
 
   @BeforeClass
   public static void setUpBeforeClass() {
+    when(accountAddressConverter.convertToRpcModel(any(AccountAddress.class)))
+        .thenReturn(mock(ByteString.class));
+    when(accountAddressConverter.convertToDomainModel(any(ByteString.class)))
+        .thenReturn(mock(AccountAddress.class));
     when(receiptConverter.convertToDomainModel(any(Blockchain.Receipt.class)))
         .thenReturn(mock(ContractTxReceipt.class));
     when(contractResultConverter.convertToDomainModel(any(Rpc.SingleBytes.class)))
@@ -77,7 +85,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     final ContractAsyncTemplate contractAsyncTemplate =
         new ContractAsyncTemplate(aergoService, mock(SignAsyncOperation.class),
             mock(AccountAsyncOperation.class), mock(TransactionAsyncOperation.class),
-            receiptConverter, interfaceConverter, contractResultConverter);
+            accountAddressConverter, receiptConverter, interfaceConverter, contractResultConverter);
 
     final ResultOrErrorFuture<ContractTxReceipt> receipt = contractAsyncTemplate
         .getReceipt(new ContractTxHash(of(randomUUID().toString().getBytes())));
@@ -102,7 +110,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
 
     final ContractAsyncTemplate contractAsyncTemplate = new ContractAsyncTemplate(aergoService,
         mockSignAsyncOperation, mockAccountAsyncOperation, mockTransactionAsyncOperation,
-        receiptConverter, interfaceConverter, contractResultConverter);
+        accountAddressConverter, receiptConverter, interfaceConverter, contractResultConverter);
 
     final ResultOrErrorFuture<ContractTxHash> deployTxHash =
         contractAsyncTemplate.deploy(EXECUTOR_ADDRESS, () -> CONTRACT_PAYLOAD);
@@ -118,7 +126,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     final ContractAsyncTemplate contractAsyncTemplate =
         new ContractAsyncTemplate(aergoService, mock(SignAsyncOperation.class),
             mock(AccountAsyncOperation.class), mock(TransactionAsyncOperation.class),
-            receiptConverter, interfaceConverter, contractResultConverter);
+            accountAddressConverter, receiptConverter, interfaceConverter, contractResultConverter);
 
     final ResultOrErrorFuture<ContractInferface> abiSet =
         contractAsyncTemplate.getContractInterface(CONTRACT_ADDRESS);
@@ -141,7 +149,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
 
     final ContractAsyncTemplate contractAsyncTemplate = new ContractAsyncTemplate(aergoService,
         mock(SignAsyncOperation.class), mockAccountAsyncOperation, mockTransactionAsyncOperation,
-        receiptConverter, interfaceConverter, contractResultConverter);
+        accountAddressConverter, receiptConverter, interfaceConverter, contractResultConverter);
 
     final ResultOrErrorFuture<ContractTxHash> executionTxHash = contractAsyncTemplate
         .execute(EXECUTOR_ADDRESS, CONTRACT_ADDRESS, new ContractFunction(), randomUUID());
@@ -157,7 +165,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     final ContractAsyncTemplate contractAsyncTemplate =
         new ContractAsyncTemplate(aergoService, mock(SignAsyncOperation.class),
             mock(AccountAsyncOperation.class), mock(TransactionAsyncOperation.class),
-            receiptConverter, interfaceConverter, contractResultConverter);
+            accountAddressConverter, receiptConverter, interfaceConverter, contractResultConverter);
 
     final ResultOrErrorFuture<ContractResult> contractResult =
         contractAsyncTemplate.query(CONTRACT_ADDRESS, new ContractFunction());
