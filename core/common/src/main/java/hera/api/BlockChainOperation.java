@@ -4,12 +4,16 @@
 
 package hera.api;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.PeerAddress;
 import hera.api.tupleorerror.ResultOrError;
 import java.util.List;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public interface BlockChainOperation {
 
   /**

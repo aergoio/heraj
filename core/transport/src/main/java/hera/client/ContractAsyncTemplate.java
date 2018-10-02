@@ -19,6 +19,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 import hera.FutureChainer;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.AccountAsyncOperation;
 import hera.api.ContractAsyncOperation;
 import hera.api.SignAsyncOperation;
@@ -55,6 +57,8 @@ import types.Blockchain;
 import types.Rpc;
 import types.Rpc.SingleBytes;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
 public class ContractAsyncTemplate implements ContractAsyncOperation {

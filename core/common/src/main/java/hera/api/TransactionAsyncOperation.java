@@ -4,11 +4,14 @@
 
 package hera.api;
 
-import hera.api.model.Signature;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public interface TransactionAsyncOperation {
 
   /**

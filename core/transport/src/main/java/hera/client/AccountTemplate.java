@@ -8,6 +8,8 @@ import static hera.TransportConstants.TIMEOUT;
 import static hera.api.tupleorerror.FunctionChain.fail;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.AccountAsyncOperation;
 import hera.api.AccountOperation;
 import hera.api.model.Account;
@@ -22,6 +24,8 @@ import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
 public class AccountTemplate implements AccountOperation {

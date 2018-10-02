@@ -4,6 +4,8 @@
 
 package hera.client;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.AbstractAergoApi;
 import hera.api.AccountOperation;
 import hera.api.BlockChainOperation;
@@ -18,6 +20,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 @RequiredArgsConstructor
 public class AergoClient extends AbstractAergoApi implements Closeable, AutoCloseable {
 

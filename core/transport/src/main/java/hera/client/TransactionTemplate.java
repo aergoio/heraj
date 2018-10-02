@@ -8,6 +8,8 @@ import static hera.TransportConstants.TIMEOUT;
 import static hera.api.tupleorerror.FunctionChain.fail;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.TransactionAsyncOperation;
 import hera.api.TransactionOperation;
 import hera.api.model.Transaction;
@@ -19,6 +21,8 @@ import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
 public class TransactionTemplate implements TransactionOperation {

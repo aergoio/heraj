@@ -9,6 +9,8 @@ import static hera.api.tupleorerror.FunctionChain.fail;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.ContractAsyncOperation;
 import hera.api.ContractOperation;
 import hera.api.model.AccountAddress;
@@ -25,6 +27,8 @@ import io.grpc.ManagedChannel;
 import lombok.RequiredArgsConstructor;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
 public class ContractTemplate implements ContractOperation {

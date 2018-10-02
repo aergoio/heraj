@@ -13,6 +13,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 import hera.FutureChainer;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.BlockChainAsyncOperation;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
@@ -33,6 +35,8 @@ import types.Rpc.Empty;
 import types.Rpc.PeerList;
 import types.Rpc.SingleBytes;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
 public class BlockChainAsyncTemplate implements BlockChainAsyncOperation {

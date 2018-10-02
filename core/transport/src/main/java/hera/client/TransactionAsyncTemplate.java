@@ -15,6 +15,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 import hera.FutureChainer;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.TransactionAsyncOperation;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
@@ -36,6 +38,8 @@ import types.Rpc;
 import types.Rpc.CommitResultList;
 import types.Rpc.SingleBytes;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
 public class TransactionAsyncTemplate implements TransactionAsyncOperation {

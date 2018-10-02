@@ -13,6 +13,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 import hera.FutureChainer;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.SignAsyncOperation;
 import hera.api.model.BytesValue;
 import hera.api.model.Signature;
@@ -34,6 +36,8 @@ import types.Blockchain.Tx;
 import types.Rpc;
 import types.Rpc.VerifyResult;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
 public class SignAsyncTemplate implements SignAsyncOperation {

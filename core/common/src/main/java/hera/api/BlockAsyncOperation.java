@@ -4,12 +4,16 @@
 
 package hera.api;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.List;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public interface BlockAsyncOperation {
 
   /**

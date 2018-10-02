@@ -8,12 +8,16 @@ import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.custom.Adaptor;
 import hera.custom.AdaptorManager;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public class AbstractAergoApi implements AergoApi, Adaptor {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -47,8 +51,7 @@ public class AbstractAergoApi implements AergoApi, Adaptor {
     throw new UnsupportedOperationException();
   }
 
-  public <AdapteeT> List<? extends AdapteeT> getCandidates(
-      final Class<AdapteeT> candidateClass) {
+  public <AdapteeT> List<? extends AdapteeT> getCandidates(final Class<AdapteeT> candidateClass) {
     return AdaptorManager.getInstance().getAdaptors(candidateClass);
   }
 

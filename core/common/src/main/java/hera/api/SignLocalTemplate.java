@@ -7,6 +7,8 @@ package hera.api;
 import static hera.api.tupleorerror.FunctionChain.fail;
 import static hera.api.tupleorerror.FunctionChain.success;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.BytesValue;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
@@ -16,6 +18,8 @@ import hera.key.KeyPair;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
 public class SignLocalTemplate implements SignOperation {

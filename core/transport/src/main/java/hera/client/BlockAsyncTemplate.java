@@ -14,6 +14,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 import hera.FutureChainer;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.BlockAsyncOperation;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
@@ -32,6 +34,8 @@ import types.Rpc.BlockHeaderList;
 import types.Rpc.ListParams;
 import types.Rpc.SingleBytes;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
 public class BlockAsyncTemplate implements BlockAsyncOperation {

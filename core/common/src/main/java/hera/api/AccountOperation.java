@@ -6,6 +6,8 @@ package hera.api;
 
 import static hera.api.tupleorerror.FunctionChain.fail;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
@@ -14,6 +16,8 @@ import hera.api.tupleorerror.ResultOrError;
 import hera.exception.AdaptException;
 import java.util.List;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public interface AccountOperation {
 
   /**

@@ -15,6 +15,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 import hera.FutureChainer;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.AccountAsyncOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
@@ -37,6 +39,8 @@ import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Blockchain;
 import types.Rpc;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
 public class AccountAsyncTemplate implements AccountAsyncOperation {

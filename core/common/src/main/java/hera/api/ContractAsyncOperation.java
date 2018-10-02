@@ -6,6 +6,8 @@ package hera.api;
 
 import static hera.api.tupleorerror.FunctionChain.fail;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
@@ -19,6 +21,8 @@ import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.exception.AdaptException;
 import hera.util.DangerousSupplier;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public interface ContractAsyncOperation {
 
   /**

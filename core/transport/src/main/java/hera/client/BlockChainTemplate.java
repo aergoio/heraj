@@ -7,6 +7,8 @@ package hera.client;
 import static hera.TransportConstants.TIMEOUT;
 import static hera.api.tupleorerror.FunctionChain.fail;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.BlockChainAsyncOperation;
 import hera.api.BlockChainOperation;
 import hera.api.model.BlockchainStatus;
@@ -21,6 +23,8 @@ import lombok.RequiredArgsConstructor;
 import types.AergoRPCServiceGrpc;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
 public class BlockChainTemplate implements BlockChainOperation {
