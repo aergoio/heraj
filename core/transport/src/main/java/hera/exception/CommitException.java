@@ -16,6 +16,7 @@ public class CommitException extends RpcException {
     NONCE_TOO_LOW,
     TX_ALREADY_EXISTS,
     TX_INVALID_HASH,
+    TX_INVALID_SIGNATURE,
     TX_INVALID_FORMAT,
     INSUFFICIENT_BALANCE,
     INTERNAL_ERROR
@@ -42,6 +43,9 @@ public class CommitException extends RpcException {
         break;
       case TX_INVALID_HASH:
         this.commitStatus = CommitStatus.TX_INVALID_HASH;
+        break;
+      case TX_INVALID_SIGN:
+        this.commitStatus = CommitStatus.TX_INVALID_SIGNATURE;
         break;
       case TX_INVALID_FORMAT:
         this.commitStatus = CommitStatus.TX_INVALID_FORMAT;
