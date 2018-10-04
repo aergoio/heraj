@@ -7,10 +7,12 @@ package hera.api.model;
 import hera.util.StringUtils;
 import java.util.Collections;
 import java.util.List;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+@EqualsAndHashCode
 @ToString
 public class ContractFunction {
 

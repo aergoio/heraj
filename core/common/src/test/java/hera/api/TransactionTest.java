@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 
 public class TransactionTest {
 
-  protected final transient Logger logger = getLogger(getClass());
+//  protected final transient Logger logger = getLogger(getClass());
 
   protected static final Base58 base58Encoded =
       () -> "AtmxbVvjDN5LYwaf5QrCZPc3FoAqUCMVegVXjf8CMCz59wL21X6j";
@@ -53,14 +53,9 @@ public class TransactionTest {
   }
 
   @Test
-  public void testEquals() {
-    final byte[] byteValue1 = randomUUID().toString().getBytes();
-    final byte[] byteValue2 = Arrays.copyOf(byteValue1, byteValue1.length);
-
-    final BytesValue value1 = new BytesValue(byteValue1);
-    final BytesValue value2 = new BytesValue(byteValue2);
-
-    assertEquals(value1, value2);
+  public void testCopyOf() {
+    final Transaction copy = Transaction.copyOf(transaction);
+    assertEquals(transaction, copy);
   }
 
   @Test

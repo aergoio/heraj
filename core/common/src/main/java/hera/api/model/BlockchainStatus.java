@@ -4,10 +4,12 @@
 
 package hera.api.model;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+@EqualsAndHashCode
 @ToString
 public class BlockchainStatus {
 

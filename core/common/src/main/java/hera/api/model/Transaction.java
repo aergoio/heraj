@@ -11,10 +11,12 @@ import static java.util.Optional.ofNullable;
 import hera.util.LittleEndianDataOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+@EqualsAndHashCode
 @ToString
 public class Transaction {
 
@@ -24,7 +26,7 @@ public class Transaction {
 
   @Getter
   @Setter
-  protected int indexInBlock;
+  protected int indexInBlock = 0;
 
   @Getter
   @Setter
@@ -74,6 +76,8 @@ public class Transaction {
       return null;
     }
     final Transaction copy = new Transaction();
+    copy.setBlockHash(source.getBlockHash());
+    copy.setIndexInBlock(source.getIndexInBlock());
     copy.setNonce(source.getNonce());
     ofNullable(source.getSender()).ifPresent(copy::setSender);
     ofNullable(source.getRecipient()).ifPresent(copy::setRecipient);

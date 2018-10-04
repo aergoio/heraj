@@ -5,9 +5,11 @@
 package hera.api.model;
 
 import java.util.List;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+@EqualsAndHashCode(callSuper = true)
 public class Block extends BlockHeader {
 
   @Getter
