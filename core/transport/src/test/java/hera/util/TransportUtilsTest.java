@@ -41,6 +41,12 @@ public class TransportUtilsTest extends AbstractTestCase {
   }
 
   @Test
+  public void testCopyFromWithEmptyBytesValue() {
+    ByteString actualResult = copyFrom(BytesValue.EMPTY);
+    assertEquals(ByteString.EMPTY, actualResult);
+  }
+
+  @Test
   public void testLongToByteArray() {
     byte[] expected = {0x7f, 0x6f, 0x5f, 0x4f, 0x3f, 0x2f, 0x1f, 0x0f};
     byte[] actual = longToByteArray(Long.decode("0x0f1f2f3f4f5f6f7f"));

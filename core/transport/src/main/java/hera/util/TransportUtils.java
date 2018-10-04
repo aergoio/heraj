@@ -9,7 +9,6 @@ import hera.api.model.BytesValue;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 
 public class TransportUtils {
 
@@ -21,10 +20,10 @@ public class TransportUtils {
    * @return protobuf {@link ByteString}
    */
   public static ByteString copyFrom(final BytesValue bytesValue) {
-    if (null != bytesValue && null != bytesValue.getValue()) {
-      return ByteString.copyFrom(bytesValue.getValue());
+    if (null == bytesValue || null == bytesValue.getValue()) {
+      return ByteString.EMPTY;
     }
-    return ByteString.EMPTY;
+    return ByteString.copyFrom(bytesValue.getValue());
   }
 
   /**
@@ -34,12 +33,16 @@ public class TransportUtils {
    * @return converted byte array in a little endian
    */
   public static byte[] longToByteArray(final long longValue) {
-    final ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
-    for (int i = 0; i < 8; ++i) {
-      int shift = 8 * i;
-      buffer.put((byte) (longValue >> shift));
-    }
-    return buffer.array();
+    final byte[] raw = new byte[8];
+    raw[0] = (byte) (0xFF & (longValue));
+    raw[1] = (byte) (0xFF & (longValue >> 8));
+    raw[2] = (byte) (0xFF & (longValue >> 16));
+    raw[3] = (byte) (0xFF & (longValue >> 24));
+    raw[4] = (byte) (0xFF & (longValue >> 32));
+    raw[5] = (byte) (0xFF & (longValue >> 40));
+    raw[6] = (byte) (0xFF & (longValue >> 48));
+    raw[7] = (byte) (0xFF & (longValue >> 56));
+    return raw;
   }
 
   /**
