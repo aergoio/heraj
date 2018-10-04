@@ -24,6 +24,7 @@ import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Node;
 import types.Rpc;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 @PrepareForTest({AergoRPCServiceFutureStub.class, Rpc.BlockchainStatus.class, Rpc.PeerList.class,
     Node.PeerAddress.class, Rpc.SingleBytes.class})
 public class BlockChainAsyncTemplateTest extends AbstractTestCase {

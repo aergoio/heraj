@@ -22,6 +22,7 @@ import hera.client.TransactionEitherTemplate;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.util.HexUtils;
+import hera.util.ThreadUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -85,15 +86,16 @@ public class TransactionTemplateIT extends AbstractIT {
 
   @Test
   public void testSignLocallyAndCommit() throws Exception {
-    final AergoKey key = new AergoKeyGenerator().create();
+    final AergoKey senderKey = new AergoKeyGenerator().create();
+    final AergoKey recipientKey = new AergoKeyGenerator().create();
 
     final Transaction transaction = new Transaction();
     transaction.setNonce(1);
     transaction.setAmount(30);
-    transaction.setSender(key.getAddress());
-    transaction.setRecipient(recipient.getAddress());
+    transaction.setSender(senderKey.getAddress());
+    transaction.setRecipient(recipientKey.getAddress());
 
-    final SignLocalEitherTemplate signTemplate = new SignLocalEitherTemplate(key);
+    final SignLocalEitherTemplate signTemplate = new SignLocalEitherTemplate(senderKey);
     final Signature signature = signTemplate.sign(transaction).getResult();
     transaction.setSignature(signature);
     logger.debug("Signature: {}", transaction.getSignature());
@@ -101,9 +103,14 @@ public class TransactionTemplateIT extends AbstractIT {
     final Transaction queried = transactionTemplate.commit(transaction)
         .flatMap(r -> transactionTemplate.getTransaction(signature.getTxHash())).getResult();
     assertNotNull(queried);
-    assertEquals(key.getAddress(), queried.getSender());
-    assertEquals(recipient.getAddress(), queried.getRecipient());
+    assertEquals(senderKey.getAddress(), queried.getSender());
+    assertEquals(recipientKey.getAddress(), queried.getRecipient());
     logger.debug("Transaction: {}", queried);
+
+    ThreadUtils.trySleep(2000L);
+
+    final long balance = accountTemplate.get(recipientKey.getAddress()).getResult().getBalance();
+    assertEquals(30, balance);
   }
 
   @Test

@@ -4,7 +4,6 @@
 
 package hera.client;
 
-import static com.google.protobuf.ByteString.copyFrom;
 import static hera.util.TransportUtils.copyFrom;
 import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -24,6 +23,7 @@ import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
+import hera.transport.AccountAddressConverterFactory;
 import hera.transport.AccountConverterFactory;
 import hera.transport.AccountStateConverterFactory;
 import hera.transport.AuthenticationConverterFactory;
@@ -49,6 +49,8 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
 
   protected final AergoRPCServiceFutureStub aergoService;
 
+  protected final ModelConverter<AccountAddress, ByteString> accountAddressConverter;
+
   protected final ModelConverter<EncryptedPrivateKey, Rpc.SingleBytes> encryptedPrivateKeyConverter;
 
   protected final ModelConverter<Account, AccountOuterClass.Account> accountConverter;
@@ -67,9 +69,9 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
    * @param aergoService aergo service
    */
   public AccountAsyncTemplate(final AergoRPCServiceFutureStub aergoService) {
-    this(aergoService, new EncryptedPrivateKeyConverterFactory().create(),
-        new AccountConverterFactory().create(), new AccountStateConverterFactory().create(),
-        new AuthenticationConverterFactory().create());
+    this(aergoService, new AccountAddressConverterFactory().create(),
+        new EncryptedPrivateKeyConverterFactory().create(), new AccountConverterFactory().create(),
+        new AccountStateConverterFactory().create(), new AuthenticationConverterFactory().create());
   }
 
   @Override
@@ -108,8 +110,8 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
   public ResultOrErrorFuture<Account> get(AccountAddress address) {
     ResultOrErrorFuture<Account> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-    final ByteString byteString = copyFrom(address.getBytesValue().getValue());
-    final Rpc.SingleBytes bytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
+    final Rpc.SingleBytes bytes = Rpc.SingleBytes.newBuilder()
+        .setValue(accountAddressConverter.convertToRpcModel(address)).build();
     ListenableFuture<Blockchain.State> listenableFuture = aergoService.getState(bytes);
     FutureChainer<Blockchain.State, Account> callback = new FutureChainer<>(nextFuture, state -> {
       final Account account = accountStateConverter.convertToDomainModel(state);
