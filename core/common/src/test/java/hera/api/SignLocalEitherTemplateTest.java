@@ -12,17 +12,17 @@ import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import org.junit.Test;
 
-public class SignLocalTemplateTest {
+public class SignLocalEitherTemplateTest {
 
   @Test
   public void test() throws Exception {
     final AergoKey key = new AergoKeyGenerator().create();
-    final SignLocalTemplate signTemplate = new SignLocalTemplate(key);
+    final SignLocalEitherTemplate signLocalEitherTemplate = new SignLocalEitherTemplate(key);
 
     final Transaction transaction = new Transaction();
-    final Signature signature = signTemplate.sign(transaction);
+    final Signature signature = signLocalEitherTemplate.sign(transaction).getResult();
     transaction.setSignature(signature);
-    assertTrue(signTemplate.verify(transaction));
+    assertTrue(signLocalEitherTemplate.verify(transaction).getResult());
   }
 
 }

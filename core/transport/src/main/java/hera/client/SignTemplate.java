@@ -37,7 +37,7 @@ public class SignTemplate implements SignOperation {
   }
 
   @Override
-  public Boolean verify(final Transaction transaction) {
+  public boolean verify(final Transaction transaction) {
     return signEitherOperation.verify(transaction).getResult();
   }
 

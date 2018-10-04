@@ -27,6 +27,6 @@ public interface SignOperation {
    * @param transaction transaction to verify
    * @return verify result
    */
-  Boolean verify(Transaction transaction);
+  boolean verify(Transaction transaction);
 
 }
