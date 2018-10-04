@@ -4,7 +4,6 @@
 
 package hera.client;
 
-import static hera.util.TransportUtils.copyFrom;
 import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
@@ -156,8 +155,7 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
     ResultOrErrorFuture<Account> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final Rpc.ImportFormat importFormat = Rpc.ImportFormat.newBuilder()
-        .setWif(
-            Rpc.SingleBytes.newBuilder().setValue(copyFrom(encryptedKey.getBytesValue())).build())
+        .setWif(encryptedPrivateKeyConverter.convertToRpcModel(encryptedKey))
         .setOldpass(oldPassword).setNewpass(newPassword).build();
     ListenableFuture<AccountOuterClass.Account> listenableFuture =
         aergoService.importAccount(importFormat);

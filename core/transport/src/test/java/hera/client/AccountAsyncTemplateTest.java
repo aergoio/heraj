@@ -65,6 +65,8 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
         .thenReturn(mock(ByteString.class));
     when(encryptedPrivateKeyConverter.convertToDomainModel(any(Rpc.SingleBytes.class)))
         .thenReturn(mock(EncryptedPrivateKey.class));
+    when(encryptedPrivateKeyConverter.convertToRpcModel(any(EncryptedPrivateKey.class)))
+        .thenReturn(mock(Rpc.SingleBytes.class));
     when(accountConverter.convertToDomainModel(any(AccountOuterClass.Account.class)))
         .thenReturn(mock(Account.class));
     when(accountConverter.convertToRpcModel(any(Account.class)))

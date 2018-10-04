@@ -5,7 +5,6 @@
 package hera.client.it;
 
 import static java.util.UUID.randomUUID;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -13,7 +12,7 @@ import hera.api.model.Account;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.client.AccountEitherTemplate;
-import hera.util.HexUtils;
+import hera.exception.RpcException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,5 +39,14 @@ public class AccountTemplateIT extends AbstractIT {
 
     final EncryptedPrivateKey encryptedKey = accountTemplate
         .exportKey(Authentication.of(createdAccount.getAddress(), password)).getResult();
+    try {
+      accountTemplate.importKey(encryptedKey, password).getResult();
+    } catch (RpcException e) {
+      // expected
+      // TODO : check gracefully
+      logger.debug("Import key error message: \"{}\"", e.getMessage());
+      assertTrue(e.getMessage().equals("io.grpc.StatusRuntimeException: UNKNOWN: already exisit"));
+    }
   }
+
 }
