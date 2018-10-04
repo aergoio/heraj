@@ -7,7 +7,6 @@ package hera.transport;
 import static hera.api.model.BytesValue.of;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
-
 import hera.api.model.BlockHash;
 import hera.api.model.Transaction;
 import java.util.function.Function;
@@ -38,6 +37,9 @@ public class TransactionInBlockConverterFactory {
     final Transaction domainTransaction = transactionConverter.convertToDomainModel(rpcTx);
     domainTransaction.setBlockHash(new BlockHash(of(rpcTxIdx.getBlockHash().toByteArray())));
     domainTransaction.setIndexInBlock(rpcTxIdx.getIdx());
+    if (!domainTransaction.getBlockHash().getBytesValue().isEmpty()) {
+      domainTransaction.setConfirmed(true);
+    }
     return domainTransaction;
   };
 

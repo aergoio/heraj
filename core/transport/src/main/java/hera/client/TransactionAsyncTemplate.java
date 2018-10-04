@@ -73,10 +73,11 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation {
       @Override
       public void onFailure(Throwable throwable) {
         try {
-          // if not in a block chain, check memory pool
+          logger.debug("Transaction {} is not in a block. Check mempool", txHash);
           final Blockchain.Tx tx = aergoService.getTX(hashBytes).get();
           super.onSuccess(TxInBlock.newBuilder().setTx(tx).build());
         } catch (Throwable e) {
+          logger.debug("Transaction {} don't exist", txHash);
           super.onFailure(e);
         }
       }

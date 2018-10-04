@@ -30,6 +30,10 @@ public class Transaction {
 
   @Getter
   @Setter
+  protected boolean confirmed = false;
+
+  @Getter
+  @Setter
   protected long nonce;
 
   @Getter
@@ -78,6 +82,7 @@ public class Transaction {
     final Transaction copy = new Transaction();
     copy.setBlockHash(source.getBlockHash());
     copy.setIndexInBlock(source.getIndexInBlock());
+    copy.setConfirmed(source.isConfirmed());
     copy.setNonce(source.getNonce());
     ofNullable(source.getSender()).ifPresent(copy::setSender);
     ofNullable(source.getRecipient()).ifPresent(copy::setRecipient);
