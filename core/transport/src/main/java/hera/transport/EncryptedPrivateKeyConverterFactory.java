@@ -37,11 +37,11 @@ public class EncryptedPrivateKeyConverterFactory {
   protected final Function<Rpc.SingleBytes, EncryptedPrivateKey> rpcConverter =
       rpcEncryptedPrivateKey -> {
         logger.trace("Rpc encrypted privateKey: {}",
-            HexUtils.encode(rpcEncryptedPrivateKey.toByteArray()));
+            HexUtils.encode(rpcEncryptedPrivateKey.getValue().toByteArray()));
         if (rpcEncryptedPrivateKey.getValue().isEmpty()) {
           return new EncryptedPrivateKey(BytesValue.EMPTY);
         }
-        final byte[] withoutVersion = rpcEncryptedPrivateKey.toByteArray();
+        final byte[] withoutVersion = rpcEncryptedPrivateKey.getValue().toByteArray();
         final byte[] withVersion = new byte[withoutVersion.length + 1];
         withVersion[0] = EncryptedPrivateKey.PRIVATE_KEY_VERSION;
         System.arraycopy(withoutVersion, 0, withVersion, 1, withoutVersion.length);
