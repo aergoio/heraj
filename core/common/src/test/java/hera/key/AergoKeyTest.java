@@ -5,12 +5,11 @@
 package hera.key;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
 import hera.AbstractTestCase;
 import hera.util.HexUtils;
-import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSASignature;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -18,20 +17,26 @@ import org.junit.Test;
 
 public class AergoKeyTest extends AbstractTestCase {
 
-  private static final String ENCODED_PRIVATE_KEY = "CSKko9uZtJA1C4kcEECTjgKfswn6dc9aShpsvS73jk9n";
+  private static final String ENCRYPTED_PRIVATE_KEY =
+      "47jhUycXqYMw3oGNP1qjnD2v3Xo1g8z9aS42X9yzrqmwYXCbU6Lw4F724W1aXNh4pWjwsHYSR";
 
   @Test
-  public void testRecover() throws Exception {
-    final AergoKey key = AergoKey.recover(ENCODED_PRIVATE_KEY);
+  public void testOfWithEncodedEncryptedPrivateKey() throws Exception {
+    final String password = "password";
+    final AergoKey key = AergoKey.of(ENCRYPTED_PRIVATE_KEY, password);
     assertNotNull(key.getPrivateKey());
+    assertNotNull(key.getEncodedPrivateKey());
     assertNotNull(key.getPublicKey());
     assertNotNull(key.getAddress());
+    assertNotNull(key.getEncodedAddress());
   }
 
   @Test
-  public void testGetEncodedPrivateKey() throws Exception {
-    final AergoKey key = AergoKey.recover(ENCODED_PRIVATE_KEY);
-    assertEquals(key.getEncodedPrivateKey(), ENCODED_PRIVATE_KEY);
+  public void testGetEncryptedPrivateKey() throws Exception {
+    final String password = "password";
+    final AergoKey key = AergoKey.of(ENCRYPTED_PRIVATE_KEY, password);
+    final String newEncryptedPrivateKey = key.getEncryptedPrivateKey(password);
+    assertEquals(ENCRYPTED_PRIVATE_KEY, newEncryptedPrivateKey);
   }
 
   @Test

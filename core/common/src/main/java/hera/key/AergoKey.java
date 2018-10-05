@@ -4,62 +4,65 @@
 
 package hera.key;
 
-import static hera.api.model.BytesValue.of;
-import static hera.util.IoUtils.from;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import hera.api.encode.Base58Transformer;
-import hera.api.encode.Transformer;
+import hera.VersionUtils;
+import hera.api.encode.Base58WithCheckSum;
+import hera.api.encode.Encoded;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
+import hera.api.model.EncryptedPrivateKey;
 import hera.exception.HerajException;
+import hera.util.Base58Utils;
+import hera.util.CryptoUtils;
+import hera.util.HexUtils;
+import hera.util.Sha256Utils;
 import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSASignature;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Arrays;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.slf4j.Logger;
 
+@EqualsAndHashCode
 public class AergoKey implements KeyPair {
 
-  protected final transient Logger logger = getLogger(getClass());
+  // [odd|even] of publickey.y + [optional 0x00] + publickey.x
+  protected static final int ADDRESS_LENGTH = 33;
 
   /**
-   * Create a key pair with base58 encoded private key.
+   * Create a key pair with encoded encrypted private key and password.
    *
-   * @param encodedPrivateKey base58 encoded private key
+   * @param encodedEncryptedPrivateKey encrypted private key
+   * @param password password to decrypt
    * @return key instance
-   *
-   * @throws Exception on failure of recovery
+   * @throws Exception on failure of decryption
    */
-  public static AergoKey recover(final String encodedPrivateKey) throws Exception {
-    return recover(from(transformer.decode(new StringReader(encodedPrivateKey))));
+  public static AergoKey of(final String encodedEncryptedPrivateKey, final String password)
+      throws Exception {
+    Base58WithCheckSum encoded = () -> encodedEncryptedPrivateKey;
+    return of(encoded, password);
   }
 
   /**
-   * Create a key pair with raw private key.
+   * Create a key pair with encrypted private key and password.
    *
-   * @param rawPrivateKey raw private key
-   * @return key instance to be recovered
-   *
-   * @throws Exception on failure of recovery
+   * @param encryptedPrivateKey encrypted private key
+   * @param password password to decrypt
+   * @return key instance
+   * @throws Exception on failure of decryption
    */
-  public static AergoKey recover(final byte[] rawPrivateKey) throws Exception {
-    return new AergoKey(ECDSAKey.recover(rawPrivateKey));
+  public static AergoKey of(final Encoded encryptedPrivateKey, final String password)
+      throws Exception {
+    return new AergoKey(encryptedPrivateKey, password);
   }
 
-  // publickey.x
-  protected static final int PUBLIC_X_LEN = 32;
-
-  // <address version> + [odd|even] of publickey.y + publickey.x
-  protected static final int ADDRESS_LENGTH = 1 + 1 + PUBLIC_X_LEN;
-
-  protected static final Transformer transformer = new Base58Transformer();
+  protected final transient Logger logger = getLogger(getClass());
 
   protected final ECDSAKey ecdsakey;
 
@@ -69,28 +72,40 @@ public class AergoKey implements KeyPair {
   /**
    * AergoKey constructor.
    *
+   * @param encryptedPrivateKey encrypted private key
+   * @param password password to decrypt
+   * @throws Exception on failure of decryption
+   */
+  public AergoKey(final Encoded encryptedPrivateKey, final String password) throws Exception {
+    final byte[] rawPrivateKey =
+        decrypt(encryptedPrivateKey.decode().getValue(), password.getBytes("UTF-8"));
+    this.ecdsakey = ECDSAKey.of(rawPrivateKey);
+    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =
+        (org.bouncycastle.jce.interfaces.ECPublicKey) this.ecdsakey.getPublicKey();
+    this.address = buildAddress(ecPublicKey);
+  }
+
+  /**
+   * AergoKey constructor.
+   *
    * @param ecdsakey keypair
    */
   public AergoKey(final ECDSAKey ecdsakey) {
     this.ecdsakey = ecdsakey;
-
     final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =
         (org.bouncycastle.jce.interfaces.ECPublicKey) this.ecdsakey.getPublicKey();
+    this.address = buildAddress(ecPublicKey);
+  }
+
+  protected AccountAddress buildAddress(
+      final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey) {
     final byte[] rawAddress = new byte[ADDRESS_LENGTH];
-    rawAddress[0] = AccountAddress.ADDRESS_VERSION;
-    rawAddress[1] = (byte) (ecPublicKey.getQ().getY().toBigInteger().testBit(0) ? 0x03 : 0x02);
-
-    byte[] xbyteArray = ecPublicKey.getQ().getX().toBigInteger().toByteArray();
-    // xbyteArray may have an extra sign bit
-    final int extraBytesCount = xbyteArray.length - PUBLIC_X_LEN;
-    if (extraBytesCount >= 1) {
-      System.arraycopy(xbyteArray, extraBytesCount, rawAddress, 2,
-          xbyteArray.length - extraBytesCount);
-    } else {
-      System.arraycopy(xbyteArray, 0, rawAddress, 2, xbyteArray.length);
-    }
-
-    this.address = AccountAddress.of(of(rawAddress));
+    rawAddress[0] = (byte) (ecPublicKey.getQ().getY().toBigInteger().testBit(0) ? 0x03 : 0x02);
+    final byte[] xbyteArray = getPureByteArrayOf(ecPublicKey.getQ().getX().toBigInteger());
+    System.arraycopy(xbyteArray, 0, rawAddress, rawAddress.length - xbyteArray.length,
+        xbyteArray.length);
+    return AccountAddress
+        .of(BytesValue.of(VersionUtils.envelop(rawAddress, AccountAddress.VERSION)));
   }
 
   @Override
@@ -145,30 +160,44 @@ public class AergoKey implements KeyPair {
   @Override
   public String getEncodedPrivateKey() {
     try {
-      final org.bouncycastle.jce.interfaces.ECPrivateKey ecPrivateKey =
-          (org.bouncycastle.jce.interfaces.ECPrivateKey) getPrivateKey();
-      final BigInteger d = ecPrivateKey.getD();
-      final byte[] mayHaveExtraSignByte = d.toByteArray();
-      final int byteLen = (d.bitLength() + 7) >>> 3;
-      byte[] rawPrivateKey = new byte[byteLen];
-      if (mayHaveExtraSignByte.length > byteLen) {
-        System.arraycopy(mayHaveExtraSignByte, 1, rawPrivateKey, 0, byteLen);
-      } else {
-        System.arraycopy(mayHaveExtraSignByte, 0, rawPrivateKey, 0, byteLen);
-      }
-
-      return from(transformer.encode(new ByteArrayInputStream(rawPrivateKey)));
+      return Base58Utils.encodeWithCheck(getRawPrivateKey());
     } catch (Exception e) {
       throw new HerajException(e);
     }
   }
 
   @Override
+  public String getEncryptedPrivateKey(final String password) {
+    try {
+      final byte[] rawPrivateKey = getRawPrivateKey();
+      final byte[] rawPassword = password.getBytes("UTF-8");
+      return Base58Utils.encodeWithCheck(encrypt(rawPrivateKey, rawPassword));
+    } catch (Exception e) {
+      throw new HerajException(e);
+    }
+  }
+
+  protected byte[] getRawPrivateKey() {
+    final org.bouncycastle.jce.interfaces.ECPrivateKey ecPrivateKey =
+        (org.bouncycastle.jce.interfaces.ECPrivateKey) getPrivateKey();
+    final BigInteger d = ecPrivateKey.getD();
+    return getPureByteArrayOf(d);
+  }
+
+  protected byte[] getPureByteArrayOf(final BigInteger bigInteger) {
+    final byte[] raw = bigInteger.toByteArray();
+    final int byteLen = (bigInteger.bitLength() + 7) >>> 3;
+    if (raw.length > byteLen) {
+      return Arrays.copyOfRange(raw, 1, raw.length);
+    }
+    return raw;
+  }
+
+  @Override
   public String getEncodedAddress() {
     try {
-      return from(
-          transformer.encode(new ByteArrayInputStream(getAddress().getBytesValue().getValue())));
-    } catch (IOException e) {
+      return Base58Utils.encodeWithCheck(getAddress().getBytesValue().getValue());
+    } catch (Exception e) {
       throw new HerajException(e);
     }
   }
@@ -178,5 +207,36 @@ public class AergoKey implements KeyPair {
     return String.format("Privatekey: %s\nAddress: %s", getEncodedPrivateKey(),
         getEncodedAddress());
   }
+
+  protected byte[] encrypt(final byte[] rawPrivateKey, final byte[] rawPassword)
+      throws InvalidCipherTextException {
+    final byte[] hashedPassword = Sha256Utils.digest(rawPassword);
+    final byte[] encryptKey = Sha256Utils.digest(rawPassword, hashedPassword);
+    final byte[] nonce = calculateNonce(hashedPassword);
+    logger.trace("Encript data: {}", HexUtils.encode(rawPrivateKey));
+    logger.trace("Encript key: {}", HexUtils.encode(encryptKey));
+    logger.trace("Encript nonce: {}", HexUtils.encode(nonce));
+    final byte[] encrypted = CryptoUtils.encryptToAesGcm(rawPrivateKey, encryptKey, nonce);
+    return VersionUtils.envelop(encrypted, EncryptedPrivateKey.VERSION);
+  }
+
+  protected byte[] decrypt(final byte[] rawEncrypted, final byte[] rawPassword)
+      throws InvalidCipherTextException {
+    final byte[] withoutVersion = VersionUtils.trim(rawEncrypted);
+    final byte[] hashedPassword = Sha256Utils.digest(rawPassword);
+    final byte[] decryptKey = Sha256Utils.digest(rawPassword, hashedPassword);
+    final byte[] nonce = calculateNonce(hashedPassword);
+    logger.trace("Decript data: {}", HexUtils.encode(withoutVersion));
+    logger.trace("Decript key: {}", HexUtils.encode(decryptKey));
+    logger.trace("Decript nonce: {}", HexUtils.encode(nonce));
+    final byte[] rawPrivateKey = CryptoUtils.decryptFromAesGcm(withoutVersion, decryptKey, nonce);
+    logger.trace("Decripted: {}", HexUtils.encode(rawPrivateKey));
+    return rawPrivateKey;
+  }
+
+  protected byte[] calculateNonce(final byte[] hashedPassword) {
+    return Arrays.copyOfRange(hashedPassword, 4, 16);
+  }
+
 
 }

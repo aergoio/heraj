@@ -9,10 +9,10 @@ import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
+import hera.VersionUtils;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
 import hera.util.HexUtils;
-import java.util.Arrays;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Rpc;
@@ -30,7 +30,7 @@ public class EncryptedPrivateKeyConverterFactory {
               .setValue(copyFrom(domainEncryptedPrivateKey.getBytesValue())).build();
         }
         final byte[] withVersion = domainEncryptedPrivateKey.getBytesValue().getValue();
-        final byte[] withoutVersion = Arrays.copyOfRange(withVersion, 1, withVersion.length);
+        final byte[] withoutVersion = VersionUtils.trim(withVersion);
         return Rpc.SingleBytes.newBuilder().setValue(ByteString.copyFrom(withoutVersion)).build();
       };
 
@@ -42,9 +42,8 @@ public class EncryptedPrivateKeyConverterFactory {
           return new EncryptedPrivateKey(BytesValue.EMPTY);
         }
         final byte[] withoutVersion = rpcEncryptedPrivateKey.getValue().toByteArray();
-        final byte[] withVersion = new byte[withoutVersion.length + 1];
-        withVersion[0] = EncryptedPrivateKey.PRIVATE_KEY_VERSION;
-        System.arraycopy(withoutVersion, 0, withVersion, 1, withoutVersion.length);
+        final byte[] withVersion =
+            VersionUtils.envelop(withoutVersion, EncryptedPrivateKey.VERSION);
         return new EncryptedPrivateKey(of(withVersion));
       };
 

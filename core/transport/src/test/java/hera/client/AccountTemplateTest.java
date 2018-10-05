@@ -30,7 +30,7 @@ import types.AergoRPCServiceGrpc.AergoRPCServiceStub;
 public class AccountTemplateTest extends AbstractTestCase {
 
   protected final AccountAddress ACCOUNT_ADDRESS =
-      new AccountAddress(of(new byte[] {AccountAddress.ADDRESS_VERSION}));
+      new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
 
   protected final String PASSWORD = randomUUID().toString();
 
@@ -110,7 +110,7 @@ public class AccountTemplateTest extends AbstractTestCase {
     final AccountTemplate accountTemplate = new AccountTemplate(eitherOperationMock);
 
     final Account importedAccount = accountTemplate.importKey(
-        new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.PRIVATE_KEY_VERSION})),
+        new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.VERSION})),
         PASSWORD);
     assertNotNull(importedAccount);
   }

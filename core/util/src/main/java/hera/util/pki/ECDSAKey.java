@@ -31,7 +31,7 @@ import org.bouncycastle.jce.spec.ECPublicKeySpec;
 import org.bouncycastle.math.ec.ECPoint;
 import org.slf4j.Logger;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class ECDSAKey {
 
   protected static final String KEY_ALGORITHM = "ECDSA";
@@ -42,38 +42,61 @@ public class ECDSAKey {
 
   protected static final String MAC_ALGORITHM = "HmacSHA256";
 
-  protected final transient Logger logger = getLogger(getClass());
+  protected static final ECNamedCurveParameterSpec ecSpec;
 
-  protected static final ECNamedCurveParameterSpec ecSpec = getParameterSpec(CURVE_NAME);
-
-  public static final ECDomainParameters ecParams = new ECDomainParameters(ecSpec.getCurve(),
-      ecSpec.getG(), ecSpec.getN(), ecSpec.getH(), ecSpec.getSeed());
+  public static final ECDomainParameters ecParams;
 
   static {
     addProvider(new BouncyCastleProvider());
+    ecSpec = getParameterSpec(CURVE_NAME);
+    ecParams = new ECDomainParameters(ecSpec.getCurve(), ecSpec.getG(), ecSpec.getN(),
+        ecSpec.getH(), ecSpec.getSeed());
+  }
+
+  protected final transient Logger logger = getLogger(getClass());
+
+
+  /**
+   * Create ECDSAKey with a private key.
+   *
+   * @param rawPrivatekey a private key
+   * @return {@link ECDSAKey}
+   *
+   * @throws Exception on failure of creation
+   */
+  public static ECDSAKey of(final byte[] rawPrivatekey) throws Exception {
+    return new ECDSAKey(rawPrivatekey);
   }
 
   /**
-   * Recover encoded private key.
+   * Create ECDSAKey with keypair.
    *
-   * @param rawPrivatekey private key
-   * @return recovered key pair
-   *
-   * @throws Exception on failure of recovery
+   * @param privatekey a private key
+   * @param publicKey a public key
+   * @return {@link ECDSAKey}
    */
-  public static ECDSAKey recover(final byte[] rawPrivatekey) throws Exception {
+  public static ECDSAKey of(final PrivateKey privatekey, final PublicKey publicKey) {
+    return new ECDSAKey(privatekey, publicKey);
+  }
+
+  /**
+   * ECDSAKey constructor.
+   *
+   * @param rawPrivatekey raw private key
+   *
+   * @throws Exception on failure
+   */
+  public ECDSAKey(final byte[] rawPrivatekey) throws Exception {
     final KeyFactory factory = KeyFactory.getInstance(KEY_ALGORITHM);
 
     final BigInteger d = new BigInteger(1, rawPrivatekey);
     final ECPrivateKeySpec spec = new ECPrivateKeySpec(d, ecSpec);
-    final PrivateKey privateKey = factory.generatePrivate(spec);
+    this.privateKey = factory.generatePrivate(spec);
 
     final ECPoint Q = ecParams.getG()
         .multiply(((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD());
     final ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(Q, ecSpec);
-    final PublicKey publicKey = factory.generatePublic(ecPublicKeySpec);
-
-    return new ECDSAKey(privateKey, publicKey);
+    this.publicKey = factory.generatePublic(ecPublicKeySpec);
   }
 
   @Getter

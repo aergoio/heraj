@@ -33,7 +33,7 @@ import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 public class AccountEitherTemplateTest extends AbstractTestCase {
 
   protected static final AccountAddress ACCOUNT_ADDRESS =
-      new AccountAddress(of(new byte[] {AccountAddress.ADDRESS_VERSION}));
+      new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
 
   protected static final String PASSWORD = randomUUID().toString();
 
@@ -181,7 +181,7 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
     final AccountEitherTemplate accountTemplate = new AccountEitherTemplate(asyncOperationMock);
 
     ResultOrError<Account> importedAccount = accountTemplate.importKey(
-        new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.PRIVATE_KEY_VERSION})),
+        new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.VERSION})),
         PASSWORD);
     assertNotNull(importedAccount);
   }
@@ -196,7 +196,7 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
     final AccountEitherTemplate accountTemplate = new AccountEitherTemplate(asyncOperationMock);
 
     ResultOrError<Account> importedAccount = accountTemplate.importKey(
-        new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.PRIVATE_KEY_VERSION})),
+        new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.VERSION})),
         PASSWORD);
     assertTrue(importedAccount.hasError());
   }

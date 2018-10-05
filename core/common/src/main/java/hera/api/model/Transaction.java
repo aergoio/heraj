@@ -8,6 +8,7 @@ import static hera.api.model.BytesValue.of;
 import static hera.util.Sha256Utils.digest;
 import static java.util.Optional.ofNullable;
 
+import hera.VersionUtils;
 import hera.util.LittleEndianDataOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -106,8 +107,8 @@ public class Transaction {
       final ByteArrayOutputStream raw = new ByteArrayOutputStream();
       final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(raw);
       dataOut.writeLong(getNonce());
-      dataOut.write(getSender().getBytesValueWithoutVersion().getValue());
-      dataOut.write(getRecipient().getBytesValueWithoutVersion().getValue());
+      dataOut.write(VersionUtils.trim(getSender().getBytesValue().getValue()));
+      dataOut.write(VersionUtils.trim(getRecipient().getBytesValue().getValue()));
       dataOut.writeLong(getAmount());
       dataOut.write(getPayload().getValue());
       dataOut.writeLong(getLimit());

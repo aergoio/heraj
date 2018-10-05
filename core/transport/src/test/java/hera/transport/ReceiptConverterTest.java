@@ -21,7 +21,7 @@ public class ReceiptConverterTest extends AbstractTestCase {
         new ReceiptConverterFactory().create();
 
     final Blockchain.Receipt rpcAccount = Blockchain.Receipt.newBuilder()
-        .setContractAddress(ByteString.copyFrom(new byte[] {AccountAddress.ADDRESS_VERSION}))
+        .setContractAddress(ByteString.copyFrom(new byte[] {AccountAddress.VERSION}))
         .build();
     final ContractTxReceipt domainReceipt = converter.convertToDomainModel(rpcAccount);
     assertNotNull(domainReceipt);

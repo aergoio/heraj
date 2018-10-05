@@ -12,9 +12,9 @@ import java.util.stream.IntStream;
 public class Sha256Utils {
   /**
    * Convert str to byte array.
-   * 
+   *
    * @param str input string
-   * 
+   *
    * @return converted byte array
    */
   public static byte[] getBytes(CharSequence str) {
@@ -24,17 +24,17 @@ public class Sha256Utils {
       throw new IllegalStateException(ex);
     }
   }
-  
+
 
   /**
    * Digest raw string.
-   * 
+   *
    * <p>
    * from "hello, world" to 09CA7E4EAA6E8AE9C7D261167129184883644D07DFBA7CBFBC4C8A2E08360D5B
    * </p>
-   * 
+   *
    * @param raw raw byte array to encode
-   * 
+   *
    * @return encoded byte array
    */
   public static byte[] digest(final byte[] raw) {
@@ -46,13 +46,36 @@ public class Sha256Utils {
     }
   }
 
+  /**
+   * Digest raw string.
+   *
+   * <p>
+   * from "hello, " + "world" to 09CA7E4EAA6E8AE9C7D261167129184883644D07DFBA7CBFBC4C8A2E08360D5B
+   * </p>
+   *
+   * @param raws raw byte arrays to encode
+   *
+   * @return encoded byte array
+   */
+  public static byte[] digest(final byte[]... raws) {
+    try {
+      final MessageDigest digest = createDigest();
+      for (final byte[] raw : raws) {
+        digest.update(raw);
+      }
+      return digest.digest();
+    } catch (final NoSuchAlgorithmException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
   protected static MessageDigest createDigest() throws NoSuchAlgorithmException {
     return MessageDigest.getInstance("SHA-256");
   }
 
   /**
    * Mask string with '*'.
-   * 
+   *
    * @param raw input string
    * @return string to be masked
    */

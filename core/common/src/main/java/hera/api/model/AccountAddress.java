@@ -4,17 +4,17 @@
 
 package hera.api.model;
 
+import hera.VersionUtils;
 import hera.api.encode.Encoded;
 import hera.exception.InvalidVersionException;
 import hera.util.Adaptor;
 import hera.util.Base58Utils;
-import java.util.Arrays;
 import java.util.Optional;
 import lombok.Getter;
 
 public class AccountAddress implements Adaptor {
 
-  public static final byte ADDRESS_VERSION = 0x42;
+  public static final byte VERSION = 0x42;
 
   /**
    * Create {@code AccountAddress} with a base58 with checksum encoded value.
@@ -64,24 +64,9 @@ public class AccountAddress implements Adaptor {
   public AccountAddress(final BytesValue bytesValue) {
     if (BytesValue.EMPTY != bytesValue) {
       final byte[] rawBytes = bytesValue.getValue();
-      if (ADDRESS_VERSION != rawBytes[0]) {
-        throw new InvalidVersionException(ADDRESS_VERSION, rawBytes[0]);
-      }
+      VersionUtils.validate(rawBytes, VERSION);
     }
     this.bytesValue = bytesValue;
-  }
-
-  /**
-   * Get {@code BytesValue} without version byte.
-   *
-   * @return bytesValue
-   */
-  public BytesValue getBytesValueWithoutVersion() {
-    if (BytesValue.EMPTY == bytesValue) {
-      return bytesValue;
-    }
-    final byte[] withVersion = bytesValue.getValue();
-    return BytesValue.of(Arrays.copyOfRange(withVersion, 1, withVersion.length));
   }
 
   @Override

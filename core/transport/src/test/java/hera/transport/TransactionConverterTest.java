@@ -22,9 +22,9 @@ public class TransactionConverterTest extends AbstractTestCase {
 
     final Transaction domainTransaction = new Transaction();
     domainTransaction
-        .setSender(AccountAddress.of(BytesValue.of(new byte[] {AccountAddress.ADDRESS_VERSION})));
+        .setSender(AccountAddress.of(BytesValue.of(new byte[] {AccountAddress.VERSION})));
     domainTransaction.setRecipient(
-        AccountAddress.of(BytesValue.of(new byte[] {AccountAddress.ADDRESS_VERSION})));
+        AccountAddress.of(BytesValue.of(new byte[] {AccountAddress.VERSION})));
     final Blockchain.Tx rpcTransaction = converter.convertToRpcModel(domainTransaction);
     final Transaction actualDomainTransaction = converter.convertToDomainModel(rpcTransaction);
     assertNotNull(actualDomainTransaction);

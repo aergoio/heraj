@@ -17,7 +17,7 @@ import types.Rpc;
 public class AuthenticationConverterTest extends AbstractTestCase {
 
   protected static final AccountAddress ACCOUNT_ADDRESS =
-      new AccountAddress(of(new byte[] {AccountAddress.ADDRESS_VERSION}));
+      new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
 
   @Test
   public void testConvert() {

@@ -20,7 +20,7 @@ public class EncryptedPrivateKeyConverterTest extends AbstractTestCase {
         new EncryptedPrivateKeyConverterFactory().create();
 
     final EncryptedPrivateKey expected =
-        new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.PRIVATE_KEY_VERSION, 0x01}));
+        new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.VERSION, 0x01}));
     final Rpc.SingleBytes rpcKey = converter.convertToRpcModel(expected);
     final EncryptedPrivateKey actual = converter.convertToDomainModel(rpcKey);
     assertEquals(expected, actual);

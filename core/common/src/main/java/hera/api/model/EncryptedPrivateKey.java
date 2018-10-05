@@ -4,6 +4,7 @@
 
 package hera.api.model;
 
+import hera.VersionUtils;
 import hera.api.encode.Encoded;
 import hera.exception.InvalidVersionException;
 import hera.util.Base58Utils;
@@ -11,7 +12,7 @@ import lombok.Getter;
 
 public class EncryptedPrivateKey {
 
-  public static final byte PRIVATE_KEY_VERSION = (byte) 0xAA;
+  public static final byte VERSION = (byte) 0xAA;
 
   /**
    * Create {@code EncryptedPrivateKey} with an encoded value.
@@ -61,9 +62,7 @@ public class EncryptedPrivateKey {
   public EncryptedPrivateKey(final BytesValue bytesValue) {
     if (BytesValue.EMPTY != bytesValue) {
       final byte[] rawBytes = bytesValue.getValue();
-      if (PRIVATE_KEY_VERSION != rawBytes[0]) {
-        throw new InvalidVersionException(PRIVATE_KEY_VERSION, rawBytes[0]);
-      }
+      VersionUtils.validate(rawBytes, VERSION);
     }
     this.bytesValue = bytesValue;
   }

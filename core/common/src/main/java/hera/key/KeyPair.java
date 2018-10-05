@@ -53,6 +53,14 @@ public interface KeyPair {
   String getEncodedPrivateKey();
 
   /**
+   * Return encrypted private key.
+   *
+   * @param password encrypt key
+   * @return encrypted key
+   */
+  String getEncryptedPrivateKey(String password);
+
+  /**
    * Get account address.
    *
    * @return account address
@@ -65,5 +73,6 @@ public interface KeyPair {
    * @return an encoded address
    */
   String getEncodedAddress();
+
 
 }

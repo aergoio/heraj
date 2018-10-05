@@ -34,10 +34,10 @@ import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 public class ContractEitherTemplateTest extends AbstractTestCase {
 
   protected static final AccountAddress EXECUTOR_ADDRESS =
-      new AccountAddress(of(new byte[] {AccountAddress.ADDRESS_VERSION}));
+      new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
 
   protected static final ContractAddress CONTRACT_ADDRESS =
-      new ContractAddress(of(new byte[] {AccountAddress.ADDRESS_VERSION}));
+      new ContractAddress(of(new byte[] {AccountAddress.VERSION}));
 
   @Test
   public void testGetReceipt() {

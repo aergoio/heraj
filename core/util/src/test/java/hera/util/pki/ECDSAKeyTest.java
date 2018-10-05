@@ -27,10 +27,10 @@ public class ECDSAKeyTest extends AbstractTestCase {
 
   @Test
   public void testRecovery() throws Exception {
-    final ECDSAKey recoveredKey = ECDSAKey.recover(PRIVATE_KEY);
+    final ECDSAKey ofedKey = ECDSAKey.of(PRIVATE_KEY);
 
-    ECPublicKey ecPublicKey = (ECPublicKey) recoveredKey.getPublicKey();
-    ECPrivateKey ecPrivateKey = (ECPrivateKey) recoveredKey.getPrivateKey();
+    ECPublicKey ecPublicKey = (ECPublicKey) ofedKey.getPublicKey();
+    ECPrivateKey ecPrivateKey = (ECPrivateKey) ofedKey.getPrivateKey();
 
     final BigInteger privatekeyD = new BigInteger(
         "76860113961741997882252494935617441283670103007926986413066244023125861537337");
@@ -45,7 +45,7 @@ public class ECDSAKeyTest extends AbstractTestCase {
 
   @Test
   public void testSign() throws Exception {
-    final ECDSAKey key = ECDSAKey.recover(PRIVATE_KEY);
+    final ECDSAKey key = ECDSAKey.of(PRIVATE_KEY);
     final byte[] message = Base58Utils.decode(MESSAGE);
     final ECDSASignature expected = new ECDSASignature(
         new BigInteger(
@@ -58,7 +58,7 @@ public class ECDSAKeyTest extends AbstractTestCase {
 
   @Test
   public void testVerify() throws Exception {
-    final ECDSAKey key = ECDSAKey.recover(PRIVATE_KEY);
+    final ECDSAKey key = ECDSAKey.of(PRIVATE_KEY);
     final byte[] message = Base58Utils.decode(MESSAGE);
     final ECDSASignature signature = new ECDSASignature(
         new BigInteger(

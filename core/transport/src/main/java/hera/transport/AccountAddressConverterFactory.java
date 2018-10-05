@@ -9,10 +9,10 @@ import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
+import hera.VersionUtils;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.util.HexUtils;
-import java.util.Arrays;
 import java.util.function.Function;
 import org.slf4j.Logger;
 
@@ -28,7 +28,8 @@ public class AccountAddressConverterFactory {
           return copyFrom(domainAccountAddress.getBytesValue());
         }
         final byte[] withVersion = domainAccountAddress.getBytesValue().getValue();
-        return ByteString.copyFrom(Arrays.copyOfRange(withVersion, 1, withVersion.length));
+        final byte[] withoutVersion = VersionUtils.trim(withVersion);
+        return ByteString.copyFrom(withoutVersion);
       };
 
   protected final Function<com.google.protobuf.ByteString, AccountAddress> rpcConverter =
@@ -38,9 +39,7 @@ public class AccountAddressConverterFactory {
           return new AccountAddress(BytesValue.EMPTY);
         }
         final byte[] withoutVersion = rpcAccountAddress.toByteArray();
-        final byte[] withVersion = new byte[withoutVersion.length + 1];
-        withVersion[0] = AccountAddress.ADDRESS_VERSION;
-        System.arraycopy(withoutVersion, 0, withVersion, 1, withoutVersion.length);
+        final byte[] withVersion = VersionUtils.envelop(withoutVersion, AccountAddress.VERSION);
         return new AccountAddress(of(withVersion));
       };
 

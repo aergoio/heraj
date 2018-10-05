@@ -24,9 +24,9 @@ public class BlockConverterTest extends AbstractTestCase {
     final Block domainBlock = new Block();
     final Transaction domainTransaction = new Transaction();
     domainTransaction
-        .setSender(AccountAddress.of(BytesValue.of(new byte[] {AccountAddress.ADDRESS_VERSION})));
+        .setSender(AccountAddress.of(BytesValue.of(new byte[] {AccountAddress.VERSION})));
     domainTransaction.setRecipient(
-        AccountAddress.of(BytesValue.of(new byte[] {AccountAddress.ADDRESS_VERSION})));
+        AccountAddress.of(BytesValue.of(new byte[] {AccountAddress.VERSION})));
     domainBlock.setTransactions(asList(domainTransaction));
 
     final Blockchain.Block rpcBlock = converter.convertToRpcModel(domainBlock);
