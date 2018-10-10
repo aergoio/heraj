@@ -9,12 +9,20 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import org.junit.Test;
 
 public class Sha256UtilsTest {
 
   protected static final String HEXA_ENCODED =
       "09CA7E4EAA6E8AE9C7D261167129184883644D07DFBA7CBFBC4C8A2E08360D5B";
+
+  @Test
+  public void testGetBytes() throws Exception {
+    final String characterSequence = randomUUID().toString();
+    final byte[] expected = characterSequence.getBytes("utf-8");
+    assertTrue(Arrays.equals(expected, Sha256Utils.getBytes(characterSequence)));
+  }
 
   @Test
   public void testRaw() {

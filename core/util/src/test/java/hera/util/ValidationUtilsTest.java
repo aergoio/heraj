@@ -42,6 +42,10 @@ public class ValidationUtilsTest extends AbstractTestCase {
     }
   }
 
+  @Test(expected = UnsupportedOperationException.class)
+  public void testAssertNotEqualsWithSpecificException() {
+    assertNotEquals("Hello", "Hello", new UnsupportedOperationException());
+  }
 
   @Test
   public void testAssertNotEquals() {
@@ -55,13 +59,18 @@ public class ValidationUtilsTest extends AbstractTestCase {
     } catch (final AssertionError e) {
       // good we expected this
     }
-    
+
     try {
       assertNotEquals("Hello", "Hello");
       fail();
     } catch (final AssertionError e) {
       // good we expected this
     }
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testAssertEqualsWithSpecificException() {
+    assertEquals("Hello", null, new UnsupportedOperationException());
   }
 
   @Test
@@ -76,6 +85,11 @@ public class ValidationUtilsTest extends AbstractTestCase {
     }
   }
 
+  @Test(expected = UnsupportedOperationException.class)
+  public void testAssertTrueWithSpecificException() {
+    assertTrue(false, new UnsupportedOperationException());
+  }
+
   @Test
   public void testAssertFalse() {
     assertFalse(false);
@@ -86,6 +100,11 @@ public class ValidationUtilsTest extends AbstractTestCase {
     } catch (final AssertionError e) {
       // good we expected this
     }
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testAssertFalseWithSpecificException() {
+    assertFalse(true, new UnsupportedOperationException());
   }
 
   @Test
@@ -100,6 +119,11 @@ public class ValidationUtilsTest extends AbstractTestCase {
     }
   }
 
+  @Test(expected = UnsupportedOperationException.class)
+  public void testAssertNullWithSpecificException() {
+    assertNull("Hello", new UnsupportedOperationException());
+  }
+
   @Test
   public void testAssertNotNull() {
     assertNotNull("Hello");
@@ -111,4 +135,10 @@ public class ValidationUtilsTest extends AbstractTestCase {
       // good we expected this
     }
   }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testAssertNotNullWithSpecificException() {
+    assertNotNull(null, new UnsupportedOperationException());
+  }
+
 }

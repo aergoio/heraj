@@ -13,15 +13,23 @@ import org.junit.Test;
 public class InMemoryConfigurationTest extends AbstractTestCase {
 
   @Test
+  public void testAsMap() {
+    final InMemoryConfiguration inMemoryConfiguration = new InMemoryConfiguration();
+    logger.debug("Map: {}", inMemoryConfiguration.asMap());
+    assertNotNull(inMemoryConfiguration.asMap());
+  }
+
+  @Test
   public void testDefine() {
     final InMemoryConfiguration inMemoryConfiguration = new InMemoryConfiguration();
     final String fragment1 = randomUUID().toString();
     final String fragment2 = randomUUID().toString();
     final String key = fragment1 + "." + fragment2;
     final String value = randomUUID().toString();
-        
+
     inMemoryConfiguration.define(key, value);
     assertNotNull(inMemoryConfiguration.get(key));
+    logger.debug("Configuration: {}", inMemoryConfiguration);
   }
 
 }
