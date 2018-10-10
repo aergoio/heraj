@@ -8,7 +8,7 @@ import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.ContractFunction;
-import hera.api.model.ContractInferface;
+import hera.api.model.ContractInterface;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Blockchain;
@@ -20,7 +20,7 @@ public class ContractInterfaceConverterFactory {
   protected final ModelConverter<ContractFunction, Blockchain.Function> contractFunctionConverter =
       new ContractFunctionConverterFactory().create();
 
-  protected final Function<ContractInferface, Blockchain.ABI> domainConverter = 
+  protected final Function<ContractInterface, Blockchain.ABI> domainConverter =
       domainContractInterface -> {
         logger.trace("Domain contract interface: {}", domainContractInterface);
         return Blockchain.ABI.newBuilder()
@@ -32,10 +32,10 @@ public class ContractInterfaceConverterFactory {
             .build();
       };
 
-  protected final Function<Blockchain.ABI, ContractInferface> rpcConverter = 
+  protected final Function<Blockchain.ABI, ContractInterface> rpcConverter =
       rpcContractInterface -> {
         logger.trace("Rpc contract interface: {}", rpcContractInterface);
-        final ContractInferface domainContractInterface = new ContractInferface();
+        final ContractInterface domainContractInterface = new ContractInterface();
         domainContractInterface.setVersion(rpcContractInterface.getVersion());
         domainContractInterface.setLanguage(rpcContractInterface.getLanguage());
         domainContractInterface.setFunctions(rpcContractInterface.getFunctionsList().stream()
@@ -44,7 +44,7 @@ public class ContractInterfaceConverterFactory {
         return domainContractInterface;
       };
 
-  public ModelConverter<ContractInferface, Blockchain.ABI> create() {
+  public ModelConverter<ContractInterface, Blockchain.ABI> create() {
     return new ModelConverter<>(domainConverter, rpcConverter);
   }
 

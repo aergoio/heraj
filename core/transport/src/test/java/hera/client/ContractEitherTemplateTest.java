@@ -18,7 +18,7 @@ import hera.api.ContractAsyncOperation;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
-import hera.api.model.ContractInferface;
+import hera.api.model.ContractInterface;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
@@ -97,28 +97,28 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
 
   @Test
   public void testGetContractInterface() {
-    ResultOrErrorFuture<ContractInferface> futureMock = mock(ResultOrErrorFuture.class);
+    ResultOrErrorFuture<ContractInterface> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     ContractAsyncOperation asyncOperationMock = mock(ContractAsyncOperation.class);
     when(asyncOperationMock.getContractInterface(any())).thenReturn(futureMock);
 
     final ContractEitherTemplate contractTemplate = new ContractEitherTemplate(asyncOperationMock);
 
-    final ResultOrError<ContractInferface> contractInterface =
+    final ResultOrError<ContractInterface> contractInterface =
         contractTemplate.getContractInterface(CONTRACT_ADDRESS);
     assertNotNull(contractInterface);
   }
 
   @Test
   public void testGetContractInterfaceWithTimeout() {
-    ResultOrErrorFuture<ContractInferface> futureMock = mock(ResultOrErrorFuture.class);
+    ResultOrErrorFuture<ContractInterface> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
     ContractAsyncOperation asyncOperationMock = mock(ContractAsyncOperation.class);
     when(asyncOperationMock.getContractInterface(any())).thenReturn(futureMock);
 
     final ContractEitherTemplate contractTemplate = new ContractEitherTemplate(asyncOperationMock);
 
-    final ResultOrError<ContractInferface> contractInterface =
+    final ResultOrError<ContractInterface> contractInterface =
         contractTemplate.getContractInterface(CONTRACT_ADDRESS);
     assertTrue(contractInterface.hasError());
   }

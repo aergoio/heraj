@@ -10,7 +10,7 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
-import hera.api.model.ContractInferface;
+import hera.api.model.ContractInterface;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
@@ -56,7 +56,7 @@ public interface ContractOperation {
    * @param contractAddress contract address
    * @return contract interface
    */
-  ContractInferface getContractInterface(ContractAddress contractAddress);
+  ContractInterface getContractInterface(ContractAddress contractAddress);
 
   /**
    * Execute the smart contract.

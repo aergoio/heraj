@@ -15,7 +15,7 @@ import lombok.ToString;
 
 @EqualsAndHashCode
 @ToString
-public class ContractInferface {
+public class ContractInterface {
 
   @Getter
   @Setter

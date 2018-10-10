@@ -13,7 +13,7 @@ import hera.api.ContractOperation;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
-import hera.api.model.ContractInferface;
+import hera.api.model.ContractInterface;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
@@ -49,7 +49,7 @@ public class ContractTemplate implements ContractOperation {
   }
 
   @Override
-  public ContractInferface getContractInterface(final ContractAddress contractAddress) {
+  public ContractInterface getContractInterface(final ContractAddress contractAddress) {
     return contractEitherOperation.getContractInterface(contractAddress).getResult();
   }
 

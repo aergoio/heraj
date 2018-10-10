@@ -21,7 +21,7 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
-import hera.api.model.ContractInferface;
+import hera.api.model.ContractInterface;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
@@ -57,7 +57,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
   protected static final ModelConverter<ContractTxReceipt, Blockchain.Receipt> receiptConverter =
       mock(ModelConverter.class);
 
-  protected static final ModelConverter<ContractInferface, Blockchain.ABI> interfaceConverter =
+  protected static final ModelConverter<ContractInterface, Blockchain.ABI> interfaceConverter =
       mock(ModelConverter.class);
 
   protected static final ModelConverter<ContractResult, Rpc.SingleBytes> contractResultConverter =
@@ -127,7 +127,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
             mock(AccountAsyncOperation.class), mock(TransactionAsyncOperation.class),
             accountAddressConverter, receiptConverter, interfaceConverter, contractResultConverter);
 
-    final ResultOrErrorFuture<ContractInferface> abiSet =
+    final ResultOrErrorFuture<ContractInterface> abiSet =
         contractAsyncTemplate.getContractInterface(CONTRACT_ADDRESS);
     assertNotNull(abiSet);
   }

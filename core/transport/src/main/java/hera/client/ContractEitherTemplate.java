@@ -16,7 +16,7 @@ import hera.api.ContractEitherOperation;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
-import hera.api.model.ContractInferface;
+import hera.api.model.ContractInterface;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
@@ -62,7 +62,7 @@ public class ContractEitherTemplate implements ContractEitherOperation {
   }
 
   @Override
-  public ResultOrError<ContractInferface> getContractInterface(
+  public ResultOrError<ContractInterface> getContractInterface(
       final ContractAddress contractAddress) {
     try {
       return contractAsyncOperation.getContractInterface(contractAddress).get(TIMEOUT,

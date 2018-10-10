@@ -16,7 +16,7 @@ import hera.api.ContractEitherOperation;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
-import hera.api.model.ContractInferface;
+import hera.api.model.ContractInterface;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
@@ -65,14 +65,14 @@ public class ContractTemplateTest extends AbstractTestCase {
 
   @Test
   public void testGetContractInterface() {
-    ResultOrError<ContractInferface> eitherMock = mock(ResultOrError.class);
-    when(eitherMock.getResult()).thenReturn(mock(ContractInferface.class));
+    ResultOrError<ContractInterface> eitherMock = mock(ResultOrError.class);
+    when(eitherMock.getResult()).thenReturn(mock(ContractInterface.class));
     ContractEitherOperation eitherOperationMock = mock(ContractEitherOperation.class);
     when(eitherOperationMock.getContractInterface(any())).thenReturn(eitherMock);
 
     final ContractTemplate contractTemplate = new ContractTemplate(eitherOperationMock);
 
-    final ContractInferface contractInterface =
+    final ContractInterface contractInterface =
         contractTemplate.getContractInterface(CONTRACT_ADDRESS);
     assertNotNull(contractInterface);
   }

@@ -12,7 +12,7 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
-import hera.api.model.ContractInferface;
+import hera.api.model.ContractInterface;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
@@ -64,7 +64,7 @@ public interface ContractAsyncOperation {
    * @param contractAddress contract address
    * @return future of contract interface or error
    */
-  ResultOrErrorFuture<ContractInferface> getContractInterface(ContractAddress contractAddress);
+  ResultOrErrorFuture<ContractInterface> getContractInterface(ContractAddress contractAddress);
 
   /**
    * Execute the smart contract.
