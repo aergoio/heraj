@@ -167,14 +167,19 @@ public class AergoKey implements KeyPair {
   }
 
   @Override
-  public String getEncryptedPrivateKey(final String password) {
+  public EncryptedPrivateKey getEncryptedPrivateKey(final String password) {
     try {
       final byte[] rawPrivateKey = getRawPrivateKey();
       final byte[] rawPassword = password.getBytes("UTF-8");
-      return Base58Utils.encodeWithCheck(encrypt(rawPrivateKey, rawPassword));
+      return new EncryptedPrivateKey(BytesValue.of(encrypt(rawPrivateKey, rawPassword)));
     } catch (Exception e) {
       throw new HerajException(e);
     }
+  }
+
+  @Override
+  public String getEncodedEncryptedPrivateKey(final String password) {
+    return Base58Utils.encodeWithCheck(getEncryptedPrivateKey(password).getBytesValue().getValue());
   }
 
   protected byte[] getRawPrivateKey() {

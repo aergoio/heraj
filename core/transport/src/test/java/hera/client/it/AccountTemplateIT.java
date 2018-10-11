@@ -8,11 +8,14 @@ import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.Account;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.client.AccountEitherTemplate;
-import hera.exception.RpcException;
+import hera.key.AergoKey;
+import hera.key.AergoKeyGenerator;
+import hera.util.Base58Utils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,7 +30,7 @@ public class AccountTemplateIT extends AbstractIT {
   }
 
   @Test
-  public void testCreateAndExport() {
+  public void testCreateRemotelyAndImportLocally() throws Exception {
     final String password = randomUUID().toString();
     final Account createdAccount = accountTemplate.create(password).getResult();
     assertNotNull(createdAccount);
@@ -39,14 +42,20 @@ public class AccountTemplateIT extends AbstractIT {
 
     final EncryptedPrivateKey encryptedKey = accountTemplate
         .exportKey(Authentication.of(createdAccount.getAddress(), password)).getResult();
-    try {
-      accountTemplate.importKey(encryptedKey, password).getResult();
-    } catch (RpcException e) {
-      // expected
-      // TODO : check gracefully
-      logger.debug("Import key error message: \"{}\"", e.getMessage());
-      assertTrue(e.getMessage().equals("io.grpc.StatusRuntimeException: UNKNOWN: already exisit"));
-    }
+    Base58WithCheckSum encoded =
+        () -> Base58Utils.encodeWithCheck(encryptedKey.getBytesValue().getValue());
+    final AergoKey imported = AergoKey.of(encoded, password);
+    assertNotNull(imported.getPrivateKey());
+    assertNotNull(imported.getPublicKey());
+    assertNotNull(imported.getAddress());
+  }
+
+  @Test
+  public void testCreateLocallyAndExportRemotely() throws Exception {
+    final String password = randomUUID().toString();
+    final AergoKey key = new AergoKeyGenerator().create();
+    EncryptedPrivateKey encryptedKey = key.getEncryptedPrivateKey(password);
+    accountTemplate.importKey(encryptedKey, password).getResult();
   }
 
 }

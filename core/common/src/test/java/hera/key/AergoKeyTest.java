@@ -18,7 +18,7 @@ import org.junit.Test;
 public class AergoKeyTest extends AbstractTestCase {
 
   private static final String ENCRYPTED_PRIVATE_KEY =
-      "47jhUycXqYMw3oGNP1qjnD2v3Xo1g8z9aS42X9yzrqmwYXCbU6Lw4F724W1aXNh4pWjwsHYSR";
+      "47RHxbUL3DhA1TMHksEPdVrhumcjdXLAB3Hkv61mqkC9M1Wncai5b91q7hpKydfFHKyyVvgKt";
 
   @Test
   public void testOfWithEncodedEncryptedPrivateKey() throws Exception {
@@ -35,7 +35,7 @@ public class AergoKeyTest extends AbstractTestCase {
   public void testGetEncryptedPrivateKey() throws Exception {
     final String password = "password";
     final AergoKey key = AergoKey.of(ENCRYPTED_PRIVATE_KEY, password);
-    final String newEncryptedPrivateKey = key.getEncryptedPrivateKey(password);
+    final String newEncryptedPrivateKey = key.getEncodedEncryptedPrivateKey(password);
     assertEquals(ENCRYPTED_PRIVATE_KEY, newEncryptedPrivateKey);
   }
 

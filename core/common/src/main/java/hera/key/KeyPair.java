@@ -6,6 +6,7 @@ package hera.key;
 
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
+import hera.api.model.EncryptedPrivateKey;
 import java.io.InputStream;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -58,7 +59,15 @@ public interface KeyPair {
    * @param password encrypt key
    * @return encrypted key
    */
-  String getEncryptedPrivateKey(String password);
+  EncryptedPrivateKey getEncryptedPrivateKey(String password);
+
+  /**
+   * Return base58 with checksum encoded encrypted private key.
+   *
+   * @param password encrypt key
+   * @return encrypted key
+   */
+  String getEncodedEncryptedPrivateKey(String password);
 
   /**
    * Get account address.
@@ -73,6 +82,5 @@ public interface KeyPair {
    * @return an encoded address
    */
   String getEncodedAddress();
-
 
 }
