@@ -110,7 +110,6 @@ public class ThreadServer extends AbstractServer implements Runnable {
           exception = e;
 
           logger.error("Error :{}", StringUtils.nvl(e.getLocalizedMessage(), e.getMessage()), e);
-
           handleError(e);
         }
       }

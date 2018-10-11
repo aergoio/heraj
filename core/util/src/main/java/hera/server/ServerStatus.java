@@ -1,6 +1,8 @@
-package hera.server;/*
+/*
  * @copyright defined in LICENSE.txt
  */
+
+package hera.server;
 
 public enum ServerStatus {
   TERMINATED,
