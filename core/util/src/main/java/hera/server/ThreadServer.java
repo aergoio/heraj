@@ -131,7 +131,7 @@ public class ThreadServer extends AbstractServer implements Runnable {
   }
 
   /* (non-Javadoc)
-   * @see escode.server.Server#boot()
+   * @see Server#boot()
    */
   @Override
   public void boot() {

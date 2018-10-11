@@ -19,12 +19,12 @@ public abstract class AbstractServer implements Server, StateChangeListener<Serv
   /**
    * server status.
    */
-  protected StateMachine<ServerStatus> state = new StateMachine<ServerStatus>(TERMINATED);
+  protected StateMachine<ServerStatus> state = new StateMachine<>(TERMINATED);
 
   /**
    * server listeners.
    */
-  protected ArrayList<ServerListener> listeners = new ArrayList<ServerListener>();
+  protected ArrayList<ServerListener> listeners = new ArrayList<>();
 
   /**
    * Latest exception.
@@ -39,8 +39,12 @@ public abstract class AbstractServer implements Server, StateChangeListener<Serv
   @Getter
   protected String name = getClass().getSimpleName();
 
+  public AbstractServer() {
+    state.addListener(this);
+  }
+
   /* (non-Javadoc)
-   * @see escode.server.Server#getStatus()
+   * @see Server#getStatus()
    */
   @Override
   public ServerStatus getStatus() {
@@ -48,7 +52,7 @@ public abstract class AbstractServer implements Server, StateChangeListener<Serv
   }
 
   /* (non-Javadoc)
-   * @see escode.server.Server#isStatus(escode.server.ServerStatus[])
+   * @see Server#isStatus(ServerStatus[])
    */
   @Override
   public boolean isStatus(final ServerStatus... status) {
@@ -56,7 +60,7 @@ public abstract class AbstractServer implements Server, StateChangeListener<Serv
   }
 
   /* (non-Javadoc)
-   * @see escode.server.Server#waitStatus(escode.server.ServerStatus[])
+   * @see Server#waitStatus(ServerStatus[])
    */
   @Override
   public void waitStatus(final ServerStatus... status) {
@@ -87,7 +91,7 @@ public abstract class AbstractServer implements Server, StateChangeListener<Serv
 
 
   /* (non-Javadoc)
-   * @see escode.server.Server#addServerListener(escode.server.ServerListener)
+   * @see Server#addServerListener(ServerListener)
    */
   @Override
   public void addServerListener(final ServerListener listener) {
@@ -96,7 +100,7 @@ public abstract class AbstractServer implements Server, StateChangeListener<Serv
   }
 
   /* (non-Javadoc)
-   * @see escode.server.Server#removeServerListener(escode.server.ServerListener)
+   * @see Server#removeServerListener(ServerListener)
    */
   @Override
   public void removeServerListener(final ServerListener listener) {
