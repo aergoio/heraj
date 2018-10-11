@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
+import hera.Context;
 import hera.FutureChainer;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
@@ -42,14 +43,16 @@ public class BlockAsyncTemplate implements BlockAsyncOperation {
 
   protected final AergoRPCServiceFutureStub aergoService;
 
+  protected final Context context;
+
   protected final ModelConverter<Block, Blockchain.Block> blockConverter;
 
-  public BlockAsyncTemplate(final ManagedChannel channel) {
-    this(newFutureStub(channel));
+  public BlockAsyncTemplate(final ManagedChannel channel, final Context context) {
+    this(newFutureStub(channel), context);
   }
 
-  public BlockAsyncTemplate(final AergoRPCServiceFutureStub aergoService) {
-    this(aergoService, new BlockConverterFactory().create());
+  public BlockAsyncTemplate(final AergoRPCServiceFutureStub aergoService, final Context context) {
+    this(aergoService, context, new BlockConverterFactory().create());
   }
 
   @Override

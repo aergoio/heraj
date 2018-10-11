@@ -4,15 +4,17 @@
 
 package hera;
 
-import hera.api.AergoEitherApi;
-import hera.strategy.EitherApiStrategy;
 import hera.strategy.FailoverStrategy;
 import hera.strategy.TransactionStrategy;
 import hera.util.Configurable;
 import hera.util.Configuration;
 import hera.util.conf.DummyConfiguration;
-import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import lombok.Setter;
 
 public class Context {
@@ -24,21 +26,30 @@ public class Context {
 
   protected FailoverStrategy failoverStrategy;
 
-  protected final HashSet<Strategy> strategies = new HashSet<>();
+  protected final Set<Strategy> strategies = new LinkedHashSet<>();
 
-  protected final HashSet<Strategy> usings = new HashSet<>();
+  protected final Set<Strategy> usings = new LinkedHashSet<>();
 
   /**
-   * Return {@link AergoEitherApi}.
+   * Copy deep.
    *
-   * @return AergoApi in context
+   * @param source {@link Context} to copy
+   * @return copied Context
    */
-  public AergoEitherApi api() {
-    return getStrategy(EitherApiStrategy.class)
-        .map(EitherApiStrategy::getApi)
-        .orElseThrow(IllegalStateException::new);
+  public static Context copyOf(final Context source) {
+    final Context copy = new Context();
+    copy.configuration = source.configuration;
+    copy.strategies.addAll(source.strategies);
+    copy.usings.addAll(source.strategies);
+    return copy;
   }
 
+  /**
+   * Add strategy to the context.
+   *
+   * @param strategy strategy to add
+   * @return a reference to this object.
+   */
   public Context addStrategy(final Strategy strategy) {
     strategies.add(strategy);
     return this;
@@ -47,12 +58,12 @@ public class Context {
   /**
    * Return strategy if exists.
    *
-   * @param <StrategyT>   strategy type
+   * @param <StrategyT> strategy type
    * @param strategyClass strategy class
    *
    * @return strategy matching type
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public <StrategyT extends Strategy> Optional<StrategyT> getStrategy(
       final Class<StrategyT> strategyClass) {
     final Optional<StrategyT> using =
@@ -60,8 +71,8 @@ public class Context {
     if (using.isPresent()) {
       return using;
     }
-    final Optional<StrategyT> unusedOptional =
-        (Optional<StrategyT>) strategies.stream().filter(strategyClass::isInstance).findFirst();
+    final Optional<StrategyT> unusedOptional = (Optional<StrategyT>) getReversedList().stream()
+        .filter(strategyClass::isInstance).findFirst();
     if (unusedOptional.isPresent()) {
       final StrategyT unused = unusedOptional.get();
       strategies.remove(unused);
@@ -74,6 +85,15 @@ public class Context {
       usings.add(unused);
     }
     return unusedOptional;
+  }
+
+  protected List<Strategy> getReversedList() {
+    final LinkedList<Strategy> pure = new LinkedList<Strategy>(strategies);
+    final List<Strategy> reversed = new LinkedList<Strategy>();
+    for (Iterator<Strategy> it = pure.descendingIterator(); it.hasNext();) {
+      reversed.add(it.next());
+    }
+    return reversed;
   }
 
 }

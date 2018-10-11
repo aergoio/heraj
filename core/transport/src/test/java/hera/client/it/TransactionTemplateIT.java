@@ -17,6 +17,7 @@ import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.client.AccountEitherTemplate;
+import hera.client.AergoClientBuilder;
 import hera.client.SignEitherTemplate;
 import hera.client.TransactionEitherTemplate;
 import hera.key.AergoKey;
@@ -42,11 +43,11 @@ public class TransactionTemplateIT extends AbstractIT {
   @Before
   public void setUp() {
     super.setUp();
-    accountTemplate = new AccountEitherTemplate(channel);
+    accountTemplate = new AccountEitherTemplate(channel, AergoClientBuilder.getDefaultContext());
     sender = accountTemplate.create(PASSWORD).getResult();
     recipient = accountTemplate.create(PASSWORD).getResult();
-    signTemplate = new SignEitherTemplate(channel);
-    transactionTemplate = new TransactionEitherTemplate(channel);
+    signTemplate = new SignEitherTemplate(channel, AergoClientBuilder.getDefaultContext());
+    transactionTemplate = new TransactionEitherTemplate(channel, AergoClientBuilder.getDefaultContext());
   }
 
   @Test

@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
+import hera.Context;
 import hera.FutureChainer;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
@@ -46,14 +47,16 @@ public class SignAsyncTemplate implements SignAsyncOperation {
 
   protected final AergoRPCServiceFutureStub aergoService;
 
+  protected final Context context;
+
   protected final ModelConverter<Transaction, Blockchain.Tx> transactionConverter;
 
-  public SignAsyncTemplate(final ManagedChannel channel) {
-    this(newFutureStub(channel));
+  public SignAsyncTemplate(final ManagedChannel channel, final Context context) {
+    this(newFutureStub(channel), context);
   }
 
-  public SignAsyncTemplate(final AergoRPCServiceFutureStub aergoService) {
-    this(aergoService, new TransactionConverterFactory().create());
+  public SignAsyncTemplate(final AergoRPCServiceFutureStub aergoService, final Context context) {
+    this(aergoService, context, new TransactionConverterFactory().create());
   }
 
   @Override

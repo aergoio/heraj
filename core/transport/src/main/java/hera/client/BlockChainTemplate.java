@@ -6,6 +6,7 @@ package hera.client;
 
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
+import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.BlockChainEitherOperation;
@@ -25,12 +26,12 @@ public class BlockChainTemplate implements BlockChainOperation {
 
   protected final BlockChainEitherOperation blockChainEitherOperation;
 
-  public BlockChainTemplate(final ManagedChannel channel) {
-    this(newFutureStub(channel));
+  public BlockChainTemplate(final ManagedChannel channel, final Context context) {
+    this(newFutureStub(channel), context);
   }
 
-  public BlockChainTemplate(final AergoRPCServiceFutureStub aergoService) {
-    this(new BlockChainEitherTemplate(aergoService));
+  public BlockChainTemplate(final AergoRPCServiceFutureStub aergoService, final Context context) {
+    this(new BlockChainEitherTemplate(aergoService, context));
   }
 
   @Override

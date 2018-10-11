@@ -18,6 +18,7 @@ import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.client.AccountEitherTemplate;
+import hera.client.AergoClientBuilder;
 import hera.client.ContractEitherTemplate;
 import hera.client.TransactionEitherTemplate;
 import hera.util.Base58Utils;
@@ -47,10 +48,11 @@ public class ContractTemplateIT extends AbstractIT {
   @Before
   public void setUp() {
     super.setUp();
-    accountTemplate = new AccountEitherTemplate(channel);
+    accountTemplate = new AccountEitherTemplate(channel, AergoClientBuilder.getDefaultContext());
     creator = accountTemplate.create(PASSWORD).getResult();
-    transactionTemplate = new TransactionEitherTemplate(channel);
-    contractTemplate = new ContractEitherTemplate(channel);
+    transactionTemplate =
+        new TransactionEitherTemplate(channel, AergoClientBuilder.getDefaultContext());
+    contractTemplate = new ContractEitherTemplate(channel, AergoClientBuilder.getDefaultContext());
   }
 
   @Test

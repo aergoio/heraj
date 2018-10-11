@@ -8,6 +8,7 @@ import static hera.TransportConstants.TIMEOUT;
 import static hera.api.tupleorerror.FunctionChain.fail;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
+import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.AccountAsyncOperation;
@@ -32,12 +33,13 @@ public class AccountEitherTemplate implements AccountEitherOperation {
 
   protected final AccountAsyncOperation accountAsyncOperation;
 
-  public AccountEitherTemplate(final ManagedChannel channel) {
-    this(newFutureStub(channel));
+  public AccountEitherTemplate(final ManagedChannel channel, final Context context) {
+    this(newFutureStub(channel), context);
   }
 
-  public AccountEitherTemplate(final AergoRPCServiceFutureStub aergoService) {
-    this(new AccountAsyncTemplate(aergoService));
+  public AccountEitherTemplate(final AergoRPCServiceFutureStub aergoService,
+      final Context context) {
+    this(new AccountAsyncTemplate(aergoService, context));
   }
 
   @Override

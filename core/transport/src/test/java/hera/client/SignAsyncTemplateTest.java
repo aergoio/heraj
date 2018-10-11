@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
+import hera.Context;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -27,6 +28,8 @@ import types.Rpc.VerifyResult;
 @PrepareForTest({AergoRPCServiceFutureStub.class, Blockchain.Tx.class, VerifyResult.class,
     CommitResult.class})
 public class SignAsyncTemplateTest extends AbstractTestCase {
+
+  protected static final Context context = AergoClientBuilder.getDefaultContext();
 
   protected static final ModelConverter<Transaction, Blockchain.Tx> transactionConverter =
       mock(ModelConverter.class);
@@ -46,7 +49,7 @@ public class SignAsyncTemplateTest extends AbstractTestCase {
     when(aergoService.signTX(any())).thenReturn(mockListenableFuture);
 
     final SignAsyncTemplate signAsyncTemplate =
-        new SignAsyncTemplate(aergoService, transactionConverter);
+        new SignAsyncTemplate(aergoService, context, transactionConverter);
 
     final ResultOrErrorFuture<Signature> signature = signAsyncTemplate.sign(new Transaction());
     assertNotNull(signature);
@@ -59,7 +62,7 @@ public class SignAsyncTemplateTest extends AbstractTestCase {
     when(aergoService.verifyTX(any())).thenReturn(mockListenableFuture);
 
     final SignAsyncTemplate signAsyncTemplate =
-        new SignAsyncTemplate(aergoService, transactionConverter);
+        new SignAsyncTemplate(aergoService, context, transactionConverter);
 
     final ResultOrErrorFuture<Boolean> verifyResult = signAsyncTemplate.verify(new Transaction());
     assertNotNull(verifyResult);

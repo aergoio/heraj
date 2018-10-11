@@ -9,6 +9,7 @@ import static hera.api.tupleorerror.FunctionChain.fail;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
+import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.ContractAsyncOperation;
@@ -34,12 +35,13 @@ import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 public class ContractEitherTemplate implements ContractEitherOperation {
   protected final ContractAsyncOperation contractAsyncOperation;
 
-  public ContractEitherTemplate(final ManagedChannel channel) {
-    this(newFutureStub(channel));
+  public ContractEitherTemplate(final ManagedChannel channel, final Context context) {
+    this(newFutureStub(channel), context);
   }
 
-  public ContractEitherTemplate(final AergoRPCServiceFutureStub aergoService) {
-    this(new ContractAsyncTemplate(aergoService));
+  public ContractEitherTemplate(final AergoRPCServiceFutureStub aergoService,
+      final Context context) {
+    this(new ContractAsyncTemplate(aergoService, context));
   }
 
   @Override

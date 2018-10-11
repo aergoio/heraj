@@ -50,9 +50,9 @@ public class TransactionTemplateBenchmark {
           .forAddress("localhost", 7845)
           .usePlaintext()
           .build();
-      signTemplate = new SignEitherTemplate(channel);
-      accountTemplate = new AccountEitherTemplate(channel);
-      transactionTemplate = new TransactionEitherTemplate(channel);
+      signTemplate = new SignEitherTemplate(channel, null);
+      accountTemplate = new AccountEitherTemplate(channel, null);
+      transactionTemplate = new TransactionEitherTemplate(channel, null);
       sender = accountTemplate.create(PASSWORD).getResult();
       recipient = accountTemplate.create(PASSWORD).getResult();
       accountTemplate.unlock(Authentication.of(sender.getAddress(), PASSWORD));

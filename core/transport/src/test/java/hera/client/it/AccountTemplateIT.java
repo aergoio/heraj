@@ -13,6 +13,7 @@ import hera.api.model.Account;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.client.AccountEitherTemplate;
+import hera.client.AergoClientBuilder;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.util.Base58Utils;
@@ -26,7 +27,7 @@ public class AccountTemplateIT extends AbstractIT {
   @Before
   public void setUp() {
     super.setUp();
-    accountTemplate = new AccountEitherTemplate(channel);
+    accountTemplate = new AccountEitherTemplate(channel, AergoClientBuilder.getDefaultContext());
   }
 
   @Test

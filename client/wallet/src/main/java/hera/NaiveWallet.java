@@ -19,7 +19,7 @@ import java.io.Reader;
 public class NaiveWallet implements Wallet {
 
   public static Wallet newWallet() throws Exception {
-    return newWallet(ImplicitContext.get());
+    return newWallet(null);
   }
 
   /**
@@ -39,7 +39,7 @@ public class NaiveWallet implements Wallet {
   }
 
   public static Wallet importWallet(final byte[] encodedPrivateKey) throws Exception {
-    return importWallet(encodedPrivateKey, ImplicitContext.get());
+    return importWallet(encodedPrivateKey, null);
   }
 
   /**
@@ -70,18 +70,12 @@ public class NaiveWallet implements Wallet {
   }
 
   public void createAccount(final String password) {
-    final AergoEitherApi api = context.api();
-    final Account account = api.getAccountEitherOperation().create(password).getResult();
   }
 
   public void unlock(Object authentication) {
-    final AergoEitherApi api = this.context.api();
-    api.getAccountEitherOperation().unlock(Authentication.of(null, null));
   }
 
   public void lock() {
-    final AergoEitherApi api = this.context.api();
-    api.getAccountEitherOperation().lock(Authentication.of(null, null));
   }
 
   /**

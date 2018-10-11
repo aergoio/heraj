@@ -10,6 +10,7 @@ import static org.junit.Assert.assertTrue;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.PeerAddress;
+import hera.client.AergoClientBuilder;
 import hera.client.BlockChainEitherTemplate;
 import java.util.List;
 import org.junit.Before;
@@ -22,7 +23,7 @@ public class BlockChainTemplateIT extends AbstractIT {
   @Before
   public void setUp() {
     super.setUp();
-    blockChainTemplate = new BlockChainEitherTemplate(channel);
+    blockChainTemplate = new BlockChainEitherTemplate(channel, AergoClientBuilder.getDefaultContext());
   }
 
   @Test

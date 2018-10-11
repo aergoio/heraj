@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
+import hera.Context;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
@@ -30,6 +31,8 @@ import types.Rpc;
 @PrepareForTest({AergoRPCServiceFutureStub.class, Blockchain.Block.class,
     Rpc.BlockHeaderList.class})
 public class BlockAsyncTemplateTest extends AbstractTestCase {
+
+  protected static final Context context = AergoClientBuilder.getDefaultContext();
 
   protected static final ModelConverter<Block, Blockchain.Block> blockConverter =
       mock(ModelConverter.class);
@@ -49,7 +52,7 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
     when(aergoService.getBlock(any())).thenReturn(mockListenableFuture);
 
     final BlockAsyncTemplate blockAsyncTemplate =
-        new BlockAsyncTemplate(aergoService, blockConverter);
+        new BlockAsyncTemplate(aergoService, context, blockConverter);
 
     final ResultOrErrorFuture<Block> block =
         blockAsyncTemplate.getBlock(new BlockHash(of(randomUUID().toString().getBytes())));
@@ -63,7 +66,7 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
     when(aergoService.getBlock(any())).thenReturn(mockListenableFuture);
 
     final BlockAsyncTemplate blockAsyncTemplate =
-        new BlockAsyncTemplate(aergoService, blockConverter);
+        new BlockAsyncTemplate(aergoService, context, blockConverter);
 
     final ResultOrErrorFuture<Block> block = blockAsyncTemplate.getBlock(randomUUID().hashCode());
     assertNotNull(block);
@@ -76,7 +79,7 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
     when(aergoService.listBlockHeaders(any())).thenReturn(mockListenableFuture);
 
     final BlockAsyncTemplate blockAsyncTemplate =
-        new BlockAsyncTemplate(aergoService, blockConverter);
+        new BlockAsyncTemplate(aergoService, context, blockConverter);
 
     final ResultOrErrorFuture<List<BlockHeader>> blockHeaders = blockAsyncTemplate.listBlockHeaders(
         new BlockHash(of(randomUUID().toString().getBytes())), randomUUID().hashCode());
@@ -90,7 +93,7 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
     when(aergoService.listBlockHeaders(any())).thenReturn(mockListenableFuture);
 
     final BlockAsyncTemplate blockAsyncTemplate =
-        new BlockAsyncTemplate(aergoService, blockConverter);
+        new BlockAsyncTemplate(aergoService, context, blockConverter);
 
     final ResultOrErrorFuture<List<BlockHeader>> blockHeaders =
         blockAsyncTemplate.listBlockHeaders(randomUUID().hashCode(), randomUUID().hashCode());

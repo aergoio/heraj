@@ -5,63 +5,54 @@
 package hera.client;
 
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import hera.AbstractTestCase;
-import io.grpc.ManagedChannel;
+import hera.Context;
 import java.io.IOException;
-import org.junit.Before;
 import org.junit.Test;
 
 public class AergoClientTest extends AbstractTestCase {
 
-  protected ManagedChannel channel;
-
-  @Before
-  public void setUp() {
-    this.channel = mock(ManagedChannel.class);
-    when(channel.shutdown()).thenReturn(channel);
-  }
+  protected Context context = AergoClientBuilder.getDefaultContext();
 
   @Test
   public void testGetSignOperation() throws IOException {
-    try (final AergoClient client = new AergoClient(channel)) {
+    try (final AergoClient client = new AergoClient(context)) {
       assertNotNull(client.getSignOperation());
     }
   }
 
   @Test
   public void testGetAccountOperation() throws IOException {
-    try (final AergoClient client = new AergoClient(channel)) {
+    try (final AergoClient client = new AergoClient(context)) {
       assertNotNull(client.getAccountOperation());
     }
   }
 
   @Test
   public void testGetTransactionOperation() throws IOException {
-    try (final AergoClient client = new AergoClient(channel)) {
+    try (final AergoClient client = new AergoClient(context)) {
       assertNotNull(client.getTransactionOperation());
     }
   }
 
   @Test
   public void testGetBlockOperation() throws IOException {
-    try (final AergoClient client = new AergoClient(channel)) {
+    try (final AergoClient client = new AergoClient(context)) {
       assertNotNull(client.getBlockOperation());
     }
   }
 
   @Test
   public void testGetBlockChainOperation() throws IOException {
-    try (final AergoClient client = new AergoClient(channel)) {
+    try (final AergoClient client = new AergoClient(context)) {
       assertNotNull(client.getBlockChainOperation());
     }
   }
 
   @Test
   public void testGetContractOperation() throws IOException {
-    try (final AergoClient client = new AergoClient(channel)) {
+    try (final AergoClient client = new AergoClient(context)) {
       assertNotNull(client.getContractOperation());
     }
   }

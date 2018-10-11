@@ -11,6 +11,7 @@ import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
 import hera.api.model.BlockchainStatus;
+import hera.client.AergoClientBuilder;
 import hera.client.BlockChainEitherTemplate;
 import hera.client.BlockEitherTemplate;
 import java.util.List;
@@ -26,8 +27,8 @@ public class BlockTemplateIT extends AbstractIT {
   @Before
   public void setUp() {
     super.setUp();
-    blockTemplate = new BlockEitherTemplate(channel);
-    blockChainTemplate = new BlockChainEitherTemplate(channel);
+    blockTemplate = new BlockEitherTemplate(channel, AergoClientBuilder.getDefaultContext());
+    blockChainTemplate = new BlockChainEitherTemplate(channel, AergoClientBuilder.getDefaultContext());
   }
 
   @Test

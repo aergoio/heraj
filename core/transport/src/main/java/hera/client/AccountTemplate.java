@@ -6,6 +6,7 @@ package hera.client;
 
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
+import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.AccountEitherOperation;
@@ -27,12 +28,12 @@ public class AccountTemplate implements AccountOperation {
 
   protected final AccountEitherOperation accountEitherOperation;
 
-  public AccountTemplate(final ManagedChannel channel) {
-    this(newFutureStub(channel));
+  public AccountTemplate(final ManagedChannel channel, final Context context) {
+    this(newFutureStub(channel), context);
   }
 
-  public AccountTemplate(final AergoRPCServiceFutureStub aergoService) {
-    this(new AccountEitherTemplate(aergoService));
+  public AccountTemplate(final AergoRPCServiceFutureStub aergoService, final Context context) {
+    this(new AccountEitherTemplate(aergoService, context));
   }
 
   @Override

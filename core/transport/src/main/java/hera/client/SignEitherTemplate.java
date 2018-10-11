@@ -8,6 +8,7 @@ import static hera.TransportConstants.TIMEOUT;
 import static hera.api.tupleorerror.FunctionChain.fail;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
+import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.SignAsyncOperation;
@@ -29,16 +30,16 @@ public class SignEitherTemplate implements SignEitherOperation {
 
   protected final SignAsyncOperation signAsyncOperation;
 
-  public SignEitherTemplate(final ManagedChannel channel) {
-    this(newFutureStub(channel));
+  public SignEitherTemplate(final ManagedChannel channel, final Context context) {
+    this(newFutureStub(channel), context);
   }
 
-  public SignEitherTemplate(final AergoRPCServiceFutureStub aergoService) {
-    this(new SignAsyncTemplate(aergoService));
+  public SignEitherTemplate(final AergoRPCServiceFutureStub aergoService, final Context context) {
+    this(new SignAsyncTemplate(aergoService, context));
   }
 
   @Override
-  public ResultOrError<Signature> sign(Transaction transaction) {
+  public ResultOrError<Signature> sign(final Transaction transaction) {
     try {
       return signAsyncOperation.sign(transaction).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
@@ -47,7 +48,7 @@ public class SignEitherTemplate implements SignEitherOperation {
   }
 
   @Override
-  public ResultOrError<Boolean> verify(Transaction transaction) {
+  public ResultOrError<Boolean> verify(final Transaction transaction) {
     try {
       return signAsyncOperation.verify(transaction).get(TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {

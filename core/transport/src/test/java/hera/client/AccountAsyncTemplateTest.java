@@ -14,6 +14,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
 import hera.AbstractTestCase;
+import hera.Context;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
@@ -34,6 +35,7 @@ import types.Rpc;
     Blockchain.State.class, Rpc.Personal.class, Rpc.SingleBytes.class})
 public class AccountAsyncTemplateTest extends AbstractTestCase {
 
+
   protected static final EncryptedPrivateKey ENCRYPTED_PRIVATE_KEY =
       new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.VERSION}));
 
@@ -41,6 +43,8 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
       new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
 
   protected static final String PASSWORD = randomUUID().toString();
+
+  protected static final Context context = AergoClientBuilder.getDefaultContext();
 
   protected static final ModelConverter<AccountAddress, ByteString> accountAddressConverter =
       mock(ModelConverter.class);
@@ -84,7 +88,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     when(aergoService.getAccounts(any())).thenReturn(mockListenableFuture);
 
     final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
-        accountAddressConverter, encryptedPrivateKeyConverter, accountConverter,
+        context, accountAddressConverter, encryptedPrivateKeyConverter, accountConverter,
         accountStateConverter, authenticationConverter);
 
     final ResultOrErrorFuture<List<Account>> accountListFuture = accountAsyncTemplate.list();
@@ -98,7 +102,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     when(aergoService.createAccount(any())).thenReturn(mockListenableFuture);
 
     final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
-        accountAddressConverter, encryptedPrivateKeyConverter, accountConverter,
+        context, accountAddressConverter, encryptedPrivateKeyConverter, accountConverter,
         accountStateConverter, authenticationConverter);
 
     final ResultOrErrorFuture<Account> accountFuture =
@@ -113,7 +117,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     when(aergoService.getState(any())).thenReturn(mockListenableFuture);
 
     final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
-        accountAddressConverter, encryptedPrivateKeyConverter, accountConverter,
+        context, accountAddressConverter, encryptedPrivateKeyConverter, accountConverter,
         accountStateConverter, authenticationConverter);
 
     final ResultOrErrorFuture<Account> accountFuture = accountAsyncTemplate.get(ACCOUNT_ADDRESS);
@@ -127,7 +131,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     when(aergoService.lockAccount(any())).thenReturn(mockListenableFuture);
 
     final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
-        accountAddressConverter, encryptedPrivateKeyConverter, accountConverter,
+        context, accountAddressConverter, encryptedPrivateKeyConverter, accountConverter,
         accountStateConverter, authenticationConverter);
 
     final ResultOrErrorFuture<Boolean> lockResult =
@@ -142,7 +146,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     when(aergoService.unlockAccount(any())).thenReturn(mockListenableFuture);
 
     final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
-        accountAddressConverter, encryptedPrivateKeyConverter, accountConverter,
+        context, accountAddressConverter, encryptedPrivateKeyConverter, accountConverter,
         accountStateConverter, authenticationConverter);
 
     final ResultOrErrorFuture<Boolean> accountFuture =
@@ -157,7 +161,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     when(aergoService.importAccount(any())).thenReturn(mockListenableFuture);
 
     final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
-        accountAddressConverter, encryptedPrivateKeyConverter, accountConverter,
+        context, accountAddressConverter, encryptedPrivateKeyConverter, accountConverter,
         accountStateConverter, authenticationConverter);
 
     final ResultOrErrorFuture<Account> accountFuture =
@@ -172,7 +176,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
     when(aergoService.exportAccount(any())).thenReturn(mockListenableFuture);
 
     final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
-        accountAddressConverter, encryptedPrivateKeyConverter, accountConverter,
+        context, accountAddressConverter, encryptedPrivateKeyConverter, accountConverter,
         accountStateConverter, authenticationConverter);
 
     final ResultOrErrorFuture<EncryptedPrivateKey> accountFuture =

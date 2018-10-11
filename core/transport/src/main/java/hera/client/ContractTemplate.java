@@ -6,6 +6,7 @@ package hera.client;
 
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
+import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.ContractEitherOperation;
@@ -29,12 +30,12 @@ public class ContractTemplate implements ContractOperation {
 
   protected final ContractEitherOperation contractEitherOperation;
 
-  public ContractTemplate(final ManagedChannel channel) {
-    this(newFutureStub(channel));
+  public ContractTemplate(final ManagedChannel channel, final Context context) {
+    this(newFutureStub(channel), context);
   }
 
-  public ContractTemplate(final AergoRPCServiceFutureStub aergoService) {
-    this(new ContractEitherTemplate(aergoService));
+  public ContractTemplate(final AergoRPCServiceFutureStub aergoService, final Context context) {
+    this(new ContractEitherTemplate(aergoService, context));
   }
 
   @Override

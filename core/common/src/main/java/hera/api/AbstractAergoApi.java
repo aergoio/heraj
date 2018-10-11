@@ -22,6 +22,7 @@ public class AbstractAergoApi implements AergoApi, Adaptor {
 
   protected final transient Logger logger = getLogger(getClass());
 
+  @Override
   public SignOperation getSignOperation() {
     throw new UnsupportedOperationException();
   }

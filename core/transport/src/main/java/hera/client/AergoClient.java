@@ -4,6 +4,7 @@
 
 package hera.client;
 
+import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.AbstractAergoApi;
@@ -13,43 +14,51 @@ import hera.api.BlockOperation;
 import hera.api.ContractOperation;
 import hera.api.SignOperation;
 import hera.api.TransactionOperation;
+import hera.strategy.ConnectStrategy;
 import io.grpc.ManagedChannel;
 import java.io.Closeable;
 import java.util.concurrent.TimeUnit;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class AergoClient extends AbstractAergoApi implements Closeable, AutoCloseable {
 
   @NonNull
-  protected final ManagedChannel channel;
+  protected final Context context;
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final ManagedChannel channel = (ManagedChannel) context.getStrategy(ConnectStrategy.class)
+      .map(ConnectStrategy::connect).get();
 
   @Getter(lazy = true)
-  private final SignOperation signOperation = new SignTemplate(channel);
+  private final SignOperation signOperation = new SignTemplate(getChannel(), context);
 
   @Getter(lazy = true)
-  private final AccountOperation accountOperation = new AccountTemplate(channel);
+  private final AccountOperation accountOperation = new AccountTemplate(getChannel(), context);
 
   @Getter(lazy = true)
-  private final TransactionOperation transactionOperation = new TransactionTemplate(channel);
+  private final TransactionOperation transactionOperation =
+      new TransactionTemplate(getChannel(), context);
 
   @Getter(lazy = true)
-  private final BlockOperation blockOperation = new BlockTemplate(channel);
+  private final BlockOperation blockOperation = new BlockTemplate(getChannel(), context);
 
   @Getter(lazy = true)
-  private final BlockChainOperation blockChainOperation = new BlockChainTemplate(channel);
+  private final BlockChainOperation blockChainOperation =
+      new BlockChainTemplate(getChannel(), context);
 
   @Getter(lazy = true)
-  private final ContractOperation contractOperation = new ContractTemplate(channel);
+  private final ContractOperation contractOperation = new ContractTemplate(getChannel(), context);
 
   @Override
   public void close() {
     try {
-      channel.shutdown().awaitTermination(3, TimeUnit.SECONDS);
+      getChannel().shutdown().awaitTermination(3, TimeUnit.SECONDS);
     } catch (final Throwable e) {
       logger.debug("Fail to close aergo client", e);
     }

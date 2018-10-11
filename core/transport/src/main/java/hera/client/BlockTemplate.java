@@ -6,6 +6,7 @@ package hera.client;
 
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
+import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.BlockEitherOperation;
@@ -25,12 +26,12 @@ public class BlockTemplate implements BlockOperation {
 
   protected final BlockEitherOperation blockEitherOperation;
 
-  public BlockTemplate(final ManagedChannel channel) {
-    this(newFutureStub(channel));
+  public BlockTemplate(final ManagedChannel channel, final Context context) {
+    this(newFutureStub(channel), context);
   }
 
-  public BlockTemplate(final AergoRPCServiceFutureStub aergoService) {
-    this(new BlockEitherTemplate(aergoService));
+  public BlockTemplate(final AergoRPCServiceFutureStub aergoService, final Context context) {
+    this(new BlockEitherTemplate(aergoService, context));
   }
 
   @Override

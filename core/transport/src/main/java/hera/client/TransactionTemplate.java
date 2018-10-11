@@ -6,6 +6,7 @@ package hera.client;
 
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
+import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.TransactionEitherOperation;
@@ -23,12 +24,12 @@ public class TransactionTemplate implements TransactionOperation {
 
   protected final TransactionEitherOperation transactionEitherOperation;
 
-  public TransactionTemplate(final ManagedChannel channel) {
-    this(newFutureStub(channel));
+  public TransactionTemplate(final ManagedChannel channel, final Context context) {
+    this(newFutureStub(channel), context);
   }
 
-  public TransactionTemplate(final AergoRPCServiceFutureStub aergoService) {
-    this(new TransactionEitherTemplate(aergoService));
+  public TransactionTemplate(final AergoRPCServiceFutureStub aergoService, final Context context) {
+    this(new TransactionEitherTemplate(aergoService, context));
   }
 
   @Override

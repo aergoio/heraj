@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
+import hera.Context;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -31,6 +32,8 @@ import types.Rpc.VerifyResult;
 public class TransactionAsyncTemplateTest extends AbstractTestCase {
 
   protected final byte[] TXHASH = randomUUID().toString().getBytes();
+
+  protected static final Context context = AergoClientBuilder.getDefaultContext();
 
   protected static final ModelConverter<Transaction, Blockchain.Tx> transactionConverter =
       mock(ModelConverter.class);
@@ -57,7 +60,7 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
     when(aergoService.getBlockTX(any())).thenReturn(mockListenableFuture);
 
     final TransactionAsyncTemplate transactionAsyncTemplate = new TransactionAsyncTemplate(
-        aergoService, transactionConverter, transactionInBlockConverter);
+        aergoService, context, transactionConverter, transactionInBlockConverter);
 
     final ResultOrErrorFuture<Transaction> transaction =
         transactionAsyncTemplate.getTransaction(new TxHash(of(randomUUID().toString().getBytes())));
@@ -71,7 +74,7 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
     when(aergoService.commitTX(any())).thenReturn(mockListenableFuture);
 
     final TransactionAsyncTemplate transactionAsyncTemplate = new TransactionAsyncTemplate(
-        aergoService, transactionConverter, transactionInBlockConverter);
+        aergoService, context, transactionConverter, transactionInBlockConverter);
 
     final ResultOrErrorFuture<TxHash> txHash = transactionAsyncTemplate.commit(new Transaction());
     assertNotNull(txHash);
@@ -84,7 +87,7 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
     when(aergoService.sendTX(any())).thenReturn(mockListenableFuture);
 
     final TransactionAsyncTemplate transactionAsyncTemplate = new TransactionAsyncTemplate(
-        aergoService, transactionConverter, transactionInBlockConverter);
+        aergoService, context, transactionConverter, transactionInBlockConverter);
 
     final ResultOrErrorFuture<TxHash> txHash = transactionAsyncTemplate.send(new Transaction());
     assertNotNull(txHash);

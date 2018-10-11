@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
+import hera.Context;
 import hera.FutureChainer;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
@@ -43,18 +44,20 @@ public class BlockChainAsyncTemplate implements BlockChainAsyncOperation {
 
   protected final AergoRPCServiceFutureStub aergoService;
 
+  protected final Context context;
+
   protected final ModelConverter<BlockchainStatus, Rpc.BlockchainStatus> blockchainConverter;
 
   protected final ModelConverter<PeerAddress, Node.PeerAddress> peerAddressConverter;
 
   protected final ModelConverter<NodeStatus, Rpc.SingleBytes> nodeStatusConverter;
 
-  public BlockChainAsyncTemplate(final ManagedChannel channel) {
-    this(newFutureStub(channel));
+  public BlockChainAsyncTemplate(final ManagedChannel channel, final Context context) {
+    this(newFutureStub(channel), context);
   }
 
-  public BlockChainAsyncTemplate(AergoRPCServiceFutureStub aergoService) {
-    this(aergoService, new BlockchainConverterFactory().create(),
+  public BlockChainAsyncTemplate(AergoRPCServiceFutureStub aergoService, final Context context) {
+    this(aergoService, context, new BlockchainConverterFactory().create(),
         new PeerAddressConverterFactory().create(), new NodeStatusConverterFactory().create());
   }
 

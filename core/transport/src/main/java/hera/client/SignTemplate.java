@@ -6,6 +6,7 @@ package hera.client;
 
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
+import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.SignEitherOperation;
@@ -23,12 +24,12 @@ public class SignTemplate implements SignOperation {
 
   protected final SignEitherOperation signEitherOperation;
 
-  public SignTemplate(final ManagedChannel channel) {
-    this(newFutureStub(channel));
+  public SignTemplate(final ManagedChannel channel, final Context context) {
+    this(newFutureStub(channel), context);
   }
 
-  public SignTemplate(final AergoRPCServiceFutureStub aergoService) {
-    this(new SignEitherTemplate(aergoService));
+  public SignTemplate(final AergoRPCServiceFutureStub aergoService, final Context context) {
+    this(new SignEitherTemplate(aergoService, context));
   }
 
   @Override

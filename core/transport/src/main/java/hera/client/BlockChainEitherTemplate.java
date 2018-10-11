@@ -6,7 +6,9 @@ package hera.client;
 
 import static hera.TransportConstants.TIMEOUT;
 import static hera.api.tupleorerror.FunctionChain.fail;
+import static types.AergoRPCServiceGrpc.newFutureStub;
 
+import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.BlockChainAsyncOperation;
@@ -20,7 +22,6 @@ import io.grpc.ManagedChannel;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
-import types.AergoRPCServiceGrpc;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
 @ApiAudience.Private
@@ -31,12 +32,13 @@ public class BlockChainEitherTemplate implements BlockChainEitherOperation {
 
   protected final BlockChainAsyncOperation blockChainAsyncOperation;
 
-  public BlockChainEitherTemplate(final ManagedChannel channel) {
-    this(AergoRPCServiceGrpc.newFutureStub(channel));
+  public BlockChainEitherTemplate(final ManagedChannel channel, final Context context) {
+    this(newFutureStub(channel), context);
   }
 
-  public BlockChainEitherTemplate(final AergoRPCServiceFutureStub aergoService) {
-    this(new BlockChainAsyncTemplate(aergoService));
+  public BlockChainEitherTemplate(final AergoRPCServiceFutureStub aergoService,
+      final Context context) {
+    this(new BlockChainAsyncTemplate(aergoService, context));
   }
 
   @Override

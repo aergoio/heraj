@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
+import hera.Context;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.PeerAddress;
@@ -28,6 +29,8 @@ import types.Rpc;
 @PrepareForTest({AergoRPCServiceFutureStub.class, Rpc.BlockchainStatus.class, Rpc.PeerList.class,
     Node.PeerAddress.class, Rpc.SingleBytes.class})
 public class BlockChainAsyncTemplateTest extends AbstractTestCase {
+
+  protected static final Context context = AergoClientBuilder.getDefaultContext();
 
   protected static final ModelConverter<BlockchainStatus, Rpc.BlockchainStatus> blockchainConverter =
       mock(ModelConverter.class);
@@ -61,7 +64,7 @@ public class BlockChainAsyncTemplateTest extends AbstractTestCase {
     when(aergoService.blockchain(any())).thenReturn(mockListenableFuture);
 
     final BlockChainAsyncTemplate blockChainAsyncTemplate = new BlockChainAsyncTemplate(
-        aergoService, blockchainConverter, peerAddressConverter, nodeStatusConverter);
+        aergoService, context, blockchainConverter, peerAddressConverter, nodeStatusConverter);
 
     final ResultOrErrorFuture<BlockchainStatus> blockchainStatus =
         blockChainAsyncTemplate.getBlockchainStatus();
@@ -75,7 +78,7 @@ public class BlockChainAsyncTemplateTest extends AbstractTestCase {
     when(aergoService.getPeers(any())).thenReturn(mockListenableFuture);
 
     final BlockChainAsyncTemplate blockChainAsyncTemplate = new BlockChainAsyncTemplate(
-        aergoService, blockchainConverter, peerAddressConverter, nodeStatusConverter);
+        aergoService, context, blockchainConverter, peerAddressConverter, nodeStatusConverter);
 
     final ResultOrErrorFuture<List<PeerAddress>> peers = blockChainAsyncTemplate.listPeers();
     assertNotNull(peers);
@@ -88,7 +91,7 @@ public class BlockChainAsyncTemplateTest extends AbstractTestCase {
     when(aergoService.nodeState(any())).thenReturn(mockListenableFuture);
 
     final BlockChainAsyncTemplate blockChainAsyncTemplate = new BlockChainAsyncTemplate(
-        aergoService, blockchainConverter, peerAddressConverter, nodeStatusConverter);
+        aergoService, context, blockchainConverter, peerAddressConverter, nodeStatusConverter);
 
     final ResultOrErrorFuture<NodeStatus> nodeStatus = blockChainAsyncTemplate.getNodeStatus();
     assertNotNull(nodeStatus);

@@ -18,6 +18,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
+import hera.Context;
 import hera.FutureChainer;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
@@ -67,6 +68,8 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
 
   protected final AergoRPCServiceFutureStub aergoService;
 
+  protected final Context context;
+
   protected final SignAsyncOperation signAsyncOperation;
 
   protected final AccountAsyncOperation accountAsyncOperation;
@@ -86,8 +89,8 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
 
   protected final ObjectMapper objectMapper = new ObjectMapper();
 
-  public ContractAsyncTemplate(final ManagedChannel channel) {
-    this(newFutureStub(channel));
+  public ContractAsyncTemplate(final ManagedChannel channel, final Context context) {
+    this(newFutureStub(channel), context);
   }
 
   /**
@@ -95,10 +98,13 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
    *
    * @param aergoService aergo service
    */
-  public ContractAsyncTemplate(final AergoRPCServiceFutureStub aergoService) {
-    this(aergoService, new SignAsyncTemplate(aergoService), new AccountAsyncTemplate(aergoService),
-        new TransactionAsyncTemplate(aergoService), new AccountAddressConverterFactory().create(),
-        new ReceiptConverterFactory().create(), new ContractInterfaceConverterFactory().create(),
+  public ContractAsyncTemplate(final AergoRPCServiceFutureStub aergoService,
+      final Context context) {
+    this(aergoService, context, new SignAsyncTemplate(aergoService, context),
+        new AccountAsyncTemplate(aergoService, context),
+        new TransactionAsyncTemplate(aergoService, context),
+        new AccountAddressConverterFactory().create(), new ReceiptConverterFactory().create(),
+        new ContractInterfaceConverterFactory().create(),
         new ContractResultConverterFactory().create());
   }
 
