@@ -4,21 +4,21 @@
 
 package hera.api.model;
 
-import hera.api.encode.Encoded;
+import hera.api.encode.Base58WithCheckSum;
 import hera.exception.InvalidVersionException;
 import java.util.Optional;
 
 public class ContractAddress extends AccountAddress {
 
   /**
-   * Create {@code ContractAddress} with an encoded value.
+   * Create {@code ContractAddress} with a base58 with checksum encoded value.
    *
-   * @param encoded an encoded value
+   * @param encoded a base58 with checksum encoded encoded value
    * @return created {@link ContractAddress}
    *
    * @throws InvalidVersionException when address version mismatch
    */
-  public static ContractAddress of(final Encoded encoded) {
+  public static ContractAddress of(final Base58WithCheckSum encoded) {
     return new ContractAddress(encoded);
   }
 
@@ -37,11 +37,11 @@ public class ContractAddress extends AccountAddress {
   /**
    * ContractAddress constructor.
    *
-   * @param encoded an encoded value
+   * @param encoded a base58 with checksum encoded encoded value
    *
    * @throws InvalidVersionException when address version mismatch
    */
-  public ContractAddress(final Encoded encoded) {
+  public ContractAddress(final Base58WithCheckSum encoded) {
     super(encoded);
   }
 

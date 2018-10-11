@@ -5,7 +5,7 @@
 package hera.api.model;
 
 import hera.VersionUtils;
-import hera.api.encode.Encoded;
+import hera.api.encode.Base58WithCheckSum;
 import hera.exception.InvalidVersionException;
 import hera.util.Adaptor;
 import hera.util.Base58Utils;
@@ -19,12 +19,12 @@ public class AccountAddress implements Adaptor {
   /**
    * Create {@code AccountAddress} with a base58 with checksum encoded value.
    *
-   * @param encoded an encoded value
+   * @param encoded a base58 with checksum encoded encoded value
    * @return created {@link AccountAddress}
    *
    * @throws InvalidVersionException when address version mismatch
    */
-  public static AccountAddress of(final Encoded encoded) {
+  public static AccountAddress of(final Base58WithCheckSum encoded) {
     return new AccountAddress(encoded);
   }
 
@@ -46,11 +46,11 @@ public class AccountAddress implements Adaptor {
   /**
    * AccountAddress constructor.
    *
-   * @param encoded an encoded value
+   * @param encoded a base58 with checksum encoded encoded value
    *
    * @throws InvalidVersionException when address version mismatch
    */
-  public AccountAddress(final Encoded encoded) {
+  public AccountAddress(final Base58WithCheckSum encoded) {
     this(encoded.decode());
   }
 

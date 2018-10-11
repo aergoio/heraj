@@ -5,7 +5,7 @@
 package hera.api.model;
 
 import hera.VersionUtils;
-import hera.api.encode.Encoded;
+import hera.api.encode.Base58WithCheckSum;
 import hera.exception.InvalidVersionException;
 import hera.util.Base58Utils;
 import lombok.Getter;
@@ -15,14 +15,14 @@ public class EncryptedPrivateKey {
   public static final byte VERSION = (byte) 0xAA;
 
   /**
-   * Create {@code EncryptedPrivateKey} with an encoded value.
+   * Create {@code EncryptedPrivateKey} with a base58 with checksum encoded value.
    *
-   * @param encoded an encoded value
+   * @param encoded a base58 with checksum encoded encoded value
    * @return created {@link EncryptedPrivateKey}
    *
    * @throws InvalidVersionException when address version mismatch
    */
-  public static EncryptedPrivateKey of(final Encoded encoded) {
+  public static EncryptedPrivateKey of(final Base58WithCheckSum encoded) {
     return new EncryptedPrivateKey(encoded);
   }
 
@@ -44,11 +44,11 @@ public class EncryptedPrivateKey {
   /**
    * EncryptedPrivateKey constructor.
    *
-   * @param encoded an encoded value
+   * @param encoded a base58 with checksum encoded encoded value
    *
    * @throws InvalidVersionException when address version mismatch
    */
-  public EncryptedPrivateKey(final Encoded encoded) {
+  public EncryptedPrivateKey(final Base58WithCheckSum encoded) {
     this(encoded.decode());
   }
 
