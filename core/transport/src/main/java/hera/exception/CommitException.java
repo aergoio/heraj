@@ -11,7 +11,6 @@ public class CommitException extends RpcException {
   private static final long serialVersionUID = -4798911407894712354L;
 
   enum CommitStatus {
-    UNRECOGNIZED,
     OK,
     NONCE_TOO_LOW,
     TX_ALREADY_EXISTS,
@@ -19,7 +18,8 @@ public class CommitException extends RpcException {
     TX_INVALID_SIGNATURE,
     TX_INVALID_FORMAT,
     INSUFFICIENT_BALANCE,
-    INTERNAL_ERROR
+    INTERNAL_ERROR,
+    UNRECOGNIZED
   }
 
   @Getter

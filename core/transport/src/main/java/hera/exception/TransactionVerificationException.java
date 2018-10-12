@@ -11,9 +11,10 @@ public class TransactionVerificationException extends RpcException {
   private static final long serialVersionUID = -4798911407894712354L;
 
   enum VerifyStatus {
-    UNRECOGNIZED,
+    VERIFY_STATUS_OK,
     VERIFY_STATUS_SIGN_NOT_MATCH,
-    VERIFY_STATUS_INVALID_HASH
+    VERIFY_STATUS_INVALID_HASH,
+    UNRECOGNIZED
   }
 
   @Getter
@@ -26,6 +27,9 @@ public class TransactionVerificationException extends RpcException {
    */
   public TransactionVerificationException(types.Rpc.VerifyStatus rpcVerifyStatus) {
     switch (rpcVerifyStatus) {
+      case VERIFY_STATUS_OK:
+        this.verifyStatus = VerifyStatus.VERIFY_STATUS_OK;
+        break;
       case VERIFY_STATUS_SIGN_NOT_MATCH:
         this.verifyStatus = VerifyStatus.VERIFY_STATUS_SIGN_NOT_MATCH;
         break;
