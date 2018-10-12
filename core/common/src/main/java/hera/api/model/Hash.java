@@ -4,7 +4,7 @@
 
 package hera.api.model;
 
-import hera.api.encode.Encoded;
+import hera.api.encode.EncodedString;
 import hera.util.Adaptor;
 import hera.util.Base58Utils;
 import java.util.Optional;
@@ -20,7 +20,7 @@ public class Hash implements Adaptor {
    * @param encoded an encoded value
    * @return created {@link Hash}
    */
-  public static Hash of(final Encoded encoded) {
+  public static Hash of(final EncodedString encoded) {
     return new Hash(encoded);
   }
 
@@ -42,7 +42,7 @@ public class Hash implements Adaptor {
    *
    * @param encoded an encoded value
    */
-  public Hash(final Encoded encoded) {
+  public Hash(final EncodedString encoded) {
     this(encoded.decode());
   }
 

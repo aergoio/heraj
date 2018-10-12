@@ -5,11 +5,12 @@
 package hera.api.encode;
 
 import hera.api.model.BytesValue;
+import java.io.IOException;
 
-public interface Encoded {
+public interface EncodedString {
 
   String getEncodedValue();
 
-  BytesValue decode();
+  BytesValue decode() throws IOException;
 
 }

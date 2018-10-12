@@ -8,7 +8,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.VersionUtils;
 import hera.api.encode.Base58WithCheckSum;
-import hera.api.encode.Encoded;
+import hera.api.encode.EncodedString;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
@@ -57,7 +57,7 @@ public class AergoKey implements KeyPair {
    * @return key instance
    * @throws Exception on failure of decryption
    */
-  public static AergoKey of(final Encoded encryptedPrivateKey, final String password)
+  public static AergoKey of(final EncodedString encryptedPrivateKey, final String password)
       throws Exception {
     return new AergoKey(encryptedPrivateKey, password);
   }
@@ -76,7 +76,7 @@ public class AergoKey implements KeyPair {
    * @param password password to decrypt
    * @throws Exception on failure of decryption
    */
-  public AergoKey(final Encoded encryptedPrivateKey, final String password) throws Exception {
+  public AergoKey(final EncodedString encryptedPrivateKey, final String password) throws Exception {
     final byte[] rawPrivateKey =
         decrypt(encryptedPrivateKey.decode().getValue(), password.getBytes("UTF-8"));
     this.ecdsakey = ECDSAKey.of(rawPrivateKey);

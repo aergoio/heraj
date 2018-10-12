@@ -7,7 +7,7 @@ package hera.api.encode;
 import hera.api.model.BytesValue;
 import hera.util.Base58Utils;
 
-public interface Base58 extends Encoded {
+public interface Base58 extends EncodedString {
 
   @Override
   default BytesValue decode() {
