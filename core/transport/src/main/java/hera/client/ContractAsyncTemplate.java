@@ -141,7 +141,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
         dataOut.close();
         transaction.setPayload(BytesValue.of(raw.toByteArray()));
 
-        return signAsyncOperation.sign(transaction).flatMap(signature -> {
+        return signAsyncOperation.sign(null, transaction).flatMap(signature -> {
           transaction.setSignature(signature);
           return transactionAsyncOperation.commit(transaction)
               .map(txHash -> txHash.adapt(ContractTxHash.class)

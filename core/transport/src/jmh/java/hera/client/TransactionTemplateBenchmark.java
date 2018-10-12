@@ -69,7 +69,7 @@ public class TransactionTemplateBenchmark {
       transaction.setAmount(30);
       transaction.setSender(sender.getAddress());
       transaction.setRecipient(recipient.getAddress());
-      final Signature signature = signTemplate.sign(transaction).getResult();
+      final Signature signature = signTemplate.sign(null, transaction).getResult();
 
       transaction.setSignature(signature);
       transactionTemplate.commit(transaction);

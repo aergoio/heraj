@@ -32,11 +32,11 @@ public class SignTemplateTest extends AbstractTestCase {
     ResultOrError<Signature> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(Signature.class));
     SignEitherOperation eitherOperationMock = mock(SignEitherOperation.class);
-    when(eitherOperationMock.sign(any(Transaction.class))).thenReturn(eitherMock);
+    when(eitherOperationMock.sign(any(), any(Transaction.class))).thenReturn(eitherMock);
 
     final SignTemplate signTemplate = new SignTemplate(eitherOperationMock);
 
-    final Signature signature = signTemplate.sign(new Transaction());
+    final Signature signature = signTemplate.sign(null, new Transaction());
     assertNotNull(signature);
   }
 
@@ -45,11 +45,11 @@ public class SignTemplateTest extends AbstractTestCase {
     ResultOrError<Boolean> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(true);
     SignEitherOperation eitherOperationMock = mock(SignEitherOperation.class);
-    when(eitherOperationMock.verify(any(Transaction.class))).thenReturn(eitherMock);
+    when(eitherOperationMock.verify(any(), any(Transaction.class))).thenReturn(eitherMock);
 
     final SignTemplate signTemplate = new SignTemplate(eitherOperationMock);
 
-    final boolean verifyResult = signTemplate.verify(new Transaction());
+    final boolean verifyResult = signTemplate.verify(null, new Transaction());
     assertTrue(verifyResult);
   }
 

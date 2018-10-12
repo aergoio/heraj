@@ -15,6 +15,7 @@ import hera.api.ContractOperation;
 import hera.api.SignOperation;
 import hera.api.TransactionOperation;
 import hera.strategy.ConnectStrategy;
+import hera.strategy.SignStrategy;
 import io.grpc.ManagedChannel;
 import java.io.Closeable;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +37,8 @@ public class AergoClient extends AbstractAergoApi implements Closeable, AutoClos
       .map(ConnectStrategy::connect).get();
 
   @Getter(lazy = true)
-  private final SignOperation signOperation = new SignTemplate(getChannel(), context);
+  private final SignOperation signOperation =
+      context.getStrategy(SignStrategy.class).map(s -> s.getSignOperation(channel, context)).get();
 
   @Getter(lazy = true)
   private final AccountOperation accountOperation = new AccountTemplate(getChannel(), context);

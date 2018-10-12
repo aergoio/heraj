@@ -99,7 +99,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
   public void testDeploy() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     SignAsyncOperation mockSignAsyncOperation = mock(SignAsyncOperation.class);
-    when(mockSignAsyncOperation.sign(any()))
+    when(mockSignAsyncOperation.sign(any(), any()))
         .thenReturn(ResultOrErrorFutureFactory.supply(() -> success(mock(Signature.class))));
 
     AccountAsyncOperation mockAccountAsyncOperation = mock(AccountAsyncOperation.class);
@@ -141,7 +141,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
 
     SignAsyncOperation mockSignAsyncOperation = mock(SignAsyncOperation.class);
-    when(mockSignAsyncOperation.sign(any()))
+    when(mockSignAsyncOperation.sign(any(), any()))
         .thenReturn(ResultOrErrorFutureFactory.supply(() -> success(mock(Signature.class))));
 
     AccountAsyncOperation mockAccountAsyncOperation = mock(AccountAsyncOperation.class);

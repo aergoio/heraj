@@ -15,6 +15,7 @@ import hera.api.ContractEitherOperation;
 import hera.api.SignEitherOperation;
 import hera.api.TransactionEitherOperation;
 import hera.strategy.ConnectStrategy;
+import hera.strategy.SignStrategy;
 import io.grpc.ManagedChannel;
 import java.io.Closeable;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +38,8 @@ public class AergoEitherClient extends AbstractEitherAergoApi implements Closeab
 
   @Getter(lazy = true)
   private final SignEitherOperation signEitherOperation =
-      new SignEitherTemplate(getChannel(), context);
+      context.getStrategy(SignStrategy.class).map(s -> s.getSignOperation(channel, context))
+          .flatMap(o -> o.adapt(SignEitherOperation.class)).get();
 
   @Getter(lazy = true)
   private final AccountEitherOperation accountEitherOperation =

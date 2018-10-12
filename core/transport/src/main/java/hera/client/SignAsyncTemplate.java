@@ -17,6 +17,8 @@ import hera.FutureChainer;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.SignAsyncOperation;
+import hera.api.SignEitherOperation;
+import hera.api.SignOperation;
 import hera.api.model.BytesValue;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
@@ -26,9 +28,11 @@ import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.exception.RpcException;
 import hera.exception.SignException;
 import hera.exception.TransactionVerificationException;
+import hera.key.AergoKey;
 import hera.transport.ModelConverter;
 import hera.transport.TransactionConverterFactory;
 import io.grpc.ManagedChannel;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -60,7 +64,7 @@ public class SignAsyncTemplate implements SignAsyncOperation {
   }
 
   @Override
-  public ResultOrErrorFuture<Signature> sign(final Transaction transaction) {
+  public ResultOrErrorFuture<Signature> sign(final AergoKey key, final Transaction transaction) {
     ResultOrErrorFuture<Signature> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final Tx rpcTransaction = transactionConverter.convertToRpcModel(transaction);
@@ -82,7 +86,7 @@ public class SignAsyncTemplate implements SignAsyncOperation {
   }
 
   @Override
-  public ResultOrErrorFuture<Boolean> verify(final Transaction transaction) {
+  public ResultOrErrorFuture<Boolean> verify(final AergoKey key, final Transaction transaction) {
     ResultOrErrorFuture<Boolean> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final Tx tx = transactionConverter.convertToRpcModel(transaction);
@@ -101,6 +105,18 @@ public class SignAsyncTemplate implements SignAsyncOperation {
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;
+  }
+
+  @Override
+  public <T> Optional<T> adapt(final Class<T> adaptor) {
+    if (adaptor.isAssignableFrom(SignAsyncOperation.class)) {
+      return (Optional<T>) Optional.of(this);
+    } else if (adaptor.isAssignableFrom(SignOperation.class)) {
+      return (Optional<T>) Optional.of(new SignTemplate(new SignEitherTemplate(this)));
+    } else if (adaptor.isAssignableFrom(SignEitherOperation.class)) {
+      return (Optional<T>) Optional.of(new SignEitherTemplate(this));
+    }
+    return Optional.empty();
   }
 
 }

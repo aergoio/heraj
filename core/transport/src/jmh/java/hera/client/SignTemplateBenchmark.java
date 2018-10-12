@@ -36,7 +36,7 @@ public class SignTemplateBenchmark {
 
     @Setup(Level.Trial)
     public synchronized void setUp() throws Exception {
-      signTemplate = new SignLocalEitherTemplate(senderKey);
+      signTemplate = new SignLocalEitherTemplate(AergoClientBuilder.getDefaultContext());
       senderKey = new AergoKeyGenerator().create();
       receiptKey = new AergoKeyGenerator().create();
     }
@@ -48,7 +48,7 @@ public class SignTemplateBenchmark {
       transaction.setSender(senderKey.getAddress());
       transaction.setRecipient(receiptKey.getAddress());
 
-      signTemplate.sign(transaction);
+      signTemplate.sign(senderKey, transaction);
     }
   }
 

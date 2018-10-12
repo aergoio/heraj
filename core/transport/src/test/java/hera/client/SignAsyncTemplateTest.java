@@ -51,7 +51,7 @@ public class SignAsyncTemplateTest extends AbstractTestCase {
     final SignAsyncTemplate signAsyncTemplate =
         new SignAsyncTemplate(aergoService, context, transactionConverter);
 
-    final ResultOrErrorFuture<Signature> signature = signAsyncTemplate.sign(new Transaction());
+    final ResultOrErrorFuture<Signature> signature = signAsyncTemplate.sign(null, new Transaction());
     assertNotNull(signature);
   }
 
@@ -64,7 +64,7 @@ public class SignAsyncTemplateTest extends AbstractTestCase {
     final SignAsyncTemplate signAsyncTemplate =
         new SignAsyncTemplate(aergoService, context, transactionConverter);
 
-    final ResultOrErrorFuture<Boolean> verifyResult = signAsyncTemplate.verify(new Transaction());
+    final ResultOrErrorFuture<Boolean> verifyResult = signAsyncTemplate.verify(null, new Transaction());
     assertNotNull(verifyResult);
   }
 

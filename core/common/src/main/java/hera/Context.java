@@ -4,6 +4,8 @@
 
 package hera;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import hera.strategy.FailoverStrategy;
 import hera.strategy.TransactionStrategy;
 import hera.util.Configurable;
@@ -15,9 +17,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import lombok.EqualsAndHashCode;
 import lombok.Setter;
+import lombok.ToString;
+import org.slf4j.Logger;
 
+@ToString
+@EqualsAndHashCode
 public class Context {
+
+  protected final Logger logger = getLogger(getClass());
 
   @Setter
   protected Configuration configuration = DummyConfiguration.getInstance();
@@ -51,6 +60,7 @@ public class Context {
    * @return a reference to this object.
    */
   public Context addStrategy(final Strategy strategy) {
+    logger.debug("Add strategy: {}", strategy);
     strategies.add(strategy);
     return this;
   }
@@ -69,6 +79,7 @@ public class Context {
     final Optional<StrategyT> using =
         (Optional<StrategyT>) usings.stream().filter(strategyClass::isInstance).findFirst();
     if (using.isPresent()) {
+      logger.debug("The strategy: {} is already used", strategyClass);
       return using;
     }
     final Optional<StrategyT> unusedOptional = (Optional<StrategyT>) getReversedList().stream()
@@ -82,6 +93,7 @@ public class Context {
       if (unused instanceof ContextAware) {
         ((ContextAware) unused).setContext(this);
       }
+      logger.debug("Use strategy: {}", strategyClass);
       usings.add(unused);
     }
     return unusedOptional;

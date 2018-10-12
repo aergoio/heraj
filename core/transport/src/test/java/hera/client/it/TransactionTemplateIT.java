@@ -47,7 +47,8 @@ public class TransactionTemplateIT extends AbstractIT {
     sender = accountTemplate.create(PASSWORD).getResult();
     recipient = accountTemplate.create(PASSWORD).getResult();
     signTemplate = new SignEitherTemplate(channel, AergoClientBuilder.getDefaultContext());
-    transactionTemplate = new TransactionEitherTemplate(channel, AergoClientBuilder.getDefaultContext());
+    transactionTemplate =
+        new TransactionEitherTemplate(channel, AergoClientBuilder.getDefaultContext());
   }
 
   @Test
@@ -62,7 +63,7 @@ public class TransactionTemplateIT extends AbstractIT {
     transaction.setSender(sender.getAddress());
     transaction.setRecipient(recipient.getAddress());
 
-    Signature signature = signTemplate.sign(transaction).getResult();
+    Signature signature = signTemplate.sign(null, transaction).getResult();
     assertNotNull(signature);
     assertNotNull(signature.getSign());
     assertNotNull(signature.getTxHash());
@@ -96,8 +97,9 @@ public class TransactionTemplateIT extends AbstractIT {
     transaction.setSender(senderKey.getAddress());
     transaction.setRecipient(recipientKey.getAddress());
 
-    final SignLocalEitherTemplate signTemplate = new SignLocalEitherTemplate(senderKey);
-    final Signature signature = signTemplate.sign(transaction).getResult();
+    final SignLocalEitherTemplate signTemplate =
+        new SignLocalEitherTemplate(AergoClientBuilder.getDefaultContext());
+    final Signature signature = signTemplate.sign(senderKey, transaction).getResult();
     transaction.setSignature(signature);
     logger.debug("Signature: {}", transaction.getSignature());
 
