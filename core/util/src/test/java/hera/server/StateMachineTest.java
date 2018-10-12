@@ -11,6 +11,7 @@ import org.junit.Test;
 
 public class StateMachineTest extends AbstractTestCase {
   @Test
+  @SuppressWarnings("unchecked")
   public void testExecute() {
     final String s1 = randomUUID().toString();
     final String success = randomUUID().toString();
@@ -22,7 +23,7 @@ public class StateMachineTest extends AbstractTestCase {
     final Callable<Void> callable2 = () -> {
       throw new IllegalArgumentException();
     };
-    final StateChangeListener listener = mock(StateChangeListener.class);
+    final StateChangeListener<String> listener = mock(StateChangeListener.class);
     final StateMachine<String> stateMachine = new StateMachine<>(s1);
     stateMachine.addListener(listener);
     stateMachine.execute(callable1, success, failure);
