@@ -14,16 +14,17 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.ContractAsyncOperation;
 import hera.api.ContractEitherOperation;
+import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
-import hera.api.model.ContractFunction;
+import hera.api.model.ContractCall;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.tupleorerror.ResultOrError;
 import hera.exception.RpcException;
-import hera.util.DangerousSupplier;
+import hera.key.AergoKey;
 import io.grpc.ManagedChannel;
 import lombok.RequiredArgsConstructor;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -54,10 +55,11 @@ public class ContractEitherTemplate implements ContractEitherOperation {
   }
 
   @Override
-  public ResultOrError<ContractTxHash> deploy(final AccountAddress creator,
-      final DangerousSupplier<byte[]> contractCodePayload) {
+  public ResultOrError<ContractTxHash> deploy(final AergoKey key, final AccountAddress creator,
+      final long nonce, final Base58WithCheckSum encodedPayload) {
     try {
-      return contractAsyncOperation.deploy(creator, contractCodePayload).get(TIMEOUT, MILLISECONDS);
+      return contractAsyncOperation.deploy(key, creator, nonce, encodedPayload).get(TIMEOUT,
+          MILLISECONDS);
     } catch (Exception e) {
       return fail(new RpcException(e));
     }
@@ -75,23 +77,20 @@ public class ContractEitherTemplate implements ContractEitherOperation {
   }
 
   @Override
-  public ResultOrError<ContractTxHash> execute(final AccountAddress executor,
-      final ContractAddress contractAddress, final ContractFunction contractFunction,
-      final Object... args) {
+  public ResultOrError<ContractTxHash> execute(final AergoKey key, final AccountAddress executor,
+      final long nonce, final ContractCall contractCall) {
     try {
-      return contractAsyncOperation.execute(executor, contractAddress, contractFunction, args)
-          .get(TIMEOUT, MILLISECONDS);
+      return contractAsyncOperation.execute(key, executor, nonce, contractCall).get(TIMEOUT,
+          MILLISECONDS);
     } catch (Exception e) {
       return fail(new RpcException(e));
     }
   }
 
   @Override
-  public ResultOrError<ContractResult> query(final ContractAddress contractAddress,
-      final ContractFunction contractFunction, final Object... args) {
+  public ResultOrError<ContractResult> query(final ContractCall contractCall) {
     try {
-      return contractAsyncOperation.query(contractAddress, contractFunction, args).get(TIMEOUT,
-          MILLISECONDS);
+      return contractAsyncOperation.query(contractCall).get(TIMEOUT, MILLISECONDS);
     } catch (Exception e) {
       return fail(new RpcException(e));
     }

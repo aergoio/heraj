@@ -8,6 +8,7 @@ import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -15,7 +16,7 @@ import hera.AbstractTestCase;
 import hera.api.ContractEitherOperation;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
-import hera.api.model.ContractFunction;
+import hera.api.model.ContractCall;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
@@ -54,12 +55,13 @@ public class ContractTemplateTest extends AbstractTestCase {
     ResultOrError<ContractTxHash> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(ContractTxHash.class));
     ContractEitherOperation eitherOperationMock = mock(ContractEitherOperation.class);
-    when(eitherOperationMock.deploy(any(AccountAddress.class), any())).thenReturn(eitherMock);
+    when(eitherOperationMock.deploy(any(), any(AccountAddress.class), anyLong(), any()))
+        .thenReturn(eitherMock);
 
     final ContractTemplate contractTemplate = new ContractTemplate(eitherOperationMock);
 
-    final ContractTxHash deployTxHash =
-        contractTemplate.deploy(EXECUTOR_ADDRESS, () -> new byte[] {});
+    final ContractTxHash deployTxHash = contractTemplate.deploy(null, EXECUTOR_ADDRESS,
+        randomUUID().hashCode(), () -> randomUUID().toString());
     assertNotNull(deployTxHash);
   }
 
@@ -82,13 +84,13 @@ public class ContractTemplateTest extends AbstractTestCase {
     ResultOrError<ContractTxHash> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(ContractTxHash.class));
     ContractEitherOperation eitherOperationMock = mock(ContractEitherOperation.class);
-    when(eitherOperationMock.execute(any(AccountAddress.class), any(), any(), any()))
+    when(eitherOperationMock.execute(any(), any(AccountAddress.class), anyLong(), any()))
         .thenReturn(eitherMock);
 
     final ContractTemplate contractTemplate = new ContractTemplate(eitherOperationMock);
 
-    final ContractTxHash executionTxHash = contractTemplate.execute(EXECUTOR_ADDRESS,
-        CONTRACT_ADDRESS, new ContractFunction(), randomUUID());
+    final ContractTxHash executionTxHash = contractTemplate.execute(null, EXECUTOR_ADDRESS,
+        randomUUID().hashCode(), ContractCall.newBuilder().build());
     assertNotNull(executionTxHash);
 
   }
@@ -98,12 +100,11 @@ public class ContractTemplateTest extends AbstractTestCase {
     ResultOrError<ContractResult> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(ContractResult.class));
     ContractEitherOperation eitherOperationMock = mock(ContractEitherOperation.class);
-    when(eitherOperationMock.query(any(), any(), any())).thenReturn(eitherMock);
+    when(eitherOperationMock.query(any())).thenReturn(eitherMock);
 
     final ContractTemplate contractTemplate = new ContractTemplate(eitherOperationMock);
 
-    final ContractResult queryResult =
-        contractTemplate.query(CONTRACT_ADDRESS, new ContractFunction(), randomUUID());
+    final ContractResult queryResult = contractTemplate.query(ContractCall.newBuilder().build());
     assertNotNull(queryResult);
   }
 

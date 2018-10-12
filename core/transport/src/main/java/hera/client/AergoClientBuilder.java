@@ -8,6 +8,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Context;
 import hera.Strategy;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.AergoApi;
 import hera.api.AergoAsyncApi;
 import hera.api.AergoEitherApi;
@@ -20,6 +22,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import org.slf4j.Logger;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public class AergoClientBuilder {
 
   @Getter

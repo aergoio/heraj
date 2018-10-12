@@ -33,8 +33,7 @@ public class NettyConnectStrategy
    */
   public ManagedChannel connect(final HostnameAndPort endpoint) {
     return NettyChannelBuilder
-        .forAddress(endpoint.getHostname(), endpoint.getPort(DEFAULT_RPC_PORT))
-        .usePlaintext()
+        .forAddress(endpoint.getHostname(), endpoint.getPort(DEFAULT_RPC_PORT)).usePlaintext()
         .build();
   }
 

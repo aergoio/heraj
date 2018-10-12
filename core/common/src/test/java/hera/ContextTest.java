@@ -14,6 +14,14 @@ import org.junit.Test;
 public class ContextTest extends AbstractTestCase {
 
   @Test
+  public void testCopyOf() {
+    final Context expected = new Context();
+    expected.addStrategy((ConnectStrategy<Object>) () -> null);
+    final Context actual = Context.copyOf(expected);
+    assertEquals(expected, actual);
+  }
+
+  @Test
   public void testAddStrategyGetStrategy() {
     final Context context = new Context();
     assertFalse(context.getStrategy(ConnectStrategy.class).isPresent());

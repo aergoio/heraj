@@ -6,8 +6,6 @@ package hera;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import hera.strategy.FailoverStrategy;
-import hera.strategy.TransactionStrategy;
 import hera.util.Configurable;
 import hera.util.Configuration;
 import hera.util.conf.DummyConfiguration;
@@ -31,10 +29,6 @@ public class Context {
   @Setter
   protected Configuration configuration = DummyConfiguration.getInstance();
 
-  protected TransactionStrategy transactionStrategy;
-
-  protected FailoverStrategy failoverStrategy;
-
   protected final Set<Strategy> strategies = new LinkedHashSet<>();
 
   protected final Set<Strategy> usings = new LinkedHashSet<>();
@@ -49,7 +43,7 @@ public class Context {
     final Context copy = new Context();
     copy.configuration = source.configuration;
     copy.strategies.addAll(source.strategies);
-    copy.usings.addAll(source.strategies);
+    copy.usings.addAll(source.usings);
     return copy;
   }
 

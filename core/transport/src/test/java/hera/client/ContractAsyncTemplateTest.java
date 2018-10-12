@@ -22,7 +22,7 @@ import hera.api.TransactionAsyncOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
-import hera.api.model.ContractFunction;
+import hera.api.model.ContractCall;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
@@ -32,7 +32,6 @@ import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.transport.ModelConverter;
-import hera.util.Base58Utils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -50,8 +49,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
   protected static final ContractAddress CONTRACT_ADDRESS =
       new ContractAddress(of(new byte[] {AccountAddress.VERSION}));
 
-  protected static final byte[] CONTRACT_PAYLOAD =
-      Base58Utils.encode(randomUUID().toString().getBytes()).getBytes();
+  protected static final String CONTRACT_PAYLOAD = randomUUID().toString();
 
   protected static final Context context = AergoClientBuilder.getDefaultContext();
 
@@ -86,8 +84,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     when(aergoService.getReceipt(any())).thenReturn(mockListenableFuture);
 
     final ContractAsyncTemplate contractAsyncTemplate =
-        new ContractAsyncTemplate(aergoService, context, mock(SignAsyncOperation.class),
-            mock(AccountAsyncOperation.class), mock(TransactionAsyncOperation.class),
+        new ContractAsyncTemplate(aergoService, context, mock(TransactionAsyncOperation.class),
             accountAddressConverter, receiptConverter, interfaceConverter, contractResultConverter);
 
     final ResultOrErrorFuture<ContractTxReceipt> receipt = contractAsyncTemplate
@@ -111,12 +108,12 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     when(mockTransactionAsyncOperation.commit(any()))
         .thenReturn(ResultOrErrorFutureFactory.supply(() -> success(mock(TxHash.class))));
 
-    final ContractAsyncTemplate contractAsyncTemplate = new ContractAsyncTemplate(aergoService,
-        context, mockSignAsyncOperation, mockAccountAsyncOperation, mockTransactionAsyncOperation,
-        accountAddressConverter, receiptConverter, interfaceConverter, contractResultConverter);
+    final ContractAsyncTemplate contractAsyncTemplate =
+        new ContractAsyncTemplate(aergoService, context, mockTransactionAsyncOperation,
+            accountAddressConverter, receiptConverter, interfaceConverter, contractResultConverter);
 
-    final ResultOrErrorFuture<ContractTxHash> deployTxHash =
-        contractAsyncTemplate.deploy(EXECUTOR_ADDRESS, () -> CONTRACT_PAYLOAD);
+    final ResultOrErrorFuture<ContractTxHash> deployTxHash = contractAsyncTemplate.deploy(null,
+        EXECUTOR_ADDRESS, randomUUID().hashCode(), () -> CONTRACT_PAYLOAD);
     assertNotNull(deployTxHash);
   }
 
@@ -127,8 +124,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     when(aergoService.getABI(any())).thenReturn(mockListenableFuture);
 
     final ContractAsyncTemplate contractAsyncTemplate =
-        new ContractAsyncTemplate(aergoService, context, mock(SignAsyncOperation.class),
-            mock(AccountAsyncOperation.class), mock(TransactionAsyncOperation.class),
+        new ContractAsyncTemplate(aergoService, context, mock(TransactionAsyncOperation.class),
             accountAddressConverter, receiptConverter, interfaceConverter, contractResultConverter);
 
     final ResultOrErrorFuture<ContractInterface> abiSet =
@@ -153,12 +149,12 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     when(mockTransactionAsyncOperation.commit(any()))
         .thenReturn(ResultOrErrorFutureFactory.supply(() -> success(mock(TxHash.class))));
 
-    final ContractAsyncTemplate contractAsyncTemplate = new ContractAsyncTemplate(aergoService,
-        context, mockSignAsyncOperation, mockAccountAsyncOperation, mockTransactionAsyncOperation,
-        accountAddressConverter, receiptConverter, interfaceConverter, contractResultConverter);
+    final ContractAsyncTemplate contractAsyncTemplate =
+        new ContractAsyncTemplate(aergoService, context, mockTransactionAsyncOperation,
+            accountAddressConverter, receiptConverter, interfaceConverter, contractResultConverter);
 
-    final ResultOrErrorFuture<ContractTxHash> executionTxHash = contractAsyncTemplate
-        .execute(EXECUTOR_ADDRESS, CONTRACT_ADDRESS, new ContractFunction(), randomUUID());
+    final ResultOrErrorFuture<ContractTxHash> executionTxHash = contractAsyncTemplate.execute(null,
+        EXECUTOR_ADDRESS, randomUUID().hashCode(), ContractCall.newBuilder().build());
     assertNotNull(executionTxHash);
   }
 
@@ -169,12 +165,12 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     when(aergoService.queryContract(any())).thenReturn(mockListenableFuture);
 
     final ContractAsyncTemplate contractAsyncTemplate =
-        new ContractAsyncTemplate(aergoService, context, mock(SignAsyncOperation.class),
-            mock(AccountAsyncOperation.class), mock(TransactionAsyncOperation.class),
+        new ContractAsyncTemplate(aergoService, context, mock(TransactionAsyncOperation.class),
             accountAddressConverter, receiptConverter, interfaceConverter, contractResultConverter);
 
     final ResultOrErrorFuture<ContractResult> contractResult =
-        contractAsyncTemplate.query(CONTRACT_ADDRESS, new ContractFunction());
+        contractAsyncTemplate.query(ContractCall.newBuilder().setAddress(CONTRACT_ADDRESS).build());
     assertNotNull(contractResult);
   }
+
 }

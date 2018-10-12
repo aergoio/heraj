@@ -11,14 +11,15 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.ContractEitherOperation;
 import hera.api.ContractOperation;
+import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
-import hera.api.model.ContractFunction;
+import hera.api.model.ContractCall;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
-import hera.util.DangerousSupplier;
+import hera.key.AergoKey;
 import io.grpc.ManagedChannel;
 import lombok.RequiredArgsConstructor;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -44,9 +45,9 @@ public class ContractTemplate implements ContractOperation {
   }
 
   @Override
-  public ContractTxHash deploy(final AccountAddress creator,
-      final DangerousSupplier<byte[]> rawContractCode) {
-    return contractEitherOperation.deploy(creator, rawContractCode).getResult();
+  public ContractTxHash deploy(final AergoKey key, final AccountAddress creator, final long nonce,
+      final Base58WithCheckSum encodedPayload) {
+    return contractEitherOperation.deploy(key, creator, nonce, encodedPayload).getResult();
   }
 
   @Override
@@ -55,17 +56,14 @@ public class ContractTemplate implements ContractOperation {
   }
 
   @Override
-  public ContractTxHash execute(final AccountAddress executor,
-      final ContractAddress contractAddress, final ContractFunction contractFunction,
-      final Object... args) {
-    return contractEitherOperation.execute(executor, contractAddress, contractFunction, args)
-        .getResult();
+  public ContractTxHash execute(final AergoKey key, final AccountAddress executor, final long nonce,
+      final ContractCall contractCall) {
+    return contractEitherOperation.execute(key, executor, nonce, contractCall).getResult();
   }
 
   @Override
-  public ContractResult query(ContractAddress contractAddress, ContractFunction contractFunction,
-      Object... args) {
-    return contractEitherOperation.query(contractAddress, contractFunction, args).getResult();
+  public ContractResult query(final ContractCall contractCall) {
+    return contractEitherOperation.query(contractCall).getResult();
   }
 
 }

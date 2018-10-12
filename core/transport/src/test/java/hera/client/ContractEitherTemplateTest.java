@@ -17,7 +17,7 @@ import hera.AbstractTestCase;
 import hera.api.ContractAsyncOperation;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
-import hera.api.model.ContractFunction;
+import hera.api.model.ContractCall;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
@@ -72,12 +72,13 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<ContractTxHash> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     ContractAsyncOperation asyncOperationMock = mock(ContractAsyncOperation.class);
-    when(asyncOperationMock.deploy(any(AccountAddress.class), any())).thenReturn(futureMock);
+    when(asyncOperationMock.deploy(any(), any(AccountAddress.class), anyLong(), any()))
+        .thenReturn(futureMock);
 
     final ContractEitherTemplate contractTemplate = new ContractEitherTemplate(asyncOperationMock);
 
-    final ResultOrError<ContractTxHash> deployTxHash =
-        contractTemplate.deploy(EXECUTOR_ADDRESS, () -> new byte[] {});
+    final ResultOrError<ContractTxHash> deployTxHash = contractTemplate.deploy(null,
+        EXECUTOR_ADDRESS, randomUUID().hashCode(), () -> randomUUID().toString());
     assertNotNull(deployTxHash);
   }
 
@@ -86,12 +87,13 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<ContractTxHash> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
     ContractAsyncOperation asyncOperationMock = mock(ContractAsyncOperation.class);
-    when(asyncOperationMock.deploy(any(AccountAddress.class), any())).thenReturn(futureMock);
+    when(asyncOperationMock.deploy(any(), any(AccountAddress.class), anyLong(), any()))
+        .thenReturn(futureMock);
 
     final ContractEitherTemplate contractTemplate = new ContractEitherTemplate(asyncOperationMock);
 
-    final ResultOrError<ContractTxHash> deployTxHash =
-        contractTemplate.deploy(EXECUTOR_ADDRESS, () -> new byte[] {});
+    final ResultOrError<ContractTxHash> deployTxHash = contractTemplate.deploy(null,
+        EXECUTOR_ADDRESS, randomUUID().hashCode(), () -> randomUUID().toString());
     assertTrue(deployTxHash.hasError());
   }
 
@@ -128,13 +130,13 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<ContractTxHash> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     ContractAsyncOperation asyncOperationMock = mock(ContractAsyncOperation.class);
-    when(asyncOperationMock.execute(any(AccountAddress.class), any(), any(), any()))
+    when(asyncOperationMock.execute(any(), any(AccountAddress.class), anyLong(), any()))
         .thenReturn(futureMock);
 
     final ContractEitherTemplate contractTemplate = new ContractEitherTemplate(asyncOperationMock);
 
-    final ResultOrError<ContractTxHash> executionTxHash = contractTemplate.execute(EXECUTOR_ADDRESS,
-        CONTRACT_ADDRESS, new ContractFunction(), randomUUID());
+    final ResultOrError<ContractTxHash> executionTxHash = contractTemplate.execute(null,
+        EXECUTOR_ADDRESS, randomUUID().hashCode(), ContractCall.newBuilder().build());
     assertNotNull(executionTxHash);
   }
 
@@ -143,13 +145,13 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<ContractTxHash> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
     ContractAsyncOperation asyncOperationMock = mock(ContractAsyncOperation.class);
-    when(asyncOperationMock.execute(any(AccountAddress.class), any(), any(), any()))
+    when(asyncOperationMock.execute(any(), any(AccountAddress.class), anyLong(), any()))
         .thenReturn(futureMock);
 
     final ContractEitherTemplate contractTemplate = new ContractEitherTemplate(asyncOperationMock);
 
-    final ResultOrError<ContractTxHash> executionTxHash = contractTemplate.execute(EXECUTOR_ADDRESS,
-        CONTRACT_ADDRESS, new ContractFunction(), randomUUID());
+    final ResultOrError<ContractTxHash> executionTxHash = contractTemplate.execute(null,
+        EXECUTOR_ADDRESS, randomUUID().hashCode(), ContractCall.newBuilder().build());
     assertTrue(executionTxHash.hasError());
   }
 
@@ -158,12 +160,12 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<ContractResult> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     ContractAsyncOperation asyncOperationMock = mock(ContractAsyncOperation.class);
-    when(asyncOperationMock.query(any(), any(), any())).thenReturn(futureMock);
+    when(asyncOperationMock.query(any())).thenReturn(futureMock);
 
     final ContractEitherTemplate contractTemplate = new ContractEitherTemplate(asyncOperationMock);
 
     final ResultOrError<ContractResult> queryResult =
-        contractTemplate.query(CONTRACT_ADDRESS, new ContractFunction(), randomUUID());
+        contractTemplate.query(ContractCall.newBuilder().build());
     assertNotNull(queryResult);
   }
 
@@ -172,12 +174,12 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<ContractResult> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
     ContractAsyncOperation asyncOperationMock = mock(ContractAsyncOperation.class);
-    when(asyncOperationMock.query(any(), any(), any())).thenReturn(futureMock);
+    when(asyncOperationMock.query(any())).thenReturn(futureMock);
 
     final ContractEitherTemplate contractTemplate = new ContractEitherTemplate(asyncOperationMock);
 
     final ResultOrError<ContractResult> queryResult =
-        contractTemplate.query(CONTRACT_ADDRESS, new ContractFunction(), randomUUID());
+        contractTemplate.query(ContractCall.newBuilder().build());
     assertTrue(queryResult.hasError());
   }
 

@@ -17,6 +17,8 @@ import lombok.ToString;
 @ToString
 public class ContractInterface {
 
+  public static final byte PAYLOAD_VERSION = (byte) 0xC0;
+
   @Getter
   @Setter
   protected String version = StringUtils.EMPTY_STRING;
