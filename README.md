@@ -22,7 +22,6 @@ The repository contains next:
 * core/common
 * core/protobuf
 * core/transport
-* client/wallet
 
 # Integration
 TBD
@@ -50,12 +49,6 @@ $ git submodule update
 * Clean
 ```console
 $ ./build.sh clean
-```
-
-* Create apm web ui
-```console
-$ cd client/apm-web ; npm install
-$ cd $PROJECT_HOME ; ./build.sh npm
 ```
 
 * Run gradle
