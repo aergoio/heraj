@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.api;
+package hera.api.model;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;

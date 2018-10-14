@@ -4,7 +4,6 @@
 
 package hera.api.model;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -23,10 +22,10 @@ public class ContractCall {
   }
 
   @Getter
-  protected final ContractAddress address;
+  protected ContractAddress address;
 
   @Getter
-  protected final ContractFunction function;
+  protected ContractFunction function;
 
   @Getter
   protected List<Object> args = Collections.emptyList();
@@ -37,7 +36,7 @@ public class ContractCall {
 
     protected ContractFunction function;
 
-    protected final List<Object> args = new ArrayList<Object>();
+    protected List<Object> args = Collections.emptyList();
 
     public ContractCall.Builder setAddress(final ContractAddress contractAddress) {
       this.address = contractAddress;
@@ -50,7 +49,7 @@ public class ContractCall {
     }
 
     public ContractCall.Builder setArgs(final Object... args) {
-      this.args.addAll(Arrays.asList(args));
+      this.args = Arrays.asList(args);
       return this;
     }
 

@@ -6,11 +6,13 @@ package hera.api.model;
 
 import hera.util.Adaptor;
 import java.util.Optional;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 @ToString
+@EqualsAndHashCode
 public class Account implements Adaptor {
 
   @Getter

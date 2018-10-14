@@ -2,22 +2,15 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.api;
+package hera.api.model;
 
-import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.encode.Base58;
 import hera.api.encode.Base58WithCheckSum;
-import hera.api.model.AccountAddress;
-import hera.api.model.BytesValue;
-import hera.api.model.Signature;
-import hera.api.model.Transaction;
-import hera.api.model.TransactionType;
 import hera.util.Base58Utils;
 import java.io.IOException;
-import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;

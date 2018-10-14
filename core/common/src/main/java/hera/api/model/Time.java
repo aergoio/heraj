@@ -44,6 +44,10 @@ public class Time {
     return unit.toNanos(value);
   }
 
+  public long toMicroSeconds() {
+    return unit.toMicros(value);
+  }
+
   public long toMiliseconds() {
     return unit.toMillis(value);
   }

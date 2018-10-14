@@ -81,10 +81,10 @@ public class Hash implements Adaptor {
       return (Optional<T>) Optional.of(this);
     } else if (adaptor.isAssignableFrom(BlockHash.class)) {
       return (Optional<T>) Optional.ofNullable(BlockHash.of(getBytesValue()));
-    } else if (adaptor.isAssignableFrom(ContractTxHash.class)) {
-      return (Optional<T>) Optional.ofNullable(ContractTxHash.of(getBytesValue()));
     } else if (adaptor.isAssignableFrom(TxHash.class)) {
       return (Optional<T>) Optional.ofNullable(TxHash.of(getBytesValue()));
+    } else if (adaptor.isAssignableFrom(ContractTxHash.class)) {
+      return (Optional<T>) Optional.ofNullable(ContractTxHash.of(getBytesValue()));
     }
     return Optional.empty();
   }

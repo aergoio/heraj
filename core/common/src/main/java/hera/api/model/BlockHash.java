@@ -52,10 +52,10 @@ public class BlockHash extends Hash {
   public <T> Optional<T> adapt(Class<T> adaptor) {
     if (adaptor.isAssignableFrom(BlockHash.class)) {
       return (Optional<T>) Optional.of(this);
-    } else if (adaptor.isAssignableFrom(ContractTxHash.class)) {
-      return (Optional<T>) Optional.ofNullable(ContractTxHash.of(getBytesValue()));
     } else if (adaptor.isAssignableFrom(TxHash.class)) {
       return (Optional<T>) Optional.ofNullable(TxHash.of(getBytesValue()));
+    } else if (adaptor.isAssignableFrom(ContractTxHash.class)) {
+      return (Optional<T>) Optional.ofNullable(ContractTxHash.of(getBytesValue()));
     }
     return Optional.empty();
   }
