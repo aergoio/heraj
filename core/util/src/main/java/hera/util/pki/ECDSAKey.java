@@ -44,7 +44,8 @@ public class ECDSAKey {
 
   protected static final ECNamedCurveParameterSpec ecSpec;
 
-  public static final ECDomainParameters ecParams;
+  @Getter
+  protected static final ECDomainParameters ecParams;
 
   static {
     addProvider(new BouncyCastleProvider());
@@ -117,7 +118,7 @@ public class ECDSAKey {
       final byte[] message = toByteArray(plainText);
       final ECDSASignature signature =
           sign(((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD(), message);
-      logger.debug("ECDSASignature signature: {}", signature);
+      logger.trace("ECDSASignature signature: {}", signature);
       return signature;
     } catch (final Throwable e) {
       throw new SignException(e);

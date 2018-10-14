@@ -125,14 +125,14 @@ public class AergoKey implements KeyPair {
   @Override
   public BytesValue sign(InputStream plainText) {
     final BytesValue serialized = BytesValue.of(serialize(ecdsakey.sign(plainText)));
-    if (logger.isDebugEnabled()) {
-      logger.debug("Serialized signature: {}", serialized);
+    if (logger.isTraceEnabled()) {
+      logger.trace("Serialized signature: {}", serialized);
     }
     return serialized;
   }
 
   protected byte[] serialize(final ECDSASignature signature) {
-    final BigInteger order = ECDSAKey.ecParams.getN();
+    final BigInteger order = ECDSAKey.getEcParams().getN();
     final BigInteger halfOrder = order.divide(BigInteger.valueOf(2L));
 
     final BigInteger r = signature.getR();
@@ -144,6 +144,10 @@ public class AergoKey implements KeyPair {
     // in this case, use canonical byte array, not raw bytes
     final byte[] rbyteArray = r.toByteArray();
     final byte[] sbyteArray = s.toByteArray();
+    if (logger.isTraceEnabled()) {
+      logger.trace("Canonical r: {}, len: {}", HexUtils.encode(rbyteArray), rbyteArray.length);
+      logger.trace("Canonical s: {}, len: {}", HexUtils.encode(sbyteArray), sbyteArray.length);
+    }
 
     final byte[] serialized = new byte[6 + rbyteArray.length + sbyteArray.length];
 
@@ -184,7 +188,13 @@ public class AergoKey implements KeyPair {
       return null;
     }
 
+    final BigInteger order = ECDSAKey.getEcParams().getN();
+
     final byte[] rawSignature = signature.getValue();
+    if (logger.isTraceEnabled()) {
+      logger.trace("Raw signature: {}, len: {}", HexUtils.encode(rawSignature),
+          rawSignature.length);
+    }
 
     if (rawSignature.length < MINIMUM_SIGNATURE_LEN) {
       logger.trace("Invalid serialized length: length is shorter than {}", MINIMUM_SIGNATURE_LEN);
@@ -222,6 +232,10 @@ public class AergoKey implements KeyPair {
     // parse r
     byte[] rawR = Arrays.copyOfRange(rawSignature, index, index + rLen);
     final BigInteger r = new BigInteger(rawR);
+    if (r.compareTo(order) >= 0) {
+      logger.trace("Signature R is greater then curve order");
+      return null;
+    }
     index += rLen;
 
     // validate s header
@@ -238,10 +252,16 @@ public class AergoKey implements KeyPair {
     // parse s
     byte[] rawS = Arrays.copyOfRange(rawSignature, index, index + sLen);
     final BigInteger s = new BigInteger(rawS);
-    index += rLen;
+    if (s.compareTo(order) >= 0) {
+      logger.trace("Signature S is greater then curve order");
+      return null;
+    }
+    index += sLen;
 
     if (index < rawSignature.length) {
-      logger.trace("Invalid length of r or s, still ramains bytes after parsing");
+      logger.trace(
+          "Invalid length of r or s, still ramains bytes after parsing. index: {}, length: {}",
+          index, rawSignature.length);
       return null;
     }
 
