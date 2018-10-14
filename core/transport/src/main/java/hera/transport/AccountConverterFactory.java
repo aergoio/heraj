@@ -28,7 +28,9 @@ public class AccountConverterFactory {
 
   protected final Function<AccountOuterClass.Account, Account> rpcConverter = rpcAccount -> {
     logger.trace("Rpc account: {}", rpcAccount);
-    return Account.of(accountAddressConverter.convertToDomainModel(rpcAccount.getAddress()), null);
+    final Account account = new Account();
+    account.setAddress(accountAddressConverter.convertToDomainModel(rpcAccount.getAddress()));
+    return account;
   };
 
   public ModelConverter<Account, AccountOuterClass.Account> create() {

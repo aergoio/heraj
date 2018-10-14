@@ -21,30 +21,11 @@ public class Account implements Adaptor {
 
   @Getter
   @Setter
-  protected String password;
-
-  @Getter
-  @Setter
   protected long nonce;
 
   @Getter
   @Setter
   protected long balance;
-
-  /**
-   * Create {@link Account}.
-   *
-   * @param address address of account
-   * @param password password of account
-   *
-   * @return created account
-   */
-  public static Account of(final AccountAddress address, final String password) {
-    final Account account = new Account();
-    account.setAddress(address);
-    account.setPassword(password);
-    return account;
-  }
 
   @SuppressWarnings("unchecked")
   @Override

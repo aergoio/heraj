@@ -19,8 +19,9 @@ public class AccountTest {
   public void testAdapt() throws IOException {
     final Base58WithCheckSum encoded = () -> ENCODED_ADDRESS;
     final AccountAddress address = AccountAddress.of(encoded);
-    final Account account = Account.of(address, null);
-    assertEquals(Account.of(address, null), account.adapt(Account.class).get());
+    final Account account = new Account();
+    account.setAddress(address);
+    assertEquals(account, account.adapt(Account.class).get());
     assertEquals(AccountAddress.of(encoded), account.adapt(AccountAddress.class).get());
   }
 

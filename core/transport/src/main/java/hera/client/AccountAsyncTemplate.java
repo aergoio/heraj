@@ -100,7 +100,6 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
     FutureChainer<AccountOuterClass.Account, Account> callback =
         new FutureChainer<>(nextFuture, account -> {
           Account domainAccount = accountConverter.convertToDomainModel(account);
-          domainAccount.setPassword(password);
           return domainAccount;
         });
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
