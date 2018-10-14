@@ -32,9 +32,10 @@ public class SignLocalAsyncTemplate implements SignAsyncOperation {
   public ResultOrErrorFuture<Signature> sign(final AergoKey key, final Transaction transaction) {
     return ResultOrErrorFutureFactory.supply(() -> {
       try {
-        final BytesValue signature = key.sign(transaction.calculateHash().getBytesValue().get());
-        transaction.setSignature(Signature.of(signature, null));
-        return success(Signature.of(signature, transaction.calculateHash()));
+        final Transaction copy = Transaction.copyOf(transaction);
+        final BytesValue signature = key.sign(copy.calculateHash().getBytesValue().get());
+        copy.setSignature(Signature.of(signature, null));
+        return success(Signature.of(signature, copy.calculateHash()));
       } catch (Exception e) {
         return fail(new HerajException(e));
       }
@@ -45,9 +46,10 @@ public class SignLocalAsyncTemplate implements SignAsyncOperation {
   public ResultOrErrorFuture<Boolean> verify(final AergoKey key, final Transaction transaction) {
     return ResultOrErrorFutureFactory.supply(() -> {
       try {
-        final BytesValue signature = transaction.getSignature().getSign();
-        transaction.setSignature(null);
-        return success(key.verify(transaction.calculateHash().getBytesValue().get(), signature));
+        final Transaction copy = Transaction.copyOf(transaction);
+        final BytesValue signature = copy.getSignature().getSign();
+        copy.setSignature(null);
+        return success(key.verify(copy.calculateHash().getBytesValue().get(), signature));
       } catch (Exception e) {
         return fail(new HerajException(e));
       }

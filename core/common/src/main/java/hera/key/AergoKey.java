@@ -35,6 +35,10 @@ public class AergoKey implements KeyPair {
   // [odd|even] of publickey.y + [optional 0x00] + publickey.x
   protected static final int ADDRESS_LENGTH = 33;
 
+  // minimum length of a DER encoded signature which both R and S are 1 byte each.
+  // 0x30 + <1-byte> + 0x02 + 0x01 + <r.byte> + 0x2 + 0x01 + <s.byte>
+  protected static final int MINIMUM_SIGNATURE_LEN = 8;
+
   /**
    * Create a key pair with encoded encrypted private key and password.
    *
@@ -120,7 +124,11 @@ public class AergoKey implements KeyPair {
 
   @Override
   public BytesValue sign(InputStream plainText) {
-    return BytesValue.of(serialize(ecdsakey.sign(plainText)));
+    final BytesValue serialized = BytesValue.of(serialize(ecdsakey.sign(plainText)));
+    if (logger.isDebugEnabled()) {
+      logger.debug("Serialized signature: {}", serialized);
+    }
+    return serialized;
   }
 
   protected byte[] serialize(final ECDSASignature signature) {
@@ -138,11 +146,17 @@ public class AergoKey implements KeyPair {
     final byte[] sbyteArray = s.toByteArray();
 
     final byte[] serialized = new byte[6 + rbyteArray.length + sbyteArray.length];
+
+    // Header
     serialized[0] = 0x30;
     serialized[1] = (byte) (serialized.length - 2);
+
+    // <0x02> + <R.length> + <R.bytes>
     serialized[2] = 0x02;
     serialized[3] = (byte) rbyteArray.length;
     System.arraycopy(rbyteArray, 0, serialized, 4, rbyteArray.length);
+
+    // <0x02> + <S.length> + <S.bytes>
     final int offset = 4 + rbyteArray.length;
     serialized[offset] = 0x02;
     serialized[offset + 1] = (byte) sbyteArray.length;
@@ -153,8 +167,85 @@ public class AergoKey implements KeyPair {
 
   @Override
   public boolean verify(final InputStream plainText, final BytesValue signature) {
-    // TODO : not yet implemented, do we need it?
-    return true;
+    final ECDSASignature parsedSignature = parseSignature(signature);
+    logger.trace("Parsed ECDSASignature: {}", parsedSignature);
+    return null != parsedSignature ? ecdsakey.verify(plainText, parsedSignature) : false;
+  }
+
+  /**
+   * Parse {@link ECDSASignature} from the serialized one.
+   *
+   * @param signature serialized ecdsa signature
+   * @return parsed {@link ECDSASignature}. null if parsing failed.
+   */
+  protected ECDSASignature parseSignature(final BytesValue signature) {
+    if (null == signature) {
+      logger.trace("Serialized signature is null");
+      return null;
+    }
+
+    final byte[] rawSignature = signature.getValue();
+
+    if (rawSignature.length < MINIMUM_SIGNATURE_LEN) {
+      logger.trace("Invalid serialized length: length is shorter than {}", MINIMUM_SIGNATURE_LEN);
+      return null;
+    }
+
+    int index = 0;
+
+    // validate magic number
+    if (rawSignature[index] != 0x30) {
+      logger.trace("Invalid magic number. expected: {}, but was: {}", 0x30, rawSignature[index]);
+      return null;
+    }
+    ++index;
+
+    // validate length
+    int sigDataLen = rawSignature[index];
+    if (sigDataLen < MINIMUM_SIGNATURE_LEN || (rawSignature.length - 2) < sigDataLen) {
+      logger.trace("Invalid signature length");
+      return null;
+    }
+    ++index;
+
+    // validate r header
+    if (rawSignature[index] != 0x02) {
+      logger.trace("Invalid r header. expected: {}, but was: {}", 0x02, rawSignature[index]);
+      return null;
+    }
+    ++index;
+
+    // parse r length
+    final int rLen = rawSignature[index];
+    ++index;
+
+    // parse r
+    byte[] rawR = Arrays.copyOfRange(rawSignature, index, index + rLen);
+    final BigInteger r = new BigInteger(rawR);
+    index += rLen;
+
+    // validate s header
+    if (rawSignature[index] != 0x02) {
+      logger.trace("Invalid s header. expected: {}, but was: {}", 0x02, rawSignature[index]);
+      return null;
+    }
+    ++index;
+
+    // parse s length
+    final int sLen = rawSignature[index];
+    ++index;
+
+    // parse s
+    byte[] rawS = Arrays.copyOfRange(rawSignature, index, index + sLen);
+    final BigInteger s = new BigInteger(rawS);
+    index += rLen;
+
+    if (index < rawSignature.length) {
+      logger.trace("Invalid length of r or s, still ramains bytes after parsing");
+      return null;
+    }
+
+    return ECDSASignature.of(r, s);
   }
 
   @Override

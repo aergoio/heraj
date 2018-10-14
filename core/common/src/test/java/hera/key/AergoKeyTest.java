@@ -4,13 +4,16 @@
 
 package hera.key;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import hera.AbstractTestCase;
+import hera.api.model.BytesValue;
 import hera.util.HexUtils;
 import hera.util.pki.ECDSASignature;
+import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.util.Arrays;
 import org.junit.Test;
@@ -52,4 +55,16 @@ public class AergoKeyTest extends AbstractTestCase {
         "3045022100ABE06C1B99DE0C51B4790D24EE52674F532D9057744ED9EEF3F61425F9D1BDF60220353CDC395B12ABB6E297085B4D6F1A9DF7783DB66F95A7E0CE28246FC538219E"),
         actual));
   }
+
+  @Test
+  public void testSignAndVerify() throws Exception {
+    for (int i = 0; i < N_TEST; ++i) {
+      final AergoKey key = new AergoKeyGenerator().create();
+      final String plainText = randomUUID().toString();
+      final BytesValue signature = key.sign(new ByteArrayInputStream(plainText.getBytes()));
+      assertTrue(key.verify(new ByteArrayInputStream(plainText.getBytes()), signature));
+    }
+  }
+
+
 }

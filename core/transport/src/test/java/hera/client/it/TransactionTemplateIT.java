@@ -102,6 +102,7 @@ public class TransactionTemplateIT extends AbstractIT {
     final Signature signature = signTemplate.sign(senderKey, transaction).getResult();
     transaction.setSignature(signature);
     logger.debug("Signature: {}", transaction.getSignature());
+    assertTrue(signTemplate.verify(senderKey, transaction).getResult());
 
     final Transaction queried = transactionTemplate.commit(transaction)
         .flatMap(r -> transactionTemplate.getTransaction(signature.getTxHash())).getResult();
