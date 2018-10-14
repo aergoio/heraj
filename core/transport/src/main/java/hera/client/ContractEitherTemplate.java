@@ -17,8 +17,8 @@ import hera.api.ContractEitherOperation;
 import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
-import hera.api.model.ContractCall;
 import hera.api.model.ContractInterface;
+import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
@@ -78,9 +78,9 @@ public class ContractEitherTemplate implements ContractEitherOperation {
 
   @Override
   public ResultOrError<ContractTxHash> execute(final AergoKey key, final AccountAddress executor,
-      final long nonce, final ContractCall contractCall) {
+      final long nonce, final ContractInvocation contractInvocation) {
     try {
-      return contractAsyncOperation.execute(key, executor, nonce, contractCall).get(TIMEOUT,
+      return contractAsyncOperation.execute(key, executor, nonce, contractInvocation).get(TIMEOUT,
           MILLISECONDS);
     } catch (Exception e) {
       return fail(new RpcException(e));
@@ -88,9 +88,9 @@ public class ContractEitherTemplate implements ContractEitherOperation {
   }
 
   @Override
-  public ResultOrError<ContractResult> query(final ContractCall contractCall) {
+  public ResultOrError<ContractResult> query(final ContractInvocation contractInvocation) {
     try {
-      return contractAsyncOperation.query(contractCall).get(TIMEOUT, MILLISECONDS);
+      return contractAsyncOperation.query(contractInvocation).get(TIMEOUT, MILLISECONDS);
     } catch (Exception e) {
       return fail(new RpcException(e));
     }

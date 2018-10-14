@@ -14,8 +14,8 @@ import hera.api.ContractOperation;
 import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
-import hera.api.model.ContractCall;
 import hera.api.model.ContractInterface;
+import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
@@ -57,13 +57,13 @@ public class ContractTemplate implements ContractOperation {
 
   @Override
   public ContractTxHash execute(final AergoKey key, final AccountAddress executor, final long nonce,
-      final ContractCall contractCall) {
-    return contractEitherOperation.execute(key, executor, nonce, contractCall).getResult();
+      final ContractInvocation contractInvocation) {
+    return contractEitherOperation.execute(key, executor, nonce, contractInvocation).getResult();
   }
 
   @Override
-  public ContractResult query(final ContractCall contractCall) {
-    return contractEitherOperation.query(contractCall).getResult();
+  public ContractResult query(final ContractInvocation contractInvocation) {
+    return contractEitherOperation.query(contractInvocation).getResult();
   }
 
 }

@@ -21,6 +21,10 @@ public class ContractInterface {
 
   @Getter
   @Setter
+  protected ContractAddress contractAddress;
+
+  @Getter
+  @Setter
   protected String version = StringUtils.EMPTY_STRING;
 
   @Getter
@@ -31,7 +35,7 @@ public class ContractInterface {
   @Setter
   protected List<ContractFunction> functions = Collections.emptyList();
 
-  public Optional<ContractFunction> findFunctionByName(final String functionName) {
+  public Optional<ContractFunction> findFunction(final String functionName) {
     return getFunctions().stream().filter(n -> functionName.equals(n.getName())).findFirst();
   }
 }

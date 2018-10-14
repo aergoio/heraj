@@ -17,8 +17,9 @@ import hera.AbstractTestCase;
 import hera.api.ContractAsyncOperation;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
-import hera.api.model.ContractCall;
+import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
+import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
@@ -135,8 +136,9 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
 
     final ContractEitherTemplate contractTemplate = new ContractEitherTemplate(asyncOperationMock);
 
-    final ResultOrError<ContractTxHash> executionTxHash = contractTemplate.execute(null,
-        EXECUTOR_ADDRESS, randomUUID().hashCode(), ContractCall.newBuilder().build());
+    final ResultOrError<ContractTxHash> executionTxHash =
+        contractTemplate.execute(null, EXECUTOR_ADDRESS, randomUUID().hashCode(),
+            new ContractInvocation(CONTRACT_ADDRESS, new ContractFunction()));
     assertNotNull(executionTxHash);
   }
 
@@ -150,8 +152,9 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
 
     final ContractEitherTemplate contractTemplate = new ContractEitherTemplate(asyncOperationMock);
 
-    final ResultOrError<ContractTxHash> executionTxHash = contractTemplate.execute(null,
-        EXECUTOR_ADDRESS, randomUUID().hashCode(), ContractCall.newBuilder().build());
+    final ResultOrError<ContractTxHash> executionTxHash =
+        contractTemplate.execute(null, EXECUTOR_ADDRESS, randomUUID().hashCode(),
+            new ContractInvocation(CONTRACT_ADDRESS, new ContractFunction()));
     assertTrue(executionTxHash.hasError());
   }
 
@@ -165,7 +168,7 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
     final ContractEitherTemplate contractTemplate = new ContractEitherTemplate(asyncOperationMock);
 
     final ResultOrError<ContractResult> queryResult =
-        contractTemplate.query(ContractCall.newBuilder().build());
+        contractTemplate.query(new ContractInvocation(CONTRACT_ADDRESS, new ContractFunction()));
     assertNotNull(queryResult);
   }
 
@@ -179,7 +182,7 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
     final ContractEitherTemplate contractTemplate = new ContractEitherTemplate(asyncOperationMock);
 
     final ResultOrError<ContractResult> queryResult =
-        contractTemplate.query(ContractCall.newBuilder().build());
+        contractTemplate.query(new ContractInvocation(CONTRACT_ADDRESS, new ContractFunction()));
     assertTrue(queryResult.hasError());
   }
 

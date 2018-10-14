@@ -10,8 +10,8 @@ import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
-import hera.api.model.ContractCall;
 import hera.api.model.ContractInterface;
+import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
@@ -86,11 +86,11 @@ public interface ContractOperation {
    * @param key key to sign a transaction
    * @param executor contract executor
    * @param nonce nonce of {@code executor}
-   * @param contractCall {@link ContractCall}
+   * @param contractInvocation {@link ContractInvocation}
    * @return contract execution transaction hash
    */
   ContractTxHash execute(AergoKey key, AccountAddress executor, long nonce,
-      ContractCall contractCall);
+      ContractInvocation contractInvocation);
 
   /**
    * Execute the smart contract. The key can be null if the context is holding a
@@ -103,21 +103,21 @@ public interface ContractOperation {
    * @param key key to sign a transaction
    * @param executor contract executor
    * @param nonce nonce of {@code executor}
-   * @param contractCall {@link ContractCall}
+   * @param contractInvocation {@link ContractInvocation}
    * @return contract execution transaction hash
    */
   default ContractTxHash execute(AergoKey key, Account executor, long nonce,
-      ContractCall contractCall) {
-    return executor.adapt(AccountAddress.class).map(a -> execute(key, a, nonce, contractCall))
+      ContractInvocation contractInvocation) {
+    return executor.adapt(AccountAddress.class).map(a -> execute(key, a, nonce, contractInvocation))
         .orElseThrow(() -> new AdaptException(executor.getClass(), AccountAddress.class));
   }
 
   /**
    * Query the smart contract state by calling smart contract function.
    *
-   * @param contractCall {@link ContractCall}
+   * @param contractInvocation {@link ContractInvocation}
    * @return contract result
    */
-  ContractResult query(ContractCall contractCall);
+  ContractResult query(ContractInvocation contractInvocation);
 
 }

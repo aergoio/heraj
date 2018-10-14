@@ -13,9 +13,9 @@ import hera.api.AergoApi;
 import hera.api.model.Account;
 import hera.api.model.Authentication;
 import hera.api.model.ContractAddress;
-import hera.api.model.ContractCall;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
+import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
@@ -28,6 +28,7 @@ import hera.strategy.RemoteSignStrategy;
 import hera.util.IoUtils;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,12 +80,12 @@ public class ContractTemplateIT extends AbstractIT {
     assertNotNull(contractInterface);
     logger.debug("Contract interface: {}", contractInterface);
 
-    final ContractFunction executionFunction = contractInterface.findFunctionByName("exec").get();
+    final ContractFunction executionFunction = contractInterface.findFunction("exec").get();
     assertNotNull(executionFunction);
     logger.debug("Execution function: {}", executionFunction);
 
-    final ContractCall executionCall = ContractCall.newBuilder().setAddress(contractAddress)
-        .setFunction(executionFunction).setArgs("key1", "value1").build();
+    final ContractInvocation executionCall = new ContractInvocation(contractAddress,
+        executionFunction, Arrays.asList(new Object[] {"key1", "value1"}));
     final ContractTxHash executionTxHash = localSignAergoApi.getContractOperation().execute(key,
         key.getAddress(), nonce.getAndIncrement(), executionCall);
     assertNotNull(executionTxHash);
@@ -99,12 +100,11 @@ public class ContractTemplateIT extends AbstractIT {
     assertEquals("SUCCESS", executionReceipt.getStatus());
     assertTrue(0 < executionReceipt.getRet().length());
 
-    final ContractFunction queryFunction = contractInterface.findFunctionByName("query").get();
+    final ContractFunction queryFunction = contractInterface.findFunction("query").get();
     assertNotNull(queryFunction);
     logger.debug("Query function: {}", queryFunction);
 
-    final ContractCall queryCall =
-        ContractCall.newBuilder().setAddress(contractAddress).setFunction(queryFunction).build();
+    final ContractInvocation queryCall = new ContractInvocation(contractAddress, queryFunction);
     final ContractResult queryResult = localSignAergoApi.getContractOperation().query(queryCall);
     assertNotNull(queryResult);
     logger.debug("Query result: {}", queryResult);
@@ -137,12 +137,12 @@ public class ContractTemplateIT extends AbstractIT {
     assertNotNull(contractInterface);
     logger.debug("Contract interface: {}", contractInterface);
 
-    final ContractFunction executionFunction = contractInterface.findFunctionByName("exec").get();
+    final ContractFunction executionFunction = contractInterface.findFunction("exec").get();
     assertNotNull(executionFunction);
     logger.debug("Execution function: {}", executionFunction);
 
-    final ContractCall executionCall = ContractCall.newBuilder().setAddress(contractAddress)
-        .setFunction(executionFunction).setArgs("key1", "value1").build();
+    final ContractInvocation executionCall = new ContractInvocation(contractAddress,
+        executionFunction, Arrays.asList(new Object[] {"key1", "value1"}));
     final ContractTxHash executionTxHash = remoteSignAergoApi.getContractOperation().execute(null,
         account.getAddress(), nonce.getAndIncrement(), executionCall);
     assertNotNull(executionTxHash);
@@ -157,12 +157,11 @@ public class ContractTemplateIT extends AbstractIT {
     assertEquals("SUCCESS", executionReceipt.getStatus());
     assertTrue(0 < executionReceipt.getRet().length());
 
-    final ContractFunction queryFunction = contractInterface.findFunctionByName("query").get();
+    final ContractFunction queryFunction = contractInterface.findFunction("query").get();
     assertNotNull(queryFunction);
     logger.debug("Query function: {}", queryFunction);
 
-    final ContractCall queryCall =
-        ContractCall.newBuilder().setAddress(contractAddress).setFunction(queryFunction).build();
+    final ContractInvocation queryCall = new ContractInvocation(contractAddress, queryFunction);
     final ContractResult queryResult = remoteSignAergoApi.getContractOperation().query(queryCall);
     assertNotNull(queryResult);
     logger.debug("Query result: {}", queryResult);

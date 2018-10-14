@@ -16,8 +16,9 @@ import hera.AbstractTestCase;
 import hera.api.ContractEitherOperation;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
-import hera.api.model.ContractCall;
+import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
+import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
@@ -90,7 +91,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     final ContractTemplate contractTemplate = new ContractTemplate(eitherOperationMock);
 
     final ContractTxHash executionTxHash = contractTemplate.execute(null, EXECUTOR_ADDRESS,
-        randomUUID().hashCode(), ContractCall.newBuilder().build());
+        randomUUID().hashCode(), new ContractInvocation(CONTRACT_ADDRESS, new ContractFunction()));
     assertNotNull(executionTxHash);
 
   }
@@ -104,7 +105,8 @@ public class ContractTemplateTest extends AbstractTestCase {
 
     final ContractTemplate contractTemplate = new ContractTemplate(eitherOperationMock);
 
-    final ContractResult queryResult = contractTemplate.query(ContractCall.newBuilder().build());
+    final ContractResult queryResult =
+        contractTemplate.query(new ContractInvocation(CONTRACT_ADDRESS, new ContractFunction()));
     assertNotNull(queryResult);
   }
 

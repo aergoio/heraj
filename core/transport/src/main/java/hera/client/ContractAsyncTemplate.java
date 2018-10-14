@@ -29,9 +29,9 @@ import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
-import hera.api.model.ContractCall;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
+import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
@@ -165,7 +165,12 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
     final Rpc.SingleBytes hashBytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
     final ListenableFuture<Blockchain.ABI> listenableFuture = aergoService.getABI(hashBytes);
     FutureChainer<Blockchain.ABI, ContractInterface> callback =
-        new FutureChainer<>(nextFuture, a -> contractInterfaceConverter.convertToDomainModel(a));
+        new FutureChainer<>(nextFuture, a -> {
+          final ContractInterface contractInterface =
+              contractInterfaceConverter.convertToDomainModel(a);
+          contractInterface.setContractAddress(contractAddress);
+          return contractInterface;
+        });
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;
@@ -173,16 +178,17 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
 
   @Override
   public ResultOrErrorFuture<ContractTxHash> execute(final AergoKey key,
-      final AccountAddress executor, final long nonce, final ContractCall contractCall) {
+      final AccountAddress executor, final long nonce,
+      final ContractInvocation contractInvocation) {
     try {
       final Transaction transaction = new Transaction();
       transaction.setSender(executor);
-      transaction.setRecipient(contractCall.getAddress());
+      transaction.setRecipient(contractInvocation.getAddress());
       transaction.setNonce(nonce);
-      final String functionCallString = toFunctionCallJsonString(contractCall);
+      final String functionCallString = toFunctionCallJsonString(contractInvocation);
       if (logger.isTraceEnabled()) {
-        logger.trace("Contract execution address: {}, function: {}", contractCall.getAddress(),
-            functionCallString);
+        logger.trace("Contract execution address: {}, function: {}",
+            contractInvocation.getAddress(), functionCallString);
       }
       transaction.setPayload(BytesValue.of(functionCallString.getBytes()));
 
@@ -198,15 +204,15 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
   }
 
   @Override
-  public ResultOrErrorFuture<ContractResult> query(final ContractCall contractCall) {
+  public ResultOrErrorFuture<ContractResult> query(final ContractInvocation contractInvocation) {
     final ResultOrErrorFuture<ContractResult> nextFuture =
         ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     ByteString queryInfo = null;
     try {
-      final String functionCallString = toFunctionCallJsonString(contractCall);
+      final String functionCallString = toFunctionCallJsonString(contractInvocation);
       if (logger.isTraceEnabled()) {
-        logger.trace("Contract query address: {}, function: {}", contractCall.getAddress(),
+        logger.trace("Contract query address: {}, function: {}", contractInvocation.getAddress(),
             functionCallString);
       }
       queryInfo = ByteString.copyFrom(functionCallString.getBytes());
@@ -215,7 +221,8 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
     }
 
     final Blockchain.Query query = Blockchain.Query.newBuilder()
-        .setContractAddress(accountAddressConverter.convertToRpcModel(contractCall.getAddress()))
+        .setContractAddress(
+            accountAddressConverter.convertToRpcModel(contractInvocation.getAddress()))
         .setQueryinfo(queryInfo).build();
     final ListenableFuture<SingleBytes> listenableFuture = aergoService.queryContract(query);
     FutureChainer<SingleBytes, ContractResult> callback =
@@ -225,13 +232,13 @@ public class ContractAsyncTemplate implements ContractAsyncOperation {
     return nextFuture;
   }
 
-  protected String toFunctionCallJsonString(final ContractCall contractCall)
+  protected String toFunctionCallJsonString(final ContractInvocation contractInvocation)
       throws JsonProcessingException {
     final ObjectNode node = objectMapper.createObjectNode();
-    node.put("Name",
-        Optional.ofNullable(contractCall.getFunction()).map(ContractFunction::getName).orElse(""));
+    node.put("Name", Optional.ofNullable(contractInvocation.getFunction())
+        .map(ContractFunction::getName).orElse(""));
     final ArrayNode argsNode = node.putArray("Args");
-    contractCall.getArgs().stream().forEach(a -> argsNode.add(a.toString()));
+    contractInvocation.getArgs().stream().forEach(a -> argsNode.add(a.toString()));
     return node.toString();
   }
 
