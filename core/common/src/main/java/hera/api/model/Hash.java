@@ -5,8 +5,10 @@
 package hera.api.model;
 
 import hera.api.encode.EncodedString;
+import hera.exception.HerajException;
 import hera.util.Adaptor;
 import hera.util.Base58Utils;
+import java.io.IOException;
 import java.util.Optional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +45,11 @@ public class Hash implements Adaptor {
    * @param encoded an encoded value
    */
   public Hash(final EncodedString encoded) {
-    this(encoded.decode());
+    try {
+      bytesValue = encoded.decode();
+    } catch (IOException e) {
+      throw new HerajException(e);
+    }
   }
 
   @Override

@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 
 public class TransactionTest {
 
-//  protected final transient Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   protected static final Base58 base58Encoded =
       () -> "AtmxbVvjDN5LYwaf5QrCZPc3FoAqUCMVegVXjf8CMCz59wL21X6j";

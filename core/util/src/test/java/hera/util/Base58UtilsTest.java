@@ -8,6 +8,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import hera.AbstractTestCase;
+import java.io.IOException;
 import java.util.Arrays;
 import org.junit.Test;
 
@@ -30,9 +31,14 @@ public class Base58UtilsTest extends AbstractTestCase {
   }
 
   @Test
-  public void testDecode() {
+  public void testDecode() throws IOException {
     final byte[] actualDecoded = Base58Utils.decode(ENCODED);
     assertTrue(Arrays.equals(DECODED, actualDecoded));
+  }
+
+  @Test(expected = IOException.class)
+  public void shouldThrowExceptionWhenDecode() throws IOException {
+    Base58Utils.decode("=");
   }
 
   @Test
@@ -42,9 +48,14 @@ public class Base58UtilsTest extends AbstractTestCase {
   }
 
   @Test
-  public void testDecodeWithCheck() {
+  public void testDecodeWithCheck() throws IOException {
     final byte[] actualDecoded = Base58Utils.decodeWithCheck(ENCODED_WITH_CHECKSUM);
     assertTrue(Arrays.equals(DECODED_WITH_CHECKSUM, actualDecoded));
+  }
+
+  @Test(expected = IOException.class)
+  public void shouldThrowExceptionWhenDecodeWithCheck() throws IOException {
+    Base58Utils.decode("=");
   }
 
 }

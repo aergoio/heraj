@@ -6,9 +6,11 @@ package hera.api.model;
 
 import hera.VersionUtils;
 import hera.api.encode.Base58WithCheckSum;
+import hera.exception.HerajException;
 import hera.exception.InvalidVersionException;
 import hera.util.Adaptor;
 import hera.util.Base58Utils;
+import java.io.IOException;
 import java.util.Optional;
 import lombok.Getter;
 
@@ -51,7 +53,13 @@ public class AccountAddress implements Adaptor {
    * @throws InvalidVersionException when address version mismatch
    */
   public AccountAddress(final Base58WithCheckSum encoded) {
-    this(encoded.decode());
+    try {
+      final BytesValue decoded = encoded.decode();
+      VersionUtils.validate(decoded, VERSION);
+      this.bytesValue = decoded;
+    } catch (IOException e) {
+      throw new HerajException(e);
+    }
   }
 
   /**
@@ -63,8 +71,7 @@ public class AccountAddress implements Adaptor {
    */
   public AccountAddress(final BytesValue bytesValue) {
     if (BytesValue.EMPTY != bytesValue) {
-      final byte[] rawBytes = bytesValue.getValue();
-      VersionUtils.validate(rawBytes, VERSION);
+      VersionUtils.validate(bytesValue, VERSION);
     }
     this.bytesValue = bytesValue;
   }

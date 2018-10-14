@@ -20,17 +20,16 @@ public class ECDSAKeyTest extends AbstractTestCase {
 
   /* 76860113961741997882252494935617441283670103007926986413066244023125861537337 */
   /* A9ED486A7E8A299C36771B6F3B6B87B2478BCC5ADE248D9FE433FDA1CFDD1639 in hexa */
-  protected static final byte[] PRIVATE_KEY =
-      Base58Utils.decode("CSKko9uZtJA1C4kcEECTjgKfswn6dc9aShpsvS73jk9n");
+  protected static final String PRIVATE_KEY = "CSKko9uZtJA1C4kcEECTjgKfswn6dc9aShpsvS73jk9n";
 
   protected static final String MESSAGE = "BhtkwAaxoHmjGCLp5GncvCR6AggBxRB4iRxTMGJbrVYz";
 
   @Test
   public void testRecovery() throws Exception {
-    final ECDSAKey ofedKey = ECDSAKey.of(PRIVATE_KEY);
+    final ECDSAKey key = ECDSAKey.of(Base58Utils.decode(PRIVATE_KEY));
 
-    ECPublicKey ecPublicKey = (ECPublicKey) ofedKey.getPublicKey();
-    ECPrivateKey ecPrivateKey = (ECPrivateKey) ofedKey.getPrivateKey();
+    ECPublicKey ecPublicKey = (ECPublicKey) key.getPublicKey();
+    ECPrivateKey ecPrivateKey = (ECPrivateKey) key.getPrivateKey();
 
     final BigInteger privatekeyD = new BigInteger(
         "76860113961741997882252494935617441283670103007926986413066244023125861537337");
@@ -45,7 +44,7 @@ public class ECDSAKeyTest extends AbstractTestCase {
 
   @Test
   public void testSign() throws Exception {
-    final ECDSAKey key = ECDSAKey.of(PRIVATE_KEY);
+    final ECDSAKey key = ECDSAKey.of(Base58Utils.decode(PRIVATE_KEY));
     final byte[] message = Base58Utils.decode(MESSAGE);
     final ECDSASignature expected = new ECDSASignature(
         new BigInteger(
@@ -58,7 +57,7 @@ public class ECDSAKeyTest extends AbstractTestCase {
 
   @Test
   public void testVerify() throws Exception {
-    final ECDSAKey key = ECDSAKey.of(PRIVATE_KEY);
+    final ECDSAKey key = ECDSAKey.of(Base58Utils.decode(PRIVATE_KEY));
     final byte[] message = Base58Utils.decode(MESSAGE);
     final ECDSASignature signature = new ECDSASignature(
         new BigInteger(

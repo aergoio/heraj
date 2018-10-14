@@ -4,6 +4,8 @@
 
 package hera.util;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 /**
@@ -69,8 +71,9 @@ public class Base58Utils {
    *
    * @param input the base58-encoded string to decode
    * @return the decoded data bytes
+   * @throws IOException when decoding failed
    */
-  public static byte[] decode(String input) {
+  public static byte[] decode(String input) throws IOException {
     if (input.length() == 0) {
       return new byte[0];
     }
@@ -80,7 +83,7 @@ public class Base58Utils {
       char c = input.charAt(i);
       int digit = c < 128 ? INDEXES[c] : -1;
       if (digit < 0) {
-        throw new IllegalArgumentException("Base58 decoding failed");
+        throw new UnsupportedEncodingException("Base58 decoding failed");
       }
       input58[i] = (byte) digit;
     }
@@ -149,8 +152,9 @@ public class Base58Utils {
    *
    * @param encoded base58 encoded string
    * @return decoded byte array
+   * @throws IOException when decoding failed
    */
-  public static byte[] decodeWithCheck(final String encoded) {
+  public static byte[] decodeWithCheck(final String encoded) throws IOException {
     final byte[] rawTotal = decode(encoded);
     final byte[] rawData = Arrays.copyOfRange(rawTotal, 0, rawTotal.length - CHECKSUM_LEN);
     final byte[] checkSum =
