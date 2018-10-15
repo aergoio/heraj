@@ -17,7 +17,7 @@ import java.util.List;
 import org.junit.Test;
 
 public class StringUtilsTest {
-  
+
   @Test
   public void testIsEmpty() {
     final Object[][] testParameters =
@@ -290,6 +290,32 @@ public class StringUtilsTest {
   }
 
   @Test
+  public void testRemovePrefix() {
+    final Object[][] testParameters = new Object[][] {{null, "h", null},
+        {"hello, world", "he", "llo, world"}, {"hello, world", "hea", "hello, world"}};
+
+    for (final Object[] testParameter : testParameters) {
+      String expected = (String) testParameter[2];
+      String str = (String) testParameter[0];
+      String prefix = (String) testParameter[1];
+      assertEquals(expected, StringUtils.removePrefix(str, prefix));
+    }
+  }
+
+  @Test
+  public void testRemoveSuffix() {
+    final Object[][] testParameters = new Object[][] {{null, "h", null},
+        {"hello, world", "rld", "hello, wo"}, {"hello, world", "ald", "hello, world"}};
+
+    for (final Object[] testParameter : testParameters) {
+      String expected = (String) testParameter[2];
+      String str = (String) testParameter[0];
+      String prefix = (String) testParameter[1];
+      assertEquals(expected, StringUtils.removeSuffix(str, prefix));
+    }
+  }
+
+  @Test
   public void shouldBeTrueOnNull() {
     assertTrue(StringUtils.isEmpty(null));
   }
@@ -304,4 +330,5 @@ public class StringUtilsTest {
   public void shouldBeZeroOnNull() {
     assertEquals(0, StringUtils.length(null));
   }
+
 }

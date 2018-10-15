@@ -37,14 +37,25 @@ public class ValidationUtilsTest extends AbstractTestCase {
     try {
       assertEquals("Hello", null);
       fail();
-    } catch (AssertionError e) {
+    } catch (final AssertionError e) {
       // good we expected this
     }
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void testAssertNotEqualsWithSpecificException() {
-    assertNotEquals("Hello", "Hello", new UnsupportedOperationException());
+  @Test
+  public void testAssertEqualsWithSpecificException() {
+    try {
+      assertEquals("Hello", null, new UnsupportedOperationException());
+      fail();
+    } catch (final UnsupportedOperationException e) {
+      // good we expected this
+    }
+    try {
+      assertEquals(null, "Hello", () -> new UnsupportedOperationException());
+      fail();
+    } catch (final UnsupportedOperationException e) {
+      // good we expected this
+    }
   }
 
   @Test
@@ -69,8 +80,8 @@ public class ValidationUtilsTest extends AbstractTestCase {
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void testAssertEqualsWithSpecificException() {
-    assertEquals("Hello", null, new UnsupportedOperationException());
+  public void testAssertNotEqualsWithSpecificException() {
+    assertNotEquals("Hello", "Hello", new UnsupportedOperationException());
   }
 
   @Test
@@ -119,9 +130,20 @@ public class ValidationUtilsTest extends AbstractTestCase {
     }
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test
   public void testAssertNullWithSpecificException() {
-    assertNull("Hello", new UnsupportedOperationException());
+    try {
+      assertNull("Hello", new UnsupportedOperationException());
+      fail();
+    } catch (final UnsupportedOperationException e) {
+      // good we expected this
+    }
+    try {
+      assertNull("Hello", () -> new UnsupportedOperationException());
+      fail();
+    } catch (final UnsupportedOperationException e) {
+      // good we expected this
+    }
   }
 
   @Test
@@ -136,9 +158,20 @@ public class ValidationUtilsTest extends AbstractTestCase {
     }
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test
   public void testAssertNotNullWithSpecificException() {
-    assertNotNull(null, new UnsupportedOperationException());
+    try {
+      assertNotNull(null, new UnsupportedOperationException());
+      fail();
+    } catch (final UnsupportedOperationException e) {
+      // good we expected this
+    }
+    try {
+      assertNotNull(null, () -> new UnsupportedOperationException());
+      fail();
+    } catch (final UnsupportedOperationException e) {
+      // good we expected this
+    }
   }
 
 }

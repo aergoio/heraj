@@ -15,6 +15,12 @@ import org.junit.Test;
 public class CryptoUtilsTest {
 
   @Test
+  public void testCreateSecret() throws Exception {
+    final byte[] password = randomUUID().toString().getBytes();
+    assertNotNull(CryptoUtils.createSecret(password, password.length));
+  }
+
+  @Test
   public void testEncryptToAes128EcbWithBase64() throws Exception {
     for (int i = 0; i < 100; ++i) {
       assertNotNull(CryptoUtils.encryptToAes128EcbWithBase64(randomUUID().toString()));

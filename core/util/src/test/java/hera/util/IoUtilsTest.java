@@ -7,6 +7,8 @@ package hera.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.CharArrayReader;
@@ -14,9 +16,12 @@ import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.Writer;
 import java.security.NoSuchAlgorithmException;
 import org.junit.Test;
 
@@ -115,7 +120,7 @@ public class IoUtilsTest {
   }
 
   @Test
-  public void testRedirect() throws IOException {
+  public void testRedirectStream() throws IOException {
     final Object[][] testParameters = new Object[][] {
         {new ByteArrayInputStream(new byte[] {1, 2, 3}), new ByteArrayOutputStream(), 3},
         {new ByteArrayInputStream(new byte[] {4, 5, 6, 7, 8}), new ByteArrayOutputStream(), 5},
@@ -126,6 +131,25 @@ public class IoUtilsTest {
       int expected = (int) testParameter[2];
       InputStream from = (InputStream) testParameter[0];
       OutputStream to = (OutputStream) testParameter[1];
+      assertEquals(expected, IoUtils.redirect(from, to));
+    }
+  }
+
+  @Test
+  public void testRedirectReaderWriter() throws IOException {
+    final Object[][] testParameters = new Object[][] {
+        {new ByteArrayInputStream(new byte[] {1, 2, 3}), new ByteArrayOutputStream(), 3},
+        {new ByteArrayInputStream(new byte[] {4, 5, 6, 7, 8}), new ByteArrayOutputStream(), 5},
+        {new ByteArrayInputStream(new byte[] {9, 10, 11, 12, 13, 14, 15}),
+            new ByteArrayOutputStream(), 7}};
+
+    for (final Object[] testParameter : testParameters) {
+      int expected = (int) testParameter[2];
+      InputStream inputStream = (InputStream) testParameter[0];
+      OutputStream outputStream = (OutputStream) testParameter[1];
+
+      Reader from = new BufferedReader(new InputStreamReader(inputStream));
+      Writer to = new BufferedWriter(new OutputStreamWriter(outputStream));
       assertEquals(expected, IoUtils.redirect(from, to));
     }
   }
