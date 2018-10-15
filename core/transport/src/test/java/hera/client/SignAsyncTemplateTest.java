@@ -4,10 +4,12 @@
 
 package hera.client;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static com.google.protobuf.ByteString.copyFrom;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
@@ -21,6 +23,7 @@ import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Blockchain;
+import types.Rpc;
 import types.Rpc.CommitResult;
 import types.Rpc.VerifyResult;
 
@@ -45,27 +48,31 @@ public class SignAsyncTemplateTest extends AbstractTestCase {
   @Test
   public void testSign() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
+    ListenableFuture mockListenableFuture = service.submit(() -> Blockchain.Tx.newBuilder()
+        .setBody(
+            Blockchain.TxBody.newBuilder().setSign(copyFrom(randomUUID().toString().getBytes())))
+        .setHash(copyFrom(randomUUID().toString().getBytes())).build());
     when(aergoService.signTX(any())).thenReturn(mockListenableFuture);
 
     final SignAsyncTemplate signAsyncTemplate =
         new SignAsyncTemplate(aergoService, context, transactionConverter);
 
     final ResultOrErrorFuture<Signature> signature = signAsyncTemplate.sign(null, new Transaction());
-    assertNotNull(signature);
+    assertTrue(signature.get().hasResult());
   }
 
   @Test
   public void testVerify() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
+    ListenableFuture mockListenableFuture = service.submit(
+        () -> Rpc.VerifyResult.newBuilder().setError(Rpc.VerifyStatus.VERIFY_STATUS_OK).build());
     when(aergoService.verifyTX(any())).thenReturn(mockListenableFuture);
 
     final SignAsyncTemplate signAsyncTemplate =
         new SignAsyncTemplate(aergoService, context, transactionConverter);
 
     final ResultOrErrorFuture<Boolean> verifyResult = signAsyncTemplate.verify(null, new Transaction());
-    assertNotNull(verifyResult);
+    assertTrue(verifyResult.get().hasResult());
   }
 
 }

@@ -6,11 +6,15 @@ package hera.client;
 
 import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
+import java.util.List;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
 import hera.AbstractTestCase;
@@ -21,10 +25,6 @@ import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.transport.ModelConverter;
-import java.util.List;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AccountOuterClass;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Blockchain;
@@ -84,7 +84,8 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
   @Test
   public void testListAsync() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
+    ListenableFuture mockListenableFuture =
+        service.submit(() -> AccountOuterClass.AccountList.newBuilder().build());
     when(aergoService.getAccounts(any())).thenReturn(mockListenableFuture);
 
     final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
@@ -92,13 +93,14 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
         accountStateConverter, authenticationConverter);
 
     final ResultOrErrorFuture<List<Account>> accountListFuture = accountAsyncTemplate.list();
-    assertNotNull(accountListFuture);
+    assertTrue(accountListFuture.get().hasResult());
   }
 
   @Test
   public void testCreateAsync() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
+    ListenableFuture mockListenableFuture =
+        service.submit(() -> AccountOuterClass.Account.newBuilder().build());
     when(aergoService.createAccount(any())).thenReturn(mockListenableFuture);
 
     final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
@@ -107,13 +109,14 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
 
     final ResultOrErrorFuture<Account> accountFuture =
         accountAsyncTemplate.create(randomUUID().toString());
-    assertNotNull(accountFuture);
+    assertTrue(accountFuture.get().hasResult());
   }
 
   @Test
   public void testGetAsync() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
+    ListenableFuture mockListenableFuture =
+        service.submit(() -> Blockchain.State.newBuilder().build());
     when(aergoService.getState(any())).thenReturn(mockListenableFuture);
 
     final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
@@ -121,13 +124,14 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
         accountStateConverter, authenticationConverter);
 
     final ResultOrErrorFuture<Account> accountFuture = accountAsyncTemplate.get(ACCOUNT_ADDRESS);
-    assertNotNull(accountFuture);
+    assertTrue(accountFuture.get().hasResult());
   }
 
   @Test
   public void testLockAsync() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
+    ListenableFuture mockListenableFuture =
+        service.submit(() -> AccountOuterClass.Account.newBuilder().build());
     when(aergoService.lockAccount(any())).thenReturn(mockListenableFuture);
 
     final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
@@ -136,13 +140,14 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
 
     final ResultOrErrorFuture<Boolean> lockResult =
         accountAsyncTemplate.lock(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
-    assertNotNull(lockResult);
+    assertTrue(lockResult.get().hasResult());
   }
 
   @Test
   public void testUnlock() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
+    ListenableFuture mockListenableFuture =
+        service.submit(() -> AccountOuterClass.Account.newBuilder().build());
     when(aergoService.unlockAccount(any())).thenReturn(mockListenableFuture);
 
     final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
@@ -151,13 +156,14 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
 
     final ResultOrErrorFuture<Boolean> accountFuture =
         accountAsyncTemplate.unlock(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
-    assertNotNull(accountFuture);
+    assertTrue(accountFuture.get().hasResult());
   }
 
   @Test
   public void testImportKey() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
+    ListenableFuture mockListenableFuture =
+        service.submit(() -> AccountOuterClass.Account.newBuilder().build());
     when(aergoService.importAccount(any())).thenReturn(mockListenableFuture);
 
     final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
@@ -166,13 +172,14 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
 
     final ResultOrErrorFuture<Account> accountFuture =
         accountAsyncTemplate.importKey(ENCRYPTED_PRIVATE_KEY, PASSWORD);
-    assertNotNull(accountFuture);
+    assertTrue(accountFuture.get().hasResult());
   }
 
   @Test
   public void testExportKey() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
+    ListenableFuture mockListenableFuture =
+        service.submit(() -> Rpc.SingleBytes.newBuilder().build());
     when(aergoService.exportAccount(any())).thenReturn(mockListenableFuture);
 
     final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate(aergoService,
@@ -181,7 +188,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
 
     final ResultOrErrorFuture<EncryptedPrivateKey> accountFuture =
         accountAsyncTemplate.exportKey(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
-    assertNotNull(accountFuture);
+    assertTrue(accountFuture.get().hasResult());
   }
 
 }

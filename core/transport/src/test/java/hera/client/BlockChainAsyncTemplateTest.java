@@ -4,7 +4,7 @@
 
 package hera.client;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -60,7 +60,8 @@ public class BlockChainAsyncTemplateTest extends AbstractTestCase {
   @Test
   public void testGetBlockchainStatus() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
+    ListenableFuture mockListenableFuture =
+        service.submit(() -> Rpc.BlockchainStatus.newBuilder().build());
     when(aergoService.blockchain(any())).thenReturn(mockListenableFuture);
 
     final BlockChainAsyncTemplate blockChainAsyncTemplate = new BlockChainAsyncTemplate(
@@ -68,33 +69,35 @@ public class BlockChainAsyncTemplateTest extends AbstractTestCase {
 
     final ResultOrErrorFuture<BlockchainStatus> blockchainStatus =
         blockChainAsyncTemplate.getBlockchainStatus();
-    assertNotNull(blockchainStatus);
+    assertTrue(blockchainStatus.get().hasResult());
   }
 
   @Test
   public void testListPeers() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
+    ListenableFuture mockListenableFuture =
+        service.submit(() -> Rpc.PeerList.newBuilder().build());
     when(aergoService.getPeers(any())).thenReturn(mockListenableFuture);
 
     final BlockChainAsyncTemplate blockChainAsyncTemplate = new BlockChainAsyncTemplate(
         aergoService, context, blockchainConverter, peerAddressConverter, nodeStatusConverter);
 
     final ResultOrErrorFuture<List<PeerAddress>> peers = blockChainAsyncTemplate.listPeers();
-    assertNotNull(peers);
+    assertTrue(peers.get().hasResult());
   }
 
   @Test
   public void testGetNodeStatus() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
+    ListenableFuture mockListenableFuture =
+        service.submit(() -> Rpc.SingleBytes.newBuilder().build());
     when(aergoService.nodeState(any())).thenReturn(mockListenableFuture);
 
     final BlockChainAsyncTemplate blockChainAsyncTemplate = new BlockChainAsyncTemplate(
         aergoService, context, blockchainConverter, peerAddressConverter, nodeStatusConverter);
 
     final ResultOrErrorFuture<NodeStatus> nodeStatus = blockChainAsyncTemplate.getNodeStatus();
-    assertNotNull(nodeStatus);
+    assertTrue(nodeStatus.get().hasResult());
   }
 
 }

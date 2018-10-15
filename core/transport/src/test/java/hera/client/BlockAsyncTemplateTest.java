@@ -6,7 +6,7 @@ package hera.client;
 
 import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -48,7 +48,8 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
   @Test
   public void testGetBlockByHash() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
+    ListenableFuture mockListenableFuture =
+        service.submit(() -> Blockchain.Block.newBuilder().build());
     when(aergoService.getBlock(any())).thenReturn(mockListenableFuture);
 
     final BlockAsyncTemplate blockAsyncTemplate =
@@ -56,26 +57,28 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
 
     final ResultOrErrorFuture<Block> block =
         blockAsyncTemplate.getBlock(new BlockHash(of(randomUUID().toString().getBytes())));
-    assertNotNull(block);
+    assertTrue(block.get().hasResult());
   }
 
   @Test
   public void testGetBlockByHeight() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
+    ListenableFuture mockListenableFuture =
+        service.submit(() -> Blockchain.Block.newBuilder().build());
     when(aergoService.getBlock(any())).thenReturn(mockListenableFuture);
 
     final BlockAsyncTemplate blockAsyncTemplate =
         new BlockAsyncTemplate(aergoService, context, blockConverter);
 
     final ResultOrErrorFuture<Block> block = blockAsyncTemplate.getBlock(randomUUID().hashCode());
-    assertNotNull(block);
+    assertTrue(block.get().hasResult());
   }
 
   @Test
   public void testListBlockHeadersByHash() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
+    ListenableFuture mockListenableFuture =
+        service.submit(() -> Rpc.BlockHeaderList.newBuilder().build());
     when(aergoService.listBlockHeaders(any())).thenReturn(mockListenableFuture);
 
     final BlockAsyncTemplate blockAsyncTemplate =
@@ -83,13 +86,14 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
 
     final ResultOrErrorFuture<List<BlockHeader>> blockHeaders = blockAsyncTemplate.listBlockHeaders(
         new BlockHash(of(randomUUID().toString().getBytes())), randomUUID().hashCode());
-    assertNotNull(blockHeaders);
+    assertTrue(blockHeaders.get().hasResult());
   }
 
   @Test
   public void testListBlockHeadersByHeight() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture = mock(ListenableFuture.class);
+    ListenableFuture mockListenableFuture =
+        service.submit(() -> Rpc.BlockHeaderList.newBuilder().build());
     when(aergoService.listBlockHeaders(any())).thenReturn(mockListenableFuture);
 
     final BlockAsyncTemplate blockAsyncTemplate =
@@ -97,6 +101,6 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
 
     final ResultOrErrorFuture<List<BlockHeader>> blockHeaders =
         blockAsyncTemplate.listBlockHeaders(randomUUID().hashCode(), randomUUID().hashCode());
-    assertNotNull(blockHeaders);
+    assertTrue(blockHeaders.get().hasResult());
   }
 }
