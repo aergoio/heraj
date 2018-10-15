@@ -118,6 +118,19 @@ public class Tuple3OrErrorImplTest {
   }
 
   @Test
+  public void testFilterWithErrorOnNext() {
+    final String result1 = randomUUID().toString();
+    final String result2 = randomUUID().toString();
+    final String result3 = randomUUID().toString();
+    final Tuple3OrError<String, String, String> base =
+        seq(() -> success(result1), () -> success(result2), () -> success(result3));
+    final Tuple3OrError<String, String, String> actual = base.filter((a, b, c) -> {
+      throw new UnsupportedOperationException();
+    });
+    assertTrue(actual.hasError());
+  }
+
+  @Test
   public void testMap() {
     final String result1 = randomUUID().toString();
     final String result2 = randomUUID().toString();
@@ -136,6 +149,18 @@ public class Tuple3OrErrorImplTest {
     final Tuple3OrError<String, String, String> tuple3OrError = seq(() -> success(result),
         () -> success(result), () -> fail(new UnsupportedOperationException()));
     tuple3OrError.map((a, b, c) -> a.length() + b.length() + c.length()).getResult();
+  }
+
+  @Test(expected = Exception.class)
+  public void testMapWithErrorOnNext() {
+    final String result1 = randomUUID().toString();
+    final String result2 = randomUUID().toString();
+    final String result3 = randomUUID().toString();
+    final Tuple3OrError<String, String, String> tuple3OrError =
+        seq(() -> success(result1), () -> success(result2), () -> success(result3));
+    tuple3OrError.map((a, b, c) -> {
+      throw new UnsupportedOperationException();
+    }).getResult();
   }
 
   @Test

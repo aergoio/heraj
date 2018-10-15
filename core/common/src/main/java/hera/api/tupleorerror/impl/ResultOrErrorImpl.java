@@ -46,8 +46,12 @@ public class ResultOrErrorImpl<T> implements ResultOrError<T> {
   public ResultOrError<T> filter(Predicate1<? super T> predicate) {
     Objects.requireNonNull(predicate);
     if (hasResult()) {
-      return predicate.test(result) ? this
-          : fail(new HerajException("No such element matching predicate"));
+      try {
+        return predicate.test(result) ? this
+            : fail(new HerajException("No such element matching predicate"));
+      } catch (Throwable e) {
+        return fail(e);
+      }
     } else {
       return this;
     }

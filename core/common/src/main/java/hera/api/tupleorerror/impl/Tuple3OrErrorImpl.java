@@ -88,13 +88,16 @@ public class Tuple3OrErrorImpl<T1, T2, T3> implements Tuple3OrError<T1, T2, T3> 
       Predicate3<? super T1, ? super T2, ? super T3> predicate) {
     Objects.requireNonNull(predicate);
     if (!hasError()) {
-      return predicate.test(v1, v2, v3) ? this
-          : new Tuple3OrErrorImpl<>(new HerajException("No such element matching predicate"));
+      try {
+        return predicate.test(v1, v2, v3) ? this
+            : new Tuple3OrErrorImpl<>(new HerajException("No such element matching predicate"));
+      } catch (Throwable e) {
+        return new Tuple3OrErrorImpl<>(e);
+      }
     } else {
       return this;
     }
   }
-
 
   @Override
   public <R> ResultOrError<R> map(Function3<? super T1, ? super T2, ? super T3, ? extends R> fn) {

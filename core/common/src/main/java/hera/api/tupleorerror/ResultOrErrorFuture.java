@@ -4,7 +4,7 @@
 
 package hera.api.tupleorerror;
 
-public interface ResultOrErrorFuture<T> extends GetNotThrowingFuture<ResultOrError<T>> {
+public interface ResultOrErrorFuture<T> extends EitherFuture<ResultOrError<T>> {
 
   /**
    * Complete ResultOrErrorFuture with ResultOrError.

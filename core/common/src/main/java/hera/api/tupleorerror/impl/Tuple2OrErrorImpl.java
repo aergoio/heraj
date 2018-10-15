@@ -76,8 +76,12 @@ public class Tuple2OrErrorImpl<T1, T2> implements Tuple2OrError<T1, T2> {
   public Tuple2OrError<T1, T2> filter(Predicate2<? super T1, ? super T2> predicate) {
     Objects.requireNonNull(predicate);
     if (!hasError()) {
-      return predicate.test(v1, v2) ? this
-          : new Tuple2OrErrorImpl<>(new HerajException("No such element matching predicate"));
+      try {
+        return predicate.test(v1, v2) ? this
+            : new Tuple2OrErrorImpl<>(new HerajException("No such element matching predicate"));
+      } catch (Throwable e) {
+        return new Tuple2OrErrorImpl<>(e);
+      }
     } else {
       return this;
     }

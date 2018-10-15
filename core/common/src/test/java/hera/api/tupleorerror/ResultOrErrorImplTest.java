@@ -76,6 +76,15 @@ public class ResultOrErrorImplTest {
   }
 
   @Test
+  public void testFilterWithErrorOnNext() {
+    final ResultOrError<String> base = fail(new UnsupportedOperationException());
+    final ResultOrError<String> actual = base.filter(s -> {
+      throw new UnsupportedOperationException();
+    });
+    assertTrue(actual.hasError());
+  }
+
+  @Test
   public void testMap() {
     final String result = randomUUID().toString();
     final ResultOrError<String> resultOrError = success(result);
@@ -90,6 +99,15 @@ public class ResultOrErrorImplTest {
     resultOrError.map(s -> s.length()).getResult();
   }
 
+  @Test(expected = Exception.class)
+  public void testMapWithErrorOnNext() {
+    final String result = randomUUID().toString();
+    final ResultOrError<String> resultOrError = success(result);
+    resultOrError.map(s -> {
+      throw new UnsupportedOperationException();
+    }).getResult();
+  }
+
   @Test
   public void testFlatMap() {
     final String expected = randomUUID().toString();
@@ -102,6 +120,15 @@ public class ResultOrErrorImplTest {
   public void testFlatMapWithError() {
     final ResultOrError<String> resultOrError = fail(new UnsupportedOperationException());
     resultOrError.flatMap(s -> fail(new UnsupportedOperationException())).getResult();
+  }
+
+  @Test(expected = Exception.class)
+  public void testFlatMapWithErrorOnNext() {
+    final String result = randomUUID().toString();
+    final ResultOrError<String> resultOrError = success(result);
+    resultOrError.flatMap(s -> {
+      throw new UnsupportedOperationException();
+    }).getResult();
   }
 
   @Test

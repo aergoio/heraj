@@ -58,11 +58,6 @@ public class Tuple2OrErrorFutureImpl<T1, T2> implements Tuple2OrErrorFuture<T1, 
     }
   }
 
-  @Override
-  public boolean complete(Tuple2OrError<T1, T2> tuple2OrError) {
-    return deligate.complete(tuple2OrError);
-  }
-
   @SuppressWarnings("unchecked")
   @Override
   public ResultOrErrorFuture<Boolean> ifPresent(Consumer2<? super T1, ? super T2> consumer) {

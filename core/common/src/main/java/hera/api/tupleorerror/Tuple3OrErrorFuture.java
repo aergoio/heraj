@@ -5,15 +5,7 @@
 package hera.api.tupleorerror;
 
 public interface Tuple3OrErrorFuture<T1, T2, T3>
-    extends GetNotThrowingFuture<Tuple3OrError<T1, T2, T3>> {
-
-  /**
-   * Complete Tuple3OrErrorFuture with Tuple3OrError.
-   *
-   * @param tuple3OrError Tuple3OrError
-   * @return complete result
-   */
-  boolean complete(Tuple3OrError<T1, T2, T3> tuple3OrError);
+    extends EitherFuture<Tuple3OrError<T1, T2, T3>> {
 
   /**
    * If a future operation is complete and a values are present, invoke the specified consumer with

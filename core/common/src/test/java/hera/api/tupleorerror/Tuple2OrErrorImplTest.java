@@ -101,6 +101,17 @@ public class Tuple2OrErrorImplTest {
   }
 
   @Test
+  public void testFilterWithErrorOnNext() {
+    final String result1 = randomUUID().toString();
+    final String result2 = randomUUID().toString();
+    final Tuple2OrError<String, String> base = seq(() -> success(result1), () -> success(result2));
+    final Tuple2OrError<String, String> actual = base.filter((a, b) -> {
+      throw new UnsupportedOperationException();
+    });
+    assertTrue(actual.hasError());
+  }
+
+  @Test
   public void testMap() {
     final String result1 = randomUUID().toString();
     final String result2 = randomUUID().toString();
@@ -117,6 +128,17 @@ public class Tuple2OrErrorImplTest {
     final Tuple2OrError<String, String> tuple2OrError =
         seq(() -> success(result), () -> fail(new UnsupportedOperationException()));
     tuple2OrError.map((a, b) -> a.length() + b.length()).getResult();
+  }
+
+  @Test(expected = Exception.class)
+  public void testMapWithErrorOnNext() {
+    final String result1 = randomUUID().toString();
+    final String result2 = randomUUID().toString();
+    final Tuple2OrError<String, String> tuple2OrError =
+        seq(() -> success(result1), () -> success(result2));
+    tuple2OrError.map((a, b) -> {
+      throw new UnsupportedOperationException();
+    }).getResult();
   }
 
   @Test

@@ -59,11 +59,6 @@ public class Tuple4OrErrorFutureImpl<T1, T2, T3, T4>
     }
   }
 
-  @Override
-  public boolean complete(Tuple4OrError<T1, T2, T3, T4> tuple4OrError) {
-    return deligate.complete(tuple4OrError);
-  }
-
   @SuppressWarnings("unchecked")
   @Override
   public ResultOrErrorFuture<Boolean> ifPresent(
