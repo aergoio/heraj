@@ -4,6 +4,7 @@
 
 package hera.client;
 
+import static hera.DefaultConstants.DEFAULT_ENDPOINT;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Context;
@@ -13,6 +14,7 @@ import hera.annotation.ApiStability;
 import hera.api.AergoApi;
 import hera.api.AergoAsyncApi;
 import hera.api.AergoEitherApi;
+import hera.api.model.HostnameAndPort;
 import hera.strategy.ConnectStrategy;
 import hera.strategy.LocalSignStrategy;
 import hera.strategy.NettyConnectStrategy;
@@ -31,7 +33,7 @@ public class AergoClientBuilder {
 
   static {
     defaultContext = new Context();
-    defaultContext.addStrategy(new NettyConnectStrategy());
+    defaultContext.addStrategy(new NettyConnectStrategy(HostnameAndPort.of(DEFAULT_ENDPOINT)));
     defaultContext.addStrategy(new LocalSignStrategy());
   }
 

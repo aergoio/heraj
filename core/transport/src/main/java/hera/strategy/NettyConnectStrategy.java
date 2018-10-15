@@ -4,41 +4,24 @@
 
 package hera.strategy;
 
-import static hera.DefaultConstants.DEFAULT_ENDPOINT;
 import static hera.DefaultConstants.DEFAULT_RPC_PORT;
 
 import hera.api.model.HostnameAndPort;
-import hera.util.Configurable;
-import hera.util.Configuration;
 import io.grpc.ManagedChannel;
 import io.grpc.netty.NettyChannelBuilder;
-import lombok.Setter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
-public class NettyConnectStrategy
-    implements ConnectStrategy<ManagedChannel>, Configurable<Configuration> {
+@RequiredArgsConstructor
+public class NettyConnectStrategy implements ConnectStrategy<ManagedChannel> {
 
-  @Setter
-  protected Configuration configuration;
-
-  protected HostnameAndPort getEndpoint() {
-    return HostnameAndPort.of(configuration.getAsString("endpoint", DEFAULT_ENDPOINT));
-  }
-
-  /**
-   * Connect to {@code endpoint}.
-   *
-   * @param endpoint endpoint to connect to
-   *
-   * @return channel to be connected
-   */
-  public ManagedChannel connect(final HostnameAndPort endpoint) {
-    return NettyChannelBuilder
-        .forAddress(endpoint.getHostname(), endpoint.getPort(DEFAULT_RPC_PORT)).usePlaintext()
-        .build();
-  }
+  @NonNull
+  protected final HostnameAndPort endpoint;
 
   @Override
   public ManagedChannel connect() {
-    return connect(getEndpoint());
+    return NettyChannelBuilder
+        .forAddress(endpoint.getHostname(), endpoint.getPort(DEFAULT_RPC_PORT)).usePlaintext()
+        .build();
   }
 }

@@ -15,9 +15,9 @@ public class NettyConnectStrategyTest extends AbstractTestCase {
 
   @Test
   public void testConnect() throws InterruptedException {
-    final NettyConnectStrategy nettyConnectStrategy = new NettyConnectStrategy();
-    final ManagedChannel channel =
-        nettyConnectStrategy.connect(HostnameAndPort.of("localhost:9999"));
+    final NettyConnectStrategy nettyConnectStrategy =
+        new NettyConnectStrategy(HostnameAndPort.of("localhost:9999"));
+    final ManagedChannel channel = nettyConnectStrategy.connect();
     channel.shutdown().awaitTermination(1, SECONDS);
   }
 }

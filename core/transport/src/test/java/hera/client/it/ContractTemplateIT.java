@@ -4,6 +4,7 @@
 
 package hera.client.it;
 
+import static hera.DefaultConstants.DEFAULT_ENDPOINT;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -19,6 +20,7 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.HostnameAndPort;
 import hera.client.AergoClientBuilder;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
@@ -46,9 +48,11 @@ public class ContractTemplateIT extends AbstractIT {
   @Before
   public void setUp() {
     super.setUp();
-    localSignAergoApi = new AergoClientBuilder().addStrategy(new NettyConnectStrategy())
+    localSignAergoApi = new AergoClientBuilder()
+        .addStrategy(new NettyConnectStrategy(HostnameAndPort.of(DEFAULT_ENDPOINT)))
         .addStrategy(new LocalSignStrategy()).build();
-    remoteSignAergoApi = new AergoClientBuilder().addStrategy(new NettyConnectStrategy())
+    remoteSignAergoApi = new AergoClientBuilder()
+        .addStrategy(new NettyConnectStrategy(HostnameAndPort.of(DEFAULT_ENDPOINT)))
         .addStrategy(new RemoteSignStrategy()).build();
     try {
       final Reader reader = new InputStreamReader(open("payload"));
