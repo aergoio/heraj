@@ -4,7 +4,6 @@
 
 package hera.client;
 
-import static hera.TransportConstants.TIMEOUT;
 import static hera.api.tupleorerror.FunctionChain.fail;
 
 import hera.Context;
@@ -14,11 +13,13 @@ import hera.api.BlockChainEitherOperation;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.PeerAddress;
+import hera.api.model.Time;
 import hera.api.tupleorerror.ResultOrError;
 import hera.exception.RpcException;
+import hera.strategy.TimeoutStrategy;
 import io.grpc.ManagedChannel;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import lombok.Getter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
@@ -28,6 +29,10 @@ public class BlockChainEitherTemplate implements BlockChainEitherOperation, Chan
   protected Context context;
 
   protected BlockChainAsyncTemplate blockChainAsyncOperation = new BlockChainAsyncTemplate();
+
+  @Getter(lazy = true)
+  private final Time timeout =
+      context.getStrategy(TimeoutStrategy.class).map(TimeoutStrategy::getTimeout).get();
 
   @Override
   public void setContext(final Context context) {
@@ -43,7 +48,8 @@ public class BlockChainEitherTemplate implements BlockChainEitherOperation, Chan
   @Override
   public ResultOrError<BlockchainStatus> getBlockchainStatus() {
     try {
-      return blockChainAsyncOperation.getBlockchainStatus().get(TIMEOUT, TimeUnit.MILLISECONDS);
+      return blockChainAsyncOperation.getBlockchainStatus().get(getTimeout().getValue(),
+          getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));
     }
@@ -52,7 +58,8 @@ public class BlockChainEitherTemplate implements BlockChainEitherOperation, Chan
   @Override
   public ResultOrError<List<PeerAddress>> listPeers() {
     try {
-      return blockChainAsyncOperation.listPeers().get(TIMEOUT, TimeUnit.MILLISECONDS);
+      return blockChainAsyncOperation.listPeers().get(getTimeout().getValue(),
+          getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));
     }
@@ -61,7 +68,8 @@ public class BlockChainEitherTemplate implements BlockChainEitherOperation, Chan
   @Override
   public ResultOrError<NodeStatus> getNodeStatus() {
     try {
-      return blockChainAsyncOperation.getNodeStatus().get(TIMEOUT, TimeUnit.MILLISECONDS);
+      return blockChainAsyncOperation.getNodeStatus().get(getTimeout().getValue(),
+          getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));
     }

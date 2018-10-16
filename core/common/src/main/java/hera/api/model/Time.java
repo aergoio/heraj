@@ -5,10 +5,12 @@
 package hera.api.model;
 
 import java.util.concurrent.TimeUnit;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+@EqualsAndHashCode
 @ToString
 @RequiredArgsConstructor
 public class Time {

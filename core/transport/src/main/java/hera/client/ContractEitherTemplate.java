@@ -4,9 +4,7 @@
 
 package hera.client;
 
-import static hera.TransportConstants.TIMEOUT;
 import static hera.api.tupleorerror.FunctionChain.fail;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import hera.Context;
 import hera.annotation.ApiAudience;
@@ -20,10 +18,13 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.Time;
 import hera.api.tupleorerror.ResultOrError;
 import hera.exception.RpcException;
 import hera.key.AergoKey;
+import hera.strategy.TimeoutStrategy;
 import io.grpc.ManagedChannel;
+import lombok.Getter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
@@ -33,6 +34,10 @@ public class ContractEitherTemplate implements ContractEitherOperation, ChannelI
   protected Context context;
 
   protected ContractAsyncTemplate contractAsyncOperation = new ContractAsyncTemplate();
+
+  @Getter(lazy = true)
+  private final Time timeout =
+      context.getStrategy(TimeoutStrategy.class).map(TimeoutStrategy::getTimeout).get();
 
   @Override
   public void setContext(final Context context) {
@@ -48,7 +53,8 @@ public class ContractEitherTemplate implements ContractEitherOperation, ChannelI
   @Override
   public ResultOrError<ContractTxReceipt> getReceipt(final ContractTxHash deployTxHash) {
     try {
-      return contractAsyncOperation.getReceipt(deployTxHash).get(TIMEOUT, MILLISECONDS);
+      return contractAsyncOperation.getReceipt(deployTxHash).get(getTimeout().getValue(),
+          getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));
     }
@@ -58,8 +64,8 @@ public class ContractEitherTemplate implements ContractEitherOperation, ChannelI
   public ResultOrError<ContractTxHash> deploy(final AergoKey key, final AccountAddress creator,
       final long nonce, final Base58WithCheckSum encodedPayload) {
     try {
-      return contractAsyncOperation.deploy(key, creator, nonce, encodedPayload).get(TIMEOUT,
-          MILLISECONDS);
+      return contractAsyncOperation.deploy(key, creator, nonce, encodedPayload)
+          .get(getTimeout().getValue(), getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));
     }
@@ -69,8 +75,8 @@ public class ContractEitherTemplate implements ContractEitherOperation, ChannelI
   public ResultOrError<ContractInterface> getContractInterface(
       final ContractAddress contractAddress) {
     try {
-      return contractAsyncOperation.getContractInterface(contractAddress).get(TIMEOUT,
-          MILLISECONDS);
+      return contractAsyncOperation.getContractInterface(contractAddress)
+          .get(getTimeout().getValue(), getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));
     }
@@ -80,8 +86,8 @@ public class ContractEitherTemplate implements ContractEitherOperation, ChannelI
   public ResultOrError<ContractTxHash> execute(final AergoKey key, final AccountAddress executor,
       final long nonce, final ContractInvocation contractInvocation) {
     try {
-      return contractAsyncOperation.execute(key, executor, nonce, contractInvocation).get(TIMEOUT,
-          MILLISECONDS);
+      return contractAsyncOperation.execute(key, executor, nonce, contractInvocation)
+          .get(getTimeout().getValue(), getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));
     }
@@ -90,7 +96,8 @@ public class ContractEitherTemplate implements ContractEitherOperation, ChannelI
   @Override
   public ResultOrError<ContractResult> query(final ContractInvocation contractInvocation) {
     try {
-      return contractAsyncOperation.query(contractInvocation).get(TIMEOUT, MILLISECONDS);
+      return contractAsyncOperation.query(contractInvocation).get(getTimeout().getValue(),
+          getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));
     }

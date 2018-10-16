@@ -9,4 +9,6 @@ public class DefaultConstants {
 
   public static final String DEFAULT_ENDPOINT = "localhost:" + DEFAULT_RPC_PORT;
 
+  // milliseconds
+  public static final long DEFAULT_TIMEOUT = 5000L;
 }

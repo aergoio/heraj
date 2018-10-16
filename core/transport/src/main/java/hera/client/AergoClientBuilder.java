@@ -5,6 +5,7 @@
 package hera.client;
 
 import static hera.DefaultConstants.DEFAULT_ENDPOINT;
+import static hera.DefaultConstants.DEFAULT_TIMEOUT;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Context;
@@ -13,6 +14,7 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.HostnameAndPort;
 import hera.strategy.ConnectStrategy;
+import hera.strategy.FutureTimeoutStrategy;
 import hera.strategy.LocalSignStrategy;
 import hera.strategy.NettyConnectStrategy;
 import hera.strategy.SignStrategy;
@@ -32,6 +34,7 @@ public class AergoClientBuilder {
     defaultContext = new Context();
     defaultContext.addStrategy(new NettyConnectStrategy(HostnameAndPort.of(DEFAULT_ENDPOINT)));
     defaultContext.addStrategy(new LocalSignStrategy());
+    defaultContext.addStrategy(new FutureTimeoutStrategy(DEFAULT_TIMEOUT));
   }
 
   @SuppressWarnings("rawtypes")

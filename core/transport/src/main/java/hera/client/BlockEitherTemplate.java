@@ -4,7 +4,6 @@
 
 package hera.client;
 
-import static hera.TransportConstants.TIMEOUT;
 import static hera.api.tupleorerror.FunctionChain.fail;
 
 import hera.Context;
@@ -14,11 +13,13 @@ import hera.api.BlockEitherOperation;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
+import hera.api.model.Time;
 import hera.api.tupleorerror.ResultOrError;
 import hera.exception.RpcException;
+import hera.strategy.TimeoutStrategy;
 import io.grpc.ManagedChannel;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import lombok.Getter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
@@ -28,6 +29,10 @@ public class BlockEitherTemplate implements BlockEitherOperation, ChannelInjecta
   protected Context context;
 
   protected BlockAsyncTemplate blockAsyncOperation = new BlockAsyncTemplate();
+
+  @Getter(lazy = true)
+  private final Time timeout =
+      context.getStrategy(TimeoutStrategy.class).map(TimeoutStrategy::getTimeout).get();
 
   @Override
   public void setContext(final Context context) {
@@ -43,7 +48,8 @@ public class BlockEitherTemplate implements BlockEitherOperation, ChannelInjecta
   @Override
   public ResultOrError<Block> getBlock(BlockHash blockHash) {
     try {
-      return blockAsyncOperation.getBlock(blockHash).get(TIMEOUT, TimeUnit.MILLISECONDS);
+      return blockAsyncOperation.getBlock(blockHash).get(getTimeout().getValue(),
+          getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));
     }
@@ -52,7 +58,8 @@ public class BlockEitherTemplate implements BlockEitherOperation, ChannelInjecta
   @Override
   public ResultOrError<Block> getBlock(final long height) {
     try {
-      return blockAsyncOperation.getBlock(height).get(TIMEOUT, TimeUnit.MILLISECONDS);
+      return blockAsyncOperation.getBlock(height).get(getTimeout().getValue(),
+          getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));
     }
@@ -61,8 +68,8 @@ public class BlockEitherTemplate implements BlockEitherOperation, ChannelInjecta
   @Override
   public ResultOrError<List<BlockHeader>> listBlockHeaders(BlockHash blockHash, int size) {
     try {
-      return blockAsyncOperation.listBlockHeaders(blockHash, size).get(TIMEOUT,
-          TimeUnit.MILLISECONDS);
+      return blockAsyncOperation.listBlockHeaders(blockHash, size).get(getTimeout().getValue(),
+          getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));
     }
@@ -71,7 +78,8 @@ public class BlockEitherTemplate implements BlockEitherOperation, ChannelInjecta
   @Override
   public ResultOrError<List<BlockHeader>> listBlockHeaders(long height, int size) {
     try {
-      return blockAsyncOperation.listBlockHeaders(height, size).get(TIMEOUT, TimeUnit.MILLISECONDS);
+      return blockAsyncOperation.listBlockHeaders(height, size).get(getTimeout().getValue(),
+          getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));
     }

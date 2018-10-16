@@ -4,7 +4,6 @@
 
 package hera.client;
 
-import static hera.TransportConstants.TIMEOUT;
 import static hera.api.tupleorerror.FunctionChain.fail;
 
 import hera.Context;
@@ -15,11 +14,13 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.Time;
 import hera.api.tupleorerror.ResultOrError;
 import hera.exception.RpcException;
+import hera.strategy.TimeoutStrategy;
 import io.grpc.ManagedChannel;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import lombok.Getter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
@@ -29,6 +30,10 @@ public class AccountEitherTemplate implements AccountEitherOperation, ChannelInj
   protected Context context;
 
   protected AccountAsyncTemplate accountAsyncOperation = new AccountAsyncTemplate();
+
+  @Getter(lazy = true)
+  private final Time timeout =
+      context.getStrategy(TimeoutStrategy.class).map(TimeoutStrategy::getTimeout).get();
 
   @Override
   public void setContext(final Context context) {
@@ -44,7 +49,7 @@ public class AccountEitherTemplate implements AccountEitherOperation, ChannelInj
   @Override
   public ResultOrError<List<Account>> list() {
     try {
-      return accountAsyncOperation.list().get(TIMEOUT, TimeUnit.MILLISECONDS);
+      return accountAsyncOperation.list().get(getTimeout().getValue(), getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));
     }
@@ -53,7 +58,8 @@ public class AccountEitherTemplate implements AccountEitherOperation, ChannelInj
   @Override
   public ResultOrError<Account> create(String password) {
     try {
-      return accountAsyncOperation.create(password).get(TIMEOUT, TimeUnit.MILLISECONDS);
+      return accountAsyncOperation.create(password).get(getTimeout().getValue(),
+          getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));
     }
@@ -62,7 +68,8 @@ public class AccountEitherTemplate implements AccountEitherOperation, ChannelInj
   @Override
   public ResultOrError<Account> get(AccountAddress address) {
     try {
-      return accountAsyncOperation.get(address).get(TIMEOUT, TimeUnit.MILLISECONDS);
+      return accountAsyncOperation.get(address).get(getTimeout().getValue(),
+          getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));
     }
@@ -71,7 +78,8 @@ public class AccountEitherTemplate implements AccountEitherOperation, ChannelInj
   @Override
   public ResultOrError<Boolean> lock(final Authentication authentication) {
     try {
-      return accountAsyncOperation.lock(authentication).get(TIMEOUT, TimeUnit.MILLISECONDS);
+      return accountAsyncOperation.lock(authentication).get(getTimeout().getValue(),
+          getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));
     }
@@ -80,7 +88,8 @@ public class AccountEitherTemplate implements AccountEitherOperation, ChannelInj
   @Override
   public ResultOrError<Boolean> unlock(final Authentication authentication) {
     try {
-      return accountAsyncOperation.unlock(authentication).get(TIMEOUT, TimeUnit.MILLISECONDS);
+      return accountAsyncOperation.unlock(authentication).get(getTimeout().getValue(),
+          getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));
     }
@@ -90,8 +99,8 @@ public class AccountEitherTemplate implements AccountEitherOperation, ChannelInj
   public ResultOrError<Account> importKey(final EncryptedPrivateKey encryptedKey,
       final String oldPassword, final String newPassword) {
     try {
-      return accountAsyncOperation.importKey(encryptedKey, oldPassword, newPassword).get(TIMEOUT,
-          TimeUnit.MILLISECONDS);
+      return accountAsyncOperation.importKey(encryptedKey, oldPassword, newPassword)
+          .get(getTimeout().getValue(), getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));
     }
@@ -100,7 +109,8 @@ public class AccountEitherTemplate implements AccountEitherOperation, ChannelInj
   @Override
   public ResultOrError<EncryptedPrivateKey> exportKey(final Authentication authentication) {
     try {
-      return accountAsyncOperation.exportKey(authentication).get(TIMEOUT, TimeUnit.MILLISECONDS);
+      return accountAsyncOperation.exportKey(authentication).get(getTimeout().getValue(),
+          getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));
     }

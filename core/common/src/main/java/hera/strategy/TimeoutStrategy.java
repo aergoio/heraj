@@ -5,14 +5,8 @@
 package hera.strategy;
 
 import hera.Strategy;
+import hera.api.model.Time;
 
 public interface TimeoutStrategy extends Strategy {
-
-  /**
-   * Get timeout value in milliseconds.
-   *
-   * @return timeout in milliseconds
-   */
-  long getTimeout();
-
+  Time getTimeout();
 }
