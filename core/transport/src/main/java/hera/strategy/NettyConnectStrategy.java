@@ -18,6 +18,10 @@ public class NettyConnectStrategy implements ConnectStrategy<ManagedChannel> {
   @NonNull
   protected final HostnameAndPort endpoint;
 
+  public NettyConnectStrategy(final String hostname) {
+    this(HostnameAndPort.of(hostname));
+  }
+
   @Override
   public ManagedChannel connect() {
     return NettyChannelBuilder

@@ -37,8 +37,8 @@ public class AergoClient extends AbstractAergoApi implements Closeable, AutoClos
       .map(ConnectStrategy::connect).get();
 
   @Getter(lazy = true)
-  private final SignOperation signOperation =
-      context.getStrategy(SignStrategy.class).map(s -> s.getSignOperation(channel, context)).get();
+  private final SignOperation signOperation = context.getStrategy(SignStrategy.class)
+      .map(s -> s.getSignOperation(getChannel(), context)).get();
 
   @Getter(lazy = true)
   private final AccountOperation accountOperation = new AccountTemplate(getChannel(), context);

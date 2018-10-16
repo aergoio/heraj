@@ -11,9 +11,6 @@ import hera.Context;
 import hera.Strategy;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.AergoApi;
-import hera.api.AergoAsyncApi;
-import hera.api.AergoEitherApi;
 import hera.api.model.HostnameAndPort;
 import hera.strategy.ConnectStrategy;
 import hera.strategy.LocalSignStrategy;
@@ -68,7 +65,7 @@ public class AergoClientBuilder {
    *
    * @return {@link AergoClient}
    */
-  public AergoApi build() {
+  public AergoClient build() {
     ensureNecessaryStrategy();
     logger.debug("Build client, current context: {}", context);
     return new AergoClient(context);
@@ -79,7 +76,7 @@ public class AergoClientBuilder {
    *
    * @return {@link AergoEitherClient}
    */
-  public AergoEitherApi buildEither() {
+  public AergoEitherClient buildEither() {
     ensureNecessaryStrategy();
     logger.debug("Build client, current context: {}", context);
     return new AergoEitherClient(context);
@@ -90,7 +87,7 @@ public class AergoClientBuilder {
    *
    * @return {@link AergoAsyncClient}
    */
-  public AergoAsyncApi buildAsync() {
+  public AergoAsyncClient buildAsync() {
     ensureNecessaryStrategy();
     logger.debug("Build client, current context: {}", context);
     return new AergoAsyncClient(context);

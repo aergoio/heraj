@@ -4,13 +4,10 @@
 
 package hera.client.it;
 
-import static hera.DefaultConstants.DEFAULT_ENDPOINT;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import hera.api.AergoApi;
 import hera.api.model.Account;
 import hera.api.model.Authentication;
 import hera.api.model.ContractAddress;
@@ -20,7 +17,7 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
-import hera.api.model.HostnameAndPort;
+import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
@@ -37,23 +34,11 @@ import org.junit.Test;
 
 public class ContractTemplateIT extends AbstractIT {
 
-  protected static final String PASSWORD = randomUUID().toString();
-
-  protected AergoApi localSignAergoApi;
-
-  protected AergoApi remoteSignAergoApi;
 
   protected String encodedPayload;
 
   @Before
   public void setUp() {
-    super.setUp();
-    localSignAergoApi = new AergoClientBuilder()
-        .addStrategy(new NettyConnectStrategy(HostnameAndPort.of(DEFAULT_ENDPOINT)))
-        .addStrategy(new LocalSignStrategy()).build();
-    remoteSignAergoApi = new AergoClientBuilder()
-        .addStrategy(new NettyConnectStrategy(HostnameAndPort.of(DEFAULT_ENDPOINT)))
-        .addStrategy(new RemoteSignStrategy()).build();
     try {
       final Reader reader = new InputStreamReader(open("payload"));
       encodedPayload = IoUtils.from(reader);
@@ -63,115 +48,116 @@ public class ContractTemplateIT extends AbstractIT {
   }
 
   @Test
-  public void testLuaContractDeployandExecuteBySigningLocally() throws Exception {
+  public void testLuaContractLocally() throws Exception {
+    final AergoClient aergoClient = new AergoClientBuilder()
+        .addStrategy(new NettyConnectStrategy(hostname))
+        .addStrategy(new LocalSignStrategy())
+        .build();
+
     final AergoKey key = new AergoKeyGenerator().create();
     final AtomicLong nonce = new AtomicLong(1);
-    final ContractTxHash deployTxHash = localSignAergoApi.getContractOperation().deploy(key,
+
+    final ContractTxHash deployTxHash = aergoClient.getContractOperation().deploy(key,
         key.getAddress(), nonce.getAndIncrement(), () -> encodedPayload);
-    logger.debug("Deploy hash: {}", deployTxHash);
+    logger.info("Deploy hash: {}", deployTxHash);
 
     waitForNextBlockToGenerate();
 
     final ContractTxReceipt definitionReceipt =
-        localSignAergoApi.getContractOperation().getReceipt(deployTxHash);
-    final ContractAddress contractAddress = definitionReceipt.getContractAddress();
-    logger.debug("Deploy receipt: {}", definitionReceipt);
-    assertTrue(!definitionReceipt.getContractAddress().getBytesValue().isEmpty());
+        aergoClient.getContractOperation().getReceipt(deployTxHash);
+    logger.info("Deploy receipt: {}", definitionReceipt);
     assertEquals("CREATED", definitionReceipt.getStatus());
 
+    final ContractAddress contractAddress = definitionReceipt.getContractAddress();
+
     final ContractInterface contractInterface =
-        localSignAergoApi.getContractOperation().getContractInterface(contractAddress);
-    assertNotNull(contractInterface);
-    logger.debug("Contract interface: {}", contractInterface);
+        aergoClient.getContractOperation().getContractInterface(contractAddress);
+    logger.info("Contract interface: {}", contractInterface);
 
     final ContractFunction executionFunction = contractInterface.findFunction("exec").get();
-    assertNotNull(executionFunction);
-    logger.debug("Execution function: {}", executionFunction);
-
-    final ContractInvocation executionCall = new ContractInvocation(contractAddress,
-        executionFunction, Arrays.asList(new Object[] {"key1", "value1"}));
-    final ContractTxHash executionTxHash = localSignAergoApi.getContractOperation().execute(key,
-        key.getAddress(), nonce.getAndIncrement(), executionCall);
-    assertNotNull(executionTxHash);
-    logger.debug("Execution hash: {}", executionTxHash);
+    final ContractInvocation execution = new ContractInvocation(contractAddress, executionFunction,
+        Arrays.asList(new Object[] {"key1", "value1"}));
+    logger.info("Execution invocation : {}", execution);
+    final ContractTxHash executionTxHash = aergoClient.getContractOperation().execute(key,
+        key.getAddress(), nonce.getAndIncrement(), execution);
+    logger.info("Execution hash: {}", executionTxHash);
 
     waitForNextBlockToGenerate();
 
     final ContractTxReceipt executionReceipt =
-        localSignAergoApi.getContractOperation().getReceipt(executionTxHash);
-    logger.debug("Execution receipt: {}", definitionReceipt);
-    assertTrue(!executionReceipt.getContractAddress().getBytesValue().isEmpty());
+        aergoClient.getContractOperation().getReceipt(executionTxHash);
+    logger.info("Execution receipt: {}", executionReceipt);
     assertEquals("SUCCESS", executionReceipt.getStatus());
     assertTrue(0 < executionReceipt.getRet().length());
 
     final ContractFunction queryFunction = contractInterface.findFunction("query").get();
-    assertNotNull(queryFunction);
-    logger.debug("Query function: {}", queryFunction);
+    final ContractInvocation query = new ContractInvocation(contractAddress, queryFunction);
+    logger.info("Query invocation : {}", query);
+    final ContractResult queryResult = aergoClient.getContractOperation().query(query);
+    logger.info("Query result: {}", queryResult);
 
-    final ContractInvocation queryCall = new ContractInvocation(contractAddress, queryFunction);
-    final ContractResult queryResult = localSignAergoApi.getContractOperation().query(queryCall);
-    assertNotNull(queryResult);
-    logger.debug("Query result: {}", queryResult);
+    aergoClient.close();
   }
 
   @Test
-  public void testLuaContractDeployandExecuteBySigningRemotely() throws Exception {
-    final Account account = remoteSignAergoApi.getAccountOperation().create(PASSWORD);
+  public void testLuaContractRemotely() throws Exception {
+    final AergoClient aergoClient = new AergoClientBuilder()
+        .addStrategy(new NettyConnectStrategy(hostname))
+        .addStrategy(new RemoteSignStrategy())
+        .build();
+
+    final String password = randomUUID().toString();
+
+    final Account account = aergoClient.getAccountOperation().create(password);
     final AtomicLong nonce = new AtomicLong(1);
 
-    boolean unlockResult = remoteSignAergoApi.getAccountOperation()
-        .unlock(Authentication.of(account.getAddress(), PASSWORD));
+    final boolean unlockResult =
+        aergoClient.getAccountOperation().unlock(Authentication.of(account.getAddress(), password));
     assertTrue(unlockResult);
 
-    final ContractTxHash deployTxHash = remoteSignAergoApi.getContractOperation().deploy(null,
+    final ContractTxHash deployTxHash = aergoClient.getContractOperation().deploy(null,
         account.getAddress(), nonce.getAndIncrement(), () -> encodedPayload);
-    logger.debug("Deploy hash: {}", deployTxHash);
+    logger.info("Deploy hash: {}", deployTxHash);
 
     waitForNextBlockToGenerate();
 
     final ContractTxReceipt definitionReceipt =
-        remoteSignAergoApi.getContractOperation().getReceipt(deployTxHash);
-    final ContractAddress contractAddress = definitionReceipt.getContractAddress();
-    logger.debug("Deploy receipt: {}", definitionReceipt);
-    assertTrue(!definitionReceipt.getContractAddress().getBytesValue().isEmpty());
+        aergoClient.getContractOperation().getReceipt(deployTxHash);
+    logger.info("Deploy receipt: {}", definitionReceipt);
     assertEquals("CREATED", definitionReceipt.getStatus());
 
+    final ContractAddress contractAddress = definitionReceipt.getContractAddress();
+
     final ContractInterface contractInterface =
-        remoteSignAergoApi.getContractOperation().getContractInterface(contractAddress);
-    assertNotNull(contractInterface);
-    logger.debug("Contract interface: {}", contractInterface);
+        aergoClient.getContractOperation().getContractInterface(contractAddress);
+    logger.info("Contract interface: {}", contractInterface);
 
     final ContractFunction executionFunction = contractInterface.findFunction("exec").get();
-    assertNotNull(executionFunction);
-    logger.debug("Execution function: {}", executionFunction);
-
-    final ContractInvocation executionCall = new ContractInvocation(contractAddress,
-        executionFunction, Arrays.asList(new Object[] {"key1", "value1"}));
-    final ContractTxHash executionTxHash = remoteSignAergoApi.getContractOperation().execute(null,
-        account.getAddress(), nonce.getAndIncrement(), executionCall);
-    assertNotNull(executionTxHash);
-    logger.debug("Execution hash: {}", executionTxHash);
+    final ContractInvocation execution = new ContractInvocation(contractAddress, executionFunction,
+        Arrays.asList(new Object[] {"key1", "value1"}));
+    logger.info("Execution invocation : {}", execution);
+    final ContractTxHash executionTxHash = aergoClient.getContractOperation().execute(null,
+        account.getAddress(), nonce.getAndIncrement(), execution);
+    logger.info("Execution hash: {}", executionTxHash);
 
     waitForNextBlockToGenerate();
 
     final ContractTxReceipt executionReceipt =
-        remoteSignAergoApi.getContractOperation().getReceipt(executionTxHash);
-    logger.debug("Execution receipt: {}", definitionReceipt);
-    assertTrue(!executionReceipt.getContractAddress().getBytesValue().isEmpty());
+        aergoClient.getContractOperation().getReceipt(executionTxHash);
+    logger.info("Execution receipt: {}", executionReceipt);
     assertEquals("SUCCESS", executionReceipt.getStatus());
     assertTrue(0 < executionReceipt.getRet().length());
 
     final ContractFunction queryFunction = contractInterface.findFunction("query").get();
-    assertNotNull(queryFunction);
-    logger.debug("Query function: {}", queryFunction);
+    final ContractInvocation query = new ContractInvocation(contractAddress, queryFunction);
+    logger.info("Query invocation : {}", query);
+    final ContractResult queryResult = aergoClient.getContractOperation().query(query);
+    logger.info("Query result: {}", queryResult);
 
-    final ContractInvocation queryCall = new ContractInvocation(contractAddress, queryFunction);
-    final ContractResult queryResult = remoteSignAergoApi.getContractOperation().query(queryCall);
-    assertNotNull(queryResult);
-    logger.debug("Query result: {}", queryResult);
-
-    boolean lockResult = remoteSignAergoApi.getAccountOperation()
-        .lock(Authentication.of(account.getAddress(), PASSWORD));
+    final boolean lockResult =
+        aergoClient.getAccountOperation().lock(Authentication.of(account.getAddress(), password));
     assertTrue(lockResult);
+
+    aergoClient.close();
   }
 }
