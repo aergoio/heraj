@@ -4,34 +4,33 @@
 
 package hera.client;
 
-import static types.AergoRPCServiceGrpc.newFutureStub;
-
 import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.BlockEitherOperation;
 import hera.api.BlockOperation;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
 import io.grpc.ManagedChannel;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
-import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-@RequiredArgsConstructor
-public class BlockTemplate implements BlockOperation {
+public class BlockTemplate implements BlockOperation, ChannelInjectable {
 
-  protected final BlockEitherOperation blockEitherOperation;
+  protected Context context;
 
-  public BlockTemplate(final ManagedChannel channel, final Context context) {
-    this(newFutureStub(channel), context);
+  protected BlockEitherTemplate blockEitherOperation = new BlockEitherTemplate();
+
+  @Override
+  public void setContext(final Context context) {
+    this.context = context;
+    blockEitherOperation.setContext(context);
   }
 
-  public BlockTemplate(final AergoRPCServiceFutureStub aergoService, final Context context) {
-    this(new BlockEitherTemplate(aergoService, context));
+  @Override
+  public void injectChannel(final ManagedChannel channel) {
+    blockEitherOperation.injectChannel(channel);
   }
 
   @Override

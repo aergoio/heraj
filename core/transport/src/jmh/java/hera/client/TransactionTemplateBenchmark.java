@@ -10,8 +10,8 @@ import hera.api.model.Account;
 import hera.api.model.Authentication;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
-import io.grpc.ManagedChannel;
-import io.grpc.netty.NettyChannelBuilder;
+import hera.api.model.TxHash;
+import hera.strategy.NettyConnectStrategy;
 import java.util.concurrent.atomic.AtomicLong;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -30,13 +30,7 @@ public class TransactionTemplateBenchmark {
   @State(Scope.Thread)
   public static class User {
 
-    protected ManagedChannel channel = null;
-
-    protected SignEitherTemplate signTemplate = null;
-
-    protected AccountEitherTemplate accountTemplate = null;
-
-    protected TransactionEitherTemplate transactionTemplate = null;
+    protected AergoClient aergoClient;
 
     protected Account sender;
 
@@ -46,21 +40,16 @@ public class TransactionTemplateBenchmark {
 
     @Setup(Level.Trial)
     public synchronized void setUp() {
-      channel = NettyChannelBuilder
-          .forAddress("localhost", 7845)
-          .usePlaintext()
-          .build();
-      signTemplate = new SignEitherTemplate(channel, null);
-      accountTemplate = new AccountEitherTemplate(channel, null);
-      transactionTemplate = new TransactionEitherTemplate(channel, null);
-      sender = accountTemplate.create(PASSWORD).getResult();
-      recipient = accountTemplate.create(PASSWORD).getResult();
-      accountTemplate.unlock(Authentication.of(sender.getAddress(), PASSWORD));
+      aergoClient =
+          new AergoClientBuilder().addStrategy(new NettyConnectStrategy("localhost:7845")).build();
+      sender = aergoClient.getAccountOperation().create(PASSWORD);
+      recipient = aergoClient.getAccountOperation().create(PASSWORD);
+      aergoClient.getAccountOperation().unlock(Authentication.of(sender.getAddress(), PASSWORD));
     }
 
     @TearDown(Level.Trial)
     public void tearDown() {
-      channel.shutdown();
+      aergoClient.close();
     }
 
     public void sendTransaction() {
@@ -69,11 +58,11 @@ public class TransactionTemplateBenchmark {
       transaction.setAmount(30);
       transaction.setSender(sender.getAddress());
       transaction.setRecipient(recipient.getAddress());
-      final Signature signature = signTemplate.sign(null, transaction).getResult();
+      final Signature signature = aergoClient.getSignOperation().sign(null, transaction);
 
       transaction.setSignature(signature);
-      transactionTemplate.commit(transaction);
-      transactionTemplate.getTransaction(signature.getTxHash());
+      final TxHash txHash = aergoClient.getTransactionOperation().commit(transaction);
+      aergoClient.getTransactionOperation().getTransaction(txHash);
     }
   }
 

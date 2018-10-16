@@ -6,7 +6,6 @@ package hera.client;
 
 import static hera.TransportConstants.TIMEOUT;
 import static hera.api.tupleorerror.FunctionChain.fail;
-import static types.AergoRPCServiceGrpc.newFutureStub;
 
 import hera.Context;
 import hera.annotation.ApiAudience;
@@ -22,23 +21,25 @@ import hera.key.AergoKey;
 import io.grpc.ManagedChannel;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import lombok.RequiredArgsConstructor;
-import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
 @ApiAudience.Private
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
-@RequiredArgsConstructor
-public class SignEitherTemplate implements SignEitherOperation {
+public class SignEitherTemplate implements SignEitherOperation, ChannelInjectable {
 
-  protected final SignAsyncOperation signAsyncOperation;
+  protected Context context;
 
-  public SignEitherTemplate(final ManagedChannel channel, final Context context) {
-    this(newFutureStub(channel), context);
+  protected SignAsyncTemplate signAsyncOperation = new SignAsyncTemplate();
+
+  @Override
+  public void setContext(final Context context) {
+    this.context = context;
+    signAsyncOperation.setContext(context);
   }
 
-  public SignEitherTemplate(final AergoRPCServiceFutureStub aergoService, final Context context) {
-    this(new SignAsyncTemplate(aergoService, context));
+  @Override
+  public void injectChannel(final ManagedChannel channel) {
+    this.signAsyncOperation.injectChannel(channel);
   }
 
   @Override
@@ -64,7 +65,11 @@ public class SignEitherTemplate implements SignEitherOperation {
     if (adaptor.isAssignableFrom(SignEitherOperation.class)) {
       return (Optional<T>) Optional.of(this);
     } else if (adaptor.isAssignableFrom(SignOperation.class)) {
-      return (Optional<T>) Optional.of(new SignTemplate(this));
+      final SignTemplate signOperation = new SignTemplate();
+      signOperation.setContext(context);
+      signOperation
+          .injectChannel((ManagedChannel) signAsyncOperation.getAergoService().getChannel());
+      return (Optional<T>) Optional.of(signOperation);
     } else if (adaptor.isAssignableFrom(SignAsyncOperation.class)) {
       return (Optional<T>) Optional.of(signAsyncOperation);
     }

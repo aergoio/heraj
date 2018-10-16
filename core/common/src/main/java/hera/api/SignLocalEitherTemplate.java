@@ -15,18 +15,20 @@ import hera.api.tupleorerror.ResultOrError;
 import hera.exception.HerajException;
 import hera.key.AergoKey;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
 
 @ApiAudience.Private
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
-@RequiredArgsConstructor
 public class SignLocalEitherTemplate implements SignEitherOperation {
 
-  protected final SignAsyncOperation signAsyncOperation;
+  protected Context context;
 
-  public SignLocalEitherTemplate(final Context context) {
-    this(new SignLocalAsyncTemplate(context));
+  protected SignLocalAsyncTemplate signAsyncOperation = new SignLocalAsyncTemplate();
+
+  @Override
+  public void setContext(Context context) {
+    this.context = context;
+    signAsyncOperation.setContext(context);
   }
 
   @Override
@@ -52,7 +54,9 @@ public class SignLocalEitherTemplate implements SignEitherOperation {
     if (adaptor.isAssignableFrom(SignEitherOperation.class)) {
       return (Optional<T>) Optional.of(this);
     } else if (adaptor.isAssignableFrom(SignOperation.class)) {
-      return (Optional<T>) Optional.of(new SignLocalTemplate(this));
+      final SignOperation signOperation = new SignLocalTemplate();
+      signOperation.setContext(context);
+      return (Optional<T>) Optional.of(signOperation);
     } else if (adaptor.isAssignableFrom(SignAsyncOperation.class)) {
       return (Optional<T>) Optional.of(signAsyncOperation);
     }

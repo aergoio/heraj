@@ -31,7 +31,8 @@ import hera.transport.EncryptedPrivateKeyConverterFactory;
 import hera.transport.ModelConverter;
 import io.grpc.ManagedChannel;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import types.AccountOuterClass;
 import types.AccountOuterClass.AccountList;
@@ -42,38 +43,34 @@ import types.Rpc;
 @ApiAudience.Private
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
-@RequiredArgsConstructor
-public class AccountAsyncTemplate implements AccountAsyncOperation {
+public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjectable {
 
   protected final Logger logger = getLogger(getClass());
 
-  protected final AergoRPCServiceFutureStub aergoService;
+  protected final ModelConverter<AccountAddress, ByteString> accountAddressConverter =
+      new AccountAddressConverterFactory().create();
 
-  protected final Context context;
+  protected final ModelConverter<EncryptedPrivateKey, Rpc.SingleBytes> encryptedPkConverter =
+      new EncryptedPrivateKeyConverterFactory().create();
 
-  protected final ModelConverter<AccountAddress, ByteString> accountAddressConverter;
+  protected final ModelConverter<Account, AccountOuterClass.Account> accountConverter =
+      new AccountConverterFactory().create();
 
-  protected final ModelConverter<EncryptedPrivateKey, Rpc.SingleBytes> encryptedPrivateKeyConverter;
+  protected final ModelConverter<Account, Blockchain.State> accountStateConverter =
+      new AccountStateConverterFactory().create();
 
-  protected final ModelConverter<Account, AccountOuterClass.Account> accountConverter;
+  protected final ModelConverter<Authentication, Rpc.Personal> authenticationConverter =
+      new AuthenticationConverterFactory().create();
 
-  protected final ModelConverter<Account, Blockchain.State> accountStateConverter;
+  @Setter
+  protected Context context;
 
-  protected final ModelConverter<Authentication, Rpc.Personal> authenticationConverter;
+  @Getter
+  protected AergoRPCServiceFutureStub aergoService;
 
-  public AccountAsyncTemplate(final ManagedChannel channel, final Context context) {
-    this(newFutureStub(channel), context);
-  }
-
-  /**
-   * AccountAsyncTemplate constructor.
-   *
-   * @param aergoService aergo service
-   */
-  public AccountAsyncTemplate(final AergoRPCServiceFutureStub aergoService, final Context context) {
-    this(aergoService, context, new AccountAddressConverterFactory().create(),
-        new EncryptedPrivateKeyConverterFactory().create(), new AccountConverterFactory().create(),
-        new AccountStateConverterFactory().create(), new AuthenticationConverterFactory().create());
+  @Override
+  public void injectChannel(final ManagedChannel channel) {
+    this.aergoService = newFutureStub(channel);
   }
 
   @Override
@@ -156,9 +153,9 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
       final String oldPassword, final String newPassword) {
     ResultOrErrorFuture<Account> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-    final Rpc.ImportFormat importFormat = Rpc.ImportFormat.newBuilder()
-        .setWif(encryptedPrivateKeyConverter.convertToRpcModel(encryptedKey))
-        .setOldpass(oldPassword).setNewpass(newPassword).build();
+    final Rpc.ImportFormat importFormat =
+        Rpc.ImportFormat.newBuilder().setWif(encryptedPkConverter.convertToRpcModel(encryptedKey))
+            .setOldpass(oldPassword).setNewpass(newPassword).build();
     ListenableFuture<AccountOuterClass.Account> listenableFuture =
         aergoService.importAccount(importFormat);
     FutureChainer<AccountOuterClass.Account, Account> callback = new FutureChainer<>(nextFuture,
@@ -175,8 +172,8 @@ public class AccountAsyncTemplate implements AccountAsyncOperation {
 
     ListenableFuture<Rpc.SingleBytes> listenableFuture =
         aergoService.exportAccount(authenticationConverter.convertToRpcModel(authentication));
-    FutureChainer<Rpc.SingleBytes, EncryptedPrivateKey> callback = new FutureChainer<>(nextFuture,
-        sb -> encryptedPrivateKeyConverter.convertToDomainModel(sb));
+    FutureChainer<Rpc.SingleBytes, EncryptedPrivateKey> callback =
+        new FutureChainer<>(nextFuture, sb -> encryptedPkConverter.convertToDomainModel(sb));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;

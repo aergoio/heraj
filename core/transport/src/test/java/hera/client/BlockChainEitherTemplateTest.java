@@ -12,7 +12,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import hera.AbstractTestCase;
-import hera.api.BlockChainAsyncOperation;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.PeerAddress;
@@ -35,11 +34,11 @@ public class BlockChainEitherTemplateTest extends AbstractTestCase {
   public void testGetBlockchainStatus() throws Exception {
     ResultOrErrorFuture<BlockchainStatus> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    BlockChainAsyncOperation asyncOperationMock = mock(BlockChainAsyncOperation.class);
+    BlockChainAsyncTemplate asyncOperationMock = mock(BlockChainAsyncTemplate.class);
     when(asyncOperationMock.getBlockchainStatus()).thenReturn(futureMock);
 
-    final BlockChainEitherTemplate blockChainTemplate =
-        new BlockChainEitherTemplate(asyncOperationMock);
+    final BlockChainEitherTemplate blockChainTemplate = new BlockChainEitherTemplate();
+    blockChainTemplate.blockChainAsyncOperation = asyncOperationMock;
 
     final ResultOrError<BlockchainStatus> blockchainStatus =
         blockChainTemplate.getBlockchainStatus();
@@ -50,11 +49,11 @@ public class BlockChainEitherTemplateTest extends AbstractTestCase {
   public void testGetBlockchainStatusWithTimeout() throws Exception {
     ResultOrErrorFuture<BlockchainStatus> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
-    BlockChainAsyncOperation asyncOperationMock = mock(BlockChainAsyncOperation.class);
+    BlockChainAsyncTemplate asyncOperationMock = mock(BlockChainAsyncTemplate.class);
     when(asyncOperationMock.getBlockchainStatus()).thenReturn(futureMock);
 
-    final BlockChainEitherTemplate blockChainTemplate =
-        new BlockChainEitherTemplate(asyncOperationMock);
+    final BlockChainEitherTemplate blockChainTemplate = new BlockChainEitherTemplate();
+    blockChainTemplate.blockChainAsyncOperation = asyncOperationMock;
 
     final ResultOrError<BlockchainStatus> blockchainStatus =
         blockChainTemplate.getBlockchainStatus();
@@ -65,11 +64,11 @@ public class BlockChainEitherTemplateTest extends AbstractTestCase {
   public void testListPeers() throws Exception {
     ResultOrErrorFuture<List<PeerAddress>> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    BlockChainAsyncOperation asyncOperationMock = mock(BlockChainAsyncOperation.class);
+    BlockChainAsyncTemplate asyncOperationMock = mock(BlockChainAsyncTemplate.class);
     when(asyncOperationMock.listPeers()).thenReturn(futureMock);
 
-    final BlockChainEitherTemplate blockChainTemplate =
-        new BlockChainEitherTemplate(asyncOperationMock);
+    final BlockChainEitherTemplate blockChainTemplate = new BlockChainEitherTemplate();
+    blockChainTemplate.blockChainAsyncOperation = asyncOperationMock;
 
     final ResultOrError<List<PeerAddress>> peerAddresses = blockChainTemplate.listPeers();
     assertNotNull(peerAddresses);
@@ -79,11 +78,11 @@ public class BlockChainEitherTemplateTest extends AbstractTestCase {
   public void testListPeersWithTimeout() throws Exception {
     ResultOrErrorFuture<List<PeerAddress>> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
-    BlockChainAsyncOperation asyncOperationMock = mock(BlockChainAsyncOperation.class);
+    BlockChainAsyncTemplate asyncOperationMock = mock(BlockChainAsyncTemplate.class);
     when(asyncOperationMock.listPeers()).thenReturn(futureMock);
 
-    final BlockChainEitherTemplate blockChainTemplate =
-        new BlockChainEitherTemplate(asyncOperationMock);
+    final BlockChainEitherTemplate blockChainTemplate = new BlockChainEitherTemplate();
+    blockChainTemplate.blockChainAsyncOperation = asyncOperationMock;
 
     final ResultOrError<List<PeerAddress>> peerAddresses = blockChainTemplate.listPeers();
     assertTrue(peerAddresses.hasError());
@@ -93,11 +92,11 @@ public class BlockChainEitherTemplateTest extends AbstractTestCase {
   public void testGetNodeStatus() throws Exception {
     ResultOrErrorFuture<NodeStatus> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    BlockChainAsyncOperation asyncOperationMock = mock(BlockChainAsyncOperation.class);
+    BlockChainAsyncTemplate asyncOperationMock = mock(BlockChainAsyncTemplate.class);
     when(asyncOperationMock.getNodeStatus()).thenReturn(futureMock);
 
-    final BlockChainEitherTemplate blockChainTemplate =
-        new BlockChainEitherTemplate(asyncOperationMock);
+    final BlockChainEitherTemplate blockChainTemplate = new BlockChainEitherTemplate();
+    blockChainTemplate.blockChainAsyncOperation = asyncOperationMock;
 
     final ResultOrError<NodeStatus> nodeStatus = blockChainTemplate.getNodeStatus();
     assertNotNull(nodeStatus);
@@ -107,11 +106,11 @@ public class BlockChainEitherTemplateTest extends AbstractTestCase {
   public void testGetNodeStatusWithError() throws Exception {
     ResultOrErrorFuture<NodeStatus> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
-    BlockChainAsyncOperation asyncOperationMock = mock(BlockChainAsyncOperation.class);
+    BlockChainAsyncTemplate asyncOperationMock = mock(BlockChainAsyncTemplate.class);
     when(asyncOperationMock.getNodeStatus()).thenReturn(futureMock);
 
-    final BlockChainEitherTemplate blockChainTemplate =
-        new BlockChainEitherTemplate(asyncOperationMock);
+    final BlockChainEitherTemplate blockChainTemplate = new BlockChainEitherTemplate();
+    blockChainTemplate.blockChainAsyncOperation = asyncOperationMock;
 
     final ResultOrError<NodeStatus> nodeStatus = blockChainTemplate.getNodeStatus();
     assertTrue(nodeStatus.hasError());

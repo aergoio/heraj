@@ -6,12 +6,10 @@ package hera.client;
 
 import static hera.TransportConstants.TIMEOUT;
 import static hera.api.tupleorerror.FunctionChain.fail;
-import static types.AergoRPCServiceGrpc.newFutureStub;
 
 import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.BlockAsyncOperation;
 import hera.api.BlockEitherOperation;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
@@ -21,23 +19,25 @@ import hera.exception.RpcException;
 import io.grpc.ManagedChannel;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import lombok.RequiredArgsConstructor;
-import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
 @ApiAudience.Private
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
-@RequiredArgsConstructor
-public class BlockEitherTemplate implements BlockEitherOperation {
+public class BlockEitherTemplate implements BlockEitherOperation, ChannelInjectable {
 
-  protected final BlockAsyncOperation blockAsyncOperation;
+  protected Context context;
 
-  public BlockEitherTemplate(final ManagedChannel channel, final Context context) {
-    this(newFutureStub(channel), context);
+  protected BlockAsyncTemplate blockAsyncOperation = new BlockAsyncTemplate();
+
+  @Override
+  public void setContext(final Context context) {
+    this.context = context;
+    blockAsyncOperation.setContext(context);
   }
 
-  public BlockEitherTemplate(final AergoRPCServiceFutureStub aergoService, final Context context) {
-    this(new BlockAsyncTemplate(aergoService, context));
+  @Override
+  public void injectChannel(final ManagedChannel channel) {
+    blockAsyncOperation.injectChannel(channel);
   }
 
   @Override
@@ -76,5 +76,6 @@ public class BlockEitherTemplate implements BlockEitherOperation {
       return fail(new RpcException(e));
     }
   }
+
 }
 

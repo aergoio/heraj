@@ -28,7 +28,8 @@ import hera.transport.BlockConverterFactory;
 import hera.transport.ModelConverter;
 import io.grpc.ManagedChannel;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Blockchain;
 import types.Rpc.BlockHeaderList;
@@ -38,21 +39,20 @@ import types.Rpc.SingleBytes;
 @ApiAudience.Private
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
-@RequiredArgsConstructor
-public class BlockAsyncTemplate implements BlockAsyncOperation {
+public class BlockAsyncTemplate implements BlockAsyncOperation, ChannelInjectable {
 
-  protected final AergoRPCServiceFutureStub aergoService;
+  protected final ModelConverter<Block, Blockchain.Block> blockConverter =
+      new BlockConverterFactory().create();
 
-  protected final Context context;
+  @Setter
+  protected Context context;
 
-  protected final ModelConverter<Block, Blockchain.Block> blockConverter;
+  @Getter
+  protected AergoRPCServiceFutureStub aergoService;
 
-  public BlockAsyncTemplate(final ManagedChannel channel, final Context context) {
-    this(newFutureStub(channel), context);
-  }
-
-  public BlockAsyncTemplate(final AergoRPCServiceFutureStub aergoService, final Context context) {
-    this(aergoService, context, new BlockConverterFactory().create());
+  @Override
+  public void injectChannel(final ManagedChannel channel) {
+    this.aergoService = newFutureStub(channel);
   }
 
   @Override

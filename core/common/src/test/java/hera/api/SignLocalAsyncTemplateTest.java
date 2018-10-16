@@ -19,7 +19,8 @@ public class SignLocalAsyncTemplateTest {
   @Test
   public void test() throws Exception {
     final AergoKey key = new AergoKeyGenerator().create();
-    final SignLocalAsyncTemplate signLocalAsyncTemplate = new SignLocalAsyncTemplate(context);
+    final SignLocalAsyncTemplate signLocalAsyncTemplate = new SignLocalAsyncTemplate();
+    signLocalAsyncTemplate.setContext(context);
 
     final Transaction transaction = new Transaction();
     final boolean result = signLocalAsyncTemplate.sign(key, transaction).flatMap(s -> {

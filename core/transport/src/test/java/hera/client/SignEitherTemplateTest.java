@@ -12,7 +12,6 @@ import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import hera.AbstractTestCase;
-import hera.api.SignAsyncOperation;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrError;
@@ -34,10 +33,11 @@ public class SignEitherTemplateTest extends AbstractTestCase {
   public void testSign() throws Exception {
     ResultOrErrorFuture<Signature> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    SignAsyncOperation asyncOperationMock = mock(SignAsyncOperation.class);
+    SignAsyncTemplate asyncOperationMock = mock(SignAsyncTemplate.class);
     when(asyncOperationMock.sign(any(), any(Transaction.class))).thenReturn(futureMock);
 
-    final SignEitherTemplate signTemplate = new SignEitherTemplate(asyncOperationMock);
+    final SignEitherTemplate signTemplate = new SignEitherTemplate();
+    signTemplate.signAsyncOperation = asyncOperationMock;
 
     final ResultOrError<Signature> signature = signTemplate.sign(null, new Transaction());
     assertNotNull(signature);
@@ -47,10 +47,11 @@ public class SignEitherTemplateTest extends AbstractTestCase {
   public void testSignWithTimeout() throws Exception {
     ResultOrErrorFuture<Signature> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
-    SignAsyncOperation asyncOperationMock = mock(SignAsyncOperation.class);
+    SignAsyncTemplate asyncOperationMock = mock(SignAsyncTemplate.class);
     when(asyncOperationMock.sign(any(), any(Transaction.class))).thenReturn(futureMock);
 
-    final SignEitherTemplate signTemplate = new SignEitherTemplate(asyncOperationMock);
+    final SignEitherTemplate signTemplate = new SignEitherTemplate();
+    signTemplate.signAsyncOperation = asyncOperationMock;
 
     final ResultOrError<Signature> signature = signTemplate.sign(null, new Transaction());
     assertTrue(signature.hasError());
@@ -60,10 +61,11 @@ public class SignEitherTemplateTest extends AbstractTestCase {
   public void testVerify() throws Exception {
     ResultOrErrorFuture<Boolean> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    SignAsyncOperation asyncOperationMock = mock(SignAsyncOperation.class);
+    SignAsyncTemplate asyncOperationMock = mock(SignAsyncTemplate.class);
     when(asyncOperationMock.verify(any(), any(Transaction.class))).thenReturn(futureMock);
 
-    final SignEitherTemplate signTemplate = new SignEitherTemplate(asyncOperationMock);
+    final SignEitherTemplate signTemplate = new SignEitherTemplate();
+    signTemplate.signAsyncOperation = asyncOperationMock;
 
     ResultOrError<Boolean> verifyResult = signTemplate.verify(null, new Transaction());
     assertNotNull(verifyResult);
@@ -73,10 +75,11 @@ public class SignEitherTemplateTest extends AbstractTestCase {
   public void testVerifyWithTimeout() throws Exception {
     ResultOrErrorFuture<Boolean> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
-    SignAsyncOperation asyncOperationMock = mock(SignAsyncOperation.class);
+    SignAsyncTemplate asyncOperationMock = mock(SignAsyncTemplate.class);
     when(asyncOperationMock.verify(any(), any(Transaction.class))).thenReturn(futureMock);
 
-    final SignEitherTemplate signTemplate = new SignEitherTemplate(asyncOperationMock);
+    final SignEitherTemplate signTemplate = new SignEitherTemplate();
+    signTemplate.signAsyncOperation = asyncOperationMock;
 
     ResultOrError<Boolean> verifyResult = signTemplate.verify(null, new Transaction());
     assertTrue(verifyResult.hasError());

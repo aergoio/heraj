@@ -14,7 +14,6 @@ import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import hera.AbstractTestCase;
-import hera.api.TransactionAsyncOperation;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrError;
@@ -36,11 +35,11 @@ public class TransactionEitherTemplateTest extends AbstractTestCase {
   public void testGetTransaction() throws Exception {
     ResultOrErrorFuture<Transaction> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    TransactionAsyncOperation asyncOperationMock = mock(TransactionAsyncOperation.class);
+    TransactionAsyncTemplate asyncOperationMock = mock(TransactionAsyncTemplate.class);
     when(asyncOperationMock.getTransaction(any())).thenReturn(futureMock);
 
-    final TransactionEitherTemplate transactionTemplate =
-        new TransactionEitherTemplate(asyncOperationMock);
+    final TransactionEitherTemplate transactionTemplate = new TransactionEitherTemplate();
+    transactionTemplate.transactionAsyncOperation = asyncOperationMock;
 
     final ResultOrError<Transaction> transaction =
         transactionTemplate.getTransaction(new TxHash(of(randomUUID().toString().getBytes())));
@@ -51,11 +50,11 @@ public class TransactionEitherTemplateTest extends AbstractTestCase {
   public void testGetTransactionWithTimeout() throws Exception {
     ResultOrErrorFuture<Transaction> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
-    TransactionAsyncOperation asyncOperationMock = mock(TransactionAsyncOperation.class);
+    TransactionAsyncTemplate asyncOperationMock = mock(TransactionAsyncTemplate.class);
     when(asyncOperationMock.getTransaction(any())).thenReturn(futureMock);
 
-    final TransactionEitherTemplate transactionTemplate =
-        new TransactionEitherTemplate(asyncOperationMock);
+    final TransactionEitherTemplate transactionTemplate = new TransactionEitherTemplate();
+    transactionTemplate.transactionAsyncOperation = asyncOperationMock;
 
     final ResultOrError<Transaction> transaction =
         transactionTemplate.getTransaction(new TxHash(of(randomUUID().toString().getBytes())));
@@ -66,11 +65,11 @@ public class TransactionEitherTemplateTest extends AbstractTestCase {
   public void testCommit() throws Exception {
     ResultOrErrorFuture<TxHash> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    TransactionAsyncOperation asyncOperationMock = mock(TransactionAsyncOperation.class);
+    TransactionAsyncTemplate asyncOperationMock = mock(TransactionAsyncTemplate.class);
     when(asyncOperationMock.commit(any(Transaction.class))).thenReturn(futureMock);
 
-    final TransactionEitherTemplate transactionTemplate =
-        new TransactionEitherTemplate(asyncOperationMock);
+    final TransactionEitherTemplate transactionTemplate = new TransactionEitherTemplate();
+    transactionTemplate.transactionAsyncOperation = asyncOperationMock;
 
     final ResultOrError<TxHash> txHash = transactionTemplate.commit(new Transaction());
     assertNotNull(txHash);
@@ -80,11 +79,11 @@ public class TransactionEitherTemplateTest extends AbstractTestCase {
   public void testCommitWithTimeout() throws Exception {
     ResultOrErrorFuture<TxHash> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
-    TransactionAsyncOperation asyncOperationMock = mock(TransactionAsyncOperation.class);
+    TransactionAsyncTemplate asyncOperationMock = mock(TransactionAsyncTemplate.class);
     when(asyncOperationMock.commit(any(Transaction.class))).thenReturn(futureMock);
 
-    final TransactionEitherTemplate transactionTemplate =
-        new TransactionEitherTemplate(asyncOperationMock);
+    final TransactionEitherTemplate transactionTemplate = new TransactionEitherTemplate();
+    transactionTemplate.transactionAsyncOperation = asyncOperationMock;
 
     final ResultOrError<TxHash> txHash = transactionTemplate.commit(new Transaction());
     assertTrue(txHash.hasError());
@@ -94,11 +93,11 @@ public class TransactionEitherTemplateTest extends AbstractTestCase {
   public void testSend() throws Exception {
     ResultOrErrorFuture<TxHash> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    TransactionAsyncOperation asyncOperationMock = mock(TransactionAsyncOperation.class);
+    TransactionAsyncTemplate asyncOperationMock = mock(TransactionAsyncTemplate.class);
     when(asyncOperationMock.send(any(Transaction.class))).thenReturn(futureMock);
 
-    final TransactionEitherTemplate transactionTemplate =
-        new TransactionEitherTemplate(asyncOperationMock);
+    final TransactionEitherTemplate transactionTemplate = new TransactionEitherTemplate();
+    transactionTemplate.transactionAsyncOperation = asyncOperationMock;
 
     final ResultOrError<TxHash> txHash = transactionTemplate.send(new Transaction());
     assertNotNull(txHash);
@@ -108,11 +107,11 @@ public class TransactionEitherTemplateTest extends AbstractTestCase {
   public void testSendWithTimeout() throws Exception {
     ResultOrErrorFuture<TxHash> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
-    TransactionAsyncOperation asyncOperationMock = mock(TransactionAsyncOperation.class);
+    TransactionAsyncTemplate asyncOperationMock = mock(TransactionAsyncTemplate.class);
     when(asyncOperationMock.send(any(Transaction.class))).thenReturn(futureMock);
 
-    final TransactionEitherTemplate transactionTemplate =
-        new TransactionEitherTemplate(asyncOperationMock);
+    final TransactionEitherTemplate transactionTemplate = new TransactionEitherTemplate();
+    transactionTemplate.transactionAsyncOperation = asyncOperationMock;
 
     final ResultOrError<TxHash> txHash = transactionTemplate.send(new Transaction());
     assertTrue(txHash.hasError());

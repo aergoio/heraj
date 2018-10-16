@@ -18,13 +18,13 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 import hera.Context;
+import hera.ContextAware;
 import hera.FutureChainer;
 import hera.VersionUtils;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.ContractAsyncOperation;
 import hera.api.SignAsyncOperation;
-import hera.api.TransactionAsyncOperation;
 import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
@@ -53,7 +53,6 @@ import io.grpc.ManagedChannel;
 import java.io.ByteArrayOutputStream;
 import java.util.Optional;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Blockchain;
@@ -63,47 +62,58 @@ import types.Rpc.SingleBytes;
 @ApiAudience.Private
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
-@RequiredArgsConstructor
-public class ContractAsyncTemplate implements ContractAsyncOperation {
+public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInjectable {
 
   protected final Logger logger = getLogger(getClass());
 
-  protected final AergoRPCServiceFutureStub aergoService;
+  protected final ModelConverter<AccountAddress, ByteString> accountAddressConverter =
+      new AccountAddressConverterFactory().create();
 
-  protected final Context context;
+  protected final ModelConverter<ContractTxReceipt, Blockchain.Receipt> receiptConverter =
+      new ReceiptConverterFactory().create();
 
-  protected final TransactionAsyncOperation transactionAsyncOperation;
+  protected final ModelConverter<ContractInterface, Blockchain.ABI> contractInterfaceConverter =
+      new ContractInterfaceConverterFactory().create();
 
-  protected final ModelConverter<AccountAddress, ByteString> accountAddressConverter;
-
-  protected final ModelConverter<ContractTxReceipt, Blockchain.Receipt> receiptConverter;
-
-  protected final ModelConverter<ContractInterface, Blockchain.ABI> contractInterfaceConverter;
-
-  protected final ModelConverter<ContractResult, Rpc.SingleBytes> contractResultConverter;
+  protected final ModelConverter<ContractResult, Rpc.SingleBytes> contractResultConverter =
+      new ContractResultConverterFactory().create();
 
   protected final ObjectMapper objectMapper = new ObjectMapper();
 
-  @Getter(lazy = true)
-  private final SignAsyncOperation signAsyncOperation = context.getStrategy(SignStrategy.class)
-      .map(s -> s.getSignOperation(aergoService.getChannel(), context))
-      .flatMap(s -> s.adapt(SignAsyncOperation.class)).get();
+  protected Context context;
 
-  public ContractAsyncTemplate(final ManagedChannel channel, final Context context) {
-    this(newFutureStub(channel), context);
+  @Getter
+  protected AergoRPCServiceFutureStub aergoService;
+
+  protected TransactionAsyncTemplate transactionAsyncOperation =
+      new TransactionAsyncTemplate();
+
+  @Getter(lazy = true)
+  private final SignAsyncOperation signAsyncOperation = buildSignAsyncOperation();
+
+  protected SignAsyncOperation buildSignAsyncOperation() {
+    final SignAsyncOperation signAsyncOperation = context.getStrategy(SignStrategy.class)
+        .map(s -> s.getSignOperation()).flatMap(o -> o.adapt(SignAsyncOperation.class)).get();
+    if (signAsyncOperation instanceof ContextAware) {
+      ((ContextAware) signAsyncOperation).setContext(context);
+    }
+    if (signAsyncOperation instanceof ChannelInjectable) {
+      ((ChannelInjectable) signAsyncOperation)
+          .injectChannel((ManagedChannel) aergoService.getChannel());
+    }
+    return signAsyncOperation;
   }
 
-  /**
-   * ContractAsyncTemplate constructor.
-   *
-   * @param aergoService aergo service
-   */
-  public ContractAsyncTemplate(final AergoRPCServiceFutureStub aergoService,
-      final Context context) {
-    this(aergoService, context, new TransactionAsyncTemplate(aergoService, context),
-        new AccountAddressConverterFactory().create(), new ReceiptConverterFactory().create(),
-        new ContractInterfaceConverterFactory().create(),
-        new ContractResultConverterFactory().create());
+  @Override
+  public void setContext(final Context context) {
+    this.context = context;
+    transactionAsyncOperation.setContext(context);
+  }
+
+  @Override
+  public void injectChannel(final ManagedChannel channel) {
+    this.aergoService = newFutureStub(channel);
+    transactionAsyncOperation.injectChannel(channel);
   }
 
   @Override

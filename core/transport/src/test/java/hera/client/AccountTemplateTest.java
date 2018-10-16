@@ -14,7 +14,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import hera.AbstractTestCase;
-import hera.api.AccountEitherOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
@@ -29,19 +28,20 @@ import types.AergoRPCServiceGrpc.AergoRPCServiceStub;
 @PrepareForTest({AergoRPCServiceStub.class})
 public class AccountTemplateTest extends AbstractTestCase {
 
-  protected final AccountAddress ACCOUNT_ADDRESS =
+  protected final AccountAddress accountAddress =
       new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
 
-  protected final String PASSWORD = randomUUID().toString();
+  protected final String password = randomUUID().toString();
 
   @Test
   public void testList() throws Exception {
     ResultOrError<List<Account>> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(List.class));
-    AccountEitherOperation eitherOperationMock = mock(AccountEitherOperation.class);
+    AccountEitherTemplate eitherOperationMock = mock(AccountEitherTemplate.class);
     when(eitherOperationMock.list()).thenReturn(eitherMock);
 
-    final AccountTemplate accountTemplate = new AccountTemplate(eitherOperationMock);
+    final AccountTemplate accountTemplate = new AccountTemplate();
+    accountTemplate.accountEitherOperation = eitherOperationMock;
 
     final List<Account> accountList = accountTemplate.list();
     assertNotNull(accountList);
@@ -51,10 +51,11 @@ public class AccountTemplateTest extends AbstractTestCase {
   public void testCreate() throws Exception {
     ResultOrError<Account> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(Account.class));
-    AccountEitherOperation eitherOperationMock = mock(AccountEitherOperation.class);
+    AccountEitherTemplate eitherOperationMock = mock(AccountEitherTemplate.class);
     when(eitherOperationMock.create(anyString())).thenReturn(eitherMock);
 
-    final AccountTemplate accountTemplate = new AccountTemplate(eitherOperationMock);
+    final AccountTemplate accountTemplate = new AccountTemplate();
+    accountTemplate.accountEitherOperation = eitherOperationMock;
 
     final Account createdAccount = accountTemplate.create(randomUUID().toString());
     assertNotNull(createdAccount);
@@ -64,12 +65,13 @@ public class AccountTemplateTest extends AbstractTestCase {
   public void testGet() throws Exception {
     ResultOrError<Account> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(Account.class));
-    AccountEitherOperation eitherOperationMock = mock(AccountEitherOperation.class);
+    AccountEitherTemplate eitherOperationMock = mock(AccountEitherTemplate.class);
     when(eitherOperationMock.get(any(AccountAddress.class))).thenReturn(eitherMock);
 
-    final AccountTemplate accountTemplate = new AccountTemplate(eitherOperationMock);
+    final AccountTemplate accountTemplate = new AccountTemplate();
+    accountTemplate.accountEitherOperation = eitherOperationMock;
 
-    final Account account = accountTemplate.get(ACCOUNT_ADDRESS);
+    final Account account = accountTemplate.get(accountAddress);
     assertNotNull(account);
   }
 
@@ -77,12 +79,13 @@ public class AccountTemplateTest extends AbstractTestCase {
   public void testLock() throws Exception {
     ResultOrError<Boolean> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(true);
-    AccountEitherOperation eitherOperationMock = mock(AccountEitherOperation.class);
+    AccountEitherTemplate eitherOperationMock = mock(AccountEitherTemplate.class);
     when(eitherOperationMock.lock(any())).thenReturn(eitherMock);
 
-    final AccountTemplate accountTemplate = new AccountTemplate(eitherOperationMock);
+    final AccountTemplate accountTemplate = new AccountTemplate();
+    accountTemplate.accountEitherOperation = eitherOperationMock;
 
-    final boolean lockResult = accountTemplate.lock(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
+    final boolean lockResult = accountTemplate.lock(Authentication.of(accountAddress, password));
     assertTrue(lockResult);
   }
 
@@ -90,13 +93,14 @@ public class AccountTemplateTest extends AbstractTestCase {
   public void testUnlock() throws Exception {
     ResultOrError<Boolean> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(true);
-    AccountEitherOperation eitherOperationMock = mock(AccountEitherOperation.class);
+    AccountEitherTemplate eitherOperationMock = mock(AccountEitherTemplate.class);
     when(eitherOperationMock.unlock(any())).thenReturn(eitherMock);
 
-    final AccountTemplate accountTemplate = new AccountTemplate(eitherOperationMock);
+    final AccountTemplate accountTemplate = new AccountTemplate();
+    accountTemplate.accountEitherOperation = eitherOperationMock;
 
     final boolean unlockResult =
-        accountTemplate.unlock(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
+        accountTemplate.unlock(Authentication.of(accountAddress, password));
     assertTrue(unlockResult);
   }
 
@@ -104,14 +108,14 @@ public class AccountTemplateTest extends AbstractTestCase {
   public void testImportKey() throws Exception {
     ResultOrError<Account> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(Account.class));
-    AccountEitherOperation eitherOperationMock = mock(AccountEitherOperation.class);
+    AccountEitherTemplate eitherOperationMock = mock(AccountEitherTemplate.class);
     when(eitherOperationMock.importKey(any(), any(), any())).thenReturn(eitherMock);
 
-    final AccountTemplate accountTemplate = new AccountTemplate(eitherOperationMock);
+    final AccountTemplate accountTemplate = new AccountTemplate();
+    accountTemplate.accountEitherOperation = eitherOperationMock;
 
-    final Account importedAccount = accountTemplate.importKey(
-        new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.VERSION})),
-        PASSWORD);
+    final Account importedAccount = accountTemplate
+        .importKey(new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.VERSION})), password);
     assertNotNull(importedAccount);
   }
 
@@ -119,13 +123,14 @@ public class AccountTemplateTest extends AbstractTestCase {
   public void testExportKey() throws Exception {
     ResultOrError<EncryptedPrivateKey> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(EncryptedPrivateKey.class));
-    AccountEitherOperation eitherOperationMock = mock(AccountEitherOperation.class);
+    AccountEitherTemplate eitherOperationMock = mock(AccountEitherTemplate.class);
     when(eitherOperationMock.exportKey(any())).thenReturn(eitherMock);
 
-    final AccountTemplate accountTemplate = new AccountTemplate(eitherOperationMock);
+    final AccountTemplate accountTemplate = new AccountTemplate();
+    accountTemplate.accountEitherOperation = eitherOperationMock;
 
     final EncryptedPrivateKey exportedKey =
-        accountTemplate.exportKey(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
+        accountTemplate.exportKey(Authentication.of(accountAddress, password));
     assertNotNull(exportedKey);
   }
 

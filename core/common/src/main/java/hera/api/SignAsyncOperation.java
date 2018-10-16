@@ -4,6 +4,7 @@
 
 package hera.api;
 
+import hera.ContextAware;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Signature;
@@ -14,7 +15,7 @@ import hera.util.Adaptor;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public interface SignAsyncOperation extends Adaptor {
+public interface SignAsyncOperation extends Adaptor, ContextAware {
 
   /**
    * Sign for transaction asynchronously.

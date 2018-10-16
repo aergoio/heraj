@@ -12,7 +12,6 @@ import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import hera.AbstractTestCase;
-import hera.api.TransactionEitherOperation;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrError;
@@ -32,11 +31,11 @@ public class TransactionTemplateTest extends AbstractTestCase {
   public void testGetTransaction() throws Exception {
     ResultOrError<Transaction> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(Transaction.class));
-    TransactionEitherOperation eitherOperationMock = mock(TransactionEitherOperation.class);
+    TransactionEitherTemplate eitherOperationMock = mock(TransactionEitherTemplate.class);
     when(eitherOperationMock.getTransaction(any())).thenReturn(eitherMock);
 
-    final TransactionTemplate transactionTemplate =
-        new TransactionTemplate(eitherOperationMock);
+    final TransactionTemplate transactionTemplate = new TransactionTemplate();
+    transactionTemplate.transactionEitherOperation = eitherOperationMock;
 
     final Transaction transaction =
         transactionTemplate.getTransaction(new TxHash(of(randomUUID().toString().getBytes())));
@@ -47,11 +46,11 @@ public class TransactionTemplateTest extends AbstractTestCase {
   public void testCommit() throws Exception {
     ResultOrError<TxHash> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(TxHash.class));
-    TransactionEitherOperation eitherOperationMock = mock(TransactionEitherOperation.class);
+    TransactionEitherTemplate eitherOperationMock = mock(TransactionEitherTemplate.class);
     when(eitherOperationMock.commit(any(Transaction.class))).thenReturn(eitherMock);
 
-    final TransactionTemplate transactionTemplate =
-        new TransactionTemplate(eitherOperationMock);
+    final TransactionTemplate transactionTemplate = new TransactionTemplate();
+    transactionTemplate.transactionEitherOperation = eitherOperationMock;
 
     final TxHash txHash = transactionTemplate.commit(new Transaction());
     assertNotNull(txHash);
@@ -61,11 +60,11 @@ public class TransactionTemplateTest extends AbstractTestCase {
   public void testSend() throws Exception {
     ResultOrError<TxHash> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(TxHash.class));
-    TransactionEitherOperation eitherOperationMock = mock(TransactionEitherOperation.class);
+    TransactionEitherTemplate eitherOperationMock = mock(TransactionEitherTemplate.class);
     when(eitherOperationMock.send(any(Transaction.class))).thenReturn(eitherMock);
 
-    final TransactionTemplate transactionTemplate =
-        new TransactionTemplate(eitherOperationMock);
+    final TransactionTemplate transactionTemplate = new TransactionTemplate();
+    transactionTemplate.transactionEitherOperation = eitherOperationMock;
 
     final TxHash txHash = transactionTemplate.send(new Transaction());
     assertNotNull(txHash);

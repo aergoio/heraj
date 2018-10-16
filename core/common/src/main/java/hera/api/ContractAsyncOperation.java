@@ -6,6 +6,7 @@ package hera.api;
 
 import static hera.api.tupleorerror.FunctionChain.fail;
 
+import hera.ContextAware;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.encode.Base58WithCheckSum;
@@ -24,7 +25,7 @@ import hera.key.AergoKey;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public interface ContractAsyncOperation {
+public interface ContractAsyncOperation extends ContextAware {
 
   /**
    * Get receipt of transaction asynchronously.

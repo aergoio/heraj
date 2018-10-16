@@ -4,6 +4,7 @@
 
 package hera.api;
 
+import hera.ContextAware;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Transaction;
@@ -11,7 +12,7 @@ import hera.api.model.TxHash;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public interface TransactionOperation {
+public interface TransactionOperation extends ContextAware {
 
   /**
    * Get transaction.

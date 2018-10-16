@@ -16,45 +16,24 @@ import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.PeerAddress;
 import hera.api.tupleorerror.ResultOrErrorFuture;
-import hera.transport.ModelConverter;
 import java.util.List;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
-import types.Node;
 import types.Rpc;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-@PrepareForTest({AergoRPCServiceFutureStub.class, Rpc.BlockchainStatus.class, Rpc.PeerList.class,
-    Node.PeerAddress.class, Rpc.SingleBytes.class})
+@PrepareForTest({AergoRPCServiceFutureStub.class})
 public class BlockChainAsyncTemplateTest extends AbstractTestCase {
 
   protected static final Context context = AergoClientBuilder.getDefaultContext();
 
-  protected static final ModelConverter<BlockchainStatus, Rpc.BlockchainStatus> blockchainConverter =
-      mock(ModelConverter.class);
-
-  protected static final ModelConverter<PeerAddress, Node.PeerAddress> peerAddressConverter =
-      mock(ModelConverter.class);
-
-  protected static final ModelConverter<NodeStatus, Rpc.SingleBytes> nodeStatusConverter =
-      mock(ModelConverter.class);
-
-  @BeforeClass
-  public static void setUpBeforeClass() {
-    when(blockchainConverter.convertToRpcModel(any(BlockchainStatus.class)))
-        .thenReturn(mock(Rpc.BlockchainStatus.class));
-    when(blockchainConverter.convertToDomainModel(any(Rpc.BlockchainStatus.class)))
-        .thenReturn(mock(BlockchainStatus.class));
-    when(peerAddressConverter.convertToRpcModel(any(PeerAddress.class)))
-        .thenReturn(mock(types.Node.PeerAddress.class));
-    when(peerAddressConverter.convertToDomainModel(any(Node.PeerAddress.class)))
-        .thenReturn(mock(PeerAddress.class));
-    when(nodeStatusConverter.convertToRpcModel(any(NodeStatus.class)))
-        .thenReturn(mock(Rpc.SingleBytes.class));
-    when(nodeStatusConverter.convertToDomainModel(any(Rpc.SingleBytes.class)))
-        .thenReturn(mock(NodeStatus.class));
+  protected BlockChainAsyncTemplate supplyBlockChainAsyncTemplate(
+      final AergoRPCServiceFutureStub aergoService) {
+    final BlockChainAsyncTemplate blockchainAsyncTemplate = new BlockChainAsyncTemplate();
+    blockchainAsyncTemplate.setContext(AergoClientBuilder.getDefaultContext());
+    blockchainAsyncTemplate.aergoService = aergoService;
+    return blockchainAsyncTemplate;
   }
 
   @Test
@@ -64,8 +43,8 @@ public class BlockChainAsyncTemplateTest extends AbstractTestCase {
         service.submit(() -> Rpc.BlockchainStatus.newBuilder().build());
     when(aergoService.blockchain(any())).thenReturn(mockListenableFuture);
 
-    final BlockChainAsyncTemplate blockChainAsyncTemplate = new BlockChainAsyncTemplate(
-        aergoService, context, blockchainConverter, peerAddressConverter, nodeStatusConverter);
+    final BlockChainAsyncTemplate blockChainAsyncTemplate =
+        supplyBlockChainAsyncTemplate(aergoService);
 
     final ResultOrErrorFuture<BlockchainStatus> blockchainStatus =
         blockChainAsyncTemplate.getBlockchainStatus();
@@ -75,12 +54,11 @@ public class BlockChainAsyncTemplateTest extends AbstractTestCase {
   @Test
   public void testListPeers() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture =
-        service.submit(() -> Rpc.PeerList.newBuilder().build());
+    ListenableFuture mockListenableFuture = service.submit(() -> Rpc.PeerList.newBuilder().build());
     when(aergoService.getPeers(any())).thenReturn(mockListenableFuture);
 
-    final BlockChainAsyncTemplate blockChainAsyncTemplate = new BlockChainAsyncTemplate(
-        aergoService, context, blockchainConverter, peerAddressConverter, nodeStatusConverter);
+    final BlockChainAsyncTemplate blockChainAsyncTemplate =
+        supplyBlockChainAsyncTemplate(aergoService);
 
     final ResultOrErrorFuture<List<PeerAddress>> peers = blockChainAsyncTemplate.listPeers();
     assertTrue(peers.get().hasResult());
@@ -93,8 +71,8 @@ public class BlockChainAsyncTemplateTest extends AbstractTestCase {
         service.submit(() -> Rpc.SingleBytes.newBuilder().build());
     when(aergoService.nodeState(any())).thenReturn(mockListenableFuture);
 
-    final BlockChainAsyncTemplate blockChainAsyncTemplate = new BlockChainAsyncTemplate(
-        aergoService, context, blockchainConverter, peerAddressConverter, nodeStatusConverter);
+    final BlockChainAsyncTemplate blockChainAsyncTemplate =
+        supplyBlockChainAsyncTemplate(aergoService);
 
     final ResultOrErrorFuture<NodeStatus> nodeStatus = blockChainAsyncTemplate.getNodeStatus();
     assertTrue(nodeStatus.get().hasResult());

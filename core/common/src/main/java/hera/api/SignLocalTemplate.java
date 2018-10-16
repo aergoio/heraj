@@ -11,19 +11,19 @@ import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.key.AergoKey;
 import java.util.Optional;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-@RequiredArgsConstructor
 public class SignLocalTemplate implements SignOperation {
 
-  @Getter
-  protected final SignEitherOperation signEitherOperation;
+  protected Context context;
 
-  public SignLocalTemplate(final Context context) {
-    this(new SignLocalEitherTemplate(context));
+  protected SignLocalEitherTemplate signEitherOperation = new SignLocalEitherTemplate();
+
+  @Override
+  public void setContext(final Context context) {
+    this.context = context;
+    signEitherOperation.setContext(context);
   }
 
   @Override

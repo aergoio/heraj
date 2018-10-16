@@ -6,6 +6,7 @@ package hera.api;
 
 import static hera.api.tupleorerror.FunctionChain.fail;
 
+import hera.ContextAware;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Account;
@@ -18,7 +19,7 @@ import java.util.List;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public interface AccountEitherOperation {
+public interface AccountEitherOperation extends ContextAware {
 
   /**
    * Get account list.

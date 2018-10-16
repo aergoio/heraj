@@ -7,12 +7,10 @@ package hera.client;
 import static hera.TransportConstants.TIMEOUT;
 import static hera.api.tupleorerror.FunctionChain.fail;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static types.AergoRPCServiceGrpc.newFutureStub;
 
 import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.ContractAsyncOperation;
 import hera.api.ContractEitherOperation;
 import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.AccountAddress;
@@ -26,23 +24,25 @@ import hera.api.tupleorerror.ResultOrError;
 import hera.exception.RpcException;
 import hera.key.AergoKey;
 import io.grpc.ManagedChannel;
-import lombok.RequiredArgsConstructor;
-import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
 @ApiAudience.Private
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
-@RequiredArgsConstructor
-public class ContractEitherTemplate implements ContractEitherOperation {
-  protected final ContractAsyncOperation contractAsyncOperation;
+public class ContractEitherTemplate implements ContractEitherOperation, ChannelInjectable {
 
-  public ContractEitherTemplate(final ManagedChannel channel, final Context context) {
-    this(newFutureStub(channel), context);
+  protected Context context;
+
+  protected ContractAsyncTemplate contractAsyncOperation = new ContractAsyncTemplate();
+
+  @Override
+  public void setContext(final Context context) {
+    this.context = context;
+    this.contractAsyncOperation.setContext(context);
   }
 
-  public ContractEitherTemplate(final AergoRPCServiceFutureStub aergoService,
-      final Context context) {
-    this(new ContractAsyncTemplate(aergoService, context));
+  @Override
+  public void injectChannel(final ManagedChannel channel) {
+    this.contractAsyncOperation.injectChannel(channel);
   }
 
   @Override

@@ -6,12 +6,10 @@ package hera.client;
 
 import static hera.TransportConstants.TIMEOUT;
 import static hera.api.tupleorerror.FunctionChain.fail;
-import static types.AergoRPCServiceGrpc.newFutureStub;
 
 import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.TransactionAsyncOperation;
 import hera.api.TransactionEitherOperation;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
@@ -19,24 +17,26 @@ import hera.api.tupleorerror.ResultOrError;
 import hera.exception.RpcException;
 import io.grpc.ManagedChannel;
 import java.util.concurrent.TimeUnit;
-import lombok.RequiredArgsConstructor;
-import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
 @ApiAudience.Private
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
-@RequiredArgsConstructor
-public class TransactionEitherTemplate implements TransactionEitherOperation {
+public class TransactionEitherTemplate implements TransactionEitherOperation, ChannelInjectable {
 
-  protected final TransactionAsyncOperation transactionAsyncOperation;
+  protected Context context;
 
-  public TransactionEitherTemplate(final ManagedChannel channel, final Context context) {
-    this(newFutureStub(channel), context);
+  protected TransactionAsyncTemplate transactionAsyncOperation =
+      new TransactionAsyncTemplate();
+
+  @Override
+  public void setContext(final Context context) {
+    this.context = context;
+    transactionAsyncOperation.setContext(context);
   }
 
-  public TransactionEitherTemplate(final AergoRPCServiceFutureStub aergoService,
-      final Context context) {
-    this(new TransactionAsyncTemplate(aergoService, context));
+  @Override
+  public void injectChannel(final ManagedChannel channel) {
+    transactionAsyncOperation.injectChannel(channel);
   }
 
   @Override
@@ -65,4 +65,5 @@ public class TransactionEitherTemplate implements TransactionEitherOperation {
       return fail(new RpcException(e));
     }
   }
+
 }

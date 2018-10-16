@@ -6,12 +6,10 @@ package hera.client;
 
 import static hera.TransportConstants.TIMEOUT;
 import static hera.api.tupleorerror.FunctionChain.fail;
-import static types.AergoRPCServiceGrpc.newFutureStub;
 
 import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.BlockChainAsyncOperation;
 import hera.api.BlockChainEitherOperation;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
@@ -21,24 +19,25 @@ import hera.exception.RpcException;
 import io.grpc.ManagedChannel;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import lombok.RequiredArgsConstructor;
-import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
 @ApiAudience.Private
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
-@RequiredArgsConstructor
-public class BlockChainEitherTemplate implements BlockChainEitherOperation {
+public class BlockChainEitherTemplate implements BlockChainEitherOperation, ChannelInjectable {
 
-  protected final BlockChainAsyncOperation blockChainAsyncOperation;
+  protected Context context;
 
-  public BlockChainEitherTemplate(final ManagedChannel channel, final Context context) {
-    this(newFutureStub(channel), context);
+  protected BlockChainAsyncTemplate blockChainAsyncOperation = new BlockChainAsyncTemplate();
+
+  @Override
+  public void setContext(final Context context) {
+    this.context = context;
+    blockChainAsyncOperation.setContext(context);
   }
 
-  public BlockChainEitherTemplate(final AergoRPCServiceFutureStub aergoService,
-      final Context context) {
-    this(new BlockChainAsyncTemplate(aergoService, context));
+  @Override
+  public void injectChannel(final ManagedChannel channel) {
+    blockChainAsyncOperation.injectChannel(channel);
   }
 
   @Override
@@ -67,4 +66,5 @@ public class BlockChainEitherTemplate implements BlockChainEitherOperation {
       return fail(new RpcException(e));
     }
   }
+
 }

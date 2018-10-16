@@ -4,6 +4,7 @@
 
 package hera.api;
 
+import hera.ContextAware;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Transaction;
@@ -12,7 +13,8 @@ import hera.api.tupleorerror.ResultOrErrorFuture;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public interface TransactionAsyncOperation {
+public interface TransactionAsyncOperation extends ContextAware {
+
 
   /**
    * Get transaction asynchronously.

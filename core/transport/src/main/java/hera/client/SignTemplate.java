@@ -4,8 +4,6 @@
 
 package hera.client;
 
-import static types.AergoRPCServiceGrpc.newFutureStub;
-
 import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
@@ -17,22 +15,24 @@ import hera.api.model.Transaction;
 import hera.key.AergoKey;
 import io.grpc.ManagedChannel;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
-import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-@RequiredArgsConstructor
-public class SignTemplate implements SignOperation {
+public class SignTemplate implements SignOperation, ChannelInjectable {
 
-  protected final SignEitherOperation signEitherOperation;
+  protected Context context;
 
-  public SignTemplate(final ManagedChannel channel, final Context context) {
-    this(newFutureStub(channel), context);
+  protected SignEitherTemplate signEitherOperation = new SignEitherTemplate();
+
+  @Override
+  public void setContext(final Context context) {
+    this.context = context;
+    signEitherOperation.setContext(context);
   }
 
-  public SignTemplate(final AergoRPCServiceFutureStub aergoService, final Context context) {
-    this(new SignEitherTemplate(aergoService, context));
+  @Override
+  public void injectChannel(final ManagedChannel channel) {
+    signEitherOperation.injectChannel(channel);
   }
 
   @Override

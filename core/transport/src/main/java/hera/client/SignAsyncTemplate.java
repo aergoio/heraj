@@ -33,7 +33,8 @@ import hera.transport.ModelConverter;
 import hera.transport.TransactionConverterFactory;
 import io.grpc.ManagedChannel;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Blockchain;
@@ -44,23 +45,22 @@ import types.Rpc.VerifyResult;
 @ApiAudience.Private
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
-@RequiredArgsConstructor
-public class SignAsyncTemplate implements SignAsyncOperation {
+public class SignAsyncTemplate implements SignAsyncOperation, ChannelInjectable {
 
   protected final Logger logger = getLogger(getClass());
 
-  protected final AergoRPCServiceFutureStub aergoService;
+  protected final ModelConverter<Transaction, Blockchain.Tx> transactionConverter =
+      new TransactionConverterFactory().create();
 
-  protected final Context context;
+  @Setter
+  protected Context context;
 
-  protected final ModelConverter<Transaction, Blockchain.Tx> transactionConverter;
+  @Getter
+  protected AergoRPCServiceFutureStub aergoService;
 
-  public SignAsyncTemplate(final ManagedChannel channel, final Context context) {
-    this(newFutureStub(channel), context);
-  }
-
-  public SignAsyncTemplate(final AergoRPCServiceFutureStub aergoService, final Context context) {
-    this(aergoService, context, new TransactionConverterFactory().create());
+  @Override
+  public void injectChannel(final ManagedChannel channel) {
+    this.aergoService = newFutureStub(channel);
   }
 
   @Override
@@ -112,9 +112,15 @@ public class SignAsyncTemplate implements SignAsyncOperation {
     if (adaptor.isAssignableFrom(SignAsyncOperation.class)) {
       return (Optional<T>) Optional.of(this);
     } else if (adaptor.isAssignableFrom(SignOperation.class)) {
-      return (Optional<T>) Optional.of(new SignTemplate(new SignEitherTemplate(this)));
+      final SignTemplate signOperation = new SignTemplate();
+      signOperation.setContext(context);
+      signOperation.injectChannel((ManagedChannel) aergoService.getChannel());
+      return (Optional<T>) Optional.of(signOperation);
     } else if (adaptor.isAssignableFrom(SignEitherOperation.class)) {
-      return (Optional<T>) Optional.of(new SignEitherTemplate(this));
+      final SignEitherTemplate signEitherOperation = new SignEitherTemplate();
+      signEitherOperation.setContext(context);
+      signEitherOperation.injectChannel((ManagedChannel) aergoService.getChannel());
+      return (Optional<T>) Optional.of(signEitherOperation);
     }
     return Optional.empty();
   }

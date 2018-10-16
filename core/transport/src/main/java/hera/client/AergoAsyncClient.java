@@ -5,6 +5,7 @@
 package hera.client;
 
 import hera.Context;
+import hera.ContextAware;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.AbstractAsyncAergoApi;
@@ -37,29 +38,69 @@ public class AergoAsyncClient extends AbstractAsyncAergoApi implements Closeable
       .map(ConnectStrategy::connect).get();
 
   @Getter(lazy = true)
-  private final SignAsyncOperation signAsyncOperation =
-      context.getStrategy(SignStrategy.class).map(s -> s.getSignOperation(channel, context))
-          .flatMap(o -> o.adapt(SignAsyncOperation.class)).get();
+  private final SignAsyncOperation signAsyncOperation = buildSignAsyncOperation();
 
   @Getter(lazy = true)
-  private final AccountAsyncOperation accountAsyncOperation =
-      new AccountAsyncTemplate(getChannel(), context);
+  private final AccountAsyncOperation accountAsyncOperation = buildAccountAsyncOperation();
 
   @Getter(lazy = true)
   private final TransactionAsyncOperation transactionAsyncOperation =
-      new TransactionAsyncTemplate(getChannel(), context);
+      buildTransactionAsyncOperation();
 
   @Getter(lazy = true)
-  private final BlockAsyncOperation blockAsyncOperation =
-      new BlockAsyncTemplate(getChannel(), context);
+  private final BlockAsyncOperation blockAsyncOperation = buildBlockAsyncOperation();
 
   @Getter(lazy = true)
-  private final BlockChainAsyncOperation blockChainAsyncOperation =
-      new BlockChainAsyncTemplate(getChannel(), context);
+  private final BlockChainAsyncOperation blockChainAsyncOperation = buildBlockChainAsyncOperation();
 
   @Getter(lazy = true)
-  private final ContractAsyncOperation contractAsyncOperation =
-      new ContractAsyncTemplate(getChannel(), context);
+  private final ContractAsyncOperation contractAsyncOperation = buildContractAsyncOperation();
+
+  protected SignAsyncOperation buildSignAsyncOperation() {
+    final SignAsyncOperation signAsyncOperation = context.getStrategy(SignStrategy.class)
+        .map(s -> s.getSignOperation()).flatMap(o -> o.adapt(SignAsyncOperation.class)).get();
+    resolveInjection(signAsyncOperation);
+    return signAsyncOperation;
+  }
+
+  protected AccountAsyncOperation buildAccountAsyncOperation() {
+    final AccountAsyncOperation accountAsyncOperation = new AccountAsyncTemplate();
+    resolveInjection(accountAsyncOperation);
+    return accountAsyncOperation;
+  }
+
+  protected TransactionAsyncOperation buildTransactionAsyncOperation() {
+    final TransactionAsyncOperation transactionAsyncOperation = new TransactionAsyncTemplate();
+    resolveInjection(transactionAsyncOperation);
+    return transactionAsyncOperation;
+  }
+
+  protected BlockAsyncOperation buildBlockAsyncOperation() {
+    final BlockAsyncOperation blockAsyncOperation = new BlockAsyncTemplate();
+    resolveInjection(blockAsyncOperation);
+    return blockAsyncOperation;
+  }
+
+  protected BlockChainAsyncOperation buildBlockChainAsyncOperation() {
+    final BlockChainAsyncOperation blockchainAsyncOperation = new BlockChainAsyncTemplate();
+    resolveInjection(blockchainAsyncOperation);
+    return blockchainAsyncOperation;
+  }
+
+  protected ContractAsyncOperation buildContractAsyncOperation() {
+    final ContractAsyncOperation contractAsyncOperation = new ContractAsyncTemplate();
+    resolveInjection(contractAsyncOperation);
+    return contractAsyncOperation;
+  }
+
+  protected void resolveInjection(final Object target) {
+    if (target instanceof ContextAware) {
+      ((ContextAware) target).setContext(context);
+    }
+    if (target instanceof ChannelInjectable) {
+      ((ChannelInjectable) target).injectChannel(getChannel());
+    }
+  }
 
   @Override
   public void close() {

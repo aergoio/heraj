@@ -5,6 +5,7 @@
 package hera.client;
 
 import hera.Context;
+import hera.ContextAware;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.AbstractAergoApi;
@@ -37,25 +38,68 @@ public class AergoClient extends AbstractAergoApi implements Closeable, AutoClos
       .map(ConnectStrategy::connect).get();
 
   @Getter(lazy = true)
-  private final SignOperation signOperation = context.getStrategy(SignStrategy.class)
-      .map(s -> s.getSignOperation(getChannel(), context)).get();
+  private final SignOperation signOperation = buildSignOperation();
 
   @Getter(lazy = true)
-  private final AccountOperation accountOperation = new AccountTemplate(getChannel(), context);
+  private final AccountOperation accountOperation = buildAccountOperation();
 
   @Getter(lazy = true)
-  private final TransactionOperation transactionOperation =
-      new TransactionTemplate(getChannel(), context);
+  private final TransactionOperation transactionOperation = buildTransactionOperation();
 
   @Getter(lazy = true)
-  private final BlockOperation blockOperation = new BlockTemplate(getChannel(), context);
+  private final BlockOperation blockOperation = buildBlockOperation();
 
   @Getter(lazy = true)
-  private final BlockChainOperation blockChainOperation =
-      new BlockChainTemplate(getChannel(), context);
+  private final BlockChainOperation blockChainOperation = buildBlockChainOperation();
 
   @Getter(lazy = true)
-  private final ContractOperation contractOperation = new ContractTemplate(getChannel(), context);
+  private final ContractOperation contractOperation = buildContractOperation();
+
+  protected SignOperation buildSignOperation() {
+    final SignOperation signOperation = context.getStrategy(SignStrategy.class)
+        .map(s -> s.getSignOperation()).flatMap(o -> o.adapt(SignOperation.class)).get();
+    resolveInjection(signOperation);
+    return signOperation;
+  }
+
+  protected AccountOperation buildAccountOperation() {
+    final AccountOperation accountOperation = new AccountTemplate();
+    resolveInjection(accountOperation);
+    return accountOperation;
+  }
+
+  protected TransactionOperation buildTransactionOperation() {
+    final TransactionOperation transactionOperation = new TransactionTemplate();
+    resolveInjection(transactionOperation);
+    return transactionOperation;
+  }
+
+  protected BlockOperation buildBlockOperation() {
+    final BlockOperation blockOperation = new BlockTemplate();
+    resolveInjection(blockOperation);
+    return blockOperation;
+  }
+
+  protected BlockChainOperation buildBlockChainOperation() {
+    final BlockChainOperation blockchainOperation = new BlockChainTemplate();
+    resolveInjection(blockchainOperation);
+    return blockchainOperation;
+  }
+
+  protected ContractOperation buildContractOperation() {
+    final ContractOperation contractOperation = new ContractTemplate();
+    resolveInjection(contractOperation);
+    return contractOperation;
+  }
+
+  protected void resolveInjection(final Object target) {
+    if (target instanceof ContextAware) {
+      ((ContextAware) target).setContext(context);
+    }
+    if (target instanceof ChannelInjectable) {
+      ((ChannelInjectable) target).injectChannel(getChannel());
+    }
+  }
 
   @Override
   public void close() {

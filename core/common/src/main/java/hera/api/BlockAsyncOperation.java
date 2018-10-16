@@ -4,6 +4,7 @@
 
 package hera.api;
 
+import hera.ContextAware;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Block;
@@ -14,7 +15,7 @@ import java.util.List;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public interface BlockAsyncOperation {
+public interface BlockAsyncOperation extends ContextAware {
 
   /**
    * Get block by hash asynchronously.

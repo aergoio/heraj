@@ -4,12 +4,9 @@
 
 package hera.client;
 
-import static types.AergoRPCServiceGrpc.newFutureStub;
-
 import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.AccountEitherOperation;
 import hera.api.AccountOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
@@ -18,22 +15,24 @@ import hera.api.model.EncryptedPrivateKey;
 import hera.api.tupleorerror.ResultOrError;
 import io.grpc.ManagedChannel;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
-import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-@RequiredArgsConstructor
-public class AccountTemplate implements AccountOperation {
+public class AccountTemplate implements AccountOperation, ChannelInjectable {
 
-  protected final AccountEitherOperation accountEitherOperation;
+  protected Context context;
 
-  public AccountTemplate(final ManagedChannel channel, final Context context) {
-    this(newFutureStub(channel), context);
+  protected AccountEitherTemplate accountEitherOperation = new AccountEitherTemplate();
+
+  @Override
+  public void setContext(final Context context) {
+    this.context = context;
+    accountEitherOperation.setContext(context);
   }
 
-  public AccountTemplate(final AergoRPCServiceFutureStub aergoService, final Context context) {
-    this(new AccountEitherTemplate(aergoService, context));
+  @Override
+  public void injectChannel(final ManagedChannel channel) {
+    accountEitherOperation.injectChannel(channel);
   }
 
   @Override

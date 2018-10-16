@@ -4,12 +4,9 @@
 
 package hera.client;
 
-import static types.AergoRPCServiceGrpc.newFutureStub;
-
 import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.ContractEitherOperation;
 import hera.api.ContractOperation;
 import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.AccountAddress;
@@ -21,22 +18,24 @@ import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.key.AergoKey;
 import io.grpc.ManagedChannel;
-import lombok.RequiredArgsConstructor;
-import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-@RequiredArgsConstructor
-public class ContractTemplate implements ContractOperation {
+public class ContractTemplate implements ContractOperation, ChannelInjectable {
 
-  protected final ContractEitherOperation contractEitherOperation;
+  protected Context context;
 
-  public ContractTemplate(final ManagedChannel channel, final Context context) {
-    this(newFutureStub(channel), context);
+  protected ContractEitherTemplate contractEitherOperation = new ContractEitherTemplate();
+
+  @Override
+  public void setContext(final Context context) {
+    this.context = context;
+    contractEitherOperation.setContext(context);
   }
 
-  public ContractTemplate(final AergoRPCServiceFutureStub aergoService, final Context context) {
-    this(new ContractEitherTemplate(aergoService, context));
+  @Override
+  public void injectChannel(final ManagedChannel channel) {
+    contractEitherOperation.injectChannel(channel);
   }
 
   @Override
@@ -65,5 +64,7 @@ public class ContractTemplate implements ContractOperation {
   public ContractResult query(final ContractInvocation contractInvocation) {
     return contractEitherOperation.query(contractInvocation).getResult();
   }
+
+
 
 }

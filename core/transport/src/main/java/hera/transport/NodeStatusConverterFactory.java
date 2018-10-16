@@ -42,7 +42,9 @@ public class NodeStatusConverterFactory {
   protected final Function<Rpc.SingleBytes, NodeStatus> rpcConverter = rpcNodeStatus -> {
     logger.trace("Rpc node status: {}", rpcNodeStatus);
     try {
-      return mapper.readValue(rpcNodeStatus.getValue().toByteArray(), NodeStatus.class);
+      final byte[] rawNodeStatus = rpcNodeStatus.getValue().toByteArray();
+      return rawNodeStatus.length == 0 ? new NodeStatus()
+          : mapper.readValue(rawNodeStatus, NodeStatus.class);
     } catch (Throwable e) {
       throw new HerajException(e);
     }

@@ -6,6 +6,7 @@ package hera.client;
 
 import static hera.util.TransportUtils.longToByteArray;
 import static java.util.stream.Collectors.toList;
+import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
 import com.google.common.util.concurrent.Futures;
@@ -28,7 +29,10 @@ import hera.transport.NodeStatusConverterFactory;
 import hera.transport.PeerAddressConverterFactory;
 import io.grpc.ManagedChannel;
 import java.util.List;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Node;
 import types.Rpc;
@@ -40,25 +44,28 @@ import types.Rpc.SingleBytes;
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
-public class BlockChainAsyncTemplate implements BlockChainAsyncOperation {
+public class BlockChainAsyncTemplate implements BlockChainAsyncOperation, ChannelInjectable {
 
-  protected final AergoRPCServiceFutureStub aergoService;
+  protected final Logger logger = getLogger(getClass());
 
-  protected final Context context;
+  protected final ModelConverter<BlockchainStatus, Rpc.BlockchainStatus> blockchainConverter =
+      new BlockchainConverterFactory().create();
 
-  protected final ModelConverter<BlockchainStatus, Rpc.BlockchainStatus> blockchainConverter;
+  protected final ModelConverter<PeerAddress, Node.PeerAddress> peerAddressConverter =
+      new PeerAddressConverterFactory().create();
 
-  protected final ModelConverter<PeerAddress, Node.PeerAddress> peerAddressConverter;
+  protected final ModelConverter<NodeStatus, Rpc.SingleBytes> nodeStatusConverter =
+      new NodeStatusConverterFactory().create();
 
-  protected final ModelConverter<NodeStatus, Rpc.SingleBytes> nodeStatusConverter;
+  @Setter
+  protected Context context;
 
-  public BlockChainAsyncTemplate(final ManagedChannel channel, final Context context) {
-    this(newFutureStub(channel), context);
-  }
+  @Getter
+  protected AergoRPCServiceFutureStub aergoService;
 
-  public BlockChainAsyncTemplate(AergoRPCServiceFutureStub aergoService, final Context context) {
-    this(aergoService, context, new BlockchainConverterFactory().create(),
-        new PeerAddressConverterFactory().create(), new NodeStatusConverterFactory().create());
+  @Override
+  public void injectChannel(final ManagedChannel channel) {
+    this.aergoService = newFutureStub(channel);
   }
 
   @Override
@@ -103,4 +110,5 @@ public class BlockChainAsyncTemplate implements BlockChainAsyncOperation {
 
     return nextFuture;
   }
+
 }

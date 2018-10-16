@@ -15,7 +15,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import hera.AbstractTestCase;
-import hera.api.AccountAsyncOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
@@ -41,10 +40,11 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   public void testList() throws Exception {
     ResultOrErrorFuture<List<Account>> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
+    AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
     when(asyncOperationMock.list()).thenReturn(futureMock);
 
-    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate(asyncOperationMock);
+    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
+    accountTemplate.accountAsyncOperation = asyncOperationMock;
 
     final ResultOrError<List<Account>> accountListFuture = accountTemplate.list();
     assertNotNull(accountListFuture);
@@ -54,10 +54,11 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   public void testListWithTimeout() throws Exception {
     ResultOrErrorFuture<List<Account>> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
-    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
+    AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
     when(asyncOperationMock.list()).thenReturn(futureMock);
 
-    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate(asyncOperationMock);
+    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
+    accountTemplate.accountAsyncOperation = asyncOperationMock;
 
     final ResultOrError<List<Account>> accountListFuture = accountTemplate.list();
     assertTrue(accountListFuture.hasError());
@@ -67,10 +68,11 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   public void testCreate() throws Exception {
     ResultOrErrorFuture<Account> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
+    AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
     when(asyncOperationMock.create(anyString())).thenReturn(futureMock);
 
-    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate(asyncOperationMock);
+    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
+    accountTemplate.accountAsyncOperation = asyncOperationMock;
 
     final ResultOrError<Account> createdAccount = accountTemplate.create(randomUUID().toString());
     assertNotNull(createdAccount);
@@ -80,10 +82,11 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   public void testCreateWithTimeout() throws Exception {
     ResultOrErrorFuture<Account> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
-    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
+    AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
     when(asyncOperationMock.create(anyString())).thenReturn(futureMock);
 
-    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate(asyncOperationMock);
+    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
+    accountTemplate.accountAsyncOperation = asyncOperationMock;
 
     final ResultOrError<Account> createdAccount = accountTemplate.create(randomUUID().toString());
     assertTrue(createdAccount.hasError());
@@ -93,10 +96,11 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   public void testGet() throws Exception {
     ResultOrErrorFuture<Account> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
+    AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
     when(asyncOperationMock.get(any(AccountAddress.class))).thenReturn(futureMock);
 
-    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate(asyncOperationMock);
+    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
+    accountTemplate.accountAsyncOperation = asyncOperationMock;
 
     final ResultOrError<Account> account = accountTemplate.get(ACCOUNT_ADDRESS);
     assertNotNull(account);
@@ -106,10 +110,11 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   public void testGetWithTimeout() throws Exception {
     ResultOrErrorFuture<Account> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
-    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
+    AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
     when(asyncOperationMock.get(any(AccountAddress.class))).thenReturn(futureMock);
 
-    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate(asyncOperationMock);
+    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
+    accountTemplate.accountAsyncOperation = asyncOperationMock;
 
     final ResultOrError<Account> account = accountTemplate.get(ACCOUNT_ADDRESS);
     assertTrue(account.hasError());
@@ -119,10 +124,11 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   public void testLock() throws Exception {
     ResultOrErrorFuture<Boolean> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
+    AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
     when(asyncOperationMock.lock(any())).thenReturn(futureMock);
 
-    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate(asyncOperationMock);
+    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
+    accountTemplate.accountAsyncOperation = asyncOperationMock;
 
     ResultOrError<Boolean> lockResult =
         accountTemplate.lock(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
@@ -133,10 +139,11 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   public void testLockWithTimeout() throws Exception {
     ResultOrErrorFuture<Boolean> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
-    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
+    AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
     when(asyncOperationMock.lock(any())).thenReturn(futureMock);
 
-    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate(asyncOperationMock);
+    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
+    accountTemplate.accountAsyncOperation = asyncOperationMock;
 
     ResultOrError<Boolean> lockResult =
         accountTemplate.lock(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
@@ -147,10 +154,11 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   public void testUnlock() throws Exception {
     ResultOrErrorFuture<Boolean> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
+    AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
     when(asyncOperationMock.unlock(any())).thenReturn(futureMock);
 
-    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate(asyncOperationMock);
+    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
+    accountTemplate.accountAsyncOperation = asyncOperationMock;
 
     ResultOrError<Boolean> unlockResult =
         accountTemplate.unlock(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
@@ -161,10 +169,11 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   public void testUnlockWithTimeout() throws Exception {
     ResultOrErrorFuture<Boolean> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
-    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
+    AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
     when(asyncOperationMock.unlock(any())).thenReturn(futureMock);
 
-    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate(asyncOperationMock);
+    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
+    accountTemplate.accountAsyncOperation = asyncOperationMock;
 
     ResultOrError<Boolean> unlockResult =
         accountTemplate.unlock(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
@@ -175,14 +184,14 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   public void testImportKey() throws Exception {
     ResultOrErrorFuture<Account> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
+    AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
     when(asyncOperationMock.importKey(any(), any(), any())).thenReturn(futureMock);
 
-    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate(asyncOperationMock);
+    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
+    accountTemplate.accountAsyncOperation = asyncOperationMock;
 
-    ResultOrError<Account> importedAccount = accountTemplate.importKey(
-        new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.VERSION})),
-        PASSWORD);
+    ResultOrError<Account> importedAccount = accountTemplate
+        .importKey(new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.VERSION})), PASSWORD);
     assertNotNull(importedAccount);
   }
 
@@ -190,14 +199,14 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   public void testImportKeyWithTimeout() throws Exception {
     ResultOrErrorFuture<Account> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
-    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
+    AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
     when(asyncOperationMock.importKey(any(), any(), any())).thenReturn(futureMock);
 
-    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate(asyncOperationMock);
+    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
+    accountTemplate.accountAsyncOperation = asyncOperationMock;
 
-    ResultOrError<Account> importedAccount = accountTemplate.importKey(
-        new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.VERSION})),
-        PASSWORD);
+    ResultOrError<Account> importedAccount = accountTemplate
+        .importKey(new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.VERSION})), PASSWORD);
     assertTrue(importedAccount.hasError());
   }
 
@@ -205,10 +214,11 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   public void testExportKey() throws Exception {
     ResultOrErrorFuture<EncryptedPrivateKey> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
+    AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
     when(asyncOperationMock.exportKey(any())).thenReturn(futureMock);
 
-    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate(asyncOperationMock);
+    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
+    accountTemplate.accountAsyncOperation = asyncOperationMock;
 
     ResultOrError<EncryptedPrivateKey> exportedKey =
         accountTemplate.exportKey(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
@@ -219,10 +229,11 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   public void testExportKeyWithTimeout() throws Exception {
     ResultOrErrorFuture<EncryptedPrivateKey> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
-    AccountAsyncOperation asyncOperationMock = mock(AccountAsyncOperation.class);
+    AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
     when(asyncOperationMock.exportKey(any())).thenReturn(futureMock);
 
-    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate(asyncOperationMock);
+    final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
+    accountTemplate.accountAsyncOperation = asyncOperationMock;
 
     ResultOrError<EncryptedPrivateKey> exportedKey =
         accountTemplate.exportKey(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));

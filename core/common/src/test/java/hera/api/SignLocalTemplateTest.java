@@ -20,7 +20,8 @@ public class SignLocalTemplateTest {
   @Test
   public void test() throws Exception {
     final AergoKey key = new AergoKeyGenerator().create();
-    final SignLocalTemplate signTemplate = new SignLocalTemplate(context);
+    final SignLocalTemplate signTemplate = new SignLocalTemplate();
+    signTemplate.setContext(context);
 
     final Transaction transaction = new Transaction();
     final Signature signature = signTemplate.sign(key, transaction);

@@ -20,7 +20,8 @@ public class SignLocalEitherTemplateTest {
   @Test
   public void test() throws Exception {
     final AergoKey key = new AergoKeyGenerator().create();
-    final SignLocalEitherTemplate signLocalEitherTemplate = new SignLocalEitherTemplate(context);
+    final SignLocalEitherTemplate signLocalEitherTemplate = new SignLocalEitherTemplate();
+    signLocalEitherTemplate.setContext(context);
 
     final Transaction transaction = new Transaction();
     final Signature signature = signLocalEitherTemplate.sign(key, transaction).getResult();

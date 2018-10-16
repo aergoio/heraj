@@ -15,7 +15,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import hera.AbstractTestCase;
-import hera.api.BlockAsyncOperation;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
@@ -38,10 +37,11 @@ public class BlockEitherTemplateTest extends AbstractTestCase {
   public void testGetBlockByHash() throws Exception {
     ResultOrErrorFuture<Block> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    BlockAsyncOperation asyncOperationMock = mock(BlockAsyncOperation.class);
+    BlockAsyncTemplate asyncOperationMock = mock(BlockAsyncTemplate.class);
     when(asyncOperationMock.getBlock(any())).thenReturn(futureMock);
 
-    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate(asyncOperationMock);
+    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate();
+    blockTemplate.blockAsyncOperation = asyncOperationMock;
 
     final ResultOrError<Block> block =
         blockTemplate.getBlock(new BlockHash(of(randomUUID().toString().getBytes())));
@@ -52,10 +52,11 @@ public class BlockEitherTemplateTest extends AbstractTestCase {
   public void testGetBlockByHashWithTimeout() throws Exception {
     ResultOrErrorFuture<Block> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
-    BlockAsyncOperation asyncOperationMock = mock(BlockAsyncOperation.class);
+    BlockAsyncTemplate asyncOperationMock = mock(BlockAsyncTemplate.class);
     when(asyncOperationMock.getBlock(any())).thenReturn(futureMock);
 
-    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate(asyncOperationMock);
+    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate();
+    blockTemplate.blockAsyncOperation = asyncOperationMock;
 
     final ResultOrError<Block> block =
         blockTemplate.getBlock(new BlockHash(of(randomUUID().toString().getBytes())));
@@ -66,10 +67,11 @@ public class BlockEitherTemplateTest extends AbstractTestCase {
   public void testGetBlockByHeight() throws Exception {
     ResultOrErrorFuture<Block> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    BlockAsyncOperation asyncOperationMock = mock(BlockAsyncOperation.class);
+    BlockAsyncTemplate asyncOperationMock = mock(BlockAsyncTemplate.class);
     when(asyncOperationMock.getBlock(anyLong())).thenReturn(futureMock);
 
-    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate(asyncOperationMock);
+    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate();
+    blockTemplate.blockAsyncOperation = asyncOperationMock;
 
     final ResultOrError<Block> block = blockTemplate.getBlock(randomUUID().hashCode());
     assertNotNull(block);
@@ -79,10 +81,11 @@ public class BlockEitherTemplateTest extends AbstractTestCase {
   public void testGetBlockByHeightWithTimeout() throws Exception {
     ResultOrErrorFuture<Block> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
-    BlockAsyncOperation asyncOperationMock = mock(BlockAsyncOperation.class);
+    BlockAsyncTemplate asyncOperationMock = mock(BlockAsyncTemplate.class);
     when(asyncOperationMock.getBlock(anyLong())).thenReturn(futureMock);
 
-    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate(asyncOperationMock);
+    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate();
+    blockTemplate.blockAsyncOperation = asyncOperationMock;
 
     final ResultOrError<Block> block = blockTemplate.getBlock(randomUUID().hashCode());
     assertTrue(block.hasError());
@@ -92,10 +95,11 @@ public class BlockEitherTemplateTest extends AbstractTestCase {
   public void testListBlockHeadersByHash() throws Exception {
     ResultOrErrorFuture<List<BlockHeader>> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    BlockAsyncOperation asyncOperationMock = mock(BlockAsyncOperation.class);
+    BlockAsyncTemplate asyncOperationMock = mock(BlockAsyncTemplate.class);
     when(asyncOperationMock.listBlockHeaders(any(), anyInt())).thenReturn(futureMock);
 
-    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate(asyncOperationMock);
+    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate();
+    blockTemplate.blockAsyncOperation = asyncOperationMock;
 
     final ResultOrError<List<BlockHeader>> block = blockTemplate.listBlockHeaders(
         new BlockHash(of(randomUUID().toString().getBytes())), randomUUID().hashCode());
@@ -106,10 +110,11 @@ public class BlockEitherTemplateTest extends AbstractTestCase {
   public void testListBlockHeadersByHashWithTimeout() throws Exception {
     ResultOrErrorFuture<List<BlockHeader>> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
-    BlockAsyncOperation asyncOperationMock = mock(BlockAsyncOperation.class);
+    BlockAsyncTemplate asyncOperationMock = mock(BlockAsyncTemplate.class);
     when(asyncOperationMock.listBlockHeaders(any(), anyInt())).thenReturn(futureMock);
 
-    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate(asyncOperationMock);
+    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate();
+    blockTemplate.blockAsyncOperation = asyncOperationMock;
 
     final ResultOrError<List<BlockHeader>> block = blockTemplate.listBlockHeaders(
         new BlockHash(of(randomUUID().toString().getBytes())), randomUUID().hashCode());
@@ -120,10 +125,11 @@ public class BlockEitherTemplateTest extends AbstractTestCase {
   public void testListBlockHeadersByHeight() throws Exception {
     ResultOrErrorFuture<List<BlockHeader>> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
-    BlockAsyncOperation asyncOperationMock = mock(BlockAsyncOperation.class);
+    BlockAsyncTemplate asyncOperationMock = mock(BlockAsyncTemplate.class);
     when(asyncOperationMock.listBlockHeaders(anyLong(), anyInt())).thenReturn(futureMock);
 
-    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate(asyncOperationMock);
+    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate();
+    blockTemplate.blockAsyncOperation = asyncOperationMock;
 
     final ResultOrError<List<BlockHeader>> block =
         blockTemplate.listBlockHeaders(randomUUID().hashCode(), randomUUID().hashCode());
@@ -134,10 +140,11 @@ public class BlockEitherTemplateTest extends AbstractTestCase {
   public void testListBlockHeadersByHeightWithTimeout() throws Exception {
     ResultOrErrorFuture<List<BlockHeader>> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
-    BlockAsyncOperation asyncOperationMock = mock(BlockAsyncOperation.class);
+    BlockAsyncTemplate asyncOperationMock = mock(BlockAsyncTemplate.class);
     when(asyncOperationMock.listBlockHeaders(anyLong(), anyInt())).thenReturn(futureMock);
 
-    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate(asyncOperationMock);
+    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate();
+    blockTemplate.blockAsyncOperation = asyncOperationMock;
 
     final ResultOrError<List<BlockHeader>> block =
         blockTemplate.listBlockHeaders(randomUUID().hashCode(), randomUUID().hashCode());

@@ -28,7 +28,8 @@ import hera.transport.ModelConverter;
 import hera.transport.TransactionConverterFactory;
 import hera.transport.TransactionInBlockConverterFactory;
 import io.grpc.ManagedChannel;
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Blockchain;
@@ -42,27 +43,25 @@ import types.Rpc.SingleBytes;
 @ApiAudience.Private
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
-@RequiredArgsConstructor
-public class TransactionAsyncTemplate implements TransactionAsyncOperation {
+public class TransactionAsyncTemplate implements TransactionAsyncOperation, ChannelInjectable {
 
   protected final Logger logger = getLogger(getClass());
 
-  protected final AergoRPCServiceFutureStub aergoService;
+  protected final ModelConverter<Transaction, Blockchain.Tx> transactionConverter =
+      new TransactionConverterFactory().create();
 
-  protected final Context context;
+  protected final ModelConverter<Transaction, Blockchain.TxInBlock> transactionInBlockConverter =
+      new TransactionInBlockConverterFactory().create();
 
-  protected final ModelConverter<Transaction, Blockchain.Tx> transactionConverter;
+  @Setter
+  protected Context context;
 
-  protected final ModelConverter<Transaction, Blockchain.TxInBlock> transactionInBlockConverter;
+  @Getter
+  protected AergoRPCServiceFutureStub aergoService;
 
-  public TransactionAsyncTemplate(final ManagedChannel channel, final Context context) {
-    this(newFutureStub(channel), context);
-  }
-
-  public TransactionAsyncTemplate(final AergoRPCServiceFutureStub aergoService,
-      final Context context) {
-    this(aergoService, context, new TransactionConverterFactory().create(),
-        new TransactionInBlockConverterFactory().create());
+  @Override
+  public void injectChannel(final ManagedChannel channel) {
+    this.aergoService = newFutureStub(channel);
   }
 
   @Override

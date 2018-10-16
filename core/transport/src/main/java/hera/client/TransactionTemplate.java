@@ -4,32 +4,32 @@
 
 package hera.client;
 
-import static types.AergoRPCServiceGrpc.newFutureStub;
-
 import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.TransactionEitherOperation;
 import hera.api.TransactionOperation;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import io.grpc.ManagedChannel;
-import lombok.RequiredArgsConstructor;
-import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-@RequiredArgsConstructor
-public class TransactionTemplate implements TransactionOperation {
+public class TransactionTemplate implements TransactionOperation, ChannelInjectable {
 
-  protected final TransactionEitherOperation transactionEitherOperation;
+  protected Context context;
 
-  public TransactionTemplate(final ManagedChannel channel, final Context context) {
-    this(newFutureStub(channel), context);
+  protected TransactionEitherTemplate transactionEitherOperation =
+      new TransactionEitherTemplate();
+
+  @Override
+  public void setContext(final Context context) {
+    this.context = context;
+    transactionEitherOperation.setContext(context);
   }
 
-  public TransactionTemplate(final AergoRPCServiceFutureStub aergoService, final Context context) {
-    this(new TransactionEitherTemplate(aergoService, context));
+  @Override
+  public void injectChannel(final ManagedChannel channel) {
+    transactionEitherOperation.injectChannel(channel);
   }
 
   @Override

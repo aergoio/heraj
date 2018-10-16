@@ -11,7 +11,6 @@ import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import hera.AbstractTestCase;
-import hera.api.SignEitherOperation;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrError;
@@ -31,10 +30,11 @@ public class SignTemplateTest extends AbstractTestCase {
   public void testSign() throws Exception {
     ResultOrError<Signature> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(Signature.class));
-    SignEitherOperation eitherOperationMock = mock(SignEitherOperation.class);
+    SignEitherTemplate eitherOperationMock = mock(SignEitherTemplate.class);
     when(eitherOperationMock.sign(any(), any(Transaction.class))).thenReturn(eitherMock);
 
-    final SignTemplate signTemplate = new SignTemplate(eitherOperationMock);
+    final SignTemplate signTemplate = new SignTemplate();
+    signTemplate.signEitherOperation = eitherOperationMock;
 
     final Signature signature = signTemplate.sign(null, new Transaction());
     assertNotNull(signature);
@@ -44,10 +44,11 @@ public class SignTemplateTest extends AbstractTestCase {
   public void testVerify() throws Exception {
     ResultOrError<Boolean> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(true);
-    SignEitherOperation eitherOperationMock = mock(SignEitherOperation.class);
+    SignEitherTemplate eitherOperationMock = mock(SignEitherTemplate.class);
     when(eitherOperationMock.verify(any(), any(Transaction.class))).thenReturn(eitherMock);
 
-    final SignTemplate signTemplate = new SignTemplate(eitherOperationMock);
+    final SignTemplate signTemplate = new SignTemplate();
+    signTemplate.signEitherOperation = eitherOperationMock;
 
     final boolean verifyResult = signTemplate.verify(null, new Transaction());
     assertTrue(verifyResult);
