@@ -50,7 +50,7 @@ dependencies {
 }
 
 sourceSets {
-  main {
+  generated {
     java {
       srcDirs "${projectDir}/build/generated/source/proto/main/grpc"
       srcDirs "${projectDir}/build/generated/source/proto/main/java"
