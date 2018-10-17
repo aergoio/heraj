@@ -8,10 +8,12 @@ import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import hera.AbstractTestCase;
+import hera.api.model.AccountAddress;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrError;
@@ -26,6 +28,9 @@ import types.Rpc.VerifyResult;
 @PrepareForTest({AergoRPCServiceBlockingStub.class, Blockchain.Tx.class, VerifyResult.class,
     CommitResult.class})
 public class TransactionTemplateTest extends AbstractTestCase {
+
+  protected final AccountAddress accountAddress =
+      new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
 
   @Test
   public void testGetTransaction() throws Exception {
@@ -61,12 +66,12 @@ public class TransactionTemplateTest extends AbstractTestCase {
     ResultOrError<TxHash> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(TxHash.class));
     TransactionEitherTemplate eitherOperationMock = mock(TransactionEitherTemplate.class);
-    when(eitherOperationMock.send(any(Transaction.class))).thenReturn(eitherMock);
+    when(eitherOperationMock.send(any(), any(), anyLong())).thenReturn(eitherMock);
 
     final TransactionTemplate transactionTemplate = new TransactionTemplate();
     transactionTemplate.transactionEitherOperation = eitherOperationMock;
 
-    final TxHash txHash = transactionTemplate.send(new Transaction());
+    final TxHash txHash = transactionTemplate.send(accountAddress, accountAddress, 10);
     assertNotNull(txHash);
   }
 

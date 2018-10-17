@@ -8,6 +8,7 @@ import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.TransactionOperation;
+import hera.api.model.AccountAddress;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import io.grpc.ManagedChannel;
@@ -18,8 +19,7 @@ public class TransactionTemplate implements TransactionOperation, ChannelInjecta
 
   protected Context context;
 
-  protected TransactionEitherTemplate transactionEitherOperation =
-      new TransactionEitherTemplate();
+  protected TransactionEitherTemplate transactionEitherOperation = new TransactionEitherTemplate();
 
   @Override
   public void setContext(final Context context) {
@@ -43,8 +43,9 @@ public class TransactionTemplate implements TransactionOperation, ChannelInjecta
   }
 
   @Override
-  public TxHash send(final Transaction transaction) {
-    return transactionEitherOperation.send(transaction).getResult();
+  public TxHash send(final AccountAddress sender, final AccountAddress recipient,
+      final long amount) {
+    return transactionEitherOperation.send(sender, recipient, amount).getResult();
   }
 
 }

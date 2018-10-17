@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
+import hera.api.model.AccountAddress;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -27,6 +28,9 @@ import types.Rpc;
 public class TransactionAsyncTemplateTest extends AbstractTestCase {
 
   protected final byte[] rawTxHash = randomUUID().toString().getBytes();
+
+  protected final AccountAddress accountAddress =
+      new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
 
   protected TransactionAsyncTemplate supplyTransactionAsyncTemplate(
       final AergoRPCServiceFutureStub aergoService) {
@@ -93,7 +97,8 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
     final TransactionAsyncTemplate transactionAsyncTemplate =
         supplyTransactionAsyncTemplate(aergoService);
 
-    final ResultOrErrorFuture<TxHash> txHash = transactionAsyncTemplate.send(new Transaction());
+    final ResultOrErrorFuture<TxHash> txHash =
+        transactionAsyncTemplate.send(accountAddress, accountAddress, 10);
     assertTrue(txHash.get().hasResult());
   }
 

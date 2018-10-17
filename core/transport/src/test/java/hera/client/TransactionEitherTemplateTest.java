@@ -14,6 +14,7 @@ import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import hera.AbstractTestCase;
+import hera.api.model.AccountAddress;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrError;
@@ -30,6 +31,9 @@ import types.Rpc.VerifyResult;
 @PrepareForTest({AergoRPCServiceBlockingStub.class, Blockchain.Tx.class, VerifyResult.class,
     CommitResult.class})
 public class TransactionEitherTemplateTest extends AbstractTestCase {
+
+  protected final AccountAddress accountAddress =
+      new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
 
   @Test
   public void testGetTransaction() throws Exception {
@@ -94,12 +98,13 @@ public class TransactionEitherTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<TxHash> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     TransactionAsyncTemplate asyncOperationMock = mock(TransactionAsyncTemplate.class);
-    when(asyncOperationMock.send(any(Transaction.class))).thenReturn(futureMock);
+    when(asyncOperationMock.send(any(), any(), anyLong())).thenReturn(futureMock);
 
     final TransactionEitherTemplate transactionTemplate = new TransactionEitherTemplate();
     transactionTemplate.transactionAsyncOperation = asyncOperationMock;
 
-    final ResultOrError<TxHash> txHash = transactionTemplate.send(new Transaction());
+    final ResultOrError<TxHash> txHash =
+        transactionTemplate.send(accountAddress, accountAddress, 10);
     assertNotNull(txHash);
   }
 
@@ -108,12 +113,13 @@ public class TransactionEitherTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<TxHash> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
     TransactionAsyncTemplate asyncOperationMock = mock(TransactionAsyncTemplate.class);
-    when(asyncOperationMock.send(any(Transaction.class))).thenReturn(futureMock);
+    when(asyncOperationMock.send(any(), any(), anyLong())).thenReturn(futureMock);
 
     final TransactionEitherTemplate transactionTemplate = new TransactionEitherTemplate();
     transactionTemplate.transactionAsyncOperation = asyncOperationMock;
 
-    final ResultOrError<TxHash> txHash = transactionTemplate.send(new Transaction());
+    final ResultOrError<TxHash> txHash =
+        transactionTemplate.send(accountAddress, accountAddress, 10);
     assertTrue(txHash.hasError());
   }
 

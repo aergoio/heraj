@@ -10,6 +10,7 @@ import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.TransactionEitherOperation;
+import hera.api.model.AccountAddress;
 import hera.api.model.Time;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
@@ -64,9 +65,10 @@ public class TransactionEitherTemplate implements TransactionEitherOperation, Ch
   }
 
   @Override
-  public ResultOrError<TxHash> send(final Transaction transaction) {
+  public ResultOrError<TxHash> send(final AccountAddress sender, final AccountAddress recipient,
+      final long amount) {
     try {
-      return transactionAsyncOperation.send(transaction).get(getTimeout().getValue(),
+      return transactionAsyncOperation.send(sender, recipient, amount).get(getTimeout().getValue(),
           getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));

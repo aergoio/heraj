@@ -196,12 +196,7 @@ public class TransactionOperationIT extends AbstractIT {
         aergoClient.getAccountOperation().unlock(Authentication.of(sender.getAddress(), password));
     assertTrue(unlockResult);
 
-    final Transaction transaction = new Transaction();
-    transaction.setAmount(amount);
-    transaction.setSender(sender.getAddress());
-    transaction.setRecipient(recipient);
-    logger.info("Ready Transaction: {}", transaction);
-    final TxHash txHash = aergoClient.getTransactionOperation().send(transaction);
+    final TxHash txHash = aergoClient.getTransactionOperation().send(sender.getAddress(), recipient, amount);
     logger.info("TxHash: {}", txHash);
 
     waitForNextBlockToGenerate();

@@ -19,6 +19,7 @@ import hera.FutureChainer;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.TransactionAsyncOperation;
+import hera.api.model.AccountAddress;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -116,9 +117,14 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation, Chan
   }
 
   @Override
-  public ResultOrErrorFuture<TxHash> send(final Transaction transaction) {
+  public ResultOrErrorFuture<TxHash> send(final AccountAddress sender,
+      final AccountAddress recipient, final long amount) {
     ResultOrErrorFuture<TxHash> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
+    final Transaction transaction = new Transaction();
+    transaction.setSender(sender);
+    transaction.setRecipient(recipient);
+    transaction.setAmount(amount);
     final Tx tx = transactionConverter.convertToRpcModel(transaction);
     ListenableFuture<Rpc.CommitResult> listenableFuture = aergoService.sendTX(tx);
     FutureChainer<Rpc.CommitResult, TxHash> callback =
