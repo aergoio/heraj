@@ -6,7 +6,7 @@ package hera.exception;
 
 public class AdaptException extends HerajException {
 
-  private static final long serialVersionUID = -4798911407894712354L;
+  private static final long serialVersionUID = -4646404321907745575L;
 
   protected Class<?> from;
   protected Class<?> to;

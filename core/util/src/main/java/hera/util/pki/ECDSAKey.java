@@ -11,7 +11,6 @@ import static java.security.Security.addProvider;
 import static org.bouncycastle.jce.ECNamedCurveTable.getParameterSpec;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import hera.exception.SignException;
 import hera.util.HexUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -121,7 +120,7 @@ public class ECDSAKey {
       logger.trace("ECDSASignature signature: {}", signature);
       return signature;
     } catch (final Throwable e) {
-      throw new SignException(e);
+      throw new IllegalStateException(e);
     }
   }
 
@@ -156,7 +155,7 @@ public class ECDSAKey {
       r = r.subtract(n);
     }
     if (0 == r.signum()) {
-      throw new SignException(new IllegalStateException("calculated R is zero"));
+      throw new IllegalStateException("calculated R is zero");
     }
 
     BigInteger s = k.modInverse(n).multiply(bits2int(message, nBitslen).add(d.multiply(r))).mod(n);
@@ -164,7 +163,7 @@ public class ECDSAKey {
       s = n.subtract(s);
     }
     if (0 == s.signum()) {
-      throw new SignException(new IllegalStateException("calculated S is zero"));
+      throw new IllegalStateException("calculated S is zero");
     }
 
     return ECDSASignature.of(r, s);
@@ -182,7 +181,7 @@ public class ECDSAKey {
     try {
       return verify(getPublicKey(), toByteArray(plainText), signature);
     } catch (final Throwable e) {
-      throw new SignException(e);
+      throw new IllegalStateException(e);
     }
 
   }

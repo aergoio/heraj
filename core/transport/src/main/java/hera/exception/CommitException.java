@@ -8,7 +8,7 @@ import lombok.Getter;
 
 public class CommitException extends RpcException {
 
-  private static final long serialVersionUID = -4798911407894712354L;
+  private static final long serialVersionUID = -3973554154789144558L;
 
   enum CommitStatus {
     OK,

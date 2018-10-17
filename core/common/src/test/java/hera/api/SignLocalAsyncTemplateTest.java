@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import hera.Context;
 import hera.api.model.Transaction;
+import hera.exception.NoKeyPresentException;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import org.junit.Test;
@@ -17,7 +18,7 @@ public class SignLocalAsyncTemplateTest {
   protected Context context = new Context();
 
   @Test
-  public void test() throws Exception {
+  public void testSignAndVerify() throws Exception {
     final AergoKey key = new AergoKeyGenerator().create();
     final SignLocalAsyncTemplate signLocalAsyncTemplate = new SignLocalAsyncTemplate();
     signLocalAsyncTemplate.setContext(context);
@@ -28,6 +29,24 @@ public class SignLocalAsyncTemplateTest {
       return signLocalAsyncTemplate.verify(key, transaction);
     }).get().getResult();
     assertTrue(result);
+  }
+
+  @Test(expected = NoKeyPresentException.class)
+  public void testSignWithoutKey() {
+    final SignLocalAsyncTemplate signLocalAsyncTemplate = new SignLocalAsyncTemplate();
+    signLocalAsyncTemplate.setContext(context);
+
+    final Transaction transaction = new Transaction();
+    signLocalAsyncTemplate.sign(null, transaction).get().getResult();
+  }
+
+  @Test(expected = NoKeyPresentException.class)
+  public void testVerifyWithoutKey() {
+    final SignLocalAsyncTemplate signLocalAsyncTemplate = new SignLocalAsyncTemplate();
+    signLocalAsyncTemplate.setContext(context);
+
+    final Transaction transaction = new Transaction();
+    signLocalAsyncTemplate.verify(null, transaction).get().getResult();
   }
 
 }

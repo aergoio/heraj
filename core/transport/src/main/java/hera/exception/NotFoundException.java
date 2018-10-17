@@ -6,7 +6,7 @@ package hera.exception;
 
 public class NotFoundException extends RpcException {
   
-  private static final long serialVersionUID = -4798911407894712354L;
+  private static final long serialVersionUID = -143184750194736228L;
 
   public NotFoundException(String message) {
     super(message);

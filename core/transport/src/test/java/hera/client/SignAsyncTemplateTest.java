@@ -17,6 +17,7 @@ import hera.Context;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.key.AergoKeyGenerator;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -27,7 +28,9 @@ import types.Rpc;
 @PrepareForTest({AergoRPCServiceFutureStub.class})
 public class SignAsyncTemplateTest extends AbstractTestCase {
 
-  protected static final Context context = AergoClientBuilder.getDefaultContext();
+  protected final Context context = AergoClientBuilder.getDefaultContext();
+
+  protected final AergoKeyGenerator generator = new AergoKeyGenerator();
 
   protected SignAsyncTemplate supplySignAsyncTemplate(
       final AergoRPCServiceFutureStub aergoService) {
@@ -54,6 +57,22 @@ public class SignAsyncTemplateTest extends AbstractTestCase {
   }
 
   @Test
+  public void testSignWithReduntantKey() throws Exception {
+    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
+    ListenableFuture mockListenableFuture = service.submit(() -> Blockchain.Tx.newBuilder()
+        .setBody(
+            Blockchain.TxBody.newBuilder().setSign(copyFrom(randomUUID().toString().getBytes())))
+        .setHash(copyFrom(randomUUID().toString().getBytes())).build());
+    when(aergoService.signTX(any())).thenReturn(mockListenableFuture);
+
+    final SignAsyncTemplate signAsyncTemplate = supplySignAsyncTemplate(aergoService);
+
+    final ResultOrErrorFuture<Signature> signature =
+        signAsyncTemplate.sign(generator.create(), new Transaction());
+    assertTrue(signature.get().hasResult());
+  }
+
+  @Test
   public void testVerify() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture mockListenableFuture = service.submit(
@@ -64,6 +83,20 @@ public class SignAsyncTemplateTest extends AbstractTestCase {
 
     final ResultOrErrorFuture<Boolean> verifyResult =
         signAsyncTemplate.verify(null, new Transaction());
+    assertTrue(verifyResult.get().hasResult());
+  }
+
+  @Test
+  public void testVerifyWithReduntantKey() throws Exception {
+    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
+    ListenableFuture mockListenableFuture = service.submit(
+        () -> Rpc.VerifyResult.newBuilder().setError(Rpc.VerifyStatus.VERIFY_STATUS_OK).build());
+    when(aergoService.verifyTX(any())).thenReturn(mockListenableFuture);
+
+    final SignAsyncTemplate signAsyncTemplate = supplySignAsyncTemplate(aergoService);
+
+    final ResultOrErrorFuture<Boolean> verifyResult =
+        signAsyncTemplate.verify(generator.create(), new Transaction());
     assertTrue(verifyResult.get().hasResult());
   }
 

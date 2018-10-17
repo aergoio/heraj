@@ -6,6 +6,7 @@ package hera.api;
 
 import static hera.api.tupleorerror.FunctionChain.fail;
 import static hera.api.tupleorerror.FunctionChain.success;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Context;
 import hera.annotation.ApiAudience;
@@ -16,15 +17,18 @@ import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.exception.HerajException;
+import hera.exception.NoKeyPresentException;
 import hera.key.AergoKey;
 import java.util.Optional;
 import lombok.Setter;
+import org.slf4j.Logger;
 
 @ApiAudience.Private
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
 public class SignLocalAsyncTemplate implements SignAsyncOperation {
 
+  protected final Logger logger = getLogger(getClass());
   @Setter
   protected Context context;
 
@@ -32,6 +36,10 @@ public class SignLocalAsyncTemplate implements SignAsyncOperation {
   public ResultOrErrorFuture<Signature> sign(final AergoKey key, final Transaction transaction) {
     return ResultOrErrorFutureFactory.supply(() -> {
       try {
+        if (null == key) {
+          logger.info("No key for sign");
+          return fail(new NoKeyPresentException());
+        }
         final Transaction copy = Transaction.copyOf(transaction);
         final BytesValue signature = key.sign(copy.calculateHash().getBytesValue().get());
         copy.setSignature(Signature.of(signature, null));
@@ -46,6 +54,10 @@ public class SignLocalAsyncTemplate implements SignAsyncOperation {
   public ResultOrErrorFuture<Boolean> verify(final AergoKey key, final Transaction transaction) {
     return ResultOrErrorFutureFactory.supply(() -> {
       try {
+        if (null == key) {
+          logger.info("No key for verification");
+          return fail(new NoKeyPresentException());
+        }
         final Transaction copy = Transaction.copyOf(transaction);
         final BytesValue signature = copy.getSignature().getSign();
         copy.setSignature(null);

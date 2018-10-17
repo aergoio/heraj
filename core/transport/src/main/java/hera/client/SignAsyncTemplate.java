@@ -26,7 +26,6 @@ import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.exception.RpcException;
-import hera.exception.SignException;
 import hera.exception.TransactionVerificationException;
 import hera.key.AergoKey;
 import hera.transport.ModelConverter;
@@ -65,19 +64,21 @@ public class SignAsyncTemplate implements SignAsyncOperation, ChannelInjectable 
 
   @Override
   public ResultOrErrorFuture<Signature> sign(final AergoKey key, final Transaction transaction) {
+    if (null != key) {
+      logger.info("Key is present on RemoteSignStrategy. This key is ignored.");
+    }
+
     ResultOrErrorFuture<Signature> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final Tx rpcTransaction = transactionConverter.convertToRpcModel(transaction);
     final ListenableFuture<Tx> listenableFuture = aergoService.signTX(rpcTransaction);
     FutureChainer<Tx, Signature> callback = new FutureChainer<>(nextFuture, tx -> {
       final BytesValue sign = ofNullable(tx.getBody().getSign()).map(ByteString::toByteArray)
-          .filter(bytes -> 0 != bytes.length).map(BytesValue::of)
-          .orElseThrow(() -> new RpcException(
-              new SignException("Signing failed: sign field is not found at sign result")));
-      final TxHash hash =
-          ofNullable(tx.getHash()).map(ByteString::toByteArray).filter(bytes -> 0 != bytes.length)
-              .map(BytesValue::new).map(TxHash::new).orElseThrow(() -> new RpcException(
-                  new SignException("Signing failed: txHash field is not found at sign result")));
+          .filter(bytes -> 0 != bytes.length).map(BytesValue::of).orElseThrow(
+              () -> new RpcException("Signing failed: sign field is not found at sign result"));
+      final TxHash hash = ofNullable(tx.getHash()).map(ByteString::toByteArray)
+          .filter(bytes -> 0 != bytes.length).map(BytesValue::new).map(TxHash::new).orElseThrow(
+              () -> new RpcException("Signing failed: txHash field is not found at sign result"));
       return Signature.of(sign, hash);
     });
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
@@ -87,6 +88,10 @@ public class SignAsyncTemplate implements SignAsyncOperation, ChannelInjectable 
 
   @Override
   public ResultOrErrorFuture<Boolean> verify(final AergoKey key, final Transaction transaction) {
+    if (null != key) {
+      logger.info("Key is present on RemoteSignStrategy. This key is ignored.");
+    }
+
     ResultOrErrorFuture<Boolean> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final Tx tx = transactionConverter.convertToRpcModel(transaction);

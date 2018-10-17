@@ -8,7 +8,7 @@ import lombok.Getter;
 
 public class TransactionVerificationException extends RpcException {
 
-  private static final long serialVersionUID = -4798911407894712354L;
+  private static final long serialVersionUID = 308408228893339199L;
 
   enum VerifyStatus {
     VERIFY_STATUS_OK,

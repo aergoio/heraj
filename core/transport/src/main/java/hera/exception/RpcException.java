@@ -6,7 +6,7 @@ package hera.exception;
 
 public class RpcException extends HerajException {
 
-  private static final long serialVersionUID = -4798911407894712354L;
+  private static final long serialVersionUID = 5082048400258592422L;
 
   protected RpcException() {
     super();
