@@ -56,6 +56,7 @@ public class ThreadServerTest extends AbstractTestCase {
     };
     server.boot(true);
     trySleep(100);
+    server.waitStatus(ServerStatus.TERMINATED);
     assertNotNull(server.getException());
     assertEquals(ServerStatus.TERMINATED, server.getStatus());
   }
