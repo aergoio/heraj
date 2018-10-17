@@ -85,8 +85,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
   @Getter
   protected AergoRPCServiceFutureStub aergoService;
 
-  protected TransactionAsyncTemplate transactionAsyncOperation =
-      new TransactionAsyncTemplate();
+  protected TransactionAsyncTemplate transactionAsyncOperation = new TransactionAsyncTemplate();
 
   @Getter(lazy = true)
   private final SignAsyncOperation signAsyncOperation = buildSignAsyncOperation();
@@ -157,8 +156,8 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
       return getSignAsyncOperation().sign(key, transaction).flatMap(s -> {
         transaction.setSignature(s);
         return transactionAsyncOperation.commit(transaction)
-            .map(txHash -> txHash.adapt(ContractTxHash.class)
-                .orElseThrow(() -> new AdaptException(TxHash.class, ContractTxHash.class)));
+            .map(txHash -> txHash.adapt(ContractTxHash.class).<AdaptException>orElseThrow(
+                () -> new AdaptException(TxHash.class, ContractTxHash.class)));
       });
     } catch (Exception e) {
       return ResultOrErrorFutureFactory.supply(() -> fail(e));
@@ -205,8 +204,8 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
       return getSignAsyncOperation().sign(key, transaction).flatMap(s -> {
         transaction.setSignature(s);
         return transactionAsyncOperation.commit(transaction)
-            .map(txHash -> txHash.adapt(ContractTxHash.class)
-                .orElseThrow(() -> new AdaptException(TxHash.class, ContractTxHash.class)));
+            .map(txHash -> txHash.adapt(ContractTxHash.class).<AdaptException>orElseThrow(
+                () -> new AdaptException(TxHash.class, ContractTxHash.class)));
       });
     } catch (Exception e) {
       return ResultOrErrorFutureFactory.supply(() -> fail(e));
