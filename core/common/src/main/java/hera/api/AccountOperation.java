@@ -9,6 +9,7 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.exception.AdaptException;
@@ -34,21 +35,21 @@ public interface AccountOperation extends ContextAware {
   Account create(String password);
 
   /**
-   * Get account by address.
+   * Get account state by address.
    *
    * @param address account address
-   * @return an account
+   * @return an account state
    */
-  Account get(AccountAddress address);
+  AccountState getState(AccountAddress address);
 
   /**
-   * Get account by account.
+   * Get account state by account.
    *
    * @param account account
-   * @return an account
+   * @return an account state
    */
-  default Account get(Account account) {
-    return account.adapt(AccountAddress.class).map(a -> get(a))
+  default AccountState getState(Account account) {
+    return account.adapt(AccountAddress.class).map(a -> getState(a))
         .orElseThrow(() -> new AdaptException(account.getClass(), AccountAddress.class));
   }
 

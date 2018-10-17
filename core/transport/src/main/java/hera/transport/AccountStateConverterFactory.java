@@ -6,7 +6,7 @@ package hera.transport;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import hera.api.model.Account;
+import hera.api.model.AccountState;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Blockchain;
@@ -14,19 +14,19 @@ import types.Blockchain;
 public class AccountStateConverterFactory {
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final Function<Account, Blockchain.State> domainConverter = domainAccountState -> {
+  protected final Function<AccountState, Blockchain.State> domainConverter = domainAccountState -> {
     throw new UnsupportedOperationException();
   };
 
-  protected final Function<Blockchain.State, Account> rpcConverter = rpcAccountState -> {
+  protected final Function<Blockchain.State, AccountState> rpcConverter = rpcAccountState -> {
     logger.trace("Rpc account state: {}", rpcAccountState);
-    final Account domainAccount = new Account();
-    domainAccount.setNonce(rpcAccountState.getNonce());
-    domainAccount.setBalance(rpcAccountState.getBalance());
-    return domainAccount;
+    final AccountState domainAccountState = new AccountState();
+    domainAccountState.setNonce(rpcAccountState.getNonce());
+    domainAccountState.setBalance(rpcAccountState.getBalance());
+    return domainAccountState;
   };
 
-  public ModelConverter<Account, Blockchain.State> create() {
+  public ModelConverter<AccountState, Blockchain.State> create() {
     return new ModelConverter<>(domainConverter, rpcConverter);
   }
 

@@ -17,6 +17,7 @@ import static org.mockito.Mockito.when;
 import hera.AbstractTestCase;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.tupleorerror.ResultOrError;
@@ -93,31 +94,31 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGet() throws Exception {
-    ResultOrErrorFuture<Account> futureMock = mock(ResultOrErrorFuture.class);
+  public void testGetState() throws Exception {
+    ResultOrErrorFuture<AccountState> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
-    when(asyncOperationMock.get(any(AccountAddress.class))).thenReturn(futureMock);
+    when(asyncOperationMock.getState(any(AccountAddress.class))).thenReturn(futureMock);
 
     final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
     accountTemplate.accountAsyncOperation = asyncOperationMock;
 
-    final ResultOrError<Account> account = accountTemplate.get(ACCOUNT_ADDRESS);
-    assertNotNull(account);
+    final ResultOrError<AccountState> accountState = accountTemplate.getState(ACCOUNT_ADDRESS);
+    assertNotNull(accountState);
   }
 
   @Test
-  public void testGetWithTimeout() throws Exception {
-    ResultOrErrorFuture<Account> futureMock = mock(ResultOrErrorFuture.class);
+  public void testGetStateWithTimeout() throws Exception {
+    ResultOrErrorFuture<AccountState> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
     AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
-    when(asyncOperationMock.get(any(AccountAddress.class))).thenReturn(futureMock);
+    when(asyncOperationMock.getState(any(AccountAddress.class))).thenReturn(futureMock);
 
     final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
     accountTemplate.accountAsyncOperation = asyncOperationMock;
 
-    final ResultOrError<Account> account = accountTemplate.get(ACCOUNT_ADDRESS);
-    assertTrue(account.hasError());
+    final ResultOrError<AccountState> accountState = accountTemplate.getState(ACCOUNT_ADDRESS);
+    assertTrue(accountState.hasError());
   }
 
   @Test

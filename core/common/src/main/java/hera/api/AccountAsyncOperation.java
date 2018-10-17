@@ -11,6 +11,7 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -38,23 +39,24 @@ public interface AccountAsyncOperation extends ContextAware {
   ResultOrErrorFuture<Account> create(String password);
 
   /**
-   * Get account by address asynchronously.
+   * Get account state by address asynchronously.
    *
    * @param address account address
-   * @return future of an account or error
+   * @return future of an account state or error
    */
-  ResultOrErrorFuture<Account> get(AccountAddress address);
+  ResultOrErrorFuture<AccountState> getState(AccountAddress address);
 
   /**
-   * Get account by account.
+   * Get account state by account.
    *
    * @param account account
-   * @return future of an account or error
+   * @return future of an account state or error
    */
   @SuppressWarnings("unchecked")
-  default ResultOrErrorFuture<Account> get(Account account) {
-    return account.adapt(AccountAddress.class).map(a -> get(a)).orElse(ResultOrErrorFutureFactory
-        .supply(() -> fail(new AdaptException(account.getClass(), AccountAddress.class))));
+  default ResultOrErrorFuture<AccountState> getState(Account account) {
+    return account.adapt(AccountAddress.class).map(a -> getState(a))
+        .orElse(ResultOrErrorFutureFactory
+            .supply(() -> fail(new AdaptException(account.getClass(), AccountAddress.class))));
   }
 
   /**

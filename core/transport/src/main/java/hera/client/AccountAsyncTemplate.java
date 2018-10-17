@@ -19,6 +19,7 @@ import hera.annotation.ApiStability;
 import hera.api.AccountAsyncOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -56,7 +57,7 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
   protected final ModelConverter<Account, AccountOuterClass.Account> accountConverter =
       new AccountConverterFactory().create();
 
-  protected final ModelConverter<Account, Blockchain.State> accountStateConverter =
+  protected final ModelConverter<AccountState, Blockchain.State> accountStateConverter =
       new AccountStateConverterFactory().create();
 
   protected final ModelConverter<Authentication, Rpc.Personal> authenticationConverter =
@@ -88,7 +89,7 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
   }
 
   @Override
-  public ResultOrErrorFuture<Account> create(String password) {
+  public ResultOrErrorFuture<Account> create(final String password) {
     ResultOrErrorFuture<Account> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final Rpc.Personal personal = Rpc.Personal.newBuilder().setPassphrase(password).build();
@@ -105,17 +106,18 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
   }
 
   @Override
-  public ResultOrErrorFuture<Account> get(AccountAddress address) {
-    ResultOrErrorFuture<Account> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
+  public ResultOrErrorFuture<AccountState> getState(final AccountAddress address) {
+    ResultOrErrorFuture<AccountState> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final Rpc.SingleBytes bytes = Rpc.SingleBytes.newBuilder()
         .setValue(accountAddressConverter.convertToRpcModel(address)).build();
     ListenableFuture<Blockchain.State> listenableFuture = aergoService.getState(bytes);
-    FutureChainer<Blockchain.State, Account> callback = new FutureChainer<>(nextFuture, state -> {
-      final Account account = accountStateConverter.convertToDomainModel(state);
-      account.setAddress(address);
-      return account;
-    });
+    FutureChainer<Blockchain.State, AccountState> callback =
+        new FutureChainer<>(nextFuture, state -> {
+          final AccountState accountState = accountStateConverter.convertToDomainModel(state);
+          accountState.setAddress(address);
+          return accountState;
+        });
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;

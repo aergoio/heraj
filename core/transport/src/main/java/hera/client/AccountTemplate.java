@@ -10,6 +10,7 @@ import hera.annotation.ApiStability;
 import hera.api.AccountOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.tupleorerror.ResultOrError;
@@ -46,8 +47,8 @@ public class AccountTemplate implements AccountOperation, ChannelInjectable {
   }
 
   @Override
-  public Account get(final AccountAddress address) {
-    return accountEitherOperation.get(address).getResult();
+  public AccountState getState(final AccountAddress address) {
+    return accountEitherOperation.getState(address).getResult();
   }
 
   @Override

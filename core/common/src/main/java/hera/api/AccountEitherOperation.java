@@ -11,6 +11,7 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.tupleorerror.ResultOrError;
@@ -37,22 +38,22 @@ public interface AccountEitherOperation extends ContextAware {
   ResultOrError<Account> create(String password);
 
   /**
-   * Get account by address.
+   * Get account state by address.
    *
    * @param address account address
-   * @return an account or error
+   * @return an account state or error
    */
-  ResultOrError<Account> get(AccountAddress address);
+  ResultOrError<AccountState> getState(AccountAddress address);
 
   /**
-   * Get account by account.
+   * Get account state by account.
    *
    * @param account account
-   * @return an account or error
+   * @return an account state or error
    */
   @SuppressWarnings("unchecked")
-  default ResultOrError<Account> get(Account account) {
-    return account.adapt(AccountAddress.class).map(a -> get(a))
+  default ResultOrError<AccountState> getState(Account account) {
+    return account.adapt(AccountAddress.class).map(a -> getState(a))
         .orElse(fail(new AdaptException(account.getClass(), AccountAddress.class)));
   }
 

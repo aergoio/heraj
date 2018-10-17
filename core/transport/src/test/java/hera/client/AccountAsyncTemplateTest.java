@@ -15,6 +15,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -74,7 +75,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetAsync() {
+  public void testGetStateAsync() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture mockListenableFuture =
         service.submit(() -> Blockchain.State.newBuilder().build());
@@ -82,8 +83,9 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
 
     final AccountAsyncTemplate accountAsyncTemplate = supplyAccountAsyncTemplate(aergoService);
 
-    final ResultOrErrorFuture<Account> accountFuture = accountAsyncTemplate.get(ACCOUNT_ADDRESS);
-    assertTrue(accountFuture.get().hasResult());
+    final ResultOrErrorFuture<AccountState> accountStateFuture =
+        accountAsyncTemplate.getState(ACCOUNT_ADDRESS);
+    assertTrue(accountStateFuture.get().hasResult());
   }
 
   @Test

@@ -12,6 +12,7 @@ import hera.annotation.ApiStability;
 import hera.api.AccountEitherOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Time;
@@ -56,7 +57,7 @@ public class AccountEitherTemplate implements AccountEitherOperation, ChannelInj
   }
 
   @Override
-  public ResultOrError<Account> create(String password) {
+  public ResultOrError<Account> create(final String password) {
     try {
       return accountAsyncOperation.create(password).get(getTimeout().getValue(),
           getTimeout().getUnit());
@@ -66,9 +67,9 @@ public class AccountEitherTemplate implements AccountEitherOperation, ChannelInj
   }
 
   @Override
-  public ResultOrError<Account> get(AccountAddress address) {
+  public ResultOrError<AccountState> getState(final AccountAddress address) {
     try {
-      return accountAsyncOperation.get(address).get(getTimeout().getValue(),
+      return accountAsyncOperation.getState(address).get(getTimeout().getValue(),
           getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));

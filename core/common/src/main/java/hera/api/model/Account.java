@@ -21,11 +21,7 @@ public class Account implements Adaptor {
 
   @Getter
   @Setter
-  protected long nonce;
-
-  @Getter
-  @Setter
-  protected long balance;
+  protected AccountState state = new AccountState();
 
   @SuppressWarnings("unchecked")
   @Override

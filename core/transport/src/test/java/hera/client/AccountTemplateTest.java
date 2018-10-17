@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 import hera.AbstractTestCase;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.tupleorerror.ResultOrError;
@@ -63,16 +64,16 @@ public class AccountTemplateTest extends AbstractTestCase {
 
   @Test
   public void testGet() throws Exception {
-    ResultOrError<Account> eitherMock = mock(ResultOrError.class);
-    when(eitherMock.getResult()).thenReturn(mock(Account.class));
+    ResultOrError<AccountState> eitherMock = mock(ResultOrError.class);
+    when(eitherMock.getResult()).thenReturn(mock(AccountState.class));
     AccountEitherTemplate eitherOperationMock = mock(AccountEitherTemplate.class);
-    when(eitherOperationMock.get(any(AccountAddress.class))).thenReturn(eitherMock);
+    when(eitherOperationMock.getState(any(AccountAddress.class))).thenReturn(eitherMock);
 
     final AccountTemplate accountTemplate = new AccountTemplate();
     accountTemplate.accountEitherOperation = eitherOperationMock;
 
-    final Account account = accountTemplate.get(accountAddress);
-    assertNotNull(account);
+    final AccountState accountState = accountTemplate.getState(accountAddress);
+    assertNotNull(accountState);
   }
 
   @Test

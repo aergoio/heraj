@@ -13,6 +13,7 @@ import static org.junit.Assert.fail;
 
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.Block;
 import hera.api.model.Signature;
@@ -33,10 +34,8 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testCommitOnLockedAccount() throws Exception {
-    final AergoClient aergoClient = new AergoClientBuilder()
-        .addStrategy(new RemoteSignStrategy())
-        .addStrategy(new NettyConnectStrategy(hostname))
-        .build();
+    final AergoClient aergoClient = new AergoClientBuilder().addStrategy(new RemoteSignStrategy())
+        .addStrategy(new NettyConnectStrategy(hostname)).build();
 
     final String password = randomUUID().toString();
 
@@ -44,7 +43,7 @@ public class TransactionOperationIT extends AbstractIT {
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
 
     final Transaction transaction = new Transaction();
-    transaction.setNonce(sender.getNonce() + 1);
+    transaction.setNonce(sender.getState().getNonce() + 1);
     transaction.setAmount(amount);
     transaction.setSender(sender.getAddress());
     transaction.setRecipient(recipient);
@@ -71,10 +70,8 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testCommitBySigningRemotely() throws Exception {
-    final AergoClient aergoClient = new AergoClientBuilder()
-        .addStrategy(new RemoteSignStrategy())
-        .addStrategy(new NettyConnectStrategy(hostname))
-        .build();
+    final AergoClient aergoClient = new AergoClientBuilder().addStrategy(new RemoteSignStrategy())
+        .addStrategy(new NettyConnectStrategy(hostname)).build();
 
     final String password = randomUUID().toString();
 
@@ -86,7 +83,7 @@ public class TransactionOperationIT extends AbstractIT {
     assertTrue(unlockResult);
 
     final Transaction transaction = new Transaction();
-    transaction.setNonce(sender.getNonce() + 1);
+    transaction.setNonce(sender.getState().getNonce() + 1);
     transaction.setAmount(amount);
     transaction.setSender(sender.getAddress());
     transaction.setRecipient(recipient);
@@ -110,9 +107,8 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testCommitBySigningLocally() throws Exception {
-    final AergoClient aergoClient = new AergoClientBuilder()
-        .addStrategy(new NettyConnectStrategy(hostname))
-        .build();
+    final AergoClient aergoClient =
+        new AergoClientBuilder().addStrategy(new NettyConnectStrategy(hostname)).build();
 
     final AergoKey senderKey = new AergoKeyGenerator().create();
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
@@ -138,9 +134,8 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testCommitAndQueryAfterConfirmed() throws Exception {
-    final AergoClient aergoClient = new AergoClientBuilder()
-        .addStrategy(new NettyConnectStrategy(hostname))
-        .build();
+    final AergoClient aergoClient =
+        new AergoClientBuilder().addStrategy(new NettyConnectStrategy(hostname)).build();
 
     final AergoKey senderKey = new AergoKeyGenerator().create();
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
@@ -171,9 +166,10 @@ public class TransactionOperationIT extends AbstractIT {
         confirmBlock.getTransactions().stream().filter(t -> t.equals(queried)).findFirst();
     // TODO : uncomment after block contains txInBlock
     // assertTrue(txInBlock.isPresent());
-    
-    final Account senderState = aergoClient.getAccountOperation().get(senderKey.getAddress());
-    final Account recipientState = aergoClient.getAccountOperation().get(recipient);
+
+    final AccountState senderState =
+        aergoClient.getAccountOperation().getState(senderKey.getAddress());
+    final AccountState recipientState = aergoClient.getAccountOperation().getState(recipient);
     assertEquals(1, senderState.getNonce());
     assertEquals(amount, recipientState.getBalance());
 
@@ -182,10 +178,8 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testSendTransaction() throws Exception {
-    final AergoClient aergoClient = new AergoClientBuilder()
-        .addStrategy(new RemoteSignStrategy())
-        .addStrategy(new NettyConnectStrategy(hostname))
-        .build();
+    final AergoClient aergoClient = new AergoClientBuilder().addStrategy(new RemoteSignStrategy())
+        .addStrategy(new NettyConnectStrategy(hostname)).build();
 
     final String password = randomUUID().toString();
 
@@ -196,7 +190,8 @@ public class TransactionOperationIT extends AbstractIT {
         aergoClient.getAccountOperation().unlock(Authentication.of(sender.getAddress(), password));
     assertTrue(unlockResult);
 
-    final TxHash txHash = aergoClient.getTransactionOperation().send(sender.getAddress(), recipient, amount);
+    final TxHash txHash =
+        aergoClient.getTransactionOperation().send(sender.getAddress(), recipient, amount);
     logger.info("TxHash: {}", txHash);
 
     waitForNextBlockToGenerate();
@@ -205,8 +200,9 @@ public class TransactionOperationIT extends AbstractIT {
     logger.info("Queired transaction: {}", queried);
     assertTrue(queried.isConfirmed());
 
-    final Account senderState = aergoClient.getAccountOperation().get(sender.getAddress());
-    final Account recipientState = aergoClient.getAccountOperation().get(recipient);
+    final AccountState senderState =
+        aergoClient.getAccountOperation().getState(sender.getAddress());
+    final AccountState recipientState = aergoClient.getAccountOperation().getState(recipient);
     assertEquals(1, senderState.getNonce());
     assertEquals(amount, recipientState.getBalance());
 
