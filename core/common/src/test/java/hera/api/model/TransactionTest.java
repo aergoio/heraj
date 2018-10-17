@@ -42,7 +42,7 @@ public class TransactionTest {
     transaction.setPayload(base58Encoded.decode());
     transaction.setLimit(1L);
     transaction.setPrice(1L);
-    transaction.setTxType(TransactionType.NORMAL);
+    transaction.setTxType(Transaction.TxType.NORMAL);
   }
 
   @Test

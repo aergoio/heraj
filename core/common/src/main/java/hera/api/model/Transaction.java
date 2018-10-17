@@ -14,6 +14,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -67,8 +68,18 @@ public class Transaction {
 
   @Getter
   @Setter
-  protected TransactionType txType = TransactionType.NORMAL;
+  protected TxType txType = TxType.NORMAL;
 
+  @RequiredArgsConstructor
+  public enum TxType {
+    UNRECOGNIZED(-1),
+    NORMAL(0),
+    GOVERNANCE(1),
+    COINBASE(2);
+
+    @Getter
+    private final int intValue;
+  }
 
   /**
    * Copy deep.

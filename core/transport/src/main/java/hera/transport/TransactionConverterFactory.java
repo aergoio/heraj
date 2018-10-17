@@ -13,39 +13,44 @@ import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
-import hera.api.model.TransactionType;
 import hera.api.model.TxHash;
 import java.util.function.Function;
 import org.slf4j.Logger;
+import types.Blockchain;
 import types.Blockchain.Tx;
 import types.Blockchain.TxBody;
-import types.Blockchain.TxType;
 
 public class TransactionConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final Function<TransactionType, TxType> txTypeDomainConverter = domainTxType -> {
-    switch (domainTxType) {
-      case NORMAL:
-        return TxType.NORMAL;
-      case GOVERNANCE:
-        return TxType.GOVERNANCE;
-      default:
-        return TxType.UNRECOGNIZED;
-    }
-  };
+  protected final Function<Transaction.TxType, Blockchain.TxType> txTypeDomainConverter =
+      domainTxType -> {
+        switch (domainTxType) {
+          case NORMAL:
+            return Blockchain.TxType.NORMAL;
+          case GOVERNANCE:
+            return Blockchain.TxType.GOVERNANCE;
+          case COINBASE:
+            return Blockchain.TxType.COINBASE;
+          default:
+            return Blockchain.TxType.UNRECOGNIZED;
+        }
+      };
 
-  protected final Function<TxType, TransactionType> txTypeRpcConverter = rpcTxType -> {
-    switch (rpcTxType) {
-      case NORMAL:
-        return TransactionType.NORMAL;
-      case GOVERNANCE:
-        return TransactionType.GOVERNANCE;
-      default:
-        return TransactionType.UNRECOGNIZED;
-    }
-  };
+  protected final Function<Blockchain.TxType, Transaction.TxType> txTypeRpcConverter =
+      rpcTxType -> {
+        switch (rpcTxType) {
+          case NORMAL:
+            return Transaction.TxType.NORMAL;
+          case GOVERNANCE:
+            return Transaction.TxType.GOVERNANCE;
+          case COINBASE:
+            return Transaction.TxType.COINBASE;
+          default:
+            return Transaction.TxType.UNRECOGNIZED;
+        }
+      };
 
   protected final ModelConverter<AccountAddress, ByteString> accountAddressConverter =
       new AccountAddressConverterFactory().create();
@@ -63,7 +68,7 @@ public class TransactionConverterFactory {
     txBodyBuilder.setPayload(copyFrom(domainTransaction.getPayload()));
     txBodyBuilder.setLimit(domainTransaction.getLimit());
     txBodyBuilder.setPrice(domainTransaction.getPrice());
-    if (TransactionType.UNRECOGNIZED != domainTransaction.getTxType()) {
+    if (Transaction.TxType.UNRECOGNIZED != domainTransaction.getTxType()) {
       txBodyBuilder.setType(txTypeDomainConverter.apply(domainTransaction.getTxType()));
     }
 
