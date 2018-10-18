@@ -16,6 +16,7 @@ import hera.exception.HerajException;
 import hera.util.Base58Utils;
 import hera.util.CryptoUtils;
 import hera.util.HexUtils;
+import hera.util.Pair;
 import hera.util.Sha256Utils;
 import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSASignature;
@@ -32,11 +33,15 @@ import org.slf4j.Logger;
 @EqualsAndHashCode
 public class AergoKey implements KeyPair {
 
+  protected static final int HEADER_MAGIC = 0x30;
+
+  protected static final int INT_MARKER = 0x02;
+
   // [odd|even] of publickey.y + [optional 0x00] + publickey.x
   protected static final int ADDRESS_LENGTH = 33;
 
   // minimum length of a DER encoded signature which both R and S are 1 byte each.
-  // 0x30 + <1-byte> + 0x02 + 0x01 + <r.byte> + 0x2 + 0x01 + <s.byte>
+  // <header-magic> + <1-byte> + <int-marker> + 0x01 + <r.byte> + <int-marker> + 0x01 + <s.byte>
   protected static final int MINIMUM_SIGNATURE_LEN = 8;
 
   /**
@@ -152,17 +157,17 @@ public class AergoKey implements KeyPair {
     final byte[] serialized = new byte[6 + rbyteArray.length + sbyteArray.length];
 
     // Header
-    serialized[0] = 0x30;
+    serialized[0] = HEADER_MAGIC;
     serialized[1] = (byte) (serialized.length - 2);
 
-    // <0x02> + <R.length> + <R.bytes>
-    serialized[2] = 0x02;
+    // <int-marker> + <R.length> + <R.bytes>
+    serialized[2] = INT_MARKER;
     serialized[3] = (byte) rbyteArray.length;
     System.arraycopy(rbyteArray, 0, serialized, 4, rbyteArray.length);
 
-    // <0x02> + <S.length> + <S.bytes>
+    // <int-marker> + <S.length> + <S.bytes>
     final int offset = 4 + rbyteArray.length;
-    serialized[offset] = 0x02;
+    serialized[offset] = INT_MARKER;
     serialized[offset + 1] = (byte) sbyteArray.length;
     System.arraycopy(sbyteArray, 0, serialized, offset + 2, sbyteArray.length);
 
@@ -171,9 +176,13 @@ public class AergoKey implements KeyPair {
 
   @Override
   public boolean verify(final InputStream plainText, final BytesValue signature) {
-    final ECDSASignature parsedSignature = parseSignature(signature);
-    logger.trace("Parsed ECDSASignature: {}", parsedSignature);
-    return null != parsedSignature ? ecdsakey.verify(plainText, parsedSignature) : false;
+    try {
+      final ECDSASignature parsedSignature = parseSignature(signature);
+      return ecdsakey.verify(plainText, parsedSignature);
+    } catch (Exception e) {
+      logger.info("Verification failed {}", e.getLocalizedMessage());
+      return false;
+    }
   }
 
   /**
@@ -184,11 +193,8 @@ public class AergoKey implements KeyPair {
    */
   protected ECDSASignature parseSignature(final BytesValue signature) {
     if (null == signature) {
-      logger.trace("Serialized signature is null");
-      return null;
+      throw new HerajException("Serialized signature is null");
     }
-
-    final BigInteger order = ECDSAKey.getEcParams().getN();
 
     final byte[] rawSignature = signature.getValue();
     if (logger.isTraceEnabled()) {
@@ -196,76 +202,74 @@ public class AergoKey implements KeyPair {
           rawSignature.length);
     }
 
-    if (rawSignature.length < MINIMUM_SIGNATURE_LEN) {
-      logger.trace("Invalid serialized length: length is shorter than {}", MINIMUM_SIGNATURE_LEN);
-      return null;
-    }
-
     int index = 0;
 
-    // validate magic number
-    if (rawSignature[index] != 0x30) {
-      logger.trace("Invalid magic number. expected: {}, but was: {}", 0x30, rawSignature[index]);
-      return null;
+    if (rawSignature.length < MINIMUM_SIGNATURE_LEN) {
+      throw new HerajException(
+          "Invalid serialized length: length is shorter than " + MINIMUM_SIGNATURE_LEN);
     }
-    ++index;
 
-    // validate length
-    int sigDataLen = rawSignature[index];
-    if (sigDataLen < MINIMUM_SIGNATURE_LEN || (rawSignature.length - 2) < sigDataLen) {
-      logger.trace("Invalid signature length");
-      return null;
-    }
-    ++index;
+    index = validateHeader(rawSignature, index);
 
-    // validate r header
-    if (rawSignature[index] != 0x02) {
-      logger.trace("Invalid r header. expected: {}, but was: {}", 0x02, rawSignature[index]);
-      return null;
-    }
-    ++index;
+    final Pair<BigInteger, Integer> rAndIndex = parseInteger(rawSignature, index);
+    final BigInteger r = rAndIndex.v1;
+    index = rAndIndex.v2;
 
-    // parse r length
-    final int rLen = rawSignature[index];
-    ++index;
-
-    // parse r
-    byte[] rawR = Arrays.copyOfRange(rawSignature, index, index + rLen);
-    final BigInteger r = new BigInteger(rawR);
-    if (r.compareTo(order) >= 0) {
-      logger.trace("Signature R is greater then curve order");
-      return null;
-    }
-    index += rLen;
-
-    // validate s header
-    if (rawSignature[index] != 0x02) {
-      logger.trace("Invalid s header. expected: {}, but was: {}", 0x02, rawSignature[index]);
-      return null;
-    }
-    ++index;
-
-    // parse s length
-    final int sLen = rawSignature[index];
-    ++index;
-
-    // parse s
-    byte[] rawS = Arrays.copyOfRange(rawSignature, index, index + sLen);
-    final BigInteger s = new BigInteger(rawS);
-    if (s.compareTo(order) >= 0) {
-      logger.trace("Signature S is greater then curve order");
-      return null;
-    }
-    index += sLen;
+    final Pair<BigInteger, Integer> sAndIndex = parseInteger(rawSignature, index);
+    final BigInteger s = sAndIndex.v1;
+    index = sAndIndex.v2;
 
     if (index < rawSignature.length) {
-      logger.trace(
-          "Invalid length of r or s, still ramains bytes after parsing. index: {}, length: {}",
-          index, rawSignature.length);
-      return null;
+      throw new HerajException(
+          "Invalid length of r or s, still ramains bytes after parsing. index: " + index
+              + ", length: " + rawSignature.length);
     }
 
     return ECDSASignature.of(r, s);
+  }
+
+  protected int validateHeader(final byte[] source, final int start) {
+    int index = start;
+
+    if (source[index] != HEADER_MAGIC) {
+      throw new HerajException(
+          "Invalid magic number. expected: " + HEADER_MAGIC + ", but was: " + source[index]);
+    }
+    ++index;
+
+    int sigDataLen = source[index];
+    if (sigDataLen < MINIMUM_SIGNATURE_LEN || (source.length - 2) < sigDataLen) {
+      throw new HerajException("Invalid signature length");
+    }
+    ++index;
+
+    return index;
+  }
+
+  protected Pair<BigInteger, Integer> parseInteger(final byte[] source, final int start) {
+    int index = start;
+
+    // parse marker
+    if (source[index] != INT_MARKER) {
+      throw new HerajException(
+          "Invalid integer header. expected: " + INT_MARKER + ", but was: " + source[index]);
+    }
+    ++index;
+
+    // parse integer length
+    final int length = source[index];
+    ++index;
+
+    // parse integer
+    final BigInteger order = ECDSAKey.getEcParams().getN();
+    byte[] rawInteger = Arrays.copyOfRange(source, index, index + length);
+    final BigInteger r = new BigInteger(rawInteger);
+    if (r.compareTo(order) >= 0) {
+      throw new HerajException("Integer is greater then curve order");
+    }
+    index += length;
+
+    return new Pair<>(r, index);
   }
 
   @Override
@@ -353,6 +357,5 @@ public class AergoKey implements KeyPair {
   protected byte[] calculateNonce(final byte[] hashedPassword) {
     return Arrays.copyOfRange(hashedPassword, 4, 16);
   }
-
 
 }

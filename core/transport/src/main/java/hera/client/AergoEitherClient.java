@@ -23,9 +23,9 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
-@ApiAudience.Public
+@ApiAudience.Private
 @ApiStability.Unstable
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+@RequiredArgsConstructor
 public class AergoEitherClient extends AbstractEitherAergoApi implements Closeable, AutoCloseable {
 
   @NonNull
@@ -36,59 +36,33 @@ public class AergoEitherClient extends AbstractEitherAergoApi implements Closeab
       .map(ConnectStrategy::connect).get();
 
   @Getter(lazy = true)
-  private final AccountEitherOperation accountEitherOperation = buildAccountEitherOperation();
+  private final AccountEitherOperation accountEitherOperation =
+      resolveInjection(new AccountEitherTemplate());
 
   @Getter(lazy = true)
   private final TransactionEitherOperation transactionEitherOperation =
-      buildTransactionEitherOperation();
+      resolveInjection(new TransactionEitherTemplate());
 
   @Getter(lazy = true)
-  private final BlockEitherOperation blockEitherOperation = buildBlockEitherOperation();
+  private final BlockEitherOperation blockEitherOperation =
+      resolveInjection(new BlockEitherTemplate());
 
   @Getter(lazy = true)
   private final BlockChainEitherOperation blockChainEitherOperation =
-      buildBlockChainEitherOperation();
+      resolveInjection(new BlockChainEitherTemplate());
 
   @Getter(lazy = true)
-  private final ContractEitherOperation contractEitherOperation = buildContractEitherOperation();
+  private final ContractEitherOperation contractEitherOperation =
+      resolveInjection(new ContractEitherTemplate());
 
-  protected AccountEitherOperation buildAccountEitherOperation() {
-    final AccountEitherOperation accountEitherOperation = new AccountEitherTemplate();
-    resolveInjection(accountEitherOperation);
-    return accountEitherOperation;
-  }
-
-  protected TransactionEitherOperation buildTransactionEitherOperation() {
-    final TransactionEitherOperation transactionEitherOperation = new TransactionEitherTemplate();
-    resolveInjection(transactionEitherOperation);
-    return transactionEitherOperation;
-  }
-
-  protected BlockEitherOperation buildBlockEitherOperation() {
-    final BlockEitherOperation blockEitherOperation = new BlockEitherTemplate();
-    resolveInjection(blockEitherOperation);
-    return blockEitherOperation;
-  }
-
-  protected BlockChainEitherOperation buildBlockChainEitherOperation() {
-    final BlockChainEitherOperation blockchainEitherOperation = new BlockChainEitherTemplate();
-    resolveInjection(blockchainEitherOperation);
-    return blockchainEitherOperation;
-  }
-
-  protected ContractEitherOperation buildContractEitherOperation() {
-    final ContractEitherOperation contractEitherOperation = new ContractEitherTemplate();
-    resolveInjection(contractEitherOperation);
-    return contractEitherOperation;
-  }
-
-  protected void resolveInjection(final Object target) {
+  protected <T> T resolveInjection(final T target) {
     if (target instanceof ContextAware) {
       ((ContextAware) target).setContext(context);
     }
     if (target instanceof ChannelInjectable) {
       ((ChannelInjectable) target).injectChannel(getChannel());
     }
+    return target;
   }
 
   @Override

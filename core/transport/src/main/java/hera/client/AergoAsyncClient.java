@@ -23,9 +23,9 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
-@ApiAudience.Public
+@ApiAudience.Private
 @ApiStability.Unstable
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+@RequiredArgsConstructor
 public class AergoAsyncClient extends AbstractAsyncAergoApi implements Closeable, AutoCloseable {
 
   @NonNull
@@ -36,58 +36,33 @@ public class AergoAsyncClient extends AbstractAsyncAergoApi implements Closeable
       .map(ConnectStrategy::connect).get();
 
   @Getter(lazy = true)
-  private final AccountAsyncOperation accountAsyncOperation = buildAccountAsyncOperation();
+  private final AccountAsyncOperation accountAsyncOperation =
+      resolveInjection(new AccountAsyncTemplate());
 
   @Getter(lazy = true)
   private final TransactionAsyncOperation transactionAsyncOperation =
-      buildTransactionAsyncOperation();
+      resolveInjection(new TransactionAsyncTemplate());
 
   @Getter(lazy = true)
-  private final BlockAsyncOperation blockAsyncOperation = buildBlockAsyncOperation();
+  private final BlockAsyncOperation blockAsyncOperation =
+      resolveInjection(new BlockAsyncTemplate());
 
   @Getter(lazy = true)
-  private final BlockChainAsyncOperation blockChainAsyncOperation = buildBlockChainAsyncOperation();
+  private final BlockChainAsyncOperation blockChainAsyncOperation =
+      resolveInjection(new BlockChainAsyncTemplate());
 
   @Getter(lazy = true)
-  private final ContractAsyncOperation contractAsyncOperation = buildContractAsyncOperation();
+  private final ContractAsyncOperation contractAsyncOperation =
+      resolveInjection(new ContractAsyncTemplate());
 
-  protected AccountAsyncOperation buildAccountAsyncOperation() {
-    final AccountAsyncOperation accountAsyncOperation = new AccountAsyncTemplate();
-    resolveInjection(accountAsyncOperation);
-    return accountAsyncOperation;
-  }
-
-  protected TransactionAsyncOperation buildTransactionAsyncOperation() {
-    final TransactionAsyncOperation transactionAsyncOperation = new TransactionAsyncTemplate();
-    resolveInjection(transactionAsyncOperation);
-    return transactionAsyncOperation;
-  }
-
-  protected BlockAsyncOperation buildBlockAsyncOperation() {
-    final BlockAsyncOperation blockAsyncOperation = new BlockAsyncTemplate();
-    resolveInjection(blockAsyncOperation);
-    return blockAsyncOperation;
-  }
-
-  protected BlockChainAsyncOperation buildBlockChainAsyncOperation() {
-    final BlockChainAsyncOperation blockchainAsyncOperation = new BlockChainAsyncTemplate();
-    resolveInjection(blockchainAsyncOperation);
-    return blockchainAsyncOperation;
-  }
-
-  protected ContractAsyncOperation buildContractAsyncOperation() {
-    final ContractAsyncOperation contractAsyncOperation = new ContractAsyncTemplate();
-    resolveInjection(contractAsyncOperation);
-    return contractAsyncOperation;
-  }
-
-  protected void resolveInjection(final Object target) {
+  protected <T> T resolveInjection(final T target) {
     if (target instanceof ContextAware) {
       ((ContextAware) target).setContext(context);
     }
     if (target instanceof ChannelInjectable) {
       ((ChannelInjectable) target).injectChannel(getChannel());
     }
+    return target;
   }
 
   @Override

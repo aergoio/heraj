@@ -23,9 +23,9 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
-@ApiAudience.Public
+@ApiAudience.Private
 @ApiStability.Unstable
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+@RequiredArgsConstructor
 public class AergoClient extends AbstractAergoApi implements Closeable, AutoCloseable {
 
   @NonNull
@@ -36,57 +36,30 @@ public class AergoClient extends AbstractAergoApi implements Closeable, AutoClos
       .map(ConnectStrategy::connect).get();
 
   @Getter(lazy = true)
-  private final AccountOperation accountOperation = buildAccountOperation();
+  private final AccountOperation accountOperation = resolveInjection(new AccountTemplate());
 
   @Getter(lazy = true)
-  private final TransactionOperation transactionOperation = buildTransactionOperation();
+  private final TransactionOperation transactionOperation =
+      resolveInjection(new TransactionTemplate());
 
   @Getter(lazy = true)
-  private final BlockOperation blockOperation = buildBlockOperation();
+  private final BlockOperation blockOperation = resolveInjection(new BlockTemplate());
 
   @Getter(lazy = true)
-  private final BlockChainOperation blockChainOperation = buildBlockChainOperation();
+  private final BlockChainOperation blockChainOperation =
+      resolveInjection(new BlockChainTemplate());
 
   @Getter(lazy = true)
-  private final ContractOperation contractOperation = buildContractOperation();
+  private final ContractOperation contractOperation = resolveInjection(new ContractTemplate());
 
-  protected AccountOperation buildAccountOperation() {
-    final AccountOperation accountOperation = new AccountTemplate();
-    resolveInjection(accountOperation);
-    return accountOperation;
-  }
-
-  protected TransactionOperation buildTransactionOperation() {
-    final TransactionOperation transactionOperation = new TransactionTemplate();
-    resolveInjection(transactionOperation);
-    return transactionOperation;
-  }
-
-  protected BlockOperation buildBlockOperation() {
-    final BlockOperation blockOperation = new BlockTemplate();
-    resolveInjection(blockOperation);
-    return blockOperation;
-  }
-
-  protected BlockChainOperation buildBlockChainOperation() {
-    final BlockChainOperation blockchainOperation = new BlockChainTemplate();
-    resolveInjection(blockchainOperation);
-    return blockchainOperation;
-  }
-
-  protected ContractOperation buildContractOperation() {
-    final ContractOperation contractOperation = new ContractTemplate();
-    resolveInjection(contractOperation);
-    return contractOperation;
-  }
-
-  protected void resolveInjection(final Object target) {
+  protected <T> T resolveInjection(final T target) {
     if (target instanceof ContextAware) {
       ((ContextAware) target).setContext(context);
     }
     if (target instanceof ChannelInjectable) {
       ((ChannelInjectable) target).injectChannel(getChannel());
     }
+    return target;
   }
 
   @Override
