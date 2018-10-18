@@ -6,7 +6,7 @@ There are two type of major annotaions
 @ApiStability
 ```
 
-### `@ApiAudience`
+### @ApiAudience
 `@ApiAudience` have two types.
 ```
 @ApiAudience.Public
@@ -16,11 +16,11 @@ There are two type of major annotaions
 `@ApiAudience.Private` means that any classes or methods annotated with it is intended for use within heraj. You may use it but it's not guaranteed.
 
 
-### `@ApiStability`
+### @ApiStability
 `@ApiStability` have two types.
 ```
 @ApiStability.Stable
 @ApiStability.UnStable
 ```
-`@ApiStability.Stable` means that any classes or methods annotated with it evolve while retaining compatibility for minor release boundaries and can break compatibility only for major release (ie. at m.0).
+`@ApiStability.Stable` means that any classes or methods annotated with it evolve while retaining compatibility for minor release boundaries and can break compatibility only for major release (ie. at m.0).  
 `@ApiStability.UnStable` means that any classes or methods annotated with it has no guarantee for reliability or stability across any level of release granularity.
