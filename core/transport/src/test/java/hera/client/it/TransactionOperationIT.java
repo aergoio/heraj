@@ -167,8 +167,7 @@ public class TransactionOperationIT extends AbstractIT {
 
     final Optional<Transaction> txInBlock =
         confirmBlock.getTransactions().stream().filter(t -> t.equals(queried)).findFirst();
-    // TODO : uncomment after block contains txInBlock
-    // assertTrue(txInBlock.isPresent());
+    assertTrue(txInBlock.isPresent());
 
     final AccountState senderState = aergoClient.getAccountOperation().getState(localAccount);
     final AccountState recipientState = aergoClient.getAccountOperation().getState(recipient);

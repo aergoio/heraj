@@ -15,6 +15,7 @@ import hera.api.model.Hash;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Blockchain;
@@ -64,8 +65,14 @@ public class BlockConverterFactory {
     domainBlock.setPublicKey(new Hash(of(rpcBlockHeader.getPubKey().toByteArray())));
     domainBlock.setSign(new Hash(of(rpcBlockHeader.getSign().toByteArray())));
 
+    final AtomicInteger index = new AtomicInteger(0);
     final List<Transaction> transactions = rpcBlockBody.getTxsList().stream()
-        .map(transactionConverter::convertToDomainModel).collect(toList());
+        .map(transactionConverter::convertToDomainModel).map(t -> {
+          t.setBlockHash(domainBlock.getHash());
+          t.setIndexInBlock(index.getAndIncrement());
+          t.setConfirmed(true);
+          return t;
+        }).collect(toList());
     domainBlock.setTransactions(transactions);
     return domainBlock;
   };
