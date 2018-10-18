@@ -83,3 +83,12 @@ $ ./build.sh docs
 ```
 
 # Contribution
+
+Guidelines for any code contributions:
+
+1. Any changes should be accompanied by tests. It's guaranteed by travis ci.
+2. Code coverage should be maintained. Any requests dropping down code coverage significantly will be not confirmed.
+3. All contributions must be licensed MIT and all files must have a copy of statement indicating where license is (can be copied from an existing file).
+4. All java files should be formatted according to [Google's Java style guide](http://google.github.io/styleguide/javaguide.html). You can use checkstyle plugin for [eclipse](https://checkstyle.org/eclipse-cs/#!/) or [IntelliJ](https://plugins.jetbrains.com/plugin/1065-checkstyle-idea). And you can check by running `./build.sh gradle`
+5. All java files must have a well-formed java docs. Make sure `./build.sh docs` generates the right page.
+6. Please squash all commits for a change into a single commit (this can be done using git rebase -i). Make sure to have a meaningful commit message for the change.
