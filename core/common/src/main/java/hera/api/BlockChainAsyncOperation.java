@@ -9,7 +9,7 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
-import hera.api.model.PeerAddress;
+import hera.api.model.Peer;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.List;
 
@@ -29,7 +29,7 @@ public interface BlockChainAsyncOperation extends ContextAware {
    *
    * @return future of peer addresses or error
    */
-  ResultOrErrorFuture<List<PeerAddress>> listPeers();
+  ResultOrErrorFuture<List<Peer>> listPeers();
 
   /**
    * Get status of current node asynchronously.

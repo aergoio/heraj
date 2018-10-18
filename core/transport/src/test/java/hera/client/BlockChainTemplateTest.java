@@ -11,7 +11,7 @@ import static org.mockito.Mockito.when;
 import hera.AbstractTestCase;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
-import hera.api.model.PeerAddress;
+import hera.api.model.Peer;
 import hera.api.tupleorerror.ResultOrError;
 import java.util.List;
 import org.junit.Test;
@@ -41,7 +41,7 @@ public class BlockChainTemplateTest extends AbstractTestCase {
 
   @Test
   public void testListPeers() throws Exception {
-    ResultOrError<List<PeerAddress>> eitherMock = mock(ResultOrError.class);
+    ResultOrError<List<Peer>> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(List.class));
     BlockChainEitherTemplate eitherOperationMock = mock(BlockChainEitherTemplate.class);
     when(eitherOperationMock.listPeers()).thenReturn(eitherMock);
@@ -49,7 +49,7 @@ public class BlockChainTemplateTest extends AbstractTestCase {
     final BlockChainTemplate blockChainTemplate = new BlockChainTemplate();
     blockChainTemplate.blockChainEitherOperation = eitherOperationMock;
 
-    final List<PeerAddress> peerAddresses = blockChainTemplate.listPeers();
+    final List<Peer> peerAddresses = blockChainTemplate.listPeers();
     assertNotNull(peerAddresses);
   }
 

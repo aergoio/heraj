@@ -20,13 +20,13 @@ import hera.annotation.ApiStability;
 import hera.api.BlockChainAsyncOperation;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
-import hera.api.model.PeerAddress;
+import hera.api.model.Peer;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.transport.BlockchainConverterFactory;
 import hera.transport.ModelConverter;
 import hera.transport.NodeStatusConverterFactory;
-import hera.transport.PeerAddressConverterFactory;
+import hera.transport.PeerConverterFactory;
 import io.grpc.ManagedChannel;
 import java.util.List;
 import lombok.Getter;
@@ -51,8 +51,8 @@ public class BlockChainAsyncTemplate implements BlockChainAsyncOperation, Channe
   protected final ModelConverter<BlockchainStatus, Rpc.BlockchainStatus> blockchainConverter =
       new BlockchainConverterFactory().create();
 
-  protected final ModelConverter<PeerAddress, Node.PeerAddress> peerAddressConverter =
-      new PeerAddressConverterFactory().create();
+  protected final ModelConverter<Peer, Node.PeerAddress> peerConverter =
+      new PeerConverterFactory().create();
 
   protected final ModelConverter<NodeStatus, Rpc.SingleBytes> nodeStatusConverter =
       new NodeStatusConverterFactory().create();
@@ -83,15 +83,15 @@ public class BlockChainAsyncTemplate implements BlockChainAsyncOperation, Channe
   }
 
   @Override
-  public ResultOrErrorFuture<List<PeerAddress>> listPeers() {
-    ResultOrErrorFuture<List<PeerAddress>> nextFuture =
+  public ResultOrErrorFuture<List<Peer>> listPeers() {
+    ResultOrErrorFuture<List<Peer>> nextFuture =
         ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final Empty empty = Empty.newBuilder().build();
     ListenableFuture<PeerList> listenableFuture = aergoService.getPeers(empty);
-    FutureChainer<PeerList, List<PeerAddress>> callback =
+    FutureChainer<PeerList, List<Peer>> callback =
         new FutureChainer<>(nextFuture, peerlist -> peerlist.getPeersList().stream()
-            .map(peerAddressConverter::convertToDomainModel).collect(toList()));
+            .map(peerConverter::convertToDomainModel).collect(toList()));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;

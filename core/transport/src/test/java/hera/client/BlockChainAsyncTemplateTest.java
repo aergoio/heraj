@@ -14,7 +14,7 @@ import hera.AbstractTestCase;
 import hera.Context;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
-import hera.api.model.PeerAddress;
+import hera.api.model.Peer;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.List;
 import org.junit.Test;
@@ -60,7 +60,7 @@ public class BlockChainAsyncTemplateTest extends AbstractTestCase {
     final BlockChainAsyncTemplate blockChainAsyncTemplate =
         supplyBlockChainAsyncTemplate(aergoService);
 
-    final ResultOrErrorFuture<List<PeerAddress>> peers = blockChainAsyncTemplate.listPeers();
+    final ResultOrErrorFuture<List<Peer>> peers = blockChainAsyncTemplate.listPeers();
     assertTrue(peers.get().hasResult());
   }
 

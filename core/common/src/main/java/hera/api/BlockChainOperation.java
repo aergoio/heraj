@@ -9,7 +9,7 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
-import hera.api.model.PeerAddress;
+import hera.api.model.Peer;
 import java.util.List;
 
 @ApiAudience.Public
@@ -28,7 +28,7 @@ public interface BlockChainOperation extends ContextAware {
    *
    * @return peer addresses
    */
-  List<PeerAddress> listPeers();
+  List<Peer> listPeers();
 
   /**
    * Get status of current node.

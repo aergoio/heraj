@@ -14,7 +14,7 @@ import static org.mockito.Mockito.when;
 import hera.AbstractTestCase;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
-import hera.api.model.PeerAddress;
+import hera.api.model.Peer;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.List;
@@ -62,7 +62,7 @@ public class BlockChainEitherTemplateTest extends AbstractTestCase {
 
   @Test
   public void testListPeers() throws Exception {
-    ResultOrErrorFuture<List<PeerAddress>> futureMock = mock(ResultOrErrorFuture.class);
+    ResultOrErrorFuture<List<Peer>> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     BlockChainAsyncTemplate asyncOperationMock = mock(BlockChainAsyncTemplate.class);
     when(asyncOperationMock.listPeers()).thenReturn(futureMock);
@@ -70,13 +70,13 @@ public class BlockChainEitherTemplateTest extends AbstractTestCase {
     final BlockChainEitherTemplate blockChainTemplate = new BlockChainEitherTemplate();
     blockChainTemplate.blockChainAsyncOperation = asyncOperationMock;
 
-    final ResultOrError<List<PeerAddress>> peerAddresses = blockChainTemplate.listPeers();
+    final ResultOrError<List<Peer>> peerAddresses = blockChainTemplate.listPeers();
     assertNotNull(peerAddresses);
   }
 
   @Test
   public void testListPeersWithTimeout() throws Exception {
-    ResultOrErrorFuture<List<PeerAddress>> futureMock = mock(ResultOrErrorFuture.class);
+    ResultOrErrorFuture<List<Peer>> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
     BlockChainAsyncTemplate asyncOperationMock = mock(BlockChainAsyncTemplate.class);
     when(asyncOperationMock.listPeers()).thenReturn(futureMock);
@@ -84,7 +84,7 @@ public class BlockChainEitherTemplateTest extends AbstractTestCase {
     final BlockChainEitherTemplate blockChainTemplate = new BlockChainEitherTemplate();
     blockChainTemplate.blockChainAsyncOperation = asyncOperationMock;
 
-    final ResultOrError<List<PeerAddress>> peerAddresses = blockChainTemplate.listPeers();
+    final ResultOrError<List<Peer>> peerAddresses = blockChainTemplate.listPeers();
     assertTrue(peerAddresses.hasError());
   }
 

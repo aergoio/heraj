@@ -10,7 +10,7 @@ import hera.annotation.ApiStability;
 import hera.api.BlockChainOperation;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
-import hera.api.model.PeerAddress;
+import hera.api.model.Peer;
 import io.grpc.ManagedChannel;
 import java.util.List;
 
@@ -40,7 +40,7 @@ public class BlockChainTemplate implements BlockChainOperation, ChannelInjectabl
   }
 
   @Override
-  public List<PeerAddress> listPeers() {
+  public List<Peer> listPeers() {
     return blockChainEitherOperation.listPeers().getResult();
   }
 

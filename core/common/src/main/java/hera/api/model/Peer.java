@@ -4,16 +4,17 @@
 
 package hera.api.model;
 
+import java.net.InetAddress;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 @ToString
-public class PeerAddress {
+public class Peer {
 
   @Getter
   @Setter
-  protected BytesValue address;
+  protected InetAddress address;
 
   @Getter
   @Setter
@@ -21,5 +22,5 @@ public class PeerAddress {
 
   @Getter
   @Setter
-  protected BytesValue peerId;
+  protected String peerId;
 }

@@ -12,7 +12,7 @@ import hera.annotation.ApiStability;
 import hera.api.BlockChainEitherOperation;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
-import hera.api.model.PeerAddress;
+import hera.api.model.Peer;
 import hera.api.model.Time;
 import hera.api.tupleorerror.ResultOrError;
 import hera.exception.RpcException;
@@ -56,7 +56,7 @@ public class BlockChainEitherTemplate implements BlockChainEitherOperation, Chan
   }
 
   @Override
-  public ResultOrError<List<PeerAddress>> listPeers() {
+  public ResultOrError<List<Peer>> listPeers() {
     try {
       return blockChainAsyncOperation.listPeers().get(getTimeout().getValue(),
           getTimeout().getUnit());
