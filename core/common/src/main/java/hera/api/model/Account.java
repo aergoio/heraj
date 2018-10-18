@@ -5,33 +5,58 @@
 package hera.api.model;
 
 import hera.util.Adaptor;
-import java.util.Optional;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 
-@ToString
-@EqualsAndHashCode
-public class Account implements Adaptor {
+public interface Account extends Adaptor {
 
-  @Getter
-  @Setter
-  protected AccountAddress address = new AccountAddress(BytesValue.EMPTY);
+  /**
+   * Get address of an account.
+   *
+   * @return address
+   */
+  AccountAddress getAddress();
 
-  @Getter
-  @Setter
-  protected AccountState state = new AccountState();
+  /**
+   * Bind state to an account. If nonce is less or equals to 0, nonce is set as 1. If balance is
+   * less than 1, balance is set as 0. Remember, {@link AccountState#address} is not binded. Only
+   * nonce and balance is binded.
+   *
+   * @param state state to bind
+   */
+  void bindState(AccountState state);
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public <T> Optional<T> adapt(Class<T> adaptor) {
-    if (adaptor.isAssignableFrom(Account.class)) {
-      return (Optional<T>) Optional.of(this);
-    } else if (adaptor.isAssignableFrom(AccountAddress.class)) {
-      return (Optional<T>) Optional.of(getAddress());
-    }
-    return Optional.empty();
-  }
+  /**
+   * Set nonce for account. If a passed {@code nonce} is less or equals to 0, nonce is set as 1.
+   *
+   * @param nonce nonce to set
+   */
+  void setNonce(long nonce);
+
+  /**
+   * Get nonce of an account.
+   *
+   * @return nonce
+   */
+  long getNonce();
+
+  /**
+   * Get nonce of an account and imcrement it.
+   *
+   * @return nonce
+   */
+  long getNonceAndImcrement();
+
+  /**
+   * Set balanced for account. If a passed {@code balance} is less than 0, balance is set as 0.
+   *
+   * @param balance balance to set
+   */
+  void setBalance(long balance);
+
+  /**
+   * Get balance of an balance.
+   *
+   * @return balance
+   */
+  long getBalance();
 
 }

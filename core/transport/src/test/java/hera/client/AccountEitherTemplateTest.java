@@ -20,6 +20,7 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.ServerManagedAccount;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.List;
@@ -67,7 +68,7 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
 
   @Test
   public void testCreate() throws Exception {
-    ResultOrErrorFuture<Account> futureMock = mock(ResultOrErrorFuture.class);
+    ResultOrErrorFuture<ServerManagedAccount> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
     when(asyncOperationMock.create(anyString())).thenReturn(futureMock);
@@ -75,13 +76,14 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
     final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
     accountTemplate.accountAsyncOperation = asyncOperationMock;
 
-    final ResultOrError<Account> createdAccount = accountTemplate.create(randomUUID().toString());
+    final ResultOrError<ServerManagedAccount> createdAccount =
+        accountTemplate.create(randomUUID().toString());
     assertNotNull(createdAccount);
   }
 
   @Test
   public void testCreateWithTimeout() throws Exception {
-    ResultOrErrorFuture<Account> futureMock = mock(ResultOrErrorFuture.class);
+    ResultOrErrorFuture<ServerManagedAccount> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
     AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
     when(asyncOperationMock.create(anyString())).thenReturn(futureMock);
@@ -89,7 +91,8 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
     final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
     accountTemplate.accountAsyncOperation = asyncOperationMock;
 
-    final ResultOrError<Account> createdAccount = accountTemplate.create(randomUUID().toString());
+    final ResultOrError<ServerManagedAccount> createdAccount =
+        accountTemplate.create(randomUUID().toString());
     assertTrue(createdAccount.hasError());
   }
 

@@ -18,14 +18,13 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 import hera.Context;
-import hera.ContextAware;
 import hera.FutureChainer;
 import hera.VersionUtils;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.ContractAsyncOperation;
-import hera.api.SignAsyncOperation;
 import hera.api.encode.Base58WithCheckSum;
+import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
@@ -40,8 +39,6 @@ import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.exception.AdaptException;
-import hera.key.AergoKey;
-import hera.strategy.SignStrategy;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.ContractInterfaceConverterFactory;
 import hera.transport.ContractResultConverterFactory;
@@ -85,33 +82,21 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
   @Getter
   protected AergoRPCServiceFutureStub aergoService;
 
+  protected AccountAsyncTemplate accountAsyncOperation = new AccountAsyncTemplate();
+
   protected TransactionAsyncTemplate transactionAsyncOperation = new TransactionAsyncTemplate();
-
-  @Getter(lazy = true)
-  private final SignAsyncOperation signAsyncOperation = buildSignAsyncOperation();
-
-  protected SignAsyncOperation buildSignAsyncOperation() {
-    final SignAsyncOperation signAsyncOperation = context.getStrategy(SignStrategy.class)
-        .map(s -> s.getSignOperation()).flatMap(o -> o.adapt(SignAsyncOperation.class)).get();
-    if (signAsyncOperation instanceof ContextAware) {
-      ((ContextAware) signAsyncOperation).setContext(context);
-    }
-    if (signAsyncOperation instanceof ChannelInjectable) {
-      ((ChannelInjectable) signAsyncOperation)
-          .injectChannel((ManagedChannel) aergoService.getChannel());
-    }
-    return signAsyncOperation;
-  }
 
   @Override
   public void setContext(final Context context) {
     this.context = context;
+    accountAsyncOperation.setContext(context);
     transactionAsyncOperation.setContext(context);
   }
 
   @Override
   public void injectChannel(final ManagedChannel channel) {
     this.aergoService = newFutureStub(channel);
+    accountAsyncOperation.injectChannel(channel);
     transactionAsyncOperation.injectChannel(channel);
   }
 
@@ -132,8 +117,8 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
   }
 
   @Override
-  public ResultOrErrorFuture<ContractTxHash> deploy(final AergoKey key,
-      final AccountAddress creator, final long nonce, final Base58WithCheckSum encodedPayload) {
+  public ResultOrErrorFuture<ContractTxHash> deploy(final Account creator, final long nonce,
+      final Base58WithCheckSum encodedPayload) {
     try {
       final byte[] rawPayloadWithVersion = encodedPayload.decode().getValue();
       if (logger.isTraceEnabled()) {
@@ -153,7 +138,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
       transaction.setNonce(nonce);
       transaction.setPayload(BytesValue.of(rawStream.toByteArray()));
 
-      return getSignAsyncOperation().sign(key, transaction).flatMap(s -> {
+      return accountAsyncOperation.sign(creator, transaction).flatMap(s -> {
         transaction.setSignature(s);
         return transactionAsyncOperation.commit(transaction)
             .map(txHash -> txHash.adapt(ContractTxHash.class).<AdaptException>orElseThrow(
@@ -186,8 +171,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
   }
 
   @Override
-  public ResultOrErrorFuture<ContractTxHash> execute(final AergoKey key,
-      final AccountAddress executor, final long nonce,
+  public ResultOrErrorFuture<ContractTxHash> execute(final Account executor, final long nonce,
       final ContractInvocation contractInvocation) {
     try {
       final Transaction transaction = new Transaction();
@@ -201,7 +185,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
       }
       transaction.setPayload(BytesValue.of(functionCallString.getBytes()));
 
-      return getSignAsyncOperation().sign(key, transaction).flatMap(s -> {
+      return accountAsyncOperation.sign(executor, transaction).flatMap(s -> {
         transaction.setSignature(s);
         return transactionAsyncOperation.commit(transaction)
             .map(txHash -> txHash.adapt(ContractTxHash.class).<AdaptException>orElseThrow(

@@ -39,11 +39,9 @@ public class Transaction {
   protected long nonce;
 
   @Getter
-  @Setter
   protected AccountAddress sender = new AccountAddress(BytesValue.EMPTY);
 
   @Getter
-  @Setter
   protected AccountAddress recipient = new AccountAddress(BytesValue.EMPTY);
 
   @Getter
@@ -81,6 +79,22 @@ public class Transaction {
     private final int intValue;
   }
 
+  public void setSender(final AccountAddress sender) {
+    this.sender = sender;
+  }
+
+  public void setSender(final Account sender) {
+    this.sender = sender.adapt(AccountAddress.class).get();
+  }
+
+  public void setRecipient(final AccountAddress recipient) {
+    this.recipient = recipient.adapt(AccountAddress.class).get();
+  }
+
+  public void setRecipient(final Account account) {
+    this.recipient = account.adapt(AccountAddress.class).get();
+  }
+
   /**
    * Copy deep.
    *
@@ -96,10 +110,10 @@ public class Transaction {
     copy.setIndexInBlock(source.getIndexInBlock());
     copy.setConfirmed(source.isConfirmed());
     copy.setNonce(source.getNonce());
-    ofNullable(source.getSender()).ifPresent(copy::setSender);
-    ofNullable(source.getRecipient()).ifPresent(copy::setRecipient);
+    copy.setSender(source.getSender());
+    copy.setRecipient(source.getRecipient());
     copy.setAmount(source.getAmount());
-    ofNullable(source.getPayload()).ifPresent(copy::setPayload);
+    copy.setPayload(source.getPayload());
     copy.setLimit(source.getLimit());
     copy.setPrice(source.getPrice());
     copy.setTxType(source.getTxType());

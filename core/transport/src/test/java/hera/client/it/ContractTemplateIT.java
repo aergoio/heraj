@@ -17,23 +17,20 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.ClientManagedAccount;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
-import hera.strategy.LocalSignStrategy;
 import hera.strategy.NettyConnectStrategy;
-import hera.strategy.RemoteSignStrategy;
 import hera.util.IoUtils;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Before;
 import org.junit.Test;
 
 public class ContractTemplateIT extends AbstractIT {
-
 
   protected String encodedPayload;
 
@@ -49,16 +46,14 @@ public class ContractTemplateIT extends AbstractIT {
 
   @Test
   public void testLuaContractLocally() throws Exception {
-    final AergoClient aergoClient = new AergoClientBuilder()
-        .addStrategy(new NettyConnectStrategy(hostname))
-        .addStrategy(new LocalSignStrategy())
-        .build();
+    final AergoClient aergoClient =
+        new AergoClientBuilder().addStrategy(new NettyConnectStrategy(hostname)).build();
 
     final AergoKey key = new AergoKeyGenerator().create();
-    final AtomicLong nonce = new AtomicLong(1);
+    final Account account = ClientManagedAccount.of(key);
 
-    final ContractTxHash deployTxHash = aergoClient.getContractOperation().deploy(key,
-        key.getAddress(), nonce.getAndIncrement(), () -> encodedPayload);
+    final ContractTxHash deployTxHash = aergoClient.getContractOperation().deploy(account,
+        account.getNonceAndImcrement(), () -> encodedPayload);
     logger.info("Deploy hash: {}", deployTxHash);
 
     waitForNextBlockToGenerate();
@@ -78,8 +73,8 @@ public class ContractTemplateIT extends AbstractIT {
     final ContractInvocation execution = new ContractInvocation(contractAddress, executionFunction,
         Arrays.asList(new Object[] {"key1", "value1"}));
     logger.info("Execution invocation : {}", execution);
-    final ContractTxHash executionTxHash = aergoClient.getContractOperation().execute(key,
-        key.getAddress(), nonce.getAndIncrement(), execution);
+    final ContractTxHash executionTxHash = aergoClient.getContractOperation().execute(account,
+        account.getNonceAndImcrement(), execution);
     logger.info("Execution hash: {}", executionTxHash);
 
     waitForNextBlockToGenerate();
@@ -101,22 +96,19 @@ public class ContractTemplateIT extends AbstractIT {
 
   @Test
   public void testLuaContractRemotely() throws Exception {
-    final AergoClient aergoClient = new AergoClientBuilder()
-        .addStrategy(new NettyConnectStrategy(hostname))
-        .addStrategy(new RemoteSignStrategy())
-        .build();
+    final AergoClient aergoClient =
+        new AergoClientBuilder().addStrategy(new NettyConnectStrategy(hostname)).build();
 
     final String password = randomUUID().toString();
 
     final Account account = aergoClient.getAccountOperation().create(password);
-    final AtomicLong nonce = new AtomicLong(1);
 
     final boolean unlockResult =
         aergoClient.getAccountOperation().unlock(Authentication.of(account.getAddress(), password));
     assertTrue(unlockResult);
 
-    final ContractTxHash deployTxHash = aergoClient.getContractOperation().deploy(null,
-        account.getAddress(), nonce.getAndIncrement(), () -> encodedPayload);
+    final ContractTxHash deployTxHash = aergoClient.getContractOperation().deploy(account,
+        account.getNonceAndImcrement(), () -> encodedPayload);
     logger.info("Deploy hash: {}", deployTxHash);
 
     waitForNextBlockToGenerate();
@@ -136,8 +128,8 @@ public class ContractTemplateIT extends AbstractIT {
     final ContractInvocation execution = new ContractInvocation(contractAddress, executionFunction,
         Arrays.asList(new Object[] {"key1", "value1"}));
     logger.info("Execution invocation : {}", execution);
-    final ContractTxHash executionTxHash = aergoClient.getContractOperation().execute(null,
-        account.getAddress(), nonce.getAndIncrement(), execution);
+    final ContractTxHash executionTxHash = aergoClient.getContractOperation().execute(account,
+        account.getNonceAndImcrement(), execution);
     logger.info("Execution hash: {}", executionTxHash);
 
     waitForNextBlockToGenerate();

@@ -19,6 +19,7 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.ServerManagedAccount;
 import hera.api.tupleorerror.ResultOrError;
 import java.util.List;
 import org.junit.Test;
@@ -50,8 +51,8 @@ public class AccountTemplateTest extends AbstractTestCase {
 
   @Test
   public void testCreate() throws Exception {
-    ResultOrError<Account> eitherMock = mock(ResultOrError.class);
-    when(eitherMock.getResult()).thenReturn(mock(Account.class));
+    ResultOrError<ServerManagedAccount> eitherMock = mock(ResultOrError.class);
+    when(eitherMock.getResult()).thenReturn(mock(ServerManagedAccount.class));
     AccountEitherTemplate eitherOperationMock = mock(AccountEitherTemplate.class);
     when(eitherOperationMock.create(anyString())).thenReturn(eitherMock);
 

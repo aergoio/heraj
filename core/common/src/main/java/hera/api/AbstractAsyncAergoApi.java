@@ -22,10 +22,6 @@ public class AbstractAsyncAergoApi implements AergoAsyncApi, Adaptor {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  public SignAsyncOperation getSignAsyncOperation() {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public AccountAsyncOperation getAccountAsyncOperation() {
     throw new UnsupportedOperationException();

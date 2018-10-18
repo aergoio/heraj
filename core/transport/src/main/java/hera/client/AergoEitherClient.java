@@ -13,10 +13,8 @@ import hera.api.AccountEitherOperation;
 import hera.api.BlockChainEitherOperation;
 import hera.api.BlockEitherOperation;
 import hera.api.ContractEitherOperation;
-import hera.api.SignEitherOperation;
 import hera.api.TransactionEitherOperation;
 import hera.strategy.ConnectStrategy;
-import hera.strategy.SignStrategy;
 import io.grpc.ManagedChannel;
 import java.io.Closeable;
 import java.util.concurrent.TimeUnit;
@@ -38,9 +36,6 @@ public class AergoEitherClient extends AbstractEitherAergoApi implements Closeab
       .map(ConnectStrategy::connect).get();
 
   @Getter(lazy = true)
-  private final SignEitherOperation signEitherOperation = buildSignEitherOperation();
-
-  @Getter(lazy = true)
   private final AccountEitherOperation accountEitherOperation = buildAccountEitherOperation();
 
   @Getter(lazy = true)
@@ -56,13 +51,6 @@ public class AergoEitherClient extends AbstractEitherAergoApi implements Closeab
 
   @Getter(lazy = true)
   private final ContractEitherOperation contractEitherOperation = buildContractEitherOperation();
-
-  protected SignEitherOperation buildSignEitherOperation() {
-    final SignEitherOperation signEitherOperation = context.getStrategy(SignStrategy.class)
-        .map(s -> s.getSignOperation()).flatMap(o -> o.adapt(SignEitherOperation.class)).get();
-    resolveInjection(signEitherOperation);
-    return signEitherOperation;
-  }
 
   protected AccountEitherOperation buildAccountEitherOperation() {
     final AccountEitherOperation accountEitherOperation = new AccountEitherTemplate();

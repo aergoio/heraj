@@ -13,10 +13,8 @@ import hera.api.AccountAsyncOperation;
 import hera.api.BlockAsyncOperation;
 import hera.api.BlockChainAsyncOperation;
 import hera.api.ContractAsyncOperation;
-import hera.api.SignAsyncOperation;
 import hera.api.TransactionAsyncOperation;
 import hera.strategy.ConnectStrategy;
-import hera.strategy.SignStrategy;
 import io.grpc.ManagedChannel;
 import java.io.Closeable;
 import java.util.concurrent.TimeUnit;
@@ -38,9 +36,6 @@ public class AergoAsyncClient extends AbstractAsyncAergoApi implements Closeable
       .map(ConnectStrategy::connect).get();
 
   @Getter(lazy = true)
-  private final SignAsyncOperation signAsyncOperation = buildSignAsyncOperation();
-
-  @Getter(lazy = true)
   private final AccountAsyncOperation accountAsyncOperation = buildAccountAsyncOperation();
 
   @Getter(lazy = true)
@@ -55,13 +50,6 @@ public class AergoAsyncClient extends AbstractAsyncAergoApi implements Closeable
 
   @Getter(lazy = true)
   private final ContractAsyncOperation contractAsyncOperation = buildContractAsyncOperation();
-
-  protected SignAsyncOperation buildSignAsyncOperation() {
-    final SignAsyncOperation signAsyncOperation = context.getStrategy(SignStrategy.class)
-        .map(s -> s.getSignOperation()).flatMap(o -> o.adapt(SignAsyncOperation.class)).get();
-    resolveInjection(signAsyncOperation);
-    return signAsyncOperation;
-  }
 
   protected AccountAsyncOperation buildAccountAsyncOperation() {
     final AccountAsyncOperation accountAsyncOperation = new AccountAsyncTemplate();

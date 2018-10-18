@@ -4,13 +4,10 @@
 
 package hera.client;
 
-import static java.util.UUID.randomUUID;
-
-import hera.api.SignLocalEitherTemplate;
+import hera.api.model.Account;
+import hera.api.model.ClientManagedAccount;
 import hera.api.model.Transaction;
-import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
-import java.util.concurrent.atomic.AtomicLong;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Level;
@@ -20,35 +17,32 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 
 @BenchmarkMode(Mode.Throughput)
-public class SignTemplateBenchmark {
-
-  protected static final String PASSWORD = randomUUID().toString();
+public class SignLocalBenchmark {
 
   @State(Scope.Thread)
   public static class User {
 
-    protected SignLocalEitherTemplate signTemplate;
-
-    protected AergoKey senderKey;
-    protected AergoKey receiptKey;
-
-    protected AtomicLong nonce = new AtomicLong(1);
+    protected AergoClient client;
+    protected Account sender;
+    protected Account receipt;
 
     @Setup(Level.Trial)
     public synchronized void setUp() throws Exception {
-      signTemplate = new SignLocalEitherTemplate();
-      senderKey = new AergoKeyGenerator().create();
-      receiptKey = new AergoKeyGenerator().create();
+      client = new AergoClientBuilder().build();
+
+      final AergoKeyGenerator generator = new AergoKeyGenerator();
+      sender = ClientManagedAccount.of(generator.create());
+      receipt = ClientManagedAccount.of(generator.create());
     }
 
     public void sendTransaction() throws Exception {
       final Transaction transaction = new Transaction();
-      transaction.setNonce(nonce.getAndIncrement());
+      transaction.setNonce(sender.getNonceAndImcrement());
       transaction.setAmount(30);
-      transaction.setSender(senderKey.getAddress());
-      transaction.setRecipient(receiptKey.getAddress());
+      transaction.setSender(sender);
+      transaction.setRecipient(receipt);
 
-      signTemplate.sign(senderKey, transaction);
+      client.getAccountOperation().sign(sender, transaction);
     }
   }
 

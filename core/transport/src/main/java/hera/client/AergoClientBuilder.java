@@ -15,9 +15,8 @@ import hera.annotation.ApiStability;
 import hera.api.model.HostnameAndPort;
 import hera.strategy.ConnectStrategy;
 import hera.strategy.FutureTimeoutStrategy;
-import hera.strategy.LocalSignStrategy;
 import hera.strategy.NettyConnectStrategy;
-import hera.strategy.SignStrategy;
+import hera.strategy.TimeoutStrategy;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -33,14 +32,13 @@ public class AergoClientBuilder {
   static {
     defaultContext = new Context();
     defaultContext.addStrategy(new NettyConnectStrategy(HostnameAndPort.of(DEFAULT_ENDPOINT)));
-    defaultContext.addStrategy(new LocalSignStrategy());
     defaultContext.addStrategy(new FutureTimeoutStrategy(DEFAULT_TIMEOUT));
   }
 
   @SuppressWarnings("rawtypes")
   @Getter(value = AccessLevel.PROTECTED)
   protected static final Class[] necessaries =
-      new Class[] {ConnectStrategy.class, SignStrategy.class};
+      new Class[] {ConnectStrategy.class, TimeoutStrategy.class};
 
   protected final Logger logger = getLogger(getClass());
 

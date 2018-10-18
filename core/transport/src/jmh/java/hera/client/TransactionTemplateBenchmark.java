@@ -58,7 +58,7 @@ public class TransactionTemplateBenchmark {
       transaction.setAmount(30);
       transaction.setSender(sender.getAddress());
       transaction.setRecipient(recipient.getAddress());
-      final Signature signature = aergoClient.getSignOperation().sign(null, transaction);
+      final Signature signature = aergoClient.getAccountOperation().sign(sender, transaction);
 
       transaction.setSignature(signature);
       final TxHash txHash = aergoClient.getTransactionOperation().commit(transaction);

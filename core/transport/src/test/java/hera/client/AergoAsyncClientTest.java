@@ -16,13 +16,6 @@ public class AergoAsyncClientTest extends AbstractTestCase {
   protected Context context = AergoClientBuilder.getDefaultContext();
 
   @Test
-  public void testGetSignAsyncOperation() throws IOException {
-    try (final AergoAsyncClient client = new AergoAsyncClient(context)) {
-      assertNotNull(client.getSignAsyncOperation());
-    }
-  }
-
-  @Test
   public void testGetAccountAsyncOperation() throws IOException {
     try (final AergoAsyncClient client = new AergoAsyncClient(context)) {
       assertNotNull(client.getAccountAsyncOperation());

@@ -12,6 +12,9 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.ServerManagedAccount;
+import hera.api.model.Signature;
+import hera.api.model.Transaction;
 import hera.exception.AdaptException;
 import java.util.List;
 
@@ -32,7 +35,7 @@ public interface AccountOperation extends ContextAware {
    * @param password account password
    * @return created account
    */
-  Account create(String password);
+  ServerManagedAccount create(String password);
 
   /**
    * Get account state by address.
@@ -70,6 +73,24 @@ public interface AccountOperation extends ContextAware {
   boolean unlock(Authentication authentication);
 
   /**
+   * Sign for transaction.
+   *
+   * @param account account to sign
+   * @param transaction transaction to sign
+   * @return signing result
+   */
+  Signature sign(Account account, Transaction transaction);
+
+  /**
+   * Verify transaction.
+   *
+   * @param account account to verify
+   * @param transaction transaction to verify
+   * @return verify result
+   */
+  boolean verify(Account account, Transaction transaction);
+
+  /**
    * Import an encrypted private key. An {@code password} is used to decrypt private key passed by
    * and store private key encrypted in a server.
    *
@@ -100,4 +121,5 @@ public interface AccountOperation extends ContextAware {
    * @return an encrypted private key
    */
   EncryptedPrivateKey exportKey(Authentication authentication);
+
 }

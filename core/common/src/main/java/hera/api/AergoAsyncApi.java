@@ -12,8 +12,6 @@ import hera.annotation.ApiStability;
 public interface AergoAsyncApi {
   AccountAsyncOperation getAccountAsyncOperation();
 
-  SignAsyncOperation getSignAsyncOperation();
-
   BlockAsyncOperation getBlockAsyncOperation();
 
   BlockChainAsyncOperation getBlockChainAsyncOperation();

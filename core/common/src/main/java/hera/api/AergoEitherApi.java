@@ -12,8 +12,6 @@ import hera.annotation.ApiStability;
 public interface AergoEitherApi {
   AccountEitherOperation getAccountEitherOperation();
 
-  SignEitherOperation getSignEitherOperation();
-
   BlockEitherOperation getBlockEitherOperation();
 
   BlockChainEitherOperation getBlockChainEitherOperation();

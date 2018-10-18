@@ -18,6 +18,7 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.ServerManagedAccount;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.List;
 import org.junit.Test;
@@ -69,7 +70,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
 
     final AccountAsyncTemplate accountAsyncTemplate = supplyAccountAsyncTemplate(aergoService);
 
-    final ResultOrErrorFuture<Account> accountFuture =
+    final ResultOrErrorFuture<ServerManagedAccount> accountFuture =
         accountAsyncTemplate.create(randomUUID().toString());
     assertTrue(accountFuture.get().hasResult());
   }

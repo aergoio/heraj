@@ -11,7 +11,7 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.ContractEitherOperation;
 import hera.api.encode.Base58WithCheckSum;
-import hera.api.model.AccountAddress;
+import hera.api.model.Account;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
@@ -21,7 +21,6 @@ import hera.api.model.ContractTxReceipt;
 import hera.api.model.Time;
 import hera.api.tupleorerror.ResultOrError;
 import hera.exception.RpcException;
-import hera.key.AergoKey;
 import hera.strategy.TimeoutStrategy;
 import io.grpc.ManagedChannel;
 import lombok.Getter;
@@ -61,10 +60,10 @@ public class ContractEitherTemplate implements ContractEitherOperation, ChannelI
   }
 
   @Override
-  public ResultOrError<ContractTxHash> deploy(final AergoKey key, final AccountAddress creator,
-      final long nonce, final Base58WithCheckSum encodedPayload) {
+  public ResultOrError<ContractTxHash> deploy(final Account creator, final long nonce,
+      final Base58WithCheckSum encodedPayload) {
     try {
-      return contractAsyncOperation.deploy(key, creator, nonce, encodedPayload)
+      return contractAsyncOperation.deploy(creator, nonce, encodedPayload)
           .get(getTimeout().getValue(), getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));
@@ -83,10 +82,10 @@ public class ContractEitherTemplate implements ContractEitherOperation, ChannelI
   }
 
   @Override
-  public ResultOrError<ContractTxHash> execute(final AergoKey key, final AccountAddress executor,
-      final long nonce, final ContractInvocation contractInvocation) {
+  public ResultOrError<ContractTxHash> execute(final Account executor, final long nonce,
+      final ContractInvocation contractInvocation) {
     try {
-      return contractAsyncOperation.execute(key, executor, nonce, contractInvocation)
+      return contractAsyncOperation.execute(executor, nonce, contractInvocation)
           .get(getTimeout().getValue(), getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));

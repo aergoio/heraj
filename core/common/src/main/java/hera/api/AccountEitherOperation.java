@@ -14,6 +14,9 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.ServerManagedAccount;
+import hera.api.model.Signature;
+import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrError;
 import hera.exception.AdaptException;
 import java.util.List;
@@ -35,7 +38,7 @@ public interface AccountEitherOperation extends ContextAware {
    * @param password account password
    * @return created account or error
    */
-  ResultOrError<Account> create(String password);
+  ResultOrError<ServerManagedAccount> create(String password);
 
   /**
    * Get account state by address.
@@ -72,6 +75,24 @@ public interface AccountEitherOperation extends ContextAware {
    * @return unlock result or error
    */
   ResultOrError<Boolean> unlock(Authentication authentication);
+
+  /**
+   * Sign for transaction.
+   *
+   * @param account account to verify
+   * @param transaction transaction to sign
+   * @return signing result or error
+   */
+  ResultOrError<Signature> sign(Account account, Transaction transaction);
+
+  /**
+   * Verify transaction.
+   *
+   * @param account account to verify
+   * @param transaction transaction to verify
+   * @return verify result or error
+   */
+  ResultOrError<Boolean> verify(Account account, Transaction transaction);
 
   /**
    * Import an encrypted private key. An {@code password} is used to decrypt private key passed by

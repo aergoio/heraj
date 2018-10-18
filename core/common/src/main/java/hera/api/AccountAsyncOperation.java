@@ -14,6 +14,9 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.ServerManagedAccount;
+import hera.api.model.Signature;
+import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.exception.AdaptException;
@@ -36,7 +39,7 @@ public interface AccountAsyncOperation extends ContextAware {
    * @param password account password
    * @return future of created account or error
    */
-  ResultOrErrorFuture<Account> create(String password);
+  ResultOrErrorFuture<ServerManagedAccount> create(String password);
 
   /**
    * Get account state by address asynchronously.
@@ -74,6 +77,24 @@ public interface AccountAsyncOperation extends ContextAware {
    * @return future of unlock result or error
    */
   ResultOrErrorFuture<Boolean> unlock(Authentication authentication);
+
+  /**
+   * Sign for transaction asynchronously.
+   *
+   * @param account account to sign
+   * @param transaction transaction to sign
+   * @return future of signing result or error
+   */
+  ResultOrErrorFuture<Signature> sign(Account account, Transaction transaction);
+
+  /**
+   * Verify transaction asynchronously.
+   *
+   * @param account account to verify
+   * @param transaction transaction to verify
+   * @return future of verify result or error
+   */
+  ResultOrErrorFuture<Boolean> verify(Account account, Transaction transaction);
 
   /**
    * Import an encrypted private key asynchronously. An {@code password} is used to decrypt private

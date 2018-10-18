@@ -22,10 +22,6 @@ public class AbstractEitherAergoApi implements AergoEitherApi, Adaptor {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  public SignEitherOperation getSignEitherOperation() {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public AccountEitherOperation getAccountEitherOperation() {
     throw new UnsupportedOperationException();

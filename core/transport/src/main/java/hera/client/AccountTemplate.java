@@ -13,6 +13,9 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.ServerManagedAccount;
+import hera.api.model.Signature;
+import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrError;
 import io.grpc.ManagedChannel;
 import java.util.List;
@@ -42,7 +45,7 @@ public class AccountTemplate implements AccountOperation, ChannelInjectable {
   }
 
   @Override
-  public Account create(final String password) {
+  public ServerManagedAccount create(final String password) {
     return accountEitherOperation.create(password).getResult();
   }
 
@@ -60,6 +63,16 @@ public class AccountTemplate implements AccountOperation, ChannelInjectable {
   @Override
   public boolean unlock(final Authentication authentication) {
     return accountEitherOperation.unlock(authentication).getResult();
+  }
+
+  @Override
+  public Signature sign(final Account account, final Transaction transaction) {
+    return accountEitherOperation.sign(account, transaction).getResult();
+  }
+
+  @Override
+  public boolean verify(final Account account, final Transaction transaction) {
+    return accountEitherOperation.verify(account, transaction).getResult();
   }
 
   @Override

@@ -16,11 +16,6 @@ public class AbstractAergoApiTest {
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void testGetSignOperation() {
-    aergoApi.getSignOperation();
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
   public void testGetBlockOperation() {
     aergoApi.getBlockOperation();
   }

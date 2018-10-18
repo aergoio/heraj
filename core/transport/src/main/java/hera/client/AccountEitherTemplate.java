@@ -15,7 +15,10 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.ServerManagedAccount;
+import hera.api.model.Signature;
 import hera.api.model.Time;
+import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrError;
 import hera.exception.RpcException;
 import hera.strategy.TimeoutStrategy;
@@ -57,7 +60,7 @@ public class AccountEitherTemplate implements AccountEitherOperation, ChannelInj
   }
 
   @Override
-  public ResultOrError<Account> create(final String password) {
+  public ResultOrError<ServerManagedAccount> create(final String password) {
     try {
       return accountAsyncOperation.create(password).get(getTimeout().getValue(),
           getTimeout().getUnit());
@@ -90,6 +93,26 @@ public class AccountEitherTemplate implements AccountEitherOperation, ChannelInj
   public ResultOrError<Boolean> unlock(final Authentication authentication) {
     try {
       return accountAsyncOperation.unlock(authentication).get(getTimeout().getValue(),
+          getTimeout().getUnit());
+    } catch (Exception e) {
+      return fail(new RpcException(e));
+    }
+  }
+
+  @Override
+  public ResultOrError<Signature> sign(final Account account, final Transaction transaction) {
+    try {
+      return accountAsyncOperation.sign(account, transaction).get(getTimeout().getValue(),
+          getTimeout().getUnit());
+    } catch (Exception e) {
+      return fail(new RpcException(e));
+    }
+  }
+
+  @Override
+  public ResultOrError<Boolean> verify(final Account account, final Transaction transaction) {
+    try {
+      return accountAsyncOperation.verify(account, transaction).get(getTimeout().getValue(),
           getTimeout().getUnit());
     } catch (Exception e) {
       return fail(new RpcException(e));

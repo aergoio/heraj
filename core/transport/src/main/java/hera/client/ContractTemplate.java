@@ -9,14 +9,13 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.ContractOperation;
 import hera.api.encode.Base58WithCheckSum;
-import hera.api.model.AccountAddress;
+import hera.api.model.Account;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
-import hera.key.AergoKey;
 import io.grpc.ManagedChannel;
 
 @ApiAudience.Private
@@ -44,9 +43,9 @@ public class ContractTemplate implements ContractOperation, ChannelInjectable {
   }
 
   @Override
-  public ContractTxHash deploy(final AergoKey key, final AccountAddress creator, final long nonce,
+  public ContractTxHash deploy(final Account creator, final long nonce,
       final Base58WithCheckSum encodedPayload) {
-    return contractEitherOperation.deploy(key, creator, nonce, encodedPayload).getResult();
+    return contractEitherOperation.deploy(creator, nonce, encodedPayload).getResult();
   }
 
   @Override
@@ -55,16 +54,14 @@ public class ContractTemplate implements ContractOperation, ChannelInjectable {
   }
 
   @Override
-  public ContractTxHash execute(final AergoKey key, final AccountAddress executor, final long nonce,
+  public ContractTxHash execute(final Account executor, final long nonce,
       final ContractInvocation contractInvocation) {
-    return contractEitherOperation.execute(key, executor, nonce, contractInvocation).getResult();
+    return contractEitherOperation.execute(executor, nonce, contractInvocation).getResult();
   }
 
   @Override
   public ContractResult query(final ContractInvocation contractInvocation) {
     return contractEitherOperation.query(contractInvocation).getResult();
   }
-
-
 
 }

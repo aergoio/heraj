@@ -4,6 +4,8 @@
 
 package hera.client;
 
+import static hera.api.tupleorerror.FunctionChain.success;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
@@ -21,15 +23,24 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Authentication;
+import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.KeyHoldable;
+import hera.api.model.ServerManagedAccount;
+import hera.api.model.Signature;
+import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
+import hera.exception.RpcException;
+import hera.exception.TransactionVerificationException;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.AccountConverterFactory;
 import hera.transport.AccountStateConverterFactory;
 import hera.transport.AuthenticationConverterFactory;
 import hera.transport.EncryptedPrivateKeyConverterFactory;
 import hera.transport.ModelConverter;
+import hera.transport.TransactionConverterFactory;
 import io.grpc.ManagedChannel;
 import java.util.List;
 import lombok.Getter;
@@ -54,7 +65,7 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
   protected final ModelConverter<EncryptedPrivateKey, Rpc.SingleBytes> encryptedPkConverter =
       new EncryptedPrivateKeyConverterFactory().create();
 
-  protected final ModelConverter<Account, AccountOuterClass.Account> accountConverter =
+  protected final ModelConverter<ServerManagedAccount, AccountOuterClass.Account> accountConverter =
       new AccountConverterFactory().create();
 
   protected final ModelConverter<AccountState, Blockchain.State> accountStateConverter =
@@ -62,6 +73,9 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
 
   protected final ModelConverter<Authentication, Rpc.Personal> authenticationConverter =
       new AuthenticationConverterFactory().create();
+
+  protected final ModelConverter<Transaction, Blockchain.Tx> transactionConverter =
+      new TransactionConverterFactory().create();
 
   @Setter
   protected Context context;
@@ -89,15 +103,16 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
   }
 
   @Override
-  public ResultOrErrorFuture<Account> create(final String password) {
-    ResultOrErrorFuture<Account> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
+  public ResultOrErrorFuture<ServerManagedAccount> create(final String password) {
+    ResultOrErrorFuture<ServerManagedAccount> nextFuture =
+        ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final Rpc.Personal personal = Rpc.Personal.newBuilder().setPassphrase(password).build();
     ListenableFuture<AccountOuterClass.Account> listenableFuture =
         aergoService.createAccount(personal);
-    FutureChainer<AccountOuterClass.Account, Account> callback =
+    FutureChainer<AccountOuterClass.Account, ServerManagedAccount> callback =
         new FutureChainer<>(nextFuture, account -> {
-          Account domainAccount = accountConverter.convertToDomainModel(account);
+          ServerManagedAccount domainAccount = accountConverter.convertToDomainModel(account);
           return domainAccount;
         });
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
@@ -134,7 +149,66 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;
+  }
 
+  @Override
+  public ResultOrErrorFuture<Signature> sign(final Account account, final Transaction transaction) {
+    ResultOrErrorFuture<Signature> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
+
+    if (account instanceof KeyHoldable) {
+      final KeyHoldable keyHoldable = (KeyHoldable) account;
+      final Transaction copy = Transaction.copyOf(transaction);
+      final BytesValue signature = keyHoldable.sign(copy.calculateHash().getBytesValue().get());
+      copy.setSignature(Signature.of(signature, null));
+      nextFuture.complete(success(Signature.of(signature, copy.calculateHash())));
+    } else {
+      final Blockchain.Tx rpcTransaction = transactionConverter.convertToRpcModel(transaction);
+      final ListenableFuture<Blockchain.Tx> listenableFuture = aergoService.signTX(rpcTransaction);
+      FutureChainer<Blockchain.Tx, Signature> callback = new FutureChainer<>(nextFuture, tx -> {
+        final BytesValue sign = ofNullable(tx.getBody().getSign()).map(ByteString::toByteArray)
+            .filter(bytes -> 0 != bytes.length).map(BytesValue::of).orElseThrow(
+                () -> new RpcException("Signing failed: sign field is not found at sign result"));
+        final TxHash hash = ofNullable(tx.getHash()).map(ByteString::toByteArray)
+            .filter(bytes -> 0 != bytes.length).map(BytesValue::new).map(TxHash::new).orElseThrow(
+                () -> new RpcException("Signing failed: txHash field is not found at sign result"));
+        return Signature.of(sign, hash);
+      });
+      Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+    }
+
+    return nextFuture;
+  }
+
+  @Override
+  public ResultOrErrorFuture<Boolean> verify(Account account, Transaction transaction) {
+    ResultOrErrorFuture<Boolean> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
+
+    if (account instanceof KeyHoldable) {
+      final KeyHoldable keyHoldable = (KeyHoldable) account;
+      final Transaction copy = Transaction.copyOf(transaction);
+      final BytesValue signature = copy.getSignature().getSign();
+      copy.setSignature(null);
+      nextFuture.complete(
+          success(keyHoldable.verify(copy.calculateHash().getBytesValue().get(), signature)));
+    } else {
+      final Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
+      ListenableFuture<Rpc.VerifyResult> listenableFuture = aergoService.verifyTX(tx);
+      FutureChainer<Rpc.VerifyResult, Boolean> callback =
+          new FutureChainer<Rpc.VerifyResult, Boolean>(nextFuture,
+              verifyResult -> Rpc.VerifyStatus.VERIFY_STATUS_OK == verifyResult.getError()) {
+            @Override
+            public void onSuccess(Rpc.VerifyResult t) {
+              if (Rpc.VerifyStatus.VERIFY_STATUS_OK == t.getError()) {
+                super.onSuccess(t);
+              } else {
+                super.onFailure(new TransactionVerificationException(t.getError()));
+              }
+            }
+          };
+      Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+    }
+
+    return nextFuture;
   }
 
   @Override
@@ -180,5 +254,6 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
 
     return nextFuture;
   }
+
 
 }
