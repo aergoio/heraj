@@ -24,13 +24,13 @@ import types.Rpc;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 @PrepareForTest({AergoRPCServiceFutureStub.class})
-public class BlockChainAsyncTemplateTest extends AbstractTestCase {
+public class BlockchainAsyncTemplateTest extends AbstractTestCase {
 
   protected static final Context context = AergoClientBuilder.getDefaultContext();
 
-  protected BlockChainAsyncTemplate supplyBlockChainAsyncTemplate(
+  protected BlockchainAsyncTemplate supplyBlockchainAsyncTemplate(
       final AergoRPCServiceFutureStub aergoService) {
-    final BlockChainAsyncTemplate blockchainAsyncTemplate = new BlockChainAsyncTemplate();
+    final BlockchainAsyncTemplate blockchainAsyncTemplate = new BlockchainAsyncTemplate();
     blockchainAsyncTemplate.setContext(AergoClientBuilder.getDefaultContext());
     blockchainAsyncTemplate.aergoService = aergoService;
     return blockchainAsyncTemplate;
@@ -43,11 +43,11 @@ public class BlockChainAsyncTemplateTest extends AbstractTestCase {
         service.submit(() -> Rpc.BlockchainStatus.newBuilder().build());
     when(aergoService.blockchain(any())).thenReturn(mockListenableFuture);
 
-    final BlockChainAsyncTemplate blockChainAsyncTemplate =
-        supplyBlockChainAsyncTemplate(aergoService);
+    final BlockchainAsyncTemplate blockchainAsyncTemplate =
+        supplyBlockchainAsyncTemplate(aergoService);
 
     final ResultOrErrorFuture<BlockchainStatus> blockchainStatus =
-        blockChainAsyncTemplate.getBlockchainStatus();
+        blockchainAsyncTemplate.getBlockchainStatus();
     assertTrue(blockchainStatus.get().hasResult());
   }
 
@@ -57,10 +57,10 @@ public class BlockChainAsyncTemplateTest extends AbstractTestCase {
     ListenableFuture mockListenableFuture = service.submit(() -> Rpc.PeerList.newBuilder().build());
     when(aergoService.getPeers(any())).thenReturn(mockListenableFuture);
 
-    final BlockChainAsyncTemplate blockChainAsyncTemplate =
-        supplyBlockChainAsyncTemplate(aergoService);
+    final BlockchainAsyncTemplate blockchainAsyncTemplate =
+        supplyBlockchainAsyncTemplate(aergoService);
 
-    final ResultOrErrorFuture<List<Peer>> peers = blockChainAsyncTemplate.listPeers();
+    final ResultOrErrorFuture<List<Peer>> peers = blockchainAsyncTemplate.listPeers();
     assertTrue(peers.get().hasResult());
   }
 
@@ -71,10 +71,10 @@ public class BlockChainAsyncTemplateTest extends AbstractTestCase {
         service.submit(() -> Rpc.SingleBytes.newBuilder().build());
     when(aergoService.nodeState(any())).thenReturn(mockListenableFuture);
 
-    final BlockChainAsyncTemplate blockChainAsyncTemplate =
-        supplyBlockChainAsyncTemplate(aergoService);
+    final BlockchainAsyncTemplate blockchainAsyncTemplate =
+        supplyBlockchainAsyncTemplate(aergoService);
 
-    final ResultOrErrorFuture<NodeStatus> nodeStatus = blockChainAsyncTemplate.getNodeStatus();
+    final ResultOrErrorFuture<NodeStatus> nodeStatus = blockchainAsyncTemplate.getNodeStatus();
     assertTrue(nodeStatus.get().hasResult());
   }
 

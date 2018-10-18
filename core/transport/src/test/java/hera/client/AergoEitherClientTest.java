@@ -23,13 +23,6 @@ public class AergoEitherClientTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetTransactionEitherOperation() throws IOException {
-    try (final AergoEitherClient client = new AergoEitherClient(context)) {
-      assertNotNull(client.getTransactionEitherOperation());
-    }
-  }
-
-  @Test
   public void testGetBlockEitherOperation() throws IOException {
     try (final AergoEitherClient client = new AergoEitherClient(context)) {
       assertNotNull(client.getBlockEitherOperation());
@@ -37,9 +30,16 @@ public class AergoEitherClientTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetBlockChainEitherOperation() throws IOException {
+  public void testGetBlockchainEitherOperation() throws IOException {
     try (final AergoEitherClient client = new AergoEitherClient(context)) {
-      assertNotNull(client.getBlockChainEitherOperation());
+      assertNotNull(client.getBlockchainEitherOperation());
+    }
+  }
+
+  @Test
+  public void testGetTransactionEitherOperation() throws IOException {
+    try (final AergoEitherClient client = new AergoEitherClient(context)) {
+      assertNotNull(client.getTransactionEitherOperation());
     }
   }
 

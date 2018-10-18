@@ -33,7 +33,7 @@ public class AbstractAsyncAergoApi implements AergoAsyncApi, Adaptor {
   }
 
   @Override
-  public BlockChainAsyncOperation getBlockChainAsyncOperation() {
+  public BlockchainAsyncOperation getBlockchainAsyncOperation() {
     throw new UnsupportedOperationException();
   }
 

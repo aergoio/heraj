@@ -10,8 +10,8 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.AbstractEitherAergoApi;
 import hera.api.AccountEitherOperation;
-import hera.api.BlockChainEitherOperation;
 import hera.api.BlockEitherOperation;
+import hera.api.BlockchainEitherOperation;
 import hera.api.ContractEitherOperation;
 import hera.api.TransactionEitherOperation;
 import hera.strategy.ConnectStrategy;
@@ -40,16 +40,16 @@ public class AergoEitherClient extends AbstractEitherAergoApi implements Closeab
       resolveInjection(new AccountEitherTemplate());
 
   @Getter(lazy = true)
-  private final TransactionEitherOperation transactionEitherOperation =
-      resolveInjection(new TransactionEitherTemplate());
-
-  @Getter(lazy = true)
   private final BlockEitherOperation blockEitherOperation =
       resolveInjection(new BlockEitherTemplate());
 
   @Getter(lazy = true)
-  private final BlockChainEitherOperation blockChainEitherOperation =
-      resolveInjection(new BlockChainEitherTemplate());
+  private final BlockchainEitherOperation blockchainEitherOperation =
+      resolveInjection(new BlockchainEitherTemplate());
+
+  @Getter(lazy = true)
+  private final TransactionEitherOperation transactionEitherOperation =
+      resolveInjection(new TransactionEitherTemplate());
 
   @Getter(lazy = true)
   private final ContractEitherOperation contractEitherOperation =

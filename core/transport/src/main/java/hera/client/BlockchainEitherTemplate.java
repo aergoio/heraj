@@ -7,7 +7,7 @@ package hera.client;
 import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.BlockChainEitherOperation;
+import hera.api.BlockchainEitherOperation;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
@@ -20,11 +20,11 @@ import lombok.Getter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-public class BlockChainEitherTemplate implements BlockChainEitherOperation, ChannelInjectable {
+public class BlockchainEitherTemplate implements BlockchainEitherOperation, ChannelInjectable {
 
   protected Context context;
 
-  protected BlockChainAsyncTemplate blockChainAsyncOperation = new BlockChainAsyncTemplate();
+  protected BlockchainAsyncTemplate blockchainAsyncOperation = new BlockchainAsyncTemplate();
 
   @Getter(lazy = true)
   private final Time timeout =
@@ -33,29 +33,29 @@ public class BlockChainEitherTemplate implements BlockChainEitherOperation, Chan
   @Override
   public void setContext(final Context context) {
     this.context = context;
-    blockChainAsyncOperation.setContext(context);
+    blockchainAsyncOperation.setContext(context);
   }
 
   @Override
   public void injectChannel(final ManagedChannel channel) {
-    blockChainAsyncOperation.injectChannel(channel);
+    blockchainAsyncOperation.injectChannel(channel);
   }
 
   @Override
   public ResultOrError<BlockchainStatus> getBlockchainStatus() {
-    return blockChainAsyncOperation.getBlockchainStatus().get(getTimeout().getValue(),
+    return blockchainAsyncOperation.getBlockchainStatus().get(getTimeout().getValue(),
         getTimeout().getUnit());
   }
 
   @Override
   public ResultOrError<List<Peer>> listPeers() {
-    return blockChainAsyncOperation.listPeers().get(getTimeout().getValue(),
+    return blockchainAsyncOperation.listPeers().get(getTimeout().getValue(),
         getTimeout().getUnit());
   }
 
   @Override
   public ResultOrError<NodeStatus> getNodeStatus() {
-    return blockChainAsyncOperation.getNodeStatus().get(getTimeout().getValue(),
+    return blockchainAsyncOperation.getNodeStatus().get(getTimeout().getValue(),
         getTimeout().getUnit());
   }
 

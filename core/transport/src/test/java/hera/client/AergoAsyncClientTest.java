@@ -23,13 +23,6 @@ public class AergoAsyncClientTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetTransactionAsyncOperation() throws IOException {
-    try (final AergoAsyncClient client = new AergoAsyncClient(context)) {
-      assertNotNull(client.getTransactionAsyncOperation());
-    }
-  }
-
-  @Test
   public void testGetBlockAsyncOperation() throws IOException {
     try (final AergoAsyncClient client = new AergoAsyncClient(context)) {
       assertNotNull(client.getBlockAsyncOperation());
@@ -37,9 +30,16 @@ public class AergoAsyncClientTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetBlockChainAsyncOperation() throws IOException {
+  public void testGetBlockchainAsyncOperation() throws IOException {
     try (final AergoAsyncClient client = new AergoAsyncClient(context)) {
-      assertNotNull(client.getBlockChainAsyncOperation());
+      assertNotNull(client.getBlockchainAsyncOperation());
+    }
+  }
+
+  @Test
+  public void testGetTransactionAsyncOperation() throws IOException {
+    try (final AergoAsyncClient client = new AergoAsyncClient(context)) {
+      assertNotNull(client.getTransactionAsyncOperation());
     }
   }
 

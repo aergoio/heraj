@@ -21,8 +21,8 @@ public class AbstractAergoApiTest {
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void testGetBlockChainOperation() {
-    aergoApi.getBlockChainOperation();
+  public void testGetBlockchainOperation() {
+    aergoApi.getBlockchainOperation();
   }
 
   @Test(expected = UnsupportedOperationException.class)

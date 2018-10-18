@@ -21,8 +21,8 @@ public class AbstractEitherAergoApiTest {
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void testGetBlockChainEitherOperation() {
-    aergoApi.getBlockChainEitherOperation();
+  public void testGetBlockchainEitherOperation() {
+    aergoApi.getBlockchainEitherOperation();
   }
 
   @Test(expected = UnsupportedOperationException.class)

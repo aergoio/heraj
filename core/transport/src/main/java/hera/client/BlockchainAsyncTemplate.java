@@ -17,13 +17,13 @@ import hera.Context;
 import hera.FutureChainer;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.BlockChainAsyncOperation;
+import hera.api.BlockchainAsyncOperation;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
-import hera.transport.BlockchainConverterFactory;
+import hera.transport.BlockchainStatusConverterFactory;
 import hera.transport.ModelConverter;
 import hera.transport.NodeStatusConverterFactory;
 import hera.transport.PeerConverterFactory;
@@ -44,12 +44,12 @@ import types.Rpc.SingleBytes;
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
-public class BlockChainAsyncTemplate implements BlockChainAsyncOperation, ChannelInjectable {
+public class BlockchainAsyncTemplate implements BlockchainAsyncOperation, ChannelInjectable {
 
   protected final Logger logger = getLogger(getClass());
 
   protected final ModelConverter<BlockchainStatus, Rpc.BlockchainStatus> blockchainConverter =
-      new BlockchainConverterFactory().create();
+      new BlockchainStatusConverterFactory().create();
 
   protected final ModelConverter<Peer, Node.PeerAddress> peerConverter =
       new PeerConverterFactory().create();

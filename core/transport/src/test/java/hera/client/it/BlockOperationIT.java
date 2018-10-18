@@ -23,7 +23,7 @@ public class BlockOperationIT extends AbstractIT {
         .addStrategy(new NettyConnectStrategy(hostname))
         .build();
 
-    final BlockchainStatus status = aergoClient.getBlockChainOperation().getBlockchainStatus();
+    final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
     final Block blockByHash = aergoClient.getBlockOperation().getBlock(status.getBestBlockHash());
     final Block blockByHeight = aergoClient.getBlockOperation().getBlock(status.getBestHeight());
     logger.info("Block by hash: {}", blockByHash);
@@ -45,7 +45,7 @@ public class BlockOperationIT extends AbstractIT {
         .addStrategy(new NettyConnectStrategy(hostname))
         .build();
 
-    final BlockchainStatus status = aergoClient.getBlockChainOperation().getBlockchainStatus();
+    final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
     final Block block = aergoClient.getBlockOperation().getBlock(status.getBestBlockHash());
     logger.info("Best block: {}", block);
 

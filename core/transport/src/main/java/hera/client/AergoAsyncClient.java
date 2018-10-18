@@ -11,7 +11,7 @@ import hera.annotation.ApiStability;
 import hera.api.AbstractAsyncAergoApi;
 import hera.api.AccountAsyncOperation;
 import hera.api.BlockAsyncOperation;
-import hera.api.BlockChainAsyncOperation;
+import hera.api.BlockchainAsyncOperation;
 import hera.api.ContractAsyncOperation;
 import hera.api.TransactionAsyncOperation;
 import hera.strategy.ConnectStrategy;
@@ -40,16 +40,16 @@ public class AergoAsyncClient extends AbstractAsyncAergoApi implements Closeable
       resolveInjection(new AccountAsyncTemplate());
 
   @Getter(lazy = true)
-  private final TransactionAsyncOperation transactionAsyncOperation =
-      resolveInjection(new TransactionAsyncTemplate());
-
-  @Getter(lazy = true)
   private final BlockAsyncOperation blockAsyncOperation =
       resolveInjection(new BlockAsyncTemplate());
 
   @Getter(lazy = true)
-  private final BlockChainAsyncOperation blockChainAsyncOperation =
-      resolveInjection(new BlockChainAsyncTemplate());
+  private final BlockchainAsyncOperation blockchainAsyncOperation =
+      resolveInjection(new BlockchainAsyncTemplate());
+
+  @Getter(lazy = true)
+  private final TransactionAsyncOperation transactionAsyncOperation =
+      resolveInjection(new TransactionAsyncTemplate());
 
   @Getter(lazy = true)
   private final ContractAsyncOperation contractAsyncOperation =

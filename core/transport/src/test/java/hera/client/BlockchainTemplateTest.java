@@ -23,19 +23,19 @@ import types.Rpc;
 @SuppressWarnings("unchecked")
 @PrepareForTest({AergoRPCServiceStub.class, Rpc.BlockchainStatus.class, Rpc.PeerList.class,
     Node.PeerAddress.class, Rpc.SingleBytes.class})
-public class BlockChainTemplateTest extends AbstractTestCase {
+public class BlockchainTemplateTest extends AbstractTestCase {
 
   @Test
   public void testGetBlockchainStatus() throws Exception {
     ResultOrError<BlockchainStatus> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(BlockchainStatus.class));
-    BlockChainEitherTemplate eitherOperationMock = mock(BlockChainEitherTemplate.class);
+    BlockchainEitherTemplate eitherOperationMock = mock(BlockchainEitherTemplate.class);
     when(eitherOperationMock.getBlockchainStatus()).thenReturn(eitherMock);
 
-    final BlockChainTemplate blockChainTemplate = new BlockChainTemplate();
-    blockChainTemplate.blockChainEitherOperation = eitherOperationMock;
+    final BlockchainTemplate blockchainTemplate = new BlockchainTemplate();
+    blockchainTemplate.blockchainEitherOperation = eitherOperationMock;
 
-    final BlockchainStatus blockchainStatus = blockChainTemplate.getBlockchainStatus();
+    final BlockchainStatus blockchainStatus = blockchainTemplate.getBlockchainStatus();
     assertNotNull(blockchainStatus);
   }
 
@@ -43,13 +43,13 @@ public class BlockChainTemplateTest extends AbstractTestCase {
   public void testListPeers() throws Exception {
     ResultOrError<List<Peer>> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(List.class));
-    BlockChainEitherTemplate eitherOperationMock = mock(BlockChainEitherTemplate.class);
+    BlockchainEitherTemplate eitherOperationMock = mock(BlockchainEitherTemplate.class);
     when(eitherOperationMock.listPeers()).thenReturn(eitherMock);
 
-    final BlockChainTemplate blockChainTemplate = new BlockChainTemplate();
-    blockChainTemplate.blockChainEitherOperation = eitherOperationMock;
+    final BlockchainTemplate blockchainTemplate = new BlockchainTemplate();
+    blockchainTemplate.blockchainEitherOperation = eitherOperationMock;
 
-    final List<Peer> peerAddresses = blockChainTemplate.listPeers();
+    final List<Peer> peerAddresses = blockchainTemplate.listPeers();
     assertNotNull(peerAddresses);
   }
 
@@ -57,13 +57,13 @@ public class BlockChainTemplateTest extends AbstractTestCase {
   public void testGetNodeStatus() throws Exception {
     ResultOrError<NodeStatus> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(NodeStatus.class));
-    BlockChainEitherTemplate eitherOperationMock = mock(BlockChainEitherTemplate.class);
+    BlockchainEitherTemplate eitherOperationMock = mock(BlockchainEitherTemplate.class);
     when(eitherOperationMock.getNodeStatus()).thenReturn(eitherMock);
 
-    final BlockChainTemplate blockChainTemplate = new BlockChainTemplate();
-    blockChainTemplate.blockChainEitherOperation = eitherOperationMock;
+    final BlockchainTemplate blockchainTemplate = new BlockchainTemplate();
+    blockchainTemplate.blockchainEitherOperation = eitherOperationMock;
 
-    final NodeStatus nodeStatus = blockChainTemplate.getNodeStatus();
+    final NodeStatus nodeStatus = blockchainTemplate.getNodeStatus();
     assertNotNull(nodeStatus);
   }
 

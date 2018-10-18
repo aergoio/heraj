@@ -14,7 +14,7 @@ public interface AergoEitherApi {
 
   BlockEitherOperation getBlockEitherOperation();
 
-  BlockChainEitherOperation getBlockChainEitherOperation();
+  BlockchainEitherOperation getBlockchainEitherOperation();
 
   TransactionEitherOperation getTransactionEitherOperation();
 

@@ -14,7 +14,7 @@ public interface AergoAsyncApi {
 
   BlockAsyncOperation getBlockAsyncOperation();
 
-  BlockChainAsyncOperation getBlockChainAsyncOperation();
+  BlockchainAsyncOperation getBlockchainAsyncOperation();
 
   TransactionAsyncOperation getTransactionAsyncOperation();
 

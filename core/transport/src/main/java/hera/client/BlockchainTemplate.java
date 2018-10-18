@@ -7,7 +7,7 @@ package hera.client;
 import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.BlockChainOperation;
+import hera.api.BlockchainOperation;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
@@ -16,37 +16,37 @@ import java.util.List;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-public class BlockChainTemplate implements BlockChainOperation, ChannelInjectable {
+public class BlockchainTemplate implements BlockchainOperation, ChannelInjectable {
 
   protected Context context;
 
-  protected BlockChainEitherTemplate blockChainEitherOperation =
-      new BlockChainEitherTemplate();
+  protected BlockchainEitherTemplate blockchainEitherOperation =
+      new BlockchainEitherTemplate();
 
   @Override
   public void setContext(final Context context) {
     this.context = context;
-    blockChainEitherOperation.setContext(context);
+    blockchainEitherOperation.setContext(context);
   }
 
   @Override
   public void injectChannel(final ManagedChannel channel) {
-    blockChainEitherOperation.injectChannel(channel);
+    blockchainEitherOperation.injectChannel(channel);
   }
 
   @Override
   public BlockchainStatus getBlockchainStatus() {
-    return blockChainEitherOperation.getBlockchainStatus().getResult();
+    return blockchainEitherOperation.getBlockchainStatus().getResult();
   }
 
   @Override
   public List<Peer> listPeers() {
-    return blockChainEitherOperation.listPeers().getResult();
+    return blockchainEitherOperation.listPeers().getResult();
   }
 
   @Override
   public NodeStatus getNodeStatus() {
-    return blockChainEitherOperation.getNodeStatus().getResult();
+    return blockchainEitherOperation.getNodeStatus().getResult();
   }
 
 }

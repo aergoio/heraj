@@ -15,7 +15,7 @@ import java.util.List;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public interface BlockChainAsyncOperation extends ContextAware {
+public interface BlockchainAsyncOperation extends ContextAware {
 
   /**
    * Get blockchain status asynchronously.

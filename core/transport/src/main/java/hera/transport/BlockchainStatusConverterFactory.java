@@ -14,7 +14,7 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Rpc;
 
-public class BlockchainConverterFactory {
+public class BlockchainStatusConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
 
@@ -23,8 +23,7 @@ public class BlockchainConverterFactory {
         logger.trace("Domain blockchain status: {}", domainBlockchainStatus);
         return Rpc.BlockchainStatus.newBuilder()
             .setBestBlockHash(copyFrom(domainBlockchainStatus.getBestBlockHash().getBytesValue()))
-            .setBestHeight(domainBlockchainStatus.getBestHeight())
-            .build();
+            .setBestHeight(domainBlockchainStatus.getBestHeight()).build();
       };
 
   protected final Function<Rpc.BlockchainStatus, BlockchainStatus> rpcConverter =

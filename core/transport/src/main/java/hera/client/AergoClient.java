@@ -10,8 +10,8 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.AbstractAergoApi;
 import hera.api.AccountOperation;
-import hera.api.BlockChainOperation;
 import hera.api.BlockOperation;
+import hera.api.BlockchainOperation;
 import hera.api.ContractOperation;
 import hera.api.TransactionOperation;
 import hera.strategy.ConnectStrategy;
@@ -39,15 +39,15 @@ public class AergoClient extends AbstractAergoApi implements Closeable, AutoClos
   private final AccountOperation accountOperation = resolveInjection(new AccountTemplate());
 
   @Getter(lazy = true)
-  private final TransactionOperation transactionOperation =
-      resolveInjection(new TransactionTemplate());
-
-  @Getter(lazy = true)
   private final BlockOperation blockOperation = resolveInjection(new BlockTemplate());
 
   @Getter(lazy = true)
-  private final BlockChainOperation blockChainOperation =
-      resolveInjection(new BlockChainTemplate());
+  private final BlockchainOperation blockchainOperation =
+      resolveInjection(new BlockchainTemplate());
+
+  @Getter(lazy = true)
+  private final TransactionOperation transactionOperation =
+      resolveInjection(new TransactionTemplate());
 
   @Getter(lazy = true)
   private final ContractOperation contractOperation = resolveInjection(new ContractTemplate());

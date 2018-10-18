@@ -10,32 +10,31 @@ import hera.annotation.ApiStability;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
-import hera.api.tupleorerror.ResultOrError;
 import java.util.List;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public interface BlockChainEitherOperation extends ContextAware {
+public interface BlockchainOperation extends ContextAware {
 
   /**
    * Get blockchain status.
    *
-   * @return blockchain status or error
+   * @return blockchain status
    */
-  ResultOrError<BlockchainStatus> getBlockchainStatus();
+  BlockchainStatus getBlockchainStatus();
 
   /**
    * Get blockchain peer addresses.
    *
-   * @return peer addresses or error
+   * @return peer addresses
    */
-  ResultOrError<List<Peer>> listPeers();
+  List<Peer> listPeers();
 
   /**
    * Get status of current node.
    *
-   * @return node status or error
+   * @return node status
    */
-  ResultOrError<NodeStatus> getNodeStatus();
+  NodeStatus getNodeStatus();
 
 }
