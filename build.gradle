@@ -122,9 +122,12 @@ configure(javaProjects) {
   test.dependsOn instrument
 
   test {
-    jvmArgs('--add-opens', 'java.base/java.lang=ALL-UNNAMED')
-    jvmArgs('--add-opens', 'java.base/java.lang.invoke=ALL-UNNAMED')
-    jvmArgs('--add-opens', 'java.xml/jdk.xml.internal=ALL-UNNAMED')
+    if(JavaVersion.current().isJava8() && JavaVersion.current().isJava9Compatible()) {
+      jvmArgs('--add-opens', 'java.base/java.lang=ALL-UNNAMED')
+      jvmArgs('--add-opens', 'java.base/java.lang.invoke=ALL-UNNAMED')
+      jvmArgs('--add-opens', 'java.xml/jdk.xml.internal=ALL-UNNAMED')
+    }
+
 
     maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors())
     exclude '**/*Tests.class'
