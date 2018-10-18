@@ -4,8 +4,6 @@
 
 package hera.client;
 
-import static hera.api.tupleorerror.FunctionChain.fail;
-
 import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
@@ -20,14 +18,12 @@ import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Time;
 import hera.api.tupleorerror.ResultOrError;
-import hera.exception.RpcException;
 import hera.strategy.TimeoutStrategy;
 import io.grpc.ManagedChannel;
 import lombok.Getter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-@SuppressWarnings("unchecked")
 public class ContractEitherTemplate implements ContractEitherOperation, ChannelInjectable {
 
   protected Context context;
@@ -51,55 +47,35 @@ public class ContractEitherTemplate implements ContractEitherOperation, ChannelI
 
   @Override
   public ResultOrError<ContractTxReceipt> getReceipt(final ContractTxHash deployTxHash) {
-    try {
-      return contractAsyncOperation.getReceipt(deployTxHash).get(getTimeout().getValue(),
-          getTimeout().getUnit());
-    } catch (Exception e) {
-      return fail(new RpcException(e));
-    }
+    return contractAsyncOperation.getReceipt(deployTxHash).get(getTimeout().getValue(),
+        getTimeout().getUnit());
   }
 
   @Override
   public ResultOrError<ContractTxHash> deploy(final Account creator, final long nonce,
       final Base58WithCheckSum encodedPayload) {
-    try {
-      return contractAsyncOperation.deploy(creator, nonce, encodedPayload)
-          .get(getTimeout().getValue(), getTimeout().getUnit());
-    } catch (Exception e) {
-      return fail(new RpcException(e));
-    }
+    return contractAsyncOperation.deploy(creator, nonce, encodedPayload)
+        .get(getTimeout().getValue(), getTimeout().getUnit());
   }
 
   @Override
   public ResultOrError<ContractInterface> getContractInterface(
       final ContractAddress contractAddress) {
-    try {
-      return contractAsyncOperation.getContractInterface(contractAddress)
-          .get(getTimeout().getValue(), getTimeout().getUnit());
-    } catch (Exception e) {
-      return fail(new RpcException(e));
-    }
+    return contractAsyncOperation.getContractInterface(contractAddress).get(getTimeout().getValue(),
+        getTimeout().getUnit());
   }
 
   @Override
   public ResultOrError<ContractTxHash> execute(final Account executor, final long nonce,
       final ContractInvocation contractInvocation) {
-    try {
-      return contractAsyncOperation.execute(executor, nonce, contractInvocation)
-          .get(getTimeout().getValue(), getTimeout().getUnit());
-    } catch (Exception e) {
-      return fail(new RpcException(e));
-    }
+    return contractAsyncOperation.execute(executor, nonce, contractInvocation)
+        .get(getTimeout().getValue(), getTimeout().getUnit());
   }
 
   @Override
   public ResultOrError<ContractResult> query(final ContractInvocation contractInvocation) {
-    try {
-      return contractAsyncOperation.query(contractInvocation).get(getTimeout().getValue(),
-          getTimeout().getUnit());
-    } catch (Exception e) {
-      return fail(new RpcException(e));
-    }
+    return contractAsyncOperation.query(contractInvocation).get(getTimeout().getValue(),
+        getTimeout().getUnit());
   }
 
 }

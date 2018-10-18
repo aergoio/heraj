@@ -4,8 +4,6 @@
 
 package hera.client;
 
-import static hera.api.tupleorerror.FunctionChain.fail;
-
 import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
@@ -20,7 +18,6 @@ import hera.api.model.Signature;
 import hera.api.model.Time;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrError;
-import hera.exception.RpcException;
 import hera.strategy.TimeoutStrategy;
 import io.grpc.ManagedChannel;
 import java.util.List;
@@ -28,7 +25,6 @@ import lombok.Getter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-@SuppressWarnings("unchecked")
 public class AccountEitherTemplate implements AccountEitherOperation, ChannelInjectable {
 
   protected Context context;
@@ -52,92 +48,56 @@ public class AccountEitherTemplate implements AccountEitherOperation, ChannelInj
 
   @Override
   public ResultOrError<List<Account>> list() {
-    try {
-      return accountAsyncOperation.list().get(getTimeout().getValue(), getTimeout().getUnit());
-    } catch (Exception e) {
-      return fail(new RpcException(e));
-    }
+    return accountAsyncOperation.list().get(getTimeout().getValue(), getTimeout().getUnit());
   }
 
   @Override
   public ResultOrError<ServerManagedAccount> create(final String password) {
-    try {
-      return accountAsyncOperation.create(password).get(getTimeout().getValue(),
-          getTimeout().getUnit());
-    } catch (Exception e) {
-      return fail(new RpcException(e));
-    }
+    return accountAsyncOperation.create(password).get(getTimeout().getValue(),
+        getTimeout().getUnit());
   }
 
   @Override
   public ResultOrError<AccountState> getState(final AccountAddress address) {
-    try {
-      return accountAsyncOperation.getState(address).get(getTimeout().getValue(),
-          getTimeout().getUnit());
-    } catch (Exception e) {
-      return fail(new RpcException(e));
-    }
+    return accountAsyncOperation.getState(address).get(getTimeout().getValue(),
+        getTimeout().getUnit());
   }
 
   @Override
   public ResultOrError<Boolean> lock(final Authentication authentication) {
-    try {
-      return accountAsyncOperation.lock(authentication).get(getTimeout().getValue(),
-          getTimeout().getUnit());
-    } catch (Exception e) {
-      return fail(new RpcException(e));
-    }
+    return accountAsyncOperation.lock(authentication).get(getTimeout().getValue(),
+        getTimeout().getUnit());
   }
 
   @Override
   public ResultOrError<Boolean> unlock(final Authentication authentication) {
-    try {
-      return accountAsyncOperation.unlock(authentication).get(getTimeout().getValue(),
-          getTimeout().getUnit());
-    } catch (Exception e) {
-      return fail(new RpcException(e));
-    }
+    return accountAsyncOperation.unlock(authentication).get(getTimeout().getValue(),
+        getTimeout().getUnit());
   }
 
   @Override
   public ResultOrError<Signature> sign(final Account account, final Transaction transaction) {
-    try {
-      return accountAsyncOperation.sign(account, transaction).get(getTimeout().getValue(),
-          getTimeout().getUnit());
-    } catch (Exception e) {
-      return fail(new RpcException(e));
-    }
+    return accountAsyncOperation.sign(account, transaction).get(getTimeout().getValue(),
+        getTimeout().getUnit());
   }
 
   @Override
   public ResultOrError<Boolean> verify(final Account account, final Transaction transaction) {
-    try {
-      return accountAsyncOperation.verify(account, transaction).get(getTimeout().getValue(),
-          getTimeout().getUnit());
-    } catch (Exception e) {
-      return fail(new RpcException(e));
-    }
+    return accountAsyncOperation.verify(account, transaction).get(getTimeout().getValue(),
+        getTimeout().getUnit());
   }
 
   @Override
   public ResultOrError<Account> importKey(final EncryptedPrivateKey encryptedKey,
       final String oldPassword, final String newPassword) {
-    try {
-      return accountAsyncOperation.importKey(encryptedKey, oldPassword, newPassword)
-          .get(getTimeout().getValue(), getTimeout().getUnit());
-    } catch (Exception e) {
-      return fail(new RpcException(e));
-    }
+    return accountAsyncOperation.importKey(encryptedKey, oldPassword, newPassword)
+        .get(getTimeout().getValue(), getTimeout().getUnit());
   }
 
   @Override
   public ResultOrError<EncryptedPrivateKey> exportKey(final Authentication authentication) {
-    try {
-      return accountAsyncOperation.exportKey(authentication).get(getTimeout().getValue(),
-          getTimeout().getUnit());
-    } catch (Exception e) {
-      return fail(new RpcException(e));
-    }
+    return accountAsyncOperation.exportKey(authentication).get(getTimeout().getValue(),
+        getTimeout().getUnit());
   }
 
 }

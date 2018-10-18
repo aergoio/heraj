@@ -4,8 +4,6 @@
 
 package hera.client;
 
-import static hera.api.tupleorerror.FunctionChain.fail;
-
 import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
@@ -15,14 +13,12 @@ import hera.api.model.Time;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrError;
-import hera.exception.RpcException;
 import hera.strategy.TimeoutStrategy;
 import io.grpc.ManagedChannel;
 import lombok.Getter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-@SuppressWarnings("unchecked")
 public class TransactionEitherTemplate implements TransactionEitherOperation, ChannelInjectable {
 
   protected Context context;
@@ -46,33 +42,21 @@ public class TransactionEitherTemplate implements TransactionEitherOperation, Ch
 
   @Override
   public ResultOrError<Transaction> getTransaction(final TxHash txHash) {
-    try {
-      return transactionAsyncOperation.getTransaction(txHash).get(getTimeout().getValue(),
-          getTimeout().getUnit());
-    } catch (Exception e) {
-      return fail(new RpcException(e));
-    }
+    return transactionAsyncOperation.getTransaction(txHash).get(getTimeout().getValue(),
+        getTimeout().getUnit());
   }
 
   @Override
   public ResultOrError<TxHash> commit(final Transaction transaction) {
-    try {
-      return transactionAsyncOperation.commit(transaction).get(getTimeout().getValue(),
-          getTimeout().getUnit());
-    } catch (Exception e) {
-      return fail(new RpcException(e));
-    }
+    return transactionAsyncOperation.commit(transaction).get(getTimeout().getValue(),
+        getTimeout().getUnit());
   }
 
   @Override
   public ResultOrError<TxHash> send(final AccountAddress sender, final AccountAddress recipient,
       final long amount) {
-    try {
-      return transactionAsyncOperation.send(sender, recipient, amount).get(getTimeout().getValue(),
-          getTimeout().getUnit());
-    } catch (Exception e) {
-      return fail(new RpcException(e));
-    }
+    return transactionAsyncOperation.send(sender, recipient, amount).get(getTimeout().getValue(),
+        getTimeout().getUnit());
   }
 
 }

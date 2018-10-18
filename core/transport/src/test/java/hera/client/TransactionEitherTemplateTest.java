@@ -7,19 +7,18 @@ package hera.client;
 import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import hera.AbstractTestCase;
+import hera.Context;
 import hera.api.model.AccountAddress;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
-import java.util.concurrent.TimeoutException;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceBlockingStub;
@@ -32,6 +31,8 @@ import types.Rpc.VerifyResult;
     CommitResult.class})
 public class TransactionEitherTemplateTest extends AbstractTestCase {
 
+  protected final Context context = AergoClientBuilder.getDefaultContext();
+
   protected final AccountAddress accountAddress =
       new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
 
@@ -43,26 +44,12 @@ public class TransactionEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.getTransaction(any())).thenReturn(futureMock);
 
     final TransactionEitherTemplate transactionTemplate = new TransactionEitherTemplate();
+    transactionTemplate.setContext(context);
     transactionTemplate.transactionAsyncOperation = asyncOperationMock;
 
     final ResultOrError<Transaction> transaction =
         transactionTemplate.getTransaction(new TxHash(of(randomUUID().toString().getBytes())));
     assertNotNull(transaction);
-  }
-
-  @Test
-  public void testGetTransactionWithTimeout() throws Exception {
-    ResultOrErrorFuture<Transaction> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
-    TransactionAsyncTemplate asyncOperationMock = mock(TransactionAsyncTemplate.class);
-    when(asyncOperationMock.getTransaction(any())).thenReturn(futureMock);
-
-    final TransactionEitherTemplate transactionTemplate = new TransactionEitherTemplate();
-    transactionTemplate.transactionAsyncOperation = asyncOperationMock;
-
-    final ResultOrError<Transaction> transaction =
-        transactionTemplate.getTransaction(new TxHash(of(randomUUID().toString().getBytes())));
-    assertTrue(transaction.hasError());
   }
 
   @Test
@@ -73,24 +60,11 @@ public class TransactionEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.commit(any(Transaction.class))).thenReturn(futureMock);
 
     final TransactionEitherTemplate transactionTemplate = new TransactionEitherTemplate();
+    transactionTemplate.setContext(context);
     transactionTemplate.transactionAsyncOperation = asyncOperationMock;
 
     final ResultOrError<TxHash> txHash = transactionTemplate.commit(new Transaction());
     assertNotNull(txHash);
-  }
-
-  @Test
-  public void testCommitWithTimeout() throws Exception {
-    ResultOrErrorFuture<TxHash> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
-    TransactionAsyncTemplate asyncOperationMock = mock(TransactionAsyncTemplate.class);
-    when(asyncOperationMock.commit(any(Transaction.class))).thenReturn(futureMock);
-
-    final TransactionEitherTemplate transactionTemplate = new TransactionEitherTemplate();
-    transactionTemplate.transactionAsyncOperation = asyncOperationMock;
-
-    final ResultOrError<TxHash> txHash = transactionTemplate.commit(new Transaction());
-    assertTrue(txHash.hasError());
   }
 
   @Test
@@ -101,26 +75,12 @@ public class TransactionEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.send(any(), any(), anyLong())).thenReturn(futureMock);
 
     final TransactionEitherTemplate transactionTemplate = new TransactionEitherTemplate();
+    transactionTemplate.setContext(context);
     transactionTemplate.transactionAsyncOperation = asyncOperationMock;
 
     final ResultOrError<TxHash> txHash =
         transactionTemplate.send(accountAddress, accountAddress, 10);
     assertNotNull(txHash);
-  }
-
-  @Test
-  public void testSendWithTimeout() throws Exception {
-    ResultOrErrorFuture<TxHash> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get(anyLong(), any())).thenThrow(TimeoutException.class);
-    TransactionAsyncTemplate asyncOperationMock = mock(TransactionAsyncTemplate.class);
-    when(asyncOperationMock.send(any(), any(), anyLong())).thenReturn(futureMock);
-
-    final TransactionEitherTemplate transactionTemplate = new TransactionEitherTemplate();
-    transactionTemplate.transactionAsyncOperation = asyncOperationMock;
-
-    final ResultOrError<TxHash> txHash =
-        transactionTemplate.send(accountAddress, accountAddress, 10);
-    assertTrue(txHash.hasError());
   }
 
 }

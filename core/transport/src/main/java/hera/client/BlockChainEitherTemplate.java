@@ -4,8 +4,6 @@
 
 package hera.client;
 
-import static hera.api.tupleorerror.FunctionChain.fail;
-
 import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
@@ -15,7 +13,6 @@ import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.Time;
 import hera.api.tupleorerror.ResultOrError;
-import hera.exception.RpcException;
 import hera.strategy.TimeoutStrategy;
 import io.grpc.ManagedChannel;
 import java.util.List;
@@ -23,7 +20,6 @@ import lombok.Getter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-@SuppressWarnings("unchecked")
 public class BlockChainEitherTemplate implements BlockChainEitherOperation, ChannelInjectable {
 
   protected Context context;
@@ -47,32 +43,20 @@ public class BlockChainEitherTemplate implements BlockChainEitherOperation, Chan
 
   @Override
   public ResultOrError<BlockchainStatus> getBlockchainStatus() {
-    try {
-      return blockChainAsyncOperation.getBlockchainStatus().get(getTimeout().getValue(),
-          getTimeout().getUnit());
-    } catch (Exception e) {
-      return fail(new RpcException(e));
-    }
+    return blockChainAsyncOperation.getBlockchainStatus().get(getTimeout().getValue(),
+        getTimeout().getUnit());
   }
 
   @Override
   public ResultOrError<List<Peer>> listPeers() {
-    try {
-      return blockChainAsyncOperation.listPeers().get(getTimeout().getValue(),
-          getTimeout().getUnit());
-    } catch (Exception e) {
-      return fail(new RpcException(e));
-    }
+    return blockChainAsyncOperation.listPeers().get(getTimeout().getValue(),
+        getTimeout().getUnit());
   }
 
   @Override
   public ResultOrError<NodeStatus> getNodeStatus() {
-    try {
-      return blockChainAsyncOperation.getNodeStatus().get(getTimeout().getValue(),
-          getTimeout().getUnit());
-    } catch (Exception e) {
-      return fail(new RpcException(e));
-    }
+    return blockChainAsyncOperation.getNodeStatus().get(getTimeout().getValue(),
+        getTimeout().getUnit());
   }
 
 }
