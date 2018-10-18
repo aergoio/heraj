@@ -11,17 +11,17 @@ import hera.api.model.Time;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 
-public class FutureTimeoutStrategyTest extends AbstractTestCase {
+public class SimpleTimeoutStrategyTest extends AbstractTestCase {
 
   @Test
   public void testGetTimeout() throws InterruptedException {
-    final TimeoutStrategy timeoutStrategy = new FutureTimeoutStrategy(3000L);
+    final TimeoutStrategy timeoutStrategy = new SimpleTimeoutStrategy(3000L);
     assertEquals(Time.of(3000L, TimeUnit.MILLISECONDS), timeoutStrategy.getTimeout());
   }
 
   @Test
   public void testGetTimeoutWithMinusValue() throws InterruptedException {
-    final TimeoutStrategy timeoutStrategy = new FutureTimeoutStrategy(-1L);
+    final TimeoutStrategy timeoutStrategy = new SimpleTimeoutStrategy(-1L);
     assertEquals(Time.of(0L, TimeUnit.MILLISECONDS), timeoutStrategy.getTimeout());
   }
 

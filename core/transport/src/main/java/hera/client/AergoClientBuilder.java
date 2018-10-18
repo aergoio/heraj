@@ -14,7 +14,7 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.HostnameAndPort;
 import hera.strategy.ConnectStrategy;
-import hera.strategy.FutureTimeoutStrategy;
+import hera.strategy.SimpleTimeoutStrategy;
 import hera.strategy.NettyConnectStrategy;
 import hera.strategy.TimeoutStrategy;
 import java.util.stream.Stream;
@@ -32,7 +32,7 @@ public class AergoClientBuilder {
   static {
     defaultContext = new Context();
     defaultContext.addStrategy(new NettyConnectStrategy(HostnameAndPort.of(DEFAULT_ENDPOINT)));
-    defaultContext.addStrategy(new FutureTimeoutStrategy(DEFAULT_TIMEOUT));
+    defaultContext.addStrategy(new SimpleTimeoutStrategy(DEFAULT_TIMEOUT));
   }
 
   @SuppressWarnings("rawtypes")
