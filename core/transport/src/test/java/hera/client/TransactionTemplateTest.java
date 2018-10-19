@@ -66,7 +66,8 @@ public class TransactionTemplateTest extends AbstractTestCase {
     ResultOrError<TxHash> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(TxHash.class));
     TransactionEitherTemplate eitherOperationMock = mock(TransactionEitherTemplate.class);
-    when(eitherOperationMock.send(any(), any(), anyLong())).thenReturn(eitherMock);
+    when(eitherOperationMock.send(any(AccountAddress.class), any(), anyLong()))
+        .thenReturn(eitherMock);
 
     final TransactionTemplate transactionTemplate = new TransactionTemplate();
     transactionTemplate.transactionEitherOperation = eitherOperationMock;

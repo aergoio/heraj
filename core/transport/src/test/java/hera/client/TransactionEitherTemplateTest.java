@@ -72,7 +72,8 @@ public class TransactionEitherTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<TxHash> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     TransactionAsyncTemplate asyncOperationMock = mock(TransactionAsyncTemplate.class);
-    when(asyncOperationMock.send(any(), any(), anyLong())).thenReturn(futureMock);
+    when(asyncOperationMock.send(any(AccountAddress.class), any(), anyLong()))
+        .thenReturn(futureMock);
 
     final TransactionEitherTemplate transactionTemplate = new TransactionEitherTemplate();
     transactionTemplate.setContext(context);
