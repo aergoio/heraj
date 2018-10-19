@@ -21,4 +21,9 @@ public class AdaptException extends HerajException {
     return String.format("Adapting from %s to %s failed", from.toString(), to.toString());
   }
 
+  @Override
+  public AdaptException clone() {
+    return new AdaptException(from, to);
+  }
+
 }

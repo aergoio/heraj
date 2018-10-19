@@ -28,4 +28,10 @@ public class InvalidVersionException extends HerajException {
     return String.format("Expected: <0x%02X> but was: <0x%02X>", expectedVersion, actualVersion);
   }
 
+  @Override
+  public InvalidVersionException clone() {
+    return 0 == expectedVersion && 0 == actualVersion ? new InvalidVersionException(getMessage())
+        : new InvalidVersionException(expectedVersion, actualVersion);
+  }
+
 }

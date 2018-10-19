@@ -55,7 +55,7 @@ public class Tuple3OrErrorImpl<T1, T2, T3> implements Tuple3OrError<T1, T2, T3> 
   @Override
   public T1 get1() {
     if (null == v1) {
-      throw error instanceof HerajException ? (HerajException) error : new HerajException(error);
+      appendCurrentStackTraceToError();
     }
     return v1;
   }
@@ -63,7 +63,7 @@ public class Tuple3OrErrorImpl<T1, T2, T3> implements Tuple3OrError<T1, T2, T3> 
   @Override
   public T2 get2() {
     if (null == v2) {
-      throw error instanceof HerajException ? (HerajException) error : new HerajException(error);
+      appendCurrentStackTraceToError();
     }
     return v2;
   }
@@ -71,7 +71,7 @@ public class Tuple3OrErrorImpl<T1, T2, T3> implements Tuple3OrError<T1, T2, T3> 
   @Override
   public T3 get3() {
     if (null == v3) {
-      throw error instanceof HerajException ? (HerajException) error : new HerajException(error);
+      appendCurrentStackTraceToError();
     }
     return v3;
   }

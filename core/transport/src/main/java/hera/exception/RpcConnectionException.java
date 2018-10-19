@@ -20,4 +20,9 @@ public class RpcConnectionException extends RpcException {
     super(message, cause);
   }
 
+  @Override
+  public RpcConnectionException clone() {
+    return new RpcConnectionException(getMessage(), getCause());
+  }
+
 }

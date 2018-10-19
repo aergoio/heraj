@@ -4,8 +4,11 @@
 
 package hera.exception;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class TransactionVerificationException extends RpcException {
 
   private static final long serialVersionUID = 308408228893339199L;
@@ -18,7 +21,7 @@ public class TransactionVerificationException extends RpcException {
   }
 
   @Getter
-  protected VerifyStatus verifyStatus = VerifyStatus.UNRECOGNIZED;
+  protected final VerifyStatus verifyStatus;
 
   /**
    * Make a {@code TransactionVerificationException} with rpc {@link types.Rpc.VerifyStatus}.
@@ -45,6 +48,11 @@ public class TransactionVerificationException extends RpcException {
   @Override
   public String getLocalizedMessage() {
     return verifyStatus.toString();
+  }
+
+  @Override
+  public TransactionVerificationException clone() {
+    return new TransactionVerificationException(getVerifyStatus());
   }
 
 }

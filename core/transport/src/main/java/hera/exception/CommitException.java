@@ -4,8 +4,11 @@
 
 package hera.exception;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommitException extends RpcException {
 
   private static final long serialVersionUID = -3973554154789144558L;
@@ -23,7 +26,7 @@ public class CommitException extends RpcException {
   }
 
   @Getter
-  protected CommitStatus commitStatus = CommitStatus.UNRECOGNIZED;
+  protected final CommitStatus commitStatus;
 
   /**
    * Make a {@code CommitException} with rpc {@link types.Rpc.CommitStatus}.
@@ -65,6 +68,11 @@ public class CommitException extends RpcException {
   @Override
   public String getLocalizedMessage() {
     return commitStatus.toString();
+  }
+
+  @Override
+  public CommitException clone() {
+    return new CommitException(getCommitStatus());
   }
 
 }

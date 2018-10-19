@@ -30,7 +30,7 @@ public class ResultOrErrorImpl<T> implements ResultOrError<T> {
   @Override
   public T getResult() {
     if (hasError()) {
-      throw error instanceof HerajException ? (HerajException) error : new HerajException(error);
+      appendCurrentStackTraceToError();
     }
     return result;
   }

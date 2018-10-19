@@ -24,4 +24,9 @@ public class RpcException extends HerajException {
     super(message, cause);
   }
 
+  @Override
+  public RpcException clone() {
+    return new RpcException(getMessage(), getCause());
+  }
+
 }

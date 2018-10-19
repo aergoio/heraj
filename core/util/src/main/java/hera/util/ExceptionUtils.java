@@ -126,4 +126,22 @@ public class ExceptionUtils {
     e.printStackTrace(w);
     return writer.toString();
   }
+
+  /**
+   * Concat two stack trace into one. Concated form is {@code left.stacktrace, right.stacktrace}.
+   *
+   * @param left left error
+   * @param right right error
+   * @return
+   */
+  public static StackTraceElement[] concat(final Throwable left, final Throwable right) {
+    final StackTraceElement[] leftTrace = left.getStackTrace();
+    final StackTraceElement[] rightTrace = right.getStackTrace();
+
+    final StackTraceElement[] ret = new StackTraceElement[leftTrace.length + rightTrace.length];
+    System.arraycopy(leftTrace, 0, ret, 0, leftTrace.length);
+    System.arraycopy(rightTrace, 0, ret, leftTrace.length, rightTrace.length);
+    return ret;
+  }
+
 }
