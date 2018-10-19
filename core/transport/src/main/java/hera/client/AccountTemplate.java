@@ -40,7 +40,7 @@ public class AccountTemplate implements AccountOperation, ChannelInjectable {
   }
 
   @Override
-  public List<Account> list() {
+  public List<AccountAddress> list() {
     return accountEitherOperation.list().getResult();
   }
 

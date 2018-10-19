@@ -57,7 +57,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
 
     final AccountAsyncTemplate accountAsyncTemplate = supplyAccountAsyncTemplate(aergoService);
 
-    final ResultOrErrorFuture<List<Account>> accountListFuture = accountAsyncTemplate.list();
+    final ResultOrErrorFuture<List<AccountAddress>> accountListFuture = accountAsyncTemplate.list();
     assertTrue(accountListFuture.get().hasResult());
   }
 

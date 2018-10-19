@@ -37,7 +37,7 @@ public class AccountTemplateTest extends AbstractTestCase {
 
   @Test
   public void testList() throws Exception {
-    ResultOrError<List<Account>> eitherMock = mock(ResultOrError.class);
+    ResultOrError<List<AccountAddress>> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(List.class));
     AccountEitherTemplate eitherOperationMock = mock(AccountEitherTemplate.class);
     when(eitherOperationMock.list()).thenReturn(eitherMock);
@@ -45,7 +45,7 @@ public class AccountTemplateTest extends AbstractTestCase {
     final AccountTemplate accountTemplate = new AccountTemplate();
     accountTemplate.accountEitherOperation = eitherOperationMock;
 
-    final List<Account> accountList = accountTemplate.list();
+    final List<AccountAddress> accountList = accountTemplate.list();
     assertNotNull(accountList);
   }
 

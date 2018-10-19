@@ -41,7 +41,7 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
 
   @Test
   public void testList() throws Exception {
-    ResultOrErrorFuture<List<Account>> futureMock = mock(ResultOrErrorFuture.class);
+    ResultOrErrorFuture<List<AccountAddress>> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
     when(asyncOperationMock.list()).thenReturn(futureMock);
@@ -50,7 +50,7 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
     accountTemplate.setContext(context);
     accountTemplate.accountAsyncOperation = asyncOperationMock;
 
-    final ResultOrError<List<Account>> accountListFuture = accountTemplate.list();
+    final ResultOrError<List<AccountAddress>> accountListFuture = accountTemplate.list();
     assertNotNull(accountListFuture);
   }
 

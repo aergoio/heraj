@@ -27,7 +27,7 @@ public interface AccountOperation extends ContextAware {
    *
    * @return account list
    */
-  List<Account> list();
+  List<AccountAddress> list();
 
   /**
    * Create an account with password.

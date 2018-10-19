@@ -31,7 +31,7 @@ public interface AccountAsyncOperation extends ContextAware {
    *
    * @return future of account list or error
    */
-  ResultOrErrorFuture<List<Account>> list();
+  ResultOrErrorFuture<List<AccountAddress>> list();
 
   /**
    * Create an account with password asynchronously.

@@ -89,14 +89,16 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
   }
 
   @Override
-  public ResultOrErrorFuture<List<Account>> list() {
-    ResultOrErrorFuture<List<Account>> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
+  public ResultOrErrorFuture<List<AccountAddress>> list() {
+    ResultOrErrorFuture<List<AccountAddress>> nextFuture =
+        ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     ListenableFuture<AccountList> listenableFuture =
         aergoService.getAccounts(Rpc.Empty.newBuilder().build());
-    FutureChainer<AccountList, List<Account>> callback =
-        new FutureChainer<>(nextFuture, accountList -> accountList.getAccountsList().stream()
-            .map(accountConverter::convertToDomainModel).collect(toList()));
+    FutureChainer<AccountList, List<AccountAddress>> callback = new FutureChainer<>(nextFuture,
+        accountList -> accountList.getAccountsList().stream()
+            .map(accountConverter::convertToDomainModel).map(Account::getAddress)
+            .collect(toList()));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;

@@ -30,7 +30,7 @@ public interface AccountEitherOperation extends ContextAware {
    *
    * @return account list or error
    */
-  ResultOrError<List<Account>> list();
+  ResultOrError<List<AccountAddress>> list();
 
   /**
    * Create an account with password.

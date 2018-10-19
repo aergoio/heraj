@@ -47,7 +47,7 @@ public class AccountEitherTemplate implements AccountEitherOperation, ChannelInj
   }
 
   @Override
-  public ResultOrError<List<Account>> list() {
+  public ResultOrError<List<AccountAddress>> list() {
     return accountAsyncOperation.list().get(getTimeout().getValue(), getTimeout().getUnit());
   }
 
