@@ -1,6 +1,6 @@
 # Common
 
-Common module contains basic model, encoding/decoding, strategies, key, exceptions which is used among other modules.
+Common module contains basic model, encoding/decoding, strategies, key, exceptions.
 
 
 ## Model
@@ -43,7 +43,7 @@ Describe basic models of blockchain.
 
 ## Strategy
 
-Strategy is used for any customizable operation. It is binded with context and any operation holding context can use strategy. At this time there is 2 strategies:
+Strategy is used for any customizable operation. It is binded with context and any operation holding context can use strategy. At this time there are 2 strategies:
 * ConnectStrategy
 * TimeoutStrategy
 

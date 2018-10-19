@@ -59,6 +59,6 @@ There are 3 type of aergo client:
 
 ## Stragety
 
-We provides basic implementation of strategy.
+We provide basic implementation of strategy.
 * NettyConnectStrategy
 * SimpleTimeoutStrategy

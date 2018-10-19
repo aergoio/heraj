@@ -1,13 +1,13 @@
 # Annotation
 
-There are two type of major annotaions
+There are two type of major annotations.
 ```
 @ApiAudience
 @ApiStability
 ```
 
 ### @ApiAudience
-`@ApiAudience` have two types.
+`@ApiAudience` has two types.
 ```
 @ApiAudience.Public
 @ApiAudience.Private
@@ -17,7 +17,7 @@ There are two type of major annotaions
 
 
 ### @ApiStability
-`@ApiStability` have two types.
+`@ApiStability` has two types.
 ```
 @ApiStability.Stable
 @ApiStability.UnStable
