@@ -9,6 +9,7 @@ import static hera.util.TransportUtils.copyFrom;
 import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.model.AccountAddress;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.Hash;
@@ -27,6 +28,9 @@ public class BlockConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
 
+  protected final ModelConverter<AccountAddress, com.google.protobuf.ByteString> addressConverter =
+      new AccountAddressConverterFactory().create();
+
   protected final ModelConverter<Transaction, Tx> transactionConverter =
       new TransactionConverterFactory().create();
 
@@ -38,8 +42,10 @@ public class BlockConverterFactory {
         .setBlockNo(domainBlock.getBlockNumber()).setTimestamp(domainBlock.getTimestamp())
         .setBlocksRootHash(copyFrom(domainBlock.getRootHash().getBytesValue()))
         .setTxsRootHash(copyFrom(domainBlock.getTxRootHash().getBytesValue()))
+        .setConfirms(domainBlock.getConfirmsCount())
         .setPubKey(copyFrom(domainBlock.getPublicKey().getBytesValue()))
-        .setSign(copyFrom(domainBlock.getSign().getBytesValue())).build();
+        .setSign(copyFrom(domainBlock.getSign().getBytesValue()))
+        .setCoinbaseAccount(copyFrom(domainBlock.getCoinbaseAccount().getBytesValue())).build();
 
     final List<Blockchain.Tx> rpcTransactions = domainBlock.getTransactions().stream()
         .map(transactionConverter::convertToRpcModel).collect(toList());
@@ -64,6 +70,8 @@ public class BlockConverterFactory {
     domainBlock.setTxRootHash(new TxHash(of(rpcBlockHeader.getTxsRootHash().toByteArray())));
     domainBlock.setPublicKey(new Hash(of(rpcBlockHeader.getPubKey().toByteArray())));
     domainBlock.setSign(new Hash(of(rpcBlockHeader.getSign().toByteArray())));
+    domainBlock.setCoinbaseAccount(
+        addressConverter.convertToDomainModel(rpcBlockHeader.getCoinbaseAccount()));
 
     final AtomicInteger index = new AtomicInteger(0);
     final List<Transaction> transactions = rpcBlockBody.getTxsList().stream()

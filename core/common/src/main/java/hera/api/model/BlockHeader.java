@@ -39,10 +39,18 @@ public class BlockHeader {
 
   @Getter
   @Setter
+  protected long confirmsCount;
+
+  @Getter
+  @Setter
   protected Hash publicKey = new Hash(BytesValue.EMPTY);
 
   @Getter
   @Setter
   protected Hash sign = new Hash(BytesValue.EMPTY);
+
+  @Getter
+  @Setter
+  protected AccountAddress coinbaseAccount = new AccountAddress(BytesValue.EMPTY);
 
 }

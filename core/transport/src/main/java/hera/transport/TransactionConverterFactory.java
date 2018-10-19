@@ -33,8 +33,6 @@ public class TransactionConverterFactory {
             return Blockchain.TxType.NORMAL;
           case GOVERNANCE:
             return Blockchain.TxType.GOVERNANCE;
-          case COINBASE:
-            return Blockchain.TxType.COINBASE;
           default:
             return Blockchain.TxType.UNRECOGNIZED;
         }
@@ -47,8 +45,6 @@ public class TransactionConverterFactory {
             return Transaction.TxType.NORMAL;
           case GOVERNANCE:
             return Transaction.TxType.GOVERNANCE;
-          case COINBASE:
-            return Transaction.TxType.COINBASE;
           default:
             return Transaction.TxType.UNRECOGNIZED;
         }
