@@ -6,7 +6,7 @@ package hera;
 
 import hera.client.it.AccountOperationIT;
 import hera.client.it.BlockOperationIT;
-import hera.client.it.ContractTemplateIT;
+import hera.client.it.ContractOperationIT;
 import hera.client.it.TransactionOperationIT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -17,7 +17,7 @@ import org.junit.runners.Suite.SuiteClasses;
     AccountOperationIT.class,
     BlockOperationIT.class,
     TransactionOperationIT.class,
-    ContractTemplateIT.class
+    ContractOperationIT.class
 })
 public class ITTests {
 

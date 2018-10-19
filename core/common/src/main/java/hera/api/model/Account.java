@@ -43,7 +43,12 @@ public interface Account extends Adaptor {
    *
    * @return nonce
    */
-  long getNonceAndImcrement();
+  long getNonceAndIncrement();
+
+  /**
+   * Increment nonce by one.
+   */
+  void incrementNonce();
 
   /**
    * Set balanced for account. If a passed {@code balance} is less than 0, balance is set as 0.

@@ -36,6 +36,7 @@ Describe basic models of blockchain.
 * ContractTxHash
 * ContractTxReceipt
 * ContractInterface
+* ContractDefinition
 * ContractFunction
 * ContractInvocation
 

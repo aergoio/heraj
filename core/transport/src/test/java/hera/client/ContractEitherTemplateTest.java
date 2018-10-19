@@ -16,6 +16,7 @@ import hera.AbstractTestCase;
 import hera.Context;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
+import hera.api.model.ContractDefinition;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
@@ -62,15 +63,15 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<ContractTxHash> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     ContractAsyncTemplate asyncOperationMock = mock(ContractAsyncTemplate.class);
-    when(asyncOperationMock.deploy(any(), anyLong(), any())).thenReturn(futureMock);
+    when(asyncOperationMock.deploy(any(), any())).thenReturn(futureMock);
 
     final ContractEitherTemplate contractTemplate = new ContractEitherTemplate();
     contractTemplate.setContext(context);
     contractTemplate.contractAsyncOperation = asyncOperationMock;
 
     final ResultOrError<ContractTxHash> deployTxHash =
-        contractTemplate.deploy(ServerManagedAccount.of(accountAddress), randomUUID().hashCode(),
-            () -> randomUUID().toString());
+        contractTemplate.deploy(ServerManagedAccount.of(accountAddress),
+            ContractDefinition.of(() -> randomUUID().toString()));
     assertNotNull(deployTxHash);
   }
 
@@ -95,14 +96,14 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<ContractTxHash> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     ContractAsyncTemplate asyncOperationMock = mock(ContractAsyncTemplate.class);
-    when(asyncOperationMock.execute(any(), anyLong(), any())).thenReturn(futureMock);
+    when(asyncOperationMock.execute(any(), any())).thenReturn(futureMock);
 
     final ContractEitherTemplate contractTemplate = new ContractEitherTemplate();
     contractTemplate.setContext(context);
     contractTemplate.contractAsyncOperation = asyncOperationMock;
 
     final ResultOrError<ContractTxHash> executionTxHash =
-        contractTemplate.execute(ServerManagedAccount.of(accountAddress), randomUUID().hashCode(),
+        contractTemplate.execute(ServerManagedAccount.of(accountAddress),
             new ContractInvocation(contractAddress, new ContractFunction()));
     assertNotNull(executionTxHash);
   }

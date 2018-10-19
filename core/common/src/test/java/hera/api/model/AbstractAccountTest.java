@@ -41,11 +41,20 @@ public class AbstractAccountTest {
   }
 
   @Test
-  public void testGetNonceAndImcrement() {
+  public void testGetNonceAndIncrement() {
     final long nonce = 10;
     final AbstractAccount account = spy(AbstractAccount.class);
     account.setNonce(nonce);
-    assertEquals(nonce, account.getNonceAndImcrement());
+    assertEquals(nonce, account.getNonceAndIncrement());
+    assertEquals(nonce + 1, account.getNonce());
+  }
+
+  @Test
+  public void testIncrementNnoce() {
+    final long nonce = 10;
+    final AbstractAccount account = spy(AbstractAccount.class);
+    account.setNonce(nonce);
+    account.incrementNonce();
     assertEquals(nonce + 1, account.getNonce());
   }
 

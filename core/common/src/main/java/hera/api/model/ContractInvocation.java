@@ -4,32 +4,43 @@
 
 package hera.api.model;
 
-import java.util.Collections;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NonNull;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode
+@NoArgsConstructor
 @AllArgsConstructor
 public class ContractInvocation {
 
-  @NonNull
+  public static ContractInvocation of(final ContractAddress address,
+      final ContractFunction function) {
+    return new ContractInvocation(address, function);
+  }
+
+  public static ContractInvocation of(final ContractAddress address,
+      final ContractFunction function, final Object... args) {
+    return new ContractInvocation(address, function, args);
+  }
+
+  @Setter
   @Getter
   protected ContractAddress address;
 
-  @NonNull
+  @Setter
   @Getter
   protected ContractFunction function;
 
+  @Setter
   @Getter
-  protected List<Object> args;
+  protected Object[] args = new Object[0];
 
   public ContractInvocation(final ContractAddress address, final ContractFunction function) {
-    this(address, function, Collections.emptyList());
+    this(address, function, new Object[0]);
   }
 
 }

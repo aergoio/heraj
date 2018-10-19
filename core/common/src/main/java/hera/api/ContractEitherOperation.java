@@ -7,9 +7,9 @@ package hera.api;
 import hera.ContextAware;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.Account;
 import hera.api.model.ContractAddress;
+import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
@@ -30,15 +30,13 @@ public interface ContractEitherOperation extends ContextAware {
   ResultOrError<ContractTxReceipt> getReceipt(ContractTxHash contractTxHash);
 
   /**
-   * Deploy smart contract contract code in payload form encoded in base58 with checksum.
+   * Deploy smart contract.
    *
    * @param creator smart contract creator
-   * @param nonce nonce of {@code creator}
-   * @param encodedPayload contract code in payload form encoded in base58 with checksum
+   * @param contractDefinition contract definition
    * @return contract definition transaction hash or error
    */
-  ResultOrError<ContractTxHash> deploy(Account creator, long nonce,
-      Base58WithCheckSum encodedPayload);
+  ResultOrError<ContractTxHash> deploy(Account creator, ContractDefinition contractDefinition);
 
   /**
    * Get smart contract interface corresponding to contract address.
@@ -52,12 +50,10 @@ public interface ContractEitherOperation extends ContextAware {
    * Execute the smart contract.
    *
    * @param executor smart contract executor
-   * @param nonce nonce of {@code executor}
    * @param contractInvocation {@link ContractInvocation}
    * @return contract execution transaction hash or error
    */
-  ResultOrError<ContractTxHash> execute(Account executor, long nonce,
-      ContractInvocation contractInvocation);
+  ResultOrError<ContractTxHash> execute(Account executor, ContractInvocation contractInvocation);
 
   /**
    * Query the smart contract state by calling smart contract function.

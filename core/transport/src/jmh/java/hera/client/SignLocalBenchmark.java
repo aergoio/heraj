@@ -37,7 +37,7 @@ public class SignLocalBenchmark {
 
     public void sendTransaction() throws Exception {
       final Transaction transaction = new Transaction();
-      transaction.setNonce(sender.getNonceAndImcrement());
+      transaction.setNonce(sender.getNonceAndIncrement());
       transaction.setAmount(30);
       transaction.setSender(sender);
       transaction.setRecipient(receipt);

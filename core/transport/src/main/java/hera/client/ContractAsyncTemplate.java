@@ -9,7 +9,6 @@ import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -23,11 +22,11 @@ import hera.VersionUtils;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.ContractAsyncOperation;
-import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
+import hera.api.model.ContractDefinition;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
@@ -49,6 +48,7 @@ import hera.util.LittleEndianDataOutputStream;
 import io.grpc.ManagedChannel;
 import java.io.ByteArrayOutputStream;
 import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.Getter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -117,25 +117,34 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
   }
 
   @Override
-  public ResultOrErrorFuture<ContractTxHash> deploy(final Account creator, final long nonce,
-      final Base58WithCheckSum encodedPayload) {
+  public ResultOrErrorFuture<ContractTxHash> deploy(final Account creator,
+      final ContractDefinition contractDefinition) {
     try {
-      final byte[] rawPayloadWithVersion = encodedPayload.decode().getValue();
+      final byte[] rawPayloadWithVersion =
+          contractDefinition.getEncodedContract().decode().getValue();
       if (logger.isTraceEnabled()) {
-        logger.trace("Encoded contract deploy payload: {}", encodedPayload.getEncodedValue());
+        logger.trace("Encoded contract deploy payload: {}",
+            contractDefinition.getEncodedContract().getEncodedValue());
         logger.trace("Decoded contract deploy payload: {}", HexUtils.encode(rawPayloadWithVersion));
       }
       VersionUtils.validate(rawPayloadWithVersion, ContractInterface.PAYLOAD_VERSION);
+
       final byte[] rawPaylod = VersionUtils.trim(rawPayloadWithVersion);
       final ByteArrayOutputStream rawStream = new ByteArrayOutputStream();
       final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(rawStream);
       dataOut.writeInt(rawPaylod.length + 4);
       dataOut.write(rawPaylod);
+      if (contractDefinition.getConstructorArgs().length > 0) {
+        final ArrayNode constructorArgs =
+            getArgsByJsonArray(contractDefinition.getConstructorArgs());
+        logger.trace("Contract constructor args: {}", constructorArgs.toString());
+        dataOut.write(constructorArgs.toString().getBytes());
+      }
       dataOut.close();
 
       final Transaction transaction = new Transaction();
       transaction.setSender(creator);
-      transaction.setNonce(nonce);
+      transaction.setNonce(creator.getNonce());
       transaction.setPayload(BytesValue.of(rawStream.toByteArray()));
 
       return accountAsyncOperation.sign(creator, transaction).flatMap(s -> {
@@ -171,13 +180,13 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
   }
 
   @Override
-  public ResultOrErrorFuture<ContractTxHash> execute(final Account executor, final long nonce,
+  public ResultOrErrorFuture<ContractTxHash> execute(final Account executor,
       final ContractInvocation contractInvocation) {
     try {
       final Transaction transaction = new Transaction();
       transaction.setSender(executor);
       transaction.setRecipient(contractInvocation.getAddress());
-      transaction.setNonce(nonce);
+      transaction.setNonce(executor.getNonce());
       final String functionCallString = toFunctionCallJsonString(contractInvocation);
       if (logger.isTraceEnabled()) {
         logger.trace("Contract execution address: {}, function: {}",
@@ -198,41 +207,59 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
 
   @Override
   public ResultOrErrorFuture<ContractResult> query(final ContractInvocation contractInvocation) {
-    final ResultOrErrorFuture<ContractResult> nextFuture =
-        ResultOrErrorFutureFactory.supplyEmptyFuture();
-
-    ByteString queryInfo = null;
     try {
+      final ResultOrErrorFuture<ContractResult> nextFuture =
+          ResultOrErrorFutureFactory.supplyEmptyFuture();
+
       final String functionCallString = toFunctionCallJsonString(contractInvocation);
       if (logger.isTraceEnabled()) {
         logger.trace("Contract query address: {}, function: {}", contractInvocation.getAddress(),
             functionCallString);
       }
-      queryInfo = ByteString.copyFrom(functionCallString.getBytes());
-    } catch (JsonProcessingException e) {
+      final Blockchain.Query query = Blockchain.Query.newBuilder()
+          .setContractAddress(
+              accountAddressConverter.convertToRpcModel(contractInvocation.getAddress()))
+          .setQueryinfo(ByteString.copyFrom(functionCallString.getBytes())).build();
+      final ListenableFuture<SingleBytes> listenableFuture = aergoService.queryContract(query);
+      FutureChainer<SingleBytes, ContractResult> callback =
+          new FutureChainer<>(nextFuture, s -> contractResultConverter.convertToDomainModel(s));
+
+      Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+
+      return nextFuture;
+    } catch (Exception e) {
       return ResultOrErrorFutureFactory.supply(() -> fail(e));
     }
-
-    final Blockchain.Query query = Blockchain.Query.newBuilder()
-        .setContractAddress(
-            accountAddressConverter.convertToRpcModel(contractInvocation.getAddress()))
-        .setQueryinfo(queryInfo).build();
-    final ListenableFuture<SingleBytes> listenableFuture = aergoService.queryContract(query);
-    FutureChainer<SingleBytes, ContractResult> callback =
-        new FutureChainer<>(nextFuture, s -> contractResultConverter.convertToDomainModel(s));
-    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
-
-    return nextFuture;
   }
 
-  protected String toFunctionCallJsonString(final ContractInvocation contractInvocation)
-      throws JsonProcessingException {
+  protected String toFunctionCallJsonString(final ContractInvocation contractInvocation) {
     final ObjectNode node = objectMapper.createObjectNode();
     node.put("Name", Optional.ofNullable(contractInvocation.getFunction())
         .map(ContractFunction::getName).orElse(""));
-    final ArrayNode argsNode = node.putArray("Args");
-    contractInvocation.getArgs().stream().forEach(a -> argsNode.add(a.toString()));
+    node.set("Args", getArgsByJsonArray(contractInvocation.getArgs()));
     return node.toString();
+  }
+
+  protected ArrayNode getArgsByJsonArray(final Object[] args) {
+    final ArrayNode argsNode = objectMapper.createArrayNode();
+    Stream.of(args).forEach(a -> {
+      if (a instanceof Integer) {
+        argsNode.add((Integer) a);
+      } else if (a instanceof Long) {
+        argsNode.add((Long) a);
+      } else if (a instanceof Float) {
+        argsNode.add((Float) a);
+      } else if (a instanceof Double) {
+        argsNode.add((Double) a);
+      } else if (a instanceof Boolean) {
+        argsNode.add((Boolean) a);
+      } else if (a instanceof String) {
+        argsNode.add(a.toString());
+      } else {
+        throw new IllegalArgumentException("Args type must be number or string");
+      }
+    });
+    return argsNode;
   }
 
 }

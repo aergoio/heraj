@@ -30,8 +30,13 @@ public abstract class AbstractAccount implements Account {
   }
 
   @Override
-  public long getNonceAndImcrement() {
+  public long getNonceAndIncrement() {
     return this.nonce++;
+  }
+
+  @Override
+  public void incrementNonce() {
+    ++this.nonce;
   }
 
   @Override

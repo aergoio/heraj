@@ -43,7 +43,7 @@ public class TransactionOperationIT extends AbstractIT {
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
 
     final Transaction transaction = new Transaction();
-    transaction.setNonce(remoteAccount.getNonceAndImcrement());
+    transaction.setNonce(remoteAccount.getNonceAndIncrement());
     transaction.setAmount(amount);
     transaction.setSender(remoteAccount.getAddress());
     transaction.setRecipient(recipient);
@@ -84,7 +84,7 @@ public class TransactionOperationIT extends AbstractIT {
     assertTrue(unlockResult);
 
     final Transaction transaction = new Transaction();
-    transaction.setNonce(remoteAccount.getNonceAndImcrement());
+    transaction.setNonce(remoteAccount.getNonceAndIncrement());
     transaction.setAmount(amount);
     transaction.setSender(remoteAccount.getAddress());
     transaction.setRecipient(recipient);

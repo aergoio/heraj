@@ -20,6 +20,7 @@ import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.ClientManagedAccount;
 import hera.api.model.ContractAddress;
+import hera.api.model.ContractDefinition;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
@@ -88,7 +89,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     Base58WithCheckSum encoded =
         () -> Base58Utils.encodeWithCheck(new byte[] {ContractInterface.PAYLOAD_VERSION});
     final ResultOrErrorFuture<ContractTxHash> deployTxHash =
-        contractAsyncTemplate.deploy(account, randomUUID().hashCode(), encoded);
+        contractAsyncTemplate.deploy(account, ContractDefinition.of(encoded));
     assertTrue(deployTxHash.get().hasResult());
   }
 
@@ -111,7 +112,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     Base58WithCheckSum encoded =
         () -> Base58Utils.encodeWithCheck(new byte[] {ContractInterface.PAYLOAD_VERSION});
     final ResultOrErrorFuture<ContractTxHash> deployTxHash =
-        contractAsyncTemplate.deploy(account, randomUUID().hashCode(), encoded);
+        contractAsyncTemplate.deploy(account, ContractDefinition.of(encoded));
     assertTrue(deployTxHash.get().hasResult());
   }
 
@@ -141,9 +142,8 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     contractAsyncTemplate.transactionAsyncOperation = mockTransactionAsyncOperation;
 
     Account account = ClientManagedAccount.of(generator.create());
-    final ResultOrErrorFuture<ContractTxHash> executionTxHash =
-        contractAsyncTemplate.execute(account, randomUUID().hashCode(),
-            new ContractInvocation(contractAddress, new ContractFunction()));
+    final ResultOrErrorFuture<ContractTxHash> executionTxHash = contractAsyncTemplate
+        .execute(account, new ContractInvocation(contractAddress, new ContractFunction()));
     assertTrue(executionTxHash.get().hasResult());
   }
 
@@ -163,9 +163,8 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     contractAsyncTemplate.transactionAsyncOperation = mockTransactionAsyncOperation;
 
     Account account = ServerManagedAccount.of(accountAddress);
-    final ResultOrErrorFuture<ContractTxHash> executionTxHash =
-        contractAsyncTemplate.execute(account, randomUUID().hashCode(),
-            new ContractInvocation(contractAddress, new ContractFunction()));
+    final ResultOrErrorFuture<ContractTxHash> executionTxHash = contractAsyncTemplate
+        .execute(account, new ContractInvocation(contractAddress, new ContractFunction()));
     assertTrue(executionTxHash.get().hasResult());
   }
 

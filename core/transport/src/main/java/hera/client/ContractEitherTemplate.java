@@ -8,9 +8,9 @@ import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.ContractEitherOperation;
-import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.Account;
 import hera.api.model.ContractAddress;
+import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
@@ -52,10 +52,10 @@ public class ContractEitherTemplate implements ContractEitherOperation, ChannelI
   }
 
   @Override
-  public ResultOrError<ContractTxHash> deploy(final Account creator, final long nonce,
-      final Base58WithCheckSum encodedPayload) {
-    return contractAsyncOperation.deploy(creator, nonce, encodedPayload)
-        .get(getTimeout().getValue(), getTimeout().getUnit());
+  public ResultOrError<ContractTxHash> deploy(final Account creator,
+      final ContractDefinition contractDefinition) {
+    return contractAsyncOperation.deploy(creator, contractDefinition).get(getTimeout().getValue(),
+        getTimeout().getUnit());
   }
 
   @Override
@@ -66,10 +66,10 @@ public class ContractEitherTemplate implements ContractEitherOperation, ChannelI
   }
 
   @Override
-  public ResultOrError<ContractTxHash> execute(final Account executor, final long nonce,
+  public ResultOrError<ContractTxHash> execute(final Account executor,
       final ContractInvocation contractInvocation) {
-    return contractAsyncOperation.execute(executor, nonce, contractInvocation)
-        .get(getTimeout().getValue(), getTimeout().getUnit());
+    return contractAsyncOperation.execute(executor, contractInvocation).get(getTimeout().getValue(),
+        getTimeout().getUnit());
   }
 
   @Override

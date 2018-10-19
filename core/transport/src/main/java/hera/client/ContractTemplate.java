@@ -8,9 +8,9 @@ import hera.Context;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.ContractOperation;
-import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.Account;
 import hera.api.model.ContractAddress;
+import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
@@ -43,9 +43,8 @@ public class ContractTemplate implements ContractOperation, ChannelInjectable {
   }
 
   @Override
-  public ContractTxHash deploy(final Account creator, final long nonce,
-      final Base58WithCheckSum encodedPayload) {
-    return contractEitherOperation.deploy(creator, nonce, encodedPayload).getResult();
+  public ContractTxHash deploy(final Account creator, final ContractDefinition contractDefinition) {
+    return contractEitherOperation.deploy(creator, contractDefinition).getResult();
   }
 
   @Override
@@ -54,9 +53,9 @@ public class ContractTemplate implements ContractOperation, ChannelInjectable {
   }
 
   @Override
-  public ContractTxHash execute(final Account executor, final long nonce,
+  public ContractTxHash execute(final Account executor,
       final ContractInvocation contractInvocation) {
-    return contractEitherOperation.execute(executor, nonce, contractInvocation).getResult();
+    return contractEitherOperation.execute(executor, contractInvocation).getResult();
   }
 
   @Override
