@@ -8,10 +8,8 @@ import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 @EqualsAndHashCode
-@ToString
 @RequiredArgsConstructor
 public class Time {
 
@@ -68,6 +66,11 @@ public class Time {
 
   public long toDays() {
     return unit.toDays(value);
+  }
+
+  @Override
+  public String toString() {
+    return String.format("%d %s", value, unit.toString());
   }
 
 }

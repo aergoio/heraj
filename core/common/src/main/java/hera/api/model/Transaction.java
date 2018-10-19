@@ -19,8 +19,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@EqualsAndHashCode
 @ToString
+@EqualsAndHashCode
 public class Transaction {
 
   @Getter

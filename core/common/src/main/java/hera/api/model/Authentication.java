@@ -13,8 +13,8 @@ import lombok.ToString;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
 @ToString
+@EqualsAndHashCode
 public class Authentication {
 
   public static Authentication of(final AccountAddress address, final String password) {

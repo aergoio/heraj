@@ -13,8 +13,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-@EqualsAndHashCode
 @ToString
+@EqualsAndHashCode
 public class ContractInterface {
 
   public static final byte PAYLOAD_VERSION = (byte) 0xC0;
