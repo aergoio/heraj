@@ -27,6 +27,7 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.Fee;
 import hera.api.model.ServerManagedAccount;
 import hera.api.model.Signature;
 import hera.api.model.TxHash;
@@ -34,6 +35,7 @@ import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.key.AergoKeyGenerator;
 import hera.util.Base58Utils;
+import java.util.Optional;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -49,6 +51,8 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
 
   protected final ContractAddress contractAddress =
       new ContractAddress(of(new byte[] {AccountAddress.VERSION}));
+
+  protected final Fee fee = new Fee(Optional.of(1L), Optional.of(2L));
 
   protected final AergoKeyGenerator generator = new AergoKeyGenerator();
 
@@ -89,7 +93,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     Base58WithCheckSum encoded =
         () -> Base58Utils.encodeWithCheck(new byte[] {ContractInterface.PAYLOAD_VERSION});
     final ResultOrErrorFuture<ContractTxHash> deployTxHash =
-        contractAsyncTemplate.deploy(account, ContractDefinition.of(encoded));
+        contractAsyncTemplate.deploy(account, ContractDefinition.of(encoded), fee);
     assertTrue(deployTxHash.get().hasResult());
   }
 
@@ -112,7 +116,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     Base58WithCheckSum encoded =
         () -> Base58Utils.encodeWithCheck(new byte[] {ContractInterface.PAYLOAD_VERSION});
     final ResultOrErrorFuture<ContractTxHash> deployTxHash =
-        contractAsyncTemplate.deploy(account, ContractDefinition.of(encoded));
+        contractAsyncTemplate.deploy(account, ContractDefinition.of(encoded), fee);
     assertTrue(deployTxHash.get().hasResult());
   }
 
@@ -143,7 +147,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
 
     Account account = ClientManagedAccount.of(generator.create());
     final ResultOrErrorFuture<ContractTxHash> executionTxHash = contractAsyncTemplate
-        .execute(account, new ContractInvocation(contractAddress, new ContractFunction()));
+        .execute(account, new ContractInvocation(contractAddress, new ContractFunction()), fee);
     assertTrue(executionTxHash.get().hasResult());
   }
 
@@ -164,7 +168,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
 
     Account account = ServerManagedAccount.of(accountAddress);
     final ResultOrErrorFuture<ContractTxHash> executionTxHash = contractAsyncTemplate
-        .execute(account, new ContractInvocation(contractAddress, new ContractFunction()));
+        .execute(account, new ContractInvocation(contractAddress, new ContractFunction()), fee);
     assertTrue(executionTxHash.get().hasResult());
   }
 

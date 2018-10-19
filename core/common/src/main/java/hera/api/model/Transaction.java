@@ -6,6 +6,7 @@ package hera.api.model;
 
 import static hera.api.model.BytesValue.of;
 import static hera.util.Sha256Utils.digest;
+import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 
 import hera.VersionUtils;
@@ -54,11 +55,7 @@ public class Transaction {
 
   @Getter
   @Setter
-  protected long limit;
-
-  @Getter
-  @Setter
-  protected long price;
+  protected Fee fee = new Fee(empty(), empty());
 
   @Getter
   @Setter
@@ -70,10 +67,7 @@ public class Transaction {
 
   @RequiredArgsConstructor
   public enum TxType {
-    UNRECOGNIZED(-1),
-    NORMAL(0),
-    GOVERNANCE(1),
-    COINBASE(2);
+    UNRECOGNIZED(-1), NORMAL(0), GOVERNANCE(1), COINBASE(2);
 
     @Getter
     private final int intValue;
@@ -114,8 +108,7 @@ public class Transaction {
     copy.setRecipient(source.getRecipient());
     copy.setAmount(source.getAmount());
     copy.setPayload(source.getPayload());
-    copy.setLimit(source.getLimit());
-    copy.setPrice(source.getPrice());
+    copy.setFee(source.getFee());
     copy.setTxType(source.getTxType());
     copy.setSignature(Signature.copyOf(source.getSignature()));
 
@@ -136,8 +129,8 @@ public class Transaction {
       dataOut.write(VersionUtils.trim(getRecipient().getBytesValue().getValue()));
       dataOut.writeLong(getAmount());
       dataOut.write(getPayload().getValue());
-      dataOut.writeLong(getLimit());
-      dataOut.writeLong(getPrice());
+      dataOut.writeLong(getFee().getLimit());
+      dataOut.writeLong(getFee().getPrice());
       dataOut.writeInt(getTxType().getIntValue());
       ofNullable(signature).map(Signature::getSign).map(BytesValue::getValue).ifPresent(b -> {
         try {

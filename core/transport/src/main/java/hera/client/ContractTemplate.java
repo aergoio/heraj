@@ -16,6 +16,7 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.Fee;
 import io.grpc.ManagedChannel;
 
 @ApiAudience.Private
@@ -43,8 +44,9 @@ public class ContractTemplate implements ContractOperation, ChannelInjectable {
   }
 
   @Override
-  public ContractTxHash deploy(final Account creator, final ContractDefinition contractDefinition) {
-    return contractEitherOperation.deploy(creator, contractDefinition).getResult();
+  public ContractTxHash deploy(final Account creator, final ContractDefinition contractDefinition,
+      final Fee fee) {
+    return contractEitherOperation.deploy(creator, contractDefinition, fee).getResult();
   }
 
   @Override
@@ -53,9 +55,9 @@ public class ContractTemplate implements ContractOperation, ChannelInjectable {
   }
 
   @Override
-  public ContractTxHash execute(final Account executor,
-      final ContractInvocation contractInvocation) {
-    return contractEitherOperation.execute(executor, contractInvocation).getResult();
+  public ContractTxHash execute(final Account executor, final ContractInvocation contractInvocation,
+      final Fee fee) {
+    return contractEitherOperation.execute(executor, contractInvocation, fee).getResult();
   }
 
   @Override

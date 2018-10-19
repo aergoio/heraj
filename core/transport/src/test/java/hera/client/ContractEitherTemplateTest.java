@@ -23,9 +23,11 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.Fee;
 import hera.api.model.ServerManagedAccount;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
+import java.util.Optional;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -41,6 +43,8 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
 
   protected final ContractAddress contractAddress =
       new ContractAddress(of(new byte[] {AccountAddress.VERSION}));
+
+  protected final Fee fee = new Fee(Optional.of(1L), Optional.of(2L));
 
   @Test
   public void testGetReceipt() {
@@ -63,7 +67,7 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<ContractTxHash> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     ContractAsyncTemplate asyncOperationMock = mock(ContractAsyncTemplate.class);
-    when(asyncOperationMock.deploy(any(), any())).thenReturn(futureMock);
+    when(asyncOperationMock.deploy(any(), any(), any())).thenReturn(futureMock);
 
     final ContractEitherTemplate contractTemplate = new ContractEitherTemplate();
     contractTemplate.setContext(context);
@@ -71,7 +75,7 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
 
     final ResultOrError<ContractTxHash> deployTxHash =
         contractTemplate.deploy(ServerManagedAccount.of(accountAddress),
-            ContractDefinition.of(() -> randomUUID().toString()));
+            ContractDefinition.of(() -> randomUUID().toString()), fee);
     assertNotNull(deployTxHash);
   }
 
@@ -96,7 +100,7 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<ContractTxHash> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     ContractAsyncTemplate asyncOperationMock = mock(ContractAsyncTemplate.class);
-    when(asyncOperationMock.execute(any(), any())).thenReturn(futureMock);
+    when(asyncOperationMock.execute(any(), any(), any())).thenReturn(futureMock);
 
     final ContractEitherTemplate contractTemplate = new ContractEitherTemplate();
     contractTemplate.setContext(context);
@@ -104,7 +108,7 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
 
     final ResultOrError<ContractTxHash> executionTxHash =
         contractTemplate.execute(ServerManagedAccount.of(accountAddress),
-            new ContractInvocation(contractAddress, new ContractFunction()));
+            new ContractInvocation(contractAddress, new ContractFunction()), fee);
     assertNotNull(executionTxHash);
   }
 

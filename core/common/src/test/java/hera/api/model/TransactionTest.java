@@ -11,6 +11,7 @@ import hera.api.encode.Base58;
 import hera.api.encode.Base58WithCheckSum;
 import hera.util.Base58Utils;
 import java.io.IOException;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -40,8 +41,7 @@ public class TransactionTest {
     transaction.setRecipient(AccountAddress.of(base58WithCheckSum));
     transaction.setAmount(1L);
     transaction.setPayload(base58Encoded.decode());
-    transaction.setLimit(1L);
-    transaction.setPrice(1L);
+    transaction.setFee(Fee.of(Optional.of(1L), Optional.of(1L)));
     transaction.setTxType(Transaction.TxType.NORMAL);
   }
 

@@ -16,6 +16,7 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.Fee;
 import hera.api.model.Time;
 import hera.api.tupleorerror.ResultOrError;
 import hera.strategy.TimeoutStrategy;
@@ -53,9 +54,9 @@ public class ContractEitherTemplate implements ContractEitherOperation, ChannelI
 
   @Override
   public ResultOrError<ContractTxHash> deploy(final Account creator,
-      final ContractDefinition contractDefinition) {
-    return contractAsyncOperation.deploy(creator, contractDefinition).get(getTimeout().getValue(),
-        getTimeout().getUnit());
+      final ContractDefinition contractDefinition, final Fee fee) {
+    return contractAsyncOperation.deploy(creator, contractDefinition, fee)
+        .get(getTimeout().getValue(), getTimeout().getUnit());
   }
 
   @Override
@@ -67,9 +68,9 @@ public class ContractEitherTemplate implements ContractEitherOperation, ChannelI
 
   @Override
   public ResultOrError<ContractTxHash> execute(final Account executor,
-      final ContractInvocation contractInvocation) {
-    return contractAsyncOperation.execute(executor, contractInvocation).get(getTimeout().getValue(),
-        getTimeout().getUnit());
+      final ContractInvocation contractInvocation, final Fee fee) {
+    return contractAsyncOperation.execute(executor, contractInvocation, fee)
+        .get(getTimeout().getValue(), getTimeout().getUnit());
   }
 
   @Override

@@ -15,6 +15,7 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.Fee;
 import hera.api.tupleorerror.ResultOrError;
 
 @ApiAudience.Public
@@ -34,9 +35,11 @@ public interface ContractEitherOperation extends ContextAware {
    *
    * @param creator smart contract creator
    * @param contractDefinition contract definition
+   * @param fee transaction fee
    * @return contract definition transaction hash or error
    */
-  ResultOrError<ContractTxHash> deploy(Account creator, ContractDefinition contractDefinition);
+  ResultOrError<ContractTxHash> deploy(Account creator, ContractDefinition contractDefinition,
+      Fee fee);
 
   /**
    * Get smart contract interface corresponding to contract address.
@@ -51,9 +54,11 @@ public interface ContractEitherOperation extends ContextAware {
    *
    * @param executor smart contract executor
    * @param contractInvocation {@link ContractInvocation}
+   * @param fee transaction fee
    * @return contract execution transaction hash or error
    */
-  ResultOrError<ContractTxHash> execute(Account executor, ContractInvocation contractInvocation);
+  ResultOrError<ContractTxHash> execute(Account executor, ContractInvocation contractInvocation,
+      Fee fee);
 
   /**
    * Query the smart contract state by calling smart contract function.

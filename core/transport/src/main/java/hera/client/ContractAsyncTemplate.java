@@ -33,6 +33,7 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.Fee;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -118,7 +119,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
 
   @Override
   public ResultOrErrorFuture<ContractTxHash> deploy(final Account creator,
-      final ContractDefinition contractDefinition) {
+      final ContractDefinition contractDefinition, final Fee fee) {
     try {
       final byte[] rawPayloadWithVersion =
           contractDefinition.getEncodedContract().decode().getValue();
@@ -146,6 +147,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
       transaction.setSender(creator);
       transaction.setNonce(creator.getNonce());
       transaction.setPayload(BytesValue.of(rawStream.toByteArray()));
+      transaction.setFee(fee);
 
       return accountAsyncOperation.sign(creator, transaction).flatMap(s -> {
         transaction.setSignature(s);
@@ -181,7 +183,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
 
   @Override
   public ResultOrErrorFuture<ContractTxHash> execute(final Account executor,
-      final ContractInvocation contractInvocation) {
+      final ContractInvocation contractInvocation, final Fee fee) {
     try {
       final Transaction transaction = new Transaction();
       transaction.setSender(executor);
@@ -193,6 +195,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
             contractInvocation.getAddress(), functionCallString);
       }
       transaction.setPayload(BytesValue.of(functionCallString.getBytes()));
+      transaction.setFee(fee);
 
       return accountAsyncOperation.sign(executor, transaction).flatMap(s -> {
         transaction.setSignature(s);

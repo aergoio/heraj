@@ -19,6 +19,7 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.Fee;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.key.AergoKey;
@@ -57,7 +58,7 @@ public class ContractOperationIT extends AbstractIT {
 
     final ContractDefinition definition = new ContractDefinition(() -> helloContract);
     final ContractTxHash deployTxHash =
-        aergoClient.getContractOperation().deploy(account, definition);
+        aergoClient.getContractOperation().deploy(account, definition, Fee.getDefaultFee());
     account.incrementNonce();
     logger.info("Deploy hash: {}", deployTxHash);
 
@@ -79,7 +80,7 @@ public class ContractOperationIT extends AbstractIT {
         new ContractInvocation(contractAddress, executionFunction, new Object[] {"key1", "value1"});
     logger.info("Execution invocation : {}", execution);
     final ContractTxHash executionTxHash =
-        aergoClient.getContractOperation().execute(account, execution);
+        aergoClient.getContractOperation().execute(account, execution, Fee.getDefaultFee());
     account.incrementNonce();
     logger.info("Execution hash: {}", executionTxHash);
 
@@ -115,7 +116,7 @@ public class ContractOperationIT extends AbstractIT {
 
     final ContractDefinition definition = new ContractDefinition(() -> helloContract);
     final ContractTxHash deployTxHash =
-        aergoClient.getContractOperation().deploy(account, definition);
+        aergoClient.getContractOperation().deploy(account, definition, Fee.getDefaultFee());
     account.incrementNonce();
     logger.info("Deploy hash: {}", deployTxHash);
 
@@ -137,7 +138,7 @@ public class ContractOperationIT extends AbstractIT {
         new ContractInvocation(contractAddress, executionFunction, new Object[] {"key1", "value1"});
     logger.info("Execution invocation : {}", execution);
     final ContractTxHash executionTxHash =
-        aergoClient.getContractOperation().execute(account, execution);
+        aergoClient.getContractOperation().execute(account, execution, Fee.getDefaultFee());
     account.incrementNonce();
     logger.info("Execution hash: {}", executionTxHash);
 
@@ -173,7 +174,7 @@ public class ContractOperationIT extends AbstractIT {
     final ContractDefinition definition =
         new ContractDefinition(() -> constructorContract, new Object[] {1, "2"});
     final ContractTxHash deployTxHash =
-        aergoClient.getContractOperation().deploy(account, definition);
+        aergoClient.getContractOperation().deploy(account, definition, Fee.getDefaultFee());
     account.incrementNonce();
     logger.info("Deploy hash: {}", deployTxHash);
 
