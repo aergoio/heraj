@@ -76,8 +76,8 @@ public class AccountTemplate implements AccountOperation, ChannelInjectable {
   }
 
   @Override
-  public Account importKey(final EncryptedPrivateKey encryptedKey, final String oldPassword,
-      final String newPassword) {
+  public ServerManagedAccount importKey(final EncryptedPrivateKey encryptedKey,
+      final String oldPassword, final String newPassword) {
     return accountEitherOperation.importKey(encryptedKey, oldPassword, newPassword).getResult();
   }
 

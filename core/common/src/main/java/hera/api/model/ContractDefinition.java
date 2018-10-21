@@ -16,10 +16,12 @@ import lombok.ToString;
 @NoArgsConstructor
 public class ContractDefinition {
 
-  public static ContractDefinition of(final Base58WithCheckSum encodedContract) {
-    return new ContractDefinition(encodedContract);
-  }
-
+  /**
+   * Build contract definition.
+   *
+   * @param encodedContract base58 with checksum encoded contract definition
+   * @param args constructor arguments
+   */
   public static ContractDefinition of(final Base58WithCheckSum encodedContract,
       final Object... args) {
     return new ContractDefinition(encodedContract, args);
@@ -33,10 +35,12 @@ public class ContractDefinition {
   @Getter
   protected Object[] constructorArgs = new Object[0];
 
-  public ContractDefinition(final Base58WithCheckSum encodedContract) {
-    this(encodedContract, new Object[0]);
-  }
-
+  /**
+   * Contract definition constructor.
+   *
+   * @param encodedContract base58 with checksum encoded contract definition
+   * @param args constructor arguments
+   */
   public ContractDefinition(final Base58WithCheckSum encodedContract, final Object... args) {
     this.encodedContract = encodedContract;
     this.constructorArgs = args;

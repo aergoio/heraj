@@ -4,7 +4,6 @@
 
 package hera.api.model;
 
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,14 +13,15 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 @NoArgsConstructor
-@AllArgsConstructor
 public class ContractInvocation {
 
-  public static ContractInvocation of(final ContractAddress address,
-      final ContractFunction function) {
-    return new ContractInvocation(address, function);
-  }
-
+  /**
+   * Build contract invocation.
+   *
+   * @param address contract address
+   * @param function invocation function
+   * @param args arguments of invocation function
+   */
   public static ContractInvocation of(final ContractAddress address,
       final ContractFunction function, final Object... args) {
     return new ContractInvocation(address, function, args);
@@ -39,8 +39,18 @@ public class ContractInvocation {
   @Getter
   protected Object[] args = new Object[0];
 
-  public ContractInvocation(final ContractAddress address, final ContractFunction function) {
-    this(address, function, new Object[0]);
+  /**
+   * Contract invocation constructor.
+   *
+   * @param address contract address
+   * @param function invocation function
+   * @param args arguments of invocation function
+   */
+  public ContractInvocation(final ContractAddress address, final ContractFunction function,
+      final Object... args) {
+    this.address = address;
+    this.function = function;
+    this.args = args;
   }
 
 }

@@ -4,11 +4,6 @@
 
 package hera.client.it;
 
-import static java.util.UUID.randomUUID;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import hera.api.model.Account;
 import hera.api.model.Authentication;
 import hera.api.model.ClientManagedAccount;
 import hera.api.model.ContractAddress;
@@ -20,6 +15,7 @@ import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Fee;
+import hera.api.model.ServerManagedAccount;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.key.AergoKey;
@@ -27,6 +23,7 @@ import hera.key.AergoKeyGenerator;
 import hera.strategy.NettyConnectStrategy;
 import hera.util.IoUtils;
 import java.io.InputStreamReader;
+import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -35,182 +32,241 @@ import org.junit.Test;
 
 public class ContractOperationIT extends AbstractIT {
 
-  protected String helloContract;
-  protected String constructorContract;
+  protected String contractPayload;
 
   @Before
-  public void setUp() {
-    try {
-      helloContract = IoUtils.from(new InputStreamReader(open("hello")));
-      constructorContract = IoUtils.from(new InputStreamReader(open("constructor")));
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
-  }
-
-  @Test
-  public void testLuaContractLocally() throws Exception {
-    final AergoClient aergoClient =
-        new AergoClientBuilder().addStrategy(new NettyConnectStrategy(hostname)).build();
-
-    final AergoKey key = new AergoKeyGenerator().create();
-    final Account account = ClientManagedAccount.of(key);
-
-    final ContractDefinition definition = new ContractDefinition(() -> helloContract);
-    final ContractTxHash deployTxHash =
-        aergoClient.getContractOperation().deploy(account, definition, Fee.getDefaultFee());
-    account.incrementNonce();
-    logger.info("Deploy hash: {}", deployTxHash);
-
-    waitForNextBlockToGenerate();
-
-    final ContractTxReceipt definitionReceipt =
-        aergoClient.getContractOperation().getReceipt(deployTxHash);
-    logger.info("Deploy receipt: {}", definitionReceipt);
-    assertEquals("CREATED", definitionReceipt.getStatus());
-
-    final ContractAddress contractAddress = definitionReceipt.getContractAddress();
-
-    final ContractInterface contractInterface =
-        aergoClient.getContractOperation().getContractInterface(contractAddress);
-    logger.info("Contract interface: {}", contractInterface);
-
-    final ContractFunction executionFunction = contractInterface.findFunction("exec").get();
-    final ContractInvocation execution =
-        new ContractInvocation(contractAddress, executionFunction, new Object[] {"key1", "value1"});
-    logger.info("Execution invocation : {}", execution);
-    final ContractTxHash executionTxHash =
-        aergoClient.getContractOperation().execute(account, execution, Fee.getDefaultFee());
-    account.incrementNonce();
-    logger.info("Execution hash: {}", executionTxHash);
-
-    waitForNextBlockToGenerate();
-
-    final ContractTxReceipt executionReceipt =
-        aergoClient.getContractOperation().getReceipt(executionTxHash);
-    logger.info("Execution receipt: {}", executionReceipt);
-    assertEquals("SUCCESS", executionReceipt.getStatus());
-    assertTrue(0 < executionReceipt.getRet().length());
-
-    final ContractFunction queryFunction = contractInterface.findFunction("query").get();
-    final ContractInvocation query = new ContractInvocation(contractAddress, queryFunction);
-    logger.info("Query invocation : {}", query);
-    final ContractResult queryResult = aergoClient.getContractOperation().query(query);
-    logger.info("Query result: {}", queryResult);
-
-    aergoClient.close();
-  }
-
-  @Test
-  public void testLuaContractRemotely() throws Exception {
-    final AergoClient aergoClient =
-        new AergoClientBuilder().addStrategy(new NettyConnectStrategy(hostname)).build();
-
-    final String password = randomUUID().toString();
-
-    final Account account = aergoClient.getAccountOperation().create(password);
-
-    final boolean unlockResult =
-        aergoClient.getAccountOperation().unlock(Authentication.of(account.getAddress(), password));
-    assertTrue(unlockResult);
-
-    final ContractDefinition definition = new ContractDefinition(() -> helloContract);
-    final ContractTxHash deployTxHash =
-        aergoClient.getContractOperation().deploy(account, definition, Fee.getDefaultFee());
-    account.incrementNonce();
-    logger.info("Deploy hash: {}", deployTxHash);
-
-    waitForNextBlockToGenerate();
-
-    final ContractTxReceipt definitionReceipt =
-        aergoClient.getContractOperation().getReceipt(deployTxHash);
-    logger.info("Deploy receipt: {}", definitionReceipt);
-    assertEquals("CREATED", definitionReceipt.getStatus());
-
-    final ContractAddress contractAddress = definitionReceipt.getContractAddress();
-
-    final ContractInterface contractInterface =
-        aergoClient.getContractOperation().getContractInterface(contractAddress);
-    logger.info("Contract interface: {}", contractInterface);
-
-    final ContractFunction executionFunction = contractInterface.findFunction("exec").get();
-    final ContractInvocation execution =
-        new ContractInvocation(contractAddress, executionFunction, new Object[] {"key1", "value1"});
-    logger.info("Execution invocation : {}", execution);
-    final ContractTxHash executionTxHash =
-        aergoClient.getContractOperation().execute(account, execution, Fee.getDefaultFee());
-    account.incrementNonce();
-    logger.info("Execution hash: {}", executionTxHash);
-
-    waitForNextBlockToGenerate();
-
-    final ContractTxReceipt executionReceipt =
-        aergoClient.getContractOperation().getReceipt(executionTxHash);
-    logger.info("Execution receipt: {}", executionReceipt);
-    assertEquals("SUCCESS", executionReceipt.getStatus());
-    assertTrue(0 < executionReceipt.getRet().length());
-
-    final ContractFunction queryFunction = contractInterface.findFunction("query").get();
-    final ContractInvocation query = new ContractInvocation(contractAddress, queryFunction);
-    logger.info("Query invocation : {}", query);
-    final ContractResult queryResult = aergoClient.getContractOperation().query(query);
-    logger.info("Query result: {}", queryResult);
-
-    final boolean lockResult =
-        aergoClient.getAccountOperation().lock(Authentication.of(account.getAddress(), password));
-    assertTrue(lockResult);
-
-    aergoClient.close();
+  public void setUp() throws Exception {
+    super.setUp();
+    contractPayload = IoUtils.from(new InputStreamReader(open("payload")));
   }
 
   @Test
   public void testLuaContractConstructor() throws Exception {
+    // make aergo client object
     final AergoClient aergoClient =
         new AergoClientBuilder().addStrategy(new NettyConnectStrategy(hostname)).build();
 
+    // create an account
     final AergoKey key = new AergoKeyGenerator().create();
-    final Account account = ClientManagedAccount.of(key);
+    final ClientManagedAccount account = ClientManagedAccount.of(key);
 
+    // we need a money to deploy/execute smart contract
+    aergoClient.getAccountOperation().unlock(Authentication.of(rich.getAddress(), richPassword));
+    aergoClient.getTransactionOperation().send(rich, account, 1L);
+    aergoClient.getAccountOperation().lock(Authentication.of(rich.getAddress(), richPassword));
+
+    // define contract definition
     final ContractDefinition definition =
-        new ContractDefinition(() -> constructorContract, new Object[] {1, "2"});
-    final ContractTxHash deployTxHash =
-        aergoClient.getContractOperation().deploy(account, definition, Fee.getDefaultFee());
-    account.incrementNonce();
+        new ContractDefinition(() -> contractPayload, 32, "Someone");
+
+    // deploy contract definition
+    final ContractTxHash deployTxHash = aergoClient.getContractOperation().deploy(account,
+        definition, Fee.of(Optional.of(0L), Optional.of(0L)));
     logger.info("Deploy hash: {}", deployTxHash);
+    account.incrementNonce();
 
     waitForNextBlockToGenerate();
 
+    // query definition transaction receipt
     final ContractTxReceipt definitionReceipt =
         aergoClient.getContractOperation().getReceipt(deployTxHash);
     logger.info("Deploy receipt: {}", definitionReceipt);
-    assertEquals("CREATED", definitionReceipt.getStatus());
 
+    // get contract address from contract tx receipt
     final ContractAddress contractAddress = definitionReceipt.getContractAddress();
+    logger.info("Contract address: {}", contractAddress);
 
+    // get contract interface of contract address
     final ContractInterface contractInterface =
         aergoClient.getContractOperation().getContractInterface(contractAddress);
     logger.info("Contract interface: {}", contractInterface);
 
-    final ContractFunction queryFunction = contractInterface.findFunction("get").get();
-    final ContractInvocation query = new ContractInvocation(contractAddress, queryFunction);
+    // build query invocation
+    final ContractFunction queryFunction = contractInterface.findFunction("getConsVal").get();
+    final ContractInvocation query = ContractInvocation.of(contractAddress, queryFunction);
     logger.info("Query invocation : {}", query);
+
+    // request query invocation
     final ContractResult queryResult = aergoClient.getContractOperation().query(query);
     logger.info("Query result: {}", queryResult);
-    final Data value = queryResult.bind(Data.class);
-    logger.info("Binded query result: {}", value);
 
+    // find query result with java object
+    final Data data = queryResult.bind(ContractOperationIT.Data.class);
+    logger.info("Binded result: {}", data);
+
+    // close the client
+    aergoClient.close();
+  }
+
+  @Test
+  public void testLuaContractDeployAndExecuteWithLocalAccount() throws Exception {
+    // make aergo client object
+    final AergoClient aergoClient =
+        new AergoClientBuilder().addStrategy(new NettyConnectStrategy(hostname)).build();
+
+    // create an account
+    final AergoKey key = new AergoKeyGenerator().create();
+    final ClientManagedAccount account = ClientManagedAccount.of(key);
+
+    // we need a money to deploy/execute smart contract
+    aergoClient.getAccountOperation().unlock(Authentication.of(rich.getAddress(), richPassword));
+    aergoClient.getTransactionOperation().send(rich, account, 3L);
+    aergoClient.getAccountOperation().lock(Authentication.of(rich.getAddress(), richPassword));
+
+    // define contract definition
+    final ContractDefinition definition =
+        new ContractDefinition(() -> contractPayload, 32, "Someone");
+
+    // deploy contract definition
+    final ContractTxHash deployTxHash = aergoClient.getContractOperation().deploy(account,
+        definition, Fee.of(Optional.of(0L), Optional.of(0L)));
+    logger.info("Deploy hash: {}", deployTxHash);
+    account.incrementNonce();
+
+    waitForNextBlockToGenerate();
+
+    // query definition transaction receipt
+    final ContractTxReceipt definitionReceipt =
+        aergoClient.getContractOperation().getReceipt(deployTxHash);
+    logger.info("Deploy receipt: {}", definitionReceipt);
+
+    // get contract address from contract tx receipt
+    final ContractAddress contractAddress = definitionReceipt.getContractAddress();
+    logger.info("Contract address: {}", contractAddress);
+
+    // get contract interface of contract address
+    final ContractInterface contractInterface =
+        aergoClient.getContractOperation().getContractInterface(contractAddress);
+    logger.info("Contract interface: {}", contractInterface);
+
+    // define contract execution
+    final ContractFunction executionFunction = contractInterface.findFunction("set").get();
+    final ContractInvocation execution =
+        ContractInvocation.of(contractAddress, executionFunction, "key1", "value");
+    logger.info("Contract invocation: {}", execution);
+
+    // execute the invocation
+    final ContractTxHash executionTxHash = aergoClient.getContractOperation().execute(account,
+        execution, Fee.of(Optional.of(0L), Optional.of(0L)));
+    logger.info("Execution hash: {}", executionTxHash);
+    account.incrementNonce();
+
+    waitForNextBlockToGenerate();
+
+    // query execution transaction receipt
+    final ContractTxReceipt executionReceipt =
+        aergoClient.getContractOperation().getReceipt(executionTxHash);
+    logger.info("Execution receipt: {}", executionReceipt);
+
+    // build query invocation
+    final ContractFunction queryFunction = contractInterface.findFunction("get").get();
+    final ContractInvocation query = ContractInvocation.of(contractAddress, queryFunction, "key");
+    logger.info("Query invocation : {}", query);
+
+    // request query invocation
+    final ContractResult queryResult = aergoClient.getContractOperation().query(query);
+    logger.info("Query result: {}", queryResult);
+
+    // find query result with java object
+    final Data data = queryResult.bind(ContractOperationIT.Data.class);
+    logger.info("Binded result: {}", data);
+
+    // close the client
+    aergoClient.close();
+  }
+
+  @Test
+  public void testLuaContractDeployAndExecuteWithRemoteAccount() throws Exception {
+    // make aergo client object
+    final AergoClient aergoClient =
+        new AergoClientBuilder().addStrategy(new NettyConnectStrategy(hostname)).build();
+
+    // create an account
+    final String password = "password";
+    final ServerManagedAccount account = aergoClient.getAccountOperation().create(password);
+
+    // we need a money to deploy/execute smart contract
+    aergoClient.getAccountOperation().unlock(Authentication.of(rich.getAddress(), richPassword));
+    aergoClient.getTransactionOperation().send(rich, account, 3L);
+    aergoClient.getAccountOperation().lock(Authentication.of(rich.getAddress(), richPassword));
+
+    // unlock smart contract executor
+    aergoClient.getAccountOperation().unlock(Authentication.of(account.getAddress(), password));
+
+    // define contract definition
+    final ContractDefinition definition =
+        new ContractDefinition(() -> contractPayload, 32, "Someone");
+
+    // deploy contract definition
+    final ContractTxHash deployTxHash = aergoClient.getContractOperation().deploy(account,
+        definition, Fee.of(Optional.of(0L), Optional.of(0L)));
+    logger.info("Deploy hash: {}", deployTxHash);
+    account.incrementNonce();
+
+    waitForNextBlockToGenerate();
+
+    // query definition transaction receipt
+    final ContractTxReceipt definitionReceipt =
+        aergoClient.getContractOperation().getReceipt(deployTxHash);
+    logger.info("Deploy receipt: {}", definitionReceipt);
+
+    // get contract address from contract tx receipt
+    final ContractAddress contractAddress = definitionReceipt.getContractAddress();
+    logger.info("Contract address: {}", contractAddress);
+
+    // get contract interface of contract address
+    final ContractInterface contractInterface =
+        aergoClient.getContractOperation().getContractInterface(contractAddress);
+    logger.info("Contract interface: {}", contractInterface);
+
+    // define contract execution
+    final ContractFunction executionFunction = contractInterface.findFunction("set").get();
+    final ContractInvocation execution =
+        ContractInvocation.of(contractAddress, executionFunction, "key1", "value");
+    logger.info("Contract invocation: {}", execution);
+
+    // execute the invocation
+    final ContractTxHash executionTxHash = aergoClient.getContractOperation().execute(account,
+        execution, Fee.of(Optional.of(0L), Optional.of(0L)));
+    logger.info("Execution hash: {}", executionTxHash);
+    account.incrementNonce();
+
+    waitForNextBlockToGenerate();
+
+    // query execution transaction receipt
+    final ContractTxReceipt executionReceipt =
+        aergoClient.getContractOperation().getReceipt(executionTxHash);
+    logger.info("Execution receipt: {}", executionReceipt);
+
+    // build query invocation
+    final ContractFunction queryFunction = contractInterface.findFunction("get").get();
+    final ContractInvocation query = ContractInvocation.of(contractAddress, queryFunction, "key");
+    logger.info("Query invocation : {}", query);
+
+    // request query invocation
+    final ContractResult queryResult = aergoClient.getContractOperation().query(query);
+    logger.info("Query result: {}", queryResult);
+
+    // find query result with java object
+    final Data data = queryResult.bind(ContractOperationIT.Data.class);
+    logger.info("Binded result: {}", data);
+
+    // lock smart contract executor
+    aergoClient.getAccountOperation().lock(Authentication.of(account.getAddress(), password));
+
+    // close the client
     aergoClient.close();
   }
 
   @ToString
-  protected static class Data {
+  public static class Data {
     @Getter
     @Setter
-    protected int a;
+    protected int intVal;
 
     @Getter
     @Setter
-    protected String b;
+    protected String stringVal;
   }
 
 }

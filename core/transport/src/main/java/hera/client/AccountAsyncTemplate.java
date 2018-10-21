@@ -227,17 +227,18 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
   }
 
   @Override
-  public ResultOrErrorFuture<Account> importKey(final EncryptedPrivateKey encryptedKey,
+  public ResultOrErrorFuture<ServerManagedAccount> importKey(final EncryptedPrivateKey encryptedKey,
       final String oldPassword, final String newPassword) {
-    ResultOrErrorFuture<Account> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
+    ResultOrErrorFuture<ServerManagedAccount> nextFuture =
+        ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final Rpc.ImportFormat importFormat =
         Rpc.ImportFormat.newBuilder().setWif(encryptedPkConverter.convertToRpcModel(encryptedKey))
             .setOldpass(oldPassword).setNewpass(newPassword).build();
     ListenableFuture<AccountOuterClass.Account> listenableFuture =
         aergoService.importAccount(importFormat);
-    FutureChainer<AccountOuterClass.Account, Account> callback = new FutureChainer<>(nextFuture,
-        rpcAccount -> accountConverter.convertToDomainModel(rpcAccount));
+    FutureChainer<AccountOuterClass.Account, ServerManagedAccount> callback = new FutureChainer<>(
+        nextFuture, rpcAccount -> accountConverter.convertToDomainModel(rpcAccount));
     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
 
     return nextFuture;

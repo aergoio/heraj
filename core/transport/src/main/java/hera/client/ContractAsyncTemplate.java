@@ -145,7 +145,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
 
       final Transaction transaction = new Transaction();
       transaction.setSender(creator);
-      transaction.setNonce(creator.getNonce());
+      transaction.setNonce(creator.nextNonce());
       transaction.setPayload(BytesValue.of(rawStream.toByteArray()));
       transaction.setFee(fee);
 
@@ -188,7 +188,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
       final Transaction transaction = new Transaction();
       transaction.setSender(executor);
       transaction.setRecipient(contractInvocation.getAddress());
-      transaction.setNonce(executor.getNonce());
+      transaction.setNonce(executor.nextNonce());
       final String functionCallString = toFunctionCallJsonString(contractInvocation);
       if (logger.isTraceEnabled()) {
         logger.trace("Contract execution address: {}, function: {}",

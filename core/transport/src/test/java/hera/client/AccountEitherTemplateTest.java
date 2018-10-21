@@ -15,7 +15,6 @@ import static org.mockito.Mockito.when;
 
 import hera.AbstractTestCase;
 import hera.Context;
-import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Authentication;
@@ -119,7 +118,7 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
 
   @Test
   public void testImportKey() throws Exception {
-    ResultOrErrorFuture<Account> futureMock = mock(ResultOrErrorFuture.class);
+    ResultOrErrorFuture<ServerManagedAccount> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
     when(asyncOperationMock.importKey(any(), any(), any())).thenReturn(futureMock);
@@ -128,7 +127,7 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
     accountTemplate.setContext(context);
     accountTemplate.accountAsyncOperation = asyncOperationMock;
 
-    ResultOrError<Account> importedAccount = accountTemplate
+    ResultOrError<ServerManagedAccount> importedAccount = accountTemplate
         .importKey(new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.VERSION})), password);
     assertNotNull(importedAccount);
   }

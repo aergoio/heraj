@@ -34,7 +34,8 @@ public interface BlockAsyncOperation extends ContextAware {
   ResultOrErrorFuture<Block> getBlock(long height);
 
   /**
-   * Get block headers of size starting from block for provided hash asynchronously.
+   * Get block headers of {@code size} backward starting from block for provided hash
+   * asynchronously.
    *
    * @param blockHash block hash
    * @param size block list size whose upper bound is 1000
@@ -43,7 +44,8 @@ public interface BlockAsyncOperation extends ContextAware {
   ResultOrErrorFuture<List<BlockHeader>> listBlockHeaders(BlockHash blockHash, int size);
 
   /**
-   * Get block headers of size starting from block for provided height asynchronously.
+   * Get block headers of {@code size} backward starting from block for provided height
+   * asynchronously.
    *
    * @param height block's height
    * @param size block list size whose upper bound is 1000

@@ -13,7 +13,7 @@ import lombok.ToString;
 public abstract class AbstractAccount implements Account {
 
   @Getter
-  protected long nonce = 1;
+  protected long nonce = 0;
 
   @Getter
   protected long balance = 0;
@@ -26,12 +26,12 @@ public abstract class AbstractAccount implements Account {
 
   @Override
   public void setNonce(final long nonce) {
-    this.nonce = nonce <= 0 ? 1 : nonce;
+    this.nonce = nonce < 0 ? 0 : nonce;
   }
 
   @Override
-  public long getNonceAndIncrement() {
-    return this.nonce++;
+  public long nextNonce() {
+    return this.nonce + 1;
   }
 
   @Override

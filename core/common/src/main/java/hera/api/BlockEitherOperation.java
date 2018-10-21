@@ -34,7 +34,7 @@ public interface BlockEitherOperation extends ContextAware {
   ResultOrError<Block> getBlock(long height);
 
   /**
-   * Get block headers of size starting from block for provided hash.
+   * Get block headers of {@code size} backward starting from block for provided hash.
    *
    * @param blockHash block hash
    * @param size block list size whose upper bound is 1000
@@ -43,7 +43,7 @@ public interface BlockEitherOperation extends ContextAware {
   ResultOrError<List<BlockHeader>> listBlockHeaders(BlockHash blockHash, int size);
 
   /**
-   * Get block headers of size starting from block for provided height.
+   * Get block headers of {@code size} backward starting from block for provided height.
    *
    * @param height block's height
    * @param size block list size whose upper bound is 1000

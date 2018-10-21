@@ -29,7 +29,7 @@ public class AbstractAccountTest {
   @Test
   public void testSetAndGetNonce() {
     final Object[][] testParameters =
-        new Object[][] {{-10L, 1L}, {-1L, 1L}, {0L, 1L}, {1L, 1L}, {3L, 3L}};
+        new Object[][] {{-10L, 0L}, {-1L, 0L}, {0L, 0L}, {1L, 1L}, {3L, 3L}};
 
     final AbstractAccount account = spy(AbstractAccount.class);
     for (Object[] testParameter : testParameters) {
@@ -41,12 +41,12 @@ public class AbstractAccountTest {
   }
 
   @Test
-  public void testGetNonceAndIncrement() {
+  public void testGetNextNonce() {
     final long nonce = 10;
     final AbstractAccount account = spy(AbstractAccount.class);
     account.setNonce(nonce);
-    assertEquals(nonce, account.getNonceAndIncrement());
-    assertEquals(nonce + 1, account.getNonce());
+    assertEquals(nonce + 1, account.nextNonce());
+    assertEquals(nonce, account.getNonce());
   }
 
   @Test

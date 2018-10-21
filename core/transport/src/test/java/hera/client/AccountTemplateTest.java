@@ -108,8 +108,8 @@ public class AccountTemplateTest extends AbstractTestCase {
 
   @Test
   public void testImportKey() throws Exception {
-    ResultOrError<Account> eitherMock = mock(ResultOrError.class);
-    when(eitherMock.getResult()).thenReturn(mock(Account.class));
+    ResultOrError<ServerManagedAccount> eitherMock = mock(ResultOrError.class);
+    when(eitherMock.getResult()).thenReturn(mock(ServerManagedAccount.class));
     AccountEitherTemplate eitherOperationMock = mock(AccountEitherTemplate.class);
     when(eitherOperationMock.importKey(any(), any(), any())).thenReturn(eitherMock);
 

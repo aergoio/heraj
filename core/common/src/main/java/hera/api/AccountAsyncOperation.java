@@ -105,7 +105,7 @@ public interface AccountAsyncOperation extends ContextAware {
    *        storage
    * @return future of account result or error
    */
-  default ResultOrErrorFuture<Account> importKey(EncryptedPrivateKey encryptedKey,
+  default ResultOrErrorFuture<ServerManagedAccount> importKey(EncryptedPrivateKey encryptedKey,
       String password) {
     return importKey(encryptedKey, password, password);
   }
@@ -120,8 +120,8 @@ public interface AccountAsyncOperation extends ContextAware {
    * @param newPassword new password to store in a remote storage
    * @return future of account result or error
    */
-  ResultOrErrorFuture<Account> importKey(EncryptedPrivateKey encryptedKey, String oldPassword,
-      String newPassword);
+  ResultOrErrorFuture<ServerManagedAccount> importKey(EncryptedPrivateKey encryptedKey,
+      String oldPassword, String newPassword);
 
   /**
    * Export an encrypted private key of account asynchronously.

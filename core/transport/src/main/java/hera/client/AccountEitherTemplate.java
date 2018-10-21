@@ -88,7 +88,7 @@ public class AccountEitherTemplate implements AccountEitherOperation, ChannelInj
   }
 
   @Override
-  public ResultOrError<Account> importKey(final EncryptedPrivateKey encryptedKey,
+  public ResultOrError<ServerManagedAccount> importKey(final EncryptedPrivateKey encryptedKey,
       final String oldPassword, final String newPassword) {
     return accountAsyncOperation.importKey(encryptedKey, oldPassword, newPassword)
         .get(getTimeout().getValue(), getTimeout().getUnit());

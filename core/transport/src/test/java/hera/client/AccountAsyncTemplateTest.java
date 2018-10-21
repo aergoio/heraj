@@ -13,7 +13,6 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
-import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Authentication;
@@ -126,7 +125,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
 
     final AccountAsyncTemplate accountAsyncTemplate = supplyAccountAsyncTemplate(aergoService);
 
-    final ResultOrErrorFuture<Account> accountFuture =
+    final ResultOrErrorFuture<ServerManagedAccount> accountFuture =
         accountAsyncTemplate.importKey(ENCRYPTED_PRIVATE_KEY, PASSWORD);
     assertTrue(accountFuture.get().hasResult());
   }

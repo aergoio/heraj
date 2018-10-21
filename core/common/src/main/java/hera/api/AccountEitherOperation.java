@@ -103,7 +103,8 @@ public interface AccountEitherOperation extends ContextAware {
    *        storage
    * @return account result or error
    */
-  default ResultOrError<Account> importKey(EncryptedPrivateKey encryptedKey, String password) {
+  default ResultOrError<ServerManagedAccount> importKey(EncryptedPrivateKey encryptedKey,
+      String password) {
     return importKey(encryptedKey, password, password);
   }
 
@@ -116,8 +117,8 @@ public interface AccountEitherOperation extends ContextAware {
    * @param newPassword new password to store in a remote storage
    * @return account result or error
    */
-  ResultOrError<Account> importKey(EncryptedPrivateKey encryptedKey, String oldPassword,
-      String newPassword);
+  ResultOrError<ServerManagedAccount> importKey(EncryptedPrivateKey encryptedKey,
+      String oldPassword, String newPassword);
 
   /**
    * Export an encrypted private key of account.

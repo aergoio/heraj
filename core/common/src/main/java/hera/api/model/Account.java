@@ -39,11 +39,11 @@ public interface Account extends Adaptor {
   long getNonce();
 
   /**
-   * Get nonce of an account and imcrement it.
+   * Get next nonce of an account.
    *
    * @return nonce
    */
-  long getNonceAndIncrement();
+  long nextNonce();
 
   /**
    * Increment nonce by one.
