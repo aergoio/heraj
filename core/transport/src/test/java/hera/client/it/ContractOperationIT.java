@@ -23,7 +23,6 @@ import hera.key.AergoKeyGenerator;
 import hera.strategy.NettyConnectStrategy;
 import hera.util.IoUtils;
 import java.io.InputStreamReader;
-import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -61,7 +60,7 @@ public class ContractOperationIT extends AbstractIT {
 
     // deploy contract definition
     final ContractTxHash deployTxHash = aergoClient.getContractOperation().deploy(account,
-        definition, Fee.of(Optional.of(0L), Optional.of(0L)));
+        definition, Fee.of(0L, 0L));
     logger.info("Deploy hash: {}", deployTxHash);
     account.incrementNonce();
 
@@ -119,7 +118,7 @@ public class ContractOperationIT extends AbstractIT {
 
     // deploy contract definition
     final ContractTxHash deployTxHash = aergoClient.getContractOperation().deploy(account,
-        definition, Fee.of(Optional.of(0L), Optional.of(0L)));
+        definition, Fee.of(0L, 0L));
     logger.info("Deploy hash: {}", deployTxHash);
     account.incrementNonce();
 
@@ -147,7 +146,7 @@ public class ContractOperationIT extends AbstractIT {
 
     // execute the invocation
     final ContractTxHash executionTxHash = aergoClient.getContractOperation().execute(account,
-        execution, Fee.of(Optional.of(0L), Optional.of(0L)));
+        execution, Fee.of(0L, 0L));
     logger.info("Execution hash: {}", executionTxHash);
     account.incrementNonce();
 
@@ -199,7 +198,7 @@ public class ContractOperationIT extends AbstractIT {
 
     // deploy contract definition
     final ContractTxHash deployTxHash = aergoClient.getContractOperation().deploy(account,
-        definition, Fee.of(Optional.of(0L), Optional.of(0L)));
+        definition, Fee.of(0L, 0L));
     logger.info("Deploy hash: {}", deployTxHash);
     account.incrementNonce();
 
@@ -227,7 +226,7 @@ public class ContractOperationIT extends AbstractIT {
 
     // execute the invocation
     final ContractTxHash executionTxHash = aergoClient.getContractOperation().execute(account,
-        execution, Fee.of(Optional.of(0L), Optional.of(0L)));
+        execution, Fee.of(0L, 0L));
     logger.info("Execution hash: {}", executionTxHash);
     account.incrementNonce();
 

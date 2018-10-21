@@ -4,9 +4,6 @@
 
 package hera.api.model;
 
-import static java.util.Optional.empty;
-
-import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -20,9 +17,16 @@ public class Fee {
   public static long MIN_LIMIT = 1;
 
   @Getter
-  protected static Fee defaultFee = new Fee(empty(), empty());
+  protected static Fee defaultFee = new Fee(MIN_PRICE, MIN_LIMIT);
 
-  public static Fee of(final Optional<Long> price, final Optional<Long> limit) {
+  /**
+   * Build {@code Fee} object. If {@code price} < 0, price is set as {@link #MIN_PRICE}. Similarly,
+   * if {@code limit} < 0, limit is set as {@link #MIN_LIMIT}.
+   *
+   * @param price fee price
+   * @param limit fee limit
+   */
+  public static Fee of(final Long price, final long limit) {
     return new Fee(price, limit);
   }
 
@@ -32,9 +36,16 @@ public class Fee {
   @Getter
   protected long limit;
 
-  public Fee(final Optional<Long> price, final Optional<Long> limit) {
-    this.price = price.filter(p -> p >= 0).orElse(MIN_PRICE);
-    this.limit = limit.filter(p -> p >= 0).orElse(MIN_LIMIT);
+  /**
+   * Fee constructor. If {@code price} < 0, price is set as {@link #MIN_PRICE}. Similarly, if
+   * {@code limit} < 0, limit is set as {@link #MIN_LIMIT}.
+   *
+   * @param price fee price
+   * @param limit fee limit
+   */
+  public Fee(final long price, final long limit) {
+    this.price = price >= 0 ? price : MIN_PRICE;
+    this.limit = limit >= 0 ? limit : MIN_LIMIT;
   }
 
 }

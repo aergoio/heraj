@@ -35,7 +35,6 @@ import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.key.AergoKeyGenerator;
 import hera.util.Base58Utils;
-import java.util.Optional;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -52,7 +51,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
   protected final ContractAddress contractAddress =
       new ContractAddress(of(new byte[] {AccountAddress.VERSION}));
 
-  protected final Fee fee = new Fee(Optional.of(1L), Optional.of(2L));
+  protected final Fee fee = Fee.getDefaultFee();
 
   protected final AergoKeyGenerator generator = new AergoKeyGenerator();
 

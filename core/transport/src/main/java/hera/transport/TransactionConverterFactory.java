@@ -15,7 +15,6 @@ import hera.api.model.Fee;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import java.util.Optional;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Blockchain;
@@ -92,7 +91,7 @@ public class TransactionConverterFactory {
     domainTransaction.setAmount(txBody.getAmount());
     domainTransaction.setPayload(BytesValue.of(txBody.getPayload().toByteArray()));
     domainTransaction
-        .setFee(new Fee(Optional.ofNullable(txBody.getPrice()), Optional.of(txBody.getLimit())));
+        .setFee(new Fee(txBody.getPrice(), txBody.getLimit()));
     if (null != rpcTransaction.getHash() || null != txBody.getSign()) {
       final Signature signature = new Signature();
       ofNullable(rpcTransaction.getHash()).map(ByteString::toByteArray).map(BytesValue::new)

@@ -6,7 +6,6 @@ package hera.api.model;
 
 import static hera.api.model.BytesValue.of;
 import static hera.util.Sha256Utils.digest;
-import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 
 import hera.VersionUtils;
@@ -55,7 +54,7 @@ public class Transaction {
 
   @Getter
   @Setter
-  protected Fee fee = new Fee(empty(), empty());
+  protected Fee fee = Fee.getDefaultFee();
 
   @Getter
   @Setter

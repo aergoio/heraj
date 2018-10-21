@@ -27,7 +27,6 @@ import hera.api.model.Fee;
 import hera.api.model.ServerManagedAccount;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
-import java.util.Optional;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -44,7 +43,7 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
   protected final ContractAddress contractAddress =
       new ContractAddress(of(new byte[] {AccountAddress.VERSION}));
 
-  protected final Fee fee = new Fee(Optional.of(1L), Optional.of(2L));
+  protected final Fee fee = Fee.getDefaultFee();
 
   @Test
   public void testGetReceipt() {
