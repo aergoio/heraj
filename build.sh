@@ -46,7 +46,7 @@ function execute-gradle() {
   $PROJECT_HOME/gradlew clean build test alljacoco
 }
 function execute-test() {
-  $PROJECT_HOME/gradlew test jacocoTestReport coveralls
+  $PROJECT_HOME/gradlew test jacocoTestReport
 }
 function execute-documentation() {
   gem install bundler
