@@ -18,6 +18,14 @@ buildscript {
 }
 group 'io.aergo'
 
+repositories {
+  mavenLocal()
+  maven {
+    url "http://dist.wso2.org/maven2"
+  }
+  mavenCentral()
+  jcenter()
+}
 
 allprojects {
   group 'io.aergo'
@@ -48,6 +56,14 @@ configure(javaProjects) {
   sourceCompatibility = JavaVersion.VERSION_1_8
   targetCompatibility = JavaVersion.VERSION_1_8
 
+  repositories {
+    mavenLocal()
+    maven {
+      url "http://dist.wso2.org/maven2"
+    }
+    mavenCentral()
+    jcenter()
+  }
   eclipseJdt.doLast( {
     ant.propertyfile(file: ".settings/org.eclipse.core.resources.prefs") {
       ant.entry(key: "eclipse.preferences.version", value: "1")
@@ -64,15 +80,6 @@ configure(javaProjects) {
 
   compileJava.options.encoding = 'UTF-8'
   compileTestJava.options.encoding = 'UTF-8'
-
-  repositories {
-    mavenLocal()
-    maven {
-      url "http://dist.wso2.org/maven2"
-    }
-    mavenCentral()
-    jcenter()
-  }
 
   dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.2'
@@ -191,7 +198,7 @@ configure(javaProjects) {
 }
 
 task alljavadoc(type: Javadoc) {
-  source javaProjects.collect { it.sourceSets.main.allJava }    											  
+  source javaProjects.findAll{ it.name != 'protobuf' }.collect { it.sourceSets.main.allJava }    											  
   classpath = files(javaProjects.collect { it.sourceSets.main.compileClasspath })
   destinationDir = file("${buildDir}/docs/javadoc")
 }

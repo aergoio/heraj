@@ -13,7 +13,7 @@ import java.io.OutputStream;
 /**
  * An implementation of {@link DataOutput} that uses little-endian byte ordering for writing
  * {@code char}, {@code short}, {@code int}, {@code float}, {@code double}, and {@code long} values.
- * <br/>
+ * <br>
  * We don't support {@link #writeBytes(String)}, {@link #writeChars(String)},
  * {@link #writeUTF(String)}.
  *

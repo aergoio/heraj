@@ -4,7 +4,7 @@
 
 package hera.client;
 
-import static com.google.common.util.concurrent.Futures.*;
+import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.api.model.BytesValue.of;
 import static hera.util.TransportUtils.copyFrom;

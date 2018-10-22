@@ -20,8 +20,8 @@ public class Fee {
   protected static Fee defaultFee = new Fee(MIN_PRICE, MIN_LIMIT);
 
   /**
-   * Build {@code Fee} object. If {@code price} < 0, price is set as {@link #MIN_PRICE}. Similarly,
-   * if {@code limit} < 0, limit is set as {@link #MIN_LIMIT}.
+   * Build {@code Fee} object. If {@code price} &lt; 0, price is set as {@link #MIN_PRICE}. Similarly,
+   * if {@code limit} &lt; 0, limit is set as {@link #MIN_LIMIT}.
    *
    * @param price fee price
    * @param limit fee limit
@@ -37,8 +37,8 @@ public class Fee {
   protected long limit;
 
   /**
-   * Fee constructor. If {@code price} < 0, price is set as {@link #MIN_PRICE}. Similarly, if
-   * {@code limit} < 0, limit is set as {@link #MIN_LIMIT}.
+   * Fee constructor. If {@code price} $lt; 0, price is set as {@link #MIN_PRICE}. Similarly, if
+   * {@code limit} &lt; 0, limit is set as {@link #MIN_LIMIT}.
    *
    * @param price fee price
    * @param limit fee limit
