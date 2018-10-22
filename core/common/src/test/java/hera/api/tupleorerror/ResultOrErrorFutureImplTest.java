@@ -65,7 +65,7 @@ public class ResultOrErrorFutureImplTest {
   }
 
   @Test
-  public void testIfPresent() throws InterruptedException {
+  public void testIfPresent() {
     ResultOrErrorFuture<String> future =
         ResultOrErrorFutureFactory.supply(() -> success(randomUUID().toString()));
     CountDownLatch latch = new CountDownLatch(1);
@@ -75,7 +75,7 @@ public class ResultOrErrorFutureImplTest {
   }
 
   @Test
-  public void testIfPresentWithError() throws InterruptedException {
+  public void testIfPresentWithError() {
     ResultOrErrorFuture<String> future =
         ResultOrErrorFutureFactory.supply(() -> fail(new UnsupportedOperationException()));
     CountDownLatch latch = new CountDownLatch(1);
@@ -85,7 +85,7 @@ public class ResultOrErrorFutureImplTest {
   }
 
   @Test
-  public void testIfPresentWithErrorOnNext() throws InterruptedException {
+  public void testIfPresentWithErrorOnNext() {
     ResultOrErrorFuture<String> future =
         ResultOrErrorFutureFactory.supply(() -> fail(new UnsupportedOperationException()));
     ResultOrErrorFuture<Boolean> next = future.ifPresent(s -> {
@@ -122,7 +122,7 @@ public class ResultOrErrorFutureImplTest {
   public void testMap() {
     final String data = randomUUID().toString();
     ResultOrErrorFuture<String> future = ResultOrErrorFutureFactory.supply(() -> success(data));
-    ResultOrErrorFuture<Integer> next = future.map(s -> s.length());
+    ResultOrErrorFuture<Integer> next = future.map(String::length);
     assertEquals(data.length(), next.get().getResult().intValue());
   }
 
@@ -130,7 +130,7 @@ public class ResultOrErrorFutureImplTest {
   public void testMapWithError() {
     ResultOrErrorFuture<String> future =
         ResultOrErrorFutureFactory.supply(() -> fail(new UnsupportedOperationException()));
-    ResultOrErrorFuture<Integer> next = future.map(s -> s.length());
+    ResultOrErrorFuture<Integer> next = future.map(String::length);
     assertTrue(next.get().hasError());
   }
 

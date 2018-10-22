@@ -147,7 +147,7 @@ public class Tuple2OrErrorFutureImplTest {
   }
 
   @Test
-  public void testIfPresent() throws InterruptedException {
+  public void testIfPresent() {
     Tuple2OrErrorFuture<String, String> future = supplyAllSuccess();
     CountDownLatch latch = new CountDownLatch(1);
     ResultOrErrorFuture<Boolean> next = future.ifPresent((a, b) -> latch.countDown());
@@ -156,7 +156,7 @@ public class Tuple2OrErrorFutureImplTest {
   }
 
   @Test
-  public void testIfPresentOn1stFail() throws InterruptedException {
+  public void testIfPresentOn1stFail() {
     Tuple2OrErrorFuture<String, String> future = supply1stFail();
     CountDownLatch latch = new CountDownLatch(1);
     ResultOrErrorFuture<Boolean> next = future.ifPresent((a, b) -> latch.countDown());
@@ -165,7 +165,7 @@ public class Tuple2OrErrorFutureImplTest {
   }
 
   @Test
-  public void testIfPresentOn2ndFail() throws InterruptedException {
+  public void testIfPresentOn2ndFail() {
     Tuple2OrErrorFuture<String, String> future = supply2ndFail();
     CountDownLatch latch = new CountDownLatch(1);
     ResultOrErrorFuture<Boolean> next = future.ifPresent((a, b) -> latch.countDown());
@@ -174,7 +174,7 @@ public class Tuple2OrErrorFutureImplTest {
   }
 
   @Test
-  public void testIfPresentWithErrorOnNext() throws InterruptedException {
+  public void testIfPresentWithErrorOnNext() {
     Tuple2OrErrorFuture<String, String> future = supplyAllSuccess();
     ResultOrErrorFuture<Boolean> next = future.ifPresent((a, b) -> {
       throw new UnsupportedOperationException();

@@ -4,6 +4,8 @@
 
 package hera.api.model;
 
+import static hera.util.ValidationUtils.assertNotNull;
+
 import hera.api.encode.EncodedString;
 import hera.exception.HerajException;
 import hera.util.Adaptor;
@@ -47,6 +49,7 @@ public class Hash implements Adaptor {
   public Hash(final EncodedString encoded) {
     try {
       bytesValue = encoded.decode();
+      assertNotNull(bytesValue);
     } catch (IOException e) {
       throw new HerajException(e);
     }
@@ -80,11 +83,11 @@ public class Hash implements Adaptor {
     if (adaptor.isAssignableFrom(Hash.class)) {
       return (Optional<T>) Optional.of(this);
     } else if (adaptor.isAssignableFrom(BlockHash.class)) {
-      return (Optional<T>) Optional.ofNullable(BlockHash.of(getBytesValue()));
+      return (Optional<T>) Optional.of(BlockHash.of(getBytesValue()));
     } else if (adaptor.isAssignableFrom(TxHash.class)) {
-      return (Optional<T>) Optional.ofNullable(TxHash.of(getBytesValue()));
+      return (Optional<T>) Optional.of(TxHash.of(getBytesValue()));
     } else if (adaptor.isAssignableFrom(ContractTxHash.class)) {
-      return (Optional<T>) Optional.ofNullable(ContractTxHash.of(getBytesValue()));
+      return (Optional<T>) Optional.of(ContractTxHash.of(getBytesValue()));
     }
     return Optional.empty();
   }

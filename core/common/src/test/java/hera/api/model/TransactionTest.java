@@ -5,7 +5,6 @@
 package hera.api.model;
 
 import static org.junit.Assert.assertEquals;
-import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.encode.Base58;
 import hera.api.encode.Base58WithCheckSum;
@@ -13,11 +12,8 @@ import hera.util.Base58Utils;
 import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
 
 public class TransactionTest {
-
-  protected final transient Logger logger = getLogger(getClass());
 
   protected static final Base58 base58Encoded =
       () -> "AtmxbVvjDN5LYwaf5QrCZPc3FoAqUCMVegVXjf8CMCz59wL21X6j";
@@ -51,7 +47,7 @@ public class TransactionTest {
   }
 
   @Test
-  public void testCalculateHashWithoutSign() throws Exception {
+  public void testCalculateHashWithoutSign() {
     final String expected = HASH_WITHOUT_SIGN;
     final String actual =
         Base58Utils.encode(transaction.calculateHash().getBytesValue().getValue());
@@ -59,7 +55,7 @@ public class TransactionTest {
   }
 
   @Test
-  public void testCalculateHashWithign() throws Exception {
+  public void testCalculateHashWithSign() throws Exception {
     transaction.setSignature(Signature.of(base58Encoded.decode(), null));
     final String expected = HASH_WITH_SIGN;
     final String actual =

@@ -36,7 +36,7 @@ public class AccountTemplateTest extends AbstractTestCase {
   protected final String password = randomUUID().toString();
 
   @Test
-  public void testList() throws Exception {
+  public void testList() {
     ResultOrError<List<AccountAddress>> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(List.class));
     AccountEitherTemplate eitherOperationMock = mock(AccountEitherTemplate.class);
@@ -50,7 +50,7 @@ public class AccountTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testCreate() throws Exception {
+  public void testCreate() {
     ResultOrError<ServerManagedAccount> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(ServerManagedAccount.class));
     AccountEitherTemplate eitherOperationMock = mock(AccountEitherTemplate.class);
@@ -64,7 +64,7 @@ public class AccountTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGet() throws Exception {
+  public void testGet() {
     ResultOrError<AccountState> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(AccountState.class));
     AccountEitherTemplate eitherOperationMock = mock(AccountEitherTemplate.class);
@@ -78,7 +78,7 @@ public class AccountTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testLock() throws Exception {
+  public void testLock() {
     ResultOrError<Boolean> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(true);
     AccountEitherTemplate eitherOperationMock = mock(AccountEitherTemplate.class);
@@ -92,7 +92,7 @@ public class AccountTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testUnlock() throws Exception {
+  public void testUnlock() {
     ResultOrError<Boolean> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(true);
     AccountEitherTemplate eitherOperationMock = mock(AccountEitherTemplate.class);
@@ -107,7 +107,7 @@ public class AccountTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testImportKey() throws Exception {
+  public void testImportKey() {
     ResultOrError<ServerManagedAccount> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(ServerManagedAccount.class));
     AccountEitherTemplate eitherOperationMock = mock(AccountEitherTemplate.class);
@@ -122,7 +122,7 @@ public class AccountTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testExportKey() throws Exception {
+  public void testExportKey() {
     ResultOrError<EncryptedPrivateKey> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(EncryptedPrivateKey.class));
     AccountEitherTemplate eitherOperationMock = mock(AccountEitherTemplate.class);

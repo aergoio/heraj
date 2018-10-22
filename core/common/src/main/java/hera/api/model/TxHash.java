@@ -53,9 +53,9 @@ public class TxHash extends Hash {
     if (adaptor.isAssignableFrom(TxHash.class)) {
       return (Optional<T>) Optional.of(this);
     } else if (adaptor.isAssignableFrom(BlockHash.class)) {
-      return (Optional<T>) Optional.ofNullable(BlockHash.of(getBytesValue()));
+      return (Optional<T>) Optional.of(BlockHash.of(getBytesValue()));
     } else if (adaptor.isAssignableFrom(ContractTxHash.class)) {
-      return (Optional<T>) Optional.ofNullable(ContractTxHash.of(getBytesValue()));
+      return (Optional<T>) Optional.of(ContractTxHash.of(getBytesValue()));
     }
     return Optional.empty();
   }

@@ -16,35 +16,35 @@ public class AergoEitherClientTest extends AbstractTestCase {
   protected Context context = AergoClientBuilder.getDefaultContext();
 
   @Test
-  public void testGetAccountEitherOperation() throws IOException {
+  public void testGetAccountEitherOperation() {
     try (final AergoEitherClient client = new AergoEitherClient(context)) {
       assertNotNull(client.getAccountEitherOperation());
     }
   }
 
   @Test
-  public void testGetBlockEitherOperation() throws IOException {
+  public void testGetBlockEitherOperation() {
     try (final AergoEitherClient client = new AergoEitherClient(context)) {
       assertNotNull(client.getBlockEitherOperation());
     }
   }
 
   @Test
-  public void testGetBlockchainEitherOperation() throws IOException {
+  public void testGetBlockchainEitherOperation() {
     try (final AergoEitherClient client = new AergoEitherClient(context)) {
       assertNotNull(client.getBlockchainEitherOperation());
     }
   }
 
   @Test
-  public void testGetTransactionEitherOperation() throws IOException {
+  public void testGetTransactionEitherOperation() {
     try (final AergoEitherClient client = new AergoEitherClient(context)) {
       assertNotNull(client.getTransactionEitherOperation());
     }
   }
 
   @Test
-  public void testGetContractEitherOperation() throws IOException {
+  public void testGetContractEitherOperation() {
     try (final AergoEitherClient client = new AergoEitherClient(context)) {
       assertNotNull(client.getContractEitherOperation());
     }

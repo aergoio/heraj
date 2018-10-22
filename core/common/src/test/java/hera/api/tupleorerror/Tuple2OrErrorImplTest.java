@@ -9,6 +9,9 @@ import static hera.api.tupleorerror.FunctionChain.seq;
 import static hera.api.tupleorerror.FunctionChain.success;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -23,10 +26,10 @@ public class Tuple2OrErrorImplTest {
     final String result2 = randomUUID().toString();
     final Tuple2OrError<String, String> tuple2OrError =
         seq(() -> success(result1), () -> success(result2));
-    assertTrue(result1.equals(tuple2OrError.get1()));
-    assertTrue(result2.equals(tuple2OrError.get2()));
-    assertTrue(!tuple2OrError.hasError());
-    assertTrue(null == tuple2OrError.getError());
+    assertEquals(result1, tuple2OrError.get1());
+    assertEquals(result2, tuple2OrError.get2());
+    assertFalse(tuple2OrError.hasError());
+    assertNull(tuple2OrError.getError());
   }
 
   @Test(expected = Exception.class)
@@ -34,7 +37,7 @@ public class Tuple2OrErrorImplTest {
     final String result = randomUUID().toString();
     final Tuple2OrError<String, String> tuple2OrError =
         seq(() -> fail(new UnsupportedOperationException()), () -> success(result));
-    assertTrue(null != tuple2OrError.getError());
+    assertNotNull(tuple2OrError.getError());
     tuple2OrError.get1();
   }
 
@@ -43,7 +46,7 @@ public class Tuple2OrErrorImplTest {
     final String result = randomUUID().toString();
     final Tuple2OrError<String, String> tuple2OrError =
         seq(() -> success(result), () -> fail(new UnsupportedOperationException()));
-    assertTrue(null != tuple2OrError.getError());
+    assertNotNull(tuple2OrError.getError());
     tuple2OrError.get2();
   }
 
@@ -64,7 +67,7 @@ public class Tuple2OrErrorImplTest {
     final String result = randomUUID().toString();
     final Tuple2OrError<String, String> tuple2OrError =
         seq(() -> fail(new UnsupportedOperationException()), () -> success(result));
-    assertTrue(null != tuple2OrError.getError());
+    assertNotNull(tuple2OrError.getError());
     tuple2OrError.ifPresent((a, b) -> fail("Should not called"));
   }
 
@@ -147,7 +150,7 @@ public class Tuple2OrErrorImplTest {
     final String result2 = randomUUID().toString();
     final Tuple2OrError<String, String> left = seq(() -> success(result1), () -> success(result2));
     final Tuple2OrError<String, String> right = seq(() -> success(result1), () -> success(result2));
-    assertTrue(left.equals(right));
+    assertEquals(left, right);
   }
 
   @Test

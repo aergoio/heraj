@@ -31,7 +31,7 @@ import types.Rpc;
 public class BlockTemplateTest extends AbstractTestCase {
 
   @Test
-  public void testGetBlockByHash() throws Exception {
+  public void testGetBlockByHash() {
     ResultOrError<Block> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(Block.class));
     BlockEitherTemplate eitherOperationMock = mock(BlockEitherTemplate.class);
@@ -46,7 +46,7 @@ public class BlockTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetBlockByHeight() throws Exception {
+  public void testGetBlockByHeight() {
     ResultOrError<Block> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(Block.class));
     BlockEitherTemplate eitherOperationMock = mock(BlockEitherTemplate.class);
@@ -60,7 +60,7 @@ public class BlockTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testListBlockHeadersByHash() throws Exception {
+  public void testListBlockHeadersByHash() {
     ResultOrError<List<BlockHeader>> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(List.class));
     BlockEitherTemplate eitherOperationMock = mock(BlockEitherTemplate.class);
@@ -75,7 +75,7 @@ public class BlockTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testListBlockHeadersByHeight() throws Exception {
+  public void testListBlockHeadersByHeight() {
     ResultOrError<List<BlockHeader>> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(List.class));
     BlockEitherTemplate eitherOperationMock = mock(BlockEitherTemplate.class);

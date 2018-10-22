@@ -104,7 +104,7 @@ public class AccountOperationIT extends AbstractIT {
 
 
   @Test
-  public void testCreateRemotely() throws Exception {
+  public void testCreateRemotely() {
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
         .addStrategy(new NettyConnectStrategy(hostname))
@@ -149,7 +149,7 @@ public class AccountOperationIT extends AbstractIT {
   }
 
   @Test
-  public void testSignRemotely() throws Exception {
+  public void testSignRemotely() {
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
         .addStrategy(new NettyConnectStrategy(hostname))

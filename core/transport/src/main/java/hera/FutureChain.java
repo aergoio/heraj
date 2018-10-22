@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
-public class FutureChainer<T, R> implements FutureCallback<T> {
+public class FutureChain<T, R> implements FutureCallback<T> {
 
   protected final Logger logger = getLogger(getClass());
 

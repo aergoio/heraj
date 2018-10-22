@@ -17,8 +17,8 @@ import types.Rpc;
 public class CommitExceptionTest extends AbstractTestCase {
 
   @Test
-  public void testCreate() throws InterruptedException {
-    List<CommitException> commitExceptions = new ArrayList<CommitException>();
+  public void testCreate() {
+    List<CommitException> commitExceptions = new ArrayList<>();
     for (final Rpc.CommitStatus rpcCommitStatus : Rpc.CommitStatus.values()) {
       commitExceptions.add(new CommitException(rpcCommitStatus));
     }

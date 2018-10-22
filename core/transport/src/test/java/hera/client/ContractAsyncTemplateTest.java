@@ -97,7 +97,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testDeployWithsServerManagedAccount() throws Exception {
+  public void testDeployWithsServerManagedAccount() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
 
     AccountAsyncTemplate mockAccountAsyncOperation = mock(AccountAsyncTemplate.class);
@@ -151,7 +151,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testExecuteWithServerManagedAccount() throws Exception {
+  public void testExecuteWithServerManagedAccount() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
 
     AccountAsyncTemplate mockAccountAsyncOperation = mock(AccountAsyncTemplate.class);

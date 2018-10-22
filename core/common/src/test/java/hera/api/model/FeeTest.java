@@ -5,14 +5,10 @@
 package hera.api.model;
 
 import static org.junit.Assert.assertEquals;
-import static org.slf4j.LoggerFactory.getLogger;
 
 import org.junit.Test;
-import org.slf4j.Logger;
 
 public class FeeTest {
-
-  protected final transient Logger logger = getLogger(getClass());
 
   @Test
   public void testCreation() {

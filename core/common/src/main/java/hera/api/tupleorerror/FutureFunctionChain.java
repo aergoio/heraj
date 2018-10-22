@@ -16,7 +16,6 @@ import hera.api.tupleorerror.impl.Tuple4OrErrorImpl;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public final class FutureFunctionChain {
@@ -30,9 +29,9 @@ public final class FutureFunctionChain {
    *         complete
    */
   protected static CompletableFuture<Void> allOf(ResultOrErrorFuture<?>... futures) {
-    final CompletableFuture<Void> next = CompletableFuture.allOf(Arrays.asList(futures).stream()
+    final CompletableFuture<Void> next = CompletableFuture.allOf(Arrays.stream(futures)
         .map(ResultOrErrorFutureImpl.class::cast).map(f -> f.getDeligate())
-        .collect(Collectors.toList()).toArray(new CompletableFuture[] {}));
+        .toArray(CompletableFuture[]::new));
     return next;
   }
 

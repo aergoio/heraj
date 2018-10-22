@@ -104,7 +104,7 @@ public class AccountAddress implements Adaptor {
     if (adaptor.isAssignableFrom(AccountAddress.class)) {
       return (Optional<T>) Optional.of(this);
     } else if (adaptor.isAssignableFrom(ContractAddress.class)) {
-      return (Optional<T>) Optional.ofNullable(ContractAddress.of(getBytesValue()));
+      return (Optional<T>) Optional.of(ContractAddress.of(getBytesValue()));
     }
     return Optional.empty();
   }

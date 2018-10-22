@@ -16,8 +16,7 @@ public class FutureChainerTest extends AbstractTestCase {
   @Test
   public void testOnSuccess() {
     ResultOrErrorFuture<Integer> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
-    FutureChainer<String, Integer> callback =
-        new FutureChainer<String, Integer>(nextFuture, s -> s.length());
+    FutureChain<String, Integer> callback = new FutureChain<>(nextFuture, String::length);
     callback.onSuccess(randomUUID().toString());
     nextFuture.get().getResult();
   }
@@ -25,8 +24,7 @@ public class FutureChainerTest extends AbstractTestCase {
   @Test(expected = Exception.class)
   public void testOnFailure() {
     ResultOrErrorFuture<Integer> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
-    FutureChainer<String, Integer> callback =
-        new FutureChainer<String, Integer>(nextFuture, s -> s.length());
+    FutureChain<String, Integer> callback = new FutureChain<>(nextFuture, String::length);
     callback.onFailure(new UnsupportedOperationException());
     nextFuture.get().getResult();
   }

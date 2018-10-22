@@ -30,10 +30,10 @@ public class ContextTest extends AbstractTestCase {
   }
 
   @Test
-  public void testStragetyOverride() {
+  public void testStrategyOverride() {
     final Context context = new Context();
-    ConnectStrategy<Object> first = (ConnectStrategy<Object>) () -> null;
-    ConnectStrategy<Object> second = (ConnectStrategy<Object>) () -> null;
+    ConnectStrategy<Object> first = () -> null;
+    ConnectStrategy<Object> second = () -> null;
     context.addStrategy(first);
     context.addStrategy(second);
     assertEquals(second, context.getStrategy(ConnectStrategy.class).get());

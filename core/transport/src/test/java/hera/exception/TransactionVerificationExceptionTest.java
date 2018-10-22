@@ -17,9 +17,9 @@ import types.Rpc;
 public class TransactionVerificationExceptionTest extends AbstractTestCase {
 
   @Test
-  public void testCreate() throws InterruptedException {
+  public void testCreate() {
     List<TransactionVerificationException> verificationExceptions =
-        new ArrayList<TransactionVerificationException>();
+        new ArrayList<>();
     for (final Rpc.VerifyStatus rpcCommitStatus : Rpc.VerifyStatus.values()) {
       verificationExceptions.add(new TransactionVerificationException(rpcCommitStatus));
     }

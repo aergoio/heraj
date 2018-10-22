@@ -11,7 +11,6 @@ import static org.junit.Assert.assertTrue;
 import hera.api.encode.Base58WithCheckSum;
 import hera.exception.InvalidVersionException;
 import hera.util.Base58Utils;
-import java.io.IOException;
 import java.util.Arrays;
 import org.junit.Test;
 
@@ -27,13 +26,13 @@ public class AccountAddressTest {
       Base58Utils.encodeWithCheck(("noversion" + randomUUID().toString()).getBytes());
 
   @Test
-  public void testOfWithBytesValue() throws IOException {
+  public void testOfWithBytesValue() {
     final AccountAddress address = AccountAddress.of(BytesValue.of(RAW_ADDRESS));
     assertTrue(Arrays.equals(RAW_ADDRESS, address.getBytesValue().getValue()));
   }
 
   @Test
-  public void testOfWithEncoded() throws IOException {
+  public void testOfWithEncoded() {
     final Base58WithCheckSum encoded = () -> ENCODED_ADDRESS;
     final AccountAddress address = AccountAddress.of(encoded);
     assertTrue(Arrays.equals(RAW_ADDRESS, address.getBytesValue().getValue()));
@@ -46,7 +45,7 @@ public class AccountAddressTest {
   }
 
   @Test
-  public void testAdapt() throws IOException {
+  public void testAdapt() {
     final Base58WithCheckSum encoded = () -> ENCODED_ADDRESS;
     final AccountAddress address = AccountAddress.of(encoded);
     assertEquals(AccountAddress.of(encoded), address.adapt(AccountAddress.class).get());

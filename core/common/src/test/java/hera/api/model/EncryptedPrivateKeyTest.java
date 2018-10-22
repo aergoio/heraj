@@ -9,7 +9,6 @@ import static org.junit.Assert.assertNotNull;
 
 import hera.exception.InvalidVersionException;
 import hera.util.Base58Utils;
-import java.io.IOException;
 import org.junit.Test;
 
 public class EncryptedPrivateKeyTest {
@@ -21,14 +20,14 @@ public class EncryptedPrivateKeyTest {
       Base58Utils.encodeWithCheck(("noversion" + randomUUID().toString()).getBytes());
 
   @Test
-  public void testCreation() throws IOException {
+  public void testCreation() {
     final EncryptedPrivateKey encryptedPrivateKey =
         EncryptedPrivateKey.of(() -> ENCODED_ENCRYPTED_PRIVATE_KEY);
     assertNotNull(encryptedPrivateKey);
   }
 
   @Test(expected = InvalidVersionException.class)
-  public void testCreationWithInvalidVersion() throws IOException {
+  public void testCreationWithInvalidVersion() {
     EncryptedPrivateKey.of(() -> ENCODED_ENCRYPTED_PRIVATE_KEY_WITHOUT_VERSION);
   }
 

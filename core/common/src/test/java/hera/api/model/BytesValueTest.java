@@ -7,7 +7,6 @@ package hera.api.model;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 
-import hera.api.model.BytesValue;
 import java.util.Arrays;
 import org.junit.Test;
 

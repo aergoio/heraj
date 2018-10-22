@@ -23,9 +23,7 @@ public class ContractResultConverterFactory {
 
   protected final Function<Rpc.SingleBytes, ContractResult> rpcConverter = rpcContractResult -> {
     logger.trace("Blockchain contract result: {}", rpcContractResult);
-    final ContractResult contractResult =
-        new ContractResultImpl(rpcContractResult.getValue().toByteArray());
-    return contractResult;
+    return new ContractResultImpl(rpcContractResult.getValue().toByteArray());
   };
 
   public ModelConverter<ContractResult, Rpc.SingleBytes> create() {

@@ -33,7 +33,7 @@ public class TransactionTemplateTest extends AbstractTestCase {
       new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
 
   @Test
-  public void testGetTransaction() throws Exception {
+  public void testGetTransaction() {
     ResultOrError<Transaction> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(Transaction.class));
     TransactionEitherTemplate eitherOperationMock = mock(TransactionEitherTemplate.class);
@@ -48,7 +48,7 @@ public class TransactionTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testCommit() throws Exception {
+  public void testCommit() {
     ResultOrError<TxHash> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(TxHash.class));
     TransactionEitherTemplate eitherOperationMock = mock(TransactionEitherTemplate.class);
@@ -62,7 +62,7 @@ public class TransactionTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testSend() throws Exception {
+  public void testSend() {
     ResultOrError<TxHash> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(TxHash.class));
     TransactionEitherTemplate eitherOperationMock = mock(TransactionEitherTemplate.class);

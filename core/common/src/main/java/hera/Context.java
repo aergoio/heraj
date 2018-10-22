@@ -4,11 +4,15 @@
 
 package hera;
 
+import static java.util.Collections.reverse;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.util.Configurable;
 import hera.util.Configuration;
 import hera.util.conf.DummyConfiguration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -94,12 +98,9 @@ public class Context {
   }
 
   protected List<Strategy> getReversedList() {
-    final LinkedList<Strategy> pure = new LinkedList<Strategy>(strategies);
-    final List<Strategy> reversed = new LinkedList<Strategy>();
-    for (Iterator<Strategy> it = pure.descendingIterator(); it.hasNext();) {
-      reversed.add(it.next());
-    }
-    return reversed;
+    final List<Strategy> list = new ArrayList<>(strategies);
+    reverse(list);
+    return list;
   }
 
 }

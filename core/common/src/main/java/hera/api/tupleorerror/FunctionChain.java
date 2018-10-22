@@ -24,8 +24,8 @@ public final class FunctionChain {
    */
   public static <T1, T2> Tuple2OrError<T1, T2> seq(Supplier<ResultOrError<T1>> f1,
       Supplier<ResultOrError<T2>> f2) {
-    ResultOrErrorFuture future1 = ResultOrErrorFutureFactory.supply(() -> f1.get());
-    ResultOrErrorFuture future2 = ResultOrErrorFutureFactory.supply(() -> f2.get());
+    ResultOrErrorFuture future1 = ResultOrErrorFutureFactory.supply(f1);
+    ResultOrErrorFuture future2 = ResultOrErrorFutureFactory.supply(f2);
 
     Tuple2OrErrorFuture<T1, T2> future =
         hera.api.tupleorerror.FutureFunctionChain.seq(() -> future1, () -> future2);
@@ -45,9 +45,9 @@ public final class FunctionChain {
    */
   public static <T1, T2, T3> Tuple3OrError<T1, T2, T3> seq(Supplier<ResultOrError<T1>> f1,
       Supplier<ResultOrError<T2>> f2, Supplier<ResultOrError<T3>> f3) {
-    ResultOrErrorFuture future1 = ResultOrErrorFutureFactory.supply(() -> f1.get());
-    ResultOrErrorFuture future2 = ResultOrErrorFutureFactory.supply(() -> f2.get());
-    ResultOrErrorFuture future3 = ResultOrErrorFutureFactory.supply(() -> f3.get());
+    ResultOrErrorFuture future1 = ResultOrErrorFutureFactory.supply(f1);
+    ResultOrErrorFuture future2 = ResultOrErrorFutureFactory.supply(f2);
+    ResultOrErrorFuture future3 = ResultOrErrorFutureFactory.supply(f3);
 
     Tuple3OrErrorFuture<T1, T2, T3> future =
         hera.api.tupleorerror.FutureFunctionChain.seq(() -> future1, () -> future2, () -> future3);
@@ -70,10 +70,10 @@ public final class FunctionChain {
   public static <T1, T2, T3, T4> Tuple4OrError<T1, T2, T3, T4> seq(Supplier<ResultOrError<T1>> f1,
       Supplier<ResultOrError<T2>> f2, Supplier<ResultOrError<T3>> f3,
       Supplier<ResultOrError<T4>> f4) {
-    ResultOrErrorFuture future1 = ResultOrErrorFutureFactory.supply(() -> f1.get());
-    ResultOrErrorFuture future2 = ResultOrErrorFutureFactory.supply(() -> f2.get());
-    ResultOrErrorFuture future3 = ResultOrErrorFutureFactory.supply(() -> f3.get());
-    ResultOrErrorFuture future4 = ResultOrErrorFutureFactory.supply(() -> f4.get());
+    ResultOrErrorFuture future1 = ResultOrErrorFutureFactory.supply(f1);
+    ResultOrErrorFuture future2 = ResultOrErrorFutureFactory.supply(f2);
+    ResultOrErrorFuture future3 = ResultOrErrorFutureFactory.supply(f3);
+    ResultOrErrorFuture future4 = ResultOrErrorFutureFactory.supply(f4);
 
     Tuple4OrErrorFuture<T1, T2, T3, T4> future = hera.api.tupleorerror.FutureFunctionChain
         .seq(() -> future1, () -> future2, () -> future3, () -> future4);

@@ -39,7 +39,7 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   protected final String password = randomUUID().toString();
 
   @Test
-  public void testList() throws Exception {
+  public void testList() {
     ResultOrErrorFuture<List<AccountAddress>> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
@@ -54,7 +54,7 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testCreate() throws Exception {
+  public void testCreate() {
     ResultOrErrorFuture<ServerManagedAccount> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
@@ -70,7 +70,7 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetState() throws Exception {
+  public void testGetState() {
     ResultOrErrorFuture<AccountState> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
@@ -85,7 +85,7 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testLock() throws Exception {
+  public void testLock() {
     ResultOrErrorFuture<Boolean> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
@@ -101,7 +101,7 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testUnlock() throws Exception {
+  public void testUnlock() {
     ResultOrErrorFuture<Boolean> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
@@ -117,7 +117,7 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testImportKey() throws Exception {
+  public void testImportKey() {
     ResultOrErrorFuture<ServerManagedAccount> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
@@ -133,7 +133,7 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testExportKey() throws Exception {
+  public void testExportKey() {
     ResultOrErrorFuture<EncryptedPrivateKey> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);

@@ -54,7 +54,7 @@ public class TransportUtils {
   public static byte[] inputStreamToByteArray(final InputStream in) {
     final ByteArrayOutputStream bos = new ByteArrayOutputStream();
     byte[] buffer = new byte[1024];
-    int read = -1;
+    int read;
     try {
       while ((read = in.read(buffer)) != -1) {
         bos.write(buffer, 0, read);

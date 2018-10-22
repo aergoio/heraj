@@ -9,6 +9,9 @@ import static hera.api.tupleorerror.FunctionChain.seq;
 import static hera.api.tupleorerror.FunctionChain.success;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -25,12 +28,12 @@ public class Tuple4OrErrorImplTest {
     final String result4 = randomUUID().toString();
     final Tuple4OrError<String, String, String, String> tuple4OrError = seq(() -> success(result1),
         () -> success(result2), () -> success(result3), () -> success(result4));
-    assertTrue(result1.equals(tuple4OrError.get1()));
-    assertTrue(result2.equals(tuple4OrError.get2()));
-    assertTrue(result3.equals(tuple4OrError.get3()));
-    assertTrue(result4.equals(tuple4OrError.get4()));
-    assertTrue(!tuple4OrError.hasError());
-    assertTrue(null == tuple4OrError.getError());
+    assertEquals(result1, tuple4OrError.get1());
+    assertEquals(result2, tuple4OrError.get2());
+    assertEquals(result3, tuple4OrError.get3());
+    assertEquals(result4, tuple4OrError.get4());
+    assertFalse(tuple4OrError.hasError());
+    assertNull(tuple4OrError.getError());
   }
 
   @Test(expected = Exception.class)
@@ -39,7 +42,7 @@ public class Tuple4OrErrorImplTest {
     final Tuple4OrError<String, String, String, String> tuple4OrError =
         seq(() -> fail(new UnsupportedOperationException()), () -> success(result),
             () -> success(result), () -> success(result));
-    assertTrue(null != tuple4OrError.getError());
+    assertNotNull(tuple4OrError.getError());
     tuple4OrError.get1();
   }
 
@@ -49,7 +52,7 @@ public class Tuple4OrErrorImplTest {
     final Tuple4OrError<String, String, String, String> tuple4OrError =
         seq(() -> success(result), () -> fail(new UnsupportedOperationException()),
             () -> success(result), () -> success(result));
-    assertTrue(null != tuple4OrError.getError());
+    assertNotNull(tuple4OrError.getError());
     tuple4OrError.get2();
   }
 
@@ -59,7 +62,7 @@ public class Tuple4OrErrorImplTest {
     final Tuple4OrError<String, String, String, String> tuple4OrError =
         seq(() -> success(result), () -> success(result),
             () -> fail(new UnsupportedOperationException()), () -> success(result));
-    assertTrue(null != tuple4OrError.getError());
+    assertNotNull(tuple4OrError.getError());
     tuple4OrError.get3();
   }
 
@@ -69,7 +72,7 @@ public class Tuple4OrErrorImplTest {
     final Tuple4OrError<String, String, String, String> tuple4OrError =
         seq(() -> success(result), () -> success(result), () -> success(result),
             () -> fail(new UnsupportedOperationException()));
-    assertTrue(null != tuple4OrError.getError());
+    assertNotNull(tuple4OrError.getError());
     tuple4OrError.get4();
   }
 
@@ -96,7 +99,7 @@ public class Tuple4OrErrorImplTest {
     final Tuple4OrError<String, String, String, String> tuple4OrError =
         seq(() -> fail(new UnsupportedOperationException()), () -> success(result),
             () -> success(result), () -> success(result));
-    assertTrue(null != tuple4OrError.getError());
+    assertNotNull(tuple4OrError.getError());
     tuple4OrError.ifPresent((a, b, c, d) -> fail("Should not called"));
   }
 
@@ -198,7 +201,7 @@ public class Tuple4OrErrorImplTest {
         () -> success(result2), () -> success(result3), () -> success(result4));
     final Tuple4OrError<String, String, String, String> right = seq(() -> success(result1),
         () -> success(result2), () -> success(result3), () -> success(result4));
-    assertTrue(left.equals(right));
+    assertEquals(left, right);
   }
 
   @Test

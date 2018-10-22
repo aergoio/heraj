@@ -16,7 +16,7 @@ public final class ResultOrErrorFutureFactory {
   }
 
   public static <T> ResultOrErrorFuture<T> supply(final Supplier<ResultOrError<T>> supplier) {
-    return new ResultOrErrorFutureImpl<T>(CompletableFuture.supplyAsync(supplier));
+    return new ResultOrErrorFutureImpl<>(CompletableFuture.supplyAsync(supplier));
   }
 
 }

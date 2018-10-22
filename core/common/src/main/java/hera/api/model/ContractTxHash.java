@@ -53,7 +53,7 @@ public class ContractTxHash extends TxHash {
     if (adaptor.isAssignableFrom(ContractTxHash.class)) {
       return (Optional<T>) Optional.of(this);
     } else if (adaptor.isAssignableFrom(BlockHash.class)) {
-      return (Optional<T>) Optional.ofNullable(BlockHash.of(getBytesValue()));
+      return (Optional<T>) Optional.of(BlockHash.of(getBytesValue()));
     }
     return Optional.empty();
   }

@@ -52,7 +52,7 @@ public class HostnameAndPort {
     logger.trace("Hostname: {}", hostname);
     final String portStr = (separatorIndex < 0) ? null : str.substring(portIndex);
     logger.trace("Port: {}", portStr);
-    final int port = ofNullable(portStr).map(Integer::new).orElse(-1);
+    final int port = ofNullable(portStr).map(Integer::valueOf).orElse(-1);
     return new HostnameAndPort(hostname, port);
   }
 

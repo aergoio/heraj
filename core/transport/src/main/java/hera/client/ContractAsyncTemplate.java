@@ -4,6 +4,8 @@
 
 package hera.client;
 
+import static com.google.common.util.concurrent.Futures.addCallback;
+import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.api.tupleorerror.FunctionChain.fail;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -12,12 +14,10 @@ import static types.AergoRPCServiceGrpc.newFutureStub;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 import hera.Context;
-import hera.FutureChainer;
+import hera.FutureChain;
 import hera.VersionUtils;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
@@ -54,6 +54,8 @@ import lombok.Getter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Blockchain;
+import types.Blockchain.ABI;
+import types.Blockchain.Receipt;
 import types.Rpc;
 import types.Rpc.SingleBytes;
 
@@ -110,9 +112,9 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
     final Rpc.SingleBytes hashBytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
     final ListenableFuture<Blockchain.Receipt> listenableFuture =
         aergoService.getReceipt(hashBytes);
-    FutureChainer<Blockchain.Receipt, ContractTxReceipt> callback =
-        new FutureChainer<>(nextFuture, r -> receiptConverter.convertToDomainModel(r));
-    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+    FutureChain<Receipt, ContractTxReceipt> callback =
+        new FutureChain<>(nextFuture, receiptConverter::convertToDomainModel);
+    addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
   }
@@ -152,7 +154,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
       return accountAsyncOperation.sign(creator, transaction).flatMap(s -> {
         transaction.setSignature(s);
         return transactionAsyncOperation.commit(transaction)
-            .map(txHash -> txHash.adapt(ContractTxHash.class).<AdaptException>orElseThrow(
+            .map(txHash -> txHash.adapt(ContractTxHash.class).orElseThrow(
                 () -> new AdaptException(TxHash.class, ContractTxHash.class)));
       });
     } catch (Exception e) {
@@ -169,14 +171,14 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
     final ByteString byteString = accountAddressConverter.convertToRpcModel(contractAddress);
     final Rpc.SingleBytes hashBytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
     final ListenableFuture<Blockchain.ABI> listenableFuture = aergoService.getABI(hashBytes);
-    FutureChainer<Blockchain.ABI, ContractInterface> callback =
-        new FutureChainer<>(nextFuture, a -> {
+    FutureChain<ABI, ContractInterface> callback =
+        new FutureChain<>(nextFuture, a -> {
           final ContractInterface contractInterface =
               contractInterfaceConverter.convertToDomainModel(a);
           contractInterface.setContractAddress(contractAddress);
           return contractInterface;
         });
-    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+    addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
   }
@@ -200,7 +202,7 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
       return accountAsyncOperation.sign(executor, transaction).flatMap(s -> {
         transaction.setSignature(s);
         return transactionAsyncOperation.commit(transaction)
-            .map(txHash -> txHash.adapt(ContractTxHash.class).<AdaptException>orElseThrow(
+            .map(txHash -> txHash.adapt(ContractTxHash.class).orElseThrow(
                 () -> new AdaptException(TxHash.class, ContractTxHash.class)));
       });
     } catch (Exception e) {
@@ -224,10 +226,10 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
               accountAddressConverter.convertToRpcModel(contractInvocation.getAddress()))
           .setQueryinfo(ByteString.copyFrom(functionCallString.getBytes())).build();
       final ListenableFuture<SingleBytes> listenableFuture = aergoService.queryContract(query);
-      FutureChainer<SingleBytes, ContractResult> callback =
-          new FutureChainer<>(nextFuture, s -> contractResultConverter.convertToDomainModel(s));
+      FutureChain<SingleBytes, ContractResult> callback =
+          new FutureChain<>(nextFuture, contractResultConverter::convertToDomainModel);
 
-      Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+      addCallback(listenableFuture, callback, directExecutor());
 
       return nextFuture;
     } catch (Exception e) {

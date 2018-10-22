@@ -7,7 +7,6 @@ package hera.api.encode;
 import static java.util.UUID.randomUUID;
 
 import hera.AbstractTestCase;
-import hera.api.encode.Encoder;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import org.junit.Test;

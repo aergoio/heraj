@@ -8,6 +8,8 @@ import static hera.api.tupleorerror.FunctionChain.fail;
 import static hera.api.tupleorerror.FunctionChain.success;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -21,9 +23,9 @@ public class ResultOrErrorImplTest {
     final String result = randomUUID().toString();
     final ResultOrError<String> resultOrError = success(result);
     assertTrue(resultOrError.hasResult());
-    assertTrue(result.equals(resultOrError.getResult()));
+    assertEquals(result, resultOrError.getResult());
     assertTrue(!resultOrError.hasError());
-    assertTrue(null == resultOrError.getError());
+    assertNull(resultOrError.getError());
   }
 
   @Test(expected = Exception.class)
@@ -38,7 +40,7 @@ public class ResultOrErrorImplTest {
     final ResultOrError<String> resultOrError = fail(error);
     assertTrue(!resultOrError.hasResult());
     assertTrue(resultOrError.hasError());
-    assertTrue(error.equals(resultOrError.getError()));
+    assertEquals(error, resultOrError.getError());
   }
 
   @Test
@@ -71,7 +73,7 @@ public class ResultOrErrorImplTest {
   @Test
   public void testFilterWithError() {
     final ResultOrError<String> expected = fail(new UnsupportedOperationException());
-    final ResultOrError<String> actual = expected.filter(s -> s.isEmpty());
+    final ResultOrError<String> actual = expected.filter(String::isEmpty);
     assertEquals(expected, actual);
   }
 
@@ -89,14 +91,14 @@ public class ResultOrErrorImplTest {
     final String result = randomUUID().toString();
     final ResultOrError<String> resultOrError = success(result);
     final int expected = result.length();
-    final int actual = resultOrError.map(s -> s.length()).getResult();
+    final int actual = resultOrError.map(String::length).getResult();
     assertEquals(expected, actual);
   }
 
   @Test(expected = Exception.class)
   public void testMapWithError() {
     final ResultOrError<String> resultOrError = fail(new UnsupportedOperationException());
-    resultOrError.map(s -> s.length()).getResult();
+    resultOrError.map(String::length).getResult();
   }
 
   @Test(expected = Exception.class)
@@ -169,14 +171,14 @@ public class ResultOrErrorImplTest {
   public void testGetOrThrowsWithResult() {
     final String expected = randomUUID().toString();
     final ResultOrError<String> resultOrError = success(expected);
-    final String actual = resultOrError.getOrThrows(() -> new IllegalStateException());
+    final String actual = resultOrError.getOrThrows(IllegalStateException::new);
     assertEquals(expected, actual);
   }
 
   @Test(expected = IllegalStateException.class)
   public void testGetOrThrowsWithError() {
     final ResultOrError<String> resultOrError = fail(new UnsupportedOperationException());
-    resultOrError.getOrThrows(() -> new IllegalStateException());
+    resultOrError.getOrThrows(IllegalStateException::new);
   }
 
   @Test
@@ -184,13 +186,13 @@ public class ResultOrErrorImplTest {
     final String result = randomUUID().toString();
     final ResultOrError<String> left = success(result);
     final ResultOrError<String> right = success(result);
-    assertTrue(left.equals(right));
+    assertEquals(left, right);
   }
 
   @Test
   public void testHashCode() {
     final ResultOrError<String> resultOrError = success(randomUUID().toString());
-    assertTrue(0 != resultOrError.hashCode());
+    assertNotEquals(0, resultOrError.hashCode());
   }
 
 }

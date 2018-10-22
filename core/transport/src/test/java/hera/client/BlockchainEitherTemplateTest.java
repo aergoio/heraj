@@ -32,7 +32,7 @@ public class BlockchainEitherTemplateTest extends AbstractTestCase {
   protected final Context context = AergoClientBuilder.getDefaultContext();
 
   @Test
-  public void testGetBlockchainStatus() throws Exception {
+  public void testGetBlockchainStatus() {
     ResultOrErrorFuture<BlockchainStatus> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     BlockchainAsyncTemplate asyncOperationMock = mock(BlockchainAsyncTemplate.class);
@@ -48,7 +48,7 @@ public class BlockchainEitherTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testListPeers() throws Exception {
+  public void testListPeers() {
     ResultOrErrorFuture<List<Peer>> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     BlockchainAsyncTemplate asyncOperationMock = mock(BlockchainAsyncTemplate.class);
@@ -63,7 +63,7 @@ public class BlockchainEitherTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetNodeStatus() throws Exception {
+  public void testGetNodeStatus() {
     ResultOrErrorFuture<NodeStatus> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     BlockchainAsyncTemplate asyncOperationMock = mock(BlockchainAsyncTemplate.class);

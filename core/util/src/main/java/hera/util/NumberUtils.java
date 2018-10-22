@@ -37,21 +37,21 @@ public class NumberUtils {
       if (value < Byte.MIN_VALUE || Byte.MAX_VALUE < value) {
         throwOverflowException(number, targetClass);
       }
-      return (T) new Byte((byte) value);
+      return (T) Byte.valueOf((byte) value);
     } else if (targetClass.equals(Short.class) || targetClass.equals(short.class)) {
       final long value = number.longValue();
       if (value < Short.MIN_VALUE || Short.MAX_VALUE < value) {
         throwOverflowException(number, targetClass);
       }
-      return (T) new Short((short) value);
+      return (T) Short.valueOf((short) value);
     } else if (targetClass.equals(Integer.class) || targetClass.equals(int.class)) {
       final long value = number.longValue();
       if (value < Integer.MIN_VALUE || Integer.MAX_VALUE < value) {
         throwOverflowException(number, targetClass);
       }
-      return (T) new Integer((int) value);
+      return (T) Integer.valueOf((int) value);
     } else if (targetClass.equals(Long.class) || targetClass.equals(long.class)) {
-      return (T) new Long(number.longValue());
+      return (T) Long.valueOf(number.longValue());
     } else if (targetClass.equals(BigInteger.class)) {
       if (number instanceof BigDecimal) {
         // do not lose precision - use BigDecimal's own conversion
@@ -61,9 +61,9 @@ public class NumberUtils {
         return (T) BigInteger.valueOf(number.longValue());
       }
     } else if (targetClass.equals(Float.class) || targetClass.equals(float.class)) {
-      return (T) new Float(number.floatValue());
+      return (T) Float.valueOf(number.floatValue());
     } else if (targetClass.equals(Double.class) || targetClass.equals(double.class)) {
-      return (T) new Double(number.doubleValue());
+      return (T) Double.valueOf(number.doubleValue());
     } else if (targetClass.equals(BigDecimal.class)) {
       // always use BigDecimal(String) here to avoid unpredictability of BigDecimal(double)
       // (see BigDecimal javadoc for details)

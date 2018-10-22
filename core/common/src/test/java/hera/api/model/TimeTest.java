@@ -18,7 +18,7 @@ public class TimeTest {
     final Time time = Time.of(baseTimeInMicroSeconds);
     assertEquals(timeUnit.toNanos(baseTimeInMicroSeconds), time.toNanoseconds());
     assertEquals(timeUnit.toMicros(baseTimeInMicroSeconds), time.toMicroSeconds());
-    assertEquals(timeUnit.toMillis(baseTimeInMicroSeconds), time.toMiliseconds());
+    assertEquals(timeUnit.toMillis(baseTimeInMicroSeconds), time.toMilliseconds());
     assertEquals(timeUnit.toSeconds(baseTimeInMicroSeconds), time.toSeconds());
     assertEquals(timeUnit.toMinutes(baseTimeInMicroSeconds), time.toMinutes());
     assertEquals(timeUnit.toHours(baseTimeInMicroSeconds), time.toHours());

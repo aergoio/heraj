@@ -79,15 +79,15 @@ public class Transaction {
   }
 
   public void setSender(final Account sender) {
-    this.sender = sender.adapt(AccountAddress.class).get();
+    sender.adapt(AccountAddress.class).ifPresent(this::setSender);
   }
 
   public void setRecipient(final AccountAddress recipient) {
-    this.recipient = recipient.adapt(AccountAddress.class).get();
+    this.recipient = recipient;
   }
 
   public void setRecipient(final Account account) {
-    this.recipient = account.adapt(AccountAddress.class).get();
+    account.adapt(AccountAddress.class).ifPresent(this::setRecipient);
   }
 
   /**

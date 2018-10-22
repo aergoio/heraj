@@ -21,7 +21,7 @@ public interface ResultOrError<T> extends WithError {
    * @return whether a result is present or not
    */
   default boolean hasResult() {
-    return false == hasError();
+    return !hasError();
   }
 
   /**

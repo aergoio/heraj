@@ -350,7 +350,7 @@ public class Tuple4OrErrorFutureImplTest {
   }
 
   @Test
-  public void testIfPresent() throws InterruptedException {
+  public void testIfPresent() {
     Tuple4OrErrorFuture<String, String, String, String> future = supplyAllSuccess();
     CountDownLatch latch = new CountDownLatch(1);
     ResultOrErrorFuture<Boolean> next = future.ifPresent((a, b, c, d) -> latch.countDown());
@@ -359,7 +359,7 @@ public class Tuple4OrErrorFutureImplTest {
   }
 
   @Test
-  public void testIfPresentOn1stFail() throws InterruptedException {
+  public void testIfPresentOn1stFail() {
     Tuple4OrErrorFuture<String, String, String, String> future = supply1stFail();
     CountDownLatch latch = new CountDownLatch(1);
     ResultOrErrorFuture<Boolean> next = future.ifPresent((a, b, c, d) -> latch.countDown());
@@ -368,7 +368,7 @@ public class Tuple4OrErrorFutureImplTest {
   }
 
   @Test
-  public void testIfPresentOn2ndFail() throws InterruptedException {
+  public void testIfPresentOn2ndFail() {
     Tuple4OrErrorFuture<String, String, String, String> future = supply2ndFail();
     CountDownLatch latch = new CountDownLatch(1);
     ResultOrErrorFuture<Boolean> next = future.ifPresent((a, b, c, d) -> latch.countDown());
@@ -377,7 +377,7 @@ public class Tuple4OrErrorFutureImplTest {
   }
 
   @Test
-  public void testIfPresentOn3rdFail() throws InterruptedException {
+  public void testIfPresentOn3rdFail() {
     Tuple4OrErrorFuture<String, String, String, String> future = supply3rdFail();
     CountDownLatch latch = new CountDownLatch(1);
     ResultOrErrorFuture<Boolean> next = future.ifPresent((a, b, c, d) -> latch.countDown());
@@ -386,7 +386,7 @@ public class Tuple4OrErrorFutureImplTest {
   }
 
   @Test
-  public void testIfPresentOn4thFail() throws InterruptedException {
+  public void testIfPresentOn4thFail() {
     Tuple4OrErrorFuture<String, String, String, String> future = supply4thFail();
     CountDownLatch latch = new CountDownLatch(1);
     ResultOrErrorFuture<Boolean> next = future.ifPresent((a, b, c, d) -> latch.countDown());
@@ -395,7 +395,7 @@ public class Tuple4OrErrorFutureImplTest {
   }
 
   @Test
-  public void testIfPresentWithErrorOnNext() throws InterruptedException {
+  public void testIfPresentWithErrorOnNext() {
     Tuple4OrErrorFuture<String, String, String, String> future = supplyAllSuccess();
     ResultOrErrorFuture<Boolean> next = future.ifPresent((a, b, c, d) -> {
       throw new UnsupportedOperationException();

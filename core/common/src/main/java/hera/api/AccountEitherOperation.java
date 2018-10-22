@@ -56,7 +56,7 @@ public interface AccountEitherOperation extends ContextAware {
    */
   @SuppressWarnings("unchecked")
   default ResultOrError<AccountState> getState(Account account) {
-    return account.adapt(AccountAddress.class).map(a -> getState(a))
+    return account.adapt(AccountAddress.class).map(this::getState)
         .orElse(fail(new AdaptException(account.getClass(), AccountAddress.class)));
   }
 

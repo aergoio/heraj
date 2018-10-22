@@ -52,7 +52,7 @@ public interface AccountOperation extends ContextAware {
    * @return an account state
    */
   default AccountState getState(Account account) {
-    return account.adapt(AccountAddress.class).map(a -> getState(a))
+    return account.adapt(AccountAddress.class).map(this::getState)
         .orElseThrow(() -> new AdaptException(account.getClass(), AccountAddress.class));
   }
 

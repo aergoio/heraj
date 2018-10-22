@@ -48,7 +48,7 @@ public class Time {
     return unit.toMicros(value);
   }
 
-  public long toMiliseconds() {
+  public long toMilliseconds() {
     return unit.toMillis(value);
   }
 

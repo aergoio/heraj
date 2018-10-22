@@ -4,17 +4,17 @@
 
 package hera.client;
 
+import static com.google.common.util.concurrent.Futures.addCallback;
+import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.util.TransportUtils.copyFrom;
 import static hera.util.TransportUtils.longToByteArray;
 import static java.util.stream.Collectors.toList;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 import hera.Context;
-import hera.FutureChainer;
+import hera.FutureChain;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.BlockAsyncOperation;
@@ -62,9 +62,9 @@ public class BlockAsyncTemplate implements BlockAsyncOperation, ChannelInjectabl
     final ByteString byteString = copyFrom(blockHash.getBytesValue());
     final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
     ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(bytes);
-    FutureChainer<Blockchain.Block, Block> callback =
-        new FutureChainer<>(nextFuture, b -> blockConverter.convertToDomainModel(b));
-    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+    FutureChain<Blockchain.Block, Block> callback =
+        new FutureChain<>(nextFuture, blockConverter::convertToDomainModel);
+    addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
   }
@@ -76,9 +76,9 @@ public class BlockAsyncTemplate implements BlockAsyncOperation, ChannelInjectabl
     final ByteString byteString = copyFrom(BytesValue.of(longToByteArray(height)));
     final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
     ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(bytes);
-    FutureChainer<Blockchain.Block, Block> callback =
-        new FutureChainer<>(nextFuture, b -> blockConverter.convertToDomainModel(b));
-    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+    FutureChain<Blockchain.Block, Block> callback =
+        new FutureChain<>(nextFuture, blockConverter::convertToDomainModel);
+    addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
   }
@@ -92,11 +92,11 @@ public class BlockAsyncTemplate implements BlockAsyncOperation, ChannelInjectabl
     final ListParams listParams =
         ListParams.newBuilder().setHash(copyFrom(blockHash.getBytesValue())).setSize(size).build();
     ListenableFuture<BlockHeaderList> listenableFuture = aergoService.listBlockHeaders(listParams);
-    FutureChainer<BlockHeaderList, List<BlockHeader>> callback = new FutureChainer<>(nextFuture,
+    FutureChain<BlockHeaderList, List<BlockHeader>> callback = new FutureChain<>(nextFuture,
         blockHeaders -> blockHeaders.getBlocksList().stream()
             .map(blockConverter::convertToDomainModel).map(BlockHeader.class::cast)
             .collect(toList()));
-    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+    addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
   }
@@ -109,11 +109,11 @@ public class BlockAsyncTemplate implements BlockAsyncOperation, ChannelInjectabl
 
     final ListParams listParams = ListParams.newBuilder().setHeight(height).setSize(size).build();
     ListenableFuture<BlockHeaderList> listenableFuture = aergoService.listBlockHeaders(listParams);
-    FutureChainer<BlockHeaderList, List<BlockHeader>> callback = new FutureChainer<>(nextFuture,
+    FutureChain<BlockHeaderList, List<BlockHeader>> callback = new FutureChain<>(nextFuture,
         blockHeaders -> blockHeaders.getBlocksList().stream()
             .map(blockConverter::convertToDomainModel).map(BlockHeader.class::cast)
             .collect(toList()));
-    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+    addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
   }

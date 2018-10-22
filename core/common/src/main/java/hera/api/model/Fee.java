@@ -12,9 +12,9 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class Fee {
 
-  public static long MIN_PRICE = 1;
+  public static final long MIN_PRICE = 1;
 
-  public static long MIN_LIMIT = 1;
+  public static final long MIN_LIMIT = 1;
 
   @Getter
   protected static Fee defaultFee = new Fee(MIN_PRICE, MIN_LIMIT);

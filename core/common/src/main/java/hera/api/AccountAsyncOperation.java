@@ -57,7 +57,7 @@ public interface AccountAsyncOperation extends ContextAware {
    */
   @SuppressWarnings("unchecked")
   default ResultOrErrorFuture<AccountState> getState(Account account) {
-    return account.adapt(AccountAddress.class).map(a -> getState(a))
+    return account.adapt(AccountAddress.class).map(this::getState)
         .orElse(ResultOrErrorFutureFactory
             .supply(() -> fail(new AdaptException(account.getClass(), AccountAddress.class))));
   }

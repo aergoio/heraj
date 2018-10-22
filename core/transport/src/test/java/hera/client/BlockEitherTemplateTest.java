@@ -35,7 +35,7 @@ public class BlockEitherTemplateTest extends AbstractTestCase {
   protected final Context context = AergoClientBuilder.getDefaultContext();
 
   @Test
-  public void testGetBlockByHash() throws Exception {
+  public void testGetBlockByHash() {
     ResultOrErrorFuture<Block> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     BlockAsyncTemplate asyncOperationMock = mock(BlockAsyncTemplate.class);
@@ -51,7 +51,7 @@ public class BlockEitherTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetBlockByHeight() throws Exception {
+  public void testGetBlockByHeight() {
     ResultOrErrorFuture<Block> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     BlockAsyncTemplate asyncOperationMock = mock(BlockAsyncTemplate.class);
@@ -66,7 +66,7 @@ public class BlockEitherTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testListBlockHeadersByHash() throws Exception {
+  public void testListBlockHeadersByHash() {
     ResultOrErrorFuture<List<BlockHeader>> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     BlockAsyncTemplate asyncOperationMock = mock(BlockAsyncTemplate.class);
@@ -82,7 +82,7 @@ public class BlockEitherTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testListBlockHeadersByHeight() throws Exception {
+  public void testListBlockHeadersByHeight() {
     ResultOrErrorFuture<List<BlockHeader>> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     BlockAsyncTemplate asyncOperationMock = mock(BlockAsyncTemplate.class);

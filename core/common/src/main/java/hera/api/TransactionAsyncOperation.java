@@ -17,7 +17,6 @@ import hera.api.tupleorerror.ResultOrErrorFuture;
 @ApiStability.Unstable
 public interface TransactionAsyncOperation extends ContextAware {
 
-
   /**
    * Get transaction asynchronously.
    *
@@ -47,6 +46,9 @@ public interface TransactionAsyncOperation extends ContextAware {
   ResultOrErrorFuture<TxHash> send(AccountAddress sender, AccountAddress recipient, long amount);
 
   /**
+   *
+   * FIXME: Infinitely recursion?
+   *
    * Send transaction. This method automatically fill nonce, sign and commit in a server. This
    * method is valid only if sender is stored in a server key store. Make sure that {@code sender}
    * is unlocked.

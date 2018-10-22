@@ -75,11 +75,10 @@ public class BlockConverterFactory {
 
     final AtomicInteger index = new AtomicInteger(0);
     final List<Transaction> transactions = rpcBlockBody.getTxsList().stream()
-        .map(transactionConverter::convertToDomainModel).map(t -> {
+        .map(transactionConverter::convertToDomainModel).peek(t -> {
           t.setBlockHash(domainBlock.getHash());
           t.setIndexInBlock(index.getAndIncrement());
           t.setConfirmed(true);
-          return t;
         }).collect(toList());
     domainBlock.setTransactions(transactions);
     return domainBlock;

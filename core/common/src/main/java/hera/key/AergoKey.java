@@ -4,6 +4,7 @@
 
 package hera.key;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.VersionUtils;
@@ -22,6 +23,7 @@ import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSASignature;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Arrays;
@@ -87,7 +89,7 @@ public class AergoKey implements KeyPair {
    */
   public AergoKey(final EncodedString encryptedPrivateKey, final String password) throws Exception {
     final byte[] rawPrivateKey =
-        decrypt(encryptedPrivateKey.decode().getValue(), password.getBytes("UTF-8"));
+        decrypt(encryptedPrivateKey.decode().getValue(), password.getBytes(UTF_8));
     this.ecdsakey = ECDSAKey.of(rawPrivateKey);
     final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =
         (org.bouncycastle.jce.interfaces.ECPublicKey) this.ecdsakey.getPublicKey();
@@ -142,7 +144,7 @@ public class AergoKey implements KeyPair {
 
     final BigInteger r = signature.getR();
     BigInteger s = signature.getS();
-    if (s.compareTo(halfOrder) == 1) {
+    if (s.compareTo(halfOrder) > 0) {
       s = order.subtract(s);
     }
 
@@ -285,7 +287,7 @@ public class AergoKey implements KeyPair {
   public EncryptedPrivateKey getEncryptedPrivateKey(final String password) {
     try {
       final byte[] rawPrivateKey = getRawPrivateKey();
-      final byte[] rawPassword = password.getBytes("UTF-8");
+      final byte[] rawPassword = password.getBytes(UTF_8);
       return new EncryptedPrivateKey(BytesValue.of(encrypt(rawPrivateKey, rawPassword)));
     } catch (Exception e) {
       throw new HerajException(e);

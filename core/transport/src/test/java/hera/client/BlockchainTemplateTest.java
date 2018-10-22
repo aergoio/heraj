@@ -26,7 +26,7 @@ import types.Rpc;
 public class BlockchainTemplateTest extends AbstractTestCase {
 
   @Test
-  public void testGetBlockchainStatus() throws Exception {
+  public void testGetBlockchainStatus() {
     ResultOrError<BlockchainStatus> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(BlockchainStatus.class));
     BlockchainEitherTemplate eitherOperationMock = mock(BlockchainEitherTemplate.class);
@@ -40,7 +40,7 @@ public class BlockchainTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testListPeers() throws Exception {
+  public void testListPeers() {
     ResultOrError<List<Peer>> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(List.class));
     BlockchainEitherTemplate eitherOperationMock = mock(BlockchainEitherTemplate.class);
@@ -54,7 +54,7 @@ public class BlockchainTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetNodeStatus() throws Exception {
+  public void testGetNodeStatus() {
     ResultOrError<NodeStatus> eitherMock = mock(ResultOrError.class);
     when(eitherMock.getResult()).thenReturn(mock(NodeStatus.class));
     BlockchainEitherTemplate eitherOperationMock = mock(BlockchainEitherTemplate.class);

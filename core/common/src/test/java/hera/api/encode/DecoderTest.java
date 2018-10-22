@@ -7,7 +7,6 @@ package hera.api.encode;
 import static java.util.UUID.randomUUID;
 
 import hera.AbstractTestCase;
-import hera.api.encode.Decoder;
 import hera.util.HexUtils;
 import java.io.IOException;
 import java.io.StringReader;

@@ -4,22 +4,23 @@
 
 package hera.client;
 
+import static com.google.common.util.concurrent.Futures.*;
+import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.api.model.BytesValue.of;
 import static hera.util.TransportUtils.copyFrom;
 import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 import hera.Context;
-import hera.FutureChainer;
+import hera.FutureChain;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.TransactionAsyncOperation;
 import hera.api.model.AccountAddress;
+import hera.api.model.BytesValue;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -38,6 +39,7 @@ import types.Blockchain.Tx;
 import types.Blockchain.TxInBlock;
 import types.Blockchain.TxList;
 import types.Rpc;
+import types.Rpc.CommitResult;
 import types.Rpc.CommitResultList;
 import types.Rpc.SingleBytes;
 
@@ -72,8 +74,8 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation, Chan
     final ByteString byteString = copyFrom(txHash.getBytesValue());
     final SingleBytes hashBytes = SingleBytes.newBuilder().setValue(byteString).build();
     ListenableFuture<TxInBlock> listenableFuture = aergoService.getBlockTX(hashBytes);
-    FutureChainer<TxInBlock, Transaction> callback = new FutureChainer<TxInBlock, Transaction>(
-        nextFuture, txInBlock -> transactionInBlockConverter.convertToDomainModel(txInBlock)) {
+    FutureChain<TxInBlock, Transaction> callback = new FutureChain<TxInBlock, Transaction>(
+        nextFuture, transactionInBlockConverter::convertToDomainModel) {
       @Override
       public void onFailure(Throwable throwable) {
         try {
@@ -86,7 +88,7 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation, Chan
         }
       }
     };
-    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+    addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
   }
@@ -98,7 +100,7 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation, Chan
     final Tx tx = transactionConverter.convertToRpcModel(transaction);
     final TxList txList = TxList.newBuilder().addTxs(tx).build();
     ListenableFuture<CommitResultList> listenableFuture = aergoService.commitTX(txList);
-    FutureChainer<CommitResultList, TxHash> callback = new FutureChainer<CommitResultList, TxHash>(
+    FutureChain<CommitResultList, TxHash> callback = new FutureChain<CommitResultList, TxHash>(
         nextFuture, commitResultList -> commitResultList.getResultsList().stream()
             .map(r -> r.getHash().toByteArray()).map(b -> new TxHash(of(b))).findFirst().get()) {
       @Override
@@ -111,7 +113,7 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation, Chan
         }
       }
     };
-    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+    addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
   }
@@ -127,12 +129,17 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation, Chan
     transaction.setAmount(amount);
     final Tx tx = transactionConverter.convertToRpcModel(transaction);
     ListenableFuture<Rpc.CommitResult> listenableFuture = aergoService.sendTX(tx);
-    FutureChainer<Rpc.CommitResult, TxHash> callback =
-        new FutureChainer<Rpc.CommitResult, TxHash>(nextFuture,
+
+    // FIXME: c is safe?
+    FutureChain<CommitResult, TxHash> callback =
+        new FutureChain<>(nextFuture,
             c -> ofNullable(c).filter(v -> Rpc.CommitStatus.TX_OK == v.getError())
-                .map(v -> v.getHash().toByteArray()).map(b -> new TxHash(of(b)))
+                .map(Rpc.CommitResult::getHash)
+                .map(ByteString::toByteArray)
+                .map(BytesValue::new)
+                .map(TxHash::new)
                 .orElseThrow(() -> new CommitException(c.getError())));
-    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+    addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
   }

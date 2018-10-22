@@ -4,17 +4,17 @@
 
 package hera.client;
 
+import static com.google.common.util.concurrent.Futures.*;
+import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.util.TransportUtils.longToByteArray;
 import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 import hera.Context;
-import hera.FutureChainer;
+import hera.FutureChain;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.BlockchainAsyncOperation;
@@ -75,9 +75,9 @@ public class BlockchainAsyncTemplate implements BlockchainAsyncOperation, Channe
 
     final Empty empty = Empty.newBuilder().build();
     ListenableFuture<Rpc.BlockchainStatus> listenableFuture = aergoService.blockchain(empty);
-    FutureChainer<Rpc.BlockchainStatus, BlockchainStatus> callback = new FutureChainer<>(nextFuture,
-        blockchainStatus -> blockchainConverter.convertToDomainModel(blockchainStatus));
-    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+    FutureChain<Rpc.BlockchainStatus, BlockchainStatus> callback = new FutureChain<>(nextFuture,
+        blockchainConverter::convertToDomainModel);
+    addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
   }
@@ -89,10 +89,10 @@ public class BlockchainAsyncTemplate implements BlockchainAsyncOperation, Channe
 
     final Empty empty = Empty.newBuilder().build();
     ListenableFuture<PeerList> listenableFuture = aergoService.getPeers(empty);
-    FutureChainer<PeerList, List<Peer>> callback =
-        new FutureChainer<>(nextFuture, peerlist -> peerlist.getPeersList().stream()
+    FutureChain<PeerList, List<Peer>> callback =
+        new FutureChain<>(nextFuture, peerlist -> peerlist.getPeersList().stream()
             .map(peerConverter::convertToDomainModel).collect(toList()));
-    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+    addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
   }
@@ -104,9 +104,9 @@ public class BlockchainAsyncTemplate implements BlockchainAsyncOperation, Channe
     ByteString byteString = ByteString.copyFrom(longToByteArray(3000L));
     SingleBytes rawTimeout = SingleBytes.newBuilder().setValue(byteString).build();
     ListenableFuture<Rpc.SingleBytes> listenableFuture = aergoService.nodeState(rawTimeout);
-    FutureChainer<Rpc.SingleBytes, NodeStatus> callback = new FutureChainer<>(nextFuture,
-        nodeStatus -> nodeStatusConverter.convertToDomainModel(nodeStatus));
-    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+    FutureChain<SingleBytes, NodeStatus> callback = new FutureChain<>(nextFuture,
+        nodeStatusConverter::convertToDomainModel);
+    addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
   }
