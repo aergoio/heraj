@@ -43,7 +43,7 @@ public class TransactionOperationIT extends AbstractIT {
 
     // fulfill the balance
     aergoClient.getAccountOperation().unlock(Authentication.of(rich.getAddress(), richPassword));
-    aergoClient.getTransactionOperation().send(rich, account, 10L);
+    aergoClient.getTransactionOperation().send(rich, account, 100L);
     aergoClient.getAccountOperation().lock(Authentication.of(rich.getAddress(), richPassword));
 
     waitForNextBlockToGenerate();
@@ -92,7 +92,7 @@ public class TransactionOperationIT extends AbstractIT {
 
     // fulfill the balance
     aergoClient.getAccountOperation().unlock(Authentication.of(rich.getAddress(), richPassword));
-    aergoClient.getTransactionOperation().send(rich, account, 10L);
+    aergoClient.getTransactionOperation().send(rich, account, 100L);
     aergoClient.getAccountOperation().lock(Authentication.of(rich.getAddress(), richPassword));
 
     waitForNextBlockToGenerate();
@@ -142,7 +142,7 @@ public class TransactionOperationIT extends AbstractIT {
 
     // fulfill the balance
     aergoClient.getAccountOperation().unlock(Authentication.of(rich.getAddress(), richPassword));
-    aergoClient.getTransactionOperation().send(rich, account, 10L);
+    aergoClient.getTransactionOperation().send(rich, account, 100L);
     aergoClient.getAccountOperation().lock(Authentication.of(rich.getAddress(), richPassword));
 
     waitForNextBlockToGenerate();
@@ -197,7 +197,7 @@ public class TransactionOperationIT extends AbstractIT {
 
     // fulfill the balance
     aergoClient.getAccountOperation().unlock(Authentication.of(rich.getAddress(), richPassword));
-    aergoClient.getTransactionOperation().send(rich, account, 10L);
+    aergoClient.getTransactionOperation().send(rich, account, 100L);
     aergoClient.getAccountOperation().lock(Authentication.of(rich.getAddress(), richPassword));
 
     waitForNextBlockToGenerate();
@@ -253,7 +253,7 @@ public class TransactionOperationIT extends AbstractIT {
 
     // fulfill the balance
     aergoClient.getAccountOperation().unlock(Authentication.of(rich.getAddress(), richPassword));
-    aergoClient.getTransactionOperation().send(rich, sender, 10L);
+    aergoClient.getTransactionOperation().send(rich, sender, 100L);
     aergoClient.getAccountOperation().lock(Authentication.of(rich.getAddress(), richPassword));
 
     waitForNextBlockToGenerate();
@@ -273,7 +273,7 @@ public class TransactionOperationIT extends AbstractIT {
     aergoClient.getAccountOperation().unlock(Authentication.of(sender.getAddress(), password));
 
     // send tx
-    aergoClient.getTransactionOperation().send(sender, recipient, 3L);
+    aergoClient.getTransactionOperation().send(sender, recipient, 10L);
 
     // lock after it
     aergoClient.getAccountOperation().lock(Authentication.of(sender.getAddress(), password));
@@ -285,7 +285,7 @@ public class TransactionOperationIT extends AbstractIT {
     logger.info("After donation: {}", postState);
 
     // now the poor has 10 aergo
-    assertEquals(3L, postState.getBalance());
+    assertEquals(10L, postState.getBalance());
 
     // close the client
     aergoClient.close();

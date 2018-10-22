@@ -51,8 +51,10 @@ public class ContractOperationIT extends AbstractIT {
 
     // we need a money to deploy/execute smart contract
     aergoClient.getAccountOperation().unlock(Authentication.of(rich.getAddress(), richPassword));
-    aergoClient.getTransactionOperation().send(rich, account, 1L);
+    aergoClient.getTransactionOperation().send(rich, account, 100L);
     aergoClient.getAccountOperation().lock(Authentication.of(rich.getAddress(), richPassword));
+
+    waitForNextBlockToGenerate();
 
     // define contract definition
     final ContractDefinition definition =
@@ -109,8 +111,10 @@ public class ContractOperationIT extends AbstractIT {
 
     // we need a money to deploy/execute smart contract
     aergoClient.getAccountOperation().unlock(Authentication.of(rich.getAddress(), richPassword));
-    aergoClient.getTransactionOperation().send(rich, account, 3L);
+    aergoClient.getTransactionOperation().send(rich, account, 100L);
     aergoClient.getAccountOperation().lock(Authentication.of(rich.getAddress(), richPassword));
+
+    waitForNextBlockToGenerate();
 
     // define contract definition
     final ContractDefinition definition =
@@ -186,8 +190,10 @@ public class ContractOperationIT extends AbstractIT {
 
     // we need a money to deploy/execute smart contract
     aergoClient.getAccountOperation().unlock(Authentication.of(rich.getAddress(), richPassword));
-    aergoClient.getTransactionOperation().send(rich, account, 3L);
+    aergoClient.getTransactionOperation().send(rich, account, 100L);
     aergoClient.getAccountOperation().lock(Authentication.of(rich.getAddress(), richPassword));
+
+    waitForNextBlockToGenerate();
 
     // unlock smart contract executor
     aergoClient.getAccountOperation().unlock(Authentication.of(account.getAddress(), password));
