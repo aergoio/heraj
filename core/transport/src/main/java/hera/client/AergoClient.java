@@ -14,6 +14,7 @@ import hera.api.BlockOperation;
 import hera.api.BlockchainOperation;
 import hera.api.ContractOperation;
 import hera.api.TransactionOperation;
+import hera.exception.RpcException;
 import hera.strategy.ConnectStrategy;
 import io.grpc.ManagedChannel;
 import java.io.Closeable;
@@ -32,8 +33,9 @@ public class AergoClient extends AbstractAergoApi implements Closeable, AutoClos
   protected final Context context;
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final ManagedChannel channel = (ManagedChannel) context.getStrategy(ConnectStrategy.class)
-      .map(ConnectStrategy::connect).get();
+  private final ManagedChannel channel =
+      (ManagedChannel) context.getStrategy(ConnectStrategy.class).map(ConnectStrategy::connect)
+          .orElseThrow(() -> new RpcException("ConnectStrategy must be present in context"));
 
   @Getter(lazy = true)
   private final AccountOperation accountOperation = resolveInjection(new AccountTemplate());

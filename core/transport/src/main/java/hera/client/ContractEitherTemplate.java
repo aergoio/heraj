@@ -19,6 +19,7 @@ import hera.api.model.ContractTxReceipt;
 import hera.api.model.Fee;
 import hera.api.model.Time;
 import hera.api.tupleorerror.ResultOrError;
+import hera.exception.RpcException;
 import hera.strategy.TimeoutStrategy;
 import io.grpc.ManagedChannel;
 import lombok.Getter;
@@ -33,7 +34,8 @@ public class ContractEitherTemplate implements ContractEitherOperation, ChannelI
 
   @Getter(lazy = true)
   private final Time timeout =
-      context.getStrategy(TimeoutStrategy.class).map(TimeoutStrategy::getTimeout).get();
+      context.getStrategy(TimeoutStrategy.class).map(TimeoutStrategy::getTimeout)
+          .orElseThrow(() -> new RpcException("TimeoutStrategy must be present in context"));
 
   @Override
   public void setContext(final Context context) {
