@@ -4,6 +4,9 @@
 
 package hera.api.model;
 
+import static java.util.Optional.ofNullable;
+
+import hera.util.StringUtils;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -18,8 +21,9 @@ public class NodeStatus {
 
   @Override
   public String toString() {
-    return "Node status:\n"
-        + moduleStatus.stream().map(Object::toString).reduce((a, b) -> a + "\n" + b).get();
+    return "Node status:\n" + ofNullable(moduleStatus)
+        .flatMap(m -> m.stream().map(Object::toString).reduce((a, b) -> a + "\n" + b))
+        .orElse(StringUtils.NULL_STRING);
   }
 
 }

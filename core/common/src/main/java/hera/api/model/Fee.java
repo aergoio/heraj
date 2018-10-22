@@ -20,11 +20,13 @@ public class Fee {
   protected static Fee defaultFee = new Fee(MIN_PRICE, MIN_LIMIT);
 
   /**
-   * Build {@code Fee} object. If {@code price} &lt; 0, price is set as {@link #MIN_PRICE}. Similarly,
-   * if {@code limit} &lt; 0, limit is set as {@link #MIN_LIMIT}.
+   * Build {@code Fee} object. If {@code price} &lt; 0, price is set as {@link #MIN_PRICE}.
+   * Similarly, if {@code limit} &lt; 0, limit is set as {@link #MIN_LIMIT}.
    *
    * @param price fee price
    * @param limit fee limit
+   *
+   * @return created {@code Fee}
    */
   public static Fee of(final Long price, final long limit) {
     return new Fee(price, limit);

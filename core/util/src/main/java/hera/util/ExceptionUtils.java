@@ -132,7 +132,7 @@ public class ExceptionUtils {
    *
    * @param left left error
    * @param right right error
-   * @return
+   * @return concated stack trace
    */
   public static StackTraceElement[] concat(final Throwable left, final Throwable right) {
     final StackTraceElement[] leftTrace = left.getStackTrace();

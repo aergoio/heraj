@@ -8,9 +8,6 @@ import java.util.concurrent.TimeUnit;
 public interface EitherFuture<EitherT> extends Future<EitherT> {
 
   /**
-   *
-   * FIXME: Where is EitherFutures
-   *
    * If not already completed, completes this {@link EitherFuture} with a
    * {@link CancellationException}. Dependent {@link EitherFuture} that have not already completed
    * will also complete exceptionally, with a {@link CompletionException} caused by this

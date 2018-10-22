@@ -21,6 +21,8 @@ public class ContractDefinition {
    *
    * @param encodedContract base58 with checksum encoded contract definition
    * @param args constructor arguments
+   *
+   * @return created {@code ContractDefinition}
    */
   public static ContractDefinition of(final Base58WithCheckSum encodedContract,
       final Object... args) {

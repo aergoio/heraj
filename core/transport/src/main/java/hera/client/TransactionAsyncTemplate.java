@@ -8,7 +8,7 @@ import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.api.model.BytesValue.of;
 import static hera.util.TransportUtils.copyFrom;
-import static java.util.Optional.ofNullable;
+import static java.util.Optional.of;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
@@ -130,10 +130,9 @@ public class TransactionAsyncTemplate implements TransactionAsyncOperation, Chan
     final Tx tx = transactionConverter.convertToRpcModel(transaction);
     ListenableFuture<Rpc.CommitResult> listenableFuture = aergoService.sendTX(tx);
 
-    // FIXME: c is safe?
     FutureChain<CommitResult, TxHash> callback =
         new FutureChain<>(nextFuture,
-            c -> ofNullable(c).filter(v -> Rpc.CommitStatus.TX_OK == v.getError())
+            c -> of(c).filter(v -> Rpc.CommitStatus.TX_OK == v.getError())
                 .map(Rpc.CommitResult::getHash)
                 .map(ByteString::toByteArray)
                 .map(BytesValue::new)

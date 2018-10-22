@@ -21,6 +21,8 @@ public class ContractInvocation {
    * @param address contract address
    * @param function invocation function
    * @param args arguments of invocation function
+   *
+   * @return created {@code ContractInvocation}
    */
   public static ContractInvocation of(final ContractAddress address,
       final ContractFunction function, final Object... args) {
