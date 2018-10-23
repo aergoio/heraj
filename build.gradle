@@ -11,9 +11,10 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath 'me.champeau.gradle:jmh-gradle-plugin:0.4.7'
+    classpath "me.champeau.gradle:jmh-gradle-plugin:0.4.7"
     classpath "gradle.plugin.io.morethan.jmhreport:gradle-jmh-report:0.8.0"
     classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0"
+    classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+"
   }
 }
 group 'io.aergo'
@@ -52,6 +53,7 @@ configure(javaProjects) {
   apply plugin: 'com.github.hierynomus.license-report'
   apply plugin: 'idea'
   apply plugin: 'eclipse'
+  apply plugin: 'com.jfrog.bintray'
 
   sourceCompatibility = JavaVersion.VERSION_1_8
   targetCompatibility = JavaVersion.VERSION_1_8
@@ -167,9 +169,31 @@ configure(javaProjects) {
   publishing {
     publications {
       maven(MavenPublication) {
-        artifactId = 'heraj-' + project.name
+        groupId = project.group
+        artifactId = 'hera-' + project.name
+        version = project.version
+
+        from components.java
       }
     }
+  }
+
+  bintray {
+    user = System.getenv("BINTRAY_USER")
+    key = System.getenv("BINTRAY_KEY")
+    pkg {
+      userOrg = System.getenv("BINTRAY_USER")
+      repo = 'maven'
+      name = 'hera-' + project.name
+      licenses = ['MIT']
+      websiteUrl = 'https://github.com/aergoio/heraj'
+      vcsUrl = 'https://github.com/aergoio/heraj'
+      version {
+        name = project.version
+        vcsTag = project.version
+      }
+    }
+    publications = ['maven']
   }
 
   task sourcesJar(type: Jar, dependsOn: classes) {
