@@ -166,6 +166,16 @@ configure(javaProjects) {
     }
   }
 
+  task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier = 'sources'
+  }
+
+  task javadocJar(type: Jar) {
+    from javadoc
+    classifier = 'javadoc'
+  }
+
   publishing {
     publications {
       maven(MavenPublication) {
@@ -174,6 +184,8 @@ configure(javaProjects) {
         version = project.version
 
         from components.java
+        artifact sourceJar
+        artifact javadocJar
       }
     }
   }
