@@ -22,10 +22,40 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import org.slf4j.Logger;
 
+/**
+ * <p>
+ * Build aergo client.
+ * </p>
+ * Usage
+ * <pre>
+ *   AergoClient aergoClient = new AergoClientBuilder()
+ *           .addStrategy(new NettyConnectStrategy("localhost:7845"))
+ *           .addStrategy(new SimpleTimeoutStrategy(10000L))
+ *           .build();
+ *
+ *   AergoEitherClient aergoEitherClient = new AergoClientBuilder()
+ *           .addStrategy(new NettyConnectStrategy("localhost:7845"))
+ *           .addStrategy(new SimpleTimeoutStrategy(10000L))
+ *           .buildEither();
+ *
+ *   AergoAsyncClient aergoAsyncClient = new AergoClientBuilder()
+ *           .addStrategy(new NettyConnectStrategy("localhost:7845"))
+ *           .addStrategy(new SimpleTimeoutStrategy(10000L))
+ *           .buildAsync();
+ * </pre>
+ *
+ * @author taeiklim
+ *
+ */
 @ApiAudience.Public
 @ApiStability.Unstable
 public class AergoClientBuilder {
 
+  /**
+   * A default context is holding {@link hera.strategy.NettyConnectStrategy} with a endpoint
+   * {@code localhost:7845} and holding {@link hera.strategy.SimpleTimeoutStrategy} with 5 seconds
+   * timeout.
+   */
   @Getter
   protected static Context defaultContext;
 
@@ -62,7 +92,8 @@ public class AergoClientBuilder {
   }
 
   /**
-   * Build {@link AergoClient} with the current context.
+   * Build {@link AergoClient} with the current context. If necessary strategy is not provided, add
+   * necessary strategy from the {@link #defaultContext}.
    *
    * @return {@link AergoClient}
    */
@@ -73,7 +104,8 @@ public class AergoClientBuilder {
   }
 
   /**
-   * Build {@link AergoEitherClient} with the current context.
+   * Build {@link AergoEitherClient} with the current context. If necessary strategy is not
+   * provided, add necessary strategy from the {@link #defaultContext}.
    *
    * @return {@link AergoEitherClient}
    */
@@ -84,7 +116,8 @@ public class AergoClientBuilder {
   }
 
   /**
-   * Build {@link AergoAsyncClient} with the current context.
+   * Build {@link AergoAsyncClient} with the current context. If necessary strategy is not provided,
+   * add necessary strategy from the {@link #defaultContext}.
    *
    * @return {@link AergoAsyncClient}
    */
