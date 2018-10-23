@@ -2,5 +2,5 @@
  * @copyright defined in LICENSE.txt
  */
 jar {
-  archivesBaseName = 'hera-annotation'
+  archivesBaseName = 'heraj-annotation'
 }

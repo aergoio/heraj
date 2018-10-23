@@ -180,7 +180,7 @@ configure(javaProjects) {
     publications {
       maven(MavenPublication) {
         groupId = project.group
-        artifactId = 'hera-' + project.name
+        artifactId = 'heraj-' + project.name
         version = project.version
 
         from components.java
@@ -196,7 +196,7 @@ configure(javaProjects) {
     pkg {
       userOrg = System.getenv("BINTRAY_USER")
       repo = 'maven'
-      name = 'hera-' + project.name
+      name = 'heraj-' + project.name
       licenses = ['MIT']
       websiteUrl = 'https://github.com/aergoio/heraj'
       vcsUrl = 'https://github.com/aergoio/heraj'

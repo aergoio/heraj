@@ -35,7 +35,7 @@ protobuf {
 }
 
 jar {
-  archivesBaseName = 'hera-protobuf'
+  archivesBaseName = 'heraj-protobuf'
 }
 
 dependencies {

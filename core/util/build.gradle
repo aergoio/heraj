@@ -3,7 +3,7 @@
  */
 
 jar {
-  archivesBaseName = 'hera-util'
+  archivesBaseName = 'heraj-util'
 }
 
 dependencies {
