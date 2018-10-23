@@ -8,6 +8,37 @@
 The hera is the client-side framework for the aergo.
 This repository, heraj is java implementation for hera.
 
+## Download
+
+### Maven
+```sh
+<repositories>
+  <repository>
+    <id>jcenter</id>
+    <url>https://jcenter.bintray.com</url>
+  </repository>
+</repositories>
+...
+<dependencies>
+  <dependency>
+    <groupId>io.aergo</groupId>
+    <artifactId>hera-transport</artifactId>
+    <version>${RECENT_VERSION}</version>
+  </dependency>
+</dependencies>
+```
+
+### Gradle
+```sh
+repositories {
+  jcenter()
+}
+...
+dependencies {
+  implementation 'io.aergo:hera-transport:${RECENT_VERSION}'
+}
+```
+
 The heraj provides the next:
 * Utilities
 * Aergo client(both low and high level API)
