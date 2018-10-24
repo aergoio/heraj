@@ -52,8 +52,8 @@ function execute-documentation() {
   gem install bundler
   bundle install --gemfile $PROJECT_HOME/assembly/doc/gh-pages/Gemfile
   git clone $(git remote get-url origin) $BUILD_WORKSPACE/heraj-doc -b gh-pages
-  git -C $BUILD_WORKSPACE/heraj-doc config user.email $(git config user.email)
-  git -C $BUILD_WORKSPACE/heraj-doc config user.name $(git config user.name)
+  git -C $BUILD_WORKSPACE/heraj-doc config user.email "$(git config user.email)"
+  git -C $BUILD_WORKSPACE/heraj-doc config user.name "$(git config user.name)"
   
   jekyll build -s $PROJECT_HOME/assembly/doc/gh-pages -d $BUILD_WORKSPACE/heraj-doc
   $PROJECT_HOME/gradlew build
