@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ContractInvocation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.model</a> &gt; <span class="el_source">ContractInvocation.java</span></div><h1>ContractInvocation.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.api.model;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+<span class="nc" id="L13">@ToString</span>
+<span class="nc bnc" id="L14" title="All 24 branches missed.">@EqualsAndHashCode</span>
+<span class="nc" id="L15">@NoArgsConstructor</span>
+public class ContractInvocation {
+
+  /**
+   * Build contract invocation.
+   *
+   * @param address contract address
+   * @param function invocation function
+   * @param args arguments of invocation function
+   *
+   * @return created {@code ContractInvocation}
+   */
+  public static ContractInvocation of(final ContractAddress address,
+      final ContractFunction function, final Object... args) {
+<span class="nc" id="L29">    return new ContractInvocation(address, function, args);</span>
+  }
+
+<span class="nc" id="L32">  @Setter</span>
+<span class="fc" id="L33">  @Getter</span>
+  protected ContractAddress address;
+
+<span class="nc" id="L36">  @Setter</span>
+<span class="fc" id="L37">  @Getter</span>
+  protected ContractFunction function;
+
+<span class="pc" id="L40">  @Setter</span>
+<span class="fc" id="L41">  @Getter</span>
+  protected Object[] args = new Object[0];
+
+  /**
+   * Contract invocation constructor.
+   *
+   * @param address contract address
+   * @param function invocation function
+   * @param args arguments of invocation function
+   */
+  public ContractInvocation(final ContractAddress address, final ContractFunction function,
+<span class="fc" id="L52">      final Object... args) {</span>
+<span class="fc" id="L53">    this.address = address;</span>
+<span class="fc" id="L54">    this.function = function;</span>
+<span class="fc" id="L55">    this.args = args;</span>
+<span class="fc" id="L56">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

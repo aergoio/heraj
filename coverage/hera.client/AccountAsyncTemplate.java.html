@@ -1,143 +1,264 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AccountAsyncTemplate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.client</a> &gt; <span class="el_source">AccountAsyncTemplate.java</span></div><h1>AccountAsyncTemplate.java</h1><pre class="source lang-java linenums">/*
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AccountAsyncTemplate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.client</a> &gt; <span class="el_source">AccountAsyncTemplate.java</span></div><h1>AccountAsyncTemplate.java</h1><pre class="source lang-java linenums">/*
  * @copyright defined in LICENSE.txt
  */
 
 package hera.client;
 
-import static com.google.protobuf.ByteString.copyFrom;
+import static com.google.common.util.concurrent.Futures.addCallback;
+import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
+import static hera.api.tupleorerror.FunctionChain.success;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
-import hera.FutureChainer;
+import hera.Context;
+import hera.FutureChain;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.AccountAsyncOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountState;
 import hera.api.model.Authentication;
+import hera.api.model.BytesValue;
+import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.KeyHoldable;
+import hera.api.model.ServerManagedAccount;
+import hera.api.model.Signature;
+import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
+import hera.exception.RpcException;
+import hera.exception.TransactionVerificationException;
+import hera.transport.AccountAddressConverterFactory;
 import hera.transport.AccountConverterFactory;
 import hera.transport.AccountStateConverterFactory;
+import hera.transport.AuthenticationConverterFactory;
+import hera.transport.EncryptedPrivateKeyConverterFactory;
 import hera.transport.ModelConverter;
+import hera.transport.TransactionConverterFactory;
 import io.grpc.ManagedChannel;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import org.slf4j.Logger;
 import types.AccountOuterClass;
 import types.AccountOuterClass.AccountList;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Blockchain;
-import types.Rpc.Empty;
-import types.Rpc.Personal;
+import types.Blockchain.State;
+import types.Blockchain.Tx;
+import types.Rpc;
 import types.Rpc.SingleBytes;
+import types.Rpc.VerifyResult;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 @SuppressWarnings(&quot;unchecked&quot;)
-<span class="fc" id="L37">@RequiredArgsConstructor</span>
-public class AccountAsyncTemplate implements AccountAsyncOperation {
+<span class="fc" id="L62">public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjectable {</span>
 
-  protected final AergoRPCServiceFutureStub aergoService;
+<span class="fc" id="L64">  protected final Logger logger = getLogger(getClass());</span>
 
-  protected final ModelConverter&lt;Account, AccountOuterClass.Account&gt; accountConverter;
+<span class="fc" id="L66">  protected final ModelConverter&lt;AccountAddress, ByteString&gt; accountAddressConverter =</span>
+<span class="fc" id="L67">      new AccountAddressConverterFactory().create();</span>
 
-  protected final ModelConverter&lt;Account, Blockchain.State&gt; accountStateConverter;
+<span class="fc" id="L69">  protected final ModelConverter&lt;EncryptedPrivateKey, Rpc.SingleBytes&gt; encryptedPkConverter =</span>
+<span class="fc" id="L70">      new EncryptedPrivateKeyConverterFactory().create();</span>
 
-  public AccountAsyncTemplate(final ManagedChannel channel) {
-<span class="nc" id="L47">    this(newFutureStub(channel));</span>
-<span class="nc" id="L48">  }</span>
+<span class="fc" id="L72">  protected final ModelConverter&lt;ServerManagedAccount, AccountOuterClass.Account&gt; accountConverter =</span>
+<span class="fc" id="L73">      new AccountConverterFactory().create();</span>
 
-  public AccountAsyncTemplate(final AergoRPCServiceFutureStub aergoService) {
-<span class="fc" id="L51">    this(aergoService, new AccountConverterFactory().create(),</span>
-<span class="fc" id="L52">        new AccountStateConverterFactory().create());</span>
-<span class="fc" id="L53">  }</span>
+<span class="fc" id="L75">  protected final ModelConverter&lt;AccountState, Blockchain.State&gt; accountStateConverter =</span>
+<span class="fc" id="L76">      new AccountStateConverterFactory().create();</span>
+
+<span class="fc" id="L78">  protected final ModelConverter&lt;Authentication, Rpc.Personal&gt; authenticationConverter =</span>
+<span class="fc" id="L79">      new AuthenticationConverterFactory().create();</span>
+
+<span class="fc" id="L81">  protected final ModelConverter&lt;Transaction, Blockchain.Tx&gt; transactionConverter =</span>
+<span class="fc" id="L82">      new TransactionConverterFactory().create();</span>
+
+<span class="fc" id="L84">  @Setter</span>
+  protected Context context;
+
+<span class="nc" id="L87">  @Getter</span>
+  protected AergoRPCServiceFutureStub aergoService;
 
   @Override
-  public ResultOrErrorFuture&lt;List&lt;Account&gt;&gt; list() {
-<span class="fc" id="L57">    ResultOrErrorFuture&lt;List&lt;Account&gt;&gt; nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
+  public void injectChannel(final ManagedChannel channel) {
+<span class="fc" id="L92">    this.aergoService = newFutureStub(channel);</span>
+<span class="fc" id="L93">  }</span>
 
-<span class="fc" id="L59">    ListenableFuture&lt;AccountList&gt; listenableFuture = aergoService</span>
-<span class="fc" id="L60">        .getAccounts(Empty.newBuilder().build());</span>
-<span class="fc" id="L61">    FutureChainer&lt;AccountList, List&lt;Account&gt;&gt; callback = new FutureChainer&lt;&gt;(nextFuture,</span>
-<span class="nc" id="L62">        accountList -&gt; accountList.getAccountsList().stream()</span>
-<span class="nc" id="L63">            .map(accountConverter::convertToDomainModel)</span>
-<span class="nc" id="L64">            .collect(toList()));</span>
-<span class="fc" id="L65">    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());</span>
+  @Override
+  public ResultOrErrorFuture&lt;List&lt;AccountAddress&gt;&gt; list() {
+    ResultOrErrorFuture&lt;List&lt;AccountAddress&gt;&gt; nextFuture =
+<span class="fc" id="L98">        ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
 
-<span class="fc" id="L67">    return nextFuture;</span>
+<span class="fc" id="L100">    ListenableFuture&lt;AccountList&gt; listenableFuture =</span>
+<span class="fc" id="L101">        aergoService.getAccounts(Rpc.Empty.newBuilder().build());</span>
+<span class="fc" id="L102">    FutureChain&lt;AccountList, List&lt;AccountAddress&gt;&gt; callback = new FutureChain&lt;&gt;(nextFuture,</span>
+<span class="fc" id="L103">        accountList -&gt; accountList.getAccountsList().stream()</span>
+<span class="fc" id="L104">            .map(accountConverter::convertToDomainModel).map(Account::getAddress)</span>
+<span class="fc" id="L105">            .collect(toList()));</span>
+<span class="fc" id="L106">    addCallback(listenableFuture, callback, directExecutor());</span>
+
+<span class="fc" id="L108">    return nextFuture;</span>
   }
 
   @Override
-  public ResultOrErrorFuture&lt;Account&gt; create(String password) {
-<span class="fc" id="L72">    ResultOrErrorFuture&lt;Account&gt; nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
+  public ResultOrErrorFuture&lt;ServerManagedAccount&gt; create(final String password) {
+    ResultOrErrorFuture&lt;ServerManagedAccount&gt; nextFuture =
+<span class="fc" id="L114">        ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
 
-<span class="fc" id="L74">    final Personal personal = Personal.newBuilder().setPassphrase(password).build();</span>
-<span class="fc" id="L75">    ListenableFuture&lt;AccountOuterClass.Account&gt; listenableFuture = aergoService</span>
-<span class="fc" id="L76">        .createAccount(personal);</span>
-<span class="fc" id="L77">    FutureChainer&lt;AccountOuterClass.Account, Account&gt; callback = new FutureChainer&lt;&gt;(nextFuture,</span>
-        account -&gt; {
-<span class="nc" id="L79">          Account domainAccount = accountConverter.convertToDomainModel(account);</span>
-<span class="nc" id="L80">          domainAccount.setPassword(password);</span>
-<span class="nc" id="L81">          return domainAccount;</span>
+<span class="fc" id="L116">    final Rpc.Personal personal = Rpc.Personal.newBuilder().setPassphrase(password).build();</span>
+<span class="fc" id="L117">    ListenableFuture&lt;AccountOuterClass.Account&gt; listenableFuture =</span>
+<span class="fc" id="L118">        aergoService.createAccount(personal);</span>
+<span class="fc" id="L119">    FutureChain&lt;AccountOuterClass.Account, ServerManagedAccount&gt; callback =</span>
+        new FutureChain&lt;&gt;(nextFuture, accountConverter::convertToDomainModel);
+<span class="fc" id="L121">    addCallback(listenableFuture, callback, directExecutor());</span>
+
+<span class="fc" id="L123">    return nextFuture;</span>
+  }
+
+  @Override
+  public ResultOrErrorFuture&lt;AccountState&gt; getState(final AccountAddress address) {
+<span class="fc" id="L128">    ResultOrErrorFuture&lt;AccountState&gt; nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
+
+<span class="fc" id="L130">    final Rpc.SingleBytes bytes = Rpc.SingleBytes.newBuilder()</span>
+<span class="fc" id="L131">        .setValue(accountAddressConverter.convertToRpcModel(address)).build();</span>
+<span class="fc" id="L132">    ListenableFuture&lt;Blockchain.State&gt; listenableFuture = aergoService.getState(bytes);</span>
+<span class="fc" id="L133">    FutureChain&lt;State, AccountState&gt; callback =</span>
+        new FutureChain&lt;&gt;(nextFuture, state -&gt; {
+<span class="fc" id="L135">          final AccountState accountState = accountStateConverter.convertToDomainModel(state);</span>
+<span class="fc" id="L136">          accountState.setAddress(address);</span>
+<span class="fc" id="L137">          return accountState;</span>
         });
-<span class="fc" id="L83">    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());</span>
+<span class="fc" id="L139">    addCallback(listenableFuture, callback, directExecutor());</span>
 
-<span class="fc" id="L85">    return nextFuture;</span>
-  }
-
-  @Override
-  public ResultOrErrorFuture&lt;Account&gt; get(AccountAddress address) {
-<span class="fc" id="L90">    ResultOrErrorFuture&lt;Account&gt; nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
-
-<span class="fc" id="L92">    final ByteString byteString = copyFrom(address.getValue());</span>
-<span class="fc" id="L93">    final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();</span>
-<span class="fc" id="L94">    ListenableFuture&lt;Blockchain.State&gt; listenableFuture = aergoService.getState(bytes);</span>
-<span class="fc" id="L95">    FutureChainer&lt;Blockchain.State, Account&gt; callback = new FutureChainer&lt;&gt;(nextFuture, state -&gt; {</span>
-<span class="nc" id="L96">      final Account account = accountStateConverter.convertToDomainModel(state);</span>
-<span class="nc" id="L97">      account.setAddress(address);</span>
-<span class="nc" id="L98">      return account;</span>
-    });
-<span class="fc" id="L100">    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());</span>
-
-<span class="fc" id="L102">    return nextFuture;</span>
+<span class="fc" id="L141">    return nextFuture;</span>
   }
 
   @Override
   public ResultOrErrorFuture&lt;Boolean&gt; unlock(final Authentication authentication) {
-<span class="fc" id="L107">    ResultOrErrorFuture&lt;Boolean&gt; nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
+<span class="fc" id="L146">    ResultOrErrorFuture&lt;Boolean&gt; nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
 
-<span class="fc" id="L109">    final Account domainAccount =</span>
-<span class="fc" id="L110">        Account.of(authentication.getAddress(), authentication.getPassword());</span>
-<span class="fc" id="L111">    final Personal rpcPersonal = Personal.newBuilder()</span>
-<span class="fc" id="L112">        .setAccount(accountConverter.convertToRpcModel(domainAccount))</span>
-<span class="fc" id="L113">        .setPassphrase(domainAccount.getPassword()).build();</span>
-<span class="fc" id="L114">    ListenableFuture&lt;AccountOuterClass.Account&gt; listenableFuture = aergoService</span>
-<span class="fc" id="L115">        .unlockAccount(rpcPersonal);</span>
-<span class="fc" id="L116">    FutureChainer&lt;AccountOuterClass.Account, Boolean&gt; callback = new FutureChainer&lt;&gt;(nextFuture,</span>
-<span class="nc bnc" id="L117" title="All 2 branches missed.">        account -&gt; null != account.getAddress());</span>
-<span class="fc" id="L118">    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());</span>
+<span class="fc" id="L148">    ListenableFuture&lt;AccountOuterClass.Account&gt; listenableFuture =</span>
+<span class="fc" id="L149">        aergoService.unlockAccount(authenticationConverter.convertToRpcModel(authentication));</span>
+<span class="fc" id="L150">    FutureChain&lt;AccountOuterClass.Account, Boolean&gt; callback =</span>
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">        new FutureChain&lt;&gt;(nextFuture, account -&gt; null != account.getAddress());</span>
+<span class="fc" id="L152">    addCallback(listenableFuture, callback, directExecutor());</span>
 
-<span class="fc" id="L120">    return nextFuture;</span>
+<span class="fc" id="L154">    return nextFuture;</span>
+  }
 
+  @Override
+  public ResultOrErrorFuture&lt;Signature&gt; sign(final Account account, final Transaction transaction) {
+<span class="fc" id="L159">    ResultOrErrorFuture&lt;Signature&gt; nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
+
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">    if (account instanceof KeyHoldable) {</span>
+<span class="fc" id="L162">      final KeyHoldable keyHoldable = (KeyHoldable) account;</span>
+<span class="fc" id="L163">      final Transaction copy = Transaction.copyOf(transaction);</span>
+<span class="fc" id="L164">      final BytesValue signature = keyHoldable.sign(copy.calculateHash().getBytesValue().get());</span>
+<span class="fc" id="L165">      copy.setSignature(Signature.of(signature, null));</span>
+<span class="fc" id="L166">      nextFuture.complete(success(Signature.of(signature, copy.calculateHash())));</span>
+<span class="fc" id="L167">    } else {</span>
+<span class="nc" id="L168">      final Blockchain.Tx rpcTransaction = transactionConverter.convertToRpcModel(transaction);</span>
+<span class="nc" id="L169">      final ListenableFuture&lt;Blockchain.Tx&gt; listenableFuture = aergoService.signTX(rpcTransaction);</span>
+<span class="nc" id="L170">      FutureChain&lt;Tx, Signature&gt; callback = new FutureChain&lt;&gt;(nextFuture, tx -&gt; {</span>
+<span class="nc" id="L171">        final BytesValue sign = ofNullable(tx.getBody().getSign()).map(ByteString::toByteArray)</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">            .filter(bytes -&gt; 0 != bytes.length).map(BytesValue::of).orElseThrow(</span>
+<span class="nc" id="L173">                () -&gt; new RpcException(&quot;Signing failed: sign field is not found at sign result&quot;));</span>
+<span class="nc" id="L174">        final TxHash hash = ofNullable(tx.getHash()).map(ByteString::toByteArray)</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">            .filter(bytes -&gt; 0 != bytes.length).map(BytesValue::new).map(TxHash::new).orElseThrow(</span>
+<span class="nc" id="L176">                () -&gt; new RpcException(&quot;Signing failed: txHash field is not found at sign result&quot;));</span>
+<span class="nc" id="L177">        return Signature.of(sign, hash);</span>
+      });
+<span class="nc" id="L179">      addCallback(listenableFuture, callback, directExecutor());</span>
+    }
+
+<span class="fc" id="L182">    return nextFuture;</span>
+  }
+
+  @Override
+  public ResultOrErrorFuture&lt;Boolean&gt; verify(Account account, Transaction transaction) {
+<span class="nc" id="L187">    ResultOrErrorFuture&lt;Boolean&gt; nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
+
+<span class="nc bnc" id="L189" title="All 2 branches missed.">    if (account instanceof KeyHoldable) {</span>
+<span class="nc" id="L190">      final KeyHoldable keyHoldable = (KeyHoldable) account;</span>
+<span class="nc" id="L191">      final Transaction copy = Transaction.copyOf(transaction);</span>
+<span class="nc" id="L192">      final BytesValue signature = copy.getSignature().getSign();</span>
+<span class="nc" id="L193">      copy.setSignature(null);</span>
+<span class="nc" id="L194">      nextFuture.complete(</span>
+<span class="nc" id="L195">          success(keyHoldable.verify(copy.calculateHash().getBytesValue().get(), signature)));</span>
+<span class="nc" id="L196">    } else {</span>
+<span class="nc" id="L197">      final Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);</span>
+<span class="nc" id="L198">      ListenableFuture&lt;Rpc.VerifyResult&gt; listenableFuture = aergoService.verifyTX(tx);</span>
+<span class="nc" id="L199">      FutureChain&lt;VerifyResult, Boolean&gt; callback =</span>
+          new FutureChain&lt;VerifyResult, Boolean&gt;(nextFuture,
+<span class="nc bnc" id="L201" title="All 2 branches missed.">              verifyResult -&gt; Rpc.VerifyStatus.VERIFY_STATUS_OK == verifyResult.getError()) {</span>
+            @Override
+            public void onSuccess(Rpc.VerifyResult t) {
+<span class="nc bnc" id="L204" title="All 2 branches missed.">              if (Rpc.VerifyStatus.VERIFY_STATUS_OK == t.getError()) {</span>
+<span class="nc" id="L205">                super.onSuccess(t);</span>
+              } else {
+<span class="nc" id="L207">                super.onFailure(new TransactionVerificationException(t.getError()));</span>
+              }
+<span class="nc" id="L209">            }</span>
+          };
+<span class="nc" id="L211">      addCallback(listenableFuture, callback, directExecutor());</span>
+    }
+
+<span class="nc" id="L214">    return nextFuture;</span>
   }
 
   @Override
   public ResultOrErrorFuture&lt;Boolean&gt; lock(final Authentication authentication) {
-<span class="fc" id="L126">    ResultOrErrorFuture&lt;Boolean&gt; nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
+<span class="fc" id="L219">    ResultOrErrorFuture&lt;Boolean&gt; nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
 
-<span class="fc" id="L128">    final Account domainAccount =</span>
-<span class="fc" id="L129">        Account.of(authentication.getAddress(), authentication.getPassword());</span>
-<span class="fc" id="L130">    final Personal rpcPersonal = Personal.newBuilder()</span>
-<span class="fc" id="L131">        .setAccount(accountConverter.convertToRpcModel(domainAccount))</span>
-<span class="fc" id="L132">        .setPassphrase(domainAccount.getPassword()).build();</span>
-<span class="fc" id="L133">    ListenableFuture&lt;AccountOuterClass.Account&gt; listenableFuture = aergoService</span>
-<span class="fc" id="L134">        .lockAccount(rpcPersonal);</span>
-<span class="fc" id="L135">    FutureChainer&lt;AccountOuterClass.Account, Boolean&gt; callback = new FutureChainer&lt;&gt;(nextFuture,</span>
-<span class="nc bnc" id="L136" title="All 2 branches missed.">        account -&gt; null != account.getAddress());</span>
-<span class="fc" id="L137">    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());</span>
+<span class="fc" id="L221">    ListenableFuture&lt;AccountOuterClass.Account&gt; listenableFuture =</span>
+<span class="fc" id="L222">        aergoService.lockAccount(authenticationConverter.convertToRpcModel(authentication));</span>
+<span class="fc" id="L223">    FutureChain&lt;AccountOuterClass.Account, Boolean&gt; callback =</span>
+<span class="pc bpc" id="L224" title="1 of 2 branches missed.">        new FutureChain&lt;&gt;(nextFuture, account -&gt; null != account.getAddress());</span>
+<span class="fc" id="L225">    addCallback(listenableFuture, callback, directExecutor());</span>
 
-<span class="fc" id="L139">    return nextFuture;</span>
+<span class="fc" id="L227">    return nextFuture;</span>
   }
 
+  @Override
+  public ResultOrErrorFuture&lt;ServerManagedAccount&gt; importKey(final EncryptedPrivateKey encryptedKey,
+      final String oldPassword, final String newPassword) {
+    ResultOrErrorFuture&lt;ServerManagedAccount&gt; nextFuture =
+<span class="fc" id="L234">        ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
+
+    final Rpc.ImportFormat importFormat =
+<span class="fc" id="L237">        Rpc.ImportFormat.newBuilder().setWif(encryptedPkConverter.convertToRpcModel(encryptedKey))</span>
+<span class="fc" id="L238">            .setOldpass(oldPassword).setNewpass(newPassword).build();</span>
+<span class="fc" id="L239">    ListenableFuture&lt;AccountOuterClass.Account&gt; listenableFuture =</span>
+<span class="fc" id="L240">        aergoService.importAccount(importFormat);</span>
+<span class="fc" id="L241">    FutureChain&lt;AccountOuterClass.Account, ServerManagedAccount&gt; callback = new FutureChain&lt;&gt;(</span>
+        nextFuture, accountConverter::convertToDomainModel);
+<span class="fc" id="L243">    addCallback(listenableFuture, callback, directExecutor());</span>
+
+<span class="fc" id="L245">    return nextFuture;</span>
+  }
+
+  @Override
+  public ResultOrErrorFuture&lt;EncryptedPrivateKey&gt; exportKey(final Authentication authentication) {
+    ResultOrErrorFuture&lt;EncryptedPrivateKey&gt; nextFuture =
+<span class="fc" id="L251">        ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
+
+<span class="fc" id="L253">    ListenableFuture&lt;Rpc.SingleBytes&gt; listenableFuture =</span>
+<span class="fc" id="L254">        aergoService.exportAccount(authenticationConverter.convertToRpcModel(authentication));</span>
+<span class="fc" id="L255">    FutureChain&lt;SingleBytes, EncryptedPrivateKey&gt; callback =</span>
+        new FutureChain&lt;&gt;(nextFuture, encryptedPkConverter::convertToDomainModel);
+<span class="fc" id="L257">    addCallback(listenableFuture, callback, directExecutor());</span>
+
+<span class="fc" id="L259">    return nextFuture;</span>
+  }
+
+
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Fee.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.model</a> &gt; <span class="el_source">Fee.java</span></div><h1>Fee.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.api.model;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+
+<span class="fc" id="L11">@ToString</span>
+<span class="pc bpc" id="L12" title="9 of 10 branches missed.">@EqualsAndHashCode</span>
+public class Fee {
+
+  public static final long MIN_PRICE = 1;
+
+  public static final long MIN_LIMIT = 1;
+
+<span class="fc" id="L19">  @Getter</span>
+<span class="fc" id="L20">  protected static Fee defaultFee = new Fee(MIN_PRICE, MIN_LIMIT);</span>
+
+  /**
+   * Build {@code Fee} object. If {@code price} &amp;lt; 0, price is set as {@link #MIN_PRICE}.
+   * Similarly, if {@code limit} &amp;lt; 0, limit is set as {@link #MIN_LIMIT}.
+   *
+   * @param price fee price
+   * @param limit fee limit
+   *
+   * @return created {@code Fee}
+   */
+  public static Fee of(final Long price, final long limit) {
+<span class="fc" id="L32">    return new Fee(price, limit);</span>
+  }
+
+<span class="fc" id="L35">  @Getter</span>
+  protected long price;
+
+<span class="fc" id="L38">  @Getter</span>
+  protected long limit;
+
+  /**
+   * Fee constructor. If {@code price} $lt; 0, price is set as {@link #MIN_PRICE}. Similarly, if
+   * {@code limit} &amp;lt; 0, limit is set as {@link #MIN_LIMIT}.
+   *
+   * @param price fee price
+   * @param limit fee limit
+   */
+<span class="fc" id="L48">  public Fee(final long price, final long limit) {</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">    this.price = price &gt;= 0 ? price : MIN_PRICE;</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">    this.limit = limit &gt;= 0 ? limit : MIN_LIMIT;</span>
+<span class="fc" id="L51">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

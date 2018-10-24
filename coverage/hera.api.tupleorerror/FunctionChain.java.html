@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FunctionChain.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.tupleorerror</a> &gt; <span class="el_source">FunctionChain.java</span></div><h1>FunctionChain.java</h1><pre class="source lang-java linenums">/*
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FunctionChain.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.tupleorerror</a> &gt; <span class="el_source">FunctionChain.java</span></div><h1>FunctionChain.java</h1><pre class="source lang-java linenums">/*
  * @copyright defined in LICENSE.txt
  */
 
@@ -24,8 +24,8 @@ import java.util.function.Supplier;
    */
   public static &lt;T1, T2&gt; Tuple2OrError&lt;T1, T2&gt; seq(Supplier&lt;ResultOrError&lt;T1&gt;&gt; f1,
       Supplier&lt;ResultOrError&lt;T2&gt;&gt; f2) {
-<span class="fc" id="L27">    ResultOrErrorFuture future1 = ResultOrErrorFutureFactory.supply(() -&gt; f1.get());</span>
-<span class="fc" id="L28">    ResultOrErrorFuture future2 = ResultOrErrorFutureFactory.supply(() -&gt; f2.get());</span>
+<span class="fc" id="L27">    ResultOrErrorFuture future1 = ResultOrErrorFutureFactory.supply(f1);</span>
+<span class="fc" id="L28">    ResultOrErrorFuture future2 = ResultOrErrorFutureFactory.supply(f2);</span>
 
 <span class="fc" id="L30">    Tuple2OrErrorFuture&lt;T1, T2&gt; future =</span>
 <span class="fc" id="L31">        hera.api.tupleorerror.FutureFunctionChain.seq(() -&gt; future1, () -&gt; future2);</span>
@@ -45,9 +45,9 @@ import java.util.function.Supplier;
    */
   public static &lt;T1, T2, T3&gt; Tuple3OrError&lt;T1, T2, T3&gt; seq(Supplier&lt;ResultOrError&lt;T1&gt;&gt; f1,
       Supplier&lt;ResultOrError&lt;T2&gt;&gt; f2, Supplier&lt;ResultOrError&lt;T3&gt;&gt; f3) {
-<span class="fc" id="L48">    ResultOrErrorFuture future1 = ResultOrErrorFutureFactory.supply(() -&gt; f1.get());</span>
-<span class="fc" id="L49">    ResultOrErrorFuture future2 = ResultOrErrorFutureFactory.supply(() -&gt; f2.get());</span>
-<span class="fc" id="L50">    ResultOrErrorFuture future3 = ResultOrErrorFutureFactory.supply(() -&gt; f3.get());</span>
+<span class="fc" id="L48">    ResultOrErrorFuture future1 = ResultOrErrorFutureFactory.supply(f1);</span>
+<span class="fc" id="L49">    ResultOrErrorFuture future2 = ResultOrErrorFutureFactory.supply(f2);</span>
+<span class="fc" id="L50">    ResultOrErrorFuture future3 = ResultOrErrorFutureFactory.supply(f3);</span>
 
 <span class="fc" id="L52">    Tuple3OrErrorFuture&lt;T1, T2, T3&gt; future =</span>
 <span class="fc" id="L53">        hera.api.tupleorerror.FutureFunctionChain.seq(() -&gt; future1, () -&gt; future2, () -&gt; future3);</span>
@@ -70,10 +70,10 @@ import java.util.function.Supplier;
   public static &lt;T1, T2, T3, T4&gt; Tuple4OrError&lt;T1, T2, T3, T4&gt; seq(Supplier&lt;ResultOrError&lt;T1&gt;&gt; f1,
       Supplier&lt;ResultOrError&lt;T2&gt;&gt; f2, Supplier&lt;ResultOrError&lt;T3&gt;&gt; f3,
       Supplier&lt;ResultOrError&lt;T4&gt;&gt; f4) {
-<span class="fc" id="L73">    ResultOrErrorFuture future1 = ResultOrErrorFutureFactory.supply(() -&gt; f1.get());</span>
-<span class="fc" id="L74">    ResultOrErrorFuture future2 = ResultOrErrorFutureFactory.supply(() -&gt; f2.get());</span>
-<span class="fc" id="L75">    ResultOrErrorFuture future3 = ResultOrErrorFutureFactory.supply(() -&gt; f3.get());</span>
-<span class="fc" id="L76">    ResultOrErrorFuture future4 = ResultOrErrorFutureFactory.supply(() -&gt; f4.get());</span>
+<span class="fc" id="L73">    ResultOrErrorFuture future1 = ResultOrErrorFutureFactory.supply(f1);</span>
+<span class="fc" id="L74">    ResultOrErrorFuture future2 = ResultOrErrorFutureFactory.supply(f2);</span>
+<span class="fc" id="L75">    ResultOrErrorFuture future3 = ResultOrErrorFutureFactory.supply(f3);</span>
+<span class="fc" id="L76">    ResultOrErrorFuture future4 = ResultOrErrorFutureFactory.supply(f4);</span>
 
 <span class="fc" id="L78">    Tuple4OrErrorFuture&lt;T1, T2, T3, T4&gt; future = hera.api.tupleorerror.FutureFunctionChain</span>
 <span class="fc" id="L79">        .seq(() -&gt; future1, () -&gt; future2, () -&gt; future3, () -&gt; future4);</span>
@@ -101,4 +101,4 @@ import java.util.function.Supplier;
   }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

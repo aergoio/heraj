@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ModuleStatus.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.model</a> &gt; <span class="el_source">ModuleStatus.java</span></div><h1>ModuleStatus.java</h1><pre class="source lang-java linenums">/*
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ModuleStatus.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.model</a> &gt; <span class="el_source">ModuleStatus.java</span></div><h1>ModuleStatus.java</h1><pre class="source lang-java linenums">/*
  * @copyright defined in LICENSE.txt
  */
 
@@ -6,40 +6,42 @@ package hera.api.model;
 
 import java.util.Collections;
 import java.util.Map;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-<span class="nc" id="L13">@ToString</span>
-<span class="fc" id="L14">public class ModuleStatus {</span>
+<span class="nc" id="L14">@ToString</span>
+<span class="nc bnc" id="L15" title="All 50 branches missed.">@EqualsAndHashCode</span>
+<span class="fc" id="L16">public class ModuleStatus {</span>
 
-<span class="nc" id="L16">  @Getter</span>
-<span class="fc" id="L17">  @Setter</span>
+<span class="nc" id="L18">  @Getter</span>
+<span class="fc" id="L19">  @Setter</span>
   protected String moduleName;
 
-<span class="nc" id="L20">  @Getter</span>
-<span class="fc" id="L21">  @Setter</span>
+<span class="nc" id="L22">  @Getter</span>
+<span class="fc" id="L23">  @Setter</span>
   protected String status;
 
-<span class="nc" id="L24">  @Getter</span>
-<span class="fc" id="L25">  @Setter</span>
+<span class="nc" id="L26">  @Getter</span>
+<span class="fc" id="L27">  @Setter</span>
   protected long processedMessageCount;
 
-<span class="nc" id="L28">  @Getter</span>
-<span class="fc" id="L29">  @Setter</span>
+<span class="nc" id="L30">  @Getter</span>
+<span class="fc" id="L31">  @Setter</span>
   protected long queuedMessageCount;
 
-<span class="nc" id="L32">  @Getter</span>
-<span class="fc" id="L33">  @Setter</span>
+<span class="nc" id="L34">  @Getter</span>
+<span class="fc" id="L35">  @Setter</span>
   protected Time latency;
 
-<span class="nc" id="L36">  @Getter</span>
-<span class="fc" id="L37">  @Setter</span>
+<span class="nc" id="L38">  @Getter</span>
+<span class="fc" id="L39">  @Setter</span>
   protected String error;
 
-<span class="pc" id="L40">  @Getter</span>
-<span class="fc" id="L41">  @Setter</span>
-<span class="fc" id="L42">  protected Map&lt;String, Object&gt; actor = Collections.emptyMap();</span>
+<span class="pc" id="L42">  @Getter</span>
+<span class="fc" id="L43">  @Setter</span>
+<span class="fc" id="L44">  protected Map&lt;String, Object&gt; actor = Collections.emptyMap();</span>
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

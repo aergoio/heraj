@@ -1,16 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HerajException.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.exception</a> &gt; <span class="el_source">HerajException.java</span></div><h1>HerajException.java</h1><pre class="source lang-java linenums">/*
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HerajException.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.exception</a> &gt; <span class="el_source">HerajException.java</span></div><h1>HerajException.java</h1><pre class="source lang-java linenums">/*
  * @copyright defined in LICENSE.txt
  */
 
 package hera.exception;
 
-public class HerajException extends RuntimeException {
+public class HerajException extends RuntimeException implements Cloneable {
 
   private static final long serialVersionUID = 1429103468497275409L;
 
   protected HerajException() {
-<span class="nc" id="L12">    super();</span>
-<span class="nc" id="L13">  }</span>
+<span class="fc" id="L12">    super();</span>
+<span class="fc" id="L13">  }</span>
 
   public HerajException(String message) {
 <span class="fc" id="L16">    super(message);</span>
@@ -21,8 +21,13 @@ public class HerajException extends RuntimeException {
 <span class="fc" id="L21">  }</span>
 
   public HerajException(String message, Throwable cause) {
-<span class="nc" id="L24">    super(message, cause);</span>
-<span class="nc" id="L25">  }</span>
+<span class="fc" id="L24">    super(message, cause);</span>
+<span class="fc" id="L25">  }</span>
+
+  @Override
+  public HerajException clone() {
+<span class="fc" id="L29">    return new HerajException(getMessage(), getCause());</span>
+  }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

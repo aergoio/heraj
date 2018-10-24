@@ -1,63 +1,53 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BlockChainTemplate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.client</a> &gt; <span class="el_source">BlockChainTemplate.java</span></div><h1>BlockChainTemplate.java</h1><pre class="source lang-java linenums">/*
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BlockchainTemplate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.client</a> &gt; <span class="el_source">BlockchainTemplate.java</span></div><h1>BlockchainTemplate.java</h1><pre class="source lang-java linenums">/*
  * @copyright defined in LICENSE.txt
  */
 
 package hera.client;
 
-import static hera.TransportConstants.TIMEOUT;
-
-import hera.api.BlockChainAsyncOperation;
-import hera.api.BlockChainOperation;
+import hera.Context;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.api.BlockchainOperation;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
-import hera.api.model.PeerAddress;
-import hera.api.tupleorerror.ResultOrError;
-import hera.exception.HerajException;
+import hera.api.model.Peer;
 import io.grpc.ManagedChannel;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import lombok.RequiredArgsConstructor;
-import types.AergoRPCServiceGrpc;
-import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
-<span class="fc" id="L23">@RequiredArgsConstructor</span>
-public class BlockChainTemplate implements BlockChainOperation {
+@ApiAudience.Private
+@ApiStability.Unstable
+<span class="fc" id="L19">public class BlockchainTemplate implements BlockchainOperation, ChannelInjectable {</span>
 
-  protected final BlockChainAsyncOperation blockChainAsyncOperation;
+  protected Context context;
 
-  public BlockChainTemplate(final ManagedChannel channel) {
-<span class="nc" id="L29">    this(AergoRPCServiceGrpc.newFutureStub(channel));</span>
-<span class="nc" id="L30">  }</span>
-
-  public BlockChainTemplate(final AergoRPCServiceFutureStub aergoService) {
-<span class="nc" id="L33">    this(new BlockChainAsyncTemplate(aergoService));</span>
-<span class="nc" id="L34">  }</span>
+<span class="fc" id="L23">  protected BlockchainEitherTemplate blockchainEitherOperation =</span>
+      new BlockchainEitherTemplate();
 
   @Override
-  public ResultOrError&lt;BlockchainStatus&gt; getBlockchainStatus() {
-    try {
-<span class="fc" id="L39">      return blockChainAsyncOperation.getBlockchainStatus().get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
-<span class="nc" id="L40">    } catch (Exception e) {</span>
-<span class="nc" id="L41">      throw new HerajException(e);</span>
-    }
+  public void setContext(final Context context) {
+<span class="fc" id="L28">    this.context = context;</span>
+<span class="fc" id="L29">    blockchainEitherOperation.setContext(context);</span>
+<span class="fc" id="L30">  }</span>
+
+  @Override
+  public void injectChannel(final ManagedChannel channel) {
+<span class="fc" id="L34">    blockchainEitherOperation.injectChannel(channel);</span>
+<span class="fc" id="L35">  }</span>
+
+  @Override
+  public BlockchainStatus getBlockchainStatus() {
+<span class="fc" id="L39">    return blockchainEitherOperation.getBlockchainStatus().getResult();</span>
   }
 
   @Override
-  public ResultOrError&lt;List&lt;PeerAddress&gt;&gt; listPeers() {
-    try {
-<span class="fc" id="L48">      return blockChainAsyncOperation.listPeers().get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
-<span class="nc" id="L49">    } catch (Exception e) {</span>
-<span class="nc" id="L50">      throw new HerajException(e);</span>
-    }
+  public List&lt;Peer&gt; listPeers() {
+<span class="fc" id="L44">    return blockchainEitherOperation.listPeers().getResult();</span>
   }
 
   @Override
-  public ResultOrError&lt;NodeStatus&gt; getNodeStatus() {
-    try {
-<span class="fc" id="L57">      return blockChainAsyncOperation.getNodeStatus().get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
-<span class="nc" id="L58">    } catch (Exception e) {</span>
-<span class="nc" id="L59">      throw new HerajException(e);</span>
-    }
+  public NodeStatus getNodeStatus() {
+<span class="fc" id="L49">    return blockchainEitherOperation.getNodeStatus().getResult();</span>
   }
+
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

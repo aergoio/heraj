@@ -1,46 +1,32 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NettyConnectStrategy.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.strategy</a> &gt; <span class="el_source">NettyConnectStrategy.java</span></div><h1>NettyConnectStrategy.java</h1><pre class="source lang-java linenums">/*
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NettyConnectStrategy.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.strategy</a> &gt; <span class="el_source">NettyConnectStrategy.java</span></div><h1>NettyConnectStrategy.java</h1><pre class="source lang-java linenums">/*
  * @copyright defined in LICENSE.txt
  */
 
 package hera.strategy;
 
-import static hera.DefaultConstants.DEFAULT_ENDPOINT;
 import static hera.DefaultConstants.DEFAULT_RPC_PORT;
 
 import hera.api.model.HostnameAndPort;
-import hera.util.Configurable;
-import hera.util.Configuration;
 import io.grpc.ManagedChannel;
 import io.grpc.netty.NettyChannelBuilder;
-import lombok.Setter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
-<span class="fc" id="L17">public class NettyConnectStrategy</span>
-    implements ConnectStrategy&lt;ManagedChannel&gt;, Configurable&lt;Configuration&gt; {
+<span class="pc bpc" id="L15" title="1 of 2 branches missed.">@RequiredArgsConstructor</span>
+public class NettyConnectStrategy implements ConnectStrategy&lt;ManagedChannel&gt; {
 
-<span class="nc" id="L20">  @Setter</span>
-  protected Configuration configuration;
+  @NonNull
+  protected final HostnameAndPort endpoint;
 
-  protected HostnameAndPort getEndpoint() {
-<span class="nc" id="L24">    return HostnameAndPort.of(configuration.getAsString(&quot;endpoint&quot;, DEFAULT_ENDPOINT));</span>
-  }
-
-  /**
-   * Connect to {@code endpoint}.
-   *
-   * @param endpoint endpoint to connect to
-   *
-   * @return channel to be connected
-   */
-  public ManagedChannel connect(final HostnameAndPort endpoint) {
-<span class="fc" id="L35">    return NettyChannelBuilder</span>
-<span class="fc" id="L36">        .forAddress(endpoint.getHostname(), endpoint.getPort(DEFAULT_RPC_PORT))</span>
-<span class="fc" id="L37">        .usePlaintext()</span>
-<span class="fc" id="L38">        .build();</span>
-  }
+  public NettyConnectStrategy(final String hostname) {
+<span class="nc" id="L22">    this(HostnameAndPort.of(hostname));</span>
+<span class="nc" id="L23">  }</span>
 
   @Override
   public ManagedChannel connect() {
-<span class="nc" id="L43">    return connect(getEndpoint());</span>
+<span class="fc" id="L27">    return NettyChannelBuilder</span>
+<span class="fc" id="L28">        .forAddress(endpoint.getHostname(), endpoint.getPort(DEFAULT_RPC_PORT)).usePlaintext()</span>
+<span class="fc" id="L29">        .build();</span>
   }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

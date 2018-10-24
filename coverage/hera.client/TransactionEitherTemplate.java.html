@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransactionEitherTemplate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.client</a> &gt; <span class="el_source">TransactionEitherTemplate.java</span></div><h1>TransactionEitherTemplate.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.client;
+
+import hera.Context;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.api.TransactionEitherOperation;
+import hera.api.model.AccountAddress;
+import hera.api.model.Time;
+import hera.api.model.Transaction;
+import hera.api.model.TxHash;
+import hera.api.tupleorerror.ResultOrError;
+import hera.exception.RpcException;
+import hera.strategy.TimeoutStrategy;
+import io.grpc.ManagedChannel;
+import lombok.Getter;
+
+@ApiAudience.Private
+@ApiStability.Unstable
+<span class="fc" id="L23">public class TransactionEitherTemplate implements TransactionEitherOperation, ChannelInjectable {</span>
+
+  protected Context context;
+
+<span class="fc" id="L27">  protected TransactionAsyncTemplate transactionAsyncOperation = new TransactionAsyncTemplate();</span>
+
+<span class="pc bpc" id="L29" title="3 of 8 branches missed.">  @Getter(lazy = true)</span>
+  private final Time timeout =
+      context.getStrategy(TimeoutStrategy.class).map(TimeoutStrategy::getTimeout)
+          .orElseThrow(() -&gt; new RpcException(&quot;TimeoutStrategy must be present in context&quot;));
+
+  @Override
+  public void setContext(final Context context) {
+<span class="fc" id="L36">    this.context = context;</span>
+<span class="fc" id="L37">    transactionAsyncOperation.setContext(context);</span>
+<span class="fc" id="L38">  }</span>
+
+  @Override
+  public void injectChannel(final ManagedChannel channel) {
+<span class="fc" id="L42">    transactionAsyncOperation.injectChannel(channel);</span>
+<span class="fc" id="L43">  }</span>
+
+  @Override
+  public ResultOrError&lt;Transaction&gt; getTransaction(final TxHash txHash) {
+<span class="fc" id="L47">    return transactionAsyncOperation.getTransaction(txHash).get(getTimeout().getValue(),</span>
+<span class="fc" id="L48">        getTimeout().getUnit());</span>
+  }
+
+  @Override
+  public ResultOrError&lt;TxHash&gt; commit(final Transaction transaction) {
+<span class="fc" id="L53">    return transactionAsyncOperation.commit(transaction).get(getTimeout().getValue(),</span>
+<span class="fc" id="L54">        getTimeout().getUnit());</span>
+  }
+
+  @Override
+  public ResultOrError&lt;TxHash&gt; send(final AccountAddress sender, final AccountAddress recipient,
+      final long amount) {
+<span class="fc" id="L60">    return transactionAsyncOperation.send(sender, recipient, amount).get(getTimeout().getValue(),</span>
+<span class="fc" id="L61">        getTimeout().getUnit());</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

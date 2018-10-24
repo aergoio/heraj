@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AergoAsyncClient.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.client</a> &gt; <span class="el_source">AergoAsyncClient.java</span></div><h1>AergoAsyncClient.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.client;
+
+import hera.Context;
+import hera.ContextAware;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.api.AbstractAsyncAergoApi;
+import hera.api.AccountAsyncOperation;
+import hera.api.BlockAsyncOperation;
+import hera.api.BlockchainAsyncOperation;
+import hera.api.ContractAsyncOperation;
+import hera.api.TransactionAsyncOperation;
+import hera.strategy.ConnectStrategy;
+import io.grpc.ManagedChannel;
+import java.io.Closeable;
+import java.util.concurrent.TimeUnit;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
+@ApiAudience.Private
+@ApiStability.Unstable
+<span class="pc bpc" id="L28" title="1 of 2 branches missed.">@RequiredArgsConstructor</span>
+public class AergoAsyncClient extends AbstractAsyncAergoApi implements Closeable, AutoCloseable {
+
+  @NonNull
+  protected final Context context;
+
+<span class="pc bpc" id="L34" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final ManagedChannel channel = (ManagedChannel) context.getStrategy(ConnectStrategy.class)
+      .map(ConnectStrategy::connect).get();
+
+<span class="pc bpc" id="L38" title="4 of 8 branches missed.">  @Getter(lazy = true)</span>
+  private final AccountAsyncOperation accountAsyncOperation =
+      resolveInjection(new AccountAsyncTemplate());
+
+<span class="pc bpc" id="L42" title="4 of 8 branches missed.">  @Getter(lazy = true)</span>
+  private final BlockAsyncOperation blockAsyncOperation =
+      resolveInjection(new BlockAsyncTemplate());
+
+<span class="pc bpc" id="L46" title="4 of 8 branches missed.">  @Getter(lazy = true)</span>
+  private final BlockchainAsyncOperation blockchainAsyncOperation =
+      resolveInjection(new BlockchainAsyncTemplate());
+
+<span class="pc bpc" id="L50" title="4 of 8 branches missed.">  @Getter(lazy = true)</span>
+  private final TransactionAsyncOperation transactionAsyncOperation =
+      resolveInjection(new TransactionAsyncTemplate());
+
+<span class="pc bpc" id="L54" title="4 of 8 branches missed.">  @Getter(lazy = true)</span>
+  private final ContractAsyncOperation contractAsyncOperation =
+      resolveInjection(new ContractAsyncTemplate());
+
+  protected &lt;T&gt; T resolveInjection(final T target) {
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">    if (target instanceof ContextAware) {</span>
+<span class="fc" id="L60">      ((ContextAware) target).setContext(context);</span>
+    }
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">    if (target instanceof ChannelInjectable) {</span>
+<span class="fc" id="L63">      ((ChannelInjectable) target).injectChannel(getChannel());</span>
+    }
+<span class="fc" id="L65">    return target;</span>
+  }
+
+  @Override
+  public void close() {
+    try {
+<span class="fc" id="L71">      getChannel().shutdown().awaitTermination(3, TimeUnit.SECONDS);</span>
+<span class="nc" id="L72">    } catch (final Throwable e) {</span>
+<span class="nc" id="L73">      logger.debug(&quot;Fail to close aergo client&quot;, e);</span>
+<span class="fc" id="L74">    }</span>
+<span class="fc" id="L75">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

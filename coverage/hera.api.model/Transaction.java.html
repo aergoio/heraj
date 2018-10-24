@@ -1,66 +1,94 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Transaction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.model</a> &gt; <span class="el_source">Transaction.java</span></div><h1>Transaction.java</h1><pre class="source lang-java linenums">/*
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Transaction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.model</a> &gt; <span class="el_source">Transaction.java</span></div><h1>Transaction.java</h1><pre class="source lang-java linenums">/*
  * @copyright defined in LICENSE.txt
  */
 
 package hera.api.model;
 
+import static hera.api.model.BytesValue.of;
 import static hera.util.Sha256Utils.digest;
 import static java.util.Optional.ofNullable;
 
+import hera.VersionUtils;
 import hera.util.LittleEndianDataOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-<span class="fc" id="L17">@ToString</span>
-<span class="fc" id="L18">public class Transaction {</span>
+<span class="fc" id="L21">@ToString</span>
+<span class="pc bpc" id="L22" title="51 of 72 branches missed.">@EqualsAndHashCode</span>
+<span class="fc" id="L23">public class Transaction {</span>
 
-<span class="fc" id="L20">  @Getter</span>
-<span class="fc" id="L21">  @Setter</span>
-  protected BlockHash blockHash;
+<span class="fc" id="L25">  @Getter</span>
+<span class="fc" id="L26">  @Setter</span>
+  protected BlockHash blockHash = new BlockHash(BytesValue.EMPTY);
 
-<span class="fc" id="L24">  @Getter</span>
-<span class="fc" id="L25">  @Setter</span>
-  protected int indexInBlock;
+<span class="fc" id="L29">  @Getter</span>
+<span class="fc" id="L30">  @Setter</span>
+  protected int indexInBlock = 0;
 
-<span class="fc" id="L28">  @Getter</span>
-<span class="fc" id="L29">  @Setter</span>
+<span class="fc" id="L33">  @Getter</span>
+<span class="fc" id="L34">  @Setter</span>
+  protected boolean confirmed = false;
+
+<span class="fc" id="L37">  @Getter</span>
+<span class="fc" id="L38">  @Setter</span>
   protected long nonce;
 
-<span class="fc" id="L32">  @Getter</span>
-<span class="fc" id="L33">  @Setter</span>
-  protected AccountAddress sender = new AccountAddress(null);
-
-<span class="fc" id="L36">  @Getter</span>
-<span class="fc" id="L37">  @Setter</span>
-  protected AccountAddress recipient = new AccountAddress(null);
-
-<span class="fc" id="L40">  @Getter</span>
-<span class="fc" id="L41">  @Setter</span>
-  protected long amount;
+<span class="fc" id="L41">  @Getter</span>
+  protected AccountAddress sender = new AccountAddress(BytesValue.EMPTY);
 
 <span class="fc" id="L44">  @Getter</span>
-<span class="fc" id="L45">  @Setter</span>
-  protected BytesValue payload = new BytesValue(null);
+  protected AccountAddress recipient = new AccountAddress(BytesValue.EMPTY);
 
-<span class="fc" id="L48">  @Getter</span>
-<span class="fc" id="L49">  @Setter</span>
-  protected long limit;
+<span class="fc" id="L47">  @Getter</span>
+<span class="fc" id="L48">  @Setter</span>
+  protected long amount;
 
-<span class="fc" id="L52">  @Getter</span>
-<span class="fc" id="L53">  @Setter</span>
-  protected long price;
+<span class="fc" id="L51">  @Getter</span>
+<span class="fc" id="L52">  @Setter</span>
+  protected BytesValue payload = BytesValue.EMPTY;
 
-<span class="fc" id="L56">  @Getter</span>
-<span class="fc" id="L57">  @Setter</span>
-  protected Signature signature;
+<span class="fc" id="L55">  @Getter</span>
+<span class="fc" id="L56">  @Setter</span>
+<span class="fc" id="L57">  protected Fee fee = Fee.getDefaultFee();</span>
 
-<span class="fc" id="L60">  @Getter</span>
-<span class="fc" id="L61">  @Setter</span>
-  protected TransactionType txType = TransactionType.NORMAL;
+<span class="fc" id="L59">  @Getter</span>
+<span class="fc" id="L60">  @Setter</span>
+<span class="fc" id="L61">  protected Signature signature = Signature.of(BytesValue.EMPTY, new TxHash(BytesValue.EMPTY));</span>
 
+<span class="fc" id="L63">  @Getter</span>
+<span class="fc" id="L64">  @Setter</span>
+  protected TxType txType = TxType.NORMAL;
+
+<span class="fc" id="L67">  @RequiredArgsConstructor</span>
+  public enum TxType {
+<span class="fc" id="L69">    UNRECOGNIZED(-1),</span>
+<span class="fc" id="L70">    NORMAL(0),</span>
+<span class="fc" id="L71">    GOVERNANCE(1);</span>
+
+<span class="fc" id="L73">    @Getter</span>
+    private final int intValue;
+  }
+
+  public void setSender(final AccountAddress sender) {
+<span class="fc" id="L78">    this.sender = sender;</span>
+<span class="fc" id="L79">  }</span>
+
+  public void setSender(final Account sender) {
+<span class="fc" id="L82">    sender.adapt(AccountAddress.class).ifPresent(this::setSender);</span>
+<span class="fc" id="L83">  }</span>
+
+  public void setRecipient(final AccountAddress recipient) {
+<span class="fc" id="L86">    this.recipient = recipient;</span>
+<span class="fc" id="L87">  }</span>
+
+  public void setRecipient(final Account account) {
+<span class="nc" id="L90">    account.adapt(AccountAddress.class).ifPresent(this::setRecipient);</span>
+<span class="nc" id="L91">  }</span>
 
   /**
    * Copy deep.
@@ -69,21 +97,23 @@ import lombok.ToString;
    * @return copied transaction
    */
   public static Transaction copyOf(final Transaction source) {
-<span class="nc bnc" id="L72" title="All 2 branches missed.">    if (null == source) {</span>
-<span class="nc" id="L73">      return null;</span>
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">    if (null == source) {</span>
+<span class="nc" id="L101">      return null;</span>
     }
-<span class="nc" id="L75">    final Transaction copy = new Transaction();</span>
-<span class="nc" id="L76">    copy.setNonce(source.getNonce());</span>
-<span class="nc" id="L77">    ofNullable(source.getSender()).ifPresent(copy::setSender);</span>
-<span class="nc" id="L78">    ofNullable(source.getRecipient()).ifPresent(copy::setRecipient);</span>
-<span class="nc" id="L79">    copy.setAmount(source.getAmount());</span>
-<span class="nc" id="L80">    ofNullable(source.getPayload()).ifPresent(copy::setPayload);</span>
-<span class="nc" id="L81">    copy.setLimit(source.getLimit());</span>
-<span class="nc" id="L82">    copy.setPrice(source.getPrice());</span>
-<span class="nc" id="L83">    copy.setTxType(source.getTxType());</span>
-<span class="nc" id="L84">    copy.setSignature(Signature.copyOf(source.getSignature()));</span>
+<span class="fc" id="L103">    final Transaction copy = new Transaction();</span>
+<span class="fc" id="L104">    copy.setBlockHash(source.getBlockHash());</span>
+<span class="fc" id="L105">    copy.setIndexInBlock(source.getIndexInBlock());</span>
+<span class="fc" id="L106">    copy.setConfirmed(source.isConfirmed());</span>
+<span class="fc" id="L107">    copy.setNonce(source.getNonce());</span>
+<span class="fc" id="L108">    copy.setSender(source.getSender());</span>
+<span class="fc" id="L109">    copy.setRecipient(source.getRecipient());</span>
+<span class="fc" id="L110">    copy.setAmount(source.getAmount());</span>
+<span class="fc" id="L111">    copy.setPayload(source.getPayload());</span>
+<span class="fc" id="L112">    copy.setFee(source.getFee());</span>
+<span class="fc" id="L113">    copy.setTxType(source.getTxType());</span>
+<span class="fc" id="L114">    copy.setSignature(Signature.copyOf(source.getSignature()));</span>
 
-<span class="nc" id="L86">    return copy;</span>
+<span class="fc" id="L116">    return copy;</span>
   }
 
   /**
@@ -93,30 +123,30 @@ import lombok.ToString;
    */
   public TxHash calculateHash() {
     try {
-<span class="fc" id="L96">      final ByteArrayOutputStream raw = new ByteArrayOutputStream();</span>
-<span class="fc" id="L97">      final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(raw);</span>
-<span class="fc" id="L98">      dataOut.writeLong(getNonce());</span>
-<span class="fc" id="L99">      dataOut.write(getSender().getValue());</span>
-<span class="fc" id="L100">      dataOut.write(getRecipient().getValue());</span>
-<span class="fc" id="L101">      dataOut.writeLong(getAmount());</span>
-<span class="fc" id="L102">      dataOut.write(getPayload().getValue());</span>
-<span class="fc" id="L103">      dataOut.writeLong(getLimit());</span>
-<span class="fc" id="L104">      dataOut.writeLong(getPrice());</span>
-<span class="fc" id="L105">      dataOut.writeInt(getTxType().getIntValue());</span>
-<span class="fc" id="L106">      ofNullable(signature).map(Signature::getSign).map(BytesValue::getValue).ifPresent(b -&gt; {</span>
+<span class="fc" id="L126">      final ByteArrayOutputStream raw = new ByteArrayOutputStream();</span>
+<span class="fc" id="L127">      final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(raw);</span>
+<span class="fc" id="L128">      dataOut.writeLong(getNonce());</span>
+<span class="fc" id="L129">      dataOut.write(VersionUtils.trim(getSender().getBytesValue().getValue()));</span>
+<span class="fc" id="L130">      dataOut.write(VersionUtils.trim(getRecipient().getBytesValue().getValue()));</span>
+<span class="fc" id="L131">      dataOut.writeLong(getAmount());</span>
+<span class="fc" id="L132">      dataOut.write(getPayload().getValue());</span>
+<span class="fc" id="L133">      dataOut.writeLong(getFee().getLimit());</span>
+<span class="fc" id="L134">      dataOut.writeLong(getFee().getPrice());</span>
+<span class="fc" id="L135">      dataOut.writeInt(getTxType().getIntValue());</span>
+<span class="fc" id="L136">      ofNullable(signature).map(Signature::getSign).map(BytesValue::getValue).ifPresent(b -&gt; {</span>
         try {
-<span class="fc" id="L108">          dataOut.write(b);</span>
-<span class="nc" id="L109">        } catch (final IOException e) {</span>
-<span class="nc" id="L110">          throw new IllegalStateException(e);</span>
-<span class="fc" id="L111">        }</span>
-<span class="fc" id="L112">      });</span>
-<span class="fc" id="L113">      dataOut.flush();</span>
-<span class="fc" id="L114">      dataOut.close();</span>
-<span class="fc" id="L115">      return new TxHash(digest(raw.toByteArray()));</span>
-<span class="nc" id="L116">    } catch (final IOException e) {</span>
-<span class="nc" id="L117">      throw new IllegalStateException(e);</span>
+<span class="fc" id="L138">          dataOut.write(b);</span>
+<span class="nc" id="L139">        } catch (final IOException e) {</span>
+<span class="nc" id="L140">          throw new IllegalStateException(e);</span>
+<span class="fc" id="L141">        }</span>
+<span class="fc" id="L142">      });</span>
+<span class="fc" id="L143">      dataOut.flush();</span>
+<span class="fc" id="L144">      dataOut.close();</span>
+<span class="fc" id="L145">      return new TxHash(of(digest(raw.toByteArray())));</span>
+<span class="nc" id="L146">    } catch (final IOException e) {</span>
+<span class="nc" id="L147">      throw new IllegalStateException(e);</span>
     }
   }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

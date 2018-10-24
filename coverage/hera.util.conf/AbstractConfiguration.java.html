@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util.conf</a> &gt; <span class="el_source">AbstractConfiguration.java</span></div><h1>AbstractConfiguration.java</h1><pre class="source lang-java linenums">/*
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util.conf</a> &gt; <span class="el_source">AbstractConfiguration.java</span></div><h1>AbstractConfiguration.java</h1><pre class="source lang-java linenums">/*
  * @copyright defined in LICENSE.txt
  */
 
@@ -62,53 +62,53 @@ public abstract class AbstractConfiguration implements Configuration {
 
   @Override
   public Optional&lt;Object&gt; getAsOptional(final String key) {
-<span class="nc" id="L65">    return ofNullable(get(key));</span>
+<span class="fc" id="L65">    return ofNullable(get(key));</span>
   }
 
   @Override
   public String getAsString(final String key, final String defaultValue) {
-<span class="nc" id="L70">    return (String) getAsOptional(key).map(value -&gt; {</span>
-<span class="nc" id="L71">      logger.trace(&quot;Value type: {}&quot;, value.getClass());</span>
-<span class="nc bnc" id="L72" title="All 2 branches missed.">      if (value instanceof String) {</span>
-<span class="nc" id="L73">        return value;</span>
+<span class="fc" id="L70">    return (String) getAsOptional(key).map(value -&gt; {</span>
+<span class="fc" id="L71">      logger.trace(&quot;Value type: {}&quot;, value.getClass());</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">      if (value instanceof String) {</span>
+<span class="fc" id="L73">        return value;</span>
 <span class="nc bnc" id="L74" title="All 2 branches missed.">      } else if (value instanceof CharSequence) {</span>
 <span class="nc" id="L75">        return value.toString();</span>
       } else {
 <span class="nc" id="L77">        return value.toString();</span>
       }
-<span class="nc" id="L79">    }).orElse(defaultValue);</span>
+<span class="fc" id="L79">    }).orElse(defaultValue);</span>
   }
 
   @Override
   public boolean getAsBoolean(final String key, final boolean defaultValue) {
-<span class="nc" id="L84">    return ofNullable(getAsString(key, null))</span>
-<span class="nc" id="L85">        .map(ParsingUtils::convertToBoolean)</span>
-<span class="nc" id="L86">        .orElse(defaultValue);</span>
+<span class="fc" id="L84">    return ofNullable(getAsString(key, null))</span>
+<span class="fc" id="L85">        .map(ParsingUtils::convertToBoolean)</span>
+<span class="fc" id="L86">        .orElse(defaultValue);</span>
   }
 
   @Override
   public int getAsInt(final String key, final int defaultValue) {
-<span class="nc" id="L91">    return ofNullable(getAsString(key, null))</span>
-<span class="nc" id="L92">        .map(ParsingUtils::convertToInt)</span>
-<span class="nc" id="L93">        .orElse(defaultValue);</span>
+<span class="fc" id="L91">    return ofNullable(getAsString(key, null))</span>
+<span class="fc" id="L92">        .map(ParsingUtils::convertToInt)</span>
+<span class="fc" id="L93">        .orElse(defaultValue);</span>
   }
 
   @Override
   public long getAsLong(final String key, final long defaultValue) {
-<span class="nc" id="L98">    return ofNullable(getAsString(key, null))</span>
-<span class="nc" id="L99">        .map(ParsingUtils::convertToLong)</span>
-<span class="nc" id="L100">        .orElse(defaultValue);</span>
+<span class="fc" id="L98">    return ofNullable(getAsString(key, null))</span>
+<span class="fc" id="L99">        .map(ParsingUtils::convertToLong)</span>
+<span class="fc" id="L100">        .orElse(defaultValue);</span>
   }
 
   @Override
   public double getAsDouble(final String key, final double defaultValue) {
-<span class="nc" id="L105">    return ofNullable(getAsString(key, null))</span>
-<span class="nc" id="L106">        .map(ParsingUtils::convertToDouble).orElse(defaultValue);</span>
+<span class="fc" id="L105">    return ofNullable(getAsString(key, null))</span>
+<span class="fc" id="L106">        .map(ParsingUtils::convertToDouble).orElse(defaultValue);</span>
   }
 
   @Override
   public List&lt;String&gt; getAsList(final String key) {
-<span class="nc" id="L111">    return parse(getAsString(key, null));</span>
+<span class="fc" id="L111">    return parse(getAsString(key, null));</span>
   }
 
   @SuppressWarnings(&quot;unchecked&quot;)
@@ -119,4 +119,4 @@ public abstract class AbstractConfiguration implements Configuration {
 <span class="fc" id="L119">        .orElse(EMPTY_LIST);</span>
   }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

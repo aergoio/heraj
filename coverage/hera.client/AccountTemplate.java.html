@@ -1,81 +1,90 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AccountTemplate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.client</a> &gt; <span class="el_source">AccountTemplate.java</span></div><h1>AccountTemplate.java</h1><pre class="source lang-java linenums">/*
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AccountTemplate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.client</a> &gt; <span class="el_source">AccountTemplate.java</span></div><h1>AccountTemplate.java</h1><pre class="source lang-java linenums">/*
  * @copyright defined in LICENSE.txt
  */
 
 package hera.client;
 
-import static hera.TransportConstants.TIMEOUT;
-import static types.AergoRPCServiceGrpc.newFutureStub;
-
-import hera.api.AccountAsyncOperation;
+import hera.Context;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.AccountOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountState;
 import hera.api.model.Authentication;
+import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.ServerManagedAccount;
+import hera.api.model.Signature;
+import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrError;
-import hera.exception.HerajException;
 import io.grpc.ManagedChannel;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import lombok.RequiredArgsConstructor;
-import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
-<span class="fc" id="L23">@RequiredArgsConstructor</span>
-public class AccountTemplate implements AccountOperation {
+@ApiAudience.Private
+@ApiStability.Unstable
+<span class="fc" id="L25">public class AccountTemplate implements AccountOperation, ChannelInjectable {</span>
 
-  protected final AccountAsyncOperation accountAsyncOperation;
+  protected Context context;
 
-  public AccountTemplate(final ManagedChannel channel) {
-<span class="fc" id="L29">    this(newFutureStub(channel));</span>
-<span class="fc" id="L30">  }</span>
-
-  public AccountTemplate(final AergoRPCServiceFutureStub aergoService) {
-<span class="fc" id="L33">    this(new AccountAsyncTemplate(aergoService));</span>
-<span class="fc" id="L34">  }</span>
+<span class="fc" id="L29">  protected AccountEitherTemplate accountEitherOperation = new AccountEitherTemplate();</span>
 
   @Override
-  public ResultOrError&lt;List&lt;Account&gt;&gt; list() {
-    try {
-<span class="fc" id="L39">      return accountAsyncOperation.list().get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
-<span class="nc" id="L40">    } catch (Exception e) {</span>
-<span class="nc" id="L41">      throw new HerajException(e);</span>
-    }
+  public void setContext(final Context context) {
+<span class="fc" id="L33">    this.context = context;</span>
+<span class="fc" id="L34">    accountEitherOperation.setContext(context);</span>
+<span class="fc" id="L35">  }</span>
+
+  @Override
+  public void injectChannel(final ManagedChannel channel) {
+<span class="fc" id="L39">    accountEitherOperation.injectChannel(channel);</span>
+<span class="fc" id="L40">  }</span>
+
+  @Override
+  public List&lt;AccountAddress&gt; list() {
+<span class="fc" id="L44">    return accountEitherOperation.list().getResult();</span>
   }
 
   @Override
-  public ResultOrError&lt;Account&gt; create(String password) {
-    try {
-<span class="fc" id="L48">      return accountAsyncOperation.create(password).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
-<span class="nc" id="L49">    } catch (Exception e) {</span>
-<span class="nc" id="L50">      throw new HerajException(e);</span>
-    }
+  public ServerManagedAccount create(final String password) {
+<span class="fc" id="L49">    return accountEitherOperation.create(password).getResult();</span>
   }
 
   @Override
-  public ResultOrError&lt;Account&gt; get(AccountAddress address) {
-    try {
-<span class="fc" id="L57">      return accountAsyncOperation.get(address).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
-<span class="nc" id="L58">    } catch (Exception e) {</span>
-<span class="nc" id="L59">      throw new HerajException(e);</span>
-    }
+  public AccountState getState(final AccountAddress address) {
+<span class="fc" id="L54">    return accountEitherOperation.getState(address).getResult();</span>
   }
 
   @Override
-  public ResultOrError&lt;Boolean&gt; lock(final Authentication authentication) {
-    try {
-<span class="fc" id="L66">      return accountAsyncOperation.lock(authentication).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
-<span class="nc" id="L67">    } catch (Exception e) {</span>
-<span class="nc" id="L68">      throw new HerajException(e);</span>
-    }
+  public boolean lock(final Authentication authentication) {
+<span class="fc" id="L59">    ResultOrError&lt;Boolean&gt; fuck = accountEitherOperation.lock(authentication);</span>
+<span class="fc" id="L60">    return fuck.getResult();</span>
   }
 
   @Override
-  public ResultOrError&lt;Boolean&gt; unlock(final Authentication authentication) {
-    try {
-<span class="fc" id="L75">      return accountAsyncOperation.unlock(authentication).get(TIMEOUT, TimeUnit.MILLISECONDS);</span>
-<span class="nc" id="L76">    } catch (Exception e) {</span>
-<span class="nc" id="L77">      throw new HerajException(e);</span>
-    }
+  public boolean unlock(final Authentication authentication) {
+<span class="fc" id="L65">    return accountEitherOperation.unlock(authentication).getResult();</span>
   }
+
+  @Override
+  public Signature sign(final Account account, final Transaction transaction) {
+<span class="nc" id="L70">    return accountEitherOperation.sign(account, transaction).getResult();</span>
+  }
+
+  @Override
+  public boolean verify(final Account account, final Transaction transaction) {
+<span class="nc" id="L75">    return accountEitherOperation.verify(account, transaction).getResult();</span>
+  }
+
+  @Override
+  public ServerManagedAccount importKey(final EncryptedPrivateKey encryptedKey,
+      final String oldPassword, final String newPassword) {
+<span class="fc" id="L81">    return accountEitherOperation.importKey(encryptedKey, oldPassword, newPassword).getResult();</span>
+  }
+
+  @Override
+  public EncryptedPrivateKey exportKey(final Authentication authentication) {
+<span class="fc" id="L86">    return accountEitherOperation.exportKey(authentication).getResult();</span>
+  }
+
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ContractInterfaceConverterFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.transport</a> &gt; <span class="el_source">ContractInterfaceConverterFactory.java</span></div><h1>ContractInterfaceConverterFactory.java</h1><pre class="source lang-java linenums">/*
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ContractInterfaceConverterFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.transport</a> &gt; <span class="el_source">ContractInterfaceConverterFactory.java</span></div><h1>ContractInterfaceConverterFactory.java</h1><pre class="source lang-java linenums">/*
  * @copyright defined in LICENSE.txt
  */
 
@@ -8,7 +8,7 @@ import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.ContractFunction;
-import hera.api.model.ContractInferface;
+import hera.api.model.ContractInterface;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Blockchain;
@@ -20,9 +20,9 @@ import types.Blockchain;
 <span class="fc" id="L20">  protected final ModelConverter&lt;ContractFunction, Blockchain.Function&gt; contractFunctionConverter =</span>
 <span class="fc" id="L21">      new ContractFunctionConverterFactory().create();</span>
 
-<span class="fc" id="L23">  protected final Function&lt;ContractInferface, Blockchain.ABI&gt; domainConverter = </span>
+<span class="fc" id="L23">  protected final Function&lt;ContractInterface, Blockchain.ABI&gt; domainConverter =</span>
       domainContractInterface -&gt; {
-<span class="fc" id="L25">        logger.trace(&quot;Domain status: {}&quot;, domainContractInterface);</span>
+<span class="fc" id="L25">        logger.trace(&quot;Domain contract interface: {}&quot;, domainContractInterface);</span>
 <span class="fc" id="L26">        return Blockchain.ABI.newBuilder()</span>
 <span class="fc" id="L27">            .setVersion(domainContractInterface.getVersion())</span>
 <span class="fc" id="L28">            .setLanguage(domainContractInterface.getLanguage())</span>
@@ -32,10 +32,10 @@ import types.Blockchain;
 <span class="fc" id="L32">            .build();</span>
       };
 
-<span class="fc" id="L35">  protected final Function&lt;Blockchain.ABI, ContractInferface&gt; rpcConverter = </span>
+<span class="fc" id="L35">  protected final Function&lt;Blockchain.ABI, ContractInterface&gt; rpcConverter =</span>
       rpcContractInterface -&gt; {
-<span class="fc" id="L37">        logger.trace(&quot;Blockchain status: {}&quot;, rpcContractInterface);</span>
-<span class="fc" id="L38">        final ContractInferface domainContractInterface = new ContractInferface();</span>
+<span class="fc" id="L37">        logger.trace(&quot;Rpc contract interface: {}&quot;, rpcContractInterface);</span>
+<span class="fc" id="L38">        final ContractInterface domainContractInterface = new ContractInterface();</span>
 <span class="fc" id="L39">        domainContractInterface.setVersion(rpcContractInterface.getVersion());</span>
 <span class="fc" id="L40">        domainContractInterface.setLanguage(rpcContractInterface.getLanguage());</span>
 <span class="fc" id="L41">        domainContractInterface.setFunctions(rpcContractInterface.getFunctionsList().stream()</span>
@@ -44,9 +44,9 @@ import types.Blockchain;
 <span class="fc" id="L44">        return domainContractInterface;</span>
       };
 
-  public ModelConverter&lt;ContractInferface, Blockchain.ABI&gt; create() {
+  public ModelConverter&lt;ContractInterface, Blockchain.ABI&gt; create() {
 <span class="fc" id="L48">    return new ModelConverter&lt;&gt;(domainConverter, rpcConverter);</span>
   }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractEitherAergoApi.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api</a> &gt; <span class="el_source">AbstractEitherAergoApi.java</span></div><h1>AbstractEitherAergoApi.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.api;
+
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.custom.Adaptor;
+import hera.custom.AdaptorManager;
+import java.util.List;
+import java.util.Optional;
+import org.slf4j.Logger;
+
+@ApiAudience.Public
+@ApiStability.Unstable
+<span class="fc" id="L21">public class AbstractEitherAergoApi implements AergoEitherApi, Adaptor {</span>
+
+<span class="fc" id="L23">  protected final transient Logger logger = getLogger(getClass());</span>
+
+  @Override
+  public AccountEitherOperation getAccountEitherOperation() {
+<span class="fc" id="L27">    throw new UnsupportedOperationException();</span>
+  }
+
+  @Override
+  public BlockEitherOperation getBlockEitherOperation() {
+<span class="fc" id="L32">    throw new UnsupportedOperationException();</span>
+  }
+
+  @Override
+  public BlockchainEitherOperation getBlockchainEitherOperation() {
+<span class="fc" id="L37">    throw new UnsupportedOperationException();</span>
+  }
+
+  @Override
+  public TransactionEitherOperation getTransactionEitherOperation() {
+<span class="fc" id="L42">    throw new UnsupportedOperationException();</span>
+  }
+
+  @Override
+  public ContractEitherOperation getContractEitherOperation() {
+<span class="fc" id="L47">    throw new UnsupportedOperationException();</span>
+  }
+
+  public &lt;AdapteeT&gt; List&lt;? extends AdapteeT&gt; getCandidates(final Class&lt;AdapteeT&gt; candidateClass) {
+<span class="nc" id="L51">    return AdaptorManager.getInstance().getAdaptors(candidateClass);</span>
+  }
+
+  @Override
+  public &lt;OperationT&gt; Optional&lt;OperationT&gt; adapt(final Class&lt;OperationT&gt; operationClass) {
+<span class="nc" id="L56">    final List&lt;? extends OperationT&gt; candidates = getCandidates(operationClass);</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">    if (candidates.isEmpty()) {</span>
+<span class="nc" id="L58">      return empty();</span>
+    }
+<span class="nc bnc" id="L60" title="All 2 branches missed.">    if (1 &lt; candidates.size()) {</span>
+<span class="nc" id="L61">      throw new IllegalStateException();</span>
+    }
+<span class="nc" id="L63">    final OperationT op = candidates.get(0);</span>
+<span class="nc" id="L64">    logger.debug(&quot;Custom operation: {}&quot;, op);</span>
+<span class="nc" id="L65">    return ofNullable(op);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

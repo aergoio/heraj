@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EncryptedPrivateKey.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.model</a> &gt; <span class="el_source">EncryptedPrivateKey.java</span></div><h1>EncryptedPrivateKey.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.api.model;
+
+import hera.VersionUtils;
+import hera.api.encode.Base58WithCheckSum;
+import hera.exception.HerajException;
+import hera.exception.InvalidVersionException;
+import hera.util.Base58Utils;
+import java.io.IOException;
+import lombok.Getter;
+
+public class EncryptedPrivateKey {
+
+  public static final byte VERSION = (byte) 0xAA;
+
+  /**
+   * Create {@code EncryptedPrivateKey} with a base58 with checksum encoded value.
+   *
+   * @param encoded a base58 with checksum encoded encoded value
+   * @return created {@link EncryptedPrivateKey}
+   *
+   * @throws InvalidVersionException when address version mismatch
+   */
+  public static EncryptedPrivateKey of(final Base58WithCheckSum encoded) {
+<span class="fc" id="L28">    return new EncryptedPrivateKey(encoded);</span>
+  }
+
+  /**
+   * Create {@code EncryptedPrivateKey}.
+   *
+   * @param bytesValue {@link BytesValue}
+   * @return created {@link EncryptedPrivateKey}
+   *
+   * @throws InvalidVersionException when address version mismatch
+   */
+  public static EncryptedPrivateKey of(final BytesValue bytesValue) {
+<span class="nc" id="L40">    return new EncryptedPrivateKey(bytesValue);</span>
+  }
+
+<span class="fc" id="L43">  @Getter</span>
+  protected final BytesValue bytesValue;
+
+  /**
+   * EncryptedPrivateKey constructor.
+   *
+   * @param encoded a base58 with checksum encoded encoded value
+   *
+   * @throws InvalidVersionException when address version mismatch
+   */
+<span class="fc" id="L53">  public EncryptedPrivateKey(final Base58WithCheckSum encoded) {</span>
+    try {
+<span class="fc" id="L55">      final BytesValue decoded = encoded.decode();</span>
+<span class="fc" id="L56">      VersionUtils.validate(decoded, VERSION);</span>
+<span class="fc" id="L57">      this.bytesValue = decoded;</span>
+<span class="nc" id="L58">    } catch (IOException e) {</span>
+<span class="nc" id="L59">      throw new HerajException(e);</span>
+<span class="fc" id="L60">    }</span>
+
+<span class="fc" id="L62">  }</span>
+
+  /**
+   * EncryptedPrivateKey constructor.
+   *
+   * @param bytesValue {@link BytesValue}
+   *
+   * @throws InvalidVersionException when address version mismatch
+   */
+<span class="fc" id="L71">  public EncryptedPrivateKey(final BytesValue bytesValue) {</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">    if (BytesValue.EMPTY != bytesValue) {</span>
+<span class="fc" id="L73">      VersionUtils.validate(bytesValue, VERSION);</span>
+    }
+<span class="fc" id="L75">    this.bytesValue = bytesValue;</span>
+<span class="fc" id="L76">  }</span>
+
+  @Override
+  public int hashCode() {
+<span class="nc" id="L80">    return bytesValue.hashCode();</span>
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">    if (null == obj) {</span>
+<span class="nc" id="L86">      return false;</span>
+    }
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">    if (!obj.getClass().equals(getClass())) {</span>
+<span class="nc" id="L89">      return false;</span>
+    }
+<span class="fc" id="L91">    final EncryptedPrivateKey other = (EncryptedPrivateKey) obj;</span>
+<span class="fc" id="L92">    return bytesValue.equals(other.bytesValue);</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="nc" id="L97">    return Base58Utils.encodeWithCheck(bytesValue.getValue());</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

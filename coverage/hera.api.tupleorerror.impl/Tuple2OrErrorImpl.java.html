@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Tuple2OrErrorImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.tupleorerror.impl</a> &gt; <span class="el_source">Tuple2OrErrorImpl.java</span></div><h1>Tuple2OrErrorImpl.java</h1><pre class="source lang-java linenums">/*
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Tuple2OrErrorImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.tupleorerror.impl</a> &gt; <span class="el_source">Tuple2OrErrorImpl.java</span></div><h1>Tuple2OrErrorImpl.java</h1><pre class="source lang-java linenums">/*
  * @copyright defined in LICENSE.txt
  */
 
@@ -52,7 +52,7 @@ public class Tuple2OrErrorImpl&lt;T1, T2&gt; implements Tuple2OrError&lt;T1, T2&
   @Override
   public T1 get1() {
 <span class="fc bfc" id="L54" title="All 2 branches covered.">    if (null == v1) {</span>
-<span class="pc bpc" id="L55" title="1 of 2 branches missed.">      throw error instanceof HerajException ? (HerajException) error : new HerajException(error);</span>
+<span class="nc" id="L55">      appendCurrentStackTraceToError();</span>
     }
 <span class="fc" id="L57">    return v1;</span>
   }
@@ -60,7 +60,7 @@ public class Tuple2OrErrorImpl&lt;T1, T2&gt; implements Tuple2OrError&lt;T1, T2&
   @Override
   public T2 get2() {
 <span class="fc bfc" id="L62" title="All 2 branches covered.">    if (null == v2) {</span>
-<span class="pc bpc" id="L63" title="1 of 2 branches missed.">      throw error instanceof HerajException ? (HerajException) error : new HerajException(error);</span>
+<span class="nc" id="L63">      appendCurrentStackTraceToError();</span>
     }
 <span class="fc" id="L65">    return v2;</span>
   }
@@ -76,50 +76,54 @@ public class Tuple2OrErrorImpl&lt;T1, T2&gt; implements Tuple2OrError&lt;T1, T2&
   public Tuple2OrError&lt;T1, T2&gt; filter(Predicate2&lt;? super T1, ? super T2&gt; predicate) {
 <span class="fc" id="L77">    Objects.requireNonNull(predicate);</span>
 <span class="fc bfc" id="L78" title="All 2 branches covered.">    if (!hasError()) {</span>
-<span class="fc bfc" id="L79" title="All 2 branches covered.">      return predicate.test(v1, v2) ? this</span>
-          : new Tuple2OrErrorImpl&lt;&gt;(new HerajException(&quot;No such element matching predicate&quot;));
+      try {
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        return predicate.test(v1, v2) ? this</span>
+            : new Tuple2OrErrorImpl&lt;&gt;(new HerajException(&quot;No such element matching predicate&quot;));
+<span class="fc" id="L82">      } catch (Throwable e) {</span>
+<span class="fc" id="L83">        return new Tuple2OrErrorImpl&lt;&gt;(e);</span>
+      }
     } else {
-<span class="fc" id="L82">      return this;</span>
+<span class="fc" id="L86">      return this;</span>
     }
   }
 
 
   @Override
   public &lt;R&gt; ResultOrError&lt;R&gt; map(Function2&lt;? super T1, ? super T2, ? extends R&gt; fn) {
-<span class="fc bfc" id="L89" title="All 2 branches covered.">    if (!hasError()) {</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">    if (!hasError()) {</span>
       try {
-<span class="fc" id="L91">        R next = fn.apply(v1, v2);</span>
-<span class="fc" id="L92">        return success(next);</span>
-<span class="nc" id="L93">      } catch (Throwable e) {</span>
-<span class="nc" id="L94">        return fail(e);</span>
+<span class="fc" id="L95">        R next = fn.apply(v1, v2);</span>
+<span class="fc" id="L96">        return success(next);</span>
+<span class="fc" id="L97">      } catch (Throwable e) {</span>
+<span class="fc" id="L98">        return fail(e);</span>
       }
     }
-<span class="fc" id="L97">    return fail(getError());</span>
+<span class="fc" id="L101">    return fail(getError());</span>
   }
 
   @Override
   public boolean equals(Object obj) {
-<span class="fc bfc" id="L102" title="All 2 branches covered.">    if (this == obj) {</span>
-<span class="fc" id="L103">      return true;</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">    if (this == obj) {</span>
+<span class="fc" id="L107">      return true;</span>
     }
-<span class="pc bpc" id="L105" title="1 of 2 branches missed.">    if (!(obj instanceof Tuple2OrErrorImpl)) {</span>
-<span class="nc" id="L106">      return false;</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">    if (!(obj instanceof Tuple2OrErrorImpl)) {</span>
+<span class="nc" id="L110">      return false;</span>
     }
 
-<span class="fc" id="L109">    Tuple2OrErrorImpl&lt;?, ?&gt; other = (Tuple2OrErrorImpl&lt;?, ?&gt;) obj;</span>
-<span class="pc bpc" id="L110" title="2 of 4 branches missed.">    return Objects.equals(v1, other.v1) &amp;&amp; Objects.equals(v2, other.v2)</span>
-<span class="pc bpc" id="L111" title="1 of 2 branches missed.">        &amp;&amp; Objects.equals(error, other.error);</span>
+<span class="fc" id="L113">    Tuple2OrErrorImpl&lt;?, ?&gt; other = (Tuple2OrErrorImpl&lt;?, ?&gt;) obj;</span>
+<span class="pc bpc" id="L114" title="2 of 4 branches missed.">    return Objects.equals(v1, other.v1) &amp;&amp; Objects.equals(v2, other.v2)</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">        &amp;&amp; Objects.equals(error, other.error);</span>
   }
 
   @Override
   public int hashCode() {
-<span class="fc" id="L116">    return Arrays.hashCode(new Object[] {v1, v2, error});</span>
+<span class="fc" id="L120">    return Arrays.hashCode(new Object[] {v1, v2, error});</span>
   }
 
   @Override
   public String toString() {
-<span class="nc bnc" id="L121" title="All 2 branches missed.">    return !hasError() ? String.format(&quot;Tuple[%s, %s]&quot;, v1, v2) : String.format(&quot;Error[%s]&quot;, error);</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">    return !hasError() ? String.format(&quot;Tuple[%s, %s]&quot;, v1, v2) : String.format(&quot;Error[%s]&quot;, error);</span>
   }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

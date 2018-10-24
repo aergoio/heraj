@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ContractDefinition.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.model</a> &gt; <span class="el_source">ContractDefinition.java</span></div><h1>ContractDefinition.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.api.model;
+
+import hera.api.encode.Base58WithCheckSum;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+<span class="nc" id="L14">@ToString</span>
+<span class="nc bnc" id="L15" title="All 16 branches missed.">@EqualsAndHashCode</span>
+<span class="nc" id="L16">@NoArgsConstructor</span>
+public class ContractDefinition {
+
+  /**
+   * Build contract definition.
+   *
+   * @param encodedContract base58 with checksum encoded contract definition
+   * @param args constructor arguments
+   *
+   * @return created {@code ContractDefinition}
+   */
+  public static ContractDefinition of(final Base58WithCheckSum encodedContract,
+      final Object... args) {
+<span class="fc" id="L29">    return new ContractDefinition(encodedContract, args);</span>
+  }
+
+<span class="nc" id="L32">  @Setter</span>
+<span class="fc" id="L33">  @Getter</span>
+  protected Base58WithCheckSum encodedContract;
+
+<span class="pc" id="L36">  @Setter</span>
+<span class="fc" id="L37">  @Getter</span>
+  protected Object[] constructorArgs = new Object[0];
+
+  /**
+   * Contract definition constructor.
+   *
+   * @param encodedContract base58 with checksum encoded contract definition
+   * @param args constructor arguments
+   */
+<span class="fc" id="L46">  public ContractDefinition(final Base58WithCheckSum encodedContract, final Object... args) {</span>
+<span class="fc" id="L47">    this.encodedContract = encodedContract;</span>
+<span class="fc" id="L48">    this.constructorArgs = args;</span>
+<span class="fc" id="L49">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransactionOperation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api</a> &gt; <span class="el_source">TransactionOperation.java</span></div><h1>TransactionOperation.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.api;
+
+import hera.ContextAware;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.api.model.Account;
+import hera.api.model.AccountAddress;
+import hera.api.model.Transaction;
+import hera.api.model.TxHash;
+
+@ApiAudience.Public
+@ApiStability.Unstable
+public interface TransactionOperation extends ContextAware {
+
+  /**
+   * Get transaction.
+   *
+   * @param txHash transaction's hash
+   * @return transaction
+   */
+  Transaction getTransaction(TxHash txHash);
+
+  /**
+   * Commit transaction.
+   *
+   * @param transaction transaction to commit
+   * @return transaction hash
+   */
+  TxHash commit(Transaction transaction);
+
+  /**
+   * Send transaction. This method automatically fill nonce, sign and commit in a server. This
+   * method is valid only if sender is stored in a server key store. Make sure that {@code sender}
+   * is unlocked.
+   *
+   * @param sender aergo sender
+   * @param recipient aergo recipient
+   * @param amount aergo amount
+   * @return transaction hash
+   */
+  TxHash send(AccountAddress sender, AccountAddress recipient, long amount);
+
+  /**
+   * Send transaction. This method automatically fill nonce, sign and commit in a server. This
+   * method is valid only if sender is stored in a server key store. Make sure that {@code sender}
+   * is unlocked.
+   *
+   * @param sender aergo sender
+   * @param recipient aergo recipient
+   * @param amount aergo amount
+   * @return transaction hash
+   */
+  default TxHash send(Account sender, Account recipient, long amount) {
+<span class="nc" id="L58">    return send(sender.getAddress(), recipient.getAddress(), amount);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

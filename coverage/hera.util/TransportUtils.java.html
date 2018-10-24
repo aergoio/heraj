@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransportUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util</a> &gt; <span class="el_source">TransportUtils.java</span></div><h1>TransportUtils.java</h1><pre class="source lang-java linenums">/*
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransportUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util</a> &gt; <span class="el_source">TransportUtils.java</span></div><h1>TransportUtils.java</h1><pre class="source lang-java linenums">/*
  * @copyright defined in LICENSE.txt
  */
 
@@ -9,9 +9,8 @@ import hera.api.model.BytesValue;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 
-<span class="nc" id="L14">public class TransportUtils {</span>
+<span class="nc" id="L13">public class TransportUtils {</span>
 
   /**
    * Transform {@link BytesValue} to {@link ByteString} in protobuf. If either bytesValue or value
@@ -21,10 +20,10 @@ import java.nio.ByteBuffer;
    * @return protobuf {@link ByteString}
    */
   public static ByteString copyFrom(final BytesValue bytesValue) {
-<span class="pc bpc" id="L24" title="1 of 4 branches missed.">    if (null != bytesValue &amp;&amp; null != bytesValue.getValue()) {</span>
-<span class="fc" id="L25">      return ByteString.copyFrom(bytesValue.getValue());</span>
+<span class="pc bpc" id="L23" title="1 of 4 branches missed.">    if (null == bytesValue || null == bytesValue.getValue()) {</span>
+<span class="fc" id="L24">      return ByteString.EMPTY;</span>
     }
-<span class="fc" id="L27">    return ByteString.EMPTY;</span>
+<span class="fc" id="L26">    return ByteString.copyFrom(bytesValue.getValue());</span>
   }
 
   /**
@@ -34,12 +33,16 @@ import java.nio.ByteBuffer;
    * @return converted byte array in a little endian
    */
   public static byte[] longToByteArray(final long longValue) {
-<span class="fc" id="L37">    final ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);</span>
-<span class="fc bfc" id="L38" title="All 2 branches covered.">    for (int i = 0; i &lt; 8; ++i) {</span>
-<span class="fc" id="L39">      int shift = 8 * i;</span>
-<span class="fc" id="L40">      buffer.put((byte) (longValue &gt;&gt; shift));</span>
-    }
-<span class="fc" id="L42">    return buffer.array();</span>
+<span class="fc" id="L36">    final byte[] raw = new byte[8];</span>
+<span class="fc" id="L37">    raw[0] = (byte) (0xFF &amp; (longValue));</span>
+<span class="fc" id="L38">    raw[1] = (byte) (0xFF &amp; (longValue &gt;&gt; 8));</span>
+<span class="fc" id="L39">    raw[2] = (byte) (0xFF &amp; (longValue &gt;&gt; 16));</span>
+<span class="fc" id="L40">    raw[3] = (byte) (0xFF &amp; (longValue &gt;&gt; 24));</span>
+<span class="fc" id="L41">    raw[4] = (byte) (0xFF &amp; (longValue &gt;&gt; 32));</span>
+<span class="fc" id="L42">    raw[5] = (byte) (0xFF &amp; (longValue &gt;&gt; 40));</span>
+<span class="fc" id="L43">    raw[6] = (byte) (0xFF &amp; (longValue &gt;&gt; 48));</span>
+<span class="fc" id="L44">    raw[7] = (byte) (0xFF &amp; (longValue &gt;&gt; 56));</span>
+<span class="fc" id="L45">    return raw;</span>
   }
 
   /**
@@ -49,20 +52,20 @@ import java.nio.ByteBuffer;
    * @return converted byte array
    */
   public static byte[] inputStreamToByteArray(final InputStream in) {
-<span class="fc" id="L52">    final ByteArrayOutputStream bos = new ByteArrayOutputStream();</span>
-<span class="fc" id="L53">    byte[] buffer = new byte[1024];</span>
-<span class="fc" id="L54">    int read = -1;</span>
+<span class="fc" id="L55">    final ByteArrayOutputStream bos = new ByteArrayOutputStream();</span>
+<span class="fc" id="L56">    byte[] buffer = new byte[1024];</span>
+    int read;
     try {
-<span class="fc bfc" id="L56" title="All 2 branches covered.">      while ((read = in.read(buffer)) != -1) {</span>
-<span class="fc" id="L57">        bos.write(buffer, 0, read);</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">      while ((read = in.read(buffer)) != -1) {</span>
+<span class="fc" id="L60">        bos.write(buffer, 0, read);</span>
       }
-<span class="fc" id="L59">      bos.close();</span>
-<span class="nc" id="L60">    } catch (IOException e) {</span>
-<span class="nc" id="L61">      throw new IllegalStateException(e);</span>
-<span class="fc" id="L62">    }</span>
+<span class="fc" id="L62">      bos.close();</span>
+<span class="nc" id="L63">    } catch (IOException e) {</span>
+<span class="nc" id="L64">      throw new IllegalStateException(e);</span>
+<span class="fc" id="L65">    }</span>
 
-<span class="fc" id="L64">    return bos.toByteArray();</span>
+<span class="fc" id="L67">    return bos.toByteArray();</span>
   }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

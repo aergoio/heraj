@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AccountStateConverterFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.transport</a> &gt; <span class="el_source">AccountStateConverterFactory.java</span></div><h1>AccountStateConverterFactory.java</h1><pre class="source lang-java linenums">/*
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AccountStateConverterFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.transport</a> &gt; <span class="el_source">AccountStateConverterFactory.java</span></div><h1>AccountStateConverterFactory.java</h1><pre class="source lang-java linenums">/*
  * @copyright defined in LICENSE.txt
  */
 
@@ -6,7 +6,7 @@ package hera.transport;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import hera.api.model.Account;
+import hera.api.model.AccountState;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Blockchain;
@@ -14,21 +14,21 @@ import types.Blockchain;
 <span class="fc" id="L14">public class AccountStateConverterFactory {</span>
 <span class="fc" id="L15">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L17">  protected final Function&lt;Account, Blockchain.State&gt; domainConverter = domainAccountState -&gt; {</span>
+<span class="fc" id="L17">  protected final Function&lt;AccountState, Blockchain.State&gt; domainConverter = domainAccountState -&gt; {</span>
 <span class="nc" id="L18">    throw new UnsupportedOperationException();</span>
   };
 
-<span class="fc" id="L21">  protected final Function&lt;Blockchain.State, Account&gt; rpcConverter = rpcAccountState -&gt; {</span>
-<span class="fc" id="L22">    logger.trace(&quot;Blockchain status: {}&quot;, rpcAccountState);</span>
-<span class="fc" id="L23">    final Account domainAccount = new Account();</span>
-<span class="fc" id="L24">    domainAccount.setNonce(rpcAccountState.getNonce());</span>
-<span class="fc" id="L25">    domainAccount.setBalance(rpcAccountState.getBalance());</span>
-<span class="fc" id="L26">    return domainAccount;</span>
+<span class="fc" id="L21">  protected final Function&lt;Blockchain.State, AccountState&gt; rpcConverter = rpcAccountState -&gt; {</span>
+<span class="fc" id="L22">    logger.trace(&quot;Rpc account state: {}&quot;, rpcAccountState);</span>
+<span class="fc" id="L23">    final AccountState domainAccountState = new AccountState();</span>
+<span class="fc" id="L24">    domainAccountState.setNonce(rpcAccountState.getNonce());</span>
+<span class="fc" id="L25">    domainAccountState.setBalance(rpcAccountState.getBalance());</span>
+<span class="fc" id="L26">    return domainAccountState;</span>
   };
 
-  public ModelConverter&lt;Account, Blockchain.State&gt; create() {
+  public ModelConverter&lt;AccountState, Blockchain.State&gt; create() {
 <span class="fc" id="L30">    return new ModelConverter&lt;&gt;(domainConverter, rpcConverter);</span>
   }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ECDSAKey.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util.pki</a> &gt; <span class="el_source">ECDSAKey.java</span></div><h1>ECDSAKey.java</h1><pre class="source lang-java linenums">/*
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ECDSAKey.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util.pki</a> &gt; <span class="el_source">ECDSAKey.java</span></div><h1>ECDSAKey.java</h1><pre class="source lang-java linenums">/*
  * @copyright defined in LICENSE.txt
  */
 
@@ -6,13 +6,11 @@ package hera.util.pki;
 
 import static hera.util.IoUtils.stream;
 import static hera.util.pki.RFC6979Utils.bits2int;
-import static hera.util.pki.RFC6979Utils.concat;
 import static hera.util.pki.RFC6979Utils.generatek;
 import static java.security.Security.addProvider;
 import static org.bouncycastle.jce.ECNamedCurveTable.getParameterSpec;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import hera.exception.SignException;
 import hera.util.HexUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -20,7 +18,6 @@ import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.util.Arrays;
 import javax.crypto.Mac;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -33,8 +30,8 @@ import org.bouncycastle.jce.spec.ECPublicKeySpec;
 import org.bouncycastle.math.ec.ECPoint;
 import org.slf4j.Logger;
 
-<span class="fc" id="L36">@RequiredArgsConstructor(access = AccessLevel.PACKAGE)</span>
-public class ECDSAKey implements KeyPair {
+<span class="fc" id="L33">@RequiredArgsConstructor(access = AccessLevel.PROTECTED)</span>
+public class ECDSAKey {
 
   protected static final String KEY_ALGORITHM = &quot;ECDSA&quot;;
 
@@ -44,61 +41,86 @@ public class ECDSAKey implements KeyPair {
 
   protected static final String MAC_ALGORITHM = &quot;HmacSHA256&quot;;
 
-<span class="fc" id="L47">  protected final transient Logger logger = getLogger(getClass());</span>
+  protected static final ECNamedCurveParameterSpec ecSpec;
 
-<span class="fc" id="L49">  protected static final ECNamedCurveParameterSpec ecSpec = getParameterSpec(CURVE_NAME);</span>
-
-<span class="fc" id="L51">  protected static final ECDomainParameters ecParams = new ECDomainParameters(ecSpec.getCurve(),</span>
-<span class="fc" id="L52">      ecSpec.getG(), ecSpec.getN(), ecSpec.getH(), ecSpec.getSeed());</span>
+<span class="fc" id="L46">  @Getter</span>
+  protected static final ECDomainParameters ecParams;
 
   static {
-<span class="fc" id="L55">    addProvider(new BouncyCastleProvider());</span>
-<span class="fc" id="L56">  }</span>
+<span class="fc" id="L50">    addProvider(new BouncyCastleProvider());</span>
+<span class="fc" id="L51">    ecSpec = getParameterSpec(CURVE_NAME);</span>
+<span class="fc" id="L52">    ecParams = new ECDomainParameters(ecSpec.getCurve(), ecSpec.getG(), ecSpec.getN(),</span>
+<span class="fc" id="L53">        ecSpec.getH(), ecSpec.getSeed());</span>
+<span class="fc" id="L54">  }</span>
+
+<span class="fc" id="L56">  protected final transient Logger logger = getLogger(getClass());</span>
+
 
   /**
-   * Recover encoded private key.
+   * Create ECDSAKey with a private key.
    *
-   * @param rawPrivatekey private key
-   * @return recovered key pair
+   * @param rawPrivatekey a private key
+   * @return {@link ECDSAKey}
    *
-   * @throws Exception on failure of recovery
+   * @throws Exception on failure of creation
    */
-  public static ECDSAKey recover(final byte[] rawPrivatekey) throws Exception {
-<span class="fc" id="L67">    final KeyFactory factory = KeyFactory.getInstance(KEY_ALGORITHM);</span>
-
-<span class="fc" id="L69">    final BigInteger d = new BigInteger(1, rawPrivatekey);</span>
-<span class="fc" id="L70">    final ECPrivateKeySpec spec = new ECPrivateKeySpec(d, ecSpec);</span>
-<span class="fc" id="L71">    final PrivateKey privateKey = factory.generatePrivate(spec);</span>
-
-<span class="fc" id="L73">    final ECPoint Q = ecParams.getG()</span>
-<span class="fc" id="L74">        .multiply(((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD());</span>
-<span class="fc" id="L75">    final ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(Q, ecSpec);</span>
-<span class="fc" id="L76">    final PublicKey publicKey = factory.generatePublic(ecPublicKeySpec);</span>
-
-<span class="fc" id="L78">    return new ECDSAKey(privateKey, publicKey);</span>
+  public static ECDSAKey of(final byte[] rawPrivatekey) throws Exception {
+<span class="fc" id="L68">    return new ECDSAKey(rawPrivatekey);</span>
   }
 
-<span class="fc" id="L81">  @Getter</span>
+  /**
+   * Create ECDSAKey with keypair.
+   *
+   * @param privatekey a private key
+   * @param publicKey a public key
+   * @return {@link ECDSAKey}
+   */
+  public static ECDSAKey of(final PrivateKey privatekey, final PublicKey publicKey) {
+<span class="nc" id="L79">    return new ECDSAKey(privatekey, publicKey);</span>
+  }
+
+  /**
+   * ECDSAKey constructor.
+   *
+   * @param rawPrivatekey raw private key
+   *
+   * @throws Exception on failure
+   */
+<span class="fc" id="L89">  public ECDSAKey(final byte[] rawPrivatekey) throws Exception {</span>
+<span class="fc" id="L90">    final KeyFactory factory = KeyFactory.getInstance(KEY_ALGORITHM);</span>
+
+<span class="fc" id="L92">    final BigInteger d = new BigInteger(1, rawPrivatekey);</span>
+<span class="fc" id="L93">    final ECPrivateKeySpec spec = new ECPrivateKeySpec(d, ecSpec);</span>
+<span class="fc" id="L94">    this.privateKey = factory.generatePrivate(spec);</span>
+
+<span class="fc" id="L96">    final ECPoint Q = ecParams.getG()</span>
+<span class="fc" id="L97">        .multiply(((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD());</span>
+<span class="fc" id="L98">    final ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(Q, ecSpec);</span>
+<span class="fc" id="L99">    this.publicKey = factory.generatePublic(ecPublicKeySpec);</span>
+<span class="fc" id="L100">  }</span>
+
+<span class="fc" id="L102">  @Getter</span>
   protected final PrivateKey privateKey;
 
-<span class="fc" id="L84">  @Getter</span>
+<span class="fc" id="L105">  @Getter</span>
   protected final PublicKey publicKey;
 
-  @Override
-  public byte[] sign(final InputStream plainText) {
+  /**
+   * Sign to plain text.
+   *
+   * @param plainText text to sign to
+   *
+   * @return signature ECDSA signature
+   */
+  public ECDSASignature sign(final InputStream plainText) {
     try {
-<span class="fc" id="L90">      final byte[] message = toByteArray(plainText);</span>
-<span class="fc" id="L91">      final ECDSASignature signature =</span>
-<span class="fc" id="L92">          sign(((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD(), message);</span>
-<span class="fc" id="L93">      logger.debug(&quot;ECDSASignature signature: {}&quot;, signature);</span>
-
-<span class="fc" id="L95">      final int nByteslen = (ecParams.getN().bitLength() + 7) &gt;&gt;&gt; 3;</span>
-<span class="fc" id="L96">      final byte[] rByteArray = adjustToLen(signature.getR().toByteArray(), nByteslen);</span>
-<span class="fc" id="L97">      final byte[] sByteArray = adjustToLen(signature.getS().toByteArray(), nByteslen);</span>
-
-<span class="fc" id="L99">      return concat(rByteArray, sByteArray);</span>
-<span class="nc" id="L100">    } catch (final Throwable e) {</span>
-<span class="nc" id="L101">      throw new SignException(e);</span>
+<span class="fc" id="L117">      final byte[] message = toByteArray(plainText);</span>
+<span class="fc" id="L118">      final ECDSASignature signature =</span>
+<span class="fc" id="L119">          sign(((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD(), message);</span>
+<span class="fc" id="L120">      logger.trace(&quot;ECDSASignature signature: {}&quot;, signature);</span>
+<span class="fc" id="L121">      return signature;</span>
+<span class="nc" id="L122">    } catch (final Throwable e) {</span>
+<span class="nc" id="L123">      throw new IllegalStateException(e);</span>
     }
   }
 
@@ -114,52 +136,52 @@ public class ECDSAKey implements KeyPair {
    * @throws Exception when sign error occurred
    */
   protected ECDSASignature sign(final BigInteger d, final byte[] message) throws Exception {
-<span class="fc" id="L117">    logger.trace(&quot;D: {}&quot;, d);</span>
-<span class="fc" id="L118">    logger.trace(&quot;Message in hexa: {}&quot;, HexUtils.encode(message));</span>
+<span class="fc" id="L139">    logger.trace(&quot;D: {}&quot;, d);</span>
+<span class="fc" id="L140">    logger.trace(&quot;Message in hexa: {}&quot;, HexUtils.encode(message));</span>
 
-<span class="fc" id="L120">    final BigInteger n = ecParams.getN();</span>
-<span class="fc" id="L121">    final BigInteger halfN = n.divide(BigInteger.valueOf(2L));</span>
-<span class="fc" id="L122">    final int nBitslen = n.bitLength();</span>
-<span class="fc" id="L123">    final Mac mac = Mac.getInstance(MAC_ALGORITHM);</span>
-<span class="fc" id="L124">    final BigInteger k = generatek(d, n, mac, message);</span>
-<span class="fc" id="L125">    logger.trace(&quot;N: {}&quot;, n);</span>
-<span class="fc" id="L126">    logger.trace(&quot;Half N: {}&quot;, halfN);</span>
-<span class="fc" id="L127">    logger.trace(&quot;Bitslen of N: {}&quot;, nBitslen);</span>
-<span class="fc" id="L128">    logger.trace(&quot;Hash algorithm: {}&quot;, mac.getAlgorithm());</span>
-<span class="fc" id="L129">    logger.trace(&quot;Generatd k: {}&quot;, k);</span>
+<span class="fc" id="L142">    final BigInteger n = ecParams.getN();</span>
+<span class="fc" id="L143">    final BigInteger halfN = n.divide(BigInteger.valueOf(2L));</span>
+<span class="fc" id="L144">    final int nBitslen = n.bitLength();</span>
+<span class="fc" id="L145">    final Mac mac = Mac.getInstance(MAC_ALGORITHM);</span>
+<span class="fc" id="L146">    final BigInteger k = generatek(d, n, mac, message);</span>
+<span class="fc" id="L147">    logger.trace(&quot;N: {}&quot;, n);</span>
+<span class="fc" id="L148">    logger.trace(&quot;Half N: {}&quot;, halfN);</span>
+<span class="fc" id="L149">    logger.trace(&quot;Bitslen of N: {}&quot;, nBitslen);</span>
+<span class="fc" id="L150">    logger.trace(&quot;Hash algorithm: {}&quot;, mac.getAlgorithm());</span>
+<span class="fc" id="L151">    logger.trace(&quot;Generatd k: {}&quot;, k);</span>
 
-<span class="fc" id="L131">    BigInteger r = ecParams.getG().multiply(k).getX().toBigInteger();</span>
-<span class="pc bpc" id="L132" title="1 of 2 branches missed.">    if (r.compareTo(n) == 1) {</span>
-<span class="nc" id="L133">      r = r.subtract(n);</span>
+<span class="fc" id="L153">    BigInteger r = ecParams.getG().multiply(k).getX().toBigInteger();</span>
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">    if (r.compareTo(n) == 1) {</span>
+<span class="nc" id="L155">      r = r.subtract(n);</span>
     }
-<span class="pc bpc" id="L135" title="1 of 2 branches missed.">    if (0 == r.signum()) {</span>
-<span class="nc" id="L136">      throw new SignException(new IllegalStateException(&quot;calculated R is zero&quot;));</span>
-    }
-
-<span class="fc" id="L139">    BigInteger s = k.modInverse(n).multiply(bits2int(message, nBitslen).add(d.multiply(r))).mod(n);</span>
-<span class="fc bfc" id="L140" title="All 2 branches covered.">    if (s.compareTo(halfN) == 1) {</span>
-<span class="fc" id="L141">      s = n.subtract(s);</span>
-    }
-<span class="pc bpc" id="L143" title="1 of 2 branches missed.">    if (0 == s.signum()) {</span>
-<span class="nc" id="L144">      throw new SignException(new IllegalStateException(&quot;calculated S is zero&quot;));</span>
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">    if (0 == r.signum()) {</span>
+<span class="nc" id="L158">      throw new IllegalStateException(&quot;calculated R is zero&quot;);</span>
     }
 
-<span class="fc" id="L147">    return ECDSASignature.of(r, s);</span>
+<span class="fc" id="L161">    BigInteger s = k.modInverse(n).multiply(bits2int(message, nBitslen).add(d.multiply(r))).mod(n);</span>
+<span class="fc bfc" id="L162" title="All 2 branches covered.">    if (s.compareTo(halfN) == 1) {</span>
+<span class="fc" id="L163">      s = n.subtract(s);</span>
+    }
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">    if (0 == s.signum()) {</span>
+<span class="nc" id="L166">      throw new IllegalStateException(&quot;calculated S is zero&quot;);</span>
+    }
+
+<span class="fc" id="L169">    return ECDSASignature.of(r, s);</span>
   }
 
-  @Override
-  public boolean verify(final InputStream plainText, final byte[] signature) {
+  /**
+   * Check if {@code signature} is valid for {@code plainText}.
+   *
+   * @param plainText plain text
+   * @param signature ECDSA signature
+   *
+   * @return if valid
+   */
+  public boolean verify(final InputStream plainText, final ECDSASignature signature) {
     try {
-<span class="fc" id="L153">      final int nByteslen = (ecParams.getN().bitLength() + 7) &gt;&gt;&gt; 3;</span>
-<span class="fc" id="L154">      final byte[] rByteArray = Arrays.copyOfRange(signature, 0, nByteslen);</span>
-<span class="fc" id="L155">      final byte[] sByteArray = Arrays.copyOfRange(signature, nByteslen, signature.length);</span>
-<span class="fc" id="L156">      final ECDSASignature recoveredSignature =</span>
-<span class="fc" id="L157">          ECDSASignature.of(new BigInteger(1, rByteArray), new BigInteger(1, sByteArray));</span>
-<span class="fc" id="L158">      logger.debug(&quot;Recovered signature: {}&quot;, recoveredSignature);</span>
-
-<span class="fc" id="L160">      return verify(getPublicKey(), toByteArray(plainText), recoveredSignature);</span>
-<span class="nc" id="L161">    } catch (final Throwable e) {</span>
-<span class="nc" id="L162">      throw new SignException(e);</span>
+<span class="fc" id="L182">      return verify(getPublicKey(), toByteArray(plainText), signature);</span>
+<span class="nc" id="L183">    } catch (final Throwable e) {</span>
+<span class="nc" id="L184">      throw new IllegalStateException(e);</span>
     }
 
   }
@@ -179,72 +201,59 @@ public class ECDSAKey implements KeyPair {
   protected boolean verify(final PublicKey publicKey, final byte[] message,
       final ECDSASignature signature) {
 
-<span class="fc" id="L182">    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
+<span class="fc" id="L204">    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
         (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
 
-<span class="fc" id="L185">    final BigInteger r = signature.getR();</span>
-<span class="fc" id="L186">    final BigInteger s = signature.getS();</span>
-<span class="fc" id="L187">    final BigInteger n = ecParams.getN();</span>
-<span class="fc" id="L188">    final int nBitslen = ecParams.getN().bitLength();</span>
+<span class="fc" id="L207">    final BigInteger r = signature.getR();</span>
+<span class="fc" id="L208">    final BigInteger s = signature.getS();</span>
+<span class="fc" id="L209">    final BigInteger n = ecParams.getN();</span>
+<span class="fc" id="L210">    final int nBitslen = ecParams.getN().bitLength();</span>
 
-<span class="pc bpc" id="L190" title="2 of 4 branches missed.">    if (r.signum() &lt;= 0 || s.signum() &lt;= 0) {</span>
-<span class="nc" id="L191">      return false;</span>
+<span class="pc bpc" id="L212" title="2 of 4 branches missed.">    if (r.signum() &lt;= 0 || s.signum() &lt;= 0) {</span>
+<span class="nc" id="L213">      return false;</span>
     }
-<span class="pc bpc" id="L193" title="2 of 4 branches missed.">    if (r.compareTo(n) &gt;= 0 || s.compareTo(n) &gt;= 0) {</span>
-<span class="nc" id="L194">      return false;</span>
-    }
-
-<span class="fc" id="L197">    final BigInteger e = bits2int(message, nBitslen);</span>
-<span class="fc" id="L198">    final BigInteger w = s.modInverse(n);</span>
-<span class="fc" id="L199">    final BigInteger u1 = e.multiply(w).mod(n);</span>
-<span class="fc" id="L200">    final BigInteger u2 = w.multiply(r).mod(n);</span>
-<span class="fc" id="L201">    logger.trace(&quot;u1: {}&quot;, u1);</span>
-<span class="fc" id="L202">    logger.trace(&quot;u2: {}&quot;, u2);</span>
-
-<span class="fc" id="L204">    final ECPoint point1 = ecSpec.getG().multiply(u1);</span>
-<span class="fc" id="L205">    final ECPoint point2 = ecPublicKey.getQ().multiply(u2);</span>
-<span class="fc" id="L206">    logger.trace(&quot;point1.x: {}&quot;, point1.getX().toBigInteger());</span>
-<span class="fc" id="L207">    logger.trace(&quot;point1.y: {}&quot;, point1.getY().toBigInteger());</span>
-<span class="fc" id="L208">    logger.trace(&quot;point2.x: {}&quot;, point2.getX().toBigInteger());</span>
-<span class="fc" id="L209">    logger.trace(&quot;point2.y: {}&quot;, point2.getY().toBigInteger());</span>
-
-<span class="fc" id="L211">    final ECPoint plusPoint = point1.add(point2);</span>
-<span class="fc" id="L212">    final BigInteger x = plusPoint.getX().toBigInteger();</span>
-<span class="fc" id="L213">    final BigInteger y = plusPoint.getY().toBigInteger();</span>
-<span class="pc bpc" id="L214" title="3 of 4 branches missed.">    if (0 == x.signum() &amp;&amp; 0 == y.signum()) {</span>
-<span class="nc" id="L215">      return false;</span>
+<span class="pc bpc" id="L215" title="2 of 4 branches missed.">    if (r.compareTo(n) &gt;= 0 || s.compareTo(n) &gt;= 0) {</span>
+<span class="nc" id="L216">      return false;</span>
     }
 
-<span class="pc bpc" id="L218" title="1 of 2 branches missed.">    return 0 == x.mod(n).compareTo(r);</span>
+<span class="fc" id="L219">    final BigInteger e = bits2int(message, nBitslen);</span>
+<span class="fc" id="L220">    final BigInteger w = s.modInverse(n);</span>
+<span class="fc" id="L221">    final BigInteger u1 = e.multiply(w).mod(n);</span>
+<span class="fc" id="L222">    final BigInteger u2 = w.multiply(r).mod(n);</span>
+<span class="fc" id="L223">    logger.trace(&quot;u1: {}&quot;, u1);</span>
+<span class="fc" id="L224">    logger.trace(&quot;u2: {}&quot;, u2);</span>
+
+<span class="fc" id="L226">    final ECPoint point1 = ecSpec.getG().multiply(u1);</span>
+<span class="fc" id="L227">    final ECPoint point2 = ecPublicKey.getQ().multiply(u2);</span>
+<span class="fc" id="L228">    logger.trace(&quot;point1.x: {}&quot;, point1.getX().toBigInteger());</span>
+<span class="fc" id="L229">    logger.trace(&quot;point1.y: {}&quot;, point1.getY().toBigInteger());</span>
+<span class="fc" id="L230">    logger.trace(&quot;point2.x: {}&quot;, point2.getX().toBigInteger());</span>
+<span class="fc" id="L231">    logger.trace(&quot;point2.y: {}&quot;, point2.getY().toBigInteger());</span>
+
+<span class="fc" id="L233">    final ECPoint plusPoint = point1.add(point2);</span>
+<span class="fc" id="L234">    final BigInteger x = plusPoint.getX().toBigInteger();</span>
+<span class="fc" id="L235">    final BigInteger y = plusPoint.getY().toBigInteger();</span>
+<span class="pc bpc" id="L236" title="3 of 4 branches missed.">    if (0 == x.signum() &amp;&amp; 0 == y.signum()) {</span>
+<span class="nc" id="L237">      return false;</span>
+    }
+
+<span class="pc bpc" id="L240" title="1 of 2 branches missed.">    return 0 == x.mod(n).compareTo(r);</span>
   }
 
   @Override
   public String toString() {
-<span class="nc" id="L223">    final org.bouncycastle.jce.interfaces.ECPrivateKey ecPrivateKey =</span>
+<span class="nc" id="L245">    final org.bouncycastle.jce.interfaces.ECPrivateKey ecPrivateKey =</span>
         (org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey;
-<span class="nc" id="L225">    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
+<span class="nc" id="L247">    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
         (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
-<span class="nc" id="L227">    return String.format(&quot;%s\n%s&quot;, ecPrivateKey.toString(), ecPublicKey.toString());</span>
+<span class="nc" id="L249">    return String.format(&quot;%s\n%s&quot;, ecPrivateKey.toString(), ecPublicKey.toString());</span>
   }
 
   protected byte[] toByteArray(final InputStream plainText) throws Exception {
-<span class="fc" id="L231">    final ByteArrayOutputStream os = new ByteArrayOutputStream();</span>
-<span class="fc" id="L232">    stream(plainText, (bytes, offset, length) -&gt; os.write(bytes));</span>
-<span class="fc" id="L233">    return os.toByteArray();</span>
-  }
-
-  protected byte[] adjustToLen(final byte[] source, final int length) {
-<span class="fc" id="L237">    final byte[] destination = new byte[length];</span>
-<span class="fc" id="L238">    final int diff = source.length - length;</span>
-<span class="fc bfc" id="L239" title="All 2 branches covered.">    if (diff &lt; 0) { // fill extra diff bytes with 0</span>
-<span class="fc" id="L240">      System.arraycopy(source, 0, destination, Math.abs(diff), source.length);</span>
-<span class="fc bfc" id="L241" title="All 2 branches covered.">    } else if (diff &gt; 0) { // copy rightmost length bytes</span>
-<span class="fc" id="L242">      System.arraycopy(source, diff, destination, 0, source.length - diff);</span>
-    } else { // diff == 0
-<span class="fc" id="L244">      System.arraycopy(source, 0, destination, 0, source.length);</span>
-    }
-<span class="fc" id="L246">    return destination;</span>
+<span class="fc" id="L253">    final ByteArrayOutputStream os = new ByteArrayOutputStream();</span>
+<span class="fc" id="L254">    stream(plainText, (bytes, offset, length) -&gt; os.write(bytes));</span>
+<span class="fc" id="L255">    return os.toByteArray();</span>
   }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

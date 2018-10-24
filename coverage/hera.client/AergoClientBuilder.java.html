@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AergoClientBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.client</a> &gt; <span class="el_source">AergoClientBuilder.java</span></div><h1>AergoClientBuilder.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.client;
+
+import static hera.DefaultConstants.DEFAULT_ENDPOINT;
+import static hera.DefaultConstants.DEFAULT_TIMEOUT;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.Context;
+import hera.Strategy;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.api.model.HostnameAndPort;
+import hera.strategy.ConnectStrategy;
+import hera.strategy.NettyConnectStrategy;
+import hera.strategy.SimpleTimeoutStrategy;
+import hera.strategy.TimeoutStrategy;
+import java.util.stream.Stream;
+import lombok.AccessLevel;
+import lombok.Getter;
+import org.slf4j.Logger;
+
+/**
+ * &lt;p&gt;
+ * Build aergo client.
+ * &lt;/p&gt;
+ * Usage
+ * &lt;pre&gt;
+ *   AergoClient aergoClient = new AergoClientBuilder()
+ *           .addStrategy(new NettyConnectStrategy(&quot;localhost:7845&quot;))
+ *           .addStrategy(new SimpleTimeoutStrategy(10000L))
+ *           .build();
+ *
+ *   AergoEitherClient aergoEitherClient = new AergoClientBuilder()
+ *           .addStrategy(new NettyConnectStrategy(&quot;localhost:7845&quot;))
+ *           .addStrategy(new SimpleTimeoutStrategy(10000L))
+ *           .buildEither();
+ *
+ *   AergoAsyncClient aergoAsyncClient = new AergoClientBuilder()
+ *           .addStrategy(new NettyConnectStrategy(&quot;localhost:7845&quot;))
+ *           .addStrategy(new SimpleTimeoutStrategy(10000L))
+ *           .buildAsync();
+ * &lt;/pre&gt;
+ *
+ * @author taeiklim
+ *
+ */
+@ApiAudience.Public
+@ApiStability.Unstable
+<span class="fc" id="L52">public class AergoClientBuilder {</span>
+
+  /**
+   * A default context is holding {@link hera.strategy.NettyConnectStrategy} with a endpoint
+   * {@code localhost:7845} and holding {@link hera.strategy.SimpleTimeoutStrategy} with 5 seconds
+   * timeout.
+   */
+<span class="fc" id="L59">  @Getter</span>
+  protected static Context defaultContext;
+
+  static {
+<span class="fc" id="L63">    defaultContext = new Context();</span>
+<span class="fc" id="L64">    defaultContext.addStrategy(new NettyConnectStrategy(HostnameAndPort.of(DEFAULT_ENDPOINT)));</span>
+<span class="fc" id="L65">    defaultContext.addStrategy(new SimpleTimeoutStrategy(DEFAULT_TIMEOUT));</span>
+  }
+
+  @SuppressWarnings(&quot;rawtypes&quot;)
+<span class="fc" id="L69">  @Getter(value = AccessLevel.PROTECTED)</span>
+<span class="fc" id="L70">  protected static final Class[] necessaries =</span>
+      new Class[] {ConnectStrategy.class, TimeoutStrategy.class};
+
+<span class="fc" id="L73">  protected final Logger logger = getLogger(getClass());</span>
+
+<span class="fc" id="L75">  protected Context context = Context.copyOf(defaultContext);</span>
+
+  public AergoClientBuilder addStrategy(final Strategy strategy) {
+<span class="fc" id="L78">    context.addStrategy(strategy);</span>
+<span class="fc" id="L79">    return this;</span>
+  }
+
+  /**
+   * Bind a context.
+   *
+   * @param context context to bind
+   * @return an instance of this
+   */
+  public AergoClientBuilder bind(final Context context) {
+<span class="fc" id="L89">    logger.debug(&quot;Bind a new context: {}&quot;, context);</span>
+<span class="fc" id="L90">    this.context = context;</span>
+<span class="fc" id="L91">    return this;</span>
+  }
+
+  /**
+   * Build {@link AergoClient} with the current context. If necessary strategy is not provided, add
+   * necessary strategy from the {@link #defaultContext}.
+   *
+   * @return {@link AergoClient}
+   */
+  public AergoClient build() {
+<span class="fc" id="L101">    ensureNecessaryStrategy();</span>
+<span class="fc" id="L102">    logger.debug(&quot;Build client, current context: {}&quot;, context);</span>
+<span class="fc" id="L103">    return new AergoClient(context);</span>
+  }
+
+  /**
+   * Build {@link AergoEitherClient} with the current context. If necessary strategy is not
+   * provided, add necessary strategy from the {@link #defaultContext}.
+   *
+   * @return {@link AergoEitherClient}
+   */
+  public AergoEitherClient buildEither() {
+<span class="fc" id="L113">    ensureNecessaryStrategy();</span>
+<span class="fc" id="L114">    logger.debug(&quot;Build client, current context: {}&quot;, context);</span>
+<span class="fc" id="L115">    return new AergoEitherClient(context);</span>
+  }
+
+  /**
+   * Build {@link AergoAsyncClient} with the current context. If necessary strategy is not provided,
+   * add necessary strategy from the {@link #defaultContext}.
+   *
+   * @return {@link AergoAsyncClient}
+   */
+  public AergoAsyncClient buildAsync() {
+<span class="fc" id="L125">    ensureNecessaryStrategy();</span>
+<span class="fc" id="L126">    logger.debug(&quot;Build client, current context: {}&quot;, context);</span>
+<span class="fc" id="L127">    return new AergoAsyncClient(context);</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  protected void ensureNecessaryStrategy() {
+<span class="fc bfc" id="L132" title="All 2 branches covered.">    Stream.of(getNecessaries()).filter(s -&gt; !context.getStrategy(s).isPresent()).forEach(s -&gt; {</span>
+<span class="fc" id="L133">      final Strategy defaultNessaryStrategy = (Strategy) getDefaultContext().getStrategy(s).get();</span>
+<span class="fc" id="L134">      logger.debug(&quot;No {} in the context. Add default {}&quot;, s, defaultNessaryStrategy);</span>
+<span class="fc" id="L135">      addStrategy(defaultNessaryStrategy);</span>
+<span class="fc" id="L136">    });</span>
+<span class="fc" id="L137">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

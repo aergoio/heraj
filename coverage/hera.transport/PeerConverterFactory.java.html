@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PeerConverterFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.transport</a> &gt; <span class="el_source">PeerConverterFactory.java</span></div><h1>PeerConverterFactory.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.transport;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
+import com.google.protobuf.ByteString;
+import hera.api.model.Peer;
+import hera.exception.RpcException;
+import hera.util.Base58Utils;
+import java.io.IOException;
+import java.net.Inet6Address;
+import java.net.UnknownHostException;
+import java.util.function.Function;
+import org.slf4j.Logger;
+
+<span class="fc" id="L19">public class PeerConverterFactory {</span>
+
+<span class="fc" id="L21">  protected final transient Logger logger = getLogger(getClass());</span>
+
+<span class="fc" id="L23">  protected final Function&lt;Peer, types.Node.PeerAddress&gt; domainConverter = domainPeerAddress -&gt; {</span>
+<span class="fc" id="L24">    logger.trace(&quot;Domain peer address: {}&quot;, domainPeerAddress);</span>
+    try {
+<span class="fc" id="L26">      return types.Node.PeerAddress.newBuilder()</span>
+<span class="fc" id="L27">          .setAddress(ByteString.copyFrom(domainPeerAddress.getAddress().getAddress()))</span>
+<span class="fc" id="L28">          .setPort(domainPeerAddress.getPort())</span>
+<span class="fc" id="L29">          .setPeerID(ByteString.copyFrom(Base58Utils.decode(domainPeerAddress.getPeerId())))</span>
+<span class="fc" id="L30">          .build();</span>
+<span class="nc" id="L31">    } catch (IOException e) {</span>
+<span class="nc" id="L32">      throw new RpcException(&quot;PeerId decoding failed&quot;, e);</span>
+    }
+  };
+
+<span class="fc" id="L36">  protected final Function&lt;types.Node.PeerAddress, Peer&gt; rpcConverter = rpcStatus -&gt; {</span>
+<span class="fc" id="L37">    logger.trace(&quot;Rpc peer address: {}&quot;, rpcStatus);</span>
+    try {
+<span class="fc" id="L39">      final Peer domainStatus = new Peer();</span>
+<span class="fc" id="L40">      domainStatus.setAddress(Inet6Address.getByAddress(rpcStatus.getAddress().toByteArray()));</span>
+<span class="fc" id="L41">      domainStatus.setPort(rpcStatus.getPort());</span>
+<span class="fc" id="L42">      domainStatus.setPeerId(Base58Utils.encode(rpcStatus.getPeerID().toByteArray()));</span>
+<span class="fc" id="L43">      return domainStatus;</span>
+<span class="nc" id="L44">    } catch (UnknownHostException e) {</span>
+<span class="nc" id="L45">      throw new RpcException(&quot;Invalid peer host name&quot;, e);</span>
+    }
+  };
+
+
+  public ModelConverter&lt;Peer, types.Node.PeerAddress&gt; create() {
+<span class="fc" id="L51">    return new ModelConverter&lt;&gt;(domainConverter, rpcConverter);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

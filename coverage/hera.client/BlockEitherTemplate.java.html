@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BlockEitherTemplate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.client</a> &gt; <span class="el_source">BlockEitherTemplate.java</span></div><h1>BlockEitherTemplate.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.client;
+
+import hera.Context;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.api.BlockEitherOperation;
+import hera.api.model.Block;
+import hera.api.model.BlockHash;
+import hera.api.model.BlockHeader;
+import hera.api.model.Time;
+import hera.api.tupleorerror.ResultOrError;
+import hera.exception.RpcException;
+import hera.strategy.TimeoutStrategy;
+import io.grpc.ManagedChannel;
+import java.util.List;
+import lombok.Getter;
+
+@ApiAudience.Private
+@ApiStability.Unstable
+<span class="fc" id="L24">public class BlockEitherTemplate implements BlockEitherOperation, ChannelInjectable {</span>
+
+  protected Context context;
+
+<span class="fc" id="L28">  protected BlockAsyncTemplate blockAsyncOperation = new BlockAsyncTemplate();</span>
+
+<span class="pc bpc" id="L30" title="3 of 8 branches missed.">  @Getter(lazy = true)</span>
+  private final Time timeout =
+      context.getStrategy(TimeoutStrategy.class).map(TimeoutStrategy::getTimeout)
+          .orElseThrow(() -&gt; new RpcException(&quot;TimeoutStrategy must be present in context&quot;));
+
+  @Override
+  public void setContext(final Context context) {
+<span class="fc" id="L37">    this.context = context;</span>
+<span class="fc" id="L38">    blockAsyncOperation.setContext(context);</span>
+<span class="fc" id="L39">  }</span>
+
+  @Override
+  public void injectChannel(final ManagedChannel channel) {
+<span class="fc" id="L43">    blockAsyncOperation.injectChannel(channel);</span>
+<span class="fc" id="L44">  }</span>
+
+  @Override
+  public ResultOrError&lt;Block&gt; getBlock(BlockHash blockHash) {
+<span class="fc" id="L48">    return blockAsyncOperation.getBlock(blockHash).get(getTimeout().getValue(),</span>
+<span class="fc" id="L49">        getTimeout().getUnit());</span>
+  }
+
+  @Override
+  public ResultOrError&lt;Block&gt; getBlock(final long height) {
+<span class="fc" id="L54">    return blockAsyncOperation.getBlock(height).get(getTimeout().getValue(),</span>
+<span class="fc" id="L55">        getTimeout().getUnit());</span>
+  }
+
+  @Override
+  public ResultOrError&lt;List&lt;BlockHeader&gt;&gt; listBlockHeaders(BlockHash blockHash, int size) {
+<span class="fc" id="L60">    return blockAsyncOperation.listBlockHeaders(blockHash, size).get(getTimeout().getValue(),</span>
+<span class="fc" id="L61">        getTimeout().getUnit());</span>
+  }
+
+  @Override
+  public ResultOrError&lt;List&lt;BlockHeader&gt;&gt; listBlockHeaders(long height, int size) {
+<span class="fc" id="L66">    return blockAsyncOperation.listBlockHeaders(height, size).get(getTimeout().getValue(),</span>
+<span class="fc" id="L67">        getTimeout().getUnit());</span>
+  }
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

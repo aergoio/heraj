@@ -1,12 +1,14 @@
 hera
 hera.annotation
 hera.api
+hera.api.encode
 hera.api.model
 hera.api.tupleorerror
 hera.api.tupleorerror.impl
 hera.client
 hera.custom
 hera.exception
+hera.key
 hera.server
 hera.strategy
 hera.transport
