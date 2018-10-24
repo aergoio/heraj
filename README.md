@@ -18,11 +18,13 @@ This repository, heraj is java implementation for hera.
     <url>https://jcenter.bintray.com</url>
   </repository>
 </repositories>
+
 ...
+
 <dependencies>
   <dependency>
     <groupId>io.aergo</groupId>
-    <artifactId>hera-transport</artifactId>
+    <artifactId>heraj-transport</artifactId>
     <version>${RECENT_VERSION}</version>
   </dependency>
 </dependencies>
@@ -33,9 +35,11 @@ This repository, heraj is java implementation for hera.
 repositories {
   jcenter()
 }
+
 ...
+
 dependencies {
-  implementation 'io.aergo:hera-transport:${RECENT_VERSION}'
+  implementation 'io.aergo:heraj-transport:${RECENT_VERSION}'
 }
 ```
 
