@@ -7,7 +7,11 @@ package hera.client.it;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.Account;
+import hera.api.model.AccountState;
 import hera.api.model.ClientManagedAccount;
+import hera.api.model.Signature;
+import hera.api.model.Transaction;
+import hera.client.AergoClient;
 import hera.key.AergoKey;
 import java.io.InputStream;
 import org.junit.Before;
@@ -34,7 +38,22 @@ public abstract class AbstractIT {
   }
 
   protected void waitForNextBlockToGenerate() throws InterruptedException {
-    Thread.sleep(2500L);
+    Thread.sleep(1500L);
+  }
+
+  protected void rechargeCoin(final AergoClient aergoClient, final Account targetAccount,
+      final long amount) {
+    final AccountState richState = aergoClient.getAccountOperation().getState(rich);
+
+    final Transaction transaction = new Transaction();
+    transaction.setNonce(richState.getNonce() + 1);
+    transaction.setAmount(amount);
+    transaction.setSender(rich);
+    transaction.setRecipient(targetAccount);
+    final Signature signature = aergoClient.getAccountOperation().sign(rich, transaction);
+    transaction.setSignature(signature);
+
+    aergoClient.getTransactionOperation().commit(transaction);
   }
 
   @Before

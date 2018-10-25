@@ -42,9 +42,7 @@ public class TransactionOperationIT extends AbstractIT {
     final ClientManagedAccount account = ClientManagedAccount.of(key);
 
     // fulfill the balance
-    aergoClient.getAccountOperation().unlock(Authentication.of(rich.getAddress(), richPassword));
-    aergoClient.getTransactionOperation().send(rich, account, 100L);
-    aergoClient.getAccountOperation().lock(Authentication.of(rich.getAddress(), richPassword));
+    rechargeCoin(aergoClient, account, 100L);
 
     waitForNextBlockToGenerate();
 
@@ -91,9 +89,7 @@ public class TransactionOperationIT extends AbstractIT {
     final ClientManagedAccount account = ClientManagedAccount.of(key);
 
     // fulfill the balance
-    aergoClient.getAccountOperation().unlock(Authentication.of(rich.getAddress(), richPassword));
-    aergoClient.getTransactionOperation().send(rich, account, 100L);
-    aergoClient.getAccountOperation().lock(Authentication.of(rich.getAddress(), richPassword));
+    rechargeCoin(aergoClient, account, 100L);
 
     waitForNextBlockToGenerate();
 
@@ -141,9 +137,7 @@ public class TransactionOperationIT extends AbstractIT {
     final ServerManagedAccount account = aergoClient.getAccountOperation().create(password);
 
     // fulfill the balance
-    aergoClient.getAccountOperation().unlock(Authentication.of(rich.getAddress(), richPassword));
-    aergoClient.getTransactionOperation().send(rich, account, 100L);
-    aergoClient.getAccountOperation().lock(Authentication.of(rich.getAddress(), richPassword));
+    rechargeCoin(aergoClient, account, 100L);
 
     waitForNextBlockToGenerate();
 
@@ -196,9 +190,7 @@ public class TransactionOperationIT extends AbstractIT {
     final ServerManagedAccount account = aergoClient.getAccountOperation().create(password);
 
     // fulfill the balance
-    aergoClient.getAccountOperation().unlock(Authentication.of(rich.getAddress(), richPassword));
-    aergoClient.getTransactionOperation().send(rich, account, 100L);
-    aergoClient.getAccountOperation().lock(Authentication.of(rich.getAddress(), richPassword));
+    rechargeCoin(aergoClient, account, 100L);
 
     waitForNextBlockToGenerate();
 
@@ -252,9 +244,7 @@ public class TransactionOperationIT extends AbstractIT {
     final ServerManagedAccount sender = aergoClient.getAccountOperation().create(password);
 
     // fulfill the balance
-    aergoClient.getAccountOperation().unlock(Authentication.of(rich.getAddress(), richPassword));
-    aergoClient.getTransactionOperation().send(rich, sender, 100L);
-    aergoClient.getAccountOperation().lock(Authentication.of(rich.getAddress(), richPassword));
+    rechargeCoin(aergoClient, sender, 100L);
 
     waitForNextBlockToGenerate();
 
@@ -289,6 +279,56 @@ public class TransactionOperationIT extends AbstractIT {
 
     // close the client
     aergoClient.close();
+  }
+
+  @Test
+  public void shouldNotConfirmedWithInvalidNonce() throws Exception {
+    // make aergo client object
+    final AergoClient aergoClient =
+        new AergoClientBuilder().addStrategy(new NettyConnectStrategy(hostname)).build();
+
+    // create an account
+    final AergoKey key = new AergoKeyGenerator().create();
+    final ClientManagedAccount account = ClientManagedAccount.of(key);
+
+    // fulfill the balance
+    rechargeCoin(aergoClient, account, 100L);
+
+    waitForNextBlockToGenerate();
+
+    // make a transaction
+    final Transaction transaction = new Transaction();
+    transaction.setNonce(account.nextNonce() + 1);
+    transaction.setAmount(1L);
+    transaction.setSender(account);
+    transaction.setRecipient(
+        AccountAddress.of(() -> "AmLbHdVs4dNpRzyLirs8cKdV26rPJJxpVXG1w2LLZ9pKfqAHHdyg"));
+    logger.info("Raw transaction: {}", transaction);
+
+    // sign it
+    final Signature signature = aergoClient.getAccountOperation().sign(account, transaction);
+    logger.info("Signature: {}", signature);
+
+    // fill signature with previous one
+    transaction.setSignature(signature);
+    logger.info("Signed transaction: {}", transaction);
+
+    // commit request
+    final TxHash txHash = aergoClient.getTransactionOperation().commit(transaction);
+    logger.info("TxHash: {}", txHash);
+
+    waitForNextBlockToGenerate();
+
+    // must be nonce : 0
+    final AccountState senderState = aergoClient.getAccountOperation().getState(account);
+    logger.info("Sender state: {}", senderState);
+    assertEquals(0L, senderState.getNonce());
+
+    // query tx with hash
+    final Transaction queried = aergoClient.getTransactionOperation().getTransaction(txHash);
+    logger.info("Queired transaction: {}", queried);
+
+    assertTrue(!queried.isConfirmed());
   }
 
 }

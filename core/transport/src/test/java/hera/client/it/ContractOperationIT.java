@@ -50,9 +50,7 @@ public class ContractOperationIT extends AbstractIT {
     final ClientManagedAccount account = ClientManagedAccount.of(key);
 
     // we need a money to deploy/execute smart contract
-    aergoClient.getAccountOperation().unlock(Authentication.of(rich.getAddress(), richPassword));
-    aergoClient.getTransactionOperation().send(rich, account, 100L);
-    aergoClient.getAccountOperation().lock(Authentication.of(rich.getAddress(), richPassword));
+    rechargeCoin(aergoClient, account, 100L);
 
     waitForNextBlockToGenerate();
 
@@ -110,9 +108,7 @@ public class ContractOperationIT extends AbstractIT {
     final ClientManagedAccount account = ClientManagedAccount.of(key);
 
     // we need a money to deploy/execute smart contract
-    aergoClient.getAccountOperation().unlock(Authentication.of(rich.getAddress(), richPassword));
-    aergoClient.getTransactionOperation().send(rich, account, 100L);
-    aergoClient.getAccountOperation().lock(Authentication.of(rich.getAddress(), richPassword));
+    rechargeCoin(aergoClient, account, 100L);
 
     waitForNextBlockToGenerate();
 
@@ -189,9 +185,7 @@ public class ContractOperationIT extends AbstractIT {
     final ServerManagedAccount account = aergoClient.getAccountOperation().create(password);
 
     // we need a money to deploy/execute smart contract
-    aergoClient.getAccountOperation().unlock(Authentication.of(rich.getAddress(), richPassword));
-    aergoClient.getTransactionOperation().send(rich, account, 100L);
-    aergoClient.getAccountOperation().lock(Authentication.of(rich.getAddress(), richPassword));
+    rechargeCoin(aergoClient, account, 100L);
 
     waitForNextBlockToGenerate();
 
