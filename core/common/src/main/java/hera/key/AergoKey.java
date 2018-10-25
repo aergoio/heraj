@@ -9,11 +9,11 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.VersionUtils;
 import hera.api.encode.Base58WithCheckSum;
-import hera.api.encode.EncodedString;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
 import hera.exception.HerajException;
+import hera.exception.UnableToGenerateKeyException;
 import hera.util.Base58Utils;
 import hera.util.CryptoUtils;
 import hera.util.HexUtils;
@@ -23,7 +23,6 @@ import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSASignature;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Arrays;
@@ -49,15 +48,28 @@ public class AergoKey implements KeyPair {
   /**
    * Create a key pair with encoded encrypted private key and password.
    *
-   * @param encodedEncryptedPrivateKey encrypted private key
+   * @param encodedEncryptedPrivateKey base58 with checksum encoded encrypted private key
    * @param password password to decrypt
    * @return key instance
-   * @throws Exception on failure of decryption
+   *
+   * @throws UnableToGenerateKeyException on failure of creation
    */
-  public static AergoKey of(final String encodedEncryptedPrivateKey, final String password)
-      throws Exception {
-    Base58WithCheckSum encoded = () -> encodedEncryptedPrivateKey;
-    return of(encoded, password);
+  public static AergoKey of(final String encodedEncryptedPrivateKey, final String password) {
+    return new AergoKey(encodedEncryptedPrivateKey, password);
+  }
+
+  /**
+   * Create a key pair with encrypted private key and password.
+   *
+   * @param encodedEncryptedPrivateKey base58 with checksum encoded encrypted private key
+   * @param password password to decrypt
+   * @return key instance
+   *
+   * @throws UnableToGenerateKeyException on failure of creation
+   */
+  public static AergoKey of(final Base58WithCheckSum encodedEncryptedPrivateKey,
+      final String password) {
+    return new AergoKey(encodedEncryptedPrivateKey, password);
   }
 
   /**
@@ -66,10 +78,10 @@ public class AergoKey implements KeyPair {
    * @param encryptedPrivateKey encrypted private key
    * @param password password to decrypt
    * @return key instance
-   * @throws Exception on failure of decryption
+   *
+   * @throws UnableToGenerateKeyException on failure of creation
    */
-  public static AergoKey of(final EncodedString encryptedPrivateKey, final String password)
-      throws Exception {
+  public static AergoKey of(final EncryptedPrivateKey encryptedPrivateKey, final String password) {
     return new AergoKey(encryptedPrivateKey, password);
   }
 
@@ -83,17 +95,46 @@ public class AergoKey implements KeyPair {
   /**
    * AergoKey constructor.
    *
+   * @param encodedEncryptedPrivateKey base58 with checksum encoded encrypted private key
+   * @param password password to decrypt
+   *
+   * @throws UnableToGenerateKeyException on failure of creation
+   */
+  public AergoKey(final String encodedEncryptedPrivateKey, final String password) {
+    this(() -> encodedEncryptedPrivateKey, password);
+  }
+
+  /**
+   * AergoKey constructor.
+   *
+   * @param encodedEncryptedPrivateKey base58 with checksum encoded encrypted private key
+   * @param password password to decrypt
+   *
+   * @throws UnableToGenerateKeyException on failure of creation
+   */
+  public AergoKey(final Base58WithCheckSum encodedEncryptedPrivateKey, final String password) {
+    this(EncryptedPrivateKey.of(encodedEncryptedPrivateKey), password);
+  }
+
+  /**
+   * AergoKey constructor.
+   *
    * @param encryptedPrivateKey encrypted private key
    * @param password password to decrypt
-   * @throws Exception on failure of decryption
+   *
+   * @throws UnableToGenerateKeyException on failure of creation
    */
-  public AergoKey(final EncodedString encryptedPrivateKey, final String password) throws Exception {
-    final byte[] rawPrivateKey =
-        decrypt(encryptedPrivateKey.decode().getValue(), password.getBytes(UTF_8));
-    this.ecdsakey = ECDSAKey.of(rawPrivateKey);
-    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =
-        (org.bouncycastle.jce.interfaces.ECPublicKey) this.ecdsakey.getPublicKey();
-    this.address = buildAddress(ecPublicKey);
+  public AergoKey(final EncryptedPrivateKey encryptedPrivateKey, final String password) {
+    try {
+      final byte[] rawPrivateKey =
+          decrypt(encryptedPrivateKey.getBytesValue().getValue(), password.getBytes(UTF_8));
+      this.ecdsakey = ECDSAKey.of(rawPrivateKey);
+      final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =
+          (org.bouncycastle.jce.interfaces.ECPublicKey) this.ecdsakey.getPublicKey();
+      this.address = buildAddress(ecPublicKey);
+    } catch (final Exception e) {
+      throw new UnableToGenerateKeyException(e);
+    }
   }
 
   /**

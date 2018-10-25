@@ -4,6 +4,6 @@
 
 package hera.util.pki;
 
-public interface KeyGenerator {
-  ECDSAKey create() throws Exception;
+public interface KeyGenerator<KeyT> {
+  KeyT create() throws Exception;
 }

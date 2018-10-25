@@ -25,7 +25,7 @@ import org.bouncycastle.jce.spec.ECPublicKeySpec;
 import org.bouncycastle.math.ec.ECPoint;
 import org.slf4j.Logger;
 
-public class ECDSAKeyGenerator implements KeyGenerator {
+public class ECDSAKeyGenerator implements KeyGenerator<ECDSAKey> {
   protected static final String ALGORITHM_NAME = "ECDSA";
 
   protected static final String CURVE_NAME = "secp256k1";
