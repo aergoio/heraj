@@ -9,6 +9,7 @@ import static hera.util.StringUtils.isEmpty;
 
 import java.io.File;
 import java.util.Stack;
+import java.util.StringJoiner;
 
 public class FilepathUtils {
 
@@ -70,16 +71,22 @@ public class FilepathUtils {
   public static String getCanonicalForm(final String path) {
     final String[] fragments = getCanonicalFragments(path);
     if (0 == fragments.length) {
-      return DIRECTORY_SEPARATOR;
+      if (path.startsWith(DIRECTORY_SEPARATOR)) {
+        return DIRECTORY_SEPARATOR;
+      } else {
+        return path;
+      }
     }
-    final StringBuilder buffer = new StringBuilder();
-
+    StringJoiner joiner = null;
+    if (path.startsWith(DIRECTORY_SEPARATOR)) {
+      joiner = new StringJoiner(DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, "");
+    } else {
+      joiner = new StringJoiner(DIRECTORY_SEPARATOR);
+    }
     for (final String f : fragments) {
-      buffer.append("/");
-      buffer.append(f);
+      joiner.add(f);
     }
-
-    return buffer.toString();
+    return joiner.toString();
   }
 
   /**

@@ -35,8 +35,8 @@ public class FilepathUtilsTest {
     final Object[][] testParameters = new Object[][] {
         {"/Users/tester", "/Users/tester"},
         {"/Users/admin/systems", "/Users/admin/systems"},
-        {"./tests/./subtest1", "/tests/subtest1"},
-        {"././tests/../subtest2", "/subtest2"}};
+        {"./tests/./subtest1", "tests/subtest1"},
+        {"././tests/../subtest2", "subtest2"}};
 
     for (final Object[] testParameter : testParameters) {
       String expected = (String) testParameter[1];
