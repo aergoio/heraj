@@ -201,10 +201,10 @@ configure(javaProjects) {
   }
 
   bintray {
-    user = project.bintrayUser
-    key = project.bintrayKey
+    user = System.getProperty("bintrayUser")
+    key = System.getProperty("bintrayKey")
     pkg {
-      userOrg = project.bintrayUser
+      userOrg = System.getProperty("bintrayUser")
       repo = 'maven'
       name = 'heraj-' + project.name
       licenses = ['MIT']
