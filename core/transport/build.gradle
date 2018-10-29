@@ -2,10 +2,6 @@
  * @copyright defined in LICENSE.txt
  */
 
-jar {
-  archivesBaseName = 'heraj-transport'
-}
-
 dependencies {
   implementation project(":core:annotation")
   implementation project(":core:util")

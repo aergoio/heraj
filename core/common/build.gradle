@@ -1,9 +1,6 @@
 /*
  * @copyright defined in LICENSE.txt
  */
-jar {
-  archivesBaseName = 'heraj-common'
-}
 
 dependencies {
   implementation project(":core:annotation")

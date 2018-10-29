@@ -34,10 +34,6 @@ protobuf {
   }
 }
 
-jar {
-  archivesBaseName = 'heraj-protobuf'
-}
-
 dependencies {
   implementation ('com.google.guava:guava:22.0')
   implementation ('io.grpc:grpc-netty:1.13.1') {

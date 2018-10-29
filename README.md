@@ -63,7 +63,7 @@ TBD
 
 # Build
 ## Prerequisites
-* [JDK 8](http://openjdk.java.net/)
+* [JDK 8 or JDK 9](https://openjdk.java.net/install/)
 
 ## Clone
 ```console
@@ -89,6 +89,11 @@ $ ./build.sh clean
 * Run gradle
 ```console
 $ ./build.sh gradle
+```
+
+* Install to maven local
+```console
+$ ./build.sh install
 ```
 
 # Test

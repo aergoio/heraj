@@ -19,7 +19,7 @@ fi
 
 ################################################################################
 # Definition
-VERSION=$(grep ' version ' $PROJECT_HOME/build.gradle | cut -d"'" -f2)
+VERSION=$(grep " version '" $PROJECT_HOME/build.gradle | cut -d"'" -f2)
 
 export BUILD_WORKSPACE=$PROJECT_HOME/build
 
@@ -33,6 +33,8 @@ function print-usage() {
   echo "Commands: "
   echo "  clean       delete and reset intermediate obj in build"
   echo "  gradle      compile source to executable using gradle"
+  echo "  install     install to maven local"
+  echo "  deploy      upload to jcenter"
   echo "  test        test built executable"
   echo "  docs        generate documents"
   echo "  assemble    assemble distributions"
@@ -44,6 +46,18 @@ function clean-workspace() {
 }
 function execute-gradle() {
   $PROJECT_HOME/gradlew clean build test alljacoco
+}
+function execute-install() {
+  $PROJECT_HOME/gradlew install
+}
+function execute-deploy() {
+  echo "Version: $VERSION"
+  if [[ $VERSION == *SNAPSHOT ]]; then
+    echo "Uploading SNAPSHOT is not supported"
+    exit -1
+  else
+    $PROJECT_HOME/gradlew bintrayUpload
+  fi
 }
 function execute-test() {
   $PROJECT_HOME/gradlew test jacocoTestReport
@@ -81,6 +95,12 @@ else
         ;;
       "gradle")
         execute-gradle
+        ;;
+      "install")
+        execute-install
+        ;;
+      "deploy")
+        execute-deploy
         ;;
       "test")
         execute-test

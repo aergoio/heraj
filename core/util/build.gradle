@@ -2,10 +2,6 @@
  * @copyright defined in LICENSE.txt
  */
 
-jar {
-  archivesBaseName = 'heraj-util'
-}
-
 dependencies {
   implementation project(":core:annotation")
   implementation 'com.google.guava:guava:22.0'

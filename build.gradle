@@ -46,7 +46,6 @@ def jmhProjects = [
 configure(javaProjects) {
   // do Java specific configurations
   apply plugin: 'java'
-  apply plugin: 'maven'
   apply plugin: 'maven-publish'
   apply plugin: 'jacoco'
   apply plugin: 'checkstyle'
@@ -173,6 +172,10 @@ configure(javaProjects) {
     }
   }
 
+  task install {
+    dependsOn publishToMavenLocal
+  }
+
   task sourceJar(type: Jar) {
     from sourceSets.main.allJava
     classifier = 'sources'
@@ -198,10 +201,10 @@ configure(javaProjects) {
   }
 
   bintray {
-    user = System.getenv("BINTRAY_USER")
-    key = System.getenv("BINTRAY_KEY")
+    user = project.bintrayUser
+    key = project.bintrayKey
     pkg {
-      userOrg = System.getenv("BINTRAY_USER")
+      userOrg = project.bintrayUser
       repo = 'maven'
       name = 'heraj-' + project.name
       licenses = ['MIT']
@@ -213,15 +216,6 @@ configure(javaProjects) {
       }
     }
     publications = ['maven']
-  }
-
-  task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-  }
- 
-  artifacts {
-    archives sourcesJar
   }
 
   jacoco {
