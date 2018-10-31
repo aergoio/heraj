@@ -30,7 +30,7 @@ public final class FutureFunctionChain {
    */
   protected static CompletableFuture<Void> allOf(ResultOrErrorFuture<?>... futures) {
     final CompletableFuture<Void> next = CompletableFuture.allOf(Arrays.stream(futures)
-        .map(ResultOrErrorFutureImpl.class::cast).map(f -> f.getDeligate())
+        .map(ResultOrErrorFutureImpl.class::cast).map(f -> f.getDelegate())
         .toArray(CompletableFuture[]::new));
     return next;
   }
@@ -49,7 +49,7 @@ public final class FutureFunctionChain {
     ResultOrErrorFuture<T1> future1 = f1.get();
     ResultOrErrorFuture<T2> future2 = f2.get();
 
-    CompletableFuture<Tuple2OrError<T1, T2>> deligate =
+    CompletableFuture<Tuple2OrError<T1, T2>> delegate =
         allOf(future1, future2).thenApplyAsync(futureVoid -> {
           try {
             ResultOrError<T1> r1 = future1.get();
@@ -65,7 +65,7 @@ public final class FutureFunctionChain {
             return new Tuple2OrErrorImpl<>(e);
           }
         });
-    return new Tuple2OrErrorFutureImpl(deligate);
+    return new Tuple2OrErrorFutureImpl(delegate);
   }
 
   /**
@@ -86,7 +86,7 @@ public final class FutureFunctionChain {
     ResultOrErrorFuture<T2> future2 = f2.get();
     ResultOrErrorFuture<T3> future3 = f3.get();
 
-    CompletableFuture<Tuple3OrError> deligate =
+    CompletableFuture<Tuple3OrError> delegate =
         allOf(future1, future2, future3).thenApplyAsync(futureVoid -> {
           try {
             ResultOrError<T1> r1 = future1.get();
@@ -106,7 +106,7 @@ public final class FutureFunctionChain {
             return new Tuple3OrErrorImpl<>(e);
           }
         });
-    return new Tuple3OrErrorFutureImpl(deligate);
+    return new Tuple3OrErrorFutureImpl(delegate);
   }
 
   /**
@@ -130,7 +130,7 @@ public final class FutureFunctionChain {
     ResultOrErrorFuture<T3> future3 = f3.get();
     ResultOrErrorFuture<T4> future4 = f4.get();
 
-    CompletableFuture<Tuple4OrError> deligate =
+    CompletableFuture<Tuple4OrError> delegate =
         allOf(future1, future2).thenApplyAsync(futureVoid -> {
           try {
             ResultOrError<T1> r1 = future1.get();
@@ -154,7 +154,7 @@ public final class FutureFunctionChain {
             return new Tuple4OrErrorImpl<>(e);
           }
         });
-    return new Tuple4OrErrorFutureImpl(deligate);
+    return new Tuple4OrErrorFutureImpl(delegate);
   }
 
 }

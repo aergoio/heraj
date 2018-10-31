@@ -21,27 +21,27 @@ import lombok.RequiredArgsConstructor;
 public class ResultOrErrorFutureImpl<T> implements ResultOrErrorFuture<T> {
 
   @Getter
-  protected final CompletableFuture<ResultOrError<T>> deligate;
+  protected final CompletableFuture<ResultOrError<T>> delegate;
 
   @Override
   public boolean cancel(boolean mayInterruptIfRunning) {
-    return deligate.cancel(mayInterruptIfRunning);
+    return delegate.cancel(mayInterruptIfRunning);
   }
 
   @Override
   public boolean isCancelled() {
-    return deligate.isCancelled();
+    return delegate.isCancelled();
   }
 
   @Override
   public boolean isDone() {
-    return deligate.isDone();
+    return delegate.isDone();
   }
 
   @Override
   public ResultOrError<T> get() {
     try {
-      return deligate.get();
+      return delegate.get();
     } catch (Throwable error) {
       return new ResultOrErrorImpl<>(null, error);
     }
@@ -50,7 +50,7 @@ public class ResultOrErrorFutureImpl<T> implements ResultOrErrorFuture<T> {
   @Override
   public ResultOrError<T> get(long timeout, TimeUnit unit) {
     try {
-      return deligate.get(timeout, unit);
+      return delegate.get(timeout, unit);
     } catch (Throwable error) {
       return new ResultOrErrorImpl<>(null, error);
     }
@@ -58,13 +58,13 @@ public class ResultOrErrorFutureImpl<T> implements ResultOrErrorFuture<T> {
 
   @Override
   public boolean complete(ResultOrError<T> resultOrError) {
-    return deligate.complete(resultOrError);
+    return delegate.complete(resultOrError);
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public ResultOrErrorFuture<Boolean> ifPresent(Consumer1<? super T> consumer) {
-    CompletableFuture<ResultOrError<Boolean>> next = deligate.thenComposeAsync(r -> {
+    CompletableFuture<ResultOrError<Boolean>> next = delegate.thenComposeAsync(r -> {
       try {
         consumer.accept(r.getResult());
         return CompletableFuture.supplyAsync(() -> success(true));
@@ -77,22 +77,22 @@ public class ResultOrErrorFutureImpl<T> implements ResultOrErrorFuture<T> {
 
   @Override
   public ResultOrErrorFuture<T> filter(Predicate1<? super T> predicate) {
-    CompletableFuture<ResultOrError<T>> next = deligate.thenApplyAsync(r -> r.filter(predicate));
+    CompletableFuture<ResultOrError<T>> next = delegate.thenApplyAsync(r -> r.filter(predicate));
     return new ResultOrErrorFutureImpl<T>(next);
   }
 
   @Override
   public <R> ResultOrErrorFuture<R> map(Function1<? super T, ? extends R> f) {
-    CompletableFuture<ResultOrError<R>> next = deligate.thenApplyAsync(r -> r.map(f));
+    CompletableFuture<ResultOrError<R>> next = delegate.thenApplyAsync(r -> r.map(f));
     return new ResultOrErrorFutureImpl<R>(next);
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public <R> ResultOrErrorFuture<R> flatMap(Function1<? super T, ResultOrErrorFuture<R>> f) {
-    CompletableFuture<ResultOrError<R>> next = deligate.thenComposeAsync(r -> {
+    CompletableFuture<ResultOrError<R>> next = delegate.thenComposeAsync(r -> {
       try {
-        return ((ResultOrErrorFutureImpl<R>) f.apply(r.getResult())).deligate;
+        return ((ResultOrErrorFutureImpl<R>) f.apply(r.getResult())).delegate;
       } catch (Throwable e) {
         return CompletableFuture.supplyAsync(() -> fail(e));
       }

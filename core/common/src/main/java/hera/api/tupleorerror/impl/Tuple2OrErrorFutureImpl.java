@@ -23,27 +23,27 @@ import lombok.RequiredArgsConstructor;
 public class Tuple2OrErrorFutureImpl<T1, T2> implements Tuple2OrErrorFuture<T1, T2> {
 
   @Getter
-  protected final CompletableFuture<Tuple2OrError<T1, T2>> deligate;
+  protected final CompletableFuture<Tuple2OrError<T1, T2>> delegate;
 
   @Override
   public boolean cancel(boolean mayInterruptIfRunning) {
-    return deligate.cancel(mayInterruptIfRunning);
+    return delegate.cancel(mayInterruptIfRunning);
   }
 
   @Override
   public boolean isCancelled() {
-    return deligate.isCancelled();
+    return delegate.isCancelled();
   }
 
   @Override
   public boolean isDone() {
-    return deligate.isDone();
+    return delegate.isDone();
   }
 
   @Override
   public Tuple2OrError<T1, T2> get() {
     try {
-      return deligate.get();
+      return delegate.get();
     } catch (Throwable error) {
       return new Tuple2OrErrorImpl<>(error);
     }
@@ -52,7 +52,7 @@ public class Tuple2OrErrorFutureImpl<T1, T2> implements Tuple2OrErrorFuture<T1, 
   @Override
   public Tuple2OrError<T1, T2> get(long timeout, TimeUnit unit) {
     try {
-      return deligate.get(timeout, unit);
+      return delegate.get(timeout, unit);
     } catch (Throwable error) {
       return new Tuple2OrErrorImpl<>(error);
     }
@@ -61,7 +61,7 @@ public class Tuple2OrErrorFutureImpl<T1, T2> implements Tuple2OrErrorFuture<T1, 
   @SuppressWarnings("unchecked")
   @Override
   public ResultOrErrorFuture<Boolean> ifPresent(Consumer2<? super T1, ? super T2> consumer) {
-    CompletableFuture<ResultOrError<Boolean>> next = deligate.thenComposeAsync(r -> {
+    CompletableFuture<ResultOrError<Boolean>> next = delegate.thenComposeAsync(r -> {
       try {
         consumer.accept(r.get1(), r.get2());
         return CompletableFuture.supplyAsync(() -> success(true));
@@ -75,13 +75,13 @@ public class Tuple2OrErrorFutureImpl<T1, T2> implements Tuple2OrErrorFuture<T1, 
   @Override
   public Tuple2OrErrorFuture<T1, T2> filter(Predicate2<? super T1, ? super T2> predicate) {
     CompletableFuture<Tuple2OrError<T1, T2>> next =
-        deligate.thenApplyAsync(r -> r.filter(predicate));
+        delegate.thenApplyAsync(r -> r.filter(predicate));
     return new Tuple2OrErrorFutureImpl<>(next);
   }
 
   @Override
   public <R> ResultOrErrorFuture<R> map(Function2<? super T1, ? super T2, ? extends R> f) {
-    CompletableFuture<ResultOrError<R>> next = deligate.thenApplyAsync(r -> r.map(f));
+    CompletableFuture<ResultOrError<R>> next = delegate.thenApplyAsync(r -> r.map(f));
     return new ResultOrErrorFutureImpl<>(next);
   }
 
