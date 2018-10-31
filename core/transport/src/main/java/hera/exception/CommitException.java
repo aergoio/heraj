@@ -13,7 +13,7 @@ public class CommitException extends RpcException {
 
   private static final long serialVersionUID = -3973554154789144558L;
 
-  enum CommitStatus {
+  public enum CommitStatus {
     OK,
     NONCE_TOO_LOW,
     TX_ALREADY_EXISTS,

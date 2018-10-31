@@ -1,21 +1,15 @@
-function constructor(arg0, arg1)
-  system.setItem("root", {})
-  system.setItem("initKey", {intVal=arg0, stringVal=arg1})
+function constructor(key, arg1, arg2)
+  if key ~= nil then
+    system.setItem(key, {intVal=arg1, stringVal=arg2})
+  end
 end
 
-function getConsVal()
-  return system.getItem("initKey")
-end
-
-function set(key, value)
-  local root = system.getItem("root")
-  root[key] = value
-  system.setItem("root", root)
-  return root
+function set(key, arg1, arg2)
+  system.setItem(key, {intVal=arg1, stringVal=arg2})
 end
 
 function get(key)
-  return system.getItem("root")[key]
+  return system.getItem(key)
 end
 
-abi.register(getConsVal, set, get)
+abi.register(set, get)

@@ -13,7 +13,7 @@ public class TransactionVerificationException extends RpcException {
 
   private static final long serialVersionUID = 308408228893339199L;
 
-  enum VerifyStatus {
+  public enum VerifyStatus {
     VERIFY_STATUS_OK,
     VERIFY_STATUS_SIGN_NOT_MATCH,
     VERIFY_STATUS_INVALID_HASH,
