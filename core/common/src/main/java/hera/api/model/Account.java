@@ -16,9 +16,8 @@ public interface Account extends Adaptor {
   AccountAddress getAddress();
 
   /**
-   * Bind state to an account. If nonce is less or equals to 0, nonce is set as 1. If balance is
-   * less than 1, balance is set as 0. Remember, {@link AccountState#address} is not binded. Only
-   * nonce and balance is binded.
+   * Bind state to an account. If nonce is less or equals to 0, nonce is set as 1. Remember,
+   * {@link AccountState#address} is not binded. Only nonce is binded.
    *
    * @param state state to bind
    */
@@ -49,19 +48,5 @@ public interface Account extends Adaptor {
    * Increment nonce by one.
    */
   void incrementNonce();
-
-  /**
-   * Set balanced for account. If a passed {@code balance} is less than 0, balance is set as 0.
-   *
-   * @param balance balance to set
-   */
-  void setBalance(long balance);
-
-  /**
-   * Get balance of an balance.
-   *
-   * @return balance
-   */
-  long getBalance();
 
 }

@@ -15,13 +15,9 @@ public abstract class AbstractAccount implements Account {
   @Getter
   protected long nonce = 0;
 
-  @Getter
-  protected long balance = 0;
-
   @Override
   public void bindState(final AccountState state) {
     setNonce(state.getNonce());
-    setBalance(state.getBalance());
   }
 
   @Override
@@ -37,11 +33,6 @@ public abstract class AbstractAccount implements Account {
   @Override
   public void incrementNonce() {
     ++this.nonce;
-  }
-
-  @Override
-  public void setBalance(final long balance) {
-    this.balance = balance < 0 ? 0 : balance;
   }
 
 }
