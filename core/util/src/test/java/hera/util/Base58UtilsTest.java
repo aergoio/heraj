@@ -26,14 +26,16 @@ public class Base58UtilsTest extends AbstractTestCase {
 
   @Test
   public void testEncode() {
-    final String actualEncoded = Base58Utils.encode(DECODED);
-    assertEquals(ENCODED, actualEncoded);
+    assertEquals(ENCODED, Base58Utils.encode(DECODED));
+    assertEquals("", Base58Utils.encode(new byte[0]));
+    assertEquals("", Base58Utils.encode(null));
   }
 
   @Test
   public void testDecode() throws IOException {
-    final byte[] actualDecoded = Base58Utils.decode(ENCODED);
-    assertTrue(Arrays.equals(DECODED, actualDecoded));
+    assertTrue(Arrays.equals(DECODED, Base58Utils.decode(ENCODED)));
+    assertTrue(Arrays.equals(new byte[0], Base58Utils.decode("")));
+    assertTrue(Arrays.equals(new byte[0], Base58Utils.decode(null)));
   }
 
   @Test(expected = IOException.class)
@@ -43,14 +45,17 @@ public class Base58UtilsTest extends AbstractTestCase {
 
   @Test
   public void testEncodeWithCheck() {
-    final String actualEncoded = Base58Utils.encodeWithCheck(DECODED_WITH_CHECKSUM);
-    assertEquals(ENCODED_WITH_CHECKSUM, actualEncoded);
+    assertEquals(ENCODED_WITH_CHECKSUM, Base58Utils.encodeWithCheck(DECODED_WITH_CHECKSUM));
+    assertEquals("", Base58Utils.encodeWithCheck(new byte[0]));
+    assertEquals("", Base58Utils.encodeWithCheck(null));
   }
 
   @Test
   public void testDecodeWithCheck() throws IOException {
-    final byte[] actualDecoded = Base58Utils.decodeWithCheck(ENCODED_WITH_CHECKSUM);
-    assertTrue(Arrays.equals(DECODED_WITH_CHECKSUM, actualDecoded));
+    assertTrue(
+        Arrays.equals(DECODED_WITH_CHECKSUM, Base58Utils.decodeWithCheck(ENCODED_WITH_CHECKSUM)));
+    assertTrue(Arrays.equals(new byte[0], Base58Utils.decodeWithCheck("")));
+    assertTrue(Arrays.equals(new byte[0], Base58Utils.decodeWithCheck(null)));
   }
 
   @Test(expected = IOException.class)

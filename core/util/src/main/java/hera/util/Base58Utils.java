@@ -32,53 +32,56 @@ public class Base58Utils {
   /**
    * Encodes the given bytes as a base58 string (no checksum is appended).
    *
-   * @param input the bytes to encode
-   * @return the base58-encoded string
+   * @param input the bytes to encode.
+   * @return the base58-encoded string. empty string if {@code input} is empty or null.
    */
-  public static String encode(byte[] input) {
-    if (input.length == 0) {
+  public static String encode(final byte[] input) {
+    if (null == input || input.length == 0) {
       return "";
     }
+
+    final char[] encoded = new char[input.length * 2];
+    final byte[] copy = Arrays.copyOf(input, input.length); // since we modify it in-place
+
     // Count leading zeros.
     int zeros = 0;
     while (zeros < input.length && input[zeros] == 0) {
       ++zeros;
     }
-    // Convert base-256 digits to base-58 digits (plus conversion to ASCII characters)
-    input = Arrays.copyOf(input, input.length); // since we modify it in-place
-    char[] encoded = new char[input.length * 2]; // upper bound
-    int outputStart = encoded.length;
-    for (int inputStart = zeros; inputStart < input.length;) {
-      encoded[--outputStart] = BASE58_CHARS[divmod(input, inputStart, 256, 58)];
-      if (input[inputStart] == 0) {
-        ++inputStart; // optimization - skip leading zeros
+
+    int inputIndex = zeros;
+    int outputIndex = encoded.length;
+    while (inputIndex < copy.length) {
+      encoded[--outputIndex] = BASE58_CHARS[divmod(copy, inputIndex, 256, 58)];
+      if (copy[inputIndex] == 0) {
+        ++inputIndex; // optimization - skip leading zeros
       }
     }
     // Preserve exactly as many leading encoded zeros in output as there were leading zeros in
     // input.
-    while (outputStart < encoded.length && encoded[outputStart] == ENCODED_ZERO) {
-      ++outputStart;
+    while (outputIndex < encoded.length && encoded[outputIndex] == ENCODED_ZERO) {
+      ++outputIndex;
     }
     while (--zeros >= 0) {
-      encoded[--outputStart] = ENCODED_ZERO;
+      encoded[--outputIndex] = ENCODED_ZERO;
     }
     // Return encoded string (including encoded leading zeros).
-    return new String(encoded, outputStart, encoded.length - outputStart);
+    return new String(encoded, outputIndex, encoded.length - outputIndex);
   }
 
   /**
    * Decodes the given base58 string into the original data bytes.
    *
    * @param input the base58-encoded string to decode
-   * @return the decoded data bytes
+   * @return the decoded data bytes. empty string if {@code input} is empty or null.
    * @throws IOException when decoding failed
    */
-  public static byte[] decode(String input) throws IOException {
-    if (input.length() == 0) {
+  public static byte[] decode(final String input) throws IOException {
+    if (null == input || input.length() == 0) {
       return new byte[0];
     }
     // Convert the base58-encoded ASCII chars to a base58 byte sequence (base58 digits).
-    byte[] input58 = new byte[input.length()];
+    final byte[] input58 = new byte[input.length()];
     for (int i = 0; i < input.length(); ++i) {
       char c = input.charAt(i);
       int digit = c < 128 ? INDEXES[c] : -1;
@@ -125,7 +128,7 @@ public class Base58Utils {
     // this is just long division which accounts for the base of the input digits
     int remainder = 0;
     for (int i = firstDigit; i < number.length; i++) {
-      int digit = (int) number[i] & 0xFF;
+      int digit = (int) number[i] & 0xff;
       int temp = remainder * base + digit;
       number[i] = (byte) (temp / divisor);
       remainder = temp % divisor;
@@ -137,9 +140,12 @@ public class Base58Utils {
    * Encode byte array to base58 with checksum.
    *
    * @param rawData raw byte array
-   * @return base58 encoded strihgn with checksum
+   * @return base58 encoded string with checksum. empty string if {@code rawData} is empty or null.
    */
   public static String encodeWithCheck(final byte[] rawData) {
+    if (null == rawData || rawData.length == 0) {
+      return "";
+    }
     final byte[] checkSum = calculateCheckSum(rawData);
     final byte[] rawTotal = new byte[rawData.length + CHECKSUM_LEN];
     System.arraycopy(rawData, 0, rawTotal, 0, rawData.length);
@@ -151,10 +157,13 @@ public class Base58Utils {
    * Decode base58 string with checksum to byte array.
    *
    * @param encoded base58 encoded string
-   * @return decoded byte array
+   * @return decoded byte array. empty string if {@code encoded} is empty or null.
    * @throws IOException when decoding failed
    */
   public static byte[] decodeWithCheck(final String encoded) throws IOException {
+    if (null == encoded || encoded.length() == 0) {
+      return new byte[0];
+    }
     final byte[] rawTotal = decode(encoded);
     final byte[] rawData = Arrays.copyOfRange(rawTotal, 0, rawTotal.length - CHECKSUM_LEN);
     final byte[] checkSum =
