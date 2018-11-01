@@ -38,8 +38,8 @@ public class ECDSAKeyTest extends AbstractTestCase {
     final BigInteger publickeyY = new BigInteger(
         "58246437216680112187807305214575249192860131748845949331271713739254817975376");
     assertTrue(privatekeyD.equals(ecPrivateKey.getD()));
-    assertTrue(publickeyX.equals(ecPublicKey.getQ().getX().toBigInteger()));
-    assertTrue(publickeyY.equals(ecPublicKey.getQ().getY().toBigInteger()));
+    assertTrue(publickeyX.equals(ecPublicKey.getQ().getXCoord().toBigInteger()));
+    assertTrue(publickeyY.equals(ecPublicKey.getQ().getYCoord().toBigInteger()));
   }
 
   @Test

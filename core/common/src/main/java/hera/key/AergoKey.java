@@ -152,8 +152,8 @@ public class AergoKey implements KeyPair {
   protected AccountAddress buildAddress(
       final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey) {
     final byte[] rawAddress = new byte[ADDRESS_LENGTH];
-    rawAddress[0] = (byte) (ecPublicKey.getQ().getY().toBigInteger().testBit(0) ? 0x03 : 0x02);
-    final byte[] xbyteArray = getPureByteArrayOf(ecPublicKey.getQ().getX().toBigInteger());
+    rawAddress[0] = (byte) (ecPublicKey.getQ().getYCoord().toBigInteger().testBit(0) ? 0x03 : 0x02);
+    final byte[] xbyteArray = getPureByteArrayOf(ecPublicKey.getQ().getXCoord().toBigInteger());
     System.arraycopy(xbyteArray, 0, rawAddress, rawAddress.length - xbyteArray.length,
         xbyteArray.length);
     return AccountAddress

@@ -5,8 +5,6 @@
 package hera.util.pki;
 
 import static hera.util.IoUtils.stream;
-import static hera.util.pki.RFC6979Utils.bits2int;
-import static hera.util.pki.RFC6979Utils.generatek;
 import static java.security.Security.addProvider;
 import static org.bouncycastle.jce.ECNamedCurveTable.getParameterSpec;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -18,11 +16,15 @@ import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import javax.crypto.Mac;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.params.ECDomainParameters;
+import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
+import org.bouncycastle.crypto.params.ECPublicKeyParameters;
+import org.bouncycastle.crypto.signers.ECDSASigner;
+import org.bouncycastle.crypto.signers.HMacDSAKCalculator;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.jce.spec.ECPrivateKeySpec;
@@ -37,10 +39,6 @@ public class ECDSAKey {
 
   protected static final String CURVE_NAME = "secp256k1";
 
-  protected static final String SIGN_ALGORITHM = "SHA256WithECDSA";
-
-  protected static final String MAC_ALGORITHM = "HmacSHA256";
-
   protected static final ECNamedCurveParameterSpec ecSpec;
 
   @Getter
@@ -54,7 +52,6 @@ public class ECDSAKey {
   }
 
   protected final transient Logger logger = getLogger(getClass());
-
 
   /**
    * Create ECDSAKey with a private key.
@@ -139,34 +136,15 @@ public class ECDSAKey {
     logger.trace("D: {}", d);
     logger.trace("Message in hexa: {}", HexUtils.encode(message));
 
-    final BigInteger n = ecParams.getN();
-    final BigInteger halfN = n.divide(BigInteger.valueOf(2L));
-    final int nBitslen = n.bitLength();
-    final Mac mac = Mac.getInstance(MAC_ALGORITHM);
-    final BigInteger k = generatek(d, n, mac, message);
-    logger.trace("N: {}", n);
-    logger.trace("Half N: {}", halfN);
-    logger.trace("Bitslen of N: {}", nBitslen);
-    logger.trace("Hash algorithm: {}", mac.getAlgorithm());
-    logger.trace("Generatd k: {}", k);
+    final ECDSASigner signer = new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));
+    final ECPrivateKeyParameters privKey = new ECPrivateKeyParameters(d, ecParams);
+    signer.init(true, privKey);
+    final BigInteger[] components = signer.generateSignature(message);
 
-    BigInteger r = ecParams.getG().multiply(k).getX().toBigInteger();
-    if (r.compareTo(n) == 1) {
-      r = r.subtract(n);
-    }
-    if (0 == r.signum()) {
-      throw new IllegalStateException("calculated R is zero");
-    }
+    final BigInteger r = components[0];
+    final BigInteger s = ecParams.getN().subtract(components[1]);
 
-    BigInteger s = k.modInverse(n).multiply(bits2int(message, nBitslen).add(d.multiply(r))).mod(n);
-    if (s.compareTo(halfN) == 1) {
-      s = n.subtract(s);
-    }
-    if (0 == s.signum()) {
-      throw new IllegalStateException("calculated S is zero");
-    }
-
-    return ECDSASignature.of(r, s);
+    return new ECDSASignature(r, s);
   }
 
   /**
@@ -183,7 +161,6 @@ public class ECDSAKey {
     } catch (final Throwable e) {
       throw new IllegalStateException(e);
     }
-
   }
 
   /**
@@ -200,44 +177,12 @@ public class ECDSAKey {
    */
   protected boolean verify(final PublicKey publicKey, final byte[] message,
       final ECDSASignature signature) {
-
     final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =
         (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
-
-    final BigInteger r = signature.getR();
-    final BigInteger s = signature.getS();
-    final BigInteger n = ecParams.getN();
-    final int nBitslen = ecParams.getN().bitLength();
-
-    if (r.signum() <= 0 || s.signum() <= 0) {
-      return false;
-    }
-    if (r.compareTo(n) >= 0 || s.compareTo(n) >= 0) {
-      return false;
-    }
-
-    final BigInteger e = bits2int(message, nBitslen);
-    final BigInteger w = s.modInverse(n);
-    final BigInteger u1 = e.multiply(w).mod(n);
-    final BigInteger u2 = w.multiply(r).mod(n);
-    logger.trace("u1: {}", u1);
-    logger.trace("u2: {}", u2);
-
-    final ECPoint point1 = ecSpec.getG().multiply(u1);
-    final ECPoint point2 = ecPublicKey.getQ().multiply(u2);
-    logger.trace("point1.x: {}", point1.getX().toBigInteger());
-    logger.trace("point1.y: {}", point1.getY().toBigInteger());
-    logger.trace("point2.x: {}", point2.getX().toBigInteger());
-    logger.trace("point2.y: {}", point2.getY().toBigInteger());
-
-    final ECPoint plusPoint = point1.add(point2);
-    final BigInteger x = plusPoint.getX().toBigInteger();
-    final BigInteger y = plusPoint.getY().toBigInteger();
-    if (0 == x.signum() && 0 == y.signum()) {
-      return false;
-    }
-
-    return 0 == x.mod(n).compareTo(r);
+    final ECDSASigner signer = new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));
+    final ECPublicKeyParameters privKey = new ECPublicKeyParameters(ecPublicKey.getQ(), ecParams);
+    signer.init(false, privKey);
+    return signer.verifySignature(message, signature.getR(), signature.getS());
   }
 
   @Override
