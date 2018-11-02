@@ -14,7 +14,6 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
-import hera.api.model.ServerManagedAccount;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -34,12 +33,13 @@ public interface AccountAsyncOperation extends ContextAware {
   ResultOrErrorFuture<List<AccountAddress>> list();
 
   /**
-   * Create an account with password asynchronously.
+   * Create an account with password asynchronously. The private key is stored in a server key
+   * store.
    *
    * @param password account password
    * @return future of created account or error
    */
-  ResultOrErrorFuture<ServerManagedAccount> create(String password);
+  ResultOrErrorFuture<Account> create(String password);
 
   /**
    * Get account state by address asynchronously.
@@ -63,7 +63,7 @@ public interface AccountAsyncOperation extends ContextAware {
   }
 
   /**
-   * Lock an account asynchronously.
+   * Lock an account asynchronously whose key is in a server key store.
    *
    * @param authentication account authentication
    * @return future of lock result or error
@@ -71,7 +71,7 @@ public interface AccountAsyncOperation extends ContextAware {
   ResultOrErrorFuture<Boolean> lock(Authentication authentication);
 
   /**
-   * Unlock an account asynchronously.
+   * Unlock an account asynchronously whose key is in a server key store.
    *
    * @param authentication account authentication
    * @return future of unlock result or error
@@ -105,7 +105,7 @@ public interface AccountAsyncOperation extends ContextAware {
    *        storage
    * @return future of account result or error
    */
-  default ResultOrErrorFuture<ServerManagedAccount> importKey(EncryptedPrivateKey encryptedKey,
+  default ResultOrErrorFuture<Account> importKey(EncryptedPrivateKey encryptedKey,
       String password) {
     return importKey(encryptedKey, password, password);
   }
@@ -120,11 +120,12 @@ public interface AccountAsyncOperation extends ContextAware {
    * @param newPassword new password to store in a remote storage
    * @return future of account result or error
    */
-  ResultOrErrorFuture<ServerManagedAccount> importKey(EncryptedPrivateKey encryptedKey,
+  ResultOrErrorFuture<Account> importKey(EncryptedPrivateKey encryptedKey,
       String oldPassword, String newPassword);
 
   /**
-   * Export an encrypted private key of account asynchronously.
+   * Export an encrypted private key of account asynchronously whose key is stored in a server key
+   * store.
    *
    * @param authentication account authentication
    * @return future of an encrypted private key

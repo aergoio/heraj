@@ -54,7 +54,7 @@ public class AccountEitherTemplate implements AccountEitherOperation, ChannelInj
   }
 
   @Override
-  public ResultOrError<ServerManagedAccount> create(final String password) {
+  public ResultOrError<Account> create(final String password) {
     return accountAsyncOperation.create(password).get(getTimeout().getValue(),
         getTimeout().getUnit());
   }
@@ -90,7 +90,7 @@ public class AccountEitherTemplate implements AccountEitherOperation, ChannelInj
   }
 
   @Override
-  public ResultOrError<ServerManagedAccount> importKey(final EncryptedPrivateKey encryptedKey,
+  public ResultOrError<Account> importKey(final EncryptedPrivateKey encryptedKey,
       final String oldPassword, final String newPassword) {
     return accountAsyncOperation.importKey(encryptedKey, oldPassword, newPassword)
         .get(getTimeout().getValue(), getTimeout().getUnit());

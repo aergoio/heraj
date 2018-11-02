@@ -109,14 +109,14 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
   }
 
   @Override
-  public ResultOrErrorFuture<ServerManagedAccount> create(final String password) {
-    ResultOrErrorFuture<ServerManagedAccount> nextFuture =
+  public ResultOrErrorFuture<Account> create(final String password) {
+    ResultOrErrorFuture<Account> nextFuture =
         ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final Rpc.Personal personal = Rpc.Personal.newBuilder().setPassphrase(password).build();
     ListenableFuture<AccountOuterClass.Account> listenableFuture =
         aergoService.createAccount(personal);
-    FutureChain<AccountOuterClass.Account, ServerManagedAccount> callback =
+    FutureChain<AccountOuterClass.Account, Account> callback =
         new FutureChain<>(nextFuture, accountConverter::convertToDomainModel);
     addCallback(listenableFuture, callback, directExecutor());
 
@@ -228,9 +228,9 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
   }
 
   @Override
-  public ResultOrErrorFuture<ServerManagedAccount> importKey(final EncryptedPrivateKey encryptedKey,
+  public ResultOrErrorFuture<Account> importKey(final EncryptedPrivateKey encryptedKey,
       final String oldPassword, final String newPassword) {
-    ResultOrErrorFuture<ServerManagedAccount> nextFuture =
+    ResultOrErrorFuture<Account> nextFuture =
         ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final Rpc.ImportFormat importFormat =
@@ -238,7 +238,7 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
             .setOldpass(oldPassword).setNewpass(newPassword).build();
     ListenableFuture<AccountOuterClass.Account> listenableFuture =
         aergoService.importAccount(importFormat);
-    FutureChain<AccountOuterClass.Account, ServerManagedAccount> callback = new FutureChain<>(
+    FutureChain<AccountOuterClass.Account, Account> callback = new FutureChain<>(
         nextFuture, accountConverter::convertToDomainModel);
     addCallback(listenableFuture, callback, directExecutor());
 

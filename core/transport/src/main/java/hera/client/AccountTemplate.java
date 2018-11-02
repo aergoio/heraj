@@ -13,7 +13,6 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
-import hera.api.model.ServerManagedAccount;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrError;
@@ -45,7 +44,7 @@ public class AccountTemplate implements AccountOperation, ChannelInjectable {
   }
 
   @Override
-  public ServerManagedAccount create(final String password) {
+  public Account create(final String password) {
     return accountEitherOperation.create(password).getResult();
   }
 
@@ -76,7 +75,7 @@ public class AccountTemplate implements AccountOperation, ChannelInjectable {
   }
 
   @Override
-  public ServerManagedAccount importKey(final EncryptedPrivateKey encryptedKey,
+  public Account importKey(final EncryptedPrivateKey encryptedKey,
       final String oldPassword, final String newPassword) {
     return accountEitherOperation.importKey(encryptedKey, oldPassword, newPassword).getResult();
   }

@@ -15,11 +15,11 @@ import static org.mockito.Mockito.when;
 
 import hera.AbstractTestCase;
 import hera.Context;
+import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
-import hera.api.model.ServerManagedAccount;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.List;
@@ -55,7 +55,7 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
 
   @Test
   public void testCreate() {
-    ResultOrErrorFuture<ServerManagedAccount> futureMock = mock(ResultOrErrorFuture.class);
+    ResultOrErrorFuture<Account> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
     when(asyncOperationMock.create(anyString())).thenReturn(futureMock);
@@ -64,7 +64,7 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
     accountTemplate.setContext(context);
     accountTemplate.accountAsyncOperation = asyncOperationMock;
 
-    final ResultOrError<ServerManagedAccount> createdAccount =
+    final ResultOrError<Account> createdAccount =
         accountTemplate.create(randomUUID().toString());
     assertNotNull(createdAccount);
   }
@@ -118,7 +118,7 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
 
   @Test
   public void testImportKey() {
-    ResultOrErrorFuture<ServerManagedAccount> futureMock = mock(ResultOrErrorFuture.class);
+    ResultOrErrorFuture<Account> futureMock = mock(ResultOrErrorFuture.class);
     when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
     AccountAsyncTemplate asyncOperationMock = mock(AccountAsyncTemplate.class);
     when(asyncOperationMock.importKey(any(), any(), any())).thenReturn(futureMock);
@@ -127,7 +127,7 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
     accountTemplate.setContext(context);
     accountTemplate.accountAsyncOperation = asyncOperationMock;
 
-    ResultOrError<ServerManagedAccount> importedAccount = accountTemplate
+    ResultOrError<Account> importedAccount = accountTemplate
         .importKey(new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.VERSION})), password);
     assertNotNull(importedAccount);
   }
