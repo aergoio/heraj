@@ -194,7 +194,9 @@ configure(javaProjects) {
     classifier = 'sources'
   }
   javadoc {
-    options.addBooleanOption('html5', true)
+    if(JavaVersion.current().isJava9Compatible()) {
+      options.addBooleanOption('html5', true)
+    }
   }
 
   task javadocJar(type: Jar) {
