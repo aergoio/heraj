@@ -192,6 +192,9 @@ configure(javaProjects) {
     from sourceSets.main.allJava
     classifier = 'sources'
   }
+  javadoc {
+    options.addBooleanOption('html5', true)
+  }
 
   task javadocJar(type: Jar) {
     from javadoc
