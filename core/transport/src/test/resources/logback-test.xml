@@ -16,6 +16,6 @@
   <logger name="io.netty" level="warn"/>
 
   <logger name="hera" level="warn"/>
-  <logger name="hera.transport" level="trace"/>
+  <logger name="hera.transport" level="info"/>
   <logger name="hera.util" level="error"/>
 </configuration>

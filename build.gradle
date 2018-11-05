@@ -41,6 +41,7 @@ def javaProjects = [
 ]
 
 def jmhProjects = [
+  project('core:common'),
   project('core:transport')
 ]
 
