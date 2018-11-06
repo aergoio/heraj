@@ -52,7 +52,7 @@ public class Tuple2OrErrorImpl<T1, T2> implements Tuple2OrError<T1, T2> {
   @Override
   public T1 get1() {
     if (null == v1) {
-      appendCurrentStackTraceToError();
+      throwError();
     }
     return v1;
   }
@@ -60,7 +60,7 @@ public class Tuple2OrErrorImpl<T1, T2> implements Tuple2OrError<T1, T2> {
   @Override
   public T2 get2() {
     if (null == v2) {
-      appendCurrentStackTraceToError();
+      throwError();
     }
     return v2;
   }

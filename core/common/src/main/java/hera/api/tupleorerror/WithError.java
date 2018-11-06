@@ -5,7 +5,6 @@
 package hera.api.tupleorerror;
 
 import hera.exception.HerajException;
-import hera.util.ExceptionUtils;
 
 public interface WithError {
 
@@ -26,17 +25,11 @@ public interface WithError {
   }
 
   /**
-   * Append current stack trace to an error if error is instance of HerajException. After append,
-   * throw it.
+   * Throw an error. If an error isn't HerajException, wrap with {@code HerajException}.
    */
-  default void appendCurrentStackTraceToError() {
-    if (getError() instanceof HerajException) {
-      final HerajException cloneError = ((HerajException) getError()).clone();
-      cloneError.setStackTrace(ExceptionUtils.concat(new Throwable(), cloneError));
-      throw cloneError;
-    } else {
-      throw new HerajException(getError());
-    }
+  default void throwError() {
+    throw getError() instanceof HerajException ? (HerajException) getError()
+        : new HerajException(getError());
   }
 
 }
