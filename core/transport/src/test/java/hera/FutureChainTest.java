@@ -11,7 +11,7 @@ import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import org.junit.Test;
 
 @SuppressWarnings("unchecked")
-public class FutureChainerTest extends AbstractTestCase {
+public class FutureChainTest extends AbstractTestCase {
 
   @Test
   public void testOnSuccess() {
