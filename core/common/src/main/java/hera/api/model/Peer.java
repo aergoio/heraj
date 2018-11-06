@@ -25,4 +25,13 @@ public class Peer {
   @Getter
   @Setter
   protected String peerId;
+
+  @Getter
+  @Setter
+  protected BlockchainStatus blockchainStatus = new BlockchainStatus();
+
+  // TODO : clarify a state
+  @Getter
+  @Setter
+  protected int state;
 }

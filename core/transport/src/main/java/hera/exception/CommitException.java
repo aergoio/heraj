@@ -21,6 +21,7 @@ public class CommitException extends RpcException {
     TX_INVALID_SIGNATURE,
     TX_INVALID_FORMAT,
     INSUFFICIENT_BALANCE,
+    TX_HAS_SAME_NONCE,
     INTERNAL_ERROR,
     UNRECOGNIZED
   }
@@ -55,6 +56,9 @@ public class CommitException extends RpcException {
         break;
       case TX_INSUFFICIENT_BALANCE:
         this.commitStatus = CommitStatus.INSUFFICIENT_BALANCE;
+        break;
+      case TX_HAS_SAME_NONCE:
+        this.commitStatus = CommitStatus.TX_HAS_SAME_NONCE;
         break;
       case TX_INTERNAL_ERROR:
         this.commitStatus = CommitStatus.INTERNAL_ERROR;

@@ -13,21 +13,21 @@ import hera.util.Base58Utils;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import org.junit.Test;
-import types.Node;
+import types.Rpc;
 
 public class PeerConverterTest extends AbstractTestCase {
 
   @Test
   public void testConvert() throws UnknownHostException {
-    final ModelConverter<Peer, Node.PeerAddress> converter = new PeerConverterFactory().create();
+    final ModelConverter<Peer, Rpc.Peer> converter = new PeerConverterFactory().create();
 
-    final Peer domainPeerAddress = new Peer();
-    domainPeerAddress.setAddress(InetAddress.getByName("localhost"));
-    domainPeerAddress.setPeerId(Base58Utils.encode(randomUUID().toString().getBytes()));
-    final Node.PeerAddress rpcPeerAddress = converter.convertToRpcModel(domainPeerAddress);
+    final Peer domain = new Peer();
+    domain.setAddress(InetAddress.getByName("localhost"));
+    domain.setPeerId(Base58Utils.encode(randomUUID().toString().getBytes()));
+    final Rpc.Peer rpcPeer = converter.convertToRpcModel(domain);
 
-    final Peer actualDomainPeerAddress = converter.convertToDomainModel(rpcPeerAddress);
-    assertNotNull(actualDomainPeerAddress);
+    final Peer actualDomainPeer = converter.convertToDomainModel(rpcPeer);
+    assertNotNull(actualDomainPeer);
   }
 
 

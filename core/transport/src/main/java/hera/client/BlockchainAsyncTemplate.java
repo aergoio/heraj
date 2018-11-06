@@ -51,7 +51,7 @@ public class BlockchainAsyncTemplate implements BlockchainAsyncOperation, Channe
   protected final ModelConverter<BlockchainStatus, Rpc.BlockchainStatus> blockchainConverter =
       new BlockchainStatusConverterFactory().create();
 
-  protected final ModelConverter<Peer, Node.PeerAddress> peerConverter =
+  protected final ModelConverter<Peer, Rpc.Peer> peerConverter =
       new PeerConverterFactory().create();
 
   protected final ModelConverter<NodeStatus, Rpc.SingleBytes> nodeStatusConverter =

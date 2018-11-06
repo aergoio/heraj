@@ -42,6 +42,7 @@ public class BlockConverterFactory {
         .setBlockNo(domainBlock.getBlockNumber()).setTimestamp(domainBlock.getTimestamp())
         .setBlocksRootHash(copyFrom(domainBlock.getRootHash().getBytesValue()))
         .setTxsRootHash(copyFrom(domainBlock.getTxRootHash().getBytesValue()))
+        .setReceiptsRootHash(copyFrom(domainBlock.getReceiptRootHash().getBytesValue()))
         .setConfirms(domainBlock.getConfirmsCount())
         .setPubKey(copyFrom(domainBlock.getPublicKey().getBytesValue()))
         .setSign(copyFrom(domainBlock.getSign().getBytesValue()))
@@ -68,6 +69,8 @@ public class BlockConverterFactory {
     domainBlock.setTimestamp(rpcBlockHeader.getTimestamp());
     domainBlock.setPreviousHash(new BlockHash(of(rpcBlockHeader.getPrevBlockHash().toByteArray())));
     domainBlock.setTxRootHash(new TxHash(of(rpcBlockHeader.getTxsRootHash().toByteArray())));
+    domainBlock
+        .setReceiptRootHash(new Hash(of(rpcBlockHeader.getReceiptsRootHash().toByteArray())));
     domainBlock.setPublicKey(new Hash(of(rpcBlockHeader.getPubKey().toByteArray())));
     domainBlock.setSign(new Hash(of(rpcBlockHeader.getSign().toByteArray())));
     domainBlock.setCoinbaseAccount(

@@ -39,6 +39,10 @@ public class BlockHeader {
 
   @Getter
   @Setter
+  protected Hash receiptRootHash = new Hash(BytesValue.EMPTY);
+
+  @Getter
+  @Setter
   protected long confirmsCount;
 
   @Getter
