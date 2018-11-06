@@ -128,19 +128,17 @@ public class ExceptionUtils {
   }
 
   /**
-   * Concat two stack trace into one. Concated form is {@code left.stacktrace, right.stacktrace}.
+   * Concat two stack trace into one. Concated form is {@code leftTrace, rightTrace}.
    *
-   * @param left left error
-   * @param right right error
+   * @param left left track trace
+   * @param right right stack trace
    * @return concated stack trace
    */
-  public static StackTraceElement[] concat(final Throwable left, final Throwable right) {
-    final StackTraceElement[] leftTrace = left.getStackTrace();
-    final StackTraceElement[] rightTrace = right.getStackTrace();
-
-    final StackTraceElement[] ret = new StackTraceElement[leftTrace.length + rightTrace.length];
-    System.arraycopy(leftTrace, 0, ret, 0, leftTrace.length);
-    System.arraycopy(rightTrace, 0, ret, leftTrace.length, rightTrace.length);
+  public static StackTraceElement[] concat(final StackTraceElement[] left,
+      final StackTraceElement[] right) {
+    final StackTraceElement[] ret = new StackTraceElement[left.length + right.length];
+    System.arraycopy(left, 0, ret, 0, left.length);
+    System.arraycopy(right, 0, ret, left.length, right.length);
     return ret;
   }
 

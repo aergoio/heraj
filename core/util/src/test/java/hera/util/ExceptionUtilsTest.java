@@ -80,14 +80,10 @@ public class ExceptionUtilsTest {
 
   @Test
   public void testConcat() {
-    final Throwable left = new Throwable();
-    final Throwable right = new Throwable();
-
-    final StackTraceElement[] leftTrace = left.getStackTrace();
-    final StackTraceElement[] rightTrace = right.getStackTrace();
-    final StackTraceElement[] expected =
-        Arrays.copyOf(leftTrace, leftTrace.length + rightTrace.length);
-    System.arraycopy(rightTrace, 0, expected, leftTrace.length, rightTrace.length);
+    final StackTraceElement[] left = new Throwable().getStackTrace();
+    final StackTraceElement[] right = new Throwable().getStackTrace();
+    final StackTraceElement[] expected = Arrays.copyOf(left, left.length + right.length);
+    System.arraycopy(right, 0, expected, left.length, right.length);
 
     assertTrue(Arrays.equals(expected, ExceptionUtils.concat(left, right)));
   }

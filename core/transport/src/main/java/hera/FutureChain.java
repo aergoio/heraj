@@ -13,6 +13,8 @@ import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.exception.NotFoundException;
 import hera.exception.RpcConnectionException;
 import hera.exception.RpcException;
+import hera.util.ExceptionUtils;
+import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import java.util.Optional;
 import java.util.function.Function;
@@ -23,6 +25,9 @@ import org.slf4j.Logger;
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
 public class FutureChain<T, R> implements FutureCallback<T> {
+
+  // store Exception since getting stack trace element object is too expensive
+  protected final Exception stackTraceHolder = new Exception();
 
   protected final Logger logger = getLogger(getClass());
 
@@ -37,37 +42,29 @@ public class FutureChain<T, R> implements FutureCallback<T> {
       logger.trace("Converted: {}", converted);
       nextFuture.complete(success(converted));
     } catch (Throwable e) {
+      e.setStackTrace(ExceptionUtils.concat(e.getStackTrace(), stackTraceHolder.getStackTrace()));
       nextFuture.complete(fail(e));
     }
   }
 
   @Override
   public void onFailure(Throwable e) {
-    logger.trace("Error: {}", e.toString());
-    final RpcException convertedError = Optional.of(findStatusRuntimeException(e))
-        .filter(t -> t instanceof StatusRuntimeException).map(StatusRuntimeException.class::cast)
-        .filter(s -> null != s.getStatus()).map(s -> s.getStatus().getCode()).map(c -> {
-          switch (c) {
-            case UNAVAILABLE:
-              return new RpcConnectionException(e);
-            case NOT_FOUND:
-              return new NotFoundException(e);
-            default:
-              return new RpcException(e);
-          }
-        }).orElse(e instanceof RpcException ? (RpcException) e : new RpcException(e));
-    nextFuture.complete(fail(convertedError));
-  }
-
-  protected Throwable findStatusRuntimeException(Throwable e) {
-    Throwable cause = e;
-    while (null != cause.getCause()) {
-      if (cause instanceof StatusRuntimeException) {
-        break;
-      }
-      cause = cause.getCause();
-    }
-    return cause;
+    final RpcException wrappedError =
+        Optional.of(e).filter(StatusRuntimeException.class::isInstance)
+            .map(StatusRuntimeException.class::cast).filter(s -> null != s.getStatus())
+            .map(StatusRuntimeException::getStatus).map(Status::getCode).map(c -> {
+              switch (c) {
+                case UNAVAILABLE:
+                  return new RpcConnectionException(e);
+                case NOT_FOUND:
+                  return new NotFoundException(e);
+                default:
+                  return new RpcException(e);
+              }
+            }).orElse(e instanceof RpcException ? (RpcException) e : new RpcException(e));
+    wrappedError.setStackTrace(
+        ExceptionUtils.concat(wrappedError.getStackTrace(), stackTraceHolder.getStackTrace()));
+    nextFuture.complete(fail(wrappedError));
   }
 
 }
