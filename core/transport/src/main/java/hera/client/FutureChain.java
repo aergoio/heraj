@@ -6,6 +6,7 @@ package hera.client;
 
 import static hera.api.tupleorerror.FunctionChain.fail;
 import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -17,6 +18,7 @@ import hera.exception.RpcException;
 import io.grpc.StatusRuntimeException;
 import java.util.function.Function;
 import javax.annotation.Nullable;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -33,6 +35,7 @@ public class FutureChain<T, R> implements FutureCallback<T> {
   // store Exception since getting stack trace element object is too expensive
   protected Exception stackTraceHolder = new Exception();
 
+  @NonNull
   protected final ResultOrErrorFuture<R> nextFuture;
 
   @Setter
@@ -43,7 +46,8 @@ public class FutureChain<T, R> implements FutureCallback<T> {
 
   @Override
   public void onSuccess(@Nullable T t) {
-    ResultOrError<R> handled = successHandler.apply(t);
+    final ResultOrError<R> handled = ofNullable(successHandler).map(handler -> handler.apply(t))
+        .orElseThrow(() -> new RpcException("No success handler"));
     if (handled.hasResult()) {
       nextFuture.complete(handled);
     } else {
@@ -53,7 +57,7 @@ public class FutureChain<T, R> implements FutureCallback<T> {
 
   @Override
   public void onFailure(final Throwable e) {
-    ResultOrError<R> handled = failureHandler.apply(e);
+    final ResultOrError<R> handled = failureHandler.apply(e);
     if (handled.hasResult()) {
       nextFuture.complete(handled);
     } else {
