@@ -13,7 +13,6 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
-import hera.api.model.ServerManagedAccount;
 import hera.api.model.Signature;
 import hera.api.model.Time;
 import hera.api.model.Transaction;

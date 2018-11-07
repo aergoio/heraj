@@ -2,10 +2,12 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera;
+package hera.client;
 
+import static hera.api.tupleorerror.FunctionChain.of;
 import static java.util.UUID.randomUUID;
 
+import hera.AbstractTestCase;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import org.junit.Test;
@@ -16,7 +18,8 @@ public class FutureChainTest extends AbstractTestCase {
   @Test
   public void testOnSuccess() {
     ResultOrErrorFuture<Integer> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
-    FutureChain<String, Integer> callback = new FutureChain<>(nextFuture, String::length);
+    FutureChain<String, Integer> callback = new FutureChain<>(nextFuture);
+    callback.setSuccessHandler(s -> of(() -> s.length()));
     callback.onSuccess(randomUUID().toString());
     nextFuture.get().getResult();
   }
@@ -24,7 +27,8 @@ public class FutureChainTest extends AbstractTestCase {
   @Test(expected = Exception.class)
   public void testOnFailure() {
     ResultOrErrorFuture<Integer> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
-    FutureChain<String, Integer> callback = new FutureChain<>(nextFuture, String::length);
+    FutureChain<String, Integer> callback = new FutureChain<>(nextFuture);
+    callback.setSuccessHandler(s -> of(() -> s.length()));
     callback.onFailure(new UnsupportedOperationException());
     nextFuture.get().getResult();
   }

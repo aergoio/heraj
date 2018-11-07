@@ -6,6 +6,7 @@ package hera.client;
 
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
+import static hera.api.tupleorerror.FunctionChain.of;
 import static hera.util.TransportUtils.copyFrom;
 import static hera.util.TransportUtils.longToByteArray;
 import static java.util.stream.Collectors.toList;
@@ -14,7 +15,6 @@ import static types.AergoRPCServiceGrpc.newFutureStub;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
 import hera.Context;
-import hera.FutureChain;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.BlockAsyncOperation;
@@ -32,9 +32,7 @@ import lombok.Getter;
 import lombok.Setter;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Blockchain;
-import types.Rpc.BlockHeaderList;
-import types.Rpc.ListParams;
-import types.Rpc.SingleBytes;
+import types.Rpc;
 
 @ApiAudience.Private
 @ApiStability.Unstable
@@ -60,10 +58,10 @@ public class BlockAsyncTemplate implements BlockAsyncOperation, ChannelInjectabl
     final ResultOrErrorFuture<Block> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final ByteString byteString = copyFrom(blockHash.getBytesValue());
-    final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
+    final Rpc.SingleBytes bytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
     ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(bytes);
-    FutureChain<Blockchain.Block, Block> callback =
-        new FutureChain<>(nextFuture, blockConverter::convertToDomainModel);
+    FutureChain<Blockchain.Block, Block> callback = new FutureChain<>(nextFuture);
+    callback.setSuccessHandler(block -> of(() -> blockConverter.convertToDomainModel(block)));
     addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
@@ -74,10 +72,10 @@ public class BlockAsyncTemplate implements BlockAsyncOperation, ChannelInjectabl
     final ResultOrErrorFuture<Block> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final ByteString byteString = copyFrom(BytesValue.of(longToByteArray(height)));
-    final SingleBytes bytes = SingleBytes.newBuilder().setValue(byteString).build();
+    final Rpc.SingleBytes bytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
     ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(bytes);
-    FutureChain<Blockchain.Block, Block> callback =
-        new FutureChain<>(nextFuture, blockConverter::convertToDomainModel);
+    FutureChain<Blockchain.Block, Block> callback = new FutureChain<>(nextFuture);
+    callback.setSuccessHandler(block -> of(() -> blockConverter.convertToDomainModel(block)));
     addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
@@ -89,13 +87,13 @@ public class BlockAsyncTemplate implements BlockAsyncOperation, ChannelInjectabl
     final ResultOrErrorFuture<List<BlockHeader>> nextFuture =
         ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-    final ListParams listParams =
-        ListParams.newBuilder().setHash(copyFrom(blockHash.getBytesValue())).setSize(size).build();
-    ListenableFuture<BlockHeaderList> listenableFuture = aergoService.listBlockHeaders(listParams);
-    FutureChain<BlockHeaderList, List<BlockHeader>> callback = new FutureChain<>(nextFuture,
-        blockHeaders -> blockHeaders.getBlocksList().stream()
-            .map(blockConverter::convertToDomainModel).map(BlockHeader.class::cast)
-            .collect(toList()));
+    final Rpc.ListParams listParams = Rpc.ListParams.newBuilder()
+        .setHash(copyFrom(blockHash.getBytesValue())).setSize(size).build();
+    ListenableFuture<Rpc.BlockHeaderList> listenableFuture =
+        aergoService.listBlockHeaders(listParams);
+    FutureChain<Rpc.BlockHeaderList, List<BlockHeader>> callback = new FutureChain<>(nextFuture);
+    callback.setSuccessHandler(headers -> of(() -> headers.getBlocksList().stream()
+        .map(blockConverter::convertToDomainModel).map(BlockHeader.class::cast).collect(toList())));
     addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
@@ -107,12 +105,13 @@ public class BlockAsyncTemplate implements BlockAsyncOperation, ChannelInjectabl
     final ResultOrErrorFuture<List<BlockHeader>> nextFuture =
         ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-    final ListParams listParams = ListParams.newBuilder().setHeight(height).setSize(size).build();
-    ListenableFuture<BlockHeaderList> listenableFuture = aergoService.listBlockHeaders(listParams);
-    FutureChain<BlockHeaderList, List<BlockHeader>> callback = new FutureChain<>(nextFuture,
-        blockHeaders -> blockHeaders.getBlocksList().stream()
-            .map(blockConverter::convertToDomainModel).map(BlockHeader.class::cast)
-            .collect(toList()));
+    final Rpc.ListParams listParams =
+        Rpc.ListParams.newBuilder().setHeight(height).setSize(size).build();
+    ListenableFuture<Rpc.BlockHeaderList> listenableFuture =
+        aergoService.listBlockHeaders(listParams);
+    FutureChain<Rpc.BlockHeaderList, List<BlockHeader>> callback = new FutureChain<>(nextFuture);
+    callback.setSuccessHandler(headers -> of(() -> headers.getBlocksList().stream()
+        .map(blockConverter::convertToDomainModel).map(BlockHeader.class::cast).collect(toList())));
     addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;

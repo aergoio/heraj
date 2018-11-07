@@ -6,6 +6,7 @@ package hera.client;
 
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
+import static hera.api.tupleorerror.FunctionChain.of;
 import static hera.api.tupleorerror.FunctionChain.success;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
@@ -15,7 +16,6 @@ import static types.AergoRPCServiceGrpc.newFutureStub;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
 import hera.Context;
-import hera.FutureChain;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.AccountAsyncOperation;
@@ -43,18 +43,14 @@ import hera.transport.ModelConverter;
 import hera.transport.TransactionConverterFactory;
 import io.grpc.ManagedChannel;
 import java.util.List;
+import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
 import types.AccountOuterClass;
-import types.AccountOuterClass.AccountList;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Blockchain;
-import types.Blockchain.State;
-import types.Blockchain.Tx;
 import types.Rpc;
-import types.Rpc.SingleBytes;
-import types.Rpc.VerifyResult;
 
 @ApiAudience.Private
 @ApiStability.Unstable
@@ -97,12 +93,12 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
     ResultOrErrorFuture<List<AccountAddress>> nextFuture =
         ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-    ListenableFuture<AccountList> listenableFuture =
+    ListenableFuture<AccountOuterClass.AccountList> listenableFuture =
         aergoService.getAccounts(Rpc.Empty.newBuilder().build());
-    FutureChain<AccountList, List<AccountAddress>> callback = new FutureChain<>(nextFuture,
-        accountList -> accountList.getAccountsList().stream()
-            .map(accountConverter::convertToDomainModel).map(Account::getAddress)
-            .collect(toList()));
+    FutureChain<AccountOuterClass.AccountList, List<AccountAddress>> callback =
+        new FutureChain<>(nextFuture);
+    callback.setSuccessHandler(list -> of(() -> list.getAccountsList().stream()
+        .map(accountConverter::convertToDomainModel).map(Account::getAddress).collect(toList())));
     addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
@@ -110,14 +106,13 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
 
   @Override
   public ResultOrErrorFuture<Account> create(final String password) {
-    ResultOrErrorFuture<Account> nextFuture =
-        ResultOrErrorFutureFactory.supplyEmptyFuture();
+    ResultOrErrorFuture<Account> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final Rpc.Personal personal = Rpc.Personal.newBuilder().setPassphrase(password).build();
     ListenableFuture<AccountOuterClass.Account> listenableFuture =
         aergoService.createAccount(personal);
-    FutureChain<AccountOuterClass.Account, Account> callback =
-        new FutureChain<>(nextFuture, accountConverter::convertToDomainModel);
+    FutureChain<AccountOuterClass.Account, Account> callback = new FutureChain<>(nextFuture);
+    callback.setSuccessHandler(account -> of(() -> accountConverter.convertToDomainModel(account)));
     addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
@@ -130,12 +125,12 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
     final Rpc.SingleBytes bytes = Rpc.SingleBytes.newBuilder()
         .setValue(accountAddressConverter.convertToRpcModel(address)).build();
     ListenableFuture<Blockchain.State> listenableFuture = aergoService.getState(bytes);
-    FutureChain<State, AccountState> callback =
-        new FutureChain<>(nextFuture, state -> {
-          final AccountState accountState = accountStateConverter.convertToDomainModel(state);
-          accountState.setAddress(address);
-          return accountState;
-        });
+    FutureChain<Blockchain.State, AccountState> callback = new FutureChain<>(nextFuture);
+    callback.setSuccessHandler(state -> of(() -> {
+      final AccountState accountState = accountStateConverter.convertToDomainModel(state);
+      accountState.setAddress(address);
+      return accountState;
+    }));
     addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
@@ -147,8 +142,8 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
 
     ListenableFuture<AccountOuterClass.Account> listenableFuture =
         aergoService.unlockAccount(authenticationConverter.convertToRpcModel(authentication));
-    FutureChain<AccountOuterClass.Account, Boolean> callback =
-        new FutureChain<>(nextFuture, account -> null != account.getAddress());
+    FutureChain<AccountOuterClass.Account, Boolean> callback = new FutureChain<>(nextFuture);
+    callback.setSuccessHandler(account -> of(() -> null != account.getAddress()));
     addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
@@ -167,7 +162,8 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
     } else {
       final Blockchain.Tx rpcTransaction = transactionConverter.convertToRpcModel(transaction);
       final ListenableFuture<Blockchain.Tx> listenableFuture = aergoService.signTX(rpcTransaction);
-      FutureChain<Tx, Signature> callback = new FutureChain<>(nextFuture, tx -> {
+      FutureChain<Blockchain.Tx, Signature> callback = new FutureChain<>(nextFuture);
+      callback.setSuccessHandler(tx -> of(() -> {
         final BytesValue sign = ofNullable(tx.getBody().getSign()).map(ByteString::toByteArray)
             .filter(bytes -> 0 != bytes.length).map(BytesValue::of).orElseThrow(
                 () -> new RpcException("Signing failed: sign field is not found at sign result"));
@@ -175,7 +171,7 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
             .filter(bytes -> 0 != bytes.length).map(BytesValue::new).map(TxHash::new).orElseThrow(
                 () -> new RpcException("Signing failed: txHash field is not found at sign result"));
         return Signature.of(sign, hash);
-      });
+      }));
       addCallback(listenableFuture, callback, directExecutor());
     }
 
@@ -196,22 +192,16 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
     } else {
       final Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
       ListenableFuture<Rpc.VerifyResult> listenableFuture = aergoService.verifyTX(tx);
-      FutureChain<VerifyResult, Boolean> callback =
-          new FutureChain<VerifyResult, Boolean>(nextFuture,
-              verifyResult -> Rpc.VerifyStatus.VERIFY_STATUS_OK == verifyResult.getError()) {
-            @Override
-            public void onSuccess(Rpc.VerifyResult t) {
-              if (Rpc.VerifyStatus.VERIFY_STATUS_OK == t.getError()) {
-                super.onSuccess(t);
-              } else {
-                super.onFailure(new TransactionVerificationException(t.getError()));
-              }
-            }
-          };
+      FutureChain<Rpc.VerifyResult, Boolean> callback =
+          new FutureChain<Rpc.VerifyResult, Boolean>(nextFuture);
+      callback.setSuccessHandler(result -> of(
+          () -> Optional.of(result).map(v -> Rpc.VerifyStatus.VERIFY_STATUS_OK == v.getError())
+              .orElseThrow(() -> new TransactionVerificationException(result.getError()))));
       addCallback(listenableFuture, callback, directExecutor());
     }
 
     return nextFuture;
+
   }
 
   @Override
@@ -220,8 +210,8 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
 
     ListenableFuture<AccountOuterClass.Account> listenableFuture =
         aergoService.lockAccount(authenticationConverter.convertToRpcModel(authentication));
-    FutureChain<AccountOuterClass.Account, Boolean> callback =
-        new FutureChain<>(nextFuture, account -> null != account.getAddress());
+    FutureChain<AccountOuterClass.Account, Boolean> callback = new FutureChain<>(nextFuture);
+    callback.setSuccessHandler(account -> of(() -> null != account.getAddress()));
     addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
@@ -230,16 +220,15 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
   @Override
   public ResultOrErrorFuture<Account> importKey(final EncryptedPrivateKey encryptedKey,
       final String oldPassword, final String newPassword) {
-    ResultOrErrorFuture<Account> nextFuture =
-        ResultOrErrorFutureFactory.supplyEmptyFuture();
+    ResultOrErrorFuture<Account> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     final Rpc.ImportFormat importFormat =
         Rpc.ImportFormat.newBuilder().setWif(encryptedPkConverter.convertToRpcModel(encryptedKey))
             .setOldpass(oldPassword).setNewpass(newPassword).build();
     ListenableFuture<AccountOuterClass.Account> listenableFuture =
         aergoService.importAccount(importFormat);
-    FutureChain<AccountOuterClass.Account, Account> callback = new FutureChain<>(
-        nextFuture, accountConverter::convertToDomainModel);
+    FutureChain<AccountOuterClass.Account, Account> callback = new FutureChain<>(nextFuture);
+    callback.setSuccessHandler(account -> of(() -> accountConverter.convertToDomainModel(account)));
     addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
@@ -252,8 +241,8 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
 
     ListenableFuture<Rpc.SingleBytes> listenableFuture =
         aergoService.exportAccount(authenticationConverter.convertToRpcModel(authentication));
-    FutureChain<SingleBytes, EncryptedPrivateKey> callback =
-        new FutureChain<>(nextFuture, encryptedPkConverter::convertToDomainModel);
+    FutureChain<Rpc.SingleBytes, EncryptedPrivateKey> callback = new FutureChain<>(nextFuture);
+    callback.setSuccessHandler(rawPk -> of(() -> encryptedPkConverter.convertToDomainModel(rawPk)));
     addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;

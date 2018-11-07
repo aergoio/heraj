@@ -8,6 +8,7 @@ import hera.api.tupleorerror.impl.ResultOrErrorImpl;
 import hera.api.tupleorerror.impl.Tuple2OrErrorImpl;
 import hera.api.tupleorerror.impl.Tuple3OrErrorImpl;
 import hera.api.tupleorerror.impl.Tuple4OrErrorImpl;
+import hera.util.DangerousSupplier;
 import java.util.function.Supplier;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -78,6 +79,22 @@ public final class FunctionChain {
     Tuple4OrErrorFuture<T1, T2, T3, T4> future = hera.api.tupleorerror.FutureFunctionChain
         .seq(() -> future1, () -> future2, () -> future3, () -> future4);
     return future.get();
+  }
+
+  /**
+   * Make {@code ResultOrError}. If an {@code supplier} completed without error,
+   * {@code ResultOrError} holds a result. Otherwise, it holds error.
+   *
+   * @param <T> type of result
+   * @param supplier result supplier
+   * @return supply result
+   */
+  public static <T> ResultOrError<T> of(final DangerousSupplier<T> supplier) {
+    try {
+      return success(supplier.get());
+    } catch (Exception e) {
+      return fail(e);
+    }
   }
 
   public static <T> ResultOrError<T> success(T t) {

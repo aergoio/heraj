@@ -6,6 +6,7 @@ package hera.client;
 
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
+import static hera.api.tupleorerror.FunctionChain.of;
 import static hera.util.TransportUtils.longToByteArray;
 import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -14,7 +15,6 @@ import static types.AergoRPCServiceGrpc.newFutureStub;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
 import hera.Context;
-import hera.FutureChain;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.BlockchainAsyncOperation;
@@ -34,11 +34,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
-import types.Node;
 import types.Rpc;
-import types.Rpc.Empty;
-import types.Rpc.PeerList;
-import types.Rpc.SingleBytes;
 
 @ApiAudience.Private
 @ApiStability.Unstable
@@ -73,10 +69,10 @@ public class BlockchainAsyncTemplate implements BlockchainAsyncOperation, Channe
     ResultOrErrorFuture<BlockchainStatus> nextFuture =
         ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-    final Empty empty = Empty.newBuilder().build();
+    final Rpc.Empty empty = Rpc.Empty.newBuilder().build();
     ListenableFuture<Rpc.BlockchainStatus> listenableFuture = aergoService.blockchain(empty);
-    FutureChain<Rpc.BlockchainStatus, BlockchainStatus> callback = new FutureChain<>(nextFuture,
-        blockchainConverter::convertToDomainModel);
+    FutureChain<Rpc.BlockchainStatus, BlockchainStatus> callback = new FutureChain<>(nextFuture);
+    callback.setSuccessHandler(s -> of(() -> blockchainConverter.convertToDomainModel(s)));
     addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
@@ -84,14 +80,13 @@ public class BlockchainAsyncTemplate implements BlockchainAsyncOperation, Channe
 
   @Override
   public ResultOrErrorFuture<List<Peer>> listPeers() {
-    ResultOrErrorFuture<List<Peer>> nextFuture =
-        ResultOrErrorFutureFactory.supplyEmptyFuture();
+    ResultOrErrorFuture<List<Peer>> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-    final Empty empty = Empty.newBuilder().build();
-    ListenableFuture<PeerList> listenableFuture = aergoService.getPeers(empty);
-    FutureChain<PeerList, List<Peer>> callback =
-        new FutureChain<>(nextFuture, peerlist -> peerlist.getPeersList().stream()
-            .map(peerConverter::convertToDomainModel).collect(toList()));
+    final Rpc.Empty empty = Rpc.Empty.newBuilder().build();
+    ListenableFuture<Rpc.PeerList> listenableFuture = aergoService.getPeers(empty);
+    FutureChain<Rpc.PeerList, List<Peer>> callback = new FutureChain<>(nextFuture);
+    callback.setSuccessHandler(peerlist -> of(() -> peerlist.getPeersList().stream()
+        .map(peerConverter::convertToDomainModel).collect(toList())));
     addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;
@@ -102,10 +97,11 @@ public class BlockchainAsyncTemplate implements BlockchainAsyncOperation, Channe
     ResultOrErrorFuture<NodeStatus> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
     ByteString byteString = ByteString.copyFrom(longToByteArray(3000L));
-    SingleBytes rawTimeout = SingleBytes.newBuilder().setValue(byteString).build();
+    Rpc.SingleBytes rawTimeout = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
     ListenableFuture<Rpc.SingleBytes> listenableFuture = aergoService.nodeState(rawTimeout);
-    FutureChain<SingleBytes, NodeStatus> callback = new FutureChain<>(nextFuture,
-        nodeStatusConverter::convertToDomainModel);
+    FutureChain<Rpc.SingleBytes, NodeStatus> callback = new FutureChain<>(nextFuture);
+    callback
+        .setSuccessHandler(status -> of(() -> nodeStatusConverter.convertToDomainModel(status)));
     addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;

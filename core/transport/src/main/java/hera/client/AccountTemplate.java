@@ -15,7 +15,6 @@ import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
-import hera.api.tupleorerror.ResultOrError;
 import io.grpc.ManagedChannel;
 import java.util.List;
 
@@ -55,8 +54,7 @@ public class AccountTemplate implements AccountOperation, ChannelInjectable {
 
   @Override
   public boolean lock(final Authentication authentication) {
-    ResultOrError<Boolean> fuck = accountEitherOperation.lock(authentication);
-    return fuck.getResult();
+    return accountEitherOperation.lock(authentication).getResult();
   }
 
   @Override
@@ -75,8 +73,8 @@ public class AccountTemplate implements AccountOperation, ChannelInjectable {
   }
 
   @Override
-  public Account importKey(final EncryptedPrivateKey encryptedKey,
-      final String oldPassword, final String newPassword) {
+  public Account importKey(final EncryptedPrivateKey encryptedKey, final String oldPassword,
+      final String newPassword) {
     return accountEitherOperation.importKey(encryptedKey, oldPassword, newPassword).getResult();
   }
 
