@@ -11,7 +11,6 @@ import static org.junit.Assert.assertTrue;
 import hera.api.model.Account;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
-import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
@@ -62,18 +61,16 @@ public class ContractOperationIT extends AbstractIT {
 
   protected ContractTxHash execute(final Account account, final Fee fee,
       final ContractInterface contractInterface, final String function, final Object... args) {
-    final ContractFunction executionFunction = contractInterface.findFunction(function).get();
     final ContractInvocation execution =
-        ContractInvocation.of(contractInterface.getContractAddress(), executionFunction, args);
+        contractInterface.newInvocationBuilder().function(function).args(args).build();
     logger.info("Contract invocation: {}", execution);
     return aergoClient.getContractOperation().execute(account, execution, Fee.of(0L, 0L));
   }
 
   protected ContractResult query(final ContractInterface contractInterface, final String function,
       final Object... args) {
-    final ContractFunction queryFunction = contractInterface.findFunction(function).get();
     final ContractInvocation query =
-        ContractInvocation.of(contractInterface.getContractAddress(), queryFunction, args);
+        contractInterface.newInvocationBuilder().function(function).args(args).build();
     logger.info("Query invocation : {}", query);
     return aergoClient.getContractOperation().query(query);
   }

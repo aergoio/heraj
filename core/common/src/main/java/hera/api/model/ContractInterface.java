@@ -4,8 +4,9 @@
 
 package hera.api.model;
 
+import hera.api.model.ContractInvocation.ContractInvocationWithInterface;
 import hera.util.StringUtils;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.EqualsAndHashCode;
@@ -33,9 +34,18 @@ public class ContractInterface {
 
   @Getter
   @Setter
-  protected List<ContractFunction> functions = Collections.emptyList();
+  protected List<ContractFunction> functions = new ArrayList<ContractFunction>();
+
+  public void addFunction(final ContractFunction function) {
+    this.functions.add(function);
+  }
 
   public Optional<ContractFunction> findFunction(final String functionName) {
     return getFunctions().stream().filter(n -> functionName.equals(n.getName())).findFirst();
   }
+
+  public ContractInvocationWithInterface newInvocationBuilder() {
+    return new ContractInvocation.Builder().contractInterface(this);
+  }
+
 }

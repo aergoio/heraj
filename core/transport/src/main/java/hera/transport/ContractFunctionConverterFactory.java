@@ -28,10 +28,9 @@ public class ContractFunctionConverterFactory {
   protected final Function<Blockchain.Function, ContractFunction> rpcConverter =
       rpcContractFunction -> {
         logger.trace("Rpc contract function: {}", rpcContractFunction);
-        final ContractFunction domainContractFunction = new ContractFunction();
-        domainContractFunction.setName(rpcContractFunction.getName());
-        domainContractFunction.setArgumentNames(rpcContractFunction.getArgumentsList().stream()
-            .map(Blockchain.FnArgument::getName).collect(toList()));
+        final ContractFunction domainContractFunction =
+            new ContractFunction(rpcContractFunction.getName(), rpcContractFunction
+                .getArgumentsList().stream().map(Blockchain.FnArgument::getName).collect(toList()));
         return domainContractFunction;
       };
 
