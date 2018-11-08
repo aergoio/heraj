@@ -41,7 +41,8 @@ public class ContractOperationIT extends AbstractIT {
   }
 
   protected ContractTxHash define(final Account account, final Fee fee, final Object... args) {
-    final ContractDefinition definition = new ContractDefinition(() -> contractPayload, args);
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .contractInPayload(() -> contractPayload).constructorArgs(args).build();
     logger.info("Deploy definition: {}", definition);
     return aergoClient.getContractOperation().deploy(account, definition, fee);
   }

@@ -48,6 +48,7 @@ import hera.util.HexUtils;
 import hera.util.LittleEndianDataOutputStream;
 import io.grpc.ManagedChannel;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.Getter;
@@ -120,43 +121,42 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
   public ResultOrErrorFuture<ContractTxHash> deploy(final Account creator,
       final ContractDefinition contractDefinition, final Fee fee) {
     try {
-      final byte[] rawPayloadWithVersion =
-          contractDefinition.getEncodedContract().decode().getValue();
-      if (logger.isTraceEnabled()) {
-        logger.trace("Encoded contract deploy payload: {}",
-            contractDefinition.getEncodedContract().getEncodedValue());
-        logger.trace("Decoded contract deploy payload: {}", HexUtils.encode(rawPayloadWithVersion));
-      }
-      VersionUtils.validate(rawPayloadWithVersion, ContractInterface.PAYLOAD_VERSION);
-
-      final byte[] rawPaylod = VersionUtils.trim(rawPayloadWithVersion);
-      final ByteArrayOutputStream rawStream = new ByteArrayOutputStream();
-      final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(rawStream);
-      dataOut.writeInt(rawPaylod.length + 4);
-      dataOut.write(rawPaylod);
-      if (contractDefinition.getConstructorArgs().length > 0) {
-        final ArrayNode constructorArgs =
-            getArgsByJsonArray(contractDefinition.getConstructorArgs());
-        logger.trace("Contract constructor args: {}", constructorArgs.toString());
-        dataOut.write(constructorArgs.toString().getBytes());
-      }
-      dataOut.close();
-
       final Transaction transaction = new Transaction();
       transaction.setSender(creator);
       transaction.setNonce(creator.nextNonce());
-      transaction.setPayload(BytesValue.of(rawStream.toByteArray()));
+      transaction.setPayload(definitionToPayloadForm(contractDefinition));
       transaction.setFee(fee);
 
-      return accountAsyncOperation.sign(creator, transaction).flatMap(s -> {
-        transaction.setSignature(s);
-        return transactionAsyncOperation.commit(transaction)
-            .map(txHash -> txHash.adapt(ContractTxHash.class)
-                .orElseThrow(() -> new AdaptException(TxHash.class, ContractTxHash.class)));
-      });
+      return signAndCommit(creator, transaction);
     } catch (Exception e) {
       return ResultOrErrorFutureFactory.supply(() -> fail(e));
     }
+  }
+
+  protected BytesValue definitionToPayloadForm(final ContractDefinition contractDefinition)
+      throws IOException {
+    final byte[] rawPayloadWithVersion =
+        contractDefinition.getEncodedContract().decode().getValue();
+    if (logger.isTraceEnabled()) {
+      logger.trace("Encoded contract deploy payload: {}",
+          contractDefinition.getEncodedContract().getEncodedValue());
+      logger.trace("Decoded contract deploy payload: {}", HexUtils.encode(rawPayloadWithVersion));
+    }
+    VersionUtils.validate(rawPayloadWithVersion, ContractDefinition.PAYLOAD_VERSION);
+
+    final byte[] rawPaylod = VersionUtils.trim(rawPayloadWithVersion);
+    final ByteArrayOutputStream rawStream = new ByteArrayOutputStream();
+    final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(rawStream);
+    dataOut.writeInt(rawPaylod.length + 4);
+    dataOut.write(rawPaylod);
+    if (contractDefinition.getConstructorArgs().length > 0) {
+      final ArrayNode constructorArgs = getArgsByJsonArray(contractDefinition.getConstructorArgs());
+      logger.trace("Contract constructor args: {}", constructorArgs.toString());
+      dataOut.write(constructorArgs.toString().getBytes());
+    }
+    dataOut.close();
+    final BytesValue definitionPayload = BytesValue.of(rawStream.toByteArray());
+    return definitionPayload;
   }
 
   @Override
@@ -196,15 +196,20 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
       transaction.setPayload(BytesValue.of(functionCallString.getBytes()));
       transaction.setFee(fee);
 
-      return accountAsyncOperation.sign(executor, transaction).flatMap(s -> {
-        transaction.setSignature(s);
-        return transactionAsyncOperation.commit(transaction)
-            .map(txHash -> txHash.adapt(ContractTxHash.class)
-                .orElseThrow(() -> new AdaptException(TxHash.class, ContractTxHash.class)));
-      });
+      return signAndCommit(executor, transaction);
     } catch (Exception e) {
       return ResultOrErrorFutureFactory.supply(() -> fail(e));
     }
+  }
+
+  protected ResultOrErrorFuture<ContractTxHash> signAndCommit(final Account account,
+      final Transaction transaction) {
+    return accountAsyncOperation.sign(account, transaction).flatMap(signature -> {
+      transaction.setSignature(signature);
+      return transactionAsyncOperation.commit(transaction)
+          .map(txHash -> txHash.adapt(ContractTxHash.class)
+              .orElseThrow(() -> new AdaptException(TxHash.class, ContractTxHash.class)));
+    });
   }
 
   @Override

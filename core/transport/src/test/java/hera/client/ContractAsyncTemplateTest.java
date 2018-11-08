@@ -90,7 +90,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
 
     Account account = ClientManagedAccount.of(generator.create());
     Base58WithCheckSum encoded =
-        () -> Base58Utils.encodeWithCheck(new byte[] {ContractInterface.PAYLOAD_VERSION});
+        () -> Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
     final ResultOrErrorFuture<ContractTxHash> deployTxHash =
         contractAsyncTemplate.deploy(account, ContractDefinition.of(encoded), fee);
     assertTrue(deployTxHash.get().hasResult());
@@ -113,7 +113,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
 
     Account account = ServerManagedAccount.of(accountAddress);
     Base58WithCheckSum encoded =
-        () -> Base58Utils.encodeWithCheck(new byte[] {ContractInterface.PAYLOAD_VERSION});
+        () -> Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
     final ResultOrErrorFuture<ContractTxHash> deployTxHash =
         contractAsyncTemplate.deploy(account, ContractDefinition.of(encoded), fee);
     assertTrue(deployTxHash.get().hasResult());
