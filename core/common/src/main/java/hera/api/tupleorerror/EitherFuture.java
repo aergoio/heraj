@@ -20,6 +20,18 @@ public interface EitherFuture<EitherT> extends Future<EitherT> {
    */
   boolean cancel(boolean mayInterruptIfRunning);
 
+  /**
+   * If not already completed, completes this {@link EitherFuture} with a
+   * {@link CancellationException}. Dependent {@link EitherFuture} that have not already completed
+   * will also complete exceptionally, with a {@link CompletionException} caused by this
+   * {@link CancellationException}.
+   *
+   * @return {@code true} if this task is now cancelled
+   */
+  default boolean cancel() {
+    return cancel(true);
+  }
+
   EitherT get();
 
   EitherT get(long timeout, TimeUnit unit);

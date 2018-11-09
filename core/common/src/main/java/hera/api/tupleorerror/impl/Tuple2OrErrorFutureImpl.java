@@ -16,9 +16,13 @@ import hera.api.tupleorerror.Tuple2OrError;
 import hera.api.tupleorerror.Tuple2OrErrorFuture;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
+@ToString
+@EqualsAndHashCode
 @RequiredArgsConstructor
 public class Tuple2OrErrorFutureImpl<T1, T2> implements Tuple2OrErrorFuture<T1, T2> {
 

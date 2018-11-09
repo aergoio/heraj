@@ -5,7 +5,6 @@
 package hera.client;
 
 import static hera.api.model.BytesValue.of;
-import static hera.api.tupleorerror.FunctionChain.success;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -83,7 +82,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
 
     TransactionAsyncTemplate mockTransactionAsyncOperation = mock(TransactionAsyncTemplate.class);
     when(mockTransactionAsyncOperation.commit(any())).thenReturn(ResultOrErrorFutureFactory
-        .supply(() -> success(new TxHash(BytesValue.of(randomUUID().toString().getBytes())))));
+        .supply(() -> new TxHash(BytesValue.of(randomUUID().toString().getBytes()))));
 
     final ContractAsyncTemplate contractAsyncTemplate = supplyContractAsyncTemplate(aergoService);
     contractAsyncTemplate.transactionAsyncOperation = mockTransactionAsyncOperation;
@@ -102,10 +101,10 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
 
     AccountAsyncTemplate mockAccountAsyncOperation = mock(AccountAsyncTemplate.class);
     when(mockAccountAsyncOperation.sign(any(), any()))
-        .thenReturn(ResultOrErrorFutureFactory.supply(() -> success(new Signature())));
+        .thenReturn(ResultOrErrorFutureFactory.supply(() -> new Signature()));
     TransactionAsyncTemplate mockTransactionAsyncOperation = mock(TransactionAsyncTemplate.class);
     when(mockTransactionAsyncOperation.commit(any())).thenReturn(ResultOrErrorFutureFactory
-        .supply(() -> success(new TxHash(BytesValue.of(randomUUID().toString().getBytes())))));
+        .supply(() -> new TxHash(BytesValue.of(randomUUID().toString().getBytes()))));
 
     final ContractAsyncTemplate contractAsyncTemplate = supplyContractAsyncTemplate(aergoService);
     contractAsyncTemplate.accountAsyncOperation = mockAccountAsyncOperation;
@@ -139,7 +138,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
 
     TransactionAsyncTemplate mockTransactionAsyncOperation = mock(TransactionAsyncTemplate.class);
     when(mockTransactionAsyncOperation.commit(any())).thenReturn(ResultOrErrorFutureFactory
-        .supply(() -> success(new TxHash(BytesValue.of(randomUUID().toString().getBytes())))));
+        .supply(() -> new TxHash(BytesValue.of(randomUUID().toString().getBytes()))));
 
     final ContractAsyncTemplate contractAsyncTemplate = supplyContractAsyncTemplate(aergoService);
     contractAsyncTemplate.transactionAsyncOperation = mockTransactionAsyncOperation;
@@ -156,10 +155,10 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
 
     AccountAsyncTemplate mockAccountAsyncOperation = mock(AccountAsyncTemplate.class);
     when(mockAccountAsyncOperation.sign(any(), any()))
-        .thenReturn(ResultOrErrorFutureFactory.supply(() -> success(new Signature())));
+        .thenReturn(ResultOrErrorFutureFactory.supply(() -> new Signature()));
     TransactionAsyncTemplate mockTransactionAsyncOperation = mock(TransactionAsyncTemplate.class);
     when(mockTransactionAsyncOperation.commit(any())).thenReturn(ResultOrErrorFutureFactory
-        .supply(() -> success(new TxHash(BytesValue.of(randomUUID().toString().getBytes())))));
+        .supply(() -> new TxHash(BytesValue.of(randomUUID().toString().getBytes()))));
 
     final ContractAsyncTemplate contractAsyncTemplate = supplyContractAsyncTemplate(aergoService);
     contractAsyncTemplate.accountAsyncOperation = mockAccountAsyncOperation;

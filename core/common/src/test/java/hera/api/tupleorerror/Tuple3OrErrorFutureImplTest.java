@@ -4,8 +4,6 @@
 
 package hera.api.tupleorerror;
 
-import static hera.api.tupleorerror.FunctionChain.fail;
-import static hera.api.tupleorerror.FunctionChain.success;
 import static hera.api.tupleorerror.FutureFunctionChain.seq;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
@@ -13,53 +11,43 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import hera.util.ThreadUtils;
+import hera.AbstractTestCase;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 
 @SuppressWarnings("unchecked")
-public class Tuple3OrErrorFutureImplTest {
+public class Tuple3OrErrorFutureImplTest extends AbstractTestCase {
 
   protected Tuple3OrErrorFuture<String, String, String> supplyAllSuccess() {
-    return seq(() -> ResultOrErrorFutureFactory.supply(() -> success(randomUUID().toString())),
-        () -> ResultOrErrorFutureFactory.supply(() -> success(randomUUID().toString())),
-        () -> ResultOrErrorFutureFactory.supply(() -> success(randomUUID().toString())));
+    return seq(() -> supplySuccess(() -> randomUUID().toString()),
+        () -> supplySuccess(() -> randomUUID().toString()),
+        () -> supplySuccess(() -> randomUUID().toString()));
   }
 
   protected Tuple3OrErrorFuture<String, String, String> supply1stFail() {
-    return seq(
-        () -> ResultOrErrorFutureFactory.supply(() -> fail(new UnsupportedOperationException())),
-        () -> ResultOrErrorFutureFactory.supply(() -> success(randomUUID().toString())),
-        () -> ResultOrErrorFutureFactory.supply(() -> success(randomUUID().toString())));
+    return seq(() -> supplyFailure(), () -> supplySuccess(() -> randomUUID().toString()),
+        () -> supplySuccess(() -> randomUUID().toString()));
   }
 
   protected Tuple3OrErrorFuture<String, String, String> supply2ndFail() {
-    return seq(() -> ResultOrErrorFutureFactory.supply(() -> success(randomUUID().toString())),
-        () -> ResultOrErrorFutureFactory.supply(() -> fail(new UnsupportedOperationException())),
-        () -> ResultOrErrorFutureFactory.supply(() -> success(randomUUID().toString())));
+    return seq(() -> supplySuccess(() -> randomUUID().toString()), () -> supplyFailure(),
+        () -> supplySuccess(() -> randomUUID().toString()));
   }
 
   protected Tuple3OrErrorFuture<String, String, String> supply3rdFail() {
-    return seq(() -> ResultOrErrorFutureFactory.supply(() -> success(randomUUID().toString())),
-        () -> ResultOrErrorFutureFactory.supply(() -> success(randomUUID().toString())),
-        () -> ResultOrErrorFutureFactory.supply(() -> fail(new UnsupportedOperationException())));
+    return seq(() -> supplySuccess(() -> randomUUID().toString()),
+        () -> supplySuccess(() -> randomUUID().toString()), () -> supplyFailure());
+
   }
 
-  @Test
+  @Test(timeout = 1000L)
   public void testCancel() {
     Tuple3OrErrorFuture<String, String, String> future =
-        seq(() -> ResultOrErrorFutureFactory.supply(() -> {
-          ThreadUtils.trySleep(10000L);
-          return success(randomUUID().toString());
-        }), () -> ResultOrErrorFutureFactory.supply(() -> {
-          ThreadUtils.trySleep(10000L);
-          return success(randomUUID().toString());
-        }), () -> ResultOrErrorFutureFactory.supply(() -> {
-          ThreadUtils.trySleep(10000L);
-          return success(randomUUID().toString());
-        }));
-    future.cancel(false);
+        seq(() -> supplySuccess(() -> randomUUID().toString(), 10000L),
+            () -> supplySuccess(() -> randomUUID().toString(), 10000L),
+            () -> supplySuccess(() -> randomUUID().toString(), 10000L));
+    future.cancel();
     assertTrue(future.isCancelled());
     assertTrue(future.isDone());
   }

@@ -13,10 +13,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import hera.AbstractTestCase;
 import org.junit.Test;
 
 @SuppressWarnings("unchecked")
-public class ResultOrErrorImplTest {
+public class ResultOrErrorImplTest extends AbstractTestCase {
 
   @Test
   public void testGetResult() {

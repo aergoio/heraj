@@ -5,6 +5,7 @@
 package hera.api.tupleorerror;
 
 import static hera.api.tupleorerror.FunctionChain.success;
+import static java.util.stream.Collectors.toList;
 
 import hera.api.tupleorerror.impl.ResultOrErrorFutureImpl;
 import hera.api.tupleorerror.impl.Tuple2OrErrorFutureImpl;
@@ -13,27 +14,14 @@ import hera.api.tupleorerror.impl.Tuple3OrErrorFutureImpl;
 import hera.api.tupleorerror.impl.Tuple3OrErrorImpl;
 import hera.api.tupleorerror.impl.Tuple4OrErrorFutureImpl;
 import hera.api.tupleorerror.impl.Tuple4OrErrorImpl;
+import hera.exception.HerajException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public final class FutureFunctionChain {
-  /**
-   * Returns a new CompletableFuture that is completed when all of the given ResultOrErrorFuture
-   * complete.
-   * 
-   * @see java.util.concurrent.CompletableFuture#allOf
-   * @param futures futures to wait
-   * @return a new CompletableFuture that is completed when all of the given CompletableFutures
-   *         complete
-   */
-  protected static CompletableFuture<Void> allOf(ResultOrErrorFuture<?>... futures) {
-    final CompletableFuture<Void> next = CompletableFuture.allOf(Arrays.stream(futures)
-        .map(ResultOrErrorFutureImpl.class::cast).map(f -> f.getDelegate())
-        .toArray(CompletableFuture[]::new));
-    return next;
-  }
 
   /**
    * Make a sequence of future with ResultOrErrorFutures.
@@ -46,26 +34,30 @@ public final class FutureFunctionChain {
    */
   public static <T1, T2> Tuple2OrErrorFuture<T1, T2> seq(Supplier<ResultOrErrorFuture<T1>> f1,
       Supplier<ResultOrErrorFuture<T2>> f2) {
-    ResultOrErrorFuture<T1> future1 = f1.get();
-    ResultOrErrorFuture<T2> future2 = f2.get();
-
-    CompletableFuture<Tuple2OrError<T1, T2>> delegate =
-        allOf(future1, future2).thenApplyAsync(futureVoid -> {
-          try {
-            ResultOrError<T1> r1 = future1.get();
-            if (r1.hasError()) {
-              return new Tuple2OrErrorImpl<>(r1.getError());
-            }
-            ResultOrError<T2> r2 = future2.get();
-            if (r2.hasError()) {
-              return new Tuple2OrErrorImpl<>(r2.getError());
-            }
-            return success(r1.getResult(), r2.getResult());
-          } catch (Throwable e) {
-            return new Tuple2OrErrorImpl<>(e);
-          }
-        });
-    return new Tuple2OrErrorFutureImpl(delegate);
+    final CompletableFuture<Tuple2OrError<T1, T2>> delegate = CompletableFuture.supplyAsync(() -> {
+      try {
+        final List<ResultOrErrorFuture> futures =
+            Arrays.asList(new ResultOrErrorFuture[] {f1.get(), f2.get()});
+        final List<Object> list = futures.parallelStream()
+            .map(f -> ((ResultOrErrorFutureImpl) f).getDelegate().handle((t, e) -> {
+              if (null != t && ((ResultOrError) t).hasResult()) {
+                return ((ResultOrError) t).getResult();
+              } else {
+                futures.stream().forEach(ResultOrErrorFuture::cancel);
+                final Throwable error =
+                    (e == null ? ((ResultOrError) t).getError() : (Throwable) e);
+                throw new HerajException(error);
+              }
+            })).map(CompletableFuture::join).collect(toList());
+        return success((T1) list.get(0), (T2) list.get(1));
+      } catch (Throwable e) {
+        while (null != e.getCause()) {
+          e = e.getCause();
+        }
+        return new Tuple2OrErrorImpl<T1, T2>(e);
+      }
+    });
+    return new Tuple2OrErrorFutureImpl<>(delegate);
   }
 
   /**
@@ -82,31 +74,31 @@ public final class FutureFunctionChain {
   public static <T1, T2, T3> Tuple3OrErrorFuture<T1, T2, T3> seq(
       Supplier<ResultOrErrorFuture<T1>> f1, Supplier<ResultOrErrorFuture<T2>> f2,
       Supplier<ResultOrErrorFuture<T3>> f3) {
-    ResultOrErrorFuture<T1> future1 = f1.get();
-    ResultOrErrorFuture<T2> future2 = f2.get();
-    ResultOrErrorFuture<T3> future3 = f3.get();
-
-    CompletableFuture<Tuple3OrError> delegate =
-        allOf(future1, future2, future3).thenApplyAsync(futureVoid -> {
+    final CompletableFuture<Tuple3OrError<T1, T2, T3>> delegate =
+        CompletableFuture.supplyAsync(() -> {
           try {
-            ResultOrError<T1> r1 = future1.get();
-            if (r1.hasError()) {
-              return new Tuple3OrErrorImpl<>(r1.getError());
-            }
-            ResultOrError<T2> r2 = future2.get();
-            if (r2.hasError()) {
-              return new Tuple3OrErrorImpl<>(r2.getError());
-            }
-            ResultOrError<T3> r3 = future3.get();
-            if (r3.hasError()) {
-              return new Tuple3OrErrorImpl<>(r3.getError());
-            }
-            return success(r1.getResult(), r2.getResult(), r3.getResult());
+            final List<ResultOrErrorFuture> futures =
+                Arrays.asList(new ResultOrErrorFuture[] {f1.get(), f2.get(), f3.get()});
+            final List<Object> list = futures.parallelStream()
+                .map(f -> ((ResultOrErrorFutureImpl) f).getDelegate().handle((t, e) -> {
+                  if (null != t && ((ResultOrError) t).hasResult()) {
+                    return ((ResultOrError) t).getResult();
+                  } else {
+                    futures.stream().forEach(ResultOrErrorFuture::cancel);
+                    final Throwable error =
+                        (e == null ? ((ResultOrError) t).getError() : (Throwable) e);
+                    throw new HerajException(error);
+                  }
+                })).map(CompletableFuture::join).collect(toList());
+            return success((T1) list.get(0), (T2) list.get(1), (T3) list.get(2));
           } catch (Throwable e) {
-            return new Tuple3OrErrorImpl<>(e);
+            while (null != e.getCause()) {
+              e = e.getCause();
+            }
+            return new Tuple3OrErrorImpl<T1, T2, T3>(e);
           }
         });
-    return new Tuple3OrErrorFutureImpl(delegate);
+    return new Tuple3OrErrorFutureImpl<>(delegate);
   }
 
   /**
@@ -125,36 +117,31 @@ public final class FutureFunctionChain {
   public static <T1, T2, T3, T4> Tuple4OrErrorFuture<T1, T2, T3, T4> seq(
       Supplier<ResultOrErrorFuture<T1>> f1, Supplier<ResultOrErrorFuture<T2>> f2,
       Supplier<ResultOrErrorFuture<T3>> f3, Supplier<ResultOrErrorFuture<T4>> f4) {
-    ResultOrErrorFuture<T1> future1 = f1.get();
-    ResultOrErrorFuture<T2> future2 = f2.get();
-    ResultOrErrorFuture<T3> future3 = f3.get();
-    ResultOrErrorFuture<T4> future4 = f4.get();
-
-    CompletableFuture<Tuple4OrError> delegate =
-        allOf(future1, future2).thenApplyAsync(futureVoid -> {
+    final CompletableFuture<Tuple4OrError<T1, T2, T3, T4>> delegate =
+        CompletableFuture.supplyAsync(() -> {
           try {
-            ResultOrError<T1> r1 = future1.get();
-            if (r1.hasError()) {
-              return new Tuple4OrErrorImpl<>(r1.getError());
-            }
-            ResultOrError<T2> r2 = future2.get();
-            if (r2.hasError()) {
-              return new Tuple4OrErrorImpl<>(r2.getError());
-            }
-            ResultOrError<T3> r3 = future3.get();
-            if (r3.hasError()) {
-              return new Tuple4OrErrorImpl<>(r3.getError());
-            }
-            ResultOrError<T4> r4 = future4.get();
-            if (r4.hasError()) {
-              return new Tuple4OrErrorImpl<>(r4.getError());
-            }
-            return success(r1.getResult(), r2.getResult(), r3.getResult(), r4.getResult());
+            final List<ResultOrErrorFuture> futures =
+                Arrays.asList(new ResultOrErrorFuture[] {f1.get(), f2.get(), f3.get(), f4.get()});
+            final List<Object> list = futures.parallelStream()
+                .map(f -> ((ResultOrErrorFutureImpl) f).getDelegate().handle((t, e) -> {
+                  if (null != t && ((ResultOrError) t).hasResult()) {
+                    return ((ResultOrError) t).getResult();
+                  } else {
+                    futures.stream().forEach(ResultOrErrorFuture::cancel);
+                    final Throwable error =
+                        (e == null ? ((ResultOrError) t).getError() : (Throwable) e);
+                    throw new HerajException(error);
+                  }
+                })).map(CompletableFuture::join).collect(toList());
+            return success((T1) list.get(0), (T2) list.get(1), (T3) list.get(2), (T4) list.get(3));
           } catch (Throwable e) {
-            return new Tuple4OrErrorImpl<>(e);
+            while (null != e.getCause()) {
+              e = e.getCause();
+            }
+            return new Tuple4OrErrorImpl<T1, T2, T3, T4>(e);
           }
         });
-    return new Tuple4OrErrorFutureImpl(delegate);
+    return new Tuple4OrErrorFutureImpl<>(delegate);
   }
 
 }

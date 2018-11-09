@@ -4,8 +4,6 @@
 
 package hera.api;
 
-import static hera.api.tupleorerror.FunctionChain.fail;
-
 import hera.ContextAware;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
@@ -55,11 +53,11 @@ public interface AccountAsyncOperation extends ContextAware {
    * @param account account
    * @return future of an account state or error
    */
-  @SuppressWarnings("unchecked")
   default ResultOrErrorFuture<AccountState> getState(Account account) {
     return account.adapt(AccountAddress.class).map(this::getState)
-        .orElse(ResultOrErrorFutureFactory
-            .supply(() -> fail(new AdaptException(account.getClass(), AccountAddress.class))));
+        .orElse(ResultOrErrorFutureFactory.supply(() -> {
+          throw new AdaptException(account.getClass(), AccountAddress.class);
+        }));
   }
 
   /**
@@ -120,8 +118,8 @@ public interface AccountAsyncOperation extends ContextAware {
    * @param newPassword new password to store in a remote storage
    * @return future of account result or error
    */
-  ResultOrErrorFuture<Account> importKey(EncryptedPrivateKey encryptedKey,
-      String oldPassword, String newPassword);
+  ResultOrErrorFuture<Account> importKey(EncryptedPrivateKey encryptedKey, String oldPassword,
+      String newPassword);
 
   /**
    * Export an encrypted private key of account asynchronously whose key is stored in a server key

@@ -14,9 +14,13 @@ import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
+@ToString
+@EqualsAndHashCode
 @RequiredArgsConstructor
 public class ResultOrErrorFutureImpl<T> implements ResultOrErrorFuture<T> {
 

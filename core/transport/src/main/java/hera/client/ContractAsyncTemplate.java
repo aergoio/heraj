@@ -128,8 +128,10 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
       transaction.setFee(fee);
 
       return signAndCommit(creator, transaction);
-    } catch (Exception e) {
-      return ResultOrErrorFutureFactory.supply(() -> fail(e));
+    } catch (Throwable e) {
+      ResultOrErrorFuture<ContractTxHash> next = ResultOrErrorFutureFactory.supplyEmptyFuture();
+      next.complete(fail(e));
+      return next;
     }
   }
 
@@ -198,7 +200,9 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
 
       return signAndCommit(executor, transaction);
     } catch (Exception e) {
-      return ResultOrErrorFutureFactory.supply(() -> fail(e));
+      ResultOrErrorFuture<ContractTxHash> next = ResultOrErrorFutureFactory.supplyEmptyFuture();
+      next.complete(fail(e));
+      return next;
     }
   }
 
@@ -235,7 +239,9 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
 
       return nextFuture;
     } catch (Exception e) {
-      return ResultOrErrorFutureFactory.supply(() -> fail(e));
+      ResultOrErrorFuture<ContractResult> next = ResultOrErrorFutureFactory.supplyEmptyFuture();
+      next.complete(fail(e));
+      return next;
     }
   }
 

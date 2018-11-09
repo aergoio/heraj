@@ -10,10 +10,11 @@ import static hera.api.tupleorerror.FunctionChain.success;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import hera.AbstractTestCase;
 import org.junit.Test;
 
 @SuppressWarnings("unchecked")
-public class FunctionChainTest {
+public class FunctionChainTest extends AbstractTestCase {
 
   @Test
   public void testSeqFor2Args() {

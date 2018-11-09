@@ -15,10 +15,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import hera.AbstractTestCase;
 import org.junit.Test;
 
 @SuppressWarnings("unchecked")
-public class Tuple2OrErrorImplTest {
+public class Tuple2OrErrorImplTest extends AbstractTestCase {
 
   @Test
   public void testGet() {

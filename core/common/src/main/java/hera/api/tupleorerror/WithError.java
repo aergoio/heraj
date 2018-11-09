@@ -28,8 +28,10 @@ public interface WithError {
    * Throw an error. If an error isn't HerajException, wrap with {@code HerajException}.
    */
   default void throwError() {
-    throw getError() instanceof HerajException ? (HerajException) getError()
-        : new HerajException(getError());
+    if (hasError()) {
+      throw getError() instanceof HerajException ? (HerajException) getError()
+          : new HerajException(getError());
+    }
   }
 
 }
