@@ -19,13 +19,18 @@ import org.slf4j.Logger;
 
 @SuppressWarnings("rawtypes")
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore({"javax.crypto.*", "javax.management.*", "javax.net.ssl.*", "javax.security.*"})
+@PowerMockIgnore({
+    "javax.crypto.*",
+    "javax.management.*",
+    "javax.net.ssl.*",
+    "javax.security.*",
+    "org.bouncycastle.*"})
 public abstract class AbstractTestCase {
   protected static final int N_TEST = 100;
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final Executor executor = Executors.newWorkStealingPool();
+  protected final Executor executor = Executors.newFixedThreadPool(4);
 
   protected <T> ResultOrErrorFuture<T> supplySuccess(Supplier<T> supplier) {
     return ResultOrErrorFutureFactory.supply(supplier, executor);
