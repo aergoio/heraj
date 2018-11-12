@@ -62,6 +62,11 @@ public class Tuple3OrErrorFutureImpl<T1, T2, T3> implements Tuple3OrErrorFuture<
     }
   }
 
+  @Override
+  public boolean complete(final Tuple3OrError<T1, T2, T3> t) {
+    return delegate.complete(t);
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public ResultOrErrorFuture<Boolean> ifPresent(

@@ -4,7 +4,8 @@
 
 package hera.api.tupleorerror;
 
-public interface Tuple2OrErrorFuture<T1, T2> extends EitherFuture<Tuple2OrError<T1, T2>> {
+public interface Tuple2OrErrorFuture<T1, T2>
+    extends FinishableFuture<Tuple2OrError<T1, T2>>, ErrorHoldableFuture<Tuple2OrError<T1, T2>> {
 
   /**
    * If a future operation is complete and a values are present, invoke the specified consumer with

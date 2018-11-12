@@ -4,15 +4,8 @@
 
 package hera.api.tupleorerror;
 
-public interface ResultOrErrorFuture<T> extends EitherFuture<ResultOrError<T>> {
-
-  /**
-   * Complete ResultOrErrorFuture with ResultOrError.
-   *
-   * @param resultOrError ResultOrError
-   * @return complete result
-   */
-  boolean complete(ResultOrError<T> resultOrError);
+public interface ResultOrErrorFuture<T>
+    extends FinishableFuture<ResultOrError<T>>, ErrorHoldableFuture<ResultOrError<T>> {
 
   /**
    * If a future operation is complete and a result is present, invoke the specified consumer with
