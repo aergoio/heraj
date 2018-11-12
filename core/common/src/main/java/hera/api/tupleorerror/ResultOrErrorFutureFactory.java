@@ -27,6 +27,7 @@ public final class ResultOrErrorFutureFactory {
   /**
    * Supply {@link ResultOrErrorFuture} with a plain supplier.
    *
+   * @param <T> data type
    * @param supplier a provider
    * @return {@link ResultOrErrorFuture}
    */
@@ -44,6 +45,7 @@ public final class ResultOrErrorFutureFactory {
   /**
    * Supply {@link ResultOrErrorFuture} with a plain supplier and task executor.
    *
+   * @param <T> data type
    * @param supplier a provider
    * @param executor a task executor
    * @return {@link ResultOrErrorFuture}
