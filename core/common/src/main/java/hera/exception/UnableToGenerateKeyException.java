@@ -20,9 +20,4 @@ public class UnableToGenerateKeyException extends HerajException {
     super(message, cause);
   }
 
-  @Override
-  public HerajException clone() {
-    return new UnableToGenerateKeyException(getMessage(), getCause());
-  }
-
 }

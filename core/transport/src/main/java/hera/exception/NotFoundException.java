@@ -20,9 +20,4 @@ public class NotFoundException extends RpcException {
     super(message, cause);
   }
 
-  @Override
-  public NotFoundException clone() {
-    return new NotFoundException(getMessage(), getCause());
-  }
-
 }

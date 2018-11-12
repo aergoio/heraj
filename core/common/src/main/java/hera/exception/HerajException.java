@@ -4,7 +4,7 @@
 
 package hera.exception;
 
-public class HerajException extends RuntimeException implements Cloneable {
+public class HerajException extends RuntimeException {
 
   private static final long serialVersionUID = 1429103468497275409L;
 
@@ -22,11 +22,6 @@ public class HerajException extends RuntimeException implements Cloneable {
 
   public HerajException(String message, Throwable cause) {
     super(message, cause);
-  }
-
-  @Override
-  public HerajException clone() {
-    return new HerajException(getMessage(), getCause());
   }
 
 }

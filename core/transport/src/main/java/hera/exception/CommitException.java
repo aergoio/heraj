@@ -74,9 +74,4 @@ public class CommitException extends RpcException {
     return commitStatus.toString();
   }
 
-  @Override
-  public CommitException clone() {
-    return new CommitException(getCommitStatus());
-  }
-
 }

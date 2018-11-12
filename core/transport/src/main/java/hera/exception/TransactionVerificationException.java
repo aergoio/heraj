@@ -50,9 +50,4 @@ public class TransactionVerificationException extends RpcException {
     return verifyStatus.toString();
   }
 
-  @Override
-  public TransactionVerificationException clone() {
-    return new TransactionVerificationException(getVerifyStatus());
-  }
-
 }
