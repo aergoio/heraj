@@ -4,7 +4,6 @@
 
 package hera.client;
 
-import static hera.DefaultConstants.DEFAULT_ENDPOINT;
 import static hera.DefaultConstants.DEFAULT_TIMEOUT;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -12,41 +11,16 @@ import hera.Context;
 import hera.Strategy;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.model.HostnameAndPort;
 import hera.strategy.ConnectStrategy;
 import hera.strategy.NettyConnectStrategy;
 import hera.strategy.SimpleTimeoutStrategy;
 import hera.strategy.TimeoutStrategy;
+import hera.util.Configuration;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.slf4j.Logger;
 
-/**
- * <p>
- * Build aergo client.
- * </p>
- * Usage
- * <pre>
- *   AergoClient aergoClient = new AergoClientBuilder()
- *           .addStrategy(new NettyConnectStrategy("localhost:7845"))
- *           .addStrategy(new SimpleTimeoutStrategy(10000L))
- *           .build();
- *
- *   AergoEitherClient aergoEitherClient = new AergoClientBuilder()
- *           .addStrategy(new NettyConnectStrategy("localhost:7845"))
- *           .addStrategy(new SimpleTimeoutStrategy(10000L))
- *           .buildEither();
- *
- *   AergoAsyncClient aergoAsyncClient = new AergoClientBuilder()
- *           .addStrategy(new NettyConnectStrategy("localhost:7845"))
- *           .addStrategy(new SimpleTimeoutStrategy(10000L))
- *           .buildAsync();
- * </pre>
- *
- * @author taeiklim
- *
- */
 @ApiAudience.Public
 @ApiStability.Unstable
 public class AergoClientBuilder {
@@ -61,7 +35,7 @@ public class AergoClientBuilder {
 
   static {
     defaultContext = new Context();
-    defaultContext.addStrategy(new NettyConnectStrategy(HostnameAndPort.of(DEFAULT_ENDPOINT)));
+    defaultContext.addStrategy(new NettyConnectStrategy());
     defaultContext.addStrategy(new SimpleTimeoutStrategy(DEFAULT_TIMEOUT));
   }
 
@@ -73,6 +47,11 @@ public class AergoClientBuilder {
   protected final Logger logger = getLogger(getClass());
 
   protected Context context = Context.copyOf(defaultContext);
+
+  public AergoClientBuilder setConfiguration(final Configuration configuration) {
+    context.setConfiguration(configuration);
+    return this;
+  }
 
   public AergoClientBuilder addStrategy(final Strategy strategy) {
     context.addStrategy(strategy);

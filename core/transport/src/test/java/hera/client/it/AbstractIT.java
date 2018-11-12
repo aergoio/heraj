@@ -19,7 +19,9 @@ import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.strategy.NettyConnectStrategy;
 import hera.strategy.SimpleTimeoutStrategy;
+import hera.util.Configuration;
 import hera.util.ThreadUtils;
+import hera.util.conf.InMemoryConfiguration;
 import java.io.InputStream;
 import org.junit.After;
 import org.junit.Before;
@@ -47,8 +49,14 @@ public abstract class AbstractIT {
     final AergoKey key = AergoKey.of(richEncryptedPrivateKey, richPassword);
     rich = ClientManagedAccount.of(key);
 
-    aergoClient = new AergoClientBuilder().addStrategy(new SimpleTimeoutStrategy(10000L))
-        .addStrategy(new NettyConnectStrategy(hostname)).build();
+    final Configuration configuration = new InMemoryConfiguration();
+    configuration.define("endpoint", "localhost:7845");
+
+    aergoClient = new AergoClientBuilder()
+        .setConfiguration(configuration)
+        .addStrategy(new SimpleTimeoutStrategy(10000L))
+        .addStrategy(new NettyConnectStrategy())
+        .build();
   }
 
   protected InputStream open(final String ext) {

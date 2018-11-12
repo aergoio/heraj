@@ -17,13 +17,21 @@ import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.key.AergoKey;
 import hera.strategy.NettyConnectStrategy;
+import hera.util.Configuration;
+import hera.util.conf.InMemoryConfiguration;
 
 public class TransactionExample extends AbstractExample {
 
   protected void buildAndCommitWithKey() {
+    // set configuration
+    final Configuration configuration = new InMemoryConfiguration();
+    configuration.define("endpoint", "localhost:7845");
+
     // make aergo client object
-    final AergoClient aergoClient =
-        new AergoClientBuilder().addStrategy(new NettyConnectStrategy(hostname)).build();
+    final AergoClient aergoClient = new AergoClientBuilder()
+        .setConfiguration(configuration)
+        .addStrategy(new NettyConnectStrategy())
+        .build();
 
     // create an account
     final AergoKey key = AergoKey.of(
@@ -55,9 +63,15 @@ public class TransactionExample extends AbstractExample {
   }
 
   protected void buildAndCommitWithPassword() {
+    // set configuration
+    final Configuration configuration = new InMemoryConfiguration();
+    configuration.define("endpoint", "localhost:7845");
+
     // make aergo client object
-    final AergoClient aergoClient =
-        new AergoClientBuilder().addStrategy(new NettyConnectStrategy(hostname)).build();
+    final AergoClient aergoClient = new AergoClientBuilder()
+        .setConfiguration(configuration)
+        .addStrategy(new NettyConnectStrategy())
+        .build();
 
     // create an account
     final Account account = ServerManagedAccount
@@ -95,9 +109,15 @@ public class TransactionExample extends AbstractExample {
   }
 
   protected void sendTransaction() {
+    // set configuration
+    final Configuration configuration = new InMemoryConfiguration();
+    configuration.define("endpoint", "localhost:7845");
+
     // make aergo client object
-    final AergoClient aergoClient =
-        new AergoClientBuilder().addStrategy(new NettyConnectStrategy(hostname)).build();
+    final AergoClient aergoClient = new AergoClientBuilder()
+        .setConfiguration(configuration)
+        .addStrategy(new NettyConnectStrategy())
+        .build();
 
     // create a sender
     final Account account = ServerManagedAccount

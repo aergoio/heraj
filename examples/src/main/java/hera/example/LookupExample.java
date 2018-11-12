@@ -10,14 +10,22 @@ import hera.api.model.BlockchainStatus;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.strategy.NettyConnectStrategy;
+import hera.util.Configuration;
+import hera.util.conf.InMemoryConfiguration;
 import java.util.List;
 
 public class LookupExample extends AbstractExample {
 
   protected void blockLookup() {
+    // set configuration
+    final Configuration configuration = new InMemoryConfiguration();
+    configuration.define("endpoint", "localhost:7845");
+
     // make aergo client object
-    final AergoClient aergoClient =
-        new AergoClientBuilder().addStrategy(new NettyConnectStrategy(hostname)).build();
+    final AergoClient aergoClient = new AergoClientBuilder()
+        .setConfiguration(configuration)
+        .addStrategy(new NettyConnectStrategy())
+        .build();
 
     // lookup current blockchain status
     final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
@@ -41,9 +49,15 @@ public class LookupExample extends AbstractExample {
   }
 
   protected void blockHeaderLookup() {
+    // set configuration
+    final Configuration configuration = new InMemoryConfiguration();
+    configuration.define("endpoint", "localhost:7845");
+
     // make aergo client object
-    final AergoClient aergoClient =
-        new AergoClientBuilder().addStrategy(new NettyConnectStrategy(hostname)).build();
+    final AergoClient aergoClient = new AergoClientBuilder()
+        .setConfiguration(configuration)
+        .addStrategy(new NettyConnectStrategy())
+        .build();
 
     // lookup best block
     final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();

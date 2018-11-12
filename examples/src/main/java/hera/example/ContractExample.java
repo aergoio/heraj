@@ -23,6 +23,8 @@ import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.key.AergoKey;
 import hera.strategy.NettyConnectStrategy;
+import hera.util.Configuration;
+import hera.util.conf.InMemoryConfiguration;
 import java.io.InputStream;
 import java.util.Scanner;
 import lombok.Getter;
@@ -39,9 +41,15 @@ public class ContractExample extends AbstractExample {
   protected Account account;
 
   protected void deployWithKey() {
+    // set configuration
+    final Configuration configuration = new InMemoryConfiguration();
+    configuration.define("endpoint", "localhost:7845");
+
     // make aergo client object
-    final AergoClient aergoClient =
-        new AergoClientBuilder().addStrategy(new NettyConnectStrategy(hostname)).build();
+    final AergoClient aergoClient = new AergoClientBuilder()
+        .setConfiguration(configuration)
+        .addStrategy(new NettyConnectStrategy())
+        .build();
 
     // create an account
     final AergoKey key = AergoKey.of(
@@ -86,9 +94,15 @@ public class ContractExample extends AbstractExample {
   }
 
   protected void deployWithPassword() {
+    // set configuration
+    final Configuration configuration = new InMemoryConfiguration();
+    configuration.define("endpoint", "localhost:7845");
+
     // make aergo client object
-    final AergoClient aergoClient =
-        new AergoClientBuilder().addStrategy(new NettyConnectStrategy(hostname)).build();
+    final AergoClient aergoClient = new AergoClientBuilder()
+        .setConfiguration(configuration)
+        .addStrategy(new NettyConnectStrategy())
+        .build();
 
     // create an account
     final Account account = ServerManagedAccount
@@ -138,9 +152,15 @@ public class ContractExample extends AbstractExample {
   }
 
   protected void executeWithKey() {
+    // set configuration
+    final Configuration configuration = new InMemoryConfiguration();
+    configuration.define("endpoint", "localhost:7845");
+
     // make aergo client object
-    final AergoClient aergoClient =
-        new AergoClientBuilder().addStrategy(new NettyConnectStrategy(hostname)).build();
+    final AergoClient aergoClient = new AergoClientBuilder()
+        .setConfiguration(configuration)
+        .addStrategy(new NettyConnectStrategy())
+        .build();
 
     // create an account
     final AergoKey key = AergoKey.of(
@@ -172,9 +192,15 @@ public class ContractExample extends AbstractExample {
   }
 
   protected void executeWithPassword() {
+    // set configuration
+    final Configuration configuration = new InMemoryConfiguration();
+    configuration.define("endpoint", "localhost:7845");
+
     // make aergo client object
-    final AergoClient aergoClient =
-        new AergoClientBuilder().addStrategy(new NettyConnectStrategy(hostname)).build();
+    final AergoClient aergoClient = new AergoClientBuilder()
+        .setConfiguration(configuration)
+        .addStrategy(new NettyConnectStrategy())
+        .build();
 
     // create an account
     final Account account = ServerManagedAccount
@@ -211,9 +237,15 @@ public class ContractExample extends AbstractExample {
   }
 
   protected void queryInit() {
+    // set configuration
+    final Configuration configuration = new InMemoryConfiguration();
+    configuration.define("endpoint", "localhost:7845");
+
     // make aergo client object
-    final AergoClient aergoClient =
-        new AergoClientBuilder().addStrategy(new NettyConnectStrategy(hostname)).build();
+    final AergoClient aergoClient = new AergoClientBuilder()
+        .setConfiguration(configuration)
+        .addStrategy(new NettyConnectStrategy())
+        .build();
 
     // build query invocation
     final ContractFunction queryFunction = contractInterface.findFunction("get").get();
@@ -237,9 +269,15 @@ public class ContractExample extends AbstractExample {
   }
 
   protected void queryExecute() {
+    // set configuration
+    final Configuration configuration = new InMemoryConfiguration();
+    configuration.define("endpoint", "localhost:7845");
+
     // make aergo client object
-    final AergoClient aergoClient =
-        new AergoClientBuilder().addStrategy(new NettyConnectStrategy(hostname)).build();
+    final AergoClient aergoClient = new AergoClientBuilder()
+        .setConfiguration(configuration)
+        .addStrategy(new NettyConnectStrategy())
+        .build();
 
     // build query invocation
     final ContractFunction queryFunction = contractInterface.findFunction("get").get();
