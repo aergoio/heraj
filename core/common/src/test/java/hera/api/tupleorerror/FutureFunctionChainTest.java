@@ -14,7 +14,7 @@ import org.junit.Test;
 @SuppressWarnings("unchecked")
 public class FutureFunctionChainTest extends AbstractTestCase {
 
-  protected final long successTimeout = 5000L;
+  protected final long successTimeout = 10000L;
 
   protected final long failureTimeout = 100L;
 

@@ -156,7 +156,6 @@ configure(javaProjects) {
     maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors())
     exclude '**/*Tests.class'
     exclude '**/*IT.class'
-    forkEvery = 1
   }
 
   checkstyle {
