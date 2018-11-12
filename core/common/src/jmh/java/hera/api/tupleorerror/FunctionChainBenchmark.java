@@ -3,7 +3,6 @@ package hera.api.tupleorerror;
 import static hera.api.tupleorerror.FunctionChain.of;
 import static hera.api.tupleorerror.FunctionChain.seq;
 
-import hera.util.ThreadUtils;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;
@@ -12,7 +11,6 @@ import org.openjdk.jmh.annotations.Mode;
 public class FunctionChainBenchmark {
 
   protected int supply() {
-//    ThreadUtils.trySleep(1000L);
     return 3;
   }
 
