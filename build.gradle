@@ -49,6 +49,11 @@ def exampleProjects = [
   project('examples')
 ]
 
+ext {
+  grpcVersion = '1.13.1'
+  guavaVersion = '22.0'
+}
+
 configure(javaProjects) {
   // do Java specific configurations
   apply plugin: 'java'

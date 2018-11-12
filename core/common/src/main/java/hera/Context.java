@@ -91,7 +91,7 @@ public class Context {
       if (unused instanceof ContextAware) {
         ((ContextAware) unused).setContext(this);
       }
-      logger.debug("Use strategy: {}", strategyClass);
+      logger.debug("Use strategy: {}", unused.getClass());
       usings.add(unused);
     }
     return unusedOptional;

@@ -9,11 +9,11 @@ import hera.api.model.HostnameAndPort;
 import hera.util.Configurable;
 import hera.util.Configuration;
 import io.grpc.ManagedChannel;
-import io.grpc.netty.NettyChannelBuilder;
+import io.grpc.okhttp.OkHttpChannelBuilder;
 import java.util.concurrent.TimeUnit;
 import lombok.Setter;
 
-public class NettyConnectStrategy
+public class OkHttpConnectStrategy
     implements ConnectStrategy<ManagedChannel>, Configurable<Configuration> {
 
   @Setter
@@ -27,7 +27,7 @@ public class NettyConnectStrategy
   @Override
   public ManagedChannel connect() {
     final HostnameAndPort endpoint = getEndpoint();
-    return NettyChannelBuilder
+    return OkHttpChannelBuilder
         .forAddress(endpoint.getHostname(), endpoint.getPort())
         .keepAliveTime(30, TimeUnit.SECONDS)
         .keepAliveTimeout(10, TimeUnit.SECONDS)

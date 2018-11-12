@@ -35,14 +35,11 @@ protobuf {
 }
 
 dependencies {
-  implementation ('com.google.guava:guava:22.0')
-  implementation ('io.grpc:grpc-netty:1.13.1') {
+  implementation ("com.google.guava:guava:${guavaVersion}")
+  implementation ("io.grpc:grpc-protobuf:${grpcVersion}") {
     exclude group: 'com.google.guava', module: 'guava'
   }
-  implementation ('io.grpc:grpc-protobuf:1.13.1') {
-    exclude group: 'com.google.guava', module: 'guava'
-  }
-  implementation ('io.grpc:grpc-stub:1.13.1') {
+  implementation ("io.grpc:grpc-stub:${grpcVersion}") {
     exclude group: 'com.google.guava', module: 'guava'
   }
   if (JavaVersion.current().isJava9Compatible()) {
