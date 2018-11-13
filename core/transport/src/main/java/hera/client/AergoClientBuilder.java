@@ -114,6 +114,9 @@ public class AergoClientBuilder {
    * Set timeout for each request with {@link SimpleTimeoutStrategy}. If timeout is already set,
    * that will be overridden.
    *
+   * @param timeout time to time out
+   * @param unit time's unit
+   *
    * @return an instance of this
    */
   public AergoClientBuilder withTimeout(final long timeout, final TimeUnit unit) {

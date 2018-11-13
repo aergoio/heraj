@@ -75,6 +75,7 @@ public class Context {
   /**
    * Return strategy if exists.
    *
+   * @param <StrategyT> strategy type
    * @param strategyClass strategy class
    *
    * @return strategy matching type
