@@ -32,7 +32,6 @@ public class ContractOperationIT extends AbstractIT {
 
   @Before
   public void setUp() {
-    super.setUp();
     try {
       contractPayload = IoUtils.from(new InputStreamReader(open("payload")));
     } catch (IOException e) {

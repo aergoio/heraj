@@ -14,7 +14,6 @@ import hera.api.BlockEitherOperation;
 import hera.api.BlockchainEitherOperation;
 import hera.api.ContractEitherOperation;
 import hera.api.TransactionEitherOperation;
-import hera.strategy.ConnectStrategy;
 import io.grpc.ManagedChannel;
 import java.io.Closeable;
 import java.util.concurrent.TimeUnit;
@@ -32,8 +31,7 @@ public class AergoEitherClient extends AbstractEitherAergoApi implements Closeab
   protected final Context context;
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final ManagedChannel channel = (ManagedChannel) context.getStrategy(ConnectStrategy.class)
-      .map(ConnectStrategy::connect).get();
+  private final ManagedChannel channel = new ManagedChannelFactory().apply(context);
 
   @Getter(lazy = true)
   private final AccountEitherOperation accountEitherOperation =

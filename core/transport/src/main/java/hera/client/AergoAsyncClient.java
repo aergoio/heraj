@@ -32,8 +32,7 @@ public class AergoAsyncClient extends AbstractAsyncAergoApi implements Closeable
   protected final Context context;
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final ManagedChannel channel = (ManagedChannel) context.getStrategy(ConnectStrategy.class)
-      .map(ConnectStrategy::connect).get();
+  private final ManagedChannel channel = new ManagedChannelFactory().apply(context);
 
   @Getter(lazy = true)
   private final AccountAsyncOperation accountAsyncOperation =

@@ -109,9 +109,9 @@ public class AergoClientBuilder {
   @SuppressWarnings("unchecked")
   protected void ensureNecessaryStrategy() {
     Stream.of(getNecessaries()).filter(s -> !context.getStrategy(s).isPresent()).forEach(s -> {
-      final Strategy defaultNessaryStrategy = (Strategy) getDefaultContext().getStrategy(s).get();
-      logger.debug("No {} in the context. Add default {}", s, defaultNessaryStrategy);
-      addStrategy(defaultNessaryStrategy);
+      final Strategy defaultNecessaryStrategy = (Strategy) getDefaultContext().getStrategy(s).get();
+      logger.debug("No {} in the context. Add default {}", s, defaultNecessaryStrategy);
+      addStrategy(defaultNecessaryStrategy);
     });
   }
 

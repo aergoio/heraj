@@ -14,15 +14,9 @@ import hera.api.model.AccountState;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.exception.CommitException;
-import org.junit.Before;
 import org.junit.Test;
 
 public class TransactionOperationIT extends AbstractIT {
-
-  @Before
-  public void setUp() {
-    super.setUp();
-  }
 
   @Test
   public void testCommitBySigningLocally() throws Exception {
@@ -123,7 +117,7 @@ public class TransactionOperationIT extends AbstractIT {
 
     final Account recipient = createClientAccount();
     final AccountState preState = aergoClient.getAccountOperation().getState(recipient);
-    assertEquals(0, preState.getBalance());
+    final long balance = preState.getBalance();
 
     assertTrue(unlockAccount(account, password));
     aergoClient.getTransactionOperation().send(account, recipient, amount);
@@ -132,7 +126,7 @@ public class TransactionOperationIT extends AbstractIT {
     waitForNextBlockToGenerate();
 
     final AccountState postState = aergoClient.getAccountOperation().getState(recipient);
-    assertEquals(amount, postState.getBalance());
+    assertEquals(balance + amount, postState.getBalance());
   }
 
   @Test
@@ -153,10 +147,4 @@ public class TransactionOperationIT extends AbstractIT {
       assertEquals(CommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
     }
   }
-
-  @Override
-  public void tearDown() {
-    super.tearDown();
-  }
-
 }

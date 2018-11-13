@@ -20,32 +20,35 @@ import hera.key.AergoKeyGenerator;
 import hera.strategy.NettyConnectStrategy;
 import hera.strategy.SimpleTimeoutStrategy;
 import hera.util.Configuration;
+import hera.strategy.ZipkinTracingStrategy;
 import hera.util.ThreadUtils;
 import hera.util.conf.InMemoryConfiguration;
 import java.io.InputStream;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.slf4j.Logger;
 
 public abstract class AbstractIT {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final String hostname = "localhost:7845";
+  protected static final String hostname = "localhost:7845";
 
   protected final long amount = 10L;
 
   // address : AmM25FKSK1gCqSdUPjnvESsauESNgfZUauHWp7R8Un3zHffEQgTm
-  protected final String richEncryptedPrivateKey =
+  protected static final String richEncryptedPrivateKey =
       "47pArdc5PNS9HYY9jMMC7zAuHzytzsAuCYGm5jAUFuD3amQ4mQkvyUaPnmRVSPc2iWzVJpC9Z";
-  protected final String richPassword = "password";
+  protected static final String richPassword = "password";
 
   protected Account rich;
 
   protected AergoClient aergoClient;
 
   @Before
-  public void setUp() {
+  public void prepare() {
     final AergoKey key = AergoKey.of(richEncryptedPrivateKey, richPassword);
     rich = ClientManagedAccount.of(key);
 
@@ -55,6 +58,7 @@ public abstract class AbstractIT {
     aergoClient = new AergoClientBuilder()
         .setConfiguration(configuration)
         .addStrategy(new SimpleTimeoutStrategy(10000L))
+        .addStrategy(new ZipkinTracingStrategy())
         .addStrategy(new NettyConnectStrategy())
         .build();
   }

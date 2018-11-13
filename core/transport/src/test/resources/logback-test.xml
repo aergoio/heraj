@@ -13,7 +13,8 @@
   </root>
   <logger name="ch.qos.logback" level="error"/>
 
-  <logger name="io.netty" level="warn"/>
+  <logger name="io.grpc" level="warn"/>
+  <logger name="types" level="warn"/>
 
   <logger name="hera" level="warn"/>
   <logger name="hera.transport" level="info"/>

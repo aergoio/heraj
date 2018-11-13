@@ -12,6 +12,8 @@ import hera.api.model.AccountAddress;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import io.grpc.ManagedChannel;
+import io.opentracing.Scope;
+import io.opentracing.util.GlobalTracer;
 
 @ApiAudience.Private
 @ApiStability.Unstable
@@ -39,13 +41,17 @@ public class TransactionTemplate implements TransactionOperation, ChannelInjecta
 
   @Override
   public TxHash commit(final Transaction transaction) {
-    return transactionEitherOperation.commit(transaction).getResult();
+    try (final Scope ignored = GlobalTracer.get().buildSpan("heraj.committx").startActive(true)) {
+      return transactionEitherOperation.commit(transaction).getResult();
+    }
   }
 
   @Override
   public TxHash send(final AccountAddress sender, final AccountAddress recipient,
       final long amount) {
-    return transactionEitherOperation.send(sender, recipient, amount).getResult();
+    try (final Scope ignored = GlobalTracer.get().buildSpan("heraj.sendtx").startActive(true)) {
+      return transactionEitherOperation.send(sender, recipient, amount).getResult();
+    }
   }
 
 }

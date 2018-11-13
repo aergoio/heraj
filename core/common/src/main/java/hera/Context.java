@@ -11,14 +11,12 @@ import hera.util.Configurable;
 import hera.util.Configuration;
 import hera.util.conf.DummyConfiguration;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 import lombok.EqualsAndHashCode;
 import lombok.Setter;
 import lombok.ToString;
@@ -66,7 +64,6 @@ public class Context {
   /**
    * Return strategy if exists.
    *
-   * @param <StrategyT> strategy type
    * @param strategyClass strategy class
    *
    * @return strategy matching type
@@ -74,16 +71,15 @@ public class Context {
   @SuppressWarnings({"unchecked", "rawtypes"})
   public <StrategyT extends Strategy> Optional<StrategyT> getStrategy(
       final Class<StrategyT> strategyClass) {
-    final Optional<StrategyT> using =
-        (Optional<StrategyT>) usings.stream().filter(strategyClass::isInstance).findFirst();
+    final Optional<Strategy> using = usings.stream().filter(strategyClass::isInstance).findFirst();
     if (using.isPresent()) {
       logger.debug("The strategy: {} is already used", strategyClass);
-      return using;
+      return (Optional<StrategyT>) using;
     }
-    final Optional<StrategyT> unusedOptional = (Optional<StrategyT>) getReversedList().stream()
+    final Optional<Strategy> unusedOptional = getReversedList().stream()
         .filter(strategyClass::isInstance).findFirst();
     if (unusedOptional.isPresent()) {
-      final StrategyT unused = unusedOptional.get();
+      final Strategy unused = unusedOptional.get();
       strategies.remove(unused);
       if (unused instanceof Configurable) {
         ((Configurable) unused).setConfiguration(configuration);
@@ -94,7 +90,11 @@ public class Context {
       logger.debug("Use strategy: {}", unused.getClass());
       usings.add(unused);
     }
-    return unusedOptional;
+    return (Optional<StrategyT>) unusedOptional;
+  }
+
+  public Stream<Strategy> listStrategies(final Predicate<? super Strategy> test) {
+    return strategies.stream().filter(test);
   }
 
   protected List<Strategy> getReversedList() {

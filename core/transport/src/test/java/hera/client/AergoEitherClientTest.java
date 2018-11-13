@@ -8,7 +8,6 @@ import static org.junit.Assert.assertNotNull;
 
 import hera.AbstractTestCase;
 import hera.Context;
-import java.io.IOException;
 import org.junit.Test;
 
 public class AergoEitherClientTest extends AbstractTestCase {

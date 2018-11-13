@@ -21,11 +21,6 @@ import org.junit.Test;
 
 public class AccountOperationIT extends AbstractIT {
 
-  @Override
-  public void setUp() {
-    super.setUp();
-  }
-
   @Test
   public void testCreateLocally() throws Exception {
     final Account account = createClientAccount();
@@ -97,11 +92,6 @@ public class AccountOperationIT extends AbstractIT {
         .exportKey(Authentication.of(created.getAddress(), password));
 
     assertNotNull(encryptedKey);
-  }
-
-  @Override
-  public void tearDown() {
-    super.tearDown();
   }
 
 }
