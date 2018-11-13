@@ -32,10 +32,15 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
   protected final AccountAddress accountAddress =
       new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
 
+  @Override
+  public void setUp() {
+    super.setUp();
+  }
+
   protected TransactionAsyncTemplate supplyTransactionAsyncTemplate(
       final AergoRPCServiceFutureStub aergoService) {
     final TransactionAsyncTemplate transactionAsyncTemplate = new TransactionAsyncTemplate();
-    transactionAsyncTemplate.setContext(AergoClientBuilder.getDefaultContext());
+    transactionAsyncTemplate.setContext(context);
     transactionAsyncTemplate.aergoService = aergoService;
     return transactionAsyncTemplate;
   }

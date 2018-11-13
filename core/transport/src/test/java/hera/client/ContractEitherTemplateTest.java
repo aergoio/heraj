@@ -13,7 +13,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import hera.AbstractTestCase;
-import hera.Context;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
@@ -35,8 +34,6 @@ import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 @PrepareForTest({AergoRPCServiceFutureStub.class})
 public class ContractEitherTemplateTest extends AbstractTestCase {
 
-  protected final Context context = AergoClientBuilder.getDefaultContext();
-
   protected final AccountAddress accountAddress =
       new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
 
@@ -44,6 +41,11 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
       new ContractAddress(of(new byte[] {AccountAddress.VERSION}));
 
   protected final Fee fee = Fee.getDefaultFee();
+  
+  @Override
+  public void setUp() {
+    super.setUp();
+  }
 
   @Test
   public void testGetReceipt() {

@@ -62,6 +62,17 @@ public class Context {
   }
 
   /**
+   * Find a strategy.
+   *
+   * @param strategyClass strategy class to find
+   * @return true if found. Otherwise, false
+   */
+  public boolean isExists(final Class<? extends Strategy> strategyClass) {
+    return strategies.stream().filter(strategyClass::isInstance).findFirst().isPresent()
+        || usings.stream().filter(strategyClass::isInstance).findFirst().isPresent();
+  }
+
+  /**
    * Return strategy if exists.
    *
    * @param strategyClass strategy class

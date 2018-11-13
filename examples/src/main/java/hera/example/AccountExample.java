@@ -11,11 +11,11 @@ import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
-import hera.strategy.NettyConnectStrategy;
 import hera.util.Configuration;
 import hera.util.conf.InMemoryConfiguration;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 public class AccountExample extends AbstractExample {
 
@@ -26,8 +26,8 @@ public class AccountExample extends AbstractExample {
 
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
-        .setConfiguration(configuration)
-        .addStrategy(new NettyConnectStrategy())
+        .withEndpoint("localhost:7845")
+        .withNettyConnect()
         .build();
 
     // create aergokey
@@ -40,14 +40,11 @@ public class AccountExample extends AbstractExample {
   }
 
   protected void createWithPassword() {
-    // set configuration
-    final Configuration configuration = new InMemoryConfiguration();
-    configuration.define("endpoint", "localhost:7845");
-
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
-        .setConfiguration(configuration)
-        .addStrategy(new NettyConnectStrategy())
+        .withEndpoint("localhost:7845")
+        .withNettyConnect()
+        .withTimeout(10L, TimeUnit.SECONDS)
         .build();
 
     // create an account which store an encrypted key in a server

@@ -16,21 +16,14 @@ import hera.api.model.TxHash;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.key.AergoKey;
-import hera.strategy.NettyConnectStrategy;
-import hera.util.Configuration;
-import hera.util.conf.InMemoryConfiguration;
 
 public class TransactionExample extends AbstractExample {
 
   protected void buildAndCommitWithKey() {
-    // set configuration
-    final Configuration configuration = new InMemoryConfiguration();
-    configuration.define("endpoint", "localhost:7845");
-
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
-        .setConfiguration(configuration)
-        .addStrategy(new NettyConnectStrategy())
+        .withEndpoint("localhost:7845")
+        .withNettyConnect()
         .build();
 
     // create an account
@@ -63,14 +56,10 @@ public class TransactionExample extends AbstractExample {
   }
 
   protected void buildAndCommitWithPassword() {
-    // set configuration
-    final Configuration configuration = new InMemoryConfiguration();
-    configuration.define("endpoint", "localhost:7845");
-
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
-        .setConfiguration(configuration)
-        .addStrategy(new NettyConnectStrategy())
+        .withEndpoint("localhost:7845")
+        .withNettyConnect()
         .build();
 
     // create an account
@@ -109,14 +98,10 @@ public class TransactionExample extends AbstractExample {
   }
 
   protected void sendTransaction() {
-    // set configuration
-    final Configuration configuration = new InMemoryConfiguration();
-    configuration.define("endpoint", "localhost:7845");
-
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
-        .setConfiguration(configuration)
-        .addStrategy(new NettyConnectStrategy())
+        .withEndpoint("localhost:7845")
+        .withNettyConnect()
         .build();
 
     // create a sender

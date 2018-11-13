@@ -7,12 +7,14 @@ package hera.client;
 import static org.junit.Assert.assertNotNull;
 
 import hera.AbstractTestCase;
-import hera.Context;
 import org.junit.Test;
 
 public class AergoAsyncClientTest extends AbstractTestCase {
 
-  protected Context context = AergoClientBuilder.getDefaultContext();
+  @Override
+  public void setUp() {
+    super.setUp();
+  }
 
   @Test
   public void testGetAccountAsyncOperation() {

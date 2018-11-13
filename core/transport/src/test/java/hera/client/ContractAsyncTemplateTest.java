@@ -54,10 +54,15 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
 
   protected final AergoKeyGenerator generator = new AergoKeyGenerator();
 
+  @Override
+  public void setUp() {
+    super.setUp();
+  }
+
   protected ContractAsyncTemplate supplyContractAsyncTemplate(
       final AergoRPCServiceFutureStub aergoService) {
     final ContractAsyncTemplate contractAsyncTemplate = new ContractAsyncTemplate();
-    contractAsyncTemplate.setContext(AergoClientBuilder.getDefaultContext());
+    contractAsyncTemplate.setContext(context);
     contractAsyncTemplate.aergoService = aergoService;
     return contractAsyncTemplate;
   }

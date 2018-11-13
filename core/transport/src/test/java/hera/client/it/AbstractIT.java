@@ -17,17 +17,11 @@ import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
-import hera.strategy.NettyConnectStrategy;
-import hera.strategy.SimpleTimeoutStrategy;
-import hera.util.Configuration;
-import hera.strategy.ZipkinTracingStrategy;
 import hera.util.ThreadUtils;
-import hera.util.conf.InMemoryConfiguration;
 import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.slf4j.Logger;
 
 public abstract class AbstractIT {
@@ -52,14 +46,11 @@ public abstract class AbstractIT {
     final AergoKey key = AergoKey.of(richEncryptedPrivateKey, richPassword);
     rich = ClientManagedAccount.of(key);
 
-    final Configuration configuration = new InMemoryConfiguration();
-    configuration.define("endpoint", "localhost:7845");
-
     aergoClient = new AergoClientBuilder()
-        .setConfiguration(configuration)
-        .addStrategy(new SimpleTimeoutStrategy(10000L))
-        .addStrategy(new ZipkinTracingStrategy())
-        .addStrategy(new NettyConnectStrategy())
+        .withEndpoint("localhost:7845")
+        .withNettyConnect()
+        .withZipkinTracking()
+        .withTimeout(10L, TimeUnit.SECONDS)
         .build();
   }
 

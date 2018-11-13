@@ -11,7 +11,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import hera.AbstractTestCase;
-import hera.Context;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
@@ -29,7 +28,10 @@ import types.Rpc;
     Node.PeerAddress.class, Rpc.SingleBytes.class})
 public class BlockchainEitherTemplateTest extends AbstractTestCase {
 
-  protected final Context context = AergoClientBuilder.getDefaultContext();
+  @Override
+  public void setUp() {
+    super.setUp();
+  }
 
   @Test
   public void testGetBlockchainStatus() {

@@ -13,7 +13,6 @@ import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import hera.AbstractTestCase;
-import hera.Context;
 import hera.api.model.AccountAddress;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
@@ -31,10 +30,13 @@ import types.Rpc.VerifyResult;
     CommitResult.class})
 public class TransactionEitherTemplateTest extends AbstractTestCase {
 
-  protected final Context context = AergoClientBuilder.getDefaultContext();
-
   protected final AccountAddress accountAddress =
       new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
+
+  @Override
+  public void setUp() {
+    super.setUp();
+  }
 
   @Test
   public void testGetTransaction() {

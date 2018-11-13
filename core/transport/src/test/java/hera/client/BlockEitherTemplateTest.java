@@ -14,7 +14,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import hera.AbstractTestCase;
-import hera.Context;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
@@ -32,7 +31,10 @@ import types.Rpc;
     Rpc.BlockHeaderList.class})
 public class BlockEitherTemplateTest extends AbstractTestCase {
 
-  protected final Context context = AergoClientBuilder.getDefaultContext();
+  @Override
+  public void setUp() {
+    super.setUp();
+  }
 
   @Test
   public void testGetBlockByHash() {

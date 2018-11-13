@@ -14,7 +14,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import hera.AbstractTestCase;
-import hera.Context;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
@@ -31,12 +30,15 @@ import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 @PrepareForTest({AergoRPCServiceFutureStub.class})
 public class AccountEitherTemplateTest extends AbstractTestCase {
 
-  protected final Context context = AergoClientBuilder.getDefaultContext();
-
   protected final AccountAddress accountAddress =
       new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
 
   protected final String password = randomUUID().toString();
+
+  @Override
+  public void setUp() {
+    super.setUp();
+  }
 
   @Test
   public void testList() {
@@ -64,8 +66,7 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
     accountTemplate.setContext(context);
     accountTemplate.accountAsyncOperation = asyncOperationMock;
 
-    final ResultOrError<Account> createdAccount =
-        accountTemplate.create(randomUUID().toString());
+    final ResultOrError<Account> createdAccount = accountTemplate.create(randomUUID().toString());
     assertNotNull(createdAccount);
   }
 
