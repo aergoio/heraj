@@ -5,8 +5,8 @@
 package hera.strategy;
 
 import hera.Strategy;
-import hera.api.model.Time;
+import java.util.concurrent.Future;
 
 public interface TimeoutStrategy extends Strategy {
-  Time getTimeout();
+  <T> T submit(Future<T> future);
 }

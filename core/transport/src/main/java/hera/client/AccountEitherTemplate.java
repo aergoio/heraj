@@ -14,14 +14,13 @@ import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Signature;
-import hera.api.model.Time;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrError;
+import hera.exception.NoStrategyFoundException;
 import hera.exception.RpcException;
 import hera.strategy.TimeoutStrategy;
 import io.grpc.ManagedChannel;
 import java.util.List;
-import lombok.Getter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
@@ -30,11 +29,6 @@ public class AccountEitherTemplate implements AccountEitherOperation, ChannelInj
   protected Context context;
 
   protected AccountAsyncTemplate accountAsyncOperation = new AccountAsyncTemplate();
-
-  @Getter(lazy = true)
-  private final Time timeout =
-      context.getStrategy(TimeoutStrategy.class).map(TimeoutStrategy::getTimeout)
-          .orElseThrow(() -> new RpcException("TimeoutStrategy must be present in context"));
 
   @Override
   public void setContext(final Context context) {
@@ -49,56 +43,66 @@ public class AccountEitherTemplate implements AccountEitherOperation, ChannelInj
 
   @Override
   public ResultOrError<List<AccountAddress>> list() {
-    return accountAsyncOperation.list().get(getTimeout().getValue(), getTimeout().getUnit());
+    return context.getStrategy(TimeoutStrategy.class)
+        .map(f -> f.submit(accountAsyncOperation.list()))
+        .orElseThrow(() -> new RpcException(new NoStrategyFoundException(TimeoutStrategy.class)));
   }
 
   @Override
   public ResultOrError<Account> create(final String password) {
-    return accountAsyncOperation.create(password).get(getTimeout().getValue(),
-        getTimeout().getUnit());
+    return context.getStrategy(TimeoutStrategy.class)
+        .map(f -> f.submit(accountAsyncOperation.create(password)))
+        .orElseThrow(() -> new RpcException(new NoStrategyFoundException(TimeoutStrategy.class)));
   }
 
   @Override
   public ResultOrError<AccountState> getState(final AccountAddress address) {
-    return accountAsyncOperation.getState(address).get(getTimeout().getValue(),
-        getTimeout().getUnit());
+    return context.getStrategy(TimeoutStrategy.class)
+        .map(f -> f.submit(accountAsyncOperation.getState(address)))
+        .orElseThrow(() -> new RpcException(new NoStrategyFoundException(TimeoutStrategy.class)));
   }
 
   @Override
   public ResultOrError<Boolean> lock(final Authentication authentication) {
-    return accountAsyncOperation.lock(authentication).get(getTimeout().getValue(),
-        getTimeout().getUnit());
+    return context.getStrategy(TimeoutStrategy.class)
+        .map(f -> f.submit(accountAsyncOperation.lock(authentication)))
+        .orElseThrow(() -> new RpcException(new NoStrategyFoundException(TimeoutStrategy.class)));
   }
 
   @Override
   public ResultOrError<Boolean> unlock(final Authentication authentication) {
-    return accountAsyncOperation.unlock(authentication).get(getTimeout().getValue(),
-        getTimeout().getUnit());
+    return context.getStrategy(TimeoutStrategy.class)
+        .map(f -> f.submit(accountAsyncOperation.unlock(authentication)))
+        .orElseThrow(() -> new RpcException(new NoStrategyFoundException(TimeoutStrategy.class)));
   }
 
   @Override
   public ResultOrError<Signature> sign(final Account account, final Transaction transaction) {
-    return accountAsyncOperation.sign(account, transaction).get(getTimeout().getValue(),
-        getTimeout().getUnit());
+    return context.getStrategy(TimeoutStrategy.class)
+        .map(f -> f.submit(accountAsyncOperation.sign(account, transaction)))
+        .orElseThrow(() -> new RpcException(new NoStrategyFoundException(TimeoutStrategy.class)));
   }
 
   @Override
   public ResultOrError<Boolean> verify(final Account account, final Transaction transaction) {
-    return accountAsyncOperation.verify(account, transaction).get(getTimeout().getValue(),
-        getTimeout().getUnit());
+    return context.getStrategy(TimeoutStrategy.class)
+        .map(f -> f.submit(accountAsyncOperation.verify(account, transaction)))
+        .orElseThrow(() -> new RpcException(new NoStrategyFoundException(TimeoutStrategy.class)));
   }
 
   @Override
   public ResultOrError<Account> importKey(final EncryptedPrivateKey encryptedKey,
       final String oldPassword, final String newPassword) {
-    return accountAsyncOperation.importKey(encryptedKey, oldPassword, newPassword)
-        .get(getTimeout().getValue(), getTimeout().getUnit());
+    return context.getStrategy(TimeoutStrategy.class).map(
+        f -> f.submit(accountAsyncOperation.importKey(encryptedKey, oldPassword, newPassword)))
+        .orElseThrow(() -> new RpcException(new NoStrategyFoundException(TimeoutStrategy.class)));
   }
 
   @Override
   public ResultOrError<EncryptedPrivateKey> exportKey(final Authentication authentication) {
-    return accountAsyncOperation.exportKey(authentication).get(getTimeout().getValue(),
-        getTimeout().getUnit());
+    return context.getStrategy(TimeoutStrategy.class)
+        .map(f -> f.submit(accountAsyncOperation.exportKey(authentication)))
+        .orElseThrow(() -> new RpcException(new NoStrategyFoundException(TimeoutStrategy.class)));
   }
 
 }
