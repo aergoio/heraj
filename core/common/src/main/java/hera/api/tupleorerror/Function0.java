@@ -7,15 +7,14 @@ package hera.api.tupleorerror;
 import java.util.Objects;
 
 @FunctionalInterface
-public interface Function1<T, R> {
+public interface Function0<R> {
 
   /**
-   * Applies this function to the given argument.
+   * Applies this function. This function is like supplier.
    *
-   * @param t the function argument
    * @return the function result
    */
-  R apply(T t);
+  R apply();
 
   /**
    * Returns a composed function that first applies this function to its input, and then applies the
@@ -27,8 +26,9 @@ public interface Function1<T, R> {
    *         function
    * @throws NullPointerException if after is null
    */
-  default <V> Function1<T, V> andThen(Function1<? super R, ? extends V> after) {
+  default <V> Function0<V> andThen(Function1<? super R, ? extends V> after) {
     Objects.requireNonNull(after);
-    return (T t) -> after.apply(apply(t));
+    return () -> after.apply(apply());
   }
+
 }

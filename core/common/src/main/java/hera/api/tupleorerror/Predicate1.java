@@ -4,6 +4,7 @@
 
 package hera.api.tupleorerror;
 
+@FunctionalInterface
 public interface Predicate1<T> {
 
   /**
