@@ -1,6 +1,8 @@
 language: java
 
 jdk:
+  - oraclejdk8
+  - oraclejdk9
   - openjdk8
   - openjdk9
 
@@ -17,7 +19,7 @@ cache:
 install: true
 
 script:
-  - ./gradlew build jacocoTestReport
+  - ./gradlew build jacocoTestReport alljavadoc
 
 after_success:
   - ./gradlew alljacoco

@@ -318,6 +318,9 @@ task alljavadoc(type: Javadoc) {
   source javaProjects.findAll{ it.name != 'protobuf' }.collect { it.sourceSets.main.allJava }    											  
   classpath = files(javaProjects.collect { it.sourceSets.main.compileClasspath })
   destinationDir = file("${buildDir}/docs/javadoc")
+  if (JavaVersion.current().isJava8Compatible()) {
+    options.addStringOption('Xwerror', '-quiet')
+  }
   if(JavaVersion.current().isJava9Compatible()) {
     options.addBooleanOption('html5', true)
   }
