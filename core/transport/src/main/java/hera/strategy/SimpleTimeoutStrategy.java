@@ -5,6 +5,7 @@
 package hera.strategy;
 
 import hera.api.model.Time;
+import hera.api.tupleorerror.Function0;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.concurrent.TimeUnit;
@@ -26,7 +27,8 @@ public class SimpleTimeoutStrategy implements TimeoutStrategy {
   }
 
   @Override
-  public <R> R after(final R r) {
+  public <R> R apply(Function0<R> f) {
+    final R r = f.apply();
     if (r instanceof ResultOrErrorFuture) {
       ResultOrErrorFuture<?> future = (ResultOrErrorFuture<?>) r;
       ResultOrError resultOrError = future.get(timeout.getValue(), timeout.getUnit());

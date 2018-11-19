@@ -4,6 +4,6 @@
 
 package hera.strategy;
 
-public interface FailoverStrategy {
+public interface FailoverStrategy extends OnInvocationStrategy {
 
 }

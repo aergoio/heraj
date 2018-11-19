@@ -4,5 +4,6 @@
 
 package hera.strategy;
 
-public interface TimeoutStrategy extends PostInvocationStrategy {
+public interface TimeoutStrategy extends OnInvocationStrategy {
+
 }
