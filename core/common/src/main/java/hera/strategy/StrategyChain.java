@@ -4,6 +4,8 @@
 
 package hera.strategy;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import hera.Context;
 import hera.api.tupleorerror.Function0;
 import hera.api.tupleorerror.Function1;
@@ -17,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.slf4j.Logger;
 
 @ToString
 @EqualsAndHashCode
@@ -33,7 +36,9 @@ public class StrategyChain implements FunctionDecoratorChain {
     return new StrategyChain(context);
   }
 
-  protected final List<FunctionDecorator> chains = new ArrayList<>();
+  protected final Logger logger = getLogger(getClass());
+
+  protected final List<FunctionDecorator> chain = new ArrayList<>();
 
   protected final Iterator<FunctionDecorator> it;
 
@@ -45,14 +50,17 @@ public class StrategyChain implements FunctionDecoratorChain {
    */
   public StrategyChain(final Context context) {
     context.listStrategies(FunctionDecorator.class::isInstance).map(FunctionDecorator.class::cast)
-        .forEach(chains::add);
-    it = chains.iterator();
+        .forEach(chain::add);
+    logger.debug("Build strategy chain: {}", chain);
+    it = chain.iterator();
   }
 
   @Override
   public <R> Function0<R> apply(Function0<R> f) {
     if (it.hasNext()) {
-      return it.next().applyNext(f, this);
+      final FunctionDecorator next = it.next();
+      logger.debug("Apply strategy [{}] to a function", next);
+      return next.applyNext(f, this);
     }
     return f;
   }

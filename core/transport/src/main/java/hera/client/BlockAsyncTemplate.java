@@ -4,6 +4,7 @@
 
 package hera.client;
 
+import static com.google.common.base.Suppliers.memoize;
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.api.tupleorerror.FunctionChain.of;
@@ -31,7 +32,7 @@ import hera.transport.BlockConverterFactory;
 import hera.transport.ModelConverter;
 import io.grpc.ManagedChannel;
 import java.util.List;
-import lombok.AccessLevel;
+import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.Setter;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -57,42 +58,43 @@ public class BlockAsyncTemplate implements BlockAsyncOperation, ChannelInjectabl
     this.aergoService = newFutureStub(channel);
   }
 
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<BlockHash, ResultOrErrorFuture<Block>> blockWithHashFunction =
-      StrategyChain.of(context).apply((blockHash) -> {
-        final ResultOrErrorFuture<Block> nextFuture =
-            ResultOrErrorFutureFactory.supplyEmptyFuture();
+  private final Supplier<
+      Function1<BlockHash, ResultOrErrorFuture<Block>>> blockWithHashFunctionSupplier =
+          memoize(() -> StrategyChain.of(context).apply((blockHash) -> {
+            final ResultOrErrorFuture<Block> nextFuture =
+                ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-        final ByteString byteString = copyFrom(blockHash.getBytesValue());
-        final Rpc.SingleBytes bytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
-        ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(bytes);
-        FutureChain<Blockchain.Block, Block> callback = new FutureChain<>(nextFuture);
-        callback.setSuccessHandler(block -> of(() -> blockConverter.convertToDomainModel(block)));
-        addCallback(listenableFuture, callback, directExecutor());
+            final ByteString byteString = copyFrom(blockHash.getBytesValue());
+            final Rpc.SingleBytes bytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
+            ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(bytes);
+            FutureChain<Blockchain.Block, Block> callback = new FutureChain<>(nextFuture);
+            callback
+                .setSuccessHandler(block -> of(() -> blockConverter.convertToDomainModel(block)));
+            addCallback(listenableFuture, callback, directExecutor());
 
-        return nextFuture;
-      });
+            return nextFuture;
+          }));
 
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<Long, ResultOrErrorFuture<Block>> blockWithHeightFunction =
-      StrategyChain.of(context).apply((height) -> {
-        final ResultOrErrorFuture<Block> nextFuture =
-            ResultOrErrorFutureFactory.supplyEmptyFuture();
+  private final Supplier<
+      Function1<Long, ResultOrErrorFuture<Block>>> blockWithHeightFunctionSupplier =
+          memoize(() -> StrategyChain.of(context).apply((height) -> {
+            final ResultOrErrorFuture<Block> nextFuture =
+                ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-        final ByteString byteString = copyFrom(BytesValue.of(longToByteArray(height)));
-        final Rpc.SingleBytes bytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
-        ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(bytes);
-        FutureChain<Blockchain.Block, Block> callback = new FutureChain<>(nextFuture);
-        callback.setSuccessHandler(block -> of(() -> blockConverter.convertToDomainModel(block)));
-        addCallback(listenableFuture, callback, directExecutor());
+            final ByteString byteString = copyFrom(BytesValue.of(longToByteArray(height)));
+            final Rpc.SingleBytes bytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
+            ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(bytes);
+            FutureChain<Blockchain.Block, Block> callback = new FutureChain<>(nextFuture);
+            callback
+                .setSuccessHandler(block -> of(() -> blockConverter.convertToDomainModel(block)));
+            addCallback(listenableFuture, callback, directExecutor());
 
-        return nextFuture;
-      });
+            return nextFuture;
+          }));
 
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function2<BlockHash, Integer,
-      ResultOrErrorFuture<List<BlockHeader>>> blockHeadersWithHashFunction =
-          StrategyChain.of(context).apply((blockHash, size) -> {
+  private final Supplier<Function2<BlockHash, Integer,
+      ResultOrErrorFuture<List<BlockHeader>>>> blockHeadersWithHashFunctionSupplier =
+          memoize(() -> StrategyChain.of(context).apply((blockHash, size) -> {
             final ResultOrErrorFuture<List<BlockHeader>> nextFuture =
                 ResultOrErrorFutureFactory.supplyEmptyFuture();
 
@@ -110,12 +112,11 @@ public class BlockAsyncTemplate implements BlockAsyncOperation, ChannelInjectabl
             addCallback(listenableFuture, callback, directExecutor());
 
             return nextFuture;
-          });
+          }));
 
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function2<Long, Integer,
-      ResultOrErrorFuture<List<BlockHeader>>> blockHeadersWithHeightFunction =
-          StrategyChain.of(context).apply((height, size) -> {
+  private final Supplier<Function2<Long, Integer,
+      ResultOrErrorFuture<List<BlockHeader>>>> blockHeadersWithHeightFunctionSupplier =
+          memoize(() -> StrategyChain.of(context).apply((height, size) -> {
             final ResultOrErrorFuture<List<BlockHeader>> nextFuture =
                 ResultOrErrorFutureFactory.supplyEmptyFuture();
 
@@ -131,28 +132,28 @@ public class BlockAsyncTemplate implements BlockAsyncOperation, ChannelInjectabl
             addCallback(listenableFuture, callback, directExecutor());
 
             return nextFuture;
-          });
+          }));
 
   @Override
   public ResultOrErrorFuture<Block> getBlock(final BlockHash blockHash) {
-    return getBlockWithHashFunction().apply(blockHash);
+    return blockWithHashFunctionSupplier.get().apply(blockHash);
   }
 
   @Override
   public ResultOrErrorFuture<Block> getBlock(final long height) {
-    return getBlockWithHeightFunction().apply(height);
+    return blockWithHeightFunctionSupplier.get().apply(height);
   }
 
   @Override
   public ResultOrErrorFuture<List<BlockHeader>> listBlockHeaders(final BlockHash blockHash,
       final int size) {
-    return getBlockHeadersWithHashFunction().apply(blockHash, size);
+    return blockHeadersWithHashFunctionSupplier.get().apply(blockHash, size);
   }
 
   @Override
   public ResultOrErrorFuture<List<BlockHeader>> listBlockHeaders(final long height,
       final int size) {
-    return getBlockHeadersWithHeightFunction().apply(height, size);
+    return blockHeadersWithHeightFunctionSupplier.get().apply(height, size);
   }
 
 }

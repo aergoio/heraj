@@ -4,6 +4,7 @@
 
 package hera.client;
 
+import static com.google.common.base.Suppliers.memoize;
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.api.tupleorerror.FunctionChain.of;
@@ -49,7 +50,7 @@ import hera.transport.TransactionConverterFactory;
 import io.grpc.ManagedChannel;
 import java.util.List;
 import java.util.Optional;
-import lombok.AccessLevel;
+import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -94,30 +95,29 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
     this.aergoService = newFutureStub(channel);
   }
 
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function0<ResultOrErrorFuture<List<AccountAddress>>> listFunction =
-      StrategyChain.of(context).apply(() -> {
-        ResultOrErrorFuture<List<AccountAddress>> nextFuture =
-            ResultOrErrorFutureFactory.supplyEmptyFuture();
+  private final Supplier<
+      Function0<ResultOrErrorFuture<List<AccountAddress>>>> listFunctionSupplier =
+          memoize(() -> StrategyChain.of(context).apply(() -> {
+            ResultOrErrorFuture<List<AccountAddress>> nextFuture =
+                ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-        ListenableFuture<AccountOuterClass.AccountList> listenableFuture =
-            aergoService.getAccounts(Rpc.Empty.newBuilder().build());
-        FutureChain<AccountOuterClass.AccountList, List<AccountAddress>> callback =
-            new FutureChain<>(nextFuture);
-        callback.setSuccessHandler(list -> of(
-            () -> list.getAccountsList().stream().map(accountConverter::convertToDomainModel)
-                .map(Account::getAddress).collect(toList())));
-        addCallback(listenableFuture, callback, directExecutor());
+            ListenableFuture<AccountOuterClass.AccountList> listenableFuture =
+                aergoService.getAccounts(Rpc.Empty.newBuilder().build());
+            FutureChain<AccountOuterClass.AccountList, List<AccountAddress>> callback =
+                new FutureChain<>(nextFuture);
+            callback.setSuccessHandler(list -> of(
+                () -> list.getAccountsList().stream().map(accountConverter::convertToDomainModel)
+                    .map(Account::getAddress).collect(toList())));
+            addCallback(listenableFuture, callback, directExecutor());
 
-        return nextFuture;
-      });
+            return nextFuture;
+          }));
 
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<String, ResultOrErrorFuture<Account>> createFunction =
-      StrategyChain.of(context).apply((password) -> {
+  private final Supplier<Function1<String, ResultOrErrorFuture<Account>>> createFunctionSupplier =
+      memoize(() -> StrategyChain.of(context).apply((password) -> {
         ResultOrErrorFuture<Account> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-        final Rpc.Personal personal = Rpc.Personal.newBuilder().setPassphrase(password).build();
+        Rpc.Personal personal = Rpc.Personal.newBuilder().setPassphrase(password).build();
         ListenableFuture<AccountOuterClass.Account> listenableFuture =
             aergoService.createAccount(personal);
         FutureChain<AccountOuterClass.Account, Account> callback = new FutureChain<>(nextFuture);
@@ -126,142 +126,153 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
         addCallback(listenableFuture, callback, directExecutor());
 
         return nextFuture;
-      });
+      }));
 
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<AccountAddress, ResultOrErrorFuture<AccountState>> getStateFunction =
-      StrategyChain.of(context).apply((address) -> {
-        ResultOrErrorFuture<AccountState> nextFuture =
-            ResultOrErrorFutureFactory.supplyEmptyFuture();
-
-        final Rpc.SingleBytes bytes = Rpc.SingleBytes.newBuilder()
-            .setValue(accountAddressConverter.convertToRpcModel(address)).build();
-        ListenableFuture<Blockchain.State> listenableFuture = aergoService.getState(bytes);
-        FutureChain<Blockchain.State, AccountState> callback = new FutureChain<>(nextFuture);
-        callback.setSuccessHandler(state -> of(() -> {
-          final AccountState accountState = accountStateConverter.convertToDomainModel(state);
-          accountState.setAddress(address);
-          return accountState;
-        }));
-        addCallback(listenableFuture, callback, directExecutor());
-
-        return nextFuture;
-      });
-
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<Authentication, ResultOrErrorFuture<Boolean>> unlockFunction =
-      StrategyChain.of(context).apply((authentication) -> {
-        ResultOrErrorFuture<Boolean> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
-
-        ListenableFuture<AccountOuterClass.Account> listenableFuture =
-            aergoService.unlockAccount(authenticationConverter.convertToRpcModel(authentication));
-        FutureChain<AccountOuterClass.Account, Boolean> callback = new FutureChain<>(nextFuture);
-        callback.setSuccessHandler(account -> of(() -> null != account.getAddress()));
-        addCallback(listenableFuture, callback, directExecutor());
-
-        return nextFuture;
-      });
-
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function2<Account, Transaction, ResultOrErrorFuture<Signature>> signFunction =
-      StrategyChain.of(context).apply((account, transaction) -> {
-        ResultOrErrorFuture<Signature> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
-
-        if (account instanceof KeyHoldable) {
-          final KeyHoldable keyHoldable = (KeyHoldable) account;
-          final Transaction copy = Transaction.copyOf(transaction);
-          final BytesValue signature = keyHoldable.sign(copy.calculateHash().getBytesValue().get());
-          copy.setSignature(Signature.of(signature, null));
-          nextFuture.complete(success(Signature.of(signature, copy.calculateHash())));
-        } else {
-          final Blockchain.Tx rpcTransaction = transactionConverter.convertToRpcModel(transaction);
-          final ListenableFuture<Blockchain.Tx> listenableFuture =
-              aergoService.signTX(rpcTransaction);
-          FutureChain<Blockchain.Tx, Signature> callback = new FutureChain<>(nextFuture);
-          callback.setSuccessHandler(tx -> of(() -> {
-            final BytesValue sign = ofNullable(tx.getBody().getSign()).map(ByteString::toByteArray)
-                .filter(bytes -> 0 != bytes.length).map(BytesValue::of)
-                .orElseThrow(() -> new RpcException(
-                    "Signing failed: sign field is not found at sign result"));
-            final TxHash hash = ofNullable(tx.getHash()).map(ByteString::toByteArray)
-                .filter(bytes -> 0 != bytes.length).map(BytesValue::new).map(TxHash::new)
-                .orElseThrow(() -> new RpcException(
-                    "Signing failed: txHash field is not found at sign result"));
-            return Signature.of(sign, hash);
-          }));
-          addCallback(listenableFuture, callback, directExecutor());
-        }
-
-        return nextFuture;
-      });
-
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function2<Account, Transaction, ResultOrErrorFuture<Boolean>> verifyFunction =
-      StrategyChain.of(context).apply((account, transaction) -> {
-        ResultOrErrorFuture<Boolean> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
-
-        if (account instanceof KeyHoldable) {
-          final KeyHoldable keyHoldable = (KeyHoldable) account;
-          final Transaction copy = Transaction.copyOf(transaction);
-          final BytesValue signature = copy.getSignature().getSign();
-          copy.setSignature(null);
-          nextFuture.complete(
-              success(keyHoldable.verify(copy.calculateHash().getBytesValue().get(), signature)));
-        } else {
-          final Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
-          ListenableFuture<Rpc.VerifyResult> listenableFuture = aergoService.verifyTX(tx);
-          FutureChain<Rpc.VerifyResult, Boolean> callback =
-              new FutureChain<Rpc.VerifyResult, Boolean>(nextFuture);
-          callback.setSuccessHandler(result -> of(
-              () -> Optional.of(result).map(v -> Rpc.VerifyStatus.VERIFY_STATUS_OK == v.getError())
-                  .orElseThrow(() -> new TransactionVerificationException(result.getError()))));
-          addCallback(listenableFuture, callback, directExecutor());
-        }
-
-        return nextFuture;
-      });
-
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<Authentication, ResultOrErrorFuture<Boolean>> lockFunction =
-      StrategyChain.of(context).apply((authentication) -> {
-        ResultOrErrorFuture<Boolean> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
-
-        ListenableFuture<AccountOuterClass.Account> listenableFuture =
-            aergoService.lockAccount(authenticationConverter.convertToRpcModel(authentication));
-        FutureChain<AccountOuterClass.Account, Boolean> callback = new FutureChain<>(nextFuture);
-        callback.setSuccessHandler(account -> of(() -> null != account.getAddress()));
-        addCallback(listenableFuture, callback, directExecutor());
-
-        return nextFuture;
-      });
-
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function3<EncryptedPrivateKey, String, String,
-      ResultOrErrorFuture<Account>> importKeyFunction =
-          StrategyChain.of(context).apply((encryptedKey, oldPassword, newPassword) -> {
-            ResultOrErrorFuture<Account> nextFuture =
+  private final Supplier<
+      Function1<AccountAddress, ResultOrErrorFuture<AccountState>>> getStateFunctionSupplier =
+          memoize(() -> StrategyChain.of(context).apply((address) -> {
+            ResultOrErrorFuture<AccountState> nextFuture =
                 ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-            final Rpc.ImportFormat importFormat = Rpc.ImportFormat.newBuilder()
-                .setWif(encryptedPkConverter.convertToRpcModel(encryptedKey))
-                .setOldpass(oldPassword)
-                .setNewpass(newPassword).build();
-            ListenableFuture<AccountOuterClass.Account> listenableFuture =
-                aergoService.importAccount(importFormat);
-            FutureChain<AccountOuterClass.Account, Account> callback =
-                new FutureChain<>(nextFuture);
-            callback
-                .setSuccessHandler(
-                    account -> of(() -> accountConverter.convertToDomainModel(account)));
+            Rpc.SingleBytes bytes = Rpc.SingleBytes.newBuilder()
+                .setValue(accountAddressConverter.convertToRpcModel(address)).build();
+            ListenableFuture<Blockchain.State> listenableFuture = aergoService.getState(bytes);
+            FutureChain<Blockchain.State, AccountState> callback = new FutureChain<>(nextFuture);
+            callback.setSuccessHandler(state -> of(() -> {
+              AccountState accountState = accountStateConverter.convertToDomainModel(state);
+              accountState.setAddress(address);
+              return accountState;
+            }));
             addCallback(listenableFuture, callback, directExecutor());
 
             return nextFuture;
-          });
+          }));
 
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<Authentication,
-      ResultOrErrorFuture<EncryptedPrivateKey>> exportKeyFunction =
-          StrategyChain.of(context).apply((authentication) -> {
+  private final Supplier<
+      Function1<Authentication, ResultOrErrorFuture<Boolean>>> unlockFunctionSupplier =
+          memoize(() -> StrategyChain.of(context).apply((authentication) -> {
+            ResultOrErrorFuture<Boolean> nextFuture =
+                ResultOrErrorFutureFactory.supplyEmptyFuture();
+
+            ListenableFuture<AccountOuterClass.Account> listenableFuture =
+                aergoService
+                    .unlockAccount(authenticationConverter.convertToRpcModel(authentication));
+            FutureChain<AccountOuterClass.Account, Boolean> callback =
+                new FutureChain<>(nextFuture);
+            callback.setSuccessHandler(account -> of(() -> null != account.getAddress()));
+            addCallback(listenableFuture, callback, directExecutor());
+
+            return nextFuture;
+          }));
+
+  private final Supplier<
+      Function2<Account, Transaction, ResultOrErrorFuture<Signature>>> signFunctionSupplier =
+          memoize(() -> StrategyChain.of(context).apply((account, transaction) -> {
+            ResultOrErrorFuture<Signature> nextFuture =
+                ResultOrErrorFutureFactory.supplyEmptyFuture();
+
+            if (account instanceof KeyHoldable) {
+              KeyHoldable keyHoldable = (KeyHoldable) account;
+              Transaction copy = Transaction.copyOf(transaction);
+              BytesValue signature =
+                  keyHoldable.sign(copy.calculateHash().getBytesValue().get());
+              copy.setSignature(Signature.of(signature, null));
+              nextFuture.complete(success(Signature.of(signature, copy.calculateHash())));
+            } else {
+              Blockchain.Tx rpcTransaction =
+                  transactionConverter.convertToRpcModel(transaction);
+              ListenableFuture<Blockchain.Tx> listenableFuture =
+                  aergoService.signTX(rpcTransaction);
+              FutureChain<Blockchain.Tx, Signature> callback = new FutureChain<>(nextFuture);
+              callback.setSuccessHandler(tx -> of(() -> {
+                BytesValue sign =
+                    ofNullable(tx.getBody().getSign()).map(ByteString::toByteArray)
+                        .filter(bytes -> 0 != bytes.length).map(BytesValue::of)
+                        .orElseThrow(() -> new RpcException(
+                            "Signing failed: sign field is not found at sign result"));
+                TxHash hash = ofNullable(tx.getHash()).map(ByteString::toByteArray)
+                    .filter(bytes -> 0 != bytes.length).map(BytesValue::new).map(TxHash::new)
+                    .orElseThrow(() -> new RpcException(
+                        "Signing failed: txHash field is not found at sign result"));
+                return Signature.of(sign, hash);
+              }));
+              addCallback(listenableFuture, callback, directExecutor());
+            }
+
+            return nextFuture;
+          }));
+
+  private final Supplier<
+      Function2<Account, Transaction, ResultOrErrorFuture<Boolean>>> verifyFunctionSupplier =
+          memoize(() -> StrategyChain.of(context).apply((account, transaction) -> {
+            ResultOrErrorFuture<Boolean> nextFuture =
+                ResultOrErrorFutureFactory.supplyEmptyFuture();
+
+            if (account instanceof KeyHoldable) {
+              KeyHoldable keyHoldable = (KeyHoldable) account;
+              Transaction copy = Transaction.copyOf(transaction);
+              BytesValue signature = copy.getSignature().getSign();
+              copy.setSignature(null);
+              nextFuture.complete(
+                  success(
+                      keyHoldable.verify(copy.calculateHash().getBytesValue().get(), signature)));
+            } else {
+              Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
+              ListenableFuture<Rpc.VerifyResult> listenableFuture = aergoService.verifyTX(tx);
+              FutureChain<Rpc.VerifyResult, Boolean> callback =
+                  new FutureChain<Rpc.VerifyResult, Boolean>(nextFuture);
+              callback.setSuccessHandler(result -> of(
+                  () -> Optional.of(result)
+                      .map(v -> Rpc.VerifyStatus.VERIFY_STATUS_OK == v.getError())
+                      .orElseThrow(() -> new TransactionVerificationException(result.getError()))));
+              addCallback(listenableFuture, callback, directExecutor());
+            }
+
+            return nextFuture;
+          }));
+
+  private final Supplier<
+      Function1<Authentication, ResultOrErrorFuture<Boolean>>> lockFunctionSupplier =
+          memoize(() -> StrategyChain.of(context).apply((authentication) -> {
+            ResultOrErrorFuture<Boolean> nextFuture =
+                ResultOrErrorFutureFactory.supplyEmptyFuture();
+
+            ListenableFuture<AccountOuterClass.Account> listenableFuture =
+                aergoService.lockAccount(authenticationConverter.convertToRpcModel(authentication));
+            FutureChain<AccountOuterClass.Account, Boolean> callback =
+                new FutureChain<>(nextFuture);
+            callback.setSuccessHandler(account -> of(() -> null != account.getAddress()));
+            addCallback(listenableFuture, callback, directExecutor());
+
+            return nextFuture;
+          }));
+
+  private final Supplier<Function3<EncryptedPrivateKey, String, String,
+      ResultOrErrorFuture<Account>>> importKeyFunctionSupplier =
+          memoize(
+              () -> StrategyChain.of(context).apply((encryptedKey, oldPassword, newPassword) -> {
+                ResultOrErrorFuture<Account> nextFuture =
+                    ResultOrErrorFutureFactory.supplyEmptyFuture();
+
+                Rpc.ImportFormat importFormat = Rpc.ImportFormat.newBuilder()
+                    .setWif(encryptedPkConverter.convertToRpcModel(encryptedKey))
+                    .setOldpass(oldPassword)
+                    .setNewpass(newPassword).build();
+                ListenableFuture<AccountOuterClass.Account> listenableFuture =
+                    aergoService.importAccount(importFormat);
+                FutureChain<AccountOuterClass.Account, Account> callback =
+                    new FutureChain<>(nextFuture);
+                callback
+                    .setSuccessHandler(
+                        account -> of(() -> accountConverter.convertToDomainModel(account)));
+                addCallback(listenableFuture, callback, directExecutor());
+
+                return nextFuture;
+              }));
+
+  private final Supplier<Function1<Authentication,
+      ResultOrErrorFuture<EncryptedPrivateKey>>> exportKeyFunctionSupplier =
+          memoize(() -> StrategyChain.of(context).apply((authentication) -> {
             ResultOrErrorFuture<EncryptedPrivateKey> nextFuture =
                 ResultOrErrorFutureFactory.supplyEmptyFuture();
 
@@ -276,52 +287,52 @@ public class AccountAsyncTemplate implements AccountAsyncOperation, ChannelInjec
             addCallback(listenableFuture, callback, directExecutor());
 
             return nextFuture;
-          });
+          }));
 
   @Override
   public ResultOrErrorFuture<List<AccountAddress>> list() {
-    return getListFunction().apply();
+    return listFunctionSupplier.get().apply();
   }
 
   @Override
   public ResultOrErrorFuture<Account> create(final String password) {
-    return getCreateFunction().apply(password);
+    return createFunctionSupplier.get().apply(password);
   }
 
   @Override
   public ResultOrErrorFuture<AccountState> getState(final AccountAddress address) {
-    return getGetStateFunction().apply(address);
+    return getStateFunctionSupplier.get().apply(address);
   }
 
   @Override
   public ResultOrErrorFuture<Boolean> lock(final Authentication authentication) {
-    return getLockFunction().apply(authentication);
+    return lockFunctionSupplier.get().apply(authentication);
   }
 
   @Override
   public ResultOrErrorFuture<Boolean> unlock(final Authentication authentication) {
-    return getUnlockFunction().apply(authentication);
+    return unlockFunctionSupplier.get().apply(authentication);
   }
 
   @Override
   public ResultOrErrorFuture<Signature> sign(final Account account, final Transaction transaction) {
-    return getSignFunction().apply(account, transaction);
+    return signFunctionSupplier.get().apply(account, transaction);
   }
 
   @Override
   public ResultOrErrorFuture<Boolean> verify(final Account account, final Transaction transaction) {
-    return getVerifyFunction().apply(account, transaction);
+    return verifyFunctionSupplier.get().apply(account, transaction);
   }
 
   @Override
   public ResultOrErrorFuture<Account> importKey(final EncryptedPrivateKey encryptedKey,
       final String oldPassword, final String newPassword) {
-    return getImportKeyFunction().apply(encryptedKey, oldPassword, newPassword);
+    return importKeyFunctionSupplier.get().apply(encryptedKey, oldPassword, newPassword);
   }
 
   @Override
   public ResultOrErrorFuture<EncryptedPrivateKey> exportKey(final Authentication authentication) {
-    return getExportKeyFunction().apply(authentication);
+    return exportKeyFunctionSupplier.get().apply(authentication);
   }
 
 }

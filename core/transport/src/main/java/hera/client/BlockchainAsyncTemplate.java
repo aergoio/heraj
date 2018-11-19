@@ -4,6 +4,7 @@
 
 package hera.client;
 
+import static com.google.common.base.Suppliers.memoize;
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.api.tupleorerror.FunctionChain.of;
@@ -31,7 +32,7 @@ import hera.transport.NodeStatusConverterFactory;
 import hera.transport.PeerConverterFactory;
 import io.grpc.ManagedChannel;
 import java.util.List;
-import lombok.AccessLevel;
+import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -67,25 +68,25 @@ public class BlockchainAsyncTemplate implements BlockchainAsyncOperation, Channe
     this.aergoService = newFutureStub(channel);
   }
 
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function0<ResultOrErrorFuture<BlockchainStatus>> blockchainStatusFunction =
-      StrategyChain.of(context).apply(() -> {
-        ResultOrErrorFuture<BlockchainStatus> nextFuture =
-            ResultOrErrorFutureFactory.supplyEmptyFuture();
+  private final Supplier<
+      Function0<ResultOrErrorFuture<BlockchainStatus>>> blockchainStatusFunctionSupplier =
+          memoize(() -> StrategyChain.of(context).apply(() -> {
+            ResultOrErrorFuture<BlockchainStatus> nextFuture =
+                ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-        final Rpc.Empty empty = Rpc.Empty.newBuilder().build();
-        ListenableFuture<Rpc.BlockchainStatus> listenableFuture = aergoService.blockchain(empty);
-        FutureChain<Rpc.BlockchainStatus, BlockchainStatus> callback =
-            new FutureChain<>(nextFuture);
-        callback.setSuccessHandler(s -> of(() -> blockchainConverter.convertToDomainModel(s)));
-        addCallback(listenableFuture, callback, directExecutor());
+            final Rpc.Empty empty = Rpc.Empty.newBuilder().build();
+            ListenableFuture<Rpc.BlockchainStatus> listenableFuture =
+                aergoService.blockchain(empty);
+            FutureChain<Rpc.BlockchainStatus, BlockchainStatus> callback =
+                new FutureChain<>(nextFuture);
+            callback.setSuccessHandler(s -> of(() -> blockchainConverter.convertToDomainModel(s)));
+            addCallback(listenableFuture, callback, directExecutor());
 
-        return nextFuture;
-      });
+            return nextFuture;
+          }));
 
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function0<ResultOrErrorFuture<List<Peer>>> listPeersFunction =
-      StrategyChain.of(context).apply(() -> {
+  private final Supplier<Function0<ResultOrErrorFuture<List<Peer>>>> listPeersFunctionSupplier =
+      memoize(() -> StrategyChain.of(context).apply(() -> {
         ResultOrErrorFuture<List<Peer>> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
         final Rpc.Empty empty = Rpc.Empty.newBuilder().build();
@@ -96,11 +97,10 @@ public class BlockchainAsyncTemplate implements BlockchainAsyncOperation, Channe
         addCallback(listenableFuture, callback, directExecutor());
 
         return nextFuture;
-      });
+      }));
 
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function0<ResultOrErrorFuture<NodeStatus>> nodeStatusFunction =
-      StrategyChain.of(context).apply(() -> {
+  private final Supplier<Function0<ResultOrErrorFuture<NodeStatus>>> nodeStatusFunctionSupplier =
+      memoize(() -> StrategyChain.of(context).apply(() -> {
         ResultOrErrorFuture<NodeStatus> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
         ByteString byteString = ByteString.copyFrom(longToByteArray(3000L));
@@ -113,21 +113,21 @@ public class BlockchainAsyncTemplate implements BlockchainAsyncOperation, Channe
         addCallback(listenableFuture, callback, directExecutor());
 
         return nextFuture;
-      });
+      }));
 
   @Override
   public ResultOrErrorFuture<BlockchainStatus> getBlockchainStatus() {
-    return getBlockchainStatusFunction().apply();
+    return blockchainStatusFunctionSupplier.get().apply();
   }
 
   @Override
   public ResultOrErrorFuture<List<Peer>> listPeers() {
-    return getListPeersFunction().apply();
+    return listPeersFunctionSupplier.get().apply();
   }
 
   @Override
   public ResultOrErrorFuture<NodeStatus> getNodeStatus() {
-    return getNodeStatusFunction().apply();
+    return nodeStatusFunctionSupplier.get().apply();
   }
 
 }
