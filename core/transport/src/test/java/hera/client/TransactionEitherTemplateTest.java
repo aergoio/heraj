@@ -41,7 +41,7 @@ public class TransactionEitherTemplateTest extends AbstractTestCase {
   @Test
   public void testGetTransaction() {
     ResultOrErrorFuture<Transaction> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
+    when(futureMock.get()).thenReturn(mock(ResultOrError.class));
     TransactionAsyncTemplate asyncOperationMock = mock(TransactionAsyncTemplate.class);
     when(asyncOperationMock.getTransaction(any())).thenReturn(futureMock);
 
@@ -57,7 +57,7 @@ public class TransactionEitherTemplateTest extends AbstractTestCase {
   @Test
   public void testCommit() {
     ResultOrErrorFuture<TxHash> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
+    when(futureMock.get()).thenReturn(mock(ResultOrError.class));
     TransactionAsyncTemplate asyncOperationMock = mock(TransactionAsyncTemplate.class);
     when(asyncOperationMock.commit(any(Transaction.class))).thenReturn(futureMock);
 
@@ -72,7 +72,7 @@ public class TransactionEitherTemplateTest extends AbstractTestCase {
   @Test
   public void testSend() {
     ResultOrErrorFuture<TxHash> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
+    when(futureMock.get()).thenReturn(mock(ResultOrError.class));
     TransactionAsyncTemplate asyncOperationMock = mock(TransactionAsyncTemplate.class);
     when(asyncOperationMock.send(any(AccountAddress.class), any(), anyLong()))
         .thenReturn(futureMock);

@@ -5,8 +5,6 @@
 package hera.client;
 
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,7 +34,7 @@ public class BlockchainEitherTemplateTest extends AbstractTestCase {
   @Test
   public void testGetBlockchainStatus() {
     ResultOrErrorFuture<BlockchainStatus> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
+    when(futureMock.get()).thenReturn(mock(ResultOrError.class));
     BlockchainAsyncTemplate asyncOperationMock = mock(BlockchainAsyncTemplate.class);
     when(asyncOperationMock.getBlockchainStatus()).thenReturn(futureMock);
 
@@ -52,7 +50,7 @@ public class BlockchainEitherTemplateTest extends AbstractTestCase {
   @Test
   public void testListPeers() {
     ResultOrErrorFuture<List<Peer>> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
+    when(futureMock.get()).thenReturn(mock(ResultOrError.class));
     BlockchainAsyncTemplate asyncOperationMock = mock(BlockchainAsyncTemplate.class);
     when(asyncOperationMock.listPeers()).thenReturn(futureMock);
 
@@ -67,7 +65,7 @@ public class BlockchainEitherTemplateTest extends AbstractTestCase {
   @Test
   public void testGetNodeStatus() {
     ResultOrErrorFuture<NodeStatus> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
+    when(futureMock.get()).thenReturn(mock(ResultOrError.class));
     BlockchainAsyncTemplate asyncOperationMock = mock(BlockchainAsyncTemplate.class);
     when(asyncOperationMock.getNodeStatus()).thenReturn(futureMock);
 

@@ -18,13 +18,10 @@ import java.util.List;
 @ApiStability.Unstable
 public class BlockTemplate implements BlockOperation, ChannelInjectable {
 
-  protected Context context;
-
   protected BlockEitherTemplate blockEitherOperation = new BlockEitherTemplate();
 
   @Override
   public void setContext(final Context context) {
-    this.context = context;
     blockEitherOperation.setContext(context);
   }
 

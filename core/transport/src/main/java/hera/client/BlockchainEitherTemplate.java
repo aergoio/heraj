@@ -12,9 +12,6 @@ import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.tupleorerror.ResultOrError;
-import hera.exception.NoStrategyFoundException;
-import hera.exception.RpcException;
-import hera.strategy.TimeoutStrategy;
 import io.grpc.ManagedChannel;
 import java.util.List;
 
@@ -28,7 +25,6 @@ public class BlockchainEitherTemplate implements BlockchainEitherOperation, Chan
 
   @Override
   public void setContext(final Context context) {
-    this.context = context;
     blockchainAsyncOperation.setContext(context);
   }
 
@@ -39,23 +35,17 @@ public class BlockchainEitherTemplate implements BlockchainEitherOperation, Chan
 
   @Override
   public ResultOrError<BlockchainStatus> getBlockchainStatus() {
-    return context.getStrategy(TimeoutStrategy.class)
-        .map(f -> f.submit(blockchainAsyncOperation.getBlockchainStatus()))
-        .orElseThrow(() -> new RpcException(new NoStrategyFoundException(TimeoutStrategy.class)));
+    return blockchainAsyncOperation.getBlockchainStatus().get();
   }
 
   @Override
   public ResultOrError<List<Peer>> listPeers() {
-    return context.getStrategy(TimeoutStrategy.class)
-        .map(f -> f.submit(blockchainAsyncOperation.listPeers()))
-        .orElseThrow(() -> new RpcException(new NoStrategyFoundException(TimeoutStrategy.class)));
+    return blockchainAsyncOperation.listPeers().get();
   }
 
   @Override
   public ResultOrError<NodeStatus> getNodeStatus() {
-    return context.getStrategy(TimeoutStrategy.class)
-        .map(f -> f.submit(blockchainAsyncOperation.getNodeStatus()))
-        .orElseThrow(() -> new RpcException(new NoStrategyFoundException(TimeoutStrategy.class)));
+    return blockchainAsyncOperation.getNodeStatus().get();
   }
 
 }

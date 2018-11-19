@@ -36,9 +36,12 @@ import hera.api.model.ContractTxReceipt;
 import hera.api.model.Fee;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.tupleorerror.Function1;
+import hera.api.tupleorerror.Function3;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.exception.AdaptException;
+import hera.strategy.StrategyChain;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.ContractInterfaceConverterFactory;
 import hera.transport.ContractResultConverterFactory;
@@ -51,6 +54,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.stream.Stream;
+import lombok.AccessLevel;
 import lombok.Getter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -101,39 +105,130 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
     transactionAsyncOperation.injectChannel(channel);
   }
 
-  @Override
-  public ResultOrErrorFuture<ContractTxReceipt> getReceipt(final ContractTxHash deployTxHash) {
-    ResultOrErrorFuture<ContractTxReceipt> nextFuture =
-        ResultOrErrorFutureFactory.supplyEmptyFuture();
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<ContractTxHash, ResultOrErrorFuture<ContractTxReceipt>> receiptFunction =
+      StrategyChain.of(context).apply((deployTxHash) -> {
+        ResultOrErrorFuture<ContractTxReceipt> nextFuture =
+            ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-    final ByteString byteString = copyFrom(deployTxHash.getBytesValue());
-    final Rpc.SingleBytes hashBytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
-    final ListenableFuture<Blockchain.Receipt> listenableFuture =
-        aergoService.getReceipt(hashBytes);
-    FutureChain<Blockchain.Receipt, ContractTxReceipt> callback = new FutureChain<>(nextFuture);
-    callback.setSuccessHandler(receipt -> of(() -> receiptConverter.convertToDomainModel(receipt)));
-    addCallback(listenableFuture, callback, directExecutor());
+        final ByteString byteString = copyFrom(deployTxHash.getBytesValue());
+        final Rpc.SingleBytes hashBytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
+        final ListenableFuture<Blockchain.Receipt> listenableFuture =
+            aergoService.getReceipt(hashBytes);
+        FutureChain<Blockchain.Receipt, ContractTxReceipt> callback = new FutureChain<>(nextFuture);
+        callback
+            .setSuccessHandler(receipt -> of(() -> receiptConverter.convertToDomainModel(receipt)));
+        addCallback(listenableFuture, callback, directExecutor());
 
-    return nextFuture;
-  }
+        return nextFuture;
+      });
 
-  @Override
-  public ResultOrErrorFuture<ContractTxHash> deploy(final Account creator,
-      final ContractDefinition contractDefinition, final Fee fee) {
-    try {
-      final Transaction transaction = new Transaction();
-      transaction.setSender(creator);
-      transaction.setNonce(creator.nextNonce());
-      transaction.setPayload(definitionToPayloadForm(contractDefinition));
-      transaction.setFee(fee);
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function3<Account, ContractDefinition, Fee,
+      ResultOrErrorFuture<ContractTxHash>> deployFunction =
+          StrategyChain.of(context).apply((creator,
+              contractDefinition, fee) -> {
+            try {
+              final Transaction transaction = new Transaction();
+              transaction.setSender(creator);
+              transaction.setNonce(creator.nextNonce());
+              transaction.setPayload(definitionToPayloadForm(contractDefinition));
+              transaction.setFee(fee);
 
-      return signAndCommit(creator, transaction);
-    } catch (Throwable e) {
-      ResultOrErrorFuture<ContractTxHash> next = ResultOrErrorFutureFactory.supplyEmptyFuture();
-      next.complete(fail(e));
-      return next;
-    }
-  }
+              return signAndCommit(creator, transaction);
+            } catch (Throwable e) {
+              ResultOrErrorFuture<ContractTxHash> next =
+                  ResultOrErrorFutureFactory.supplyEmptyFuture();
+              next.complete(fail(e));
+              return next;
+            }
+          });
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<ContractAddress,
+      ResultOrErrorFuture<ContractInterface>> contractInterfaceFunction =
+          StrategyChain.of(context).apply((
+              contractAddress) -> {
+            ResultOrErrorFuture<ContractInterface> nextFuture =
+                ResultOrErrorFutureFactory.supplyEmptyFuture();
+
+            final ByteString byteString =
+                accountAddressConverter.convertToRpcModel(contractAddress);
+            final Rpc.SingleBytes hashBytes =
+                Rpc.SingleBytes.newBuilder().setValue(byteString).build();
+            final ListenableFuture<Blockchain.ABI> listenableFuture =
+                aergoService.getABI(hashBytes);
+            FutureChain<Blockchain.ABI, ContractInterface> callback = new FutureChain<>(nextFuture);
+            callback.setSuccessHandler(abi -> of(() -> {
+              final ContractInterface contractInterface =
+                  contractInterfaceConverter.convertToDomainModel(abi);
+              contractInterface.setContractAddress(contractAddress);
+              return contractInterface;
+            }));
+            addCallback(listenableFuture, callback, directExecutor());
+
+            return nextFuture;
+          });
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function3<Account, ContractInvocation, Fee,
+      ResultOrErrorFuture<ContractTxHash>> executeFunction =
+          StrategyChain.of(context).apply((executor,
+              contractInvocation, fee) -> {
+            try {
+              final Transaction transaction = new Transaction();
+              transaction.setSender(executor);
+              transaction.setRecipient(contractInvocation.getAddress());
+              transaction.setNonce(executor.nextNonce());
+              final String functionCallString = toFunctionCallJsonString(contractInvocation);
+              if (logger.isTraceEnabled()) {
+                logger.trace("Contract execution address: {}, function: {}",
+                    contractInvocation.getAddress(), functionCallString);
+              }
+              transaction.setPayload(BytesValue.of(functionCallString.getBytes()));
+              transaction.setFee(fee);
+
+              return signAndCommit(executor, transaction);
+            } catch (Exception e) {
+              ResultOrErrorFuture<ContractTxHash> next =
+                  ResultOrErrorFutureFactory.supplyEmptyFuture();
+              next.complete(fail(e));
+              return next;
+            }
+          });
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<ContractInvocation, ResultOrErrorFuture<ContractResult>> queryFunction =
+      StrategyChain.of(context).apply((
+          contractInvocation) -> {
+        try {
+          final ResultOrErrorFuture<ContractResult> nextFuture =
+              ResultOrErrorFutureFactory.supplyEmptyFuture();
+
+          final String functionCallString = toFunctionCallJsonString(contractInvocation);
+          if (logger.isTraceEnabled()) {
+            logger.trace("Contract query address: {}, function: {}",
+                contractInvocation.getAddress(),
+                functionCallString);
+          }
+          final Blockchain.Query query = Blockchain.Query.newBuilder()
+              .setContractAddress(
+                  accountAddressConverter.convertToRpcModel(contractInvocation.getAddress()))
+              .setQueryinfo(ByteString.copyFrom(functionCallString.getBytes())).build();
+          final ListenableFuture<Rpc.SingleBytes> listenableFuture =
+              aergoService.queryContract(query);
+          FutureChain<Rpc.SingleBytes, ContractResult> callback = new FutureChain<>(nextFuture);
+          callback.setSuccessHandler(
+              result -> of(() -> contractResultConverter.convertToDomainModel(result)));
+          addCallback(listenableFuture, callback, directExecutor());
+
+          return nextFuture;
+        } catch (Exception e) {
+          ResultOrErrorFuture<ContractResult> next = ResultOrErrorFutureFactory.supplyEmptyFuture();
+          next.complete(fail(e));
+          return next;
+        }
+      });
 
   protected BytesValue definitionToPayloadForm(final ContractDefinition contractDefinition)
       throws IOException {
@@ -161,50 +256,6 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
     return definitionPayload;
   }
 
-  @Override
-  public ResultOrErrorFuture<ContractInterface> getContractInterface(
-      final ContractAddress contractAddress) {
-    ResultOrErrorFuture<ContractInterface> nextFuture =
-        ResultOrErrorFutureFactory.supplyEmptyFuture();
-
-    final ByteString byteString = accountAddressConverter.convertToRpcModel(contractAddress);
-    final Rpc.SingleBytes hashBytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
-    final ListenableFuture<Blockchain.ABI> listenableFuture = aergoService.getABI(hashBytes);
-    FutureChain<Blockchain.ABI, ContractInterface> callback = new FutureChain<>(nextFuture);
-    callback.setSuccessHandler(abi -> of(() -> {
-      final ContractInterface contractInterface =
-          contractInterfaceConverter.convertToDomainModel(abi);
-      contractInterface.setContractAddress(contractAddress);
-      return contractInterface;
-    }));
-    addCallback(listenableFuture, callback, directExecutor());
-
-    return nextFuture;
-  }
-
-  @Override
-  public ResultOrErrorFuture<ContractTxHash> execute(final Account executor,
-      final ContractInvocation contractInvocation, final Fee fee) {
-    try {
-      final Transaction transaction = new Transaction();
-      transaction.setSender(executor);
-      transaction.setRecipient(contractInvocation.getAddress());
-      transaction.setNonce(executor.nextNonce());
-      final String functionCallString = toFunctionCallJsonString(contractInvocation);
-      if (logger.isTraceEnabled()) {
-        logger.trace("Contract execution address: {}, function: {}",
-            contractInvocation.getAddress(), functionCallString);
-      }
-      transaction.setPayload(BytesValue.of(functionCallString.getBytes()));
-      transaction.setFee(fee);
-
-      return signAndCommit(executor, transaction);
-    } catch (Exception e) {
-      ResultOrErrorFuture<ContractTxHash> next = ResultOrErrorFutureFactory.supplyEmptyFuture();
-      next.complete(fail(e));
-      return next;
-    }
-  }
 
   protected ResultOrErrorFuture<ContractTxHash> signAndCommit(final Account account,
       final Transaction transaction) {
@@ -214,35 +265,6 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
           .map(txHash -> txHash.adapt(ContractTxHash.class)
               .orElseThrow(() -> new AdaptException(TxHash.class, ContractTxHash.class)));
     });
-  }
-
-  @Override
-  public ResultOrErrorFuture<ContractResult> query(final ContractInvocation contractInvocation) {
-    try {
-      final ResultOrErrorFuture<ContractResult> nextFuture =
-          ResultOrErrorFutureFactory.supplyEmptyFuture();
-
-      final String functionCallString = toFunctionCallJsonString(contractInvocation);
-      if (logger.isTraceEnabled()) {
-        logger.trace("Contract query address: {}, function: {}", contractInvocation.getAddress(),
-            functionCallString);
-      }
-      final Blockchain.Query query = Blockchain.Query.newBuilder()
-          .setContractAddress(
-              accountAddressConverter.convertToRpcModel(contractInvocation.getAddress()))
-          .setQueryinfo(ByteString.copyFrom(functionCallString.getBytes())).build();
-      final ListenableFuture<Rpc.SingleBytes> listenableFuture = aergoService.queryContract(query);
-      FutureChain<Rpc.SingleBytes, ContractResult> callback = new FutureChain<>(nextFuture);
-      callback.setSuccessHandler(
-          result -> of(() -> contractResultConverter.convertToDomainModel(result)));
-      addCallback(listenableFuture, callback, directExecutor());
-
-      return nextFuture;
-    } catch (Exception e) {
-      ResultOrErrorFuture<ContractResult> next = ResultOrErrorFutureFactory.supplyEmptyFuture();
-      next.complete(fail(e));
-      return next;
-    }
   }
 
   protected String toFunctionCallJsonString(final ContractInvocation contractInvocation) {
@@ -273,6 +295,34 @@ public class ContractAsyncTemplate implements ContractAsyncOperation, ChannelInj
       }
     });
     return argsNode;
+  }
+
+  @Override
+  public ResultOrErrorFuture<ContractTxReceipt> getReceipt(final ContractTxHash contractTxHash) {
+    return getReceiptFunction().apply(contractTxHash);
+  }
+
+  @Override
+  public ResultOrErrorFuture<ContractTxHash> deploy(final Account creator,
+      final ContractDefinition contractDefinition, final Fee fee) {
+    return getDeployFunction().apply(creator, contractDefinition, fee);
+  }
+
+  @Override
+  public ResultOrErrorFuture<ContractInterface> getContractInterface(
+      final ContractAddress contractAddress) {
+    return getContractInterfaceFunction().apply(contractAddress);
+  }
+
+  @Override
+  public ResultOrErrorFuture<ContractTxHash> execute(final Account executor,
+      final ContractInvocation contractInvocation, final Fee fee) {
+    return getExecuteFunction().apply(executor, contractInvocation, fee);
+  }
+
+  @Override
+  public ResultOrErrorFuture<ContractResult> query(final ContractInvocation contractInvocation) {
+    return getQueryFunction().apply(contractInvocation);
   }
 
 }

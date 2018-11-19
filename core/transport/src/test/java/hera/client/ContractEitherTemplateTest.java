@@ -8,7 +8,6 @@ import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -50,7 +49,7 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
   @Test
   public void testGetReceipt() {
     ResultOrErrorFuture<ContractTxReceipt> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
+    when(futureMock.get()).thenReturn(mock(ResultOrError.class));
     ContractAsyncTemplate asyncOperationMock = mock(ContractAsyncTemplate.class);
     when(asyncOperationMock.getReceipt(any())).thenReturn(futureMock);
 
@@ -66,7 +65,7 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
   @Test
   public void testDeploy() {
     ResultOrErrorFuture<ContractTxHash> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
+    when(futureMock.get()).thenReturn(mock(ResultOrError.class));
     ContractAsyncTemplate asyncOperationMock = mock(ContractAsyncTemplate.class);
     when(asyncOperationMock.deploy(any(), any(), any())).thenReturn(futureMock);
 
@@ -83,7 +82,7 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
   @Test
   public void testGetContractInterface() {
     ResultOrErrorFuture<ContractInterface> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
+    when(futureMock.get()).thenReturn(mock(ResultOrError.class));
     ContractAsyncTemplate asyncOperationMock = mock(ContractAsyncTemplate.class);
     when(asyncOperationMock.getContractInterface(any())).thenReturn(futureMock);
 
@@ -99,7 +98,7 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
   @Test
   public void testExecute() {
     ResultOrErrorFuture<ContractTxHash> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
+    when(futureMock.get()).thenReturn(mock(ResultOrError.class));
     ContractAsyncTemplate asyncOperationMock = mock(ContractAsyncTemplate.class);
     when(asyncOperationMock.execute(any(), any(), any())).thenReturn(futureMock);
 
@@ -116,7 +115,7 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
   @Test
   public void query() {
     ResultOrErrorFuture<ContractResult> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
+    when(futureMock.get()).thenReturn(mock(ResultOrError.class));
     ContractAsyncTemplate asyncOperationMock = mock(ContractAsyncTemplate.class);
     when(asyncOperationMock.query(any())).thenReturn(futureMock);
 

@@ -19,13 +19,10 @@ import io.opentracing.util.GlobalTracer;
 @ApiStability.Unstable
 public class TransactionTemplate implements TransactionOperation, ChannelInjectable {
 
-  protected Context context;
-
   protected TransactionEitherTemplate transactionEitherOperation = new TransactionEitherTemplate();
 
   @Override
   public void setContext(final Context context) {
-    this.context = context;
     transactionEitherOperation.setContext(context);
   }
 

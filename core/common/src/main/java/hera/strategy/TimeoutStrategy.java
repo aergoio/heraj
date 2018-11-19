@@ -4,9 +4,5 @@
 
 package hera.strategy;
 
-import hera.Strategy;
-import java.util.concurrent.Future;
-
-public interface TimeoutStrategy extends Strategy {
-  <T> T submit(Future<T> future);
+public interface TimeoutStrategy extends PostInvocationStrategy {
 }

@@ -22,13 +22,10 @@ import java.util.List;
 @ApiStability.Unstable
 public class AccountTemplate implements AccountOperation, ChannelInjectable {
 
-  protected Context context;
-
   protected AccountEitherTemplate accountEitherOperation = new AccountEitherTemplate();
 
   @Override
   public void setContext(final Context context) {
-    this.context = context;
     accountEitherOperation.setContext(context);
   }
 

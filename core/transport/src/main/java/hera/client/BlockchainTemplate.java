@@ -18,14 +18,11 @@ import java.util.List;
 @ApiStability.Unstable
 public class BlockchainTemplate implements BlockchainOperation, ChannelInjectable {
 
-  protected Context context;
-
   protected BlockchainEitherTemplate blockchainEitherOperation =
       new BlockchainEitherTemplate();
 
   @Override
   public void setContext(final Context context) {
-    this.context = context;
     blockchainEitherOperation.setContext(context);
   }
 

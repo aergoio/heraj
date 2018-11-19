@@ -106,7 +106,7 @@ public class Context {
   }
 
   public Stream<Strategy> listStrategies(final Predicate<? super Strategy> test) {
-    return strategies.stream().filter(test);
+    return Stream.concat(strategies.stream(), usings.stream()).filter(test);
   }
 
   protected List<Strategy> getReversedList() {

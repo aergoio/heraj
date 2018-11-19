@@ -14,7 +14,6 @@ import hera.api.BlockAsyncOperation;
 import hera.api.BlockchainAsyncOperation;
 import hera.api.ContractAsyncOperation;
 import hera.api.TransactionAsyncOperation;
-import hera.strategy.ConnectStrategy;
 import io.grpc.ManagedChannel;
 import java.io.Closeable;
 import java.util.concurrent.TimeUnit;

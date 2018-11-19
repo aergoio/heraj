@@ -18,22 +18,16 @@ import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Fee;
 import hera.api.tupleorerror.ResultOrError;
-import hera.exception.NoStrategyFoundException;
-import hera.exception.RpcException;
-import hera.strategy.TimeoutStrategy;
 import io.grpc.ManagedChannel;
 
 @ApiAudience.Private
 @ApiStability.Unstable
 public class ContractEitherTemplate implements ContractEitherOperation, ChannelInjectable {
 
-  protected Context context;
-
   protected ContractAsyncTemplate contractAsyncOperation = new ContractAsyncTemplate();
 
   @Override
   public void setContext(final Context context) {
-    this.context = context;
     this.contractAsyncOperation.setContext(context);
   }
 
@@ -44,40 +38,30 @@ public class ContractEitherTemplate implements ContractEitherOperation, ChannelI
 
   @Override
   public ResultOrError<ContractTxReceipt> getReceipt(final ContractTxHash deployTxHash) {
-    return context.getStrategy(TimeoutStrategy.class)
-        .map(f -> f.submit(contractAsyncOperation.getReceipt(deployTxHash)))
-        .orElseThrow(() -> new RpcException(new NoStrategyFoundException(TimeoutStrategy.class)));
+    return contractAsyncOperation.getReceipt(deployTxHash).get();
   }
 
   @Override
   public ResultOrError<ContractTxHash> deploy(final Account creator,
       final ContractDefinition contractDefinition, final Fee fee) {
-    return context.getStrategy(TimeoutStrategy.class)
-        .map(f -> f.submit(contractAsyncOperation.deploy(creator, contractDefinition, fee)))
-        .orElseThrow(() -> new RpcException(new NoStrategyFoundException(TimeoutStrategy.class)));
+    return contractAsyncOperation.deploy(creator, contractDefinition, fee).get();
   }
 
   @Override
   public ResultOrError<ContractInterface> getContractInterface(
       final ContractAddress contractAddress) {
-    return context.getStrategy(TimeoutStrategy.class)
-        .map(f -> f.submit(contractAsyncOperation.getContractInterface(contractAddress)))
-        .orElseThrow(() -> new RpcException(new NoStrategyFoundException(TimeoutStrategy.class)));
+    return contractAsyncOperation.getContractInterface(contractAddress).get();
   }
 
   @Override
   public ResultOrError<ContractTxHash> execute(final Account executor,
       final ContractInvocation contractInvocation, final Fee fee) {
-    return context.getStrategy(TimeoutStrategy.class)
-        .map(f -> f.submit(contractAsyncOperation.execute(executor, contractInvocation, fee)))
-        .orElseThrow(() -> new RpcException(new NoStrategyFoundException(TimeoutStrategy.class)));
+    return contractAsyncOperation.execute(executor, contractInvocation, fee).get();
   }
 
   @Override
   public ResultOrError<ContractResult> query(final ContractInvocation contractInvocation) {
-    return context.getStrategy(TimeoutStrategy.class)
-        .map(f -> f.submit(contractAsyncOperation.query(contractInvocation)))
-        .orElseThrow(() -> new RpcException(new NoStrategyFoundException(TimeoutStrategy.class)));
+    return contractAsyncOperation.query(contractInvocation).get();
   }
 
 }

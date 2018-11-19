@@ -23,13 +23,10 @@ import io.grpc.ManagedChannel;
 @ApiStability.Unstable
 public class ContractTemplate implements ContractOperation, ChannelInjectable {
 
-  protected Context context;
-
   protected ContractEitherTemplate contractEitherOperation = new ContractEitherTemplate();
 
   @Override
   public void setContext(final Context context) {
-    this.context = context;
     contractEitherOperation.setContext(context);
   }
 

@@ -39,7 +39,7 @@ public class BlockEitherTemplateTest extends AbstractTestCase {
   @Test
   public void testGetBlockByHash() {
     ResultOrErrorFuture<Block> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
+    when(futureMock.get()).thenReturn(mock(ResultOrError.class));
     BlockAsyncTemplate asyncOperationMock = mock(BlockAsyncTemplate.class);
     when(asyncOperationMock.getBlock(any())).thenReturn(futureMock);
 
@@ -55,7 +55,7 @@ public class BlockEitherTemplateTest extends AbstractTestCase {
   @Test
   public void testGetBlockByHeight() {
     ResultOrErrorFuture<Block> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
+    when(futureMock.get()).thenReturn(mock(ResultOrError.class));
     BlockAsyncTemplate asyncOperationMock = mock(BlockAsyncTemplate.class);
     when(asyncOperationMock.getBlock(anyLong())).thenReturn(futureMock);
 
@@ -70,7 +70,7 @@ public class BlockEitherTemplateTest extends AbstractTestCase {
   @Test
   public void testListBlockHeadersByHash() {
     ResultOrErrorFuture<List<BlockHeader>> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
+    when(futureMock.get()).thenReturn(mock(ResultOrError.class));
     BlockAsyncTemplate asyncOperationMock = mock(BlockAsyncTemplate.class);
     when(asyncOperationMock.listBlockHeaders(any(), anyInt())).thenReturn(futureMock);
 
@@ -86,7 +86,7 @@ public class BlockEitherTemplateTest extends AbstractTestCase {
   @Test
   public void testListBlockHeadersByHeight() {
     ResultOrErrorFuture<List<BlockHeader>> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get(anyLong(), any())).thenReturn(mock(ResultOrError.class));
+    when(futureMock.get()).thenReturn(mock(ResultOrError.class));
     BlockAsyncTemplate asyncOperationMock = mock(BlockAsyncTemplate.class);
     when(asyncOperationMock.listBlockHeaders(anyLong(), anyInt())).thenReturn(futureMock);
 

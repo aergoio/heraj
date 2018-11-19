@@ -5,11 +5,13 @@
 package hera.strategy;
 
 import hera.api.model.Time;
-import hera.api.tupleorerror.ErrorHoldableFuture;
-import java.util.concurrent.Future;
+import hera.api.tupleorerror.ResultOrError;
+import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import lombok.Getter;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class SimpleTimeoutStrategy implements TimeoutStrategy {
 
   @Getter
@@ -24,8 +26,15 @@ public class SimpleTimeoutStrategy implements TimeoutStrategy {
   }
 
   @Override
-  public <T> T submit(final Future<T> future) {
-    return ((ErrorHoldableFuture<T>) future).get(timeout.getValue(), timeout.getUnit());
+  public <R> R after(final R r) {
+    if (r instanceof ResultOrErrorFuture) {
+      ResultOrErrorFuture<?> future = (ResultOrErrorFuture<?>) r;
+      ResultOrError resultOrError = future.get(timeout.getValue(), timeout.getUnit());
+      if (resultOrError.getError() instanceof TimeoutException) {
+        future.complete(resultOrError);
+      }
+    }
+    return r;
   }
 
 }

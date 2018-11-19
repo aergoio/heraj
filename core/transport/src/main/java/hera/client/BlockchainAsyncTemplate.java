@@ -21,14 +21,17 @@ import hera.api.BlockchainAsyncOperation;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
+import hera.api.tupleorerror.Function0;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
+import hera.strategy.StrategyChain;
 import hera.transport.BlockchainStatusConverterFactory;
 import hera.transport.ModelConverter;
 import hera.transport.NodeStatusConverterFactory;
 import hera.transport.PeerConverterFactory;
 import io.grpc.ManagedChannel;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -64,47 +67,67 @@ public class BlockchainAsyncTemplate implements BlockchainAsyncOperation, Channe
     this.aergoService = newFutureStub(channel);
   }
 
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function0<ResultOrErrorFuture<BlockchainStatus>> blockchainStatusFunction =
+      StrategyChain.of(context).apply(() -> {
+        ResultOrErrorFuture<BlockchainStatus> nextFuture =
+            ResultOrErrorFutureFactory.supplyEmptyFuture();
+
+        final Rpc.Empty empty = Rpc.Empty.newBuilder().build();
+        ListenableFuture<Rpc.BlockchainStatus> listenableFuture = aergoService.blockchain(empty);
+        FutureChain<Rpc.BlockchainStatus, BlockchainStatus> callback =
+            new FutureChain<>(nextFuture);
+        callback.setSuccessHandler(s -> of(() -> blockchainConverter.convertToDomainModel(s)));
+        addCallback(listenableFuture, callback, directExecutor());
+
+        return nextFuture;
+      });
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function0<ResultOrErrorFuture<List<Peer>>> listPeersFunction =
+      StrategyChain.of(context).apply(() -> {
+        ResultOrErrorFuture<List<Peer>> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
+
+        final Rpc.Empty empty = Rpc.Empty.newBuilder().build();
+        ListenableFuture<Rpc.PeerList> listenableFuture = aergoService.getPeers(empty);
+        FutureChain<Rpc.PeerList, List<Peer>> callback = new FutureChain<>(nextFuture);
+        callback.setSuccessHandler(peerlist -> of(() -> peerlist.getPeersList().stream()
+            .map(peerConverter::convertToDomainModel).collect(toList())));
+        addCallback(listenableFuture, callback, directExecutor());
+
+        return nextFuture;
+      });
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function0<ResultOrErrorFuture<NodeStatus>> nodeStatusFunction =
+      StrategyChain.of(context).apply(() -> {
+        ResultOrErrorFuture<NodeStatus> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
+
+        ByteString byteString = ByteString.copyFrom(longToByteArray(3000L));
+        Rpc.SingleBytes rawTimeout = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
+        ListenableFuture<Rpc.SingleBytes> listenableFuture = aergoService.nodeState(rawTimeout);
+        FutureChain<Rpc.SingleBytes, NodeStatus> callback = new FutureChain<>(nextFuture);
+        callback
+            .setSuccessHandler(
+                status -> of(() -> nodeStatusConverter.convertToDomainModel(status)));
+        addCallback(listenableFuture, callback, directExecutor());
+
+        return nextFuture;
+      });
+
   @Override
   public ResultOrErrorFuture<BlockchainStatus> getBlockchainStatus() {
-    ResultOrErrorFuture<BlockchainStatus> nextFuture =
-        ResultOrErrorFutureFactory.supplyEmptyFuture();
-
-    final Rpc.Empty empty = Rpc.Empty.newBuilder().build();
-    ListenableFuture<Rpc.BlockchainStatus> listenableFuture = aergoService.blockchain(empty);
-    FutureChain<Rpc.BlockchainStatus, BlockchainStatus> callback = new FutureChain<>(nextFuture);
-    callback.setSuccessHandler(s -> of(() -> blockchainConverter.convertToDomainModel(s)));
-    addCallback(listenableFuture, callback, directExecutor());
-
-    return nextFuture;
+    return getBlockchainStatusFunction().apply();
   }
 
   @Override
   public ResultOrErrorFuture<List<Peer>> listPeers() {
-    ResultOrErrorFuture<List<Peer>> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
-
-    final Rpc.Empty empty = Rpc.Empty.newBuilder().build();
-    ListenableFuture<Rpc.PeerList> listenableFuture = aergoService.getPeers(empty);
-    FutureChain<Rpc.PeerList, List<Peer>> callback = new FutureChain<>(nextFuture);
-    callback.setSuccessHandler(peerlist -> of(() -> peerlist.getPeersList().stream()
-        .map(peerConverter::convertToDomainModel).collect(toList())));
-    addCallback(listenableFuture, callback, directExecutor());
-
-    return nextFuture;
+    return getListPeersFunction().apply();
   }
 
   @Override
   public ResultOrErrorFuture<NodeStatus> getNodeStatus() {
-    ResultOrErrorFuture<NodeStatus> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
-
-    ByteString byteString = ByteString.copyFrom(longToByteArray(3000L));
-    Rpc.SingleBytes rawTimeout = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
-    ListenableFuture<Rpc.SingleBytes> listenableFuture = aergoService.nodeState(rawTimeout);
-    FutureChain<Rpc.SingleBytes, NodeStatus> callback = new FutureChain<>(nextFuture);
-    callback
-        .setSuccessHandler(status -> of(() -> nodeStatusConverter.convertToDomainModel(status)));
-    addCallback(listenableFuture, callback, directExecutor());
-
-    return nextFuture;
+    return getNodeStatusFunction().apply();
   }
 
 }
