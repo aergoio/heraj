@@ -56,7 +56,7 @@ public class RetryStrategy implements FailoverStrategy {
   }
 
   @Override
-  public <R> R apply(final Function0<R> f) {
+  public <R> R action(final Function0<R> f) {
     R r = f.apply();
     if (r instanceof ResultOrErrorFuture) {
       int i = this.count;

@@ -23,8 +23,6 @@ import java.util.List;
 @ApiStability.Unstable
 public class AccountEitherTemplate implements AccountEitherOperation, ChannelInjectable {
 
-  protected Context context;
-
   protected AccountAsyncTemplate accountAsyncOperation = new AccountAsyncTemplate();
 
   @Override

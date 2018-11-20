@@ -19,8 +19,6 @@ import java.util.List;
 @ApiStability.Unstable
 public class BlockEitherTemplate implements BlockEitherOperation, ChannelInjectable {
 
-  protected Context context;
-
   protected BlockAsyncTemplate blockAsyncOperation = new BlockAsyncTemplate();
 
   @Override

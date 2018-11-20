@@ -34,7 +34,7 @@ public class SimpleTimeoutStrategy implements TimeoutStrategy {
   }
 
   @Override
-  public <R> R apply(Function0<R> f) {
+  public <R> R action(Function0<R> f) {
     final R r = f.apply();
     if (r instanceof ResultOrErrorFuture) {
       ResultOrErrorFuture<?> future = (ResultOrErrorFuture<?>) r;

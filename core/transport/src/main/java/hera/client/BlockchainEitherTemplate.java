@@ -19,8 +19,6 @@ import java.util.List;
 @ApiStability.Unstable
 public class BlockchainEitherTemplate implements BlockchainEitherOperation, ChannelInjectable {
 
-  protected Context context;
-
   protected BlockchainAsyncTemplate blockchainAsyncOperation = new BlockchainAsyncTemplate();
 
   @Override

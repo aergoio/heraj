@@ -15,7 +15,6 @@ import hera.api.tupleorerror.Function4;
 import hera.api.tupleorerror.FunctionDecorator;
 import hera.api.tupleorerror.FunctionDecoratorChain;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -40,8 +39,6 @@ public class StrategyChain implements FunctionDecoratorChain {
 
   protected final List<FunctionDecorator> chain = new ArrayList<>();
 
-  protected final Iterator<FunctionDecorator> it;
-
   /**
    * Make {@code StrategyChain} with a strategy in a context.
    *
@@ -52,53 +49,57 @@ public class StrategyChain implements FunctionDecoratorChain {
     context.listStrategies(FunctionDecorator.class::isInstance).map(FunctionDecorator.class::cast)
         .forEach(chain::add);
     logger.debug("Build strategy chain: {}", chain);
-    it = chain.iterator();
   }
 
   @Override
   public <R> Function0<R> apply(Function0<R> f) {
-    if (it.hasNext()) {
-      return getNext().applyNext(f, this);
+    Function0<R> ret = f;
+    for (final FunctionDecorator next : chain) {
+      logger.debug("Apply strategy [{}] to a function", next);
+      ret = next.apply(ret);
     }
-    return f;
+    return ret;
   }
 
   @Override
-  public <T, R> Function1<T, R> apply(final Function1<T, R> f) {
-    if (it.hasNext()) {
-      return getNext().applyNext(f, this);
+  public <T, R> Function1<T, R> apply(Function1<T, R> f) {
+    Function1<T, R> ret = f;
+    for (final FunctionDecorator next : chain) {
+      logger.debug("Apply strategy [{}] to a function", next);
+      ret = next.apply(ret);
     }
-    return f;
+    return ret;
   }
 
   @Override
   public <T1, T2, R> Function2<T1, T2, R> apply(Function2<T1, T2, R> f) {
-    if (it.hasNext()) {
-      return getNext().applyNext(f, this);
+    Function2<T1, T2, R> ret = f;
+    for (final FunctionDecorator next : chain) {
+      logger.debug("Apply strategy [{}] to a function", next);
+      ret = next.apply(ret);
     }
-    return f;
+    return ret;
   }
 
   @Override
   public <T1, T2, T3, R> Function3<T1, T2, T3, R> apply(Function3<T1, T2, T3, R> f) {
-    if (it.hasNext()) {
-      return getNext().applyNext(f, this);
+    Function3<T1, T2, T3, R> ret = f;
+    for (final FunctionDecorator next : chain) {
+      logger.debug("Apply strategy [{}] to a function", next);
+      ret = next.apply(ret);
     }
-    return f;
+    return ret;
   }
 
   @Override
   public <T1, T2, T3, T4, R> Function4<T1, T2, T3, T4, R> apply(Function4<T1, T2, T3, T4, R> f) {
-    if (it.hasNext()) {
-      return getNext().applyNext(f, this);
+    Function4<T1, T2, T3, T4, R> ret = f;
+    for (final FunctionDecorator next : chain) {
+      logger.debug("Apply strategy [{}] to a function", next);
+      ret = next.apply(ret);
     }
-    return f;
+    return ret;
   }
 
-  protected FunctionDecorator getNext() {
-    final FunctionDecorator next = it.next();
-    logger.debug("Apply next strategy [{}] to a function", next);
-    return next;
-  }
 
 }

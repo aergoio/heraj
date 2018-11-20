@@ -16,7 +16,7 @@ public class SimpleTimeoutStrategyTest extends AbstractTestCase {
   @Test
   public void testTimeout() {
     final SimpleTimeoutStrategy timeoutStrategy = new SimpleTimeoutStrategy(1000L);
-    timeoutStrategy.apply(() -> ResultOrErrorFutureFactory.supply(() -> {
+    timeoutStrategy.action(() -> ResultOrErrorFutureFactory.supply(() -> {
       ThreadUtils.trySleep(100L);
       return null;
     })).get().getResult();
@@ -26,7 +26,7 @@ public class SimpleTimeoutStrategyTest extends AbstractTestCase {
   public void shouldThrowException() {
     final SimpleTimeoutStrategy timeoutStrategy = new SimpleTimeoutStrategy(100L);
     try {
-      timeoutStrategy.apply(() -> ResultOrErrorFutureFactory.supply(() -> {
+      timeoutStrategy.action(() -> ResultOrErrorFutureFactory.supply(() -> {
         ThreadUtils.trySleep(10000L);
         return null;
       })).get().getResult();
