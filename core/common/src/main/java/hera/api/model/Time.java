@@ -7,10 +7,8 @@ package hera.api.model;
 import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @EqualsAndHashCode
-@RequiredArgsConstructor
 public class Time {
 
   /**
@@ -39,6 +37,11 @@ public class Time {
 
   @Getter
   protected final TimeUnit unit;
+
+  public Time(long value, TimeUnit unit) {
+    this.value = value < 0 ? 0 : value;
+    this.unit = unit;
+  }
 
   public long toNanoseconds() {
     return unit.toNanos(value);

@@ -58,9 +58,7 @@ public class StrategyChain implements FunctionDecoratorChain {
   @Override
   public <R> Function0<R> apply(Function0<R> f) {
     if (it.hasNext()) {
-      final FunctionDecorator next = it.next();
-      logger.debug("Apply strategy [{}] to a function", next);
-      return next.applyNext(f, this);
+      return getNext().applyNext(f, this);
     }
     return f;
   }
@@ -68,7 +66,7 @@ public class StrategyChain implements FunctionDecoratorChain {
   @Override
   public <T, R> Function1<T, R> apply(final Function1<T, R> f) {
     if (it.hasNext()) {
-      return it.next().applyNext(f, this);
+      return getNext().applyNext(f, this);
     }
     return f;
   }
@@ -76,7 +74,7 @@ public class StrategyChain implements FunctionDecoratorChain {
   @Override
   public <T1, T2, R> Function2<T1, T2, R> apply(Function2<T1, T2, R> f) {
     if (it.hasNext()) {
-      return it.next().applyNext(f, this);
+      return getNext().applyNext(f, this);
     }
     return f;
   }
@@ -84,7 +82,7 @@ public class StrategyChain implements FunctionDecoratorChain {
   @Override
   public <T1, T2, T3, R> Function3<T1, T2, T3, R> apply(Function3<T1, T2, T3, R> f) {
     if (it.hasNext()) {
-      return it.next().applyNext(f, this);
+      return getNext().applyNext(f, this);
     }
     return f;
   }
@@ -92,9 +90,15 @@ public class StrategyChain implements FunctionDecoratorChain {
   @Override
   public <T1, T2, T3, T4, R> Function4<T1, T2, T3, T4, R> apply(Function4<T1, T2, T3, T4, R> f) {
     if (it.hasNext()) {
-      return it.next().applyNext(f, this);
+      return getNext().applyNext(f, this);
     }
     return f;
+  }
+
+  protected FunctionDecorator getNext() {
+    final FunctionDecorator next = it.next();
+    logger.debug("Apply next strategy [{}] to a function", next);
+    return next;
   }
 
 }

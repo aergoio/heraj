@@ -11,8 +11,12 @@ import hera.util.Configuration;
 import io.grpc.ManagedChannel;
 import io.grpc.okhttp.OkHttpChannelBuilder;
 import java.util.concurrent.TimeUnit;
+import lombok.EqualsAndHashCode;
 import lombok.Setter;
+import lombok.ToString;
 
+@ToString
+@EqualsAndHashCode
 public class OkHttpConnectStrategy
     implements ConnectStrategy<ManagedChannel>, Configurable<Configuration> {
 

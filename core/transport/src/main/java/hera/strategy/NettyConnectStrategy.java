@@ -10,8 +10,12 @@ import hera.util.Configurable;
 import hera.util.Configuration;
 import io.grpc.netty.NettyChannelBuilder;
 import java.util.concurrent.TimeUnit;
+import lombok.EqualsAndHashCode;
 import lombok.Setter;
+import lombok.ToString;
 
+@ToString
+@EqualsAndHashCode
 public class NettyConnectStrategy
     implements ConnectStrategy<NettyChannelBuilder>, Configurable<Configuration> {
 

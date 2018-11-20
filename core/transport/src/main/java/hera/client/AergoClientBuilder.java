@@ -4,6 +4,7 @@
 
 package hera.client;
 
+import static java.util.Arrays.asList;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -13,20 +14,23 @@ import hera.DefaultConstants;
 import hera.Strategy;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.strategy.ChannelConfigurationStrategy;
+import hera.api.model.Time;
 import hera.strategy.ConnectStrategy;
 import hera.strategy.NettyConnectStrategy;
 import hera.strategy.OkHttpConnectStrategy;
+import hera.strategy.RetryStrategy;
 import hera.strategy.SimpleTimeoutStrategy;
 import hera.strategy.TimeoutStrategy;
 import hera.strategy.ZipkinTracingStrategy;
 import hera.util.Configuration;
 import hera.util.conf.InMemoryConfiguration;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 import org.slf4j.Logger;
 
 @ApiAudience.Public
@@ -34,8 +38,9 @@ import org.slf4j.Logger;
 public class AergoClientBuilder {
 
   @SuppressWarnings("rawtypes")
-  protected static final Class[] necessaryStrageties =
-      new Class[] {ConnectStrategy.class, TimeoutStrategy.class};
+  protected static final List<Class> necessaryStrageties =
+      Collections.unmodifiableList(asList(
+          new Class[] {ConnectStrategy.class, TimeoutStrategy.class}));
 
   protected static final Map<Class<?>, Strategy> defaultStrategyMap;
 
@@ -48,7 +53,7 @@ public class AergoClientBuilder {
 
   protected final Logger logger = getLogger(getClass());
 
-  protected final Map<Class<?>, Strategy> strategyMap = new HashMap<>();
+  protected final Map<Class<?>, Strategy> strategyMap = new LinkedHashMap<>();
 
   protected Configuration configuration = new InMemoryConfiguration();
 
@@ -100,13 +105,12 @@ public class AergoClientBuilder {
   }
 
   /**
-   * Use {@link ZipkinTracingStrategy}. If other {@link ChannelConfigurationStrategy} is already
-   * set, that will be overridden.
+   * Use {@link ZipkinTracingStrategy}.
    *
    * @return an instance of this
    */
   public AergoClientBuilder withZipkinTracking() {
-    strategyMap.put(ChannelConfigurationStrategy.class, new ZipkinTracingStrategy());
+    strategyMap.put(ZipkinTracingStrategy.class, new ZipkinTracingStrategy());
     return this;
   }
 
@@ -121,6 +125,20 @@ public class AergoClientBuilder {
    */
   public AergoClientBuilder withTimeout(final long timeout, final TimeUnit unit) {
     strategyMap.put(TimeoutStrategy.class, new SimpleTimeoutStrategy(timeout, unit));
+    return this;
+  }
+
+  /**
+   * Use {@link RetryStrategy}. Default retry count : 0, default retry interval : 5000 milliseconds.
+   *
+   * @param count retry count. If it is less than 0, set as 0
+   * @param interval interval value. If it's less than 0, set as 0
+   * @param unit interval unit
+   *
+   * @return an instance of this
+   */
+  public AergoClientBuilder withRetry(final int count, final long interval, final TimeUnit unit) {
+    strategyMap.put(RetryStrategy.class, new RetryStrategy(count, Time.of(interval, unit)));
     return this;
   }
 
@@ -168,7 +186,7 @@ public class AergoClientBuilder {
   @SuppressWarnings("unchecked")
   protected Context buildContextWithInjected() {
     final Context context = injectedContext.get();
-    Stream.of(necessaryStrageties).filter(s -> !context.isExists(s))
+    necessaryStrageties.stream().filter(s -> !context.isExists(s))
         .forEach(s -> context.addStrategy(defaultStrategyMap.get(s)));
     return context;
   }
@@ -177,7 +195,7 @@ public class AergoClientBuilder {
   protected Context buildContextByStrategyMap() {
     final Context context = new Context();
     strategyMap.forEach((s, i) -> context.addStrategy(i));
-    Stream.of(necessaryStrageties).filter(s -> !context.isExists(s))
+    necessaryStrageties.stream().filter(s -> !context.isExists(s))
         .forEach(s -> context.addStrategy(defaultStrategyMap.get(s)));
     context.setConfiguration(configuration);
     return context;
