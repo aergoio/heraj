@@ -39,7 +39,6 @@ public class BlockchainEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.getBlockchainStatus()).thenReturn(futureMock);
 
     final BlockchainEitherTemplate blockchainTemplate = new BlockchainEitherTemplate();
-    blockchainTemplate.setContext(context);
     blockchainTemplate.blockchainAsyncOperation = asyncOperationMock;
 
     final ResultOrError<BlockchainStatus> blockchainStatus =
@@ -55,7 +54,6 @@ public class BlockchainEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.listPeers()).thenReturn(futureMock);
 
     final BlockchainEitherTemplate blockchainTemplate = new BlockchainEitherTemplate();
-    blockchainTemplate.setContext(context);
     blockchainTemplate.blockchainAsyncOperation = asyncOperationMock;
 
     final ResultOrError<List<Peer>> peerAddresses = blockchainTemplate.listPeers();
@@ -70,7 +68,6 @@ public class BlockchainEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.getNodeStatus()).thenReturn(futureMock);
 
     final BlockchainEitherTemplate blockchainTemplate = new BlockchainEitherTemplate();
-    blockchainTemplate.setContext(context);
     blockchainTemplate.blockchainAsyncOperation = asyncOperationMock;
 
     final ResultOrError<NodeStatus> nodeStatus = blockchainTemplate.getNodeStatus();

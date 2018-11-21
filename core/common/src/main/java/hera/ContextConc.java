@@ -92,6 +92,7 @@ public class ContextConc implements Context {
     return (Optional<StrategyT>) unusedOptional;
   }
 
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
   public Stream<Strategy> listStrategies(final Predicate<? super Strategy> test) {
     return Stream.concat(strategies.stream(), usings.stream()).filter(test).peek(s -> {

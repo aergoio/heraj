@@ -63,7 +63,7 @@ public class RetryStrategyTest extends AbstractTestCase {
     })).get().getResult();
   }
 
-  @Test(timeout = 400)
+  @Test(timeout = 600)
   public void testRetryInterval() {
     final int retryCount = 3;
     final Time interval = Time.of(100L, TimeUnit.MILLISECONDS);

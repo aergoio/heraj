@@ -5,7 +5,7 @@
 package hera.client;
 
 import hera.Context;
-import hera.ContextAware;
+import hera.StrategyAcceptable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.AbstractAergoApi;
@@ -14,6 +14,7 @@ import hera.api.BlockOperation;
 import hera.api.BlockchainOperation;
 import hera.api.ContractOperation;
 import hera.api.TransactionOperation;
+import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import java.io.Closeable;
 import java.util.concurrent.TimeUnit;
@@ -52,8 +53,8 @@ public class AergoClient extends AbstractAergoApi implements Closeable, AutoClos
   private final ContractOperation contractOperation = resolveInjection(new ContractTemplate());
 
   protected <T> T resolveInjection(final T target) {
-    if (target instanceof ContextAware) {
-      ((ContextAware) target).setContext(getContext());
+    if (target instanceof StrategyAcceptable) {
+      ((StrategyAcceptable) target).accept(StrategyChain.of(getContext()));
     }
     if (target instanceof ChannelInjectable) {
       ((ChannelInjectable) target).injectChannel(getChannel());

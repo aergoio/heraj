@@ -4,7 +4,6 @@
 
 package hera.client;
 
-import static com.google.common.base.Suppliers.memoize;
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.api.tupleorerror.FunctionChain.fail;
@@ -18,8 +17,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
-import hera.Context;
-import hera.ContextAware;
+import hera.StrategyAcceptable;
 import hera.VersionUtils;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
@@ -55,9 +53,7 @@ import io.grpc.ManagedChannel;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
-import lombok.AccessLevel;
 import lombok.Getter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -68,7 +64,7 @@ import types.Rpc;
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
 public class ContractAsyncTemplate
-    implements ContractAsyncOperation, ChannelInjectable, ContextAware {
+    implements ContractAsyncOperation, ChannelInjectable, StrategyAcceptable {
 
   protected final Logger logger = getLogger(getClass());
 
@@ -86,11 +82,6 @@ public class ContractAsyncTemplate
 
   protected final ObjectMapper objectMapper = new ObjectMapper();
 
-  protected Context context;
-
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final StrategyChain strategyChain = StrategyChain.of(context);
-
   @Getter
   protected AergoRPCServiceFutureStub aergoService;
 
@@ -99,21 +90,23 @@ public class ContractAsyncTemplate
   protected TransactionAsyncTemplate transactionAsyncOperation = new TransactionAsyncTemplate();
 
   @Override
-  public void setContext(final Context context) {
-    this.context = context;
-    accountAsyncOperation.setContext(context);
-    transactionAsyncOperation.setContext(context);
-  }
-
-  @Override
   public void injectChannel(final ManagedChannel channel) {
     this.aergoService = newFutureStub(channel);
     accountAsyncOperation.injectChannel(channel);
     transactionAsyncOperation.injectChannel(channel);
   }
 
+  @Override
+  public void accept(final StrategyChain strategyChain) {
+    this.wrappedGetReceiptFunction = strategyChain.apply(getReceiptFunction);
+    this.wrappedDeployFunction = strategyChain.apply(deployFunction);
+    this.wrappedGetContractInterfaceFunction = strategyChain.apply(getContractInterfaceFunction);
+    this.wrappedExecuteFunction = strategyChain.apply(executeFunction);
+    this.wrappedQueryFunction = strategyChain.apply(queryFunction);
+  }
+
   private final Function1<ContractTxHash,
-      ResultOrErrorFuture<ContractTxReceipt>> receiptFunction =
+      ResultOrErrorFuture<ContractTxReceipt>> getReceiptFunction =
           (deployTxHash) -> {
             ResultOrErrorFuture<ContractTxReceipt> nextFuture =
                 ResultOrErrorFutureFactory.supplyEmptyFuture();
@@ -153,7 +146,7 @@ public class ContractAsyncTemplate
           };
 
   private final Function1<ContractAddress,
-      ResultOrErrorFuture<ContractInterface>> contractInterfaceFunction = (contractAddress) -> {
+      ResultOrErrorFuture<ContractInterface>> getContractInterfaceFunction = (contractAddress) -> {
         ResultOrErrorFuture<ContractInterface> nextFuture =
             ResultOrErrorFutureFactory.supplyEmptyFuture();
 
@@ -299,52 +292,48 @@ public class ContractAsyncTemplate
     return argsNode;
   }
 
-  protected Supplier<
-      Function1<ContractTxHash, ResultOrErrorFuture<ContractTxReceipt>>> receiptFunctionSupplier =
-          memoize(() -> getStrategyChain().apply(receiptFunction));
+  protected Function1<ContractTxHash,
+      ResultOrErrorFuture<ContractTxReceipt>> wrappedGetReceiptFunction = getReceiptFunction;
 
-  protected Supplier<Function3<Account, ContractDefinition, Fee,
-      ResultOrErrorFuture<ContractTxHash>>> deployFunctionSupplier =
-          memoize(() -> getStrategyChain().apply(deployFunction));
+  protected Function3<Account, ContractDefinition, Fee,
+      ResultOrErrorFuture<ContractTxHash>> wrappedDeployFunction = deployFunction;
 
-  protected Supplier<Function1<ContractAddress,
-      ResultOrErrorFuture<ContractInterface>>> contractInterfaceFunctionSupplier =
-          memoize(() -> getStrategyChain().apply(contractInterfaceFunction));
+  protected Function1<ContractAddress,
+      ResultOrErrorFuture<ContractInterface>> wrappedGetContractInterfaceFunction =
+          getContractInterfaceFunction;
 
-  protected Supplier<Function3<Account, ContractInvocation, Fee,
-      ResultOrErrorFuture<ContractTxHash>>> executeFunctionSupplier =
-          memoize(() -> getStrategyChain().apply(executeFunction));
+  protected Function3<Account, ContractInvocation, Fee,
+      ResultOrErrorFuture<ContractTxHash>> wrappedExecuteFunction = executeFunction;
 
-  protected Supplier<
-      Function1<ContractInvocation, ResultOrErrorFuture<ContractResult>>> queryFunctionSupplier =
-          memoize(() -> getStrategyChain().apply(queryFunction));
+  protected Function1<ContractInvocation,
+      ResultOrErrorFuture<ContractResult>> wrappedQueryFunction = queryFunction;
 
   @Override
   public ResultOrErrorFuture<ContractTxReceipt> getReceipt(final ContractTxHash contractTxHash) {
-    return receiptFunctionSupplier.get().apply(contractTxHash);
+    return wrappedGetReceiptFunction.apply(contractTxHash);
   }
 
   @Override
   public ResultOrErrorFuture<ContractTxHash> deploy(final Account creator,
       final ContractDefinition contractDefinition, final Fee fee) {
-    return deployFunctionSupplier.get().apply(creator, contractDefinition, fee);
+    return wrappedDeployFunction.apply(creator, contractDefinition, fee);
   }
 
   @Override
   public ResultOrErrorFuture<ContractInterface> getContractInterface(
       final ContractAddress contractAddress) {
-    return contractInterfaceFunctionSupplier.get().apply(contractAddress);
+    return wrappedGetContractInterfaceFunction.apply(contractAddress);
   }
 
   @Override
   public ResultOrErrorFuture<ContractTxHash> execute(final Account executor,
       final ContractInvocation contractInvocation, final Fee fee) {
-    return executeFunctionSupplier.get().apply(executor, contractInvocation, fee);
+    return wrappedExecuteFunction.apply(executor, contractInvocation, fee);
   }
 
   @Override
   public ResultOrErrorFuture<ContractResult> query(final ContractInvocation contractInvocation) {
-    return queryFunctionSupplier.get().apply(contractInvocation);
+    return wrappedQueryFunction.apply(contractInvocation);
   }
 
 }

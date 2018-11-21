@@ -62,7 +62,6 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
   protected ContractAsyncTemplate supplyContractAsyncTemplate(
       final AergoRPCServiceFutureStub aergoService) {
     final ContractAsyncTemplate contractAsyncTemplate = new ContractAsyncTemplate();
-    contractAsyncTemplate.setContext(context);
     contractAsyncTemplate.aergoService = aergoService;
     return contractAsyncTemplate;
   }

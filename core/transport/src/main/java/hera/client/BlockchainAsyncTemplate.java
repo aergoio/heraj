@@ -4,7 +4,6 @@
 
 package hera.client;
 
-import static com.google.common.base.Suppliers.memoize;
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.api.tupleorerror.FunctionChain.of;
@@ -15,8 +14,7 @@ import static types.AergoRPCServiceGrpc.newFutureStub;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
-import hera.Context;
-import hera.ContextAware;
+import hera.StrategyAcceptable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.BlockchainAsyncOperation;
@@ -33,11 +31,8 @@ import hera.transport.NodeStatusConverterFactory;
 import hera.transport.PeerConverterFactory;
 import io.grpc.ManagedChannel;
 import java.util.List;
-import java.util.function.Supplier;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Rpc;
@@ -47,7 +42,7 @@ import types.Rpc;
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
 public class BlockchainAsyncTemplate
-    implements BlockchainAsyncOperation, ChannelInjectable, ContextAware {
+    implements BlockchainAsyncOperation, ChannelInjectable, StrategyAcceptable {
 
   protected final Logger logger = getLogger(getClass());
 
@@ -60,18 +55,19 @@ public class BlockchainAsyncTemplate
   protected final ModelConverter<NodeStatus, Rpc.SingleBytes> nodeStatusConverter =
       new NodeStatusConverterFactory().create();
 
-  @Setter
-  protected Context context;
-
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final StrategyChain strategyChain = StrategyChain.of(context);
-
   @Getter
   protected AergoRPCServiceFutureStub aergoService;
 
   @Override
   public void injectChannel(final ManagedChannel channel) {
     this.aergoService = newFutureStub(channel);
+  }
+
+  @Override
+  public void accept(final StrategyChain strategyChain) {
+    this.wrappedBlockchainStatusFunction = strategyChain.apply(blockchainStatusFunction);
+    this.wrappedListPeersFunction = strategyChain.apply(listPeersFunction);
+    this.wrappedNodeStatusFunction = strategyChain.apply(nodeStatusFunction);
   }
 
   private final Function0<ResultOrErrorFuture<BlockchainStatus>> blockchainStatusFunction = () -> {
@@ -117,29 +113,28 @@ public class BlockchainAsyncTemplate
     return nextFuture;
   };
 
-  protected Supplier<
-      Function0<ResultOrErrorFuture<BlockchainStatus>>> blockchainStatusFunctionSupplier =
-          memoize(() -> getStrategyChain().apply(blockchainStatusFunction));
+  protected Function0<ResultOrErrorFuture<BlockchainStatus>> wrappedBlockchainStatusFunction =
+      blockchainStatusFunction;
 
-  protected Supplier<Function0<ResultOrErrorFuture<List<Peer>>>> listPeersFunctionSupplier =
-      memoize(() -> getStrategyChain().apply(listPeersFunction));
+  protected Function0<ResultOrErrorFuture<List<Peer>>> wrappedListPeersFunction =
+      listPeersFunction;
 
-  protected Supplier<Function0<ResultOrErrorFuture<NodeStatus>>> nodeStatusFunctionSupplier =
-      memoize(() -> getStrategyChain().apply(nodeStatusFunction));
+  protected Function0<ResultOrErrorFuture<NodeStatus>> wrappedNodeStatusFunction =
+      nodeStatusFunction;
 
   @Override
   public ResultOrErrorFuture<BlockchainStatus> getBlockchainStatus() {
-    return blockchainStatusFunctionSupplier.get().apply();
+    return wrappedBlockchainStatusFunction.apply();
   }
 
   @Override
   public ResultOrErrorFuture<List<Peer>> listPeers() {
-    return listPeersFunctionSupplier.get().apply();
+    return wrappedListPeersFunction.apply();
   }
 
   @Override
   public ResultOrErrorFuture<NodeStatus> getNodeStatus() {
-    return nodeStatusFunctionSupplier.get().apply();
+    return wrappedNodeStatusFunction.apply();
   }
 
 }

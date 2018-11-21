@@ -42,7 +42,6 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
   protected AccountAsyncTemplate supplyAccountAsyncTemplate(
       final AergoRPCServiceFutureStub aergoService) {
     final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate();
-    accountAsyncTemplate.setContext(context);
     accountAsyncTemplate.aergoService = aergoService;
     return accountAsyncTemplate;
   }

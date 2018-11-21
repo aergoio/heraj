@@ -47,7 +47,6 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.list()).thenReturn(futureMock);
 
     final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
-    accountTemplate.setContext(context);
     accountTemplate.accountAsyncOperation = asyncOperationMock;
 
     final ResultOrError<List<AccountAddress>> accountListFuture = accountTemplate.list();
@@ -62,7 +61,6 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.create(anyString())).thenReturn(futureMock);
 
     final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
-    accountTemplate.setContext(context);
     accountTemplate.accountAsyncOperation = asyncOperationMock;
 
     final ResultOrError<Account> createdAccount = accountTemplate.create(randomUUID().toString());
@@ -77,7 +75,6 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.getState(any(AccountAddress.class))).thenReturn(futureMock);
 
     final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
-    accountTemplate.setContext(context);
     accountTemplate.accountAsyncOperation = asyncOperationMock;
 
     final ResultOrError<AccountState> accountState = accountTemplate.getState(accountAddress);
@@ -92,7 +89,6 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.lock(any())).thenReturn(futureMock);
 
     final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
-    accountTemplate.setContext(context);
     accountTemplate.accountAsyncOperation = asyncOperationMock;
 
     ResultOrError<Boolean> lockResult =
@@ -108,7 +104,6 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.unlock(any())).thenReturn(futureMock);
 
     final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
-    accountTemplate.setContext(context);
     accountTemplate.accountAsyncOperation = asyncOperationMock;
 
     ResultOrError<Boolean> unlockResult =
@@ -124,7 +119,6 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.importKey(any(), any(), any())).thenReturn(futureMock);
 
     final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
-    accountTemplate.setContext(context);
     accountTemplate.accountAsyncOperation = asyncOperationMock;
 
     ResultOrError<Account> importedAccount = accountTemplate
@@ -140,7 +134,6 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.exportKey(any())).thenReturn(futureMock);
 
     final AccountEitherTemplate accountTemplate = new AccountEitherTemplate();
-    accountTemplate.setContext(context);
     accountTemplate.accountAsyncOperation = asyncOperationMock;
 
     ResultOrError<EncryptedPrivateKey> exportedKey =

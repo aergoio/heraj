@@ -40,7 +40,6 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
   protected TransactionAsyncTemplate supplyTransactionAsyncTemplate(
       final AergoRPCServiceFutureStub aergoService) {
     final TransactionAsyncTemplate transactionAsyncTemplate = new TransactionAsyncTemplate();
-    transactionAsyncTemplate.setContext(context);
     transactionAsyncTemplate.aergoService = aergoService;
     return transactionAsyncTemplate;
   }

@@ -4,8 +4,7 @@
 
 package hera.client;
 
-import hera.Context;
-import hera.ContextAware;
+import hera.StrategyAcceptable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.BlockEitherOperation;
@@ -13,18 +12,20 @@ import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
 import hera.api.tupleorerror.ResultOrError;
+import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import java.util.List;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-public class BlockEitherTemplate implements BlockEitherOperation, ChannelInjectable, ContextAware {
+public class BlockEitherTemplate
+    implements BlockEitherOperation, ChannelInjectable, StrategyAcceptable {
 
   protected BlockAsyncTemplate blockAsyncOperation = new BlockAsyncTemplate();
 
   @Override
-  public void setContext(final Context context) {
-    blockAsyncOperation.setContext(context);
+  public void accept(final StrategyChain strategyChain) {
+    blockAsyncOperation.accept(strategyChain);
   }
 
   @Override

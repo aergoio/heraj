@@ -4,8 +4,7 @@
 
 package hera.client;
 
-import hera.Context;
-import hera.ContextAware;
+import hera.StrategyAcceptable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.BlockchainEitherOperation;
@@ -13,24 +12,25 @@ import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.tupleorerror.ResultOrError;
+import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import java.util.List;
 
 @ApiAudience.Private
 @ApiStability.Unstable
 public class BlockchainEitherTemplate
-    implements BlockchainEitherOperation, ChannelInjectable, ContextAware {
+    implements BlockchainEitherOperation, ChannelInjectable, StrategyAcceptable {
 
   protected BlockchainAsyncTemplate blockchainAsyncOperation = new BlockchainAsyncTemplate();
 
   @Override
-  public void setContext(final Context context) {
-    blockchainAsyncOperation.setContext(context);
+  public void injectChannel(final ManagedChannel channel) {
+    blockchainAsyncOperation.injectChannel(channel);
   }
 
   @Override
-  public void injectChannel(final ManagedChannel channel) {
-    blockchainAsyncOperation.injectChannel(channel);
+  public void accept(final StrategyChain strategyChain) {
+    blockchainAsyncOperation.accept(strategyChain);
   }
 
   @Override

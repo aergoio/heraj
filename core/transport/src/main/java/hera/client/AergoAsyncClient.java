@@ -5,7 +5,7 @@
 package hera.client;
 
 import hera.Context;
-import hera.ContextAware;
+import hera.StrategyAcceptable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.AbstractAsyncAergoApi;
@@ -14,6 +14,7 @@ import hera.api.BlockAsyncOperation;
 import hera.api.BlockchainAsyncOperation;
 import hera.api.ContractAsyncOperation;
 import hera.api.TransactionAsyncOperation;
+import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import java.io.Closeable;
 import java.util.concurrent.TimeUnit;
@@ -28,10 +29,11 @@ import lombok.RequiredArgsConstructor;
 public class AergoAsyncClient extends AbstractAsyncAergoApi implements Closeable, AutoCloseable {
 
   @NonNull
+  @Getter
   protected final Context context;
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final ManagedChannel channel = new ManagedChannelFactory().apply(context);
+  private final ManagedChannel channel = new ManagedChannelFactory().apply(getContext());
 
   @Getter(lazy = true)
   private final AccountAsyncOperation accountAsyncOperation =
@@ -54,8 +56,8 @@ public class AergoAsyncClient extends AbstractAsyncAergoApi implements Closeable
       resolveInjection(new ContractAsyncTemplate());
 
   protected <T> T resolveInjection(final T target) {
-    if (target instanceof ContextAware) {
-      ((ContextAware) target).setContext(context);
+    if (target instanceof StrategyAcceptable) {
+      ((StrategyAcceptable) target).accept(StrategyChain.of(getContext()));
     }
     if (target instanceof ChannelInjectable) {
       ((ChannelInjectable) target).injectChannel(getChannel());

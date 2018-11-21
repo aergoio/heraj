@@ -54,7 +54,6 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.getReceipt(any())).thenReturn(futureMock);
 
     final ContractEitherTemplate contractTemplate = new ContractEitherTemplate();
-    contractTemplate.setContext(context);
     contractTemplate.contractAsyncOperation = asyncOperationMock;
 
     final ResultOrError<ContractTxReceipt> receipt =
@@ -70,7 +69,6 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.deploy(any(), any(), any())).thenReturn(futureMock);
 
     final ContractEitherTemplate contractTemplate = new ContractEitherTemplate();
-    contractTemplate.setContext(context);
     contractTemplate.contractAsyncOperation = asyncOperationMock;
 
     final ResultOrError<ContractTxHash> deployTxHash =
@@ -87,7 +85,6 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.getContractInterface(any())).thenReturn(futureMock);
 
     final ContractEitherTemplate contractTemplate = new ContractEitherTemplate();
-    contractTemplate.setContext(context);
     contractTemplate.contractAsyncOperation = asyncOperationMock;
 
     final ResultOrError<ContractInterface> contractInterface =
@@ -103,7 +100,6 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.execute(any(), any(), any())).thenReturn(futureMock);
 
     final ContractEitherTemplate contractTemplate = new ContractEitherTemplate();
-    contractTemplate.setContext(context);
     contractTemplate.contractAsyncOperation = asyncOperationMock;
 
     final ResultOrError<ContractTxHash> executionTxHash =
@@ -120,7 +116,6 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.query(any())).thenReturn(futureMock);
 
     final ContractEitherTemplate contractTemplate = new ContractEitherTemplate();
-    contractTemplate.setContext(context);
     contractTemplate.contractAsyncOperation = asyncOperationMock;
 
     final ResultOrError<ContractResult> queryResult =

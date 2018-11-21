@@ -44,7 +44,6 @@ public class BlockEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.getBlock(any())).thenReturn(futureMock);
 
     final BlockEitherTemplate blockTemplate = new BlockEitherTemplate();
-    blockTemplate.setContext(context);
     blockTemplate.blockAsyncOperation = asyncOperationMock;
 
     final ResultOrError<Block> block =
@@ -60,7 +59,6 @@ public class BlockEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.getBlock(anyLong())).thenReturn(futureMock);
 
     final BlockEitherTemplate blockTemplate = new BlockEitherTemplate();
-    blockTemplate.setContext(context);
     blockTemplate.blockAsyncOperation = asyncOperationMock;
 
     final ResultOrError<Block> block = blockTemplate.getBlock(randomUUID().hashCode());
@@ -75,7 +73,6 @@ public class BlockEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.listBlockHeaders(any(), anyInt())).thenReturn(futureMock);
 
     final BlockEitherTemplate blockTemplate = new BlockEitherTemplate();
-    blockTemplate.setContext(context);
     blockTemplate.blockAsyncOperation = asyncOperationMock;
 
     final ResultOrError<List<BlockHeader>> block = blockTemplate.listBlockHeaders(
@@ -91,7 +88,6 @@ public class BlockEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.listBlockHeaders(anyLong(), anyInt())).thenReturn(futureMock);
 
     final BlockEitherTemplate blockTemplate = new BlockEitherTemplate();
-    blockTemplate.setContext(context);
     blockTemplate.blockAsyncOperation = asyncOperationMock;
 
     final ResultOrError<List<BlockHeader>> block =

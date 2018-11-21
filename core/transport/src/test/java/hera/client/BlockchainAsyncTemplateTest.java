@@ -33,7 +33,6 @@ public class BlockchainAsyncTemplateTest extends AbstractTestCase {
   protected BlockchainAsyncTemplate supplyBlockchainAsyncTemplate(
       final AergoRPCServiceFutureStub aergoService) {
     final BlockchainAsyncTemplate blockchainAsyncTemplate = new BlockchainAsyncTemplate();
-    blockchainAsyncTemplate.setContext(context);
     blockchainAsyncTemplate.aergoService = aergoService;
     return blockchainAsyncTemplate;
   }

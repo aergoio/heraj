@@ -4,7 +4,6 @@
 
 package hera.client;
 
-import static com.google.common.base.Suppliers.memoize;
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.api.tupleorerror.FunctionChain.of;
@@ -15,8 +14,7 @@ import static types.AergoRPCServiceGrpc.newFutureStub;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
-import hera.Context;
-import hera.ContextAware;
+import hera.StrategyAcceptable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.BlockAsyncOperation;
@@ -33,10 +31,7 @@ import hera.transport.BlockConverterFactory;
 import hera.transport.ModelConverter;
 import io.grpc.ManagedChannel;
 import java.util.List;
-import java.util.function.Supplier;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Blockchain;
 import types.Rpc;
@@ -44,16 +39,11 @@ import types.Rpc;
 @ApiAudience.Private
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
-public class BlockAsyncTemplate implements BlockAsyncOperation, ChannelInjectable, ContextAware {
+public class BlockAsyncTemplate
+    implements BlockAsyncOperation, ChannelInjectable, StrategyAcceptable {
 
   protected final ModelConverter<Block, Blockchain.Block> blockConverter =
       new BlockConverterFactory().create();
-
-  @Setter
-  protected Context context;
-
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final StrategyChain strategyChain = StrategyChain.of(context);
 
   @Getter
   protected AergoRPCServiceFutureStub aergoService;
@@ -61,6 +51,15 @@ public class BlockAsyncTemplate implements BlockAsyncOperation, ChannelInjectabl
   @Override
   public void injectChannel(final ManagedChannel channel) {
     this.aergoService = newFutureStub(channel);
+  }
+
+  @Override
+  public void accept(final StrategyChain strategyChain) {
+    this.wrappedBlockWithHashFunction = strategyChain.apply(blockWithHashFunction);
+    this.wrappedBlockWithHeightFunction = strategyChain.apply(blockWithHeightFunction);
+    this.wrappedBlockHeadersWithHashFunction = strategyChain.apply(blockHeadersWithHashFunction);
+    this.wrappedBlockHeadersWithHeightFunction =
+        strategyChain.apply(blockHeadersWithHeightFunction);
   }
 
   private final Function1<BlockHash, ResultOrErrorFuture<Block>> blockWithHashFunction =
@@ -134,43 +133,40 @@ public class BlockAsyncTemplate implements BlockAsyncOperation, ChannelInjectabl
         return nextFuture;
       };
 
-  protected Supplier<
-      Function1<BlockHash, ResultOrErrorFuture<Block>>> blockWithHashFunctionSupplier =
-          memoize(() -> getStrategyChain().apply(blockWithHashFunction));
+  protected Function1<BlockHash, ResultOrErrorFuture<Block>> wrappedBlockWithHashFunction =
+      blockWithHashFunction;
 
-  protected Supplier<
-      Function1<Long, ResultOrErrorFuture<Block>>> blockWithHeightFunctionSupplier =
-          memoize(() -> getStrategyChain().apply(blockWithHeightFunction));
+  protected Function1<Long, ResultOrErrorFuture<Block>> wrappedBlockWithHeightFunction =
+      blockWithHeightFunction;
 
+  protected Function2<BlockHash, Integer,
+      ResultOrErrorFuture<List<BlockHeader>>> wrappedBlockHeadersWithHashFunction =
+          blockHeadersWithHashFunction;
 
-  protected Supplier<Function2<BlockHash, Integer,
-      ResultOrErrorFuture<List<BlockHeader>>>> blockHeadersWithHashFunctionSupplier =
-          memoize(() -> getStrategyChain().apply(blockHeadersWithHashFunction));
-
-  protected Supplier<Function2<Long, Integer,
-      ResultOrErrorFuture<List<BlockHeader>>>> blockHeadersWithHeightFunctionSupplier =
-          memoize(() -> getStrategyChain().apply(blockHeadersWithHeightFunction));
+  protected Function2<Long, Integer,
+      ResultOrErrorFuture<List<BlockHeader>>> wrappedBlockHeadersWithHeightFunction =
+          blockHeadersWithHeightFunction;
 
   @Override
   public ResultOrErrorFuture<Block> getBlock(final BlockHash blockHash) {
-    return blockWithHashFunctionSupplier.get().apply(blockHash);
+    return wrappedBlockWithHashFunction.apply(blockHash);
   }
 
   @Override
   public ResultOrErrorFuture<Block> getBlock(final long height) {
-    return blockWithHeightFunctionSupplier.get().apply(height);
+    return wrappedBlockWithHeightFunction.apply(height);
   }
 
   @Override
   public ResultOrErrorFuture<List<BlockHeader>> listBlockHeaders(final BlockHash blockHash,
       final int size) {
-    return blockHeadersWithHashFunctionSupplier.get().apply(blockHash, size);
+    return wrappedBlockHeadersWithHashFunction.apply(blockHash, size);
   }
 
   @Override
   public ResultOrErrorFuture<List<BlockHeader>> listBlockHeaders(final long height,
       final int size) {
-    return blockHeadersWithHeightFunctionSupplier.get().apply(height, size);
+    return wrappedBlockHeadersWithHeightFunction.apply(height, size);
   }
 
 }

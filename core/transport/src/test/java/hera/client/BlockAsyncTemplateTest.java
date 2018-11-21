@@ -36,7 +36,6 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
   protected BlockAsyncTemplate supplyBlockAsyncTemplate(
       final AergoRPCServiceFutureStub aergoService) {
     final BlockAsyncTemplate blockAsyncTemplate = new BlockAsyncTemplate();
-    blockAsyncTemplate.setContext(context);
     blockAsyncTemplate.aergoService = aergoService;
     return blockAsyncTemplate;
   }

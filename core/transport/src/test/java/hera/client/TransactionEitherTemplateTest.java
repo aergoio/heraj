@@ -46,7 +46,6 @@ public class TransactionEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.getTransaction(any())).thenReturn(futureMock);
 
     final TransactionEitherTemplate transactionTemplate = new TransactionEitherTemplate();
-    transactionTemplate.setContext(context);
     transactionTemplate.transactionAsyncOperation = asyncOperationMock;
 
     final ResultOrError<Transaction> transaction =
@@ -62,7 +61,6 @@ public class TransactionEitherTemplateTest extends AbstractTestCase {
     when(asyncOperationMock.commit(any(Transaction.class))).thenReturn(futureMock);
 
     final TransactionEitherTemplate transactionTemplate = new TransactionEitherTemplate();
-    transactionTemplate.setContext(context);
     transactionTemplate.transactionAsyncOperation = asyncOperationMock;
 
     final ResultOrError<TxHash> txHash = transactionTemplate.commit(new Transaction());
@@ -78,7 +76,6 @@ public class TransactionEitherTemplateTest extends AbstractTestCase {
         .thenReturn(futureMock);
 
     final TransactionEitherTemplate transactionTemplate = new TransactionEitherTemplate();
-    transactionTemplate.setContext(context);
     transactionTemplate.transactionAsyncOperation = asyncOperationMock;
 
     final ResultOrError<TxHash> txHash =
