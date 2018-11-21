@@ -28,10 +28,11 @@ import lombok.RequiredArgsConstructor;
 public class AergoClient extends AbstractAergoApi implements Closeable, AutoCloseable {
 
   @NonNull
+  @Getter
   protected final Context context;
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final ManagedChannel channel = new ManagedChannelFactory().apply(context);
+  private final ManagedChannel channel = new ManagedChannelFactory().apply(getContext());
 
   @Getter(lazy = true)
   private final AccountOperation accountOperation = resolveInjection(new AccountTemplate());
@@ -52,7 +53,7 @@ public class AergoClient extends AbstractAergoApi implements Closeable, AutoClos
 
   protected <T> T resolveInjection(final T target) {
     if (target instanceof ContextAware) {
-      ((ContextAware) target).setContext(context);
+      ((ContextAware) target).setContext(getContext());
     }
     if (target instanceof ChannelInjectable) {
       ((ChannelInjectable) target).injectChannel(getChannel());

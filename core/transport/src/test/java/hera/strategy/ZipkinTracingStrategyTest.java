@@ -9,7 +9,7 @@ public class ZipkinTracingStrategyTest {
   @Test
   public void testConfigure() {
     final AergoClient aergoClient = new AergoClientBuilder()
-        .withZipkinTracking()
+        .withTracking()
         .build();
   }
 

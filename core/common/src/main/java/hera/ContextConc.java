@@ -62,8 +62,8 @@ public class ContextConc implements Context {
 
   @Override
   public <StrategyT extends Strategy> boolean hasStrategy(Class<StrategyT> strategyClass) {
-    return strategies.stream().filter(strategyClass::isInstance).findFirst().isPresent()
-        || usings.stream().filter(strategyClass::isInstance).findFirst().isPresent();
+    return strategies.stream().anyMatch(strategyClass::isInstance)
+        || usings.stream().anyMatch(strategyClass::isInstance);
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
@@ -94,7 +94,14 @@ public class ContextConc implements Context {
 
   @Override
   public Stream<Strategy> listStrategies(final Predicate<? super Strategy> test) {
-    return Stream.concat(strategies.stream(), usings.stream()).filter(test);
+    return Stream.concat(strategies.stream(), usings.stream()).filter(test).peek(s -> {
+      if (s instanceof Configurable) {
+        ((Configurable) s).setConfiguration(configuration);
+      }
+      if (s instanceof ContextAware) {
+        ((ContextAware) s).setContext(this);
+      }
+    });
   }
 
   protected List<Strategy> getReversedList() {

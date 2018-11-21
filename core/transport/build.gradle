@@ -23,14 +23,13 @@ dependencies {
   implementation ("io.grpc:grpc-stub:${grpcVersion}") {
     exclude group: 'com.google.guava', module: 'guava'
   }
-  implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.3'
 
-  compile 'io.opentracing:opentracing-api:0.31.0'
-  compile 'io.opentracing:opentracing-util:0.31.0'
+  implementation 'io.opentracing:opentracing-api:0.31.0'
+  implementation 'io.opentracing:opentracing-util:0.31.0'
 
-  compile 'io.opentracing.contrib:grpc-opentracing:0.2.0'
-
-  compile 'io.opentracing.brave:brave-opentracing:0.33.6'
-  compile 'io.zipkin.reporter2:zipkin-sender-okhttp3:2.7.10'
-  compile 'io.zipkin.reporter2:zipkin-reporter:2.7.10'
+  implementation 'io.opentracing.contrib:grpc-opentracing:0.2.0'
+  implementation 'io.opentracing.brave:brave-opentracing:0.33.6'
+  implementation 'io.zipkin.reporter2:zipkin-reporter:2.7.10'
+  implementation 'io.zipkin.reporter2:zipkin-sender-okhttp3:2.7.10'
+  implementation 'io.zipkin.reporter2:zipkin-sender-kafka11:2.7.10'
 }

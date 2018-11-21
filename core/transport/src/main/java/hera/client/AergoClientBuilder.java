@@ -16,6 +16,7 @@ import hera.Strategy;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Time;
+import hera.strategy.ChannelConfigurationStrategy;
 import hera.strategy.ConnectStrategy;
 import hera.strategy.NettyConnectStrategy;
 import hera.strategy.OkHttpConnectStrategy;
@@ -59,6 +60,11 @@ public class AergoClientBuilder {
   protected Configuration configuration = new InMemoryConfiguration();
 
   protected Optional<Context> injectedContext = empty();
+
+  public AergoClientBuilder addConfiguration(final String key, final String value) {
+    configuration.define(key, value);
+    return this;
+  }
 
   /**
    * Provide a context. If this method is invoked, all other builder setting will be ignored.
@@ -110,8 +116,8 @@ public class AergoClientBuilder {
    *
    * @return an instance of this
    */
-  public AergoClientBuilder withZipkinTracking() {
-    strategyMap.put(ZipkinTracingStrategy.class, new ZipkinTracingStrategy());
+  public AergoClientBuilder withTracking() {
+    strategyMap.put(ChannelConfigurationStrategy.class, new ZipkinTracingStrategy());
     return this;
   }
 

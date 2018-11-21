@@ -47,9 +47,11 @@ public abstract class AbstractIT {
     rich = ClientManagedAccount.of(key);
 
     aergoClient = new AergoClientBuilder()
+        .addConfiguration("zipkin.protocol", "kafka")
+        .addConfiguration("zipkin.endpoint", "localhost:9092")
         .withEndpoint("localhost:7845")
         .withNettyConnect()
-        .withZipkinTracking()
+        .withTracking()
         .withTimeout(10L, TimeUnit.SECONDS)
         .build();
   }
