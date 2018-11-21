@@ -5,6 +5,7 @@
 package hera.client;
 
 import hera.Context;
+import hera.ContextAware;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.AccountOperation;
@@ -20,7 +21,7 @@ import java.util.List;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-public class AccountTemplate implements AccountOperation, ChannelInjectable {
+public class AccountTemplate implements AccountOperation, ChannelInjectable, ContextAware {
 
   protected AccountEitherTemplate accountEitherOperation = new AccountEitherTemplate();
 

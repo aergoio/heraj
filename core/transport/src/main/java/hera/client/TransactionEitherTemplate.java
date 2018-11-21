@@ -5,6 +5,7 @@
 package hera.client;
 
 import hera.Context;
+import hera.ContextAware;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.TransactionEitherOperation;
@@ -19,7 +20,8 @@ import io.opentracing.util.GlobalTracer;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-public class TransactionEitherTemplate implements TransactionEitherOperation, ChannelInjectable {
+public class TransactionEitherTemplate
+    implements TransactionEitherOperation, ChannelInjectable, ContextAware {
 
   protected TransactionAsyncTemplate transactionAsyncOperation = new TransactionAsyncTemplate();
 

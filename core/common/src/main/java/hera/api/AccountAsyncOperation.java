@@ -4,7 +4,6 @@
 
 package hera.api;
 
-import hera.ContextAware;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Account;
@@ -21,7 +20,7 @@ import java.util.List;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public interface AccountAsyncOperation extends ContextAware {
+public interface AccountAsyncOperation {
 
   /**
    * Get account list asynchronously.

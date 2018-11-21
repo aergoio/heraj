@@ -4,7 +4,6 @@
 
 package hera.api;
 
-import hera.ContextAware;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.BlockchainStatus;
@@ -15,7 +14,7 @@ import java.util.List;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public interface BlockchainEitherOperation extends ContextAware {
+public interface BlockchainEitherOperation {
 
   /**
    * Get blockchain status.

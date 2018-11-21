@@ -5,6 +5,7 @@
 package hera.client;
 
 import hera.Context;
+import hera.ContextAware;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.ContractEitherOperation;
@@ -22,7 +23,8 @@ import io.grpc.ManagedChannel;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-public class ContractEitherTemplate implements ContractEitherOperation, ChannelInjectable {
+public class ContractEitherTemplate
+    implements ContractEitherOperation, ChannelInjectable, ContextAware {
 
   protected ContractAsyncTemplate contractAsyncOperation = new ContractAsyncTemplate();
 

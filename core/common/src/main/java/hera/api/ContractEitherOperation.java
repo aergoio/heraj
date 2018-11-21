@@ -4,7 +4,6 @@
 
 package hera.api;
 
-import hera.ContextAware;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Account;
@@ -20,7 +19,7 @@ import hera.api.tupleorerror.ResultOrError;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public interface ContractEitherOperation extends ContextAware {
+public interface ContractEitherOperation {
 
   /**
    * Get receipt of transaction.

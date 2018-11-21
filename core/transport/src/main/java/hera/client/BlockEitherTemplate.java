@@ -5,6 +5,7 @@
 package hera.client;
 
 import hera.Context;
+import hera.ContextAware;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.BlockEitherOperation;
@@ -17,7 +18,7 @@ import java.util.List;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-public class BlockEitherTemplate implements BlockEitherOperation, ChannelInjectable {
+public class BlockEitherTemplate implements BlockEitherOperation, ChannelInjectable, ContextAware {
 
   protected BlockAsyncTemplate blockAsyncOperation = new BlockAsyncTemplate();
 

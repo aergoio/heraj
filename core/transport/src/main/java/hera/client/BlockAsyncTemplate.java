@@ -16,6 +16,7 @@ import static types.AergoRPCServiceGrpc.newFutureStub;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
 import hera.Context;
+import hera.ContextAware;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.BlockAsyncOperation;
@@ -33,6 +34,7 @@ import hera.transport.ModelConverter;
 import io.grpc.ManagedChannel;
 import java.util.List;
 import java.util.function.Supplier;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -42,13 +44,16 @@ import types.Rpc;
 @ApiAudience.Private
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
-public class BlockAsyncTemplate implements BlockAsyncOperation, ChannelInjectable {
+public class BlockAsyncTemplate implements BlockAsyncOperation, ChannelInjectable, ContextAware {
 
   protected final ModelConverter<Block, Blockchain.Block> blockConverter =
       new BlockConverterFactory().create();
 
   @Setter
   protected Context context;
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final StrategyChain strategyChain = StrategyChain.of(context);
 
   @Getter
   protected AergoRPCServiceFutureStub aergoService;
@@ -58,81 +63,93 @@ public class BlockAsyncTemplate implements BlockAsyncOperation, ChannelInjectabl
     this.aergoService = newFutureStub(channel);
   }
 
-  private final Supplier<
+  private final Function1<BlockHash, ResultOrErrorFuture<Block>> blockWithHashFunction =
+      (blockHash) -> {
+        final ResultOrErrorFuture<Block> nextFuture =
+            ResultOrErrorFutureFactory.supplyEmptyFuture();
+
+        final ByteString byteString = copyFrom(blockHash.getBytesValue());
+        final Rpc.SingleBytes bytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
+        ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(bytes);
+        FutureChain<Blockchain.Block, Block> callback = new FutureChain<>(nextFuture);
+        callback.setSuccessHandler(
+            block -> of(() -> blockConverter.convertToDomainModel(block)));
+        addCallback(listenableFuture, callback, directExecutor());
+
+        return nextFuture;
+      };
+
+  private final Function1<Long, ResultOrErrorFuture<Block>> blockWithHeightFunction = (height) -> {
+    final ResultOrErrorFuture<Block> nextFuture =
+        ResultOrErrorFutureFactory.supplyEmptyFuture();
+
+    final ByteString byteString = copyFrom(BytesValue.of(longToByteArray(height)));
+    final Rpc.SingleBytes bytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
+    ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(bytes);
+    FutureChain<Blockchain.Block, Block> callback = new FutureChain<>(nextFuture);
+    callback.setSuccessHandler(
+        block -> of(() -> blockConverter.convertToDomainModel(block)));
+    addCallback(listenableFuture, callback, directExecutor());
+
+    return nextFuture;
+  };
+
+  private final Function2<BlockHash, Integer,
+      ResultOrErrorFuture<List<BlockHeader>>> blockHeadersWithHashFunction = (blockHash, size) -> {
+        final ResultOrErrorFuture<List<BlockHeader>> nextFuture =
+            ResultOrErrorFutureFactory.supplyEmptyFuture();
+
+        final Rpc.ListParams listParams = Rpc.ListParams.newBuilder()
+            .setHash(copyFrom(blockHash.getBytesValue()))
+            .setSize(size)
+            .build();
+        ListenableFuture<Rpc.BlockHeaderList> listenableFuture =
+            aergoService.listBlockHeaders(listParams);
+        FutureChain<Rpc.BlockHeaderList, List<BlockHeader>> callback =
+            new FutureChain<>(nextFuture);
+        callback.setSuccessHandler(headers -> of(
+            () -> headers.getBlocksList().stream().map(blockConverter::convertToDomainModel)
+                .map(BlockHeader.class::cast).collect(toList())));
+        addCallback(listenableFuture, callback, directExecutor());
+
+        return nextFuture;
+      };
+
+  private final Function2<Long, Integer,
+      ResultOrErrorFuture<List<BlockHeader>>> blockHeadersWithHeightFunction = (height, size) -> {
+        final ResultOrErrorFuture<List<BlockHeader>> nextFuture =
+            ResultOrErrorFutureFactory.supplyEmptyFuture();
+
+        final Rpc.ListParams listParams =
+            Rpc.ListParams.newBuilder().setHeight(height).setSize(size).build();
+        ListenableFuture<Rpc.BlockHeaderList> listenableFuture =
+            aergoService.listBlockHeaders(listParams);
+        FutureChain<Rpc.BlockHeaderList, List<BlockHeader>> callback =
+            new FutureChain<>(nextFuture);
+        callback.setSuccessHandler(headers -> of(
+            () -> headers.getBlocksList().stream().map(blockConverter::convertToDomainModel)
+                .map(BlockHeader.class::cast).collect(toList())));
+        addCallback(listenableFuture, callback, directExecutor());
+
+        return nextFuture;
+      };
+
+  protected Supplier<
       Function1<BlockHash, ResultOrErrorFuture<Block>>> blockWithHashFunctionSupplier =
-          memoize(() -> StrategyChain.of(context).apply((blockHash) -> {
-            final ResultOrErrorFuture<Block> nextFuture =
-                ResultOrErrorFutureFactory.supplyEmptyFuture();
+          memoize(() -> getStrategyChain().apply(blockWithHashFunction));
 
-            final ByteString byteString = copyFrom(blockHash.getBytesValue());
-            final Rpc.SingleBytes bytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
-            ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(bytes);
-            FutureChain<Blockchain.Block, Block> callback = new FutureChain<>(nextFuture);
-            callback
-                .setSuccessHandler(block -> of(() -> blockConverter.convertToDomainModel(block)));
-            addCallback(listenableFuture, callback, directExecutor());
-
-            return nextFuture;
-          }));
-
-  private final Supplier<
+  protected Supplier<
       Function1<Long, ResultOrErrorFuture<Block>>> blockWithHeightFunctionSupplier =
-          memoize(() -> StrategyChain.of(context).apply((height) -> {
-            final ResultOrErrorFuture<Block> nextFuture =
-                ResultOrErrorFutureFactory.supplyEmptyFuture();
+          memoize(() -> getStrategyChain().apply(blockWithHeightFunction));
 
-            final ByteString byteString = copyFrom(BytesValue.of(longToByteArray(height)));
-            final Rpc.SingleBytes bytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
-            ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(bytes);
-            FutureChain<Blockchain.Block, Block> callback = new FutureChain<>(nextFuture);
-            callback
-                .setSuccessHandler(block -> of(() -> blockConverter.convertToDomainModel(block)));
-            addCallback(listenableFuture, callback, directExecutor());
 
-            return nextFuture;
-          }));
-
-  private final Supplier<Function2<BlockHash, Integer,
+  protected Supplier<Function2<BlockHash, Integer,
       ResultOrErrorFuture<List<BlockHeader>>>> blockHeadersWithHashFunctionSupplier =
-          memoize(() -> StrategyChain.of(context).apply((blockHash, size) -> {
-            final ResultOrErrorFuture<List<BlockHeader>> nextFuture =
-                ResultOrErrorFutureFactory.supplyEmptyFuture();
+          memoize(() -> getStrategyChain().apply(blockHeadersWithHashFunction));
 
-            final Rpc.ListParams listParams = Rpc.ListParams.newBuilder()
-                .setHash(copyFrom(blockHash.getBytesValue()))
-                .setSize(size)
-                .build();
-            ListenableFuture<Rpc.BlockHeaderList> listenableFuture =
-                aergoService.listBlockHeaders(listParams);
-            FutureChain<Rpc.BlockHeaderList, List<BlockHeader>> callback =
-                new FutureChain<>(nextFuture);
-            callback.setSuccessHandler(headers -> of(
-                () -> headers.getBlocksList().stream().map(blockConverter::convertToDomainModel)
-                    .map(BlockHeader.class::cast).collect(toList())));
-            addCallback(listenableFuture, callback, directExecutor());
-
-            return nextFuture;
-          }));
-
-  private final Supplier<Function2<Long, Integer,
+  protected Supplier<Function2<Long, Integer,
       ResultOrErrorFuture<List<BlockHeader>>>> blockHeadersWithHeightFunctionSupplier =
-          memoize(() -> StrategyChain.of(context).apply((height, size) -> {
-            final ResultOrErrorFuture<List<BlockHeader>> nextFuture =
-                ResultOrErrorFutureFactory.supplyEmptyFuture();
-
-            final Rpc.ListParams listParams =
-                Rpc.ListParams.newBuilder().setHeight(height).setSize(size).build();
-            ListenableFuture<Rpc.BlockHeaderList> listenableFuture =
-                aergoService.listBlockHeaders(listParams);
-            FutureChain<Rpc.BlockHeaderList, List<BlockHeader>> callback =
-                new FutureChain<>(nextFuture);
-            callback.setSuccessHandler(headers -> of(
-                () -> headers.getBlocksList().stream().map(blockConverter::convertToDomainModel)
-                    .map(BlockHeader.class::cast).collect(toList())));
-            addCallback(listenableFuture, callback, directExecutor());
-
-            return nextFuture;
-          }));
+          memoize(() -> getStrategyChain().apply(blockHeadersWithHeightFunction));
 
   @Override
   public ResultOrErrorFuture<Block> getBlock(final BlockHash blockHash) {

@@ -5,6 +5,7 @@
 package hera.client;
 
 import hera.Context;
+import hera.ContextAware;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.BlockchainEitherOperation;
@@ -17,7 +18,8 @@ import java.util.List;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-public class BlockchainEitherTemplate implements BlockchainEitherOperation, ChannelInjectable {
+public class BlockchainEitherTemplate
+    implements BlockchainEitherOperation, ChannelInjectable, ContextAware {
 
   protected BlockchainAsyncTemplate blockchainAsyncOperation = new BlockchainAsyncTemplate();
 
