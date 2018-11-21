@@ -30,6 +30,7 @@ public interface Context {
   /**
    * Find a strategy from the context.
    *
+   * @param <StrategyT> strategy type
    * @param strategyClass strategy class to find
    * @return true if found. Otherwise, false
    */
