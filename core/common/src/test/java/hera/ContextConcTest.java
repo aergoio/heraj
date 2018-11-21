@@ -11,19 +11,19 @@ import static org.junit.Assert.assertNotNull;
 import hera.strategy.ConnectStrategy;
 import org.junit.Test;
 
-public class ContextTest extends AbstractTestCase {
+public class ContextConcTest extends AbstractTestCase {
 
   @Test
   public void testCopyOf() {
-    final Context expected = new Context();
+    final Context expected = new ContextConc();
     expected.addStrategy((ConnectStrategy<Object>) () -> null);
-    final Context actual = Context.copyOf(expected);
+    final Context actual = ContextConc.copyOf(expected);
     assertEquals(expected, actual);
   }
 
   @Test
   public void testAddStrategyGetStrategy() {
-    final Context context = new Context();
+    final Context context = new ContextConc();
     assertFalse(context.getStrategy(ConnectStrategy.class).isPresent());
     context.addStrategy((ConnectStrategy<Object>) () -> null);
     assertNotNull(context.getStrategy(ConnectStrategy.class).get());
@@ -31,7 +31,7 @@ public class ContextTest extends AbstractTestCase {
 
   @Test
   public void testStrategyOverride() {
-    final Context context = new Context();
+    final Context context = new ContextConc();
     ConnectStrategy<Object> first = () -> null;
     ConnectStrategy<Object> second = () -> null;
     context.addStrategy(first);

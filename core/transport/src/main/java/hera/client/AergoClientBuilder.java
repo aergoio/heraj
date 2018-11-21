@@ -10,6 +10,7 @@ import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Context;
+import hera.ContextConc;
 import hera.DefaultConstants;
 import hera.Strategy;
 import hera.annotation.ApiAudience;
@@ -45,10 +46,10 @@ public class AergoClientBuilder {
   protected static final Map<Class<?>, Strategy> defaultStrategyMap;
 
   static {
-    defaultStrategyMap = new HashMap<>();
-    defaultStrategyMap.put(ConnectStrategy.class, new NettyConnectStrategy());
-    defaultStrategyMap.put(TimeoutStrategy.class,
-        new SimpleTimeoutStrategy(DefaultConstants.DEFAULT_TIMEOUT));
+    final Map<Class<?>, Strategy> map = new HashMap<>();
+    map.put(ConnectStrategy.class, new NettyConnectStrategy());
+    map.put(TimeoutStrategy.class, new SimpleTimeoutStrategy(DefaultConstants.DEFAULT_TIMEOUT));
+    defaultStrategyMap = Collections.unmodifiableMap(map);
   }
 
   protected final Logger logger = getLogger(getClass());
@@ -186,16 +187,16 @@ public class AergoClientBuilder {
   @SuppressWarnings("unchecked")
   protected Context buildContextWithInjected() {
     final Context context = injectedContext.get();
-    necessaryStrageties.stream().filter(s -> !context.isExists(s))
+    necessaryStrageties.stream().filter(s -> !context.hasStrategy(s))
         .forEach(s -> context.addStrategy(defaultStrategyMap.get(s)));
     return context;
   }
 
   @SuppressWarnings("unchecked")
   protected Context buildContextByStrategyMap() {
-    final Context context = new Context();
+    final Context context = new ContextConc();
     strategyMap.forEach((s, i) -> context.addStrategy(i));
-    necessaryStrageties.stream().filter(s -> !context.isExists(s))
+    necessaryStrageties.stream().filter(s -> !context.hasStrategy(s))
         .forEach(s -> context.addStrategy(defaultStrategyMap.get(s)));
     context.setConfiguration(configuration);
     return context;

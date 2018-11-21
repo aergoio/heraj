@@ -26,7 +26,7 @@ public abstract class AbstractTestCase {
   protected final ListeningExecutorService service =
       MoreExecutors.listeningDecorator(Executors.newWorkStealingPool());
 
-  protected Context context = new Context();
+  protected Context context = new ContextConc();
 
   @Before
   public void setUp() {

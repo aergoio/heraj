@@ -4,115 +4,52 @@
 
 package hera;
 
-import static java.util.Collections.reverse;
-import static org.slf4j.LoggerFactory.getLogger;
-
-import hera.util.Configurable;
 import hera.util.Configuration;
-import hera.util.conf.DummyConfiguration;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-import lombok.EqualsAndHashCode;
-import lombok.Setter;
-import lombok.ToString;
-import org.slf4j.Logger;
 
-@ToString
-@EqualsAndHashCode
-public class Context {
-
-  protected final Logger logger = getLogger(getClass());
-
-  @Setter
-  protected Configuration configuration = DummyConfiguration.getInstance();
-
-  protected final Set<Strategy> strategies = new LinkedHashSet<>();
-
-  protected final Set<Strategy> usings = new LinkedHashSet<>();
+public interface Context {
 
   /**
-   * Copy deep.
+   * Set configuration to the context.
    *
-   * @param source {@link Context} to copy
-   * @return copied Context
+   * @param configuration configuration to set
+   * @return a context with corresponding {@code Configuration}
    */
-  public static Context copyOf(final Context source) {
-    final Context copy = new Context();
-    copy.configuration = source.configuration;
-    copy.strategies.addAll(source.strategies);
-    copy.usings.addAll(source.usings);
-    return copy;
-  }
+  Context setConfiguration(Configuration configuration);
 
   /**
    * Add strategy to the context.
    *
    * @param strategy strategy to add
-   * @return a reference to this object.
+   * @return a context with corresponding {@code Strategy}
    */
-  public Context addStrategy(final Strategy strategy) {
-    logger.debug("Add strategy: {}", strategy);
-    strategies.add(strategy);
-    return this;
-  }
+  Context addStrategy(Strategy strategy);
 
   /**
-   * Find a strategy.
+   * Find a strategy from the context.
    *
    * @param strategyClass strategy class to find
    * @return true if found. Otherwise, false
    */
-  public boolean isExists(final Class<? extends Strategy> strategyClass) {
-    return strategies.stream().filter(strategyClass::isInstance).findFirst().isPresent()
-        || usings.stream().filter(strategyClass::isInstance).findFirst().isPresent();
-  }
+  <StrategyT extends Strategy> boolean hasStrategy(Class<StrategyT> strategyClass);
 
   /**
    * Return strategy if exists.
    *
    * @param <StrategyT> strategy type
    * @param strategyClass strategy class
-   *
    * @return strategy matching type
    */
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  public <StrategyT extends Strategy> Optional<StrategyT> getStrategy(
-      final Class<StrategyT> strategyClass) {
-    final Optional<Strategy> using = usings.stream().filter(strategyClass::isInstance).findFirst();
-    if (using.isPresent()) {
-      logger.debug("The strategy: {} is already used", strategyClass);
-      return (Optional<StrategyT>) using;
-    }
-    final Optional<Strategy> unusedOptional = getReversedList().stream()
-        .filter(strategyClass::isInstance).findFirst();
-    if (unusedOptional.isPresent()) {
-      final Strategy unused = unusedOptional.get();
-      strategies.remove(unused);
-      if (unused instanceof Configurable) {
-        ((Configurable) unused).setConfiguration(configuration);
-      }
-      if (unused instanceof ContextAware) {
-        ((ContextAware) unused).setContext(this);
-      }
-      logger.debug("Use strategy: {}", unused.getClass());
-      usings.add(unused);
-    }
-    return (Optional<StrategyT>) unusedOptional;
-  }
+  <StrategyT extends Strategy> Optional<StrategyT> getStrategy(Class<StrategyT> strategyClass);
 
-  public Stream<Strategy> listStrategies(final Predicate<? super Strategy> test) {
-    return Stream.concat(strategies.stream(), usings.stream()).filter(test);
-  }
-
-  protected List<Strategy> getReversedList() {
-    final List<Strategy> list = new ArrayList<>(strategies);
-    reverse(list);
-    return list;
-  }
+  /**
+   * List all the strategies satisfying test from the context.
+   *
+   * @param test test predicate
+   * @return stream of {@code Strategy} satisfying predicate
+   */
+  Stream<Strategy> listStrategies(Predicate<? super Strategy> test);
 
 }
