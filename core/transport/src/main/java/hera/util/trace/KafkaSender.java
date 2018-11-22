@@ -15,7 +15,7 @@ public class KafkaSender implements Function<String, Sender> {
   public Sender apply(final String endpoint) {
     return newBuilder()
         .encoding(Encoding.PROTO3)
-        .bootstrapServers("localhost:9092")
+        .bootstrapServers(endpoint)
         .build();
   }
 }
