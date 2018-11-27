@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InMemoryConfiguration extends AbstractConfiguration {
+
   protected Map<String, Configuration> subconfigurations = new HashMap<>();
 
   protected Map<String, Object> key2value = new HashMap<>();
@@ -20,7 +21,27 @@ public class InMemoryConfiguration extends AbstractConfiguration {
   }
 
   public InMemoryConfiguration(final boolean readOnly) {
+    this(readOnly, DummyConfiguration.getInstance());
+  }
+
+  public InMemoryConfiguration(final Configuration configuration) {
+    this(false, configuration);
+  }
+
+  /**
+   * InMemoryConfiguration constructor. If it's set as read-only, {@link #define(String, Object)}
+   * would throw {@link UnsupportedOperationException}.
+   *
+   * @param readOnly whether configuration is read-only or not
+   * @param configuration configuration to copy
+   */
+  public InMemoryConfiguration(final boolean readOnly, final Configuration configuration) {
     super(readOnly);
+    this.key2value.putAll(configuration.asMap());
+    if (readOnly) {
+      this.key2value = unmodifiableMap(this.key2value);
+      this.subconfigurations = unmodifiableMap(this.subconfigurations);
+    }
   }
 
   @Override
@@ -30,6 +51,10 @@ public class InMemoryConfiguration extends AbstractConfiguration {
 
   @Override
   public void define(final String key, final Object value) {
+    if (readOnly) {
+      throw new UnsupportedOperationException("Configuration is read-only");
+    }
+
     logger.debug("{}: {}", key, value);
 
     final int dotIndex = key.indexOf('.');
@@ -65,7 +90,7 @@ public class InMemoryConfiguration extends AbstractConfiguration {
     logger.trace("Key: {}", key);
     return key2value.get(key);
   }
-  
+
   @Override
   public String toString() {
     Map<String, Object> merged = new HashMap<>();

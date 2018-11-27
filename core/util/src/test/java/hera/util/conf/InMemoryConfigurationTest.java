@@ -7,12 +7,25 @@ package hera.util.conf;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import hera.AbstractTestCase;
 import java.util.Arrays;
 import org.junit.Test;
 
 public class InMemoryConfigurationTest extends AbstractTestCase {
+
+  @Test
+  public void testReadOnly() {
+    final InMemoryConfiguration inMemoryConfiguration = new InMemoryConfiguration(true);
+
+    try {
+      inMemoryConfiguration.define(randomUUID().toString(), randomUUID().toString());
+      fail();
+    } catch (UnsupportedOperationException e) {
+      // good we expected this
+    }
+  }
 
   @Test
   public void testAsMap() {
