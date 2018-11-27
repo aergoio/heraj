@@ -4,7 +4,7 @@
 
 package hera.client;
 
-import hera.Context;
+import hera.ContextHolder;
 import hera.StrategyAcceptable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
@@ -20,7 +20,6 @@ import java.io.Closeable;
 import java.util.concurrent.TimeUnit;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @ApiAudience.Private
@@ -28,12 +27,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AergoClient extends AbstractAergoApi implements Closeable, AutoCloseable {
 
-  @NonNull
-  @Getter
-  protected final Context context;
-
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final ManagedChannel channel = new ManagedChannelFactory().apply(getContext());
+  private final ManagedChannel channel = new ManagedChannelFactory().apply(ContextHolder.get());
 
   @Getter(lazy = true)
   private final AccountOperation accountOperation = resolveInjection(new AccountTemplate());
@@ -54,7 +49,7 @@ public class AergoClient extends AbstractAergoApi implements Closeable, AutoClos
 
   protected <T> T resolveInjection(final T target) {
     if (target instanceof StrategyAcceptable) {
-      ((StrategyAcceptable) target).accept(StrategyChain.of(getContext()));
+      ((StrategyAcceptable) target).accept(StrategyChain.of(ContextHolder.get()));
     }
     if (target instanceof ChannelInjectable) {
       ((ChannelInjectable) target).injectChannel(getChannel());

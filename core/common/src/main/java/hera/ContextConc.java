@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 import org.slf4j.Logger;
 
@@ -27,6 +28,7 @@ public class ContextConc implements Context {
 
   protected final Logger logger = getLogger(getClass());
 
+  @Getter
   protected Configuration configuration = DummyConfiguration.getInstance();
 
   protected final Set<Strategy> strategies = new LinkedHashSet<>();

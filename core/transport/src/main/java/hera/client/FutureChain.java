@@ -10,6 +10,8 @@ import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.common.util.concurrent.FutureCallback;
+import hera.Context;
+import hera.ContextHolder;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.exception.NotFoundException;
@@ -35,6 +37,9 @@ public class FutureChain<T, R> implements FutureCallback<T> {
   // store Exception since getting stack trace element object is too expensive
   protected Exception stackTraceHolder = new Exception();
 
+  // hold main thread context
+  protected Context sourceContext = ContextHolder.get();
+
   @NonNull
   protected final ResultOrErrorFuture<R> nextFuture;
 
@@ -46,6 +51,7 @@ public class FutureChain<T, R> implements FutureCallback<T> {
 
   @Override
   public void onSuccess(@Nullable T t) {
+    connectAsyncContextWithSourceContext();
     final ResultOrError<R> handled = ofNullable(successHandler).map(handler -> handler.apply(t))
         .orElseThrow(() -> new RpcException("No success handler"));
     if (handled.hasResult()) {
@@ -57,12 +63,17 @@ public class FutureChain<T, R> implements FutureCallback<T> {
 
   @Override
   public void onFailure(final Throwable e) {
+    connectAsyncContextWithSourceContext();
     final ResultOrError<R> handled = failureHandler.apply(e);
     if (handled.hasResult()) {
       nextFuture.complete(handled);
     } else {
       failNext(wrapWithRpcException(handled.getError()));
     }
+  }
+
+  protected void connectAsyncContextWithSourceContext() {
+    ContextHolder.set(sourceContext);
   }
 
   protected RpcException wrapWithRpcException(final Throwable e) {

@@ -19,7 +19,6 @@ public class NettyConnectStrategyTest extends AbstractTestCase {
     final Configuration configuration = new InMemoryConfiguration();
     configuration.define("endpoint", "localhost:9999");
     final NettyConnectStrategy nettyConnectStrategy = new NettyConnectStrategy();
-    nettyConnectStrategy.setConfiguration(configuration);
     final ManagedChannel channel = nettyConnectStrategy.connect().build();
 
     channel.shutdown().awaitTermination(1, SECONDS);

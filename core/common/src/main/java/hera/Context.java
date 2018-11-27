@@ -20,6 +20,13 @@ public interface Context {
   Context setConfiguration(Configuration configuration);
 
   /**
+   * Get configuration of the context.
+   *
+   * @return a configuration
+   */
+  Configuration getConfiguration();
+
+  /**
    * Add strategy to the context.
    *
    * @param strategy strategy to add

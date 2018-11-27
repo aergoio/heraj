@@ -11,6 +11,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Context;
 import hera.ContextConc;
+import hera.ContextHolder;
 import hera.DefaultConstants;
 import hera.Strategy;
 import hera.annotation.ApiAudience;
@@ -156,7 +157,8 @@ public class AergoClientBuilder {
    * @return {@link AergoClient}
    */
   public AergoClient build() {
-    return new AergoClient(buildContext());
+    buildContext();
+    return new AergoClient();
   }
 
   /**
@@ -166,7 +168,8 @@ public class AergoClientBuilder {
    * @return {@link AergoEitherClient}
    */
   public AergoEitherClient buildEither() {
-    return new AergoEitherClient(buildContext());
+    buildContext();
+    return new AergoEitherClient();
   }
 
   /**
@@ -176,10 +179,11 @@ public class AergoClientBuilder {
    * @return {@link AergoAsyncClient}
    */
   public AergoAsyncClient buildAsync() {
-    return new AergoAsyncClient(buildContext());
+    buildContext();
+    return new AergoAsyncClient();
   }
 
-  protected Context buildContext() {
+  protected void buildContext() {
     Context context = null;
     if (injectedContext.isPresent()) {
       context = buildContextWithInjected();
@@ -187,7 +191,7 @@ public class AergoClientBuilder {
       context = buildContextByStrategyMap();
     }
     logger.debug("Final context: {}", context);
-    return context;
+    ContextHolder.set(context);
   }
 
   @SuppressWarnings("unchecked")
