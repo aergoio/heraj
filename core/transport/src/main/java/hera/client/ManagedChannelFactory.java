@@ -16,7 +16,7 @@ public class ManagedChannelFactory implements Function<Context, ManagedChannel> 
       final ManagedChannelBuilder<?> builder =
           (ManagedChannelBuilder<?>) connectStrategy.connect();
 
-      context.listStrategies(ChannelConfigurationStrategy.class::isInstance)
+      context.getStrategies().stream().filter(ChannelConfigurationStrategy.class::isInstance)
           .forEach(s -> ((ChannelConfigurationStrategy) s).configure(builder));
       return builder.build();
     }).orElseThrow(() -> new RpcException("ConnectStrategy must be present in context"));

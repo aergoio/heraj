@@ -4,20 +4,15 @@
 
 package hera.client;
 
-import static java.util.Arrays.asList;
-import static java.util.Optional.empty;
-import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Context;
-import hera.ContextConc;
 import hera.ContextHolder;
 import hera.DefaultConstants;
 import hera.Strategy;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Time;
-import hera.strategy.ChannelConfigurationStrategy;
 import hera.strategy.ConnectStrategy;
 import hera.strategy.NettyConnectStrategy;
 import hera.strategy.OkHttpConnectStrategy;
@@ -29,10 +24,9 @@ import hera.util.Configuration;
 import hera.util.conf.InMemoryConfiguration;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 
@@ -40,18 +34,15 @@ import org.slf4j.Logger;
 @ApiStability.Unstable
 public class AergoClientBuilder {
 
-  @SuppressWarnings("rawtypes")
-  protected static final List<Class> necessaryStrageties =
-      Collections.unmodifiableList(asList(
-          new Class[] {ConnectStrategy.class, TimeoutStrategy.class}));
+  public static final String SCOPE = "global";
 
-  protected static final Map<Class<?>, Strategy> defaultStrategyMap;
+  protected static final Map<Class<?>, Strategy> necessaryStrategyMap;
 
   static {
     final Map<Class<?>, Strategy> map = new HashMap<>();
     map.put(ConnectStrategy.class, new NettyConnectStrategy());
     map.put(TimeoutStrategy.class, new SimpleTimeoutStrategy(DefaultConstants.DEFAULT_TIMEOUT));
-    defaultStrategyMap = Collections.unmodifiableMap(map);
+    necessaryStrategyMap = Collections.unmodifiableMap(map);
   }
 
   protected final Logger logger = getLogger(getClass());
@@ -60,22 +51,8 @@ public class AergoClientBuilder {
 
   protected Configuration configuration = new InMemoryConfiguration();
 
-  protected Optional<Context> injectedContext = empty();
-
   public AergoClientBuilder addConfiguration(final String key, final String value) {
     configuration.define(key, value);
-    return this;
-  }
-
-  /**
-   * Provide a context. If this method is invoked, all other builder setting will be ignored.
-   *
-   * @param context context to bind
-   * @return an instance of this
-   */
-  public AergoClientBuilder withContext(final Context context) {
-    logger.debug("Bind a new context: {}", context);
-    this.injectedContext = ofNullable(context);
     return this;
   }
 
@@ -118,7 +95,7 @@ public class AergoClientBuilder {
    * @return an instance of this
    */
   public AergoClientBuilder withTracking() {
-    strategyMap.put(ChannelConfigurationStrategy.class, new ZipkinTracingStrategy());
+    strategyMap.put(ZipkinTracingStrategy.class, new ZipkinTracingStrategy());
     return this;
   }
 
@@ -157,8 +134,7 @@ public class AergoClientBuilder {
    * @return {@link AergoClient}
    */
   public AergoClient build() {
-    buildContext();
-    return new AergoClient();
+    return new AergoClient(buildContext());
   }
 
   /**
@@ -168,8 +144,7 @@ public class AergoClientBuilder {
    * @return {@link AergoEitherClient}
    */
   public AergoEitherClient buildEither() {
-    buildContext();
-    return new AergoEitherClient();
+    return new AergoEitherClient(buildContext());
   }
 
   /**
@@ -179,36 +154,19 @@ public class AergoClientBuilder {
    * @return {@link AergoAsyncClient}
    */
   public AergoAsyncClient buildAsync() {
-    buildContext();
-    return new AergoAsyncClient();
+    return new AergoAsyncClient(buildContext());
   }
 
-  protected void buildContext() {
-    Context context = null;
-    if (injectedContext.isPresent()) {
-      context = buildContextWithInjected();
-    } else {
-      context = buildContextByStrategyMap();
-    }
-    logger.debug("Final context: {}", context);
+  protected Context buildContext() {
+    necessaryStrategyMap.keySet().stream().filter(c -> !this.strategyMap.containsKey(c))
+        .forEach(c -> this.strategyMap.put(c, necessaryStrategyMap.get(c)));
+    final Context context = ContextHolder.newContext()
+        .withStrategies(new HashSet<>(this.strategyMap.values()))
+        .withConfiguration(configuration)
+        .withScope(AergoClientBuilder.SCOPE);
+    logger.info("Global context: {}", context);
+    // TODO : remove exporting
     ContextHolder.set(context);
-  }
-
-  @SuppressWarnings("unchecked")
-  protected Context buildContextWithInjected() {
-    final Context context = injectedContext.get();
-    necessaryStrageties.stream().filter(s -> !context.hasStrategy(s))
-        .forEach(s -> context.addStrategy(defaultStrategyMap.get(s)));
-    return context;
-  }
-
-  @SuppressWarnings("unchecked")
-  protected Context buildContextByStrategyMap() {
-    final Context context = new ContextConc();
-    strategyMap.forEach((s, i) -> context.addStrategy(i));
-    necessaryStrageties.stream().filter(s -> !context.hasStrategy(s))
-        .forEach(s -> context.addStrategy(defaultStrategyMap.get(s)));
-    context.setConfiguration(configuration);
     return context;
   }
 

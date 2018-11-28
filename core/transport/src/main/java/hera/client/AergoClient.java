@@ -4,6 +4,7 @@
 
 package hera.client;
 
+import hera.Context;
 import hera.ContextHolder;
 import hera.StrategyAcceptable;
 import hera.annotation.ApiAudience;
@@ -26,6 +27,8 @@ import lombok.RequiredArgsConstructor;
 @ApiStability.Unstable
 @RequiredArgsConstructor
 public class AergoClient extends AbstractAergoApi implements Closeable, AutoCloseable {
+
+  protected final Context globalContext;
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final ManagedChannel channel = new ManagedChannelFactory().apply(ContextHolder.get());

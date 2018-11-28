@@ -6,58 +6,104 @@ package hera;
 
 import hera.util.Configuration;
 import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
+import java.util.Set;
 
 public interface Context {
 
   /**
-   * Set configuration to the context.
+   * Make a new context instance with {@code scope}.
    *
-   * @param configuration configuration to set
-   * @return a context with corresponding {@code Configuration}
+   * @param scope a scope
+   * @return a new context instance with {@code scope}
    */
-  Context setConfiguration(Configuration configuration);
+  Context withScope(String scope);
 
   /**
-   * Get configuration of the context.
+   * Get scope of a context.
+   * 
+   * @return a scope
+   */
+  String getScope();
+
+  /**
+   * Get a context instance without current scope.
+   * 
+   * @return a context instance without current scope.
+   */
+  Context popScope();
+
+  /**
+   * Make a new context instance with corresponding {@code key} and a {@code value}.
    *
+   * @param key a key
+   * @param value a value
+   * @return a new context instance with a corresponding key-value
+   */
+  Context withKeyValue(String key, Object value);
+
+  /**
+   * Make a new context instance with corresponding {@code configuration}.
+   *
+   * @param configuration a configuration
+   * @return a new context instance with a corresponding {@code configuration}
+   */
+  Context withConfiguration(Configuration configuration);
+
+  /**
+   * Get a configuration of a context.
+   * 
    * @return a configuration
    */
   Configuration getConfiguration();
 
   /**
-   * Add strategy to the context.
-   *
-   * @param strategy strategy to add
-   * @return a context with corresponding {@code Strategy}
+   * Get a context instance without configuration matching {@code key}.
+   * 
+   * @param key a key
+   * @return a context instance
    */
-  Context addStrategy(Strategy strategy);
+  Context withoutKey(String key);
 
   /**
-   * Find a strategy from the context.
+   * Make a new context instance with corresponding {@code strategy}.
    *
    * @param <StrategyT> strategy type
-   * @param strategyClass strategy class to find
-   * @return true if found. Otherwise, false
+   * @param strategy a strategy
+   * @return a new context instance with corresponding {@code Strategy}
    */
-  <StrategyT extends Strategy> boolean hasStrategy(Class<StrategyT> strategyClass);
+  <StrategyT extends Strategy> Context withStrategy(StrategyT strategy);
 
   /**
-   * Return strategy if exists.
+   * Make a new context instance with corresponding {@code strategies}.
+   *
+   * @param strategies new strategies
+   * @return a new context instance with corresponding {@code strategies}
+   */
+  Context withStrategies(Set<Strategy> strategies);
+
+  /**
+   * Get a strategy whose matches type {@code strategyClass} from a context.
    *
    * @param <StrategyT> strategy type
-   * @param strategyClass strategy class
-   * @return strategy matching type
+   * @param strategyClass a strategy class
+   * @return a strategy corresponding {@code strategyClass}
    */
   <StrategyT extends Strategy> Optional<StrategyT> getStrategy(Class<StrategyT> strategyClass);
 
   /**
-   * List all the strategies satisfying test from the context.
-   *
-   * @param test test predicate
-   * @return stream of {@code Strategy} satisfying predicate
+   * Get a strategies of a context.
+   * 
+   * @return a strategies
    */
-  Stream<Strategy> listStrategies(Predicate<? super Strategy> test);
+  Set<Strategy> getStrategies();
+
+  /**
+   * Remove strategy from the context.
+   *
+   * @param <StrategyT> strategy type
+   * @param strategy strategy to remove
+   * @return a context without corresponding {@code Strategy}
+   */
+  <StrategyT extends Strategy> Context withoutStrategy(Class<StrategyT> strategy);
 
 }

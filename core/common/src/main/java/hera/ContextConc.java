@@ -4,113 +4,149 @@
 
 package hera;
 
-import static java.util.Collections.reverse;
+import static java.util.Collections.unmodifiableSet;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import hera.util.Configurable;
 import hera.util.Configuration;
-import hera.util.conf.DummyConfiguration;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
+import hera.util.conf.InMemoryConfiguration;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.slf4j.Logger;
 
-@ToString
-@EqualsAndHashCode
-public class ContextConc implements Context {
+@ToString(exclude = {"logger", "parent"})
+@EqualsAndHashCode(exclude = "logger")
+public final class ContextConc implements Context {
 
   protected final Logger logger = getLogger(getClass());
 
+  protected final Context parent;
+
   @Getter
-  protected Configuration configuration = DummyConfiguration.getInstance();
+  protected final String scope;
 
-  protected final Set<Strategy> strategies = new LinkedHashSet<>();
+  @Getter
+  protected final Configuration configuration;
 
-  protected final Set<Strategy> usings = new LinkedHashSet<>();
+  @Getter
+  protected final Set<Strategy> strategies;
 
-  /**
-   * Copy deep.
-   *
-   * @param source {@link ContextConc} to copy
-   * @return copied Context
-   */
-  public static ContextConc copyOf(final Context source) {
-    final ContextConc copy = new ContextConc();
-    copy.configuration = ((ContextConc) source).configuration;
-    copy.strategies.addAll(((ContextConc) source).strategies);
-    copy.usings.addAll(((ContextConc) source).usings);
-    return copy;
+  protected ContextConc(final Context parent, final String scope,
+      final Configuration configuration, final Set<Strategy> strageties) {
+    this.parent = parent;
+    this.scope = scope;
+    this.configuration = (configuration instanceof InMemoryConfiguration
+        && ((InMemoryConfiguration) configuration).isReadOnly()) ? configuration
+            : new InMemoryConfiguration(true, configuration);
+    this.strategies = unmodifiableSet(strageties);
   }
 
   @Override
-  public Context setConfiguration(final Configuration configuration) {
-    this.configuration = configuration;
-    return this;
+  public Context withScope(final String scope) {
+    logger.debug("New scope: {}", scope);
+    Context newContext = null;
+    if (isScopeBase()) {
+      newContext = new ContextConc(this, scope, this.configuration, this.strategies);
+    } else {
+      final Context newScopeBase = getScopeBase().withScope(scope);
+      newContext = new ContextConc(newScopeBase, scope, this.configuration, this.strategies);
+    }
+    logger.debug("New context: {}", newContext);
+    return newContext;
   }
 
   @Override
-  public ContextConc addStrategy(final Strategy strategy) {
-    logger.debug("Add strategy: {}", strategy);
-    strategies.add(strategy);
-    return this;
+  public Context popScope() {
+    logger.debug("Pop scope: {}", getScope());
+    Context newContext = null;
+    if (isScopeBase()) {
+      newContext = this.parent;
+    } else {
+      final Context scopeParent = getScopeParent();
+      newContext = new ContextConc(scopeParent,
+          scopeParent.getScope(), this.configuration, this.strategies);
+    }
+    logger.debug("New context: {}", newContext);
+    return newContext;
+  }
+
+  protected Context getScopeBase() {
+    return isScopeBase() ? this : this.parent;
+  }
+
+  protected Context getScopeParent() {
+    return isScopeBase() ? this.parent : ((ContextConc) this.parent).parent;
+  }
+
+  protected boolean isScopeBase() {
+    return this.configuration.asMap().isEmpty() && this.strategies.isEmpty();
   }
 
   @Override
-  public <StrategyT extends Strategy> boolean hasStrategy(Class<StrategyT> strategyClass) {
-    return strategies.stream().anyMatch(strategyClass::isInstance)
-        || usings.stream().anyMatch(strategyClass::isInstance);
+  public Context withKeyValue(final String key, final Object value) {
+    logger.debug("Define key: {}, value: {}", key, value);
+    final Configuration newConfiguration = new InMemoryConfiguration(this.getConfiguration());
+    newConfiguration.define(key, value);
+    return withConfiguration(newConfiguration);
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
+  @Override
+  public Context withConfiguration(final Configuration configuration) {
+    logger.debug("New configuration: {}", configuration);
+    final ContextConc newContext =
+        new ContextConc(this.parent, this.scope, configuration, this.strategies);
+    logger.debug("New context: {}", newContext);
+    return newContext;
+  }
+
+  @Override
+  public Context withoutKey(final String key) {
+    logger.debug("Remove key: {}", key);
+    if (null == getConfiguration().get(key)) {
+      return this;
+    }
+    final Configuration newConfiguration = new InMemoryConfiguration(this.getConfiguration());
+    newConfiguration.remove(key);;
+    final ContextConc newContext =
+        new ContextConc(this.parent, this.scope, newConfiguration, this.strategies);
+    logger.debug("New context: {}", newContext);
+    return newContext;
+  }
+
+  @Override
+  public <StrategyT extends Strategy> Context withStrategy(final StrategyT strategy) {
+    logger.debug("New strategy: {}", strategy);
+    final Set<Strategy> newStrategies = new HashSet<>(this.strategies);
+    getStrategy(strategy.getClass()).ifPresent(newStrategies::remove);
+    newStrategies.add(strategy);
+    return withStrategies(newStrategies);
+  }
+
+  @Override
+  public Context withStrategies(final Set<Strategy> strategies) {
+    logger.debug("New strategies: {}", strategies);
+    final ContextConc newContext =
+        new ContextConc(this.parent, this.scope, this.configuration, strategies);
+    logger.debug("New context: {}", newContext);
+    return newContext;
+  }
+
+  @SuppressWarnings("unchecked")
   @Override
   public <StrategyT extends Strategy> Optional<StrategyT> getStrategy(
       final Class<StrategyT> strategyClass) {
-    final Optional<Strategy> using = usings.stream().filter(strategyClass::isInstance).findFirst();
-    if (using.isPresent()) {
-      logger.debug("The strategy: {} is already used", strategyClass);
-      return (Optional<StrategyT>) using;
-    }
-    final Optional<Strategy> unusedOptional = getReversedList().stream()
-        .filter(strategyClass::isInstance).findFirst();
-    if (unusedOptional.isPresent()) {
-      final Strategy unused = unusedOptional.get();
-      strategies.remove(unused);
-      if (unused instanceof Configurable) {
-        ((Configurable) unused).setConfiguration(configuration);
-      }
-      if (unused instanceof ContextAware) {
-        ((ContextAware) unused).setContext(this);
-      }
-      logger.debug("Use strategy: {}", unused.getClass());
-      usings.add(unused);
-    }
-    return (Optional<StrategyT>) unusedOptional;
+    return (Optional<StrategyT>) this.strategies.stream().filter(strategyClass::isInstance)
+        .findFirst();
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
-  public Stream<Strategy> listStrategies(final Predicate<? super Strategy> test) {
-    return Stream.concat(strategies.stream(), usings.stream()).filter(test).peek(s -> {
-      if (s instanceof Configurable) {
-        ((Configurable) s).setConfiguration(configuration);
-      }
-      if (s instanceof ContextAware) {
-        ((ContextAware) s).setContext(this);
-      }
-    });
-  }
-
-  protected List<Strategy> getReversedList() {
-    final List<Strategy> list = new ArrayList<>(strategies);
-    reverse(list);
-    return list;
+  public <StrategyT extends Strategy> Context withoutStrategy(final Class<StrategyT> strategy) {
+    final Set<Strategy> newStrategies = new HashSet<>(this.strategies);
+    this.strategies.stream().filter(strategy::isInstance).forEach(newStrategies::remove);
+    return new ContextConc(this.parent, this.scope, this.configuration, newStrategies);
   }
 
 }

@@ -4,39 +4,87 @@
 
 package hera;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import hera.strategy.ConnectStrategy;
+import hera.util.conf.InMemoryConfiguration;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Test;
 
 public class ContextConcTest extends AbstractTestCase {
 
   @Test
-  public void testCopyOf() {
-    final Context expected = new ContextConc();
-    expected.addStrategy((ConnectStrategy<Object>) () -> null);
-    final Context actual = ContextConc.copyOf(expected);
-    assertEquals(expected, actual);
+  public void testScope() {
+    final Object[] testParameters =
+        new Object[] {ContextHolder.newContext().withScope("test")};
+
+    for (final Object testParameter : testParameters) {
+      final Context source = (Context) testParameter;
+      final String scope = randomUUID().toString();
+
+      final Context withScope = source.withScope(scope);
+      assertEquals(source.getScope(), ((ContextConc) withScope).getScopeParent().getScope());
+      assertEquals(scope, withScope.getScope());
+      assertEquals(source.getConfiguration(), withScope.getConfiguration());
+      assertEquals(source.getStrategies(), withScope.getStrategies());
+
+      final Context withoutScope = withScope.popScope();
+      assertEquals(((ContextConc) source).getScopeParent().getScope(),
+          ((ContextConc) withoutScope).getScopeParent().getScope());
+      assertEquals(source.getScope(), withoutScope.getScope());
+      assertEquals(source.getConfiguration(), withoutScope.getConfiguration());
+      assertEquals(source.getStrategies(), withoutScope.getStrategies());
+    }
   }
 
   @Test
-  public void testAddStrategyGetStrategy() {
-    final Context context = new ContextConc();
-    assertFalse(context.getStrategy(ConnectStrategy.class).isPresent());
-    context.addStrategy((ConnectStrategy<Object>) () -> null);
-    assertNotNull(context.getStrategy(ConnectStrategy.class).get());
+  public void testConfiguration() {
+    final Object[] testParameters =
+        new Object[] {ContextHolder.newContext(), ContextHolder.newContext().withScope("test")};
+
+    for (final Object testParameter : testParameters) {
+      final Context origin = (Context) testParameter;
+      final String key = randomUUID().toString();
+      final String value = randomUUID().toString();
+
+      final Map<String, Object> map = new HashMap<>();
+      map.put(key, value);
+      final InMemoryConfiguration expected = new InMemoryConfiguration(true, map);
+
+      final Context withConfig = origin.withKeyValue(key, value);
+      assertEquals(origin.getScope(), withConfig.getScope());
+      assertEquals(expected, withConfig.getConfiguration());
+      assertEquals(origin.getStrategies(), withConfig.getStrategies());
+
+      final Context withoutConfig = withConfig.withoutKey(key);
+      assertEquals(origin.getScope(), withoutConfig.getScope());
+      assertEquals(origin.getConfiguration(), withoutConfig.getConfiguration());
+      assertEquals(origin.getStrategies(), withoutConfig.getStrategies());
+    }
   }
 
   @Test
-  public void testStrategyOverride() {
-    final Context context = new ContextConc();
-    ConnectStrategy<Object> first = () -> null;
-    ConnectStrategy<Object> second = () -> null;
-    context.addStrategy(first);
-    context.addStrategy(second);
-    assertEquals(second, context.getStrategy(ConnectStrategy.class).get());
+  public void testStrategy() {
+    final Object[] testParameters =
+        new Object[] {ContextHolder.newContext(), ContextHolder.newContext().withScope("test")};
+
+    for (final Object testParameter : testParameters) {
+      final Context origin = (Context) testParameter;
+      final ConnectStrategy<?> strategy = () -> null;
+
+      final Context withStrategy = origin.withStrategy(strategy);
+      assertEquals(origin.getScope(), withStrategy.getScope());
+      assertTrue(withStrategy.getStrategy(ConnectStrategy.class).isPresent());
+      assertEquals(origin.getConfiguration(), withStrategy.getConfiguration());
+
+      final Context withoutStrategy = withStrategy.withoutStrategy(strategy.getClass());
+      assertEquals(origin.getScope(), withoutStrategy.getScope());
+      assertTrue(!withoutStrategy.getStrategy(ConnectStrategy.class).isPresent());
+      assertEquals(origin.getConfiguration(), withoutStrategy.getConfiguration());
+    }
   }
 
 }

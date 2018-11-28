@@ -46,7 +46,8 @@ public class StrategyChain implements FunctionDecoratorChain {
    * @param context a context
    */
   public StrategyChain(final Context context) {
-    context.listStrategies(FunctionDecorator.class::isInstance).map(FunctionDecorator.class::cast)
+    context.getStrategies().stream().filter(FunctionDecorator.class::isInstance)
+        .map(FunctionDecorator.class::cast)
         .forEach(chain::add);
     logger.debug("Build strategy chain: {}", chain);
   }

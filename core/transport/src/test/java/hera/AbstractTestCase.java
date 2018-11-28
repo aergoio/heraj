@@ -26,12 +26,12 @@ public abstract class AbstractTestCase {
   protected final ListeningExecutorService service =
       MoreExecutors.listeningDecorator(Executors.newWorkStealingPool());
 
-  protected Context context = new ContextConc();
+  protected Context context;
 
   @Before
   public void setUp() {
-    context.addStrategy(new SimpleTimeoutStrategy(10000L));
-    context.addStrategy(new NettyConnectStrategy());
+    this.context = ContextHolder.newContext().withStrategy(new SimpleTimeoutStrategy(10000L))
+        .withStrategy(new NettyConnectStrategy());
   }
 
 }

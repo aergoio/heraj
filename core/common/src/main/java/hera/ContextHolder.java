@@ -4,9 +4,14 @@
 
 package hera;
 
-public final class ContextHolder {
+public class ContextHolder {
 
-  public static ThreadLocal<Context> threadLocal = ThreadLocal.withInitial(() -> new ContextConc());
+  protected static final ThreadLocal<Context> threadLocal =
+      ThreadLocal.withInitial(() -> EmptyContext.getInstance());
+
+  public static Context newContext() {
+    return EmptyContext.getInstance();
+  }
 
   public static void set(final Context context) {
     threadLocal.set(context);

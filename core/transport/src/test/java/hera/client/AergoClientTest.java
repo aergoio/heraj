@@ -20,35 +20,35 @@ public class AergoClientTest extends AbstractTestCase {
 
   @Test
   public void testGetAccountOperation() {
-    try (final AergoClient client = new AergoClient()) {
+    try (final AergoClient client = new AergoClient(context)) {
       assertNotNull(client.getAccountOperation());
     }
   }
 
   @Test
   public void testGetBlockOperation() {
-    try (final AergoClient client = new AergoClient()) {
+    try (final AergoClient client = new AergoClient(context)) {
       assertNotNull(client.getBlockOperation());
     }
   }
 
   @Test
   public void testGetBlockchainOperation() {
-    try (final AergoClient client = new AergoClient()) {
+    try (final AergoClient client = new AergoClient(context)) {
       assertNotNull(client.getBlockchainOperation());
     }
   }
 
   @Test
   public void testGetTransactionOperation() {
-    try (final AergoClient client = new AergoClient()) {
+    try (final AergoClient client = new AergoClient(context)) {
       assertNotNull(client.getTransactionOperation());
     }
   }
 
   @Test
   public void testGetContractOperation() {
-    try (final AergoClient client = new AergoClient()) {
+    try (final AergoClient client = new AergoClient(context)) {
       assertNotNull(client.getContractOperation());
     }
   }
