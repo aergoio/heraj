@@ -28,16 +28,20 @@ public class InMemoryConfiguration extends AbstractConfiguration {
     this(false, configuration);
   }
 
+  public InMemoryConfiguration(final boolean readOnly, final Configuration configuration) {
+    this(readOnly, configuration.asMap());
+  }
+
   /**
    * InMemoryConfiguration constructor. If it's set as read-only, {@link #define(String, Object)}
    * would throw {@link UnsupportedOperationException}.
    *
    * @param readOnly whether configuration is read-only or not
-   * @param configuration configuration to copy
+   * @param map configuration to copy
    */
-  public InMemoryConfiguration(final boolean readOnly, final Configuration configuration) {
+  public InMemoryConfiguration(final boolean readOnly, final Map<String, Object> map) {
     super(readOnly);
-    this.key2value.putAll(configuration.asMap());
+    this.key2value.putAll(map);
     if (readOnly) {
       this.key2value = unmodifiableMap(this.key2value);
       this.subconfigurations = unmodifiableMap(this.subconfigurations);
@@ -51,9 +55,7 @@ public class InMemoryConfiguration extends AbstractConfiguration {
 
   @Override
   public void define(final String key, final Object value) {
-    if (readOnly) {
-      throw new UnsupportedOperationException("Configuration is read-only");
-    }
+    checkReadOnly();
 
     logger.debug("{}: {}", key, value);
 
@@ -92,10 +94,27 @@ public class InMemoryConfiguration extends AbstractConfiguration {
   }
 
   @Override
+  public void remove(final String key) {
+    checkReadOnly();
+    key2value.remove(key);
+  }
+
+  @Override
   public String toString() {
     Map<String, Object> merged = new HashMap<>();
     merged.putAll(subconfigurations);
     merged.putAll(key2value);
     return merged.toString();
   }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (null == obj || !(obj instanceof InMemoryConfiguration)) {
+      return false;
+    }
+    final InMemoryConfiguration other = (InMemoryConfiguration) obj;
+    return this.isReadOnly() == other.isReadOnly() && this.key2value.equals(other.key2value)
+        && this.subconfigurations.equals(other.subconfigurations);
+  }
+
 }

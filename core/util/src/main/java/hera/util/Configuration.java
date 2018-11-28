@@ -9,8 +9,9 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface Configuration {
+
   Map<String, Object> asMap();
-  
+
   Configuration getSubconfiguration(String key);
 
   void define(String key, Object value);
@@ -30,4 +31,7 @@ public interface Configuration {
   double getAsDouble(String key, double defaultValue);
 
   List<String> getAsList(String key);
+
+  void remove(String key);
+
 }

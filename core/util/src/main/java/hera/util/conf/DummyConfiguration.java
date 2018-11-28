@@ -13,12 +13,12 @@ public class DummyConfiguration extends AbstractConfiguration {
   public static Configuration getInstance() {
     return new DummyConfiguration();
   }
-  
+
   @Override
   protected Object getValue(String key) {
     return null;
   }
-  
+
   @SuppressWarnings("unchecked")
   @Override
   public Map<String, Object> asMap() {
@@ -29,4 +29,10 @@ public class DummyConfiguration extends AbstractConfiguration {
   public void define(final String key, final Object value) {
     throw new UnsupportedOperationException();
   }
+
+  @Override
+  public void remove(final String key) {
+    throw new UnsupportedOperationException();
+  }
+
 }

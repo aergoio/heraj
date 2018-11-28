@@ -71,4 +71,10 @@ public class HierachicalConfiguration extends AbstractConfiguration {
   public void define(final String key, final Object value) {
     throw new UnsupportedOperationException();
   }
+
+  @Override
+  public void remove(String key) {
+    throw new UnsupportedOperationException();
+  }
+
 }

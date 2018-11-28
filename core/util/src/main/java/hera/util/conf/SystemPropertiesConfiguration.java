@@ -44,4 +44,10 @@ public class SystemPropertiesConfiguration extends AbstractConfiguration impleme
     assertFalse(key.contains("."));
     return getProperty(key);
   }
+
+  @Override
+  public void remove(final String key) {
+    throw new UnsupportedOperationException("JVM Properties could NOT be changed");
+  }
+
 }

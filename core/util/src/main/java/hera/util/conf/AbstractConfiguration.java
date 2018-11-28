@@ -118,4 +118,11 @@ public abstract class AbstractConfiguration implements Configuration {
             .map(String::trim).filter(v2 -> !v2.isEmpty()).collect(toList()))
         .orElse(EMPTY_LIST);
   }
+
+  protected void checkReadOnly() {
+    if (isReadOnly()) {
+      throw new UnsupportedOperationException("Configuration is read-only");
+    }
+  }
+
 }
