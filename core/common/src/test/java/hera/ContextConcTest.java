@@ -19,7 +19,8 @@ public class ContextConcTest extends AbstractTestCase {
   @Test
   public void testScope() {
     final Object[] testParameters =
-        new Object[] {ContextProvider.defaultProvider.get().withScope("test")};
+        new Object[] {ContextProvider.defaultProvider.get(),
+            ContextProvider.defaultProvider.get().withScope("test")};
 
     for (final Object testParameter : testParameters) {
       final Context source = (Context) testParameter;
@@ -32,8 +33,12 @@ public class ContextConcTest extends AbstractTestCase {
       assertEquals(source.getStrategies(), withScope.getStrategies());
 
       final Context withoutScope = withScope.popScope();
-      assertEquals(((ContextConc) source).getScopeParent().getScope(),
-          ((ContextConc) withoutScope).getScopeParent().getScope());
+      if (source instanceof ContextConc) {
+        assertEquals(((ContextConc) source).getScopeParent().getScope(),
+            ((ContextConc) withoutScope).getScopeParent().getScope());
+      } else {
+        assertEquals(source, withoutScope);
+      }
       assertEquals(source.getScope(), withoutScope.getScope());
       assertEquals(source.getConfiguration(), withoutScope.getConfiguration());
       assertEquals(source.getStrategies(), withoutScope.getStrategies());
