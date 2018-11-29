@@ -39,7 +39,7 @@ public class AergoAsyncClient extends AbstractAsyncAergoApi implements Closeable
   };
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final ManagedChannel channel = new ManagedChannelFactory().apply(ContextHolder.get());
+  private final ManagedChannel channel = new ManagedChannelFactory().apply(contextProvider.get());
 
   @Getter(lazy = true)
   private final AccountAsyncOperation accountAsyncOperation =

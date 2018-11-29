@@ -166,8 +166,6 @@ public class AergoClientBuilder {
         .withConfiguration(configuration)
         .withScope(AergoClientBuilder.SCOPE);
     logger.info("Global context: {}", context);
-    // TODO : remove exporting
-    ContextHolder.set(context);
     return context;
   }
 

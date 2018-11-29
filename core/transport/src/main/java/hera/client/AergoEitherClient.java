@@ -39,7 +39,7 @@ public class AergoEitherClient extends AbstractEitherAergoApi implements Closeab
   };
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final ManagedChannel channel = new ManagedChannelFactory().apply(ContextHolder.get());
+  private final ManagedChannel channel = new ManagedChannelFactory().apply(contextProvider.get());
 
   @Getter(lazy = true)
   private final AccountEitherOperation accountEitherOperation =
