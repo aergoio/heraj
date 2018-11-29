@@ -19,7 +19,7 @@ public class ContextConcTest extends AbstractTestCase {
   @Test
   public void testScope() {
     final Object[] testParameters =
-        new Object[] {ContextHolder.newContext().withScope("test")};
+        new Object[] {ContextProvider.defaultProvider.get().withScope("test")};
 
     for (final Object testParameter : testParameters) {
       final Context source = (Context) testParameter;
@@ -43,7 +43,8 @@ public class ContextConcTest extends AbstractTestCase {
   @Test
   public void testConfiguration() {
     final Object[] testParameters =
-        new Object[] {ContextHolder.newContext(), ContextHolder.newContext().withScope("test")};
+        new Object[] {ContextProvider.defaultProvider.get(),
+            ContextProvider.defaultProvider.get().withScope("test")};
 
     for (final Object testParameter : testParameters) {
       final Context origin = (Context) testParameter;
@@ -69,7 +70,8 @@ public class ContextConcTest extends AbstractTestCase {
   @Test
   public void testStrategy() {
     final Object[] testParameters =
-        new Object[] {ContextHolder.newContext(), ContextHolder.newContext().withScope("test")};
+        new Object[] {ContextProvider.defaultProvider.get(),
+            ContextProvider.defaultProvider.get().withScope("test")};
 
     for (final Object testParameter : testParameters) {
       final Context origin = (Context) testParameter;

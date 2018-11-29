@@ -4,6 +4,7 @@
 
 package hera.client;
 
+import static com.google.common.base.Suppliers.memoize;
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.api.tupleorerror.FunctionChain.of;
@@ -15,7 +16,8 @@ import static types.AergoRPCServiceGrpc.newFutureStub;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
-import hera.StrategyAcceptable;
+import hera.ContextProvider;
+import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.AccountAsyncOperation;
@@ -49,7 +51,10 @@ import hera.transport.TransactionConverterFactory;
 import io.grpc.ManagedChannel;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import types.AccountOuterClass;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -60,7 +65,7 @@ import types.Rpc;
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
 public class AccountAsyncTemplate
-    implements AccountAsyncOperation, ChannelInjectable, StrategyAcceptable {
+    implements AccountAsyncOperation, ChannelInjectable, ContextProviderInjectable {
 
   protected final Logger logger = getLogger(getClass());
 
@@ -85,22 +90,15 @@ public class AccountAsyncTemplate
   @Getter
   protected AergoRPCServiceFutureStub aergoService;
 
-  @Override
-  public void injectChannel(final ManagedChannel channel) {
-    this.aergoService = newFutureStub(channel);
-  }
+  @Setter
+  protected ContextProvider contextProvider;
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
 
   @Override
-  public void accept(final StrategyChain strategyChain) {
-    this.wrappedListFunction = strategyChain.apply(listFunction);
-    this.wrappedCreateFunction = strategyChain.apply(createFunction);
-    this.wrappedGetStateFunction = strategyChain.apply(getStateFunction);
-    this.wrappedUnlockFunction = strategyChain.apply(unlockFunction);
-    this.wrappedSignFunction = strategyChain.apply(signFunction);
-    this.wrappedVerifyFunction = strategyChain.apply(verifyFunction);
-    this.wrappedLockFunction = strategyChain.apply(lockFunction);
-    this.wrappedImportKeyFunction = strategyChain.apply(importKeyFunction);
-    this.wrappedExportKeyFunction = strategyChain.apply(exportKeyFunction);
+  public void setChannel(final ManagedChannel channel) {
+    this.aergoService = newFutureStub(channel);
   }
 
   private final Function0<ResultOrErrorFuture<List<AccountAddress>>> listFunction =
@@ -286,75 +284,86 @@ public class AccountAsyncTemplate
         return nextFuture;
       };
 
-  protected Function0<ResultOrErrorFuture<List<AccountAddress>>> wrappedListFunction = listFunction;
+  protected Supplier<
+      Function0<ResultOrErrorFuture<List<AccountAddress>>>> wrappedListFunctionSupplier =
+          memoize(() -> getStrategyChain().apply(listFunction));
 
-  protected Function1<String, ResultOrErrorFuture<Account>> wrappedCreateFunction = createFunction;
+  protected Supplier<
+      Function1<String, ResultOrErrorFuture<Account>>> createFunctionSupplier =
+          memoize(() -> getStrategyChain().apply(createFunction));
 
-  protected Function1<AccountAddress, ResultOrErrorFuture<AccountState>> wrappedGetStateFunction =
-      getStateFunction;
+  protected Supplier<Function1<AccountAddress,
+      ResultOrErrorFuture<AccountState>>> getStateFunctionSupplier =
+          memoize(() -> getStrategyChain().apply(getStateFunction));
 
-  protected Function1<Authentication, ResultOrErrorFuture<Boolean>> wrappedUnlockFunction =
-      unlockFunction;
+  protected Supplier<
+      Function1<Authentication, ResultOrErrorFuture<Boolean>>> unlockFunctionSupplier =
+          memoize(() -> getStrategyChain().apply(unlockFunction));
 
-  protected Function2<Account, Transaction, ResultOrErrorFuture<Signature>> wrappedSignFunction =
-      signFunction;
+  protected Supplier<Function2<Account, Transaction,
+      ResultOrErrorFuture<Signature>>> signFunctionSupplier =
+          memoize(() -> getStrategyChain().apply(signFunction));
 
-  protected Function2<Account, Transaction, ResultOrErrorFuture<Boolean>> wrappedVerifyFunction =
-      verifyFunction;
+  protected Supplier<Function2<Account, Transaction,
+      ResultOrErrorFuture<Boolean>>> verifyFunctionSupplier =
+          memoize(() -> getStrategyChain().apply(verifyFunction));
 
-  protected Function1<Authentication, ResultOrErrorFuture<Boolean>> wrappedLockFunction =
-      lockFunction;
+  protected Supplier<
+      Function1<Authentication, ResultOrErrorFuture<Boolean>>> lockFunctionSupplier =
+          memoize(() -> getStrategyChain().apply(lockFunction));
 
-  protected Function3<EncryptedPrivateKey, String, String,
-      ResultOrErrorFuture<Account>> wrappedImportKeyFunction = importKeyFunction;
+  protected Supplier<Function3<EncryptedPrivateKey, String, String,
+      ResultOrErrorFuture<Account>>> importKeyFunctionSupplier =
+          memoize(() -> getStrategyChain().apply(importKeyFunction));
 
-  protected Function1<Authentication,
-      ResultOrErrorFuture<EncryptedPrivateKey>> wrappedExportKeyFunction = exportKeyFunction;
+  protected Supplier<Function1<Authentication,
+      ResultOrErrorFuture<EncryptedPrivateKey>>> exportKeyFunctionSupplier =
+          memoize(() -> getStrategyChain().apply(exportKeyFunction));
 
   @Override
   public ResultOrErrorFuture<List<AccountAddress>> list() {
-    return wrappedListFunction.apply();
+    return wrappedListFunctionSupplier.get().apply();
   }
 
   @Override
   public ResultOrErrorFuture<Account> create(final String password) {
-    return wrappedCreateFunction.apply(password);
+    return createFunctionSupplier.get().apply(password);
   }
 
   @Override
   public ResultOrErrorFuture<AccountState> getState(final AccountAddress address) {
-    return wrappedGetStateFunction.apply(address);
+    return getStateFunctionSupplier.get().apply(address);
   }
 
   @Override
   public ResultOrErrorFuture<Boolean> lock(final Authentication authentication) {
-    return wrappedLockFunction.apply(authentication);
+    return lockFunctionSupplier.get().apply(authentication);
   }
 
   @Override
   public ResultOrErrorFuture<Boolean> unlock(final Authentication authentication) {
-    return wrappedUnlockFunction.apply(authentication);
+    return unlockFunctionSupplier.get().apply(authentication);
   }
 
   @Override
   public ResultOrErrorFuture<Signature> sign(final Account account, final Transaction transaction) {
-    return wrappedSignFunction.apply(account, transaction);
+    return signFunctionSupplier.get().apply(account, transaction);
   }
 
   @Override
   public ResultOrErrorFuture<Boolean> verify(final Account account, final Transaction transaction) {
-    return wrappedVerifyFunction.apply(account, transaction);
+    return verifyFunctionSupplier.get().apply(account, transaction);
   }
 
   @Override
   public ResultOrErrorFuture<Account> importKey(final EncryptedPrivateKey encryptedKey,
       final String oldPassword, final String newPassword) {
-    return wrappedImportKeyFunction.apply(encryptedKey, oldPassword, newPassword);
+    return importKeyFunctionSupplier.get().apply(encryptedKey, oldPassword, newPassword);
   }
 
   @Override
   public ResultOrErrorFuture<EncryptedPrivateKey> exportKey(final Authentication authentication) {
-    return wrappedExportKeyFunction.apply(authentication);
+    return exportKeyFunctionSupplier.get().apply(authentication);
   }
 
 }

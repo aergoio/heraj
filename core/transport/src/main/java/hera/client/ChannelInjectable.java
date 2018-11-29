@@ -7,5 +7,5 @@ package hera.client;
 import io.grpc.ManagedChannel;
 
 public interface ChannelInjectable {
-  void injectChannel(ManagedChannel channel);
+  void setChannel(ManagedChannel channel);
 }

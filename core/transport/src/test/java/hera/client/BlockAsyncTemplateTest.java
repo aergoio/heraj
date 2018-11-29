@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
+import hera.ContextProvider;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
@@ -37,6 +38,7 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
       final AergoRPCServiceFutureStub aergoService) {
     final BlockAsyncTemplate blockAsyncTemplate = new BlockAsyncTemplate();
     blockAsyncTemplate.aergoService = aergoService;
+    blockAsyncTemplate.setContextProvider(ContextProvider.defaultProvider);
     return blockAsyncTemplate;
   }
 

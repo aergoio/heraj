@@ -4,7 +4,8 @@
 
 package hera.client;
 
-import hera.StrategyAcceptable;
+import hera.ContextProvider;
+import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.TransactionEitherOperation;
@@ -12,7 +13,6 @@ import hera.api.model.AccountAddress;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrError;
-import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import io.opentracing.Scope;
 import io.opentracing.Tracer;
@@ -21,18 +21,21 @@ import io.opentracing.util.GlobalTracer;
 @ApiAudience.Private
 @ApiStability.Unstable
 public class TransactionEitherTemplate
-    implements TransactionEitherOperation, ChannelInjectable, StrategyAcceptable {
+    implements TransactionEitherOperation, ChannelInjectable, ContextProviderInjectable {
 
   protected TransactionAsyncTemplate transactionAsyncOperation = new TransactionAsyncTemplate();
 
+  protected ContextProvider contextProvider;
+
   @Override
-  public void injectChannel(final ManagedChannel channel) {
-    transactionAsyncOperation.injectChannel(channel);
+  public void setChannel(final ManagedChannel channel) {
+    transactionAsyncOperation.setChannel(channel);
   }
 
   @Override
-  public void accept(final StrategyChain strategyChain) {
-    transactionAsyncOperation.accept(strategyChain);
+  public void setContextProvider(final ContextProvider contextProvider) {
+    this.contextProvider = contextProvider;
+    transactionAsyncOperation.setContextProvider(contextProvider);
   }
 
   @Override

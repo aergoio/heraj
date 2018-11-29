@@ -4,7 +4,8 @@
 
 package hera.client;
 
-import hera.StrategyAcceptable;
+import hera.ContextProvider;
+import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.AccountEitherOperation;
@@ -16,25 +17,27 @@ import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrError;
-import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import java.util.List;
 
 @ApiAudience.Private
 @ApiStability.Unstable
 public class AccountEitherTemplate
-    implements AccountEitherOperation, ChannelInjectable, StrategyAcceptable {
+    implements AccountEitherOperation, ChannelInjectable, ContextProviderInjectable {
 
   protected AccountAsyncTemplate accountAsyncOperation = new AccountAsyncTemplate();
 
+  protected ContextProvider contextProvider;
+
   @Override
-  public void injectChannel(final ManagedChannel channel) {
-    accountAsyncOperation.injectChannel(channel);
+  public void setChannel(final ManagedChannel channel) {
+    accountAsyncOperation.setChannel(channel);
   }
 
   @Override
-  public void accept(final StrategyChain strategyChain) {
-    accountAsyncOperation.accept(strategyChain);
+  public void setContextProvider(final ContextProvider contextProvider) {
+    this.contextProvider = contextProvider;
+    accountAsyncOperation.setContextProvider(contextProvider);
   }
 
   @Override

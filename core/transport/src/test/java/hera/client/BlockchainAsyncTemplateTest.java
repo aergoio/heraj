@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
+import hera.ContextProvider;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
@@ -34,6 +35,7 @@ public class BlockchainAsyncTemplateTest extends AbstractTestCase {
       final AergoRPCServiceFutureStub aergoService) {
     final BlockchainAsyncTemplate blockchainAsyncTemplate = new BlockchainAsyncTemplate();
     blockchainAsyncTemplate.aergoService = aergoService;
+    blockchainAsyncTemplate.setContextProvider(ContextProvider.defaultProvider);
     return blockchainAsyncTemplate;
   }
 

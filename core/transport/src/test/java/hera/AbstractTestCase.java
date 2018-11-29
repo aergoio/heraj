@@ -30,7 +30,8 @@ public abstract class AbstractTestCase {
 
   @Before
   public void setUp() {
-    this.context = ContextHolder.newContext().withStrategy(new SimpleTimeoutStrategy(10000L))
+    this.context = ContextProvider.defaultProvider.get()
+        .withStrategy(new SimpleTimeoutStrategy(10000L))
         .withStrategy(new NettyConnectStrategy());
   }
 

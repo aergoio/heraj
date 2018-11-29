@@ -6,7 +6,9 @@ package hera.client;
 
 import hera.Context;
 import hera.ContextHolder;
-import hera.StrategyAcceptable;
+import hera.ContextProvider;
+import hera.ContextProviderInjectable;
+import hera.EmptyContext;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.AbstractEitherAergoApi;
@@ -15,12 +17,12 @@ import hera.api.BlockEitherOperation;
 import hera.api.BlockchainEitherOperation;
 import hera.api.ContractEitherOperation;
 import hera.api.TransactionEitherOperation;
-import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import java.io.Closeable;
 import java.util.concurrent.TimeUnit;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @ApiAudience.Private
@@ -28,7 +30,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AergoEitherClient extends AbstractEitherAergoApi implements Closeable, AutoCloseable {
 
-  protected final Context globalContext;
+  @NonNull
+  protected Context globalContext;
+
+  protected ContextProvider contextProvider = () -> {
+    final Context context = ContextHolder.get();
+    return EmptyContext.getInstance().equals(context) ? globalContext : context;
+  };
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final ManagedChannel channel = new ManagedChannelFactory().apply(ContextHolder.get());
@@ -54,11 +62,11 @@ public class AergoEitherClient extends AbstractEitherAergoApi implements Closeab
       resolveInjection(new ContractEitherTemplate());
 
   protected <T> T resolveInjection(final T target) {
-    if (target instanceof StrategyAcceptable) {
-      ((StrategyAcceptable) target).accept(StrategyChain.of(ContextHolder.get()));
+    if (target instanceof ContextProviderInjectable) {
+      ((ContextProviderInjectable) target).setContextProvider(contextProvider);
     }
     if (target instanceof ChannelInjectable) {
-      ((ChannelInjectable) target).injectChannel(getChannel());
+      ((ChannelInjectable) target).setChannel(getChannel());
     }
     return target;
   }

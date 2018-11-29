@@ -8,6 +8,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Context;
 import hera.ContextHolder;
+import hera.ContextProvider;
 import hera.DefaultConstants;
 import hera.Strategy;
 import hera.annotation.ApiAudience;
@@ -160,7 +161,7 @@ public class AergoClientBuilder {
   protected Context buildContext() {
     necessaryStrategyMap.keySet().stream().filter(c -> !this.strategyMap.containsKey(c))
         .forEach(c -> this.strategyMap.put(c, necessaryStrategyMap.get(c)));
-    final Context context = ContextHolder.newContext()
+    final Context context = ContextProvider.defaultProvider.get()
         .withStrategies(new HashSet<>(this.strategyMap.values()))
         .withConfiguration(configuration)
         .withScope(AergoClientBuilder.SCOPE);

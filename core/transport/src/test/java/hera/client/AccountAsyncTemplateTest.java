@@ -13,6 +13,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
+import hera.ContextProvider;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
@@ -43,6 +44,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
       final AergoRPCServiceFutureStub aergoService) {
     final AccountAsyncTemplate accountAsyncTemplate = new AccountAsyncTemplate();
     accountAsyncTemplate.aergoService = aergoService;
+    accountAsyncTemplate.setContextProvider(ContextProvider.defaultProvider);
     return accountAsyncTemplate;
   }
 

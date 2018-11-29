@@ -4,31 +4,34 @@
 
 package hera.client;
 
-import hera.StrategyAcceptable;
+import hera.ContextProvider;
+import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.BlockOperation;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
-import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import java.util.List;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-public class BlockTemplate implements BlockOperation, ChannelInjectable, StrategyAcceptable {
+public class BlockTemplate implements BlockOperation, ChannelInjectable, ContextProviderInjectable {
 
   protected BlockEitherTemplate blockEitherOperation = new BlockEitherTemplate();
 
+  protected ContextProvider contextProvider;
+
   @Override
-  public void accept(final StrategyChain strategyChain) {
-    blockEitherOperation.accept(strategyChain);
+  public void setChannel(final ManagedChannel channel) {
+    blockEitherOperation.setChannel(channel);
   }
 
   @Override
-  public void injectChannel(final ManagedChannel channel) {
-    blockEitherOperation.injectChannel(channel);
+  public void setContextProvider(final ContextProvider contextProvider) {
+    this.contextProvider = contextProvider;
+    blockEitherOperation.setContextProvider(contextProvider);
   }
 
   @Override

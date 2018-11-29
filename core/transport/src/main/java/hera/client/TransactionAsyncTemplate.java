@@ -4,6 +4,7 @@
 
 package hera.client;
 
+import static com.google.common.base.Suppliers.memoize;
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.api.model.BytesValue.of;
@@ -14,7 +15,8 @@ import static types.AergoRPCServiceGrpc.newFutureStub;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
-import hera.StrategyAcceptable;
+import hera.ContextProvider;
+import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.TransactionAsyncOperation;
@@ -34,7 +36,10 @@ import io.grpc.ManagedChannel;
 import io.opentracing.Scope;
 import io.opentracing.Tracer;
 import io.opentracing.util.GlobalTracer;
+import java.util.function.Supplier;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Blockchain;
@@ -44,7 +49,7 @@ import types.Rpc;
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
 public class TransactionAsyncTemplate
-    implements TransactionAsyncOperation, ChannelInjectable, StrategyAcceptable {
+    implements TransactionAsyncOperation, ChannelInjectable, ContextProviderInjectable {
 
   protected final Logger logger = getLogger(getClass());
 
@@ -57,16 +62,15 @@ public class TransactionAsyncTemplate
   @Getter
   protected AergoRPCServiceFutureStub aergoService;
 
-  @Override
-  public void injectChannel(final ManagedChannel channel) {
-    this.aergoService = newFutureStub(channel);
-  }
+  @Setter
+  protected ContextProvider contextProvider;
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
 
   @Override
-  public void accept(final StrategyChain strategyChain) {
-    this.wrappedTransactionFunction = strategyChain.apply(transactionFunction);
-    this.wrappedCommitFunction = strategyChain.apply(commitFunction);
-    this.wrappedSendFunction = strategyChain.apply(sendFunction);
+  public void setChannel(final ManagedChannel channel) {
+    this.aergoService = newFutureStub(channel);
   }
 
   private final Function1<TxHash, ResultOrErrorFuture<Transaction>> transactionFunction =
@@ -144,30 +148,32 @@ public class TransactionAsyncTemplate
         }
       };
 
-  protected Function1<TxHash, ResultOrErrorFuture<Transaction>> wrappedTransactionFunction =
-      transactionFunction;
+  protected Supplier<
+      Function1<TxHash, ResultOrErrorFuture<Transaction>>> transactionFunctionSupplier =
+          memoize(() -> getStrategyChain().apply(transactionFunction));
 
-  protected Function1<Transaction, ResultOrErrorFuture<TxHash>> wrappedCommitFunction =
-      commitFunction;
+  protected Supplier<Function1<Transaction, ResultOrErrorFuture<TxHash>>> commitFunctionSupplier =
+      memoize(() -> getStrategyChain().apply(commitFunction));
 
-  protected Function3<AccountAddress, AccountAddress, Long,
-      ResultOrErrorFuture<TxHash>> wrappedSendFunction = sendFunction;
+  protected Supplier<Function3<AccountAddress, AccountAddress, Long,
+      ResultOrErrorFuture<TxHash>>> sendFunctionSupplier =
+          memoize(() -> getStrategyChain().apply(sendFunction));
 
   @Override
   public ResultOrErrorFuture<Transaction> getTransaction(final TxHash txHash) {
-    return wrappedTransactionFunction.apply(txHash);
+    return transactionFunctionSupplier.get().apply(txHash);
   }
 
   @Override
   public ResultOrErrorFuture<TxHash> commit(final Transaction transaction) {
-    return wrappedCommitFunction.apply(transaction);
+    return commitFunctionSupplier.get().apply(transaction);
   }
 
   @Override
   public ResultOrErrorFuture<TxHash> send(final AccountAddress sender,
       final AccountAddress recipient,
       final long amount) {
-    return wrappedSendFunction.apply(sender, recipient, amount);
+    return sendFunctionSupplier.get().apply(sender, recipient, amount);
   }
 
 }

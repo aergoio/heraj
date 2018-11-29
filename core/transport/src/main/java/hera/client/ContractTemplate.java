@@ -4,7 +4,8 @@
 
 package hera.client;
 
-import hera.StrategyAcceptable;
+import hera.ContextProvider;
+import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.ContractOperation;
@@ -17,23 +18,26 @@ import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Fee;
-import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-public class ContractTemplate implements ContractOperation, ChannelInjectable, StrategyAcceptable {
+public class ContractTemplate
+    implements ContractOperation, ChannelInjectable, ContextProviderInjectable {
 
   protected ContractEitherTemplate contractEitherOperation = new ContractEitherTemplate();
 
+  protected ContextProvider contextProvider;
+
   @Override
-  public void injectChannel(final ManagedChannel channel) {
-    contractEitherOperation.injectChannel(channel);
+  public void setChannel(final ManagedChannel channel) {
+    contractEitherOperation.setChannel(channel);
   }
 
   @Override
-  public void accept(final StrategyChain strategyChain) {
-    contractEitherOperation.accept(strategyChain);
+  public void setContextProvider(final ContextProvider contextProvider) {
+    this.contextProvider = contextProvider;
+    contractEitherOperation.setContextProvider(contextProvider);
   }
 
   @Override

@@ -4,6 +4,7 @@
 
 package hera.client;
 
+import static com.google.common.base.Suppliers.memoize;
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.api.tupleorerror.FunctionChain.fail;
@@ -17,7 +18,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
-import hera.StrategyAcceptable;
+import hera.ContextProvider;
+import hera.ContextProviderInjectable;
 import hera.VersionUtils;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
@@ -53,7 +55,9 @@ import io.grpc.ManagedChannel;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
+import lombok.AccessLevel;
 import lombok.Getter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -64,7 +68,7 @@ import types.Rpc;
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
 public class ContractAsyncTemplate
-    implements ContractAsyncOperation, ChannelInjectable, StrategyAcceptable {
+    implements ContractAsyncOperation, ChannelInjectable, ContextProviderInjectable {
 
   protected final Logger logger = getLogger(getClass());
 
@@ -89,20 +93,23 @@ public class ContractAsyncTemplate
 
   protected TransactionAsyncTemplate transactionAsyncOperation = new TransactionAsyncTemplate();
 
+  protected ContextProvider contextProvider;
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
+
   @Override
-  public void injectChannel(final ManagedChannel channel) {
+  public void setChannel(final ManagedChannel channel) {
     this.aergoService = newFutureStub(channel);
-    accountAsyncOperation.injectChannel(channel);
-    transactionAsyncOperation.injectChannel(channel);
+    accountAsyncOperation.setChannel(channel);
+    transactionAsyncOperation.setChannel(channel);
   }
 
   @Override
-  public void accept(final StrategyChain strategyChain) {
-    this.wrappedGetReceiptFunction = strategyChain.apply(getReceiptFunction);
-    this.wrappedDeployFunction = strategyChain.apply(deployFunction);
-    this.wrappedGetContractInterfaceFunction = strategyChain.apply(getContractInterfaceFunction);
-    this.wrappedExecuteFunction = strategyChain.apply(executeFunction);
-    this.wrappedQueryFunction = strategyChain.apply(queryFunction);
+  public void setContextProvider(final ContextProvider contextProvider) {
+    this.contextProvider = contextProvider;
+    accountAsyncOperation.setContextProvider(contextProvider);
+    transactionAsyncOperation.setContextProvider(contextProvider);
   }
 
   private final Function1<ContractTxHash,
@@ -292,48 +299,54 @@ public class ContractAsyncTemplate
     return argsNode;
   }
 
-  protected Function1<ContractTxHash,
-      ResultOrErrorFuture<ContractTxReceipt>> wrappedGetReceiptFunction = getReceiptFunction;
+  protected Supplier<Function1<ContractTxHash,
+      ResultOrErrorFuture<ContractTxReceipt>>> getReceiptFunctionSupplier =
+          memoize(() -> getStrategyChain().apply(getReceiptFunction));
 
-  protected Function3<Account, ContractDefinition, Fee,
-      ResultOrErrorFuture<ContractTxHash>> wrappedDeployFunction = deployFunction;
+  protected Supplier<Function3<Account, ContractDefinition, Fee,
+      ResultOrErrorFuture<ContractTxHash>>> deployFunctionSupplier =
+          memoize(() -> getStrategyChain().apply(deployFunction));
 
-  protected Function1<ContractAddress,
-      ResultOrErrorFuture<ContractInterface>> wrappedGetContractInterfaceFunction =
-          getContractInterfaceFunction;
+  protected Supplier<Function1<ContractAddress,
+      ResultOrErrorFuture<ContractInterface>>> getContractInterfaceFunctionSupplier =
+          memoize(() -> getStrategyChain().apply(getContractInterfaceFunction));
 
-  protected Function3<Account, ContractInvocation, Fee,
-      ResultOrErrorFuture<ContractTxHash>> wrappedExecuteFunction = executeFunction;
+  protected Supplier<Function3<Account, ContractInvocation, Fee,
+      ResultOrErrorFuture<ContractTxHash>>> executeFunctionSupplier =
+          memoize(() -> getStrategyChain().apply(executeFunction));
 
-  protected Function1<ContractInvocation,
-      ResultOrErrorFuture<ContractResult>> wrappedQueryFunction = queryFunction;
+  protected Supplier<
+      Function1<ContractInvocation, ResultOrErrorFuture<ContractResult>>> queryFunctionSupplier =
+          memoize(() -> getStrategyChain().apply(queryFunction));
 
   @Override
   public ResultOrErrorFuture<ContractTxReceipt> getReceipt(final ContractTxHash contractTxHash) {
-    return wrappedGetReceiptFunction.apply(contractTxHash);
+    return getReceiptFunctionSupplier.get().apply(contractTxHash);
   }
 
   @Override
   public ResultOrErrorFuture<ContractTxHash> deploy(final Account creator,
       final ContractDefinition contractDefinition, final Fee fee) {
-    return wrappedDeployFunction.apply(creator, contractDefinition, fee);
+    return deployFunctionSupplier.get().apply(creator, contractDefinition, fee);
   }
 
   @Override
   public ResultOrErrorFuture<ContractInterface> getContractInterface(
       final ContractAddress contractAddress) {
-    return wrappedGetContractInterfaceFunction.apply(contractAddress);
+    return getContractInterfaceFunctionSupplier.get().apply(contractAddress);
   }
 
   @Override
   public ResultOrErrorFuture<ContractTxHash> execute(final Account executor,
       final ContractInvocation contractInvocation, final Fee fee) {
-    return wrappedExecuteFunction.apply(executor, contractInvocation, fee);
+    return executeFunctionSupplier.get().apply(executor, contractInvocation, fee);
   }
 
   @Override
   public ResultOrErrorFuture<ContractResult> query(final ContractInvocation contractInvocation) {
-    return wrappedQueryFunction.apply(contractInvocation);
+    return queryFunctionSupplier.get().apply(contractInvocation);
   }
+
+
 
 }

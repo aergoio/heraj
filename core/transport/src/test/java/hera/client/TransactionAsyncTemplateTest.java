@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
+import hera.ContextProvider;
 import hera.api.model.AccountAddress;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
@@ -41,6 +42,7 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
       final AergoRPCServiceFutureStub aergoService) {
     final TransactionAsyncTemplate transactionAsyncTemplate = new TransactionAsyncTemplate();
     transactionAsyncTemplate.aergoService = aergoService;
+    transactionAsyncTemplate.setContextProvider(ContextProvider.defaultProvider);
     return transactionAsyncTemplate;
   }
 
