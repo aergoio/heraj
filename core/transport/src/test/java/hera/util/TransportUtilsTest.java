@@ -4,16 +4,19 @@
 
 package hera.util;
 
+import static hera.util.TransportUtils.assertArgument;
 import static hera.util.TransportUtils.copyFrom;
 import static hera.util.TransportUtils.inputStreamToByteArray;
 import static hera.util.TransportUtils.longToByteArray;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import com.google.protobuf.ByteString;
 import hera.AbstractTestCase;
 import hera.api.model.BytesValue;
+import hera.exception.RpcArgumentException;
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import org.junit.Test;
@@ -58,6 +61,18 @@ public class TransportUtilsTest extends AbstractTestCase {
     byte[] expected = randomUUID().toString().getBytes();
     byte[] actual = inputStreamToByteArray(new ByteArrayInputStream(expected));
     assertTrue(Arrays.equals(expected, actual));
+  }
+
+  @Test
+  public void testAssertArgument() {
+    assertArgument(true, "object", "requirement");
+
+    try {
+      assertArgument(false, "object", "requirement");
+      fail();
+    } catch (RpcArgumentException e) {
+      // good we expected this
+    }
   }
 
 }

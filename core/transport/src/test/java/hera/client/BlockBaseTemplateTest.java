@@ -65,7 +65,7 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
     final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(aergoService);
 
     final ResultOrErrorFuture<Block> block =
-        blockBaseTemplate.getBlockByHeightFunction().apply((long) randomUUID().hashCode());
+        blockBaseTemplate.getBlockByHeightFunction().apply(10L);
     assertTrue(block.get().hasResult());
   }
 
@@ -80,7 +80,7 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
 
     final ResultOrErrorFuture<List<BlockHeader>> blockHeaders =
         blockBaseTemplate.getListBlockHeadersByHashFunction().apply(
-            new BlockHash(of(randomUUID().toString().getBytes())), randomUUID().hashCode());
+            new BlockHash(of(randomUUID().toString().getBytes())), 10);
     assertTrue(blockHeaders.get().hasResult());
   }
 
@@ -94,9 +94,7 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
     final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(aergoService);
 
     final ResultOrErrorFuture<List<BlockHeader>> blockHeaders =
-        blockBaseTemplate.getListBlockHeadersByHeightFunction().apply(
-            (long) randomUUID().hashCode(),
-            randomUUID().hashCode());
+        blockBaseTemplate.getListBlockHeadersByHeightFunction().apply(10L, 10);
     assertTrue(blockHeaders.get().hasResult());
   }
 

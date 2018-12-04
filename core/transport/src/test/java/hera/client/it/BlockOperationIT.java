@@ -4,11 +4,16 @@
 
 package hera.client.it;
 
+import static hera.api.model.BytesValue.of;
+import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import hera.api.model.Block;
+import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
 import hera.api.model.BlockchainStatus;
+import hera.exception.RpcArgumentException;
 import java.util.List;
 import org.junit.Test;
 
@@ -35,6 +40,39 @@ public class BlockOperationIT extends AbstractIT {
   }
 
   @Test
+  public void testInvalidBlockLookup() {
+    try {
+      aergoClient.getBlockOperation()
+          .getBlock(new BlockHash(of(randomUUID().toString().getBytes())));
+      fail();
+    } catch (Exception e) {
+      // good we expected this
+    }
+
+    try {
+      aergoClient.getBlockOperation()
+          .getBlock(new BlockHash(() -> "8WTYmYgmEGH9UYRYPzGTowS5vhPLumGyb3Pq9UQ3zcRv"));
+      fail();
+    } catch (Exception e) {
+      // good we expected this
+    }
+
+    try {
+      aergoClient.getBlockOperation().getBlock(Long.MAX_VALUE);
+      fail();
+    } catch (Exception e) {
+      // good we expected this
+    }
+
+    try {
+      aergoClient.getBlockOperation().getBlock(-1);
+      fail();
+    } catch (RpcArgumentException e) {
+      // good we expected this
+    }
+  }
+
+  @Test
   public void testBlockHeaderLookup() {
     final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
     final Block block = aergoClient.getBlockOperation().getBlock(status.getBestBlockHash());
@@ -48,6 +86,47 @@ public class BlockOperationIT extends AbstractIT {
     logger.info("Block headers by height: {}", blockHeadersByHeight);
 
     assertEquals(blockHeadersByHash, blockHeadersByHeight);
+  }
+
+  @Test
+  public void testInvalidBlockHeaderLookup() {
+    final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
+
+    try {
+      aergoClient.getBlockOperation()
+          .listBlockHeaders(new BlockHash(of(randomUUID().toString().getBytes())), 1);
+      // fail(); // TODO : uncomment after fixed in a server
+    } catch (Exception e) {
+      // good we expected this
+    }
+
+    try {
+      aergoClient.getBlockOperation().listBlockHeaders(status.getBestBlockHash(), -1);
+      fail();
+    } catch (RpcArgumentException e) {
+      // good we expected this
+    }
+
+    try {
+      aergoClient.getBlockOperation().listBlockHeaders(Long.MAX_VALUE, 1);
+      // fail(); // TODO : uncomment after fixed in a server
+    } catch (Exception e) {
+      // good we expected this
+    }
+
+    try {
+      aergoClient.getBlockOperation().listBlockHeaders(-1, 1);
+      fail();
+    } catch (RpcArgumentException e) {
+      // good we expected this
+    }
+
+    try {
+      aergoClient.getBlockOperation().listBlockHeaders(status.getBestHeight(), -1);
+      fail();
+    } catch (RpcArgumentException e) {
+      // good we expected this
+    }
   }
 
 }

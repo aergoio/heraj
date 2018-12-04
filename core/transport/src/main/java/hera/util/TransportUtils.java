@@ -6,6 +6,7 @@ package hera.util;
 
 import com.google.protobuf.ByteString;
 import hera.api.model.BytesValue;
+import hera.exception.RpcArgumentException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,6 +66,21 @@ public class TransportUtils {
     }
 
     return bos.toByteArray();
+  }
+
+  /**
+   * Check a condition and throws {@link RpcArgumentException} if condition isn't fulfilled.
+   *
+   * @param condition condition to check
+   * @param target argument target name
+   * @param requirement argument requirement
+   * @throws RpcArgumentException if condition is false
+   */
+  public static void assertArgument(final boolean condition, final String target,
+      final String requirement) {
+    if (false == condition) {
+      throw new RpcArgumentException(target, requirement);
+    }
   }
 
 }
