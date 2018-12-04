@@ -82,7 +82,9 @@ public class AergoEitherClient extends AbstractEitherAergoApi implements Closeab
   @Override
   public void close() {
     try {
-      getChannel().shutdown().awaitTermination(3, TimeUnit.SECONDS);
+      if (null != getChannel()) {
+        getChannel().shutdown().awaitTermination(3, TimeUnit.SECONDS);
+      }
     } catch (final Throwable e) {
       logger.debug("Fail to close aergo client", e);
     }

@@ -78,8 +78,9 @@ public class AergoClient extends AbstractAergoApi implements Closeable, AutoClos
   @Override
   public void close() {
     try {
-      // FIXME when no channel
-      getChannel().shutdown().awaitTermination(3, TimeUnit.SECONDS);
+      if (null != getChannel()) {
+        getChannel().shutdown().awaitTermination(3, TimeUnit.SECONDS);
+      }
     } catch (final Throwable e) {
       logger.debug("Fail to close aergo client", e);
     }
