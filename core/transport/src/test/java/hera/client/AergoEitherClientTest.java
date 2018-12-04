@@ -26,6 +26,13 @@ public class AergoEitherClientTest extends AbstractTestCase {
   }
 
   @Test
+  public void testGetKeyStoreEitherOperation() {
+    try (final AergoEitherClient client = new AergoEitherClient(context)) {
+      assertNotNull(client.getKeyStoreEitherOperation());
+    }
+  }
+
+  @Test
   public void testGetBlockEitherOperation() {
     try (final AergoEitherClient client = new AergoEitherClient(context)) {
       assertNotNull(client.getBlockEitherOperation());

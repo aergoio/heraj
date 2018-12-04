@@ -16,6 +16,7 @@ import hera.api.AccountEitherOperation;
 import hera.api.BlockEitherOperation;
 import hera.api.BlockchainEitherOperation;
 import hera.api.ContractEitherOperation;
+import hera.api.KeyStoreEitherOperation;
 import hera.api.TransactionEitherOperation;
 import io.grpc.ManagedChannel;
 import java.io.Closeable;
@@ -47,6 +48,10 @@ public class AergoEitherClient extends AbstractEitherAergoApi implements Closeab
   @Getter(lazy = true)
   private final AccountEitherOperation accountEitherOperation =
       resolveInjection(new AccountEitherTemplate());
+
+  @Getter(lazy = true)
+  private final KeyStoreEitherOperation keyStoreEitherOperation =
+      resolveInjection(new KeyStoreEitherTemplate());
 
   @Getter(lazy = true)
   private final BlockEitherOperation blockEitherOperation =

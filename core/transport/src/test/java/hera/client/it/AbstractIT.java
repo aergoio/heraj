@@ -87,17 +87,17 @@ public abstract class AbstractIT {
   }
 
   protected Account createServerAccount(final String password) {
-    final Account account = aergoClient.getAccountOperation().create(password);
+    final Account account = aergoClient.getKeyStoreOperation().create(password);
     return account;
   }
 
   protected boolean unlockAccount(final Account account, final String password) {
-    return aergoClient.getAccountOperation()
+    return aergoClient.getKeyStoreOperation()
         .unlock(Authentication.of(account.getAddress(), password));
   }
 
   protected boolean lockAccount(final Account account, final String password) {
-    return aergoClient.getAccountOperation()
+    return aergoClient.getKeyStoreOperation()
         .lock(Authentication.of(account.getAddress(), password));
   }
 

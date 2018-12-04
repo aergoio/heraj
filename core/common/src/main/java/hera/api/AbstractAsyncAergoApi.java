@@ -28,6 +28,11 @@ public class AbstractAsyncAergoApi implements AergoAsyncApi, Adaptor {
   }
 
   @Override
+  public KeyStoreAsyncOperation getKeyStoreAsyncOperation() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public BlockAsyncOperation getBlockAsyncOperation() {
     throw new UnsupportedOperationException();
   }

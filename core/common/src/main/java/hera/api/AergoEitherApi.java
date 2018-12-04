@@ -19,6 +19,13 @@ public interface AergoEitherApi {
   AccountEitherOperation getAccountEitherOperation();
 
   /**
+   * Get keystore either operation.
+   *
+   * @return {@code KeyStoreEitherOperation}
+   */
+  KeyStoreEitherOperation getKeyStoreEitherOperation();
+
+  /**
    * Get block either operation.
    *
    * @return {@code BlockEitherOperation}

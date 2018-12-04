@@ -19,6 +19,13 @@ public interface AergoApi {
   AccountOperation getAccountOperation();
 
   /**
+   * Get keystore operation.
+   *
+   * @return {@code KeyStoreOperation}
+   */
+  KeyStoreOperation getKeyStoreOperation();
+
+  /**
    * Get block operation.
    *
    * @return {@code BlockOperation}

@@ -28,6 +28,11 @@ public class AbstractAergoApi implements AergoApi, Adaptor {
   }
 
   @Override
+  public KeyStoreOperation getKeyStoreOperation() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public BlockOperation getBlockOperation() {
     throw new UnsupportedOperationException();
   }

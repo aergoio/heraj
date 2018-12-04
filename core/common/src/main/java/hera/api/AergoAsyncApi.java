@@ -19,6 +19,13 @@ public interface AergoAsyncApi {
   AccountAsyncOperation getAccountAsyncOperation();
 
   /**
+   * Get keystore async operation.
+   *
+   * @return {@code KeyStoreAsyncOperation}
+   */
+  KeyStoreAsyncOperation getKeyStoreAsyncOperation();
+
+  /**
    * Get block async operation.
    *
    * @return {@code BlockAsyncOperation}

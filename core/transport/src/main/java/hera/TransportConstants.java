@@ -10,15 +10,16 @@ public final class TransportConstants {
    * plain functions
    */
 
-  public static final String ACCOUNT_LIST = "heraj.list";
-  public static final String ACCOUNT_CREATE = "heraj.create";
   public static final String ACCOUNT_GETSTATE = "heraj.getstate";
-  public static final String ACCOUNT_LOCK = "heraj.lock";
-  public static final String ACCOUNT_UNLOCK = "heraj.unlock";
   public static final String ACCOUNT_SIGN = "heraj.sign";
   public static final String ACCOUNT_VERIFY = "heraj.verify";
-  public static final String ACCOUNT_IMPORTKEY = "heraj.importkey";
-  public static final String ACCOUNT_EXPORTKEY = "heraj.exportkey";
+
+  public static final String KEYSTORE_LIST = "heraj.list";
+  public static final String KEYSTORE_CREATE = "heraj.create";
+  public static final String KEYSTORE_LOCK = "heraj.lock";
+  public static final String KEYSTORE_UNLOCK = "heraj.unlock";
+  public static final String KEYSTORE_IMPORTKEY = "heraj.importkey";
+  public static final String KEYSTORE_EXPORTKEY = "heraj.exportkey";
 
   public static final String BLOCK_GETBLOCK_BY_HASH = "heraj.getblock.hash";
   public static final String BLOCK_GETBLOCK_BY_HEIGHT = "heraj.getblock.height";
@@ -47,15 +48,16 @@ public final class TransportConstants {
 
   private static final String EITHER_POSTFIX = ".either";
 
-  public static final String ACCOUNT_LIST_EITHER = ACCOUNT_LIST + EITHER_POSTFIX;
-  public static final String ACCOUNT_CREATE_EITHER = ACCOUNT_CREATE + EITHER_POSTFIX;
   public static final String ACCOUNT_GETSTATE_EITHER = ACCOUNT_GETSTATE + EITHER_POSTFIX;
-  public static final String ACCOUNT_LOCK_EITHER = ACCOUNT_LOCK + EITHER_POSTFIX;
-  public static final String ACCOUNT_UNLOCK_EITHER = ACCOUNT_UNLOCK + EITHER_POSTFIX;
   public static final String ACCOUNT_SIGN_EITHER = ACCOUNT_SIGN + EITHER_POSTFIX;
   public static final String ACCOUNT_VERIFY_EITHER = ACCOUNT_VERIFY + EITHER_POSTFIX;
-  public static final String ACCOUNT_IMPORTKEY_EITHER = ACCOUNT_IMPORTKEY + EITHER_POSTFIX;
-  public static final String ACCOUNT_EXPORTKEY_EITHER = ACCOUNT_EXPORTKEY + EITHER_POSTFIX;
+
+  public static final String KEYSTORE_LIST_EITHER = KEYSTORE_LIST + EITHER_POSTFIX;
+  public static final String KEYSTORE_CREATE_EITHER = KEYSTORE_CREATE + EITHER_POSTFIX;
+  public static final String KEYSTORE_LOCK_EITHER = KEYSTORE_LOCK + EITHER_POSTFIX;
+  public static final String KEYSTORE_UNLOCK_EITHER = KEYSTORE_UNLOCK + EITHER_POSTFIX;
+  public static final String KEYSTORE_IMPORTKEY_EITHER = KEYSTORE_IMPORTKEY + EITHER_POSTFIX;
+  public static final String KEYSTORE_EXPORTKEY_EITHER = KEYSTORE_EXPORTKEY + EITHER_POSTFIX;
 
   public static final String BLOCK_GETBLOCK_BY_HASH_EITHER =
       BLOCK_GETBLOCK_BY_HASH + EITHER_POSTFIX;
@@ -89,15 +91,16 @@ public final class TransportConstants {
 
   private static final String ASYNC_POSTFIX = ".async";
 
-  public static final String ACCOUNT_LIST_ASYNC = ACCOUNT_LIST + ASYNC_POSTFIX;
-  public static final String ACCOUNT_CREATE_ASYNC = ACCOUNT_CREATE + ASYNC_POSTFIX;
   public static final String ACCOUNT_GETSTATE_ASYNC = ACCOUNT_GETSTATE + ASYNC_POSTFIX;
-  public static final String ACCOUNT_LOCK_ASYNC = ACCOUNT_LOCK + ASYNC_POSTFIX;
-  public static final String ACCOUNT_UNLOCK_ASYNC = ACCOUNT_UNLOCK + ASYNC_POSTFIX;
   public static final String ACCOUNT_SIGN_ASYNC = ACCOUNT_SIGN + ASYNC_POSTFIX;
   public static final String ACCOUNT_VERIFY_ASYNC = ACCOUNT_VERIFY + ASYNC_POSTFIX;
-  public static final String ACCOUNT_IMPORTKEY_ASYNC = ACCOUNT_IMPORTKEY + ASYNC_POSTFIX;
-  public static final String ACCOUNT_EXPORTKEY_ASYNC = ACCOUNT_EXPORTKEY + ASYNC_POSTFIX;
+
+  public static final String KEYSTORE_LIST_ASYNC = KEYSTORE_LIST + ASYNC_POSTFIX;
+  public static final String KEYSTORE_CREATE_ASYNC = KEYSTORE_CREATE + ASYNC_POSTFIX;
+  public static final String KEYSTORE_LOCK_ASYNC = KEYSTORE_LOCK + ASYNC_POSTFIX;
+  public static final String KEYSTORE_UNLOCK_ASYNC = KEYSTORE_UNLOCK + ASYNC_POSTFIX;
+  public static final String KEYSTORE_IMPORTKEY_ASYNC = KEYSTORE_IMPORTKEY + ASYNC_POSTFIX;
+  public static final String KEYSTORE_EXPORTKEY_ASYNC = KEYSTORE_EXPORTKEY + ASYNC_POSTFIX;
 
   public static final String BLOCK_GETBLOCK_BY_HASH_ASYNC =
       BLOCK_GETBLOCK_BY_HASH + ASYNC_POSTFIX;

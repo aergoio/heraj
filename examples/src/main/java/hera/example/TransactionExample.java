@@ -70,7 +70,7 @@ public class TransactionExample extends AbstractExample {
     account.bindState(state);
 
     // unlock an account
-    aergoClient.getAccountOperation().unlock(Authentication.of(account.getAddress(), password));
+    aergoClient.getKeyStoreOperation().unlock(Authentication.of(account.getAddress(), password));
 
     // make a transaction
     final Transaction transaction = new Transaction();
@@ -91,7 +91,7 @@ public class TransactionExample extends AbstractExample {
     System.out.println("Queired transaction: " + queried);
 
     // lock an account
-    aergoClient.getAccountOperation().lock(Authentication.of(account.getAddress(), password));
+    aergoClient.getKeyStoreOperation().lock(Authentication.of(account.getAddress(), password));
 
     // close the client
     aergoClient.close();
@@ -110,7 +110,7 @@ public class TransactionExample extends AbstractExample {
     final String password = "password";
 
     // unlock before send tx
-    aergoClient.getAccountOperation().unlock(Authentication.of(account.getAddress(), password));
+    aergoClient.getKeyStoreOperation().unlock(Authentication.of(account.getAddress(), password));
 
     // send tx
     final TxHash txHash = aergoClient.getTransactionOperation().send(account.getAddress(),
@@ -122,7 +122,7 @@ public class TransactionExample extends AbstractExample {
     System.out.println("Queired transaction: " + queried);
 
     // lock after it
-    aergoClient.getAccountOperation().lock(Authentication.of(account.getAddress(), password));
+    aergoClient.getKeyStoreOperation().lock(Authentication.of(account.getAddress(), password));
 
     // close the client
     aergoClient.close();

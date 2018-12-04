@@ -16,6 +16,11 @@ public class AbstractEitherAergoApiTest {
   }
 
   @Test(expected = UnsupportedOperationException.class)
+  public void testGetKeyStoreEitherOperation() {
+    aergoApi.getKeyStoreEitherOperation();
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
   public void testGetBlockEitherOperation() {
     aergoApi.getBlockEitherOperation();
   }

@@ -18,7 +18,12 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore({"javax.crypto.*", "javax.management.*", "javax.net.ssl.*", "javax.security.*"})
+@PowerMockIgnore({
+    "javax.crypto.*",
+    "javax.management.*",
+    "javax.net.ssl.*",
+    "javax.security.*",
+    "org.bouncycastle.*"})
 public abstract class AbstractTestCase {
 
   protected final transient Logger logger = getLogger(getClass());

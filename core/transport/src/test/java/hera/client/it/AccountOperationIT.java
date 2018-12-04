@@ -27,7 +27,7 @@ public class AccountOperationIT extends AbstractIT {
     logger.info("Created account: {}", account);
     assertNotNull(account);
 
-    Optional<AccountAddress> filtered = aergoClient.getAccountOperation().list().stream()
+    Optional<AccountAddress> filtered = aergoClient.getKeyStoreOperation().list().stream()
         .filter(a -> a.equals(account.getAddress())).findFirst();
     assertTrue(!filtered.isPresent());
   }
@@ -38,7 +38,7 @@ public class AccountOperationIT extends AbstractIT {
     final Account account = createServerAccount(password);
     logger.info("Created account: {}", account);
 
-    Optional<AccountAddress> filtered = aergoClient.getAccountOperation().list().stream()
+    Optional<AccountAddress> filtered = aergoClient.getKeyStoreOperation().list().stream()
         .filter(a -> a.equals(account.getAddress())).findFirst();
     assertTrue(filtered.isPresent());
   }
@@ -78,7 +78,7 @@ public class AccountOperationIT extends AbstractIT {
 
     final String newpassword = randomUUID().toString();
     final Account imported =
-        aergoClient.getAccountOperation().importKey(encryptedKey, password, newpassword);
+        aergoClient.getKeyStoreOperation().importKey(encryptedKey, password, newpassword);
 
     assertEquals(key.getAddress(), imported.getAddress());
   }
@@ -88,7 +88,7 @@ public class AccountOperationIT extends AbstractIT {
     final String password = randomUUID().toString();
     final Account created = createServerAccount(password);
 
-    final EncryptedPrivateKey encryptedKey = aergoClient.getAccountOperation()
+    final EncryptedPrivateKey encryptedKey = aergoClient.getKeyStoreOperation()
         .exportKey(Authentication.of(created.getAddress(), password));
 
     assertNotNull(encryptedKey);

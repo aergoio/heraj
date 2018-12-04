@@ -16,6 +16,7 @@ import hera.api.AccountOperation;
 import hera.api.BlockOperation;
 import hera.api.BlockchainOperation;
 import hera.api.ContractOperation;
+import hera.api.KeyStoreOperation;
 import hera.api.TransactionOperation;
 import io.grpc.ManagedChannel;
 import java.io.Closeable;
@@ -46,6 +47,9 @@ public class AergoClient extends AbstractAergoApi implements Closeable, AutoClos
 
   @Getter(lazy = true)
   private final AccountOperation accountOperation = resolveInjection(new AccountTemplate());
+
+  @Getter(lazy = true)
+  private final KeyStoreOperation keyStoreOperation = resolveInjection(new KeyStoreTemplate());
 
   @Getter(lazy = true)
   private final BlockOperation blockOperation = resolveInjection(new BlockTemplate());

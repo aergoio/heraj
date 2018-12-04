@@ -5,6 +5,7 @@
 package hera.client;
 
 import static hera.api.model.BytesValue.of;
+import static hera.util.TransportUtils.copyFrom;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -16,13 +17,16 @@ import hera.AbstractTestCase;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
-import hera.api.model.Authentication;
+import hera.api.model.BytesValue;
+import hera.api.model.ClientManagedAccount;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.Signature;
+import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrErrorFuture;
-import java.util.List;
+import hera.key.AergoKey;
+import hera.key.AergoKeyGenerator;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import types.AccountOuterClass;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Blockchain;
 import types.Rpc;
@@ -52,34 +56,6 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testListAsync() {
-    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture =
-        service.submit(() -> AccountOuterClass.AccountList.newBuilder().build());
-    when(aergoService.getAccounts(any())).thenReturn(mockListenableFuture);
-
-    final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
-
-    final ResultOrErrorFuture<List<AccountAddress>> accountListFuture =
-        accountTemplateBase.getListFunction().apply();
-    assertTrue(accountListFuture.get().hasResult());
-  }
-
-  @Test
-  public void testCreateAsync() {
-    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture =
-        service.submit(() -> AccountOuterClass.Account.newBuilder().build());
-    when(aergoService.createAccount(any())).thenReturn(mockListenableFuture);
-
-    final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
-
-    final ResultOrErrorFuture<Account> accountFuture =
-        accountTemplateBase.getCreateFunction().apply(randomUUID().toString());
-    assertTrue(accountFuture.get().hasResult());
-  }
-
-  @Test
   public void testGetStateAsync() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture mockListenableFuture =
@@ -94,60 +70,67 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testLockAsync() {
+  public void testSignWithLocalAccount() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture =
-        service.submit(() -> AccountOuterClass.Account.newBuilder().build());
-    when(aergoService.lockAccount(any())).thenReturn(mockListenableFuture);
-
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
-    final ResultOrErrorFuture<Boolean> lockResult =
-        accountTemplateBase.getLockFunction().apply(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
-    assertTrue(lockResult.get().hasResult());
+    final Account account = ClientManagedAccount.of(new AergoKeyGenerator().create());
+    final Transaction transaction = new Transaction();
+    final ResultOrErrorFuture<Signature> accountStateFuture =
+        accountTemplateBase.getSignFunction().apply(account, transaction);
+    assertTrue(accountStateFuture.get().hasResult());
   }
 
   @Test
-  public void testUnlock() {
+  public void testSignWithRemoteAccount() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture =
-        service.submit(() -> AccountOuterClass.Account.newBuilder().build());
-    when(aergoService.unlockAccount(any())).thenReturn(mockListenableFuture);
+    ListenableFuture mockListenableFuture = service.submit(() -> Blockchain.Tx.newBuilder()
+        .setHash(copyFrom(of(randomUUID().toString().getBytes())))
+        .setBody(Blockchain.TxBody.newBuilder()
+            .setSign(copyFrom(of(randomUUID().toString().getBytes()))))
+        .build());
+    when(aergoService.signTX(any())).thenReturn(mockListenableFuture);
 
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
-    final ResultOrErrorFuture<Boolean> accountFuture =
-        accountTemplateBase.getUnlockFunction().apply(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
-    assertTrue(accountFuture.get().hasResult());
+    final Account account = mock(Account.class);
+    final Transaction transaction = new Transaction();
+    final ResultOrErrorFuture<Signature> accountStateFuture =
+        accountTemplateBase.getSignFunction().apply(account, transaction);
+    assertTrue(accountStateFuture.get().hasResult());
   }
 
   @Test
-  public void testImportKey() {
+  public void testVerifyWithLocalAccount() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture =
-        service.submit(() -> AccountOuterClass.Account.newBuilder().build());
-    when(aergoService.importAccount(any())).thenReturn(mockListenableFuture);
-
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
-    final ResultOrErrorFuture<Account> accountFuture =
-        accountTemplateBase.getImportKeyFunction().apply(ENCRYPTED_PRIVATE_KEY, PASSWORD, PASSWORD);
-    assertTrue(accountFuture.get().hasResult());
+    final AergoKey key = new AergoKeyGenerator().create();
+    final Account account = ClientManagedAccount.of(key);
+    final Transaction transaction = new Transaction();
+    final BytesValue sign = key.sign(transaction.calculateHash().getBytesValue().get());
+    transaction.setSignature(Signature.of(sign, null));
+
+    final ResultOrErrorFuture<Boolean> accountStateFuture =
+        accountTemplateBase.getVerifyFunction().apply(account, transaction);
+    assertTrue(accountStateFuture.get().hasResult());
   }
 
   @Test
-  public void testExportKey() {
+  public void testVerifyWithRemoteAccount() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture mockListenableFuture =
-        service.submit(() -> Rpc.SingleBytes.newBuilder().build());
-    when(aergoService.exportAccount(any())).thenReturn(mockListenableFuture);
+        service.submit(() -> Rpc.VerifyResult.newBuilder()
+            .setError(Rpc.VerifyStatus.VERIFY_STATUS_OK).build());
+    when(aergoService.verifyTX(any())).thenReturn(mockListenableFuture);
 
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
-    final ResultOrErrorFuture<EncryptedPrivateKey> accountFuture =
-        accountTemplateBase.getExportKeyFunction()
-            .apply(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
-    assertTrue(accountFuture.get().hasResult());
+    final Account account = mock(Account.class);
+    final Transaction transaction = new Transaction();
+    final ResultOrErrorFuture<Boolean> accountStateFuture =
+        accountTemplateBase.getVerifyFunction().apply(account, transaction);
+    assertTrue(accountStateFuture.get().hasResult());
   }
 
 }

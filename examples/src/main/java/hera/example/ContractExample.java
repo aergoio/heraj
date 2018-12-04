@@ -100,7 +100,7 @@ public class ContractExample extends AbstractExample {
     account.bindState(state);
 
     // unlock first
-    aergoClient.getAccountOperation().unlock(Authentication.of(account.getAddress(), "password"));
+    aergoClient.getKeyStoreOperation().unlock(Authentication.of(account.getAddress(), "password"));
 
     // read contract in a payload form
     final InputStream inputStream = getClass().getResourceAsStream("/payload");
@@ -134,7 +134,7 @@ public class ContractExample extends AbstractExample {
     System.out.println("Contract interface: " + contractInterface);
 
     // lock after use an account
-    aergoClient.getAccountOperation().lock(Authentication.of(account.getAddress(), "password"));
+    aergoClient.getKeyStoreOperation().lock(Authentication.of(account.getAddress(), "password"));
 
     // close the client
     aergoClient.close();
@@ -190,7 +190,7 @@ public class ContractExample extends AbstractExample {
     account.bindState(state);
 
     // unlock first
-    aergoClient.getAccountOperation().unlock(Authentication.of(account.getAddress(), "password"));
+    aergoClient.getKeyStoreOperation().unlock(Authentication.of(account.getAddress(), "password"));
 
     // define contract execution
     final ContractFunction executionFunction = contractInterface.findFunction("set").get();
@@ -211,7 +211,7 @@ public class ContractExample extends AbstractExample {
     System.out.println("Execution receipt: " + executionReceipt);
 
     // lock after use an account
-    aergoClient.getAccountOperation().lock(Authentication.of(account.getAddress(), "password"));
+    aergoClient.getKeyStoreOperation().lock(Authentication.of(account.getAddress(), "password"));
 
     // close the client
     aergoClient.close();

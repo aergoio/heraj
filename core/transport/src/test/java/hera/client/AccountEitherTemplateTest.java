@@ -4,13 +4,9 @@
 
 package hera.client;
 
-import static hera.TransportConstants.ACCOUNT_CREATE_EITHER;
-import static hera.TransportConstants.ACCOUNT_EXPORTKEY_EITHER;
 import static hera.TransportConstants.ACCOUNT_GETSTATE_EITHER;
-import static hera.TransportConstants.ACCOUNT_IMPORTKEY_EITHER;
-import static hera.TransportConstants.ACCOUNT_LIST_EITHER;
-import static hera.TransportConstants.ACCOUNT_LOCK_EITHER;
-import static hera.TransportConstants.ACCOUNT_UNLOCK_EITHER;
+import static hera.TransportConstants.ACCOUNT_SIGN_EITHER;
+import static hera.TransportConstants.ACCOUNT_VERIFY_EITHER;
 import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
@@ -22,14 +18,13 @@ import hera.AbstractTestCase;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
-import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.Signature;
+import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.api.tupleorerror.WithIdentity;
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
@@ -58,38 +53,6 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testList() {
-    final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
-    final ResultOrErrorFuture<List<AccountAddress>> future =
-        ResultOrErrorFutureFactory.supply(() -> new ArrayList<AccountAddress>());
-    when(base.getListFunction()).thenReturn(() -> future);
-
-    final AccountEitherTemplate accountEitherTemplate = supplyAccountEitherTemplate(base);
-
-    final ResultOrError<List<AccountAddress>> accountList = accountEitherTemplate.list();
-    assertTrue(accountList.hasResult());
-    assertEquals(ACCOUNT_LIST_EITHER,
-        ((WithIdentity) accountEitherTemplate.getListFunction()).getIdentity());
-  }
-
-  @Test
-  public void testCreate() {
-    final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
-    final Account mockAccount = mock(Account.class);
-    final ResultOrErrorFuture<Account> future =
-        ResultOrErrorFutureFactory.supply(() -> mockAccount);
-    when(base.getCreateFunction()).thenReturn((p) -> future);
-
-    final AccountEitherTemplate accountEitherTemplate = supplyAccountEitherTemplate(base);
-
-    final ResultOrError<Account> account =
-        accountEitherTemplate.create(randomUUID().toString());
-    assertTrue(account.hasResult());
-    assertEquals(ACCOUNT_CREATE_EITHER,
-        ((WithIdentity) accountEitherTemplate.getCreateFunction()).getIdentity());
-  }
-
-  @Test
   public void testGetState() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
     final AccountState mockState = mock(AccountState.class);
@@ -107,69 +70,40 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testLock() {
+  public void testSign() {
+    final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
+    final Signature mockSignature = new Signature();
+    final ResultOrErrorFuture<Signature> future =
+        ResultOrErrorFutureFactory.supply(() -> mockSignature);
+    when(base.getSignFunction()).thenReturn((a, t) -> future);
+
+    final AccountEitherTemplate accountEitherTemplate = supplyAccountEitherTemplate(base);
+
+    final Account account = mock(Account.class);
+    final Transaction transaction = mock(Transaction.class);
+    final ResultOrError<Signature> accountStateFuture =
+        accountEitherTemplate.sign(account, transaction);
+    assertTrue(accountStateFuture.hasResult());
+    assertEquals(ACCOUNT_SIGN_EITHER,
+        ((WithIdentity) accountEitherTemplate.getSignFunction()).getIdentity());
+  }
+
+  @Test
+  public void testVerify() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
     final ResultOrErrorFuture<Boolean> future =
         ResultOrErrorFutureFactory.supply(() -> true);
-    when(base.getLockFunction()).thenReturn((a) -> future);
+    when(base.getVerifyFunction()).thenReturn((a, t) -> future);
 
     final AccountEitherTemplate accountEitherTemplate = supplyAccountEitherTemplate(base);
 
-    final ResultOrError<Boolean> lockResult =
-        accountEitherTemplate.lock(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
-    assertTrue(lockResult.hasResult());
-    assertEquals(ACCOUNT_LOCK_EITHER,
-        ((WithIdentity) accountEitherTemplate.getLockFunction()).getIdentity());
-  }
-
-  @Test
-  public void testUnlock() {
-    final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
-    final ResultOrErrorFuture<Boolean> future =
-        ResultOrErrorFutureFactory.supply(() -> true);
-    when(base.getUnlockFunction()).thenReturn((a) -> future);
-
-    final AccountEitherTemplate accountEitherTemplate = supplyAccountEitherTemplate(base);
-
-    final ResultOrError<Boolean> account =
-        accountEitherTemplate.unlock(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
-    assertTrue(account.hasResult());
-    assertEquals(ACCOUNT_UNLOCK_EITHER,
-        ((WithIdentity) accountEitherTemplate.getUnlockFunction()).getIdentity());
-  }
-
-  @Test
-  public void testImportKey() {
-    final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
-    final Account mockAccount = mock(Account.class);
-    final ResultOrErrorFuture<Account> future =
-        ResultOrErrorFutureFactory.supply(() -> mockAccount);
-    when(base.getImportKeyFunction()).thenReturn((k, op, np) -> future);
-
-    final AccountEitherTemplate accountEitherTemplate = supplyAccountEitherTemplate(base);
-
-    final ResultOrError<Account> account =
-        accountEitherTemplate.importKey(ENCRYPTED_PRIVATE_KEY, PASSWORD);
-    assertTrue(account.hasResult());
-    assertEquals(ACCOUNT_IMPORTKEY_EITHER,
-        ((WithIdentity) accountEitherTemplate.getImportKeyFunction()).getIdentity());
-  }
-
-  @Test
-  public void testExportKey() {
-    final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
-    final EncryptedPrivateKey mockEncryptedKey = mock(EncryptedPrivateKey.class);
-    final ResultOrErrorFuture<EncryptedPrivateKey> future =
-        ResultOrErrorFutureFactory.supply(() -> mockEncryptedKey);
-    when(base.getExportKeyFunction()).thenReturn((a) -> future);
-
-    final AccountEitherTemplate accountEitherTemplate = supplyAccountEitherTemplate(base);
-
-    final ResultOrError<EncryptedPrivateKey> account =
-        accountEitherTemplate.exportKey(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
-    assertTrue(account.hasResult());
-    assertEquals(ACCOUNT_EXPORTKEY_EITHER,
-        ((WithIdentity) accountEitherTemplate.getExportKeyFunction()).getIdentity());
+    final Account account = mock(Account.class);
+    final Transaction transaction = mock(Transaction.class);
+    final ResultOrError<Boolean> accountStateFuture =
+        accountEitherTemplate.verify(account, transaction);
+    assertTrue(accountStateFuture.hasResult());
+    assertEquals(ACCOUNT_VERIFY_EITHER,
+        ((WithIdentity) accountEitherTemplate.getVerifyFunction()).getIdentity());
   }
 
 }

@@ -28,6 +28,11 @@ public class AbstractEitherAergoApi implements AergoEitherApi, Adaptor {
   }
 
   @Override
+  public KeyStoreEitherOperation getKeyStoreEitherOperation() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public BlockEitherOperation getBlockEitherOperation() {
     throw new UnsupportedOperationException();
   }

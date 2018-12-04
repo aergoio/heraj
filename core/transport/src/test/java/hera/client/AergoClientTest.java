@@ -26,6 +26,13 @@ public class AergoClientTest extends AbstractTestCase {
   }
 
   @Test
+  public void testGetKeyStoreOperation() {
+    try (final AergoClient client = new AergoClient(context)) {
+      assertNotNull(client.getKeyStoreOperation());
+    }
+  }
+
+  @Test
   public void testGetBlockOperation() {
     try (final AergoClient client = new AergoClient(context)) {
       assertNotNull(client.getBlockOperation());

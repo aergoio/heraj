@@ -49,11 +49,11 @@ public class AccountExample extends AbstractExample {
 
     // create an account which store an encrypted key in a server
     final String password = "password";
-    final Account account = aergoClient.getAccountOperation().create(password);
+    final Account account = aergoClient.getKeyStoreOperation().create(password);
     System.out.println("Created account: " + account);
 
     // query account list
-    final List<AccountAddress> accountList = aergoClient.getAccountOperation().list();
+    final List<AccountAddress> accountList = aergoClient.getKeyStoreOperation().list();
     System.out.println("Account list: " + accountList);
 
     Optional<AccountAddress> filtered =

@@ -16,6 +16,7 @@ import hera.api.AccountAsyncOperation;
 import hera.api.BlockAsyncOperation;
 import hera.api.BlockchainAsyncOperation;
 import hera.api.ContractAsyncOperation;
+import hera.api.KeyStoreAsyncOperation;
 import hera.api.TransactionAsyncOperation;
 import io.grpc.ManagedChannel;
 import java.io.Closeable;
@@ -47,6 +48,10 @@ public class AergoAsyncClient extends AbstractAsyncAergoApi implements Closeable
   @Getter(lazy = true)
   private final AccountAsyncOperation accountAsyncOperation =
       resolveInjection(new AccountAsyncTemplate());
+
+  @Getter(lazy = true)
+  private final KeyStoreAsyncOperation keyStoreAsyncOperation =
+      resolveInjection(new KeyStoreAsyncTemplate());
 
   @Getter(lazy = true)
   private final BlockAsyncOperation blockAsyncOperation =
