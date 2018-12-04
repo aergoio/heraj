@@ -35,7 +35,10 @@ public class AergoAsyncClient extends AbstractAsyncAergoApi implements Closeable
 
   protected ContextProvider contextProvider = () -> {
     final Context context = ContextHolder.get();
-    return EmptyContext.getInstance().equals(context) ? globalContext : context;
+    if (context.equals(EmptyContext.getInstance())) {
+      ContextHolder.set(globalContext);
+    }
+    return ContextHolder.get();
   };
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)

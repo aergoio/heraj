@@ -11,10 +11,10 @@ import java.util.Set;
 public interface Context {
 
   /**
-   * Make a new context instance with {@code scope}.
+   * Make a context instance with {@code scope}.
    *
    * @param scope a scope
-   * @return a new context instance with {@code scope}
+   * @return a context instance with {@code scope}
    */
   Context withScope(String scope);
 
@@ -33,19 +33,19 @@ public interface Context {
   Context popScope();
 
   /**
-   * Make a new context instance with corresponding {@code key} and a {@code value}.
+   * Make a context instance with corresponding {@code key} and a {@code value}.
    *
    * @param key a key
    * @param value a value
-   * @return a new context instance with a corresponding key-value
+   * @return a context instance with a corresponding key-value
    */
   Context withKeyValue(String key, Object value);
 
   /**
-   * Make a new context instance with corresponding {@code configuration}.
+   * Make a context instance with corresponding {@code configuration}.
    *
    * @param configuration a configuration
-   * @return a new context instance with a corresponding {@code configuration}
+   * @return a context instance with a corresponding {@code configuration}
    */
   Context withConfiguration(Configuration configuration);
 
@@ -65,19 +65,19 @@ public interface Context {
   Context withoutKey(String key);
 
   /**
-   * Make a new context instance with corresponding {@code strategy}.
+   * Make a context instance with corresponding {@code strategy}.
    *
    * @param <StrategyT> strategy type
    * @param strategy a strategy
-   * @return a new context instance with corresponding {@code Strategy}
+   * @return a context instance with corresponding {@code Strategy}
    */
   <StrategyT extends Strategy> Context withStrategy(StrategyT strategy);
 
   /**
-   * Make a new context instance with corresponding {@code strategies}.
+   * Make a context instance with corresponding {@code strategies}.
    *
    * @param strategies new strategies
-   * @return a new context instance with corresponding {@code strategies}
+   * @return a context instance with corresponding {@code strategies}
    */
   Context withStrategies(Set<Strategy> strategies);
 

@@ -4,6 +4,7 @@
 
 package hera.strategy;
 
+import static hera.api.tupleorerror.Functions.identify;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Context;
@@ -14,6 +15,7 @@ import hera.api.tupleorerror.Function3;
 import hera.api.tupleorerror.Function4;
 import hera.api.tupleorerror.FunctionDecorator;
 import hera.api.tupleorerror.FunctionDecoratorChain;
+import hera.api.tupleorerror.WithIdentity;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -58,6 +60,9 @@ public class StrategyChain implements FunctionDecoratorChain {
     for (final FunctionDecorator next : chain) {
       logger.debug("Apply strategy [{}] to a function", next);
       ret = next.apply(ret);
+      if (f instanceof WithIdentity) {
+        ret = identify(ret, ((WithIdentity) f).getIdentity());
+      }
     }
     return ret;
   }
@@ -68,6 +73,9 @@ public class StrategyChain implements FunctionDecoratorChain {
     for (final FunctionDecorator next : chain) {
       logger.debug("Apply strategy [{}] to a function", next);
       ret = next.apply(ret);
+      if (f instanceof WithIdentity) {
+        ret = identify(ret, ((WithIdentity) f).getIdentity());
+      }
     }
     return ret;
   }
@@ -78,6 +86,9 @@ public class StrategyChain implements FunctionDecoratorChain {
     for (final FunctionDecorator next : chain) {
       logger.debug("Apply strategy [{}] to a function", next);
       ret = next.apply(ret);
+      if (f instanceof WithIdentity) {
+        ret = identify(ret, ((WithIdentity) f).getIdentity());
+      }
     }
     return ret;
   }
@@ -88,6 +99,9 @@ public class StrategyChain implements FunctionDecoratorChain {
     for (final FunctionDecorator next : chain) {
       logger.debug("Apply strategy [{}] to a function", next);
       ret = next.apply(ret);
+      if (f instanceof WithIdentity) {
+        ret = identify(ret, ((WithIdentity) f).getIdentity());
+      }
     }
     return ret;
   }
@@ -98,9 +112,11 @@ public class StrategyChain implements FunctionDecoratorChain {
     for (final FunctionDecorator next : chain) {
       logger.debug("Apply strategy [{}] to a function", next);
       ret = next.apply(ret);
+      if (f instanceof WithIdentity) {
+        ret = identify(ret, ((WithIdentity) f).getIdentity());
+      }
     }
     return ret;
   }
-
 
 }

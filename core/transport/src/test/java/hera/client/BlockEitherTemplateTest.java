@@ -4,31 +4,33 @@
 
 package hera.client;
 
+import static hera.TransportConstants.BLOCK_GETBLOCK_BY_HASH_EITHER;
+import static hera.TransportConstants.BLOCK_GETBLOCK_BY_HEIGHT_EITHER;
+import static hera.TransportConstants.BLOCK_LIST_HEADERS_BY_HASH_EITHER;
+import static hera.TransportConstants.BLOCK_LIST_HEADERS_BY_HEIGHT_EITHER;
 import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import hera.AbstractTestCase;
+import hera.ContextProvider;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.api.tupleorerror.ResultOrErrorFutureFactory;
+import hera.api.tupleorerror.WithIdentity;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import types.AergoRPCServiceGrpc.AergoRPCServiceBlockingStub;
-import types.Blockchain;
-import types.Rpc;
+import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 
-@SuppressWarnings("unchecked")
-@PrepareForTest({AergoRPCServiceBlockingStub.class, Blockchain.Block.class,
-    Rpc.BlockHeaderList.class})
+@PrepareForTest({AergoRPCServiceFutureStub.class})
 public class BlockEitherTemplateTest extends AbstractTestCase {
 
   @Override
@@ -36,63 +38,73 @@ public class BlockEitherTemplateTest extends AbstractTestCase {
     super.setUp();
   }
 
+  protected BlockEitherTemplate supplyBlockEitherTemplate(
+      final BlockBaseTemplate blockBaseTemplate) {
+    final BlockEitherTemplate blockEitherTemplate = new BlockEitherTemplate();
+    blockEitherTemplate.blockBaseTemplate = blockBaseTemplate;
+    blockEitherTemplate.setContextProvider(ContextProvider.defaultProvider);
+    return blockEitherTemplate;
+  }
+
   @Test
   public void testGetBlockByHash() {
-    ResultOrErrorFuture<Block> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get()).thenReturn(mock(ResultOrError.class));
-    BlockAsyncTemplate asyncOperationMock = mock(BlockAsyncTemplate.class);
-    when(asyncOperationMock.getBlock(any())).thenReturn(futureMock);
+    final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
+    final ResultOrErrorFuture<Block> future = ResultOrErrorFutureFactory.supply(() -> new Block());
+    when(base.getBlockByHashFunction()).thenReturn((h) -> future);
 
-    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate();
-    blockTemplate.blockAsyncOperation = asyncOperationMock;
+    final BlockEitherTemplate blockEitherTemplate = supplyBlockEitherTemplate(base);
 
     final ResultOrError<Block> block =
-        blockTemplate.getBlock(new BlockHash(of(randomUUID().toString().getBytes())));
-    assertNotNull(block);
+        blockEitherTemplate.getBlock(new BlockHash(of(randomUUID().toString().getBytes())));
+    assertTrue(block.hasResult());
+    assertEquals(BLOCK_GETBLOCK_BY_HASH_EITHER,
+        ((WithIdentity) blockEitherTemplate.getBlockByHashFunction()).getIdentity());
   }
 
   @Test
   public void testGetBlockByHeight() {
-    ResultOrErrorFuture<Block> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get()).thenReturn(mock(ResultOrError.class));
-    BlockAsyncTemplate asyncOperationMock = mock(BlockAsyncTemplate.class);
-    when(asyncOperationMock.getBlock(anyLong())).thenReturn(futureMock);
+    final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
+    final ResultOrErrorFuture<Block> future = ResultOrErrorFutureFactory.supply(() -> new Block());
+    when(base.getBlockByHeightFunction()).thenReturn((h) -> future);
 
-    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate();
-    blockTemplate.blockAsyncOperation = asyncOperationMock;
+    final BlockEitherTemplate blockEitherTemplate = supplyBlockEitherTemplate(base);
 
-    final ResultOrError<Block> block = blockTemplate.getBlock(randomUUID().hashCode());
-    assertNotNull(block);
+    final ResultOrError<Block> block = blockEitherTemplate.getBlock(randomUUID().hashCode());
+    assertTrue(block.hasResult());
+    assertEquals(BLOCK_GETBLOCK_BY_HEIGHT_EITHER,
+        ((WithIdentity) blockEitherTemplate.getBlockByHeightFunction()).getIdentity());
   }
 
   @Test
   public void testListBlockHeadersByHash() {
-    ResultOrErrorFuture<List<BlockHeader>> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get()).thenReturn(mock(ResultOrError.class));
-    BlockAsyncTemplate asyncOperationMock = mock(BlockAsyncTemplate.class);
-    when(asyncOperationMock.listBlockHeaders(any(), anyInt())).thenReturn(futureMock);
+    final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
+    final ResultOrErrorFuture<List<BlockHeader>> future =
+        ResultOrErrorFutureFactory.supply(() -> new ArrayList<BlockHeader>());
+    when(base.getListBlockHeadersByHashFunction()).thenReturn((h, c) -> future);
 
-    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate();
-    blockTemplate.blockAsyncOperation = asyncOperationMock;
+    final BlockEitherTemplate blockEitherTemplate = supplyBlockEitherTemplate(base);
 
-    final ResultOrError<List<BlockHeader>> block = blockTemplate.listBlockHeaders(
+    final ResultOrError<List<BlockHeader>> blockHeaders = blockEitherTemplate.listBlockHeaders(
         new BlockHash(of(randomUUID().toString().getBytes())), randomUUID().hashCode());
-    assertNotNull(block);
+    assertTrue(blockHeaders.hasResult());
+    assertEquals(BLOCK_LIST_HEADERS_BY_HASH_EITHER,
+        ((WithIdentity) blockEitherTemplate.getListBlockHeadersByHashFunction()).getIdentity());
   }
 
   @Test
   public void testListBlockHeadersByHeight() {
-    ResultOrErrorFuture<List<BlockHeader>> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get()).thenReturn(mock(ResultOrError.class));
-    BlockAsyncTemplate asyncOperationMock = mock(BlockAsyncTemplate.class);
-    when(asyncOperationMock.listBlockHeaders(anyLong(), anyInt())).thenReturn(futureMock);
+    final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
+    final ResultOrErrorFuture<List<BlockHeader>> future =
+        ResultOrErrorFutureFactory.supply(() -> new ArrayList<BlockHeader>());
+    when(base.getListBlockHeadersByHeightFunction()).thenReturn((h, c) -> future);
 
-    final BlockEitherTemplate blockTemplate = new BlockEitherTemplate();
-    blockTemplate.blockAsyncOperation = asyncOperationMock;
+    final BlockEitherTemplate blockEitherTemplate = supplyBlockEitherTemplate(base);
 
-    final ResultOrError<List<BlockHeader>> block =
-        blockTemplate.listBlockHeaders(randomUUID().hashCode(), randomUUID().hashCode());
-    assertNotNull(block);
+    final ResultOrError<List<BlockHeader>> blockHeaders =
+        blockEitherTemplate.listBlockHeaders(randomUUID().hashCode(), randomUUID().hashCode());
+    assertTrue(blockHeaders.hasResult());
+    assertEquals(BLOCK_LIST_HEADERS_BY_HEIGHT_EITHER,
+        ((WithIdentity) blockEitherTemplate.getListBlockHeadersByHeightFunction()).getIdentity());
   }
 
 }

@@ -7,7 +7,6 @@ package hera.client;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Context;
-import hera.ContextHolder;
 import hera.ContextProvider;
 import hera.DefaultConstants;
 import hera.Strategy;

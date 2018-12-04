@@ -4,6 +4,11 @@
 
 package hera.client;
 
+import static hera.TransportConstants.TRANSACTION_COMMIT;
+import static hera.TransportConstants.TRANSACTION_GETTX;
+import static hera.TransportConstants.TRANSACTION_SEND;
+import static hera.api.tupleorerror.Functions.identify;
+
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
@@ -12,48 +17,65 @@ import hera.api.TransactionOperation;
 import hera.api.model.AccountAddress;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.tupleorerror.Function1;
+import hera.api.tupleorerror.Function3;
+import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
-import io.opentracing.Scope;
-import io.opentracing.util.GlobalTracer;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
 public class TransactionTemplate
     implements TransactionOperation, ChannelInjectable, ContextProviderInjectable {
 
-  protected TransactionEitherTemplate transactionEitherOperation = new TransactionEitherTemplate();
+  @Getter
+  protected TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();
 
+  @Setter
   protected ContextProvider contextProvider;
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-    transactionEitherOperation.setChannel(channel);
+    transactionBaseTemplate.setChannel(channel);
   }
 
-  @Override
-  public void setContextProvider(final ContextProvider contextProvider) {
-    this.contextProvider = contextProvider;
-    transactionEitherOperation.setContextProvider(contextProvider);
-  }
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<TxHash, ResultOrErrorFuture<Transaction>> transactionFunction =
+      getStrategyChain().apply(identify(transactionBaseTemplate.getTransactionFunction(),
+          TRANSACTION_GETTX));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<Transaction, ResultOrErrorFuture<TxHash>> commitFunction =
+      getStrategyChain()
+          .apply(identify(transactionBaseTemplate.getCommitFunction(), TRANSACTION_COMMIT));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function3<AccountAddress, AccountAddress, Long,
+      ResultOrErrorFuture<TxHash>> sendFunction =
+          getStrategyChain()
+              .apply(identify(transactionBaseTemplate.getSendFunction(), TRANSACTION_SEND));
 
   @Override
   public Transaction getTransaction(final TxHash txHash) {
-    return transactionEitherOperation.getTransaction(txHash).getResult();
+    return getTransactionFunction().apply(txHash).get().getResult();
   }
 
   @Override
   public TxHash commit(final Transaction transaction) {
-    try (final Scope ignored = GlobalTracer.get().buildSpan("heraj.committx").startActive(true)) {
-      return transactionEitherOperation.commit(transaction).getResult();
-    }
+    return getCommitFunction().apply(transaction).get().getResult();
   }
 
   @Override
-  public TxHash send(final AccountAddress sender, final AccountAddress recipient,
+  public TxHash send(final AccountAddress sender,
+      final AccountAddress recipient,
       final long amount) {
-    try (final Scope ignored = GlobalTracer.get().buildSpan("heraj.sendtx").startActive(true)) {
-      return transactionEitherOperation.send(sender, recipient, amount).getResult();
-    }
+    return getSendFunction().apply(sender, recipient, amount).get().getResult();
   }
 
 }

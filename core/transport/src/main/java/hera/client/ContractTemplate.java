@@ -4,6 +4,13 @@
 
 package hera.client;
 
+import static hera.TransportConstants.CONTRACT_DEPLOY;
+import static hera.TransportConstants.CONTRACT_EXECUTE;
+import static hera.TransportConstants.CONTRACT_GETINTERFACE;
+import static hera.TransportConstants.CONTRACT_GETRECEIPT;
+import static hera.TransportConstants.CONTRACT_QUERY;
+import static hera.api.tupleorerror.Functions.identify;
+
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
@@ -18,53 +25,88 @@ import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Fee;
+import hera.api.tupleorerror.Function1;
+import hera.api.tupleorerror.Function3;
+import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
 public class ContractTemplate
     implements ContractOperation, ChannelInjectable, ContextProviderInjectable {
 
-  protected ContractEitherTemplate contractEitherOperation = new ContractEitherTemplate();
+  protected ContractBaseTemplate contractBaseTemplate = new ContractBaseTemplate();
 
+  @Setter
   protected ContextProvider contextProvider;
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-    contractEitherOperation.setChannel(channel);
+    contractBaseTemplate.setChannel(channel);
   }
 
-  @Override
-  public void setContextProvider(final ContextProvider contextProvider) {
-    this.contextProvider = contextProvider;
-    contractEitherOperation.setContextProvider(contextProvider);
-  }
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<ContractTxHash,
+      ResultOrErrorFuture<ContractTxReceipt>> receiptFunction = getStrategyChain().apply(
+          identify(contractBaseTemplate.getReceiptFunction(), CONTRACT_GETRECEIPT));
+
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function3<Account, ContractDefinition, Fee,
+      ResultOrErrorFuture<ContractTxHash>> deployFunction =
+          getStrategyChain()
+              .apply(identify(contractBaseTemplate.getDeployFunction(), CONTRACT_DEPLOY));
+
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<ContractAddress,
+      ResultOrErrorFuture<ContractInterface>> contractInterfaceFunction =
+          getStrategyChain().apply(identify(contractBaseTemplate.getContractInterfaceFunction(),
+              CONTRACT_GETINTERFACE));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function3<Account, ContractInvocation, Fee,
+      ResultOrErrorFuture<ContractTxHash>> executeFunction =
+          getStrategyChain()
+              .apply(identify(contractBaseTemplate.getExecuteFunction(), CONTRACT_EXECUTE));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<ContractInvocation, ResultOrErrorFuture<ContractResult>> queryFunction =
+      getStrategyChain().apply(identify(contractBaseTemplate.getQueryFunction(), CONTRACT_QUERY));
 
   @Override
   public ContractTxReceipt getReceipt(final ContractTxHash contractTxHash) {
-    return contractEitherOperation.getReceipt(contractTxHash).getResult();
+    return getReceiptFunction().apply(contractTxHash).get().getResult();
   }
 
   @Override
-  public ContractTxHash deploy(final Account creator, final ContractDefinition contractDefinition,
-      final Fee fee) {
-    return contractEitherOperation.deploy(creator, contractDefinition, fee).getResult();
+  public ContractTxHash deploy(final Account creator,
+      final ContractDefinition contractDefinition, final Fee fee) {
+    return getDeployFunction().apply(creator, contractDefinition, fee).get().getResult();
   }
 
   @Override
-  public ContractInterface getContractInterface(final ContractAddress contractAddress) {
-    return contractEitherOperation.getContractInterface(contractAddress).getResult();
+  public ContractInterface getContractInterface(
+      final ContractAddress contractAddress) {
+    return getContractInterfaceFunction().apply(contractAddress).get().getResult();
   }
 
   @Override
-  public ContractTxHash execute(final Account executor, final ContractInvocation contractInvocation,
-      final Fee fee) {
-    return contractEitherOperation.execute(executor, contractInvocation, fee).getResult();
+  public ContractTxHash execute(final Account executor,
+      final ContractInvocation contractInvocation, final Fee fee) {
+    return getExecuteFunction().apply(executor, contractInvocation, fee).get().getResult();
   }
 
   @Override
   public ContractResult query(final ContractInvocation contractInvocation) {
-    return contractEitherOperation.query(contractInvocation).getResult();
+    return getQueryFunction().apply(contractInvocation).get().getResult();
   }
 
 }

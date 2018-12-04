@@ -4,6 +4,17 @@
 
 package hera.client;
 
+import static hera.TransportConstants.ACCOUNT_CREATE_EITHER;
+import static hera.TransportConstants.ACCOUNT_EXPORTKEY_EITHER;
+import static hera.TransportConstants.ACCOUNT_GETSTATE_EITHER;
+import static hera.TransportConstants.ACCOUNT_IMPORTKEY_EITHER;
+import static hera.TransportConstants.ACCOUNT_LIST_EITHER;
+import static hera.TransportConstants.ACCOUNT_LOCK_EITHER;
+import static hera.TransportConstants.ACCOUNT_SIGN_EITHER;
+import static hera.TransportConstants.ACCOUNT_UNLOCK_EITHER;
+import static hera.TransportConstants.ACCOUNT_VERIFY_EITHER;
+import static hera.api.tupleorerror.Functions.identify;
+
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
@@ -16,74 +27,127 @@ import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
+import hera.api.tupleorerror.Function0;
+import hera.api.tupleorerror.Function1;
+import hera.api.tupleorerror.Function2;
+import hera.api.tupleorerror.Function3;
 import hera.api.tupleorerror.ResultOrError;
+import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
 public class AccountEitherTemplate
     implements AccountEitherOperation, ChannelInjectable, ContextProviderInjectable {
 
-  protected AccountAsyncTemplate accountAsyncOperation = new AccountAsyncTemplate();
+  @Getter
+  protected AccountBaseTemplate accountBaseTemplate = new AccountBaseTemplate();
 
+  @Setter
   protected ContextProvider contextProvider;
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-    accountAsyncOperation.setChannel(channel);
+    getAccountBaseTemplate().setChannel(channel);;
   }
 
-  @Override
-  public void setContextProvider(final ContextProvider contextProvider) {
-    this.contextProvider = contextProvider;
-    accountAsyncOperation.setContextProvider(contextProvider);
-  }
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function0<ResultOrErrorFuture<List<AccountAddress>>> listFunction =
+      getStrategyChain()
+          .apply(identify(getAccountBaseTemplate().getListFunction(), ACCOUNT_LIST_EITHER));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<String, ResultOrErrorFuture<Account>> createFunction =
+      getStrategyChain()
+          .apply(identify(getAccountBaseTemplate().getCreateFunction(), ACCOUNT_CREATE_EITHER));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<AccountAddress, ResultOrErrorFuture<AccountState>> stateFunction =
+      getStrategyChain()
+          .apply(identify(getAccountBaseTemplate().getStateFunction(), ACCOUNT_GETSTATE_EITHER));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<Authentication, ResultOrErrorFuture<Boolean>> unlockFunction =
+      getStrategyChain()
+          .apply(identify(getAccountBaseTemplate().getUnlockFunction(), ACCOUNT_UNLOCK_EITHER));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function2<Account, Transaction, ResultOrErrorFuture<Signature>> signFunction =
+      getStrategyChain()
+          .apply(identify(getAccountBaseTemplate().getSignFunction(), ACCOUNT_SIGN_EITHER));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function2<Account, Transaction, ResultOrErrorFuture<Boolean>> verifyFunction =
+      getStrategyChain()
+          .apply(identify(getAccountBaseTemplate().getVerifyFunction(), ACCOUNT_VERIFY_EITHER));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<Authentication, ResultOrErrorFuture<Boolean>> lockFunction =
+      getStrategyChain()
+          .apply(identify(getAccountBaseTemplate().getLockFunction(), ACCOUNT_LOCK_EITHER));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function3<EncryptedPrivateKey, String, String,
+      ResultOrErrorFuture<Account>> importKeyFunction = getStrategyChain().apply(
+          identify(getAccountBaseTemplate().getImportKeyFunction(), ACCOUNT_IMPORTKEY_EITHER));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<Authentication,
+      ResultOrErrorFuture<EncryptedPrivateKey>> exportKeyFunction = getStrategyChain().apply(
+          identify(getAccountBaseTemplate().getExportKeyFunction(), ACCOUNT_EXPORTKEY_EITHER));
 
   @Override
   public ResultOrError<List<AccountAddress>> list() {
-    return accountAsyncOperation.list().get();
+    return getListFunction().apply().get();
   }
 
   @Override
   public ResultOrError<Account> create(final String password) {
-    return accountAsyncOperation.create(password).get();
+    return getCreateFunction().apply(password).get();
   }
 
   @Override
   public ResultOrError<AccountState> getState(final AccountAddress address) {
-    return accountAsyncOperation.getState(address).get();
+    return getStateFunction().apply(address).get();
   }
 
   @Override
   public ResultOrError<Boolean> lock(final Authentication authentication) {
-    return accountAsyncOperation.lock(authentication).get();
+    return getLockFunction().apply(authentication).get();
   }
 
   @Override
   public ResultOrError<Boolean> unlock(final Authentication authentication) {
-    return accountAsyncOperation.unlock(authentication).get();
+    return getUnlockFunction().apply(authentication).get();
   }
 
   @Override
   public ResultOrError<Signature> sign(final Account account, final Transaction transaction) {
-    return accountAsyncOperation.sign(account, transaction).get();
+    return getSignFunction().apply(account, transaction).get();
   }
 
   @Override
   public ResultOrError<Boolean> verify(final Account account, final Transaction transaction) {
-    return accountAsyncOperation.verify(account, transaction).get();
+    return getVerifyFunction().apply(account, transaction).get();
   }
 
   @Override
   public ResultOrError<Account> importKey(final EncryptedPrivateKey encryptedKey,
       final String oldPassword, final String newPassword) {
-    return accountAsyncOperation.importKey(encryptedKey, oldPassword, newPassword).get();
+    return getImportKeyFunction().apply(encryptedKey, oldPassword, newPassword).get();
   }
 
   @Override
   public ResultOrError<EncryptedPrivateKey> exportKey(final Authentication authentication) {
-    return accountAsyncOperation.exportKey(authentication).get();
+    return getExportKeyFunction().apply(authentication).get();
   }
 
 }

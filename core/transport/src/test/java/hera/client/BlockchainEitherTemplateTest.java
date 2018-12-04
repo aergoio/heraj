@@ -4,26 +4,29 @@
 
 package hera.client;
 
-import static org.junit.Assert.assertNotNull;
+import static hera.TransportConstants.BLOCKCHAIN_BLOCKCHAINSTATUS_EITHER;
+import static hera.TransportConstants.BLOCKCHAIN_LISTPEERS_EITHER;
+import static hera.TransportConstants.BLOCKCHAIN_NODESTATUS_EITHER;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import hera.AbstractTestCase;
+import hera.ContextProvider;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.api.tupleorerror.ResultOrErrorFutureFactory;
+import hera.api.tupleorerror.WithIdentity;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
-import types.Node;
-import types.Rpc;
 
-@SuppressWarnings("unchecked")
-@PrepareForTest({AergoRPCServiceFutureStub.class, Rpc.BlockchainStatus.class, Rpc.PeerList.class,
-    Node.PeerAddress.class, Rpc.SingleBytes.class})
+@PrepareForTest({BlockchainBaseTemplate.class})
 public class BlockchainEitherTemplateTest extends AbstractTestCase {
 
   @Override
@@ -31,47 +34,61 @@ public class BlockchainEitherTemplateTest extends AbstractTestCase {
     super.setUp();
   }
 
+  protected BlockchainEitherTemplate supplyBlockchainEitherTemplate(
+      final BlockchainBaseTemplate blockchainBaseTemplate) {
+    final BlockchainEitherTemplate blockchainEitherTemplate = new BlockchainEitherTemplate();
+    blockchainEitherTemplate.blockchainBaseTemplate = blockchainBaseTemplate;
+    blockchainEitherTemplate.setContextProvider(ContextProvider.defaultProvider);
+    return blockchainEitherTemplate;
+  }
+
   @Test
   public void testGetBlockchainStatus() {
-    ResultOrErrorFuture<BlockchainStatus> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get()).thenReturn(mock(ResultOrError.class));
-    BlockchainAsyncTemplate asyncOperationMock = mock(BlockchainAsyncTemplate.class);
-    when(asyncOperationMock.getBlockchainStatus()).thenReturn(futureMock);
+    final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
+    ResultOrErrorFuture<BlockchainStatus> future =
+        ResultOrErrorFutureFactory.supply(() -> new BlockchainStatus());
+    when(base.getBlockchainStatusFunction()).thenReturn(() -> future);
 
-    final BlockchainEitherTemplate blockchainTemplate = new BlockchainEitherTemplate();
-    blockchainTemplate.blockchainAsyncOperation = asyncOperationMock;
+    final BlockchainEitherTemplate blockchainEitherTemplate =
+        supplyBlockchainEitherTemplate(base);
 
     final ResultOrError<BlockchainStatus> blockchainStatus =
-        blockchainTemplate.getBlockchainStatus();
-    assertNotNull(blockchainStatus);
+        blockchainEitherTemplate.getBlockchainStatus();
+    assertTrue(blockchainStatus.hasResult());
+    assertEquals(BLOCKCHAIN_BLOCKCHAINSTATUS_EITHER,
+        ((WithIdentity) blockchainEitherTemplate.getBlockchainStatusFunction()).getIdentity());
   }
 
   @Test
   public void testListPeers() {
-    ResultOrErrorFuture<List<Peer>> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get()).thenReturn(mock(ResultOrError.class));
-    BlockchainAsyncTemplate asyncOperationMock = mock(BlockchainAsyncTemplate.class);
-    when(asyncOperationMock.listPeers()).thenReturn(futureMock);
+    final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
+    ResultOrErrorFuture<List<Peer>> future =
+        ResultOrErrorFutureFactory.supply(() -> new ArrayList<Peer>());
+    when(base.getListPeersFunction()).thenReturn(() -> future);
 
-    final BlockchainEitherTemplate blockchainTemplate = new BlockchainEitherTemplate();
-    blockchainTemplate.blockchainAsyncOperation = asyncOperationMock;
+    final BlockchainEitherTemplate blockchainEitherTemplate =
+        supplyBlockchainEitherTemplate(base);
 
-    final ResultOrError<List<Peer>> peerAddresses = blockchainTemplate.listPeers();
-    assertNotNull(peerAddresses);
+    final ResultOrError<List<Peer>> peers = blockchainEitherTemplate.listPeers();
+    assertTrue(peers.hasResult());
+    assertEquals(BLOCKCHAIN_LISTPEERS_EITHER,
+        ((WithIdentity) blockchainEitherTemplate.getListPeersFunction()).getIdentity());
   }
 
   @Test
   public void testGetNodeStatus() {
-    ResultOrErrorFuture<NodeStatus> futureMock = mock(ResultOrErrorFuture.class);
-    when(futureMock.get()).thenReturn(mock(ResultOrError.class));
-    BlockchainAsyncTemplate asyncOperationMock = mock(BlockchainAsyncTemplate.class);
-    when(asyncOperationMock.getNodeStatus()).thenReturn(futureMock);
+    final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
+    ResultOrErrorFuture<NodeStatus> future =
+        ResultOrErrorFutureFactory.supply(() -> new NodeStatus());
+    when(base.getNodeStatusFunction()).thenReturn(() -> future);
 
-    final BlockchainEitherTemplate blockchainTemplate = new BlockchainEitherTemplate();
-    blockchainTemplate.blockchainAsyncOperation = asyncOperationMock;
+    final BlockchainEitherTemplate blockchainEitherTemplate =
+        supplyBlockchainEitherTemplate(base);
 
-    final ResultOrError<NodeStatus> nodeStatus = blockchainTemplate.getNodeStatus();
-    assertNotNull(nodeStatus);
+    final ResultOrError<NodeStatus> nodeStatus = blockchainEitherTemplate.getNodeStatus();
+    assertTrue(nodeStatus.hasResult());
+    assertEquals(BLOCKCHAIN_NODESTATUS_EITHER,
+        ((WithIdentity) blockchainEitherTemplate.getNodeStatusFunction()).getIdentity());
   }
 
 }

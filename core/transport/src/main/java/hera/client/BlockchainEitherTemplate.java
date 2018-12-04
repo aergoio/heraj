@@ -4,6 +4,11 @@
 
 package hera.client;
 
+import static hera.TransportConstants.BLOCKCHAIN_BLOCKCHAINSTATUS_EITHER;
+import static hera.TransportConstants.BLOCKCHAIN_LISTPEERS_EITHER;
+import static hera.TransportConstants.BLOCKCHAIN_NODESTATUS_EITHER;
+import static hera.api.tupleorerror.Functions.identify;
+
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
@@ -12,43 +17,64 @@ import hera.api.BlockchainEitherOperation;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
+import hera.api.tupleorerror.Function0;
 import hera.api.tupleorerror.ResultOrError;
+import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
+@RequiredArgsConstructor
 public class BlockchainEitherTemplate
     implements BlockchainEitherOperation, ChannelInjectable, ContextProviderInjectable {
 
-  protected BlockchainAsyncTemplate blockchainAsyncOperation = new BlockchainAsyncTemplate();
+  protected BlockchainBaseTemplate blockchainBaseTemplate = new BlockchainBaseTemplate();
 
+  @Setter
   protected ContextProvider contextProvider;
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-    blockchainAsyncOperation.setChannel(channel);
+    blockchainBaseTemplate.setChannel(channel);
   }
 
-  @Override
-  public void setContextProvider(final ContextProvider contextProvider) {
-    this.contextProvider = contextProvider;
-    blockchainAsyncOperation.setContextProvider(contextProvider);
-  }
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function0<ResultOrErrorFuture<BlockchainStatus>> blockchainStatusFunction =
+      getStrategyChain().apply(identify(blockchainBaseTemplate.getBlockchainStatusFunction(),
+          BLOCKCHAIN_BLOCKCHAINSTATUS_EITHER));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function0<ResultOrErrorFuture<List<Peer>>> listPeersFunction =
+      getStrategyChain().apply(
+          identify(blockchainBaseTemplate.getListPeersFunction(), BLOCKCHAIN_LISTPEERS_EITHER));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function0<ResultOrErrorFuture<NodeStatus>> nodeStatusFunction =
+      getStrategyChain().apply(
+          identify(blockchainBaseTemplate.getNodeStatusFunction(), BLOCKCHAIN_NODESTATUS_EITHER));
 
   @Override
   public ResultOrError<BlockchainStatus> getBlockchainStatus() {
-    return blockchainAsyncOperation.getBlockchainStatus().get();
+    return getBlockchainStatusFunction().apply().get();
   }
 
   @Override
   public ResultOrError<List<Peer>> listPeers() {
-    return blockchainAsyncOperation.listPeers().get();
+    return getListPeersFunction().apply().get();
   }
 
   @Override
   public ResultOrError<NodeStatus> getNodeStatus() {
-    return blockchainAsyncOperation.getNodeStatus().get();
+    return getNodeStatusFunction().apply().get();
   }
 
 }

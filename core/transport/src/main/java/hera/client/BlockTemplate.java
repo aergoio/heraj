@@ -4,6 +4,12 @@
 
 package hera.client;
 
+import static hera.TransportConstants.BLOCK_GETBLOCK_BY_HASH;
+import static hera.TransportConstants.BLOCK_GETBLOCK_BY_HEIGHT;
+import static hera.TransportConstants.BLOCK_LIST_HEADERS_BY_HASH;
+import static hera.TransportConstants.BLOCK_LIST_HEADERS_BY_HEIGHT;
+import static hera.api.tupleorerror.Functions.identify;
+
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
@@ -12,46 +18,76 @@ import hera.api.BlockOperation;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
+import hera.api.tupleorerror.Function1;
+import hera.api.tupleorerror.Function2;
+import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-public class BlockTemplate implements BlockOperation, ChannelInjectable, ContextProviderInjectable {
+public class BlockTemplate
+    implements BlockOperation, ChannelInjectable, ContextProviderInjectable {
 
-  protected BlockEitherTemplate blockEitherOperation = new BlockEitherTemplate();
+  protected BlockBaseTemplate blockBaseTemplate = new BlockBaseTemplate();
 
+  @Setter
   protected ContextProvider contextProvider;
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-    blockEitherOperation.setChannel(channel);
+    blockBaseTemplate.setChannel(channel);
   }
 
-  @Override
-  public void setContextProvider(final ContextProvider contextProvider) {
-    this.contextProvider = contextProvider;
-    blockEitherOperation.setContextProvider(contextProvider);
-  }
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<BlockHash, ResultOrErrorFuture<Block>> blockByHashFunction =
+      getStrategyChain()
+          .apply(identify(blockBaseTemplate.getBlockByHashFunction(), BLOCK_GETBLOCK_BY_HASH));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<Long, ResultOrErrorFuture<Block>> blockByHeightFunction =
+      getStrategyChain().apply(
+          identify(blockBaseTemplate.getBlockByHeightFunction(), BLOCK_GETBLOCK_BY_HEIGHT));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function2<BlockHash, Integer,
+      ResultOrErrorFuture<List<BlockHeader>>> listBlockHeadersByHashFunction =
+          getStrategyChain().apply(identify(blockBaseTemplate.getListBlockHeadersByHashFunction(),
+              BLOCK_LIST_HEADERS_BY_HASH));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function2<Long, Integer,
+      ResultOrErrorFuture<List<BlockHeader>>> listBlockHeadersByHeightFunction =
+          getStrategyChain().apply(identify(blockBaseTemplate.getListBlockHeadersByHeightFunction(),
+              BLOCK_LIST_HEADERS_BY_HEIGHT));
 
   @Override
   public Block getBlock(final BlockHash blockHash) {
-    return blockEitherOperation.getBlock(blockHash).getResult();
+    return getBlockByHashFunction().apply(blockHash).get().getResult();
   }
 
   @Override
   public Block getBlock(final long height) {
-    return blockEitherOperation.getBlock(height).getResult();
+    return getBlockByHeightFunction().apply(height).get().getResult();
   }
 
   @Override
-  public List<BlockHeader> listBlockHeaders(final BlockHash blockHash, final int size) {
-    return blockEitherOperation.listBlockHeaders(blockHash, size).getResult();
+  public List<BlockHeader> listBlockHeaders(final BlockHash blockHash,
+      final int size) {
+    return getListBlockHeadersByHashFunction().apply(blockHash, size).get().getResult();
   }
 
   @Override
-  public List<BlockHeader> listBlockHeaders(final long height, final int size) {
-    return blockEitherOperation.listBlockHeaders(height, size).getResult();
+  public List<BlockHeader> listBlockHeaders(final long height,
+      final int size) {
+    return getListBlockHeadersByHeightFunction().apply(height, size).get().getResult();
   }
 
 }
