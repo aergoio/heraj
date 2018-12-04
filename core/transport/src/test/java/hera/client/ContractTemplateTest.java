@@ -22,7 +22,6 @@ import hera.ContextProvider;
 import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.ClientManagedAccount;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractFunction;
@@ -92,7 +91,7 @@ public class ContractTemplateTest extends AbstractTestCase {
 
     final ContractTemplate contractTemplate = supplyContractTemplate(base);
 
-    Account account = ClientManagedAccount.of(generator.create());
+    Account account = mock(Account.class);
     Base58WithCheckSum encoded =
         () -> Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
     final ContractTxHash deployTxHash =
@@ -128,7 +127,7 @@ public class ContractTemplateTest extends AbstractTestCase {
 
     final ContractTemplate contractTemplate = supplyContractTemplate(base);
 
-    Account account = ClientManagedAccount.of(generator.create());
+    Account account = mock(Account.class);
     final ContractTxHash executionTxHash = contractTemplate
         .execute(account, new ContractInvocation(contractAddress, new ContractFunction()), fee);
     assertNotNull(executionTxHash);
