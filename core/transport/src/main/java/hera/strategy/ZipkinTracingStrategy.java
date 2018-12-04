@@ -9,12 +9,17 @@ import brave.opentracing.BraveTracer;
 import brave.propagation.B3Propagation;
 import brave.propagation.ExtraFieldPropagation;
 import brave.propagation.ExtraFieldPropagation.Factory;
+import hera.api.tupleorerror.Function;
+import hera.api.tupleorerror.Function0;
+import hera.api.tupleorerror.WithIdentity;
 import hera.util.Configurable;
 import hera.util.Configuration;
 import hera.util.conf.DummyConfiguration;
 import hera.util.trace.HttpSender;
 import hera.util.trace.KafkaSender;
 import io.grpc.ManagedChannelBuilder;
+import io.opentracing.Scope;
+import io.opentracing.Tracer;
 import io.opentracing.contrib.ClientTracingInterceptor;
 import io.opentracing.util.GlobalTracer;
 import lombok.Getter;
@@ -27,7 +32,7 @@ import zipkin2.reporter.Sender;
 
 @RequiredArgsConstructor
 public class ZipkinTracingStrategy
-    implements ChannelConfigurationStrategy, Configurable<Configuration> {
+    implements ChannelConfigurationStrategy, OnInvocationStrategy, Configurable<Configuration> {
 
   protected final transient Logger logger = getLogger(getClass());
 
@@ -110,5 +115,17 @@ public class ZipkinTracingStrategy
     } catch (final IllegalStateException e) {
       logger.debug("Exception ignored. It may caused by duplicated registration", e);
     }
+  }
+
+  @Override
+  public <R> R action(final Function originFunction, final Function0<R> functionWithArgs) {
+    if (originFunction instanceof WithIdentity) {
+      final String functionIdentity = ((WithIdentity) originFunction).getIdentity();
+      final Tracer tracer = GlobalTracer.get();
+      try (final Scope ignored = tracer.buildSpan(functionIdentity).startActive(true)) {
+        return functionWithArgs.apply();
+      }
+    }
+    return functionWithArgs.apply();
   }
 }

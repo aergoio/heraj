@@ -7,7 +7,7 @@ package hera.api.tupleorerror;
 import java.util.Objects;
 
 @FunctionalInterface
-public interface Function0<R> {
+public interface Function0<R> extends Function {
 
   /**
    * Applies this function. This function is like supplier.

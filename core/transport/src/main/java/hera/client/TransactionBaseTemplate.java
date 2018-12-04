@@ -28,9 +28,6 @@ import hera.transport.ModelConverter;
 import hera.transport.TransactionConverterFactory;
 import hera.transport.TransactionInBlockConverterFactory;
 import io.grpc.ManagedChannel;
-import io.opentracing.Scope;
-import io.opentracing.Tracer;
-import io.opentracing.util.GlobalTracer;
 import lombok.Getter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -87,53 +84,47 @@ public class TransactionBaseTemplate implements ChannelInjectable {
   @Getter
   private final Function1<Transaction, ResultOrErrorFuture<
       TxHash>> commitFunction = (transaction) -> {
-        final Tracer tracer = GlobalTracer.get();
-        try (final Scope ignored = tracer.buildSpan("heraj.committx.async").startActive(true)) {
-          ResultOrErrorFuture<TxHash> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
+        ResultOrErrorFuture<TxHash> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-          final Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
-          final Blockchain.TxList txList = Blockchain.TxList.newBuilder().addTxs(tx).build();
-          ListenableFuture<Rpc.CommitResultList> listenableFuture = aergoService.commitTX(txList);
-          FutureChain<Rpc.CommitResultList, TxHash> callback = new FutureChain<>(nextFuture);
-          callback.setSuccessHandler(commitResultList -> of(() -> {
-            final Rpc.CommitResult commitResult = commitResultList.getResultsList().get(0);
-            logger.debug("Commit result: {}", commitResult.getError());
-            if (Rpc.CommitStatus.TX_OK == commitResult.getError()) {
-              return new TxHash(of(commitResult.getHash().toByteArray()));
-            } else {
-              throw new CommitException(commitResult.getError());
-            }
-          }));
-          addCallback(listenableFuture, callback, directExecutor());
-          return nextFuture;
-        }
+        final Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
+        final Blockchain.TxList txList = Blockchain.TxList.newBuilder().addTxs(tx).build();
+        ListenableFuture<Rpc.CommitResultList> listenableFuture = aergoService.commitTX(txList);
+        FutureChain<Rpc.CommitResultList, TxHash> callback = new FutureChain<>(nextFuture);
+        callback.setSuccessHandler(commitResultList -> of(() -> {
+          final Rpc.CommitResult commitResult = commitResultList.getResultsList().get(0);
+          logger.debug("Commit result: {}", commitResult.getError());
+          if (Rpc.CommitStatus.TX_OK == commitResult.getError()) {
+            return new TxHash(of(commitResult.getHash().toByteArray()));
+          } else {
+            throw new CommitException(commitResult.getError());
+          }
+        }));
+        addCallback(listenableFuture, callback, directExecutor());
+        return nextFuture;
       };
 
   @Getter
   private final Function3<AccountAddress, AccountAddress, Long, ResultOrErrorFuture<
       TxHash>> sendFunction = (sender, recipient, amount) -> {
-        final Tracer tracer = GlobalTracer.get();
-        try (final Scope ignored = tracer.buildSpan("heraj.sendtx.async").startActive(true)) {
-          ResultOrErrorFuture<TxHash> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
+        ResultOrErrorFuture<TxHash> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-          final Transaction transaction = new Transaction();
-          transaction.setSender(sender);
-          transaction.setRecipient(recipient);
-          transaction.setAmount(amount);
+        final Transaction transaction = new Transaction();
+        transaction.setSender(sender);
+        transaction.setRecipient(recipient);
+        transaction.setAmount(amount);
 
-          final Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
-          ListenableFuture<Rpc.CommitResult> listenableFuture = aergoService.sendTX(tx);
-          FutureChain<Rpc.CommitResult, TxHash> callback = new FutureChain<>(nextFuture);
-          callback.setSuccessHandler(c -> of(() -> {
-            if (Rpc.CommitStatus.TX_OK == c.getError()) {
-              return new TxHash(of(c.getHash().toByteArray()));
-            } else {
-              throw new CommitException(c.getError());
-            }
-          }));
-          addCallback(listenableFuture, callback, directExecutor());
-          return nextFuture;
-        }
+        final Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
+        ListenableFuture<Rpc.CommitResult> listenableFuture = aergoService.sendTX(tx);
+        FutureChain<Rpc.CommitResult, TxHash> callback = new FutureChain<>(nextFuture);
+        callback.setSuccessHandler(c -> of(() -> {
+          if (Rpc.CommitStatus.TX_OK == c.getError()) {
+            return new TxHash(of(c.getHash().toByteArray()));
+          } else {
+            throw new CommitException(c.getError());
+          }
+        }));
+        addCallback(listenableFuture, callback, directExecutor());
+        return nextFuture;
       };
 
 }

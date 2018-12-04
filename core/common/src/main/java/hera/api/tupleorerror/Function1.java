@@ -7,7 +7,7 @@ package hera.api.tupleorerror;
 import java.util.Objects;
 
 @FunctionalInterface
-public interface Function1<T, R> {
+public interface Function1<T, R> extends Function {
 
   /**
    * Applies this function to the given argument.

@@ -14,12 +14,12 @@ import hera.api.tupleorerror.FunctionDecorator;
 
 public interface PreInvocationStrategy extends Strategy, FunctionDecorator {
 
-  void before();
+  void before(hera.api.tupleorerror.Function f);
 
   @Override
   default <R> Function0<R> apply(Function0<R> f) {
     return () -> {
-      before();
+      before(f);
       return f.apply();
     };
   }
@@ -27,7 +27,7 @@ public interface PreInvocationStrategy extends Strategy, FunctionDecorator {
   @Override
   default <T, R> Function1<T, R> apply(Function1<T, R> f) {
     return (T t) -> {
-      before();
+      before(f);
       return f.apply(t);
     };
   }
@@ -35,7 +35,7 @@ public interface PreInvocationStrategy extends Strategy, FunctionDecorator {
   @Override
   default <T1, T2, R> Function2<T1, T2, R> apply(Function2<T1, T2, R> f) {
     return (T1 t1, T2 t2) -> {
-      before();
+      before(f);
       return f.apply(t1, t2);
     };
   }
@@ -43,7 +43,7 @@ public interface PreInvocationStrategy extends Strategy, FunctionDecorator {
   @Override
   default <T1, T2, T3, R> Function3<T1, T2, T3, R> apply(Function3<T1, T2, T3, R> f) {
     return (T1 t1, T2 t2, T3 t3) -> {
-      before();
+      before(f);
       return f.apply(t1, t2, t3);
     };
   }
@@ -52,7 +52,7 @@ public interface PreInvocationStrategy extends Strategy, FunctionDecorator {
   default <T1, T2, T3, T4, R> Function4<T1, T2, T3, T4, R> apply(
       Function4<T1, T2, T3, T4, R> f) {
     return (T1 t1, T2 t2, T3 t3, T4 t4) -> {
-      before();
+      before(f);
       return f.apply(t1, t2, t3, t4);
     };
   }

@@ -8,6 +8,7 @@ import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.Time;
+import hera.api.tupleorerror.Function;
 import hera.api.tupleorerror.Function0;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -56,8 +57,8 @@ public class RetryStrategy implements FailoverStrategy {
   }
 
   @Override
-  public <R> R action(final Function0<R> f) {
-    R r = f.apply();
+  public <R> R action(final Function originFunction, final Function0<R> functionWithArgs) {
+    R r = functionWithArgs.apply();
     if (r instanceof ResultOrErrorFuture) {
       int i = this.count;
       ResultOrError<?> resultOrError = ((ResultOrErrorFuture<?>) r).get();
@@ -65,7 +66,7 @@ public class RetryStrategy implements FailoverStrategy {
         logger.info("Attempt failed.. retry after {} milliseconds.. (try left: {})",
             interval.toMilliseconds(), i);
         ThreadUtils.trySleep(interval.toMilliseconds());
-        r = f.apply();
+        r = functionWithArgs.apply();
         resultOrError = ((ResultOrErrorFuture<?>) r).get();
         --i;
       }

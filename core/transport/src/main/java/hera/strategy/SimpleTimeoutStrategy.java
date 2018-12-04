@@ -7,6 +7,7 @@ package hera.strategy;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.Time;
+import hera.api.tupleorerror.Function;
 import hera.api.tupleorerror.Function0;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -34,8 +35,8 @@ public class SimpleTimeoutStrategy implements TimeoutStrategy {
   }
 
   @Override
-  public <R> R action(Function0<R> f) {
-    final R r = f.apply();
+  public <R> R action(final Function originFunction, final Function0<R> functionWithArgs) {
+    final R r = functionWithArgs.apply();
     if (r instanceof ResultOrErrorFuture) {
       ResultOrErrorFuture<?> future = (ResultOrErrorFuture<?>) r;
       ResultOrError resultOrError = future.get(timeout.getValue(), timeout.getUnit());
