@@ -14,7 +14,6 @@ import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
 import hera.exception.HerajException;
 import hera.exception.UnableToGenerateKeyException;
-import hera.util.Base58Utils;
 import hera.util.CryptoUtils;
 import hera.util.HexUtils;
 import hera.util.Pair;
@@ -316,16 +315,7 @@ public class AergoKey implements KeyPair {
   }
 
   @Override
-  public String getEncodedPrivateKey() {
-    try {
-      return Base58Utils.encodeWithCheck(getRawPrivateKey());
-    } catch (Exception e) {
-      throw new HerajException(e);
-    }
-  }
-
-  @Override
-  public EncryptedPrivateKey getEncryptedPrivateKey(final String password) {
+  public EncryptedPrivateKey export(final String password) {
     try {
       final byte[] rawPrivateKey = getRawPrivateKey();
       final byte[] rawPassword = password.getBytes(UTF_8);
@@ -333,11 +323,6 @@ public class AergoKey implements KeyPair {
     } catch (Exception e) {
       throw new HerajException(e);
     }
-  }
-
-  @Override
-  public String getEncodedEncryptedPrivateKey(final String password) {
-    return Base58Utils.encodeWithCheck(getEncryptedPrivateKey(password).getBytesValue().getValue());
   }
 
   protected byte[] getRawPrivateKey() {
@@ -357,18 +342,8 @@ public class AergoKey implements KeyPair {
   }
 
   @Override
-  public String getEncodedAddress() {
-    try {
-      return Base58Utils.encodeWithCheck(getAddress().getBytesValue().getValue());
-    } catch (Exception e) {
-      throw new HerajException(e);
-    }
-  }
-
-  @Override
   public String toString() {
-    return String.format("Privatekey: %s\nAddress: %s", getEncodedPrivateKey(),
-        getEncodedAddress());
+    return String.format("Address: %s", getAddress());
   }
 
   protected byte[] encrypt(final byte[] rawPrivateKey, final byte[] rawPassword)

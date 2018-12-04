@@ -28,17 +28,15 @@ public class AergoKeyTest extends AbstractTestCase {
     final String password = "password";
     final AergoKey key = AergoKey.of(ENCRYPTED_PRIVATE_KEY, password);
     assertNotNull(key.getPrivateKey());
-    assertNotNull(key.getEncodedPrivateKey());
     assertNotNull(key.getPublicKey());
     assertNotNull(key.getAddress());
-    assertNotNull(key.getEncodedAddress());
   }
 
   @Test
   public void testGetEncryptedPrivateKey() throws Exception {
     final String password = "password";
     final AergoKey key = AergoKey.of(ENCRYPTED_PRIVATE_KEY, password);
-    final String newEncryptedPrivateKey = key.getEncodedEncryptedPrivateKey(password);
+    final String newEncryptedPrivateKey = key.export(password).toString();
     assertEquals(ENCRYPTED_PRIVATE_KEY, newEncryptedPrivateKey);
   }
 

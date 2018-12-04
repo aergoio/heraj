@@ -74,7 +74,7 @@ public class AccountOperationIT extends AbstractIT {
     final AergoKey key = new AergoKeyGenerator().create();
 
     final String password = randomUUID().toString();
-    final EncryptedPrivateKey encryptedKey = key.getEncryptedPrivateKey(password);
+    final EncryptedPrivateKey encryptedKey = key.export(password);
 
     final String newpassword = randomUUID().toString();
     final Account imported =

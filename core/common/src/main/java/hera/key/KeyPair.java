@@ -47,27 +47,12 @@ public interface KeyPair {
   boolean verify(final InputStream plainText, final BytesValue signature);
 
   /**
-   * Return encoded private key.
-   *
-   * @return an encoded private key
-   */
-  String getEncodedPrivateKey();
-
-  /**
    * Return encrypted private key.
    *
    * @param password encrypt key
    * @return encrypted key
    */
-  EncryptedPrivateKey getEncryptedPrivateKey(String password);
-
-  /**
-   * Return base58 with checksum encoded encrypted private key.
-   *
-   * @param password encrypt key
-   * @return encrypted key
-   */
-  String getEncodedEncryptedPrivateKey(String password);
+  EncryptedPrivateKey export(String password);
 
   /**
    * Get account address.
@@ -75,12 +60,5 @@ public interface KeyPair {
    * @return account address
    */
   AccountAddress getAddress();
-
-  /**
-   * Return address corresponding to public key in a encoded form.
-   *
-   * @return an encoded address
-   */
-  String getEncodedAddress();
 
 }

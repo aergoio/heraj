@@ -75,6 +75,15 @@ public class EncryptedPrivateKey {
     this.bytesValue = bytesValue;
   }
 
+  /**
+   * Get base58 with checksum encoded encrypted private key.
+   *
+   * @return base58 with checksum encoded encrypted private key
+   */
+  public String getEncoded() {
+    return Base58Utils.encodeWithCheck(bytesValue.getValue());
+  }
+
   @Override
   public int hashCode() {
     return bytesValue.hashCode();
@@ -94,7 +103,7 @@ public class EncryptedPrivateKey {
 
   @Override
   public String toString() {
-    return Base58Utils.encodeWithCheck(bytesValue.getValue());
+    return getEncoded();
   }
 
 }
