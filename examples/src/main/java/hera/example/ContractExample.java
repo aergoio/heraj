@@ -41,7 +41,7 @@ public class ContractExample extends AbstractExample {
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
         .withEndpoint("localhost:7845")
-        .withNettyConnect()
+        .withNonBlockingConnect()
         .build();
 
     // create an account
@@ -90,7 +90,7 @@ public class ContractExample extends AbstractExample {
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
         .withEndpoint("localhost:7845")
-        .withNettyConnect()
+        .withNonBlockingConnect()
         .build();
 
     // create an account
@@ -144,7 +144,7 @@ public class ContractExample extends AbstractExample {
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
         .withEndpoint("localhost:7845")
-        .withNettyConnect()
+        .withNonBlockingConnect()
         .build();
 
     // create an account
@@ -180,7 +180,7 @@ public class ContractExample extends AbstractExample {
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
         .withEndpoint("localhost:7845")
-        .withNettyConnect()
+        .withNonBlockingConnect()
         .build();
 
     // create an account
@@ -221,7 +221,7 @@ public class ContractExample extends AbstractExample {
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
         .withEndpoint("localhost:7845")
-        .withNettyConnect()
+        .withNonBlockingConnect()
         .build();
 
     // build query invocation
@@ -249,7 +249,7 @@ public class ContractExample extends AbstractExample {
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
         .withEndpoint("localhost:7845")
-        .withNettyConnect()
+        .withNonBlockingConnect()
         .build();
 
     // build query invocation

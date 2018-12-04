@@ -17,7 +17,7 @@ public class LookupExample extends AbstractExample {
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
         .withEndpoint("localhost:7845")
-        .withNettyConnect()
+        .withNonBlockingConnect()
         .build();
 
     // lookup current blockchain status
@@ -45,7 +45,7 @@ public class LookupExample extends AbstractExample {
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
         .withEndpoint("localhost:7845")
-        .withNettyConnect()
+        .withNonBlockingConnect()
         .build();
 
     // lookup best block

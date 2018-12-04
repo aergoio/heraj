@@ -50,7 +50,7 @@ public abstract class AbstractIT {
         .addConfiguration("zipkin.protocol", "kafka")
         .addConfiguration("zipkin.endpoint", "localhost:9092")
         .withEndpoint("localhost:7845")
-        .withNettyConnect()
+        .withNonBlockingConnect()
         .withTracking()
         .withTimeout(10L, TimeUnit.SECONDS)
         .build();

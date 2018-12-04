@@ -23,7 +23,7 @@ public class TransactionExample extends AbstractExample {
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
         .withEndpoint("localhost:7845")
-        .withNettyConnect()
+        .withNonBlockingConnect()
         .build();
 
     // create an account
@@ -59,7 +59,7 @@ public class TransactionExample extends AbstractExample {
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
         .withEndpoint("localhost:7845")
-        .withNettyConnect()
+        .withNonBlockingConnect()
         .build();
 
     // create an account
@@ -101,7 +101,7 @@ public class TransactionExample extends AbstractExample {
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
         .withEndpoint("localhost:7845")
-        .withNettyConnect()
+        .withNonBlockingConnect()
         .build();
 
     // create a sender

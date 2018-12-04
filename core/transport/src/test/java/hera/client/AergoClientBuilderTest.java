@@ -18,7 +18,7 @@ public class AergoClientBuilderTest extends AbstractTestCase {
   public void testBuild() {
     final AergoApi aergoApi = new AergoClientBuilder()
         .withEndpoint("localhost:7845")
-        .withNettyConnect()
+        .withNonBlockingConnect()
         .build();
     assertNotNull(aergoApi);
   }
@@ -27,7 +27,7 @@ public class AergoClientBuilderTest extends AbstractTestCase {
   public void testBuildEither() {
     final AergoEitherApi aergoEitherApi = new AergoClientBuilder()
         .withEndpoint("localhost:7845")
-        .withNettyConnect()
+        .withNonBlockingConnect()
         .buildEither();
     assertNotNull(aergoEitherApi);
   }
@@ -36,7 +36,7 @@ public class AergoClientBuilderTest extends AbstractTestCase {
   public void testBuildAsync() {
     final AergoAsyncApi aergoAsyncApi = new AergoClientBuilder()
         .withEndpoint("localhost:7845")
-        .withNettyConnect()
+        .withNonBlockingConnect()
         .buildAsync();
     assertNotNull(aergoAsyncApi);
   }

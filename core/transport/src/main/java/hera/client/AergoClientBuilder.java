@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public class AergoClientBuilder {
+public class AergoClientBuilder implements ContextConfiguer<AergoClientBuilder> {
 
   public static final String SCOPE = "global";
 
@@ -51,77 +51,43 @@ public class AergoClientBuilder {
 
   protected Configuration configuration = new InMemoryConfiguration();
 
+  @Override
   public AergoClientBuilder addConfiguration(final String key, final String value) {
     configuration.define(key, value);
     return this;
   }
 
-  /**
-   * Provide an endpoint of aergo server. eg. {@code localhost:7845}
-   *
-   * @param endpoint aergo chain server endpoint
-   * @return an instance of this
-   */
+  @Override
   public AergoClientBuilder withEndpoint(final String endpoint) {
     configuration.define("endpoint", endpoint);
     return this;
   }
 
-  /**
-   * Use {@link NettyConnectStrategy}. If other {@link ConnectStrategy} is already set, that will be
-   * overridden.
-   *
-   * @return an instance of this
-   */
-  public AergoClientBuilder withNettyConnect() {
+  @Override
+  public AergoClientBuilder withNonBlockingConnect() {
     strategyMap.put(ConnectStrategy.class, new NettyConnectStrategy());
     return this;
   }
 
-  /**
-   * Use {@link OkHttpConnectStrategy}. If other {@link ConnectStrategy} is already set, that will
-   * be overridden.
-   *
-   * @return an instance of this
-   */
-  public AergoClientBuilder withOkHttpConnect() {
+  @Override
+  public AergoClientBuilder withBlockingConnect() {
     strategyMap.put(ConnectStrategy.class, new OkHttpConnectStrategy());
     return this;
   }
 
-  /**
-   * Use {@link ZipkinTracingStrategy}.
-   *
-   * @return an instance of this
-   */
+  @Override
   public AergoClientBuilder withTracking() {
     strategyMap.put(ZipkinTracingStrategy.class, new ZipkinTracingStrategy());
     return this;
   }
 
-  /**
-   * Set timeout for each request with {@link SimpleTimeoutStrategy}. If timeout is already set,
-   * that will be overridden.
-   *
-   * @param timeout time to time out
-   * @param unit time's unit
-   *
-   * @return an instance of this
-   */
+  @Override
   public AergoClientBuilder withTimeout(final long timeout, final TimeUnit unit) {
     strategyMap.put(TimeoutStrategy.class, new SimpleTimeoutStrategy(timeout, unit));
     return this;
   }
 
-  /**
-   * Use {@link RetryStrategy}. Default retry count : 0, default retry interval : 5000 milliseconds.
-   *
-   * @param count retry count. If it is less than 0, set as 0
-   * @param interval interval value. If it's less than 0, set as 0
-   * @param unit interval unit
-   *
-   * @return an instance of this
-   */
+  @Override
   public AergoClientBuilder withRetry(final int count, final long interval, final TimeUnit unit) {
     strategyMap.put(RetryStrategy.class, new RetryStrategy(count, Time.of(interval, unit)));
     return this;

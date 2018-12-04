@@ -27,7 +27,7 @@ public class AccountExample extends AbstractExample {
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
         .withEndpoint("localhost:7845")
-        .withNettyConnect()
+        .withNonBlockingConnect()
         .build();
 
     // create aergokey
@@ -43,7 +43,7 @@ public class AccountExample extends AbstractExample {
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
         .withEndpoint("localhost:7845")
-        .withNettyConnect()
+        .withNonBlockingConnect()
         .withTimeout(10L, TimeUnit.SECONDS)
         .build();
 
