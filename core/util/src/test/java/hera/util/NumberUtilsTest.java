@@ -7,6 +7,7 @@ package hera.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Arrays;
 import org.junit.Test;
 
 public class NumberUtilsTest {
@@ -116,6 +118,40 @@ public class NumberUtilsTest {
       method.setAccessible(true);
       assertEquals(expected, method.invoke(NumberUtils.class, value));
     }
-
   }
+
+  @Test
+  public void testPostiveToByteArray() {
+    final Object[][] testParameters = new Object[][] {
+        {BigInteger.valueOf(0L), new byte[] {(byte) 0x00}},
+        {BigInteger.valueOf(127L), new byte[] {(byte) 0x7F}},
+        {BigInteger.valueOf(255L), new byte[] {(byte) 0xFF}}
+    };
+
+    for (final Object[] testParameter : testParameters) {
+      final BigInteger value = (BigInteger) testParameter[0];
+      final byte[] expected = (byte[]) testParameter[1];
+      final byte[] actual = NumberUtils.postiveToByteArray(value);
+      assertTrue(Arrays.equals(expected, actual));
+    }
+  }
+
+
+  @Test
+  public void testByteAraryToPostive() {
+    final Object[][] testParameters = new Object[][] {
+        {new byte[0], BigInteger.ZERO},
+        {new byte[] {(byte) 0x00}, BigInteger.valueOf(0L)},
+        {new byte[] {(byte) 0x7F}, BigInteger.valueOf(127L)},
+        {new byte[] {(byte) 0xFF}, BigInteger.valueOf(255L)}
+    };
+
+    for (final Object[] testParameter : testParameters) {
+      final byte[] rawBytes = (byte[]) testParameter[0];
+      final BigInteger expected = (BigInteger) testParameter[1];
+      final BigInteger actual = NumberUtils.byteArrayToPostive(rawBytes);
+      assertTrue(expected.equals(actual));
+    }
+  }
+
 }

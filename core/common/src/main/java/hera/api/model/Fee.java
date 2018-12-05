@@ -4,6 +4,9 @@
 
 package hera.api.model;
 
+import static hera.util.ValidationUtils.assertNotNull;
+
+import java.math.BigInteger;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -12,7 +15,7 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class Fee {
 
-  public static final long MIN_PRICE = 1;
+  public static final BigInteger MIN_PRICE = BigInteger.ONE;
 
   public static final long MIN_LIMIT = 1;
 
@@ -28,12 +31,12 @@ public class Fee {
    *
    * @return created {@code Fee}
    */
-  public static Fee of(final Long price, final long limit) {
+  public static Fee of(final BigInteger price, final long limit) {
     return new Fee(price, limit);
   }
 
   @Getter
-  protected long price;
+  protected BigInteger price;
 
   @Getter
   protected long limit;
@@ -45,8 +48,9 @@ public class Fee {
    * @param price fee price
    * @param limit fee limit
    */
-  public Fee(final long price, final long limit) {
-    this.price = price >= 0 ? price : MIN_PRICE;
+  public Fee(final BigInteger price, final long limit) {
+    assertNotNull(price);
+    this.price = price.compareTo(BigInteger.ZERO) >= 0 ? price : MIN_PRICE;
     this.limit = limit >= 0 ? limit : MIN_LIMIT;
   }
 

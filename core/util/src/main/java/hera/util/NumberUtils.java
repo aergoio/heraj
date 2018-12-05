@@ -5,20 +5,22 @@
 package hera.util;
 
 import static hera.util.ValidationUtils.assertNotNull;
+import static hera.util.ValidationUtils.assertTrue;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.Arrays;
 
 public class NumberUtils {
 
   /**
    * Convert {@code number} to {@code targetClass} type.
    *
-   * @param <T>         type to convert
-   * @param number      instance to convert
+   * @param <T> type to convert
+   * @param number instance to convert
    * @param targetClass type class to convert
    * @return converted instance
    * @throws IllegalArgumentException No rule for conversion
@@ -78,7 +80,7 @@ public class NumberUtils {
    * Throw {@link IllegalArgumentException} when {@code number}'s value is out of bound
    * {@code targetClass}'s range.
    *
-   * @param number      value instance
+   * @param number value instance
    * @param targetClass container type
    */
   private static void throwOverflowException(final Number number, final Class<?> targetClass) {
@@ -90,8 +92,8 @@ public class NumberUtils {
   /**
    * Parse {@code text} and convert number.
    *
-   * @param <T>   type to convert
-   * @param text  string to parse
+   * @param <T> type to convert
+   * @param text string to parse
    * @param clazz type class to convert
    *
    * @return converted instance
@@ -126,13 +128,13 @@ public class NumberUtils {
   }
 
   /**
-   * Parse string {@code text} as {@code numberFormat} and
-   * convert to {@code targetClass} type instance.
-   * 
-   * @param <T>           type to convert
-   * @param text          string to parse
-   * @param targetClass   type class to convert
-   * @param numberFormat  format to parse
+   * Parse string {@code text} as {@code numberFormat} and convert to {@code targetClass} type
+   * instance.
+   *
+   * @param <T> type to convert
+   * @param text string to parse
+   * @param targetClass type class to convert
+   * @param numberFormat format to parse
    * @return converted number
    */
   public static <T> T parse(final String text, final Class<T> targetClass,
@@ -169,8 +171,7 @@ public class NumberUtils {
   /**
    * Parse {@code value} and convert to {@link BigInteger}.
    * <p>
-   *   Parse as hexa decimal if it has '0x' prefix.
-   *   Parse as octal decimal if it has '0' prefix.
+   * Parse as hexa decimal if it has '0x' prefix. Parse as octal decimal if it has '0' prefix.
    * </p>
    *
    * @param value string to convert
@@ -202,6 +203,50 @@ public class NumberUtils {
 
     final BigInteger result = new BigInteger(value.substring(index), radix);
     return (negative ? result.negate() : result);
+  }
+
+  /**
+   * Convert {@link BigInteger} into a byte array without additional sign byte to represent
+   * canonical two's-complement form. Eg. 255 is {@code "11111111"} not
+   * {@code "00000000 1111 1111"}.
+   *
+   * @param postiveNumber a positive bigInteger
+   * @return a converted byte array
+   */
+  public static byte[] postiveToByteArray(final BigInteger postiveNumber) {
+    assertNotNull(postiveNumber, "Argument must not be null");
+    assertTrue(postiveNumber.compareTo(BigInteger.ZERO) >= 0,
+        "Argument must greater than or equals to 0");
+
+    final byte[] raw = postiveNumber.toByteArray();
+    final int postiveByteCapacity =
+        postiveNumber.equals(BigInteger.ZERO) ? 1 : (postiveNumber.bitLength() + 7) >>> 3;
+    if (raw.length > postiveByteCapacity) {
+      return Arrays.copyOfRange(raw, 1, raw.length);
+    }
+    return raw;
+  }
+
+  /**
+   * Convert rawBytes to bigInteger. A rawBytes is considered only as positive (no extra sign bit).
+   *
+   * @param rawBytes a rawBytes representing positive number without sign bit.
+   * @return a converted {@code BigInteger}
+   */
+  public static BigInteger byteArrayToPostive(final byte[] rawBytes) {
+    assertNotNull(rawBytes, "Argument must not be null");
+
+    if (rawBytes.length == 0) {
+      return BigInteger.ZERO;
+    }
+
+    byte[] canonicalBytes = rawBytes;
+    if ((rawBytes[0] & 0x80) != 0) {
+      canonicalBytes = new byte[rawBytes.length + 1];
+      canonicalBytes[0] = 0x00;
+      System.arraycopy(rawBytes, 0, canonicalBytes, 1, rawBytes.length);
+    }
+    return new BigInteger(canonicalBytes);
   }
 
 }

@@ -22,6 +22,7 @@ import hera.api.tupleorerror.Function3;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
+import java.math.BigInteger;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -56,7 +57,7 @@ public class TransactionTemplate
           .apply(identify(transactionBaseTemplate.getCommitFunction(), TRANSACTION_COMMIT));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function3<AccountAddress, AccountAddress, Long,
+  private final Function3<AccountAddress, AccountAddress, BigInteger,
       ResultOrErrorFuture<TxHash>> sendFunction =
           getStrategyChain()
               .apply(identify(transactionBaseTemplate.getSendFunction(), TRANSACTION_SEND));
@@ -74,7 +75,7 @@ public class TransactionTemplate
   @Override
   public TxHash send(final AccountAddress sender,
       final AccountAddress recipient,
-      final long amount) {
+      final BigInteger amount) {
     return getSendFunction().apply(sender, recipient, amount).get().getResult();
   }
 

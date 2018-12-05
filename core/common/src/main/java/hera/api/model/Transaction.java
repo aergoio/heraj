@@ -5,6 +5,7 @@
 package hera.api.model;
 
 import static hera.api.model.BytesValue.of;
+import static hera.util.NumberUtils.postiveToByteArray;
 import static hera.util.Sha256Utils.digest;
 import static java.util.Optional.ofNullable;
 
@@ -12,6 +13,7 @@ import hera.VersionUtils;
 import hera.util.LittleEndianDataOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +48,7 @@ public class Transaction {
 
   @Getter
   @Setter
-  protected long amount;
+  protected BigInteger amount = BigInteger.ZERO;
 
   @Getter
   @Setter
@@ -128,10 +130,10 @@ public class Transaction {
       dataOut.writeLong(getNonce());
       dataOut.write(VersionUtils.trim(getSender().getBytesValue().getValue()));
       dataOut.write(VersionUtils.trim(getRecipient().getBytesValue().getValue()));
-      dataOut.writeLong(getAmount());
+      dataOut.write(postiveToByteArray(getAmount()));
       dataOut.write(getPayload().getValue());
       dataOut.writeLong(getFee().getLimit());
-      dataOut.writeLong(getFee().getPrice());
+      dataOut.write(postiveToByteArray(getFee().getPrice()));
       dataOut.writeInt(getTxType().getIntValue());
       ofNullable(signature).map(Signature::getSign).map(BytesValue::getValue).ifPresent(b -> {
         try {

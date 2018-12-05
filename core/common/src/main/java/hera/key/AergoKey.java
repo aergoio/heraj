@@ -16,6 +16,7 @@ import hera.exception.HerajException;
 import hera.exception.UnableToGenerateKeyException;
 import hera.util.CryptoUtils;
 import hera.util.HexUtils;
+import hera.util.NumberUtils;
 import hera.util.Pair;
 import hera.util.Sha256Utils;
 import hera.util.pki.ECDSAKey;
@@ -152,7 +153,8 @@ public class AergoKey implements KeyPair {
       final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey) {
     final byte[] rawAddress = new byte[ADDRESS_LENGTH];
     rawAddress[0] = (byte) (ecPublicKey.getQ().getYCoord().toBigInteger().testBit(0) ? 0x03 : 0x02);
-    final byte[] xbyteArray = getPureByteArrayOf(ecPublicKey.getQ().getXCoord().toBigInteger());
+    final byte[] xbyteArray =
+        NumberUtils.postiveToByteArray(ecPublicKey.getQ().getXCoord().toBigInteger());
     System.arraycopy(xbyteArray, 0, rawAddress, rawAddress.length - xbyteArray.length,
         xbyteArray.length);
     return AccountAddress
@@ -329,16 +331,7 @@ public class AergoKey implements KeyPair {
     final org.bouncycastle.jce.interfaces.ECPrivateKey ecPrivateKey =
         (org.bouncycastle.jce.interfaces.ECPrivateKey) getPrivateKey();
     final BigInteger d = ecPrivateKey.getD();
-    return getPureByteArrayOf(d);
-  }
-
-  protected byte[] getPureByteArrayOf(final BigInteger bigInteger) {
-    final byte[] raw = bigInteger.toByteArray();
-    final int byteLen = (bigInteger.bitLength() + 7) >>> 3;
-    if (raw.length > byteLen) {
-      return Arrays.copyOfRange(raw, 1, raw.length);
-    }
-    return raw;
+    return NumberUtils.postiveToByteArray(d);
   }
 
   @Override

@@ -4,6 +4,7 @@
 
 package hera.api.model;
 
+import java.math.BigInteger;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,6 +24,6 @@ public class AccountState {
 
   @Getter
   @Setter
-  protected long balance;
+  protected BigInteger balance;
 
 }

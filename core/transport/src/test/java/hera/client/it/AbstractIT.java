@@ -4,6 +4,7 @@
 
 package hera.client.it;
 
+import static java.math.BigInteger.valueOf;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.Account;
@@ -19,6 +20,7 @@ import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.util.ThreadUtils;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
@@ -30,7 +32,7 @@ public abstract class AbstractIT {
 
   protected static final String hostname = "localhost:7845";
 
-  protected final long amount = 10L;
+  protected final BigInteger amount = valueOf(10L);
 
   // address : AmM25FKSK1gCqSdUPjnvESsauESNgfZUauHWp7R8Un3zHffEQgTm
   protected static final String richEncryptedPrivateKey =
@@ -71,7 +73,7 @@ public abstract class AbstractIT {
 
     final Transaction transaction = new Transaction();
     transaction.setNonce(richState.getNonce() + 1);
-    transaction.setAmount(amount);
+    transaction.setAmount(valueOf(amount));
     transaction.setSender(rich);
     transaction.setRecipient(targetAccount);
     final Signature signature = aergoClient.getAccountOperation().sign(rich, transaction);

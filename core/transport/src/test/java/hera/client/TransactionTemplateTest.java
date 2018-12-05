@@ -8,6 +8,7 @@ import static hera.TransportConstants.TRANSACTION_COMMIT;
 import static hera.TransportConstants.TRANSACTION_GETTX;
 import static hera.TransportConstants.TRANSACTION_SEND;
 import static hera.api.model.BytesValue.of;
+import static java.math.BigInteger.valueOf;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -91,7 +92,7 @@ public class TransactionTemplateTest extends AbstractTestCase {
         supplyTransactionTemplate(base);
 
     final TxHash txHash =
-        transactionTemplate.send(accountAddress, accountAddress, 10);
+        transactionTemplate.send(accountAddress, accountAddress, valueOf(10L));
     assertNotNull(txHash);
     assertEquals(TRANSACTION_SEND,
         ((WithIdentity) transactionTemplate.getSendFunction()).getIdentity());

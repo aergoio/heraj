@@ -8,6 +8,7 @@ import static hera.TransportConstants.TRANSACTION_COMMIT_ASYNC;
 import static hera.TransportConstants.TRANSACTION_GETTX_ASYNC;
 import static hera.TransportConstants.TRANSACTION_SEND_ASYNC;
 import static hera.api.model.BytesValue.of;
+import static java.math.BigInteger.valueOf;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -90,11 +91,10 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
         supplyTransactionAsyncTemplate(base);
 
     final ResultOrErrorFuture<TxHash> txHash =
-        transactionAsyncTemplate.send(accountAddress, accountAddress, 10);
+        transactionAsyncTemplate.send(accountAddress, accountAddress, valueOf(10L));
     assertTrue(txHash.get().hasResult());
     assertEquals(TRANSACTION_SEND_ASYNC,
         ((WithIdentity) transactionAsyncTemplate.getSendFunction()).getIdentity());
   }
 
 }
-

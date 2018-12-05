@@ -7,6 +7,7 @@ package hera.api.model;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.spy;
 
+import java.math.BigInteger;
 import org.junit.Test;
 
 public class AbstractAccountTest {
@@ -14,7 +15,7 @@ public class AbstractAccountTest {
   @Test
   public void testBindState() {
     final long nonce = 3;
-    final long balance = 7;
+    final BigInteger balance = BigInteger.valueOf(7L);
 
     final AbstractAccount account = spy(AbstractAccount.class);
     final AccountState state = new AccountState();

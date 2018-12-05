@@ -4,6 +4,7 @@
 
 package hera.client.it;
 
+import static java.math.BigInteger.valueOf;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -64,7 +65,7 @@ public class ContractOperationIT extends AbstractIT {
     final ContractInvocation execution =
         contractInterface.newInvocationBuilder().function(function).args(args).build();
     logger.info("Contract invocation: {}", execution);
-    return aergoClient.getContractOperation().execute(account, execution, Fee.of(0L, 0L));
+    return aergoClient.getContractOperation().execute(account, execution, Fee.of(valueOf(0L), 0L));
   }
 
   protected ContractResult query(final ContractInterface contractInterface, final String function,
@@ -85,7 +86,8 @@ public class ContractOperationIT extends AbstractIT {
     final String key = "key";
     final int intVal = 100;
     final String stringVal = "string value";
-    final ContractTxHash deployTxHash = define(account, Fee.of(1L, 1L), key, intVal, stringVal);
+    final ContractTxHash deployTxHash =
+        define(account, Fee.of(valueOf(1L), 1L), key, intVal, stringVal);
 
     waitForNextBlockToGenerate();
 
@@ -108,7 +110,7 @@ public class ContractOperationIT extends AbstractIT {
 
     waitForNextBlockToGenerate();
 
-    final ContractTxHash deployTxHash = define(account, Fee.of(1L, 1L));
+    final ContractTxHash deployTxHash = define(account, Fee.of(valueOf(1L), 1L));
     account.incrementNonce();
 
     waitForNextBlockToGenerate();
@@ -123,7 +125,7 @@ public class ContractOperationIT extends AbstractIT {
     final int intVal = 100;
     final String stringVal = "string value";
     final ContractTxHash executionTxHash =
-        execute(account, Fee.of(1L, 1L), contractInterface, "set", key, intVal, stringVal);
+        execute(account, Fee.of(valueOf(1L), 1L), contractInterface, "set", key, intVal, stringVal);
     account.incrementNonce();
 
     waitForNextBlockToGenerate();
@@ -147,7 +149,7 @@ public class ContractOperationIT extends AbstractIT {
 
     assertTrue(unlockAccount(account, password));
 
-    final ContractTxHash deployTxHash = define(account, Fee.of(1L, 1L));
+    final ContractTxHash deployTxHash = define(account, Fee.of(valueOf(1L), 1L));
     account.incrementNonce();
 
     waitForNextBlockToGenerate();
@@ -162,7 +164,7 @@ public class ContractOperationIT extends AbstractIT {
     final int intVal = 100;
     final String stringVal = "string value";
     final ContractTxHash executionTxHash =
-        execute(account, Fee.of(1L, 1L), contractInterface, "set", key, intVal, stringVal);
+        execute(account, Fee.of(valueOf(1L), 1L), contractInterface, "set", key, intVal, stringVal);
     account.incrementNonce();
 
     waitForNextBlockToGenerate();
@@ -180,6 +182,7 @@ public class ContractOperationIT extends AbstractIT {
 
   @ToString
   public static class Data {
+
     @Getter
     @Setter
     protected int intVal;

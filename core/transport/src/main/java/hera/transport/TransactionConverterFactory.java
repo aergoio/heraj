@@ -4,6 +4,8 @@
 
 package hera.transport;
 
+import static hera.util.NumberUtils.byteArrayToPostive;
+import static hera.util.NumberUtils.postiveToByteArray;
 import static hera.util.TransportUtils.copyFrom;
 import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -37,6 +39,7 @@ public class TransactionConverterFactory {
         }
       };
 
+
   protected final Function<Blockchain.TxType, Transaction.TxType> txTypeRpcConverter =
       rpcTxType -> {
         switch (rpcTxType) {
@@ -61,10 +64,11 @@ public class TransactionConverterFactory {
         .setAccount(accountAddressConverter.convertToRpcModel(domainTransaction.getSender()));
     txBodyBuilder
         .setRecipient(accountAddressConverter.convertToRpcModel(domainTransaction.getRecipient()));
-    txBodyBuilder.setAmount(domainTransaction.getAmount());
+    txBodyBuilder.setAmount(ByteString.copyFrom(postiveToByteArray(domainTransaction.getAmount())));
     txBodyBuilder.setPayload(copyFrom(domainTransaction.getPayload()));
     txBodyBuilder.setLimit(domainTransaction.getFee().getLimit());
-    txBodyBuilder.setPrice(domainTransaction.getFee().getPrice());
+    txBodyBuilder
+        .setPrice(ByteString.copyFrom(postiveToByteArray(domainTransaction.getFee().getPrice())));
     if (Transaction.TxType.UNRECOGNIZED != domainTransaction.getTxType()) {
       txBodyBuilder.setType(txTypeDomainConverter.apply(domainTransaction.getTxType()));
     }
@@ -88,10 +92,10 @@ public class TransactionConverterFactory {
     domainTransaction.setSender(accountAddressConverter.convertToDomainModel(txBody.getAccount()));
     domainTransaction
         .setRecipient(accountAddressConverter.convertToDomainModel(txBody.getRecipient()));
-    domainTransaction.setAmount(txBody.getAmount());
+    domainTransaction.setAmount(byteArrayToPostive(txBody.getAmount().toByteArray()));
     domainTransaction.setPayload(BytesValue.of(txBody.getPayload().toByteArray()));
     domainTransaction
-        .setFee(new Fee(txBody.getPrice(), txBody.getLimit()));
+        .setFee(new Fee(byteArrayToPostive(txBody.getPrice().toByteArray()), txBody.getLimit()));
     if (null != rpcTransaction.getHash() || null != txBody.getSign()) {
       final Signature signature = new Signature();
       ofNullable(rpcTransaction.getHash()).map(ByteString::toByteArray).map(BytesValue::new)
@@ -107,4 +111,5 @@ public class TransactionConverterFactory {
   public ModelConverter<Transaction, Tx> create() {
     return new ModelConverter<>(domainConverter, rpcConverter);
   }
+
 }

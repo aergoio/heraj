@@ -4,6 +4,8 @@
 
 package hera.example;
 
+import static java.math.BigInteger.valueOf;
+
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
@@ -36,7 +38,7 @@ public class TransactionExample extends AbstractExample {
     // make a transaction
     final Transaction transaction = new Transaction();
     transaction.setNonce(account.nextNonce());
-    transaction.setAmount(10L);
+    transaction.setAmount(valueOf(10L));
     transaction.setSender(account);
     transaction.setRecipient(
         AccountAddress.of(() -> "AmLbHdVs4dNpRzyLirs8cKdV26rPJJxpVXG1w2LLZ9pKfqAHHdyg"));
@@ -75,7 +77,7 @@ public class TransactionExample extends AbstractExample {
     // make a transaction
     final Transaction transaction = new Transaction();
     transaction.setNonce(account.nextNonce());
-    transaction.setAmount(10L);
+    transaction.setAmount(valueOf(10L));
     transaction.setSender(account);
     transaction.setRecipient(
         AccountAddress.of(() -> "AmLbHdVs4dNpRzyLirs8cKdV26rPJJxpVXG1w2LLZ9pKfqAHHdyg"));
@@ -114,7 +116,8 @@ public class TransactionExample extends AbstractExample {
 
     // send tx
     final TxHash txHash = aergoClient.getTransactionOperation().send(account.getAddress(),
-        AccountAddress.of(() -> "AmLbHdVs4dNpRzyLirs8cKdV26rPJJxpVXG1w2LLZ9pKfqAHHdyg"), 10L);
+        AccountAddress.of(() -> "AmLbHdVs4dNpRzyLirs8cKdV26rPJJxpVXG1w2LLZ9pKfqAHHdyg"),
+        valueOf(10L));
     System.out.println("TxHash: " + txHash);
 
     // query tx with hash

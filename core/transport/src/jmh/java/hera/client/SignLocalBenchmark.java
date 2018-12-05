@@ -4,6 +4,8 @@
 
 package hera.client;
 
+import static java.math.BigInteger.valueOf;
+
 import hera.api.model.Account;
 import hera.api.model.ClientManagedAccount;
 import hera.api.model.Signature;
@@ -40,7 +42,7 @@ public class SignLocalBenchmark {
 
       signed = new Transaction();
       signed.setNonce(sender.nextNonce());
-      signed.setAmount(30);
+      signed.setAmount(valueOf(30));
       signed.setSender(sender);
       signed.setRecipient(receipt);
       client.getAccountOperation().sign(sender, signed);
@@ -51,7 +53,7 @@ public class SignLocalBenchmark {
     public void sign() {
       final Transaction transaction = new Transaction();
       transaction.setNonce(sender.nextNonce());
-      transaction.setAmount(30);
+      transaction.setAmount(valueOf(30));
       transaction.setSender(sender);
       transaction.setRecipient(receipt);
 
@@ -65,7 +67,7 @@ public class SignLocalBenchmark {
     public void signAndVerify() {
       final Transaction transaction = new Transaction();
       transaction.setNonce(sender.nextNonce());
-      transaction.setAmount(30);
+      transaction.setAmount(valueOf(30));
       transaction.setSender(sender);
       transaction.setRecipient(receipt);
 

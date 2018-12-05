@@ -4,6 +4,7 @@
 
 package hera.transport;
 
+import static hera.util.NumberUtils.byteArrayToPostive;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.AccountState;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import types.Blockchain;
 
 public class AccountStateConverterFactory {
+
   protected final transient Logger logger = getLogger(getClass());
 
   protected final Function<AccountState, Blockchain.State> domainConverter = domainAccountState -> {
@@ -22,7 +24,7 @@ public class AccountStateConverterFactory {
     logger.trace("Rpc account state: {}", rpcAccountState);
     final AccountState domainAccountState = new AccountState();
     domainAccountState.setNonce(rpcAccountState.getNonce());
-    domainAccountState.setBalance(rpcAccountState.getBalance());
+    domainAccountState.setBalance(byteArrayToPostive(rpcAccountState.getBalance().toByteArray()));
     return domainAccountState;
   };
 
