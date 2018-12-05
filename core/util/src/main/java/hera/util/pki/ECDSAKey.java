@@ -13,10 +13,10 @@ import hera.util.HexUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bouncycastle.crypto.digests.SHA256Digest;
@@ -27,43 +27,25 @@ import org.bouncycastle.crypto.signers.ECDSASigner;
 import org.bouncycastle.crypto.signers.HMacDSAKCalculator;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
-import org.bouncycastle.jce.spec.ECPrivateKeySpec;
-import org.bouncycastle.jce.spec.ECPublicKeySpec;
-import org.bouncycastle.math.ec.ECPoint;
 import org.slf4j.Logger;
 
+@EqualsAndHashCode(exclude = "logger")
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class ECDSAKey {
 
-  protected static final String KEY_ALGORITHM = "ECDSA";
-
   protected static final String CURVE_NAME = "secp256k1";
-
-  protected static final ECNamedCurveParameterSpec ecSpec;
 
   @Getter
   protected static final ECDomainParameters ecParams;
 
   static {
     addProvider(new BouncyCastleProvider());
-    ecSpec = getParameterSpec(CURVE_NAME);
+    ECNamedCurveParameterSpec ecSpec = getParameterSpec(CURVE_NAME);
     ecParams = new ECDomainParameters(ecSpec.getCurve(), ecSpec.getG(), ecSpec.getN(),
         ecSpec.getH(), ecSpec.getSeed());
   }
 
   protected final transient Logger logger = getLogger(getClass());
-
-  /**
-   * Create ECDSAKey with a private key.
-   *
-   * @param rawPrivatekey a private key
-   * @return {@link ECDSAKey}
-   *
-   * @throws Exception on failure of creation
-   */
-  public static ECDSAKey of(final byte[] rawPrivatekey) throws Exception {
-    return new ECDSAKey(rawPrivatekey);
-  }
 
   /**
    * Create ECDSAKey with keypair.
@@ -74,26 +56,6 @@ public class ECDSAKey {
    */
   public static ECDSAKey of(final PrivateKey privatekey, final PublicKey publicKey) {
     return new ECDSAKey(privatekey, publicKey);
-  }
-
-  /**
-   * ECDSAKey constructor.
-   *
-   * @param rawPrivatekey raw private key
-   *
-   * @throws Exception on failure
-   */
-  public ECDSAKey(final byte[] rawPrivatekey) throws Exception {
-    final KeyFactory factory = KeyFactory.getInstance(KEY_ALGORITHM);
-
-    final BigInteger d = new BigInteger(1, rawPrivatekey);
-    final ECPrivateKeySpec spec = new ECPrivateKeySpec(d, ecSpec);
-    this.privateKey = factory.generatePrivate(spec);
-
-    final ECPoint Q = ecParams.getG()
-        .multiply(((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD());
-    final ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(Q, ecSpec);
-    this.publicKey = factory.generatePublic(ecPublicKeySpec);
   }
 
   @Getter
@@ -112,8 +74,7 @@ public class ECDSAKey {
   public ECDSASignature sign(final InputStream plainText) {
     try {
       final byte[] message = toByteArray(plainText);
-      final ECDSASignature signature =
-          sign(((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD(), message);
+      final ECDSASignature signature = sign(this.privateKey, message);
       logger.trace("ECDSASignature signature: {}", signature);
       return signature;
     } catch (final Throwable e) {
@@ -127,16 +88,18 @@ public class ECDSAKey {
    * @see <a href="https://github.com/btcsuite/btcd/blob/master/btcec/signature.go">signRFC6979
    *      function in signature.go</a>
    *
-   * @param d private key d value
+   * @param privateKey a private key
    * @param message message to sign
    * @return ECDSASignature result
    * @throws Exception when sign error occurred
    */
-  protected ECDSASignature sign(final BigInteger d, final byte[] message) throws Exception {
-    logger.trace("D: {}", d);
+  protected ECDSASignature sign(final PrivateKey privateKey, final byte[] message)
+      throws Exception {
     logger.trace("Message in hexa: {}", HexUtils.encode(message));
 
     final ECDSASigner signer = new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));
+    final BigInteger d = ((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD();
+    logger.trace("D: {}", d);
     final ECPrivateKeyParameters privKey = new ECPrivateKeyParameters(d, ecParams);
     signer.init(true, privKey);
     final BigInteger[] components = signer.generateSignature(message);

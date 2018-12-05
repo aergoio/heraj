@@ -9,6 +9,7 @@ import static org.bouncycastle.jce.ECNamedCurveTable.getParameterSpec;
 import static org.bouncycastle.jce.provider.BouncyCastleProvider.PROVIDER_NAME;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -18,29 +19,32 @@ import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
-import org.bouncycastle.crypto.params.ECDomainParameters;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
+import org.bouncycastle.jce.spec.ECPrivateKeySpec;
 import org.bouncycastle.jce.spec.ECPublicKeySpec;
 import org.bouncycastle.math.ec.ECPoint;
 import org.slf4j.Logger;
 
 public class ECDSAKeyGenerator implements KeyGenerator<ECDSAKey> {
-  protected static final String ALGORITHM_NAME = "ECDSA";
+
+  protected static final String KEY_ALGORITHM = "ECDSA";
 
   protected static final String CURVE_NAME = "secp256k1";
 
+  protected static final ECNamedCurveParameterSpec ecSpec;
+
   static {
     addProvider(new BouncyCastleProvider());
+    ecSpec = getParameterSpec(CURVE_NAME);
   }
 
   protected final transient Logger logger = getLogger(getClass());
 
   protected KeyPairGenerator getKeyPairGenerator()
       throws NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
-    final ECNamedCurveParameterSpec ecSpec = getParameterSpec(CURVE_NAME);
     final KeyPairGenerator keyPairGenerator =
-        KeyPairGenerator.getInstance(ALGORITHM_NAME, PROVIDER_NAME);
+        KeyPairGenerator.getInstance(KEY_ALGORITHM, PROVIDER_NAME);
     keyPairGenerator.initialize(ecSpec);
     logger.debug("Generator: {}", keyPairGenerator);
     return keyPairGenerator;
@@ -58,30 +62,45 @@ public class ECDSAKeyGenerator implements KeyGenerator<ECDSAKey> {
   }
 
   /**
-   * Create keypair from encoded private key.
+   * Create key-pair from encoded private key.
    *
    * @param encodedPrivateKey PKCS #8 encoded private key
-   *
    * @return key pair to be recovered
-   *
    * @throws Exception On failure of recovery
    */
   public ECDSAKey create(final byte[] encodedPrivateKey) throws Exception {
-    final ECNamedCurveParameterSpec ecSpec = getParameterSpec(CURVE_NAME);
-    ECDomainParameters ecDomainParams = new ECDomainParameters(
-        ecSpec.getCurve(),
-        ecSpec.getG(),
-        ecSpec.getN(),
-        ecSpec.getH(),
-        ecSpec.getSeed());
+    final KeyFactory factory = KeyFactory.getInstance(KEY_ALGORITHM);
     final PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(encodedPrivateKey);
-    final KeyFactory factory = KeyFactory.getInstance(ALGORITHM_NAME);
-    final PrivateKey privateKey = factory.generatePrivate(spec);
+    return create(factory.generatePrivate(spec));
+  }
 
-    final ECPoint Q = ecDomainParams.getG()
+  /**
+   * Create key-pair from encoded private key.
+   *
+   * @param d d value of private key
+   * @return key pair to be recovered
+   * @throws Exception On failure of recovery
+   */
+  public ECDSAKey create(final BigInteger d) throws Exception {
+    final KeyFactory factory = KeyFactory.getInstance(KEY_ALGORITHM);
+    final ECPrivateKeySpec spec = new ECPrivateKeySpec(d, ecSpec);
+    return create(factory.generatePrivate(spec));
+  }
+
+  /**
+   * Create key-pair from a private key.
+   *
+   * @param privateKey a private key
+   * @return key pair to be recovered
+   * @throws Exception On failure of recovery
+   */
+  public ECDSAKey create(final PrivateKey privateKey) throws Exception {
+    final KeyFactory factory = KeyFactory.getInstance(KEY_ALGORITHM);
+    final ECPoint Q = ecSpec.getG()
         .multiply(((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD());
     final ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(Q, ecSpec);
     final PublicKey publicKey = factory.generatePublic(ecPublicKeySpec);
     return new ECDSAKey(privateKey, publicKey);
   }
+
 }

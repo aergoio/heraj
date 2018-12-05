@@ -20,6 +20,7 @@ import hera.util.NumberUtils;
 import hera.util.Pair;
 import hera.util.Sha256Utils;
 import hera.util.pki.ECDSAKey;
+import hera.util.pki.ECDSAKeyGenerator;
 import hera.util.pki.ECDSASignature;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -128,7 +129,7 @@ public class AergoKey implements KeyPair {
     try {
       final byte[] rawPrivateKey =
           decrypt(encryptedPrivateKey.getBytesValue().getValue(), password.getBytes(UTF_8));
-      this.ecdsakey = ECDSAKey.of(rawPrivateKey);
+      this.ecdsakey = new ECDSAKeyGenerator().create(new BigInteger(1, rawPrivateKey));
       final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =
           (org.bouncycastle.jce.interfaces.ECPublicKey) this.ecdsakey.getPublicKey();
       this.address = buildAddress(ecPublicKey);

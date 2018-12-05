@@ -12,8 +12,6 @@ import hera.AbstractTestCase;
 import hera.util.Base58Utils;
 import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
-import org.bouncycastle.jce.interfaces.ECPrivateKey;
-import org.bouncycastle.jce.interfaces.ECPublicKey;
 import org.junit.Test;
 
 public class ECDSAKeyTest extends AbstractTestCase {
@@ -25,26 +23,9 @@ public class ECDSAKeyTest extends AbstractTestCase {
   protected static final String MESSAGE = "BhtkwAaxoHmjGCLp5GncvCR6AggBxRB4iRxTMGJbrVYz";
 
   @Test
-  public void testRecovery() throws Exception {
-    final ECDSAKey key = ECDSAKey.of(Base58Utils.decode(PRIVATE_KEY));
-
-    ECPublicKey ecPublicKey = (ECPublicKey) key.getPublicKey();
-    ECPrivateKey ecPrivateKey = (ECPrivateKey) key.getPrivateKey();
-
-    final BigInteger privatekeyD = new BigInteger(
-        "76860113961741997882252494935617441283670103007926986413066244023125861537337");
-    final BigInteger publickeyX = new BigInteger(
-        "66409208310611858137537694807619612971935110036796750011795675015908117552692");
-    final BigInteger publickeyY = new BigInteger(
-        "58246437216680112187807305214575249192860131748845949331271713739254817975376");
-    assertTrue(privatekeyD.equals(ecPrivateKey.getD()));
-    assertTrue(publickeyX.equals(ecPublicKey.getQ().getXCoord().toBigInteger()));
-    assertTrue(publickeyY.equals(ecPublicKey.getQ().getYCoord().toBigInteger()));
-  }
-
-  @Test
   public void testSign() throws Exception {
-    final ECDSAKey key = ECDSAKey.of(Base58Utils.decode(PRIVATE_KEY));
+    final ECDSAKey key =
+        new ECDSAKeyGenerator().create(new BigInteger(1, Base58Utils.decode(PRIVATE_KEY)));
     final byte[] message = Base58Utils.decode(MESSAGE);
     final ECDSASignature expected = new ECDSASignature(
         new BigInteger(
@@ -57,7 +38,8 @@ public class ECDSAKeyTest extends AbstractTestCase {
 
   @Test
   public void testVerify() throws Exception {
-    final ECDSAKey key = ECDSAKey.of(Base58Utils.decode(PRIVATE_KEY));
+    final ECDSAKey key =
+        new ECDSAKeyGenerator().create(new BigInteger(1, Base58Utils.decode(PRIVATE_KEY)));
     final byte[] message = Base58Utils.decode(MESSAGE);
     final ECDSASignature signature = new ECDSASignature(
         new BigInteger(
