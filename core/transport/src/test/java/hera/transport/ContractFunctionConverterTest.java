@@ -4,6 +4,7 @@
 
 package hera.transport;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 
 import hera.AbstractTestCase;
@@ -18,7 +19,7 @@ public class ContractFunctionConverterTest extends AbstractTestCase {
     final ModelConverter<ContractFunction, Blockchain.Function> converter =
         new ContractFunctionConverterFactory().create();
 
-    final ContractFunction domainContractFunction = new ContractFunction();
+    final ContractFunction domainContractFunction = new ContractFunction(randomUUID().toString());
     final Blockchain.Function rpcContractFunction =
         converter.convertToRpcModel(domainContractFunction);
     final ContractFunction actualContractFunction =

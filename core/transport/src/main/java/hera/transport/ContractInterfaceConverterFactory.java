@@ -4,11 +4,14 @@
 
 package hera.transport;
 
-import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.model.BytesValue;
+import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Blockchain;
@@ -23,25 +26,26 @@ public class ContractInterfaceConverterFactory {
   protected final Function<ContractInterface, Blockchain.ABI> domainConverter =
       domainContractInterface -> {
         logger.trace("Domain contract interface: {}", domainContractInterface);
+        final List<Blockchain.Function> rpcFunctions = new ArrayList<>();
+        for (final ContractFunction domainFunction : domainContractInterface.getFunctions()) {
+          rpcFunctions.add(contractFunctionConverter.convertToRpcModel(domainFunction));
+        }
         return Blockchain.ABI.newBuilder()
             .setVersion(domainContractInterface.getVersion())
             .setLanguage(domainContractInterface.getLanguage())
-            .addAllFunctions(domainContractInterface.getFunctions().stream()
-                .map(contractFunctionConverter::convertToRpcModel)
-                .collect(toList()))
+            .addAllFunctions(rpcFunctions)
             .build();
       };
 
   protected final Function<Blockchain.ABI, ContractInterface> rpcConverter =
       rpcContractInterface -> {
         logger.trace("Rpc contract interface: {}", rpcContractInterface);
-        final ContractInterface domainContractInterface = new ContractInterface();
-        domainContractInterface.setVersion(rpcContractInterface.getVersion());
-        domainContractInterface.setLanguage(rpcContractInterface.getLanguage());
-        domainContractInterface.setFunctions(rpcContractInterface.getFunctionsList().stream()
-            .map(contractFunctionConverter::convertToDomainModel)
-            .collect(toList()));
-        return domainContractInterface;
+        final List<ContractFunction> domainFunctions = new ArrayList<>();
+        for (final Blockchain.Function rpcFunction : rpcContractInterface.getFunctionsList()) {
+          domainFunctions.add(contractFunctionConverter.convertToDomainModel(rpcFunction));
+        }
+        return new ContractInterface(new ContractAddress(BytesValue.EMPTY),
+            rpcContractInterface.getVersion(), rpcContractInterface.getLanguage(), domainFunctions);
       };
 
   public ModelConverter<ContractInterface, Blockchain.ABI> create() {

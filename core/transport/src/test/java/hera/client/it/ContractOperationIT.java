@@ -42,7 +42,7 @@ public class ContractOperationIT extends AbstractIT {
 
   protected ContractTxHash define(final Account account, final Fee fee, final Object... args) {
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .contractInPayload(() -> contractPayload).constructorArgs(args).build();
+        .encodedContract(contractPayload).constructorArgs(args).build();
     logger.info("Deploy definition: {}", definition);
     return aergoClient.getContractOperation().deploy(account, definition, fee);
   }
@@ -63,7 +63,7 @@ public class ContractOperationIT extends AbstractIT {
   protected ContractTxHash execute(final Account account, final Fee fee,
       final ContractInterface contractInterface, final String function, final Object... args) {
     final ContractInvocation execution =
-        contractInterface.newInvocationBuilder().function(function).args(args).build();
+        contractInterface.newInvocation().function(function).args(args).build();
     logger.info("Contract invocation: {}", execution);
     return aergoClient.getContractOperation().execute(account, execution, Fee.of(valueOf(0L), 0L));
   }
@@ -71,7 +71,7 @@ public class ContractOperationIT extends AbstractIT {
   protected ContractResult query(final ContractInterface contractInterface, final String function,
       final Object... args) {
     final ContractInvocation query =
-        contractInterface.newInvocationBuilder().function(function).args(args).build();
+        contractInterface.newInvocation().function(function).args(args).build();
     logger.info("Query invocation : {}", query);
     return aergoClient.getContractOperation().query(query);
   }

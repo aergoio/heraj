@@ -18,7 +18,6 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 import hera.AbstractTestCase;
 import hera.ContextProvider;
-import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
@@ -91,8 +90,8 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     final ContractAsyncTemplate contractAsyncTemplate = supplyContractAsyncTemplate(base);
 
     final Account account = mock(Account.class);
-    Base58WithCheckSum encoded =
-        () -> Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
+    String encoded =
+        Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
     final ResultOrErrorFuture<ContractTxHash> deployTxHash =
         contractAsyncTemplate.deploy(account, ContractDefinition.of(encoded), fee);
     assertTrue(deployTxHash.get().hasResult());
@@ -103,8 +102,9 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
   @Test
   public void testGetContractInterface() {
     final ContractBaseTemplate base = mock(ContractBaseTemplate.class);
+    final ContractInterface mockContractInterface = mock(ContractInterface.class);
     ResultOrErrorFuture<ContractInterface> future =
-        ResultOrErrorFutureFactory.supply(() -> new ContractInterface());
+        ResultOrErrorFutureFactory.supply(() -> mockContractInterface);
     when(base.getContractInterfaceFunction()).thenReturn((a) -> future);
 
     final ContractAsyncTemplate contractAsyncTemplate = supplyContractAsyncTemplate(base);
@@ -127,8 +127,9 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     final ContractAsyncTemplate contractAsyncTemplate = supplyContractAsyncTemplate(base);
 
     final Account account = mock(Account.class);
+    final ContractFunction contractFunction = new ContractFunction(randomUUID().toString());
     final ResultOrErrorFuture<ContractTxHash> executionTxHash = contractAsyncTemplate
-        .execute(account, new ContractInvocation(contractAddress, new ContractFunction()), fee);
+        .execute(account, new ContractInvocation(contractAddress, contractFunction), fee);
     assertTrue(executionTxHash.get().hasResult());
     assertEquals(CONTRACT_EXECUTE_ASYNC,
         ((WithIdentity) contractAsyncTemplate.getExecuteFunction()).getIdentity());
@@ -144,8 +145,9 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
 
     final ContractAsyncTemplate contractAsyncTemplate = supplyContractAsyncTemplate(base);
 
+    final ContractFunction contractFunction = new ContractFunction(randomUUID().toString());
     final ResultOrErrorFuture<ContractResult> contractResult = contractAsyncTemplate
-        .query(new ContractInvocation(contractAddress, new ContractFunction()));
+        .query(new ContractInvocation(contractAddress, contractFunction));
 
     assertTrue(contractResult.get().hasResult());
     assertEquals(CONTRACT_QUERY_ASYNC,

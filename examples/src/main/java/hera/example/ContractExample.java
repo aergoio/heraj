@@ -13,7 +13,6 @@ import hera.api.model.Authentication;
 import hera.api.model.ClientManagedAccount;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
-import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
@@ -55,14 +54,16 @@ public class ContractExample extends AbstractExample {
 
     // read contract in a payload form
     final InputStream inputStream = getClass().getResourceAsStream("/payload");
-    String contractPayload;
+    String encodedContract;
     try (Scanner scanner = new Scanner(inputStream, "UTF-8")) {
-      contractPayload = scanner.useDelimiter("\\A").next();
+      encodedContract = scanner.useDelimiter("\\A").next();
     }
 
     // define contract definition
-    final ContractDefinition definition =
-        new ContractDefinition(() -> contractPayload, "initKey", 30, "init");
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(encodedContract)
+        .constructorArgs("initKey", 30, "init")
+        .build();
     System.out.println("Contract definition: " + definition);
 
     // deploy contract definition
@@ -106,14 +107,16 @@ public class ContractExample extends AbstractExample {
 
     // read contract in a payload form
     final InputStream inputStream = getClass().getResourceAsStream("/payload");
-    String contractPayload;
+    String encodedContract;
     try (Scanner scanner = new Scanner(inputStream, "UTF-8")) {
-      contractPayload = scanner.useDelimiter("\\A").next();
+      encodedContract = scanner.useDelimiter("\\A").next();
     }
 
     // define contract definition
-    final ContractDefinition definition =
-        new ContractDefinition(() -> contractPayload, "initKey", 30, "init");
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(encodedContract)
+        .constructorArgs("initKey", 30, "init")
+        .build();
     System.out.println("Contract definition: " + definition);
 
     // deploy contract definition
@@ -157,9 +160,8 @@ public class ContractExample extends AbstractExample {
     account.bindState(state);
 
     // define contract execution
-    final ContractFunction executionFunction = contractInterface.findFunction("set").get();
-    final ContractInvocation execution = ContractInvocation
-        .of(contractInterface.getContractAddress(), executionFunction, "key", 70, "execute");
+    final ContractInvocation execution = contractInterface.newInvocation()
+        .function("set").args("key", 70, "execute").build();
     System.out.println("Contract invocation: " + execution);
 
     // execute the invocation
@@ -195,9 +197,8 @@ public class ContractExample extends AbstractExample {
     aergoClient.getKeyStoreOperation().unlock(Authentication.of(account.getAddress(), "password"));
 
     // define contract execution
-    final ContractFunction executionFunction = contractInterface.findFunction("set").get();
-    final ContractInvocation execution = ContractInvocation
-        .of(contractInterface.getContractAddress(), executionFunction, "key", 70, "execute");
+    final ContractInvocation execution = contractInterface.newInvocation()
+        .function("set").args("key", 70, "execute").build();
     System.out.println("Contract invocation: " + execution);
 
     // execute the invocation
@@ -227,9 +228,8 @@ public class ContractExample extends AbstractExample {
         .build();
 
     // build query invocation
-    final ContractFunction queryFunction = contractInterface.findFunction("get").get();
-    final ContractInvocation query =
-        ContractInvocation.of(contractInterface.getContractAddress(), queryFunction, "initKey");
+    final ContractInvocation query = contractInterface.newInvocation()
+        .function("get").args("initKey").build();
     System.out.println("Query invocation : " + query);
 
     // request query invocation
@@ -255,9 +255,8 @@ public class ContractExample extends AbstractExample {
         .build();
 
     // build query invocation
-    final ContractFunction queryFunction = contractInterface.findFunction("get").get();
-    final ContractInvocation query =
-        ContractInvocation.of(contractInterface.getContractAddress(), queryFunction, "key");
+    final ContractInvocation query = contractInterface.newInvocation()
+        .function("get").args("key").build();
     System.out.println("Query invocation : " + query);
 
     // request query invocation

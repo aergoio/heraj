@@ -4,14 +4,15 @@
 
 package hera.api.model;
 
-import hera.api.model.ContractInvocation.ContractInvocationWithInterface;
-import hera.util.StringUtils;
-import java.util.ArrayList;
+import static hera.util.ValidationUtils.assertNotNull;
+import static java.util.Collections.unmodifiableList;
+
+import hera.exception.HerajException;
 import java.util.List;
-import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @ToString
@@ -19,31 +20,98 @@ import lombok.ToString;
 public class ContractInterface {
 
   @Getter
-  @Setter
-  protected ContractAddress contractAddress;
+  protected final ContractAddress address;
 
   @Getter
-  @Setter
-  protected String version = StringUtils.EMPTY_STRING;
+  protected final String version;
 
   @Getter
-  @Setter
-  protected String language = StringUtils.EMPTY_STRING;
+  protected final String language;
 
   @Getter
-  @Setter
-  protected List<ContractFunction> functions = new ArrayList<ContractFunction>();
+  protected final List<ContractFunction> functions;
 
-  public void addFunction(final ContractFunction function) {
-    this.functions.add(function);
+  /**
+   * ContractInterface constructor.
+   * 
+   * @param contractAddress a contract address
+   * @param version a contract version
+   * @param language a contract language
+   * @param functions a contract functions to invoke
+   */
+  public ContractInterface(final ContractAddress contractAddress, final String version,
+      final String language, final List<ContractFunction> functions) {
+    assertNotNull(contractAddress, new HerajException("Contract address must not null"));
+    assertNotNull(version, new HerajException("Version must not null"));
+    assertNotNull(language, new HerajException("Language must not null"));
+    assertNotNull(functions, new HerajException("Functions must not null"));
+    // TODO : contractAddress is mutable
+    this.address = contractAddress;
+    this.version = version;
+    this.language = language;
+    this.functions = unmodifiableList(functions);
   }
 
-  public Optional<ContractFunction> findFunction(final String functionName) {
-    return getFunctions().stream().filter(n -> functionName.equals(n.getName())).findFirst();
+  /**
+   * Find a contract function with the given function name.
+   *
+   * @param functionName function name to find
+   * @return {@code ContractFunction} if found. Otherwise, null
+   */
+  public ContractFunction findFunction(final String functionName) {
+    ContractFunction foundFunction = null;
+    for (final ContractFunction contractFunction : functions) {
+      if (contractFunction.getName().equals(functionName)) {
+        foundFunction = contractFunction;
+        break;
+      }
+    }
+    return foundFunction;
   }
 
-  public ContractInvocationWithInterface newInvocationBuilder() {
-    return new ContractInvocation.Builder().contractInterface(this);
+  public ContractInvocationWithNothing newInvocation() {
+    return new ContractInterface.InvocationBuilder(this);
+  }
+
+  public interface ContractInvocationWithNothing {
+    ContractInvocationWithFunction function(String functionName);
+  }
+
+  public interface ContractInvocationWithFunction extends hera.util.Builder<ContractInvocation> {
+    ContractInvocationWithFunctionAndArgs args(Object... args);
+  }
+
+  public interface ContractInvocationWithFunctionAndArgs
+      extends hera.util.Builder<ContractInvocation> {
+  }
+
+  @RequiredArgsConstructor
+  protected static class InvocationBuilder implements ContractInvocationWithNothing,
+      ContractInvocationWithFunction, ContractInvocationWithFunctionAndArgs {
+
+    @NonNull
+    protected final ContractInterface contractInterface;
+
+    protected ContractFunction function;
+
+    protected Object[] args;
+
+    @Override
+    public ContractInvocationWithFunction function(final String functionName) {
+      this.function = contractInterface.findFunction(functionName);
+      return this;
+    }
+
+    @Override
+    public ContractInvocationWithFunctionAndArgs args(final Object... args) {
+      this.args = args;
+      return this;
+    }
+
+    @Override
+    public hera.api.model.ContractInvocation build() {
+      return new ContractInvocation(contractInterface.getAddress(), function, args);
+    }
   }
 
 }

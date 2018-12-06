@@ -18,7 +18,6 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 import hera.AbstractTestCase;
 import hera.ContextProvider;
-import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
@@ -92,8 +91,7 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
     final ContractEitherTemplate contractEitherTemplate = supplyContractEitherTemplate(base);
 
     final Account account = mock(Account.class);
-    Base58WithCheckSum encoded =
-        () -> Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
+    String encoded = Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
     final ResultOrError<ContractTxHash> deployTxHash =
         contractEitherTemplate.deploy(account, ContractDefinition.of(encoded), fee);
     assertTrue(deployTxHash.hasResult());
@@ -104,8 +102,9 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
   @Test
   public void testGetContractInterface() {
     final ContractBaseTemplate base = mock(ContractBaseTemplate.class);
+    final ContractInterface mockContractInterface = mock(ContractInterface.class);
     ResultOrErrorFuture<ContractInterface> future =
-        ResultOrErrorFutureFactory.supply(() -> new ContractInterface());
+        ResultOrErrorFutureFactory.supply(() -> mockContractInterface);
     when(base.getContractInterfaceFunction()).thenReturn((a) -> future);
 
     final ContractEitherTemplate contractEitherTemplate = supplyContractEitherTemplate(base);
@@ -128,8 +127,9 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
     final ContractEitherTemplate contractEitherTemplate = supplyContractEitherTemplate(base);
 
     final Account account = mock(Account.class);
+    final ContractFunction contractFunction = new ContractFunction(randomUUID().toString());
     final ResultOrError<ContractTxHash> executionTxHash = contractEitherTemplate
-        .execute(account, new ContractInvocation(contractAddress, new ContractFunction()), fee);
+        .execute(account, new ContractInvocation(contractAddress, contractFunction), fee);
     assertTrue(executionTxHash.hasResult());
     assertEquals(CONTRACT_EXECUTE_EITHER,
         ((WithIdentity) contractEitherTemplate.getExecuteFunction()).getIdentity());
@@ -145,8 +145,9 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
 
     final ContractEitherTemplate contractEitherTemplate = supplyContractEitherTemplate(base);
 
+    final ContractFunction contractFunction = new ContractFunction(randomUUID().toString());
     final ResultOrError<ContractResult> contractResult = contractEitherTemplate
-        .query(new ContractInvocation(contractAddress, new ContractFunction()));
+        .query(new ContractInvocation(contractAddress, contractFunction));
 
     assertTrue(contractResult.hasResult());
     assertEquals(CONTRACT_QUERY_EITHER,

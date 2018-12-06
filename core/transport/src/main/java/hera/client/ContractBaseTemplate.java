@@ -43,14 +43,15 @@ import hera.transport.ContractInterfaceConverterFactory;
 import hera.transport.ContractResultConverterFactory;
 import hera.transport.ModelConverter;
 import hera.transport.ReceiptConverterFactory;
+import hera.util.Base58Utils;
 import hera.util.HexUtils;
 import hera.util.LittleEndianDataOutputStream;
 import hera.util.VersionUtils;
 import io.grpc.ManagedChannel;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 import lombok.Getter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -148,10 +149,10 @@ public class ContractBaseTemplate implements ChannelInjectable {
             aergoService.getABI(hashBytes);
         FutureChain<Blockchain.ABI, ContractInterface> callback = new FutureChain<>(nextFuture);
         callback.setSuccessHandler(abi -> of(() -> {
-          final ContractInterface contractInterface =
+          final ContractInterface withoutAddress =
               contractInterfaceConverter.convertToDomainModel(abi);
-          contractInterface.setContractAddress(contractAddress);
-          return contractInterface;
+          return new ContractInterface(contractAddress, withoutAddress.getVersion(),
+              withoutAddress.getLanguage(), withoutAddress.getFunctions());
         }));
         addCallback(listenableFuture, callback, directExecutor());
 
@@ -220,10 +221,9 @@ public class ContractBaseTemplate implements ChannelInjectable {
   protected BytesValue definitionToPayloadForm(final ContractDefinition contractDefinition)
       throws IOException {
     final byte[] rawPayloadWithVersion =
-        contractDefinition.getEncodedContract().decode().getValue();
+        Base58Utils.decodeWithCheck(contractDefinition.getEncodedContract());
     if (logger.isTraceEnabled()) {
-      logger.trace("Encoded contract deploy payload: {}",
-          contractDefinition.getEncodedContract().getEncodedValue());
+      logger.trace("Encoded contract deploy payload: {}", contractDefinition.getEncodedContract());
       logger.trace("Decoded contract deploy payload: {}", HexUtils.encode(rawPayloadWithVersion));
     }
     VersionUtils.validate(rawPayloadWithVersion, ContractDefinition.PAYLOAD_VERSION);
@@ -233,7 +233,7 @@ public class ContractBaseTemplate implements ChannelInjectable {
     final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(rawStream);
     dataOut.writeInt(rawPaylod.length + 4);
     dataOut.write(rawPaylod);
-    if (contractDefinition.getConstructorArgs().length > 0) {
+    if (!contractDefinition.getConstructorArgs().isEmpty()) {
       final ArrayNode constructorArgs = getArgsByJsonArray(contractDefinition.getConstructorArgs());
       logger.trace("Contract constructor args: {}", constructorArgs.toString());
       dataOut.write(constructorArgs.toString().getBytes());
@@ -262,25 +262,25 @@ public class ContractBaseTemplate implements ChannelInjectable {
     return node.toString();
   }
 
-  protected ArrayNode getArgsByJsonArray(final Object[] args) {
+  protected ArrayNode getArgsByJsonArray(final List<Object> args) {
     final ArrayNode argsNode = objectMapper.createArrayNode();
-    Stream.of(args).forEach(a -> {
-      if (a instanceof Integer) {
-        argsNode.add((Integer) a);
-      } else if (a instanceof Long) {
-        argsNode.add((Long) a);
-      } else if (a instanceof Float) {
-        argsNode.add((Float) a);
-      } else if (a instanceof Double) {
-        argsNode.add((Double) a);
-      } else if (a instanceof Boolean) {
-        argsNode.add((Boolean) a);
-      } else if (a instanceof String) {
-        argsNode.add(a.toString());
+    for (Object arg : args) {
+      if (arg instanceof Integer) {
+        argsNode.add((Integer) arg);
+      } else if (arg instanceof Long) {
+        argsNode.add((Long) arg);
+      } else if (arg instanceof Float) {
+        argsNode.add((Float) arg);
+      } else if (arg instanceof Double) {
+        argsNode.add((Double) arg);
+      } else if (arg instanceof Boolean) {
+        argsNode.add((Boolean) arg);
+      } else if (arg instanceof String) {
+        argsNode.add(arg.toString());
       } else {
         throw new IllegalArgumentException("Args type must be number or string");
       }
-    });
+    }
     return argsNode;
   }
 

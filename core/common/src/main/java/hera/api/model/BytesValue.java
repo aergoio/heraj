@@ -8,7 +8,6 @@ import hera.util.HexUtils;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.function.Supplier;
 import lombok.Getter;
 
@@ -32,7 +31,7 @@ public class BytesValue implements Supplier<InputStream> {
   protected final byte[] value;
 
   public BytesValue(final byte[] bytes) {
-    this.value = Optional.ofNullable(bytes).orElse(new byte[0]);
+    this.value = bytes != null ? Arrays.copyOf(bytes, bytes.length) : new byte[0];
   }
 
   public boolean isEmpty() {

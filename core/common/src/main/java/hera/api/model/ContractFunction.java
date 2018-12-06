@@ -4,32 +4,46 @@
 
 package hera.api.model;
 
-import hera.util.StringUtils;
+import static hera.util.ValidationUtils.assertNotNull;
+import static java.util.Collections.unmodifiableList;
+
+import hera.exception.HerajException;
 import java.util.Collections;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode
-@NoArgsConstructor
-@AllArgsConstructor
 public class ContractFunction {
 
   @Getter
-  @Setter
-  protected String name = StringUtils.EMPTY_STRING;
+  protected final String name;
 
   @Getter
-  @Setter
-  protected List<String> argumentNames = Collections.emptyList();
+  protected final List<String> argumentNames;
 
+  /**
+   * ContractFunction constructor.
+   *
+   * @param name a function name
+   */
   public ContractFunction(final String name) {
     this(name, Collections.emptyList());
+  }
+
+  /**
+   * ContractFunction constructor.
+   *
+   * @param name a function name
+   * @param argumentNames an argument names
+   */
+  public ContractFunction(final String name, final List<String> argumentNames) {
+    assertNotNull(name, new HerajException("Function name must not null"));
+    assertNotNull(argumentNames, new HerajException("Argument names must not null"));
+    this.name = name;
+    this.argumentNames = unmodifiableList(argumentNames);
   }
 
 }

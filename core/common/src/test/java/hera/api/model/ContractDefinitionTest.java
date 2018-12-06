@@ -17,11 +17,11 @@ public class ContractDefinitionTest {
   public void testBuilder() {
     final Object[] args = new Object[] {1, 2, 3};
 
-    final ContractDefinition expected = new ContractDefinition();
-    expected.setEncodedContract(() -> payload);
-    expected.setConstructorArgs(args);
+    final ContractDefinition expected = new ContractDefinition(payload, args);
     final ContractDefinition actual = ContractDefinition.newBuilder()
-        .contractInPayload(() -> payload).constructorArgs(args).build();
+        .encodedContract(payload)
+        .constructorArgs(args)
+        .build();
     assertEquals(expected, actual);
   }
 
