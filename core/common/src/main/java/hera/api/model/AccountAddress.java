@@ -4,12 +4,12 @@
 
 package hera.api.model;
 
-import hera.VersionUtils;
 import hera.api.encode.Base58WithCheckSum;
 import hera.exception.HerajException;
 import hera.exception.InvalidVersionException;
 import hera.util.Adaptor;
 import hera.util.Base58Utils;
+import hera.util.VersionUtils;
 import java.io.IOException;
 import java.util.Optional;
 import lombok.Getter;

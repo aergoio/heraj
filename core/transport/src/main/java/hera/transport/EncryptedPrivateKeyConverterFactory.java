@@ -9,10 +9,10 @@ import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
-import hera.VersionUtils;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
 import hera.util.HexUtils;
+import hera.util.VersionUtils;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Rpc;

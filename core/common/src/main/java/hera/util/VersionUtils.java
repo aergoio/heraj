@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera;
+package hera.util;
 
 import hera.api.model.BytesValue;
 import hera.exception.InvalidVersionException;

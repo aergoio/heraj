@@ -7,18 +7,19 @@ package hera.key;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import hera.VersionUtils;
 import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
 import hera.exception.HerajException;
 import hera.exception.UnableToGenerateKeyException;
+import hera.util.AddressUtils;
 import hera.util.CryptoUtils;
 import hera.util.HexUtils;
 import hera.util.NumberUtils;
 import hera.util.Pair;
 import hera.util.Sha256Utils;
+import hera.util.VersionUtils;
 import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSAKeyGenerator;
 import hera.util.pki.ECDSASignature;
@@ -38,9 +39,6 @@ public class AergoKey implements KeyPair {
   protected static final int HEADER_MAGIC = 0x30;
 
   protected static final int INT_MARKER = 0x02;
-
-  // [odd|even] of publickey.y + [optional 0x00] + publickey.x
-  protected static final int ADDRESS_LENGTH = 33;
 
   // minimum length of a DER encoded signature which both R and S are 1 byte each.
   // <header-magic> + <1-byte> + <int-marker> + 0x01 + <r.byte> + <int-marker> + 0x01 + <s.byte>
@@ -130,9 +128,7 @@ public class AergoKey implements KeyPair {
       final byte[] rawPrivateKey =
           decrypt(encryptedPrivateKey.getBytesValue().getValue(), password.getBytes(UTF_8));
       this.ecdsakey = new ECDSAKeyGenerator().create(new BigInteger(1, rawPrivateKey));
-      final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =
-          (org.bouncycastle.jce.interfaces.ECPublicKey) this.ecdsakey.getPublicKey();
-      this.address = buildAddress(ecPublicKey);
+      this.address = AddressUtils.deriveAddress(this.ecdsakey.getPublicKey());
     } catch (final Exception e) {
       throw new UnableToGenerateKeyException(e);
     }
@@ -145,21 +141,7 @@ public class AergoKey implements KeyPair {
    */
   public AergoKey(final ECDSAKey ecdsakey) {
     this.ecdsakey = ecdsakey;
-    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =
-        (org.bouncycastle.jce.interfaces.ECPublicKey) this.ecdsakey.getPublicKey();
-    this.address = buildAddress(ecPublicKey);
-  }
-
-  protected AccountAddress buildAddress(
-      final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey) {
-    final byte[] rawAddress = new byte[ADDRESS_LENGTH];
-    rawAddress[0] = (byte) (ecPublicKey.getQ().getYCoord().toBigInteger().testBit(0) ? 0x03 : 0x02);
-    final byte[] xbyteArray =
-        NumberUtils.postiveToByteArray(ecPublicKey.getQ().getXCoord().toBigInteger());
-    System.arraycopy(xbyteArray, 0, rawAddress, rawAddress.length - xbyteArray.length,
-        xbyteArray.length);
-    return AccountAddress
-        .of(BytesValue.of(VersionUtils.envelop(rawAddress, AccountAddress.VERSION)));
+    this.address = AddressUtils.deriveAddress(this.ecdsakey.getPublicKey());
   }
 
   @Override

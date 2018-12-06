@@ -9,8 +9,8 @@ import static hera.util.NumberUtils.postiveToByteArray;
 import static hera.util.Sha256Utils.digest;
 import static java.util.Optional.ofNullable;
 
-import hera.VersionUtils;
 import hera.util.LittleEndianDataOutputStream;
+import hera.util.VersionUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
