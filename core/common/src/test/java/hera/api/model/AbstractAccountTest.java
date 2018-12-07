@@ -18,9 +18,8 @@ public class AbstractAccountTest {
     final BigInteger balance = BigInteger.valueOf(7L);
 
     final AbstractAccount account = spy(AbstractAccount.class);
-    final AccountState state = new AccountState();
-    state.setNonce(nonce);
-    state.setBalance(balance);
+    final AccountState state =
+        new AccountState(AccountAddress.of(BytesValue.EMPTY), nonce, balance);
 
     account.bindState(state);
     assertEquals(nonce, account.getNonce());

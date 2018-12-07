@@ -4,10 +4,11 @@
 
 package hera.api.model;
 
+import static hera.util.ValidationUtils.assertNotNull;
+
 import java.net.InetAddress;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
 @ToString
@@ -15,23 +16,41 @@ import lombok.ToString;
 public class Peer {
 
   @Getter
-  @Setter
   protected InetAddress address;
 
   @Getter
-  @Setter
   protected int port;
 
   @Getter
-  @Setter
   protected String peerId;
 
   @Getter
-  @Setter
-  protected BlockchainStatus blockchainStatus = new BlockchainStatus();
+  protected BlockchainStatus blockchainStatus;
 
   // TODO : clarify a state
   @Getter
-  @Setter
   protected int state;
+
+  /**
+   * Peer constructor.
+   *
+   * @param address a peer address
+   * @param port a peer port
+   * @param peerId a peer id
+   * @param blockchainStatus a blockchain status of peer
+   * @param state a peer state
+   */
+  public Peer(final InetAddress address, final int port, final String peerId,
+      final BlockchainStatus blockchainStatus,
+      final int state) {
+    assertNotNull(address, "Peer address must not null");
+    assertNotNull(peerId, "Peer id must not null");
+    assertNotNull(blockchainStatus, "Peer blockchain status must not null");
+    this.address = address;
+    this.port = port;
+    this.peerId = peerId;
+    this.blockchainStatus = blockchainStatus;
+    this.state = state;
+  }
+
 }

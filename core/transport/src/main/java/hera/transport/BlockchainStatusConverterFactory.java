@@ -29,11 +29,9 @@ public class BlockchainStatusConverterFactory {
   protected final Function<Rpc.BlockchainStatus, BlockchainStatus> rpcConverter =
       rpcBlockchainStatus -> {
         logger.trace("Rpc blockchain status: {}", rpcBlockchainStatus);
-        final BlockchainStatus domainBlockchainStatus = new BlockchainStatus();
-        domainBlockchainStatus.setBestHeight(rpcBlockchainStatus.getBestHeight());
-        domainBlockchainStatus.setBestBlockHash(
+        return new BlockchainStatus(
+            rpcBlockchainStatus.getBestHeight(),
             new BlockHash(BytesValue.of(rpcBlockchainStatus.getBestBlockHash().toByteArray())));
-        return domainBlockchainStatus;
       };
 
   public ModelConverter<BlockchainStatus, Rpc.BlockchainStatus> create() {

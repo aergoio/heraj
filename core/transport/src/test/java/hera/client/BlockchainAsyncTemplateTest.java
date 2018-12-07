@@ -14,7 +14,9 @@ import static org.mockito.Mockito.when;
 
 import hera.AbstractTestCase;
 import hera.ContextProvider;
+import hera.api.model.BlockHash;
 import hera.api.model.BlockchainStatus;
+import hera.api.model.BytesValue;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -44,8 +46,8 @@ public class BlockchainAsyncTemplateTest extends AbstractTestCase {
   @Test
   public void testGetBlockchainStatus() {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
-    ResultOrErrorFuture<BlockchainStatus> future =
-        ResultOrErrorFutureFactory.supply(() -> new BlockchainStatus());
+    ResultOrErrorFuture<BlockchainStatus> future = ResultOrErrorFutureFactory
+        .supply(() -> new BlockchainStatus(10L, BlockHash.of(BytesValue.EMPTY)));
     when(base.getBlockchainStatusFunction()).thenReturn(() -> future);
 
     final BlockchainAsyncTemplate blockchainAsyncTemplate =
@@ -78,7 +80,7 @@ public class BlockchainAsyncTemplateTest extends AbstractTestCase {
   public void testGetNodeStatus() {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
     ResultOrErrorFuture<NodeStatus> future =
-        ResultOrErrorFutureFactory.supply(() -> new NodeStatus());
+        ResultOrErrorFutureFactory.supply(() -> new NodeStatus(new ArrayList<>()));
     when(base.getNodeStatusFunction()).thenReturn(() -> future);
 
     final BlockchainAsyncTemplate blockchainAsyncTemplate =

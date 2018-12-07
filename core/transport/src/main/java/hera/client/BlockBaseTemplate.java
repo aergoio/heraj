@@ -76,7 +76,7 @@ public class BlockBaseTemplate implements ChannelInjectable {
     final ResultOrErrorFuture<Block> nextFuture =
         ResultOrErrorFutureFactory.supplyEmptyFuture();
     try {
-      assertArgument(height > 0, "Height", "postive");
+      assertArgument(height >= 0, "Height", ">= 0");
 
       final ByteString byteString = copyFrom(BytesValue.of(longToByteArray(height)));
       final Rpc.SingleBytes bytes = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
@@ -127,7 +127,7 @@ public class BlockBaseTemplate implements ChannelInjectable {
         final ResultOrErrorFuture<List<BlockHeader>> nextFuture =
             ResultOrErrorFutureFactory.supplyEmptyFuture();
         try {
-          assertArgument(height > 0, "Height", "postive");
+          assertArgument(height >= 0, "Height", ">= 0");
           assertArgument(size > 0, "Block list size", "postive");
 
           final Rpc.ListParams listParams =

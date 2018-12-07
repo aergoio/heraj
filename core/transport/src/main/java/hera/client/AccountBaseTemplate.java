@@ -77,9 +77,8 @@ public class AccountBaseTemplate implements ChannelInjectable {
         ListenableFuture<Blockchain.State> listenableFuture = aergoService.getState(bytes);
         FutureChain<Blockchain.State, AccountState> callback = new FutureChain<>(nextFuture);
         callback.setSuccessHandler(state -> of(() -> {
-          AccountState accountState = accountStateConverter.convertToDomainModel(state);
-          accountState.setAddress(address);
-          return accountState;
+          final AccountState withoutAddress = accountStateConverter.convertToDomainModel(state);
+          return new AccountState(address, withoutAddress.getNonce(), withoutAddress.getBalance());
         }));
         addCallback(listenableFuture, callback, directExecutor());
 

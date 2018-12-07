@@ -51,20 +51,14 @@ public class PeerConverterFactory {
   protected final Function<Rpc.Peer, Peer> rpcConverter = rpcPeer -> {
     logger.trace("Rpc peer: {}", rpcPeer);
     try {
-      final Peer domainStatus = new Peer();
-      domainStatus
-          .setAddress(Inet6Address.getByAddress(rpcPeer.getAddress().getAddress().toByteArray()));
-      domainStatus.setPort(rpcPeer.getAddress().getPort());
-      domainStatus.setPeerId(Base58Utils.encode(rpcPeer.getAddress().getPeerID().toByteArray()));
-
-      final BlockchainStatus blockchainStatus = new BlockchainStatus();
-      blockchainStatus.setBestBlockHash(
+      final BlockchainStatus blockchainStatus = new BlockchainStatus(
+          rpcPeer.getBestblock().getBlockNo(),
           new BlockHash(BytesValue.of(rpcPeer.getBestblock().getBlockHash().toByteArray())));
-      blockchainStatus.setBestHeight(rpcPeer.getBestblock().getBlockNo());
-      domainStatus.setBlockchainStatus(blockchainStatus);
-
-      domainStatus.setState(rpcPeer.getState());
-      return domainStatus;
+      return new Peer(Inet6Address.getByAddress(rpcPeer.getAddress().getAddress().toByteArray()),
+          rpcPeer.getAddress().getPort(),
+          Base58Utils.encode(rpcPeer.getAddress().getPeerID().toByteArray()),
+          blockchainStatus,
+          rpcPeer.getState());
     } catch (UnknownHostException e) {
       throw new RpcException("Invalid peer host name", e);
     }

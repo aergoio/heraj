@@ -18,7 +18,7 @@ public class AccountStateConverterTest extends AbstractTestCase {
     final ModelConverter<AccountState, Blockchain.State> converter =
         new AccountStateConverterFactory().create();
 
-    final Blockchain.State rpcAccountState = Blockchain.State.newBuilder().build();
+    final Blockchain.State rpcAccountState = Blockchain.State.newBuilder().setNonce(1L).build();
     final AccountState domainAccountState = converter.convertToDomainModel(rpcAccountState);
     assertNotNull(domainAccountState);
   }

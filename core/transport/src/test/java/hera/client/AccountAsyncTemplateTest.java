@@ -54,7 +54,7 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
   @Test
   public void testGetState() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
-    final AccountState mockState = new AccountState();
+    final AccountState mockState = mock(AccountState.class);
     final ResultOrErrorFuture<AccountState> future =
         ResultOrErrorFutureFactory.supply(() -> mockState);
     when(base.getStateFunction()).thenReturn((a) -> future);

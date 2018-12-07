@@ -4,11 +4,11 @@
 
 package hera.api.model;
 
-import java.util.Collections;
+import static java.util.Collections.unmodifiableMap;
+
 import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
 @ToString
@@ -16,31 +16,48 @@ import lombok.ToString;
 public class ModuleStatus {
 
   @Getter
-  @Setter
-  protected String moduleName;
+  protected final String moduleName;
 
   @Getter
-  @Setter
-  protected String status;
+  protected final String status;
 
   @Getter
-  @Setter
-  protected long processedMessageCount;
+  protected final long processedMessageCount;
 
   @Getter
-  @Setter
-  protected long queuedMessageCount;
+  protected final long queuedMessageCount;
 
   @Getter
-  @Setter
-  protected Time latency;
+  protected final Time latency;
 
   @Getter
-  @Setter
-  protected String error;
+  protected final String error;
 
   @Getter
-  @Setter
-  protected Map<String, Object> actor = Collections.emptyMap();
+  protected final Map<String, Object> actor;
+
+  /**
+   * ModuleStatus constructor.
+   *
+   * @param moduleName a module name
+   * @param status a module status
+   * @param processedMessageCount a processed message count
+   * @param queuedMessageCount a queued message count
+   * @param latency a latency
+   * @param error a kind of error
+   * @param actor an actor status
+   */
+  public ModuleStatus(final String moduleName, final String status,
+      final long processedMessageCount,
+      final long queuedMessageCount, final Time latency, final String error,
+      final Map<String, Object> actor) {
+    this.moduleName = moduleName;
+    this.status = status;
+    this.processedMessageCount = processedMessageCount;
+    this.queuedMessageCount = queuedMessageCount;
+    this.latency = latency;
+    this.error = error;
+    this.actor = actor != null ? unmodifiableMap(actor) : null;
+  }
 
 }
