@@ -8,7 +8,6 @@ import static java.math.BigInteger.valueOf;
 
 import hera.api.model.Account;
 import hera.api.model.ClientManagedAccount;
-import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.key.AergoKeyGenerator;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -40,14 +39,12 @@ public class SignLocalBenchmark {
       sender = ClientManagedAccount.of(generator.create());
       receipt = ClientManagedAccount.of(generator.create());
 
-      signed = new Transaction();
-      signed.setNonce(sender.nextNonce());
-      signed.setAmount(valueOf(30));
-      signed.setSender(sender);
-      signed.setRecipient(receipt);
-      client.getAccountOperation().sign(sender, signed);
-      final Signature signature = client.getAccountOperation().sign(sender, signed);
-      signed.setSignature(signature);
+      final Transaction rawTransaction = new Transaction();
+      rawTransaction.setNonce(sender.nextNonce());
+      rawTransaction.setAmount(valueOf(30));
+      rawTransaction.setSender(sender);
+      rawTransaction.setRecipient(receipt);
+      signed = client.getAccountOperation().sign(sender, rawTransaction);
     }
 
     public void sign() {
@@ -71,9 +68,8 @@ public class SignLocalBenchmark {
       transaction.setSender(sender);
       transaction.setRecipient(receipt);
 
-      final Signature signature = client.getAccountOperation().sign(sender, transaction);
-      transaction.setSignature(signature);
-      client.getAccountOperation().verify(sender, transaction);
+      final Transaction signedTransaction = client.getAccountOperation().sign(sender, transaction);
+      client.getAccountOperation().verify(sender, signedTransaction);
     }
 
     @TearDown(Level.Trial)

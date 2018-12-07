@@ -8,7 +8,6 @@ import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.api.tupleorerror.FunctionChain.of;
 import static hera.api.tupleorerror.FunctionChain.success;
-import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
@@ -23,12 +22,10 @@ import hera.api.model.BytesValue;
 import hera.api.model.KeyHoldable;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
-import hera.api.model.TxHash;
 import hera.api.tupleorerror.Function1;
 import hera.api.tupleorerror.Function2;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
-import hera.exception.RpcException;
 import hera.exception.TransactionVerificationException;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.AccountStateConverterFactory;
@@ -85,9 +82,9 @@ public class AccountBaseTemplate implements ChannelInjectable {
         return nextFuture;
       };
   @Getter
-  private final Function2<Account, Transaction, ResultOrErrorFuture<Signature>> signFunction =
+  private final Function2<Account, Transaction, ResultOrErrorFuture<Transaction>> signFunction =
       (account, transaction) -> {
-        ResultOrErrorFuture<Signature> nextFuture =
+        ResultOrErrorFuture<Transaction> nextFuture =
             ResultOrErrorFutureFactory.supplyEmptyFuture();
 
         if (account instanceof KeyHoldable) {
@@ -95,26 +92,16 @@ public class AccountBaseTemplate implements ChannelInjectable {
           Transaction copy = Transaction.copyOf(transaction);
           BytesValue signature =
               keyHoldable.sign(copy.calculateHash().getBytesValue().get());
-          copy.setSignature(Signature.of(signature, null));
-          nextFuture.complete(success(Signature.of(signature, copy.calculateHash())));
+          copy.setSignature(new Signature(signature));
+          copy.calculateHash();
+          nextFuture.complete(success(copy));
         } else {
           Blockchain.Tx rpcTransaction =
               transactionConverter.convertToRpcModel(transaction);
           ListenableFuture<Blockchain.Tx> listenableFuture =
               aergoService.signTX(rpcTransaction);
-          FutureChain<Blockchain.Tx, Signature> callback = new FutureChain<>(nextFuture);
-          callback.setSuccessHandler(tx -> of(() -> {
-            BytesValue sign =
-                ofNullable(tx.getBody().getSign()).map(ByteString::toByteArray)
-                    .filter(bytes -> 0 != bytes.length).map(BytesValue::of)
-                    .orElseThrow(() -> new RpcException(
-                        "Signing failed: sign field is not found at sign result"));
-            TxHash hash = ofNullable(tx.getHash()).map(ByteString::toByteArray)
-                .filter(bytes -> 0 != bytes.length).map(BytesValue::new).map(TxHash::new)
-                .orElseThrow(() -> new RpcException(
-                    "Signing failed: txHash field is not found at sign result"));
-            return Signature.of(sign, hash);
-          }));
+          FutureChain<Blockchain.Tx, Transaction> callback = new FutureChain<>(nextFuture);
+          callback.setSuccessHandler(tx -> of(() -> transactionConverter.convertToDomainModel(tx)));
           addCallback(listenableFuture, callback, directExecutor());
         }
 

@@ -9,7 +9,6 @@ import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
-import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.exception.AdaptException;
 
@@ -41,9 +40,9 @@ public interface AccountOperation {
    *
    * @param account account to sign
    * @param transaction transaction to sign
-   * @return signing result
+   * @return signed transaction
    */
-  Signature sign(Account account, Transaction transaction);
+  Transaction sign(Account account, Transaction transaction);
 
   /**
    * Verify transaction.

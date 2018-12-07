@@ -246,12 +246,11 @@ public class ContractBaseTemplate implements ChannelInjectable {
 
   protected ResultOrErrorFuture<ContractTxHash> signAndCommit(final Account account,
       final Transaction transaction) {
-    return accountBaseTemplate.getSignFunction().apply(account, transaction).flatMap(signature -> {
-      transaction.setSignature(signature);
-      return transactionBaseTemplate.getCommitFunction().apply(transaction)
-          .map(txHash -> txHash.adapt(ContractTxHash.class)
-              .orElseThrow(() -> new AdaptException(TxHash.class, ContractTxHash.class)));
-    });
+    return accountBaseTemplate.getSignFunction().apply(account, transaction)
+        .flatMap(signedTransaction -> transactionBaseTemplate.getCommitFunction()
+            .apply(signedTransaction)
+            .map(txHash -> txHash.adapt(ContractTxHash.class)
+                .orElseThrow(() -> new AdaptException(TxHash.class, ContractTxHash.class))));
   }
 
   protected String toFunctionCallJsonString(final ContractInvocation contractInvocation) {

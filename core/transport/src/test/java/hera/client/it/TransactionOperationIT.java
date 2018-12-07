@@ -27,15 +27,14 @@ public class TransactionOperationIT extends AbstractIT {
     waitForNextBlockToGenerate();
 
     final Transaction transaction = buildTransaction(account);
-    signTransaction(account, transaction);
+    final Transaction signed = signTransaction(account, transaction);
 
-    final TxHash txHash = aergoClient.getTransactionOperation().commit(transaction);
+    final TxHash txHash = aergoClient.getTransactionOperation().commit(signed);
     logger.info("TxHash: {}", txHash);
 
     final Transaction queried = aergoClient.getTransactionOperation().getTransaction(txHash);
     logger.info("Queired transaction: {}", queried);
 
-    assertEquals(transaction, queried);
     assertTrue(!queried.isConfirmed());
   }
 
@@ -47,9 +46,9 @@ public class TransactionOperationIT extends AbstractIT {
     waitForNextBlockToGenerate();
 
     final Transaction transaction = buildTransaction(account);
-    signTransaction(account, transaction);
+    final Transaction signed = signTransaction(account, transaction);
 
-    final TxHash txHash = aergoClient.getTransactionOperation().commit(transaction);
+    final TxHash txHash = aergoClient.getTransactionOperation().commit(signed);
     logger.info("TxHash: {}", txHash);
 
     waitForNextBlockToGenerate();
@@ -71,16 +70,15 @@ public class TransactionOperationIT extends AbstractIT {
     final Transaction transaction = buildTransaction(account);
 
     assertTrue(unlockAccount(account, password));
-    signTransaction(account, transaction);
+    final Transaction signed = signTransaction(account, transaction);
     assertTrue(lockAccount(account, password));
 
-    final TxHash txHash = aergoClient.getTransactionOperation().commit(transaction);
+    final TxHash txHash = aergoClient.getTransactionOperation().commit(signed);
     logger.info("TxHash: {}", txHash);
 
     final Transaction queried = aergoClient.getTransactionOperation().getTransaction(txHash);
     logger.info("Queired transaction: {}", queried);
 
-    assertEquals(transaction, queried);
     assertTrue(!queried.isConfirmed());
   }
 
@@ -94,10 +92,10 @@ public class TransactionOperationIT extends AbstractIT {
     final Transaction transaction = buildTransaction(account);
 
     assertTrue(unlockAccount(account, password));
-    signTransaction(account, transaction);
+    final Transaction signed = signTransaction(account, transaction);
     assertTrue(lockAccount(account, password));
 
-    final TxHash txHash = aergoClient.getTransactionOperation().commit(transaction);
+    final TxHash txHash = aergoClient.getTransactionOperation().commit(signed);
     logger.info("TxHash: {}", txHash);
 
     waitForNextBlockToGenerate();
@@ -140,10 +138,10 @@ public class TransactionOperationIT extends AbstractIT {
 
     final Transaction transaction = buildTransaction(account);
     transaction.setNonce(0L);
-    signTransaction(account, transaction);
+    final Transaction signed = signTransaction(account, transaction);
 
     try {
-      aergoClient.getTransactionOperation().commit(transaction);
+      aergoClient.getTransactionOperation().commit(signed);
       fail();
     } catch (CommitException e) {
       assertEquals(CommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());

@@ -27,7 +27,7 @@ import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Fee;
 import hera.api.model.ServerManagedAccount;
-import hera.api.model.Signature;
+import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
@@ -103,8 +103,9 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
 
     AccountBaseTemplate mockAccountBaseTemplate = mock(AccountBaseTemplate.class);
+    Transaction mockSignedTransaction = mock(Transaction.class);
     when(mockAccountBaseTemplate.getSignFunction())
-        .thenReturn((a, t) -> ResultOrErrorFutureFactory.supply(() -> new Signature()));
+        .thenReturn((a, t) -> ResultOrErrorFutureFactory.supply(() -> mockSignedTransaction));
     TransactionBaseTemplate mockTransactionBaseTemplate = mock(TransactionBaseTemplate.class);
     when(mockTransactionBaseTemplate.getCommitFunction()).thenReturn(t -> ResultOrErrorFutureFactory
         .supply(() -> new TxHash(BytesValue.of(randomUUID().toString().getBytes()))));
@@ -159,8 +160,9 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
 
     AccountBaseTemplate mockAccountBaseTemplate = mock(AccountBaseTemplate.class);
+    Transaction mockSignedTransaction = mock(Transaction.class);
     when(mockAccountBaseTemplate.getSignFunction())
-        .thenReturn((a, t) -> ResultOrErrorFutureFactory.supply(() -> new Signature()));
+        .thenReturn((a, t) -> ResultOrErrorFutureFactory.supply(() -> mockSignedTransaction));
     TransactionBaseTemplate mockTransactionBaseTemplate = mock(TransactionBaseTemplate.class);
     when(mockTransactionBaseTemplate.getCommitFunction()).thenReturn(t -> ResultOrErrorFutureFactory
         .supply(() -> new TxHash(BytesValue.of(randomUUID().toString().getBytes()))));

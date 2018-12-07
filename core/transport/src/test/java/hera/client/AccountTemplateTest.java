@@ -19,7 +19,6 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.EncryptedPrivateKey;
-import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
@@ -71,18 +70,17 @@ public class AccountTemplateTest extends AbstractTestCase {
   @Test
   public void testSign() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
-    final Signature mockSignature = new Signature();
-    final ResultOrErrorFuture<Signature> future =
-        ResultOrErrorFutureFactory.supply(() -> mockSignature);
+    final Transaction mockTransaction = mock(Transaction.class);
+    final ResultOrErrorFuture<Transaction> future =
+        ResultOrErrorFutureFactory.supply(() -> mockTransaction);
     when(base.getSignFunction()).thenReturn((a, t) -> future);
 
     final AccountTemplate accountTemplate = supplyAccountTemplate(base);
 
     final Account account = mock(Account.class);
     final Transaction transaction = mock(Transaction.class);
-    final Signature accountStateFuture =
-        accountTemplate.sign(account, transaction);
-    assertNotNull(accountStateFuture);
+    final Transaction signedTransaction = accountTemplate.sign(account, transaction);
+    assertNotNull(signedTransaction);
     assertEquals(ACCOUNT_SIGN, ((WithIdentity) accountTemplate.getSignFunction()).getIdentity());
   }
 
@@ -97,9 +95,9 @@ public class AccountTemplateTest extends AbstractTestCase {
 
     final Account account = mock(Account.class);
     final Transaction transaction = mock(Transaction.class);
-    final Boolean accountStateFuture =
+    final boolean verifyResult =
         accountTemplate.verify(account, transaction);
-    assertNotNull(accountStateFuture);
+    assertNotNull(verifyResult);
     assertEquals(ACCOUNT_VERIFY,
         ((WithIdentity) accountTemplate.getVerifyFunction()).getIdentity());
   }

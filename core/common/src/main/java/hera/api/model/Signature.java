@@ -4,54 +4,40 @@
 
 package hera.api.model;
 
-import static java.util.Optional.ofNullable;
+import static hera.util.ValidationUtils.assertNotNull;
 
+import hera.exception.HerajException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode
 public class Signature {
 
-  @Getter
-  @Setter
-  protected BytesValue sign;
-
-  @Getter
-  @Setter
-  protected TxHash txHash;
-
   /**
    * Create {@link Signature}.
    *
    * @param sign sign value
-   * @param hash hash value
    *
    * @return created signature
    */
-  public static Signature of(final BytesValue sign, final TxHash hash) {
-    final Signature signature = new Signature();
-    signature.setSign(sign);
-    signature.setTxHash(hash);
+  public static Signature of(final BytesValue sign) {
+    final Signature signature = new Signature(sign);
     return signature;
   }
 
+  @Getter
+  protected final BytesValue sign;
+
   /**
-   * Copy deep.
+   * Signature constructor.
    *
-   * @param source {@link Signature} to copy
-   *
-   * @return copied signature
+   * @param sign a sign value
    */
-  public static Signature copyOf(final Signature source) {
-    if (null == source) {
-      return null;
-    }
-    final Signature copy = new Signature();
-    ofNullable(source.getSign()).ifPresent(copy::setSign);
-    ofNullable(source.getTxHash()).ifPresent(copy::setTxHash);
-    return copy;
+  public Signature(final BytesValue sign) {
+    assertNotNull(sign, new HerajException("Sign value must not null"));
+    this.sign = sign;
   }
+
 }

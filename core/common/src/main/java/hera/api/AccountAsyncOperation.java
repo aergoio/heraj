@@ -9,7 +9,6 @@ import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
-import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
@@ -45,9 +44,9 @@ public interface AccountAsyncOperation {
    *
    * @param account account to sign
    * @param transaction transaction to sign
-   * @return future of signing result or error
+   * @return future of signed transaction or error
    */
-  ResultOrErrorFuture<Signature> sign(Account account, Transaction transaction);
+  ResultOrErrorFuture<Transaction> sign(Account account, Transaction transaction);
 
   /**
    * Verify transaction asynchronously.

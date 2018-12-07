@@ -7,7 +7,6 @@ package hera.api.model;
 import static hera.api.model.BytesValue.of;
 import static hera.util.NumberUtils.postiveToByteArray;
 import static hera.util.Sha256Utils.digest;
-import static java.util.Optional.ofNullable;
 
 import hera.util.LittleEndianDataOutputStream;
 import hera.util.VersionUtils;
@@ -60,7 +59,11 @@ public class Transaction {
 
   @Getter
   @Setter
-  protected Signature signature = Signature.of(BytesValue.EMPTY, new TxHash(BytesValue.EMPTY));
+  protected Signature signature = Signature.of(BytesValue.EMPTY);
+
+  @Getter
+  @Setter
+  protected TxHash hash = new TxHash(BytesValue.EMPTY);
 
   @Getter
   @Setter
@@ -68,9 +71,7 @@ public class Transaction {
 
   @RequiredArgsConstructor
   public enum TxType {
-    UNRECOGNIZED(-1),
-    NORMAL(0),
-    GOVERNANCE(1);
+    UNRECOGNIZED(-1), NORMAL(0), GOVERNANCE(1);
 
     @Getter
     private final int intValue;
@@ -113,7 +114,8 @@ public class Transaction {
     copy.setPayload(source.getPayload());
     copy.setFee(source.getFee());
     copy.setTxType(source.getTxType());
-    copy.setSignature(Signature.copyOf(source.getSignature()));
+    copy.setSignature(source.getSignature());
+    copy.setHash(source.getHash());
 
     return copy;
   }
@@ -135,16 +137,14 @@ public class Transaction {
       dataOut.writeLong(getFee().getLimit());
       dataOut.write(postiveToByteArray(getFee().getPrice()));
       dataOut.writeInt(getTxType().getIntValue());
-      ofNullable(signature).map(Signature::getSign).map(BytesValue::getValue).ifPresent(b -> {
-        try {
-          dataOut.write(b);
-        } catch (final IOException e) {
-          throw new IllegalStateException(e);
-        }
-      });
+      if (null != getSignature()) {
+        dataOut.write(getSignature().getSign().getValue());
+      }
       dataOut.flush();
       dataOut.close();
-      return new TxHash(of(digest(raw.toByteArray())));
+      final TxHash txHash = new TxHash(of(digest(raw.toByteArray())));
+      this.hash = txHash;
+      return txHash;
     } catch (final IOException e) {
       throw new IllegalStateException(e);
     }

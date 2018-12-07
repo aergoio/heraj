@@ -17,7 +17,6 @@ import hera.api.AccountEitherOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
-import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.Function1;
 import hera.api.tupleorerror.Function2;
@@ -53,7 +52,7 @@ public class AccountEitherTemplate
       getStrategyChain()
           .apply(identify(getAccountBaseTemplate().getStateFunction(), ACCOUNT_GETSTATE_EITHER));
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function2<Account, Transaction, ResultOrErrorFuture<Signature>> signFunction =
+  private final Function2<Account, Transaction, ResultOrErrorFuture<Transaction>> signFunction =
       getStrategyChain()
           .apply(identify(getAccountBaseTemplate().getSignFunction(), ACCOUNT_SIGN_EITHER));
 
@@ -68,7 +67,7 @@ public class AccountEitherTemplate
   }
 
   @Override
-  public ResultOrError<Signature> sign(final Account account, final Transaction transaction) {
+  public ResultOrError<Transaction> sign(final Account account, final Transaction transaction) {
     return getSignFunction().apply(account, transaction).get();
   }
 

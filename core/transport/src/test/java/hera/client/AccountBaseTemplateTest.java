@@ -76,7 +76,7 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
 
     final Account account = ClientManagedAccount.of(new AergoKeyGenerator().create());
     final Transaction transaction = new Transaction();
-    final ResultOrErrorFuture<Signature> accountStateFuture =
+    final ResultOrErrorFuture<Transaction> accountStateFuture =
         accountTemplateBase.getSignFunction().apply(account, transaction);
     assertTrue(accountStateFuture.get().hasResult());
   }
@@ -95,9 +95,9 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
 
     final Account account = mock(Account.class);
     final Transaction transaction = new Transaction();
-    final ResultOrErrorFuture<Signature> accountStateFuture =
+    final ResultOrErrorFuture<Transaction> signedTransactionStateFuture =
         accountTemplateBase.getSignFunction().apply(account, transaction);
-    assertTrue(accountStateFuture.get().hasResult());
+    assertTrue(signedTransactionStateFuture.get().hasResult());
   }
 
   @Test
@@ -109,11 +109,12 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     final Account account = ClientManagedAccount.of(key);
     final Transaction transaction = new Transaction();
     final BytesValue sign = key.sign(transaction.calculateHash().getBytesValue().get());
-    transaction.setSignature(Signature.of(sign, null));
+    transaction.setSignature(Signature.of(sign));
+    transaction.calculateHash();
 
-    final ResultOrErrorFuture<Boolean> accountStateFuture =
+    final ResultOrErrorFuture<Boolean> verifyResultFuture =
         accountTemplateBase.getVerifyFunction().apply(account, transaction);
-    assertTrue(accountStateFuture.get().hasResult());
+    assertTrue(verifyResultFuture.get().hasResult());
   }
 
   @Test
@@ -128,9 +129,9 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
 
     final Account account = mock(Account.class);
     final Transaction transaction = new Transaction();
-    final ResultOrErrorFuture<Boolean> accountStateFuture =
+    final ResultOrErrorFuture<Boolean> verifyResultFuture =
         accountTemplateBase.getVerifyFunction().apply(account, transaction);
-    assertTrue(accountStateFuture.get().hasResult());
+    assertTrue(verifyResultFuture.get().hasResult());
   }
 
 }

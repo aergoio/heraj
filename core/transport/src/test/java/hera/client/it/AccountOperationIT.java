@@ -48,10 +48,10 @@ public class AccountOperationIT extends AbstractIT {
     final Account account = createClientAccount();
 
     final Transaction transaction = buildTransaction(account);
-    signTransaction(account, transaction);
+    final Transaction signed = signTransaction(account, transaction);
 
-    assertNotNull(transaction.getSignature().getSign());
-    assertNotNull(transaction.getSignature().getTxHash());
+    assertNotNull(signed.getSignature());
+    assertNotNull(signed.getHash());
   }
 
   @Test
@@ -62,11 +62,11 @@ public class AccountOperationIT extends AbstractIT {
     final Transaction transaction = buildTransaction(account);
 
     unlockAccount(account, password);
-    signTransaction(account, transaction);
+    final Transaction signed = signTransaction(account, transaction);
     lockAccount(account, password);
 
-    assertNotNull(transaction.getSignature().getSign());
-    assertNotNull(transaction.getSignature().getTxHash());
+    assertNotNull(signed.getSignature());
+    assertNotNull(signed.getHash());
   }
 
   @Test

@@ -12,7 +12,6 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.ClientManagedAccount;
-import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
@@ -71,15 +70,14 @@ public abstract class AbstractIT {
   protected void rechargeCoin(final Account targetAccount, final long amount) {
     final AccountState richState = aergoClient.getAccountOperation().getState(rich);
 
-    final Transaction transaction = new Transaction();
-    transaction.setNonce(richState.getNonce() + 1);
-    transaction.setAmount(valueOf(amount));
-    transaction.setSender(rich);
-    transaction.setRecipient(targetAccount);
-    final Signature signature = aergoClient.getAccountOperation().sign(rich, transaction);
-    transaction.setSignature(signature);
-
-    aergoClient.getTransactionOperation().commit(transaction);
+    final Transaction rawTransaction = new Transaction();
+    rawTransaction.setNonce(richState.getNonce() + 1);
+    rawTransaction.setAmount(valueOf(amount));
+    rawTransaction.setSender(rich);
+    rawTransaction.setRecipient(targetAccount);
+    final Transaction signedTransaction =
+        aergoClient.getAccountOperation().sign(rich, rawTransaction);
+    aergoClient.getTransactionOperation().commit(signedTransaction);
   }
 
   protected Account createClientAccount() {
@@ -118,10 +116,11 @@ public abstract class AbstractIT {
         AccountAddress.of(() -> "AmLbHdVs4dNpRzyLirs8cKdV26rPJJxpVXG1w2LLZ9pKfqAHHdyg"));
   }
 
-  protected void signTransaction(final Account account, Transaction transaction) {
-    final Signature signature = aergoClient.getAccountOperation().sign(account, transaction);
-    transaction.setSignature(signature);
-    logger.info("Signed transaction: {}", transaction);
+  protected Transaction signTransaction(final Account account, Transaction transaction) {
+    final Transaction signedTransaction =
+        aergoClient.getAccountOperation().sign(account, transaction);
+    logger.info("Signed transaction: {}", signedTransaction);
+    return signedTransaction;
   }
 
   @After

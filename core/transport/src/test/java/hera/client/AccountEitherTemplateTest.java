@@ -19,7 +19,6 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.EncryptedPrivateKey;
-import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -72,18 +71,18 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
   @Test
   public void testSign() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
-    final Signature mockSignature = new Signature();
-    final ResultOrErrorFuture<Signature> future =
-        ResultOrErrorFutureFactory.supply(() -> mockSignature);
+    final Transaction mockTransaction = mock(Transaction.class);
+    final ResultOrErrorFuture<Transaction> future =
+        ResultOrErrorFutureFactory.supply(() -> mockTransaction);
     when(base.getSignFunction()).thenReturn((a, t) -> future);
 
     final AccountEitherTemplate accountEitherTemplate = supplyAccountEitherTemplate(base);
 
     final Account account = mock(Account.class);
     final Transaction transaction = mock(Transaction.class);
-    final ResultOrError<Signature> accountStateFuture =
+    final ResultOrError<Transaction> signedTransactionFuture =
         accountEitherTemplate.sign(account, transaction);
-    assertTrue(accountStateFuture.hasResult());
+    assertTrue(signedTransactionFuture.hasResult());
     assertEquals(ACCOUNT_SIGN_EITHER,
         ((WithIdentity) accountEitherTemplate.getSignFunction()).getIdentity());
   }
@@ -99,9 +98,9 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
 
     final Account account = mock(Account.class);
     final Transaction transaction = mock(Transaction.class);
-    final ResultOrError<Boolean> accountStateFuture =
+    final ResultOrError<Boolean> mockVerifyResultFuture =
         accountEitherTemplate.verify(account, transaction);
-    assertTrue(accountStateFuture.hasResult());
+    assertTrue(mockVerifyResultFuture.hasResult());
     assertEquals(ACCOUNT_VERIFY_EITHER,
         ((WithIdentity) accountEitherTemplate.getVerifyFunction()).getIdentity());
   }

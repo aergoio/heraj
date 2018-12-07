@@ -19,7 +19,6 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.EncryptedPrivateKey;
-import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
@@ -71,18 +70,18 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
   @Test
   public void testSign() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
-    final Signature mockSignature = new Signature();
-    final ResultOrErrorFuture<Signature> future =
-        ResultOrErrorFutureFactory.supply(() -> mockSignature);
+    final Transaction mockSignedTransaction = mock(Transaction.class);
+    final ResultOrErrorFuture<Transaction> future =
+        ResultOrErrorFutureFactory.supply(() -> mockSignedTransaction);
     when(base.getSignFunction()).thenReturn((a, t) -> future);
 
     final AccountAsyncTemplate accountAsyncTemplate = supplyAccountAsyncTemplate(base);
 
     final Account account = mock(Account.class);
     final Transaction transaction = mock(Transaction.class);
-    final ResultOrErrorFuture<Signature> accountStateFuture =
+    final ResultOrErrorFuture<Transaction> signedTransactionFuture =
         accountAsyncTemplate.sign(account, transaction);
-    assertTrue(accountStateFuture.get().hasResult());
+    assertTrue(signedTransactionFuture.get().hasResult());
     assertEquals(ACCOUNT_SIGN_ASYNC,
         ((WithIdentity) accountAsyncTemplate.getSignFunction()).getIdentity());
   }
@@ -98,9 +97,9 @@ public class AccountAsyncTemplateTest extends AbstractTestCase {
 
     final Account account = mock(Account.class);
     final Transaction transaction = mock(Transaction.class);
-    final ResultOrErrorFuture<Boolean> accountStateFuture =
+    final ResultOrErrorFuture<Boolean> verifyResultFuture =
         accountAsyncTemplate.verify(account, transaction);
-    assertTrue(accountStateFuture.get().hasResult());
+    assertTrue(verifyResultFuture.get().hasResult());
     assertEquals(ACCOUNT_VERIFY_ASYNC,
         ((WithIdentity) accountAsyncTemplate.getVerifyFunction()).getIdentity());
   }

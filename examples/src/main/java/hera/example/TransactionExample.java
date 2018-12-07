@@ -12,7 +12,6 @@ import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.ClientManagedAccount;
 import hera.api.model.ServerManagedAccount;
-import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.client.AergoClient;
@@ -36,17 +35,17 @@ public class TransactionExample extends AbstractExample {
     account.bindState(state);
 
     // make a transaction
-    final Transaction transaction = new Transaction();
-    transaction.setNonce(account.nextNonce());
-    transaction.setAmount(valueOf(10L));
-    transaction.setSender(account);
-    transaction.setRecipient(
+    final Transaction rawTransaction = new Transaction();
+    rawTransaction.setNonce(account.nextNonce());
+    rawTransaction.setAmount(valueOf(10L));
+    rawTransaction.setSender(account);
+    rawTransaction.setRecipient(
         AccountAddress.of(() -> "AmLbHdVs4dNpRzyLirs8cKdV26rPJJxpVXG1w2LLZ9pKfqAHHdyg"));
-    final Signature signature = aergoClient.getAccountOperation().sign(account, transaction);
-    transaction.setSignature(signature);
+    final Transaction signedTransaction =
+        aergoClient.getAccountOperation().sign(account, rawTransaction);
 
     // commit request
-    final TxHash txHash = aergoClient.getTransactionOperation().commit(transaction);
+    final TxHash txHash = aergoClient.getTransactionOperation().commit(signedTransaction);
     System.out.println("TxHash: " + txHash);
 
     // query tx with hash
@@ -75,17 +74,17 @@ public class TransactionExample extends AbstractExample {
     aergoClient.getKeyStoreOperation().unlock(Authentication.of(account.getAddress(), password));
 
     // make a transaction
-    final Transaction transaction = new Transaction();
-    transaction.setNonce(account.nextNonce());
-    transaction.setAmount(valueOf(10L));
-    transaction.setSender(account);
-    transaction.setRecipient(
+    final Transaction rawTransaction = new Transaction();
+    rawTransaction.setNonce(account.nextNonce());
+    rawTransaction.setAmount(valueOf(10L));
+    rawTransaction.setSender(account);
+    rawTransaction.setRecipient(
         AccountAddress.of(() -> "AmLbHdVs4dNpRzyLirs8cKdV26rPJJxpVXG1w2LLZ9pKfqAHHdyg"));
-    final Signature signature = aergoClient.getAccountOperation().sign(account, transaction);
-    transaction.setSignature(signature);
+    final Transaction signedTransaction =
+        aergoClient.getAccountOperation().sign(account, rawTransaction);
 
     // commit request
-    final TxHash txHash = aergoClient.getTransactionOperation().commit(transaction);
+    final TxHash txHash = aergoClient.getTransactionOperation().commit(signedTransaction);
     System.out.println("TxHash: " + txHash);
 
     // query tx with hash

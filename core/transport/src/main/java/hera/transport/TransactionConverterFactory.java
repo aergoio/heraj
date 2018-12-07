@@ -4,10 +4,10 @@
 
 package hera.transport;
 
+import static hera.api.model.BytesValue.of;
 import static hera.util.NumberUtils.byteArrayToPostive;
 import static hera.util.NumberUtils.postiveToByteArray;
 import static hera.util.TransportUtils.copyFrom;
-import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
@@ -72,13 +72,11 @@ public class TransactionConverterFactory {
     if (Transaction.TxType.UNRECOGNIZED != domainTransaction.getTxType()) {
       txBodyBuilder.setType(txTypeDomainConverter.apply(domainTransaction.getTxType()));
     }
+    txBodyBuilder.setSign(copyFrom(domainTransaction.getSignature().getSign()));
 
     final Tx.Builder txBuilder = Tx.newBuilder();
-    ofNullable(domainTransaction.getSignature()).ifPresent(signature -> {
-      txBodyBuilder.setSign(copyFrom(signature.getSign()));
-      txBuilder.setHash(copyFrom(signature.getTxHash().getBytesValue()));
-    });
     txBuilder.setBody(txBodyBuilder.build());
+    txBuilder.setHash(copyFrom(domainTransaction.getHash().getBytesValue()));
 
     return txBuilder.build();
   };
@@ -97,12 +95,8 @@ public class TransactionConverterFactory {
     domainTransaction
         .setFee(new Fee(byteArrayToPostive(txBody.getPrice().toByteArray()), txBody.getLimit()));
     if (null != rpcTransaction.getHash() || null != txBody.getSign()) {
-      final Signature signature = new Signature();
-      ofNullable(rpcTransaction.getHash()).map(ByteString::toByteArray).map(BytesValue::new)
-          .map(TxHash::new).ifPresent(signature::setTxHash);
-      ofNullable(txBody.getSign()).map(ByteString::toByteArray).map(BytesValue::of)
-          .ifPresent(signature::setSign);
-      domainTransaction.setSignature(signature);
+      domainTransaction.setSignature(new Signature(of(txBody.getSign().toByteArray())));
+      domainTransaction.setHash(new TxHash(of(rpcTransaction.getHash().toByteArray())));
     }
     domainTransaction.setTxType(txTypeRpcConverter.apply(txBody.getType()));
     return domainTransaction;
