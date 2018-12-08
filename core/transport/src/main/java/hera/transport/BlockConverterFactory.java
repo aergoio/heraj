@@ -20,8 +20,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Blockchain;
-import types.Blockchain.BlockBody;
-import types.Blockchain.BlockHeader;
 
 public class BlockConverterFactory {
 
@@ -39,7 +37,7 @@ public class BlockConverterFactory {
   protected final Function<Block, Blockchain.Block> domainConverter = domainBlock -> {
     logger.trace("Domain block: {}", domainBlock);
 
-    final BlockHeader blockHeader = BlockHeader.newBuilder()
+    final Blockchain.BlockHeader blockHeader = Blockchain.BlockHeader.newBuilder()
         .setPrevBlockHash(copyFrom(domainBlock.getPreviousHash().getBytesValue()))
         .setBlockNo(domainBlock.getBlockNumber()).setTimestamp(domainBlock.getTimestamp())
         .setBlocksRootHash(copyFrom(domainBlock.getRootHash().getBytesValue()))
@@ -55,37 +53,29 @@ public class BlockConverterFactory {
     for (final Transaction domainTransaction : domainBlock.getTransactions()) {
       rpcTransactions.add(transactionConverter.convertToRpcModel(domainTransaction));
     }
-    final BlockBody blockBody = BlockBody.newBuilder().addAllTxs(rpcTransactions).build();
+    final Blockchain.BlockBody blockBody = Blockchain.BlockBody.newBuilder()
+        .addAllTxs(rpcTransactions)
+        .build();
 
-    return Blockchain.Block.newBuilder().setHash(copyFrom(domainBlock.getHash().getBytesValue()))
-        .setHeader(blockHeader).setBody(blockBody).build();
+    return Blockchain.Block.newBuilder()
+        .setHash(copyFrom(domainBlock.getHash().getBytesValue()))
+        .setHeader(blockHeader)
+        .setBody(blockBody)
+        .build();
   };
 
   protected final Function<Blockchain.Block, Block> rpcConverter = rpcBlock -> {
     logger.trace("Rpc block: {}", rpcBlock);
 
-    final BlockHeader rpcBlockHeader = rpcBlock.getHeader();
-    final BlockBody rpcBlockBody = rpcBlock.getBody();
+    final Blockchain.BlockHeader rpcBlockHeader = rpcBlock.getHeader();
+    final Blockchain.BlockBody rpcBlockBody = rpcBlock.getBody();
 
-    final Block domainBlock = new Block();
-    domainBlock.setHash(new BlockHash(of(rpcBlock.getHash().toByteArray())));
-    domainBlock.setBlockNumber(rpcBlockHeader.getBlockNo());
-    domainBlock.setRootHash(new BlockHash(of(rpcBlockHeader.getBlocksRootHash().toByteArray())));
-    domainBlock.setTimestamp(rpcBlockHeader.getTimestamp());
-    domainBlock.setPreviousHash(new BlockHash(of(rpcBlockHeader.getPrevBlockHash().toByteArray())));
-    domainBlock.setTxRootHash(new TxHash(of(rpcBlockHeader.getTxsRootHash().toByteArray())));
-    domainBlock
-        .setReceiptRootHash(new Hash(of(rpcBlockHeader.getReceiptsRootHash().toByteArray())));
-    domainBlock.setPublicKey(new Hash(of(rpcBlockHeader.getPubKey().toByteArray())));
-    domainBlock.setSign(new Hash(of(rpcBlockHeader.getSign().toByteArray())));
-    domainBlock.setCoinbaseAccount(
-        addressConverter.convertToDomainModel(rpcBlockHeader.getCoinbaseAccount()));
-
+    final BlockHash blockHash = new BlockHash(of(rpcBlock.getHash().toByteArray()));
     final AtomicInteger index = new AtomicInteger(0);
     final List<Transaction> transactions = new ArrayList<>();
     for (final Blockchain.Tx rpcTx : rpcBlockBody.getTxsList()) {
       final Blockchain.TxIdx rpcTxIdx = Blockchain.TxIdx.newBuilder()
-          .setBlockHash(copyFrom(domainBlock.getHash().getBytesValue()))
+          .setBlockHash(copyFrom(blockHash.getBytesValue()))
           .setIdx(index.getAndIncrement())
           .build();
       final Blockchain.TxInBlock rpcTxInBlock = Blockchain.TxInBlock.newBuilder()
@@ -94,8 +84,20 @@ public class BlockConverterFactory {
           .build();
       transactions.add(transactionInBlockConverter.convertToDomainModel(rpcTxInBlock));
     }
-    domainBlock.setTransactions(transactions);
-    return domainBlock;
+
+    return new Block(
+        blockHash,
+        new BlockHash(of(rpcBlockHeader.getPrevBlockHash().toByteArray())),
+        rpcBlockHeader.getBlockNo(),
+        rpcBlockHeader.getTimestamp(),
+        new BlockHash(of(rpcBlockHeader.getBlocksRootHash().toByteArray())),
+        new TxHash(of(rpcBlockHeader.getTxsRootHash().toByteArray())),
+        new Hash(of(rpcBlockHeader.getReceiptsRootHash().toByteArray())),
+        rpcBlockHeader.getConfirms(),
+        new Hash(of(rpcBlockHeader.getPubKey().toByteArray())),
+        new Hash(of(rpcBlockHeader.getSign().toByteArray())),
+        addressConverter.convertToDomainModel(rpcBlockHeader.getCoinbaseAccount()),
+        transactions);
   };
 
   public ModelConverter<Block, Blockchain.Block> create() {

@@ -48,7 +48,8 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
   @Test
   public void testGetBlockByHash() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
-    final ResultOrErrorFuture<Block> future = ResultOrErrorFutureFactory.supply(() -> new Block());
+    final Block mockBlock = mock(Block.class);
+    final ResultOrErrorFuture<Block> future = ResultOrErrorFutureFactory.supply(() -> mockBlock);
     when(base.getBlockByHashFunction()).thenReturn((h) -> future);
 
     final BlockAsyncTemplate blockAsyncTemplate = supplyBlockAsyncTemplate(base);
@@ -63,7 +64,8 @@ public class BlockAsyncTemplateTest extends AbstractTestCase {
   @Test
   public void testGetBlockByHeight() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
-    final ResultOrErrorFuture<Block> future = ResultOrErrorFutureFactory.supply(() -> new Block());
+    final Block mockBlock = mock(Block.class);
+    final ResultOrErrorFuture<Block> future = ResultOrErrorFutureFactory.supply(() -> mockBlock);
     when(base.getBlockByHeightFunction()).thenReturn((h) -> future);
 
     final BlockAsyncTemplate blockAsyncTemplate = supplyBlockAsyncTemplate(base);

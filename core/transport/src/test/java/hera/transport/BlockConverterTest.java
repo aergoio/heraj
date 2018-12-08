@@ -4,9 +4,9 @@
 
 package hera.transport;
 
-import static hera.util.ValidationUtils.assertNotNull;
 import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
+import static org.junit.Assert.assertEquals;
 
 import hera.AbstractTestCase;
 import hera.api.model.AccountAddress;
@@ -27,6 +27,8 @@ public class BlockConverterTest extends AbstractTestCase {
   public void testConvert() {
     final ModelConverter<Block, Blockchain.Block> converter = new BlockConverterFactory().create();
 
+    final BlockHash blockHash = BlockHash.of(BytesValue.of(randomUUID().toString().getBytes()));
+
     final RawTransaction rawTransaction = Transaction.newBuilder()
         .sender(AccountAddress.of(BytesValue.EMPTY))
         .recipient(AccountAddress.of(BytesValue.EMPTY))
@@ -46,15 +48,15 @@ public class BlockConverterTest extends AbstractTestCase {
         rawTransaction.getTxType(),
         Signature.of(BytesValue.EMPTY),
         TxHash.of(BytesValue.EMPTY),
-        BlockHash.of(BytesValue.of(randomUUID().toString().getBytes())),
-        1,
+        blockHash,
+        0,
         true);
 
-    final Block expected = new Block();
-    expected.setTransactions(asList(domainTransaction));
+    final Block expected = new Block(blockHash, null, 0, 0, null, null, null,
+        0, null, null, null, asList(domainTransaction));
     final Blockchain.Block rpcBlock = converter.convertToRpcModel(expected);
     final Block actual = converter.convertToDomainModel(rpcBlock);
-    assertNotNull(actual);
+    assertEquals(expected, actual);
   }
 
 }
