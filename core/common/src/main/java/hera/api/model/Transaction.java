@@ -4,70 +4,30 @@
 
 package hera.api.model;
 
-import static hera.api.model.BytesValue.of;
-import static hera.util.NumberUtils.postiveToByteArray;
-import static hera.util.Sha256Utils.digest;
-
-import hera.util.LittleEndianDataOutputStream;
-import hera.util.VersionUtils;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.math.BigInteger;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
-@ToString
-@EqualsAndHashCode
-public class Transaction {
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class Transaction extends RawTransaction {
 
   @Getter
-  @Setter
-  protected BlockHash blockHash = new BlockHash(BytesValue.EMPTY);
+  protected final Signature signature;
 
   @Getter
-  @Setter
-  protected int indexInBlock = 0;
+  protected final TxHash hash;
 
   @Getter
-  @Setter
-  protected boolean confirmed = false;
+  protected final BlockHash blockHash;
 
   @Getter
-  @Setter
-  protected long nonce;
+  protected final int indexInBlock;
 
   @Getter
-  protected AccountAddress sender = new AccountAddress(BytesValue.EMPTY);
-
-  @Getter
-  protected AccountAddress recipient = new AccountAddress(BytesValue.EMPTY);
-
-  @Getter
-  @Setter
-  protected BigInteger amount = BigInteger.ZERO;
-
-  @Getter
-  @Setter
-  protected BytesValue payload = BytesValue.EMPTY;
-
-  @Getter
-  @Setter
-  protected Fee fee = Fee.getDefaultFee();
-
-  @Getter
-  @Setter
-  protected Signature signature = Signature.of(BytesValue.EMPTY);
-
-  @Getter
-  @Setter
-  protected TxHash hash = new TxHash(BytesValue.EMPTY);
-
-  @Getter
-  @Setter
-  protected TxType txType = TxType.NORMAL;
+  protected final boolean confirmed;
 
   @RequiredArgsConstructor
   public enum TxType {
@@ -77,77 +37,51 @@ public class Transaction {
     private final int intValue;
   }
 
-  public void setSender(final AccountAddress sender) {
-    this.sender = sender;
-  }
-
-  public void setSender(final Account sender) {
-    sender.adapt(AccountAddress.class).ifPresent(this::setSender);
-  }
-
-  public void setRecipient(final AccountAddress recipient) {
-    this.recipient = recipient;
-  }
-
-  public void setRecipient(final Account account) {
-    account.adapt(AccountAddress.class).ifPresent(this::setRecipient);
+  /**
+   * Transaction constructor.
+   *
+   * @param rawTransaction a transaction without block information
+   * @param signature a signature
+   * @param txHash a txHash
+   * @param blockHash a block hash
+   * @param indexInBlock an indexInBlock
+   * @param isConfirmed an confirm state
+   */
+  public Transaction(final RawTransaction rawTransaction, final Signature signature,
+      final TxHash txHash, final BlockHash blockHash, final int indexInBlock,
+      final boolean isConfirmed) {
+    this(rawTransaction.getSender(), rawTransaction.getRecipient(), rawTransaction.getAmount(),
+        rawTransaction.getNonce(), rawTransaction.getFee(),
+        rawTransaction.getPayload(), rawTransaction.getTxType(),
+        signature, txHash, blockHash, indexInBlock, isConfirmed);
   }
 
   /**
-   * Copy deep.
+   * Transaction constructor.
    *
-   * @param source {@link Transaction} to copy
-   * @return copied transaction
+   * @param sender a sender
+   * @param recipient a recipient
+   * @param amount an amount
+   * @param nonce an nonce
+   * @param fee a fee
+   * @param payload a payload
+   * @param txType a txType
+   * @param signature a signature
+   * @param txHash a txHash
+   * @param blockHash a block hash
+   * @param indexInBlock an indexInBlock
+   * @param isConfirmed an confirm state
    */
-  public static Transaction copyOf(final Transaction source) {
-    if (null == source) {
-      return null;
-    }
-    final Transaction copy = new Transaction();
-    copy.setBlockHash(source.getBlockHash());
-    copy.setIndexInBlock(source.getIndexInBlock());
-    copy.setConfirmed(source.isConfirmed());
-    copy.setNonce(source.getNonce());
-    copy.setSender(source.getSender());
-    copy.setRecipient(source.getRecipient());
-    copy.setAmount(source.getAmount());
-    copy.setPayload(source.getPayload());
-    copy.setFee(source.getFee());
-    copy.setTxType(source.getTxType());
-    copy.setSignature(source.getSignature());
-    copy.setHash(source.getHash());
-
-    return copy;
-  }
-
-  /**
-   * Calculate the hash for this transaction.
-   *
-   * @return hash value
-   */
-  public TxHash calculateHash() {
-    try {
-      final ByteArrayOutputStream raw = new ByteArrayOutputStream();
-      final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(raw);
-      dataOut.writeLong(getNonce());
-      dataOut.write(VersionUtils.trim(getSender().getBytesValue().getValue()));
-      dataOut.write(VersionUtils.trim(getRecipient().getBytesValue().getValue()));
-      dataOut.write(postiveToByteArray(getAmount()));
-      dataOut.write(getPayload().getValue());
-      dataOut.writeLong(getFee().getLimit());
-      dataOut.write(postiveToByteArray(getFee().getPrice()));
-      dataOut.writeInt(getTxType().getIntValue());
-      if (null != getSignature()) {
-        dataOut.write(getSignature().getSign().getValue());
-      }
-      dataOut.flush();
-      dataOut.close();
-      final TxHash txHash = new TxHash(of(digest(raw.toByteArray())));
-      this.hash = txHash;
-      return txHash;
-    } catch (final IOException e) {
-      throw new IllegalStateException(e);
-    }
+  public Transaction(final AccountAddress sender, final AccountAddress recipient,
+      final BigInteger amount, long nonce, final Fee fee, final BytesValue payload,
+      final TxType txType, final Signature signature, final TxHash txHash,
+      final BlockHash blockHash, final int indexInBlock, final boolean isConfirmed) {
+    super(sender, recipient, amount, nonce, fee, payload, txType);
+    this.signature = null != signature ? signature : Signature.of(BytesValue.EMPTY);
+    this.hash = null != txHash ? txHash : TxHash.of(BytesValue.EMPTY);
+    this.blockHash = null != blockHash ? blockHash : BlockHash.of(BytesValue.EMPTY);
+    this.indexInBlock = indexInBlock;
+    this.confirmed = isConfirmed;
   }
 
 }

@@ -11,6 +11,7 @@ import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrError;
 import hera.exception.AdaptException;
@@ -43,10 +44,10 @@ public interface AccountEitherOperation {
    * Sign for transaction.
    *
    * @param account account to verify
-   * @param transaction transaction to sign
+   * @param rawTransaction raw transaction to sign
    * @return signed transaction or error
    */
-  ResultOrError<Transaction> sign(Account account, Transaction transaction);
+  ResultOrError<Transaction> sign(Account account, RawTransaction rawTransaction);
 
   /**
    * Verify transaction.

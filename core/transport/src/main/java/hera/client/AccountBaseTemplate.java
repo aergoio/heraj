@@ -18,10 +18,11 @@ import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
-import hera.api.model.BytesValue;
 import hera.api.model.KeyHoldable;
+import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import hera.api.tupleorerror.Function1;
 import hera.api.tupleorerror.Function2;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -31,6 +32,7 @@ import hera.transport.AccountAddressConverterFactory;
 import hera.transport.AccountStateConverterFactory;
 import hera.transport.ModelConverter;
 import hera.transport.TransactionConverterFactory;
+import hera.util.TransactionUtils;
 import io.grpc.ManagedChannel;
 import java.util.Optional;
 import lombok.Getter;
@@ -81,32 +83,41 @@ public class AccountBaseTemplate implements ChannelInjectable {
 
         return nextFuture;
       };
+
   @Getter
-  private final Function2<Account, Transaction, ResultOrErrorFuture<Transaction>> signFunction =
-      (account, transaction) -> {
-        ResultOrErrorFuture<Transaction> nextFuture =
-            ResultOrErrorFutureFactory.supplyEmptyFuture();
+  private final Function2<Account, RawTransaction,
+      ResultOrErrorFuture<Transaction>> signFunction =
+          (account, rawTransaction) -> {
+            ResultOrErrorFuture<Transaction> nextFuture =
+                ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-        if (account instanceof KeyHoldable) {
-          KeyHoldable keyHoldable = (KeyHoldable) account;
-          Transaction copy = Transaction.copyOf(transaction);
-          BytesValue signature =
-              keyHoldable.sign(copy.calculateHash().getBytesValue().get());
-          copy.setSignature(new Signature(signature));
-          copy.calculateHash();
-          nextFuture.complete(success(copy));
-        } else {
-          Blockchain.Tx rpcTransaction =
-              transactionConverter.convertToRpcModel(transaction);
-          ListenableFuture<Blockchain.Tx> listenableFuture =
-              aergoService.signTX(rpcTransaction);
-          FutureChain<Blockchain.Tx, Transaction> callback = new FutureChain<>(nextFuture);
-          callback.setSuccessHandler(tx -> of(() -> transactionConverter.convertToDomainModel(tx)));
-          addCallback(listenableFuture, callback, directExecutor());
-        }
+            if (account instanceof KeyHoldable) {
+              KeyHoldable keyHoldable = (KeyHoldable) account;
 
-        return nextFuture;
-      };
+              final TxHash hashWithoutSign = TransactionUtils.calculateHash(rawTransaction);
+              final Signature signature = new Signature(keyHoldable
+                  .sign(hashWithoutSign.getBytesValue().get()));
+
+              final TxHash hashWithSign = TransactionUtils.calculateHash(rawTransaction, signature);
+              final Transaction signed = new Transaction(rawTransaction, signature,
+                  hashWithSign, null, 0, false);
+              nextFuture.complete(success(signed));
+            } else {
+              final Transaction domainTransaction =
+                  new Transaction(rawTransaction, null, null, null, 0, false);
+              Blockchain.Tx rpcTransaction =
+                  transactionConverter.convertToRpcModel(domainTransaction);
+              ListenableFuture<Blockchain.Tx> listenableFuture =
+                  aergoService.signTX(rpcTransaction);
+              FutureChain<Blockchain.Tx, Transaction> callback =
+                  new FutureChain<>(nextFuture);
+              callback
+                  .setSuccessHandler(tx -> of(() -> transactionConverter.convertToDomainModel(tx)));
+              addCallback(listenableFuture, callback, directExecutor());
+            }
+
+            return nextFuture;
+          };
 
   @Getter
   private final Function2<Account, Transaction, ResultOrErrorFuture<Boolean>> verifyFunction =
@@ -116,11 +127,10 @@ public class AccountBaseTemplate implements ChannelInjectable {
 
         if (account instanceof KeyHoldable) {
           KeyHoldable keyHoldable = (KeyHoldable) account;
-          Transaction copy = Transaction.copyOf(transaction);
-          BytesValue signature = copy.getSignature().getSign();
-          copy.setSignature(null);
-          nextFuture.complete(
-              success(keyHoldable.verify(copy.calculateHash().getBytesValue().get(), signature)));
+          final boolean verifyResult = keyHoldable.verify(
+              TransactionUtils.calculateHash(transaction).getBytesValue().get(),
+              transaction.getSignature().getSign());
+          nextFuture.complete(success(verifyResult));
         } else {
           Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
           ListenableFuture<Rpc.VerifyResult> listenableFuture = aergoService.verifyTX(tx);

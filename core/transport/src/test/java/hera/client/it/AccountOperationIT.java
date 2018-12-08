@@ -13,6 +13,7 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
@@ -47,7 +48,7 @@ public class AccountOperationIT extends AbstractIT {
   public void testSignLocally() throws Exception {
     final Account account = createClientAccount();
 
-    final Transaction transaction = buildTransaction(account);
+    final RawTransaction transaction = buildTransaction(account);
     final Transaction signed = signTransaction(account, transaction);
 
     assertNotNull(signed.getSignature());
@@ -59,7 +60,7 @@ public class AccountOperationIT extends AbstractIT {
     final String password = randomUUID().toString();
     final Account account = createServerAccount(password);
 
-    final Transaction transaction = buildTransaction(account);
+    final RawTransaction transaction = buildTransaction(account);
 
     unlockAccount(account, password);
     final Transaction signed = signTransaction(account, transaction);

@@ -11,6 +11,7 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.ClientManagedAccount;
+import hera.api.model.RawTransaction;
 import hera.api.model.ServerManagedAccount;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
@@ -35,12 +36,12 @@ public class TransactionExample extends AbstractExample {
     account.bindState(state);
 
     // make a transaction
-    final Transaction rawTransaction = new Transaction();
-    rawTransaction.setNonce(account.nextNonce());
-    rawTransaction.setAmount(valueOf(10L));
-    rawTransaction.setSender(account);
-    rawTransaction.setRecipient(
-        AccountAddress.of(() -> "AmLbHdVs4dNpRzyLirs8cKdV26rPJJxpVXG1w2LLZ9pKfqAHHdyg"));
+    final RawTransaction rawTransaction = Transaction.newBuilder()
+        .sender(account)
+        .recipient(AccountAddress.of(() -> "AmLbHdVs4dNpRzyLirs8cKdV26rPJJxpVXG1w2LLZ9pKfqAHHdyg"))
+        .amount("10")
+        .nonce(account.nextNonce())
+        .build();
     final Transaction signedTransaction =
         aergoClient.getAccountOperation().sign(account, rawTransaction);
 
@@ -74,12 +75,12 @@ public class TransactionExample extends AbstractExample {
     aergoClient.getKeyStoreOperation().unlock(Authentication.of(account.getAddress(), password));
 
     // make a transaction
-    final Transaction rawTransaction = new Transaction();
-    rawTransaction.setNonce(account.nextNonce());
-    rawTransaction.setAmount(valueOf(10L));
-    rawTransaction.setSender(account);
-    rawTransaction.setRecipient(
-        AccountAddress.of(() -> "AmLbHdVs4dNpRzyLirs8cKdV26rPJJxpVXG1w2LLZ9pKfqAHHdyg"));
+    final RawTransaction rawTransaction = Transaction.newBuilder()
+        .sender(account)
+        .recipient(AccountAddress.of(() -> "AmLbHdVs4dNpRzyLirs8cKdV26rPJJxpVXG1w2LLZ9pKfqAHHdyg"))
+        .amount("10")
+        .nonce(account.nextNonce())
+        .build();
     final Transaction signedTransaction =
         aergoClient.getAccountOperation().sign(account, rawTransaction);
 

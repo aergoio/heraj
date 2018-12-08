@@ -32,7 +32,7 @@ public class ContractInterfaceTest {
         new ContractInterface(address, version, language, functions);
 
     final ContractInvocation expected = new ContractInvocation(address, function, args);
-    final ContractInvocation actual = contractInterface.newInvocation()
+    final ContractInvocation actual = contractInterface.newInvocationBuilder()
         .function(FUNCTION_NAME)
         .args(args)
         .build();

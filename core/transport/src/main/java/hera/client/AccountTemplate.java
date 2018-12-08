@@ -17,6 +17,7 @@ import hera.api.AccountOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.Function1;
 import hera.api.tupleorerror.Function2;
@@ -51,8 +52,10 @@ public class AccountTemplate
       getStrategyChain()
           .apply(identify(getAccountBaseTemplate().getStateFunction(), ACCOUNT_GETSTATE));
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function2<Account, Transaction, ResultOrErrorFuture<Transaction>> signFunction =
-      getStrategyChain().apply(identify(getAccountBaseTemplate().getSignFunction(), ACCOUNT_SIGN));
+  private final Function2<Account, RawTransaction,
+      ResultOrErrorFuture<Transaction>> signFunction =
+          getStrategyChain()
+              .apply(identify(getAccountBaseTemplate().getSignFunction(), ACCOUNT_SIGN));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function2<Account, Transaction, ResultOrErrorFuture<Boolean>> verifyFunction =
@@ -65,13 +68,13 @@ public class AccountTemplate
   }
 
   @Override
-  public Transaction sign(final Account account, final Transaction transaction) {
-    return getSignFunction().apply(account, transaction).get().getResult();
+  public Transaction sign(final Account account, final RawTransaction rawTransaction) {
+    return getSignFunction().apply(account, rawTransaction).get().getResult();
   }
 
   @Override
-  public boolean verify(final Account account, final Transaction transaction) {
-    return getVerifyFunction().apply(account, transaction).get().getResult();
+  public boolean verify(final Account account, final Transaction signedTransaction) {
+    return getVerifyFunction().apply(account, signedTransaction).get().getResult();
   }
 
 }

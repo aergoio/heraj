@@ -50,8 +50,9 @@ public class TransactionTemplateTest extends AbstractTestCase {
   @Test
   public void testGetTransaction() {
     final TransactionBaseTemplate base = mock(TransactionBaseTemplate.class);
+    final Transaction mockTransaction = mock(Transaction.class);
     ResultOrErrorFuture<Transaction> future =
-        ResultOrErrorFutureFactory.supply(() -> new Transaction());
+        ResultOrErrorFutureFactory.supply(() -> mockTransaction);
     when(base.getTransactionFunction()).thenReturn(h -> future);
 
     final TransactionTemplate transactionTemplate =
@@ -75,7 +76,8 @@ public class TransactionTemplateTest extends AbstractTestCase {
     final TransactionTemplate transactionTemplate =
         supplyTransactionTemplate(base);
 
-    final TxHash txHash = transactionTemplate.commit(new Transaction());
+    final Transaction transaction = mock(Transaction.class);
+    final TxHash txHash = transactionTemplate.commit(transaction);
     assertNotNull(txHash);
     assertEquals(TRANSACTION_COMMIT,
         ((WithIdentity) transactionTemplate.getCommitFunction()).getIdentity());

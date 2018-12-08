@@ -160,7 +160,7 @@ public class ContractExample extends AbstractExample {
     account.bindState(state);
 
     // define contract execution
-    final ContractInvocation execution = contractInterface.newInvocation()
+    final ContractInvocation execution = contractInterface.newInvocationBuilder()
         .function("set").args("key", 70, "execute").build();
     System.out.println("Contract invocation: " + execution);
 
@@ -197,7 +197,7 @@ public class ContractExample extends AbstractExample {
     aergoClient.getKeyStoreOperation().unlock(Authentication.of(account.getAddress(), "password"));
 
     // define contract execution
-    final ContractInvocation execution = contractInterface.newInvocation()
+    final ContractInvocation execution = contractInterface.newInvocationBuilder()
         .function("set").args("key", 70, "execute").build();
     System.out.println("Contract invocation: " + execution);
 
@@ -228,7 +228,7 @@ public class ContractExample extends AbstractExample {
         .build();
 
     // build query invocation
-    final ContractInvocation query = contractInterface.newInvocation()
+    final ContractInvocation query = contractInterface.newInvocationBuilder()
         .function("get").args("initKey").build();
     System.out.println("Query invocation : " + query);
 
@@ -255,7 +255,7 @@ public class ContractExample extends AbstractExample {
         .build();
 
     // build query invocation
-    final ContractInvocation query = contractInterface.newInvocation()
+    final ContractInvocation query = contractInterface.newInvocationBuilder()
         .function("get").args("key").build();
     System.out.println("Query invocation : " + query);
 

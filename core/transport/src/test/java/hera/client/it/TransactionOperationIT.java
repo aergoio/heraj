@@ -11,6 +11,7 @@ import static org.junit.Assert.fail;
 
 import hera.api.model.Account;
 import hera.api.model.AccountState;
+import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.exception.CommitException;
@@ -26,7 +27,7 @@ public class TransactionOperationIT extends AbstractIT {
 
     waitForNextBlockToGenerate();
 
-    final Transaction transaction = buildTransaction(account);
+    final RawTransaction transaction = buildTransaction(account);
     final Transaction signed = signTransaction(account, transaction);
 
     final TxHash txHash = aergoClient.getTransactionOperation().commit(signed);
@@ -45,7 +46,7 @@ public class TransactionOperationIT extends AbstractIT {
 
     waitForNextBlockToGenerate();
 
-    final Transaction transaction = buildTransaction(account);
+    final RawTransaction transaction = buildTransaction(account);
     final Transaction signed = signTransaction(account, transaction);
 
     final TxHash txHash = aergoClient.getTransactionOperation().commit(signed);
@@ -67,7 +68,7 @@ public class TransactionOperationIT extends AbstractIT {
 
     waitForNextBlockToGenerate();
 
-    final Transaction transaction = buildTransaction(account);
+    final RawTransaction transaction = buildTransaction(account);
 
     assertTrue(unlockAccount(account, password));
     final Transaction signed = signTransaction(account, transaction);
@@ -89,7 +90,7 @@ public class TransactionOperationIT extends AbstractIT {
     rechargeCoin(account, 100L);
     waitForNextBlockToGenerate();
 
-    final Transaction transaction = buildTransaction(account);
+    final RawTransaction transaction = buildTransaction(account);
 
     assertTrue(unlockAccount(account, password));
     final Transaction signed = signTransaction(account, transaction);
@@ -136,8 +137,12 @@ public class TransactionOperationIT extends AbstractIT {
 
     waitForNextBlockToGenerate();
 
-    final Transaction transaction = buildTransaction(account);
-    transaction.setNonce(0L);
+    final RawTransaction transaction = RawTransaction.newBuilder()
+        .sender(account)
+        .recipient(recipient)
+        .amount("10")
+        .nonce(0L)
+        .build();
     final Transaction signed = signTransaction(account, transaction);
 
     try {

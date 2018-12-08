@@ -20,11 +20,14 @@ import hera.api.model.AccountState;
 import hera.api.model.BytesValue;
 import hera.api.model.ClientManagedAccount;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
+import hera.util.TransactionUtils;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -75,9 +78,14 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
     final Account account = ClientManagedAccount.of(new AergoKeyGenerator().create());
-    final Transaction transaction = new Transaction();
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .sender(ACCOUNT_ADDRESS)
+        .recipient(ACCOUNT_ADDRESS)
+        .amount("1000")
+        .nonce(1L)
+        .build();
     final ResultOrErrorFuture<Transaction> accountStateFuture =
-        accountTemplateBase.getSignFunction().apply(account, transaction);
+        accountTemplateBase.getSignFunction().apply(account, rawTransaction);
     assertTrue(accountStateFuture.get().hasResult());
   }
 
@@ -94,9 +102,14 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
     final Account account = mock(Account.class);
-    final Transaction transaction = new Transaction();
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .sender(ACCOUNT_ADDRESS)
+        .recipient(ACCOUNT_ADDRESS)
+        .amount("1000")
+        .nonce(1L)
+        .build();
     final ResultOrErrorFuture<Transaction> signedTransactionStateFuture =
-        accountTemplateBase.getSignFunction().apply(account, transaction);
+        accountTemplateBase.getSignFunction().apply(account, rawTransaction);
     assertTrue(signedTransactionStateFuture.get().hasResult());
   }
 
@@ -107,10 +120,18 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
 
     final AergoKey key = new AergoKeyGenerator().create();
     final Account account = ClientManagedAccount.of(key);
-    final Transaction transaction = new Transaction();
-    final BytesValue sign = key.sign(transaction.calculateHash().getBytesValue().get());
-    transaction.setSignature(Signature.of(sign));
-    transaction.calculateHash();
+
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .sender(ACCOUNT_ADDRESS)
+        .recipient(ACCOUNT_ADDRESS)
+        .amount("1000")
+        .nonce(1L)
+        .build();
+    final BytesValue rawSignature =
+        key.sign(TransactionUtils.calculateHash(rawTransaction).getBytesValue().get());
+    final Signature signature = Signature.of(rawSignature);
+    final Transaction transaction = new Transaction(rawTransaction, signature,
+        TransactionUtils.calculateHash(rawTransaction, signature), null, 0, false);
 
     final ResultOrErrorFuture<Boolean> verifyResultFuture =
         accountTemplateBase.getVerifyFunction().apply(account, transaction);
@@ -128,7 +149,15 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
     final Account account = mock(Account.class);
-    final Transaction transaction = new Transaction();
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .sender(ACCOUNT_ADDRESS)
+        .recipient(ACCOUNT_ADDRESS)
+        .amount("1000")
+        .nonce(1L)
+        .build();
+    final Transaction transaction = new Transaction(rawTransaction, Signature.of(BytesValue.EMPTY),
+        TxHash.of(BytesValue.EMPTY), null, 0, false);
+
     final ResultOrErrorFuture<Boolean> verifyResultFuture =
         accountTemplateBase.getVerifyFunction().apply(account, transaction);
     assertTrue(verifyResultFuture.get().hasResult());

@@ -6,7 +6,6 @@ package hera.transport;
 
 import static hera.api.model.BytesValue.of;
 import static hera.util.TransportUtils.copyFrom;
-import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.AccountAddress;
@@ -15,6 +14,7 @@ import hera.api.model.BlockHash;
 import hera.api.model.Hash;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import types.Blockchain;
 import types.Blockchain.BlockBody;
 import types.Blockchain.BlockHeader;
-import types.Blockchain.Tx;
 
 public class BlockConverterFactory {
 
@@ -31,8 +30,11 @@ public class BlockConverterFactory {
   protected final ModelConverter<AccountAddress, com.google.protobuf.ByteString> addressConverter =
       new AccountAddressConverterFactory().create();
 
-  protected final ModelConverter<Transaction, Tx> transactionConverter =
+  protected final ModelConverter<Transaction, Blockchain.Tx> transactionConverter =
       new TransactionConverterFactory().create();
+
+  protected final ModelConverter<Transaction, Blockchain.TxInBlock> transactionInBlockConverter =
+      new TransactionInBlockConverterFactory().create();
 
   protected final Function<Block, Blockchain.Block> domainConverter = domainBlock -> {
     logger.trace("Domain block: {}", domainBlock);
@@ -46,10 +48,13 @@ public class BlockConverterFactory {
         .setConfirms(domainBlock.getConfirmsCount())
         .setPubKey(copyFrom(domainBlock.getPublicKey().getBytesValue()))
         .setSign(copyFrom(domainBlock.getSign().getBytesValue()))
-        .setCoinbaseAccount(copyFrom(domainBlock.getCoinbaseAccount().getBytesValue())).build();
+        .setCoinbaseAccount(copyFrom(domainBlock.getCoinbaseAccount().getBytesValue()))
+        .build();
 
-    final List<Blockchain.Tx> rpcTransactions = domainBlock.getTransactions().stream()
-        .map(transactionConverter::convertToRpcModel).collect(toList());
+    final List<Blockchain.Tx> rpcTransactions = new ArrayList<>();
+    for (final Transaction domainTransaction : domainBlock.getTransactions()) {
+      rpcTransactions.add(transactionConverter.convertToRpcModel(domainTransaction));
+    }
     final BlockBody blockBody = BlockBody.newBuilder().addAllTxs(rpcTransactions).build();
 
     return Blockchain.Block.newBuilder().setHash(copyFrom(domainBlock.getHash().getBytesValue()))
@@ -77,12 +82,18 @@ public class BlockConverterFactory {
         addressConverter.convertToDomainModel(rpcBlockHeader.getCoinbaseAccount()));
 
     final AtomicInteger index = new AtomicInteger(0);
-    final List<Transaction> transactions = rpcBlockBody.getTxsList().stream()
-        .map(transactionConverter::convertToDomainModel).peek(t -> {
-          t.setBlockHash(domainBlock.getHash());
-          t.setIndexInBlock(index.getAndIncrement());
-          t.setConfirmed(true);
-        }).collect(toList());
+    final List<Transaction> transactions = new ArrayList<>();
+    for (final Blockchain.Tx rpcTx : rpcBlockBody.getTxsList()) {
+      final Blockchain.TxIdx rpcTxIdx = Blockchain.TxIdx.newBuilder()
+          .setBlockHash(copyFrom(domainBlock.getHash().getBytesValue()))
+          .setIdx(index.getAndIncrement())
+          .build();
+      final Blockchain.TxInBlock rpcTxInBlock = Blockchain.TxInBlock.newBuilder()
+          .setTxIdx(rpcTxIdx)
+          .setTx(rpcTx)
+          .build();
+      transactions.add(transactionInBlockConverter.convertToDomainModel(rpcTxInBlock));
+    }
     domainBlock.setTransactions(transactions);
     return domainBlock;
   };

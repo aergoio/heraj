@@ -50,8 +50,9 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
   @Test
   public void testGetTransaction() {
     final TransactionBaseTemplate base = mock(TransactionBaseTemplate.class);
+    final Transaction mockTransaction = mock(Transaction.class);
     ResultOrErrorFuture<Transaction> future =
-        ResultOrErrorFutureFactory.supply(() -> new Transaction());
+        ResultOrErrorFutureFactory.supply(() -> mockTransaction);
     when(base.getTransactionFunction()).thenReturn(h -> future);
 
     final TransactionAsyncTemplate transactionAsyncTemplate =
@@ -74,7 +75,8 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
     final TransactionAsyncTemplate transactionAsyncTemplate =
         supplyTransactionAsyncTemplate(base);
 
-    final ResultOrErrorFuture<TxHash> txHash = transactionAsyncTemplate.commit(new Transaction());
+    final Transaction transaction = mock(Transaction.class);
+    final ResultOrErrorFuture<TxHash> txHash = transactionAsyncTemplate.commit(transaction);
     assertTrue(txHash.get().hasResult());
     assertEquals(TRANSACTION_COMMIT_ASYNC,
         ((WithIdentity) transactionAsyncTemplate.getCommitFunction()).getIdentity());

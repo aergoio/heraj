@@ -17,7 +17,10 @@ import com.google.protobuf.ByteString;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
+import hera.api.model.BytesValue;
+import hera.api.model.Fee;
 import hera.api.model.Transaction;
+import hera.api.model.Transaction.TxType;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.Function1;
 import hera.api.tupleorerror.Function3;
@@ -83,9 +86,10 @@ public class TransactionBaseTemplate implements ChannelInjectable {
       };
 
   @Getter
-  private final Function1<Transaction, ResultOrErrorFuture<
-      TxHash>> commitFunction = (transaction) -> {
-        ResultOrErrorFuture<TxHash> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
+  private final Function1<Transaction, ResultOrErrorFuture<TxHash>> commitFunction =
+      (transaction) -> {
+        ResultOrErrorFuture<TxHash> nextFuture =
+            ResultOrErrorFutureFactory.supplyEmptyFuture();
 
         final Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
         final Blockchain.TxList txList = Blockchain.TxList.newBuilder().addTxs(tx).build();
@@ -109,10 +113,9 @@ public class TransactionBaseTemplate implements ChannelInjectable {
       TxHash>> sendFunction = (sender, recipient, amount) -> {
         ResultOrErrorFuture<TxHash> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-        final Transaction transaction = new Transaction();
-        transaction.setSender(sender);
-        transaction.setRecipient(recipient);
-        transaction.setAmount(amount);
+        final Transaction transaction = new Transaction(
+            sender, recipient, amount, 0, Fee.getDefaultFee(), BytesValue.EMPTY, TxType.NORMAL,
+            null, null, null, 0, false);
 
         final Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
         ListenableFuture<Rpc.CommitResult> listenableFuture = aergoService.sendTX(tx);

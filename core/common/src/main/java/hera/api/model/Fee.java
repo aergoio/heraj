@@ -6,6 +6,7 @@ package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
 
+import hera.exception.HerajException;
 import java.math.BigInteger;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -31,6 +32,20 @@ public class Fee {
    *
    * @return created {@code Fee}
    */
+  public static Fee of(final String price, final long limit) {
+    return new Fee(price, limit);
+  }
+
+
+  /**
+   * Build {@code Fee} object. If {@code price} &lt; 0, price is set as {@link #MIN_PRICE}.
+   * Similarly, if {@code limit} &lt; 0, limit is set as {@link #MIN_LIMIT}.
+   *
+   * @param price fee price
+   * @param limit fee limit
+   *
+   * @return created {@code Fee}
+   */
   public static Fee of(final BigInteger price, final long limit) {
     return new Fee(price, limit);
   }
@@ -40,6 +55,24 @@ public class Fee {
 
   @Getter
   protected long limit;
+
+  /**
+   * Fee constructor. If {@code price} $lt; 0, price is set as {@link #MIN_PRICE}. Similarly, if
+   * {@code limit} &lt; 0, limit is set as {@link #MIN_LIMIT}.
+   *
+   * @param price fee price
+   * @param limit fee limit
+   */
+  public Fee(final String price, final long limit) {
+    assertNotNull(price, new HerajException("Price must not null"));
+    try {
+      BigInteger parsed = new BigInteger(price);
+      this.price = parsed.compareTo(BigInteger.ZERO) >= 0 ? parsed : MIN_PRICE;
+      this.limit = limit >= 0 ? limit : MIN_LIMIT;
+    } catch (Exception e) {
+      throw new HerajException(e);
+    }
+  }
 
   /**
    * Fee constructor. If {@code price} $lt; 0, price is set as {@link #MIN_PRICE}. Similarly, if

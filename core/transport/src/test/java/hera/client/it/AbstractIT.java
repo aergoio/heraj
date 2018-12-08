@@ -12,6 +12,7 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.ClientManagedAccount;
+import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
@@ -37,6 +38,9 @@ public abstract class AbstractIT {
   protected static final String richEncryptedPrivateKey =
       "47pArdc5PNS9HYY9jMMC7zAuHzytzsAuCYGm5jAUFuD3amQ4mQkvyUaPnmRVSPc2iWzVJpC9Z";
   protected static final String richPassword = "password";
+
+  protected final AccountAddress recipient =
+      AccountAddress.of(() -> "AmLbHdVs4dNpRzyLirs8cKdV26rPJJxpVXG1w2LLZ9pKfqAHHdyg");
 
   protected Account rich;
 
@@ -70,11 +74,12 @@ public abstract class AbstractIT {
   protected void rechargeCoin(final Account targetAccount, final long amount) {
     final AccountState richState = aergoClient.getAccountOperation().getState(rich);
 
-    final Transaction rawTransaction = new Transaction();
-    rawTransaction.setNonce(richState.getNonce() + 1);
-    rawTransaction.setAmount(valueOf(amount));
-    rawTransaction.setSender(rich);
-    rawTransaction.setRecipient(targetAccount);
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .sender(rich)
+        .recipient(targetAccount)
+        .amount(valueOf(amount))
+        .nonce(richState.getNonce() + 1)
+        .build();
     final Transaction signedTransaction =
         aergoClient.getAccountOperation().sign(rich, rawTransaction);
     aergoClient.getTransactionOperation().commit(signedTransaction);
@@ -101,22 +106,23 @@ public abstract class AbstractIT {
         .lock(Authentication.of(account.getAddress(), password));
   }
 
-  protected Transaction buildTransaction(final Account account, final AccountAddress recipient) {
-    final Transaction transaction = new Transaction();
-    transaction.setNonce(account.nextNonce());
-    transaction.setAmount(amount);
-    transaction.setSender(account);
-    transaction.setRecipient(recipient);
-    logger.info("Raw transaction: {}", transaction);
-    return transaction;
+  protected RawTransaction buildTransaction(final Account account, final AccountAddress recipient) {
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .sender(account)
+        .recipient(recipient)
+        .amount(amount)
+        .nonce(account.nextNonce())
+        .build();
+    logger.info("Raw transaction: {}", rawTransaction);
+    return rawTransaction;
   }
 
-  protected Transaction buildTransaction(final Account account) {
+  protected RawTransaction buildTransaction(final Account account) {
     return buildTransaction(account,
-        AccountAddress.of(() -> "AmLbHdVs4dNpRzyLirs8cKdV26rPJJxpVXG1w2LLZ9pKfqAHHdyg"));
+        recipient);
   }
 
-  protected Transaction signTransaction(final Account account, Transaction transaction) {
+  protected Transaction signTransaction(final Account account, RawTransaction transaction) {
     final Transaction signedTransaction =
         aergoClient.getAccountOperation().sign(account, transaction);
     logger.info("Signed transaction: {}", signedTransaction);

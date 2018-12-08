@@ -4,10 +4,9 @@
 
 package hera.client;
 
-import static java.math.BigInteger.valueOf;
-
 import hera.api.model.Account;
 import hera.api.model.ClientManagedAccount;
+import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.key.AergoKeyGenerator;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -29,6 +28,7 @@ public class SignLocalBenchmark {
     protected Account sender;
     protected Account receipt;
 
+    protected RawTransaction raw;
     protected Transaction signed;
 
     @Setup(Level.Trial)
@@ -39,22 +39,17 @@ public class SignLocalBenchmark {
       sender = ClientManagedAccount.of(generator.create());
       receipt = ClientManagedAccount.of(generator.create());
 
-      final Transaction rawTransaction = new Transaction();
-      rawTransaction.setNonce(sender.nextNonce());
-      rawTransaction.setAmount(valueOf(30));
-      rawTransaction.setSender(sender);
-      rawTransaction.setRecipient(receipt);
-      signed = client.getAccountOperation().sign(sender, rawTransaction);
+      raw = Transaction.newBuilder()
+          .sender(sender)
+          .recipient(receipt)
+          .amount("30")
+          .nonce(sender.nextNonce())
+          .build();
+      signed = client.getAccountOperation().sign(sender, raw);
     }
 
     public void sign() {
-      final Transaction transaction = new Transaction();
-      transaction.setNonce(sender.nextNonce());
-      transaction.setAmount(valueOf(30));
-      transaction.setSender(sender);
-      transaction.setRecipient(receipt);
-
-      client.getAccountOperation().sign(sender, transaction);
+      client.getAccountOperation().sign(sender, raw);
     }
 
     public void verify() {
@@ -62,13 +57,7 @@ public class SignLocalBenchmark {
     }
 
     public void signAndVerify() {
-      final Transaction transaction = new Transaction();
-      transaction.setNonce(sender.nextNonce());
-      transaction.setAmount(valueOf(30));
-      transaction.setSender(sender);
-      transaction.setRecipient(receipt);
-
-      final Transaction signedTransaction = client.getAccountOperation().sign(sender, transaction);
+      final Transaction signedTransaction = client.getAccountOperation().sign(sender, raw);
       client.getAccountOperation().verify(sender, signedTransaction);
     }
 

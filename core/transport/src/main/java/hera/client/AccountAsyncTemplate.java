@@ -17,6 +17,7 @@ import hera.api.AccountAsyncOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.Function1;
 import hera.api.tupleorerror.Function2;
@@ -51,7 +52,7 @@ public class AccountAsyncTemplate
           getStrategyChain()
               .apply(identify(getAccountBaseTemplate().getStateFunction(), ACCOUNT_GETSTATE_ASYNC));
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function2<Account, Transaction, ResultOrErrorFuture<Transaction>> signFunction =
+  private final Function2<Account, RawTransaction, ResultOrErrorFuture<Transaction>> signFunction =
       getStrategyChain()
           .apply(identify(getAccountBaseTemplate().getSignFunction(), ACCOUNT_SIGN_ASYNC));
 
@@ -67,13 +68,14 @@ public class AccountAsyncTemplate
 
   @Override
   public ResultOrErrorFuture<Transaction> sign(final Account account,
-      final Transaction transaction) {
-    return getSignFunction().apply(account, transaction);
+      final RawTransaction rawTransaction) {
+    return getSignFunction().apply(account, rawTransaction);
   }
 
   @Override
-  public ResultOrErrorFuture<Boolean> verify(final Account account, final Transaction transaction) {
-    return getVerifyFunction().apply(account, transaction);
+  public ResultOrErrorFuture<Boolean> verify(final Account account,
+      final Transaction signedTransaction) {
+    return getVerifyFunction().apply(account, signedTransaction);
   }
 
 }

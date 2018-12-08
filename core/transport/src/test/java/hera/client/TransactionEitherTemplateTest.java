@@ -51,8 +51,9 @@ public class TransactionEitherTemplateTest extends AbstractTestCase {
   @Test
   public void testGetTransaction() {
     final TransactionBaseTemplate base = mock(TransactionBaseTemplate.class);
+    final Transaction mockTransaction = mock(Transaction.class);
     ResultOrErrorFuture<Transaction> future =
-        ResultOrErrorFutureFactory.supply(() -> new Transaction());
+        ResultOrErrorFutureFactory.supply(() -> mockTransaction);
     when(base.getTransactionFunction()).thenReturn(h -> future);
 
     final TransactionEitherTemplate transactionEitherTemplate =
@@ -76,7 +77,8 @@ public class TransactionEitherTemplateTest extends AbstractTestCase {
     final TransactionEitherTemplate transactionEitherTemplate =
         supplyTransactionEitherTemplate(base);
 
-    final ResultOrError<TxHash> txHash = transactionEitherTemplate.commit(new Transaction());
+    final Transaction transaction = mock(Transaction.class);
+    final ResultOrError<TxHash> txHash = transactionEitherTemplate.commit(transaction);
     assertTrue(txHash.hasResult());
     assertEquals(TRANSACTION_COMMIT_EITHER,
         ((WithIdentity) transactionEitherTemplate.getCommitFunction()).getIdentity());

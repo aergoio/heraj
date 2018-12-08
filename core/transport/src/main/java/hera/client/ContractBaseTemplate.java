@@ -31,6 +31,7 @@ import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Fee;
+import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.Function1;
@@ -50,6 +51,7 @@ import hera.util.VersionUtils;
 import io.grpc.ManagedChannel;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 import lombok.Getter;
@@ -120,13 +122,15 @@ public class ContractBaseTemplate implements ChannelInjectable {
       ResultOrErrorFuture<ContractTxHash>> deployFunction =
           (creator, contractDefinition, fee) -> {
             try {
-              final Transaction transaction = new Transaction();
-              transaction.setSender(creator);
-              transaction.setNonce(creator.nextNonce());
-              transaction.setPayload(definitionToPayloadForm(contractDefinition));
-              transaction.setFee(fee);
-
-              return signAndCommit(creator, transaction);
+              final RawTransaction rawTransaction = Transaction.newBuilder()
+                  .sender(creator)
+                  .recipient(AccountAddress.of(BytesValue.EMPTY))
+                  .amount(BigInteger.ZERO)
+                  .nonce(creator.nextNonce())
+                  .fee(fee)
+                  .payload(definitionToPayloadForm(contractDefinition))
+                  .build();
+              return signAndCommit(creator, rawTransaction);
             } catch (Throwable e) {
               ResultOrErrorFuture<ContractTxHash> next =
                   ResultOrErrorFutureFactory.supplyEmptyFuture();
@@ -164,19 +168,20 @@ public class ContractBaseTemplate implements ChannelInjectable {
       ResultOrErrorFuture<ContractTxHash>> executeFunction =
           (executor, contractInvocation, fee) -> {
             try {
-              final Transaction transaction = new Transaction();
-              transaction.setSender(executor);
-              transaction.setRecipient(contractInvocation.getAddress());
-              transaction.setNonce(executor.nextNonce());
               final String functionCallString = toFunctionCallJsonString(contractInvocation);
               if (logger.isTraceEnabled()) {
                 logger.trace("Contract execution address: {}, function: {}",
                     contractInvocation.getAddress(), functionCallString);
               }
-              transaction.setPayload(BytesValue.of(functionCallString.getBytes()));
-              transaction.setFee(fee);
-
-              return signAndCommit(executor, transaction);
+              final RawTransaction rawTransaction = Transaction.newBuilder()
+                  .sender(executor)
+                  .recipient(contractInvocation.getAddress())
+                  .amount(BigInteger.ZERO)
+                  .nonce(executor.nextNonce())
+                  .fee(fee)
+                  .payload(BytesValue.of(functionCallString.getBytes()))
+                  .build();
+              return signAndCommit(executor, rawTransaction);
             } catch (Exception e) {
               ResultOrErrorFuture<ContractTxHash> next =
                   ResultOrErrorFutureFactory.supplyEmptyFuture();
@@ -245,7 +250,7 @@ public class ContractBaseTemplate implements ChannelInjectable {
 
 
   protected ResultOrErrorFuture<ContractTxHash> signAndCommit(final Account account,
-      final Transaction transaction) {
+      final RawTransaction transaction) {
     return accountBaseTemplate.getSignFunction().apply(account, transaction)
         .flatMap(signedTransaction -> transactionBaseTemplate.getCommitFunction()
             .apply(signedTransaction)

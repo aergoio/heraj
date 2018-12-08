@@ -15,6 +15,9 @@ import static org.mockito.Mockito.when;
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
 import hera.api.model.AccountAddress;
+import hera.api.model.BytesValue;
+import hera.api.model.RawTransaction;
+import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -28,7 +31,8 @@ import types.Rpc;
 @PrepareForTest({AergoRPCServiceFutureStub.class})
 public class TransactionBaseTemplateTest extends AbstractTestCase {
 
-  protected final byte[] rawTxHash = randomUUID().toString().getBytes();
+  protected static final AccountAddress ACCOUNT_ADDRESS =
+      new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
 
   protected final AccountAddress accountAddress =
       new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
@@ -90,8 +94,17 @@ public class TransactionBaseTemplateTest extends AbstractTestCase {
     final TransactionBaseTemplate transactionBaseTemplate =
         supplyTransactionBaseTemplate(aergoService);
 
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .sender(ACCOUNT_ADDRESS)
+        .recipient(ACCOUNT_ADDRESS)
+        .amount("1000")
+        .nonce(1L)
+        .build();
+    final Transaction transaction = new Transaction(rawTransaction, Signature.of(BytesValue.EMPTY),
+        TxHash.of(BytesValue.EMPTY), null, 0, false);
+
     final ResultOrErrorFuture<TxHash> txHash =
-        transactionBaseTemplate.getCommitFunction().apply(new Transaction());
+        transactionBaseTemplate.getCommitFunction().apply(transaction);
     assertTrue(txHash.get().hasResult());
   }
 

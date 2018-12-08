@@ -69,7 +69,7 @@ public class ContractInterface {
     return foundFunction;
   }
 
-  public ContractInvocationWithNothing newInvocation() {
+  public ContractInvocationWithNothing newInvocationBuilder() {
     return new ContractInterface.InvocationBuilder(this);
   }
 
