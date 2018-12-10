@@ -34,11 +34,13 @@ public interface ContractAsyncOperation {
    *
    * @param creator smart contract creator
    * @param contractDefinition contract definition
+   * @param nonce an nonce used in making transaction
    * @param fee transaction fee
    * @return future of contract definition transaction hash or error
    */
   ResultOrErrorFuture<ContractTxHash> deploy(Account creator, ContractDefinition contractDefinition,
-      Fee fee);
+      long nonce, Fee fee);
+
 
   /**
    * Get smart contract interface corresponding to contract address.
@@ -53,11 +55,12 @@ public interface ContractAsyncOperation {
    *
    * @param executor contract executor
    * @param contractInvocation {@link ContractInvocation}
+   * @param nonce an nonce used in making transaction
    * @param fee transaction fee
    * @return future of contract execution transaction hash or error
    */
   ResultOrErrorFuture<ContractTxHash> execute(Account executor,
-      ContractInvocation contractInvocation, Fee fee);
+      ContractInvocation contractInvocation, long nonce, Fee fee);
 
   /**
    * Query the smart contract state by calling smart contract function.

@@ -34,11 +34,12 @@ public interface ContractEitherOperation {
    *
    * @param creator smart contract creator
    * @param contractDefinition contract definition
+   * @param nonce an nonce used in making transaction
    * @param fee transaction fee
    * @return contract definition transaction hash or error
    */
   ResultOrError<ContractTxHash> deploy(Account creator, ContractDefinition contractDefinition,
-      Fee fee);
+      long nonce, Fee fee);
 
   /**
    * Get smart contract interface corresponding to contract address.
@@ -49,15 +50,17 @@ public interface ContractEitherOperation {
   ResultOrError<ContractInterface> getContractInterface(ContractAddress contractAddress);
 
   /**
-   * Execute the smart contract.
+   * Execute the smart contract. When making transaction, nonce is get by
+   * {@code executor.nextNonce()}.
    *
    * @param executor smart contract executor
    * @param contractInvocation {@link ContractInvocation}
+   * @param nonce an nonce used in making transaction
    * @param fee transaction fee
    * @return contract execution transaction hash or error
    */
   ResultOrError<ContractTxHash> execute(Account executor, ContractInvocation contractInvocation,
-      Fee fee);
+      long nonce, Fee fee);
 
   /**
    * Query the smart contract state by calling smart contract function.

@@ -85,7 +85,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<ContractTxHash> future =
         ResultOrErrorFutureFactory
             .supply(() -> new ContractTxHash(of(randomUUID().toString().getBytes())));
-    when(base.getDeployFunction()).thenReturn((a, p, f) -> future);
+    when(base.getDeployFunction()).thenReturn((a, p, n, f) -> future);
 
     final ContractAsyncTemplate contractAsyncTemplate = supplyContractAsyncTemplate(base);
 
@@ -93,7 +93,7 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     String encoded =
         Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
     final ResultOrErrorFuture<ContractTxHash> deployTxHash =
-        contractAsyncTemplate.deploy(account, ContractDefinition.of(encoded), fee);
+        contractAsyncTemplate.deploy(account, ContractDefinition.of(encoded), 0, fee);
     assertTrue(deployTxHash.get().hasResult());
     assertEquals(CONTRACT_DEPLOY_ASYNC,
         ((WithIdentity) contractAsyncTemplate.getDeployFunction()).getIdentity());
@@ -122,14 +122,14 @@ public class ContractAsyncTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<ContractTxHash> future =
         ResultOrErrorFutureFactory
             .supply(() -> new ContractTxHash(of(randomUUID().toString().getBytes())));
-    when(base.getExecuteFunction()).thenReturn((a, i, f) -> future);
+    when(base.getExecuteFunction()).thenReturn((a, i, n, f) -> future);
 
     final ContractAsyncTemplate contractAsyncTemplate = supplyContractAsyncTemplate(base);
 
     final Account account = mock(Account.class);
     final ContractFunction contractFunction = new ContractFunction(randomUUID().toString());
     final ResultOrErrorFuture<ContractTxHash> executionTxHash = contractAsyncTemplate
-        .execute(account, new ContractInvocation(contractAddress, contractFunction), fee);
+        .execute(account, new ContractInvocation(contractAddress, contractFunction), 0, fee);
     assertTrue(executionTxHash.get().hasResult());
     assertEquals(CONTRACT_EXECUTE_ASYNC,
         ((WithIdentity) contractAsyncTemplate.getExecuteFunction()).getIdentity());

@@ -5,14 +5,12 @@
 package hera.api.model;
 
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode
 public abstract class AbstractAccount implements Account {
 
-  @Getter
   protected long nonce = 0;
 
   @Override

@@ -26,7 +26,7 @@ import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Fee;
 import hera.api.tupleorerror.Function1;
-import hera.api.tupleorerror.Function3;
+import hera.api.tupleorerror.Function4;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
@@ -58,7 +58,7 @@ public class ContractAsyncTemplate
           identify(contractBaseTemplate.getReceiptFunction(), CONTRACT_GETRECEIPT_ASYNC));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function3<Account, ContractDefinition, Fee,
+  private final Function4<Account, ContractDefinition, Long, Fee,
       ResultOrErrorFuture<ContractTxHash>> deployFunction =
           getStrategyChain()
               .apply(identify(contractBaseTemplate.getDeployFunction(), CONTRACT_DEPLOY_ASYNC));
@@ -70,7 +70,7 @@ public class ContractAsyncTemplate
               CONTRACT_GETINTERFACE_ASYNC));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function3<Account, ContractInvocation, Fee,
+  private final Function4<Account, ContractInvocation, Long, Fee,
       ResultOrErrorFuture<ContractTxHash>> executeFunction = getStrategyChain()
           .apply(identify(contractBaseTemplate.getExecuteFunction(), CONTRACT_EXECUTE_ASYNC));
 
@@ -86,8 +86,8 @@ public class ContractAsyncTemplate
 
   @Override
   public ResultOrErrorFuture<ContractTxHash> deploy(final Account creator,
-      final ContractDefinition contractDefinition, final Fee fee) {
-    return getDeployFunction().apply(creator, contractDefinition, fee);
+      ContractDefinition contractDefinition, final long nonce, final Fee fee) {
+    return getDeployFunction().apply(creator, contractDefinition, nonce, fee);
   }
 
   @Override
@@ -98,8 +98,8 @@ public class ContractAsyncTemplate
 
   @Override
   public ResultOrErrorFuture<ContractTxHash> execute(final Account executor,
-      final ContractInvocation contractInvocation, final Fee fee) {
-    return getExecuteFunction().apply(executor, contractInvocation, fee);
+      final ContractInvocation contractInvocation, final long nonce, final Fee fee) {
+    return getExecuteFunction().apply(executor, contractInvocation, nonce, fee);
   }
 
   @Override

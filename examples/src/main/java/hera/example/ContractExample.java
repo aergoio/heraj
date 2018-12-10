@@ -67,8 +67,8 @@ public class ContractExample extends AbstractExample {
     System.out.println("Contract definition: " + definition);
 
     // deploy contract definition
-    final ContractTxHash deployTxHash =
-        aergoClient.getContractOperation().deploy(account, definition, Fee.of(valueOf(1L), 1L));
+    final ContractTxHash deployTxHash = aergoClient.getContractOperation().deploy(account,
+        definition, account.nextNonce(), Fee.of(valueOf(1L), 1L));
     System.out.println("Deploy hash: " + deployTxHash);
 
     sleep(1500L);
@@ -120,8 +120,8 @@ public class ContractExample extends AbstractExample {
     System.out.println("Contract definition: " + definition);
 
     // deploy contract definition
-    final ContractTxHash deployTxHash =
-        aergoClient.getContractOperation().deploy(account, definition, Fee.of(valueOf(1L), 1L));
+    final ContractTxHash deployTxHash = aergoClient.getContractOperation().deploy(account,
+        definition, account.nextNonce(), Fee.of(valueOf(1L), 1L));
     System.out.println("Deploy hash: " + deployTxHash);
 
     sleep(1500L);
@@ -165,8 +165,8 @@ public class ContractExample extends AbstractExample {
     System.out.println("Contract invocation: " + execution);
 
     // execute the invocation
-    final ContractTxHash executionTxHash =
-        aergoClient.getContractOperation().execute(account, execution, Fee.of(valueOf(1L), 1L));
+    final ContractTxHash executionTxHash = aergoClient.getContractOperation().execute(account,
+        execution, account.nextNonce(), Fee.of(valueOf(1L), 1L));
     System.out.println("Execution hash: " + executionTxHash);
 
     sleep(1500L);
@@ -202,8 +202,8 @@ public class ContractExample extends AbstractExample {
     System.out.println("Contract invocation: " + execution);
 
     // execute the invocation
-    final ContractTxHash executionTxHash =
-        aergoClient.getContractOperation().execute(account, execution, Fee.of(valueOf(1L), 1L));
+    final ContractTxHash executionTxHash = aergoClient.getContractOperation().execute(account,
+        execution, account.nextNonce(), Fee.of(valueOf(1L), 1L));
     System.out.println("Execution hash: " + executionTxHash);
 
     sleep(1500L);

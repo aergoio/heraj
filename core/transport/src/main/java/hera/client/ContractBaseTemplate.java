@@ -32,10 +32,9 @@ import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
-import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.Function1;
-import hera.api.tupleorerror.Function3;
+import hera.api.tupleorerror.Function4;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.exception.AdaptException;
@@ -118,15 +117,15 @@ public class ContractBaseTemplate implements ChannelInjectable {
           };
 
   @Getter
-  private final Function3<Account, ContractDefinition, Fee,
+  private final Function4<Account, ContractDefinition, Long, Fee,
       ResultOrErrorFuture<ContractTxHash>> deployFunction =
-          (creator, contractDefinition, fee) -> {
+          (creator, contractDefinition, nonce, fee) -> {
             try {
-              final RawTransaction rawTransaction = Transaction.newBuilder()
+              final RawTransaction rawTransaction = RawTransaction.newBuilder()
                   .sender(creator)
                   .recipient(AccountAddress.of(BytesValue.EMPTY))
                   .amount(BigInteger.ZERO)
-                  .nonce(creator.nextNonce())
+                  .nonce(nonce)
                   .fee(fee)
                   .payload(definitionToPayloadForm(contractDefinition))
                   .build();
@@ -164,20 +163,20 @@ public class ContractBaseTemplate implements ChannelInjectable {
       };
 
   @Getter
-  private final Function3<Account, ContractInvocation, Fee,
+  private final Function4<Account, ContractInvocation, Long, Fee,
       ResultOrErrorFuture<ContractTxHash>> executeFunction =
-          (executor, contractInvocation, fee) -> {
+          (executor, contractInvocation, nonce, fee) -> {
             try {
               final String functionCallString = toFunctionCallJsonString(contractInvocation);
               if (logger.isTraceEnabled()) {
                 logger.trace("Contract execution address: {}, function: {}",
                     contractInvocation.getAddress(), functionCallString);
               }
-              final RawTransaction rawTransaction = Transaction.newBuilder()
+              final RawTransaction rawTransaction = RawTransaction.newBuilder()
                   .sender(executor)
                   .recipient(contractInvocation.getAddress())
                   .amount(BigInteger.ZERO)
-                  .nonce(executor.nextNonce())
+                  .nonce(nonce)
                   .fee(fee)
                   .payload(BytesValue.of(functionCallString.getBytes()))
                   .build();

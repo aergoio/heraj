@@ -86,14 +86,14 @@ public class ContractTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<ContractTxHash> future =
         ResultOrErrorFutureFactory
             .supply(() -> new ContractTxHash(of(randomUUID().toString().getBytes())));
-    when(base.getDeployFunction()).thenReturn((a, p, f) -> future);
+    when(base.getDeployFunction()).thenReturn((a, p, n, f) -> future);
 
     final ContractTemplate contractTemplate = supplyContractTemplate(base);
 
     Account account = mock(Account.class);
     String encoded = Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
     final ContractTxHash deployTxHash =
-        contractTemplate.deploy(account, ContractDefinition.of(encoded), fee);
+        contractTemplate.deploy(account, ContractDefinition.of(encoded), 0L, fee);
     assertNotNull(deployTxHash);
     assertEquals(CONTRACT_DEPLOY,
         ((WithIdentity) contractTemplate.getDeployFunction()).getIdentity());
@@ -122,14 +122,14 @@ public class ContractTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<ContractTxHash> future =
         ResultOrErrorFutureFactory
             .supply(() -> new ContractTxHash(of(randomUUID().toString().getBytes())));
-    when(base.getExecuteFunction()).thenReturn((a, i, f) -> future);
+    when(base.getExecuteFunction()).thenReturn((a, i, n, f) -> future);
 
     final ContractTemplate contractTemplate = supplyContractTemplate(base);
 
     final Account account = mock(Account.class);
     final ContractFunction contractFunction = new ContractFunction(randomUUID().toString());
     final ContractTxHash executionTxHash = contractTemplate
-        .execute(account, new ContractInvocation(contractAddress, contractFunction), fee);
+        .execute(account, new ContractInvocation(contractAddress, contractFunction), 0L, fee);
     assertNotNull(executionTxHash);
     assertEquals(CONTRACT_EXECUTE,
         ((WithIdentity) contractTemplate.getExecuteFunction()).getIdentity());

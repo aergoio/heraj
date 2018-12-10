@@ -86,14 +86,14 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<ContractTxHash> future =
         ResultOrErrorFutureFactory
             .supply(() -> new ContractTxHash(of(randomUUID().toString().getBytes())));
-    when(base.getDeployFunction()).thenReturn((a, p, f) -> future);
+    when(base.getDeployFunction()).thenReturn((a, p, n, f) -> future);
 
     final ContractEitherTemplate contractEitherTemplate = supplyContractEitherTemplate(base);
 
     final Account account = mock(Account.class);
     String encoded = Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
     final ResultOrError<ContractTxHash> deployTxHash =
-        contractEitherTemplate.deploy(account, ContractDefinition.of(encoded), fee);
+        contractEitherTemplate.deploy(account, ContractDefinition.of(encoded), 0L, fee);
     assertTrue(deployTxHash.hasResult());
     assertEquals(CONTRACT_DEPLOY_EITHER,
         ((WithIdentity) contractEitherTemplate.getDeployFunction()).getIdentity());
@@ -122,14 +122,14 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
     ResultOrErrorFuture<ContractTxHash> future =
         ResultOrErrorFutureFactory
             .supply(() -> new ContractTxHash(of(randomUUID().toString().getBytes())));
-    when(base.getExecuteFunction()).thenReturn((a, i, f) -> future);
+    when(base.getExecuteFunction()).thenReturn((a, i, n, f) -> future);
 
     final ContractEitherTemplate contractEitherTemplate = supplyContractEitherTemplate(base);
 
     final Account account = mock(Account.class);
     final ContractFunction contractFunction = new ContractFunction(randomUUID().toString());
     final ResultOrError<ContractTxHash> executionTxHash = contractEitherTemplate
-        .execute(account, new ContractInvocation(contractAddress, contractFunction), fee);
+        .execute(account, new ContractInvocation(contractAddress, contractFunction), 0L, fee);
     assertTrue(executionTxHash.hasResult());
     assertEquals(CONTRACT_EXECUTE_EITHER,
         ((WithIdentity) contractEitherTemplate.getExecuteFunction()).getIdentity());

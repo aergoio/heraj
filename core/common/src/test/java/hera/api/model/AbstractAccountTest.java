@@ -22,7 +22,7 @@ public class AbstractAccountTest {
         new AccountState(AccountAddress.of(BytesValue.EMPTY), nonce, balance);
 
     account.bindState(state);
-    assertEquals(nonce, account.getNonce());
+    assertEquals(nonce, account.nonce);
   }
 
   @Test
@@ -35,7 +35,7 @@ public class AbstractAccountTest {
       final long nonce = (long) testParameter[0];
       final long expected = (long) testParameter[1];
       account.setNonce(nonce);
-      assertEquals(expected, account.getNonce());
+      assertEquals(expected, account.nonce);
     }
   }
 
@@ -45,7 +45,7 @@ public class AbstractAccountTest {
     final AbstractAccount account = spy(AbstractAccount.class);
     account.setNonce(nonce);
     assertEquals(nonce + 1, account.nextNonce());
-    assertEquals(nonce, account.getNonce());
+    assertEquals(nonce, account.nonce);
   }
 
   @Test
@@ -54,7 +54,7 @@ public class AbstractAccountTest {
     final AbstractAccount account = spy(AbstractAccount.class);
     account.setNonce(nonce);
     account.incrementNonce();
-    assertEquals(nonce + 1, account.getNonce());
+    assertEquals(nonce + 1, account.nonce);
   }
 
 }

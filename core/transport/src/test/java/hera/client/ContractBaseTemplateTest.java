@@ -92,9 +92,8 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
 
     Account account = ClientManagedAccount.of(generator.create());
     String encoded = Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
-    final ResultOrErrorFuture<ContractTxHash> deployTxHash =
-        contractBaseTemplate.getDeployFunction().apply(account, ContractDefinition.of(encoded),
-            fee);
+    final ResultOrErrorFuture<ContractTxHash> deployTxHash = contractBaseTemplate
+        .getDeployFunction().apply(account, ContractDefinition.of(encoded), 0L, fee);
     assertTrue(deployTxHash.get().hasResult());
   }
 
@@ -116,9 +115,8 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
 
     Account account = ServerManagedAccount.of(accountAddress);
     String encoded = Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
-    final ResultOrErrorFuture<ContractTxHash> deployTxHash =
-        contractBaseTemplate.getDeployFunction().apply(account, ContractDefinition.of(encoded),
-            fee);
+    final ResultOrErrorFuture<ContractTxHash> deployTxHash = contractBaseTemplate
+        .getDeployFunction().apply(account, ContractDefinition.of(encoded), 0L, fee);
     assertTrue(deployTxHash.get().hasResult());
   }
 
@@ -151,7 +149,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
     final ContractFunction contractFunction = new ContractFunction(randomUUID().toString());
     final ResultOrErrorFuture<ContractTxHash> executionTxHash = contractBaseTemplate
         .getExecuteFunction()
-        .apply(account, new ContractInvocation(contractAddress, contractFunction), fee);
+        .apply(account, new ContractInvocation(contractAddress, contractFunction), 0L, fee);
     assertTrue(executionTxHash.get().hasResult());
   }
 
@@ -173,9 +171,9 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
 
     final Account account = ServerManagedAccount.of(accountAddress);
     final ContractFunction contractFunction = new ContractFunction(randomUUID().toString());
-    final ResultOrErrorFuture<ContractTxHash> executionTxHash = contractBaseTemplate
-        .getExecuteFunction()
-        .apply(account, new ContractInvocation(contractAddress, contractFunction), fee);
+    final ResultOrErrorFuture<ContractTxHash> executionTxHash =
+        contractBaseTemplate.getExecuteFunction().apply(account,
+            new ContractInvocation(contractAddress, contractFunction), 0L, fee);
     assertTrue(executionTxHash.get().hasResult());
   }
 

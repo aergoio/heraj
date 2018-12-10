@@ -33,10 +33,12 @@ public interface ContractOperation {
    *
    * @param creator smart contract creator
    * @param contractDefinition contract definition
+   * @param nonce an nonce used in making transaction
    * @param fee transaction fee
    * @return contract definition transaction hash
    */
-  ContractTxHash deploy(Account creator, ContractDefinition contractDefinition, Fee fee);
+  ContractTxHash deploy(Account creator, ContractDefinition contractDefinition, long nonce,
+      Fee fee);
 
   /**
    * Get smart contract interface corresponding to contract address.
@@ -51,10 +53,12 @@ public interface ContractOperation {
    *
    * @param executor smart contract executor
    * @param contractInvocation {@link ContractInvocation}
+   * @param nonce an nonce used in making transaction
    * @param fee transaction fee
    * @return contract execution transaction hash
    */
-  ContractTxHash execute(Account executor, ContractInvocation contractInvocation, Fee fee);
+  ContractTxHash execute(Account executor, ContractInvocation contractInvocation, long nonce,
+      Fee fee);
 
   /**
    * Query the smart contract state by calling smart contract function.

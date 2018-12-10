@@ -44,7 +44,7 @@ public class ContractOperationIT extends AbstractIT {
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(contractPayload).constructorArgs(args).build();
     logger.info("Deploy definition: {}", definition);
-    return aergoClient.getContractOperation().deploy(account, definition, fee);
+    return aergoClient.getContractOperation().deploy(account, definition, account.nextNonce(), fee);
   }
 
   protected ContractTxReceipt getContractTxReceipt(final ContractTxHash contractTxHash) {
@@ -65,7 +65,8 @@ public class ContractOperationIT extends AbstractIT {
     final ContractInvocation execution =
         contractInterface.newInvocationBuilder().function(function).args(args).build();
     logger.info("Contract invocation: {}", execution);
-    return aergoClient.getContractOperation().execute(account, execution, Fee.of(valueOf(0L), 0L));
+    return aergoClient.getContractOperation().execute(account, execution, account.nextNonce(),
+        Fee.of(valueOf(0L), 0L));
   }
 
   protected ContractResult query(final ContractInterface contractInterface, final String function,
