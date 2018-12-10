@@ -37,7 +37,8 @@ def javaProjects = [
   project('core:util'),
   project('core:common'),
   project('core:protobuf'),
-  project('core:transport')
+  project('core:transport'),
+  project('client:wallet')
 ]
 
 def jmhProjects = [

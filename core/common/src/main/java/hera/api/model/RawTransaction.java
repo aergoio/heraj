@@ -18,6 +18,19 @@ public class RawTransaction {
     return new RawTransaction.Builder();
   }
 
+  /**
+   * Copy {@code RawTransaction} except for nonce. Nonce is set as passed once.
+   *
+   * @param rawTransaction a raw transaction to copy
+   * @param nonce an new nonce
+   * @return a {@code RawTransaction} instance
+   */
+  public static RawTransaction copyOf(final RawTransaction rawTransaction, final long nonce) {
+    return new RawTransaction(rawTransaction.getSender(), rawTransaction.getRecipient(),
+        rawTransaction.getAmount(), nonce, rawTransaction.getFee(), rawTransaction.getPayload(),
+        rawTransaction.getTxType());
+  }
+
   @Getter
   protected final AccountAddress sender;
 
