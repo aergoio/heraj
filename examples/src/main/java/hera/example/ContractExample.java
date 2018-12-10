@@ -68,7 +68,7 @@ public class ContractExample extends AbstractExample {
 
     // deploy contract definition
     final ContractTxHash deployTxHash = aergoClient.getContractOperation().deploy(account,
-        definition, account.nextNonce(), Fee.of(valueOf(1L), 1L));
+        definition, account.incrementAndGetNonce(), Fee.of(valueOf(1L), 1L));
     System.out.println("Deploy hash: " + deployTxHash);
 
     sleep(1500L);
@@ -121,7 +121,7 @@ public class ContractExample extends AbstractExample {
 
     // deploy contract definition
     final ContractTxHash deployTxHash = aergoClient.getContractOperation().deploy(account,
-        definition, account.nextNonce(), Fee.of(valueOf(1L), 1L));
+        definition, account.incrementAndGetNonce(), Fee.of(valueOf(1L), 1L));
     System.out.println("Deploy hash: " + deployTxHash);
 
     sleep(1500L);
@@ -166,7 +166,7 @@ public class ContractExample extends AbstractExample {
 
     // execute the invocation
     final ContractTxHash executionTxHash = aergoClient.getContractOperation().execute(account,
-        execution, account.nextNonce(), Fee.of(valueOf(1L), 1L));
+        execution, account.incrementAndGetNonce(), Fee.of(valueOf(1L), 1L));
     System.out.println("Execution hash: " + executionTxHash);
 
     sleep(1500L);
@@ -203,7 +203,7 @@ public class ContractExample extends AbstractExample {
 
     // execute the invocation
     final ContractTxHash executionTxHash = aergoClient.getContractOperation().execute(account,
-        execution, account.nextNonce(), Fee.of(valueOf(1L), 1L));
+        execution, account.incrementAndGetNonce(), Fee.of(valueOf(1L), 1L));
     System.out.println("Execution hash: " + executionTxHash);
 
     sleep(1500L);

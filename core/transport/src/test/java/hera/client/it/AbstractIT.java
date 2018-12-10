@@ -111,7 +111,7 @@ public abstract class AbstractIT {
         .sender(account)
         .recipient(recipient)
         .amount(amount)
-        .nonce(account.nextNonce())
+        .nonce(account.incrementAndGetNonce())
         .build();
     logger.info("Raw transaction: {}", rawTransaction);
     return rawTransaction;

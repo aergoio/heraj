@@ -31,15 +31,18 @@ public interface Account extends Adaptor {
   void setNonce(long nonce);
 
   /**
-   * Get next nonce of an account.
+   * Get nonce for account.
    *
-   * @return nonce
+   * @return an nonce
    */
-  long nextNonce();
+  long getNonce();
+
 
   /**
-   * Increment nonce by one.
+   * Increment an nonce and get it.
+   *
+   * @return an nonce
    */
-  void incrementNonce();
+  long incrementAndGetNonce();
 
 }

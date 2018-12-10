@@ -40,7 +40,7 @@ public class TransactionExample extends AbstractExample {
         .sender(account)
         .recipient(AccountAddress.of(() -> "AmLbHdVs4dNpRzyLirs8cKdV26rPJJxpVXG1w2LLZ9pKfqAHHdyg"))
         .amount("10")
-        .nonce(account.nextNonce())
+        .nonce(account.incrementAndGetNonce())
         .build();
     final Transaction signedTransaction =
         aergoClient.getAccountOperation().sign(account, rawTransaction);
@@ -79,7 +79,7 @@ public class TransactionExample extends AbstractExample {
         .sender(account)
         .recipient(AccountAddress.of(() -> "AmLbHdVs4dNpRzyLirs8cKdV26rPJJxpVXG1w2LLZ9pKfqAHHdyg"))
         .amount("10")
-        .nonce(account.nextNonce())
+        .nonce(account.incrementAndGetNonce())
         .build();
     final Transaction signedTransaction =
         aergoClient.getAccountOperation().sign(account, rawTransaction);

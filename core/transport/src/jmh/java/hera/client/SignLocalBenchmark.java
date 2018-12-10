@@ -43,7 +43,7 @@ public class SignLocalBenchmark {
           .sender(sender)
           .recipient(receipt)
           .amount("30")
-          .nonce(sender.nextNonce())
+          .nonce(sender.incrementAndGetNonce())
           .build();
       signed = client.getAccountOperation().sign(sender, raw);
     }

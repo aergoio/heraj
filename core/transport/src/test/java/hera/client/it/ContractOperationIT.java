@@ -44,7 +44,8 @@ public class ContractOperationIT extends AbstractIT {
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(contractPayload).constructorArgs(args).build();
     logger.info("Deploy definition: {}", definition);
-    return aergoClient.getContractOperation().deploy(account, definition, account.nextNonce(), fee);
+    return aergoClient.getContractOperation().deploy(account, definition,
+        account.incrementAndGetNonce(), fee);
   }
 
   protected ContractTxReceipt getContractTxReceipt(final ContractTxHash contractTxHash) {
@@ -65,8 +66,8 @@ public class ContractOperationIT extends AbstractIT {
     final ContractInvocation execution =
         contractInterface.newInvocationBuilder().function(function).args(args).build();
     logger.info("Contract invocation: {}", execution);
-    return aergoClient.getContractOperation().execute(account, execution, account.nextNonce(),
-        Fee.of(valueOf(0L), 0L));
+    return aergoClient.getContractOperation().execute(account, execution,
+        account.incrementAndGetNonce(), Fee.of(valueOf(0L), 0L));
   }
 
   protected ContractResult query(final ContractInterface contractInterface, final String function,
@@ -112,7 +113,6 @@ public class ContractOperationIT extends AbstractIT {
     waitForNextBlockToGenerate();
 
     final ContractTxHash deployTxHash = define(account, Fee.of(valueOf(1L), 1L));
-    account.incrementNonce();
 
     waitForNextBlockToGenerate();
 
@@ -127,7 +127,6 @@ public class ContractOperationIT extends AbstractIT {
     final String stringVal = "string value";
     final ContractTxHash executionTxHash =
         execute(account, Fee.of(valueOf(1L), 1L), contractInterface, "set", key, intVal, stringVal);
-    account.incrementNonce();
 
     waitForNextBlockToGenerate();
 
@@ -151,7 +150,6 @@ public class ContractOperationIT extends AbstractIT {
     assertTrue(unlockAccount(account, password));
 
     final ContractTxHash deployTxHash = define(account, Fee.of(valueOf(1L), 1L));
-    account.incrementNonce();
 
     waitForNextBlockToGenerate();
 
@@ -166,7 +164,6 @@ public class ContractOperationIT extends AbstractIT {
     final String stringVal = "string value";
     final ContractTxHash executionTxHash =
         execute(account, Fee.of(valueOf(1L), 1L), contractInterface, "set", key, intVal, stringVal);
-    account.incrementNonce();
 
     waitForNextBlockToGenerate();
 

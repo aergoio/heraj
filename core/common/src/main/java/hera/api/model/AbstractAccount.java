@@ -4,6 +4,7 @@
 
 package hera.api.model;
 
+import java.util.concurrent.atomic.AtomicLong;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -11,7 +12,7 @@ import lombok.ToString;
 @EqualsAndHashCode
 public abstract class AbstractAccount implements Account {
 
-  protected long nonce = 0;
+  protected AtomicLong nonce = new AtomicLong(0);
 
   @Override
   public void bindState(final AccountState state) {
@@ -20,17 +21,17 @@ public abstract class AbstractAccount implements Account {
 
   @Override
   public void setNonce(final long nonce) {
-    this.nonce = nonce < 0 ? 0 : nonce;
+    this.nonce = new AtomicLong(nonce < 0 ? 0 : nonce);
   }
 
   @Override
-  public long nextNonce() {
-    return this.nonce + 1;
+  public long getNonce() {
+    return nonce.get();
   }
 
   @Override
-  public void incrementNonce() {
-    ++this.nonce;
+  public long incrementAndGetNonce() {
+    return nonce.incrementAndGet();
   }
 
 }
