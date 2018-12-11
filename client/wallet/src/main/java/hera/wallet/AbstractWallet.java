@@ -44,14 +44,21 @@ public abstract class AbstractWallet implements Wallet {
 
   protected Account account;
 
-  public AbstractWallet(final AergoClient aergoClient, final int nonceRefreshCount) {
+  protected AbstractWallet(final AergoClient aergoClient, final int nonceRefreshCount) {
     this.aergoClient = aergoClient;
     this.nonceRefreshCount = nonceRefreshCount;
   }
 
+  protected Account getAccount() {
+    if (null == this.account) {
+      throw new WalletException("An account is not set");
+    }
+    return this.account;
+  }
+
   @Override
   public AccountState getAccountState() {
-    return getAergoClient().getAccountOperation().getState(account);
+    return getAergoClient().getAccountOperation().getState(getAccount());
   }
 
   @Override
@@ -126,12 +133,12 @@ public abstract class AbstractWallet implements Wallet {
 
   @Override
   public AccountAddress getAddress() {
-    return account.getAddress();
+    return getAccount().getAddress();
   }
 
   @Override
   public long getRecentlyUsedNonce() {
-    return account.getNonce();
+    return getAccount().getNonce();
   }
 
   @Override
@@ -142,10 +149,10 @@ public abstract class AbstractWallet implements Wallet {
   @Override
   public TxHash send(final AccountAddress recipient, final BigInteger amount, final Fee fee) {
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .sender(account)
+        .sender(getAccount())
         .recipient(recipient)
         .amount(amount)
-        .nonce(account.incrementAndGetNonce())
+        .nonce(getAccount().incrementAndGetNonce())
         .fee(fee)
         .build();
     return commit(rawTransaction);
@@ -172,7 +179,7 @@ public abstract class AbstractWallet implements Wallet {
         if (isNonceRelatedException(e)) {
           syncNonceWithServer();
           commitTarget =
-              sign(RawTransaction.copyOf(signedTransaction, account.incrementAndGetNonce()));
+              sign(RawTransaction.copyOf(signedTransaction, getAccount().incrementAndGetNonce()));
         } else {
           throw e;
         }
@@ -185,7 +192,8 @@ public abstract class AbstractWallet implements Wallet {
   @Override
   public ContractInterface deploy(final ContractDefinition contractDefinition, final Fee fee) {
     final ContractTxHash deployTxHash = (ContractTxHash) sendContractRequest(
-        n -> getAergoClient().getContractOperation().deploy(account, contractDefinition, n, fee));
+        n -> getAergoClient().getContractOperation().deploy(getAccount(), contractDefinition, n,
+            fee));
     ThreadUtils.trySleep(1200L);
     final ContractTxReceipt receipt =
         getAergoClient().getContractOperation().getReceipt(deployTxHash);
@@ -196,7 +204,8 @@ public abstract class AbstractWallet implements Wallet {
   @Override
   public ContractTxHash execute(final ContractInvocation contractInvocation, final Fee fee) {
     return (ContractTxHash) sendContractRequest(
-        n -> getAergoClient().getContractOperation().execute(account, contractInvocation, n, fee));
+        n -> getAergoClient().getContractOperation().execute(getAccount(), contractInvocation, n,
+            fee));
   }
 
   @Override
@@ -209,7 +218,7 @@ public abstract class AbstractWallet implements Wallet {
     int i = 0;
     while (i < getNonceRefreshCount() && null == executeTxHash) {
       try {
-        executeTxHash = requester.apply(account.incrementAndGetNonce());
+        executeTxHash = requester.apply(getAccount().incrementAndGetNonce());
       } catch (CommitException e) {
         if (isNonceRelatedException(e)) {
           syncNonceWithServer();
@@ -228,8 +237,8 @@ public abstract class AbstractWallet implements Wallet {
   }
 
   protected void syncNonceWithServer() {
-    synchronized (account) {
-      account.bindState(getAccountState());
+    synchronized (getAccount()) {
+      getAccount().bindState(getAccountState());
     }
   }
 

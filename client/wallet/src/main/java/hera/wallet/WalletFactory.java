@@ -4,10 +4,10 @@
 
 package hera.wallet;
 
+import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.client.ContextConfiguer;
 import hera.exception.WalletCreationException;
-import hera.key.AergoKey;
 import java.util.concurrent.TimeUnit;
 
 public class WalletFactory implements ContextConfiguer<WalletFactory> {
@@ -73,7 +73,7 @@ public class WalletFactory implements ContextConfiguer<WalletFactory> {
   }
 
   /**
-   * Create a wallet instance with the new key.
+   * Create a wallet instance.
    *
    * @param type a wallet type
    * @return a wallet instance
@@ -83,37 +83,14 @@ public class WalletFactory implements ContextConfiguer<WalletFactory> {
     if (null == type) {
       throw new WalletCreationException("Unrecognized wallet type");
     }
+    final AergoClient aergoClient = clientBuilder.build();
     switch (type) {
       case Naive:
-        return new NaiveWallet(clientBuilder.build(), nonceRefreshCount);
+        return new NaiveWallet(aergoClient, nonceRefreshCount);
       case Secure:
         throw new UnsupportedOperationException("Not yet implemented");
       case ServerKeyStore:
-        throw new UnsupportedOperationException("Not yet implemented");
-      default:
-        throw new WalletCreationException("Unrecognized wallet type");
-    }
-  }
-
-  /**
-   * Create a wallet instance with a initial key.
-   *
-   * @param type a wallet type
-   * @param key an aergo key
-   * @return a wallet instance
-   * @throws WalletCreationException if wallet type is invalid
-   */
-  public Wallet create(final WalletType type, final AergoKey key) {
-    if (null == type) {
-      throw new WalletCreationException("Unrecognized wallet type");
-    }
-    switch (type) {
-      case Naive:
-        return new NaiveWallet(clientBuilder.build(), nonceRefreshCount, key);
-      case Secure:
-        throw new UnsupportedOperationException("Not yet implemented");
-      case ServerKeyStore:
-        throw new UnsupportedOperationException("Not yet implemented");
+        return new ServerKeyStoreWallet(aergoClient, nonceRefreshCount);
       default:
         throw new WalletCreationException("Unrecognized wallet type");
     }

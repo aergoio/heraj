@@ -16,7 +16,8 @@ import org.slf4j.Logger;
     "javax.crypto.*",
     "javax.management.*",
     "javax.net.ssl.*",
-    "javax.security.*"})
+    "javax.security.*",
+    "org.bouncycastle.*"})
 public abstract class AbstractTestCase {
 
   protected final transient Logger logger = getLogger(getClass());

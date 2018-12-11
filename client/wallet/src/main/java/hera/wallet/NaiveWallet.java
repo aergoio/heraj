@@ -12,7 +12,6 @@ import hera.client.AergoClient;
 import hera.exception.UnlockedAccountException;
 import hera.exception.WalletException;
 import hera.key.AergoKey;
-import hera.key.AergoKeyGenerator;
 import java.security.KeyStore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -21,12 +20,7 @@ public class NaiveWallet extends AbstractWallet {
   protected final AtomicBoolean unlocked = new AtomicBoolean(false);
 
   NaiveWallet(final AergoClient aergoClient, final int nonceRefreshCount) {
-    this(aergoClient, nonceRefreshCount, new AergoKeyGenerator().create());
-  }
-
-  NaiveWallet(final AergoClient aergoClient, final int nonceRefreshCount, final AergoKey key) {
     super(aergoClient, nonceRefreshCount);
-    this.account = ClientManagedAccount.of(key);
   }
 
   @Override
@@ -60,8 +54,8 @@ public class NaiveWallet extends AbstractWallet {
   }
 
   @Override
-  public void saveKey(final String password) {
-    // do nothing
+  public void saveKey(final AergoKey key, final String password) {
+    this.account = ClientManagedAccount.of(key);
   }
 
   @Override

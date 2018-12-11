@@ -16,6 +16,7 @@ import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.key.AergoKey;
 import java.math.BigInteger;
 
 public interface Wallet extends LookupClient {
@@ -29,12 +30,12 @@ public interface Wallet extends LookupClient {
   void bindKeyStore(java.security.KeyStore keyStore);
 
   /**
-   * Save an aergo key of current account with an encrypt key {@code password}. This operation has
-   * no meaning if {@link WalletType#Naive}.
+   * Save an aergo key to the key store. This operation has no meaning to {@link WalletType#Naive}.
    *
+   * @param aergoKey an aergo key
    * @param password an encrypt key
    */
-  void saveKey(String password);
+  void saveKey(AergoKey aergoKey, String password);
 
   /**
    * Export an aergo key of a current account with encrypted.
