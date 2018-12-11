@@ -7,8 +7,6 @@ package hera.strategy;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import hera.AbstractTestCase;
-import hera.util.Configuration;
-import hera.util.conf.InMemoryConfiguration;
 import io.grpc.ManagedChannel;
 import org.junit.Test;
 
@@ -16,10 +14,7 @@ public class OkHttpConnectStrategyTest extends AbstractTestCase {
 
   @Test
   public void testConnect() throws InterruptedException {
-    final Configuration configuration = new InMemoryConfiguration();
-    configuration.define("endpoint", "localhost:9999");
     final OkHttpConnectStrategy nettyConnectStrategy = new OkHttpConnectStrategy();
-    nettyConnectStrategy.setConfiguration(configuration);
     final ManagedChannel channel = nettyConnectStrategy.connect();
     channel.shutdown().awaitTermination(1, SECONDS);
   }

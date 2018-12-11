@@ -14,8 +14,7 @@ import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode
-public class NettyConnectStrategy
-    implements ConnectStrategy<NettyChannelBuilder> {
+public class NettyConnectStrategy implements ConnectStrategy<NettyChannelBuilder> {
 
   protected HostnameAndPort getEndpoint() {
     return HostnameAndPort.of(ContextHolder.get().getConfiguration().getAsString("endpoint",
