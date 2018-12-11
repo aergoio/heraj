@@ -91,9 +91,11 @@ public class BlockchainBaseTemplate implements ChannelInjectable {
   private final Function0<ResultOrErrorFuture<NodeStatus>> nodeStatusFunction = () -> {
     ResultOrErrorFuture<NodeStatus> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-    ByteString byteString = ByteString.copyFrom(longToByteArray(3000L));
-    Rpc.SingleBytes rawTimeout = Rpc.SingleBytes.newBuilder().setValue(byteString).build();
-    ListenableFuture<Rpc.SingleBytes> listenableFuture = aergoService.nodeState(rawTimeout);
+    ByteString rawTimeout = ByteString.copyFrom(longToByteArray(3000L));
+    Rpc.NodeReq nodeRequest = Rpc.NodeReq.newBuilder()
+        .setTimeout(rawTimeout)
+        .build();
+    ListenableFuture<Rpc.SingleBytes> listenableFuture = aergoService.nodeState(nodeRequest);
     FutureChain<Rpc.SingleBytes, NodeStatus> callback = new FutureChain<>(nextFuture);
     callback
         .setSuccessHandler(
