@@ -6,6 +6,7 @@ package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
 import hera.exception.HerajException;
@@ -48,9 +49,9 @@ public class ContractDefinition {
    */
   public ContractDefinition(final String encodedContract, final Object... args) {
     assertNotNull(encodedContract, new HerajException("Encoded contract must not null"));
-    assertNotNull(args, new HerajException("Encoded contract must not null"));
     this.encodedContract = encodedContract;
-    this.constructorArgs = unmodifiableList(asList(args));
+    this.constructorArgs =
+        null != args ? unmodifiableList(asList(args)) : unmodifiableList(emptyList());
   }
 
   @Override
@@ -91,7 +92,7 @@ public class ContractDefinition {
 
     protected String encodedContract;
 
-    protected Object[] constructorArgs;
+    protected Object[] constructorArgs = new Object[0];
 
     @Override
     public ContractDefinitionWithPayload encodedContract(final String encodedContract) {

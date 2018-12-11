@@ -6,6 +6,7 @@ package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
 import hera.exception.HerajException;
@@ -39,10 +40,9 @@ public class ContractInvocation {
       final Object... args) {
     assertNotNull(contractAddress, new HerajException("Contract address must not null"));
     assertNotNull(contractFunction, new HerajException("Contract function must not null"));
-    assertNotNull(args, new HerajException("Arguments must not null"));
     this.address = contractAddress;
     this.function = contractFunction;
-    this.args = unmodifiableList(asList(args));
+    this.args = null != args ? unmodifiableList(asList(args)) : unmodifiableList(emptyList());
   }
 
 }
