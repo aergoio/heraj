@@ -2,11 +2,13 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.api.model;
+package hera.api.model.internal;
 
 import static org.junit.Assert.assertEquals;
 
 import hera.AbstractTestCase;
+import hera.api.model.Account;
+import hera.api.model.AccountAddress;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import org.junit.Test;

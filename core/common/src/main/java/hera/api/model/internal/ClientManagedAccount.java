@@ -2,8 +2,10 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.api.model;
+package hera.api.model.internal;
 
+import hera.api.model.AccountAddress;
+import hera.api.model.Signature;
 import hera.key.AergoKey;
 import java.io.InputStream;
 import java.util.Optional;
@@ -32,12 +34,12 @@ public class ClientManagedAccount extends AbstractAccount implements KeyHoldable
   }
 
   @Override
-  public BytesValue sign(InputStream plainText) {
+  public Signature sign(InputStream plainText) {
     return key.sign(plainText);
   }
 
   @Override
-  public boolean verify(InputStream plainText, BytesValue signature) {
+  public boolean verify(InputStream plainText, Signature signature) {
     return key.verify(plainText, signature);
   }
 

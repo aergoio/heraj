@@ -2,12 +2,13 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.api.model;
+package hera.api.model.internal;
 
 import static hera.util.ValidationUtils.assertNotNull;
 import static hera.util.ValidationUtils.assertTrue;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.model.Time;
 import hera.exception.HerajException;
 import hera.util.ThreadUtils;
 import lombok.EqualsAndHashCode;

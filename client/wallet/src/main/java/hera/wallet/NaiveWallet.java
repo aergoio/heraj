@@ -5,10 +5,10 @@
 package hera.wallet;
 
 import hera.api.model.Authentication;
-import hera.api.model.ClientManagedAccount;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
-import hera.api.model.TryCountAndInterval;
+import hera.api.model.internal.ClientManagedAccount;
+import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
 import hera.exception.UnlockedAccountException;
 import hera.exception.WalletException;

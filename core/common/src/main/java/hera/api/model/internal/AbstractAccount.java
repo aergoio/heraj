@@ -2,8 +2,10 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.api.model;
+package hera.api.model.internal;
 
+import hera.api.model.Account;
+import hera.api.model.AccountState;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;

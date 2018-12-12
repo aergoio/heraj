@@ -1,6 +1,6 @@
 /*
  * @copyright defined in LICENSE.txt
- */
+*/
 
 package hera.wallet;
 
@@ -8,8 +8,8 @@ import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.RawTransaction;
-import hera.api.model.ServerManagedAccount;
 import hera.api.model.Transaction;
+import hera.api.model.internal.ServerManagedAccount;
 import hera.client.AergoClient;
 import hera.key.AergoKey;
 import lombok.RequiredArgsConstructor;

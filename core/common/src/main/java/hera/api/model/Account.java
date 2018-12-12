@@ -4,6 +4,7 @@
 
 package hera.api.model;
 
+import hera.key.AergoKey;
 import hera.util.Adaptor;
 
 public interface Account extends Adaptor {
@@ -44,5 +45,12 @@ public interface Account extends Adaptor {
    * @return an nonce
    */
   long incrementAndGetNonce();
+
+  /**
+   * Get {@code AergoKey} if holds. Otherwise return null.
+   *
+   * @return {@code AergoKey} if holds. Otherwise null.
+   */
+  AergoKey getKey();
 
 }

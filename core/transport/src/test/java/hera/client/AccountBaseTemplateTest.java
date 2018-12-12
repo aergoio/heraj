@@ -18,12 +18,12 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.BytesValue;
-import hera.api.model.ClientManagedAccount;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.model.internal.ClientManagedAccount;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
@@ -127,9 +127,8 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
         .amount("1000")
         .nonce(1L)
         .build();
-    final BytesValue rawSignature =
+    final Signature signature =
         key.sign(TransactionUtils.calculateHash(rawTransaction).getBytesValue().get());
-    final Signature signature = Signature.of(rawSignature);
     final Transaction transaction = new Transaction(rawTransaction, signature,
         TransactionUtils.calculateHash(rawTransaction, signature), null, 0, false);
 

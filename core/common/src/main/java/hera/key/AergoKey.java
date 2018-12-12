@@ -11,6 +11,7 @@ import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.Signature;
 import hera.exception.HerajException;
 import hera.exception.UnableToGenerateKeyException;
 import hera.util.AddressUtils;
@@ -155,12 +156,12 @@ public class AergoKey implements KeyPair {
   }
 
   @Override
-  public BytesValue sign(InputStream plainText) {
+  public Signature sign(InputStream plainText) {
     final BytesValue serialized = BytesValue.of(serialize(ecdsakey.sign(plainText)));
     if (logger.isTraceEnabled()) {
       logger.trace("Serialized signature: {}", serialized);
     }
-    return serialized;
+    return Signature.of(serialized);
   }
 
   protected byte[] serialize(final ECDSASignature signature) {
@@ -202,7 +203,7 @@ public class AergoKey implements KeyPair {
   }
 
   @Override
-  public boolean verify(final InputStream plainText, final BytesValue signature) {
+  public boolean verify(final InputStream plainText, final Signature signature) {
     try {
       final ECDSASignature parsedSignature = parseSignature(signature);
       return ecdsakey.verify(plainText, parsedSignature);
@@ -218,12 +219,12 @@ public class AergoKey implements KeyPair {
    * @param signature serialized ecdsa signature
    * @return parsed {@link ECDSASignature}. null if parsing failed.
    */
-  protected ECDSASignature parseSignature(final BytesValue signature) {
+  protected ECDSASignature parseSignature(final Signature signature) {
     if (null == signature) {
       throw new HerajException("Serialized signature is null");
     }
 
-    final byte[] rawSignature = signature.getValue();
+    final byte[] rawSignature = signature.getSign().getValue();
     if (logger.isTraceEnabled()) {
       logger.trace("Raw signature: {}, len: {}", HexUtils.encode(rawSignature),
           rawSignature.length);

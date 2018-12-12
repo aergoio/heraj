@@ -10,7 +10,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import hera.AbstractTestCase;
-import hera.api.model.BytesValue;
+import hera.api.model.Signature;
 import hera.util.HexUtils;
 import hera.util.pki.ECDSASignature;
 import java.io.ByteArrayInputStream;
@@ -59,7 +59,7 @@ public class AergoKeyTest extends AbstractTestCase {
     for (int i = 0; i < N_TEST; ++i) {
       final AergoKey key = new AergoKeyGenerator().create();
       final String plainText = randomUUID().toString();
-      final BytesValue signature = key.sign(new ByteArrayInputStream(plainText.getBytes()));
+      final Signature signature = key.sign(new ByteArrayInputStream(plainText.getBytes()));
       assertTrue(key.verify(new ByteArrayInputStream(plainText.getBytes()), signature));
     }
   }

@@ -6,7 +6,7 @@ package hera.example;
 
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.ClientManagedAccount;
+import hera.api.model.internal.ClientManagedAccount;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.key.AergoKey;

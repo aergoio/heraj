@@ -7,7 +7,7 @@ package hera.strategy;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.Time;
-import hera.api.model.TryCountAndInterval;
+import hera.api.model.internal.TryCountAndInterval;
 import hera.api.tupleorerror.Function;
 import hera.api.tupleorerror.Function0;
 import hera.api.tupleorerror.ResultOrError;

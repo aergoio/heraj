@@ -2,8 +2,11 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.api.model;
+package hera.api.model.internal;
 
+import hera.api.model.AccountAddress;
+import hera.api.model.BytesValue;
+import hera.key.AergoKey;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -23,6 +26,11 @@ public class ServerManagedAccount extends AbstractAccount {
   @Setter
   @Getter
   protected AccountAddress address = new AccountAddress(BytesValue.EMPTY);
+
+  @Override
+  public AergoKey getKey() {
+    return null;
+  }
 
   @SuppressWarnings("unchecked")
   @Override

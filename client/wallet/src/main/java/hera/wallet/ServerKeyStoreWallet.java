@@ -4,7 +4,7 @@
 
 package hera.wallet;
 
-import hera.api.model.TryCountAndInterval;
+import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
 import java.security.KeyStore;
 

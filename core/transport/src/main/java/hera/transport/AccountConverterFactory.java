@@ -8,7 +8,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
 import hera.api.model.AccountAddress;
-import hera.api.model.ServerManagedAccount;
+import hera.api.model.internal.ServerManagedAccount;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import types.AccountOuterClass;

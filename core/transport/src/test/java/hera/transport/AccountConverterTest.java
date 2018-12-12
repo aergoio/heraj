@@ -9,7 +9,7 @@ import static org.junit.Assert.assertNotNull;
 import hera.AbstractTestCase;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
-import hera.api.model.ServerManagedAccount;
+import hera.api.model.internal.ServerManagedAccount;
 import org.junit.Test;
 import types.AccountOuterClass;
 

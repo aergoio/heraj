@@ -2,11 +2,14 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.api.model;
+package hera.api.model.internal;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.spy;
 
+import hera.api.model.AccountAddress;
+import hera.api.model.AccountState;
+import hera.api.model.BytesValue;
 import java.math.BigInteger;
 import org.junit.Test;
 

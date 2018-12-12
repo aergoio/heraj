@@ -18,11 +18,11 @@ import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
-import hera.api.model.KeyHoldable;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.model.internal.KeyHoldable;
 import hera.api.tupleorerror.Function1;
 import hera.api.tupleorerror.Function2;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -95,8 +95,7 @@ public class AccountBaseTemplate implements ChannelInjectable {
               KeyHoldable keyHoldable = (KeyHoldable) account;
 
               final TxHash hashWithoutSign = TransactionUtils.calculateHash(rawTransaction);
-              final Signature signature = new Signature(keyHoldable
-                  .sign(hashWithoutSign.getBytesValue().get()));
+              final Signature signature = keyHoldable.sign(hashWithoutSign.getBytesValue().get());
 
               final TxHash hashWithSign = TransactionUtils.calculateHash(rawTransaction, signature);
               final Transaction signed = new Transaction(rawTransaction, signature,
@@ -129,7 +128,7 @@ public class AccountBaseTemplate implements ChannelInjectable {
           KeyHoldable keyHoldable = (KeyHoldable) account;
           final boolean verifyResult = keyHoldable.verify(
               TransactionUtils.calculateHash(transaction).getBytesValue().get(),
-              transaction.getSignature().getSign());
+              transaction.getSignature());
           nextFuture.complete(success(verifyResult));
         } else {
           Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);

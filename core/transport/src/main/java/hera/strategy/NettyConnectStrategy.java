@@ -6,7 +6,7 @@ package hera.strategy;
 
 import hera.ContextHolder;
 import hera.DefaultConstants;
-import hera.api.model.HostnameAndPort;
+import hera.api.model.internal.HostnameAndPort;
 import io.grpc.netty.NettyChannelBuilder;
 import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
