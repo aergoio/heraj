@@ -25,14 +25,22 @@ public class NaiveWallet extends AbstractWallet {
 
   @Override
   public boolean unlock(final Authentication authentication) {
-    unlocked.set(true);
-    return true;
+    if (getAccount().getAddress().equals(authentication.getAddress())) {
+      unlocked.set(true);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   @Override
   public boolean lock(final Authentication authentication) {
-    unlocked.set(false);
-    return true;
+    if (getAccount().getAddress().equals(authentication.getAddress())) {
+      unlocked.set(false);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   @Override
@@ -56,6 +64,7 @@ public class NaiveWallet extends AbstractWallet {
   @Override
   public void saveKey(final AergoKey key, final String password) {
     this.account = ClientManagedAccount.of(key);
+    unlocked.set(false);
   }
 
   @Override

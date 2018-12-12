@@ -53,6 +53,13 @@ public interface Wallet extends LookupClient {
   AccountAddress getAddress();
 
   /**
+   * Set nonce of an account.
+   *
+   * @param nonce an nonce to set
+   */
+  void setNonce(long nonce);
+
+  /**
    * Get recently used nonce value.
    *
    * @return a recently used nonce
@@ -119,7 +126,8 @@ public interface Wallet extends LookupClient {
   TxHash send(AccountAddress recipient, BigInteger amount, Fee fee);
 
   /**
-   * Sign and commit {@code RawTransaction}.
+   * Sign and commit {@code RawTransaction}. If an nonce is invalid, get an nonce from server and
+   * retry it.
    *
    * @param rawTransaction raw transaction
    * @return transaction hash
@@ -127,7 +135,7 @@ public interface Wallet extends LookupClient {
   TxHash commit(RawTransaction rawTransaction);
 
   /**
-   * Commit transaction.
+   * Commit transaction. It don't retry even if an nonce is invalid.
    *
    * @param signedTransaction signed transaction to commit
    * @return transaction hash

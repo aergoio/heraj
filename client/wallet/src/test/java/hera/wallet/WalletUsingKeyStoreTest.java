@@ -56,6 +56,19 @@ public class WalletUsingKeyStoreTest extends AbstractTestCase {
   }
 
   @Test
+  public void testLock() {
+    WalletUsingKeyStore wallet = mock(WalletUsingKeyStore.class, Mockito.CALLS_REAL_METHODS);
+    final KeyStoreAdaptor keyStore = mock(KeyStoreAdaptor.class);
+    when(keyStore.lock(any())).thenReturn(true);
+    wallet.keyStore = keyStore;
+
+    final Authentication authentication =
+        Authentication.of(accountAddress, randomUUID().toString());
+    final boolean lockResult = wallet.lock(authentication);
+    assertTrue(lockResult);
+  }
+
+  @Test
   public void testSign() {
     WalletUsingKeyStore wallet = mock(WalletUsingKeyStore.class, Mockito.CALLS_REAL_METHODS);
     final KeyStoreAdaptor keyStore = mock(KeyStoreAdaptor.class);
