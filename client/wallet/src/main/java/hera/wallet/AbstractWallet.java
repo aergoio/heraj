@@ -4,12 +4,15 @@
 
 package hera.wallet;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
+import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInterface;
@@ -28,13 +31,14 @@ import hera.client.AergoClient;
 import hera.exception.CommitException;
 import hera.exception.CommitException.CommitStatus;
 import hera.exception.WalletException;
-import hera.util.ThreadUtils;
-import java.math.BigInteger;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
+import org.slf4j.Logger;
 
 public abstract class AbstractWallet implements Wallet {
+
+  protected final Logger logger = getLogger(getClass());
 
   @Getter(value = AccessLevel.PROTECTED)
   protected final AergoClient aergoClient;
@@ -137,54 +141,38 @@ public abstract class AbstractWallet implements Wallet {
   }
 
   @Override
-  public void setNonce(final long nonce) {
-    getAccount().setNonce(nonce);
-  }
-
-  @Override
   public long getRecentlyUsedNonce() {
     return getAccount().getNonce();
   }
 
   @Override
   public TxHash send(final AccountAddress recipient, final String amount, final Fee fee) {
-    return send(recipient, new BigInteger(amount), fee);
+    return send(recipient, amount, fee, BytesValue.EMPTY);
   }
 
   @Override
-  public TxHash send(final AccountAddress recipient, final BigInteger amount, final Fee fee) {
+  public TxHash send(final AccountAddress recipient, final String amount, final Fee fee,
+      final BytesValue payload) {
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .sender(getAccount())
         .recipient(recipient)
         .amount(amount)
         .nonce(getAccount().incrementAndGetNonce())
         .fee(fee)
+        .payload(payload)
         .build();
-    return commit(rawTransaction);
-  }
 
-  @Override
-  public TxHash commit(final RawTransaction rawTransaction) {
-    return commit(sign(rawTransaction));
-  }
-
-  @Override
-  public TxHash commit(final Transaction signedTransaction) {
-    if (!verify(signedTransaction)) {
-      throw new WalletException("Sender is not correct");
-    }
-
+    Transaction signedTransaction = sign(rawTransaction);
     TxHash txHash = null;
-    Transaction commitTarget = signedTransaction;
     int i = 0;
-    while (i < getNonceRefreshCount() && null == txHash) {
+    while (i <= getNonceRefreshCount() && null == txHash) {
       try {
-        txHash = getAergoClient().getTransactionOperation().commit(commitTarget);
+        txHash = getAergoClient().getTransactionOperation().commit(signedTransaction);
         getAccount().setNonce(signedTransaction.getNonce());
       } catch (CommitException e) {
         if (isNonceRelatedException(e)) {
           syncNonceWithServer();
-          commitTarget =
+          signedTransaction =
               sign(RawTransaction.copyOf(signedTransaction, getAccount().incrementAndGetNonce()));
         } else {
           throw e;
@@ -196,22 +184,15 @@ public abstract class AbstractWallet implements Wallet {
   }
 
   @Override
-  public ContractInterface deploy(final ContractDefinition contractDefinition, final Fee fee) {
-    final ContractTxHash deployTxHash = (ContractTxHash) sendContractRequest(
-        n -> getAergoClient().getContractOperation().deploy(getAccount(), contractDefinition, n,
-            fee));
-    ThreadUtils.trySleep(1200L);
-    final ContractTxReceipt receipt =
-        getAergoClient().getContractOperation().getReceipt(deployTxHash);
-    return getAergoClient().getContractOperation()
-        .getContractInterface(receipt.getContractAddress());
+  public ContractTxHash deploy(final ContractDefinition contractDefinition, final Fee fee) {
+    return sendContractRequest(n -> getAergoClient().getContractOperation().deploy(getAccount(),
+        contractDefinition, n, fee));
   }
 
   @Override
   public ContractTxHash execute(final ContractInvocation contractInvocation, final Fee fee) {
-    return (ContractTxHash) sendContractRequest(
-        n -> getAergoClient().getContractOperation().execute(getAccount(), contractInvocation, n,
-            fee));
+    return sendContractRequest(n -> getAergoClient().getContractOperation().execute(getAccount(),
+        contractInvocation, n, fee));
   }
 
   @Override
@@ -219,10 +200,10 @@ public abstract class AbstractWallet implements Wallet {
     return getAergoClient().getContractOperation().query(contractInvocation);
   }
 
-  protected TxHash sendContractRequest(final Function1<Long, TxHash> requester) {
-    TxHash executeTxHash = null;
+  protected ContractTxHash sendContractRequest(final Function1<Long, ContractTxHash> requester) {
+    ContractTxHash executeTxHash = null;
     int i = 0;
-    while (i < getNonceRefreshCount() && null == executeTxHash) {
+    while (i <= getNonceRefreshCount() && null == executeTxHash) {
       try {
         executeTxHash = requester.apply(getAccount().incrementAndGetNonce());
       } catch (CommitException e) {
@@ -243,9 +224,7 @@ public abstract class AbstractWallet implements Wallet {
   }
 
   protected void syncNonceWithServer() {
-    synchronized (this.account) {
-      getAccount().bindState(getAccountState());
-    }
+    getAccount().bindState(getAccountState());
   }
 
 }

@@ -23,7 +23,7 @@ import hera.key.AergoKeyGenerator;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class WalletUsingKeyStoreTest extends AbstractTestCase {
+public class AbstractWalletWithKeyStoreTest extends AbstractTestCase {
 
   private final AccountAddress accountAddress =
       AccountAddress.of(() -> "AmLo9CGR3xFZPVKZ5moSVRNW1kyscY9rVkCvgrpwNJjRUPUWadC5");
@@ -33,7 +33,8 @@ public class WalletUsingKeyStoreTest extends AbstractTestCase {
 
   @Test
   public void testUnlockOnSuccess() {
-    WalletUsingKeyStore wallet = mock(WalletUsingKeyStore.class, Mockito.CALLS_REAL_METHODS);
+    AbstractWalletWithKeyStore wallet =
+        mock(AbstractWalletWithKeyStore.class, Mockito.CALLS_REAL_METHODS);
     final KeyStoreAdaptor keyStore = mock(KeyStoreAdaptor.class);
     when(keyStore.unlock(any())).thenReturn(accountAddress);
     wallet.keyStore = keyStore;
@@ -46,7 +47,8 @@ public class WalletUsingKeyStoreTest extends AbstractTestCase {
 
   @Test
   public void testUnlockOnFailure() {
-    WalletUsingKeyStore wallet = mock(WalletUsingKeyStore.class, Mockito.CALLS_REAL_METHODS);
+    AbstractWalletWithKeyStore wallet =
+        mock(AbstractWalletWithKeyStore.class, Mockito.CALLS_REAL_METHODS);
     wallet.keyStore = mock(KeyStoreAdaptor.class);
 
     final Authentication authentication =
@@ -57,7 +59,8 @@ public class WalletUsingKeyStoreTest extends AbstractTestCase {
 
   @Test
   public void testLock() {
-    WalletUsingKeyStore wallet = mock(WalletUsingKeyStore.class, Mockito.CALLS_REAL_METHODS);
+    AbstractWalletWithKeyStore wallet =
+        mock(AbstractWalletWithKeyStore.class, Mockito.CALLS_REAL_METHODS);
     final KeyStoreAdaptor keyStore = mock(KeyStoreAdaptor.class);
     when(keyStore.lock(any())).thenReturn(true);
     wallet.keyStore = keyStore;
@@ -70,7 +73,8 @@ public class WalletUsingKeyStoreTest extends AbstractTestCase {
 
   @Test
   public void testSign() {
-    WalletUsingKeyStore wallet = mock(WalletUsingKeyStore.class, Mockito.CALLS_REAL_METHODS);
+    AbstractWalletWithKeyStore wallet =
+        mock(AbstractWalletWithKeyStore.class, Mockito.CALLS_REAL_METHODS);
     final KeyStoreAdaptor keyStore = mock(KeyStoreAdaptor.class);
     when(keyStore.sign(any(), any())).thenReturn(mock(Transaction.class));
     wallet.keyStore = keyStore;
@@ -82,7 +86,8 @@ public class WalletUsingKeyStoreTest extends AbstractTestCase {
 
   @Test
   public void testVerify() {
-    WalletUsingKeyStore wallet = mock(WalletUsingKeyStore.class, Mockito.CALLS_REAL_METHODS);
+    AbstractWalletWithKeyStore wallet =
+        mock(AbstractWalletWithKeyStore.class, Mockito.CALLS_REAL_METHODS);
     final KeyStoreAdaptor keyStore = mock(KeyStoreAdaptor.class);
     when(keyStore.verify(any(), any())).thenReturn(true);
     wallet.keyStore = keyStore;
@@ -94,14 +99,16 @@ public class WalletUsingKeyStoreTest extends AbstractTestCase {
 
   @Test
   public void testSavekey() {
-    WalletUsingKeyStore wallet = mock(WalletUsingKeyStore.class, Mockito.CALLS_REAL_METHODS);
+    AbstractWalletWithKeyStore wallet =
+        mock(AbstractWalletWithKeyStore.class, Mockito.CALLS_REAL_METHODS);
     wallet.keyStore = mock(KeyStoreAdaptor.class);
     wallet.saveKey(new AergoKeyGenerator().create(), randomUUID().toString());
   }
 
   @Test
   public void testExportKey() {
-    WalletUsingKeyStore wallet = mock(WalletUsingKeyStore.class, Mockito.CALLS_REAL_METHODS);
+    AbstractWalletWithKeyStore wallet =
+        mock(AbstractWalletWithKeyStore.class, Mockito.CALLS_REAL_METHODS);
     final KeyStoreAdaptor keyStore = mock(KeyStoreAdaptor.class);
     when(keyStore.export(any())).thenReturn(encryptedPrivatekey);
     wallet.keyStore = keyStore;

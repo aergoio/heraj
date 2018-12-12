@@ -4,7 +4,6 @@
 
 package hera.wallet;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,9 +27,14 @@ import hera.api.model.BlockHash;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
+import hera.api.model.ContractDefinition;
+import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
+import hera.api.model.ContractInvocation;
+import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.Fee;
 import hera.api.model.NodeStatus;
 import hera.api.model.ServerManagedAccount;
 import hera.api.model.Transaction;
@@ -41,8 +45,12 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 public class AbstractWalletTest extends AbstractTestCase {
+
   private final AccountAddress accountAddress =
       AccountAddress.of(() -> "AmLo9CGR3xFZPVKZ5moSVRNW1kyscY9rVkCvgrpwNJjRUPUWadC5");
+
+  private final ContractAddress contractAddress =
+      ContractAddress.of(() -> "AmLo9CGR3xFZPVKZ5moSVRNW1kyscY9rVkCvgrpwNJjRUPUWadC5");
 
   @Test
   public void testGetAccount() {
@@ -256,21 +264,70 @@ public class AbstractWalletTest extends AbstractTestCase {
   }
 
   @Test
-  public void testSetNonce() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
-    wallet.account = ServerManagedAccount.of(accountAddress);
-
-    final long nonce = 3;
-    wallet.setNonce(nonce);
-    assertEquals(nonce, wallet.getRecentlyUsedNonce());
-  }
-
-  @Test
   public void testGetRecentlyUsedNonce() {
     final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     wallet.account = ServerManagedAccount.of(accountAddress);
 
     assertNotNull(wallet.getRecentlyUsedNonce());
+  }
+
+  @Test
+  public void testSend() {
+    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
+    wallet.account = ServerManagedAccount.of(accountAddress);
+    final AergoClient mockClient = mock(AergoClient.class);
+    final TransactionOperation mockOperation = mock(TransactionOperation.class);
+    when(mockOperation.commit(any())).thenReturn(TxHash.of(BytesValue.EMPTY));
+    when(mockClient.getTransactionOperation()).thenReturn(mockOperation);
+    when(wallet.getAergoClient()).thenReturn(mockClient);
+    when(wallet.getNonceRefreshCount()).thenReturn(3);
+    when(wallet.sign(any())).thenReturn(mock(Transaction.class));
+
+    assertNotNull(wallet.send(accountAddress, "1000", Fee.getDefaultFee(), BytesValue.EMPTY));
+  }
+
+  @Test
+  public void testDeploy() {
+    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
+    wallet.account = ServerManagedAccount.of(accountAddress);
+    final AergoClient mockClient = mock(AergoClient.class);
+    final ContractOperation mockOperation = mock(ContractOperation.class);
+    when(mockOperation.deploy(any(), any(), anyLong(), any()))
+        .thenReturn(ContractTxHash.of(BytesValue.EMPTY));
+    when(mockClient.getContractOperation()).thenReturn(mockOperation);
+    when(wallet.getAergoClient()).thenReturn(mockClient);
+    when(wallet.getNonceRefreshCount()).thenReturn(3);
+
+    assertNotNull(wallet.deploy(new ContractDefinition(""), Fee.getDefaultFee()));
+  }
+
+  @Test
+  public void testExecute() {
+    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
+    wallet.account = ServerManagedAccount.of(accountAddress);
+    final AergoClient mockClient = mock(AergoClient.class);
+    final ContractOperation mockOperation = mock(ContractOperation.class);
+    when(mockOperation.execute(any(), any(), anyLong(), any()))
+        .thenReturn(ContractTxHash.of(BytesValue.EMPTY));
+    when(mockClient.getContractOperation()).thenReturn(mockOperation);
+    when(wallet.getAergoClient()).thenReturn(mockClient);
+    when(wallet.getNonceRefreshCount()).thenReturn(3);
+
+    assertNotNull(wallet.execute(new ContractInvocation(contractAddress, new ContractFunction("")),
+        Fee.getDefaultFee()));
+  }
+
+  @Test
+  public void testQuery() {
+    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
+    wallet.account = ServerManagedAccount.of(accountAddress);
+    final AergoClient mockClient = mock(AergoClient.class);
+    final ContractOperation mockOperation = mock(ContractOperation.class);
+    when(mockOperation.query(any())).thenReturn(mock(ContractResult.class));
+    when(mockClient.getContractOperation()).thenReturn(mockOperation);
+    when(wallet.getAergoClient()).thenReturn(mockClient);
+
+    assertNotNull(wallet.query(new ContractInvocation(contractAddress, new ContractFunction(""))));
   }
 
 }

@@ -11,18 +11,21 @@ import hera.api.model.ServerManagedAccount;
 import hera.api.model.Transaction;
 import hera.client.AergoClient;
 import hera.key.AergoKey;
+import lombok.AccessLevel;
+import lombok.Getter;
 
-public abstract class WalletUsingKeyStore extends AbstractWallet {
+public abstract class AbstractWalletWithKeyStore extends AbstractWallet {
 
+  @Getter(value = AccessLevel.PROTECTED)
   protected KeyStoreAdaptor keyStore;
 
-  protected WalletUsingKeyStore(final AergoClient aergoClient, final int nonceRefreshCount) {
+  protected AbstractWalletWithKeyStore(final AergoClient aergoClient, final int nonceRefreshCount) {
     super(aergoClient, nonceRefreshCount);
   }
 
   @Override
   public boolean unlock(final Authentication authentication) {
-    final AccountAddress unlockedAccount = keyStore.unlock(authentication);
+    final AccountAddress unlockedAccount = getKeyStore().unlock(authentication);
     if (null != unlockedAccount) {
       this.account = ServerManagedAccount.of(unlockedAccount);
       return true;
@@ -33,27 +36,27 @@ public abstract class WalletUsingKeyStore extends AbstractWallet {
 
   @Override
   public boolean lock(final Authentication authentication) {
-    return keyStore.lock(authentication);
+    return getKeyStore().lock(authentication);
   }
 
   @Override
   public Transaction sign(final RawTransaction rawTransaction) {
-    return keyStore.sign(getAccount().getAddress(), rawTransaction);
+    return getKeyStore().sign(getAccount().getAddress(), rawTransaction);
   }
 
   @Override
   public boolean verify(final Transaction transaction) {
-    return keyStore.verify(getAccount().getAddress(), transaction);
+    return getKeyStore().verify(getAccount().getAddress(), transaction);
   }
 
   @Override
   public void saveKey(final AergoKey key, final String password) {
-    keyStore.save(key, password);
+    getKeyStore().save(key, password);
   }
 
   @Override
   public String exportKey(final Authentication authentication) {
-    return keyStore.export(authentication).getEncoded();
+    return getKeyStore().export(authentication).getEncoded();
   }
 
 }

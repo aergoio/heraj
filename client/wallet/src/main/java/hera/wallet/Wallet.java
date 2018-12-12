@@ -7,8 +7,8 @@ package hera.wallet;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Authentication;
+import hera.api.model.BytesValue;
 import hera.api.model.ContractDefinition;
-import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
@@ -17,7 +17,6 @@ import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.key.AergoKey;
-import java.math.BigInteger;
 
 public interface Wallet extends LookupClient {
 
@@ -51,13 +50,6 @@ public interface Wallet extends LookupClient {
    * @return an account address
    */
   AccountAddress getAddress();
-
-  /**
-   * Set nonce of an account.
-   *
-   * @param nonce an nonce to set
-   */
-  void setNonce(long nonce);
 
   /**
    * Get recently used nonce value.
@@ -119,37 +111,21 @@ public interface Wallet extends LookupClient {
    * Send AER with {@code fee}.
    *
    * @param recipient a recipient
-   * @param amount an amount in AER
+   * @param amount an amount in AER. Must be in a number format
    * @param fee a fee
+   * @param payload a payload
    * @return verify result
    */
-  TxHash send(AccountAddress recipient, BigInteger amount, Fee fee);
-
-  /**
-   * Sign and commit {@code RawTransaction}. If an nonce is invalid, get an nonce from server and
-   * retry it.
-   *
-   * @param rawTransaction raw transaction
-   * @return transaction hash
-   */
-  TxHash commit(RawTransaction rawTransaction);
-
-  /**
-   * Commit transaction. It don't retry even if an nonce is invalid.
-   *
-   * @param signedTransaction signed transaction to commit
-   * @return transaction hash
-   */
-  TxHash commit(Transaction signedTransaction);
+  TxHash send(AccountAddress recipient, String amount, Fee fee, BytesValue payload);
 
   /**
    * Deploy smart contract.
    *
    * @param contractDefinition a contract definition
    * @param fee a fee to make a transaction
-   * @return contract interface of contract definition
+   * @return a contract transaction hash
    */
-  ContractInterface deploy(ContractDefinition contractDefinition, Fee fee);
+  ContractTxHash deploy(ContractDefinition contractDefinition, Fee fee);
 
   /**
    * Execute a smart contract function.
