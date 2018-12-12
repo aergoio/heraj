@@ -1,15 +1,15 @@
 /*
  * @copyright defined in LICENSE.txt
-*/
+ */
 
 package hera.wallet;
 
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountFactory;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
-import hera.api.model.internal.ServerManagedAccount;
 import hera.client.AergoClient;
 import hera.key.AergoKey;
 import lombok.RequiredArgsConstructor;
@@ -46,13 +46,13 @@ public class ServerKeyStoreAdaptor implements KeyStoreAdaptor {
 
   @Override
   public Transaction sign(AccountAddress signerAddress, RawTransaction rawTransaction) {
-    return aergoClient.getAccountOperation().sign(ServerManagedAccount.of(signerAddress),
+    return aergoClient.getAccountOperation().sign(new AccountFactory().create(signerAddress),
         rawTransaction);
   }
 
   @Override
   public boolean verify(AccountAddress signerAddress, Transaction transaction) {
-    return aergoClient.getAccountOperation().verify(ServerManagedAccount.of(signerAddress),
+    return aergoClient.getAccountOperation().verify(new AccountFactory().create(signerAddress),
         transaction);
   }
 

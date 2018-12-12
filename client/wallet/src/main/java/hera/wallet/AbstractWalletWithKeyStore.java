@@ -5,10 +5,10 @@
 package hera.wallet;
 
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountFactory;
 import hera.api.model.Authentication;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
-import hera.api.model.internal.ServerManagedAccount;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
 import hera.key.AergoKey;
@@ -29,7 +29,7 @@ public abstract class AbstractWalletWithKeyStore extends AbstractWallet {
   public boolean unlock(final Authentication authentication) {
     final AccountAddress unlockedAccount = getKeyStore().unlock(authentication);
     if (null != unlockedAccount) {
-      this.account = ServerManagedAccount.of(unlockedAccount);
+      this.account = new AccountFactory().create(unlockedAccount);
       return true;
     } else {
       return false;

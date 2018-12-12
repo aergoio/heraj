@@ -15,6 +15,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountFactory;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
@@ -27,8 +28,6 @@ import hera.api.model.ContractTxReceipt;
 import hera.api.model.Fee;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.api.model.internal.ClientManagedAccount;
-import hera.api.model.internal.ServerManagedAccount;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.key.AergoKeyGenerator;
@@ -90,7 +89,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
     final ContractBaseTemplate contractBaseTemplate = supplyContractBaseTemplate(aergoService);
     contractBaseTemplate.transactionBaseTemplate = mockTransactionBaseTemplate;
 
-    Account account = ClientManagedAccount.of(generator.create());
+    final Account account = new AccountFactory().create(generator.create());
     String encoded = Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
     final ResultOrErrorFuture<ContractTxHash> deployTxHash = contractBaseTemplate
         .getDeployFunction().apply(account, ContractDefinition.of(encoded), 0L, fee);
@@ -113,7 +112,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
     contractBaseTemplate.accountBaseTemplate = mockAccountBaseTemplate;
     contractBaseTemplate.transactionBaseTemplate = mockTransactionBaseTemplate;
 
-    Account account = ServerManagedAccount.of(accountAddress);
+    Account account = new AccountFactory().create(accountAddress);
     String encoded = Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
     final ResultOrErrorFuture<ContractTxHash> deployTxHash = contractBaseTemplate
         .getDeployFunction().apply(account, ContractDefinition.of(encoded), 0L, fee);
@@ -145,7 +144,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
     final ContractBaseTemplate contractBaseTemplate = supplyContractBaseTemplate(aergoService);
     contractBaseTemplate.transactionBaseTemplate = mockTransactionBaseTemplate;
 
-    final Account account = ClientManagedAccount.of(generator.create());
+    final Account account = new AccountFactory().create(generator.create());
     final ContractFunction contractFunction = new ContractFunction(randomUUID().toString());
     final ResultOrErrorFuture<ContractTxHash> executionTxHash = contractBaseTemplate
         .getExecuteFunction()
@@ -169,7 +168,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
     contractBaseTemplate.accountBaseTemplate = mockAccountBaseTemplate;
     contractBaseTemplate.transactionBaseTemplate = mockTransactionBaseTemplate;
 
-    final Account account = ServerManagedAccount.of(accountAddress);
+    final Account account = new AccountFactory().create(accountAddress);
     final ContractFunction contractFunction = new ContractFunction(randomUUID().toString());
     final ResultOrErrorFuture<ContractTxHash> executionTxHash =
         contractBaseTemplate.getExecuteFunction().apply(account,

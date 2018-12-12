@@ -5,9 +5,9 @@
 package hera.client;
 
 import hera.api.model.Account;
+import hera.api.model.AccountFactory;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
-import hera.api.model.internal.ClientManagedAccount;
 import hera.key.AergoKeyGenerator;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -36,8 +36,8 @@ public class SignLocalBenchmark {
       client = new AergoClientBuilder().build();
 
       final AergoKeyGenerator generator = new AergoKeyGenerator();
-      sender = ClientManagedAccount.of(generator.create());
-      receipt = ClientManagedAccount.of(generator.create());
+      sender = new AccountFactory().create(generator.create());
+      receipt = new AccountFactory().create(generator.create());
 
       raw = Transaction.newBuilder()
           .sender(sender)

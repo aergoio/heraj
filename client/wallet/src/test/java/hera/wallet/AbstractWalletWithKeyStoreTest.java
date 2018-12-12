@@ -14,11 +14,11 @@ import static org.mockito.Mockito.when;
 
 import hera.AbstractTestCase;
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountFactory;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
-import hera.api.model.internal.ServerManagedAccount;
 import hera.key.AergoKeyGenerator;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -78,7 +78,7 @@ public class AbstractWalletWithKeyStoreTest extends AbstractTestCase {
     final KeyStoreAdaptor keyStore = mock(KeyStoreAdaptor.class);
     when(keyStore.sign(any(), any())).thenReturn(mock(Transaction.class));
     wallet.keyStore = keyStore;
-    wallet.account = ServerManagedAccount.of(accountAddress);
+    wallet.account = new AccountFactory().create(accountAddress);
 
     final Transaction signed = wallet.sign(mock(RawTransaction.class));
     assertNotNull(signed);
@@ -91,7 +91,7 @@ public class AbstractWalletWithKeyStoreTest extends AbstractTestCase {
     final KeyStoreAdaptor keyStore = mock(KeyStoreAdaptor.class);
     when(keyStore.verify(any(), any())).thenReturn(true);
     wallet.keyStore = keyStore;
-    wallet.account = ServerManagedAccount.of(accountAddress);
+    wallet.account = new AccountFactory().create(accountAddress);
 
     final boolean verifyResult = wallet.verify(mock(Transaction.class));
     assertTrue(verifyResult);

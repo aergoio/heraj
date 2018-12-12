@@ -6,7 +6,7 @@ package hera.example;
 
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.internal.ClientManagedAccount;
+import hera.api.model.AccountFactory;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.key.AergoKey;
@@ -32,7 +32,7 @@ public class AccountExample extends AbstractExample {
 
     // create aergokey
     final AergoKey key = new AergoKeyGenerator().create();
-    final Account account = ClientManagedAccount.of(key);
+    final Account account = new AccountFactory().create(key);
     System.out.println("Created account: " + account);
 
     // close the client

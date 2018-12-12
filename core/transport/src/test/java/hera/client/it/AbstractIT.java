@@ -9,11 +9,11 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
-import hera.api.model.internal.ClientManagedAccount;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.key.AergoKey;
@@ -49,7 +49,7 @@ public abstract class AbstractIT {
   @Before
   public void prepare() {
     final AergoKey key = AergoKey.of(richEncryptedPrivateKey, richPassword);
-    rich = ClientManagedAccount.of(key);
+    rich = new AccountFactory().create(key);
 
     aergoClient = new AergoClientBuilder()
         .addConfiguration("zipkin.protocol", "kafka")
@@ -87,7 +87,7 @@ public abstract class AbstractIT {
 
   protected Account createClientAccount() {
     final AergoKey key = new AergoKeyGenerator().create();
-    final Account account = ClientManagedAccount.of(key);
+    final Account account = new AccountFactory().create(key);
     return account;
   }
 

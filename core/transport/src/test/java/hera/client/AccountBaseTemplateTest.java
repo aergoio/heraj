@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
@@ -23,7 +24,6 @@ import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.api.model.internal.ClientManagedAccount;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
@@ -77,7 +77,8 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
-    final Account account = ClientManagedAccount.of(new AergoKeyGenerator().create());
+    final AergoKey key = new AergoKeyGenerator().create();
+    final Account account = new AccountFactory().create(key);
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .sender(ACCOUNT_ADDRESS)
         .recipient(ACCOUNT_ADDRESS)
@@ -119,8 +120,7 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
     final AergoKey key = new AergoKeyGenerator().create();
-    final Account account = ClientManagedAccount.of(key);
-
+    final Account account = new AccountFactory().create(key);
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .sender(ACCOUNT_ADDRESS)
         .recipient(ACCOUNT_ADDRESS)

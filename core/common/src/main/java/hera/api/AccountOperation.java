@@ -11,7 +11,6 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
-import hera.exception.AdaptException;
 
 @ApiAudience.Public
 @ApiStability.Unstable
@@ -32,8 +31,7 @@ public interface AccountOperation {
    * @return an account state
    */
   default AccountState getState(Account account) {
-    return account.adapt(AccountAddress.class).map(this::getState)
-        .orElseThrow(() -> new AdaptException(account.getClass(), AccountAddress.class));
+    return getState(account.getAddress());
   }
 
   /**

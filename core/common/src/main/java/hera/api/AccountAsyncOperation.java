@@ -12,8 +12,6 @@ import hera.api.model.AccountState;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrErrorFuture;
-import hera.api.tupleorerror.ResultOrErrorFutureFactory;
-import hera.exception.AdaptException;
 
 @ApiAudience.Public
 @ApiStability.Unstable
@@ -34,10 +32,7 @@ public interface AccountAsyncOperation {
    * @return future of an account state or error
    */
   default ResultOrErrorFuture<AccountState> getState(Account account) {
-    return account.adapt(AccountAddress.class).map(this::getState)
-        .orElse(ResultOrErrorFutureFactory.supply(() -> {
-          throw new AdaptException(account.getClass(), AccountAddress.class);
-        }));
+    return getState(account.getAddress());
   }
 
   /**

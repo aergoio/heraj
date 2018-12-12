@@ -5,9 +5,8 @@
 package hera.api.model;
 
 import hera.key.AergoKey;
-import hera.util.Adaptor;
 
-public interface Account extends Adaptor {
+public interface Account {
 
   /**
    * Get address of an account.

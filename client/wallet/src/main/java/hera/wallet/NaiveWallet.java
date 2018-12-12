@@ -4,10 +4,10 @@
 
 package hera.wallet;
 
+import hera.api.model.AccountFactory;
 import hera.api.model.Authentication;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
-import hera.api.model.internal.ClientManagedAccount;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
 import hera.exception.UnlockedAccountException;
@@ -64,7 +64,7 @@ public class NaiveWallet extends AbstractWallet {
 
   @Override
   public void saveKey(final AergoKey key, final String password) {
-    this.account = ClientManagedAccount.of(key);
+    this.account = new AccountFactory().create(key);
     unlocked.set(false);
   }
 
@@ -73,8 +73,7 @@ public class NaiveWallet extends AbstractWallet {
     if (!getAddress().equals(authentication.getAddress())) {
       throw new WalletException("Invalid authentication");
     }
-    return ((ClientManagedAccount) account).getKey()
-        .export(authentication.getPassword()).getEncoded();
+    return account.getKey().export(authentication.getPassword()).getEncoded();
   }
 
 }

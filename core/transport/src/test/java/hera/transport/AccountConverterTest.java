@@ -7,9 +7,10 @@ package hera.transport;
 import static org.junit.Assert.assertNotNull;
 
 import hera.AbstractTestCase;
+import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
-import hera.api.model.internal.ServerManagedAccount;
+import hera.api.model.internal.AccountWithoutKey;
 import org.junit.Test;
 import types.AccountOuterClass;
 
@@ -17,14 +18,14 @@ public class AccountConverterTest extends AbstractTestCase {
 
   @Test
   public void testConvert() {
-    final ModelConverter<ServerManagedAccount, AccountOuterClass.Account> converter =
+    final ModelConverter<Account, AccountOuterClass.Account> converter =
         new AccountConverterFactory().create();
 
-    final ServerManagedAccount domainAccount = new ServerManagedAccount(
+    final Account domainAccount = new AccountWithoutKey(
         AccountAddress.of(BytesValue.of(new byte[] {AccountAddress.VERSION})));
     
     final AccountOuterClass.Account rpcAccount = converter.convertToRpcModel(domainAccount);
-    final ServerManagedAccount actualDomainAccount = converter.convertToDomainModel(rpcAccount);
+    final Account actualDomainAccount = converter.convertToDomainModel(rpcAccount);
     assertNotNull(actualDomainAccount);
   }
 

@@ -4,8 +4,6 @@
 
 package hera.api;
 
-import static hera.api.tupleorerror.FunctionChain.fail;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Account;
@@ -14,7 +12,6 @@ import hera.api.model.AccountState;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.tupleorerror.ResultOrError;
-import hera.exception.AdaptException;
 
 @ApiAudience.Public
 @ApiStability.Unstable
@@ -34,10 +31,8 @@ public interface AccountEitherOperation {
    * @param account account
    * @return an account state or error
    */
-  @SuppressWarnings("unchecked")
   default ResultOrError<AccountState> getState(Account account) {
-    return account.adapt(AccountAddress.class).map(this::getState)
-        .orElse(fail(new AdaptException(account.getClass(), AccountAddress.class)));
+    return getState(account.getAddress());
   }
 
   /**

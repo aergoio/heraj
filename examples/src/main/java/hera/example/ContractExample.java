@@ -8,6 +8,7 @@ import static java.math.BigInteger.valueOf;
 
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
 import hera.api.model.Authentication;
 import hera.api.model.ContractAddress;
@@ -18,8 +19,6 @@ import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Fee;
-import hera.api.model.internal.ClientManagedAccount;
-import hera.api.model.internal.ServerManagedAccount;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.key.AergoKey;
@@ -48,7 +47,7 @@ public class ContractExample extends AbstractExample {
     // create an account
     final AergoKey key = AergoKey.of(
         "47pArdc5PNS9HYY9jMMC7zAuHzytzsAuCYGm5jAUFuD3amQ4mQkvyUaPnmRVSPc2iWzVJpC9Z", "password");
-    final Account account = ClientManagedAccount.of(key);
+    final Account account = new AccountFactory().create(key);
     final AccountState state = aergoClient.getAccountOperation().getState(account);
     account.bindState(state);
 
@@ -97,8 +96,8 @@ public class ContractExample extends AbstractExample {
         .build();
 
     // create an account
-    final Account account = ServerManagedAccount
-        .of(AccountAddress.of(() -> "AmM25FKSK1gCqSdUPjnvESsauESNgfZUauHWp7R8Un3zHffEQgTm"));
+    final Account account = new AccountFactory()
+        .create(AccountAddress.of(() -> "AmM25FKSK1gCqSdUPjnvESsauESNgfZUauHWp7R8Un3zHffEQgTm"));
     final AccountState state = aergoClient.getAccountOperation().getState(account);
     account.bindState(state);
 
@@ -155,7 +154,7 @@ public class ContractExample extends AbstractExample {
     // create an account
     final AergoKey key = AergoKey.of(
         "47pArdc5PNS9HYY9jMMC7zAuHzytzsAuCYGm5jAUFuD3amQ4mQkvyUaPnmRVSPc2iWzVJpC9Z", "password");
-    final Account account = ClientManagedAccount.of(key);
+    final Account account = new AccountFactory().create(key);
     final AccountState state = aergoClient.getAccountOperation().getState(account);
     account.bindState(state);
 
@@ -188,8 +187,8 @@ public class ContractExample extends AbstractExample {
         .build();
 
     // create an account
-    final Account account = ServerManagedAccount
-        .of(AccountAddress.of(() -> "AmM25FKSK1gCqSdUPjnvESsauESNgfZUauHWp7R8Un3zHffEQgTm"));
+    final Account account = new AccountFactory()
+        .create(AccountAddress.of(() -> "AmM25FKSK1gCqSdUPjnvESsauESNgfZUauHWp7R8Un3zHffEQgTm"));
     final AccountState state = aergoClient.getAccountOperation().getState(account);
     account.bindState(state);
 

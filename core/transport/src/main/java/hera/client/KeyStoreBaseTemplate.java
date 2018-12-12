@@ -18,7 +18,6 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
-import hera.api.model.internal.ServerManagedAccount;
 import hera.api.tupleorerror.Function0;
 import hera.api.tupleorerror.Function1;
 import hera.api.tupleorerror.Function3;
@@ -46,7 +45,7 @@ public class KeyStoreBaseTemplate implements ChannelInjectable {
   protected final ModelConverter<EncryptedPrivateKey, Rpc.SingleBytes> encryptedPkConverter =
       new EncryptedPrivateKeyConverterFactory().create();
 
-  protected final ModelConverter<ServerManagedAccount, AccountOuterClass.Account> accountConverter =
+  protected final ModelConverter<Account, AccountOuterClass.Account> accountConverter =
       new AccountConverterFactory().create();
 
   protected final ModelConverter<Authentication, Rpc.Personal> authenticationConverter =
