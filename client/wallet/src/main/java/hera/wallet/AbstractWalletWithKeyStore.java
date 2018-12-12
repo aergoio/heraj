@@ -9,6 +9,7 @@ import hera.api.model.Authentication;
 import hera.api.model.RawTransaction;
 import hera.api.model.ServerManagedAccount;
 import hera.api.model.Transaction;
+import hera.api.model.TryCountAndInterval;
 import hera.client.AergoClient;
 import hera.key.AergoKey;
 import lombok.AccessLevel;
@@ -19,8 +20,9 @@ public abstract class AbstractWalletWithKeyStore extends AbstractWallet {
   @Getter(value = AccessLevel.PROTECTED)
   protected KeyStoreAdaptor keyStore;
 
-  protected AbstractWalletWithKeyStore(final AergoClient aergoClient, final int nonceRefreshCount) {
-    super(aergoClient, nonceRefreshCount);
+  protected AbstractWalletWithKeyStore(final AergoClient aergoClient,
+      final TryCountAndInterval nonceRefreshTryCount) {
+    super(aergoClient, nonceRefreshTryCount);
   }
 
   @Override

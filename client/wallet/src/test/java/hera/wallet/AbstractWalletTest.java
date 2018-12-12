@@ -37,7 +37,9 @@ import hera.api.model.ContractTxReceipt;
 import hera.api.model.Fee;
 import hera.api.model.NodeStatus;
 import hera.api.model.ServerManagedAccount;
+import hera.api.model.Time;
 import hera.api.model.Transaction;
+import hera.api.model.TryCountAndInterval;
 import hera.api.model.TxHash;
 import hera.client.AergoClient;
 import java.util.ArrayList;
@@ -280,7 +282,8 @@ public class AbstractWalletTest extends AbstractTestCase {
     when(mockOperation.commit(any())).thenReturn(TxHash.of(BytesValue.EMPTY));
     when(mockClient.getTransactionOperation()).thenReturn(mockOperation);
     when(wallet.getAergoClient()).thenReturn(mockClient);
-    when(wallet.getNonceRefreshCount()).thenReturn(3);
+    when(wallet.getNonceRefreshTryCountAndInterval())
+        .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
     when(wallet.sign(any())).thenReturn(mock(Transaction.class));
 
     assertNotNull(wallet.send(accountAddress, "1000", Fee.getDefaultFee(), BytesValue.EMPTY));
@@ -296,7 +299,8 @@ public class AbstractWalletTest extends AbstractTestCase {
         .thenReturn(ContractTxHash.of(BytesValue.EMPTY));
     when(mockClient.getContractOperation()).thenReturn(mockOperation);
     when(wallet.getAergoClient()).thenReturn(mockClient);
-    when(wallet.getNonceRefreshCount()).thenReturn(3);
+    when(wallet.getNonceRefreshTryCountAndInterval())
+        .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
 
     assertNotNull(wallet.deploy(new ContractDefinition(""), Fee.getDefaultFee()));
   }
@@ -311,7 +315,8 @@ public class AbstractWalletTest extends AbstractTestCase {
         .thenReturn(ContractTxHash.of(BytesValue.EMPTY));
     when(mockClient.getContractOperation()).thenReturn(mockOperation);
     when(wallet.getAergoClient()).thenReturn(mockClient);
-    when(wallet.getNonceRefreshCount()).thenReturn(3);
+    when(wallet.getNonceRefreshTryCountAndInterval())
+        .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
 
     assertNotNull(wallet.execute(new ContractInvocation(contractAddress, new ContractFunction("")),
         Fee.getDefaultFee()));

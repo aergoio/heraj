@@ -17,7 +17,7 @@ public class WalletFactoryTest extends AbstractTestCase {
     final WalletFactory factory = new WalletFactory()
         .withBlockingConnect()
         .withEndpoint("localhost:7845")
-        .withNonceRefresh(3)
+        .withNonceRefresh(3, 1000L, TimeUnit.MILLISECONDS)
         .withTimeout(1000L, TimeUnit.MILLISECONDS)
         .withRetry(3, 5, TimeUnit.SECONDS)
         .withTracking()

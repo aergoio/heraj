@@ -8,6 +8,7 @@ import hera.api.model.Authentication;
 import hera.api.model.ClientManagedAccount;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
+import hera.api.model.TryCountAndInterval;
 import hera.client.AergoClient;
 import hera.exception.UnlockedAccountException;
 import hera.exception.WalletException;
@@ -19,8 +20,8 @@ public class NaiveWallet extends AbstractWallet {
 
   protected final AtomicBoolean unlocked = new AtomicBoolean(false);
 
-  NaiveWallet(final AergoClient aergoClient, final int nonceRefreshCount) {
-    super(aergoClient, nonceRefreshCount);
+  NaiveWallet(final AergoClient aergoClient, final TryCountAndInterval tryCountAndInterval) {
+    super(aergoClient, tryCountAndInterval);
   }
 
   @Override

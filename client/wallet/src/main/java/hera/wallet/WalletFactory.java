@@ -4,6 +4,8 @@
 
 package hera.wallet;
 
+import hera.api.model.Time;
+import hera.api.model.TryCountAndInterval;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.client.ContextConfiguer;
@@ -12,11 +14,12 @@ import java.util.concurrent.TimeUnit;
 
 public class WalletFactory implements ContextConfiguer<WalletFactory> {
 
-  protected static final int MIMINUM_NONCE_REFRESH_COUNT = 1;
+  protected static final TryCountAndInterval MIMINUM_NONCE_REFRESH_COUNT =
+      TryCountAndInterval.of(1, Time.of(0, TimeUnit.SECONDS));
 
   protected AergoClientBuilder clientBuilder = new AergoClientBuilder();
 
-  protected int nonceRefreshCount = MIMINUM_NONCE_REFRESH_COUNT;
+  protected TryCountAndInterval nonceRefreshTryInterval = MIMINUM_NONCE_REFRESH_COUNT;
 
   @Override
   public WalletFactory addConfiguration(final String key, final String value) {
@@ -63,12 +66,14 @@ public class WalletFactory implements ContextConfiguer<WalletFactory> {
   /**
    * A nonce refresh count to handle invalid nonce. A minimum is 1.
    *
-   * @param nonceRefreshCount nonce refresh count
+   * @param count retry count. If it is less than 0, set as 0
+   * @param interval interval value. If it's less than 0, set as 0
+   * @param unit interval unit
    * @return an instance of this
    */
-  public WalletFactory withNonceRefresh(final int nonceRefreshCount) {
-    this.nonceRefreshCount = MIMINUM_NONCE_REFRESH_COUNT < nonceRefreshCount ? nonceRefreshCount
-        : MIMINUM_NONCE_REFRESH_COUNT;
+  public WalletFactory withNonceRefresh(final int count, final long interval, final TimeUnit unit) {
+    this.nonceRefreshTryInterval =
+        TryCountAndInterval.of(count == 0 ? 1 : count, Time.of(interval, unit));
     return this;
   }
 
@@ -86,11 +91,11 @@ public class WalletFactory implements ContextConfiguer<WalletFactory> {
     final AergoClient aergoClient = clientBuilder.build();
     switch (type) {
       case Naive:
-        return new NaiveWallet(aergoClient, nonceRefreshCount);
+        return new NaiveWallet(aergoClient, nonceRefreshTryInterval);
       case Secure:
         throw new UnsupportedOperationException("Not yet implemented");
       case ServerKeyStore:
-        return new ServerKeyStoreWallet(aergoClient, nonceRefreshCount);
+        return new ServerKeyStoreWallet(aergoClient, nonceRefreshTryInterval);
       default:
         throw new WalletCreationException("Unrecognized wallet type");
     }

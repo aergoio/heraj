@@ -25,6 +25,7 @@ import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
+import hera.api.model.TryCountAndInterval;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.Function1;
 import hera.client.AergoClient;
@@ -44,13 +45,14 @@ public abstract class AbstractWallet implements Wallet {
   protected final AergoClient aergoClient;
 
   @Getter(value = AccessLevel.PROTECTED)
-  protected final int nonceRefreshCount;
+  protected final TryCountAndInterval nonceRefreshTryCountAndInterval;
 
   protected Account account;
 
-  protected AbstractWallet(final AergoClient aergoClient, final int nonceRefreshCount) {
+  protected AbstractWallet(final AergoClient aergoClient,
+      final TryCountAndInterval tryCountAndInterval) {
     this.aergoClient = aergoClient;
-    this.nonceRefreshCount = nonceRefreshCount;
+    this.nonceRefreshTryCountAndInterval = tryCountAndInterval;
   }
 
   protected Account getAccount() {
@@ -165,7 +167,7 @@ public abstract class AbstractWallet implements Wallet {
     Transaction signedTransaction = sign(rawTransaction);
     TxHash txHash = null;
     int i = 0;
-    while (i <= getNonceRefreshCount() && null == txHash) {
+    while (i <= getNonceRefreshTryCountAndInterval().getCount() && null == txHash) {
       try {
         txHash = getAergoClient().getTransactionOperation().commit(signedTransaction);
         getAccount().setNonce(signedTransaction.getNonce());
@@ -178,6 +180,7 @@ public abstract class AbstractWallet implements Wallet {
           throw e;
         }
       }
+      getNonceRefreshTryCountAndInterval().trySleep();
       ++i;
     }
     return txHash;
@@ -203,7 +206,7 @@ public abstract class AbstractWallet implements Wallet {
   protected ContractTxHash sendContractRequest(final Function1<Long, ContractTxHash> requester) {
     ContractTxHash executeTxHash = null;
     int i = 0;
-    while (i <= getNonceRefreshCount() && null == executeTxHash) {
+    while (i <= getNonceRefreshTryCountAndInterval().getCount() && null == executeTxHash) {
       try {
         executeTxHash = requester.apply(getAccount().incrementAndGetNonce());
       } catch (CommitException e) {
@@ -213,6 +216,7 @@ public abstract class AbstractWallet implements Wallet {
           throw e;
         }
       }
+      getNonceRefreshTryCountAndInterval().trySleep();
       ++i;
     }
     return executeTxHash;
