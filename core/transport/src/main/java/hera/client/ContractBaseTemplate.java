@@ -50,6 +50,7 @@ import hera.util.VersionUtils;
 import io.grpc.ManagedChannel;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
@@ -168,10 +169,8 @@ public class ContractBaseTemplate implements ChannelInjectable {
           (executor, contractInvocation, nonce, fee) -> {
             try {
               final String functionCallString = toFunctionCallJsonString(contractInvocation);
-              if (logger.isTraceEnabled()) {
-                logger.trace("Contract execution address: {}, function: {}",
-                    contractInvocation.getAddress(), functionCallString);
-              }
+              logger.debug("Contract execution address: {}, function: {}",
+                  contractInvocation.getAddress(), functionCallString);
               final RawTransaction rawTransaction = RawTransaction.newBuilder()
                   .sender(executor)
                   .recipient(contractInvocation.getAddress())
@@ -197,11 +196,8 @@ public class ContractBaseTemplate implements ChannelInjectable {
               ResultOrErrorFutureFactory.supplyEmptyFuture();
 
           final String functionCallString = toFunctionCallJsonString(contractInvocation);
-          if (logger.isTraceEnabled()) {
-            logger.trace("Contract query address: {}, function: {}",
-                contractInvocation.getAddress(),
-                functionCallString);
-          }
+          logger.debug("Contract query address: {}, function: {}", contractInvocation.getAddress(),
+              functionCallString);
           final Blockchain.Query query = Blockchain.Query.newBuilder()
               .setContractAddress(
                   accountAddressConverter.convertToRpcModel(contractInvocation.getAddress()))
@@ -226,10 +222,8 @@ public class ContractBaseTemplate implements ChannelInjectable {
       throws IOException {
     final byte[] rawPayloadWithVersion =
         Base58Utils.decodeWithCheck(contractDefinition.getEncodedContract());
-    if (logger.isTraceEnabled()) {
-      logger.trace("Encoded contract deploy payload: {}", contractDefinition.getEncodedContract());
-      logger.trace("Decoded contract deploy payload: {}", HexUtils.encode(rawPayloadWithVersion));
-    }
+    logger.trace("Encoded contract deploy payload: {}", contractDefinition.getEncodedContract());
+    logger.trace("Decoded contract deploy payload: {}", HexUtils.encode(rawPayloadWithVersion));
     VersionUtils.validate(rawPayloadWithVersion, ContractDefinition.PAYLOAD_VERSION);
 
     final byte[] rawPaylod = VersionUtils.trim(rawPayloadWithVersion);
@@ -239,7 +233,7 @@ public class ContractBaseTemplate implements ChannelInjectable {
     dataOut.write(rawPaylod);
     if (!contractDefinition.getConstructorArgs().isEmpty()) {
       final ArrayNode constructorArgs = getArgsByJsonArray(contractDefinition.getConstructorArgs());
-      logger.trace("Contract constructor args: {}", constructorArgs.toString());
+      logger.debug("Contract constructor args: {}", constructorArgs.toString());
       dataOut.write(constructorArgs.toString().getBytes());
     }
     dataOut.close();
@@ -267,8 +261,13 @@ public class ContractBaseTemplate implements ChannelInjectable {
 
   protected ArrayNode getArgsByJsonArray(final List<Object> args) {
     final ArrayNode argsNode = objectMapper.createArrayNode();
+    // nil, boolean, number, string, table?
     for (Object arg : args) {
-      if (arg instanceof Integer) {
+      if (null == arg) {
+        argsNode.addNull();
+      } else if (arg instanceof Boolean) {
+        argsNode.add((Boolean) arg);
+      } else if (arg instanceof Integer) {
         argsNode.add((Integer) arg);
       } else if (arg instanceof Long) {
         argsNode.add((Long) arg);
@@ -276,10 +275,12 @@ public class ContractBaseTemplate implements ChannelInjectable {
         argsNode.add((Float) arg);
       } else if (arg instanceof Double) {
         argsNode.add((Double) arg);
-      } else if (arg instanceof Boolean) {
-        argsNode.add((Boolean) arg);
+      } else if (arg instanceof BigInteger) {
+        argsNode.add((BigInteger) arg);
+      } else if (arg instanceof BigDecimal) {
+        argsNode.add((BigDecimal) arg);
       } else if (arg instanceof String) {
-        argsNode.add(arg.toString());
+        argsNode.add((String) arg);
       } else {
         throw new IllegalArgumentException("Args type must be number or string");
       }

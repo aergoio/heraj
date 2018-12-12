@@ -4,13 +4,18 @@
 
 package hera.client;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractResult;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
 
 @RequiredArgsConstructor
 public class ContractResultImpl implements ContractResult {
+
+  protected final Logger logger = getLogger(getClass());
 
   protected final ObjectMapper mapper = new ObjectMapper();
 
@@ -18,6 +23,11 @@ public class ContractResultImpl implements ContractResult {
 
   @Override
   public <T> T bind(final Class<T> clazz) throws Exception {
+    final String stringFormat = new String(result);
+    logger.debug("Raw result: {}", stringFormat);
+    if (stringFormat.isEmpty() || "{}".equals(stringFormat)) {
+      return null;
+    }
     return mapper.readValue(result, clazz);
   }
 

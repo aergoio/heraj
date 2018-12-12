@@ -7,12 +7,12 @@ package hera.api.model;
 public interface ContractResult {
 
   /**
-   * Bind contract result to class.
+   * Bind contract result to class. It returns null if result is empty or json result is {}.
    *
    * @param <T> return type
    * @param clazz class to bind
-   * @return bound class instance
-   * @throws Exception when binding error occured
+   * @return bound class instance. null if result is empty or empty json format
+   * @throws Exception when binding error occurred
    */
   <T> T bind(Class<T> clazz) throws Exception;
 
