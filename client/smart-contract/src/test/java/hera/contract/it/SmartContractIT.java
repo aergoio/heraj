@@ -11,6 +11,7 @@ import static org.junit.Assert.assertNull;
 import hera.api.model.Authentication;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
+import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
 import hera.contract.SmartContractFactory;
 import hera.key.AergoKey;
@@ -45,7 +46,9 @@ public class SmartContractIT extends AbstractIT {
       final ContractDefinition definition = ContractDefinition.newBuilder()
           .encodedContract(payload)
           .build();
-      this.contractAddress = wallet.deploy(definition, Fee.getDefaultFee()).getAddress();
+      final ContractTxHash deployTxHash = wallet.deploy(definition, Fee.getDefaultFee());
+      Thread.sleep(1200L);
+      this.contractAddress = wallet.getReceipt(deployTxHash).getContractAddress();
     } catch (Exception e) {
       throw new IllegalStateException(e);
     }
