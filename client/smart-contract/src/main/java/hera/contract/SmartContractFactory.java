@@ -30,16 +30,17 @@ public class SmartContractFactory {
   /**
    * Create a proxy instance to call smart contract corresponding to {@code type}.
    *
-   * @param <T> a smart contract interface type
+   * @param <ContractT> a smart contract interface type which extends {@link SmartContract}
    * @param type a proxy type
    * @param contractAddress a contract address
    * @return a proxy instance
    */
   @SuppressWarnings("unchecked")
-  public <T> T create(final Class<T> type, final ContractAddress contractAddress) {
+  public <ContractT extends SmartContract> ContractT create(final Class<ContractT> type,
+      final ContractAddress contractAddress) {
     logger.debug("Create contract client type: {}, contract address: {}", type, contractAddress);
     final ContractInvocationHandler handler = new ContractInvocationHandler(contractAddress);
-    return (T) Proxy.newProxyInstance(this.classLoader, new Class<?>[] {type}, handler);
+    return (ContractT) Proxy.newProxyInstance(this.classLoader, new Class<?>[] {type}, handler);
   }
 
 }
