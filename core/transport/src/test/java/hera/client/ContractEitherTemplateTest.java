@@ -67,8 +67,9 @@ public class ContractEitherTemplateTest extends AbstractTestCase {
   @Test
   public void testGetReceipt() {
     final ContractBaseTemplate base = mock(ContractBaseTemplate.class);
+    final ContractTxReceipt mockTxReceipt = mock(ContractTxReceipt.class);
     ResultOrErrorFuture<ContractTxReceipt> future =
-        ResultOrErrorFutureFactory.supply(() -> new ContractTxReceipt());
+        ResultOrErrorFutureFactory.supply(() -> mockTxReceipt);
     when(base.getReceiptFunction()).thenReturn(h -> future);
 
     final ContractEitherTemplate contractEitherTemplate = supplyContractEitherTemplate(base);

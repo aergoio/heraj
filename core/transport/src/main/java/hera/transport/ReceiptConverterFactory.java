@@ -28,14 +28,12 @@ public class ReceiptConverterFactory {
 
   protected final Function<Blockchain.Receipt, ContractTxReceipt> rpcConverter = rpcReceipt -> {
     logger.trace("Rpc contract tx receipt: {}", rpcReceipt);
-    final ContractTxReceipt domainReceipt = new ContractTxReceipt();
     final AccountAddress accountAddress =
         accountAddressConverter.convertToDomainModel(rpcReceipt.getContractAddress());
-    domainReceipt.setContractAddress(accountAddress.adapt(ContractAddress.class).get());
-    domainReceipt.setStatus(rpcReceipt.getStatus());
-    domainReceipt.setRet(rpcReceipt.getRet());
-    logger.trace("Converted rpc contract tx receipt: {}", domainReceipt);
-    return domainReceipt;
+    return new ContractTxReceipt(
+        accountAddress.adapt(ContractAddress.class).get(),
+        rpcReceipt.getStatus(),
+        rpcReceipt.getRet());
   };
 
   public ModelConverter<ContractTxReceipt, Blockchain.Receipt> create() {
