@@ -19,7 +19,7 @@ import hera.key.AergoKeyGenerator;
 import hera.util.IoUtils;
 import hera.util.ThreadUtils;
 import hera.wallet.Wallet;
-import hera.wallet.WalletFactory;
+import hera.wallet.WalletBuilder;
 import hera.wallet.WalletType;
 import java.io.InputStreamReader;
 import org.junit.Before;
@@ -34,9 +34,9 @@ public class SmartContractIT extends AbstractIT {
   @Before
   public void setUp() {
     try {
-      this.wallet = new WalletFactory()
+      this.wallet = new WalletBuilder()
           .withEndpoint("localhost:7845")
-          .create(WalletType.Naive);
+          .build(WalletType.Naive);
       final String password = randomUUID().toString();
       AergoKey key = new AergoKeyGenerator().create();
       wallet.saveKey(key, password);
@@ -57,7 +57,6 @@ public class SmartContractIT extends AbstractIT {
   @Test
   public void testInvocation() {
     final SmartContractSample smartContarct = new SmartContractFactory()
-        .withClassLoader(getClass().getClassLoader())
         .create(SmartContractSample.class, contractAddress);
     smartContarct.bind(wallet);
     smartContarct.bind(Fee.getDefaultFee());

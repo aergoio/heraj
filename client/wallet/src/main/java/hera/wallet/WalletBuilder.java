@@ -12,7 +12,7 @@ import hera.client.ContextConfiguer;
 import hera.exception.WalletCreationException;
 import java.util.concurrent.TimeUnit;
 
-public class WalletFactory implements ContextConfiguer<WalletFactory> {
+public class WalletBuilder implements ContextConfiguer<WalletBuilder> {
 
   protected static final TryCountAndInterval MIMINUM_NONCE_REFRESH_COUNT =
       TryCountAndInterval.of(1, Time.of(0, TimeUnit.SECONDS));
@@ -22,43 +22,43 @@ public class WalletFactory implements ContextConfiguer<WalletFactory> {
   protected TryCountAndInterval nonceRefreshTryInterval = MIMINUM_NONCE_REFRESH_COUNT;
 
   @Override
-  public WalletFactory addConfiguration(final String key, final String value) {
+  public WalletBuilder addConfiguration(final String key, final String value) {
     clientBuilder.addConfiguration(key, value);
     return this;
   }
 
   @Override
-  public WalletFactory withEndpoint(final String endpoint) {
+  public WalletBuilder withEndpoint(final String endpoint) {
     clientBuilder.withEndpoint(endpoint);
     return this;
   }
 
   @Override
-  public WalletFactory withNonBlockingConnect() {
+  public WalletBuilder withNonBlockingConnect() {
     clientBuilder.withNonBlockingConnect();
     return this;
   }
 
   @Override
-  public WalletFactory withBlockingConnect() {
+  public WalletBuilder withBlockingConnect() {
     clientBuilder.withBlockingConnect();
     return this;
   }
 
   @Override
-  public WalletFactory withTracking() {
+  public WalletBuilder withTracking() {
     clientBuilder.withTracking();
     return this;
   }
 
   @Override
-  public WalletFactory withTimeout(final long timeout, final TimeUnit unit) {
+  public WalletBuilder withTimeout(final long timeout, final TimeUnit unit) {
     clientBuilder.withTimeout(timeout, unit);
     return this;
   }
 
   @Override
-  public WalletFactory withRetry(final int count, final long interval, final TimeUnit unit) {
+  public WalletBuilder withRetry(final int count, final long interval, final TimeUnit unit) {
     clientBuilder.withRetry(count, interval, unit);
     return this;
   }
@@ -71,7 +71,7 @@ public class WalletFactory implements ContextConfiguer<WalletFactory> {
    * @param unit interval unit
    * @return an instance of this
    */
-  public WalletFactory withNonceRefresh(final int count, final long interval, final TimeUnit unit) {
+  public WalletBuilder withNonceRefresh(final int count, final long interval, final TimeUnit unit) {
     this.nonceRefreshTryInterval =
         TryCountAndInterval.of(count == 0 ? 1 : count, Time.of(interval, unit));
     return this;
@@ -84,7 +84,7 @@ public class WalletFactory implements ContextConfiguer<WalletFactory> {
    * @return a wallet instance
    * @throws WalletCreationException if wallet type is invalid
    */
-  public Wallet create(final WalletType type) {
+  public Wallet build(final WalletType type) {
     if (null == type) {
       throw new WalletCreationException("Unrecognized wallet type");
     }

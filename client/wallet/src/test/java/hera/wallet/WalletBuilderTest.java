@@ -10,11 +10,11 @@ import hera.AbstractTestCase;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 
-public class WalletFactoryTest extends AbstractTestCase {
+public class WalletBuilderTest extends AbstractTestCase {
 
   @Test
   public void testCreate() {
-    final WalletFactory factory = new WalletFactory()
+    final WalletBuilder builder = new WalletBuilder()
         .withBlockingConnect()
         .withEndpoint("localhost:7845")
         .withNonceRefresh(3, 1000L, TimeUnit.MILLISECONDS)
@@ -23,8 +23,8 @@ public class WalletFactoryTest extends AbstractTestCase {
         .withTracking()
         .addConfiguration("key", "value");
 
-    assertNotNull(factory.create(WalletType.Naive));
-    assertNotNull(factory.create(WalletType.ServerKeyStore));
+    assertNotNull(builder.build(WalletType.Naive));
+    assertNotNull(builder.build(WalletType.ServerKeyStore));
   }
 
 }

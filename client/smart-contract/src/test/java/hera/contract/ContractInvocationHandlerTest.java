@@ -20,7 +20,7 @@ import hera.api.model.ContractInterface;
 import hera.api.model.Fee;
 import hera.client.ContractResultImpl;
 import hera.wallet.Wallet;
-import hera.wallet.WalletFactory;
+import hera.wallet.WalletBuilder;
 import hera.wallet.WalletType;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +54,7 @@ public class ContractInvocationHandlerTest extends AbstractTestCase {
       // good we expected this
     }
 
-    invocationHandler.setWallet(new WalletFactory().create(WalletType.Naive));
+    invocationHandler.setWallet(new WalletBuilder().build(WalletType.Naive));
     assertNotNull(invocationHandler.getWallet());
   }
 
@@ -63,7 +63,7 @@ public class ContractInvocationHandlerTest extends AbstractTestCase {
     final SimpleSmartContract smartContract = new SmartContractFactory()
         .create(SimpleSmartContract.class, contractAddress);
     smartContract.bind(Fee.getDefaultFee());
-    smartContract.bind(new WalletFactory().create(WalletType.Naive));
+    smartContract.bind(new WalletBuilder().build(WalletType.Naive));
   }
 
   @Test

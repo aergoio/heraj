@@ -11,7 +11,7 @@ public class ServerKeyStoreWalletTest extends AbstractTestCase {
 
   @Test
   public void testBindKeyStore() {
-    final Wallet wallet = new WalletFactory().create(WalletType.ServerKeyStore);
+    final Wallet wallet = new WalletBuilder().build(WalletType.ServerKeyStore);
     wallet.bindKeyStore(null);
   }
 

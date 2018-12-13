@@ -18,8 +18,7 @@ public class ContractClientFactoryTest extends AbstractTestCase {
   @Test
   public void testCreate() {
     final SmartContract contractSample = new SmartContractFactory()
-        .withClassLoader(getClass().getClassLoader())
-        .create(SmartContract.class, contractAddress);
+        .create(SmartContract.class, contractAddress, getClass().getClassLoader());
     assertNotNull(contractSample);
   }
 

@@ -14,17 +14,18 @@ public class SmartContractFactory {
 
   protected final Logger logger = getLogger(getClass());
 
-  protected ClassLoader classLoader = getClass().getClassLoader();
-
   /**
-   * Set class loader used in making proxy instance.
-   * 
-   * @param classLoader a class loader
-   * @return an instance of this
+   * Create a proxy instance to call smart contract corresponding to {@code type}. Class loader is
+   * set by {@code getClass().getClassLoader()}.
+   *
+   * @param <ContractT> a smart contract interface type which extends {@link SmartContract}
+   * @param type a proxy type
+   * @param contractAddress a contract address
+   * @return a proxy instance
    */
-  public SmartContractFactory withClassLoader(final ClassLoader classLoader) {
-    this.classLoader = classLoader;
-    return this;
+  public <ContractT extends SmartContract> ContractT create(final Class<ContractT> type,
+      final ContractAddress contractAddress) {
+    return create(type, contractAddress, getClass().getClassLoader());
   }
 
   /**
@@ -33,14 +34,16 @@ public class SmartContractFactory {
    * @param <ContractT> a smart contract interface type which extends {@link SmartContract}
    * @param type a proxy type
    * @param contractAddress a contract address
+   * @param classLoader a class loader used in making proxy instance
    * @return a proxy instance
    */
   @SuppressWarnings("unchecked")
   public <ContractT extends SmartContract> ContractT create(final Class<ContractT> type,
-      final ContractAddress contractAddress) {
-    logger.debug("Create contract client type: {}, contract address: {}", type, contractAddress);
+      final ContractAddress contractAddress, final ClassLoader classLoader) {
+    logger.debug("Create contract client type: {}, contract address: {}, class loader: {}", type,
+        contractAddress, classLoader);
     final ContractInvocationHandler handler = new ContractInvocationHandler(contractAddress);
-    return (ContractT) Proxy.newProxyInstance(this.classLoader, new Class<?>[] {type}, handler);
+    return (ContractT) Proxy.newProxyInstance(classLoader, new Class<?>[] {type}, handler);
   }
 
 }
