@@ -4,6 +4,7 @@
 
 package hera.wallet;
 
+import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Authentication;
@@ -50,6 +51,13 @@ public interface Wallet extends LookupClient {
    * @return an account address
    */
   AccountAddress getAddress();
+
+  /**
+   * Get a current account.
+   *
+   * @return an account
+   */
+  Account getAccount();
 
   /**
    * Get recently used nonce value.

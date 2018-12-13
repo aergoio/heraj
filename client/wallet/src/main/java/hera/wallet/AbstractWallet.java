@@ -55,13 +55,6 @@ public abstract class AbstractWallet implements Wallet {
     this.nonceRefreshTryCountAndInterval = tryCountAndInterval;
   }
 
-  protected Account getAccount() {
-    if (null == this.account) {
-      throw new WalletException("An account is not set");
-    }
-    return this.account;
-  }
-
   @Override
   public AccountState getAccountState() {
     return getAergoClient().getAccountOperation().getState(getAccount());
@@ -140,6 +133,14 @@ public abstract class AbstractWallet implements Wallet {
   @Override
   public AccountAddress getAddress() {
     return getAccount().getAddress();
+  }
+
+  @Override
+  public Account getAccount() {
+    if (null == this.account) {
+      throw new WalletException("An account is not set");
+    }
+    return this.account;
   }
 
   @Override
