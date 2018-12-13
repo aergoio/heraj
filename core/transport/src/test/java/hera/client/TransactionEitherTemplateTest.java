@@ -8,7 +8,6 @@ import static hera.TransportConstants.TRANSACTION_COMMIT_EITHER;
 import static hera.TransportConstants.TRANSACTION_GETTX_EITHER;
 import static hera.TransportConstants.TRANSACTION_SEND_EITHER;
 import static hera.api.model.BytesValue.of;
-import static java.math.BigInteger.valueOf;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -18,6 +17,7 @@ import static org.mockito.Mockito.when;
 import hera.AbstractTestCase;
 import hera.ContextProvider;
 import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrError;
@@ -95,7 +95,7 @@ public class TransactionEitherTemplateTest extends AbstractTestCase {
         supplyTransactionEitherTemplate(base);
 
     final ResultOrError<TxHash> txHash =
-        transactionEitherTemplate.send(accountAddress, accountAddress, valueOf(10L));
+        transactionEitherTemplate.send(accountAddress, accountAddress, Aer.of("10 aer"));
     assertTrue(txHash.hasResult());
     assertEquals(TRANSACTION_SEND_EITHER,
         ((WithIdentity) transactionEitherTemplate.getSendFunction()).getIdentity());

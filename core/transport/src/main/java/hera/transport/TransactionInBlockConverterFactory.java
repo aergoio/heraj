@@ -12,6 +12,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
 import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
 import hera.api.model.BlockHash;
 import hera.api.model.Fee;
 import hera.api.model.Signature;
@@ -61,10 +62,12 @@ public class TransactionInBlockConverterFactory {
             .setAccount(accountAddressConverter.convertToRpcModel(domainTransaction.getSender()))
             .setRecipient(
                 accountAddressConverter.convertToRpcModel(domainTransaction.getRecipient()))
-            .setAmount(ByteString.copyFrom(postiveToByteArray(domainTransaction.getAmount())))
+            .setAmount(
+                ByteString.copyFrom(postiveToByteArray(domainTransaction.getAmount().getValue())))
             .setNonce(domainTransaction.getNonce())
             .setPrice(
-                ByteString.copyFrom(postiveToByteArray(domainTransaction.getFee().getPrice())))
+                ByteString
+                    .copyFrom(postiveToByteArray(domainTransaction.getFee().getPrice().getValue())))
             .setLimit(domainTransaction.getFee().getLimit())
             .setPayload(copyFrom(domainTransaction.getPayload()))
             .setType(txTypeDomainConverter.apply(domainTransaction.getTxType()))
@@ -95,9 +98,9 @@ public class TransactionInBlockConverterFactory {
 
     return new Transaction(accountAddressConverter.convertToDomainModel(txBody.getAccount()),
         accountAddressConverter.convertToDomainModel(txBody.getRecipient()),
-        byteArrayToPostive(txBody.getAmount().toByteArray()),
+        Aer.of(byteArrayToPostive(txBody.getAmount().toByteArray())),
         txBody.getNonce(),
-        Fee.of(byteArrayToPostive(txBody.getPrice().toByteArray()), txBody.getLimit()),
+        Fee.of(Aer.of(byteArrayToPostive(txBody.getPrice().toByteArray())), txBody.getLimit()),
         of(txBody.getPayload().toByteArray()),
         txTypeRpcConverter.apply(txBody.getType()),
         Signature.of(of(txBody.getSign().toByteArray())),

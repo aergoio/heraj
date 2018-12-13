@@ -32,7 +32,7 @@ public class TransactionConverterTest extends AbstractTestCase {
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .sender(AccountAddress.of(base58WithCheckSum))
         .recipient(AccountAddress.of(base58WithCheckSum))
-        .amount("10000")
+        .amount("10000 gaer")
         .nonce(1L)
         .fee(Fee.of("100", 5))
         .payload(BytesValue.EMPTY)

@@ -5,7 +5,6 @@
 package hera.api.model;
 
 import hera.util.TransactionUtils;
-import java.math.BigInteger;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -78,7 +77,7 @@ public class Transaction extends RawTransaction {
    * @param isConfirmed an confirm state
    */
   public Transaction(final AccountAddress sender, final AccountAddress recipient,
-      final BigInteger amount, long nonce, final Fee fee, final BytesValue payload,
+      final Aer amount, long nonce, final Fee fee, final BytesValue payload,
       final TxType txType, final Signature signature, final TxHash txHash,
       final BlockHash blockHash, final int indexInBlock, final boolean isConfirmed) {
     super(sender, recipient, amount, nonce, fee, payload, txType);

@@ -34,9 +34,9 @@ public class TransactionUtilsTest extends AbstractTestCase {
     final RawTransaction rawTransaction = Transaction.newBuilder()
         .sender(AccountAddress.of(() -> encodedAddress))
         .recipient(AccountAddress.of(() -> encodedAddress))
-        .amount("10000")
+        .amount("10000 aer")
         .nonce(1L)
-        .fee(Fee.of("100", 5))
+        .fee(Fee.of("100 aer", 5))
         .build();
 
     assertNotNull(TransactionUtils.calculateHash(rawTransaction));
@@ -47,9 +47,9 @@ public class TransactionUtilsTest extends AbstractTestCase {
     final RawTransaction rawTransaction = Transaction.newBuilder()
         .sender(AccountAddress.of(() -> encodedAddress))
         .recipient(AccountAddress.of(() -> encodedAddress))
-        .amount("10000")
+        .amount("10000 aer")
         .nonce(1L)
-        .fee(Fee.of("100", 5))
+        .fee(Fee.of("100 aer", 5))
         .build();
 
     final Signature signature = Signature.of(BytesValue.of(Base58Utils.decode(

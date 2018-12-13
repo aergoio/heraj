@@ -23,12 +23,12 @@ public class RawTransactionTest {
         RawTransaction.newBuilder()
             .sender(AccountAddress.of(base58WithCheckSum))
             .recipient(AccountAddress.of(base58WithCheckSum))
-            .amount("10000")
+            .amount("10000 aer")
             .nonce(1L);
     assertNotNull(minimum.build());
 
     final RawTransactionWithSenderAndRecipientAndAmountAndNonceAndFee minimumWithFee =
-        minimum.fee(Fee.of("100", 5));
+        minimum.fee(Fee.of("100 aer", 5));
     assertNotNull(minimumWithFee.build());
 
     final RawTransactionWithSenderAndRecipientAndAmountAndNonceAndFeeAndPayload maximum =

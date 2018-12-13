@@ -4,26 +4,25 @@
 
 package hera.api.model;
 
-import static java.math.BigInteger.valueOf;
 import static org.junit.Assert.assertEquals;
 
-import java.math.BigInteger;
 import org.junit.Test;
 
 public class FeeTest {
 
   @Test
   public void testCreation() {
-    final Object[][] testParameters =
-        {{valueOf(-1L), -1L, Fee.MIN_PRICE, Fee.MIN_LIMIT},
-            {valueOf(0L), -1L, valueOf(0L), Fee.MIN_LIMIT},
-            {valueOf(-1L), 0L, Fee.MIN_PRICE, 0L}, {valueOf(0L), 0L, valueOf(0L), 0L},
-            {valueOf(1L), 1L, valueOf(1L), 1L}};
+    final Object[][] testParameters = {
+        {"0.1 aergo", -1L, Aer.of("0.1 aergo"), Fee.MIN_LIMIT},
+        {"0.1 aergo", 100L, Aer.of("0.1 aergo"), 100L},
+        {"0 aer", 100L, Fee.MIN_PRICE, 100L},
+        {"0.1 aergo", 100L, Aer.of("0.1 aergo"), 100L}
+    };
 
     for (final Object[] testParameter : testParameters) {
-      final BigInteger price = (BigInteger) testParameter[0];
+      final String price = (String) testParameter[0];
       final long limit = (long) testParameter[1];
-      final BigInteger priceExpected = (BigInteger) testParameter[2];
+      final Aer priceExpected = (Aer) testParameter[2];
       final long limitExpected = (long) testParameter[3];
 
       final Fee fee = Fee.of(price, limit);

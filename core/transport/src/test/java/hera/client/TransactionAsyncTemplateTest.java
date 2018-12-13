@@ -8,7 +8,6 @@ import static hera.TransportConstants.TRANSACTION_COMMIT_ASYNC;
 import static hera.TransportConstants.TRANSACTION_GETTX_ASYNC;
 import static hera.TransportConstants.TRANSACTION_SEND_ASYNC;
 import static hera.api.model.BytesValue.of;
-import static java.math.BigInteger.valueOf;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -18,6 +17,7 @@ import static org.mockito.Mockito.when;
 import hera.AbstractTestCase;
 import hera.ContextProvider;
 import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -93,7 +93,7 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
         supplyTransactionAsyncTemplate(base);
 
     final ResultOrErrorFuture<TxHash> txHash =
-        transactionAsyncTemplate.send(accountAddress, accountAddress, valueOf(10L));
+        transactionAsyncTemplate.send(accountAddress, accountAddress, Aer.of("10 aer"));
     assertTrue(txHash.get().hasResult());
     assertEquals(TRANSACTION_SEND_ASYNC,
         ((WithIdentity) transactionAsyncTemplate.getSendFunction()).getIdentity());

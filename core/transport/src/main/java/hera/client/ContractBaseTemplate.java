@@ -21,6 +21,7 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
@@ -125,7 +126,7 @@ public class ContractBaseTemplate implements ChannelInjectable {
               final RawTransaction rawTransaction = RawTransaction.newBuilder()
                   .sender(creator)
                   .recipient(AccountAddress.of(BytesValue.EMPTY))
-                  .amount(BigInteger.ZERO)
+                  .amount(Aer.ZERO)
                   .nonce(nonce)
                   .fee(fee)
                   .payload(definitionToPayloadForm(contractDefinition))
@@ -174,7 +175,7 @@ public class ContractBaseTemplate implements ChannelInjectable {
               final RawTransaction rawTransaction = RawTransaction.newBuilder()
                   .sender(executor)
                   .recipient(contractInvocation.getAddress())
-                  .amount(BigInteger.ZERO)
+                  .amount(Aer.ZERO)
                   .nonce(nonce)
                   .fee(fee)
                   .payload(BytesValue.of(functionCallString.getBytes()))

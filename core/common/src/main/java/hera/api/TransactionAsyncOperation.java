@@ -7,10 +7,10 @@ package hera.api;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
-import java.math.BigInteger;
 
 @ApiAudience.Public
 @ApiStability.Unstable
@@ -43,6 +43,6 @@ public interface TransactionAsyncOperation {
    * @return future of transaction hash or error
    */
   ResultOrErrorFuture<TxHash> send(AccountAddress sender, AccountAddress recipient,
-      BigInteger amount);
+      Aer amount);
 
 }

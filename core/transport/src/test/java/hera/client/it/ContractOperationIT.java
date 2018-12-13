@@ -4,7 +4,6 @@
 
 package hera.client.it;
 
-import static java.math.BigInteger.valueOf;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -67,7 +66,7 @@ public class ContractOperationIT extends AbstractIT {
         contractInterface.newInvocationBuilder().function(function).args(args).build();
     logger.info("Contract invocation: {}", execution);
     return aergoClient.getContractOperation().execute(account, execution,
-        account.incrementAndGetNonce(), Fee.of(valueOf(0L), 0L));
+        account.incrementAndGetNonce(), Fee.getDefaultFee());
   }
 
   protected ContractResult query(final ContractInterface contractInterface, final String function,
@@ -81,7 +80,7 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void testLuaContractConstructor() throws Exception {
     final Account account = createClientAccount();
-    rechargeCoin(account, 100L);
+    rechargeCoin(account, "100 aer");
 
     waitForNextBlockToGenerate();
 
@@ -89,7 +88,7 @@ public class ContractOperationIT extends AbstractIT {
     final int intVal = 100;
     final String stringVal = "string value";
     final ContractTxHash deployTxHash =
-        define(account, Fee.of(valueOf(1L), 1L), key, intVal, stringVal);
+        define(account, Fee.getDefaultFee(), key, intVal, stringVal);
 
     waitForNextBlockToGenerate();
 
@@ -108,11 +107,11 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void testLuaContractDeployAndExecuteWithLocalAccount() throws Exception {
     final Account account = createClientAccount();
-    rechargeCoin(account, 100L);
+    rechargeCoin(account, "100 aer");
 
     waitForNextBlockToGenerate();
 
-    final ContractTxHash deployTxHash = define(account, Fee.of(valueOf(1L), 1L));
+    final ContractTxHash deployTxHash = define(account, Fee.getDefaultFee());
 
     waitForNextBlockToGenerate();
 
@@ -126,7 +125,7 @@ public class ContractOperationIT extends AbstractIT {
     final int intVal = 100;
     final String stringVal = "string value";
     final ContractTxHash executionTxHash =
-        execute(account, Fee.of(valueOf(1L), 1L), contractInterface, "set", key, intVal, stringVal);
+        execute(account, Fee.getDefaultFee(), contractInterface, "set", key, intVal, stringVal);
 
     waitForNextBlockToGenerate();
 
@@ -143,13 +142,13 @@ public class ContractOperationIT extends AbstractIT {
   public void testLuaContractDeployAndExecuteWithRemoteAccount() throws Exception {
     final String password = randomUUID().toString();
     final Account account = createServerAccount(password);
-    rechargeCoin(account, 100L);
+    rechargeCoin(account, "100 aer");
 
     waitForNextBlockToGenerate();
 
     assertTrue(unlockAccount(account, password));
 
-    final ContractTxHash deployTxHash = define(account, Fee.of(valueOf(1L), 1L));
+    final ContractTxHash deployTxHash = define(account, Fee.getDefaultFee());
 
     waitForNextBlockToGenerate();
 
@@ -163,7 +162,7 @@ public class ContractOperationIT extends AbstractIT {
     final int intVal = 100;
     final String stringVal = "string value";
     final ContractTxHash executionTxHash =
-        execute(account, Fee.of(valueOf(1L), 1L), contractInterface, "set", key, intVal, stringVal);
+        execute(account, Fee.getDefaultFee(), contractInterface, "set", key, intVal, stringVal);
 
     waitForNextBlockToGenerate();
 

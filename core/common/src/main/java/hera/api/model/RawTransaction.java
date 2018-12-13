@@ -5,7 +5,6 @@
 package hera.api.model;
 
 import hera.api.model.Transaction.TxType;
-import java.math.BigInteger;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -38,7 +37,7 @@ public class RawTransaction {
   protected final AccountAddress recipient;
 
   @Getter
-  protected final BigInteger amount;
+  protected final Aer amount;
 
   @Getter
   protected final long nonce;
@@ -64,11 +63,11 @@ public class RawTransaction {
    * @param txType a txType
    */
   public RawTransaction(final AccountAddress sender, final AccountAddress recipient,
-      final BigInteger amount, final long nonce, final Fee fee, final BytesValue payload,
+      final Aer amount, final long nonce, final Fee fee, final BytesValue payload,
       final TxType txType) {
     this.sender = null != sender ? sender : AccountAddress.of(BytesValue.EMPTY);
     this.recipient = null != recipient ? recipient : AccountAddress.of(BytesValue.EMPTY);
-    this.amount = null != amount ? amount : BigInteger.ZERO;
+    this.amount = null != amount ? amount : Aer.ZERO;
     this.nonce = nonce;
     this.fee = null != fee ? fee : Fee.getDefaultFee();
     this.payload = null != payload ? payload : BytesValue.EMPTY;
@@ -90,7 +89,7 @@ public class RawTransaction {
   public interface RawTransactionWithSenderAndRecipient {
     RawTransactionWithSenderAndRecipientAndAmount amount(String amount);
 
-    RawTransactionWithSenderAndRecipientAndAmount amount(BigInteger amount);
+    RawTransactionWithSenderAndRecipientAndAmount amount(Aer amount);
   }
 
   public interface RawTransactionWithSenderAndRecipientAndAmount {
@@ -123,7 +122,7 @@ public class RawTransaction {
 
     private AccountAddress recipient;
 
-    private BigInteger amount;
+    private Aer amount;
 
     private long nonce;
 
@@ -157,11 +156,11 @@ public class RawTransaction {
 
     @Override
     public RawTransactionWithSenderAndRecipientAndAmount amount(final String amount) {
-      return amount(new BigInteger(amount));
+      return amount(Aer.of(amount));
     }
 
     @Override
-    public RawTransactionWithSenderAndRecipientAndAmount amount(final BigInteger amount) {
+    public RawTransactionWithSenderAndRecipientAndAmount amount(final Aer amount) {
       this.amount = amount;
       return this;
     }

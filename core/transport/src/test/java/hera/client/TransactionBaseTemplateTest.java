@@ -5,7 +5,6 @@
 package hera.client;
 
 import static hera.api.model.BytesValue.of;
-import static java.math.BigInteger.valueOf;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -15,6 +14,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
 import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
 import hera.api.model.BytesValue;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
@@ -119,7 +119,7 @@ public class TransactionBaseTemplateTest extends AbstractTestCase {
         supplyTransactionBaseTemplate(aergoService);
 
     final ResultOrErrorFuture<TxHash> txHash = transactionBaseTemplate.getSendFunction()
-        .apply(accountAddress, accountAddress, valueOf(10L));
+        .apply(accountAddress, accountAddress, Aer.of("10 aer"));
     assertTrue(txHash.get().hasResult());
   }
 

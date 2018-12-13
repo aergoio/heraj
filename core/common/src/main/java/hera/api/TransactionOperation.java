@@ -7,9 +7,9 @@ package hera.api;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import java.math.BigInteger;
 
 @ApiAudience.Public
 @ApiStability.Unstable
@@ -41,6 +41,6 @@ public interface TransactionOperation {
    * @param amount aergo amount
    * @return transaction hash
    */
-  TxHash send(AccountAddress sender, AccountAddress recipient, BigInteger amount);
+  TxHash send(AccountAddress sender, AccountAddress recipient, Aer amount);
 
 }

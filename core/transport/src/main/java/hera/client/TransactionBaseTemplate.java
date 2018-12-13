@@ -17,6 +17,7 @@ import com.google.protobuf.ByteString;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
 import hera.api.model.BytesValue;
 import hera.api.model.Fee;
 import hera.api.model.Transaction;
@@ -31,7 +32,6 @@ import hera.transport.ModelConverter;
 import hera.transport.TransactionConverterFactory;
 import hera.transport.TransactionInBlockConverterFactory;
 import io.grpc.ManagedChannel;
-import java.math.BigInteger;
 import lombok.Getter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -109,7 +109,7 @@ public class TransactionBaseTemplate implements ChannelInjectable {
       };
 
   @Getter
-  private final Function3<AccountAddress, AccountAddress, BigInteger, ResultOrErrorFuture<
+  private final Function3<AccountAddress, AccountAddress, Aer, ResultOrErrorFuture<
       TxHash>> sendFunction = (sender, recipient, amount) -> {
         ResultOrErrorFuture<TxHash> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 

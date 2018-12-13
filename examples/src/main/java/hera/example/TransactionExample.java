@@ -4,12 +4,11 @@
 
 package hera.example;
 
-import static java.math.BigInteger.valueOf;
-
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
+import hera.api.model.Aer;
 import hera.api.model.Authentication;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
@@ -116,7 +115,7 @@ public class TransactionExample extends AbstractExample {
     // send tx
     final TxHash txHash = aergoClient.getTransactionOperation().send(account.getAddress(),
         AccountAddress.of(() -> "AmLbHdVs4dNpRzyLirs8cKdV26rPJJxpVXG1w2LLZ9pKfqAHHdyg"),
-        valueOf(10L));
+        Aer.of("10 aer"));
     System.out.println("TxHash: " + txHash);
 
     // query tx with hash

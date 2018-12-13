@@ -286,7 +286,7 @@ public class AbstractWalletTest extends AbstractTestCase {
         .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
     when(wallet.sign(any())).thenReturn(mock(Transaction.class));
 
-    assertNotNull(wallet.send(accountAddress, "1000", Fee.getDefaultFee(), BytesValue.EMPTY));
+    assertNotNull(wallet.send(accountAddress, "1000 aer", Fee.getDefaultFee(), BytesValue.EMPTY));
   }
 
   @Test
