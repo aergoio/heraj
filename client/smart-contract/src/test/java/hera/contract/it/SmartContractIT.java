@@ -7,6 +7,7 @@ package hera.contract.it;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import hera.api.model.Authentication;
 import hera.api.model.ContractAddress;
@@ -14,6 +15,7 @@ import hera.api.model.ContractDefinition;
 import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
 import hera.contract.SmartContractFactory;
+import hera.exception.ContractException;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.util.IoUtils;
@@ -35,7 +37,7 @@ public class SmartContractIT extends AbstractIT {
   public void setUp() {
     try {
       this.wallet = new WalletBuilder()
-          .withEndpoint("localhost:7845")
+          .withEndpoint(endpoint)
           .build(WalletType.Naive);
       final String password = randomUUID().toString();
       AergoKey key = new AergoKeyGenerator().create();
@@ -47,7 +49,7 @@ public class SmartContractIT extends AbstractIT {
           .encodedContract(payload)
           .build();
       final ContractTxHash deployTxHash = wallet.deploy(definition, Fee.getDefaultFee());
-      Thread.sleep(1200L);
+      Thread.sleep(2200L);
       this.contractAddress = wallet.getReceipt(deployTxHash).getContractAddress();
     } catch (Exception e) {
       throw new IllegalStateException(e);
@@ -56,8 +58,8 @@ public class SmartContractIT extends AbstractIT {
 
   @Test
   public void testInvocation() {
-    final SmartContractSample smartContarct = new SmartContractFactory()
-        .create(SmartContractSample.class, contractAddress);
+    final ValidInterface smartContarct =
+        new SmartContractFactory().create(ValidInterface.class, contractAddress);
     smartContarct.bind(wallet);
     smartContarct.bind(Fee.getDefaultFee());
 
@@ -71,12 +73,57 @@ public class SmartContractIT extends AbstractIT {
     smartContarct.setNumber(numberArg);
     smartContarct.setString(stringArg);
 
-    ThreadUtils.trySleep(1500L);
+    ThreadUtils.trySleep(2200L);
 
     assertNull(smartContarct.getNil());
     assertEquals(booleanArg, smartContarct.getBoolean());
     assertEquals(numberArg, smartContarct.getNumber());
     assertEquals(stringArg, smartContarct.getString());
+  }
+
+  @Test
+  public void testInvocationOnNoBindedWallet() {
+    final ValidInterface smartContarct = new SmartContractFactory()
+        .create(ValidInterface.class, contractAddress);
+    // smartContarct.bind(wallet);
+    smartContarct.bind(Fee.getDefaultFee());
+
+    try {
+      smartContarct.setBoolean(true);
+      fail();
+    } catch (ContractException e) {
+      // good we expected this
+    }
+  }
+
+  @Test
+  public void testInvocationOnInvalidMethodNameInterface() {
+    final InvalidMethodNameInterface smartContract = new SmartContractFactory()
+        .create(InvalidMethodNameInterface.class, contractAddress);
+    smartContract.bind(wallet);
+    smartContract.bind(Fee.getDefaultFee());
+
+    try {
+      smartContract.getNil();
+      fail();
+    } catch (ContractException e) {
+      // good we expected this
+    }
+  }
+
+  @Test
+  public void testInvocationOnInvalidMethodParameterCountInterface() {
+    final InvalidMethodParameterCountInterface smartContract = new SmartContractFactory()
+        .create(InvalidMethodParameterCountInterface.class, contractAddress);
+    smartContract.bind(wallet);
+    smartContract.bind(Fee.getDefaultFee());
+
+    try {
+      smartContract.getNil();
+      fail();
+    } catch (ContractException e) {
+      // good we expected this
+    }
   }
 
 }

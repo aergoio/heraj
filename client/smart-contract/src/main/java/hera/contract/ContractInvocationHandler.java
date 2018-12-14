@@ -3,6 +3,7 @@ package hera.contract;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.ContractAddress;
+import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
@@ -135,9 +136,17 @@ public class ContractInvocationHandler implements InvocationHandler {
           continue;
         }
       }
-      if (null == contractInterface.findFunction(methodName)) {
+      // check method name and argument count
+      final ContractFunction contractFunction = contractInterface.findFunction(methodName);
+      if (null == contractFunction) {
         throw new ContractException("No method " + methodName + " in contract interface");
+      }
+      final int actualArgCount = contractFunction.getArgumentNames().size();
+      if (method.getParameterCount() != actualArgCount) {
+        throw new ContractException(String.format(
+            "Method parameter count for %s is invalid (expected: %d)", methodName, actualArgCount));
       }
     }
   }
+
 }
