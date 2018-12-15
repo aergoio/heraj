@@ -7,11 +7,12 @@ package hera.api.model;
 import static hera.util.ValidationUtils.assertNotNull;
 
 import hera.exception.HerajException;
-import hera.exception.InvalidAerFormatException;
+import hera.exception.InvalidAerAmountException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @ToString
@@ -22,121 +23,88 @@ public class Aer implements Comparable<Aer> {
 
   public static final Aer ONE = new Aer(BigInteger.valueOf(1L));
 
-  public static final String AER = "aer";
-
-  public static final String GAER = "gaer";
-
-  public static final String AERGO = "aergo";
-
-  public static final BigDecimal MINIMUM_AER = new BigDecimal("1");
-
-  public static final BigDecimal MINIMUM_GAER = new BigDecimal("1.E-9");
-
-  public static final BigDecimal MINIMUM_AERGO = new BigDecimal("1.E-18");
-
-  public static final BigDecimal AER_TIMES_AER = new BigDecimal("1");
-
-  public static final BigDecimal GAER_TIMES_AER = new BigDecimal("1.E9");
-
-  public static final BigDecimal AERGO_TIMES_AER = new BigDecimal("1.E18");
-
   /**
-   * Create {@code Aergo} instance. {@code amount} must be in form <b>${AMOUNT} ${UNIT}</b>.
-   * Following format is true.
+   * Create {@code Aer} instance.
    *
-   * <pre>
-   * <code>
-   *   1 // consided as 1 aer
-   *   1 aer
-   *   1 AER
-   *   1 gaer
-   *   1 GAER
-   *   0.01 gaer
-   *   0.000000001 gaer // 1 aer
-   *   1 aergo
-   *   1 AERGO
-   *   0.01 aergo
-   *   0.000000000000000001 aergo // 1 aer
-   * </code>
-   * </pre>
-   *
-   * <p>
-   * Since <b>aer</b> is an atomic unit, following format is invalid.
-   * </p>
-   *
-   * <pre>
-   * <code>
-   *   0.1 aer
-   *   0.0000000001 gaer
-   *   0.0000000000000000001 aergo
-   * </code>
-   * </pre>
-   *
-   * @param amount an amount in string
+   * @param amount an amount in string which is considered as {@link Unit#AER}
    * @return an aergo instance
-   * @throws InvalidAerFormatException if invalid amount format
+   * @throws InvalidAerAmountException if an amount is invalid
    */
   public static Aer of(final String amount) {
     return new Aer(amount);
   }
 
   /**
+   * Create {@code Aer} instance.
+   *
+   * @param amount an amount in string
+   * @param unit an unit {@link Unit}
+   * @return an aergo instance
+   * @throws InvalidAerAmountException if an amount is invalid
+   */
+  public static Aer of(final String amount, final Unit unit) {
+    return new Aer(amount, unit);
+  }
+
+  /**
    * Create an {@code Aer} instance.
    *
-   * @param amount an amount in <b>aer</b>
+   * @param amount an amount in {@link Unit#AER}
    * @return an aergo instance
    */
   public static Aer of(final BigInteger amount) {
     return new Aer(amount);
   }
 
+  /**
+   * An unit to represent aergo. Consist of {@code AER, GAER, AERGO}.
+   */
+  @RequiredArgsConstructor
+  public enum Unit {
+    AER("aer", new BigDecimal("1"), new BigDecimal("1")),
+    GAER("gaer", new BigDecimal("1.E-9"), new BigDecimal("1.E9")),
+    AERGO("aergo", new BigDecimal("1.E-18"), new BigDecimal("1.E18"));
+
+    @Getter
+    protected final String name;
+
+    @Getter
+    protected final BigDecimal minimum;
+
+    @Getter
+    protected final BigDecimal timesToAer;
+  }
+
   @Getter
   protected final BigInteger value;
 
   /**
-   * Create {@code Aergo} instance. {@code amount} must be in form <b>${AMOUNT} ${UNIT}</b>.
-   * Following format is true.
+   * Create {@code Aer} instance.
    *
-   * <pre>
-   * <code>
-   *   1 // consided as 1 aer
-   *   1 aer
-   *   1 AER
-   *   1 gaer
-   *   1 GAER
-   *   0.01 gaer
-   *   0.000000001 gaer // 1 aer
-   *   1 aergo
-   *   1 AERGO
-   *   0.01 aergo
-   *   0.000000000000000001 aergo // 1 aer
-   * </code>
-   * </pre>
-   *
-   * <p>
-   * Since <b>aer</b> is an atomic unit, following format is invalid.
-   * </p>
-   *
-   * <pre>
-   * <code>
-   *   0.1 aer
-   *   0.0000000001 gaer
-   *   0.0000000000000000001 aergo
-   * </code>
-   * </pre>
-   *
-   * @param amount an amount in string
-   * @throws InvalidAerFormatException if invalid amount format
+   * @param amount an amount in string which is considered as {@link Unit#AER}
+   * @throws InvalidAerAmountException if an amount is invalid
    */
   public Aer(final String amount) {
+    this(amount, Unit.AER);
+  }
+
+  /**
+   * Create {@code Aer} instance.
+   *
+   * @param amount an amount in string
+   * @param unit an unit {@link Unit}
+   * @throws InvalidAerAmountException if an amount is invalid
+   */
+  public Aer(final String amount, final Unit unit) {
     assertNotNull(amount, new HerajException("Amount must not null"));
-    this.value = parse(amount);
+    assertNotNull(unit, new HerajException("Unit must not null"));
+    this.value = parse(amount, unit);
   }
 
   /**
    * Aer constructor.
    *
-   * @param amount an amount in <b>aer</b>
+   * @param amount an amount in {@link Unit#AER}
    */
   public Aer(final BigInteger amount) {
     this.value =
@@ -144,54 +112,22 @@ public class Aer implements Comparable<Aer> {
             : BigInteger.ZERO;
   }
 
-  protected BigInteger parse(final String amount) {
-    final String trimmedAmount = amount.toLowerCase().trim();
-
-    final String[] splited = trimmedAmount.split("\\s+");
-    if (splited.length == 1) {
-      return parseValueAndUnit(splited[0], AER);
-    } else if (splited.length == 2) {
-      return parseValueAndUnit(splited[0], splited[1]);
-    } else {
-      throw new InvalidAerFormatException(trimmedAmount + " is unacceptable");
-    }
-  }
-
-  protected BigInteger parseValueAndUnit(final String value, final String unit) {
-    BigDecimal minimum = null;
-    BigDecimal timesToAer = null;
-
-    if (AER.equals(unit)) {
-      minimum = MINIMUM_AER;
-      timesToAer = AER_TIMES_AER;
-    } else if (GAER.equals(unit)) {
-      minimum = MINIMUM_GAER;
-      timesToAer = GAER_TIMES_AER;
-    } else if (AERGO.equals(unit)) {
-      minimum = MINIMUM_AERGO;
-      timesToAer = AERGO_TIMES_AER;
-    } else {
-      throw new InvalidAerFormatException(
-          String.format("Invalid unit format %s (allowed : %s, %s, %s)", unit, AER, GAER, AERGO));
-    }
-
-    BigDecimal parsedValue;
+  protected BigInteger parse(final String value, final Unit unit) {
     try {
-      parsedValue = new BigDecimal(value);
+      final BigDecimal parsedValue = new BigDecimal(value);
+      if (parsedValue.compareTo(BigDecimal.ZERO) == -1) {
+        throw new InvalidAerAmountException("Amount should be postive");
+      }
+      if (parsedValue.compareTo(BigDecimal.ZERO) != 0
+          && parsedValue.compareTo(unit.getMinimum()) == -1) {
+        throw new InvalidAerAmountException(
+            String.format("Amount is smaller then minimum : %s %s",
+                unit.getMinimum().toPlainString(), unit.getName()));
+      }
+      return parsedValue.multiply(unit.getTimesToAer()).toBigInteger();
     } catch (NumberFormatException e) {
-      throw new InvalidAerFormatException(e);
+      throw new InvalidAerAmountException(e);
     }
-
-    if (parsedValue.compareTo(BigDecimal.ZERO) == -1) {
-      throw new InvalidAerFormatException("Aer should be postive");
-    }
-
-    if (parsedValue.compareTo(BigDecimal.ZERO) > 0 && parsedValue.compareTo(minimum) == -1) {
-      throw new InvalidAerFormatException(
-          String.format("Aer is smaller then minimum : %s %s", minimum.toPlainString(), unit));
-    }
-
-    return parsedValue.multiply(timesToAer).toBigInteger();
   }
 
   /**

@@ -7,7 +7,6 @@ package hera.api.model;
 import static hera.util.ValidationUtils.assertNotNull;
 
 import hera.exception.HerajException;
-import hera.exception.InvalidAerFormatException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -22,21 +21,6 @@ public class Fee {
 
   @Getter
   protected static Fee defaultFee = new Fee(MIN_PRICE, MIN_LIMIT);
-
-  /**
-   * Create {@code Fee}. If {@code price} is smaller then minimum price, set as {@link #MIN_PRICE}.
-   * If {@code limit} &lt; 0, limit is set as {@link #MIN_LIMIT}.
-   *
-   * @param price fee price
-   * @param limit fee limit
-   *
-   * @return created {@code Fee}
-   *
-   * @throws InvalidAerFormatException is price parsing failed
-   */
-  public static Fee of(final String price, final long limit) {
-    return new Fee(price, limit);
-  }
 
   /**
    * Build {@code Fee} object. If {@code price} is smaller then minimum price, set as
@@ -55,22 +39,6 @@ public class Fee {
 
   @Getter
   protected long limit;
-
-  /**
-   * Fee constructor. If {@code price} is smaller then minimum price, set as {@link #MIN_PRICE}. If
-   * {@code limit} &lt; 0, limit is set as {@link #MIN_LIMIT}.
-   *
-   * @param price fee price
-   * @param limit fee limit
-   *
-   * @throws InvalidAerFormatException is price parsing failed
-   */
-  public Fee(final String price, final long limit) {
-    assertNotNull(price, new HerajException("Price must not null"));
-    final Aer parsed = Aer.of(price);
-    this.price = parsed.compareTo(MIN_PRICE) >= 0 ? parsed : MIN_PRICE;
-    this.limit = limit >= 0 ? limit : MIN_LIMIT;
-  }
 
   /**
    * Fee constructor. If {@code price} is smaller then minimum price, set as {@link #MIN_PRICE}.

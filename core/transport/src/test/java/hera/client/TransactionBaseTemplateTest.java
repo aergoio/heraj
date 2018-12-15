@@ -15,6 +15,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
+import hera.api.model.Aer.Unit;
 import hera.api.model.BytesValue;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
@@ -97,7 +98,7 @@ public class TransactionBaseTemplateTest extends AbstractTestCase {
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .sender(ACCOUNT_ADDRESS)
         .recipient(ACCOUNT_ADDRESS)
-        .amount("1000")
+        .amount("1000", Unit.AER)
         .nonce(1L)
         .build();
     final Transaction transaction = new Transaction(rawTransaction, Signature.of(BytesValue.EMPTY),
@@ -119,7 +120,7 @@ public class TransactionBaseTemplateTest extends AbstractTestCase {
         supplyTransactionBaseTemplate(aergoService);
 
     final ResultOrErrorFuture<TxHash> txHash = transactionBaseTemplate.getSendFunction()
-        .apply(accountAddress, accountAddress, Aer.of("10 aer"));
+        .apply(accountAddress, accountAddress, Aer.of("10", Unit.AER));
     assertTrue(txHash.get().hasResult());
   }
 

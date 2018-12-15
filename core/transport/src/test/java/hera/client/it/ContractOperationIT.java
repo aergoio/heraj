@@ -80,9 +80,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void testLuaContractConstructor() throws Exception {
     final Account account = createClientAccount();
-    rechargeCoin(account, "100 aer");
-
-    waitForNextBlockToGenerate();
 
     final String key = "key";
     final int intVal = 100;
@@ -107,9 +104,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void testLuaContractDeployAndExecuteWithLocalAccount() throws Exception {
     final Account account = createClientAccount();
-    rechargeCoin(account, "100 aer");
-
-    waitForNextBlockToGenerate();
 
     final ContractTxHash deployTxHash = define(account, Fee.getDefaultFee());
 
@@ -142,9 +136,6 @@ public class ContractOperationIT extends AbstractIT {
   public void testLuaContractDeployAndExecuteWithRemoteAccount() throws Exception {
     final String password = randomUUID().toString();
     final Account account = createServerAccount(password);
-    rechargeCoin(account, "100 aer");
-
-    waitForNextBlockToGenerate();
 
     assertTrue(unlockAccount(account, password));
 

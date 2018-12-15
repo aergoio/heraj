@@ -18,6 +18,7 @@ import hera.AbstractTestCase;
 import hera.ContextProvider;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
+import hera.api.model.Aer.Unit;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrError;
@@ -95,7 +96,7 @@ public class TransactionEitherTemplateTest extends AbstractTestCase {
         supplyTransactionEitherTemplate(base);
 
     final ResultOrError<TxHash> txHash =
-        transactionEitherTemplate.send(accountAddress, accountAddress, Aer.of("10 aer"));
+        transactionEitherTemplate.send(accountAddress, accountAddress, Aer.of("10", Unit.AER));
     assertTrue(txHash.hasResult());
     assertEquals(TRANSACTION_SEND_EITHER,
         ((WithIdentity) transactionEitherTemplate.getSendFunction()).getIdentity());

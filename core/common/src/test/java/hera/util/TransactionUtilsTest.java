@@ -10,6 +10,8 @@ import static org.junit.Assert.assertEquals;
 
 import hera.AbstractTestCase;
 import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
+import hera.api.model.Aer.Unit;
 import hera.api.model.BytesValue;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
@@ -34,9 +36,9 @@ public class TransactionUtilsTest extends AbstractTestCase {
     final RawTransaction rawTransaction = Transaction.newBuilder()
         .sender(AccountAddress.of(() -> encodedAddress))
         .recipient(AccountAddress.of(() -> encodedAddress))
-        .amount("10000 aer")
+        .amount("10000", Unit.AER)
         .nonce(1L)
-        .fee(Fee.of("100 aer", 5))
+        .fee(Fee.of(Aer.of("100", Unit.AER), 5))
         .build();
 
     assertNotNull(TransactionUtils.calculateHash(rawTransaction));
@@ -47,9 +49,9 @@ public class TransactionUtilsTest extends AbstractTestCase {
     final RawTransaction rawTransaction = Transaction.newBuilder()
         .sender(AccountAddress.of(() -> encodedAddress))
         .recipient(AccountAddress.of(() -> encodedAddress))
-        .amount("10000 aer")
+        .amount("10000", Unit.AER)
         .nonce(1L)
-        .fee(Fee.of("100 aer", 5))
+        .fee(Fee.of(Aer.of("100", Unit.AER), 5))
         .build();
 
     final Signature signature = Signature.of(BytesValue.of(Base58Utils.decode(

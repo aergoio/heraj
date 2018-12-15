@@ -6,6 +6,7 @@ package hera.client;
 
 import hera.api.model.Account;
 import hera.api.model.AccountFactory;
+import hera.api.model.Aer.Unit;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.key.AergoKeyGenerator;
@@ -42,7 +43,7 @@ public class SignLocalBenchmark {
       raw = Transaction.newBuilder()
           .sender(sender)
           .recipient(receipt)
-          .amount("30")
+          .amount("30", Unit.AER)
           .nonce(sender.incrementAndGetNonce())
           .build();
       signed = client.getAccountOperation().sign(sender, raw);

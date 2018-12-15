@@ -87,7 +87,7 @@ public class RawTransaction {
   }
 
   public interface RawTransactionWithSenderAndRecipient {
-    RawTransactionWithSenderAndRecipientAndAmount amount(String amount);
+    RawTransactionWithSenderAndRecipientAndAmount amount(String amount, Aer.Unit unit);
 
     RawTransactionWithSenderAndRecipientAndAmount amount(Aer amount);
   }
@@ -155,8 +155,9 @@ public class RawTransaction {
     }
 
     @Override
-    public RawTransactionWithSenderAndRecipientAndAmount amount(final String amount) {
-      return amount(Aer.of(amount));
+    public RawTransactionWithSenderAndRecipientAndAmount amount(final String amount,
+        final Aer.Unit unit) {
+      return amount(Aer.of(amount, unit));
     }
 
     @Override

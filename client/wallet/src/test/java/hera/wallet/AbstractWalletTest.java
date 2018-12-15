@@ -23,6 +23,7 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
+import hera.api.model.Aer;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockchainStatus;
@@ -40,6 +41,7 @@ import hera.api.model.NodeStatus;
 import hera.api.model.Time;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.model.Aer.Unit;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
 import java.util.ArrayList;
@@ -286,7 +288,8 @@ public class AbstractWalletTest extends AbstractTestCase {
         .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
     when(wallet.sign(any())).thenReturn(mock(Transaction.class));
 
-    assertNotNull(wallet.send(accountAddress, "1000 aer", Fee.getDefaultFee(), BytesValue.EMPTY));
+    assertNotNull(wallet.send(accountAddress, Aer.of("1000", Unit.AER), Fee.getDefaultFee(),
+        BytesValue.EMPTY));
   }
 
   @Test

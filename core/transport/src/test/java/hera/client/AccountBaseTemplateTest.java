@@ -18,6 +18,7 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
+import hera.api.model.Aer.Unit;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.RawTransaction;
@@ -82,7 +83,7 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .sender(ACCOUNT_ADDRESS)
         .recipient(ACCOUNT_ADDRESS)
-        .amount("1000")
+        .amount("1000", Unit.AER)
         .nonce(1L)
         .build();
     final ResultOrErrorFuture<Transaction> accountStateFuture =
@@ -106,7 +107,7 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .sender(ACCOUNT_ADDRESS)
         .recipient(ACCOUNT_ADDRESS)
-        .amount("1000")
+        .amount("1000", Unit.AER)
         .nonce(1L)
         .build();
     final ResultOrErrorFuture<Transaction> signedTransactionStateFuture =
@@ -124,7 +125,7 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .sender(ACCOUNT_ADDRESS)
         .recipient(ACCOUNT_ADDRESS)
-        .amount("1000")
+        .amount("1000", Unit.AER)
         .nonce(1L)
         .build();
     final Signature signature =
@@ -151,7 +152,7 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .sender(ACCOUNT_ADDRESS)
         .recipient(ACCOUNT_ADDRESS)
-        .amount("1000")
+        .amount("1000", Unit.AER)
         .nonce(1L)
         .build();
     final Transaction transaction = new Transaction(rawTransaction, Signature.of(BytesValue.EMPTY),

@@ -9,6 +9,8 @@ import static org.junit.Assert.assertEquals;
 import hera.AbstractTestCase;
 import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
+import hera.api.model.Aer.Unit;
 import hera.api.model.BlockHash;
 import hera.api.model.BytesValue;
 import hera.api.model.Fee;
@@ -32,9 +34,9 @@ public class TransactionConverterTest extends AbstractTestCase {
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .sender(AccountAddress.of(base58WithCheckSum))
         .recipient(AccountAddress.of(base58WithCheckSum))
-        .amount("10000 gaer")
+        .amount("10000", Unit.GAER)
         .nonce(1L)
-        .fee(Fee.of("100", 5))
+        .fee(Fee.of(Aer.of("100", Unit.GAER), 5))
         .payload(BytesValue.EMPTY)
         .build();
 

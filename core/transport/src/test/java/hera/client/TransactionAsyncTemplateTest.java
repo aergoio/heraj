@@ -18,6 +18,7 @@ import hera.AbstractTestCase;
 import hera.ContextProvider;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
+import hera.api.model.Aer.Unit;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -93,7 +94,7 @@ public class TransactionAsyncTemplateTest extends AbstractTestCase {
         supplyTransactionAsyncTemplate(base);
 
     final ResultOrErrorFuture<TxHash> txHash =
-        transactionAsyncTemplate.send(accountAddress, accountAddress, Aer.of("10 aer"));
+        transactionAsyncTemplate.send(accountAddress, accountAddress, Aer.of("10", Unit.AER));
     assertTrue(txHash.get().hasResult());
     assertEquals(TRANSACTION_SEND_ASYNC,
         ((WithIdentity) transactionAsyncTemplate.getSendFunction()).getIdentity());

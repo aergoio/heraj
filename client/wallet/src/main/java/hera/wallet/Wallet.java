@@ -7,6 +7,7 @@ package hera.wallet;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.model.Aer;
 import hera.api.model.Authentication;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractDefinition;
@@ -113,7 +114,7 @@ public interface Wallet extends LookupClient {
    * @param fee a fee
    * @return verify result
    */
-  TxHash send(AccountAddress recipient, String amount, Fee fee);
+  TxHash send(AccountAddress recipient, Aer amount, Fee fee);
 
   /**
    * Send AER with {@code fee}.
@@ -124,7 +125,7 @@ public interface Wallet extends LookupClient {
    * @param payload a payload
    * @return verify result
    */
-  TxHash send(AccountAddress recipient, String amount, Fee fee, BytesValue payload);
+  TxHash send(AccountAddress recipient, Aer amount, Fee fee, BytesValue payload);
 
   /**
    * Deploy smart contract.

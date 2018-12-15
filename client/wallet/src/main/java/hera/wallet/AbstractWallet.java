@@ -9,6 +9,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.model.Aer;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
@@ -149,12 +150,12 @@ public abstract class AbstractWallet implements Wallet {
   }
 
   @Override
-  public TxHash send(final AccountAddress recipient, final String amount, final Fee fee) {
+  public TxHash send(final AccountAddress recipient, final Aer amount, final Fee fee) {
     return send(recipient, amount, fee, BytesValue.EMPTY);
   }
 
   @Override
-  public TxHash send(final AccountAddress recipient, final String amount, final Fee fee,
+  public TxHash send(final AccountAddress recipient, final Aer amount, final Fee fee,
       final BytesValue payload) {
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .sender(getAccount())

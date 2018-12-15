@@ -10,6 +10,8 @@ import static org.junit.Assert.assertEquals;
 
 import hera.AbstractTestCase;
 import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
+import hera.api.model.Aer.Unit;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BytesValue;
@@ -32,9 +34,9 @@ public class BlockConverterTest extends AbstractTestCase {
     final RawTransaction rawTransaction = Transaction.newBuilder()
         .sender(AccountAddress.of(BytesValue.EMPTY))
         .recipient(AccountAddress.of(BytesValue.EMPTY))
-        .amount("10000")
+        .amount("10000", Unit.AER)
         .nonce(1L)
-        .fee(Fee.of("100", 5))
+        .fee(Fee.of(Aer.of("100", Unit.AER), 5))
         .payload(BytesValue.EMPTY)
         .build();
 

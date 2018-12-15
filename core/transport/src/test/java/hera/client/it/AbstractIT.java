@@ -9,7 +9,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountFactory;
-import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.Authentication;
 import hera.api.model.RawTransaction;
@@ -66,20 +65,6 @@ public abstract class AbstractIT {
 
   protected void waitForNextBlockToGenerate() {
     ThreadUtils.trySleep(1300L);
-  }
-
-  protected void rechargeCoin(final Account targetAccount, final String amount) {
-    final AccountState richState = aergoClient.getAccountOperation().getState(rich);
-
-    final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .sender(rich)
-        .recipient(targetAccount)
-        .amount(amount)
-        .nonce(richState.getNonce() + 1)
-        .build();
-    final Transaction signedTransaction =
-        aergoClient.getAccountOperation().sign(rich, rawTransaction);
-    aergoClient.getTransactionOperation().commit(signedTransaction);
   }
 
   protected Account createClientAccount() {
