@@ -75,6 +75,21 @@ public class AerTest extends AbstractTestCase {
   }
 
   @Test
+  public void testAdd() {
+    final Aer left = Aer.of("1", Unit.AER);
+    final Aer right = Aer.of("2", Unit.AER);
+    assertEquals(Aer.of("3", Unit.AER), left.add(right));
+  }
+
+  @Test
+  public void testSubstract() {
+    final Aer left = Aer.of("1", Unit.AER);
+    final Aer right = Aer.of("4", Unit.AER);
+    assertEquals(Aer.ZERO, left.subtract(right));
+    assertEquals(Aer.of("3", Unit.AER), right.subtract(left));
+  }
+
+  @Test
   public void testCompareTo() {
     final Aer bottom = Aer.of("1", Unit.AER);
     final Aer middle = Aer.of("2", Unit.AER);

@@ -131,6 +131,28 @@ public class Aer implements Comparable<Aer> {
   }
 
   /**
+   * Returns a Aer whose value is {@code (this.value + other.value)}.
+   *
+   * @param other value to be added to this aer.
+   * @return {@code this.value + other.value}
+   */
+  public Aer add(final Aer other) {
+    return new Aer(this.value.add(other.value));
+  }
+
+  /**
+   * Returns a Aer whose value is {@code (this.value - other.value)}. If a subtracted value is less
+   * than 0, return 0 {@link Unit#AER}.
+   *
+   * @param other value to be added to this aer.
+   * @return {@code this.value - other.value}
+   */
+  public Aer subtract(final Aer other) {
+    final BigInteger subtracted = this.value.subtract(other.value);
+    return new Aer(subtracted.compareTo(BigInteger.ZERO) < 0 ? BigInteger.ZERO : subtracted);
+  }
+
+  /**
    * {@inheritDoc}
    *
    * @throws NullPointerException if the specified object is null
