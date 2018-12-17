@@ -29,7 +29,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import org.slf4j.Logger;
 
-public abstract class LookupWallet implements LookupClient {
+public abstract class LookupWallet implements LookupClient, AutoCloseable, Cloneable {
 
   protected final Logger logger = getLogger(getClass());
 
@@ -119,6 +119,11 @@ public abstract class LookupWallet implements LookupClient {
   @Override
   public ContractResult query(final ContractInvocation contractInvocation) {
     return getAergoClient().getContractOperation().query(contractInvocation);
+  }
+
+  @Override
+  public void close() throws Exception {
+    getAergoClient().close();
   }
 
 }

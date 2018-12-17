@@ -5,7 +5,7 @@
 package hera.wallet.it;
 
 import static org.slf4j.LoggerFactory.getLogger;
-
+import hera.util.ThreadUtils;
 import java.io.InputStream;
 import org.slf4j.Logger;
 
@@ -19,5 +19,9 @@ public abstract class AbstractIT {
     final String path = "/" + getClass().getName().replace('.', '/') + "." + ext;
     logger.trace("Path: {}", path);
     return getClass().getResourceAsStream(path);
+  }
+  
+  protected void waitForNextBlockToGenerate() {
+    ThreadUtils.trySleep(2200L);
   }
 }

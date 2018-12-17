@@ -30,7 +30,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import org.slf4j.Logger;
 
-public abstract class InteractiveWallet extends LookupWallet implements Wallet {
+public abstract class InteractiveWallet extends LookupWallet
+    implements Wallet, AutoCloseable, Cloneable {
 
   protected final Logger logger = getLogger(getClass());
 
@@ -198,6 +199,11 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
 
   protected void syncNonceWithServer() {
     getCurrentAccount().bindState(getCurrentAccountState());
+  }
+
+  @Override
+  public void close() throws Exception {
+    getAergoClient().close();
   }
 
 }

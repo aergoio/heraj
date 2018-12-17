@@ -18,7 +18,7 @@ import hera.api.model.TxHash;
 import hera.key.AergoKey;
 
 public interface Wallet extends LookupClient, NonceManagable {
-
+  
   /**
    * Bind a keystore with wallet. This operation has a meaning only for {@link WalletType#Secure}.
    * For other wallet type, do nothing.

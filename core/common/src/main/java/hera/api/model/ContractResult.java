@@ -4,6 +4,8 @@
 
 package hera.api.model;
 
+import java.io.IOException;
+
 public interface ContractResult {
 
   /**
@@ -12,9 +14,9 @@ public interface ContractResult {
    * @param <T> return type
    * @param clazz class to bind
    * @return bound class instance. null if result is empty or empty json format
-   * @throws Exception when binding error occurred
+   * @throws IOException when binding error occurred
    */
-  <T> T bind(Class<T> clazz) throws Exception;
+  <T> T bind(Class<T> clazz) throws IOException;
 
   /**
    * Get contract result in a raw bytes.
