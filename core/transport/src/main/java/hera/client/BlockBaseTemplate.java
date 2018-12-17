@@ -27,6 +27,7 @@ import hera.api.tupleorerror.Function2;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.transport.BlockConverterFactory;
+import hera.transport.BlockMetadataConverterFactory;
 import hera.transport.ModelConverter;
 import io.grpc.ManagedChannel;
 import java.util.List;
@@ -39,6 +40,9 @@ import types.Rpc;
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
 public class BlockBaseTemplate implements ChannelInjectable {
+
+  protected final ModelConverter<BlockHeader, Rpc.BlockMetadata> blockMetadataConverter =
+      new BlockMetadataConverterFactory().create();
 
   protected final ModelConverter<Block, Blockchain.Block> blockConverter =
       new BlockConverterFactory().create();
@@ -105,13 +109,13 @@ public class BlockBaseTemplate implements ChannelInjectable {
               .setHash(copyFrom(hash.getBytesValue()))
               .setSize(size)
               .build();
-          ListenableFuture<Rpc.BlockHeaderList> listenableFuture =
-              aergoService.listBlockHeaders(listParams);
-          FutureChain<Rpc.BlockHeaderList, List<BlockHeader>> callback =
+          ListenableFuture<Rpc.BlockMetadataList> listenableFuture =
+              aergoService.listBlockMetadata(listParams);
+          FutureChain<Rpc.BlockMetadataList, List<BlockHeader>> callback =
               new FutureChain<>(nextFuture);
-          callback.setSuccessHandler(headers -> of(
-              () -> headers.getBlocksList().stream().map(blockConverter::convertToDomainModel)
-                  .map(BlockHeader.class::cast).collect(toList())));
+          callback.setSuccessHandler(metadatas -> of(
+              () -> metadatas.getBlocksList().stream()
+                  .map(blockMetadataConverter::convertToDomainModel).collect(toList())));
           addCallback(listenableFuture, callback, directExecutor());
 
           return nextFuture;
@@ -132,13 +136,13 @@ public class BlockBaseTemplate implements ChannelInjectable {
 
           final Rpc.ListParams listParams =
               Rpc.ListParams.newBuilder().setHeight(height).setSize(size).build();
-          ListenableFuture<Rpc.BlockHeaderList> listenableFuture =
-              aergoService.listBlockHeaders(listParams);
-          FutureChain<Rpc.BlockHeaderList, List<BlockHeader>> callback =
+          ListenableFuture<Rpc.BlockMetadataList> listenableFuture =
+              aergoService.listBlockMetadata(listParams);
+          FutureChain<Rpc.BlockMetadataList, List<BlockHeader>> callback =
               new FutureChain<>(nextFuture);
-          callback.setSuccessHandler(headers -> of(
-              () -> headers.getBlocksList().stream().map(blockConverter::convertToDomainModel)
-                  .map(BlockHeader.class::cast).collect(toList())));
+          callback.setSuccessHandler(metadatas -> of(
+              () -> metadatas.getBlocksList().stream()
+                  .map(blockMetadataConverter::convertToDomainModel).collect(toList())));
           addCallback(listenableFuture, callback, directExecutor());
 
           return nextFuture;

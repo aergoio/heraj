@@ -54,8 +54,8 @@ public class BlockConverterTest extends AbstractTestCase {
         0,
         true);
 
-    final Block expected = new Block(blockHash, null, 0, 0, null, null, null,
-        0, null, null, null, asList(domainTransaction));
+    final Block expected = new Block(null, blockHash, null, 0, 0, null, null, null,
+        0, null, null, null, 1, asList(domainTransaction));
     final Blockchain.Block rpcBlock = converter.convertToRpcModel(expected);
     final Block actual = converter.convertToDomainModel(rpcBlock);
     assertEquals(expected, actual);

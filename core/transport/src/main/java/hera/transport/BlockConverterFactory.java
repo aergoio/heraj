@@ -38,6 +38,7 @@ public class BlockConverterFactory {
     logger.trace("Domain block: {}", domainBlock);
 
     final Blockchain.BlockHeader blockHeader = Blockchain.BlockHeader.newBuilder()
+        .setChainID(copyFrom(domainBlock.getChainId().getBytesValue()))
         .setPrevBlockHash(copyFrom(domainBlock.getPreviousHash().getBytesValue()))
         .setBlockNo(domainBlock.getBlockNumber()).setTimestamp(domainBlock.getTimestamp())
         .setBlocksRootHash(copyFrom(domainBlock.getRootHash().getBytesValue()))
@@ -86,6 +87,7 @@ public class BlockConverterFactory {
     }
 
     return new Block(
+        new Hash(of(rpcBlockHeader.getChainID().toByteArray())),
         blockHash,
         new BlockHash(of(rpcBlockHeader.getPrevBlockHash().toByteArray())),
         rpcBlockHeader.getBlockNo(),
@@ -97,6 +99,7 @@ public class BlockConverterFactory {
         new Hash(of(rpcBlockHeader.getPubKey().toByteArray())),
         new Hash(of(rpcBlockHeader.getSign().toByteArray())),
         addressConverter.convertToDomainModel(rpcBlockHeader.getCoinbaseAccount()),
+        transactions.size(),
         transactions);
   };
 
