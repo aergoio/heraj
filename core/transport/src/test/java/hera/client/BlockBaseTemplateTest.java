@@ -72,9 +72,9 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
   @Test
   public void testListBlockHeadersByHash() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture mockListenableFuture =
-        service.submit(() -> Rpc.BlockHeaderList.newBuilder().build());
-    when(aergoService.listBlockHeaders(any())).thenReturn(mockListenableFuture);
+    ListenableFuture mockListenableFuture = service.submit(() -> Rpc.BlockMetadataList.newBuilder()
+        .addBlocks(Rpc.BlockMetadata.newBuilder().build()).build());
+    when(aergoService.listBlockMetadata(any())).thenReturn(mockListenableFuture);
 
     final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(aergoService);
 
@@ -88,8 +88,8 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
   public void testListBlockHeadersByHeight() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture mockListenableFuture =
-        service.submit(() -> Rpc.BlockHeaderList.newBuilder().build());
-    when(aergoService.listBlockHeaders(any())).thenReturn(mockListenableFuture);
+        service.submit(() -> Rpc.BlockMetadataList.newBuilder().build());
+    when(aergoService.listBlockMetadata(any())).thenReturn(mockListenableFuture);
 
     final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(aergoService);
 

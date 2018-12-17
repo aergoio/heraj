@@ -7,6 +7,7 @@ package hera.client;
 import static hera.TransportConstants.BLOCKCHAIN_BLOCKCHAINSTATUS_ASYNC;
 import static hera.TransportConstants.BLOCKCHAIN_LISTPEERS_ASYNC;
 import static hera.TransportConstants.BLOCKCHAIN_NODESTATUS_ASYNC;
+import static hera.TransportConstants.BLOCKCHAIN_PEERMETRICS_ASYNC;
 import static hera.api.tupleorerror.Functions.identify;
 
 import hera.ContextProvider;
@@ -17,6 +18,7 @@ import hera.api.BlockchainAsyncOperation;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
+import hera.api.model.PeerMetric;
 import hera.api.tupleorerror.Function0;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.strategy.StrategyChain;
@@ -57,6 +59,12 @@ public class BlockchainAsyncTemplate
           identify(blockchainBaseTemplate.getListPeersFunction(), BLOCKCHAIN_LISTPEERS_ASYNC));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function0<ResultOrErrorFuture<List<PeerMetric>>> listPeerMetricsFunction =
+      getStrategyChain().apply(
+          identify(blockchainBaseTemplate.getListPeersMetricsFunction(),
+              BLOCKCHAIN_PEERMETRICS_ASYNC));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function0<ResultOrErrorFuture<NodeStatus>> nodeStatusFunction =
       getStrategyChain().apply(
           identify(blockchainBaseTemplate.getNodeStatusFunction(), BLOCKCHAIN_NODESTATUS_ASYNC));
@@ -69,6 +77,11 @@ public class BlockchainAsyncTemplate
   @Override
   public ResultOrErrorFuture<List<Peer>> listPeers() {
     return getListPeersFunction().apply();
+  }
+
+  @Override
+  public ResultOrErrorFuture<List<PeerMetric>> listPeerMetrics() {
+    return getListPeerMetricsFunction().apply();
   }
 
   @Override

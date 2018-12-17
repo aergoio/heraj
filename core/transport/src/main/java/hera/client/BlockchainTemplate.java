@@ -7,6 +7,7 @@ package hera.client;
 import static hera.TransportConstants.BLOCKCHAIN_BLOCKCHAINSTATUS;
 import static hera.TransportConstants.BLOCKCHAIN_LISTPEERS;
 import static hera.TransportConstants.BLOCKCHAIN_NODESTATUS;
+import static hera.TransportConstants.BLOCKCHAIN_PEERMETRICS;
 import static hera.api.tupleorerror.Functions.identify;
 
 import hera.ContextProvider;
@@ -17,6 +18,7 @@ import hera.api.BlockchainOperation;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
+import hera.api.model.PeerMetric;
 import hera.api.tupleorerror.Function0;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.strategy.StrategyChain;
@@ -57,6 +59,11 @@ public class BlockchainTemplate
           .apply(identify(blockchainBaseTemplate.getListPeersFunction(), BLOCKCHAIN_LISTPEERS));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function0<ResultOrErrorFuture<List<PeerMetric>>> listPeerMetricsFunction =
+      getStrategyChain().apply(
+          identify(blockchainBaseTemplate.getListPeersMetricsFunction(), BLOCKCHAIN_PEERMETRICS));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function0<ResultOrErrorFuture<NodeStatus>> nodeStatusFunction =
       getStrategyChain().apply(
           identify(blockchainBaseTemplate.getNodeStatusFunction(), BLOCKCHAIN_NODESTATUS));
@@ -69,6 +76,11 @@ public class BlockchainTemplate
   @Override
   public List<Peer> listPeers() {
     return getListPeersFunction().apply().get().getResult();
+  }
+
+  @Override
+  public List<PeerMetric> listPeerMetrics() {
+    return getListPeerMetricsFunction().apply().get().getResult();
   }
 
   @Override

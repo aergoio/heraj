@@ -10,6 +10,7 @@ import static org.junit.Assert.assertTrue;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
+import hera.api.model.PeerMetric;
 import java.util.List;
 import org.junit.Test;
 
@@ -37,6 +38,12 @@ public class BlockchainOperationIT extends AbstractIT {
   public void testPeers() {
     final List<Peer> peers = aergoClient.getBlockchainOperation().listPeers();
     logger.info("Current node peers: {}", peers);
+  }
+
+  @Test
+  public void testPeerMetrics() {
+    final List<PeerMetric> peerMetrics = aergoClient.getBlockchainOperation().listPeerMetrics();
+    logger.info("Current node peer metrics: {}", peerMetrics);
   }
 
 }

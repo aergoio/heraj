@@ -9,6 +9,7 @@ import hera.annotation.ApiStability;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
+import hera.api.model.PeerMetric;
 import java.util.List;
 
 @ApiAudience.Public
@@ -28,6 +29,13 @@ public interface BlockchainOperation {
    * @return peer addresses
    */
   List<Peer> listPeers();
+
+  /**
+   * Get metrics of peers.
+   *
+   * @return peer metrics
+   */
+  List<PeerMetric> listPeerMetrics();
 
   /**
    * Get status of current node.

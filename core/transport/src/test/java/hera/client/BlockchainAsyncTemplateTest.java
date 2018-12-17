@@ -7,6 +7,7 @@ package hera.client;
 import static hera.TransportConstants.BLOCKCHAIN_BLOCKCHAINSTATUS_ASYNC;
 import static hera.TransportConstants.BLOCKCHAIN_LISTPEERS_ASYNC;
 import static hera.TransportConstants.BLOCKCHAIN_NODESTATUS_ASYNC;
+import static hera.TransportConstants.BLOCKCHAIN_PEERMETRICS_ASYNC;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -19,6 +20,7 @@ import hera.api.model.BlockchainStatus;
 import hera.api.model.BytesValue;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
+import hera.api.model.PeerMetric;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.api.tupleorerror.WithIdentity;
@@ -74,6 +76,23 @@ public class BlockchainAsyncTemplateTest extends AbstractTestCase {
     assertTrue(peers.get().hasResult());
     assertEquals(BLOCKCHAIN_LISTPEERS_ASYNC,
         ((WithIdentity) blockchainAsyncTemplate.getListPeersFunction()).getIdentity());
+  }
+
+  @Test
+  public void testListPeerMetrics() {
+    final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
+    ResultOrErrorFuture<List<PeerMetric>> future =
+        ResultOrErrorFutureFactory.supply(() -> new ArrayList<PeerMetric>());
+    when(base.getListPeersMetricsFunction()).thenReturn(() -> future);
+
+    final BlockchainAsyncTemplate blockchainAsyncTemplate =
+        supplyBlockchainAsyncTemplate(base);
+
+    final ResultOrErrorFuture<List<PeerMetric>> peerMetrics =
+        blockchainAsyncTemplate.listPeerMetrics();
+    assertTrue(peerMetrics.get().hasResult());
+    assertEquals(BLOCKCHAIN_PEERMETRICS_ASYNC,
+        ((WithIdentity) blockchainAsyncTemplate.getListPeerMetricsFunction()).getIdentity());
   }
 
   @Test

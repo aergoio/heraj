@@ -7,6 +7,7 @@ package hera.client;
 import static hera.TransportConstants.BLOCKCHAIN_BLOCKCHAINSTATUS_EITHER;
 import static hera.TransportConstants.BLOCKCHAIN_LISTPEERS_EITHER;
 import static hera.TransportConstants.BLOCKCHAIN_NODESTATUS_EITHER;
+import static hera.TransportConstants.BLOCKCHAIN_PEERMETRICS_EITHER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -19,6 +20,7 @@ import hera.api.model.BlockchainStatus;
 import hera.api.model.BytesValue;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
+import hera.api.model.PeerMetric;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
@@ -75,6 +77,23 @@ public class BlockchainEitherTemplateTest extends AbstractTestCase {
     assertTrue(peers.hasResult());
     assertEquals(BLOCKCHAIN_LISTPEERS_EITHER,
         ((WithIdentity) blockchainEitherTemplate.getListPeersFunction()).getIdentity());
+  }
+
+  @Test
+  public void testListPeerMetrics() {
+    final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
+    ResultOrErrorFuture<List<PeerMetric>> future =
+        ResultOrErrorFutureFactory.supply(() -> new ArrayList<PeerMetric>());
+    when(base.getListPeersMetricsFunction()).thenReturn(() -> future);
+
+    final BlockchainEitherTemplate blockchainEitherTemplate =
+        supplyBlockchainEitherTemplate(base);
+
+    final ResultOrError<List<PeerMetric>> peerMetrics =
+        blockchainEitherTemplate.listPeerMetrics();
+    assertTrue(peerMetrics.hasResult());
+    assertEquals(BLOCKCHAIN_PEERMETRICS_EITHER,
+        ((WithIdentity) blockchainEitherTemplate.getListPeerMetricsFunction()).getIdentity());
   }
 
   @Test

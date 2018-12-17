@@ -14,11 +14,13 @@ import hera.AbstractTestCase;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
+import hera.api.model.PeerMetric;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.List;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
+import types.Metric;
 import types.Rpc;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -63,6 +65,21 @@ public class BlockchainBaseTemplateTest extends AbstractTestCase {
 
     final ResultOrErrorFuture<List<Peer>> peers =
         blockchainBaseTemplate.getListPeersFunction().apply();
+    assertTrue(peers.get().hasResult());
+  }
+
+  @Test
+  public void testListPeerMetrics() {
+    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
+    ListenableFuture mockListenableFuture =
+        service.submit(() -> Metric.Metrics.newBuilder().build());
+    when(aergoService.metric(any())).thenReturn(mockListenableFuture);
+
+    final BlockchainBaseTemplate blockchainBaseTemplate =
+        supplyBlockchainBaseTemplate(aergoService);
+
+    final ResultOrErrorFuture<List<PeerMetric>> peers =
+        blockchainBaseTemplate.getListPeersMetricsFunction().apply();
     assertTrue(peers.get().hasResult());
   }
 

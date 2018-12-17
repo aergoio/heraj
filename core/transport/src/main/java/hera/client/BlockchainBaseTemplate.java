@@ -19,6 +19,7 @@ import hera.annotation.ApiStability;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
+import hera.api.model.PeerMetric;
 import hera.api.tupleorerror.Function0;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
@@ -26,11 +27,13 @@ import hera.transport.BlockchainStatusConverterFactory;
 import hera.transport.ModelConverter;
 import hera.transport.NodeStatusConverterFactory;
 import hera.transport.PeerConverterFactory;
+import hera.transport.PeerMetricConverterFactory;
 import io.grpc.ManagedChannel;
 import java.util.List;
 import lombok.Getter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
+import types.Metric;
 import types.Rpc;
 
 @ApiAudience.Private
@@ -45,6 +48,9 @@ public class BlockchainBaseTemplate implements ChannelInjectable {
 
   protected final ModelConverter<Peer, Rpc.Peer> peerConverter =
       new PeerConverterFactory().create();
+
+  protected final ModelConverter<PeerMetric, Metric.PeerMetric> peerMetricConverter =
+      new PeerMetricConverterFactory().create();
 
   protected final ModelConverter<NodeStatus, Rpc.SingleBytes> nodeStatusConverter =
       new NodeStatusConverterFactory().create();
@@ -82,6 +88,21 @@ public class BlockchainBaseTemplate implements ChannelInjectable {
     FutureChain<Rpc.PeerList, List<Peer>> callback = new FutureChain<>(nextFuture);
     callback.setSuccessHandler(peerlist -> of(() -> peerlist.getPeersList().stream()
         .map(peerConverter::convertToDomainModel).collect(toList())));
+    addCallback(listenableFuture, callback, directExecutor());
+
+    return nextFuture;
+  };
+
+  @Getter
+  private final Function0<ResultOrErrorFuture<List<PeerMetric>>> listPeersMetricsFunction = () -> {
+    ResultOrErrorFuture<List<PeerMetric>> nextFuture =
+        ResultOrErrorFutureFactory.supplyEmptyFuture();
+
+    ListenableFuture<Metric.Metrics> listenableFuture = aergoService.metric(
+        Metric.MetricsRequest.newBuilder().addTypes(Metric.MetricType.P2P_NETWORK).build());
+    FutureChain<Metric.Metrics, List<PeerMetric>> callback = new FutureChain<>(nextFuture);
+    callback.setSuccessHandler(peerlist -> of(() -> peerlist.getPeersList().stream()
+        .map(peerMetricConverter::convertToDomainModel).collect(toList())));
     addCallback(listenableFuture, callback, directExecutor());
 
     return nextFuture;

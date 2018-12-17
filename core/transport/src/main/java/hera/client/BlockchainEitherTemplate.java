@@ -7,6 +7,7 @@ package hera.client;
 import static hera.TransportConstants.BLOCKCHAIN_BLOCKCHAINSTATUS_EITHER;
 import static hera.TransportConstants.BLOCKCHAIN_LISTPEERS_EITHER;
 import static hera.TransportConstants.BLOCKCHAIN_NODESTATUS_EITHER;
+import static hera.TransportConstants.BLOCKCHAIN_PEERMETRICS_EITHER;
 import static hera.api.tupleorerror.Functions.identify;
 
 import hera.ContextProvider;
@@ -17,6 +18,7 @@ import hera.api.BlockchainEitherOperation;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
+import hera.api.model.PeerMetric;
 import hera.api.tupleorerror.Function0;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
@@ -58,6 +60,12 @@ public class BlockchainEitherTemplate
           identify(blockchainBaseTemplate.getListPeersFunction(), BLOCKCHAIN_LISTPEERS_EITHER));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function0<ResultOrErrorFuture<List<PeerMetric>>> listPeerMetricsFunction =
+      getStrategyChain().apply(
+          identify(blockchainBaseTemplate.getListPeersMetricsFunction(),
+              BLOCKCHAIN_PEERMETRICS_EITHER));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function0<ResultOrErrorFuture<NodeStatus>> nodeStatusFunction =
       getStrategyChain().apply(
           identify(blockchainBaseTemplate.getNodeStatusFunction(), BLOCKCHAIN_NODESTATUS_EITHER));
@@ -70,6 +78,11 @@ public class BlockchainEitherTemplate
   @Override
   public ResultOrError<List<Peer>> listPeers() {
     return getListPeersFunction().apply().get();
+  }
+
+  @Override
+  public ResultOrError<List<PeerMetric>> listPeerMetrics() {
+    return getListPeerMetricsFunction().apply().get();
   }
 
   @Override

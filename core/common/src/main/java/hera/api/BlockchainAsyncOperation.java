@@ -9,6 +9,7 @@ import hera.annotation.ApiStability;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
+import hera.api.model.PeerMetric;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.List;
 
@@ -29,6 +30,13 @@ public interface BlockchainAsyncOperation {
    * @return future of peer addresses or error
    */
   ResultOrErrorFuture<List<Peer>> listPeers();
+
+  /**
+   * Get metrics of peers asynchronously.
+   *
+   * @return future of peer metrics or error
+   */
+  ResultOrErrorFuture<List<PeerMetric>> listPeerMetrics();
 
   /**
    * Get status of current node asynchronously.

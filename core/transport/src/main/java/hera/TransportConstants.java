@@ -28,6 +28,7 @@ public final class TransportConstants {
 
   public static final String BLOCKCHAIN_BLOCKCHAINSTATUS = "heraj.blockchainstatus";
   public static final String BLOCKCHAIN_LISTPEERS = "heraj.listpeers";
+  public static final String BLOCKCHAIN_PEERMETRICS = "heraj.peermetrics";
   public static final String BLOCKCHAIN_NODESTATUS = "heraj.nodestatus";
 
   public static final String TRANSACTION_GETTX = "heraj.gettx";
@@ -71,6 +72,8 @@ public final class TransportConstants {
   public static final String BLOCKCHAIN_BLOCKCHAINSTATUS_EITHER =
       BLOCKCHAIN_BLOCKCHAINSTATUS + EITHER_POSTFIX;
   public static final String BLOCKCHAIN_LISTPEERS_EITHER = BLOCKCHAIN_LISTPEERS + EITHER_POSTFIX;
+  public static final String BLOCKCHAIN_PEERMETRICS_EITHER =
+      BLOCKCHAIN_PEERMETRICS + EITHER_POSTFIX;
   public static final String BLOCKCHAIN_NODESTATUS_EITHER = BLOCKCHAIN_NODESTATUS + EITHER_POSTFIX;
 
   public static final String TRANSACTION_GETTX_EITHER = TRANSACTION_GETTX + EITHER_POSTFIX;
@@ -114,6 +117,7 @@ public final class TransportConstants {
   public static final String BLOCKCHAIN_BLOCKCHAINSTATUS_ASYNC =
       BLOCKCHAIN_BLOCKCHAINSTATUS + ASYNC_POSTFIX;
   public static final String BLOCKCHAIN_LISTPEERS_ASYNC = BLOCKCHAIN_LISTPEERS + ASYNC_POSTFIX;
+  public static final String BLOCKCHAIN_PEERMETRICS_ASYNC = BLOCKCHAIN_PEERMETRICS + ASYNC_POSTFIX;
   public static final String BLOCKCHAIN_NODESTATUS_ASYNC = BLOCKCHAIN_NODESTATUS + ASYNC_POSTFIX;
 
   public static final String TRANSACTION_GETTX_ASYNC = TRANSACTION_GETTX + ASYNC_POSTFIX;
