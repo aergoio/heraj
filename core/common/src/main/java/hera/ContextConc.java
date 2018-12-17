@@ -18,7 +18,7 @@ import lombok.ToString;
 import org.slf4j.Logger;
 
 @ToString(exclude = {"logger", "parent"})
-@EqualsAndHashCode(exclude = "logger")
+@EqualsAndHashCode(exclude = {"logger", "parent"})
 public final class ContextConc implements Context {
 
   protected final Logger logger = getLogger(getClass());
@@ -31,7 +31,6 @@ public final class ContextConc implements Context {
   @Getter
   protected final Configuration configuration;
 
-  @Getter
   protected final Set<Strategy> strategies;
 
   protected ContextConc(final Context parent, final String scope,
@@ -120,7 +119,9 @@ public final class ContextConc implements Context {
   public <StrategyT extends Strategy> Context withStrategy(final StrategyT strategy) {
     logger.debug("New strategy: {}", strategy);
     final Set<Strategy> newStrategies = new HashSet<>(this.strategies);
-    getStrategy(strategy.getClass()).ifPresent(newStrategies::remove);
+    if (newStrategies.contains(strategy)) {
+      newStrategies.remove(strategy);
+    }
     newStrategies.add(strategy);
     return withStrategies(newStrategies);
   }
@@ -138,8 +139,14 @@ public final class ContextConc implements Context {
   @Override
   public <StrategyT extends Strategy> Optional<StrategyT> getStrategy(
       final Class<StrategyT> strategyClass) {
-    return (Optional<StrategyT>) this.strategies.stream().filter(strategyClass::isInstance)
-        .findFirst();
+    StrategyT ret = null;
+    for (final Strategy strategy : getStrategies()) {
+      if (strategyClass.isInstance(strategy)) {
+        ret = (StrategyT) strategy;
+        break;
+      }
+    }
+    return (Optional<StrategyT>) Optional.ofNullable(ret);
   }
 
   @Override
@@ -147,6 +154,17 @@ public final class ContextConc implements Context {
     final Set<Strategy> newStrategies = new HashSet<>(this.strategies);
     this.strategies.stream().filter(strategy::isInstance).forEach(newStrategies::remove);
     return new ContextConc(this.parent, this.scope, this.configuration, newStrategies);
+  }
+
+  @Override
+  public Set<Strategy> getStrategies() {
+    final Set<Strategy> strategies = new HashSet<>(this.strategies);
+    for (final Strategy strategy : strategies) {
+      if (strategy instanceof ContextAware) {
+        ((ContextAware) strategy).setContext(this);
+      }
+    }
+    return strategies;
   }
 
 }

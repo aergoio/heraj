@@ -48,8 +48,8 @@ public class RetryStrategy implements FailoverStrategy {
    * @param interval retry interval
    */
   public RetryStrategy(final int count, final Time interval) {
-    this.tryCountAndInterval = TryCountAndInterval.of(count < 0 ? DEFAULT_RETRY_COUNT : count,
-        Time.of(DEFAULT_RETRY_INTERVAL, TimeUnit.MILLISECONDS));
+    this.tryCountAndInterval =
+        TryCountAndInterval.of(count < 0 ? DEFAULT_RETRY_COUNT : count, interval);
   }
 
   @Override

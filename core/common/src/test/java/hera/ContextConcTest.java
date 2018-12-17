@@ -7,8 +7,9 @@ package hera;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
-import hera.strategy.ConnectStrategy;
+import hera.strategy.FailoverStrategy;
 import hera.util.conf.InMemoryConfiguration;
 import java.util.HashMap;
 import java.util.Map;
@@ -80,16 +81,16 @@ public class ContextConcTest extends AbstractTestCase {
 
     for (final Object testParameter : testParameters) {
       final Context origin = (Context) testParameter;
-      final ConnectStrategy<?> strategy = () -> null;
+      final FailoverStrategy strategy = mock(FailoverStrategy.class);
 
       final Context withStrategy = origin.withStrategy(strategy);
       assertEquals(origin.getScope(), withStrategy.getScope());
-      assertTrue(withStrategy.getStrategy(ConnectStrategy.class).isPresent());
+      assertTrue(withStrategy.getStrategy(FailoverStrategy.class).isPresent());
       assertEquals(origin.getConfiguration(), withStrategy.getConfiguration());
 
       final Context withoutStrategy = withStrategy.withoutStrategy(strategy.getClass());
       assertEquals(origin.getScope(), withoutStrategy.getScope());
-      assertTrue(!withoutStrategy.getStrategy(ConnectStrategy.class).isPresent());
+      assertTrue(!withoutStrategy.getStrategy(FailoverStrategy.class).isPresent());
       assertEquals(origin.getConfiguration(), withoutStrategy.getConfiguration());
     }
   }

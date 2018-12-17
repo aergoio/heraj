@@ -4,32 +4,50 @@
 
 package hera.strategy;
 
-import hera.ContextHolder;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.Context;
 import hera.DefaultConstants;
 import hera.api.model.internal.HostnameAndPort;
 import io.grpc.netty.NettyChannelBuilder;
 import java.util.concurrent.TimeUnit;
-import lombok.EqualsAndHashCode;
+import lombok.Setter;
 import lombok.ToString;
+import org.slf4j.Logger;
 
-@ToString
-@EqualsAndHashCode
+@ToString(exclude = {"logger", "context"})
 public class NettyConnectStrategy implements ConnectStrategy<NettyChannelBuilder> {
 
+  protected final Logger logger = getLogger(getClass());
+
+  @Setter
+  protected Context context;
+
   protected HostnameAndPort getEndpoint() {
-    return HostnameAndPort.of(ContextHolder.get().getConfiguration().getAsString("endpoint",
+    return HostnameAndPort.of(this.context.getConfiguration().getAsString("endpoint",
         DefaultConstants.DEFAULT_ENDPOINT));
   }
 
   @Override
   public NettyChannelBuilder connect() {
     final HostnameAndPort endpoint = getEndpoint();
+    logger.debug("Connect to {} with strategy {}", endpoint, getClass().getName());
     return NettyChannelBuilder
         .forAddress(endpoint.getHostname(), endpoint.getPort())
         .keepAliveTime(30, TimeUnit.SECONDS)
         .keepAliveTimeout(10, TimeUnit.SECONDS)
         .keepAliveWithoutCalls(true)
         .usePlaintext();
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    return (null != obj) && (obj instanceof ConnectStrategy);
+  }
+
+  @Override
+  public int hashCode() {
+    return NettyConnectStrategy.class.hashCode();
   }
 
 }

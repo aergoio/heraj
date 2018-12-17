@@ -4,8 +4,9 @@
 
 package hera.strategy;
 
+import hera.ContextAware;
 import hera.Strategy;
 
-public interface ConnectStrategy<ConnectionT> extends Strategy {
+public interface ConnectStrategy<ConnectionT> extends Strategy, ContextAware {
   ConnectionT connect();
 }
