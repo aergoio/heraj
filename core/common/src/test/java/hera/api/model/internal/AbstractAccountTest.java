@@ -9,8 +9,8 @@ import static org.mockito.Mockito.spy;
 
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.model.Aer;
 import hera.api.model.BytesValue;
-import java.math.BigInteger;
 import org.junit.Test;
 
 public class AbstractAccountTest {
@@ -18,7 +18,7 @@ public class AbstractAccountTest {
   @Test
   public void testBindState() {
     final long nonce = 3;
-    final BigInteger balance = BigInteger.valueOf(7L);
+    final Aer balance = Aer.ONE;
 
     final AbstractAccount account = spy(AbstractAccount.class);
     final AccountState state =

@@ -9,6 +9,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.model.Aer;
 import hera.api.model.BytesValue;
 import java.util.function.Function;
 import org.slf4j.Logger;
@@ -26,7 +27,7 @@ public class AccountStateConverterFactory {
     logger.trace("Rpc account state: {}", rpcAccountState);
     return new AccountState(AccountAddress.of(BytesValue.EMPTY),
         rpcAccountState.getNonce(),
-        byteArrayToPostive(rpcAccountState.getBalance().toByteArray()));
+        new Aer(byteArrayToPostive(rpcAccountState.getBalance().toByteArray())));
   };
 
   public ModelConverter<AccountState, Blockchain.State> create() {

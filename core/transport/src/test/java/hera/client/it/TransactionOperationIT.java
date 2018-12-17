@@ -17,7 +17,6 @@ import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.exception.CommitException;
-import java.math.BigInteger;
 import org.junit.Test;
 
 public class TransactionOperationIT extends AbstractIT {
@@ -105,7 +104,7 @@ public class TransactionOperationIT extends AbstractIT {
 
     final Account recipient = createClientAccount();
     final AccountState preState = aergoClient.getAccountOperation().getState(recipient);
-    final BigInteger balance = preState.getBalance();
+    final Aer balance = preState.getBalance();
 
     final Aer amount = Aer.of("100", Unit.AER);
     assertTrue(unlockAccount(account, password));
@@ -116,7 +115,7 @@ public class TransactionOperationIT extends AbstractIT {
     waitForNextBlockToGenerate();
 
     final AccountState postState = aergoClient.getAccountOperation().getState(recipient);
-    assertEquals(balance.add(amount.getValue()), postState.getBalance());
+    assertEquals(balance.add(amount), postState.getBalance());
   }
 
   @Test
