@@ -1,0 +1,127 @@
+/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.wallet;
+
+import static java.util.UUID.randomUUID;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import hera.AbstractTestCase;
+import hera.api.model.Account;
+import hera.api.model.Aer;
+import hera.api.model.Aer.Unit;
+import hera.api.model.Authentication;
+import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.RawTransaction;
+import hera.api.model.Transaction;
+import hera.key.AergoKey;
+import hera.key.AergoKeyGenerator;
+import org.junit.Test;
+
+public class InMemoryKeyStoreTest extends AbstractTestCase {
+
+  @Test
+  public void testSaveAndExport() {
+    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
+
+    final AergoKey key = new AergoKeyGenerator().create();
+    final String password = randomUUID().toString();
+    keyStore.save(key, password);
+    assertTrue(keyStore.auth2EncryptedPrivateKey.size() > 0);
+
+    final Authentication auth = Authentication.of(key.getAddress(), password);
+    final EncryptedPrivateKey exported = keyStore.export(auth);
+    final AergoKey decrypted = AergoKey.of(exported, password);
+    assertEquals(decrypted, key);
+  }
+
+  @Test
+  public void testUnlockAndLock() {
+    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
+    final AergoKey key = new AergoKeyGenerator().create();
+    final String password = randomUUID().toString();
+    keyStore.save(key, password);
+
+    final Authentication auth = Authentication.of(key.getAddress(), password);
+    final Account unlocked = keyStore.unlock(auth);
+    assertNotNull(unlocked);
+
+    assertTrue(keyStore.lock(auth));
+  }
+
+  @Test
+  public void testUnlockOnInvalidAuth() {
+    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
+    final AergoKey key = new AergoKeyGenerator().create();
+    final String password = randomUUID().toString();
+    // keyStore.save(key, password);
+
+    final Authentication auth = Authentication.of(key.getAddress(), password);
+    final Account unlocked = keyStore.unlock(auth);
+    assertNull(unlocked);
+  }
+
+  @Test
+  public void testLockWithInvalidAuth() {
+    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
+    final AergoKey key = new AergoKeyGenerator().create();
+    final String password = randomUUID().toString();
+    keyStore.save(key, password);
+
+    final Authentication auth = Authentication.of(key.getAddress(), password);
+    final Account unlocked = keyStore.unlock(auth);
+    assertNotNull(unlocked);
+
+    final Authentication invalid = Authentication.of(key.getAddress(), randomUUID().toString());
+    assertFalse(keyStore.lock(invalid));
+  }
+
+  @Test
+  public void testSignAndVerify() {
+    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
+    final AergoKey key = new AergoKeyGenerator().create();
+    final String password = randomUUID().toString();
+    keyStore.save(key, password);
+
+    keyStore.unlock(Authentication.of(key.getAddress(), password));
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .sender(key.getAddress())
+        .recipient(key.getAddress())
+        .amount(Aer.of("100", Unit.GAER))
+        .nonce(1)
+        .build();
+    final Transaction signed = keyStore.sign(rawTransaction);
+
+    assertTrue(keyStore.verify(signed));
+  }
+
+  @Test
+  public void testSignOnLocked() {
+    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
+    final AergoKey key = new AergoKeyGenerator().create();
+    final String password = randomUUID().toString();
+    keyStore.save(key, password);
+
+    // keyStore.unlock(Authentication.of(key.getAddress(), password));
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .sender(key.getAddress())
+        .recipient(key.getAddress())
+        .amount(Aer.of("100", Unit.GAER))
+        .nonce(1)
+        .build();
+
+    try {
+      keyStore.sign(rawTransaction);
+      fail("Sign on locked account should throw exception");
+    } catch (Exception e) {
+      // good we expected this
+    }
+  }
+
+}

@@ -13,18 +13,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import hera.AbstractTestCase;
-import hera.api.AccountOperation;
 import hera.api.KeyStoreOperation;
+import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
-import hera.api.model.RawTransaction;
-import hera.api.model.Transaction;
 import hera.client.AergoClient;
 import hera.key.AergoKeyGenerator;
 import org.junit.Test;
 
-public class ServerKeyStoreAdaptorTest extends AbstractTestCase {
+public class ServerKeyStoreTest extends AbstractTestCase {
 
   protected static final AccountAddress ACCOUNT_ADDRESS =
       AccountAddress.of(() -> "AmLo9CGR3xFZPVKZ5moSVRNW1kyscY9rVkCvgrpwNJjRUPUWadC5");
@@ -34,7 +32,7 @@ public class ServerKeyStoreAdaptorTest extends AbstractTestCase {
     final AergoClient mockClient = mock(AergoClient.class);
     when(mockClient.getKeyStoreOperation()).thenReturn(mock(KeyStoreOperation.class));
 
-    final KeyStoreAdaptor keyStore = new ServerKeyStoreAdaptor(mockClient);
+    final KeyStore keyStore = new ServerKeyStore(mockClient);
     keyStore.save(new AergoKeyGenerator().create(), randomUUID().toString());
   }
 
@@ -45,7 +43,7 @@ public class ServerKeyStoreAdaptorTest extends AbstractTestCase {
     when(mockKeyStoreOperation.exportKey(any())).thenReturn(mock(EncryptedPrivateKey.class));
     when(mockClient.getKeyStoreOperation()).thenReturn(mockKeyStoreOperation);
 
-    final KeyStoreAdaptor keyStore = new ServerKeyStoreAdaptor(mockClient);
+    final KeyStore keyStore = new ServerKeyStore(mockClient);
     final Authentication authentication =
         Authentication.of(ACCOUNT_ADDRESS, randomUUID().toString());
     final EncryptedPrivateKey exported = keyStore.export(authentication);
@@ -59,10 +57,10 @@ public class ServerKeyStoreAdaptorTest extends AbstractTestCase {
     when(mockKeyStoreOperation.unlock(any())).thenReturn(true);
     when(mockClient.getKeyStoreOperation()).thenReturn(mockKeyStoreOperation);
 
-    final KeyStoreAdaptor keyStore = new ServerKeyStoreAdaptor(mockClient);
+    final KeyStore keyStore = new ServerKeyStore(mockClient);
     final Authentication authentication =
         Authentication.of(ACCOUNT_ADDRESS, randomUUID().toString());
-    final AccountAddress unlocked = keyStore.unlock(authentication);
+    final Account unlocked = keyStore.unlock(authentication);
     assertNotNull(unlocked);
   }
 
@@ -73,10 +71,10 @@ public class ServerKeyStoreAdaptorTest extends AbstractTestCase {
     when(mockKeyStoreOperation.unlock(any())).thenReturn(false);
     when(mockClient.getKeyStoreOperation()).thenReturn(mockKeyStoreOperation);
 
-    final KeyStoreAdaptor keyStore = new ServerKeyStoreAdaptor(mockClient);
+    final KeyStore keyStore = new ServerKeyStore(mockClient);
     final Authentication authentication =
         Authentication.of(ACCOUNT_ADDRESS, randomUUID().toString());
-    final AccountAddress unlocked = keyStore.unlock(authentication);
+    final Account unlocked = keyStore.unlock(authentication);
     assertNull(unlocked);
   }
 
@@ -88,34 +86,11 @@ public class ServerKeyStoreAdaptorTest extends AbstractTestCase {
     when(mockKeyStoreOperation.lock(any())).thenReturn(true);
     when(mockClient.getKeyStoreOperation()).thenReturn(mockKeyStoreOperation);
 
-    final KeyStoreAdaptor keyStore = new ServerKeyStoreAdaptor(mockClient);
+    final KeyStore keyStore = new ServerKeyStore(mockClient);
     final Authentication authentication =
         Authentication.of(ACCOUNT_ADDRESS, randomUUID().toString());
     final boolean unlocked = keyStore.lock(authentication);
     assertTrue(unlocked);
   }
 
-  @Test
-  public void testSign() {
-    final AergoClient mockClient = mock(AergoClient.class);
-    final AccountOperation mockAccountOperation = mock(AccountOperation.class);
-    when(mockAccountOperation.sign(any(), any())).thenReturn(mock(Transaction.class));
-    when(mockClient.getAccountOperation()).thenReturn(mockAccountOperation);
-
-    final KeyStoreAdaptor keyStore = new ServerKeyStoreAdaptor(mockClient);
-    final Transaction signed = keyStore.sign(ACCOUNT_ADDRESS, mock(RawTransaction.class));
-    assertNotNull(signed);
-  }
-
-  @Test
-  public void testVerify() {
-    final AergoClient mockClient = mock(AergoClient.class);
-    final AccountOperation mockAccountOperation = mock(AccountOperation.class);
-    when(mockAccountOperation.verify(any(), any())).thenReturn(true);
-    when(mockClient.getAccountOperation()).thenReturn(mockAccountOperation);
-
-    final KeyStoreAdaptor keyStore = new ServerKeyStoreAdaptor(mockClient);
-    final boolean result = keyStore.verify(ACCOUNT_ADDRESS, mock(Transaction.class));
-    assertTrue(result);
-  }
 }

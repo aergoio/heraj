@@ -4,15 +4,12 @@
 
 package hera.wallet;
 
-import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.Authentication;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInvocation;
-import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
@@ -20,7 +17,7 @@ import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.key.AergoKey;
 
-public interface Wallet extends LookupClient {
+public interface Wallet extends LookupClient, NonceManagable {
 
   /**
    * Bind a keystore with wallet. This operation has a meaning only for {@link WalletType#Secure}.
@@ -45,34 +42,6 @@ public interface Wallet extends LookupClient {
    * @return encoded encrypted private key
    */
   String exportKey(Authentication authentication);
-
-  /**
-   * Get an account address of current account.
-   *
-   * @return an account address
-   */
-  AccountAddress getAddress();
-
-  /**
-   * Get a current account.
-   *
-   * @return an account
-   */
-  Account getAccount();
-
-  /**
-   * Get recently used nonce value.
-   *
-   * @return a recently used nonce
-   */
-  long getRecentlyUsedNonce();
-
-  /**
-   * Get state of current account.
-   *
-   * @return a state of current account
-   */
-  AccountState getAccountState();
 
   /**
    * Unlock account with {@code Authentication}.
@@ -107,25 +76,41 @@ public interface Wallet extends LookupClient {
   boolean verify(Transaction transaction);
 
   /**
-   * Send AER with {@code fee}.
+   * Send <b>aer</b> with {@code fee}.
    *
    * @param recipient a recipient
-   * @param amount an amount in AER. Must be in a number format
+   * @param amount an amount
    * @param fee a fee
-   * @return verify result
+   * @return a send transaction hash
    */
   TxHash send(AccountAddress recipient, Aer amount, Fee fee);
 
   /**
-   * Send AER with {@code fee}.
+   * Send <b>aer</b> with {@code fee} and {@code payload}.
    *
    * @param recipient a recipient
-   * @param amount an amount in AER. Must be in a number format
+   * @param amount an amount
    * @param fee a fee
    * @param payload a payload
-   * @return verify result
+   * @return a send transaction hash
    */
   TxHash send(AccountAddress recipient, Aer amount, Fee fee, BytesValue payload);
+
+  /**
+   * Sign and commit transaction.
+   *
+   * @param rawTransaction a raw transaction
+   * @return a transaction hash
+   */
+  TxHash commit(RawTransaction rawTransaction);
+
+  /**
+   * Commit a signed transaction.
+   *
+   * @param signedTransaction a signed transaction
+   * @return a transaction hash
+   */
+  TxHash commit(Transaction signedTransaction);
 
   /**
    * Deploy smart contract.
@@ -144,13 +129,5 @@ public interface Wallet extends LookupClient {
    * @return a contract transaction hash
    */
   ContractTxHash execute(ContractInvocation contractInvocation, Fee fee);
-
-  /**
-   * Query the smart contract state by calling smart contract function.
-   *
-   * @param contractInvocation a contract invocation
-   * @return contract result
-   */
-  ContractResult query(ContractInvocation contractInvocation);
 
 }

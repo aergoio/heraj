@@ -12,10 +12,13 @@ import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractInterface;
+import hera.api.model.ContractInvocation;
+import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
+import hera.api.model.PeerMetric;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import java.util.List;
@@ -65,6 +68,13 @@ public interface LookupClient {
    * @return peer addresses
    */
   List<Peer> listNodePeers();
+
+  /**
+   * Get metrics of peers.
+   *
+   * @return peer metrics
+   */
+  List<PeerMetric> listPeerMetrics();
 
   /**
    * Get status of current node.
@@ -130,5 +140,13 @@ public interface LookupClient {
    * @return contract interface
    */
   ContractInterface getContractInterface(ContractAddress contractAddress);
+
+  /**
+   * Query the smart contract state by calling smart contract function.
+   *
+   * @param contractInvocation a contract invocation
+   * @return contract result
+   */
+  ContractResult query(ContractInvocation contractInvocation);
 
 }

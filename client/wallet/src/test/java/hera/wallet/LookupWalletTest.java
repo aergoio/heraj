@@ -5,7 +5,6 @@
 package hera.wallet;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -21,87 +20,34 @@ import hera.api.KeyStoreOperation;
 import hera.api.TransactionOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
-import hera.api.model.Aer;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
-import hera.api.model.ContractDefinition;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
-import hera.api.model.Fee;
 import hera.api.model.NodeStatus;
-import hera.api.model.Time;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.api.model.Aer.Unit;
-import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
 import java.util.ArrayList;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class AbstractWalletTest extends AbstractTestCase {
-
-  private final AccountAddress accountAddress =
-      AccountAddress.of(() -> "AmLo9CGR3xFZPVKZ5moSVRNW1kyscY9rVkCvgrpwNJjRUPUWadC5");
+public class LookupWalletTest extends AbstractTestCase {
 
   private final ContractAddress contractAddress =
       ContractAddress.of(() -> "AmLo9CGR3xFZPVKZ5moSVRNW1kyscY9rVkCvgrpwNJjRUPUWadC5");
 
   @Test
-  public void testGetAccount() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
-    wallet.account = mock(Account.class);
-    assertNotNull(wallet.getAccount());
-  }
-
-  @Test
-  public void testGetAccountOnNoAccount() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
-    try {
-      wallet.getAccount();
-      fail();
-    } catch (Exception e) {
-      // good we expected this
-    }
-  }
-
-  @Test
-  public void testGetAccountState() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
-    final AergoClient mockClient = mock(AergoClient.class);
-    final AccountOperation mockOperation = mock(AccountOperation.class);
-    when(mockOperation.getState(any(Account.class))).thenReturn(mock(AccountState.class));
-    when(mockClient.getAccountOperation()).thenReturn(mockOperation);
-    when(wallet.getAergoClient()).thenReturn(mockClient);
-    wallet.account = mock(Account.class);
-
-    assertNotNull(wallet.getAccountState());
-  }
-
-  @Test
-  public void testGetAccountStateWithAccount() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
-    final AergoClient mockClient = mock(AergoClient.class);
-    final AccountOperation mockOperation = mock(AccountOperation.class);
-    when(mockOperation.getState(any(Account.class))).thenReturn(mock(AccountState.class));
-    when(mockClient.getAccountOperation()).thenReturn(mockOperation);
-    when(wallet.getAergoClient()).thenReturn(mockClient);
-
-    assertNotNull(wallet.getAccountState(mock(Account.class)));
-  }
-
-  @Test
   public void testGetAccountStateWithAccountAddress() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
+    final LookupWallet wallet = mock(LookupWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final AccountOperation mockOperation = mock(AccountOperation.class);
     when(mockOperation.getState(any(AccountAddress.class)))
@@ -113,8 +59,20 @@ public class AbstractWalletTest extends AbstractTestCase {
   }
 
   @Test
+  public void testGetAccountStateWithAccount() {
+    final LookupWallet wallet = mock(LookupWallet.class, Mockito.CALLS_REAL_METHODS);
+    final AergoClient mockClient = mock(AergoClient.class);
+    final AccountOperation mockOperation = mock(AccountOperation.class);
+    when(mockOperation.getState(any(Account.class))).thenReturn(mock(AccountState.class));
+    when(mockClient.getAccountOperation()).thenReturn(mockOperation);
+    when(wallet.getAergoClient()).thenReturn(mockClient);
+
+    assertNotNull(wallet.getAccountState(mock(Account.class)));
+  }
+
+  @Test
   public void testListServerKeyStoreAccounts() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
+    final LookupWallet wallet = mock(LookupWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final KeyStoreOperation mockOperation = mock(KeyStoreOperation.class);
     when(mockOperation.list()).thenReturn(new ArrayList<>());
@@ -126,7 +84,7 @@ public class AbstractWalletTest extends AbstractTestCase {
 
   @Test
   public void testGetBestBlockHash() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
+    final LookupWallet wallet = mock(LookupWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
     when(mockOperation.getBlockchainStatus()).thenReturn(
@@ -139,7 +97,7 @@ public class AbstractWalletTest extends AbstractTestCase {
 
   @Test
   public void testGetBestBlockHeight() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
+    final LookupWallet wallet = mock(LookupWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
     when(mockOperation.getBlockchainStatus()).thenReturn(
@@ -152,7 +110,7 @@ public class AbstractWalletTest extends AbstractTestCase {
 
   @Test
   public void testListNodePeers() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
+    final LookupWallet wallet = mock(LookupWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
     when(mockOperation.listPeers()).thenReturn(new ArrayList<>());
@@ -163,8 +121,20 @@ public class AbstractWalletTest extends AbstractTestCase {
   }
 
   @Test
+  public void testListPeerMetrics() {
+    final LookupWallet wallet = mock(LookupWallet.class, Mockito.CALLS_REAL_METHODS);
+    final AergoClient mockClient = mock(AergoClient.class);
+    final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
+    when(mockOperation.listPeerMetrics()).thenReturn(new ArrayList<>());
+    when(mockClient.getBlockchainOperation()).thenReturn(mockOperation);
+    when(wallet.getAergoClient()).thenReturn(mockClient);
+
+    assertNotNull(wallet.listPeerMetrics());
+  }
+
+  @Test
   public void testGetNodeStatus() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
+    final LookupWallet wallet = mock(LookupWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
     when(mockOperation.getNodeStatus()).thenReturn(new NodeStatus(new ArrayList<>()));
@@ -176,7 +146,7 @@ public class AbstractWalletTest extends AbstractTestCase {
 
   @Test
   public void testGetBlockByHash() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
+    final LookupWallet wallet = mock(LookupWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockOperation mockOperation = mock(BlockOperation.class);
     when(mockOperation.getBlock(any(BlockHash.class))).thenReturn(mock(Block.class));
@@ -188,7 +158,7 @@ public class AbstractWalletTest extends AbstractTestCase {
 
   @Test
   public void testGetBlockByHeight() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
+    final LookupWallet wallet = mock(LookupWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockOperation mockOperation = mock(BlockOperation.class);
     when(mockOperation.getBlock(any(Long.class))).thenReturn(mock(Block.class));
@@ -200,7 +170,7 @@ public class AbstractWalletTest extends AbstractTestCase {
 
   @Test
   public void testListBlockHeadersByHash() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
+    final LookupWallet wallet = mock(LookupWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockOperation mockOperation = mock(BlockOperation.class);
     when(mockOperation.listBlockHeaders(any(BlockHash.class), anyInt()))
@@ -213,7 +183,7 @@ public class AbstractWalletTest extends AbstractTestCase {
 
   @Test
   public void testListBlockHeadersByHeight() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
+    final LookupWallet wallet = mock(LookupWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockOperation mockOperation = mock(BlockOperation.class);
     when(mockOperation.listBlockHeaders(anyLong(), anyInt())).thenReturn(new ArrayList<>());
@@ -225,7 +195,7 @@ public class AbstractWalletTest extends AbstractTestCase {
 
   @Test
   public void testGetTransaction() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
+    final LookupWallet wallet = mock(LookupWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final TransactionOperation mockOperation = mock(TransactionOperation.class);
     when(mockOperation.getTransaction(any())).thenReturn(mock(Transaction.class));
@@ -237,7 +207,7 @@ public class AbstractWalletTest extends AbstractTestCase {
 
   @Test
   public void testGetReceipt() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
+    final LookupWallet wallet = mock(LookupWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final ContractOperation mockOperation = mock(ContractOperation.class);
     when(mockOperation.getReceipt(any())).thenReturn(mock(ContractTxReceipt.class));
@@ -249,7 +219,7 @@ public class AbstractWalletTest extends AbstractTestCase {
 
   @Test
   public void testGetContractInterface() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
+    final LookupWallet wallet = mock(LookupWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final ContractOperation mockOperation = mock(ContractOperation.class);
     when(mockOperation.getContractInterface(any())).thenReturn(mock(ContractInterface.class));
@@ -260,75 +230,8 @@ public class AbstractWalletTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetAddress() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
-    wallet.account = new AccountFactory().create(accountAddress);
-
-    assertNotNull(wallet.getAddress());
-  }
-
-  @Test
-  public void testGetRecentlyUsedNonce() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
-    wallet.account = new AccountFactory().create(accountAddress);
-
-    assertNotNull(wallet.getRecentlyUsedNonce());
-  }
-
-  @Test
-  public void testSend() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
-    wallet.account = new AccountFactory().create(accountAddress);
-    final AergoClient mockClient = mock(AergoClient.class);
-    final TransactionOperation mockOperation = mock(TransactionOperation.class);
-    when(mockOperation.commit(any())).thenReturn(TxHash.of(BytesValue.EMPTY));
-    when(mockClient.getTransactionOperation()).thenReturn(mockOperation);
-    when(wallet.getAergoClient()).thenReturn(mockClient);
-    when(wallet.getNonceRefreshTryCountAndInterval())
-        .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
-    when(wallet.sign(any())).thenReturn(mock(Transaction.class));
-
-    assertNotNull(wallet.send(accountAddress, Aer.of("1000", Unit.AER), Fee.getDefaultFee(),
-        BytesValue.EMPTY));
-  }
-
-  @Test
-  public void testDeploy() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
-    wallet.account = new AccountFactory().create(accountAddress);
-    final AergoClient mockClient = mock(AergoClient.class);
-    final ContractOperation mockOperation = mock(ContractOperation.class);
-    when(mockOperation.deploy(any(), any(), anyLong(), any()))
-        .thenReturn(ContractTxHash.of(BytesValue.EMPTY));
-    when(mockClient.getContractOperation()).thenReturn(mockOperation);
-    when(wallet.getAergoClient()).thenReturn(mockClient);
-    when(wallet.getNonceRefreshTryCountAndInterval())
-        .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
-
-    assertNotNull(wallet.deploy(new ContractDefinition(""), Fee.getDefaultFee()));
-  }
-
-  @Test
-  public void testExecute() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
-    wallet.account = new AccountFactory().create(accountAddress);
-    final AergoClient mockClient = mock(AergoClient.class);
-    final ContractOperation mockOperation = mock(ContractOperation.class);
-    when(mockOperation.execute(any(), any(), anyLong(), any()))
-        .thenReturn(ContractTxHash.of(BytesValue.EMPTY));
-    when(mockClient.getContractOperation()).thenReturn(mockOperation);
-    when(wallet.getAergoClient()).thenReturn(mockClient);
-    when(wallet.getNonceRefreshTryCountAndInterval())
-        .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
-
-    assertNotNull(wallet.execute(new ContractInvocation(contractAddress, new ContractFunction("")),
-        Fee.getDefaultFee()));
-  }
-
-  @Test
   public void testQuery() {
-    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
-    wallet.account = new AccountFactory().create(accountAddress);
+    final LookupWallet wallet = mock(LookupWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final ContractOperation mockOperation = mock(ContractOperation.class);
     when(mockOperation.query(any())).thenReturn(mock(ContractResult.class));

@@ -24,7 +24,7 @@ public interface Account {
   void bindState(AccountState state);
 
   /**
-   * Set nonce for account. If a passed {@code nonce} is less or equals to 0, nonce is set as 1.
+   * Set nonce for account. If a passed {@code nonce} is less than 0, set as 0.
    *
    * @param nonce nonce to set
    */

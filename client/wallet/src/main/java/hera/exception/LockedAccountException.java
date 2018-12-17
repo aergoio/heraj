@@ -1,10 +1,10 @@
 package hera.exception;
 
-public class UnlockedAccountException extends WalletException {
+public class LockedAccountException extends WalletException {
 
   private static final long serialVersionUID = 5722845663930655767L;
 
-  public UnlockedAccountException() {
+  public LockedAccountException() {
     super("Unlock account first");
   }
 
