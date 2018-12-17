@@ -28,7 +28,6 @@ import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
-import hera.util.TransactionUtils;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -128,11 +127,7 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
         .amount("1000", Unit.AER)
         .nonce(1L)
         .build();
-    final Signature signature =
-        key.sign(TransactionUtils.calculateHash(rawTransaction).getBytesValue().get());
-    final Transaction transaction = new Transaction(rawTransaction, signature,
-        TransactionUtils.calculateHash(rawTransaction, signature), null, 0, false);
-
+    final Transaction transaction = key.sign(rawTransaction);
     final ResultOrErrorFuture<Boolean> verifyResultFuture =
         accountTemplateBase.getVerifyFunction().apply(account, transaction);
     assertTrue(verifyResultFuture.get().hasResult());

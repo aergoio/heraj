@@ -18,26 +18,29 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @RequiredArgsConstructor
-public class AccountWithKey extends AbstractAccount implements Signer {
+public class AccountWithAddressAndSigner extends AbstractAccount implements Signer {
 
   @NonNull
   @Getter
-  protected final AergoKey key;
+  protected final AccountAddress address;
+
+  @NonNull
+  @Getter
+  protected final Signer delegate;
 
   @Override
-  public AccountAddress getAddress() {
-    return key.getAddress();
+  public AergoKey getKey() {
+    return null;
   }
 
   @Override
   public Transaction sign(final RawTransaction rawTransaction) {
-    return key.sign(rawTransaction);
+    return delegate.sign(rawTransaction);
   }
 
   @Override
   public boolean verify(final Transaction transaction) {
-    return key.verify(transaction);
+    return delegate.verify(transaction);
   }
-
 
 }

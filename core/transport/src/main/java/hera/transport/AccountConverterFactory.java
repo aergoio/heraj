@@ -1,4 +1,5 @@
-/* * @copyright defined in LICENSE.txt
+/*
+ * * @copyright defined in LICENSE.txt
  */
 
 package hera.transport;
@@ -8,7 +9,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import com.google.protobuf.ByteString;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.internal.AccountWithoutKey;
+import hera.api.model.AccountFactory;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import types.AccountOuterClass;
@@ -31,8 +32,8 @@ public class AccountConverterFactory {
   protected final Function<AccountOuterClass.Account, Account> rpcConverter =
       rpcAccount -> {
         logger.trace("Rpc account: {}", rpcAccount);
-        return new AccountWithoutKey(
-            accountAddressConverter.convertToDomainModel(rpcAccount.getAddress()));
+        return new AccountFactory()
+            .create(accountAddressConverter.convertToDomainModel(rpcAccount.getAddress()));
       };
 
   public ModelConverter<Account, AccountOuterClass.Account> create() {

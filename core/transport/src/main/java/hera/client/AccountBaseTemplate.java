@@ -19,20 +19,17 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.RawTransaction;
-import hera.api.model.Signature;
 import hera.api.model.Transaction;
-import hera.api.model.TxHash;
-import hera.api.model.internal.KeyHoldable;
 import hera.api.tupleorerror.Function1;
 import hera.api.tupleorerror.Function2;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.exception.TransactionVerificationException;
+import hera.key.Signer;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.AccountStateConverterFactory;
 import hera.transport.ModelConverter;
 import hera.transport.TransactionConverterFactory;
-import hera.util.TransactionUtils;
 import io.grpc.ManagedChannel;
 import java.util.Optional;
 import lombok.Getter;
@@ -91,15 +88,10 @@ public class AccountBaseTemplate implements ChannelInjectable {
             ResultOrErrorFuture<Transaction> nextFuture =
                 ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-            if (account instanceof KeyHoldable) {
-              KeyHoldable keyHoldable = (KeyHoldable) account;
+            if (account instanceof Signer) {
+              Signer signer = (Signer) account;
 
-              final TxHash hashWithoutSign = TransactionUtils.calculateHash(rawTransaction);
-              final Signature signature = keyHoldable.sign(hashWithoutSign.getBytesValue().get());
-
-              final TxHash hashWithSign = TransactionUtils.calculateHash(rawTransaction, signature);
-              final Transaction signed = new Transaction(rawTransaction, signature,
-                  hashWithSign, null, 0, false);
+              final Transaction signed = signer.sign(rawTransaction);
               nextFuture.complete(success(signed));
             } else {
               final Transaction domainTransaction =
@@ -124,11 +116,9 @@ public class AccountBaseTemplate implements ChannelInjectable {
         ResultOrErrorFuture<Boolean> nextFuture =
             ResultOrErrorFutureFactory.supplyEmptyFuture();
 
-        if (account instanceof KeyHoldable) {
-          KeyHoldable keyHoldable = (KeyHoldable) account;
-          final boolean verifyResult = keyHoldable.verify(
-              TransactionUtils.calculateHash(transaction).getBytesValue().get(),
-              transaction.getSignature());
+        if (account instanceof Signer) {
+          Signer signer = (Signer) account;
+          final boolean verifyResult = signer.verify(transaction);
           nextFuture.complete(success(verifyResult));
         } else {
           Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);

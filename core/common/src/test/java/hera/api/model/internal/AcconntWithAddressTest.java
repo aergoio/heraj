@@ -11,7 +11,7 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import org.junit.Test;
 
-public class AcconntWithoutKeyTest {
+public class AcconntWithAddressTest {
 
   public static final String ENCODED_ADDRESS =
       "AmJaNDXoPbBRn9XHh9onKbDKuAzj88n5Bzt7KniYA78qUEc5EwBd";
@@ -20,7 +20,7 @@ public class AcconntWithoutKeyTest {
   public void testGetAddress() {
     final Base58WithCheckSum encoded = () -> ENCODED_ADDRESS;
     final AccountAddress address = AccountAddress.of(encoded);
-    final Account account = new AccountWithoutKey(address);
+    final Account account = new AccountWithAddress(address);
     assertEquals(address, account.getAddress());
   }
 

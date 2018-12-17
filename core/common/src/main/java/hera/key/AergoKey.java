@@ -11,8 +11,11 @@ import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
+import hera.api.model.Transaction;
 import hera.exception.HerajException;
+import hera.exception.SignException;
 import hera.exception.UnableToGenerateKeyException;
 import hera.util.AddressUtils;
 import hera.util.CryptoUtils;
@@ -20,11 +23,11 @@ import hera.util.HexUtils;
 import hera.util.NumberUtils;
 import hera.util.Pair;
 import hera.util.Sha256Utils;
+import hera.util.TransactionUtils;
 import hera.util.VersionUtils;
 import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSAKeyGenerator;
 import hera.util.pki.ECDSASignature;
-import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -35,7 +38,7 @@ import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.slf4j.Logger;
 
 @EqualsAndHashCode
-public class AergoKey implements KeyPair {
+public class AergoKey implements KeyPair, Signer {
 
   protected static final int HEADER_MAGIC = 0x30;
 
@@ -156,12 +159,19 @@ public class AergoKey implements KeyPair {
   }
 
   @Override
-  public Signature sign(InputStream plainText) {
-    final BytesValue serialized = BytesValue.of(serialize(ecdsakey.sign(plainText)));
-    if (logger.isTraceEnabled()) {
+  public Transaction sign(final RawTransaction rawTransaction) {
+    try {
+      final BytesValue plainText = TransactionUtils.calculateHash(rawTransaction).getBytesValue();
+      final ECDSASignature ecdsaSignature = ecdsakey.sign(plainText.get());
+      final BytesValue serialized = BytesValue.of(serialize(ecdsaSignature));
       logger.trace("Serialized signature: {}", serialized);
+      final Signature signature = Signature.of(serialized);
+      return Transaction.newBuilder(rawTransaction)
+          .signature(signature)
+          .build();
+    } catch (final Exception e) {
+      throw new SignException(e);
     }
-    return Signature.of(serialized);
   }
 
   protected byte[] serialize(final ECDSASignature signature) {
@@ -203,12 +213,13 @@ public class AergoKey implements KeyPair {
   }
 
   @Override
-  public boolean verify(final InputStream plainText, final Signature signature) {
+  public boolean verify(final Transaction transaction) {
     try {
-      final ECDSASignature parsedSignature = parseSignature(signature);
-      return ecdsakey.verify(plainText, parsedSignature);
-    } catch (Exception e) {
-      logger.info("Verification failed {}", e.getLocalizedMessage());
+      final BytesValue plainText = TransactionUtils.calculateHash(transaction).getBytesValue();
+      final ECDSASignature parsedSignature = parseSignature(transaction.getSignature());
+      return ecdsakey.verify(plainText.get(), parsedSignature);
+    } catch (final Exception e) {
+      logger.info("Verification failed by exception {}", e.getLocalizedMessage());
       return false;
     }
   }

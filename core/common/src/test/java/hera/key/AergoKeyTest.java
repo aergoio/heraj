@@ -4,16 +4,16 @@
 
 package hera.key;
 
-import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import hera.AbstractTestCase;
-import hera.api.model.Signature;
+import hera.api.model.Aer.Unit;
+import hera.api.model.RawTransaction;
+import hera.api.model.Transaction;
 import hera.util.HexUtils;
 import hera.util.pki.ECDSASignature;
-import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.util.Arrays;
 import org.junit.Test;
@@ -58,11 +58,16 @@ public class AergoKeyTest extends AbstractTestCase {
   public void testSignAndVerify() throws Exception {
     for (int i = 0; i < N_TEST; ++i) {
       final AergoKey key = new AergoKeyGenerator().create();
-      final String plainText = randomUUID().toString();
-      final Signature signature = key.sign(new ByteArrayInputStream(plainText.getBytes()));
-      assertTrue(key.verify(new ByteArrayInputStream(plainText.getBytes()), signature));
+
+      final RawTransaction rawTransaction = RawTransaction.newBuilder()
+          .sender(key.getAddress())
+          .recipient(key.getAddress())
+          .amount("10000", Unit.AER)
+          .nonce(1L)
+          .build();
+      final Transaction signedTransaction = key.sign(rawTransaction);
+      assertTrue(key.verify(signedTransaction));
     }
   }
-
 
 }

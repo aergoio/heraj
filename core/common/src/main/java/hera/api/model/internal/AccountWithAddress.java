@@ -5,22 +5,21 @@
 package hera.api.model.internal;
 
 import hera.api.model.AccountAddress;
-import hera.api.model.BytesValue;
 import hera.key.AergoKey;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@AllArgsConstructor
-public class AccountWithoutKey extends AbstractAccount {
+@RequiredArgsConstructor
+public class AccountWithAddress extends AbstractAccount {
 
-  @Setter
+  @NonNull
   @Getter
-  protected AccountAddress address = new AccountAddress(BytesValue.EMPTY);
+  protected final AccountAddress address;
 
   @Override
   public AergoKey getKey() {
