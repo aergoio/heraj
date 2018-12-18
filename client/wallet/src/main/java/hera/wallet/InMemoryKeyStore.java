@@ -13,6 +13,7 @@ import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
+import hera.exception.InvalidAuthentiationException;
 import hera.exception.LockedAccountException;
 import hera.exception.WalletException;
 import hera.key.AergoKey;
@@ -45,45 +46,46 @@ public class InMemoryKeyStore implements KeyStore, Signer {
   }
 
   @Override
-  public EncryptedPrivateKey export(final Authentication rawAuthentication) {
+  public EncryptedPrivateKey export(final Authentication authentication) {
     try {
-      final EncryptedPrivateKey exported =
-          auth2EncryptedPrivateKey.get(digest(rawAuthentication));
-      if (null == exported) {
-        throw new WalletException("Authentication failure");
+      final Authentication digestedAuth = digest(authentication);
+      if (false == auth2EncryptedPrivateKey.containsKey(digestedAuth)) {
+        throw new InvalidAuthentiationException("A key mappged with Authentication isn't exist");
       }
-      return exported;
+      return auth2EncryptedPrivateKey.get(digestedAuth);
     } catch (final Exception e) {
-      throw new WalletException(e);
+      throw new InvalidAuthentiationException(e);
     }
   }
 
   @Override
   public Account unlock(final Authentication authentication) {
     try {
-      Account loaded = null;
       final Authentication digestedAuth = digest(authentication);
+      if (false == auth2EncryptedPrivateKey.containsKey(digestedAuth)) {
+        throw new InvalidAuthentiationException("A key mappged with Authentication isn't exist");
+      }
+      unlockedAuthSet.add(digestedAuth);
       final EncryptedPrivateKey encrypted =
           auth2EncryptedPrivateKey.get(digestedAuth);
-      if (null != encrypted) {
-        unlockedAuthSet.add(digestedAuth);
-        final AergoKey key = AergoKey.of(encrypted, authentication.getPassword());
-        address2Unlocked.put(key.getAddress(), key);
-        return new AccountFactory().create(key.getAddress(), this);
-      }
-      return loaded;
+      final AergoKey key = AergoKey.of(encrypted, authentication.getPassword());
+      address2Unlocked.put(key.getAddress(), key);
+      return new AccountFactory().create(key.getAddress(), this);
+    } catch (WalletException e) {
+      throw e;
     } catch (Exception e) {
-      logger.info("Key loading failure : {}", e.getMessage());
-      return null;
+      throw new InvalidAuthentiationException(e);
     }
   }
 
   @Override
-  public boolean lock(final Authentication authentication) {
-    if (true == unlockedAuthSet.remove(digest(authentication))) {
-      return null != address2Unlocked.remove(authentication.getAddress());
+  public void lock(final Authentication authentication) {
+    final Authentication digested = digest(authentication);
+    if (false == unlockedAuthSet.contains(digested)) {
+      throw new InvalidAuthentiationException("Unable to lock account");
     }
-    return false;
+    unlockedAuthSet.remove(digested);
+    address2Unlocked.remove(authentication.getAddress());
   }
 
   protected Authentication digest(final Authentication rawAuthentication) {

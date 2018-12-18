@@ -21,18 +21,28 @@ import hera.api.model.Transaction;
 import hera.exception.InvalidAuthentiationException;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
+import org.junit.Before;
 import org.junit.Test;
 
-public class InMemoryKeyStoreTest extends AbstractTestCase {
+public class JavaKeyStoreTest extends AbstractTestCase {
+
+  protected String keyStorePasword = "password";
+
+  protected java.security.KeyStore keyStore;
+
+  @Before
+  public void setUp() throws Exception {
+    keyStore = java.security.KeyStore.getInstance("PKCS12");
+    keyStore.load(null, keyStorePasword.toCharArray());
+  }
 
   @Test
   public void testSaveAndExport() {
-    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
+    final JavaKeyStore keyStore = new JavaKeyStore(this.keyStore);
 
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
     keyStore.save(key, password);
-    assertTrue(keyStore.auth2EncryptedPrivateKey.size() > 0);
 
     final Authentication auth = Authentication.of(key.getAddress(), password);
     final EncryptedPrivateKey exported = keyStore.export(auth);
@@ -42,7 +52,7 @@ public class InMemoryKeyStoreTest extends AbstractTestCase {
 
   @Test
   public void testUnlockAndLock() {
-    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
+    final JavaKeyStore keyStore = new JavaKeyStore(this.keyStore);
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
     keyStore.save(key, password);
@@ -56,7 +66,7 @@ public class InMemoryKeyStoreTest extends AbstractTestCase {
 
   @Test
   public void testUnlockOnInvalidAuth() {
-    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
+    final JavaKeyStore keyStore = new JavaKeyStore(this.keyStore);
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
     // keyStore.save(key, password);
@@ -72,7 +82,7 @@ public class InMemoryKeyStoreTest extends AbstractTestCase {
 
   @Test
   public void testLockWithInvalidAuth() {
-    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
+    final JavaKeyStore keyStore = new JavaKeyStore(this.keyStore);
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
     keyStore.save(key, password);
@@ -93,7 +103,7 @@ public class InMemoryKeyStoreTest extends AbstractTestCase {
 
   @Test
   public void testSignAndVerify() {
-    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
+    final JavaKeyStore keyStore = new JavaKeyStore(this.keyStore);
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
     keyStore.save(key, password);
@@ -112,7 +122,7 @@ public class InMemoryKeyStoreTest extends AbstractTestCase {
 
   @Test
   public void testSignOnLocked() {
-    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
+    final JavaKeyStore keyStore = new JavaKeyStore(this.keyStore);
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
     keyStore.save(key, password);

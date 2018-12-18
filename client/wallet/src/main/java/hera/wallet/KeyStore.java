@@ -7,6 +7,7 @@ package hera.wallet;
 import hera.api.model.Account;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.exception.InvalidAuthentiationException;
 import hera.key.AergoKey;
 
 public interface KeyStore {
@@ -24,14 +25,16 @@ public interface KeyStore {
    *
    * @param authentication an authentication to used in exporting key
    * @return an encrypted private key.
+   * @throws InvalidAuthentiationException on failure
    */
   EncryptedPrivateKey export(Authentication authentication);
 
   /**
-   * Unlock and return unlocked account. null if failure.
+   * Unlock and return unlocked account.
    *
    * @param authentication an authentication which is used in unlocking account
-   * @return an unlocked account. null if failure
+   * @return an unlocked account.
+   * @throws InvalidAuthentiationException on failure
    */
   Account unlock(Authentication authentication);
 
@@ -39,8 +42,8 @@ public interface KeyStore {
    * Lock an account corresponding to {@code authentication}.
    *
    * @param authentication an authentication which is used in locking account
-   * @return true if success. false if failure
+   * @throws InvalidAuthentiationException on failure
    */
-  boolean lock(Authentication authentication);
+  void lock(Authentication authentication);
 
 }

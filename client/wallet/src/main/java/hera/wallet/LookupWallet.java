@@ -24,12 +24,14 @@ import hera.api.model.PeerMetric;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.client.AergoClient;
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.slf4j.Logger;
 
-public abstract class LookupWallet implements LookupClient, AutoCloseable, Cloneable {
+public abstract class LookupWallet implements LookupClient, AutoCloseable, Closeable {
 
   protected final Logger logger = getLogger(getClass());
 
@@ -122,7 +124,7 @@ public abstract class LookupWallet implements LookupClient, AutoCloseable, Clone
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() throws IOException {
     getAergoClient().close();
   }
 

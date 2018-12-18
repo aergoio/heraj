@@ -6,5 +6,5 @@ dependencies {
   implementation project(":core:util")
   implementation project(":core:common")
   implementation project(":core:transport")
-  implementation "org.bouncycastle:bcprov-jdk15on:1.60"
+  implementation "org.bouncycastle:bcpkix-jdk15on:1.60"
 }

@@ -7,11 +7,9 @@ package hera.wallet;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
 import hera.AbstractTestCase;
 import hera.api.KeyStoreOperation;
 import hera.api.model.Account;
@@ -89,8 +87,7 @@ public class ServerKeyStoreTest extends AbstractTestCase {
     final KeyStore keyStore = new ServerKeyStore(mockClient);
     final Authentication authentication =
         Authentication.of(ACCOUNT_ADDRESS, randomUUID().toString());
-    final boolean unlocked = keyStore.lock(authentication);
-    assertTrue(unlocked);
+    keyStore.lock(authentication);
   }
 
 }

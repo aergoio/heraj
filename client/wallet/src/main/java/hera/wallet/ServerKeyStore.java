@@ -11,6 +11,8 @@ import hera.api.model.AccountFactory;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.client.AergoClient;
+import hera.exception.InvalidAuthentiationException;
+import hera.exception.RpcConnectionException;
 import hera.exception.WalletException;
 import hera.key.AergoKey;
 import lombok.RequiredArgsConstructor;
@@ -36,8 +38,10 @@ public class ServerKeyStore implements KeyStore {
   public EncryptedPrivateKey export(final Authentication authentication) {
     try {
       return aergoClient.getKeyStoreOperation().exportKey(authentication);
-    } catch (final Exception e) {
+    } catch (final RpcConnectionException e) {
       throw new WalletException(e);
+    } catch (final Exception e) {
+      throw new InvalidAuthentiationException(e);
     }
   }
 
@@ -46,19 +50,21 @@ public class ServerKeyStore implements KeyStore {
     try {
       final boolean unlocked = aergoClient.getKeyStoreOperation().unlock(authentication);
       return unlocked ? new AccountFactory().create(authentication.getAddress()) : null;
-    } catch (Exception e) {
-      logger.info("Key unlocking failure with error : {}", e.getMessage());
-      return null;
+    } catch (final RpcConnectionException e) {
+      throw new WalletException(e);
+    } catch (final Exception e) {
+      throw new InvalidAuthentiationException(e);
     }
   }
 
   @Override
-  public boolean lock(final Authentication authentication) {
+  public void lock(final Authentication authentication) {
     try {
-      return aergoClient.getKeyStoreOperation().lock(authentication);
-    } catch (Exception e) {
-      logger.info("Key locking failure with error : {}", e.getMessage());
-      return false;
+      aergoClient.getKeyStoreOperation().lock(authentication);
+    } catch (final RpcConnectionException e) {
+      throw new WalletException(e);
+    } catch (final Exception e) {
+      throw new InvalidAuthentiationException(e);
     }
   }
 

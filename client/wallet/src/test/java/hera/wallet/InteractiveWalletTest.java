@@ -40,6 +40,7 @@ import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
+import hera.exception.InvalidAuthentiationException;
 import hera.key.AergoKeyGenerator;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -115,7 +116,9 @@ public class InteractiveWalletTest extends AbstractTestCase {
   public void testUnlockOnFailure() {
     InteractiveWallet wallet =
         mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
-    wallet.keyStore = mock(KeyStore.class);
+    final KeyStore keyStore = mock(KeyStore.class);
+    when(keyStore.unlock(any())).thenThrow(new InvalidAuthentiationException("invalid"));
+    wallet.keyStore = keyStore;
 
     final Authentication authentication =
         Authentication.of(accountAddress, randomUUID().toString());
@@ -127,9 +130,7 @@ public class InteractiveWalletTest extends AbstractTestCase {
   public void testLock() {
     InteractiveWallet wallet =
         mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
-    final KeyStore keyStore = mock(KeyStore.class);
-    when(keyStore.lock(any())).thenReturn(true);
-    wallet.keyStore = keyStore;
+    wallet.keyStore = mock(KeyStore.class);
 
     final Authentication authentication =
         Authentication.of(accountAddress, randomUUID().toString());

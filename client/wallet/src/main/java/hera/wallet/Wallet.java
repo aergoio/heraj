@@ -15,6 +15,7 @@ import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.exception.InvalidAuthentiationException;
 import hera.key.AergoKey;
 
 public interface Wallet extends LookupClient, NonceManagable {
@@ -40,6 +41,7 @@ public interface Wallet extends LookupClient, NonceManagable {
    *
    * @param authentication an authentication
    * @return encoded encrypted private key
+   * @throws InvalidAuthentiationException on failure
    */
   String exportKey(Authentication authentication);
 

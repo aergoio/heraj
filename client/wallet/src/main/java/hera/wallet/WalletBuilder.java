@@ -93,7 +93,7 @@ public class WalletBuilder implements ContextConfiguer<WalletBuilder> {
       case Naive:
         return new NaiveWallet(aergoClient, nonceRefreshTryInterval);
       case Secure:
-        throw new UnsupportedOperationException("Not yet implemented");
+        return new SecureWallet(aergoClient, nonceRefreshTryInterval);
       case ServerKeyStore:
         return new ServerKeyStoreWallet(aergoClient, nonceRefreshTryInterval);
       default:

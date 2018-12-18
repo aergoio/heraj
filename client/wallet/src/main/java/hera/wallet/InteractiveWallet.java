@@ -24,14 +24,17 @@ import hera.api.tupleorerror.Function1;
 import hera.client.AergoClient;
 import hera.exception.CommitException;
 import hera.exception.CommitException.CommitStatus;
+import hera.exception.InvalidAuthentiationException;
 import hera.exception.WalletException;
 import hera.key.AergoKey;
+import java.io.Closeable;
+import java.io.IOException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.slf4j.Logger;
 
 public abstract class InteractiveWallet extends LookupWallet
-    implements Wallet, AutoCloseable, Cloneable {
+    implements Wallet, AutoCloseable, Closeable {
 
   protected final Logger logger = getLogger(getClass());
 
@@ -62,19 +65,27 @@ public abstract class InteractiveWallet extends LookupWallet
 
   @Override
   public boolean unlock(final Authentication authentication) {
-    final Account unlockedAccount = getKeyStore().unlock(authentication);
-    if (null != unlockedAccount) {
-      this.account = unlockedAccount;
+    try {
+      this.account = getKeyStore().unlock(authentication);
       getCurrentAccount().bindState(getCurrentAccountState());
       return true;
-    } else {
+    } catch (InvalidAuthentiationException e) {
       return false;
+    } catch (Exception e) {
+      throw new WalletException(e);
     }
   }
 
   @Override
   public boolean lock(final Authentication authentication) {
-    return getKeyStore().lock(authentication);
+    try {
+      getKeyStore().lock(authentication);
+      return true;
+    } catch (InvalidAuthentiationException e) {
+      return false;
+    } catch (Exception e) {
+      throw new WalletException(e);
+    }
   }
 
   @Override
@@ -202,7 +213,7 @@ public abstract class InteractiveWallet extends LookupWallet
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() throws IOException {
     getAergoClient().close();
   }
 
