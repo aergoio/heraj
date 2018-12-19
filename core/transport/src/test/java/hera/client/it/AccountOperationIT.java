@@ -8,6 +8,7 @@ import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
@@ -71,6 +72,22 @@ public class AccountOperationIT extends AbstractIT {
   }
 
   @Test
+  public void testSignRemotelyOnLocked() {
+    final String password = randomUUID().toString();
+    final Account account = createServerAccount(password);
+
+    final RawTransaction transaction = buildTransaction(account);
+
+    // unlockAccount(account, password);
+    try {
+      signTransaction(account, transaction);
+      fail();
+    } catch (Exception e) {
+      // good we expected this
+    }
+  }
+
+  @Test
   public void testCreateLocallyAndImport() throws Exception {
     final AergoKey key = new AergoKeyGenerator().create();
 
@@ -93,6 +110,42 @@ public class AccountOperationIT extends AbstractIT {
         .exportKey(Authentication.of(created.getAddress(), password));
 
     assertNotNull(encryptedKey);
+  }
+
+  @Test
+  public void testCreateAndGetNameLocally() {
+    final Account created = createClientAccount();
+    final String name = randomUUID().toString().substring(0, 12).replace('-', 'a');
+    logger.debug("Name: {}", name);
+
+    aergoClient.getAccountOperation().createName(created, name, created.incrementAndGetNonce());
+    waitForNextBlockToGenerate();
+    assertEquals(created.getAddress(), aergoClient.getAccountOperation().getNameOwner(name));
+
+    final Account passed = createClientAccount();
+    aergoClient.getAccountOperation().updateName(created, name, passed.getAddress(),
+        created.incrementAndGetNonce());
+    waitForNextBlockToGenerate();
+    assertEquals(passed.getAddress(), aergoClient.getAccountOperation().getNameOwner(name));
+  }
+
+  @Test
+  public void testCreateAndGetNameRemotely() {
+    final String password = randomUUID().toString();
+    final Account created = createServerAccount(password);
+    final String name = randomUUID().toString().substring(0, 12).replace('-', 'a');
+    logger.debug("Name: {}", name);
+
+    unlockAccount(created, password);
+    aergoClient.getAccountOperation().createName(created, name, created.incrementAndGetNonce());
+    waitForNextBlockToGenerate();
+    assertEquals(created.getAddress(), aergoClient.getAccountOperation().getNameOwner(name));
+
+    final Account passed = createClientAccount();
+    aergoClient.getAccountOperation().updateName(created, name, passed.getAddress(),
+        created.incrementAndGetNonce());
+    waitForNextBlockToGenerate();
+    assertEquals(passed.getAddress(), aergoClient.getAccountOperation().getNameOwner(name));
   }
 
 }

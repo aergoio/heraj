@@ -64,7 +64,6 @@ public class EmptyContext implements Context {
   public Context withKeyValue(final String key, final Object value) {
     logger.debug("Define key: {}, value: {}", key, value);
     final Configuration newConfiguration = new InMemoryConfiguration();
-    System.out.println(newConfiguration);
     newConfiguration.define(key, value);
     final ContextConc newContext =
         new ContextConc(this, getScope(), newConfiguration, getStrategies());

@@ -11,6 +11,9 @@ public final class TransportConstants {
    */
 
   public static final String ACCOUNT_GETSTATE = "heraj.getstate";
+  public static final String ACCOUNT_CREATE_NAME = "heraj.create.name";
+  public static final String ACCOUNT_UPDATE_NAME = "heraj.update.name";
+  public static final String ACCOUNT_GETNAMEOWNER = "heraj.getnameowner";
   public static final String ACCOUNT_SIGN = "heraj.sign";
   public static final String ACCOUNT_VERIFY = "heraj.verify";
 
@@ -50,6 +53,9 @@ public final class TransportConstants {
   private static final String EITHER_POSTFIX = ".either";
 
   public static final String ACCOUNT_GETSTATE_EITHER = ACCOUNT_GETSTATE + EITHER_POSTFIX;
+  public static final String ACCOUNT_CREATE_NAME_EITHER = ACCOUNT_CREATE_NAME + EITHER_POSTFIX;
+  public static final String ACCOUNT_UPDATE_NAME_EITHER = ACCOUNT_UPDATE_NAME + EITHER_POSTFIX;
+  public static final String ACCOUNT_GETNAMEOWNER_EITHER = ACCOUNT_GETNAMEOWNER  + EITHER_POSTFIX;
   public static final String ACCOUNT_SIGN_EITHER = ACCOUNT_SIGN + EITHER_POSTFIX;
   public static final String ACCOUNT_VERIFY_EITHER = ACCOUNT_VERIFY + EITHER_POSTFIX;
 
@@ -95,6 +101,9 @@ public final class TransportConstants {
   private static final String ASYNC_POSTFIX = ".async";
 
   public static final String ACCOUNT_GETSTATE_ASYNC = ACCOUNT_GETSTATE + ASYNC_POSTFIX;
+  public static final String ACCOUNT_CREATE_NAME_ASYNC = ACCOUNT_CREATE_NAME + ASYNC_POSTFIX;
+  public static final String ACCOUNT_UPDATE_NAME_ASYNC = ACCOUNT_UPDATE_NAME + ASYNC_POSTFIX;
+  public static final String ACCOUNT_GETNAMEOWNER_ASYNC = ACCOUNT_GETNAMEOWNER  + ASYNC_POSTFIX;
   public static final String ACCOUNT_SIGN_ASYNC = ACCOUNT_SIGN + ASYNC_POSTFIX;
   public static final String ACCOUNT_VERIFY_ASYNC = ACCOUNT_VERIFY + ASYNC_POSTFIX;
 

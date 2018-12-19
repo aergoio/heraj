@@ -5,7 +5,6 @@
 package hera.api.model;
 
 import static java.util.UUID.randomUUID;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import hera.api.encode.Base58WithCheckSum;
@@ -42,14 +41,6 @@ public class AccountAddressTest {
   public void testOfWithEncodedWithoutVersion() {
     final Base58WithCheckSum encoded = () -> ENCODED_ADDRESS_WITHOUT_VERSION;
     AccountAddress.of(encoded);
-  }
-
-  @Test
-  public void testAdapt() {
-    final Base58WithCheckSum encoded = () -> ENCODED_ADDRESS;
-    final AccountAddress address = AccountAddress.of(encoded);
-    assertEquals(AccountAddress.of(encoded), address.adapt(AccountAddress.class).get());
-    assertEquals(ContractAddress.of(encoded), address.adapt(ContractAddress.class).get());
   }
 
 }

@@ -4,9 +4,6 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
-
-import hera.exception.HerajException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -48,8 +45,7 @@ public class Fee {
    * @param limit fee limit
    */
   public Fee(final Aer price, final long limit) {
-    assertNotNull(price, new HerajException("Price must not null"));
-    this.price = price.compareTo(MIN_PRICE) >= 0 ? price : MIN_PRICE;
+    this.price = null != price ? (price.compareTo(MIN_PRICE) >= 0 ? price : MIN_PRICE) : price;
     this.limit = limit >= 0 ? limit : MIN_LIMIT;
   }
 

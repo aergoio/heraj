@@ -7,14 +7,12 @@ package hera.api.model;
 import hera.api.encode.Base58WithCheckSum;
 import hera.exception.HerajException;
 import hera.exception.InvalidVersionException;
-import hera.util.Adaptor;
 import hera.util.Base58Utils;
 import hera.util.VersionUtils;
 import java.io.IOException;
-import java.util.Optional;
 import lombok.Getter;
 
-public class AccountAddress implements Adaptor {
+public class AccountAddress {
 
   public static final byte VERSION = 0x42;
 
@@ -96,17 +94,6 @@ public class AccountAddress implements Adaptor {
   @Override
   public String toString() {
     return Base58Utils.encodeWithCheck(bytesValue.getValue());
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public <T> Optional<T> adapt(Class<T> adaptor) {
-    if (adaptor.isAssignableFrom(AccountAddress.class)) {
-      return (Optional<T>) Optional.of(this);
-    } else if (adaptor.isAssignableFrom(ContractAddress.class)) {
-      return (Optional<T>) Optional.of(ContractAddress.of(getBytesValue()));
-    }
-    return Optional.empty();
   }
 
 }

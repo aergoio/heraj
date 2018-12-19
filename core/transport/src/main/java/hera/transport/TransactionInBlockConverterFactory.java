@@ -5,14 +5,12 @@
 package hera.transport;
 
 import static hera.api.model.BytesValue.of;
-import static hera.util.NumberUtils.byteArrayToPostive;
-import static hera.util.NumberUtils.postiveToByteArray;
 import static hera.util.TransportUtils.copyFrom;
+import static hera.util.TransportUtils.parseToAer;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
 import hera.api.model.AccountAddress;
-import hera.api.model.Aer;
 import hera.api.model.BlockHash;
 import hera.api.model.Fee;
 import hera.api.model.Signature;
@@ -58,21 +56,21 @@ public class TransactionInBlockConverterFactory {
       domainTransaction -> {
         logger.trace("Domain transaction in block: {}", domainTransaction);
 
-        final Blockchain.TxBody txBody = Blockchain.TxBody.newBuilder()
+        final Blockchain.TxBody.Builder txBodyBuilder = Blockchain.TxBody.newBuilder()
             .setAccount(accountAddressConverter.convertToRpcModel(domainTransaction.getSender()))
             .setRecipient(
                 accountAddressConverter.convertToRpcModel(domainTransaction.getRecipient()))
-            .setAmount(
-                ByteString.copyFrom(postiveToByteArray(domainTransaction.getAmount().getValue())))
+            .setAmount(copyFrom(domainTransaction.getAmount()))
             .setNonce(domainTransaction.getNonce())
-            .setPrice(
-                ByteString
-                    .copyFrom(postiveToByteArray(domainTransaction.getFee().getPrice().getValue())))
-            .setLimit(domainTransaction.getFee().getLimit())
             .setPayload(copyFrom(domainTransaction.getPayload()))
             .setType(txTypeDomainConverter.apply(domainTransaction.getTxType()))
-            .setSign(copyFrom(domainTransaction.getSignature().getSign()))
-            .build();
+            .setSign(copyFrom(domainTransaction.getSignature().getSign()));
+        if (null != domainTransaction.getFee()) {
+          txBodyBuilder.setPrice(copyFrom(domainTransaction.getFee().getPrice()));
+          txBodyBuilder.setLimit(domainTransaction.getFee().getLimit());
+        }
+
+        final Blockchain.TxBody txBody = txBodyBuilder.build();
 
         final Blockchain.Tx rpcTx = Blockchain.Tx.newBuilder()
             .setBody(txBody)
@@ -84,10 +82,7 @@ public class TransactionInBlockConverterFactory {
             .setIdx(domainTransaction.getIndexInBlock())
             .build();
 
-        return Blockchain.TxInBlock.newBuilder()
-            .setTx(rpcTx)
-            .setTxIdx(rpcTxIdx)
-            .build();
+        return Blockchain.TxInBlock.newBuilder().setTx(rpcTx).setTxIdx(rpcTxIdx).build();
       };
 
   protected final Function<Blockchain.TxInBlock, Transaction> rpcConverter = rpcTransaction -> {
@@ -98,9 +93,9 @@ public class TransactionInBlockConverterFactory {
 
     return new Transaction(accountAddressConverter.convertToDomainModel(txBody.getAccount()),
         accountAddressConverter.convertToDomainModel(txBody.getRecipient()),
-        Aer.of(byteArrayToPostive(txBody.getAmount().toByteArray())),
+        parseToAer(txBody.getAmount()),
         txBody.getNonce(),
-        Fee.of(Aer.of(byteArrayToPostive(txBody.getPrice().toByteArray())), txBody.getLimit()),
+        Fee.of(parseToAer(txBody.getPrice()), txBody.getLimit()),
         of(txBody.getPayload().toByteArray()),
         txTypeRpcConverter.apply(txBody.getType()),
         Signature.of(of(txBody.getSign().toByteArray())),

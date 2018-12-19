@@ -6,7 +6,6 @@ package hera.api.model;
 
 import hera.api.encode.Base58WithCheckSum;
 import hera.exception.InvalidVersionException;
-import java.util.Optional;
 
 public class ContractAddress extends AccountAddress {
 
@@ -54,15 +53,6 @@ public class ContractAddress extends AccountAddress {
    */
   public ContractAddress(final BytesValue bytesValue) {
     super(bytesValue);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public <T> Optional<T> adapt(Class<T> adaptor) {
-    if (adaptor.isAssignableFrom(ContractAddress.class)) {
-      return (Optional<T>) Optional.of(this);
-    }
-    return Optional.empty();
   }
 
 }

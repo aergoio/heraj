@@ -40,7 +40,7 @@ public class RawTransaction {
   protected final Aer amount;
 
   @Getter
-  protected final long nonce;
+  protected final Long nonce;
 
   @Getter
   protected final Fee fee;
@@ -63,11 +63,11 @@ public class RawTransaction {
    * @param txType a txType
    */
   public RawTransaction(final AccountAddress sender, final AccountAddress recipient,
-      final Aer amount, final long nonce, final Fee fee, final BytesValue payload,
+      final Aer amount, final Long nonce, final Fee fee, final BytesValue payload,
       final TxType txType) {
     this.sender = null != sender ? sender : AccountAddress.of(BytesValue.EMPTY);
     this.recipient = null != recipient ? recipient : AccountAddress.of(BytesValue.EMPTY);
-    this.amount = null != amount ? amount : Aer.ZERO;
+    this.amount = amount;
     this.nonce = nonce;
     this.fee = null != fee ? fee : Fee.getDefaultFee();
     this.payload = null != payload ? payload : BytesValue.EMPTY;

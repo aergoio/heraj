@@ -4,7 +4,11 @@
 
 package hera.util;
 
+import static hera.util.NumberUtils.byteArrayToPostive;
+import static hera.util.NumberUtils.postiveToByteArray;
+
 import com.google.protobuf.ByteString;
+import hera.api.model.Aer;
 import hera.api.model.BytesValue;
 import hera.exception.RpcArgumentException;
 import java.io.ByteArrayOutputStream;
@@ -15,7 +19,7 @@ public class TransportUtils {
 
   /**
    * Transform {@link BytesValue} to {@link ByteString} in protobuf. If either bytesValue or value
-   * of bytesValue is null, return {@code ByteString.EMPTY}
+   * of bytesValue is null, return {@link ByteString#EMPTY}
    *
    * @param bytesValue {@link BytesValue}
    * @return protobuf {@link ByteString}
@@ -25,6 +29,33 @@ public class TransportUtils {
       return ByteString.EMPTY;
     }
     return ByteString.copyFrom(bytesValue.getValue());
+  }
+
+  /**
+   * Transform {@link BytesValue} to {@link ByteString} in protobuf. If aer isn null, return
+   * {@link ByteString#EMPTY}.
+   *
+   * @param aer an aer
+   * @return protobuf {@link ByteString}
+   */
+  public static ByteString copyFrom(final Aer aer) {
+    if (null == aer) {
+      return ByteString.EMPTY;
+    }
+    return ByteString.copyFrom(postiveToByteArray(aer.getValue()));
+  }
+
+  /**
+   * Parse raw aer to {@link Aer}.
+   *
+   * @param rawAer a raw aer
+   * @return parsed {@link Aer}.
+   */
+  public static Aer parseToAer(final ByteString rawAer) {
+    if (null == rawAer || ByteString.EMPTY.equals(rawAer)) {
+      return null;
+    }
+    return Aer.of(byteArrayToPostive(rawAer.toByteArray()));
   }
 
   /**

@@ -6,8 +6,10 @@ package hera.client;
 
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
+import static hera.api.tupleorerror.FunctionChain.fail;
 import static hera.api.tupleorerror.FunctionChain.of;
 import static hera.api.tupleorerror.FunctionChain.success;
+import static hera.util.ArrayUtils.concat;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
@@ -18,10 +20,16 @@ import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.model.BytesValue;
+import hera.api.model.Fee;
+import hera.api.model.GovernanceRecipient;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import hera.api.tupleorerror.Function1;
 import hera.api.tupleorerror.Function2;
+import hera.api.tupleorerror.Function3;
+import hera.api.tupleorerror.Function4;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.exception.TransactionVerificationException;
@@ -37,6 +45,8 @@ import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
 import types.Blockchain;
 import types.Rpc;
+import types.Rpc.Name;
+import types.Rpc.NameInfo;
 
 @ApiAudience.Private
 @ApiStability.Unstable
@@ -57,9 +67,12 @@ public class AccountBaseTemplate implements ChannelInjectable {
   @Getter
   protected AergoRPCServiceFutureStub aergoService;
 
+  protected TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();
+
   @Override
   public void setChannel(final ManagedChannel channel) {
     this.aergoService = newFutureStub(channel);
+    transactionBaseTemplate.setChannel(channel);
   }
 
   @Getter
@@ -67,6 +80,7 @@ public class AccountBaseTemplate implements ChannelInjectable {
       (address) -> {
         ResultOrErrorFuture<AccountState> nextFuture =
             ResultOrErrorFutureFactory.supplyEmptyFuture();
+        logger.debug("GetState with {}", address);
 
         Rpc.SingleBytes bytes = Rpc.SingleBytes.newBuilder()
             .setValue(accountAddressConverter.convertToRpcModel(address)).build();
@@ -82,11 +96,82 @@ public class AccountBaseTemplate implements ChannelInjectable {
       };
 
   @Getter
+  private final Function3<Account, String, Long, ResultOrErrorFuture<TxHash>> createNameFunction =
+      (account, name, nonce) -> {
+        try {
+          logger.debug("Create account name to account: {}, name: {}, nonce: {}",
+              account.getAddress(), name, nonce);
+
+          final BytesValue payload = new BytesValue(("c" + name).getBytes());
+          final RawTransaction rawTransaction = new RawTransaction(account.getAddress(),
+              GovernanceRecipient.AERGO_NAME,
+              null,
+              nonce,
+              Fee.of(null, 0),
+              payload,
+              Transaction.TxType.GOVERNANCE);
+          final Transaction signed =
+              getSignFunction().apply(account, rawTransaction).get().getResult();
+          return transactionBaseTemplate.getCommitFunction().apply(signed);
+        } catch (Exception e) {
+          final ResultOrErrorFuture<TxHash> future = ResultOrErrorFutureFactory.supplyEmptyFuture();
+          future.complete(fail(e));
+          return future;
+        }
+      };
+
+  @Getter
+  private final Function4<Account, String, AccountAddress, Long,
+      ResultOrErrorFuture<TxHash>> updateNameFunction =
+          (owner, name, newOwner, nonce) -> {
+            try {
+              logger.debug(
+                  "Update account name from account: {}, name: {}, to account: {}, nonce: {}",
+                  owner.getAddress(), name, newOwner, nonce);
+              final BytesValue payload = new BytesValue(concat(("u" + name + ",").getBytes(),
+                  accountAddressConverter.convertToRpcModel(newOwner).toByteArray()));
+              final RawTransaction rawTransaction = new RawTransaction(owner.getAddress(),
+                  GovernanceRecipient.AERGO_NAME,
+                  null,
+                  nonce,
+                  Fee.of(null, 0),
+                  payload,
+                  Transaction.TxType.GOVERNANCE);
+              final Transaction signed =
+                  getSignFunction().apply(owner, rawTransaction).get().getResult();
+              return transactionBaseTemplate.getCommitFunction().apply(signed);
+            } catch (Exception e) {
+              final ResultOrErrorFuture<TxHash> future =
+                  ResultOrErrorFutureFactory.supplyEmptyFuture();
+              future.complete(fail(e));
+              return future;
+            }
+          };
+
+  @Getter
+  private final Function1<String, ResultOrErrorFuture<AccountAddress>> getNameOwnerFunction =
+      (name) -> {
+        ResultOrErrorFuture<AccountAddress> nextFuture =
+            ResultOrErrorFutureFactory.supplyEmptyFuture();
+        logger.debug("Get name owner of name: {}", name);
+
+        final Name rpcName = Name.newBuilder().setName(name).build();
+        ListenableFuture<NameInfo> listenableFuture = aergoService.getNameInfo(rpcName);
+        FutureChain<NameInfo, AccountAddress> callback = new FutureChain<>(nextFuture);
+        callback.setSuccessHandler(nameInfo -> of(
+            () -> accountAddressConverter.convertToDomainModel(nameInfo.getOwner())));
+        addCallback(listenableFuture, callback, directExecutor());
+
+        return nextFuture;
+      };
+
+  @Getter
   private final Function2<Account, RawTransaction,
       ResultOrErrorFuture<Transaction>> signFunction =
           (account, rawTransaction) -> {
             ResultOrErrorFuture<Transaction> nextFuture =
                 ResultOrErrorFutureFactory.supplyEmptyFuture();
+            logger.debug("Sign request with account: {}, rawTx: {}", account, rawTransaction);
 
             if (account instanceof Signer) {
               Signer signer = (Signer) account;
@@ -115,6 +200,7 @@ public class AccountBaseTemplate implements ChannelInjectable {
       (account, transaction) -> {
         ResultOrErrorFuture<Boolean> nextFuture =
             ResultOrErrorFutureFactory.supplyEmptyFuture();
+        logger.debug("Sign verify with account: {}, signedTx: {}", account, transaction);
 
         if (account instanceof Signer) {
           Signer signer = (Signer) account;

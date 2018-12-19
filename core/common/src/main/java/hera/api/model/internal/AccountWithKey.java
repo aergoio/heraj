@@ -15,7 +15,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-@ToString(callSuper = true)
+@ToString(callSuper = true, exclude = "key")
 @EqualsAndHashCode(callSuper = true)
 @RequiredArgsConstructor
 public class AccountWithKey extends AbstractAccount implements Signer {

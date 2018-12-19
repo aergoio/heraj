@@ -4,8 +4,11 @@
 
 package hera.client;
 
+import static hera.TransportConstants.ACCOUNT_CREATE_NAME_EITHER;
+import static hera.TransportConstants.ACCOUNT_GETNAMEOWNER_EITHER;
 import static hera.TransportConstants.ACCOUNT_GETSTATE_EITHER;
 import static hera.TransportConstants.ACCOUNT_SIGN_EITHER;
+import static hera.TransportConstants.ACCOUNT_UPDATE_NAME_EITHER;
 import static hera.TransportConstants.ACCOUNT_VERIFY_EITHER;
 import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
@@ -17,13 +20,17 @@ import static org.powermock.api.mockito.PowerMockito.when;
 import hera.AbstractTestCase;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
+import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.api.tupleorerror.WithIdentity;
+import hera.key.AergoKeyGenerator;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
@@ -66,6 +73,61 @@ public class AccountEitherTemplateTest extends AbstractTestCase {
     assertTrue(accountState.hasResult());
     assertEquals(ACCOUNT_GETSTATE_EITHER,
         ((WithIdentity) accountEitherTemplate.getStateFunction()).getIdentity());
+  }
+
+  @Test
+  public void testCreateName() {
+    final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
+    final TxHash mockHash = mock(TxHash.class);
+    final ResultOrErrorFuture<TxHash> future =
+        ResultOrErrorFutureFactory.supply(() -> mockHash);
+    when(base.getCreateNameFunction()).thenReturn((a, i, n) -> future);
+
+    final AccountEitherTemplate accountEitherTemplate = supplyAccountEitherTemplate(base);
+
+    final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
+    final ResultOrError<TxHash> nameTxHash =
+        accountEitherTemplate.createName(account, randomUUID().toString(),
+            account.incrementAndGetNonce());
+    assertTrue(nameTxHash.hasResult());
+    assertEquals(ACCOUNT_CREATE_NAME_EITHER,
+        ((WithIdentity) accountEitherTemplate.getCreateNameFunction()).getIdentity());
+  }
+
+  @Test
+  public void testUpdateName() {
+    final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
+    final TxHash mockHash = mock(TxHash.class);
+    final ResultOrErrorFuture<TxHash> future =
+        ResultOrErrorFutureFactory.supply(() -> mockHash);
+    when(base.getUpdateNameFunction()).thenReturn((a, i, t, n) -> future);
+
+    final AccountEitherTemplate accountEitherTemplate = supplyAccountEitherTemplate(base);
+
+    final Account owner = new AccountFactory().create(new AergoKeyGenerator().create());
+    final Account newOwner = new AccountFactory().create(new AergoKeyGenerator().create());
+    final ResultOrError<TxHash> updateTxHash =
+        accountEitherTemplate.updateName(owner, randomUUID().toString(),
+            newOwner.getAddress(), owner.incrementAndGetNonce());
+    assertTrue(updateTxHash.hasResult());
+    assertEquals(ACCOUNT_UPDATE_NAME_EITHER,
+        ((WithIdentity) accountEitherTemplate.getUpdateNameFunction()).getIdentity());
+  }
+
+  @Test
+  public void testGetNameOwner() {
+    final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
+    final ResultOrErrorFuture<AccountAddress> future =
+        ResultOrErrorFutureFactory.supply(() -> new AccountAddress(BytesValue.EMPTY));
+    when(base.getGetNameOwnerFunction()).thenReturn(s -> future);
+
+    final AccountEitherTemplate accountEitherTemplate = supplyAccountEitherTemplate(base);
+
+    final ResultOrError<AccountAddress> owner =
+        accountEitherTemplate.getNameOwner(randomUUID().toString());
+    assertTrue(owner.hasResult());
+    assertEquals(ACCOUNT_GETNAMEOWNER_EITHER,
+        ((WithIdentity) accountEitherTemplate.getNameOwnerFunction()).getIdentity());
   }
 
   @Test

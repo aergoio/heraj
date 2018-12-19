@@ -4,10 +4,12 @@
 
 package hera.util;
 
+import static hera.util.NumberUtils.postiveToByteArray;
 import static hera.util.TransportUtils.assertArgument;
 import static hera.util.TransportUtils.copyFrom;
 import static hera.util.TransportUtils.inputStreamToByteArray;
 import static hera.util.TransportUtils.longToByteArray;
+import static hera.util.TransportUtils.parseToAer;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -15,6 +17,8 @@ import static org.junit.Assert.fail;
 
 import com.google.protobuf.ByteString;
 import hera.AbstractTestCase;
+import hera.api.model.Aer;
+import hera.api.model.Aer.Unit;
 import hera.api.model.BytesValue;
 import hera.exception.RpcArgumentException;
 import java.io.ByteArrayInputStream;
@@ -24,29 +28,30 @@ import org.junit.Test;
 public class TransportUtilsTest extends AbstractTestCase {
 
   @Test
-  public void testCopyFrom() {
-    BytesValue bytesValue = BytesValue.of(randomUUID().toString().getBytes());
-    ByteString result = copyFrom(bytesValue);
-    assertTrue(!result.isEmpty());
+  public void testCopyFromWithBytesValue() {
+    final BytesValue filledValue = BytesValue.of(randomUUID().toString().getBytes());
+    final BytesValue emptyValue = BytesValue.EMPTY;;
+    final BytesValue nullValue = null;
+    assertEquals(ByteString.copyFrom(filledValue.getValue()), copyFrom(filledValue));
+    assertEquals(ByteString.EMPTY, copyFrom(emptyValue));
+    assertEquals(ByteString.EMPTY, copyFrom(nullValue));
   }
 
   @Test
-  public void testCopyFromWithNullBytesValue() {
-    BytesValue bytesValue = new BytesValue(null);
-    ByteString actualResult = copyFrom(bytesValue);
-    assertEquals(ByteString.EMPTY, actualResult);
+  public void testCopyFromWithAer() {
+    final Aer filledValue = Aer.of("100", Unit.AERGO);
+    final Aer nullValue = null;
+    assertEquals(ByteString.copyFrom(postiveToByteArray(filledValue.getValue())),
+        copyFrom(filledValue));
+    assertEquals(ByteString.EMPTY, copyFrom(nullValue));
   }
 
   @Test
-  public void testCopyFromWithNullArgument() {
-    ByteString actualResult = copyFrom(null);
-    assertEquals(ByteString.EMPTY, actualResult);
-  }
-
-  @Test
-  public void testCopyFromWithEmptyBytesValue() {
-    ByteString actualResult = copyFrom(BytesValue.EMPTY);
-    assertEquals(ByteString.EMPTY, actualResult);
+  public void testParseToAer() {
+    final Aer expected = Aer.of("100", Unit.GAER);
+    final ByteString rawAer = copyFrom(expected);
+    assertEquals(expected, parseToAer(rawAer));
+    assertEquals(null, parseToAer(null));
   }
 
   @Test

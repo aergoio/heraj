@@ -26,6 +26,7 @@ import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import org.junit.Test;
@@ -70,6 +71,55 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     final ResultOrErrorFuture<AccountState> accountStateFuture =
         accountTemplateBase.getStateFunction().apply(ACCOUNT_ADDRESS);
     assertTrue(accountStateFuture.get().hasResult());
+  }
+
+  @Test
+  public void testCreateName() {
+    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
+    TransactionBaseTemplate mockTransactionBaseTemplate = mock(TransactionBaseTemplate.class);
+    when(mockTransactionBaseTemplate.getCommitFunction()).thenReturn(t -> ResultOrErrorFutureFactory
+        .supply(() -> new TxHash(BytesValue.of(randomUUID().toString().getBytes()))));
+    final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
+    accountTemplateBase.transactionBaseTemplate = mockTransactionBaseTemplate;
+
+    final AergoKey key = new AergoKeyGenerator().create();
+    final Account account = new AccountFactory().create(key);
+    final ResultOrErrorFuture<TxHash> nameTxHash =
+        accountTemplateBase.getCreateNameFunction().apply(account, randomUUID().toString(),
+            account.incrementAndGetNonce());
+    assertTrue(nameTxHash.get().hasResult());
+  }
+
+  @Test
+  public void testUpdateName() {
+    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
+    TransactionBaseTemplate mockTransactionBaseTemplate = mock(TransactionBaseTemplate.class);
+    when(mockTransactionBaseTemplate.getCommitFunction()).thenReturn(t -> ResultOrErrorFutureFactory
+        .supply(() -> new TxHash(BytesValue.of(randomUUID().toString().getBytes()))));
+    final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
+    accountTemplateBase.transactionBaseTemplate = mockTransactionBaseTemplate;
+
+    final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
+    final Account newOwner = new AccountFactory().create(new AergoKeyGenerator().create());
+    final ResultOrErrorFuture<TxHash> nameTxHash =
+        accountTemplateBase.getUpdateNameFunction().apply(account, randomUUID().toString(),
+            newOwner.getAddress(), account.incrementAndGetNonce());
+    assertTrue(nameTxHash.get().hasResult());
+  }
+
+  @Test
+  public void testGetNameOwner() {
+    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
+    ListenableFuture mockListenableFuture =
+        service.submit(() -> Rpc.NameInfo.newBuilder().build());
+    when(aergoService.getNameInfo(any())).thenReturn(mockListenableFuture);
+
+    final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
+    accountTemplateBase.aergoService = aergoService;
+
+    final ResultOrErrorFuture<AccountAddress> nameTxHash =
+        accountTemplateBase.getGetNameOwnerFunction().apply(randomUUID().toString());
+    assertTrue(nameTxHash.get().hasResult());
   }
 
   @Test

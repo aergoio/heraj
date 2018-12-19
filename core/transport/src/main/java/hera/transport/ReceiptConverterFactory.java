@@ -31,7 +31,7 @@ public class ReceiptConverterFactory {
     final AccountAddress accountAddress =
         accountAddressConverter.convertToDomainModel(rpcReceipt.getContractAddress());
     return new ContractTxReceipt(
-        accountAddress.adapt(ContractAddress.class).get(),
+        new ContractAddress(accountAddress.getBytesValue()),
         rpcReceipt.getStatus(),
         rpcReceipt.getRet());
   };

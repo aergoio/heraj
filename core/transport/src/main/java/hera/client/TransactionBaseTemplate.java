@@ -64,6 +64,7 @@ public class TransactionBaseTemplate implements ChannelInjectable {
       (txHash) -> {
         ResultOrErrorFuture<Transaction> nextFuture =
             ResultOrErrorFutureFactory.supplyEmptyFuture();
+        logger.debug("Get transaction with txHash: {}", txHash);
 
         final ByteString byteString = copyFrom(txHash.getBytesValue());
         final Rpc.SingleBytes hashBytes =
@@ -90,6 +91,7 @@ public class TransactionBaseTemplate implements ChannelInjectable {
       (transaction) -> {
         ResultOrErrorFuture<TxHash> nextFuture =
             ResultOrErrorFutureFactory.supplyEmptyFuture();
+        logger.debug("Commit transaction with tx: {}", transaction);
 
         final Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
         final Blockchain.TxList txList = Blockchain.TxList.newBuilder().addTxs(tx).build();
@@ -112,6 +114,8 @@ public class TransactionBaseTemplate implements ChannelInjectable {
   private final Function3<AccountAddress, AccountAddress, Aer, ResultOrErrorFuture<
       TxHash>> sendFunction = (sender, recipient, amount) -> {
         ResultOrErrorFuture<TxHash> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
+        logger.debug("Send transaction request with sender: {}, recipient: {}, amount", sender,
+            recipient, amount);
 
         final Transaction transaction = new Transaction(
             sender, recipient, amount, 0L, Fee.getDefaultFee(), BytesValue.EMPTY, TxType.NORMAL,
