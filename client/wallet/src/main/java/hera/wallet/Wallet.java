@@ -72,10 +72,8 @@ public interface Wallet extends LookupClient, NonceManagable {
   /**
    * Update name info of to an new owner.
    *
-   * @param owner an name owner
    * @param name an already binded name
    * @param newOwner an new owner of name
-   * @param nonce an nonce which is used in a transaction
    * @return a update name transaction hash
    */
   TxHash updateName(String name, AccountAddress newOwner);

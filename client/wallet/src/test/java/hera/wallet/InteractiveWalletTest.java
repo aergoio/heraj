@@ -179,6 +179,8 @@ public class InteractiveWalletTest extends AbstractTestCase {
     when(mockOperation.createName(any(), any(), anyLong())).thenReturn(mock(TxHash.class));
     when(mockClient.getAccountOperation()).thenReturn(mockOperation);
     when(wallet.getAergoClient()).thenReturn(mockClient);
+    when(wallet.getNonceRefreshTryCountAndInterval())
+        .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
 
     wallet.account = new AccountFactory().create(accountAddress);
 
@@ -195,6 +197,8 @@ public class InteractiveWalletTest extends AbstractTestCase {
     when(mockOperation.updateName(any(), any(), any(), anyLong())).thenReturn(mock(TxHash.class));
     when(mockClient.getAccountOperation()).thenReturn(mockOperation);
     when(wallet.getAergoClient()).thenReturn(mockClient);
+    when(wallet.getNonceRefreshTryCountAndInterval())
+        .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
 
     wallet.account = new AccountFactory().create(accountAddress);
 
