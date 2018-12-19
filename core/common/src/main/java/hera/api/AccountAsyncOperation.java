@@ -35,7 +35,7 @@ public interface AccountAsyncOperation {
   ResultOrErrorFuture<AccountState> getState(AccountAddress address);
 
   /**
-   * Create name info of an account address asynchronously.
+   * Create name info of an account asynchronously.
    *
    * @param account an account
    * @param name an new name
@@ -45,15 +45,15 @@ public interface AccountAsyncOperation {
   ResultOrErrorFuture<TxHash> createName(Account account, String name, long nonce);
 
   /**
-   * Update name info of an account address asynchronously.
+   * Update name info of an account asynchronously.
    *
-   * @param ownerAccount an owner account
-   * @param name an new name
-   * @param newOwner an new owner of account
+   * @param owner an name owner
+   * @param name an already binded name
+   * @param newOwner an new owner of name
    * @param nonce an nonce which is used in a transaction
    * @return a update name transaction hash or error
    */
-  ResultOrErrorFuture<TxHash> updateName(Account ownerAccount, String name, AccountAddress newOwner,
+  ResultOrErrorFuture<TxHash> updateName(Account owner, String name, AccountAddress newOwner,
       long nonce);
 
   /**

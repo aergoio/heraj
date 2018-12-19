@@ -34,7 +34,7 @@ public interface AccountOperation {
   AccountState getState(AccountAddress address);
 
   /**
-   * Create name info of an account address.
+   * Create name info of an account.
    *
    * @param account an account
    * @param name an new name
@@ -44,15 +44,15 @@ public interface AccountOperation {
   TxHash createName(Account account, String name, long nonce);
 
   /**
-   * Update name info of an account address.
+   * Update name info of an account.
    *
-   * @param ownerAccount an owner account
-   * @param name an new name
-   * @param newOwner an new owner of account
+   * @param owner an name owner
+   * @param name an already binded name
+   * @param newOwner an new owner of name
    * @param nonce an nonce which is used in a transaction
    * @return a update name transaction hash
    */
-  TxHash updateName(Account ownerAccount, String name, AccountAddress newOwner, long nonce);
+  TxHash updateName(Account owner, String name, AccountAddress newOwner, long nonce);
 
   /**
    * Get owner of an account name.

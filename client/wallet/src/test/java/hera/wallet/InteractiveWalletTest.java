@@ -139,6 +139,70 @@ public class InteractiveWalletTest extends AbstractTestCase {
   }
 
   @Test
+  public void testSign() {
+    InteractiveWallet wallet =
+        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    final AergoClient mockClient = mock(AergoClient.class);
+    final AccountOperation mockOperation = mock(AccountOperation.class);
+    when(mockOperation.sign(any(), any())).thenReturn(mock(Transaction.class));
+    when(mockClient.getAccountOperation()).thenReturn(mockOperation);
+    when(wallet.getAergoClient()).thenReturn(mockClient);
+
+    wallet.account = new AccountFactory().create(accountAddress);
+
+    final Transaction signed = wallet.sign(mock(RawTransaction.class));
+    assertNotNull(signed);
+  }
+
+  @Test
+  public void testVerify() {
+    InteractiveWallet wallet =
+        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    final AergoClient mockClient = mock(AergoClient.class);
+    final AccountOperation mockOperation = mock(AccountOperation.class);
+    when(mockOperation.verify(any(), any())).thenReturn(true);
+    when(mockClient.getAccountOperation()).thenReturn(mockOperation);
+    when(wallet.getAergoClient()).thenReturn(mockClient);
+
+    wallet.account = new AccountFactory().create(accountAddress);
+
+    final boolean verifyResult = wallet.verify(mock(Transaction.class));
+    assertTrue(verifyResult);
+  }
+
+  @Test
+  public void testCreateName() {
+    InteractiveWallet wallet =
+        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    final AergoClient mockClient = mock(AergoClient.class);
+    final AccountOperation mockOperation = mock(AccountOperation.class);
+    when(mockOperation.createName(any(), any(), anyLong())).thenReturn(mock(TxHash.class));
+    when(mockClient.getAccountOperation()).thenReturn(mockOperation);
+    when(wallet.getAergoClient()).thenReturn(mockClient);
+
+    wallet.account = new AccountFactory().create(accountAddress);
+
+    final TxHash defineHash = wallet.createName(randomUUID().toString());
+    assertNotNull(defineHash);
+  }
+
+  @Test
+  public void testUpdateName() {
+    InteractiveWallet wallet =
+        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    final AergoClient mockClient = mock(AergoClient.class);
+    final AccountOperation mockOperation = mock(AccountOperation.class);
+    when(mockOperation.updateName(any(), any(), any(), anyLong())).thenReturn(mock(TxHash.class));
+    when(mockClient.getAccountOperation()).thenReturn(mockOperation);
+    when(wallet.getAergoClient()).thenReturn(mockClient);
+
+    wallet.account = new AccountFactory().create(accountAddress);
+
+    final TxHash updateHash = wallet.updateName(randomUUID().toString(), accountAddress);
+    assertNotNull(updateHash);
+  }
+
+  @Test
   public void testSend() {
     final InteractiveWallet wallet = mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
     wallet.account = new AccountFactory().create(accountAddress);
@@ -189,38 +253,6 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
     assertNotNull(wallet.execute(new ContractInvocation(contractAddress, new ContractFunction("")),
         Fee.getDefaultFee()));
-  }
-
-  @Test
-  public void testSign() {
-    InteractiveWallet wallet =
-        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
-    final AergoClient mockClient = mock(AergoClient.class);
-    final AccountOperation mockOperation = mock(AccountOperation.class);
-    when(mockOperation.sign(any(), any())).thenReturn(mock(Transaction.class));
-    when(mockClient.getAccountOperation()).thenReturn(mockOperation);
-    when(wallet.getAergoClient()).thenReturn(mockClient);
-
-    wallet.account = new AccountFactory().create(accountAddress);
-
-    final Transaction signed = wallet.sign(mock(RawTransaction.class));
-    assertNotNull(signed);
-  }
-
-  @Test
-  public void testVerify() {
-    InteractiveWallet wallet =
-        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
-    final AergoClient mockClient = mock(AergoClient.class);
-    final AccountOperation mockOperation = mock(AccountOperation.class);
-    when(mockOperation.verify(any(), any())).thenReturn(true);
-    when(mockClient.getAccountOperation()).thenReturn(mockOperation);
-    when(wallet.getAergoClient()).thenReturn(mockClient);
-
-    wallet.account = new AccountFactory().create(accountAddress);
-
-    final boolean verifyResult = wallet.verify(mock(Transaction.class));
-    assertTrue(verifyResult);
   }
 
   @Test

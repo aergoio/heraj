@@ -19,7 +19,7 @@ import hera.exception.InvalidAuthentiationException;
 import hera.key.AergoKey;
 
 public interface Wallet extends LookupClient, NonceManagable {
-  
+
   /**
    * Bind a keystore with wallet. This operation has a meaning only for {@link WalletType#Secure}.
    * For other wallet type, do nothing.
@@ -60,6 +60,25 @@ public interface Wallet extends LookupClient, NonceManagable {
    * @return unlock result
    */
   boolean lock(Authentication authentication);
+
+  /**
+   * Create name info of a current account.
+   *
+   * @param name an new name
+   * @return a create name transaction hash
+   */
+  TxHash createName(String name);
+
+  /**
+   * Update name info of to an new owner.
+   *
+   * @param owner an name owner
+   * @param name an already binded name
+   * @param newOwner an new owner of name
+   * @param nonce an nonce which is used in a transaction
+   * @return a update name transaction hash
+   */
+  TxHash updateName(String name, AccountAddress newOwner);
 
   /**
    * Sign for transaction.

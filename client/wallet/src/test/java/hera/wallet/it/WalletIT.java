@@ -227,7 +227,7 @@ public class WalletIT extends AbstractIT {
       ((Closeable) wallet).close();
     }
   }
-
+  
   @Test
   public void testSaveAndUnlockAfterReload() throws Exception {
     for (final Wallet wallet : supplyWorkingWalletList()) {

@@ -42,6 +42,14 @@ public interface LookupClient {
   AccountState getAccountState(AccountAddress accountAddress);
 
   /**
+   * Get owner of an account name.
+   *
+   * @param name an name of account
+   * @return an account address binded with name
+   */
+  AccountAddress getNameOwner(String name);
+
+  /**
    * Get account list on a key store.
    *
    * @return account list

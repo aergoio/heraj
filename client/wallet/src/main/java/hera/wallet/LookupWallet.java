@@ -54,6 +54,11 @@ public abstract class LookupWallet implements LookupClient, AutoCloseable, Close
   }
 
   @Override
+  public AccountAddress getNameOwner(final String name) {
+    return getAergoClient().getAccountOperation().getNameOwner(name);
+  }
+
+  @Override
   public List<AccountAddress> listServerKeyStoreAccounts() {
     return getAergoClient().getKeyStoreOperation().list();
   }

@@ -4,6 +4,7 @@
 
 package hera.wallet;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -68,6 +69,18 @@ public class LookupWalletTest extends AbstractTestCase {
     when(wallet.getAergoClient()).thenReturn(mockClient);
 
     assertNotNull(wallet.getAccountState(mock(Account.class)));
+  }
+
+  @Test
+  public void testGetNameOwner() {
+    final LookupWallet wallet = mock(LookupWallet.class, Mockito.CALLS_REAL_METHODS);
+    final AergoClient mockClient = mock(AergoClient.class);
+    final AccountOperation mockOperation = mock(AccountOperation.class);
+    when(mockOperation.getNameOwner(any())).thenReturn(mock(AccountAddress.class));
+    when(mockClient.getAccountOperation()).thenReturn(mockOperation);
+    when(wallet.getAergoClient()).thenReturn(mockClient);
+
+    assertNotNull(wallet.getNameOwner((randomUUID().toString())));
   }
 
   @Test

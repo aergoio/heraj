@@ -112,6 +112,18 @@ public abstract class InteractiveWallet extends LookupWallet
   }
 
   @Override
+  public TxHash createName(final String name) {
+    return sendRequestWithNonce(nonce -> getAergoClient().getAccountOperation()
+        .createName(getCurrentAccount(), name, nonce));
+  }
+
+  @Override
+  public TxHash updateName(final String name, final AccountAddress newOwner) {
+    return sendRequestWithNonce(nonce -> getAergoClient().getAccountOperation()
+        .updateName(getCurrentAccount(), name, newOwner, nonce));
+  }
+
+  @Override
   public Transaction sign(final RawTransaction rawTransaction) {
     return getAergoClient().getAccountOperation().sign(getCurrentAccount(), rawTransaction);
   }
@@ -172,24 +184,24 @@ public abstract class InteractiveWallet extends LookupWallet
 
   @Override
   public ContractTxHash deploy(final ContractDefinition contractDefinition, final Fee fee) {
-    return sendContractRequest(
+    return (ContractTxHash) sendRequestWithNonce(
         n -> getAergoClient().getContractOperation().deploy(getCurrentAccount(),
             contractDefinition, n, fee));
   }
 
   @Override
   public ContractTxHash execute(final ContractInvocation contractInvocation, final Fee fee) {
-    return sendContractRequest(
+    return (ContractTxHash) sendRequestWithNonce(
         n -> getAergoClient().getContractOperation().execute(getCurrentAccount(),
             contractInvocation, n, fee));
   }
 
-  protected ContractTxHash sendContractRequest(final Function1<Long, ContractTxHash> requester) {
-    ContractTxHash executeTxHash = null;
+  protected TxHash sendRequestWithNonce(final Function1<Long, TxHash> requester) {
+    TxHash txHash = null;
     int i = getNonceRefreshTryCountAndInterval().getCount();
-    while (0 <= i && null == executeTxHash) {
+    while (0 <= i && null == txHash) {
       try {
-        executeTxHash = requester.apply(getCurrentAccount().incrementAndGetNonce());
+        txHash = requester.apply(getCurrentAccount().incrementAndGetNonce());
       } catch (CommitException e) {
         if (isNonceRelatedException(e)) {
           syncNonceWithServer();
@@ -200,7 +212,7 @@ public abstract class InteractiveWallet extends LookupWallet
       getNonceRefreshTryCountAndInterval().trySleep();
       --i;
     }
-    return executeTxHash;
+    return txHash;
   }
 
   protected boolean isNonceRelatedException(final CommitException e) {
