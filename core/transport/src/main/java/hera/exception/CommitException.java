@@ -29,12 +29,16 @@ public class CommitException extends RpcException {
   @Getter
   protected final CommitStatus commitStatus;
 
+  @Getter
+  protected final String message;
+
   /**
    * Make a {@code CommitException} with rpc {@link types.Rpc.CommitStatus}.
    *
    * @param rpcCommitStatus rpc commit status
+   * @param message a message
    */
-  public CommitException(types.Rpc.CommitStatus rpcCommitStatus) {
+  public CommitException(final types.Rpc.CommitStatus rpcCommitStatus, final String message) {
     switch (rpcCommitStatus) {
       case TX_OK:
         this.commitStatus = CommitStatus.OK;
@@ -67,11 +71,12 @@ public class CommitException extends RpcException {
         this.commitStatus = CommitStatus.UNRECOGNIZED;
         break;
     }
+    this.message = message;
   }
 
   @Override
   public String getLocalizedMessage() {
-    return commitStatus.toString();
+    return commitStatus.toString() + " " + message;
   }
 
 }

@@ -101,7 +101,7 @@ public class TransactionBaseTemplate implements ChannelInjectable {
           if (Rpc.CommitStatus.TX_OK == commitResult.getError()) {
             return new TxHash(of(commitResult.getHash().toByteArray()));
           } else {
-            throw new CommitException(commitResult.getError());
+            throw new CommitException(commitResult.getError(), commitResult.getDetail());
           }
         }));
         addCallback(listenableFuture, callback, directExecutor());
@@ -114,7 +114,7 @@ public class TransactionBaseTemplate implements ChannelInjectable {
         ResultOrErrorFuture<TxHash> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
 
         final Transaction transaction = new Transaction(
-            sender, recipient, amount, 0, Fee.getDefaultFee(), BytesValue.EMPTY, TxType.NORMAL,
+            sender, recipient, amount, 0L, Fee.getDefaultFee(), BytesValue.EMPTY, TxType.NORMAL,
             null, null, null, 0, false);
 
         final Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
@@ -124,7 +124,7 @@ public class TransactionBaseTemplate implements ChannelInjectable {
           if (Rpc.CommitStatus.TX_OK == c.getError()) {
             return new TxHash(of(c.getHash().toByteArray()));
           } else {
-            throw new CommitException(c.getError());
+            throw new CommitException(c.getError(), c.getDetail());
           }
         }));
         addCallback(listenableFuture, callback, directExecutor());

@@ -20,14 +20,13 @@ public class CommitExceptionTest extends AbstractTestCase {
   public void testCreate() {
     List<CommitException> commitExceptions = new ArrayList<>();
     for (final Rpc.CommitStatus rpcCommitStatus : Rpc.CommitStatus.values()) {
-      commitExceptions.add(new CommitException(rpcCommitStatus));
+      commitExceptions.add(new CommitException(rpcCommitStatus, ""));
     }
     Iterator<CommitException> it = commitExceptions.iterator();
     for (final CommitException.CommitStatus expected : CommitException.CommitStatus
         .values()) {
       final CommitException next = it.next();
       assertEquals(expected, next.commitStatus);
-      assertEquals(expected.toString(), next.getLocalizedMessage());
     }
     assertTrue(!it.hasNext());
   }
