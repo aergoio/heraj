@@ -5,7 +5,6 @@
 package hera.wallet;
 
 import static org.slf4j.LoggerFactory.getLogger;
-
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
@@ -170,14 +169,14 @@ public abstract class InteractiveWallet extends LookupWallet
       } catch (CommitException e) {
         if (isNonceRelatedException(e)) {
           syncNonceWithServer();
+          getNonceRefreshTryCountAndInterval().trySleep();
           commitTarget = sign(
               RawTransaction.copyOf(signedTransaction, getCurrentAccount().incrementAndGetNonce()));
+          --i;
         } else {
           throw e;
         }
       }
-      getNonceRefreshTryCountAndInterval().trySleep();
-      --i;
     }
     return txHash;
   }
@@ -205,12 +204,12 @@ public abstract class InteractiveWallet extends LookupWallet
       } catch (CommitException e) {
         if (isNonceRelatedException(e)) {
           syncNonceWithServer();
+          getNonceRefreshTryCountAndInterval().trySleep();
+          --i;
         } else {
           throw e;
         }
       }
-      getNonceRefreshTryCountAndInterval().trySleep();
-      --i;
     }
     return txHash;
   }

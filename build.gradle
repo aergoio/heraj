@@ -44,7 +44,8 @@ def javaProjects = [
 
 def jmhProjects = [
   project('core:common'),
-  project('core:transport')
+  project('core:transport'),
+  project('client:wallet'),
 ]
 
 def exampleProjects = [
