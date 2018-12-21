@@ -28,7 +28,7 @@ public class ServerKeyStore implements KeyStore {
   @Override
   public void save(final AergoKey key, final String password) {
     try {
-      aergoClient.getKeyStoreOperation().importKey(key.export(password), password);
+      aergoClient.getKeyStoreOperation().importKey(key.export(password), password, password);
     } catch (final Exception e) {
       throw new WalletException(e);
     }

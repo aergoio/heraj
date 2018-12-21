@@ -130,7 +130,7 @@ public class KeyStoreEitherTemplateTest extends AbstractTestCase {
     final KeyStoreEitherTemplate keyStoreEitherTemplate = supplyKeyStoreEitherTemplate(base);
 
     final ResultOrError<Account> account =
-        keyStoreEitherTemplate.importKey(ENCRYPTED_PRIVATE_KEY, PASSWORD);
+        keyStoreEitherTemplate.importKey(ENCRYPTED_PRIVATE_KEY, PASSWORD, PASSWORD);
     assertTrue(account.hasResult());
     assertEquals(KEYSTORE_IMPORTKEY_EITHER,
         ((WithIdentity) keyStoreEitherTemplate.getImportKeyFunction()).getIdentity());

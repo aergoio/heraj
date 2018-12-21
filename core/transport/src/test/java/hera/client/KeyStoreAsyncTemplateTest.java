@@ -129,7 +129,7 @@ public class KeyStoreAsyncTemplateTest extends AbstractTestCase {
     final KeyStoreAsyncTemplate keyStoreAsyncTemplate = supplyKeyStoreAsyncTemplate(base);
 
     final ResultOrErrorFuture<Account> accountFuture =
-        keyStoreAsyncTemplate.importKey(ENCRYPTED_PRIVATE_KEY, PASSWORD);
+        keyStoreAsyncTemplate.importKey(ENCRYPTED_PRIVATE_KEY, PASSWORD, PASSWORD);
     assertTrue(accountFuture.get().hasResult());
     assertEquals(KEYSTORE_IMPORTKEY_ASYNC,
         ((WithIdentity) keyStoreAsyncTemplate.getImportKeyFunction()).getIdentity());

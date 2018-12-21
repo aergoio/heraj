@@ -50,20 +50,6 @@ public interface KeyStoreAsyncOperation {
   ResultOrErrorFuture<Boolean> unlock(Authentication authentication);
 
   /**
-   * Import an encrypted private key asynchronously. An {@code password} is used to decrypt private
-   * key passed by and store private key encrypted in a server.
-   *
-   * @param encryptedKey an encrypted private key
-   * @param password password to decrypt encrypted private key and store encrypted in a remote
-   *        storage
-   * @return future of account result or error
-   */
-  default ResultOrErrorFuture<Account> importKey(EncryptedPrivateKey encryptedKey,
-      String password) {
-    return importKey(encryptedKey, password, password);
-  }
-
-  /**
    * Import an encrypted private key asynchronously. An {@code oldPassword} is used to decrypt
    * private key passed by and an {@code newPassword} is used to store private key encrypted in a
    * server.

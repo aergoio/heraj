@@ -127,7 +127,7 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
     final KeyStoreTemplate keyStoreTemplate = supplyKeyStoreTemplate(base);
 
     final Account account =
-        keyStoreTemplate.importKey(ENCRYPTED_PRIVATE_KEY, PASSWORD);
+        keyStoreTemplate.importKey(ENCRYPTED_PRIVATE_KEY, PASSWORD, PASSWORD);
     assertNotNull(account);
     assertEquals(KEYSTORE_IMPORTKEY,
         ((WithIdentity) keyStoreTemplate.getImportKeyFunction()).getIdentity());
