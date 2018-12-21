@@ -32,16 +32,15 @@ import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
 public class ContractTemplate
     implements ContractOperation, ChannelInjectable, ContextProviderInjectable {
 
+  @Getter
   protected ContractBaseTemplate contractBaseTemplate = new ContractBaseTemplate();
 
-  @Setter
   protected ContextProvider contextProvider;
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
@@ -49,7 +48,13 @@ public class ContractTemplate
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-    contractBaseTemplate.setChannel(channel);
+    getContractBaseTemplate().setChannel(channel);
+  }
+
+  @Override
+  public void setContextProvider(final ContextProvider contextProvider) {
+    this.contextProvider = contextProvider;
+    getContractBaseTemplate().setContextProvider(contextProvider);
   }
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)

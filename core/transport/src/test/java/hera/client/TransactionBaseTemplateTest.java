@@ -47,6 +47,7 @@ public class TransactionBaseTemplateTest extends AbstractTestCase {
       final AergoRPCServiceFutureStub aergoService) {
     final TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();
     transactionBaseTemplate.aergoService = aergoService;
+    transactionBaseTemplate.contextProvider = () -> context;
     return transactionBaseTemplate;
   }
 

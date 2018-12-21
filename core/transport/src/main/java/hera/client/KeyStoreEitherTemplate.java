@@ -31,7 +31,6 @@ import io.grpc.ManagedChannel;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
@@ -41,7 +40,6 @@ public class KeyStoreEitherTemplate
   @Getter
   protected KeyStoreBaseTemplate keyStoreBaseTemplate = new KeyStoreBaseTemplate();
 
-  @Setter
   protected ContextProvider contextProvider;
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
@@ -50,6 +48,12 @@ public class KeyStoreEitherTemplate
   @Override
   public void setChannel(final ManagedChannel channel) {
     getKeyStoreBaseTemplate().setChannel(channel);;
+  }
+
+  @Override
+  public void setContextProvider(final ContextProvider contextProvider) {
+    this.contextProvider = contextProvider;
+    getKeyStoreBaseTemplate().setContextProvider(contextProvider);
   }
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)

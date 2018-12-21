@@ -14,6 +14,8 @@ import static types.AergoRPCServiceGrpc.newFutureStub;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
+import hera.ContextProvider;
+import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
@@ -41,7 +43,7 @@ import types.Rpc;
 @ApiAudience.Private
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
-public class TransactionBaseTemplate implements ChannelInjectable {
+public class TransactionBaseTemplate implements ChannelInjectable, ContextProviderInjectable {
 
   protected final Logger logger = getLogger(getClass());
 
@@ -54,9 +56,16 @@ public class TransactionBaseTemplate implements ChannelInjectable {
   @Getter
   protected AergoRPCServiceFutureStub aergoService;
 
+  protected ContextProvider contextProvider;
+
   @Override
   public void setChannel(final ManagedChannel channel) {
     this.aergoService = newFutureStub(channel);
+  }
+
+  @Override
+  public void setContextProvider(final ContextProvider contextProvider) {
+    this.contextProvider = contextProvider;
   }
 
   @Getter
@@ -64,14 +73,15 @@ public class TransactionBaseTemplate implements ChannelInjectable {
       (txHash) -> {
         ResultOrErrorFuture<Transaction> nextFuture =
             ResultOrErrorFutureFactory.supplyEmptyFuture();
-        logger.debug("Get transaction with txHash: {}", txHash);
+        logger.debug("Get transaction with txHash: {}, Context: {}", txHash, contextProvider.get());
 
         final ByteString byteString = copyFrom(txHash.getBytesValue());
         final Rpc.SingleBytes hashBytes =
             Rpc.SingleBytes.newBuilder().setValue(byteString).build();
         ListenableFuture<Blockchain.TxInBlock> listenableFuture =
             aergoService.getBlockTX(hashBytes);
-        FutureChain<Blockchain.TxInBlock, Transaction> callback = new FutureChain<>(nextFuture);
+        FutureChain<Blockchain.TxInBlock, Transaction> callback =
+            new FutureChain<>(nextFuture, contextProvider.get());
         callback
             .setSuccessHandler(
                 t -> of(() -> transactionInBlockConverter.convertToDomainModel(t)));
@@ -91,12 +101,14 @@ public class TransactionBaseTemplate implements ChannelInjectable {
       (transaction) -> {
         ResultOrErrorFuture<TxHash> nextFuture =
             ResultOrErrorFutureFactory.supplyEmptyFuture();
-        logger.debug("Commit transaction with tx: {}", transaction);
+        logger.debug("Commit transaction with tx: {}, Context: {}", transaction,
+            contextProvider.get());
 
         final Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
         final Blockchain.TxList txList = Blockchain.TxList.newBuilder().addTxs(tx).build();
         ListenableFuture<Rpc.CommitResultList> listenableFuture = aergoService.commitTX(txList);
-        FutureChain<Rpc.CommitResultList, TxHash> callback = new FutureChain<>(nextFuture);
+        FutureChain<Rpc.CommitResultList, TxHash> callback =
+            new FutureChain<>(nextFuture, contextProvider.get());
         callback.setSuccessHandler(commitResultList -> of(() -> {
           final Rpc.CommitResult commitResult = commitResultList.getResultsList().get(0);
           logger.debug("Commit result: {}", commitResult.getError());
@@ -114,8 +126,8 @@ public class TransactionBaseTemplate implements ChannelInjectable {
   private final Function3<AccountAddress, AccountAddress, Aer, ResultOrErrorFuture<
       TxHash>> sendFunction = (sender, recipient, amount) -> {
         ResultOrErrorFuture<TxHash> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
-        logger.debug("Send transaction request with sender: {}, recipient: {}, amount", sender,
-            recipient, amount);
+        logger.debug("Send transaction request with sender: {}, recipient: {}, amount, Context: {}",
+            sender, recipient, amount, contextProvider.get());
 
         final Transaction transaction = new Transaction(
             sender, recipient, amount, 0L, Fee.getDefaultFee(), BytesValue.EMPTY, TxType.NORMAL,
@@ -123,7 +135,8 @@ public class TransactionBaseTemplate implements ChannelInjectable {
 
         final Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
         ListenableFuture<Rpc.CommitResult> listenableFuture = aergoService.sendTX(tx);
-        FutureChain<Rpc.CommitResult, TxHash> callback = new FutureChain<>(nextFuture);
+        FutureChain<Rpc.CommitResult, TxHash> callback =
+            new FutureChain<>(nextFuture, contextProvider.get());
         callback.setSuccessHandler(c -> of(() -> {
           if (Rpc.CommitStatus.TX_OK == c.getError()) {
             return new TxHash(of(c.getHash().toByteArray()));

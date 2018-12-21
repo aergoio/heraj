@@ -26,16 +26,15 @@ import io.grpc.ManagedChannel;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
 public class BlockTemplate
     implements BlockOperation, ChannelInjectable, ContextProviderInjectable {
 
+  @Getter
   protected BlockBaseTemplate blockBaseTemplate = new BlockBaseTemplate();
 
-  @Setter
   protected ContextProvider contextProvider;
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
@@ -43,30 +42,38 @@ public class BlockTemplate
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-    blockBaseTemplate.setChannel(channel);
+    getBlockBaseTemplate().setChannel(channel);
+  }
+
+  @Override
+  public void setContextProvider(ContextProvider contextProvider) {
+    this.contextProvider = contextProvider;
+    getBlockBaseTemplate().setContextProvider(contextProvider);
   }
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<BlockHash, ResultOrErrorFuture<Block>> blockByHashFunction =
       getStrategyChain()
-          .apply(identify(blockBaseTemplate.getBlockByHashFunction(), BLOCK_GETBLOCK_BY_HASH));
+          .apply(identify(getBlockBaseTemplate().getBlockByHashFunction(), BLOCK_GETBLOCK_BY_HASH));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<Long, ResultOrErrorFuture<Block>> blockByHeightFunction =
       getStrategyChain().apply(
-          identify(blockBaseTemplate.getBlockByHeightFunction(), BLOCK_GETBLOCK_BY_HEIGHT));
+          identify(getBlockBaseTemplate().getBlockByHeightFunction(), BLOCK_GETBLOCK_BY_HEIGHT));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function2<BlockHash, Integer,
       ResultOrErrorFuture<List<BlockHeader>>> listBlockHeadersByHashFunction =
-          getStrategyChain().apply(identify(blockBaseTemplate.getListBlockHeadersByHashFunction(),
-              BLOCK_LIST_HEADERS_BY_HASH));
+          getStrategyChain()
+              .apply(identify(getBlockBaseTemplate().getListBlockHeadersByHashFunction(),
+                  BLOCK_LIST_HEADERS_BY_HASH));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function2<Long, Integer,
       ResultOrErrorFuture<List<BlockHeader>>> listBlockHeadersByHeightFunction =
-          getStrategyChain().apply(identify(blockBaseTemplate.getListBlockHeadersByHeightFunction(),
-              BLOCK_LIST_HEADERS_BY_HEIGHT));
+          getStrategyChain()
+              .apply(identify(getBlockBaseTemplate().getListBlockHeadersByHeightFunction(),
+                  BLOCK_LIST_HEADERS_BY_HEIGHT));
 
   @Override
   public Block getBlock(final BlockHash blockHash) {

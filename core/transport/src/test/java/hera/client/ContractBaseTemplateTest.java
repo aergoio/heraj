@@ -61,6 +61,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
       final AergoRPCServiceFutureStub aergoService) {
     final ContractBaseTemplate contractBaseTemplate = new ContractBaseTemplate();
     contractBaseTemplate.aergoService = aergoService;
+    contractBaseTemplate.contextProvider = () -> context;
     return contractBaseTemplate;
   }
 

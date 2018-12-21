@@ -14,6 +14,8 @@ import static types.AergoRPCServiceGrpc.newFutureStub;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
+import hera.ContextProvider;
+import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.BlockchainStatus;
@@ -39,7 +41,7 @@ import types.Rpc;
 @ApiAudience.Private
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
-public class BlockchainBaseTemplate implements ChannelInjectable {
+public class BlockchainBaseTemplate implements ChannelInjectable, ContextProviderInjectable {
 
   protected final Logger logger = getLogger(getClass());
 
@@ -58,21 +60,29 @@ public class BlockchainBaseTemplate implements ChannelInjectable {
   @Getter
   protected AergoRPCServiceFutureStub aergoService;
 
+  protected ContextProvider contextProvider;
+
   @Override
   public void setChannel(final ManagedChannel channel) {
     this.aergoService = newFutureStub(channel);
+  }
+
+  @Override
+  public void setContextProvider(final ContextProvider contextProvider) {
+    this.contextProvider = contextProvider;
   }
 
   @Getter
   private final Function0<ResultOrErrorFuture<BlockchainStatus>> blockchainStatusFunction = () -> {
     ResultOrErrorFuture<BlockchainStatus> nextFuture =
         ResultOrErrorFutureFactory.supplyEmptyFuture();
+    logger.debug("Get blockchain status, Context: {}", contextProvider.get());
 
     final Rpc.Empty empty = Rpc.Empty.newBuilder().build();
     ListenableFuture<Rpc.BlockchainStatus> listenableFuture =
         aergoService.blockchain(empty);
     FutureChain<Rpc.BlockchainStatus, BlockchainStatus> callback =
-        new FutureChain<>(nextFuture);
+        new FutureChain<>(nextFuture, contextProvider.get());
     callback.setSuccessHandler(s -> of(() -> blockchainConverter.convertToDomainModel(s)));
     addCallback(listenableFuture, callback, directExecutor());
 
@@ -82,10 +92,12 @@ public class BlockchainBaseTemplate implements ChannelInjectable {
   @Getter
   private final Function0<ResultOrErrorFuture<List<Peer>>> listPeersFunction = () -> {
     ResultOrErrorFuture<List<Peer>> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
+    logger.debug("List peers, Context: {}", contextProvider.get());
 
     final Rpc.Empty empty = Rpc.Empty.newBuilder().build();
     ListenableFuture<Rpc.PeerList> listenableFuture = aergoService.getPeers(empty);
-    FutureChain<Rpc.PeerList, List<Peer>> callback = new FutureChain<>(nextFuture);
+    FutureChain<Rpc.PeerList, List<Peer>> callback =
+        new FutureChain<>(nextFuture, contextProvider.get());
     callback.setSuccessHandler(peerlist -> of(() -> peerlist.getPeersList().stream()
         .map(peerConverter::convertToDomainModel).collect(toList())));
     addCallback(listenableFuture, callback, directExecutor());
@@ -97,10 +109,12 @@ public class BlockchainBaseTemplate implements ChannelInjectable {
   private final Function0<ResultOrErrorFuture<List<PeerMetric>>> listPeersMetricsFunction = () -> {
     ResultOrErrorFuture<List<PeerMetric>> nextFuture =
         ResultOrErrorFutureFactory.supplyEmptyFuture();
+    logger.debug("List peer metrics, Context: {}", contextProvider.get());
 
     ListenableFuture<Metric.Metrics> listenableFuture = aergoService.metric(
         Metric.MetricsRequest.newBuilder().addTypes(Metric.MetricType.P2P_NETWORK).build());
-    FutureChain<Metric.Metrics, List<PeerMetric>> callback = new FutureChain<>(nextFuture);
+    FutureChain<Metric.Metrics, List<PeerMetric>> callback =
+        new FutureChain<>(nextFuture, contextProvider.get());
     callback.setSuccessHandler(peerlist -> of(() -> peerlist.getPeersList().stream()
         .map(peerMetricConverter::convertToDomainModel).collect(toList())));
     addCallback(listenableFuture, callback, directExecutor());
@@ -111,13 +125,15 @@ public class BlockchainBaseTemplate implements ChannelInjectable {
   @Getter
   private final Function0<ResultOrErrorFuture<NodeStatus>> nodeStatusFunction = () -> {
     ResultOrErrorFuture<NodeStatus> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
+    logger.debug("Get node status, Context: {}", contextProvider.get());
 
     ByteString rawTimeout = ByteString.copyFrom(longToByteArray(3000L));
     Rpc.NodeReq nodeRequest = Rpc.NodeReq.newBuilder()
         .setTimeout(rawTimeout)
         .build();
     ListenableFuture<Rpc.SingleBytes> listenableFuture = aergoService.nodeState(nodeRequest);
-    FutureChain<Rpc.SingleBytes, NodeStatus> callback = new FutureChain<>(nextFuture);
+    FutureChain<Rpc.SingleBytes, NodeStatus> callback =
+        new FutureChain<>(nextFuture, contextProvider.get());
     callback
         .setSuccessHandler(
             status -> of(() -> nodeStatusConverter.convertToDomainModel(status)));

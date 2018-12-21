@@ -37,11 +37,12 @@ public class FutureChain<T, R> implements FutureCallback<T> {
   // store Exception since getting stack trace element object is too expensive
   protected Exception stackTraceHolder = new Exception();
 
-  // hold main thread context
-  protected Context sourceContext = ContextHolder.get();
-
   @NonNull
   protected final ResultOrErrorFuture<R> nextFuture;
+
+  // hold main thread context
+  @NonNull
+  protected final Context sourceContext;
 
   @Setter
   protected Function<T, ResultOrError<R>> successHandler;
@@ -73,7 +74,7 @@ public class FutureChain<T, R> implements FutureCallback<T> {
   }
 
   protected void connectAsyncContextWithSourceContext() {
-    ContextHolder.set(sourceContext);
+    ContextHolder.set(this, sourceContext);
   }
 
   protected RpcException wrapWithRpcException(final Throwable e) {

@@ -37,6 +37,7 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
       final AergoRPCServiceFutureStub aergoService) {
     final BlockBaseTemplate blockBaseTemplate = new BlockBaseTemplate();
     blockBaseTemplate.aergoService = aergoService;
+    blockBaseTemplate.contextProvider = () -> context;
     return blockBaseTemplate;
   }
 

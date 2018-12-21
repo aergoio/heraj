@@ -25,7 +25,6 @@ import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
@@ -35,7 +34,6 @@ public class TransactionAsyncTemplate
   @Getter
   protected TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();
 
-  @Setter
   protected ContextProvider contextProvider;
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
@@ -43,24 +41,30 @@ public class TransactionAsyncTemplate
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-    transactionBaseTemplate.setChannel(channel);
+    getTransactionBaseTemplate().setChannel(channel);
+  }
+
+  @Override
+  public void setContextProvider(final ContextProvider contextProvider) {
+    this.contextProvider = contextProvider;
+    getTransactionBaseTemplate().setContextProvider(contextProvider);
   }
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<TxHash, ResultOrErrorFuture<Transaction>> transactionFunction =
-      getStrategyChain().apply(identify(transactionBaseTemplate.getTransactionFunction(),
+      getStrategyChain().apply(identify(getTransactionBaseTemplate().getTransactionFunction(),
           TRANSACTION_GETTX_ASYNC));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<Transaction, ResultOrErrorFuture<TxHash>> commitFunction =
       getStrategyChain()
-          .apply(identify(transactionBaseTemplate.getCommitFunction(), TRANSACTION_COMMIT_ASYNC));
+          .apply(
+              identify(getTransactionBaseTemplate().getCommitFunction(), TRANSACTION_COMMIT_ASYNC));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function3<AccountAddress, AccountAddress, Aer,
-      ResultOrErrorFuture<TxHash>> sendFunction =
-          getStrategyChain()
-              .apply(identify(transactionBaseTemplate.getSendFunction(), TRANSACTION_SEND_ASYNC));
+      ResultOrErrorFuture<TxHash>> sendFunction = getStrategyChain()
+          .apply(identify(getTransactionBaseTemplate().getSendFunction(), TRANSACTION_SEND_ASYNC));
 
   @Override
   public ResultOrErrorFuture<Transaction> getTransaction(final TxHash txHash) {

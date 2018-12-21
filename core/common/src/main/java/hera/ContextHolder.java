@@ -4,17 +4,28 @@
 
 package hera;
 
+import static java.lang.System.identityHashCode;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class ContextHolder {
 
-  protected static final ThreadLocal<Context> threadLocal =
-      ThreadLocal.withInitial(() -> EmptyContext.getInstance());
+  protected static final ThreadLocal<Map<Integer, Context>> threadLocal =
+      new ThreadLocal<Map<Integer, Context>>() {
+        @Override
+        public Map<Integer, Context> initialValue() {
+          return new HashMap<>();
+        }
+      };
 
-  public static void set(final Context context) {
-    threadLocal.set(context);
+  public static void set(final Object keyObject, final Context context) {
+    threadLocal.get().put(identityHashCode(keyObject), context);
   }
 
-  public static Context get() {
-    return threadLocal.get();
+  public static Context get(final Object keyObject) {
+    return threadLocal.get().getOrDefault(identityHashCode(keyObject),
+        EmptyContext.getInstance());
   }
 
 }

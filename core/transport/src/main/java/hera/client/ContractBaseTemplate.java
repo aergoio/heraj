@@ -17,6 +17,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
+import hera.ContextProvider;
+import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Account;
@@ -62,7 +64,7 @@ import types.Rpc;
 @ApiAudience.Private
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
-public class ContractBaseTemplate implements ChannelInjectable {
+public class ContractBaseTemplate implements ChannelInjectable, ContextProviderInjectable {
 
   protected final Logger logger = getLogger(getClass());
 
@@ -83,6 +85,8 @@ public class ContractBaseTemplate implements ChannelInjectable {
   @Getter
   protected AergoRPCServiceFutureStub aergoService;
 
+  protected ContextProvider contextProvider;
+
   protected AccountBaseTemplate accountBaseTemplate = new AccountBaseTemplate();
 
   protected TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();
@@ -94,12 +98,21 @@ public class ContractBaseTemplate implements ChannelInjectable {
     transactionBaseTemplate.setChannel(channel);
   }
 
+  @Override
+  public void setContextProvider(final ContextProvider contextProvider) {
+    this.contextProvider = contextProvider;
+    accountBaseTemplate.setContextProvider(contextProvider);
+    transactionBaseTemplate.setContextProvider(contextProvider);
+  }
+
   @Getter
   private final Function1<ContractTxHash,
       ResultOrErrorFuture<ContractTxReceipt>> receiptFunction =
           (deployTxHash) -> {
             ResultOrErrorFuture<ContractTxReceipt> nextFuture =
                 ResultOrErrorFutureFactory.supplyEmptyFuture();
+            logger.debug("Get receipt, txHash: {}, Context: {}", deployTxHash,
+                contextProvider.get());
 
             final ByteString byteString = copyFrom(deployTxHash.getBytesValue());
             final Rpc.SingleBytes hashBytes =
@@ -107,7 +120,7 @@ public class ContractBaseTemplate implements ChannelInjectable {
             final ListenableFuture<Blockchain.Receipt> listenableFuture =
                 aergoService.getReceipt(hashBytes);
             FutureChain<Blockchain.Receipt, ContractTxReceipt> callback =
-                new FutureChain<>(nextFuture);
+                new FutureChain<>(nextFuture, contextProvider.get());
             callback
                 .setSuccessHandler(
                     receipt -> of(() -> receiptConverter.convertToDomainModel(receipt)));
@@ -120,6 +133,9 @@ public class ContractBaseTemplate implements ChannelInjectable {
   private final Function4<Account, ContractDefinition, Long, Fee,
       ResultOrErrorFuture<ContractTxHash>> deployFunction =
           (creator, contractDefinition, nonce, fee) -> {
+            logger.debug(
+                "Deploy contract, creator: {}, definition: {}, nonce: {}, fee: {}, Context: {}",
+                creator.getAddress(), contractDefinition, nonce, fee, contextProvider.get());
             try {
               final RawTransaction rawTransaction = RawTransaction.newBuilder()
                   .sender(creator)
@@ -143,6 +159,8 @@ public class ContractBaseTemplate implements ChannelInjectable {
       ResultOrErrorFuture<ContractInterface>> contractInterfaceFunction = (contractAddress) -> {
         ResultOrErrorFuture<ContractInterface> nextFuture =
             ResultOrErrorFutureFactory.supplyEmptyFuture();
+        logger.debug("Get contract interface, contract address: {}, Context: {}", contractAddress,
+            contextProvider.get());
 
         final ByteString byteString =
             accountAddressConverter.convertToRpcModel(contractAddress);
@@ -150,7 +168,8 @@ public class ContractBaseTemplate implements ChannelInjectable {
             Rpc.SingleBytes.newBuilder().setValue(byteString).build();
         final ListenableFuture<Blockchain.ABI> listenableFuture =
             aergoService.getABI(hashBytes);
-        FutureChain<Blockchain.ABI, ContractInterface> callback = new FutureChain<>(nextFuture);
+        FutureChain<Blockchain.ABI, ContractInterface> callback =
+            new FutureChain<>(nextFuture, contextProvider.get());
         callback.setSuccessHandler(abi -> of(() -> {
           final ContractInterface withoutAddress =
               contractInterfaceConverter.convertToDomainModel(abi);
@@ -166,6 +185,10 @@ public class ContractBaseTemplate implements ChannelInjectable {
   private final Function4<Account, ContractInvocation, Long, Fee,
       ResultOrErrorFuture<ContractTxHash>> executeFunction =
           (executor, contractInvocation, nonce, fee) -> {
+            logger.debug(
+                "Execute contract, executor: {}, invocation: {}, nonce: {}, fee: {}, Context: {}",
+                executor.getAddress(), contractInvocation, nonce, fee, contextProvider.get());
+
             try {
               final String functionCallString = toFunctionCallJsonString(contractInvocation);
               logger.debug("Contract execution address: {}, function: {}",
@@ -193,6 +216,8 @@ public class ContractBaseTemplate implements ChannelInjectable {
         try {
           final ResultOrErrorFuture<ContractResult> nextFuture =
               ResultOrErrorFutureFactory.supplyEmptyFuture();
+          logger.debug("Query contract invocation: {}, Context: {}", contractInvocation,
+              contextProvider.get());
 
           final String functionCallString = toFunctionCallJsonString(contractInvocation);
           logger.debug("Contract query address: {}, function: {}", contractInvocation.getAddress(),
@@ -203,7 +228,8 @@ public class ContractBaseTemplate implements ChannelInjectable {
               .setQueryinfo(ByteString.copyFrom(functionCallString.getBytes())).build();
           final ListenableFuture<Rpc.SingleBytes> listenableFuture =
               aergoService.queryContract(query);
-          FutureChain<Rpc.SingleBytes, ContractResult> callback = new FutureChain<>(nextFuture);
+          FutureChain<Rpc.SingleBytes, ContractResult> callback =
+              new FutureChain<>(nextFuture, contextProvider.get());
           callback.setSuccessHandler(
               result -> of(() -> contractResultConverter.convertToDomainModel(result)));
           addCallback(listenableFuture, callback, directExecutor());

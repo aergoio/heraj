@@ -51,6 +51,7 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
       final AergoRPCServiceFutureStub aergoService) {
     final AccountBaseTemplate accountTemplateBase = new AccountBaseTemplate();
     accountTemplateBase.aergoService = aergoService;
+    accountTemplateBase.contextProvider = () -> context;
     return accountTemplateBase;
   }
 

@@ -32,7 +32,6 @@ import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
@@ -42,14 +41,20 @@ public class AccountAsyncTemplate
   @Getter
   protected AccountBaseTemplate accountBaseTemplate = new AccountBaseTemplate();
 
-  @Setter
   protected ContextProvider contextProvider;
+
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
 
   @Override
   public void setChannel(final ManagedChannel channel) {
     getAccountBaseTemplate().setChannel(channel);
+  }
+
+  @Override
+  public void setContextProvider(final ContextProvider contextProvider) {
+    this.contextProvider = contextProvider;
+    getAccountBaseTemplate().setContextProvider(contextProvider);
   }
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)

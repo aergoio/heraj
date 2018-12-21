@@ -7,7 +7,6 @@ package hera.client;
 import static org.junit.Assert.assertNotNull;
 
 import hera.AbstractTestCase;
-import hera.ContextHolder;
 import org.junit.Test;
 
 public class AergoEitherClientTest extends AbstractTestCase {
@@ -15,7 +14,6 @@ public class AergoEitherClientTest extends AbstractTestCase {
   @Override
   public void setUp() {
     super.setUp();
-    ContextHolder.set(context);
   }
 
   @Test

@@ -33,16 +33,15 @@ import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
 public class ContractEitherTemplate
     implements ContractEitherOperation, ChannelInjectable, ContextProviderInjectable {
 
+  @Getter
   protected ContractBaseTemplate contractBaseTemplate = new ContractBaseTemplate();
 
-  @Setter
   protected ContextProvider contextProvider;
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
@@ -50,34 +49,41 @@ public class ContractEitherTemplate
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-    contractBaseTemplate.setChannel(channel);
+    getContractBaseTemplate().setChannel(channel);
+  }
+
+  @Override
+  public void setContextProvider(final ContextProvider contextProvider) {
+    this.contextProvider = contextProvider;
+    getContractBaseTemplate().setContextProvider(contextProvider);
   }
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<ContractTxHash,
       ResultOrErrorFuture<ContractTxReceipt>> receiptFunction = getStrategyChain().apply(
-          identify(contractBaseTemplate.getReceiptFunction(), CONTRACT_GETRECEIPT_EITHER));
+          identify(getContractBaseTemplate().getReceiptFunction(), CONTRACT_GETRECEIPT_EITHER));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function4<Account, ContractDefinition, Long, Fee,
       ResultOrErrorFuture<ContractTxHash>> deployFunction = getStrategyChain()
-          .apply(identify(contractBaseTemplate.getDeployFunction(), CONTRACT_DEPLOY_EITHER));
+          .apply(identify(getContractBaseTemplate().getDeployFunction(), CONTRACT_DEPLOY_EITHER));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<ContractAddress,
       ResultOrErrorFuture<ContractInterface>> contractInterfaceFunction =
-          getStrategyChain().apply(identify(contractBaseTemplate.getContractInterfaceFunction(),
-              CONTRACT_GETINTERFACE_EITHER));
+          getStrategyChain()
+              .apply(identify(getContractBaseTemplate().getContractInterfaceFunction(),
+                  CONTRACT_GETINTERFACE_EITHER));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function4<Account, ContractInvocation, Long, Fee,
       ResultOrErrorFuture<ContractTxHash>> executeFunction = getStrategyChain()
-          .apply(identify(contractBaseTemplate.getExecuteFunction(), CONTRACT_EXECUTE_EITHER));
+          .apply(identify(getContractBaseTemplate().getExecuteFunction(), CONTRACT_EXECUTE_EITHER));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<ContractInvocation, ResultOrErrorFuture<ContractResult>> queryFunction =
       getStrategyChain()
-          .apply(identify(contractBaseTemplate.getQueryFunction(), CONTRACT_QUERY_EITHER));
+          .apply(identify(getContractBaseTemplate().getQueryFunction(), CONTRACT_QUERY_EITHER));
 
   @Override
   public ResultOrError<ContractTxReceipt> getReceipt(final ContractTxHash contractTxHash) {

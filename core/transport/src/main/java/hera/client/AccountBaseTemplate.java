@@ -15,6 +15,8 @@ import static types.AergoRPCServiceGrpc.newFutureStub;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
+import hera.ContextProvider;
+import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Account;
@@ -51,7 +53,7 @@ import types.Rpc.NameInfo;
 @ApiAudience.Private
 @ApiStability.Unstable
 @SuppressWarnings("unchecked")
-public class AccountBaseTemplate implements ChannelInjectable {
+public class AccountBaseTemplate implements ChannelInjectable, ContextProviderInjectable {
 
   protected final Logger logger = getLogger(getClass());
 
@@ -67,7 +69,15 @@ public class AccountBaseTemplate implements ChannelInjectable {
   @Getter
   protected AergoRPCServiceFutureStub aergoService;
 
+  protected ContextProvider contextProvider;
+
   protected TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();
+
+  @Override
+  public void setContextProvider(final ContextProvider contextProvider) {
+    this.contextProvider = contextProvider;
+    transactionBaseTemplate.setContextProvider(contextProvider);
+  }
 
   @Override
   public void setChannel(final ManagedChannel channel) {
@@ -85,7 +95,8 @@ public class AccountBaseTemplate implements ChannelInjectable {
         Rpc.SingleBytes bytes = Rpc.SingleBytes.newBuilder()
             .setValue(accountAddressConverter.convertToRpcModel(address)).build();
         ListenableFuture<Blockchain.State> listenableFuture = aergoService.getState(bytes);
-        FutureChain<Blockchain.State, AccountState> callback = new FutureChain<>(nextFuture);
+        FutureChain<Blockchain.State, AccountState> callback =
+            new FutureChain<>(nextFuture, contextProvider.get());
         callback.setSuccessHandler(state -> of(() -> {
           final AccountState withoutAddress = accountStateConverter.convertToDomainModel(state);
           return new AccountState(address, withoutAddress.getNonce(), withoutAddress.getBalance());
@@ -157,7 +168,8 @@ public class AccountBaseTemplate implements ChannelInjectable {
 
         final Name rpcName = Name.newBuilder().setName(name).build();
         ListenableFuture<NameInfo> listenableFuture = aergoService.getNameInfo(rpcName);
-        FutureChain<NameInfo, AccountAddress> callback = new FutureChain<>(nextFuture);
+        FutureChain<NameInfo, AccountAddress> callback =
+            new FutureChain<>(nextFuture, contextProvider.get());
         callback.setSuccessHandler(nameInfo -> of(
             () -> accountAddressConverter.convertToDomainModel(nameInfo.getOwner())));
         addCallback(listenableFuture, callback, directExecutor());
@@ -186,7 +198,7 @@ public class AccountBaseTemplate implements ChannelInjectable {
               ListenableFuture<Blockchain.Tx> listenableFuture =
                   aergoService.signTX(rpcTransaction);
               FutureChain<Blockchain.Tx, Transaction> callback =
-                  new FutureChain<>(nextFuture);
+                  new FutureChain<>(nextFuture, contextProvider.get());
               callback
                   .setSuccessHandler(tx -> of(() -> transactionConverter.convertToDomainModel(tx)));
               addCallback(listenableFuture, callback, directExecutor());
@@ -210,7 +222,7 @@ public class AccountBaseTemplate implements ChannelInjectable {
           Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
           ListenableFuture<Rpc.VerifyResult> listenableFuture = aergoService.verifyTX(tx);
           FutureChain<Rpc.VerifyResult, Boolean> callback =
-              new FutureChain<Rpc.VerifyResult, Boolean>(nextFuture);
+              new FutureChain<Rpc.VerifyResult, Boolean>(nextFuture, contextProvider.get());
           callback.setSuccessHandler(result -> of(() -> Optional.of(result)
               .map(v -> Rpc.VerifyStatus.VERIFY_STATUS_OK == v.getError())
               .orElseThrow(() -> new TransactionVerificationException(result.getError()))));

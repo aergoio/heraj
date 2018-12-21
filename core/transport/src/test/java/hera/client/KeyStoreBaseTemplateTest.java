@@ -41,6 +41,7 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
       final AergoRPCServiceFutureStub aergoService) {
     final KeyStoreBaseTemplate accountTemplateBase = new KeyStoreBaseTemplate();
     accountTemplateBase.aergoService = aergoService;
+    accountTemplateBase.contextProvider = () -> context;
     return accountTemplateBase;
   }
 

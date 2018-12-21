@@ -11,6 +11,7 @@ import static hera.api.tupleorerror.FunctionChain.of;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
+import hera.EmptyContext;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import java.util.concurrent.Executors;
@@ -33,7 +34,8 @@ public class FutureChainBenchmark {
     public void onSuccess() {
       ListenableFuture<Integer> originFuture = service.submit(() -> null);
       ResultOrErrorFuture<String> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
-      FutureChain<Integer, String> callback = new FutureChain<>(nextFuture);
+      FutureChain<Integer, String> callback =
+          new FutureChain<>(nextFuture, EmptyContext.getInstance());
       callback.setSuccessHandler(v -> of(() -> null));
       addCallback(originFuture, callback, directExecutor());
 
@@ -46,7 +48,8 @@ public class FutureChainBenchmark {
         return null;
       });
       ResultOrErrorFuture<String> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
-      FutureChain<Integer, String> callback = new FutureChain<>(nextFuture);
+      FutureChain<Integer, String> callback =
+          new FutureChain<>(nextFuture, EmptyContext.getInstance());
       callback.setSuccessHandler(v -> of(() -> null));
       addCallback(originFuture, callback, directExecutor());
 

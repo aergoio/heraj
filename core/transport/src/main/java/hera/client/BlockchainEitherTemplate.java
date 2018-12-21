@@ -28,7 +28,6 @@ import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
@@ -36,9 +35,9 @@ import lombok.Setter;
 public class BlockchainEitherTemplate
     implements BlockchainEitherOperation, ChannelInjectable, ContextProviderInjectable {
 
+  @Getter
   protected BlockchainBaseTemplate blockchainBaseTemplate = new BlockchainBaseTemplate();
 
-  @Setter
   protected ContextProvider contextProvider;
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
@@ -46,29 +45,37 @@ public class BlockchainEitherTemplate
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-    blockchainBaseTemplate.setChannel(channel);
+    getBlockchainBaseTemplate().setChannel(channel);
+  }
+
+  @Override
+  public void setContextProvider(final ContextProvider contextProvider) {
+    this.contextProvider = contextProvider;
+    getBlockchainBaseTemplate().setContextProvider(contextProvider);
   }
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function0<ResultOrErrorFuture<BlockchainStatus>> blockchainStatusFunction =
-      getStrategyChain().apply(identify(blockchainBaseTemplate.getBlockchainStatusFunction(),
+      getStrategyChain().apply(identify(getBlockchainBaseTemplate().getBlockchainStatusFunction(),
           BLOCKCHAIN_BLOCKCHAINSTATUS_EITHER));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function0<ResultOrErrorFuture<List<Peer>>> listPeersFunction =
       getStrategyChain().apply(
-          identify(blockchainBaseTemplate.getListPeersFunction(), BLOCKCHAIN_LISTPEERS_EITHER));
+          identify(getBlockchainBaseTemplate().getListPeersFunction(),
+              BLOCKCHAIN_LISTPEERS_EITHER));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function0<ResultOrErrorFuture<List<PeerMetric>>> listPeerMetricsFunction =
       getStrategyChain().apply(
-          identify(blockchainBaseTemplate.getListPeersMetricsFunction(),
+          identify(getBlockchainBaseTemplate().getListPeersMetricsFunction(),
               BLOCKCHAIN_PEERMETRICS_EITHER));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function0<ResultOrErrorFuture<NodeStatus>> nodeStatusFunction =
       getStrategyChain().apply(
-          identify(blockchainBaseTemplate.getNodeStatusFunction(), BLOCKCHAIN_NODESTATUS_EITHER));
+          identify(getBlockchainBaseTemplate().getNodeStatusFunction(),
+              BLOCKCHAIN_NODESTATUS_EITHER));
 
   @Override
   public ResultOrError<BlockchainStatus> getBlockchainStatus() {

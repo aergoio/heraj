@@ -26,7 +26,6 @@ import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
@@ -36,7 +35,6 @@ public class TransactionEitherTemplate
   @Getter
   protected TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();
 
-  @Setter
   protected ContextProvider contextProvider;
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
@@ -44,24 +42,32 @@ public class TransactionEitherTemplate
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-    transactionBaseTemplate.setChannel(channel);
+    getTransactionBaseTemplate().setChannel(channel);
+  }
+
+  @Override
+  public void setContextProvider(final ContextProvider contextProvider) {
+    this.contextProvider = contextProvider;
+    getTransactionBaseTemplate().setContextProvider(contextProvider);
   }
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<TxHash, ResultOrErrorFuture<Transaction>> transactionFunction =
-      getStrategyChain().apply(identify(transactionBaseTemplate.getTransactionFunction(),
+      getStrategyChain().apply(identify(getTransactionBaseTemplate().getTransactionFunction(),
           TRANSACTION_GETTX_EITHER));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<Transaction, ResultOrErrorFuture<TxHash>> commitFunction =
       getStrategyChain()
-          .apply(identify(transactionBaseTemplate.getCommitFunction(), TRANSACTION_COMMIT_EITHER));
+          .apply(identify(getTransactionBaseTemplate().getCommitFunction(),
+              TRANSACTION_COMMIT_EITHER));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function3<AccountAddress, AccountAddress, Aer,
       ResultOrErrorFuture<TxHash>> sendFunction =
           getStrategyChain()
-              .apply(identify(transactionBaseTemplate.getSendFunction(), TRANSACTION_SEND_EITHER));
+              .apply(identify(getTransactionBaseTemplate().getSendFunction(),
+                  TRANSACTION_SEND_EITHER));
 
   @Override
   public ResultOrError<Transaction> getTransaction(final TxHash txHash) {

@@ -36,6 +36,7 @@ public class BlockchainBaseTemplateTest extends AbstractTestCase {
       final AergoRPCServiceFutureStub aergoService) {
     final BlockchainBaseTemplate blockchainBaseTemplate = new BlockchainBaseTemplate();
     blockchainBaseTemplate.aergoService = aergoService;
+    blockchainBaseTemplate.contextProvider = () -> context;
     return blockchainBaseTemplate;
   }
 
