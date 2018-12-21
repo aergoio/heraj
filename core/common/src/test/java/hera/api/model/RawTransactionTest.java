@@ -37,4 +37,17 @@ public class RawTransactionTest {
     assertNotNull(maximum.build());
   }
 
+  @Test
+  public void testBuilderWithName() {
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .sender("namenamenam1")
+        .recipient("namenamenam2")
+        .amount("10000", Unit.AER)
+        .nonce(1L)
+        .fee(Fee.of(Aer.of("100", Unit.AER), 5))
+        .payload(BytesValue.EMPTY)
+        .build();
+    assertNotNull(rawTransaction);
+  }
+
 }
