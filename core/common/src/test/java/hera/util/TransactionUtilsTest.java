@@ -5,6 +5,7 @@
 package hera.util;
 
 import static hera.api.model.BytesValue.of;
+import static hera.util.EncodingUtils.decodeBase58;
 import static hera.util.ValidationUtils.assertNotNull;
 import static org.junit.Assert.assertEquals;
 
@@ -12,7 +13,6 @@ import hera.AbstractTestCase;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
-import hera.api.model.BytesValue;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
@@ -34,8 +34,8 @@ public class TransactionUtilsTest extends AbstractTestCase {
   @Test
   public void testCalculateHashWithRawTx() {
     final RawTransaction rawTransaction = Transaction.newBuilder()
-        .sender(AccountAddress.of(() -> encodedAddress))
-        .recipient(AccountAddress.of(() -> encodedAddress))
+        .sender(AccountAddress.of(encodedAddress))
+        .recipient(AccountAddress.of(encodedAddress))
         .amount("10000", Unit.AER)
         .nonce(1L)
         .fee(Fee.of(Aer.of("100", Unit.AER), 5))
@@ -47,15 +47,14 @@ public class TransactionUtilsTest extends AbstractTestCase {
   @Test
   public void testCalculateHashWithRawTxAndSignature() throws IOException {
     final RawTransaction rawTransaction = Transaction.newBuilder()
-        .sender(AccountAddress.of(() -> encodedAddress))
-        .recipient(AccountAddress.of(() -> encodedAddress))
+        .sender(AccountAddress.of(encodedAddress))
+        .recipient(AccountAddress.of(encodedAddress))
         .amount("10000", Unit.AER)
         .nonce(1L)
         .fee(Fee.of(Aer.of("100", Unit.AER), 5))
         .build();
 
-    final Signature signature = Signature.of(BytesValue.of(Base58Utils.decode(
-        encodedSignature)));
+    final Signature signature = Signature.of(decodeBase58(encodedSignature));
     final TxHash expected = TxHash.of(of(Base58Utils.decode(hashWithSign)));
     final TxHash actual = TransactionUtils.calculateHash(rawTransaction, signature);
     assertEquals(expected, actual);

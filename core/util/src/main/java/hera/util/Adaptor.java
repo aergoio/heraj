@@ -1,7 +1,5 @@
 package hera.util;
 
-import java.util.Optional;
-
 public interface Adaptor {
   /**
    * Convert to other resource.
@@ -10,7 +8,7 @@ public interface Adaptor {
    *
    * @param adaptor class to convert to
    *
-   * @return object to be converted if exists
+   * @return object to be converted if exists. null if isn't
    */
-  <T> Optional<T> adapt(final Class<T> adaptor);
+  <T> T adapt(final Class<T> adaptor);
 }

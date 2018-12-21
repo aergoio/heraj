@@ -23,7 +23,7 @@ import org.junit.Test;
 public class ServerKeyStoreTest extends AbstractTestCase {
 
   protected static final AccountAddress ACCOUNT_ADDRESS =
-      AccountAddress.of(() -> "AmLo9CGR3xFZPVKZ5moSVRNW1kyscY9rVkCvgrpwNJjRUPUWadC5");
+      AccountAddress.of("AmLo9CGR3xFZPVKZ5moSVRNW1kyscY9rVkCvgrpwNJjRUPUWadC5");
 
   @Test
   public void testSave() {

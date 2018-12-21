@@ -4,7 +4,6 @@
 
 package hera.api.model;
 
-import hera.api.encode.Base58WithCheckSum;
 import hera.exception.InvalidVersionException;
 
 public class ContractAddress extends AccountAddress {
@@ -17,7 +16,7 @@ public class ContractAddress extends AccountAddress {
    *
    * @throws InvalidVersionException when address version mismatch
    */
-  public static ContractAddress of(final Base58WithCheckSum encoded) {
+  public static ContractAddress of(final String encoded) {
     return new ContractAddress(encoded);
   }
 
@@ -40,7 +39,7 @@ public class ContractAddress extends AccountAddress {
    *
    * @throws InvalidVersionException when address version mismatch
    */
-  public ContractAddress(final Base58WithCheckSum encoded) {
+  public ContractAddress(final String encoded) {
     super(encoded);
   }
 

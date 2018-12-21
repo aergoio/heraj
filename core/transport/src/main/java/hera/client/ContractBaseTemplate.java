@@ -33,12 +33,10 @@ import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
-import hera.api.model.TxHash;
 import hera.api.tupleorerror.Function1;
 import hera.api.tupleorerror.Function4;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
-import hera.exception.AdaptException;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.ContractInterfaceConverterFactory;
 import hera.transport.ContractResultConverterFactory;
@@ -242,14 +240,12 @@ public class ContractBaseTemplate implements ChannelInjectable {
     return definitionPayload;
   }
 
-
   protected ResultOrErrorFuture<ContractTxHash> signAndCommit(final Account account,
       final RawTransaction transaction) {
     return accountBaseTemplate.getSignFunction().apply(account, transaction)
         .flatMap(signedTransaction -> transactionBaseTemplate.getCommitFunction()
             .apply(signedTransaction)
-            .map(txHash -> txHash.adapt(ContractTxHash.class)
-                .orElseThrow(() -> new AdaptException(TxHash.class, ContractTxHash.class))));
+            .map(txHash -> txHash.adapt(ContractTxHash.class)));
   }
 
   protected String toFunctionCallJsonString(final ContractInvocation contractInvocation) {

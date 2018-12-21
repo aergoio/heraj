@@ -8,7 +8,6 @@ import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 
 import hera.AbstractTestCase;
-import java.util.Optional;
 import java.util.function.Supplier;
 import org.junit.Test;
 
@@ -36,8 +35,8 @@ public class DangerousSupplierTest extends AbstractTestCase {
   public void testfrom() {
     final Adaptor adaptor = new Adaptor() {
       @Override
-      public <T> Optional<T> adapt(final Class<T> adaptor) {
-        return Optional.empty();
+      public <T> T adapt(final Class<T> adaptor) {
+        return null;
       }
     };
     final DangerousSupplier<Object> dangerousSupplier =

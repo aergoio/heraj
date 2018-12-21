@@ -13,7 +13,7 @@ import org.junit.Test;
 public class ContractClientFactoryTest extends AbstractTestCase {
 
   protected final ContractAddress contractAddress = ContractAddress
-      .of(() -> "AmgSvgaUXFb4PFLn5MU5wiYNihcQrwNhNMzaG5h68q99gBNTTkWK");
+      .of("AmgSvgaUXFb4PFLn5MU5wiYNihcQrwNhNMzaG5h68q99gBNTTkWK");
 
   @Test
   public void testCreate() {

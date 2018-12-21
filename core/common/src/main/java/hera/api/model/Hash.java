@@ -4,27 +4,24 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
+import static hera.util.EncodingUtils.decodeBase58;
+import static hera.util.EncodingUtils.encodeBase58;
 
-import hera.api.encode.EncodedString;
-import hera.exception.HerajException;
+import hera.api.encode.Encodable;
+import hera.exception.DecodingFailureException;
 import hera.util.Adaptor;
-import hera.util.Base58Utils;
-import java.io.IOException;
-import java.util.Optional;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
-public class Hash implements Adaptor {
+public class Hash implements Adaptor, Encodable {
 
   /**
-   * Create {@code Hash} with an encoded value.
+   * Create {@code Hash} with a base58 encoded value.
    *
-   * @param encoded an encoded value
+   * @param encoded String with base58 encoded
    * @return created {@link Hash}
+   * @throws DecodingFailureException if decoding failed
    */
-  public static Hash of(final EncodedString encoded) {
+  public static Hash of(final String encoded) {
     return new Hash(encoded);
   }
 
@@ -44,15 +41,25 @@ public class Hash implements Adaptor {
   /**
    * Hash constructor.
    *
-   * @param encoded an encoded value
+   * @param encoded String with base58 encoded
+   * @throws DecodingFailureException if decoding failed
    */
-  public Hash(final EncodedString encoded) {
-    try {
-      bytesValue = encoded.decode();
-      assertNotNull(bytesValue);
-    } catch (IOException e) {
-      throw new HerajException(e);
-    }
+  public Hash(final String encoded) {
+    this(decodeBase58(encoded));
+  }
+
+  /**
+   * Hash constructor.
+   *
+   * @param bytesValue an bytes value
+   */
+  public Hash(final BytesValue bytesValue) {
+    this.bytesValue = null != bytesValue ? bytesValue : BytesValue.EMPTY;
+  }
+
+  @Override
+  public String getEncoded() {
+    return encodeBase58(getBytesValue());
   }
 
   @Override
@@ -74,22 +81,21 @@ public class Hash implements Adaptor {
 
   @Override
   public String toString() {
-    return Base58Utils.encode(bytesValue.getValue());
+    return getEncoded();
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> Optional<T> adapt(Class<T> adaptor) {
+  public <T> T adapt(Class<T> adaptor) {
     if (adaptor.isAssignableFrom(Hash.class)) {
-      return (Optional<T>) Optional.of(this);
+      return (T) this;
     } else if (adaptor.isAssignableFrom(BlockHash.class)) {
-      return (Optional<T>) Optional.of(BlockHash.of(getBytesValue()));
+      return (T) BlockHash.of(getBytesValue());
     } else if (adaptor.isAssignableFrom(TxHash.class)) {
-      return (Optional<T>) Optional.of(TxHash.of(getBytesValue()));
+      return (T) TxHash.of(getBytesValue());
     } else if (adaptor.isAssignableFrom(ContractTxHash.class)) {
-      return (Optional<T>) Optional.of(ContractTxHash.of(getBytesValue()));
+      return (T) ContractTxHash.of(getBytesValue());
     }
-    return Optional.empty();
+    return null;
   }
-
 }

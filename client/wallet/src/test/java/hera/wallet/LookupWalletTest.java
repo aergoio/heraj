@@ -44,7 +44,7 @@ import org.mockito.Mockito;
 public class LookupWalletTest extends AbstractTestCase {
 
   private final ContractAddress contractAddress =
-      ContractAddress.of(() -> "AmLo9CGR3xFZPVKZ5moSVRNW1kyscY9rVkCvgrpwNJjRUPUWadC5");
+      ContractAddress.of("AmLo9CGR3xFZPVKZ5moSVRNW1kyscY9rVkCvgrpwNJjRUPUWadC5");
 
   @Test
   public void testGetAccountStateWithAccountAddress() {

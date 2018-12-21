@@ -4,18 +4,20 @@
 
 package hera.api.model;
 
-import hera.api.encode.Base58;
-import java.util.Optional;
+import hera.api.encode.Encodable;
+import hera.exception.DecodingFailureException;
+import hera.util.Adaptor;
 
-public class TxHash extends Hash {
+public class TxHash extends Hash implements Adaptor, Encodable {
 
   /**
    * Create {@code Hash} with a base58 encoded value.
    *
    * @param encoded Base58 with checksum encoded
    * @return created {@link TxHash}
+   * @throws DecodingFailureException if decoding failed
    */
-  public static TxHash of(final Base58 encoded) {
+  public static TxHash of(final String encoded) {
     return new TxHash(encoded);
   }
 
@@ -33,8 +35,9 @@ public class TxHash extends Hash {
    * TxHash constructor.
    *
    * @param encoded Base58 encoded value
+   * @throws DecodingFailureException if decoding failed
    */
-  public TxHash(final Base58 encoded) {
+  public TxHash(final String encoded) {
     super(encoded);
   }
 
@@ -49,15 +52,15 @@ public class TxHash extends Hash {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> Optional<T> adapt(Class<T> adaptor) {
+  public <T> T adapt(Class<T> adaptor) {
     if (adaptor.isAssignableFrom(TxHash.class)) {
-      return (Optional<T>) Optional.of(this);
+      return (T) this;
     } else if (adaptor.isAssignableFrom(BlockHash.class)) {
-      return (Optional<T>) Optional.of(BlockHash.of(getBytesValue()));
+      return (T) BlockHash.of(getBytesValue());
     } else if (adaptor.isAssignableFrom(ContractTxHash.class)) {
-      return (Optional<T>) Optional.of(ContractTxHash.of(getBytesValue()));
+      return (T) ContractTxHash.of(getBytesValue());
     }
-    return Optional.empty();
+    return null;
   }
 
 }

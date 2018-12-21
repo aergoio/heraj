@@ -7,7 +7,6 @@ package hera.transport;
 import static org.junit.Assert.assertEquals;
 
 import hera.AbstractTestCase;
-import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
@@ -23,8 +22,7 @@ import types.Blockchain;
 
 public class TransactionConverterTest extends AbstractTestCase {
 
-  protected static final Base58WithCheckSum base58WithCheckSum =
-      () -> "AtmxbVvjDN5LYwaf5QrCZPc3FoAqUCMVegVXjf8CMCz59wL21X6j";
+  protected final String encodedAddress = "AtmxbVvjDN5LYwaf5QrCZPc3FoAqUCMVegVXjf8CMCz59wL21X6j";
 
   @Test
   public void testConvert() {
@@ -32,8 +30,8 @@ public class TransactionConverterTest extends AbstractTestCase {
         new TransactionConverterFactory().create();
 
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .sender(AccountAddress.of(base58WithCheckSum))
-        .recipient(AccountAddress.of(base58WithCheckSum))
+        .sender(AccountAddress.of(encodedAddress))
+        .recipient(AccountAddress.of(encodedAddress))
         .amount("10000", Unit.GAER)
         .nonce(1L)
         .fee(Fee.of(Aer.of("100", Unit.GAER), 5))

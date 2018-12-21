@@ -11,7 +11,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.AccountAddress;
 import hera.api.model.Transaction;
 import hera.key.Signer;
@@ -19,13 +18,12 @@ import org.junit.Test;
 
 public class AcconntWithAddressAndSignerTest {
 
-  public static final String ENCODED_ADDRESS =
+  protected final String encodedAddress =
       "AmJaNDXoPbBRn9XHh9onKbDKuAzj88n5Bzt7KniYA78qUEc5EwBd";
 
   @Test
   public void testGetAddress() {
-    final Base58WithCheckSum encoded = () -> ENCODED_ADDRESS;
-    final AccountAddress address = AccountAddress.of(encoded);
+    final AccountAddress address = AccountAddress.of(encodedAddress);
     final Signer signer = mock(Signer.class);
 
     final AccountWithAddressAndSigner account = new AccountWithAddressAndSigner(address, signer);
@@ -34,8 +32,7 @@ public class AcconntWithAddressAndSignerTest {
 
   @Test
   public void testSign() {
-    final Base58WithCheckSum encoded = () -> ENCODED_ADDRESS;
-    final AccountAddress address = AccountAddress.of(encoded);
+    final AccountAddress address = AccountAddress.of(encodedAddress);
     final Signer signer = mock(Signer.class);
     when(signer.sign(any())).thenReturn(mock(Transaction.class));
 
@@ -46,8 +43,7 @@ public class AcconntWithAddressAndSignerTest {
 
   @Test
   public void testVerify() {
-    final Base58WithCheckSum encoded = () -> ENCODED_ADDRESS;
-    final AccountAddress address = AccountAddress.of(encoded);
+    final AccountAddress address = AccountAddress.of(encodedAddress);
     final Signer signer = mock(Signer.class);
     when(signer.verify(any())).thenReturn(true);
 

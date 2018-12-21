@@ -6,20 +6,18 @@ package hera.api.model.internal;
 
 import static org.junit.Assert.assertEquals;
 
-import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import org.junit.Test;
 
 public class AcconntWithAddressTest {
 
-  public static final String ENCODED_ADDRESS =
+  protected static final String encodedAddress =
       "AmJaNDXoPbBRn9XHh9onKbDKuAzj88n5Bzt7KniYA78qUEc5EwBd";
 
   @Test
   public void testGetAddress() {
-    final Base58WithCheckSum encoded = () -> ENCODED_ADDRESS;
-    final AccountAddress address = AccountAddress.of(encoded);
+    final AccountAddress address = AccountAddress.of(encodedAddress);
     final Account account = new AccountWithAddress(address);
     assertEquals(address, account.getAddress());
   }

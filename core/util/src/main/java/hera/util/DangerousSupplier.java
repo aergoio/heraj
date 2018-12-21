@@ -25,6 +25,6 @@ public interface DangerousSupplier<T> {
   }
 
   static <T> DangerousSupplier<T> from(final Adaptor adaptor, final Class<T> type) {
-    return () -> (T) adaptor.adapt(type).get();
+    return () -> (T) adaptor.adapt(type);
   }
 }

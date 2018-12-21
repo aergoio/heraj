@@ -4,15 +4,16 @@
 
 package hera.api.model;
 
-import hera.api.encode.Base58WithCheckSum;
-import hera.exception.HerajException;
+import static hera.util.EncodingUtils.decodeBase58WithCheck;
+import static hera.util.EncodingUtils.encodeBase58WithCheck;
+
+import hera.api.encode.Encodable;
+import hera.exception.DecodingFailureException;
 import hera.exception.InvalidVersionException;
-import hera.util.Base58Utils;
 import hera.util.VersionUtils;
-import java.io.IOException;
 import lombok.Getter;
 
-public class AccountAddress {
+public class AccountAddress implements Encodable {
 
   public static final byte VERSION = 0x42;
 
@@ -22,9 +23,10 @@ public class AccountAddress {
    * @param encoded a base58 with checksum encoded encoded value
    * @return created {@link AccountAddress}
    *
+   * @throws DecodingFailureException if decoding failed
    * @throws InvalidVersionException when address version mismatch
    */
-  public static AccountAddress of(final Base58WithCheckSum encoded) {
+  public static AccountAddress of(final String encoded) {
     return new AccountAddress(encoded);
   }
 
@@ -48,16 +50,11 @@ public class AccountAddress {
    *
    * @param encoded a base58 with checksum encoded encoded value
    *
+   * @throws DecodingFailureException if decoding failed
    * @throws InvalidVersionException when address version mismatch
    */
-  public AccountAddress(final Base58WithCheckSum encoded) {
-    try {
-      final BytesValue decoded = encoded.decode();
-      VersionUtils.validate(decoded, VERSION);
-      this.bytesValue = decoded;
-    } catch (IOException e) {
-      throw new HerajException(e);
-    }
+  public AccountAddress(final String encoded) {
+    this(decodeBase58WithCheck(encoded));
   }
 
   /**
@@ -72,6 +69,11 @@ public class AccountAddress {
       VersionUtils.validate(bytesValue, VERSION);
     }
     this.bytesValue = bytesValue;
+  }
+
+  @Override
+  public String getEncoded() {
+    return encodeBase58WithCheck(getBytesValue());
   }
 
   @Override
@@ -93,7 +95,6 @@ public class AccountAddress {
 
   @Override
   public String toString() {
-    return Base58Utils.encodeWithCheck(bytesValue.getValue());
+    return getEncoded();
   }
-
 }

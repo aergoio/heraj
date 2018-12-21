@@ -55,7 +55,7 @@ import org.junit.runners.Parameterized.Parameters;
 public class WalletIT extends AbstractIT {
 
   protected final AccountAddress accountAddress =
-      AccountAddress.of(() -> "AmLo9CGR3xFZPVKZ5moSVRNW1kyscY9rVkCvgrpwNJjRUPUWadC5");
+      AccountAddress.of("AmLo9CGR3xFZPVKZ5moSVRNW1kyscY9rVkCvgrpwNJjRUPUWadC5");
 
   protected String keyStorePath = System.getProperty("java.io.tmpdir") + "/.keystore";
   protected String keyStorePasword = "password";

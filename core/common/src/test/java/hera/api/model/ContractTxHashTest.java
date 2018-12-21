@@ -7,7 +7,6 @@ package hera.api.model;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 
-import hera.api.encode.Base58;
 import hera.util.Base58Utils;
 import org.junit.Test;
 
@@ -17,12 +16,11 @@ public class ContractTxHashTest {
 
   @Test
   public void testAdapt() {
-    final Base58 encoded = () -> encodedHash;
-    final ContractTxHash contractTxHash = ContractTxHash.of(encoded);
-    assertEquals(ContractTxHash.of(encoded), contractTxHash.adapt(Hash.class).get());
-    assertEquals(BlockHash.of(encoded), contractTxHash.adapt(BlockHash.class).get());
-    assertEquals(ContractTxHash.of(encoded), contractTxHash.adapt(TxHash.class).get());
-    assertEquals(ContractTxHash.of(encoded), contractTxHash.adapt(ContractTxHash.class).get());
+    final ContractTxHash contractTxHash = ContractTxHash.of(encodedHash);
+    assertEquals(ContractTxHash.of(encodedHash), contractTxHash.adapt(Hash.class));
+    assertEquals(BlockHash.of(encodedHash), contractTxHash.adapt(BlockHash.class));
+    assertEquals(ContractTxHash.of(encodedHash), contractTxHash.adapt(TxHash.class));
+    assertEquals(ContractTxHash.of(encodedHash), contractTxHash.adapt(ContractTxHash.class));
   }
 
 }

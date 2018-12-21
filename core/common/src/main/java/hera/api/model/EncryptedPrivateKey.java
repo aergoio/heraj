@@ -4,15 +4,16 @@
 
 package hera.api.model;
 
-import hera.api.encode.Base58WithCheckSum;
-import hera.exception.HerajException;
+import static hera.util.EncodingUtils.decodeBase58WithCheck;
+import static hera.util.EncodingUtils.encodeBase58WithCheck;
+
+import hera.api.encode.Encodable;
+import hera.exception.DecodingFailureException;
 import hera.exception.InvalidVersionException;
-import hera.util.Base58Utils;
 import hera.util.VersionUtils;
-import java.io.IOException;
 import lombok.Getter;
 
-public class EncryptedPrivateKey {
+public class EncryptedPrivateKey implements Encodable {
 
   public static final byte VERSION = (byte) 0xAA;
 
@@ -22,9 +23,10 @@ public class EncryptedPrivateKey {
    * @param encoded a base58 with checksum encoded encoded value
    * @return created {@link EncryptedPrivateKey}
    *
+   * @throws DecodingFailureException if decoding failed
    * @throws InvalidVersionException when address version mismatch
    */
-  public static EncryptedPrivateKey of(final Base58WithCheckSum encoded) {
+  public static EncryptedPrivateKey of(final String encoded) {
     return new EncryptedPrivateKey(encoded);
   }
 
@@ -48,17 +50,11 @@ public class EncryptedPrivateKey {
    *
    * @param encoded a base58 with checksum encoded encoded value
    *
+   * @throws DecodingFailureException if decoding failed
    * @throws InvalidVersionException when address version mismatch
    */
-  public EncryptedPrivateKey(final Base58WithCheckSum encoded) {
-    try {
-      final BytesValue decoded = encoded.decode();
-      VersionUtils.validate(decoded, VERSION);
-      this.bytesValue = decoded;
-    } catch (IOException e) {
-      throw new HerajException(e);
-    }
-
+  public EncryptedPrivateKey(final String encoded) {
+    this(decodeBase58WithCheck(encoded));
   }
 
   /**
@@ -75,13 +71,9 @@ public class EncryptedPrivateKey {
     this.bytesValue = bytesValue;
   }
 
-  /**
-   * Get base58 with checksum encoded encrypted private key.
-   *
-   * @return base58 with checksum encoded encrypted private key
-   */
+  @Override
   public String getEncoded() {
-    return Base58Utils.encodeWithCheck(bytesValue.getValue());
+    return encodeBase58WithCheck(getBytesValue());
   }
 
   @Override

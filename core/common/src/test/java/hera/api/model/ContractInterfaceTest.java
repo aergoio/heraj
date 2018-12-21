@@ -13,17 +13,17 @@ import org.junit.Test;
 
 public class ContractInterfaceTest {
 
-  public static final String FUNCTION_NAME = randomUUID().toString();
+  protected final String functionName = randomUUID().toString();
 
-  public static final String ENCODED_ADDRESS =
+  protected final String encodedAddress =
       "AmJaNDXoPbBRn9XHh9onKbDKuAzj88n5Bzt7KniYA78qUEc5EwBd";
 
   @Test
   public void testInvocationBuilder() {
-    final ContractAddress address = new ContractAddress(() -> ENCODED_ADDRESS);
+    final ContractAddress address = new ContractAddress(encodedAddress);
     final String version = randomUUID().toString();
     final String language = randomUUID().toString();
-    final ContractFunction function = new ContractFunction(FUNCTION_NAME);
+    final ContractFunction function = new ContractFunction(functionName);
     final List<ContractFunction> functions = new ArrayList<>();
     functions.add(function);
     final Object[] args = new Object[] {randomUUID().toString(), randomUUID().toString()};
@@ -33,7 +33,7 @@ public class ContractInterfaceTest {
 
     final ContractInvocation expected = new ContractInvocation(address, function, args);
     final ContractInvocation actual = contractInterface.newInvocationBuilder()
-        .function(FUNCTION_NAME)
+        .function(functionName)
         .args(args)
         .build();
     assertEquals(expected, actual);

@@ -7,7 +7,6 @@ package hera.key;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
@@ -64,20 +63,6 @@ public class AergoKey implements KeyPair, Signer {
   /**
    * Create a key pair with encrypted private key and password.
    *
-   * @param encodedEncryptedPrivateKey base58 with checksum encoded encrypted private key
-   * @param password password to decrypt
-   * @return key instance
-   *
-   * @throws UnableToGenerateKeyException on failure of creation
-   */
-  public static AergoKey of(final Base58WithCheckSum encodedEncryptedPrivateKey,
-      final String password) {
-    return new AergoKey(encodedEncryptedPrivateKey, password);
-  }
-
-  /**
-   * Create a key pair with encrypted private key and password.
-   *
    * @param encryptedPrivateKey encrypted private key
    * @param password password to decrypt
    * @return key instance
@@ -104,19 +89,7 @@ public class AergoKey implements KeyPair, Signer {
    * @throws UnableToGenerateKeyException on failure of creation
    */
   public AergoKey(final String encodedEncryptedPrivateKey, final String password) {
-    this(() -> encodedEncryptedPrivateKey, password);
-  }
-
-  /**
-   * AergoKey constructor.
-   *
-   * @param encodedEncryptedPrivateKey base58 with checksum encoded encrypted private key
-   * @param password password to decrypt
-   *
-   * @throws UnableToGenerateKeyException on failure of creation
-   */
-  public AergoKey(final Base58WithCheckSum encodedEncryptedPrivateKey, final String password) {
-    this(EncryptedPrivateKey.of(encodedEncryptedPrivateKey), password);
+    this(new EncryptedPrivateKey(encodedEncryptedPrivateKey), password);
   }
 
   /**

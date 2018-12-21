@@ -51,7 +51,7 @@ public class BlockOperationIT extends AbstractIT {
 
     try {
       aergoClient.getBlockOperation()
-          .getBlock(new BlockHash(() -> "8WTYmYgmEGH9UYRYPzGTowS5vhPLumGyb3Pq9UQ3zcRv"));
+          .getBlock(new BlockHash("8WTYmYgmEGH9UYRYPzGTowS5vhPLumGyb3Pq9UQ3zcRv"));
       fail();
     } catch (Exception e) {
       // good we expected this

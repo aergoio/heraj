@@ -8,7 +8,6 @@ import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 
 import hera.AbstractTestCase;
-import hera.api.encode.Base58WithCheckSum;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
@@ -24,16 +23,15 @@ import types.Blockchain;
 
 public class TransactionInBlockConverterTest extends AbstractTestCase {
 
-  protected static final Base58WithCheckSum base58WithCheckSum =
-      () -> "AtmxbVvjDN5LYwaf5QrCZPc3FoAqUCMVegVXjf8CMCz59wL21X6j";
+  protected final String encodedAddress = "AtmxbVvjDN5LYwaf5QrCZPc3FoAqUCMVegVXjf8CMCz59wL21X6j";
 
   @Test
   public void testConvert() {
     final ModelConverter<Transaction, Blockchain.TxInBlock> converter =
         new TransactionInBlockConverterFactory().create();
     final RawTransaction rawTransaction = Transaction.newBuilder()
-        .sender(AccountAddress.of(base58WithCheckSum))
-        .recipient(AccountAddress.of(base58WithCheckSum))
+        .sender(AccountAddress.of(encodedAddress))
+        .recipient(AccountAddress.of(encodedAddress))
         .amount("0.001", Unit.AERGO)
         .nonce(1L)
         .fee(Fee.of(Aer.of("100", Unit.AER), 5))
