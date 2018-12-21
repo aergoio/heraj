@@ -9,7 +9,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.function.Supplier;
-import lombok.Getter;
 
 public class BytesValue implements Supplier<InputStream> {
 
@@ -27,11 +26,14 @@ public class BytesValue implements Supplier<InputStream> {
 
   protected transient int hash;
 
-  @Getter
   protected final byte[] value;
 
   public BytesValue(final byte[] bytes) {
     this.value = bytes != null ? Arrays.copyOf(bytes, bytes.length) : new byte[0];
+  }
+
+  public byte[] getValue() {
+    return Arrays.copyOf(value, value.length);
   }
 
   public boolean isEmpty() {

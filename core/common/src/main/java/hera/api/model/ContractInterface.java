@@ -45,7 +45,6 @@ public class ContractInterface {
     assertNotNull(version, new HerajException("Version must not null"));
     assertNotNull(language, new HerajException("Language must not null"));
     assertNotNull(functions, new HerajException("Functions must not null"));
-    // TODO : contractAddress is mutable
     this.address = contractAddress;
     this.version = version;
     this.language = language;
