@@ -30,8 +30,8 @@ public class TransactionConverterTest extends AbstractTestCase {
         new TransactionConverterFactory().create();
 
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .sender(AccountAddress.of(encodedAddress))
-        .recipient(AccountAddress.of(encodedAddress))
+        .from(AccountAddress.of(encodedAddress))
+        .to(AccountAddress.of(encodedAddress))
         .amount("10000", Unit.GAER)
         .nonce(1L)
         .fee(Fee.of(Aer.of("100", Unit.GAER), 5))

@@ -141,8 +141,8 @@ public abstract class InteractiveWallet extends LookupWallet
   public TxHash send(final AccountAddress recipient, final Aer amount, final Fee fee,
       final BytesValue payload) {
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .sender(getCurrentAccount())
-        .recipient(recipient)
+        .from(getCurrentAccount())
+        .to(recipient)
         .amount(amount)
         .nonce(getCurrentAccount().incrementAndGetNonce())
         .fee(fee)

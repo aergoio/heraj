@@ -60,8 +60,8 @@ public class AergoKeyTest extends AbstractTestCase {
       final AergoKey key = new AergoKeyGenerator().create();
 
       final RawTransaction rawTransaction = RawTransaction.newBuilder()
-          .sender(key.getAddress())
-          .recipient(key.getAddress())
+          .from(key.getAddress())
+          .to(key.getAddress())
           .amount("10000", Unit.AER)
           .nonce(1L)
           .build();

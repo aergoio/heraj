@@ -78,19 +78,19 @@ public class RawTransaction {
   }
 
   public interface RawTransactionWithNothing {
-    RawTransactionWithSender sender(String sender);
+    RawTransactionWithSender from(String sender);
 
-    RawTransactionWithSender sender(Account sender);
+    RawTransactionWithSender from(Account sender);
 
-    RawTransactionWithSender sender(AccountAddress sender);
+    RawTransactionWithSender from(AccountAddress sender);
   }
 
   public interface RawTransactionWithSender {
-    RawTransactionWithSenderAndRecipient recipient(String recipientName);
+    RawTransactionWithSenderAndRecipient to(String recipientName);
 
-    RawTransactionWithSenderAndRecipient recipient(Account recipient);
+    RawTransactionWithSenderAndRecipient to(Account recipient);
 
-    RawTransactionWithSenderAndRecipient recipient(AccountAddress recipient);
+    RawTransactionWithSenderAndRecipient to(AccountAddress recipient);
 
   }
 
@@ -141,37 +141,37 @@ public class RawTransaction {
     private TxType txType = TxType.NORMAL;
 
     @Override
-    public RawTransactionWithSender sender(final String sender) {
+    public RawTransactionWithSender from(final String sender) {
       this.sender =
           new AccountAddress(of(envelop(sender.getBytes(), AccountAddress.VERSION)));
       return this;
     }
 
     @Override
-    public RawTransactionWithSender sender(final Account sender) {
-      return sender(sender.getAddress());
+    public RawTransactionWithSender from(final Account sender) {
+      return from(sender.getAddress());
     }
 
     @Override
-    public RawTransactionWithSender sender(final AccountAddress sender) {
+    public RawTransactionWithSender from(final AccountAddress sender) {
       this.sender = sender;
       return this;
     }
 
     @Override
-    public RawTransactionWithSenderAndRecipient recipient(final String recipient) {
+    public RawTransactionWithSenderAndRecipient to(final String recipient) {
       this.recipient =
           new AccountAddress(of(envelop(recipient.getBytes(), AccountAddress.VERSION)));
       return this;
     }
 
     @Override
-    public RawTransactionWithSenderAndRecipient recipient(final Account recipient) {
-      return recipient(recipient.getAddress());
+    public RawTransactionWithSenderAndRecipient to(final Account recipient) {
+      return to(recipient.getAddress());
     }
 
     @Override
-    public RawTransactionWithSenderAndRecipient recipient(final AccountAddress recipient) {
+    public RawTransactionWithSenderAndRecipient to(final AccountAddress recipient) {
       this.recipient = recipient;
       return this;
     }

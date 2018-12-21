@@ -315,8 +315,8 @@ public class WalletIT extends AbstractIT {
       final AccountState preState = wallet.getCurrentAccountState();
 
       final RawTransaction rawTransaction = RawTransaction.newBuilder()
-          .sender(key.getAddress())
-          .recipient(accountAddress)
+          .from(key.getAddress())
+          .to(accountAddress)
           .amount(Aer.of("100", Unit.AER))
           .nonce(wallet.incrementAndGetNonce())
           .build();
@@ -350,8 +350,8 @@ public class WalletIT extends AbstractIT {
       final AccountState preState = wallet.getCurrentAccountState();
 
       final RawTransaction rawTransaction = RawTransaction.newBuilder()
-          .sender(key.getAddress())
-          .recipient(accountAddress)
+          .from(key.getAddress())
+          .to(accountAddress)
           .amount(Aer.of("100", Unit.AER))
           .nonce(wallet.incrementAndGetNonce())
           .build();
@@ -386,8 +386,8 @@ public class WalletIT extends AbstractIT {
       final AccountState preState = wallet.getCurrentAccountState();
 
       final RawTransaction rawTransaction = RawTransaction.newBuilder()
-          .sender(key.getAddress())
-          .recipient(accountAddress)
+          .from(key.getAddress())
+          .to(accountAddress)
           .amount(Aer.of("100", Unit.AER))
           .nonce(wallet.getRecentlyUsedNonce()) // wrong
           .build();
@@ -419,8 +419,8 @@ public class WalletIT extends AbstractIT {
       wallet.lock(auth);
 
       final RawTransaction rawTransaction = RawTransaction.newBuilder()
-          .sender(key.getAddress())
-          .recipient(accountAddress)
+          .from(key.getAddress())
+          .to(accountAddress)
           .amount(Aer.of("100", Unit.AER))
           .nonce(wallet.incrementAndGetNonce())
           .build();

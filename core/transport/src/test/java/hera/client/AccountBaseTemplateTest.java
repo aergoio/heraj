@@ -131,8 +131,8 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     final AergoKey key = new AergoKeyGenerator().create();
     final Account account = new AccountFactory().create(key);
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .sender(ACCOUNT_ADDRESS)
-        .recipient(ACCOUNT_ADDRESS)
+        .from(ACCOUNT_ADDRESS)
+        .to(ACCOUNT_ADDRESS)
         .amount("1000", Unit.AER)
         .nonce(1L)
         .build();
@@ -155,8 +155,8 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
 
     final Account account = mock(Account.class);
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .sender(ACCOUNT_ADDRESS)
-        .recipient(ACCOUNT_ADDRESS)
+        .from(ACCOUNT_ADDRESS)
+        .to(ACCOUNT_ADDRESS)
         .amount("1000", Unit.AER)
         .nonce(1L)
         .build();
@@ -173,8 +173,8 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     final AergoKey key = new AergoKeyGenerator().create();
     final Account account = new AccountFactory().create(key);
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .sender(ACCOUNT_ADDRESS)
-        .recipient(ACCOUNT_ADDRESS)
+        .from(ACCOUNT_ADDRESS)
+        .to(ACCOUNT_ADDRESS)
         .amount("1000", Unit.AER)
         .nonce(1L)
         .build();
@@ -196,8 +196,8 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
 
     final Account account = mock(Account.class);
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .sender(ACCOUNT_ADDRESS)
-        .recipient(ACCOUNT_ADDRESS)
+        .from(ACCOUNT_ADDRESS)
+        .to(ACCOUNT_ADDRESS)
         .amount("1000", Unit.AER)
         .nonce(1L)
         .build();

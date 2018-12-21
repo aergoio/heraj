@@ -34,8 +34,8 @@ public class TransactionUtilsTest extends AbstractTestCase {
   @Test
   public void testCalculateHashWithRawTx() {
     final RawTransaction rawTransaction = Transaction.newBuilder()
-        .sender(AccountAddress.of(encodedAddress))
-        .recipient(AccountAddress.of(encodedAddress))
+        .from(AccountAddress.of(encodedAddress))
+        .to(AccountAddress.of(encodedAddress))
         .amount("10000", Unit.AER)
         .nonce(1L)
         .fee(Fee.of(Aer.of("100", Unit.AER), 5))
@@ -47,8 +47,8 @@ public class TransactionUtilsTest extends AbstractTestCase {
   @Test
   public void testCalculateHashWithRawTxAndSignature() throws IOException {
     final RawTransaction rawTransaction = Transaction.newBuilder()
-        .sender(AccountAddress.of(encodedAddress))
-        .recipient(AccountAddress.of(encodedAddress))
+        .from(AccountAddress.of(encodedAddress))
+        .to(AccountAddress.of(encodedAddress))
         .amount("10000", Unit.AER)
         .nonce(1L)
         .fee(Fee.of(Aer.of("100", Unit.AER), 5))

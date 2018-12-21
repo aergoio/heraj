@@ -41,8 +41,8 @@ public class SignLocalBenchmark {
       receipt = new AccountFactory().create(generator.create());
 
       raw = Transaction.newBuilder()
-          .sender(sender)
-          .recipient(receipt)
+          .from(sender)
+          .to(receipt)
           .amount("30", Unit.AER)
           .nonce(sender.incrementAndGetNonce())
           .build();

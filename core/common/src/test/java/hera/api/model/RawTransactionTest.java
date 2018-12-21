@@ -21,8 +21,8 @@ public class RawTransactionTest {
   public void testBuilder() {
     final RawTransactionWithSenderAndRecipientAndAmountAndNonce minimum =
         RawTransaction.newBuilder()
-            .sender(AccountAddress.of(encodedAddress))
-            .recipient(AccountAddress.of(encodedAddress))
+            .from(AccountAddress.of(encodedAddress))
+            .to(AccountAddress.of(encodedAddress))
             .amount("10000", Unit.AER)
             .nonce(1L);
     assertNotNull(minimum.build());
@@ -39,8 +39,8 @@ public class RawTransactionTest {
   @Test
   public void testBuilderWithName() {
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .sender("namenamenam1")
-        .recipient("namenamenam2")
+        .from("namenamenam1")
+        .to("namenamenam2")
         .amount("10000", Unit.AER)
         .nonce(1L)
         .fee(Fee.of(Aer.of("100", Unit.AER), 5))

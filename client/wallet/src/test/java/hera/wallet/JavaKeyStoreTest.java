@@ -110,8 +110,8 @@ public class JavaKeyStoreTest extends AbstractTestCase {
 
     keyStore.unlock(Authentication.of(key.getAddress(), password));
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .sender(key.getAddress())
-        .recipient(key.getAddress())
+        .from(key.getAddress())
+        .to(key.getAddress())
         .amount(Aer.of("100", Unit.GAER))
         .nonce(1)
         .build();
@@ -129,8 +129,8 @@ public class JavaKeyStoreTest extends AbstractTestCase {
 
     // keyStore.unlock(Authentication.of(key.getAddress(), password));
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .sender(key.getAddress())
-        .recipient(key.getAddress())
+        .from(key.getAddress())
+        .to(key.getAddress())
         .amount(Aer.of("100", Unit.GAER))
         .nonce(1)
         .build();

@@ -138,8 +138,8 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
                 creator.getAddress(), contractDefinition, nonce, fee, contextProvider.get());
             try {
               final RawTransaction rawTransaction = RawTransaction.newBuilder()
-                  .sender(creator)
-                  .recipient(AccountAddress.of(BytesValue.EMPTY))
+                  .from(creator)
+                  .to(AccountAddress.of(BytesValue.EMPTY))
                   .amount(Aer.ZERO)
                   .nonce(nonce)
                   .fee(fee)
@@ -194,8 +194,8 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
               logger.debug("Contract execution address: {}, function: {}",
                   contractInvocation.getAddress(), functionCallString);
               final RawTransaction rawTransaction = RawTransaction.newBuilder()
-                  .sender(executor)
-                  .recipient(contractInvocation.getAddress())
+                  .from(executor)
+                  .to(contractInvocation.getAddress())
                   .amount(Aer.ZERO)
                   .nonce(nonce)
                   .fee(fee)

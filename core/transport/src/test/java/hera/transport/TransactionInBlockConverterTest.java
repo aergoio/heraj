@@ -30,8 +30,8 @@ public class TransactionInBlockConverterTest extends AbstractTestCase {
     final ModelConverter<Transaction, Blockchain.TxInBlock> converter =
         new TransactionInBlockConverterFactory().create();
     final RawTransaction rawTransaction = Transaction.newBuilder()
-        .sender(AccountAddress.of(encodedAddress))
-        .recipient(AccountAddress.of(encodedAddress))
+        .from(AccountAddress.of(encodedAddress))
+        .to(AccountAddress.of(encodedAddress))
         .amount("0.001", Unit.AERGO)
         .nonce(1L)
         .fee(Fee.of(Aer.of("100", Unit.AER), 5))

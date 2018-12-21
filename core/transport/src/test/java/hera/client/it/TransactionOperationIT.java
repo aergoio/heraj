@@ -34,8 +34,8 @@ public class TransactionOperationIT extends AbstractIT {
       final AccountState preState = aergoClient.getAccountOperation().getState(account);
 
       final RawTransaction rawTransaction = RawTransaction.newBuilder()
-          .sender(account)
-          .recipient(recipient)
+          .from(account)
+          .to(recipient)
           .amount(amount)
           .nonce(account.incrementAndGetNonce())
           .fee(fee)
@@ -77,8 +77,8 @@ public class TransactionOperationIT extends AbstractIT {
       final AccountState preState = aergoClient.getAccountOperation().getState(account);
 
       final RawTransaction rawTransaction = RawTransaction.newBuilder()
-          .sender(name)
-          .recipient(recipient)
+          .from(name)
+          .to(recipient)
           .amount(amount)
           .nonce(account.incrementAndGetNonce())
           .fee(fee)
@@ -118,8 +118,8 @@ public class TransactionOperationIT extends AbstractIT {
       final AccountState preState = aergoClient.getAccountOperation().getState(account);
 
       final RawTransaction rawTransaction = RawTransaction.newBuilder()
-          .sender(account)
-          .recipient(name)
+          .from(account)
+          .to(name)
           .amount(amount)
           .nonce(account.incrementAndGetNonce())
           .fee(fee)
@@ -152,8 +152,8 @@ public class TransactionOperationIT extends AbstractIT {
       final AccountState preState = aergoClient.getAccountOperation().getState(account);
 
       final RawTransaction rawTransaction = RawTransaction.newBuilder()
-          .sender(account)
-          .recipient(recipient)
+          .from(account)
+          .to(recipient)
           .amount(null)
           .nonce(account.incrementAndGetNonce())
           .fee(fee)
@@ -185,8 +185,8 @@ public class TransactionOperationIT extends AbstractIT {
 
       final AccountAddress invalidSender = null;
       final RawTransaction rawTransaction = RawTransaction.newBuilder()
-          .sender(invalidSender)
-          .recipient(recipient)
+          .from(invalidSender)
+          .to(recipient)
           .amount(amount)
           .nonce(account.incrementAndGetNonce())
           .fee(fee)
@@ -211,8 +211,8 @@ public class TransactionOperationIT extends AbstractIT {
     for (final Account account : supplyAccounts()) {
       final AccountAddress invalidRecipient = null;
       final RawTransaction rawTransaction = RawTransaction.newBuilder()
-          .sender(account)
-          .recipient(invalidRecipient)
+          .from(account)
+          .to(invalidRecipient)
           .amount(amount)
           .nonce(account.incrementAndGetNonce())
           .fee(fee)
@@ -236,8 +236,8 @@ public class TransactionOperationIT extends AbstractIT {
     for (final Account account : supplyAccounts()) {
       final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());
       final RawTransaction rawTransaction = RawTransaction.newBuilder()
-          .sender(account)
-          .recipient(recipient)
+          .from(account)
+          .to(recipient)
           .amount(amount)
           .nonce(account.getNonce()) // invalid
           .fee(fee)
@@ -261,8 +261,8 @@ public class TransactionOperationIT extends AbstractIT {
     for (final Account account : supplyAccounts()) {
       final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());
       final RawTransaction rawTransaction = RawTransaction.newBuilder()
-          .sender(account)
-          .recipient(recipient)
+          .from(account)
+          .to(recipient)
           .amount(amount)
           .nonce(account.getNonce()) // invalid
           .fee(fee)
@@ -287,8 +287,8 @@ public class TransactionOperationIT extends AbstractIT {
     final Account account = aergoClient.getKeyStoreOperation().create(password);
     final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .sender(account)
-        .recipient(recipient)
+        .from(account)
+        .to(recipient)
         .amount(amount)
         .nonce(account.getNonce()) // invalid
         .fee(fee)

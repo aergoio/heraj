@@ -32,8 +32,8 @@ public class BlockConverterTest extends AbstractTestCase {
     final BlockHash blockHash = BlockHash.of(BytesValue.of(randomUUID().toString().getBytes()));
 
     final RawTransaction rawTransaction = Transaction.newBuilder()
-        .sender(AccountAddress.of(BytesValue.EMPTY))
-        .recipient(AccountAddress.of(BytesValue.EMPTY))
+        .from(AccountAddress.of(BytesValue.EMPTY))
+        .to(AccountAddress.of(BytesValue.EMPTY))
         .amount("10000", Unit.AER)
         .nonce(1L)
         .fee(Fee.of(Aer.of("100", Unit.AER), 5))

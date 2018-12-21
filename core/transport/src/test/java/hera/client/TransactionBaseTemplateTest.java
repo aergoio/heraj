@@ -97,8 +97,8 @@ public class TransactionBaseTemplateTest extends AbstractTestCase {
         supplyTransactionBaseTemplate(aergoService);
 
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .sender(ACCOUNT_ADDRESS)
-        .recipient(ACCOUNT_ADDRESS)
+        .from(ACCOUNT_ADDRESS)
+        .to(ACCOUNT_ADDRESS)
         .amount("1000", Unit.AER)
         .nonce(1L)
         .build();
