@@ -4,21 +4,24 @@
 
 package hera.client.it;
 
+import static java.util.UUID.randomUUID;
+import static org.junit.Assert.assertEquals;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.Account;
-import hera.api.model.AccountAddress;
 import hera.api.model.AccountFactory;
+import hera.api.model.AccountState;
 import hera.api.model.Aer;
+import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
-import hera.api.model.RawTransaction;
-import hera.api.model.Transaction;
+import hera.api.model.Fee;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
-import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.util.ThreadUtils;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
@@ -30,23 +33,15 @@ public abstract class AbstractIT {
 
   protected static final String hostname = "localhost:7845";
 
-  // address : AmM25FKSK1gCqSdUPjnvESsauESNgfZUauHWp7R8Un3zHffEQgTm
-  protected static final String richEncryptedPrivateKey =
-      "47pArdc5PNS9HYY9jMMC7zAuHzytzsAuCYGm5jAUFuD3amQ4mQkvyUaPnmRVSPc2iWzVJpC9Z";
-  protected static final String richPassword = "password";
+  protected final String password = randomUUID().toString();
 
-  protected final AccountAddress recipient =
-      AccountAddress.of(() -> "AmLbHdVs4dNpRzyLirs8cKdV26rPJJxpVXG1w2LLZ9pKfqAHHdyg");
-
-  protected Account rich;
+  // TODO : fee test after clarified
+  protected final Fee fee = Fee.of(Aer.of("1", Unit.AER), 1L);
 
   protected AergoClient aergoClient;
 
   @Before
   public void prepare() {
-    final AergoKey key = AergoKey.of(richEncryptedPrivateKey, richPassword);
-    rich = new AccountFactory().create(key);
-
     aergoClient = new AergoClientBuilder()
         .addConfiguration("zipkin.protocol", "kafka")
         .addConfiguration("zipkin.endpoint", "localhost:9092")
@@ -64,51 +59,37 @@ public abstract class AbstractIT {
   }
 
   protected void waitForNextBlockToGenerate() {
-    ThreadUtils.trySleep(1300L);
+    ThreadUtils.trySleep(2200L);
   }
 
-  protected Account createClientAccount() {
-    final AergoKey key = new AergoKeyGenerator().create();
-    final Account account = new AccountFactory().create(key);
-    return account;
-  }
-
-  protected Account createServerAccount(final String password) {
-    final Account account = aergoClient.getKeyStoreOperation().create(password);
-    return account;
+  protected List<Account> supplyAccounts() {
+    final List<Account> accounts = new ArrayList<>();
+    accounts.add(new AccountFactory().create(new AergoKeyGenerator().create()));
+    accounts.add(aergoClient.getKeyStoreOperation().create(password));
+    return accounts;
   }
 
   protected boolean unlockAccount(final Account account, final String password) {
-    return aergoClient.getKeyStoreOperation()
-        .unlock(Authentication.of(account.getAddress(), password));
+    if (null == account.getKey()) {
+      return aergoClient.getKeyStoreOperation()
+          .unlock(Authentication.of(account.getAddress(), password));
+    }
+    return true;
   }
 
   protected boolean lockAccount(final Account account, final String password) {
-    return aergoClient.getKeyStoreOperation()
-        .lock(Authentication.of(account.getAddress(), password));
+    if (null == account.getKey()) {
+      return aergoClient.getKeyStoreOperation()
+          .lock(Authentication.of(account.getAddress(), password));
+    }
+    return true;
   }
 
-  protected RawTransaction buildTransaction(final Account account, final AccountAddress recipient) {
-    final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .sender(account)
-        .recipient(recipient)
-        .amount(Aer.ZERO)
-        .nonce(account.incrementAndGetNonce())
-        .build();
-    logger.info("Raw transaction: {}", rawTransaction);
-    return rawTransaction;
-  }
-
-  protected RawTransaction buildTransaction(final Account account) {
-    return buildTransaction(account,
-        recipient);
-  }
-
-  protected Transaction signTransaction(final Account account, RawTransaction transaction) {
-    final Transaction signedTransaction =
-        aergoClient.getAccountOperation().sign(account, transaction);
-    logger.info("Signed transaction: {}", signedTransaction);
-    return signedTransaction;
+  protected void verifyState(final AccountState preState, final AccountState refreshed,
+      final Aer sendAmount) {
+    assertEquals(preState.getNonce() + 1, refreshed.getNonce());
+    assertEquals(preState.getBalance().subtract(sendAmount.add(fee.getPrice())),
+        refreshed.getBalance());
   }
 
   @After
