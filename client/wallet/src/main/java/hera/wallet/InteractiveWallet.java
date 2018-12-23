@@ -27,14 +27,11 @@ import hera.exception.CommitException.CommitStatus;
 import hera.exception.InvalidAuthentiationException;
 import hera.exception.WalletException;
 import hera.key.AergoKey;
-import java.io.Closeable;
-import java.io.IOException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.slf4j.Logger;
 
-public abstract class InteractiveWallet extends LookupWallet
-    implements Wallet, AutoCloseable, Closeable {
+public abstract class InteractiveWallet extends LookupWallet implements Wallet {
 
   protected final Logger logger = getLogger(getClass());
 
@@ -241,11 +238,6 @@ public abstract class InteractiveWallet extends LookupWallet
 
   protected void syncNonceWithServer() {
     getCurrentAccount().bindState(getCurrentAccountState());
-  }
-
-  @Override
-  public void close() throws IOException {
-    getAergoClient().close();
   }
 
 }

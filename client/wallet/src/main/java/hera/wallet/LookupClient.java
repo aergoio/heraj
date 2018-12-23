@@ -21,9 +21,10 @@ import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import java.io.Closeable;
 import java.util.List;
 
-public interface LookupClient {
+public interface LookupClient extends Closeable {
 
   /**
    * Get account state by address.

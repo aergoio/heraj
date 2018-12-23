@@ -17,8 +17,9 @@ import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.exception.InvalidAuthentiationException;
 import hera.key.AergoKey;
+import java.io.Closeable;
 
-public interface Wallet extends LookupClient, NonceManagable {
+public interface Wallet extends LookupClient, NonceManagable, Closeable {
 
   /**
    * Bind a keystore with wallet. This operation has a meaning only for {@link WalletType#Secure}.
