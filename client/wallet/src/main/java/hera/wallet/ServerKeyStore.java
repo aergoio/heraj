@@ -26,7 +26,7 @@ public class ServerKeyStore implements KeyStore {
   protected final AergoClient aergoClient;
 
   @Override
-  public void save(final AergoKey key, final String password) {
+  public void saveKey(final AergoKey key, final String password) {
     try {
       aergoClient.getKeyStoreOperation().importKey(key.export(password), password, password);
     } catch (final Exception e) {
@@ -66,6 +66,11 @@ public class ServerKeyStore implements KeyStore {
     } catch (final Exception e) {
       throw new InvalidAuthentiationException(e);
     }
+  }
+
+  @Override
+  public void store(final String path, final String password) {
+    // do nothing
   }
 
 }

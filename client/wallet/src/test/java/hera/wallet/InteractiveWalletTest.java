@@ -12,6 +12,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,6 +42,7 @@ import hera.api.model.TxHash;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
 import hera.exception.InvalidAuthentiationException;
+import hera.exception.WalletException;
 import hera.key.AergoKeyGenerator;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -136,6 +138,30 @@ public class InteractiveWalletTest extends AbstractTestCase {
         Authentication.of(accountAddress, randomUUID().toString());
     final boolean lockResult = wallet.lock(authentication);
     assertTrue(lockResult);
+  }
+
+  @Test
+  public void testStoreKeyStoreOnSuccess() {
+    InteractiveWallet wallet =
+        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    wallet.keyStore = mock(KeyStore.class);
+
+    final boolean storeResult =
+        wallet.storeKeyStore(randomUUID().toString(), randomUUID().toString());
+    assertTrue(storeResult);
+  }
+
+  @Test
+  public void testStoreKeyStoreOnFail() {
+    InteractiveWallet wallet =
+        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    KeyStore mockKeyStore = mock(KeyStore.class);
+    doThrow(new WalletException("")).when(mockKeyStore).store(any(), any());
+    wallet.keyStore = mockKeyStore;
+
+    final boolean storeResult =
+        wallet.storeKeyStore(randomUUID().toString(), randomUUID().toString());
+    assertTrue(false == storeResult);
   }
 
   @Test

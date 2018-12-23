@@ -8,6 +8,7 @@ import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import hera.api.model.AccountAddress;
@@ -33,9 +34,7 @@ import hera.wallet.Wallet;
 import hera.wallet.WalletBuilder;
 import hera.wallet.WalletType;
 import java.io.Closeable;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.cert.CertificateException;
@@ -43,7 +42,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -194,11 +192,6 @@ public class WalletIT extends AbstractIT {
     return keyStore;
   }
 
-  @After
-  public void tearDown() throws Exception {
-    keyStore.store(new FileOutputStream(new File(keyStorePath)), keyStorePasword.toCharArray());
-  }
-
   @Test
   public void testLookup() throws Exception {
     for (Wallet wallet : supplyWorkingWalletList()) {
@@ -236,12 +229,13 @@ public class WalletIT extends AbstractIT {
 
       final AergoKey key = new AergoKeyGenerator().create();
       wallet.saveKey(key, password);
+      wallet.storeKeyStore(keyStorePath, keyStorePasword);
 
       // bind new keystore
       wallet.bindKeyStore(supplyKeyStore());
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
-      wallet.unlock(auth);
+      assertTrue(wallet.unlock(auth));
 
       ((Closeable) wallet).close();
     }

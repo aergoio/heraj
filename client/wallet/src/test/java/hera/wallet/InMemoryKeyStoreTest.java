@@ -31,7 +31,7 @@ public class InMemoryKeyStoreTest extends AbstractTestCase {
 
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
-    keyStore.save(key, password);
+    keyStore.saveKey(key, password);
     assertTrue(keyStore.auth2EncryptedPrivateKey.size() > 0);
 
     final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -45,7 +45,7 @@ public class InMemoryKeyStoreTest extends AbstractTestCase {
     final InMemoryKeyStore keyStore = new InMemoryKeyStore();
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
-    keyStore.save(key, password);
+    keyStore.saveKey(key, password);
 
     final Authentication auth = Authentication.of(key.getAddress(), password);
     final Account unlocked = keyStore.unlock(auth);
@@ -75,7 +75,7 @@ public class InMemoryKeyStoreTest extends AbstractTestCase {
     final InMemoryKeyStore keyStore = new InMemoryKeyStore();
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
-    keyStore.save(key, password);
+    keyStore.saveKey(key, password);
 
     final Authentication auth = Authentication.of(key.getAddress(), password);
     final Account unlocked = keyStore.unlock(auth);
@@ -96,7 +96,7 @@ public class InMemoryKeyStoreTest extends AbstractTestCase {
     final InMemoryKeyStore keyStore = new InMemoryKeyStore();
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
-    keyStore.save(key, password);
+    keyStore.saveKey(key, password);
 
     keyStore.unlock(Authentication.of(key.getAddress(), password));
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
@@ -115,7 +115,7 @@ public class InMemoryKeyStoreTest extends AbstractTestCase {
     final InMemoryKeyStore keyStore = new InMemoryKeyStore();
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
-    keyStore.save(key, password);
+    keyStore.saveKey(key, password);
 
     // keyStore.unlock(Authentication.of(key.getAddress(), password));
     final RawTransaction rawTransaction = RawTransaction.newBuilder()

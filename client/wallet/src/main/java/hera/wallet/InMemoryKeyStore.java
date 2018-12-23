@@ -36,7 +36,7 @@ public class InMemoryKeyStore implements KeyStore, Signer {
   protected Map<AccountAddress, AergoKey> address2Unlocked = new ConcurrentHashMap<>();
 
   @Override
-  public void save(final AergoKey key, final String password) {
+  public void saveKey(final AergoKey key, final String password) {
     try {
       auth2EncryptedPrivateKey.put(digest(Authentication.of(key.getAddress(), password)),
           key.export(password));
@@ -129,6 +129,11 @@ public class InMemoryKeyStore implements KeyStore, Signer {
       throw new LockedAccountException();
     }
     return key;
+  }
+
+  @Override
+  public void store(final String path, final String password) {
+    // do nothing
   }
 
 }

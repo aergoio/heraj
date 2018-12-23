@@ -35,7 +35,6 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
 
   protected final Logger logger = getLogger(getClass());
 
-  @Getter(value = AccessLevel.PROTECTED)
   protected KeyStore keyStore;
 
   protected Account account;
@@ -50,9 +49,16 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
     this.nonceRefreshTryCountAndInterval = tryCountAndInterval;
   }
 
+  protected KeyStore getKeyStore() {
+    if (null == this.keyStore) {
+      throw new WalletException("An key store is not set");
+    }
+    return this.keyStore;
+  }
+
   @Override
   public void saveKey(final AergoKey key, final String password) {
-    getKeyStore().save(key, password);
+    getKeyStore().saveKey(key, password);
   }
 
   @Override
@@ -82,6 +88,16 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
       return false;
     } catch (Exception e) {
       throw new WalletException(e);
+    }
+  }
+
+  @Override
+  public boolean storeKeyStore(final String path, final String password) {
+    try {
+      getKeyStore().store(path, password);
+      return true;
+    } catch (Exception e) {
+      return false;
     }
   }
 

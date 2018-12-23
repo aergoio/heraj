@@ -18,7 +18,7 @@ public interface KeyStore {
    * @param key an aergo key to store
    * @param password a password to encrypt the aergo key
    */
-  void save(AergoKey key, String password);
+  void saveKey(AergoKey key, String password);
 
   /**
    * Export an private key encrypted.
@@ -45,5 +45,13 @@ public interface KeyStore {
    * @throws InvalidAuthentiationException on failure
    */
   void lock(Authentication authentication);
+
+  /**
+   * Store the keystore to the path.
+   *
+   * @param path a path
+   * @param password a password used in storing key store
+   */
+  void store(String path, String password);
 
 }

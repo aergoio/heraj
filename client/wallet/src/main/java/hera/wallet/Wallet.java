@@ -63,6 +63,16 @@ public interface Wallet extends LookupClient, NonceManagable, Closeable {
   boolean lock(Authentication authentication);
 
   /**
+   * Store the keystore to the path. This operation has a meaning only for
+   * {@link WalletType#Secure}. For other wallet type, do nothing.
+   *
+   * @param path a path
+   * @param password a password used in storing key store
+   * @return store result
+   */
+  boolean storeKeyStore(String path, String password);
+
+  /**
    * Create name info of a current account.
    *
    * @param name an new name

@@ -21,6 +21,8 @@ import hera.key.Signer;
 import hera.util.Sha256Utils;
 import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSAKeyGenerator;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.math.BigInteger;
 import java.security.Key;
 import java.security.KeyStoreException;
@@ -58,7 +60,7 @@ public class JavaKeyStore implements KeyStore, Signer {
   protected Map<AccountAddress, AergoKey> address2Unlocked = new ConcurrentHashMap<>();
 
   @Override
-  public void save(final AergoKey key, final String password) {
+  public void saveKey(final AergoKey key, final String password) {
     try {
       final Certificate cert = generateCertificate(key);
       delegate.setKeyEntry(key.getAddress().toString(), key.getPrivateKey(), password.toCharArray(),
@@ -178,4 +180,12 @@ public class JavaKeyStore implements KeyStore, Signer {
     return key;
   }
 
+  @Override
+  public void store(final String path, final String password) {
+    try {
+      delegate.store(new FileOutputStream(new File(path)), password.toCharArray());
+    } catch (Exception e) {
+      throw new WalletException(e);
+    }
+  }
 }

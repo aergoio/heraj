@@ -31,7 +31,7 @@ public class ServerKeyStoreTest extends AbstractTestCase {
     when(mockClient.getKeyStoreOperation()).thenReturn(mock(KeyStoreOperation.class));
 
     final KeyStore keyStore = new ServerKeyStore(mockClient);
-    keyStore.save(new AergoKeyGenerator().create(), randomUUID().toString());
+    keyStore.saveKey(new AergoKeyGenerator().create(), randomUUID().toString());
   }
 
   @Test

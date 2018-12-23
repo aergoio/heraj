@@ -42,7 +42,7 @@ public class JavaKeyStoreTest extends AbstractTestCase {
 
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
-    keyStore.save(key, password);
+    keyStore.saveKey(key, password);
 
     final Authentication auth = Authentication.of(key.getAddress(), password);
     final EncryptedPrivateKey exported = keyStore.export(auth);
@@ -55,7 +55,7 @@ public class JavaKeyStoreTest extends AbstractTestCase {
     final JavaKeyStore keyStore = new JavaKeyStore(this.keyStore);
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
-    keyStore.save(key, password);
+    keyStore.saveKey(key, password);
 
     final Authentication auth = Authentication.of(key.getAddress(), password);
     final Account unlocked = keyStore.unlock(auth);
@@ -85,7 +85,7 @@ public class JavaKeyStoreTest extends AbstractTestCase {
     final JavaKeyStore keyStore = new JavaKeyStore(this.keyStore);
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
-    keyStore.save(key, password);
+    keyStore.saveKey(key, password);
 
     final Authentication auth = Authentication.of(key.getAddress(), password);
     final Account unlocked = keyStore.unlock(auth);
@@ -106,7 +106,7 @@ public class JavaKeyStoreTest extends AbstractTestCase {
     final JavaKeyStore keyStore = new JavaKeyStore(this.keyStore);
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
-    keyStore.save(key, password);
+    keyStore.saveKey(key, password);
 
     keyStore.unlock(Authentication.of(key.getAddress(), password));
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
@@ -125,7 +125,7 @@ public class JavaKeyStoreTest extends AbstractTestCase {
     final JavaKeyStore keyStore = new JavaKeyStore(this.keyStore);
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
-    keyStore.save(key, password);
+    keyStore.saveKey(key, password);
 
     // keyStore.unlock(Authentication.of(key.getAddress(), password));
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
