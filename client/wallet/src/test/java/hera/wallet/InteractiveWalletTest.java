@@ -207,7 +207,28 @@ public class InteractiveWalletTest extends AbstractTestCase {
   }
 
   @Test
-  public void testSend() {
+  public void testSendWithName() {
+    final InteractiveWallet wallet = mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    wallet.account = new AccountFactory().create(accountAddress);
+
+    final AergoClient mockClient = mock(AergoClient.class);
+    final TransactionOperation mockTransactionOperation = mock(TransactionOperation.class);
+    when(mockTransactionOperation.commit(any())).thenReturn(TxHash.of(BytesValue.EMPTY));
+    when(mockClient.getTransactionOperation()).thenReturn(mockTransactionOperation);
+    final AccountOperation mockAccountOperation = mock(AccountOperation.class);
+    when(mockAccountOperation.sign(any(), any())).thenReturn(mock(Transaction.class));
+    when(mockClient.getAccountOperation()).thenReturn(mockAccountOperation);
+
+    when(wallet.getAergoClient()).thenReturn(mockClient);
+    when(wallet.getNonceRefreshTryCountAndInterval())
+        .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
+
+    assertNotNull(
+        wallet.send(randomUUID().toString(), Aer.of("1000", Unit.AER), Fee.getDefaultFee()));
+  }
+
+  @Test
+  public void testSendWithAddress() {
     final InteractiveWallet wallet = mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
     wallet.account = new AccountFactory().create(accountAddress);
 

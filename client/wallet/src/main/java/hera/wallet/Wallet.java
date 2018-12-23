@@ -97,6 +97,27 @@ public interface Wallet extends LookupClient, NonceManagable {
   /**
    * Send <b>aer</b> with {@code fee}.
    *
+   * @param recipient a recipient name
+   * @param amount an amount
+   * @param fee a fee
+   * @return a send transaction hash
+   */
+  TxHash send(String recipient, Aer amount, Fee fee);
+
+  /**
+   * Send <b>aer</b> with {@code fee} and {@code payload}.
+   *
+   * @param recipient a recipient name
+   * @param amount an amount
+   * @param fee a fee
+   * @param payload a payload
+   * @return a send transaction hash
+   */
+  TxHash send(String recipient, Aer amount, Fee fee, BytesValue payload);
+
+  /**
+   * Send <b>aer</b> with {@code fee}.
+   *
    * @param recipient a recipient
    * @param amount an amount
    * @param fee a fee

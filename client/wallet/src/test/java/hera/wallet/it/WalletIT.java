@@ -227,7 +227,7 @@ public class WalletIT extends AbstractIT {
       ((Closeable) wallet).close();
     }
   }
-  
+
   @Test
   public void testSaveAndUnlockAfterReload() throws Exception {
     for (final Wallet wallet : supplyWorkingWalletList()) {
@@ -248,7 +248,97 @@ public class WalletIT extends AbstractIT {
   }
 
   @Test
-  public void testSendOnUnlocked() throws IOException {
+  public void testSendWithNameOnUnlocked() throws IOException {
+    for (final Wallet wallet : supplyWorkingWalletList()) {
+      logger.info("Current wallet: {}", wallet);
+      wallet.bindKeyStore(keyStore);
+
+      final AergoKey key = new AergoKeyGenerator().create();
+      wallet.saveKey(key, password);
+
+      final Authentication auth = Authentication.of(key.getAddress(), password);
+      wallet.unlock(auth);
+
+      final String recipientName = randomUUID().toString().substring(0, 12).replace('-', 'a');
+      wallet.createName(recipientName);
+      waitForNextBlockToGenerate();
+
+      wallet.updateName(recipientName, accountAddress);
+      waitForNextBlockToGenerate();
+
+      final long preCachedNonce = wallet.getRecentlyUsedNonce();
+      final AccountState preState = wallet.getCurrentAccountState();
+
+      wallet.send(recipientName, Aer.of("100", Unit.GAER), Fee.getDefaultFee());
+      wallet.send(recipientName, Aer.of("100", Unit.GAER), Fee.getDefaultFee());
+      wallet.send(recipientName, Aer.of("100", Unit.GAER), Fee.getDefaultFee());
+      waitForNextBlockToGenerate();
+
+      final long postCachedNonce = wallet.getRecentlyUsedNonce();
+      final AccountState postState = wallet.getCurrentAccountState();
+      validatePreAndPostState(preState, preCachedNonce, postState, postCachedNonce, 3);
+
+      ((Closeable) wallet).close();
+    }
+  }
+
+  @Test
+  public void testSendWithNameOnInvalidName() throws IOException {
+    for (final Wallet wallet : supplyWorkingWalletList()) {
+      logger.info("Current wallet: {}", wallet);
+      wallet.bindKeyStore(keyStore);
+
+      final AergoKey key = new AergoKeyGenerator().create();
+      wallet.saveKey(key, password);
+
+      final Authentication auth = Authentication.of(key.getAddress(), password);
+      wallet.unlock(auth);
+
+      try {
+        final String recipientName = randomUUID().toString().substring(0, 12).replace('-', 'a');
+        wallet.send(recipientName, Aer.of("100", Unit.GAER), Fee.getDefaultFee());
+        fail();
+      } catch (Exception e) {
+        // good we expected this
+      }
+
+      ((Closeable) wallet).close();
+    }
+  }
+
+  @Test
+  public void testSendWithNameOnlocked() throws IOException {
+    for (final Wallet wallet : supplyWorkingWalletList()) {
+      logger.info("Current wallet: {}", wallet);
+      wallet.bindKeyStore(keyStore);
+
+      final AergoKey key = new AergoKeyGenerator().create();
+      wallet.saveKey(key, password);
+
+      final Authentication auth = Authentication.of(key.getAddress(), password);
+      wallet.unlock(auth);
+
+      final String recipientName = randomUUID().toString().substring(0, 12).replace('-', 'a');
+      wallet.createName(recipientName);
+      waitForNextBlockToGenerate();
+
+      wallet.updateName(recipientName, accountAddress);
+      waitForNextBlockToGenerate();
+
+      wallet.lock(auth);
+      try {
+        wallet.send(accountAddress, Aer.of("100", Unit.AERGO), Fee.getDefaultFee());
+        fail();
+      } catch (Exception e) {
+        // good we expected this
+      }
+
+      ((Closeable) wallet).close();
+    }
+  }
+
+  @Test
+  public void testSendWithAddressOnUnlocked() throws IOException {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
@@ -276,7 +366,7 @@ public class WalletIT extends AbstractIT {
   }
 
   @Test
-  public void testSendOnlocked() throws IOException {
+  public void testSendWithAddressOnlocked() throws IOException {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);

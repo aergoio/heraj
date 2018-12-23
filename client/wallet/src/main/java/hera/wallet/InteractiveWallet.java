@@ -5,6 +5,7 @@
 package hera.wallet;
 
 import static org.slf4j.LoggerFactory.getLogger;
+
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
@@ -130,6 +131,25 @@ public abstract class InteractiveWallet extends LookupWallet
   @Override
   public boolean verify(final Transaction transaction) {
     return getAergoClient().getAccountOperation().verify(getCurrentAccount(), transaction);
+  }
+
+  @Override
+  public TxHash send(final String recipient, final Aer amount, final Fee fee) {
+    return send(recipient, amount, fee, BytesValue.EMPTY);
+  }
+
+  @Override
+  public TxHash send(final String recipient, final Aer amount, final Fee fee,
+      final BytesValue payload) {
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .from(getCurrentAccount())
+        .to(recipient)
+        .amount(amount)
+        .nonce(getCurrentAccount().incrementAndGetNonce())
+        .fee(fee)
+        .payload(payload)
+        .build();
+    return commit(rawTransaction);
   }
 
   @Override
