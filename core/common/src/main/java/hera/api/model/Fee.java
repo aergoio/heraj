@@ -17,7 +17,7 @@ public class Fee {
   public static final long MIN_LIMIT = 1;
 
   @Getter
-  protected static Fee defaultFee = new Fee(MIN_PRICE, MIN_LIMIT);
+  protected static Fee defaultFee = new Fee(Aer.GIGA_ONE, MIN_LIMIT);
 
   /**
    * Build {@code Fee} object. If {@code price} is smaller then minimum price, set as

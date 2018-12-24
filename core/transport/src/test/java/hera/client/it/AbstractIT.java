@@ -36,7 +36,7 @@ public abstract class AbstractIT {
   protected final String password = randomUUID().toString();
 
   // TODO : fee test after clarified
-  protected final Fee fee = Fee.of(Aer.of("1", Unit.AER), 1L);
+  protected final Fee fee = Fee.getDefaultFee();
 
   protected AergoClient aergoClient;
 

@@ -23,6 +23,10 @@ public class Aer implements Comparable<Aer> {
 
   public static final Aer ONE = new Aer(BigInteger.valueOf(1L));
 
+  public static final Aer GIGA_ONE = new Aer("1", Unit.GAER);
+
+  public static final Aer AERGO_ONE = new Aer("1", Unit.AERGO);
+
   /**
    * Create {@code Aer} instance.
    *
