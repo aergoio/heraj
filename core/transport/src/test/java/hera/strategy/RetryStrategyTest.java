@@ -7,7 +7,7 @@ package hera.strategy;
 import static org.junit.Assert.fail;
 
 import hera.AbstractTestCase;
-import hera.api.model.Time;
+import hera.api.model.internal.Time;
 import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;

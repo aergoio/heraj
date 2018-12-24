@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import hera.api.model.ModuleStatus;
 import hera.api.model.NodeStatus;
-import hera.api.model.Time;
+import hera.api.model.internal.Time;
 import hera.exception.HerajException;
 import hera.util.ParsingUtils;
 import java.io.IOException;

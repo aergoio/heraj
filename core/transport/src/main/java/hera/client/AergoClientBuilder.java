@@ -12,7 +12,7 @@ import hera.DefaultConstants;
 import hera.Strategy;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.model.Time;
+import hera.api.model.internal.Time;
 import hera.strategy.ConnectStrategy;
 import hera.strategy.NettyConnectStrategy;
 import hera.strategy.OkHttpConnectStrategy;

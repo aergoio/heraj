@@ -4,7 +4,7 @@
 
 package hera.wallet;
 
-import hera.api.model.Time;
+import hera.api.model.internal.Time;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;

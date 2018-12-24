@@ -6,6 +6,7 @@ package hera.api.model;
 
 import static java.util.Collections.unmodifiableMap;
 
+import hera.api.model.internal.Time;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

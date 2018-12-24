@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.api.model;
+package hera.api.model.internal;
 
 import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
