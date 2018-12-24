@@ -25,6 +25,8 @@ import hera.client.AergoClient;
 import hera.exception.CommitException;
 import hera.exception.CommitException.CommitStatus;
 import hera.exception.InvalidAuthentiationException;
+import hera.exception.UnbindedAccountException;
+import hera.exception.UnbindedKeyStoreException;
 import hera.exception.WalletException;
 import hera.key.AergoKey;
 import lombok.AccessLevel;
@@ -51,7 +53,7 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
 
   protected KeyStore getKeyStore() {
     if (null == this.keyStore) {
-      throw new WalletException("An key store is not set");
+      throw new UnbindedKeyStoreException();
     }
     return this.keyStore;
   }
@@ -104,7 +106,7 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
   @Override
   public Account getCurrentAccount() {
     if (null == this.account) {
-      throw new WalletException("An account is not set");
+      throw new UnbindedAccountException();
     }
     return this.account;
   }

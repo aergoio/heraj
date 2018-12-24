@@ -16,6 +16,8 @@ import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.exception.InvalidAuthentiationException;
+import hera.exception.UnbindedAccountException;
+import hera.exception.UnbindedKeyStoreException;
 import hera.key.AergoKey;
 import java.io.Closeable;
 
@@ -34,6 +36,8 @@ public interface Wallet extends LookupClient, NonceManagable, Closeable {
    *
    * @param aergoKey an aergo key
    * @param password an encrypt key
+   *
+   * @throws UnbindedKeyStoreException if it's {@link WalletType#Secure} and keystore is not binded
    */
   void saveKey(AergoKey aergoKey, String password);
 
@@ -42,7 +46,9 @@ public interface Wallet extends LookupClient, NonceManagable, Closeable {
    *
    * @param authentication an authentication
    * @return encoded encrypted private key
+   *
    * @throws InvalidAuthentiationException on failure
+   * @throws UnbindedKeyStoreException if it's {@link WalletType#Secure} and keystore is not binded
    */
   String exportKey(Authentication authentication);
 
@@ -51,6 +57,8 @@ public interface Wallet extends LookupClient, NonceManagable, Closeable {
    *
    * @param authentication an authentication
    * @return unlock result
+   *
+   * @throws UnbindedKeyStoreException if it's {@link WalletType#Secure} and keystore is not binded
    */
   boolean unlock(Authentication authentication);
 
@@ -59,6 +67,8 @@ public interface Wallet extends LookupClient, NonceManagable, Closeable {
    *
    * @param authentication an authentication
    * @return unlock result
+   *
+   * @throws UnbindedKeyStoreException if it's {@link WalletType#Secure} and keystore is not binded
    */
   boolean lock(Authentication authentication);
 
@@ -69,6 +79,8 @@ public interface Wallet extends LookupClient, NonceManagable, Closeable {
    * @param path a path
    * @param password a password used in storing key store
    * @return store result
+   *
+   * @throws UnbindedKeyStoreException if it's {@link WalletType#Secure} and keystore is not binded
    */
   boolean storeKeyStore(String path, String password);
 
@@ -77,6 +89,7 @@ public interface Wallet extends LookupClient, NonceManagable, Closeable {
    *
    * @param name an new name
    * @return a create name transaction hash
+   * @throws UnbindedAccountException if account isn't binded
    */
   TxHash createName(String name);
 
@@ -86,6 +99,7 @@ public interface Wallet extends LookupClient, NonceManagable, Closeable {
    * @param name an already binded name
    * @param newOwner an new owner of name
    * @return a update name transaction hash
+   * @throws UnbindedAccountException if account isn't binded
    */
   TxHash updateName(String name, AccountAddress newOwner);
 
@@ -94,6 +108,8 @@ public interface Wallet extends LookupClient, NonceManagable, Closeable {
    *
    * @param rawTransaction raw transaction to sign
    * @return signed transaction
+   *
+   * @throws UnbindedAccountException if account isn't binded
    */
   Transaction sign(RawTransaction rawTransaction);
 
@@ -102,6 +118,8 @@ public interface Wallet extends LookupClient, NonceManagable, Closeable {
    *
    * @param transaction transaction to verify
    * @return verify result
+   *
+   * @throws UnbindedAccountException if account isn't binded
    */
   boolean verify(Transaction transaction);
 
@@ -112,6 +130,8 @@ public interface Wallet extends LookupClient, NonceManagable, Closeable {
    * @param amount an amount
    * @param fee a fee
    * @return a send transaction hash
+   *
+   * @throws UnbindedAccountException if account isn't binded
    */
   TxHash send(String recipient, Aer amount, Fee fee);
 
@@ -123,6 +143,8 @@ public interface Wallet extends LookupClient, NonceManagable, Closeable {
    * @param fee a fee
    * @param payload a payload
    * @return a send transaction hash
+   *
+   * @throws UnbindedAccountException if account isn't binded
    */
   TxHash send(String recipient, Aer amount, Fee fee, BytesValue payload);
 
@@ -133,6 +155,8 @@ public interface Wallet extends LookupClient, NonceManagable, Closeable {
    * @param amount an amount
    * @param fee a fee
    * @return a send transaction hash
+   *
+   * @throws UnbindedAccountException if account isn't binded
    */
   TxHash send(AccountAddress recipient, Aer amount, Fee fee);
 
@@ -144,6 +168,8 @@ public interface Wallet extends LookupClient, NonceManagable, Closeable {
    * @param fee a fee
    * @param payload a payload
    * @return a send transaction hash
+   *
+   * @throws UnbindedAccountException if account isn't binded
    */
   TxHash send(AccountAddress recipient, Aer amount, Fee fee, BytesValue payload);
 
@@ -152,6 +178,8 @@ public interface Wallet extends LookupClient, NonceManagable, Closeable {
    *
    * @param rawTransaction a raw transaction
    * @return a transaction hash
+   *
+   * @throws UnbindedAccountException if account isn't binded
    */
   TxHash commit(RawTransaction rawTransaction);
 
@@ -160,6 +188,8 @@ public interface Wallet extends LookupClient, NonceManagable, Closeable {
    *
    * @param signedTransaction a signed transaction
    * @return a transaction hash
+   *
+   * @throws UnbindedAccountException if account isn't binded
    */
   TxHash commit(Transaction signedTransaction);
 
@@ -169,6 +199,8 @@ public interface Wallet extends LookupClient, NonceManagable, Closeable {
    * @param contractDefinition a contract definition
    * @param fee a fee to make a transaction
    * @return a contract transaction hash
+   *
+   * @throws UnbindedAccountException if account isn't binded
    */
   ContractTxHash deploy(ContractDefinition contractDefinition, Fee fee);
 
@@ -178,6 +210,8 @@ public interface Wallet extends LookupClient, NonceManagable, Closeable {
    * @param contractInvocation a contract invocation
    * @param fee a fee to make a transaction
    * @return a contract transaction hash
+   *
+   * @throws UnbindedAccountException if account isn't binded
    */
   ContractTxHash execute(ContractInvocation contractInvocation, Fee fee);
 

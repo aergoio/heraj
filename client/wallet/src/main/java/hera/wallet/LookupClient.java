@@ -158,4 +158,9 @@ public interface LookupClient extends Closeable {
    */
   ContractResult query(ContractInvocation contractInvocation);
 
+  /**
+   * {@inheritDoc}
+   */
+  void close();
+
 }
