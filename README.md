@@ -27,6 +27,16 @@ This repository, heraj is java implementation for hera.
     <artifactId>heraj-transport</artifactId>
     <version>${RECENT_VERSION}</version>
   </dependency>
+  <dependency>
+    <groupId>io.aergo</groupId>
+    <artifactId>heraj-wallet</artifactId>
+    <version>${RECENT_VERSION}</version>
+  </dependency>
+  <dependency>
+    <groupId>io.aergo</groupId>
+    <artifactId>heraj-smart-contract</artifactId>
+    <version>${RECENT_VERSION}</version>
+  </dependency>
 </dependencies>
 ```
 
@@ -40,15 +50,17 @@ repositories {
 
 dependencies {
   implementation 'io.aergo:heraj-transport:${RECENT_VERSION}'
+  implementation 'io.aergo:heraj-wallet:${RECENT_VERSION}'
+  implementation 'io.aergo:heraj-smart-contract:${RECENT_VERSION}'
 }
 ```
 
 The heraj provides the next:
 * Utilities
-* Aergo client(both low and high level API)
+* Aergo client (both low and high level API)
 * Integration to other useful frameworks.
 * Rapid development tools
-* Boilerplate and examples
+* Examples
 
 ## Modules
 The repository contains next:
@@ -57,6 +69,9 @@ The repository contains next:
 * core/common
 * core/protobuf
 * core/transport
+* client/wallet
+* client/smart-contract
+* examples
 
 # Integration
 TBD

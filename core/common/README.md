@@ -11,22 +11,26 @@ Describe basic models of blockchain.
 * NodeStatus
 * ModuleStatus
 * Peer
+* PeerMetric
 
 #### Account related
-* ClientManagedAccount
-* ServerManagedAccount
+* Account
 * AccountAddress
 * Authentication
 * AccountState
-* AergoKey
 * EncryptedPrivateKey
+* AergoKey
+* Aer
+* Fee
 
 #### Block related
 * Block
 * BlockHash
 * BlockHeader
+* BlockChainStatus
 
 #### Transaction related
+* RawTransaction
 * Transaction
 * TxHash
 * Signature
@@ -39,12 +43,17 @@ Describe basic models of blockchain.
 * ContractDefinition
 * ContractFunction
 * ContractInvocation
+* ContractResult
+
+### Internal
+Internal models are used inside of api.
 
 
 ## Strategy
 
-Strategy is used for any customizable operation. It is binded with context and any operation holding context can use strategy. At this time there are 2 strategies:
+Strategy is used for any customizable operation. It is binded with context and any operation holding context can use strategy.
 * ConnectStrategy
+* FailoverStrategy
 * TimeoutStrategy
 
 
