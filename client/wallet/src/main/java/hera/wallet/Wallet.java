@@ -181,4 +181,9 @@ public interface Wallet extends LookupClient, NonceManagable, Closeable {
    */
   ContractTxHash execute(ContractInvocation contractInvocation, Fee fee);
 
+  /**
+   * {@inheritDoc}
+   */
+  void close();
+
 }

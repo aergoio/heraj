@@ -2,21 +2,22 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.example;
+package hera.example.lowlevel;
 
 import hera.api.model.Block;
 import hera.api.model.BlockHeader;
 import hera.api.model.BlockchainStatus;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
+import hera.example.AbstractExample;
 import java.util.List;
 
-public class LookupExample extends AbstractExample {
+public class BlockLookup extends AbstractExample {
 
   protected void blockLookup() {
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
-        .withEndpoint("localhost:7845")
+        .withEndpoint(hostname)
         .withNonBlockingConnect()
         .build();
 
@@ -36,7 +37,6 @@ public class LookupExample extends AbstractExample {
         aergoClient.getBlockOperation().getBlock(blockByHash.getPreviousHash());
     System.out.println("Previous block: " + previousBlock);
 
-
     // close the client
     aergoClient.close();
   }
@@ -44,7 +44,7 @@ public class LookupExample extends AbstractExample {
   protected void blockHeaderLookup() {
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
-        .withEndpoint("localhost:7845")
+        .withEndpoint(hostname)
         .withNonBlockingConnect()
         .build();
 
@@ -73,7 +73,7 @@ public class LookupExample extends AbstractExample {
   }
 
   public static void main(String[] args) {
-    new LookupExample().run();
+    new BlockLookup().run();
   }
 
 }

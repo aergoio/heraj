@@ -24,6 +24,7 @@ import hera.api.model.PeerMetric;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.client.AergoClient;
+import hera.exception.WalletException;
 import java.io.Closeable;
 import java.util.List;
 import lombok.AccessLevel;
@@ -129,7 +130,11 @@ public abstract class LookupWallet implements LookupClient, AutoCloseable, Close
 
   @Override
   public void close() {
-    getAergoClient().close();
+    try {
+      getAergoClient().close();
+    } catch (Exception e) {
+      throw new WalletException(e);
+    }
   }
 
 }

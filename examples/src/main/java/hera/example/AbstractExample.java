@@ -6,16 +6,16 @@ package hera.example;
 
 public abstract class AbstractExample {
 
-  protected final String hostname = "localhost:7845";
+  protected String hostname = "localhost:7845";
 
-  protected void sleep(final long miliseconds) {
+  protected void sleep(final long millis) {
     try {
-      Thread.sleep(miliseconds);
+      Thread.sleep(millis);
     } catch (InterruptedException e) {
-      throw new IllegalStateException(e);
+      e.printStackTrace();
     }
   }
 
-  public abstract void run();
+  public abstract void run() throws Exception;
 
 }

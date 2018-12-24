@@ -6,5 +6,6 @@ dependencies {
   implementation project(":core:util")
   implementation project(":core:common")
   implementation project(":core:transport")
-  compileOnly 'org.projectlombok:lombok:1.18.2'
+  implementation project(":client:wallet")
+  implementation project(":client:smart-contract")
 }

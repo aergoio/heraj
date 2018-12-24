@@ -49,8 +49,7 @@ def jmhProjects = [
 ]
 
 def exampleProjects = [
-  // uncomment after develop finishes
-  // project('examples')
+  project('examples')
 ]
 
 ext {
