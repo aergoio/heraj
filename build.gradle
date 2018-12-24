@@ -30,7 +30,7 @@ repositories {
 
 allprojects {
   group 'io.aergo'
-  version '1.0-SNAPSHOT'
+  version '0.9.0'
 }
 def javaProjects = [
   project('core:annotation'),
