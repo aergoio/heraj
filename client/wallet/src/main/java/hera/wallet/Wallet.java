@@ -4,6 +4,8 @@
 
 package hera.wallet;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.Authentication;
@@ -21,6 +23,8 @@ import hera.exception.UnbindedKeyStoreException;
 import hera.key.AergoKey;
 import java.io.Closeable;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public interface Wallet extends LookupClient, NonceManagable, Closeable {
 
   /**

@@ -6,12 +6,16 @@ package hera.api.model;
 
 import static java.util.Collections.unmodifiableMap;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.internal.Time;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 @ToString
 @EqualsAndHashCode
 public class ModuleStatus {
@@ -48,6 +52,7 @@ public class ModuleStatus {
    * @param error a kind of error
    * @param actor an actor status
    */
+  @ApiAudience.Private
   public ModuleStatus(final String moduleName, final String status,
       final long processedMessageCount,
       final long queuedMessageCount, final Time latency, final String error,

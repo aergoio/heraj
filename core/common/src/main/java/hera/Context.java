@@ -4,10 +4,14 @@
 
 package hera;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.util.Configuration;
 import java.util.Optional;
 import java.util.Set;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public interface Context {
 
   /**

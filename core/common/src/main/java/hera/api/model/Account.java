@@ -4,8 +4,12 @@
 
 package hera.api.model;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.key.AergoKey;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public interface Account {
 
   /**

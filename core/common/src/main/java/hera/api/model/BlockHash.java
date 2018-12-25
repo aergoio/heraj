@@ -4,10 +4,14 @@
 
 package hera.api.model;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.encode.Encodable;
 import hera.exception.DecodingFailureException;
 import hera.util.Adaptor;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public class BlockHash extends Hash implements Adaptor, Encodable {
 
   /**
@@ -17,6 +21,7 @@ public class BlockHash extends Hash implements Adaptor, Encodable {
    * @return created {@link BlockHash}
    * @throws DecodingFailureException if decoding failed
    */
+  @ApiAudience.Public
   public static BlockHash of(final String encoded) {
     return new BlockHash(encoded);
   }
@@ -27,6 +32,7 @@ public class BlockHash extends Hash implements Adaptor, Encodable {
    * @param bytesValue {@link BytesValue}
    * @return created {@link BlockHash}
    */
+  @ApiAudience.Private
   public static BlockHash of(final BytesValue bytesValue) {
     return new BlockHash(bytesValue);
   }
@@ -37,6 +43,7 @@ public class BlockHash extends Hash implements Adaptor, Encodable {
    * @param encoded String with base58 encoded
    * @throws DecodingFailureException if decoding failed
    */
+  @ApiAudience.Public
   public BlockHash(final String encoded) {
     super(encoded);
   }
@@ -46,6 +53,7 @@ public class BlockHash extends Hash implements Adaptor, Encodable {
    *
    * @param bytesValue {@link BytesValue}
    */
+  @ApiAudience.Private
   public BlockHash(final BytesValue bytesValue) {
     super(bytesValue);
   }

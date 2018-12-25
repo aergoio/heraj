@@ -6,9 +6,13 @@ package hera;
 
 import static java.lang.System.identityHashCode;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import java.util.HashMap;
 import java.util.Map;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public class ContextHolder {
 
   protected static final ThreadLocal<Map<Integer, Context>> threadLocal =

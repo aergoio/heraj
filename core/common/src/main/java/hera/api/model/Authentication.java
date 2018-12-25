@@ -6,11 +6,15 @@ package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.exception.HerajException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 @ToString
 @EqualsAndHashCode
 public class Authentication {
@@ -22,6 +26,7 @@ public class Authentication {
    * @param password a password
    * @return an {@code Authentication} instance
    */
+  @ApiAudience.Public
   public static Authentication of(final AccountAddress accountAddress, final String password) {
     return new Authentication(accountAddress, password);
   }
@@ -38,6 +43,7 @@ public class Authentication {
    * @param accountAddress an account address
    * @param password a password
    */
+  @ApiAudience.Public
   public Authentication(final AccountAddress accountAddress, final String password) {
     assertNotNull(accountAddress, new HerajException("Account address must not null"));
     assertNotNull(password, new HerajException("Pasasword must not null"));

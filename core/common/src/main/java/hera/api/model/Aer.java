@@ -6,6 +6,8 @@ package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.exception.HerajException;
 import hera.exception.InvalidAerAmountException;
 import java.math.BigDecimal;
@@ -15,6 +17,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 @ToString
 @EqualsAndHashCode
 public class Aer implements Comparable<Aer> {
@@ -34,6 +38,7 @@ public class Aer implements Comparable<Aer> {
    * @return an aergo instance
    * @throws InvalidAerAmountException if an amount is invalid
    */
+  @ApiAudience.Public
   public static Aer of(final String amount) {
     return new Aer(amount);
   }
@@ -46,6 +51,7 @@ public class Aer implements Comparable<Aer> {
    * @return an aergo instance
    * @throws InvalidAerAmountException if an amount is invalid
    */
+  @ApiAudience.Public
   public static Aer of(final String amount, final Unit unit) {
     return new Aer(amount, unit);
   }
@@ -56,6 +62,7 @@ public class Aer implements Comparable<Aer> {
    * @param amount an amount in {@link Unit#AER}
    * @return an aergo instance
    */
+  @ApiAudience.Public
   public static Aer of(final BigInteger amount) {
     return new Aer(amount);
   }
@@ -63,6 +70,7 @@ public class Aer implements Comparable<Aer> {
   /**
    * An unit to represent aergo. Consist of {@code AER, GAER, AERGO}.
    */
+  @ApiAudience.Public
   @RequiredArgsConstructor
   public enum Unit {
     AER("aer", new BigDecimal("1"), new BigDecimal("1")),
@@ -88,6 +96,7 @@ public class Aer implements Comparable<Aer> {
    * @param amount an amount in string which is considered as {@link Unit#AER}
    * @throws InvalidAerAmountException if an amount is invalid
    */
+  @ApiAudience.Public
   public Aer(final String amount) {
     this(amount, Unit.AER);
   }
@@ -99,6 +108,7 @@ public class Aer implements Comparable<Aer> {
    * @param unit an unit {@link Unit}
    * @throws InvalidAerAmountException if an amount is invalid
    */
+  @ApiAudience.Public
   public Aer(final String amount, final Unit unit) {
     assertNotNull(amount, new HerajException("Amount must not null"));
     assertNotNull(unit, new HerajException("Unit must not null"));
@@ -110,6 +120,7 @@ public class Aer implements Comparable<Aer> {
    *
    * @param amount an amount in {@link Unit#AER}
    */
+  @ApiAudience.Public
   public Aer(final BigInteger amount) {
     this.value =
         null != amount ? (amount.compareTo(BigInteger.ZERO) >= 0 ? amount : BigInteger.ZERO)

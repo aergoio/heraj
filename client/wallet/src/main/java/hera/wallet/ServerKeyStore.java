@@ -6,6 +6,8 @@ package hera.wallet;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountFactory;
 import hera.api.model.Authentication;
@@ -18,6 +20,8 @@ import hera.key.AergoKey;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 @RequiredArgsConstructor
 public class ServerKeyStore implements KeyStore {
 

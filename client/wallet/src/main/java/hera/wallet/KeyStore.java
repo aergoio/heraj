@@ -4,12 +4,16 @@
 
 package hera.wallet;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.exception.InvalidAuthentiationException;
 import hera.key.AergoKey;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public interface KeyStore {
 
   /**

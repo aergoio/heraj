@@ -7,6 +7,8 @@ package hera.api.model.internal;
 import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -15,9 +17,11 @@ import org.slf4j.Logger;
 /**
  * Class containing hostname and port.
  * <p>
- *   This is used for connection to server like aergo node.
+ * This is used for connection to server like aergo node.
  * </p>
  */
+@ApiAudience.Private
+@ApiStability.Unstable
 @RequiredArgsConstructor
 public class HostnameAndPort {
 

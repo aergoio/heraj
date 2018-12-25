@@ -4,6 +4,8 @@
 
 package hera.api.model.internal;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
@@ -15,6 +17,8 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @RequiredArgsConstructor

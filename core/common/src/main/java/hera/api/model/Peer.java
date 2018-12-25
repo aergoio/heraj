@@ -6,11 +6,15 @@ package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import java.net.InetAddress;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 @ToString
 @EqualsAndHashCode
 public class Peer {
@@ -40,6 +44,7 @@ public class Peer {
    * @param blockchainStatus a blockchain status of peer
    * @param state a peer state
    */
+  @ApiAudience.Private
   public Peer(final InetAddress address, final int port, final String peerId,
       final BlockchainStatus blockchainStatus,
       final int state) {

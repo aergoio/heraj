@@ -4,8 +4,12 @@
 
 package hera.api.model;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.exception.InvalidVersionException;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public class ContractAddress extends AccountAddress {
 
   /**
@@ -16,6 +20,7 @@ public class ContractAddress extends AccountAddress {
    *
    * @throws InvalidVersionException when address version mismatch
    */
+  @ApiAudience.Public
   public static ContractAddress of(final String encoded) {
     return new ContractAddress(encoded);
   }
@@ -28,6 +33,7 @@ public class ContractAddress extends AccountAddress {
    *
    * @throws InvalidVersionException when address version mismatch
    */
+  @ApiAudience.Private
   public static ContractAddress of(final BytesValue bytesValue) {
     return new ContractAddress(bytesValue);
   }
@@ -39,6 +45,7 @@ public class ContractAddress extends AccountAddress {
    *
    * @throws InvalidVersionException when address version mismatch
    */
+  @ApiAudience.Public
   public ContractAddress(final String encoded) {
     super(encoded);
   }
@@ -50,6 +57,7 @@ public class ContractAddress extends AccountAddress {
    *
    * @throws InvalidVersionException when address version mismatch
    */
+  @ApiAudience.Private
   public ContractAddress(final BytesValue bytesValue) {
     super(bytesValue);
   }

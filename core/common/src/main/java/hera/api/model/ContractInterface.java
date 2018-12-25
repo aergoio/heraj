@@ -7,6 +7,8 @@ package hera.api.model;
 import static hera.util.ValidationUtils.assertNotNull;
 import static java.util.Collections.unmodifiableList;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.exception.HerajException;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -15,6 +17,8 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 @ToString
 @EqualsAndHashCode
 public class ContractInterface {
@@ -39,6 +43,7 @@ public class ContractInterface {
    * @param language a contract language
    * @param functions a contract functions to invoke
    */
+  @ApiAudience.Private
   public ContractInterface(final ContractAddress contractAddress, final String version,
       final String language, final List<ContractFunction> functions) {
     assertNotNull(contractAddress, new HerajException("Contract address must not null"));

@@ -4,10 +4,14 @@
 
 package hera.api.model;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 @ToString
 @EqualsAndHashCode
 public class ContractTxReceipt {
@@ -28,6 +32,7 @@ public class ContractTxReceipt {
    * @param status a contract status
    * @param ret a return value
    */
+  @ApiAudience.Private
   public ContractTxReceipt(final ContractAddress contractAddress, final String status,
       final String ret) {
     this.contractAddress =

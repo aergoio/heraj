@@ -4,6 +4,8 @@
 
 package hera.wallet;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.internal.Time;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
@@ -12,6 +14,8 @@ import hera.client.ContextConfiguer;
 import hera.exception.WalletCreationException;
 import java.util.concurrent.TimeUnit;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public class WalletBuilder implements ContextConfiguer<WalletBuilder> {
 
   protected static final TryCountAndInterval MIMINUM_NONCE_REFRESH_COUNT =

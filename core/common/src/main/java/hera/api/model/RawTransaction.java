@@ -7,15 +7,20 @@ package hera.api.model;
 import static hera.api.model.BytesValue.of;
 import static hera.util.VersionUtils.envelop;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.Transaction.TxType;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 @ToString
 @EqualsAndHashCode
 public class RawTransaction {
 
+  @ApiAudience.Public
   public static RawTransactionWithNothing newBuilder() {
     return new RawTransaction.Builder();
   }
@@ -27,6 +32,7 @@ public class RawTransaction {
    * @param nonce an new nonce
    * @return a {@code RawTransaction} instance
    */
+  @ApiAudience.Public
   public static RawTransaction copyOf(final RawTransaction rawTransaction, final long nonce) {
     return new RawTransaction(rawTransaction.getSender(), rawTransaction.getRecipient(),
         rawTransaction.getAmount(), nonce, rawTransaction.getFee(), rawTransaction.getPayload(),
@@ -65,6 +71,7 @@ public class RawTransaction {
    * @param payload a payload
    * @param txType a txType
    */
+  @ApiAudience.Private
   public RawTransaction(final AccountAddress sender, final AccountAddress recipient,
       final Aer amount, final Long nonce, final Fee fee, final BytesValue payload,
       final TxType txType) {

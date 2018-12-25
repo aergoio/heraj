@@ -9,11 +9,15 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.exception.HerajException;
 import java.util.List;
 import lombok.Getter;
 import lombok.ToString;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 @ToString
 public class ContractDefinition {
 
@@ -25,12 +29,14 @@ public class ContractDefinition {
    *
    * @return created {@code ContractDefinition}
    */
+  @ApiAudience.Public
   public static ContractDefinition of(final String encodedContract, Object... args) {
     return new ContractDefinition(encodedContract, args);
   }
 
   public static final byte PAYLOAD_VERSION = (byte) 0xC0;
 
+  @ApiAudience.Public
   public static ContractDefinitionWithNothing newBuilder() {
     return new ContractDefinition.Builder();
   }
@@ -47,6 +53,7 @@ public class ContractDefinition {
    * @param encodedContract base58 with checksum encoded contract definition
    * @param args constructor arguments
    */
+  @ApiAudience.Public
   public ContractDefinition(final String encodedContract, final Object... args) {
     assertNotNull(encodedContract, new HerajException("Encoded contract must not null"));
     this.encodedContract = encodedContract;

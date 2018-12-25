@@ -4,10 +4,14 @@
 
 package hera.wallet;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountState;
 import hera.exception.UnbindedAccountException;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public interface NonceManagable {
 
   /**

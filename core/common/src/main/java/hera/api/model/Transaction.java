@@ -4,16 +4,21 @@
 
 package hera.api.model;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.util.TransactionUtils;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class Transaction extends RawTransaction {
 
+  @ApiAudience.Public
   public static TransactionWithoutSign newBuilder(final RawTransaction rawTransaction) {
     return new Transaction.Builder(rawTransaction);
   }
@@ -51,6 +56,7 @@ public class Transaction extends RawTransaction {
    * @param indexInBlock an indexInBlock
    * @param isConfirmed an confirm state
    */
+  @ApiAudience.Private
   public Transaction(final RawTransaction rawTransaction, final Signature signature,
       final TxHash txHash, final BlockHash blockHash, final int indexInBlock,
       final boolean isConfirmed) {
@@ -76,6 +82,7 @@ public class Transaction extends RawTransaction {
    * @param indexInBlock an indexInBlock
    * @param isConfirmed an confirm state
    */
+  @ApiAudience.Private
   public Transaction(final AccountAddress sender, final AccountAddress recipient,
       final Aer amount, long nonce, final Fee fee, final BytesValue payload,
       final TxType txType, final Signature signature, final TxHash txHash,

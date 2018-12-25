@@ -8,6 +8,8 @@ import static hera.util.ValidationUtils.assertNotNull;
 import static hera.util.ValidationUtils.assertTrue;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.exception.HerajException;
 import hera.util.ThreadUtils;
 import lombok.EqualsAndHashCode;
@@ -15,6 +17,8 @@ import lombok.Getter;
 import lombok.ToString;
 import org.slf4j.Logger;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 @ToString
 @EqualsAndHashCode
 public class TryCountAndInterval {

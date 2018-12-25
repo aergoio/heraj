@@ -4,10 +4,14 @@
 
 package hera.wallet;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
 import java.security.KeyStore;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public class SecureWallet extends InteractiveWallet {
 
   SecureWallet(final AergoClient aergoClient, final TryCountAndInterval tryCountAndInterval) {

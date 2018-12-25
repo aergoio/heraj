@@ -9,12 +9,16 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.exception.HerajException;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 @ToString
 @EqualsAndHashCode
 public class ContractInvocation {
@@ -35,6 +39,7 @@ public class ContractInvocation {
    * @param contractFunction invocation function
    * @param args arguments of invocation function
    */
+  @ApiAudience.Private
   public ContractInvocation(final ContractAddress contractAddress,
       final ContractFunction contractFunction,
       final Object... args) {

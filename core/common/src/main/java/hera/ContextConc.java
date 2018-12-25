@@ -7,6 +7,8 @@ package hera;
 import static java.util.Collections.unmodifiableSet;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.util.Configuration;
 import hera.util.conf.InMemoryConfiguration;
 import java.util.HashSet;
@@ -17,6 +19,8 @@ import lombok.Getter;
 import lombok.ToString;
 import org.slf4j.Logger;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 @ToString(exclude = {"logger", "parent"})
 @EqualsAndHashCode(exclude = {"logger", "parent"})
 public final class ContextConc implements Context {

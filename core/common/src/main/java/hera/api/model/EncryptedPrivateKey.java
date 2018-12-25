@@ -7,12 +7,16 @@ package hera.api.model;
 import static hera.util.EncodingUtils.decodeBase58WithCheck;
 import static hera.util.EncodingUtils.encodeBase58WithCheck;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.encode.Encodable;
 import hera.exception.DecodingFailureException;
 import hera.exception.InvalidVersionException;
 import hera.util.VersionUtils;
 import lombok.Getter;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public class EncryptedPrivateKey implements Encodable {
 
   public static final byte VERSION = (byte) 0xAA;
@@ -26,6 +30,7 @@ public class EncryptedPrivateKey implements Encodable {
    * @throws DecodingFailureException if decoding failed
    * @throws InvalidVersionException when address version mismatch
    */
+  @ApiAudience.Public
   public static EncryptedPrivateKey of(final String encoded) {
     return new EncryptedPrivateKey(encoded);
   }
@@ -38,6 +43,7 @@ public class EncryptedPrivateKey implements Encodable {
    *
    * @throws InvalidVersionException when address version mismatch
    */
+  @ApiAudience.Private
   public static EncryptedPrivateKey of(final BytesValue bytesValue) {
     return new EncryptedPrivateKey(bytesValue);
   }
@@ -53,6 +59,7 @@ public class EncryptedPrivateKey implements Encodable {
    * @throws DecodingFailureException if decoding failed
    * @throws InvalidVersionException when address version mismatch
    */
+  @ApiAudience.Public
   public EncryptedPrivateKey(final String encoded) {
     this(decodeBase58WithCheck(encoded));
   }
@@ -64,6 +71,7 @@ public class EncryptedPrivateKey implements Encodable {
    *
    * @throws InvalidVersionException when address version mismatch
    */
+  @ApiAudience.Private
   public EncryptedPrivateKey(final BytesValue bytesValue) {
     if (BytesValue.EMPTY != bytesValue) {
       VersionUtils.validate(bytesValue, VERSION);

@@ -6,10 +6,14 @@ package hera.contract;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.ContractAddress;
 import java.lang.reflect.Proxy;
 import org.slf4j.Logger;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public class SmartContractFactory {
 
   protected final Logger logger = getLogger(getClass());

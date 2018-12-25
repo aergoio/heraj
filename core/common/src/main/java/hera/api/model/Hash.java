@@ -7,11 +7,15 @@ package hera.api.model;
 import static hera.util.EncodingUtils.decodeBase58;
 import static hera.util.EncodingUtils.encodeBase58;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.encode.Encodable;
 import hera.exception.DecodingFailureException;
 import hera.util.Adaptor;
 import lombok.Getter;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public class Hash implements Adaptor, Encodable {
 
   /**
@@ -21,6 +25,7 @@ public class Hash implements Adaptor, Encodable {
    * @return created {@link Hash}
    * @throws DecodingFailureException if decoding failed
    */
+  @ApiAudience.Public
   public static Hash of(final String encoded) {
     return new Hash(encoded);
   }
@@ -31,6 +36,7 @@ public class Hash implements Adaptor, Encodable {
    * @param bytesValue {@link BytesValue}
    * @return created {@link Hash}
    */
+  @ApiAudience.Private
   public static Hash of(final BytesValue bytesValue) {
     return new Hash(bytesValue);
   }
@@ -44,6 +50,7 @@ public class Hash implements Adaptor, Encodable {
    * @param encoded String with base58 encoded
    * @throws DecodingFailureException if decoding failed
    */
+  @ApiAudience.Public
   public Hash(final String encoded) {
     this(decodeBase58(encoded));
   }
@@ -53,6 +60,7 @@ public class Hash implements Adaptor, Encodable {
    *
    * @param bytesValue an bytes value
    */
+  @ApiAudience.Private
   public Hash(final BytesValue bytesValue) {
     this.bytesValue = null != bytesValue ? bytesValue : BytesValue.EMPTY;
   }

@@ -4,11 +4,15 @@
 
 package hera.key;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.EncryptedPrivateKey;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public interface KeyPair {
 
   /**

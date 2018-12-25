@@ -6,6 +6,8 @@ package hera.wallet;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountFactory;
@@ -45,6 +47,8 @@ import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.slf4j.Logger;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 @RequiredArgsConstructor
 public class JavaKeyStore implements KeyStore, Signer {
 

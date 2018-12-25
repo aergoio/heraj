@@ -6,11 +6,15 @@ package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.exception.HerajException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 @ToString
 @EqualsAndHashCode
 public class BlockHeader {
@@ -71,6 +75,7 @@ public class BlockHeader {
    * @param coinbaseAccount a coinbase account
    * @param txCount a transaction count in a block
    */
+  @ApiAudience.Private
   public BlockHeader(final Hash chainId, final BlockHash hash, final BlockHash previousHash,
       final long blockNumber, long timestamp, final BlockHash rootHash, final TxHash txRootHash,
       final Hash receiptRootHash, final long confirmsCount, final Hash publicKey, final Hash sign,
@@ -89,7 +94,7 @@ public class BlockHeader {
     this.sign = null != sign ? sign : Hash.of(BytesValue.EMPTY);
     this.coinbaseAccount =
         null != coinbaseAccount ? coinbaseAccount : AccountAddress.of(BytesValue.EMPTY);
-    this.txCount  = txCount;
+    this.txCount = txCount;
   }
 
 }

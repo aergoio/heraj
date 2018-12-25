@@ -4,10 +4,14 @@
 
 package hera.api.model.internal;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 @EqualsAndHashCode
 public class Time {
 

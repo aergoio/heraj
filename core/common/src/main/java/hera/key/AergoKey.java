@@ -7,6 +7,8 @@ package hera.key;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
@@ -36,6 +38,8 @@ import lombok.Getter;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.slf4j.Logger;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 @EqualsAndHashCode
 public class AergoKey implements KeyPair, Signer {
 

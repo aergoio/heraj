@@ -4,6 +4,11 @@
 
 package hera.api.tupleorerror;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+
+@ApiAudience.Public
+@ApiStability.Unstable
 public interface ResultOrErrorFuture<T>
     extends FinishableFuture<ResultOrError<T>>, ErrorHoldableFuture<ResultOrError<T>> {
 

@@ -2,6 +2,8 @@ package hera.contract;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
@@ -18,6 +20,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class ContractInvocationHandler implements InvocationHandler {
 
   protected final Logger logger = getLogger(getClass());

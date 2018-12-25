@@ -7,12 +7,16 @@ package hera.api.model;
 import static hera.util.EncodingUtils.decodeBase58WithCheck;
 import static hera.util.EncodingUtils.encodeBase58WithCheck;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.encode.Encodable;
 import hera.exception.DecodingFailureException;
 import hera.exception.InvalidVersionException;
 import hera.util.VersionUtils;
 import lombok.Getter;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public class AccountAddress implements Encodable {
 
   public static final byte VERSION = 0x42;
@@ -26,6 +30,7 @@ public class AccountAddress implements Encodable {
    * @throws DecodingFailureException if decoding failed
    * @throws InvalidVersionException when address version mismatch
    */
+  @ApiAudience.Public
   public static AccountAddress of(final String encoded) {
     return new AccountAddress(encoded);
   }
@@ -38,6 +43,7 @@ public class AccountAddress implements Encodable {
    *
    * @throws InvalidVersionException when address version mismatch
    */
+  @ApiAudience.Private
   public static AccountAddress of(final BytesValue bytesValue) {
     return new AccountAddress(bytesValue);
   }
@@ -53,6 +59,7 @@ public class AccountAddress implements Encodable {
    * @throws DecodingFailureException if decoding failed
    * @throws InvalidVersionException when address version mismatch
    */
+  @ApiAudience.Public
   public AccountAddress(final String encoded) {
     this(decodeBase58WithCheck(encoded));
   }
@@ -64,6 +71,7 @@ public class AccountAddress implements Encodable {
    *
    * @throws InvalidVersionException when address version mismatch
    */
+  @ApiAudience.Private
   public AccountAddress(final BytesValue bytesValue) {
     if (BytesValue.EMPTY != bytesValue) {
       VersionUtils.validate(bytesValue, VERSION);

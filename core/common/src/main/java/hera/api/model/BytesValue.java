@@ -4,12 +4,16 @@
 
 package hera.api.model;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.util.HexUtils;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public class BytesValue implements Supplier<InputStream> {
 
   public static final BytesValue EMPTY = new BytesValue(null);
@@ -20,6 +24,7 @@ public class BytesValue implements Supplier<InputStream> {
    * @param bytes value
    * @return created {@link BytesValue}
    */
+  @ApiAudience.Public
   public static BytesValue of(final byte[] bytes) {
     return new BytesValue(bytes);
   }
@@ -28,6 +33,12 @@ public class BytesValue implements Supplier<InputStream> {
 
   protected final byte[] value;
 
+  /**
+   * BytesValue} constructor.
+   *
+   * @param bytes value
+   */
+  @ApiAudience.Public
   public BytesValue(final byte[] bytes) {
     this.value = bytes != null ? Arrays.copyOf(bytes, bytes.length) : new byte[0];
   }

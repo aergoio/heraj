@@ -6,10 +6,14 @@ package hera.api.model;
 
 import static java.util.Collections.unmodifiableList;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 @EqualsAndHashCode(callSuper = true)
 public class Block extends BlockHeader {
 
@@ -22,6 +26,7 @@ public class Block extends BlockHeader {
    * @param blockHeader a block header
    * @param transactions transactions of block
    */
+  @ApiAudience.Private
   public Block(final BlockHeader blockHeader, final List<Transaction> transactions) {
     this(blockHeader.getChainId(), blockHeader.getHash(), blockHeader.getPreviousHash(),
         blockHeader.getBlockNumber(), blockHeader.getTimestamp(), blockHeader.getRootHash(),
@@ -48,6 +53,7 @@ public class Block extends BlockHeader {
    * @param txCount a transaction count
    * @param transactions transactions of block
    */
+  @ApiAudience.Private
   public Block(final Hash chainId, final BlockHash hash, final BlockHash previousHash,
       final long blockNumber, final long timestamp, final BlockHash rootHash,
       final TxHash txRootHash, final Hash receiptRootHash, final long confirmsCount,

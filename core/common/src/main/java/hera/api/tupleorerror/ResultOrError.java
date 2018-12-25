@@ -1,8 +1,12 @@
 package hera.api.tupleorerror;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.exception.HerajException;
 import java.util.function.Supplier;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public interface ResultOrError<T> extends WithError {
 
   /**
