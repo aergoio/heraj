@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AddressUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util</a> &gt; <span class="el_source">AddressUtils.java</span></div><h1>AddressUtils.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.util;
+
+import hera.api.model.AccountAddress;
+import hera.api.model.BytesValue;
+import java.security.PublicKey;
+
+<span class="nc" id="L11">public class AddressUtils {</span>
+
+  // [odd|even] of publickey.y + [optional 0x00] + publickey.x
+  public static final int ADDRESS_LENGTH = 33;
+
+  /**
+   * Derive an {@link AccountAddress} from a public key.
+   *
+   * @param publicKey a public key
+   * @return an {@link AccountAddress}
+   */
+  public static AccountAddress deriveAddress(final PublicKey publicKey) {
+<span class="fc" id="L23">    final byte[] rawAddress = new byte[ADDRESS_LENGTH];</span>
+<span class="fc" id="L24">    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
+        (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
+<span class="fc bfc" id="L26" title="All 2 branches covered.">    rawAddress[0] = (byte) (ecPublicKey.getQ().getYCoord().toBigInteger().testBit(0) ? 0x03 : 0x02);</span>
+<span class="fc" id="L27">    final byte[] xbyteArray =</span>
+<span class="fc" id="L28">        NumberUtils.postiveToByteArray(ecPublicKey.getQ().getXCoord().toBigInteger());</span>
+<span class="fc" id="L29">    System.arraycopy(xbyteArray, 0, rawAddress, rawAddress.length - xbyteArray.length,</span>
+        xbyteArray.length);
+<span class="fc" id="L31">    return AccountAddress</span>
+<span class="fc" id="L32">        .of(BytesValue.of(VersionUtils.envelop(rawAddress, AccountAddress.VERSION)));</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -5,7 +5,6 @@
 package hera.api.tupleorerror;
 
 import hera.exception.HerajException;
-import hera.util.ExceptionUtils;
 
 public interface WithError {
 
@@ -22,22 +21,18 @@ public interface WithError {
    * @return error existence
    */
   default boolean hasError() {
-<span class="fc bfc" id="L25" title="All 2 branches covered.">    return null != getError();</span>
+<span class="fc bfc" id="L24" title="All 2 branches covered.">    return null != getError();</span>
   }
 
   /**
-   * Append current stack trace to an error if error is instance of HerajException. After append,
-   * throw it.
+   * Throw an error. If an error isn't HerajException, wrap with {@code HerajException}.
    */
-  default void appendCurrentStackTraceToError() {
-<span class="fc bfc" id="L33" title="All 2 branches covered.">    if (getError() instanceof HerajException) {</span>
-<span class="fc" id="L34">      final HerajException cloneError = ((HerajException) getError()).clone();</span>
-<span class="fc" id="L35">      cloneError.setStackTrace(ExceptionUtils.concat(new Throwable(), cloneError));</span>
-<span class="fc" id="L36">      throw cloneError;</span>
-    } else {
-<span class="fc" id="L38">      throw new HerajException(getError());</span>
+  default void throwError() {
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">    if (hasError()) {</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">      throw getError() instanceof HerajException ? (HerajException) getError()</span>
+<span class="fc" id="L33">          : new HerajException(getError());</span>
     }
-  }
+<span class="nc" id="L35">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

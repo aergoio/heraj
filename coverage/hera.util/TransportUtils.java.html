@@ -4,26 +4,58 @@
 
 package hera.util;
 
+import static hera.util.NumberUtils.byteArrayToPostive;
+import static hera.util.NumberUtils.postiveToByteArray;
+
 import com.google.protobuf.ByteString;
+import hera.api.model.Aer;
 import hera.api.model.BytesValue;
+import hera.exception.RpcArgumentException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-<span class="nc" id="L13">public class TransportUtils {</span>
+<span class="nc" id="L18">public class TransportUtils {</span>
 
   /**
    * Transform {@link BytesValue} to {@link ByteString} in protobuf. If either bytesValue or value
-   * of bytesValue is null, return {@code ByteString.EMPTY}
+   * of bytesValue is null, return {@link ByteString#EMPTY}
    *
    * @param bytesValue {@link BytesValue}
    * @return protobuf {@link ByteString}
    */
   public static ByteString copyFrom(final BytesValue bytesValue) {
-<span class="pc bpc" id="L23" title="1 of 4 branches missed.">    if (null == bytesValue || null == bytesValue.getValue()) {</span>
-<span class="fc" id="L24">      return ByteString.EMPTY;</span>
+<span class="pc bpc" id="L28" title="1 of 4 branches missed.">    if (null == bytesValue || null == bytesValue.getValue()) {</span>
+<span class="fc" id="L29">      return ByteString.EMPTY;</span>
     }
-<span class="fc" id="L26">    return ByteString.copyFrom(bytesValue.getValue());</span>
+<span class="fc" id="L31">    return ByteString.copyFrom(bytesValue.getValue());</span>
+  }
+
+  /**
+   * Transform {@link BytesValue} to {@link ByteString} in protobuf. If aer isn null, return
+   * {@link ByteString#EMPTY}.
+   *
+   * @param aer an aer
+   * @return protobuf {@link ByteString}
+   */
+  public static ByteString copyFrom(final Aer aer) {
+<span class="fc bfc" id="L42" title="All 2 branches covered.">    if (null == aer) {</span>
+<span class="fc" id="L43">      return ByteString.EMPTY;</span>
+    }
+<span class="fc" id="L45">    return ByteString.copyFrom(postiveToByteArray(aer.getValue()));</span>
+  }
+
+  /**
+   * Parse raw aer to {@link Aer}.
+   *
+   * @param rawAer a raw aer
+   * @return parsed {@link Aer}.
+   */
+  public static Aer parseToAer(final ByteString rawAer) {
+<span class="fc bfc" id="L55" title="All 4 branches covered.">    if (null == rawAer || ByteString.EMPTY.equals(rawAer)) {</span>
+<span class="fc" id="L56">      return null;</span>
+    }
+<span class="fc" id="L58">    return Aer.of(byteArrayToPostive(rawAer.toByteArray()));</span>
   }
 
   /**
@@ -33,16 +65,16 @@ import java.io.InputStream;
    * @return converted byte array in a little endian
    */
   public static byte[] longToByteArray(final long longValue) {
-<span class="fc" id="L36">    final byte[] raw = new byte[8];</span>
-<span class="fc" id="L37">    raw[0] = (byte) (0xFF &amp; (longValue));</span>
-<span class="fc" id="L38">    raw[1] = (byte) (0xFF &amp; (longValue &gt;&gt; 8));</span>
-<span class="fc" id="L39">    raw[2] = (byte) (0xFF &amp; (longValue &gt;&gt; 16));</span>
-<span class="fc" id="L40">    raw[3] = (byte) (0xFF &amp; (longValue &gt;&gt; 24));</span>
-<span class="fc" id="L41">    raw[4] = (byte) (0xFF &amp; (longValue &gt;&gt; 32));</span>
-<span class="fc" id="L42">    raw[5] = (byte) (0xFF &amp; (longValue &gt;&gt; 40));</span>
-<span class="fc" id="L43">    raw[6] = (byte) (0xFF &amp; (longValue &gt;&gt; 48));</span>
-<span class="fc" id="L44">    raw[7] = (byte) (0xFF &amp; (longValue &gt;&gt; 56));</span>
-<span class="fc" id="L45">    return raw;</span>
+<span class="fc" id="L68">    final byte[] raw = new byte[8];</span>
+<span class="fc" id="L69">    raw[0] = (byte) (0xFF &amp; (longValue));</span>
+<span class="fc" id="L70">    raw[1] = (byte) (0xFF &amp; (longValue &gt;&gt; 8));</span>
+<span class="fc" id="L71">    raw[2] = (byte) (0xFF &amp; (longValue &gt;&gt; 16));</span>
+<span class="fc" id="L72">    raw[3] = (byte) (0xFF &amp; (longValue &gt;&gt; 24));</span>
+<span class="fc" id="L73">    raw[4] = (byte) (0xFF &amp; (longValue &gt;&gt; 32));</span>
+<span class="fc" id="L74">    raw[5] = (byte) (0xFF &amp; (longValue &gt;&gt; 40));</span>
+<span class="fc" id="L75">    raw[6] = (byte) (0xFF &amp; (longValue &gt;&gt; 48));</span>
+<span class="fc" id="L76">    raw[7] = (byte) (0xFF &amp; (longValue &gt;&gt; 56));</span>
+<span class="fc" id="L77">    return raw;</span>
   }
 
   /**
@@ -52,20 +84,35 @@ import java.io.InputStream;
    * @return converted byte array
    */
   public static byte[] inputStreamToByteArray(final InputStream in) {
-<span class="fc" id="L55">    final ByteArrayOutputStream bos = new ByteArrayOutputStream();</span>
-<span class="fc" id="L56">    byte[] buffer = new byte[1024];</span>
+<span class="fc" id="L87">    final ByteArrayOutputStream bos = new ByteArrayOutputStream();</span>
+<span class="fc" id="L88">    byte[] buffer = new byte[1024];</span>
     int read;
     try {
-<span class="fc bfc" id="L59" title="All 2 branches covered.">      while ((read = in.read(buffer)) != -1) {</span>
-<span class="fc" id="L60">        bos.write(buffer, 0, read);</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">      while ((read = in.read(buffer)) != -1) {</span>
+<span class="fc" id="L92">        bos.write(buffer, 0, read);</span>
       }
-<span class="fc" id="L62">      bos.close();</span>
-<span class="nc" id="L63">    } catch (IOException e) {</span>
-<span class="nc" id="L64">      throw new IllegalStateException(e);</span>
-<span class="fc" id="L65">    }</span>
+<span class="fc" id="L94">      bos.close();</span>
+<span class="nc" id="L95">    } catch (IOException e) {</span>
+<span class="nc" id="L96">      throw new IllegalStateException(e);</span>
+<span class="fc" id="L97">    }</span>
 
-<span class="fc" id="L67">    return bos.toByteArray();</span>
+<span class="fc" id="L99">    return bos.toByteArray();</span>
   }
+
+  /**
+   * Check a condition and throws {@link RpcArgumentException} if condition isn't fulfilled.
+   *
+   * @param condition condition to check
+   * @param target argument target name
+   * @param requirement argument requirement
+   * @throws RpcArgumentException if condition is false
+   */
+  public static void assertArgument(final boolean condition, final String target,
+      final String requirement) {
+<span class="fc bfc" id="L112" title="All 2 branches covered.">    if (false == condition) {</span>
+<span class="fc" id="L113">      throw new RpcArgumentException(target, requirement);</span>
+    }
+<span class="fc" id="L115">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

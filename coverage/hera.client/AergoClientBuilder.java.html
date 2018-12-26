@@ -4,137 +4,135 @@
 
 package hera.client;
 
-import static hera.DefaultConstants.DEFAULT_ENDPOINT;
-import static hera.DefaultConstants.DEFAULT_TIMEOUT;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Context;
+import hera.ContextProvider;
+import hera.DefaultConstants;
 import hera.Strategy;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.model.HostnameAndPort;
+import hera.api.model.internal.Time;
 import hera.strategy.ConnectStrategy;
 import hera.strategy.NettyConnectStrategy;
+import hera.strategy.OkHttpConnectStrategy;
+import hera.strategy.RetryStrategy;
 import hera.strategy.SimpleTimeoutStrategy;
 import hera.strategy.TimeoutStrategy;
-import java.util.stream.Stream;
-import lombok.AccessLevel;
-import lombok.Getter;
+import hera.strategy.ZipkinTracingStrategy;
+import hera.util.Configuration;
+import hera.util.conf.InMemoryConfiguration;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 
-/**
- * &lt;p&gt;
- * Build aergo client.
- * &lt;/p&gt;
- * Usage
- * &lt;pre&gt;
- *   AergoClient aergoClient = new AergoClientBuilder()
- *           .addStrategy(new NettyConnectStrategy(&quot;localhost:7845&quot;))
- *           .addStrategy(new SimpleTimeoutStrategy(10000L))
- *           .build();
- *
- *   AergoEitherClient aergoEitherClient = new AergoClientBuilder()
- *           .addStrategy(new NettyConnectStrategy(&quot;localhost:7845&quot;))
- *           .addStrategy(new SimpleTimeoutStrategy(10000L))
- *           .buildEither();
- *
- *   AergoAsyncClient aergoAsyncClient = new AergoClientBuilder()
- *           .addStrategy(new NettyConnectStrategy(&quot;localhost:7845&quot;))
- *           .addStrategy(new SimpleTimeoutStrategy(10000L))
- *           .buildAsync();
- * &lt;/pre&gt;
- *
- * @author taeiklim
- *
- */
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L52">public class AergoClientBuilder {</span>
+<span class="fc" id="L35">public class AergoClientBuilder implements ContextConfiguer&lt;AergoClientBuilder&gt; {</span>
 
-  /**
-   * A default context is holding {@link hera.strategy.NettyConnectStrategy} with a endpoint
-   * {@code localhost:7845} and holding {@link hera.strategy.SimpleTimeoutStrategy} with 5 seconds
-   * timeout.
-   */
-<span class="fc" id="L59">  @Getter</span>
-  protected static Context defaultContext;
+  public static final String SCOPE = &quot;global&quot;;
+
+  protected static final Map&lt;Class&lt;?&gt;, Strategy&gt; necessaryStrategyMap;
 
   static {
-<span class="fc" id="L63">    defaultContext = new Context();</span>
-<span class="fc" id="L64">    defaultContext.addStrategy(new NettyConnectStrategy(HostnameAndPort.of(DEFAULT_ENDPOINT)));</span>
-<span class="fc" id="L65">    defaultContext.addStrategy(new SimpleTimeoutStrategy(DEFAULT_TIMEOUT));</span>
+<span class="fc" id="L42">    final Map&lt;Class&lt;?&gt;, Strategy&gt; map = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L43">    map.put(ConnectStrategy.class, new NettyConnectStrategy());</span>
+<span class="fc" id="L44">    map.put(TimeoutStrategy.class, new SimpleTimeoutStrategy(DefaultConstants.DEFAULT_TIMEOUT));</span>
+<span class="fc" id="L45">    necessaryStrategyMap = Collections.unmodifiableMap(map);</span>
+<span class="fc" id="L46">  }</span>
+
+<span class="fc" id="L48">  protected final Logger logger = getLogger(getClass());</span>
+
+<span class="fc" id="L50">  protected final Map&lt;Class&lt;?&gt;, Strategy&gt; strategyMap = new LinkedHashMap&lt;&gt;();</span>
+
+<span class="fc" id="L52">  protected Configuration configuration = new InMemoryConfiguration();</span>
+
+  @Override
+  public AergoClientBuilder addConfiguration(final String key, final String value) {
+<span class="fc" id="L56">    configuration.define(key, value);</span>
+<span class="fc" id="L57">    return this;</span>
   }
 
-  @SuppressWarnings(&quot;rawtypes&quot;)
-<span class="fc" id="L69">  @Getter(value = AccessLevel.PROTECTED)</span>
-<span class="fc" id="L70">  protected static final Class[] necessaries =</span>
-      new Class[] {ConnectStrategy.class, TimeoutStrategy.class};
+  @Override
+  public AergoClientBuilder withEndpoint(final String endpoint) {
+<span class="fc" id="L62">    configuration.define(&quot;endpoint&quot;, endpoint);</span>
+<span class="fc" id="L63">    return this;</span>
+  }
 
-<span class="fc" id="L73">  protected final Logger logger = getLogger(getClass());</span>
+  @Override
+  public AergoClientBuilder withNonBlockingConnect() {
+<span class="fc" id="L68">    strategyMap.put(ConnectStrategy.class, new NettyConnectStrategy());</span>
+<span class="fc" id="L69">    return this;</span>
+  }
 
-<span class="fc" id="L75">  protected Context context = Context.copyOf(defaultContext);</span>
+  @Override
+  public AergoClientBuilder withBlockingConnect() {
+<span class="fc" id="L74">    strategyMap.put(ConnectStrategy.class, new OkHttpConnectStrategy());</span>
+<span class="fc" id="L75">    return this;</span>
+  }
 
-  public AergoClientBuilder addStrategy(final Strategy strategy) {
-<span class="fc" id="L78">    context.addStrategy(strategy);</span>
-<span class="fc" id="L79">    return this;</span>
+  @Override
+  public AergoClientBuilder withTracking() {
+<span class="fc" id="L80">    strategyMap.put(ZipkinTracingStrategy.class, new ZipkinTracingStrategy());</span>
+<span class="fc" id="L81">    return this;</span>
+  }
+
+  @Override
+  public AergoClientBuilder withTimeout(final long timeout, final TimeUnit unit) {
+<span class="fc" id="L86">    strategyMap.put(TimeoutStrategy.class, new SimpleTimeoutStrategy(timeout, unit));</span>
+<span class="fc" id="L87">    return this;</span>
+  }
+
+  @Override
+  public AergoClientBuilder withRetry(final int count, final long interval, final TimeUnit unit) {
+<span class="fc" id="L92">    strategyMap.put(RetryStrategy.class, new RetryStrategy(count, Time.of(interval, unit)));</span>
+<span class="fc" id="L93">    return this;</span>
   }
 
   /**
-   * Bind a context.
-   *
-   * @param context context to bind
-   * @return an instance of this
-   */
-  public AergoClientBuilder bind(final Context context) {
-<span class="fc" id="L89">    logger.debug(&quot;Bind a new context: {}&quot;, context);</span>
-<span class="fc" id="L90">    this.context = context;</span>
-<span class="fc" id="L91">    return this;</span>
-  }
-
-  /**
-   * Build {@link AergoClient} with the current context. If necessary strategy is not provided, add
-   * necessary strategy from the {@link #defaultContext}.
+   * Build {@link AergoClient} with the current context. If necessary strategy is not provided,fill
+   * necessary strategy.
    *
    * @return {@link AergoClient}
    */
   public AergoClient build() {
-<span class="fc" id="L101">    ensureNecessaryStrategy();</span>
-<span class="fc" id="L102">    logger.debug(&quot;Build client, current context: {}&quot;, context);</span>
-<span class="fc" id="L103">    return new AergoClient(context);</span>
+<span class="fc" id="L103">    return new AergoClient(buildContext());</span>
   }
 
   /**
    * Build {@link AergoEitherClient} with the current context. If necessary strategy is not
-   * provided, add necessary strategy from the {@link #defaultContext}.
+   * provided, fill necessary strategy.
    *
    * @return {@link AergoEitherClient}
    */
   public AergoEitherClient buildEither() {
-<span class="fc" id="L113">    ensureNecessaryStrategy();</span>
-<span class="fc" id="L114">    logger.debug(&quot;Build client, current context: {}&quot;, context);</span>
-<span class="fc" id="L115">    return new AergoEitherClient(context);</span>
+<span class="fc" id="L113">    return new AergoEitherClient(buildContext());</span>
   }
 
   /**
    * Build {@link AergoAsyncClient} with the current context. If necessary strategy is not provided,
-   * add necessary strategy from the {@link #defaultContext}.
+   * fill necessary strategy.
    *
    * @return {@link AergoAsyncClient}
    */
   public AergoAsyncClient buildAsync() {
-<span class="fc" id="L125">    ensureNecessaryStrategy();</span>
-<span class="fc" id="L126">    logger.debug(&quot;Build client, current context: {}&quot;, context);</span>
-<span class="fc" id="L127">    return new AergoAsyncClient(context);</span>
+<span class="fc" id="L123">    return new AergoAsyncClient(buildContext());</span>
   }
 
-  @SuppressWarnings(&quot;unchecked&quot;)
-  protected void ensureNecessaryStrategy() {
-<span class="fc bfc" id="L132" title="All 2 branches covered.">    Stream.of(getNecessaries()).filter(s -&gt; !context.getStrategy(s).isPresent()).forEach(s -&gt; {</span>
-<span class="fc" id="L133">      final Strategy defaultNessaryStrategy = (Strategy) getDefaultContext().getStrategy(s).get();</span>
-<span class="fc" id="L134">      logger.debug(&quot;No {} in the context. Add default {}&quot;, s, defaultNessaryStrategy);</span>
-<span class="fc" id="L135">      addStrategy(defaultNessaryStrategy);</span>
-<span class="fc" id="L136">    });</span>
-<span class="fc" id="L137">  }</span>
+  protected Context buildContext() {
+<span class="fc bfc" id="L127" title="All 2 branches covered.">    necessaryStrategyMap.keySet().stream().filter(c -&gt; !this.strategyMap.containsKey(c))</span>
+<span class="fc" id="L128">        .forEach(c -&gt; this.strategyMap.put(c, necessaryStrategyMap.get(c)));</span>
+<span class="fc" id="L129">    final Context context = ContextProvider.defaultProvider.get()</span>
+<span class="fc" id="L130">        .withStrategies(new HashSet&lt;&gt;(this.strategyMap.values()))</span>
+<span class="fc" id="L131">        .withConfiguration(configuration)</span>
+<span class="fc" id="L132">        .withScope(AergoClientBuilder.SCOPE);</span>
+<span class="fc" id="L133">    logger.info(&quot;Global context: {}&quot;, context);</span>
+<span class="fc" id="L134">    return context;</span>
+  }
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

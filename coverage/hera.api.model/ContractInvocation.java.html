@@ -4,56 +4,51 @@
 
 package hera.api.model;
 
+import static hera.util.ValidationUtils.assertNotNull;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
+
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.exception.HerajException;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
-<span class="nc" id="L13">@ToString</span>
-<span class="nc bnc" id="L14" title="All 24 branches missed.">@EqualsAndHashCode</span>
-<span class="nc" id="L15">@NoArgsConstructor</span>
+@ApiAudience.Public
+@ApiStability.Unstable
+<span class="fc" id="L22">@ToString</span>
+<span class="pc bpc" id="L23" title="21 of 30 branches missed.">@EqualsAndHashCode</span>
 public class ContractInvocation {
 
-  /**
-   * Build contract invocation.
-   *
-   * @param address contract address
-   * @param function invocation function
-   * @param args arguments of invocation function
-   *
-   * @return created {@code ContractInvocation}
-   */
-  public static ContractInvocation of(final ContractAddress address,
-      final ContractFunction function, final Object... args) {
-<span class="nc" id="L29">    return new ContractInvocation(address, function, args);</span>
-  }
+<span class="fc" id="L26">  @Getter</span>
+  protected final ContractAddress address;
 
-<span class="nc" id="L32">  @Setter</span>
-<span class="fc" id="L33">  @Getter</span>
-  protected ContractAddress address;
+<span class="fc" id="L29">  @Getter</span>
+  protected final ContractFunction function;
 
-<span class="nc" id="L36">  @Setter</span>
-<span class="fc" id="L37">  @Getter</span>
-  protected ContractFunction function;
-
-<span class="pc" id="L40">  @Setter</span>
-<span class="fc" id="L41">  @Getter</span>
-  protected Object[] args = new Object[0];
+<span class="fc" id="L32">  @Getter</span>
+  protected final List&lt;Object&gt; args;
 
   /**
    * Contract invocation constructor.
    *
-   * @param address contract address
-   * @param function invocation function
+   * @param contractAddress contract address
+   * @param contractFunction invocation function
    * @param args arguments of invocation function
    */
-  public ContractInvocation(final ContractAddress address, final ContractFunction function,
-<span class="fc" id="L52">      final Object... args) {</span>
-<span class="fc" id="L53">    this.address = address;</span>
-<span class="fc" id="L54">    this.function = function;</span>
-<span class="fc" id="L55">    this.args = args;</span>
-<span class="fc" id="L56">  }</span>
+  @ApiAudience.Private
+  public ContractInvocation(final ContractAddress contractAddress,
+      final ContractFunction contractFunction,
+<span class="fc" id="L45">      final Object... args) {</span>
+<span class="fc" id="L46">    assertNotNull(contractAddress, new HerajException(&quot;Contract address must not null&quot;));</span>
+<span class="fc" id="L47">    assertNotNull(contractFunction, new HerajException(&quot;Contract function must not null&quot;));</span>
+<span class="fc" id="L48">    this.address = contractAddress;</span>
+<span class="fc" id="L49">    this.function = contractFunction;</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">    this.args = null != args ? unmodifiableList(asList(args)) : unmodifiableList(emptyList());</span>
+<span class="fc" id="L51">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

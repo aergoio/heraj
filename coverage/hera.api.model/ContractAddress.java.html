@@ -4,10 +4,12 @@
 
 package hera.api.model;
 
-import hera.api.encode.Base58WithCheckSum;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.exception.InvalidVersionException;
-import java.util.Optional;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public class ContractAddress extends AccountAddress {
 
   /**
@@ -18,8 +20,9 @@ public class ContractAddress extends AccountAddress {
    *
    * @throws InvalidVersionException when address version mismatch
    */
-  public static ContractAddress of(final Base58WithCheckSum encoded) {
-<span class="fc" id="L22">    return new ContractAddress(encoded);</span>
+  @ApiAudience.Public
+  public static ContractAddress of(final String encoded) {
+<span class="fc" id="L25">    return new ContractAddress(encoded);</span>
   }
 
   /**
@@ -30,8 +33,9 @@ public class ContractAddress extends AccountAddress {
    *
    * @throws InvalidVersionException when address version mismatch
    */
+  @ApiAudience.Private
   public static ContractAddress of(final BytesValue bytesValue) {
-<span class="fc" id="L34">    return new ContractAddress(bytesValue);</span>
+<span class="fc" id="L38">    return new ContractAddress(bytesValue);</span>
   }
 
   /**
@@ -41,9 +45,10 @@ public class ContractAddress extends AccountAddress {
    *
    * @throws InvalidVersionException when address version mismatch
    */
-  public ContractAddress(final Base58WithCheckSum encoded) {
-<span class="fc" id="L45">    super(encoded);</span>
-<span class="fc" id="L46">  }</span>
+  @ApiAudience.Public
+  public ContractAddress(final String encoded) {
+<span class="fc" id="L50">    super(encoded);</span>
+<span class="fc" id="L51">  }</span>
 
   /**
    * ContractAddress constructor.
@@ -52,18 +57,10 @@ public class ContractAddress extends AccountAddress {
    *
    * @throws InvalidVersionException when address version mismatch
    */
+  @ApiAudience.Private
   public ContractAddress(final BytesValue bytesValue) {
-<span class="fc" id="L56">    super(bytesValue);</span>
-<span class="fc" id="L57">  }</span>
-
-  @SuppressWarnings(&quot;unchecked&quot;)
-  @Override
-  public &lt;T&gt; Optional&lt;T&gt; adapt(Class&lt;T&gt; adaptor) {
-<span class="pc bpc" id="L62" title="1 of 2 branches missed.">    if (adaptor.isAssignableFrom(ContractAddress.class)) {</span>
-<span class="fc" id="L63">      return (Optional&lt;T&gt;) Optional.of(this);</span>
-    }
-<span class="nc" id="L65">    return Optional.empty();</span>
-  }
+<span class="fc" id="L62">    super(bytesValue);</span>
+<span class="fc" id="L63">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -4,25 +4,42 @@
 
 package hera.api.model;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
-<span class="fc" id="L12">@ToString</span>
-<span class="nc bnc" id="L13" title="All 30 branches missed.">@EqualsAndHashCode</span>
-<span class="fc" id="L14">public class ContractTxReceipt {</span>
+@ApiAudience.Public
+@ApiStability.Unstable
+<span class="nc" id="L15">@ToString</span>
+<span class="nc bnc" id="L16" title="All 30 branches missed.">@EqualsAndHashCode</span>
+public class ContractTxReceipt {
 
-<span class="fc" id="L16">  @Getter</span>
-<span class="fc" id="L17">  @Setter</span>
-  protected ContractAddress contractAddress = new ContractAddress(BytesValue.EMPTY);
+<span class="nc" id="L19">  @Getter</span>
+  protected final ContractAddress contractAddress;
 
-<span class="fc" id="L20">  @Getter</span>
-<span class="fc" id="L21">  @Setter</span>
-  protected String status;
+<span class="nc" id="L22">  @Getter</span>
+  protected final String status;
 
-<span class="fc" id="L24">  @Getter</span>
-<span class="fc" id="L25">  @Setter</span>
-  protected String ret;
+<span class="nc" id="L25">  @Getter</span>
+  protected final String ret;
+
+  /**
+   * ContractTxReceipt constructor.
+   *
+   * @param contractAddress a contract address
+   * @param status a contract status
+   * @param ret a return value
+   */
+  @ApiAudience.Private
+  public ContractTxReceipt(final ContractAddress contractAddress, final String status,
+<span class="fc" id="L37">      final String ret) {</span>
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">    this.contractAddress =</span>
+        null != contractAddress ? contractAddress : new ContractAddress(BytesValue.EMPTY);
+<span class="fc" id="L40">    this.status = status;</span>
+<span class="fc" id="L41">    this.ret = ret;</span>
+<span class="fc" id="L42">  }</span>
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

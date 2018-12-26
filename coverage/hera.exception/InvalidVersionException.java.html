@@ -28,11 +28,5 @@ public class InvalidVersionException extends HerajException {
 <span class="fc" id="L28">    return String.format(&quot;Expected: &lt;0x%02X&gt; but was: &lt;0x%02X&gt;&quot;, expectedVersion, actualVersion);</span>
   }
 
-  @Override
-  public InvalidVersionException clone() {
-<span class="nc bnc" id="L33" title="All 4 branches missed.">    return 0 == expectedVersion &amp;&amp; 0 == actualVersion ? new InvalidVersionException(getMessage())</span>
-        : new InvalidVersionException(expectedVersion, actualVersion);
-  }
-
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

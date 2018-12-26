@@ -5,20 +5,22 @@
 package hera.util;
 
 import static hera.util.ValidationUtils.assertNotNull;
+import static hera.util.ValidationUtils.assertTrue;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.Arrays;
 
-<span class="nc" id="L15">public class NumberUtils {</span>
+<span class="nc" id="L17">public class NumberUtils {</span>
 
   /**
    * Convert {@code number} to {@code targetClass} type.
    *
-   * @param &lt;T&gt;         type to convert
-   * @param number      instance to convert
+   * @param &lt;T&gt; type to convert
+   * @param number instance to convert
    * @param targetClass type class to convert
    * @return converted instance
    * @throws IllegalArgumentException No rule for conversion
@@ -27,141 +29,141 @@ import java.text.ParseException;
   public static &lt;T&gt; T convert(final Number number, final Class&lt;T&gt; targetClass)
       throws IllegalArgumentException {
 
-<span class="fc" id="L30">    assertNotNull(number, &quot;Number must not be null&quot;);</span>
-<span class="fc" id="L31">    assertNotNull(targetClass, &quot;Target class must not be null&quot;);</span>
+<span class="fc" id="L32">    assertNotNull(number, &quot;Number must not be null&quot;);</span>
+<span class="fc" id="L33">    assertNotNull(targetClass, &quot;Target class must not be null&quot;);</span>
 
-<span class="fc bfc" id="L33" title="All 2 branches covered.">    if (targetClass.isInstance(number)) {</span>
-<span class="fc" id="L34">      return (T) number;</span>
-<span class="pc bpc" id="L35" title="1 of 4 branches missed.">    } else if (targetClass.equals(Byte.class) || targetClass.equals(byte.class)) {</span>
-<span class="fc" id="L36">      final long value = number.longValue();</span>
-<span class="fc bfc" id="L37" title="All 4 branches covered.">      if (value &lt; Byte.MIN_VALUE || Byte.MAX_VALUE &lt; value) {</span>
-<span class="nc" id="L38">        throwOverflowException(number, targetClass);</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">    if (targetClass.isInstance(number)) {</span>
+<span class="fc" id="L36">      return (T) number;</span>
+<span class="pc bpc" id="L37" title="1 of 4 branches missed.">    } else if (targetClass.equals(Byte.class) || targetClass.equals(byte.class)) {</span>
+<span class="fc" id="L38">      final long value = number.longValue();</span>
+<span class="fc bfc" id="L39" title="All 4 branches covered.">      if (value &lt; Byte.MIN_VALUE || Byte.MAX_VALUE &lt; value) {</span>
+<span class="nc" id="L40">        throwOverflowException(number, targetClass);</span>
       }
-<span class="fc" id="L40">      return (T) Byte.valueOf((byte) value);</span>
-<span class="pc bpc" id="L41" title="1 of 4 branches missed.">    } else if (targetClass.equals(Short.class) || targetClass.equals(short.class)) {</span>
-<span class="fc" id="L42">      final long value = number.longValue();</span>
-<span class="fc bfc" id="L43" title="All 4 branches covered.">      if (value &lt; Short.MIN_VALUE || Short.MAX_VALUE &lt; value) {</span>
-<span class="nc" id="L44">        throwOverflowException(number, targetClass);</span>
+<span class="fc" id="L42">      return (T) Byte.valueOf((byte) value);</span>
+<span class="pc bpc" id="L43" title="1 of 4 branches missed.">    } else if (targetClass.equals(Short.class) || targetClass.equals(short.class)) {</span>
+<span class="fc" id="L44">      final long value = number.longValue();</span>
+<span class="fc bfc" id="L45" title="All 4 branches covered.">      if (value &lt; Short.MIN_VALUE || Short.MAX_VALUE &lt; value) {</span>
+<span class="nc" id="L46">        throwOverflowException(number, targetClass);</span>
       }
-<span class="fc" id="L46">      return (T) Short.valueOf((short) value);</span>
-<span class="pc bpc" id="L47" title="1 of 4 branches missed.">    } else if (targetClass.equals(Integer.class) || targetClass.equals(int.class)) {</span>
-<span class="fc" id="L48">      final long value = number.longValue();</span>
-<span class="fc bfc" id="L49" title="All 4 branches covered.">      if (value &lt; Integer.MIN_VALUE || Integer.MAX_VALUE &lt; value) {</span>
-<span class="nc" id="L50">        throwOverflowException(number, targetClass);</span>
+<span class="fc" id="L48">      return (T) Short.valueOf((short) value);</span>
+<span class="pc bpc" id="L49" title="1 of 4 branches missed.">    } else if (targetClass.equals(Integer.class) || targetClass.equals(int.class)) {</span>
+<span class="fc" id="L50">      final long value = number.longValue();</span>
+<span class="fc bfc" id="L51" title="All 4 branches covered.">      if (value &lt; Integer.MIN_VALUE || Integer.MAX_VALUE &lt; value) {</span>
+<span class="nc" id="L52">        throwOverflowException(number, targetClass);</span>
       }
-<span class="fc" id="L52">      return (T) Integer.valueOf((int) value);</span>
-<span class="pc bpc" id="L53" title="2 of 4 branches missed.">    } else if (targetClass.equals(Long.class) || targetClass.equals(long.class)) {</span>
-<span class="nc" id="L54">      return (T) Long.valueOf(number.longValue());</span>
-<span class="fc bfc" id="L55" title="All 2 branches covered.">    } else if (targetClass.equals(BigInteger.class)) {</span>
-<span class="fc bfc" id="L56" title="All 2 branches covered.">      if (number instanceof BigDecimal) {</span>
+<span class="fc" id="L54">      return (T) Integer.valueOf((int) value);</span>
+<span class="pc bpc" id="L55" title="2 of 4 branches missed.">    } else if (targetClass.equals(Long.class) || targetClass.equals(long.class)) {</span>
+<span class="nc" id="L56">      return (T) Long.valueOf(number.longValue());</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">    } else if (targetClass.equals(BigInteger.class)) {</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">      if (number instanceof BigDecimal) {</span>
         // do not lose precision - use BigDecimal's own conversion
-<span class="fc" id="L58">        return (T) ((BigDecimal) number).toBigInteger();</span>
+<span class="fc" id="L60">        return (T) ((BigDecimal) number).toBigInteger();</span>
       } else {
         // original value is not a Big* number - use standard long conversion
-<span class="fc" id="L61">        return (T) BigInteger.valueOf(number.longValue());</span>
+<span class="fc" id="L63">        return (T) BigInteger.valueOf(number.longValue());</span>
       }
-<span class="pc bpc" id="L63" title="3 of 4 branches missed.">    } else if (targetClass.equals(Float.class) || targetClass.equals(float.class)) {</span>
-<span class="fc" id="L64">      return (T) Float.valueOf(number.floatValue());</span>
-<span class="nc bnc" id="L65" title="All 4 branches missed.">    } else if (targetClass.equals(Double.class) || targetClass.equals(double.class)) {</span>
-<span class="nc" id="L66">      return (T) Double.valueOf(number.doubleValue());</span>
-<span class="nc bnc" id="L67" title="All 2 branches missed.">    } else if (targetClass.equals(BigDecimal.class)) {</span>
+<span class="pc bpc" id="L65" title="3 of 4 branches missed.">    } else if (targetClass.equals(Float.class) || targetClass.equals(float.class)) {</span>
+<span class="fc" id="L66">      return (T) Float.valueOf(number.floatValue());</span>
+<span class="nc bnc" id="L67" title="All 4 branches missed.">    } else if (targetClass.equals(Double.class) || targetClass.equals(double.class)) {</span>
+<span class="nc" id="L68">      return (T) Double.valueOf(number.doubleValue());</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">    } else if (targetClass.equals(BigDecimal.class)) {</span>
       // always use BigDecimal(String) here to avoid unpredictability of BigDecimal(double)
       // (see BigDecimal javadoc for details)
-<span class="nc" id="L70">      return (T) new BigDecimal(number.toString());</span>
+<span class="nc" id="L72">      return (T) new BigDecimal(number.toString());</span>
     }
-<span class="nc" id="L72">    throw new IllegalArgumentException(</span>
-<span class="nc" id="L73">        &quot;Could not convert number [&quot; + number + &quot;] of type [&quot; + number.getClass().getName()</span>
-<span class="nc" id="L74">            + &quot;] to unknown target class [&quot; + targetClass.getName() + &quot;]&quot;);</span>
+<span class="nc" id="L74">    throw new IllegalArgumentException(</span>
+<span class="nc" id="L75">        &quot;Could not convert number [&quot; + number + &quot;] of type [&quot; + number.getClass().getName()</span>
+<span class="nc" id="L76">            + &quot;] to unknown target class [&quot; + targetClass.getName() + &quot;]&quot;);</span>
   }
 
   /**
    * Throw {@link IllegalArgumentException} when {@code number}'s value is out of bound
    * {@code targetClass}'s range.
    *
-   * @param number      value instance
+   * @param number value instance
    * @param targetClass container type
    */
   private static void throwOverflowException(final Number number, final Class&lt;?&gt; targetClass) {
-<span class="fc" id="L85">    throw new IllegalArgumentException(</span>
-<span class="fc" id="L86">        &quot;Could not convert number [&quot; + number + &quot;] of type [&quot; + number.getClass().getName()</span>
-<span class="fc" id="L87">            + &quot;] to target class [&quot; + targetClass.getName() + &quot;]: overflow&quot;);</span>
+<span class="fc" id="L87">    throw new IllegalArgumentException(</span>
+<span class="fc" id="L88">        &quot;Could not convert number [&quot; + number + &quot;] of type [&quot; + number.getClass().getName()</span>
+<span class="fc" id="L89">            + &quot;] to target class [&quot; + targetClass.getName() + &quot;]: overflow&quot;);</span>
   }
 
   /**
    * Parse {@code text} and convert number.
    *
-   * @param &lt;T&gt;   type to convert
-   * @param text  string to parse
+   * @param &lt;T&gt; type to convert
+   * @param text string to parse
    * @param clazz type class to convert
    *
    * @return converted instance
    */
   @SuppressWarnings(&quot;unchecked&quot;)
   public static &lt;T&gt; T parse(final String text, final Class&lt;?&gt; clazz) {
-<span class="fc" id="L101">    assertNotNull(text, &quot;Text must not be null&quot;);</span>
-<span class="fc" id="L102">    assertNotNull(clazz, &quot;Target class must not be null&quot;);</span>
+<span class="fc" id="L103">    assertNotNull(text, &quot;Text must not be null&quot;);</span>
+<span class="fc" id="L104">    assertNotNull(clazz, &quot;Target class must not be null&quot;);</span>
 
-<span class="fc" id="L104">    final String trimmed = StringUtils.trim(text);</span>
+<span class="fc" id="L106">    final String trimmed = StringUtils.trim(text);</span>
 
-<span class="pc bpc" id="L106" title="1 of 4 branches missed.">    if (clazz.equals(Byte.class) || clazz.equals(byte.class)) {</span>
-<span class="fc" id="L107">      return (T) Byte.decode(trimmed);</span>
-<span class="pc bpc" id="L108" title="1 of 4 branches missed.">    } else if (clazz.equals(Short.class) || clazz.equals(short.class)) {</span>
-<span class="fc" id="L109">      return (T) Short.decode(trimmed);</span>
-<span class="fc bfc" id="L110" title="All 4 branches covered.">    } else if (clazz.equals(Integer.class) || clazz.equals(int.class)) {</span>
-<span class="fc" id="L111">      return (T) Integer.decode(trimmed);</span>
-<span class="fc bfc" id="L112" title="All 4 branches covered.">    } else if (clazz.equals(Long.class) || clazz.equals(long.class)) {</span>
-<span class="fc" id="L113">      return (T) Long.decode(trimmed);</span>
-<span class="fc bfc" id="L114" title="All 2 branches covered.">    } else if (clazz.equals(BigInteger.class)) {</span>
-<span class="fc" id="L115">      return (T) decodeBigInteger(trimmed);</span>
-<span class="pc bpc" id="L116" title="1 of 4 branches missed.">    } else if (clazz.equals(Float.class) || clazz.equals(float.class)) {</span>
-<span class="fc" id="L117">      return (T) Float.valueOf(trimmed);</span>
-<span class="fc bfc" id="L118" title="All 4 branches covered.">    } else if (clazz.equals(Double.class) || clazz.equals(double.class)) {</span>
-<span class="fc" id="L119">      return (T) Double.valueOf(trimmed);</span>
-<span class="pc bpc" id="L120" title="3 of 4 branches missed.">    } else if (clazz.equals(BigDecimal.class) || clazz.equals(Number.class)) {</span>
-<span class="fc" id="L121">      return (T) new BigDecimal(trimmed);</span>
+<span class="pc bpc" id="L108" title="1 of 4 branches missed.">    if (clazz.equals(Byte.class) || clazz.equals(byte.class)) {</span>
+<span class="fc" id="L109">      return (T) Byte.decode(trimmed);</span>
+<span class="pc bpc" id="L110" title="1 of 4 branches missed.">    } else if (clazz.equals(Short.class) || clazz.equals(short.class)) {</span>
+<span class="fc" id="L111">      return (T) Short.decode(trimmed);</span>
+<span class="fc bfc" id="L112" title="All 4 branches covered.">    } else if (clazz.equals(Integer.class) || clazz.equals(int.class)) {</span>
+<span class="fc" id="L113">      return (T) Integer.decode(trimmed);</span>
+<span class="fc bfc" id="L114" title="All 4 branches covered.">    } else if (clazz.equals(Long.class) || clazz.equals(long.class)) {</span>
+<span class="fc" id="L115">      return (T) Long.decode(trimmed);</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">    } else if (clazz.equals(BigInteger.class)) {</span>
+<span class="fc" id="L117">      return (T) decodeBigInteger(trimmed);</span>
+<span class="pc bpc" id="L118" title="1 of 4 branches missed.">    } else if (clazz.equals(Float.class) || clazz.equals(float.class)) {</span>
+<span class="fc" id="L119">      return (T) Float.valueOf(trimmed);</span>
+<span class="fc bfc" id="L120" title="All 4 branches covered.">    } else if (clazz.equals(Double.class) || clazz.equals(double.class)) {</span>
+<span class="fc" id="L121">      return (T) Double.valueOf(trimmed);</span>
+<span class="pc bpc" id="L122" title="3 of 4 branches missed.">    } else if (clazz.equals(BigDecimal.class) || clazz.equals(Number.class)) {</span>
+<span class="fc" id="L123">      return (T) new BigDecimal(trimmed);</span>
     } else {
-<span class="nc" id="L123">      throw new IllegalArgumentException(</span>
-<span class="nc" id="L124">          &quot;Cannot convert String [&quot; + text + &quot;] to target class [&quot; + clazz.getName() + &quot;]&quot;);</span>
+<span class="nc" id="L125">      throw new IllegalArgumentException(</span>
+<span class="nc" id="L126">          &quot;Cannot convert String [&quot; + text + &quot;] to target class [&quot; + clazz.getName() + &quot;]&quot;);</span>
     }
   }
 
   /**
-   * Parse string {@code text} as {@code numberFormat} and
-   * convert to {@code targetClass} type instance.
-   * 
-   * @param &lt;T&gt;           type to convert
-   * @param text          string to parse
-   * @param targetClass   type class to convert
-   * @param numberFormat  format to parse
+   * Parse string {@code text} as {@code numberFormat} and convert to {@code targetClass} type
+   * instance.
+   *
+   * @param &lt;T&gt; type to convert
+   * @param text string to parse
+   * @param targetClass type class to convert
+   * @param numberFormat format to parse
    * @return converted number
    */
   public static &lt;T&gt; T parse(final String text, final Class&lt;T&gt; targetClass,
       final NumberFormat numberFormat) {
-<span class="fc bfc" id="L140" title="All 2 branches covered.">    final boolean noFormat = null == numberFormat;</span>
-<span class="fc bfc" id="L141" title="All 2 branches covered.">    if (noFormat) {</span>
-<span class="fc" id="L142">      return parse(text, targetClass);</span>
+<span class="fc bfc" id="L142" title="All 2 branches covered.">    final boolean noFormat = null == numberFormat;</span>
+<span class="fc bfc" id="L143" title="All 2 branches covered.">    if (noFormat) {</span>
+<span class="fc" id="L144">      return parse(text, targetClass);</span>
     }
 
-<span class="fc" id="L145">    assertNotNull(text, &quot;Text must not be null&quot;);</span>
-<span class="fc" id="L146">    assertNotNull(targetClass, &quot;Target class must not be null&quot;);</span>
-<span class="fc" id="L147">    DecimalFormat decimalFormat = null;</span>
-<span class="fc" id="L148">    boolean resetBigDecimal = false;</span>
-<span class="pc bpc" id="L149" title="1 of 2 branches missed.">    if (numberFormat instanceof DecimalFormat) {</span>
-<span class="fc" id="L150">      decimalFormat = (DecimalFormat) numberFormat;</span>
-<span class="pc bpc" id="L151" title="1 of 4 branches missed.">      if (BigDecimal.class.equals(targetClass) &amp;&amp; !decimalFormat.isParseBigDecimal()) {</span>
-<span class="fc" id="L152">        decimalFormat.setParseBigDecimal(true);</span>
-<span class="fc" id="L153">        resetBigDecimal = true;</span>
+<span class="fc" id="L147">    assertNotNull(text, &quot;Text must not be null&quot;);</span>
+<span class="fc" id="L148">    assertNotNull(targetClass, &quot;Target class must not be null&quot;);</span>
+<span class="fc" id="L149">    DecimalFormat decimalFormat = null;</span>
+<span class="fc" id="L150">    boolean resetBigDecimal = false;</span>
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">    if (numberFormat instanceof DecimalFormat) {</span>
+<span class="fc" id="L152">      decimalFormat = (DecimalFormat) numberFormat;</span>
+<span class="pc bpc" id="L153" title="1 of 4 branches missed.">      if (BigDecimal.class.equals(targetClass) &amp;&amp; !decimalFormat.isParseBigDecimal()) {</span>
+<span class="fc" id="L154">        decimalFormat.setParseBigDecimal(true);</span>
+<span class="fc" id="L155">        resetBigDecimal = true;</span>
       }
     }
 
     try {
-<span class="fc" id="L158">      final Number number = numberFormat.parse(StringUtils.trim(text));</span>
-<span class="fc" id="L159">      return convert(number, targetClass);</span>
-<span class="nc" id="L160">    } catch (final ParseException ex) {</span>
-<span class="nc" id="L161">      throw new IllegalArgumentException(&quot;Could not parse number: &quot; + ex.getMessage(), ex);</span>
+<span class="fc" id="L160">      final Number number = numberFormat.parse(StringUtils.trim(text));</span>
+<span class="fc" id="L161">      return convert(number, targetClass);</span>
+<span class="nc" id="L162">    } catch (final ParseException ex) {</span>
+<span class="nc" id="L163">      throw new IllegalArgumentException(&quot;Could not parse number: &quot; + ex.getMessage(), ex);</span>
     } finally {
-<span class="fc bfc" id="L163" title="All 2 branches covered.">      if (resetBigDecimal) {</span>
-<span class="fc" id="L164">        decimalFormat.setParseBigDecimal(false);</span>
+<span class="fc bfc" id="L165" title="All 2 branches covered.">      if (resetBigDecimal) {</span>
+<span class="fc" id="L166">        decimalFormat.setParseBigDecimal(false);</span>
       }
     }
   }
@@ -169,8 +171,7 @@ import java.text.ParseException;
   /**
    * Parse {@code value} and convert to {@link BigInteger}.
    * &lt;p&gt;
-   *   Parse as hexa decimal if it has '0x' prefix.
-   *   Parse as octal decimal if it has '0' prefix.
+   * Parse as hexa decimal if it has '0x' prefix. Parse as octal decimal if it has '0' prefix.
    * &lt;/p&gt;
    *
    * @param value string to convert
@@ -178,30 +179,74 @@ import java.text.ParseException;
    * @return converted {@link BigInteger} instance
    */
   private static BigInteger decodeBigInteger(final String value) {
-<span class="fc" id="L181">    int radix = 10;</span>
-<span class="fc" id="L182">    int index = 0;</span>
-<span class="fc" id="L183">    boolean negative = false;</span>
+<span class="fc" id="L182">    int radix = 10;</span>
+<span class="fc" id="L183">    int index = 0;</span>
+<span class="fc" id="L184">    boolean negative = false;</span>
 
     // Handle minus sign, if present.
-<span class="fc bfc" id="L186" title="All 2 branches covered.">    if (value.startsWith(&quot;-&quot;)) {</span>
-<span class="fc" id="L187">      negative = true;</span>
-<span class="fc" id="L188">      ++index;</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">    if (value.startsWith(&quot;-&quot;)) {</span>
+<span class="fc" id="L188">      negative = true;</span>
+<span class="fc" id="L189">      ++index;</span>
     }
 
     // Handle radix specifier, if present.
-<span class="fc bfc" id="L192" title="All 4 branches covered.">    if (value.startsWith(&quot;0x&quot;, index) || value.startsWith(&quot;0X&quot;, index)) {</span>
-<span class="fc" id="L193">      index += 2;</span>
-<span class="fc" id="L194">      radix = 16;</span>
-<span class="fc bfc" id="L195" title="All 2 branches covered.">    } else if (value.startsWith(&quot;#&quot;, index)) {</span>
-<span class="fc" id="L196">      ++index;</span>
-<span class="fc" id="L197">      radix = 16;</span>
-<span class="pc bpc" id="L198" title="1 of 4 branches missed.">    } else if (value.startsWith(&quot;0&quot;, index) &amp;&amp; 1 + index &lt; value.length()) {</span>
-<span class="fc" id="L199">      ++index;</span>
-<span class="fc" id="L200">      radix = 8;</span>
+<span class="fc bfc" id="L193" title="All 4 branches covered.">    if (value.startsWith(&quot;0x&quot;, index) || value.startsWith(&quot;0X&quot;, index)) {</span>
+<span class="fc" id="L194">      index += 2;</span>
+<span class="fc" id="L195">      radix = 16;</span>
+<span class="fc bfc" id="L196" title="All 2 branches covered.">    } else if (value.startsWith(&quot;#&quot;, index)) {</span>
+<span class="fc" id="L197">      ++index;</span>
+<span class="fc" id="L198">      radix = 16;</span>
+<span class="pc bpc" id="L199" title="1 of 4 branches missed.">    } else if (value.startsWith(&quot;0&quot;, index) &amp;&amp; 1 + index &lt; value.length()) {</span>
+<span class="fc" id="L200">      ++index;</span>
+<span class="fc" id="L201">      radix = 8;</span>
     }
 
-<span class="fc" id="L203">    final BigInteger result = new BigInteger(value.substring(index), radix);</span>
-<span class="fc bfc" id="L204" title="All 2 branches covered.">    return (negative ? result.negate() : result);</span>
+<span class="fc" id="L204">    final BigInteger result = new BigInteger(value.substring(index), radix);</span>
+<span class="fc bfc" id="L205" title="All 2 branches covered.">    return (negative ? result.negate() : result);</span>
+  }
+
+  /**
+   * Convert {@link BigInteger} into a byte array without additional sign byte to represent
+   * canonical two's-complement form. Eg. 255 is {@code &quot;11111111&quot;} not
+   * {@code &quot;00000000 1111 1111&quot;}.
+   *
+   * @param postiveNumber a positive bigInteger
+   * @return a converted byte array
+   */
+  public static byte[] postiveToByteArray(final BigInteger postiveNumber) {
+<span class="fc" id="L217">    assertNotNull(postiveNumber, &quot;Argument must not be null&quot;);</span>
+<span class="pc bpc" id="L218" title="1 of 2 branches missed.">    assertTrue(postiveNumber.compareTo(BigInteger.ZERO) &gt;= 0,</span>
+        &quot;Argument must greater than or equals to 0&quot;);
+
+<span class="fc" id="L221">    final byte[] raw = postiveNumber.toByteArray();</span>
+<span class="fc" id="L222">    final int postiveByteCapacity =</span>
+<span class="fc bfc" id="L223" title="All 2 branches covered.">        postiveNumber.equals(BigInteger.ZERO) ? 1 : (postiveNumber.bitLength() + 7) &gt;&gt;&gt; 3;</span>
+<span class="fc bfc" id="L224" title="All 2 branches covered.">    if (raw.length &gt; postiveByteCapacity) {</span>
+<span class="fc" id="L225">      return Arrays.copyOfRange(raw, 1, raw.length);</span>
+    }
+<span class="fc" id="L227">    return raw;</span>
+  }
+
+  /**
+   * Convert rawBytes to bigInteger. A rawBytes is considered only as positive (no extra sign bit).
+   *
+   * @param rawBytes a rawBytes representing positive number without sign bit.
+   * @return a converted {@code BigInteger}
+   */
+  public static BigInteger byteArrayToPostive(final byte[] rawBytes) {
+<span class="fc" id="L237">    assertNotNull(rawBytes, &quot;Argument must not be null&quot;);</span>
+
+<span class="fc bfc" id="L239" title="All 2 branches covered.">    if (rawBytes.length == 0) {</span>
+<span class="fc" id="L240">      return BigInteger.ZERO;</span>
+    }
+
+<span class="fc" id="L243">    byte[] canonicalBytes = rawBytes;</span>
+<span class="fc bfc" id="L244" title="All 2 branches covered.">    if ((rawBytes[0] &amp; 0x80) != 0) {</span>
+<span class="fc" id="L245">      canonicalBytes = new byte[rawBytes.length + 1];</span>
+<span class="fc" id="L246">      canonicalBytes[0] = 0x00;</span>
+<span class="fc" id="L247">      System.arraycopy(rawBytes, 0, canonicalBytes, 1, rawBytes.length);</span>
+    }
+<span class="fc" id="L249">    return new BigInteger(canonicalBytes);</span>
   }
 
 }

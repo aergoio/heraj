@@ -4,55 +4,47 @@
 
 package hera.api.model;
 
-import static java.util.Optional.ofNullable;
+import static hera.util.ValidationUtils.assertNotNull;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.exception.HerajException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
-<span class="fc" id="L14">@ToString</span>
-<span class="pc bpc" id="L15" title="15 of 22 branches missed.">@EqualsAndHashCode</span>
-<span class="fc" id="L16">public class Signature {</span>
-
-<span class="fc" id="L18">  @Getter</span>
-<span class="fc" id="L19">  @Setter</span>
-  protected BytesValue sign;
-
-<span class="fc" id="L22">  @Getter</span>
-<span class="fc" id="L23">  @Setter</span>
-  protected TxHash txHash;
+@ApiAudience.Public
+@ApiStability.Unstable
+<span class="nc" id="L18">@ToString</span>
+<span class="pc bpc" id="L19" title="9 of 14 branches missed.">@EqualsAndHashCode</span>
+public class Signature {
 
   /**
    * Create {@link Signature}.
    *
    * @param sign sign value
-   * @param hash hash value
    *
    * @return created signature
    */
-  public static Signature of(final BytesValue sign, final TxHash hash) {
-<span class="fc" id="L35">    final Signature signature = new Signature();</span>
-<span class="fc" id="L36">    signature.setSign(sign);</span>
-<span class="fc" id="L37">    signature.setTxHash(hash);</span>
-<span class="fc" id="L38">    return signature;</span>
+  @ApiAudience.Private
+  public static Signature of(final BytesValue sign) {
+<span class="fc" id="L31">    final Signature signature = new Signature(sign);</span>
+<span class="fc" id="L32">    return signature;</span>
   }
 
+<span class="fc" id="L35">  @Getter</span>
+  protected final BytesValue sign;
+
   /**
-   * Copy deep.
+   * Signature constructor.
    *
-   * @param source {@link Signature} to copy
-   *
-   * @return copied signature
+   * @param sign a sign value
    */
-  public static Signature copyOf(final Signature source) {
-<span class="pc bpc" id="L49" title="1 of 2 branches missed.">    if (null == source) {</span>
-<span class="nc" id="L50">      return null;</span>
-    }
-<span class="fc" id="L52">    final Signature copy = new Signature();</span>
-<span class="fc" id="L53">    ofNullable(source.getSign()).ifPresent(copy::setSign);</span>
-<span class="fc" id="L54">    ofNullable(source.getTxHash()).ifPresent(copy::setTxHash);</span>
-<span class="fc" id="L55">    return copy;</span>
-  }
+  @ApiAudience.Private
+<span class="fc" id="L44">  public Signature(final BytesValue sign) {</span>
+<span class="fc" id="L45">    assertNotNull(sign, new HerajException(&quot;Sign value must not null&quot;));</span>
+<span class="fc" id="L46">    this.sign = sign;</span>
+<span class="fc" id="L47">  }</span>
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

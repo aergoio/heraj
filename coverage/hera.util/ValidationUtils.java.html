@@ -18,10 +18,10 @@ import java.util.function.Supplier;
    * @param supplier supplier to create exception
    */
   public static void assertTrue(final boolean value, final Supplier&lt;RuntimeException&gt; supplier) {
-<span class="pc bpc" id="L21" title="1 of 2 branches missed.">    if (!value) {</span>
+<span class="fc bfc" id="L21" title="All 2 branches covered.">    if (!value) {</span>
 <span class="fc" id="L22">      throw supplier.get();</span>
     }
-<span class="nc" id="L24">  }</span>
+<span class="fc" id="L24">  }</span>
 
   /**
    * assert that {@code value} is {@code true}.
@@ -32,8 +32,8 @@ import java.util.function.Supplier;
    * @param th    exception to throw
    */
   public static void assertTrue(final boolean value, final RuntimeException th) {
-<span class="pc" id="L35">    assertTrue(value, () -&gt; th);</span>
-<span class="nc" id="L36">  }</span>
+<span class="fc" id="L35">    assertTrue(value, () -&gt; th);</span>
+<span class="fc" id="L36">  }</span>
 
   /**
    * assert that {@code value} is {@code true}.
@@ -186,8 +186,8 @@ import java.util.function.Supplier;
    * @param error exception to throw
    */
   public static void assertNotNull(final Object obj, final RuntimeException error) {
-<span class="pc bpc" id="L189" title="1 of 2 branches missed.">    assertTrue(null != obj, error);</span>
-<span class="nc" id="L190">  }</span>
+<span class="fc bfc" id="L189" title="All 2 branches covered.">    assertTrue(null != obj, error);</span>
+<span class="fc" id="L190">  }</span>
 
   /**
    * assert that {@code obj} is not null.

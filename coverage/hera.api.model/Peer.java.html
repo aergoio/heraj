@@ -4,26 +4,59 @@
 
 package hera.api.model;
 
+import static hera.util.ValidationUtils.assertNotNull;
+
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import java.net.InetAddress;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
-<span class="fc" id="L13">@ToString</span>
-<span class="nc bnc" id="L14" title="All 24 branches missed.">@EqualsAndHashCode</span>
-<span class="fc" id="L15">public class Peer {</span>
+@ApiAudience.Public
+@ApiStability.Unstable
+<span class="nc" id="L18">@ToString</span>
+<span class="nc bnc" id="L19" title="All 34 branches missed.">@EqualsAndHashCode</span>
+public class Peer {
 
-<span class="fc" id="L17">  @Getter</span>
-<span class="fc" id="L18">  @Setter</span>
+<span class="fc" id="L22">  @Getter</span>
   protected InetAddress address;
 
-<span class="fc" id="L21">  @Getter</span>
-<span class="fc" id="L22">  @Setter</span>
+<span class="fc" id="L25">  @Getter</span>
   protected int port;
 
-<span class="fc" id="L25">  @Getter</span>
-<span class="fc" id="L26">  @Setter</span>
+<span class="fc" id="L28">  @Getter</span>
   protected String peerId;
+
+<span class="fc" id="L31">  @Getter</span>
+  protected BlockchainStatus blockchainStatus;
+
+  // TODO : clarify a state
+<span class="fc" id="L35">  @Getter</span>
+  protected int state;
+
+  /**
+   * Peer constructor.
+   *
+   * @param address a peer address
+   * @param port a peer port
+   * @param peerId a peer id
+   * @param blockchainStatus a blockchain status of peer
+   * @param state a peer state
+   */
+  @ApiAudience.Private
+  public Peer(final InetAddress address, final int port, final String peerId,
+      final BlockchainStatus blockchainStatus,
+<span class="fc" id="L50">      final int state) {</span>
+<span class="fc" id="L51">    assertNotNull(address, &quot;Peer address must not null&quot;);</span>
+<span class="fc" id="L52">    assertNotNull(peerId, &quot;Peer id must not null&quot;);</span>
+<span class="fc" id="L53">    assertNotNull(blockchainStatus, &quot;Peer blockchain status must not null&quot;);</span>
+<span class="fc" id="L54">    this.address = address;</span>
+<span class="fc" id="L55">    this.port = port;</span>
+<span class="fc" id="L56">    this.peerId = peerId;</span>
+<span class="fc" id="L57">    this.blockchainStatus = blockchainStatus;</span>
+<span class="fc" id="L58">    this.state = state;</span>
+<span class="fc" id="L59">  }</span>
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

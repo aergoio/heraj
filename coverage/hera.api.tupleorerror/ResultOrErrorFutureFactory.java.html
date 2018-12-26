@@ -4,19 +4,62 @@
 
 package hera.api.tupleorerror;
 
+import static hera.api.tupleorerror.FunctionChain.fail;
+import static hera.api.tupleorerror.FunctionChain.success;
+
 import hera.api.tupleorerror.impl.ResultOrErrorFutureImpl;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
-<span class="nc" id="L11">public final class ResultOrErrorFutureFactory {</span>
+<span class="nc" id="L15">public final class ResultOrErrorFutureFactory {</span>
 
+  /**
+   * Supply an empty {@link ResultOrErrorFuture}.
+   *
+   * @return an empty {@link ResultOrErrorFuture}
+   */
   @SuppressWarnings(&quot;rawtypes&quot;)
   public static ResultOrErrorFuture supplyEmptyFuture() {
-<span class="fc" id="L15">    return new ResultOrErrorFutureImpl&lt;&gt;(new CompletableFuture&lt;&gt;());</span>
+<span class="fc" id="L24">    return new ResultOrErrorFutureImpl&lt;&gt;(new CompletableFuture&lt;&gt;());</span>
   }
 
-  public static &lt;T&gt; ResultOrErrorFuture&lt;T&gt; supply(final Supplier&lt;ResultOrError&lt;T&gt;&gt; supplier) {
-<span class="fc" id="L19">    return new ResultOrErrorFutureImpl&lt;&gt;(CompletableFuture.supplyAsync(supplier));</span>
+  /**
+   * Supply {@link ResultOrErrorFuture} with a plain supplier.
+   *
+   * @param &lt;T&gt; data type
+   * @param supplier a provider
+   * @return {@link ResultOrErrorFuture}
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public static &lt;T&gt; ResultOrErrorFuture&lt;T&gt; supply(final Supplier&lt;T&gt; supplier) {
+<span class="fc" id="L36">    return new ResultOrErrorFutureImpl&lt;T&gt;(CompletableFuture.supplyAsync(() -&gt; {</span>
+      try {
+<span class="fc" id="L38">        return success(supplier.get());</span>
+<span class="fc" id="L39">      } catch (Exception e) {</span>
+<span class="fc" id="L40">        return fail(e);</span>
+      }
+    }));
+  }
+
+  /**
+   * Supply {@link ResultOrErrorFuture} with a plain supplier and task executor.
+   *
+   * @param &lt;T&gt; data type
+   * @param supplier a provider
+   * @param executor a task executor
+   * @return {@link ResultOrErrorFuture}
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public static &lt;T&gt; ResultOrErrorFuture&lt;T&gt; supply(final Supplier&lt;T&gt; supplier,
+      final Executor executor) {
+<span class="fc" id="L56">    return new ResultOrErrorFutureImpl&lt;T&gt;(CompletableFuture.supplyAsync(() -&gt; {</span>
+      try {
+<span class="fc" id="L58">        return success(supplier.get());</span>
+<span class="fc" id="L59">      } catch (Exception e) {</span>
+<span class="fc" id="L60">        return fail(e);</span>
+      }
+    }, executor));
   }
 
 }

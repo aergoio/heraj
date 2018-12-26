@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ContextConc.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera</a> &gt; <span class="el_source">ContextConc.java</span></div><h1>ContextConc.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera;
+
+import static java.util.Collections.unmodifiableSet;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.util.Configuration;
+import hera.util.conf.InMemoryConfiguration;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+import org.slf4j.Logger;
+
+@ApiAudience.Private
+@ApiStability.Unstable
+<span class="fc" id="L24">@ToString(exclude = {&quot;logger&quot;, &quot;parent&quot;})</span>
+<span class="nc bnc" id="L25" title="All 28 branches missed.">@EqualsAndHashCode(exclude = {&quot;logger&quot;, &quot;parent&quot;})</span>
+public final class ContextConc implements Context {
+
+<span class="fc" id="L28">  protected final Logger logger = getLogger(getClass());</span>
+
+  protected final Context parent;
+
+<span class="fc" id="L32">  @Getter</span>
+  protected final String scope;
+
+<span class="fc" id="L35">  @Getter</span>
+  protected final Configuration configuration;
+
+  protected final Set&lt;Strategy&gt; strategies;
+
+  protected ContextConc(final Context parent, final String scope,
+<span class="fc" id="L41">      final Configuration configuration, final Set&lt;Strategy&gt; strageties) {</span>
+<span class="fc" id="L42">    this.parent = parent;</span>
+<span class="fc" id="L43">    this.scope = scope;</span>
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">    this.configuration = (configuration instanceof InMemoryConfiguration</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        &amp;&amp; ((InMemoryConfiguration) configuration).isReadOnly()) ? configuration</span>
+            : new InMemoryConfiguration(true, configuration);
+<span class="fc" id="L47">    this.strategies = unmodifiableSet(strageties);</span>
+<span class="fc" id="L48">  }</span>
+
+  @Override
+  public Context withScope(final String scope) {
+<span class="fc" id="L52">    logger.debug(&quot;New scope: {}&quot;, scope);</span>
+<span class="fc" id="L53">    Context newContext = null;</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">    if (isScopeBase()) {</span>
+<span class="fc" id="L55">      newContext = new ContextConc(this, scope, this.configuration, this.strategies);</span>
+    } else {
+<span class="fc" id="L57">      final Context newScopeBase = getScopeBase().withScope(scope);</span>
+<span class="fc" id="L58">      newContext = new ContextConc(newScopeBase, scope, this.configuration, this.strategies);</span>
+    }
+<span class="fc" id="L60">    logger.debug(&quot;New context: {}&quot;, newContext);</span>
+<span class="fc" id="L61">    return newContext;</span>
+  }
+
+  @Override
+  public Context popScope() {
+<span class="fc" id="L66">    logger.debug(&quot;Pop scope: {}&quot;, getScope());</span>
+<span class="fc" id="L67">    Context newContext = null;</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">    if (isScopeBase()) {</span>
+<span class="fc" id="L69">      newContext = this.parent;</span>
+    } else {
+<span class="nc" id="L71">      final Context scopeParent = getScopeParent();</span>
+<span class="nc" id="L72">      newContext = new ContextConc(scopeParent,</span>
+<span class="nc" id="L73">          scopeParent.getScope(), this.configuration, this.strategies);</span>
+    }
+<span class="fc" id="L75">    logger.debug(&quot;New context: {}&quot;, newContext);</span>
+<span class="fc" id="L76">    return newContext;</span>
+  }
+
+  protected Context getScopeBase() {
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">    return isScopeBase() ? this : this.parent;</span>
+  }
+
+  protected Context getScopeParent() {
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">    return isScopeBase() ? this.parent : ((ContextConc) this.parent).parent;</span>
+  }
+
+  protected boolean isScopeBase() {
+<span class="fc bfc" id="L88" title="All 4 branches covered.">    return this.configuration.asMap().isEmpty() &amp;&amp; this.strategies.isEmpty();</span>
+  }
+
+  @Override
+  public Context withKeyValue(final String key, final Object value) {
+<span class="fc" id="L93">    logger.debug(&quot;Define key: {}, value: {}&quot;, key, value);</span>
+<span class="fc" id="L94">    final Configuration newConfiguration = new InMemoryConfiguration(this.getConfiguration());</span>
+<span class="fc" id="L95">    newConfiguration.define(key, value);</span>
+<span class="fc" id="L96">    return withConfiguration(newConfiguration);</span>
+  }
+
+  @Override
+  public Context withConfiguration(final Configuration configuration) {
+<span class="fc" id="L101">    logger.debug(&quot;New configuration: {}&quot;, configuration);</span>
+<span class="fc" id="L102">    final ContextConc newContext =</span>
+        new ContextConc(this.parent, this.scope, configuration, this.strategies);
+<span class="fc" id="L104">    logger.debug(&quot;New context: {}&quot;, newContext);</span>
+<span class="fc" id="L105">    return newContext;</span>
+  }
+
+  @Override
+  public Context withoutKey(final String key) {
+<span class="fc" id="L110">    logger.debug(&quot;Remove key: {}&quot;, key);</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">    if (null == getConfiguration().get(key)) {</span>
+<span class="nc" id="L112">      return this;</span>
+    }
+<span class="fc" id="L114">    final Configuration newConfiguration = new InMemoryConfiguration(this.getConfiguration());</span>
+<span class="fc" id="L115">    newConfiguration.remove(key);;</span>
+<span class="fc" id="L116">    final ContextConc newContext =</span>
+        new ContextConc(this.parent, this.scope, newConfiguration, this.strategies);
+<span class="fc" id="L118">    logger.debug(&quot;New context: {}&quot;, newContext);</span>
+<span class="fc" id="L119">    return newContext;</span>
+  }
+
+  @Override
+  public &lt;StrategyT extends Strategy&gt; Context withStrategy(final StrategyT strategy) {
+<span class="fc" id="L124">    logger.debug(&quot;New strategy: {}&quot;, strategy);</span>
+<span class="fc" id="L125">    final Set&lt;Strategy&gt; newStrategies = new HashSet&lt;&gt;(this.strategies);</span>
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">    if (newStrategies.contains(strategy)) {</span>
+<span class="nc" id="L127">      newStrategies.remove(strategy);</span>
+    }
+<span class="fc" id="L129">    newStrategies.add(strategy);</span>
+<span class="fc" id="L130">    return withStrategies(newStrategies);</span>
+  }
+
+  @Override
+  public Context withStrategies(final Set&lt;Strategy&gt; strategies) {
+<span class="fc" id="L135">    logger.debug(&quot;New strategies: {}&quot;, strategies);</span>
+<span class="fc" id="L136">    final ContextConc newContext =</span>
+        new ContextConc(this.parent, this.scope, this.configuration, strategies);
+<span class="fc" id="L138">    logger.debug(&quot;New context: {}&quot;, newContext);</span>
+<span class="fc" id="L139">    return newContext;</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  @Override
+  public &lt;StrategyT extends Strategy&gt; Optional&lt;StrategyT&gt; getStrategy(
+      final Class&lt;StrategyT&gt; strategyClass) {
+<span class="fc" id="L146">    StrategyT ret = null;</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">    for (final Strategy strategy : getStrategies()) {</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">      if (strategyClass.isInstance(strategy)) {</span>
+<span class="fc" id="L149">        ret = (StrategyT) strategy;</span>
+<span class="fc" id="L150">        break;</span>
+      }
+<span class="fc" id="L152">    }</span>
+<span class="fc" id="L153">    return (Optional&lt;StrategyT&gt;) Optional.ofNullable(ret);</span>
+  }
+
+  @Override
+  public &lt;StrategyT extends Strategy&gt; Context withoutStrategy(final Class&lt;StrategyT&gt; strategy) {
+<span class="fc" id="L158">    final Set&lt;Strategy&gt; newStrategies = new HashSet&lt;&gt;(this.strategies);</span>
+<span class="fc" id="L159">    this.strategies.stream().filter(strategy::isInstance).forEach(newStrategies::remove);</span>
+<span class="fc" id="L160">    return new ContextConc(this.parent, this.scope, this.configuration, newStrategies);</span>
+  }
+
+  @Override
+  public Set&lt;Strategy&gt; getStrategies() {
+<span class="fc" id="L165">    final Set&lt;Strategy&gt; strategies = new HashSet&lt;&gt;(this.strategies);</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">    for (final Strategy strategy : strategies) {</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">      if (strategy instanceof ContextAware) {</span>
+<span class="fc" id="L168">        ((ContextAware) strategy).setContext(this);</span>
+      }
+<span class="fc" id="L170">    }</span>
+<span class="fc" id="L171">    return strategies;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

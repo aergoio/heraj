@@ -4,29 +4,52 @@
 
 package hera.api.model;
 
-import lombok.AllArgsConstructor;
+import static hera.util.ValidationUtils.assertNotNull;
+
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.exception.HerajException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
-<span class="fc" id="L14">@AllArgsConstructor</span>
-<span class="nc" id="L15">@NoArgsConstructor</span>
-<span class="fc" id="L16">@ToString</span>
-<span class="nc bnc" id="L17" title="All 22 branches missed.">@EqualsAndHashCode</span>
+@ApiAudience.Public
+@ApiStability.Unstable
+<span class="nc" id="L18">@ToString</span>
+<span class="pc bpc" id="L19" title="13 of 22 branches missed.">@EqualsAndHashCode</span>
 public class Authentication {
 
-  public static Authentication of(final AccountAddress address, final String password) {
-<span class="fc" id="L21">    return new Authentication(address, password);</span>
+  /**
+   * Create {@code Authentication} constructor.
+   *
+   * @param accountAddress an account address
+   * @param password a password
+   * @return an {@code Authentication} instance
+   */
+  @ApiAudience.Public
+  public static Authentication of(final AccountAddress accountAddress, final String password) {
+<span class="fc" id="L31">    return new Authentication(accountAddress, password);</span>
   }
 
-<span class="fc" id="L24">  @Getter</span>
-<span class="nc" id="L25">  @Setter</span>
+<span class="fc" id="L34">  @Getter</span>
   protected AccountAddress address;
 
-<span class="fc" id="L28">  @Getter</span>
-<span class="nc" id="L29">  @Setter</span>
+<span class="fc" id="L37">  @Getter</span>
   protected String password;
+
+  /**
+   * Authentication constructor.
+   *
+   * @param accountAddress an account address
+   * @param password a password
+   */
+  @ApiAudience.Public
+<span class="fc" id="L47">  public Authentication(final AccountAddress accountAddress, final String password) {</span>
+<span class="fc" id="L48">    assertNotNull(accountAddress, new HerajException(&quot;Account address must not null&quot;));</span>
+<span class="fc" id="L49">    assertNotNull(password, new HerajException(&quot;Pasasword must not null&quot;));</span>
+<span class="fc" id="L50">    this.address = accountAddress;</span>
+<span class="fc" id="L51">    this.password = password;</span>
+<span class="fc" id="L52">  }</span>
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

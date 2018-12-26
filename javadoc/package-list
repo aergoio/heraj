@@ -3,9 +3,11 @@ hera.annotation
 hera.api
 hera.api.encode
 hera.api.model
+hera.api.model.internal
 hera.api.tupleorerror
 hera.api.tupleorerror.impl
 hera.client
+hera.contract
 hera.custom
 hera.exception
 hera.key
@@ -15,3 +17,5 @@ hera.transport
 hera.util
 hera.util.conf
 hera.util.pki
+hera.util.trace
+hera.wallet

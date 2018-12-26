@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BlockchainBaseTemplate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.client</a> &gt; <span class="el_source">BlockchainBaseTemplate.java</span></div><h1>BlockchainBaseTemplate.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.client;
+
+import static com.google.common.util.concurrent.Futures.addCallback;
+import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
+import static hera.api.tupleorerror.FunctionChain.of;
+import static hera.util.TransportUtils.longToByteArray;
+import static java.util.stream.Collectors.toList;
+import static org.slf4j.LoggerFactory.getLogger;
+import static types.AergoRPCServiceGrpc.newFutureStub;
+
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.protobuf.ByteString;
+import hera.ContextProvider;
+import hera.ContextProviderInjectable;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.api.model.BlockchainStatus;
+import hera.api.model.NodeStatus;
+import hera.api.model.Peer;
+import hera.api.model.PeerMetric;
+import hera.api.tupleorerror.Function0;
+import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.api.tupleorerror.ResultOrErrorFutureFactory;
+import hera.transport.BlockchainStatusConverterFactory;
+import hera.transport.ModelConverter;
+import hera.transport.NodeStatusConverterFactory;
+import hera.transport.PeerConverterFactory;
+import hera.transport.PeerMetricConverterFactory;
+import io.grpc.ManagedChannel;
+import java.util.List;
+import lombok.Getter;
+import org.slf4j.Logger;
+import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
+import types.Metric;
+import types.Rpc;
+
+@ApiAudience.Private
+@ApiStability.Unstable
+@SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L44">public class BlockchainBaseTemplate implements ChannelInjectable, ContextProviderInjectable {</span>
+
+<span class="fc" id="L46">  protected final Logger logger = getLogger(getClass());</span>
+
+<span class="fc" id="L48">  protected final ModelConverter&lt;BlockchainStatus, Rpc.BlockchainStatus&gt; blockchainConverter =</span>
+<span class="fc" id="L49">      new BlockchainStatusConverterFactory().create();</span>
+
+<span class="fc" id="L51">  protected final ModelConverter&lt;Peer, Rpc.Peer&gt; peerConverter =</span>
+<span class="fc" id="L52">      new PeerConverterFactory().create();</span>
+
+<span class="fc" id="L54">  protected final ModelConverter&lt;PeerMetric, Metric.PeerMetric&gt; peerMetricConverter =</span>
+<span class="fc" id="L55">      new PeerMetricConverterFactory().create();</span>
+
+<span class="fc" id="L57">  protected final ModelConverter&lt;NodeStatus, Rpc.SingleBytes&gt; nodeStatusConverter =</span>
+<span class="fc" id="L58">      new NodeStatusConverterFactory().create();</span>
+
+<span class="nc" id="L60">  @Getter</span>
+  protected AergoRPCServiceFutureStub aergoService;
+
+  protected ContextProvider contextProvider;
+
+  @Override
+  public void setChannel(final ManagedChannel channel) {
+<span class="fc" id="L67">    this.aergoService = newFutureStub(channel);</span>
+<span class="fc" id="L68">  }</span>
+
+  @Override
+  public void setContextProvider(final ContextProvider contextProvider) {
+<span class="fc" id="L72">    this.contextProvider = contextProvider;</span>
+<span class="fc" id="L73">  }</span>
+
+<span class="fc" id="L75">  @Getter</span>
+  private final Function0&lt;ResultOrErrorFuture&lt;BlockchainStatus&gt;&gt; blockchainStatusFunction = () -&gt; {
+    ResultOrErrorFuture&lt;BlockchainStatus&gt; nextFuture =
+<span class="fc" id="L78">        ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
+<span class="fc" id="L79">    logger.debug(&quot;Get blockchain status, Context: {}&quot;, contextProvider.get());</span>
+
+<span class="fc" id="L81">    final Rpc.Empty empty = Rpc.Empty.newBuilder().build();</span>
+<span class="fc" id="L82">    ListenableFuture&lt;Rpc.BlockchainStatus&gt; listenableFuture =</span>
+<span class="fc" id="L83">        aergoService.blockchain(empty);</span>
+<span class="fc" id="L84">    FutureChain&lt;Rpc.BlockchainStatus, BlockchainStatus&gt; callback =</span>
+<span class="fc" id="L85">        new FutureChain&lt;&gt;(nextFuture, contextProvider.get());</span>
+<span class="fc" id="L86">    callback.setSuccessHandler(s -&gt; of(() -&gt; blockchainConverter.convertToDomainModel(s)));</span>
+<span class="fc" id="L87">    addCallback(listenableFuture, callback, directExecutor());</span>
+
+<span class="fc" id="L89">    return nextFuture;</span>
+  };
+
+<span class="fc" id="L92">  @Getter</span>
+  private final Function0&lt;ResultOrErrorFuture&lt;List&lt;Peer&gt;&gt;&gt; listPeersFunction = () -&gt; {
+<span class="fc" id="L94">    ResultOrErrorFuture&lt;List&lt;Peer&gt;&gt; nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
+<span class="fc" id="L95">    logger.debug(&quot;List peers, Context: {}&quot;, contextProvider.get());</span>
+
+<span class="fc" id="L97">    final Rpc.Empty empty = Rpc.Empty.newBuilder().build();</span>
+<span class="fc" id="L98">    ListenableFuture&lt;Rpc.PeerList&gt; listenableFuture = aergoService.getPeers(empty);</span>
+<span class="fc" id="L99">    FutureChain&lt;Rpc.PeerList, List&lt;Peer&gt;&gt; callback =</span>
+<span class="fc" id="L100">        new FutureChain&lt;&gt;(nextFuture, contextProvider.get());</span>
+<span class="fc" id="L101">    callback.setSuccessHandler(peerlist -&gt; of(() -&gt; peerlist.getPeersList().stream()</span>
+<span class="fc" id="L102">        .map(peerConverter::convertToDomainModel).collect(toList())));</span>
+<span class="fc" id="L103">    addCallback(listenableFuture, callback, directExecutor());</span>
+
+<span class="fc" id="L105">    return nextFuture;</span>
+  };
+
+<span class="fc" id="L108">  @Getter</span>
+  private final Function0&lt;ResultOrErrorFuture&lt;List&lt;PeerMetric&gt;&gt;&gt; listPeersMetricsFunction = () -&gt; {
+    ResultOrErrorFuture&lt;List&lt;PeerMetric&gt;&gt; nextFuture =
+<span class="fc" id="L111">        ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
+<span class="fc" id="L112">    logger.debug(&quot;List peer metrics, Context: {}&quot;, contextProvider.get());</span>
+
+<span class="fc" id="L114">    ListenableFuture&lt;Metric.Metrics&gt; listenableFuture = aergoService.metric(</span>
+<span class="fc" id="L115">        Metric.MetricsRequest.newBuilder().addTypes(Metric.MetricType.P2P_NETWORK).build());</span>
+<span class="fc" id="L116">    FutureChain&lt;Metric.Metrics, List&lt;PeerMetric&gt;&gt; callback =</span>
+<span class="fc" id="L117">        new FutureChain&lt;&gt;(nextFuture, contextProvider.get());</span>
+<span class="fc" id="L118">    callback.setSuccessHandler(peerlist -&gt; of(() -&gt; peerlist.getPeersList().stream()</span>
+<span class="fc" id="L119">        .map(peerMetricConverter::convertToDomainModel).collect(toList())));</span>
+<span class="fc" id="L120">    addCallback(listenableFuture, callback, directExecutor());</span>
+
+<span class="fc" id="L122">    return nextFuture;</span>
+  };
+
+<span class="fc" id="L125">  @Getter</span>
+  private final Function0&lt;ResultOrErrorFuture&lt;NodeStatus&gt;&gt; nodeStatusFunction = () -&gt; {
+<span class="fc" id="L127">    ResultOrErrorFuture&lt;NodeStatus&gt; nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
+<span class="fc" id="L128">    logger.debug(&quot;Get node status, Context: {}&quot;, contextProvider.get());</span>
+
+<span class="fc" id="L130">    ByteString rawTimeout = ByteString.copyFrom(longToByteArray(3000L));</span>
+<span class="fc" id="L131">    Rpc.NodeReq nodeRequest = Rpc.NodeReq.newBuilder()</span>
+<span class="fc" id="L132">        .setTimeout(rawTimeout)</span>
+<span class="fc" id="L133">        .build();</span>
+<span class="fc" id="L134">    ListenableFuture&lt;Rpc.SingleBytes&gt; listenableFuture = aergoService.nodeState(nodeRequest);</span>
+<span class="fc" id="L135">    FutureChain&lt;Rpc.SingleBytes, NodeStatus&gt; callback =</span>
+<span class="fc" id="L136">        new FutureChain&lt;&gt;(nextFuture, contextProvider.get());</span>
+<span class="fc" id="L137">    callback</span>
+<span class="fc" id="L138">        .setSuccessHandler(</span>
+<span class="fc" id="L139">            status -&gt; of(() -&gt; nodeStatusConverter.convertToDomainModel(status)));</span>
+<span class="fc" id="L140">    addCallback(listenableFuture, callback, directExecutor());</span>
+
+<span class="fc" id="L142">    return nextFuture;</span>
+  };
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

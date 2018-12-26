@@ -4,54 +4,98 @@
 
 package hera.api.model;
 
+import static hera.util.ValidationUtils.assertNotNull;
+
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.exception.HerajException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
-<span class="nc bnc" id="L12" title="All 68 branches missed.">@EqualsAndHashCode</span>
-<span class="fc" id="L13">@ToString</span>
-<span class="fc" id="L14">public class BlockHeader {</span>
+@ApiAudience.Public
+@ApiStability.Unstable
+<span class="nc" id="L18">@ToString</span>
+<span class="pc bpc" id="L19" title="61 of 86 branches missed.">@EqualsAndHashCode</span>
+public class BlockHeader {
 
-<span class="fc" id="L16">  @Getter</span>
-<span class="fc" id="L17">  @Setter</span>
-  protected BlockHash hash = new BlockHash(BytesValue.EMPTY);
+<span class="fc" id="L22">  @Getter</span>
+  protected final Hash chainId;
 
-<span class="fc" id="L20">  @Getter</span>
-<span class="fc" id="L21">  @Setter</span>
-  protected BlockHash previousHash = new BlockHash(BytesValue.EMPTY);
-
-<span class="fc" id="L24">  @Getter</span>
-<span class="fc" id="L25">  @Setter</span>
-  protected long blockNumber;
+<span class="fc" id="L25">  @Getter</span>
+  protected final BlockHash hash;
 
 <span class="fc" id="L28">  @Getter</span>
-<span class="fc" id="L29">  @Setter</span>
-  protected long timestamp;
+  protected final BlockHash previousHash;
 
-<span class="fc" id="L32">  @Getter</span>
-<span class="fc" id="L33">  @Setter</span>
-  protected BlockHash rootHash = new BlockHash(BytesValue.EMPTY);
+<span class="fc" id="L31">  @Getter</span>
+  protected final long blockNumber;
 
-<span class="fc" id="L36">  @Getter</span>
-<span class="fc" id="L37">  @Setter</span>
-  protected TxHash txRootHash = new TxHash(BytesValue.EMPTY);
+<span class="fc" id="L34">  @Getter</span>
+  protected final long timestamp;
+
+<span class="fc" id="L37">  @Getter</span>
+  protected final BlockHash rootHash;
 
 <span class="fc" id="L40">  @Getter</span>
-<span class="nc" id="L41">  @Setter</span>
-  protected long confirmsCount;
+  protected final TxHash txRootHash;
 
-<span class="fc" id="L44">  @Getter</span>
-<span class="fc" id="L45">  @Setter</span>
-  protected Hash publicKey = new Hash(BytesValue.EMPTY);
+<span class="fc" id="L43">  @Getter</span>
+  protected final Hash receiptRootHash;
 
-<span class="fc" id="L48">  @Getter</span>
-<span class="fc" id="L49">  @Setter</span>
-  protected Hash sign = new Hash(BytesValue.EMPTY);
+<span class="fc" id="L46">  @Getter</span>
+  protected final long confirmsCount;
+
+<span class="fc" id="L49">  @Getter</span>
+  protected final Hash publicKey;
 
 <span class="fc" id="L52">  @Getter</span>
-<span class="fc" id="L53">  @Setter</span>
-  protected AccountAddress coinbaseAccount = new AccountAddress(BytesValue.EMPTY);
+  protected final Hash sign;
+
+<span class="fc" id="L55">  @Getter</span>
+  protected final AccountAddress coinbaseAccount;
+
+<span class="fc" id="L58">  @Getter</span>
+  protected final long txCount;
+
+  /**
+   * BlockHeader constructor.
+   *
+   * @param chainId a chain id
+   * @param hash a block hash
+   * @param previousHash a previous block hash
+   * @param blockNumber a block number
+   * @param timestamp a timestamp
+   * @param rootHash a block root hash
+   * @param txRootHash a tx root hash
+   * @param receiptRootHash a receipt root hash
+   * @param confirmsCount confirmsCount
+   * @param publicKey a public key
+   * @param sign a sign
+   * @param coinbaseAccount a coinbase account
+   * @param txCount a transaction count in a block
+   */
+  @ApiAudience.Private
+  public BlockHeader(final Hash chainId, final BlockHash hash, final BlockHash previousHash,
+      final long blockNumber, long timestamp, final BlockHash rootHash, final TxHash txRootHash,
+      final Hash receiptRootHash, final long confirmsCount, final Hash publicKey, final Hash sign,
+<span class="fc" id="L82">      final AccountAddress coinbaseAccount, final long txCount) {</span>
+<span class="fc" id="L83">    assertNotNull(hash, new HerajException(&quot;Block hash must not null&quot;));</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">    this.chainId = null != chainId ? chainId : Hash.of(BytesValue.EMPTY);</span>
+<span class="fc" id="L85">    this.hash = hash;</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">    this.previousHash = null != previousHash ? previousHash : BlockHash.of(BytesValue.EMPTY);</span>
+<span class="fc" id="L87">    this.blockNumber = blockNumber;</span>
+<span class="fc" id="L88">    this.timestamp = timestamp;</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">    this.rootHash = null != rootHash ? rootHash : BlockHash.of(BytesValue.EMPTY);</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">    this.txRootHash = null != txRootHash ? txRootHash : TxHash.of(BytesValue.EMPTY);</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">    this.receiptRootHash = null != receiptRootHash ? receiptRootHash : Hash.of(BytesValue.EMPTY);</span>
+<span class="fc" id="L92">    this.confirmsCount = confirmsCount;</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">    this.publicKey = null != publicKey ? publicKey : Hash.of(BytesValue.EMPTY);</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">    this.sign = null != sign ? sign : Hash.of(BytesValue.EMPTY);</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">    this.coinbaseAccount =</span>
+<span class="fc" id="L96">        null != coinbaseAccount ? coinbaseAccount : AccountAddress.of(BytesValue.EMPTY);</span>
+<span class="fc" id="L97">    this.txCount = txCount;</span>
+<span class="fc" id="L98">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -4,61 +4,86 @@
 
 package hera.client;
 
-import hera.Context;
+import static hera.TransportConstants.TRANSACTION_COMMIT_EITHER;
+import static hera.TransportConstants.TRANSACTION_GETTX_EITHER;
+import static hera.TransportConstants.TRANSACTION_SEND_EITHER;
+import static hera.api.tupleorerror.Functions.identify;
+
+import hera.ContextProvider;
+import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.TransactionEitherOperation;
 import hera.api.model.AccountAddress;
-import hera.api.model.Time;
+import hera.api.model.Aer;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.tupleorerror.Function1;
+import hera.api.tupleorerror.Function3;
 import hera.api.tupleorerror.ResultOrError;
-import hera.exception.RpcException;
-import hera.strategy.TimeoutStrategy;
+import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
+import lombok.AccessLevel;
 import lombok.Getter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="fc" id="L23">public class TransactionEitherTemplate implements TransactionEitherOperation, ChannelInjectable {</span>
+<span class="fc" id="L32">public class TransactionEitherTemplate</span>
+    implements TransactionEitherOperation, ChannelInjectable, ContextProviderInjectable {
 
-  protected Context context;
+<span class="fc" id="L35">  @Getter</span>
+  protected TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();
 
-<span class="fc" id="L27">  protected TransactionAsyncTemplate transactionAsyncOperation = new TransactionAsyncTemplate();</span>
+  protected ContextProvider contextProvider;
 
-<span class="pc bpc" id="L29" title="3 of 8 branches missed.">  @Getter(lazy = true)</span>
-  private final Time timeout =
-      context.getStrategy(TimeoutStrategy.class).map(TimeoutStrategy::getTimeout)
-          .orElseThrow(() -&gt; new RpcException(&quot;TimeoutStrategy must be present in context&quot;));
-
-  @Override
-  public void setContext(final Context context) {
-<span class="fc" id="L36">    this.context = context;</span>
-<span class="fc" id="L37">    transactionAsyncOperation.setContext(context);</span>
-<span class="fc" id="L38">  }</span>
+<span class="pc bpc" id="L40" title="4 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
 
   @Override
-  public void injectChannel(final ManagedChannel channel) {
-<span class="fc" id="L42">    transactionAsyncOperation.injectChannel(channel);</span>
-<span class="fc" id="L43">  }</span>
+  public void setChannel(final ManagedChannel channel) {
+<span class="fc" id="L45">    getTransactionBaseTemplate().setChannel(channel);</span>
+<span class="fc" id="L46">  }</span>
+
+  @Override
+  public void setContextProvider(final ContextProvider contextProvider) {
+<span class="fc" id="L50">    this.contextProvider = contextProvider;</span>
+<span class="fc" id="L51">    getTransactionBaseTemplate().setContextProvider(contextProvider);</span>
+<span class="fc" id="L52">  }</span>
+
+<span class="pc bpc" id="L54" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function1&lt;TxHash, ResultOrErrorFuture&lt;Transaction&gt;&gt; transactionFunction =
+      getStrategyChain().apply(identify(getTransactionBaseTemplate().getTransactionFunction(),
+          TRANSACTION_GETTX_EITHER));
+
+<span class="pc bpc" id="L59" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function1&lt;Transaction, ResultOrErrorFuture&lt;TxHash&gt;&gt; commitFunction =
+      getStrategyChain()
+          .apply(identify(getTransactionBaseTemplate().getCommitFunction(),
+              TRANSACTION_COMMIT_EITHER));
+
+<span class="pc bpc" id="L65" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function3&lt;AccountAddress, AccountAddress, Aer,
+      ResultOrErrorFuture&lt;TxHash&gt;&gt; sendFunction =
+          getStrategyChain()
+              .apply(identify(getTransactionBaseTemplate().getSendFunction(),
+                  TRANSACTION_SEND_EITHER));
 
   @Override
   public ResultOrError&lt;Transaction&gt; getTransaction(final TxHash txHash) {
-<span class="fc" id="L47">    return transactionAsyncOperation.getTransaction(txHash).get(getTimeout().getValue(),</span>
-<span class="fc" id="L48">        getTimeout().getUnit());</span>
+<span class="fc" id="L74">    return getTransactionFunction().apply(txHash).get();</span>
   }
 
   @Override
   public ResultOrError&lt;TxHash&gt; commit(final Transaction transaction) {
-<span class="fc" id="L53">    return transactionAsyncOperation.commit(transaction).get(getTimeout().getValue(),</span>
-<span class="fc" id="L54">        getTimeout().getUnit());</span>
+<span class="fc" id="L79">    return getCommitFunction().apply(transaction).get();</span>
   }
 
   @Override
-  public ResultOrError&lt;TxHash&gt; send(final AccountAddress sender, final AccountAddress recipient,
-      final long amount) {
-<span class="fc" id="L60">    return transactionAsyncOperation.send(sender, recipient, amount).get(getTimeout().getValue(),</span>
-<span class="fc" id="L61">        getTimeout().getUnit());</span>
+  public ResultOrError&lt;TxHash&gt; send(final AccountAddress sender,
+      final AccountAddress recipient,
+      final Aer amount) {
+<span class="fc" id="L86">    return getSendFunction().apply(sender, recipient, amount).get();</span>
   }
 
 }

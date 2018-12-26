@@ -4,44 +4,67 @@
 
 package hera.api.model;
 
-import java.util.Collections;
+import static java.util.Collections.unmodifiableMap;
+
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.api.model.internal.Time;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
-<span class="nc" id="L14">@ToString</span>
-<span class="nc bnc" id="L15" title="All 50 branches missed.">@EqualsAndHashCode</span>
-<span class="fc" id="L16">public class ModuleStatus {</span>
+@ApiAudience.Public
+@ApiStability.Unstable
+<span class="nc" id="L19">@ToString</span>
+<span class="nc bnc" id="L20" title="All 50 branches missed.">@EqualsAndHashCode</span>
+public class ModuleStatus {
 
-<span class="nc" id="L18">  @Getter</span>
-<span class="fc" id="L19">  @Setter</span>
-  protected String moduleName;
-
-<span class="nc" id="L22">  @Getter</span>
-<span class="fc" id="L23">  @Setter</span>
-  protected String status;
+<span class="nc" id="L23">  @Getter</span>
+  protected final String moduleName;
 
 <span class="nc" id="L26">  @Getter</span>
-<span class="fc" id="L27">  @Setter</span>
-  protected long processedMessageCount;
+  protected final String status;
 
-<span class="nc" id="L30">  @Getter</span>
-<span class="fc" id="L31">  @Setter</span>
-  protected long queuedMessageCount;
+<span class="nc" id="L29">  @Getter</span>
+  protected final long processedMessageCount;
 
-<span class="nc" id="L34">  @Getter</span>
-<span class="fc" id="L35">  @Setter</span>
-  protected Time latency;
+<span class="nc" id="L32">  @Getter</span>
+  protected final long queuedMessageCount;
+
+<span class="nc" id="L35">  @Getter</span>
+  protected final Time latency;
 
 <span class="nc" id="L38">  @Getter</span>
-<span class="fc" id="L39">  @Setter</span>
-  protected String error;
+  protected final String error;
 
-<span class="pc" id="L42">  @Getter</span>
-<span class="fc" id="L43">  @Setter</span>
-<span class="fc" id="L44">  protected Map&lt;String, Object&gt; actor = Collections.emptyMap();</span>
+<span class="nc" id="L41">  @Getter</span>
+  protected final Map&lt;String, Object&gt; actor;
+
+  /**
+   * ModuleStatus constructor.
+   *
+   * @param moduleName a module name
+   * @param status a module status
+   * @param processedMessageCount a processed message count
+   * @param queuedMessageCount a queued message count
+   * @param latency a latency
+   * @param error a kind of error
+   * @param actor an actor status
+   */
+  @ApiAudience.Private
+  public ModuleStatus(final String moduleName, final String status,
+      final long processedMessageCount,
+      final long queuedMessageCount, final Time latency, final String error,
+<span class="fc" id="L59">      final Map&lt;String, Object&gt; actor) {</span>
+<span class="fc" id="L60">    this.moduleName = moduleName;</span>
+<span class="fc" id="L61">    this.status = status;</span>
+<span class="fc" id="L62">    this.processedMessageCount = processedMessageCount;</span>
+<span class="fc" id="L63">    this.queuedMessageCount = queuedMessageCount;</span>
+<span class="fc" id="L64">    this.latency = latency;</span>
+<span class="fc" id="L65">    this.error = error;</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">    this.actor = actor != null ? unmodifiableMap(actor) : null;</span>
+<span class="fc" id="L67">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

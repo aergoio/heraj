@@ -4,15 +4,20 @@
 
 package hera.api.model;
 
-import hera.VersionUtils;
-import hera.api.encode.Base58WithCheckSum;
-import hera.exception.HerajException;
+import static hera.util.EncodingUtils.decodeBase58WithCheck;
+import static hera.util.EncodingUtils.encodeBase58WithCheck;
+
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.api.encode.Encodable;
+import hera.exception.DecodingFailureException;
 import hera.exception.InvalidVersionException;
-import hera.util.Base58Utils;
-import java.io.IOException;
+import hera.util.VersionUtils;
 import lombok.Getter;
 
-public class EncryptedPrivateKey {
+@ApiAudience.Public
+@ApiStability.Unstable
+public class EncryptedPrivateKey implements Encodable {
 
   public static final byte VERSION = (byte) 0xAA;
 
@@ -22,10 +27,12 @@ public class EncryptedPrivateKey {
    * @param encoded a base58 with checksum encoded encoded value
    * @return created {@link EncryptedPrivateKey}
    *
+   * @throws DecodingFailureException if decoding failed
    * @throws InvalidVersionException when address version mismatch
    */
-  public static EncryptedPrivateKey of(final Base58WithCheckSum encoded) {
-<span class="fc" id="L28">    return new EncryptedPrivateKey(encoded);</span>
+  @ApiAudience.Public
+  public static EncryptedPrivateKey of(final String encoded) {
+<span class="fc" id="L35">    return new EncryptedPrivateKey(encoded);</span>
   }
 
   /**
@@ -36,11 +43,12 @@ public class EncryptedPrivateKey {
    *
    * @throws InvalidVersionException when address version mismatch
    */
+  @ApiAudience.Private
   public static EncryptedPrivateKey of(final BytesValue bytesValue) {
-<span class="nc" id="L40">    return new EncryptedPrivateKey(bytesValue);</span>
+<span class="nc" id="L48">    return new EncryptedPrivateKey(bytesValue);</span>
   }
 
-<span class="fc" id="L43">  @Getter</span>
+<span class="fc" id="L51">  @Getter</span>
   protected final BytesValue bytesValue;
 
   /**
@@ -48,18 +56,13 @@ public class EncryptedPrivateKey {
    *
    * @param encoded a base58 with checksum encoded encoded value
    *
+   * @throws DecodingFailureException if decoding failed
    * @throws InvalidVersionException when address version mismatch
    */
-<span class="fc" id="L53">  public EncryptedPrivateKey(final Base58WithCheckSum encoded) {</span>
-    try {
-<span class="fc" id="L55">      final BytesValue decoded = encoded.decode();</span>
-<span class="fc" id="L56">      VersionUtils.validate(decoded, VERSION);</span>
-<span class="fc" id="L57">      this.bytesValue = decoded;</span>
-<span class="nc" id="L58">    } catch (IOException e) {</span>
-<span class="nc" id="L59">      throw new HerajException(e);</span>
-<span class="fc" id="L60">    }</span>
-
-<span class="fc" id="L62">  }</span>
+  @ApiAudience.Public
+  public EncryptedPrivateKey(final String encoded) {
+<span class="fc" id="L64">    this(decodeBase58WithCheck(encoded));</span>
+<span class="fc" id="L65">  }</span>
 
   /**
    * EncryptedPrivateKey constructor.
@@ -68,33 +71,39 @@ public class EncryptedPrivateKey {
    *
    * @throws InvalidVersionException when address version mismatch
    */
-<span class="fc" id="L71">  public EncryptedPrivateKey(final BytesValue bytesValue) {</span>
-<span class="fc bfc" id="L72" title="All 2 branches covered.">    if (BytesValue.EMPTY != bytesValue) {</span>
-<span class="fc" id="L73">      VersionUtils.validate(bytesValue, VERSION);</span>
+  @ApiAudience.Private
+<span class="fc" id="L75">  public EncryptedPrivateKey(final BytesValue bytesValue) {</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">    if (BytesValue.EMPTY != bytesValue) {</span>
+<span class="fc" id="L77">      VersionUtils.validate(bytesValue, VERSION);</span>
     }
-<span class="fc" id="L75">    this.bytesValue = bytesValue;</span>
-<span class="fc" id="L76">  }</span>
+<span class="fc" id="L79">    this.bytesValue = bytesValue;</span>
+<span class="fc" id="L80">  }</span>
+
+  @Override
+  public String getEncoded() {
+<span class="fc" id="L84">    return encodeBase58WithCheck(getBytesValue());</span>
+  }
 
   @Override
   public int hashCode() {
-<span class="nc" id="L80">    return bytesValue.hashCode();</span>
+<span class="nc" id="L89">    return bytesValue.hashCode();</span>
   }
 
   @Override
   public boolean equals(Object obj) {
-<span class="pc bpc" id="L85" title="1 of 2 branches missed.">    if (null == obj) {</span>
-<span class="nc" id="L86">      return false;</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">    if (null == obj) {</span>
+<span class="nc" id="L95">      return false;</span>
     }
-<span class="pc bpc" id="L88" title="1 of 2 branches missed.">    if (!obj.getClass().equals(getClass())) {</span>
-<span class="nc" id="L89">      return false;</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">    if (!obj.getClass().equals(getClass())) {</span>
+<span class="nc" id="L98">      return false;</span>
     }
-<span class="fc" id="L91">    final EncryptedPrivateKey other = (EncryptedPrivateKey) obj;</span>
-<span class="fc" id="L92">    return bytesValue.equals(other.bytesValue);</span>
+<span class="fc" id="L100">    final EncryptedPrivateKey other = (EncryptedPrivateKey) obj;</span>
+<span class="fc" id="L101">    return bytesValue.equals(other.bytesValue);</span>
   }
 
   @Override
   public String toString() {
-<span class="nc" id="L97">    return Base58Utils.encodeWithCheck(bytesValue.getValue());</span>
+<span class="fc" id="L106">    return getEncoded();</span>
   }
 
 }

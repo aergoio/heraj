@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EncodingUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.util</a> &gt; <span class="el_source">EncodingUtils.java</span></div><h1>EncodingUtils.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.util;
+
+import hera.api.model.BytesValue;
+import hera.exception.DecodingFailureException;
+import hera.exception.DecodingFailureException.Format;
+
+<span class="nc" id="L11">public class EncodingUtils {</span>
+
+  /**
+   * Encode bytesValue to base58.
+   *
+   * @param bytesValue a bytesValue
+   * @return base58 encoded string
+   */
+  public static String encodeBase58(final BytesValue bytesValue) {
+<span class="pc bpc" id="L20" title="2 of 4 branches missed.">    return (null != bytesValue &amp;&amp; !bytesValue.isEmpty()) ? Base58Utils.encode(bytesValue.getValue())</span>
+        : &quot;&quot;;
+  }
+
+  /**
+   * Decode base58 encoded string.
+   *
+   * @param encoded base58 encoded string
+   * @return decoded string
+   * @throws DecodingFailureException if decoding failure
+   */
+  public static BytesValue decodeBase58(final String encoded) {
+    try {
+<span class="pc bpc" id="L33" title="1 of 2 branches missed.">      return null != encoded ? new BytesValue(Base58Utils.decode(encoded)) : BytesValue.EMPTY;</span>
+<span class="nc" id="L34">    } catch (Exception e) {</span>
+<span class="nc" id="L35">      throw new DecodingFailureException(encoded, Format.Base58WithCheck);</span>
+    }
+  }
+
+  /**
+   * Encode bytesValue to base58 with checksum.
+   *
+   * @param bytesValue a bytesValue
+   * @return base58 with checksum encoded string
+   */
+  public static String encodeBase58WithCheck(final BytesValue bytesValue) {
+<span class="pc bpc" id="L46" title="2 of 4 branches missed.">    return (null != bytesValue &amp;&amp; !bytesValue.isEmpty())</span>
+<span class="pc" id="L47">        ? Base58Utils.encodeWithCheck(bytesValue.getValue())</span>
+        : &quot;&quot;;
+  }
+
+  /**
+   * Decode base58 with checksum encoded string.
+   *
+   * @param encoded base58 with checksum encoded string
+   * @return decoded string
+   * @throws DecodingFailureException if decoding failure
+   */
+  public static BytesValue decodeBase58WithCheck(final String encoded) {
+    try {
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">      return null != encoded ? new BytesValue(Base58Utils.decodeWithCheck(encoded))</span>
+          : BytesValue.EMPTY;
+<span class="fc" id="L62">    } catch (Exception e) {</span>
+<span class="fc" id="L63">      throw new DecodingFailureException(encoded, Format.Base58WithCheck);</span>
+    }
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

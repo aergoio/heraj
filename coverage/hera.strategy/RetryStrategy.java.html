@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RetryStrategy.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.strategy</a> &gt; <span class="el_source">RetryStrategy.java</span></div><h1>RetryStrategy.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.strategy;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.api.model.internal.Time;
+import hera.api.model.internal.TryCountAndInterval;
+import hera.api.tupleorerror.Function;
+import hera.api.tupleorerror.Function0;
+import hera.api.tupleorerror.ResultOrError;
+import hera.api.tupleorerror.ResultOrErrorFuture;
+import java.util.concurrent.TimeUnit;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.slf4j.Logger;
+
+<span class="fc" id="L20">@ToString</span>
+<span class="pc bpc" id="L21" title="20 of 22 branches missed.">@EqualsAndHashCode</span>
+public class RetryStrategy implements FailoverStrategy {
+
+  public static final int DEFAULT_RETRY_COUNT = 0;
+  public static final long DEFAULT_RETRY_INTERVAL = 5000L; // milliseconds
+
+<span class="fc" id="L27">  protected final Logger logger = getLogger(getClass());</span>
+
+  protected final TryCountAndInterval tryCountAndInterval;
+
+  /**
+   * {@code RetryStrategy} constructor. If count is less than
+   * {@link RetryStrategy#DEFAULT_RETRY_COUNT}, set as it. An interval set as
+   * {@link RetryStrategy#DEFAULT_RETRY_INTERVAL}.
+   *
+   * @param count retry count
+   */
+  public RetryStrategy(final int count) {
+<span class="fc" id="L39">    this(count, Time.of(DEFAULT_RETRY_INTERVAL, TimeUnit.MILLISECONDS));</span>
+<span class="fc" id="L40">  }</span>
+
+  /**
+   * {@code RetryStrategy} constructor. If count is less than
+   * {@link RetryStrategy#DEFAULT_RETRY_COUNT}, set as it. If interval is null, set as
+   * {@link RetryStrategy#DEFAULT_RETRY_INTERVAL}.
+   *
+   * @param count retry count
+   * @param interval retry interval
+   */
+<span class="fc" id="L50">  public RetryStrategy(final int count, final Time interval) {</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">    this.tryCountAndInterval =</span>
+<span class="fc" id="L52">        TryCountAndInterval.of(count &lt; 0 ? DEFAULT_RETRY_COUNT : count, interval);</span>
+<span class="fc" id="L53">  }</span>
+
+  @Override
+  public &lt;R&gt; R action(final Function originFunction, final Function0&lt;R&gt; functionWithArgs) {
+<span class="fc" id="L57">    R r = functionWithArgs.apply();</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">    if (r instanceof ResultOrErrorFuture) {</span>
+<span class="fc" id="L59">      int i = tryCountAndInterval.getCount();</span>
+<span class="fc" id="L60">      ResultOrError&lt;?&gt; resultOrError = ((ResultOrErrorFuture&lt;?&gt;) r).get();</span>
+<span class="fc bfc" id="L61" title="All 4 branches covered.">      while (resultOrError.hasError() &amp;&amp; 0 &lt; i) {</span>
+<span class="fc" id="L62">        logger.info(&quot;Attempt failed.. retry after {} milliseconds.. (try left: {})&quot;,</span>
+<span class="fc" id="L63">            this.tryCountAndInterval.getInterval().toMilliseconds(), i);</span>
+<span class="fc" id="L64">        this.tryCountAndInterval.trySleep();</span>
+<span class="fc" id="L65">        r = functionWithArgs.apply();</span>
+<span class="fc" id="L66">        resultOrError = ((ResultOrErrorFuture&lt;?&gt;) r).get();</span>
+<span class="fc" id="L67">        --i;</span>
+      }
+    }
+<span class="fc" id="L70">    return r;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

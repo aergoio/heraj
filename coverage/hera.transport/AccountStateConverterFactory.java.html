@@ -4,30 +4,34 @@
 
 package hera.transport;
 
+import static hera.util.NumberUtils.byteArrayToPostive;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.model.Aer;
+import hera.api.model.BytesValue;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Blockchain;
 
-<span class="fc" id="L14">public class AccountStateConverterFactory {</span>
-<span class="fc" id="L15">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L18">public class AccountStateConverterFactory {</span>
 
-<span class="fc" id="L17">  protected final Function&lt;AccountState, Blockchain.State&gt; domainConverter = domainAccountState -&gt; {</span>
-<span class="nc" id="L18">    throw new UnsupportedOperationException();</span>
+<span class="fc" id="L20">  protected final transient Logger logger = getLogger(getClass());</span>
+
+<span class="fc" id="L22">  protected final Function&lt;AccountState, Blockchain.State&gt; domainConverter = domainAccountState -&gt; {</span>
+<span class="nc" id="L23">    throw new UnsupportedOperationException();</span>
   };
 
-<span class="fc" id="L21">  protected final Function&lt;Blockchain.State, AccountState&gt; rpcConverter = rpcAccountState -&gt; {</span>
-<span class="fc" id="L22">    logger.trace(&quot;Rpc account state: {}&quot;, rpcAccountState);</span>
-<span class="fc" id="L23">    final AccountState domainAccountState = new AccountState();</span>
-<span class="fc" id="L24">    domainAccountState.setNonce(rpcAccountState.getNonce());</span>
-<span class="fc" id="L25">    domainAccountState.setBalance(rpcAccountState.getBalance());</span>
-<span class="fc" id="L26">    return domainAccountState;</span>
+<span class="fc" id="L26">  protected final Function&lt;Blockchain.State, AccountState&gt; rpcConverter = rpcAccountState -&gt; {</span>
+<span class="fc" id="L27">    logger.trace(&quot;Rpc account state: {}&quot;, rpcAccountState);</span>
+<span class="fc" id="L28">    return new AccountState(AccountAddress.of(BytesValue.EMPTY),</span>
+<span class="fc" id="L29">        rpcAccountState.getNonce(),</span>
+<span class="fc" id="L30">        new Aer(byteArrayToPostive(rpcAccountState.getBalance().toByteArray())));</span>
   };
 
   public ModelConverter&lt;AccountState, Blockchain.State&gt; create() {
-<span class="fc" id="L30">    return new ModelConverter&lt;&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L34">    return new ModelConverter&lt;&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

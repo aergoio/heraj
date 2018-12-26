@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FutureChain.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.client</a> &gt; <span class="el_source">FutureChain.java</span></div><h1>FutureChain.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.client;
+
+import static hera.api.tupleorerror.FunctionChain.fail;
+import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import com.google.common.util.concurrent.FutureCallback;
+import hera.Context;
+import hera.ContextHolder;
+import hera.api.tupleorerror.ResultOrError;
+import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.exception.NotFoundException;
+import hera.exception.RpcConnectionException;
+import hera.exception.RpcException;
+import io.grpc.StatusRuntimeException;
+import java.util.function.Function;
+import javax.annotation.Nullable;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.slf4j.Logger;
+
+@SuppressWarnings(&quot;unchecked&quot;)
+<span class="pc bpc" id="L29" title="1 of 4 branches missed.">@RequiredArgsConstructor</span>
+public class FutureChain&lt;T, R&gt; implements FutureCallback&lt;T&gt; {
+
+  protected static final String ASYNC_CALL_MESSAGE =
+      &quot;============================== Async call ==============================&quot;;
+
+<span class="fc" id="L35">  protected final Logger logger = getLogger(getClass());</span>
+
+  // store Exception since getting stack trace element object is too expensive
+<span class="fc" id="L38">  protected Exception stackTraceHolder = new Exception();</span>
+
+  @NonNull
+  protected final ResultOrErrorFuture&lt;R&gt; nextFuture;
+
+  // hold main thread context
+  @NonNull
+  protected final Context sourceContext;
+
+<span class="fc" id="L47">  @Setter</span>
+  protected Function&lt;T, ResultOrError&lt;R&gt;&gt; successHandler;
+
+<span class="fc" id="L50">  @Setter</span>
+<span class="fc" id="L51">  protected Function&lt;? super Throwable, ResultOrError&lt;R&gt;&gt; failureHandler = e -&gt; fail(e);</span>
+
+  @Override
+  public void onSuccess(@Nullable T t) {
+<span class="fc" id="L55">    connectAsyncContextWithSourceContext();</span>
+<span class="fc" id="L56">    final ResultOrError&lt;R&gt; handled = ofNullable(successHandler).map(handler -&gt; handler.apply(t))</span>
+<span class="fc" id="L57">        .orElseThrow(() -&gt; new RpcException(&quot;No success handler&quot;));</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">    if (handled.hasResult()) {</span>
+<span class="fc" id="L59">      nextFuture.complete(handled);</span>
+    } else {
+<span class="nc" id="L61">      failNext(wrapWithRpcException(handled.getError()));</span>
+    }
+<span class="fc" id="L63">  }</span>
+
+  @Override
+  public void onFailure(final Throwable e) {
+<span class="fc" id="L67">    connectAsyncContextWithSourceContext();</span>
+<span class="fc" id="L68">    final ResultOrError&lt;R&gt; handled = failureHandler.apply(e);</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">    if (handled.hasResult()) {</span>
+<span class="fc" id="L70">      nextFuture.complete(handled);</span>
+    } else {
+<span class="fc" id="L72">      failNext(wrapWithRpcException(handled.getError()));</span>
+    }
+<span class="fc" id="L74">  }</span>
+
+  protected void connectAsyncContextWithSourceContext() {
+<span class="fc" id="L77">    ContextHolder.set(this, sourceContext);</span>
+<span class="fc" id="L78">  }</span>
+
+  protected RpcException wrapWithRpcException(final Throwable e) {
+<span class="fc" id="L81">    return of(e).filter(StatusRuntimeException.class::isInstance)</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        .map(StatusRuntimeException.class::cast).map(this::convertGrpcBasisException)</span>
+<span class="fc" id="L83">        .orElse(e instanceof RpcException ? (RpcException) e : new RpcException(e));</span>
+  }
+
+  protected RpcException convertGrpcBasisException(final StatusRuntimeException e) {
+<span class="nc bnc" id="L87" title="All 3 branches missed.">    switch (e.getStatus().getCode()) {</span>
+      case UNAVAILABLE:
+<span class="nc" id="L89">        return new RpcConnectionException(e);</span>
+      case NOT_FOUND:
+<span class="nc" id="L91">        return new NotFoundException(e);</span>
+      default:
+<span class="nc" id="L93">        return new RpcException(e);</span>
+    }
+  }
+
+  protected void failNext(final Throwable wrapped) {
+<span class="fc" id="L98">    wrapped.setStackTrace(concatStackTrace(wrapped, stackTraceHolder));</span>
+<span class="fc" id="L99">    nextFuture.complete(fail(wrapped));</span>
+<span class="fc" id="L100">  }</span>
+
+  protected StackTraceElement[] concatStackTrace(final Throwable asyncStack,
+      final Throwable callerStack) {
+<span class="fc" id="L104">    final StackTraceElement[] asyncStackTrace = asyncStack.getStackTrace();</span>
+<span class="fc" id="L105">    final StackTraceElement[] callerStackTrace = callerStack.getStackTrace();</span>
+
+    // remove higher thread stack : 3
+<span class="fc" id="L108">    final int asyncStackLength = asyncStackTrace.length - 3;</span>
+    // remove FutureChain &lt;init&gt; stack : 1
+<span class="fc" id="L110">    final int callerStackLength = callerStackTrace.length - 1;</span>
+
+<span class="fc" id="L112">    final StackTraceElement[] concated =</span>
+        new StackTraceElement[asyncStackLength + 1 + callerStackLength];
+<span class="fc" id="L114">    System.arraycopy(asyncStackTrace, 0, concated, 0, asyncStackLength);</span>
+<span class="fc" id="L115">    concated[asyncStackLength] = new StackTraceElement(ASYNC_CALL_MESSAGE, &quot;&quot;, null, 0);</span>
+<span class="fc" id="L116">    System.arraycopy(callerStackTrace, 1, concated, asyncStackLength + 1, callerStackLength);</span>
+
+<span class="fc" id="L118">    return concated;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

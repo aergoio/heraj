@@ -4,7 +4,9 @@
 
 package hera.util;
 
-<span class="nc" id="L7">public class ArrayUtils {</span>
+import org.bouncycastle.util.Arrays;
+
+<span class="nc" id="L9">public class ArrayUtils {</span>
   /**
    * Check if array is empty.
    * &lt;p&gt;
@@ -17,13 +19,13 @@ package hera.util;
    * @return check result
    */
   public static &lt;T&gt; boolean isEmpty(final T[] arrays) {
-<span class="fc bfc" id="L20" title="All 2 branches covered.">    return (0 == length(arrays));</span>
+<span class="fc bfc" id="L22" title="All 2 branches covered.">    return (0 == length(arrays));</span>
   }
 
   /**
    * Return array's length.
    * &lt;p&gt;
-   *   return 0 if array is {@code null}
+   * return 0 if array is {@code null}
    * &lt;/p&gt;
    *
    * @param arrays array to check
@@ -33,10 +35,33 @@ package hera.util;
    */
   public static &lt;T&gt; int length(
       final T[] arrays) {
-<span class="fc bfc" id="L36" title="All 2 branches covered.">    if (null == arrays) {</span>
-<span class="fc" id="L37">      return 0;</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">    if (null == arrays) {</span>
+<span class="fc" id="L39">      return 0;</span>
     }
-<span class="fc" id="L39">    return arrays.length;</span>
+<span class="fc" id="L41">    return arrays.length;</span>
+  }
+
+  /**
+   * Concat two byte array.
+   *
+   * @param left left array
+   * @param right right array
+   * @return a concated array
+   */
+  public static byte[] concat(final byte[] left, final byte[] right) {
+<span class="pc bpc" id="L52" title="1 of 4 branches missed.">    if (null == left &amp;&amp; null == right) {</span>
+<span class="nc" id="L53">      return new byte[0];</span>
+    }
+<span class="fc bfc" id="L55" title="All 2 branches covered.">    if (null == left) {</span>
+<span class="fc" id="L56">      return Arrays.copyOf(right, right.length);</span>
+    }
+<span class="fc bfc" id="L58" title="All 2 branches covered.">    if (null == right) {</span>
+<span class="fc" id="L59">      return Arrays.copyOf(left, left.length);</span>
+    }
+<span class="fc" id="L61">    final byte[] concated = new byte[left.length + right.length];</span>
+<span class="fc" id="L62">    System.arraycopy(left, 0, concated, 0, left.length);</span>
+<span class="fc" id="L63">    System.arraycopy(right, 0, concated, left.length, right.length);</span>
+<span class="fc" id="L64">    return concated;</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

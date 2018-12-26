@@ -4,25 +4,53 @@
 
 package hera.api.model;
 
-import hera.util.StringUtils;
+import static hera.util.ValidationUtils.assertNotNull;
+import static java.util.Collections.unmodifiableList;
+
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.exception.HerajException;
 import java.util.Collections;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
-<span class="fc" id="L15">@ToString</span>
-<span class="nc bnc" id="L16" title="All 22 branches missed.">@EqualsAndHashCode</span>
-<span class="fc" id="L17">public class ContractFunction {</span>
+@ApiAudience.Public
+@ApiStability.Unstable
+<span class="fc" id="L21">@ToString</span>
+<span class="pc bpc" id="L22" title="21 of 22 branches missed.">@EqualsAndHashCode</span>
+public class ContractFunction {
 
-<span class="fc" id="L19">  @Getter</span>
-<span class="fc" id="L20">  @Setter</span>
-  protected String name = StringUtils.EMPTY_STRING;
+<span class="fc" id="L25">  @Getter</span>
+  protected final String name;
 
-<span class="fc" id="L23">  @Getter</span>
-<span class="fc" id="L24">  @Setter</span>
-<span class="fc" id="L25">  protected List&lt;String&gt; argumentNames = Collections.emptyList();</span>
+<span class="fc" id="L28">  @Getter</span>
+  protected final List&lt;String&gt; argumentNames;
+
+  /**
+   * ContractFunction constructor.
+   *
+   * @param name a function name
+   */
+  @ApiAudience.Private
+  public ContractFunction(final String name) {
+<span class="fc" id="L38">    this(name, Collections.emptyList());</span>
+<span class="fc" id="L39">  }</span>
+
+  /**
+   * ContractFunction constructor.
+   *
+   * @param name a function name
+   * @param argumentNames an argument names
+   */
+  @ApiAudience.Private
+<span class="fc" id="L48">  public ContractFunction(final String name, final List&lt;String&gt; argumentNames) {</span>
+<span class="fc" id="L49">    assertNotNull(name, new HerajException(&quot;Function name must not null&quot;));</span>
+<span class="fc" id="L50">    assertNotNull(argumentNames, new HerajException(&quot;Argument names must not null&quot;));</span>
+<span class="fc" id="L51">    this.name = name;</span>
+<span class="fc" id="L52">    this.argumentNames = unmodifiableList(argumentNames);</span>
+<span class="fc" id="L53">  }</span>
+
 }
-
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

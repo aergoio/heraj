@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Aer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.model</a> &gt; <span class="el_source">Aer.java</span></div><h1>Aer.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.api.model;
+
+import static hera.util.ValidationUtils.assertNotNull;
+
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.exception.HerajException;
+import hera.exception.InvalidAerAmountException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+
+@ApiAudience.Public
+@ApiStability.Unstable
+<span class="fc" id="L22">@ToString</span>
+<span class="pc bpc" id="L23" title="8 of 14 branches missed.">@EqualsAndHashCode</span>
+public class Aer implements Comparable&lt;Aer&gt; {
+
+<span class="fc" id="L26">  public static final Aer ZERO = new Aer(BigInteger.valueOf(0L));</span>
+
+<span class="fc" id="L28">  public static final Aer ONE = new Aer(BigInteger.valueOf(1L));</span>
+
+<span class="fc" id="L30">  public static final Aer GIGA_ONE = new Aer(&quot;1&quot;, Unit.GAER);</span>
+
+<span class="fc" id="L32">  public static final Aer AERGO_ONE = new Aer(&quot;1&quot;, Unit.AERGO);</span>
+
+  /**
+   * Create {@code Aer} instance.
+   *
+   * @param amount an amount in string which is considered as {@link Unit#AER}
+   * @return an aergo instance
+   * @throws InvalidAerAmountException if an amount is invalid
+   */
+  @ApiAudience.Public
+  public static Aer of(final String amount) {
+<span class="nc" id="L43">    return new Aer(amount);</span>
+  }
+
+  /**
+   * Create {@code Aer} instance.
+   *
+   * @param amount an amount in string
+   * @param unit an unit {@link Unit}
+   * @return an aergo instance
+   * @throws InvalidAerAmountException if an amount is invalid
+   */
+  @ApiAudience.Public
+  public static Aer of(final String amount, final Unit unit) {
+<span class="fc" id="L56">    return new Aer(amount, unit);</span>
+  }
+
+  /**
+   * Create an {@code Aer} instance.
+   *
+   * @param amount an amount in {@link Unit#AER}
+   * @return an aergo instance
+   */
+  @ApiAudience.Public
+  public static Aer of(final BigInteger amount) {
+<span class="fc" id="L67">    return new Aer(amount);</span>
+  }
+
+  /**
+   * An unit to represent aergo. Consist of {@code AER, GAER, AERGO}.
+   */
+<span class="fc" id="L73">  @ApiAudience.Public</span>
+<span class="fc" id="L74">  @RequiredArgsConstructor</span>
+  public enum Unit {
+<span class="fc" id="L76">    AER(&quot;aer&quot;, new BigDecimal(&quot;1&quot;), new BigDecimal(&quot;1&quot;)),</span>
+<span class="fc" id="L77">    GAER(&quot;gaer&quot;, new BigDecimal(&quot;1.E-9&quot;), new BigDecimal(&quot;1.E9&quot;)),</span>
+<span class="fc" id="L78">    AERGO(&quot;aergo&quot;, new BigDecimal(&quot;1.E-18&quot;), new BigDecimal(&quot;1.E18&quot;));</span>
+
+<span class="fc" id="L80">    @Getter</span>
+    protected final String name;
+
+<span class="fc" id="L83">    @Getter</span>
+    protected final BigDecimal minimum;
+
+<span class="fc" id="L86">    @Getter</span>
+    protected final BigDecimal timesToAer;
+  }
+
+<span class="fc" id="L90">  @Getter</span>
+  protected final BigInteger value;
+
+  /**
+   * Create {@code Aer} instance.
+   *
+   * @param amount an amount in string which is considered as {@link Unit#AER}
+   * @throws InvalidAerAmountException if an amount is invalid
+   */
+  @ApiAudience.Public
+  public Aer(final String amount) {
+<span class="nc" id="L101">    this(amount, Unit.AER);</span>
+<span class="nc" id="L102">  }</span>
+
+  /**
+   * Create {@code Aer} instance.
+   *
+   * @param amount an amount in string
+   * @param unit an unit {@link Unit}
+   * @throws InvalidAerAmountException if an amount is invalid
+   */
+  @ApiAudience.Public
+<span class="fc" id="L112">  public Aer(final String amount, final Unit unit) {</span>
+<span class="fc" id="L113">    assertNotNull(amount, new HerajException(&quot;Amount must not null&quot;));</span>
+<span class="fc" id="L114">    assertNotNull(unit, new HerajException(&quot;Unit must not null&quot;));</span>
+<span class="fc" id="L115">    this.value = parse(amount, unit);</span>
+<span class="fc" id="L116">  }</span>
+
+  /**
+   * Aer constructor.
+   *
+   * @param amount an amount in {@link Unit#AER}
+   */
+  @ApiAudience.Public
+<span class="fc" id="L124">  public Aer(final BigInteger amount) {</span>
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">    this.value =</span>
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">        null != amount ? (amount.compareTo(BigInteger.ZERO) &gt;= 0 ? amount : BigInteger.ZERO)</span>
+            : BigInteger.ZERO;
+<span class="fc" id="L128">  }</span>
+
+  protected BigInteger parse(final String value, final Unit unit) {
+    try {
+<span class="fc" id="L132">      final BigDecimal parsedValue = new BigDecimal(value);</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">      if (parsedValue.compareTo(BigDecimal.ZERO) == -1) {</span>
+<span class="fc" id="L134">        throw new InvalidAerAmountException(&quot;Amount should be postive&quot;);</span>
+      }
+<span class="fc bfc" id="L136" title="All 2 branches covered.">      if (parsedValue.compareTo(BigDecimal.ZERO) != 0</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">          &amp;&amp; parsedValue.compareTo(unit.getMinimum()) == -1) {</span>
+<span class="fc" id="L138">        throw new InvalidAerAmountException(</span>
+<span class="fc" id="L139">            String.format(&quot;Amount is smaller then minimum : %s %s&quot;,</span>
+<span class="fc" id="L140">                unit.getMinimum().toPlainString(), unit.getName()));</span>
+      }
+<span class="fc" id="L142">      return parsedValue.multiply(unit.getTimesToAer()).toBigInteger();</span>
+<span class="fc" id="L143">    } catch (NumberFormatException e) {</span>
+<span class="fc" id="L144">      throw new InvalidAerAmountException(e);</span>
+    }
+  }
+
+  /**
+   * Returns a Aer whose value is {@code (this.value + other.value)}.
+   *
+   * @param other value to be added to this aer.
+   * @return {@code this.value + other.value}
+   */
+  public Aer add(final Aer other) {
+<span class="fc" id="L155">    return new Aer(this.value.add(other.value));</span>
+  }
+
+  /**
+   * Returns a Aer whose value is {@code (this.value - other.value)}. If a subtracted value is less
+   * than 0, return 0 {@link Unit#AER}.
+   *
+   * @param other value to be added to this aer.
+   * @return {@code this.value - other.value}
+   */
+  public Aer subtract(final Aer other) {
+<span class="fc" id="L166">    final BigInteger subtracted = this.value.subtract(other.value);</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">    return new Aer(subtracted.compareTo(BigInteger.ZERO) &lt; 0 ? BigInteger.ZERO : subtracted);</span>
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * @throws NullPointerException if the specified object is null
+   */
+  @Override
+  public int compareTo(final Aer other) {
+<span class="fc" id="L177">    return this.value.compareTo(other.value);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

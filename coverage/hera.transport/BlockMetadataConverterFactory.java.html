@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BlockMetadataConverterFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.transport</a> &gt; <span class="el_source">BlockMetadataConverterFactory.java</span></div><h1>BlockMetadataConverterFactory.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.transport;
+
+import static hera.api.model.BytesValue.of;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.api.model.AccountAddress;
+import hera.api.model.BlockHash;
+import hera.api.model.BlockHeader;
+import hera.api.model.Hash;
+import hera.api.model.TxHash;
+import java.util.function.Function;
+import org.slf4j.Logger;
+import types.Blockchain;
+import types.Rpc;
+
+<span class="fc" id="L20">public class BlockMetadataConverterFactory {</span>
+
+<span class="fc" id="L22">  protected final transient Logger logger = getLogger(getClass());</span>
+
+<span class="fc" id="L24">  protected final ModelConverter&lt;AccountAddress, com.google.protobuf.ByteString&gt; addressConverter =</span>
+<span class="fc" id="L25">      new AccountAddressConverterFactory().create();</span>
+
+<span class="fc" id="L27">  protected final Function&lt;BlockHeader, Rpc.BlockMetadata&gt; domainConverter = domainBlock -&gt; {</span>
+<span class="nc" id="L28">    throw new UnsupportedOperationException();</span>
+  };
+
+<span class="fc" id="L31">  protected final Function&lt;Rpc.BlockMetadata, BlockHeader&gt; rpcConverter = rpcBlockMetaData -&gt; {</span>
+<span class="fc" id="L32">    logger.trace(&quot;Rpc block metadata: {}&quot;, rpcBlockMetaData);</span>
+
+<span class="fc" id="L34">    final Blockchain.BlockHeader rpcBlockHeader = rpcBlockMetaData.getHeader();</span>
+
+<span class="fc" id="L36">    return new BlockHeader(</span>
+<span class="fc" id="L37">        new Hash(of(rpcBlockHeader.getChainID().toByteArray())),</span>
+<span class="fc" id="L38">        new BlockHash(of(rpcBlockMetaData.getHash().toByteArray())),</span>
+<span class="fc" id="L39">        new BlockHash(of(rpcBlockHeader.getPrevBlockHash().toByteArray())),</span>
+<span class="fc" id="L40">        rpcBlockHeader.getBlockNo(),</span>
+<span class="fc" id="L41">        rpcBlockHeader.getTimestamp(),</span>
+<span class="fc" id="L42">        new BlockHash(of(rpcBlockHeader.getBlocksRootHash().toByteArray())),</span>
+<span class="fc" id="L43">        new TxHash(of(rpcBlockHeader.getTxsRootHash().toByteArray())),</span>
+<span class="fc" id="L44">        new Hash(of(rpcBlockHeader.getReceiptsRootHash().toByteArray())),</span>
+<span class="fc" id="L45">        rpcBlockHeader.getConfirms(),</span>
+<span class="fc" id="L46">        new Hash(of(rpcBlockHeader.getPubKey().toByteArray())),</span>
+<span class="fc" id="L47">        new Hash(of(rpcBlockHeader.getSign().toByteArray())),</span>
+<span class="fc" id="L48">        addressConverter.convertToDomainModel(rpcBlockHeader.getCoinbaseAccount()),</span>
+<span class="fc" id="L49">        rpcBlockMetaData.getTxcount());</span>
+  };
+
+  public ModelConverter&lt;BlockHeader, Rpc.BlockMetadata&gt; create() {
+<span class="fc" id="L53">    return new ModelConverter&lt;&gt;(domainConverter, rpcConverter);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -13,12 +13,12 @@ import java.util.Map;
   public static Configuration getInstance() {
 <span class="fc" id="L14">    return new DummyConfiguration();</span>
   }
-  
+
   @Override
   protected Object getValue(String key) {
 <span class="fc" id="L19">    return null;</span>
   }
-  
+
   @SuppressWarnings(&quot;unchecked&quot;)
   @Override
   public Map&lt;String, Object&gt; asMap() {
@@ -29,5 +29,11 @@ import java.util.Map;
   public void define(final String key, final Object value) {
 <span class="fc" id="L30">    throw new UnsupportedOperationException();</span>
   }
+
+  @Override
+  public void remove(final String key) {
+<span class="nc" id="L35">    throw new UnsupportedOperationException();</span>
+  }
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -13,7 +13,7 @@ public class TransactionVerificationException extends RpcException {
 
   private static final long serialVersionUID = 308408228893339199L;
 
-<span class="fc" id="L16">  enum VerifyStatus {</span>
+<span class="fc" id="L16">  public enum VerifyStatus {</span>
 <span class="fc" id="L17">    VERIFY_STATUS_OK,</span>
 <span class="fc" id="L18">    VERIFY_STATUS_SIGN_NOT_MATCH,</span>
 <span class="fc" id="L19">    VERIFY_STATUS_INVALID_HASH,</span>
@@ -48,11 +48,6 @@ public class TransactionVerificationException extends RpcException {
   @Override
   public String getLocalizedMessage() {
 <span class="fc" id="L50">    return verifyStatus.toString();</span>
-  }
-
-  @Override
-  public TransactionVerificationException clone() {
-<span class="nc" id="L55">    return new TransactionVerificationException(getVerifyStatus());</span>
   }
 
 }

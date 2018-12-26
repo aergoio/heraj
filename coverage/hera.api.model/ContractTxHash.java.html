@@ -4,19 +4,26 @@
 
 package hera.api.model;
 
-import hera.api.encode.Base58;
-import java.util.Optional;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.api.encode.Encodable;
+import hera.exception.DecodingFailureException;
+import hera.util.Adaptor;
 
-public class ContractTxHash extends TxHash {
+@ApiAudience.Public
+@ApiStability.Unstable
+public class ContractTxHash extends TxHash implements Adaptor, Encodable {
 
   /**
    * Create {@code Hash} with a base58 encoded value.
    *
-   * @param encoded Base58 with checksum encoded
+   * @param encoded String with base58 encoded
    * @return created {@link ContractTxHash}
+   * @throws DecodingFailureException if decoding failed
    */
-  public static ContractTxHash of(final Base58 encoded) {
-<span class="fc" id="L19">    return new ContractTxHash(encoded);</span>
+  @ApiAudience.Public
+  public static ContractTxHash of(final String encoded) {
+<span class="fc" id="L26">    return new ContractTxHash(encoded);</span>
   }
 
   /**
@@ -25,37 +32,41 @@ public class ContractTxHash extends TxHash {
    * @param bytesValue {@link BytesValue}
    * @return created {@link ContractTxHash}
    */
+  @ApiAudience.Private
   public static ContractTxHash of(final BytesValue bytesValue) {
-<span class="fc" id="L29">    return new ContractTxHash(bytesValue);</span>
+<span class="fc" id="L37">    return new ContractTxHash(bytesValue);</span>
   }
 
   /**
    * ContractTxHash constructor.
    *
-   * @param encoded Base58 encoded value
+   * @param encoded String with base58 encoded
+   * @throws DecodingFailureException if decoding failed
    */
-  public ContractTxHash(final Base58 encoded) {
-<span class="fc" id="L38">    super(encoded);</span>
-<span class="fc" id="L39">  }</span>
+  @ApiAudience.Public
+  public ContractTxHash(final String encoded) {
+<span class="fc" id="L48">    super(encoded);</span>
+<span class="fc" id="L49">  }</span>
 
   /**
    * ContractTxHash constructor.
    *
    * @param bytesValue {@link BytesValue}
    */
+  @ApiAudience.Private
   public ContractTxHash(final BytesValue bytesValue) {
-<span class="fc" id="L47">    super(bytesValue);</span>
-<span class="fc" id="L48">  }</span>
+<span class="fc" id="L58">    super(bytesValue);</span>
+<span class="fc" id="L59">  }</span>
 
   @SuppressWarnings(&quot;unchecked&quot;)
   @Override
-  public &lt;T&gt; Optional&lt;T&gt; adapt(Class&lt;T&gt; adaptor) {
-<span class="fc bfc" id="L53" title="All 2 branches covered.">    if (adaptor.isAssignableFrom(ContractTxHash.class)) {</span>
-<span class="fc" id="L54">      return (Optional&lt;T&gt;) Optional.of(this);</span>
-<span class="pc bpc" id="L55" title="1 of 2 branches missed.">    } else if (adaptor.isAssignableFrom(BlockHash.class)) {</span>
-<span class="fc" id="L56">      return (Optional&lt;T&gt;) Optional.of(BlockHash.of(getBytesValue()));</span>
+  public &lt;T&gt; T adapt(Class&lt;T&gt; adaptor) {
+<span class="fc bfc" id="L64" title="All 2 branches covered.">    if (adaptor.isAssignableFrom(ContractTxHash.class)) {</span>
+<span class="fc" id="L65">      return (T) this;</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">    } else if (adaptor.isAssignableFrom(BlockHash.class)) {</span>
+<span class="fc" id="L67">      return (T) BlockHash.of(getBytesValue());</span>
     }
-<span class="nc" id="L58">    return Optional.empty();</span>
+<span class="nc" id="L69">    return null;</span>
   }
 
 }

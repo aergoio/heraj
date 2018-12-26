@@ -4,86 +4,128 @@
 
 package hera.client;
 
-import hera.Context;
+import static hera.TransportConstants.ACCOUNT_CREATE_NAME;
+import static hera.TransportConstants.ACCOUNT_GETNAMEOWNER;
+import static hera.TransportConstants.ACCOUNT_GETSTATE;
+import static hera.TransportConstants.ACCOUNT_SIGN;
+import static hera.TransportConstants.ACCOUNT_UPDATE_NAME;
+import static hera.TransportConstants.ACCOUNT_VERIFY;
+import static hera.api.tupleorerror.Functions.identify;
+
+import hera.ContextProvider;
+import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.AccountOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
-import hera.api.model.Authentication;
-import hera.api.model.EncryptedPrivateKey;
-import hera.api.model.ServerManagedAccount;
-import hera.api.model.Signature;
+import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
-import hera.api.tupleorerror.ResultOrError;
+import hera.api.model.TxHash;
+import hera.api.tupleorerror.Function1;
+import hera.api.tupleorerror.Function2;
+import hera.api.tupleorerror.Function3;
+import hera.api.tupleorerror.Function4;
+import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
-import java.util.List;
+import lombok.AccessLevel;
+import lombok.Getter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="fc" id="L25">public class AccountTemplate implements AccountOperation, ChannelInjectable {</span>
+<span class="fc" id="L38">public class AccountTemplate</span>
+    implements AccountOperation, ChannelInjectable, ContextProviderInjectable {
 
-  protected Context context;
+<span class="fc" id="L41">  @Getter</span>
+  protected AccountBaseTemplate accountBaseTemplate = new AccountBaseTemplate();
 
-<span class="fc" id="L29">  protected AccountEitherTemplate accountEitherOperation = new AccountEitherTemplate();</span>
+  protected ContextProvider contextProvider;
 
-  @Override
-  public void setContext(final Context context) {
-<span class="fc" id="L33">    this.context = context;</span>
-<span class="fc" id="L34">    accountEitherOperation.setContext(context);</span>
-<span class="fc" id="L35">  }</span>
-
-  @Override
-  public void injectChannel(final ManagedChannel channel) {
-<span class="fc" id="L39">    accountEitherOperation.injectChannel(channel);</span>
-<span class="fc" id="L40">  }</span>
+<span class="pc bpc" id="L46" title="4 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
 
   @Override
-  public List&lt;AccountAddress&gt; list() {
-<span class="fc" id="L44">    return accountEitherOperation.list().getResult();</span>
-  }
+  public void setChannel(final ManagedChannel channel) {
+<span class="fc" id="L51">    getAccountBaseTemplate().setChannel(channel);;</span>
+<span class="fc" id="L52">  }</span>
 
   @Override
-  public ServerManagedAccount create(final String password) {
-<span class="fc" id="L49">    return accountEitherOperation.create(password).getResult();</span>
+  public void setContextProvider(final ContextProvider contextProvider) {
+<span class="fc" id="L56">    this.contextProvider = contextProvider;</span>
+<span class="fc" id="L57">    getAccountBaseTemplate().setContextProvider(contextProvider);</span>
+<span class="fc" id="L58">  }</span>
+
+<span class="pc bpc" id="L60" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function1&lt;AccountAddress, ResultOrErrorFuture&lt;AccountState&gt;&gt; stateFunction =
+      getStrategyChain()
+          .apply(identify(getAccountBaseTemplate().getStateFunction(), ACCOUNT_GETSTATE));
+
+<span class="pc bpc" id="L65" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function3&lt;Account, String, Long,
+      ResultOrErrorFuture&lt;TxHash&gt;&gt; createNameFunction =
+          getStrategyChain()
+              .apply(identify(getAccountBaseTemplate().getCreateNameFunction(),
+                  ACCOUNT_CREATE_NAME));
+
+<span class="pc bpc" id="L72" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function4&lt;Account, String, AccountAddress, Long,
+      ResultOrErrorFuture&lt;TxHash&gt;&gt; updateNameFunction =
+          getStrategyChain().apply(
+              identify(getAccountBaseTemplate().getUpdateNameFunction(), ACCOUNT_UPDATE_NAME));
+
+<span class="pc bpc" id="L78" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function1&lt;String, ResultOrErrorFuture&lt;AccountAddress&gt;&gt; nameOwnerFunction =
+      getStrategyChain()
+          .apply(
+              identify(getAccountBaseTemplate().getGetNameOwnerFunction(), ACCOUNT_GETNAMEOWNER));
+
+<span class="pc bpc" id="L84" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function2&lt;Account, RawTransaction,
+      ResultOrErrorFuture&lt;Transaction&gt;&gt; signFunction =
+          getStrategyChain()
+              .apply(identify(getAccountBaseTemplate().getSignFunction(), ACCOUNT_SIGN));
+
+<span class="pc bpc" id="L90" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function2&lt;Account, Transaction, ResultOrErrorFuture&lt;Boolean&gt;&gt; verifyFunction =
+      getStrategyChain()
+          .apply(identify(getAccountBaseTemplate().getVerifyFunction(), ACCOUNT_VERIFY));
+
+  @Override
+  public AccountState getState(final Account account) {
+<span class="nc" id="L97">    return getState(account.getAddress());</span>
   }
 
   @Override
   public AccountState getState(final AccountAddress address) {
-<span class="fc" id="L54">    return accountEitherOperation.getState(address).getResult();</span>
+<span class="fc" id="L102">    return getStateFunction().apply(address).get().getResult();</span>
   }
 
   @Override
-  public boolean lock(final Authentication authentication) {
-<span class="fc" id="L59">    ResultOrError&lt;Boolean&gt; fuck = accountEitherOperation.lock(authentication);</span>
-<span class="fc" id="L60">    return fuck.getResult();</span>
+  public TxHash createName(final Account account, final String name, final long nonce) {
+<span class="fc" id="L107">    return getCreateNameFunction().apply(account, name, nonce).get().getResult();</span>
   }
 
   @Override
-  public boolean unlock(final Authentication authentication) {
-<span class="fc" id="L65">    return accountEitherOperation.unlock(authentication).getResult();</span>
+  public TxHash updateName(final Account ownerAccount, final String name,
+      final AccountAddress newOwner, final long nonce) {
+<span class="fc" id="L113">    return getUpdateNameFunction().apply(ownerAccount, name, newOwner, nonce).get().getResult();</span>
   }
 
   @Override
-  public Signature sign(final Account account, final Transaction transaction) {
-<span class="nc" id="L70">    return accountEitherOperation.sign(account, transaction).getResult();</span>
+  public AccountAddress getNameOwner(final String name) {
+<span class="fc" id="L118">    return getNameOwnerFunction().apply(name).get().getResult();</span>
   }
 
   @Override
-  public boolean verify(final Account account, final Transaction transaction) {
-<span class="nc" id="L75">    return accountEitherOperation.verify(account, transaction).getResult();</span>
+  public Transaction sign(final Account account, final RawTransaction rawTransaction) {
+<span class="fc" id="L123">    return getSignFunction().apply(account, rawTransaction).get().getResult();</span>
   }
 
   @Override
-  public ServerManagedAccount importKey(final EncryptedPrivateKey encryptedKey,
-      final String oldPassword, final String newPassword) {
-<span class="fc" id="L81">    return accountEitherOperation.importKey(encryptedKey, oldPassword, newPassword).getResult();</span>
-  }
-
-  @Override
-  public EncryptedPrivateKey exportKey(final Authentication authentication) {
-<span class="fc" id="L86">    return accountEitherOperation.exportKey(authentication).getResult();</span>
+  public boolean verify(final Account account, final Transaction signedTransaction) {
+<span class="fc" id="L128">    return getVerifyFunction().apply(account, signedTransaction).get().getResult();</span>
   }
 
 }

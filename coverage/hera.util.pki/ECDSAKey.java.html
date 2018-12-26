@@ -5,8 +5,6 @@
 package hera.util.pki;
 
 import static hera.util.IoUtils.stream;
-import static hera.util.pki.RFC6979Utils.bits2int;
-import static hera.util.pki.RFC6979Utils.generatek;
 import static java.security.Security.addProvider;
 import static org.bouncycastle.jce.ECNamedCurveTable.getParameterSpec;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -15,58 +13,39 @@ import hera.util.HexUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import javax.crypto.Mac;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.params.ECDomainParameters;
+import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
+import org.bouncycastle.crypto.params.ECPublicKeyParameters;
+import org.bouncycastle.crypto.signers.ECDSASigner;
+import org.bouncycastle.crypto.signers.HMacDSAKCalculator;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
-import org.bouncycastle.jce.spec.ECPrivateKeySpec;
-import org.bouncycastle.jce.spec.ECPublicKeySpec;
-import org.bouncycastle.math.ec.ECPoint;
 import org.slf4j.Logger;
 
+<span class="pc bpc" id="L32" title="15 of 22 branches missed.">@EqualsAndHashCode(exclude = &quot;logger&quot;)</span>
 <span class="fc" id="L33">@RequiredArgsConstructor(access = AccessLevel.PROTECTED)</span>
 public class ECDSAKey {
 
-  protected static final String KEY_ALGORITHM = &quot;ECDSA&quot;;
-
   protected static final String CURVE_NAME = &quot;secp256k1&quot;;
 
-  protected static final String SIGN_ALGORITHM = &quot;SHA256WithECDSA&quot;;
-
-  protected static final String MAC_ALGORITHM = &quot;HmacSHA256&quot;;
-
-  protected static final ECNamedCurveParameterSpec ecSpec;
-
-<span class="fc" id="L46">  @Getter</span>
+<span class="fc" id="L38">  @Getter</span>
   protected static final ECDomainParameters ecParams;
 
   static {
-<span class="fc" id="L50">    addProvider(new BouncyCastleProvider());</span>
-<span class="fc" id="L51">    ecSpec = getParameterSpec(CURVE_NAME);</span>
-<span class="fc" id="L52">    ecParams = new ECDomainParameters(ecSpec.getCurve(), ecSpec.getG(), ecSpec.getN(),</span>
-<span class="fc" id="L53">        ecSpec.getH(), ecSpec.getSeed());</span>
-<span class="fc" id="L54">  }</span>
+<span class="fc" id="L42">    addProvider(new BouncyCastleProvider());</span>
+<span class="fc" id="L43">    ECNamedCurveParameterSpec ecSpec = getParameterSpec(CURVE_NAME);</span>
+<span class="fc" id="L44">    ecParams = new ECDomainParameters(ecSpec.getCurve(), ecSpec.getG(), ecSpec.getN(),</span>
+<span class="fc" id="L45">        ecSpec.getH(), ecSpec.getSeed());</span>
+<span class="fc" id="L46">  }</span>
 
-<span class="fc" id="L56">  protected final transient Logger logger = getLogger(getClass());</span>
-
-
-  /**
-   * Create ECDSAKey with a private key.
-   *
-   * @param rawPrivatekey a private key
-   * @return {@link ECDSAKey}
-   *
-   * @throws Exception on failure of creation
-   */
-  public static ECDSAKey of(final byte[] rawPrivatekey) throws Exception {
-<span class="fc" id="L68">    return new ECDSAKey(rawPrivatekey);</span>
-  }
+<span class="fc" id="L48">  protected final transient Logger logger = getLogger(getClass());</span>
 
   /**
    * Create ECDSAKey with keypair.
@@ -76,33 +55,13 @@ public class ECDSAKey {
    * @return {@link ECDSAKey}
    */
   public static ECDSAKey of(final PrivateKey privatekey, final PublicKey publicKey) {
-<span class="nc" id="L79">    return new ECDSAKey(privatekey, publicKey);</span>
+<span class="nc" id="L58">    return new ECDSAKey(privatekey, publicKey);</span>
   }
 
-  /**
-   * ECDSAKey constructor.
-   *
-   * @param rawPrivatekey raw private key
-   *
-   * @throws Exception on failure
-   */
-<span class="fc" id="L89">  public ECDSAKey(final byte[] rawPrivatekey) throws Exception {</span>
-<span class="fc" id="L90">    final KeyFactory factory = KeyFactory.getInstance(KEY_ALGORITHM);</span>
-
-<span class="fc" id="L92">    final BigInteger d = new BigInteger(1, rawPrivatekey);</span>
-<span class="fc" id="L93">    final ECPrivateKeySpec spec = new ECPrivateKeySpec(d, ecSpec);</span>
-<span class="fc" id="L94">    this.privateKey = factory.generatePrivate(spec);</span>
-
-<span class="fc" id="L96">    final ECPoint Q = ecParams.getG()</span>
-<span class="fc" id="L97">        .multiply(((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD());</span>
-<span class="fc" id="L98">    final ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(Q, ecSpec);</span>
-<span class="fc" id="L99">    this.publicKey = factory.generatePublic(ecPublicKeySpec);</span>
-<span class="fc" id="L100">  }</span>
-
-<span class="fc" id="L102">  @Getter</span>
+<span class="fc" id="L61">  @Getter</span>
   protected final PrivateKey privateKey;
 
-<span class="fc" id="L105">  @Getter</span>
+<span class="fc" id="L64">  @Getter</span>
   protected final PublicKey publicKey;
 
   /**
@@ -114,13 +73,12 @@ public class ECDSAKey {
    */
   public ECDSASignature sign(final InputStream plainText) {
     try {
-<span class="fc" id="L117">      final byte[] message = toByteArray(plainText);</span>
-<span class="fc" id="L118">      final ECDSASignature signature =</span>
-<span class="fc" id="L119">          sign(((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD(), message);</span>
-<span class="fc" id="L120">      logger.trace(&quot;ECDSASignature signature: {}&quot;, signature);</span>
-<span class="fc" id="L121">      return signature;</span>
-<span class="nc" id="L122">    } catch (final Throwable e) {</span>
-<span class="nc" id="L123">      throw new IllegalStateException(e);</span>
+<span class="fc" id="L76">      final byte[] message = toByteArray(plainText);</span>
+<span class="fc" id="L77">      final ECDSASignature signature = sign(this.privateKey, message);</span>
+<span class="fc" id="L78">      logger.trace(&quot;ECDSASignature signature: {}&quot;, signature);</span>
+<span class="fc" id="L79">      return signature;</span>
+<span class="nc" id="L80">    } catch (final Throwable e) {</span>
+<span class="nc" id="L81">      throw new IllegalStateException(e);</span>
     }
   }
 
@@ -130,43 +88,26 @@ public class ECDSAKey {
    * @see &lt;a href=&quot;https://github.com/btcsuite/btcd/blob/master/btcec/signature.go&quot;&gt;signRFC6979
    *      function in signature.go&lt;/a&gt;
    *
-   * @param d private key d value
+   * @param privateKey a private key
    * @param message message to sign
    * @return ECDSASignature result
    * @throws Exception when sign error occurred
    */
-  protected ECDSASignature sign(final BigInteger d, final byte[] message) throws Exception {
-<span class="fc" id="L139">    logger.trace(&quot;D: {}&quot;, d);</span>
-<span class="fc" id="L140">    logger.trace(&quot;Message in hexa: {}&quot;, HexUtils.encode(message));</span>
+  protected ECDSASignature sign(final PrivateKey privateKey, final byte[] message)
+      throws Exception {
+<span class="fc" id="L98">    logger.trace(&quot;Message in hexa: {}&quot;, HexUtils.encode(message));</span>
 
-<span class="fc" id="L142">    final BigInteger n = ecParams.getN();</span>
-<span class="fc" id="L143">    final BigInteger halfN = n.divide(BigInteger.valueOf(2L));</span>
-<span class="fc" id="L144">    final int nBitslen = n.bitLength();</span>
-<span class="fc" id="L145">    final Mac mac = Mac.getInstance(MAC_ALGORITHM);</span>
-<span class="fc" id="L146">    final BigInteger k = generatek(d, n, mac, message);</span>
-<span class="fc" id="L147">    logger.trace(&quot;N: {}&quot;, n);</span>
-<span class="fc" id="L148">    logger.trace(&quot;Half N: {}&quot;, halfN);</span>
-<span class="fc" id="L149">    logger.trace(&quot;Bitslen of N: {}&quot;, nBitslen);</span>
-<span class="fc" id="L150">    logger.trace(&quot;Hash algorithm: {}&quot;, mac.getAlgorithm());</span>
-<span class="fc" id="L151">    logger.trace(&quot;Generatd k: {}&quot;, k);</span>
+<span class="fc" id="L100">    final ECDSASigner signer = new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));</span>
+<span class="fc" id="L101">    final BigInteger d = ((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD();</span>
+<span class="fc" id="L102">    logger.trace(&quot;D: {}&quot;, d);</span>
+<span class="fc" id="L103">    final ECPrivateKeyParameters privKey = new ECPrivateKeyParameters(d, ecParams);</span>
+<span class="fc" id="L104">    signer.init(true, privKey);</span>
+<span class="fc" id="L105">    final BigInteger[] components = signer.generateSignature(message);</span>
 
-<span class="fc" id="L153">    BigInteger r = ecParams.getG().multiply(k).getX().toBigInteger();</span>
-<span class="pc bpc" id="L154" title="1 of 2 branches missed.">    if (r.compareTo(n) == 1) {</span>
-<span class="nc" id="L155">      r = r.subtract(n);</span>
-    }
-<span class="pc bpc" id="L157" title="1 of 2 branches missed.">    if (0 == r.signum()) {</span>
-<span class="nc" id="L158">      throw new IllegalStateException(&quot;calculated R is zero&quot;);</span>
-    }
+<span class="fc" id="L107">    final BigInteger r = components[0];</span>
+<span class="fc" id="L108">    final BigInteger s = ecParams.getN().subtract(components[1]);</span>
 
-<span class="fc" id="L161">    BigInteger s = k.modInverse(n).multiply(bits2int(message, nBitslen).add(d.multiply(r))).mod(n);</span>
-<span class="fc bfc" id="L162" title="All 2 branches covered.">    if (s.compareTo(halfN) == 1) {</span>
-<span class="fc" id="L163">      s = n.subtract(s);</span>
-    }
-<span class="pc bpc" id="L165" title="1 of 2 branches missed.">    if (0 == s.signum()) {</span>
-<span class="nc" id="L166">      throw new IllegalStateException(&quot;calculated S is zero&quot;);</span>
-    }
-
-<span class="fc" id="L169">    return ECDSASignature.of(r, s);</span>
+<span class="fc" id="L110">    return new ECDSASignature(r, s);</span>
   }
 
   /**
@@ -179,11 +120,10 @@ public class ECDSAKey {
    */
   public boolean verify(final InputStream plainText, final ECDSASignature signature) {
     try {
-<span class="fc" id="L182">      return verify(getPublicKey(), toByteArray(plainText), signature);</span>
-<span class="nc" id="L183">    } catch (final Throwable e) {</span>
-<span class="nc" id="L184">      throw new IllegalStateException(e);</span>
+<span class="fc" id="L123">      return verify(getPublicKey(), toByteArray(plainText), signature);</span>
+<span class="nc" id="L124">    } catch (final Throwable e) {</span>
+<span class="nc" id="L125">      throw new IllegalStateException(e);</span>
     }
-
   }
 
   /**
@@ -200,59 +140,27 @@ public class ECDSAKey {
    */
   protected boolean verify(final PublicKey publicKey, final byte[] message,
       final ECDSASignature signature) {
-
-<span class="fc" id="L204">    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
+<span class="fc" id="L143">    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
         (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
-
-<span class="fc" id="L207">    final BigInteger r = signature.getR();</span>
-<span class="fc" id="L208">    final BigInteger s = signature.getS();</span>
-<span class="fc" id="L209">    final BigInteger n = ecParams.getN();</span>
-<span class="fc" id="L210">    final int nBitslen = ecParams.getN().bitLength();</span>
-
-<span class="pc bpc" id="L212" title="2 of 4 branches missed.">    if (r.signum() &lt;= 0 || s.signum() &lt;= 0) {</span>
-<span class="nc" id="L213">      return false;</span>
-    }
-<span class="pc bpc" id="L215" title="2 of 4 branches missed.">    if (r.compareTo(n) &gt;= 0 || s.compareTo(n) &gt;= 0) {</span>
-<span class="nc" id="L216">      return false;</span>
-    }
-
-<span class="fc" id="L219">    final BigInteger e = bits2int(message, nBitslen);</span>
-<span class="fc" id="L220">    final BigInteger w = s.modInverse(n);</span>
-<span class="fc" id="L221">    final BigInteger u1 = e.multiply(w).mod(n);</span>
-<span class="fc" id="L222">    final BigInteger u2 = w.multiply(r).mod(n);</span>
-<span class="fc" id="L223">    logger.trace(&quot;u1: {}&quot;, u1);</span>
-<span class="fc" id="L224">    logger.trace(&quot;u2: {}&quot;, u2);</span>
-
-<span class="fc" id="L226">    final ECPoint point1 = ecSpec.getG().multiply(u1);</span>
-<span class="fc" id="L227">    final ECPoint point2 = ecPublicKey.getQ().multiply(u2);</span>
-<span class="fc" id="L228">    logger.trace(&quot;point1.x: {}&quot;, point1.getX().toBigInteger());</span>
-<span class="fc" id="L229">    logger.trace(&quot;point1.y: {}&quot;, point1.getY().toBigInteger());</span>
-<span class="fc" id="L230">    logger.trace(&quot;point2.x: {}&quot;, point2.getX().toBigInteger());</span>
-<span class="fc" id="L231">    logger.trace(&quot;point2.y: {}&quot;, point2.getY().toBigInteger());</span>
-
-<span class="fc" id="L233">    final ECPoint plusPoint = point1.add(point2);</span>
-<span class="fc" id="L234">    final BigInteger x = plusPoint.getX().toBigInteger();</span>
-<span class="fc" id="L235">    final BigInteger y = plusPoint.getY().toBigInteger();</span>
-<span class="pc bpc" id="L236" title="3 of 4 branches missed.">    if (0 == x.signum() &amp;&amp; 0 == y.signum()) {</span>
-<span class="nc" id="L237">      return false;</span>
-    }
-
-<span class="pc bpc" id="L240" title="1 of 2 branches missed.">    return 0 == x.mod(n).compareTo(r);</span>
+<span class="fc" id="L145">    final ECDSASigner signer = new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));</span>
+<span class="fc" id="L146">    final ECPublicKeyParameters privKey = new ECPublicKeyParameters(ecPublicKey.getQ(), ecParams);</span>
+<span class="fc" id="L147">    signer.init(false, privKey);</span>
+<span class="fc" id="L148">    return signer.verifySignature(message, signature.getR(), signature.getS());</span>
   }
 
   @Override
   public String toString() {
-<span class="nc" id="L245">    final org.bouncycastle.jce.interfaces.ECPrivateKey ecPrivateKey =</span>
+<span class="nc" id="L153">    final org.bouncycastle.jce.interfaces.ECPrivateKey ecPrivateKey =</span>
         (org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey;
-<span class="nc" id="L247">    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
+<span class="nc" id="L155">    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
         (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
-<span class="nc" id="L249">    return String.format(&quot;%s\n%s&quot;, ecPrivateKey.toString(), ecPublicKey.toString());</span>
+<span class="nc" id="L157">    return String.format(&quot;%s\n%s&quot;, ecPrivateKey.toString(), ecPublicKey.toString());</span>
   }
 
   protected byte[] toByteArray(final InputStream plainText) throws Exception {
-<span class="fc" id="L253">    final ByteArrayOutputStream os = new ByteArrayOutputStream();</span>
-<span class="fc" id="L254">    stream(plainText, (bytes, offset, length) -&gt; os.write(bytes));</span>
-<span class="fc" id="L255">    return os.toByteArray();</span>
+<span class="fc" id="L161">    final ByteArrayOutputStream os = new ByteArrayOutputStream();</span>
+<span class="fc" id="L162">    stream(plainText, (bytes, offset, length) -&gt; os.write(bytes));</span>
+<span class="fc" id="L163">    return os.toByteArray();</span>
   }
 
 }

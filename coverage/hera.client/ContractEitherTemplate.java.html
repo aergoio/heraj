@@ -4,7 +4,15 @@
 
 package hera.client;
 
-import hera.Context;
+import static hera.TransportConstants.CONTRACT_DEPLOY_EITHER;
+import static hera.TransportConstants.CONTRACT_EXECUTE_EITHER;
+import static hera.TransportConstants.CONTRACT_GETINTERFACE_EITHER;
+import static hera.TransportConstants.CONTRACT_GETRECEIPT_EITHER;
+import static hera.TransportConstants.CONTRACT_QUERY_EITHER;
+import static hera.api.tupleorerror.Functions.identify;
+
+import hera.ContextProvider;
+import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.ContractEitherOperation;
@@ -17,68 +25,92 @@ import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Fee;
-import hera.api.model.Time;
+import hera.api.tupleorerror.Function1;
+import hera.api.tupleorerror.Function4;
 import hera.api.tupleorerror.ResultOrError;
-import hera.exception.RpcException;
-import hera.strategy.TimeoutStrategy;
+import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
+import lombok.AccessLevel;
 import lombok.Getter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="fc" id="L29">public class ContractEitherTemplate implements ContractEitherOperation, ChannelInjectable {</span>
+<span class="fc" id="L39">public class ContractEitherTemplate</span>
+    implements ContractEitherOperation, ChannelInjectable, ContextProviderInjectable {
 
-  protected Context context;
+<span class="fc" id="L42">  @Getter</span>
+  protected ContractBaseTemplate contractBaseTemplate = new ContractBaseTemplate();
 
-<span class="fc" id="L33">  protected ContractAsyncTemplate contractAsyncOperation = new ContractAsyncTemplate();</span>
+  protected ContextProvider contextProvider;
 
-<span class="pc bpc" id="L35" title="3 of 8 branches missed.">  @Getter(lazy = true)</span>
-  private final Time timeout =
-      context.getStrategy(TimeoutStrategy.class).map(TimeoutStrategy::getTimeout)
-          .orElseThrow(() -&gt; new RpcException(&quot;TimeoutStrategy must be present in context&quot;));
-
-  @Override
-  public void setContext(final Context context) {
-<span class="fc" id="L42">    this.context = context;</span>
-<span class="fc" id="L43">    this.contractAsyncOperation.setContext(context);</span>
-<span class="fc" id="L44">  }</span>
+<span class="pc bpc" id="L47" title="4 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
 
   @Override
-  public void injectChannel(final ManagedChannel channel) {
-<span class="fc" id="L48">    this.contractAsyncOperation.injectChannel(channel);</span>
-<span class="fc" id="L49">  }</span>
+  public void setChannel(final ManagedChannel channel) {
+<span class="fc" id="L52">    getContractBaseTemplate().setChannel(channel);</span>
+<span class="fc" id="L53">  }</span>
 
   @Override
-  public ResultOrError&lt;ContractTxReceipt&gt; getReceipt(final ContractTxHash deployTxHash) {
-<span class="fc" id="L53">    return contractAsyncOperation.getReceipt(deployTxHash).get(getTimeout().getValue(),</span>
-<span class="fc" id="L54">        getTimeout().getUnit());</span>
+  public void setContextProvider(final ContextProvider contextProvider) {
+<span class="fc" id="L57">    this.contextProvider = contextProvider;</span>
+<span class="fc" id="L58">    getContractBaseTemplate().setContextProvider(contextProvider);</span>
+<span class="fc" id="L59">  }</span>
+
+<span class="pc bpc" id="L61" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function1&lt;ContractTxHash,
+      ResultOrErrorFuture&lt;ContractTxReceipt&gt;&gt; receiptFunction = getStrategyChain().apply(
+          identify(getContractBaseTemplate().getReceiptFunction(), CONTRACT_GETRECEIPT_EITHER));
+
+<span class="pc bpc" id="L66" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function4&lt;Account, ContractDefinition, Long, Fee,
+      ResultOrErrorFuture&lt;ContractTxHash&gt;&gt; deployFunction = getStrategyChain()
+          .apply(identify(getContractBaseTemplate().getDeployFunction(), CONTRACT_DEPLOY_EITHER));
+
+<span class="pc bpc" id="L71" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function1&lt;ContractAddress,
+      ResultOrErrorFuture&lt;ContractInterface&gt;&gt; contractInterfaceFunction =
+          getStrategyChain()
+              .apply(identify(getContractBaseTemplate().getContractInterfaceFunction(),
+                  CONTRACT_GETINTERFACE_EITHER));
+
+<span class="pc bpc" id="L78" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function4&lt;Account, ContractInvocation, Long, Fee,
+      ResultOrErrorFuture&lt;ContractTxHash&gt;&gt; executeFunction = getStrategyChain()
+          .apply(identify(getContractBaseTemplate().getExecuteFunction(), CONTRACT_EXECUTE_EITHER));
+
+<span class="pc bpc" id="L83" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function1&lt;ContractInvocation, ResultOrErrorFuture&lt;ContractResult&gt;&gt; queryFunction =
+      getStrategyChain()
+          .apply(identify(getContractBaseTemplate().getQueryFunction(), CONTRACT_QUERY_EITHER));
+
+  @Override
+  public ResultOrError&lt;ContractTxReceipt&gt; getReceipt(final ContractTxHash contractTxHash) {
+<span class="fc" id="L90">    return getReceiptFunction().apply(contractTxHash).get();</span>
   }
 
   @Override
   public ResultOrError&lt;ContractTxHash&gt; deploy(final Account creator,
-      final ContractDefinition contractDefinition, final Fee fee) {
-<span class="fc" id="L60">    return contractAsyncOperation.deploy(creator, contractDefinition, fee)</span>
-<span class="fc" id="L61">        .get(getTimeout().getValue(), getTimeout().getUnit());</span>
+      final ContractDefinition contractDefinition, final long nonce, final Fee fee) {
+<span class="fc" id="L96">    return getDeployFunction().apply(creator, contractDefinition, nonce, fee).get();</span>
   }
 
   @Override
   public ResultOrError&lt;ContractInterface&gt; getContractInterface(
       final ContractAddress contractAddress) {
-<span class="fc" id="L67">    return contractAsyncOperation.getContractInterface(contractAddress).get(getTimeout().getValue(),</span>
-<span class="fc" id="L68">        getTimeout().getUnit());</span>
+<span class="fc" id="L102">    return getContractInterfaceFunction().apply(contractAddress).get();</span>
   }
 
   @Override
   public ResultOrError&lt;ContractTxHash&gt; execute(final Account executor,
-      final ContractInvocation contractInvocation, final Fee fee) {
-<span class="fc" id="L74">    return contractAsyncOperation.execute(executor, contractInvocation, fee)</span>
-<span class="fc" id="L75">        .get(getTimeout().getValue(), getTimeout().getUnit());</span>
+      final ContractInvocation contractInvocation, final long nonce, final Fee fee) {
+<span class="fc" id="L108">    return getExecuteFunction().apply(executor, contractInvocation, nonce, fee).get();</span>
   }
 
   @Override
   public ResultOrError&lt;ContractResult&gt; query(final ContractInvocation contractInvocation) {
-<span class="fc" id="L80">    return contractAsyncOperation.query(contractInvocation).get(getTimeout().getValue(),</span>
-<span class="fc" id="L81">        getTimeout().getUnit());</span>
+<span class="fc" id="L113">    return getQueryFunction().apply(contractInvocation).get();</span>
   }
 
 }

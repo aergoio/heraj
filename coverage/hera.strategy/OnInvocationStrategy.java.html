@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OnInvocationStrategy.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.strategy</a> &gt; <span class="el_source">OnInvocationStrategy.java</span></div><h1>OnInvocationStrategy.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.strategy;
+
+import hera.Strategy;
+import hera.api.tupleorerror.Function0;
+import hera.api.tupleorerror.Function1;
+import hera.api.tupleorerror.Function2;
+import hera.api.tupleorerror.Function3;
+import hera.api.tupleorerror.Function4;
+import hera.api.tupleorerror.FunctionDecorator;
+
+public interface OnInvocationStrategy extends Strategy, FunctionDecorator {
+
+  &lt;R&gt; R action(hera.api.tupleorerror.Function originFunction, Function0&lt;R&gt; functionWithArgs);
+
+  @Override
+  default &lt;R&gt; Function0&lt;R&gt; apply(Function0&lt;R&gt; f) {
+<span class="fc" id="L21">    return () -&gt; action(f, f);</span>
+  }
+
+  @Override
+  default &lt;T, R&gt; Function1&lt;T, R&gt; apply(Function1&lt;T, R&gt; f) {
+<span class="fc" id="L26">    return (T t) -&gt; action(f, () -&gt; f.apply(t));</span>
+  }
+
+  @Override
+  default &lt;T1, T2, R&gt; Function2&lt;T1, T2, R&gt; apply(Function2&lt;T1, T2, R&gt; f) {
+<span class="fc" id="L31">    return (T1 t1, T2 t2) -&gt; action(f, () -&gt; f.apply(t1, t2));</span>
+  }
+
+  @Override
+  default &lt;T1, T2, T3, R&gt; Function3&lt;T1, T2, T3, R&gt; apply(Function3&lt;T1, T2, T3, R&gt; f) {
+<span class="fc" id="L36">    return (T1 t1, T2 t2, T3 t3) -&gt; action(f, () -&gt; f.apply(t1, t2, t3));</span>
+  }
+
+  @Override
+  default &lt;T1, T2, T3, T4, R&gt; Function4&lt;T1, T2, T3, T4, R&gt; apply(
+      Function4&lt;T1, T2, T3, T4, R&gt; f) {
+<span class="fc" id="L42">    return (T1 t1, T2 t2, T3 t3, T4 t4) -&gt; action(f, () -&gt; f.apply(t1, t2, t3, t4));</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

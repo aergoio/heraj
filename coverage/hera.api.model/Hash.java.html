@@ -4,28 +4,30 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
+import static hera.util.EncodingUtils.decodeBase58;
+import static hera.util.EncodingUtils.encodeBase58;
 
-import hera.api.encode.EncodedString;
-import hera.exception.HerajException;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.api.encode.Encodable;
+import hera.exception.DecodingFailureException;
 import hera.util.Adaptor;
-import hera.util.Base58Utils;
-import java.io.IOException;
-import java.util.Optional;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-<span class="fc" id="L18">@RequiredArgsConstructor</span>
-public class Hash implements Adaptor {
+@ApiAudience.Public
+@ApiStability.Unstable
+public class Hash implements Adaptor, Encodable {
 
   /**
-   * Create {@code Hash} with an encoded value.
+   * Create {@code Hash} with a base58 encoded value.
    *
-   * @param encoded an encoded value
+   * @param encoded String with base58 encoded
    * @return created {@link Hash}
+   * @throws DecodingFailureException if decoding failed
    */
-  public static Hash of(final EncodedString encoded) {
-<span class="fc" id="L28">    return new Hash(encoded);</span>
+  @ApiAudience.Public
+  public static Hash of(final String encoded) {
+<span class="fc" id="L30">    return new Hash(encoded);</span>
   }
 
   /**
@@ -34,63 +36,75 @@ public class Hash implements Adaptor {
    * @param bytesValue {@link BytesValue}
    * @return created {@link Hash}
    */
+  @ApiAudience.Private
   public static Hash of(final BytesValue bytesValue) {
-<span class="nc" id="L38">    return new Hash(bytesValue);</span>
+<span class="fc" id="L41">    return new Hash(bytesValue);</span>
   }
 
-<span class="fc" id="L41">  @Getter</span>
+<span class="fc" id="L44">  @Getter</span>
   protected final BytesValue bytesValue;
 
   /**
    * Hash constructor.
    *
-   * @param encoded an encoded value
+   * @param encoded String with base58 encoded
+   * @throws DecodingFailureException if decoding failed
    */
-<span class="fc" id="L49">  public Hash(final EncodedString encoded) {</span>
-    try {
-<span class="fc" id="L51">      bytesValue = encoded.decode();</span>
-<span class="fc" id="L52">      assertNotNull(bytesValue);</span>
-<span class="nc" id="L53">    } catch (IOException e) {</span>
-<span class="nc" id="L54">      throw new HerajException(e);</span>
-<span class="fc" id="L55">    }</span>
+  @ApiAudience.Public
+  public Hash(final String encoded) {
+<span class="fc" id="L55">    this(decodeBase58(encoded));</span>
 <span class="fc" id="L56">  }</span>
+
+  /**
+   * Hash constructor.
+   *
+   * @param bytesValue an bytes value
+   */
+  @ApiAudience.Private
+<span class="fc" id="L64">  public Hash(final BytesValue bytesValue) {</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">    this.bytesValue = null != bytesValue ? bytesValue : BytesValue.EMPTY;</span>
+<span class="fc" id="L66">  }</span>
+
+  @Override
+  public String getEncoded() {
+<span class="nc" id="L70">    return encodeBase58(getBytesValue());</span>
+  }
 
   @Override
   public int hashCode() {
-<span class="nc" id="L60">    return bytesValue.hashCode();</span>
+<span class="nc" id="L75">    return bytesValue.hashCode();</span>
   }
 
   @Override
   public boolean equals(Object obj) {
-<span class="pc bpc" id="L65" title="1 of 2 branches missed.">    if (null == obj) {</span>
-<span class="nc" id="L66">      return false;</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">    if (null == obj) {</span>
+<span class="nc" id="L81">      return false;</span>
     }
-<span class="pc bpc" id="L68" title="1 of 2 branches missed.">    if (!obj.getClass().equals(getClass())) {</span>
-<span class="nc" id="L69">      return false;</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">    if (!obj.getClass().equals(getClass())) {</span>
+<span class="nc" id="L84">      return false;</span>
     }
-<span class="fc" id="L71">    final Hash other = (Hash) obj;</span>
-<span class="fc" id="L72">    return bytesValue.equals(other.bytesValue);</span>
+<span class="fc" id="L86">    final Hash other = (Hash) obj;</span>
+<span class="fc" id="L87">    return bytesValue.equals(other.bytesValue);</span>
   }
 
   @Override
   public String toString() {
-<span class="fc" id="L77">    return Base58Utils.encode(bytesValue.getValue());</span>
+<span class="nc" id="L92">    return getEncoded();</span>
   }
 
   @SuppressWarnings(&quot;unchecked&quot;)
   @Override
-  public &lt;T&gt; Optional&lt;T&gt; adapt(Class&lt;T&gt; adaptor) {
-<span class="fc bfc" id="L83" title="All 2 branches covered.">    if (adaptor.isAssignableFrom(Hash.class)) {</span>
-<span class="fc" id="L84">      return (Optional&lt;T&gt;) Optional.of(this);</span>
-<span class="fc bfc" id="L85" title="All 2 branches covered.">    } else if (adaptor.isAssignableFrom(BlockHash.class)) {</span>
-<span class="fc" id="L86">      return (Optional&lt;T&gt;) Optional.of(BlockHash.of(getBytesValue()));</span>
-<span class="fc bfc" id="L87" title="All 2 branches covered.">    } else if (adaptor.isAssignableFrom(TxHash.class)) {</span>
-<span class="fc" id="L88">      return (Optional&lt;T&gt;) Optional.of(TxHash.of(getBytesValue()));</span>
-<span class="pc bpc" id="L89" title="1 of 2 branches missed.">    } else if (adaptor.isAssignableFrom(ContractTxHash.class)) {</span>
-<span class="fc" id="L90">      return (Optional&lt;T&gt;) Optional.of(ContractTxHash.of(getBytesValue()));</span>
+  public &lt;T&gt; T adapt(Class&lt;T&gt; adaptor) {
+<span class="fc bfc" id="L98" title="All 2 branches covered.">    if (adaptor.isAssignableFrom(Hash.class)) {</span>
+<span class="fc" id="L99">      return (T) this;</span>
+<span class="fc bfc" id="L100" title="All 2 branches covered.">    } else if (adaptor.isAssignableFrom(BlockHash.class)) {</span>
+<span class="fc" id="L101">      return (T) BlockHash.of(getBytesValue());</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">    } else if (adaptor.isAssignableFrom(TxHash.class)) {</span>
+<span class="fc" id="L103">      return (T) TxHash.of(getBytesValue());</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">    } else if (adaptor.isAssignableFrom(ContractTxHash.class)) {</span>
+<span class="fc" id="L105">      return (T) ContractTxHash.of(getBytesValue());</span>
     }
-<span class="nc" id="L92">    return Optional.empty();</span>
+<span class="nc" id="L107">    return null;</span>
   }
-
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

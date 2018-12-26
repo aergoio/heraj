@@ -4,103 +4,131 @@
 
 package hera.client;
 
-import hera.Context;
+import static hera.TransportConstants.ACCOUNT_CREATE_NAME_EITHER;
+import static hera.TransportConstants.ACCOUNT_GETNAMEOWNER_EITHER;
+import static hera.TransportConstants.ACCOUNT_GETSTATE_EITHER;
+import static hera.TransportConstants.ACCOUNT_SIGN_EITHER;
+import static hera.TransportConstants.ACCOUNT_UPDATE_NAME_EITHER;
+import static hera.TransportConstants.ACCOUNT_VERIFY_EITHER;
+import static hera.api.tupleorerror.Functions.identify;
+
+import hera.ContextProvider;
+import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.AccountEitherOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
-import hera.api.model.Authentication;
-import hera.api.model.EncryptedPrivateKey;
-import hera.api.model.ServerManagedAccount;
-import hera.api.model.Signature;
-import hera.api.model.Time;
+import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
+import hera.api.tupleorerror.Function1;
+import hera.api.tupleorerror.Function2;
+import hera.api.tupleorerror.Function3;
+import hera.api.tupleorerror.Function4;
 import hera.api.tupleorerror.ResultOrError;
-import hera.exception.RpcException;
-import hera.strategy.TimeoutStrategy;
+import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
-import java.util.List;
+import lombok.AccessLevel;
 import lombok.Getter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="fc" id="L29">public class AccountEitherTemplate implements AccountEitherOperation, ChannelInjectable {</span>
+<span class="fc" id="L39">public class AccountEitherTemplate</span>
+    implements AccountEitherOperation, ChannelInjectable, ContextProviderInjectable {
 
-  protected Context context;
+<span class="fc" id="L42">  @Getter</span>
+  protected AccountBaseTemplate accountBaseTemplate = new AccountBaseTemplate();
 
-<span class="fc" id="L33">  protected AccountAsyncTemplate accountAsyncOperation = new AccountAsyncTemplate();</span>
+  protected ContextProvider contextProvider;
 
-<span class="pc bpc" id="L35" title="3 of 8 branches missed.">  @Getter(lazy = true)</span>
-  private final Time timeout =
-      context.getStrategy(TimeoutStrategy.class).map(TimeoutStrategy::getTimeout)
-          .orElseThrow(() -&gt; new RpcException(&quot;TimeoutStrategy must be present in context&quot;));
-
-  @Override
-  public void setContext(final Context context) {
-<span class="fc" id="L42">    this.context = context;</span>
-<span class="fc" id="L43">    accountAsyncOperation.setContext(context);</span>
-<span class="fc" id="L44">  }</span>
+<span class="pc bpc" id="L47" title="4 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
 
   @Override
-  public void injectChannel(final ManagedChannel channel) {
-<span class="fc" id="L48">    accountAsyncOperation.injectChannel(channel);</span>
-<span class="fc" id="L49">  }</span>
+  public void setChannel(final ManagedChannel channel) {
+<span class="fc" id="L52">    getAccountBaseTemplate().setChannel(channel);;</span>
+<span class="fc" id="L53">  }</span>
 
   @Override
-  public ResultOrError&lt;List&lt;AccountAddress&gt;&gt; list() {
-<span class="fc" id="L53">    return accountAsyncOperation.list().get(getTimeout().getValue(), getTimeout().getUnit());</span>
-  }
+  public void setContextProvider(final ContextProvider contextProvider) {
+<span class="fc" id="L57">    this.contextProvider = contextProvider;</span>
+<span class="fc" id="L58">    getAccountBaseTemplate().setContextProvider(contextProvider);</span>
+<span class="fc" id="L59">  }</span>
+
+<span class="pc bpc" id="L61" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function1&lt;AccountAddress, ResultOrErrorFuture&lt;AccountState&gt;&gt; stateFunction =
+      getStrategyChain()
+          .apply(identify(getAccountBaseTemplate().getStateFunction(), ACCOUNT_GETSTATE_EITHER));
+
+<span class="pc bpc" id="L66" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function3&lt;Account, String, Long,
+      ResultOrErrorFuture&lt;TxHash&gt;&gt; createNameFunction =
+          getStrategyChain()
+              .apply(identify(getAccountBaseTemplate().getCreateNameFunction(),
+                  ACCOUNT_CREATE_NAME_EITHER));
+
+<span class="pc bpc" id="L73" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function4&lt;Account, String, AccountAddress, Long,
+      ResultOrErrorFuture&lt;TxHash&gt;&gt; updateNameFunction =
+          getStrategyChain().apply(
+              identify(getAccountBaseTemplate().getUpdateNameFunction(),
+                  ACCOUNT_UPDATE_NAME_EITHER));
+
+<span class="pc bpc" id="L80" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function1&lt;String, ResultOrErrorFuture&lt;AccountAddress&gt;&gt; nameOwnerFunction =
+      getStrategyChain()
+          .apply(
+              identify(getAccountBaseTemplate().getGetNameOwnerFunction(),
+                  ACCOUNT_GETNAMEOWNER_EITHER));
+
+<span class="pc bpc" id="L87" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function2&lt;Account, RawTransaction, ResultOrErrorFuture&lt;Transaction&gt;&gt; signFunction =
+      getStrategyChain()
+          .apply(identify(getAccountBaseTemplate().getSignFunction(), ACCOUNT_SIGN_EITHER));
+
+<span class="pc bpc" id="L92" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function2&lt;Account, Transaction, ResultOrErrorFuture&lt;Boolean&gt;&gt; verifyFunction =
+      getStrategyChain()
+          .apply(identify(getAccountBaseTemplate().getVerifyFunction(), ACCOUNT_VERIFY_EITHER));
 
   @Override
-  public ResultOrError&lt;ServerManagedAccount&gt; create(final String password) {
-<span class="fc" id="L58">    return accountAsyncOperation.create(password).get(getTimeout().getValue(),</span>
-<span class="fc" id="L59">        getTimeout().getUnit());</span>
+  public ResultOrError&lt;AccountState&gt; getState(final Account account) {
+<span class="nc" id="L99">    return getState(account.getAddress());</span>
   }
 
   @Override
   public ResultOrError&lt;AccountState&gt; getState(final AccountAddress address) {
-<span class="fc" id="L64">    return accountAsyncOperation.getState(address).get(getTimeout().getValue(),</span>
-<span class="fc" id="L65">        getTimeout().getUnit());</span>
+<span class="fc" id="L104">    return getStateFunction().apply(address).get();</span>
   }
 
   @Override
-  public ResultOrError&lt;Boolean&gt; lock(final Authentication authentication) {
-<span class="fc" id="L70">    return accountAsyncOperation.lock(authentication).get(getTimeout().getValue(),</span>
-<span class="fc" id="L71">        getTimeout().getUnit());</span>
+  public ResultOrError&lt;TxHash&gt; createName(final Account account, final String name,
+      final long nonce) {
+<span class="fc" id="L110">    return getCreateNameFunction().apply(account, name, nonce).get();</span>
   }
 
   @Override
-  public ResultOrError&lt;Boolean&gt; unlock(final Authentication authentication) {
-<span class="fc" id="L76">    return accountAsyncOperation.unlock(authentication).get(getTimeout().getValue(),</span>
-<span class="fc" id="L77">        getTimeout().getUnit());</span>
+  public ResultOrError&lt;TxHash&gt; updateName(final Account ownerAccount, final String name,
+      final AccountAddress newOwner, final long nonce) {
+<span class="fc" id="L116">    return getUpdateNameFunction().apply(ownerAccount, name, newOwner, nonce).get();</span>
   }
 
   @Override
-  public ResultOrError&lt;Signature&gt; sign(final Account account, final Transaction transaction) {
-<span class="nc" id="L82">    return accountAsyncOperation.sign(account, transaction).get(getTimeout().getValue(),</span>
-<span class="nc" id="L83">        getTimeout().getUnit());</span>
+  public ResultOrError&lt;AccountAddress&gt; getNameOwner(final String name) {
+<span class="fc" id="L121">    return getNameOwnerFunction().apply(name).get();</span>
+  }
+
+  @Override
+  public ResultOrError&lt;Transaction&gt; sign(final Account account, final RawTransaction transaction) {
+<span class="fc" id="L126">    return getSignFunction().apply(account, transaction).get();</span>
   }
 
   @Override
   public ResultOrError&lt;Boolean&gt; verify(final Account account, final Transaction transaction) {
-<span class="nc" id="L88">    return accountAsyncOperation.verify(account, transaction).get(getTimeout().getValue(),</span>
-<span class="nc" id="L89">        getTimeout().getUnit());</span>
+<span class="fc" id="L131">    return getVerifyFunction().apply(account, transaction).get();</span>
   }
-
-  @Override
-  public ResultOrError&lt;ServerManagedAccount&gt; importKey(final EncryptedPrivateKey encryptedKey,
-      final String oldPassword, final String newPassword) {
-<span class="fc" id="L95">    return accountAsyncOperation.importKey(encryptedKey, oldPassword, newPassword)</span>
-<span class="fc" id="L96">        .get(getTimeout().getValue(), getTimeout().getUnit());</span>
-  }
-
-  @Override
-  public ResultOrError&lt;EncryptedPrivateKey&gt; exportKey(final Authentication authentication) {
-<span class="fc" id="L101">    return accountAsyncOperation.exportKey(authentication).get(getTimeout().getValue(),</span>
-<span class="fc" id="L102">        getTimeout().getUnit());</span>
-  }
-
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

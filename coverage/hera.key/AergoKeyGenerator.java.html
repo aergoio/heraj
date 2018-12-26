@@ -4,14 +4,30 @@
 
 package hera.key;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.exception.UnableToGenerateKeyException;
 import hera.util.pki.ECDSAKeyGenerator;
+import hera.util.pki.KeyGenerator;
 
-<span class="fc" id="L9">public class AergoKeyGenerator {</span>
+@ApiAudience.Public
+@ApiStability.Unstable
+<span class="fc" id="L15">public class AergoKeyGenerator implements KeyGenerator&lt;AergoKey&gt; {</span>
 
-<span class="fc" id="L11">  protected final ECDSAKeyGenerator ecdsaKeyGenerator = new ECDSAKeyGenerator();</span>
+<span class="fc" id="L17">  protected final ECDSAKeyGenerator ecdsaKeyGenerator = new ECDSAKeyGenerator();</span>
 
-  public AergoKey create() throws Exception {
-<span class="fc" id="L14">    return new AergoKey(ecdsaKeyGenerator.create());</span>
+  /**
+   * Create an {@code Aergokey}.
+   *
+   * @return created {@code AergoKey}
+   * @throws UnableToGenerateKeyException if an error occured in creating key
+   */
+  public AergoKey create() {
+    try {
+<span class="fc" id="L27">      return new AergoKey(ecdsaKeyGenerator.create());</span>
+<span class="nc" id="L28">    } catch (Exception e) {</span>
+<span class="nc" id="L29">      throw new UnableToGenerateKeyException(e);</span>
+    }
   }
 
 }

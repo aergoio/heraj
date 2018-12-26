@@ -25,7 +25,7 @@ public interface DangerousSupplier&lt;T&gt; {
   }
 
   static &lt;T&gt; DangerousSupplier&lt;T&gt; from(final Adaptor adaptor, final Class&lt;T&gt; type) {
-<span class="pc" id="L28">    return () -&gt; (T) adaptor.adapt(type).get();</span>
+<span class="pc" id="L28">    return () -&gt; (T) adaptor.adapt(type);</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

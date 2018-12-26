@@ -30,7 +30,7 @@ public class ResultOrErrorImpl&lt;T&gt; implements ResultOrError&lt;T&gt; {
   @Override
   public T getResult() {
 <span class="fc bfc" id="L32" title="All 2 branches covered.">    if (hasError()) {</span>
-<span class="nc" id="L33">      appendCurrentStackTraceToError();</span>
+<span class="nc" id="L33">      throwError();</span>
     }
 <span class="fc" id="L35">    return result;</span>
   }

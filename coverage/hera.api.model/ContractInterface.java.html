@@ -4,39 +4,119 @@
 
 package hera.api.model;
 
-import hera.util.StringUtils;
-import java.util.Collections;
+import static hera.util.ValidationUtils.assertNotNull;
+import static java.util.Collections.unmodifiableList;
+
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.exception.HerajException;
 import java.util.List;
-import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-<span class="fc" id="L16">@ToString</span>
-<span class="nc bnc" id="L17" title="All 38 branches missed.">@EqualsAndHashCode</span>
-<span class="fc" id="L18">public class ContractInterface {</span>
-
-  public static final byte PAYLOAD_VERSION = (byte) 0xC0;
-
-<span class="fc" id="L22">  @Getter</span>
-<span class="fc" id="L23">  @Setter</span>
-  protected ContractAddress contractAddress;
+@ApiAudience.Public
+@ApiStability.Unstable
+<span class="fc" id="L22">@ToString</span>
+<span class="nc bnc" id="L23" title="All 38 branches missed.">@EqualsAndHashCode</span>
+public class ContractInterface {
 
 <span class="fc" id="L26">  @Getter</span>
-<span class="fc" id="L27">  @Setter</span>
-  protected String version = StringUtils.EMPTY_STRING;
+  protected final ContractAddress address;
 
-<span class="fc" id="L30">  @Getter</span>
-<span class="fc" id="L31">  @Setter</span>
-  protected String language = StringUtils.EMPTY_STRING;
+<span class="fc" id="L29">  @Getter</span>
+  protected final String version;
 
-<span class="fc" id="L34">  @Getter</span>
-<span class="fc" id="L35">  @Setter</span>
-<span class="fc" id="L36">  protected List&lt;ContractFunction&gt; functions = Collections.emptyList();</span>
+<span class="fc" id="L32">  @Getter</span>
+  protected final String language;
 
-  public Optional&lt;ContractFunction&gt; findFunction(final String functionName) {
-<span class="nc" id="L39">    return getFunctions().stream().filter(n -&gt; functionName.equals(n.getName())).findFirst();</span>
+<span class="fc" id="L35">  @Getter</span>
+  protected final List&lt;ContractFunction&gt; functions;
+
+  /**
+   * ContractInterface constructor.
+   * 
+   * @param contractAddress a contract address
+   * @param version a contract version
+   * @param language a contract language
+   * @param functions a contract functions to invoke
+   */
+  @ApiAudience.Private
+  public ContractInterface(final ContractAddress contractAddress, final String version,
+<span class="fc" id="L48">      final String language, final List&lt;ContractFunction&gt; functions) {</span>
+<span class="fc" id="L49">    assertNotNull(contractAddress, new HerajException(&quot;Contract address must not null&quot;));</span>
+<span class="fc" id="L50">    assertNotNull(version, new HerajException(&quot;Version must not null&quot;));</span>
+<span class="fc" id="L51">    assertNotNull(language, new HerajException(&quot;Language must not null&quot;));</span>
+<span class="fc" id="L52">    assertNotNull(functions, new HerajException(&quot;Functions must not null&quot;));</span>
+<span class="fc" id="L53">    this.address = contractAddress;</span>
+<span class="fc" id="L54">    this.version = version;</span>
+<span class="fc" id="L55">    this.language = language;</span>
+<span class="fc" id="L56">    this.functions = unmodifiableList(functions);</span>
+<span class="fc" id="L57">  }</span>
+
+  /**
+   * Find a contract function with the given function name.
+   *
+   * @param functionName function name to find
+   * @return {@code ContractFunction} if found. Otherwise, null
+   */
+  public ContractFunction findFunction(final String functionName) {
+<span class="fc" id="L66">    ContractFunction foundFunction = null;</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">    for (final ContractFunction contractFunction : functions) {</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">      if (contractFunction.getName().equals(functionName)) {</span>
+<span class="fc" id="L69">        foundFunction = contractFunction;</span>
+<span class="fc" id="L70">        break;</span>
+      }
+<span class="fc" id="L72">    }</span>
+<span class="fc" id="L73">    return foundFunction;</span>
   }
+
+  public ContractInvocationWithNothing newInvocationBuilder() {
+<span class="fc" id="L77">    return new ContractInterface.InvocationBuilder(this);</span>
+  }
+
+  public interface ContractInvocationWithNothing {
+    ContractInvocationWithFunction function(String functionName);
+  }
+
+  public interface ContractInvocationWithFunction extends hera.util.Builder&lt;ContractInvocation&gt; {
+    ContractInvocationWithFunctionAndArgs args(Object... args);
+  }
+
+  public interface ContractInvocationWithFunctionAndArgs
+      extends hera.util.Builder&lt;ContractInvocation&gt; {
+  }
+
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">  @RequiredArgsConstructor</span>
+  protected static class InvocationBuilder implements ContractInvocationWithNothing,
+      ContractInvocationWithFunction, ContractInvocationWithFunctionAndArgs {
+
+    @NonNull
+    protected final ContractInterface contractInterface;
+
+    protected ContractFunction function;
+
+    protected Object[] args;
+
+    @Override
+    public ContractInvocationWithFunction function(final String functionName) {
+<span class="fc" id="L105">      this.function = contractInterface.findFunction(functionName);</span>
+<span class="fc" id="L106">      return this;</span>
+    }
+
+    @Override
+    public ContractInvocationWithFunctionAndArgs args(final Object... args) {
+<span class="fc" id="L111">      this.args = args;</span>
+<span class="fc" id="L112">      return this;</span>
+    }
+
+    @Override
+    public hera.api.model.ContractInvocation build() {
+<span class="fc" id="L117">      return new ContractInvocation(contractInterface.getAddress(), function, args);</span>
+    }
+  }
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

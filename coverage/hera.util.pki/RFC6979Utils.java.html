@@ -138,8 +138,8 @@ import org.slf4j.Logger;
   public static BigInteger bits2int(byte[] hash, int nbitslen) {
 <span class="fc" id="L139">    BigInteger v = new BigInteger(1, hash);</span>
 <span class="fc" id="L140">    int vbitslen = hash.length * 8;</span>
-<span class="fc bfc" id="L141" title="All 2 branches covered.">    if (vbitslen &gt; nbitslen) {</span>
-<span class="fc" id="L142">      v = v.shiftRight(vbitslen - nbitslen);</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">    if (vbitslen &gt; nbitslen) {</span>
+<span class="nc" id="L142">      v = v.shiftRight(vbitslen - nbitslen);</span>
     }
 <span class="fc" id="L144">    return v;</span>
   }
@@ -164,13 +164,13 @@ import org.slf4j.Logger;
     }
 
     // drop most significant bytes if it's too long
-<span class="fc bfc" id="L167" title="All 2 branches covered.">    if (out.length &gt; rolen) {</span>
+<span class="pc bpc" id="L167" title="1 of 2 branches missed.">    if (out.length &gt; rolen) {</span>
 <span class="fc" id="L168">      byte[] out2 = new byte[rolen];</span>
 <span class="fc" id="L169">      System.arraycopy(out, out.length - rolen, out2, 0, rolen);</span>
 <span class="fc" id="L170">      return out2;</span>
     }
 
-<span class="fc" id="L173">    return out;</span>
+<span class="nc" id="L173">    return out;</span>
   }
 
   /**

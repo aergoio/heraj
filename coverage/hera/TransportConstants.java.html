@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransportConstants.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera</a> &gt; <span class="el_source">TransportConstants.java</span></div><h1>TransportConstants.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera;
+
+<span class="nc" id="L7">public final class TransportConstants {</span>
+
+  /*
+   * plain functions
+   */
+
+  public static final String ACCOUNT_GETSTATE = &quot;heraj.getstate&quot;;
+  public static final String ACCOUNT_CREATE_NAME = &quot;heraj.create.name&quot;;
+  public static final String ACCOUNT_UPDATE_NAME = &quot;heraj.update.name&quot;;
+  public static final String ACCOUNT_GETNAMEOWNER = &quot;heraj.getnameowner&quot;;
+  public static final String ACCOUNT_SIGN = &quot;heraj.sign&quot;;
+  public static final String ACCOUNT_VERIFY = &quot;heraj.verify&quot;;
+
+  public static final String KEYSTORE_LIST = &quot;heraj.list&quot;;
+  public static final String KEYSTORE_CREATE = &quot;heraj.create&quot;;
+  public static final String KEYSTORE_LOCK = &quot;heraj.lock&quot;;
+  public static final String KEYSTORE_UNLOCK = &quot;heraj.unlock&quot;;
+  public static final String KEYSTORE_IMPORTKEY = &quot;heraj.importkey&quot;;
+  public static final String KEYSTORE_EXPORTKEY = &quot;heraj.exportkey&quot;;
+
+  public static final String BLOCK_GETBLOCK_BY_HASH = &quot;heraj.getblock.hash&quot;;
+  public static final String BLOCK_GETBLOCK_BY_HEIGHT = &quot;heraj.getblock.height&quot;;
+  public static final String BLOCK_LIST_HEADERS_BY_HASH = &quot;heraj.listheaders.hash&quot;;
+  public static final String BLOCK_LIST_HEADERS_BY_HEIGHT = &quot;heraj.listheaders.height&quot;;
+
+  public static final String BLOCKCHAIN_BLOCKCHAINSTATUS = &quot;heraj.blockchainstatus&quot;;
+  public static final String BLOCKCHAIN_LISTPEERS = &quot;heraj.listpeers&quot;;
+  public static final String BLOCKCHAIN_PEERMETRICS = &quot;heraj.peermetrics&quot;;
+  public static final String BLOCKCHAIN_NODESTATUS = &quot;heraj.nodestatus&quot;;
+
+  public static final String TRANSACTION_GETTX = &quot;heraj.gettx&quot;;
+  public static final String TRANSACTION_COMMIT = &quot;heraj.committx&quot;;
+  public static final String TRANSACTION_SEND = &quot;heraj.sendtx&quot;;
+
+  public static final String CONTRACT_GETRECEIPT = &quot;heraj.getreceipt&quot;;
+  public static final String CONTRACT_DEPLOY = &quot;heraj.deploy&quot;;
+  public static final String CONTRACT_GETINTERFACE = &quot;heraj.getinterface&quot;;
+  public static final String CONTRACT_EXECUTE = &quot;heraj.execute&quot;;
+  public static final String CONTRACT_QUERY = &quot;heraj.query&quot;;
+
+
+
+  /*
+   * either functions
+   */
+
+  private static final String EITHER_POSTFIX = &quot;.either&quot;;
+
+  public static final String ACCOUNT_GETSTATE_EITHER = ACCOUNT_GETSTATE + EITHER_POSTFIX;
+  public static final String ACCOUNT_CREATE_NAME_EITHER = ACCOUNT_CREATE_NAME + EITHER_POSTFIX;
+  public static final String ACCOUNT_UPDATE_NAME_EITHER = ACCOUNT_UPDATE_NAME + EITHER_POSTFIX;
+  public static final String ACCOUNT_GETNAMEOWNER_EITHER = ACCOUNT_GETNAMEOWNER  + EITHER_POSTFIX;
+  public static final String ACCOUNT_SIGN_EITHER = ACCOUNT_SIGN + EITHER_POSTFIX;
+  public static final String ACCOUNT_VERIFY_EITHER = ACCOUNT_VERIFY + EITHER_POSTFIX;
+
+  public static final String KEYSTORE_LIST_EITHER = KEYSTORE_LIST + EITHER_POSTFIX;
+  public static final String KEYSTORE_CREATE_EITHER = KEYSTORE_CREATE + EITHER_POSTFIX;
+  public static final String KEYSTORE_LOCK_EITHER = KEYSTORE_LOCK + EITHER_POSTFIX;
+  public static final String KEYSTORE_UNLOCK_EITHER = KEYSTORE_UNLOCK + EITHER_POSTFIX;
+  public static final String KEYSTORE_IMPORTKEY_EITHER = KEYSTORE_IMPORTKEY + EITHER_POSTFIX;
+  public static final String KEYSTORE_EXPORTKEY_EITHER = KEYSTORE_EXPORTKEY + EITHER_POSTFIX;
+
+  public static final String BLOCK_GETBLOCK_BY_HASH_EITHER =
+      BLOCK_GETBLOCK_BY_HASH + EITHER_POSTFIX;
+  public static final String BLOCK_GETBLOCK_BY_HEIGHT_EITHER =
+      BLOCK_GETBLOCK_BY_HEIGHT + EITHER_POSTFIX;
+  public static final String BLOCK_LIST_HEADERS_BY_HASH_EITHER =
+      BLOCK_LIST_HEADERS_BY_HASH + EITHER_POSTFIX;
+  public static final String BLOCK_LIST_HEADERS_BY_HEIGHT_EITHER =
+      BLOCK_LIST_HEADERS_BY_HEIGHT + EITHER_POSTFIX;
+
+  public static final String BLOCKCHAIN_BLOCKCHAINSTATUS_EITHER =
+      BLOCKCHAIN_BLOCKCHAINSTATUS + EITHER_POSTFIX;
+  public static final String BLOCKCHAIN_LISTPEERS_EITHER = BLOCKCHAIN_LISTPEERS + EITHER_POSTFIX;
+  public static final String BLOCKCHAIN_PEERMETRICS_EITHER =
+      BLOCKCHAIN_PEERMETRICS + EITHER_POSTFIX;
+  public static final String BLOCKCHAIN_NODESTATUS_EITHER = BLOCKCHAIN_NODESTATUS + EITHER_POSTFIX;
+
+  public static final String TRANSACTION_GETTX_EITHER = TRANSACTION_GETTX + EITHER_POSTFIX;
+  public static final String TRANSACTION_COMMIT_EITHER = TRANSACTION_COMMIT + EITHER_POSTFIX;
+  public static final String TRANSACTION_SEND_EITHER = TRANSACTION_SEND + EITHER_POSTFIX;
+
+  public static final String CONTRACT_GETRECEIPT_EITHER = CONTRACT_GETRECEIPT + EITHER_POSTFIX;
+  public static final String CONTRACT_DEPLOY_EITHER = CONTRACT_DEPLOY + EITHER_POSTFIX;
+  public static final String CONTRACT_GETINTERFACE_EITHER = CONTRACT_GETINTERFACE + EITHER_POSTFIX;
+  public static final String CONTRACT_EXECUTE_EITHER = CONTRACT_EXECUTE + EITHER_POSTFIX;
+  public static final String CONTRACT_QUERY_EITHER = CONTRACT_QUERY + EITHER_POSTFIX;
+
+
+
+  /*
+   * async functions
+   */
+
+  private static final String ASYNC_POSTFIX = &quot;.async&quot;;
+
+  public static final String ACCOUNT_GETSTATE_ASYNC = ACCOUNT_GETSTATE + ASYNC_POSTFIX;
+  public static final String ACCOUNT_CREATE_NAME_ASYNC = ACCOUNT_CREATE_NAME + ASYNC_POSTFIX;
+  public static final String ACCOUNT_UPDATE_NAME_ASYNC = ACCOUNT_UPDATE_NAME + ASYNC_POSTFIX;
+  public static final String ACCOUNT_GETNAMEOWNER_ASYNC = ACCOUNT_GETNAMEOWNER  + ASYNC_POSTFIX;
+  public static final String ACCOUNT_SIGN_ASYNC = ACCOUNT_SIGN + ASYNC_POSTFIX;
+  public static final String ACCOUNT_VERIFY_ASYNC = ACCOUNT_VERIFY + ASYNC_POSTFIX;
+
+  public static final String KEYSTORE_LIST_ASYNC = KEYSTORE_LIST + ASYNC_POSTFIX;
+  public static final String KEYSTORE_CREATE_ASYNC = KEYSTORE_CREATE + ASYNC_POSTFIX;
+  public static final String KEYSTORE_LOCK_ASYNC = KEYSTORE_LOCK + ASYNC_POSTFIX;
+  public static final String KEYSTORE_UNLOCK_ASYNC = KEYSTORE_UNLOCK + ASYNC_POSTFIX;
+  public static final String KEYSTORE_IMPORTKEY_ASYNC = KEYSTORE_IMPORTKEY + ASYNC_POSTFIX;
+  public static final String KEYSTORE_EXPORTKEY_ASYNC = KEYSTORE_EXPORTKEY + ASYNC_POSTFIX;
+
+  public static final String BLOCK_GETBLOCK_BY_HASH_ASYNC =
+      BLOCK_GETBLOCK_BY_HASH + ASYNC_POSTFIX;
+  public static final String BLOCK_GETBLOCK_BY_HEIGHT_ASYNC =
+      BLOCK_GETBLOCK_BY_HEIGHT + ASYNC_POSTFIX;
+  public static final String BLOCK_LIST_HEADERS_BY_HASH_ASYNC =
+      BLOCK_LIST_HEADERS_BY_HASH + ASYNC_POSTFIX;
+  public static final String BLOCK_LIST_HEADERS_BY_HEIGHT_ASYNC =
+      BLOCK_LIST_HEADERS_BY_HEIGHT + ASYNC_POSTFIX;
+
+  public static final String BLOCKCHAIN_BLOCKCHAINSTATUS_ASYNC =
+      BLOCKCHAIN_BLOCKCHAINSTATUS + ASYNC_POSTFIX;
+  public static final String BLOCKCHAIN_LISTPEERS_ASYNC = BLOCKCHAIN_LISTPEERS + ASYNC_POSTFIX;
+  public static final String BLOCKCHAIN_PEERMETRICS_ASYNC = BLOCKCHAIN_PEERMETRICS + ASYNC_POSTFIX;
+  public static final String BLOCKCHAIN_NODESTATUS_ASYNC = BLOCKCHAIN_NODESTATUS + ASYNC_POSTFIX;
+
+  public static final String TRANSACTION_GETTX_ASYNC = TRANSACTION_GETTX + ASYNC_POSTFIX;
+  public static final String TRANSACTION_COMMIT_ASYNC = TRANSACTION_COMMIT + ASYNC_POSTFIX;
+  public static final String TRANSACTION_SEND_ASYNC = TRANSACTION_SEND + ASYNC_POSTFIX;
+
+  public static final String CONTRACT_GETRECEIPT_ASYNC = CONTRACT_GETRECEIPT + ASYNC_POSTFIX;
+  public static final String CONTRACT_DEPLOY_ASYNC = CONTRACT_DEPLOY + ASYNC_POSTFIX;
+  public static final String CONTRACT_GETINTERFACE_ASYNC = CONTRACT_GETINTERFACE + ASYNC_POSTFIX;
+  public static final String CONTRACT_EXECUTE_ASYNC = CONTRACT_EXECUTE + ASYNC_POSTFIX;
+  public static final String CONTRACT_QUERY_ASYNC = CONTRACT_QUERY + ASYNC_POSTFIX;
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

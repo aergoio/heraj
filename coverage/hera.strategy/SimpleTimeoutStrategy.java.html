@@ -4,22 +4,49 @@
 
 package hera.strategy;
 
-import hera.api.model.Time;
-import java.util.concurrent.TimeUnit;
-import lombok.Getter;
+import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.model.internal.Time;
+import hera.api.tupleorerror.Function;
+import hera.api.tupleorerror.Function0;
+import hera.api.tupleorerror.ResultOrError;
+import hera.api.tupleorerror.ResultOrErrorFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.slf4j.Logger;
+
+<span class="fc" id="L20">@ToString</span>
+<span class="pc bpc" id="L21" title="20 of 22 branches missed.">@EqualsAndHashCode</span>
+@SuppressWarnings({&quot;unchecked&quot;, &quot;rawtypes&quot;})
 public class SimpleTimeoutStrategy implements TimeoutStrategy {
 
-<span class="fc" id="L13">  @Getter</span>
+<span class="fc" id="L25">  protected final Logger logger = getLogger(getClass());</span>
+
   protected final Time timeout;
 
   public SimpleTimeoutStrategy(final long timeout) {
-<span class="fc" id="L17">    this(timeout, TimeUnit.MILLISECONDS);</span>
-<span class="fc" id="L18">  }</span>
+<span class="fc" id="L30">    this(timeout, TimeUnit.MILLISECONDS);</span>
+<span class="fc" id="L31">  }</span>
 
-<span class="fc" id="L20">  public SimpleTimeoutStrategy(final long timeout, final TimeUnit timeUnit) {</span>
-<span class="fc bfc" id="L21" title="All 2 branches covered.">    this.timeout = Time.of(timeout &lt; 0 ? 0 : timeout, timeUnit);</span>
-<span class="fc" id="L22">  }</span>
+<span class="fc" id="L33">  public SimpleTimeoutStrategy(final long timeout, final TimeUnit timeUnit) {</span>
+<span class="pc bpc" id="L34" title="1 of 2 branches missed.">    this.timeout = Time.of(timeout &lt; 0 ? 0 : timeout, timeUnit);</span>
+<span class="fc" id="L35">  }</span>
+
+  @Override
+  public &lt;R&gt; R action(final Function originFunction, final Function0&lt;R&gt; functionWithArgs) {
+<span class="fc" id="L39">    final R r = functionWithArgs.apply();</span>
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">    if (r instanceof ResultOrErrorFuture) {</span>
+<span class="fc" id="L41">      ResultOrErrorFuture&lt;?&gt; future = (ResultOrErrorFuture&lt;?&gt;) r;</span>
+<span class="fc" id="L42">      ResultOrError resultOrError = future.get(timeout.getValue(), timeout.getUnit());</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">      if (resultOrError.getError() instanceof TimeoutException) {</span>
+<span class="fc" id="L44">        logger.info(&quot;Attempt timeout after {}&quot;, timeout);</span>
+<span class="fc" id="L45">        future.complete(resultOrError);</span>
+      }
+    }
+<span class="fc" id="L48">    return r;</span>
+  }
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

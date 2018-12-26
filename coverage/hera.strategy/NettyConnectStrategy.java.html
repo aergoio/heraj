@@ -4,29 +4,51 @@
 
 package hera.strategy;
 
-import static hera.DefaultConstants.DEFAULT_RPC_PORT;
+import static org.slf4j.LoggerFactory.getLogger;
 
-import hera.api.model.HostnameAndPort;
-import io.grpc.ManagedChannel;
+import hera.Context;
+import hera.DefaultConstants;
+import hera.api.model.internal.HostnameAndPort;
 import io.grpc.netty.NettyChannelBuilder;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import java.util.concurrent.TimeUnit;
+import lombok.Setter;
+import lombok.ToString;
+import org.slf4j.Logger;
 
-<span class="pc bpc" id="L15" title="1 of 2 branches missed.">@RequiredArgsConstructor</span>
-public class NettyConnectStrategy implements ConnectStrategy&lt;ManagedChannel&gt; {
+<span class="fc" id="L18">@ToString(exclude = {&quot;logger&quot;, &quot;context&quot;})</span>
+<span class="fc" id="L19">public class NettyConnectStrategy implements ConnectStrategy&lt;NettyChannelBuilder&gt; {</span>
 
-  @NonNull
-  protected final HostnameAndPort endpoint;
+<span class="fc" id="L21">  protected final Logger logger = getLogger(getClass());</span>
 
-  public NettyConnectStrategy(final String hostname) {
-<span class="nc" id="L22">    this(HostnameAndPort.of(hostname));</span>
-<span class="nc" id="L23">  }</span>
+<span class="fc" id="L23">  @Setter</span>
+  protected Context context;
+
+  protected HostnameAndPort getEndpoint() {
+<span class="fc" id="L27">    return HostnameAndPort.of(this.context.getConfiguration().getAsString(&quot;endpoint&quot;,</span>
+        DefaultConstants.DEFAULT_ENDPOINT));
+  }
 
   @Override
-  public ManagedChannel connect() {
-<span class="fc" id="L27">    return NettyChannelBuilder</span>
-<span class="fc" id="L28">        .forAddress(endpoint.getHostname(), endpoint.getPort(DEFAULT_RPC_PORT)).usePlaintext()</span>
-<span class="fc" id="L29">        .build();</span>
+  public NettyChannelBuilder connect() {
+<span class="fc" id="L33">    final HostnameAndPort endpoint = getEndpoint();</span>
+<span class="fc" id="L34">    logger.debug(&quot;Connect to {} with strategy {}&quot;, endpoint, getClass().getName());</span>
+<span class="fc" id="L35">    return NettyChannelBuilder</span>
+<span class="fc" id="L36">        .forAddress(endpoint.getHostname(), endpoint.getPort())</span>
+<span class="fc" id="L37">        .keepAliveTime(30, TimeUnit.SECONDS)</span>
+<span class="fc" id="L38">        .keepAliveTimeout(10, TimeUnit.SECONDS)</span>
+<span class="fc" id="L39">        .keepAliveWithoutCalls(true)</span>
+<span class="fc" id="L40">        .usePlaintext();</span>
   }
+
+  @Override
+  public boolean equals(final Object obj) {
+<span class="nc bnc" id="L45" title="All 4 branches missed.">    return (null != obj) &amp;&amp; (obj instanceof ConnectStrategy);</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="fc" id="L50">    return NettyConnectStrategy.class.hashCode();</span>
+  }
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

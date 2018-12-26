@@ -4,143 +4,83 @@
 
 package hera.client;
 
-import static com.google.common.util.concurrent.Futures.addCallback;
-import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
-import static hera.api.model.BytesValue.of;
-import static hera.util.TransportUtils.copyFrom;
-import static java.util.Optional.of;
-import static org.slf4j.LoggerFactory.getLogger;
-import static types.AergoRPCServiceGrpc.newFutureStub;
+import static hera.TransportConstants.TRANSACTION_COMMIT_ASYNC;
+import static hera.TransportConstants.TRANSACTION_GETTX_ASYNC;
+import static hera.TransportConstants.TRANSACTION_SEND_ASYNC;
+import static hera.api.tupleorerror.Functions.identify;
 
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.protobuf.ByteString;
-import hera.Context;
-import hera.FutureChain;
+import hera.ContextProvider;
+import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.TransactionAsyncOperation;
 import hera.api.model.AccountAddress;
-import hera.api.model.BytesValue;
+import hera.api.model.Aer;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.tupleorerror.Function1;
+import hera.api.tupleorerror.Function3;
 import hera.api.tupleorerror.ResultOrErrorFuture;
-import hera.api.tupleorerror.ResultOrErrorFutureFactory;
-import hera.exception.CommitException;
-import hera.transport.ModelConverter;
-import hera.transport.TransactionConverterFactory;
-import hera.transport.TransactionInBlockConverterFactory;
+import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
-import org.slf4j.Logger;
-import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
-import types.Blockchain;
-import types.Blockchain.Tx;
-import types.Blockchain.TxInBlock;
-import types.Blockchain.TxList;
-import types.Rpc;
-import types.Rpc.CommitResult;
-import types.Rpc.CommitResultList;
-import types.Rpc.SingleBytes;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-@SuppressWarnings(&quot;unchecked&quot;)
-<span class="fc" id="L49">public class TransactionAsyncTemplate implements TransactionAsyncOperation, ChannelInjectable {</span>
+<span class="fc" id="L31">public class TransactionAsyncTemplate</span>
+    implements TransactionAsyncOperation, ChannelInjectable, ContextProviderInjectable {
 
-<span class="fc" id="L51">  protected final Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L34">  @Getter</span>
+  protected TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();
 
-<span class="fc" id="L53">  protected final ModelConverter&lt;Transaction, Blockchain.Tx&gt; transactionConverter =</span>
-<span class="fc" id="L54">      new TransactionConverterFactory().create();</span>
+  protected ContextProvider contextProvider;
 
-<span class="fc" id="L56">  protected final ModelConverter&lt;Transaction, Blockchain.TxInBlock&gt; transactionInBlockConverter =</span>
-<span class="fc" id="L57">      new TransactionInBlockConverterFactory().create();</span>
-
-<span class="fc" id="L59">  @Setter</span>
-  protected Context context;
-
-<span class="nc" id="L62">  @Getter</span>
-  protected AergoRPCServiceFutureStub aergoService;
+<span class="pc bpc" id="L39" title="4 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
 
   @Override
-  public void injectChannel(final ManagedChannel channel) {
-<span class="fc" id="L67">    this.aergoService = newFutureStub(channel);</span>
-<span class="fc" id="L68">  }</span>
+  public void setChannel(final ManagedChannel channel) {
+<span class="fc" id="L44">    getTransactionBaseTemplate().setChannel(channel);</span>
+<span class="fc" id="L45">  }</span>
+
+  @Override
+  public void setContextProvider(final ContextProvider contextProvider) {
+<span class="fc" id="L49">    this.contextProvider = contextProvider;</span>
+<span class="fc" id="L50">    getTransactionBaseTemplate().setContextProvider(contextProvider);</span>
+<span class="fc" id="L51">  }</span>
+
+<span class="pc bpc" id="L53" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function1&lt;TxHash, ResultOrErrorFuture&lt;Transaction&gt;&gt; transactionFunction =
+      getStrategyChain().apply(identify(getTransactionBaseTemplate().getTransactionFunction(),
+          TRANSACTION_GETTX_ASYNC));
+
+<span class="pc bpc" id="L58" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function1&lt;Transaction, ResultOrErrorFuture&lt;TxHash&gt;&gt; commitFunction =
+      getStrategyChain()
+          .apply(
+              identify(getTransactionBaseTemplate().getCommitFunction(), TRANSACTION_COMMIT_ASYNC));
+
+<span class="pc bpc" id="L64" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function3&lt;AccountAddress, AccountAddress, Aer,
+      ResultOrErrorFuture&lt;TxHash&gt;&gt; sendFunction = getStrategyChain()
+          .apply(identify(getTransactionBaseTemplate().getSendFunction(), TRANSACTION_SEND_ASYNC));
 
   @Override
   public ResultOrErrorFuture&lt;Transaction&gt; getTransaction(final TxHash txHash) {
-<span class="fc" id="L72">    ResultOrErrorFuture&lt;Transaction&gt; nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
-
-<span class="fc" id="L74">    final ByteString byteString = copyFrom(txHash.getBytesValue());</span>
-<span class="fc" id="L75">    final SingleBytes hashBytes = SingleBytes.newBuilder().setValue(byteString).build();</span>
-<span class="fc" id="L76">    ListenableFuture&lt;TxInBlock&gt; listenableFuture = aergoService.getBlockTX(hashBytes);</span>
-<span class="fc" id="L77">    FutureChain&lt;TxInBlock, Transaction&gt; callback = new FutureChain&lt;TxInBlock, Transaction&gt;(</span>
-<span class="fc" id="L78">        nextFuture, transactionInBlockConverter::convertToDomainModel) {</span>
-      @Override
-      public void onFailure(Throwable throwable) {
-        try {
-<span class="fc" id="L82">          logger.debug(&quot;Transaction {} is not in a block. Check mempool&quot;, txHash);</span>
-<span class="fc" id="L83">          final Blockchain.Tx tx = aergoService.getTX(hashBytes).get();</span>
-<span class="fc" id="L84">          super.onSuccess(TxInBlock.newBuilder().setTx(tx).build());</span>
-<span class="nc" id="L85">        } catch (Throwable e) {</span>
-<span class="nc" id="L86">          logger.debug(&quot;Transaction {} don't exist&quot;, txHash);</span>
-<span class="nc" id="L87">          super.onFailure(e);</span>
-<span class="fc" id="L88">        }</span>
-<span class="fc" id="L89">      }</span>
-    };
-<span class="fc" id="L91">    addCallback(listenableFuture, callback, directExecutor());</span>
-
-<span class="fc" id="L93">    return nextFuture;</span>
+<span class="fc" id="L71">    return getTransactionFunction().apply(txHash);</span>
   }
 
   @Override
   public ResultOrErrorFuture&lt;TxHash&gt; commit(final Transaction transaction) {
-<span class="fc" id="L98">    ResultOrErrorFuture&lt;TxHash&gt; nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
-
-<span class="fc" id="L100">    final Tx tx = transactionConverter.convertToRpcModel(transaction);</span>
-<span class="fc" id="L101">    final TxList txList = TxList.newBuilder().addTxs(tx).build();</span>
-<span class="fc" id="L102">    ListenableFuture&lt;CommitResultList&gt; listenableFuture = aergoService.commitTX(txList);</span>
-<span class="fc" id="L103">    FutureChain&lt;CommitResultList, TxHash&gt; callback = new FutureChain&lt;CommitResultList, TxHash&gt;(</span>
-<span class="fc" id="L104">        nextFuture, commitResultList -&gt; commitResultList.getResultsList().stream()</span>
-<span class="fc" id="L105">            .map(r -&gt; r.getHash().toByteArray()).map(b -&gt; new TxHash(of(b))).findFirst().get()) {</span>
-      @Override
-      public void onSuccess(CommitResultList t) {
-<span class="fc" id="L108">        final Rpc.CommitResult commitResult = t.getResults(0);</span>
-<span class="pc bpc" id="L109" title="1 of 2 branches missed.">        if (Rpc.CommitStatus.TX_OK == commitResult.getError()) {</span>
-<span class="fc" id="L110">          super.onSuccess(t);</span>
-        } else {
-<span class="nc" id="L112">          super.onFailure(new CommitException(commitResult.getError()));</span>
-        }
-<span class="fc" id="L114">      }</span>
-    };
-<span class="fc" id="L116">    addCallback(listenableFuture, callback, directExecutor());</span>
-
-<span class="fc" id="L118">    return nextFuture;</span>
+<span class="fc" id="L76">    return getCommitFunction().apply(transaction);</span>
   }
 
   @Override
   public ResultOrErrorFuture&lt;TxHash&gt; send(final AccountAddress sender,
-      final AccountAddress recipient, final long amount) {
-<span class="fc" id="L124">    ResultOrErrorFuture&lt;TxHash&gt; nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
-
-<span class="fc" id="L126">    final Transaction transaction = new Transaction();</span>
-<span class="fc" id="L127">    transaction.setSender(sender);</span>
-<span class="fc" id="L128">    transaction.setRecipient(recipient);</span>
-<span class="fc" id="L129">    transaction.setAmount(amount);</span>
-<span class="fc" id="L130">    final Tx tx = transactionConverter.convertToRpcModel(transaction);</span>
-<span class="fc" id="L131">    ListenableFuture&lt;Rpc.CommitResult&gt; listenableFuture = aergoService.sendTX(tx);</span>
-
-<span class="fc" id="L133">    FutureChain&lt;CommitResult, TxHash&gt; callback =</span>
-        new FutureChain&lt;&gt;(nextFuture,
-<span class="pc bpc" id="L135" title="1 of 2 branches missed.">            c -&gt; of(c).filter(v -&gt; Rpc.CommitStatus.TX_OK == v.getError())</span>
-<span class="fc" id="L136">                .map(Rpc.CommitResult::getHash)</span>
-<span class="fc" id="L137">                .map(ByteString::toByteArray)</span>
-<span class="fc" id="L138">                .map(BytesValue::new)</span>
-<span class="fc" id="L139">                .map(TxHash::new)</span>
-<span class="pc" id="L140">                .orElseThrow(() -&gt; new CommitException(c.getError())));</span>
-<span class="fc" id="L141">    addCallback(listenableFuture, callback, directExecutor());</span>
-
-<span class="fc" id="L143">    return nextFuture;</span>
+      final AccountAddress recipient,
+      final Aer amount) {
+<span class="fc" id="L83">    return getSendFunction().apply(sender, recipient, amount);</span>
   }
 
 }

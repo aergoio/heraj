@@ -29,15 +29,13 @@ import types.Rpc;
 <span class="fc" id="L29">  protected final Function&lt;Rpc.BlockchainStatus, BlockchainStatus&gt; rpcConverter =</span>
       rpcBlockchainStatus -&gt; {
 <span class="fc" id="L31">        logger.trace(&quot;Rpc blockchain status: {}&quot;, rpcBlockchainStatus);</span>
-<span class="fc" id="L32">        final BlockchainStatus domainBlockchainStatus = new BlockchainStatus();</span>
-<span class="fc" id="L33">        domainBlockchainStatus.setBestHeight(rpcBlockchainStatus.getBestHeight());</span>
-<span class="fc" id="L34">        domainBlockchainStatus.setBestBlockHash(</span>
-<span class="fc" id="L35">            new BlockHash(BytesValue.of(rpcBlockchainStatus.getBestBlockHash().toByteArray())));</span>
-<span class="fc" id="L36">        return domainBlockchainStatus;</span>
+<span class="fc" id="L32">        return new BlockchainStatus(</span>
+<span class="fc" id="L33">            rpcBlockchainStatus.getBestHeight(),</span>
+<span class="fc" id="L34">            new BlockHash(BytesValue.of(rpcBlockchainStatus.getBestBlockHash().toByteArray())));</span>
       };
 
   public ModelConverter&lt;BlockchainStatus, Rpc.BlockchainStatus&gt; create() {
-<span class="fc" id="L40">    return new ModelConverter&lt;&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L38">    return new ModelConverter&lt;&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

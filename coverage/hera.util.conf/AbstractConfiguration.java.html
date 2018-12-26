@@ -22,7 +22,7 @@ public abstract class AbstractConfiguration implements Configuration {
 
 <span class="fc" id="L23">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="nc" id="L25">  @Getter</span>
+<span class="fc" id="L25">  @Getter</span>
   protected final boolean readOnly;
 
   public AbstractConfiguration() {
@@ -118,5 +118,12 @@ public abstract class AbstractConfiguration implements Configuration {
 <span class="fc bfc" id="L118" title="All 2 branches covered.">            .map(String::trim).filter(v2 -&gt; !v2.isEmpty()).collect(toList()))</span>
 <span class="fc" id="L119">        .orElse(EMPTY_LIST);</span>
   }
+
+  protected void checkReadOnly() {
+<span class="fc bfc" id="L123" title="All 2 branches covered.">    if (isReadOnly()) {</span>
+<span class="fc" id="L124">      throw new UnsupportedOperationException(&quot;Configuration is read-only&quot;);</span>
+    }
+<span class="fc" id="L126">  }</span>
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

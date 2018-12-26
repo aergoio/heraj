@@ -52,7 +52,7 @@ public class Tuple2OrErrorImpl&lt;T1, T2&gt; implements Tuple2OrError&lt;T1, T2&
   @Override
   public T1 get1() {
 <span class="fc bfc" id="L54" title="All 2 branches covered.">    if (null == v1) {</span>
-<span class="nc" id="L55">      appendCurrentStackTraceToError();</span>
+<span class="nc" id="L55">      throwError();</span>
     }
 <span class="fc" id="L57">    return v1;</span>
   }
@@ -60,7 +60,7 @@ public class Tuple2OrErrorImpl&lt;T1, T2&gt; implements Tuple2OrError&lt;T1, T2&
   @Override
   public T2 get2() {
 <span class="fc bfc" id="L62" title="All 2 branches covered.">    if (null == v2) {</span>
-<span class="nc" id="L63">      appendCurrentStackTraceToError();</span>
+<span class="nc" id="L63">      throwError();</span>
     }
 <span class="fc" id="L65">    return v2;</span>
   }

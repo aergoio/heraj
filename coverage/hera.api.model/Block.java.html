@@ -4,21 +4,70 @@
 
 package hera.api.model;
 
+import static java.util.Collections.unmodifiableList;
+
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 
-<span class="nc bnc" id="L12" title="All 16 branches missed.">@EqualsAndHashCode(callSuper = true)</span>
-<span class="fc" id="L13">public class Block extends BlockHeader {</span>
+@ApiAudience.Public
+@ApiStability.Unstable
+<span class="pc bpc" id="L17" title="10 of 16 branches missed.">@EqualsAndHashCode(callSuper = true)</span>
+public class Block extends BlockHeader {
 
-<span class="fc" id="L15">  @Getter</span>
-<span class="fc" id="L16">  @Setter</span>
-  protected List&lt;Transaction&gt; transactions;
+<span class="fc" id="L20">  @Getter</span>
+  protected final List&lt;Transaction&gt; transactions;
+
+  /**
+   * Block constructor.
+   *
+   * @param blockHeader a block header
+   * @param transactions transactions of block
+   */
+  @ApiAudience.Private
+  public Block(final BlockHeader blockHeader, final List&lt;Transaction&gt; transactions) {
+<span class="nc" id="L31">    this(blockHeader.getChainId(), blockHeader.getHash(), blockHeader.getPreviousHash(),</span>
+<span class="nc" id="L32">        blockHeader.getBlockNumber(), blockHeader.getTimestamp(), blockHeader.getRootHash(),</span>
+<span class="nc" id="L33">        blockHeader.getTxRootHash(), blockHeader.getReceiptRootHash(),</span>
+<span class="nc" id="L34">        blockHeader.getConfirmsCount(), blockHeader.getPublicKey(), blockHeader.getSign(),</span>
+<span class="nc" id="L35">        blockHeader.getCoinbaseAccount(), blockHeader.getTxCount(), transactions);</span>
+<span class="nc" id="L36">  }</span>
+
+  /**
+   * Block constructor.
+   *
+   * @param chainId a chain id
+   * @param hash a block hash
+   * @param previousHash a previous block hash
+   * @param blockNumber a block number
+   * @param timestamp a timestamp
+   * @param rootHash a block root hash
+   * @param txRootHash a tx root hash
+   * @param receiptRootHash a receipt root hash
+   * @param confirmsCount confirmsCount
+   * @param publicKey a public key
+   * @param sign a sign
+   * @param coinbaseAccount a coinbase account
+   * @param txCount a transaction count
+   * @param transactions transactions of block
+   */
+  @ApiAudience.Private
+  public Block(final Hash chainId, final BlockHash hash, final BlockHash previousHash,
+      final long blockNumber, final long timestamp, final BlockHash rootHash,
+      final TxHash txRootHash, final Hash receiptRootHash, final long confirmsCount,
+      final Hash publicKey, final Hash sign, final AccountAddress coinbaseAccount,
+      final long txCount, final List&lt;Transaction&gt; transactions) {
+<span class="fc" id="L62">    super(chainId, hash, previousHash, blockNumber, timestamp, rootHash, txRootHash,</span>
+        receiptRootHash, confirmsCount, publicKey, sign, coinbaseAccount, txCount);
+<span class="fc" id="L64">    this.transactions = unmodifiableList(transactions);</span>
+<span class="fc" id="L65">  }</span>
 
   @Override
   public String toString() {
-<span class="fc" id="L21">    return String.format(&quot;Block(%s, transactions=%s)&quot;, super.toString(), transactions.toString());</span>
+<span class="nc" id="L69">    return String.format(&quot;Block(%s, transactions=%s)&quot;, super.toString(), transactions.toString());</span>
   }
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

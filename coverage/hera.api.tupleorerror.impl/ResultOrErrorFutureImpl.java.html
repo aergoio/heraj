@@ -14,90 +14,94 @@ import hera.api.tupleorerror.ResultOrError;
 import hera.api.tupleorerror.ResultOrErrorFuture;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
-<span class="fc" id="L20">@RequiredArgsConstructor</span>
+<span class="nc" id="L22">@ToString</span>
+<span class="nc bnc" id="L23" title="All 14 branches missed.">@EqualsAndHashCode</span>
+<span class="fc" id="L24">@RequiredArgsConstructor</span>
 public class ResultOrErrorFutureImpl&lt;T&gt; implements ResultOrErrorFuture&lt;T&gt; {
 
-<span class="fc" id="L23">  @Getter</span>
-  protected final CompletableFuture&lt;ResultOrError&lt;T&gt;&gt; deligate;
+<span class="fc" id="L27">  @Getter</span>
+  protected final CompletableFuture&lt;ResultOrError&lt;T&gt;&gt; delegate;
 
   @Override
   public boolean cancel(boolean mayInterruptIfRunning) {
-<span class="fc" id="L28">    return deligate.cancel(mayInterruptIfRunning);</span>
+<span class="fc" id="L32">    return delegate.cancel(mayInterruptIfRunning);</span>
   }
 
   @Override
   public boolean isCancelled() {
-<span class="fc" id="L33">    return deligate.isCancelled();</span>
+<span class="fc" id="L37">    return delegate.isCancelled();</span>
   }
 
   @Override
   public boolean isDone() {
-<span class="fc" id="L38">    return deligate.isDone();</span>
+<span class="fc" id="L42">    return delegate.isDone();</span>
   }
 
   @Override
   public ResultOrError&lt;T&gt; get() {
     try {
-<span class="fc" id="L44">      return deligate.get();</span>
-<span class="nc" id="L45">    } catch (Throwable error) {</span>
-<span class="nc" id="L46">      return new ResultOrErrorImpl&lt;&gt;(null, error);</span>
+<span class="fc" id="L48">      return delegate.get();</span>
+<span class="nc" id="L49">    } catch (Throwable error) {</span>
+<span class="nc" id="L50">      return new ResultOrErrorImpl&lt;&gt;(null, error);</span>
     }
   }
 
   @Override
   public ResultOrError&lt;T&gt; get(long timeout, TimeUnit unit) {
     try {
-<span class="fc" id="L53">      return deligate.get(timeout, unit);</span>
-<span class="nc" id="L54">    } catch (Throwable error) {</span>
-<span class="nc" id="L55">      return new ResultOrErrorImpl&lt;&gt;(null, error);</span>
+<span class="fc" id="L57">      return delegate.get(timeout, unit);</span>
+<span class="fc" id="L58">    } catch (Throwable error) {</span>
+<span class="fc" id="L59">      return new ResultOrErrorImpl&lt;&gt;(null, error);</span>
     }
   }
 
   @Override
   public boolean complete(ResultOrError&lt;T&gt; resultOrError) {
-<span class="fc" id="L61">    return deligate.complete(resultOrError);</span>
+<span class="fc" id="L65">    return delegate.complete(resultOrError);</span>
   }
 
   @SuppressWarnings(&quot;unchecked&quot;)
   @Override
   public ResultOrErrorFuture&lt;Boolean&gt; ifPresent(Consumer1&lt;? super T&gt; consumer) {
-<span class="fc" id="L67">    CompletableFuture&lt;ResultOrError&lt;Boolean&gt;&gt; next = deligate.thenComposeAsync(r -&gt; {</span>
+<span class="fc" id="L71">    CompletableFuture&lt;ResultOrError&lt;Boolean&gt;&gt; next = delegate.thenComposeAsync(r -&gt; {</span>
       try {
-<span class="fc" id="L69">        consumer.accept(r.getResult());</span>
-<span class="fc" id="L70">        return CompletableFuture.supplyAsync(() -&gt; success(true));</span>
-<span class="fc" id="L71">      } catch (Throwable e) {</span>
-<span class="fc" id="L72">        return CompletableFuture.supplyAsync(() -&gt; fail(e));</span>
+<span class="fc" id="L73">        consumer.accept(r.getResult());</span>
+<span class="fc" id="L74">        return CompletableFuture.supplyAsync(() -&gt; success(true));</span>
+<span class="fc" id="L75">      } catch (Throwable e) {</span>
+<span class="fc" id="L76">        return CompletableFuture.supplyAsync(() -&gt; fail(e));</span>
       }
     });
-<span class="fc" id="L75">    return new ResultOrErrorFutureImpl&lt;Boolean&gt;(next);</span>
+<span class="fc" id="L79">    return new ResultOrErrorFutureImpl&lt;Boolean&gt;(next);</span>
   }
 
   @Override
   public ResultOrErrorFuture&lt;T&gt; filter(Predicate1&lt;? super T&gt; predicate) {
-<span class="fc" id="L80">    CompletableFuture&lt;ResultOrError&lt;T&gt;&gt; next = deligate.thenApplyAsync(r -&gt; r.filter(predicate));</span>
-<span class="fc" id="L81">    return new ResultOrErrorFutureImpl&lt;T&gt;(next);</span>
+<span class="fc" id="L84">    CompletableFuture&lt;ResultOrError&lt;T&gt;&gt; next = delegate.thenApplyAsync(r -&gt; r.filter(predicate));</span>
+<span class="fc" id="L85">    return new ResultOrErrorFutureImpl&lt;T&gt;(next);</span>
   }
 
   @Override
   public &lt;R&gt; ResultOrErrorFuture&lt;R&gt; map(Function1&lt;? super T, ? extends R&gt; f) {
-<span class="fc" id="L86">    CompletableFuture&lt;ResultOrError&lt;R&gt;&gt; next = deligate.thenApplyAsync(r -&gt; r.map(f));</span>
-<span class="fc" id="L87">    return new ResultOrErrorFutureImpl&lt;R&gt;(next);</span>
+<span class="fc" id="L90">    CompletableFuture&lt;ResultOrError&lt;R&gt;&gt; next = delegate.thenApplyAsync(r -&gt; r.map(f));</span>
+<span class="fc" id="L91">    return new ResultOrErrorFutureImpl&lt;R&gt;(next);</span>
   }
 
   @SuppressWarnings(&quot;unchecked&quot;)
   @Override
   public &lt;R&gt; ResultOrErrorFuture&lt;R&gt; flatMap(Function1&lt;? super T, ResultOrErrorFuture&lt;R&gt;&gt; f) {
-<span class="fc" id="L93">    CompletableFuture&lt;ResultOrError&lt;R&gt;&gt; next = deligate.thenComposeAsync(r -&gt; {</span>
+<span class="fc" id="L97">    CompletableFuture&lt;ResultOrError&lt;R&gt;&gt; next = delegate.thenComposeAsync(r -&gt; {</span>
       try {
-<span class="fc" id="L95">        return ((ResultOrErrorFutureImpl&lt;R&gt;) f.apply(r.getResult())).deligate;</span>
-<span class="fc" id="L96">      } catch (Throwable e) {</span>
-<span class="fc" id="L97">        return CompletableFuture.supplyAsync(() -&gt; fail(e));</span>
+<span class="fc" id="L99">        return ((ResultOrErrorFutureImpl&lt;R&gt;) f.apply(r.getResult())).delegate;</span>
+<span class="fc" id="L100">      } catch (Throwable e) {</span>
+<span class="fc" id="L101">        return CompletableFuture.supplyAsync(() -&gt; fail(e));</span>
       }
     });
-<span class="fc" id="L100">    return new ResultOrErrorFutureImpl&lt;R&gt;(next);</span>
+<span class="fc" id="L104">    return new ResultOrErrorFutureImpl&lt;R&gt;(next);</span>
   }
 
 }

@@ -5,7 +5,10 @@
 package hera.client;
 
 import hera.Context;
-import hera.ContextAware;
+import hera.ContextHolder;
+import hera.ContextProvider;
+import hera.ContextProviderInjectable;
+import hera.EmptyContext;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.AbstractAergoApi;
@@ -13,9 +16,8 @@ import hera.api.AccountOperation;
 import hera.api.BlockOperation;
 import hera.api.BlockchainOperation;
 import hera.api.ContractOperation;
+import hera.api.KeyStoreOperation;
 import hera.api.TransactionOperation;
-import hera.exception.RpcException;
-import hera.strategy.ConnectStrategy;
 import io.grpc.ManagedChannel;
 import java.io.Closeable;
 import java.util.concurrent.TimeUnit;
@@ -26,52 +28,63 @@ import lombok.RequiredArgsConstructor;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="pc bpc" id="L29" title="1 of 2 branches missed.">@RequiredArgsConstructor</span>
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">@RequiredArgsConstructor</span>
 public class AergoClient extends AbstractAergoApi implements Closeable, AutoCloseable {
 
   @NonNull
-  protected final Context context;
+  protected Context globalContext;
 
-<span class="pc bpc" id="L35" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
-  private final ManagedChannel channel =
-      (ManagedChannel) context.getStrategy(ConnectStrategy.class).map(ConnectStrategy::connect)
-          .orElseThrow(() -&gt; new RpcException(&quot;ConnectStrategy must be present in context&quot;));
+<span class="fc" id="L37">  protected ContextProvider contextProvider = () -&gt; {</span>
+<span class="fc" id="L38">    final Context context = ContextHolder.get(this);</span>
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">    if (context.equals(EmptyContext.getInstance())) {</span>
+<span class="fc" id="L40">      ContextHolder.set(this, globalContext);</span>
+    }
+<span class="fc" id="L42">    return ContextHolder.get(this);</span>
+  };
 
-<span class="pc bpc" id="L40" title="4 of 8 branches missed.">  @Getter(lazy = true)</span>
+<span class="pc bpc" id="L45" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final ManagedChannel channel = new ManagedChannelFactory().apply(contextProvider.get());
+
+<span class="pc bpc" id="L48" title="4 of 8 branches missed.">  @Getter(lazy = true)</span>
   private final AccountOperation accountOperation = resolveInjection(new AccountTemplate());
 
-<span class="pc bpc" id="L43" title="4 of 8 branches missed.">  @Getter(lazy = true)</span>
+<span class="pc bpc" id="L51" title="4 of 8 branches missed.">  @Getter(lazy = true)</span>
+  private final KeyStoreOperation keyStoreOperation = resolveInjection(new KeyStoreTemplate());
+
+<span class="pc bpc" id="L54" title="4 of 8 branches missed.">  @Getter(lazy = true)</span>
   private final BlockOperation blockOperation = resolveInjection(new BlockTemplate());
 
-<span class="pc bpc" id="L46" title="4 of 8 branches missed.">  @Getter(lazy = true)</span>
+<span class="pc bpc" id="L57" title="4 of 8 branches missed.">  @Getter(lazy = true)</span>
   private final BlockchainOperation blockchainOperation =
       resolveInjection(new BlockchainTemplate());
 
-<span class="pc bpc" id="L50" title="4 of 8 branches missed.">  @Getter(lazy = true)</span>
+<span class="pc bpc" id="L61" title="4 of 8 branches missed.">  @Getter(lazy = true)</span>
   private final TransactionOperation transactionOperation =
       resolveInjection(new TransactionTemplate());
 
-<span class="pc bpc" id="L54" title="4 of 8 branches missed.">  @Getter(lazy = true)</span>
+<span class="pc bpc" id="L65" title="4 of 8 branches missed.">  @Getter(lazy = true)</span>
   private final ContractOperation contractOperation = resolveInjection(new ContractTemplate());
 
   protected &lt;T&gt; T resolveInjection(final T target) {
-<span class="pc bpc" id="L58" title="1 of 2 branches missed.">    if (target instanceof ContextAware) {</span>
-<span class="fc" id="L59">      ((ContextAware) target).setContext(context);</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">    if (target instanceof ContextProviderInjectable) {</span>
+<span class="fc" id="L70">      ((ContextProviderInjectable) target).setContextProvider(contextProvider);</span>
     }
-<span class="pc bpc" id="L61" title="1 of 2 branches missed.">    if (target instanceof ChannelInjectable) {</span>
-<span class="fc" id="L62">      ((ChannelInjectable) target).injectChannel(getChannel());</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">    if (target instanceof ChannelInjectable) {</span>
+<span class="fc" id="L73">      ((ChannelInjectable) target).setChannel(getChannel());</span>
     }
-<span class="fc" id="L64">    return target;</span>
+<span class="fc" id="L75">    return target;</span>
   }
 
   @Override
   public void close() {
     try {
-<span class="fc" id="L70">      getChannel().shutdown().awaitTermination(3, TimeUnit.SECONDS);</span>
-<span class="nc" id="L71">    } catch (final Throwable e) {</span>
-<span class="nc" id="L72">      logger.debug(&quot;Fail to close aergo client&quot;, e);</span>
-<span class="fc" id="L73">    }</span>
-<span class="fc" id="L74">  }</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">      if (null != getChannel()) {</span>
+<span class="fc" id="L82">        getChannel().shutdown().awaitTermination(3, TimeUnit.SECONDS);</span>
+      }
+<span class="nc" id="L84">    } catch (final Throwable e) {</span>
+<span class="nc" id="L85">      logger.debug(&quot;Fail to close aergo client&quot;, e);</span>
+<span class="fc" id="L86">    }</span>
+<span class="fc" id="L87">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -16,77 +16,86 @@ import hera.api.tupleorerror.Tuple4OrError;
 import hera.api.tupleorerror.Tuple4OrErrorFuture;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
-<span class="fc" id="L22">@RequiredArgsConstructor</span>
+<span class="nc" id="L24">@ToString</span>
+<span class="nc bnc" id="L25" title="All 14 branches missed.">@EqualsAndHashCode</span>
+<span class="fc" id="L26">@RequiredArgsConstructor</span>
 public class Tuple4OrErrorFutureImpl&lt;T1, T2, T3, T4&gt;
     implements Tuple4OrErrorFuture&lt;T1, T2, T3, T4&gt; {
 
-<span class="nc" id="L26">  @Getter</span>
-  protected final CompletableFuture&lt;Tuple4OrError&lt;T1, T2, T3, T4&gt;&gt; deligate;
+<span class="nc" id="L30">  @Getter</span>
+  protected final CompletableFuture&lt;Tuple4OrError&lt;T1, T2, T3, T4&gt;&gt; delegate;
 
   @Override
   public boolean cancel(boolean mayInterruptIfRunning) {
-<span class="fc" id="L31">    return deligate.cancel(mayInterruptIfRunning);</span>
+<span class="fc" id="L35">    return delegate.cancel(mayInterruptIfRunning);</span>
   }
 
   @Override
   public boolean isCancelled() {
-<span class="fc" id="L36">    return deligate.isCancelled();</span>
+<span class="fc" id="L40">    return delegate.isCancelled();</span>
   }
 
   @Override
   public boolean isDone() {
-<span class="fc" id="L41">    return deligate.isDone();</span>
+<span class="fc" id="L45">    return delegate.isDone();</span>
   }
 
   @Override
   public Tuple4OrError&lt;T1, T2, T3, T4&gt; get() {
     try {
-<span class="fc" id="L47">      return deligate.get();</span>
-<span class="nc" id="L48">    } catch (Throwable error) {</span>
-<span class="nc" id="L49">      return new Tuple4OrErrorImpl&lt;&gt;(error);</span>
+<span class="fc" id="L51">      return delegate.get();</span>
+<span class="nc" id="L52">    } catch (Throwable error) {</span>
+<span class="nc" id="L53">      return new Tuple4OrErrorImpl&lt;&gt;(error);</span>
     }
   }
 
   @Override
   public Tuple4OrError&lt;T1, T2, T3, T4&gt; get(long timeout, TimeUnit unit) {
     try {
-<span class="fc" id="L56">      return deligate.get(timeout, unit);</span>
-<span class="nc" id="L57">    } catch (Throwable error) {</span>
-<span class="nc" id="L58">      return new Tuple4OrErrorImpl&lt;&gt;(error);</span>
+<span class="fc" id="L60">      return delegate.get(timeout, unit);</span>
+<span class="nc" id="L61">    } catch (Throwable error) {</span>
+<span class="nc" id="L62">      return new Tuple4OrErrorImpl&lt;&gt;(error);</span>
     }
+  }
+
+  @Override
+  public boolean complete(final Tuple4OrError&lt;T1, T2, T3, T4&gt; t) {
+<span class="nc" id="L68">    return delegate.complete(t);</span>
   }
 
   @SuppressWarnings(&quot;unchecked&quot;)
   @Override
   public ResultOrErrorFuture&lt;Boolean&gt; ifPresent(
       Consumer4&lt;? super T1, ? super T2, ? super T3, ? super T4&gt; consumer) {
-<span class="fc" id="L66">    CompletableFuture&lt;ResultOrError&lt;Boolean&gt;&gt; next = deligate.thenComposeAsync(r -&gt; {</span>
+<span class="fc" id="L75">    CompletableFuture&lt;ResultOrError&lt;Boolean&gt;&gt; next = delegate.thenComposeAsync(r -&gt; {</span>
       try {
-<span class="fc" id="L68">        consumer.accept(r.get1(), r.get2(), r.get3(), r.get4());</span>
-<span class="fc" id="L69">        return CompletableFuture.supplyAsync(() -&gt; success(true));</span>
-<span class="fc" id="L70">      } catch (Throwable e) {</span>
-<span class="fc" id="L71">        return CompletableFuture.supplyAsync(() -&gt; fail(e));</span>
+<span class="fc" id="L77">        consumer.accept(r.get1(), r.get2(), r.get3(), r.get4());</span>
+<span class="fc" id="L78">        return CompletableFuture.supplyAsync(() -&gt; success(true));</span>
+<span class="fc" id="L79">      } catch (Throwable e) {</span>
+<span class="fc" id="L80">        return CompletableFuture.supplyAsync(() -&gt; fail(e));</span>
       }
     });
-<span class="fc" id="L74">    return new ResultOrErrorFutureImpl&lt;&gt;(next);</span>
+<span class="fc" id="L83">    return new ResultOrErrorFutureImpl&lt;&gt;(next);</span>
   }
 
   @Override
   public Tuple4OrErrorFuture&lt;T1, T2, T3, T4&gt; filter(
       Predicate4&lt;? super T1, ? super T2, ? super T3, ? super T4&gt; predicate) {
-<span class="fc" id="L80">    CompletableFuture&lt;Tuple4OrError&lt;T1, T2, T3, T4&gt;&gt; next =</span>
-<span class="fc" id="L81">        deligate.thenApplyAsync(r -&gt; r.filter(predicate));</span>
-<span class="fc" id="L82">    return new Tuple4OrErrorFutureImpl&lt;&gt;(next);</span>
+<span class="fc" id="L89">    CompletableFuture&lt;Tuple4OrError&lt;T1, T2, T3, T4&gt;&gt; next =</span>
+<span class="fc" id="L90">        delegate.thenApplyAsync(r -&gt; r.filter(predicate));</span>
+<span class="fc" id="L91">    return new Tuple4OrErrorFutureImpl&lt;&gt;(next);</span>
   }
 
   @Override
   public &lt;R&gt; ResultOrErrorFuture&lt;R&gt; map(
       Function4&lt;? super T1, ? super T2, ? super T3, ? super T4, ? extends R&gt; f) {
-<span class="fc" id="L88">    CompletableFuture&lt;ResultOrError&lt;R&gt;&gt; next = deligate.thenApplyAsync(r -&gt; r.map(f));</span>
-<span class="fc" id="L89">    return new ResultOrErrorFutureImpl&lt;&gt;(next);</span>
+<span class="fc" id="L97">    CompletableFuture&lt;ResultOrError&lt;R&gt;&gt; next = delegate.thenApplyAsync(r -&gt; r.map(f));</span>
+<span class="fc" id="L98">    return new ResultOrErrorFutureImpl&lt;&gt;(next);</span>
   }
 
 }

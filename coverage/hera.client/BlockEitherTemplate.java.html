@@ -4,69 +4,99 @@
 
 package hera.client;
 
-import hera.Context;
+import static hera.TransportConstants.BLOCK_GETBLOCK_BY_HASH_EITHER;
+import static hera.TransportConstants.BLOCK_GETBLOCK_BY_HEIGHT_EITHER;
+import static hera.TransportConstants.BLOCK_LIST_HEADERS_BY_HASH_EITHER;
+import static hera.TransportConstants.BLOCK_LIST_HEADERS_BY_HEIGHT_EITHER;
+import static hera.api.tupleorerror.Functions.identify;
+
+import hera.ContextProvider;
+import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.BlockEitherOperation;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
-import hera.api.model.Time;
+import hera.api.tupleorerror.Function1;
+import hera.api.tupleorerror.Function2;
 import hera.api.tupleorerror.ResultOrError;
-import hera.exception.RpcException;
-import hera.strategy.TimeoutStrategy;
+import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.Getter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="fc" id="L24">public class BlockEitherTemplate implements BlockEitherOperation, ChannelInjectable {</span>
+<span class="fc" id="L33">public class BlockEitherTemplate</span>
+    implements BlockEitherOperation, ChannelInjectable, ContextProviderInjectable {
 
-  protected Context context;
+<span class="fc" id="L36">  @Getter</span>
+  protected BlockBaseTemplate blockBaseTemplate = new BlockBaseTemplate();
 
-<span class="fc" id="L28">  protected BlockAsyncTemplate blockAsyncOperation = new BlockAsyncTemplate();</span>
+  protected ContextProvider contextProvider;
 
-<span class="pc bpc" id="L30" title="3 of 8 branches missed.">  @Getter(lazy = true)</span>
-  private final Time timeout =
-      context.getStrategy(TimeoutStrategy.class).map(TimeoutStrategy::getTimeout)
-          .orElseThrow(() -&gt; new RpcException(&quot;TimeoutStrategy must be present in context&quot;));
-
-  @Override
-  public void setContext(final Context context) {
-<span class="fc" id="L37">    this.context = context;</span>
-<span class="fc" id="L38">    blockAsyncOperation.setContext(context);</span>
-<span class="fc" id="L39">  }</span>
+<span class="pc bpc" id="L41" title="4 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
 
   @Override
-  public void injectChannel(final ManagedChannel channel) {
-<span class="fc" id="L43">    blockAsyncOperation.injectChannel(channel);</span>
-<span class="fc" id="L44">  }</span>
+  public void setChannel(final ManagedChannel channel) {
+<span class="fc" id="L46">    getBlockBaseTemplate().setChannel(channel);</span>
+<span class="fc" id="L47">  }</span>
 
   @Override
-  public ResultOrError&lt;Block&gt; getBlock(BlockHash blockHash) {
-<span class="fc" id="L48">    return blockAsyncOperation.getBlock(blockHash).get(getTimeout().getValue(),</span>
-<span class="fc" id="L49">        getTimeout().getUnit());</span>
+  public void setContextProvider(final ContextProvider contextProvider) {
+<span class="fc" id="L51">    this.contextProvider = contextProvider;</span>
+<span class="fc" id="L52">    getBlockBaseTemplate().setContextProvider(contextProvider);</span>
+<span class="fc" id="L53">  }</span>
+
+<span class="pc bpc" id="L55" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function1&lt;BlockHash, ResultOrErrorFuture&lt;Block&gt;&gt; blockByHashFunction =
+      getStrategyChain().apply(
+          identify(getBlockBaseTemplate().getBlockByHashFunction(), BLOCK_GETBLOCK_BY_HASH_EITHER));
+
+<span class="pc bpc" id="L60" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function1&lt;Long, ResultOrErrorFuture&lt;Block&gt;&gt; blockByHeightFunction =
+      getStrategyChain().apply(
+          identify(getBlockBaseTemplate().getBlockByHeightFunction(),
+              BLOCK_GETBLOCK_BY_HEIGHT_EITHER));
+
+<span class="pc bpc" id="L66" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function2&lt;BlockHash, Integer,
+      ResultOrErrorFuture&lt;List&lt;BlockHeader&gt;&gt;&gt; listBlockHeadersByHashFunction = getStrategyChain()
+          .apply(identify(getBlockBaseTemplate().getListBlockHeadersByHashFunction(),
+              BLOCK_LIST_HEADERS_BY_HASH_EITHER));
+
+<span class="pc bpc" id="L72" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function2&lt;Long, Integer,
+      ResultOrErrorFuture&lt;List&lt;BlockHeader&gt;&gt;&gt; listBlockHeadersByHeightFunction =
+          getStrategyChain()
+              .apply(identify(getBlockBaseTemplate().getListBlockHeadersByHeightFunction(),
+                  BLOCK_LIST_HEADERS_BY_HEIGHT_EITHER));
+
+  @Override
+  public ResultOrError&lt;Block&gt; getBlock(final BlockHash blockHash) {
+<span class="fc" id="L81">    return getBlockByHashFunction().apply(blockHash).get();</span>
   }
 
   @Override
   public ResultOrError&lt;Block&gt; getBlock(final long height) {
-<span class="fc" id="L54">    return blockAsyncOperation.getBlock(height).get(getTimeout().getValue(),</span>
-<span class="fc" id="L55">        getTimeout().getUnit());</span>
+<span class="fc" id="L86">    return getBlockByHeightFunction().apply(height).get();</span>
   }
 
   @Override
-  public ResultOrError&lt;List&lt;BlockHeader&gt;&gt; listBlockHeaders(BlockHash blockHash, int size) {
-<span class="fc" id="L60">    return blockAsyncOperation.listBlockHeaders(blockHash, size).get(getTimeout().getValue(),</span>
-<span class="fc" id="L61">        getTimeout().getUnit());</span>
+  public ResultOrError&lt;List&lt;BlockHeader&gt;&gt; listBlockHeaders(final BlockHash blockHash,
+      final int size) {
+<span class="fc" id="L92">    return getListBlockHeadersByHashFunction().apply(blockHash, size).get();</span>
   }
 
   @Override
-  public ResultOrError&lt;List&lt;BlockHeader&gt;&gt; listBlockHeaders(long height, int size) {
-<span class="fc" id="L66">    return blockAsyncOperation.listBlockHeaders(height, size).get(getTimeout().getValue(),</span>
-<span class="fc" id="L67">        getTimeout().getUnit());</span>
+  public ResultOrError&lt;List&lt;BlockHeader&gt;&gt; listBlockHeaders(final long height,
+      final int size) {
+<span class="fc" id="L98">    return getListBlockHeadersByHeightFunction().apply(height, size).get();</span>
   }
 
 }
-
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

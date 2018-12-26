@@ -58,7 +58,7 @@ public class Tuple4OrErrorImpl&lt;T1, T2, T3, T4&gt; implements Tuple4OrError&lt
   @Override
   public T1 get1() {
 <span class="fc bfc" id="L60" title="All 2 branches covered.">    if (null == v1) {</span>
-<span class="nc" id="L61">      appendCurrentStackTraceToError();</span>
+<span class="nc" id="L61">      throwError();</span>
     }
 <span class="fc" id="L63">    return v1;</span>
   }
@@ -66,7 +66,7 @@ public class Tuple4OrErrorImpl&lt;T1, T2, T3, T4&gt; implements Tuple4OrError&lt
   @Override
   public T2 get2() {
 <span class="fc bfc" id="L68" title="All 2 branches covered.">    if (null == v2) {</span>
-<span class="nc" id="L69">      appendCurrentStackTraceToError();</span>
+<span class="nc" id="L69">      throwError();</span>
     }
 <span class="fc" id="L71">    return v2;</span>
   }
@@ -74,7 +74,7 @@ public class Tuple4OrErrorImpl&lt;T1, T2, T3, T4&gt; implements Tuple4OrError&lt
   @Override
   public T3 get3() {
 <span class="fc bfc" id="L76" title="All 2 branches covered.">    if (null == v3) {</span>
-<span class="nc" id="L77">      appendCurrentStackTraceToError();</span>
+<span class="nc" id="L77">      throwError();</span>
     }
 <span class="fc" id="L79">    return v3;</span>
   }
@@ -82,7 +82,7 @@ public class Tuple4OrErrorImpl&lt;T1, T2, T3, T4&gt; implements Tuple4OrError&lt
   @Override
   public T4 get4() {
 <span class="fc bfc" id="L84" title="All 2 branches covered.">    if (null == v4) {</span>
-<span class="nc" id="L85">      appendCurrentStackTraceToError();</span>
+<span class="nc" id="L85">      throwError();</span>
     }
 <span class="fc" id="L87">    return v4;</span>
   }

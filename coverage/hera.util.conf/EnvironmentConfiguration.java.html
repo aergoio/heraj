@@ -21,10 +21,15 @@ import java.util.Map;
   public void define(final String key, final Object value) {
 <span class="fc" id="L22">    throw new UnsupportedOperationException(&quot;OS Environment could NOT be changed&quot;);</span>
   }
-  
+
   @Override
   public Object getValue(final String key) {
 <span class="fc" id="L27">    return getenv(key);</span>
+  }
+
+  @Override
+  public void remove(final String key) {
+<span class="nc" id="L32">    throw new UnsupportedOperationException(&quot;OS Environment could NOT be changed&quot;);</span>
   }
 
 }
