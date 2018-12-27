@@ -4,14 +4,19 @@
 
 package hera.util;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
+import org.slf4j.Logger;
 
 /**
  * Base58 utils class. Encoding, decoding logic is copied from bitcoinj.
  */
 public class Base58Utils {
+
+  protected static final Logger logger = getLogger(Base58Utils.class);
 
   protected static final char[] BASE58_CHARS =
       "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray();
@@ -81,12 +86,16 @@ public class Base58Utils {
       return new byte[0];
     }
     // Convert the base58-encoded ASCII chars to a base58 byte sequence (base58 digits).
+
     final byte[] input58 = new byte[input.length()];
     for (int i = 0; i < input.length(); ++i) {
       char c = input.charAt(i);
       int digit = c < 128 ? INDEXES[c] : -1;
       if (digit < 0) {
-        throw new UnsupportedEncodingException("Base58 decoding failed");
+        if (logger.isInfoEnabled()) {
+          logger.info("Input:\n{}", HexUtils.dump(input.getBytes()));
+        }
+        throw new UnsupportedEncodingException("Base58 decoding failed: " + digit + " at " + i);
       }
       input58[i] = (byte) digit;
     }
@@ -170,6 +179,7 @@ public class Base58Utils {
         Arrays.copyOfRange(rawTotal, rawTotal.length - CHECKSUM_LEN, rawTotal.length);
     final byte[] calculatedCheckSum = calculateCheckSum(rawData);
     if (!Arrays.equals(checkSum, calculatedCheckSum)) {
+      logger.info("Checksum is mismatch - Input: {}, Computed: {}", checkSum, calculatedCheckSum);
       throw new IllegalArgumentException("Checksum is mismatch");
     }
     return rawData;
