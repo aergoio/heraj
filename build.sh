@@ -19,14 +19,10 @@ fi
 
 ################################################################################
 # Definition
-VERSION=$(grep " version '" $PROJECT_HOME/build.gradle | cut -d"'" -f2)
-
-export BUILD_WORKSPACE=$PROJECT_HOME/build
-
-if [ -z "$VERSION" ]; then
-  echo "The version not detected. Check build script or environment."
-  exit 1
-fi
+readonly VERSION=$(grep " version '" "$PROJECT_HOME/build.gradle" | cut -d"'" -f2)
+readonly BUILD_WORKSPACE=$PROJECT_HOME/build
+readonly PROJECT_PREFIX="heraj"
+readonly LIB_CORES=("wallet" "smart-contract" "transport")
 
 function print-usage() {
   echo "build.sh [command]"
@@ -37,7 +33,7 @@ function print-usage() {
   echo "  deploy      upload to jcenter"
   echo "  test        test built executable"
   echo "  docs        generate documents"
-  echo "  assemble    assemble distributions"
+  echo "  pack        pack jar into single fat jar file"
 }
 
 function clean-workspace() {
@@ -77,12 +73,26 @@ function execute-documentation() {
   mv $BUILD_WORKSPACE/reports/jacoco/alljacoco/html $BUILD_WORKSPACE/heraj-doc/coverage
 }
 
-function execute-assemble() {
-  rm -rf $PROJECT_HOME/assembly/build/distributions
-  $PROJECT_HOME/gradlew assemble && \
-    (cd $PROJECT_HOME/assembly/build/distributions && tar -xvf *.tar && cd -)
+function execute-pack() {
+  local -r fat_postfix=$(grep "def shadowPostFix" < "$PROJECT_HOME/build.gradle" | awk '{print $4}' | tr -d "'")
+  local -r dest="$PROJECT_HOME/fat"
+
+  rm -rf "$dest" > /dev/null
+  mkdir -p "$dest"
+
+  $PROJECT_HOME/gradlew clean build shadowJar
+  for lib in "${LIB_CORES[@]}"; do
+    local file=$(find . -name "$PROJECT_PREFIX-$lib-$fat_postfix*")
+    cp "$file" "$dest"
+  done
+  echo "  Fat files have been copied to $dest"
 }
 
+
+if [ -z "$VERSION" ]; then
+  echo "The version not detected. Check build script or environment."
+  exit 1
+fi
 
 if [ 0 == $# ]; then
   clean-workspace
@@ -108,8 +118,8 @@ else
       "docs")
         execute-documentation
         ;;
-      "assemble")
-        execute-assemble
+      "pack")
+        execute-pack
         ;;
       *)
         print-usage

@@ -15,6 +15,7 @@ buildscript {
     classpath "gradle.plugin.io.morethan.jmhreport:gradle-jmh-report:0.8.0"
     classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0"
     classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+"
+    classpath "com.github.jengelman.gradle.plugins:shadow:4.0.3"
   }
 }
 group 'io.aergo'
@@ -67,7 +68,7 @@ configure(javaProjects) {
   apply plugin: 'idea'
   apply plugin: 'eclipse'
   apply plugin: 'com.jfrog.bintray'
-
+  apply plugin: 'com.github.johnrengelman.shadow'
 
   def projectBaseName = 'heraj-' + project.name
 
@@ -257,6 +258,13 @@ configure(javaProjects) {
       csv.enabled false
     }
   }
+
+  shadowJar {
+    def shadowPostFix = 'fat'
+    baseName = projectBaseName + "-${shadowPostFix}"
+    classifier = null
+  }
+
 }
 
 configure(exampleProjects) {
