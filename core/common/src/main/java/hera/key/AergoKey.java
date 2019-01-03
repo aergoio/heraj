@@ -152,7 +152,7 @@ public class AergoKey implements KeyPair, Signer {
   }
 
   protected byte[] serialize(final ECDSASignature signature) {
-    final BigInteger order = ECDSAKey.getEcParams().getN();
+    final BigInteger order = ecdsakey.getParams().getN();
     final BigInteger halfOrder = order.divide(BigInteger.valueOf(2L));
 
     final BigInteger r = signature.getR();
@@ -277,7 +277,7 @@ public class AergoKey implements KeyPair, Signer {
     ++index;
 
     // parse integer
-    final BigInteger order = ECDSAKey.getEcParams().getN();
+    final BigInteger order = ecdsakey.getParams().getN();
     byte[] rawInteger = Arrays.copyOfRange(source, index, index + length);
     final BigInteger r = new BigInteger(rawInteger);
     if (r.compareTo(order) >= 0) {

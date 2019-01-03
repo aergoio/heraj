@@ -5,6 +5,7 @@
 package hera.util.pki;
 
 import static java.security.Security.addProvider;
+import static java.security.Security.getProvider;
 import static org.bouncycastle.jce.ECNamedCurveTable.getParameterSpec;
 import static org.bouncycastle.jce.provider.BouncyCastleProvider.PROVIDER_NAME;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -18,7 +19,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.Security;
 import java.security.spec.PKCS8EncodedKeySpec;
+import org.bouncycastle.crypto.params.ECDomainParameters;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.jce.spec.ECPrivateKeySpec;
@@ -34,9 +37,17 @@ public class ECDSAKeyGenerator implements KeyGenerator<ECDSAKey> {
 
   protected static final ECNamedCurveParameterSpec ecSpec;
 
+  protected static final ECDomainParameters ecParams;
+
   static {
+    java.security.Provider provider = getProvider(PROVIDER_NAME);
+    if (provider != null) {
+      Security.removeProvider(PROVIDER_NAME);
+    }
     addProvider(new BouncyCastleProvider());
     ecSpec = getParameterSpec(CURVE_NAME);
+    ecParams = new ECDomainParameters(ecSpec.getCurve(), ecSpec.getG(), ecSpec.getN(),
+        ecSpec.getH(), ecSpec.getSeed());
   }
 
   protected final transient Logger logger = getLogger(getClass());
@@ -58,7 +69,7 @@ public class ECDSAKeyGenerator implements KeyGenerator<ECDSAKey> {
     logger.debug("Private key: {}", privateKey);
     final PublicKey publicKey = pair.getPublic();
     logger.debug("Public key: {}", publicKey);
-    return new ECDSAKey(privateKey, publicKey);
+    return new ECDSAKey(privateKey, publicKey, ecParams);
   }
 
   /**
@@ -100,7 +111,7 @@ public class ECDSAKeyGenerator implements KeyGenerator<ECDSAKey> {
         .multiply(((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD());
     final ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(Q, ecSpec);
     final PublicKey publicKey = factory.generatePublic(ecPublicKeySpec);
-    return new ECDSAKey(privateKey, publicKey);
+    return new ECDSAKey(privateKey, publicKey, ecParams);
   }
 
 }

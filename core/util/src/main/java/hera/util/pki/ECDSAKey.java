@@ -5,8 +5,6 @@
 package hera.util.pki;
 
 import static hera.util.IoUtils.stream;
-import static java.security.Security.addProvider;
-import static org.bouncycastle.jce.ECNamedCurveTable.getParameterSpec;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.util.HexUtils;
@@ -25,8 +23,6 @@ import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.crypto.params.ECPublicKeyParameters;
 import org.bouncycastle.crypto.signers.ECDSASigner;
 import org.bouncycastle.crypto.signers.HMacDSAKCalculator;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.slf4j.Logger;
 
 @EqualsAndHashCode(exclude = "logger")
@@ -35,15 +31,6 @@ public class ECDSAKey {
 
   protected static final String CURVE_NAME = "secp256k1";
 
-  @Getter
-  protected static final ECDomainParameters ecParams;
-
-  static {
-    addProvider(new BouncyCastleProvider());
-    ECNamedCurveParameterSpec ecSpec = getParameterSpec(CURVE_NAME);
-    ecParams = new ECDomainParameters(ecSpec.getCurve(), ecSpec.getG(), ecSpec.getN(),
-        ecSpec.getH(), ecSpec.getSeed());
-  }
 
   protected final transient Logger logger = getLogger(getClass());
 
@@ -52,10 +39,12 @@ public class ECDSAKey {
    *
    * @param privatekey a private key
    * @param publicKey a public key
+   * @param ecParams an ec parameters
    * @return {@link ECDSAKey}
    */
-  public static ECDSAKey of(final PrivateKey privatekey, final PublicKey publicKey) {
-    return new ECDSAKey(privatekey, publicKey);
+  public static ECDSAKey of(final PrivateKey privatekey, final PublicKey publicKey,
+      final ECDomainParameters ecParams) {
+    return new ECDSAKey(privatekey, publicKey, ecParams);
   }
 
   @Getter
@@ -63,6 +52,9 @@ public class ECDSAKey {
 
   @Getter
   protected final PublicKey publicKey;
+
+  @Getter
+  protected final ECDomainParameters params;
 
   /**
    * Sign to plain text.
@@ -100,12 +92,12 @@ public class ECDSAKey {
     final ECDSASigner signer = new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));
     final BigInteger d = ((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD();
     logger.trace("D: {}", d);
-    final ECPrivateKeyParameters privKey = new ECPrivateKeyParameters(d, ecParams);
+    final ECPrivateKeyParameters privKey = new ECPrivateKeyParameters(d, params);
     signer.init(true, privKey);
     final BigInteger[] components = signer.generateSignature(message);
 
     final BigInteger r = components[0];
-    final BigInteger s = ecParams.getN().subtract(components[1]);
+    final BigInteger s = params.getN().subtract(components[1]);
 
     return new ECDSASignature(r, s);
   }
@@ -143,7 +135,7 @@ public class ECDSAKey {
     final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =
         (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
     final ECDSASigner signer = new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));
-    final ECPublicKeyParameters privKey = new ECPublicKeyParameters(ecPublicKey.getQ(), ecParams);
+    final ECPublicKeyParameters privKey = new ECPublicKeyParameters(ecPublicKey.getQ(), params);
     signer.init(false, privKey);
     return signer.verifySignature(message, signature.getR(), signature.getS());
   }

@@ -7,5 +7,13 @@ dependencies {
   implementation project(":core:util")
   implementation project(":core:common")
   implementation project(":core:transport")
-  implementation "org.bouncycastle:bcpkix-jdk15on:1.60"
+  implementation "org.bouncycastle:bcpkix-jdk15on:${bouncyCastleVersion}"
+
+  testImplementation 'io.opentracing:opentracing-api:0.31.0'
+  testImplementation 'io.opentracing:opentracing-util:0.31.0'
+  testImplementation 'io.opentracing.contrib:grpc-opentracing:0.2.0'
+  testImplementation 'io.opentracing.brave:brave-opentracing:0.33.6'
+
+  testImplementation 'io.zipkin.reporter2:zipkin-sender-okhttp3:2.7.10'
+  testImplementation 'io.zipkin.reporter2:zipkin-sender-kafka11:2.7.10'
 }
