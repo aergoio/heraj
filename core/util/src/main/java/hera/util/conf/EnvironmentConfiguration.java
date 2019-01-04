@@ -8,13 +8,14 @@ import static java.lang.System.getenv;
 import static java.util.Collections.unmodifiableMap;
 
 import hera.util.Configuration;
+import java.util.HashMap;
 import java.util.Map;
 
 public class EnvironmentConfiguration extends AbstractConfiguration implements Configuration {
 
   @Override
   public Map<String, Object> asMap() {
-    return unmodifiableMap(getenv());
+    return unmodifiableMap(new HashMap<String, Object>(getenv()));
   }
 
   @Override

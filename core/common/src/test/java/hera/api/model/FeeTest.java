@@ -21,9 +21,9 @@ public class FeeTest {
 
     for (final Object[] testParameter : testParameters) {
       final Aer price = (Aer) testParameter[0];
-      final long limit = (long) testParameter[1];
+      final long limit = (Long) testParameter[1];
       final Aer priceExpected = (Aer) testParameter[2];
-      final long limitExpected = (long) testParameter[3];
+      final long limitExpected = (Long) testParameter[3];
 
       final Fee fee = Fee.of(price, limit);
       assertEquals(priceExpected, fee.getPrice());

@@ -7,8 +7,8 @@ package hera.util;
 import static hera.util.ValidationUtils.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import com.google.common.io.BaseEncoding;
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,50 +19,18 @@ import java.io.Writer;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import org.slf4j.Logger;
 
 public class IoUtils {
   protected static final Logger logger = getLogger(IoUtils.class);
 
   /**
-   * Call #close if possible.
-   * <p>
-   *   Call #close if the element of {@code closeables} is next:
-   * </p>
-   * <ul>
-   *   <li>{@link Closeable}</li>
-   *   <li>{@link AutoCloseable}</li>
-   * </ul>
-   * <p>
-   *   Ignore on exception
-   * </p>
-   *
-   * @param closeables object instances to close
-   */
-  public static void tryClose(final Object... closeables) {
-    for (final Object obj : closeables) {
-      try {
-        if (obj instanceof Closeable) {
-          final Closeable closeable = (Closeable) obj;
-          closeable.close();
-        } else if (obj instanceof AutoCloseable) {
-          final AutoCloseable closeable = (AutoCloseable) obj;
-          closeable.close();
-        }
-      } catch (final Throwable th) {
-        logger.trace("Ignore exception: {}", th);
-      }
-    }
-  }
-
-  /**
    * Call #flush if possible.
    * <p>
-   *   Call #flush if the element of {@code flushables} is next:
+   * Call #flush if the element of {@code flushables} is next:
    * </p>
    * <ul>
-   *   <li>{@link Flushable}</li>
+   * <li>{@link Flushable}</li>
    * </ul>
    *
    * @param flushable object instances to flush
@@ -82,8 +50,8 @@ public class IoUtils {
   /**
    * Process streaming.
    *
-   * @param in        {@link InputStream}
-   * @param consumer  instance to use streaming
+   * @param in {@link InputStream}
+   * @param consumer instance to use streaming
    *
    * @return read bytes
    *
@@ -107,7 +75,7 @@ public class IoUtils {
    * Redirect {@code from} to {@code to}.
    *
    * @param from {@link InputStream} to read
-   * @param to   {@link OutputStream} to write
+   * @param to {@link OutputStream} to write
    *
    * @return the number of bytes to redirect
    *
@@ -116,7 +84,12 @@ public class IoUtils {
   public static int redirect(final InputStream from, final OutputStream to) throws IOException {
     assertNotNull(to);
     try {
-      return stream(from, to::write);
+      return stream(from, new StreamConsumer() {
+        @Override
+        public void apply(byte[] bytes, int offset, int length) throws Exception {
+          to.write(bytes, offset, length);
+        }
+      });
     } catch (final Exception e) {
       throw (IOException) e;
     }
@@ -193,10 +166,10 @@ public class IoUtils {
   /**
    * Calculate checksum.
    *
-   * @param   in {@link InputStream} containing content
-   * @return  checksum
-   * @throws  IOException              Fail to read content
-   * @throws  NoSuchAlgorithmException No MD5 algorithm
+   * @param in {@link InputStream} containing content
+   * @return checksum
+   * @throws IOException Fail to read content
+   * @throws NoSuchAlgorithmException No MD5 algorithm
    */
   public static byte[] getChecksum(final InputStream in)
       throws IOException, NoSuchAlgorithmException {
@@ -211,14 +184,14 @@ public class IoUtils {
   /**
    * Calculate checksum as string.
    *
-   * @param   in {@link InputStream} containing content
-   * @return  checksum
-   * @throws  IOException              Fail to read content
-   * @throws  NoSuchAlgorithmException No MD5 algorithm
+   * @param in {@link InputStream} containing content
+   * @return checksum
+   * @throws IOException Fail to read content
+   * @throws NoSuchAlgorithmException No MD5 algorithm
    */
   public static String getChecksumAsString(final InputStream in)
       throws IOException, NoSuchAlgorithmException {
     final byte[] bytes = getChecksum(in);
-    return Base64.getEncoder().encodeToString(bytes);
+    return BaseEncoding.base64().encode(bytes);
   }
 }

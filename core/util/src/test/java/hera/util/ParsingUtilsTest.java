@@ -28,9 +28,9 @@ public class ParsingUtilsTest {
     assertFalse(ParsingUtils.convertToBoolean(null, false));
 
     for (final Object[] testParameter : testParameters) {
-      boolean expected = (boolean) testParameter[2];
+      boolean expected = (Boolean) testParameter[2];
       String str = (String) testParameter[0];
-      boolean defaultValue = (boolean) testParameter[1];
+      boolean defaultValue = (Boolean) testParameter[1];
       assertEquals(expected, ParsingUtils.convertToBoolean(str, defaultValue));
     }
   }
@@ -42,7 +42,7 @@ public class ParsingUtilsTest {
         {"1", true}, {"Yes", true}, {"True", true}};
 
     for (final Object[] testParameter : testParameters) {
-      boolean expected = (boolean) testParameter[1];
+      boolean expected = (Boolean) testParameter[1];
       String val = (String) testParameter[0];
       assertEquals(expected, ParsingUtils.convertToBoolean(val));
     }
@@ -54,7 +54,7 @@ public class ParsingUtilsTest {
         new Object[][] {{"1", 1}, {"10", 10}, {"100", 100}, {"Not", 0}};
 
     for (final Object[] testParameter : testParameters) {
-      int expected = (int) testParameter[1];
+      int expected = (Integer) testParameter[1];
       String val = (String) testParameter[0];
       assertEquals(expected, ParsingUtils.convertToInt(val));
     }
@@ -69,9 +69,9 @@ public class ParsingUtilsTest {
     assertEquals(1, ParsingUtils.convertToInt(null, 1));
 
     for (final Object[] testParameter : testParameters) {
-      int expected = (int) testParameter[2];
+      int expected = (Integer) testParameter[2];
       String val = (String) testParameter[0];
-      int defaultValue = (int) testParameter[1];
+      int defaultValue = (Integer) testParameter[1];
       assertEquals(expected, ParsingUtils.convertToInt(val, defaultValue));
     }
   }
@@ -82,7 +82,7 @@ public class ParsingUtilsTest {
         new Object[][] {{"1", 1L}, {"10", 10L}, {"100", 100L}, {"Not", 0L}};
 
     for (final Object[] testParameter : testParameters) {
-      long expected = (long) testParameter[1];
+      long expected = (Long) testParameter[1];
       String val = (String) testParameter[0];
       assertEquals(expected, ParsingUtils.convertToLong(val));
     }
@@ -97,9 +97,9 @@ public class ParsingUtilsTest {
     assertEquals(1, ParsingUtils.convertToLong(null, 1));
 
     for (final Object[] testParameter : testParameters) {
-      long expected = (long) testParameter[2];
+      long expected = (Long) testParameter[2];
       String val = (String) testParameter[0];
-      long defaultValue = (long) testParameter[1];
+      long defaultValue = (Long) testParameter[1];
       assertEquals(expected, ParsingUtils.convertToLong(val, defaultValue));
     }
   }
@@ -110,7 +110,7 @@ public class ParsingUtilsTest {
         new Object[][] {{"1.1", 1.1}, {"10.21", 10.21}, {"100.321", 100.321}, {"Not", 0.0}};
 
     for (final Object[] testParameter : testParameters) {
-      double expected = (double) testParameter[1];
+      double expected = (Double) testParameter[1];
       String val = (String) testParameter[0];
       assertEquals(expected, ParsingUtils.convertToDouble(val), 1e-15);
     }
@@ -125,9 +125,9 @@ public class ParsingUtilsTest {
     assertEquals(1.0, ParsingUtils.convertToDouble(null, 1.0), 1e-15);
 
     for (final Object[] testParameter : testParameters) {
-      double expected = (double) testParameter[2];
+      double expected = (Double) testParameter[2];
       String val = (String) testParameter[0];
-      double defaultValue = (double) testParameter[1];
+      double defaultValue = (Double) testParameter[1];
       assertEquals(expected, ParsingUtils.convertToDouble(val, defaultValue), 1e-15);
     }
   }
@@ -142,9 +142,9 @@ public class ParsingUtilsTest {
     assertEquals(1L, ParsingUtils.convertToCapacity(null, 1L));
 
     for (final Object[] testParameter : testParameters) {
-      long expected = (long) testParameter[2];
+      long expected = (Long) testParameter[2];
       String str = (String) testParameter[0];
-      long defaultValue = (long) testParameter[1];
+      long defaultValue = (Long) testParameter[1];
 
       assertEquals(expected, ParsingUtils.convertToCapacity(str, defaultValue));
     }
@@ -153,11 +153,11 @@ public class ParsingUtilsTest {
   @Test
   public void testConvertToTime() throws ParseException {
     final Object[][] testParameters = new Object[][] {{"1µs", 1L}, {"1.1µs", 1L},
-        {"1microseconds", 1L}, {"1ms", 1_000L}, {"1.1ms", 1_100L}, {"1milliseconds", 1_000L},
-        {"1.1s", 1_100_000L}, {"1s", 1_000_000L}, {"1sec", 1_000_000L}, {"1seconds", 1_000_000L},
-        {"1m", 60_000_000L}, {"1.1m", 66_000_000L}, {"1min", 60_000_000L},
-        {"1minutes", 60_000_000L}, {"1h", 3_600_000_000L}, {"1.1h", 3_960_000_000L},
-        {"1hr", 3_600_000_000L}, {"1hours", 3_600_000_000L}};
+        {"1microseconds", 1L}, {"1ms", 1000L}, {"1.1ms", 1100L}, {"1milliseconds", 1000L},
+        {"1.1s", 1100000L}, {"1s", 1000000L}, {"1sec", 1000000L}, {"1seconds", 1000000L},
+        {"1m", 60000000L}, {"1.1m", 66000000L}, {"1min", 60000000L},
+        {"1minutes", 60000000L}, {"1h", 3600000000L}, {"1.1h", 3960000000L},
+        {"1hr", 3600000000L}, {"1hours", 3600000000L}};
 
     try {
       ParsingUtils.convertToTime("Not");
@@ -167,7 +167,7 @@ public class ParsingUtilsTest {
     }
 
     for (final Object[] testParameter : testParameters) {
-      long expected = (long) testParameter[1];
+      long expected = (Long) testParameter[1];
       String val = (String) testParameter[0];
       assertEquals(expected, ParsingUtils.convertToTime(val));
     }
@@ -175,20 +175,20 @@ public class ParsingUtilsTest {
 
   @Test
   public void testParse() throws ParseException {
-    final Object[][] testParameters = new Object[][] {{"1ms", TimeUnit.NANOSECONDS, 1_000_000L},
-        {"1ms", TimeUnit.MICROSECONDS, 1_000L}, {"1ms", TimeUnit.MILLISECONDS, 1L},
+    final Object[][] testParameters = new Object[][] {{"1ms", TimeUnit.NANOSECONDS, 1000000L},
+        {"1ms", TimeUnit.MICROSECONDS, 1000L}, {"1ms", TimeUnit.MILLISECONDS, 1L},
         {"1ms", TimeUnit.SECONDS, 0L}, {"1ms", TimeUnit.MINUTES, 0L},
         {"1ms", TimeUnit.HOURS, 0L}, {"1ms", TimeUnit.DAYS, 0L},
-        {"1s", TimeUnit.NANOSECONDS, 1_000_000_000L}, {"1s", TimeUnit.MICROSECONDS, 1_000_000L},
-        {"1s", TimeUnit.MILLISECONDS, 1_000L}, {"1s", TimeUnit.SECONDS, 1L},
+        {"1s", TimeUnit.NANOSECONDS, 1000000000L}, {"1s", TimeUnit.MICROSECONDS, 1000000L},
+        {"1s", TimeUnit.MILLISECONDS, 1000L}, {"1s", TimeUnit.SECONDS, 1L},
         {"1s", TimeUnit.MINUTES, 0L}, {"1s", TimeUnit.HOURS, 0L},
-        {"1s", TimeUnit.DAYS, 0L}, {"1m", TimeUnit.NANOSECONDS, 60_000_000_000L},
-        {"1m", TimeUnit.MICROSECONDS, 60_000_000L}, {"1m", TimeUnit.MILLISECONDS, 60_000L},
+        {"1s", TimeUnit.DAYS, 0L}, {"1m", TimeUnit.NANOSECONDS, 60000000000L},
+        {"1m", TimeUnit.MICROSECONDS, 60000000L}, {"1m", TimeUnit.MILLISECONDS, 60000L},
         {"1m", TimeUnit.SECONDS, 60L}, {"1m", TimeUnit.MINUTES, 1L},
         {"1m", TimeUnit.HOURS, 0L}, {"1m", TimeUnit.DAYS, 0L}};
 
     for (final Object[] testParameter : testParameters) {
-      long expected = (long) testParameter[2];
+      long expected = (Long) testParameter[2];
       String val = (String) testParameter[0];
       TimeUnit unit = (TimeUnit) testParameter[1];
       assertEquals(expected, ParsingUtils.parse(val, unit));

@@ -4,7 +4,6 @@
 
 package hera.api.model.internal;
 
-import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
@@ -56,7 +55,7 @@ public class HostnameAndPort {
     logger.trace("Hostname: {}", hostname);
     final String portStr = (separatorIndex < 0) ? null : str.substring(portIndex);
     logger.trace("Port: {}", portStr);
-    final int port = ofNullable(portStr).map(Integer::valueOf).orElse(-1);
+    final int port = null != portStr ? Integer.valueOf(portStr) : -1;
     return new HostnameAndPort(hostname, port);
   }
 

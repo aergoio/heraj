@@ -10,17 +10,21 @@ public class StateConditionFactory {
     return condition;
   }
 
-  @SuppressWarnings({
-      "unchecked", "rawtypes"
-  })
   public static <StateT> StateCondition<StateT> when(final StateT... condition) {
-    return (state) -> state.isState(condition);
+    return new StateCondition<StateT>() {
+      @Override
+      public boolean evaluate(StateMachine<StateT> state) {
+        return state.isState(condition);
+      }
+    };
   }
 
-  @SuppressWarnings({
-      "unchecked", "rawtypes"
-  })
   public static <StateT> StateCondition<StateT> not(final StateT... states) {
-    return (state) -> !state.isState(states);
+    return new StateCondition<StateT>() {
+      @Override
+      public boolean evaluate(StateMachine<StateT> state) {
+        return !state.isState(states);
+      }
+    };
   }
 }

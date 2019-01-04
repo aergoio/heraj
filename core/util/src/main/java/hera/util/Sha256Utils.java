@@ -7,7 +7,6 @@ package hera.util;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.stream.IntStream;
 
 public class Sha256Utils {
   /**
@@ -84,7 +83,9 @@ public class Sha256Utils {
       return null;
     }
     final StringBuilder buffer = new StringBuilder(raw.length());
-    IntStream.range(0, raw.length()).forEach(i -> buffer.append("*"));
+    for (int i = 0; i < raw.length(); ++i) {
+      buffer.append("*");
+    }
     return buffer.toString();
   }
 }

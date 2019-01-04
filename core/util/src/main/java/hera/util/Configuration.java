@@ -6,7 +6,6 @@ package hera.util;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public interface Configuration {
 
@@ -17,8 +16,6 @@ public interface Configuration {
   void define(String key, Object value);
 
   Object get(String key);
-
-  Optional<Object> getAsOptional(String key);
 
   String getAsString(String key, String defaultValue);
 

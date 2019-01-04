@@ -4,7 +4,6 @@
 
 package hera.key;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
@@ -42,6 +41,8 @@ import org.slf4j.Logger;
 @ApiStability.Unstable
 @EqualsAndHashCode
 public class AergoKey implements KeyPair, Signer {
+
+  protected static final String CHAR_SET = "UTF-8";
 
   protected static final int HEADER_MAGIC = 0x30;
 
@@ -107,7 +108,7 @@ public class AergoKey implements KeyPair, Signer {
   public AergoKey(final EncryptedPrivateKey encryptedPrivateKey, final String password) {
     try {
       final byte[] rawPrivateKey =
-          decrypt(encryptedPrivateKey.getBytesValue().getValue(), password.getBytes(UTF_8));
+          decrypt(encryptedPrivateKey.getBytesValue().getValue(), password.getBytes(CHAR_SET));
       this.ecdsakey = new ECDSAKeyGenerator().create(new BigInteger(1, rawPrivateKey));
       this.address = AddressUtils.deriveAddress(this.ecdsakey.getPublicKey());
     } catch (final Exception e) {
@@ -139,7 +140,7 @@ public class AergoKey implements KeyPair, Signer {
   public Transaction sign(final RawTransaction rawTransaction) {
     try {
       final BytesValue plainText = TransactionUtils.calculateHash(rawTransaction).getBytesValue();
-      final ECDSASignature ecdsaSignature = ecdsakey.sign(plainText.get());
+      final ECDSASignature ecdsaSignature = ecdsakey.sign(plainText.getInputStream());
       final BytesValue serialized = BytesValue.of(serialize(ecdsaSignature));
       logger.trace("Serialized signature: {}", serialized);
       final Signature signature = Signature.of(serialized);
@@ -194,7 +195,7 @@ public class AergoKey implements KeyPair, Signer {
     try {
       final BytesValue plainText = TransactionUtils.calculateHash(transaction).getBytesValue();
       final ECDSASignature parsedSignature = parseSignature(transaction.getSignature());
-      return ecdsakey.verify(plainText.get(), parsedSignature);
+      return ecdsakey.verify(plainText.getInputStream(), parsedSignature);
     } catch (final Exception e) {
       logger.info("Verification failed by exception {}", e.getLocalizedMessage());
       return false;
@@ -285,14 +286,14 @@ public class AergoKey implements KeyPair, Signer {
     }
     index += length;
 
-    return new Pair<>(r, index);
+    return new Pair<BigInteger, Integer>(r, index);
   }
 
   @Override
   public EncryptedPrivateKey export(final String password) {
     try {
       final byte[] rawPrivateKey = getRawPrivateKey();
-      final byte[] rawPassword = password.getBytes(UTF_8);
+      final byte[] rawPassword = password.getBytes(CHAR_SET);
       return new EncryptedPrivateKey(BytesValue.of(encrypt(rawPrivateKey, rawPassword)));
     } catch (Exception e) {
       throw new HerajException(e);

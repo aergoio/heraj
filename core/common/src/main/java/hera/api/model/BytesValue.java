@@ -10,11 +10,10 @@ import hera.util.HexUtils;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.function.Supplier;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public class BytesValue implements Supplier<InputStream> {
+public class BytesValue {
 
   public static final BytesValue EMPTY = new BytesValue(null);
 
@@ -81,8 +80,7 @@ public class BytesValue implements Supplier<InputStream> {
     return Arrays.equals(this.value, other.value);
   }
 
-  @Override
-  public InputStream get() {
+  public InputStream getInputStream() {
     return new ByteArrayInputStream(getValue());
   }
 

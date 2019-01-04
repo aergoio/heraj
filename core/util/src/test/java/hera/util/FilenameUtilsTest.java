@@ -37,7 +37,7 @@ public class FilenameUtilsTest {
     for (final Object[] testParameter : testParameters) {
       String expected = (String) testParameter[2];
       String filename = (String) testParameter[0];
-      boolean isGreedy = (boolean) testParameter[1];
+      boolean isGreedy = (Boolean) testParameter[1];
       assertEquals(expected, FilenameUtils.getExtension(filename, isGreedy));
     }
   }

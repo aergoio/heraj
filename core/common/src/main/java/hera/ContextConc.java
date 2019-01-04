@@ -12,7 +12,6 @@ import hera.annotation.ApiStability;
 import hera.util.Configuration;
 import hera.util.conf.InMemoryConfiguration;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -122,7 +121,7 @@ public final class ContextConc implements Context {
   @Override
   public <StrategyT extends Strategy> Context withStrategy(final StrategyT strategy) {
     logger.debug("New strategy: {}", strategy);
-    final Set<Strategy> newStrategies = new HashSet<>(this.strategies);
+    final Set<Strategy> newStrategies = new HashSet<Strategy>(this.strategies);
     if (newStrategies.contains(strategy)) {
       newStrategies.remove(strategy);
     }
@@ -141,7 +140,7 @@ public final class ContextConc implements Context {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <StrategyT extends Strategy> Optional<StrategyT> getStrategy(
+  public <StrategyT extends Strategy> StrategyT getStrategy(
       final Class<StrategyT> strategyClass) {
     StrategyT ret = null;
     for (final Strategy strategy : getStrategies()) {
@@ -150,19 +149,23 @@ public final class ContextConc implements Context {
         break;
       }
     }
-    return (Optional<StrategyT>) Optional.ofNullable(ret);
+    return ret;
   }
 
   @Override
   public <StrategyT extends Strategy> Context withoutStrategy(final Class<StrategyT> strategy) {
-    final Set<Strategy> newStrategies = new HashSet<>(this.strategies);
-    this.strategies.stream().filter(strategy::isInstance).forEach(newStrategies::remove);
+    final Set<Strategy> newStrategies = new HashSet<Strategy>(this.strategies);
+    for (final Strategy oldStrategy : this.strategies) {
+      if (strategy.isInstance(oldStrategy)) {
+        newStrategies.remove(oldStrategy);
+      }
+    }
     return new ContextConc(this.parent, this.scope, this.configuration, newStrategies);
   }
 
   @Override
   public Set<Strategy> getStrategies() {
-    final Set<Strategy> strategies = new HashSet<>(this.strategies);
+    final Set<Strategy> strategies = new HashSet<Strategy>(this.strategies);
     for (final Strategy strategy : strategies) {
       if (strategy instanceof ContextAware) {
         ((ContextAware) strategy).setContext(this);

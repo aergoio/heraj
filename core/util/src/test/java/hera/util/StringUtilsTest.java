@@ -24,7 +24,7 @@ public class StringUtilsTest {
         new Object[][] {{"", true}, {" ", true}, {"\n", true}, {"hello, world", false}};
 
     for (final Object[] testParameter : testParameters) {
-      boolean expected = (boolean) testParameter[1];
+      boolean expected = (Boolean) testParameter[1];
       CharSequence str = (CharSequence) testParameter[0];
       assertEquals(expected, StringUtils.isEmpty(str));
     }
@@ -35,7 +35,7 @@ public class StringUtilsTest {
     final Object[][] testParameters = new Object[][] {{"", 0}, {" ", 1}, {"hello, world", 12}};
 
     for (final Object[] testParameter : testParameters) {
-      int expected = (int) testParameter[1];
+      int expected = (Integer) testParameter[1];
       CharSequence str = (CharSequence) testParameter[0];
       assertEquals(expected, StringUtils.length(str));
     }
@@ -47,7 +47,7 @@ public class StringUtilsTest {
         new Object[][] {{"", false}, {" ", true}, {"\n", true}, {"hello, world", true}};
 
     for (final Object[] testParameter : testParameters) {
-      boolean expected = (boolean) testParameter[1];
+      boolean expected = (Boolean) testParameter[1];
       CharSequence str = (CharSequence) testParameter[0];
       assertEquals(expected, StringUtils.hasLength(str));
     }
@@ -59,7 +59,7 @@ public class StringUtilsTest {
         new Object[][] {{"", false}, {" ", false}, {"\n", false}, {"hello, world", true}};
 
     for (final Object[] testParameter : testParameters) {
-      boolean expected = (boolean) testParameter[1];
+      boolean expected = (Boolean) testParameter[1];
       CharSequence str = (CharSequence) testParameter[0];
       assertEquals(expected, StringUtils.hasText(str));
     }
@@ -122,7 +122,7 @@ public class StringUtilsTest {
       String expected = (String) testParameter[3];
       String string = (String) testParameter[0];
       String delimiter = (String) testParameter[1];
-      int index = (int) testParameter[2];
+      int index = (Integer) testParameter[2];
       assertEquals(expected, StringUtils.split(string, delimiter, index));
     }
   }
@@ -210,7 +210,7 @@ public class StringUtilsTest {
     for (final Object[] testParameter : testParameters) {
       String expected = (String) testParameter[2];
       String word = (String) testParameter[0];
-      int repeat = (int) testParameter[1];
+      int repeat = (Integer) testParameter[1];
       assertEquals(expected, StringUtils.multiply(word, repeat));
     }
   }
@@ -235,7 +235,7 @@ public class StringUtilsTest {
       String expected = (String) testParameter[3];
       StringBuilder buffer = (StringBuilder) testParameter[0];
       String word = (String) testParameter[1];
-      int repeat = (int) testParameter[2];
+      int repeat = (Integer) testParameter[2];
       StringUtils.multiply(buffer, word, repeat);
       assertEquals(expected, buffer.toString());
     }
@@ -253,7 +253,7 @@ public class StringUtilsTest {
     for (final Object[] testParameter : testParameters) {
       String expected = (String) testParameter[2];
       String word = (String) testParameter[0];
-      int repeat = (int) testParameter[1];
+      int repeat = (Integer) testParameter[1];
       assertEquals(expected, StringUtils.repeat(word, repeat));
     }
   }
@@ -282,9 +282,9 @@ public class StringUtilsTest {
     assertEquals(0, StringUtils.countMatches("\n", 'a'));
 
     for (final Object[] testParameter : testParameters) {
-      int expected = (int) testParameter[2];
+      int expected = (Integer) testParameter[2];
       String str = (String) testParameter[0];
-      char ch = (char) testParameter[1];
+      char ch = (Character) testParameter[1];
       assertEquals(expected, StringUtils.countMatches(str, ch));
     }
   }

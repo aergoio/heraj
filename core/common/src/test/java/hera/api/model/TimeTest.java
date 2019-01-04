@@ -14,7 +14,7 @@ public class TimeTest {
 
   @Test
   public void testConversion() {
-    final long baseTimeInMicroSeconds = 100_000_000_000_000_000L;
+    final long baseTimeInMicroSeconds = 100000000000000000L;
     final TimeUnit timeUnit = TimeUnit.MICROSECONDS;
     final Time time = Time.of(baseTimeInMicroSeconds);
     assertEquals(timeUnit.toNanos(baseTimeInMicroSeconds), time.toNanoseconds());

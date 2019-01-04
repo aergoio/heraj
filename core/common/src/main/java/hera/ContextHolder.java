@@ -19,7 +19,7 @@ public class ContextHolder {
       new ThreadLocal<Map<Integer, Context>>() {
         @Override
         public Map<Integer, Context> initialValue() {
-          return new HashMap<>();
+          return new HashMap<Integer, Context>();
         }
       };
 
@@ -27,9 +27,16 @@ public class ContextHolder {
     threadLocal.get().put(identityHashCode(keyObject), context);
   }
 
+  /**
+   * Get context of {@code keyObject}.
+   *
+   * @param keyObject a context key
+   * @return a context
+   */
   public static Context get(final Object keyObject) {
-    return threadLocal.get().getOrDefault(identityHashCode(keyObject),
-        EmptyContext.getInstance());
+    final int key = identityHashCode(keyObject);
+    final Context context = threadLocal.get().get(key);
+    return null != context ? context : EmptyContext.getInstance();
   }
 
 }

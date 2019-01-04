@@ -6,7 +6,6 @@
 package hera;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableSet;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -14,8 +13,8 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.util.Configuration;
 import hera.util.conf.InMemoryConfiguration;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -48,7 +47,7 @@ public class EmptyContext implements Context {
   protected Configuration configuration = new InMemoryConfiguration(true);
 
   @Getter
-  protected Set<Strategy> strategies = unmodifiableSet(emptySet());
+  protected Set<Strategy> strategies = unmodifiableSet(Collections.<Strategy>emptySet());
 
   @Override
   public Context withScope(final String scope) {
@@ -89,11 +88,13 @@ public class EmptyContext implements Context {
     return this;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public <StrategyT extends Strategy> Context withStrategy(final StrategyT strategy) {
     logger.debug("New strategy: {}", strategy);
     final ContextConc newContext =
-        new ContextConc(this, getScope(), getConfiguration(), new HashSet<>(asList(strategy)));
+        new ContextConc(this, getScope(), getConfiguration(),
+            new HashSet<Strategy>(asList(strategy)));
     logger.debug("New context: {}", newContext);
     return newContext;
   }
@@ -101,7 +102,7 @@ public class EmptyContext implements Context {
   @Override
   public Context withStrategies(final Set<Strategy> strategies) {
     logger.debug("New strategies: {}", strategies);
-    final Set<Strategy> newStrategies = new HashSet<>(strategies);
+    final Set<Strategy> newStrategies = new HashSet<Strategy>(strategies);
     final ContextConc newContext =
         new ContextConc(this, getScope(), getConfiguration(), newStrategies);
     logger.debug("New context: {}", newContext);
@@ -109,9 +110,9 @@ public class EmptyContext implements Context {
   }
 
   @Override
-  public <StrategyT extends Strategy> Optional<StrategyT> getStrategy(
+  public <StrategyT extends Strategy> StrategyT getStrategy(
       final Class<StrategyT> strategyClass) {
-    return Optional.empty();
+    return null;
   }
 
   @Override

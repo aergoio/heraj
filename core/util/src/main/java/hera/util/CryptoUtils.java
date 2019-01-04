@@ -6,6 +6,7 @@ package hera.util;
 
 import static java.lang.System.arraycopy;
 
+import com.google.common.io.BaseEncoding;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
@@ -125,7 +126,7 @@ public class CryptoUtils {
     final javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CIPHER_NAME);
     cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, secretKeySpec);
     final byte[] aes128ecb = cipher.doFinal(message);
-    return java.util.Base64.getEncoder().encodeToString(aes128ecb);
+    return BaseEncoding.base64().encode(aes128ecb);
   }
 
   /**
@@ -207,7 +208,7 @@ public class CryptoUtils {
   public static byte[] decryptFromAes128EcbWithBase64(final String source,
       final SecretKeySpec secretKeySpec) throws NoSuchAlgorithmException, NoSuchPaddingException,
       InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-    final byte[] decodedBase64 = java.util.Base64.getDecoder().decode(source);
+    final byte[] decodedBase64 = BaseEncoding.base64().decode(source);
     final javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CIPHER_NAME);
     cipher.init(javax.crypto.Cipher.DECRYPT_MODE, secretKeySpec);
     final byte[] decoded = cipher.doFinal(decodedBase64);

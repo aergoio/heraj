@@ -105,7 +105,7 @@ public class StringUtils {
     if (null == string || null == delimiter) {
       return null;
     }
-    final ArrayList<String> words = new ArrayList<>();
+    final ArrayList<String> words = new ArrayList<String>();
 
     int from = 0;
     int to = 0;

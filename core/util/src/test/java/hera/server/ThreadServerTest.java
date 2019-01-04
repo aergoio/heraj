@@ -30,7 +30,7 @@ public class ThreadServerTest extends AbstractTestCase {
     server.addServerListener(serverListener);
     server.boot(true);
     server.down(true);
-    verify(serverListener, new AtLeast(1)).handle(any());
+    verify(serverListener, new AtLeast(1)).handle(any(ServerEvent.class));
   }
 
   @Test

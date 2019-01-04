@@ -8,6 +8,7 @@ import static hera.util.IoUtils.stream;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.util.HexUtils;
+import hera.util.StreamConsumer;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -151,7 +152,12 @@ public class ECDSAKey {
 
   protected byte[] toByteArray(final InputStream plainText) throws Exception {
     final ByteArrayOutputStream os = new ByteArrayOutputStream();
-    stream(plainText, (bytes, offset, length) -> os.write(bytes));
+    stream(plainText, new StreamConsumer() {
+      @Override
+      public void apply(byte[] bytes, int offset, int length) throws Exception {
+        os.write(bytes);
+      }
+    });
     return os.toByteArray();
   }
 

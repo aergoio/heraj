@@ -12,9 +12,9 @@ import java.util.Map;
 
 public class InMemoryConfiguration extends AbstractConfiguration {
 
-  protected Map<String, Configuration> subconfigurations = new HashMap<>();
+  protected Map<String, Configuration> subconfigurations = new HashMap<String, Configuration>();
 
-  protected Map<String, Object> key2value = new HashMap<>();
+  protected Map<String, Object> key2value = new HashMap<String, Object>();
 
   public InMemoryConfiguration() {
     this(false);
@@ -101,7 +101,7 @@ public class InMemoryConfiguration extends AbstractConfiguration {
 
   @Override
   public String toString() {
-    Map<String, Object> merged = new HashMap<>();
+    Map<String, Object> merged = new HashMap<String, Object>();
     merged.putAll(subconfigurations);
     merged.putAll(key2value);
     return merged.toString();

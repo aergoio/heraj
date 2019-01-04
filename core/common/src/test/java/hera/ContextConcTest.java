@@ -6,7 +6,8 @@ package hera;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 
 import hera.strategy.FailoverStrategy;
@@ -57,7 +58,7 @@ public class ContextConcTest extends AbstractTestCase {
       final String key = randomUUID().toString();
       final String value = randomUUID().toString();
 
-      final Map<String, Object> map = new HashMap<>();
+      final Map<String, Object> map = new HashMap<String, Object>();
       map.put(key, value);
       final InMemoryConfiguration expected = new InMemoryConfiguration(true, map);
 
@@ -85,12 +86,12 @@ public class ContextConcTest extends AbstractTestCase {
 
       final Context withStrategy = origin.withStrategy(strategy);
       assertEquals(origin.getScope(), withStrategy.getScope());
-      assertTrue(withStrategy.getStrategy(FailoverStrategy.class).isPresent());
+      assertNotNull(withStrategy.getStrategy(FailoverStrategy.class));
       assertEquals(origin.getConfiguration(), withStrategy.getConfiguration());
 
       final Context withoutStrategy = withStrategy.withoutStrategy(strategy.getClass());
       assertEquals(origin.getScope(), withoutStrategy.getScope());
-      assertTrue(!withoutStrategy.getStrategy(FailoverStrategy.class).isPresent());
+      assertNull(withoutStrategy.getStrategy(FailoverStrategy.class));
       assertEquals(origin.getConfiguration(), withoutStrategy.getConfiguration());
     }
   }

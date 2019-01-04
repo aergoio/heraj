@@ -56,7 +56,7 @@ def exampleProjects = [
 ext {
   bouncyCastleVersion = '1.60'
   grpcVersion = '1.13.1'
-  guavaVersion = '22.0'
+  guavaVersion = '20.0'
 }
 
 configure(javaProjects) {

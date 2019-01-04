@@ -6,7 +6,6 @@ package hera.api.tupleorerror;
 
 import java.util.Objects;
 
-@FunctionalInterface
 public interface Function2<T1, T2, R> extends Function {
 
   /**

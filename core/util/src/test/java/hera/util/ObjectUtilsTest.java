@@ -33,7 +33,7 @@ public class ObjectUtilsTest extends AbstractTestCase {
     }
 
     for (final Object[] testParameter : testParameters) {
-      int expected = (int) testParameter[1];
+      int expected = (Integer) testParameter[1];
       byte[] bytes = (byte[]) testParameter[0];
       assertEquals(expected, ObjectUtils.getInt(bytes));
     }
@@ -47,7 +47,7 @@ public class ObjectUtilsTest extends AbstractTestCase {
 
     for (final Object[] testParameter : testParameters) {
       String expected = (String) testParameter[1];
-      int value = (int) testParameter[0];
+      int value = (Integer) testParameter[0];
       assertEquals(expected, ObjectUtils.hex(value));
     }
   }
@@ -69,7 +69,7 @@ public class ObjectUtilsTest extends AbstractTestCase {
     assertFalse(equal(randomUUID().toString(), null));
 
     for (final Object[] testParameter : testParameters) {
-      boolean expected = (boolean) testParameter[2];
+      boolean expected = (Boolean) testParameter[2];
       Object obj1 = (Object) testParameter[0];
       Object obj2 = (Object) testParameter[1];
       assertEquals(expected, ObjectUtils.equal(obj1, obj2));
@@ -84,7 +84,7 @@ public class ObjectUtilsTest extends AbstractTestCase {
     assertEquals(-1, ObjectUtils.compare(null, "a"));
 
     for (final Object[] testParameter : testParameters) {
-      int expected = (int) testParameter[2];
+      int expected = (Integer) testParameter[2];
       Comparable o1 = (Comparable) testParameter[0];
       Object o2 = (Object) testParameter[1];
       assertEquals(expected, ObjectUtils.compare(o1, o2));

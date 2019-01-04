@@ -24,7 +24,7 @@ public class ContractInterfaceTest {
     final String version = randomUUID().toString();
     final String language = randomUUID().toString();
     final ContractFunction function = new ContractFunction(functionName);
-    final List<ContractFunction> functions = new ArrayList<>();
+    final List<ContractFunction> functions = new ArrayList<ContractFunction>();
     functions.add(function);
     final Object[] args = new Object[] {randomUUID().toString(), randomUUID().toString()};
 

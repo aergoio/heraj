@@ -35,7 +35,7 @@ public class ContractFunction {
    */
   @ApiAudience.Private
   public ContractFunction(final String name) {
-    this(name, Collections.emptyList());
+    this(name, Collections.<String>emptyList());
   }
 
   /**

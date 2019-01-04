@@ -29,67 +29,13 @@ import org.junit.Test;
 public class IoUtilsTest {
 
   @Test
-  public void testTryClose() {
-    final Object[][] testParameters = new Object[][] {{new Object[] {new TestCloseable()}, true},
-        {new Object[] {new TestAutoCloseable()}, true},
-        {new Object[] {new TestCloseable(), new TestCloseable()}, true},
-        {new Object[] {new TestCloseable(), new TestAutoCloseable()}, true},
-        {new Object[] {new TestAutoCloseable(), new TestAutoCloseable()}, true}};
-
-    for (final Object[] testParameter : testParameters) {
-      boolean expected = (boolean) testParameter[1];
-      Object[] closeables = (Object[]) testParameter[0];
-
-      for (int i = 0; i < closeables.length; ++i) {
-        if (closeables[i] instanceof Closeable) {
-          TestCloseable testCloseable = (TestCloseable) closeables[i];
-          assertFalse(testCloseable.isClosed);
-        } else if (closeables[i] instanceof AutoCloseable) {
-          TestAutoCloseable testAutoCloseable = (TestAutoCloseable) closeables[i];
-          assertFalse(testAutoCloseable.isClosed);
-        }
-      }
-
-      IoUtils.tryClose(closeables);
-
-      for (int i = 0; i < closeables.length; ++i) {
-        if (closeables[i] instanceof Closeable) {
-          TestCloseable testCloseable = (TestCloseable) closeables[i];
-          assertEquals(expected, testCloseable.isClosed);
-        } else if (closeables[i] instanceof AutoCloseable) {
-          TestAutoCloseable testAutoCloseable = (TestAutoCloseable) closeables[i];
-          assertEquals(expected, testAutoCloseable.isClosed);
-        }
-      }
-    }
-  }
-
-  class TestCloseable implements Closeable {
-    private boolean isClosed = false;
-
-    @Override
-    public void close() throws IOException {
-      isClosed = true;
-    }
-  }
-
-  class TestAutoCloseable implements AutoCloseable {
-    private boolean isClosed = false;
-
-    @Override
-    public void close() throws Exception {
-      isClosed = true;
-    }
-  }
-
-  @Test
   public void testTryFlush() {
     final Object[][] testParameters = new Object[][] {{new Object[] {new TestFlushable()}, true},
         {new Object[] {new TestFlushable(), new TestFlushable()}, true},
         {new Object[] {new TestFlushable(), new TestFlushable(), new TestFlushable()}, true}};
 
     for (final Object[] testParameter : testParameters) {
-      boolean expected = (boolean) testParameter[1];
+      boolean expected = (Boolean) testParameter[1];
       Object[] flushable = (Object[]) testParameter[0];
 
       for (int i = 0; i < flushable.length; ++i) {
@@ -128,7 +74,7 @@ public class IoUtilsTest {
             new ByteArrayOutputStream(), 7}};
 
     for (final Object[] testParameter : testParameters) {
-      int expected = (int) testParameter[2];
+      int expected = (Integer) testParameter[2];
       InputStream from = (InputStream) testParameter[0];
       OutputStream to = (OutputStream) testParameter[1];
       assertEquals(expected, IoUtils.redirect(from, to));
@@ -144,7 +90,7 @@ public class IoUtilsTest {
             new ByteArrayOutputStream(), 7}};
 
     for (final Object[] testParameter : testParameters) {
-      int expected = (int) testParameter[2];
+      int expected = (Integer) testParameter[2];
       InputStream inputStream = (InputStream) testParameter[0];
       OutputStream outputStream = (OutputStream) testParameter[1];
 

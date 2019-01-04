@@ -21,12 +21,14 @@ public class ParsingUtils {
   /**
    * strings meaning boolean's true.
    */
-  protected static final Collection<String> TRUES = new HashSet<>(asList("yes", "y", "true", "1"));
+  protected static final Collection<String> TRUES =
+      new HashSet<String>(asList("yes", "y", "true", "1"));
 
   /**
    * strings meaning boolean's false.
    */
-  protected static final Collection<String> FALSES = new HashSet<>(asList("no", "n", "false", "0"));
+  protected static final Collection<String> FALSES =
+      new HashSet<String>(asList("no", "n", "false", "0"));
 
   /**
    * Parsing Interval.
@@ -38,17 +40,17 @@ public class ParsingUtils {
       Collections.unmodifiableList(asList(
           new ScaleUnit("microseconds", 1L),
           new ScaleUnit("µs", 1L),
-          new ScaleUnit("milliseconds", 1_000L),
-          new ScaleUnit("ms", 1_000L),
-          new ScaleUnit("seconds", 1_000_000L),
-          new ScaleUnit("sec", 1_000_000L),
-          new ScaleUnit("minutes", 60_000_000L),
-          new ScaleUnit("min", 60_000_000L),
-          new ScaleUnit("m", 60_000_000L),
-          new ScaleUnit("hours", 3_600_000_000L),
-          new ScaleUnit("hr", 3_600_000_000L),
-          new ScaleUnit("h", 3_600_000_000L),
-          new ScaleUnit("s", 1_000_000L))
+          new ScaleUnit("milliseconds", 1000L),
+          new ScaleUnit("ms", 1000L),
+          new ScaleUnit("seconds", 1000000L),
+          new ScaleUnit("sec", 1000000L),
+          new ScaleUnit("minutes", 60000000L),
+          new ScaleUnit("min", 60000000L),
+          new ScaleUnit("m", 60000000L),
+          new ScaleUnit("hours", 3600000000L),
+          new ScaleUnit("hr", 3600000000L),
+          new ScaleUnit("h", 3600000000L),
+          new ScaleUnit("s", 1000000L))
       );
 
   /**

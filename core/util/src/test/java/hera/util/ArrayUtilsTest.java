@@ -31,7 +31,7 @@ public class ArrayUtilsTest {
         {new String[] {"h", "e", "l", "l", "o"}, 5}, {new String[] {null}, 1}};
 
     for (final Object[] testParameter : testParameters) {
-      int expected = (int) testParameter[1];
+      int expected = (Integer) testParameter[1];
       String[] arrays = (String[]) testParameter[0];
       assertEquals(expected, ArrayUtils.length(arrays));
     }

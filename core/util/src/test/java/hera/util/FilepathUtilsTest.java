@@ -152,8 +152,8 @@ public class FilepathUtilsTest {
     for (final Object[] testParameter : testParameters) {
       String expected = (String) testParameter[3];
       String[] fragments = (String[]) testParameter[0];
-      int start = (int) testParameter[1];
-      int end = (int) testParameter[2];
+      int start = (Integer) testParameter[1];
+      int end = (Integer) testParameter[2];
       assertEquals(expected, FilepathUtils.append(fragments, start, end));
     }
   }

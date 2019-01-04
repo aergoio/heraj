@@ -6,12 +6,10 @@ package hera.util;
 
 import static java.lang.String.format;
 import static java.lang.System.identityHashCode;
-import static java.util.Arrays.stream;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;
-import java.util.Objects;
 
 public class ObjectUtils {
   private static final SecureRandom SEEDER = new SecureRandom();
@@ -69,7 +67,7 @@ public class ObjectUtils {
       }
 
       byte[] address = localInetAddress.getAddress();
-      
+
       hexServerIP = hex(getInt(address));
     }
 
@@ -113,8 +111,8 @@ public class ObjectUtils {
    * Compare two object.
    *
    * @param <T> object type
-   * @param o1  first object to compare
-   * @param o2  second object to compre
+   * @param o1 first object to compare
+   * @param o2 second object to compre
    *
    * @return reulst of comparision
    *
@@ -135,22 +133,27 @@ public class ObjectUtils {
   /**
    * Return the first object which is not null.
    * <p>
-   *   Return {@code null}, if @{code objs} is {@code null}
-   *   Return {@code null}, if all elements in @{code objs} are null
+   * Return {@code null}, if @{code objs} is {@code null} Return {@code null}, if all elements
+   * in @{code objs} are null
    * </p>
    *
-   * @param <K>   object type
-   * @param objs  object array to check
+   * @param <K> object type
+   * @param objs object array to check
    *
    * @return found object
    */
-  @SuppressWarnings("unchecked")
   public static <K> K nvl(
-      final K... objs
-  ) {
+      final K... objs) {
     if (null == objs) {
       return null;
     }
-    return stream(objs).filter(Objects::nonNull).findFirst().orElse(null);
+    K ret = null;
+    for (final K obj : objs) {
+      if (null != obj) {
+        ret = obj;
+        break;
+      }
+    }
+    return ret;
   }
 }

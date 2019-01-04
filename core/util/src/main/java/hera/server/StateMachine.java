@@ -19,7 +19,8 @@ public class StateMachine<StateT> {
 
   protected ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-  protected Collection<StateChangeListener<StateT>> listeners = new LinkedHashSet<>();
+  protected Collection<StateChangeListener<StateT>> listeners =
+      new LinkedHashSet<StateChangeListener<StateT>>();
 
   protected StateT state;
 
@@ -162,9 +163,9 @@ public class StateMachine<StateT> {
    * Use lock for write
    * </p>
    *
-   * @param state     state to change
+   * @param state state to change
    * @param condition condition to check
-   * @param args      arguments which next state have
+   * @param args arguments which next state have
    *
    * @return if state is changed
    */
@@ -188,7 +189,7 @@ public class StateMachine<StateT> {
    *
    * @param process {@link Callable} to execute
    * @param success state to transit when succeed
-   * @param fail    state to transit when fail
+   * @param fail state to transit when fail
    */
   public void execute(final Callable<Void> process, final StateT success, final StateT fail) {
     lock.writeLock().lock();

@@ -4,8 +4,6 @@
 
 package hera.custom;
 
-import java.util.Optional;
-
 public interface Adaptor {
 
   /**
@@ -16,5 +14,5 @@ public interface Adaptor {
    *
    * @return adaptee
    */
-  <AdapteeT> Optional<AdapteeT> adapt(Class<AdapteeT> adapteeClass);
+  <AdapteeT> AdapteeT adapt(Class<AdapteeT> adapteeClass);
 }

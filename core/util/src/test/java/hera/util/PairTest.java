@@ -17,7 +17,7 @@ public class PairTest {
         {null, "Hello", 69609650}, {"Hello", "World", 153375780}, {"World", "Hello", 153375780}};
 
     for (final Object[] testParameter : testParameters) {
-      int expected = (int) testParameter[2];
+      int expected = (Integer) testParameter[2];
       String v1 = (String) testParameter[0];
       String v2 = (String) testParameter[1];
       assertEquals(expected, new Pair<String, String>(v1, v2).hashCode());
@@ -31,7 +31,7 @@ public class PairTest {
         {new HashMap<String, String>(), false}, {new Pair<String, String>("Hello", "World"), true}};
 
     for (final Object[] testParameter : testParameters) {
-      boolean expected = (boolean) testParameter[1];
+      boolean expected = (Boolean) testParameter[1];
       Object obj = (Object) testParameter[0];
       assertEquals(expected, pair.equals(obj));
     }

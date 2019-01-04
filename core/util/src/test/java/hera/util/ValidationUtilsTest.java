@@ -51,7 +51,7 @@ public class ValidationUtilsTest extends AbstractTestCase {
       // good we expected this
     }
     try {
-      assertEquals(null, "Hello", () -> new UnsupportedOperationException());
+      assertEquals(null, "Hello", new UnsupportedOperationException());
       fail();
     } catch (final UnsupportedOperationException e) {
       // good we expected this
@@ -138,12 +138,6 @@ public class ValidationUtilsTest extends AbstractTestCase {
     } catch (final UnsupportedOperationException e) {
       // good we expected this
     }
-    try {
-      assertNull("Hello", () -> new UnsupportedOperationException());
-      fail();
-    } catch (final UnsupportedOperationException e) {
-      // good we expected this
-    }
   }
 
   @Test
@@ -162,12 +156,6 @@ public class ValidationUtilsTest extends AbstractTestCase {
   public void testAssertNotNullWithSpecificException() {
     try {
       assertNotNull(null, new UnsupportedOperationException());
-      fail();
-    } catch (final UnsupportedOperationException e) {
-      // good we expected this
-    }
-    try {
-      assertNotNull(null, () -> new UnsupportedOperationException());
       fail();
     } catch (final UnsupportedOperationException e) {
       // good we expected this

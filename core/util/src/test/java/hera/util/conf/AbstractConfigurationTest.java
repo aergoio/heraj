@@ -46,9 +46,9 @@ public class AbstractConfigurationTest {
 
   @Test
   public void testParse() {
-    final String privatekeys = "abc,\ndef,\naaa\nbbb";
+    final String privatekeys = "abc,\ndef,\naaa\nbbb,\rccc";
     final List<String> parsed = configuration.parse(privatekeys);
-    assertEquals(4, parsed.size());
+    assertEquals(5, parsed.size());
   }
 
   @Test(expected = Error.class)

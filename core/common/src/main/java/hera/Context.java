@@ -7,7 +7,6 @@ package hera;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.util.Configuration;
-import java.util.Optional;
 import java.util.Set;
 
 @ApiAudience.Public
@@ -90,9 +89,9 @@ public interface Context {
    *
    * @param <StrategyT> strategy type
    * @param strategyClass a strategy class
-   * @return a strategy corresponding {@code strategyClass}
+   * @return a strategy corresponding {@code strategyClass}. Otherwise, null
    */
-  <StrategyT extends Strategy> Optional<StrategyT> getStrategy(Class<StrategyT> strategyClass);
+  <StrategyT extends Strategy> StrategyT getStrategy(Class<StrategyT> strategyClass);
 
   /**
    * Get a strategies of a context.

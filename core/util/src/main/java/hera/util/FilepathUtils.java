@@ -9,7 +9,6 @@ import static hera.util.StringUtils.isEmpty;
 
 import java.io.File;
 import java.util.Stack;
-import java.util.StringJoiner;
 
 public class FilepathUtils {
 
@@ -23,10 +22,9 @@ public class FilepathUtils {
   /**
    * Return canonical fragments from {@code path}.
    * <p>
-   *   You should read {@link File#getCanonicalPath()} if you don't know canonical form for path.
-   *   This method return directory names in array.
-   *   It will skip if meet current directory string(".")
-   *   It will remove back if meet parent directory string("..")
+   * You should read {@link File#getCanonicalPath()} if you don't know canonical form for path. This
+   * method return directory names in array. It will skip if meet current directory string(".") It
+   * will remove back if meet parent directory string("..")
    * </p>
    *
    * @param path path
@@ -36,7 +34,7 @@ public class FilepathUtils {
   public static String[] getCanonicalFragments(final String path) {
     final String safe = path.replace(File.separatorChar, DIRECTORY_SEPARATOR_CHAR);
 
-    final Stack<String> stack = new Stack<>();
+    final Stack<String> stack = new Stack<String>();
 
     for (final String fragment : safe.split(DIRECTORY_SEPARATOR)) {
       if (isEmpty(fragment)) {
@@ -59,7 +57,7 @@ public class FilepathUtils {
   /**
    * Return canonical form for {@code path}.
    * <p>
-   *   Concatenate the fragments from {@link #getCanonicalFragments(String)}
+   * Concatenate the fragments from {@link #getCanonicalFragments(String)}
    * </p>
    *
    * @param path path
@@ -77,16 +75,17 @@ public class FilepathUtils {
         return path;
       }
     }
-    StringJoiner joiner = null;
+    final StringBuilder builder = new StringBuilder();
     if (path.startsWith(DIRECTORY_SEPARATOR)) {
-      joiner = new StringJoiner(DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, "");
-    } else {
-      joiner = new StringJoiner(DIRECTORY_SEPARATOR);
+      builder.append(DIRECTORY_SEPARATOR);
     }
-    for (final String f : fragments) {
-      joiner.add(f);
+    for (int i = 0; i < fragments.length; ++i) {
+      if (0 != i) {
+        builder.append(DIRECTORY_SEPARATOR);
+      }
+      builder.append(fragments[i]);
     }
-    return joiner.toString();
+    return builder.toString();
   }
 
   /**
@@ -112,7 +111,7 @@ public class FilepathUtils {
   /**
    * Return parent directory's path of {@code path}.
    * <p>
-   *   Return {@code null} if {@code path} is null or parent path is unknown path.
+   * Return {@code null} if {@code path} is null or parent path is unknown path.
    * </p>
    *
    * @param path file path

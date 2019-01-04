@@ -10,7 +10,9 @@ import static java.lang.System.getProperty;
 import static java.util.Collections.unmodifiableMap;
 
 import hera.util.Configuration;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class SystemPropertiesConfiguration extends AbstractConfiguration implements Configuration {
 
@@ -18,7 +20,7 @@ public class SystemPropertiesConfiguration extends AbstractConfiguration impleme
   @Override
   public Map<String, Object> asMap() {
     final Map<?, ?> map = getProperties();
-    return unmodifiableMap((Map<String, String>) map);
+    return unmodifiableMap(new HashMap<String, Object>((Map<String, String>) map));
   }
 
   @Override
@@ -31,11 +33,13 @@ public class SystemPropertiesConfiguration extends AbstractConfiguration impleme
     final String prefix = key + ".";
     final InMemoryConfiguration subconfiguration = new InMemoryConfiguration();
 
-    getProperties().stringPropertyNames().stream().filter(name -> name.startsWith(prefix))
-        .forEach(name -> {
-          final String subname = name.substring(prefix.length());
-          subconfiguration.define(subname, getProperty(name));
-        });
+    Set<String> stringProperties = getProperties().stringPropertyNames();
+    for (final String name : stringProperties) {
+      if (name.startsWith(prefix)) {
+        final String subname = name.substring(prefix.length());
+        subconfiguration.define(subname, getProperty(name));
+      }
+    }
     return subconfiguration;
   }
 

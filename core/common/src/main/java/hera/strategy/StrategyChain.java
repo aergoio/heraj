@@ -8,6 +8,7 @@ import static hera.api.tupleorerror.Functions.identify;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Context;
+import hera.Strategy;
 import hera.api.tupleorerror.Function0;
 import hera.api.tupleorerror.Function1;
 import hera.api.tupleorerror.Function2;
@@ -39,7 +40,7 @@ public class StrategyChain implements FunctionDecoratorChain {
 
   protected final Logger logger = getLogger(getClass());
 
-  protected final List<FunctionDecorator> chain = new ArrayList<>();
+  protected final List<FunctionDecorator> chain = new ArrayList<FunctionDecorator>();
 
   /**
    * Make {@code StrategyChain} with a strategy in a context.
@@ -48,9 +49,11 @@ public class StrategyChain implements FunctionDecoratorChain {
    * @param context a context
    */
   public StrategyChain(final Context context) {
-    context.getStrategies().stream().filter(FunctionDecorator.class::isInstance)
-        .map(FunctionDecorator.class::cast)
-        .forEach(chain::add);
+    for (final Strategy strategy : context.getStrategies()) {
+      if (strategy instanceof FunctionDecorator) {
+        chain.add((FunctionDecorator) strategy);
+      }
+    }
     logger.debug("Build strategy chain: {}", chain);
   }
 

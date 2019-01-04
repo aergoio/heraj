@@ -50,12 +50,13 @@ public class HexUtils {
    * @param bytes   values to append
    */
   public static void appendHexa(final StringBuilder buffer, final byte[] bytes) {
-    try (final ByteArrayInputStream byteIn = new ByteArrayInputStream(bytes)) {
+    try {
+      final ByteArrayInputStream byteIn = new ByteArrayInputStream(bytes);
       int ch = 0;
       while (0 <= (ch = byteIn.read())) {
         appendHexa(buffer, ch);
       }
-    } catch (final IOException e) {
+    } catch (final Exception e) {
       throw new IllegalStateException(e);
     }
   }

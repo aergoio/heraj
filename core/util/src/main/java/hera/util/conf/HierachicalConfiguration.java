@@ -4,10 +4,7 @@
 
 package hera.util.conf;
 
-import static java.util.Optional.ofNullable;
-
 import hera.util.Configuration;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.NonNull;
@@ -33,9 +30,22 @@ public class HierachicalConfiguration extends AbstractConfiguration {
    * @return {@link HierachicalConfiguration}
    */
   public static Configuration create(final Configuration... configurations) {
-    return Arrays.stream(configurations).filter(configuration -> null != configuration)
-        .reduce((l, r) -> new HierachicalConfiguration(l, r))
-        .orElseGet(() -> new DummyConfiguration());
+    int i = 0;
+    while (i < configurations.length && null == configurations[i]) {
+      ++i;
+    }
+    if (i >= configurations.length) {
+      return new DummyConfiguration();
+    }
+
+    Configuration hirarchicalConf = configurations[i];
+    while (i < configurations.length) {
+      if (null != configurations[i]) {
+        hirarchicalConf = new HierachicalConfiguration(hirarchicalConf, configurations[i]);
+      }
+      ++i;
+    }
+    return hirarchicalConf;
   }
 
   @Override
@@ -62,7 +72,7 @@ public class HierachicalConfiguration extends AbstractConfiguration {
   @Override
   public Map<String, Object> asMap() {
     final Map<String, Object> parentMap =
-        ofNullable(parent).map(Configuration::asMap).orElseGet(() -> new HashMap<>());
+        null != parent ? parent.asMap() : new HashMap<String, Object>();
     parentMap.putAll(configuration.asMap());
     return parentMap;
   }
