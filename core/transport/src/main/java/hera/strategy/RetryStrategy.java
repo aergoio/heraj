@@ -10,8 +10,7 @@ import hera.api.model.internal.Time;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.api.tupleorerror.Function;
 import hera.api.tupleorerror.Function0;
-import hera.api.tupleorerror.ResultOrError;
-import hera.api.tupleorerror.ResultOrErrorFuture;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -54,20 +53,30 @@ public class RetryStrategy implements FailoverStrategy {
 
   @Override
   public <R> R action(final Function originFunction, final Function0<R> functionWithArgs) {
-    R r = functionWithArgs.apply();
-    if (r instanceof ResultOrErrorFuture) {
+    R future = functionWithArgs.apply();
+    if (future instanceof Future) {
       int i = tryCountAndInterval.getCount();
-      ResultOrError<?> resultOrError = ((ResultOrErrorFuture<?>) r).get();
-      while (resultOrError.hasError() && 0 < i) {
-        logger.info("Attempt failed.. retry after {} milliseconds.. (try left: {})",
-            this.tryCountAndInterval.getInterval().toMilliseconds(), i);
-        this.tryCountAndInterval.trySleep();
-        r = functionWithArgs.apply();
-        resultOrError = ((ResultOrErrorFuture<?>) r).get();
-        --i;
+      boolean success = false;
+      try {
+        ((Future<?>) future).get();
+        success = true;
+      } catch (Exception e) {
+        // do nothing
+      }
+      while (!success && 0 < i) {
+        try {
+          ((Future<?>) future).get();
+          success = true;
+        } catch (Exception e) {
+          logger.info("Attempt failed.. retry after {} milliseconds.. (try left: {})",
+              this.tryCountAndInterval.getInterval().toMilliseconds(), i);
+          this.tryCountAndInterval.trySleep();
+          future = functionWithArgs.apply();
+          --i;
+        }
       }
     }
-    return r;
+    return future;
   }
 
 }

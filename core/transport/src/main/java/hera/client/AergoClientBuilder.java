@@ -103,26 +103,6 @@ public class AergoClientBuilder implements ContextConfiguer<AergoClientBuilder> 
     return new AergoClient(buildContext());
   }
 
-  /**
-   * Build {@link AergoEitherClient} with the current context. If necessary strategy is not
-   * provided, fill necessary strategy.
-   *
-   * @return {@link AergoEitherClient}
-   */
-  public AergoEitherClient buildEither() {
-    return new AergoEitherClient(buildContext());
-  }
-
-  /**
-   * Build {@link AergoAsyncClient} with the current context. If necessary strategy is not provided,
-   * fill necessary strategy.
-   *
-   * @return {@link AergoAsyncClient}
-   */
-  public AergoAsyncClient buildAsync() {
-    return new AergoAsyncClient(buildContext());
-  }
-
   protected Context buildContext() {
     necessaryStrategyMap.keySet().stream().filter(c -> !this.strategyMap.containsKey(c))
         .forEach(c -> this.strategyMap.put(c, necessaryStrategyMap.get(c)));

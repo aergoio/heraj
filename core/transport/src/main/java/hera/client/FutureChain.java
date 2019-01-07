@@ -4,28 +4,22 @@
 
 package hera.client;
 
-import static hera.api.tupleorerror.FunctionChain.fail;
-import static java.util.Optional.of;
-import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.common.util.concurrent.FutureCallback;
 import hera.Context;
 import hera.ContextHolder;
-import hera.api.tupleorerror.ResultOrError;
-import hera.api.tupleorerror.ResultOrErrorFuture;
+import hera.api.tupleorerror.Function1;
 import hera.exception.NotFoundException;
 import hera.exception.RpcConnectionException;
 import hera.exception.RpcException;
 import io.grpc.StatusRuntimeException;
-import java.util.function.Function;
 import javax.annotation.Nullable;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.slf4j.Logger;
 
-@SuppressWarnings("unchecked")
 @RequiredArgsConstructor
 public class FutureChain<T, R> implements FutureCallback<T> {
 
@@ -38,38 +32,49 @@ public class FutureChain<T, R> implements FutureCallback<T> {
   protected Exception stackTraceHolder = new Exception();
 
   @NonNull
-  protected final ResultOrErrorFuture<R> nextFuture;
+  protected final FinishableFuture<R> nextFuture;
 
   // hold main thread context
   @NonNull
   protected final Context sourceContext;
 
   @Setter
-  protected Function<T, ResultOrError<R>> successHandler;
+  protected Function1<T, R> successHandler;
 
   @Setter
-  protected Function<? super Throwable, ResultOrError<R>> failureHandler = e -> fail(e);
+  protected Function1<Throwable,
+      R> failureHandler = new Function1<Throwable, R>() {
+        @Override
+        public R apply(final Throwable e) {
+          throw new RpcException(e);
+        }
+      };
 
   @Override
   public void onSuccess(@Nullable T t) {
     connectAsyncContextWithSourceContext();
-    final ResultOrError<R> handled = ofNullable(successHandler).map(handler -> handler.apply(t))
-        .orElseThrow(() -> new RpcException("No success handler"));
-    if (handled.hasResult()) {
-      nextFuture.complete(handled);
-    } else {
-      failNext(wrapWithRpcException(handled.getError()));
+    if (logger.isDebugEnabled()) {
+      logger.debug("Async request success result: {}, context: {}", t, ContextHolder.get(this));
+    }
+    try {
+      final R handled = successHandler.apply(t);
+      nextFuture.success(handled);
+    } catch (Exception e) {
+      failNext(wrapWithRpcException(e));
     }
   }
 
   @Override
-  public void onFailure(final Throwable e) {
+  public void onFailure(final Throwable error) {
     connectAsyncContextWithSourceContext();
-    final ResultOrError<R> handled = failureHandler.apply(e);
-    if (handled.hasResult()) {
-      nextFuture.complete(handled);
-    } else {
-      failNext(wrapWithRpcException(handled.getError()));
+    if (logger.isDebugEnabled()) {
+      logger.debug("Async request fail result: {}, context: {}", error, ContextHolder.get(this));
+    }
+    try {
+      final R handled = failureHandler.apply(error);
+      nextFuture.success(handled);
+    } catch (Exception e) {
+      failNext(wrapWithRpcException(e));
     }
   }
 
@@ -78,9 +83,9 @@ public class FutureChain<T, R> implements FutureCallback<T> {
   }
 
   protected RpcException wrapWithRpcException(final Throwable e) {
-    return of(e).filter(StatusRuntimeException.class::isInstance)
-        .map(StatusRuntimeException.class::cast).map(this::convertGrpcBasisException)
-        .orElse(e instanceof RpcException ? (RpcException) e : new RpcException(e));
+    return e instanceof StatusRuntimeException
+        ? convertGrpcBasisException((StatusRuntimeException) e)
+        : (e instanceof RpcException) ? (RpcException) e : new RpcException(e);
   }
 
   protected RpcException convertGrpcBasisException(final StatusRuntimeException e) {
@@ -94,9 +99,9 @@ public class FutureChain<T, R> implements FutureCallback<T> {
     }
   }
 
-  protected void failNext(final Throwable wrapped) {
+  protected void failNext(final RpcException wrapped) {
     wrapped.setStackTrace(concatStackTrace(wrapped, stackTraceHolder));
-    nextFuture.complete(fail(wrapped));
+    nextFuture.fail(wrapped);
   }
 
   protected StackTraceElement[] concatStackTrace(final Throwable asyncStack,

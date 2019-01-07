@@ -7,7 +7,6 @@ package hera.client;
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.api.model.BytesValue.of;
-import static hera.api.tupleorerror.FunctionChain.of;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
@@ -27,9 +26,8 @@ import hera.api.model.Transaction.TxType;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.Function1;
 import hera.api.tupleorerror.Function3;
-import hera.api.tupleorerror.ResultOrErrorFuture;
-import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.exception.CommitException;
+import hera.exception.RpcException;
 import hera.transport.ModelConverter;
 import hera.transport.TransactionConverterFactory;
 import hera.transport.TransactionInBlockConverterFactory;
@@ -42,7 +40,6 @@ import types.Rpc;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-@SuppressWarnings("unchecked")
 public class TransactionBaseTemplate implements ChannelInjectable, ContextProviderInjectable {
 
   protected final Logger logger = getLogger(getClass());
@@ -69,83 +66,138 @@ public class TransactionBaseTemplate implements ChannelInjectable, ContextProvid
   }
 
   @Getter
-  private final Function1<TxHash, ResultOrErrorFuture<Transaction>> transactionFunction =
-      (txHash) -> {
-        ResultOrErrorFuture<Transaction> nextFuture =
-            ResultOrErrorFutureFactory.supplyEmptyFuture();
-        logger.debug("Get transaction with txHash: {}, Context: {}", txHash, contextProvider.get());
+  private final Function1<TxHash, FinishableFuture<Transaction>> transactionFunction =
+      new Function1<TxHash, FinishableFuture<Transaction>>() {
 
-        final ByteString byteString = copyFrom(txHash.getBytesValue());
-        final Rpc.SingleBytes hashBytes =
-            Rpc.SingleBytes.newBuilder().setValue(byteString).build();
-        ListenableFuture<Blockchain.TxInBlock> listenableFuture =
-            aergoService.getBlockTX(hashBytes);
-        FutureChain<Blockchain.TxInBlock, Transaction> callback =
-            new FutureChain<>(nextFuture, contextProvider.get());
-        callback
-            .setSuccessHandler(
-                t -> of(() -> transactionInBlockConverter.convertToDomainModel(t)));
-        callback.setFailureHandler(e -> of(() -> {
-          logger.debug("Transaction {} is not in a block. Check mempool", txHash);
-          final Blockchain.Tx tx = aergoService.getTX(hashBytes).get();
-          return transactionConverter.convertToDomainModel(tx);
-        }));
+        @Override
+        public FinishableFuture<Transaction> apply(final TxHash txHash) {
+          if (logger.isDebugEnabled()) {
+            logger.debug("Get transaction with txHash: {}, Context: {}", txHash,
+                contextProvider.get());
+          }
 
-        addCallback(listenableFuture, callback, directExecutor());
+          FinishableFuture<Transaction> nextFuture = new FinishableFuture<Transaction>();
+          try {
+            final ByteString byteString = copyFrom(txHash.getBytesValue());
+            final Rpc.SingleBytes request =
+                Rpc.SingleBytes.newBuilder().setValue(byteString).build();
+            ListenableFuture<Blockchain.TxInBlock> listenableFuture =
+                aergoService.getBlockTX(request);
 
-        return nextFuture;
+            FutureChain<Blockchain.TxInBlock, Transaction> callback =
+                new FutureChain<>(nextFuture, contextProvider.get());
+            callback.setSuccessHandler(new Function1<Blockchain.TxInBlock, Transaction>() {
+
+              @Override
+              public Transaction apply(final Blockchain.TxInBlock txInBlock) {
+                return transactionInBlockConverter.convertToDomainModel(txInBlock);
+              }
+            });
+            callback.setFailureHandler(new Function1<Throwable, Transaction>() {
+
+              @Override
+              public Transaction apply(final Throwable t) {
+                if (logger.isDebugEnabled()) {
+                  logger.debug("Transaction {} is not in a block. Check mempool", txHash);
+                }
+                try {
+                  Blockchain.Tx tx = aergoService.getTX(request).get();
+                  return transactionConverter.convertToDomainModel(tx);
+                } catch (Exception e) {
+                  throw new RpcException(e);
+                }
+              }
+            });
+            addCallback(listenableFuture, callback, directExecutor());
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+          return nextFuture;
+        }
       };
 
   @Getter
-  private final Function1<Transaction, ResultOrErrorFuture<TxHash>> commitFunction =
-      (transaction) -> {
-        ResultOrErrorFuture<TxHash> nextFuture =
-            ResultOrErrorFutureFactory.supplyEmptyFuture();
-        logger.debug("Commit transaction with tx: {}, Context: {}", transaction,
-            contextProvider.get());
+  private final Function1<Transaction, FinishableFuture<TxHash>> commitFunction =
+      new Function1<Transaction, FinishableFuture<TxHash>>() {
 
-        final Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
-        final Blockchain.TxList txList = Blockchain.TxList.newBuilder().addTxs(tx).build();
-        ListenableFuture<Rpc.CommitResultList> listenableFuture = aergoService.commitTX(txList);
-        FutureChain<Rpc.CommitResultList, TxHash> callback =
-            new FutureChain<>(nextFuture, contextProvider.get());
-        callback.setSuccessHandler(commitResultList -> of(() -> {
-          final Rpc.CommitResult commitResult = commitResultList.getResultsList().get(0);
-          logger.debug("Commit result: {}", commitResult.getError());
-          if (Rpc.CommitStatus.TX_OK == commitResult.getError()) {
-            return new TxHash(of(commitResult.getHash().toByteArray()));
-          } else {
-            throw new CommitException(commitResult.getError(), commitResult.getDetail());
+        @Override
+        public FinishableFuture<TxHash> apply(final Transaction transaction) {
+          if (logger.isDebugEnabled()) {
+            logger.debug("Commit transaction with tx: {}, Context: {}", transaction,
+                contextProvider.get());
           }
-        }));
-        addCallback(listenableFuture, callback, directExecutor());
-        return nextFuture;
+
+          FinishableFuture<TxHash> nextFuture = new FinishableFuture<TxHash>();
+          try {
+            final Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
+            final Blockchain.TxList txList = Blockchain.TxList.newBuilder().addTxs(tx).build();
+            ListenableFuture<Rpc.CommitResultList> listenableFuture = aergoService.commitTX(txList);
+
+            FutureChain<Rpc.CommitResultList, TxHash> callback =
+                new FutureChain<>(nextFuture, contextProvider.get());
+            callback.setSuccessHandler(new Function1<Rpc.CommitResultList, TxHash>() {
+
+              @Override
+              public TxHash apply(final Rpc.CommitResultList commitResultList) {
+                final Rpc.CommitResult commitResult = commitResultList.getResultsList().get(0);
+                logger.debug("Commit result: {}", commitResult.getError());
+                if (Rpc.CommitStatus.TX_OK != commitResult.getError()) {
+                  throw new CommitException(commitResult.getError(), commitResult.getDetail());
+                }
+                return new TxHash(of(commitResult.getHash().toByteArray()));
+              }
+            });
+            addCallback(listenableFuture, callback, directExecutor());
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+
+          return nextFuture;
+        }
       };
 
   @Getter
-  private final Function3<AccountAddress, AccountAddress, Aer, ResultOrErrorFuture<
-      TxHash>> sendFunction = (sender, recipient, amount) -> {
-        ResultOrErrorFuture<TxHash> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
-        logger.debug("Send transaction request with sender: {}, recipient: {}, amount, Context: {}",
-            sender, recipient, amount, contextProvider.get());
+  private final Function3<AccountAddress, AccountAddress, Aer,
+      FinishableFuture<TxHash>> sendFunction = new Function3<
+          AccountAddress, AccountAddress, Aer, FinishableFuture<TxHash>>() {
 
-        final Transaction transaction = new Transaction(
-            sender, recipient, amount, 0L, Fee.getDefaultFee(), BytesValue.EMPTY, TxType.NORMAL,
-            null, null, null, 0, false);
-
-        final Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
-        ListenableFuture<Rpc.CommitResult> listenableFuture = aergoService.sendTX(tx);
-        FutureChain<Rpc.CommitResult, TxHash> callback =
-            new FutureChain<>(nextFuture, contextProvider.get());
-        callback.setSuccessHandler(c -> of(() -> {
-          if (Rpc.CommitStatus.TX_OK == c.getError()) {
-            return new TxHash(of(c.getHash().toByteArray()));
-          } else {
-            throw new CommitException(c.getError(), c.getDetail());
+        @Override
+        public FinishableFuture<TxHash> apply(final AccountAddress sender,
+            final AccountAddress recipient, final Aer amount) {
+          if (logger.isDebugEnabled()) {
+            logger.debug(
+                "Send transaction request with sender: {}, recipient: {}, amount, Context: {}",
+                sender, recipient, amount, contextProvider.get());
           }
-        }));
-        addCallback(listenableFuture, callback, directExecutor());
-        return nextFuture;
+
+          FinishableFuture<TxHash> nextFuture = new FinishableFuture<TxHash>();
+          try {
+            final Transaction transaction = new Transaction(
+                sender, recipient, amount, 0L, Fee.getDefaultFee(), BytesValue.EMPTY,
+                TxType.NORMAL,
+                null, null, null, 0, false);
+
+            final Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
+            ListenableFuture<Rpc.CommitResult> listenableFuture = aergoService.sendTX(tx);
+
+            FutureChain<Rpc.CommitResult, TxHash> callback =
+                new FutureChain<>(nextFuture, contextProvider.get());
+            callback.setSuccessHandler(new Function1<Rpc.CommitResult, TxHash>() {
+
+              @Override
+              public TxHash apply(final Rpc.CommitResult commitResult) {
+                if (Rpc.CommitStatus.TX_OK != commitResult.getError()) {
+                  throw new CommitException(commitResult.getError(), commitResult.getDetail());
+                }
+                return new TxHash(of(commitResult.getHash().toByteArray()));
+              }
+            });
+            addCallback(listenableFuture, callback, directExecutor());
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+          return nextFuture;
+        }
       };
 
 }

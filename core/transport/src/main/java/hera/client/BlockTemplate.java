@@ -20,7 +20,6 @@ import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
 import hera.api.tupleorerror.Function1;
 import hera.api.tupleorerror.Function2;
-import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import java.util.List;
@@ -52,49 +51,49 @@ public class BlockTemplate
   }
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<BlockHash, ResultOrErrorFuture<Block>> blockByHashFunction =
+  private final Function1<BlockHash, FinishableFuture<Block>> blockByHashFunction =
       getStrategyChain()
           .apply(identify(getBlockBaseTemplate().getBlockByHashFunction(), BLOCK_GETBLOCK_BY_HASH));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<Long, ResultOrErrorFuture<Block>> blockByHeightFunction =
+  private final Function1<Long, FinishableFuture<Block>> blockByHeightFunction =
       getStrategyChain().apply(
           identify(getBlockBaseTemplate().getBlockByHeightFunction(), BLOCK_GETBLOCK_BY_HEIGHT));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function2<BlockHash, Integer,
-      ResultOrErrorFuture<List<BlockHeader>>> listBlockHeadersByHashFunction =
+      FinishableFuture<List<BlockHeader>>> listBlockHeadersByHashFunction =
           getStrategyChain()
               .apply(identify(getBlockBaseTemplate().getListBlockHeadersByHashFunction(),
                   BLOCK_LIST_HEADERS_BY_HASH));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function2<Long, Integer,
-      ResultOrErrorFuture<List<BlockHeader>>> listBlockHeadersByHeightFunction =
+      FinishableFuture<List<BlockHeader>>> listBlockHeadersByHeightFunction =
           getStrategyChain()
               .apply(identify(getBlockBaseTemplate().getListBlockHeadersByHeightFunction(),
                   BLOCK_LIST_HEADERS_BY_HEIGHT));
 
   @Override
   public Block getBlock(final BlockHash blockHash) {
-    return getBlockByHashFunction().apply(blockHash).get().getResult();
+    return getBlockByHashFunction().apply(blockHash).get();
   }
 
   @Override
   public Block getBlock(final long height) {
-    return getBlockByHeightFunction().apply(height).get().getResult();
+    return getBlockByHeightFunction().apply(height).get();
   }
 
   @Override
   public List<BlockHeader> listBlockHeaders(final BlockHash blockHash,
       final int size) {
-    return getListBlockHeadersByHashFunction().apply(blockHash, size).get().getResult();
+    return getListBlockHeadersByHashFunction().apply(blockHash, size).get();
   }
 
   @Override
   public List<BlockHeader> listBlockHeaders(final long height,
       final int size) {
-    return getListBlockHeadersByHeightFunction().apply(height, size).get().getResult();
+    return getListBlockHeadersByHeightFunction().apply(height, size).get();
   }
 
 }

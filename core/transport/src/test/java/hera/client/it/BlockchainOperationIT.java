@@ -38,12 +38,16 @@ public class BlockchainOperationIT extends AbstractIT {
   public void testPeers() {
     final List<Peer> peers = aergoClient.getBlockchainOperation().listPeers();
     logger.info("Current node peers: {}", peers);
+
+    assertNotNull(peers);
   }
 
   @Test
   public void testPeerMetrics() {
     final List<PeerMetric> peerMetrics = aergoClient.getBlockchainOperation().listPeerMetrics();
     logger.info("Current node peer metrics: {}", peerMetrics);
+
+    assertNotNull(peerMetrics);
   }
 
 }

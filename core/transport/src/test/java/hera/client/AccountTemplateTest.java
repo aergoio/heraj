@@ -24,10 +24,13 @@ import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.api.tupleorerror.ResultOrErrorFuture;
-import hera.api.tupleorerror.ResultOrErrorFutureFactory;
+import hera.api.tupleorerror.Function1;
+import hera.api.tupleorerror.Function2;
+import hera.api.tupleorerror.Function3;
+import hera.api.tupleorerror.Function4;
 import hera.api.tupleorerror.WithIdentity;
 import hera.key.AergoKeyGenerator;
 import org.junit.Test;
@@ -61,9 +64,15 @@ public class AccountTemplateTest extends AbstractTestCase {
   public void testGetState() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
     final AccountState mockState = mock(AccountState.class);
-    final ResultOrErrorFuture<AccountState> future =
-        ResultOrErrorFutureFactory.supply(() -> mockState);
-    when(base.getStateFunction()).thenReturn((a) -> future);
+    final FinishableFuture<AccountState> future = new FinishableFuture<AccountState>();
+    future.success(mockState);
+    when(base.getStateFunction())
+        .thenReturn(new Function1<AccountAddress, FinishableFuture<AccountState>>() {
+          @Override
+          public FinishableFuture<AccountState> apply(AccountAddress t) {
+            return future;
+          }
+        });
 
     final AccountTemplate accountTemplate = supplyAccountTemplate(base);
 
@@ -78,9 +87,15 @@ public class AccountTemplateTest extends AbstractTestCase {
   public void testCreateName() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
     final TxHash mockHash = mock(TxHash.class);
-    final ResultOrErrorFuture<TxHash> future =
-        ResultOrErrorFutureFactory.supply(() -> mockHash);
-    when(base.getCreateNameFunction()).thenReturn((a, i, n) -> future);
+    final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
+    future.success(mockHash);
+    when(base.getCreateNameFunction())
+        .thenReturn(new Function3<Account, String, Long, FinishableFuture<TxHash>>() {
+          @Override
+          public FinishableFuture<TxHash> apply(Account t1, String t2, Long t3) {
+            return future;
+          }
+        });
 
     final AccountTemplate accountTemplate = supplyAccountTemplate(base);
 
@@ -96,9 +111,16 @@ public class AccountTemplateTest extends AbstractTestCase {
   public void testUpdateName() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
     final TxHash mockHash = mock(TxHash.class);
-    final ResultOrErrorFuture<TxHash> future =
-        ResultOrErrorFutureFactory.supply(() -> mockHash);
-    when(base.getUpdateNameFunction()).thenReturn((a, i, t, n) -> future);
+    final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
+    future.success(mockHash);
+    when(base.getUpdateNameFunction()).thenReturn(
+        new Function4<Account, String, AccountAddress, Long, FinishableFuture<TxHash>>() {
+          @Override
+          public FinishableFuture<TxHash> apply(Account t1, String t2, AccountAddress t3,
+              Long t4) {
+            return future;
+          }
+        });
 
     final AccountTemplate accountTemplate = supplyAccountTemplate(base);
 
@@ -114,9 +136,15 @@ public class AccountTemplateTest extends AbstractTestCase {
   @Test
   public void testGetNameOwner() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
-    final ResultOrErrorFuture<AccountAddress> future =
-        ResultOrErrorFutureFactory.supply(() -> new AccountAddress(BytesValue.EMPTY));
-    when(base.getGetNameOwnerFunction()).thenReturn(s -> future);
+    final FinishableFuture<AccountAddress> future = new FinishableFuture<AccountAddress>();
+    future.success(new AccountAddress(BytesValue.EMPTY));
+    when(base.getGetNameOwnerFunction())
+        .thenReturn(new Function1<String, FinishableFuture<AccountAddress>>() {
+          @Override
+          public FinishableFuture<AccountAddress> apply(String t) {
+            return future;
+          }
+        });
 
     final AccountTemplate accountTemplate = supplyAccountTemplate(base);
 
@@ -130,9 +158,15 @@ public class AccountTemplateTest extends AbstractTestCase {
   public void testSign() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
     final Transaction mockTransaction = mock(Transaction.class);
-    final ResultOrErrorFuture<Transaction> future =
-        ResultOrErrorFutureFactory.supply(() -> mockTransaction);
-    when(base.getSignFunction()).thenReturn((a, t) -> future);
+    final FinishableFuture<Transaction> future = new FinishableFuture<Transaction>();
+    future.success(mockTransaction);
+    when(base.getSignFunction())
+        .thenReturn(new Function2<Account, RawTransaction, FinishableFuture<Transaction>>() {
+          @Override
+          public FinishableFuture<Transaction> apply(Account t1, RawTransaction t2) {
+            return future;
+          }
+        });
 
     final AccountTemplate accountTemplate = supplyAccountTemplate(base);
 
@@ -146,9 +180,15 @@ public class AccountTemplateTest extends AbstractTestCase {
   @Test
   public void testVerify() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
-    final ResultOrErrorFuture<Boolean> future =
-        ResultOrErrorFutureFactory.supply(() -> true);
-    when(base.getVerifyFunction()).thenReturn((a, t) -> future);
+    final FinishableFuture<Boolean> future = new FinishableFuture<Boolean>();
+    future.success(true);
+    when(base.getVerifyFunction())
+        .thenReturn(new Function2<Account, Transaction, FinishableFuture<Boolean>>() {
+          @Override
+          public FinishableFuture<Boolean> apply(Account t1, Transaction t2) {
+            return future;
+          }
+        });
 
     final AccountTemplate accountTemplate = supplyAccountTemplate(base);
 

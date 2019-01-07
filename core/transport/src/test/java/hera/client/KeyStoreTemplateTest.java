@@ -18,12 +18,15 @@ import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import hera.AbstractTestCase;
+import hera.Context;
+import hera.ContextProvider;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
-import hera.api.tupleorerror.ResultOrErrorFuture;
-import hera.api.tupleorerror.ResultOrErrorFutureFactory;
+import hera.api.tupleorerror.Function0;
+import hera.api.tupleorerror.Function1;
+import hera.api.tupleorerror.Function3;
 import hera.api.tupleorerror.WithIdentity;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +48,12 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
       final KeyStoreBaseTemplate keyStoreBaseTemplate) {
     final KeyStoreTemplate keyStoreTemplate = new KeyStoreTemplate();
     keyStoreTemplate.keyStoreBaseTemplate = keyStoreBaseTemplate;
-    keyStoreTemplate.setContextProvider(() -> context);
+    keyStoreTemplate.setContextProvider(new ContextProvider() {
+      @Override
+      public Context get() {
+        return context;
+      }
+    });
     return keyStoreTemplate;
   }
 
@@ -57,9 +65,16 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
   @Test
   public void testList() {
     final KeyStoreBaseTemplate base = mock(KeyStoreBaseTemplate.class);
-    final ResultOrErrorFuture<List<AccountAddress>> future =
-        ResultOrErrorFutureFactory.supply(() -> new ArrayList<AccountAddress>());
-    when(base.getListFunction()).thenReturn(() -> future);
+    final FinishableFuture<List<AccountAddress>> future =
+        new FinishableFuture<List<AccountAddress>>();
+    future.success(new ArrayList<AccountAddress>());
+    when(base.getListFunction())
+        .thenReturn(new Function0<FinishableFuture<List<AccountAddress>>>() {
+          @Override
+          public FinishableFuture<List<AccountAddress>> apply() {
+            return future;
+          }
+        });
 
     final KeyStoreTemplate keyStoreTemplate = supplyKeyStoreTemplate(base);
 
@@ -72,9 +87,14 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
   public void testCreate() {
     final KeyStoreBaseTemplate base = mock(KeyStoreBaseTemplate.class);
     final Account mockAccount = mock(Account.class);
-    final ResultOrErrorFuture<Account> future =
-        ResultOrErrorFutureFactory.supply(() -> mockAccount);
-    when(base.getCreateFunction()).thenReturn((p) -> future);
+    final FinishableFuture<Account> future = new FinishableFuture<Account>();
+    future.success(mockAccount);
+    when(base.getCreateFunction()).thenReturn(new Function1<String, FinishableFuture<Account>>() {
+      @Override
+      public FinishableFuture<Account> apply(String t) {
+        return future;
+      }
+    });
 
     final KeyStoreTemplate keyStoreTemplate = supplyKeyStoreTemplate(base);
 
@@ -88,9 +108,15 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
   @Test
   public void testLock() {
     final KeyStoreBaseTemplate base = mock(KeyStoreBaseTemplate.class);
-    final ResultOrErrorFuture<Boolean> future =
-        ResultOrErrorFutureFactory.supply(() -> true);
-    when(base.getLockFunction()).thenReturn((a) -> future);
+    final FinishableFuture<Boolean> future = new FinishableFuture<Boolean>();
+    future.success(true);
+    when(base.getLockFunction())
+        .thenReturn(new Function1<Authentication, FinishableFuture<Boolean>>() {
+          @Override
+          public FinishableFuture<Boolean> apply(Authentication t) {
+            return future;
+          }
+        });
 
     final KeyStoreTemplate keyStoreTemplate = supplyKeyStoreTemplate(base);
 
@@ -103,9 +129,15 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
   @Test
   public void testUnlock() {
     final KeyStoreBaseTemplate base = mock(KeyStoreBaseTemplate.class);
-    final ResultOrErrorFuture<Boolean> future =
-        ResultOrErrorFutureFactory.supply(() -> true);
-    when(base.getUnlockFunction()).thenReturn((a) -> future);
+    final FinishableFuture<Boolean> future = new FinishableFuture<Boolean>();
+    future.success(true);
+    when(base.getUnlockFunction())
+        .thenReturn(new Function1<Authentication, FinishableFuture<Boolean>>() {
+          @Override
+          public FinishableFuture<Boolean> apply(Authentication t) {
+            return future;
+          }
+        });
 
     final KeyStoreTemplate keyStoreTemplate = supplyKeyStoreTemplate(base);
 
@@ -120,9 +152,15 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
   public void testImportKey() {
     final KeyStoreBaseTemplate base = mock(KeyStoreBaseTemplate.class);
     final Account mockAccount = mock(Account.class);
-    final ResultOrErrorFuture<Account> future =
-        ResultOrErrorFutureFactory.supply(() -> mockAccount);
-    when(base.getImportKeyFunction()).thenReturn((k, op, np) -> future);
+    final FinishableFuture<Account> future = new FinishableFuture<Account>();
+    future.success(mockAccount);
+    when(base.getImportKeyFunction()).thenReturn(
+        new Function3<EncryptedPrivateKey, String, String, FinishableFuture<Account>>() {
+          @Override
+          public FinishableFuture<Account> apply(EncryptedPrivateKey t1, String t2, String t3) {
+            return future;
+          }
+        });
 
     final KeyStoreTemplate keyStoreTemplate = supplyKeyStoreTemplate(base);
 
@@ -137,9 +175,16 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
   public void testExportKey() {
     final KeyStoreBaseTemplate base = mock(KeyStoreBaseTemplate.class);
     final EncryptedPrivateKey mockEncryptedKey = mock(EncryptedPrivateKey.class);
-    final ResultOrErrorFuture<EncryptedPrivateKey> future =
-        ResultOrErrorFutureFactory.supply(() -> mockEncryptedKey);
-    when(base.getExportKeyFunction()).thenReturn((a) -> future);
+    final FinishableFuture<EncryptedPrivateKey> future =
+        new FinishableFuture<EncryptedPrivateKey>();
+    future.success(mockEncryptedKey);
+    when(base.getExportKeyFunction())
+        .thenReturn(new Function1<Authentication, FinishableFuture<EncryptedPrivateKey>>() {
+          @Override
+          public FinishableFuture<EncryptedPrivateKey> apply(Authentication t) {
+            return future;
+          }
+        });
 
     final KeyStoreTemplate keyStoreTemplate = supplyKeyStoreTemplate(base);
 

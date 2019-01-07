@@ -6,8 +6,6 @@ package hera.client;
 
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
-import static hera.api.tupleorerror.FunctionChain.of;
-import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
@@ -23,13 +21,12 @@ import hera.api.model.EncryptedPrivateKey;
 import hera.api.tupleorerror.Function0;
 import hera.api.tupleorerror.Function1;
 import hera.api.tupleorerror.Function3;
-import hera.api.tupleorerror.ResultOrErrorFuture;
-import hera.api.tupleorerror.ResultOrErrorFutureFactory;
 import hera.transport.AccountConverterFactory;
 import hera.transport.AuthenticationConverterFactory;
 import hera.transport.EncryptedPrivateKeyConverterFactory;
 import hera.transport.ModelConverter;
 import io.grpc.ManagedChannel;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import org.slf4j.Logger;
@@ -39,7 +36,6 @@ import types.Rpc;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-@SuppressWarnings("unchecked")
 public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderInjectable {
 
   protected final Logger logger = getLogger(getClass());
@@ -69,120 +65,223 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
   }
 
   @Getter
-  private final Function0<ResultOrErrorFuture<List<AccountAddress>>> listFunction =
-      () -> {
-        ResultOrErrorFuture<List<AccountAddress>> nextFuture =
-            ResultOrErrorFutureFactory.supplyEmptyFuture();
-        logger.debug("List keystore address, Context: {}", contextProvider.get());
+  private final Function0<FinishableFuture<List<AccountAddress>>> listFunction =
+      new Function0<FinishableFuture<List<AccountAddress>>>() {
 
-        ListenableFuture<AccountOuterClass.AccountList> listenableFuture =
-            aergoService.getAccounts(Rpc.Empty.newBuilder().build());
-        FutureChain<AccountOuterClass.AccountList, List<AccountAddress>> callback =
-            new FutureChain<>(nextFuture, contextProvider.get());
-        callback.setSuccessHandler(list -> of(
-            () -> list.getAccountsList().stream().map(accountConverter::convertToDomainModel)
-                .map(Account::getAddress).collect(toList())));
-        addCallback(listenableFuture, callback, directExecutor());
+        @Override
+        public FinishableFuture<List<AccountAddress>> apply() {
+          if (logger.isDebugEnabled()) {
+            logger.debug("List keystore address, Context: {}", contextProvider.get());
+          }
 
-        return nextFuture;
+          FinishableFuture<List<AccountAddress>> nextFuture =
+              new FinishableFuture<List<AccountAddress>>();
+          try {
+            ListenableFuture<AccountOuterClass.AccountList> listenableFuture =
+                aergoService.getAccounts(Rpc.Empty.newBuilder().build());
+
+            FutureChain<AccountOuterClass.AccountList, List<AccountAddress>> callback =
+                new FutureChain<>(nextFuture, contextProvider.get());
+            callback.setSuccessHandler(
+                new Function1<AccountOuterClass.AccountList, List<AccountAddress>>() {
+
+                  @Override
+                  public List<AccountAddress> apply(
+                      final AccountOuterClass.AccountList rpcAccountList) {
+                    final List<AccountAddress> domainAccountList =
+                        new ArrayList<AccountAddress>();
+                    for (final AccountOuterClass.Account rpcAccount : rpcAccountList
+                        .getAccountsList()) {
+                      domainAccountList
+                          .add(accountConverter.convertToDomainModel(rpcAccount).getAddress());
+                    }
+                    return domainAccountList;
+                  }
+                });
+            addCallback(listenableFuture, callback, directExecutor());
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+          return nextFuture;
+        }
       };
 
   @Getter
-  private final Function1<String, ResultOrErrorFuture<Account>> createFunction =
-      (password) -> {
-        ResultOrErrorFuture<Account> nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();
-        logger.debug("Create an account to server keystore, Context: {}", contextProvider.get());
+  private final Function1<String, FinishableFuture<Account>> createFunction =
+      new Function1<String, FinishableFuture<Account>>() {
 
-        Rpc.Personal personal = Rpc.Personal.newBuilder().setPassphrase(password).build();
-        ListenableFuture<AccountOuterClass.Account> listenableFuture =
-            aergoService.createAccount(personal);
-        FutureChain<AccountOuterClass.Account, Account> callback =
-            new FutureChain<>(nextFuture, contextProvider.get());
-        callback.setSuccessHandler(
-            account -> of(() -> accountConverter.convertToDomainModel(account)));
-        addCallback(listenableFuture, callback, directExecutor());
+        @Override
+        public FinishableFuture<Account> apply(final String password) {
+          if (logger.isDebugEnabled()) {
+            logger.debug("Create an account to server keystore, Context: {}",
+                contextProvider.get());
+          }
 
-        return nextFuture;
+          FinishableFuture<Account> nextFuture = new FinishableFuture<Account>();
+          try {
+            Rpc.Personal personal = Rpc.Personal.newBuilder().setPassphrase(password).build();
+            ListenableFuture<AccountOuterClass.Account> listenableFuture =
+                aergoService.createAccount(personal);
+
+            FutureChain<AccountOuterClass.Account, Account> callback =
+                new FutureChain<>(nextFuture, contextProvider.get());
+            callback.setSuccessHandler(new Function1<AccountOuterClass.Account, Account>() {
+
+              @Override
+              public Account apply(final AccountOuterClass.Account rpcAccount) {
+                return accountConverter.convertToDomainModel(rpcAccount);
+              }
+            });
+            addCallback(listenableFuture, callback, directExecutor());
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+          return nextFuture;
+        }
       };
 
   @Getter
-  private final Function1<Authentication, ResultOrErrorFuture<Boolean>> unlockFunction =
-      (authentication) -> {
-        ResultOrErrorFuture<Boolean> nextFuture =
-            ResultOrErrorFutureFactory.supplyEmptyFuture();
-        logger.debug("Unlock an account in server keystore, Address: {}, Context: {}",
-            authentication.getAddress(), contextProvider.get());
+  private final Function1<Authentication, FinishableFuture<Boolean>> unlockFunction =
+      new Function1<Authentication, FinishableFuture<Boolean>>() {
 
-        ListenableFuture<AccountOuterClass.Account> listenableFuture =
-            aergoService
-                .unlockAccount(authenticationConverter.convertToRpcModel(authentication));
-        FutureChain<AccountOuterClass.Account, Boolean> callback =
-            new FutureChain<>(nextFuture, contextProvider.get());
-        callback.setSuccessHandler(account -> of(() -> null != account.getAddress()));
-        addCallback(listenableFuture, callback, directExecutor());
+        @Override
+        public FinishableFuture<Boolean> apply(final Authentication authentication) {
+          if (logger.isDebugEnabled()) {
+            logger.debug("Unlock an account in server keystore, Address: {}, Context: {}",
+                authentication.getAddress(), contextProvider.get());
+          }
 
-        return nextFuture;
+          FinishableFuture<Boolean> nextFuture = new FinishableFuture<Boolean>();
+          try {
+            final Rpc.Personal request = authenticationConverter.convertToRpcModel(authentication);
+            ListenableFuture<AccountOuterClass.Account> listenableFuture =
+                aergoService.unlockAccount(request);
+
+            FutureChain<AccountOuterClass.Account, Boolean> callback =
+                new FutureChain<>(nextFuture, contextProvider.get());
+            callback.setSuccessHandler(new Function1<AccountOuterClass.Account, Boolean>() {
+
+              @Override
+              public Boolean apply(final AccountOuterClass.Account rpcAccount) {
+                return null != rpcAccount.getAddress();
+              }
+            });
+            addCallback(listenableFuture, callback, directExecutor());
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+          return nextFuture;
+        }
       };
+
   @Getter
-  private final Function1<Authentication, ResultOrErrorFuture<Boolean>> lockFunction =
-      (authentication) -> {
-        ResultOrErrorFuture<Boolean> nextFuture =
-            ResultOrErrorFutureFactory.supplyEmptyFuture();
-        logger.debug("Lock an account in server keystore, Address: {}, Context: {}",
-            authentication.getAddress(), contextProvider.get());
+  private final Function1<Authentication, FinishableFuture<Boolean>> lockFunction =
+      new Function1<Authentication, FinishableFuture<Boolean>>() {
 
-        ListenableFuture<AccountOuterClass.Account> listenableFuture =
-            aergoService.lockAccount(authenticationConverter.convertToRpcModel(authentication));
-        FutureChain<AccountOuterClass.Account, Boolean> callback =
-            new FutureChain<>(nextFuture, contextProvider.get());
-        callback.setSuccessHandler(account -> of(() -> null != account.getAddress()));
-        addCallback(listenableFuture, callback, directExecutor());
+        @Override
+        public FinishableFuture<Boolean> apply(final Authentication authentication) {
+          if (logger.isDebugEnabled()) {
+            logger.debug("Lock an account in server keystore, Address: {}, Context: {}",
+                authentication.getAddress(), contextProvider.get());
+          }
 
-        return nextFuture;
+          FinishableFuture<Boolean> nextFuture = new FinishableFuture<Boolean>();
+          try {
+            ListenableFuture<AccountOuterClass.Account> listenableFuture =
+                aergoService.lockAccount(authenticationConverter.convertToRpcModel(authentication));
+
+            FutureChain<AccountOuterClass.Account, Boolean> callback =
+                new FutureChain<>(nextFuture, contextProvider.get());
+            callback.setSuccessHandler(new Function1<AccountOuterClass.Account, Boolean>() {
+
+              @Override
+              public Boolean apply(final AccountOuterClass.Account rpcAccount) {
+                return null != rpcAccount.getAddress();
+              }
+            });
+            addCallback(listenableFuture, callback, directExecutor());
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+          return nextFuture;
+        }
       };
 
   @Getter
   private final Function3<EncryptedPrivateKey, String, String,
-      ResultOrErrorFuture<Account>> importKeyFunction =
-          (encryptedKey, oldPassword, newPassword) -> {
-            ResultOrErrorFuture<Account> nextFuture =
-                ResultOrErrorFutureFactory.supplyEmptyFuture();
-            logger.debug("Import an account to server keystore, EncryptedKey: {}, Context: {}",
-                encryptedKey, contextProvider.get());
+      FinishableFuture<Account>> importKeyFunction = new Function3<
+          EncryptedPrivateKey, String, String, FinishableFuture<Account>>() {
 
-            Rpc.ImportFormat importFormat = Rpc.ImportFormat.newBuilder()
+        @Override
+        public FinishableFuture<Account> apply(final EncryptedPrivateKey encryptedKey,
+            final String oldPassword, final String newPassword) {
+          if (logger.isDebugEnabled()) {
+            logger.debug(
+                "Import an account to server keystore, EncryptedKey: {}, Context: {}",
+                encryptedKey, contextProvider.get());
+          }
+
+          FinishableFuture<Account> nextFuture = new FinishableFuture<Account>();
+          try {
+            final Rpc.ImportFormat request = Rpc.ImportFormat.newBuilder()
                 .setWif(encryptedPkConverter.convertToRpcModel(encryptedKey))
-                .setOldpass(oldPassword)
-                .setNewpass(newPassword).build();
+                .setOldpass(oldPassword).setNewpass(newPassword).build();
             ListenableFuture<AccountOuterClass.Account> listenableFuture =
-                aergoService.importAccount(importFormat);
+                aergoService.importAccount(request);
+
             FutureChain<AccountOuterClass.Account, Account> callback =
                 new FutureChain<>(nextFuture, contextProvider.get());
-            callback.setSuccessHandler(
-                account -> of(() -> accountConverter.convertToDomainModel(account)));
-            addCallback(listenableFuture, callback, directExecutor());
+            callback.setSuccessHandler(new Function1<AccountOuterClass.Account, Account>() {
 
-            return nextFuture;
-          };
+              @Override
+              public Account apply(final AccountOuterClass.Account rpcAccount) {
+                return accountConverter.convertToDomainModel(rpcAccount);
+              }
+            });
+            addCallback(listenableFuture, callback, directExecutor());
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+          return nextFuture;
+        }
+      };
 
   @Getter
   private final Function1<Authentication,
-      ResultOrErrorFuture<EncryptedPrivateKey>> exportKeyFunction = (authentication) -> {
-        ResultOrErrorFuture<EncryptedPrivateKey> nextFuture =
-            ResultOrErrorFutureFactory.supplyEmptyFuture();
-        logger.debug("Export an account from server keystore, Address: {}, Context: {}",
-            authentication.getAddress(), contextProvider.get());
+      FinishableFuture<EncryptedPrivateKey>> exportKeyFunction = new Function1<
+          Authentication, FinishableFuture<EncryptedPrivateKey>>() {
 
-        ListenableFuture<Rpc.SingleBytes> listenableFuture =
-            aergoService
-                .exportAccount(authenticationConverter.convertToRpcModel(authentication));
-        FutureChain<Rpc.SingleBytes, EncryptedPrivateKey> callback =
-            new FutureChain<>(nextFuture, contextProvider.get());
-        callback.setSuccessHandler(
-            rawPk -> of(() -> encryptedPkConverter.convertToDomainModel(rawPk)));
-        addCallback(listenableFuture, callback, directExecutor());
+        @Override
+        public FinishableFuture<EncryptedPrivateKey> apply(
+            final Authentication authentication) {
+          if (logger.isDebugEnabled()) {
+            logger.debug("Export an account from server keystore, Address: {}, Context: {}",
+                authentication.getAddress(), contextProvider.get());
+          }
 
-        return nextFuture;
+          FinishableFuture<EncryptedPrivateKey> nextFuture =
+              new FinishableFuture<EncryptedPrivateKey>();
+          try {
+            final Rpc.Personal request =
+                authenticationConverter.convertToRpcModel(authentication);
+            ListenableFuture<Rpc.SingleBytes> listenableFuture =
+                aergoService.exportAccount(request);
+
+            FutureChain<Rpc.SingleBytes, EncryptedPrivateKey> callback =
+                new FutureChain<>(nextFuture, contextProvider.get());
+            callback.setSuccessHandler(new Function1<Rpc.SingleBytes, EncryptedPrivateKey>() {
+
+              @Override
+              public EncryptedPrivateKey apply(final Rpc.SingleBytes rawPk) {
+                return encryptedPkConverter.convertToDomainModel(rawPk);
+              }
+            });
+            addCallback(listenableFuture, callback, directExecutor());
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+          return nextFuture;
+        }
       };
 
 }

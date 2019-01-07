@@ -20,8 +20,8 @@ import hera.ContextProvider;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
-import hera.api.tupleorerror.ResultOrErrorFuture;
-import hera.api.tupleorerror.ResultOrErrorFutureFactory;
+import hera.api.tupleorerror.Function1;
+import hera.api.tupleorerror.Function2;
 import hera.api.tupleorerror.WithIdentity;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,8 +49,15 @@ public class BlockTemplateTest extends AbstractTestCase {
   public void testGetBlockByHash() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
     final Block mockBlock = mock(Block.class);
-    final ResultOrErrorFuture<Block> future = ResultOrErrorFutureFactory.supply(() -> mockBlock);
-    when(base.getBlockByHashFunction()).thenReturn((h) -> future);
+    final FinishableFuture<Block> future = new FinishableFuture<Block>();
+    future.success(mockBlock);
+    when(base.getBlockByHashFunction())
+        .thenReturn(new Function1<BlockHash, FinishableFuture<Block>>() {
+          @Override
+          public FinishableFuture<Block> apply(BlockHash t) {
+            return future;
+          }
+        });
 
     final BlockTemplate blockTemplate = supplyBlockTemplate(base);
 
@@ -65,8 +72,15 @@ public class BlockTemplateTest extends AbstractTestCase {
   public void testGetBlockByHeight() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
     final Block mockBlock = mock(Block.class);
-    final ResultOrErrorFuture<Block> future = ResultOrErrorFutureFactory.supply(() -> mockBlock);
-    when(base.getBlockByHeightFunction()).thenReturn((h) -> future);
+    final FinishableFuture<Block> future = new FinishableFuture<Block>();
+    future.success(mockBlock);
+    when(base.getBlockByHeightFunction())
+        .thenReturn(new Function1<Long, FinishableFuture<Block>>() {
+          @Override
+          public FinishableFuture<Block> apply(Long t) {
+            return future;
+          }
+        });
 
     final BlockTemplate blockTemplate = supplyBlockTemplate(base);
 
@@ -79,9 +93,15 @@ public class BlockTemplateTest extends AbstractTestCase {
   @Test
   public void testListBlockHeadersByHash() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
-    final ResultOrErrorFuture<List<BlockHeader>> future =
-        ResultOrErrorFutureFactory.supply(() -> new ArrayList<BlockHeader>());
-    when(base.getListBlockHeadersByHashFunction()).thenReturn((h, c) -> future);
+    final FinishableFuture<List<BlockHeader>> future = new FinishableFuture<List<BlockHeader>>();
+    future.success(new ArrayList<BlockHeader>());
+    when(base.getListBlockHeadersByHashFunction())
+        .thenReturn(new Function2<BlockHash, Integer, FinishableFuture<List<BlockHeader>>>() {
+          @Override
+          public FinishableFuture<List<BlockHeader>> apply(BlockHash t1, Integer t2) {
+            return future;
+          }
+        });
 
     final BlockTemplate blockTemplate = supplyBlockTemplate(base);
 
@@ -95,9 +115,15 @@ public class BlockTemplateTest extends AbstractTestCase {
   @Test
   public void testListBlockHeadersByHeight() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
-    final ResultOrErrorFuture<List<BlockHeader>> future =
-        ResultOrErrorFutureFactory.supply(() -> new ArrayList<BlockHeader>());
-    when(base.getListBlockHeadersByHeightFunction()).thenReturn((h, c) -> future);
+    final FinishableFuture<List<BlockHeader>> future = new FinishableFuture<List<BlockHeader>>();
+    future.success(new ArrayList<BlockHeader>());
+    when(base.getListBlockHeadersByHeightFunction())
+        .thenReturn(new Function2<Long, Integer, FinishableFuture<List<BlockHeader>>>() {
+          @Override
+          public FinishableFuture<List<BlockHeader>> apply(Long t1, Integer t2) {
+            return future;
+          }
+        });
 
     final BlockTemplate blockTemplate = supplyBlockTemplate(base);
 

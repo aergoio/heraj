@@ -20,7 +20,6 @@ import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.tupleorerror.Function1;
 import hera.api.tupleorerror.Function3;
-import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import lombok.AccessLevel;
@@ -51,36 +50,36 @@ public class TransactionTemplate
   }
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<TxHash, ResultOrErrorFuture<Transaction>> transactionFunction =
+  private final Function1<TxHash, FinishableFuture<Transaction>> transactionFunction =
       getStrategyChain().apply(identify(getTransactionBaseTemplate().getTransactionFunction(),
           TRANSACTION_GETTX));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<Transaction, ResultOrErrorFuture<TxHash>> commitFunction =
+  private final Function1<Transaction, FinishableFuture<TxHash>> commitFunction =
       getStrategyChain()
           .apply(identify(getTransactionBaseTemplate().getCommitFunction(), TRANSACTION_COMMIT));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function3<AccountAddress, AccountAddress, Aer,
-      ResultOrErrorFuture<TxHash>> sendFunction =
+      FinishableFuture<TxHash>> sendFunction =
           getStrategyChain()
               .apply(identify(getTransactionBaseTemplate().getSendFunction(), TRANSACTION_SEND));
 
   @Override
   public Transaction getTransaction(final TxHash txHash) {
-    return getTransactionFunction().apply(txHash).get().getResult();
+    return getTransactionFunction().apply(txHash).get();
   }
 
   @Override
   public TxHash commit(final Transaction transaction) {
-    return getCommitFunction().apply(transaction).get().getResult();
+    return getCommitFunction().apply(transaction).get();
   }
 
   @Override
   public TxHash send(final AccountAddress sender,
       final AccountAddress recipient,
       final Aer amount) {
-    return getSendFunction().apply(sender, recipient, amount).get().getResult();
+    return getSendFunction().apply(sender, recipient, amount).get();
   }
 
 }

@@ -27,7 +27,6 @@ import hera.api.tupleorerror.Function1;
 import hera.api.tupleorerror.Function2;
 import hera.api.tupleorerror.Function3;
 import hera.api.tupleorerror.Function4;
-import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import lombok.AccessLevel;
@@ -58,37 +57,37 @@ public class AccountTemplate
   }
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<AccountAddress, ResultOrErrorFuture<AccountState>> stateFunction =
+  private final Function1<AccountAddress, FinishableFuture<AccountState>> stateFunction =
       getStrategyChain()
           .apply(identify(getAccountBaseTemplate().getStateFunction(), ACCOUNT_GETSTATE));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function3<Account, String, Long,
-      ResultOrErrorFuture<TxHash>> createNameFunction =
+      FinishableFuture<TxHash>> createNameFunction =
           getStrategyChain()
               .apply(identify(getAccountBaseTemplate().getCreateNameFunction(),
                   ACCOUNT_CREATE_NAME));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function4<Account, String, AccountAddress, Long,
-      ResultOrErrorFuture<TxHash>> updateNameFunction =
+      FinishableFuture<TxHash>> updateNameFunction =
           getStrategyChain().apply(
               identify(getAccountBaseTemplate().getUpdateNameFunction(), ACCOUNT_UPDATE_NAME));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<String, ResultOrErrorFuture<AccountAddress>> nameOwnerFunction =
+  private final Function1<String, FinishableFuture<AccountAddress>> nameOwnerFunction =
       getStrategyChain()
           .apply(
               identify(getAccountBaseTemplate().getGetNameOwnerFunction(), ACCOUNT_GETNAMEOWNER));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function2<Account, RawTransaction,
-      ResultOrErrorFuture<Transaction>> signFunction =
+      FinishableFuture<Transaction>> signFunction =
           getStrategyChain()
               .apply(identify(getAccountBaseTemplate().getSignFunction(), ACCOUNT_SIGN));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function2<Account, Transaction, ResultOrErrorFuture<Boolean>> verifyFunction =
+  private final Function2<Account, Transaction, FinishableFuture<Boolean>> verifyFunction =
       getStrategyChain()
           .apply(identify(getAccountBaseTemplate().getVerifyFunction(), ACCOUNT_VERIFY));
 
@@ -99,33 +98,33 @@ public class AccountTemplate
 
   @Override
   public AccountState getState(final AccountAddress address) {
-    return getStateFunction().apply(address).get().getResult();
+    return getStateFunction().apply(address).get();
   }
 
   @Override
   public TxHash createName(final Account account, final String name, final long nonce) {
-    return getCreateNameFunction().apply(account, name, nonce).get().getResult();
+    return getCreateNameFunction().apply(account, name, nonce).get();
   }
 
   @Override
   public TxHash updateName(final Account ownerAccount, final String name,
       final AccountAddress newOwner, final long nonce) {
-    return getUpdateNameFunction().apply(ownerAccount, name, newOwner, nonce).get().getResult();
+    return getUpdateNameFunction().apply(ownerAccount, name, newOwner, nonce).get();
   }
 
   @Override
   public AccountAddress getNameOwner(final String name) {
-    return getNameOwnerFunction().apply(name).get().getResult();
+    return getNameOwnerFunction().apply(name).get();
   }
 
   @Override
   public Transaction sign(final Account account, final RawTransaction rawTransaction) {
-    return getSignFunction().apply(account, rawTransaction).get().getResult();
+    return getSignFunction().apply(account, rawTransaction).get();
   }
 
   @Override
   public boolean verify(final Account account, final Transaction signedTransaction) {
-    return getVerifyFunction().apply(account, signedTransaction).get().getResult();
+    return getVerifyFunction().apply(account, signedTransaction).get();
   }
 
 }

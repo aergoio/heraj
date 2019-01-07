@@ -20,7 +20,6 @@ import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
 import hera.api.tupleorerror.Function0;
-import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import java.util.List;
@@ -54,45 +53,45 @@ public class BlockchainTemplate
   }
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function0<ResultOrErrorFuture<BlockchainStatus>> blockchainStatusFunction =
+  private final Function0<FinishableFuture<BlockchainStatus>> blockchainStatusFunction =
       getStrategyChain().apply(identify(getBlockchainBaseTemplate().getBlockchainStatusFunction(),
           BLOCKCHAIN_BLOCKCHAINSTATUS));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function0<ResultOrErrorFuture<List<Peer>>> listPeersFunction =
+  private final Function0<FinishableFuture<List<Peer>>> listPeersFunction =
       getStrategyChain()
           .apply(
               identify(getBlockchainBaseTemplate().getListPeersFunction(), BLOCKCHAIN_LISTPEERS));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function0<ResultOrErrorFuture<List<PeerMetric>>> listPeerMetricsFunction =
+  private final Function0<FinishableFuture<List<PeerMetric>>> listPeerMetricsFunction =
       getStrategyChain().apply(
           identify(getBlockchainBaseTemplate().getListPeersMetricsFunction(),
               BLOCKCHAIN_PEERMETRICS));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function0<ResultOrErrorFuture<NodeStatus>> nodeStatusFunction =
+  private final Function0<FinishableFuture<NodeStatus>> nodeStatusFunction =
       getStrategyChain().apply(
           identify(getBlockchainBaseTemplate().getNodeStatusFunction(), BLOCKCHAIN_NODESTATUS));
 
   @Override
   public BlockchainStatus getBlockchainStatus() {
-    return getBlockchainStatusFunction().apply().get().getResult();
+    return getBlockchainStatusFunction().apply().get();
   }
 
   @Override
   public List<Peer> listPeers() {
-    return getListPeersFunction().apply().get().getResult();
+    return getListPeersFunction().apply().get();
   }
 
   @Override
   public List<PeerMetric> listPeerMetrics() {
-    return getListPeerMetricsFunction().apply().get().getResult();
+    return getListPeerMetricsFunction().apply().get();
   }
 
   @Override
   public NodeStatus getNodeStatus() {
-    return getNodeStatusFunction().apply().get().getResult();
+    return getNodeStatusFunction().apply().get();
   }
 
 }

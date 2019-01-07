@@ -27,7 +27,6 @@ import hera.api.model.ContractTxReceipt;
 import hera.api.model.Fee;
 import hera.api.tupleorerror.Function1;
 import hera.api.tupleorerror.Function4;
-import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import lombok.AccessLevel;
@@ -59,59 +58,59 @@ public class ContractTemplate
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<ContractTxHash,
-      ResultOrErrorFuture<ContractTxReceipt>> receiptFunction = getStrategyChain().apply(
+      FinishableFuture<ContractTxReceipt>> receiptFunction = getStrategyChain().apply(
           identify(contractBaseTemplate.getReceiptFunction(), CONTRACT_GETRECEIPT));
 
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function4<Account, ContractDefinition, Long, Fee,
-      ResultOrErrorFuture<ContractTxHash>> deployFunction =
+      FinishableFuture<ContractTxHash>> deployFunction =
           getStrategyChain()
               .apply(identify(contractBaseTemplate.getDeployFunction(), CONTRACT_DEPLOY));
 
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<ContractAddress,
-      ResultOrErrorFuture<ContractInterface>> contractInterfaceFunction =
+      FinishableFuture<ContractInterface>> contractInterfaceFunction =
           getStrategyChain().apply(identify(contractBaseTemplate.getContractInterfaceFunction(),
               CONTRACT_GETINTERFACE));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function4<Account, ContractInvocation, Long, Fee,
-      ResultOrErrorFuture<ContractTxHash>> executeFunction =
+      FinishableFuture<ContractTxHash>> executeFunction =
           getStrategyChain()
               .apply(identify(contractBaseTemplate.getExecuteFunction(), CONTRACT_EXECUTE));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<ContractInvocation, ResultOrErrorFuture<ContractResult>> queryFunction =
+  private final Function1<ContractInvocation, FinishableFuture<ContractResult>> queryFunction =
       getStrategyChain().apply(identify(contractBaseTemplate.getQueryFunction(), CONTRACT_QUERY));
 
   @Override
   public ContractTxReceipt getReceipt(final ContractTxHash contractTxHash) {
-    return getReceiptFunction().apply(contractTxHash).get().getResult();
+    return getReceiptFunction().apply(contractTxHash).get();
   }
 
   @Override
   public ContractTxHash deploy(final Account creator, final ContractDefinition contractDefinition,
       final long nonce, final Fee fee) {
-    return getDeployFunction().apply(creator, contractDefinition, nonce, fee).get().getResult();
+    return getDeployFunction().apply(creator, contractDefinition, nonce, fee).get();
   }
 
   @Override
   public ContractInterface getContractInterface(
       final ContractAddress contractAddress) {
-    return getContractInterfaceFunction().apply(contractAddress).get().getResult();
+    return getContractInterfaceFunction().apply(contractAddress).get();
   }
 
   @Override
   public ContractTxHash execute(final Account executor, final ContractInvocation contractInvocation,
       final long nonce, final Fee fee) {
-    return getExecuteFunction().apply(executor, contractInvocation, nonce, fee).get().getResult();
+    return getExecuteFunction().apply(executor, contractInvocation, nonce, fee).get();
   }
 
   @Override
   public ContractResult query(final ContractInvocation contractInvocation) {
-    return getQueryFunction().apply(contractInvocation).get().getResult();
+    return getQueryFunction().apply(contractInvocation).get();
   }
 
 }

@@ -24,7 +24,6 @@ import hera.api.model.EncryptedPrivateKey;
 import hera.api.tupleorerror.Function0;
 import hera.api.tupleorerror.Function1;
 import hera.api.tupleorerror.Function3;
-import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import java.util.List;
@@ -56,62 +55,62 @@ public class KeyStoreTemplate
   }
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function0<ResultOrErrorFuture<List<AccountAddress>>> listFunction =
+  private final Function0<FinishableFuture<List<AccountAddress>>> listFunction =
       getStrategyChain()
           .apply(identify(getKeyStoreBaseTemplate().getListFunction(), KEYSTORE_LIST));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<String, ResultOrErrorFuture<Account>> createFunction =
+  private final Function1<String, FinishableFuture<Account>> createFunction =
       getStrategyChain()
           .apply(identify(getKeyStoreBaseTemplate().getCreateFunction(), KEYSTORE_CREATE));
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<Authentication, ResultOrErrorFuture<Boolean>> unlockFunction =
+  private final Function1<Authentication, FinishableFuture<Boolean>> unlockFunction =
       getStrategyChain()
           .apply(identify(getKeyStoreBaseTemplate().getUnlockFunction(), KEYSTORE_UNLOCK));
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<Authentication, ResultOrErrorFuture<Boolean>> lockFunction =
+  private final Function1<Authentication, FinishableFuture<Boolean>> lockFunction =
       getStrategyChain()
           .apply(identify(getKeyStoreBaseTemplate().getLockFunction(), KEYSTORE_LOCK));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function3<EncryptedPrivateKey, String, String,
-      ResultOrErrorFuture<Account>> importKeyFunction = getStrategyChain().apply(
+      FinishableFuture<Account>> importKeyFunction = getStrategyChain().apply(
           identify(getKeyStoreBaseTemplate().getImportKeyFunction(), KEYSTORE_IMPORTKEY));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<Authentication,
-      ResultOrErrorFuture<EncryptedPrivateKey>> exportKeyFunction = getStrategyChain().apply(
+      FinishableFuture<EncryptedPrivateKey>> exportKeyFunction = getStrategyChain().apply(
           identify(getKeyStoreBaseTemplate().getExportKeyFunction(), KEYSTORE_EXPORTKEY));
 
   @Override
   public List<AccountAddress> list() {
-    return getListFunction().apply().get().getResult();
+    return getListFunction().apply().get();
   }
 
   @Override
   public Account create(final String password) {
-    return getCreateFunction().apply(password).get().getResult();
+    return getCreateFunction().apply(password).get();
   }
 
   @Override
   public boolean lock(final Authentication authentication) {
-    return getLockFunction().apply(authentication).get().getResult();
+    return getLockFunction().apply(authentication).get();
   }
 
   @Override
   public boolean unlock(final Authentication authentication) {
-    return getUnlockFunction().apply(authentication).get().getResult();
+    return getUnlockFunction().apply(authentication).get();
   }
 
   @Override
   public Account importKey(final EncryptedPrivateKey encryptedKey,
       final String oldPassword, final String newPassword) {
-    return getImportKeyFunction().apply(encryptedKey, oldPassword, newPassword).get().getResult();
+    return getImportKeyFunction().apply(encryptedKey, oldPassword, newPassword).get();
   }
 
   @Override
   public EncryptedPrivateKey exportKey(final Authentication authentication) {
-    return getExportKeyFunction().apply(authentication).get().getResult();
+    return getExportKeyFunction().apply(authentication).get();
   }
 
 }
