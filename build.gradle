@@ -29,6 +29,8 @@ repositories {
   jcenter()
 }
 
+def javaVersion = JavaVersion.VERSION_1_6
+
 allprojects {
   group 'io.aergo'
   version '1.0-SNAPSHOT'
@@ -73,8 +75,8 @@ configure(javaProjects) {
 
   def projectBaseName = 'heraj-' + project.name
 
-  sourceCompatibility = JavaVersion.VERSION_1_6
-  targetCompatibility = JavaVersion.VERSION_1_6
+  sourceCompatibility = javaVersion
+  targetCompatibility = javaVersion
 
   repositories {
     mavenLocal()
@@ -275,8 +277,8 @@ configure(exampleProjects) {
   apply plugin: 'idea'
   apply plugin: 'eclipse'
 
-  sourceCompatibility = JavaVersion.VERSION_1_8
-  targetCompatibility = JavaVersion.VERSION_1_8
+  sourceCompatibility = javaVersion
+  targetCompatibility = javaVersion
 
   repositories {
     mavenLocal()

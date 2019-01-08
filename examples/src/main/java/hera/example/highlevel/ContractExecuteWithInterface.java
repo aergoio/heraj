@@ -42,8 +42,11 @@ public class ContractExecuteWithInterface extends AbstractExample {
     // read contract in a payload form
     final InputStream inputStream = getClass().getResourceAsStream("/payload");
     String encodedContract;
-    try (Scanner scanner = new Scanner(inputStream, "UTF-8")) {
+    Scanner scanner = new Scanner(inputStream, "UTF-8");
+    try  {
       encodedContract = scanner.useDelimiter("\\A").next();
+    } finally {
+      scanner.close();
     }
 
     // define contract definition
