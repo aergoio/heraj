@@ -16,6 +16,6 @@
   <logger name="io.grpc" level="warn"/>
   <logger name="types" level="warn"/>
 
-  <logger name="hera" level="debug"/>
+  <logger name="hera" level="warn"/>
   <logger name="hera.util" level="error"/>
 </configuration>
