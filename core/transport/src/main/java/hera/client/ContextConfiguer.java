@@ -40,7 +40,7 @@ public interface ContextConfiguer<ConfiguerT> {
 
   /**
    * Use {@link OkHttpConnectStrategy}. If other {@link ConnectStrategy} is already set, that will
-   * be overridden. This method works for jdk 7 or higher.
+   * be overridden. This method works for <strong>jdk 1.7 or higher</strong>.
    *
    * @return an instance of this
    */
