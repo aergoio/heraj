@@ -43,7 +43,9 @@ public class PeerConverterFactory {
                 .setBlockHash(
                     copyFrom(domainPeer.getBlockchainStatus().getBestBlockHash().getBytesValue()))
                 .setBlockNo(domainPeer.getBlockchainStatus().getBestHeight()).build())
-            .setState(domainPeer.getState()).build();
+            .setState(domainPeer.getState())
+            .setHidden(domainPeer.isHidden())
+            .build();
       } catch (IOException e) {
         throw new RpcException("PeerId decoding failed", e);
       }
@@ -63,7 +65,8 @@ public class PeerConverterFactory {
             rpcPeer.getAddress().getPort(),
             Base58Utils.encode(rpcPeer.getAddress().getPeerID().toByteArray()),
             blockchainStatus,
-            rpcPeer.getState());
+            rpcPeer.getState(),
+            rpcPeer.getHidden());
       } catch (UnknownHostException e) {
         throw new RpcException("Invalid peer host name", e);
       }

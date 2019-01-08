@@ -35,6 +35,9 @@ public class Peer {
   @Getter
   protected int state;
 
+  @Getter
+  protected boolean hidden;
+
   /**
    * Peer constructor.
    *
@@ -43,11 +46,12 @@ public class Peer {
    * @param peerId a peer id
    * @param blockchainStatus a blockchain status of peer
    * @param state a peer state
+   * @param hidden whether a peer is hidden or not
    */
   @ApiAudience.Private
   public Peer(final InetAddress address, final int port, final String peerId,
       final BlockchainStatus blockchainStatus,
-      final int state) {
+      final int state, final boolean hidden) {
     assertNotNull(address, "Peer address must not null");
     assertNotNull(peerId, "Peer id must not null");
     assertNotNull(blockchainStatus, "Peer blockchain status must not null");
@@ -56,6 +60,7 @@ public class Peer {
     this.peerId = peerId;
     this.blockchainStatus = blockchainStatus;
     this.state = state;
+    this.hidden = hidden;
   }
 
 }

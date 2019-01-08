@@ -26,7 +26,7 @@ public class PeerConverterTest extends AbstractTestCase {
 
     final Peer domain = new Peer(InetAddress.getByName("localhost"), 8080,
         Base58Utils.encode(randomUUID().toString().getBytes()),
-        new BlockchainStatus(10L, new BlockHash(BytesValue.EMPTY)), 1);
+        new BlockchainStatus(10L, new BlockHash(BytesValue.EMPTY)), 1, false);
     final Rpc.Peer rpcPeer = converter.convertToRpcModel(domain);
 
     final Peer actualDomainPeer = converter.convertToDomainModel(rpcPeer);
