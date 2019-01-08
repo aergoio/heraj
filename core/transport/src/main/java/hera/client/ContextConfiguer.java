@@ -9,7 +9,6 @@ import hera.strategy.NettyConnectStrategy;
 import hera.strategy.OkHttpConnectStrategy;
 import hera.strategy.RetryStrategy;
 import hera.strategy.SimpleTimeoutStrategy;
-import hera.strategy.ZipkinTracingStrategy;
 import java.util.concurrent.TimeUnit;
 
 public interface ContextConfiguer<ConfiguerT> {
@@ -41,18 +40,11 @@ public interface ContextConfiguer<ConfiguerT> {
 
   /**
    * Use {@link OkHttpConnectStrategy}. If other {@link ConnectStrategy} is already set, that will
-   * be overridden.
+   * be overridden. This method works for jdk 7 or higher.
    *
    * @return an instance of this
    */
   ConfiguerT withBlockingConnect();
-
-  /**
-   * Use {@link ZipkinTracingStrategy}.
-   *
-   * @return an instance of this
-   */
-  ConfiguerT withTracking();
 
   /**
    * Set timeout for each request with {@link SimpleTimeoutStrategy}. If timeout is already set,

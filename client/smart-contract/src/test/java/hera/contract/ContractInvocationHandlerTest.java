@@ -17,6 +17,7 @@ import hera.AbstractTestCase;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
+import hera.api.model.ContractInvocation;
 import hera.api.model.Fee;
 import hera.client.ContractResultImpl;
 import hera.wallet.Wallet;
@@ -82,13 +83,13 @@ public class ContractInvocationHandlerTest extends AbstractTestCase {
     final SimpleSmartContract smartContract = new SmartContractFactory()
         .create(SimpleSmartContract.class, contractAddress);
     final Wallet mockWallet = mock(Wallet.class);
-    final List<ContractFunction> contractFunctions = new ArrayList<>();
+    final List<ContractFunction> contractFunctions = new ArrayList<ContractFunction>();
     contractFunctions.add(new ContractFunction("testExecute", asList("arg")));
     contractFunctions.add(new ContractFunction("testQuery"));
     final ContractInterface contractInterface =
         new ContractInterface(contractAddress, "1.0", "lua", contractFunctions);
     when(mockWallet.getContractInterface(contractAddress)).thenReturn(contractInterface);
-    when(mockWallet.query(any()))
+    when(mockWallet.query(any(ContractInvocation.class)))
         .thenReturn(new ContractResultImpl("1".getBytes()));
     smartContract.bind(mockWallet);
 

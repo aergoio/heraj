@@ -15,6 +15,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
 import hera.Context;
 import hera.ContextProvider;
+import hera.api.function.Function1;
+import hera.api.function.Function2;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountFactory;
@@ -31,8 +33,6 @@ import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.api.tupleorerror.Function1;
-import hera.api.tupleorerror.Function2;
 import hera.key.AergoKeyGenerator;
 import hera.util.Base58Utils;
 import java.util.concurrent.Callable;
@@ -83,7 +83,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
             return Blockchain.Receipt.newBuilder().build();
           }
         });
-    when(aergoService.getReceipt(any())).thenReturn(mockListenableFuture);
+    when(aergoService.getReceipt(any(Rpc.SingleBytes.class))).thenReturn(mockListenableFuture);
 
     final ContractBaseTemplate contractBaseTemplate = supplyContractBaseTemplate(aergoService);
 
@@ -122,7 +122,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
 
     AccountBaseTemplate mockAccountBaseTemplate = mock(AccountBaseTemplate.class);
-    Transaction mockSignedTransaction = mock(Transaction.class);
+    final Transaction mockSignedTransaction = mock(Transaction.class);
     when(mockAccountBaseTemplate.getSignFunction())
         .thenReturn(new Function2<Account, RawTransaction, FinishableFuture<Transaction>>() {
           @Override
@@ -164,7 +164,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
             return Blockchain.ABI.newBuilder().build();
           }
         });
-    when(aergoService.getABI(any())).thenReturn(mockListenableFuture);
+    when(aergoService.getABI(any(Rpc.SingleBytes.class))).thenReturn(mockListenableFuture);
 
     final ContractBaseTemplate contractBaseTemplate = supplyContractBaseTemplate(aergoService);
 
@@ -204,7 +204,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
 
     AccountBaseTemplate mockAccountBaseTemplate = mock(AccountBaseTemplate.class);
-    Transaction mockSignedTransaction = mock(Transaction.class);
+    final Transaction mockSignedTransaction = mock(Transaction.class);
     when(mockAccountBaseTemplate.getSignFunction())
         .thenReturn(new Function2<Account, RawTransaction, FinishableFuture<Transaction>>() {
           @Override
@@ -247,7 +247,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
             return Rpc.SingleBytes.newBuilder().build();
           }
         });
-    when(aergoService.queryContract(any())).thenReturn(mockListenableFuture);
+    when(aergoService.queryContract(any(Blockchain.Query.class))).thenReturn(mockListenableFuture);
 
     final ContractBaseTemplate contractBaseTemplate = supplyContractBaseTemplate(aergoService);
 

@@ -50,12 +50,6 @@ public class WalletBuilder implements ContextConfiguer<WalletBuilder> {
   }
 
   @Override
-  public WalletBuilder withTracking() {
-    clientBuilder.withTracking();
-    return this;
-  }
-
-  @Override
   public WalletBuilder withTimeout(final long timeout, final TimeUnit unit) {
     clientBuilder.withTimeout(timeout, unit);
     return this;

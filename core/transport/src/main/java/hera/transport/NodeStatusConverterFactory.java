@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import hera.api.function.Function1;
 import hera.api.model.ModuleStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.internal.Time;
@@ -25,7 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Rpc;
 
@@ -35,23 +35,33 @@ public class NodeStatusConverterFactory {
 
   protected final ObjectMapper mapper = getObjectMapper();
 
-  protected final Function<NodeStatus, Rpc.SingleBytes> domainConverter = domainNodeStatus -> {
-    throw new UnsupportedOperationException();
-  };
+  protected final Function1<NodeStatus, Rpc.SingleBytes> domainConverter =
+      new Function1<NodeStatus, Rpc.SingleBytes>() {
 
-  protected final Function<Rpc.SingleBytes, NodeStatus> rpcConverter = rpcNodeStatus -> {
-    logger.trace("Rpc node status: {}", rpcNodeStatus);
-    try {
-      final byte[] rawNodeStatus = rpcNodeStatus.getValue().toByteArray();
-      return rawNodeStatus.length == 0 ? new NodeStatus(new ArrayList<>())
-          : mapper.readValue(rawNodeStatus, NodeStatus.class);
-    } catch (Throwable e) {
-      throw new HerajException(e);
-    }
-  };
+        @Override
+        public Rpc.SingleBytes apply(final NodeStatus domainNodeStatus) {
+          throw new UnsupportedOperationException();
+        }
+      };
+
+  protected final Function1<Rpc.SingleBytes, NodeStatus> rpcConverter =
+      new Function1<Rpc.SingleBytes, NodeStatus>() {
+
+        @Override
+        public NodeStatus apply(final Rpc.SingleBytes rpcNodeStatus) {
+          logger.trace("Rpc node status: {}", rpcNodeStatus);
+          try {
+            final byte[] rawNodeStatus = rpcNodeStatus.getValue().toByteArray();
+            return rawNodeStatus.length == 0 ? new NodeStatus(new ArrayList<ModuleStatus>())
+                : mapper.readValue(rawNodeStatus, NodeStatus.class);
+          } catch (Throwable e) {
+            throw new HerajException(e);
+          }
+        }
+      };
 
   public ModelConverter<NodeStatus, Rpc.SingleBytes> create() {
-    return new ModelConverter<>(domainConverter, rpcConverter);
+    return new ModelConverter<NodeStatus, Rpc.SingleBytes>(domainConverter, rpcConverter);
   }
 
   protected ObjectMapper getObjectMapper() {
@@ -73,7 +83,7 @@ public class NodeStatusConverterFactory {
       ObjectCodec objectCodec = parser.getCodec();
       JsonNode nodeStatusNode = objectCodec.readTree(parser);
 
-      final List<ModuleStatus> moduleStatusList = new ArrayList<>();
+      final List<ModuleStatus> moduleStatusList = new ArrayList<ModuleStatus>();
       final Iterator<String> it = nodeStatusNode.fieldNames();
       while (it.hasNext()) {
         final String moduleName = it.next();

@@ -10,6 +10,7 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 import hera.AbstractTestCase;
 import hera.api.KeyStoreOperation;
 import hera.api.model.Account;
@@ -38,7 +39,8 @@ public class ServerKeyStoreTest extends AbstractTestCase {
   public void testExport() {
     final AergoClient mockClient = mock(AergoClient.class);
     final KeyStoreOperation mockKeyStoreOperation = mock(KeyStoreOperation.class);
-    when(mockKeyStoreOperation.exportKey(any())).thenReturn(mock(EncryptedPrivateKey.class));
+    when(mockKeyStoreOperation.exportKey(any(Authentication.class)))
+        .thenReturn(mock(EncryptedPrivateKey.class));
     when(mockClient.getKeyStoreOperation()).thenReturn(mockKeyStoreOperation);
 
     final KeyStore keyStore = new ServerKeyStore(mockClient);
@@ -52,7 +54,7 @@ public class ServerKeyStoreTest extends AbstractTestCase {
   public void testUnlockOnSuccess() {
     final AergoClient mockClient = mock(AergoClient.class);
     final KeyStoreOperation mockKeyStoreOperation = mock(KeyStoreOperation.class);
-    when(mockKeyStoreOperation.unlock(any())).thenReturn(true);
+    when(mockKeyStoreOperation.unlock(any(Authentication.class))).thenReturn(true);
     when(mockClient.getKeyStoreOperation()).thenReturn(mockKeyStoreOperation);
 
     final KeyStore keyStore = new ServerKeyStore(mockClient);
@@ -66,7 +68,7 @@ public class ServerKeyStoreTest extends AbstractTestCase {
   public void testUnlockOnFailure() {
     final AergoClient mockClient = mock(AergoClient.class);
     final KeyStoreOperation mockKeyStoreOperation = mock(KeyStoreOperation.class);
-    when(mockKeyStoreOperation.unlock(any())).thenReturn(false);
+    when(mockKeyStoreOperation.unlock(any(Authentication.class))).thenReturn(false);
     when(mockClient.getKeyStoreOperation()).thenReturn(mockKeyStoreOperation);
 
     final KeyStore keyStore = new ServerKeyStore(mockClient);
@@ -81,7 +83,7 @@ public class ServerKeyStoreTest extends AbstractTestCase {
   public void testLock() {
     final AergoClient mockClient = mock(AergoClient.class);
     final KeyStoreOperation mockKeyStoreOperation = mock(KeyStoreOperation.class);
-    when(mockKeyStoreOperation.lock(any())).thenReturn(true);
+    when(mockKeyStoreOperation.lock(any(Authentication.class))).thenReturn(true);
     when(mockClient.getKeyStoreOperation()).thenReturn(mockKeyStoreOperation);
 
     final KeyStore keyStore = new ServerKeyStore(mockClient);

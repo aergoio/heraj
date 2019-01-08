@@ -96,13 +96,12 @@ public class WalletIT extends AbstractIT {
             .build(type),
         new WalletBuilder()
             .withTimeout(1000L, TimeUnit.MILLISECONDS)
-            .withBlockingConnect()
+            .withNonBlockingConnect()
             .withEndpoint(hostname)
             .build(type),
         new WalletBuilder()
-            .withTracking()
             .withTimeout(1000L, TimeUnit.MILLISECONDS)
-            .withBlockingConnect()
+            .withNonBlockingConnect()
             .withEndpoint(hostname)
             .build(type));
   }
@@ -186,7 +185,9 @@ public class WalletIT extends AbstractIT {
       keyStore.load(new FileInputStream(keyStorePath),
           keyStorePasword.toCharArray());
       return keyStore;
-    } catch (CertificateException | IOException e) {
+    } catch (CertificateException e) {
+      keyStore.load(null, keyStorePasword.toCharArray());
+    } catch (IOException e) {
       keyStore.load(null, keyStorePasword.toCharArray());
     }
     return keyStore;

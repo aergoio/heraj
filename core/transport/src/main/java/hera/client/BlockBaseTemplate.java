@@ -18,12 +18,12 @@ import hera.ContextProvider;
 import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.api.function.Function1;
+import hera.api.function.Function2;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
 import hera.api.model.BytesValue;
-import hera.api.tupleorerror.Function1;
-import hera.api.tupleorerror.Function2;
 import hera.transport.BlockConverterFactory;
 import hera.transport.BlockMetadataConverterFactory;
 import hera.transport.ModelConverter;
@@ -83,7 +83,7 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
             ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(bytes);
 
             FutureChain<Blockchain.Block, Block> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<Blockchain.Block, Block>(nextFuture, contextProvider.get());
             callback.setSuccessHandler(new Function1<Blockchain.Block, Block>() {
               @Override
               public Block apply(final Blockchain.Block block) {
@@ -121,7 +121,7 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
             ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(bytes);
 
             FutureChain<Blockchain.Block, Block> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<Blockchain.Block, Block>(nextFuture, contextProvider.get());
             callback.setSuccessHandler(new Function1<Blockchain.Block, Block>() {
               @Override
               public Block apply(final Blockchain.Block block) {
@@ -162,7 +162,8 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
                 aergoService.listBlockMetadata(listParams);
 
             FutureChain<Rpc.BlockMetadataList, List<BlockHeader>> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<Rpc.BlockMetadataList, List<BlockHeader>>(nextFuture,
+                    contextProvider.get());
             callback.setSuccessHandler(
                 new Function1<Rpc.BlockMetadataList, List<BlockHeader>>() {
 
@@ -211,7 +212,8 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
                 aergoService.listBlockMetadata(listParams);
 
             FutureChain<Rpc.BlockMetadataList, List<BlockHeader>> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<Rpc.BlockMetadataList, List<BlockHeader>>(nextFuture,
+                    contextProvider.get());
             callback
                 .setSuccessHandler(new Function1<Rpc.BlockMetadataList, List<BlockHeader>>() {
                   @Override

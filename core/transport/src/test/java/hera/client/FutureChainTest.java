@@ -7,7 +7,7 @@ package hera.client;
 import static java.util.UUID.randomUUID;
 
 import hera.AbstractTestCase;
-import hera.api.tupleorerror.Function1;
+import hera.api.function.Function1;
 import hera.exception.RpcException;
 import org.junit.Test;
 
@@ -16,7 +16,7 @@ public class FutureChainTest extends AbstractTestCase {
   @Test
   public void testOnSuccess() {
     FinishableFuture<Integer> nextFuture = new FinishableFuture<Integer>();
-    FutureChain<String, Integer> callback = new FutureChain<>(nextFuture, context);
+    FutureChain<String, Integer> callback = new FutureChain<String, Integer>(nextFuture, context);
     callback.setSuccessHandler(new Function1<String, Integer>() {
       @Override
       public Integer apply(final String s) {
@@ -30,7 +30,7 @@ public class FutureChainTest extends AbstractTestCase {
   @Test(expected = RpcException.class)
   public void testOnSuccessWithoutHandler() {
     FinishableFuture<Integer> nextFuture = new FinishableFuture<Integer>();
-    FutureChain<String, Integer> callback = new FutureChain<>(nextFuture, context);
+    FutureChain<String, Integer> callback = new FutureChain<String, Integer>(nextFuture, context);
     callback.onSuccess(randomUUID().toString());
     nextFuture.get();
   }
@@ -38,7 +38,7 @@ public class FutureChainTest extends AbstractTestCase {
   @Test(expected = Exception.class)
   public void testOnFailure() {
     FinishableFuture<Integer> nextFuture = new FinishableFuture<Integer>();
-    FutureChain<String, Integer> callback = new FutureChain<>(nextFuture, context);
+    FutureChain<String, Integer> callback = new FutureChain<String, Integer>(nextFuture, context);
     callback.setSuccessHandler(new Function1<String, Integer>() {
       @Override
       public Integer apply(final String s) {
@@ -51,7 +51,7 @@ public class FutureChainTest extends AbstractTestCase {
 
   @Test(expected = NullPointerException.class)
   public void testCreation() {
-    new FutureChain<>(null, null);
+    new FutureChain<String, Integer>(null, null);
   }
 
 }

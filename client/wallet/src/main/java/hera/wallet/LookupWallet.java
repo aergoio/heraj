@@ -31,7 +31,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import org.slf4j.Logger;
 
-public abstract class LookupWallet implements LookupClient, AutoCloseable, Closeable {
+public abstract class LookupWallet implements LookupClient, Closeable {
 
   protected final Logger logger = getLogger(getClass());
 

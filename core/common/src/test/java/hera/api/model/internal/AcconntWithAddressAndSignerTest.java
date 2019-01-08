@@ -12,6 +12,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import hera.api.model.AccountAddress;
+import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.key.Signer;
 import org.junit.Test;
@@ -34,18 +35,18 @@ public class AcconntWithAddressAndSignerTest {
   public void testSign() {
     final AccountAddress address = AccountAddress.of(encodedAddress);
     final Signer signer = mock(Signer.class);
-    when(signer.sign(any())).thenReturn(mock(Transaction.class));
+    when(signer.sign(any(RawTransaction.class))).thenReturn(mock(Transaction.class));
 
     final AccountWithAddressAndSigner account = new AccountWithAddressAndSigner(address, signer);
     assertEquals(address, account.getAddress());
-    assertNotNull(account.sign(null));
+    assertNotNull(account.sign(mock(RawTransaction.class)));
   }
 
   @Test
   public void testVerify() {
     final AccountAddress address = AccountAddress.of(encodedAddress);
     final Signer signer = mock(Signer.class);
-    when(signer.verify(any())).thenReturn(true);
+    when(signer.verify(any(Transaction.class))).thenReturn(true);
 
     final AccountWithAddressAndSigner account = new AccountWithAddressAndSigner(address, signer);
     assertTrue(account.verify(mock(Transaction.class)));

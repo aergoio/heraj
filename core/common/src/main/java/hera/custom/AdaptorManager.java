@@ -4,10 +4,8 @@
 
 package hera.custom;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.StreamSupport.stream;
-
 import hera.Custom;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ServiceLoader;
@@ -19,7 +17,7 @@ public class AdaptorManager {
   @Getter
   protected static final AdaptorManager instance = new AdaptorManager();
 
-  protected Set<Adaptee<?>> initialized = new HashSet<>();
+  protected Set<Adaptee<?>> initialized = new HashSet<Adaptee<?>>();
 
   /**
    * Get and return registered adaptees for {@code candidateClass}.
@@ -32,19 +30,23 @@ public class AdaptorManager {
   @SuppressWarnings("unchecked")
   public <AdapteeT> List<? extends AdapteeT> getAdaptors(Class<AdapteeT> candidateClass) {
     final ServiceLoader<Custom> serviceLoader = ServiceLoader.load(Custom.class);
-    final List<? extends AdapteeT> list =
-        (List<? extends AdapteeT>) stream(serviceLoader.spliterator(), false)
-        .filter(candidateClass::isInstance)
-        .collect(toList());
+    final List<AdapteeT> list = new ArrayList<AdapteeT>();
+    for (final Custom custom : serviceLoader) {
+      if (candidateClass.isInstance(custom)) {
+        list.add((AdapteeT) custom);
+      }
+    }
 
-    list.stream()
-        .filter(custom -> custom instanceof Adaptee<?>)
-        .map(Adaptee.class::cast)
-        .filter(custom -> !initialized.contains(custom))
-        .forEach(adaptee -> {
-          adaptee.initialize(this);
-          initialized.add(adaptee);
-        });
+    for (final AdapteeT adaptee : list) {
+      if (adaptee instanceof Adaptee<?>) {
+        final Adaptee<?> custom = ((Adaptee<?>) adaptee);
+        if (!initialized.contains(custom)) {
+          custom.initialize(this);
+          initialized.add(custom);
+        }
+      }
+    }
+
     return list;
   }
 }

@@ -128,13 +128,14 @@ public class ContractInvocationHandler implements InvocationHandler {
     logger.debug("Validate {} with {}", proxy, contractInterface);
     for (final Method method : proxy.getClass().getDeclaredMethods()) {
       final String methodName = method.getName();
+      final int methodParameterCount = method.getParameterTypes().length;
       // java object methods
       if ("equals".equals(methodName) || "toString".equals(methodName)
           || "hashCode".equals(methodName)) {
         continue;
       }
       // contract specific methods
-      if ("bind".equals(methodName) && 1 == method.getParameterCount()) {
+      if ("bind".equals(methodName) && 1 == methodParameterCount) {
         final Class<?> parameterType = method.getParameterTypes()[0];
         if (Wallet.class.equals(parameterType) || Fee.class.equals(parameterType)) {
           continue;
@@ -146,7 +147,7 @@ public class ContractInvocationHandler implements InvocationHandler {
         throw new ContractException("No method " + methodName + " in contract interface");
       }
       final int actualArgCount = contractFunction.getArgumentNames().size();
-      if (method.getParameterCount() != actualArgCount) {
+      if (methodParameterCount != actualArgCount) {
         throw new ContractException(String.format(
             "Method parameter count for %s is invalid (expected: %d)", methodName, actualArgCount));
       }

@@ -6,9 +6,9 @@ package hera.strategy;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.function.Function;
+import hera.api.function.Function0;
 import hera.api.model.internal.Time;
-import hera.api.tupleorerror.Function;
-import hera.api.tupleorerror.Function0;
 import hera.client.FinishableFuture;
 import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
@@ -16,8 +16,8 @@ import lombok.ToString;
 import org.slf4j.Logger;
 
 @ToString
-@EqualsAndHashCode
-public class SimpleTimeoutStrategy implements TimeoutStrategy {
+@EqualsAndHashCode(callSuper = false)
+public class SimpleTimeoutStrategy extends TimeoutStrategy {
 
   protected final Logger logger = getLogger(getClass());
 

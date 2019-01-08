@@ -35,8 +35,8 @@ public class AbstractAccountTest {
 
     final AbstractAccount account = spy(AbstractAccount.class);
     for (Object[] testParameter : testParameters) {
-      final long nonce = (long) testParameter[0];
-      final long expected = (long) testParameter[1];
+      final long nonce = (Long) testParameter[0];
+      final long expected = (Long) testParameter[1];
       account.setNonce(nonce);
       assertEquals(expected, account.getNonce());
     }

@@ -2,10 +2,10 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.api.tupleorerror.impl;
+package hera.api.function.impl;
 
-import hera.api.tupleorerror.Function3;
-import hera.api.tupleorerror.WithIdentity;
+import hera.api.function.Function3;
+import hera.api.function.WithIdentity;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

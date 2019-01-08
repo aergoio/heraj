@@ -29,7 +29,7 @@ public abstract class AbstractTestCase {
   protected final transient Logger logger = getLogger(getClass());
 
   protected final ListeningExecutorService service =
-      MoreExecutors.listeningDecorator(Executors.newWorkStealingPool());
+      MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
 
   protected Context context;
 

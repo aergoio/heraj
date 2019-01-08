@@ -14,13 +14,13 @@ import hera.ContextProvider;
 import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.api.function.Function0;
+import hera.api.function.Function1;
+import hera.api.function.Function3;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
-import hera.api.tupleorerror.Function0;
-import hera.api.tupleorerror.Function1;
-import hera.api.tupleorerror.Function3;
 import hera.transport.AccountConverterFactory;
 import hera.transport.AuthenticationConverterFactory;
 import hera.transport.EncryptedPrivateKeyConverterFactory;
@@ -81,7 +81,8 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
                 aergoService.getAccounts(Rpc.Empty.newBuilder().build());
 
             FutureChain<AccountOuterClass.AccountList, List<AccountAddress>> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<AccountOuterClass.AccountList, List<AccountAddress>>(nextFuture,
+                    contextProvider.get());
             callback.setSuccessHandler(
                 new Function1<AccountOuterClass.AccountList, List<AccountAddress>>() {
 
@@ -124,7 +125,8 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
                 aergoService.createAccount(personal);
 
             FutureChain<AccountOuterClass.Account, Account> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<AccountOuterClass.Account, Account>(nextFuture,
+                    contextProvider.get());
             callback.setSuccessHandler(new Function1<AccountOuterClass.Account, Account>() {
 
               @Override
@@ -158,7 +160,8 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
                 aergoService.unlockAccount(request);
 
             FutureChain<AccountOuterClass.Account, Boolean> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<AccountOuterClass.Account, Boolean>(nextFuture,
+                    contextProvider.get());
             callback.setSuccessHandler(new Function1<AccountOuterClass.Account, Boolean>() {
 
               @Override
@@ -191,7 +194,8 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
                 aergoService.lockAccount(authenticationConverter.convertToRpcModel(authentication));
 
             FutureChain<AccountOuterClass.Account, Boolean> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<AccountOuterClass.Account, Boolean>(nextFuture,
+                    contextProvider.get());
             callback.setSuccessHandler(new Function1<AccountOuterClass.Account, Boolean>() {
 
               @Override
@@ -230,7 +234,8 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
                 aergoService.importAccount(request);
 
             FutureChain<AccountOuterClass.Account, Account> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<AccountOuterClass.Account, Account>(nextFuture,
+                    contextProvider.get());
             callback.setSuccessHandler(new Function1<AccountOuterClass.Account, Account>() {
 
               @Override
@@ -268,7 +273,8 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
                 aergoService.exportAccount(request);
 
             FutureChain<Rpc.SingleBytes, EncryptedPrivateKey> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<Rpc.SingleBytes, EncryptedPrivateKey>(nextFuture,
+                    contextProvider.get());
             callback.setSuccessHandler(new Function1<Rpc.SingleBytes, EncryptedPrivateKey>() {
 
               @Override

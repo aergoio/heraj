@@ -66,7 +66,7 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
             return AccountOuterClass.AccountList.newBuilder().build();
           }
         });
-    when(aergoService.getAccounts(any())).thenReturn(mockListenableFuture);
+    when(aergoService.getAccounts(any(Rpc.Empty.class))).thenReturn(mockListenableFuture);
 
     final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
@@ -85,7 +85,7 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
             return AccountOuterClass.Account.newBuilder().build();
           }
         });
-    when(aergoService.createAccount(any())).thenReturn(mockListenableFuture);
+    when(aergoService.createAccount(any(Rpc.Personal.class))).thenReturn(mockListenableFuture);
 
     final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
@@ -104,7 +104,7 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
             return AccountOuterClass.Account.newBuilder().build();
           }
         });
-    when(aergoService.lockAccount(any())).thenReturn(mockListenableFuture);
+    when(aergoService.lockAccount(any(Rpc.Personal.class))).thenReturn(mockListenableFuture);
 
     final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
@@ -123,7 +123,7 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
             return AccountOuterClass.Account.newBuilder().build();
           }
         });
-    when(aergoService.unlockAccount(any())).thenReturn(mockListenableFuture);
+    when(aergoService.unlockAccount(any(Rpc.Personal.class))).thenReturn(mockListenableFuture);
 
     final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
@@ -142,7 +142,7 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
             return AccountOuterClass.Account.newBuilder().build();
           }
         });
-    when(aergoService.importAccount(any())).thenReturn(mockListenableFuture);
+    when(aergoService.importAccount(any(Rpc.ImportFormat.class))).thenReturn(mockListenableFuture);
 
     final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
@@ -161,7 +161,7 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
             return Rpc.SingleBytes.newBuilder().build();
           }
         });
-    when(aergoService.exportAccount(any())).thenReturn(mockListenableFuture);
+    when(aergoService.exportAccount(any(Rpc.Personal.class))).thenReturn(mockListenableFuture);
 
     final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 

@@ -20,7 +20,6 @@ public class WalletBuilderTest extends AbstractTestCase {
         .withNonceRefresh(3, 1000L, TimeUnit.MILLISECONDS)
         .withTimeout(1000L, TimeUnit.MILLISECONDS)
         .withRetry(3, 5, TimeUnit.SECONDS)
-        .withTracking()
         .addConfiguration("key", "value");
 
     assertNotNull(builder.build(WalletType.Naive));

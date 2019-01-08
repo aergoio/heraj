@@ -12,7 +12,6 @@ import hera.exception.RpcException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 
 public class FinishableFuture<T> extends AbstractFuture<T>
@@ -60,7 +59,7 @@ public class FinishableFuture<T> extends AbstractFuture<T>
     } catch (ExecutionException e) {
       throw e.getCause() instanceof RpcException ? (RpcException) e.getCause()
           : new RpcException(e);
-    } catch (InterruptedException | TimeoutException e) {
+    } catch (Exception e) {
       throw new RpcException(e);
     }
   }

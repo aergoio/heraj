@@ -17,6 +17,8 @@ import hera.ContextProvider;
 import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.api.function.Function1;
+import hera.api.function.Function3;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.BytesValue;
@@ -24,8 +26,6 @@ import hera.api.model.Fee;
 import hera.api.model.Transaction;
 import hera.api.model.Transaction.TxType;
 import hera.api.model.TxHash;
-import hera.api.tupleorerror.Function1;
-import hera.api.tupleorerror.Function3;
 import hera.exception.CommitException;
 import hera.exception.RpcException;
 import hera.transport.ModelConverter;
@@ -85,7 +85,8 @@ public class TransactionBaseTemplate implements ChannelInjectable, ContextProvid
                 aergoService.getBlockTX(request);
 
             FutureChain<Blockchain.TxInBlock, Transaction> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<Blockchain.TxInBlock, Transaction>(nextFuture,
+                    contextProvider.get());
             callback.setSuccessHandler(new Function1<Blockchain.TxInBlock, Transaction>() {
 
               @Override
@@ -134,7 +135,7 @@ public class TransactionBaseTemplate implements ChannelInjectable, ContextProvid
             ListenableFuture<Rpc.CommitResultList> listenableFuture = aergoService.commitTX(txList);
 
             FutureChain<Rpc.CommitResultList, TxHash> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<Rpc.CommitResultList, TxHash>(nextFuture, contextProvider.get());
             callback.setSuccessHandler(new Function1<Rpc.CommitResultList, TxHash>() {
 
               @Override
@@ -181,7 +182,7 @@ public class TransactionBaseTemplate implements ChannelInjectable, ContextProvid
             ListenableFuture<Rpc.CommitResult> listenableFuture = aergoService.sendTX(tx);
 
             FutureChain<Rpc.CommitResult, TxHash> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<Rpc.CommitResult, TxHash>(nextFuture, contextProvider.get());
             callback.setSuccessHandler(new Function1<Rpc.CommitResult, TxHash>() {
 
               @Override

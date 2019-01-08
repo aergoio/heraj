@@ -67,7 +67,7 @@ public class TransactionBaseTemplateTest extends AbstractTestCase {
             return Blockchain.TxInBlock.newBuilder().build();
           }
         });
-    when(aergoService.getBlockTX(any())).thenReturn(mockListenableFuture);
+    when(aergoService.getBlockTX(any(Rpc.SingleBytes.class))).thenReturn(mockListenableFuture);
 
     final TransactionBaseTemplate transactionBaseTemplate =
         supplyTransactionBaseTemplate(aergoService);
@@ -95,8 +95,8 @@ public class TransactionBaseTemplateTest extends AbstractTestCase {
             return Blockchain.Tx.newBuilder().build();
           }
         });
-    when(aergoService.getBlockTX(any())).thenReturn(txInBlockListenableFuture);
-    when(aergoService.getTX(any())).thenReturn(txListenableFuture);
+    when(aergoService.getBlockTX(any(Rpc.SingleBytes.class))).thenReturn(txInBlockListenableFuture);
+    when(aergoService.getTX(any(Rpc.SingleBytes.class))).thenReturn(txListenableFuture);
 
     final TransactionBaseTemplate transactionBaseTemplate =
         supplyTransactionBaseTemplate(aergoService);
@@ -118,7 +118,7 @@ public class TransactionBaseTemplateTest extends AbstractTestCase {
                 .addResults(Rpc.CommitResult.newBuilder().build()).build();
           }
         });
-    when(aergoService.commitTX(any())).thenReturn(mockListenableFuture);
+    when(aergoService.commitTX(any(Blockchain.TxList.class))).thenReturn(mockListenableFuture);
 
     final TransactionBaseTemplate transactionBaseTemplate =
         supplyTransactionBaseTemplate(aergoService);
@@ -147,7 +147,7 @@ public class TransactionBaseTemplateTest extends AbstractTestCase {
             return Rpc.CommitResult.newBuilder().build();
           }
         });
-    when(aergoService.sendTX(any())).thenReturn(mockListenableFuture);
+    when(aergoService.sendTX(any(Blockchain.Tx.class))).thenReturn(mockListenableFuture);
 
     final TransactionBaseTemplate transactionBaseTemplate =
         supplyTransactionBaseTemplate(aergoService);

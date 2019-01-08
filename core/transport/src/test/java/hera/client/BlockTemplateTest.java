@@ -17,12 +17,12 @@ import static org.mockito.Mockito.when;
 
 import hera.AbstractTestCase;
 import hera.ContextProvider;
+import hera.api.function.Function1;
+import hera.api.function.Function2;
+import hera.api.function.WithIdentity;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
-import hera.api.tupleorerror.Function1;
-import hera.api.tupleorerror.Function2;
-import hera.api.tupleorerror.WithIdentity;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;

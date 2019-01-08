@@ -18,7 +18,7 @@ public class CommitExceptionTest extends AbstractTestCase {
 
   @Test
   public void testCreate() {
-    List<CommitException> commitExceptions = new ArrayList<>();
+    final List<CommitException> commitExceptions = new ArrayList<CommitException>();
     for (final Rpc.CommitStatus rpcCommitStatus : Rpc.CommitStatus.values()) {
       commitExceptions.add(new CommitException(rpcCommitStatus, ""));
     }

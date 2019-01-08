@@ -16,6 +16,10 @@ import hera.ContextProvider;
 import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.api.function.Function1;
+import hera.api.function.Function2;
+import hera.api.function.Function3;
+import hera.api.function.Function4;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
@@ -25,10 +29,6 @@ import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.internal.GovernanceRecipient;
-import hera.api.tupleorerror.Function1;
-import hera.api.tupleorerror.Function2;
-import hera.api.tupleorerror.Function3;
-import hera.api.tupleorerror.Function4;
 import hera.exception.TransactionVerificationException;
 import hera.key.Signer;
 import hera.transport.AccountAddressConverterFactory;
@@ -93,7 +93,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
             ListenableFuture<Blockchain.State> listenableFuture = aergoService.getState(bytes);
 
             FutureChain<Blockchain.State, AccountState> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<Blockchain.State, AccountState>(nextFuture, contextProvider.get());
             callback.setSuccessHandler(new Function1<Blockchain.State, AccountState>() {
               @Override
               public AccountState apply(final Blockchain.State state) {
@@ -179,7 +179,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
             ListenableFuture<Rpc.NameInfo> listenableFuture = aergoService.getNameInfo(rpcName);
 
             FutureChain<Rpc.NameInfo, AccountAddress> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<Rpc.NameInfo, AccountAddress>(nextFuture, contextProvider.get());
             callback.setSuccessHandler(new Function1<Rpc.NameInfo, AccountAddress>() {
               @Override
               public AccountAddress apply(final Rpc.NameInfo nameInfo) {
@@ -219,7 +219,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
                 aergoService.signTX(rpcTransaction);
 
             FutureChain<Blockchain.Tx, Transaction> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<Blockchain.Tx, Transaction>(nextFuture, contextProvider.get());
             callback.setSuccessHandler(new Function1<Blockchain.Tx, Transaction>() {
               @Override
               public Transaction apply(final Blockchain.Tx tx) {

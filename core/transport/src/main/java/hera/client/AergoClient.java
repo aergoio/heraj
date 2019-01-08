@@ -29,17 +29,21 @@ import lombok.RequiredArgsConstructor;
 @ApiAudience.Private
 @ApiStability.Unstable
 @RequiredArgsConstructor
-public class AergoClient extends AbstractAergoApi implements Closeable, AutoCloseable {
+public class AergoClient extends AbstractAergoApi implements Closeable {
 
   @NonNull
   protected Context globalContext;
 
-  protected ContextProvider contextProvider = () -> {
-    final Context context = ContextHolder.get(this);
-    if (context.equals(EmptyContext.getInstance())) {
-      ContextHolder.set(this, globalContext);
+  protected ContextProvider contextProvider = new ContextProvider() {
+
+    @Override
+    public Context get() {
+      final Context context = ContextHolder.get(this);
+      if (context.equals(EmptyContext.getInstance())) {
+        ContextHolder.set(this, globalContext);
+      }
+      return ContextHolder.get(this);
     }
-    return ContextHolder.get(this);
   };
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)

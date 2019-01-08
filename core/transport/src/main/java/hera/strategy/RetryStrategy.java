@@ -6,10 +6,10 @@ package hera.strategy;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.function.Function;
+import hera.api.function.Function0;
 import hera.api.model.internal.Time;
 import hera.api.model.internal.TryCountAndInterval;
-import hera.api.tupleorerror.Function;
-import hera.api.tupleorerror.Function0;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
@@ -17,8 +17,8 @@ import lombok.ToString;
 import org.slf4j.Logger;
 
 @ToString
-@EqualsAndHashCode
-public class RetryStrategy implements FailoverStrategy {
+@EqualsAndHashCode(callSuper = false)
+public class RetryStrategy extends FailoverStrategy {
 
   public static final int DEFAULT_RETRY_COUNT = 0;
   public static final long DEFAULT_RETRY_INTERVAL = 5000L; // milliseconds

@@ -18,43 +18,61 @@ public class AergoClientTest extends AbstractTestCase {
 
   @Test
   public void testGetAccountOperation() {
-    try (final AergoClient client = new AergoClient(context)) {
+    final AergoClient client = new AergoClient(context);
+    try {
       assertNotNull(client.getAccountOperation());
+    } finally {
+      client.close();
     }
   }
 
   @Test
   public void testGetKeyStoreOperation() {
-    try (final AergoClient client = new AergoClient(context)) {
+    final AergoClient client = new AergoClient(context);
+    try {
       assertNotNull(client.getKeyStoreOperation());
+    } finally {
+      client.close();
     }
   }
 
   @Test
   public void testGetBlockOperation() {
-    try (final AergoClient client = new AergoClient(context)) {
+    final AergoClient client = new AergoClient(context);
+    try {
       assertNotNull(client.getBlockOperation());
+    } finally {
+      client.close();
     }
   }
 
   @Test
   public void testGetBlockchainOperation() {
-    try (final AergoClient client = new AergoClient(context)) {
+    final AergoClient client = new AergoClient(context);
+    try {
       assertNotNull(client.getBlockchainOperation());
+    } finally {
+      client.close();
     }
   }
 
   @Test
   public void testGetTransactionOperation() {
-    try (final AergoClient client = new AergoClient(context)) {
+    final AergoClient client = new AergoClient(context);
+    try {
       assertNotNull(client.getTransactionOperation());
+    } finally {
+      client.close();
     }
   }
 
   @Test
   public void testGetContractOperation() {
-    try (final AergoClient client = new AergoClient(context)) {
+    final AergoClient client = new AergoClient(context);
+    try {
       assertNotNull(client.getContractOperation());
+    } finally {
+      client.close();
     }
   }
 

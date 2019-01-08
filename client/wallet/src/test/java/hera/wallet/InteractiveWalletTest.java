@@ -12,6 +12,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -84,7 +85,7 @@ public class InteractiveWalletTest extends AbstractTestCase {
     InteractiveWallet wallet =
         mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
     final KeyStore keyStore = mock(KeyStore.class);
-    when(keyStore.export(any())).thenReturn(encryptedPrivatekey);
+    when(keyStore.export(any(Authentication.class))).thenReturn(encryptedPrivatekey);
     wallet.keyStore = keyStore;
 
     final Authentication authentication =
@@ -105,7 +106,7 @@ public class InteractiveWalletTest extends AbstractTestCase {
     when(wallet.getAergoClient()).thenReturn(mockClient);
 
     final KeyStore keyStore = mock(KeyStore.class);
-    when(keyStore.unlock(any())).thenReturn(mock(Account.class));
+    when(keyStore.unlock(any(Authentication.class))).thenReturn(mock(Account.class));
     wallet.keyStore = keyStore;
 
     final Authentication authentication =
@@ -119,7 +120,8 @@ public class InteractiveWalletTest extends AbstractTestCase {
     InteractiveWallet wallet =
         mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
     final KeyStore keyStore = mock(KeyStore.class);
-    when(keyStore.unlock(any())).thenThrow(new InvalidAuthentiationException("invalid"));
+    when(keyStore.unlock(any(Authentication.class)))
+        .thenThrow(new InvalidAuthentiationException("invalid"));
     wallet.keyStore = keyStore;
 
     final Authentication authentication =
@@ -156,7 +158,7 @@ public class InteractiveWalletTest extends AbstractTestCase {
     InteractiveWallet wallet =
         mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
     KeyStore mockKeyStore = mock(KeyStore.class);
-    doThrow(new WalletException("")).when(mockKeyStore).store(any(), any());
+    doThrow(new WalletException("")).when(mockKeyStore).store(anyString(), anyString());
     wallet.keyStore = mockKeyStore;
 
     final boolean storeResult =
@@ -170,7 +172,8 @@ public class InteractiveWalletTest extends AbstractTestCase {
         mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final AccountOperation mockOperation = mock(AccountOperation.class);
-    when(mockOperation.sign(any(), any())).thenReturn(mock(Transaction.class));
+    when(mockOperation.sign(any(Account.class), any(RawTransaction.class)))
+        .thenReturn(mock(Transaction.class));
     when(mockClient.getAccountOperation()).thenReturn(mockOperation);
     when(wallet.getAergoClient()).thenReturn(mockClient);
 
@@ -186,7 +189,7 @@ public class InteractiveWalletTest extends AbstractTestCase {
         mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final AccountOperation mockOperation = mock(AccountOperation.class);
-    when(mockOperation.verify(any(), any())).thenReturn(true);
+    when(mockOperation.verify(any(Account.class), any(Transaction.class))).thenReturn(true);
     when(mockClient.getAccountOperation()).thenReturn(mockOperation);
     when(wallet.getAergoClient()).thenReturn(mockClient);
 
@@ -202,7 +205,8 @@ public class InteractiveWalletTest extends AbstractTestCase {
         mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final AccountOperation mockOperation = mock(AccountOperation.class);
-    when(mockOperation.createName(any(), any(), anyLong())).thenReturn(mock(TxHash.class));
+    when(mockOperation.createName(any(Account.class), anyString(), anyLong()))
+        .thenReturn(mock(TxHash.class));
     when(mockClient.getAccountOperation()).thenReturn(mockOperation);
     when(wallet.getAergoClient()).thenReturn(mockClient);
     when(wallet.getNonceRefreshTryCountAndInterval())
@@ -220,7 +224,8 @@ public class InteractiveWalletTest extends AbstractTestCase {
         mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final AccountOperation mockOperation = mock(AccountOperation.class);
-    when(mockOperation.updateName(any(), any(), any(), anyLong())).thenReturn(mock(TxHash.class));
+    when(mockOperation.updateName(any(Account.class), anyString(), any(AccountAddress.class),
+        anyLong())).thenReturn(mock(TxHash.class));
     when(mockClient.getAccountOperation()).thenReturn(mockOperation);
     when(wallet.getAergoClient()).thenReturn(mockClient);
     when(wallet.getNonceRefreshTryCountAndInterval())
@@ -239,10 +244,12 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
     final AergoClient mockClient = mock(AergoClient.class);
     final TransactionOperation mockTransactionOperation = mock(TransactionOperation.class);
-    when(mockTransactionOperation.commit(any())).thenReturn(TxHash.of(BytesValue.EMPTY));
+    when(mockTransactionOperation.commit(any(Transaction.class)))
+        .thenReturn(TxHash.of(BytesValue.EMPTY));
     when(mockClient.getTransactionOperation()).thenReturn(mockTransactionOperation);
     final AccountOperation mockAccountOperation = mock(AccountOperation.class);
-    when(mockAccountOperation.sign(any(), any())).thenReturn(mock(Transaction.class));
+    when(mockAccountOperation.sign(any(Account.class), any(RawTransaction.class)))
+        .thenReturn(mock(Transaction.class));
     when(mockClient.getAccountOperation()).thenReturn(mockAccountOperation);
 
     when(wallet.getAergoClient()).thenReturn(mockClient);
@@ -260,10 +267,12 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
     final AergoClient mockClient = mock(AergoClient.class);
     final TransactionOperation mockTransactionOperation = mock(TransactionOperation.class);
-    when(mockTransactionOperation.commit(any())).thenReturn(TxHash.of(BytesValue.EMPTY));
+    when(mockTransactionOperation.commit(any(Transaction.class)))
+        .thenReturn(TxHash.of(BytesValue.EMPTY));
     when(mockClient.getTransactionOperation()).thenReturn(mockTransactionOperation);
     final AccountOperation mockAccountOperation = mock(AccountOperation.class);
-    when(mockAccountOperation.sign(any(), any())).thenReturn(mock(Transaction.class));
+    when(mockAccountOperation.sign(any(Account.class), any(RawTransaction.class)))
+        .thenReturn(mock(Transaction.class));
     when(mockClient.getAccountOperation()).thenReturn(mockAccountOperation);
 
     when(wallet.getAergoClient()).thenReturn(mockClient);
@@ -279,8 +288,9 @@ public class InteractiveWalletTest extends AbstractTestCase {
     wallet.account = new AccountFactory().create(accountAddress);
     final AergoClient mockClient = mock(AergoClient.class);
     final ContractOperation mockOperation = mock(ContractOperation.class);
-    when(mockOperation.deploy(any(), any(), anyLong(), any()))
-        .thenReturn(ContractTxHash.of(BytesValue.EMPTY));
+    when(mockOperation.deploy(any(Account.class), any(ContractDefinition.class), anyLong(),
+        any(Fee.class)))
+            .thenReturn(ContractTxHash.of(BytesValue.EMPTY));
     when(mockClient.getContractOperation()).thenReturn(mockOperation);
     when(wallet.getAergoClient()).thenReturn(mockClient);
     when(wallet.getNonceRefreshTryCountAndInterval())
@@ -295,8 +305,9 @@ public class InteractiveWalletTest extends AbstractTestCase {
     wallet.account = new AccountFactory().create(accountAddress);
     final AergoClient mockClient = mock(AergoClient.class);
     final ContractOperation mockOperation = mock(ContractOperation.class);
-    when(mockOperation.execute(any(), any(), anyLong(), any()))
-        .thenReturn(ContractTxHash.of(BytesValue.EMPTY));
+    when(mockOperation.execute(any(Account.class), any(ContractInvocation.class), anyLong(),
+        any(Fee.class)))
+            .thenReturn(ContractTxHash.of(BytesValue.EMPTY));
     when(mockClient.getContractOperation()).thenReturn(mockOperation);
     when(wallet.getAergoClient()).thenReturn(mockClient);
     when(wallet.getNonceRefreshTryCountAndInterval())

@@ -19,7 +19,6 @@ import hera.strategy.OkHttpConnectStrategy;
 import hera.strategy.RetryStrategy;
 import hera.strategy.SimpleTimeoutStrategy;
 import hera.strategy.TimeoutStrategy;
-import hera.strategy.ZipkinTracingStrategy;
 import hera.util.Configuration;
 import hera.util.conf.InMemoryConfiguration;
 import java.util.Collections;
@@ -39,7 +38,7 @@ public class AergoClientBuilder implements ContextConfiguer<AergoClientBuilder> 
   protected static final Map<Class<?>, Strategy> necessaryStrategyMap;
 
   static {
-    final Map<Class<?>, Strategy> map = new HashMap<>();
+    final Map<Class<?>, Strategy> map = new HashMap<Class<?>, Strategy>();
     map.put(ConnectStrategy.class, new NettyConnectStrategy());
     map.put(TimeoutStrategy.class, new SimpleTimeoutStrategy(DefaultConstants.DEFAULT_TIMEOUT));
     necessaryStrategyMap = Collections.unmodifiableMap(map);
@@ -47,7 +46,7 @@ public class AergoClientBuilder implements ContextConfiguer<AergoClientBuilder> 
 
   protected final Logger logger = getLogger(getClass());
 
-  protected final Map<Class<?>, Strategy> strategyMap = new LinkedHashMap<>();
+  protected final Map<Class<?>, Strategy> strategyMap = new LinkedHashMap<Class<?>, Strategy>();
 
   protected Configuration configuration = new InMemoryConfiguration();
 
@@ -76,12 +75,6 @@ public class AergoClientBuilder implements ContextConfiguer<AergoClientBuilder> 
   }
 
   @Override
-  public AergoClientBuilder withTracking() {
-    strategyMap.put(ZipkinTracingStrategy.class, new ZipkinTracingStrategy());
-    return this;
-  }
-
-  @Override
   public AergoClientBuilder withTimeout(final long timeout, final TimeUnit unit) {
     strategyMap.put(TimeoutStrategy.class, new SimpleTimeoutStrategy(timeout, unit));
     return this;
@@ -104,10 +97,13 @@ public class AergoClientBuilder implements ContextConfiguer<AergoClientBuilder> 
   }
 
   protected Context buildContext() {
-    necessaryStrategyMap.keySet().stream().filter(c -> !this.strategyMap.containsKey(c))
-        .forEach(c -> this.strategyMap.put(c, necessaryStrategyMap.get(c)));
+    for (final Class<?> necessaryClass : necessaryStrategyMap.keySet()) {
+      if (!strategyMap.containsKey(necessaryClass)) {
+        strategyMap.put(necessaryClass, necessaryStrategyMap.get(necessaryClass));
+      }
+    }
     final Context context = ContextProvider.defaultProvider.get()
-        .withStrategies(new HashSet<>(this.strategyMap.values()))
+        .withStrategies(new HashSet<Strategy>(this.strategyMap.values()))
         .withConfiguration(configuration)
         .withScope(AergoClientBuilder.SCOPE);
     logger.info("Global context: {}", context);

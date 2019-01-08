@@ -6,6 +6,7 @@ package hera.wallet;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.function.Function1;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
@@ -20,7 +21,6 @@ import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.internal.TryCountAndInterval;
-import hera.api.tupleorerror.Function1;
 import hera.client.AergoClient;
 import hera.exception.CommitException;
 import hera.exception.CommitException.CommitStatus;
@@ -128,14 +128,24 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
 
   @Override
   public TxHash createName(final String name) {
-    return sendRequestWithNonce(nonce -> getAergoClient().getAccountOperation()
-        .createName(getCurrentAccount(), name, nonce));
+    return sendRequestWithNonce(new Function1<Long, TxHash>() {
+      @Override
+      public TxHash apply(final Long nonce) {
+        return getAergoClient().getAccountOperation()
+            .createName(getCurrentAccount(), name, nonce);
+      }
+    });
   }
 
   @Override
   public TxHash updateName(final String name, final AccountAddress newOwner) {
-    return sendRequestWithNonce(nonce -> getAergoClient().getAccountOperation()
-        .updateName(getCurrentAccount(), name, newOwner, nonce));
+    return sendRequestWithNonce(new Function1<Long, TxHash>() {
+      @Override
+      public TxHash apply(final Long nonce) {
+        return getAergoClient().getAccountOperation()
+            .updateName(getCurrentAccount(), name, newOwner, nonce);
+      }
+    });
   }
 
   @Override
@@ -218,16 +228,24 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
 
   @Override
   public ContractTxHash deploy(final ContractDefinition contractDefinition, final Fee fee) {
-    return (ContractTxHash) sendRequestWithNonce(
-        n -> getAergoClient().getContractOperation().deploy(getCurrentAccount(),
-            contractDefinition, n, fee));
+    return (ContractTxHash) sendRequestWithNonce(new Function1<Long, TxHash>() {
+      @Override
+      public TxHash apply(final Long nonce) {
+        return getAergoClient().getContractOperation().deploy(getCurrentAccount(),
+            contractDefinition, nonce, fee);
+      }
+    });
   }
 
   @Override
   public ContractTxHash execute(final ContractInvocation contractInvocation, final Fee fee) {
-    return (ContractTxHash) sendRequestWithNonce(
-        n -> getAergoClient().getContractOperation().execute(getCurrentAccount(),
-            contractInvocation, n, fee));
+    return (ContractTxHash) sendRequestWithNonce(new Function1<Long, TxHash>() {
+      @Override
+      public TxHash apply(final Long nonce) {
+        return getAergoClient().getContractOperation().execute(getCurrentAccount(),
+            contractInvocation, nonce, fee);
+      }
+    });
   }
 
   protected TxHash sendRequestWithNonce(final Function1<Long, TxHash> requester) {

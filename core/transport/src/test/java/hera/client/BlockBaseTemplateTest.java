@@ -57,7 +57,7 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
             return Blockchain.Block.newBuilder().build();
           }
         });
-    when(aergoService.getBlock(any())).thenReturn(mockListenableFuture);
+    when(aergoService.getBlock(any(Rpc.SingleBytes.class))).thenReturn(mockListenableFuture);
 
     final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(aergoService);
 
@@ -77,7 +77,7 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
             return Blockchain.Block.newBuilder().build();
           }
         });
-    when(aergoService.getBlock(any())).thenReturn(mockListenableFuture);
+    when(aergoService.getBlock(any(Rpc.SingleBytes.class))).thenReturn(mockListenableFuture);
 
     final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(aergoService);
 
@@ -97,7 +97,8 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
                 .addBlocks(Rpc.BlockMetadata.newBuilder().build()).build();
           }
         });
-    when(aergoService.listBlockMetadata(any())).thenReturn(mockListenableFuture);
+    when(aergoService.listBlockMetadata(any(Rpc.ListParams.class)))
+        .thenReturn(mockListenableFuture);
 
     final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(aergoService);
 
@@ -118,7 +119,8 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
                 .addBlocks(Rpc.BlockMetadata.newBuilder().build()).build();
           }
         });
-    when(aergoService.listBlockMetadata(any())).thenReturn(mockListenableFuture);
+    when(aergoService.listBlockMetadata(any(Rpc.ListParams.class)))
+        .thenReturn(mockListenableFuture);
 
     final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(aergoService);
 

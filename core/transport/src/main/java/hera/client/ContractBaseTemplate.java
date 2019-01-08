@@ -20,6 +20,8 @@ import hera.ContextProvider;
 import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.api.function.Function1;
+import hera.api.function.Function4;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
@@ -34,8 +36,6 @@ import hera.api.model.ContractTxReceipt;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
-import hera.api.tupleorerror.Function1;
-import hera.api.tupleorerror.Function4;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.ContractInterfaceConverterFactory;
 import hera.transport.ContractResultConverterFactory;
@@ -122,7 +122,8 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
                 aergoService.getReceipt(hashBytes);
 
             FutureChain<Blockchain.Receipt, ContractTxReceipt> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<Blockchain.Receipt, ContractTxReceipt>(nextFuture,
+                    contextProvider.get());
             callback.setSuccessHandler(new Function1<Blockchain.Receipt, ContractTxReceipt>() {
 
               @Override
@@ -196,7 +197,8 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
                 aergoService.getABI(hashBytes);
 
             FutureChain<Blockchain.ABI, ContractInterface> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<Blockchain.ABI, ContractInterface>(nextFuture,
+                    contextProvider.get());
             callback.setSuccessHandler(new Function1<Blockchain.ABI, ContractInterface>() {
 
               @Override
@@ -282,7 +284,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
                 aergoService.queryContract(query);
 
             FutureChain<Rpc.SingleBytes, ContractResult> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<Rpc.SingleBytes, ContractResult>(nextFuture, contextProvider.get());
             callback.setSuccessHandler(new Function1<Rpc.SingleBytes, ContractResult>() {
 
               @Override
@@ -376,7 +378,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
       } else if (arg instanceof Double) {
         argsNode.add((Double) arg);
       } else if (arg instanceof BigInteger) {
-        argsNode.add((BigInteger) arg);
+        argsNode.add(new BigDecimal((BigInteger) arg));
       } else if (arg instanceof BigDecimal) {
         argsNode.add((BigDecimal) arg);
       } else if (arg instanceof String) {

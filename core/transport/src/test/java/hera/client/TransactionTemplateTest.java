@@ -16,14 +16,14 @@ import static org.mockito.Mockito.when;
 
 import hera.AbstractTestCase;
 import hera.ContextProvider;
+import hera.api.function.Function1;
+import hera.api.function.Function3;
+import hera.api.function.WithIdentity;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.api.tupleorerror.Function1;
-import hera.api.tupleorerror.Function3;
-import hera.api.tupleorerror.WithIdentity;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
@@ -52,7 +52,7 @@ public class TransactionTemplateTest extends AbstractTestCase {
   public void testGetTransaction() {
     final TransactionBaseTemplate base = mock(TransactionBaseTemplate.class);
     final Transaction mockTransaction = mock(Transaction.class);
-    FinishableFuture<Transaction> future = new FinishableFuture<Transaction>();
+    final FinishableFuture<Transaction> future = new FinishableFuture<Transaction>();
     future.success(mockTransaction);
     when(base.getTransactionFunction())
         .thenReturn(new Function1<TxHash, FinishableFuture<Transaction>>() {
@@ -76,7 +76,7 @@ public class TransactionTemplateTest extends AbstractTestCase {
   @Test
   public void testCommit() {
     final TransactionBaseTemplate base = mock(TransactionBaseTemplate.class);
-    FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
+    final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
     future.success(new TxHash(of(randomUUID().toString().getBytes())));
     when(base.getCommitFunction())
         .thenReturn(new Function1<Transaction, FinishableFuture<TxHash>>() {
@@ -99,7 +99,7 @@ public class TransactionTemplateTest extends AbstractTestCase {
   @Test
   public void testSend() {
     final TransactionBaseTemplate base = mock(TransactionBaseTemplate.class);
-    FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
+    final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
     future.success(new TxHash(of(randomUUID().toString().getBytes())));
     when(base.getSendFunction())
         .thenReturn(new Function3<AccountAddress, AccountAddress, Aer, FinishableFuture<TxHash>>() {

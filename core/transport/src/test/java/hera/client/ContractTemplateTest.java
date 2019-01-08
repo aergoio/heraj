@@ -19,6 +19,9 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 import hera.AbstractTestCase;
 import hera.ContextProvider;
+import hera.api.function.Function1;
+import hera.api.function.Function4;
+import hera.api.function.WithIdentity;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
@@ -30,9 +33,6 @@ import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Fee;
-import hera.api.tupleorerror.Function1;
-import hera.api.tupleorerror.Function4;
-import hera.api.tupleorerror.WithIdentity;
 import hera.key.AergoKeyGenerator;
 import hera.util.Base58Utils;
 import org.junit.Test;
@@ -68,7 +68,7 @@ public class ContractTemplateTest extends AbstractTestCase {
   public void testGetReceipt() {
     final ContractBaseTemplate base = mock(ContractBaseTemplate.class);
     final ContractTxReceipt mockTxReceipt = mock(ContractTxReceipt.class);
-    FinishableFuture<ContractTxReceipt> future = new FinishableFuture<ContractTxReceipt>();
+    final FinishableFuture<ContractTxReceipt> future = new FinishableFuture<ContractTxReceipt>();
     future.success(mockTxReceipt);
     when(base.getReceiptFunction())
         .thenReturn(new Function1<ContractTxHash, FinishableFuture<ContractTxReceipt>>() {
@@ -90,7 +90,7 @@ public class ContractTemplateTest extends AbstractTestCase {
   @Test
   public void testDeploy() throws Exception {
     final ContractBaseTemplate base = mock(ContractBaseTemplate.class);
-    FinishableFuture<ContractTxHash> future = new FinishableFuture<ContractTxHash>();
+    final FinishableFuture<ContractTxHash> future = new FinishableFuture<ContractTxHash>();
     future.success(new ContractTxHash(of(randomUUID().toString().getBytes())));
     when(base.getDeployFunction()).thenReturn(
         new Function4<Account, ContractDefinition, Long, Fee, FinishableFuture<ContractTxHash>>() {
@@ -116,7 +116,7 @@ public class ContractTemplateTest extends AbstractTestCase {
   public void testGetContractInterface() {
     final ContractBaseTemplate base = mock(ContractBaseTemplate.class);
     final ContractInterface mockContractInterface = mock(ContractInterface.class);
-    FinishableFuture<ContractInterface> future = new FinishableFuture<ContractInterface>();
+    final FinishableFuture<ContractInterface> future = new FinishableFuture<ContractInterface>();
     future.success(mockContractInterface);
     when(base.getContractInterfaceFunction())
         .thenReturn(new Function1<ContractAddress, FinishableFuture<ContractInterface>>() {
@@ -138,7 +138,7 @@ public class ContractTemplateTest extends AbstractTestCase {
   @Test
   public void testExecute() throws Exception {
     final ContractBaseTemplate base = mock(ContractBaseTemplate.class);
-    FinishableFuture<ContractTxHash> future = new FinishableFuture<ContractTxHash>();
+    final FinishableFuture<ContractTxHash> future = new FinishableFuture<ContractTxHash>();
     future.success(new ContractTxHash(of(randomUUID().toString().getBytes())));
     when(base.getExecuteFunction()).thenReturn(
         new Function4<Account, ContractInvocation, Long, Fee, FinishableFuture<ContractTxHash>>() {
@@ -164,7 +164,7 @@ public class ContractTemplateTest extends AbstractTestCase {
   public void testQuery() {
     final ContractBaseTemplate base = mock(ContractBaseTemplate.class);
     final ContractResult mockResult = mock(ContractResult.class);
-    FinishableFuture<ContractResult> future = new FinishableFuture<ContractResult>();
+    final FinishableFuture<ContractResult> future = new FinishableFuture<ContractResult>();
     future.success(mockResult);
     when(base.getQueryFunction())
         .thenReturn(new Function1<ContractInvocation, FinishableFuture<ContractResult>>() {

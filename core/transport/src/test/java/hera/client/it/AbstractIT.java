@@ -12,7 +12,6 @@ import hera.api.model.Account;
 import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
-import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
 import hera.api.model.Fee;
 import hera.client.AergoClient;
@@ -43,11 +42,8 @@ public abstract class AbstractIT {
   @Before
   public void prepare() {
     aergoClient = new AergoClientBuilder()
-        .addConfiguration("zipkin.protocol", "kafka")
-        .addConfiguration("zipkin.endpoint", "localhost:9092")
         .withEndpoint("localhost:7845")
         .withNonBlockingConnect()
-        .withTracking()
         .withTimeout(10L, TimeUnit.SECONDS)
         .build();
   }
@@ -63,7 +59,7 @@ public abstract class AbstractIT {
   }
 
   protected List<Account> supplyAccounts() {
-    final List<Account> accounts = new ArrayList<>();
+    final List<Account> accounts = new ArrayList<Account>();
     accounts.add(new AccountFactory().create(new AergoKeyGenerator().create()));
     accounts.add(aergoClient.getKeyStoreOperation().create(password));
     return accounts;

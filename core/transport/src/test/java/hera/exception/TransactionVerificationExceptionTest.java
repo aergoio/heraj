@@ -18,8 +18,8 @@ public class TransactionVerificationExceptionTest extends AbstractTestCase {
 
   @Test
   public void testCreate() {
-    List<TransactionVerificationException> verificationExceptions =
-        new ArrayList<>();
+    final List<TransactionVerificationException> verificationExceptions =
+        new ArrayList<TransactionVerificationException>();
     for (final Rpc.VerifyStatus rpcCommitStatus : Rpc.VerifyStatus.values()) {
       verificationExceptions.add(new TransactionVerificationException(rpcCommitStatus));
     }

@@ -4,14 +4,14 @@
 
 package hera.transport;
 
-import java.util.function.Function;
+import hera.api.function.Function1;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class ModelConverter<DomainModelT, RpcModelT> {
-  protected final Function<DomainModelT, RpcModelT> domainConverter;
+  protected final Function1<DomainModelT, RpcModelT> domainConverter;
 
-  protected final Function<RpcModelT, DomainModelT> rpcConverter;
+  protected final Function1<RpcModelT, DomainModelT> rpcConverter;
 
   public RpcModelT convertToRpcModel(DomainModelT domainModel) {
     return domainConverter.apply(domainModel);

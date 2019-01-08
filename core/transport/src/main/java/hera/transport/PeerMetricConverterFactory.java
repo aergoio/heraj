@@ -6,9 +6,9 @@ package hera.transport;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.function.Function1;
 import hera.api.model.PeerMetric;
 import hera.util.Base58Utils;
-import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Metric;
 
@@ -16,21 +16,30 @@ public class PeerMetricConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final Function<PeerMetric, Metric.PeerMetric> domainConverter = domainPeer -> {
-    throw new UnsupportedOperationException();
-  };
+  protected final Function1<PeerMetric, Metric.PeerMetric> domainConverter =
+      new Function1<PeerMetric, Metric.PeerMetric>() {
 
-  protected final Function<Metric.PeerMetric, PeerMetric> rpcConverter = rpcPeerMetric -> {
-    logger.trace("Rpc peer metric: {}", rpcPeerMetric);
+        @Override
+        public Metric.PeerMetric apply(final PeerMetric domainPeer) {
+          throw new UnsupportedOperationException();
+        }
+      };
 
-    return new PeerMetric(Base58Utils.encode(rpcPeerMetric.getPeerID().toByteArray()),
-        rpcPeerMetric.getSumIn(), rpcPeerMetric.getAvrIn(),
-        rpcPeerMetric.getSumOut(), rpcPeerMetric.getAvrOut());
-  };
+  protected final Function1<Metric.PeerMetric, PeerMetric> rpcConverter =
+      new Function1<Metric.PeerMetric, PeerMetric>() {
 
+        @Override
+        public PeerMetric apply(final Metric.PeerMetric rpcPeerMetric) {
+          logger.trace("Rpc peer metric: {}", rpcPeerMetric);
+
+          return new PeerMetric(Base58Utils.encode(rpcPeerMetric.getPeerID().toByteArray()),
+              rpcPeerMetric.getSumIn(), rpcPeerMetric.getAvrIn(),
+              rpcPeerMetric.getSumOut(), rpcPeerMetric.getAvrOut());
+        }
+      };
 
   public ModelConverter<PeerMetric, Metric.PeerMetric> create() {
-    return new ModelConverter<>(domainConverter, rpcConverter);
+    return new ModelConverter<PeerMetric, Metric.PeerMetric>(domainConverter, rpcConverter);
   }
 
 }

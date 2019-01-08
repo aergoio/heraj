@@ -4,19 +4,19 @@
 
 package hera.strategy;
 
-import static hera.api.tupleorerror.Functions.identify;
+import static hera.api.function.Functions.identify;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Context;
 import hera.Strategy;
-import hera.api.tupleorerror.Function0;
-import hera.api.tupleorerror.Function1;
-import hera.api.tupleorerror.Function2;
-import hera.api.tupleorerror.Function3;
-import hera.api.tupleorerror.Function4;
-import hera.api.tupleorerror.FunctionDecorator;
-import hera.api.tupleorerror.FunctionDecoratorChain;
-import hera.api.tupleorerror.WithIdentity;
+import hera.api.function.Function0;
+import hera.api.function.Function1;
+import hera.api.function.Function2;
+import hera.api.function.Function3;
+import hera.api.function.Function4;
+import hera.api.function.FunctionDecorator;
+import hera.api.function.FunctionDecoratorChain;
+import hera.api.function.WithIdentity;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.EqualsAndHashCode;

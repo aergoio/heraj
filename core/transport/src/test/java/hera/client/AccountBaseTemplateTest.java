@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
 import hera.Context;
 import hera.ContextProvider;
+import hera.api.function.Function1;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountFactory;
@@ -27,7 +28,6 @@ import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.api.tupleorerror.Function1;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import java.util.concurrent.Callable;
@@ -76,7 +76,7 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
             return Blockchain.State.newBuilder().build();
           }
         });
-    when(aergoService.getState(any())).thenReturn(mockListenableFuture);
+    when(aergoService.getState(any(Rpc.SingleBytes.class))).thenReturn(mockListenableFuture);
 
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
@@ -145,7 +145,7 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
             return Rpc.NameInfo.newBuilder().build();
           }
         });
-    when(aergoService.getNameInfo(any())).thenReturn(mockListenableFuture);
+    when(aergoService.getNameInfo(any(Rpc.Name.class))).thenReturn(mockListenableFuture);
 
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
     accountTemplateBase.aergoService = aergoService;
@@ -187,7 +187,7 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
                 .build();
           }
         });
-    when(aergoService.signTX(any())).thenReturn(mockListenableFuture);
+    when(aergoService.signTX(any(Blockchain.Tx.class))).thenReturn(mockListenableFuture);
 
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
@@ -233,7 +233,7 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
                 .build();
           }
         });
-    when(aergoService.verifyTX(any())).thenReturn(mockListenableFuture);
+    when(aergoService.verifyTX(any(Blockchain.Tx.class))).thenReturn(mockListenableFuture);
 
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 

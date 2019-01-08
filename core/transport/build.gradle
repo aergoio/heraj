@@ -9,7 +9,7 @@ dependencies {
   implementation project(":core:common")
 
   implementation ("com.google.guava:guava:${guavaVersion}")
-  implementation "com.fasterxml.jackson.core:jackson-databind:2.9.3"
+  implementation "com.fasterxml.jackson.core:jackson-databind:2.6.7"
 
   implementation ("io.grpc:grpc-okhttp:${grpcVersion}") {
     exclude group: 'com.google.guava', module: 'guava'
@@ -23,23 +23,4 @@ dependencies {
   implementation ("io.grpc:grpc-stub:${grpcVersion}") {
     exclude group: 'com.google.guava', module: 'guava'
   }
-
-  // tracing is optional, user should add dependencies to use it
-  compileOnly 'io.opentracing:opentracing-api:0.31.0'
-  compileOnly 'io.opentracing:opentracing-util:0.31.0'
-  compileOnly 'io.opentracing.contrib:grpc-opentracing:0.2.0'
-  compileOnly 'io.opentracing.brave:brave-opentracing:0.33.6'
-
-  // senders
-  compileOnly 'io.zipkin.reporter2:zipkin-sender-okhttp3:2.7.10'
-  compileOnly 'io.zipkin.reporter2:zipkin-sender-kafka11:2.7.10'
-
-  // for it
-  testImplementation 'io.opentracing:opentracing-api:0.31.0'
-  testImplementation 'io.opentracing:opentracing-util:0.31.0'
-  testImplementation 'io.opentracing.contrib:grpc-opentracing:0.2.0'
-  testImplementation 'io.opentracing.brave:brave-opentracing:0.33.6'
-
-  testImplementation 'io.zipkin.reporter2:zipkin-sender-okhttp3:2.7.10'
-  testImplementation 'io.zipkin.reporter2:zipkin-sender-kafka11:2.7.10'
 }

@@ -4,6 +4,7 @@
 
 package hera.wallet;
 
+import static java.util.Collections.newSetFromMap;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
@@ -33,11 +34,13 @@ public class InMemoryKeyStore implements KeyStore, Signer {
   protected final Logger logger = getLogger(getClass());
 
   protected Map<Authentication, EncryptedPrivateKey> auth2EncryptedPrivateKey =
-      new ConcurrentHashMap<>();
+      new ConcurrentHashMap<Authentication, EncryptedPrivateKey>();
 
-  protected Set<Authentication> unlockedAuthSet = ConcurrentHashMap.newKeySet();
+  protected Set<Authentication> unlockedAuthSet =
+      newSetFromMap(new ConcurrentHashMap<Authentication, Boolean>());
 
-  protected Map<AccountAddress, AergoKey> address2Unlocked = new ConcurrentHashMap<>();
+  protected Map<AccountAddress, AergoKey> address2Unlocked =
+      new ConcurrentHashMap<AccountAddress, AergoKey>();
 
   @Override
   public void saveKey(final AergoKey key, final String password) {

@@ -16,12 +16,12 @@ import hera.ContextProvider;
 import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.api.function.Function0;
+import hera.api.function.Function1;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
-import hera.api.tupleorerror.Function0;
-import hera.api.tupleorerror.Function1;
 import hera.transport.BlockchainStatusConverterFactory;
 import hera.transport.ModelConverter;
 import hera.transport.NodeStatusConverterFactory;
@@ -86,7 +86,8 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
                 aergoService.blockchain(empty);
 
             FutureChain<Rpc.BlockchainStatus, BlockchainStatus> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<Rpc.BlockchainStatus, BlockchainStatus>(nextFuture,
+                    contextProvider.get());
             callback.setSuccessHandler(new Function1<Rpc.BlockchainStatus, BlockchainStatus>() {
 
               @Override
@@ -118,7 +119,7 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
             ListenableFuture<Rpc.PeerList> listenableFuture = aergoService.getPeers(empty);
 
             FutureChain<Rpc.PeerList, List<Peer>> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<Rpc.PeerList, List<Peer>>(nextFuture, contextProvider.get());
             callback.setSuccessHandler(new Function1<Rpc.PeerList, List<Peer>>() {
 
               @Override
@@ -154,7 +155,8 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
             ListenableFuture<Metric.Metrics> listenableFuture = aergoService.metric(request);
 
             FutureChain<Metric.Metrics, List<PeerMetric>> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<Metric.Metrics, List<PeerMetric>>(nextFuture,
+                    contextProvider.get());
             callback.setSuccessHandler(new Function1<Metric.Metrics, List<PeerMetric>>() {
 
               @Override
@@ -194,7 +196,7 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
                 aergoService.nodeState(nodeRequest);
 
             FutureChain<Rpc.SingleBytes, NodeStatus> callback =
-                new FutureChain<>(nextFuture, contextProvider.get());
+                new FutureChain<Rpc.SingleBytes, NodeStatus>(nextFuture, contextProvider.get());
             callback.setSuccessHandler(new Function1<Rpc.SingleBytes, NodeStatus>() {
 
               @Override

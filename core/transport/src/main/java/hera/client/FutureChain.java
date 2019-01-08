@@ -9,7 +9,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import com.google.common.util.concurrent.FutureCallback;
 import hera.Context;
 import hera.ContextHolder;
-import hera.api.tupleorerror.Function1;
+import hera.api.function.Function1;
 import hera.exception.NotFoundException;
 import hera.exception.RpcConnectionException;
 import hera.exception.RpcException;

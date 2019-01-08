@@ -18,6 +18,13 @@ import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import hera.AbstractTestCase;
+import hera.Context;
+import hera.ContextProvider;
+import hera.api.function.Function1;
+import hera.api.function.Function2;
+import hera.api.function.Function3;
+import hera.api.function.Function4;
+import hera.api.function.WithIdentity;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountFactory;
@@ -27,11 +34,6 @@ import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.api.tupleorerror.Function1;
-import hera.api.tupleorerror.Function2;
-import hera.api.tupleorerror.Function3;
-import hera.api.tupleorerror.Function4;
-import hera.api.tupleorerror.WithIdentity;
 import hera.key.AergoKeyGenerator;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -51,7 +53,12 @@ public class AccountTemplateTest extends AbstractTestCase {
       final AccountBaseTemplate accountBaseTemplate) {
     final AccountTemplate accountTemplate = new AccountTemplate();
     accountTemplate.accountBaseTemplate = accountBaseTemplate;
-    accountTemplate.setContextProvider(() -> context);
+    accountTemplate.setContextProvider(new ContextProvider() {
+      @Override
+      public Context get() {
+        return context;
+      }
+    });
     return accountTemplate;
   }
 

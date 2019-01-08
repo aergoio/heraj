@@ -15,14 +15,15 @@ import static org.mockito.Mockito.when;
 
 import hera.AbstractTestCase;
 import hera.ContextProvider;
+import hera.api.function.Function0;
+import hera.api.function.WithIdentity;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.BytesValue;
+import hera.api.model.ModuleStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
-import hera.api.tupleorerror.Function0;
-import hera.api.tupleorerror.WithIdentity;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
@@ -47,7 +48,7 @@ public class BlockchainTemplateTest extends AbstractTestCase {
   @Test
   public void testGetBlockchainStatus() {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
-    FinishableFuture<BlockchainStatus> future = new FinishableFuture<BlockchainStatus>();
+    final FinishableFuture<BlockchainStatus> future = new FinishableFuture<BlockchainStatus>();
     future.success(new BlockchainStatus(10L, BlockHash.of(BytesValue.EMPTY)));
     when(base.getBlockchainStatusFunction())
         .thenReturn(new Function0<FinishableFuture<BlockchainStatus>>() {
@@ -70,7 +71,7 @@ public class BlockchainTemplateTest extends AbstractTestCase {
   @Test
   public void testListPeers() {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
-    FinishableFuture<List<Peer>> future = new FinishableFuture<List<Peer>>();
+    final FinishableFuture<List<Peer>> future = new FinishableFuture<List<Peer>>();
     future.success(new ArrayList<Peer>());
     when(base.getListPeersFunction()).thenReturn(new Function0<FinishableFuture<List<Peer>>>() {
       @Override
@@ -91,7 +92,7 @@ public class BlockchainTemplateTest extends AbstractTestCase {
   @Test
   public void testListPeerMetrics() {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
-    FinishableFuture<List<PeerMetric>> future = new FinishableFuture<List<PeerMetric>>();
+    final FinishableFuture<List<PeerMetric>> future = new FinishableFuture<List<PeerMetric>>();
     future.success(new ArrayList<PeerMetric>());
     when(base.getListPeersMetricsFunction())
         .thenReturn(new Function0<FinishableFuture<List<PeerMetric>>>() {
@@ -113,8 +114,8 @@ public class BlockchainTemplateTest extends AbstractTestCase {
   @Test
   public void testGetNodeStatus() {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
-    FinishableFuture<NodeStatus> future = new FinishableFuture<NodeStatus>();
-    future.success(new NodeStatus(new ArrayList<>()));
+    final FinishableFuture<NodeStatus> future = new FinishableFuture<NodeStatus>();
+    future.success(new NodeStatus(new ArrayList<ModuleStatus>()));
     when(base.getNodeStatusFunction()).thenReturn(new Function0<FinishableFuture<NodeStatus>>() {
       @Override
       public FinishableFuture<NodeStatus> apply() {

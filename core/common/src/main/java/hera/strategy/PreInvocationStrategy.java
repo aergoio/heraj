@@ -5,55 +5,70 @@
 package hera.strategy;
 
 import hera.Strategy;
-import hera.api.tupleorerror.Function0;
-import hera.api.tupleorerror.Function1;
-import hera.api.tupleorerror.Function2;
-import hera.api.tupleorerror.Function3;
-import hera.api.tupleorerror.Function4;
-import hera.api.tupleorerror.FunctionDecorator;
+import hera.api.function.Function0;
+import hera.api.function.Function1;
+import hera.api.function.Function2;
+import hera.api.function.Function3;
+import hera.api.function.Function4;
+import hera.api.function.FunctionDecorator;
 
-public interface PreInvocationStrategy extends Strategy, FunctionDecorator {
+public abstract class PreInvocationStrategy implements Strategy, FunctionDecorator {
 
-  void before(hera.api.tupleorerror.Function f);
+  public abstract void before(hera.api.function.Function f);
 
   @Override
-  default <R> Function0<R> apply(Function0<R> f) {
-    return () -> {
-      before(f);
-      return f.apply();
+  public <R> Function0<R> apply(final Function0<R> f) {
+    return new Function0<R>() {
+      @Override
+      public R apply() {
+        before(f);
+        return f.apply();
+      }
     };
   }
 
   @Override
-  default <T, R> Function1<T, R> apply(Function1<T, R> f) {
-    return (T t) -> {
-      before(f);
-      return f.apply(t);
+  public <T, R> Function1<T, R> apply(final Function1<T, R> f) {
+    return new Function1<T, R>() {
+      @Override
+      public R apply(T t) {
+        before(f);
+        return f.apply(t);
+      }
     };
   }
 
   @Override
-  default <T1, T2, R> Function2<T1, T2, R> apply(Function2<T1, T2, R> f) {
-    return (T1 t1, T2 t2) -> {
-      before(f);
-      return f.apply(t1, t2);
+  public <T1, T2, R> Function2<T1, T2, R> apply(final Function2<T1, T2, R> f) {
+    return new Function2<T1, T2, R>() {
+      @Override
+      public R apply(T1 t1, T2 t2) {
+        before(f);
+        return f.apply(t1, t2);
+      }
     };
   }
 
   @Override
-  default <T1, T2, T3, R> Function3<T1, T2, T3, R> apply(Function3<T1, T2, T3, R> f) {
-    return (T1 t1, T2 t2, T3 t3) -> {
-      before(f);
-      return f.apply(t1, t2, t3);
+  public <T1, T2, T3, R> Function3<T1, T2, T3, R> apply(final Function3<T1, T2, T3, R> f) {
+    return new Function3<T1, T2, T3, R>() {
+      @Override
+      public R apply(T1 t1, T2 t2, T3 t3) {
+        before(f);
+        return f.apply(t1, t2, t3);
+      }
     };
   }
 
   @Override
-  default <T1, T2, T3, T4, R> Function4<T1, T2, T3, T4, R> apply(
-      Function4<T1, T2, T3, T4, R> f) {
-    return (T1 t1, T2 t2, T3 t3, T4 t4) -> {
-      before(f);
-      return f.apply(t1, t2, t3, t4);
+  public <T1, T2, T3, T4, R> Function4<T1, T2, T3, T4, R> apply(
+      final Function4<T1, T2, T3, T4, R> f) {
+    return new Function4<T1, T2, T3, T4, R>() {
+      @Override
+      public R apply(T1 t1, T2 t2, T3 t3, T4 t4) {
+        before(f);
+        return f.apply(t1, t2, t3, t4);
+      }
     };
   }
 

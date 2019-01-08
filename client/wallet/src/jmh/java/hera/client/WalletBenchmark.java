@@ -44,7 +44,6 @@ public class WalletBenchmark {
           .withEndpoint("localhost:7845")
           .withNonceRefresh(1, 10, TimeUnit.MILLISECONDS)
           .withTimeout(3, TimeUnit.SECONDS)
-          .withTracking()
           .build(WalletType.Naive);
 
       final AergoKey key = new AergoKeyGenerator().create();

@@ -1,14 +1,15 @@
 package hera.client;
 
 import hera.Context;
+import hera.Strategy;
+import hera.api.function.Function1;
 import hera.exception.RpcException;
 import hera.strategy.ChannelConfigurationStrategy;
 import hera.strategy.ConnectStrategy;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import java.util.function.Function;
 
-public class ManagedChannelFactory implements Function<Context, ManagedChannel> {
+public class ManagedChannelFactory implements Function1<Context, ManagedChannel> {
 
   @Override
   public ManagedChannel apply(final Context context) {
@@ -19,8 +20,11 @@ public class ManagedChannelFactory implements Function<Context, ManagedChannel> 
     final ManagedChannelBuilder<?> builder =
         (ManagedChannelBuilder<?>) connectStrategy.connect();
 
-    context.getStrategies().stream().filter(ChannelConfigurationStrategy.class::isInstance)
-        .forEach(s -> ((ChannelConfigurationStrategy) s).configure(builder));
+    for (final Strategy strategy : context.getStrategies()) {
+      if (strategy instanceof ChannelConfigurationStrategy) {
+        ((ChannelConfigurationStrategy) strategy).configure(builder);
+      }
+    }
     return builder.build();
   }
 }
