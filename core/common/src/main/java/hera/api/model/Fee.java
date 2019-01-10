@@ -20,8 +20,12 @@ public class Fee {
 
   public static final long MIN_LIMIT = 1;
 
+  // null, 0 is to calculate tx hash as the way server calculate
+  public static Fee ZERO = new Fee(null, 0);
+
   @Getter
   protected static Fee defaultFee = new Fee(Aer.GIGA_ONE, MIN_LIMIT);
+
 
   /**
    * Build {@code Fee} object. If {@code price} is smaller then minimum price, set as

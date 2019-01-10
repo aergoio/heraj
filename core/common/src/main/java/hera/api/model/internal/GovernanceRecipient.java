@@ -15,6 +15,8 @@ import hera.api.model.BytesValue;
 @ApiStability.Unstable
 public class GovernanceRecipient extends AccountAddress {
 
+  public static GovernanceRecipient AERGO_SYSTEM = new GovernanceRecipient("aergo.system");
+
   public static GovernanceRecipient AERGO_NAME = new GovernanceRecipient("aergo.name");
 
   private GovernanceRecipient(final String specialName) {

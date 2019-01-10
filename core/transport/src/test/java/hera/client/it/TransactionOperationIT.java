@@ -283,6 +283,40 @@ public class TransactionOperationIT extends AbstractIT {
   }
 
   @Test
+  public void testCommitOnStaked() {
+    for (final Account account : supplyAccounts()) {
+      final AccountState state = aergoClient.getAccountOperation().getState(account);
+
+      unlockAccount(account, password);
+      aergoClient.getAccountOperation().stake(account, state.getBalance(),
+          account.incrementAndGetNonce());
+      lockAccount(account, password);
+
+      waitForNextBlockToGenerate();
+
+      final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());
+      final RawTransaction rawTransaction = RawTransaction.newBuilder()
+          .from(account)
+          .to(recipient)
+          .amount(amount) // staked amount
+          .nonce(account.incrementAndGetNonce())
+          .fee(fee)
+          .build();
+
+      unlockAccount(account, password);
+      final Transaction signed = aergoClient.getAccountOperation().sign(account, rawTransaction);
+      lockAccount(account, password);
+
+      try {
+        aergoClient.getTransactionOperation().commit(signed);
+        fail();
+      } catch (CommitException e) {
+        // good we expected this
+      }
+    }
+  }
+
+  @Test
   public void testCommitOnLockedKeyStoreAccount() {
     final Account account = aergoClient.getKeyStoreOperation().create(password);
     final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());

@@ -6,8 +6,11 @@ package hera.client;
 
 import static hera.TransportConstants.ACCOUNT_CREATE_NAME;
 import static hera.TransportConstants.ACCOUNT_GETNAMEOWNER;
+import static hera.TransportConstants.ACCOUNT_GETSTAKINGINFO;
 import static hera.TransportConstants.ACCOUNT_GETSTATE;
 import static hera.TransportConstants.ACCOUNT_SIGN;
+import static hera.TransportConstants.ACCOUNT_STAKING;
+import static hera.TransportConstants.ACCOUNT_UNSTAKING;
 import static hera.TransportConstants.ACCOUNT_UPDATE_NAME;
 import static hera.TransportConstants.ACCOUNT_VERIFY;
 import static hera.api.model.BytesValue.of;
@@ -29,9 +32,11 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
+import hera.api.model.Aer;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.RawTransaction;
+import hera.api.model.StakingInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.key.AergoKeyGenerator;
@@ -159,6 +164,76 @@ public class AccountTemplateTest extends AbstractTestCase {
     assertNotNull(owner);
     assertEquals(ACCOUNT_GETNAMEOWNER,
         ((WithIdentity) accountTemplate.getNameOwnerFunction()).getIdentity());
+  }
+
+  @Test
+  public void testStake() {
+    final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
+    final TxHash mockHash = mock(TxHash.class);
+    final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
+    future.success(mockHash);
+    when(base.getStakingFunction()).thenReturn(
+        new Function3<Account, Aer, Long, FinishableFuture<TxHash>>() {
+          @Override
+          public FinishableFuture<TxHash> apply(Account t1, Aer t2, Long t4) {
+            return future;
+          }
+        });
+
+    final AccountTemplate accountTemplate = supplyAccountTemplate(base);
+
+    final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
+    final TxHash stakingTxHash =
+        accountTemplate.stake(account, Aer.GIGA_ONE, account.incrementAndGetNonce());
+    assertNotNull(stakingTxHash);
+    assertEquals(ACCOUNT_STAKING,
+        ((WithIdentity) accountTemplate.getStakingFunction()).getIdentity());
+  }
+
+  @Test
+  public void testUnstake() {
+    final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
+    final TxHash mockHash = mock(TxHash.class);
+    final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
+    future.success(mockHash);
+    when(base.getUnstakingFunction()).thenReturn(
+        new Function3<Account, Aer, Long, FinishableFuture<TxHash>>() {
+          @Override
+          public FinishableFuture<TxHash> apply(Account t1, Aer t2, Long t4) {
+            return future;
+          }
+        });
+
+    final AccountTemplate accountTemplate = supplyAccountTemplate(base);
+
+    final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
+    final TxHash unstakingTxHash =
+        accountTemplate.unstake(account, Aer.GIGA_ONE, account.incrementAndGetNonce());
+    assertNotNull(unstakingTxHash);
+    assertEquals(ACCOUNT_UNSTAKING,
+        ((WithIdentity) accountTemplate.getUnstakingFunction()).getIdentity());
+  }
+
+  @Test
+  public void testGetStakingInfo() {
+    final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
+    final FinishableFuture<StakingInfo> future = new FinishableFuture<StakingInfo>();
+    future.success(mock(StakingInfo.class));
+    when(base.getStakingInfoFunction())
+        .thenReturn(new Function1<AccountAddress, FinishableFuture<StakingInfo>>() {
+          @Override
+          public FinishableFuture<StakingInfo> apply(AccountAddress t) {
+            return future;
+          }
+        });
+
+    final AccountTemplate accountTemplate = supplyAccountTemplate(base);
+
+    final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
+    final StakingInfo stakingInfo = accountTemplate.getStakingInfo(account.getAddress());
+    assertNotNull(stakingInfo);
+    assertEquals(ACCOUNT_GETSTAKINGINFO,
+        ((WithIdentity) accountTemplate.getStakingInfoFunction()).getIdentity());
   }
 
   @Test

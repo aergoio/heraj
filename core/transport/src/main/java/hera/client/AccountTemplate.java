@@ -6,8 +6,11 @@ package hera.client;
 
 import static hera.TransportConstants.ACCOUNT_CREATE_NAME;
 import static hera.TransportConstants.ACCOUNT_GETNAMEOWNER;
+import static hera.TransportConstants.ACCOUNT_GETSTAKINGINFO;
 import static hera.TransportConstants.ACCOUNT_GETSTATE;
 import static hera.TransportConstants.ACCOUNT_SIGN;
+import static hera.TransportConstants.ACCOUNT_STAKING;
+import static hera.TransportConstants.ACCOUNT_UNSTAKING;
 import static hera.TransportConstants.ACCOUNT_UPDATE_NAME;
 import static hera.TransportConstants.ACCOUNT_VERIFY;
 import static hera.api.function.Functions.identify;
@@ -24,7 +27,9 @@ import hera.api.function.Function4;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.model.Aer;
 import hera.api.model.RawTransaction;
+import hera.api.model.StakingInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.strategy.StrategyChain;
@@ -81,6 +86,23 @@ public class AccountTemplate
               identify(getAccountBaseTemplate().getGetNameOwnerFunction(), ACCOUNT_GETNAMEOWNER));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function3<Account, Aer, Long,
+      FinishableFuture<TxHash>> stakingFunction =
+          getStrategyChain().apply(
+              identify(getAccountBaseTemplate().getStakingFunction(), ACCOUNT_STAKING));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function3<Account, Aer, Long,
+      FinishableFuture<TxHash>> unstakingFunction =
+          getStrategyChain().apply(
+              identify(getAccountBaseTemplate().getUnstakingFunction(), ACCOUNT_UNSTAKING));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<AccountAddress, FinishableFuture<StakingInfo>> stakingInfoFunction =
+      getStrategyChain().apply(
+          identify(getAccountBaseTemplate().getStakingInfoFunction(), ACCOUNT_GETSTAKINGINFO));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function2<Account, RawTransaction,
       FinishableFuture<Transaction>> signFunction =
           getStrategyChain()
@@ -115,6 +137,21 @@ public class AccountTemplate
   @Override
   public AccountAddress getNameOwner(final String name) {
     return getNameOwnerFunction().apply(name).get();
+  }
+
+  @Override
+  public TxHash stake(final Account account, final Aer amount, final long nonce) {
+    return getStakingFunction().apply(account, amount, nonce).get();
+  }
+
+  @Override
+  public TxHash unstake(final Account account, final Aer amount, final long nonce) {
+    return getUnstakingFunction().apply(account, amount, nonce).get();
+  }
+
+  @Override
+  public StakingInfo getStakingInfo(final AccountAddress accountAddress) {
+    return getStakingInfoFunction().apply(accountAddress).get();
   }
 
   @Override

@@ -9,7 +9,9 @@ import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.model.Aer;
 import hera.api.model.RawTransaction;
+import hera.api.model.StakingInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 
@@ -61,6 +63,34 @@ public interface AccountOperation {
    * @return an account address binded with name
    */
   AccountAddress getNameOwner(String name);
+
+  /**
+   * Staking an account with amount.
+   *
+   * @param account an account to stake
+   * @param amount an amount to stake
+   * @param nonce an nonce which is used in a transaction
+   * @return a staking transaction hash
+   */
+  TxHash stake(Account account, Aer amount, long nonce);
+
+  /**
+   * Unstaking an account with amount.
+   *
+   * @param account an account to stake
+   * @param amount an amount to stake
+   * @param nonce an nonce which is used in a transaction
+   * @return a staking transaction hash
+   */
+  TxHash unstake(Account account, Aer amount, long nonce);
+
+  /**
+   * Get staking information of {@code accountAddress}.
+   *
+   * @param accountAddress an account address to check staking information
+   * @return a staking information
+   */
+  StakingInfo getStakingInfo(AccountAddress accountAddress);
 
   /**
    * Sign for transaction.

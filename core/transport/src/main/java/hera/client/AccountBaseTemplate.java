@@ -23,9 +23,11 @@ import hera.api.function.Function4;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.model.Aer;
 import hera.api.model.BytesValue;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
+import hera.api.model.StakingInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.internal.GovernanceRecipient;
@@ -34,6 +36,7 @@ import hera.key.Signer;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.AccountStateConverterFactory;
 import hera.transport.ModelConverter;
+import hera.transport.StakingInfoConverterFactory;
 import hera.transport.TransactionConverterFactory;
 import io.grpc.ManagedChannel;
 import lombok.Getter;
@@ -53,6 +56,9 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
 
   protected final ModelConverter<AccountState, Blockchain.State> accountStateConverter =
       new AccountStateConverterFactory().create();
+
+  protected final ModelConverter<StakingInfo, Rpc.Staking> stakingInfoConverter =
+      new StakingInfoConverterFactory().create();
 
   protected final ModelConverter<Transaction, Blockchain.Tx> transactionConverter =
       new TransactionConverterFactory().create();
@@ -128,7 +134,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
               GovernanceRecipient.AERGO_NAME,
               null,
               nonce,
-              Fee.of(null, 0),
+              Fee.ZERO,
               payload,
               Transaction.TxType.GOVERNANCE);
           final Transaction signed = getSignFunction().apply(account, rawTransaction).get();
@@ -155,7 +161,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
               GovernanceRecipient.AERGO_NAME,
               null,
               nonce,
-              Fee.of(null, 0),
+              Fee.ZERO,
               payload,
               Transaction.TxType.GOVERNANCE);
           final Transaction signed = getSignFunction().apply(owner, rawTransaction).get();
@@ -184,6 +190,92 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
               @Override
               public AccountAddress apply(final Rpc.NameInfo nameInfo) {
                 return accountAddressConverter.convertToDomainModel(nameInfo.getOwner());
+              }
+            });
+            addCallback(listenableFuture, callback, directExecutor());
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+          return nextFuture;
+        }
+      };
+
+  @Getter
+  private final Function3<Account, Aer, Long, FinishableFuture<TxHash>> stakingFunction =
+      new Function3<Account, Aer, Long, FinishableFuture<TxHash>>() {
+
+        @Override
+        public FinishableFuture<TxHash> apply(final Account account, final Aer amount,
+            final Long nonce) {
+          if (logger.isDebugEnabled()) {
+            logger.debug("Staking account with account: {}, amount: {}, nonce: {}",
+                account.getAddress(), amount, nonce);
+          }
+
+          final BytesValue payload = new BytesValue(("s").getBytes());
+          final RawTransaction rawTransaction = new RawTransaction(account.getAddress(),
+              GovernanceRecipient.AERGO_SYSTEM,
+              amount,
+              nonce,
+              Fee.ZERO,
+              payload,
+              Transaction.TxType.GOVERNANCE);
+          final Transaction signed = getSignFunction().apply(account, rawTransaction).get();
+          return transactionBaseTemplate.getCommitFunction().apply(signed);
+        }
+      };
+
+  @Getter
+  private final Function3<Account, Aer, Long, FinishableFuture<TxHash>> unstakingFunction =
+      new Function3<Account, Aer, Long, FinishableFuture<TxHash>>() {
+
+        @Override
+        public FinishableFuture<TxHash> apply(final Account account, final Aer amount,
+            final Long nonce) {
+          if (logger.isDebugEnabled()) {
+            logger.debug("Unstaking account with account: {}, amount: {}, nonce: {}",
+                account.getAddress(), amount, nonce);
+          }
+
+          final BytesValue payload = new BytesValue(("u").getBytes());
+          final RawTransaction rawTransaction = new RawTransaction(account.getAddress(),
+              GovernanceRecipient.AERGO_SYSTEM,
+              amount,
+              nonce,
+              Fee.ZERO,
+              payload,
+              Transaction.TxType.GOVERNANCE);
+          final Transaction signed = getSignFunction().apply(account, rawTransaction).get();
+          return transactionBaseTemplate.getCommitFunction().apply(signed);
+        }
+      };
+
+
+  @Getter
+  private final Function1<AccountAddress, FinishableFuture<StakingInfo>> stakingInfoFunction =
+      new Function1<AccountAddress, FinishableFuture<StakingInfo>>() {
+
+        @Override
+        public FinishableFuture<StakingInfo> apply(final AccountAddress accountAddress) {
+          if (logger.isDebugEnabled()) {
+            logger.debug("Get staking information of address: {}", accountAddress);
+          }
+
+          FinishableFuture<StakingInfo> nextFuture = new FinishableFuture<StakingInfo>();
+          try {
+            final Rpc.SingleBytes request = Rpc.SingleBytes.newBuilder()
+                .setValue(accountAddressConverter.convertToRpcModel(accountAddress)).build();
+            ListenableFuture<Rpc.Staking> listenableFuture = aergoService.getStaking(request);
+
+            FutureChain<Rpc.Staking, StakingInfo> callback =
+                new FutureChain<Rpc.Staking, StakingInfo>(nextFuture, contextProvider.get());
+            callback.setSuccessHandler(new Function1<Rpc.Staking, StakingInfo>() {
+              @Override
+              public StakingInfo apply(final Rpc.Staking rpcStaking) {
+                final StakingInfo withoutAddress =
+                    stakingInfoConverter.convertToDomainModel(rpcStaking);
+                return new StakingInfo(accountAddress, withoutAddress.getAmount(),
+                    withoutAddress.getBlockNumber());
               }
             });
             addCallback(listenableFuture, callback, directExecutor());
