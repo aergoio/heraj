@@ -25,15 +25,16 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
+import hera.api.model.StakingInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.exception.UnbindedAccountException;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.util.IoUtils;
 import hera.wallet.Wallet;
 import hera.wallet.WalletBuilder;
 import hera.wallet.WalletType;
-import java.io.Closeable;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -218,7 +219,7 @@ public class WalletIT extends AbstractIT {
       List<BlockHeader> blockHeadersByHeight = wallet.listBlockHeaders(blockhash, 10);
       assertEquals(blockHeadersByHash, blockHeadersByHeight);
 
-      ((Closeable) wallet).close();
+      wallet.close();
     }
   }
 
@@ -238,7 +239,7 @@ public class WalletIT extends AbstractIT {
       final Authentication auth = Authentication.of(key.getAddress(), password);
       assertTrue(wallet.unlock(auth));
 
-      ((Closeable) wallet).close();
+      wallet.close();
     }
   }
 
@@ -273,7 +274,7 @@ public class WalletIT extends AbstractIT {
       final AccountState postState = wallet.getCurrentAccountState();
       validatePreAndPostState(preState, preCachedNonce, postState, postCachedNonce, 3);
 
-      ((Closeable) wallet).close();
+      wallet.close();
     }
   }
 
@@ -297,7 +298,7 @@ public class WalletIT extends AbstractIT {
         // good we expected this
       }
 
-      ((Closeable) wallet).close();
+      wallet.close();
     }
   }
 
@@ -328,7 +329,57 @@ public class WalletIT extends AbstractIT {
         // good we expected this
       }
 
-      ((Closeable) wallet).close();
+      wallet.close();
+    }
+  }
+
+  @Test
+  public void testStakeOnLocked() throws IOException {
+    for (final Wallet wallet : supplyWorkingWalletList()) {
+      logger.info("Current wallet: {}", wallet);
+      wallet.bindKeyStore(keyStore);
+
+      final AergoKey key = new AergoKeyGenerator().create();
+      wallet.saveKey(key, password);
+
+      try {
+        final Aer stakingAmount = Aer.of("10", Unit.AERGO);
+        wallet.stake(stakingAmount);
+      } catch (UnbindedAccountException e) {
+        // good we expected this
+      }
+      wallet.close();
+    }
+  }
+
+  @Test
+  public void testStake() throws IOException {
+    for (final Wallet wallet : supplyWorkingWalletList()) {
+      logger.info("Current wallet: {}", wallet);
+      wallet.bindKeyStore(keyStore);
+
+      final AergoKey key = new AergoKeyGenerator().create();
+      wallet.saveKey(key, password);
+
+      final Authentication auth = Authentication.of(key.getAddress(), password);
+      wallet.unlock(auth);
+
+      final long preCachedNonce = wallet.getRecentlyUsedNonce();
+      final AccountState preState = wallet.getCurrentAccountState();
+
+      final Aer stakingAmount = preState.getBalance();
+
+      wallet.stake(stakingAmount);
+      waitForNextBlockToGenerate();
+
+      final StakingInfo stakingInfo = wallet.getCurrentAccountStakingInfo();
+      assertEquals(stakingAmount, stakingInfo.getAmount());
+
+      final long postCachedNonce = wallet.getRecentlyUsedNonce();
+      final AccountState postState = wallet.getCurrentAccountState();
+      validatePreAndPostState(preState, preCachedNonce, postState, postCachedNonce, 1);
+
+      wallet.close();
     }
   }
 
@@ -356,7 +407,7 @@ public class WalletIT extends AbstractIT {
       final AccountState postState = wallet.getCurrentAccountState();
       validatePreAndPostState(preState, preCachedNonce, postState, postCachedNonce, 3);
 
-      ((Closeable) wallet).close();
+      wallet.close();
     }
   }
 
@@ -381,7 +432,7 @@ public class WalletIT extends AbstractIT {
         // good we expected this
       }
 
-      ((Closeable) wallet).close();
+      wallet.close();
     }
   }
 
@@ -416,7 +467,7 @@ public class WalletIT extends AbstractIT {
       final AccountState postState = wallet.getCurrentAccountState();
       validatePreAndPostState(preState, preCachedNonce, postState, postCachedNonce, 1);
 
-      ((Closeable) wallet).close();
+      wallet.close();
     }
   }
 
@@ -452,7 +503,7 @@ public class WalletIT extends AbstractIT {
       final AccountState postState = wallet.getCurrentAccountState();
       validatePreAndPostState(preState, preCachedNonce, postState, postCachedNonce, 1);
 
-      ((Closeable) wallet).close();
+      wallet.close();
     }
   }
 
@@ -487,7 +538,7 @@ public class WalletIT extends AbstractIT {
       final AccountState postState = wallet.getCurrentAccountState();
       validatePreAndPostState(preState, preCachedNonce, postState, postCachedNonce, 1);
 
-      ((Closeable) wallet).close();
+      wallet.close();
     }
   }
 
@@ -517,7 +568,7 @@ public class WalletIT extends AbstractIT {
         // good we expected this
       }
 
-      ((Closeable) wallet).close();
+      wallet.close();
     }
   }
 
@@ -536,7 +587,7 @@ public class WalletIT extends AbstractIT {
       execute(wallet, contractInterface);
       query(wallet, contractInterface);
 
-      ((Closeable) wallet).close();
+      wallet.close();
     }
   }
 
@@ -559,7 +610,7 @@ public class WalletIT extends AbstractIT {
         // good we expected this
       }
 
-      ((Closeable) wallet).close();
+      wallet.close();
     }
   }
 
@@ -584,7 +635,7 @@ public class WalletIT extends AbstractIT {
         // good we expected this
       }
 
-      ((Closeable) wallet).close();
+      wallet.close();
     }
 
   }

@@ -1,5 +1,4 @@
-/*
- * @copyright defined in LICENSE.txt
+/* * @copyright defined in LICENSE.txt
  */
 
 package hera.wallet;
@@ -235,6 +234,44 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
     final TxHash updateHash = wallet.updateName(randomUUID().toString(), accountAddress);
     assertNotNull(updateHash);
+  }
+
+  @Test
+  public void testStake() {
+    InteractiveWallet wallet =
+        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    final AergoClient mockClient = mock(AergoClient.class);
+    final AccountOperation mockOperation = mock(AccountOperation.class);
+    when(mockOperation.stake(any(Account.class), any(Aer.class), anyLong()))
+        .thenReturn(mock(TxHash.class));
+    when(mockClient.getAccountOperation()).thenReturn(mockOperation);
+    when(wallet.getAergoClient()).thenReturn(mockClient);
+    when(wallet.getNonceRefreshTryCountAndInterval())
+        .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
+
+    wallet.account = new AccountFactory().create(accountAddress);
+
+    final TxHash stakingHash = wallet.stake(Aer.AERGO_ONE);
+    assertNotNull(stakingHash);
+  }
+
+  @Test
+  public void testUnstake() {
+    InteractiveWallet wallet =
+        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    final AergoClient mockClient = mock(AergoClient.class);
+    final AccountOperation mockOperation = mock(AccountOperation.class);
+    when(mockOperation.unstake(any(Account.class), any(Aer.class), anyLong()))
+        .thenReturn(mock(TxHash.class));
+    when(mockClient.getAccountOperation()).thenReturn(mockOperation);
+    when(wallet.getAergoClient()).thenReturn(mockClient);
+    when(wallet.getNonceRefreshTryCountAndInterval())
+        .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
+
+    wallet.account = new AccountFactory().create(accountAddress);
+
+    final TxHash stakingHash = wallet.unstake(Aer.AERGO_ONE);
+    assertNotNull(stakingHash);
   }
 
   @Test

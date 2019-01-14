@@ -128,7 +128,7 @@ public class JavaKeyStore implements KeyStore, Signer {
     BigInteger d = null;
     if (privateKey instanceof java.security.interfaces.ECPrivateKey) {
       d = ((java.security.interfaces.ECPrivateKey) privateKey).getS();
-    } else if (privateKey instanceof java.security.interfaces.ECPrivateKey) {
+    } else if (privateKey instanceof org.bouncycastle.jce.interfaces.ECPrivateKey) {
       d = ((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD();
     } else {
       throw new WalletException("Unacceptable key type");

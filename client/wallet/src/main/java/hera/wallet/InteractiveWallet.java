@@ -18,6 +18,7 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
+import hera.api.model.StakingInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.internal.TryCountAndInterval;
@@ -113,7 +114,12 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
 
   @Override
   public AccountState getCurrentAccountState() {
-    return getAergoClient().getAccountOperation().getState(getCurrentAccount());
+    return getAccountState(getCurrentAccount());
+  }
+
+  @Override
+  public StakingInfo getCurrentAccountStakingInfo() {
+    return getStakingInfo(getCurrentAccount());
   }
 
   @Override
@@ -144,6 +150,28 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
       public TxHash apply(final Long nonce) {
         return getAergoClient().getAccountOperation()
             .updateName(getCurrentAccount(), name, newOwner, nonce);
+      }
+    });
+  }
+
+  @Override
+  public TxHash stake(final Aer amount) {
+    return sendRequestWithNonce(new Function1<Long, TxHash>() {
+      @Override
+      public TxHash apply(final Long nonce) {
+        return getAergoClient().getAccountOperation()
+            .stake(getCurrentAccount(), amount, nonce);
+      }
+    });
+  }
+
+  @Override
+  public TxHash unstake(final Aer amount) {
+    return sendRequestWithNonce(new Function1<Long, TxHash>() {
+      @Override
+      public TxHash apply(final Long nonce) {
+        return getAergoClient().getAccountOperation()
+            .unstake(getCurrentAccount(), amount, nonce);
       }
     });
   }

@@ -108,6 +108,22 @@ public interface Wallet extends LookupClient, NonceManagable, Closeable {
   TxHash updateName(String name, AccountAddress newOwner);
 
   /**
+   * Staking an account with amount of a current account.
+   *
+   * @param amount an amount to stake
+   * @return a staking transaction hash
+   */
+  TxHash stake(Aer amount);
+
+  /**
+   * Unstaking an account with amount of a current account.
+   *
+   * @param amount an amount to stake
+   * @return a staking transaction hash
+   */
+  TxHash unstake(Aer amount);
+
+  /**
    * Sign for transaction.
    *
    * @param rawTransaction raw transaction to sign

@@ -21,6 +21,7 @@ import hera.api.model.ContractTxReceipt;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
+import hera.api.model.StakingInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import java.io.Closeable;
@@ -53,6 +54,22 @@ public interface LookupClient extends Closeable {
    * @return an account address binded with name
    */
   AccountAddress getNameOwner(String name);
+
+  /**
+   * Get staking information of {@code account}.
+   *
+   * @param account an account to check staking information
+   * @return a staking information
+   */
+  StakingInfo getStakingInfo(Account account);
+
+  /**
+   * Get staking information of {@code accountAddress}.
+   *
+   * @param accountAddress an account address to check staking information
+   * @return a staking information
+   */
+  StakingInfo getStakingInfo(AccountAddress accountAddress);
 
   /**
    * Get account list on a key store.

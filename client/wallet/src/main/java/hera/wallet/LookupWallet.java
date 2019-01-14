@@ -21,6 +21,7 @@ import hera.api.model.ContractTxReceipt;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
+import hera.api.model.StakingInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.client.AergoClient;
@@ -56,6 +57,16 @@ public abstract class LookupWallet implements LookupClient, Closeable {
   @Override
   public AccountAddress getNameOwner(final String name) {
     return getAergoClient().getAccountOperation().getNameOwner(name);
+  }
+
+  @Override
+  public StakingInfo getStakingInfo(final Account account) {
+    return getStakingInfo(account.getAddress());
+  }
+
+  @Override
+  public StakingInfo getStakingInfo(final AccountAddress accountAddress) {
+    return getAergoClient().getAccountOperation().getStakingInfo(accountAddress);
   }
 
   @Override

@@ -8,6 +8,7 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountState;
+import hera.api.model.StakingInfo;
 import hera.exception.UnbindedAccountException;
 
 @ApiAudience.Private
@@ -29,6 +30,14 @@ public interface NonceManagable {
    * @throws UnbindedAccountException if account isn't binded
    */
   AccountState getCurrentAccountState();
+
+  /**
+   * Get staking information of current account.
+   *
+   * @return a staking information of current account
+   * @throws UnbindedAccountException if account isn't binded
+   */
+  StakingInfo getCurrentAccountStakingInfo();
 
   /**
    * Get recently used nonce value.

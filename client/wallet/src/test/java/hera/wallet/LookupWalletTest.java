@@ -22,6 +22,7 @@ import hera.api.KeyStoreOperation;
 import hera.api.TransactionOperation;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
@@ -39,9 +40,11 @@ import hera.api.model.ModuleStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
+import hera.api.model.StakingInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.client.AergoClient;
+import hera.key.AergoKeyGenerator;
 import java.util.ArrayList;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -86,6 +89,34 @@ public class LookupWalletTest extends AbstractTestCase {
     when(wallet.getAergoClient()).thenReturn(mockClient);
 
     assertNotNull(wallet.getNameOwner((randomUUID().toString())));
+  }
+
+  @Test
+  public void testGetStakingInfoWithAccountAddress() {
+    final LookupWallet wallet = mock(LookupWallet.class, Mockito.CALLS_REAL_METHODS);
+    final AergoClient mockClient = mock(AergoClient.class);
+    final AccountOperation mockOperation = mock(AccountOperation.class);
+    when(mockOperation.getStakingInfo(any(AccountAddress.class)))
+        .thenReturn(mock(StakingInfo.class));
+    when(mockClient.getAccountOperation()).thenReturn(mockOperation);
+    when(wallet.getAergoClient()).thenReturn(mockClient);
+
+    final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
+    assertNotNull(wallet.getStakingInfo(account.getAddress()));
+  }
+
+  @Test
+  public void testGetStakingInfoWithAccount() {
+    final LookupWallet wallet = mock(LookupWallet.class, Mockito.CALLS_REAL_METHODS);
+    final AergoClient mockClient = mock(AergoClient.class);
+    final AccountOperation mockOperation = mock(AccountOperation.class);
+    when(mockOperation.getStakingInfo(any(AccountAddress.class)))
+        .thenReturn(mock(StakingInfo.class));
+    when(mockClient.getAccountOperation()).thenReturn(mockOperation);
+    when(wallet.getAergoClient()).thenReturn(mockClient);
+
+    final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
+    assertNotNull(wallet.getStakingInfo(account));
   }
 
   @Test
