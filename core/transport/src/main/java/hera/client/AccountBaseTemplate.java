@@ -132,7 +132,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
           final BytesValue payload = new BytesValue(("c" + name).getBytes());
           final RawTransaction rawTransaction = new RawTransaction(account.getAddress(),
               GovernanceRecipient.AERGO_NAME,
-              null,
+              Aer.AERGO_ONE,
               nonce,
               Fee.ZERO,
               payload,
@@ -159,7 +159,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
               accountAddressConverter.convertToRpcModel(newOwner).toByteArray()));
           final RawTransaction rawTransaction = new RawTransaction(owner.getAddress(),
               GovernanceRecipient.AERGO_NAME,
-              null,
+              Aer.AERGO_ONE,
               nonce,
               Fee.ZERO,
               payload,
