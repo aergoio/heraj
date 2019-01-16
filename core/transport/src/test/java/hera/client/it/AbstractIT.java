@@ -41,7 +41,7 @@ public abstract class AbstractIT {
   @Before
   public void prepare() {
     aergoClient = new AergoClientBuilder()
-        .withEndpoint("localhost:7845")
+        .withEndpoint(hostname)
         .withNonBlockingConnect()
         .withTimeout(10L, TimeUnit.SECONDS)
         .build();

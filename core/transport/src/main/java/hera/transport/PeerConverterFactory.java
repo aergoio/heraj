@@ -36,9 +36,10 @@ public class PeerConverterFactory {
       try {
         return Rpc.Peer.newBuilder()
             .setAddress(Node.PeerAddress.newBuilder()
-                .setAddress(ByteString.copyFrom(domainPeer.getAddress().getAddress()))
+                .setAddress(domainPeer.getAddress().getHostAddress())
                 .setPort(domainPeer.getPort())
-                .setPeerID(ByteString.copyFrom(Base58Utils.decode(domainPeer.getPeerId()))).build())
+                .setPeerID(ByteString.copyFrom(Base58Utils.decode(domainPeer.getPeerId())))
+                .build())
             .setBestblock(NewBlockNotice.newBuilder()
                 .setBlockHash(
                     copyFrom(domainPeer.getBlockchainStatus().getBestBlockHash().getBytesValue()))
@@ -61,7 +62,7 @@ public class PeerConverterFactory {
         final BlockchainStatus blockchainStatus = new BlockchainStatus(
             rpcPeer.getBestblock().getBlockNo(),
             new BlockHash(BytesValue.of(rpcPeer.getBestblock().getBlockHash().toByteArray())));
-        return new Peer(Inet6Address.getByAddress(rpcPeer.getAddress().getAddress().toByteArray()),
+        return new Peer(Inet6Address.getByName(rpcPeer.getAddress().getAddress()),
             rpcPeer.getAddress().getPort(),
             Base58Utils.encode(rpcPeer.getAddress().getPeerID().toByteArray()),
             blockchainStatus,
