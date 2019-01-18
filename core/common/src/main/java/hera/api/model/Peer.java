@@ -26,7 +26,7 @@ public class Peer {
   protected int port;
 
   @Getter
-  protected String peerId;
+  protected PeerId peerId;
 
   @Getter
   protected BlockchainStatus blockchainStatus;
@@ -49,7 +49,7 @@ public class Peer {
    * @param hidden whether a peer is hidden or not
    */
   @ApiAudience.Private
-  public Peer(final InetAddress address, final int port, final String peerId,
+  public Peer(final InetAddress address, final int port, final PeerId peerId,
       final BlockchainStatus blockchainStatus,
       final int state, final boolean hidden) {
     assertNotNull(address, "Peer address must not null");
