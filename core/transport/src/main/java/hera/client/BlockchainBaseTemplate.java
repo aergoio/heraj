@@ -18,15 +18,29 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.function.Function0;
 import hera.api.function.Function1;
+import hera.api.function.Function3;
+import hera.api.model.Account;
+import hera.api.model.AccountAddress;
+import hera.api.model.BlockProducer;
 import hera.api.model.BlockchainStatus;
+import hera.api.model.BytesValue;
+import hera.api.model.Fee;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
+import hera.api.model.PeerId;
 import hera.api.model.PeerMetric;
+import hera.api.model.RawTransaction;
+import hera.api.model.Transaction;
+import hera.api.model.TxHash;
+import hera.api.model.VotingInfo;
+import hera.api.model.internal.GovernanceRecipient;
+import hera.transport.AccountAddressConverterFactory;
 import hera.transport.BlockchainStatusConverterFactory;
 import hera.transport.ModelConverter;
 import hera.transport.NodeStatusConverterFactory;
 import hera.transport.PeerConverterFactory;
 import hera.transport.PeerMetricConverterFactory;
+import hera.transport.VotingInfoConverterFactory;
 import io.grpc.ManagedChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +68,16 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
   protected final ModelConverter<NodeStatus, Rpc.SingleBytes> nodeStatusConverter =
       new NodeStatusConverterFactory().create();
 
+  protected final ModelConverter<AccountAddress, ByteString> accountAddressConverter =
+      new AccountAddressConverterFactory().create();
+
+  protected final ModelConverter<VotingInfo, Rpc.Vote> voteConverter =
+      new VotingInfoConverterFactory().create();
+
+  protected AccountBaseTemplate accountBaseTemplate = new AccountBaseTemplate();
+
+  protected TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();
+
   @Getter
   protected AergoRPCServiceFutureStub aergoService;
 
@@ -62,11 +86,15 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
   @Override
   public void setChannel(final ManagedChannel channel) {
     this.aergoService = newFutureStub(channel);
+    this.accountBaseTemplate.setChannel(channel);
+    this.transactionBaseTemplate.setChannel(channel);
   }
 
   @Override
   public void setContextProvider(final ContextProvider contextProvider) {
     this.contextProvider = contextProvider;
+    this.accountBaseTemplate.setContextProvider(contextProvider);
+    this.transactionBaseTemplate.setContextProvider(contextProvider);
   }
 
   @Getter
@@ -202,6 +230,118 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
               @Override
               public NodeStatus apply(final Rpc.SingleBytes status) {
                 return nodeStatusConverter.convertToDomainModel(status);
+              }
+            });
+            addCallback(listenableFuture, callback, directExecutor());
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+          return nextFuture;
+        }
+      };
+
+  @Getter
+  private final Function3<Account, PeerId, Long, FinishableFuture<TxHash>> voteFunction =
+      new Function3<Account, PeerId, Long, FinishableFuture<TxHash>>() {
+
+        @Override
+        public FinishableFuture<TxHash> apply(final Account account, final PeerId peerId,
+            final Long nonce) {
+          if (logger.isDebugEnabled()) {
+            logger.debug("Voting with account: {}, PeerId: {}, nonce: {}",
+                account.getAddress(), peerId, nonce);
+          }
+
+          final byte[] rawPeerId = peerId.getBytesValue().getValue();
+          final byte[] rawPayload = new byte[1 + rawPeerId.length];
+          rawPayload[0] = (byte) 'v';
+          System.arraycopy(rawPeerId, 0, rawPayload, 1, rawPeerId.length);
+          final RawTransaction rawTransaction = new RawTransaction(account.getAddress(),
+              GovernanceRecipient.AERGO_SYSTEM,
+              null,
+              nonce,
+              Fee.ZERO,
+              new BytesValue(rawPayload),
+              Transaction.TxType.GOVERNANCE);
+          final Transaction signed =
+              accountBaseTemplate.getSignFunction().apply(account, rawTransaction).get();
+          return transactionBaseTemplate.getCommitFunction().apply(signed);
+        }
+      };
+
+  @Getter
+  private final Function1<Long,
+      FinishableFuture<List<BlockProducer>>> listElectedBlockProducersFunction = new Function1<
+          Long, FinishableFuture<List<BlockProducer>>>() {
+
+        @Override
+        public FinishableFuture<List<BlockProducer>> apply(final Long showCount) {
+          if (logger.isDebugEnabled()) {
+            logger.debug("Get votes status, ShowCount: {}, Context: {}", showCount,
+                contextProvider.get());
+          }
+
+          FinishableFuture<List<BlockProducer>> nextFuture =
+              new FinishableFuture<List<BlockProducer>>();
+          try {
+            final Rpc.SingleBytes request = Rpc.SingleBytes.newBuilder()
+                .setValue(ByteString.copyFrom(longToByteArray(showCount.longValue())))
+                .build();
+            ListenableFuture<Rpc.VoteList> listenableFuture = aergoService.getVotes(request);
+
+            FutureChain<Rpc.VoteList, List<BlockProducer>> callback =
+                new FutureChain<Rpc.VoteList, List<BlockProducer>>(nextFuture,
+                    contextProvider.get());
+            callback.setSuccessHandler(new Function1<Rpc.VoteList, List<BlockProducer>>() {
+
+              @Override
+              public List<BlockProducer> apply(final Rpc.VoteList rpcVoteList) {
+                final List<BlockProducer> votes = new ArrayList<BlockProducer>();
+                for (final Rpc.Vote rpcVote : rpcVoteList.getVotesList()) {
+                  final VotingInfo rpcVotingInfo = voteConverter.convertToDomainModel(rpcVote);
+                  votes.add(new BlockProducer(
+                      rpcVotingInfo.getPeerId(), rpcVotingInfo.getAmount()));
+                }
+                return votes;
+              }
+            });
+            addCallback(listenableFuture, callback, directExecutor());
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+          return nextFuture;
+        }
+      };
+
+  @Getter
+  private final Function1<AccountAddress, FinishableFuture<List<VotingInfo>>> listVotesOfFunction =
+      new Function1<AccountAddress, FinishableFuture<List<VotingInfo>>>() {
+
+        @Override
+        public FinishableFuture<List<VotingInfo>> apply(final AccountAddress accountAddress) {
+          if (logger.isDebugEnabled()) {
+            logger.debug("Get votes of, AccountAddress: {}, Context: {}", accountAddress,
+                contextProvider.get());
+          }
+
+          FinishableFuture<List<VotingInfo>> nextFuture = new FinishableFuture<List<VotingInfo>>();
+          try {
+            final Rpc.SingleBytes request = Rpc.SingleBytes.newBuilder()
+                .setValue(accountAddressConverter.convertToRpcModel(accountAddress))
+                .build();
+            ListenableFuture<Rpc.VoteList> listenableFuture = aergoService.getVotes(request);
+
+            FutureChain<Rpc.VoteList, List<VotingInfo>> callback =
+                new FutureChain<Rpc.VoteList, List<VotingInfo>>(nextFuture, contextProvider.get());
+            callback.setSuccessHandler(new Function1<Rpc.VoteList, List<VotingInfo>>() {
+
+              @Override
+              public List<VotingInfo> apply(final Rpc.VoteList rpcVoteList) {
+                final List<VotingInfo> votes = new ArrayList<VotingInfo>();
+                for (final Rpc.Vote rpcVote : rpcVoteList.getVotesList()) {
+                  votes.add(voteConverter.convertToDomainModel(rpcVote));
+                }
+                return votes;
               }
             });
             addCallback(listenableFuture, callback, directExecutor());
