@@ -5,7 +5,7 @@
 package hera.util;
 
 import static hera.api.model.BytesValue.of;
-import static hera.util.NumberUtils.postiveToByteArray;
+import static hera.util.NumberUtils.positiveToByteArray;
 import static hera.util.Sha256Utils.digest;
 import static hera.util.VersionUtils.trim;
 
@@ -64,16 +64,10 @@ public class TransactionUtils {
     dataOut.writeLong(rawTransaction.getNonce());
     dataOut.write(trim(rawTransaction.getSender().getBytesValue().getValue()));
     dataOut.write(trim(rawTransaction.getRecipient().getBytesValue().getValue()));
-    if (null != rawTransaction.getAmount()) {
-      dataOut.write(postiveToByteArray(rawTransaction.getAmount().getValue()));
-    }
+    dataOut.write(positiveToByteArray(rawTransaction.getAmount().getValue()));
     dataOut.write(rawTransaction.getPayload().getValue());
-    if (null != rawTransaction.getFee()) {
-      dataOut.writeLong(rawTransaction.getFee().getLimit());
-      if (null != rawTransaction.getFee().getPrice()) {
-        dataOut.write(postiveToByteArray(rawTransaction.getFee().getPrice().getValue()));
-      }
-    }
+    dataOut.writeLong(rawTransaction.getFee().getLimit());
+    dataOut.write(positiveToByteArray(rawTransaction.getFee().getPrice().getValue()));
     dataOut.writeInt(rawTransaction.getTxType().getIntValue());
     return dataOut;
   }

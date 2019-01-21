@@ -77,9 +77,9 @@ public class RawTransaction {
       final TxType txType) {
     this.sender = null != sender ? sender : AccountAddress.of(BytesValue.EMPTY);
     this.recipient = null != recipient ? recipient : AccountAddress.of(BytesValue.EMPTY);
-    this.amount = amount;
+    this.amount = null != amount ? amount : Aer.EMPTY;
     this.nonce = nonce;
-    this.fee = null != fee ? fee : Fee.getDefaultFee();
+    this.fee = null != fee ? fee : Fee.EMPTY;
     this.payload = null != payload ? payload : BytesValue.EMPTY;
     this.txType = null != txType ? txType : TxType.UNRECOGNIZED;
   }
@@ -137,11 +137,11 @@ public class RawTransaction {
 
     private AccountAddress recipient;
 
-    private Aer amount;
+    private Aer amount = Aer.EMPTY;
 
     private long nonce;
 
-    private Fee fee = Fee.getDefaultFee();
+    private Fee fee = Fee.EMPTY;
 
     private BytesValue payload = BytesValue.EMPTY;
 

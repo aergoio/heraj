@@ -16,20 +16,15 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class Fee {
 
-  public static final Aer MIN_PRICE = Aer.ONE;
+  public static final Fee EMPTY = new Fee(null, 0L);
 
-  public static final long MIN_LIMIT = 1;
-
-  // null, 0 is to calculate tx hash as the way server calculate
-  public static Fee ZERO = new Fee(null, 0);
+  public static final Fee ZERO = new Fee(Aer.ZERO, 0);
 
   @Getter
-  protected static Fee defaultFee = new Fee(Aer.GIGA_ONE, MIN_LIMIT);
-
+  protected static final Fee defaultFee = new Fee(Aer.GIGA_ONE, 1L);
 
   /**
-   * Build {@code Fee} object. If {@code price} is smaller then minimum price, set as
-   * {@link #MIN_PRICE}. Similarly, if {@code limit} &lt; 0, limit is set as {@link #MIN_LIMIT}.
+   * Build {@code Fee} object.
    *
    * @param price fee price
    * @param limit fee limit
@@ -41,22 +36,21 @@ public class Fee {
   }
 
   @Getter
-  protected Aer price;
+  protected final Aer price;
 
   @Getter
-  protected long limit;
+  protected final long limit;
 
   /**
-   * Fee constructor. If {@code price} is smaller then minimum price, set as {@link #MIN_PRICE}.
-   * Similarly, if {@code limit} &lt; 0, limit is set as {@link #MIN_LIMIT}.
+   * Fee constructor.
    *
    * @param price fee price
    * @param limit fee limit
    */
   @ApiAudience.Public
   public Fee(final Aer price, final long limit) {
-    this.price = null != price ? (price.compareTo(MIN_PRICE) >= 0 ? price : MIN_PRICE) : price;
-    this.limit = limit >= 0 ? limit : MIN_LIMIT;
+    this.price = null != price ? price : Aer.EMPTY;
+    this.limit = limit >= 0 ? limit : 0L;
   }
 
 }

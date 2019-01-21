@@ -4,8 +4,8 @@
 
 package hera.util;
 
-import static hera.util.NumberUtils.byteArrayToPostive;
-import static hera.util.NumberUtils.postiveToByteArray;
+import static hera.util.NumberUtils.byteArrayToPositive;
+import static hera.util.NumberUtils.positiveToByteArray;
 
 import com.google.protobuf.ByteString;
 import hera.api.model.Aer;
@@ -39,10 +39,10 @@ public class TransportUtils {
    * @return protobuf {@link ByteString}
    */
   public static ByteString copyFrom(final Aer aer) {
-    if (null == aer) {
+    if (null == aer || Aer.EMPTY == aer) {
       return ByteString.EMPTY;
     }
-    return ByteString.copyFrom(postiveToByteArray(aer.getValue()));
+    return ByteString.copyFrom(positiveToByteArray(aer.getValue()));
   }
 
   /**
@@ -53,9 +53,9 @@ public class TransportUtils {
    */
   public static Aer parseToAer(final ByteString rawAer) {
     if (null == rawAer || ByteString.EMPTY.equals(rawAer)) {
-      return null;
+      return Aer.EMPTY;
     }
-    return Aer.of(byteArrayToPostive(rawAer.toByteArray()));
+    return Aer.of(byteArrayToPositive(rawAer.toByteArray()));
   }
 
   /**

@@ -37,7 +37,15 @@ public class VersionUtilsTest extends AbstractTestCase {
     final byte version = randomUUID().toString().getBytes()[0];
     final BytesValue source = BytesValue.of(randomUUID().toString().getBytes());
     final BytesValue versionEnveloped = VersionUtils.envelop(source, version);
-    assertEquals(versionEnveloped.getValue()[0], version);
+    assertEquals(version, versionEnveloped.getValue()[0]);
+  }
+
+  @Test
+  public void testEnvelopWithBytesValueOnEmptyByteArray() {
+    final byte version = randomUUID().toString().getBytes()[0];
+    final BytesValue source = null;
+    final BytesValue versionEnveloped = VersionUtils.envelop(source, version);
+    assertEquals(BytesValue.EMPTY, versionEnveloped);
   }
 
   @Test
@@ -45,7 +53,15 @@ public class VersionUtilsTest extends AbstractTestCase {
     final byte version = randomUUID().toString().getBytes()[0];
     final byte[] source = randomUUID().toString().getBytes();
     final byte[] versionEnveloped = VersionUtils.envelop(source, version);
-    assertEquals(versionEnveloped[0], version);
+    assertEquals(version, versionEnveloped[0]);
+  }
+
+  @Test
+  public void testEnvelopOnEmptyByteArray() {
+    final byte version = randomUUID().toString().getBytes()[0];
+    final byte[] source = null;
+    final byte[] versionEnveloped = VersionUtils.envelop(source, version);
+    assertTrue(Arrays.areEqual(new byte[0], versionEnveloped));
   }
 
   @Test
@@ -58,12 +74,16 @@ public class VersionUtilsTest extends AbstractTestCase {
   }
 
   @Test
+  public void testTrimWithBytesValueOnEmptyByteArray() {
+    final BytesValue actual = VersionUtils.trim(BytesValue.EMPTY);
+    assertEquals(BytesValue.EMPTY, actual);
+  }
+
+  @Test
   public void testTrim() {
-    final byte version = randomUUID().toString().getBytes()[0];
-    final byte[] source = randomUUID().toString().getBytes();
-    final byte[] versionEnveloped = VersionUtils.envelop(source, version);
+    final byte[] versionEnveloped = null;
     final byte[] actual = VersionUtils.trim(versionEnveloped);
-    assertTrue(Arrays.areEqual(source, actual));
+    assertTrue(Arrays.areEqual(new byte[0], actual));
   }
 
 }

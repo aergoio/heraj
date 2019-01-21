@@ -210,18 +210,20 @@ public class NumberUtils {
    * canonical two's-complement form. Eg. 255 is {@code "11111111"} not
    * {@code "00000000 1111 1111"}.
    *
-   * @param postiveNumber a positive bigInteger
-   * @return a converted byte array
+   * @param positiveNumber a positive bigInteger
+   * @return a converted byte array. Empty byte array if {@code positiveNumber} is null.
    */
-  public static byte[] postiveToByteArray(final BigInteger postiveNumber) {
-    assertNotNull(postiveNumber, "Argument must not be null");
-    assertTrue(postiveNumber.compareTo(BigInteger.ZERO) >= 0,
+  public static byte[] positiveToByteArray(final BigInteger positiveNumber) {
+    if (null == positiveNumber) {
+      return new byte[0];
+    }
+    assertTrue(positiveNumber.compareTo(BigInteger.ZERO) >= 0,
         "Argument must greater than or equals to 0");
 
-    final byte[] raw = postiveNumber.toByteArray();
-    final int postiveByteCapacity =
-        postiveNumber.equals(BigInteger.ZERO) ? 1 : (postiveNumber.bitLength() + 7) >>> 3;
-    if (raw.length > postiveByteCapacity) {
+    final byte[] raw = positiveNumber.toByteArray();
+    final int positiveByteCapacity =
+        positiveNumber.equals(BigInteger.ZERO) ? 1 : (positiveNumber.bitLength() + 7) >>> 3;
+    if (raw.length > positiveByteCapacity) {
       return Arrays.copyOfRange(raw, 1, raw.length);
     }
     return raw;
@@ -233,10 +235,8 @@ public class NumberUtils {
    * @param rawBytes a rawBytes representing positive number without sign bit.
    * @return a converted {@code BigInteger}
    */
-  public static BigInteger byteArrayToPostive(final byte[] rawBytes) {
-    assertNotNull(rawBytes, "Argument must not be null");
-
-    if (rawBytes.length == 0) {
+  public static BigInteger byteArrayToPositive(final byte[] rawBytes) {
+    if (null == rawBytes || rawBytes.length == 0) {
       return BigInteger.ZERO;
     }
 

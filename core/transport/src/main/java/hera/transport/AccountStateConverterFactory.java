@@ -4,7 +4,7 @@
 
 package hera.transport;
 
-import static hera.util.NumberUtils.byteArrayToPostive;
+import static hera.util.NumberUtils.byteArrayToPositive;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.function.Function1;
@@ -36,7 +36,7 @@ public class AccountStateConverterFactory {
           logger.trace("Rpc account state: {}", rpcAccountState);
           return new AccountState(AccountAddress.of(BytesValue.EMPTY),
               rpcAccountState.getNonce(),
-              new Aer(byteArrayToPostive(rpcAccountState.getBalance().toByteArray())));
+              new Aer(byteArrayToPositive(rpcAccountState.getBalance().toByteArray())));
         }
       };
 

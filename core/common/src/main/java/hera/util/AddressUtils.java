@@ -25,7 +25,7 @@ public class AddressUtils {
         (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
     rawAddress[0] = (byte) (ecPublicKey.getQ().getYCoord().toBigInteger().testBit(0) ? 0x03 : 0x02);
     final byte[] xbyteArray =
-        NumberUtils.postiveToByteArray(ecPublicKey.getQ().getXCoord().toBigInteger());
+        NumberUtils.positiveToByteArray(ecPublicKey.getQ().getXCoord().toBigInteger());
     System.arraycopy(xbyteArray, 0, rawAddress, rawAddress.length - xbyteArray.length,
         xbyteArray.length);
     return AccountAddress

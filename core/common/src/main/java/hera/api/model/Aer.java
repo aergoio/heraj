@@ -23,6 +23,8 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class Aer implements Comparable<Aer> {
 
+  public static final Aer EMPTY = new Aer();
+
   public static final Aer ZERO = new Aer(BigInteger.valueOf(0L));
 
   public static final Aer ONE = new Aer(BigInteger.valueOf(1L));
@@ -89,6 +91,10 @@ public class Aer implements Comparable<Aer> {
 
   @Getter
   protected final BigInteger value;
+
+  protected Aer() {
+    this.value = null;
+  }
 
   /**
    * Create {@code Aer} instance.

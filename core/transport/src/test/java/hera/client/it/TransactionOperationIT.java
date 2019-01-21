@@ -19,6 +19,8 @@ import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.client.AergoClientBuilder;
+import hera.client.AergoClient;
 import hera.exception.CommitException;
 import hera.key.AergoKeyGenerator;
 import org.junit.Test;
@@ -55,7 +57,15 @@ public class TransactionOperationIT extends AbstractIT {
       final Transaction confirmed = aergoClient.getTransactionOperation().getTransaction(txHash);
       final AccountState refreshed = aergoClient.getAccountOperation().getState(account);
       assertTrue(true == confirmed.isConfirmed());
+
       verifyState(preState, refreshed, amount);
+
+      try {
+        aergoClient.getTransactionOperation().commit(confirmed);
+        fail();
+      } catch (CommitException e) {
+        assertEquals(CommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
+      }
     }
   }
 

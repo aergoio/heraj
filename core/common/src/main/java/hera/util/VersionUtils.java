@@ -38,18 +38,23 @@ public class VersionUtils {
   }
 
   /**
-   * Envelop the version to the given {@code source}.
+   * Envelop the version to the given {@code source}. Return {@link BytesValue#EMPTY} if
+   * {@code source} is null or empty.
    *
    * @param source envelop target
    * @param version version to envelop
    * @return version enveloped byte array
    */
   public static BytesValue envelop(final BytesValue source, final byte version) {
+    if (null == source || BytesValue.EMPTY == source) {
+      return BytesValue.EMPTY;
+    }
     return BytesValue.of(envelop(source.getValue(), version));
   }
 
   /**
-   * Envelop the version to the given {@code source}.
+   * Envelop the version to the given {@code source}. Return empty byte array is {@code source} is
+   * null or empty.
    *
    * @param source envelop target
    * @param version version to envelop
@@ -66,17 +71,21 @@ public class VersionUtils {
   }
 
   /**
-   * Trim version of the {@code source}.
+   * Trim version of the {@code source}. Return {@link BytesValue#EMPTY} if {@code source} is null
+   * or empty.
    *
    * @param source byte array which may contain version.
    * @return byte array with version trimmed
    */
   public static BytesValue trim(final BytesValue source) {
+    if (null == source || BytesValue.EMPTY == source) {
+      return BytesValue.EMPTY;
+    }
     return BytesValue.of(trim(source.getValue()));
   }
 
   /**
-   * Trim version of the {@code source}.
+   * Trim version of the {@code source}. Return empty byte array if {@code source} is null or empty.
    *
    * @param source byte array which may contain version.
    * @return byte array with version trimmed

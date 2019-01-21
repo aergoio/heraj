@@ -75,11 +75,9 @@ public class TransactionInBlockConverterFactory {
               .setNonce(domainTransaction.getNonce())
               .setPayload(copyFrom(domainTransaction.getPayload()))
               .setType(txTypeDomainConverter.apply(domainTransaction.getTxType()))
-              .setSign(copyFrom(domainTransaction.getSignature().getSign()));
-          if (null != domainTransaction.getFee()) {
-            txBodyBuilder.setPrice(copyFrom(domainTransaction.getFee().getPrice()));
-            txBodyBuilder.setLimit(domainTransaction.getFee().getLimit());
-          }
+              .setSign(copyFrom(domainTransaction.getSignature().getSign()))
+              .setPrice(copyFrom(domainTransaction.getFee().getPrice()))
+              .setLimit(domainTransaction.getFee().getLimit());
 
           final Blockchain.TxBody txBody = txBodyBuilder.build();
 

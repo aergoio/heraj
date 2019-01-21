@@ -15,8 +15,8 @@ public class FeeTest {
   public void testCreation() {
     final Object[][] testParameters = {
         {Aer.of("0.1", Unit.AERGO), 100L, Aer.of("0.1", Unit.AERGO), 100L},
-        {Aer.of("0.1", Unit.AERGO), -1L, Aer.of("0.1", Unit.AERGO), Fee.MIN_LIMIT},
-        {Aer.of("0", Unit.AER), 100L, Fee.MIN_PRICE, 100L}
+        {Aer.of("0.1", Unit.AERGO), -1L, Aer.of("0.1", Unit.AERGO), 0L},
+        {Aer.of("0", Unit.AER), 100L, Aer.ZERO, 100L}
     };
 
     for (final Object[] testParameter : testParameters) {

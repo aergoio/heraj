@@ -4,7 +4,7 @@
 
 package hera.util;
 
-import static hera.util.NumberUtils.postiveToByteArray;
+import static hera.util.NumberUtils.positiveToByteArray;
 import static hera.util.TransportUtils.assertArgument;
 import static hera.util.TransportUtils.copyFrom;
 import static hera.util.TransportUtils.inputStreamToByteArray;
@@ -41,7 +41,7 @@ public class TransportUtilsTest extends AbstractTestCase {
   public void testCopyFromWithAer() {
     final Aer filledValue = Aer.of("100", Unit.AERGO);
     final Aer nullValue = null;
-    assertEquals(ByteString.copyFrom(postiveToByteArray(filledValue.getValue())),
+    assertEquals(ByteString.copyFrom(positiveToByteArray(filledValue.getValue())),
         copyFrom(filledValue));
     assertEquals(ByteString.EMPTY, copyFrom(nullValue));
   }
@@ -51,7 +51,7 @@ public class TransportUtilsTest extends AbstractTestCase {
     final Aer expected = Aer.of("100", Unit.GAER);
     final ByteString rawAer = copyFrom(expected);
     assertEquals(expected, parseToAer(rawAer));
-    assertEquals(null, parseToAer(null));
+    assertEquals(Aer.EMPTY, parseToAer(null));
   }
 
   @Test

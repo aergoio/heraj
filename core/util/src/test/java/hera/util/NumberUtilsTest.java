@@ -121,8 +121,9 @@ public class NumberUtilsTest {
   }
 
   @Test
-  public void testPostiveToByteArray() {
+  public void testPositiveToByteArray() {
     final Object[][] testParameters = new Object[][] {
+        {null, new byte[0]},
         {BigInteger.valueOf(0L), new byte[] {(byte) 0x00}},
         {BigInteger.valueOf(127L), new byte[] {(byte) 0x7F}},
         {BigInteger.valueOf(255L), new byte[] {(byte) 0xFF}}
@@ -131,7 +132,7 @@ public class NumberUtilsTest {
     for (final Object[] testParameter : testParameters) {
       final BigInteger value = (BigInteger) testParameter[0];
       final byte[] expected = (byte[]) testParameter[1];
-      final byte[] actual = NumberUtils.postiveToByteArray(value);
+      final byte[] actual = NumberUtils.positiveToByteArray(value);
       assertTrue(Arrays.equals(expected, actual));
     }
   }
@@ -149,7 +150,7 @@ public class NumberUtilsTest {
     for (final Object[] testParameter : testParameters) {
       final byte[] rawBytes = (byte[]) testParameter[0];
       final BigInteger expected = (BigInteger) testParameter[1];
-      final BigInteger actual = NumberUtils.byteArrayToPostive(rawBytes);
+      final BigInteger actual = NumberUtils.byteArrayToPositive(rawBytes);
       assertTrue(expected.equals(actual));
     }
   }

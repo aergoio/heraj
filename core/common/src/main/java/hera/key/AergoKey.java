@@ -304,7 +304,7 @@ public class AergoKey implements KeyPair, Signer {
     final org.bouncycastle.jce.interfaces.ECPrivateKey ecPrivateKey =
         (org.bouncycastle.jce.interfaces.ECPrivateKey) getPrivateKey();
     final BigInteger d = ecPrivateKey.getD();
-    return NumberUtils.postiveToByteArray(d);
+    return NumberUtils.positiveToByteArray(d);
   }
 
   @Override
