@@ -124,7 +124,7 @@ public class WalletIT extends AbstractIT {
     final String encodedContract = IoUtils.from(new InputStreamReader(open("payload")));
 
     final long preCachedNonce = wallet.getRecentlyUsedNonce();
-    final AccountState preState = wallet.getCurrentAccountState();
+    final AccountState preState = wallet.getAccountState();
 
     final ContractDefinition contractDefinition = ContractDefinition.newBuilder()
         .encodedContract(encodedContract)
@@ -135,7 +135,7 @@ public class WalletIT extends AbstractIT {
     waitForNextBlockToGenerate();
 
     final long postCachedNonce = wallet.getRecentlyUsedNonce();
-    final AccountState postState = wallet.getCurrentAccountState();
+    final AccountState postState = wallet.getAccountState();
     validatePreAndPostState(preState, preCachedNonce, postState, postCachedNonce, 1);
 
     final ContractAddress contractAddress = wallet.getReceipt(deployTxHash).getContractAddress();
@@ -144,7 +144,7 @@ public class WalletIT extends AbstractIT {
 
   protected void execute(final Wallet wallet, final ContractInterface contractInterface) {
     final long preCachedNonce = wallet.getRecentlyUsedNonce();
-    final AccountState preState = wallet.getCurrentAccountState();
+    final AccountState preState = wallet.getAccountState();
 
     final ContractInvocation contractInvocation = contractInterface.newInvocationBuilder()
         .function(executeFunction)
@@ -155,14 +155,14 @@ public class WalletIT extends AbstractIT {
     waitForNextBlockToGenerate();
 
     final long postCachedNonce = wallet.getRecentlyUsedNonce();
-    final AccountState postState = wallet.getCurrentAccountState();
+    final AccountState postState = wallet.getAccountState();
     validatePreAndPostState(preState, preCachedNonce, postState, postCachedNonce, 1);
   }
 
   protected void query(final Wallet wallet, final ContractInterface contractInterface)
       throws IOException {
     final long preCachedNonce = wallet.getRecentlyUsedNonce();
-    final AccountState preState = wallet.getCurrentAccountState();
+    final AccountState preState = wallet.getAccountState();
 
     final ContractInvocation contractInvocation = contractInterface.newInvocationBuilder()
         .function(queryFunction)
@@ -172,7 +172,7 @@ public class WalletIT extends AbstractIT {
     final Data data = wallet.query(contractInvocation).bind(Data.class);
 
     final long postCachedNonce = wallet.getRecentlyUsedNonce();
-    final AccountState postState = wallet.getCurrentAccountState();
+    final AccountState postState = wallet.getAccountState();
     validatePreAndPostState(preState, preCachedNonce, postState, postCachedNonce, 0);
 
     assertEquals(data.getIntVal(), executeIntVal);
@@ -209,8 +209,8 @@ public class WalletIT extends AbstractIT {
       wallet.saveKey(key, password);
       wallet.unlock(Authentication.of(key.getAddress(), password));
 
-      assertNotNull(wallet.getCurrentAccountState());
-      assertNotNull(wallet.getAccountState(wallet.getCurrentAccount()));
+      assertNotNull(wallet.getAccountState());
+      assertNotNull(wallet.getAccountState(wallet.getAccount()));
       assertNotNull(wallet.listServerKeyStoreAccounts());
       assertNotNull(wallet.listNodePeers());
       assertNotNull(wallet.listPeerMetrics());
@@ -267,7 +267,7 @@ public class WalletIT extends AbstractIT {
       waitForNextBlockToGenerate();
 
       final long preCachedNonce = wallet.getRecentlyUsedNonce();
-      final AccountState preState = wallet.getCurrentAccountState();
+      final AccountState preState = wallet.getAccountState();
 
       wallet.send(recipientName, Aer.of("100", Unit.GAER), Fee.getDefaultFee());
       wallet.send(recipientName, Aer.of("100", Unit.GAER), Fee.getDefaultFee());
@@ -275,7 +275,7 @@ public class WalletIT extends AbstractIT {
       waitForNextBlockToGenerate();
 
       final long postCachedNonce = wallet.getRecentlyUsedNonce();
-      final AccountState postState = wallet.getCurrentAccountState();
+      final AccountState postState = wallet.getAccountState();
       validatePreAndPostState(preState, preCachedNonce, postState, postCachedNonce, 3);
 
       wallet.close();
@@ -369,18 +369,18 @@ public class WalletIT extends AbstractIT {
       wallet.unlock(auth);
 
       final long preCachedNonce = wallet.getRecentlyUsedNonce();
-      final AccountState preState = wallet.getCurrentAccountState();
+      final AccountState preState = wallet.getAccountState();
 
       final Aer stakingAmount = preState.getBalance();
 
       wallet.stake(stakingAmount);
       waitForNextBlockToGenerate();
 
-      final StakingInfo stakingInfo = wallet.getCurrentAccountStakingInfo();
+      final StakingInfo stakingInfo = wallet.getStakingInfo();
       assertEquals(stakingAmount, stakingInfo.getAmount());
 
       final long postCachedNonce = wallet.getRecentlyUsedNonce();
-      final AccountState postState = wallet.getCurrentAccountState();
+      final AccountState postState = wallet.getAccountState();
       validatePreAndPostState(preState, preCachedNonce, postState, postCachedNonce, 1);
 
       wallet.close();
@@ -399,7 +399,7 @@ public class WalletIT extends AbstractIT {
       final Authentication auth = Authentication.of(key.getAddress(), password);
       wallet.unlock(auth);
 
-      final AccountState preState = wallet.getCurrentAccountState();
+      final AccountState preState = wallet.getAccountState();
 
       final Aer stakingAmount = preState.getBalance();
 
@@ -414,7 +414,7 @@ public class WalletIT extends AbstractIT {
       assertTrue(1 <= electedBlockProducers.size());
       assertEquals(peerId, electedBlockProducers.get(0).getPeerId());
 
-      final List<VotingInfo> votingInfos = wallet.listCurrentAccountVotes();
+      final List<VotingInfo> votingInfos = wallet.listVotes();
       assertTrue(1 == votingInfos.size());
       assertEquals(peerId, votingInfos.get(0).getPeerId());
 
@@ -459,7 +459,7 @@ public class WalletIT extends AbstractIT {
       wallet.unlock(auth);
 
       final long preCachedNonce = wallet.getRecentlyUsedNonce();
-      final AccountState preState = wallet.getCurrentAccountState();
+      final AccountState preState = wallet.getAccountState();
 
       wallet.send(accountAddress, Aer.of("100", Unit.GAER), Fee.getDefaultFee());
       wallet.send(accountAddress, Aer.of("100", Unit.GAER), Fee.getDefaultFee());
@@ -467,7 +467,7 @@ public class WalletIT extends AbstractIT {
       waitForNextBlockToGenerate();
 
       final long postCachedNonce = wallet.getRecentlyUsedNonce();
-      final AccountState postState = wallet.getCurrentAccountState();
+      final AccountState postState = wallet.getAccountState();
       validatePreAndPostState(preState, preCachedNonce, postState, postCachedNonce, 3);
 
       wallet.close();
@@ -511,7 +511,7 @@ public class WalletIT extends AbstractIT {
       wallet.unlock(auth);
 
       final long preCachedNonce = wallet.getRecentlyUsedNonce();
-      final AccountState preState = wallet.getCurrentAccountState();
+      final AccountState preState = wallet.getAccountState();
 
       final RawTransaction rawTransaction = RawTransaction.newBuilder()
           .from(key.getAddress())
@@ -527,7 +527,7 @@ public class WalletIT extends AbstractIT {
       assertNotNull(wallet.getTransaction(hash));
 
       final long postCachedNonce = wallet.getRecentlyUsedNonce();
-      final AccountState postState = wallet.getCurrentAccountState();
+      final AccountState postState = wallet.getAccountState();
       validatePreAndPostState(preState, preCachedNonce, postState, postCachedNonce, 1);
 
       wallet.close();
@@ -546,7 +546,7 @@ public class WalletIT extends AbstractIT {
       wallet.unlock(auth);
 
       final long preCachedNonce = wallet.getRecentlyUsedNonce();
-      final AccountState preState = wallet.getCurrentAccountState();
+      final AccountState preState = wallet.getAccountState();
 
       final RawTransaction rawTransaction = RawTransaction.newBuilder()
           .from(key.getAddress())
@@ -563,7 +563,7 @@ public class WalletIT extends AbstractIT {
       assertNotNull(wallet.getTransaction(hash));
 
       final long postCachedNonce = wallet.getRecentlyUsedNonce();
-      final AccountState postState = wallet.getCurrentAccountState();
+      final AccountState postState = wallet.getAccountState();
       validatePreAndPostState(preState, preCachedNonce, postState, postCachedNonce, 1);
 
       wallet.close();
@@ -582,7 +582,7 @@ public class WalletIT extends AbstractIT {
       wallet.unlock(auth);
 
       final long preCachedNonce = wallet.getRecentlyUsedNonce();
-      final AccountState preState = wallet.getCurrentAccountState();
+      final AccountState preState = wallet.getAccountState();
 
       final RawTransaction rawTransaction = RawTransaction.newBuilder()
           .from(key.getAddress())
@@ -598,7 +598,7 @@ public class WalletIT extends AbstractIT {
       assertNotNull(wallet.getTransaction(hash));
 
       final long postCachedNonce = wallet.getRecentlyUsedNonce();
-      final AccountState postState = wallet.getCurrentAccountState();
+      final AccountState postState = wallet.getAccountState();
       validatePreAndPostState(preState, preCachedNonce, postState, postCachedNonce, 1);
 
       wallet.close();

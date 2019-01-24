@@ -15,7 +15,7 @@ import java.util.List;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-public interface NonceManagable {
+public interface AccountHoldable {
 
   /**
    * Get a current account.
@@ -23,6 +23,15 @@ public interface NonceManagable {
    * @return an account
    * @throws UnbindedAccountException if account isn't binded
    */
+  Account getAccount();
+
+  /**
+   * Get a current account.
+   *
+   * @return an account
+   * @deprecated use {@link #getAccount()} instead.
+   */
+  @Deprecated
   Account getCurrentAccount();
 
   /**
@@ -31,6 +40,15 @@ public interface NonceManagable {
    * @return a state of current account
    * @throws UnbindedAccountException if account isn't binded
    */
+  AccountState getAccountState();
+
+  /**
+   * Get state of current account.
+   *
+   * @return a state of current account
+   * @deprecated use {@link #getAccountState()} instead.
+   */
+  @Deprecated
   AccountState getCurrentAccountState();
 
   /**
@@ -39,14 +57,14 @@ public interface NonceManagable {
    * @return a staking information of current account
    * @throws UnbindedAccountException if account isn't binded
    */
-  StakingInfo getCurrentAccountStakingInfo();
+  StakingInfo getStakingInfo();
 
   /**
    * Get votes which current account votes for.
    *
    * @return votes list
    */
-  List<VotingInfo> listCurrentAccountVotes();
+  List<VotingInfo> listVotes();
 
   /**
    * Get recently used nonce value.

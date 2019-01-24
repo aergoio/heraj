@@ -26,7 +26,7 @@ import java.io.Closeable;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public interface Wallet extends LookupClient, NonceManagable, Closeable {
+public interface Wallet extends LookupClient, AccountHoldable, Closeable {
 
   /**
    * Bind a keystore with wallet. This operation has a meaning only for {@link WalletType#Secure}.

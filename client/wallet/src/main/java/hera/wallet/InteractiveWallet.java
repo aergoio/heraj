@@ -108,7 +108,7 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
   }
 
   @Override
-  public Account getCurrentAccount() {
+  public Account getAccount() {
     if (null == this.account) {
       throw new UnbindedAccountException();
     }
@@ -116,17 +116,27 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
   }
 
   @Override
-  public AccountState getCurrentAccountState() {
+  public Account getCurrentAccount() {
+    return getAccount();
+  }
+
+  @Override
+  public AccountState getAccountState() {
     return getAccountState(getCurrentAccount());
   }
 
   @Override
-  public StakingInfo getCurrentAccountStakingInfo() {
+  public AccountState getCurrentAccountState() {
+    return getAccountState();
+  }
+
+  @Override
+  public StakingInfo getStakingInfo() {
     return getStakingInfo(getCurrentAccount());
   }
 
   @Override
-  public List<VotingInfo> listCurrentAccountVotes() {
+  public List<VotingInfo> listVotes() {
     return listVotesOf(getCurrentAccount());
   }
 
