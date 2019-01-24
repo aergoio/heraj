@@ -1,9 +1,12 @@
-/* * @copyright defined in LICENSE.txt
+/*
+ * * @copyright defined in LICENSE.txt
  */
 
 package hera.wallet;
 
 import static hera.api.model.BytesValue.of;
+import static hera.util.EncodingUtils.encodeBase58WithCheck;
+import static hera.util.VersionUtils.envelop;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -355,7 +358,9 @@ public class InteractiveWalletTest extends AbstractTestCase {
     when(wallet.getNonceRefreshTryCountAndInterval())
         .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
 
-    assertNotNull(wallet.deploy(new ContractDefinition(""), Fee.getDefaultFee()));
+    final ContractDefinition definition = new ContractDefinition(encodeBase58WithCheck(
+        of(envelop(randomUUID().toString().getBytes(), ContractDefinition.PAYLOAD_VERSION))));
+    assertNotNull(wallet.deploy(definition, Fee.getDefaultFee()));
   }
 
   @Test

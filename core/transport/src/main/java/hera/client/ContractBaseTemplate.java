@@ -41,8 +41,6 @@ import hera.transport.ContractInterfaceConverterFactory;
 import hera.transport.ContractResultConverterFactory;
 import hera.transport.ModelConverter;
 import hera.transport.ReceiptConverterFactory;
-import hera.util.Base58Utils;
-import hera.util.HexUtils;
 import hera.util.LittleEndianDataOutputStream;
 import hera.util.VersionUtils;
 import io.grpc.ManagedChannel;
@@ -302,15 +300,12 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
 
   protected BytesValue definitionToPayloadForm(final ContractDefinition contractDefinition)
       throws IOException {
-    final byte[] rawPayloadWithVersion =
-        Base58Utils.decodeWithCheck(contractDefinition.getEncodedContract());
     if (logger.isTraceEnabled()) {
       logger.trace("Encoded contract deploy payload: {}", contractDefinition.getEncodedContract());
-      logger.trace("Decoded contract deploy payload: {}", HexUtils.encode(rawPayloadWithVersion));
+      logger.trace("Decoded contract deploy payload: {}", contractDefinition.getDecodedContract());
     }
-    VersionUtils.validate(rawPayloadWithVersion, ContractDefinition.PAYLOAD_VERSION);
 
-    final byte[] rawPaylod = VersionUtils.trim(rawPayloadWithVersion);
+    final byte[] rawPaylod = VersionUtils.trim(contractDefinition.getDecodedContract().getValue());
     final ByteArrayOutputStream rawStream = new ByteArrayOutputStream();
     final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(rawStream);
     dataOut.writeInt(rawPaylod.length + 4);

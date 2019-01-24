@@ -11,7 +11,11 @@ import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.exception.DecodingFailureException;
 import hera.exception.HerajException;
+import hera.exception.InvalidVersionException;
+import hera.util.EncodingUtils;
+import hera.util.VersionUtils;
 import java.util.List;
 import lombok.Getter;
 import lombok.ToString;
@@ -28,6 +32,9 @@ public class ContractDefinition {
    * @param args constructor arguments
    *
    * @return created {@code ContractDefinition}
+   *
+   * @throws DecodingFailureException if decoding failure
+   * @throws InvalidVersionException if encodedContract version mismatches
    */
   @ApiAudience.Public
   public static ContractDefinition of(final String encodedContract, Object... args) {
@@ -42,6 +49,9 @@ public class ContractDefinition {
   }
 
   @Getter
+  protected final BytesValue decodedContract;
+
+  @Getter
   protected final String encodedContract;
 
   @Getter
@@ -52,10 +62,16 @@ public class ContractDefinition {
    *
    * @param encodedContract base58 with checksum encoded contract definition
    * @param args constructor arguments
+   *
+   * @throws DecodingFailureException if decoding failure
+   * @throws InvalidVersionException if encodedContract version mismatches
    */
   @ApiAudience.Public
   public ContractDefinition(final String encodedContract, final Object... args) {
     assertNotNull(encodedContract, new HerajException("Encoded contract must not null"));
+    this.decodedContract = EncodingUtils.decodeBase58WithCheck(encodedContract);
+    VersionUtils.validate(this.decodedContract, ContractDefinition.PAYLOAD_VERSION);
+
     this.encodedContract = encodedContract;
     this.constructorArgs =
         null != args ? unmodifiableList(asList(args)) : unmodifiableList(emptyList());
