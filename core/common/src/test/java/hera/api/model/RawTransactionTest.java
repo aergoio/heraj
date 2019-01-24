@@ -7,9 +7,7 @@ package hera.api.model;
 import static org.junit.Assert.assertNotNull;
 
 import hera.api.model.Aer.Unit;
-import hera.api.model.RawTransaction.RawTransactionWithSenderAndRecipientAndAmountAndNonce;
-import hera.api.model.RawTransaction.RawTransactionWithSenderAndRecipientAndAmountAndNonceAndFee;
-import hera.api.model.RawTransaction.RawTransactionWithSenderAndRecipientAndAmountAndNonceAndFeeAndPayload;
+import hera.api.model.RawTransaction.RawTransactionWithReady;
 import org.junit.Test;
 
 public class RawTransactionTest {
@@ -19,7 +17,7 @@ public class RawTransactionTest {
 
   @Test
   public void testBuilder() {
-    final RawTransactionWithSenderAndRecipientAndAmountAndNonce minimum =
+    final RawTransactionWithReady minimum =
         RawTransaction.newBuilder()
             .from(AccountAddress.of(encodedAddress))
             .to(AccountAddress.of(encodedAddress))
@@ -27,11 +25,11 @@ public class RawTransactionTest {
             .nonce(1L);
     assertNotNull(minimum.build());
 
-    final RawTransactionWithSenderAndRecipientAndAmountAndNonceAndFee minimumWithFee =
+    final RawTransactionWithReady minimumWithFee =
         minimum.fee(Fee.of(Aer.of("100", Unit.AER), 5));
     assertNotNull(minimumWithFee.build());
 
-    final RawTransactionWithSenderAndRecipientAndAmountAndNonceAndFeeAndPayload maximum =
+    final RawTransactionWithReady maximum =
         minimumWithFee.payload(BytesValue.EMPTY);
     assertNotNull(maximum.build());
   }

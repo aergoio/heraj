@@ -108,40 +108,29 @@ public class RawTransaction {
   }
 
   public interface RawTransactionWithSenderAndRecipientAndAmount {
-    RawTransactionWithSenderAndRecipientAndAmountAndNonce nonce(long nonce);
+    RawTransactionWithReady nonce(long nonce);
   }
 
-  public interface RawTransactionWithSenderAndRecipientAndAmountAndNonce
-      extends hera.util.Builder<RawTransaction> {
-    RawTransactionWithSenderAndRecipientAndAmountAndNonceAndFee fee(Fee fee);
-  }
+  public interface RawTransactionWithReady extends hera.util.Builder<RawTransaction> {
+    RawTransactionWithReady fee(Fee fee);
 
-  public interface RawTransactionWithSenderAndRecipientAndAmountAndNonceAndFee
-      extends hera.util.Builder<RawTransaction> {
-    RawTransactionWithSenderAndRecipientAndAmountAndNonceAndFeeAndPayload payload(
-        BytesValue payload);
-  }
-
-  public interface RawTransactionWithSenderAndRecipientAndAmountAndNonceAndFeeAndPayload
-      extends hera.util.Builder<RawTransaction> {
+    RawTransactionWithReady payload(BytesValue payload);
   }
 
   protected static class Builder
       implements RawTransactionWithNothing, RawTransactionWithSender,
       RawTransactionWithSenderAndRecipient, RawTransactionWithSenderAndRecipientAndAmount,
-      RawTransactionWithSenderAndRecipientAndAmountAndNonce,
-      RawTransactionWithSenderAndRecipientAndAmountAndNonceAndFee,
-      RawTransactionWithSenderAndRecipientAndAmountAndNonceAndFeeAndPayload {
+      RawTransactionWithReady {
 
     private AccountAddress sender;
 
     private AccountAddress recipient;
 
-    private Aer amount = Aer.EMPTY;
+    private Aer amount = Aer.ZERO;
 
     private long nonce;
 
-    private Fee fee = Fee.EMPTY;
+    private Fee fee = Fee.ZERO;
 
     private BytesValue payload = BytesValue.EMPTY;
 
@@ -196,19 +185,19 @@ public class RawTransaction {
     }
 
     @Override
-    public RawTransactionWithSenderAndRecipientAndAmountAndNonce nonce(final long nonce) {
+    public RawTransactionWithReady nonce(final long nonce) {
       this.nonce = nonce;
       return this;
     }
 
     @Override
-    public RawTransactionWithSenderAndRecipientAndAmountAndNonceAndFee fee(final Fee fee) {
+    public RawTransactionWithReady fee(final Fee fee) {
       this.fee = fee;
       return this;
     }
 
     @Override
-    public RawTransactionWithSenderAndRecipientAndAmountAndNonceAndFeeAndPayload payload(
+    public RawTransactionWithReady payload(
         final BytesValue payload) {
       this.payload = payload;
       return this;
