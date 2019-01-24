@@ -4,6 +4,7 @@
 
 package hera.transport;
 
+import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 
@@ -12,7 +13,7 @@ import hera.api.model.BlockHash;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.BytesValue;
 import hera.api.model.Peer;
-import hera.util.Base58Utils;
+import hera.api.model.PeerId;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import org.junit.Test;
@@ -25,13 +26,12 @@ public class PeerConverterTest extends AbstractTestCase {
     final ModelConverter<Peer, Rpc.Peer> converter = new PeerConverterFactory().create();
 
     final Peer domain = new Peer(InetAddress.getByName("localhost"), 8080,
-        Base58Utils.encode(randomUUID().toString().getBytes()),
+        new PeerId(of(randomUUID().toString().getBytes())),
         new BlockchainStatus(10L, new BlockHash(BytesValue.EMPTY)), 1, false);
     final Rpc.Peer rpcPeer = converter.convertToRpcModel(domain);
 
     final Peer actualDomainPeer = converter.convertToDomainModel(rpcPeer);
     assertNotNull(actualDomainPeer);
   }
-
 
 }

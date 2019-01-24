@@ -4,18 +4,16 @@
 
 package hera.transport;
 
+import static hera.api.model.BytesValue.of;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import com.google.protobuf.ByteString;
 import hera.api.function.Function1;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockchainStatus;
-import hera.api.model.BytesValue;
 import hera.api.model.Peer;
+import hera.api.model.PeerId;
 import hera.exception.RpcException;
-import hera.util.Base58Utils;
-import java.io.IOException;
 import java.net.Inet6Address;
 import java.net.UnknownHostException;
 import org.slf4j.Logger;
@@ -33,23 +31,19 @@ public class PeerConverterFactory {
   protected final Function1<Peer, Rpc.Peer> domainConverter = new Function1<Peer, Rpc.Peer>() {
     public Rpc.Peer apply(final Peer domainPeer) {
       logger.trace("Domain peer: {}", domainPeer);
-      try {
-        return Rpc.Peer.newBuilder()
-            .setAddress(Node.PeerAddress.newBuilder()
-                .setAddress(domainPeer.getAddress().getHostAddress())
-                .setPort(domainPeer.getPort())
-                .setPeerID(ByteString.copyFrom(Base58Utils.decode(domainPeer.getPeerId())))
-                .build())
-            .setBestblock(NewBlockNotice.newBuilder()
-                .setBlockHash(
-                    copyFrom(domainPeer.getBlockchainStatus().getBestBlockHash().getBytesValue()))
-                .setBlockNo(domainPeer.getBlockchainStatus().getBestHeight()).build())
-            .setState(domainPeer.getState())
-            .setHidden(domainPeer.isHidden())
-            .build();
-      } catch (IOException e) {
-        throw new RpcException("PeerId decoding failed", e);
-      }
+      return Rpc.Peer.newBuilder()
+          .setAddress(Node.PeerAddress.newBuilder()
+              .setAddress(domainPeer.getAddress().getHostAddress())
+              .setPort(domainPeer.getPort())
+              .setPeerID(copyFrom(domainPeer.getPeerId().getBytesValue()))
+              .build())
+          .setBestblock(NewBlockNotice.newBuilder()
+              .setBlockHash(
+                  copyFrom(domainPeer.getBlockchainStatus().getBestBlockHash().getBytesValue()))
+              .setBlockNo(domainPeer.getBlockchainStatus().getBestHeight()).build())
+          .setState(domainPeer.getState())
+          .setHidden(domainPeer.isHidden())
+          .build();
     }
   };
 
@@ -61,10 +55,10 @@ public class PeerConverterFactory {
       try {
         final BlockchainStatus blockchainStatus = new BlockchainStatus(
             rpcPeer.getBestblock().getBlockNo(),
-            new BlockHash(BytesValue.of(rpcPeer.getBestblock().getBlockHash().toByteArray())));
+            new BlockHash(of(rpcPeer.getBestblock().getBlockHash().toByteArray())));
         return new Peer(Inet6Address.getByName(rpcPeer.getAddress().getAddress()),
             rpcPeer.getAddress().getPort(),
-            Base58Utils.encode(rpcPeer.getAddress().getPeerID().toByteArray()),
+            new PeerId(of(rpcPeer.getAddress().getPeerID().toByteArray())),
             blockchainStatus,
             rpcPeer.getState(),
             rpcPeer.getHidden());

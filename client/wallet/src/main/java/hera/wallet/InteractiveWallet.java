@@ -17,10 +17,12 @@ import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
+import hera.api.model.PeerId;
 import hera.api.model.RawTransaction;
 import hera.api.model.StakingInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.model.VotingInfo;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
 import hera.exception.CommitException;
@@ -30,6 +32,7 @@ import hera.exception.UnbindedAccountException;
 import hera.exception.UnbindedKeyStoreException;
 import hera.exception.WalletException;
 import hera.key.AergoKey;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.slf4j.Logger;
@@ -123,6 +126,11 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
   }
 
   @Override
+  public List<VotingInfo> listCurrentAccountVotes() {
+    return listVotesOf(getCurrentAccount());
+  }
+
+  @Override
   public long getRecentlyUsedNonce() {
     return getCurrentAccount().getNonce();
   }
@@ -172,6 +180,17 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
       public TxHash apply(final Long nonce) {
         return getAergoClient().getAccountOperation()
             .unstake(getCurrentAccount(), amount, nonce);
+      }
+    });
+  }
+
+  @Override
+  public TxHash vote(final PeerId peerId) {
+    return sendRequestWithNonce(new Function1<Long, TxHash>() {
+      @Override
+      public TxHash apply(final Long nonce) {
+        return getAergoClient().getBlockchainOperation()
+            .vote(getCurrentAccount(), peerId, nonce);
       }
     });
   }

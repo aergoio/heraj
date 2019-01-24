@@ -5,9 +5,14 @@
 package hera.client;
 
 import static hera.TransportConstants.BLOCKCHAIN_BLOCKCHAINSTATUS;
-import static hera.TransportConstants.BLOCKCHAIN_LISTPEERS;
+import static hera.TransportConstants.BLOCKCHAIN_LIST_ELECTED_BPS;
+import static hera.TransportConstants.BLOCKCHAIN_LIST_PEERS;
+import static hera.TransportConstants.BLOCKCHAIN_LIST_VOTESOF;
 import static hera.TransportConstants.BLOCKCHAIN_NODESTATUS;
 import static hera.TransportConstants.BLOCKCHAIN_PEERMETRICS;
+import static hera.TransportConstants.BLOCKCHAIN_VOTE;
+import static hera.api.model.BytesValue.of;
+import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
@@ -16,14 +21,24 @@ import static org.mockito.Mockito.when;
 import hera.AbstractTestCase;
 import hera.ContextProvider;
 import hera.api.function.Function0;
+import hera.api.function.Function1;
+import hera.api.function.Function3;
 import hera.api.function.WithIdentity;
+import hera.api.model.Account;
+import hera.api.model.AccountAddress;
+import hera.api.model.AccountFactory;
 import hera.api.model.BlockHash;
+import hera.api.model.BlockProducer;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.BytesValue;
 import hera.api.model.ModuleStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
+import hera.api.model.PeerId;
 import hera.api.model.PeerMetric;
+import hera.api.model.TxHash;
+import hera.api.model.VotingInfo;
+import hera.key.AergoKeyGenerator;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
@@ -58,8 +73,7 @@ public class BlockchainTemplateTest extends AbstractTestCase {
           }
         });
 
-    final BlockchainTemplate blockchainTemplate =
-        supplyBlockchainTemplate(base);
+    final BlockchainTemplate blockchainTemplate = supplyBlockchainTemplate(base);
 
     final BlockchainStatus blockchainStatus =
         blockchainTemplate.getBlockchainStatus();
@@ -80,12 +94,11 @@ public class BlockchainTemplateTest extends AbstractTestCase {
       }
     });
 
-    final BlockchainTemplate blockchainTemplate =
-        supplyBlockchainTemplate(base);
+    final BlockchainTemplate blockchainTemplate = supplyBlockchainTemplate(base);
 
     final List<Peer> peers = blockchainTemplate.listPeers();
     assertNotNull(peers);
-    assertEquals(BLOCKCHAIN_LISTPEERS,
+    assertEquals(BLOCKCHAIN_LIST_PEERS,
         ((WithIdentity) blockchainTemplate.getListPeersFunction()).getIdentity());
   }
 
@@ -102,8 +115,7 @@ public class BlockchainTemplateTest extends AbstractTestCase {
           }
         });
 
-    final BlockchainTemplate blockchainTemplate =
-        supplyBlockchainTemplate(base);
+    final BlockchainTemplate blockchainTemplate = supplyBlockchainTemplate(base);
 
     final List<PeerMetric> peerMetrics = blockchainTemplate.listPeerMetrics();
     assertNotNull(peerMetrics);
@@ -123,13 +135,88 @@ public class BlockchainTemplateTest extends AbstractTestCase {
       }
     });
 
-    final BlockchainTemplate blockchainTemplate =
-        supplyBlockchainTemplate(base);
+    final BlockchainTemplate blockchainTemplate = supplyBlockchainTemplate(base);
 
     final NodeStatus nodeStatus = blockchainTemplate.getNodeStatus();
     assertNotNull(nodeStatus);
     assertEquals(BLOCKCHAIN_NODESTATUS,
         ((WithIdentity) blockchainTemplate.getNodeStatusFunction()).getIdentity());
+  }
+
+  @Test
+  public void testVote() {
+    final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
+    final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
+    final TxHash mockHash = mock(TxHash.class);
+    future.success(mockHash);
+    when(base.getVoteFunction()).thenReturn(new Function3<Account, PeerId,
+        Long, FinishableFuture<TxHash>>() {
+
+      @Override
+      public FinishableFuture<TxHash> apply(Account t1, PeerId t2, Long t3) {
+        return future;
+      }
+    });
+
+    final BlockchainTemplate blockchainTemplate = supplyBlockchainTemplate(base);
+
+    final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
+    final FinishableFuture<TxHash> voteHash = blockchainTemplate.getVoteFunction().apply(account,
+        new PeerId(of(randomUUID().toString().getBytes())), account.incrementAndGetNonce());
+    assertNotNull(voteHash);
+    assertEquals(BLOCKCHAIN_VOTE,
+        ((WithIdentity) blockchainTemplate.getVoteFunction()).getIdentity());
+  }
+
+  @Test
+  public void testListElectedBlockProducers() {
+    final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
+    final FinishableFuture<List<BlockProducer>> future =
+        new FinishableFuture<List<BlockProducer>>();
+    final List<BlockProducer> mockBps = new ArrayList<BlockProducer>();
+    future.success(mockBps);
+    when(base.getListElectedBlockProducersFunction()).thenReturn(new Function1<Long,
+        FinishableFuture<List<BlockProducer>>>() {
+
+      @Override
+      public FinishableFuture<List<BlockProducer>> apply(Long t) {
+        return future;
+      }
+    });
+
+    final BlockchainTemplate blockchainTemplate = supplyBlockchainTemplate(base);
+
+    final FinishableFuture<List<BlockProducer>> bplist =
+        blockchainTemplate.getListElectedBlockProducersFunction().apply(1L);
+    assertNotNull(bplist);
+    assertEquals(BLOCKCHAIN_LIST_ELECTED_BPS,
+        ((WithIdentity) blockchainTemplate.getListElectedBlockProducersFunction()).getIdentity());
+  }
+
+  @Test
+  public void testListVotesOf() {
+    final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
+    final FinishableFuture<List<VotingInfo>> future =
+        new FinishableFuture<List<VotingInfo>>();
+    final List<VotingInfo> mockVotingInfos = new ArrayList<VotingInfo>();
+    future.success(mockVotingInfos);
+    when(base.getListVotesOfFunction()).thenReturn(new Function1<AccountAddress,
+        FinishableFuture<List<VotingInfo>>>() {
+
+      @Override
+      public FinishableFuture<List<VotingInfo>> apply(AccountAddress t) {
+        return future;
+      }
+    });
+
+    final BlockchainTemplate blockchainTemplate = supplyBlockchainTemplate(base);
+
+    final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
+    final FinishableFuture<List<VotingInfo>> votingInfos =
+        blockchainTemplate.getListVotesOfFunction().apply(account.getAddress());
+    assertNotNull(votingInfos);
+    assertEquals(BLOCKCHAIN_LIST_VOTESOF,
+        ((WithIdentity) blockchainTemplate.getListVotesOfFunction()).getIdentity());
   }
 
 }

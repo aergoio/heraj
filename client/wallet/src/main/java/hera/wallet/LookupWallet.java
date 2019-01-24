@@ -12,6 +12,7 @@ import hera.api.model.AccountState;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
+import hera.api.model.BlockProducer;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
@@ -24,6 +25,7 @@ import hera.api.model.PeerMetric;
 import hera.api.model.StakingInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.model.VotingInfo;
 import hera.client.AergoClient;
 import hera.exception.WalletException;
 import java.io.Closeable;
@@ -33,6 +35,8 @@ import lombok.Getter;
 import org.slf4j.Logger;
 
 public abstract class LookupWallet implements LookupClient, Closeable {
+
+  protected static final int SHOW_COUNT = 23;
 
   protected final Logger logger = getLogger(getClass());
 
@@ -67,6 +71,26 @@ public abstract class LookupWallet implements LookupClient, Closeable {
   @Override
   public StakingInfo getStakingInfo(final AccountAddress accountAddress) {
     return getAergoClient().getAccountOperation().getStakingInfo(accountAddress);
+  }
+
+  @Override
+  public List<BlockProducer> listElectedBlockProducers() {
+    return listElectedBlockProducers(SHOW_COUNT);
+  }
+
+  @Override
+  public List<BlockProducer> listElectedBlockProducers(final long showCount) {
+    return getAergoClient().getBlockchainOperation().listElectedBlockProducers(showCount);
+  }
+
+  @Override
+  public List<VotingInfo> listVotesOf(final Account account) {
+    return listVotesOf(account.getAddress());
+  }
+
+  @Override
+  public List<VotingInfo> listVotesOf(final AccountAddress accountAddress) {
+    return getAergoClient().getBlockchainOperation().listVotesOf(accountAddress);
   }
 
   @Override
