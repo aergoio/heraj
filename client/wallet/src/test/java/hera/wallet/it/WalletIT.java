@@ -18,16 +18,20 @@ import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
+import hera.api.model.BlockProducer;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
+import hera.api.model.PeerId;
 import hera.api.model.RawTransaction;
 import hera.api.model.StakingInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.model.VotingInfo;
+import hera.exception.CommitException;
 import hera.exception.UnbindedAccountException;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
@@ -378,6 +382,65 @@ public class WalletIT extends AbstractIT {
       final long postCachedNonce = wallet.getRecentlyUsedNonce();
       final AccountState postState = wallet.getCurrentAccountState();
       validatePreAndPostState(preState, preCachedNonce, postState, postCachedNonce, 1);
+
+      wallet.close();
+    }
+  }
+
+  @Test
+  public void testVoting() {
+    for (final Wallet wallet : supplyWorkingWalletList()) {
+      logger.info("Current wallet: {}", wallet);
+      wallet.bindKeyStore(keyStore);
+
+      final AergoKey key = new AergoKeyGenerator().create();
+      wallet.saveKey(key, password);
+
+      final Authentication auth = Authentication.of(key.getAddress(), password);
+      wallet.unlock(auth);
+
+      final AccountState preState = wallet.getCurrentAccountState();
+
+      final Aer stakingAmount = preState.getBalance();
+
+      wallet.stake(stakingAmount);
+      waitForNextBlockToGenerate();
+
+      final PeerId peerId = new PeerId("16Uiu2HAmV6iVGuN31sZTz2GDicFPpBr6eaHn1mVM499BGwSBf6Nb");
+      wallet.vote(peerId);
+      waitForNextBlockToGenerate();
+
+      final List<BlockProducer> electedBlockProducers = wallet.listElectedBlockProducers();
+      assertTrue(1 <= electedBlockProducers.size());
+      assertEquals(peerId, electedBlockProducers.get(0).getPeerId());
+
+      final List<VotingInfo> votingInfos = wallet.listCurrentAccountVotes();
+      assertTrue(1 == votingInfos.size());
+      assertEquals(peerId, votingInfos.get(0).getPeerId());
+
+      wallet.close();
+    }
+  }
+
+  @Test
+  public void testVotingOnUnStakedOne() {
+    for (final Wallet wallet : supplyWorkingWalletList()) {
+      logger.info("Current wallet: {}", wallet);
+      wallet.bindKeyStore(keyStore);
+
+      final AergoKey key = new AergoKeyGenerator().create();
+      wallet.saveKey(key, password);
+
+      final Authentication auth = Authentication.of(key.getAddress(), password);
+      wallet.unlock(auth);
+
+      try {
+        final PeerId peerId = new PeerId("16Uiu2HAmV6iVGuN31sZTz2GDicFPpBr6eaHn1mVM499BGwSBf6Nb");
+        wallet.vote(peerId);
+        fail();
+      } catch (CommitException e) {
+        // good we expected this
+      }
 
       wallet.close();
     }

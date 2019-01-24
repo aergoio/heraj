@@ -9,7 +9,9 @@ import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountState;
 import hera.api.model.StakingInfo;
+import hera.api.model.VotingInfo;
 import hera.exception.UnbindedAccountException;
+import java.util.List;
 
 @ApiAudience.Private
 @ApiStability.Unstable
@@ -38,6 +40,13 @@ public interface NonceManagable {
    * @throws UnbindedAccountException if account isn't binded
    */
   StakingInfo getCurrentAccountStakingInfo();
+
+  /**
+   * Get votes which current account votes for.
+   *
+   * @return votes list
+   */
+  List<VotingInfo> listCurrentAccountVotes();
 
   /**
    * Get recently used nonce value.

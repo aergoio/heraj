@@ -14,6 +14,7 @@ import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
+import hera.api.model.PeerId;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
@@ -122,6 +123,14 @@ public interface Wallet extends LookupClient, NonceManagable, Closeable {
    * @return a staking transaction hash
    */
   TxHash unstake(Aer amount);
+
+  /**
+   * Vote to {@code peerId}.
+   *
+   * @param peerId a peer id to vote
+   * @return voting transaction hash
+   */
+  TxHash vote(PeerId peerId);
 
   /**
    * Sign for transaction.

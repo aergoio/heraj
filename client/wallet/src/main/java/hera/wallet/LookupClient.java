@@ -12,6 +12,7 @@ import hera.api.model.AccountState;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
+import hera.api.model.BlockProducer;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
@@ -24,6 +25,7 @@ import hera.api.model.PeerMetric;
 import hera.api.model.StakingInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.model.VotingInfo;
 import java.io.Closeable;
 import java.util.List;
 
@@ -70,6 +72,39 @@ public interface LookupClient extends Closeable {
    * @return a staking information
    */
   StakingInfo getStakingInfo(AccountAddress accountAddress);
+
+  /**
+   * Get 23 elected block producer from the top voted. Note that this is just a voting result. Not
+   * really working block block producers since block producers are renewed after one round.
+   *
+   * @return elected block producer list
+   */
+  List<BlockProducer> listElectedBlockProducers();
+
+  /**
+   * Get elected block producer from the top voted. Note that this is just a voting result. Not
+   * really working block block producers since block producers are renewed after one round.
+   *
+   * @param showCount show count
+   * @return elected block producer list
+   */
+  List<BlockProducer> listElectedBlockProducers(long showCount);
+
+  /**
+   * Get votes which {@code account} votes for.
+   *
+   * @param account an account
+   * @return votes list
+   */
+  List<VotingInfo> listVotesOf(Account account);
+
+  /**
+   * Get votes which {@code accountAddress} votes for.
+   *
+   * @param accountAddress an account address
+   * @return votes list
+   */
+  List<VotingInfo> listVotesOf(AccountAddress accountAddress);
 
   /**
    * Get account list on a key store.

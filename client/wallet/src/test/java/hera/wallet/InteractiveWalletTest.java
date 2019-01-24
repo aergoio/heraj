@@ -3,6 +3,7 @@
 
 package hera.wallet;
 
+import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -18,6 +19,7 @@ import static org.mockito.Mockito.when;
 
 import hera.AbstractTestCase;
 import hera.api.AccountOperation;
+import hera.api.BlockchainOperation;
 import hera.api.ContractOperation;
 import hera.api.TransactionOperation;
 import hera.api.model.Account;
@@ -35,6 +37,7 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractTxHash;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Fee;
+import hera.api.model.PeerId;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
@@ -272,6 +275,25 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
     final TxHash stakingHash = wallet.unstake(Aer.AERGO_ONE);
     assertNotNull(stakingHash);
+  }
+
+  @Test
+  public void testVote() {
+    InteractiveWallet wallet =
+        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    final AergoClient mockClient = mock(AergoClient.class);
+    final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
+    when(mockOperation.vote(any(Account.class), any(PeerId.class), anyLong()))
+        .thenReturn(mock(TxHash.class));
+    when(mockClient.getBlockchainOperation()).thenReturn(mockOperation);
+    when(wallet.getAergoClient()).thenReturn(mockClient);
+    when(wallet.getNonceRefreshTryCountAndInterval())
+        .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
+
+    wallet.account = new AccountFactory().create(accountAddress);
+
+    final TxHash votingHash = wallet.vote(new PeerId(of(randomUUID().toString().getBytes())));
+    assertNotNull(votingHash);
   }
 
   @Test
