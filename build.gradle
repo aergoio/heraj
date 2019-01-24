@@ -63,7 +63,7 @@ ext {
 
 configure(javaProjects) {
   // do Java specific configurations
-  apply plugin: 'java'
+  apply plugin: 'java-library'
   apply plugin: 'maven-publish'
   apply plugin: 'jacoco'
   apply plugin: 'checkstyle'
@@ -272,7 +272,7 @@ configure(javaProjects) {
 
 configure(exampleProjects) {
   // do Java specific configurations
-  apply plugin: 'java'
+  apply plugin: 'java-library'
   apply plugin: 'checkstyle'
   apply plugin: 'idea'
   apply plugin: 'eclipse'

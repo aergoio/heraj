@@ -10,4 +10,5 @@ Gemfile.lock
 !.gitignore
 !.gitmodules
 **/bin/
+pack/
 fat/

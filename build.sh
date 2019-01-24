@@ -33,7 +33,8 @@ function print-usage() {
   echo "  deploy      upload to jcenter"
   echo "  test        test built executable"
   echo "  docs        generate documents"
-  echo "  pack        pack jar into single fat jar file"
+  echo "  pack        pack generated jar files info *.zip, *.tar.gz"
+  echo "  fat         make single fat jar file"
 }
 
 function clean-workspace() {
@@ -41,7 +42,7 @@ function clean-workspace() {
   $PROJECT_HOME/gradlew clean
 }
 function execute-gradle() {
-  $PROJECT_HOME/gradlew clean build test alljacoco
+  $PROJECT_HOME/gradlew clean build test alljacoco alljavadoc
 }
 function execute-install() {
   $PROJECT_HOME/gradlew install
@@ -74,6 +75,27 @@ function execute-documentation() {
 }
 
 function execute-pack() {
+  local -r dest="$PROJECT_HOME/pack"
+
+  rm -rf "$dest" > /dev/null
+  mkdir -p "$dest"
+
+  execute-gradle
+  local -r jar_files=$(find core client -name "heraj*.jar")
+
+  for file in ${jar_files[@]}; do
+    cp "$file" "$dest"
+  done
+
+  cd "$dest"
+  tar -zcvf "heraj-$VERSION.tar.gz" heraj*.jar
+  zip "heraj-$VERSION.zip" heraj*.jar
+  rm "$dest"/*.jar
+
+  echo -e "\nPacked files have been generated in $dest"
+}
+
+function execute-fat() {
   local -r fat_postfix=$(grep "def shadowPostFix" < "$PROJECT_HOME/build.gradle" | awk '{print $4}' | tr -d "'")
   local -r dest="$PROJECT_HOME/fat"
 
@@ -83,9 +105,9 @@ function execute-pack() {
   $PROJECT_HOME/gradlew clean build shadowJar
   for lib in "${LIB_CORES[@]}"; do
     local file=$(find . -name "$PROJECT_PREFIX-$lib-$fat_postfix*")
-    cp "$file" "$dest"
+    mv "$file" "$dest"
   done
-  echo "  Fat files have been copied to $dest"
+  echo -e "\nFat files have been generated in $dest"
 }
 
 
@@ -120,6 +142,9 @@ else
         ;;
       "pack")
         execute-pack
+        ;;
+      "fat")
+        execute-fat
         ;;
       *)
         print-usage
