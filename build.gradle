@@ -33,7 +33,7 @@ def javaVersion = JavaVersion.VERSION_1_6
 
 allprojects {
   group 'io.aergo'
-  version '0.10.0'
+  version '0.11.0-SNAPSHOT'
 }
 def javaProjects = [
   project('core:annotation'),
