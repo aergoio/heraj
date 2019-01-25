@@ -2,18 +2,12 @@
 
 Common module contains basic model, encoding/decoding, strategies, key, exceptions.
 
-
 ## Model
 
 Describe basic models of blockchain.
 
-#### Node related
-* NodeStatus
-* ModuleStatus
-* Peer
-* PeerMetric
-
 #### Account related
+
 * Account
 * AccountAddress
 * Authentication
@@ -24,18 +18,32 @@ Describe basic models of blockchain.
 * Fee
 
 #### Block related
+
 * Block
 * BlockHash
 * BlockHeader
 * BlockChainStatus
 
+#### Blockchain related
+
+* NodeStatus
+* ModuleStatus
+* Peer
+* PeerId
+* PeerMetric
+* StakingInfo
+* BlockProducer
+* VotingInfo
+
 #### Transaction related
+
 * RawTransaction
 * Transaction
 * TxHash
 * Signature
 
 #### Contract related
+
 * ContractAddress
 * ContractTxHash
 * ContractTxReceipt
@@ -46,30 +54,17 @@ Describe basic models of blockchain.
 * ContractResult
 
 ### Internal
-Internal models are used inside of api.
 
+Internal models are used inside of api.
 
 ## Strategy
 
-Strategy is used for any customizable operation. It is binded with context and any operation holding context can use strategy.
-* ConnectStrategy
-* FailoverStrategy
-* TimeoutStrategy
+Strategy is used for any customizable operation. It is binded with context and any operation holding context can use strategy. There are 3 type of base strategy:
 
+* PreInvocationStrategy : strategy which applied before invocation of each operation
+* OnInvocationStrategy : strategy which applied before and after invocation of each operation
+* PostInvocationStrategy : strategy which applied after operation finishs successfully
 
-## TupleOrError
+## Context
 
-We provide functional-style interface named TupleOrError. It treats exception as the way other functional languages handles. A concept is derived from [either of scala](https://github.com/scala/scala/blob/2.13.x/src/library/scala/util/Either.scala). At this time, there are 4 type of TupleOrError:
-* ResultOrError (Tuple1OrError)
-* Tuple2OrError
-* Tuple3OrError
-* Tuple4OrError
-
-
-## TupleOrErrorFuture
-
-We also provide functional-style async interface named TupleOrErrorFuture. It operates like TupleOrError. A difference is that it handles the future object. Compared to other java future, `TupleOrErrorFuture.get()` doesn't throw `TimeoutException`. It just holds `TimeoutException` in it. At this time, there are 4 type of TupleOrErrorFuture:
-* ResultOrErrorFuture (Tuple1OrErrorFuture)
-* Tuple2OrErrorFuture
-* Tuple3OrErrorFuture
-* Tuple4OrErrorFuture
+Context is a context holding invocation info, strategy, etc.

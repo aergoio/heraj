@@ -6,7 +6,7 @@ Smart contract module provides an easy way to executing, querying smart contract
 
 ### SmartContract
 
-An basic interface to execute smart contract using java interface. User-define interface must extends this interface.
+An basic interface to execute smart contract using java interface. User-defined interface must extends this interface.
 
 ### ContractInvocationHandler
 
