@@ -9,42 +9,51 @@ import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
+import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.util.HexUtils;
 import hera.util.VersionUtils;
-import java.util.function.Function;
 import org.slf4j.Logger;
 
 <span class="fc" id="L19">public class AccountAddressConverterFactory {</span>
 
 <span class="fc" id="L21">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L23">  protected final Function&lt;AccountAddress, com.google.protobuf.ByteString&gt; domainConverter =</span>
-      domainAccountAddress -&gt; {
-<span class="fc" id="L25">        logger.trace(&quot;Domain account address: {}&quot;,</span>
-<span class="fc" id="L26">            HexUtils.encode(domainAccountAddress.getBytesValue().getValue()));</span>
-<span class="fc bfc" id="L27" title="All 2 branches covered.">        if (domainAccountAddress.getBytesValue().isEmpty()) {</span>
-<span class="fc" id="L28">          return copyFrom(domainAccountAddress.getBytesValue());</span>
+<span class="fc" id="L23">  protected final Function1&lt;AccountAddress, com.google.protobuf.ByteString&gt; domainConverter =</span>
+<span class="fc" id="L24">      new Function1&lt;AccountAddress, ByteString&gt;() {</span>
+
+        @Override
+        public com.google.protobuf.ByteString apply(final AccountAddress domainAccountAddress) {
+<span class="fc" id="L28">          logger.trace(&quot;Domain account address: {}&quot;,</span>
+<span class="fc" id="L29">              HexUtils.encode(domainAccountAddress.getBytesValue().getValue()));</span>
+<span class="fc bfc" id="L30" title="All 2 branches covered.">          if (domainAccountAddress.getBytesValue().isEmpty()) {</span>
+<span class="fc" id="L31">            return copyFrom(domainAccountAddress.getBytesValue());</span>
+          }
+<span class="fc" id="L33">          final byte[] withVersion = domainAccountAddress.getBytesValue().getValue();</span>
+<span class="fc" id="L34">          final byte[] withoutVersion = VersionUtils.trim(withVersion);</span>
+<span class="fc" id="L35">          return ByteString.copyFrom(withoutVersion);</span>
         }
-<span class="fc" id="L30">        final byte[] withVersion = domainAccountAddress.getBytesValue().getValue();</span>
-<span class="fc" id="L31">        final byte[] withoutVersion = VersionUtils.trim(withVersion);</span>
-<span class="fc" id="L32">        return ByteString.copyFrom(withoutVersion);</span>
       };
 
-<span class="fc" id="L35">  protected final Function&lt;com.google.protobuf.ByteString, AccountAddress&gt; rpcConverter =</span>
-      rpcAccountAddress -&gt; {
-<span class="fc" id="L37">        logger.trace(&quot;Rpc account address: {}&quot;, HexUtils.encode(rpcAccountAddress.toByteArray()));</span>
-<span class="fc bfc" id="L38" title="All 2 branches covered.">        if (rpcAccountAddress.isEmpty()) {</span>
-<span class="fc" id="L39">          return new AccountAddress(BytesValue.EMPTY);</span>
+<span class="fc" id="L39">  protected final Function1&lt;com.google.protobuf.ByteString, AccountAddress&gt; rpcConverter =</span>
+<span class="fc" id="L40">      new Function1&lt;com.google.protobuf.ByteString, AccountAddress&gt;() {</span>
+
+        @Override
+        public AccountAddress apply(com.google.protobuf.ByteString rpcAccountAddress) {
+<span class="fc" id="L44">          logger.trace(&quot;Rpc account address: {}&quot;, HexUtils.encode(rpcAccountAddress.toByteArray()));</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">          if (rpcAccountAddress.isEmpty()) {</span>
+<span class="fc" id="L46">            return new AccountAddress(BytesValue.EMPTY);</span>
+          }
+<span class="fc" id="L48">          final byte[] withoutVersion = rpcAccountAddress.toByteArray();</span>
+<span class="fc" id="L49">          final byte[] withVersion = VersionUtils.envelop(withoutVersion, AccountAddress.VERSION);</span>
+<span class="fc" id="L50">          return new AccountAddress(of(withVersion));</span>
         }
-<span class="fc" id="L41">        final byte[] withoutVersion = rpcAccountAddress.toByteArray();</span>
-<span class="fc" id="L42">        final byte[] withVersion = VersionUtils.envelop(withoutVersion, AccountAddress.VERSION);</span>
-<span class="fc" id="L43">        return new AccountAddress(of(withVersion));</span>
       };
 
   public ModelConverter&lt;AccountAddress, com.google.protobuf.ByteString&gt; create() {
-<span class="fc" id="L47">    return new ModelConverter&lt;&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L55">    return new ModelConverter&lt;AccountAddress, com.google.protobuf.ByteString&gt;(domainConverter,</span>
+        rpcConverter);
   }
 
 }

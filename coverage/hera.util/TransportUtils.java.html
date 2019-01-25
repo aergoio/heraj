@@ -4,8 +4,8 @@
 
 package hera.util;
 
-import static hera.util.NumberUtils.byteArrayToPostive;
-import static hera.util.NumberUtils.postiveToByteArray;
+import static hera.util.NumberUtils.byteArrayToPositive;
+import static hera.util.NumberUtils.positiveToByteArray;
 
 import com.google.protobuf.ByteString;
 import hera.api.model.Aer;
@@ -39,10 +39,10 @@ import java.io.InputStream;
    * @return protobuf {@link ByteString}
    */
   public static ByteString copyFrom(final Aer aer) {
-<span class="fc bfc" id="L42" title="All 2 branches covered.">    if (null == aer) {</span>
+<span class="pc bpc" id="L42" title="1 of 4 branches missed.">    if (null == aer || Aer.EMPTY == aer) {</span>
 <span class="fc" id="L43">      return ByteString.EMPTY;</span>
     }
-<span class="fc" id="L45">    return ByteString.copyFrom(postiveToByteArray(aer.getValue()));</span>
+<span class="fc" id="L45">    return ByteString.copyFrom(positiveToByteArray(aer.getValue()));</span>
   }
 
   /**
@@ -53,9 +53,9 @@ import java.io.InputStream;
    */
   public static Aer parseToAer(final ByteString rawAer) {
 <span class="fc bfc" id="L55" title="All 4 branches covered.">    if (null == rawAer || ByteString.EMPTY.equals(rawAer)) {</span>
-<span class="fc" id="L56">      return null;</span>
+<span class="fc" id="L56">      return Aer.EMPTY;</span>
     }
-<span class="fc" id="L58">    return Aer.of(byteArrayToPostive(rawAer.toByteArray()));</span>
+<span class="fc" id="L58">    return Aer.of(byteArrayToPositive(rawAer.toByteArray()));</span>
   }
 
   /**

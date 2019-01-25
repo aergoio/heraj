@@ -23,13 +23,15 @@ import lombok.ToString;
 <span class="pc bpc" id="L23" title="8 of 14 branches missed.">@EqualsAndHashCode</span>
 public class Aer implements Comparable&lt;Aer&gt; {
 
-<span class="fc" id="L26">  public static final Aer ZERO = new Aer(BigInteger.valueOf(0L));</span>
+<span class="fc" id="L26">  public static final Aer EMPTY = new Aer();</span>
 
-<span class="fc" id="L28">  public static final Aer ONE = new Aer(BigInteger.valueOf(1L));</span>
+<span class="fc" id="L28">  public static final Aer ZERO = new Aer(BigInteger.valueOf(0L));</span>
 
-<span class="fc" id="L30">  public static final Aer GIGA_ONE = new Aer(&quot;1&quot;, Unit.GAER);</span>
+<span class="fc" id="L30">  public static final Aer ONE = new Aer(BigInteger.valueOf(1L));</span>
 
-<span class="fc" id="L32">  public static final Aer AERGO_ONE = new Aer(&quot;1&quot;, Unit.AERGO);</span>
+<span class="fc" id="L32">  public static final Aer GIGA_ONE = new Aer(&quot;1&quot;, Unit.GAER);</span>
+
+<span class="fc" id="L34">  public static final Aer AERGO_ONE = new Aer(&quot;1&quot;, Unit.AERGO);</span>
 
   /**
    * Create {@code Aer} instance.
@@ -40,7 +42,7 @@ public class Aer implements Comparable&lt;Aer&gt; {
    */
   @ApiAudience.Public
   public static Aer of(final String amount) {
-<span class="nc" id="L43">    return new Aer(amount);</span>
+<span class="nc" id="L45">    return new Aer(amount);</span>
   }
 
   /**
@@ -53,7 +55,7 @@ public class Aer implements Comparable&lt;Aer&gt; {
    */
   @ApiAudience.Public
   public static Aer of(final String amount, final Unit unit) {
-<span class="fc" id="L56">    return new Aer(amount, unit);</span>
+<span class="fc" id="L58">    return new Aer(amount, unit);</span>
   }
 
   /**
@@ -64,31 +66,35 @@ public class Aer implements Comparable&lt;Aer&gt; {
    */
   @ApiAudience.Public
   public static Aer of(final BigInteger amount) {
-<span class="fc" id="L67">    return new Aer(amount);</span>
+<span class="fc" id="L69">    return new Aer(amount);</span>
   }
 
   /**
    * An unit to represent aergo. Consist of {@code AER, GAER, AERGO}.
    */
-<span class="fc" id="L73">  @ApiAudience.Public</span>
-<span class="fc" id="L74">  @RequiredArgsConstructor</span>
+<span class="fc" id="L75">  @ApiAudience.Public</span>
+<span class="fc" id="L76">  @RequiredArgsConstructor</span>
   public enum Unit {
-<span class="fc" id="L76">    AER(&quot;aer&quot;, new BigDecimal(&quot;1&quot;), new BigDecimal(&quot;1&quot;)),</span>
-<span class="fc" id="L77">    GAER(&quot;gaer&quot;, new BigDecimal(&quot;1.E-9&quot;), new BigDecimal(&quot;1.E9&quot;)),</span>
-<span class="fc" id="L78">    AERGO(&quot;aergo&quot;, new BigDecimal(&quot;1.E-18&quot;), new BigDecimal(&quot;1.E18&quot;));</span>
+<span class="fc" id="L78">    AER(&quot;aer&quot;, new BigDecimal(&quot;1&quot;), new BigDecimal(&quot;1&quot;)),</span>
+<span class="fc" id="L79">    GAER(&quot;gaer&quot;, new BigDecimal(&quot;1.E-9&quot;), new BigDecimal(&quot;1.E9&quot;)),</span>
+<span class="fc" id="L80">    AERGO(&quot;aergo&quot;, new BigDecimal(&quot;1.E-18&quot;), new BigDecimal(&quot;1.E18&quot;));</span>
 
-<span class="fc" id="L80">    @Getter</span>
+<span class="fc" id="L82">    @Getter</span>
     protected final String name;
 
-<span class="fc" id="L83">    @Getter</span>
+<span class="fc" id="L85">    @Getter</span>
     protected final BigDecimal minimum;
 
-<span class="fc" id="L86">    @Getter</span>
+<span class="fc" id="L88">    @Getter</span>
     protected final BigDecimal timesToAer;
   }
 
-<span class="fc" id="L90">  @Getter</span>
+<span class="fc" id="L92">  @Getter</span>
   protected final BigInteger value;
+
+<span class="fc" id="L95">  protected Aer() {</span>
+<span class="fc" id="L96">    this.value = null;</span>
+<span class="fc" id="L97">  }</span>
 
   /**
    * Create {@code Aer} instance.
@@ -98,8 +104,8 @@ public class Aer implements Comparable&lt;Aer&gt; {
    */
   @ApiAudience.Public
   public Aer(final String amount) {
-<span class="nc" id="L101">    this(amount, Unit.AER);</span>
-<span class="nc" id="L102">  }</span>
+<span class="nc" id="L107">    this(amount, Unit.AER);</span>
+<span class="nc" id="L108">  }</span>
 
   /**
    * Create {@code Aer} instance.
@@ -109,11 +115,11 @@ public class Aer implements Comparable&lt;Aer&gt; {
    * @throws InvalidAerAmountException if an amount is invalid
    */
   @ApiAudience.Public
-<span class="fc" id="L112">  public Aer(final String amount, final Unit unit) {</span>
-<span class="fc" id="L113">    assertNotNull(amount, new HerajException(&quot;Amount must not null&quot;));</span>
-<span class="fc" id="L114">    assertNotNull(unit, new HerajException(&quot;Unit must not null&quot;));</span>
-<span class="fc" id="L115">    this.value = parse(amount, unit);</span>
-<span class="fc" id="L116">  }</span>
+<span class="fc" id="L118">  public Aer(final String amount, final Unit unit) {</span>
+<span class="fc" id="L119">    assertNotNull(amount, new HerajException(&quot;Amount must not null&quot;));</span>
+<span class="fc" id="L120">    assertNotNull(unit, new HerajException(&quot;Unit must not null&quot;));</span>
+<span class="fc" id="L121">    this.value = parse(amount, unit);</span>
+<span class="fc" id="L122">  }</span>
 
   /**
    * Aer constructor.
@@ -121,27 +127,27 @@ public class Aer implements Comparable&lt;Aer&gt; {
    * @param amount an amount in {@link Unit#AER}
    */
   @ApiAudience.Public
-<span class="fc" id="L124">  public Aer(final BigInteger amount) {</span>
-<span class="pc bpc" id="L125" title="1 of 2 branches missed.">    this.value =</span>
-<span class="pc bpc" id="L126" title="1 of 2 branches missed.">        null != amount ? (amount.compareTo(BigInteger.ZERO) &gt;= 0 ? amount : BigInteger.ZERO)</span>
+<span class="fc" id="L130">  public Aer(final BigInteger amount) {</span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">    this.value =</span>
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">        null != amount ? (amount.compareTo(BigInteger.ZERO) &gt;= 0 ? amount : BigInteger.ZERO)</span>
             : BigInteger.ZERO;
-<span class="fc" id="L128">  }</span>
+<span class="fc" id="L134">  }</span>
 
   protected BigInteger parse(final String value, final Unit unit) {
     try {
-<span class="fc" id="L132">      final BigDecimal parsedValue = new BigDecimal(value);</span>
-<span class="fc bfc" id="L133" title="All 2 branches covered.">      if (parsedValue.compareTo(BigDecimal.ZERO) == -1) {</span>
-<span class="fc" id="L134">        throw new InvalidAerAmountException(&quot;Amount should be postive&quot;);</span>
+<span class="fc" id="L138">      final BigDecimal parsedValue = new BigDecimal(value);</span>
+<span class="fc bfc" id="L139" title="All 2 branches covered.">      if (parsedValue.compareTo(BigDecimal.ZERO) == -1) {</span>
+<span class="fc" id="L140">        throw new InvalidAerAmountException(&quot;Amount should be postive&quot;);</span>
       }
-<span class="fc bfc" id="L136" title="All 2 branches covered.">      if (parsedValue.compareTo(BigDecimal.ZERO) != 0</span>
-<span class="fc bfc" id="L137" title="All 2 branches covered.">          &amp;&amp; parsedValue.compareTo(unit.getMinimum()) == -1) {</span>
-<span class="fc" id="L138">        throw new InvalidAerAmountException(</span>
-<span class="fc" id="L139">            String.format(&quot;Amount is smaller then minimum : %s %s&quot;,</span>
-<span class="fc" id="L140">                unit.getMinimum().toPlainString(), unit.getName()));</span>
+<span class="fc bfc" id="L142" title="All 2 branches covered.">      if (parsedValue.compareTo(BigDecimal.ZERO) != 0</span>
+<span class="fc bfc" id="L143" title="All 2 branches covered.">          &amp;&amp; parsedValue.compareTo(unit.getMinimum()) == -1) {</span>
+<span class="fc" id="L144">        throw new InvalidAerAmountException(</span>
+<span class="fc" id="L145">            String.format(&quot;Amount is smaller then minimum : %s %s&quot;,</span>
+<span class="fc" id="L146">                unit.getMinimum().toPlainString(), unit.getName()));</span>
       }
-<span class="fc" id="L142">      return parsedValue.multiply(unit.getTimesToAer()).toBigInteger();</span>
-<span class="fc" id="L143">    } catch (NumberFormatException e) {</span>
-<span class="fc" id="L144">      throw new InvalidAerAmountException(e);</span>
+<span class="fc" id="L148">      return parsedValue.multiply(unit.getTimesToAer()).toBigInteger();</span>
+<span class="fc" id="L149">    } catch (NumberFormatException e) {</span>
+<span class="fc" id="L150">      throw new InvalidAerAmountException(e);</span>
     }
   }
 
@@ -152,7 +158,7 @@ public class Aer implements Comparable&lt;Aer&gt; {
    * @return {@code this.value + other.value}
    */
   public Aer add(final Aer other) {
-<span class="fc" id="L155">    return new Aer(this.value.add(other.value));</span>
+<span class="fc" id="L161">    return new Aer(this.value.add(other.value));</span>
   }
 
   /**
@@ -163,8 +169,8 @@ public class Aer implements Comparable&lt;Aer&gt; {
    * @return {@code this.value - other.value}
    */
   public Aer subtract(final Aer other) {
-<span class="fc" id="L166">    final BigInteger subtracted = this.value.subtract(other.value);</span>
-<span class="fc bfc" id="L167" title="All 2 branches covered.">    return new Aer(subtracted.compareTo(BigInteger.ZERO) &lt; 0 ? BigInteger.ZERO : subtracted);</span>
+<span class="fc" id="L172">    final BigInteger subtracted = this.value.subtract(other.value);</span>
+<span class="fc bfc" id="L173" title="All 2 branches covered.">    return new Aer(subtracted.compareTo(BigInteger.ZERO) &lt; 0 ? BigInteger.ZERO : subtracted);</span>
   }
 
   /**
@@ -174,7 +180,7 @@ public class Aer implements Comparable&lt;Aer&gt; {
    */
   @Override
   public int compareTo(final Aer other) {
-<span class="fc" id="L177">    return this.value.compareTo(other.value);</span>
+<span class="fc" id="L183">    return this.value.compareTo(other.value);</span>
   }
 
 }

@@ -6,13 +6,13 @@ package hera.transport;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.function.Function1;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Blockchain;
 
@@ -23,33 +23,42 @@ import types.Blockchain;
 <span class="fc" id="L23">  protected final ModelConverter&lt;ContractFunction, Blockchain.Function&gt; contractFunctionConverter =</span>
 <span class="fc" id="L24">      new ContractFunctionConverterFactory().create();</span>
 
-<span class="fc" id="L26">  protected final Function&lt;ContractInterface, Blockchain.ABI&gt; domainConverter =</span>
-      domainContractInterface -&gt; {
-<span class="fc" id="L28">        logger.trace(&quot;Domain contract interface: {}&quot;, domainContractInterface);</span>
-<span class="fc" id="L29">        final List&lt;Blockchain.Function&gt; rpcFunctions = new ArrayList&lt;&gt;();</span>
-<span class="pc bpc" id="L30" title="1 of 2 branches missed.">        for (final ContractFunction domainFunction : domainContractInterface.getFunctions()) {</span>
-<span class="nc" id="L31">          rpcFunctions.add(contractFunctionConverter.convertToRpcModel(domainFunction));</span>
-<span class="nc" id="L32">        }</span>
-<span class="fc" id="L33">        return Blockchain.ABI.newBuilder()</span>
-<span class="fc" id="L34">            .setVersion(domainContractInterface.getVersion())</span>
-<span class="fc" id="L35">            .setLanguage(domainContractInterface.getLanguage())</span>
-<span class="fc" id="L36">            .addAllFunctions(rpcFunctions)</span>
-<span class="fc" id="L37">            .build();</span>
+<span class="fc" id="L26">  protected final Function1&lt;ContractInterface, Blockchain.ABI&gt; domainConverter =</span>
+<span class="fc" id="L27">      new Function1&lt;ContractInterface, Blockchain.ABI&gt;() {</span>
+
+        @Override
+        public Blockchain.ABI apply(final ContractInterface domainContractInterface) {
+<span class="fc" id="L31">          logger.trace(&quot;Domain contract interface: {}&quot;, domainContractInterface);</span>
+<span class="fc" id="L32">          final List&lt;Blockchain.Function&gt; rpcFunctions = new ArrayList&lt;Blockchain.Function&gt;();</span>
+<span class="pc bpc" id="L33" title="1 of 2 branches missed.">          for (final ContractFunction domainFunction : domainContractInterface.getFunctions()) {</span>
+<span class="nc" id="L34">            rpcFunctions.add(contractFunctionConverter.convertToRpcModel(domainFunction));</span>
+<span class="nc" id="L35">          }</span>
+<span class="fc" id="L36">          return Blockchain.ABI.newBuilder()</span>
+<span class="fc" id="L37">              .setVersion(domainContractInterface.getVersion())</span>
+<span class="fc" id="L38">              .setLanguage(domainContractInterface.getLanguage())</span>
+<span class="fc" id="L39">              .addAllFunctions(rpcFunctions)</span>
+<span class="fc" id="L40">              .build();</span>
+        }
       };
 
-<span class="fc" id="L40">  protected final Function&lt;Blockchain.ABI, ContractInterface&gt; rpcConverter =</span>
-      rpcContractInterface -&gt; {
-<span class="fc" id="L42">        logger.trace(&quot;Rpc contract interface: {}&quot;, rpcContractInterface);</span>
-<span class="fc" id="L43">        final List&lt;ContractFunction&gt; domainFunctions = new ArrayList&lt;&gt;();</span>
-<span class="pc bpc" id="L44" title="1 of 2 branches missed.">        for (final Blockchain.Function rpcFunction : rpcContractInterface.getFunctionsList()) {</span>
-<span class="nc" id="L45">          domainFunctions.add(contractFunctionConverter.convertToDomainModel(rpcFunction));</span>
-<span class="nc" id="L46">        }</span>
-<span class="fc" id="L47">        return new ContractInterface(new ContractAddress(BytesValue.EMPTY),</span>
-<span class="fc" id="L48">            rpcContractInterface.getVersion(), rpcContractInterface.getLanguage(), domainFunctions);</span>
+<span class="fc" id="L44">  protected final Function1&lt;Blockchain.ABI, ContractInterface&gt; rpcConverter =</span>
+<span class="fc" id="L45">      new Function1&lt;Blockchain.ABI, ContractInterface&gt;() {</span>
+
+        @Override
+        public ContractInterface apply(final Blockchain.ABI rpcContractInterface) {
+<span class="fc" id="L49">          logger.trace(&quot;Rpc contract interface: {}&quot;, rpcContractInterface);</span>
+<span class="fc" id="L50">          final List&lt;ContractFunction&gt; domainFunctions = new ArrayList&lt;ContractFunction&gt;();</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">          for (final Blockchain.Function rpcFunction : rpcContractInterface.getFunctionsList()) {</span>
+<span class="nc" id="L52">            domainFunctions.add(contractFunctionConverter.convertToDomainModel(rpcFunction));</span>
+<span class="nc" id="L53">          }</span>
+<span class="fc" id="L54">          return new ContractInterface(new ContractAddress(BytesValue.EMPTY),</span>
+<span class="fc" id="L55">              rpcContractInterface.getVersion(), rpcContractInterface.getLanguage(),</span>
+              domainFunctions);
+        }
       };
 
   public ModelConverter&lt;ContractInterface, Blockchain.ABI&gt; create() {
-<span class="fc" id="L52">    return new ModelConverter&lt;&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L61">    return new ModelConverter&lt;ContractInterface, Blockchain.ABI&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

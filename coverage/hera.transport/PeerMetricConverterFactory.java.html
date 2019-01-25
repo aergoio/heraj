@@ -6,9 +6,9 @@ package hera.transport;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.function.Function1;
 import hera.api.model.PeerMetric;
 import hera.util.Base58Utils;
-import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Metric;
 
@@ -16,21 +16,30 @@ import types.Metric;
 
 <span class="fc" id="L17">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L19">  protected final Function&lt;PeerMetric, Metric.PeerMetric&gt; domainConverter = domainPeer -&gt; {</span>
-<span class="nc" id="L20">    throw new UnsupportedOperationException();</span>
-  };
+<span class="fc" id="L19">  protected final Function1&lt;PeerMetric, Metric.PeerMetric&gt; domainConverter =</span>
+<span class="fc" id="L20">      new Function1&lt;PeerMetric, Metric.PeerMetric&gt;() {</span>
 
-<span class="fc" id="L23">  protected final Function&lt;Metric.PeerMetric, PeerMetric&gt; rpcConverter = rpcPeerMetric -&gt; {</span>
-<span class="fc" id="L24">    logger.trace(&quot;Rpc peer metric: {}&quot;, rpcPeerMetric);</span>
+        @Override
+        public Metric.PeerMetric apply(final PeerMetric domainPeer) {
+<span class="nc" id="L24">          throw new UnsupportedOperationException();</span>
+        }
+      };
 
-<span class="fc" id="L26">    return new PeerMetric(Base58Utils.encode(rpcPeerMetric.getPeerID().toByteArray()),</span>
-<span class="fc" id="L27">        rpcPeerMetric.getSumIn(), rpcPeerMetric.getAvrIn(),</span>
-<span class="fc" id="L28">        rpcPeerMetric.getSumOut(), rpcPeerMetric.getAvrOut());</span>
-  };
+<span class="fc" id="L28">  protected final Function1&lt;Metric.PeerMetric, PeerMetric&gt; rpcConverter =</span>
+<span class="fc" id="L29">      new Function1&lt;Metric.PeerMetric, PeerMetric&gt;() {</span>
 
+        @Override
+        public PeerMetric apply(final Metric.PeerMetric rpcPeerMetric) {
+<span class="fc" id="L33">          logger.trace(&quot;Rpc peer metric: {}&quot;, rpcPeerMetric);</span>
+
+<span class="fc" id="L35">          return new PeerMetric(Base58Utils.encode(rpcPeerMetric.getPeerID().toByteArray()),</span>
+<span class="fc" id="L36">              rpcPeerMetric.getSumIn(), rpcPeerMetric.getAvrIn(),</span>
+<span class="fc" id="L37">              rpcPeerMetric.getSumOut(), rpcPeerMetric.getAvrOut());</span>
+        }
+      };
 
   public ModelConverter&lt;PeerMetric, Metric.PeerMetric&gt; create() {
-<span class="fc" id="L33">    return new ModelConverter&lt;&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L42">    return new ModelConverter&lt;PeerMetric, Metric.PeerMetric&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

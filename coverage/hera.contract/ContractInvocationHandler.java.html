@@ -128,30 +128,31 @@ public class ContractInvocationHandler implements InvocationHandler {
 <span class="fc" id="L128">    logger.debug(&quot;Validate {} with {}&quot;, proxy, contractInterface);</span>
 <span class="fc bfc" id="L129" title="All 2 branches covered.">    for (final Method method : proxy.getClass().getDeclaredMethods()) {</span>
 <span class="fc" id="L130">      final String methodName = method.getName();</span>
+<span class="fc" id="L131">      final int methodParameterCount = method.getParameterTypes().length;</span>
       // java object methods
-<span class="fc bfc" id="L132" title="All 4 branches covered.">      if (&quot;equals&quot;.equals(methodName) || &quot;toString&quot;.equals(methodName)</span>
-<span class="fc bfc" id="L133" title="All 2 branches covered.">          || &quot;hashCode&quot;.equals(methodName)) {</span>
-<span class="fc" id="L134">        continue;</span>
+<span class="fc bfc" id="L133" title="All 4 branches covered.">      if (&quot;equals&quot;.equals(methodName) || &quot;toString&quot;.equals(methodName)</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">          || &quot;hashCode&quot;.equals(methodName)) {</span>
+<span class="fc" id="L135">        continue;</span>
       }
       // contract specific methods
-<span class="pc bpc" id="L137" title="1 of 4 branches missed.">      if (&quot;bind&quot;.equals(methodName) &amp;&amp; 1 == method.getParameterCount()) {</span>
-<span class="fc" id="L138">        final Class&lt;?&gt; parameterType = method.getParameterTypes()[0];</span>
-<span class="pc bpc" id="L139" title="1 of 4 branches missed.">        if (Wallet.class.equals(parameterType) || Fee.class.equals(parameterType)) {</span>
-<span class="fc" id="L140">          continue;</span>
+<span class="pc bpc" id="L138" title="1 of 4 branches missed.">      if (&quot;bind&quot;.equals(methodName) &amp;&amp; 1 == methodParameterCount) {</span>
+<span class="fc" id="L139">        final Class&lt;?&gt; parameterType = method.getParameterTypes()[0];</span>
+<span class="pc bpc" id="L140" title="1 of 4 branches missed.">        if (Wallet.class.equals(parameterType) || Fee.class.equals(parameterType)) {</span>
+<span class="fc" id="L141">          continue;</span>
         }
       }
       // check method name and argument count
-<span class="fc" id="L144">      final ContractFunction contractFunction = contractInterface.findFunction(methodName);</span>
-<span class="pc bpc" id="L145" title="1 of 2 branches missed.">      if (null == contractFunction) {</span>
-<span class="nc" id="L146">        throw new ContractException(&quot;No method &quot; + methodName + &quot; in contract interface&quot;);</span>
+<span class="fc" id="L145">      final ContractFunction contractFunction = contractInterface.findFunction(methodName);</span>
+<span class="pc bpc" id="L146" title="1 of 2 branches missed.">      if (null == contractFunction) {</span>
+<span class="nc" id="L147">        throw new ContractException(&quot;No method &quot; + methodName + &quot; in contract interface&quot;);</span>
       }
-<span class="fc" id="L148">      final int actualArgCount = contractFunction.getArgumentNames().size();</span>
-<span class="pc bpc" id="L149" title="1 of 2 branches missed.">      if (method.getParameterCount() != actualArgCount) {</span>
-<span class="nc" id="L150">        throw new ContractException(String.format(</span>
-<span class="nc" id="L151">            &quot;Method parameter count for %s is invalid (expected: %d)&quot;, methodName, actualArgCount));</span>
+<span class="fc" id="L149">      final int actualArgCount = contractFunction.getArgumentNames().size();</span>
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">      if (methodParameterCount != actualArgCount) {</span>
+<span class="nc" id="L151">        throw new ContractException(String.format(</span>
+<span class="nc" id="L152">            &quot;Method parameter count for %s is invalid (expected: %d)&quot;, methodName, actualArgCount));</span>
       }
     }
-<span class="fc" id="L154">  }</span>
+<span class="fc" id="L155">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

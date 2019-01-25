@@ -5,11 +5,10 @@
 package hera.util.pki;
 
 import static hera.util.IoUtils.stream;
-import static java.security.Security.addProvider;
-import static org.bouncycastle.jce.ECNamedCurveTable.getParameterSpec;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.util.HexUtils;
+import hera.util.StreamConsumer;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -25,44 +24,38 @@ import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.crypto.params.ECPublicKeyParameters;
 import org.bouncycastle.crypto.signers.ECDSASigner;
 import org.bouncycastle.crypto.signers.HMacDSAKCalculator;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.slf4j.Logger;
 
-<span class="pc bpc" id="L32" title="15 of 22 branches missed.">@EqualsAndHashCode(exclude = &quot;logger&quot;)</span>
-<span class="fc" id="L33">@RequiredArgsConstructor(access = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L29" title="21 of 30 branches missed.">@EqualsAndHashCode(exclude = &quot;logger&quot;)</span>
+<span class="fc" id="L30">@RequiredArgsConstructor(access = AccessLevel.PROTECTED)</span>
 public class ECDSAKey {
 
   protected static final String CURVE_NAME = &quot;secp256k1&quot;;
 
-<span class="fc" id="L38">  @Getter</span>
-  protected static final ECDomainParameters ecParams;
 
-  static {
-<span class="fc" id="L42">    addProvider(new BouncyCastleProvider());</span>
-<span class="fc" id="L43">    ECNamedCurveParameterSpec ecSpec = getParameterSpec(CURVE_NAME);</span>
-<span class="fc" id="L44">    ecParams = new ECDomainParameters(ecSpec.getCurve(), ecSpec.getG(), ecSpec.getN(),</span>
-<span class="fc" id="L45">        ecSpec.getH(), ecSpec.getSeed());</span>
-<span class="fc" id="L46">  }</span>
-
-<span class="fc" id="L48">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L36">  protected final transient Logger logger = getLogger(getClass());</span>
 
   /**
    * Create ECDSAKey with keypair.
    *
    * @param privatekey a private key
    * @param publicKey a public key
+   * @param ecParams an ec parameters
    * @return {@link ECDSAKey}
    */
-  public static ECDSAKey of(final PrivateKey privatekey, final PublicKey publicKey) {
-<span class="nc" id="L58">    return new ECDSAKey(privatekey, publicKey);</span>
+  public static ECDSAKey of(final PrivateKey privatekey, final PublicKey publicKey,
+      final ECDomainParameters ecParams) {
+<span class="nc" id="L48">    return new ECDSAKey(privatekey, publicKey, ecParams);</span>
   }
 
-<span class="fc" id="L61">  @Getter</span>
+<span class="fc" id="L51">  @Getter</span>
   protected final PrivateKey privateKey;
 
-<span class="fc" id="L64">  @Getter</span>
+<span class="fc" id="L54">  @Getter</span>
   protected final PublicKey publicKey;
+
+<span class="fc" id="L57">  @Getter</span>
+  protected final ECDomainParameters params;
 
   /**
    * Sign to plain text.
@@ -73,12 +66,12 @@ public class ECDSAKey {
    */
   public ECDSASignature sign(final InputStream plainText) {
     try {
-<span class="fc" id="L76">      final byte[] message = toByteArray(plainText);</span>
-<span class="fc" id="L77">      final ECDSASignature signature = sign(this.privateKey, message);</span>
-<span class="fc" id="L78">      logger.trace(&quot;ECDSASignature signature: {}&quot;, signature);</span>
-<span class="fc" id="L79">      return signature;</span>
-<span class="nc" id="L80">    } catch (final Throwable e) {</span>
-<span class="nc" id="L81">      throw new IllegalStateException(e);</span>
+<span class="fc" id="L69">      final byte[] message = toByteArray(plainText);</span>
+<span class="fc" id="L70">      final ECDSASignature signature = sign(this.privateKey, message);</span>
+<span class="fc" id="L71">      logger.trace(&quot;ECDSASignature signature: {}&quot;, signature);</span>
+<span class="fc" id="L72">      return signature;</span>
+<span class="nc" id="L73">    } catch (final Throwable e) {</span>
+<span class="nc" id="L74">      throw new IllegalStateException(e);</span>
     }
   }
 
@@ -95,19 +88,19 @@ public class ECDSAKey {
    */
   protected ECDSASignature sign(final PrivateKey privateKey, final byte[] message)
       throws Exception {
-<span class="fc" id="L98">    logger.trace(&quot;Message in hexa: {}&quot;, HexUtils.encode(message));</span>
+<span class="fc" id="L91">    logger.trace(&quot;Message in hexa: {}&quot;, HexUtils.encode(message));</span>
 
-<span class="fc" id="L100">    final ECDSASigner signer = new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));</span>
-<span class="fc" id="L101">    final BigInteger d = ((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD();</span>
-<span class="fc" id="L102">    logger.trace(&quot;D: {}&quot;, d);</span>
-<span class="fc" id="L103">    final ECPrivateKeyParameters privKey = new ECPrivateKeyParameters(d, ecParams);</span>
-<span class="fc" id="L104">    signer.init(true, privKey);</span>
-<span class="fc" id="L105">    final BigInteger[] components = signer.generateSignature(message);</span>
+<span class="fc" id="L93">    final ECDSASigner signer = new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));</span>
+<span class="fc" id="L94">    final BigInteger d = ((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD();</span>
+<span class="fc" id="L95">    logger.trace(&quot;D: {}&quot;, d);</span>
+<span class="fc" id="L96">    final ECPrivateKeyParameters privKey = new ECPrivateKeyParameters(d, params);</span>
+<span class="fc" id="L97">    signer.init(true, privKey);</span>
+<span class="fc" id="L98">    final BigInteger[] components = signer.generateSignature(message);</span>
 
-<span class="fc" id="L107">    final BigInteger r = components[0];</span>
-<span class="fc" id="L108">    final BigInteger s = ecParams.getN().subtract(components[1]);</span>
+<span class="fc" id="L100">    final BigInteger r = components[0];</span>
+<span class="fc" id="L101">    final BigInteger s = params.getN().subtract(components[1]);</span>
 
-<span class="fc" id="L110">    return new ECDSASignature(r, s);</span>
+<span class="fc" id="L103">    return new ECDSASignature(r, s);</span>
   }
 
   /**
@@ -120,9 +113,9 @@ public class ECDSAKey {
    */
   public boolean verify(final InputStream plainText, final ECDSASignature signature) {
     try {
-<span class="fc" id="L123">      return verify(getPublicKey(), toByteArray(plainText), signature);</span>
-<span class="nc" id="L124">    } catch (final Throwable e) {</span>
-<span class="nc" id="L125">      throw new IllegalStateException(e);</span>
+<span class="fc" id="L116">      return verify(getPublicKey(), toByteArray(plainText), signature);</span>
+<span class="nc" id="L117">    } catch (final Throwable e) {</span>
+<span class="nc" id="L118">      throw new IllegalStateException(e);</span>
     }
   }
 
@@ -140,27 +133,32 @@ public class ECDSAKey {
    */
   protected boolean verify(final PublicKey publicKey, final byte[] message,
       final ECDSASignature signature) {
-<span class="fc" id="L143">    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
+<span class="fc" id="L136">    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
         (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
-<span class="fc" id="L145">    final ECDSASigner signer = new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));</span>
-<span class="fc" id="L146">    final ECPublicKeyParameters privKey = new ECPublicKeyParameters(ecPublicKey.getQ(), ecParams);</span>
-<span class="fc" id="L147">    signer.init(false, privKey);</span>
-<span class="fc" id="L148">    return signer.verifySignature(message, signature.getR(), signature.getS());</span>
+<span class="fc" id="L138">    final ECDSASigner signer = new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));</span>
+<span class="fc" id="L139">    final ECPublicKeyParameters privKey = new ECPublicKeyParameters(ecPublicKey.getQ(), params);</span>
+<span class="fc" id="L140">    signer.init(false, privKey);</span>
+<span class="fc" id="L141">    return signer.verifySignature(message, signature.getR(), signature.getS());</span>
   }
 
   @Override
   public String toString() {
-<span class="nc" id="L153">    final org.bouncycastle.jce.interfaces.ECPrivateKey ecPrivateKey =</span>
+<span class="nc" id="L146">    final org.bouncycastle.jce.interfaces.ECPrivateKey ecPrivateKey =</span>
         (org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey;
-<span class="nc" id="L155">    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
+<span class="nc" id="L148">    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
         (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
-<span class="nc" id="L157">    return String.format(&quot;%s\n%s&quot;, ecPrivateKey.toString(), ecPublicKey.toString());</span>
+<span class="nc" id="L150">    return String.format(&quot;%s\n%s&quot;, ecPrivateKey.toString(), ecPublicKey.toString());</span>
   }
 
   protected byte[] toByteArray(final InputStream plainText) throws Exception {
-<span class="fc" id="L161">    final ByteArrayOutputStream os = new ByteArrayOutputStream();</span>
-<span class="fc" id="L162">    stream(plainText, (bytes, offset, length) -&gt; os.write(bytes));</span>
-<span class="fc" id="L163">    return os.toByteArray();</span>
+<span class="fc" id="L154">    final ByteArrayOutputStream os = new ByteArrayOutputStream();</span>
+<span class="fc" id="L155">    stream(plainText, new StreamConsumer() {</span>
+      @Override
+      public void apply(byte[] bytes, int offset, int length) throws Exception {
+<span class="fc" id="L158">        os.write(bytes);</span>
+<span class="fc" id="L159">      }</span>
+    });
+<span class="fc" id="L161">    return os.toByteArray();</span>
   }
 
 }

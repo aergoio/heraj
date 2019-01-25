@@ -6,6 +6,7 @@ package hera.wallet;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.function.Function1;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
@@ -16,11 +17,13 @@ import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
+import hera.api.model.PeerId;
 import hera.api.model.RawTransaction;
+import hera.api.model.StakingInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.model.VotingInfo;
 import hera.api.model.internal.TryCountAndInterval;
-import hera.api.tupleorerror.Function1;
 import hera.client.AergoClient;
 import hera.exception.CommitException;
 import hera.exception.CommitException.CommitStatus;
@@ -29,234 +32,306 @@ import hera.exception.UnbindedAccountException;
 import hera.exception.UnbindedKeyStoreException;
 import hera.exception.WalletException;
 import hera.key.AergoKey;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.slf4j.Logger;
 
 public abstract class InteractiveWallet extends LookupWallet implements Wallet {
 
-<span class="fc" id="L38">  protected final Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L42">  protected final Logger logger = getLogger(getClass());</span>
 
   protected KeyStore keyStore;
 
   protected Account account;
 
-<span class="fc" id="L44">  @Getter(value = AccessLevel.PROTECTED)</span>
+<span class="fc" id="L48">  @Getter(value = AccessLevel.PROTECTED)</span>
   protected final TryCountAndInterval nonceRefreshTryCountAndInterval;
 
   protected InteractiveWallet(final AergoClient aergoClient,
       final TryCountAndInterval tryCountAndInterval) {
-<span class="fc" id="L49">    super(aergoClient);</span>
-<span class="fc" id="L50">    logger.debug(&quot;Binded nonce refresh: {}&quot;, tryCountAndInterval);</span>
-<span class="fc" id="L51">    this.nonceRefreshTryCountAndInterval = tryCountAndInterval;</span>
-<span class="fc" id="L52">  }</span>
+<span class="fc" id="L53">    super(aergoClient);</span>
+<span class="fc" id="L54">    logger.debug(&quot;Binded nonce refresh: {}&quot;, tryCountAndInterval);</span>
+<span class="fc" id="L55">    this.nonceRefreshTryCountAndInterval = tryCountAndInterval;</span>
+<span class="fc" id="L56">  }</span>
 
   protected KeyStore getKeyStore() {
-<span class="pc bpc" id="L55" title="1 of 2 branches missed.">    if (null == this.keyStore) {</span>
-<span class="nc" id="L56">      throw new UnbindedKeyStoreException();</span>
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">    if (null == this.keyStore) {</span>
+<span class="nc" id="L60">      throw new UnbindedKeyStoreException();</span>
     }
-<span class="fc" id="L58">    return this.keyStore;</span>
+<span class="fc" id="L62">    return this.keyStore;</span>
   }
 
   @Override
   public void saveKey(final AergoKey key, final String password) {
-<span class="fc" id="L63">    getKeyStore().saveKey(key, password);</span>
-<span class="fc" id="L64">  }</span>
+<span class="fc" id="L67">    getKeyStore().saveKey(key, password);</span>
+<span class="fc" id="L68">  }</span>
 
   @Override
   public String exportKey(final Authentication authentication) {
-<span class="fc" id="L68">    return getKeyStore().export(authentication).getEncoded();</span>
+<span class="fc" id="L72">    return getKeyStore().export(authentication).getEncoded();</span>
   }
 
   @Override
   public boolean unlock(final Authentication authentication) {
     try {
-<span class="fc" id="L74">      this.account = getKeyStore().unlock(authentication);</span>
-<span class="fc" id="L75">      getCurrentAccount().bindState(getCurrentAccountState());</span>
-<span class="fc" id="L76">      return true;</span>
-<span class="fc" id="L77">    } catch (InvalidAuthentiationException e) {</span>
-<span class="fc" id="L78">      return false;</span>
-<span class="nc" id="L79">    } catch (Exception e) {</span>
-<span class="nc" id="L80">      throw new WalletException(e);</span>
+<span class="fc" id="L78">      this.account = getKeyStore().unlock(authentication);</span>
+<span class="fc" id="L79">      getCurrentAccount().bindState(getCurrentAccountState());</span>
+<span class="fc" id="L80">      return true;</span>
+<span class="fc" id="L81">    } catch (InvalidAuthentiationException e) {</span>
+<span class="fc" id="L82">      return false;</span>
+<span class="nc" id="L83">    } catch (Exception e) {</span>
+<span class="nc" id="L84">      throw new WalletException(e);</span>
     }
   }
 
   @Override
   public boolean lock(final Authentication authentication) {
     try {
-<span class="fc" id="L87">      getKeyStore().lock(authentication);</span>
-<span class="fc" id="L88">      return true;</span>
-<span class="nc" id="L89">    } catch (InvalidAuthentiationException e) {</span>
-<span class="nc" id="L90">      return false;</span>
-<span class="nc" id="L91">    } catch (Exception e) {</span>
-<span class="nc" id="L92">      throw new WalletException(e);</span>
+<span class="fc" id="L91">      getKeyStore().lock(authentication);</span>
+<span class="fc" id="L92">      return true;</span>
+<span class="nc" id="L93">    } catch (InvalidAuthentiationException e) {</span>
+<span class="nc" id="L94">      return false;</span>
+<span class="nc" id="L95">    } catch (Exception e) {</span>
+<span class="nc" id="L96">      throw new WalletException(e);</span>
     }
   }
 
   @Override
   public boolean storeKeyStore(final String path, final String password) {
     try {
-<span class="fc" id="L99">      getKeyStore().store(path, password);</span>
-<span class="fc" id="L100">      return true;</span>
-<span class="fc" id="L101">    } catch (Exception e) {</span>
-<span class="fc" id="L102">      return false;</span>
+<span class="fc" id="L103">      getKeyStore().store(path, password);</span>
+<span class="fc" id="L104">      return true;</span>
+<span class="fc" id="L105">    } catch (Exception e) {</span>
+<span class="fc" id="L106">      return false;</span>
     }
+  }
+
+  @Override
+  public Account getAccount() {
+<span class="fc bfc" id="L112" title="All 2 branches covered.">    if (null == this.account) {</span>
+<span class="fc" id="L113">      throw new UnbindedAccountException();</span>
+    }
+<span class="fc" id="L115">    return this.account;</span>
   }
 
   @Override
   public Account getCurrentAccount() {
-<span class="fc bfc" id="L108" title="All 2 branches covered.">    if (null == this.account) {</span>
-<span class="fc" id="L109">      throw new UnbindedAccountException();</span>
-    }
-<span class="fc" id="L111">    return this.account;</span>
+<span class="fc" id="L120">    return getAccount();</span>
+  }
+
+  @Override
+  public AccountState getAccountState() {
+<span class="fc" id="L125">    return getAccountState(getCurrentAccount());</span>
   }
 
   @Override
   public AccountState getCurrentAccountState() {
-<span class="fc" id="L116">    return getAergoClient().getAccountOperation().getState(getCurrentAccount());</span>
+<span class="fc" id="L130">    return getAccountState();</span>
+  }
+
+  @Override
+  public StakingInfo getStakingInfo() {
+<span class="nc" id="L135">    return getStakingInfo(getCurrentAccount());</span>
+  }
+
+  @Override
+  public List&lt;VotingInfo&gt; listVotes() {
+<span class="nc" id="L140">    return listVotesOf(getCurrentAccount());</span>
   }
 
   @Override
   public long getRecentlyUsedNonce() {
-<span class="fc" id="L121">    return getCurrentAccount().getNonce();</span>
+<span class="fc" id="L145">    return getCurrentAccount().getNonce();</span>
   }
 
   @Override
   public long incrementAndGetNonce() {
-<span class="fc" id="L126">    return getCurrentAccount().incrementAndGetNonce();</span>
+<span class="fc" id="L150">    return getCurrentAccount().incrementAndGetNonce();</span>
   }
 
   @Override
   public TxHash createName(final String name) {
-<span class="fc" id="L131">    return sendRequestWithNonce(nonce -&gt; getAergoClient().getAccountOperation()</span>
-<span class="fc" id="L132">        .createName(getCurrentAccount(), name, nonce));</span>
+<span class="fc" id="L155">    return sendRequestWithNonce(new Function1&lt;Long, TxHash&gt;() {</span>
+      @Override
+      public TxHash apply(final Long nonce) {
+<span class="fc" id="L158">        return getAergoClient().getAccountOperation()</span>
+<span class="fc" id="L159">            .createName(getCurrentAccount(), name, nonce);</span>
+      }
+    });
   }
 
   @Override
   public TxHash updateName(final String name, final AccountAddress newOwner) {
-<span class="fc" id="L137">    return sendRequestWithNonce(nonce -&gt; getAergoClient().getAccountOperation()</span>
-<span class="fc" id="L138">        .updateName(getCurrentAccount(), name, newOwner, nonce));</span>
+<span class="fc" id="L166">    return sendRequestWithNonce(new Function1&lt;Long, TxHash&gt;() {</span>
+      @Override
+      public TxHash apply(final Long nonce) {
+<span class="fc" id="L169">        return getAergoClient().getAccountOperation()</span>
+<span class="fc" id="L170">            .updateName(getCurrentAccount(), name, newOwner, nonce);</span>
+      }
+    });
+  }
+
+  @Override
+  public TxHash stake(final Aer amount) {
+<span class="fc" id="L177">    return sendRequestWithNonce(new Function1&lt;Long, TxHash&gt;() {</span>
+      @Override
+      public TxHash apply(final Long nonce) {
+<span class="fc" id="L180">        return getAergoClient().getAccountOperation()</span>
+<span class="fc" id="L181">            .stake(getCurrentAccount(), amount, nonce);</span>
+      }
+    });
+  }
+
+  @Override
+  public TxHash unstake(final Aer amount) {
+<span class="fc" id="L188">    return sendRequestWithNonce(new Function1&lt;Long, TxHash&gt;() {</span>
+      @Override
+      public TxHash apply(final Long nonce) {
+<span class="fc" id="L191">        return getAergoClient().getAccountOperation()</span>
+<span class="fc" id="L192">            .unstake(getCurrentAccount(), amount, nonce);</span>
+      }
+    });
+  }
+
+  @Override
+  public TxHash vote(final PeerId peerId) {
+<span class="fc" id="L199">    return sendRequestWithNonce(new Function1&lt;Long, TxHash&gt;() {</span>
+      @Override
+      public TxHash apply(final Long nonce) {
+<span class="fc" id="L202">        return getAergoClient().getBlockchainOperation()</span>
+<span class="fc" id="L203">            .vote(getCurrentAccount(), peerId, nonce);</span>
+      }
+    });
   }
 
   @Override
   public Transaction sign(final RawTransaction rawTransaction) {
-<span class="fc" id="L143">    return getAergoClient().getAccountOperation().sign(getCurrentAccount(), rawTransaction);</span>
+<span class="fc" id="L210">    return getAergoClient().getAccountOperation().sign(getCurrentAccount(), rawTransaction);</span>
   }
 
   @Override
   public boolean verify(final Transaction transaction) {
-<span class="fc" id="L148">    return getAergoClient().getAccountOperation().verify(getCurrentAccount(), transaction);</span>
+<span class="fc" id="L215">    return getAergoClient().getAccountOperation().verify(getCurrentAccount(), transaction);</span>
   }
 
   @Override
   public TxHash send(final String recipient, final Aer amount, final Fee fee) {
-<span class="fc" id="L153">    return send(recipient, amount, fee, BytesValue.EMPTY);</span>
+<span class="fc" id="L220">    return send(recipient, amount, fee, BytesValue.EMPTY);</span>
   }
 
   @Override
   public TxHash send(final String recipient, final Aer amount, final Fee fee,
       final BytesValue payload) {
-<span class="fc" id="L159">    final RawTransaction rawTransaction = RawTransaction.newBuilder()</span>
-<span class="fc" id="L160">        .from(getCurrentAccount())</span>
-<span class="fc" id="L161">        .to(recipient)</span>
-<span class="fc" id="L162">        .amount(amount)</span>
-<span class="fc" id="L163">        .nonce(getCurrentAccount().incrementAndGetNonce())</span>
-<span class="fc" id="L164">        .fee(fee)</span>
-<span class="fc" id="L165">        .payload(payload)</span>
-<span class="fc" id="L166">        .build();</span>
-<span class="fc" id="L167">    return commit(rawTransaction);</span>
+<span class="fc" id="L226">    final RawTransaction rawTransaction = RawTransaction.newBuilder()</span>
+<span class="fc" id="L227">        .from(getCurrentAccount())</span>
+<span class="fc" id="L228">        .to(recipient)</span>
+<span class="fc" id="L229">        .amount(amount)</span>
+<span class="fc" id="L230">        .nonce(getCurrentAccount().incrementAndGetNonce())</span>
+<span class="fc" id="L231">        .fee(fee)</span>
+<span class="fc" id="L232">        .payload(payload)</span>
+<span class="fc" id="L233">        .build();</span>
+<span class="fc" id="L234">    return commit(rawTransaction);</span>
   }
 
   @Override
   public TxHash send(final AccountAddress recipient, final Aer amount, final Fee fee) {
-<span class="fc" id="L172">    return send(recipient, amount, fee, BytesValue.EMPTY);</span>
+<span class="fc" id="L239">    return send(recipient, amount, fee, BytesValue.EMPTY);</span>
   }
 
   @Override
   public TxHash send(final AccountAddress recipient, final Aer amount, final Fee fee,
       final BytesValue payload) {
-<span class="fc" id="L178">    final RawTransaction rawTransaction = RawTransaction.newBuilder()</span>
-<span class="fc" id="L179">        .from(getCurrentAccount())</span>
-<span class="fc" id="L180">        .to(recipient)</span>
-<span class="fc" id="L181">        .amount(amount)</span>
-<span class="fc" id="L182">        .nonce(getCurrentAccount().incrementAndGetNonce())</span>
-<span class="fc" id="L183">        .fee(fee)</span>
-<span class="fc" id="L184">        .payload(payload)</span>
-<span class="fc" id="L185">        .build();</span>
-<span class="fc" id="L186">    return commit(rawTransaction);</span>
+<span class="fc" id="L245">    final RawTransaction rawTransaction = RawTransaction.newBuilder()</span>
+<span class="fc" id="L246">        .from(getCurrentAccount())</span>
+<span class="fc" id="L247">        .to(recipient)</span>
+<span class="fc" id="L248">        .amount(amount)</span>
+<span class="fc" id="L249">        .nonce(getCurrentAccount().incrementAndGetNonce())</span>
+<span class="fc" id="L250">        .fee(fee)</span>
+<span class="fc" id="L251">        .payload(payload)</span>
+<span class="fc" id="L252">        .build();</span>
+<span class="fc" id="L253">    return commit(rawTransaction);</span>
   }
 
   @Override
   public TxHash commit(final RawTransaction rawTransaction) {
-<span class="fc" id="L191">    return commit(sign(rawTransaction));</span>
+<span class="fc" id="L258">    return commit(sign(rawTransaction));</span>
   }
 
   @Override
   public TxHash commit(final Transaction signedTransaction) {
-<span class="fc" id="L196">    TxHash txHash = null;</span>
-<span class="fc" id="L197">    Transaction commitTarget = signedTransaction;</span>
-<span class="fc" id="L198">    int i = getNonceRefreshTryCountAndInterval().getCount();</span>
-<span class="pc bpc" id="L199" title="1 of 4 branches missed.">    while (0 &lt;= i &amp;&amp; null == txHash) {</span>
+<span class="fc" id="L263">    TxHash txHash = null;</span>
+<span class="fc" id="L264">    Transaction commitTarget = signedTransaction;</span>
+<span class="fc" id="L265">    int i = getNonceRefreshTryCountAndInterval().getCount();</span>
+<span class="pc bpc" id="L266" title="1 of 4 branches missed.">    while (0 &lt;= i &amp;&amp; null == txHash) {</span>
       try {
-<span class="fc" id="L201">        txHash = getAergoClient().getTransactionOperation().commit(commitTarget);</span>
+<span class="fc" id="L268">        txHash = getAergoClient().getTransactionOperation().commit(commitTarget);</span>
         // if success, cache an nonce
-<span class="fc" id="L203">        getCurrentAccount().setNonce(commitTarget.getNonce());</span>
-<span class="nc" id="L204">      } catch (CommitException e) {</span>
-<span class="nc bnc" id="L205" title="All 2 branches missed.">        if (isNonceRelatedException(e)) {</span>
-<span class="nc" id="L206">          syncNonceWithServer();</span>
-<span class="nc" id="L207">          getNonceRefreshTryCountAndInterval().trySleep();</span>
-<span class="nc" id="L208">          commitTarget = sign(</span>
-<span class="nc" id="L209">              RawTransaction.copyOf(signedTransaction, getCurrentAccount().incrementAndGetNonce()));</span>
-<span class="nc" id="L210">          --i;</span>
+<span class="fc" id="L270">        getCurrentAccount().setNonce(commitTarget.getNonce());</span>
+<span class="nc" id="L271">      } catch (CommitException e) {</span>
+<span class="nc bnc" id="L272" title="All 2 branches missed.">        if (isNonceRelatedException(e)) {</span>
+<span class="nc" id="L273">          syncNonceWithServer();</span>
+<span class="nc" id="L274">          getNonceRefreshTryCountAndInterval().trySleep();</span>
+<span class="nc" id="L275">          commitTarget = sign(</span>
+<span class="nc" id="L276">              RawTransaction.copyOf(signedTransaction, getCurrentAccount().incrementAndGetNonce()));</span>
+<span class="nc" id="L277">          --i;</span>
         } else {
-<span class="nc" id="L212">          throw e;</span>
+<span class="nc" id="L279">          throw e;</span>
         }
-<span class="pc" id="L214">      }</span>
+<span class="pc" id="L281">      }</span>
     }
-<span class="fc" id="L216">    return txHash;</span>
+<span class="fc" id="L283">    return txHash;</span>
   }
 
   @Override
   public ContractTxHash deploy(final ContractDefinition contractDefinition, final Fee fee) {
-<span class="fc" id="L221">    return (ContractTxHash) sendRequestWithNonce(</span>
-<span class="fc" id="L222">        n -&gt; getAergoClient().getContractOperation().deploy(getCurrentAccount(),</span>
-<span class="fc" id="L223">            contractDefinition, n, fee));</span>
+<span class="fc" id="L288">    return (ContractTxHash) sendRequestWithNonce(new Function1&lt;Long, TxHash&gt;() {</span>
+      @Override
+      public TxHash apply(final Long nonce) {
+<span class="fc" id="L291">        return getAergoClient().getContractOperation().deploy(getCurrentAccount(),</span>
+<span class="fc" id="L292">            contractDefinition, nonce, fee);</span>
+      }
+    });
   }
 
   @Override
   public ContractTxHash execute(final ContractInvocation contractInvocation, final Fee fee) {
-<span class="fc" id="L228">    return (ContractTxHash) sendRequestWithNonce(</span>
-<span class="fc" id="L229">        n -&gt; getAergoClient().getContractOperation().execute(getCurrentAccount(),</span>
-<span class="fc" id="L230">            contractInvocation, n, fee));</span>
+<span class="fc" id="L299">    return (ContractTxHash) sendRequestWithNonce(new Function1&lt;Long, TxHash&gt;() {</span>
+      @Override
+      public TxHash apply(final Long nonce) {
+<span class="fc" id="L302">        return getAergoClient().getContractOperation().execute(getCurrentAccount(),</span>
+<span class="fc" id="L303">            contractInvocation, nonce, fee);</span>
+      }
+    });
   }
 
   protected TxHash sendRequestWithNonce(final Function1&lt;Long, TxHash&gt; requester) {
-<span class="fc" id="L234">    TxHash txHash = null;</span>
-<span class="fc" id="L235">    int i = getNonceRefreshTryCountAndInterval().getCount();</span>
-<span class="pc bpc" id="L236" title="1 of 4 branches missed.">    while (0 &lt;= i &amp;&amp; null == txHash) {</span>
+<span class="fc" id="L309">    TxHash txHash = null;</span>
+<span class="fc" id="L310">    int i = getNonceRefreshTryCountAndInterval().getCount();</span>
+<span class="pc bpc" id="L311" title="1 of 4 branches missed.">    while (0 &lt;= i &amp;&amp; null == txHash) {</span>
       try {
-<span class="fc" id="L238">        txHash = requester.apply(getCurrentAccount().incrementAndGetNonce());</span>
-<span class="nc" id="L239">      } catch (CommitException e) {</span>
-<span class="nc bnc" id="L240" title="All 2 branches missed.">        if (isNonceRelatedException(e)) {</span>
-<span class="nc" id="L241">          syncNonceWithServer();</span>
-<span class="nc" id="L242">          getNonceRefreshTryCountAndInterval().trySleep();</span>
-<span class="nc" id="L243">          --i;</span>
+<span class="fc" id="L313">        txHash = requester.apply(getCurrentAccount().incrementAndGetNonce());</span>
+<span class="nc" id="L314">      } catch (CommitException e) {</span>
+<span class="nc bnc" id="L315" title="All 2 branches missed.">        if (isNonceRelatedException(e)) {</span>
+<span class="nc" id="L316">          syncNonceWithServer();</span>
+<span class="nc" id="L317">          getNonceRefreshTryCountAndInterval().trySleep();</span>
+<span class="nc" id="L318">          --i;</span>
         } else {
-<span class="nc" id="L245">          throw e;</span>
+<span class="nc" id="L320">          throw e;</span>
         }
-<span class="pc" id="L247">      }</span>
+<span class="pc" id="L322">      }</span>
     }
-<span class="fc" id="L249">    return txHash;</span>
+<span class="fc" id="L324">    return txHash;</span>
   }
 
   protected boolean isNonceRelatedException(final CommitException e) {
-<span class="nc bnc" id="L253" title="All 2 branches missed.">    return e.getCommitStatus() == CommitStatus.NONCE_TOO_LOW</span>
-<span class="nc bnc" id="L254" title="All 2 branches missed.">        || e.getCommitStatus() == CommitStatus.TX_HAS_SAME_NONCE;</span>
+<span class="nc bnc" id="L328" title="All 2 branches missed.">    return e.getCommitStatus() == CommitStatus.NONCE_TOO_LOW</span>
+<span class="nc bnc" id="L329" title="All 2 branches missed.">        || e.getCommitStatus() == CommitStatus.TX_HAS_SAME_NONCE;</span>
   }
 
   protected void syncNonceWithServer() {
-<span class="nc" id="L258">    getCurrentAccount().bindState(getCurrentAccountState());</span>
-<span class="nc" id="L259">  }</span>
+<span class="nc" id="L333">    getCurrentAccount().bindState(getCurrentAccountState());</span>
+<span class="nc" id="L334">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

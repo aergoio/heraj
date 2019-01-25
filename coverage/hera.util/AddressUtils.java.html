@@ -25,7 +25,7 @@ import java.security.PublicKey;
         (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
 <span class="fc bfc" id="L26" title="All 2 branches covered.">    rawAddress[0] = (byte) (ecPublicKey.getQ().getYCoord().toBigInteger().testBit(0) ? 0x03 : 0x02);</span>
 <span class="fc" id="L27">    final byte[] xbyteArray =</span>
-<span class="fc" id="L28">        NumberUtils.postiveToByteArray(ecPublicKey.getQ().getXCoord().toBigInteger());</span>
+<span class="fc" id="L28">        NumberUtils.positiveToByteArray(ecPublicKey.getQ().getXCoord().toBigInteger());</span>
 <span class="fc" id="L29">    System.arraycopy(xbyteArray, 0, rawAddress, rawAddress.length - xbyteArray.length,</span>
         xbyteArray.length);
 <span class="fc" id="L31">    return AccountAddress</span>

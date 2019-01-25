@@ -9,10 +9,14 @@ import hera.annotation.ApiStability;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-@FunctionalInterface
 public interface ContextProvider {
 
-<span class="fc" id="L15">  ContextProvider defaultProvider = () -&gt; EmptyContext.getInstance();</span>
+<span class="fc" id="L14">  ContextProvider defaultProvider = new ContextProvider() {</span>
+    @Override
+    public Context get() {
+<span class="fc" id="L17">      return EmptyContext.getInstance();</span>
+    }
+  };
 
   Context get();
 

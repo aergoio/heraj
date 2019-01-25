@@ -8,28 +8,29 @@ import static java.lang.System.getenv;
 import static java.util.Collections.unmodifiableMap;
 
 import hera.util.Configuration;
+import java.util.HashMap;
 import java.util.Map;
 
-<span class="fc" id="L13">public class EnvironmentConfiguration extends AbstractConfiguration implements Configuration {</span>
+<span class="fc" id="L14">public class EnvironmentConfiguration extends AbstractConfiguration implements Configuration {</span>
 
   @Override
   public Map&lt;String, Object&gt; asMap() {
-<span class="fc" id="L17">    return unmodifiableMap(getenv());</span>
+<span class="fc" id="L18">    return unmodifiableMap(new HashMap&lt;String, Object&gt;(getenv()));</span>
   }
 
   @Override
   public void define(final String key, final Object value) {
-<span class="fc" id="L22">    throw new UnsupportedOperationException(&quot;OS Environment could NOT be changed&quot;);</span>
+<span class="fc" id="L23">    throw new UnsupportedOperationException(&quot;OS Environment could NOT be changed&quot;);</span>
   }
 
   @Override
   public Object getValue(final String key) {
-<span class="fc" id="L27">    return getenv(key);</span>
+<span class="fc" id="L28">    return getenv(key);</span>
   }
 
   @Override
   public void remove(final String key) {
-<span class="nc" id="L32">    throw new UnsupportedOperationException(&quot;OS Environment could NOT be changed&quot;);</span>
+<span class="nc" id="L33">    throw new UnsupportedOperationException(&quot;OS Environment could NOT be changed&quot;);</span>
   }
 
 }

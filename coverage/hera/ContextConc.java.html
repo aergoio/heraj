@@ -12,7 +12,6 @@ import hera.annotation.ApiStability;
 import hera.util.Configuration;
 import hera.util.conf.InMemoryConfiguration;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -21,154 +20,158 @@ import org.slf4j.Logger;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="fc" id="L24">@ToString(exclude = {&quot;logger&quot;, &quot;parent&quot;})</span>
-<span class="nc bnc" id="L25" title="All 28 branches missed.">@EqualsAndHashCode(exclude = {&quot;logger&quot;, &quot;parent&quot;})</span>
+<span class="fc" id="L23">@ToString(exclude = {&quot;logger&quot;, &quot;parent&quot;})</span>
+<span class="nc bnc" id="L24" title="All 28 branches missed.">@EqualsAndHashCode(exclude = {&quot;logger&quot;, &quot;parent&quot;})</span>
 public final class ContextConc implements Context {
 
-<span class="fc" id="L28">  protected final Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L27">  protected final Logger logger = getLogger(getClass());</span>
 
   protected final Context parent;
 
-<span class="fc" id="L32">  @Getter</span>
+<span class="fc" id="L31">  @Getter</span>
   protected final String scope;
 
-<span class="fc" id="L35">  @Getter</span>
+<span class="fc" id="L34">  @Getter</span>
   protected final Configuration configuration;
 
   protected final Set&lt;Strategy&gt; strategies;
 
   protected ContextConc(final Context parent, final String scope,
-<span class="fc" id="L41">      final Configuration configuration, final Set&lt;Strategy&gt; strageties) {</span>
-<span class="fc" id="L42">    this.parent = parent;</span>
-<span class="fc" id="L43">    this.scope = scope;</span>
-<span class="pc bpc" id="L44" title="1 of 2 branches missed.">    this.configuration = (configuration instanceof InMemoryConfiguration</span>
-<span class="fc bfc" id="L45" title="All 2 branches covered.">        &amp;&amp; ((InMemoryConfiguration) configuration).isReadOnly()) ? configuration</span>
+<span class="fc" id="L40">      final Configuration configuration, final Set&lt;Strategy&gt; strageties) {</span>
+<span class="fc" id="L41">    this.parent = parent;</span>
+<span class="fc" id="L42">    this.scope = scope;</span>
+<span class="pc bpc" id="L43" title="1 of 2 branches missed.">    this.configuration = (configuration instanceof InMemoryConfiguration</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        &amp;&amp; ((InMemoryConfiguration) configuration).isReadOnly()) ? configuration</span>
             : new InMemoryConfiguration(true, configuration);
-<span class="fc" id="L47">    this.strategies = unmodifiableSet(strageties);</span>
-<span class="fc" id="L48">  }</span>
+<span class="fc" id="L46">    this.strategies = unmodifiableSet(strageties);</span>
+<span class="fc" id="L47">  }</span>
 
   @Override
   public Context withScope(final String scope) {
-<span class="fc" id="L52">    logger.debug(&quot;New scope: {}&quot;, scope);</span>
-<span class="fc" id="L53">    Context newContext = null;</span>
-<span class="fc bfc" id="L54" title="All 2 branches covered.">    if (isScopeBase()) {</span>
-<span class="fc" id="L55">      newContext = new ContextConc(this, scope, this.configuration, this.strategies);</span>
+<span class="fc" id="L51">    logger.debug(&quot;New scope: {}&quot;, scope);</span>
+<span class="fc" id="L52">    Context newContext = null;</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">    if (isScopeBase()) {</span>
+<span class="fc" id="L54">      newContext = new ContextConc(this, scope, this.configuration, this.strategies);</span>
     } else {
-<span class="fc" id="L57">      final Context newScopeBase = getScopeBase().withScope(scope);</span>
-<span class="fc" id="L58">      newContext = new ContextConc(newScopeBase, scope, this.configuration, this.strategies);</span>
+<span class="fc" id="L56">      final Context newScopeBase = getScopeBase().withScope(scope);</span>
+<span class="fc" id="L57">      newContext = new ContextConc(newScopeBase, scope, this.configuration, this.strategies);</span>
     }
-<span class="fc" id="L60">    logger.debug(&quot;New context: {}&quot;, newContext);</span>
-<span class="fc" id="L61">    return newContext;</span>
+<span class="fc" id="L59">    logger.debug(&quot;New context: {}&quot;, newContext);</span>
+<span class="fc" id="L60">    return newContext;</span>
   }
 
   @Override
   public Context popScope() {
-<span class="fc" id="L66">    logger.debug(&quot;Pop scope: {}&quot;, getScope());</span>
-<span class="fc" id="L67">    Context newContext = null;</span>
-<span class="pc bpc" id="L68" title="1 of 2 branches missed.">    if (isScopeBase()) {</span>
-<span class="fc" id="L69">      newContext = this.parent;</span>
+<span class="fc" id="L65">    logger.debug(&quot;Pop scope: {}&quot;, getScope());</span>
+<span class="fc" id="L66">    Context newContext = null;</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">    if (isScopeBase()) {</span>
+<span class="fc" id="L68">      newContext = this.parent;</span>
     } else {
-<span class="nc" id="L71">      final Context scopeParent = getScopeParent();</span>
-<span class="nc" id="L72">      newContext = new ContextConc(scopeParent,</span>
-<span class="nc" id="L73">          scopeParent.getScope(), this.configuration, this.strategies);</span>
+<span class="nc" id="L70">      final Context scopeParent = getScopeParent();</span>
+<span class="nc" id="L71">      newContext = new ContextConc(scopeParent,</span>
+<span class="nc" id="L72">          scopeParent.getScope(), this.configuration, this.strategies);</span>
     }
-<span class="fc" id="L75">    logger.debug(&quot;New context: {}&quot;, newContext);</span>
-<span class="fc" id="L76">    return newContext;</span>
+<span class="fc" id="L74">    logger.debug(&quot;New context: {}&quot;, newContext);</span>
+<span class="fc" id="L75">    return newContext;</span>
   }
 
   protected Context getScopeBase() {
-<span class="pc bpc" id="L80" title="1 of 2 branches missed.">    return isScopeBase() ? this : this.parent;</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">    return isScopeBase() ? this : this.parent;</span>
   }
 
   protected Context getScopeParent() {
-<span class="pc bpc" id="L84" title="1 of 2 branches missed.">    return isScopeBase() ? this.parent : ((ContextConc) this.parent).parent;</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">    return isScopeBase() ? this.parent : ((ContextConc) this.parent).parent;</span>
   }
 
   protected boolean isScopeBase() {
-<span class="fc bfc" id="L88" title="All 4 branches covered.">    return this.configuration.asMap().isEmpty() &amp;&amp; this.strategies.isEmpty();</span>
+<span class="fc bfc" id="L87" title="All 4 branches covered.">    return this.configuration.asMap().isEmpty() &amp;&amp; this.strategies.isEmpty();</span>
   }
 
   @Override
   public Context withKeyValue(final String key, final Object value) {
-<span class="fc" id="L93">    logger.debug(&quot;Define key: {}, value: {}&quot;, key, value);</span>
-<span class="fc" id="L94">    final Configuration newConfiguration = new InMemoryConfiguration(this.getConfiguration());</span>
-<span class="fc" id="L95">    newConfiguration.define(key, value);</span>
-<span class="fc" id="L96">    return withConfiguration(newConfiguration);</span>
+<span class="fc" id="L92">    logger.debug(&quot;Define key: {}, value: {}&quot;, key, value);</span>
+<span class="fc" id="L93">    final Configuration newConfiguration = new InMemoryConfiguration(this.getConfiguration());</span>
+<span class="fc" id="L94">    newConfiguration.define(key, value);</span>
+<span class="fc" id="L95">    return withConfiguration(newConfiguration);</span>
   }
 
   @Override
   public Context withConfiguration(final Configuration configuration) {
-<span class="fc" id="L101">    logger.debug(&quot;New configuration: {}&quot;, configuration);</span>
-<span class="fc" id="L102">    final ContextConc newContext =</span>
+<span class="fc" id="L100">    logger.debug(&quot;New configuration: {}&quot;, configuration);</span>
+<span class="fc" id="L101">    final ContextConc newContext =</span>
         new ContextConc(this.parent, this.scope, configuration, this.strategies);
-<span class="fc" id="L104">    logger.debug(&quot;New context: {}&quot;, newContext);</span>
-<span class="fc" id="L105">    return newContext;</span>
+<span class="fc" id="L103">    logger.debug(&quot;New context: {}&quot;, newContext);</span>
+<span class="fc" id="L104">    return newContext;</span>
   }
 
   @Override
   public Context withoutKey(final String key) {
-<span class="fc" id="L110">    logger.debug(&quot;Remove key: {}&quot;, key);</span>
-<span class="pc bpc" id="L111" title="1 of 2 branches missed.">    if (null == getConfiguration().get(key)) {</span>
-<span class="nc" id="L112">      return this;</span>
+<span class="fc" id="L109">    logger.debug(&quot;Remove key: {}&quot;, key);</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">    if (null == getConfiguration().get(key)) {</span>
+<span class="nc" id="L111">      return this;</span>
     }
-<span class="fc" id="L114">    final Configuration newConfiguration = new InMemoryConfiguration(this.getConfiguration());</span>
-<span class="fc" id="L115">    newConfiguration.remove(key);;</span>
-<span class="fc" id="L116">    final ContextConc newContext =</span>
+<span class="fc" id="L113">    final Configuration newConfiguration = new InMemoryConfiguration(this.getConfiguration());</span>
+<span class="fc" id="L114">    newConfiguration.remove(key);;</span>
+<span class="fc" id="L115">    final ContextConc newContext =</span>
         new ContextConc(this.parent, this.scope, newConfiguration, this.strategies);
-<span class="fc" id="L118">    logger.debug(&quot;New context: {}&quot;, newContext);</span>
-<span class="fc" id="L119">    return newContext;</span>
+<span class="fc" id="L117">    logger.debug(&quot;New context: {}&quot;, newContext);</span>
+<span class="fc" id="L118">    return newContext;</span>
   }
 
   @Override
   public &lt;StrategyT extends Strategy&gt; Context withStrategy(final StrategyT strategy) {
-<span class="fc" id="L124">    logger.debug(&quot;New strategy: {}&quot;, strategy);</span>
-<span class="fc" id="L125">    final Set&lt;Strategy&gt; newStrategies = new HashSet&lt;&gt;(this.strategies);</span>
-<span class="pc bpc" id="L126" title="1 of 2 branches missed.">    if (newStrategies.contains(strategy)) {</span>
-<span class="nc" id="L127">      newStrategies.remove(strategy);</span>
+<span class="fc" id="L123">    logger.debug(&quot;New strategy: {}&quot;, strategy);</span>
+<span class="fc" id="L124">    final Set&lt;Strategy&gt; newStrategies = new HashSet&lt;Strategy&gt;(this.strategies);</span>
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">    if (newStrategies.contains(strategy)) {</span>
+<span class="nc" id="L126">      newStrategies.remove(strategy);</span>
     }
-<span class="fc" id="L129">    newStrategies.add(strategy);</span>
-<span class="fc" id="L130">    return withStrategies(newStrategies);</span>
+<span class="fc" id="L128">    newStrategies.add(strategy);</span>
+<span class="fc" id="L129">    return withStrategies(newStrategies);</span>
   }
 
   @Override
   public Context withStrategies(final Set&lt;Strategy&gt; strategies) {
-<span class="fc" id="L135">    logger.debug(&quot;New strategies: {}&quot;, strategies);</span>
-<span class="fc" id="L136">    final ContextConc newContext =</span>
+<span class="fc" id="L134">    logger.debug(&quot;New strategies: {}&quot;, strategies);</span>
+<span class="fc" id="L135">    final ContextConc newContext =</span>
         new ContextConc(this.parent, this.scope, this.configuration, strategies);
-<span class="fc" id="L138">    logger.debug(&quot;New context: {}&quot;, newContext);</span>
-<span class="fc" id="L139">    return newContext;</span>
+<span class="fc" id="L137">    logger.debug(&quot;New context: {}&quot;, newContext);</span>
+<span class="fc" id="L138">    return newContext;</span>
   }
 
   @SuppressWarnings(&quot;unchecked&quot;)
   @Override
-  public &lt;StrategyT extends Strategy&gt; Optional&lt;StrategyT&gt; getStrategy(
+  public &lt;StrategyT extends Strategy&gt; StrategyT getStrategy(
       final Class&lt;StrategyT&gt; strategyClass) {
-<span class="fc" id="L146">    StrategyT ret = null;</span>
-<span class="fc bfc" id="L147" title="All 2 branches covered.">    for (final Strategy strategy : getStrategies()) {</span>
-<span class="fc bfc" id="L148" title="All 2 branches covered.">      if (strategyClass.isInstance(strategy)) {</span>
-<span class="fc" id="L149">        ret = (StrategyT) strategy;</span>
-<span class="fc" id="L150">        break;</span>
+<span class="fc" id="L145">    StrategyT ret = null;</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">    for (final Strategy strategy : getStrategies()) {</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">      if (strategyClass.isInstance(strategy)) {</span>
+<span class="fc" id="L148">        ret = (StrategyT) strategy;</span>
+<span class="fc" id="L149">        break;</span>
       }
-<span class="fc" id="L152">    }</span>
-<span class="fc" id="L153">    return (Optional&lt;StrategyT&gt;) Optional.ofNullable(ret);</span>
+<span class="fc" id="L151">    }</span>
+<span class="fc" id="L152">    return ret;</span>
   }
 
   @Override
   public &lt;StrategyT extends Strategy&gt; Context withoutStrategy(final Class&lt;StrategyT&gt; strategy) {
-<span class="fc" id="L158">    final Set&lt;Strategy&gt; newStrategies = new HashSet&lt;&gt;(this.strategies);</span>
-<span class="fc" id="L159">    this.strategies.stream().filter(strategy::isInstance).forEach(newStrategies::remove);</span>
-<span class="fc" id="L160">    return new ContextConc(this.parent, this.scope, this.configuration, newStrategies);</span>
+<span class="fc" id="L157">    final Set&lt;Strategy&gt; newStrategies = new HashSet&lt;Strategy&gt;(this.strategies);</span>
+<span class="fc bfc" id="L158" title="All 2 branches covered.">    for (final Strategy oldStrategy : this.strategies) {</span>
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">      if (strategy.isInstance(oldStrategy)) {</span>
+<span class="fc" id="L160">        newStrategies.remove(oldStrategy);</span>
+      }
+<span class="fc" id="L162">    }</span>
+<span class="fc" id="L163">    return new ContextConc(this.parent, this.scope, this.configuration, newStrategies);</span>
   }
 
   @Override
   public Set&lt;Strategy&gt; getStrategies() {
-<span class="fc" id="L165">    final Set&lt;Strategy&gt; strategies = new HashSet&lt;&gt;(this.strategies);</span>
-<span class="fc bfc" id="L166" title="All 2 branches covered.">    for (final Strategy strategy : strategies) {</span>
-<span class="fc bfc" id="L167" title="All 2 branches covered.">      if (strategy instanceof ContextAware) {</span>
-<span class="fc" id="L168">        ((ContextAware) strategy).setContext(this);</span>
+<span class="fc" id="L168">    final Set&lt;Strategy&gt; strategies = new HashSet&lt;Strategy&gt;(this.strategies);</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">    for (final Strategy strategy : strategies) {</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">      if (strategy instanceof ContextAware) {</span>
+<span class="fc" id="L171">        ((ContextAware) strategy).setContext(this);</span>
       }
-<span class="fc" id="L170">    }</span>
-<span class="fc" id="L171">    return strategies;</span>
+<span class="fc" id="L173">    }</span>
+<span class="fc" id="L174">    return strategies;</span>
   }
 
 }

@@ -17,7 +17,7 @@ import hera.exception.DecodingFailureException.Format;
    * @return base58 encoded string
    */
   public static String encodeBase58(final BytesValue bytesValue) {
-<span class="pc bpc" id="L20" title="2 of 4 branches missed.">    return (null != bytesValue &amp;&amp; !bytesValue.isEmpty()) ? Base58Utils.encode(bytesValue.getValue())</span>
+<span class="pc bpc" id="L20" title="1 of 4 branches missed.">    return (null != bytesValue &amp;&amp; !bytesValue.isEmpty()) ? Base58Utils.encode(bytesValue.getValue())</span>
         : &quot;&quot;;
   }
 
@@ -43,8 +43,8 @@ import hera.exception.DecodingFailureException.Format;
    * @return base58 with checksum encoded string
    */
   public static String encodeBase58WithCheck(final BytesValue bytesValue) {
-<span class="pc bpc" id="L46" title="2 of 4 branches missed.">    return (null != bytesValue &amp;&amp; !bytesValue.isEmpty())</span>
-<span class="pc" id="L47">        ? Base58Utils.encodeWithCheck(bytesValue.getValue())</span>
+<span class="pc bpc" id="L46" title="1 of 4 branches missed.">    return (null != bytesValue &amp;&amp; !bytesValue.isEmpty())</span>
+<span class="fc" id="L47">        ? Base58Utils.encodeWithCheck(bytesValue.getValue())</span>
         : &quot;&quot;;
   }
 

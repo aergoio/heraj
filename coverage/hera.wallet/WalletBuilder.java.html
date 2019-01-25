@@ -50,21 +50,15 @@ import java.util.concurrent.TimeUnit;
   }
 
   @Override
-  public WalletBuilder withTracking() {
-<span class="fc" id="L54">    clientBuilder.withTracking();</span>
+  public WalletBuilder withTimeout(final long timeout, final TimeUnit unit) {
+<span class="fc" id="L54">    clientBuilder.withTimeout(timeout, unit);</span>
 <span class="fc" id="L55">    return this;</span>
   }
 
   @Override
-  public WalletBuilder withTimeout(final long timeout, final TimeUnit unit) {
-<span class="fc" id="L60">    clientBuilder.withTimeout(timeout, unit);</span>
-<span class="fc" id="L61">    return this;</span>
-  }
-
-  @Override
   public WalletBuilder withRetry(final int count, final long interval, final TimeUnit unit) {
-<span class="fc" id="L66">    clientBuilder.withRetry(count, interval, unit);</span>
-<span class="fc" id="L67">    return this;</span>
+<span class="fc" id="L60">    clientBuilder.withRetry(count, interval, unit);</span>
+<span class="fc" id="L61">    return this;</span>
   }
 
   /**
@@ -76,9 +70,9 @@ import java.util.concurrent.TimeUnit;
    * @return an instance of this
    */
   public WalletBuilder withNonceRefresh(final int count, final long interval, final TimeUnit unit) {
-<span class="pc bpc" id="L79" title="2 of 4 branches missed.">    this.nonceRefreshTryInterval =</span>
-<span class="fc" id="L80">        TryCountAndInterval.of(count &lt;= 0 ? 1 : count, Time.of(interval &lt;= 0 ? 1 : interval, unit));</span>
-<span class="fc" id="L81">    return this;</span>
+<span class="pc bpc" id="L73" title="2 of 4 branches missed.">    this.nonceRefreshTryInterval =</span>
+<span class="fc" id="L74">        TryCountAndInterval.of(count &lt;= 0 ? 1 : count, Time.of(interval &lt;= 0 ? 1 : interval, unit));</span>
+<span class="fc" id="L75">    return this;</span>
   }
 
   /**
@@ -89,19 +83,19 @@ import java.util.concurrent.TimeUnit;
    * @throws WalletCreationException if wallet type is invalid
    */
   public Wallet build(final WalletType type) {
-<span class="pc bpc" id="L92" title="1 of 2 branches missed.">    if (null == type) {</span>
-<span class="nc" id="L93">      throw new WalletCreationException(&quot;Unrecognized wallet type&quot;);</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">    if (null == type) {</span>
+<span class="nc" id="L87">      throw new WalletCreationException(&quot;Unrecognized wallet type&quot;);</span>
     }
-<span class="fc" id="L95">    final AergoClient aergoClient = clientBuilder.build();</span>
-<span class="pc bpc" id="L96" title="2 of 4 branches missed.">    switch (type) {</span>
+<span class="fc" id="L89">    final AergoClient aergoClient = clientBuilder.build();</span>
+<span class="pc bpc" id="L90" title="2 of 4 branches missed.">    switch (type) {</span>
       case Naive:
-<span class="fc" id="L98">        return new NaiveWallet(aergoClient, nonceRefreshTryInterval);</span>
+<span class="fc" id="L92">        return new NaiveWallet(aergoClient, nonceRefreshTryInterval);</span>
       case Secure:
-<span class="nc" id="L100">        return new SecureWallet(aergoClient, nonceRefreshTryInterval);</span>
+<span class="nc" id="L94">        return new SecureWallet(aergoClient, nonceRefreshTryInterval);</span>
       case ServerKeyStore:
-<span class="fc" id="L102">        return new ServerKeyStoreWallet(aergoClient, nonceRefreshTryInterval);</span>
+<span class="fc" id="L96">        return new ServerKeyStoreWallet(aergoClient, nonceRefreshTryInterval);</span>
       default:
-<span class="nc" id="L104">        throw new WalletCreationException(&quot;Unrecognized wallet type&quot;);</span>
+<span class="nc" id="L98">        throw new WalletCreationException(&quot;Unrecognized wallet type&quot;);</span>
     }
   }
 

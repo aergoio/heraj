@@ -6,240 +6,176 @@ package hera.util;
 
 import static hera.util.ObjectUtils.equal;
 
-import java.util.function.Supplier;
+<span class="nc" id="L9">public class ValidationUtils {</span>
 
-<span class="nc" id="L11">public class ValidationUtils {</span>
   /**
    * assert that {@code value} is {@code true}.
    * &lt;p&gt;
-   *   throw {@link RuntimeException} for {@code supplier} to create if not {@code true}.
+   * throw {@code th} if not {@code true}.
    * &lt;/p&gt;
-   * @param value    value to check
-   * @param supplier supplier to create exception
+   * 
+   * @param value value to check
+   * @param th exception to throw
    */
-  public static void assertTrue(final boolean value, final Supplier&lt;RuntimeException&gt; supplier) {
+  public static void assertTrue(final boolean value, final RuntimeException th) {
 <span class="fc bfc" id="L21" title="All 2 branches covered.">    if (!value) {</span>
-<span class="fc" id="L22">      throw supplier.get();</span>
+<span class="fc" id="L22">      throw th;</span>
     }
 <span class="fc" id="L24">  }</span>
 
   /**
    * assert that {@code value} is {@code true}.
    * &lt;p&gt;
-   *   throw {@code th} if not {@code true}.
+   * throw {@link AssertionError} containing @{code message} if not {@code true}.
    * &lt;/p&gt;
+   * 
    * @param value value to check
-   * @param th    exception to throw
-   */
-  public static void assertTrue(final boolean value, final RuntimeException th) {
-<span class="fc" id="L35">    assertTrue(value, () -&gt; th);</span>
-<span class="fc" id="L36">  }</span>
-
-  /**
-   * assert that {@code value} is {@code true}.
-   * &lt;p&gt;
-   *   throw {@link AssertionError} containing @{code message} if not {@code true}.
-   * &lt;/p&gt;
-   * @param value   value to check
    * @param message message which exception contains
    */
   public static void assertTrue(final boolean value, final String message) {
-<span class="fc bfc" id="L47" title="All 2 branches covered.">    if (!value) {</span>
-<span class="fc" id="L48">      throw new AssertionError(message);</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">    if (!value) {</span>
+<span class="fc" id="L37">      throw new AssertionError(message);</span>
     }
-<span class="fc" id="L50">  }</span>
+<span class="fc" id="L39">  }</span>
 
   /**
    * assert that {@code value} is {@code true}.
    * &lt;p&gt;
-   *   throw {@link AssertionError} if not {@code true}.
+   * throw {@link AssertionError} if not {@code true}.
    * &lt;/p&gt;
+   * 
    * @param value value to check
    */
   public static void assertTrue(final boolean value) {
-<span class="fc" id="L60">    assertTrue(value, &quot;Expression must be true.&quot;);</span>
-<span class="fc" id="L61">  }</span>
+<span class="fc" id="L50">    assertTrue(value, &quot;Expression must be true.&quot;);</span>
+<span class="fc" id="L51">  }</span>
 
   /**
    * assert that {@code value} is {@code false}.
    * &lt;p&gt;
-   *   throw {@link RuntimeException} for {@code supplier} to create if not {@code false}.
-   * &lt;/p&gt;
-   *
-   * @param value    value to check
-   * @param supplier supplier to create exception
-   */
-  public static void assertFalse(final boolean value, final Supplier&lt;RuntimeException&gt; supplier) {
-<span class="pc bpc" id="L73" title="1 of 2 branches missed.">    if (value) {</span>
-<span class="fc" id="L74">      throw supplier.get();</span>
-    }
-<span class="nc" id="L76">  }</span>
-
-  /**
-   * assert that {@code value} is {@code false}.
-   * &lt;p&gt;
-   *   throw {@code th} if not {@code false}.
+   * throw {@code th} if not {@code false}.
    * &lt;/p&gt;
    *
    * @param value value to check
-   * @param th    exception to throw
+   * @param th exception to throw
    */
   public static void assertFalse(final boolean value, final RuntimeException th) {
-<span class="pc" id="L88">    assertFalse(value, () -&gt; th);</span>
-<span class="nc" id="L89">  }</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">    if (value) {</span>
+<span class="fc" id="L64">      throw th;</span>
+    }
+<span class="nc" id="L66">  }</span>
 
   /**
    * assert that {@code value} is {@code false}.
    * &lt;p&gt;
-   *   throw {@link AssertionError} containing @{code message} if not {@code false}.
+   * throw {@link AssertionError} containing @{code message} if not {@code false}.
    * &lt;/p&gt;
-   * @param value   value to check
+   * 
+   * @param value value to check
    * @param message message which exception contains
    */
   public static void assertFalse(final boolean value, final String message) {
-<span class="fc bfc" id="L100" title="All 2 branches covered.">    if (value) {</span>
-<span class="fc" id="L101">      throw new AssertionError(message);</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">    if (value) {</span>
+<span class="fc" id="L79">      throw new AssertionError(message);</span>
     }
-<span class="fc" id="L103">  }</span>
+<span class="fc" id="L81">  }</span>
 
   /**
    * assert that {@code value} is {@code false}.
    * &lt;p&gt;
-   *   throw {@link AssertionError} if not {@code false}.
+   * throw {@link AssertionError} if not {@code false}.
    * &lt;/p&gt;
+   * 
    * @param value value to check
    */
   public static void assertFalse(final boolean value) {
-<span class="fc" id="L113">    assertFalse(value, &quot;Expression must be false&quot;);</span>
-<span class="fc" id="L114">  }</span>
+<span class="fc" id="L92">    assertFalse(value, &quot;Expression must be false&quot;);</span>
+<span class="fc" id="L93">  }</span>
 
   /**
    * assert that {@code obj} is null.
    * &lt;p&gt;
-   *   throw {@link RuntimeException} for {@code supplier} to create if {@code obj} is not null
+   * throw {@code th} if {@code obj} is not null
    * &lt;/p&gt;
-   *
+   * 
    * @param obj object to check
-   *
-   * @param supplier supplier to create {@link RuntimeException}
-   */
-  public static void assertNull(final Object obj, final Supplier&lt;RuntimeException&gt; supplier) {
-<span class="pc bpc" id="L127" title="1 of 2 branches missed.">    assertTrue(null == obj, supplier);</span>
-<span class="nc" id="L128">  }</span>
-
-  /**
-   * assert that {@code obj} is null.
-   * &lt;p&gt;
-   *   throw {@code th} if {@code obj} is not null
-   * &lt;/p&gt;
-   * @param obj   object to check
    * @param error exception to throw
    */
   public static void assertNull(final Object obj, final RuntimeException error) {
-<span class="pc bpc" id="L139" title="1 of 2 branches missed.">    assertTrue(null == obj, error);</span>
-<span class="nc" id="L140">  }</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">    assertTrue(null == obj, error);</span>
+<span class="nc" id="L106">  }</span>
 
   /**
    * assert that {@code obj} is null.
    * &lt;p&gt;
-   *   throw {@link AssertionError} containing {@code message} if {@code obj} is not null.
+   * throw {@link AssertionError} containing {@code message} if {@code obj} is not null.
    * &lt;/p&gt;
    *
-   * @param obj     object to check
+   * @param obj object to check
    * @param message message which exception contains
    */
   public static void assertNull(final Object obj, final String message) {
-<span class="fc bfc" id="L152" title="All 2 branches covered.">    assertTrue(null == obj, message);</span>
-<span class="fc" id="L153">  }</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">    assertTrue(null == obj, message);</span>
+<span class="fc" id="L119">  }</span>
 
   /**
    * assert that {@code obj} is null.
    * &lt;p&gt;
-   *   throw {@link AssertionError} if {@code obj} is not null.
+   * throw {@link AssertionError} if {@code obj} is not null.
    * &lt;/p&gt;
+   * 
    * @param obj object to check
    */
   public static void assertNull(final Object obj) {
-<span class="fc" id="L163">    assertNull(obj, &quot;The object must be null&quot;);</span>
-<span class="fc" id="L164">  }</span>
+<span class="fc" id="L130">    assertNull(obj, &quot;The object must be null&quot;);</span>
+<span class="fc" id="L131">  }</span>
 
   /**
    * assert that {@code obj} is not null.
    * &lt;p&gt;
-   *   throw {@link RuntimeException} for {@code supplier} to create if {@code obj} is null.
+   * throw {@code error} if {@code obj} is null.
    * &lt;/p&gt;
-   *
+   * 
    * @param obj object to check
-   *
-   * @param supplier supplier to create {@link RuntimeException}
-   */
-  public static void assertNotNull(final Object obj, final Supplier&lt;RuntimeException&gt; supplier) {
-<span class="pc bpc" id="L177" title="1 of 2 branches missed.">    assertTrue(null != obj, supplier);</span>
-<span class="nc" id="L178">  }</span>
-
-  /**
-   * assert that {@code obj} is not null.
-   * &lt;p&gt;
-   *   throw {@code error} if {@code obj} is null.
-   * &lt;/p&gt;
-   * @param obj   object to check
    * @param error exception to throw
    */
   public static void assertNotNull(final Object obj, final RuntimeException error) {
-<span class="fc bfc" id="L189" title="All 2 branches covered.">    assertTrue(null != obj, error);</span>
-<span class="fc" id="L190">  }</span>
+<span class="fc bfc" id="L143" title="All 2 branches covered.">    assertTrue(null != obj, error);</span>
+<span class="fc" id="L144">  }</span>
 
   /**
    * assert that {@code obj} is not null.
    * &lt;p&gt;
-   *   throw {@link AssertionError} containing {@code message} if {@code obj} is null.
+   * throw {@link AssertionError} containing {@code message} if {@code obj} is null.
    * &lt;/p&gt;
    *
-   * @param obj     object to check
+   * @param obj object to check
    * @param message message which exception contains
    */
   public static void assertNotNull(final Object obj, final String message) {
-<span class="fc bfc" id="L202" title="All 2 branches covered.">    assertTrue(null != obj, message);</span>
-<span class="fc" id="L203">  }</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">    assertTrue(null != obj, message);</span>
+<span class="fc" id="L157">  }</span>
 
   /**
    * assert that {@code obj} is not null.
    * &lt;p&gt;
-   *   throw {@link AssertionError} if {@code obj} is null.
+   * throw {@link AssertionError} if {@code obj} is null.
    * &lt;/p&gt;
+   * 
    * @param obj object to check
    */
   public static void assertNotNull(final Object obj) {
-<span class="fc" id="L213">    assertNotNull(obj, &quot;The object must not be null&quot;);</span>
-<span class="fc" id="L214">  }</span>
+<span class="fc" id="L168">    assertNotNull(obj, &quot;The object must not be null&quot;);</span>
+<span class="fc" id="L169">  }</span>
 
   /**
    * Assert that {@code obj1} is equal to {@code obj2}.
    * &lt;p&gt;
-   *   throw {@link RuntimeException} for {@code supplier} to create if {@code obj1} is not equal
-   *   to {@code obj2}.
+   * throw {@code error} if {@code obj1} is not equal to {@code obj2}.
    * &lt;/p&gt;
    *
-   * @param obj1      object1 to check
-   * @param obj2      object2 to check
-   * @param supplier  supplier to create {@link RuntimeException}
-   */
-  public static void assertEquals(
-      final Object obj1,
-      final Object obj2,
-      final Supplier&lt;RuntimeException&gt; supplier) {
-
-<span class="nc" id="L232">    assertTrue(equal(obj1, obj2), supplier);</span>
-<span class="nc" id="L233">  }</span>
-
-  /**
-   * Assert that {@code obj1} is equal to {@code obj2}.
-   * &lt;p&gt;
-   *   throw {@code error} if {@code obj1} is not equal to {@code obj2}.
-   * &lt;/p&gt;
-   *
-   * @param obj1  object1 to check
-   * @param obj2  object2 to check
+   * @param obj1 object1 to check
+   * @param obj2 object2 to check
    * @param error exception to throw
    */
   public static void assertEquals(
@@ -247,69 +183,50 @@ import java.util.function.Supplier;
       final Object obj2,
       final RuntimeException error) {
 
-<span class="nc" id="L250">    assertTrue(equal(obj1, obj2), error);</span>
-<span class="nc" id="L251">  }</span>
+<span class="nc" id="L186">    assertTrue(equal(obj1, obj2), error);</span>
+<span class="nc" id="L187">  }</span>
 
   /**
    * Assert that {@code obj1} is equal to {@code obj2}.
    * &lt;p&gt;
-   *   throw {@link AssertionError} containing {@code message} if {@code obj1} is not equal to
-   *   {@code obj2}.
+   * throw {@link AssertionError} containing {@code message} if {@code obj1} is not equal to
+   * {@code obj2}.
    * &lt;/p&gt;
    *
-   * @param obj1    object1 to check
-   * @param obj2    object2 to check
+   * @param obj1 object1 to check
+   * @param obj2 object2 to check
    * @param message message which exception contains
    */
   public static void assertEquals(
       final Object obj1,
       final Object obj2,
       final String message) {
-<span class="fc" id="L268">    assertTrue(equal(obj1, obj2), message);</span>
-<span class="fc" id="L269">  }</span>
+<span class="fc" id="L204">    assertTrue(equal(obj1, obj2), message);</span>
+<span class="fc" id="L205">  }</span>
 
   /**
    * Assert that {@code obj1} is equal to {@code obj2}.
    * &lt;p&gt;
-   *   throw {@link AssertionError} if {@code obj1} is not equal to {@code obj2}.
+   * throw {@link AssertionError} if {@code obj1} is not equal to {@code obj2}.
    * &lt;/p&gt;
    *
-   * @param obj1    object1 to check
-   * @param obj2    object2 to check
+   * @param obj1 object1 to check
+   * @param obj2 object2 to check
    */
   public static void assertEquals(
       final Object obj1,
       final Object obj2) {
-<span class="fc" id="L283">    assertEquals(obj1, obj2, obj1 + &quot; expected but &quot; + obj2);</span>
-<span class="fc" id="L284">  }</span>
+<span class="fc" id="L219">    assertEquals(obj1, obj2, obj1 + &quot; expected but &quot; + obj2);</span>
+<span class="fc" id="L220">  }</span>
 
   /**
    * Assert that {@code obj1} is not equal to {@code obj2}.
    * &lt;p&gt;
-   *   throw {@link RuntimeException} for {@code supplier} to create if {@code obj1} is equal
-   *   to {@code obj2}.
+   * throw {@code error} if {@code obj1} is equal to {@code obj2}.
    * &lt;/p&gt;
    *
-   * @param obj1      object1 to check
-   * @param obj2      object2 to check
-   * @param supplier  supplier to create {@link RuntimeException}
-   */
-  public static void assertNotEquals(
-      final Object obj1,
-      final Object obj2,
-      final Supplier&lt;RuntimeException&gt; supplier) {
-
-<span class="nc" id="L302">    assertFalse(equal(obj1, obj2), supplier);</span>
-<span class="nc" id="L303">  }</span>
-
-  /**
-   * Assert that {@code obj1} is not equal to {@code obj2}.
-   * &lt;p&gt;
-   *   throw {@code error} if {@code obj1} is equal to {@code obj2}.
-   * &lt;/p&gt;
-   *
-   * @param obj1  object1 to check
-   * @param obj2  object2 to check
+   * @param obj1 object1 to check
+   * @param obj2 object2 to check
    * @param error exception to throw
    */
   public static void assertNotEquals(
@@ -317,18 +234,18 @@ import java.util.function.Supplier;
       final Object obj2,
       final RuntimeException error) {
 
-<span class="nc" id="L320">    assertFalse(equal(obj1, obj2), error);</span>
-<span class="nc" id="L321">  }</span>
+<span class="nc" id="L237">    assertFalse(equal(obj1, obj2), error);</span>
+<span class="nc" id="L238">  }</span>
 
   /**
    * Assert that {@code obj1} is not equal to {@code obj2}.
    * &lt;p&gt;
-   *   throw {@link AssertionError} containing {@code message} if {@code obj1} is equal to
-   *   {@code obj2}.
+   * throw {@link AssertionError} containing {@code message} if {@code obj1} is equal to
+   * {@code obj2}.
    * &lt;/p&gt;
    *
-   * @param obj1    object1 to check
-   * @param obj2    object2 to check
+   * @param obj1 object1 to check
+   * @param obj2 object2 to check
    * @param message message which exception contains
    */
   public static void assertNotEquals(
@@ -336,22 +253,22 @@ import java.util.function.Supplier;
       final Object obj2,
       final String message) {
 
-<span class="fc" id="L339">    assertFalse(equal(obj1, obj2), message);</span>
-<span class="fc" id="L340">  }</span>
+<span class="fc" id="L256">    assertFalse(equal(obj1, obj2), message);</span>
+<span class="fc" id="L257">  }</span>
 
   /**
    * Assert that {@code obj1} is not equal to {@code obj2}.
    * &lt;p&gt;
-   *   throw {@link AssertionError} if {@code obj1} is equal to {@code obj2}.
+   * throw {@link AssertionError} if {@code obj1} is equal to {@code obj2}.
    * &lt;/p&gt;
    *
-   * @param obj1    object1 to check
-   * @param obj2    object2 to check
+   * @param obj1 object1 to check
+   * @param obj2 object2 to check
    */
   public static void assertNotEquals(
       final Object obj1,
       final Object obj2) {
-<span class="fc" id="L354">    assertNotEquals(obj1, obj2, &quot;Two objects must be not equals&quot;);</span>
-<span class="fc" id="L355">  }</span>
+<span class="fc" id="L271">    assertNotEquals(obj1, obj2, &quot;Two objects must be not equals&quot;);</span>
+<span class="fc" id="L272">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

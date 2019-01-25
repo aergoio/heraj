@@ -6,9 +6,9 @@ package hera.transport;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.function.Function1;
 import hera.api.model.ContractResult;
 import hera.client.ContractResultImpl;
-import java.util.function.Function;
 import org.slf4j.Logger;
 import types.Rpc;
 
@@ -16,18 +16,27 @@ import types.Rpc;
 
 <span class="fc" id="L17">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L19">  protected final Function&lt;ContractResult, Rpc.SingleBytes&gt; domainConverter =</span>
-      domainContractResult -&gt; {
-<span class="nc" id="L21">        throw new UnsupportedOperationException();</span>
+<span class="fc" id="L19">  protected final Function1&lt;ContractResult, Rpc.SingleBytes&gt; domainConverter =</span>
+<span class="fc" id="L20">      new Function1&lt;ContractResult, Rpc.SingleBytes&gt;() {</span>
+
+        @Override
+        public Rpc.SingleBytes apply(final ContractResult domainContractResult) {
+<span class="nc" id="L24">          throw new UnsupportedOperationException();</span>
+        }
       };
 
-<span class="fc" id="L24">  protected final Function&lt;Rpc.SingleBytes, ContractResult&gt; rpcConverter = rpcContractResult -&gt; {</span>
-<span class="fc" id="L25">    logger.trace(&quot;Blockchain contract result: {}&quot;, rpcContractResult);</span>
-<span class="fc" id="L26">    return new ContractResultImpl(rpcContractResult.getValue().toByteArray());</span>
-  };
+<span class="fc" id="L28">  protected final Function1&lt;Rpc.SingleBytes, ContractResult&gt; rpcConverter =</span>
+<span class="fc" id="L29">      new Function1&lt;Rpc.SingleBytes, ContractResult&gt;() {</span>
+
+        @Override
+        public ContractResult apply(final Rpc.SingleBytes rpcContractResult) {
+<span class="fc" id="L33">          logger.trace(&quot;Blockchain contract result: {}&quot;, rpcContractResult);</span>
+<span class="fc" id="L34">          return new ContractResultImpl(rpcContractResult.getValue().toByteArray());</span>
+        }
+      };
 
   public ModelConverter&lt;ContractResult, Rpc.SingleBytes&gt; create() {
-<span class="fc" id="L30">    return new ModelConverter&lt;&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L39">    return new ModelConverter&lt;ContractResult, Rpc.SingleBytes&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

@@ -19,12 +19,12 @@ public abstract class AbstractServer implements Server, StateChangeListener&lt;S
   /**
    * server status.
    */
-<span class="fc" id="L22">  protected StateMachine&lt;ServerStatus&gt; state = new StateMachine&lt;&gt;(TERMINATED);</span>
+<span class="fc" id="L22">  protected StateMachine&lt;ServerStatus&gt; state = new StateMachine&lt;ServerStatus&gt;(TERMINATED);</span>
 
   /**
    * server listeners.
    */
-<span class="fc" id="L27">  protected ArrayList&lt;ServerListener&gt; listeners = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L27">  protected ArrayList&lt;ServerListener&gt; listeners = new ArrayList&lt;ServerListener&gt;();</span>
 
   /**
    * Latest exception.

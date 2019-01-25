@@ -8,19 +8,18 @@ import static hera.TransportConstants.BLOCK_GETBLOCK_BY_HASH;
 import static hera.TransportConstants.BLOCK_GETBLOCK_BY_HEIGHT;
 import static hera.TransportConstants.BLOCK_LIST_HEADERS_BY_HASH;
 import static hera.TransportConstants.BLOCK_LIST_HEADERS_BY_HEIGHT;
-import static hera.api.tupleorerror.Functions.identify;
+import static hera.api.function.Functions.identify;
 
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.BlockOperation;
+import hera.api.function.Function1;
+import hera.api.function.Function2;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
-import hera.api.tupleorerror.Function1;
-import hera.api.tupleorerror.Function2;
-import hera.api.tupleorerror.ResultOrErrorFuture;
 import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import java.util.List;
@@ -29,72 +28,72 @@ import lombok.Getter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="fc" id="L32">public class BlockTemplate</span>
+<span class="fc" id="L31">public class BlockTemplate</span>
     implements BlockOperation, ChannelInjectable, ContextProviderInjectable {
 
-<span class="fc" id="L35">  @Getter</span>
+<span class="fc" id="L34">  @Getter</span>
   protected BlockBaseTemplate blockBaseTemplate = new BlockBaseTemplate();
 
   protected ContextProvider contextProvider;
 
-<span class="pc bpc" id="L40" title="4 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L39" title="4 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-<span class="fc" id="L45">    getBlockBaseTemplate().setChannel(channel);</span>
-<span class="fc" id="L46">  }</span>
+<span class="fc" id="L44">    getBlockBaseTemplate().setChannel(channel);</span>
+<span class="fc" id="L45">  }</span>
 
   @Override
   public void setContextProvider(ContextProvider contextProvider) {
-<span class="fc" id="L50">    this.contextProvider = contextProvider;</span>
-<span class="fc" id="L51">    getBlockBaseTemplate().setContextProvider(contextProvider);</span>
-<span class="fc" id="L52">  }</span>
+<span class="fc" id="L49">    this.contextProvider = contextProvider;</span>
+<span class="fc" id="L50">    getBlockBaseTemplate().setContextProvider(contextProvider);</span>
+<span class="fc" id="L51">  }</span>
 
-<span class="pc bpc" id="L54" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
-  private final Function1&lt;BlockHash, ResultOrErrorFuture&lt;Block&gt;&gt; blockByHashFunction =
+<span class="pc bpc" id="L53" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function1&lt;BlockHash, FinishableFuture&lt;Block&gt;&gt; blockByHashFunction =
       getStrategyChain()
           .apply(identify(getBlockBaseTemplate().getBlockByHashFunction(), BLOCK_GETBLOCK_BY_HASH));
 
-<span class="pc bpc" id="L59" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
-  private final Function1&lt;Long, ResultOrErrorFuture&lt;Block&gt;&gt; blockByHeightFunction =
+<span class="pc bpc" id="L58" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function1&lt;Long, FinishableFuture&lt;Block&gt;&gt; blockByHeightFunction =
       getStrategyChain().apply(
           identify(getBlockBaseTemplate().getBlockByHeightFunction(), BLOCK_GETBLOCK_BY_HEIGHT));
 
-<span class="pc bpc" id="L64" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L63" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function2&lt;BlockHash, Integer,
-      ResultOrErrorFuture&lt;List&lt;BlockHeader&gt;&gt;&gt; listBlockHeadersByHashFunction =
+      FinishableFuture&lt;List&lt;BlockHeader&gt;&gt;&gt; listBlockHeadersByHashFunction =
           getStrategyChain()
               .apply(identify(getBlockBaseTemplate().getListBlockHeadersByHashFunction(),
                   BLOCK_LIST_HEADERS_BY_HASH));
 
-<span class="pc bpc" id="L71" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L70" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function2&lt;Long, Integer,
-      ResultOrErrorFuture&lt;List&lt;BlockHeader&gt;&gt;&gt; listBlockHeadersByHeightFunction =
+      FinishableFuture&lt;List&lt;BlockHeader&gt;&gt;&gt; listBlockHeadersByHeightFunction =
           getStrategyChain()
               .apply(identify(getBlockBaseTemplate().getListBlockHeadersByHeightFunction(),
                   BLOCK_LIST_HEADERS_BY_HEIGHT));
 
   @Override
   public Block getBlock(final BlockHash blockHash) {
-<span class="fc" id="L80">    return getBlockByHashFunction().apply(blockHash).get().getResult();</span>
+<span class="fc" id="L79">    return getBlockByHashFunction().apply(blockHash).get();</span>
   }
 
   @Override
   public Block getBlock(final long height) {
-<span class="fc" id="L85">    return getBlockByHeightFunction().apply(height).get().getResult();</span>
+<span class="fc" id="L84">    return getBlockByHeightFunction().apply(height).get();</span>
   }
 
   @Override
   public List&lt;BlockHeader&gt; listBlockHeaders(final BlockHash blockHash,
       final int size) {
-<span class="fc" id="L91">    return getListBlockHeadersByHashFunction().apply(blockHash, size).get().getResult();</span>
+<span class="fc" id="L90">    return getListBlockHeadersByHashFunction().apply(blockHash, size).get();</span>
   }
 
   @Override
   public List&lt;BlockHeader&gt; listBlockHeaders(final long height,
       final int size) {
-<span class="fc" id="L97">    return getListBlockHeadersByHeightFunction().apply(height, size).get().getResult();</span>
+<span class="fc" id="L96">    return getListBlockHeadersByHeightFunction().apply(height, size).get();</span>
   }
 
 }

@@ -6,6 +6,7 @@ package hera.util;
 
 import static java.lang.System.arraycopy;
 
+import com.google.common.io.BaseEncoding;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
@@ -23,7 +24,7 @@ import org.bouncycastle.crypto.modes.GCMBlockCipher;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
 
-<span class="nc" id="L26">public class CryptoUtils {</span>
+<span class="nc" id="L27">public class CryptoUtils {</span>
 
   public static final String CIPHER_CHARSET = &quot;UTF-8&quot;;
   public static final String CIPHER_NAME = &quot;AES/ECB/PKCS5Padding&quot;;
@@ -36,14 +37,14 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
 
   static {
     try {
-<span class="fc" id="L39">      random = SecureRandom.getInstance(&quot;SHA1PRNG&quot;);</span>
-<span class="fc" id="L40">      sha = MessageDigest.getInstance(&quot;SHA-1&quot;);</span>
-<span class="fc" id="L41">      md5 = MessageDigest.getInstance(&quot;MD5&quot;);</span>
-<span class="fc" id="L42">      keySpec = new SecretKeySpec(DEFAULT_PASSWORD.getBytes(&quot;UTF-8&quot;), &quot;AES&quot;);</span>
-<span class="nc" id="L43">    } catch (final Throwable th) {</span>
-<span class="nc" id="L44">      throw new IllegalStateException(th);</span>
-<span class="fc" id="L45">    }</span>
-<span class="fc" id="L46">  }</span>
+<span class="fc" id="L40">      random = SecureRandom.getInstance(&quot;SHA1PRNG&quot;);</span>
+<span class="fc" id="L41">      sha = MessageDigest.getInstance(&quot;SHA-1&quot;);</span>
+<span class="fc" id="L42">      md5 = MessageDigest.getInstance(&quot;MD5&quot;);</span>
+<span class="fc" id="L43">      keySpec = new SecretKeySpec(DEFAULT_PASSWORD.getBytes(&quot;UTF-8&quot;), &quot;AES&quot;);</span>
+<span class="nc" id="L44">    } catch (final Throwable th) {</span>
+<span class="nc" id="L45">      throw new IllegalStateException(th);</span>
+<span class="fc" id="L46">    }</span>
+<span class="fc" id="L47">  }</span>
 
   /**
    * Create secret from password.
@@ -54,11 +55,11 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
    * @return secret to be created
    */
   public static SecretKeySpec createSecret(final byte[] password, final int length) {
-<span class="fc" id="L57">    final byte[] fixedLengthPassword = new byte[length];</span>
-<span class="fc" id="L58">    Arrays.fill(fixedLengthPassword, (byte) 0);</span>
-<span class="fc" id="L59">    arraycopy(password, 0, fixedLengthPassword, 0,</span>
-<span class="fc" id="L60">        Math.min(fixedLengthPassword.length, password.length));</span>
-<span class="fc" id="L61">    return new SecretKeySpec(fixedLengthPassword, &quot;AES&quot;);</span>
+<span class="fc" id="L58">    final byte[] fixedLengthPassword = new byte[length];</span>
+<span class="fc" id="L59">    Arrays.fill(fixedLengthPassword, (byte) 0);</span>
+<span class="fc" id="L60">    arraycopy(password, 0, fixedLengthPassword, 0,</span>
+<span class="fc" id="L61">        Math.min(fixedLengthPassword.length, password.length));</span>
+<span class="fc" id="L62">    return new SecretKeySpec(fixedLengthPassword, &quot;AES&quot;);</span>
   }
 
 
@@ -78,7 +79,7 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
   public static String encryptToAes128EcbWithBase64(final String source)
       throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
       IllegalBlockSizeException, BadPaddingException {
-<span class="fc" id="L81">    return encryptToAes128EcbWithBase64(source, DEFAULT_PASSWORD);</span>
+<span class="fc" id="L82">    return encryptToAes128EcbWithBase64(source, DEFAULT_PASSWORD);</span>
   }
 
   /**
@@ -99,10 +100,10 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
       throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
       IllegalBlockSizeException, BadPaddingException {
     try {
-<span class="fc" id="L102">      SecretKeySpec secretKeySpec = new SecretKeySpec(password.getBytes(&quot;UTF-8&quot;), &quot;AES&quot;);</span>
-<span class="fc" id="L103">      return encryptToAes128EcbWithBase64(source.getBytes(CIPHER_CHARSET), secretKeySpec);</span>
-<span class="nc" id="L104">    } catch (final UnsupportedEncodingException e) {</span>
-<span class="nc" id="L105">      throw new IllegalStateException(e);</span>
+<span class="fc" id="L103">      SecretKeySpec secretKeySpec = new SecretKeySpec(password.getBytes(&quot;UTF-8&quot;), &quot;AES&quot;);</span>
+<span class="fc" id="L104">      return encryptToAes128EcbWithBase64(source.getBytes(CIPHER_CHARSET), secretKeySpec);</span>
+<span class="nc" id="L105">    } catch (final UnsupportedEncodingException e) {</span>
+<span class="nc" id="L106">      throw new IllegalStateException(e);</span>
     }
   }
 
@@ -122,10 +123,10 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
       final SecretKeySpec secretKeySpec) throws NoSuchAlgorithmException, NoSuchPaddingException,
       InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
     // Encrypt in 16 bytes (128bit) Block
-<span class="fc" id="L125">    final javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CIPHER_NAME);</span>
-<span class="fc" id="L126">    cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, secretKeySpec);</span>
-<span class="fc" id="L127">    final byte[] aes128ecb = cipher.doFinal(message);</span>
-<span class="fc" id="L128">    return java.util.Base64.getEncoder().encodeToString(aes128ecb);</span>
+<span class="fc" id="L126">    final javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CIPHER_NAME);</span>
+<span class="fc" id="L127">    cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, secretKeySpec);</span>
+<span class="fc" id="L128">    final byte[] aes128ecb = cipher.doFinal(message);</span>
+<span class="fc" id="L129">    return BaseEncoding.base64().encode(aes128ecb);</span>
   }
 
   /**
@@ -141,13 +142,13 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
    */
   public static byte[] encryptToAesGcm(final byte[] message, final byte[] password,
       final byte[] nonce) throws IllegalStateException, InvalidCipherTextException {
-<span class="fc" id="L144">    final GCMBlockCipher cppher = new GCMBlockCipher(new AESEngine());</span>
-<span class="fc" id="L145">    CipherParameters ivAndKey = new ParametersWithIV(new KeyParameter(password), nonce);</span>
-<span class="fc" id="L146">    cppher.init(true, ivAndKey);</span>
-<span class="fc" id="L147">    final byte[] outBuf = new byte[cppher.getOutputSize(message.length)];</span>
-<span class="fc" id="L148">    int outOff = cppher.processBytes(message, 0, message.length, outBuf, 0);</span>
-<span class="fc" id="L149">    cppher.doFinal(outBuf, outOff);</span>
-<span class="fc" id="L150">    return outBuf;</span>
+<span class="fc" id="L145">    final GCMBlockCipher cppher = new GCMBlockCipher(new AESEngine());</span>
+<span class="fc" id="L146">    CipherParameters ivAndKey = new ParametersWithIV(new KeyParameter(password), nonce);</span>
+<span class="fc" id="L147">    cppher.init(true, ivAndKey);</span>
+<span class="fc" id="L148">    final byte[] outBuf = new byte[cppher.getOutputSize(message.length)];</span>
+<span class="fc" id="L149">    int outOff = cppher.processBytes(message, 0, message.length, outBuf, 0);</span>
+<span class="fc" id="L150">    cppher.doFinal(outBuf, outOff);</span>
+<span class="fc" id="L151">    return outBuf;</span>
   }
 
   /**
@@ -164,7 +165,7 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
   public static byte[] decryptFromAes128EcbWithBase64(final String source)
       throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
       IllegalBlockSizeException, BadPaddingException {
-<span class="fc" id="L167">    return decryptFromAes128EcbWithBase64(source, DEFAULT_PASSWORD);</span>
+<span class="fc" id="L168">    return decryptFromAes128EcbWithBase64(source, DEFAULT_PASSWORD);</span>
   }
 
   /**
@@ -184,10 +185,10 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
       throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
       IllegalBlockSizeException, BadPaddingException {
     try {
-<span class="fc" id="L187">      SecretKeySpec secretKeySpec = new SecretKeySpec(password.getBytes(&quot;UTF-8&quot;), &quot;AES&quot;);</span>
-<span class="fc" id="L188">      return decryptFromAes128EcbWithBase64(source, secretKeySpec);</span>
-<span class="nc" id="L189">    } catch (UnsupportedEncodingException e) {</span>
-<span class="nc" id="L190">      throw new IllegalStateException(e);</span>
+<span class="fc" id="L188">      SecretKeySpec secretKeySpec = new SecretKeySpec(password.getBytes(&quot;UTF-8&quot;), &quot;AES&quot;);</span>
+<span class="fc" id="L189">      return decryptFromAes128EcbWithBase64(source, secretKeySpec);</span>
+<span class="nc" id="L190">    } catch (UnsupportedEncodingException e) {</span>
+<span class="nc" id="L191">      throw new IllegalStateException(e);</span>
     }
   }
 
@@ -207,11 +208,11 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
   public static byte[] decryptFromAes128EcbWithBase64(final String source,
       final SecretKeySpec secretKeySpec) throws NoSuchAlgorithmException, NoSuchPaddingException,
       InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-<span class="fc" id="L210">    final byte[] decodedBase64 = java.util.Base64.getDecoder().decode(source);</span>
-<span class="fc" id="L211">    final javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CIPHER_NAME);</span>
-<span class="fc" id="L212">    cipher.init(javax.crypto.Cipher.DECRYPT_MODE, secretKeySpec);</span>
-<span class="fc" id="L213">    final byte[] decoded = cipher.doFinal(decodedBase64);</span>
-<span class="fc" id="L214">    return decoded;</span>
+<span class="fc" id="L211">    final byte[] decodedBase64 = BaseEncoding.base64().decode(source);</span>
+<span class="fc" id="L212">    final javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CIPHER_NAME);</span>
+<span class="fc" id="L213">    cipher.init(javax.crypto.Cipher.DECRYPT_MODE, secretKeySpec);</span>
+<span class="fc" id="L214">    final byte[] decoded = cipher.doFinal(decodedBase64);</span>
+<span class="fc" id="L215">    return decoded;</span>
   }
 
   /**
@@ -227,13 +228,13 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
    */
   public static byte[] decryptFromAesGcm(final byte[] source, final byte[] password,
       final byte[] nonce) throws IllegalStateException, InvalidCipherTextException {
-<span class="fc" id="L230">    final GCMBlockCipher cppher = new GCMBlockCipher(new AESEngine());</span>
-<span class="fc" id="L231">    CipherParameters ivAndKey = new ParametersWithIV(new KeyParameter(password), nonce);</span>
-<span class="fc" id="L232">    cppher.init(false, ivAndKey);</span>
-<span class="fc" id="L233">    final byte[] outBuf = new byte[cppher.getOutputSize(source.length)];</span>
-<span class="fc" id="L234">    int outOff = cppher.processBytes(source, 0, source.length, outBuf, 0);</span>
-<span class="fc" id="L235">    cppher.doFinal(outBuf, outOff);</span>
-<span class="fc" id="L236">    return outBuf;</span>
+<span class="fc" id="L231">    final GCMBlockCipher cppher = new GCMBlockCipher(new AESEngine());</span>
+<span class="fc" id="L232">    CipherParameters ivAndKey = new ParametersWithIV(new KeyParameter(password), nonce);</span>
+<span class="fc" id="L233">    cppher.init(false, ivAndKey);</span>
+<span class="fc" id="L234">    final byte[] outBuf = new byte[cppher.getOutputSize(source.length)];</span>
+<span class="fc" id="L235">    int outOff = cppher.processBytes(source, 0, source.length, outBuf, 0);</span>
+<span class="fc" id="L236">    cppher.doFinal(outBuf, outOff);</span>
+<span class="fc" id="L237">    return outBuf;</span>
   }
 
 }

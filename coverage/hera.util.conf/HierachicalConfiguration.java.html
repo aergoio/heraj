@@ -4,16 +4,13 @@
 
 package hera.util.conf;
 
-import static java.util.Optional.ofNullable;
-
 import hera.util.Configuration;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
-<span class="pc bpc" id="L16" title="1 of 2 branches missed.">@RequiredArgsConstructor</span>
+<span class="pc bpc" id="L13" title="1 of 2 branches missed.">@RequiredArgsConstructor</span>
 public class HierachicalConfiguration extends AbstractConfiguration {
 
   protected final Configuration parent;
@@ -22,8 +19,8 @@ public class HierachicalConfiguration extends AbstractConfiguration {
   protected final Configuration configuration;
 
   public HierachicalConfiguration(final Configuration configuration) {
-<span class="fc" id="L25">    this(null, configuration);</span>
-<span class="fc" id="L26">  }</span>
+<span class="fc" id="L22">    this(null, configuration);</span>
+<span class="fc" id="L23">  }</span>
 
   /**
    * Create hierachical configuration.
@@ -33,48 +30,61 @@ public class HierachicalConfiguration extends AbstractConfiguration {
    * @return {@link HierachicalConfiguration}
    */
   public static Configuration create(final Configuration... configurations) {
-<span class="fc bfc" id="L36" title="All 2 branches covered.">    return Arrays.stream(configurations).filter(configuration -&gt; null != configuration)</span>
-<span class="fc" id="L37">        .reduce((l, r) -&gt; new HierachicalConfiguration(l, r))</span>
-<span class="pc" id="L38">        .orElseGet(() -&gt; new DummyConfiguration());</span>
+<span class="fc" id="L33">    int i = 0;</span>
+<span class="pc bpc" id="L34" title="2 of 4 branches missed.">    while (i &lt; configurations.length &amp;&amp; null == configurations[i]) {</span>
+<span class="nc" id="L35">      ++i;</span>
+    }
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">    if (i &gt;= configurations.length) {</span>
+<span class="nc" id="L38">      return new DummyConfiguration();</span>
+    }
+
+<span class="fc" id="L41">    Configuration hirarchicalConf = configurations[i];</span>
+<span class="fc bfc" id="L42" title="All 2 branches covered.">    while (i &lt; configurations.length) {</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">      if (null != configurations[i]) {</span>
+<span class="fc" id="L44">        hirarchicalConf = new HierachicalConfiguration(hirarchicalConf, configurations[i]);</span>
+      }
+<span class="fc" id="L46">      ++i;</span>
+    }
+<span class="fc" id="L48">    return hirarchicalConf;</span>
   }
 
   @Override
   public Configuration getSubconfiguration(final String key) {
-<span class="pc bpc" id="L43" title="1 of 2 branches missed.">    if (null == parent) {</span>
-<span class="nc" id="L44">      return configuration.getSubconfiguration(key);</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">    if (null == parent) {</span>
+<span class="nc" id="L54">      return configuration.getSubconfiguration(key);</span>
     }
-<span class="fc" id="L46">    return HierachicalConfiguration.create(parent.getSubconfiguration(key),</span>
-<span class="fc" id="L47">        configuration.getSubconfiguration(key));</span>
+<span class="fc" id="L56">    return HierachicalConfiguration.create(parent.getSubconfiguration(key),</span>
+<span class="fc" id="L57">        configuration.getSubconfiguration(key));</span>
   }
 
   @Override
   public Object getValue(final String key) {
-<span class="fc" id="L52">    final Object value = configuration.get(key);</span>
-<span class="pc bpc" id="L53" title="1 of 2 branches missed.">    if (null != value) {</span>
-<span class="nc" id="L54">      return value;</span>
+<span class="fc" id="L62">    final Object value = configuration.get(key);</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">    if (null != value) {</span>
+<span class="fc" id="L64">      return value;</span>
     }
-<span class="pc bpc" id="L56" title="1 of 2 branches missed.">    if (null == parent) {</span>
-<span class="nc" id="L57">      return null;</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">    if (null == parent) {</span>
+<span class="nc" id="L67">      return null;</span>
     }
-<span class="fc" id="L59">    return parent.get(key);</span>
+<span class="fc" id="L69">    return parent.get(key);</span>
   }
 
   @Override
   public Map&lt;String, Object&gt; asMap() {
-<span class="fc" id="L64">    final Map&lt;String, Object&gt; parentMap =</span>
-<span class="fc" id="L65">        ofNullable(parent).map(Configuration::asMap).orElseGet(() -&gt; new HashMap&lt;&gt;());</span>
-<span class="fc" id="L66">    parentMap.putAll(configuration.asMap());</span>
-<span class="fc" id="L67">    return parentMap;</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">    final Map&lt;String, Object&gt; parentMap =</span>
+<span class="pc" id="L75">        null != parent ? parent.asMap() : new HashMap&lt;String, Object&gt;();</span>
+<span class="fc" id="L76">    parentMap.putAll(configuration.asMap());</span>
+<span class="fc" id="L77">    return parentMap;</span>
   }
 
   @Override
   public void define(final String key, final Object value) {
-<span class="fc" id="L72">    throw new UnsupportedOperationException();</span>
+<span class="fc" id="L82">    throw new UnsupportedOperationException();</span>
   }
 
   @Override
   public void remove(String key) {
-<span class="nc" id="L77">    throw new UnsupportedOperationException();</span>
+<span class="nc" id="L87">    throw new UnsupportedOperationException();</span>
   }
 
 }

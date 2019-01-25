@@ -9,9 +9,8 @@ import static hera.util.StringUtils.isEmpty;
 
 import java.io.File;
 import java.util.Stack;
-import java.util.StringJoiner;
 
-<span class="nc" id="L14">public class FilepathUtils {</span>
+<span class="nc" id="L13">public class FilepathUtils {</span>
 
   private static final char DIRECTORY_SEPARATOR_CHAR = '/';
 
@@ -23,10 +22,9 @@ import java.util.StringJoiner;
   /**
    * Return canonical fragments from {@code path}.
    * &lt;p&gt;
-   *   You should read {@link File#getCanonicalPath()} if you don't know canonical form for path.
-   *   This method return directory names in array.
-   *   It will skip if meet current directory string(&quot;.&quot;)
-   *   It will remove back if meet parent directory string(&quot;..&quot;)
+   * You should read {@link File#getCanonicalPath()} if you don't know canonical form for path. This
+   * method return directory names in array. It will skip if meet current directory string(&quot;.&quot;) It
+   * will remove back if meet parent directory string(&quot;..&quot;)
    * &lt;/p&gt;
    *
    * @param path path
@@ -34,32 +32,32 @@ import java.util.StringJoiner;
    * @return separated string array
    */
   public static String[] getCanonicalFragments(final String path) {
-<span class="fc" id="L37">    final String safe = path.replace(File.separatorChar, DIRECTORY_SEPARATOR_CHAR);</span>
+<span class="fc" id="L35">    final String safe = path.replace(File.separatorChar, DIRECTORY_SEPARATOR_CHAR);</span>
 
-<span class="fc" id="L39">    final Stack&lt;String&gt; stack = new Stack&lt;&gt;();</span>
+<span class="fc" id="L37">    final Stack&lt;String&gt; stack = new Stack&lt;String&gt;();</span>
 
-<span class="fc bfc" id="L41" title="All 2 branches covered.">    for (final String fragment : safe.split(DIRECTORY_SEPARATOR)) {</span>
-<span class="fc bfc" id="L42" title="All 2 branches covered.">      if (isEmpty(fragment)) {</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">    for (final String fragment : safe.split(DIRECTORY_SEPARATOR)) {</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">      if (isEmpty(fragment)) {</span>
+<span class="fc" id="L41">        continue;</span>
+<span class="fc bfc" id="L42" title="All 2 branches covered.">      } else if (CURRENT_DIR.equals(fragment)) {</span>
 <span class="fc" id="L43">        continue;</span>
-<span class="fc bfc" id="L44" title="All 2 branches covered.">      } else if (CURRENT_DIR.equals(fragment)) {</span>
-<span class="fc" id="L45">        continue;</span>
-<span class="fc bfc" id="L46" title="All 2 branches covered.">      } else if (PARENT_DIR.equals(fragment)) {</span>
-<span class="pc bpc" id="L47" title="1 of 2 branches missed.">        if (stack.isEmpty()) {</span>
-<span class="nc" id="L48">          throw new IllegalArgumentException();</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">      } else if (PARENT_DIR.equals(fragment)) {</span>
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        if (stack.isEmpty()) {</span>
+<span class="nc" id="L46">          throw new IllegalArgumentException();</span>
         }
-<span class="fc" id="L50">        stack.pop();</span>
+<span class="fc" id="L48">        stack.pop();</span>
       } else {
-<span class="fc" id="L52">        stack.push(fragment);</span>
+<span class="fc" id="L50">        stack.push(fragment);</span>
       }
     }
 
-<span class="fc" id="L56">    return stack.toArray(new String[stack.size()]);</span>
+<span class="fc" id="L54">    return stack.toArray(new String[stack.size()]);</span>
   }
 
   /**
    * Return canonical form for {@code path}.
    * &lt;p&gt;
-   *   Concatenate the fragments from {@link #getCanonicalFragments(String)}
+   * Concatenate the fragments from {@link #getCanonicalFragments(String)}
    * &lt;/p&gt;
    *
    * @param path path
@@ -69,24 +67,25 @@ import java.util.StringJoiner;
    * @see #getCanonicalFragments(String)
    */
   public static String getCanonicalForm(final String path) {
-<span class="fc" id="L72">    final String[] fragments = getCanonicalFragments(path);</span>
-<span class="pc bpc" id="L73" title="1 of 2 branches missed.">    if (0 == fragments.length) {</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">      if (path.startsWith(DIRECTORY_SEPARATOR)) {</span>
-<span class="nc" id="L75">        return DIRECTORY_SEPARATOR;</span>
+<span class="fc" id="L70">    final String[] fragments = getCanonicalFragments(path);</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">    if (0 == fragments.length) {</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">      if (path.startsWith(DIRECTORY_SEPARATOR)) {</span>
+<span class="nc" id="L73">        return DIRECTORY_SEPARATOR;</span>
       } else {
-<span class="nc" id="L77">        return path;</span>
+<span class="nc" id="L75">        return path;</span>
       }
     }
-<span class="fc" id="L80">    StringJoiner joiner = null;</span>
-<span class="fc bfc" id="L81" title="All 2 branches covered.">    if (path.startsWith(DIRECTORY_SEPARATOR)) {</span>
-<span class="fc" id="L82">      joiner = new StringJoiner(DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, &quot;&quot;);</span>
-    } else {
-<span class="fc" id="L84">      joiner = new StringJoiner(DIRECTORY_SEPARATOR);</span>
+<span class="fc" id="L78">    final StringBuilder builder = new StringBuilder();</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">    if (path.startsWith(DIRECTORY_SEPARATOR)) {</span>
+<span class="fc" id="L80">      builder.append(DIRECTORY_SEPARATOR);</span>
     }
-<span class="fc bfc" id="L86" title="All 2 branches covered.">    for (final String f : fragments) {</span>
-<span class="fc" id="L87">      joiner.add(f);</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">    for (int i = 0; i &lt; fragments.length; ++i) {</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">      if (0 != i) {</span>
+<span class="fc" id="L84">        builder.append(DIRECTORY_SEPARATOR);</span>
+      }
+<span class="fc" id="L86">      builder.append(fragments[i]);</span>
     }
-<span class="fc" id="L89">    return joiner.toString();</span>
+<span class="fc" id="L88">    return builder.toString();</span>
   }
 
   /**
@@ -97,45 +96,45 @@ import java.util.StringJoiner;
    * @return split string array
    */
   public static String[] split(final String path) {
-<span class="fc bfc" id="L100" title="All 2 branches covered.">    if (null == path) {</span>
-<span class="fc" id="L101">      return null;</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">    if (null == path) {</span>
+<span class="fc" id="L100">      return null;</span>
     }
 
-<span class="fc" id="L104">    final String parent = getParentPath(path);</span>
-<span class="fc" id="L105">    final String filename = getFilename(path);</span>
-<span class="fc" id="L106">    final String name = FilenameUtils.stripExtension(filename);</span>
-<span class="fc" id="L107">    final String ext = FilenameUtils.getExtension(filename);</span>
+<span class="fc" id="L103">    final String parent = getParentPath(path);</span>
+<span class="fc" id="L104">    final String filename = getFilename(path);</span>
+<span class="fc" id="L105">    final String name = FilenameUtils.stripExtension(filename);</span>
+<span class="fc" id="L106">    final String ext = FilenameUtils.getExtension(filename);</span>
 
-<span class="fc" id="L109">    return new String[] {parent, name, ext};</span>
+<span class="fc" id="L108">    return new String[] {parent, name, ext};</span>
   }
 
   /**
    * Return parent directory's path of {@code path}.
    * &lt;p&gt;
-   *   Return {@code null} if {@code path} is null or parent path is unknown path.
+   * Return {@code null} if {@code path} is null or parent path is unknown path.
    * &lt;/p&gt;
    *
    * @param path file path
    * @return parent path
    */
   public static String getParentPath(final String path) {
-<span class="fc bfc" id="L122" title="All 2 branches covered.">    if (null == path) {</span>
-<span class="fc" id="L123">      return null;</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">    if (null == path) {</span>
+<span class="fc" id="L122">      return null;</span>
     }
 
-<span class="fc bfc" id="L126" title="All 4 branches covered.">    if (EMPTY_STRING.equals(path) || DIRECTORY_SEPARATOR.equals(path)) {</span>
-<span class="fc" id="L127">      return null;</span>
+<span class="fc bfc" id="L125" title="All 4 branches covered.">    if (EMPTY_STRING.equals(path) || DIRECTORY_SEPARATOR.equals(path)) {</span>
+<span class="fc" id="L126">      return null;</span>
     }
 
-<span class="fc" id="L130">    final int index = path.lastIndexOf(DIRECTORY_SEPARATOR);</span>
+<span class="fc" id="L129">    final int index = path.lastIndexOf(DIRECTORY_SEPARATOR);</span>
 
-<span class="fc bfc" id="L132" title="All 2 branches covered.">    if (0 == index) {</span>
-<span class="fc" id="L133">      return DIRECTORY_SEPARATOR;</span>
-<span class="fc bfc" id="L134" title="All 2 branches covered.">    } else if (index &lt; 0) {</span>
-<span class="fc" id="L135">      return null;</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">    if (0 == index) {</span>
+<span class="fc" id="L132">      return DIRECTORY_SEPARATOR;</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">    } else if (index &lt; 0) {</span>
+<span class="fc" id="L134">      return null;</span>
     }
 
-<span class="fc" id="L138">    return path.substring(0, index);</span>
+<span class="fc" id="L137">    return path.substring(0, index);</span>
   }
 
   /**
@@ -146,13 +145,13 @@ import java.util.StringJoiner;
    * @return filename
    */
   public static String getFilename(final String path) {
-<span class="fc bfc" id="L149" title="All 2 branches covered.">    if (null == path) {</span>
-<span class="fc" id="L150">      return null;</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">    if (null == path) {</span>
+<span class="fc" id="L149">      return null;</span>
     }
-<span class="fc" id="L152">    final String canonicalPath = getCanonicalForm(path);</span>
-<span class="fc" id="L153">    final int index = canonicalPath.lastIndexOf(DIRECTORY_SEPARATOR);</span>
+<span class="fc" id="L151">    final String canonicalPath = getCanonicalForm(path);</span>
+<span class="fc" id="L152">    final int index = canonicalPath.lastIndexOf(DIRECTORY_SEPARATOR);</span>
 
-<span class="pc bpc" id="L155" title="1 of 2 branches missed.">    return (index &lt; 0) ? canonicalPath : canonicalPath.substring(index + 1);</span>
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">    return (index &lt; 0) ? canonicalPath : canonicalPath.substring(index + 1);</span>
   }
 
   /**
@@ -166,7 +165,7 @@ import java.util.StringJoiner;
    */
   public static String concat(final String... fragments) {
 
-<span class="fc" id="L169">    return append(fragments);</span>
+<span class="fc" id="L168">    return append(fragments);</span>
   }
 
   /**
@@ -177,7 +176,7 @@ import java.util.StringJoiner;
    * @return concatenated path
    */
   public static String append(final String... fragments) {
-<span class="fc" id="L180">    return append(fragments, 0, fragments.length - 1);</span>
+<span class="fc" id="L179">    return append(fragments, 0, fragments.length - 1);</span>
   }
 
   /**
@@ -191,40 +190,40 @@ import java.util.StringJoiner;
    */
   public static String append(final String[] fragments, final int start, final int end) {
 
-<span class="fc" id="L194">    final StringBuilder buffer = new StringBuilder();</span>
+<span class="fc" id="L193">    final StringBuilder buffer = new StringBuilder();</span>
 
-<span class="fc" id="L196">    boolean isFirst = true;</span>
-<span class="fc bfc" id="L197" title="All 2 branches covered.">    for (int i = start; i &lt;= end; ++i) {</span>
-<span class="fc" id="L198">      final String fragment = fragments[i];</span>
-<span class="fc bfc" id="L199" title="All 2 branches covered.">      if (null == fragment) {</span>
-<span class="fc" id="L200">        continue;</span>
+<span class="fc" id="L195">    boolean isFirst = true;</span>
+<span class="fc bfc" id="L196" title="All 2 branches covered.">    for (int i = start; i &lt;= end; ++i) {</span>
+<span class="fc" id="L197">      final String fragment = fragments[i];</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">      if (null == fragment) {</span>
+<span class="fc" id="L199">        continue;</span>
       }
-<span class="fc" id="L202">      final char[] chs = fragment.toCharArray();</span>
-<span class="fc" id="L203">      int from = 0;</span>
-<span class="fc" id="L204">      int to = chs.length;</span>
+<span class="fc" id="L201">      final char[] chs = fragment.toCharArray();</span>
+<span class="fc" id="L202">      int from = 0;</span>
+<span class="fc" id="L203">      int to = chs.length;</span>
 
       // Remove directory separator in prefix.
-<span class="pc bpc" id="L207" title="1 of 4 branches missed.">      while (from &lt; to &amp;&amp; DIRECTORY_SEPARATOR_CHAR == chs[from]) {</span>
-<span class="fc" id="L208">        ++from;</span>
+<span class="pc bpc" id="L206" title="1 of 4 branches missed.">      while (from &lt; to &amp;&amp; DIRECTORY_SEPARATOR_CHAR == chs[from]) {</span>
+<span class="fc" id="L207">        ++from;</span>
       }
 
       // Remove directory separator suffix.
-<span class="pc bpc" id="L212" title="2 of 4 branches missed.">      while (from &lt; to &amp;&amp; DIRECTORY_SEPARATOR_CHAR == chs[to - 1]) {</span>
-<span class="nc" id="L213">        --to;</span>
+<span class="pc bpc" id="L211" title="2 of 4 branches missed.">      while (from &lt; to &amp;&amp; DIRECTORY_SEPARATOR_CHAR == chs[to - 1]) {</span>
+<span class="nc" id="L212">        --to;</span>
       }
 
-<span class="pc bpc" id="L216" title="1 of 4 branches missed.">      if (!isFirst || 0 != from) {</span>
+<span class="pc bpc" id="L215" title="1 of 4 branches missed.">      if (!isFirst || 0 != from) {</span>
         // Add separator
-<span class="fc" id="L218">        buffer.append(DIRECTORY_SEPARATOR_CHAR);</span>
+<span class="fc" id="L217">        buffer.append(DIRECTORY_SEPARATOR_CHAR);</span>
       }
 
       // append file path
-<span class="fc" id="L222">      buffer.append(chs, from, to - from);</span>
+<span class="fc" id="L221">      buffer.append(chs, from, to - from);</span>
 
-<span class="fc" id="L224">      isFirst = false;</span>
+<span class="fc" id="L223">      isFirst = false;</span>
     }
 
-<span class="fc" id="L227">    return buffer.toString();</span>
+<span class="fc" id="L226">    return buffer.toString();</span>
   }
 
 }

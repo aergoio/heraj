@@ -5,41 +5,87 @@
 package hera.strategy;
 
 import hera.Strategy;
-import hera.api.tupleorerror.Function0;
-import hera.api.tupleorerror.Function1;
-import hera.api.tupleorerror.Function2;
-import hera.api.tupleorerror.Function3;
-import hera.api.tupleorerror.Function4;
-import hera.api.tupleorerror.FunctionDecorator;
+import hera.api.function.Function0;
+import hera.api.function.Function1;
+import hera.api.function.Function2;
+import hera.api.function.Function3;
+import hera.api.function.Function4;
+import hera.api.function.FunctionDecorator;
 
-public interface OnInvocationStrategy extends Strategy, FunctionDecorator {
+<span class="fc" id="L15">public abstract class OnInvocationStrategy implements Strategy, FunctionDecorator {</span>
 
-  &lt;R&gt; R action(hera.api.tupleorerror.Function originFunction, Function0&lt;R&gt; functionWithArgs);
+  public abstract &lt;R&gt; R action(hera.api.function.Function originFunction,
+      Function0&lt;R&gt; functionWithArgs);
 
   @Override
-  default &lt;R&gt; Function0&lt;R&gt; apply(Function0&lt;R&gt; f) {
-<span class="fc" id="L21">    return () -&gt; action(f, f);</span>
+  public &lt;R&gt; Function0&lt;R&gt; apply(final Function0&lt;R&gt; f) {
+<span class="fc" id="L22">    return new Function0&lt;R&gt;() {</span>
+      @Override
+      public R apply() {
+<span class="fc" id="L25">        return action(f, f);</span>
+      }
+    };
   }
 
   @Override
-  default &lt;T, R&gt; Function1&lt;T, R&gt; apply(Function1&lt;T, R&gt; f) {
-<span class="fc" id="L26">    return (T t) -&gt; action(f, () -&gt; f.apply(t));</span>
+  public &lt;T, R&gt; Function1&lt;T, R&gt; apply(final Function1&lt;T, R&gt; f) {
+<span class="fc" id="L32">    return new Function1&lt;T, R&gt;() {</span>
+      @Override
+      public R apply(final T t) {
+<span class="fc" id="L35">        return action(f, new Function0&lt;R&gt;() {</span>
+          @Override
+          public R apply() {
+<span class="fc" id="L38">            return f.apply(t);</span>
+          }
+        });
+      }
+    };
   }
 
   @Override
-  default &lt;T1, T2, R&gt; Function2&lt;T1, T2, R&gt; apply(Function2&lt;T1, T2, R&gt; f) {
-<span class="fc" id="L31">    return (T1 t1, T2 t2) -&gt; action(f, () -&gt; f.apply(t1, t2));</span>
+  public &lt;T1, T2, R&gt; Function2&lt;T1, T2, R&gt; apply(final Function2&lt;T1, T2, R&gt; f) {
+<span class="fc" id="L47">    return new Function2&lt;T1, T2, R&gt;() {</span>
+      @Override
+      public R apply(final T1 t1, final T2 t2) {
+<span class="fc" id="L50">        return action(f, new Function0&lt;R&gt;() {</span>
+          @Override
+          public R apply() {
+<span class="fc" id="L53">            return f.apply(t1, t2);</span>
+          }
+        });
+      }
+    };
   }
 
   @Override
-  default &lt;T1, T2, T3, R&gt; Function3&lt;T1, T2, T3, R&gt; apply(Function3&lt;T1, T2, T3, R&gt; f) {
-<span class="fc" id="L36">    return (T1 t1, T2 t2, T3 t3) -&gt; action(f, () -&gt; f.apply(t1, t2, t3));</span>
+  public &lt;T1, T2, T3, R&gt; Function3&lt;T1, T2, T3, R&gt; apply(final Function3&lt;T1, T2, T3, R&gt; f) {
+<span class="fc" id="L62">    return new Function3&lt;T1, T2, T3, R&gt;() {</span>
+      @Override
+      public R apply(final T1 t1, final T2 t2, final T3 t3) {
+<span class="fc" id="L65">        return action(f, new Function0&lt;R&gt;() {</span>
+          @Override
+          public R apply() {
+<span class="fc" id="L68">            return f.apply(t1, t2, t3);</span>
+          }
+        });
+      }
+    };
   }
 
   @Override
-  default &lt;T1, T2, T3, T4, R&gt; Function4&lt;T1, T2, T3, T4, R&gt; apply(
-      Function4&lt;T1, T2, T3, T4, R&gt; f) {
-<span class="fc" id="L42">    return (T1 t1, T2 t2, T3 t3, T4 t4) -&gt; action(f, () -&gt; f.apply(t1, t2, t3, t4));</span>
+  public &lt;T1, T2, T3, T4, R&gt; Function4&lt;T1, T2, T3, T4, R&gt; apply(
+      final Function4&lt;T1, T2, T3, T4, R&gt; f) {
+<span class="fc" id="L78">    return new Function4&lt;T1, T2, T3, T4, R&gt;() {</span>
+      @Override
+      public R apply(final T1 t1, final T2 t2, final T3 t3, final T4 t4) {
+<span class="fc" id="L81">        return action(f, new Function0&lt;R&gt;() {</span>
+          @Override
+          public R apply() {
+<span class="fc" id="L84">            return f.apply(t1, t2, t3, t4);</span>
+          }
+        });
+      }
+    };
   }
 
 }

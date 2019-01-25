@@ -15,8 +15,8 @@ import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="nc" id="L18">@ToString</span>
-<span class="nc bnc" id="L19" title="All 34 branches missed.">@EqualsAndHashCode</span>
+<span class="fc" id="L18">@ToString</span>
+<span class="nc bnc" id="L19" title="All 38 branches missed.">@EqualsAndHashCode</span>
 public class Peer {
 
 <span class="fc" id="L22">  @Getter</span>
@@ -26,7 +26,7 @@ public class Peer {
   protected int port;
 
 <span class="fc" id="L28">  @Getter</span>
-  protected String peerId;
+  protected PeerId peerId;
 
 <span class="fc" id="L31">  @Getter</span>
   protected BlockchainStatus blockchainStatus;
@@ -34,6 +34,9 @@ public class Peer {
   // TODO : clarify a state
 <span class="fc" id="L35">  @Getter</span>
   protected int state;
+
+<span class="fc" id="L38">  @Getter</span>
+  protected boolean hidden;
 
   /**
    * Peer constructor.
@@ -43,20 +46,22 @@ public class Peer {
    * @param peerId a peer id
    * @param blockchainStatus a blockchain status of peer
    * @param state a peer state
+   * @param hidden whether a peer is hidden or not
    */
   @ApiAudience.Private
-  public Peer(final InetAddress address, final int port, final String peerId,
+  public Peer(final InetAddress address, final int port, final PeerId peerId,
       final BlockchainStatus blockchainStatus,
-<span class="fc" id="L50">      final int state) {</span>
-<span class="fc" id="L51">    assertNotNull(address, &quot;Peer address must not null&quot;);</span>
-<span class="fc" id="L52">    assertNotNull(peerId, &quot;Peer id must not null&quot;);</span>
-<span class="fc" id="L53">    assertNotNull(blockchainStatus, &quot;Peer blockchain status must not null&quot;);</span>
-<span class="fc" id="L54">    this.address = address;</span>
-<span class="fc" id="L55">    this.port = port;</span>
-<span class="fc" id="L56">    this.peerId = peerId;</span>
-<span class="fc" id="L57">    this.blockchainStatus = blockchainStatus;</span>
-<span class="fc" id="L58">    this.state = state;</span>
-<span class="fc" id="L59">  }</span>
+<span class="fc" id="L54">      final int state, final boolean hidden) {</span>
+<span class="fc" id="L55">    assertNotNull(address, &quot;Peer address must not null&quot;);</span>
+<span class="fc" id="L56">    assertNotNull(peerId, &quot;Peer id must not null&quot;);</span>
+<span class="fc" id="L57">    assertNotNull(blockchainStatus, &quot;Peer blockchain status must not null&quot;);</span>
+<span class="fc" id="L58">    this.address = address;</span>
+<span class="fc" id="L59">    this.port = port;</span>
+<span class="fc" id="L60">    this.peerId = peerId;</span>
+<span class="fc" id="L61">    this.blockchainStatus = blockchainStatus;</span>
+<span class="fc" id="L62">    this.state = state;</span>
+<span class="fc" id="L63">    this.hidden = hidden;</span>
+<span class="fc" id="L64">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

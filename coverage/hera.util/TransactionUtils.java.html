@@ -5,7 +5,7 @@
 package hera.util;
 
 import static hera.api.model.BytesValue.of;
-import static hera.util.NumberUtils.postiveToByteArray;
+import static hera.util.NumberUtils.positiveToByteArray;
 import static hera.util.Sha256Utils.digest;
 import static hera.util.VersionUtils.trim;
 
@@ -64,18 +64,12 @@ import java.io.IOException;
 <span class="fc" id="L64">    dataOut.writeLong(rawTransaction.getNonce());</span>
 <span class="fc" id="L65">    dataOut.write(trim(rawTransaction.getSender().getBytesValue().getValue()));</span>
 <span class="fc" id="L66">    dataOut.write(trim(rawTransaction.getRecipient().getBytesValue().getValue()));</span>
-<span class="fc bfc" id="L67" title="All 2 branches covered.">    if (null != rawTransaction.getAmount()) {</span>
-<span class="fc" id="L68">      dataOut.write(postiveToByteArray(rawTransaction.getAmount().getValue()));</span>
-    }
-<span class="fc" id="L70">    dataOut.write(rawTransaction.getPayload().getValue());</span>
-<span class="pc bpc" id="L71" title="1 of 2 branches missed.">    if (null != rawTransaction.getFee()) {</span>
-<span class="fc" id="L72">      dataOut.writeLong(rawTransaction.getFee().getLimit());</span>
-<span class="fc bfc" id="L73" title="All 2 branches covered.">      if (null != rawTransaction.getFee().getPrice()) {</span>
-<span class="fc" id="L74">        dataOut.write(postiveToByteArray(rawTransaction.getFee().getPrice().getValue()));</span>
-      }
-    }
-<span class="fc" id="L77">    dataOut.writeInt(rawTransaction.getTxType().getIntValue());</span>
-<span class="fc" id="L78">    return dataOut;</span>
+<span class="fc" id="L67">    dataOut.write(positiveToByteArray(rawTransaction.getAmount().getValue()));</span>
+<span class="fc" id="L68">    dataOut.write(rawTransaction.getPayload().getValue());</span>
+<span class="fc" id="L69">    dataOut.writeLong(rawTransaction.getFee().getLimit());</span>
+<span class="fc" id="L70">    dataOut.write(positiveToByteArray(rawTransaction.getFee().getPrice().getValue()));</span>
+<span class="fc" id="L71">    dataOut.writeInt(rawTransaction.getTxType().getIntValue());</span>
+<span class="fc" id="L72">    return dataOut;</span>
   }
 
 }

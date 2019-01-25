@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Functions.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.function</a> &gt; <span class="el_source">Functions.java</span></div><h1>Functions.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.api.function;
+
+import hera.api.function.impl.Function0WithIdentity;
+import hera.api.function.impl.Function1WithIdentity;
+import hera.api.function.impl.Function2WithIdentity;
+import hera.api.function.impl.Function3WithIdentity;
+import hera.api.function.impl.Function4WithIdentity;
+
+<span class="nc" id="L13">public final class Functions {</span>
+
+  /**
+   * Identify a function by name.
+   *
+   * @param &lt;R&gt; a function return type
+   * @param f a function to identify
+   * @param identification an identification
+   * @return a function with identification
+   */
+  public static &lt;R&gt; Function0&lt;R&gt; identify(final Function0&lt;R&gt; f, final String identification) {
+<span class="fc" id="L24">    return new Function0WithIdentity&lt;R&gt;(f, identification);</span>
+  }
+
+  /**
+   * Identify a function by name.
+   *
+   * @param &lt;T&gt; a function argument type
+   * @param &lt;R&gt; a function return type
+   * @param f a function to identify
+   * @param identification an identification
+   * @return a function with identification
+   */
+  public static &lt;T, R&gt; Function1&lt;T, R&gt; identify(final Function1&lt;T, R&gt; f,
+      final String identification) {
+<span class="fc" id="L38">    return new Function1WithIdentity&lt;T, R&gt;(f, identification);</span>
+  }
+
+  /**
+   * Identify a function by name.
+   *
+   * @param &lt;T1&gt; a function 1st argument type
+   * @param &lt;T2&gt; a function 2nd argument type
+   * @param &lt;R&gt; a function return type
+   * @param f a function to identify
+   * @param identification an identification
+   * @return a function with identification
+   */
+  public static &lt;T1, T2, R&gt; Function2&lt;T1, T2, R&gt; identify(final Function2&lt;T1, T2, R&gt; f,
+      final String identification) {
+<span class="fc" id="L53">    return new Function2WithIdentity&lt;T1, T2, R&gt;(f, identification);</span>
+  }
+
+  /**
+   * Identify a function by name.
+   *
+   * @param &lt;T1&gt; a function 1st argument type
+   * @param &lt;T2&gt; a function 2nd argument type
+   * @param &lt;T3&gt; a function 3rd argument type
+   * @param &lt;R&gt; a function return type
+   * @param f a function to identify
+   * @param identification an identification
+   * @return a function with identification
+   */
+  public static &lt;T1, T2, T3, R&gt; Function3&lt;T1, T2, T3, R&gt; identify(final Function3&lt;T1, T2, T3, R&gt; f,
+      final String identification) {
+<span class="fc" id="L69">    return new Function3WithIdentity&lt;T1, T2, T3, R&gt;(f, identification);</span>
+  }
+
+  /**
+   * Identify a function by name.
+   *
+   * @param &lt;T1&gt; a function 1st argument type
+   * @param &lt;T2&gt; a function 2nd argument type
+   * @param &lt;T3&gt; a function 3rd argument type
+   * @param &lt;T4&gt; a function 4th argument type
+   * @param &lt;R&gt; a function return type
+   * @param f a function to identify
+   * @param identification an identification
+   * @return a function with identification
+   */
+  public static &lt;T1, T2, T3, T4, R&gt; Function4&lt;T1, T2, T3, T4, R&gt; identify(
+      final Function4&lt;T1, T2, T3, T4, R&gt; f, final String identification) {
+<span class="fc" id="L86">    return new Function4WithIdentity&lt;T1, T2, T3, T4, R&gt;(f, identification);</span>
+  }
+
+  /**
+   * Returns a composed function that first applies {@code first} function to its input, and then
+   * applies the {@code second} function to the result.
+   *
+   * @param &lt;R&gt; the output type of {@code first} and the input type of {@code second}
+   * @param &lt;V&gt; the type of output of the {@code second} function
+   *
+   * @param first the function to invoke first
+   * @param second the function to invoke second
+   * @return a composed function that first applies {@code first} function and then applies the
+   *         {@code second} function
+   * @throws NullPointerException if before or after is null
+   */
+  public static &lt;R, V&gt; Function0&lt;V&gt; compose(final Function0&lt;R&gt; first,
+      final Function1&lt;? super R, ? extends V&gt; second) {
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">    if (null == first) {</span>
+<span class="nc" id="L105">      throw new NullPointerException();</span>
+    }
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">    if (null == second) {</span>
+<span class="nc" id="L108">      throw new NullPointerException();</span>
+    }
+<span class="fc" id="L110">    return new Function0&lt;V&gt;() {</span>
+      @Override
+      public V apply() {
+<span class="fc" id="L113">        return second.apply(first.apply());</span>
+      }
+    };
+  }
+
+  /**
+   * Returns a composed function that first applies {@code first} function to its input, and then
+   * applies the {@code second} function to the result.
+   *
+   * @param &lt;T&gt; the input type of {@code first}
+   * @param &lt;R&gt; the output type of {@code first} and the input type of {@code second}
+   * @param &lt;V&gt; the type of output of the {@code second} function
+   *
+   * @param first the function to invoke first
+   * @param second the function to invoke second
+   * @return a composed function that first applies {@code first} function and then applies the
+   *         {@code second} function
+   * @throws NullPointerException if before or after is null
+   */
+  public static &lt;T, R, V&gt; Function1&lt;T, V&gt; compose(final Function1&lt;? super T, ? extends R&gt; first,
+      final Function1&lt;? super R, ? extends V&gt; second) {
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">    if (null == first) {</span>
+<span class="nc" id="L135">      throw new NullPointerException();</span>
+    }
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">    if (null == second) {</span>
+<span class="nc" id="L138">      throw new NullPointerException();</span>
+    }
+<span class="fc" id="L140">    return new Function1&lt;T, V&gt;() {</span>
+      @Override
+      public V apply(final T t) {
+<span class="fc" id="L143">        return second.apply(first.apply(t));</span>
+      }
+    };
+  }
+
+  /**
+   * Returns a composed function that first applies {@code first} function to its input, and then
+   * applies the {@code second} function to the result.
+   *
+   * @param &lt;T1&gt; the 1st input type of {@code first}
+   * @param &lt;T2&gt; the 2nd input type of {@code first}
+   * @param &lt;R&gt; the output type of {@code first} and the input type of {@code second}
+   * @param &lt;V&gt; the type of output of the {@code second} function
+   *
+   * @param first the function to invoke first
+   * @param second the function to invoke second
+   * @return a composed function that first applies {@code first} function and then applies the
+   *         {@code second} function
+   * @throws NullPointerException if before or after is null
+   */
+  public static &lt;T1, T2, R, V&gt; Function2&lt;T1, T2, V&gt; compose(
+      final Function2&lt;? super T1, ? super T2, ? extends R&gt; first,
+      final Function1&lt;? super R, ? extends V&gt; second) {
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">    if (null == first) {</span>
+<span class="nc" id="L167">      throw new NullPointerException();</span>
+    }
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">    if (null == second) {</span>
+<span class="nc" id="L170">      throw new NullPointerException();</span>
+    }
+<span class="fc" id="L172">    return new Function2&lt;T1, T2, V&gt;() {</span>
+      @Override
+      public V apply(final T1 t1, final T2 t2) {
+<span class="fc" id="L175">        return second.apply(first.apply(t1, t2));</span>
+      }
+    };
+  }
+
+  /**
+   * Returns a composed function that first applies {@code first} function to its input, and then
+   * applies the {@code second} function to the result.
+   *
+   * @param &lt;T1&gt; the 1st input type of {@code first}
+   * @param &lt;T2&gt; the 2nd input type of {@code first}
+   * @param &lt;T3&gt; the 3rd input type of {@code first}
+   * @param &lt;R&gt; the output type of {@code first} and the input type of {@code second}
+   * @param &lt;V&gt; the type of output of the {@code second} function
+   *
+   * @param first the function to invoke first
+   * @param second the function to invoke second
+   * @return a composed function that first applies {@code first} function and then applies the
+   *         {@code second} function
+   * @throws NullPointerException if before or after is null
+   */
+  public static &lt;T1, T2, T3, R, V&gt; Function3&lt;T1, T2, T3, V&gt; compose(
+      final Function3&lt;? super T1, ? super T2, ? super T3, ? extends R&gt; first,
+      final Function1&lt;? super R, ? extends V&gt; second) {
+<span class="pc bpc" id="L199" title="1 of 2 branches missed.">    if (null == first) {</span>
+<span class="nc" id="L200">      throw new NullPointerException();</span>
+    }
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">    if (null == second) {</span>
+<span class="nc" id="L203">      throw new NullPointerException();</span>
+    }
+<span class="fc" id="L205">    return new Function3&lt;T1, T2, T3, V&gt;() {</span>
+      @Override
+      public V apply(final T1 t1, final T2 t2, final T3 t3) {
+<span class="fc" id="L208">        return second.apply(first.apply(t1, t2, t3));</span>
+      }
+    };
+  }
+
+  /**
+   * Returns a composed function that first applies {@code first} function to its input, and then
+   * applies the {@code second} function to the result.
+   *
+   * @param &lt;T1&gt; the 1st input type of {@code first}
+   * @param &lt;T2&gt; the 2nd input type of {@code first}
+   * @param &lt;T3&gt; the 3rd input type of {@code first}
+   * @param &lt;T4&gt; the 3rd input type of {@code first}
+   * @param &lt;R&gt; the output type of {@code first} and the input type of {@code second}
+   * @param &lt;V&gt; the type of output of the {@code second} function
+   *
+   * @param first the function to invoke first
+   * @param second the function to invoke second
+   * @return a composed function that first applies {@code first} function and then applies the
+   *         {@code second} function
+   * @throws NullPointerException if before or after is null
+   */
+  public static &lt;T1, T2, T3, T4, R, V&gt; Function4&lt;T1, T2, T3, T4, V&gt; compose(
+      final Function4&lt;? super T1, ? super T2, ? super T3, ? super T4, ? extends R&gt; first,
+      final Function1&lt;? super R, ? extends V&gt; second) {
+<span class="pc bpc" id="L233" title="1 of 2 branches missed.">    if (null == first) {</span>
+<span class="nc" id="L234">      throw new NullPointerException();</span>
+    }
+<span class="pc bpc" id="L236" title="1 of 2 branches missed.">    if (null == second) {</span>
+<span class="nc" id="L237">      throw new NullPointerException();</span>
+    }
+<span class="fc" id="L239">    return new Function4&lt;T1, T2, T3, T4, V&gt;() {</span>
+      @Override
+      public V apply(final T1 t1, final T2 t2, final T3 t3, final T4 t4) {
+<span class="fc" id="L242">        return second.apply(first.apply(t1, t2, t3, t4));</span>
+      }
+    };
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

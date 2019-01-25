@@ -19,7 +19,7 @@ import java.util.Map;
 <span class="fc" id="L19">      new ThreadLocal&lt;Map&lt;Integer, Context&gt;&gt;() {</span>
         @Override
         public Map&lt;Integer, Context&gt; initialValue() {
-<span class="fc" id="L22">          return new HashMap&lt;&gt;();</span>
+<span class="fc" id="L22">          return new HashMap&lt;Integer, Context&gt;();</span>
         }
       };
 
@@ -27,9 +27,16 @@ import java.util.Map;
 <span class="fc" id="L27">    threadLocal.get().put(identityHashCode(keyObject), context);</span>
 <span class="fc" id="L28">  }</span>
 
+  /**
+   * Get context of {@code keyObject}.
+   *
+   * @param keyObject a context key
+   * @return a context
+   */
   public static Context get(final Object keyObject) {
-<span class="fc" id="L31">    return threadLocal.get().getOrDefault(identityHashCode(keyObject),</span>
-<span class="fc" id="L32">        EmptyContext.getInstance());</span>
+<span class="fc" id="L37">    final int key = identityHashCode(keyObject);</span>
+<span class="fc" id="L38">    final Context context = threadLocal.get().get(key);</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">    return null != context ? context : EmptyContext.getInstance();</span>
   }
 
 }

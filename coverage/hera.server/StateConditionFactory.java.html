@@ -10,18 +10,39 @@ package hera.server;
 <span class="fc" id="L10">    return condition;</span>
   }
 
-  @SuppressWarnings({
-      &quot;unchecked&quot;, &quot;rawtypes&quot;
-  })
-  public static &lt;StateT&gt; StateCondition&lt;StateT&gt; when(final StateT... condition) {
-<span class="fc" id="L17">    return (state) -&gt; state.isState(condition);</span>
+  /**
+   * Return a condition evaluator which returns true when {@code conditions}... matches.
+   *
+   * @param &lt;StateT&gt; a state type
+   * @param conditions conditions to match
+   * @return a condition evaluator
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public static &lt;StateT&gt; StateCondition&lt;StateT&gt; when(final StateT... conditions) {
+<span class="fc" id="L22">    return new StateCondition&lt;StateT&gt;() {</span>
+      @Override
+      public boolean evaluate(StateMachine&lt;StateT&gt; state) {
+<span class="fc" id="L25">        return state.isState(conditions);</span>
+      }
+    };
   }
 
-  @SuppressWarnings({
-      &quot;unchecked&quot;, &quot;rawtypes&quot;
-  })
+
+  /**
+   * Return a condition evaluator which returns false when {@code states}... matches.
+   *
+   * @param &lt;StateT&gt; a state type
+   * @param states states to match
+   * @return a condition evaluator
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
   public static &lt;StateT&gt; StateCondition&lt;StateT&gt; not(final StateT... states) {
-<span class="fc bfc" id="L24" title="All 2 branches covered.">    return (state) -&gt; !state.isState(states);</span>
+<span class="fc" id="L40">    return new StateCondition&lt;StateT&gt;() {</span>
+      @Override
+      public boolean evaluate(StateMachine&lt;StateT&gt; state) {
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        return !state.isState(states);</span>
+      }
+    };
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

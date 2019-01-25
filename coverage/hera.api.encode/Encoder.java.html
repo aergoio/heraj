@@ -17,7 +17,12 @@ import java.io.StringReader;
 @ApiAudience.Private
 @ApiStability.Unstable
 public interface Encoder {
-<span class="fc" id="L20">  Encoder defaultEncoder = in -&gt; new StringReader(HexUtils.encode(from(in)));</span>
+<span class="fc" id="L20">  Encoder defaultEncoder = new Encoder() {</span>
+    @Override
+    public Reader encode(InputStream in) throws IOException {
+<span class="fc" id="L23">      return new StringReader(HexUtils.encode(from(in)));</span>
+    }
+  };
 
   Reader encode(InputStream in) throws IOException;
 

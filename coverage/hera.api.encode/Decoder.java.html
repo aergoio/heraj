@@ -17,7 +17,12 @@ import java.io.Reader;
 @ApiAudience.Private
 @ApiStability.Unstable
 public interface Decoder {
-<span class="fc" id="L20">  Decoder defaultDecoder = reader -&gt; new ByteArrayInputStream(HexUtils.decode(from(reader)));</span>
+<span class="fc" id="L20">  Decoder defaultDecoder = new Decoder() {</span>
+    @Override
+    public InputStream decode(Reader reader) throws IOException {
+<span class="fc" id="L23">      return new ByteArrayInputStream(HexUtils.decode(from(reader)));</span>
+    }
+  };
 
   InputStream decode(Reader reader) throws IOException;
 }

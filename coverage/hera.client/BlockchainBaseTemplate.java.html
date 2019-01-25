@@ -6,9 +6,7 @@ package hera.client;
 
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
-import static hera.api.tupleorerror.FunctionChain.of;
 import static hera.util.TransportUtils.longToByteArray;
-import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
@@ -18,19 +16,33 @@ import hera.ContextProvider;
 import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.api.function.Function0;
+import hera.api.function.Function1;
+import hera.api.function.Function3;
+import hera.api.model.Account;
+import hera.api.model.AccountAddress;
+import hera.api.model.BlockProducer;
 import hera.api.model.BlockchainStatus;
+import hera.api.model.BytesValue;
+import hera.api.model.Fee;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
+import hera.api.model.PeerId;
 import hera.api.model.PeerMetric;
-import hera.api.tupleorerror.Function0;
-import hera.api.tupleorerror.ResultOrErrorFuture;
-import hera.api.tupleorerror.ResultOrErrorFutureFactory;
+import hera.api.model.RawTransaction;
+import hera.api.model.Transaction;
+import hera.api.model.TxHash;
+import hera.api.model.VotingInfo;
+import hera.api.model.internal.GovernanceRecipient;
+import hera.transport.AccountAddressConverterFactory;
 import hera.transport.BlockchainStatusConverterFactory;
 import hera.transport.ModelConverter;
 import hera.transport.NodeStatusConverterFactory;
 import hera.transport.PeerConverterFactory;
 import hera.transport.PeerMetricConverterFactory;
+import hera.transport.VotingInfoConverterFactory;
 import io.grpc.ManagedChannel;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import org.slf4j.Logger;
@@ -40,107 +52,305 @@ import types.Rpc;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-@SuppressWarnings(&quot;unchecked&quot;)
-<span class="fc" id="L44">public class BlockchainBaseTemplate implements ChannelInjectable, ContextProviderInjectable {</span>
+<span class="fc" id="L55">public class BlockchainBaseTemplate implements ChannelInjectable, ContextProviderInjectable {</span>
 
-<span class="fc" id="L46">  protected final Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L57">  protected final Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L48">  protected final ModelConverter&lt;BlockchainStatus, Rpc.BlockchainStatus&gt; blockchainConverter =</span>
-<span class="fc" id="L49">      new BlockchainStatusConverterFactory().create();</span>
+<span class="fc" id="L59">  protected final ModelConverter&lt;BlockchainStatus, Rpc.BlockchainStatus&gt; blockchainConverter =</span>
+<span class="fc" id="L60">      new BlockchainStatusConverterFactory().create();</span>
 
-<span class="fc" id="L51">  protected final ModelConverter&lt;Peer, Rpc.Peer&gt; peerConverter =</span>
-<span class="fc" id="L52">      new PeerConverterFactory().create();</span>
+<span class="fc" id="L62">  protected final ModelConverter&lt;Peer, Rpc.Peer&gt; peerConverter =</span>
+<span class="fc" id="L63">      new PeerConverterFactory().create();</span>
 
-<span class="fc" id="L54">  protected final ModelConverter&lt;PeerMetric, Metric.PeerMetric&gt; peerMetricConverter =</span>
-<span class="fc" id="L55">      new PeerMetricConverterFactory().create();</span>
+<span class="fc" id="L65">  protected final ModelConverter&lt;PeerMetric, Metric.PeerMetric&gt; peerMetricConverter =</span>
+<span class="fc" id="L66">      new PeerMetricConverterFactory().create();</span>
 
-<span class="fc" id="L57">  protected final ModelConverter&lt;NodeStatus, Rpc.SingleBytes&gt; nodeStatusConverter =</span>
-<span class="fc" id="L58">      new NodeStatusConverterFactory().create();</span>
+<span class="fc" id="L68">  protected final ModelConverter&lt;NodeStatus, Rpc.SingleBytes&gt; nodeStatusConverter =</span>
+<span class="fc" id="L69">      new NodeStatusConverterFactory().create();</span>
 
-<span class="nc" id="L60">  @Getter</span>
+<span class="fc" id="L71">  protected final ModelConverter&lt;AccountAddress, ByteString&gt; accountAddressConverter =</span>
+<span class="fc" id="L72">      new AccountAddressConverterFactory().create();</span>
+
+<span class="fc" id="L74">  protected final ModelConverter&lt;VotingInfo, Rpc.Vote&gt; voteConverter =</span>
+<span class="fc" id="L75">      new VotingInfoConverterFactory().create();</span>
+
+<span class="fc" id="L77">  protected AccountBaseTemplate accountBaseTemplate = new AccountBaseTemplate();</span>
+
+<span class="fc" id="L79">  protected TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();</span>
+
+<span class="nc" id="L81">  @Getter</span>
   protected AergoRPCServiceFutureStub aergoService;
 
   protected ContextProvider contextProvider;
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-<span class="fc" id="L67">    this.aergoService = newFutureStub(channel);</span>
-<span class="fc" id="L68">  }</span>
+<span class="fc" id="L88">    this.aergoService = newFutureStub(channel);</span>
+<span class="fc" id="L89">    this.accountBaseTemplate.setChannel(channel);</span>
+<span class="fc" id="L90">    this.transactionBaseTemplate.setChannel(channel);</span>
+<span class="fc" id="L91">  }</span>
 
   @Override
   public void setContextProvider(final ContextProvider contextProvider) {
-<span class="fc" id="L72">    this.contextProvider = contextProvider;</span>
-<span class="fc" id="L73">  }</span>
+<span class="fc" id="L95">    this.contextProvider = contextProvider;</span>
+<span class="fc" id="L96">    this.accountBaseTemplate.setContextProvider(contextProvider);</span>
+<span class="fc" id="L97">    this.transactionBaseTemplate.setContextProvider(contextProvider);</span>
+<span class="fc" id="L98">  }</span>
 
-<span class="fc" id="L75">  @Getter</span>
-  private final Function0&lt;ResultOrErrorFuture&lt;BlockchainStatus&gt;&gt; blockchainStatusFunction = () -&gt; {
-    ResultOrErrorFuture&lt;BlockchainStatus&gt; nextFuture =
-<span class="fc" id="L78">        ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
-<span class="fc" id="L79">    logger.debug(&quot;Get blockchain status, Context: {}&quot;, contextProvider.get());</span>
+<span class="fc" id="L100">  @Getter</span>
+  private final Function0&lt;FinishableFuture&lt;BlockchainStatus&gt;&gt; blockchainStatusFunction =
+<span class="fc" id="L102">      new Function0&lt;FinishableFuture&lt;BlockchainStatus&gt;&gt;() {</span>
 
-<span class="fc" id="L81">    final Rpc.Empty empty = Rpc.Empty.newBuilder().build();</span>
-<span class="fc" id="L82">    ListenableFuture&lt;Rpc.BlockchainStatus&gt; listenableFuture =</span>
-<span class="fc" id="L83">        aergoService.blockchain(empty);</span>
-<span class="fc" id="L84">    FutureChain&lt;Rpc.BlockchainStatus, BlockchainStatus&gt; callback =</span>
-<span class="fc" id="L85">        new FutureChain&lt;&gt;(nextFuture, contextProvider.get());</span>
-<span class="fc" id="L86">    callback.setSuccessHandler(s -&gt; of(() -&gt; blockchainConverter.convertToDomainModel(s)));</span>
-<span class="fc" id="L87">    addCallback(listenableFuture, callback, directExecutor());</span>
+        @Override
+        public FinishableFuture&lt;BlockchainStatus&gt; apply() {
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">          if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L107">            logger.debug(&quot;Get blockchain status, Context: {}&quot;, contextProvider.get());</span>
+          }
 
-<span class="fc" id="L89">    return nextFuture;</span>
-  };
+<span class="fc" id="L110">          FinishableFuture&lt;BlockchainStatus&gt; nextFuture = new FinishableFuture&lt;BlockchainStatus&gt;();</span>
+          try {
+<span class="fc" id="L112">            final Rpc.Empty empty = Rpc.Empty.newBuilder().build();</span>
+<span class="fc" id="L113">            ListenableFuture&lt;Rpc.BlockchainStatus&gt; listenableFuture =</span>
+<span class="fc" id="L114">                aergoService.blockchain(empty);</span>
 
-<span class="fc" id="L92">  @Getter</span>
-  private final Function0&lt;ResultOrErrorFuture&lt;List&lt;Peer&gt;&gt;&gt; listPeersFunction = () -&gt; {
-<span class="fc" id="L94">    ResultOrErrorFuture&lt;List&lt;Peer&gt;&gt; nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
-<span class="fc" id="L95">    logger.debug(&quot;List peers, Context: {}&quot;, contextProvider.get());</span>
+<span class="fc" id="L116">            FutureChain&lt;Rpc.BlockchainStatus, BlockchainStatus&gt; callback =</span>
+                new FutureChain&lt;Rpc.BlockchainStatus, BlockchainStatus&gt;(nextFuture,
+<span class="fc" id="L118">                    contextProvider.get());</span>
+<span class="fc" id="L119">            callback.setSuccessHandler(new Function1&lt;Rpc.BlockchainStatus, BlockchainStatus&gt;() {</span>
 
-<span class="fc" id="L97">    final Rpc.Empty empty = Rpc.Empty.newBuilder().build();</span>
-<span class="fc" id="L98">    ListenableFuture&lt;Rpc.PeerList&gt; listenableFuture = aergoService.getPeers(empty);</span>
-<span class="fc" id="L99">    FutureChain&lt;Rpc.PeerList, List&lt;Peer&gt;&gt; callback =</span>
-<span class="fc" id="L100">        new FutureChain&lt;&gt;(nextFuture, contextProvider.get());</span>
-<span class="fc" id="L101">    callback.setSuccessHandler(peerlist -&gt; of(() -&gt; peerlist.getPeersList().stream()</span>
-<span class="fc" id="L102">        .map(peerConverter::convertToDomainModel).collect(toList())));</span>
-<span class="fc" id="L103">    addCallback(listenableFuture, callback, directExecutor());</span>
+              @Override
+              public BlockchainStatus apply(Rpc.BlockchainStatus s) {
+<span class="fc" id="L123">                return blockchainConverter.convertToDomainModel(s);</span>
+              }
+            });
+<span class="fc" id="L126">            addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="nc" id="L127">          } catch (Exception e) {</span>
+<span class="nc" id="L128">            nextFuture.fail(e);</span>
+<span class="fc" id="L129">          }</span>
+<span class="fc" id="L130">          return nextFuture;</span>
+        }
+      };
 
-<span class="fc" id="L105">    return nextFuture;</span>
-  };
+<span class="fc" id="L134">  @Getter</span>
+  private final Function0&lt;FinishableFuture&lt;List&lt;Peer&gt;&gt;&gt; listPeersFunction =
+<span class="fc" id="L136">      new Function0&lt;FinishableFuture&lt;List&lt;Peer&gt;&gt;&gt;() {</span>
 
-<span class="fc" id="L108">  @Getter</span>
-  private final Function0&lt;ResultOrErrorFuture&lt;List&lt;PeerMetric&gt;&gt;&gt; listPeersMetricsFunction = () -&gt; {
-    ResultOrErrorFuture&lt;List&lt;PeerMetric&gt;&gt; nextFuture =
-<span class="fc" id="L111">        ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
-<span class="fc" id="L112">    logger.debug(&quot;List peer metrics, Context: {}&quot;, contextProvider.get());</span>
+        @Override
+        public FinishableFuture&lt;List&lt;Peer&gt;&gt; apply() {
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">          if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L141">            logger.debug(&quot;List peers, Context: {}&quot;, contextProvider.get());</span>
+          }
 
-<span class="fc" id="L114">    ListenableFuture&lt;Metric.Metrics&gt; listenableFuture = aergoService.metric(</span>
-<span class="fc" id="L115">        Metric.MetricsRequest.newBuilder().addTypes(Metric.MetricType.P2P_NETWORK).build());</span>
-<span class="fc" id="L116">    FutureChain&lt;Metric.Metrics, List&lt;PeerMetric&gt;&gt; callback =</span>
-<span class="fc" id="L117">        new FutureChain&lt;&gt;(nextFuture, contextProvider.get());</span>
-<span class="fc" id="L118">    callback.setSuccessHandler(peerlist -&gt; of(() -&gt; peerlist.getPeersList().stream()</span>
-<span class="fc" id="L119">        .map(peerMetricConverter::convertToDomainModel).collect(toList())));</span>
-<span class="fc" id="L120">    addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="fc" id="L144">          FinishableFuture&lt;List&lt;Peer&gt;&gt; nextFuture = new FinishableFuture&lt;List&lt;Peer&gt;&gt;();</span>
+          try {
+<span class="fc" id="L146">            final Rpc.Empty empty = Rpc.Empty.newBuilder().build();</span>
+<span class="fc" id="L147">            ListenableFuture&lt;Rpc.PeerList&gt; listenableFuture = aergoService.getPeers(empty);</span>
 
-<span class="fc" id="L122">    return nextFuture;</span>
-  };
+<span class="fc" id="L149">            FutureChain&lt;Rpc.PeerList, List&lt;Peer&gt;&gt; callback =</span>
+<span class="fc" id="L150">                new FutureChain&lt;Rpc.PeerList, List&lt;Peer&gt;&gt;(nextFuture, contextProvider.get());</span>
+<span class="fc" id="L151">            callback.setSuccessHandler(new Function1&lt;Rpc.PeerList, List&lt;Peer&gt;&gt;() {</span>
 
-<span class="fc" id="L125">  @Getter</span>
-  private final Function0&lt;ResultOrErrorFuture&lt;NodeStatus&gt;&gt; nodeStatusFunction = () -&gt; {
-<span class="fc" id="L127">    ResultOrErrorFuture&lt;NodeStatus&gt; nextFuture = ResultOrErrorFutureFactory.supplyEmptyFuture();</span>
-<span class="fc" id="L128">    logger.debug(&quot;Get node status, Context: {}&quot;, contextProvider.get());</span>
+              @Override
+              public List&lt;Peer&gt; apply(final Rpc.PeerList peerlist) {
+<span class="fc" id="L155">                final List&lt;Peer&gt; domainPeerList = new ArrayList&lt;Peer&gt;();</span>
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">                for (final Rpc.Peer rpcPeer : peerlist.getPeersList()) {</span>
+<span class="nc" id="L157">                  domainPeerList.add(peerConverter.convertToDomainModel(rpcPeer));</span>
+<span class="nc" id="L158">                }</span>
+<span class="fc" id="L159">                return domainPeerList;</span>
+              }
+            });
+<span class="fc" id="L162">            addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="nc" id="L163">          } catch (Exception e) {</span>
+<span class="nc" id="L164">            nextFuture.fail(e);</span>
+<span class="fc" id="L165">          }</span>
+<span class="fc" id="L166">          return nextFuture;</span>
+        }
+      };
 
-<span class="fc" id="L130">    ByteString rawTimeout = ByteString.copyFrom(longToByteArray(3000L));</span>
-<span class="fc" id="L131">    Rpc.NodeReq nodeRequest = Rpc.NodeReq.newBuilder()</span>
-<span class="fc" id="L132">        .setTimeout(rawTimeout)</span>
-<span class="fc" id="L133">        .build();</span>
-<span class="fc" id="L134">    ListenableFuture&lt;Rpc.SingleBytes&gt; listenableFuture = aergoService.nodeState(nodeRequest);</span>
-<span class="fc" id="L135">    FutureChain&lt;Rpc.SingleBytes, NodeStatus&gt; callback =</span>
-<span class="fc" id="L136">        new FutureChain&lt;&gt;(nextFuture, contextProvider.get());</span>
-<span class="fc" id="L137">    callback</span>
-<span class="fc" id="L138">        .setSuccessHandler(</span>
-<span class="fc" id="L139">            status -&gt; of(() -&gt; nodeStatusConverter.convertToDomainModel(status)));</span>
-<span class="fc" id="L140">    addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="fc" id="L170">  @Getter</span>
+  private final Function0&lt;FinishableFuture&lt;List&lt;PeerMetric&gt;&gt;&gt; listPeersMetricsFunction =
+<span class="fc" id="L172">      new Function0&lt;FinishableFuture&lt;List&lt;PeerMetric&gt;&gt;&gt;() {</span>
 
-<span class="fc" id="L142">    return nextFuture;</span>
-  };
+        @Override
+        public FinishableFuture&lt;List&lt;PeerMetric&gt;&gt; apply() {
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">          if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L177">            logger.debug(&quot;List peer metrics, Context: {}&quot;, contextProvider.get());</span>
+          }
+<span class="fc" id="L179">          FinishableFuture&lt;List&lt;PeerMetric&gt;&gt; nextFuture = new FinishableFuture&lt;List&lt;PeerMetric&gt;&gt;();</span>
+          try {
+            final Metric.MetricsRequest request =
+<span class="fc" id="L182">                Metric.MetricsRequest.newBuilder().addTypes(Metric.MetricType.P2P_NETWORK).build();</span>
+<span class="fc" id="L183">            ListenableFuture&lt;Metric.Metrics&gt; listenableFuture = aergoService.metric(request);</span>
+
+<span class="fc" id="L185">            FutureChain&lt;Metric.Metrics, List&lt;PeerMetric&gt;&gt; callback =</span>
+                new FutureChain&lt;Metric.Metrics, List&lt;PeerMetric&gt;&gt;(nextFuture,
+<span class="fc" id="L187">                    contextProvider.get());</span>
+<span class="fc" id="L188">            callback.setSuccessHandler(new Function1&lt;Metric.Metrics, List&lt;PeerMetric&gt;&gt;() {</span>
+
+              @Override
+              public List&lt;PeerMetric&gt; apply(final Metric.Metrics rpcMetrics) {
+<span class="fc" id="L192">                final List&lt;PeerMetric&gt; domainMetrics = new ArrayList&lt;PeerMetric&gt;();</span>
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">                for (final Metric.PeerMetric rpcMetric : rpcMetrics.getPeersList()) {</span>
+<span class="nc" id="L194">                  domainMetrics.add(peerMetricConverter.convertToDomainModel(rpcMetric));</span>
+<span class="nc" id="L195">                }</span>
+<span class="fc" id="L196">                return domainMetrics;</span>
+              }
+            });
+<span class="fc" id="L199">            addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="nc" id="L200">          } catch (Exception e) {</span>
+<span class="nc" id="L201">            nextFuture.fail(e);</span>
+<span class="fc" id="L202">          }</span>
+<span class="fc" id="L203">          return nextFuture;</span>
+        }
+      };
+
+<span class="fc" id="L207">  @Getter</span>
+  private final Function0&lt;FinishableFuture&lt;NodeStatus&gt;&gt; nodeStatusFunction =
+<span class="fc" id="L209">      new Function0&lt;FinishableFuture&lt;NodeStatus&gt;&gt;() {</span>
+
+        @Override
+        public FinishableFuture&lt;NodeStatus&gt; apply() {
+<span class="pc bpc" id="L213" title="1 of 2 branches missed.">          if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L214">            logger.debug(&quot;Get node status, Context: {}&quot;, contextProvider.get());</span>
+          }
+
+<span class="fc" id="L217">          FinishableFuture&lt;NodeStatus&gt; nextFuture = new FinishableFuture&lt;NodeStatus&gt;();</span>
+          try {
+<span class="fc" id="L219">            final ByteString rawTimeout = ByteString.copyFrom(longToByteArray(3000L));</span>
+<span class="fc" id="L220">            final Rpc.NodeReq nodeRequest = Rpc.NodeReq.newBuilder()</span>
+<span class="fc" id="L221">                .setTimeout(rawTimeout)</span>
+<span class="fc" id="L222">                .build();</span>
+<span class="fc" id="L223">            ListenableFuture&lt;Rpc.SingleBytes&gt; listenableFuture =</span>
+<span class="fc" id="L224">                aergoService.nodeState(nodeRequest);</span>
+
+<span class="fc" id="L226">            FutureChain&lt;Rpc.SingleBytes, NodeStatus&gt; callback =</span>
+<span class="fc" id="L227">                new FutureChain&lt;Rpc.SingleBytes, NodeStatus&gt;(nextFuture, contextProvider.get());</span>
+<span class="fc" id="L228">            callback.setSuccessHandler(new Function1&lt;Rpc.SingleBytes, NodeStatus&gt;() {</span>
+
+              @Override
+              public NodeStatus apply(final Rpc.SingleBytes status) {
+<span class="fc" id="L232">                return nodeStatusConverter.convertToDomainModel(status);</span>
+              }
+            });
+<span class="fc" id="L235">            addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="nc" id="L236">          } catch (Exception e) {</span>
+<span class="nc" id="L237">            nextFuture.fail(e);</span>
+<span class="fc" id="L238">          }</span>
+<span class="fc" id="L239">          return nextFuture;</span>
+        }
+      };
+
+<span class="fc" id="L243">  @Getter</span>
+  private final Function3&lt;Account, PeerId, Long, FinishableFuture&lt;TxHash&gt;&gt; voteFunction =
+<span class="fc" id="L245">      new Function3&lt;Account, PeerId, Long, FinishableFuture&lt;TxHash&gt;&gt;() {</span>
+
+        @Override
+        public FinishableFuture&lt;TxHash&gt; apply(final Account account, final PeerId peerId,
+            final Long nonce) {
+<span class="pc bpc" id="L250" title="1 of 2 branches missed.">          if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L251">            logger.debug(&quot;Voting with account: {}, PeerId: {}, nonce: {}&quot;,</span>
+<span class="nc" id="L252">                account.getAddress(), peerId, nonce);</span>
+          }
+
+<span class="fc" id="L255">          final byte[] rawPeerId = peerId.getBytesValue().getValue();</span>
+<span class="fc" id="L256">          final byte[] rawPayload = new byte[1 + rawPeerId.length];</span>
+<span class="fc" id="L257">          rawPayload[0] = (byte) 'v';</span>
+<span class="fc" id="L258">          System.arraycopy(rawPeerId, 0, rawPayload, 1, rawPeerId.length);</span>
+<span class="fc" id="L259">          final RawTransaction rawTransaction = new RawTransaction(account.getAddress(),</span>
+              GovernanceRecipient.AERGO_SYSTEM,
+              null,
+              nonce,
+              Fee.ZERO,
+              new BytesValue(rawPayload),
+              Transaction.TxType.GOVERNANCE);
+<span class="fc" id="L266">          final Transaction signed =</span>
+<span class="fc" id="L267">              accountBaseTemplate.getSignFunction().apply(account, rawTransaction).get();</span>
+<span class="fc" id="L268">          return transactionBaseTemplate.getCommitFunction().apply(signed);</span>
+        }
+      };
+
+<span class="fc" id="L272">  @Getter</span>
+  private final Function1&lt;Long,
+      FinishableFuture&lt;List&lt;BlockProducer&gt;&gt;&gt; listElectedBlockProducersFunction = new Function1&lt;
+<span class="fc" id="L275">          Long, FinishableFuture&lt;List&lt;BlockProducer&gt;&gt;&gt;() {</span>
+
+        @Override
+        public FinishableFuture&lt;List&lt;BlockProducer&gt;&gt; apply(final Long showCount) {
+<span class="pc bpc" id="L279" title="1 of 2 branches missed.">          if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L280">            logger.debug(&quot;Get votes status, ShowCount: {}, Context: {}&quot;, showCount,</span>
+<span class="nc" id="L281">                contextProvider.get());</span>
+          }
+
+<span class="fc" id="L284">          FinishableFuture&lt;List&lt;BlockProducer&gt;&gt; nextFuture =</span>
+              new FinishableFuture&lt;List&lt;BlockProducer&gt;&gt;();
+          try {
+<span class="fc" id="L287">            final Rpc.SingleBytes request = Rpc.SingleBytes.newBuilder()</span>
+<span class="fc" id="L288">                .setValue(ByteString.copyFrom(longToByteArray(showCount.longValue())))</span>
+<span class="fc" id="L289">                .build();</span>
+<span class="fc" id="L290">            ListenableFuture&lt;Rpc.VoteList&gt; listenableFuture = aergoService.getVotes(request);</span>
+
+<span class="fc" id="L292">            FutureChain&lt;Rpc.VoteList, List&lt;BlockProducer&gt;&gt; callback =</span>
+                new FutureChain&lt;Rpc.VoteList, List&lt;BlockProducer&gt;&gt;(nextFuture,
+<span class="fc" id="L294">                    contextProvider.get());</span>
+<span class="fc" id="L295">            callback.setSuccessHandler(new Function1&lt;Rpc.VoteList, List&lt;BlockProducer&gt;&gt;() {</span>
+
+              @Override
+              public List&lt;BlockProducer&gt; apply(final Rpc.VoteList rpcVoteList) {
+<span class="fc" id="L299">                final List&lt;BlockProducer&gt; votes = new ArrayList&lt;BlockProducer&gt;();</span>
+<span class="pc bpc" id="L300" title="1 of 2 branches missed.">                for (final Rpc.Vote rpcVote : rpcVoteList.getVotesList()) {</span>
+<span class="nc" id="L301">                  final VotingInfo rpcVotingInfo = voteConverter.convertToDomainModel(rpcVote);</span>
+<span class="nc" id="L302">                  votes.add(new BlockProducer(</span>
+<span class="nc" id="L303">                      rpcVotingInfo.getPeerId(), rpcVotingInfo.getAmount()));</span>
+<span class="nc" id="L304">                }</span>
+<span class="fc" id="L305">                return votes;</span>
+              }
+            });
+<span class="fc" id="L308">            addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="nc" id="L309">          } catch (Exception e) {</span>
+<span class="nc" id="L310">            nextFuture.fail(e);</span>
+<span class="fc" id="L311">          }</span>
+<span class="fc" id="L312">          return nextFuture;</span>
+        }
+      };
+
+<span class="fc" id="L316">  @Getter</span>
+  private final Function1&lt;AccountAddress, FinishableFuture&lt;List&lt;VotingInfo&gt;&gt;&gt; listVotesOfFunction =
+<span class="fc" id="L318">      new Function1&lt;AccountAddress, FinishableFuture&lt;List&lt;VotingInfo&gt;&gt;&gt;() {</span>
+
+        @Override
+        public FinishableFuture&lt;List&lt;VotingInfo&gt;&gt; apply(final AccountAddress accountAddress) {
+<span class="pc bpc" id="L322" title="1 of 2 branches missed.">          if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L323">            logger.debug(&quot;Get votes of, AccountAddress: {}, Context: {}&quot;, accountAddress,</span>
+<span class="nc" id="L324">                contextProvider.get());</span>
+          }
+
+<span class="fc" id="L327">          FinishableFuture&lt;List&lt;VotingInfo&gt;&gt; nextFuture = new FinishableFuture&lt;List&lt;VotingInfo&gt;&gt;();</span>
+          try {
+<span class="fc" id="L329">            final Rpc.SingleBytes request = Rpc.SingleBytes.newBuilder()</span>
+<span class="fc" id="L330">                .setValue(accountAddressConverter.convertToRpcModel(accountAddress))</span>
+<span class="fc" id="L331">                .build();</span>
+<span class="fc" id="L332">            ListenableFuture&lt;Rpc.VoteList&gt; listenableFuture = aergoService.getVotes(request);</span>
+
+<span class="fc" id="L334">            FutureChain&lt;Rpc.VoteList, List&lt;VotingInfo&gt;&gt; callback =</span>
+<span class="fc" id="L335">                new FutureChain&lt;Rpc.VoteList, List&lt;VotingInfo&gt;&gt;(nextFuture, contextProvider.get());</span>
+<span class="fc" id="L336">            callback.setSuccessHandler(new Function1&lt;Rpc.VoteList, List&lt;VotingInfo&gt;&gt;() {</span>
+
+              @Override
+              public List&lt;VotingInfo&gt; apply(final Rpc.VoteList rpcVoteList) {
+<span class="fc" id="L340">                final List&lt;VotingInfo&gt; votes = new ArrayList&lt;VotingInfo&gt;();</span>
+<span class="pc bpc" id="L341" title="1 of 2 branches missed.">                for (final Rpc.Vote rpcVote : rpcVoteList.getVotesList()) {</span>
+<span class="nc" id="L342">                  votes.add(voteConverter.convertToDomainModel(rpcVote));</span>
+<span class="nc" id="L343">                }</span>
+<span class="fc" id="L344">                return votes;</span>
+              }
+            });
+<span class="fc" id="L347">            addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="nc" id="L348">          } catch (Exception e) {</span>
+<span class="nc" id="L349">            nextFuture.fail(e);</span>
+<span class="fc" id="L350">          }</span>
+<span class="fc" id="L351">          return nextFuture;</span>
+        }
+      };
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

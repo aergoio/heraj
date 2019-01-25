@@ -4,26 +4,27 @@
 
 package hera.strategy;
 
-import static hera.api.tupleorerror.Functions.identify;
+import static hera.api.function.Functions.identify;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Context;
-import hera.api.tupleorerror.Function0;
-import hera.api.tupleorerror.Function1;
-import hera.api.tupleorerror.Function2;
-import hera.api.tupleorerror.Function3;
-import hera.api.tupleorerror.Function4;
-import hera.api.tupleorerror.FunctionDecorator;
-import hera.api.tupleorerror.FunctionDecoratorChain;
-import hera.api.tupleorerror.WithIdentity;
+import hera.Strategy;
+import hera.api.function.Function0;
+import hera.api.function.Function1;
+import hera.api.function.Function2;
+import hera.api.function.Function3;
+import hera.api.function.Function4;
+import hera.api.function.FunctionDecorator;
+import hera.api.function.FunctionDecoratorChain;
+import hera.api.function.WithIdentity;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.slf4j.Logger;
 
-<span class="nc" id="L25">@ToString</span>
-<span class="nc bnc" id="L26" title="All 22 branches missed.">@EqualsAndHashCode</span>
+<span class="nc" id="L26">@ToString</span>
+<span class="nc bnc" id="L27" title="All 22 branches missed.">@EqualsAndHashCode</span>
 public class StrategyChain implements FunctionDecoratorChain {
 
   /**
@@ -34,12 +35,12 @@ public class StrategyChain implements FunctionDecoratorChain {
    * @return {@code StrategyChain}
    */
   public static StrategyChain of(final Context context) {
-<span class="fc" id="L37">    return new StrategyChain(context);</span>
+<span class="fc" id="L38">    return new StrategyChain(context);</span>
   }
 
-<span class="fc" id="L40">  protected final Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L41">  protected final Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L42">  protected final List&lt;FunctionDecorator&gt; chain = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L43">  protected final List&lt;FunctionDecorator&gt; chain = new ArrayList&lt;FunctionDecorator&gt;();</span>
 
   /**
    * Make {@code StrategyChain} with a strategy in a context.
@@ -47,76 +48,78 @@ public class StrategyChain implements FunctionDecoratorChain {
    * @see Context
    * @param context a context
    */
-<span class="fc" id="L50">  public StrategyChain(final Context context) {</span>
-<span class="fc" id="L51">    context.getStrategies().stream().filter(FunctionDecorator.class::isInstance)</span>
-<span class="fc" id="L52">        .map(FunctionDecorator.class::cast)</span>
-<span class="fc" id="L53">        .forEach(chain::add);</span>
-<span class="fc" id="L54">    logger.debug(&quot;Build strategy chain: {}&quot;, chain);</span>
-<span class="fc" id="L55">  }</span>
+<span class="fc" id="L51">  public StrategyChain(final Context context) {</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">    for (final Strategy strategy : context.getStrategies()) {</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">      if (strategy instanceof FunctionDecorator) {</span>
+<span class="fc" id="L54">        chain.add((FunctionDecorator) strategy);</span>
+      }
+<span class="fc" id="L56">    }</span>
+<span class="fc" id="L57">    logger.debug(&quot;Build strategy chain: {}&quot;, chain);</span>
+<span class="fc" id="L58">  }</span>
 
   @Override
   public &lt;R&gt; Function0&lt;R&gt; apply(Function0&lt;R&gt; f) {
-<span class="fc" id="L59">    Function0&lt;R&gt; ret = f;</span>
-<span class="fc bfc" id="L60" title="All 2 branches covered.">    for (final FunctionDecorator next : chain) {</span>
-<span class="fc" id="L61">      logger.debug(&quot;Apply strategy [{}] to a function&quot;, next);</span>
-<span class="fc" id="L62">      ret = next.apply(ret);</span>
-<span class="pc bpc" id="L63" title="1 of 2 branches missed.">      if (f instanceof WithIdentity) {</span>
-<span class="fc" id="L64">        ret = identify(ret, ((WithIdentity) f).getIdentity());</span>
+<span class="fc" id="L62">    Function0&lt;R&gt; ret = f;</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">    for (final FunctionDecorator next : chain) {</span>
+<span class="fc" id="L64">      logger.debug(&quot;Apply strategy [{}] to a function&quot;, next);</span>
+<span class="fc" id="L65">      ret = next.apply(ret);</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">      if (f instanceof WithIdentity) {</span>
+<span class="fc" id="L67">        ret = identify(ret, ((WithIdentity) f).getIdentity());</span>
       }
-<span class="fc" id="L66">    }</span>
-<span class="fc" id="L67">    return ret;</span>
+<span class="fc" id="L69">    }</span>
+<span class="fc" id="L70">    return ret;</span>
   }
 
   @Override
   public &lt;T, R&gt; Function1&lt;T, R&gt; apply(Function1&lt;T, R&gt; f) {
-<span class="fc" id="L72">    Function1&lt;T, R&gt; ret = f;</span>
-<span class="fc bfc" id="L73" title="All 2 branches covered.">    for (final FunctionDecorator next : chain) {</span>
-<span class="fc" id="L74">      logger.debug(&quot;Apply strategy [{}] to a function&quot;, next);</span>
-<span class="fc" id="L75">      ret = next.apply(ret);</span>
-<span class="pc bpc" id="L76" title="1 of 2 branches missed.">      if (f instanceof WithIdentity) {</span>
-<span class="fc" id="L77">        ret = identify(ret, ((WithIdentity) f).getIdentity());</span>
+<span class="fc" id="L75">    Function1&lt;T, R&gt; ret = f;</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">    for (final FunctionDecorator next : chain) {</span>
+<span class="fc" id="L77">      logger.debug(&quot;Apply strategy [{}] to a function&quot;, next);</span>
+<span class="fc" id="L78">      ret = next.apply(ret);</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">      if (f instanceof WithIdentity) {</span>
+<span class="fc" id="L80">        ret = identify(ret, ((WithIdentity) f).getIdentity());</span>
       }
-<span class="fc" id="L79">    }</span>
-<span class="fc" id="L80">    return ret;</span>
+<span class="fc" id="L82">    }</span>
+<span class="fc" id="L83">    return ret;</span>
   }
 
   @Override
   public &lt;T1, T2, R&gt; Function2&lt;T1, T2, R&gt; apply(Function2&lt;T1, T2, R&gt; f) {
-<span class="fc" id="L85">    Function2&lt;T1, T2, R&gt; ret = f;</span>
-<span class="fc bfc" id="L86" title="All 2 branches covered.">    for (final FunctionDecorator next : chain) {</span>
-<span class="fc" id="L87">      logger.debug(&quot;Apply strategy [{}] to a function&quot;, next);</span>
-<span class="fc" id="L88">      ret = next.apply(ret);</span>
-<span class="pc bpc" id="L89" title="1 of 2 branches missed.">      if (f instanceof WithIdentity) {</span>
-<span class="fc" id="L90">        ret = identify(ret, ((WithIdentity) f).getIdentity());</span>
+<span class="fc" id="L88">    Function2&lt;T1, T2, R&gt; ret = f;</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">    for (final FunctionDecorator next : chain) {</span>
+<span class="fc" id="L90">      logger.debug(&quot;Apply strategy [{}] to a function&quot;, next);</span>
+<span class="fc" id="L91">      ret = next.apply(ret);</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">      if (f instanceof WithIdentity) {</span>
+<span class="fc" id="L93">        ret = identify(ret, ((WithIdentity) f).getIdentity());</span>
       }
-<span class="fc" id="L92">    }</span>
-<span class="fc" id="L93">    return ret;</span>
+<span class="fc" id="L95">    }</span>
+<span class="fc" id="L96">    return ret;</span>
   }
 
   @Override
   public &lt;T1, T2, T3, R&gt; Function3&lt;T1, T2, T3, R&gt; apply(Function3&lt;T1, T2, T3, R&gt; f) {
-<span class="fc" id="L98">    Function3&lt;T1, T2, T3, R&gt; ret = f;</span>
-<span class="fc bfc" id="L99" title="All 2 branches covered.">    for (final FunctionDecorator next : chain) {</span>
-<span class="fc" id="L100">      logger.debug(&quot;Apply strategy [{}] to a function&quot;, next);</span>
-<span class="fc" id="L101">      ret = next.apply(ret);</span>
-<span class="pc bpc" id="L102" title="1 of 2 branches missed.">      if (f instanceof WithIdentity) {</span>
-<span class="fc" id="L103">        ret = identify(ret, ((WithIdentity) f).getIdentity());</span>
+<span class="fc" id="L101">    Function3&lt;T1, T2, T3, R&gt; ret = f;</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">    for (final FunctionDecorator next : chain) {</span>
+<span class="fc" id="L103">      logger.debug(&quot;Apply strategy [{}] to a function&quot;, next);</span>
+<span class="fc" id="L104">      ret = next.apply(ret);</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">      if (f instanceof WithIdentity) {</span>
+<span class="fc" id="L106">        ret = identify(ret, ((WithIdentity) f).getIdentity());</span>
       }
-<span class="fc" id="L105">    }</span>
-<span class="fc" id="L106">    return ret;</span>
+<span class="fc" id="L108">    }</span>
+<span class="fc" id="L109">    return ret;</span>
   }
 
   @Override
   public &lt;T1, T2, T3, T4, R&gt; Function4&lt;T1, T2, T3, T4, R&gt; apply(Function4&lt;T1, T2, T3, T4, R&gt; f) {
-<span class="fc" id="L111">    Function4&lt;T1, T2, T3, T4, R&gt; ret = f;</span>
-<span class="fc bfc" id="L112" title="All 2 branches covered.">    for (final FunctionDecorator next : chain) {</span>
-<span class="fc" id="L113">      logger.debug(&quot;Apply strategy [{}] to a function&quot;, next);</span>
-<span class="fc" id="L114">      ret = next.apply(ret);</span>
-<span class="pc bpc" id="L115" title="1 of 2 branches missed.">      if (f instanceof WithIdentity) {</span>
-<span class="fc" id="L116">        ret = identify(ret, ((WithIdentity) f).getIdentity());</span>
+<span class="fc" id="L114">    Function4&lt;T1, T2, T3, T4, R&gt; ret = f;</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">    for (final FunctionDecorator next : chain) {</span>
+<span class="fc" id="L116">      logger.debug(&quot;Apply strategy [{}] to a function&quot;, next);</span>
+<span class="fc" id="L117">      ret = next.apply(ret);</span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">      if (f instanceof WithIdentity) {</span>
+<span class="fc" id="L119">        ret = identify(ret, ((WithIdentity) f).getIdentity());</span>
       }
-<span class="fc" id="L118">    }</span>
-<span class="fc" id="L119">    return ret;</span>
+<span class="fc" id="L121">    }</span>
+<span class="fc" id="L122">    return ret;</span>
   }
 
 }

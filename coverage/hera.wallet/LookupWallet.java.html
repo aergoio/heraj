@@ -12,6 +12,7 @@ import hera.api.model.AccountState;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
+import hera.api.model.BlockProducer;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
@@ -21,8 +22,10 @@ import hera.api.model.ContractTxReceipt;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
+import hera.api.model.StakingInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.model.VotingInfo;
 import hera.client.AergoClient;
 import hera.exception.WalletException;
 import java.io.Closeable;
@@ -31,111 +34,143 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import org.slf4j.Logger;
 
-public abstract class LookupWallet implements LookupClient, AutoCloseable, Closeable {
+public abstract class LookupWallet implements LookupClient, Closeable {
 
-<span class="fc" id="L36">  protected final Logger logger = getLogger(getClass());</span>
+  protected static final int SHOW_COUNT = 23;
 
-<span class="fc" id="L38">  @Getter(value = AccessLevel.PROTECTED)</span>
+<span class="fc" id="L41">  protected final Logger logger = getLogger(getClass());</span>
+
+<span class="fc" id="L43">  @Getter(value = AccessLevel.PROTECTED)</span>
   protected final AergoClient aergoClient;
 
-<span class="fc" id="L41">  protected LookupWallet(final AergoClient aergoClient) {</span>
-<span class="fc" id="L42">    logger.debug(&quot;Binded client: {}&quot;, aergoClient);</span>
-<span class="fc" id="L43">    this.aergoClient = aergoClient;</span>
-<span class="fc" id="L44">  }</span>
+<span class="fc" id="L46">  protected LookupWallet(final AergoClient aergoClient) {</span>
+<span class="fc" id="L47">    logger.debug(&quot;Binded client: {}&quot;, aergoClient);</span>
+<span class="fc" id="L48">    this.aergoClient = aergoClient;</span>
+<span class="fc" id="L49">  }</span>
 
   @Override
   public AccountState getAccountState(final Account account) {
-<span class="fc" id="L48">    return getAergoClient().getAccountOperation().getState(account);</span>
+<span class="fc" id="L53">    return getAergoClient().getAccountOperation().getState(account);</span>
   }
 
   @Override
   public AccountState getAccountState(final AccountAddress accountAddress) {
-<span class="fc" id="L53">    return getAergoClient().getAccountOperation().getState(accountAddress);</span>
+<span class="nc" id="L58">    return getAergoClient().getAccountOperation().getState(accountAddress);</span>
   }
 
   @Override
   public AccountAddress getNameOwner(final String name) {
-<span class="fc" id="L58">    return getAergoClient().getAccountOperation().getNameOwner(name);</span>
+<span class="fc" id="L63">    return getAergoClient().getAccountOperation().getNameOwner(name);</span>
+  }
+
+  @Override
+  public StakingInfo getStakingInfo(final Account account) {
+<span class="fc" id="L68">    return getStakingInfo(account.getAddress());</span>
+  }
+
+  @Override
+  public StakingInfo getStakingInfo(final AccountAddress accountAddress) {
+<span class="fc" id="L73">    return getAergoClient().getAccountOperation().getStakingInfo(accountAddress);</span>
+  }
+
+  @Override
+  public List&lt;BlockProducer&gt; listElectedBlockProducers() {
+<span class="fc" id="L78">    return listElectedBlockProducers(SHOW_COUNT);</span>
+  }
+
+  @Override
+  public List&lt;BlockProducer&gt; listElectedBlockProducers(final long showCount) {
+<span class="fc" id="L83">    return getAergoClient().getBlockchainOperation().listElectedBlockProducers(showCount);</span>
+  }
+
+  @Override
+  public List&lt;VotingInfo&gt; listVotesOf(final Account account) {
+<span class="fc" id="L88">    return listVotesOf(account.getAddress());</span>
+  }
+
+  @Override
+  public List&lt;VotingInfo&gt; listVotesOf(final AccountAddress accountAddress) {
+<span class="fc" id="L93">    return getAergoClient().getBlockchainOperation().listVotesOf(accountAddress);</span>
   }
 
   @Override
   public List&lt;AccountAddress&gt; listServerKeyStoreAccounts() {
-<span class="fc" id="L63">    return getAergoClient().getKeyStoreOperation().list();</span>
+<span class="fc" id="L98">    return getAergoClient().getKeyStoreOperation().list();</span>
   }
 
   @Override
   public BlockHash getBestBlockHash() {
-<span class="fc" id="L68">    return getAergoClient().getBlockchainOperation().getBlockchainStatus().getBestBlockHash();</span>
+<span class="fc" id="L103">    return getAergoClient().getBlockchainOperation().getBlockchainStatus().getBestBlockHash();</span>
   }
 
   @Override
   public long getBestBlockHeight() {
-<span class="fc" id="L73">    return getAergoClient().getBlockchainOperation().getBlockchainStatus().getBestHeight();</span>
+<span class="fc" id="L108">    return getAergoClient().getBlockchainOperation().getBlockchainStatus().getBestHeight();</span>
   }
 
   @Override
   public List&lt;Peer&gt; listNodePeers() {
-<span class="fc" id="L78">    return getAergoClient().getBlockchainOperation().listPeers();</span>
+<span class="fc" id="L113">    return getAergoClient().getBlockchainOperation().listPeers();</span>
   }
 
   @Override
   public List&lt;PeerMetric&gt; listPeerMetrics() {
-<span class="fc" id="L83">    return getAergoClient().getBlockchainOperation().listPeerMetrics();</span>
+<span class="fc" id="L118">    return getAergoClient().getBlockchainOperation().listPeerMetrics();</span>
   }
 
   @Override
   public NodeStatus getNodeStatus() {
-<span class="fc" id="L88">    return getAergoClient().getBlockchainOperation().getNodeStatus();</span>
+<span class="fc" id="L123">    return getAergoClient().getBlockchainOperation().getNodeStatus();</span>
   }
 
   @Override
   public Block getBlock(final BlockHash blockHash) {
-<span class="fc" id="L93">    return getAergoClient().getBlockOperation().getBlock(blockHash);</span>
+<span class="fc" id="L128">    return getAergoClient().getBlockOperation().getBlock(blockHash);</span>
   }
 
   @Override
   public Block getBlock(final long height) {
-<span class="fc" id="L98">    return getAergoClient().getBlockOperation().getBlock(height);</span>
+<span class="fc" id="L133">    return getAergoClient().getBlockOperation().getBlock(height);</span>
   }
 
   @Override
   public List&lt;BlockHeader&gt; listBlockHeaders(final BlockHash blockHash, final int size) {
-<span class="fc" id="L103">    return getAergoClient().getBlockOperation().listBlockHeaders(blockHash, size);</span>
+<span class="fc" id="L138">    return getAergoClient().getBlockOperation().listBlockHeaders(blockHash, size);</span>
   }
 
   @Override
   public List&lt;BlockHeader&gt; listBlockHeaders(final long height, final int size) {
-<span class="fc" id="L108">    return getAergoClient().getBlockOperation().listBlockHeaders(height, size);</span>
+<span class="fc" id="L143">    return getAergoClient().getBlockOperation().listBlockHeaders(height, size);</span>
   }
 
   @Override
   public Transaction getTransaction(final TxHash txHash) {
-<span class="fc" id="L113">    return getAergoClient().getTransactionOperation().getTransaction(txHash);</span>
+<span class="fc" id="L148">    return getAergoClient().getTransactionOperation().getTransaction(txHash);</span>
   }
 
   @Override
   public ContractTxReceipt getReceipt(final ContractTxHash contractTxHash) {
-<span class="fc" id="L118">    return getAergoClient().getContractOperation().getReceipt(contractTxHash);</span>
+<span class="fc" id="L153">    return getAergoClient().getContractOperation().getReceipt(contractTxHash);</span>
   }
 
   @Override
   public ContractInterface getContractInterface(final ContractAddress contractAddress) {
-<span class="fc" id="L123">    return getAergoClient().getContractOperation().getContractInterface(contractAddress);</span>
+<span class="fc" id="L158">    return getAergoClient().getContractOperation().getContractInterface(contractAddress);</span>
   }
 
   @Override
   public ContractResult query(final ContractInvocation contractInvocation) {
-<span class="fc" id="L128">    return getAergoClient().getContractOperation().query(contractInvocation);</span>
+<span class="fc" id="L163">    return getAergoClient().getContractOperation().query(contractInvocation);</span>
   }
 
   @Override
   public void close() {
     try {
-<span class="nc" id="L134">      getAergoClient().close();</span>
-<span class="nc" id="L135">    } catch (Exception e) {</span>
-<span class="nc" id="L136">      throw new WalletException(e);</span>
-<span class="nc" id="L137">    }</span>
-<span class="nc" id="L138">  }</span>
+<span class="nc" id="L169">      getAergoClient().close();</span>
+<span class="nc" id="L170">    } catch (Exception e) {</span>
+<span class="nc" id="L171">      throw new WalletException(e);</span>
+<span class="nc" id="L172">    }</span>
+<span class="nc" id="L173">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

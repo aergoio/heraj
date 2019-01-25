@@ -210,21 +210,23 @@ import java.util.Arrays;
    * canonical two's-complement form. Eg. 255 is {@code &quot;11111111&quot;} not
    * {@code &quot;00000000 1111 1111&quot;}.
    *
-   * @param postiveNumber a positive bigInteger
-   * @return a converted byte array
+   * @param positiveNumber a positive bigInteger
+   * @return a converted byte array. Empty byte array if {@code positiveNumber} is null.
    */
-  public static byte[] postiveToByteArray(final BigInteger postiveNumber) {
-<span class="fc" id="L217">    assertNotNull(postiveNumber, &quot;Argument must not be null&quot;);</span>
-<span class="pc bpc" id="L218" title="1 of 2 branches missed.">    assertTrue(postiveNumber.compareTo(BigInteger.ZERO) &gt;= 0,</span>
+  public static byte[] positiveToByteArray(final BigInteger positiveNumber) {
+<span class="fc bfc" id="L217" title="All 2 branches covered.">    if (null == positiveNumber) {</span>
+<span class="fc" id="L218">      return new byte[0];</span>
+    }
+<span class="pc bpc" id="L220" title="1 of 2 branches missed.">    assertTrue(positiveNumber.compareTo(BigInteger.ZERO) &gt;= 0,</span>
         &quot;Argument must greater than or equals to 0&quot;);
 
-<span class="fc" id="L221">    final byte[] raw = postiveNumber.toByteArray();</span>
-<span class="fc" id="L222">    final int postiveByteCapacity =</span>
-<span class="fc bfc" id="L223" title="All 2 branches covered.">        postiveNumber.equals(BigInteger.ZERO) ? 1 : (postiveNumber.bitLength() + 7) &gt;&gt;&gt; 3;</span>
-<span class="fc bfc" id="L224" title="All 2 branches covered.">    if (raw.length &gt; postiveByteCapacity) {</span>
-<span class="fc" id="L225">      return Arrays.copyOfRange(raw, 1, raw.length);</span>
+<span class="fc" id="L223">    final byte[] raw = positiveNumber.toByteArray();</span>
+<span class="fc" id="L224">    final int positiveByteCapacity =</span>
+<span class="fc bfc" id="L225" title="All 2 branches covered.">        positiveNumber.equals(BigInteger.ZERO) ? 1 : (positiveNumber.bitLength() + 7) &gt;&gt;&gt; 3;</span>
+<span class="fc bfc" id="L226" title="All 2 branches covered.">    if (raw.length &gt; positiveByteCapacity) {</span>
+<span class="fc" id="L227">      return Arrays.copyOfRange(raw, 1, raw.length);</span>
     }
-<span class="fc" id="L227">    return raw;</span>
+<span class="fc" id="L229">    return raw;</span>
   }
 
   /**
@@ -233,10 +235,8 @@ import java.util.Arrays;
    * @param rawBytes a rawBytes representing positive number without sign bit.
    * @return a converted {@code BigInteger}
    */
-  public static BigInteger byteArrayToPostive(final byte[] rawBytes) {
-<span class="fc" id="L237">    assertNotNull(rawBytes, &quot;Argument must not be null&quot;);</span>
-
-<span class="fc bfc" id="L239" title="All 2 branches covered.">    if (rawBytes.length == 0) {</span>
+  public static BigInteger byteArrayToPositive(final byte[] rawBytes) {
+<span class="pc bpc" id="L239" title="1 of 4 branches missed.">    if (null == rawBytes || rawBytes.length == 0) {</span>
 <span class="fc" id="L240">      return BigInteger.ZERO;</span>
     }
 

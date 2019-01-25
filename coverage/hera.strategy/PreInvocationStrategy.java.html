@@ -5,55 +5,70 @@
 package hera.strategy;
 
 import hera.Strategy;
-import hera.api.tupleorerror.Function0;
-import hera.api.tupleorerror.Function1;
-import hera.api.tupleorerror.Function2;
-import hera.api.tupleorerror.Function3;
-import hera.api.tupleorerror.Function4;
-import hera.api.tupleorerror.FunctionDecorator;
+import hera.api.function.Function0;
+import hera.api.function.Function1;
+import hera.api.function.Function2;
+import hera.api.function.Function3;
+import hera.api.function.Function4;
+import hera.api.function.FunctionDecorator;
 
-public interface PreInvocationStrategy extends Strategy, FunctionDecorator {
+<span class="nc" id="L15">public abstract class PreInvocationStrategy implements Strategy, FunctionDecorator {</span>
 
-  void before(hera.api.tupleorerror.Function f);
+  public abstract void before(hera.api.function.Function f);
 
   @Override
-  default &lt;R&gt; Function0&lt;R&gt; apply(Function0&lt;R&gt; f) {
-<span class="nc" id="L21">    return () -&gt; {</span>
-<span class="nc" id="L22">      before(f);</span>
-<span class="nc" id="L23">      return f.apply();</span>
+  public &lt;R&gt; Function0&lt;R&gt; apply(final Function0&lt;R&gt; f) {
+<span class="nc" id="L21">    return new Function0&lt;R&gt;() {</span>
+      @Override
+      public R apply() {
+<span class="nc" id="L24">        before(f);</span>
+<span class="nc" id="L25">        return f.apply();</span>
+      }
     };
   }
 
   @Override
-  default &lt;T, R&gt; Function1&lt;T, R&gt; apply(Function1&lt;T, R&gt; f) {
-<span class="nc" id="L29">    return (T t) -&gt; {</span>
-<span class="nc" id="L30">      before(f);</span>
-<span class="nc" id="L31">      return f.apply(t);</span>
+  public &lt;T, R&gt; Function1&lt;T, R&gt; apply(final Function1&lt;T, R&gt; f) {
+<span class="nc" id="L32">    return new Function1&lt;T, R&gt;() {</span>
+      @Override
+      public R apply(T t) {
+<span class="nc" id="L35">        before(f);</span>
+<span class="nc" id="L36">        return f.apply(t);</span>
+      }
     };
   }
 
   @Override
-  default &lt;T1, T2, R&gt; Function2&lt;T1, T2, R&gt; apply(Function2&lt;T1, T2, R&gt; f) {
-<span class="nc" id="L37">    return (T1 t1, T2 t2) -&gt; {</span>
-<span class="nc" id="L38">      before(f);</span>
-<span class="nc" id="L39">      return f.apply(t1, t2);</span>
+  public &lt;T1, T2, R&gt; Function2&lt;T1, T2, R&gt; apply(final Function2&lt;T1, T2, R&gt; f) {
+<span class="nc" id="L43">    return new Function2&lt;T1, T2, R&gt;() {</span>
+      @Override
+      public R apply(T1 t1, T2 t2) {
+<span class="nc" id="L46">        before(f);</span>
+<span class="nc" id="L47">        return f.apply(t1, t2);</span>
+      }
     };
   }
 
   @Override
-  default &lt;T1, T2, T3, R&gt; Function3&lt;T1, T2, T3, R&gt; apply(Function3&lt;T1, T2, T3, R&gt; f) {
-<span class="nc" id="L45">    return (T1 t1, T2 t2, T3 t3) -&gt; {</span>
-<span class="nc" id="L46">      before(f);</span>
-<span class="nc" id="L47">      return f.apply(t1, t2, t3);</span>
+  public &lt;T1, T2, T3, R&gt; Function3&lt;T1, T2, T3, R&gt; apply(final Function3&lt;T1, T2, T3, R&gt; f) {
+<span class="nc" id="L54">    return new Function3&lt;T1, T2, T3, R&gt;() {</span>
+      @Override
+      public R apply(T1 t1, T2 t2, T3 t3) {
+<span class="nc" id="L57">        before(f);</span>
+<span class="nc" id="L58">        return f.apply(t1, t2, t3);</span>
+      }
     };
   }
 
   @Override
-  default &lt;T1, T2, T3, T4, R&gt; Function4&lt;T1, T2, T3, T4, R&gt; apply(
-      Function4&lt;T1, T2, T3, T4, R&gt; f) {
-<span class="nc" id="L54">    return (T1 t1, T2 t2, T3 t3, T4 t4) -&gt; {</span>
-<span class="nc" id="L55">      before(f);</span>
-<span class="nc" id="L56">      return f.apply(t1, t2, t3, t4);</span>
+  public &lt;T1, T2, T3, T4, R&gt; Function4&lt;T1, T2, T3, T4, R&gt; apply(
+      final Function4&lt;T1, T2, T3, T4, R&gt; f) {
+<span class="nc" id="L66">    return new Function4&lt;T1, T2, T3, T4, R&gt;() {</span>
+      @Override
+      public R apply(T1 t1, T2 t2, T3 t3, T4 t4) {
+<span class="nc" id="L69">        before(f);</span>
+<span class="nc" id="L70">        return f.apply(t1, t2, t3, t4);</span>
+      }
     };
   }
 

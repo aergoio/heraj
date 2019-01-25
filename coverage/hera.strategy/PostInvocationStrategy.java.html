@@ -5,41 +5,67 @@
 package hera.strategy;
 
 import hera.Strategy;
-import hera.api.tupleorerror.Function0;
-import hera.api.tupleorerror.Function1;
-import hera.api.tupleorerror.Function2;
-import hera.api.tupleorerror.Function3;
-import hera.api.tupleorerror.Function4;
-import hera.api.tupleorerror.FunctionDecorator;
+import hera.api.function.Function0;
+import hera.api.function.Function1;
+import hera.api.function.Function2;
+import hera.api.function.Function3;
+import hera.api.function.Function4;
+import hera.api.function.FunctionDecorator;
+import hera.api.function.Functions;
 
-public interface PostInvocationStrategy extends Strategy, FunctionDecorator {
+<span class="nc" id="L16">public abstract class PostInvocationStrategy implements Strategy, FunctionDecorator {</span>
 
-  &lt;R&gt; R after(hera.api.tupleorerror.Function f, R r);
+  public abstract &lt;R&gt; R after(hera.api.function.Function f, R r);
 
   @Override
-  default &lt;R&gt; Function0&lt;R&gt; apply(Function0&lt;R&gt; f) {
-<span class="nc" id="L21">    return f.andThen(r -&gt; after(f, r));</span>
+  public &lt;R&gt; Function0&lt;R&gt; apply(final Function0&lt;R&gt; f) {
+<span class="nc" id="L22">    return Functions.compose(f, new Function1&lt;R, R&gt;() {</span>
+      public R apply(R r) {
+<span class="nc" id="L24">        after(f, r);</span>
+<span class="nc" id="L25">        return r;</span>
+      }
+    });
   }
 
   @Override
-  default &lt;T, R&gt; Function1&lt;T, R&gt; apply(Function1&lt;T, R&gt; f) {
-<span class="nc" id="L26">    return f.andThen(r -&gt; after(f, r));</span>
+  public &lt;T, R&gt; Function1&lt;T, R&gt; apply(final Function1&lt;T, R&gt; f) {
+<span class="nc" id="L32">    return Functions.compose(f, new Function1&lt;R, R&gt;() {</span>
+      public R apply(R r) {
+<span class="nc" id="L34">        after(f, r);</span>
+<span class="nc" id="L35">        return r;</span>
+      }
+    });
   }
 
   @Override
-  default &lt;T1, T2, R&gt; Function2&lt;T1, T2, R&gt; apply(Function2&lt;T1, T2, R&gt; f) {
-<span class="nc" id="L31">    return f.andThen(r -&gt; after(f, r));</span>
+  public &lt;T1, T2, R&gt; Function2&lt;T1, T2, R&gt; apply(final Function2&lt;T1, T2, R&gt; f) {
+<span class="nc" id="L42">    return Functions.compose(f, new Function1&lt;R, R&gt;() {</span>
+      public R apply(R r) {
+<span class="nc" id="L44">        after(f, r);</span>
+<span class="nc" id="L45">        return r;</span>
+      }
+    });
   }
 
   @Override
-  default &lt;T1, T2, T3, R&gt; Function3&lt;T1, T2, T3, R&gt; apply(Function3&lt;T1, T2, T3, R&gt; f) {
-<span class="nc" id="L36">    return f.andThen(r -&gt; after(f, r));</span>
+  public &lt;T1, T2, T3, R&gt; Function3&lt;T1, T2, T3, R&gt; apply(final Function3&lt;T1, T2, T3, R&gt; f) {
+<span class="nc" id="L52">    return Functions.compose(f, new Function1&lt;R, R&gt;() {</span>
+      public R apply(R r) {
+<span class="nc" id="L54">        after(f, r);</span>
+<span class="nc" id="L55">        return r;</span>
+      }
+    });
   }
 
   @Override
-  default &lt;T1, T2, T3, T4, R&gt; Function4&lt;T1, T2, T3, T4, R&gt; apply(
-      Function4&lt;T1, T2, T3, T4, R&gt; f) {
-<span class="nc" id="L42">    return f.andThen(r -&gt; after(f, r));</span>
+  public &lt;T1, T2, T3, T4, R&gt; Function4&lt;T1, T2, T3, T4, R&gt; apply(
+      final Function4&lt;T1, T2, T3, T4, R&gt; f) {
+<span class="nc" id="L63">    return Functions.compose(f, new Function1&lt;R, R&gt;() {</span>
+      public R apply(R r) {
+<span class="nc" id="L65">        after(f, r);</span>
+<span class="nc" id="L66">        return r;</span>
+      }
+    });
   }
 
 }

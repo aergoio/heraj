@@ -7,9 +7,9 @@ package hera.transport;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
+import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
-import java.util.function.Function;
 import org.slf4j.Logger;
 import types.AccountOuterClass;
 import types.Rpc;
@@ -21,22 +21,32 @@ import types.Rpc;
 <span class="fc" id="L21">  protected final ModelConverter&lt;AccountAddress, ByteString&gt; accountAddressConverter =</span>
 <span class="fc" id="L22">      new AccountAddressConverterFactory().create();</span>
 
-<span class="fc" id="L24">  protected final Function&lt;Authentication, Rpc.Personal&gt; domainConverter = domainAuthentication -&gt; {</span>
-<span class="fc" id="L25">    logger.trace(&quot;Domain authentication: {}&quot;, domainAuthentication);</span>
-<span class="fc" id="L26">    return Rpc.Personal.newBuilder()</span>
-<span class="fc" id="L27">        .setAccount(AccountOuterClass.Account.newBuilder()</span>
-<span class="fc" id="L28">            .setAddress(</span>
-<span class="fc" id="L29">                accountAddressConverter.convertToRpcModel(domainAuthentication.getAddress()))</span>
-<span class="fc" id="L30">            .build())</span>
-<span class="fc" id="L31">        .setPassphrase(domainAuthentication.getPassword()).build();</span>
-  };
+<span class="fc" id="L24">  protected final Function1&lt;Authentication, Rpc.Personal&gt; domainConverter =</span>
+<span class="fc" id="L25">      new Function1&lt;Authentication, Rpc.Personal&gt;() {</span>
 
-<span class="fc" id="L34">  protected final Function&lt;Rpc.Personal, Authentication&gt; rpcConverter = rpcAuthentication -&gt; {</span>
-<span class="nc" id="L35">    throw new UnsupportedOperationException();</span>
-  };
+        @Override
+        public Rpc.Personal apply(final Authentication domainAuthentication) {
+<span class="fc" id="L29">          logger.trace(&quot;Domain authentication: {}&quot;, domainAuthentication);</span>
+<span class="fc" id="L30">          return Rpc.Personal.newBuilder()</span>
+<span class="fc" id="L31">              .setAccount(AccountOuterClass.Account.newBuilder()</span>
+<span class="fc" id="L32">                  .setAddress(</span>
+<span class="fc" id="L33">                      accountAddressConverter.convertToRpcModel(domainAuthentication.getAddress()))</span>
+<span class="fc" id="L34">                  .build())</span>
+<span class="fc" id="L35">              .setPassphrase(domainAuthentication.getPassword()).build();</span>
+        }
+      };
+
+<span class="fc" id="L39">  protected final Function1&lt;Rpc.Personal, Authentication&gt; rpcConverter =</span>
+<span class="fc" id="L40">      new Function1&lt;Rpc.Personal, Authentication&gt;() {</span>
+
+        @Override
+        public Authentication apply(final Rpc.Personal rpcAuthentication) {
+<span class="nc" id="L44">          throw new UnsupportedOperationException();</span>
+        }
+      };
 
   public ModelConverter&lt;Authentication, Rpc.Personal&gt; create() {
-<span class="fc" id="L39">    return new ModelConverter&lt;&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L49">    return new ModelConverter&lt;Authentication, Rpc.Personal&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

@@ -7,9 +7,8 @@ package hera.util;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.stream.IntStream;
 
-<span class="nc" id="L12">public class Sha256Utils {</span>
+<span class="nc" id="L11">public class Sha256Utils {</span>
   /**
    * Convert str to byte array.
    *
@@ -19,9 +18,9 @@ import java.util.stream.IntStream;
    */
   public static byte[] getBytes(CharSequence str) {
     try {
-<span class="fc" id="L22">      return str.toString().getBytes(&quot;utf8&quot;);</span>
-<span class="nc" id="L23">    } catch (final UnsupportedEncodingException ex) {</span>
-<span class="nc" id="L24">      throw new IllegalStateException(ex);</span>
+<span class="fc" id="L21">      return str.toString().getBytes(&quot;utf8&quot;);</span>
+<span class="nc" id="L22">    } catch (final UnsupportedEncodingException ex) {</span>
+<span class="nc" id="L23">      throw new IllegalStateException(ex);</span>
     }
   }
 
@@ -39,10 +38,10 @@ import java.util.stream.IntStream;
    */
   public static byte[] digest(final byte[] raw) {
     try {
-<span class="fc" id="L42">      final MessageDigest digest = createDigest();</span>
-<span class="fc" id="L43">      return digest.digest(raw);</span>
-<span class="nc" id="L44">    } catch (final NoSuchAlgorithmException e) {</span>
-<span class="nc" id="L45">      throw new IllegalStateException(e);</span>
+<span class="fc" id="L41">      final MessageDigest digest = createDigest();</span>
+<span class="fc" id="L42">      return digest.digest(raw);</span>
+<span class="nc" id="L43">    } catch (final NoSuchAlgorithmException e) {</span>
+<span class="nc" id="L44">      throw new IllegalStateException(e);</span>
     }
   }
 
@@ -59,18 +58,18 @@ import java.util.stream.IntStream;
    */
   public static byte[] digest(final byte[]... raws) {
     try {
-<span class="fc" id="L62">      final MessageDigest digest = createDigest();</span>
-<span class="fc bfc" id="L63" title="All 2 branches covered.">      for (final byte[] raw : raws) {</span>
-<span class="fc" id="L64">        digest.update(raw);</span>
+<span class="fc" id="L61">      final MessageDigest digest = createDigest();</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">      for (final byte[] raw : raws) {</span>
+<span class="fc" id="L63">        digest.update(raw);</span>
       }
-<span class="fc" id="L66">      return digest.digest();</span>
-<span class="nc" id="L67">    } catch (final NoSuchAlgorithmException e) {</span>
-<span class="nc" id="L68">      throw new IllegalStateException(e);</span>
+<span class="fc" id="L65">      return digest.digest();</span>
+<span class="nc" id="L66">    } catch (final NoSuchAlgorithmException e) {</span>
+<span class="nc" id="L67">      throw new IllegalStateException(e);</span>
     }
   }
 
   protected static MessageDigest createDigest() throws NoSuchAlgorithmException {
-<span class="fc" id="L73">    return MessageDigest.getInstance(&quot;SHA-256&quot;);</span>
+<span class="fc" id="L72">    return MessageDigest.getInstance(&quot;SHA-256&quot;);</span>
   }
 
   /**
@@ -80,12 +79,14 @@ import java.util.stream.IntStream;
    * @return string to be masked
    */
   public static String mask(final CharSequence raw) {
-<span class="fc bfc" id="L83" title="All 2 branches covered.">    if (null == raw) {</span>
-<span class="fc" id="L84">      return null;</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">    if (null == raw) {</span>
+<span class="fc" id="L83">      return null;</span>
     }
-<span class="fc" id="L86">    final StringBuilder buffer = new StringBuilder(raw.length());</span>
-<span class="fc" id="L87">    IntStream.range(0, raw.length()).forEach(i -&gt; buffer.append(&quot;*&quot;));</span>
-<span class="fc" id="L88">    return buffer.toString();</span>
+<span class="fc" id="L85">    final StringBuilder buffer = new StringBuilder(raw.length());</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">    for (int i = 0; i &lt; raw.length(); ++i) {</span>
+<span class="fc" id="L87">      buffer.append(&quot;*&quot;);</span>
+    }
+<span class="fc" id="L89">    return buffer.toString();</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
