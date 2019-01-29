@@ -50,6 +50,8 @@ import hera.client.AergoClient;
 import hera.exception.InvalidAuthentiationException;
 import hera.exception.WalletException;
 import hera.key.AergoKeyGenerator;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -96,6 +98,18 @@ public class InteractiveWalletTest extends AbstractTestCase {
     final Authentication authentication =
         Authentication.of(accountAddress, randomUUID().toString());
     final String exported = wallet.exportKey(authentication);
+    assertNotNull(exported);
+  }
+
+  @Test
+  public void testListKeyStoreAddresses() {
+    InteractiveWallet wallet =
+        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    final KeyStore keyStore = mock(KeyStore.class);
+    when(keyStore.listStoredAddresses()).thenReturn(new ArrayList<AccountAddress>());
+    wallet.keyStore = keyStore;
+
+    final List<AccountAddress> exported = wallet.listKeyStoreAddresses();
     assertNotNull(exported);
   }
 

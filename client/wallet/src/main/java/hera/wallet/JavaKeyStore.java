@@ -4,6 +4,7 @@
 
 package hera.wallet;
 
+import static java.util.Collections.list;
 import static java.util.Collections.newSetFromMap;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -31,7 +32,9 @@ import java.security.Key;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -70,7 +73,7 @@ public class JavaKeyStore implements KeyStore, Signer {
   public void saveKey(final AergoKey key, final String password) {
     try {
       final Certificate cert = generateCertificate(key);
-      delegate.setKeyEntry(key.getAddress().toString(), key.getPrivateKey(), password.toCharArray(),
+      delegate.setKeyEntry(key.getAddress().getAlias(), key.getPrivateKey(), password.toCharArray(),
           new Certificate[] {cert});
     } catch (Exception e) {
       throw new WalletException(e);
@@ -82,7 +85,7 @@ public class JavaKeyStore implements KeyStore, Signer {
     final Calendar start = Calendar.getInstance();
     final Calendar expiry = Calendar.getInstance();
     expiry.add(Calendar.YEAR, 1);
-    final X500Name name = new X500Name("CN=" + key.getAddress().toString());
+    final X500Name name = new X500Name("CN=" + key.getAddress().getAlias());
     final ContentSigner signer = new JcaContentSignerBuilder("SHA256WithECDSA")
         .setProvider(provider).build(key.getPrivateKey());
     final X509CertificateHolder holder = new X509v3CertificateBuilder(
@@ -98,7 +101,7 @@ public class JavaKeyStore implements KeyStore, Signer {
   @Override
   public EncryptedPrivateKey export(final Authentication authentication) {
     try {
-      final Key privateKey = delegate.getKey(authentication.getAddress().toString(),
+      final Key privateKey = delegate.getKey(authentication.getAddress().getAlias(),
           authentication.getPassword().toCharArray());
       return restoreKey(privateKey).export(authentication.getPassword());
     } catch (KeyStoreException e) {
@@ -109,9 +112,25 @@ public class JavaKeyStore implements KeyStore, Signer {
   }
 
   @Override
+  public List<AccountAddress> listStoredAddresses() {
+    try {
+      List<AccountAddress> storedAddresses = new ArrayList<AccountAddress>();
+      ArrayList<String> aliases = list(delegate.aliases());
+      for (final String alias : aliases) {
+        storedAddresses.add(AccountAddress.fromAlias(alias));
+      }
+      return storedAddresses;
+    } catch (KeyStoreException e) {
+      throw new WalletException(e);
+    } catch (Exception e) {
+      throw new InvalidAuthentiationException(e);
+    }
+  }
+
+  @Override
   public Account unlock(final Authentication authentication) {
     try {
-      Key privateKey = delegate.getKey(authentication.getAddress().toString(),
+      Key privateKey = delegate.getKey(authentication.getAddress().getAlias(),
           authentication.getPassword().toCharArray());
       final AergoKey key = restoreKey(privateKey);
       unlockedAuthSet.add(digest(authentication));

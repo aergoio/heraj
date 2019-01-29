@@ -11,6 +11,34 @@ import hera.exception.DecodingFailureException.Format;
 public class EncodingUtils {
 
   /**
+   * Encode bytesValue to hexa.
+   *
+   * @param bytesValue a bytesValue
+   * @return hexa encoded string
+   */
+  public static String encodeHexa(final BytesValue bytesValue) {
+    return (null != bytesValue && !bytesValue.isEmpty())
+        ? HexUtils.encode(bytesValue.getValue())
+        : "";
+  }
+
+  /**
+   * Decode hexa encoded string.
+   *
+   * @param encoded hexa encoded string
+   * @return decoded string
+   * @throws DecodingFailureException if decoding failure
+   */
+  public static BytesValue decodeHexa(final String encoded) {
+    try {
+      return null != encoded ? new BytesValue(HexUtils.decode(encoded))
+          : BytesValue.EMPTY;
+    } catch (Exception e) {
+      throw new DecodingFailureException(encoded, Format.Hexa);
+    }
+  }
+
+  /**
    * Encode bytesValue to base58.
    *
    * @param bytesValue a bytesValue

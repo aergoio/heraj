@@ -107,7 +107,7 @@ public interface LookupClient extends Closeable {
   List<VotingInfo> listVotesOf(AccountAddress accountAddress);
 
   /**
-   * Get account list on a key store.
+   * Get account list on a server key store.
    *
    * @return account list
    */

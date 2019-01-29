@@ -9,6 +9,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Account;
+import hera.api.model.AccountAddress;
 import hera.api.model.AccountFactory;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
@@ -17,6 +18,7 @@ import hera.exception.InvalidAuthentiationException;
 import hera.exception.RpcConnectionException;
 import hera.exception.WalletException;
 import hera.key.AergoKey;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 
@@ -42,6 +44,17 @@ public class ServerKeyStore implements KeyStore {
   public EncryptedPrivateKey export(final Authentication authentication) {
     try {
       return aergoClient.getKeyStoreOperation().exportKey(authentication);
+    } catch (final RpcConnectionException e) {
+      throw new WalletException(e);
+    } catch (final Exception e) {
+      throw new InvalidAuthentiationException(e);
+    }
+  }
+
+  @Override
+  public List<AccountAddress> listStoredAddresses() {
+    try {
+      return aergoClient.getKeyStoreOperation().list();
     } catch (final RpcConnectionException e) {
       throw new WalletException(e);
     } catch (final Exception e) {

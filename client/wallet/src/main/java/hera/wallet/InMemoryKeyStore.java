@@ -22,6 +22,8 @@ import hera.exception.WalletException;
 import hera.key.AergoKey;
 import hera.key.Signer;
 import hera.util.Sha256Utils;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,6 +38,9 @@ public class InMemoryKeyStore implements KeyStore, Signer {
   protected Map<Authentication, EncryptedPrivateKey> auth2EncryptedPrivateKey =
       new ConcurrentHashMap<Authentication, EncryptedPrivateKey>();
 
+  protected Set<AccountAddress> storedAddressSet =
+      newSetFromMap(new ConcurrentHashMap<AccountAddress, Boolean>());
+
   protected Set<Authentication> unlockedAuthSet =
       newSetFromMap(new ConcurrentHashMap<Authentication, Boolean>());
 
@@ -47,6 +52,7 @@ public class InMemoryKeyStore implements KeyStore, Signer {
     try {
       auth2EncryptedPrivateKey.put(digest(Authentication.of(key.getAddress(), password)),
           key.export(password));
+      storedAddressSet.add(key.getAddress());
     } catch (final Exception e) {
       throw new WalletException(e);
     }
@@ -63,6 +69,11 @@ public class InMemoryKeyStore implements KeyStore, Signer {
     } catch (final Exception e) {
       throw new InvalidAuthentiationException(e);
     }
+  }
+
+  @Override
+  public List<AccountAddress> listStoredAddresses() {
+    return new ArrayList<AccountAddress>(this.storedAddressSet);
   }
 
   @Override

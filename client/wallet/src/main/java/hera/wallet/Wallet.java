@@ -23,6 +23,7 @@ import hera.exception.UnbindedAccountException;
 import hera.exception.UnbindedKeyStoreException;
 import hera.key.AergoKey;
 import java.io.Closeable;
+import java.util.List;
 
 @ApiAudience.Public
 @ApiStability.Unstable
@@ -56,6 +57,13 @@ public interface Wallet extends LookupClient, AccountHoldable, Closeable {
    * @throws UnbindedKeyStoreException if it's {@link WalletType#Secure} and keystore is not binded
    */
   String exportKey(Authentication authentication);
+
+  /**
+   * Get all the stored addresses in a binded key store.
+   *
+   * @return stored addresses.
+   */
+  List<AccountAddress> listKeyStoreAddresses();
 
   /**
    * Unlock account with {@code Authentication}.

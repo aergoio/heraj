@@ -5,7 +5,9 @@
 package hera.api.model;
 
 import static hera.util.EncodingUtils.decodeBase58WithCheck;
+import static hera.util.EncodingUtils.decodeHexa;
 import static hera.util.EncodingUtils.encodeBase58WithCheck;
+import static hera.util.EncodingUtils.encodeHexa;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
@@ -48,6 +50,20 @@ public class AccountAddress implements Encodable {
     return new AccountAddress(bytesValue);
   }
 
+  /**
+   * Create {@code AccountAddress} with an alias.
+   *
+   * @param alias an alias
+   * @return created {@link AccountAddress}
+   *
+   * @throws DecodingFailureException if decoding failed
+   * @throws InvalidVersionException when address version mismatch
+   */
+  @ApiAudience.Private
+  public static AccountAddress fromAlias(final String alias) {
+    return new AccountAddress(decodeHexa(alias));
+  }
+
   @Getter
   protected final BytesValue bytesValue;
 
@@ -79,6 +95,15 @@ public class AccountAddress implements Encodable {
     this.bytesValue = bytesValue;
   }
 
+  /**
+   * Get alias of account address.
+   *
+   * @return an alias of address
+   */
+  public String getAlias() {
+    return encodeHexa(getBytesValue());
+  }
+
   @Override
   public String getEncoded() {
     return encodeBase58WithCheck(getBytesValue());
@@ -105,4 +130,5 @@ public class AccountAddress implements Encodable {
   public String toString() {
     return getEncoded();
   }
+
 }

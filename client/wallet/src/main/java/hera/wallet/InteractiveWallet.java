@@ -73,6 +73,11 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
   }
 
   @Override
+  public List<AccountAddress> listKeyStoreAddresses() {
+    return getKeyStore().listStoredAddresses();
+  }
+
+  @Override
   public boolean unlock(final Authentication authentication) {
     try {
       this.account = getKeyStore().unlock(authentication);

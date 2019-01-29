@@ -6,8 +6,10 @@ package hera.util;
 
 import static hera.util.EncodingUtils.decodeBase58;
 import static hera.util.EncodingUtils.decodeBase58WithCheck;
+import static hera.util.EncodingUtils.decodeHexa;
 import static hera.util.EncodingUtils.encodeBase58;
 import static hera.util.EncodingUtils.encodeBase58WithCheck;
+import static hera.util.EncodingUtils.encodeHexa;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -18,6 +20,13 @@ import hera.exception.DecodingFailureException;
 import org.junit.Test;
 
 public class EncodingUtilsTest extends AbstractTestCase {
+
+  @Test
+  public void testEncodeAndDecodeHexa() {
+    final BytesValue expected = new BytesValue(randomUUID().toString().getBytes());
+    final String encoded = encodeHexa(expected);
+    assertEquals(expected, decodeHexa(encoded));
+  }
 
   @Test
   public void testEncodeAndDecodeBase58() {

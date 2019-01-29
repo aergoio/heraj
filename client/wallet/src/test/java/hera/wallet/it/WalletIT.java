@@ -60,7 +60,7 @@ public class WalletIT extends AbstractIT {
   protected final AccountAddress accountAddress =
       AccountAddress.of("AmLo9CGR3xFZPVKZ5moSVRNW1kyscY9rVkCvgrpwNJjRUPUWadC5");
 
-  protected String keyStorePath = System.getProperty("java.io.tmpdir") + "/.keystore";
+  protected String keyStorePath = System.getProperty("java.io.tmpdir") + ".keystore";
   protected String keyStorePasword = "password";
 
   protected String password = randomUUID().toString();
@@ -222,6 +222,25 @@ public class WalletIT extends AbstractIT {
       List<BlockHeader> blockHeadersByHash = wallet.listBlockHeaders(blockhash, 10);
       List<BlockHeader> blockHeadersByHeight = wallet.listBlockHeaders(blockhash, 10);
       assertEquals(blockHeadersByHash, blockHeadersByHeight);
+
+      wallet.close();
+    }
+  }
+
+  @Test
+  public void testSaveAndLookupSavedAddresses() {
+    for (final Wallet wallet : supplyWorkingWalletList()) {
+      logger.info("Current wallet: {}", wallet);
+      wallet.bindKeyStore(keyStore);
+
+      final int beforeSize = wallet.listKeyStoreAddresses().size();
+
+      final AergoKey key = new AergoKeyGenerator().create();
+      wallet.saveKey(key, password);
+
+      final int afterSize = wallet.listKeyStoreAddresses().size();
+      assertEquals(beforeSize + 1, afterSize);
+      assertTrue(wallet.listKeyStoreAddresses().contains(key.getAddress()));
 
       wallet.close();
     }

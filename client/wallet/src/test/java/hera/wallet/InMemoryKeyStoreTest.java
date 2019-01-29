@@ -33,6 +33,7 @@ public class InMemoryKeyStoreTest extends AbstractTestCase {
     final String password = randomUUID().toString();
     keyStore.saveKey(key, password);
     assertTrue(keyStore.auth2EncryptedPrivateKey.size() > 0);
+    assertTrue(keyStore.listStoredAddresses().contains(key.getAddress()));
 
     final Authentication auth = Authentication.of(key.getAddress(), password);
     final EncryptedPrivateKey exported = keyStore.export(auth);

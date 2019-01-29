@@ -19,6 +19,8 @@ import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.client.AergoClient;
 import hera.key.AergoKeyGenerator;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 
 public class ServerKeyStoreTest extends AbstractTestCase {
@@ -48,6 +50,18 @@ public class ServerKeyStoreTest extends AbstractTestCase {
         Authentication.of(ACCOUNT_ADDRESS, randomUUID().toString());
     final EncryptedPrivateKey exported = keyStore.export(authentication);
     assertNotNull(exported);
+  }
+
+  @Test
+  public void testListStoredAddresses() {
+    final AergoClient mockClient = mock(AergoClient.class);
+    final KeyStoreOperation mockKeyStoreOperation = mock(KeyStoreOperation.class);
+    when(mockKeyStoreOperation.list()).thenReturn(new ArrayList<AccountAddress>());
+    when(mockClient.getKeyStoreOperation()).thenReturn(mockKeyStoreOperation);
+
+    final KeyStore keyStore = new ServerKeyStore(mockClient);
+    final List<AccountAddress> list = keyStore.listStoredAddresses();
+    assertNotNull(list);
   }
 
   @Test

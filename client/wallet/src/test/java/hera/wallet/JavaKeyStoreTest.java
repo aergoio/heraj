@@ -43,6 +43,7 @@ public class JavaKeyStoreTest extends AbstractTestCase {
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
     keyStore.saveKey(key, password);
+    assertTrue(keyStore.listStoredAddresses().contains(key.getAddress()));
 
     final Authentication auth = Authentication.of(key.getAddress(), password);
     final EncryptedPrivateKey exported = keyStore.export(auth);
