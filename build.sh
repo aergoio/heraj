@@ -19,7 +19,7 @@ fi
 
 ################################################################################
 # Definition
-readonly VERSION=$(grep " version '" "$PROJECT_HOME/build.gradle" | cut -d"'" -f2)
+readonly VERSION=$(grep "version" "$PROJECT_HOME/gradle.properties" | cut -d"=" -f2)
 readonly BUILD_WORKSPACE=$PROJECT_HOME/build
 readonly PROJECT_PREFIX="heraj"
 readonly LIB_CORES=("wallet" "smart-contract" "transport")
@@ -32,6 +32,7 @@ function print-usage() {
   echo "  install     install to maven local"
   echo "  deploy      upload to jcenter"
   echo "  test        test built executable"
+  echo "  it          integraion test (on aergo test mode)"
   echo "  docs        generate documents"
   echo "  pack        pack generated jar files info *.zip, *.tar.gz"
   echo "  fat         make single fat jar file"
@@ -58,6 +59,9 @@ function execute-deploy() {
 }
 function execute-test() {
   $PROJECT_HOME/gradlew test jacocoTestReport
+}
+function execute-integration-test() {
+  $PROJECT_HOME/gradlew integrationTest
 }
 function execute-documentation() {
   gem install bundler
@@ -136,6 +140,9 @@ else
         ;;
       "test")
         execute-test
+        ;;
+      "it")
+        execute-integration-test
         ;;
       "docs")
         execute-documentation

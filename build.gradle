@@ -18,7 +18,6 @@ buildscript {
     classpath "com.github.jengelman.gradle.plugins:shadow:4.0.3"
   }
 }
-group 'io.aergo'
 
 repositories {
   mavenLocal()
@@ -31,10 +30,6 @@ repositories {
 
 def javaVersion = JavaVersion.VERSION_1_6
 
-allprojects {
-  group 'io.aergo'
-  version '0.11.0-SNAPSHOT'
-}
 def javaProjects = [
   project('core:annotation'),
   project('core:util'),
@@ -42,17 +37,14 @@ def javaProjects = [
   project('core:protobuf'),
   project('core:transport'),
   project('client:wallet'),
-  project('client:smart-contract')
+  project('client:smart-contract'),
+  project('examples')
 ]
 
 def jmhProjects = [
   project('core:common'),
   project('core:transport'),
   project('client:wallet'),
-]
-
-def exampleProjects = [
-  project('examples')
 ]
 
 ext {
@@ -62,7 +54,6 @@ ext {
 }
 
 configure(javaProjects) {
-  // do Java specific configurations
   apply plugin: 'java-library'
   apply plugin: 'maven-publish'
   apply plugin: 'jacoco'
@@ -86,6 +77,7 @@ configure(javaProjects) {
     mavenCentral()
     jcenter()
   }
+
   eclipseJdt.doLast( {
     ant.propertyfile(file: ".settings/org.eclipse.core.resources.prefs") {
       ant.entry(key: "eclipse.preferences.version", value: "1")
@@ -164,10 +156,27 @@ configure(javaProjects) {
       jvmArgs('--add-opens', 'java.xml/jdk.xml.internal=ALL-UNNAMED')
     }
 
-
     maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors())
     exclude '**/*Tests.class'
     exclude '**/*IT.class'
+  }
+
+  task integrationTest (type: Test) {
+    if(JavaVersion.current().isJava9Compatible()) {
+      jvmArgs('--add-opens', 'java.base/java.lang=ALL-UNNAMED')
+      jvmArgs('--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED')
+      jvmArgs('--add-opens', 'java.base/java.lang.invoke=ALL-UNNAMED')
+      jvmArgs('--add-opens', 'java.base/java.math=ALL-UNNAMED')
+      jvmArgs('--add-opens', 'java.base/java.net=ALL-UNNAMED')
+      jvmArgs('--add-opens', 'java.base/java.nio=ALL-UNNAMED')
+      jvmArgs('--add-opens', 'java.base/java.util=ALL-UNNAMED')
+      jvmArgs('--add-opens', 'java.base/java.util.stream=ALL-UNNAMED')
+      jvmArgs('--add-opens', 'java.base/java.io=ALL-UNNAMED')
+      jvmArgs('--add-opens', 'java.xml/jdk.xml.internal=ALL-UNNAMED')
+    }
+
+    maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors())
+    include '**/*IT.class'
   }
 
   checkstyle {
@@ -204,6 +213,7 @@ configure(javaProjects) {
     from sourceSets.main.allJava
     classifier = 'sources'
   }
+
   javadoc {
     if(JavaVersion.current().isJava9Compatible()) {
       options.addBooleanOption('html5', true)
@@ -250,6 +260,7 @@ configure(javaProjects) {
   jacoco {
     toolVersion = "0.8.2"
   }
+
   jacocoTestReport {
     group = "Reporting"
     additionalSourceDirs = files(sourceSets.main.allSource.srcDirs)
@@ -270,104 +281,6 @@ configure(javaProjects) {
 
 }
 
-configure(exampleProjects) {
-  // do Java specific configurations
-  apply plugin: 'java-library'
-  apply plugin: 'checkstyle'
-  apply plugin: 'idea'
-  apply plugin: 'eclipse'
-
-  sourceCompatibility = javaVersion
-  targetCompatibility = javaVersion
-
-  repositories {
-    mavenLocal()
-    maven {
-      url "http://dist.wso2.org/maven2"
-    }
-    mavenCentral()
-    jcenter()
-  }
-  eclipseJdt.doLast( {
-    ant.propertyfile(file: ".settings/org.eclipse.core.resources.prefs") {
-      ant.entry(key: "eclipse.preferences.version", value: "1")
-      ant.entry(key: "encoding/<project>", value: "utf8")
-    }
-  } )
-
-  idea {
-    module {
-      outputDir file('build/classes/java/main')
-      testOutputDir file('build/classes/java/test')
-    }
-  }
-
-  compileJava.options.encoding = 'UTF-8'
-  compileTestJava.options.encoding = 'UTF-8'
-
-  checkstyle {
-    project.ext.checkstyleVersion = '8.11'
-    project.ext.sevntuChecksVersion = '1.26.0'
-    sourceSets = [project.sourceSets.main]
-
-    ignoreFailures = true
-    configFile = file("${rootProject.projectDir}/styles.xml")
-    reportsDir = file("${buildDir}/checkstyle-reports")
-    configurations {
-      checkstyle
-    }
-    checkstyleMain {
-      reportsDir = checkstyle.reportsDir
-    }
-    dependencies{
-      assert project.hasProperty("checkstyleVersion")
-
-      checkstyle "com.puppycrawl.tools:checkstyle:${checkstyleVersion}"
-      checkstyle "com.github.sevntu-checkstyle:sevntu-checks:${sevntuChecksVersion}"
-    }
-  }
-}
-
-task alljavadoc(type: Javadoc) {
-  source javaProjects.findAll{ it.name != 'protobuf' }.collect { it.sourceSets.main.allJava }    											  
-  classpath = files(javaProjects.collect { it.sourceSets.main.compileClasspath })
-  destinationDir = file("${buildDir}/docs/javadoc")
-  if (JavaVersion.current().isJava8Compatible()) {
-    options.addStringOption('Xwerror', '-quiet')
-  }
-  if(JavaVersion.current().isJava9Compatible()) {
-    options.addBooleanOption('html5', true)
-  }
-}
-
-apply plugin: 'java'
-apply plugin: 'jacoco'
-jacoco {
-  toolVersion = "0.8.2"
-}
-
-task alljacoco(type: JacocoReport) {
-  dependsOn = javaProjects.test
-  sourceDirectories = files(javaProjects.sourceSets.main.allSource.srcDirs)
-  classDirectories =  files(javaProjects.sourceSets.main.output.classesDir)
-  def executionDataPath = []
-  executionData = files((javaProjects.findAll { p ->
-    def coverageFileLocation = "$p.buildDir/jacoco/test.exec"
-    new File(coverageFileLocation).exists()
-  }).jacocoTestReport.executionData)
-  reports {
-    html.enabled = true
-    xml.enabled = true
-    xml.destination file("${buildDir}/reports/jacoco/report.xml")
-    csv.enabled = false
-  }
-  afterEvaluate {
-    classDirectories = files(classDirectories.files.collect {
-      fileTree(dir: it, exclude: ['types/**'])
-    })
-  }
-}
-
 configure(jmhProjects) {
   apply plugin: "me.champeau.gradle.jmh"
   apply plugin: "io.morethan.jmhreport"
@@ -378,6 +291,7 @@ configure(jmhProjects) {
       defaultOutputDir = file('build/classes-jmh-ide')
     }
   }
+
   sourceSets {
     jmh {
       compileClasspath += sourceSets.main.output + sourceSets.test.output + sourceSets.main.compileClasspath
@@ -405,5 +319,45 @@ configure(jmhProjects) {
   jmhReport {
     jmhResultPath = project.file('build/reports/jmh/results.json')
     jmhReportOutput = project.file('build/reports/jmh')
+  }
+}
+
+apply plugin: 'java'
+apply plugin: 'jacoco'
+
+jacoco {
+  toolVersion = "0.8.2"
+}
+task alljacoco(type: JacocoReport) {
+  dependsOn = javaProjects.test
+  sourceDirectories = files(javaProjects.sourceSets.main.allSource.srcDirs)
+  classDirectories =  files(javaProjects.sourceSets.main.output.classesDir)
+  def executionDataPath = []
+  executionData = files((javaProjects.findAll { p ->
+    def coverageFileLocation = "$p.buildDir/jacoco/test.exec"
+    new File(coverageFileLocation).exists()
+  }).jacocoTestReport.executionData)
+  reports {
+    html.enabled = true
+    xml.enabled = true
+    xml.destination file("${buildDir}/reports/jacoco/report.xml")
+    csv.enabled = false
+  }
+  afterEvaluate {
+    classDirectories = files(classDirectories.files.collect {
+      fileTree(dir: it, exclude: ['types/**'])
+    })
+  }
+}
+
+task alljavadoc(type: Javadoc) {
+  source javaProjects.findAll{ it.name != 'protobuf' }.collect { it.sourceSets.main.allJava }
+  classpath = files(javaProjects.collect { it.sourceSets.main.compileClasspath })
+  destinationDir = file("${buildDir}/docs/javadoc")
+  if (JavaVersion.current().isJava8Compatible()) {
+    options.addStringOption('Xwerror', '-quiet')
+  }
+  if(JavaVersion.current().isJava9Compatible()) {
+    options.addBooleanOption('html5', true)
   }
 }
