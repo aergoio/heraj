@@ -6,7 +6,6 @@ package hera.client;
 
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
-import static hera.util.ArrayUtils.concat;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
@@ -24,13 +23,13 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
-import hera.api.model.BytesValue;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.StakingInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.internal.GovernanceRecipient;
+import hera.client.PayloadResolver.Type;
 import hera.exception.TransactionVerificationException;
 import hera.key.Signer;
 import hera.transport.AccountAddressConverterFactory;
@@ -70,6 +69,8 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
 
   protected TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();
 
+  protected PayloadResolver payloadResolver = new PayloadResolver();
+
   @Override
   public void setContextProvider(final ContextProvider contextProvider) {
     this.contextProvider = contextProvider;
@@ -88,16 +89,16 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
 
         @Override
         public hera.client.FinishableFuture<AccountState> apply(final AccountAddress address) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("GetState with {}", address);
-          }
+          logger.debug("GetState with {}", address);
 
           FinishableFuture<AccountState> nextFuture = new FinishableFuture<AccountState>();
           try {
-            final Rpc.SingleBytes bytes = Rpc.SingleBytes.newBuilder()
-                .setValue(accountAddressConverter.convertToRpcModel(address)).build();
-            ListenableFuture<Blockchain.State> listenableFuture = aergoService.getState(bytes);
+            final Rpc.SingleBytes rpcAddress = Rpc.SingleBytes.newBuilder()
+                .setValue(accountAddressConverter.convertToRpcModel(address))
+                .build();
+            logger.trace("AergoService getstate arg: {}", rpcAddress);
 
+            ListenableFuture<Blockchain.State> listenableFuture = aergoService.getState(rpcAddress);
             FutureChain<Blockchain.State, AccountState> callback =
                 new FutureChain<Blockchain.State, AccountState>(nextFuture, contextProvider.get());
             callback.setSuccessHandler(new Function1<Blockchain.State, AccountState>() {
@@ -124,18 +125,15 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
         @Override
         public FinishableFuture<TxHash> apply(final Account account, final String name,
             final Long nonce) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Create account name to account: {}, name: {}, nonce: {}",
-                account.getAddress(), name, nonce);
-          }
+          logger.debug("Create account name to account: {}, name: {}, nonce: {}",
+              account.getAddress(), name, nonce);
 
-          final BytesValue payload = new BytesValue(("c" + name).getBytes());
           final RawTransaction rawTransaction = new RawTransaction(account.getAddress(),
               GovernanceRecipient.AERGO_NAME,
               Aer.AERGO_ONE,
               nonce,
               Fee.ZERO,
-              payload,
+              payloadResolver.resolve(Type.CreateName, name),
               Transaction.TxType.GOVERNANCE);
           final Transaction signed = getSignFunction().apply(account, rawTransaction).get();
           return transactionBaseTemplate.getCommitFunction().apply(signed);
@@ -150,19 +148,17 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
         @Override
         public FinishableFuture<TxHash> apply(final Account owner, final String name,
             final AccountAddress newOwner, final Long nonce) {
-          if (logger.isDebugEnabled()) {
-            logger.debug(
-                "Update account name from account: {}, name: {}, to account: {}, nonce: {}",
-                owner.getAddress(), name, newOwner, nonce);
-          }
-          final BytesValue payload = new BytesValue(concat(("u" + name + ",").getBytes(),
-              accountAddressConverter.convertToRpcModel(newOwner).toByteArray()));
+          logger.debug("Update account name from account: {}, name: {}, to account: {}, nonce: {}",
+              owner.getAddress(), name, newOwner, nonce);
+
+          final byte[] rawTargetAddress =
+              accountAddressConverter.convertToRpcModel(newOwner).toByteArray();
           final RawTransaction rawTransaction = new RawTransaction(owner.getAddress(),
               GovernanceRecipient.AERGO_NAME,
               Aer.AERGO_ONE,
               nonce,
               Fee.ZERO,
-              payload,
+              payloadResolver.resolve(Type.UpdateName, name, rawTargetAddress),
               Transaction.TxType.GOVERNANCE);
           final Transaction signed = getSignFunction().apply(owner, rawTransaction).get();
           return transactionBaseTemplate.getCommitFunction().apply(signed);
@@ -175,15 +171,14 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
 
         @Override
         public FinishableFuture<AccountAddress> apply(final String name) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Get name owner of name: {}", name);
-          }
+          logger.debug("Get name owner of name: {}", name);
 
           FinishableFuture<AccountAddress> nextFuture = new FinishableFuture<AccountAddress>();
           try {
             final Rpc.Name rpcName = Rpc.Name.newBuilder().setName(name).build();
-            ListenableFuture<Rpc.NameInfo> listenableFuture = aergoService.getNameInfo(rpcName);
+            logger.trace("AergoService getNameInfo arg: {}", rpcName);
 
+            ListenableFuture<Rpc.NameInfo> listenableFuture = aergoService.getNameInfo(rpcName);
             FutureChain<Rpc.NameInfo, AccountAddress> callback =
                 new FutureChain<Rpc.NameInfo, AccountAddress>(nextFuture, contextProvider.get());
             callback.setSuccessHandler(new Function1<Rpc.NameInfo, AccountAddress>() {
@@ -207,18 +202,15 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
         @Override
         public FinishableFuture<TxHash> apply(final Account account, final Aer amount,
             final Long nonce) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Staking account with account: {}, amount: {}, nonce: {}",
-                account.getAddress(), amount, nonce);
-          }
+          logger.debug("Staking account with account: {}, amount: {}, nonce: {}",
+              account.getAddress(), amount, nonce);
 
-          final BytesValue payload = new BytesValue(("s").getBytes());
           final RawTransaction rawTransaction = new RawTransaction(account.getAddress(),
               GovernanceRecipient.AERGO_SYSTEM,
               amount,
               nonce,
               Fee.ZERO,
-              payload,
+              payloadResolver.resolve(Type.Stake),
               Transaction.TxType.GOVERNANCE);
           final Transaction signed = getSignFunction().apply(account, rawTransaction).get();
           return transactionBaseTemplate.getCommitFunction().apply(signed);
@@ -232,18 +224,15 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
         @Override
         public FinishableFuture<TxHash> apply(final Account account, final Aer amount,
             final Long nonce) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Unstaking account with account: {}, amount: {}, nonce: {}",
-                account.getAddress(), amount, nonce);
-          }
+          logger.debug("Unstaking account with account: {}, amount: {}, nonce: {}",
+              account.getAddress(), amount, nonce);
 
-          final BytesValue payload = new BytesValue(("u").getBytes());
           final RawTransaction rawTransaction = new RawTransaction(account.getAddress(),
               GovernanceRecipient.AERGO_SYSTEM,
               amount,
               nonce,
               Fee.ZERO,
-              payload,
+              payloadResolver.resolve(Type.Unstake),
               Transaction.TxType.GOVERNANCE);
           final Transaction signed = getSignFunction().apply(account, rawTransaction).get();
           return transactionBaseTemplate.getCommitFunction().apply(signed);
@@ -257,16 +246,16 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
 
         @Override
         public FinishableFuture<StakingInfo> apply(final AccountAddress accountAddress) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Get staking information of address: {}", accountAddress);
-          }
+          logger.debug("Get staking information with address: {}", accountAddress);
 
           FinishableFuture<StakingInfo> nextFuture = new FinishableFuture<StakingInfo>();
           try {
-            final Rpc.SingleBytes request = Rpc.SingleBytes.newBuilder()
-                .setValue(accountAddressConverter.convertToRpcModel(accountAddress)).build();
-            ListenableFuture<Rpc.Staking> listenableFuture = aergoService.getStaking(request);
+            final Rpc.SingleBytes rpcAddress = Rpc.SingleBytes.newBuilder()
+                .setValue(accountAddressConverter.convertToRpcModel(accountAddress))
+                .build();
+            logger.trace("AergoService getStaking arg: {}", rpcAddress);
 
+            ListenableFuture<Rpc.Staking> listenableFuture = aergoService.getStaking(rpcAddress);
             FutureChain<Rpc.Staking, StakingInfo> callback =
                 new FutureChain<Rpc.Staking, StakingInfo>(nextFuture, contextProvider.get());
             callback.setSuccessHandler(new Function1<Rpc.Staking, StakingInfo>() {
@@ -293,9 +282,8 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
         @Override
         public FinishableFuture<Transaction> apply(final Account account,
             final RawTransaction rawTransaction) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Sign request with account: {}, rawTx: {}", account, rawTransaction);
-          }
+          logger.debug("Sign request with account: {}, rawTx: {}", account.getAddress(),
+              rawTransaction);
 
           FinishableFuture<Transaction> nextFuture = new FinishableFuture<Transaction>();
           if (account instanceof Signer) {
@@ -305,11 +293,10 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
           } else {
             final Transaction domainTransaction =
                 new Transaction(rawTransaction, null, null, null, 0, false);
-            Blockchain.Tx rpcTransaction =
-                transactionConverter.convertToRpcModel(domainTransaction);
-            ListenableFuture<Blockchain.Tx> listenableFuture =
-                aergoService.signTX(rpcTransaction);
+            final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(domainTransaction);
+            logger.trace("AergoService signTX arg: {}", rpcTx);
 
+            ListenableFuture<Blockchain.Tx> listenableFuture = aergoService.signTX(rpcTx);
             FutureChain<Blockchain.Tx, Transaction> callback =
                 new FutureChain<Blockchain.Tx, Transaction>(nextFuture, contextProvider.get());
             callback.setSuccessHandler(new Function1<Blockchain.Tx, Transaction>() {
@@ -331,9 +318,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
         @Override
         public FinishableFuture<Boolean> apply(final Account account,
             final Transaction transaction) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Sign verify with account: {}, signedTx: {}", account, transaction);
-          }
+          logger.debug("Sign verify with account: {}, signedTx: {}", account, transaction);
 
           FinishableFuture<Boolean> nextFuture = new FinishableFuture<Boolean>();
           try {
@@ -342,9 +327,10 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
               final boolean verifyResult = signer.verify(transaction);
               nextFuture.success(verifyResult);
             } else {
-              final Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
-              ListenableFuture<Rpc.VerifyResult> listenableFuture = aergoService.verifyTX(tx);
+              final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(transaction);
+              logger.trace("AergoService verifyTX arg: {}", rpcTx);
 
+              ListenableFuture<Rpc.VerifyResult> listenableFuture = aergoService.verifyTX(rpcTx);
               FutureChain<Rpc.VerifyResult, Boolean> callback =
                   new FutureChain<Rpc.VerifyResult, Boolean>(nextFuture, contextProvider.get());
               callback.setSuccessHandler(new Function1<Rpc.VerifyResult, Boolean>() {

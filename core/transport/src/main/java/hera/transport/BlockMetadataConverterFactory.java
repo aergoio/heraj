@@ -38,10 +38,9 @@ public class BlockMetadataConverterFactory {
 
         @Override
         public BlockHeader apply(final Rpc.BlockMetadata rpcBlockMetaData) {
-          logger.trace("Rpc block metadata: {}", rpcBlockMetaData);
+          logger.trace("Rpc block header to convert: {}", rpcBlockMetaData);
           final Blockchain.BlockHeader rpcBlockHeader = rpcBlockMetaData.getHeader();
-
-          return new BlockHeader(
+          final BlockHeader domainBlockHeader = new BlockHeader(
               new Hash(of(rpcBlockHeader.getChainID().toByteArray())),
               new BlockHash(of(rpcBlockMetaData.getHash().toByteArray())),
               new BlockHash(of(rpcBlockHeader.getPrevBlockHash().toByteArray())),
@@ -55,6 +54,8 @@ public class BlockMetadataConverterFactory {
               new Hash(of(rpcBlockHeader.getSign().toByteArray())),
               addressConverter.convertToDomainModel(rpcBlockHeader.getCoinbaseAccount()),
               rpcBlockMetaData.getTxcount());
+          logger.trace("Domain block header converted: {}", domainBlockHeader);
+          return domainBlockHeader;
         }
       };
 

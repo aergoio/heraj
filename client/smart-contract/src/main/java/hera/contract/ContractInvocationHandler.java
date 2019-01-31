@@ -127,31 +127,41 @@ public class ContractInvocationHandler implements InvocationHandler {
   protected void validateInterface(final Object proxy, final ContractInterface contractInterface) {
     logger.debug("Validate {} with {}", proxy, contractInterface);
     for (final Method method : proxy.getClass().getDeclaredMethods()) {
-      final String methodName = method.getName();
-      final int methodParameterCount = method.getParameterTypes().length;
-      // java object methods
-      if ("equals".equals(methodName) || "toString".equals(methodName)
-          || "hashCode".equals(methodName)) {
+      if (isJavaObjectMethod(method) || isContractSpecificMethod(method)) {
         continue;
       }
-      // contract specific methods
-      if ("bind".equals(methodName) && 1 == methodParameterCount) {
-        final Class<?> parameterType = method.getParameterTypes()[0];
-        if (Wallet.class.equals(parameterType) || Fee.class.equals(parameterType)) {
-          continue;
-        }
-      }
-      // check method name and argument count
+      // check method name
+      final String methodName = method.getName();
       final ContractFunction contractFunction = contractInterface.findFunction(methodName);
       if (null == contractFunction) {
         throw new ContractException("No method " + methodName + " in contract interface");
       }
+      // check method parameter count
+      final int methodParameterCount = method.getParameterTypes().length;
       final int actualArgCount = contractFunction.getArgumentNames().size();
       if (methodParameterCount != actualArgCount) {
         throw new ContractException(String.format(
             "Method parameter count for %s is invalid (expected: %d)", methodName, actualArgCount));
       }
     }
+  }
+
+  protected boolean isJavaObjectMethod(final Method method) {
+    final String methodName = method.getName();
+    return "equals".equals(methodName) || "toString".equals(methodName)
+        || "hashCode".equals(methodName);
+  }
+
+  protected boolean isContractSpecificMethod(final Method method) {
+    final String name = method.getName();
+    final int parameterCount = method.getParameterTypes().length;
+    for (final Method preDefinedMethod : SmartContract.class.getMethods()) {
+      if (name.equals(preDefinedMethod.getName())
+          && parameterCount == preDefinedMethod.getParameterTypes().length) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }

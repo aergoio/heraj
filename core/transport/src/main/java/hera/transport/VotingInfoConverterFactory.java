@@ -31,11 +31,13 @@ public class VotingInfoConverterFactory {
       new Function1<Rpc.Vote, VotingInfo>() {
 
         @Override
-        public VotingInfo apply(final Rpc.Vote rpcVote) {
-          logger.trace("Rpc vote status: {}", rpcVote);
-          return new VotingInfo(
-              new PeerId(of(rpcVote.getCandidate().toByteArray())),
-              parseToAer(rpcVote.getAmount()));
+        public VotingInfo apply(final Rpc.Vote rpcVotingInfo) {
+          logger.trace("Rpc vote status to convert: {}", rpcVotingInfo);
+          final VotingInfo domainVotingInfo = new VotingInfo(
+              new PeerId(of(rpcVotingInfo.getCandidate().toByteArray())),
+              parseToAer(rpcVotingInfo.getAmount()));
+          logger.trace("Domain vote status converted: {}", domainVotingInfo);
+          return domainVotingInfo;
         }
       };
 

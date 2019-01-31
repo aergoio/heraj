@@ -5,7 +5,10 @@
 package hera.transport;
 
 import static hera.api.model.BytesValue.of;
+import static hera.util.EncodingUtils.encodeHexa;
 import static hera.util.TransportUtils.copyFrom;
+import static hera.util.VersionUtils.envelop;
+import static hera.util.VersionUtils.trim;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
@@ -13,7 +16,6 @@ import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.util.HexUtils;
-import hera.util.VersionUtils;
 import org.slf4j.Logger;
 
 public class AccountAddressConverterFactory {
@@ -25,14 +27,24 @@ public class AccountAddressConverterFactory {
 
         @Override
         public com.google.protobuf.ByteString apply(final AccountAddress domainAccountAddress) {
-          logger.trace("Domain account address: {}",
-              HexUtils.encode(domainAccountAddress.getBytesValue().getValue()));
-          if (domainAccountAddress.getBytesValue().isEmpty()) {
-            return copyFrom(domainAccountAddress.getBytesValue());
+          if (logger.isTraceEnabled()) {
+            logger.trace("Domain account address to convert. with checksum: {}, hexa: {}",
+                domainAccountAddress,
+                encodeHexa(domainAccountAddress.getBytesValue()));
           }
-          final byte[] withVersion = domainAccountAddress.getBytesValue().getValue();
-          final byte[] withoutVersion = VersionUtils.trim(withVersion);
-          return ByteString.copyFrom(withoutVersion);
+          ByteString rpcAccountAddress;
+          if (false == domainAccountAddress.getBytesValue().isEmpty()) {
+            final byte[] withVersion = domainAccountAddress.getBytesValue().getValue();
+            final byte[] withoutVersion = trim(withVersion);
+            rpcAccountAddress = copyFrom(withoutVersion);
+          } else {
+            rpcAccountAddress = ByteString.EMPTY;
+          }
+          if (logger.isTraceEnabled()) {
+            logger.trace("Rpc account address converted. hexa: {}",
+                HexUtils.encode(rpcAccountAddress.toByteArray()));
+          }
+          return rpcAccountAddress;
         }
       };
 
@@ -41,13 +53,24 @@ public class AccountAddressConverterFactory {
 
         @Override
         public AccountAddress apply(com.google.protobuf.ByteString rpcAccountAddress) {
-          logger.trace("Rpc account address: {}", HexUtils.encode(rpcAccountAddress.toByteArray()));
-          if (rpcAccountAddress.isEmpty()) {
-            return new AccountAddress(BytesValue.EMPTY);
+          if (logger.isTraceEnabled()) {
+            logger.trace("Rpc account address to convert. hexa: {}",
+                HexUtils.encode(rpcAccountAddress.toByteArray()));
           }
-          final byte[] withoutVersion = rpcAccountAddress.toByteArray();
-          final byte[] withVersion = VersionUtils.envelop(withoutVersion, AccountAddress.VERSION);
-          return new AccountAddress(of(withVersion));
+          AccountAddress domainAccountAddress;
+          if (false == rpcAccountAddress.isEmpty()) {
+            final byte[] withoutVersion = rpcAccountAddress.toByteArray();
+            final byte[] withVersion = envelop(withoutVersion, AccountAddress.VERSION);
+            domainAccountAddress = new AccountAddress(of(withVersion));
+          } else {
+            domainAccountAddress = new AccountAddress(BytesValue.EMPTY);
+          }
+          if (logger.isTraceEnabled()) {
+            logger.trace("Domain account address converted. with checksum: {}, hexa: {}",
+                domainAccountAddress,
+                encodeHexa(domainAccountAddress.getBytesValue()));
+          }
+          return domainAccountAddress;
         }
       };
 

@@ -17,7 +17,7 @@ import hera.api.function.Function1;
 import hera.api.model.ModuleStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.internal.Time;
-import hera.exception.HerajException;
+import hera.exception.RpcException;
 import hera.util.ParsingUtils;
 import java.io.IOException;
 import java.text.ParseException;
@@ -49,13 +49,16 @@ public class NodeStatusConverterFactory {
 
         @Override
         public NodeStatus apply(final Rpc.SingleBytes rpcNodeStatus) {
-          logger.trace("Rpc node status: {}", rpcNodeStatus);
           try {
+            logger.trace("Rpc node status to convert: {}", rpcNodeStatus);
             final byte[] rawNodeStatus = rpcNodeStatus.getValue().toByteArray();
-            return rawNodeStatus.length == 0 ? new NodeStatus(new ArrayList<ModuleStatus>())
-                : mapper.readValue(rawNodeStatus, NodeStatus.class);
+            final NodeStatus domainNodeStatus =
+                rawNodeStatus.length == 0 ? new NodeStatus(new ArrayList<ModuleStatus>())
+                    : mapper.readValue(rawNodeStatus, NodeStatus.class);
+            logger.trace("Domain node status converted: {}", domainNodeStatus);
+            return domainNodeStatus;
           } catch (Throwable e) {
-            throw new HerajException(e);
+            throw new RpcException(e);
           }
         }
       };

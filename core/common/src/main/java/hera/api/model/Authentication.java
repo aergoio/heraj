@@ -9,13 +9,13 @@ import static hera.util.ValidationUtils.assertNotNull;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.exception.HerajException;
+import hera.util.HexUtils;
+import hera.util.Sha256Utils;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@ToString
 @EqualsAndHashCode
 public class Authentication {
 
@@ -49,6 +49,12 @@ public class Authentication {
     assertNotNull(password, new HerajException("Pasasword must not null"));
     this.address = accountAddress;
     this.password = password;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("Authentication(address=%s, password=%s)", address,
+        HexUtils.encode(Sha256Utils.digest(password.getBytes())));
   }
 
 }

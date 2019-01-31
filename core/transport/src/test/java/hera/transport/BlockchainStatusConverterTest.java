@@ -7,9 +7,7 @@ package hera.transport;
 import static org.junit.Assert.assertNotNull;
 
 import hera.AbstractTestCase;
-import hera.api.model.BlockHash;
 import hera.api.model.BlockchainStatus;
-import hera.api.model.BytesValue;
 import org.junit.Test;
 import types.Rpc;
 
@@ -19,14 +17,10 @@ public class BlockchainStatusConverterTest extends AbstractTestCase {
   public void testConvert() {
     final ModelConverter<BlockchainStatus, Rpc.BlockchainStatus> converter =
         new BlockchainStatusConverterFactory().create();
-
-    final BlockchainStatus domainBlockchainStatus =
-        new BlockchainStatus(10L, BlockHash.of(BytesValue.EMPTY));
-    final Rpc.BlockchainStatus rpcBlockchainStatus =
-        converter.convertToRpcModel(domainBlockchainStatus);
-    final BlockchainStatus actualDomainBlockchainStatus =
+    final Rpc.BlockchainStatus rpcBlockchainStatus = Rpc.BlockchainStatus.newBuilder().build();
+    final BlockchainStatus converted =
         converter.convertToDomainModel(rpcBlockchainStatus);
-    assertNotNull(actualDomainBlockchainStatus);
+    assertNotNull(converted);
   }
 
 }

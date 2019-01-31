@@ -4,13 +4,12 @@
 
 package hera.transport;
 
-import static hera.util.TransportUtils.copyFrom;
+import static hera.api.model.BytesValue.of;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.function.Function1;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockchainStatus;
-import hera.api.model.BytesValue;
 import org.slf4j.Logger;
 import types.Rpc;
 
@@ -23,10 +22,7 @@ public class BlockchainStatusConverterFactory {
 
         @Override
         public Rpc.BlockchainStatus apply(final BlockchainStatus domainBlockchainStatus) {
-          logger.trace("Domain blockchain status: {}", domainBlockchainStatus);
-          return Rpc.BlockchainStatus.newBuilder()
-              .setBestBlockHash(copyFrom(domainBlockchainStatus.getBestBlockHash().getBytesValue()))
-              .setBestHeight(domainBlockchainStatus.getBestHeight()).build();
+          throw new UnsupportedOperationException();
         }
       };
 
@@ -35,10 +31,12 @@ public class BlockchainStatusConverterFactory {
 
         @Override
         public BlockchainStatus apply(final Rpc.BlockchainStatus rpcBlockchainStatus) {
-          logger.trace("Rpc blockchain status: {}", rpcBlockchainStatus);
-          return new BlockchainStatus(
+          logger.trace("Rpc blockchain status to convert: {}", rpcBlockchainStatus);
+          final BlockchainStatus domainBlockchainStatus = new BlockchainStatus(
               rpcBlockchainStatus.getBestHeight(),
-              new BlockHash(BytesValue.of(rpcBlockchainStatus.getBestBlockHash().toByteArray())));
+              new BlockHash(of(rpcBlockchainStatus.getBestBlockHash().toByteArray())));
+          logger.trace("Domain blockchain status converted: {}", domainBlockchainStatus);
+          return domainBlockchainStatus;
         }
       };
 

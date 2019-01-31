@@ -53,9 +53,7 @@ public class FutureChain<T, R> implements FutureCallback<T> {
   @Override
   public void onSuccess(@Nullable T t) {
     connectAsyncContextWithSourceContext();
-    if (logger.isDebugEnabled()) {
-      logger.debug("Async request success result: {}, context: {}", t, ContextHolder.get(this));
-    }
+    logger.trace("Async request success result: {}, context: {}", t, ContextHolder.get(this));
     try {
       final R handled = successHandler.apply(t);
       nextFuture.success(handled);
@@ -67,9 +65,7 @@ public class FutureChain<T, R> implements FutureCallback<T> {
   @Override
   public void onFailure(final Throwable error) {
     connectAsyncContextWithSourceContext();
-    if (logger.isDebugEnabled()) {
-      logger.debug("Async request fail result: {}, context: {}", error, ContextHolder.get(this));
-    }
+    logger.trace("Async request fail result: {}, context: {}", error, ContextHolder.get(this));
     try {
       final R handled = failureHandler.apply(error);
       nextFuture.success(handled);

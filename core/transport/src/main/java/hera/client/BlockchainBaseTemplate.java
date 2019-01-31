@@ -6,7 +6,7 @@ package hera.client;
 
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
-import static hera.util.TransportUtils.longToByteArray;
+import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
@@ -23,7 +23,6 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.BlockProducer;
 import hera.api.model.BlockchainStatus;
-import hera.api.model.BytesValue;
 import hera.api.model.Fee;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
@@ -34,6 +33,7 @@ import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.VotingInfo;
 import hera.api.model.internal.GovernanceRecipient;
+import hera.client.PayloadResolver.Type;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.BlockchainStatusConverterFactory;
 import hera.transport.ModelConverter;
@@ -53,6 +53,8 @@ import types.Rpc;
 @ApiAudience.Private
 @ApiStability.Unstable
 public class BlockchainBaseTemplate implements ChannelInjectable, ContextProviderInjectable {
+
+  protected static final long NODE_STATUS_TIMEOUT = 3000L;
 
   protected final Logger logger = getLogger(getClass());
 
@@ -77,6 +79,8 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
   protected AccountBaseTemplate accountBaseTemplate = new AccountBaseTemplate();
 
   protected TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();
+
+  protected PayloadResolver payloadResolver = new PayloadResolver();
 
   @Getter
   protected AergoRPCServiceFutureStub aergoService;
@@ -103,16 +107,15 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
 
         @Override
         public FinishableFuture<BlockchainStatus> apply() {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Get blockchain status, Context: {}", contextProvider.get());
-          }
+          logger.debug("Get blockchain status");
 
           FinishableFuture<BlockchainStatus> nextFuture = new FinishableFuture<BlockchainStatus>();
           try {
             final Rpc.Empty empty = Rpc.Empty.newBuilder().build();
+            logger.trace("AergoService blockchain arg: {}", empty);
+
             ListenableFuture<Rpc.BlockchainStatus> listenableFuture =
                 aergoService.blockchain(empty);
-
             FutureChain<Rpc.BlockchainStatus, BlockchainStatus> callback =
                 new FutureChain<Rpc.BlockchainStatus, BlockchainStatus>(nextFuture,
                     contextProvider.get());
@@ -137,15 +140,14 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
 
         @Override
         public FinishableFuture<List<Peer>> apply() {
-          if (logger.isDebugEnabled()) {
-            logger.debug("List peers, Context: {}", contextProvider.get());
-          }
+          logger.debug("List peers");
 
           FinishableFuture<List<Peer>> nextFuture = new FinishableFuture<List<Peer>>();
           try {
             final Rpc.Empty empty = Rpc.Empty.newBuilder().build();
-            ListenableFuture<Rpc.PeerList> listenableFuture = aergoService.getPeers(empty);
+            logger.trace("AergoService getPeers arg: {}", empty);
 
+            ListenableFuture<Rpc.PeerList> listenableFuture = aergoService.getPeers(empty);
             FutureChain<Rpc.PeerList, List<Peer>> callback =
                 new FutureChain<Rpc.PeerList, List<Peer>>(nextFuture, contextProvider.get());
             callback.setSuccessHandler(new Function1<Rpc.PeerList, List<Peer>>() {
@@ -173,15 +175,17 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
 
         @Override
         public FinishableFuture<List<PeerMetric>> apply() {
-          if (logger.isDebugEnabled()) {
-            logger.debug("List peer metrics, Context: {}", contextProvider.get());
-          }
+          logger.debug("List peer metrics");
+
           FinishableFuture<List<PeerMetric>> nextFuture = new FinishableFuture<List<PeerMetric>>();
           try {
-            final Metric.MetricsRequest request =
-                Metric.MetricsRequest.newBuilder().addTypes(Metric.MetricType.P2P_NETWORK).build();
-            ListenableFuture<Metric.Metrics> listenableFuture = aergoService.metric(request);
+            final Metric.MetricsRequest rpcMetricRequest = Metric.MetricsRequest.newBuilder()
+                .addTypes(Metric.MetricType.P2P_NETWORK)
+                .build();
+            logger.trace("AergoService metric arg: {}", rpcMetricRequest);
 
+            ListenableFuture<Metric.Metrics> listenableFuture =
+                aergoService.metric(rpcMetricRequest);
             FutureChain<Metric.Metrics, List<PeerMetric>> callback =
                 new FutureChain<Metric.Metrics, List<PeerMetric>>(nextFuture,
                     contextProvider.get());
@@ -210,19 +214,17 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
 
         @Override
         public FinishableFuture<NodeStatus> apply() {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Get node status, Context: {}", contextProvider.get());
-          }
+          logger.debug("Get node status");
 
           FinishableFuture<NodeStatus> nextFuture = new FinishableFuture<NodeStatus>();
           try {
-            final ByteString rawTimeout = ByteString.copyFrom(longToByteArray(3000L));
-            final Rpc.NodeReq nodeRequest = Rpc.NodeReq.newBuilder()
-                .setTimeout(rawTimeout)
+            final Rpc.NodeReq rpcNodeRequest = Rpc.NodeReq.newBuilder()
+                .setTimeout(copyFrom(NODE_STATUS_TIMEOUT))
                 .build();
-            ListenableFuture<Rpc.SingleBytes> listenableFuture =
-                aergoService.nodeState(nodeRequest);
+            logger.trace("AergoService nodeState arg: {}", rpcNodeRequest);
 
+            ListenableFuture<Rpc.SingleBytes> listenableFuture =
+                aergoService.nodeState(rpcNodeRequest);
             FutureChain<Rpc.SingleBytes, NodeStatus> callback =
                 new FutureChain<Rpc.SingleBytes, NodeStatus>(nextFuture, contextProvider.get());
             callback.setSuccessHandler(new Function1<Rpc.SingleBytes, NodeStatus>() {
@@ -247,21 +249,15 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
         @Override
         public FinishableFuture<TxHash> apply(final Account account, final PeerId peerId,
             final Long nonce) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Voting with account: {}, PeerId: {}, nonce: {}",
-                account.getAddress(), peerId, nonce);
-          }
+          logger.debug("Voting with account: {}, peerId: {}, nonce: {}",
+              account.getAddress(), peerId, nonce);
 
-          final byte[] rawPeerId = peerId.getBytesValue().getValue();
-          final byte[] rawPayload = new byte[1 + rawPeerId.length];
-          rawPayload[0] = (byte) 'v';
-          System.arraycopy(rawPeerId, 0, rawPayload, 1, rawPeerId.length);
           final RawTransaction rawTransaction = new RawTransaction(account.getAddress(),
               GovernanceRecipient.AERGO_SYSTEM,
               null,
               nonce,
               Fee.ZERO,
-              new BytesValue(rawPayload),
+              payloadResolver.resolve(Type.Vote, peerId),
               Transaction.TxType.GOVERNANCE);
           final Transaction signed =
               accountBaseTemplate.getSignFunction().apply(account, rawTransaction).get();
@@ -276,19 +272,18 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
 
         @Override
         public FinishableFuture<List<BlockProducer>> apply(final Long showCount) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Get votes status, ShowCount: {}, Context: {}", showCount,
-                contextProvider.get());
-          }
+          logger.debug("Get votes status with showCount: {}", showCount);
 
           FinishableFuture<List<BlockProducer>> nextFuture =
               new FinishableFuture<List<BlockProducer>>();
           try {
-            final Rpc.SingleBytes request = Rpc.SingleBytes.newBuilder()
-                .setValue(ByteString.copyFrom(longToByteArray(showCount.longValue())))
+            final Rpc.SingleBytes rpcShowCount = Rpc.SingleBytes.newBuilder()
+                .setValue(copyFrom(showCount.longValue()))
                 .build();
-            ListenableFuture<Rpc.VoteList> listenableFuture = aergoService.getVotes(request);
+            logger.trace("AergoService getVotes arg: {}", rpcShowCount);
 
+            ListenableFuture<Rpc.VoteList> listenableFuture =
+                aergoService.getVotes(rpcShowCount);
             FutureChain<Rpc.VoteList, List<BlockProducer>> callback =
                 new FutureChain<Rpc.VoteList, List<BlockProducer>>(nextFuture,
                     contextProvider.get());
@@ -319,18 +314,16 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
 
         @Override
         public FinishableFuture<List<VotingInfo>> apply(final AccountAddress accountAddress) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Get votes of, AccountAddress: {}, Context: {}", accountAddress,
-                contextProvider.get());
-          }
+          logger.debug("Get votes with address: {}", accountAddress);
 
           FinishableFuture<List<VotingInfo>> nextFuture = new FinishableFuture<List<VotingInfo>>();
           try {
-            final Rpc.SingleBytes request = Rpc.SingleBytes.newBuilder()
+            final Rpc.SingleBytes rpcAddress = Rpc.SingleBytes.newBuilder()
                 .setValue(accountAddressConverter.convertToRpcModel(accountAddress))
                 .build();
-            ListenableFuture<Rpc.VoteList> listenableFuture = aergoService.getVotes(request);
+            logger.trace("AergoService getVotes arg: {}", rpcAddress);
 
+            ListenableFuture<Rpc.VoteList> listenableFuture = aergoService.getVotes(rpcAddress);
             FutureChain<Rpc.VoteList, List<VotingInfo>> callback =
                 new FutureChain<Rpc.VoteList, List<VotingInfo>>(nextFuture, contextProvider.get());
             callback.setSuccessHandler(new Function1<Rpc.VoteList, List<VotingInfo>>() {

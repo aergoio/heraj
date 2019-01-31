@@ -31,7 +31,7 @@ public class OkHttpConnectStrategy implements ConnectStrategy<OkHttpChannelBuild
   @Override
   public OkHttpChannelBuilder connect() {
     final HostnameAndPort endpoint = getEndpoint();
-    logger.debug("Connect to {} with strategy {}", endpoint, getClass().getName());
+    logger.info("Connect to {} with strategy {}", endpoint, getClass().getName());
     return OkHttpChannelBuilder
         .forAddress(endpoint.getHostname(), endpoint.getPort())
         .keepAliveTime(30, TimeUnit.SECONDS)

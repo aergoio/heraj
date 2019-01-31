@@ -7,12 +7,10 @@ package hera.util;
 import static hera.util.NumberUtils.positiveToByteArray;
 import static hera.util.TransportUtils.assertArgument;
 import static hera.util.TransportUtils.copyFrom;
-import static hera.util.TransportUtils.inputStreamToByteArray;
-import static hera.util.TransportUtils.longToByteArray;
 import static hera.util.TransportUtils.parseToAer;
+import static hera.util.TransportUtils.sha256AndEncodeHexa;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import com.google.protobuf.ByteString;
@@ -21,11 +19,19 @@ import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.BytesValue;
 import hera.exception.RpcArgumentException;
-import java.io.ByteArrayInputStream;
-import java.util.Arrays;
 import org.junit.Test;
 
 public class TransportUtilsTest extends AbstractTestCase {
+
+  @Test
+  public void testCopyFromWithRawBytes() {
+    final byte[] filledValue = randomUUID().toString().getBytes();
+    final byte[] emptyValue = new byte[0];
+    final byte[] nullValue = null;
+    assertEquals(ByteString.copyFrom(filledValue), copyFrom(filledValue));
+    assertEquals(ByteString.EMPTY, copyFrom(emptyValue));
+    assertEquals(ByteString.EMPTY, copyFrom(nullValue));
+  }
 
   @Test
   public void testCopyFromWithBytesValue() {
@@ -47,25 +53,33 @@ public class TransportUtilsTest extends AbstractTestCase {
   }
 
   @Test
-  public void testParseToAer() {
+  public void testCopyFromWithLong() {
+    final ByteString expected =
+        ByteString.copyFrom(new byte[] {0x7f, 0x6f, 0x5f, 0x4f, 0x3f, 0x2f, 0x1f, 0x0f});
+    ByteString actual = copyFrom(Long.decode("0x0f1f2f3f4f5f6f7f").longValue());
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testParseToAerWithRawBytes() {
+    final Aer expected = Aer.of("100", Unit.GAER);
+    final byte[] rawAer = copyFrom(expected).toByteArray();
+    assertEquals(expected, parseToAer(rawAer));
+  }
+
+  @Test
+  public void testParseToAerWithByteString() {
     final Aer expected = Aer.of("100", Unit.GAER);
     final ByteString rawAer = copyFrom(expected);
     assertEquals(expected, parseToAer(rawAer));
-    assertEquals(Aer.EMPTY, parseToAer(null));
   }
 
   @Test
-  public void testLongToByteArray() {
-    byte[] expected = {0x7f, 0x6f, 0x5f, 0x4f, 0x3f, 0x2f, 0x1f, 0x0f};
-    byte[] actual = longToByteArray(Long.decode("0x0f1f2f3f4f5f6f7f"));
-    assertTrue(Arrays.equals(expected, actual));
-  }
-
-  @Test
-  public void testInputStreamToByteArray() {
-    byte[] expected = randomUUID().toString().getBytes();
-    byte[] actual = inputStreamToByteArray(new ByteArrayInputStream(expected));
-    assertTrue(Arrays.equals(expected, actual));
+  public void testSha256AndEncodeHexa() {
+    final String string = randomUUID().toString();
+    final String expected = HexUtils.encode(Sha256Utils.digest(string.getBytes()));
+    final String actual = sha256AndEncodeHexa(string);
+    assertEquals(expected, actual);
   }
 
   @Test

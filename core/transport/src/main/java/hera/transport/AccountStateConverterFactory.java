@@ -4,13 +4,12 @@
 
 package hera.transport;
 
-import static hera.util.NumberUtils.byteArrayToPositive;
+import static hera.util.TransportUtils.parseToAer;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
-import hera.api.model.Aer;
 import hera.api.model.BytesValue;
 import org.slf4j.Logger;
 import types.Blockchain;
@@ -23,7 +22,7 @@ public class AccountStateConverterFactory {
       new Function1<AccountState, Blockchain.State>() {
 
         @Override
-        public Blockchain.State apply(AccountState domainAccountState) {
+        public Blockchain.State apply(final AccountState domainAccountState) {
           throw new UnsupportedOperationException();
         }
       };
@@ -33,10 +32,13 @@ public class AccountStateConverterFactory {
 
         @Override
         public AccountState apply(final Blockchain.State rpcAccountState) {
-          logger.trace("Rpc account state: {}", rpcAccountState);
-          return new AccountState(AccountAddress.of(BytesValue.EMPTY),
-              rpcAccountState.getNonce(),
-              new Aer(byteArrayToPositive(rpcAccountState.getBalance().toByteArray())));
+          logger.trace("Rpc account state to convert: {}", rpcAccountState);
+          final AccountState domainAccountState =
+              new AccountState(AccountAddress.of(BytesValue.EMPTY),
+                  rpcAccountState.getNonce(),
+                  parseToAer(rpcAccountState.getBalance()));
+          logger.trace("Domain account state converted: {}", domainAccountState);
+          return domainAccountState;
         }
       };
 

@@ -11,11 +11,22 @@ import com.google.protobuf.ByteString;
 import hera.api.model.Aer;
 import hera.api.model.BytesValue;
 import hera.exception.RpcArgumentException;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 public class TransportUtils {
+
+  /**
+   * Transform a raw byte array to {@link ByteString} in protobuf. If either raw byte array is null
+   * or raw byte array is empty, return {@link ByteString#EMPTY}
+   *
+   * @param rawBytes a raw bytes
+   * @return protobuf {@link ByteString}
+   */
+  public static ByteString copyFrom(final byte[] rawBytes) {
+    if (null == rawBytes || 0 == rawBytes.length) {
+      return ByteString.EMPTY;
+    }
+    return ByteString.copyFrom(rawBytes);
+  }
 
   /**
    * Transform {@link BytesValue} to {@link ByteString} in protobuf. If either bytesValue or value
@@ -46,6 +57,38 @@ public class TransportUtils {
   }
 
   /**
+   * Convert long value to {@link ByteString} in a little endian form.
+   *
+   * @param longValue long value
+   * @return converted protobuf {@link ByteString} in a little endian
+   */
+  public static ByteString copyFrom(final long longValue) {
+    final byte[] rawBytes = new byte[8];
+    rawBytes[0] = (byte) (0xFF & (longValue));
+    rawBytes[1] = (byte) (0xFF & (longValue >> 8));
+    rawBytes[2] = (byte) (0xFF & (longValue >> 16));
+    rawBytes[3] = (byte) (0xFF & (longValue >> 24));
+    rawBytes[4] = (byte) (0xFF & (longValue >> 32));
+    rawBytes[5] = (byte) (0xFF & (longValue >> 40));
+    rawBytes[6] = (byte) (0xFF & (longValue >> 48));
+    rawBytes[7] = (byte) (0xFF & (longValue >> 56));
+    return ByteString.copyFrom(rawBytes);
+  }
+
+  /**
+   * Parse raw aer to {@link Aer}.
+   *
+   * @param rawAer a raw aer
+   * @return parsed {@link Aer}.
+   */
+  public static Aer parseToAer(final byte[] rawAer) {
+    if (null == rawAer || 0 == rawAer.length) {
+      return Aer.EMPTY;
+    }
+    return Aer.of(byteArrayToPositive(rawAer));
+  }
+
+  /**
    * Parse raw aer to {@link Aer}.
    *
    * @param rawAer a raw aer
@@ -55,48 +98,27 @@ public class TransportUtils {
     if (null == rawAer || ByteString.EMPTY.equals(rawAer)) {
       return Aer.EMPTY;
     }
-    return Aer.of(byteArrayToPositive(rawAer.toByteArray()));
+    return parseToAer(rawAer.toByteArray());
   }
 
   /**
-   * Convert long value to byte array in a little endian.
+   * Sha256 digest and return digested in hexa.
    *
-   * @param longValue long value
-   * @return converted byte array in a little endian
+   * @param string a string
+   * @return a hexa encoded digested raw bytes
    */
-  public static byte[] longToByteArray(final long longValue) {
-    final byte[] raw = new byte[8];
-    raw[0] = (byte) (0xFF & (longValue));
-    raw[1] = (byte) (0xFF & (longValue >> 8));
-    raw[2] = (byte) (0xFF & (longValue >> 16));
-    raw[3] = (byte) (0xFF & (longValue >> 24));
-    raw[4] = (byte) (0xFF & (longValue >> 32));
-    raw[5] = (byte) (0xFF & (longValue >> 40));
-    raw[6] = (byte) (0xFF & (longValue >> 48));
-    raw[7] = (byte) (0xFF & (longValue >> 56));
-    return raw;
+  public static String sha256AndEncodeHexa(final String string) {
+    return sha256AndEncodeHexa(string.getBytes());
   }
 
   /**
-   * Convert input stream to byte array.
+   * Sha256 digest and return digested in hexa.
    *
-   * @param in input stream
-   * @return converted byte array
+   * @param rawBytes a raw bytes.
+   * @return a hexa encoded digested raw bytes
    */
-  public static byte[] inputStreamToByteArray(final InputStream in) {
-    final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    byte[] buffer = new byte[1024];
-    int read;
-    try {
-      while ((read = in.read(buffer)) != -1) {
-        bos.write(buffer, 0, read);
-      }
-      bos.close();
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
-
-    return bos.toByteArray();
+  public static String sha256AndEncodeHexa(final byte[] rawBytes) {
+    return HexUtils.encode(Sha256Utils.digest(rawBytes));
   }
 
   /**

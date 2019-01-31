@@ -5,15 +5,16 @@
 package hera.transport;
 
 import static hera.api.model.BytesValue.of;
+import static hera.util.EncodingUtils.encodeHexa;
 import static hera.util.TransportUtils.copyFrom;
+import static hera.util.VersionUtils.envelop;
+import static hera.util.VersionUtils.trim;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import com.google.protobuf.ByteString;
 import hera.api.function.Function1;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
 import hera.util.HexUtils;
-import hera.util.VersionUtils;
 import org.slf4j.Logger;
 import types.Rpc;
 
@@ -26,15 +27,23 @@ public class EncryptedPrivateKeyConverterFactory {
 
         @Override
         public Rpc.SingleBytes apply(final EncryptedPrivateKey domainEncryptedPrivateKey) {
-          logger.trace("Domain encrypted privateKey: {}",
-              HexUtils.encode(domainEncryptedPrivateKey.getBytesValue().getValue()));
+          if (logger.isTraceEnabled()) {
+            logger.trace("Domain encrypted privateKey to convert. with checksum: {}, hexa: {}",
+                domainEncryptedPrivateKey, encodeHexa(domainEncryptedPrivateKey.getBytesValue()));
+          }
           if (domainEncryptedPrivateKey.getBytesValue().isEmpty()) {
             return Rpc.SingleBytes.newBuilder()
                 .setValue(copyFrom(domainEncryptedPrivateKey.getBytesValue())).build();
           }
-          final byte[] withVersion = domainEncryptedPrivateKey.getBytesValue().getValue();
-          final byte[] withoutVersion = VersionUtils.trim(withVersion);
-          return Rpc.SingleBytes.newBuilder().setValue(ByteString.copyFrom(withoutVersion)).build();
+          final BytesValue withVersion = domainEncryptedPrivateKey.getBytesValue();
+          final BytesValue withoutVersion = trim(withVersion);
+          final Rpc.SingleBytes rpcEncryptedPrivateKey =
+              Rpc.SingleBytes.newBuilder().setValue(copyFrom(withoutVersion)).build();
+          if (logger.isTraceEnabled()) {
+            logger.trace("Rpc encrypted private key convert. hexa: {}",
+                HexUtils.encode(rpcEncryptedPrivateKey.getValue().toByteArray()));
+          }
+          return rpcEncryptedPrivateKey;
         }
       };
 
@@ -43,15 +52,22 @@ public class EncryptedPrivateKeyConverterFactory {
 
         @Override
         public EncryptedPrivateKey apply(final Rpc.SingleBytes rpcEncryptedPrivateKey) {
-          logger.trace("Rpc encrypted privateKey: {}",
-              HexUtils.encode(rpcEncryptedPrivateKey.getValue().toByteArray()));
+          if (logger.isTraceEnabled()) {
+            logger.trace("Rpc encrypted privateKey to convert. hexa: {}",
+                HexUtils.encode(rpcEncryptedPrivateKey.getValue().toByteArray()));
+          }
           if (rpcEncryptedPrivateKey.getValue().isEmpty()) {
             return new EncryptedPrivateKey(BytesValue.EMPTY);
           }
           final byte[] withoutVersion = rpcEncryptedPrivateKey.getValue().toByteArray();
-          final byte[] withVersion =
-              VersionUtils.envelop(withoutVersion, EncryptedPrivateKey.VERSION);
-          return new EncryptedPrivateKey(of(withVersion));
+          final byte[] withVersion = envelop(withoutVersion, EncryptedPrivateKey.VERSION);
+          final EncryptedPrivateKey domainEncryptedPrivateKey =
+              new EncryptedPrivateKey(of(withVersion));
+          if (logger.isTraceEnabled()) {
+            logger.trace("Domain encrypted private key converted. with checksum: {}, hexa: {}",
+                domainEncryptedPrivateKey, encodeHexa(domainEncryptedPrivateKey.getBytesValue()));
+          }
+          return domainEncryptedPrivateKey;
         }
       };
 

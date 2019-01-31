@@ -20,24 +20,12 @@ public class ContractInterfaceConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final ModelConverter<ContractFunction, Blockchain.Function> contractFunctionConverter =
-      new ContractFunctionConverterFactory().create();
-
   protected final Function1<ContractInterface, Blockchain.ABI> domainConverter =
       new Function1<ContractInterface, Blockchain.ABI>() {
 
         @Override
         public Blockchain.ABI apply(final ContractInterface domainContractInterface) {
-          logger.trace("Domain contract interface: {}", domainContractInterface);
-          final List<Blockchain.Function> rpcFunctions = new ArrayList<Blockchain.Function>();
-          for (final ContractFunction domainFunction : domainContractInterface.getFunctions()) {
-            rpcFunctions.add(contractFunctionConverter.convertToRpcModel(domainFunction));
-          }
-          return Blockchain.ABI.newBuilder()
-              .setVersion(domainContractInterface.getVersion())
-              .setLanguage(domainContractInterface.getLanguage())
-              .addAllFunctions(rpcFunctions)
-              .build();
+          throw new UnsupportedOperationException();
         }
       };
 
@@ -46,14 +34,24 @@ public class ContractInterfaceConverterFactory {
 
         @Override
         public ContractInterface apply(final Blockchain.ABI rpcContractInterface) {
-          logger.trace("Rpc contract interface: {}", rpcContractInterface);
+          logger.trace("Rpc contract interface to convert: {}", rpcContractInterface);
           final List<ContractFunction> domainFunctions = new ArrayList<ContractFunction>();
           for (final Blockchain.Function rpcFunction : rpcContractInterface.getFunctionsList()) {
-            domainFunctions.add(contractFunctionConverter.convertToDomainModel(rpcFunction));
+            final List<String> domainArguments = new ArrayList<String>();
+            for (final Blockchain.FnArgument rpcArgument : rpcFunction.getArgumentsList()) {
+              domainArguments.add(rpcArgument.getName());
+            }
+            final ContractFunction domainContractFunction =
+                new ContractFunction(rpcFunction.getName(), domainArguments);
+            domainFunctions.add(domainContractFunction);
           }
-          return new ContractInterface(new ContractAddress(BytesValue.EMPTY),
-              rpcContractInterface.getVersion(), rpcContractInterface.getLanguage(),
-              domainFunctions);
+          final ContractInterface domainContractInterface =
+              new ContractInterface(new ContractAddress(BytesValue.EMPTY),
+                  rpcContractInterface.getVersion(),
+                  rpcContractInterface.getLanguage(),
+                  domainFunctions);
+          logger.trace("Domain contract interface converted: {}", domainContractInterface);
+          return domainContractInterface;
         }
       };
 

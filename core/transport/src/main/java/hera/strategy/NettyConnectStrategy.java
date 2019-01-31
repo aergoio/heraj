@@ -31,7 +31,7 @@ public class NettyConnectStrategy implements ConnectStrategy<NettyChannelBuilder
   @Override
   public NettyChannelBuilder connect() {
     final HostnameAndPort endpoint = getEndpoint();
-    logger.debug("Connect to {} with strategy {}", endpoint, getClass().getName());
+    logger.info("Connect to {} with strategy {}", endpoint, getClass().getName());
     return NettyChannelBuilder
         .forAddress(endpoint.getHostname(), endpoint.getPort())
         .keepAliveTime(30, TimeUnit.SECONDS)

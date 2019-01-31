@@ -28,9 +28,6 @@ public class BlockConverterFactory {
   protected final ModelConverter<AccountAddress, com.google.protobuf.ByteString> addressConverter =
       new AccountAddressConverterFactory().create();
 
-  protected final ModelConverter<Transaction, Blockchain.Tx> transactionConverter =
-      new TransactionConverterFactory().create();
-
   protected final ModelConverter<Transaction, Blockchain.TxInBlock> transactionInBlockConverter =
       new TransactionInBlockConverterFactory().create();
 
@@ -39,34 +36,7 @@ public class BlockConverterFactory {
 
         @Override
         public Blockchain.Block apply(final Block domainBlock) {
-          logger.trace("Domain block: {}", domainBlock);
-
-          final Blockchain.BlockHeader blockHeader = Blockchain.BlockHeader.newBuilder()
-              .setChainID(copyFrom(domainBlock.getChainId().getBytesValue()))
-              .setPrevBlockHash(copyFrom(domainBlock.getPreviousHash().getBytesValue()))
-              .setBlockNo(domainBlock.getBlockNumber()).setTimestamp(domainBlock.getTimestamp())
-              .setBlocksRootHash(copyFrom(domainBlock.getRootHash().getBytesValue()))
-              .setTxsRootHash(copyFrom(domainBlock.getTxRootHash().getBytesValue()))
-              .setReceiptsRootHash(copyFrom(domainBlock.getReceiptRootHash().getBytesValue()))
-              .setConfirms(domainBlock.getConfirmsCount())
-              .setPubKey(copyFrom(domainBlock.getPublicKey().getBytesValue()))
-              .setSign(copyFrom(domainBlock.getSign().getBytesValue()))
-              .setCoinbaseAccount(copyFrom(domainBlock.getCoinbaseAccount().getBytesValue()))
-              .build();
-
-          final List<Blockchain.Tx> rpcTransactions = new ArrayList<Blockchain.Tx>();
-          for (final Transaction domainTransaction : domainBlock.getTransactions()) {
-            rpcTransactions.add(transactionConverter.convertToRpcModel(domainTransaction));
-          }
-          final Blockchain.BlockBody blockBody = Blockchain.BlockBody.newBuilder()
-              .addAllTxs(rpcTransactions)
-              .build();
-
-          return Blockchain.Block.newBuilder()
-              .setHash(copyFrom(domainBlock.getHash().getBytesValue()))
-              .setHeader(blockHeader)
-              .setBody(blockBody)
-              .build();
+          throw new UnsupportedOperationException();
         }
       };
 
@@ -75,7 +45,7 @@ public class BlockConverterFactory {
 
         @Override
         public Block apply(final Blockchain.Block rpcBlock) {
-          logger.trace("Rpc block: {}", rpcBlock);
+          logger.trace("Rpc block to convert: {}", rpcBlock);
 
           final Blockchain.BlockHeader rpcBlockHeader = rpcBlock.getHeader();
           final Blockchain.BlockBody rpcBlockBody = rpcBlock.getBody();
@@ -95,7 +65,7 @@ public class BlockConverterFactory {
             transactions.add(transactionInBlockConverter.convertToDomainModel(rpcTxInBlock));
           }
 
-          return new Block(
+          final Block domainBlock = new Block(
               new Hash(of(rpcBlockHeader.getChainID().toByteArray())),
               blockHash,
               new BlockHash(of(rpcBlockHeader.getPrevBlockHash().toByteArray())),
@@ -110,6 +80,8 @@ public class BlockConverterFactory {
               addressConverter.convertToDomainModel(rpcBlockHeader.getCoinbaseAccount()),
               transactions.size(),
               transactions);
+          logger.trace("Domain block converted: {}", domainBlock);
+          return domainBlock;
         }
       };
 

@@ -32,10 +32,12 @@ public class StakingInfoConverterFactory {
 
         @Override
         public StakingInfo apply(final Rpc.Staking rpcStakingInfo) {
-          logger.trace("Rpc staking info: {}", rpcStakingInfo);
-          return new StakingInfo(AccountAddress.of(BytesValue.EMPTY),
+          logger.trace("Rpc staking info to convert: {}", rpcStakingInfo);
+          final StakingInfo domainStakingInfo = new StakingInfo(AccountAddress.of(BytesValue.EMPTY),
               parseToAer(rpcStakingInfo.getAmount()),
               rpcStakingInfo.getWhen());
+          logger.trace("Domain staking info converted: {}", domainStakingInfo);
+          return domainStakingInfo;
         }
       };
 

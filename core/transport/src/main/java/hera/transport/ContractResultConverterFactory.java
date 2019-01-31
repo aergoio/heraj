@@ -4,6 +4,7 @@
 
 package hera.transport;
 
+import static hera.api.model.BytesValue.of;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.function.Function1;
@@ -30,8 +31,11 @@ public class ContractResultConverterFactory {
 
         @Override
         public ContractResult apply(final Rpc.SingleBytes rpcContractResult) {
-          logger.trace("Blockchain contract result: {}", rpcContractResult);
-          return new ContractResultImpl(rpcContractResult.getValue().toByteArray());
+          logger.trace("Rpc contract result to convert: {}", rpcContractResult);
+          final ContractResultImpl domainContractResult =
+              new ContractResultImpl(of(rpcContractResult.getValue().toByteArray()));
+          logger.trace("Domain contract result converted: {}", domainContractResult);
+          return domainContractResult;
         }
       };
 

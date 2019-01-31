@@ -6,7 +6,6 @@ package hera.api.model;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.util.HexUtils;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -52,7 +51,7 @@ public class BytesValue {
 
   @Override
   public String toString() {
-    return HexUtils.encode(value);
+    return null == value ? "" : new String(value);
   }
 
   @Override

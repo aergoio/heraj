@@ -4,6 +4,7 @@
 
 package hera.transport;
 
+import static hera.util.TransportUtils.sha256AndEncodeHexa;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
@@ -26,13 +27,20 @@ public class AuthenticationConverterFactory {
 
         @Override
         public Rpc.Personal apply(final Authentication domainAuthentication) {
-          logger.trace("Domain authentication: {}", domainAuthentication);
-          return Rpc.Personal.newBuilder()
-              .setAccount(AccountOuterClass.Account.newBuilder()
-                  .setAddress(
-                      accountAddressConverter.convertToRpcModel(domainAuthentication.getAddress()))
-                  .build())
+          logger.trace("Domain authentication to convert: {}", domainAuthentication);
+          final AccountOuterClass.Account rpcAccount = AccountOuterClass.Account.newBuilder()
+              .setAddress(
+                  accountAddressConverter.convertToRpcModel(domainAuthentication.getAddress()))
+              .build();
+          final Rpc.Personal rpcAuthentication = Rpc.Personal.newBuilder()
+              .setAccount(rpcAccount)
               .setPassphrase(domainAuthentication.getPassword()).build();
+          if (logger.isTraceEnabled()) {
+            logger.trace("Rpc authentication converted: Personal(account={}, passphrase={})",
+                rpcAuthentication.getAccount(),
+                sha256AndEncodeHexa(rpcAuthentication.getPassphrase()));
+          }
+          return rpcAuthentication;
         }
       };
 

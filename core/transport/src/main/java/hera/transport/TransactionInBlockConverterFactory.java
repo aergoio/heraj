@@ -20,6 +20,7 @@ import hera.api.model.Transaction.TxType;
 import hera.api.model.TxHash;
 import org.slf4j.Logger;
 import types.Blockchain;
+import types.Blockchain.TxInBlock;
 
 public class TransactionInBlockConverterFactory {
 
@@ -65,7 +66,7 @@ public class TransactionInBlockConverterFactory {
 
         @Override
         public Blockchain.TxInBlock apply(final Transaction domainTransaction) {
-          logger.trace("Domain transaction in block: {}", domainTransaction);
+          logger.trace("Domain transaction in block to convert: {}", domainTransaction);
 
           final Blockchain.TxBody.Builder txBodyBuilder = Blockchain.TxBody.newBuilder()
               .setAccount(accountAddressConverter.convertToRpcModel(domainTransaction.getSender()))
@@ -91,7 +92,10 @@ public class TransactionInBlockConverterFactory {
               .setIdx(domainTransaction.getIndexInBlock())
               .build();
 
-          return Blockchain.TxInBlock.newBuilder().setTx(rpcTx).setTxIdx(rpcTxIdx).build();
+          final TxInBlock rpcInBlock =
+              Blockchain.TxInBlock.newBuilder().setTx(rpcTx).setTxIdx(rpcTxIdx).build();
+          logger.trace("Rpc transaction in block converted: {}", rpcInBlock);
+          return rpcInBlock;
         }
       };
 
@@ -100,23 +104,26 @@ public class TransactionInBlockConverterFactory {
 
         @Override
         public Transaction apply(final Blockchain.TxInBlock rpcTransaction) {
-          logger.trace("Rpc transaction in block: {}", rpcTransaction);
+          logger.trace("Rpc transaction in block to convert: {}", rpcTransaction);
           final Blockchain.TxIdx rpcTxIdx = rpcTransaction.getTxIdx();
           final Blockchain.Tx rpcTx = rpcTransaction.getTx();
           final Blockchain.TxBody txBody = rpcTx.getBody();
 
-          return new Transaction(accountAddressConverter.convertToDomainModel(txBody.getAccount()),
+          final Transaction domainTransaction = new Transaction(
+              accountAddressConverter.convertToDomainModel(txBody.getAccount()),
               accountAddressConverter.convertToDomainModel(txBody.getRecipient()),
               parseToAer(txBody.getAmount()),
               txBody.getNonce(),
-              Fee.of(parseToAer(txBody.getPrice()), txBody.getLimit()),
+              new Fee(parseToAer(txBody.getPrice()), txBody.getLimit()),
               of(txBody.getPayload().toByteArray()),
               txTypeRpcConverter.apply(txBody.getType()),
-              Signature.of(of(txBody.getSign().toByteArray())),
-              TxHash.of(of(rpcTx.getHash().toByteArray())),
-              BlockHash.of(of(rpcTxIdx.getBlockHash().toByteArray())),
+              new Signature(of(txBody.getSign().toByteArray())),
+              new TxHash(of(rpcTx.getHash().toByteArray())),
+              new BlockHash(of(rpcTxIdx.getBlockHash().toByteArray())),
               rpcTxIdx.getIdx(),
               !rpcTxIdx.getBlockHash().equals(com.google.protobuf.ByteString.EMPTY));
+          logger.trace("Domain transaction in block converted: {}", domainTransaction);
+          return domainTransaction;
         }
       };
 

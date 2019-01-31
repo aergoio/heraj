@@ -20,26 +20,27 @@ public class ContractResultImpl implements ContractResult {
 
   protected final ObjectMapper mapper = new ObjectMapper();
 
-  protected final byte[] result;
+  protected final BytesValue result;
 
   @Override
   public <T> T bind(final Class<T> clazz) throws IOException {
-    final String stringFormat = new String(result);
-    logger.debug("Raw result: {}", stringFormat);
+    final byte[] rawBytes = this.result.getValue();
+    final String stringFormat = new String(rawBytes);
+    logger.debug("Raw result to bind: {}", stringFormat);
     if (stringFormat.isEmpty() || "{}".equals(stringFormat)) {
       return null;
     }
-    return mapper.readValue(result, clazz);
+    return mapper.readValue(rawBytes, clazz);
   }
 
   @Override
   public BytesValue getResultInRawBytes() {
-    return BytesValue.of(result);
+    return result;
   }
 
   @Override
   public String toString() {
-    return new String(result);
+    return new String(result.getValue());
   }
 
 }

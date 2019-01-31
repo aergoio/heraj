@@ -35,13 +35,15 @@ public class ReceiptConverterFactory {
 
         @Override
         public ContractTxReceipt apply(final Blockchain.Receipt rpcReceipt) {
-          logger.trace("Rpc contract tx receipt: {}", rpcReceipt);
+          logger.trace("Rpc tx receipt to convert: {}", rpcReceipt);
           final AccountAddress accountAddress =
               accountAddressConverter.convertToDomainModel(rpcReceipt.getContractAddress());
-          return new ContractTxReceipt(
+          final ContractTxReceipt domainTxReceipt = new ContractTxReceipt(
               new ContractAddress(accountAddress.getBytesValue()),
               rpcReceipt.getStatus(),
               rpcReceipt.getRet());
+          logger.trace("Domain tx receipt converted: {}", domainTxReceipt);
+          return domainTxReceipt;
         }
       };
 

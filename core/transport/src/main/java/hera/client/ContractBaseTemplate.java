@@ -10,9 +10,6 @@ import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
@@ -36,19 +33,13 @@ import hera.api.model.ContractTxReceipt;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
+import hera.client.PayloadResolver.Type;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.ContractInterfaceConverterFactory;
 import hera.transport.ContractResultConverterFactory;
 import hera.transport.ModelConverter;
 import hera.transport.ReceiptConverterFactory;
-import hera.util.LittleEndianDataOutputStream;
-import hera.util.VersionUtils;
 import io.grpc.ManagedChannel;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.List;
 import lombok.Getter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -73,8 +64,6 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
   protected final ModelConverter<ContractResult, Rpc.SingleBytes> contractResultConverter =
       new ContractResultConverterFactory().create();
 
-  protected final ObjectMapper objectMapper = new ObjectMapper();
-
   @Getter
   protected AergoRPCServiceFutureStub aergoService;
 
@@ -83,6 +72,8 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
   protected AccountBaseTemplate accountBaseTemplate = new AccountBaseTemplate();
 
   protected TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();
+
+  protected PayloadResolver payloadResolver = new PayloadResolver();
 
   @Override
   public void setChannel(final ManagedChannel channel) {
@@ -105,20 +96,18 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
         @Override
         public hera.client.FinishableFuture<ContractTxReceipt> apply(
             final ContractTxHash deployTxHash) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Get receipt, txHash: {}, Context: {}", deployTxHash,
-                contextProvider.get());
-          }
+          logger.debug("Get receipt with txHash: {}", deployTxHash);
 
           FinishableFuture<ContractTxReceipt> nextFuture =
               new FinishableFuture<ContractTxReceipt>();
           try {
-            final ByteString byteString = copyFrom(deployTxHash.getBytesValue());
-            final Rpc.SingleBytes hashBytes =
-                Rpc.SingleBytes.newBuilder().setValue(byteString).build();
-            final ListenableFuture<Blockchain.Receipt> listenableFuture =
-                aergoService.getReceipt(hashBytes);
+            final Rpc.SingleBytes rpcDeployTxHash = Rpc.SingleBytes.newBuilder()
+                .setValue(copyFrom(deployTxHash.getBytesValue()))
+                .build();
+            logger.trace("AergoService getReceipt arg: {}", rpcDeployTxHash);
 
+            final ListenableFuture<Blockchain.Receipt> listenableFuture =
+                aergoService.getReceipt(rpcDeployTxHash);
             FutureChain<Blockchain.Receipt, ContractTxReceipt> callback =
                 new FutureChain<Blockchain.Receipt, ContractTxReceipt>(nextFuture,
                     contextProvider.get());
@@ -146,12 +135,8 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
         public FinishableFuture<ContractTxHash> apply(final Account creator,
             final ContractDefinition contractDefinition, final Long nonce,
             final Fee fee) {
-          if (logger.isDebugEnabled()) {
-            logger.debug(
-                "Deploy contract, creator: {}, definition: {}, nonce: {}, fee: {}, Context: {}",
-                creator.getAddress(), contractDefinition, nonce, fee, contextProvider.get());
-          }
-
+          logger.debug("Deploy contract with creator: {}, definition: {}, nonce: {}, fee: {}",
+              creator.getAddress(), contractDefinition, nonce, fee);
           try {
             final RawTransaction rawTransaction = RawTransaction.newBuilder()
                 .from(creator)
@@ -159,7 +144,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
                 .amount(Aer.ZERO)
                 .nonce(nonce)
                 .fee(fee)
-                .payload(definitionToPayloadForm(contractDefinition))
+                .payload(payloadResolver.resolve(Type.ContractDefinition, contractDefinition))
                 .build();
             return signAndCommit(creator, rawTransaction);
           } catch (Exception e) {
@@ -178,22 +163,18 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
         @Override
         public FinishableFuture<ContractInterface> apply(
             final ContractAddress contractAddress) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Get contract interface, contract address: {}, Context: {}",
-                contractAddress,
-                contextProvider.get());
-          }
+          logger.debug("Get contract interface with contract address: {}", contractAddress);
 
           FinishableFuture<ContractInterface> nextFuture =
               new FinishableFuture<ContractInterface>();
           try {
-            final ByteString byteString =
-                accountAddressConverter.convertToRpcModel(contractAddress);
-            final Rpc.SingleBytes hashBytes =
-                Rpc.SingleBytes.newBuilder().setValue(byteString).build();
-            final ListenableFuture<Blockchain.ABI> listenableFuture =
-                aergoService.getABI(hashBytes);
+            final Rpc.SingleBytes rpcContractAddress = Rpc.SingleBytes.newBuilder()
+                .setValue(accountAddressConverter.convertToRpcModel(contractAddress))
+                .build();
+            logger.trace("AergoService getABI arg: {}", rpcContractAddress);
 
+            final ListenableFuture<Blockchain.ABI> listenableFuture =
+                aergoService.getABI(rpcContractAddress);
             FutureChain<Blockchain.ABI, ContractInterface> callback =
                 new FutureChain<Blockchain.ABI, ContractInterface>(nextFuture,
                     contextProvider.get());
@@ -224,25 +205,16 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
         public FinishableFuture<ContractTxHash> apply(final Account executor,
             final ContractInvocation contractInvocation, final Long nonce,
             final Fee fee) {
-          if (logger.isDebugEnabled()) {
-            logger.debug(
-                "Execute contract, executor: {}, invocation: {}, nonce: {}, fee: {}, Context: {}",
-                executor.getAddress(), contractInvocation, nonce, fee, contextProvider.get());
-          }
-
+          logger.debug("Execute contract with executor: {}, invocation: {}, nonce: {}, fee: {}",
+              executor.getAddress(), contractInvocation, nonce, fee);
           try {
-            final String functionCallString = toFunctionCallJsonString(contractInvocation);
-            if (logger.isDebugEnabled()) {
-              logger.debug("Raw contract execution address: {}, function: {}",
-                  contractInvocation.getAddress(), functionCallString);
-            }
             final RawTransaction rawTransaction = RawTransaction.newBuilder()
                 .from(executor)
                 .to(contractInvocation.getAddress())
                 .amount(Aer.ZERO)
                 .nonce(nonce)
                 .fee(fee)
-                .payload(BytesValue.of(functionCallString.getBytes()))
+                .payload(payloadResolver.resolve(Type.ContractInvocation, contractInvocation))
                 .build();
             return signAndCommit(executor, rawTransaction);
           } catch (Exception e) {
@@ -259,28 +231,23 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
 
         @Override
         public FinishableFuture<ContractResult> apply(final ContractInvocation contractInvocation) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Query contract invocation: {}, Context: {}", contractInvocation,
-                contextProvider.get());
-          }
+          logger.debug("Query contract with invocation: {}", contractInvocation);
 
           final FinishableFuture<ContractResult> nextFuture =
               new FinishableFuture<ContractResult>();
           try {
-            final String functionCallString = toFunctionCallJsonString(contractInvocation);
-            if (logger.isDebugEnabled()) {
-              logger.debug("Raw contract query address: {}, function: {}",
-                  contractInvocation.getAddress(),
-                  functionCallString);
-            }
+            final ByteString rpcContractAddress =
+                accountAddressConverter.convertToRpcModel(contractInvocation.getAddress());
+            final BytesValue rpcContractInvocation =
+                payloadResolver.resolve(Type.ContractInvocation, contractInvocation);
+            final Blockchain.Query rpcQuery = Blockchain.Query.newBuilder()
+                .setContractAddress(rpcContractAddress)
+                .setQueryinfo(copyFrom(rpcContractInvocation))
+                .build();
+            logger.trace("AergoService queryContract arg: {}", rpcQuery);
 
-            final Blockchain.Query query = Blockchain.Query.newBuilder()
-                .setContractAddress(
-                    accountAddressConverter.convertToRpcModel(contractInvocation.getAddress()))
-                .setQueryinfo(ByteString.copyFrom(functionCallString.getBytes())).build();
             final ListenableFuture<Rpc.SingleBytes> listenableFuture =
-                aergoService.queryContract(query);
-
+                aergoService.queryContract(rpcQuery);
             FutureChain<Rpc.SingleBytes, ContractResult> callback =
                 new FutureChain<Rpc.SingleBytes, ContractResult>(nextFuture, contextProvider.get());
             callback.setSuccessHandler(new Function1<Rpc.SingleBytes, ContractResult>() {
@@ -297,30 +264,6 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
           return nextFuture;
         }
       };
-
-  protected BytesValue definitionToPayloadForm(final ContractDefinition contractDefinition)
-      throws IOException {
-    if (logger.isTraceEnabled()) {
-      logger.trace("Encoded contract deploy payload: {}", contractDefinition.getEncodedContract());
-      logger.trace("Decoded contract deploy payload: {}", contractDefinition.getDecodedContract());
-    }
-
-    final byte[] rawPaylod = VersionUtils.trim(contractDefinition.getDecodedContract().getValue());
-    final ByteArrayOutputStream rawStream = new ByteArrayOutputStream();
-    final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(rawStream);
-    dataOut.writeInt(rawPaylod.length + 4);
-    dataOut.write(rawPaylod);
-    if (!contractDefinition.getConstructorArgs().isEmpty()) {
-      final ArrayNode constructorArgs = getArgsByJsonArray(contractDefinition.getConstructorArgs());
-      if (logger.isDebugEnabled()) {
-        logger.debug("Contract constructor args: {}", constructorArgs.toString());
-      }
-      dataOut.write(constructorArgs.toString().getBytes());
-    }
-    dataOut.close();
-    final BytesValue definitionPayload = BytesValue.of(rawStream.toByteArray());
-    return definitionPayload;
-  }
 
   protected FinishableFuture<ContractTxHash> signAndCommit(final Account account,
       final RawTransaction transaction) {
@@ -347,42 +290,6 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
     }, directExecutor());
 
     return contractTxHash;
-  }
-
-  protected String toFunctionCallJsonString(final ContractInvocation contractInvocation) {
-    final ObjectNode node = objectMapper.createObjectNode();
-    node.put("Name", contractInvocation.getFunction().getName());
-    node.set("Args", getArgsByJsonArray(contractInvocation.getArgs()));
-    return node.toString();
-  }
-
-  protected ArrayNode getArgsByJsonArray(final List<Object> args) {
-    final ArrayNode argsNode = objectMapper.createArrayNode();
-    // nil, boolean, number, string, table?
-    for (Object arg : args) {
-      if (null == arg) {
-        argsNode.addNull();
-      } else if (arg instanceof Boolean) {
-        argsNode.add((Boolean) arg);
-      } else if (arg instanceof Integer) {
-        argsNode.add((Integer) arg);
-      } else if (arg instanceof Long) {
-        argsNode.add((Long) arg);
-      } else if (arg instanceof Float) {
-        argsNode.add((Float) arg);
-      } else if (arg instanceof Double) {
-        argsNode.add((Double) arg);
-      } else if (arg instanceof BigInteger) {
-        argsNode.add(new BigDecimal((BigInteger) arg));
-      } else if (arg instanceof BigDecimal) {
-        argsNode.add((BigDecimal) arg);
-      } else if (arg instanceof String) {
-        argsNode.add((String) arg);
-      } else {
-        throw new IllegalArgumentException("Args type must be number or string");
-      }
-    }
-    return argsNode;
   }
 
 }

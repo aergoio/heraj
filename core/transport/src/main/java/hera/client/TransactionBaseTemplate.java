@@ -12,7 +12,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.protobuf.ByteString;
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
@@ -71,19 +70,17 @@ public class TransactionBaseTemplate implements ChannelInjectable, ContextProvid
 
         @Override
         public FinishableFuture<Transaction> apply(final TxHash txHash) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Get transaction with txHash: {}, Context: {}", txHash,
-                contextProvider.get());
-          }
+          logger.debug("Get transaction with txHash: {}", txHash);
 
           FinishableFuture<Transaction> nextFuture = new FinishableFuture<Transaction>();
           try {
-            final ByteString byteString = copyFrom(txHash.getBytesValue());
-            final Rpc.SingleBytes request =
-                Rpc.SingleBytes.newBuilder().setValue(byteString).build();
-            ListenableFuture<Blockchain.TxInBlock> listenableFuture =
-                aergoService.getBlockTX(request);
+            final Rpc.SingleBytes rpcTxHash = Rpc.SingleBytes.newBuilder()
+                .setValue(copyFrom(txHash.getBytesValue()))
+                .build();
+            logger.trace("AergoService getBlockTX arg: {}", rpcTxHash);
 
+            ListenableFuture<Blockchain.TxInBlock> listenableFuture =
+                aergoService.getBlockTX(rpcTxHash);
             FutureChain<Blockchain.TxInBlock, Transaction> callback =
                 new FutureChain<Blockchain.TxInBlock, Transaction>(nextFuture,
                     contextProvider.get());
@@ -98,11 +95,10 @@ public class TransactionBaseTemplate implements ChannelInjectable, ContextProvid
 
               @Override
               public Transaction apply(final Throwable t) {
-                if (logger.isDebugEnabled()) {
-                  logger.debug("Transaction {} is not in a block. Check mempool", txHash);
-                }
+                logger.debug("Transaction {} is not in a block. Check mempool", txHash);
                 try {
-                  Blockchain.Tx tx = aergoService.getTX(request).get();
+                  logger.trace("AergoService getTX arg: {}", rpcTxHash);
+                  Blockchain.Tx tx = aergoService.getTX(rpcTxHash).get();
                   return transactionConverter.convertToDomainModel(tx);
                 } catch (Exception e) {
                   throw new RpcException(e);
@@ -123,17 +119,17 @@ public class TransactionBaseTemplate implements ChannelInjectable, ContextProvid
 
         @Override
         public FinishableFuture<TxHash> apply(final Transaction transaction) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Commit transaction with tx: {}, Context: {}", transaction,
-                contextProvider.get());
-          }
+          logger.debug("Commit transaction with signedTx: {}", transaction);
 
           FinishableFuture<TxHash> nextFuture = new FinishableFuture<TxHash>();
           try {
-            final Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
-            final Blockchain.TxList txList = Blockchain.TxList.newBuilder().addTxs(tx).build();
-            ListenableFuture<Rpc.CommitResultList> listenableFuture = aergoService.commitTX(txList);
+            final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(transaction);
+            final Blockchain.TxList rpcTxList =
+                Blockchain.TxList.newBuilder().addTxs(rpcTx).build();
+            logger.trace("AergoService commitTX arg: {}", rpcTxList);
 
+            ListenableFuture<Rpc.CommitResultList> listenableFuture =
+                aergoService.commitTX(rpcTxList);
             FutureChain<Rpc.CommitResultList, TxHash> callback =
                 new FutureChain<Rpc.CommitResultList, TxHash>(nextFuture, contextProvider.get());
             callback.setSuccessHandler(new Function1<Rpc.CommitResultList, TxHash>() {
@@ -141,7 +137,6 @@ public class TransactionBaseTemplate implements ChannelInjectable, ContextProvid
               @Override
               public TxHash apply(final Rpc.CommitResultList commitResultList) {
                 final Rpc.CommitResult commitResult = commitResultList.getResultsList().get(0);
-                logger.debug("Commit result: {}", commitResult.getError());
                 if (Rpc.CommitStatus.TX_OK != commitResult.getError()) {
                   throw new CommitException(commitResult.getError(), commitResult.getDetail());
                 }
@@ -165,11 +160,8 @@ public class TransactionBaseTemplate implements ChannelInjectable, ContextProvid
         @Override
         public FinishableFuture<TxHash> apply(final AccountAddress sender,
             final AccountAddress recipient, final Aer amount) {
-          if (logger.isDebugEnabled()) {
-            logger.debug(
-                "Send transaction request with sender: {}, recipient: {}, amount, Context: {}",
-                sender, recipient, amount, contextProvider.get());
-          }
+          logger.debug("Send transaction request with sender: {}, recipient: {}, amount", sender,
+              recipient, amount);
 
           FinishableFuture<TxHash> nextFuture = new FinishableFuture<TxHash>();
           try {
@@ -178,9 +170,10 @@ public class TransactionBaseTemplate implements ChannelInjectable, ContextProvid
                 TxType.NORMAL,
                 null, null, null, 0, false);
 
-            final Blockchain.Tx tx = transactionConverter.convertToRpcModel(transaction);
-            ListenableFuture<Rpc.CommitResult> listenableFuture = aergoService.sendTX(tx);
+            final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(transaction);
+            logger.trace("AergoService sendTX arg: {}", rpcTx);
 
+            ListenableFuture<Rpc.CommitResult> listenableFuture = aergoService.sendTX(rpcTx);
             FutureChain<Rpc.CommitResult, TxHash> callback =
                 new FutureChain<Rpc.CommitResult, TxHash>(nextFuture, contextProvider.get());
             callback.setSuccessHandler(new Function1<Rpc.CommitResult, TxHash>() {

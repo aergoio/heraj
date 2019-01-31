@@ -23,10 +23,12 @@ public class TransactionConverterFactory {
 
         @Override
         public Blockchain.Tx apply(final Transaction domainTransaction) {
-          logger.trace("Domain transaction: {}", domainTransaction);
+          logger.trace("Domain transaction to convert: {}", domainTransaction);
           final Blockchain.TxInBlock rpcTxInBlock =
               transactionInBlockConverter.convertToRpcModel(domainTransaction);
-          return rpcTxInBlock.getTx();
+          final Blockchain.Tx rpcTransaction = rpcTxInBlock.getTx();
+          logger.trace("Rpc transaction converted: {}", rpcTransaction);
+          return rpcTransaction;
         }
       };
 
@@ -34,13 +36,16 @@ public class TransactionConverterFactory {
       new Function1<Blockchain.Tx, Transaction>() {
 
         @Override
-        public Transaction apply(Blockchain.Tx rpcTransaction) {
-          logger.trace("Rpc transaction: {}", rpcTransaction);
+        public Transaction apply(final Blockchain.Tx rpcTransaction) {
+          logger.trace("Rpc transaction to convert: {}", rpcTransaction);
           final Blockchain.TxInBlock rpcTxInBlock = Blockchain.TxInBlock.newBuilder()
               .setTxIdx(Blockchain.TxIdx.newBuilder().build())
               .setTx(rpcTransaction)
               .build();
-          return transactionInBlockConverter.convertToDomainModel(rpcTxInBlock);
+          final Transaction domainTransaction =
+              transactionInBlockConverter.convertToDomainModel(rpcTxInBlock);
+          logger.trace("Domain transaction converted: {}", domainTransaction);
+          return domainTransaction;
         }
       };
 

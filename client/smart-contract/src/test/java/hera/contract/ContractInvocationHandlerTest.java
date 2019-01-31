@@ -4,6 +4,7 @@
 
 package hera.contract;
 
+import static hera.api.model.BytesValue.of;
 import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertFalse;
@@ -90,7 +91,7 @@ public class ContractInvocationHandlerTest extends AbstractTestCase {
         new ContractInterface(contractAddress, "1.0", "lua", contractFunctions);
     when(mockWallet.getContractInterface(contractAddress)).thenReturn(contractInterface);
     when(mockWallet.query(any(ContractInvocation.class)))
-        .thenReturn(new ContractResultImpl("1".getBytes()));
+        .thenReturn(new ContractResultImpl(of("1".getBytes())));
     smartContract.bind(mockWallet);
 
     smartContract.testExecute(randomUUID().toString().hashCode());

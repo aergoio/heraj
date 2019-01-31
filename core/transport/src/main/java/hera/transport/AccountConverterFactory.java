@@ -26,10 +26,12 @@ public class AccountConverterFactory {
 
         @Override
         public types.AccountOuterClass.Account apply(final Account domainAccount) {
-          logger.trace("Domain account: {}", domainAccount);
-          return AccountOuterClass.Account.newBuilder()
+          logger.trace("Domain account to convert: {}", domainAccount);
+          final AccountOuterClass.Account rpcAccount = AccountOuterClass.Account.newBuilder()
               .setAddress(accountAddressConverter.convertToRpcModel(domainAccount.getAddress()))
               .build();
+          logger.trace("Rpc account converted: {}", rpcAccount);
+          return rpcAccount;
         }
       };
 
@@ -38,9 +40,11 @@ public class AccountConverterFactory {
 
         @Override
         public Account apply(final AccountOuterClass.Account rpcAccount) {
-          logger.trace("Rpc account: {}", rpcAccount);
-          return new AccountFactory()
+          logger.trace("Rpc account to convert: {}", rpcAccount);
+          final Account domainAccount = new AccountFactory()
               .create(accountAddressConverter.convertToDomainModel(rpcAccount.getAddress()));
+          logger.trace("Domain account converted: {}", domainAccount);
+          return domainAccount;
         }
       };
 

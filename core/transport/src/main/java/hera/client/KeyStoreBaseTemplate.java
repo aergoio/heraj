@@ -6,6 +6,7 @@ package hera.client;
 
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
+import static hera.util.TransportUtils.sha256AndEncodeHexa;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
@@ -70,16 +71,16 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
 
         @Override
         public FinishableFuture<List<AccountAddress>> apply() {
-          if (logger.isDebugEnabled()) {
-            logger.debug("List keystore address, Context: {}", contextProvider.get());
-          }
+          logger.debug("List keystore addresses");
 
           FinishableFuture<List<AccountAddress>> nextFuture =
               new FinishableFuture<List<AccountAddress>>();
           try {
-            ListenableFuture<AccountOuterClass.AccountList> listenableFuture =
-                aergoService.getAccounts(Rpc.Empty.newBuilder().build());
+            final Rpc.Empty empty = Rpc.Empty.newBuilder().build();
+            logger.trace("AergoService getAccounts arg: {}", empty);
 
+            ListenableFuture<AccountOuterClass.AccountList> listenableFuture =
+                aergoService.getAccounts(empty);
             FutureChain<AccountOuterClass.AccountList, List<AccountAddress>> callback =
                 new FutureChain<AccountOuterClass.AccountList, List<AccountAddress>>(nextFuture,
                     contextProvider.get());
@@ -89,8 +90,7 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
                   @Override
                   public List<AccountAddress> apply(
                       final AccountOuterClass.AccountList rpcAccountList) {
-                    final List<AccountAddress> domainAccountList =
-                        new ArrayList<AccountAddress>();
+                    final List<AccountAddress> domainAccountList = new ArrayList<AccountAddress>();
                     for (final AccountOuterClass.Account rpcAccount : rpcAccountList
                         .getAccountsList()) {
                       domainAccountList
@@ -114,16 +114,22 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
         @Override
         public FinishableFuture<Account> apply(final String password) {
           if (logger.isDebugEnabled()) {
-            logger.debug("Create an account to server keystore, Context: {}",
-                contextProvider.get());
+            logger.debug("Create an account to server keystore with password: {}",
+                sha256AndEncodeHexa(password));
           }
 
           FinishableFuture<Account> nextFuture = new FinishableFuture<Account>();
           try {
-            Rpc.Personal personal = Rpc.Personal.newBuilder().setPassphrase(password).build();
-            ListenableFuture<AccountOuterClass.Account> listenableFuture =
-                aergoService.createAccount(personal);
+            final Rpc.Personal rpcPassword = Rpc.Personal.newBuilder()
+                .setPassphrase(password)
+                .build();
+            if (logger.isTraceEnabled()) {
+              logger.trace("AergoService createAccount arg: {}",
+                  sha256AndEncodeHexa(rpcPassword.getPassphrase()));
+            }
 
+            ListenableFuture<AccountOuterClass.Account> listenableFuture =
+                aergoService.createAccount(rpcPassword);
             FutureChain<AccountOuterClass.Account, Account> callback =
                 new FutureChain<AccountOuterClass.Account, Account>(nextFuture,
                     contextProvider.get());
@@ -149,16 +155,22 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
         @Override
         public FinishableFuture<Boolean> apply(final Authentication authentication) {
           if (logger.isDebugEnabled()) {
-            logger.debug("Unlock an account in server keystore, Address: {}, Context: {}",
-                authentication.getAddress(), contextProvider.get());
+            logger.debug("Unlock an account in server keystore with address: {}, password: {}",
+                authentication.getAddress(),
+                sha256AndEncodeHexa(authentication.getPassword()));
           }
 
           FinishableFuture<Boolean> nextFuture = new FinishableFuture<Boolean>();
           try {
-            final Rpc.Personal request = authenticationConverter.convertToRpcModel(authentication);
-            ListenableFuture<AccountOuterClass.Account> listenableFuture =
-                aergoService.unlockAccount(request);
+            final Rpc.Personal rpcAuthentication =
+                authenticationConverter.convertToRpcModel(authentication);
+            if (logger.isTraceEnabled()) {
+              logger.trace("AergoService unlockAccount arg: {}",
+                  sha256AndEncodeHexa(rpcAuthentication.getPassphrase()));
+            }
 
+            ListenableFuture<AccountOuterClass.Account> listenableFuture =
+                aergoService.unlockAccount(rpcAuthentication);
             FutureChain<AccountOuterClass.Account, Boolean> callback =
                 new FutureChain<AccountOuterClass.Account, Boolean>(nextFuture,
                     contextProvider.get());
@@ -184,15 +196,22 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
         @Override
         public FinishableFuture<Boolean> apply(final Authentication authentication) {
           if (logger.isDebugEnabled()) {
-            logger.debug("Lock an account in server keystore, Address: {}, Context: {}",
-                authentication.getAddress(), contextProvider.get());
+            logger.debug("Lock an account in server keystore with address: {}, password: {}",
+                authentication.getAddress(),
+                sha256AndEncodeHexa(authentication.getPassword()));
           }
 
           FinishableFuture<Boolean> nextFuture = new FinishableFuture<Boolean>();
           try {
-            ListenableFuture<AccountOuterClass.Account> listenableFuture =
-                aergoService.lockAccount(authenticationConverter.convertToRpcModel(authentication));
+            final Rpc.Personal rpcAuthentication =
+                authenticationConverter.convertToRpcModel(authentication);
+            if (logger.isTraceEnabled()) {
+              logger.trace("AergoService lockAccount arg: {}",
+                  sha256AndEncodeHexa(rpcAuthentication.getPassphrase()));
+            }
 
+            ListenableFuture<AccountOuterClass.Account> listenableFuture =
+                aergoService.lockAccount(rpcAuthentication);
             FutureChain<AccountOuterClass.Account, Boolean> callback =
                 new FutureChain<AccountOuterClass.Account, Boolean>(nextFuture,
                     contextProvider.get());
@@ -220,19 +239,29 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
         public FinishableFuture<Account> apply(final EncryptedPrivateKey encryptedKey,
             final String oldPassword, final String newPassword) {
           if (logger.isDebugEnabled()) {
-            logger.debug(
-                "Import an account to server keystore, EncryptedKey: {}, Context: {}",
-                encryptedKey, contextProvider.get());
+            logger.debug("Import an account to server keystore with "
+                + "encryptedKey: {}, oldPassword: {}, newPassword: {}",
+                encryptedKey, sha256AndEncodeHexa(oldPassword),
+                sha256AndEncodeHexa(newPassword));
           }
 
           FinishableFuture<Account> nextFuture = new FinishableFuture<Account>();
           try {
-            final Rpc.ImportFormat request = Rpc.ImportFormat.newBuilder()
+            final Rpc.ImportFormat rpcImport = Rpc.ImportFormat.newBuilder()
                 .setWif(encryptedPkConverter.convertToRpcModel(encryptedKey))
-                .setOldpass(oldPassword).setNewpass(newPassword).build();
-            ListenableFuture<AccountOuterClass.Account> listenableFuture =
-                aergoService.importAccount(request);
+                .setOldpass(oldPassword)
+                .setNewpass(newPassword)
+                .build();
+            if (logger.isTraceEnabled()) {
+              logger.trace(
+                  "AergoService importAccount arg: ImportFormat(wif={}, oldPass={}, newPass={})",
+                  rpcImport.getWif(),
+                  sha256AndEncodeHexa(rpcImport.getOldpass()),
+                  sha256AndEncodeHexa(rpcImport.getNewpass()));
+            }
 
+            ListenableFuture<AccountOuterClass.Account> listenableFuture =
+                aergoService.importAccount(rpcImport);
             FutureChain<AccountOuterClass.Account, Account> callback =
                 new FutureChain<AccountOuterClass.Account, Account>(nextFuture,
                     contextProvider.get());
@@ -260,18 +289,23 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
         public FinishableFuture<EncryptedPrivateKey> apply(
             final Authentication authentication) {
           if (logger.isDebugEnabled()) {
-            logger.debug("Export an account from server keystore, Address: {}, Context: {}",
-                authentication.getAddress(), contextProvider.get());
+            logger.debug("Export an account from server keystore with address: {}, password: {}",
+                authentication.getAddress(), sha256AndEncodeHexa(authentication.getPassword()));
           }
 
           FinishableFuture<EncryptedPrivateKey> nextFuture =
               new FinishableFuture<EncryptedPrivateKey>();
           try {
-            final Rpc.Personal request =
+            final Rpc.Personal rpcAuthentication =
                 authenticationConverter.convertToRpcModel(authentication);
-            ListenableFuture<Rpc.SingleBytes> listenableFuture =
-                aergoService.exportAccount(request);
+            if (logger.isTraceEnabled()) {
+              logger.trace("AergoService exportAccount  arg: Personal(account={}, password={})",
+                  rpcAuthentication.getAccount().getAddress(),
+                  sha256AndEncodeHexa(rpcAuthentication.getPassphrase()));
+            }
 
+            ListenableFuture<Rpc.SingleBytes> listenableFuture =
+                aergoService.exportAccount(rpcAuthentication);
             FutureChain<Rpc.SingleBytes, EncryptedPrivateKey> callback =
                 new FutureChain<Rpc.SingleBytes, EncryptedPrivateKey>(nextFuture,
                     contextProvider.get());

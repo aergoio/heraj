@@ -86,7 +86,7 @@ public class AergoClient extends AbstractAergoApi implements Closeable {
         getChannel().shutdown().awaitTermination(3, TimeUnit.SECONDS);
       }
     } catch (final Throwable e) {
-      logger.debug("Fail to close aergo client", e);
+      logger.info("Fail to close aergo client by {}", e.toString());
     }
   }
 
