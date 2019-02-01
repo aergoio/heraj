@@ -10,7 +10,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.HerajException;
 import hera.util.ThreadUtils;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -49,8 +48,8 @@ public class TryCountAndInterval {
    * @param interval an try interval
    */
   public TryCountAndInterval(final int tryCount, final Time interval) {
-    assertTrue(tryCount >= 0, new HerajException("Try count must be >= 0"));
-    assertNotNull(interval, new HerajException("Interval hash must not null"));
+    assertTrue(tryCount >= 0, "Try count must be >= 0");
+    assertNotNull(interval, "Interval hash must not null");
     this.count = tryCount;
     this.interval = interval;
   }

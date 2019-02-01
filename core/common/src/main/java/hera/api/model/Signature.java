@@ -8,7 +8,6 @@ import static hera.util.ValidationUtils.assertNotNull;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.HerajException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -42,7 +41,7 @@ public class Signature {
    */
   @ApiAudience.Private
   public Signature(final BytesValue sign) {
-    assertNotNull(sign, new HerajException("Sign value must not null"));
+    assertNotNull(sign, "Sign value must not null");
     this.sign = sign;
   }
 

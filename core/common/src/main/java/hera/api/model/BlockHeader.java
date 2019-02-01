@@ -8,7 +8,6 @@ import static hera.util.ValidationUtils.assertNotNull;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.HerajException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -80,7 +79,7 @@ public class BlockHeader {
       final long blockNumber, long timestamp, final BlockHash rootHash, final TxHash txRootHash,
       final Hash receiptRootHash, final long confirmsCount, final Hash publicKey, final Hash sign,
       final AccountAddress coinbaseAccount, final long txCount) {
-    assertNotNull(hash, new HerajException("Block hash must not null"));
+    assertNotNull(hash, "Block hash must not null");
     this.chainId = null != chainId ? chainId : Hash.of(BytesValue.EMPTY);
     this.hash = hash;
     this.previousHash = null != previousHash ? previousHash : BlockHash.of(BytesValue.EMPTY);

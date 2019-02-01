@@ -12,7 +12,6 @@ import static java.util.Collections.unmodifiableList;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.exception.DecodingFailureException;
-import hera.exception.HerajException;
 import hera.exception.InvalidVersionException;
 import hera.util.EncodingUtils;
 import hera.util.VersionUtils;
@@ -68,7 +67,7 @@ public class ContractDefinition {
    */
   @ApiAudience.Public
   public ContractDefinition(final String encodedContract, final Object... args) {
-    assertNotNull(encodedContract, new HerajException("Encoded contract must not null"));
+    assertNotNull(encodedContract, "Encoded contract must not null");
     this.decodedContract = EncodingUtils.decodeBase58WithCheck(encodedContract);
     VersionUtils.validate(this.decodedContract, ContractDefinition.PAYLOAD_VERSION);
 

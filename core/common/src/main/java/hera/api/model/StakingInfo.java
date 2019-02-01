@@ -8,7 +8,6 @@ import static hera.util.ValidationUtils.assertNotNull;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.HerajException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -37,8 +36,8 @@ public class StakingInfo {
    */
   @ApiAudience.Private
   public StakingInfo(final AccountAddress address, final Aer amount, final long blockNumber) {
-    assertNotNull(address, new HerajException("Staking address must not null"));
-    assertNotNull(amount, new HerajException("Staking amount must not null"));
+    assertNotNull(address, "Staking address must not null");
+    assertNotNull(amount, "Staking amount must not null");
     this.address = address;
     this.amount = amount;
     this.blockNumber = blockNumber;

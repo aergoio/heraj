@@ -9,7 +9,6 @@ import static hera.util.ValidationUtils.assertTrue;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.HerajException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -34,9 +33,8 @@ public class BlockchainStatus {
    */
   @ApiAudience.Private
   public BlockchainStatus(final long bestHeight, final BlockHash bestBlockHash) {
-    assertTrue(bestHeight >= 0,
-        new HerajException("Best block height must be >= 0"));
-    assertNotNull(bestBlockHash, new HerajException("Best block hash must not null"));
+    assertTrue(bestHeight >= 0, "Best block height must be >= 0");
+    assertNotNull(bestBlockHash, "Best block hash must not null");
     this.bestHeight = bestHeight;
     this.bestBlockHash = bestBlockHash;
   }

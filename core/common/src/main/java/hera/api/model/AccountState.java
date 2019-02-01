@@ -9,7 +9,6 @@ import static hera.util.ValidationUtils.assertTrue;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.HerajException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -38,9 +37,9 @@ public class AccountState {
    */
   @ApiAudience.Private
   public AccountState(final AccountAddress address, final long nonce, final Aer balance) {
-    assertNotNull(address, new HerajException("Account address must not null"));
-    assertTrue(nonce >= 0, new HerajException("Nonce must >= 0"));
-    assertNotNull(balance, new HerajException("Account balance must not null"));
+    assertNotNull(address, "Account address must not null");
+    assertTrue(nonce >= 0, "Nonce must >= 0");
+    assertNotNull(balance, "Account balance must not null");
     this.address = address;
     this.nonce = nonce;
     this.balance = balance;

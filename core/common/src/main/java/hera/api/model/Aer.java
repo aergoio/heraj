@@ -8,7 +8,6 @@ import static hera.util.ValidationUtils.assertNotNull;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.HerajException;
 import hera.exception.InvalidAerAmountException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -116,8 +115,8 @@ public class Aer implements Comparable<Aer> {
    */
   @ApiAudience.Public
   public Aer(final String amount, final Unit unit) {
-    assertNotNull(amount, new HerajException("Amount must not null"));
-    assertNotNull(unit, new HerajException("Unit must not null"));
+    assertNotNull(amount, "Amount must not null");
+    assertNotNull(unit, "Unit must not null");
     this.value = parse(amount, unit);
   }
 

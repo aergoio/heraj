@@ -9,7 +9,6 @@ import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.HerajException;
 import java.util.Collections;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -46,8 +45,8 @@ public class ContractFunction {
    */
   @ApiAudience.Private
   public ContractFunction(final String name, final List<String> argumentNames) {
-    assertNotNull(name, new HerajException("Function name must not null"));
-    assertNotNull(argumentNames, new HerajException("Argument names must not null"));
+    assertNotNull(name, "Function name must not null");
+    assertNotNull(argumentNames, "Argument names must not null");
     this.name = name;
     this.argumentNames = unmodifiableList(argumentNames);
   }

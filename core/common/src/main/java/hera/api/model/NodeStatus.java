@@ -9,7 +9,6 @@ import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.HerajException;
 import hera.util.StringUtils;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -30,7 +29,7 @@ public class NodeStatus {
    */
   @ApiAudience.Private
   public NodeStatus(final List<ModuleStatus> moduleStatus) {
-    assertNotNull(moduleStatus, new HerajException("Module status list must not null"));
+    assertNotNull(moduleStatus, "Module status list must not null");
     this.moduleStatus = unmodifiableList(moduleStatus);
   }
 

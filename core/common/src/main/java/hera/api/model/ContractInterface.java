@@ -9,7 +9,6 @@ import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.HerajException;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -46,10 +45,10 @@ public class ContractInterface {
   @ApiAudience.Private
   public ContractInterface(final ContractAddress contractAddress, final String version,
       final String language, final List<ContractFunction> functions) {
-    assertNotNull(contractAddress, new HerajException("Contract address must not null"));
-    assertNotNull(version, new HerajException("Version must not null"));
-    assertNotNull(language, new HerajException("Language must not null"));
-    assertNotNull(functions, new HerajException("Functions must not null"));
+    assertNotNull(contractAddress, "Contract address must not null");
+    assertNotNull(version, "Version must not null");
+    assertNotNull(language, "Language must not null");
+    assertNotNull(functions, "Functions must not null");
     this.address = contractAddress;
     this.version = version;
     this.language = language;
