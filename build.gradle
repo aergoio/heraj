@@ -37,14 +37,17 @@ def javaProjects = [
   project('core:protobuf'),
   project('core:transport'),
   project('client:wallet'),
-  project('client:smart-contract'),
+  project('client:smart-contract')
+]
+
+def exampleProjects = [
   project('examples')
 ]
 
 def jmhProjects = [
   project('core:common'),
   project('core:transport'),
-  project('client:wallet'),
+  project('client:wallet')
 ]
 
 ext {
@@ -279,6 +282,22 @@ configure(javaProjects) {
     classifier = null
   }
 
+}
+
+configure(exampleProjects) {
+  apply plugin: 'java'
+
+  sourceCompatibility = javaVersion
+  targetCompatibility = javaVersion
+
+  repositories {
+    mavenLocal()
+    maven {
+      url "http://dist.wso2.org/maven2"
+    }
+    mavenCentral()
+    jcenter()
+  }
 }
 
 configure(jmhProjects) {
