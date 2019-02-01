@@ -27,8 +27,13 @@ public abstract class AbstractAccount implements Account {
   }
 
   @Override
-  public long getNonce() {
+  public long getRecentlyUsedNonce() {
     return nonce.get();
+  }
+
+  @Override
+  public long getNonce() {
+    return getRecentlyUsedNonce();
   }
 
   @Override

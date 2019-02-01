@@ -147,7 +147,7 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
 
   @Override
   public long getRecentlyUsedNonce() {
-    return getCurrentAccount().getNonce();
+    return getCurrentAccount().getRecentlyUsedNonce();
   }
 
   @Override

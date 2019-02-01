@@ -39,8 +39,16 @@ public interface Account {
    *
    * @return an nonce
    */
-  long getNonce();
+  long getRecentlyUsedNonce();
 
+  /**
+   * Get nonce for account.
+   *
+   * @return an nonce
+   * @deprecated Use {@link #getRecentlyUsedNonce()} instead.
+   */
+  @Deprecated
+  long getNonce();
 
   /**
    * Increment an nonce and get it.
