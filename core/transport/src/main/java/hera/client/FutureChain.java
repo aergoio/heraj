@@ -42,13 +42,7 @@ public class FutureChain<T, R> implements FutureCallback<T> {
   protected Function1<T, R> successHandler;
 
   @Setter
-  protected Function1<Throwable,
-      R> failureHandler = new Function1<Throwable, R>() {
-        @Override
-        public R apply(final Throwable e) {
-          throw new RpcException(e);
-        }
-      };
+  protected Function1<Throwable, R> failureHandler = null;
 
   @Override
   public void onSuccess(@Nullable T t) {
@@ -67,8 +61,12 @@ public class FutureChain<T, R> implements FutureCallback<T> {
     connectAsyncContextWithSourceContext();
     logger.trace("Async request fail result: {}, context: {}", error, ContextHolder.get(this));
     try {
-      final R handled = failureHandler.apply(error);
-      nextFuture.success(handled);
+      if (null != failureHandler) {
+        final R handled = failureHandler.apply(error);
+        nextFuture.success(handled);
+      } else {
+        failNext(wrapWithRpcException(error));
+      }
     } catch (Exception e) {
       failNext(wrapWithRpcException(e));
     }
