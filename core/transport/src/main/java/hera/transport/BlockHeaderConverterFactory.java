@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import types.Blockchain;
 import types.Rpc;
 
-public class BlockMetadataConverterFactory {
+public class BlockHeaderConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
 

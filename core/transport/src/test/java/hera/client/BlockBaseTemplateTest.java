@@ -48,42 +48,44 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetBlockByHash() {
+  public void testGetBlockHeaderByHash() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture<Blockchain.Block> mockListenableFuture =
-        service.submit(new Callable<Blockchain.Block>() {
+    ListenableFuture<Rpc.BlockMetadata> mockListenableFuture =
+        service.submit(new Callable<Rpc.BlockMetadata>() {
           @Override
-          public Blockchain.Block call() throws Exception {
-            return Blockchain.Block.newBuilder().build();
+          public Rpc.BlockMetadata call() throws Exception {
+            return Rpc.BlockMetadata.newBuilder().build();
           }
         });
-    when(aergoService.getBlock(any(Rpc.SingleBytes.class))).thenReturn(mockListenableFuture);
+    when(aergoService.getBlockMetadata(any(Rpc.SingleBytes.class)))
+        .thenReturn(mockListenableFuture);
 
     final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(aergoService);
 
-    final FinishableFuture<Block> block =
-        blockBaseTemplate.getBlockByHashFunction()
+    final FinishableFuture<BlockHeader> blockHeader =
+        blockBaseTemplate.getBlockHeaderByHashFunction()
             .apply(new BlockHash(of(randomUUID().toString().getBytes())));
-    assertNotNull(block.get());
+    assertNotNull(blockHeader.get());
   }
 
   @Test
-  public void testGetBlockByHeight() {
+  public void testGetBlockHeaderByHeight() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture<Blockchain.Block> mockListenableFuture =
-        service.submit(new Callable<Blockchain.Block>() {
+    ListenableFuture<Rpc.BlockMetadata> mockListenableFuture =
+        service.submit(new Callable<Rpc.BlockMetadata>() {
           @Override
-          public Blockchain.Block call() throws Exception {
-            return Blockchain.Block.newBuilder().build();
+          public Rpc.BlockMetadata call() throws Exception {
+            return Rpc.BlockMetadata.newBuilder().build();
           }
         });
-    when(aergoService.getBlock(any(Rpc.SingleBytes.class))).thenReturn(mockListenableFuture);
+    when(aergoService.getBlockMetadata(any(Rpc.SingleBytes.class)))
+        .thenReturn(mockListenableFuture);
 
     final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(aergoService);
 
-    final FinishableFuture<Block> block =
-        blockBaseTemplate.getBlockByHeightFunction().apply(10L);
-    assertNotNull(block.get());
+    final FinishableFuture<BlockHeader> blockHeader =
+        blockBaseTemplate.getBlockHeaderByHeightFunction().apply(10L);
+    assertNotNull(blockHeader.get());
   }
 
   @Test
@@ -127,6 +129,45 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
     final FinishableFuture<List<BlockHeader>> blockHeaders =
         blockBaseTemplate.getListBlockHeadersByHeightFunction().apply(10L, 10);
     assertNotNull(blockHeaders.get());
+  }
+
+  @Test
+  public void testGetBlockByHash() {
+    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
+    ListenableFuture<Blockchain.Block> mockListenableFuture =
+        service.submit(new Callable<Blockchain.Block>() {
+          @Override
+          public Blockchain.Block call() throws Exception {
+            return Blockchain.Block.newBuilder().build();
+          }
+        });
+    when(aergoService.getBlock(any(Rpc.SingleBytes.class))).thenReturn(mockListenableFuture);
+
+    final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(aergoService);
+
+    final FinishableFuture<Block> block =
+        blockBaseTemplate.getBlockByHashFunction()
+            .apply(new BlockHash(of(randomUUID().toString().getBytes())));
+    assertNotNull(block.get());
+  }
+
+  @Test
+  public void testGetBlockByHeight() {
+    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
+    ListenableFuture<Blockchain.Block> mockListenableFuture =
+        service.submit(new Callable<Blockchain.Block>() {
+          @Override
+          public Blockchain.Block call() throws Exception {
+            return Blockchain.Block.newBuilder().build();
+          }
+        });
+    when(aergoService.getBlock(any(Rpc.SingleBytes.class))).thenReturn(mockListenableFuture);
+
+    final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(aergoService);
+
+    final FinishableFuture<Block> block =
+        blockBaseTemplate.getBlockByHeightFunction().apply(10L);
+    assertNotNull(block.get());
   }
 
 }

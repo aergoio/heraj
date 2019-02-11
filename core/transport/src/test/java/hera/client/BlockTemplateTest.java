@@ -4,8 +4,10 @@
 
 package hera.client;
 
-import static hera.TransportConstants.BLOCK_GETBLOCK_BY_HASH;
-import static hera.TransportConstants.BLOCK_GETBLOCK_BY_HEIGHT;
+import static hera.TransportConstants.BLOCK_GET_BLOCK_BY_HASH;
+import static hera.TransportConstants.BLOCK_GET_BLOCK_BY_HEIGHT;
+import static hera.TransportConstants.BLOCK_GET_HEADER_BY_HASH;
+import static hera.TransportConstants.BLOCK_GET_HEADER_BY_HEIGHT;
 import static hera.TransportConstants.BLOCK_LIST_HEADERS_BY_HASH;
 import static hera.TransportConstants.BLOCK_LIST_HEADERS_BY_HEIGHT;
 import static hera.api.model.BytesValue.of;
@@ -46,48 +48,49 @@ public class BlockTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetBlockByHash() {
+  public void testGetBlockHeaderByHash() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
-    final Block mockBlock = mock(Block.class);
-    final FinishableFuture<Block> future = new FinishableFuture<Block>();
-    future.success(mockBlock);
-    when(base.getBlockByHashFunction())
-        .thenReturn(new Function1<BlockHash, FinishableFuture<Block>>() {
+    final BlockHeader mockBlockHeader = mock(BlockHeader.class);
+    final FinishableFuture<BlockHeader> future = new FinishableFuture<BlockHeader>();
+    future.success(mockBlockHeader);
+    when(base.getBlockHeaderByHashFunction())
+        .thenReturn(new Function1<BlockHash, FinishableFuture<BlockHeader>>() {
           @Override
-          public FinishableFuture<Block> apply(BlockHash t) {
+          public FinishableFuture<BlockHeader> apply(BlockHash t) {
             return future;
           }
         });
 
     final BlockTemplate blockTemplate = supplyBlockTemplate(base);
 
-    final Block block =
-        blockTemplate.getBlock(new BlockHash(of(randomUUID().toString().getBytes())));
-    assertNotNull(block);
-    assertEquals(BLOCK_GETBLOCK_BY_HASH,
-        ((WithIdentity) blockTemplate.getBlockByHashFunction()).getIdentity());
+    final BlockHeader blockHeader =
+        blockTemplate.getBlockHeader(new BlockHash(of(randomUUID().toString().getBytes())));
+    assertNotNull(blockHeader);
+    assertEquals(BLOCK_GET_HEADER_BY_HASH,
+        ((WithIdentity) blockTemplate.getBlockHeaderByHashFunction()).getIdentity());
   }
 
   @Test
-  public void testGetBlockByHeight() {
+  public void testGetBlockHeaderByHeight() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
-    final Block mockBlock = mock(Block.class);
-    final FinishableFuture<Block> future = new FinishableFuture<Block>();
-    future.success(mockBlock);
-    when(base.getBlockByHeightFunction())
-        .thenReturn(new Function1<Long, FinishableFuture<Block>>() {
+    final BlockHeader mockBlockHeader = mock(BlockHeader.class);
+    final FinishableFuture<BlockHeader> future = new FinishableFuture<BlockHeader>();
+    future.success(mockBlockHeader);
+    when(base.getBlockHeaderByHeightFunction())
+        .thenReturn(new Function1<Long, FinishableFuture<BlockHeader>>() {
           @Override
-          public FinishableFuture<Block> apply(Long t) {
+          public FinishableFuture<BlockHeader> apply(Long t) {
             return future;
           }
         });
 
     final BlockTemplate blockTemplate = supplyBlockTemplate(base);
 
-    final Block block = blockTemplate.getBlock(randomUUID().hashCode());
-    assertNotNull(block);
-    assertEquals(BLOCK_GETBLOCK_BY_HEIGHT,
-        ((WithIdentity) blockTemplate.getBlockByHeightFunction()).getIdentity());
+    final BlockHeader blockHeader =
+        blockTemplate.getBlockHeader(randomUUID().hashCode());
+    assertNotNull(blockHeader);
+    assertEquals(BLOCK_GET_HEADER_BY_HEIGHT,
+        ((WithIdentity) blockTemplate.getBlockHeaderByHeightFunction()).getIdentity());
   }
 
   @Test
@@ -132,6 +135,51 @@ public class BlockTemplateTest extends AbstractTestCase {
     assertNotNull(blockHeaders);
     assertEquals(BLOCK_LIST_HEADERS_BY_HEIGHT,
         ((WithIdentity) blockTemplate.getListBlockHeadersByHeightFunction()).getIdentity());
+  }
+
+  @Test
+  public void testGetBlockByHash() {
+    final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
+    final Block mockBlock = mock(Block.class);
+    final FinishableFuture<Block> future = new FinishableFuture<Block>();
+    future.success(mockBlock);
+    when(base.getBlockByHashFunction())
+        .thenReturn(new Function1<BlockHash, FinishableFuture<Block>>() {
+          @Override
+          public FinishableFuture<Block> apply(BlockHash t) {
+            return future;
+          }
+        });
+
+    final BlockTemplate blockTemplate = supplyBlockTemplate(base);
+
+    final Block block =
+        blockTemplate.getBlock(new BlockHash(of(randomUUID().toString().getBytes())));
+    assertNotNull(block);
+    assertEquals(BLOCK_GET_BLOCK_BY_HASH,
+        ((WithIdentity) blockTemplate.getBlockByHashFunction()).getIdentity());
+  }
+
+  @Test
+  public void testGetBlockByHeight() {
+    final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
+    final Block mockBlock = mock(Block.class);
+    final FinishableFuture<Block> future = new FinishableFuture<Block>();
+    future.success(mockBlock);
+    when(base.getBlockByHeightFunction())
+        .thenReturn(new Function1<Long, FinishableFuture<Block>>() {
+          @Override
+          public FinishableFuture<Block> apply(Long t) {
+            return future;
+          }
+        });
+
+    final BlockTemplate blockTemplate = supplyBlockTemplate(base);
+
+    final Block block = blockTemplate.getBlock(randomUUID().hashCode());
+    assertNotNull(block);
+    assertEquals(BLOCK_GET_BLOCK_BY_HEIGHT,
+        ((WithIdentity) blockTemplate.getBlockByHeightFunction()).getIdentity());
   }
 
 }

@@ -16,20 +16,20 @@ import java.util.List;
 public interface BlockOperation {
 
   /**
-   * Get block by hash.
+   * Get block header by hash.
    *
    * @param blockHash block hash
    * @return block
    */
-  Block getBlock(BlockHash blockHash);
+  BlockHeader getBlockHeader(BlockHash blockHash);
 
   /**
-   * Get block by height.
+   * Get block header by height.
    *
    * @param height block's height
    * @return block
    */
-  Block getBlock(long height);
+  BlockHeader getBlockHeader(long height);
 
   /**
    * Get block headers of {@code size} backward starting from block for provided hash.
@@ -48,4 +48,21 @@ public interface BlockOperation {
    * @return block list
    */
   List<BlockHeader> listBlockHeaders(long height, int size);
+
+  /**
+   * Get block by hash.
+   *
+   * @param blockHash block hash
+   * @return block
+   */
+  Block getBlock(BlockHash blockHash);
+
+  /**
+   * Get block by height.
+   *
+   * @param height block's height
+   * @return block
+   */
+  Block getBlock(long height);
+
 }

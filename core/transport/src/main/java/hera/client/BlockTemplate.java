@@ -4,8 +4,10 @@
 
 package hera.client;
 
-import static hera.TransportConstants.BLOCK_GETBLOCK_BY_HASH;
-import static hera.TransportConstants.BLOCK_GETBLOCK_BY_HEIGHT;
+import static hera.TransportConstants.BLOCK_GET_BLOCK_BY_HASH;
+import static hera.TransportConstants.BLOCK_GET_BLOCK_BY_HEIGHT;
+import static hera.TransportConstants.BLOCK_GET_HEADER_BY_HASH;
+import static hera.TransportConstants.BLOCK_GET_HEADER_BY_HEIGHT;
 import static hera.TransportConstants.BLOCK_LIST_HEADERS_BY_HASH;
 import static hera.TransportConstants.BLOCK_LIST_HEADERS_BY_HEIGHT;
 import static hera.api.function.Functions.identify;
@@ -51,14 +53,16 @@ public class BlockTemplate
   }
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<BlockHash, FinishableFuture<Block>> blockByHashFunction =
+  private final Function1<BlockHash, FinishableFuture<BlockHeader>> blockHeaderByHashFunction =
       getStrategyChain()
-          .apply(identify(getBlockBaseTemplate().getBlockByHashFunction(), BLOCK_GETBLOCK_BY_HASH));
+          .apply(identify(getBlockBaseTemplate().getBlockHeaderByHashFunction(),
+              BLOCK_GET_HEADER_BY_HASH));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<Long, FinishableFuture<Block>> blockByHeightFunction =
+  private final Function1<Long, FinishableFuture<BlockHeader>> blockHeaderByHeightFunction =
       getStrategyChain().apply(
-          identify(getBlockBaseTemplate().getBlockByHeightFunction(), BLOCK_GETBLOCK_BY_HEIGHT));
+          identify(getBlockBaseTemplate().getBlockHeaderByHeightFunction(),
+              BLOCK_GET_HEADER_BY_HEIGHT));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function2<BlockHash, Integer,
@@ -74,14 +78,25 @@ public class BlockTemplate
               .apply(identify(getBlockBaseTemplate().getListBlockHeadersByHeightFunction(),
                   BLOCK_LIST_HEADERS_BY_HEIGHT));
 
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<BlockHash, FinishableFuture<Block>> blockByHashFunction =
+      getStrategyChain()
+          .apply(
+              identify(getBlockBaseTemplate().getBlockByHashFunction(), BLOCK_GET_BLOCK_BY_HASH));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<Long, FinishableFuture<Block>> blockByHeightFunction =
+      getStrategyChain().apply(
+          identify(getBlockBaseTemplate().getBlockByHeightFunction(), BLOCK_GET_BLOCK_BY_HEIGHT));
+
   @Override
-  public Block getBlock(final BlockHash blockHash) {
-    return getBlockByHashFunction().apply(blockHash).get();
+  public BlockHeader getBlockHeader(final BlockHash blockHash) {
+    return getBlockHeaderByHashFunction().apply(blockHash).get();
   }
 
   @Override
-  public Block getBlock(final long height) {
-    return getBlockByHeightFunction().apply(height).get();
+  public BlockHeader getBlockHeader(final long height) {
+    return getBlockHeaderByHeightFunction().apply(height).get();
   }
 
   @Override
@@ -94,6 +109,16 @@ public class BlockTemplate
   public List<BlockHeader> listBlockHeaders(final long height,
       final int size) {
     return getListBlockHeadersByHeightFunction().apply(height, size).get();
+  }
+
+  @Override
+  public Block getBlock(final BlockHash blockHash) {
+    return getBlockByHashFunction().apply(blockHash).get();
+  }
+
+  @Override
+  public Block getBlock(final long height) {
+    return getBlockByHeightFunction().apply(height).get();
   }
 
 }

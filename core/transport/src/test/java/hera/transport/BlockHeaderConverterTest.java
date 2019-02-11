@@ -16,12 +16,12 @@ import org.junit.Test;
 import types.Rpc;
 import types.Rpc.BlockMetadata;
 
-public class BlockMetadataConverterTest extends AbstractTestCase {
+public class BlockHeaderConverterTest extends AbstractTestCase {
 
   @Test
   public void testConvert() {
     final ModelConverter<BlockHeader, Rpc.BlockMetadata> converter =
-        new BlockMetadataConverterFactory().create();
+        new BlockHeaderConverterFactory().create();
 
     final BlockHash blockHash = BlockHash.of(BytesValue.of(randomUUID().toString().getBytes()));
     final BlockMetadata blockMetadata = Rpc.BlockMetadata.newBuilder()

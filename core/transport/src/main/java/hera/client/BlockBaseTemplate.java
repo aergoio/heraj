@@ -22,7 +22,7 @@ import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
 import hera.transport.BlockConverterFactory;
-import hera.transport.BlockMetadataConverterFactory;
+import hera.transport.BlockHeaderConverterFactory;
 import hera.transport.ModelConverter;
 import io.grpc.ManagedChannel;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
   protected final Logger logger = getLogger(getClass());
 
   protected final ModelConverter<BlockHeader, Rpc.BlockMetadata> blockMetadataConverter =
-      new BlockMetadataConverterFactory().create();
+      new BlockHeaderConverterFactory().create();
 
   protected final ModelConverter<Block, Blockchain.Block> blockConverter =
       new BlockConverterFactory().create();
@@ -61,30 +61,33 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
   }
 
   @Getter
-  private final Function1<BlockHash,
-      FinishableFuture<Block>> blockByHashFunction = new Function1<
-          BlockHash, FinishableFuture<Block>>() {
+  private final Function1<BlockHash, FinishableFuture<BlockHeader>> blockHeaderByHashFunction =
+      new Function1<BlockHash, FinishableFuture<BlockHeader>>() {
 
         @Override
-        public FinishableFuture<Block> apply(final BlockHash hash) {
-          logger.debug("Get block with hash: {}", hash);
+        public FinishableFuture<BlockHeader> apply(final BlockHash hash) {
+          logger.debug("Get block header with hash: {}", hash);
 
-          FinishableFuture<Block> nextFuture = new FinishableFuture<Block>();
+          FinishableFuture<BlockHeader> nextFuture = new FinishableFuture<BlockHeader>();
           try {
             final Rpc.SingleBytes rpcHash = Rpc.SingleBytes.newBuilder()
                 .setValue(copyFrom(hash.getBytesValue()))
                 .build();
-            logger.trace("AergoService getBlock arg: {}", rpcHash);
+            logger.trace("AergoService getBlockMetadata arg: {}", rpcHash);
 
-            ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(rpcHash);
-            FutureChain<Blockchain.Block, Block> callback =
-                new FutureChain<Blockchain.Block, Block>(nextFuture, contextProvider.get());
-            callback.setSuccessHandler(new Function1<Blockchain.Block, Block>() {
-              @Override
-              public Block apply(final Blockchain.Block block) {
-                return blockConverter.convertToDomainModel(block);
-              }
-            });
+            ListenableFuture<Rpc.BlockMetadata> listenableFuture =
+                aergoService.getBlockMetadata(rpcHash);
+            FutureChain<Rpc.BlockMetadata, BlockHeader> callback =
+                new FutureChain<Rpc.BlockMetadata, BlockHeader>(nextFuture,
+                    contextProvider.get());
+            callback.setSuccessHandler(
+                new Function1<Rpc.BlockMetadata, BlockHeader>() {
+
+                  @Override
+                  public BlockHeader apply(final Rpc.BlockMetadata metadata) {
+                    return blockMetadataConverter.convertToDomainModel(metadata);
+                  }
+                });
             addCallback(listenableFuture, callback, directExecutor());
           } catch (Exception e) {
             nextFuture.fail(e);
@@ -95,29 +98,30 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
       };
 
   @Getter
-  private final Function1<Long,
-      FinishableFuture<Block>> blockByHeightFunction = new Function1<
-          Long, FinishableFuture<Block>>() {
+  private final Function1<Long, FinishableFuture<BlockHeader>> blockHeaderByHeightFunction =
+      new Function1<Long, FinishableFuture<BlockHeader>>() {
 
         @Override
-        public FinishableFuture<Block> apply(final Long height) {
-          logger.debug("Get block with height: {}", height);
+        public FinishableFuture<BlockHeader> apply(final Long height) {
+          logger.debug("Get block header with height: {}", height);
           assertArgument(height >= 0, "Height", ">= 0");
 
-          FinishableFuture<Block> nextFuture = new FinishableFuture<Block>();
+          FinishableFuture<BlockHeader> nextFuture = new FinishableFuture<BlockHeader>();
           try {
             final Rpc.SingleBytes rpcHeight = Rpc.SingleBytes.newBuilder()
                 .setValue(copyFrom(height.longValue()))
                 .build();
-            logger.trace("AergoService getBlock arg: {}", rpcHeight);
+            logger.trace("AergoService getBlockMetadata arg: {}", rpcHeight);
 
-            ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(rpcHeight);
-            FutureChain<Blockchain.Block, Block> callback =
-                new FutureChain<Blockchain.Block, Block>(nextFuture, contextProvider.get());
-            callback.setSuccessHandler(new Function1<Blockchain.Block, Block>() {
+            ListenableFuture<Rpc.BlockMetadata> listenableFuture =
+                aergoService.getBlockMetadata(rpcHeight);
+            FutureChain<Rpc.BlockMetadata, BlockHeader> callback =
+                new FutureChain<Rpc.BlockMetadata, BlockHeader>(nextFuture,
+                    contextProvider.get());
+            callback.setSuccessHandler(new Function1<Rpc.BlockMetadata, BlockHeader>() {
               @Override
-              public Block apply(final Blockchain.Block block) {
-                return blockConverter.convertToDomainModel(block);
+              public BlockHeader apply(final Rpc.BlockMetadata metadata) {
+                return blockMetadataConverter.convertToDomainModel(metadata);
               }
             });
             addCallback(listenableFuture, callback, directExecutor());
@@ -213,6 +217,75 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
                     return blockHeaders;
                   }
                 });
+            addCallback(listenableFuture, callback, directExecutor());
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+
+          return nextFuture;
+        }
+      };
+
+  @Getter
+  private final Function1<BlockHash,
+      FinishableFuture<Block>> blockByHashFunction = new Function1<
+          BlockHash, FinishableFuture<Block>>() {
+
+        @Override
+        public FinishableFuture<Block> apply(final BlockHash hash) {
+          logger.debug("Get block with hash: {}", hash);
+
+          FinishableFuture<Block> nextFuture = new FinishableFuture<Block>();
+          try {
+            final Rpc.SingleBytes rpcHash = Rpc.SingleBytes.newBuilder()
+                .setValue(copyFrom(hash.getBytesValue()))
+                .build();
+            logger.trace("AergoService getBlock arg: {}", rpcHash);
+
+            ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(rpcHash);
+            FutureChain<Blockchain.Block, Block> callback =
+                new FutureChain<Blockchain.Block, Block>(nextFuture, contextProvider.get());
+            callback.setSuccessHandler(new Function1<Blockchain.Block, Block>() {
+              @Override
+              public Block apply(final Blockchain.Block block) {
+                return blockConverter.convertToDomainModel(block);
+              }
+            });
+            addCallback(listenableFuture, callback, directExecutor());
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+
+          return nextFuture;
+        }
+      };
+
+  @Getter
+  private final Function1<Long,
+      FinishableFuture<Block>> blockByHeightFunction = new Function1<
+          Long, FinishableFuture<Block>>() {
+
+        @Override
+        public FinishableFuture<Block> apply(final Long height) {
+          logger.debug("Get block with height: {}", height);
+          assertArgument(height >= 0, "Height", ">= 0");
+
+          FinishableFuture<Block> nextFuture = new FinishableFuture<Block>();
+          try {
+            final Rpc.SingleBytes rpcHeight = Rpc.SingleBytes.newBuilder()
+                .setValue(copyFrom(height.longValue()))
+                .build();
+            logger.trace("AergoService getBlock arg: {}", rpcHeight);
+
+            ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(rpcHeight);
+            FutureChain<Blockchain.Block, Block> callback =
+                new FutureChain<Blockchain.Block, Block>(nextFuture, contextProvider.get());
+            callback.setSuccessHandler(new Function1<Blockchain.Block, Block>() {
+              @Override
+              public Block apply(final Blockchain.Block block) {
+                return blockConverter.convertToDomainModel(block);
+              }
+            });
             addCallback(listenableFuture, callback, directExecutor());
           } catch (Exception e) {
             nextFuture.fail(e);
