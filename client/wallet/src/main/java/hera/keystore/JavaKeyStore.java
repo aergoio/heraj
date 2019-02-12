@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.wallet;
+package hera.keystore;
 
 import static java.util.Collections.list;
 import static java.util.Collections.newSetFromMap;

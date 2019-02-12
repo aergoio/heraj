@@ -6,6 +6,7 @@ package hera.wallet;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.function.Function0;
 import hera.api.function.Function1;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
@@ -25,19 +26,16 @@ import hera.api.model.TxHash;
 import hera.api.model.VotingInfo;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
-import hera.exception.CommitException;
-import hera.exception.CommitException.CommitStatus;
 import hera.exception.InvalidAuthentiationException;
 import hera.exception.UnbindedAccountException;
 import hera.exception.UnbindedKeyStoreException;
 import hera.exception.WalletException;
 import hera.key.AergoKey;
+import hera.keystore.KeyStore;
 import java.util.List;
-import lombok.AccessLevel;
-import lombok.Getter;
 import org.slf4j.Logger;
 
-public abstract class InteractiveWallet extends LookupWallet implements Wallet {
+public abstract class AbstractWallet extends LookupWallet implements Wallet {
 
   protected final Logger logger = getLogger(getClass());
 
@@ -45,14 +43,27 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
 
   protected Account account;
 
-  @Getter(value = AccessLevel.PROTECTED)
-  protected final TryCountAndInterval nonceRefreshTryCountAndInterval;
+  protected TransactionTrier trier;
 
-  protected InteractiveWallet(final AergoClient aergoClient,
+  protected AbstractWallet(final AergoClient aergoClient,
       final TryCountAndInterval tryCountAndInterval) {
     super(aergoClient);
+
     logger.debug("Binded nonce refresh: {}", tryCountAndInterval);
-    this.nonceRefreshTryCountAndInterval = tryCountAndInterval;
+    final TransactionTrier trier = new TransactionTrier(tryCountAndInterval);
+    trier.setAccountProvider(new Function0<Account>() {
+      @Override
+      public Account apply() {
+        return getAccount();
+      }
+    });
+    trier.setNonceSynchronizer(new Runnable() {
+      @Override
+      public void run() {
+        getAccount().bindState(getAccountState());
+      }
+    });
+    this.trier = trier;
   }
 
   protected KeyStore getKeyStore() {
@@ -81,7 +92,7 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
   public boolean unlock(final Authentication authentication) {
     try {
       this.account = getKeyStore().unlock(authentication);
-      getCurrentAccount().bindState(getCurrentAccountState());
+      getCurrentAccount().bindState(getAccountState());
       return true;
     } catch (InvalidAuthentiationException e) {
       return false;
@@ -127,7 +138,7 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
 
   @Override
   public AccountState getAccountState() {
-    return getAccountState(getCurrentAccount());
+    return getAccountState(getAccount());
   }
 
   @Override
@@ -137,87 +148,87 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
 
   @Override
   public StakingInfo getStakingInfo() {
-    return getStakingInfo(getCurrentAccount());
+    return getStakingInfo(getAccount());
   }
 
   @Override
   public List<VotingInfo> listVotes() {
-    return listVotesOf(getCurrentAccount());
+    return listVotesOf(getAccount());
   }
 
   @Override
   public long getRecentlyUsedNonce() {
-    return getCurrentAccount().getRecentlyUsedNonce();
+    return getAccount().getRecentlyUsedNonce();
   }
 
   @Override
   public long incrementAndGetNonce() {
-    return getCurrentAccount().incrementAndGetNonce();
+    return getAccount().incrementAndGetNonce();
   }
 
   @Override
   public TxHash createName(final String name) {
-    return sendRequestWithNonce(new Function1<Long, TxHash>() {
+    return trier.request(new Function1<Long, TxHash>() {
       @Override
       public TxHash apply(final Long nonce) {
         return getAergoClient().getAccountOperation()
-            .createName(getCurrentAccount(), name, nonce);
+            .createName(getAccount(), name, nonce);
       }
     });
   }
 
   @Override
   public TxHash updateName(final String name, final AccountAddress newOwner) {
-    return sendRequestWithNonce(new Function1<Long, TxHash>() {
+    return trier.request(new Function1<Long, TxHash>() {
       @Override
       public TxHash apply(final Long nonce) {
         return getAergoClient().getAccountOperation()
-            .updateName(getCurrentAccount(), name, newOwner, nonce);
+            .updateName(getAccount(), name, newOwner, nonce);
       }
     });
   }
 
   @Override
   public TxHash stake(final Aer amount) {
-    return sendRequestWithNonce(new Function1<Long, TxHash>() {
+    return trier.request(new Function1<Long, TxHash>() {
       @Override
       public TxHash apply(final Long nonce) {
         return getAergoClient().getAccountOperation()
-            .stake(getCurrentAccount(), amount, nonce);
+            .stake(getAccount(), amount, nonce);
       }
     });
   }
 
   @Override
   public TxHash unstake(final Aer amount) {
-    return sendRequestWithNonce(new Function1<Long, TxHash>() {
+    return trier.request(new Function1<Long, TxHash>() {
       @Override
       public TxHash apply(final Long nonce) {
         return getAergoClient().getAccountOperation()
-            .unstake(getCurrentAccount(), amount, nonce);
+            .unstake(getAccount(), amount, nonce);
       }
     });
   }
 
   @Override
   public TxHash vote(final PeerId peerId) {
-    return sendRequestWithNonce(new Function1<Long, TxHash>() {
+    return trier.request(new Function1<Long, TxHash>() {
       @Override
       public TxHash apply(final Long nonce) {
         return getAergoClient().getBlockchainOperation()
-            .vote(getCurrentAccount(), peerId, nonce);
+            .vote(getAccount(), peerId, nonce);
       }
     });
   }
 
   @Override
   public Transaction sign(final RawTransaction rawTransaction) {
-    return getAergoClient().getAccountOperation().sign(getCurrentAccount(), rawTransaction);
+    return getAergoClient().getAccountOperation().sign(getAccount(), rawTransaction);
   }
 
   @Override
   public boolean verify(final Transaction transaction) {
-    return getAergoClient().getAccountOperation().verify(getCurrentAccount(), transaction);
+    return getAergoClient().getAccountOperation().verify(getAccount(), transaction);
   }
 
   @Override
@@ -228,15 +239,20 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
   @Override
   public TxHash send(final String recipient, final Aer amount, final Fee fee,
       final BytesValue payload) {
-    final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .from(getCurrentAccount())
-        .to(recipient)
-        .amount(amount)
-        .nonce(getCurrentAccount().incrementAndGetNonce())
-        .fee(fee)
-        .payload(payload)
-        .build();
-    return commit(rawTransaction);
+    return trier.request(new Function1<Long, TxHash>() {
+      @Override
+      public TxHash apply(final Long nonce) {
+        final RawTransaction rawTransaction = RawTransaction.newBuilder()
+            .from(getAccount())
+            .to(recipient)
+            .amount(amount)
+            .nonce(nonce)
+            .fee(fee)
+            .payload(payload)
+            .build();
+        return getAergoClient().getTransactionOperation().commit(sign(rawTransaction));
+      }
+    });
   }
 
   @Override
@@ -247,15 +263,20 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
   @Override
   public TxHash send(final AccountAddress recipient, final Aer amount, final Fee fee,
       final BytesValue payload) {
-    final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .from(getCurrentAccount())
-        .to(recipient)
-        .amount(amount)
-        .nonce(getCurrentAccount().incrementAndGetNonce())
-        .fee(fee)
-        .payload(payload)
-        .build();
-    return commit(rawTransaction);
+    return trier.request(new Function1<Long, TxHash>() {
+      @Override
+      public TxHash apply(final Long nonce) {
+        final RawTransaction rawTransaction = RawTransaction.newBuilder()
+            .from(getAccount())
+            .to(recipient)
+            .amount(amount)
+            .nonce(nonce)
+            .fee(fee)
+            .payload(payload)
+            .build();
+        return getAergoClient().getTransactionOperation().commit(sign(rawTransaction));
+      }
+    });
   }
 
   @Override
@@ -265,77 +286,43 @@ public abstract class InteractiveWallet extends LookupWallet implements Wallet {
 
   @Override
   public TxHash commit(final Transaction signedTransaction) {
-    TxHash txHash = null;
-    Transaction commitTarget = signedTransaction;
-    int i = getNonceRefreshTryCountAndInterval().getCount();
-    while (0 <= i && null == txHash) {
-      try {
-        txHash = getAergoClient().getTransactionOperation().commit(commitTarget);
-        // if success, cache an nonce
-        getCurrentAccount().setNonce(commitTarget.getNonce());
-      } catch (CommitException e) {
-        if (isNonceRelatedException(e)) {
-          syncNonceWithServer();
-          getNonceRefreshTryCountAndInterval().trySleep();
-          commitTarget = sign(
-              RawTransaction.copyOf(signedTransaction, getCurrentAccount().incrementAndGetNonce()));
-          --i;
-        } else {
-          throw e;
-        }
+    return trier.request(new Function0<TxHash>() {
+
+      @Override
+      public TxHash apply() {
+        return getAergoClient().getTransactionOperation().commit(signedTransaction);
       }
-    }
-    return txHash;
+    }, new Function1<Long, TxHash>() {
+
+      @Override
+      public TxHash apply(final Long nonce) {
+        final RawTransaction withNewNonce =
+            RawTransaction.copyOf(signedTransaction, nonce.longValue());
+        return getAergoClient().getTransactionOperation().commit(sign(withNewNonce));
+      }
+    });
   }
 
   @Override
   public ContractTxHash deploy(final ContractDefinition contractDefinition, final Fee fee) {
-    return (ContractTxHash) sendRequestWithNonce(new Function1<Long, TxHash>() {
+    return trier.request(new Function1<Long, TxHash>() {
       @Override
       public TxHash apply(final Long nonce) {
-        return getAergoClient().getContractOperation().deploy(getCurrentAccount(),
+        return getAergoClient().getContractOperation().deploy(getAccount(),
             contractDefinition, nonce, fee);
       }
-    });
+    }).adapt(ContractTxHash.class);
   }
 
   @Override
   public ContractTxHash execute(final ContractInvocation contractInvocation, final Fee fee) {
-    return (ContractTxHash) sendRequestWithNonce(new Function1<Long, TxHash>() {
+    return (ContractTxHash) trier.request(new Function1<Long, TxHash>() {
       @Override
       public TxHash apply(final Long nonce) {
-        return getAergoClient().getContractOperation().execute(getCurrentAccount(),
+        return getAergoClient().getContractOperation().execute(getAccount(),
             contractInvocation, nonce, fee);
       }
-    });
-  }
-
-  protected TxHash sendRequestWithNonce(final Function1<Long, TxHash> requester) {
-    TxHash txHash = null;
-    int i = getNonceRefreshTryCountAndInterval().getCount();
-    while (0 <= i && null == txHash) {
-      try {
-        txHash = requester.apply(getCurrentAccount().incrementAndGetNonce());
-      } catch (CommitException e) {
-        if (isNonceRelatedException(e)) {
-          syncNonceWithServer();
-          getNonceRefreshTryCountAndInterval().trySleep();
-          --i;
-        } else {
-          throw e;
-        }
-      }
-    }
-    return txHash;
-  }
-
-  protected boolean isNonceRelatedException(final CommitException e) {
-    return e.getCommitStatus() == CommitStatus.NONCE_TOO_LOW
-        || e.getCommitStatus() == CommitStatus.TX_HAS_SAME_NONCE;
-  }
-
-  protected void syncNonceWithServer() {
-    getCurrentAccount().bindState(getCurrentAccountState());
+    }).adapt(ContractTxHash.class);
   }
 
 }

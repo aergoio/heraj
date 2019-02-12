@@ -34,7 +34,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import org.slf4j.Logger;
 
-public abstract class LookupWallet implements LookupClient, Closeable {
+public abstract class LookupWallet implements QueryClient, Closeable {
 
   protected static final int SHOW_COUNT = 23;
 

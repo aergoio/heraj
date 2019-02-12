@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.wallet;
+package hera.keystore;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
@@ -21,6 +21,7 @@ import hera.api.model.Transaction;
 import hera.exception.InvalidAuthentiationException;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
+import hera.keystore.InMemoryKeyStore;
 import org.junit.Test;
 
 public class InMemoryKeyStoreTest extends AbstractTestCase {

@@ -610,9 +610,7 @@ public class WalletIT extends AbstractIT {
           .nonce(wallet.getRecentlyUsedNonce()) // wrong
           .build();
 
-      final Transaction signed = wallet.sign(rawTransaction);
-
-      final TxHash hash = wallet.commit(signed);
+      final TxHash hash = wallet.commit(rawTransaction);
       waitForNextBlockToGenerate();
       assertNotNull(wallet.getTransaction(hash));
 

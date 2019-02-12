@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.wallet;
+package hera.keystore;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;

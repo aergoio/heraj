@@ -8,7 +8,6 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
-import hera.api.model.Authentication;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInvocation;
@@ -18,84 +17,32 @@ import hera.api.model.PeerId;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.exception.InvalidAuthentiationException;
 import hera.exception.UnbindedAccountException;
-import hera.exception.UnbindedKeyStoreException;
-import hera.key.AergoKey;
 import java.io.Closeable;
-import java.util.List;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public interface Wallet extends LookupClient, AccountHoldable, Closeable {
+public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Closeable {
 
   /**
-   * Bind a keystore with wallet. This operation has a meaning only for {@link WalletType#Secure}.
-   * For other wallet type, do nothing.
+   * Sign for transaction.
    *
-   * @param keyStore a java keystore
+   * @param rawTransaction raw transaction to sign
+   * @return signed transaction
+   *
+   * @throws UnbindedAccountException if account isn't binded
    */
-  void bindKeyStore(java.security.KeyStore keyStore);
+  Transaction sign(RawTransaction rawTransaction);
 
   /**
-   * Save an aergo key to the key store. This operation has no meaning to {@link WalletType#Naive}.
+   * Verify transaction.
    *
-   * @param aergoKey an aergo key
-   * @param password an encrypt key
+   * @param transaction transaction to verify
+   * @return verify result
    *
-   * @throws UnbindedKeyStoreException if it's {@link WalletType#Secure} and keystore is not binded
+   * @throws UnbindedAccountException if account isn't binded
    */
-  void saveKey(AergoKey aergoKey, String password);
-
-  /**
-   * Export an aergo key of a current account with encrypted.
-   *
-   * @param authentication an authentication
-   * @return encoded encrypted private key
-   *
-   * @throws InvalidAuthentiationException on failure
-   * @throws UnbindedKeyStoreException if it's {@link WalletType#Secure} and keystore is not binded
-   */
-  String exportKey(Authentication authentication);
-
-  /**
-   * Get all the stored addresses in a binded key store.
-   *
-   * @return stored addresses.
-   */
-  List<AccountAddress> listKeyStoreAddresses();
-
-  /**
-   * Unlock account with {@code Authentication}.
-   *
-   * @param authentication an authentication
-   * @return unlock result
-   *
-   * @throws UnbindedKeyStoreException if it's {@link WalletType#Secure} and keystore is not binded
-   */
-  boolean unlock(Authentication authentication);
-
-  /**
-   * Lock current account with {@code Authentication}.
-   *
-   * @param authentication an authentication
-   * @return unlock result
-   *
-   * @throws UnbindedKeyStoreException if it's {@link WalletType#Secure} and keystore is not binded
-   */
-  boolean lock(Authentication authentication);
-
-  /**
-   * Store the keystore to the path. This operation has a meaning only for
-   * {@link WalletType#Secure}. For other wallet type, do nothing.
-   *
-   * @param path a path
-   * @param password a password used in storing key store
-   * @return store result
-   *
-   * @throws UnbindedKeyStoreException if it's {@link WalletType#Secure} and keystore is not binded
-   */
-  boolean storeKeyStore(String path, String password);
+  boolean verify(Transaction transaction);
 
   /**
    * Create name info of a current account.
@@ -139,26 +86,6 @@ public interface Wallet extends LookupClient, AccountHoldable, Closeable {
    * @return voting transaction hash
    */
   TxHash vote(PeerId peerId);
-
-  /**
-   * Sign for transaction.
-   *
-   * @param rawTransaction raw transaction to sign
-   * @return signed transaction
-   *
-   * @throws UnbindedAccountException if account isn't binded
-   */
-  Transaction sign(RawTransaction rawTransaction);
-
-  /**
-   * Verify transaction.
-   *
-   * @param transaction transaction to verify
-   * @return verify result
-   *
-   * @throws UnbindedAccountException if account isn't binded
-   */
-  boolean verify(Transaction transaction);
 
   /**
    * Send <b>aer</b> with {@code fee}.

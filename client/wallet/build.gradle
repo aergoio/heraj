@@ -8,4 +8,6 @@ dependencies {
   implementation project(":core:common")
   implementation project(":core:transport")
   implementation "org.bouncycastle:bcpkix-jdk15on:${bouncyCastleVersion}"
+
+  testImplementation project(":core:protobuf")
 }

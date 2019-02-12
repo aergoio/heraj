@@ -25,6 +25,8 @@ import hera.api.AccountOperation;
 import hera.api.BlockchainOperation;
 import hera.api.ContractOperation;
 import hera.api.TransactionOperation;
+import hera.api.function.Function0;
+import hera.api.function.Function1;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountFactory;
@@ -44,18 +46,18 @@ import hera.api.model.PeerId;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.api.model.internal.Time;
-import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
 import hera.exception.InvalidAuthentiationException;
 import hera.exception.WalletException;
 import hera.key.AergoKeyGenerator;
+import hera.keystore.KeyStore;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class InteractiveWalletTest extends AbstractTestCase {
+public class AbstractWalletTest extends AbstractTestCase {
 
   private final AccountAddress accountAddress =
       AccountAddress.of("AmLo9CGR3xFZPVKZ5moSVRNW1kyscY9rVkCvgrpwNJjRUPUWadC5");
@@ -66,9 +68,20 @@ public class InteractiveWalletTest extends AbstractTestCase {
   private final ContractAddress contractAddress =
       ContractAddress.of("AmLo9CGR3xFZPVKZ5moSVRNW1kyscY9rVkCvgrpwNJjRUPUWadC5");
 
+  protected TransactionTrier trier;
+
+  @SuppressWarnings("unchecked")
+  @Before
+  public void setUp() {
+    trier = mock(TransactionTrier.class);
+    when(trier.request(any(Function1.class))).thenReturn(TxHash.of(BytesValue.EMPTY));
+    when(trier.request(any(Function0.class), any(Function1.class)))
+        .thenReturn(TxHash.of(BytesValue.EMPTY));
+  }
+
   @Test
   public void testGetAccountState() {
-    final InteractiveWallet wallet = mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final AccountOperation mockOperation = mock(AccountOperation.class);
     when(mockOperation.getState(any(Account.class))).thenReturn(mock(AccountState.class));
@@ -81,16 +94,16 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
   @Test
   public void testSavekey() {
-    InteractiveWallet wallet =
-        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    AbstractWallet wallet =
+        mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     wallet.keyStore = mock(KeyStore.class);
     wallet.saveKey(new AergoKeyGenerator().create(), randomUUID().toString());
   }
 
   @Test
   public void testExportKey() {
-    InteractiveWallet wallet =
-        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    AbstractWallet wallet =
+        mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     final KeyStore keyStore = mock(KeyStore.class);
     when(keyStore.export(any(Authentication.class))).thenReturn(encryptedPrivatekey);
     wallet.keyStore = keyStore;
@@ -103,8 +116,8 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
   @Test
   public void testListKeyStoreAddresses() {
-    InteractiveWallet wallet =
-        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    AbstractWallet wallet =
+        mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     final KeyStore keyStore = mock(KeyStore.class);
     when(keyStore.listStoredAddresses()).thenReturn(new ArrayList<AccountAddress>());
     wallet.keyStore = keyStore;
@@ -115,8 +128,8 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
   @Test
   public void testUnlockOnSuccess() {
-    InteractiveWallet wallet =
-        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    AbstractWallet wallet =
+        mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
 
     final AergoClient mockClient = mock(AergoClient.class);
     final AccountOperation mockOperation = mock(AccountOperation.class);
@@ -136,8 +149,8 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
   @Test
   public void testUnlockOnFailure() {
-    InteractiveWallet wallet =
-        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    AbstractWallet wallet =
+        mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     final KeyStore keyStore = mock(KeyStore.class);
     when(keyStore.unlock(any(Authentication.class)))
         .thenThrow(new InvalidAuthentiationException("invalid"));
@@ -151,8 +164,8 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
   @Test
   public void testLock() {
-    InteractiveWallet wallet =
-        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    AbstractWallet wallet =
+        mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     wallet.keyStore = mock(KeyStore.class);
 
     final Authentication authentication =
@@ -163,8 +176,8 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
   @Test
   public void testStoreKeyStoreOnSuccess() {
-    InteractiveWallet wallet =
-        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    AbstractWallet wallet =
+        mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     wallet.keyStore = mock(KeyStore.class);
 
     final boolean storeResult =
@@ -174,8 +187,8 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
   @Test
   public void testStoreKeyStoreOnFail() {
-    InteractiveWallet wallet =
-        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    AbstractWallet wallet =
+        mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     KeyStore mockKeyStore = mock(KeyStore.class);
     doThrow(new WalletException("")).when(mockKeyStore).store(anyString(), anyString());
     wallet.keyStore = mockKeyStore;
@@ -187,8 +200,8 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
   @Test
   public void testSign() {
-    InteractiveWallet wallet =
-        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    AbstractWallet wallet =
+        mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final AccountOperation mockOperation = mock(AccountOperation.class);
     when(mockOperation.sign(any(Account.class), any(RawTransaction.class)))
@@ -204,8 +217,8 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
   @Test
   public void testVerify() {
-    InteractiveWallet wallet =
-        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    AbstractWallet wallet =
+        mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final AccountOperation mockOperation = mock(AccountOperation.class);
     when(mockOperation.verify(any(Account.class), any(Transaction.class))).thenReturn(true);
@@ -220,18 +233,17 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
   @Test
   public void testCreateName() {
-    InteractiveWallet wallet =
-        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    AbstractWallet wallet =
+        mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final AccountOperation mockOperation = mock(AccountOperation.class);
     when(mockOperation.createName(any(Account.class), anyString(), anyLong()))
         .thenReturn(mock(TxHash.class));
     when(mockClient.getAccountOperation()).thenReturn(mockOperation);
     when(wallet.getAergoClient()).thenReturn(mockClient);
-    when(wallet.getNonceRefreshTryCountAndInterval())
-        .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
 
     wallet.account = new AccountFactory().create(accountAddress);
+    wallet.trier = trier;
 
     final TxHash defineHash = wallet.createName(randomUUID().toString());
     assertNotNull(defineHash);
@@ -239,18 +251,17 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
   @Test
   public void testUpdateName() {
-    InteractiveWallet wallet =
-        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    AbstractWallet wallet =
+        mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final AccountOperation mockOperation = mock(AccountOperation.class);
     when(mockOperation.updateName(any(Account.class), anyString(), any(AccountAddress.class),
         anyLong())).thenReturn(mock(TxHash.class));
     when(mockClient.getAccountOperation()).thenReturn(mockOperation);
     when(wallet.getAergoClient()).thenReturn(mockClient);
-    when(wallet.getNonceRefreshTryCountAndInterval())
-        .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
 
     wallet.account = new AccountFactory().create(accountAddress);
+    wallet.trier = trier;
 
     final TxHash updateHash = wallet.updateName(randomUUID().toString(), accountAddress);
     assertNotNull(updateHash);
@@ -258,18 +269,17 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
   @Test
   public void testStake() {
-    InteractiveWallet wallet =
-        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    AbstractWallet wallet =
+        mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final AccountOperation mockOperation = mock(AccountOperation.class);
     when(mockOperation.stake(any(Account.class), any(Aer.class), anyLong()))
         .thenReturn(mock(TxHash.class));
     when(mockClient.getAccountOperation()).thenReturn(mockOperation);
     when(wallet.getAergoClient()).thenReturn(mockClient);
-    when(wallet.getNonceRefreshTryCountAndInterval())
-        .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
 
     wallet.account = new AccountFactory().create(accountAddress);
+    wallet.trier = trier;
 
     final TxHash stakingHash = wallet.stake(Aer.AERGO_ONE);
     assertNotNull(stakingHash);
@@ -277,18 +287,17 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
   @Test
   public void testUnstake() {
-    InteractiveWallet wallet =
-        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    AbstractWallet wallet =
+        mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final AccountOperation mockOperation = mock(AccountOperation.class);
     when(mockOperation.unstake(any(Account.class), any(Aer.class), anyLong()))
         .thenReturn(mock(TxHash.class));
     when(mockClient.getAccountOperation()).thenReturn(mockOperation);
     when(wallet.getAergoClient()).thenReturn(mockClient);
-    when(wallet.getNonceRefreshTryCountAndInterval())
-        .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
 
     wallet.account = new AccountFactory().create(accountAddress);
+    wallet.trier = trier;
 
     final TxHash stakingHash = wallet.unstake(Aer.AERGO_ONE);
     assertNotNull(stakingHash);
@@ -296,18 +305,17 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
   @Test
   public void testVote() {
-    InteractiveWallet wallet =
-        mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    AbstractWallet wallet =
+        mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
     when(mockOperation.vote(any(Account.class), any(PeerId.class), anyLong()))
         .thenReturn(mock(TxHash.class));
     when(mockClient.getBlockchainOperation()).thenReturn(mockOperation);
     when(wallet.getAergoClient()).thenReturn(mockClient);
-    when(wallet.getNonceRefreshTryCountAndInterval())
-        .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
 
     wallet.account = new AccountFactory().create(accountAddress);
+    wallet.trier = trier;
 
     final TxHash votingHash = wallet.vote(new PeerId(of(randomUUID().toString().getBytes())));
     assertNotNull(votingHash);
@@ -315,7 +323,7 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
   @Test
   public void testSendWithName() {
-    final InteractiveWallet wallet = mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     wallet.account = new AccountFactory().create(accountAddress);
 
     final AergoClient mockClient = mock(AergoClient.class);
@@ -327,10 +335,9 @@ public class InteractiveWalletTest extends AbstractTestCase {
     when(mockAccountOperation.sign(any(Account.class), any(RawTransaction.class)))
         .thenReturn(mock(Transaction.class));
     when(mockClient.getAccountOperation()).thenReturn(mockAccountOperation);
-
     when(wallet.getAergoClient()).thenReturn(mockClient);
-    when(wallet.getNonceRefreshTryCountAndInterval())
-        .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
+
+    wallet.trier = trier;
 
     assertNotNull(
         wallet.send(randomUUID().toString(), Aer.of("1000", Unit.AER), Fee.getDefaultFee()));
@@ -338,7 +345,7 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
   @Test
   public void testSendWithAddress() {
-    final InteractiveWallet wallet = mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     wallet.account = new AccountFactory().create(accountAddress);
 
     final AergoClient mockClient = mock(AergoClient.class);
@@ -350,17 +357,16 @@ public class InteractiveWalletTest extends AbstractTestCase {
     when(mockAccountOperation.sign(any(Account.class), any(RawTransaction.class)))
         .thenReturn(mock(Transaction.class));
     when(mockClient.getAccountOperation()).thenReturn(mockAccountOperation);
-
     when(wallet.getAergoClient()).thenReturn(mockClient);
-    when(wallet.getNonceRefreshTryCountAndInterval())
-        .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
+
+    wallet.trier = trier;
 
     assertNotNull(wallet.send(accountAddress, Aer.of("1000", Unit.AER), Fee.getDefaultFee()));
   }
 
   @Test
   public void testDeploy() {
-    final InteractiveWallet wallet = mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     wallet.account = new AccountFactory().create(accountAddress);
     final AergoClient mockClient = mock(AergoClient.class);
     final ContractOperation mockOperation = mock(ContractOperation.class);
@@ -369,8 +375,8 @@ public class InteractiveWalletTest extends AbstractTestCase {
             .thenReturn(ContractTxHash.of(BytesValue.EMPTY));
     when(mockClient.getContractOperation()).thenReturn(mockOperation);
     when(wallet.getAergoClient()).thenReturn(mockClient);
-    when(wallet.getNonceRefreshTryCountAndInterval())
-        .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
+
+    wallet.trier = trier;
 
     final ContractDefinition definition = new ContractDefinition(encodeBase58WithCheck(
         of(envelop(randomUUID().toString().getBytes(), ContractDefinition.PAYLOAD_VERSION))));
@@ -379,17 +385,16 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
   @Test
   public void testExecute() {
-    final InteractiveWallet wallet = mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     wallet.account = new AccountFactory().create(accountAddress);
     final AergoClient mockClient = mock(AergoClient.class);
     final ContractOperation mockOperation = mock(ContractOperation.class);
     when(mockOperation.execute(any(Account.class), any(ContractInvocation.class), anyLong(),
-        any(Fee.class)))
-            .thenReturn(ContractTxHash.of(BytesValue.EMPTY));
+        any(Fee.class))).thenReturn(ContractTxHash.of(BytesValue.EMPTY));
     when(mockClient.getContractOperation()).thenReturn(mockOperation);
     when(wallet.getAergoClient()).thenReturn(mockClient);
-    when(wallet.getNonceRefreshTryCountAndInterval())
-        .thenReturn(TryCountAndInterval.of(1, Time.of(1000L)));
+
+    wallet.trier = trier;
 
     assertNotNull(wallet.execute(new ContractInvocation(contractAddress, new ContractFunction("")),
         Fee.getDefaultFee()));
@@ -397,14 +402,14 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
   @Test
   public void testGetAccount() {
-    final InteractiveWallet wallet = mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     wallet.account = mock(Account.class);
     assertNotNull(wallet.getCurrentAccount());
   }
 
   @Test
   public void testGetAccountOnNoAccount() {
-    final InteractiveWallet wallet = mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     try {
       wallet.getCurrentAccount();
       fail();
@@ -415,7 +420,7 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
   @Test
   public void testGetRecentlyUsedNonce() {
-    final InteractiveWallet wallet = mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     wallet.account = new AccountFactory().create(accountAddress);
 
     assertNotNull(wallet.getRecentlyUsedNonce());
@@ -423,7 +428,7 @@ public class InteractiveWalletTest extends AbstractTestCase {
 
   @Test
   public void testIncrementAndGetNonce() {
-    final InteractiveWallet wallet = mock(InteractiveWallet.class, Mockito.CALLS_REAL_METHODS);
+    final AbstractWallet wallet = mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     wallet.account = new AccountFactory().create(accountAddress);
 
     final long preNonce = wallet.getRecentlyUsedNonce();

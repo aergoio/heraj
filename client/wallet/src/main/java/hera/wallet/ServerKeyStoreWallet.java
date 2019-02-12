@@ -8,11 +8,12 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
+import hera.keystore.ServerKeyStore;
 import java.security.KeyStore;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public class ServerKeyStoreWallet extends InteractiveWallet {
+public class ServerKeyStoreWallet extends AbstractWallet {
 
   ServerKeyStoreWallet(final AergoClient aergoClient,
       final TryCountAndInterval nonceRefreshTryCount) {

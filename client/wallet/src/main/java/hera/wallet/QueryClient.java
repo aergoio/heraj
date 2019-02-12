@@ -31,7 +31,7 @@ import java.util.List;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-public interface LookupClient extends Closeable {
+public interface QueryClient extends Closeable {
 
   /**
    * Get account state by address.
