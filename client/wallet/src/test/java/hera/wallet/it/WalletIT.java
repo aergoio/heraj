@@ -199,7 +199,7 @@ public class WalletIT extends AbstractIT {
   }
 
   @Test
-  public void testLookup() throws Exception {
+  public void testQuery() throws Exception {
     for (Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
@@ -215,13 +215,25 @@ public class WalletIT extends AbstractIT {
       assertNotNull(wallet.listNodePeers());
       assertNotNull(wallet.listPeerMetrics());
       assertNotNull(wallet.getNodeStatus());
-      assertNotNull(wallet.getBestBlockHeight());
+      assertNotNull(wallet.getChainInfo());
 
       final BlockHash blockhash = wallet.getBestBlockHash();
       assertNotNull(blockhash);
-      List<BlockHeader> blockHeadersByHash = wallet.listBlockHeaders(blockhash, 10);
-      List<BlockHeader> blockHeadersByHeight = wallet.listBlockHeaders(blockhash, 10);
-      assertEquals(blockHeadersByHash, blockHeadersByHeight);
+
+      final long blockHeight = wallet.getBestBlockHeight();
+      assertNotNull(blockHeight);
+
+      final BlockHeader blockHeaderByHash = wallet.getBlockHeader(blockhash);
+      assertNotNull(blockHeaderByHash);
+
+      final BlockHeader blockHeaderByHeight = wallet.getBlockHeader(blockhash);
+      assertNotNull(blockHeaderByHeight);
+
+      final List<BlockHeader> blockHeadersByHash = wallet.listBlockHeaders(blockhash, 10);
+      assertNotNull(blockHeadersByHash);
+
+      final List<BlockHeader> blockHeadersByHeight = wallet.listBlockHeaders(blockHeight, 10);
+      assertNotNull(blockHeadersByHeight);
 
       wallet.close();
     }

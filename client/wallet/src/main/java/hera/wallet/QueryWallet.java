@@ -13,6 +13,7 @@ import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
 import hera.api.model.BlockProducer;
+import hera.api.model.ChainInfo;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
@@ -34,7 +35,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import org.slf4j.Logger;
 
-public abstract class LookupWallet implements QueryClient, Closeable {
+public abstract class QueryWallet implements QueryClient, Closeable {
 
   protected static final int SHOW_COUNT = 23;
 
@@ -43,7 +44,7 @@ public abstract class LookupWallet implements QueryClient, Closeable {
   @Getter(value = AccessLevel.PROTECTED)
   protected final AergoClient aergoClient;
 
-  protected LookupWallet(final AergoClient aergoClient) {
+  protected QueryWallet(final AergoClient aergoClient) {
     logger.debug("Binded client: {}", aergoClient);
     this.aergoClient = aergoClient;
   }
@@ -109,6 +110,11 @@ public abstract class LookupWallet implements QueryClient, Closeable {
   }
 
   @Override
+  public ChainInfo getChainInfo() {
+    return getAergoClient().getBlockchainOperation().getChainInfo();
+  }
+
+  @Override
   public List<Peer> listNodePeers() {
     return getAergoClient().getBlockchainOperation().listPeers();
   }
@@ -124,13 +130,13 @@ public abstract class LookupWallet implements QueryClient, Closeable {
   }
 
   @Override
-  public Block getBlock(final BlockHash blockHash) {
-    return getAergoClient().getBlockOperation().getBlock(blockHash);
+  public BlockHeader getBlockHeader(final BlockHash blockHash) {
+    return getAergoClient().getBlockOperation().getBlockHeader(blockHash);
   }
 
   @Override
-  public Block getBlock(final long height) {
-    return getAergoClient().getBlockOperation().getBlock(height);
+  public BlockHeader getBlockHeader(final long height) {
+    return getAergoClient().getBlockOperation().getBlockHeader(height);
   }
 
   @Override
@@ -141,6 +147,16 @@ public abstract class LookupWallet implements QueryClient, Closeable {
   @Override
   public List<BlockHeader> listBlockHeaders(final long height, final int size) {
     return getAergoClient().getBlockOperation().listBlockHeaders(height, size);
+  }
+
+  @Override
+  public Block getBlock(final BlockHash blockHash) {
+    return getAergoClient().getBlockOperation().getBlock(blockHash);
+  }
+
+  @Override
+  public Block getBlock(final long height) {
+    return getAergoClient().getBlockOperation().getBlock(height);
   }
 
   @Override

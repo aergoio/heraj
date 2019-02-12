@@ -35,7 +35,7 @@ import hera.keystore.KeyStore;
 import java.util.List;
 import org.slf4j.Logger;
 
-public abstract class AbstractWallet extends LookupWallet implements Wallet {
+public abstract class AbstractWallet extends QueryWallet implements Wallet {
 
   protected final Logger logger = getLogger(getClass());
 

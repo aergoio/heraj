@@ -13,7 +13,7 @@ import hera.api.model.VotingInfo;
 import hera.exception.UnbindedAccountException;
 import java.util.List;
 
-@ApiAudience.Private
+@ApiAudience.Public
 @ApiStability.Unstable
 public interface AccountHoldable {
 

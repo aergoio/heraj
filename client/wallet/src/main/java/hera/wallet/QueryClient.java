@@ -13,6 +13,7 @@ import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
 import hera.api.model.BlockProducer;
+import hera.api.model.ChainInfo;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
@@ -29,7 +30,7 @@ import hera.api.model.VotingInfo;
 import java.io.Closeable;
 import java.util.List;
 
-@ApiAudience.Private
+@ApiAudience.Public
 @ApiStability.Unstable
 public interface QueryClient extends Closeable {
 
@@ -128,6 +129,13 @@ public interface QueryClient extends Closeable {
   long getBestBlockHeight();
 
   /**
+   * Get chain info of current node.
+   *
+   * @return a chain info
+   */
+  ChainInfo getChainInfo();
+
+  /**
    * Get blockchain peer addresses.
    *
    * @return peer addresses
@@ -149,20 +157,20 @@ public interface QueryClient extends Closeable {
   NodeStatus getNodeStatus();
 
   /**
-   * Get block by hash.
+   * Get block header by hash.
    *
    * @param blockHash block hash
    * @return block
    */
-  Block getBlock(BlockHash blockHash);
+  BlockHeader getBlockHeader(BlockHash blockHash);
 
   /**
-   * Get block by height.
+   * Get block header by height.
    *
    * @param height block's height
    * @return block
    */
-  Block getBlock(long height);
+  BlockHeader getBlockHeader(long height);
 
   /**
    * Get block headers of {@code size} backward starting from block for provided hash.
@@ -181,6 +189,22 @@ public interface QueryClient extends Closeable {
    * @return block list
    */
   List<BlockHeader> listBlockHeaders(long height, int size);
+
+  /**
+   * Get block by hash.
+   *
+   * @param blockHash block hash
+   * @return block
+   */
+  Block getBlock(BlockHash blockHash);
+
+  /**
+   * Get block by height.
+   *
+   * @param height block's height
+   * @return block
+   */
+  Block getBlock(long height);
 
   /**
    * Get transaction.
