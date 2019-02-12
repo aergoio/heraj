@@ -41,11 +41,8 @@ public class InMemoryKeyStore implements KeyStore, Signer {
   protected Set<AccountAddress> storedAddressSet =
       newSetFromMap(new ConcurrentHashMap<AccountAddress, Boolean>());
 
-  protected Set<Authentication> unlockedAuthSet =
-      newSetFromMap(new ConcurrentHashMap<Authentication, Boolean>());
-
-  protected Map<AccountAddress, AergoKey> address2Unlocked =
-      new ConcurrentHashMap<AccountAddress, AergoKey>();
+  protected Authentication currentUnlockedAuth;
+  protected AergoKey currentUnlockedKey;
 
   @Override
   public void saveKey(final AergoKey key, final String password) {
@@ -83,11 +80,11 @@ public class InMemoryKeyStore implements KeyStore, Signer {
       if (false == auth2EncryptedPrivateKey.containsKey(digestedAuth)) {
         throw new InvalidAuthentiationException("A key mappged with Authentication isn't exist");
       }
-      unlockedAuthSet.add(digestedAuth);
       final EncryptedPrivateKey encrypted =
           auth2EncryptedPrivateKey.get(digestedAuth);
       final AergoKey key = AergoKey.of(encrypted, authentication.getPassword());
-      address2Unlocked.put(key.getAddress(), key);
+      currentUnlockedAuth = digestedAuth;
+      currentUnlockedKey = key;
       return new AccountFactory().create(key.getAddress(), this);
     } catch (WalletException e) {
       throw e;
@@ -99,11 +96,11 @@ public class InMemoryKeyStore implements KeyStore, Signer {
   @Override
   public void lock(final Authentication authentication) {
     final Authentication digested = digest(authentication);
-    if (false == unlockedAuthSet.contains(digested)) {
+    if (!currentUnlockedAuth.equals(digested)) {
       throw new InvalidAuthentiationException("Unable to lock account");
     }
-    unlockedAuthSet.remove(digested);
-    address2Unlocked.remove(authentication.getAddress());
+    currentUnlockedAuth = null;
+    currentUnlockedKey = null;
   }
 
   protected Authentication digest(final Authentication rawAuthentication) {
@@ -142,11 +139,10 @@ public class InMemoryKeyStore implements KeyStore, Signer {
   }
 
   protected AergoKey getUnlockedKey(final AccountAddress address) {
-    final AergoKey key = address2Unlocked.get(address);
-    if (null == key) {
+    if (null == currentUnlockedKey || !currentUnlockedKey.getAddress().equals(address)) {
       throw new LockedAccountException();
     }
-    return key;
+    return currentUnlockedKey;
   }
 
   @Override

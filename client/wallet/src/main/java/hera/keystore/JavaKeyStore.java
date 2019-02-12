@@ -5,7 +5,6 @@
 package hera.keystore;
 
 import static java.util.Collections.list;
-import static java.util.Collections.newSetFromMap;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
@@ -35,9 +34,6 @@ import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -63,11 +59,8 @@ public class JavaKeyStore implements KeyStore, Signer {
   @NonNull
   protected final java.security.KeyStore delegate;
 
-  protected Set<Authentication> unlockedAuthSet =
-      newSetFromMap(new ConcurrentHashMap<Authentication, Boolean>());
-
-  protected Map<AccountAddress, AergoKey> address2Unlocked =
-      new ConcurrentHashMap<AccountAddress, AergoKey>();
+  protected Authentication currentUnlockedAuth;
+  protected AergoKey currentUnlockedKey;
 
   @Override
   public void saveKey(final AergoKey key, final String password) {
@@ -133,8 +126,8 @@ public class JavaKeyStore implements KeyStore, Signer {
       Key privateKey = delegate.getKey(authentication.getAddress().getAlias(),
           authentication.getPassword().toCharArray());
       final AergoKey key = restoreKey(privateKey);
-      unlockedAuthSet.add(digest(authentication));
-      address2Unlocked.put(key.getAddress(), key);
+      currentUnlockedAuth = digest(authentication);
+      currentUnlockedKey = key;
       return new AccountFactory().create(key.getAddress(), this);
     } catch (KeyStoreException e) {
       throw new WalletException(e);
@@ -159,11 +152,11 @@ public class JavaKeyStore implements KeyStore, Signer {
   @Override
   public void lock(final Authentication authentication) {
     final Authentication digested = digest(authentication);
-    if (false == unlockedAuthSet.contains(digested)) {
+    if (!currentUnlockedAuth.equals(digested)) {
       throw new InvalidAuthentiationException("Unable to lock account");
     }
-    unlockedAuthSet.remove(digested);
-    address2Unlocked.remove(authentication.getAddress());
+    currentUnlockedAuth = null;
+    currentUnlockedKey = null;
   }
 
   protected Authentication digest(final Authentication rawAuthentication) {
@@ -199,11 +192,10 @@ public class JavaKeyStore implements KeyStore, Signer {
   }
 
   protected AergoKey getUnlockedKey(final AccountAddress address) {
-    final AergoKey key = address2Unlocked.get(address);
-    if (null == key) {
+    if (null == currentUnlockedKey || !currentUnlockedKey.getAddress().equals(address)) {
       throw new LockedAccountException();
     }
-    return key;
+    return currentUnlockedKey;
   }
 
   @Override
