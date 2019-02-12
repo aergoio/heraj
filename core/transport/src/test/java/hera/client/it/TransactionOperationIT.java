@@ -19,8 +19,6 @@ import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.client.AergoClientBuilder;
-import hera.client.AergoClient;
 import hera.exception.CommitException;
 import hera.key.AergoKeyGenerator;
 import org.junit.Test;
@@ -249,7 +247,7 @@ public class TransactionOperationIT extends AbstractIT {
           .from(account)
           .to(recipient)
           .amount(amount)
-          .nonce(account.getNonce()) // invalid
+          .nonce(account.getRecentlyUsedNonce()) // invalid
           .fee(fee)
           .build();
 
@@ -274,7 +272,7 @@ public class TransactionOperationIT extends AbstractIT {
           .from(account)
           .to(recipient)
           .amount(amount)
-          .nonce(account.getNonce()) // invalid
+          .nonce(account.getRecentlyUsedNonce()) // invalid
           .fee(fee)
           .build();
 
@@ -334,7 +332,7 @@ public class TransactionOperationIT extends AbstractIT {
         .from(account)
         .to(recipient)
         .amount(amount)
-        .nonce(account.getNonce()) // invalid
+        .nonce(account.getRecentlyUsedNonce()) // invalid
         .fee(fee)
         .build();
 

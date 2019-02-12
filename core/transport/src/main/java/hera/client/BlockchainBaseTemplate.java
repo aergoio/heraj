@@ -23,6 +23,7 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.BlockProducer;
 import hera.api.model.BlockchainStatus;
+import hera.api.model.ChainInfo;
 import hera.api.model.Fee;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
@@ -36,6 +37,7 @@ import hera.api.model.internal.GovernanceRecipient;
 import hera.client.PayloadResolver.Type;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.BlockchainStatusConverterFactory;
+import hera.transport.ChainInfoConverterFactory;
 import hera.transport.ModelConverter;
 import hera.transport.NodeStatusConverterFactory;
 import hera.transport.PeerConverterFactory;
@@ -60,6 +62,9 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
 
   protected final ModelConverter<BlockchainStatus, Rpc.BlockchainStatus> blockchainConverter =
       new BlockchainStatusConverterFactory().create();
+
+  protected final ModelConverter<ChainInfo, Rpc.ChainInfo> chainInfoConverter =
+      new ChainInfoConverterFactory().create();
 
   protected final ModelConverter<Peer, Rpc.Peer> peerConverter =
       new PeerConverterFactory().create();
@@ -124,6 +129,39 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
               @Override
               public BlockchainStatus apply(Rpc.BlockchainStatus s) {
                 return blockchainConverter.convertToDomainModel(s);
+              }
+            });
+            addCallback(listenableFuture, callback, directExecutor());
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+          return nextFuture;
+        }
+      };
+
+  @Getter
+  private final Function0<FinishableFuture<ChainInfo>> chainInfoFunction =
+      new Function0<FinishableFuture<ChainInfo>>() {
+
+        @Override
+        public FinishableFuture<ChainInfo> apply() {
+          logger.debug("Get chain info");
+
+          FinishableFuture<ChainInfo> nextFuture = new FinishableFuture<ChainInfo>();
+          try {
+            final Rpc.Empty empty = Rpc.Empty.newBuilder().build();
+            logger.trace("AergoService getChainInfo arg: {}", empty);
+
+            ListenableFuture<Rpc.ChainInfo> listenableFuture =
+                aergoService.getChainInfo(empty);
+            FutureChain<Rpc.ChainInfo, ChainInfo> callback =
+                new FutureChain<Rpc.ChainInfo, ChainInfo>(nextFuture,
+                    contextProvider.get());
+            callback.setSuccessHandler(new Function1<Rpc.ChainInfo, ChainInfo>() {
+
+              @Override
+              public ChainInfo apply(final Rpc.ChainInfo rpcChainInfo) {
+                return chainInfoConverter.convertToDomainModel(rpcChainInfo);
               }
             });
             addCallback(listenableFuture, callback, directExecutor());

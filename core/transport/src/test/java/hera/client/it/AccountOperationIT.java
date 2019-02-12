@@ -7,6 +7,7 @@ package hera.client.it;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+
 import hera.api.model.Account;
 import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
@@ -50,7 +51,7 @@ public class AccountOperationIT extends AbstractIT {
 
       unlockAccount(account, password);
       try {
-        aergoClient.getAccountOperation().createName(account, name, account.getNonce());
+        aergoClient.getAccountOperation().createName(account, name, account.getRecentlyUsedNonce());
         fail();
       } catch (CommitException e) {
         assertEquals(CommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
@@ -77,7 +78,7 @@ public class AccountOperationIT extends AbstractIT {
       unlockAccount(account, password);
       try {
         aergoClient.getAccountOperation().updateName(account, name, passed.getAddress(),
-            account.getNonce());
+            account.getRecentlyUsedNonce());
         fail();
       } catch (CommitException e) {
         assertEquals(CommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
@@ -117,7 +118,8 @@ public class AccountOperationIT extends AbstractIT {
       final AccountState state = aergoClient.getAccountOperation().getState(account);
       unlockAccount(account, password);
       try {
-        aergoClient.getAccountOperation().stake(account, state.getBalance(), account.getNonce());
+        aergoClient.getAccountOperation().stake(account, state.getBalance(),
+            account.getRecentlyUsedNonce());
         fail();
       } catch (CommitException e) {
         assertEquals(CommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
@@ -144,7 +146,7 @@ public class AccountOperationIT extends AbstractIT {
 
       try {
         aergoClient.getAccountOperation().unstake(account, stakingInfo.getAmount(),
-            account.getNonce());
+            account.getRecentlyUsedNonce());
         fail();
       } catch (CommitException e) {
         assertEquals(CommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());

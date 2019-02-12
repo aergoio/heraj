@@ -22,6 +22,7 @@ import hera.api.model.AccountFactory;
 import hera.api.model.BlockProducer;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.BytesValue;
+import hera.api.model.ChainInfo;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerId;
@@ -81,6 +82,26 @@ public class BlockchainBaseTemplateTest extends AbstractTestCase {
     final FinishableFuture<BlockchainStatus> blockchainStatus =
         blockchainBaseTemplate.getBlockchainStatusFunction().apply();
     assertNotNull(blockchainStatus.get());
+  }
+
+  @Test
+  public void testGetChainInfo() {
+    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
+    ListenableFuture<Rpc.ChainInfo> mockListenableFuture =
+        service.submit(new Callable<Rpc.ChainInfo>() {
+          @Override
+          public Rpc.ChainInfo call() throws Exception {
+            return Rpc.ChainInfo.newBuilder().build();
+          }
+        });
+    when(aergoService.getChainInfo(any(Rpc.Empty.class))).thenReturn(mockListenableFuture);
+
+    final BlockchainBaseTemplate blockchainBaseTemplate =
+        supplyBlockchainBaseTemplate(aergoService);
+
+    final FinishableFuture<ChainInfo> chainInfo =
+        blockchainBaseTemplate.getChainInfoFunction().apply();
+    assertNotNull(chainInfo.get());
   }
 
   @Test

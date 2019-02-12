@@ -5,6 +5,7 @@
 package hera.client;
 
 import static hera.TransportConstants.BLOCKCHAIN_BLOCKCHAINSTATUS;
+import static hera.TransportConstants.BLOCKCHAIN_CHAININFO;
 import static hera.TransportConstants.BLOCKCHAIN_LIST_ELECTED_BPS;
 import static hera.TransportConstants.BLOCKCHAIN_LIST_PEERS;
 import static hera.TransportConstants.BLOCKCHAIN_LIST_VOTESOF;
@@ -31,6 +32,7 @@ import hera.api.model.BlockHash;
 import hera.api.model.BlockProducer;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.BytesValue;
+import hera.api.model.ChainInfo;
 import hera.api.model.ModuleStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
@@ -80,6 +82,27 @@ public class BlockchainTemplateTest extends AbstractTestCase {
     assertNotNull(blockchainStatus);
     assertEquals(BLOCKCHAIN_BLOCKCHAINSTATUS,
         ((WithIdentity) blockchainTemplate.getBlockchainStatusFunction()).getIdentity());
+  }
+
+  @Test
+  public void testGetChainInfo() {
+    final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
+    final FinishableFuture<ChainInfo> future = new FinishableFuture<ChainInfo>();
+    future.success(mock(ChainInfo.class));
+    when(base.getChainInfoFunction())
+        .thenReturn(new Function0<FinishableFuture<ChainInfo>>() {
+          @Override
+          public FinishableFuture<ChainInfo> apply() {
+            return future;
+          }
+        });
+
+    final BlockchainTemplate blockchainTemplate = supplyBlockchainTemplate(base);
+
+    final ChainInfo chainInfo = blockchainTemplate.getChainInfo();
+    assertNotNull(chainInfo);
+    assertEquals(BLOCKCHAIN_CHAININFO,
+        ((WithIdentity) blockchainTemplate.getChainInfoFunction()).getIdentity());
   }
 
   @Test

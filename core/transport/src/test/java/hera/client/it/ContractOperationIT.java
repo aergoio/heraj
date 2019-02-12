@@ -143,7 +143,7 @@ public class ContractOperationIT extends AbstractIT {
           .encodedContract(contractPayload).build();
       try {
         aergoClient.getContractOperation().deploy(account,
-            definition, account.getNonce(), fee);
+            definition, account.getRecentlyUsedNonce(), fee);
         fail();
       } catch (Exception e) {
         // good we expected this
@@ -177,7 +177,7 @@ public class ContractOperationIT extends AbstractIT {
           .build();
       try {
         aergoClient.getContractOperation().execute(account,
-            execution, account.getNonce(), Fee.getDefaultFee());
+            execution, account.getRecentlyUsedNonce(), Fee.getDefaultFee());
         fail();
       } catch (Exception e) {
         // good we expected this

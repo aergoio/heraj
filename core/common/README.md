@@ -34,6 +34,8 @@ Describe basic models of blockchain.
 * StakingInfo
 * BlockProducer
 * VotingInfo
+* ChainId
+* ChainInfo
 
 #### Transaction related
 

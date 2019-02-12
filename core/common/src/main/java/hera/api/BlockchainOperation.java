@@ -10,6 +10,7 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.BlockProducer;
 import hera.api.model.BlockchainStatus;
+import hera.api.model.ChainInfo;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerId;
@@ -28,6 +29,13 @@ public interface BlockchainOperation {
    * @return blockchain status
    */
   BlockchainStatus getBlockchainStatus();
+
+  /**
+   * Get chain info of current node.
+   *
+   * @return a chain info
+   */
+  ChainInfo getChainInfo();
 
   /**
    * Get blockchain peer addresses.
