@@ -69,11 +69,12 @@ public class SendAergo extends AbstractExample {
         .withNonBlockingConnect()
         .build(WalletType.Secure);
 
-    // bind keystore
-    final KeyStore keyStore = KeyStore.getInstance("JKS");
     // here, make a new keystore
     // if exists, load with input stream and password
+    final KeyStore keyStore = KeyStore.getInstance("JKS");
     keyStore.load(null, null);
+
+    // bind keystore
     wallet.bindKeyStore(keyStore);
 
     // create an account

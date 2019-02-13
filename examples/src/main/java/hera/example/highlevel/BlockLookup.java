@@ -26,15 +26,15 @@ public class BlockLookup extends AbstractExample {
     final BlockHash bestHash = wallet.getBestBlockHash();
     final long bestHeight = wallet.getBestBlockHeight();
 
-    // lookup block by best block hash
+    // query block by best block hash
     final Block blockByHash = wallet.getBlock(bestHash);
     System.out.println("Block by hash: " + blockByHash);
 
-    // lookup block by best height
+    // query block by best height
     final Block blockByHeight = wallet.getBlock(bestHeight);
     System.out.println("Block by height: " + blockByHeight);
 
-    // lookup previous block by hash
+    // query previous block by hash
     final Block previousBlock =
         wallet.getBlock(blockByHash.getPreviousHash());
     System.out.println("Previous block: " + previousBlock);
@@ -52,16 +52,24 @@ public class BlockLookup extends AbstractExample {
 
     // get best block hash, height
     final BlockHash bestHash = wallet.getBestBlockHash();
-    final Block block = wallet.getBlock(bestHash);
+    final long bestHeight = wallet.getBestBlockHeight();
 
-    // lookup 10 block headers starting from best block backward with best block hash
+    // query block header corresponding to the block hash
+    final BlockHeader blockHeaderByHash = wallet.getBlockHeader(bestHash);
+    System.out.println("Block header by hash: " + blockHeaderByHash);
+
+    // query block header corresponding to the block hash
+    final BlockHeader blockHeaderByHeight = wallet.getBlockHeader(bestHeight);
+    System.out.println("Block header by height: " + blockHeaderByHeight);
+
+    // query 10 block headers starting from best block backward with best block hash
     final List<BlockHeader> blockHeadersByHash =
-        wallet.listBlockHeaders(block.getHash(), 10);
+        wallet.listBlockHeaders(bestHash, 10);
     System.out.println("Block headers by hash: " + blockHeadersByHash);
 
-    // lookup 10 block headers starting from best block backward with best block height
+    // query 10 block headers starting from best block backward with best block height
     final List<BlockHeader> blockHeadersByHeight =
-        wallet.listBlockHeaders(block.getBlockNumber(), 10);
+        wallet.listBlockHeaders(bestHeight, 10);
     System.out.println("Block headers by height: " + blockHeadersByHeight);
 
     // close the client
