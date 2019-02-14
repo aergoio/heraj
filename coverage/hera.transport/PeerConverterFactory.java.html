@@ -5,7 +5,6 @@
 package hera.transport;
 
 import static hera.api.model.BytesValue.of;
-import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.function.Function1;
@@ -17,59 +16,46 @@ import hera.exception.RpcException;
 import java.net.Inet6Address;
 import java.net.UnknownHostException;
 import org.slf4j.Logger;
-import types.Node;
-import types.P2P.NewBlockNotice;
 import types.Rpc;
 
-<span class="fc" id="L24">public class PeerConverterFactory {</span>
+<span class="fc" id="L21">public class PeerConverterFactory {</span>
 
-<span class="fc" id="L26">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L23">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L28">  protected final ModelConverter&lt;BlockchainStatus, Rpc.BlockchainStatus&gt; blockchainStatusConverter =</span>
-<span class="fc" id="L29">      new BlockchainStatusConverterFactory().create();</span>
+<span class="fc" id="L25">  protected final ModelConverter&lt;BlockchainStatus, Rpc.BlockchainStatus&gt; blockchainStatusConverter =</span>
+<span class="fc" id="L26">      new BlockchainStatusConverterFactory().create();</span>
 
-<span class="fc" id="L31">  protected final Function1&lt;Peer, Rpc.Peer&gt; domainConverter = new Function1&lt;Peer, Rpc.Peer&gt;() {</span>
+<span class="fc" id="L28">  protected final Function1&lt;Peer, Rpc.Peer&gt; domainConverter = new Function1&lt;Peer, Rpc.Peer&gt;() {</span>
     public Rpc.Peer apply(final Peer domainPeer) {
-<span class="fc" id="L33">      logger.trace(&quot;Domain peer: {}&quot;, domainPeer);</span>
-<span class="fc" id="L34">      return Rpc.Peer.newBuilder()</span>
-<span class="fc" id="L35">          .setAddress(Node.PeerAddress.newBuilder()</span>
-<span class="fc" id="L36">              .setAddress(domainPeer.getAddress().getHostAddress())</span>
-<span class="fc" id="L37">              .setPort(domainPeer.getPort())</span>
-<span class="fc" id="L38">              .setPeerID(copyFrom(domainPeer.getPeerId().getBytesValue()))</span>
-<span class="fc" id="L39">              .build())</span>
-<span class="fc" id="L40">          .setBestblock(NewBlockNotice.newBuilder()</span>
-<span class="fc" id="L41">              .setBlockHash(</span>
-<span class="fc" id="L42">                  copyFrom(domainPeer.getBlockchainStatus().getBestBlockHash().getBytesValue()))</span>
-<span class="fc" id="L43">              .setBlockNo(domainPeer.getBlockchainStatus().getBestHeight()).build())</span>
-<span class="fc" id="L44">          .setState(domainPeer.getState())</span>
-<span class="fc" id="L45">          .setHidden(domainPeer.isHidden())</span>
-<span class="fc" id="L46">          .build();</span>
+<span class="nc" id="L30">      throw new UnsupportedOperationException();</span>
     }
   };
 
-<span class="fc" id="L50">  protected final Function1&lt;Rpc.Peer, Peer&gt; rpcConverter = new Function1&lt;Rpc.Peer, Peer&gt;() {</span>
+<span class="fc" id="L34">  protected final Function1&lt;Rpc.Peer, Peer&gt; rpcConverter = new Function1&lt;Rpc.Peer, Peer&gt;() {</span>
 
     @Override
     public Peer apply(final Rpc.Peer rpcPeer) {
-<span class="fc" id="L54">      logger.trace(&quot;Rpc peer: {}&quot;, rpcPeer);</span>
       try {
-<span class="fc" id="L56">        final BlockchainStatus blockchainStatus = new BlockchainStatus(</span>
-<span class="fc" id="L57">            rpcPeer.getBestblock().getBlockNo(),</span>
-<span class="fc" id="L58">            new BlockHash(of(rpcPeer.getBestblock().getBlockHash().toByteArray())));</span>
-<span class="fc" id="L59">        return new Peer(Inet6Address.getByName(rpcPeer.getAddress().getAddress()),</span>
-<span class="fc" id="L60">            rpcPeer.getAddress().getPort(),</span>
-<span class="fc" id="L61">            new PeerId(of(rpcPeer.getAddress().getPeerID().toByteArray())),</span>
+<span class="fc" id="L39">        logger.trace(&quot;Rpc peer to convert: {}&quot;, rpcPeer);</span>
+<span class="fc" id="L40">        final BlockchainStatus blockchainStatus = new BlockchainStatus(</span>
+<span class="fc" id="L41">            rpcPeer.getBestblock().getBlockNo(),</span>
+<span class="fc" id="L42">            new BlockHash(of(rpcPeer.getBestblock().getBlockHash().toByteArray())));</span>
+<span class="fc" id="L43">        final Peer domainPeer = new Peer(Inet6Address.getByName(rpcPeer.getAddress().getAddress()),</span>
+<span class="fc" id="L44">            rpcPeer.getAddress().getPort(),</span>
+<span class="fc" id="L45">            new PeerId(of(rpcPeer.getAddress().getPeerID().toByteArray())),</span>
             blockchainStatus,
-<span class="fc" id="L63">            rpcPeer.getState(),</span>
-<span class="fc" id="L64">            rpcPeer.getHidden());</span>
-<span class="nc" id="L65">      } catch (UnknownHostException e) {</span>
-<span class="nc" id="L66">        throw new RpcException(&quot;Invalid peer host name&quot;, e);</span>
+<span class="fc" id="L47">            rpcPeer.getState(),</span>
+<span class="fc" id="L48">            rpcPeer.getHidden());</span>
+<span class="fc" id="L49">        logger.trace(&quot;Domain peer converted: {}&quot;, domainPeer);</span>
+<span class="fc" id="L50">        return domainPeer;</span>
+<span class="nc" id="L51">      } catch (UnknownHostException e) {</span>
+<span class="nc" id="L52">        throw new RpcException(&quot;Invalid peer host name&quot;, e);</span>
       }
     }
   };
 
   public ModelConverter&lt;Peer, Rpc.Peer&gt; create() {
-<span class="fc" id="L72">    return new ModelConverter&lt;Peer, Rpc.Peer&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L58">    return new ModelConverter&lt;Peer, Rpc.Peer&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

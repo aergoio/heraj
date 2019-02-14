@@ -5,58 +5,74 @@
 package hera.transport;
 
 import static hera.api.model.BytesValue.of;
+import static hera.util.EncodingUtils.encodeHexa;
 import static hera.util.TransportUtils.copyFrom;
+import static hera.util.VersionUtils.envelop;
+import static hera.util.VersionUtils.trim;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import com.google.protobuf.ByteString;
 import hera.api.function.Function1;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
 import hera.util.HexUtils;
-import hera.util.VersionUtils;
 import org.slf4j.Logger;
 import types.Rpc;
 
-<span class="fc" id="L20">public class EncryptedPrivateKeyConverterFactory {</span>
+<span class="fc" id="L21">public class EncryptedPrivateKeyConverterFactory {</span>
 
-<span class="fc" id="L22">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L23">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L24">  protected final Function1&lt;EncryptedPrivateKey, Rpc.SingleBytes&gt; domainConverter =</span>
-<span class="fc" id="L25">      new Function1&lt;EncryptedPrivateKey, Rpc.SingleBytes&gt;() {</span>
+<span class="fc" id="L25">  protected final Function1&lt;EncryptedPrivateKey, Rpc.SingleBytes&gt; domainConverter =</span>
+<span class="fc" id="L26">      new Function1&lt;EncryptedPrivateKey, Rpc.SingleBytes&gt;() {</span>
 
         @Override
         public Rpc.SingleBytes apply(final EncryptedPrivateKey domainEncryptedPrivateKey) {
-<span class="fc" id="L29">          logger.trace(&quot;Domain encrypted privateKey: {}&quot;,</span>
-<span class="fc" id="L30">              HexUtils.encode(domainEncryptedPrivateKey.getBytesValue().getValue()));</span>
-<span class="pc bpc" id="L31" title="1 of 2 branches missed.">          if (domainEncryptedPrivateKey.getBytesValue().isEmpty()) {</span>
-<span class="nc" id="L32">            return Rpc.SingleBytes.newBuilder()</span>
-<span class="nc" id="L33">                .setValue(copyFrom(domainEncryptedPrivateKey.getBytesValue())).build();</span>
+<span class="pc bpc" id="L30" title="1 of 2 branches missed.">          if (logger.isTraceEnabled()) {</span>
+<span class="fc" id="L31">            logger.trace(&quot;Domain encrypted privateKey to convert. with checksum: {}, hexa: {}&quot;,</span>
+<span class="fc" id="L32">                domainEncryptedPrivateKey, encodeHexa(domainEncryptedPrivateKey.getBytesValue()));</span>
           }
-<span class="fc" id="L35">          final byte[] withVersion = domainEncryptedPrivateKey.getBytesValue().getValue();</span>
-<span class="fc" id="L36">          final byte[] withoutVersion = VersionUtils.trim(withVersion);</span>
-<span class="fc" id="L37">          return Rpc.SingleBytes.newBuilder().setValue(ByteString.copyFrom(withoutVersion)).build();</span>
+<span class="pc bpc" id="L34" title="1 of 2 branches missed.">          if (domainEncryptedPrivateKey.getBytesValue().isEmpty()) {</span>
+<span class="nc" id="L35">            return Rpc.SingleBytes.newBuilder()</span>
+<span class="nc" id="L36">                .setValue(copyFrom(domainEncryptedPrivateKey.getBytesValue())).build();</span>
+          }
+<span class="fc" id="L38">          final BytesValue withVersion = domainEncryptedPrivateKey.getBytesValue();</span>
+<span class="fc" id="L39">          final BytesValue withoutVersion = trim(withVersion);</span>
+          final Rpc.SingleBytes rpcEncryptedPrivateKey =
+<span class="fc" id="L41">              Rpc.SingleBytes.newBuilder().setValue(copyFrom(withoutVersion)).build();</span>
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">          if (logger.isTraceEnabled()) {</span>
+<span class="fc" id="L43">            logger.trace(&quot;Rpc encrypted private key convert. hexa: {}&quot;,</span>
+<span class="fc" id="L44">                HexUtils.encode(rpcEncryptedPrivateKey.getValue().toByteArray()));</span>
+          }
+<span class="fc" id="L46">          return rpcEncryptedPrivateKey;</span>
         }
       };
 
-<span class="fc" id="L41">  protected final Function1&lt;Rpc.SingleBytes, EncryptedPrivateKey&gt; rpcConverter =</span>
-<span class="fc" id="L42">      new Function1&lt;Rpc.SingleBytes, EncryptedPrivateKey&gt;() {</span>
+<span class="fc" id="L50">  protected final Function1&lt;Rpc.SingleBytes, EncryptedPrivateKey&gt; rpcConverter =</span>
+<span class="fc" id="L51">      new Function1&lt;Rpc.SingleBytes, EncryptedPrivateKey&gt;() {</span>
 
         @Override
         public EncryptedPrivateKey apply(final Rpc.SingleBytes rpcEncryptedPrivateKey) {
-<span class="fc" id="L46">          logger.trace(&quot;Rpc encrypted privateKey: {}&quot;,</span>
-<span class="fc" id="L47">              HexUtils.encode(rpcEncryptedPrivateKey.getValue().toByteArray()));</span>
-<span class="fc bfc" id="L48" title="All 2 branches covered.">          if (rpcEncryptedPrivateKey.getValue().isEmpty()) {</span>
-<span class="fc" id="L49">            return new EncryptedPrivateKey(BytesValue.EMPTY);</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">          if (logger.isTraceEnabled()) {</span>
+<span class="fc" id="L56">            logger.trace(&quot;Rpc encrypted privateKey to convert. hexa: {}&quot;,</span>
+<span class="fc" id="L57">                HexUtils.encode(rpcEncryptedPrivateKey.getValue().toByteArray()));</span>
           }
-<span class="fc" id="L51">          final byte[] withoutVersion = rpcEncryptedPrivateKey.getValue().toByteArray();</span>
-<span class="fc" id="L52">          final byte[] withVersion =</span>
-<span class="fc" id="L53">              VersionUtils.envelop(withoutVersion, EncryptedPrivateKey.VERSION);</span>
-<span class="fc" id="L54">          return new EncryptedPrivateKey(of(withVersion));</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">          if (rpcEncryptedPrivateKey.getValue().isEmpty()) {</span>
+<span class="fc" id="L60">            return new EncryptedPrivateKey(BytesValue.EMPTY);</span>
+          }
+<span class="fc" id="L62">          final byte[] withoutVersion = rpcEncryptedPrivateKey.getValue().toByteArray();</span>
+<span class="fc" id="L63">          final byte[] withVersion = envelop(withoutVersion, EncryptedPrivateKey.VERSION);</span>
+<span class="fc" id="L64">          final EncryptedPrivateKey domainEncryptedPrivateKey =</span>
+<span class="fc" id="L65">              new EncryptedPrivateKey(of(withVersion));</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">          if (logger.isTraceEnabled()) {</span>
+<span class="fc" id="L67">            logger.trace(&quot;Domain encrypted private key converted. with checksum: {}, hexa: {}&quot;,</span>
+<span class="fc" id="L68">                domainEncryptedPrivateKey, encodeHexa(domainEncryptedPrivateKey.getBytesValue()));</span>
+          }
+<span class="fc" id="L70">          return domainEncryptedPrivateKey;</span>
         }
       };
 
   public ModelConverter&lt;EncryptedPrivateKey, Rpc.SingleBytes&gt; create() {
-<span class="fc" id="L59">    return new ModelConverter&lt;EncryptedPrivateKey, Rpc.SingleBytes&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L75">    return new ModelConverter&lt;EncryptedPrivateKey, Rpc.SingleBytes&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

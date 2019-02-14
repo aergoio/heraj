@@ -10,7 +10,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.HerajException;
 import hera.util.ThreadUtils;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -19,11 +18,11 @@ import org.slf4j.Logger;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="fc" id="L22">@ToString</span>
-<span class="pc bpc" id="L23" title="15 of 16 branches missed.">@EqualsAndHashCode</span>
+<span class="fc" id="L21">@ToString</span>
+<span class="pc bpc" id="L22" title="15 of 16 branches missed.">@EqualsAndHashCode</span>
 public class TryCountAndInterval {
 
-<span class="fc" id="L26">  protected static final Logger logger = getLogger(TryCountAndInterval.class);</span>
+<span class="fc" id="L25">  protected static final Logger logger = getLogger(TryCountAndInterval.class);</span>
 
   /**
    * Create TryCountAndInterval instance.
@@ -33,13 +32,13 @@ public class TryCountAndInterval {
    * @return an TryCountAndInterval instance
    */
   public static TryCountAndInterval of(final int tryCount, final Time interval) {
-<span class="fc" id="L36">    return new TryCountAndInterval(tryCount, interval);</span>
+<span class="fc" id="L35">    return new TryCountAndInterval(tryCount, interval);</span>
   }
 
-<span class="fc" id="L39">  @Getter</span>
+<span class="fc" id="L38">  @Getter</span>
   protected final int count;
 
-<span class="fc" id="L42">  @Getter</span>
+<span class="fc" id="L41">  @Getter</span>
   protected final Time interval;
 
   /**
@@ -48,16 +47,16 @@ public class TryCountAndInterval {
    * @param tryCount a try count
    * @param interval an try interval
    */
-<span class="fc" id="L51">  public TryCountAndInterval(final int tryCount, final Time interval) {</span>
-<span class="pc bpc" id="L52" title="1 of 2 branches missed.">    assertTrue(tryCount &gt;= 0, new HerajException(&quot;Try count must be &gt;= 0&quot;));</span>
-<span class="fc" id="L53">    assertNotNull(interval, new HerajException(&quot;Interval hash must not null&quot;));</span>
-<span class="fc" id="L54">    this.count = tryCount;</span>
-<span class="fc" id="L55">    this.interval = interval;</span>
-<span class="fc" id="L56">  }</span>
+<span class="fc" id="L50">  public TryCountAndInterval(final int tryCount, final Time interval) {</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">    assertTrue(tryCount &gt;= 0, &quot;Try count must be &gt;= 0&quot;);</span>
+<span class="fc" id="L52">    assertNotNull(interval, &quot;Interval hash must not null&quot;);</span>
+<span class="fc" id="L53">    this.count = tryCount;</span>
+<span class="fc" id="L54">    this.interval = interval;</span>
+<span class="fc" id="L55">  }</span>
 
   public void trySleep() {
-<span class="fc" id="L59">    ThreadUtils.trySleep(interval.toMilliseconds());</span>
-<span class="fc" id="L60">  }</span>
+<span class="fc" id="L58">    ThreadUtils.trySleep(interval.toMilliseconds());</span>
+<span class="fc" id="L59">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

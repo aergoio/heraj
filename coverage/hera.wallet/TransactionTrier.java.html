@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransactionTrier.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.wallet</a> &gt; <span class="el_source">TransactionTrier.java</span></div><h1>TransactionTrier.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.wallet;
+
+import static hera.util.ValidationUtils.assertNotNull;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.api.function.Function0;
+import hera.api.function.Function1;
+import hera.api.model.Account;
+import hera.api.model.TxHash;
+import hera.api.model.internal.TryCountAndInterval;
+import hera.exception.CommitException;
+import hera.exception.CommitException.CommitStatus;
+import lombok.Getter;
+import lombok.Setter;
+import org.slf4j.Logger;
+
+public class TransactionTrier {
+
+<span class="fc" id="L23">  protected final Logger logger = getLogger(getClass());</span>
+
+  protected final TryCountAndInterval tryCountAndInterval;
+
+<span class="nc" id="L27">  @Getter</span>
+<span class="fc" id="L28">  @Setter</span>
+  protected Function0&lt;Account&gt; accountProvider;
+
+<span class="nc" id="L31">  @Getter</span>
+<span class="fc" id="L32">  @Setter</span>
+  protected Runnable nonceSynchronizer;
+
+<span class="fc" id="L35">  public TransactionTrier(final TryCountAndInterval tryCountAndInterval) {</span>
+<span class="fc" id="L36">    logger.debug(&quot;Binded nonce refresh: {}&quot;, tryCountAndInterval);</span>
+<span class="fc" id="L37">    this.tryCountAndInterval = tryCountAndInterval;</span>
+<span class="fc" id="L38">  }</span>
+
+  /**
+   * Try transaction request with a requester. If {@code transactionRequester} fails, retry after
+   * refreshing nonce.
+   *
+   * @param transactionRequester a transaction requester
+   * @return a transaction hash
+   */
+  public TxHash request(Function1&lt;Long, TxHash&gt; transactionRequester) {
+<span class="fc" id="L48">    return request(null, transactionRequester);</span>
+  }
+
+  /**
+   * Try transaction request with a requester along with first trier. {@code transactionRequester}
+   * is invoked when {@code firstTrier} has failed. If {@code transactionRequester} fails, retry
+   * after refreshing nonce.
+   *
+   * @param firstTrier a first trier
+   * @param transactionRequester a transaction requester
+   * @return a transaction hash
+   */
+  public TxHash request(Function0&lt;TxHash&gt; firstTrier,
+      Function1&lt;Long, TxHash&gt; transactionRequester) {
+<span class="fc" id="L62">    assertNotNull(transactionRequester);</span>
+<span class="fc" id="L63">    logger.trace(&quot;Transaction try with firstTrier: {}, transactionRequester: {}&quot;, firstTrier,</span>
+        transactionRequester);
+
+<span class="fc" id="L66">    TxHash txHash = null;</span>
+<span class="fc" id="L67">    boolean success = false;</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">    if (null != firstTrier) {</span>
+      try {
+<span class="fc" id="L70">        txHash = firstTrier.apply();</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        success = null != txHash;</span>
+<span class="nc" id="L72">      } catch (CommitException e) {</span>
+        // keep failure
+<span class="fc" id="L74">      }</span>
+    }
+
+<span class="fc" id="L77">    int i = tryCountAndInterval.getCount();</span>
+<span class="pc bpc" id="L78" title="1 of 4 branches missed.">    while (0 &lt;= i &amp;&amp; !success) {</span>
+      try {
+<span class="fc" id="L80">        txHash = transactionRequester.apply(accountProvider.apply().incrementAndGetNonce());</span>
+<span class="fc" id="L81">        success = true;</span>
+<span class="fc" id="L82">      } catch (CommitException e) {</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (!isNonceRelatedException(e)) {</span>
+<span class="nc" id="L84">          throw e;</span>
+        }
+<span class="fc" id="L86">        logger.debug(&quot;Request failed with invalid nonce.. try left: {}&quot;, i);</span>
+<span class="fc" id="L87">        nonceSynchronizer.run();</span>
+<span class="fc" id="L88">        tryCountAndInterval.trySleep();</span>
+<span class="fc" id="L89">        --i;</span>
+<span class="fc" id="L90">      }</span>
+    }
+<span class="fc" id="L92">    return txHash;</span>
+  }
+
+  protected boolean isNonceRelatedException(final CommitException e) {
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">    return e.getCommitStatus() == CommitStatus.NONCE_TOO_LOW</span>
+<span class="pc bnc" id="L97" title="All 2 branches missed.">        || e.getCommitStatus() == CommitStatus.TX_HAS_SAME_NONCE;</span>
+  }
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

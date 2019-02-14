@@ -31,16 +31,18 @@ import types.Rpc;
 <span class="fc" id="L31">      new Function1&lt;Rpc.Vote, VotingInfo&gt;() {</span>
 
         @Override
-        public VotingInfo apply(final Rpc.Vote rpcVote) {
-<span class="fc" id="L35">          logger.trace(&quot;Rpc vote status: {}&quot;, rpcVote);</span>
-<span class="fc" id="L36">          return new VotingInfo(</span>
-<span class="fc" id="L37">              new PeerId(of(rpcVote.getCandidate().toByteArray())),</span>
-<span class="fc" id="L38">              parseToAer(rpcVote.getAmount()));</span>
+        public VotingInfo apply(final Rpc.Vote rpcVotingInfo) {
+<span class="fc" id="L35">          logger.trace(&quot;Rpc vote status to convert: {}&quot;, rpcVotingInfo);</span>
+<span class="fc" id="L36">          final VotingInfo domainVotingInfo = new VotingInfo(</span>
+<span class="fc" id="L37">              new PeerId(of(rpcVotingInfo.getCandidate().toByteArray())),</span>
+<span class="fc" id="L38">              parseToAer(rpcVotingInfo.getAmount()));</span>
+<span class="fc" id="L39">          logger.trace(&quot;Domain vote status converted: {}&quot;, domainVotingInfo);</span>
+<span class="fc" id="L40">          return domainVotingInfo;</span>
         }
       };
 
   public ModelConverter&lt;VotingInfo, Rpc.Vote&gt; create() {
-<span class="fc" id="L43">    return new ModelConverter&lt;VotingInfo, Rpc.Vote&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L45">    return new ModelConverter&lt;VotingInfo, Rpc.Vote&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

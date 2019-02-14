@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractWallet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.wallet</a> &gt; <span class="el_source">AbstractWallet.java</span></div><h1>AbstractWallet.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.wallet;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.api.function.Function0;
+import hera.api.function.Function1;
+import hera.api.model.Account;
+import hera.api.model.AccountAddress;
+import hera.api.model.AccountState;
+import hera.api.model.Aer;
+import hera.api.model.Authentication;
+import hera.api.model.BytesValue;
+import hera.api.model.ContractDefinition;
+import hera.api.model.ContractInvocation;
+import hera.api.model.ContractTxHash;
+import hera.api.model.Fee;
+import hera.api.model.PeerId;
+import hera.api.model.RawTransaction;
+import hera.api.model.StakingInfo;
+import hera.api.model.Transaction;
+import hera.api.model.TxHash;
+import hera.api.model.VotingInfo;
+import hera.api.model.internal.TryCountAndInterval;
+import hera.client.AergoClient;
+import hera.exception.InvalidAuthentiationException;
+import hera.exception.UnbindedAccountException;
+import hera.exception.UnbindedKeyStoreException;
+import hera.exception.WalletException;
+import hera.key.AergoKey;
+import hera.keystore.KeyStore;
+import java.util.List;
+import org.slf4j.Logger;
+
+public abstract class AbstractWallet extends QueryWallet implements Wallet {
+
+<span class="fc" id="L40">  protected final Logger logger = getLogger(getClass());</span>
+
+  protected KeyStore keyStore;
+
+  protected Account account;
+
+  protected TransactionTrier trier;
+
+  protected AbstractWallet(final AergoClient aergoClient,
+      final TryCountAndInterval tryCountAndInterval) {
+<span class="fc" id="L50">    super(aergoClient);</span>
+
+<span class="fc" id="L52">    logger.debug(&quot;Binded nonce refresh: {}&quot;, tryCountAndInterval);</span>
+<span class="fc" id="L53">    final TransactionTrier trier = new TransactionTrier(tryCountAndInterval);</span>
+<span class="fc" id="L54">    trier.setAccountProvider(new Function0&lt;Account&gt;() {</span>
+      @Override
+      public Account apply() {
+<span class="nc" id="L57">        return getAccount();</span>
+      }
+    });
+<span class="fc" id="L60">    trier.setNonceSynchronizer(new Runnable() {</span>
+      @Override
+      public void run() {
+<span class="nc" id="L63">        getAccount().bindState(getAccountState());</span>
+<span class="nc" id="L64">      }</span>
+    });
+<span class="fc" id="L66">    this.trier = trier;</span>
+<span class="fc" id="L67">  }</span>
+
+  protected KeyStore getKeyStore() {
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">    if (null == this.keyStore) {</span>
+<span class="nc" id="L71">      throw new UnbindedKeyStoreException();</span>
+    }
+<span class="fc" id="L73">    return this.keyStore;</span>
+  }
+
+  @Override
+  public void saveKey(final AergoKey key, final String password) {
+<span class="fc" id="L78">    getKeyStore().saveKey(key, password);</span>
+<span class="fc" id="L79">  }</span>
+
+  @Override
+  public String exportKey(final Authentication authentication) {
+<span class="fc" id="L83">    return getKeyStore().export(authentication).getEncoded();</span>
+  }
+
+  @Override
+  public List&lt;AccountAddress&gt; listKeyStoreAddresses() {
+<span class="fc" id="L88">    return getKeyStore().listStoredAddresses();</span>
+  }
+
+  @Override
+  public boolean unlock(final Authentication authentication) {
+    try {
+<span class="fc" id="L94">      this.account = getKeyStore().unlock(authentication);</span>
+<span class="fc" id="L95">      getCurrentAccount().bindState(getAccountState());</span>
+<span class="fc" id="L96">      return true;</span>
+<span class="fc" id="L97">    } catch (InvalidAuthentiationException e) {</span>
+<span class="fc" id="L98">      return false;</span>
+<span class="nc" id="L99">    } catch (Exception e) {</span>
+<span class="nc" id="L100">      throw new WalletException(e);</span>
+    }
+  }
+
+  @Override
+  public boolean lock(final Authentication authentication) {
+    try {
+<span class="fc" id="L107">      getKeyStore().lock(authentication);</span>
+<span class="fc" id="L108">      return true;</span>
+<span class="nc" id="L109">    } catch (InvalidAuthentiationException e) {</span>
+<span class="nc" id="L110">      return false;</span>
+<span class="nc" id="L111">    } catch (Exception e) {</span>
+<span class="nc" id="L112">      throw new WalletException(e);</span>
+    }
+  }
+
+  @Override
+  public boolean storeKeyStore(final String path, final String password) {
+    try {
+<span class="fc" id="L119">      getKeyStore().store(path, password);</span>
+<span class="fc" id="L120">      return true;</span>
+<span class="fc" id="L121">    } catch (Exception e) {</span>
+<span class="fc" id="L122">      return false;</span>
+    }
+  }
+
+  @Override
+  public Account getAccount() {
+<span class="fc bfc" id="L128" title="All 2 branches covered.">    if (null == this.account) {</span>
+<span class="fc" id="L129">      throw new UnbindedAccountException();</span>
+    }
+<span class="fc" id="L131">    return this.account;</span>
+  }
+
+  @Override
+  public Account getCurrentAccount() {
+<span class="fc" id="L136">    return getAccount();</span>
+  }
+
+  @Override
+  public AccountState getAccountState() {
+<span class="fc" id="L141">    return getAccountState(getAccount());</span>
+  }
+
+  @Override
+  public AccountState getCurrentAccountState() {
+<span class="fc" id="L146">    return getAccountState();</span>
+  }
+
+  @Override
+  public StakingInfo getStakingInfo() {
+<span class="nc" id="L151">    return getStakingInfo(getAccount());</span>
+  }
+
+  @Override
+  public List&lt;VotingInfo&gt; listVotes() {
+<span class="nc" id="L156">    return listVotesOf(getAccount());</span>
+  }
+
+  @Override
+  public long getRecentlyUsedNonce() {
+<span class="fc" id="L161">    return getAccount().getRecentlyUsedNonce();</span>
+  }
+
+  @Override
+  public long incrementAndGetNonce() {
+<span class="fc" id="L166">    return getAccount().incrementAndGetNonce();</span>
+  }
+
+  @Override
+  public TxHash createName(final String name) {
+<span class="fc" id="L171">    return trier.request(new Function1&lt;Long, TxHash&gt;() {</span>
+      @Override
+      public TxHash apply(final Long nonce) {
+<span class="nc" id="L174">        return getAergoClient().getAccountOperation()</span>
+<span class="nc" id="L175">            .createName(getAccount(), name, nonce);</span>
+      }
+    });
+  }
+
+  @Override
+  public TxHash updateName(final String name, final AccountAddress newOwner) {
+<span class="fc" id="L182">    return trier.request(new Function1&lt;Long, TxHash&gt;() {</span>
+      @Override
+      public TxHash apply(final Long nonce) {
+<span class="nc" id="L185">        return getAergoClient().getAccountOperation()</span>
+<span class="nc" id="L186">            .updateName(getAccount(), name, newOwner, nonce);</span>
+      }
+    });
+  }
+
+  @Override
+  public TxHash stake(final Aer amount) {
+<span class="fc" id="L193">    return trier.request(new Function1&lt;Long, TxHash&gt;() {</span>
+      @Override
+      public TxHash apply(final Long nonce) {
+<span class="nc" id="L196">        return getAergoClient().getAccountOperation()</span>
+<span class="nc" id="L197">            .stake(getAccount(), amount, nonce);</span>
+      }
+    });
+  }
+
+  @Override
+  public TxHash unstake(final Aer amount) {
+<span class="fc" id="L204">    return trier.request(new Function1&lt;Long, TxHash&gt;() {</span>
+      @Override
+      public TxHash apply(final Long nonce) {
+<span class="nc" id="L207">        return getAergoClient().getAccountOperation()</span>
+<span class="nc" id="L208">            .unstake(getAccount(), amount, nonce);</span>
+      }
+    });
+  }
+
+  @Override
+  public TxHash vote(final PeerId peerId) {
+<span class="fc" id="L215">    return trier.request(new Function1&lt;Long, TxHash&gt;() {</span>
+      @Override
+      public TxHash apply(final Long nonce) {
+<span class="nc" id="L218">        return getAergoClient().getBlockchainOperation()</span>
+<span class="nc" id="L219">            .vote(getAccount(), peerId, nonce);</span>
+      }
+    });
+  }
+
+  @Override
+  public Transaction sign(final RawTransaction rawTransaction) {
+<span class="fc" id="L226">    return getAergoClient().getAccountOperation().sign(getAccount(), rawTransaction);</span>
+  }
+
+  @Override
+  public boolean verify(final Transaction transaction) {
+<span class="fc" id="L231">    return getAergoClient().getAccountOperation().verify(getAccount(), transaction);</span>
+  }
+
+  @Override
+  public TxHash send(final String recipient, final Aer amount, final Fee fee) {
+<span class="fc" id="L236">    return send(recipient, amount, fee, BytesValue.EMPTY);</span>
+  }
+
+  @Override
+  public TxHash send(final String recipient, final Aer amount, final Fee fee,
+      final BytesValue payload) {
+<span class="fc" id="L242">    return trier.request(new Function1&lt;Long, TxHash&gt;() {</span>
+      @Override
+      public TxHash apply(final Long nonce) {
+<span class="nc" id="L245">        final RawTransaction rawTransaction = RawTransaction.newBuilder()</span>
+<span class="nc" id="L246">            .from(getAccount())</span>
+<span class="nc" id="L247">            .to(recipient)</span>
+<span class="nc" id="L248">            .amount(amount)</span>
+<span class="nc" id="L249">            .nonce(nonce)</span>
+<span class="nc" id="L250">            .fee(fee)</span>
+<span class="nc" id="L251">            .payload(payload)</span>
+<span class="nc" id="L252">            .build();</span>
+<span class="nc" id="L253">        return getAergoClient().getTransactionOperation().commit(sign(rawTransaction));</span>
+      }
+    });
+  }
+
+  @Override
+  public TxHash send(final AccountAddress recipient, final Aer amount, final Fee fee) {
+<span class="fc" id="L260">    return send(recipient, amount, fee, BytesValue.EMPTY);</span>
+  }
+
+  @Override
+  public TxHash send(final AccountAddress recipient, final Aer amount, final Fee fee,
+      final BytesValue payload) {
+<span class="fc" id="L266">    return trier.request(new Function1&lt;Long, TxHash&gt;() {</span>
+      @Override
+      public TxHash apply(final Long nonce) {
+<span class="nc" id="L269">        final RawTransaction rawTransaction = RawTransaction.newBuilder()</span>
+<span class="nc" id="L270">            .from(getAccount())</span>
+<span class="nc" id="L271">            .to(recipient)</span>
+<span class="nc" id="L272">            .amount(amount)</span>
+<span class="nc" id="L273">            .nonce(nonce)</span>
+<span class="nc" id="L274">            .fee(fee)</span>
+<span class="nc" id="L275">            .payload(payload)</span>
+<span class="nc" id="L276">            .build();</span>
+<span class="nc" id="L277">        return getAergoClient().getTransactionOperation().commit(sign(rawTransaction));</span>
+      }
+    });
+  }
+
+  @Override
+  public TxHash commit(final RawTransaction rawTransaction) {
+<span class="nc" id="L284">    return commit(sign(rawTransaction));</span>
+  }
+
+  @Override
+  public TxHash commit(final Transaction signedTransaction) {
+<span class="nc" id="L289">    return trier.request(new Function0&lt;TxHash&gt;() {</span>
+
+      @Override
+      public TxHash apply() {
+<span class="nc" id="L293">        return getAergoClient().getTransactionOperation().commit(signedTransaction);</span>
+      }
+<span class="nc" id="L295">    }, new Function1&lt;Long, TxHash&gt;() {</span>
+
+      @Override
+      public TxHash apply(final Long nonce) {
+<span class="nc" id="L299">        final RawTransaction withNewNonce =</span>
+<span class="nc" id="L300">            RawTransaction.copyOf(signedTransaction, nonce.longValue());</span>
+<span class="nc" id="L301">        return getAergoClient().getTransactionOperation().commit(sign(withNewNonce));</span>
+      }
+    });
+  }
+
+  @Override
+  public ContractTxHash deploy(final ContractDefinition contractDefinition, final Fee fee) {
+<span class="fc" id="L308">    return trier.request(new Function1&lt;Long, TxHash&gt;() {</span>
+      @Override
+      public TxHash apply(final Long nonce) {
+<span class="nc" id="L311">        return getAergoClient().getContractOperation().deploy(getAccount(),</span>
+<span class="nc" id="L312">            contractDefinition, nonce, fee);</span>
+      }
+<span class="fc" id="L314">    }).adapt(ContractTxHash.class);</span>
+  }
+
+  @Override
+  public ContractTxHash execute(final ContractInvocation contractInvocation, final Fee fee) {
+<span class="fc" id="L319">    return (ContractTxHash) trier.request(new Function1&lt;Long, TxHash&gt;() {</span>
+      @Override
+      public TxHash apply(final Long nonce) {
+<span class="nc" id="L322">        return getAergoClient().getContractOperation().execute(getAccount(),</span>
+<span class="nc" id="L323">            contractInvocation, nonce, fee);</span>
+      }
+<span class="fc" id="L325">    }).adapt(ContractTxHash.class);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -32,15 +32,17 @@ import types.Rpc;
 
         @Override
         public StakingInfo apply(final Rpc.Staking rpcStakingInfo) {
-<span class="fc" id="L35">          logger.trace(&quot;Rpc staking info: {}&quot;, rpcStakingInfo);</span>
-<span class="fc" id="L36">          return new StakingInfo(AccountAddress.of(BytesValue.EMPTY),</span>
+<span class="fc" id="L35">          logger.trace(&quot;Rpc staking info to convert: {}&quot;, rpcStakingInfo);</span>
+<span class="fc" id="L36">          final StakingInfo domainStakingInfo = new StakingInfo(AccountAddress.of(BytesValue.EMPTY),</span>
 <span class="fc" id="L37">              parseToAer(rpcStakingInfo.getAmount()),</span>
 <span class="fc" id="L38">              rpcStakingInfo.getWhen());</span>
+<span class="fc" id="L39">          logger.trace(&quot;Domain staking info converted: {}&quot;, domainStakingInfo);</span>
+<span class="fc" id="L40">          return domainStakingInfo;</span>
         }
       };
 
   public ModelConverter&lt;StakingInfo, Rpc.Staking&gt; create() {
-<span class="fc" id="L43">    return new ModelConverter&lt;StakingInfo, Rpc.Staking&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L45">    return new ModelConverter&lt;StakingInfo, Rpc.Staking&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

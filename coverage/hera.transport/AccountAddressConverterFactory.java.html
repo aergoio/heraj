@@ -5,7 +5,10 @@
 package hera.transport;
 
 import static hera.api.model.BytesValue.of;
+import static hera.util.EncodingUtils.encodeHexa;
 import static hera.util.TransportUtils.copyFrom;
+import static hera.util.VersionUtils.envelop;
+import static hera.util.VersionUtils.trim;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
@@ -13,46 +16,66 @@ import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.util.HexUtils;
-import hera.util.VersionUtils;
 import org.slf4j.Logger;
 
-<span class="fc" id="L19">public class AccountAddressConverterFactory {</span>
+<span class="fc" id="L21">public class AccountAddressConverterFactory {</span>
 
-<span class="fc" id="L21">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L23">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L23">  protected final Function1&lt;AccountAddress, com.google.protobuf.ByteString&gt; domainConverter =</span>
-<span class="fc" id="L24">      new Function1&lt;AccountAddress, ByteString&gt;() {</span>
+<span class="fc" id="L25">  protected final Function1&lt;AccountAddress, com.google.protobuf.ByteString&gt; domainConverter =</span>
+<span class="fc" id="L26">      new Function1&lt;AccountAddress, ByteString&gt;() {</span>
 
         @Override
         public com.google.protobuf.ByteString apply(final AccountAddress domainAccountAddress) {
-<span class="fc" id="L28">          logger.trace(&quot;Domain account address: {}&quot;,</span>
-<span class="fc" id="L29">              HexUtils.encode(domainAccountAddress.getBytesValue().getValue()));</span>
-<span class="fc bfc" id="L30" title="All 2 branches covered.">          if (domainAccountAddress.getBytesValue().isEmpty()) {</span>
-<span class="fc" id="L31">            return copyFrom(domainAccountAddress.getBytesValue());</span>
+<span class="pc bpc" id="L30" title="1 of 2 branches missed.">          if (logger.isTraceEnabled()) {</span>
+<span class="fc" id="L31">            logger.trace(&quot;Domain account address to convert. with checksum: {}, hexa: {}&quot;,</span>
+                domainAccountAddress,
+<span class="fc" id="L33">                encodeHexa(domainAccountAddress.getBytesValue()));</span>
           }
-<span class="fc" id="L33">          final byte[] withVersion = domainAccountAddress.getBytesValue().getValue();</span>
-<span class="fc" id="L34">          final byte[] withoutVersion = VersionUtils.trim(withVersion);</span>
-<span class="fc" id="L35">          return ByteString.copyFrom(withoutVersion);</span>
+          ByteString rpcAccountAddress;
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">          if (false == domainAccountAddress.getBytesValue().isEmpty()) {</span>
+<span class="fc" id="L37">            final byte[] withVersion = domainAccountAddress.getBytesValue().getValue();</span>
+<span class="fc" id="L38">            final byte[] withoutVersion = trim(withVersion);</span>
+<span class="fc" id="L39">            rpcAccountAddress = copyFrom(withoutVersion);</span>
+<span class="fc" id="L40">          } else {</span>
+<span class="nc" id="L41">            rpcAccountAddress = ByteString.EMPTY;</span>
+          }
+<span class="pc bpc" id="L43" title="1 of 2 branches missed.">          if (logger.isTraceEnabled()) {</span>
+<span class="fc" id="L44">            logger.trace(&quot;Rpc account address converted. hexa: {}&quot;,</span>
+<span class="fc" id="L45">                HexUtils.encode(rpcAccountAddress.toByteArray()));</span>
+          }
+<span class="fc" id="L47">          return rpcAccountAddress;</span>
         }
       };
 
-<span class="fc" id="L39">  protected final Function1&lt;com.google.protobuf.ByteString, AccountAddress&gt; rpcConverter =</span>
-<span class="fc" id="L40">      new Function1&lt;com.google.protobuf.ByteString, AccountAddress&gt;() {</span>
+<span class="fc" id="L51">  protected final Function1&lt;com.google.protobuf.ByteString, AccountAddress&gt; rpcConverter =</span>
+<span class="fc" id="L52">      new Function1&lt;com.google.protobuf.ByteString, AccountAddress&gt;() {</span>
 
         @Override
         public AccountAddress apply(com.google.protobuf.ByteString rpcAccountAddress) {
-<span class="fc" id="L44">          logger.trace(&quot;Rpc account address: {}&quot;, HexUtils.encode(rpcAccountAddress.toByteArray()));</span>
-<span class="fc bfc" id="L45" title="All 2 branches covered.">          if (rpcAccountAddress.isEmpty()) {</span>
-<span class="fc" id="L46">            return new AccountAddress(BytesValue.EMPTY);</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">          if (logger.isTraceEnabled()) {</span>
+<span class="fc" id="L57">            logger.trace(&quot;Rpc account address to convert. hexa: {}&quot;,</span>
+<span class="fc" id="L58">                HexUtils.encode(rpcAccountAddress.toByteArray()));</span>
           }
-<span class="fc" id="L48">          final byte[] withoutVersion = rpcAccountAddress.toByteArray();</span>
-<span class="fc" id="L49">          final byte[] withVersion = VersionUtils.envelop(withoutVersion, AccountAddress.VERSION);</span>
-<span class="fc" id="L50">          return new AccountAddress(of(withVersion));</span>
+          AccountAddress domainAccountAddress;
+<span class="fc bfc" id="L61" title="All 2 branches covered.">          if (false == rpcAccountAddress.isEmpty()) {</span>
+<span class="fc" id="L62">            final byte[] withoutVersion = rpcAccountAddress.toByteArray();</span>
+<span class="fc" id="L63">            final byte[] withVersion = envelop(withoutVersion, AccountAddress.VERSION);</span>
+<span class="fc" id="L64">            domainAccountAddress = new AccountAddress(of(withVersion));</span>
+<span class="fc" id="L65">          } else {</span>
+<span class="fc" id="L66">            domainAccountAddress = new AccountAddress(BytesValue.EMPTY);</span>
+          }
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">          if (logger.isTraceEnabled()) {</span>
+<span class="fc" id="L69">            logger.trace(&quot;Domain account address converted. with checksum: {}, hexa: {}&quot;,</span>
+                domainAccountAddress,
+<span class="fc" id="L71">                encodeHexa(domainAccountAddress.getBytesValue()));</span>
+          }
+<span class="fc" id="L73">          return domainAccountAddress;</span>
         }
       };
 
   public ModelConverter&lt;AccountAddress, com.google.protobuf.ByteString&gt; create() {
-<span class="fc" id="L55">    return new ModelConverter&lt;AccountAddress, com.google.protobuf.ByteString&gt;(domainConverter,</span>
+<span class="fc" id="L78">    return new ModelConverter&lt;AccountAddress, com.google.protobuf.ByteString&gt;(domainConverter,</span>
         rpcConverter);
   }
 

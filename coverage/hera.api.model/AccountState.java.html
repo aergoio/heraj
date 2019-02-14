@@ -9,24 +9,23 @@ import static hera.util.ValidationUtils.assertTrue;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.HerajException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="nc" id="L19">@ToString</span>
-<span class="nc bnc" id="L20" title="All 24 branches missed.">@EqualsAndHashCode</span>
+<span class="fc" id="L18">@ToString</span>
+<span class="nc bnc" id="L19" title="All 24 branches missed.">@EqualsAndHashCode</span>
 public class AccountState {
 
-<span class="nc" id="L23">  @Getter</span>
+<span class="fc" id="L22">  @Getter</span>
   protected final AccountAddress address;
 
-<span class="fc" id="L26">  @Getter</span>
+<span class="fc" id="L25">  @Getter</span>
   protected final long nonce;
 
-<span class="fc" id="L29">  @Getter</span>
+<span class="fc" id="L28">  @Getter</span>
   protected final Aer balance;
 
   /**
@@ -37,14 +36,14 @@ public class AccountState {
    * @param balance a balance. Must be &amp;gt;= 0
    */
   @ApiAudience.Private
-<span class="fc" id="L40">  public AccountState(final AccountAddress address, final long nonce, final Aer balance) {</span>
-<span class="fc" id="L41">    assertNotNull(address, new HerajException(&quot;Account address must not null&quot;));</span>
-<span class="pc bpc" id="L42" title="1 of 2 branches missed.">    assertTrue(nonce &gt;= 0, new HerajException(&quot;Nonce must &gt;= 0&quot;));</span>
-<span class="fc" id="L43">    assertNotNull(balance, new HerajException(&quot;Account balance must not null&quot;));</span>
-<span class="fc" id="L44">    this.address = address;</span>
-<span class="fc" id="L45">    this.nonce = nonce;</span>
-<span class="fc" id="L46">    this.balance = balance;</span>
-<span class="fc" id="L47">  }</span>
+<span class="fc" id="L39">  public AccountState(final AccountAddress address, final long nonce, final Aer balance) {</span>
+<span class="fc" id="L40">    assertNotNull(address, &quot;Account address must not null&quot;);</span>
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">    assertTrue(nonce &gt;= 0, &quot;Nonce must &gt;= 0&quot;);</span>
+<span class="fc" id="L42">    assertNotNull(balance, &quot;Account balance must not null&quot;);</span>
+<span class="fc" id="L43">    this.address = address;</span>
+<span class="fc" id="L44">    this.nonce = nonce;</span>
+<span class="fc" id="L45">    this.balance = balance;</span>
+<span class="fc" id="L46">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

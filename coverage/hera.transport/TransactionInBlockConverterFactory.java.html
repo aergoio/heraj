@@ -20,108 +20,115 @@ import hera.api.model.Transaction.TxType;
 import hera.api.model.TxHash;
 import org.slf4j.Logger;
 import types.Blockchain;
+import types.Blockchain.TxInBlock;
 
-<span class="fc" id="L24">public class TransactionInBlockConverterFactory {</span>
+<span class="fc" id="L25">public class TransactionInBlockConverterFactory {</span>
 
-<span class="fc" id="L26">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L27">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L28">  protected final Function1&lt;Transaction.TxType, Blockchain.TxType&gt; txTypeDomainConverter =</span>
-<span class="fc" id="L29">      new Function1&lt;Transaction.TxType, Blockchain.TxType&gt;() {</span>
+<span class="fc" id="L29">  protected final Function1&lt;Transaction.TxType, Blockchain.TxType&gt; txTypeDomainConverter =</span>
+<span class="fc" id="L30">      new Function1&lt;Transaction.TxType, Blockchain.TxType&gt;() {</span>
 
         @Override
         public Blockchain.TxType apply(final Transaction.TxType domainTxType) {
-<span class="pc bpc" id="L33" title="2 of 3 branches missed.">          switch (domainTxType) {</span>
+<span class="pc bpc" id="L34" title="2 of 3 branches missed.">          switch (domainTxType) {</span>
             case NORMAL:
-<span class="fc" id="L35">              return Blockchain.TxType.NORMAL;</span>
+<span class="fc" id="L36">              return Blockchain.TxType.NORMAL;</span>
             case GOVERNANCE:
-<span class="nc" id="L37">              return Blockchain.TxType.GOVERNANCE;</span>
+<span class="nc" id="L38">              return Blockchain.TxType.GOVERNANCE;</span>
             default:
-<span class="nc" id="L39">              return Blockchain.TxType.UNRECOGNIZED;</span>
+<span class="nc" id="L40">              return Blockchain.TxType.UNRECOGNIZED;</span>
           }
         }
       };
 
-<span class="fc" id="L44">  protected final Function1&lt;Blockchain.TxType, Transaction.TxType&gt; txTypeRpcConverter =</span>
-<span class="fc" id="L45">      new Function1&lt;Blockchain.TxType, Transaction.TxType&gt;() {</span>
+<span class="fc" id="L45">  protected final Function1&lt;Blockchain.TxType, Transaction.TxType&gt; txTypeRpcConverter =</span>
+<span class="fc" id="L46">      new Function1&lt;Blockchain.TxType, Transaction.TxType&gt;() {</span>
 
         @Override
         public TxType apply(Blockchain.TxType rpcTxType) {
-<span class="pc bpc" id="L49" title="2 of 3 branches missed.">          switch (rpcTxType) {</span>
+<span class="pc bpc" id="L50" title="2 of 3 branches missed.">          switch (rpcTxType) {</span>
             case NORMAL:
-<span class="fc" id="L51">              return Transaction.TxType.NORMAL;</span>
+<span class="fc" id="L52">              return Transaction.TxType.NORMAL;</span>
             case GOVERNANCE:
-<span class="nc" id="L53">              return Transaction.TxType.GOVERNANCE;</span>
+<span class="nc" id="L54">              return Transaction.TxType.GOVERNANCE;</span>
             default:
-<span class="nc" id="L55">              return Transaction.TxType.UNRECOGNIZED;</span>
+<span class="nc" id="L56">              return Transaction.TxType.UNRECOGNIZED;</span>
           }
         }
       };
 
-<span class="fc" id="L60">  protected final ModelConverter&lt;AccountAddress, ByteString&gt; accountAddressConverter =</span>
-<span class="fc" id="L61">      new AccountAddressConverterFactory().create();</span>
+<span class="fc" id="L61">  protected final ModelConverter&lt;AccountAddress, ByteString&gt; accountAddressConverter =</span>
+<span class="fc" id="L62">      new AccountAddressConverterFactory().create();</span>
 
-<span class="fc" id="L63">  protected final Function1&lt;Transaction, Blockchain.TxInBlock&gt; domainConverter =</span>
-<span class="fc" id="L64">      new Function1&lt;Transaction, Blockchain.TxInBlock&gt;() {</span>
+<span class="fc" id="L64">  protected final Function1&lt;Transaction, Blockchain.TxInBlock&gt; domainConverter =</span>
+<span class="fc" id="L65">      new Function1&lt;Transaction, Blockchain.TxInBlock&gt;() {</span>
 
         @Override
         public Blockchain.TxInBlock apply(final Transaction domainTransaction) {
-<span class="fc" id="L68">          logger.trace(&quot;Domain transaction in block: {}&quot;, domainTransaction);</span>
+<span class="fc" id="L69">          logger.trace(&quot;Domain transaction in block to convert: {}&quot;, domainTransaction);</span>
 
-<span class="fc" id="L70">          final Blockchain.TxBody.Builder txBodyBuilder = Blockchain.TxBody.newBuilder()</span>
-<span class="fc" id="L71">              .setAccount(accountAddressConverter.convertToRpcModel(domainTransaction.getSender()))</span>
-<span class="fc" id="L72">              .setRecipient(</span>
-<span class="fc" id="L73">                  accountAddressConverter.convertToRpcModel(domainTransaction.getRecipient()))</span>
-<span class="fc" id="L74">              .setAmount(copyFrom(domainTransaction.getAmount()))</span>
-<span class="fc" id="L75">              .setNonce(domainTransaction.getNonce())</span>
-<span class="fc" id="L76">              .setPayload(copyFrom(domainTransaction.getPayload()))</span>
-<span class="fc" id="L77">              .setType(txTypeDomainConverter.apply(domainTransaction.getTxType()))</span>
-<span class="fc" id="L78">              .setSign(copyFrom(domainTransaction.getSignature().getSign()))</span>
-<span class="fc" id="L79">              .setPrice(copyFrom(domainTransaction.getFee().getPrice()))</span>
-<span class="fc" id="L80">              .setLimit(domainTransaction.getFee().getLimit());</span>
+<span class="fc" id="L71">          final Blockchain.TxBody.Builder txBodyBuilder = Blockchain.TxBody.newBuilder()</span>
+<span class="fc" id="L72">              .setAccount(accountAddressConverter.convertToRpcModel(domainTransaction.getSender()))</span>
+<span class="fc" id="L73">              .setRecipient(</span>
+<span class="fc" id="L74">                  accountAddressConverter.convertToRpcModel(domainTransaction.getRecipient()))</span>
+<span class="fc" id="L75">              .setAmount(copyFrom(domainTransaction.getAmount()))</span>
+<span class="fc" id="L76">              .setNonce(domainTransaction.getNonce())</span>
+<span class="fc" id="L77">              .setPayload(copyFrom(domainTransaction.getPayload()))</span>
+<span class="fc" id="L78">              .setType(txTypeDomainConverter.apply(domainTransaction.getTxType()))</span>
+<span class="fc" id="L79">              .setSign(copyFrom(domainTransaction.getSignature().getSign()))</span>
+<span class="fc" id="L80">              .setPrice(copyFrom(domainTransaction.getFee().getPrice()))</span>
+<span class="fc" id="L81">              .setLimit(domainTransaction.getFee().getLimit());</span>
 
-<span class="fc" id="L82">          final Blockchain.TxBody txBody = txBodyBuilder.build();</span>
+<span class="fc" id="L83">          final Blockchain.TxBody txBody = txBodyBuilder.build();</span>
 
-<span class="fc" id="L84">          final Blockchain.Tx rpcTx = Blockchain.Tx.newBuilder()</span>
-<span class="fc" id="L85">              .setBody(txBody)</span>
-<span class="fc" id="L86">              .setHash(copyFrom(domainTransaction.getHash().getBytesValue()))</span>
-<span class="fc" id="L87">              .build();</span>
+<span class="fc" id="L85">          final Blockchain.Tx rpcTx = Blockchain.Tx.newBuilder()</span>
+<span class="fc" id="L86">              .setBody(txBody)</span>
+<span class="fc" id="L87">              .setHash(copyFrom(domainTransaction.getHash().getBytesValue()))</span>
+<span class="fc" id="L88">              .build();</span>
 
-<span class="fc" id="L89">          final Blockchain.TxIdx rpcTxIdx = Blockchain.TxIdx.newBuilder()</span>
-<span class="fc" id="L90">              .setBlockHash(copyFrom(domainTransaction.getBlockHash().getBytesValue()))</span>
-<span class="fc" id="L91">              .setIdx(domainTransaction.getIndexInBlock())</span>
-<span class="fc" id="L92">              .build();</span>
+<span class="fc" id="L90">          final Blockchain.TxIdx rpcTxIdx = Blockchain.TxIdx.newBuilder()</span>
+<span class="fc" id="L91">              .setBlockHash(copyFrom(domainTransaction.getBlockHash().getBytesValue()))</span>
+<span class="fc" id="L92">              .setIdx(domainTransaction.getIndexInBlock())</span>
+<span class="fc" id="L93">              .build();</span>
 
-<span class="fc" id="L94">          return Blockchain.TxInBlock.newBuilder().setTx(rpcTx).setTxIdx(rpcTxIdx).build();</span>
+          final TxInBlock rpcInBlock =
+<span class="fc" id="L96">              Blockchain.TxInBlock.newBuilder().setTx(rpcTx).setTxIdx(rpcTxIdx).build();</span>
+<span class="fc" id="L97">          logger.trace(&quot;Rpc transaction in block converted: {}&quot;, rpcInBlock);</span>
+<span class="fc" id="L98">          return rpcInBlock;</span>
         }
       };
 
-<span class="fc" id="L98">  protected final Function1&lt;Blockchain.TxInBlock, Transaction&gt; rpcConverter =</span>
-<span class="fc" id="L99">      new Function1&lt;Blockchain.TxInBlock, Transaction&gt;() {</span>
+<span class="fc" id="L102">  protected final Function1&lt;Blockchain.TxInBlock, Transaction&gt; rpcConverter =</span>
+<span class="fc" id="L103">      new Function1&lt;Blockchain.TxInBlock, Transaction&gt;() {</span>
 
         @Override
         public Transaction apply(final Blockchain.TxInBlock rpcTransaction) {
-<span class="fc" id="L103">          logger.trace(&quot;Rpc transaction in block: {}&quot;, rpcTransaction);</span>
-<span class="fc" id="L104">          final Blockchain.TxIdx rpcTxIdx = rpcTransaction.getTxIdx();</span>
-<span class="fc" id="L105">          final Blockchain.Tx rpcTx = rpcTransaction.getTx();</span>
-<span class="fc" id="L106">          final Blockchain.TxBody txBody = rpcTx.getBody();</span>
+<span class="fc" id="L107">          logger.trace(&quot;Rpc transaction in block to convert: {}&quot;, rpcTransaction);</span>
+<span class="fc" id="L108">          final Blockchain.TxIdx rpcTxIdx = rpcTransaction.getTxIdx();</span>
+<span class="fc" id="L109">          final Blockchain.Tx rpcTx = rpcTransaction.getTx();</span>
+<span class="fc" id="L110">          final Blockchain.TxBody txBody = rpcTx.getBody();</span>
 
-<span class="fc" id="L108">          return new Transaction(accountAddressConverter.convertToDomainModel(txBody.getAccount()),</span>
-<span class="fc" id="L109">              accountAddressConverter.convertToDomainModel(txBody.getRecipient()),</span>
-<span class="fc" id="L110">              parseToAer(txBody.getAmount()),</span>
-<span class="fc" id="L111">              txBody.getNonce(),</span>
-<span class="fc" id="L112">              Fee.of(parseToAer(txBody.getPrice()), txBody.getLimit()),</span>
-<span class="fc" id="L113">              of(txBody.getPayload().toByteArray()),</span>
-<span class="fc" id="L114">              txTypeRpcConverter.apply(txBody.getType()),</span>
-<span class="fc" id="L115">              Signature.of(of(txBody.getSign().toByteArray())),</span>
-<span class="fc" id="L116">              TxHash.of(of(rpcTx.getHash().toByteArray())),</span>
-<span class="fc" id="L117">              BlockHash.of(of(rpcTxIdx.getBlockHash().toByteArray())),</span>
-<span class="fc" id="L118">              rpcTxIdx.getIdx(),</span>
-<span class="fc bfc" id="L119" title="All 2 branches covered.">              !rpcTxIdx.getBlockHash().equals(com.google.protobuf.ByteString.EMPTY));</span>
+<span class="fc" id="L112">          final Transaction domainTransaction = new Transaction(</span>
+<span class="fc" id="L113">              accountAddressConverter.convertToDomainModel(txBody.getAccount()),</span>
+<span class="fc" id="L114">              accountAddressConverter.convertToDomainModel(txBody.getRecipient()),</span>
+<span class="fc" id="L115">              parseToAer(txBody.getAmount()),</span>
+<span class="fc" id="L116">              txBody.getNonce(),</span>
+<span class="fc" id="L117">              new Fee(parseToAer(txBody.getPrice()), txBody.getLimit()),</span>
+<span class="fc" id="L118">              of(txBody.getPayload().toByteArray()),</span>
+<span class="fc" id="L119">              txTypeRpcConverter.apply(txBody.getType()),</span>
+<span class="fc" id="L120">              new Signature(of(txBody.getSign().toByteArray())),</span>
+<span class="fc" id="L121">              new TxHash(of(rpcTx.getHash().toByteArray())),</span>
+<span class="fc" id="L122">              new BlockHash(of(rpcTxIdx.getBlockHash().toByteArray())),</span>
+<span class="fc" id="L123">              rpcTxIdx.getIdx(),</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">              !rpcTxIdx.getBlockHash().equals(com.google.protobuf.ByteString.EMPTY));</span>
+<span class="fc" id="L125">          logger.trace(&quot;Domain transaction in block converted: {}&quot;, domainTransaction);</span>
+<span class="fc" id="L126">          return domainTransaction;</span>
         }
       };
 
   public ModelConverter&lt;Transaction, Blockchain.TxInBlock&gt; create() {
-<span class="fc" id="L124">    return new ModelConverter&lt;Transaction, Blockchain.TxInBlock&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L131">    return new ModelConverter&lt;Transaction, Blockchain.TxInBlock&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

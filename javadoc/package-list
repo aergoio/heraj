@@ -11,6 +11,7 @@ hera.contract
 hera.custom
 hera.exception
 hera.key
+hera.keystore
 hera.server
 hera.strategy
 hera.transport

@@ -11,7 +11,6 @@ import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.HerajException;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -19,17 +18,17 @@ import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L22">@ToString</span>
-<span class="pc bpc" id="L23" title="21 of 30 branches missed.">@EqualsAndHashCode</span>
+<span class="fc" id="L21">@ToString</span>
+<span class="pc bpc" id="L22" title="21 of 30 branches missed.">@EqualsAndHashCode</span>
 public class ContractInvocation {
 
-<span class="fc" id="L26">  @Getter</span>
+<span class="fc" id="L25">  @Getter</span>
   protected final ContractAddress address;
 
-<span class="fc" id="L29">  @Getter</span>
+<span class="fc" id="L28">  @Getter</span>
   protected final ContractFunction function;
 
-<span class="fc" id="L32">  @Getter</span>
+<span class="fc" id="L31">  @Getter</span>
   protected final List&lt;Object&gt; args;
 
   /**
@@ -42,13 +41,13 @@ public class ContractInvocation {
   @ApiAudience.Private
   public ContractInvocation(final ContractAddress contractAddress,
       final ContractFunction contractFunction,
-<span class="fc" id="L45">      final Object... args) {</span>
-<span class="fc" id="L46">    assertNotNull(contractAddress, new HerajException(&quot;Contract address must not null&quot;));</span>
-<span class="fc" id="L47">    assertNotNull(contractFunction, new HerajException(&quot;Contract function must not null&quot;));</span>
-<span class="fc" id="L48">    this.address = contractAddress;</span>
-<span class="fc" id="L49">    this.function = contractFunction;</span>
-<span class="fc bfc" id="L50" title="All 2 branches covered.">    this.args = null != args ? unmodifiableList(asList(args)) : unmodifiableList(emptyList());</span>
-<span class="fc" id="L51">  }</span>
+<span class="fc" id="L44">      final Object... args) {</span>
+<span class="fc" id="L45">    assertNotNull(contractAddress, &quot;Contract address must not null&quot;);</span>
+<span class="fc" id="L46">    assertNotNull(contractFunction, &quot;Contract function must not null&quot;);</span>
+<span class="fc" id="L47">    this.address = contractAddress;</span>
+<span class="fc" id="L48">    this.function = contractFunction;</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">    this.args = null != args ? unmodifiableList(asList(args)) : unmodifiableList(emptyList());</span>
+<span class="fc" id="L50">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -5,7 +5,9 @@
 package hera.api.model;
 
 import static hera.util.EncodingUtils.decodeBase58WithCheck;
+import static hera.util.EncodingUtils.decodeHexa;
 import static hera.util.EncodingUtils.encodeBase58WithCheck;
+import static hera.util.EncodingUtils.encodeHexa;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
@@ -32,7 +34,7 @@ public class AccountAddress implements Encodable {
    */
   @ApiAudience.Public
   public static AccountAddress of(final String encoded) {
-<span class="fc" id="L35">    return new AccountAddress(encoded);</span>
+<span class="fc" id="L37">    return new AccountAddress(encoded);</span>
   }
 
   /**
@@ -45,10 +47,24 @@ public class AccountAddress implements Encodable {
    */
   @ApiAudience.Private
   public static AccountAddress of(final BytesValue bytesValue) {
-<span class="fc" id="L48">    return new AccountAddress(bytesValue);</span>
+<span class="fc" id="L50">    return new AccountAddress(bytesValue);</span>
   }
 
-<span class="fc" id="L51">  @Getter</span>
+  /**
+   * Create {@code AccountAddress} with an alias.
+   *
+   * @param alias an alias
+   * @return created {@link AccountAddress}
+   *
+   * @throws DecodingFailureException if decoding failed
+   * @throws InvalidVersionException when address version mismatch
+   */
+  @ApiAudience.Private
+  public static AccountAddress fromAlias(final String alias) {
+<span class="fc" id="L64">    return new AccountAddress(decodeHexa(alias));</span>
+  }
+
+<span class="fc" id="L67">  @Getter</span>
   protected final BytesValue bytesValue;
 
   /**
@@ -61,8 +77,8 @@ public class AccountAddress implements Encodable {
    */
   @ApiAudience.Public
   public AccountAddress(final String encoded) {
-<span class="fc" id="L64">    this(decodeBase58WithCheck(encoded));</span>
-<span class="fc" id="L65">  }</span>
+<span class="fc" id="L80">    this(decodeBase58WithCheck(encoded));</span>
+<span class="fc" id="L81">  }</span>
 
   /**
    * AccountAddress constructor.
@@ -72,38 +88,48 @@ public class AccountAddress implements Encodable {
    * @throws InvalidVersionException when address version mismatch
    */
   @ApiAudience.Private
-<span class="fc" id="L75">  public AccountAddress(final BytesValue bytesValue) {</span>
-<span class="fc bfc" id="L76" title="All 2 branches covered.">    if (BytesValue.EMPTY != bytesValue) {</span>
-<span class="fc" id="L77">      VersionUtils.validate(bytesValue, VERSION);</span>
+<span class="fc" id="L91">  public AccountAddress(final BytesValue bytesValue) {</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">    if (BytesValue.EMPTY != bytesValue) {</span>
+<span class="fc" id="L93">      VersionUtils.validate(bytesValue, VERSION);</span>
     }
-<span class="fc" id="L79">    this.bytesValue = bytesValue;</span>
-<span class="fc" id="L80">  }</span>
+<span class="fc" id="L95">    this.bytesValue = bytesValue;</span>
+<span class="fc" id="L96">  }</span>
+
+  /**
+   * Get alias of account address.
+   *
+   * @return an alias of address
+   */
+  public String getAlias() {
+<span class="fc" id="L104">    return encodeHexa(getBytesValue());</span>
+  }
 
   @Override
   public String getEncoded() {
-<span class="fc" id="L84">    return encodeBase58WithCheck(getBytesValue());</span>
+<span class="fc" id="L109">    return encodeBase58WithCheck(getBytesValue());</span>
   }
 
   @Override
   public int hashCode() {
-<span class="fc" id="L89">    return bytesValue.hashCode();</span>
+<span class="fc" id="L114">    return bytesValue.hashCode();</span>
   }
 
   @Override
   public boolean equals(Object obj) {
-<span class="pc bpc" id="L94" title="1 of 2 branches missed.">    if (null == obj) {</span>
-<span class="nc" id="L95">      return false;</span>
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">    if (null == obj) {</span>
+<span class="nc" id="L120">      return false;</span>
     }
-<span class="pc bpc" id="L97" title="1 of 2 branches missed.">    if (!obj.getClass().equals(getClass())) {</span>
-<span class="nc" id="L98">      return false;</span>
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">    if (!obj.getClass().equals(getClass())) {</span>
+<span class="nc" id="L123">      return false;</span>
     }
-<span class="fc" id="L100">    final AccountAddress other = (AccountAddress) obj;</span>
-<span class="fc" id="L101">    return bytesValue.equals(other.bytesValue);</span>
+<span class="fc" id="L125">    final AccountAddress other = (AccountAddress) obj;</span>
+<span class="fc" id="L126">    return bytesValue.equals(other.bytesValue);</span>
   }
 
   @Override
   public String toString() {
-<span class="fc" id="L106">    return getEncoded();</span>
+<span class="fc" id="L131">    return getEncoded();</span>
   }
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

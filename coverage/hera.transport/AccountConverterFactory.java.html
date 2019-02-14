@@ -26,26 +26,30 @@ import types.AccountOuterClass;
 
         @Override
         public types.AccountOuterClass.Account apply(final Account domainAccount) {
-<span class="fc" id="L29">          logger.trace(&quot;Domain account: {}&quot;, domainAccount);</span>
-<span class="fc" id="L30">          return AccountOuterClass.Account.newBuilder()</span>
+<span class="fc" id="L29">          logger.trace(&quot;Domain account to convert: {}&quot;, domainAccount);</span>
+<span class="fc" id="L30">          final AccountOuterClass.Account rpcAccount = AccountOuterClass.Account.newBuilder()</span>
 <span class="fc" id="L31">              .setAddress(accountAddressConverter.convertToRpcModel(domainAccount.getAddress()))</span>
 <span class="fc" id="L32">              .build();</span>
+<span class="fc" id="L33">          logger.trace(&quot;Rpc account converted: {}&quot;, rpcAccount);</span>
+<span class="fc" id="L34">          return rpcAccount;</span>
         }
       };
 
-<span class="fc" id="L36">  protected final Function1&lt;AccountOuterClass.Account, Account&gt; rpcConverter =</span>
-<span class="fc" id="L37">      new Function1&lt;AccountOuterClass.Account, Account&gt;() {</span>
+<span class="fc" id="L38">  protected final Function1&lt;AccountOuterClass.Account, Account&gt; rpcConverter =</span>
+<span class="fc" id="L39">      new Function1&lt;AccountOuterClass.Account, Account&gt;() {</span>
 
         @Override
         public Account apply(final AccountOuterClass.Account rpcAccount) {
-<span class="fc" id="L41">          logger.trace(&quot;Rpc account: {}&quot;, rpcAccount);</span>
-<span class="fc" id="L42">          return new AccountFactory()</span>
-<span class="fc" id="L43">              .create(accountAddressConverter.convertToDomainModel(rpcAccount.getAddress()));</span>
+<span class="fc" id="L43">          logger.trace(&quot;Rpc account to convert: {}&quot;, rpcAccount);</span>
+<span class="fc" id="L44">          final Account domainAccount = new AccountFactory()</span>
+<span class="fc" id="L45">              .create(accountAddressConverter.convertToDomainModel(rpcAccount.getAddress()));</span>
+<span class="fc" id="L46">          logger.trace(&quot;Domain account converted: {}&quot;, domainAccount);</span>
+<span class="fc" id="L47">          return domainAccount;</span>
         }
       };
 
   public ModelConverter&lt;Account, AccountOuterClass.Account&gt; create() {
-<span class="fc" id="L48">    return new ModelConverter&lt;Account, AccountOuterClass.Account&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L52">    return new ModelConverter&lt;Account, AccountOuterClass.Account&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

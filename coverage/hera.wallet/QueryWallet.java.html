@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QueryWallet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.wallet</a> &gt; <span class="el_source">QueryWallet.java</span></div><h1>QueryWallet.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.wallet;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.api.model.Account;
+import hera.api.model.AccountAddress;
+import hera.api.model.AccountState;
+import hera.api.model.Block;
+import hera.api.model.BlockHash;
+import hera.api.model.BlockHeader;
+import hera.api.model.BlockProducer;
+import hera.api.model.ChainInfo;
+import hera.api.model.ContractAddress;
+import hera.api.model.ContractInterface;
+import hera.api.model.ContractInvocation;
+import hera.api.model.ContractResult;
+import hera.api.model.ContractTxHash;
+import hera.api.model.ContractTxReceipt;
+import hera.api.model.NodeStatus;
+import hera.api.model.Peer;
+import hera.api.model.PeerMetric;
+import hera.api.model.StakingInfo;
+import hera.api.model.Transaction;
+import hera.api.model.TxHash;
+import hera.api.model.VotingInfo;
+import hera.client.AergoClient;
+import hera.exception.WalletException;
+import java.io.Closeable;
+import java.util.List;
+import lombok.AccessLevel;
+import lombok.Getter;
+import org.slf4j.Logger;
+
+public abstract class QueryWallet implements QueryClient, Closeable {
+
+  protected static final int SHOW_COUNT = 23;
+
+<span class="fc" id="L42">  protected final Logger logger = getLogger(getClass());</span>
+
+<span class="fc" id="L44">  @Getter(value = AccessLevel.PROTECTED)</span>
+  protected final AergoClient aergoClient;
+
+<span class="fc" id="L47">  protected QueryWallet(final AergoClient aergoClient) {</span>
+<span class="fc" id="L48">    logger.debug(&quot;Binded client: {}&quot;, aergoClient);</span>
+<span class="fc" id="L49">    this.aergoClient = aergoClient;</span>
+<span class="fc" id="L50">  }</span>
+
+  @Override
+  public AccountState getAccountState(final Account account) {
+<span class="fc" id="L54">    return getAergoClient().getAccountOperation().getState(account);</span>
+  }
+
+  @Override
+  public AccountState getAccountState(final AccountAddress accountAddress) {
+<span class="nc" id="L59">    return getAergoClient().getAccountOperation().getState(accountAddress);</span>
+  }
+
+  @Override
+  public AccountAddress getNameOwner(final String name) {
+<span class="fc" id="L64">    return getAergoClient().getAccountOperation().getNameOwner(name);</span>
+  }
+
+  @Override
+  public StakingInfo getStakingInfo(final Account account) {
+<span class="fc" id="L69">    return getStakingInfo(account.getAddress());</span>
+  }
+
+  @Override
+  public StakingInfo getStakingInfo(final AccountAddress accountAddress) {
+<span class="fc" id="L74">    return getAergoClient().getAccountOperation().getStakingInfo(accountAddress);</span>
+  }
+
+  @Override
+  public List&lt;BlockProducer&gt; listElectedBlockProducers() {
+<span class="fc" id="L79">    return listElectedBlockProducers(SHOW_COUNT);</span>
+  }
+
+  @Override
+  public List&lt;BlockProducer&gt; listElectedBlockProducers(final long showCount) {
+<span class="fc" id="L84">    return getAergoClient().getBlockchainOperation().listElectedBlockProducers(showCount);</span>
+  }
+
+  @Override
+  public List&lt;VotingInfo&gt; listVotesOf(final Account account) {
+<span class="fc" id="L89">    return listVotesOf(account.getAddress());</span>
+  }
+
+  @Override
+  public List&lt;VotingInfo&gt; listVotesOf(final AccountAddress accountAddress) {
+<span class="fc" id="L94">    return getAergoClient().getBlockchainOperation().listVotesOf(accountAddress);</span>
+  }
+
+  @Override
+  public List&lt;AccountAddress&gt; listServerKeyStoreAccounts() {
+<span class="fc" id="L99">    return getAergoClient().getKeyStoreOperation().list();</span>
+  }
+
+  @Override
+  public BlockHash getBestBlockHash() {
+<span class="fc" id="L104">    return getAergoClient().getBlockchainOperation().getBlockchainStatus().getBestBlockHash();</span>
+  }
+
+  @Override
+  public long getBestBlockHeight() {
+<span class="fc" id="L109">    return getAergoClient().getBlockchainOperation().getBlockchainStatus().getBestHeight();</span>
+  }
+
+  @Override
+  public ChainInfo getChainInfo() {
+<span class="fc" id="L114">    return getAergoClient().getBlockchainOperation().getChainInfo();</span>
+  }
+
+  @Override
+  public List&lt;Peer&gt; listNodePeers() {
+<span class="fc" id="L119">    return getAergoClient().getBlockchainOperation().listPeers();</span>
+  }
+
+  @Override
+  public List&lt;PeerMetric&gt; listPeerMetrics() {
+<span class="fc" id="L124">    return getAergoClient().getBlockchainOperation().listPeerMetrics();</span>
+  }
+
+  @Override
+  public NodeStatus getNodeStatus() {
+<span class="fc" id="L129">    return getAergoClient().getBlockchainOperation().getNodeStatus();</span>
+  }
+
+  @Override
+  public BlockHeader getBlockHeader(final BlockHash blockHash) {
+<span class="fc" id="L134">    return getAergoClient().getBlockOperation().getBlockHeader(blockHash);</span>
+  }
+
+  @Override
+  public BlockHeader getBlockHeader(final long height) {
+<span class="fc" id="L139">    return getAergoClient().getBlockOperation().getBlockHeader(height);</span>
+  }
+
+  @Override
+  public List&lt;BlockHeader&gt; listBlockHeaders(final BlockHash blockHash, final int size) {
+<span class="fc" id="L144">    return getAergoClient().getBlockOperation().listBlockHeaders(blockHash, size);</span>
+  }
+
+  @Override
+  public List&lt;BlockHeader&gt; listBlockHeaders(final long height, final int size) {
+<span class="fc" id="L149">    return getAergoClient().getBlockOperation().listBlockHeaders(height, size);</span>
+  }
+
+  @Override
+  public Block getBlock(final BlockHash blockHash) {
+<span class="fc" id="L154">    return getAergoClient().getBlockOperation().getBlock(blockHash);</span>
+  }
+
+  @Override
+  public Block getBlock(final long height) {
+<span class="fc" id="L159">    return getAergoClient().getBlockOperation().getBlock(height);</span>
+  }
+
+  @Override
+  public Transaction getTransaction(final TxHash txHash) {
+<span class="fc" id="L164">    return getAergoClient().getTransactionOperation().getTransaction(txHash);</span>
+  }
+
+  @Override
+  public ContractTxReceipt getReceipt(final ContractTxHash contractTxHash) {
+<span class="fc" id="L169">    return getAergoClient().getContractOperation().getReceipt(contractTxHash);</span>
+  }
+
+  @Override
+  public ContractInterface getContractInterface(final ContractAddress contractAddress) {
+<span class="fc" id="L174">    return getAergoClient().getContractOperation().getContractInterface(contractAddress);</span>
+  }
+
+  @Override
+  public ContractResult query(final ContractInvocation contractInvocation) {
+<span class="fc" id="L179">    return getAergoClient().getContractOperation().query(contractInvocation);</span>
+  }
+
+  @Override
+  public void close() {
+    try {
+<span class="nc" id="L185">      getAergoClient().close();</span>
+<span class="nc" id="L186">    } catch (Exception e) {</span>
+<span class="nc" id="L187">      throw new WalletException(e);</span>
+<span class="nc" id="L188">    }</span>
+<span class="nc" id="L189">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

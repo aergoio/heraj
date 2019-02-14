@@ -10,9 +10,6 @@ import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
@@ -36,19 +33,13 @@ import hera.api.model.ContractTxReceipt;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
+import hera.client.PayloadResolver.Type;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.ContractInterfaceConverterFactory;
 import hera.transport.ContractResultConverterFactory;
 import hera.transport.ModelConverter;
 import hera.transport.ReceiptConverterFactory;
-import hera.util.LittleEndianDataOutputStream;
-import hera.util.VersionUtils;
 import io.grpc.ManagedChannel;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.List;
 import lombok.Getter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -57,332 +48,248 @@ import types.Rpc;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="fc" id="L60">public class ContractBaseTemplate implements ChannelInjectable, ContextProviderInjectable {</span>
+<span class="fc" id="L51">public class ContractBaseTemplate implements ChannelInjectable, ContextProviderInjectable {</span>
 
-<span class="fc" id="L62">  protected final Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L53">  protected final Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L64">  protected final ModelConverter&lt;AccountAddress, ByteString&gt; accountAddressConverter =</span>
-<span class="fc" id="L65">      new AccountAddressConverterFactory().create();</span>
+<span class="fc" id="L55">  protected final ModelConverter&lt;AccountAddress, ByteString&gt; accountAddressConverter =</span>
+<span class="fc" id="L56">      new AccountAddressConverterFactory().create();</span>
 
-<span class="fc" id="L67">  protected final ModelConverter&lt;ContractTxReceipt, Blockchain.Receipt&gt; receiptConverter =</span>
-<span class="fc" id="L68">      new ReceiptConverterFactory().create();</span>
+<span class="fc" id="L58">  protected final ModelConverter&lt;ContractTxReceipt, Blockchain.Receipt&gt; receiptConverter =</span>
+<span class="fc" id="L59">      new ReceiptConverterFactory().create();</span>
 
-<span class="fc" id="L70">  protected final ModelConverter&lt;ContractInterface, Blockchain.ABI&gt; contractInterfaceConverter =</span>
-<span class="fc" id="L71">      new ContractInterfaceConverterFactory().create();</span>
+<span class="fc" id="L61">  protected final ModelConverter&lt;ContractInterface, Blockchain.ABI&gt; contractInterfaceConverter =</span>
+<span class="fc" id="L62">      new ContractInterfaceConverterFactory().create();</span>
 
-<span class="fc" id="L73">  protected final ModelConverter&lt;ContractResult, Rpc.SingleBytes&gt; contractResultConverter =</span>
-<span class="fc" id="L74">      new ContractResultConverterFactory().create();</span>
+<span class="fc" id="L64">  protected final ModelConverter&lt;ContractResult, Rpc.SingleBytes&gt; contractResultConverter =</span>
+<span class="fc" id="L65">      new ContractResultConverterFactory().create();</span>
 
-<span class="fc" id="L76">  protected final ObjectMapper objectMapper = new ObjectMapper();</span>
-
-<span class="nc" id="L78">  @Getter</span>
+<span class="nc" id="L67">  @Getter</span>
   protected AergoRPCServiceFutureStub aergoService;
 
   protected ContextProvider contextProvider;
 
-<span class="fc" id="L83">  protected AccountBaseTemplate accountBaseTemplate = new AccountBaseTemplate();</span>
+<span class="fc" id="L72">  protected AccountBaseTemplate accountBaseTemplate = new AccountBaseTemplate();</span>
 
-<span class="fc" id="L85">  protected TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();</span>
+<span class="fc" id="L74">  protected TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();</span>
+
+<span class="fc" id="L76">  protected PayloadResolver payloadResolver = new PayloadResolver();</span>
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-<span class="fc" id="L89">    this.aergoService = newFutureStub(channel);</span>
-<span class="fc" id="L90">    accountBaseTemplate.setChannel(channel);</span>
-<span class="fc" id="L91">    transactionBaseTemplate.setChannel(channel);</span>
-<span class="fc" id="L92">  }</span>
+<span class="fc" id="L80">    this.aergoService = newFutureStub(channel);</span>
+<span class="fc" id="L81">    accountBaseTemplate.setChannel(channel);</span>
+<span class="fc" id="L82">    transactionBaseTemplate.setChannel(channel);</span>
+<span class="fc" id="L83">  }</span>
 
   @Override
   public void setContextProvider(final ContextProvider contextProvider) {
-<span class="fc" id="L96">    this.contextProvider = contextProvider;</span>
-<span class="fc" id="L97">    accountBaseTemplate.setContextProvider(contextProvider);</span>
-<span class="fc" id="L98">    transactionBaseTemplate.setContextProvider(contextProvider);</span>
-<span class="fc" id="L99">  }</span>
+<span class="fc" id="L87">    this.contextProvider = contextProvider;</span>
+<span class="fc" id="L88">    accountBaseTemplate.setContextProvider(contextProvider);</span>
+<span class="fc" id="L89">    transactionBaseTemplate.setContextProvider(contextProvider);</span>
+<span class="fc" id="L90">  }</span>
 
-<span class="fc" id="L101">  @Getter</span>
+<span class="fc" id="L92">  @Getter</span>
   private final Function1&lt;ContractTxHash, FinishableFuture&lt;ContractTxReceipt&gt;&gt; receiptFunction =
-<span class="fc" id="L103">      new Function1&lt;ContractTxHash, FinishableFuture&lt;ContractTxReceipt&gt;&gt;() {</span>
+<span class="fc" id="L94">      new Function1&lt;ContractTxHash, FinishableFuture&lt;ContractTxReceipt&gt;&gt;() {</span>
 
         @Override
         public hera.client.FinishableFuture&lt;ContractTxReceipt&gt; apply(
             final ContractTxHash deployTxHash) {
-<span class="pc bpc" id="L108" title="1 of 2 branches missed.">          if (logger.isDebugEnabled()) {</span>
-<span class="nc" id="L109">            logger.debug(&quot;Get receipt, txHash: {}, Context: {}&quot;, deployTxHash,</span>
-<span class="nc" id="L110">                contextProvider.get());</span>
-          }
+<span class="fc" id="L99">          logger.debug(&quot;Get receipt with txHash: {}&quot;, deployTxHash);</span>
 
-<span class="fc" id="L113">          FinishableFuture&lt;ContractTxReceipt&gt; nextFuture =</span>
+<span class="fc" id="L101">          FinishableFuture&lt;ContractTxReceipt&gt; nextFuture =</span>
               new FinishableFuture&lt;ContractTxReceipt&gt;();
           try {
-<span class="fc" id="L116">            final ByteString byteString = copyFrom(deployTxHash.getBytesValue());</span>
-            final Rpc.SingleBytes hashBytes =
-<span class="fc" id="L118">                Rpc.SingleBytes.newBuilder().setValue(byteString).build();</span>
-<span class="fc" id="L119">            final ListenableFuture&lt;Blockchain.Receipt&gt; listenableFuture =</span>
-<span class="fc" id="L120">                aergoService.getReceipt(hashBytes);</span>
+<span class="fc" id="L104">            final Rpc.SingleBytes rpcDeployTxHash = Rpc.SingleBytes.newBuilder()</span>
+<span class="fc" id="L105">                .setValue(copyFrom(deployTxHash.getBytesValue()))</span>
+<span class="fc" id="L106">                .build();</span>
+<span class="fc" id="L107">            logger.trace(&quot;AergoService getReceipt arg: {}&quot;, rpcDeployTxHash);</span>
 
-<span class="fc" id="L122">            FutureChain&lt;Blockchain.Receipt, ContractTxReceipt&gt; callback =</span>
+<span class="fc" id="L109">            final ListenableFuture&lt;Blockchain.Receipt&gt; listenableFuture =</span>
+<span class="fc" id="L110">                aergoService.getReceipt(rpcDeployTxHash);</span>
+<span class="fc" id="L111">            FutureChain&lt;Blockchain.Receipt, ContractTxReceipt&gt; callback =</span>
                 new FutureChain&lt;Blockchain.Receipt, ContractTxReceipt&gt;(nextFuture,
-<span class="fc" id="L124">                    contextProvider.get());</span>
-<span class="fc" id="L125">            callback.setSuccessHandler(new Function1&lt;Blockchain.Receipt, ContractTxReceipt&gt;() {</span>
+<span class="fc" id="L113">                    contextProvider.get());</span>
+<span class="fc" id="L114">            callback.setSuccessHandler(new Function1&lt;Blockchain.Receipt, ContractTxReceipt&gt;() {</span>
 
               @Override
               public ContractTxReceipt apply(final Blockchain.Receipt receipt) {
-<span class="fc" id="L129">                return receiptConverter.convertToDomainModel(receipt);</span>
+<span class="fc" id="L118">                return receiptConverter.convertToDomainModel(receipt);</span>
               }
             });
-<span class="fc" id="L132">            addCallback(listenableFuture, callback, directExecutor());</span>
-<span class="nc" id="L133">          } catch (Exception e) {</span>
-<span class="nc" id="L134">            nextFuture.fail(e);</span>
-<span class="fc" id="L135">          }</span>
-<span class="fc" id="L136">          return nextFuture;</span>
+<span class="fc" id="L121">            addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="nc" id="L122">          } catch (Exception e) {</span>
+<span class="nc" id="L123">            nextFuture.fail(e);</span>
+<span class="fc" id="L124">          }</span>
+<span class="fc" id="L125">          return nextFuture;</span>
         }
       };
 
-<span class="fc" id="L140">  @Getter</span>
+<span class="fc" id="L129">  @Getter</span>
   private final Function4&lt;Account, ContractDefinition, Long, Fee,
       FinishableFuture&lt;ContractTxHash&gt;&gt; deployFunction = new Function4&lt;Account, ContractDefinition,
-<span class="fc" id="L143">          Long, Fee, FinishableFuture&lt;ContractTxHash&gt;&gt;() {</span>
+<span class="fc" id="L132">          Long, Fee, FinishableFuture&lt;ContractTxHash&gt;&gt;() {</span>
 
         @Override
         public FinishableFuture&lt;ContractTxHash&gt; apply(final Account creator,
             final ContractDefinition contractDefinition, final Long nonce,
             final Fee fee) {
-<span class="pc bpc" id="L149" title="1 of 2 branches missed.">          if (logger.isDebugEnabled()) {</span>
-<span class="nc" id="L150">            logger.debug(</span>
-                &quot;Deploy contract, creator: {}, definition: {}, nonce: {}, fee: {}, Context: {}&quot;,
-<span class="nc" id="L152">                creator.getAddress(), contractDefinition, nonce, fee, contextProvider.get());</span>
-          }
-
+<span class="fc" id="L138">          logger.debug(&quot;Deploy contract with creator: {}, definition: {}, nonce: {}, fee: {}&quot;,</span>
+<span class="fc" id="L139">              creator.getAddress(), contractDefinition, nonce, fee);</span>
           try {
-<span class="fc" id="L156">            final RawTransaction rawTransaction = RawTransaction.newBuilder()</span>
-<span class="fc" id="L157">                .from(creator)</span>
-<span class="fc" id="L158">                .to(AccountAddress.of(BytesValue.EMPTY))</span>
-<span class="fc" id="L159">                .amount(Aer.ZERO)</span>
-<span class="fc" id="L160">                .nonce(nonce)</span>
-<span class="fc" id="L161">                .fee(fee)</span>
-<span class="fc" id="L162">                .payload(definitionToPayloadForm(contractDefinition))</span>
-<span class="fc" id="L163">                .build();</span>
-<span class="fc" id="L164">            return signAndCommit(creator, rawTransaction);</span>
-<span class="nc" id="L165">          } catch (Exception e) {</span>
-<span class="nc" id="L166">            FinishableFuture&lt;ContractTxHash&gt; next = new FinishableFuture&lt;ContractTxHash&gt;();</span>
-<span class="nc" id="L167">            next.fail(e);</span>
-<span class="nc" id="L168">            return next;</span>
+<span class="fc" id="L141">            final RawTransaction rawTransaction = RawTransaction.newBuilder()</span>
+<span class="fc" id="L142">                .from(creator)</span>
+<span class="fc" id="L143">                .to(AccountAddress.of(BytesValue.EMPTY))</span>
+<span class="fc" id="L144">                .amount(Aer.ZERO)</span>
+<span class="fc" id="L145">                .nonce(nonce)</span>
+<span class="fc" id="L146">                .fee(fee)</span>
+<span class="fc" id="L147">                .payload(payloadResolver.resolve(Type.ContractDefinition, contractDefinition))</span>
+<span class="fc" id="L148">                .build();</span>
+<span class="fc" id="L149">            return signAndCommit(creator, rawTransaction);</span>
+<span class="nc" id="L150">          } catch (Exception e) {</span>
+<span class="nc" id="L151">            FinishableFuture&lt;ContractTxHash&gt; next = new FinishableFuture&lt;ContractTxHash&gt;();</span>
+<span class="nc" id="L152">            next.fail(e);</span>
+<span class="nc" id="L153">            return next;</span>
           }
         }
       };
 
-<span class="fc" id="L173">  @Getter</span>
+<span class="fc" id="L158">  @Getter</span>
   private final Function1&lt;ContractAddress,
       FinishableFuture&lt;ContractInterface&gt;&gt; contractInterfaceFunction = new Function1&lt;
-<span class="fc" id="L176">          ContractAddress, FinishableFuture&lt;ContractInterface&gt;&gt;() {</span>
+<span class="fc" id="L161">          ContractAddress, FinishableFuture&lt;ContractInterface&gt;&gt;() {</span>
 
         @Override
         public FinishableFuture&lt;ContractInterface&gt; apply(
             final ContractAddress contractAddress) {
-<span class="pc bpc" id="L181" title="1 of 2 branches missed.">          if (logger.isDebugEnabled()) {</span>
-<span class="nc" id="L182">            logger.debug(&quot;Get contract interface, contract address: {}, Context: {}&quot;,</span>
-                contractAddress,
-<span class="nc" id="L184">                contextProvider.get());</span>
-          }
+<span class="fc" id="L166">          logger.debug(&quot;Get contract interface with contract address: {}&quot;, contractAddress);</span>
 
-<span class="fc" id="L187">          FinishableFuture&lt;ContractInterface&gt; nextFuture =</span>
+<span class="fc" id="L168">          FinishableFuture&lt;ContractInterface&gt; nextFuture =</span>
               new FinishableFuture&lt;ContractInterface&gt;();
           try {
-<span class="fc" id="L190">            final ByteString byteString =</span>
-<span class="fc" id="L191">                accountAddressConverter.convertToRpcModel(contractAddress);</span>
-            final Rpc.SingleBytes hashBytes =
-<span class="fc" id="L193">                Rpc.SingleBytes.newBuilder().setValue(byteString).build();</span>
-<span class="fc" id="L194">            final ListenableFuture&lt;Blockchain.ABI&gt; listenableFuture =</span>
-<span class="fc" id="L195">                aergoService.getABI(hashBytes);</span>
+<span class="fc" id="L171">            final Rpc.SingleBytes rpcContractAddress = Rpc.SingleBytes.newBuilder()</span>
+<span class="fc" id="L172">                .setValue(accountAddressConverter.convertToRpcModel(contractAddress))</span>
+<span class="fc" id="L173">                .build();</span>
+<span class="fc" id="L174">            logger.trace(&quot;AergoService getABI arg: {}&quot;, rpcContractAddress);</span>
 
-<span class="fc" id="L197">            FutureChain&lt;Blockchain.ABI, ContractInterface&gt; callback =</span>
+<span class="fc" id="L176">            final ListenableFuture&lt;Blockchain.ABI&gt; listenableFuture =</span>
+<span class="fc" id="L177">                aergoService.getABI(rpcContractAddress);</span>
+<span class="fc" id="L178">            FutureChain&lt;Blockchain.ABI, ContractInterface&gt; callback =</span>
                 new FutureChain&lt;Blockchain.ABI, ContractInterface&gt;(nextFuture,
-<span class="fc" id="L199">                    contextProvider.get());</span>
-<span class="fc" id="L200">            callback.setSuccessHandler(new Function1&lt;Blockchain.ABI, ContractInterface&gt;() {</span>
+<span class="fc" id="L180">                    contextProvider.get());</span>
+<span class="fc" id="L181">            callback.setSuccessHandler(new Function1&lt;Blockchain.ABI, ContractInterface&gt;() {</span>
 
               @Override
               public ContractInterface apply(final Blockchain.ABI abi) {
-<span class="fc" id="L204">                final ContractInterface withoutAddress =</span>
-<span class="fc" id="L205">                    contractInterfaceConverter.convertToDomainModel(abi);</span>
-<span class="fc" id="L206">                return new ContractInterface(contractAddress, withoutAddress.getVersion(),</span>
-<span class="fc" id="L207">                    withoutAddress.getLanguage(), withoutAddress.getFunctions());</span>
+<span class="fc" id="L185">                final ContractInterface withoutAddress =</span>
+<span class="fc" id="L186">                    contractInterfaceConverter.convertToDomainModel(abi);</span>
+<span class="fc" id="L187">                return new ContractInterface(contractAddress, withoutAddress.getVersion(),</span>
+<span class="fc" id="L188">                    withoutAddress.getLanguage(), withoutAddress.getFunctions());</span>
               }
             });
-<span class="fc" id="L210">            addCallback(listenableFuture, callback, directExecutor());</span>
-<span class="nc" id="L211">          } catch (Exception e) {</span>
-<span class="nc" id="L212">            nextFuture.fail(e);</span>
-<span class="fc" id="L213">          }</span>
-<span class="fc" id="L214">          return nextFuture;</span>
+<span class="fc" id="L191">            addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="nc" id="L192">          } catch (Exception e) {</span>
+<span class="nc" id="L193">            nextFuture.fail(e);</span>
+<span class="fc" id="L194">          }</span>
+<span class="fc" id="L195">          return nextFuture;</span>
         }
       };
 
-<span class="fc" id="L218">  @Getter</span>
+<span class="fc" id="L199">  @Getter</span>
   private final Function4&lt;Account, ContractInvocation, Long, Fee,
       FinishableFuture&lt;ContractTxHash&gt;&gt; executeFunction = new Function4&lt;Account, ContractInvocation,
-<span class="fc" id="L221">          Long, Fee, FinishableFuture&lt;ContractTxHash&gt;&gt;() {</span>
+<span class="fc" id="L202">          Long, Fee, FinishableFuture&lt;ContractTxHash&gt;&gt;() {</span>
 
         @Override
         public FinishableFuture&lt;ContractTxHash&gt; apply(final Account executor,
             final ContractInvocation contractInvocation, final Long nonce,
             final Fee fee) {
-<span class="pc bpc" id="L227" title="1 of 2 branches missed.">          if (logger.isDebugEnabled()) {</span>
-<span class="nc" id="L228">            logger.debug(</span>
-                &quot;Execute contract, executor: {}, invocation: {}, nonce: {}, fee: {}, Context: {}&quot;,
-<span class="nc" id="L230">                executor.getAddress(), contractInvocation, nonce, fee, contextProvider.get());</span>
-          }
-
+<span class="fc" id="L208">          logger.debug(&quot;Execute contract with executor: {}, invocation: {}, nonce: {}, fee: {}&quot;,</span>
+<span class="fc" id="L209">              executor.getAddress(), contractInvocation, nonce, fee);</span>
           try {
-<span class="fc" id="L234">            final String functionCallString = toFunctionCallJsonString(contractInvocation);</span>
-<span class="pc bpc" id="L235" title="1 of 2 branches missed.">            if (logger.isDebugEnabled()) {</span>
-<span class="nc" id="L236">              logger.debug(&quot;Raw contract execution address: {}, function: {}&quot;,</span>
-<span class="nc" id="L237">                  contractInvocation.getAddress(), functionCallString);</span>
-            }
-<span class="fc" id="L239">            final RawTransaction rawTransaction = RawTransaction.newBuilder()</span>
-<span class="fc" id="L240">                .from(executor)</span>
-<span class="fc" id="L241">                .to(contractInvocation.getAddress())</span>
-<span class="fc" id="L242">                .amount(Aer.ZERO)</span>
-<span class="fc" id="L243">                .nonce(nonce)</span>
-<span class="fc" id="L244">                .fee(fee)</span>
-<span class="fc" id="L245">                .payload(BytesValue.of(functionCallString.getBytes()))</span>
-<span class="fc" id="L246">                .build();</span>
-<span class="fc" id="L247">            return signAndCommit(executor, rawTransaction);</span>
-<span class="nc" id="L248">          } catch (Exception e) {</span>
-<span class="nc" id="L249">            FinishableFuture&lt;ContractTxHash&gt; next = new FinishableFuture&lt;ContractTxHash&gt;();</span>
-<span class="nc" id="L250">            next.fail(e);</span>
-<span class="nc" id="L251">            return next;</span>
+<span class="fc" id="L211">            final RawTransaction rawTransaction = RawTransaction.newBuilder()</span>
+<span class="fc" id="L212">                .from(executor)</span>
+<span class="fc" id="L213">                .to(contractInvocation.getAddress())</span>
+<span class="fc" id="L214">                .amount(Aer.ZERO)</span>
+<span class="fc" id="L215">                .nonce(nonce)</span>
+<span class="fc" id="L216">                .fee(fee)</span>
+<span class="fc" id="L217">                .payload(payloadResolver.resolve(Type.ContractInvocation, contractInvocation))</span>
+<span class="fc" id="L218">                .build();</span>
+<span class="fc" id="L219">            return signAndCommit(executor, rawTransaction);</span>
+<span class="nc" id="L220">          } catch (Exception e) {</span>
+<span class="nc" id="L221">            FinishableFuture&lt;ContractTxHash&gt; next = new FinishableFuture&lt;ContractTxHash&gt;();</span>
+<span class="nc" id="L222">            next.fail(e);</span>
+<span class="nc" id="L223">            return next;</span>
           }
         }
       };
 
-<span class="fc" id="L256">  @Getter</span>
+<span class="fc" id="L228">  @Getter</span>
   private final Function1&lt;ContractInvocation, FinishableFuture&lt;ContractResult&gt;&gt; queryFunction =
-<span class="fc" id="L258">      new Function1&lt;ContractInvocation, FinishableFuture&lt;ContractResult&gt;&gt;() {</span>
+<span class="fc" id="L230">      new Function1&lt;ContractInvocation, FinishableFuture&lt;ContractResult&gt;&gt;() {</span>
 
         @Override
         public FinishableFuture&lt;ContractResult&gt; apply(final ContractInvocation contractInvocation) {
-<span class="pc bpc" id="L262" title="1 of 2 branches missed.">          if (logger.isDebugEnabled()) {</span>
-<span class="nc" id="L263">            logger.debug(&quot;Query contract invocation: {}, Context: {}&quot;, contractInvocation,</span>
-<span class="nc" id="L264">                contextProvider.get());</span>
-          }
+<span class="fc" id="L234">          logger.debug(&quot;Query contract with invocation: {}&quot;, contractInvocation);</span>
 
-<span class="fc" id="L267">          final FinishableFuture&lt;ContractResult&gt; nextFuture =</span>
+<span class="fc" id="L236">          final FinishableFuture&lt;ContractResult&gt; nextFuture =</span>
               new FinishableFuture&lt;ContractResult&gt;();
           try {
-<span class="fc" id="L270">            final String functionCallString = toFunctionCallJsonString(contractInvocation);</span>
-<span class="pc bpc" id="L271" title="1 of 2 branches missed.">            if (logger.isDebugEnabled()) {</span>
-<span class="nc" id="L272">              logger.debug(&quot;Raw contract query address: {}, function: {}&quot;,</span>
-<span class="nc" id="L273">                  contractInvocation.getAddress(),</span>
-                  functionCallString);
-            }
+<span class="fc" id="L239">            final ByteString rpcContractAddress =</span>
+<span class="fc" id="L240">                accountAddressConverter.convertToRpcModel(contractInvocation.getAddress());</span>
+<span class="fc" id="L241">            final BytesValue rpcContractInvocation =</span>
+<span class="fc" id="L242">                payloadResolver.resolve(Type.ContractInvocation, contractInvocation);</span>
+<span class="fc" id="L243">            final Blockchain.Query rpcQuery = Blockchain.Query.newBuilder()</span>
+<span class="fc" id="L244">                .setContractAddress(rpcContractAddress)</span>
+<span class="fc" id="L245">                .setQueryinfo(copyFrom(rpcContractInvocation))</span>
+<span class="fc" id="L246">                .build();</span>
+<span class="fc" id="L247">            logger.trace(&quot;AergoService queryContract arg: {}&quot;, rpcQuery);</span>
 
-<span class="fc" id="L277">            final Blockchain.Query query = Blockchain.Query.newBuilder()</span>
-<span class="fc" id="L278">                .setContractAddress(</span>
-<span class="fc" id="L279">                    accountAddressConverter.convertToRpcModel(contractInvocation.getAddress()))</span>
-<span class="fc" id="L280">                .setQueryinfo(ByteString.copyFrom(functionCallString.getBytes())).build();</span>
-<span class="fc" id="L281">            final ListenableFuture&lt;Rpc.SingleBytes&gt; listenableFuture =</span>
-<span class="fc" id="L282">                aergoService.queryContract(query);</span>
-
-<span class="fc" id="L284">            FutureChain&lt;Rpc.SingleBytes, ContractResult&gt; callback =</span>
-<span class="fc" id="L285">                new FutureChain&lt;Rpc.SingleBytes, ContractResult&gt;(nextFuture, contextProvider.get());</span>
-<span class="fc" id="L286">            callback.setSuccessHandler(new Function1&lt;Rpc.SingleBytes, ContractResult&gt;() {</span>
+<span class="fc" id="L249">            final ListenableFuture&lt;Rpc.SingleBytes&gt; listenableFuture =</span>
+<span class="fc" id="L250">                aergoService.queryContract(rpcQuery);</span>
+<span class="fc" id="L251">            FutureChain&lt;Rpc.SingleBytes, ContractResult&gt; callback =</span>
+<span class="fc" id="L252">                new FutureChain&lt;Rpc.SingleBytes, ContractResult&gt;(nextFuture, contextProvider.get());</span>
+<span class="fc" id="L253">            callback.setSuccessHandler(new Function1&lt;Rpc.SingleBytes, ContractResult&gt;() {</span>
 
               @Override
               public ContractResult apply(final Rpc.SingleBytes rawQueryResult) {
-<span class="fc" id="L290">                return contractResultConverter.convertToDomainModel(rawQueryResult);</span>
+<span class="fc" id="L257">                return contractResultConverter.convertToDomainModel(rawQueryResult);</span>
               }
             });
-<span class="fc" id="L293">            addCallback(listenableFuture, callback, directExecutor());</span>
-<span class="nc" id="L294">          } catch (Exception e) {</span>
-<span class="nc" id="L295">            nextFuture.fail(e);</span>
-<span class="fc" id="L296">          }</span>
-<span class="fc" id="L297">          return nextFuture;</span>
+<span class="fc" id="L260">            addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="nc" id="L261">          } catch (Exception e) {</span>
+<span class="nc" id="L262">            nextFuture.fail(e);</span>
+<span class="fc" id="L263">          }</span>
+<span class="fc" id="L264">          return nextFuture;</span>
         }
       };
 
-  protected BytesValue definitionToPayloadForm(final ContractDefinition contractDefinition)
-      throws IOException {
-<span class="pc bpc" id="L303" title="1 of 2 branches missed.">    if (logger.isTraceEnabled()) {</span>
-<span class="nc" id="L304">      logger.trace(&quot;Encoded contract deploy payload: {}&quot;, contractDefinition.getEncodedContract());</span>
-<span class="nc" id="L305">      logger.trace(&quot;Decoded contract deploy payload: {}&quot;, contractDefinition.getDecodedContract());</span>
-    }
-
-<span class="fc" id="L308">    final byte[] rawPaylod = VersionUtils.trim(contractDefinition.getDecodedContract().getValue());</span>
-<span class="fc" id="L309">    final ByteArrayOutputStream rawStream = new ByteArrayOutputStream();</span>
-<span class="fc" id="L310">    final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(rawStream);</span>
-<span class="fc" id="L311">    dataOut.writeInt(rawPaylod.length + 4);</span>
-<span class="fc" id="L312">    dataOut.write(rawPaylod);</span>
-<span class="pc bpc" id="L313" title="1 of 2 branches missed.">    if (!contractDefinition.getConstructorArgs().isEmpty()) {</span>
-<span class="nc" id="L314">      final ArrayNode constructorArgs = getArgsByJsonArray(contractDefinition.getConstructorArgs());</span>
-<span class="nc bnc" id="L315" title="All 2 branches missed.">      if (logger.isDebugEnabled()) {</span>
-<span class="nc" id="L316">        logger.debug(&quot;Contract constructor args: {}&quot;, constructorArgs.toString());</span>
-      }
-<span class="nc" id="L318">      dataOut.write(constructorArgs.toString().getBytes());</span>
-    }
-<span class="fc" id="L320">    dataOut.close();</span>
-<span class="fc" id="L321">    final BytesValue definitionPayload = BytesValue.of(rawStream.toByteArray());</span>
-<span class="fc" id="L322">    return definitionPayload;</span>
-  }
-
   protected FinishableFuture&lt;ContractTxHash&gt; signAndCommit(final Account account,
       final RawTransaction transaction) {
-<span class="fc" id="L327">    final FinishableFuture&lt;ContractTxHash&gt; contractTxHash = new FinishableFuture&lt;ContractTxHash&gt;();</span>
+<span class="fc" id="L270">    final FinishableFuture&lt;ContractTxHash&gt; contractTxHash = new FinishableFuture&lt;ContractTxHash&gt;();</span>
 
-<span class="fc" id="L329">    final FinishableFuture&lt;Transaction&gt; signed =</span>
-<span class="fc" id="L330">        accountBaseTemplate.getSignFunction().apply(account, transaction);</span>
-<span class="fc" id="L331">    addCallback(signed, new FutureCallback&lt;Transaction&gt;() {</span>
+<span class="fc" id="L272">    final FinishableFuture&lt;Transaction&gt; signed =</span>
+<span class="fc" id="L273">        accountBaseTemplate.getSignFunction().apply(account, transaction);</span>
+<span class="fc" id="L274">    addCallback(signed, new FutureCallback&lt;Transaction&gt;() {</span>
 
       @Override
       public void onSuccess(final Transaction signed) {
         try {
-<span class="fc" id="L336">          contractTxHash.success(transactionBaseTemplate.getCommitFunction().apply(signed).get()</span>
-<span class="fc" id="L337">              .adapt(ContractTxHash.class));</span>
-<span class="nc" id="L338">        } catch (Exception e) {</span>
-<span class="nc" id="L339">          contractTxHash.fail(e);</span>
-<span class="fc" id="L340">        }</span>
-<span class="fc" id="L341">      }</span>
+<span class="fc" id="L279">          contractTxHash.success(transactionBaseTemplate.getCommitFunction().apply(signed).get()</span>
+<span class="fc" id="L280">              .adapt(ContractTxHash.class));</span>
+<span class="nc" id="L281">        } catch (Exception e) {</span>
+<span class="nc" id="L282">          contractTxHash.fail(e);</span>
+<span class="fc" id="L283">        }</span>
+<span class="fc" id="L284">      }</span>
 
       @Override
       public void onFailure(final Throwable t) {
-<span class="nc" id="L345">        contractTxHash.fail(t);</span>
-<span class="nc" id="L346">      }</span>
-<span class="fc" id="L347">    }, directExecutor());</span>
+<span class="nc" id="L288">        contractTxHash.fail(t);</span>
+<span class="nc" id="L289">      }</span>
+<span class="fc" id="L290">    }, directExecutor());</span>
 
-<span class="fc" id="L349">    return contractTxHash;</span>
-  }
-
-  protected String toFunctionCallJsonString(final ContractInvocation contractInvocation) {
-<span class="fc" id="L353">    final ObjectNode node = objectMapper.createObjectNode();</span>
-<span class="fc" id="L354">    node.put(&quot;Name&quot;, contractInvocation.getFunction().getName());</span>
-<span class="fc" id="L355">    node.set(&quot;Args&quot;, getArgsByJsonArray(contractInvocation.getArgs()));</span>
-<span class="fc" id="L356">    return node.toString();</span>
-  }
-
-  protected ArrayNode getArgsByJsonArray(final List&lt;Object&gt; args) {
-<span class="fc" id="L360">    final ArrayNode argsNode = objectMapper.createArrayNode();</span>
-    // nil, boolean, number, string, table?
-<span class="pc bpc" id="L362" title="1 of 2 branches missed.">    for (Object arg : args) {</span>
-<span class="nc bnc" id="L363" title="All 2 branches missed.">      if (null == arg) {</span>
-<span class="nc" id="L364">        argsNode.addNull();</span>
-<span class="nc bnc" id="L365" title="All 2 branches missed.">      } else if (arg instanceof Boolean) {</span>
-<span class="nc" id="L366">        argsNode.add((Boolean) arg);</span>
-<span class="nc bnc" id="L367" title="All 2 branches missed.">      } else if (arg instanceof Integer) {</span>
-<span class="nc" id="L368">        argsNode.add((Integer) arg);</span>
-<span class="nc bnc" id="L369" title="All 2 branches missed.">      } else if (arg instanceof Long) {</span>
-<span class="nc" id="L370">        argsNode.add((Long) arg);</span>
-<span class="nc bnc" id="L371" title="All 2 branches missed.">      } else if (arg instanceof Float) {</span>
-<span class="nc" id="L372">        argsNode.add((Float) arg);</span>
-<span class="nc bnc" id="L373" title="All 2 branches missed.">      } else if (arg instanceof Double) {</span>
-<span class="nc" id="L374">        argsNode.add((Double) arg);</span>
-<span class="nc bnc" id="L375" title="All 2 branches missed.">      } else if (arg instanceof BigInteger) {</span>
-<span class="nc" id="L376">        argsNode.add(new BigDecimal((BigInteger) arg));</span>
-<span class="nc bnc" id="L377" title="All 2 branches missed.">      } else if (arg instanceof BigDecimal) {</span>
-<span class="nc" id="L378">        argsNode.add((BigDecimal) arg);</span>
-<span class="nc bnc" id="L379" title="All 2 branches missed.">      } else if (arg instanceof String) {</span>
-<span class="nc" id="L380">        argsNode.add((String) arg);</span>
-      } else {
-<span class="nc" id="L382">        throw new IllegalArgumentException(&quot;Args type must be number or string&quot;);</span>
-      }
-<span class="nc" id="L384">    }</span>
-<span class="fc" id="L385">    return argsNode;</span>
+<span class="fc" id="L292">    return contractTxHash;</span>
   }
 
 }

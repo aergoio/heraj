@@ -9,7 +9,6 @@ import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.HerajException;
 import java.util.Collections;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -18,14 +17,14 @@ import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L21">@ToString</span>
-<span class="pc bpc" id="L22" title="21 of 22 branches missed.">@EqualsAndHashCode</span>
+<span class="fc" id="L20">@ToString</span>
+<span class="pc bpc" id="L21" title="21 of 22 branches missed.">@EqualsAndHashCode</span>
 public class ContractFunction {
 
-<span class="fc" id="L25">  @Getter</span>
+<span class="fc" id="L24">  @Getter</span>
   protected final String name;
 
-<span class="fc" id="L28">  @Getter</span>
+<span class="fc" id="L27">  @Getter</span>
   protected final List&lt;String&gt; argumentNames;
 
   /**
@@ -35,8 +34,8 @@ public class ContractFunction {
    */
   @ApiAudience.Private
   public ContractFunction(final String name) {
-<span class="fc" id="L38">    this(name, Collections.&lt;String&gt;emptyList());</span>
-<span class="fc" id="L39">  }</span>
+<span class="fc" id="L37">    this(name, Collections.&lt;String&gt;emptyList());</span>
+<span class="fc" id="L38">  }</span>
 
   /**
    * ContractFunction constructor.
@@ -45,12 +44,12 @@ public class ContractFunction {
    * @param argumentNames an argument names
    */
   @ApiAudience.Private
-<span class="fc" id="L48">  public ContractFunction(final String name, final List&lt;String&gt; argumentNames) {</span>
-<span class="fc" id="L49">    assertNotNull(name, new HerajException(&quot;Function name must not null&quot;));</span>
-<span class="fc" id="L50">    assertNotNull(argumentNames, new HerajException(&quot;Argument names must not null&quot;));</span>
-<span class="fc" id="L51">    this.name = name;</span>
-<span class="fc" id="L52">    this.argumentNames = unmodifiableList(argumentNames);</span>
-<span class="fc" id="L53">  }</span>
+<span class="fc" id="L47">  public ContractFunction(final String name, final List&lt;String&gt; argumentNames) {</span>
+<span class="fc" id="L48">    assertNotNull(name, &quot;Function name must not null&quot;);</span>
+<span class="fc" id="L49">    assertNotNull(argumentNames, &quot;Argument names must not null&quot;);</span>
+<span class="fc" id="L50">    this.name = name;</span>
+<span class="fc" id="L51">    this.argumentNames = unmodifiableList(argumentNames);</span>
+<span class="fc" id="L52">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

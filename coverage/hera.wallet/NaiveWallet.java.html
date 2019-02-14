@@ -8,21 +8,22 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
+import hera.keystore.InMemoryKeyStore;
 import java.security.KeyStore;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public class NaiveWallet extends InteractiveWallet {
+public class NaiveWallet extends AbstractWallet {
 
   NaiveWallet(final AergoClient aergoClient, final TryCountAndInterval tryCountAndInterval) {
-<span class="fc" id="L18">    super(aergoClient, tryCountAndInterval);</span>
-<span class="fc" id="L19">    this.keyStore = new InMemoryKeyStore();</span>
-<span class="fc" id="L20">  }</span>
+<span class="fc" id="L19">    super(aergoClient, tryCountAndInterval);</span>
+<span class="fc" id="L20">    this.keyStore = new InMemoryKeyStore();</span>
+<span class="fc" id="L21">  }</span>
 
   @Override
   public void bindKeyStore(KeyStore keyStore) {
     // do nothing
-<span class="fc" id="L25">  }</span>
+<span class="fc" id="L26">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

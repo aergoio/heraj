@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChainId.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.model</a> &gt; <span class="el_source">ChainId.java</span></div><h1>ChainId.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.api.model;
+
+import static hera.util.ValidationUtils.assertNotNull;
+
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+
+@ApiAudience.Public
+@ApiStability.Unstable
+<span class="fc" id="L17">@ToString</span>
+<span class="nc bnc" id="L18" title="All 38 branches missed.">@EqualsAndHashCode</span>
+public class ChainId {
+
+<span class="fc" id="L21">  @Getter</span>
+  protected String magic;
+
+<span class="fc" id="L24">  @Getter</span>
+  protected boolean isPublic;
+
+<span class="fc" id="L27">  @Getter</span>
+  protected boolean isMainNet;
+
+<span class="fc" id="L30">  @Getter</span>
+  protected Aer coinbasePrice;
+
+<span class="fc" id="L33">  @Getter</span>
+  protected String consensus;
+
+  /**
+   * ChainId constructor.
+   *
+   * @param magic a magic of chain id
+   * @param isPublic whether it's public or not
+   * @param isMainNet whether it's mainnet or not
+   * @param coinbasePrice coinbase fee
+   * @param consensus a consensus type
+   */
+  @ApiAudience.Private
+  public ChainId(final String magic, final boolean isPublic, final boolean isMainNet,
+<span class="fc" id="L47">      final Aer coinbasePrice, final String consensus) {</span>
+<span class="fc" id="L48">    assertNotNull(magic, &quot;Magis must not null&quot;);</span>
+<span class="fc" id="L49">    assertNotNull(coinbasePrice, &quot;Coinbase price must not null&quot;);</span>
+<span class="fc" id="L50">    assertNotNull(consensus, &quot;Consensus must not null&quot;);</span>
+<span class="fc" id="L51">    this.magic = magic;</span>
+<span class="fc" id="L52">    this.isPublic = isPublic;</span>
+<span class="fc" id="L53">    this.isMainNet = isMainNet;</span>
+<span class="fc" id="L54">    this.coinbasePrice = coinbasePrice;</span>
+<span class="fc" id="L55">    this.consensus = consensus;</span>
+<span class="fc" id="L56">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

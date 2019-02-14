@@ -11,11 +11,22 @@ import com.google.protobuf.ByteString;
 import hera.api.model.Aer;
 import hera.api.model.BytesValue;
 import hera.exception.RpcArgumentException;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
-<span class="nc" id="L18">public class TransportUtils {</span>
+<span class="nc" id="L15">public class TransportUtils {</span>
+
+  /**
+   * Transform a raw byte array to {@link ByteString} in protobuf. If either raw byte array is null
+   * or raw byte array is empty, return {@link ByteString#EMPTY}
+   *
+   * @param rawBytes a raw bytes
+   * @return protobuf {@link ByteString}
+   */
+  public static ByteString copyFrom(final byte[] rawBytes) {
+<span class="fc bfc" id="L25" title="All 4 branches covered.">    if (null == rawBytes || 0 == rawBytes.length) {</span>
+<span class="fc" id="L26">      return ByteString.EMPTY;</span>
+    }
+<span class="fc" id="L28">    return ByteString.copyFrom(rawBytes);</span>
+  }
 
   /**
    * Transform {@link BytesValue} to {@link ByteString} in protobuf. If either bytesValue or value
@@ -25,10 +36,10 @@ import java.io.InputStream;
    * @return protobuf {@link ByteString}
    */
   public static ByteString copyFrom(final BytesValue bytesValue) {
-<span class="pc bpc" id="L28" title="1 of 4 branches missed.">    if (null == bytesValue || null == bytesValue.getValue()) {</span>
-<span class="fc" id="L29">      return ByteString.EMPTY;</span>
+<span class="pc bpc" id="L39" title="1 of 4 branches missed.">    if (null == bytesValue || null == bytesValue.getValue()) {</span>
+<span class="fc" id="L40">      return ByteString.EMPTY;</span>
     }
-<span class="fc" id="L31">    return ByteString.copyFrom(bytesValue.getValue());</span>
+<span class="fc" id="L42">    return ByteString.copyFrom(bytesValue.getValue());</span>
   }
 
   /**
@@ -39,10 +50,42 @@ import java.io.InputStream;
    * @return protobuf {@link ByteString}
    */
   public static ByteString copyFrom(final Aer aer) {
-<span class="pc bpc" id="L42" title="1 of 4 branches missed.">    if (null == aer || Aer.EMPTY == aer) {</span>
-<span class="fc" id="L43">      return ByteString.EMPTY;</span>
+<span class="pc bpc" id="L53" title="1 of 4 branches missed.">    if (null == aer || Aer.EMPTY == aer) {</span>
+<span class="fc" id="L54">      return ByteString.EMPTY;</span>
     }
-<span class="fc" id="L45">    return ByteString.copyFrom(positiveToByteArray(aer.getValue()));</span>
+<span class="fc" id="L56">    return ByteString.copyFrom(positiveToByteArray(aer.getValue()));</span>
+  }
+
+  /**
+   * Convert long value to {@link ByteString} in a little endian form.
+   *
+   * @param longValue long value
+   * @return converted protobuf {@link ByteString} in a little endian
+   */
+  public static ByteString copyFrom(final long longValue) {
+<span class="fc" id="L66">    final byte[] rawBytes = new byte[8];</span>
+<span class="fc" id="L67">    rawBytes[0] = (byte) (0xFF &amp; (longValue));</span>
+<span class="fc" id="L68">    rawBytes[1] = (byte) (0xFF &amp; (longValue &gt;&gt; 8));</span>
+<span class="fc" id="L69">    rawBytes[2] = (byte) (0xFF &amp; (longValue &gt;&gt; 16));</span>
+<span class="fc" id="L70">    rawBytes[3] = (byte) (0xFF &amp; (longValue &gt;&gt; 24));</span>
+<span class="fc" id="L71">    rawBytes[4] = (byte) (0xFF &amp; (longValue &gt;&gt; 32));</span>
+<span class="fc" id="L72">    rawBytes[5] = (byte) (0xFF &amp; (longValue &gt;&gt; 40));</span>
+<span class="fc" id="L73">    rawBytes[6] = (byte) (0xFF &amp; (longValue &gt;&gt; 48));</span>
+<span class="fc" id="L74">    rawBytes[7] = (byte) (0xFF &amp; (longValue &gt;&gt; 56));</span>
+<span class="fc" id="L75">    return ByteString.copyFrom(rawBytes);</span>
+  }
+
+  /**
+   * Parse raw aer to {@link Aer}.
+   *
+   * @param rawAer a raw aer
+   * @return parsed {@link Aer}.
+   */
+  public static Aer parseToAer(final byte[] rawAer) {
+<span class="pc bpc" id="L85" title="2 of 4 branches missed.">    if (null == rawAer || 0 == rawAer.length) {</span>
+<span class="nc" id="L86">      return Aer.EMPTY;</span>
+    }
+<span class="fc" id="L88">    return Aer.of(byteArrayToPositive(rawAer));</span>
   }
 
   /**
@@ -52,51 +95,30 @@ import java.io.InputStream;
    * @return parsed {@link Aer}.
    */
   public static Aer parseToAer(final ByteString rawAer) {
-<span class="fc bfc" id="L55" title="All 4 branches covered.">    if (null == rawAer || ByteString.EMPTY.equals(rawAer)) {</span>
-<span class="fc" id="L56">      return Aer.EMPTY;</span>
+<span class="pc bpc" id="L98" title="1 of 4 branches missed.">    if (null == rawAer || ByteString.EMPTY.equals(rawAer)) {</span>
+<span class="fc" id="L99">      return Aer.EMPTY;</span>
     }
-<span class="fc" id="L58">    return Aer.of(byteArrayToPositive(rawAer.toByteArray()));</span>
+<span class="fc" id="L101">    return parseToAer(rawAer.toByteArray());</span>
   }
 
   /**
-   * Convert long value to byte array in a little endian.
+   * Sha256 digest and return digested in hexa.
    *
-   * @param longValue long value
-   * @return converted byte array in a little endian
+   * @param string a string
+   * @return a hexa encoded digested raw bytes
    */
-  public static byte[] longToByteArray(final long longValue) {
-<span class="fc" id="L68">    final byte[] raw = new byte[8];</span>
-<span class="fc" id="L69">    raw[0] = (byte) (0xFF &amp; (longValue));</span>
-<span class="fc" id="L70">    raw[1] = (byte) (0xFF &amp; (longValue &gt;&gt; 8));</span>
-<span class="fc" id="L71">    raw[2] = (byte) (0xFF &amp; (longValue &gt;&gt; 16));</span>
-<span class="fc" id="L72">    raw[3] = (byte) (0xFF &amp; (longValue &gt;&gt; 24));</span>
-<span class="fc" id="L73">    raw[4] = (byte) (0xFF &amp; (longValue &gt;&gt; 32));</span>
-<span class="fc" id="L74">    raw[5] = (byte) (0xFF &amp; (longValue &gt;&gt; 40));</span>
-<span class="fc" id="L75">    raw[6] = (byte) (0xFF &amp; (longValue &gt;&gt; 48));</span>
-<span class="fc" id="L76">    raw[7] = (byte) (0xFF &amp; (longValue &gt;&gt; 56));</span>
-<span class="fc" id="L77">    return raw;</span>
+  public static String sha256AndEncodeHexa(final String string) {
+<span class="fc" id="L111">    return sha256AndEncodeHexa(string.getBytes());</span>
   }
 
   /**
-   * Convert input stream to byte array.
+   * Sha256 digest and return digested in hexa.
    *
-   * @param in input stream
-   * @return converted byte array
+   * @param rawBytes a raw bytes.
+   * @return a hexa encoded digested raw bytes
    */
-  public static byte[] inputStreamToByteArray(final InputStream in) {
-<span class="fc" id="L87">    final ByteArrayOutputStream bos = new ByteArrayOutputStream();</span>
-<span class="fc" id="L88">    byte[] buffer = new byte[1024];</span>
-    int read;
-    try {
-<span class="fc bfc" id="L91" title="All 2 branches covered.">      while ((read = in.read(buffer)) != -1) {</span>
-<span class="fc" id="L92">        bos.write(buffer, 0, read);</span>
-      }
-<span class="fc" id="L94">      bos.close();</span>
-<span class="nc" id="L95">    } catch (IOException e) {</span>
-<span class="nc" id="L96">      throw new IllegalStateException(e);</span>
-<span class="fc" id="L97">    }</span>
-
-<span class="fc" id="L99">    return bos.toByteArray();</span>
+  public static String sha256AndEncodeHexa(final byte[] rawBytes) {
+<span class="fc" id="L121">    return HexUtils.encode(Sha256Utils.digest(rawBytes));</span>
   }
 
   /**
@@ -109,10 +131,10 @@ import java.io.InputStream;
    */
   public static void assertArgument(final boolean condition, final String target,
       final String requirement) {
-<span class="fc bfc" id="L112" title="All 2 branches covered.">    if (false == condition) {</span>
-<span class="fc" id="L113">      throw new RpcArgumentException(target, requirement);</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">    if (false == condition) {</span>
+<span class="fc" id="L135">      throw new RpcArgumentException(target, requirement);</span>
     }
-<span class="fc" id="L115">  }</span>
+<span class="fc" id="L137">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -8,15 +8,14 @@ import static hera.util.ValidationUtils.assertNotNull;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.HerajException;
+import hera.util.HexUtils;
+import hera.util.Sha256Utils;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L18">@ToString</span>
-<span class="pc bpc" id="L19" title="13 of 22 branches missed.">@EqualsAndHashCode</span>
+<span class="pc bpc" id="L18" title="12 of 22 branches missed.">@EqualsAndHashCode</span>
 public class Authentication {
 
   /**
@@ -28,13 +27,13 @@ public class Authentication {
    */
   @ApiAudience.Public
   public static Authentication of(final AccountAddress accountAddress, final String password) {
-<span class="fc" id="L31">    return new Authentication(accountAddress, password);</span>
+<span class="fc" id="L30">    return new Authentication(accountAddress, password);</span>
   }
 
-<span class="fc" id="L34">  @Getter</span>
+<span class="fc" id="L33">  @Getter</span>
   protected AccountAddress address;
 
-<span class="fc" id="L37">  @Getter</span>
+<span class="fc" id="L36">  @Getter</span>
   protected String password;
 
   /**
@@ -44,12 +43,18 @@ public class Authentication {
    * @param password a password
    */
   @ApiAudience.Public
-<span class="fc" id="L47">  public Authentication(final AccountAddress accountAddress, final String password) {</span>
-<span class="fc" id="L48">    assertNotNull(accountAddress, new HerajException(&quot;Account address must not null&quot;));</span>
-<span class="fc" id="L49">    assertNotNull(password, new HerajException(&quot;Pasasword must not null&quot;));</span>
-<span class="fc" id="L50">    this.address = accountAddress;</span>
-<span class="fc" id="L51">    this.password = password;</span>
-<span class="fc" id="L52">  }</span>
+<span class="fc" id="L46">  public Authentication(final AccountAddress accountAddress, final String password) {</span>
+<span class="fc" id="L47">    assertNotNull(accountAddress, &quot;Account address must not null&quot;);</span>
+<span class="fc" id="L48">    assertNotNull(password, &quot;Pasasword must not null&quot;);</span>
+<span class="fc" id="L49">    this.address = accountAddress;</span>
+<span class="fc" id="L50">    this.password = password;</span>
+<span class="fc" id="L51">  }</span>
+
+  @Override
+  public String toString() {
+<span class="fc" id="L55">    return String.format(&quot;Authentication(address=%s, password=%s)&quot;, address,</span>
+<span class="fc" id="L56">        HexUtils.encode(Sha256Utils.digest(password.getBytes())));</span>
+  }
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

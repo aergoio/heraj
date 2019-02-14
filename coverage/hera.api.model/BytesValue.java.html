@@ -6,7 +6,6 @@ package hera.api.model;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.util.HexUtils;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -15,7 +14,7 @@ import java.util.Arrays;
 @ApiStability.Unstable
 public class BytesValue {
 
-<span class="fc" id="L18">  public static final BytesValue EMPTY = new BytesValue(null);</span>
+<span class="fc" id="L17">  public static final BytesValue EMPTY = new BytesValue(null);</span>
 
   /**
    * Create {@code BytesValue} with a raw bytes array.
@@ -25,7 +24,7 @@ public class BytesValue {
    */
   @ApiAudience.Public
   public static BytesValue of(final byte[] bytes) {
-<span class="fc" id="L28">    return new BytesValue(bytes);</span>
+<span class="fc" id="L27">    return new BytesValue(bytes);</span>
   }
 
   protected transient int hash;
@@ -38,50 +37,50 @@ public class BytesValue {
    * @param bytes value
    */
   @ApiAudience.Public
-<span class="fc" id="L41">  public BytesValue(final byte[] bytes) {</span>
-<span class="fc bfc" id="L42" title="All 2 branches covered.">    this.value = bytes != null ? Arrays.copyOf(bytes, bytes.length) : new byte[0];</span>
-<span class="fc" id="L43">  }</span>
+<span class="fc" id="L40">  public BytesValue(final byte[] bytes) {</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">    this.value = bytes != null ? Arrays.copyOf(bytes, bytes.length) : new byte[0];</span>
+<span class="fc" id="L42">  }</span>
 
   public byte[] getValue() {
-<span class="fc" id="L46">    return Arrays.copyOf(value, value.length);</span>
+<span class="fc" id="L45">    return Arrays.copyOf(value, value.length);</span>
   }
 
   public boolean isEmpty() {
-<span class="fc bfc" id="L50" title="All 2 branches covered.">    return 0 == value.length;</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">    return 0 == value.length;</span>
   }
 
   @Override
   public String toString() {
-<span class="fc" id="L55">    return HexUtils.encode(value);</span>
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">    return null == value ? &quot;&quot; : new String(value);</span>
   }
 
   @Override
   public int hashCode() {
-<span class="fc" id="L60">    int h = this.hash;</span>
-<span class="pc bpc" id="L61" title="1 of 4 branches missed.">    if (h == 0 &amp;&amp; this.value.length &gt; 0) {</span>
-<span class="fc bfc" id="L62" title="All 2 branches covered.">      for (final byte byteValue : this.value) {</span>
-<span class="fc" id="L63">        h = 31 * h + byteValue;</span>
+<span class="fc" id="L59">    int h = this.hash;</span>
+<span class="pc bpc" id="L60" title="1 of 4 branches missed.">    if (h == 0 &amp;&amp; this.value.length &gt; 0) {</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">      for (final byte byteValue : this.value) {</span>
+<span class="fc" id="L62">        h = 31 * h + byteValue;</span>
       }
 
-<span class="fc" id="L66">      this.hash = h;</span>
+<span class="fc" id="L65">      this.hash = h;</span>
     }
-<span class="fc" id="L68">    return h;</span>
+<span class="fc" id="L67">    return h;</span>
   }
 
   @Override
   public boolean equals(final Object obj) {
-<span class="pc bpc" id="L73" title="1 of 2 branches missed.">    if (null == obj) {</span>
-<span class="nc" id="L74">      return false;</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">    if (null == obj) {</span>
+<span class="nc" id="L73">      return false;</span>
     }
-<span class="pc bpc" id="L76" title="1 of 2 branches missed.">    if (!obj.getClass().equals(getClass())) {</span>
-<span class="nc" id="L77">      return false;</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">    if (!obj.getClass().equals(getClass())) {</span>
+<span class="nc" id="L76">      return false;</span>
     }
-<span class="fc" id="L79">    final BytesValue other = (BytesValue) obj;</span>
-<span class="fc" id="L80">    return Arrays.equals(this.value, other.value);</span>
+<span class="fc" id="L78">    final BytesValue other = (BytesValue) obj;</span>
+<span class="fc" id="L79">    return Arrays.equals(this.value, other.value);</span>
   }
 
   public InputStream getInputStream() {
-<span class="fc" id="L84">    return new ByteArrayInputStream(getValue());</span>
+<span class="fc" id="L83">    return new ByteArrayInputStream(getValue());</span>
   }
 
 }

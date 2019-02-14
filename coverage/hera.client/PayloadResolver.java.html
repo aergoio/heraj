@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PayloadResolver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.client</a> &gt; <span class="el_source">PayloadResolver.java</span></div><h1>PayloadResolver.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.client;
+
+import static hera.api.model.BytesValue.of;
+import static hera.util.VersionUtils.trim;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import hera.api.model.BytesValue;
+import hera.api.model.ContractDefinition;
+import hera.api.model.ContractInvocation;
+import hera.api.model.PeerId;
+import hera.exception.RpcException;
+import hera.util.LittleEndianDataOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.List;
+import org.slf4j.Logger;
+
+<span class="fc" id="L27">public class PayloadResolver {</span>
+
+  public static final String STAKE_PAYLOAD_PREVIX = &quot;s&quot;;
+  public static final String UNSTAKE_PAYLOAD_PREVIX = &quot;u&quot;;
+  public static final String VOTE_PAYLOAD_PREVIX = &quot;v&quot;;
+  public static final String CREATE_NAME_PAYLOAD_PREVIX = &quot;c&quot;;
+  public static final String UPDATE_NAME_PAYLOAD_PREVIX = &quot;u&quot;;
+
+<span class="fc" id="L35">  public enum Type {</span>
+<span class="fc" id="L36">    ContractDefinition(ContractDefinition.class),</span>
+<span class="fc" id="L37">    ContractInvocation(ContractInvocation.class),</span>
+<span class="fc" id="L38">    Stake,</span>
+<span class="fc" id="L39">    Unstake,</span>
+<span class="fc" id="L40">    Vote(PeerId.class),</span>
+<span class="fc" id="L41">    CreateName(String.class),</span>
+<span class="fc" id="L42">    UpdateName(String.class, byte[].class);</span>
+
+    protected final Class&lt;?&gt;[] targets;
+
+<span class="fc" id="L46">    private Type(final Class&lt;?&gt;... targets) {</span>
+<span class="fc" id="L47">      this.targets = targets;</span>
+<span class="fc" id="L48">    }</span>
+  }
+
+<span class="fc" id="L51">  protected final Logger logger = getLogger(getClass());</span>
+
+<span class="fc" id="L53">  protected final ObjectMapper objectMapper = new ObjectMapper();</span>
+
+  /**
+   * Resolve targets in a payload form.
+   *
+   * @param type a payload type
+   * @param targets targets
+   * @return resolved payload
+   *
+   * @throws RpcException if fails
+   */
+  public BytesValue resolve(final Type type, final Object... targets) {
+<span class="fc" id="L65">    logger.trace(&quot;Payload resolve type: {}, target size: {}&quot;, type, targets.length);</span>
+<span class="fc" id="L66">    validate(type, targets);</span>
+<span class="fc" id="L67">    BytesValue resolved = BytesValue.EMPTY;</span>
+    try {
+<span class="pc bpc" id="L69" title="1 of 8 branches missed.">      switch (type) {</span>
+        case ContractDefinition:
+<span class="fc" id="L71">          resolved = resolveContractDefinition(targets);</span>
+<span class="fc" id="L72">          break;</span>
+        case ContractInvocation:
+<span class="fc" id="L74">          resolved = resolveContractInvocation(targets);</span>
+<span class="fc" id="L75">          break;</span>
+        case Stake:
+<span class="fc" id="L77">          resolved = resolveStake(targets);</span>
+<span class="fc" id="L78">          break;</span>
+        case Unstake:
+<span class="fc" id="L80">          resolved = resolveUnstake(targets);</span>
+<span class="fc" id="L81">          break;</span>
+        case CreateName:
+<span class="fc" id="L83">          resolved = resolveCreateName(targets);</span>
+<span class="fc" id="L84">          break;</span>
+        case UpdateName:
+<span class="fc" id="L86">          resolved = resolveUpdateName(targets);</span>
+<span class="fc" id="L87">          break;</span>
+        case Vote:
+<span class="fc" id="L89">          resolved = resolveVote(targets);</span>
+<span class="fc" id="L90">          break;</span>
+        default:
+<span class="nc" id="L92">          resolved = of(targets.toString().getBytes());</span>
+          break;
+      }
+<span class="nc" id="L95">    } catch (RpcException e) {</span>
+<span class="nc" id="L96">      throw e;</span>
+<span class="nc" id="L97">    } catch (Exception e) {</span>
+<span class="nc" id="L98">      throw new RpcException(e);</span>
+<span class="fc" id="L99">    }</span>
+<span class="fc" id="L100">    logger.trace(&quot;Resolved payload: {}&quot;, resolved);</span>
+<span class="fc" id="L101">    return resolved;</span>
+  }
+
+  protected void validate(final Type type, final Object[] instances) {
+<span class="fc" id="L105">    final int expectedSize = type.targets.length;</span>
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">    if (instances.length != expectedSize) {</span>
+<span class="nc" id="L107">      throw new RpcException(&quot;Targets length must be &quot; + expectedSize);</span>
+    }
+<span class="fc bfc" id="L109" title="All 2 branches covered.">    for (int i = 0; i &lt; expectedSize; ++i) {</span>
+<span class="fc" id="L110">      final Class&lt;?&gt; mustbe = type.targets[i];</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">      if (!mustbe.isInstance(instances[i])) {</span>
+<span class="nc" id="L112">        throw new RpcException(&quot;Target must be &quot; + mustbe.getName());</span>
+      }
+    }
+<span class="fc" id="L115">  }</span>
+
+  protected BytesValue resolveContractDefinition(Object[] targets) throws IOException {
+<span class="fc" id="L118">    final ContractDefinition contractDefinition = (ContractDefinition) targets[0];</span>
+<span class="fc" id="L119">    final byte[] rawPayload = trim(contractDefinition.getDecodedContract().getValue());</span>
+<span class="fc" id="L120">    final ByteArrayOutputStream rawStream = new ByteArrayOutputStream();</span>
+<span class="fc" id="L121">    final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(rawStream);</span>
+    try {
+<span class="fc" id="L123">      dataOut.writeInt(rawPayload.length + 4);</span>
+<span class="fc" id="L124">      dataOut.write(rawPayload);</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">      if (!contractDefinition.getConstructorArgs().isEmpty()) {</span>
+<span class="fc" id="L126">        final ArrayNode constructorArgs =</span>
+<span class="fc" id="L127">            getArgsByJsonArray(contractDefinition.getConstructorArgs());</span>
+<span class="fc" id="L128">        dataOut.write(constructorArgs.toString().getBytes());</span>
+      }
+<span class="nc" id="L130">    } catch (Exception e) {</span>
+<span class="nc" id="L131">      throw new RpcException(e);</span>
+    } finally {
+<span class="fc" id="L133">      dataOut.close();</span>
+    }
+
+<span class="fc" id="L136">    return new BytesValue(rawStream.toByteArray());</span>
+  }
+
+  protected BytesValue resolveContractInvocation(final Object[] targets) {
+<span class="fc" id="L140">    final ContractInvocation contractInvocation = (ContractInvocation) targets[0];</span>
+<span class="fc" id="L141">    final ObjectNode node = objectMapper.createObjectNode();</span>
+<span class="fc" id="L142">    node.put(&quot;Name&quot;, contractInvocation.getFunction().getName());</span>
+<span class="fc" id="L143">    node.set(&quot;Args&quot;, getArgsByJsonArray(contractInvocation.getArgs()));</span>
+<span class="fc" id="L144">    return new BytesValue(node.toString().getBytes());</span>
+  }
+
+  protected ArrayNode getArgsByJsonArray(final List&lt;Object&gt; args) {
+<span class="fc" id="L148">    final ArrayNode argsNode = objectMapper.createArrayNode();</span>
+    // nil, boolean, number, string, table?
+<span class="fc bfc" id="L150" title="All 2 branches covered.">    for (Object arg : args) {</span>
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">      if (null == arg) {</span>
+<span class="nc" id="L152">        argsNode.addNull();</span>
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">      } else if (arg instanceof Boolean) {</span>
+<span class="nc" id="L154">        argsNode.add((Boolean) arg);</span>
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">      } else if (arg instanceof Integer) {</span>
+<span class="nc" id="L156">        argsNode.add((Integer) arg);</span>
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">      } else if (arg instanceof Long) {</span>
+<span class="nc" id="L158">        argsNode.add((Long) arg);</span>
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">      } else if (arg instanceof Float) {</span>
+<span class="nc" id="L160">        argsNode.add((Float) arg);</span>
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">      } else if (arg instanceof Double) {</span>
+<span class="nc" id="L162">        argsNode.add((Double) arg);</span>
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">      } else if (arg instanceof BigInteger) {</span>
+<span class="nc" id="L164">        argsNode.add(new BigDecimal((BigInteger) arg));</span>
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">      } else if (arg instanceof BigDecimal) {</span>
+<span class="nc" id="L166">        argsNode.add((BigDecimal) arg);</span>
+<span class="pc bpc" id="L167" title="1 of 2 branches missed.">      } else if (arg instanceof String) {</span>
+<span class="fc" id="L168">        argsNode.add((String) arg);</span>
+      } else {
+<span class="nc" id="L170">        throw new IllegalArgumentException(&quot;Args type must be number or string&quot;);</span>
+      }
+<span class="fc" id="L172">    }</span>
+<span class="fc" id="L173">    return argsNode;</span>
+  }
+
+  protected BytesValue resolveStake(final Object[] targets) {
+<span class="fc" id="L177">    return new BytesValue(STAKE_PAYLOAD_PREVIX.getBytes());</span>
+  }
+
+  protected BytesValue resolveUnstake(final Object[] targets) {
+<span class="fc" id="L181">    return new BytesValue(UNSTAKE_PAYLOAD_PREVIX.getBytes());</span>
+  }
+
+  protected BytesValue resolveCreateName(final Object[] targets) {
+<span class="fc" id="L185">    final String name = (String) targets[0];</span>
+<span class="fc" id="L186">    return new BytesValue((CREATE_NAME_PAYLOAD_PREVIX + name).getBytes());</span>
+  }
+
+  protected BytesValue resolveUpdateName(final Object[] targets) throws IOException {
+<span class="fc" id="L190">    final String name = (String) targets[0];</span>
+<span class="fc" id="L191">    final byte[] rawAddress = (byte[]) targets[1];</span>
+<span class="fc" id="L192">    final ByteArrayOutputStream os = new ByteArrayOutputStream();</span>
+    try {
+<span class="fc" id="L194">      os.write(UPDATE_NAME_PAYLOAD_PREVIX.getBytes());</span>
+<span class="fc" id="L195">      os.write(name.getBytes());</span>
+<span class="fc" id="L196">      os.write(&quot;,&quot;.getBytes());</span>
+<span class="fc" id="L197">      os.write(rawAddress);</span>
+<span class="nc" id="L198">    } catch (Exception e) {</span>
+<span class="nc" id="L199">      throw new RpcException(e);</span>
+    } finally {
+<span class="fc" id="L201">      os.close();</span>
+    }
+<span class="fc" id="L203">    final BytesValue payload = new BytesValue(os.toByteArray());</span>
+<span class="fc" id="L204">    return payload;</span>
+  }
+
+  protected BytesValue resolveVote(final Object[] targets) throws IOException {
+<span class="fc" id="L208">    final PeerId peerId = (PeerId) targets[0];</span>
+<span class="fc" id="L209">    final ByteArrayOutputStream os = new ByteArrayOutputStream();</span>
+    try {
+<span class="fc" id="L211">      os.write(VOTE_PAYLOAD_PREVIX.getBytes());</span>
+<span class="fc" id="L212">      os.write(peerId.getBytesValue().getValue());</span>
+<span class="nc" id="L213">    } catch (Exception e) {</span>
+<span class="nc" id="L214">      throw new RpcException(e);</span>
+    } finally {
+<span class="fc" id="L216">      os.close();</span>
+    }
+<span class="fc" id="L218">    final BytesValue payload = new BytesValue(os.toByteArray());</span>
+<span class="fc" id="L219">    return payload;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

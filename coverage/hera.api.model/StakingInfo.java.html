@@ -8,24 +8,23 @@ import static hera.util.ValidationUtils.assertNotNull;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.HerajException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="nc" id="L18">@ToString</span>
-<span class="nc bnc" id="L19" title="All 24 branches missed.">@EqualsAndHashCode</span>
+<span class="fc" id="L17">@ToString</span>
+<span class="nc bnc" id="L18" title="All 24 branches missed.">@EqualsAndHashCode</span>
 public class StakingInfo {
 
-<span class="nc" id="L22">  @Getter</span>
+<span class="fc" id="L21">  @Getter</span>
   protected final AccountAddress address;
 
-<span class="fc" id="L25">  @Getter</span>
+<span class="fc" id="L24">  @Getter</span>
   protected final Aer amount;
 
-<span class="fc" id="L28">  @Getter</span>
+<span class="fc" id="L27">  @Getter</span>
   protected final long blockNumber;
 
   /**
@@ -36,13 +35,13 @@ public class StakingInfo {
    * @param blockNumber a staking block number
    */
   @ApiAudience.Private
-<span class="fc" id="L39">  public StakingInfo(final AccountAddress address, final Aer amount, final long blockNumber) {</span>
-<span class="fc" id="L40">    assertNotNull(address, new HerajException(&quot;Staking address must not null&quot;));</span>
-<span class="fc" id="L41">    assertNotNull(amount, new HerajException(&quot;Staking amount must not null&quot;));</span>
-<span class="fc" id="L42">    this.address = address;</span>
-<span class="fc" id="L43">    this.amount = amount;</span>
-<span class="fc" id="L44">    this.blockNumber = blockNumber;</span>
-<span class="fc" id="L45">  }</span>
+<span class="fc" id="L38">  public StakingInfo(final AccountAddress address, final Aer amount, final long blockNumber) {</span>
+<span class="fc" id="L39">    assertNotNull(address, &quot;Staking address must not null&quot;);</span>
+<span class="fc" id="L40">    assertNotNull(amount, &quot;Staking amount must not null&quot;);</span>
+<span class="fc" id="L41">    this.address = address;</span>
+<span class="fc" id="L42">    this.amount = amount;</span>
+<span class="fc" id="L43">    this.blockNumber = blockNumber;</span>
+<span class="fc" id="L44">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

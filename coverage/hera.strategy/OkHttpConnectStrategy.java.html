@@ -31,7 +31,7 @@ import org.slf4j.Logger;
   @Override
   public OkHttpChannelBuilder connect() {
 <span class="fc" id="L33">    final HostnameAndPort endpoint = getEndpoint();</span>
-<span class="fc" id="L34">    logger.debug(&quot;Connect to {} with strategy {}&quot;, endpoint, getClass().getName());</span>
+<span class="fc" id="L34">    logger.info(&quot;Connect to {} with strategy {}&quot;, endpoint, getClass().getName());</span>
 <span class="fc" id="L35">    return OkHttpChannelBuilder</span>
 <span class="fc" id="L36">        .forAddress(endpoint.getHostname(), endpoint.getPort())</span>
 <span class="fc" id="L37">        .keepAliveTime(30, TimeUnit.SECONDS)</span>

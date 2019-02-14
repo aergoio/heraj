@@ -20,26 +20,27 @@ public class ContractResultImpl implements ContractResult {
 
 <span class="fc" id="L21">  protected final ObjectMapper mapper = new ObjectMapper();</span>
 
-  protected final byte[] result;
+  protected final BytesValue result;
 
   @Override
   public &lt;T&gt; T bind(final Class&lt;T&gt; clazz) throws IOException {
-<span class="fc" id="L27">    final String stringFormat = new String(result);</span>
-<span class="fc" id="L28">    logger.debug(&quot;Raw result: {}&quot;, stringFormat);</span>
-<span class="pc bpc" id="L29" title="2 of 4 branches missed.">    if (stringFormat.isEmpty() || &quot;{}&quot;.equals(stringFormat)) {</span>
-<span class="nc" id="L30">      return null;</span>
+<span class="fc" id="L27">    final byte[] rawBytes = this.result.getValue();</span>
+<span class="fc" id="L28">    final String stringFormat = new String(rawBytes);</span>
+<span class="fc" id="L29">    logger.debug(&quot;Raw result to bind: {}&quot;, stringFormat);</span>
+<span class="pc bpc" id="L30" title="2 of 4 branches missed.">    if (stringFormat.isEmpty() || &quot;{}&quot;.equals(stringFormat)) {</span>
+<span class="nc" id="L31">      return null;</span>
     }
-<span class="fc" id="L32">    return mapper.readValue(result, clazz);</span>
+<span class="fc" id="L33">    return mapper.readValue(rawBytes, clazz);</span>
   }
 
   @Override
   public BytesValue getResultInRawBytes() {
-<span class="nc" id="L37">    return BytesValue.of(result);</span>
+<span class="nc" id="L38">    return result;</span>
   }
 
   @Override
   public String toString() {
-<span class="nc" id="L42">    return new String(result);</span>
+<span class="fc" id="L43">    return new String(result.getValue());</span>
   }
 
 }

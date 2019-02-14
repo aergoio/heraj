@@ -5,6 +5,7 @@
 package hera.client;
 
 import static hera.TransportConstants.BLOCKCHAIN_BLOCKCHAINSTATUS;
+import static hera.TransportConstants.BLOCKCHAIN_CHAININFO;
 import static hera.TransportConstants.BLOCKCHAIN_LIST_ELECTED_BPS;
 import static hera.TransportConstants.BLOCKCHAIN_LIST_PEERS;
 import static hera.TransportConstants.BLOCKCHAIN_LIST_VOTESOF;
@@ -25,6 +26,7 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.BlockProducer;
 import hera.api.model.BlockchainStatus;
+import hera.api.model.ChainInfo;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerId;
@@ -40,102 +42,111 @@ import lombok.RequiredArgsConstructor;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="fc" id="L43">@RequiredArgsConstructor</span>
+<span class="fc" id="L45">@RequiredArgsConstructor</span>
 public class BlockchainTemplate
     implements BlockchainOperation, ChannelInjectable, ContextProviderInjectable {
 
-<span class="fc" id="L47">  @Getter</span>
+<span class="fc" id="L49">  @Getter</span>
   protected BlockchainBaseTemplate blockchainBaseTemplate = new BlockchainBaseTemplate();
 
   protected ContextProvider contextProvider;
 
-<span class="pc bpc" id="L52" title="4 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L54" title="4 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-<span class="fc" id="L57">    getBlockchainBaseTemplate().setChannel(channel);</span>
-<span class="fc" id="L58">  }</span>
+<span class="fc" id="L59">    getBlockchainBaseTemplate().setChannel(channel);</span>
+<span class="fc" id="L60">  }</span>
 
   @Override
   public void setContextProvider(final ContextProvider contextProvider) {
-<span class="fc" id="L62">    this.contextProvider = contextProvider;</span>
-<span class="fc" id="L63">    getBlockchainBaseTemplate().setContextProvider(contextProvider);</span>
-<span class="fc" id="L64">  }</span>
+<span class="fc" id="L64">    this.contextProvider = contextProvider;</span>
+<span class="fc" id="L65">    getBlockchainBaseTemplate().setContextProvider(contextProvider);</span>
+<span class="fc" id="L66">  }</span>
 
-<span class="pc bpc" id="L66" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L68" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function0&lt;FinishableFuture&lt;BlockchainStatus&gt;&gt; blockchainStatusFunction =
       getStrategyChain().apply(identify(getBlockchainBaseTemplate().getBlockchainStatusFunction(),
           BLOCKCHAIN_BLOCKCHAINSTATUS));
 
-<span class="pc bpc" id="L71" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L73" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function0&lt;FinishableFuture&lt;ChainInfo&gt;&gt; chainInfoFunction =
+      getStrategyChain().apply(identify(getBlockchainBaseTemplate().getChainInfoFunction(),
+          BLOCKCHAIN_CHAININFO));
+
+<span class="pc bpc" id="L78" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function0&lt;FinishableFuture&lt;List&lt;Peer&gt;&gt;&gt; listPeersFunction =
       getStrategyChain()
           .apply(
               identify(getBlockchainBaseTemplate().getListPeersFunction(), BLOCKCHAIN_LIST_PEERS));
 
-<span class="pc bpc" id="L77" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L84" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function0&lt;FinishableFuture&lt;List&lt;PeerMetric&gt;&gt;&gt; listPeerMetricsFunction =
       getStrategyChain().apply(
           identify(getBlockchainBaseTemplate().getListPeersMetricsFunction(),
               BLOCKCHAIN_PEERMETRICS));
 
-<span class="pc bpc" id="L83" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L90" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function0&lt;FinishableFuture&lt;NodeStatus&gt;&gt; nodeStatusFunction =
       getStrategyChain().apply(
           identify(getBlockchainBaseTemplate().getNodeStatusFunction(), BLOCKCHAIN_NODESTATUS));
 
-<span class="pc bpc" id="L88" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L95" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function3&lt;Account, PeerId, Long, FinishableFuture&lt;TxHash&gt;&gt; voteFunction =
       getStrategyChain().apply(
           identify(getBlockchainBaseTemplate().getVoteFunction(), BLOCKCHAIN_VOTE));
 
-<span class="pc bpc" id="L93" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L100" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function1&lt;Long,
       FinishableFuture&lt;List&lt;BlockProducer&gt;&gt;&gt; listElectedBlockProducersFunction =
           getStrategyChain()
               .apply(identify(getBlockchainBaseTemplate().getListElectedBlockProducersFunction(),
                   BLOCKCHAIN_LIST_ELECTED_BPS));
 
-<span class="pc bpc" id="L100" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L107" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function1&lt;AccountAddress, FinishableFuture&lt;List&lt;VotingInfo&gt;&gt;&gt; listVotesOfFunction =
       getStrategyChain().apply(
           identify(getBlockchainBaseTemplate().getListVotesOfFunction(), BLOCKCHAIN_LIST_VOTESOF));
 
   @Override
   public BlockchainStatus getBlockchainStatus() {
-<span class="fc" id="L107">    return getBlockchainStatusFunction().apply().get();</span>
+<span class="fc" id="L114">    return getBlockchainStatusFunction().apply().get();</span>
+  }
+
+  @Override
+  public ChainInfo getChainInfo() {
+<span class="fc" id="L119">    return getChainInfoFunction().apply().get();</span>
   }
 
   @Override
   public List&lt;Peer&gt; listPeers() {
-<span class="fc" id="L112">    return getListPeersFunction().apply().get();</span>
+<span class="fc" id="L124">    return getListPeersFunction().apply().get();</span>
   }
 
   @Override
   public List&lt;PeerMetric&gt; listPeerMetrics() {
-<span class="fc" id="L117">    return getListPeerMetricsFunction().apply().get();</span>
+<span class="fc" id="L129">    return getListPeerMetricsFunction().apply().get();</span>
   }
 
   @Override
   public NodeStatus getNodeStatus() {
-<span class="fc" id="L122">    return getNodeStatusFunction().apply().get();</span>
+<span class="fc" id="L134">    return getNodeStatusFunction().apply().get();</span>
   }
 
   @Override
   public TxHash vote(final Account account, final PeerId peerId, final long nonce) {
-<span class="nc" id="L127">    return getVoteFunction().apply(account, peerId, nonce).get();</span>
+<span class="nc" id="L139">    return getVoteFunction().apply(account, peerId, nonce).get();</span>
   }
 
   @Override
   public List&lt;BlockProducer&gt; listElectedBlockProducers(long showCount) {
-<span class="nc" id="L132">    return getListElectedBlockProducersFunction().apply(showCount).get();</span>
+<span class="nc" id="L144">    return getListElectedBlockProducersFunction().apply(showCount).get();</span>
   }
 
   @Override
   public List&lt;VotingInfo&gt; listVotesOf(final AccountAddress accountAddress) {
-<span class="nc" id="L137">    return getListVotesOfFunction().apply(accountAddress).get();</span>
+<span class="nc" id="L149">    return getListVotesOfFunction().apply(accountAddress).get();</span>
   }
-
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

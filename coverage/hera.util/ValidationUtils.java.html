@@ -18,10 +18,10 @@ import static hera.util.ObjectUtils.equal;
    * @param th exception to throw
    */
   public static void assertTrue(final boolean value, final RuntimeException th) {
-<span class="fc bfc" id="L21" title="All 2 branches covered.">    if (!value) {</span>
+<span class="pc bpc" id="L21" title="1 of 2 branches missed.">    if (!value) {</span>
 <span class="fc" id="L22">      throw th;</span>
     }
-<span class="fc" id="L24">  }</span>
+<span class="nc" id="L24">  }</span>
 
   /**
    * assert that {@code value} is {@code true}.
@@ -140,8 +140,8 @@ import static hera.util.ObjectUtils.equal;
    * @param error exception to throw
    */
   public static void assertNotNull(final Object obj, final RuntimeException error) {
-<span class="fc bfc" id="L143" title="All 2 branches covered.">    assertTrue(null != obj, error);</span>
-<span class="fc" id="L144">  }</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">    assertTrue(null != obj, error);</span>
+<span class="nc" id="L144">  }</span>
 
   /**
    * assert that {@code obj} is not null.

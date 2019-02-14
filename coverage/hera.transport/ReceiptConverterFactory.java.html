@@ -35,18 +35,20 @@ import types.Blockchain;
 
         @Override
         public ContractTxReceipt apply(final Blockchain.Receipt rpcReceipt) {
-<span class="fc" id="L38">          logger.trace(&quot;Rpc contract tx receipt: {}&quot;, rpcReceipt);</span>
+<span class="fc" id="L38">          logger.trace(&quot;Rpc tx receipt to convert: {}&quot;, rpcReceipt);</span>
 <span class="fc" id="L39">          final AccountAddress accountAddress =</span>
 <span class="fc" id="L40">              accountAddressConverter.convertToDomainModel(rpcReceipt.getContractAddress());</span>
-<span class="fc" id="L41">          return new ContractTxReceipt(</span>
+<span class="fc" id="L41">          final ContractTxReceipt domainTxReceipt = new ContractTxReceipt(</span>
 <span class="fc" id="L42">              new ContractAddress(accountAddress.getBytesValue()),</span>
 <span class="fc" id="L43">              rpcReceipt.getStatus(),</span>
 <span class="fc" id="L44">              rpcReceipt.getRet());</span>
+<span class="fc" id="L45">          logger.trace(&quot;Domain tx receipt converted: {}&quot;, domainTxReceipt);</span>
+<span class="fc" id="L46">          return domainTxReceipt;</span>
         }
       };
 
   public ModelConverter&lt;ContractTxReceipt, Blockchain.Receipt&gt; create() {
-<span class="fc" id="L49">    return new ModelConverter&lt;ContractTxReceipt, Blockchain.Receipt&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L51">    return new ModelConverter&lt;ContractTxReceipt, Blockchain.Receipt&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

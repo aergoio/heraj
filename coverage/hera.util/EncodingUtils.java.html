@@ -11,13 +11,41 @@ import hera.exception.DecodingFailureException.Format;
 <span class="nc" id="L11">public class EncodingUtils {</span>
 
   /**
+   * Encode bytesValue to hexa.
+   *
+   * @param bytesValue a bytesValue
+   * @return hexa encoded string
+   */
+  public static String encodeHexa(final BytesValue bytesValue) {
+<span class="pc bpc" id="L20" title="1 of 4 branches missed.">    return (null != bytesValue &amp;&amp; !bytesValue.isEmpty())</span>
+<span class="fc" id="L21">        ? HexUtils.encode(bytesValue.getValue())</span>
+        : &quot;&quot;;
+  }
+
+  /**
+   * Decode hexa encoded string.
+   *
+   * @param encoded hexa encoded string
+   * @return decoded string
+   * @throws DecodingFailureException if decoding failure
+   */
+  public static BytesValue decodeHexa(final String encoded) {
+    try {
+<span class="pc bpc" id="L34" title="1 of 2 branches missed.">      return null != encoded ? new BytesValue(HexUtils.decode(encoded))</span>
+          : BytesValue.EMPTY;
+<span class="nc" id="L36">    } catch (Exception e) {</span>
+<span class="nc" id="L37">      throw new DecodingFailureException(encoded, Format.Hexa);</span>
+    }
+  }
+
+  /**
    * Encode bytesValue to base58.
    *
    * @param bytesValue a bytesValue
    * @return base58 encoded string
    */
   public static String encodeBase58(final BytesValue bytesValue) {
-<span class="pc bpc" id="L20" title="1 of 4 branches missed.">    return (null != bytesValue &amp;&amp; !bytesValue.isEmpty()) ? Base58Utils.encode(bytesValue.getValue())</span>
+<span class="pc bpc" id="L48" title="1 of 4 branches missed.">    return (null != bytesValue &amp;&amp; !bytesValue.isEmpty()) ? Base58Utils.encode(bytesValue.getValue())</span>
         : &quot;&quot;;
   }
 
@@ -30,9 +58,9 @@ import hera.exception.DecodingFailureException.Format;
    */
   public static BytesValue decodeBase58(final String encoded) {
     try {
-<span class="pc bpc" id="L33" title="1 of 2 branches missed.">      return null != encoded ? new BytesValue(Base58Utils.decode(encoded)) : BytesValue.EMPTY;</span>
-<span class="nc" id="L34">    } catch (Exception e) {</span>
-<span class="nc" id="L35">      throw new DecodingFailureException(encoded, Format.Base58WithCheck);</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">      return null != encoded ? new BytesValue(Base58Utils.decode(encoded)) : BytesValue.EMPTY;</span>
+<span class="nc" id="L62">    } catch (Exception e) {</span>
+<span class="nc" id="L63">      throw new DecodingFailureException(encoded, Format.Base58WithCheck);</span>
     }
   }
 
@@ -43,8 +71,8 @@ import hera.exception.DecodingFailureException.Format;
    * @return base58 with checksum encoded string
    */
   public static String encodeBase58WithCheck(final BytesValue bytesValue) {
-<span class="pc bpc" id="L46" title="1 of 4 branches missed.">    return (null != bytesValue &amp;&amp; !bytesValue.isEmpty())</span>
-<span class="fc" id="L47">        ? Base58Utils.encodeWithCheck(bytesValue.getValue())</span>
+<span class="pc bpc" id="L74" title="1 of 4 branches missed.">    return (null != bytesValue &amp;&amp; !bytesValue.isEmpty())</span>
+<span class="fc" id="L75">        ? Base58Utils.encodeWithCheck(bytesValue.getValue())</span>
         : &quot;&quot;;
   }
 
@@ -57,10 +85,10 @@ import hera.exception.DecodingFailureException.Format;
    */
   public static BytesValue decodeBase58WithCheck(final String encoded) {
     try {
-<span class="pc bpc" id="L60" title="1 of 2 branches missed.">      return null != encoded ? new BytesValue(Base58Utils.decodeWithCheck(encoded))</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">      return null != encoded ? new BytesValue(Base58Utils.decodeWithCheck(encoded))</span>
           : BytesValue.EMPTY;
-<span class="fc" id="L62">    } catch (Exception e) {</span>
-<span class="fc" id="L63">      throw new DecodingFailureException(encoded, Format.Base58WithCheck);</span>
+<span class="fc" id="L90">    } catch (Exception e) {</span>
+<span class="fc" id="L91">      throw new DecodingFailureException(encoded, Format.Base58WithCheck);</span>
     }
   }
 

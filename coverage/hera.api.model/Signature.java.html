@@ -8,15 +8,14 @@ import static hera.util.ValidationUtils.assertNotNull;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.HerajException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L18">@ToString</span>
-<span class="pc bpc" id="L19" title="9 of 14 branches missed.">@EqualsAndHashCode</span>
+<span class="fc" id="L17">@ToString</span>
+<span class="pc bpc" id="L18" title="9 of 14 branches missed.">@EqualsAndHashCode</span>
 public class Signature {
 
   /**
@@ -28,11 +27,11 @@ public class Signature {
    */
   @ApiAudience.Private
   public static Signature of(final BytesValue sign) {
-<span class="fc" id="L31">    final Signature signature = new Signature(sign);</span>
-<span class="fc" id="L32">    return signature;</span>
+<span class="fc" id="L30">    final Signature signature = new Signature(sign);</span>
+<span class="fc" id="L31">    return signature;</span>
   }
 
-<span class="fc" id="L35">  @Getter</span>
+<span class="fc" id="L34">  @Getter</span>
   protected final BytesValue sign;
 
   /**
@@ -41,10 +40,10 @@ public class Signature {
    * @param sign a sign value
    */
   @ApiAudience.Private
-<span class="fc" id="L44">  public Signature(final BytesValue sign) {</span>
-<span class="fc" id="L45">    assertNotNull(sign, new HerajException(&quot;Sign value must not null&quot;));</span>
-<span class="fc" id="L46">    this.sign = sign;</span>
-<span class="fc" id="L47">  }</span>
+<span class="fc" id="L43">  public Signature(final BytesValue sign) {</span>
+<span class="fc" id="L44">    assertNotNull(sign, &quot;Sign value must not null&quot;);</span>
+<span class="fc" id="L45">    this.sign = sign;</span>
+<span class="fc" id="L46">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -127,32 +127,42 @@ public class ContractInvocationHandler implements InvocationHandler {
   protected void validateInterface(final Object proxy, final ContractInterface contractInterface) {
 <span class="fc" id="L128">    logger.debug(&quot;Validate {} with {}&quot;, proxy, contractInterface);</span>
 <span class="fc bfc" id="L129" title="All 2 branches covered.">    for (final Method method : proxy.getClass().getDeclaredMethods()) {</span>
-<span class="fc" id="L130">      final String methodName = method.getName();</span>
-<span class="fc" id="L131">      final int methodParameterCount = method.getParameterTypes().length;</span>
-      // java object methods
-<span class="fc bfc" id="L133" title="All 4 branches covered.">      if (&quot;equals&quot;.equals(methodName) || &quot;toString&quot;.equals(methodName)</span>
-<span class="fc bfc" id="L134" title="All 2 branches covered.">          || &quot;hashCode&quot;.equals(methodName)) {</span>
-<span class="fc" id="L135">        continue;</span>
+<span class="fc bfc" id="L130" title="All 4 branches covered.">      if (isJavaObjectMethod(method) || isContractSpecificMethod(method)) {</span>
+<span class="fc" id="L131">        continue;</span>
       }
-      // contract specific methods
-<span class="pc bpc" id="L138" title="1 of 4 branches missed.">      if (&quot;bind&quot;.equals(methodName) &amp;&amp; 1 == methodParameterCount) {</span>
-<span class="fc" id="L139">        final Class&lt;?&gt; parameterType = method.getParameterTypes()[0];</span>
-<span class="pc bpc" id="L140" title="1 of 4 branches missed.">        if (Wallet.class.equals(parameterType) || Fee.class.equals(parameterType)) {</span>
-<span class="fc" id="L141">          continue;</span>
-        }
+      // check method name
+<span class="fc" id="L134">      final String methodName = method.getName();</span>
+<span class="fc" id="L135">      final ContractFunction contractFunction = contractInterface.findFunction(methodName);</span>
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">      if (null == contractFunction) {</span>
+<span class="nc" id="L137">        throw new ContractException(&quot;No method &quot; + methodName + &quot; in contract interface&quot;);</span>
       }
-      // check method name and argument count
-<span class="fc" id="L145">      final ContractFunction contractFunction = contractInterface.findFunction(methodName);</span>
-<span class="pc bpc" id="L146" title="1 of 2 branches missed.">      if (null == contractFunction) {</span>
-<span class="nc" id="L147">        throw new ContractException(&quot;No method &quot; + methodName + &quot; in contract interface&quot;);</span>
-      }
-<span class="fc" id="L149">      final int actualArgCount = contractFunction.getArgumentNames().size();</span>
-<span class="pc bpc" id="L150" title="1 of 2 branches missed.">      if (methodParameterCount != actualArgCount) {</span>
-<span class="nc" id="L151">        throw new ContractException(String.format(</span>
-<span class="nc" id="L152">            &quot;Method parameter count for %s is invalid (expected: %d)&quot;, methodName, actualArgCount));</span>
+      // check method parameter count
+<span class="fc" id="L140">      final int methodParameterCount = method.getParameterTypes().length;</span>
+<span class="fc" id="L141">      final int actualArgCount = contractFunction.getArgumentNames().size();</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">      if (methodParameterCount != actualArgCount) {</span>
+<span class="nc" id="L143">        throw new ContractException(String.format(</span>
+<span class="nc" id="L144">            &quot;Method parameter count for %s is invalid (expected: %d)&quot;, methodName, actualArgCount));</span>
       }
     }
-<span class="fc" id="L155">  }</span>
+<span class="fc" id="L147">  }</span>
+
+  protected boolean isJavaObjectMethod(final Method method) {
+<span class="fc" id="L150">    final String methodName = method.getName();</span>
+<span class="fc bfc" id="L151" title="All 4 branches covered.">    return &quot;equals&quot;.equals(methodName) || &quot;toString&quot;.equals(methodName)</span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">        || &quot;hashCode&quot;.equals(methodName);</span>
+  }
+
+  protected boolean isContractSpecificMethod(final Method method) {
+<span class="fc" id="L156">    final String name = method.getName();</span>
+<span class="fc" id="L157">    final int parameterCount = method.getParameterTypes().length;</span>
+<span class="fc bfc" id="L158" title="All 2 branches covered.">    for (final Method preDefinedMethod : SmartContract.class.getMethods()) {</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">      if (name.equals(preDefinedMethod.getName())</span>
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">          &amp;&amp; parameterCount == preDefinedMethod.getParameterTypes().length) {</span>
+<span class="fc" id="L161">        return true;</span>
+      }
+    }
+<span class="fc" id="L164">    return false;</span>
+  }
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

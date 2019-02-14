@@ -9,21 +9,20 @@ import static hera.util.ValidationUtils.assertTrue;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.HerajException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L19">@ToString</span>
-<span class="nc bnc" id="L20" title="All 16 branches missed.">@EqualsAndHashCode</span>
+<span class="fc" id="L18">@ToString</span>
+<span class="nc bnc" id="L19" title="All 16 branches missed.">@EqualsAndHashCode</span>
 public class BlockchainStatus {
 
-<span class="fc" id="L23">  @Getter</span>
+<span class="fc" id="L22">  @Getter</span>
   protected long bestHeight;
 
-<span class="fc" id="L26">  @Getter</span>
+<span class="fc" id="L25">  @Getter</span>
   protected BlockHash bestBlockHash;
 
   /**
@@ -33,13 +32,12 @@ public class BlockchainStatus {
    * @param bestBlockHash a best block hash
    */
   @ApiAudience.Private
-<span class="fc" id="L36">  public BlockchainStatus(final long bestHeight, final BlockHash bestBlockHash) {</span>
-<span class="pc bpc" id="L37" title="1 of 2 branches missed.">    assertTrue(bestHeight &gt;= 0,</span>
-        new HerajException(&quot;Best block height must be &gt;= 0&quot;));
-<span class="fc" id="L39">    assertNotNull(bestBlockHash, new HerajException(&quot;Best block hash must not null&quot;));</span>
-<span class="fc" id="L40">    this.bestHeight = bestHeight;</span>
-<span class="fc" id="L41">    this.bestBlockHash = bestBlockHash;</span>
-<span class="fc" id="L42">  }</span>
+<span class="fc" id="L35">  public BlockchainStatus(final long bestHeight, final BlockHash bestBlockHash) {</span>
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">    assertTrue(bestHeight &gt;= 0, &quot;Best block height must be &gt;= 0&quot;);</span>
+<span class="fc" id="L37">    assertNotNull(bestBlockHash, &quot;Best block hash must not null&quot;);</span>
+<span class="fc" id="L38">    this.bestHeight = bestHeight;</span>
+<span class="fc" id="L39">    this.bestBlockHash = bestBlockHash;</span>
+<span class="fc" id="L40">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

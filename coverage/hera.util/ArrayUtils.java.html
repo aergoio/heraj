@@ -55,13 +55,13 @@ import org.bouncycastle.util.Arrays;
 <span class="fc bfc" id="L55" title="All 2 branches covered.">    if (null == left) {</span>
 <span class="fc" id="L56">      return Arrays.copyOf(right, right.length);</span>
     }
-<span class="fc bfc" id="L58" title="All 2 branches covered.">    if (null == right) {</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">    if (null == right) {</span>
 <span class="fc" id="L59">      return Arrays.copyOf(left, left.length);</span>
     }
-<span class="fc" id="L61">    final byte[] concated = new byte[left.length + right.length];</span>
-<span class="fc" id="L62">    System.arraycopy(left, 0, concated, 0, left.length);</span>
-<span class="fc" id="L63">    System.arraycopy(right, 0, concated, left.length, right.length);</span>
-<span class="fc" id="L64">    return concated;</span>
+<span class="nc" id="L61">    final byte[] concated = new byte[left.length + right.length];</span>
+<span class="nc" id="L62">    System.arraycopy(left, 0, concated, 0, left.length);</span>
+<span class="nc" id="L63">    System.arraycopy(right, 0, concated, left.length, right.length);</span>
+<span class="nc" id="L64">    return concated;</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

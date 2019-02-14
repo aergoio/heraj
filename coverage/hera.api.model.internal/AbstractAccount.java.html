@@ -27,13 +27,18 @@ import lombok.ToString;
 <span class="fc" id="L27">  }</span>
 
   @Override
-  public long getNonce() {
+  public long getRecentlyUsedNonce() {
 <span class="fc" id="L31">    return nonce.get();</span>
   }
 
   @Override
+  public long getNonce() {
+<span class="fc" id="L36">    return getRecentlyUsedNonce();</span>
+  }
+
+  @Override
   public long incrementAndGetNonce() {
-<span class="fc" id="L36">    return nonce.incrementAndGet();</span>
+<span class="fc" id="L41">    return nonce.incrementAndGet();</span>
   }
 
 }
