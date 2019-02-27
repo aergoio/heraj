@@ -6,8 +6,8 @@ package hera.wallet;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
+import hera.api.model.Identity;
 import hera.exception.InvalidAuthentiationException;
 import hera.exception.UnbindedKeyStoreException;
 import hera.key.AergoKey;
@@ -37,6 +37,17 @@ public interface KeyManageable extends Closeable {
   void saveKey(AergoKey aergoKey, String password);
 
   /**
+   * Save an aergo key to the key store. This operation has no meaning to {@link WalletType#Naive}.
+   *
+   * @param aergoKey an aergo key
+   * @param identity an identity to save key
+   * @param password an encrypt key
+   *
+   * @throws UnbindedKeyStoreException if it's {@link WalletType#Secure} and keystore is not binded
+   */
+  void saveKey(AergoKey aergoKey, Identity identity, String password);
+
+  /**
    * Export an aergo key of a current account with encrypted.
    *
    * @param authentication an authentication
@@ -48,11 +59,11 @@ public interface KeyManageable extends Closeable {
   String exportKey(Authentication authentication);
 
   /**
-   * Get all the stored addresses in a binded key store.
+   * Get all the stored identities in a binded key store.
    *
-   * @return stored addresses.
+   * @return stored identities
    */
-  List<AccountAddress> listKeyStoreAddresses();
+  List<Identity> listKeyStoreIdentities();
 
   /**
    * Unlock account with {@code Authentication}.

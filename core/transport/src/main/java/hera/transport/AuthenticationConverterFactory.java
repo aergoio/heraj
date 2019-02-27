@@ -4,6 +4,7 @@
 
 package hera.transport;
 
+import static hera.util.AddressUtils.deriveAddress;
 import static hera.util.TransportUtils.sha256AndEncodeHexa;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -28,9 +29,10 @@ public class AuthenticationConverterFactory {
         @Override
         public Rpc.Personal apply(final Authentication domainAuthentication) {
           logger.trace("Domain authentication to convert: {}", domainAuthentication);
+
+          final AccountAddress accountAddress = deriveAddress(domainAuthentication.getIdentity());
           final AccountOuterClass.Account rpcAccount = AccountOuterClass.Account.newBuilder()
-              .setAddress(
-                  accountAddressConverter.convertToRpcModel(domainAuthentication.getAddress()))
+              .setAddress(accountAddressConverter.convertToRpcModel(accountAddress))
               .build();
           final Rpc.Personal rpcAuthentication = Rpc.Personal.newBuilder()
               .setAccount(rpcAccount)

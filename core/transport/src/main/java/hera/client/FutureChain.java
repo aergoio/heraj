@@ -59,7 +59,7 @@ public class FutureChain<T, R> implements FutureCallback<T> {
   @Override
   public void onFailure(final Throwable error) {
     connectAsyncContextWithSourceContext();
-    logger.trace("Async request fail result: {}, context: {}", error, ContextHolder.get(this));
+    logger.trace("Async request fail result: {}, context: {}", error.toString(), ContextHolder.get(this));
     try {
       if (null != failureHandler) {
         final R handled = failureHandler.apply(error);

@@ -5,7 +5,6 @@
 package hera.api.model;
 
 import static hera.util.EncodingUtils.decodeBase58WithCheck;
-import static hera.util.EncodingUtils.decodeHexa;
 import static hera.util.EncodingUtils.encodeBase58WithCheck;
 import static hera.util.EncodingUtils.encodeHexa;
 
@@ -19,7 +18,7 @@ import lombok.Getter;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public class AccountAddress implements Encodable {
+public class AccountAddress implements Identity, Encodable {
 
   public static final byte VERSION = 0x42;
 
@@ -48,20 +47,6 @@ public class AccountAddress implements Encodable {
   @ApiAudience.Private
   public static AccountAddress of(final BytesValue bytesValue) {
     return new AccountAddress(bytesValue);
-  }
-
-  /**
-   * Create {@code AccountAddress} with an alias.
-   *
-   * @param alias an alias
-   * @return created {@link AccountAddress}
-   *
-   * @throws DecodingFailureException if decoding failed
-   * @throws InvalidVersionException when address version mismatch
-   */
-  @ApiAudience.Private
-  public static AccountAddress fromAlias(final String alias) {
-    return new AccountAddress(decodeHexa(alias));
   }
 
   @Getter
@@ -95,12 +80,8 @@ public class AccountAddress implements Encodable {
     this.bytesValue = bytesValue;
   }
 
-  /**
-   * Get alias of account address.
-   *
-   * @return an alias of address
-   */
-  public String getAlias() {
+  @Override
+  public String getInfo() {
     return encodeHexa(getBytesValue());
   }
 

@@ -6,6 +6,7 @@ package hera.client.it;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -13,11 +14,27 @@ import hera.api.model.Account;
 import hera.api.model.AccountFactory;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.Identity;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import org.junit.Test;
 
 public class KeyStoreOperationIT extends AbstractIT {
+
+  @Test
+  public void testUnlockOnInvalidIdentity() {
+
+    final Identity identity = new Identity() {
+
+      @Override
+      public String getInfo() {
+        return randomUUID().toString();
+      }
+    };
+    final Authentication authentication = new Authentication(identity, randomUUID().toString());
+    boolean unlockResult = aergoClient.getKeyStoreOperation().unlock(authentication);
+    assertFalse(unlockResult);
+  }
 
   @Test
   public void testCreateAndExport() {

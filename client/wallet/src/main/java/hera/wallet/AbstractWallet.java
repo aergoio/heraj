@@ -18,6 +18,7 @@ import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
+import hera.api.model.Identity;
 import hera.api.model.PeerId;
 import hera.api.model.RawTransaction;
 import hera.api.model.StakingInfo;
@@ -75,7 +76,13 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
 
   @Override
   public void saveKey(final AergoKey key, final String password) {
-    getKeyStore().saveKey(key, password);
+    getKeyStore().saveKey(key, Authentication.of(key.getAddress(), password));
+  }
+
+  @Override
+  public void saveKey(final AergoKey key, final Identity identity,
+      final String password) {
+    getKeyStore().saveKey(key, Authentication.of(identity, password));
   }
 
   @Override
@@ -84,8 +91,8 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
   }
 
   @Override
-  public List<AccountAddress> listKeyStoreAddresses() {
-    return getKeyStore().listStoredAddresses();
+  public List<Identity> listKeyStoreIdentities() {
+    return getKeyStore().listIdentities();
   }
 
   @Override

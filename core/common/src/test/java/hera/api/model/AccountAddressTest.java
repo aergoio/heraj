@@ -5,7 +5,6 @@
 package hera.api.model;
 
 import static java.util.UUID.randomUUID;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import hera.exception.InvalidVersionException;
@@ -39,14 +38,6 @@ public class AccountAddressTest {
   @Test(expected = InvalidVersionException.class)
   public void testOfWithEncodedWithoutVersion() {
     AccountAddress.of(encodedAddressWithoutVersion);
-  }
-
-  @Test
-  public void testAliasExportAndImport() {
-    final AccountAddress expected = AccountAddress.of(BytesValue.of(rawAddress));
-    final String alias = expected.getAlias();
-    final AccountAddress actual = AccountAddress.fromAlias(alias);
-    assertEquals(expected, actual);
   }
 
 }

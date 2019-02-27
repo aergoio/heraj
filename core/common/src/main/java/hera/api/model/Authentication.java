@@ -21,17 +21,17 @@ public class Authentication {
   /**
    * Create {@code Authentication} constructor.
    *
-   * @param accountAddress an account address
+   * @param identity an identity
    * @param password a password
    * @return an {@code Authentication} instance
    */
   @ApiAudience.Public
-  public static Authentication of(final AccountAddress accountAddress, final String password) {
-    return new Authentication(accountAddress, password);
+  public static Authentication of(final Identity identity, final String password) {
+    return new Authentication(identity, password);
   }
 
   @Getter
-  protected AccountAddress address;
+  protected Identity identity;
 
   @Getter
   protected String password;
@@ -39,20 +39,20 @@ public class Authentication {
   /**
    * Authentication constructor.
    *
-   * @param accountAddress an account address
+   * @param identity an identity
    * @param password a password
    */
   @ApiAudience.Public
-  public Authentication(final AccountAddress accountAddress, final String password) {
-    assertNotNull(accountAddress, "Account address must not null");
+  public Authentication(final Identity identity, final String password) {
+    assertNotNull(identity, "Identity must not null");
     assertNotNull(password, "Pasasword must not null");
-    this.address = accountAddress;
+    this.identity = identity;
     this.password = password;
   }
 
   @Override
   public String toString() {
-    return String.format("Authentication(address=%s, password=%s)", address,
+    return String.format("Authentication(address=%s, password=%s)", identity,
         HexUtils.encode(Sha256Utils.digest(password.getBytes())));
   }
 

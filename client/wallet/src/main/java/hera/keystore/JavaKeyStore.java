@@ -4,6 +4,7 @@
 
 package hera.keystore;
 
+import static hera.util.AddressUtils.deriveAddress;
 import static java.util.Collections.list;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -14,6 +15,7 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountFactory;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.Identity;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.exception.InvalidAuthentiationException;
@@ -21,6 +23,7 @@ import hera.exception.LockedAccountException;
 import hera.exception.WalletException;
 import hera.key.AergoKey;
 import hera.key.Signer;
+import hera.model.KeyAlias;
 import hera.util.Sha256Utils;
 import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSAKeyGenerator;
@@ -63,11 +66,12 @@ public class JavaKeyStore implements KeyStore, Signer {
   protected AergoKey currentUnlockedKey;
 
   @Override
-  public void saveKey(final AergoKey key, final String password) {
+  public void saveKey(final AergoKey key, final Authentication authentication) {
     try {
+      logger.debug("Save key: {}, authentication: {}", authentication);
       final Certificate cert = generateCertificate(key);
-      delegate.setKeyEntry(key.getAddress().getAlias(), key.getPrivateKey(), password.toCharArray(),
-          new Certificate[] {cert});
+      delegate.setKeyEntry(authentication.getIdentity().getInfo(), key.getPrivateKey(),
+          authentication.getPassword().toCharArray(), new Certificate[] {cert});
     } catch (Exception e) {
       throw new WalletException(e);
     }
@@ -78,7 +82,7 @@ public class JavaKeyStore implements KeyStore, Signer {
     final Calendar start = Calendar.getInstance();
     final Calendar expiry = Calendar.getInstance();
     expiry.add(Calendar.YEAR, 1);
-    final X500Name name = new X500Name("CN=" + key.getAddress().getAlias());
+    final X500Name name = new X500Name("CN=" + key.getAddress().getInfo());
     final ContentSigner signer = new JcaContentSignerBuilder("SHA256WithECDSA")
         .setProvider(provider).build(key.getPrivateKey());
     final X509CertificateHolder holder = new X509v3CertificateBuilder(
@@ -88,13 +92,15 @@ public class JavaKeyStore implements KeyStore, Signer {
     final Certificate cert = new JcaX509CertificateConverter()
         .setProvider(provider)
         .getCertificate(holder);
+    logger.trace("Generated certificate: {}", cert);
     return cert;
   }
 
   @Override
   public EncryptedPrivateKey export(final Authentication authentication) {
     try {
-      final Key privateKey = delegate.getKey(authentication.getAddress().getAlias(),
+      logger.debug("Export key with authentication: {}", authentication);
+      final Key privateKey = delegate.getKey(authentication.getIdentity().getInfo(),
           authentication.getPassword().toCharArray());
       return restoreKey(privateKey).export(authentication.getPassword());
     } catch (KeyStoreException e) {
@@ -105,14 +111,27 @@ public class JavaKeyStore implements KeyStore, Signer {
   }
 
   @Override
-  public List<AccountAddress> listStoredAddresses() {
+  public List<Identity> listIdentities() {
     try {
-      List<AccountAddress> storedAddresses = new ArrayList<AccountAddress>();
-      ArrayList<String> aliases = list(delegate.aliases());
+      final List<Identity> storedIdentities = new ArrayList<Identity>();
+      final List<String> aliases = list(delegate.aliases());
+      logger.trace("Aliases: {}", aliases);
       for (final String alias : aliases) {
-        storedAddresses.add(AccountAddress.fromAlias(alias));
+        Identity identity = null;
+        try {
+          identity = deriveAddress(new Identity() {
+
+            @Override
+            public String getInfo() {
+              return alias;
+            }
+          });
+        } catch (Exception e) {
+          identity = new KeyAlias(alias);
+        }
+        storedIdentities.add(identity);
       }
-      return storedAddresses;
+      return storedIdentities;
     } catch (KeyStoreException e) {
       throw new WalletException(e);
     } catch (Exception e) {
@@ -123,7 +142,8 @@ public class JavaKeyStore implements KeyStore, Signer {
   @Override
   public Account unlock(final Authentication authentication) {
     try {
-      Key privateKey = delegate.getKey(authentication.getAddress().getAlias(),
+      logger.debug("Unlock key with authentication: {}", authentication);
+      Key privateKey = delegate.getKey(authentication.getIdentity().getInfo(),
           authentication.getPassword().toCharArray());
       final AergoKey key = restoreKey(privateKey);
       currentUnlockedAuth = digest(authentication);
@@ -151,6 +171,7 @@ public class JavaKeyStore implements KeyStore, Signer {
 
   @Override
   public void lock(final Authentication authentication) {
+    logger.debug("Lock key with authentication: {}", authentication);
     final Authentication digested = digest(authentication);
     if (!currentUnlockedAuth.equals(digested)) {
       throw new InvalidAuthentiationException("Unable to lock account");
@@ -161,11 +182,12 @@ public class JavaKeyStore implements KeyStore, Signer {
 
   protected Authentication digest(final Authentication rawAuthentication) {
     final byte[] digestedPassword = Sha256Utils.digest(rawAuthentication.getPassword().getBytes());
-    return Authentication.of(rawAuthentication.getAddress(), new String(digestedPassword));
+    return Authentication.of(rawAuthentication.getIdentity(), new String(digestedPassword));
   }
 
   @Override
   public Transaction sign(final RawTransaction rawTransaction) {
+    logger.debug("Sign raw transaction: {}", rawTransaction);
     final AccountAddress sender = rawTransaction.getSender();
     if (null == sender) {
       throw new WalletException("Sender is null");
@@ -179,6 +201,7 @@ public class JavaKeyStore implements KeyStore, Signer {
 
   @Override
   public boolean verify(final Transaction transaction) {
+    logger.debug("Verify signed transaction: {}", transaction);
     final AccountAddress sender = transaction.getSender();
     if (null == sender) {
       throw new WalletException("Sender is null");
@@ -201,6 +224,10 @@ public class JavaKeyStore implements KeyStore, Signer {
   @Override
   public void store(final String path, final String password) {
     try {
+      if (logger.isDebugEnabled()) {
+        logger.debug("Store keystore with path: {}, password: {}", path,
+            Sha256Utils.digest(password.getBytes()));
+      }
       delegate.store(new FileOutputStream(new File(path)), password.toCharArray());
     } catch (Exception e) {
       throw new WalletException(e);

@@ -7,9 +7,9 @@ package hera.keystore;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Account;
-import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.Identity;
 import hera.exception.InvalidAuthentiationException;
 import hera.key.AergoKey;
 import java.util.List;
@@ -22,9 +22,9 @@ public interface KeyStore {
    * Store an {@code AergoKey} to the storage.
    *
    * @param key an aergo key to store
-   * @param password a password to encrypt the aergo key
+   * @param authentication an authentication to save key
    */
-  void saveKey(AergoKey key, String password);
+  void saveKey(AergoKey key, Authentication authentication);
 
   /**
    * Export an private key encrypted.
@@ -36,11 +36,11 @@ public interface KeyStore {
   EncryptedPrivateKey export(Authentication authentication);
 
   /**
-   * Get all the stored addresses.
+   * Get all the stored identities.
    *
-   * @return stored addresses.
+   * @return stored identities
    */
-  List<AccountAddress> listStoredAddresses();
+  List<Identity> listIdentities();
 
   /**
    * Unlock and return unlocked account.

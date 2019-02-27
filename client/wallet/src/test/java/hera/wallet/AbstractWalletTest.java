@@ -42,6 +42,7 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractTxHash;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Fee;
+import hera.api.model.Identity;
 import hera.api.model.PeerId;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
@@ -119,10 +120,10 @@ public class AbstractWalletTest extends AbstractTestCase {
     AbstractWallet wallet =
         mock(AbstractWallet.class, Mockito.CALLS_REAL_METHODS);
     final KeyStore keyStore = mock(KeyStore.class);
-    when(keyStore.listStoredAddresses()).thenReturn(new ArrayList<AccountAddress>());
+    when(keyStore.listIdentities()).thenReturn(new ArrayList<Identity>());
     wallet.keyStore = keyStore;
 
-    final List<AccountAddress> exported = wallet.listKeyStoreAddresses();
+    final List<Identity> exported = wallet.listKeyStoreIdentities();
     assertNotNull(exported);
   }
 

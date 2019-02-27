@@ -25,6 +25,7 @@ import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
+import hera.api.model.Identity;
 import hera.api.model.PeerId;
 import hera.api.model.RawTransaction;
 import hera.api.model.StakingInfo;
@@ -35,7 +36,9 @@ import hera.exception.CommitException;
 import hera.exception.UnbindedAccountException;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
+import hera.model.KeyAlias;
 import hera.util.IoUtils;
+import hera.wallet.ServerKeyStoreWallet;
 import hera.wallet.Wallet;
 import hera.wallet.WalletBuilder;
 import hera.wallet.WalletType;
@@ -245,14 +248,45 @@ public class WalletIT extends AbstractIT {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
 
-      final int beforeSize = wallet.listKeyStoreAddresses().size();
+      final int beforeSize = wallet.listKeyStoreIdentities().size();
 
       final AergoKey key = new AergoKeyGenerator().create();
       wallet.saveKey(key, password);
 
-      final int afterSize = wallet.listKeyStoreAddresses().size();
+      final int afterSize = wallet.listKeyStoreIdentities().size();
       assertEquals(beforeSize + 1, afterSize);
-      assertTrue(wallet.listKeyStoreAddresses().contains(key.getAddress()));
+      assertTrue(wallet.listKeyStoreIdentities().contains(key.getAddress()));
+
+      wallet.close();
+    }
+  }
+
+  @Test
+  public void testSaveAndLookupSavedAddressesWithAlias() {
+    for (final Wallet wallet : supplyWorkingWalletList()) {
+      logger.info("Current wallet: {}", wallet);
+      wallet.bindKeyStore(keyStore);
+
+      final int beforeSize = wallet.listKeyStoreIdentities().size();
+
+      final String info = randomUUID().toString().toLowerCase().replace("-", "");
+      final Identity identity = new KeyAlias(info);
+      final AergoKey key = new AergoKeyGenerator().create();
+
+      if (wallet instanceof ServerKeyStoreWallet) {
+        try {
+          wallet.saveKey(key, identity, password);
+          fail();
+        } catch (Exception e) {
+          // good we expected this
+        }
+      } else {
+        wallet.saveKey(key, identity, password);
+
+        final int afterSize = wallet.listKeyStoreIdentities().size();
+        assertEquals(beforeSize + 1, afterSize);
+        assertTrue(wallet.listKeyStoreIdentities().contains(identity));
+      }
 
       wallet.close();
     }

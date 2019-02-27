@@ -155,8 +155,9 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
         @Override
         public FinishableFuture<Boolean> apply(final Authentication authentication) {
           if (logger.isDebugEnabled()) {
-            logger.debug("Unlock an account in server keystore with address: {}, password: {}",
-                authentication.getAddress(),
+            logger.debug(
+                "Unlock an account in server keystore with identification: {}, password: {}",
+                authentication.getIdentity(),
                 sha256AndEncodeHexa(authentication.getPassword()));
           }
 
@@ -181,9 +182,17 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
                 return null != rpcAccount.getAddress();
               }
             });
+            callback.setFailureHandler(new Function1<Throwable, Boolean>() {
+
+              @Override
+              public Boolean apply(Throwable t) {
+                return false;
+              }
+            });
             addCallback(listenableFuture, callback, directExecutor());
           } catch (Exception e) {
-            nextFuture.fail(e);
+            logger.debug("Unlock failure by {}", e.toString());
+            nextFuture.success(false);
           }
           return nextFuture;
         }
@@ -196,8 +205,8 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
         @Override
         public FinishableFuture<Boolean> apply(final Authentication authentication) {
           if (logger.isDebugEnabled()) {
-            logger.debug("Lock an account in server keystore with address: {}, password: {}",
-                authentication.getAddress(),
+            logger.debug("Lock an account in server keystore with identification: {}, password: {}",
+                authentication.getIdentity(),
                 sha256AndEncodeHexa(authentication.getPassword()));
           }
 
@@ -222,9 +231,17 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
                 return null != rpcAccount.getAddress();
               }
             });
+            callback.setFailureHandler(new Function1<Throwable, Boolean>() {
+
+              @Override
+              public Boolean apply(Throwable t) {
+                return false;
+              }
+            });
             addCallback(listenableFuture, callback, directExecutor());
           } catch (Exception e) {
-            nextFuture.fail(e);
+            logger.debug("Lock failure by {}", e.toString());
+            nextFuture.success(false);
           }
           return nextFuture;
         }
@@ -289,8 +306,10 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
         public FinishableFuture<EncryptedPrivateKey> apply(
             final Authentication authentication) {
           if (logger.isDebugEnabled()) {
-            logger.debug("Export an account from server keystore with address: {}, password: {}",
-                authentication.getAddress(), sha256AndEncodeHexa(authentication.getPassword()));
+            logger.debug(
+                "Export an account from server keystore with identification: {}, password: {}",
+                authentication.getIdentity(),
+                sha256AndEncodeHexa(authentication.getPassword()));
           }
 
           FinishableFuture<EncryptedPrivateKey> nextFuture =
