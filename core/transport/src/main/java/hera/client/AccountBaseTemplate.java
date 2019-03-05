@@ -151,14 +151,12 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
           logger.debug("Update account name from account: {}, name: {}, to account: {}, nonce: {}",
               owner.getAddress(), name, newOwner, nonce);
 
-          final byte[] rawTargetAddress =
-              accountAddressConverter.convertToRpcModel(newOwner).toByteArray();
           final RawTransaction rawTransaction = new RawTransaction(owner.getAddress(),
               GovernanceRecipient.AERGO_NAME,
               Aer.AERGO_ONE,
               nonce,
               Fee.ZERO,
-              payloadResolver.resolve(Type.UpdateName, name, rawTargetAddress),
+              payloadResolver.resolve(Type.UpdateName, name, newOwner),
               Transaction.TxType.GOVERNANCE);
           final Transaction signed = getSignFunction().apply(owner, rawTransaction).get();
           return transactionBaseTemplate.getCommitFunction().apply(signed);

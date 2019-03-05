@@ -17,6 +17,7 @@ import hera.api.model.ContractFunction;
 import hera.api.model.ContractInvocation;
 import hera.api.model.PeerId;
 import hera.client.PayloadResolver.Type;
+import hera.key.AergoKeyGenerator;
 import hera.util.Base58Utils;
 import org.junit.Test;
 
@@ -83,7 +84,7 @@ public class PayloadResolverTest extends AbstractTestCase {
   @Test
   public void testResolveOnUpdateName() {
     final String name = randomUUID().toString();
-    final byte[] nextOwner = randomUUID().toString().getBytes();
+    final AccountAddress nextOwner = new AergoKeyGenerator().create().getAddress();
     final BytesValue payload = resolver.resolve(Type.UpdateName, name, nextOwner);
     assertNotNull(payload);
   }

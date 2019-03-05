@@ -178,7 +178,8 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
       new Function2<Boolean, Boolean, FinishableFuture<List<Peer>>>() {
 
         @Override
-        public FinishableFuture<List<Peer>> apply(final Boolean showHidden, final Boolean showSelf) {
+        public FinishableFuture<List<Peer>> apply(final Boolean showHidden,
+            final Boolean showSelf) {
           logger.debug("List peers with showHidden: {}, showSelf: {}", showHidden, showSelf);
 
           FinishableFuture<List<Peer>> nextFuture = new FinishableFuture<List<Peer>>();

@@ -6,11 +6,13 @@ package hera.client;
 
 import static hera.api.model.BytesValue.of;
 import static hera.util.VersionUtils.trim;
+import static java.util.Arrays.asList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInvocation;
@@ -21,25 +23,28 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 
 public class PayloadResolver {
 
-  public static final String STAKE_PAYLOAD_PREVIX = "s";
-  public static final String UNSTAKE_PAYLOAD_PREVIX = "u";
-  public static final String VOTE_PAYLOAD_PREVIX = "v";
-  public static final String CREATE_NAME_PAYLOAD_PREVIX = "c";
-  public static final String UPDATE_NAME_PAYLOAD_PREVIX = "u";
+  public static final String PAYLOAD_VERSION = "v1";
+
+  public static final String STAKE_PAYLOAD_NAME = PAYLOAD_VERSION + "stake";
+  public static final String UNSTAKE_PAYLOAD_NAME = PAYLOAD_VERSION + "unstake";
+  public static final String VOTE_PAYLOAD_NAME = PAYLOAD_VERSION + "voteBP";
+  public static final String CREATE_NAME_PAYLOAD_NAME = PAYLOAD_VERSION + "createName";
+  public static final String UPDATE_NAME_PAYLOAD_NAME = PAYLOAD_VERSION + "updateName";
 
   public enum Type {
     ContractDefinition(ContractDefinition.class),
     ContractInvocation(ContractInvocation.class),
+    Vote(PeerId.class),
     Stake,
     Unstake,
-    Vote(PeerId.class),
     CreateName(String.class),
-    UpdateName(String.class, byte[].class);
+    UpdateName(String.class, AccountAddress.class);
 
     protected final Class<?>[] targets;
 
@@ -63,7 +68,7 @@ public class PayloadResolver {
    */
   public BytesValue resolve(final Type type, final Object... targets) {
     logger.trace("Payload resolve type: {}, target size: {}", type, targets.length);
-    validate(type, targets);
+    validateResolveArgs(type, targets);
     BytesValue resolved = BytesValue.EMPTY;
     try {
       switch (type) {
@@ -79,14 +84,14 @@ public class PayloadResolver {
         case Unstake:
           resolved = resolveUnstake(targets);
           break;
+        case Vote:
+          resolved = resolveVote(targets);
+          break;
         case CreateName:
           resolved = resolveCreateName(targets);
           break;
         case UpdateName:
           resolved = resolveUpdateName(targets);
-          break;
-        case Vote:
-          resolved = resolveVote(targets);
           break;
         default:
           resolved = of(targets.toString().getBytes());
@@ -101,7 +106,7 @@ public class PayloadResolver {
     return resolved;
   }
 
-  protected void validate(final Type type, final Object[] instances) {
+  protected void validateResolveArgs(final Type type, final Object[] instances) {
     final int expectedSize = type.targets.length;
     if (instances.length != expectedSize) {
       throw new RpcException("Targets length must be " + expectedSize);
@@ -114,7 +119,7 @@ public class PayloadResolver {
     }
   }
 
-  protected BytesValue resolveContractDefinition(Object[] targets) throws IOException {
+  protected BytesValue resolveContractDefinition(final Object[] targets) throws IOException {
     final ContractDefinition contractDefinition = (ContractDefinition) targets[0];
     final byte[] rawPayload = trim(contractDefinition.getDecodedContract().getValue());
     final ByteArrayOutputStream rawStream = new ByteArrayOutputStream();
@@ -138,16 +143,57 @@ public class PayloadResolver {
 
   protected BytesValue resolveContractInvocation(final Object[] targets) {
     final ContractInvocation contractInvocation = (ContractInvocation) targets[0];
-    final ObjectNode node = objectMapper.createObjectNode();
-    node.put("Name", contractInvocation.getFunction().getName());
-    node.set("Args", getArgsByJsonArray(contractInvocation.getArgs()));
+    final String name = contractInvocation.getFunction().getName();
+    final List<Object> args = contractInvocation.getArgs();
+    final ObjectNode node = createJsonNode(name, args);
     return new BytesValue(node.toString().getBytes());
+  }
+
+  protected BytesValue resolveStake(final Object[] targets) {
+    final ObjectNode node = createJsonNode(STAKE_PAYLOAD_NAME, asList(targets));
+    return new BytesValue(node.toString().getBytes());
+  }
+
+  protected BytesValue resolveUnstake(final Object[] targets) {
+    final ObjectNode node = createJsonNode(UNSTAKE_PAYLOAD_NAME, asList(targets));
+    return new BytesValue(node.toString().getBytes());
+  }
+
+  protected BytesValue resolveVote(final Object[] targets) throws IOException {
+    final List<Object> args = new ArrayList<Object>();
+    for (final Object peerId : targets) {
+      args.add(((PeerId) peerId).getEncoded());
+    }
+    final ObjectNode node = createJsonNode(VOTE_PAYLOAD_NAME, args);
+    return new BytesValue(node.toString().getBytes());
+  }
+
+  protected BytesValue resolveCreateName(final Object[] targets) {
+    final ObjectNode node = createJsonNode(CREATE_NAME_PAYLOAD_NAME, asList(targets));
+    return new BytesValue(node.toString().getBytes());
+  }
+
+  protected BytesValue resolveUpdateName(final Object[] targets) throws IOException {
+    final String name = (String) targets[0];
+    final String newOwner = ((AccountAddress) targets[1]).getEncoded();
+    final List<Object> args = new ArrayList<Object>();
+    args.add(name);
+    args.add(newOwner);
+    final ObjectNode node = createJsonNode(UPDATE_NAME_PAYLOAD_NAME, args);
+    return new BytesValue(node.toString().getBytes());
+  }
+
+  protected ObjectNode createJsonNode(final String name, final List<Object> args) {
+    final ObjectNode node = objectMapper.createObjectNode();
+    node.put("Name", name);
+    node.set("Args", getArgsByJsonArray(args));
+    return node;
   }
 
   protected ArrayNode getArgsByJsonArray(final List<Object> args) {
     final ArrayNode argsNode = objectMapper.createArrayNode();
     // nil, boolean, number, string, table?
-    for (Object arg : args) {
+    for (final Object arg : args) {
       if (null == arg) {
         argsNode.addNull();
       } else if (arg instanceof Boolean) {
@@ -171,52 +217,6 @@ public class PayloadResolver {
       }
     }
     return argsNode;
-  }
-
-  protected BytesValue resolveStake(final Object[] targets) {
-    return new BytesValue(STAKE_PAYLOAD_PREVIX.getBytes());
-  }
-
-  protected BytesValue resolveUnstake(final Object[] targets) {
-    return new BytesValue(UNSTAKE_PAYLOAD_PREVIX.getBytes());
-  }
-
-  protected BytesValue resolveCreateName(final Object[] targets) {
-    final String name = (String) targets[0];
-    return new BytesValue((CREATE_NAME_PAYLOAD_PREVIX + name).getBytes());
-  }
-
-  protected BytesValue resolveUpdateName(final Object[] targets) throws IOException {
-    final String name = (String) targets[0];
-    final byte[] rawAddress = (byte[]) targets[1];
-    final ByteArrayOutputStream os = new ByteArrayOutputStream();
-    try {
-      os.write(UPDATE_NAME_PAYLOAD_PREVIX.getBytes());
-      os.write(name.getBytes());
-      os.write(",".getBytes());
-      os.write(rawAddress);
-    } catch (Exception e) {
-      throw new RpcException(e);
-    } finally {
-      os.close();
-    }
-    final BytesValue payload = new BytesValue(os.toByteArray());
-    return payload;
-  }
-
-  protected BytesValue resolveVote(final Object[] targets) throws IOException {
-    final PeerId peerId = (PeerId) targets[0];
-    final ByteArrayOutputStream os = new ByteArrayOutputStream();
-    try {
-      os.write(VOTE_PAYLOAD_PREVIX.getBytes());
-      os.write(peerId.getBytesValue().getValue());
-    } catch (Exception e) {
-      throw new RpcException(e);
-    } finally {
-      os.close();
-    }
-    final BytesValue payload = new BytesValue(os.toByteArray());
-    return payload;
   }
 
 }
