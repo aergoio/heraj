@@ -18,6 +18,7 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.function.Function0;
 import hera.api.function.Function1;
+import hera.api.function.Function2;
 import hera.api.function.Function3;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
@@ -173,19 +174,22 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
       };
 
   @Getter
-  private final Function0<FinishableFuture<List<Peer>>> listPeersFunction =
-      new Function0<FinishableFuture<List<Peer>>>() {
+  private final Function2<Boolean, Boolean, FinishableFuture<List<Peer>>> listPeersFunction =
+      new Function2<Boolean, Boolean, FinishableFuture<List<Peer>>>() {
 
         @Override
-        public FinishableFuture<List<Peer>> apply() {
-          logger.debug("List peers");
+        public FinishableFuture<List<Peer>> apply(final Boolean showHidden, final Boolean showSelf) {
+          logger.debug("List peers with showHidden: {}, showSelf: {}", showHidden, showSelf);
 
           FinishableFuture<List<Peer>> nextFuture = new FinishableFuture<List<Peer>>();
           try {
-            final Rpc.Empty empty = Rpc.Empty.newBuilder().build();
-            logger.trace("AergoService getPeers arg: {}", empty);
+            final Rpc.PeersParams peersParams = Rpc.PeersParams.newBuilder()
+                .setNoHidden(!showHidden.booleanValue())
+                .setShowSelf(showSelf.booleanValue())
+                .build();
+            logger.trace("AergoService getPeers arg: {}", peersParams);
 
-            ListenableFuture<Rpc.PeerList> listenableFuture = aergoService.getPeers(empty);
+            ListenableFuture<Rpc.PeerList> listenableFuture = aergoService.getPeers(peersParams);
             FutureChain<Rpc.PeerList, List<Peer>> callback =
                 new FutureChain<Rpc.PeerList, List<Peer>>(nextFuture, contextProvider.get());
             callback.setSuccessHandler(new Function1<Rpc.PeerList, List<Peer>>() {

@@ -31,12 +31,17 @@ public class Peer {
   @Getter
   protected BlockchainStatus blockchainStatus;
 
-  // TODO : clarify a state
   @Getter
   protected int state;
 
   @Getter
   protected boolean hidden;
+
+  @Getter
+  protected long lashCheck;
+
+  @Getter
+  protected boolean selfPeer;
 
   /**
    * Peer constructor.
@@ -47,11 +52,13 @@ public class Peer {
    * @param blockchainStatus a blockchain status of peer
    * @param state a peer state
    * @param hidden whether a peer is hidden or not
+   * @param lashCheck a lash check value
+   * @param selfPeer whether it is a peer which have received request or not
    */
   @ApiAudience.Private
   public Peer(final InetAddress address, final int port, final PeerId peerId,
       final BlockchainStatus blockchainStatus,
-      final int state, final boolean hidden) {
+      final int state, final boolean hidden, final long lashCheck, final boolean selfPeer) {
     assertNotNull(address, "Peer address must not null");
     assertNotNull(peerId, "Peer id must not null");
     assertNotNull(blockchainStatus, "Peer blockchain status must not null");
@@ -61,6 +68,8 @@ public class Peer {
     this.blockchainStatus = blockchainStatus;
     this.state = state;
     this.hidden = hidden;
+    this.lashCheck = lashCheck;
+    this.selfPeer = selfPeer;
   }
 
 }

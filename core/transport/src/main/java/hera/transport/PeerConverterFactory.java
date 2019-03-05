@@ -45,7 +45,9 @@ public class PeerConverterFactory {
             new PeerId(of(rpcPeer.getAddress().getPeerID().toByteArray())),
             blockchainStatus,
             rpcPeer.getState(),
-            rpcPeer.getHidden());
+            rpcPeer.getHidden(),
+            rpcPeer.getLashCheck(),
+            rpcPeer.getSelfpeer());
         logger.trace("Domain peer converted: {}", domainPeer);
         return domainPeer;
       } catch (UnknownHostException e) {

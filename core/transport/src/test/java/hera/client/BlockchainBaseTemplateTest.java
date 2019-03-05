@@ -114,13 +114,13 @@ public class BlockchainBaseTemplateTest extends AbstractTestCase {
             return Rpc.PeerList.newBuilder().build();
           }
         });
-    when(aergoService.getPeers(any(Rpc.Empty.class))).thenReturn(mockListenableFuture);
+    when(aergoService.getPeers(any(Rpc.PeersParams.class))).thenReturn(mockListenableFuture);
 
     final BlockchainBaseTemplate blockchainBaseTemplate =
         supplyBlockchainBaseTemplate(aergoService);
 
     final FinishableFuture<List<Peer>> peers =
-        blockchainBaseTemplate.getListPeersFunction().apply();
+        blockchainBaseTemplate.getListPeersFunction().apply(false, false);
     assertNotNull(peers.get());
   }
 

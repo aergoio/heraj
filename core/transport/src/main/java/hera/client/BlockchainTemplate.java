@@ -21,6 +21,7 @@ import hera.annotation.ApiStability;
 import hera.api.BlockchainOperation;
 import hera.api.function.Function0;
 import hera.api.function.Function1;
+import hera.api.function.Function2;
 import hera.api.function.Function3;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
@@ -76,10 +77,9 @@ public class BlockchainTemplate
           BLOCKCHAIN_CHAININFO));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function0<FinishableFuture<List<Peer>>> listPeersFunction =
-      getStrategyChain()
-          .apply(
-              identify(getBlockchainBaseTemplate().getListPeersFunction(), BLOCKCHAIN_LIST_PEERS));
+  private final Function2<Boolean, Boolean, FinishableFuture<List<Peer>>> listPeersFunction =
+      getStrategyChain().apply(
+          identify(getBlockchainBaseTemplate().getListPeersFunction(), BLOCKCHAIN_LIST_PEERS));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function0<FinishableFuture<List<PeerMetric>>> listPeerMetricsFunction =
@@ -121,7 +121,12 @@ public class BlockchainTemplate
 
   @Override
   public List<Peer> listPeers() {
-    return getListPeersFunction().apply().get();
+    return listPeers(false, false);
+  }
+
+  @Override
+  public List<Peer> listPeers(final boolean showHidden, final boolean showSelf) {
+    return getListPeersFunction().apply(showHidden, showSelf).get();
   }
 
   @Override
@@ -148,4 +153,5 @@ public class BlockchainTemplate
   public List<VotingInfo> listVotesOf(final AccountAddress accountAddress) {
     return getListVotesOfFunction().apply(accountAddress).get();
   }
+
 }

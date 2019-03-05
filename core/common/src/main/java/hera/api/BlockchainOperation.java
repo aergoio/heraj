@@ -38,11 +38,20 @@ public interface BlockchainOperation {
   ChainInfo getChainInfo();
 
   /**
-   * Get blockchain peer addresses.
+   * Get blockchain peer addresses filtering hidden peers and itself.
    *
    * @return peer addresses
    */
   List<Peer> listPeers();
+
+  /**
+   * Get blockchain peer addresses.
+   *
+   * @param showHidden whether to show hidden peers
+   * @param showSelf whether to show node which receives request itself
+   * @return peer addresses
+   */
+  List<Peer> listPeers(boolean showHidden, boolean showSelf);
 
   /**
    * Get metrics of peers.

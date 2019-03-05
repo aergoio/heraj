@@ -23,6 +23,7 @@ import hera.AbstractTestCase;
 import hera.ContextProvider;
 import hera.api.function.Function0;
 import hera.api.function.Function1;
+import hera.api.function.Function2;
 import hera.api.function.Function3;
 import hera.api.function.WithIdentity;
 import hera.api.model.Account;
@@ -110,16 +111,17 @@ public class BlockchainTemplateTest extends AbstractTestCase {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
     final FinishableFuture<List<Peer>> future = new FinishableFuture<List<Peer>>();
     future.success(new ArrayList<Peer>());
-    when(base.getListPeersFunction()).thenReturn(new Function0<FinishableFuture<List<Peer>>>() {
+    when(base.getListPeersFunction()).thenReturn(new Function2<Boolean, Boolean,
+        FinishableFuture<List<Peer>>>() {
       @Override
-      public FinishableFuture<List<Peer>> apply() {
+      public FinishableFuture<List<Peer>> apply(Boolean t1, Boolean t2) {
         return future;
       }
     });
 
     final BlockchainTemplate blockchainTemplate = supplyBlockchainTemplate(base);
 
-    final List<Peer> peers = blockchainTemplate.listPeers();
+    final List<Peer> peers = blockchainTemplate.listPeers(true, true);
     assertNotNull(peers);
     assertEquals(BLOCKCHAIN_LIST_PEERS,
         ((WithIdentity) blockchainTemplate.getListPeersFunction()).getIdentity());
