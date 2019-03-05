@@ -12,7 +12,7 @@ import hera.api.model.Account;
 import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
 import hera.api.model.StakingInfo;
-import hera.exception.CommitException;
+import hera.exception.RpcCommitException;
 import hera.key.AergoKeyGenerator;
 import org.junit.Test;
 
@@ -53,8 +53,8 @@ public class AccountOperationIT extends AbstractIT {
       try {
         aergoClient.getAccountOperation().createName(account, name, account.getRecentlyUsedNonce());
         fail();
-      } catch (CommitException e) {
-        assertEquals(CommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
+      } catch (RpcCommitException e) {
+        assertEquals(RpcCommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
       }
       lockAccount(account, password);
     }
@@ -80,8 +80,8 @@ public class AccountOperationIT extends AbstractIT {
         aergoClient.getAccountOperation().updateName(account, name, passed.getAddress(),
             account.getRecentlyUsedNonce());
         fail();
-      } catch (CommitException e) {
-        assertEquals(CommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
+      } catch (RpcCommitException e) {
+        assertEquals(RpcCommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
       }
       lockAccount(account, password);
     }
@@ -121,8 +121,8 @@ public class AccountOperationIT extends AbstractIT {
         aergoClient.getAccountOperation().stake(account, state.getBalance(),
             account.getRecentlyUsedNonce());
         fail();
-      } catch (CommitException e) {
-        assertEquals(CommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
+      } catch (RpcCommitException e) {
+        assertEquals(RpcCommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
       }
       lockAccount(account, password);
     }
@@ -148,8 +148,8 @@ public class AccountOperationIT extends AbstractIT {
         aergoClient.getAccountOperation().unstake(account, stakingInfo.getAmount(),
             account.getRecentlyUsedNonce());
         fail();
-      } catch (CommitException e) {
-        assertEquals(CommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
+      } catch (RpcCommitException e) {
+        assertEquals(RpcCommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
       }
       lockAccount(account, password);
     }

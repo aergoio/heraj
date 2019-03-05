@@ -20,7 +20,7 @@ import hera.api.model.Peer;
 import hera.api.model.PeerId;
 import hera.api.model.PeerMetric;
 import hera.api.model.VotingInfo;
-import hera.exception.CommitException;
+import hera.exception.RpcCommitException;
 import java.util.List;
 import org.junit.Test;
 
@@ -109,7 +109,7 @@ public class BlockchainOperationIT extends AbstractIT {
         final PeerId peerId = new PeerId("16Uiu2HAmV6iVGuN31sZTz2GDicFPpBr6eaHn1mVM499BGwSBf6Nb");
         aergoClient.getBlockchainOperation().vote(account, peerId, account.incrementAndGetNonce());
         fail();
-      } catch (CommitException e) {
+      } catch (RpcCommitException e) {
         // good we expected this
       }
 

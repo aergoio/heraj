@@ -4,7 +4,6 @@
 
 package hera.keystore;
 
-import static java.util.Collections.newSetFromMap;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
@@ -17,16 +16,13 @@ import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Identity;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
-import hera.exception.InvalidAuthentiationException;
-import hera.exception.LockedAccountException;
-import hera.exception.WalletException;
+import hera.exception.KeyStoreException;
 import hera.key.AergoKey;
 import hera.key.Signer;
 import hera.util.Sha256Utils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 
@@ -39,9 +35,6 @@ public class InMemoryKeyStore implements KeyStore, Signer {
   protected Map<Authentication, EncryptedPrivateKey> auth2EncryptedPrivateKey =
       new ConcurrentHashMap<Authentication, EncryptedPrivateKey>();
 
-  protected Set<Identity> storedIdentitySet =
-      newSetFromMap(new ConcurrentHashMap<Identity, Boolean>());
-
   protected Authentication currentUnlockedAuth;
   protected AergoKey currentUnlockedKey;
 
@@ -50,10 +43,10 @@ public class InMemoryKeyStore implements KeyStore, Signer {
     try {
       logger.debug("Save key: {}, authentication: {}", authentication);
       final EncryptedPrivateKey encryptedKey = key.export(authentication.getPassword());
-      auth2EncryptedPrivateKey.put(digest(authentication), encryptedKey);
-      storedIdentitySet.add(authentication.getIdentity());
+      final Authentication digestedAuth = digest(authentication);
+      auth2EncryptedPrivateKey.put(digestedAuth, encryptedKey);
     } catch (final Exception e) {
-      throw new WalletException(e);
+      throw new KeyStoreException(e);
     }
   }
 
@@ -62,18 +55,26 @@ public class InMemoryKeyStore implements KeyStore, Signer {
     try {
       logger.debug("Export key with authentication: {}", authentication);
       final Authentication digestedAuth = digest(authentication);
-      if (false == auth2EncryptedPrivateKey.containsKey(digestedAuth)) {
-        throw new InvalidAuthentiationException("A key mappged with Authentication isn't exist");
+      if (!auth2EncryptedPrivateKey.containsKey(digestedAuth)) {
+        throw new IllegalArgumentException("A key mappged with Authentication isn't exist");
       }
       return auth2EncryptedPrivateKey.get(digestedAuth);
     } catch (final Exception e) {
-      throw new InvalidAuthentiationException(e);
+      throw new KeyStoreException(e);
     }
   }
 
   @Override
   public List<Identity> listIdentities() {
-    return new ArrayList<Identity>(this.storedIdentitySet);
+    try {
+      final List<Identity> identities = new ArrayList<Identity>();
+      for (final Authentication authentication : auth2EncryptedPrivateKey.keySet()) {
+        identities.add(authentication.getIdentity());
+      }
+      return identities;
+    } catch (final Exception e) {
+      throw new KeyStoreException(e);
+    }
   }
 
   @Override
@@ -81,31 +82,34 @@ public class InMemoryKeyStore implements KeyStore, Signer {
     try {
       logger.debug("Unlock key with authentication: {}", authentication);
       final Authentication digestedAuth = digest(authentication);
-      if (false == auth2EncryptedPrivateKey.containsKey(digestedAuth)) {
-        throw new InvalidAuthentiationException("A key mappged with Authentication isn't exist");
+      if (!auth2EncryptedPrivateKey.containsKey(digestedAuth)) {
+        return null;
       }
-      final EncryptedPrivateKey encrypted =
-          auth2EncryptedPrivateKey.get(digestedAuth);
+      final EncryptedPrivateKey encrypted = auth2EncryptedPrivateKey.get(digestedAuth);
       final AergoKey key = AergoKey.of(encrypted, authentication.getPassword());
       currentUnlockedAuth = digestedAuth;
       currentUnlockedKey = key;
       return new AccountFactory().create(key.getAddress(), this);
-    } catch (WalletException e) {
-      throw e;
     } catch (Exception e) {
-      throw new InvalidAuthentiationException(e);
+      logger.debug("Unlock failed by {}", e.toString());
+      return null;
     }
   }
 
   @Override
-  public void lock(final Authentication authentication) {
-    logger.debug("Lock key with authentication: {}", authentication);
-    final Authentication digested = digest(authentication);
-    if (!currentUnlockedAuth.equals(digested)) {
-      throw new InvalidAuthentiationException("Unable to lock account");
+  public boolean lock(final Authentication authentication) {
+    try {
+      logger.debug("Lock key with authentication: {}", authentication);
+      final Authentication digested = digest(authentication);
+      if (!currentUnlockedAuth.equals(digested)) {
+        return false;
+      }
+      currentUnlockedAuth = null;
+      currentUnlockedKey = null;
+      return true;
+    } catch (Exception e) {
+      throw new KeyStoreException(e);
     }
-    currentUnlockedAuth = null;
-    currentUnlockedKey = null;
   }
 
   protected Authentication digest(final Authentication rawAuthentication) {
@@ -115,39 +119,37 @@ public class InMemoryKeyStore implements KeyStore, Signer {
 
   @Override
   public Transaction sign(final RawTransaction rawTransaction) {
-    logger.debug("Sign raw transaction: {}", rawTransaction);
-    final AccountAddress sender = rawTransaction.getSender();
-    if (null == sender) {
-      throw new WalletException("Sender is null");
-    }
-
-    final AergoKey key = getUnlockedKey(sender);
     try {
+      logger.debug("Sign raw transaction: {}", rawTransaction);
+      final AccountAddress sender = rawTransaction.getSender();
+      if (null == sender) {
+        throw new IllegalArgumentException("Sender is null");
+      }
+      final AergoKey key = getUnlockedKey(sender);
       return key.sign(rawTransaction);
     } catch (Exception e) {
-      throw new WalletException(e);
+      throw new KeyStoreException(e);
     }
   }
 
   @Override
   public boolean verify(final Transaction transaction) {
-    logger.debug("Verify signed transaction: {}", transaction);
-    final AccountAddress sender = transaction.getSender();
-    if (null == sender) {
-      throw new WalletException("Sender is null");
-    }
-
-    final AergoKey key = getUnlockedKey(sender);
     try {
+      logger.debug("Verify signed transaction: {}", transaction);
+      final AccountAddress sender = transaction.getSender();
+      if (null == sender) {
+        throw new IllegalArgumentException("Sender is null");
+      }
+      final AergoKey key = getUnlockedKey(sender);
       return key.verify(transaction);
     } catch (Exception e) {
-      throw new WalletException(e);
+      throw new KeyStoreException(e);
     }
   }
 
   protected AergoKey getUnlockedKey(final AccountAddress address) {
     if (null == currentUnlockedKey || !currentUnlockedKey.getAddress().equals(address)) {
-      throw new LockedAccountException();
+      throw new IllegalStateException("Unlock account first");
     }
     return currentUnlockedKey;
   }

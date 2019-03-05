@@ -27,7 +27,6 @@ import hera.api.model.TxHash;
 import hera.api.model.VotingInfo;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
-import hera.exception.InvalidAuthentiationException;
 import hera.exception.UnbindedAccountException;
 import hera.exception.UnbindedKeyStoreException;
 import hera.exception.WalletException;
@@ -49,8 +48,11 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
   protected AbstractWallet(final AergoClient aergoClient,
       final TryCountAndInterval tryCountAndInterval) {
     super(aergoClient);
-
     logger.debug("Binded nonce refresh: {}", tryCountAndInterval);
+    this.trier = buildTrier(tryCountAndInterval);
+  }
+
+  protected TransactionTrier buildTrier(final TryCountAndInterval tryCountAndInterval) {
     final TransactionTrier trier = new TransactionTrier(tryCountAndInterval);
     trier.setAccountProvider(new Function0<Account>() {
       @Override
@@ -64,7 +66,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
         getAccount().bindState(getAccountState());
       }
     });
-    this.trier = trier;
+    return trier;
   }
 
   protected KeyStore getKeyStore() {
@@ -76,57 +78,75 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
 
   @Override
   public void saveKey(final AergoKey key, final String password) {
-    getKeyStore().saveKey(key, Authentication.of(key.getAddress(), password));
+    try {
+      saveKey(key, key.getAddress(), password);
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
   public void saveKey(final AergoKey key, final Identity identity,
       final String password) {
-    getKeyStore().saveKey(key, Authentication.of(identity, password));
+    try {
+      getKeyStore().saveKey(key, Authentication.of(identity, password));
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
   public String exportKey(final Authentication authentication) {
-    return getKeyStore().export(authentication).getEncoded();
+    try {
+      return getKeyStore().export(authentication).getEncoded();
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
   public List<Identity> listKeyStoreIdentities() {
-    return getKeyStore().listIdentities();
+    try {
+      return getKeyStore().listIdentities();
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
   public boolean unlock(final Authentication authentication) {
     try {
-      this.account = getKeyStore().unlock(authentication);
-      getCurrentAccount().bindState(getAccountState());
+      final Account unlocked = getKeyStore().unlock(authentication);
+      if (null == unlocked) {
+        return false;
+      }
+      try {
+        unlocked.bindState(getAccountState());
+      } catch (WalletException e) {
+        logger.debug("Sync unlocked account state failed, address: {}", unlocked.getAddress());
+      }
+      this.account = unlocked;
       return true;
-    } catch (InvalidAuthentiationException e) {
-      return false;
     } catch (Exception e) {
-      throw new WalletException(e);
+      throw handler.handle(e);
     }
   }
 
   @Override
   public boolean lock(final Authentication authentication) {
     try {
-      getKeyStore().lock(authentication);
-      return true;
-    } catch (InvalidAuthentiationException e) {
-      return false;
+      return getKeyStore().lock(authentication);
     } catch (Exception e) {
-      throw new WalletException(e);
+      throw handler.handle(e);
     }
   }
 
   @Override
-  public boolean storeKeyStore(final String path, final String password) {
+  public void storeKeyStore(final String path, final String password) {
     try {
       getKeyStore().store(path, password);
-      return true;
     } catch (Exception e) {
-      return false;
+      throw handler.handle(e);
     }
   }
 
@@ -139,18 +159,8 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
   }
 
   @Override
-  public Account getCurrentAccount() {
-    return getAccount();
-  }
-
-  @Override
   public AccountState getAccountState() {
     return getAccountState(getAccount());
-  }
-
-  @Override
-  public AccountState getCurrentAccountState() {
-    return getAccountState();
   }
 
   @Override
@@ -174,12 +184,26 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
   }
 
   @Override
+  public Transaction sign(final RawTransaction rawTransaction) {
+    return getAergoClient().getAccountOperation().sign(getAccount(), rawTransaction);
+  }
+
+  @Override
+  public boolean verify(final Transaction transaction) {
+    return getAergoClient().getAccountOperation().verify(getAccount(), transaction);
+  }
+
+  @Override
   public TxHash createName(final String name) {
     return trier.request(new Function1<Long, TxHash>() {
       @Override
       public TxHash apply(final Long nonce) {
-        return getAergoClient().getAccountOperation()
-            .createName(getAccount(), name, nonce);
+        try {
+          return getAergoClient().getAccountOperation()
+              .createName(getAccount(), name, nonce);
+        } catch (Exception e) {
+          throw handler.handle(e);
+        }
       }
     });
   }
@@ -189,8 +213,12 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
     return trier.request(new Function1<Long, TxHash>() {
       @Override
       public TxHash apply(final Long nonce) {
-        return getAergoClient().getAccountOperation()
-            .updateName(getAccount(), name, newOwner, nonce);
+        try {
+          return getAergoClient().getAccountOperation()
+              .updateName(getAccount(), name, newOwner, nonce);
+        } catch (Exception e) {
+          throw handler.handle(e);
+        }
       }
     });
   }
@@ -200,8 +228,12 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
     return trier.request(new Function1<Long, TxHash>() {
       @Override
       public TxHash apply(final Long nonce) {
-        return getAergoClient().getAccountOperation()
-            .stake(getAccount(), amount, nonce);
+        try {
+          return getAergoClient().getAccountOperation()
+              .stake(getAccount(), amount, nonce);
+        } catch (Exception e) {
+          throw handler.handle(e);
+        }
       }
     });
   }
@@ -211,8 +243,12 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
     return trier.request(new Function1<Long, TxHash>() {
       @Override
       public TxHash apply(final Long nonce) {
-        return getAergoClient().getAccountOperation()
-            .unstake(getAccount(), amount, nonce);
+        try {
+          return getAergoClient().getAccountOperation()
+              .unstake(getAccount(), amount, nonce);
+        } catch (Exception e) {
+          throw handler.handle(e);
+        }
       }
     });
   }
@@ -222,20 +258,14 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
     return trier.request(new Function1<Long, TxHash>() {
       @Override
       public TxHash apply(final Long nonce) {
-        return getAergoClient().getBlockchainOperation()
-            .vote(getAccount(), peerId, nonce);
+        try {
+          return getAergoClient().getBlockchainOperation()
+              .vote(getAccount(), peerId, nonce);
+        } catch (Exception e) {
+          throw handler.handle(e);
+        }
       }
     });
-  }
-
-  @Override
-  public Transaction sign(final RawTransaction rawTransaction) {
-    return getAergoClient().getAccountOperation().sign(getAccount(), rawTransaction);
-  }
-
-  @Override
-  public boolean verify(final Transaction transaction) {
-    return getAergoClient().getAccountOperation().verify(getAccount(), transaction);
   }
 
   @Override
@@ -249,15 +279,19 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
     return trier.request(new Function1<Long, TxHash>() {
       @Override
       public TxHash apply(final Long nonce) {
-        final RawTransaction rawTransaction = RawTransaction.newBuilder()
-            .from(getAccount())
-            .to(recipient)
-            .amount(amount)
-            .nonce(nonce)
-            .fee(fee)
-            .payload(payload)
-            .build();
-        return getAergoClient().getTransactionOperation().commit(sign(rawTransaction));
+        try {
+          final RawTransaction rawTransaction = RawTransaction.newBuilder()
+              .from(getAccount())
+              .to(recipient)
+              .amount(amount)
+              .nonce(nonce)
+              .fee(fee)
+              .payload(payload)
+              .build();
+          return getAergoClient().getTransactionOperation().commit(sign(rawTransaction));
+        } catch (Exception e) {
+          throw handler.handle(e);
+        }
       }
     });
   }
@@ -273,15 +307,19 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
     return trier.request(new Function1<Long, TxHash>() {
       @Override
       public TxHash apply(final Long nonce) {
-        final RawTransaction rawTransaction = RawTransaction.newBuilder()
-            .from(getAccount())
-            .to(recipient)
-            .amount(amount)
-            .nonce(nonce)
-            .fee(fee)
-            .payload(payload)
-            .build();
-        return getAergoClient().getTransactionOperation().commit(sign(rawTransaction));
+        try {
+          final RawTransaction rawTransaction = RawTransaction.newBuilder()
+              .from(getAccount())
+              .to(recipient)
+              .amount(amount)
+              .nonce(nonce)
+              .fee(fee)
+              .payload(payload)
+              .build();
+          return getAergoClient().getTransactionOperation().commit(sign(rawTransaction));
+        } catch (Exception e) {
+          throw handler.handle(e);
+        }
       }
     });
   }
@@ -297,15 +335,23 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
 
       @Override
       public TxHash apply() {
-        return getAergoClient().getTransactionOperation().commit(signedTransaction);
+        try {
+          return getAergoClient().getTransactionOperation().commit(signedTransaction);
+        } catch (Exception e) {
+          throw handler.handle(e);
+        }
       }
     }, new Function1<Long, TxHash>() {
 
       @Override
       public TxHash apply(final Long nonce) {
-        final RawTransaction withNewNonce =
-            RawTransaction.copyOf(signedTransaction, nonce.longValue());
-        return getAergoClient().getTransactionOperation().commit(sign(withNewNonce));
+        try {
+          final RawTransaction withNewNonce =
+              RawTransaction.copyOf(signedTransaction, nonce.longValue());
+          return getAergoClient().getTransactionOperation().commit(sign(withNewNonce));
+        } catch (Exception e) {
+          throw handler.handle(e);
+        }
       }
     });
   }
@@ -315,8 +361,12 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
     return trier.request(new Function1<Long, TxHash>() {
       @Override
       public TxHash apply(final Long nonce) {
-        return getAergoClient().getContractOperation().deploy(getAccount(),
-            contractDefinition, nonce, fee);
+        try {
+          return getAergoClient().getContractOperation().deploy(getAccount(),
+              contractDefinition, nonce, fee);
+        } catch (Exception e) {
+          throw handler.handle(e);
+        }
       }
     }).adapt(ContractTxHash.class);
   }
@@ -326,8 +376,12 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
     return (ContractTxHash) trier.request(new Function1<Long, TxHash>() {
       @Override
       public TxHash apply(final Long nonce) {
-        return getAergoClient().getContractOperation().execute(getAccount(),
-            contractInvocation, nonce, fee);
+        try {
+          return getAergoClient().getContractOperation().execute(getAccount(),
+              contractInvocation, nonce, fee);
+        } catch (Exception e) {
+          throw handler.handle(e);
+        }
       }
     }).adapt(ContractTxHash.class);
   }

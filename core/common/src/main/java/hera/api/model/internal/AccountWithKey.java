@@ -43,5 +43,4 @@ public class AccountWithKey extends AbstractAccount implements Signer {
     return key.verify(transaction);
   }
 
-
 }

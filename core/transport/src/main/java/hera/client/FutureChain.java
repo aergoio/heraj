@@ -10,7 +10,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import hera.Context;
 import hera.ContextHolder;
 import hera.api.function.Function1;
-import hera.exception.NotFoundException;
 import hera.exception.RpcConnectionException;
 import hera.exception.RpcException;
 import io.grpc.StatusRuntimeException;
@@ -87,8 +86,6 @@ public class FutureChain<T, R> implements FutureCallback<T> {
     switch (e.getStatus().getCode()) {
       case UNAVAILABLE:
         return new RpcConnectionException(e);
-      case NOT_FOUND:
-        return new NotFoundException(e);
       default:
         return new RpcException(e);
     }

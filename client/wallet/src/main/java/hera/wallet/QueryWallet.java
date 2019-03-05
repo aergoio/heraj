@@ -28,6 +28,7 @@ import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.VotingInfo;
 import hera.client.AergoClient;
+import hera.exception.ExceptionHandler;
 import hera.exception.WalletException;
 import java.io.Closeable;
 import java.util.List;
@@ -41,6 +42,8 @@ public abstract class QueryWallet implements QueryClient, Closeable {
 
   protected final Logger logger = getLogger(getClass());
 
+  protected final ExceptionHandler handler = new ExceptionHandler();
+
   @Getter(value = AccessLevel.PROTECTED)
   protected final AergoClient aergoClient;
 
@@ -51,17 +54,27 @@ public abstract class QueryWallet implements QueryClient, Closeable {
 
   @Override
   public AccountState getAccountState(final Account account) {
-    return getAergoClient().getAccountOperation().getState(account);
+    return getAccountState(account.getAddress());
   }
 
   @Override
   public AccountState getAccountState(final AccountAddress accountAddress) {
-    return getAergoClient().getAccountOperation().getState(accountAddress);
+    try {
+      logger.debug("Get account state of {}", accountAddress);
+      return getAergoClient().getAccountOperation().getState(accountAddress);
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
   public AccountAddress getNameOwner(final String name) {
-    return getAergoClient().getAccountOperation().getNameOwner(name);
+    try {
+      logger.debug("Get name owner of {}", name);
+      return getAergoClient().getAccountOperation().getNameOwner(name);
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
@@ -71,7 +84,12 @@ public abstract class QueryWallet implements QueryClient, Closeable {
 
   @Override
   public StakingInfo getStakingInfo(final AccountAddress accountAddress) {
-    return getAergoClient().getAccountOperation().getStakingInfo(accountAddress);
+    try {
+      logger.debug("Get staking info of {}", accountAddress);
+      return getAergoClient().getAccountOperation().getStakingInfo(accountAddress);
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
@@ -81,7 +99,12 @@ public abstract class QueryWallet implements QueryClient, Closeable {
 
   @Override
   public List<BlockProducer> listElectedBlockProducers(final long showCount) {
-    return getAergoClient().getBlockchainOperation().listElectedBlockProducers(showCount);
+    try {
+      logger.debug("List elected bps with show count: {}", showCount);
+      return getAergoClient().getBlockchainOperation().listElectedBlockProducers(showCount);
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
@@ -91,92 +114,182 @@ public abstract class QueryWallet implements QueryClient, Closeable {
 
   @Override
   public List<VotingInfo> listVotesOf(final AccountAddress accountAddress) {
-    return getAergoClient().getBlockchainOperation().listVotesOf(accountAddress);
+    try {
+      logger.debug("List votes of {}", accountAddress);
+      return getAergoClient().getBlockchainOperation().listVotesOf(accountAddress);
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
   public List<AccountAddress> listServerKeyStoreAccounts() {
-    return getAergoClient().getKeyStoreOperation().list();
+    try {
+      logger.debug("List server keystore stored addresses");
+      return getAergoClient().getKeyStoreOperation().list();
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
   public BlockHash getBestBlockHash() {
-    return getAergoClient().getBlockchainOperation().getBlockchainStatus().getBestBlockHash();
+    try {
+      logger.debug("Get best block hash");
+      return getAergoClient().getBlockchainOperation().getBlockchainStatus().getBestBlockHash();
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
   public long getBestBlockHeight() {
-    return getAergoClient().getBlockchainOperation().getBlockchainStatus().getBestHeight();
+    try {
+      logger.debug("Get best block height");
+      return getAergoClient().getBlockchainOperation().getBlockchainStatus().getBestHeight();
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
   public ChainInfo getChainInfo() {
-    return getAergoClient().getBlockchainOperation().getChainInfo();
+    try {
+      logger.debug("Get chain info");
+      return getAergoClient().getBlockchainOperation().getChainInfo();
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
   public List<Peer> listNodePeers() {
-    return getAergoClient().getBlockchainOperation().listPeers();
+    try {
+      logger.debug("List peers info");
+      return getAergoClient().getBlockchainOperation().listPeers();
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
   public List<PeerMetric> listPeerMetrics() {
-    return getAergoClient().getBlockchainOperation().listPeerMetrics();
+    try {
+      logger.debug("List metric of peers");
+      return getAergoClient().getBlockchainOperation().listPeerMetrics();
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
   public NodeStatus getNodeStatus() {
-    return getAergoClient().getBlockchainOperation().getNodeStatus();
+    try {
+      logger.debug("Get node status");
+      return getAergoClient().getBlockchainOperation().getNodeStatus();
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
   public BlockHeader getBlockHeader(final BlockHash blockHash) {
-    return getAergoClient().getBlockOperation().getBlockHeader(blockHash);
+    try {
+      logger.debug("Get block header with hash: {}", blockHash);
+      return getAergoClient().getBlockOperation().getBlockHeader(blockHash);
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
   public BlockHeader getBlockHeader(final long height) {
-    return getAergoClient().getBlockOperation().getBlockHeader(height);
+    try {
+      logger.debug("Get block header with height: {}", height);
+      return getAergoClient().getBlockOperation().getBlockHeader(height);
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
   public List<BlockHeader> listBlockHeaders(final BlockHash blockHash, final int size) {
-    return getAergoClient().getBlockOperation().listBlockHeaders(blockHash, size);
+    try {
+      logger.debug("List block headers with hash: {}, size: {}", blockHash, size);
+      return getAergoClient().getBlockOperation().listBlockHeaders(blockHash, size);
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
   public List<BlockHeader> listBlockHeaders(final long height, final int size) {
-    return getAergoClient().getBlockOperation().listBlockHeaders(height, size);
+    try {
+      logger.debug("List block headers with height: {}, size: {}", height, size);
+      return getAergoClient().getBlockOperation().listBlockHeaders(height, size);
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
   public Block getBlock(final BlockHash blockHash) {
-    return getAergoClient().getBlockOperation().getBlock(blockHash);
+    try {
+      logger.debug("Get block with hash: {}", blockHash);
+      return getAergoClient().getBlockOperation().getBlock(blockHash);
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
   public Block getBlock(final long height) {
-    return getAergoClient().getBlockOperation().getBlock(height);
+    try {
+      logger.debug("Get block with height: {}", height);
+      return getAergoClient().getBlockOperation().getBlock(height);
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
   public Transaction getTransaction(final TxHash txHash) {
-    return getAergoClient().getTransactionOperation().getTransaction(txHash);
+    try {
+      logger.debug("Get transaction with hash: {}", txHash);
+      return getAergoClient().getTransactionOperation().getTransaction(txHash);
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
   public ContractTxReceipt getReceipt(final ContractTxHash contractTxHash) {
-    return getAergoClient().getContractOperation().getReceipt(contractTxHash);
+    try {
+      logger.debug("Get contract transaction receipt with hash: {}", contractTxHash);
+      return getAergoClient().getContractOperation().getReceipt(contractTxHash);
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
   public ContractInterface getContractInterface(final ContractAddress contractAddress) {
-    return getAergoClient().getContractOperation().getContractInterface(contractAddress);
+    try {
+      logger.debug("Get contract interface with address: {}", contractAddress);
+      return getAergoClient().getContractOperation().getContractInterface(contractAddress);
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override
   public ContractResult query(final ContractInvocation contractInvocation) {
-    return getAergoClient().getContractOperation().query(contractInvocation);
+    try {
+      logger.debug("Query request with: {}", contractInvocation);
+      return getAergoClient().getContractOperation().query(contractInvocation);
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
   }
 
   @Override

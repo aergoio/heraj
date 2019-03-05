@@ -18,9 +18,7 @@ import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Identity;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
-import hera.exception.InvalidAuthentiationException;
-import hera.exception.LockedAccountException;
-import hera.exception.WalletException;
+import hera.exception.KeyStoreException;
 import hera.key.AergoKey;
 import hera.key.Signer;
 import hera.model.KeyAlias;
@@ -31,7 +29,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.math.BigInteger;
 import java.security.Key;
-import java.security.KeyStoreException;
+import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
@@ -69,11 +67,14 @@ public class JavaKeyStore implements KeyStore, Signer {
   public void saveKey(final AergoKey key, final Authentication authentication) {
     try {
       logger.debug("Save key: {}, authentication: {}", authentication);
+      final String alias = authentication.getIdentity().getInfo();
+      final PrivateKey privateKey = key.getPrivateKey();
+      final char[] rawPassword = authentication.getPassword().toCharArray();
       final Certificate cert = generateCertificate(key);
-      delegate.setKeyEntry(authentication.getIdentity().getInfo(), key.getPrivateKey(),
-          authentication.getPassword().toCharArray(), new Certificate[] {cert});
+      final Certificate[] certChain = new Certificate[] {cert};
+      delegate.setKeyEntry(alias, privateKey, rawPassword, certChain);
     } catch (Exception e) {
-      throw new WalletException(e);
+      throw new KeyStoreException(e);
     }
   }
 
@@ -102,11 +103,10 @@ public class JavaKeyStore implements KeyStore, Signer {
       logger.debug("Export key with authentication: {}", authentication);
       final Key privateKey = delegate.getKey(authentication.getIdentity().getInfo(),
           authentication.getPassword().toCharArray());
-      return restoreKey(privateKey).export(authentication.getPassword());
-    } catch (KeyStoreException e) {
-      throw new WalletException(e);
+      final AergoKey restored = restoreKey(privateKey);
+      return restored.export(authentication.getPassword());
     } catch (Exception e) {
-      throw new InvalidAuthentiationException(e);
+      throw new KeyStoreException(e);
     }
   }
 
@@ -132,10 +132,8 @@ public class JavaKeyStore implements KeyStore, Signer {
         storedIdentities.add(identity);
       }
       return storedIdentities;
-    } catch (KeyStoreException e) {
-      throw new WalletException(e);
     } catch (Exception e) {
-      throw new InvalidAuthentiationException(e);
+      throw new KeyStoreException(e);
     }
   }
 
@@ -143,16 +141,15 @@ public class JavaKeyStore implements KeyStore, Signer {
   public Account unlock(final Authentication authentication) {
     try {
       logger.debug("Unlock key with authentication: {}", authentication);
-      Key privateKey = delegate.getKey(authentication.getIdentity().getInfo(),
+      final java.security.Key privateKey = delegate.getKey(authentication.getIdentity().getInfo(),
           authentication.getPassword().toCharArray());
       final AergoKey key = restoreKey(privateKey);
       currentUnlockedAuth = digest(authentication);
       currentUnlockedKey = key;
       return new AccountFactory().create(key.getAddress(), this);
-    } catch (KeyStoreException e) {
-      throw new WalletException(e);
     } catch (Exception e) {
-      throw new InvalidAuthentiationException(e);
+      logger.debug("Unlock failed by {}", e.toString());
+      return null;
     }
   }
 
@@ -163,21 +160,26 @@ public class JavaKeyStore implements KeyStore, Signer {
     } else if (privateKey instanceof org.bouncycastle.jce.interfaces.ECPrivateKey) {
       d = ((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD();
     } else {
-      throw new WalletException("Unacceptable key type");
+      throw new UnsupportedOperationException("Unacceptable key type");
     }
     final ECDSAKey ecdsakey = new ECDSAKeyGenerator().create(d);
     return new AergoKey(ecdsakey);
   }
 
   @Override
-  public void lock(final Authentication authentication) {
-    logger.debug("Lock key with authentication: {}", authentication);
-    final Authentication digested = digest(authentication);
-    if (!currentUnlockedAuth.equals(digested)) {
-      throw new InvalidAuthentiationException("Unable to lock account");
+  public boolean lock(final Authentication authentication) {
+    try {
+      logger.debug("Lock key with authentication: {}", authentication);
+      final Authentication digested = digest(authentication);
+      if (!currentUnlockedAuth.equals(digested)) {
+        return false;
+      }
+      currentUnlockedAuth = null;
+      currentUnlockedKey = null;
+      return true;
+    } catch (Exception e) {
+      throw new KeyStoreException(e);
     }
-    currentUnlockedAuth = null;
-    currentUnlockedKey = null;
   }
 
   protected Authentication digest(final Authentication rawAuthentication) {
@@ -187,36 +189,36 @@ public class JavaKeyStore implements KeyStore, Signer {
 
   @Override
   public Transaction sign(final RawTransaction rawTransaction) {
-    logger.debug("Sign raw transaction: {}", rawTransaction);
-    final AccountAddress sender = rawTransaction.getSender();
-    if (null == sender) {
-      throw new WalletException("Sender is null");
-    }
     try {
-      return getUnlockedKey(sender).sign(rawTransaction);
+      logger.debug("Sign raw transaction: {}", rawTransaction);
+      final AccountAddress sender = rawTransaction.getSender();
+      if (null == sender) {
+        throw new IllegalArgumentException("Sender is null");
+      }
+      final AergoKey key = getUnlockedKey(sender);
+      return key.sign(rawTransaction);
     } catch (Exception e) {
-      throw new WalletException(e);
+      throw new KeyStoreException(e);
     }
   }
 
   @Override
   public boolean verify(final Transaction transaction) {
-    logger.debug("Verify signed transaction: {}", transaction);
-    final AccountAddress sender = transaction.getSender();
-    if (null == sender) {
-      throw new WalletException("Sender is null");
-    }
-
     try {
+      logger.debug("Verify signed transaction: {}", transaction);
+      final AccountAddress sender = transaction.getSender();
+      if (null == sender) {
+        throw new IllegalArgumentException("Sender is null");
+      }
       return getUnlockedKey(sender).verify(transaction);
     } catch (Exception e) {
-      throw new WalletException(e);
+      throw new KeyStoreException(e);
     }
   }
 
   protected AergoKey getUnlockedKey(final AccountAddress address) {
     if (null == currentUnlockedKey || !currentUnlockedKey.getAddress().equals(address)) {
-      throw new LockedAccountException();
+      throw new IllegalStateException("Unlock account first");
     }
     return currentUnlockedKey;
   }
@@ -230,7 +232,8 @@ public class JavaKeyStore implements KeyStore, Signer {
       }
       delegate.store(new FileOutputStream(new File(path)), password.toCharArray());
     } catch (Exception e) {
-      throw new WalletException(e);
+      throw new KeyStoreException(e);
     }
   }
+
 }

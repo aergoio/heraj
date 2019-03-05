@@ -25,7 +25,7 @@ import hera.api.model.Fee;
 import hera.api.model.Transaction;
 import hera.api.model.Transaction.TxType;
 import hera.api.model.TxHash;
-import hera.exception.CommitException;
+import hera.exception.RpcCommitException;
 import hera.exception.RpcException;
 import hera.transport.ModelConverter;
 import hera.transport.TransactionConverterFactory;
@@ -138,7 +138,7 @@ public class TransactionBaseTemplate implements ChannelInjectable, ContextProvid
               public TxHash apply(final Rpc.CommitResultList commitResultList) {
                 final Rpc.CommitResult commitResult = commitResultList.getResultsList().get(0);
                 if (Rpc.CommitStatus.TX_OK != commitResult.getError()) {
-                  throw new CommitException(commitResult.getError(), commitResult.getDetail());
+                  throw new RpcCommitException(commitResult.getError(), commitResult.getDetail());
                 }
                 return new TxHash(of(commitResult.getHash().toByteArray()));
               }
@@ -181,7 +181,7 @@ public class TransactionBaseTemplate implements ChannelInjectable, ContextProvid
               @Override
               public TxHash apply(final Rpc.CommitResult commitResult) {
                 if (Rpc.CommitStatus.TX_OK != commitResult.getError()) {
-                  throw new CommitException(commitResult.getError(), commitResult.getDetail());
+                  throw new RpcCommitException(commitResult.getError(), commitResult.getDetail());
                 }
                 return new TxHash(of(commitResult.getHash().toByteArray()));
               }

@@ -27,6 +27,8 @@ import hera.api.model.StakingInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.VotingInfo;
+import hera.exception.WalletConnectionException;
+import hera.exception.WalletRpcException;
 import java.io.Closeable;
 import java.util.List;
 
@@ -39,6 +41,9 @@ public interface QueryClient extends Closeable {
    *
    * @param account an account
    * @return an account state
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   AccountState getAccountState(Account account);
 
@@ -47,6 +52,9 @@ public interface QueryClient extends Closeable {
    *
    * @param accountAddress account address
    * @return an account state
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   AccountState getAccountState(AccountAddress accountAddress);
 
@@ -55,6 +63,9 @@ public interface QueryClient extends Closeable {
    *
    * @param name an name of account
    * @return an account address binded with name
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   AccountAddress getNameOwner(String name);
 
@@ -63,6 +74,9 @@ public interface QueryClient extends Closeable {
    *
    * @param account an account to check staking information
    * @return a staking information
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   StakingInfo getStakingInfo(Account account);
 
@@ -71,6 +85,9 @@ public interface QueryClient extends Closeable {
    *
    * @param accountAddress an account address to check staking information
    * @return a staking information
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   StakingInfo getStakingInfo(AccountAddress accountAddress);
 
@@ -79,6 +96,9 @@ public interface QueryClient extends Closeable {
    * really working block block producers since block producers are renewed after one round.
    *
    * @return elected block producer list
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   List<BlockProducer> listElectedBlockProducers();
 
@@ -88,6 +108,9 @@ public interface QueryClient extends Closeable {
    *
    * @param showCount show count
    * @return elected block producer list
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   List<BlockProducer> listElectedBlockProducers(long showCount);
 
@@ -96,6 +119,9 @@ public interface QueryClient extends Closeable {
    *
    * @param account an account
    * @return votes list
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   List<VotingInfo> listVotesOf(Account account);
 
@@ -104,6 +130,9 @@ public interface QueryClient extends Closeable {
    *
    * @param accountAddress an account address
    * @return votes list
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   List<VotingInfo> listVotesOf(AccountAddress accountAddress);
 
@@ -111,6 +140,9 @@ public interface QueryClient extends Closeable {
    * Get account list on a server key store.
    *
    * @return account list
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   List<AccountAddress> listServerKeyStoreAccounts();
 
@@ -118,6 +150,9 @@ public interface QueryClient extends Closeable {
    * Get best block hash.
    *
    * @return block hash
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   BlockHash getBestBlockHash();
 
@@ -125,6 +160,9 @@ public interface QueryClient extends Closeable {
    * Get best block height.
    *
    * @return block height
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   long getBestBlockHeight();
 
@@ -132,6 +170,9 @@ public interface QueryClient extends Closeable {
    * Get chain info of current node.
    *
    * @return a chain info
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   ChainInfo getChainInfo();
 
@@ -139,6 +180,9 @@ public interface QueryClient extends Closeable {
    * Get blockchain peer addresses.
    *
    * @return peer addresses
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   List<Peer> listNodePeers();
 
@@ -146,6 +190,9 @@ public interface QueryClient extends Closeable {
    * Get metrics of peers.
    *
    * @return peer metrics
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   List<PeerMetric> listPeerMetrics();
 
@@ -153,6 +200,9 @@ public interface QueryClient extends Closeable {
    * Get status of current node.
    *
    * @return node status
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   NodeStatus getNodeStatus();
 
@@ -161,6 +211,9 @@ public interface QueryClient extends Closeable {
    *
    * @param blockHash block hash
    * @return block
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   BlockHeader getBlockHeader(BlockHash blockHash);
 
@@ -169,6 +222,9 @@ public interface QueryClient extends Closeable {
    *
    * @param height block's height
    * @return block
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   BlockHeader getBlockHeader(long height);
 
@@ -178,6 +234,9 @@ public interface QueryClient extends Closeable {
    * @param blockHash block hash
    * @param size block list size whose upper bound is 1000
    * @return block list
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   List<BlockHeader> listBlockHeaders(BlockHash blockHash, int size);
 
@@ -187,6 +246,9 @@ public interface QueryClient extends Closeable {
    * @param height block's height
    * @param size block list size whose upper bound is 1000
    * @return block list
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   List<BlockHeader> listBlockHeaders(long height, int size);
 
@@ -195,6 +257,9 @@ public interface QueryClient extends Closeable {
    *
    * @param blockHash block hash
    * @return block
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   Block getBlock(BlockHash blockHash);
 
@@ -203,6 +268,9 @@ public interface QueryClient extends Closeable {
    *
    * @param height block's height
    * @return block
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   Block getBlock(long height);
 
@@ -211,6 +279,9 @@ public interface QueryClient extends Closeable {
    *
    * @param txHash transaction's hash
    * @return transaction
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   Transaction getTransaction(TxHash txHash);
 
@@ -219,6 +290,9 @@ public interface QueryClient extends Closeable {
    *
    * @param contractTxHash contract transaction hash
    * @return receipt of transaction
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   ContractTxReceipt getReceipt(ContractTxHash contractTxHash);
 
@@ -227,6 +301,9 @@ public interface QueryClient extends Closeable {
    *
    * @param contractAddress contract address
    * @return contract interface
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   ContractInterface getContractInterface(ContractAddress contractAddress);
 
@@ -235,6 +312,9 @@ public interface QueryClient extends Closeable {
    *
    * @param contractInvocation a contract invocation
    * @return contract result
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   ContractResult query(ContractInvocation contractInvocation);
 

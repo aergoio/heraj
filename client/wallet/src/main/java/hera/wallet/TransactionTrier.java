@@ -12,8 +12,8 @@ import hera.api.function.Function1;
 import hera.api.model.Account;
 import hera.api.model.TxHash;
 import hera.api.model.internal.TryCountAndInterval;
-import hera.exception.CommitException;
-import hera.exception.CommitException.CommitStatus;
+import hera.exception.RpcCommitException;
+import hera.exception.WalletException;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -60,7 +60,7 @@ public class TransactionTrier {
   public TxHash request(Function0<TxHash> firstTrier,
       Function1<Long, TxHash> transactionRequester) {
     assertNotNull(transactionRequester);
-    logger.trace("Transaction try with firstTrier: {}, transactionRequester: {}", firstTrier,
+    logger.debug("Transaction try with firstTrier: {}, transactionRequester: {}", firstTrier,
         transactionRequester);
 
     TxHash txHash = null;
@@ -69,8 +69,8 @@ public class TransactionTrier {
       try {
         txHash = firstTrier.apply();
         success = null != txHash;
-      } catch (CommitException e) {
-        // keep failure
+      } catch (WalletException e) {
+        logger.debug("First try failure by {}", e.toString());
       }
     }
 
@@ -79,11 +79,11 @@ public class TransactionTrier {
       try {
         txHash = transactionRequester.apply(accountProvider.apply().incrementAndGetNonce());
         success = true;
-      } catch (CommitException e) {
+      } catch (WalletException e) {
         if (!isNonceRelatedException(e)) {
           throw e;
         }
-        logger.debug("Request failed with invalid nonce.. try left: {}", i);
+        logger.info("Request failed with invalid nonce.. try left: {}", i);
         nonceSynchronizer.run();
         tryCountAndInterval.trySleep();
         --i;
@@ -92,9 +92,13 @@ public class TransactionTrier {
     return txHash;
   }
 
-  protected boolean isNonceRelatedException(final CommitException e) {
-    return e.getCommitStatus() == CommitStatus.NONCE_TOO_LOW
-        || e.getCommitStatus() == CommitStatus.TX_HAS_SAME_NONCE;
+  protected boolean isNonceRelatedException(final WalletException e) {
+    if (!(e.getCause() instanceof RpcCommitException)) {
+      return false;
+    }
+    final RpcCommitException cause = (RpcCommitException) e.getCause();
+    return cause.getCommitStatus() == RpcCommitException.CommitStatus.NONCE_TOO_LOW
+        || cause.getCommitStatus() == RpcCommitException.CommitStatus.TX_HAS_SAME_NONCE;
   }
 
 }

@@ -18,6 +18,9 @@ import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.exception.UnbindedAccountException;
+import hera.exception.WalletCommitException;
+import hera.exception.WalletConnectionException;
+import hera.exception.WalletRpcException;
 import java.io.Closeable;
 
 @ApiAudience.Public
@@ -49,7 +52,11 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    *
    * @param name an new name
    * @return a create name transaction hash
+   *
    * @throws UnbindedAccountException if account isn't binded
+   * @throws WalletCommitException on commit failure
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   TxHash createName(String name);
 
@@ -59,7 +66,11 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @param name an already binded name
    * @param newOwner an new owner of name
    * @return a update name transaction hash
+   *
    * @throws UnbindedAccountException if account isn't binded
+   * @throws WalletCommitException on commit failure
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   TxHash updateName(String name, AccountAddress newOwner);
 
@@ -68,6 +79,11 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    *
    * @param amount an amount to stake
    * @return a staking transaction hash
+   *
+   * @throws UnbindedAccountException if account isn't binded
+   * @throws WalletCommitException on commit failure
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   TxHash stake(Aer amount);
 
@@ -76,6 +92,11 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    *
    * @param amount an amount to stake
    * @return a staking transaction hash
+   *
+   * @throws UnbindedAccountException if account isn't binded
+   * @throws WalletCommitException on commit failure
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   TxHash unstake(Aer amount);
 
@@ -84,6 +105,11 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    *
    * @param peerId a peer id to vote
    * @return voting transaction hash
+   *
+   * @throws UnbindedAccountException if account isn't binded
+   * @throws WalletCommitException on commit failure
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   TxHash vote(PeerId peerId);
 
@@ -96,6 +122,9 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @return a send transaction hash
    *
    * @throws UnbindedAccountException if account isn't binded
+   * @throws WalletCommitException on commit failure
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   TxHash send(String recipient, Aer amount, Fee fee);
 
@@ -109,6 +138,9 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @return a send transaction hash
    *
    * @throws UnbindedAccountException if account isn't binded
+   * @throws WalletCommitException on commit failure
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   TxHash send(String recipient, Aer amount, Fee fee, BytesValue payload);
 
@@ -121,6 +153,9 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @return a send transaction hash
    *
    * @throws UnbindedAccountException if account isn't binded
+   * @throws WalletCommitException on commit failure
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   TxHash send(AccountAddress recipient, Aer amount, Fee fee);
 
@@ -134,6 +169,9 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @return a send transaction hash
    *
    * @throws UnbindedAccountException if account isn't binded
+   * @throws WalletCommitException on commit failure
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   TxHash send(AccountAddress recipient, Aer amount, Fee fee, BytesValue payload);
 
@@ -144,6 +182,9 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @return a transaction hash
    *
    * @throws UnbindedAccountException if account isn't binded
+   * @throws WalletCommitException on commit failure
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   TxHash commit(RawTransaction rawTransaction);
 
@@ -154,6 +195,9 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @return a transaction hash
    *
    * @throws UnbindedAccountException if account isn't binded
+   * @throws WalletCommitException on commit failure
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   TxHash commit(Transaction signedTransaction);
 
@@ -165,6 +209,9 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @return a contract transaction hash
    *
    * @throws UnbindedAccountException if account isn't binded
+   * @throws WalletCommitException on commit failure
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   ContractTxHash deploy(ContractDefinition contractDefinition, Fee fee);
 
@@ -176,6 +223,9 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @return a contract transaction hash
    *
    * @throws UnbindedAccountException if account isn't binded
+   * @throws WalletCommitException on commit failure
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
    */
   ContractTxHash execute(ContractInvocation contractInvocation, Fee fee);
 

@@ -16,9 +16,7 @@ import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Identity;
 import hera.client.AergoClient;
-import hera.exception.InvalidAuthentiationException;
-import hera.exception.RpcConnectionException;
-import hera.exception.WalletException;
+import hera.exception.KeyStoreException;
 import hera.key.AergoKey;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +43,7 @@ public class ServerKeyStore implements KeyStore {
       final String password = authentication.getPassword();
       aergoClient.getKeyStoreOperation().importKey(key.export(password), password, password);
     } catch (final Exception e) {
-      throw new WalletException(e);
+      throw new KeyStoreException(e);
     }
   }
 
@@ -54,10 +52,8 @@ public class ServerKeyStore implements KeyStore {
     try {
       logger.debug("Export key with authentication: {}", authentication);
       return aergoClient.getKeyStoreOperation().exportKey(authentication);
-    } catch (final RpcConnectionException e) {
-      throw new WalletException(e);
     } catch (final Exception e) {
-      throw new InvalidAuthentiationException(e);
+      throw new KeyStoreException(e);
     }
   }
 
@@ -69,10 +65,8 @@ public class ServerKeyStore implements KeyStore {
         identifications.add(accountAddress);
       }
       return identifications;
-    } catch (final RpcConnectionException e) {
-      throw new WalletException(e);
     } catch (final Exception e) {
-      throw new InvalidAuthentiationException(e);
+      throw new KeyStoreException(e);
     }
   }
 
@@ -81,24 +75,24 @@ public class ServerKeyStore implements KeyStore {
     try {
       logger.debug("Unlock key with authentication: {}", authentication);
       final boolean unlocked = aergoClient.getKeyStoreOperation().unlock(authentication);
+      if (!unlocked) {
+        return null;
+      }
       final AccountAddress derivedAddress = deriveAddress(authentication.getIdentity());
-      return unlocked ? new AccountFactory().create(derivedAddress) : null;
-    } catch (final RpcConnectionException e) {
-      throw new WalletException(e);
+      return new AccountFactory().create(derivedAddress);
     } catch (final Exception e) {
-      throw new InvalidAuthentiationException(e);
+      logger.debug("Unlock failed by {}", e.toString());
+      return null;
     }
   }
 
   @Override
-  public void lock(final Authentication authentication) {
+  public boolean lock(final Authentication authentication) {
     try {
       logger.debug("Lock key with authentication: {}", authentication);
-      aergoClient.getKeyStoreOperation().lock(authentication);
-    } catch (final RpcConnectionException e) {
-      throw new WalletException(e);
+      return aergoClient.getKeyStoreOperation().lock(authentication);
     } catch (final Exception e) {
-      throw new InvalidAuthentiationException(e);
+      throw new KeyStoreException(e);
     }
   }
 

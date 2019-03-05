@@ -4,6 +4,8 @@
 
 package hera.api.model;
 
+import static hera.util.ValidationUtils.assertNotNull;
+
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.internal.AccountWithAddress;
@@ -24,6 +26,7 @@ public class AccountFactory {
    */
   @ApiAudience.Public
   public Account create(final AccountAddress accountAddress) {
+    assertNotNull(accountAddress);
     return new AccountWithAddress(accountAddress);
   }
 
@@ -35,11 +38,21 @@ public class AccountFactory {
    */
   @ApiAudience.Public
   public Account create(final AergoKey aergoKey) {
+    assertNotNull(aergoKey);
     return new AccountWithKey(aergoKey);
   }
 
+  /**
+   * Create an account with address and signer.
+   *
+   * @param accountAddress an account address
+   * @param signer a signer
+   * @return created account
+   */
   @ApiAudience.Private
   public Account create(final AccountAddress accountAddress, final Signer signer) {
+    assertNotNull(accountAddress);
+    assertNotNull(signer);
     return new AccountWithAddressAndSigner(accountAddress, signer);
   }
 

@@ -6,7 +6,9 @@ package hera.keystore;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -19,7 +21,6 @@ import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Identity;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
-import hera.exception.InvalidAuthentiationException;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.model.KeyAlias;
@@ -75,17 +76,12 @@ public class JavaKeyStoreTest extends AbstractTestCase {
   public void testUnlockOnInvalidAuth() {
     final JavaKeyStore keyStore = new JavaKeyStore(this.keyStore);
 
-    final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
     final Authentication authentication = Authentication.of(identity, password);
     // keyStore.saveKey(key, authentication);
 
-    try {
-      keyStore.unlock(authentication);
-      fail();
-    } catch (InvalidAuthentiationException e) {
-      // good we expected this
-    }
+    final Account unlocked = keyStore.unlock(authentication);
+    assertNull(unlocked);
   }
 
   @Test
@@ -101,12 +97,8 @@ public class JavaKeyStoreTest extends AbstractTestCase {
     assertNotNull(unlocked);
 
     final Authentication invalid = Authentication.of(key.getAddress(), randomUUID().toString());
-    try {
-      keyStore.lock(invalid);
-      fail();
-    } catch (InvalidAuthentiationException e) {
-      // good we expected this
-    }
+    final boolean lockResult = keyStore.lock(invalid);
+    assertFalse(lockResult);
   }
 
   @Test

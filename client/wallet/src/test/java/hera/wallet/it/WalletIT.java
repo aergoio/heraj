@@ -32,7 +32,7 @@ import hera.api.model.StakingInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.VotingInfo;
-import hera.exception.CommitException;
+import hera.exception.WalletCommitException;
 import hera.exception.UnbindedAccountException;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
@@ -86,8 +86,8 @@ public class WalletIT extends AbstractIT {
   @Parameters(name = "{0}")
   public static Collection<WalletType> data() {
     return Arrays.asList(
-        WalletType.Naive,
-        WalletType.Secure,
+//        WalletType.Naive,
+//        WalletType.Secure,
         WalletType.ServerKeyStore);
   }
 
@@ -503,7 +503,7 @@ public class WalletIT extends AbstractIT {
         final PeerId peerId = new PeerId("16Uiu2HAmV6iVGuN31sZTz2GDicFPpBr6eaHn1mVM499BGwSBf6Nb");
         wallet.vote(peerId);
         fail();
-      } catch (CommitException e) {
+      } catch (WalletCommitException e) {
         // good we expected this
       }
 

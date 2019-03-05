@@ -19,7 +19,7 @@ import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.exception.CommitException;
+import hera.exception.RpcCommitException;
 import hera.key.AergoKeyGenerator;
 import org.junit.Test;
 
@@ -61,8 +61,8 @@ public class TransactionOperationIT extends AbstractIT {
       try {
         aergoClient.getTransactionOperation().commit(confirmed);
         fail();
-      } catch (CommitException e) {
-        assertEquals(CommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
+      } catch (RpcCommitException e) {
+        assertEquals(RpcCommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
       }
     }
   }
@@ -233,7 +233,7 @@ public class TransactionOperationIT extends AbstractIT {
       try {
         aergoClient.getTransactionOperation().commit(signed);
         fail();
-      } catch (CommitException e) {
+      } catch (RpcCommitException e) {
         // good we expected this
       }
     }
@@ -258,7 +258,7 @@ public class TransactionOperationIT extends AbstractIT {
       try {
         aergoClient.getTransactionOperation().commit(signed);
         fail();
-      } catch (CommitException e) {
+      } catch (RpcCommitException e) {
         // good we expected this
       }
     }
@@ -284,7 +284,7 @@ public class TransactionOperationIT extends AbstractIT {
       try {
         aergoClient.getTransactionOperation().commit(signed);
         fail();
-      } catch (CommitException e) {
+      } catch (RpcCommitException e) {
         // good we expected this
       }
     }
@@ -318,7 +318,7 @@ public class TransactionOperationIT extends AbstractIT {
       try {
         aergoClient.getTransactionOperation().commit(signed);
         fail();
-      } catch (CommitException e) {
+      } catch (RpcCommitException e) {
         // good we expected this
       }
     }

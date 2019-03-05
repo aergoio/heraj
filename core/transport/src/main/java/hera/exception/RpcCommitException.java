@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public class CommitException extends RpcException {
+public class RpcCommitException extends RpcException {
 
   private static final long serialVersionUID = -3973554154789144558L;
 
@@ -38,7 +38,7 @@ public class CommitException extends RpcException {
    * @param rpcCommitStatus rpc commit status
    * @param message a message
    */
-  public CommitException(final types.Rpc.CommitStatus rpcCommitStatus, final String message) {
+  public RpcCommitException(final types.Rpc.CommitStatus rpcCommitStatus, final String message) {
     switch (rpcCommitStatus) {
       case TX_OK:
         this.commitStatus = CommitStatus.OK;
