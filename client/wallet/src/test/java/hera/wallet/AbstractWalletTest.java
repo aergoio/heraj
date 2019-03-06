@@ -11,6 +11,7 @@ import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -183,6 +184,32 @@ public class AbstractWalletTest extends AbstractTestCase {
     wallet.keyStore = mock(KeyStore.class);
 
     wallet.storeKeyStore(randomUUID().toString(), randomUUID().toString());
+  }
+
+  @Test
+  public void testLoadAccount() {
+    final AbstractWallet wallet = supplyWallet(mock(AergoClient.class));
+    final KeyStore keyStore = mock(KeyStore.class);
+    when(keyStore.unlock(any(Authentication.class))).thenReturn(mock(Account.class));
+    wallet.keyStore = keyStore;
+
+    final Authentication authentication =
+        Authentication.of(accountAddress, randomUUID().toString());
+    final Account unlockedAccount = wallet.loadAccount(authentication);
+    assertNotNull(unlockedAccount);
+  }
+
+  @Test
+  public void testLoadAccountOnFail() {
+    final AbstractWallet wallet = supplyWallet(mock(AergoClient.class));
+    final KeyStore keyStore = mock(KeyStore.class);
+    when(keyStore.unlock(any(Authentication.class))).thenReturn(null);
+    wallet.keyStore = keyStore;
+
+    final Authentication authentication =
+        Authentication.of(accountAddress, randomUUID().toString());
+    final Account unlockedAccount = wallet.loadAccount(authentication);
+    assertNull(unlockedAccount);
   }
 
   @Test

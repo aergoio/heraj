@@ -184,6 +184,12 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
   }
 
   @Override
+  public Account loadAccount(final Authentication authentication) {
+    final boolean unlockResult = unlock(authentication);
+    return unlockResult == true ? this.account : null;
+  }
+
+  @Override
   public Transaction sign(final RawTransaction rawTransaction) {
     return getAergoClient().getAccountOperation().sign(getAccount(), rawTransaction);
   }

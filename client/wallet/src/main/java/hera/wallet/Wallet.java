@@ -6,8 +6,10 @@ package hera.wallet;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
+import hera.api.model.Authentication;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInvocation;
@@ -17,7 +19,9 @@ import hera.api.model.PeerId;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.exception.KeyStoreException;
 import hera.exception.UnbindedAccountException;
+import hera.exception.UnbindedKeyStoreException;
 import hera.exception.WalletCommitException;
 import hera.exception.WalletConnectionException;
 import hera.exception.WalletRpcException;
@@ -26,6 +30,17 @@ import java.io.Closeable;
 @ApiAudience.Public
 @ApiStability.Unstable
 public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Closeable {
+
+  /**
+   * Unlock and load account corresponding with {@code authentication}.
+   *
+   * @param authentication an authentication
+   * @return an unlocked account. null if failure
+   *
+   * @throws UnbindedKeyStoreException if it's {@link WalletType#Secure} and keystore is not binded
+   * @throws KeyStoreException on keystore error
+   */
+  Account loadAccount(Authentication authentication);
 
   /**
    * Sign for transaction.
