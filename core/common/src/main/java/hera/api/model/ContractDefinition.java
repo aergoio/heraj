@@ -72,8 +72,7 @@ public class ContractDefinition {
     VersionUtils.validate(this.decodedContract, ContractDefinition.PAYLOAD_VERSION);
 
     this.encodedContract = encodedContract;
-    this.constructorArgs =
-        null != args ? unmodifiableList(asList(args)) : unmodifiableList(emptyList());
+    this.constructorArgs = unmodifiableList(null == args ? emptyList() : asList(args));
   }
 
   @Override

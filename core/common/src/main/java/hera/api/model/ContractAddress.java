@@ -62,4 +62,13 @@ public class ContractAddress extends AccountAddress {
     super(bytesValue);
   }
 
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T adapt(Class<T> adaptor) {
+    if (adaptor.isAssignableFrom(ContractAddress.class)) {
+      return (T) this;
+    }
+    return null;
+  }
+
 }

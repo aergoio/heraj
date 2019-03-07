@@ -10,7 +10,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
@@ -24,11 +23,14 @@ import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractTxHash;
+import hera.api.model.Event;
+import hera.api.model.EventFilter;
 import hera.api.model.Fee;
 import hera.api.model.Identity;
 import hera.api.model.PeerId;
 import hera.api.model.RawTransaction;
 import hera.api.model.StakingInfo;
+import hera.api.model.StreamObserver;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.VotingInfo;
@@ -49,6 +51,7 @@ import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,8 +89,8 @@ public class WalletIT extends AbstractIT {
   @Parameters(name = "{0}")
   public static Collection<WalletType> data() {
     return Arrays.asList(
-//        WalletType.Naive,
-//        WalletType.Secure,
+        // WalletType.Naive,
+        // WalletType.Secure,
         WalletType.ServerKeyStore);
   }
 
@@ -760,6 +763,52 @@ public class WalletIT extends AbstractIT {
       } catch (Exception e) {
         // good we expected this
       }
+
+      wallet.close();
+    }
+
+  }
+
+  @Test
+  public void testContractEvent() throws Exception {
+    for (final Wallet wallet : supplyWorkingWalletList()) {
+      logger.info("Current wallet: {}", wallet);
+      wallet.bindKeyStore(keyStore);
+
+      final AergoKey key = new AergoKeyGenerator().create();
+      wallet.saveKey(key, password);
+      final Authentication auth = Authentication.of(key.getAddress(), password);
+
+      wallet.unlock(auth);
+      final ContractInterface contractInterface = deploy(wallet);
+      final ContractAddress contractAddress = contractInterface.getAddress();
+
+      final int eventCount = 2;
+      final CountDownLatch latch = new CountDownLatch(eventCount);
+      final EventFilter eventFilter = EventFilter.newBuilder(contractAddress)
+          .recentBlockCount(10)
+          .build();
+      wallet.subscribeEvent(eventFilter, new StreamObserver<Event>() {
+
+        @Override
+        public void onNext(Event value) {
+          latch.countDown();
+        }
+
+        @Override
+        public void onError(Throwable t) {}
+
+        @Override
+        public void onCompleted() {}
+      });
+
+      for (int i = 0; i < eventCount; ++i) {
+        execute(wallet, contractInterface);
+      }
+
+      assertEquals(0L, latch.getCount());
+      List<Event> events = wallet.listEvents(eventFilter);
+      assertEquals(eventCount, events.size());
 
       wallet.close();
     }

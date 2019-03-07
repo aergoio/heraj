@@ -20,10 +20,13 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.Event;
+import hera.api.model.EventFilter;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
 import hera.api.model.StakingInfo;
+import hera.api.model.Subscription;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.VotingInfo;
@@ -287,6 +290,27 @@ public abstract class QueryWallet implements QueryClient, Closeable {
     try {
       logger.debug("Query request with: {}", contractInvocation);
       return getAergoClient().getContractOperation().query(contractInvocation);
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
+  }
+
+  @Override
+  public List<Event> listEvents(EventFilter filter) {
+    try {
+      logger.debug("List events with filter: {}", filter);
+      return getAergoClient().getContractOperation().listEvents(filter);
+    } catch (Exception e) {
+      throw handler.handle(e);
+    }
+  }
+
+  @Override
+  public Subscription<Event> subscribeEvent(EventFilter filter,
+      hera.api.model.StreamObserver<Event> observer) {
+    try {
+      logger.debug("Subscribe events with filter: {}, observer: {}", filter, observer);
+      return getAergoClient().getContractOperation().subscribeEvent(filter, observer);
     } catch (Exception e) {
       throw handler.handle(e);
     }

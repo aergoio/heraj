@@ -13,12 +13,13 @@ import hera.annotation.ApiStability;
 import hera.api.encode.Encodable;
 import hera.exception.DecodingFailureException;
 import hera.exception.InvalidVersionException;
+import hera.util.Adaptor;
 import hera.util.VersionUtils;
 import lombok.Getter;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public class AccountAddress implements Identity, Encodable {
+public class AccountAddress implements Identity, Encodable, Adaptor {
 
   public static final byte VERSION = 0x42;
 
@@ -110,6 +111,17 @@ public class AccountAddress implements Identity, Encodable {
   @Override
   public String toString() {
     return getEncoded();
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T adapt(Class<T> adaptor) {
+    if (adaptor.isAssignableFrom(AccountAddress.class)) {
+      return (T) this;
+    } else if (adaptor.isAssignableFrom(ContractAddress.class)) {
+      return (T) ContractAddress.of(getBytesValue());
+    }
+    return null;
   }
 
 }

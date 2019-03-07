@@ -46,7 +46,7 @@ public class ContractInvocation {
     assertNotNull(contractFunction, "Contract function must not null");
     this.address = contractAddress;
     this.function = contractFunction;
-    this.args = null != args ? unmodifiableList(asList(args)) : unmodifiableList(emptyList());
+    this.args = unmodifiableList(null == args ? emptyList() : asList(args));
   }
 
 }

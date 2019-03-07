@@ -8,7 +8,9 @@ import static hera.TransportConstants.CONTRACT_DEPLOY;
 import static hera.TransportConstants.CONTRACT_EXECUTE;
 import static hera.TransportConstants.CONTRACT_GETINTERFACE;
 import static hera.TransportConstants.CONTRACT_GETRECEIPT;
+import static hera.TransportConstants.CONTRACT_LIST_EVENT;
 import static hera.TransportConstants.CONTRACT_QUERY;
+import static hera.TransportConstants.CONTRACT_SUBSCRIBE_EVENT;
 import static hera.api.function.Functions.identify;
 
 import hera.ContextProvider;
@@ -17,6 +19,7 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.ContractOperation;
 import hera.api.function.Function1;
+import hera.api.function.Function2;
 import hera.api.function.Function4;
 import hera.api.model.Account;
 import hera.api.model.ContractAddress;
@@ -26,9 +29,14 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.Event;
+import hera.api.model.EventFilter;
 import hera.api.model.Fee;
+import hera.api.model.StreamObserver;
+import hera.api.model.Subscription;
 import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -85,6 +93,17 @@ public class ContractTemplate
   private final Function1<ContractInvocation, FinishableFuture<ContractResult>> queryFunction =
       getStrategyChain().apply(identify(contractBaseTemplate.getQueryFunction(), CONTRACT_QUERY));
 
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<EventFilter, FinishableFuture<List<Event>>> listEventFunction =
+      getStrategyChain()
+          .apply(identify(contractBaseTemplate.getListEventFunction(), CONTRACT_LIST_EVENT));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function2<EventFilter, StreamObserver<Event>,
+      Subscription<Event>> subscribeEventFunction =
+          getStrategyChain().apply(
+              identify(contractBaseTemplate.getSubscribeEventFunction(), CONTRACT_SUBSCRIBE_EVENT));
+
   @Override
   public ContractTxReceipt getReceipt(final ContractTxHash contractTxHash) {
     return getReceiptFunction().apply(contractTxHash).get();
@@ -111,6 +130,16 @@ public class ContractTemplate
   @Override
   public ContractResult query(final ContractInvocation contractInvocation) {
     return getQueryFunction().apply(contractInvocation).get();
+  }
+
+  @Override
+  public List<Event> listEvents(final EventFilter filter) {
+    return getListEventFunction().apply(filter).get();
+  }
+
+  @Override
+  public Subscription<Event> subscribeEvent(EventFilter filter, StreamObserver<Event> observer) {
+    return getSubscribeEventFunction().apply(filter, observer);
   }
 
 }

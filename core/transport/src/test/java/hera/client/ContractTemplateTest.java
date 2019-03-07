@@ -9,7 +9,9 @@ import static hera.TransportConstants.CONTRACT_DEPLOY;
 import static hera.TransportConstants.CONTRACT_EXECUTE;
 import static hera.TransportConstants.CONTRACT_GETINTERFACE;
 import static hera.TransportConstants.CONTRACT_GETRECEIPT;
+import static hera.TransportConstants.CONTRACT_LIST_EVENT;
 import static hera.TransportConstants.CONTRACT_QUERY;
+import static hera.TransportConstants.CONTRACT_SUBSCRIBE_EVENT;
 import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
@@ -20,6 +22,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 import hera.AbstractTestCase;
 import hera.ContextProvider;
 import hera.api.function.Function1;
+import hera.api.function.Function2;
 import hera.api.function.Function4;
 import hera.api.function.WithIdentity;
 import hera.api.model.Account;
@@ -32,9 +35,15 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.Event;
+import hera.api.model.EventFilter;
 import hera.api.model.Fee;
+import hera.api.model.StreamObserver;
+import hera.api.model.Subscription;
 import hera.key.AergoKeyGenerator;
 import hera.util.Base58Utils;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
@@ -184,5 +193,54 @@ public class ContractTemplateTest extends AbstractTestCase {
     assertEquals(CONTRACT_QUERY,
         ((WithIdentity) contractTemplate.getQueryFunction()).getIdentity());
   }
+
+  @Test
+  public void testListEvent() {
+    final ContractBaseTemplate base = mock(ContractBaseTemplate.class);
+    final List<Event> mockEventList = new ArrayList<Event>();
+    final FinishableFuture<List<Event>> future = new FinishableFuture<List<Event>>();
+    future.success(mockEventList);
+    when(base.getListEventFunction())
+        .thenReturn(new Function1<EventFilter, FinishableFuture<List<Event>>>() {
+
+          @Override
+          public FinishableFuture<List<Event>> apply(EventFilter t) {
+            return future;
+          }
+        });
+
+    final ContractTemplate contractTemplate = supplyContractTemplate(base);
+
+    final EventFilter eventFilter = EventFilter.newBuilder(contractAddress).build();
+    final List<Event> events = contractTemplate.listEvents(eventFilter);
+    assertNotNull(events);
+    assertEquals(CONTRACT_LIST_EVENT,
+        ((WithIdentity) contractTemplate.getListEventFunction()).getIdentity());
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testSubscribeEvent() {
+    final ContractBaseTemplate base = mock(ContractBaseTemplate.class);
+    final Subscription<Event> mockSubscription = mock(Subscription.class);
+    when(base.getSubscribeEventFunction())
+        .thenReturn(new Function2<EventFilter, StreamObserver<Event>, Subscription<Event>>() {
+
+          @Override
+          public Subscription<Event> apply(EventFilter t1, StreamObserver<Event> t2) {
+            return mockSubscription;
+          }
+        });
+
+    final ContractTemplate contractTemplate = supplyContractTemplate(base);
+
+    final EventFilter eventFilter = EventFilter.newBuilder(contractAddress).build();
+    final Subscription<Event> subscription = contractTemplate.subscribeEvent(eventFilter, null);
+    assertNotNull(subscription);
+    assertEquals(CONTRACT_SUBSCRIBE_EVENT,
+        ((WithIdentity) contractTemplate.getSubscribeEventFunction()).getIdentity());
+  }
+
+
 
 }

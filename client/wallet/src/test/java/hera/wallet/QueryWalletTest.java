@@ -40,11 +40,15 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.Event;
+import hera.api.model.EventFilter;
 import hera.api.model.ModuleStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
 import hera.api.model.StakingInfo;
+import hera.api.model.StreamObserver;
+import hera.api.model.Subscription;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.VotingInfo;
@@ -354,6 +358,37 @@ public class QueryWalletTest extends AbstractTestCase {
         withSettings().useConstructor(mockClient).defaultAnswer(CALLS_REAL_METHODS));
 
     assertNotNull(wallet.query(new ContractInvocation(contractAddress, new ContractFunction(""))));
+  }
+
+  @Test
+  public void testListEvents() {
+    final AergoClient mockClient = mock(AergoClient.class);
+    final ContractOperation mockOperation = mock(ContractOperation.class);
+    when(mockOperation.listEvents(any(EventFilter.class))).thenReturn(new ArrayList<Event>());
+    when(mockClient.getContractOperation()).thenReturn(mockOperation);
+
+    final QueryWallet wallet = mock(QueryWallet.class,
+        withSettings().useConstructor(mockClient).defaultAnswer(CALLS_REAL_METHODS));
+
+    final EventFilter eventFilter = EventFilter.newBuilder(contractAddress).build();
+    assertNotNull(wallet.listEvents(eventFilter));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testSubscribeEvent() {
+    final AergoClient mockClient = mock(AergoClient.class);
+    final ContractOperation mockOperation = mock(ContractOperation.class);
+    when(mockOperation.subscribeEvent(any(EventFilter.class), any(StreamObserver.class)))
+        .thenReturn(mock(Subscription.class));
+    when(mockClient.getContractOperation()).thenReturn(mockOperation);
+
+    final QueryWallet wallet = mock(QueryWallet.class,
+        withSettings().useConstructor(mockClient).defaultAnswer(CALLS_REAL_METHODS));
+
+    final EventFilter eventFilter = EventFilter.newBuilder(contractAddress).build();
+    final StreamObserver<Event> mockObserver = mock(StreamObserver.class);
+    assertNotNull(wallet.subscribeEvent(eventFilter, mockObserver));
   }
 
 }

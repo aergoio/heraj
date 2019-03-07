@@ -9,7 +9,9 @@ import static hera.util.NumberUtils.positiveToByteArray;
 
 import com.google.protobuf.ByteString;
 import hera.api.model.Aer;
+import hera.api.model.BlockHash;
 import hera.api.model.BytesValue;
+import hera.api.model.TxHash;
 import hera.exception.RpcArgumentException;
 
 public class TransportUtils {
@@ -43,7 +45,7 @@ public class TransportUtils {
   }
 
   /**
-   * Transform {@link BytesValue} to {@link ByteString} in protobuf. If aer isn null, return
+   * Transform {@link Aer} to {@link ByteString} in protobuf. If aer isn null, return
    * {@link ByteString#EMPTY}.
    *
    * @param aer an aer
@@ -99,6 +101,32 @@ public class TransportUtils {
       return Aer.EMPTY;
     }
     return parseToAer(rawAer.toByteArray());
+  }
+
+  /**
+   * Transform {@link ByteString} to {@link TxHash}.
+   *
+   * @param byteString a grpc byteString
+   * @return txHash
+   */
+  public static TxHash parseToTxHash(final ByteString byteString) {
+    if (null == byteString || ByteString.EMPTY == byteString) {
+      return new TxHash(BytesValue.EMPTY);
+    }
+    return new TxHash(BytesValue.of(byteString.toByteArray()));
+  }
+
+  /**
+   * Transform {@link ByteString} to {@link BlockHash}.
+   *
+   * @param byteString a grpc byteString
+   * @return blockHash
+   */
+  public static BlockHash parseToBlockHash(final ByteString byteString) {
+    if (null == byteString || ByteString.EMPTY == byteString) {
+      return new BlockHash(BytesValue.EMPTY);
+    }
+    return new BlockHash(BytesValue.of(byteString.toByteArray()));
   }
 
   /**

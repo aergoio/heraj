@@ -14,7 +14,11 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.Event;
+import hera.api.model.EventFilter;
 import hera.api.model.Fee;
+import hera.api.model.Subscription;
+import java.util.List;
 
 @ApiAudience.Public
 @ApiStability.Unstable
@@ -67,5 +71,23 @@ public interface ContractOperation {
    * @return contract result
    */
   ContractResult query(ContractInvocation contractInvocation);
+
+  /**
+   * List events corresponding with event filter.
+   *
+   * @param filter an event filter
+   * @return event list
+   */
+  List<Event> listEvents(EventFilter filter);
+
+  /**
+   * Subscribe event corresponding with event filter.
+   *
+   * @param filter an event filter
+   * @param observer a stream observer which is invoked on event
+   * @return a subscription
+   */
+  Subscription<Event> subscribeEvent(EventFilter filter,
+      hera.api.model.StreamObserver<Event> observer);
 
 }

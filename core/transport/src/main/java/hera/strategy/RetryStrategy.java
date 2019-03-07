@@ -16,7 +16,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.slf4j.Logger;
 
-@ToString
+@ToString(exclude = "logger")
 @EqualsAndHashCode(callSuper = false)
 public class RetryStrategy extends FailoverStrategy {
 

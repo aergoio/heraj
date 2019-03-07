@@ -9,6 +9,7 @@ import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
+import static types.AergoRPCServiceGrpc.newStub;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -18,6 +19,7 @@ import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.function.Function1;
+import hera.api.function.Function2;
 import hera.api.function.Function4;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
@@ -30,19 +32,30 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.Event;
+import hera.api.model.EventFilter;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
+import hera.api.model.Subscription;
 import hera.api.model.Transaction;
 import hera.client.PayloadResolver.Type;
+import hera.client.grpc.GrpcStreamObserverAdaptor;
+import hera.client.grpc.GrpcStreamSubscription;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.ContractInterfaceConverterFactory;
 import hera.transport.ContractResultConverterFactory;
+import hera.transport.EventConverterFactory;
+import hera.transport.EventFilterConverterFactory;
 import hera.transport.ModelConverter;
 import hera.transport.ReceiptConverterFactory;
+import io.grpc.Context;
 import io.grpc.ManagedChannel;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
+import types.AergoRPCServiceGrpc.AergoRPCServiceStub;
 import types.Blockchain;
 import types.Rpc;
 
@@ -64,8 +77,14 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
   protected final ModelConverter<ContractResult, Rpc.SingleBytes> contractResultConverter =
       new ContractResultConverterFactory().create();
 
-  @Getter
-  protected AergoRPCServiceFutureStub aergoService;
+  protected final ModelConverter<EventFilter, Blockchain.FilterInfo> eventFilterConverter =
+      new EventFilterConverterFactory().create();
+
+  protected final ModelConverter<Event, Blockchain.Event> eventConverter =
+      new EventConverterFactory().create();
+
+  protected AergoRPCServiceFutureStub futureService;
+  protected AergoRPCServiceStub streamService;
 
   protected ContextProvider contextProvider;
 
@@ -77,7 +96,8 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-    this.aergoService = newFutureStub(channel);
+    this.futureService = newFutureStub(channel);
+    this.streamService = newStub(channel);
     accountBaseTemplate.setChannel(channel);
     transactionBaseTemplate.setChannel(channel);
   }
@@ -107,7 +127,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
             logger.trace("AergoService getReceipt arg: {}", rpcDeployTxHash);
 
             final ListenableFuture<Blockchain.Receipt> listenableFuture =
-                aergoService.getReceipt(rpcDeployTxHash);
+                futureService.getReceipt(rpcDeployTxHash);
             FutureChain<Blockchain.Receipt, ContractTxReceipt> callback =
                 new FutureChain<Blockchain.Receipt, ContractTxReceipt>(nextFuture,
                     contextProvider.get());
@@ -174,7 +194,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
             logger.trace("AergoService getABI arg: {}", rpcContractAddress);
 
             final ListenableFuture<Blockchain.ABI> listenableFuture =
-                aergoService.getABI(rpcContractAddress);
+                futureService.getABI(rpcContractAddress);
             FutureChain<Blockchain.ABI, ContractInterface> callback =
                 new FutureChain<Blockchain.ABI, ContractInterface>(nextFuture,
                     contextProvider.get());
@@ -225,46 +245,6 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
         }
       };
 
-  @Getter
-  private final Function1<ContractInvocation, FinishableFuture<ContractResult>> queryFunction =
-      new Function1<ContractInvocation, FinishableFuture<ContractResult>>() {
-
-        @Override
-        public FinishableFuture<ContractResult> apply(final ContractInvocation contractInvocation) {
-          logger.debug("Query contract with invocation: {}", contractInvocation);
-
-          final FinishableFuture<ContractResult> nextFuture =
-              new FinishableFuture<ContractResult>();
-          try {
-            final ByteString rpcContractAddress =
-                accountAddressConverter.convertToRpcModel(contractInvocation.getAddress());
-            final BytesValue rpcContractInvocation =
-                payloadResolver.resolve(Type.ContractInvocation, contractInvocation);
-            final Blockchain.Query rpcQuery = Blockchain.Query.newBuilder()
-                .setContractAddress(rpcContractAddress)
-                .setQueryinfo(copyFrom(rpcContractInvocation))
-                .build();
-            logger.trace("AergoService queryContract arg: {}", rpcQuery);
-
-            final ListenableFuture<Rpc.SingleBytes> listenableFuture =
-                aergoService.queryContract(rpcQuery);
-            FutureChain<Rpc.SingleBytes, ContractResult> callback =
-                new FutureChain<Rpc.SingleBytes, ContractResult>(nextFuture, contextProvider.get());
-            callback.setSuccessHandler(new Function1<Rpc.SingleBytes, ContractResult>() {
-
-              @Override
-              public ContractResult apply(final Rpc.SingleBytes rawQueryResult) {
-                return contractResultConverter.convertToDomainModel(rawQueryResult);
-              }
-            });
-            addCallback(listenableFuture, callback, directExecutor());
-          } catch (Exception e) {
-            nextFuture.fail(e);
-          }
-          return nextFuture;
-        }
-      };
-
   protected FinishableFuture<ContractTxHash> signAndCommit(final Account account,
       final RawTransaction transaction) {
     final FinishableFuture<ContractTxHash> contractTxHash = new FinishableFuture<ContractTxHash>();
@@ -291,5 +271,108 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
 
     return contractTxHash;
   }
+
+  @Getter
+  private final Function1<ContractInvocation, FinishableFuture<ContractResult>> queryFunction =
+      new Function1<ContractInvocation, FinishableFuture<ContractResult>>() {
+
+        @Override
+        public FinishableFuture<ContractResult> apply(final ContractInvocation contractInvocation) {
+          logger.debug("Query contract with invocation: {}", contractInvocation);
+
+          final FinishableFuture<ContractResult> nextFuture =
+              new FinishableFuture<ContractResult>();
+          try {
+            final ByteString rpcContractAddress =
+                accountAddressConverter.convertToRpcModel(contractInvocation.getAddress());
+            final BytesValue rpcContractInvocation =
+                payloadResolver.resolve(Type.ContractInvocation, contractInvocation);
+            final Blockchain.Query rpcQuery = Blockchain.Query.newBuilder()
+                .setContractAddress(rpcContractAddress)
+                .setQueryinfo(copyFrom(rpcContractInvocation))
+                .build();
+            logger.trace("AergoService queryContract arg: {}", rpcQuery);
+
+            final ListenableFuture<Rpc.SingleBytes> listenableFuture =
+                futureService.queryContract(rpcQuery);
+            FutureChain<Rpc.SingleBytes, ContractResult> callback =
+                new FutureChain<Rpc.SingleBytes, ContractResult>(nextFuture, contextProvider.get());
+            callback.setSuccessHandler(new Function1<Rpc.SingleBytes, ContractResult>() {
+
+              @Override
+              public ContractResult apply(final Rpc.SingleBytes rawQueryResult) {
+                return contractResultConverter.convertToDomainModel(rawQueryResult);
+              }
+            });
+            addCallback(listenableFuture, callback, directExecutor());
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+          return nextFuture;
+        }
+      };
+
+  @Getter
+  private final Function1<EventFilter, FinishableFuture<List<Event>>> listEventFunction =
+      new Function1<EventFilter, FinishableFuture<List<Event>>>() {
+
+        @Override
+        public FinishableFuture<List<Event>> apply(final EventFilter eventFilter) {
+          logger.debug("List event with filter: {}", eventFilter);
+
+          final FinishableFuture<List<Event>> nextFuture =
+              new FinishableFuture<List<Event>>();
+          try {
+            final Blockchain.FilterInfo rpcEventFilter =
+                eventFilterConverter.convertToRpcModel(eventFilter);
+            logger.trace("AergoService listEvents arg: {}", rpcEventFilter);
+
+            final ListenableFuture<Rpc.EventList> listenableFuture =
+                futureService.listEvents(rpcEventFilter);
+            FutureChain<Rpc.EventList, List<Event>> callback =
+                new FutureChain<Rpc.EventList, List<Event>>(nextFuture, contextProvider.get());
+            callback.setSuccessHandler(new Function1<Rpc.EventList, List<Event>>() {
+
+              @Override
+              public List<Event> apply(final Rpc.EventList rawEventList) {
+                final List<Event> domainEvents = new ArrayList<Event>();
+                for (Blockchain.Event rpcEvent : rawEventList.getEventsList()) {
+                  domainEvents.add(eventConverter.convertToDomainModel(rpcEvent));
+                }
+                return domainEvents;
+              }
+            });
+            addCallback(listenableFuture, callback, directExecutor());
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+          return nextFuture;
+        }
+      };
+
+  @Getter
+  private final Function2<EventFilter, hera.api.model.StreamObserver<Event>,
+      Subscription<Event>> subscribeEventFunction = new Function2<EventFilter,
+          hera.api.model.StreamObserver<Event>, Subscription<Event>>() {
+
+        @Override
+        public Subscription<Event> apply(final EventFilter filter,
+            final hera.api.model.StreamObserver<Event> observer) {
+          logger.debug("Event subsribe with filter: {}, observer: {}", filter, observer);
+
+          final Blockchain.FilterInfo filterInfo = eventFilterConverter.convertToRpcModel(filter);
+          final io.grpc.stub.StreamObserver<Blockchain.Event> adaptor =
+              new GrpcStreamObserverAdaptor<Blockchain.Event, Event>(observer, eventConverter);
+          Context.CancellableContext cancellableContext = Context.current().withCancellation();
+          cancellableContext.run(new Runnable() {
+            @Override
+            public void run() {
+              streamService.listEventStream(filterInfo, adaptor);
+            }
+          });
+
+          return new GrpcStreamSubscription<Event>(cancellableContext);
+        }
+      };
 
 }

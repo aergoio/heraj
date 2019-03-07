@@ -20,10 +20,13 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.Event;
+import hera.api.model.EventFilter;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
 import hera.api.model.StakingInfo;
+import hera.api.model.Subscription;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.VotingInfo;
@@ -317,6 +320,24 @@ public interface QueryClient extends Closeable {
    * @throws WalletRpcException on rpc error
    */
   ContractResult query(ContractInvocation contractInvocation);
+
+  /**
+   * List events corresponding with event filter.
+   *
+   * @param filter an event filter
+   * @return event list
+   */
+  List<Event> listEvents(EventFilter filter);
+
+  /**
+   * Subscribe event corresponding with event filter.
+   *
+   * @param filter an event filter
+   * @param observer a stream observer which is invoked on event
+   * @return a subscription
+   */
+  Subscription<Event> subscribeEvent(EventFilter filter,
+      hera.api.model.StreamObserver<Event> observer);
 
   /**
    * {@inheritDoc}
