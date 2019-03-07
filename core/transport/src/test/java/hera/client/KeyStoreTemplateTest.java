@@ -10,7 +10,6 @@ import static hera.TransportConstants.KEYSTORE_IMPORTKEY;
 import static hera.TransportConstants.KEYSTORE_LIST;
 import static hera.TransportConstants.KEYSTORE_LOCK;
 import static hera.TransportConstants.KEYSTORE_UNLOCK;
-import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -35,12 +34,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 
 @PrepareForTest({KeyStoreBaseTemplate.class, Account.class, EncryptedPrivateKey.class})
 public class KeyStoreTemplateTest extends AbstractTestCase {
-
-  protected static final EncryptedPrivateKey ENCRYPTED_PRIVATE_KEY =
-      new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.VERSION}));
-
-  protected static final AccountAddress ADDRESS =
-      new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
 
   protected static final String PASSWORD = randomUUID().toString();
 
@@ -121,7 +114,7 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
     final KeyStoreTemplate keyStoreTemplate = supplyKeyStoreTemplate(base);
 
     final Boolean lockResult =
-        keyStoreTemplate.lock(Authentication.of(ADDRESS, PASSWORD));
+        keyStoreTemplate.lock(Authentication.of(accountAddress, PASSWORD));
     assertNotNull(lockResult);
     assertEquals(KEYSTORE_LOCK, ((WithIdentity) keyStoreTemplate.getLockFunction()).getIdentity());
   }
@@ -142,7 +135,7 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
     final KeyStoreTemplate keyStoreTemplate = supplyKeyStoreTemplate(base);
 
     final boolean account =
-        keyStoreTemplate.unlock(Authentication.of(ADDRESS, PASSWORD));
+        keyStoreTemplate.unlock(Authentication.of(accountAddress, PASSWORD));
     assertNotNull(account);
     assertEquals(KEYSTORE_UNLOCK,
         ((WithIdentity) keyStoreTemplate.getUnlockFunction()).getIdentity());
@@ -165,7 +158,7 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
     final KeyStoreTemplate keyStoreTemplate = supplyKeyStoreTemplate(base);
 
     final Account account =
-        keyStoreTemplate.importKey(ENCRYPTED_PRIVATE_KEY, PASSWORD, PASSWORD);
+        keyStoreTemplate.importKey(encryptedPrivateKey, PASSWORD, PASSWORD);
     assertNotNull(account);
     assertEquals(KEYSTORE_IMPORTKEY,
         ((WithIdentity) keyStoreTemplate.getImportKeyFunction()).getIdentity());
@@ -189,7 +182,7 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
     final KeyStoreTemplate keyStoreTemplate = supplyKeyStoreTemplate(base);
 
     final EncryptedPrivateKey account =
-        keyStoreTemplate.exportKey(Authentication.of(ADDRESS, PASSWORD));
+        keyStoreTemplate.exportKey(Authentication.of(accountAddress, PASSWORD));
     assertNotNull(account);
     assertEquals(KEYSTORE_EXPORTKEY,
         ((WithIdentity) keyStoreTemplate.getExportKeyFunction()).getIdentity());

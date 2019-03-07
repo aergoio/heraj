@@ -17,7 +17,6 @@ import hera.Context;
 import hera.ContextProvider;
 import hera.api.function.Function1;
 import hera.api.model.Account;
-import hera.api.model.AccountAddress;
 import hera.api.model.AccountFactory;
 import hera.api.model.BlockProducer;
 import hera.api.model.BlockchainStatus;
@@ -42,9 +41,6 @@ import types.Rpc;
 
 @PrepareForTest({AergoRPCServiceFutureStub.class})
 public class BlockchainBaseTemplateTest extends AbstractTestCase {
-
-  protected final AccountAddress accountAddress =
-      new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
 
   @Override
   public void setUp() {

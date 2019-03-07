@@ -32,9 +32,6 @@ public class TransactionTemplateTest extends AbstractTestCase {
 
   protected final byte[] rawTxHash = randomUUID().toString().getBytes();
 
-  protected final AccountAddress accountAddress =
-      new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
-
   @Override
   public void setUp() {
     super.setUp();

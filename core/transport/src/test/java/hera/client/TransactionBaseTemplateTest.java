@@ -15,7 +15,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
 import hera.Context;
 import hera.ContextProvider;
-import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.BytesValue;
@@ -32,12 +31,6 @@ import types.Rpc;
 
 @PrepareForTest({AergoRPCServiceFutureStub.class})
 public class TransactionBaseTemplateTest extends AbstractTestCase {
-
-  protected static final AccountAddress ACCOUNT_ADDRESS =
-      new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
-
-  protected final AccountAddress accountAddress =
-      new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
 
   @Override
   public void setUp() {
@@ -124,8 +117,8 @@ public class TransactionBaseTemplateTest extends AbstractTestCase {
         supplyTransactionBaseTemplate(aergoService);
 
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .from(ACCOUNT_ADDRESS)
-        .to(ACCOUNT_ADDRESS)
+        .from(accountAddress)
+        .to(accountAddress)
         .amount("1000", Unit.AER)
         .nonce(1L)
         .build();

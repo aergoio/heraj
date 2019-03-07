@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.client;
+package hera.spec.resolver;
 
 import static hera.api.model.BytesValue.of;
 import static hera.util.ValidationUtils.assertNotNull;
@@ -16,25 +16,21 @@ import hera.api.model.ContractDefinition;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInvocation;
 import hera.api.model.PeerId;
-import hera.client.PayloadResolver.Type;
 import hera.key.AergoKeyGenerator;
+import hera.spec.AddressSpec;
+import hera.spec.PayloadSpec.Type;
 import hera.util.Base58Utils;
 import org.junit.Test;
 
 public class PayloadResolverTest extends AbstractTestCase {
 
   protected final AccountAddress accountAddress =
-      new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
+      new AccountAddress(of(new byte[] {AddressSpec.PREFIX}));
 
   protected final ContractAddress contractAddress =
-      new ContractAddress(of(new byte[] {AccountAddress.VERSION}));
+      new ContractAddress(of(new byte[] {AddressSpec.PREFIX}));
 
   protected final PayloadResolver resolver = new PayloadResolver();
-
-  @Override
-  public void setUp() {
-    super.setUp();
-  }
 
   @Test
   public void testResolveOnContractDefinition() {

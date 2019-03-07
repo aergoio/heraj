@@ -10,6 +10,7 @@ import static hera.util.VersionUtils.envelop;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Transaction.TxType;
+import hera.spec.AddressSpec;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -139,7 +140,7 @@ public class RawTransaction {
     @Override
     public RawTransactionWithSender from(final String sender) {
       this.sender =
-          new AccountAddress(of(envelop(sender.getBytes(), AccountAddress.VERSION)));
+          new AccountAddress(of(envelop(sender.getBytes(), AddressSpec.PREFIX)));
       return this;
     }
 
@@ -157,7 +158,7 @@ public class RawTransaction {
     @Override
     public RawTransactionWithSenderAndRecipient to(final String recipient) {
       this.recipient =
-          new AccountAddress(of(envelop(recipient.getBytes(), AccountAddress.VERSION)));
+          new AccountAddress(of(envelop(recipient.getBytes(), AddressSpec.PREFIX)));
       return this;
     }
 

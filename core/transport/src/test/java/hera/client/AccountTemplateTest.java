@@ -13,7 +13,6 @@ import static hera.TransportConstants.ACCOUNT_STAKING;
 import static hera.TransportConstants.ACCOUNT_UNSTAKING;
 import static hera.TransportConstants.ACCOUNT_UPDATE_NAME;
 import static hera.TransportConstants.ACCOUNT_VERIFY;
-import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -45,12 +44,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 
 @PrepareForTest({AccountBaseTemplate.class, Account.class, EncryptedPrivateKey.class})
 public class AccountTemplateTest extends AbstractTestCase {
-
-  protected static final EncryptedPrivateKey ENCRYPTED_PRIVATE_KEY =
-      new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.VERSION}));
-
-  protected static final AccountAddress ACCOUNT_ADDRESS =
-      new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
 
   protected static final String PASSWORD = randomUUID().toString();
 
@@ -88,8 +81,7 @@ public class AccountTemplateTest extends AbstractTestCase {
 
     final AccountTemplate accountTemplate = supplyAccountTemplate(base);
 
-    final AccountState accountState =
-        accountTemplate.getState(ACCOUNT_ADDRESS);
+    final AccountState accountState = accountTemplate.getState(accountAddress);
     assertNotNull(accountState);
     assertEquals(ACCOUNT_GETSTATE,
         ((WithIdentity) accountTemplate.getStateFunction()).getIdentity());

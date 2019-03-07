@@ -24,7 +24,6 @@ import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.BytesValue;
-import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.StakingInfo;
@@ -41,12 +40,6 @@ import types.Rpc;
 
 @PrepareForTest({AergoRPCServiceFutureStub.class})
 public class AccountBaseTemplateTest extends AbstractTestCase {
-
-  protected final EncryptedPrivateKey encryptedPrivateKey =
-      new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.VERSION}));
-
-  protected final AccountAddress accountAddress =
-      new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
 
   protected final String password = randomUUID().toString();
 

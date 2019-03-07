@@ -18,10 +18,8 @@ import hera.ContextProvider;
 import hera.api.function.Function1;
 import hera.api.function.Function2;
 import hera.api.model.Account;
-import hera.api.model.AccountAddress;
 import hera.api.model.AccountFactory;
 import hera.api.model.BytesValue;
-import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
@@ -49,12 +47,6 @@ import types.Rpc;
 
 @PrepareForTest({AergoRPCServiceFutureStub.class, AergoRPCServiceStub.class})
 public class ContractBaseTemplateTest extends AbstractTestCase {
-
-  protected final AccountAddress accountAddress =
-      new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
-
-  protected final ContractAddress contractAddress =
-      new ContractAddress(of(new byte[] {AccountAddress.VERSION}));
 
   protected final Fee fee = Fee.getDefaultFee();
 

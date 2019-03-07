@@ -4,7 +4,6 @@
 
 package hera.client;
 
-import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,12 +28,6 @@ import types.Rpc;
 
 @PrepareForTest({AergoRPCServiceFutureStub.class})
 public class KeyStoreBaseTemplateTest extends AbstractTestCase {
-
-  protected static final EncryptedPrivateKey ENCRYPTED_PRIVATE_KEY =
-      new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.VERSION}));
-
-  protected static final AccountAddress ACCOUNT_ADDRESS =
-      new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
 
   protected static final String PASSWORD = randomUUID().toString();
 
@@ -109,7 +102,7 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
     final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
     final FinishableFuture<Boolean> lockResult =
-        accountTemplateBase.getLockFunction().apply(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
+        accountTemplateBase.getLockFunction().apply(Authentication.of(accountAddress, PASSWORD));
     assertNotNull(lockResult.get());
   }
 
@@ -128,7 +121,7 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
     final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
     final FinishableFuture<Boolean> accountFuture =
-        accountTemplateBase.getUnlockFunction().apply(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
+        accountTemplateBase.getUnlockFunction().apply(Authentication.of(accountAddress, PASSWORD));
     assertNotNull(accountFuture.get());
   }
 
@@ -147,7 +140,7 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
     final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
     final FinishableFuture<Account> accountFuture =
-        accountTemplateBase.getImportKeyFunction().apply(ENCRYPTED_PRIVATE_KEY, PASSWORD, PASSWORD);
+        accountTemplateBase.getImportKeyFunction().apply(encryptedPrivateKey, PASSWORD, PASSWORD);
     assertNotNull(accountFuture.get());
   }
 
@@ -167,7 +160,7 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
 
     final FinishableFuture<EncryptedPrivateKey> accountFuture =
         accountTemplateBase.getExportKeyFunction()
-            .apply(Authentication.of(ACCOUNT_ADDRESS, PASSWORD));
+            .apply(Authentication.of(accountAddress, PASSWORD));
     assertNotNull(accountFuture.get());
   }
 

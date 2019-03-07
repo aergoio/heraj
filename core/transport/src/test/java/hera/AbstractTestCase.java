@@ -4,10 +4,16 @@
 
 package hera;
 
+import static hera.api.model.BytesValue.of;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
+import hera.api.model.AccountAddress;
+import hera.api.model.ContractAddress;
+import hera.api.model.EncryptedPrivateKey;
+import hera.spec.AddressSpec;
+import hera.spec.EncryptedPrivateKeySpec;
 import hera.strategy.NettyConnectStrategy;
 import hera.strategy.SimpleTimeoutStrategy;
 import java.util.concurrent.Executors;
@@ -32,6 +38,15 @@ public abstract class AbstractTestCase {
       MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
 
   protected Context context;
+
+  protected final EncryptedPrivateKey encryptedPrivateKey =
+      new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKeySpec.PREFIX}));
+
+  protected final AccountAddress accountAddress =
+      new AccountAddress(of(new byte[] {AddressSpec.PREFIX}));
+
+  protected final ContractAddress contractAddress =
+      new ContractAddress(of(new byte[] {AddressSpec.PREFIX}));
 
   @Before
   public void setUp() {

@@ -15,6 +15,7 @@ import com.google.protobuf.ByteString;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
+import hera.spec.AddressSpec;
 import hera.util.HexUtils;
 import org.slf4j.Logger;
 
@@ -60,7 +61,7 @@ public class AccountAddressConverterFactory {
           AccountAddress domainAccountAddress;
           if (false == rpcAccountAddress.isEmpty()) {
             final byte[] withoutVersion = rpcAccountAddress.toByteArray();
-            final byte[] withVersion = envelop(withoutVersion, AccountAddress.VERSION);
+            final byte[] withVersion = envelop(withoutVersion, AddressSpec.PREFIX);
             domainAccountAddress = new AccountAddress(of(withVersion));
           } else {
             domainAccountAddress = new AccountAddress(BytesValue.EMPTY);

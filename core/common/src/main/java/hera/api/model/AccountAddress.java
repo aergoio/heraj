@@ -13,6 +13,7 @@ import hera.annotation.ApiStability;
 import hera.api.encode.Encodable;
 import hera.exception.DecodingFailureException;
 import hera.exception.InvalidVersionException;
+import hera.spec.AddressSpec;
 import hera.util.Adaptor;
 import hera.util.VersionUtils;
 import lombok.Getter;
@@ -20,8 +21,6 @@ import lombok.Getter;
 @ApiAudience.Public
 @ApiStability.Unstable
 public class AccountAddress implements Identity, Encodable, Adaptor {
-
-  public static final byte VERSION = 0x42;
 
   /**
    * Create {@code AccountAddress} with a base58 with checksum encoded value.
@@ -76,7 +75,7 @@ public class AccountAddress implements Identity, Encodable, Adaptor {
   @ApiAudience.Private
   public AccountAddress(final BytesValue bytesValue) {
     if (BytesValue.EMPTY != bytesValue) {
-      VersionUtils.validate(bytesValue, VERSION);
+      VersionUtils.validate(bytesValue, AddressSpec.PREFIX);
     }
     this.bytesValue = bytesValue;
   }

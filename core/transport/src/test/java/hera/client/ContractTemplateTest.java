@@ -26,7 +26,6 @@ import hera.api.function.Function2;
 import hera.api.function.Function4;
 import hera.api.function.WithIdentity;
 import hera.api.model.Account;
-import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractFunction;
@@ -49,12 +48,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 
 @PrepareForTest({ContractBaseTemplate.class})
 public class ContractTemplateTest extends AbstractTestCase {
-
-  protected final AccountAddress accountAddress =
-      new AccountAddress(of(new byte[] {AccountAddress.VERSION}));
-
-  protected final ContractAddress contractAddress =
-      new ContractAddress(of(new byte[] {AccountAddress.VERSION}));
 
   protected final Fee fee = Fee.getDefaultFee();
 

@@ -9,6 +9,7 @@ import static hera.util.ValidationUtils.assertNotNull;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.exception.InvalidAerAmountException;
+import hera.spec.AerSpec;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import lombok.EqualsAndHashCode;
@@ -74,18 +75,10 @@ public class Aer implements Comparable<Aer> {
   @ApiAudience.Public
   @RequiredArgsConstructor
   public enum Unit {
-    AER("aer", new BigDecimal("1"), new BigDecimal("1")),
-    GAER("gaer", new BigDecimal("1.E-9"), new BigDecimal("1.E9")),
-    AERGO("aergo", new BigDecimal("1.E-18"), new BigDecimal("1.E18"));
+    AER(AerSpec.Unit.AER), GAER(AerSpec.Unit.GAER), AERGO(AerSpec.Unit.AERGO);
 
     @Getter
-    protected final String name;
-
-    @Getter
-    protected final BigDecimal minimum;
-
-    @Getter
-    protected final BigDecimal timesToAer;
+    final AerSpec.Unit delegate;
   }
 
   @Getter
@@ -139,12 +132,12 @@ public class Aer implements Comparable<Aer> {
         throw new InvalidAerAmountException("Amount should be postive");
       }
       if (parsedValue.compareTo(BigDecimal.ZERO) != 0
-          && parsedValue.compareTo(unit.getMinimum()) == -1) {
+          && parsedValue.compareTo(unit.getDelegate().getMinimum()) == -1) {
         throw new InvalidAerAmountException(
             String.format("Amount is smaller then minimum : %s %s",
-                unit.getMinimum().toPlainString(), unit.getName()));
+                unit.getDelegate().getMinimum().toPlainString(), unit.getDelegate().getName()));
       }
-      return parsedValue.multiply(unit.getTimesToAer()).toBigInteger();
+      return parsedValue.multiply(unit.getDelegate().getTimesToAer()).toBigInteger();
     } catch (NumberFormatException e) {
       throw new InvalidAerAmountException(e);
     }

@@ -10,6 +10,7 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
+import hera.spec.AddressSpec;
 
 @ApiAudience.Private
 @ApiStability.Unstable
@@ -20,7 +21,7 @@ public class GovernanceRecipient extends AccountAddress {
   public static GovernanceRecipient AERGO_NAME = new GovernanceRecipient("aergo.name");
 
   private GovernanceRecipient(final String specialName) {
-    super(new BytesValue(envelop(specialName.getBytes(), VERSION)));
+    super(new BytesValue(envelop(specialName.getBytes(), AddressSpec.PREFIX)));
   }
 
 }
