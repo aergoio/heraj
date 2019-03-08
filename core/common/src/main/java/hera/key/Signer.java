@@ -8,7 +8,6 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
-import hera.exception.SignException;
 
 @ApiAudience.Private
 @ApiStability.Unstable
@@ -19,7 +18,6 @@ public interface Signer {
    *
    * @param rawTransaction raw transaction to sign
    * @return a signed transaction
-   * @throws SignException on failure
    */
   Transaction sign(final RawTransaction rawTransaction);
 

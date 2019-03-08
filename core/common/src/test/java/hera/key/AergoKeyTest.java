@@ -4,6 +4,7 @@
 
 package hera.key;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -49,6 +50,17 @@ public class AergoKeyTest extends AbstractTestCase {
           .build();
       final Transaction signedTransaction = key.sign(rawTransaction);
       assertTrue(key.verify(signedTransaction));
+    }
+  }
+
+  @Test
+  public void testSignAndVerifyMessage() throws Exception {
+    for (int i = 0; i < N_TEST; ++i) {
+      final AergoKey key = new AergoKeyGenerator().create();
+
+      final String message = randomUUID().toString();
+      final String signature = key.signMessage(message);
+      assertTrue(key.verifyMessage(message, signature));
     }
   }
 

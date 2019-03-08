@@ -7,7 +7,6 @@ package hera.spec.resolver;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.BytesValue;
-import hera.api.model.Signature;
 import hera.exception.HerajException;
 import hera.spec.SignatureSpec;
 import hera.util.HexUtils;
@@ -72,12 +71,12 @@ public class SignatureResolver {
    * @param order a order of signature key
    * @return parsed {@link ECDSASignature}. null if parsing failed.
    */
-  public ECDSASignature parse(final Signature signature, final BigInteger order) {
+  public ECDSASignature parse(final BytesValue signature, final BigInteger order) {
     if (null == signature) {
       throw new HerajException("Serialized signature is null");
     }
 
-    final byte[] rawSignature = signature.getSign().getValue();
+    final byte[] rawSignature = signature.getValue();
     if (logger.isTraceEnabled()) {
       logger.trace("Raw signature: {}, len: {}", HexUtils.encode(rawSignature),
           rawSignature.length);
