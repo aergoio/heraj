@@ -68,7 +68,10 @@ public class ECDSAKey {
     try {
       final byte[] message = toByteArray(plainText);
       final ECDSASignature signature = sign(this.privateKey, message);
-      logger.trace("ECDSASignature signature: {}", signature);
+      if (logger.isTraceEnabled()) {
+        logger.trace("Message in hexa: {}", HexUtils.encode(message));
+        logger.trace("ECDSASignature signature: {}", signature);
+      }
       return signature;
     } catch (final Throwable e) {
       throw new IllegalStateException(e);
@@ -88,11 +91,8 @@ public class ECDSAKey {
    */
   protected ECDSASignature sign(final PrivateKey privateKey, final byte[] message)
       throws Exception {
-    logger.trace("Message in hexa: {}", HexUtils.encode(message));
-
     final ECDSASigner signer = new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));
     final BigInteger d = ((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD();
-    logger.trace("D: {}", d);
     final ECPrivateKeyParameters privKey = new ECPrivateKeyParameters(d, params);
     signer.init(true, privKey);
     final BigInteger[] components = signer.generateSignature(message);
@@ -113,7 +113,12 @@ public class ECDSAKey {
    */
   public boolean verify(final InputStream plainText, final ECDSASignature signature) {
     try {
-      return verify(getPublicKey(), toByteArray(plainText), signature);
+      final byte[] message = toByteArray(plainText);
+      if (logger.isTraceEnabled()) {
+        logger.trace("Message in hexa: {}", HexUtils.encode(message));
+        logger.trace("ECDSASignature signature: {}", signature);
+      }
+      return verify(getPublicKey(), message, signature);
     } catch (final Throwable e) {
       throw new IllegalStateException(e);
     }

@@ -66,9 +66,8 @@ public class ECDSAKeyGenerator implements KeyGenerator<ECDSAKey> {
     final KeyPairGenerator generator = getKeyPairGenerator();
     final KeyPair pair = generator.generateKeyPair();
     final PrivateKey privateKey = pair.getPrivate();
-    logger.debug("Private key: {}", privateKey);
     final PublicKey publicKey = pair.getPublic();
-    logger.debug("Public key: {}", publicKey);
+    logger.trace("Public key: {}", publicKey);
     return new ECDSAKey(privateKey, publicKey, ecParams);
   }
 

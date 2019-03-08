@@ -2,21 +2,25 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.util;
+package hera.spec.resolver;
 
-import static hera.api.model.BytesValue.of;
 import static hera.util.NumberUtils.positiveToByteArray;
 import static hera.util.Sha256Utils.digest;
 import static hera.util.VersionUtils.trim;
+import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.model.BytesValue;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
-import hera.api.model.TxHash;
 import hera.exception.HerajException;
+import hera.util.LittleEndianDataOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import org.slf4j.Logger;
 
-public class TransactionUtils {
+public class TransactionHashResolver {
+
+  protected final transient Logger logger = getLogger(getClass());
 
   /**
    * Calculate a hash of transaction.
@@ -24,13 +28,13 @@ public class TransactionUtils {
    * @param rawTransaction a raw transaction
    * @return a hash of transaction
    */
-  public static TxHash calculateHash(final RawTransaction rawTransaction) {
+  public BytesValue calculateHash(final RawTransaction rawTransaction) {
     try {
       final ByteArrayOutputStream raw = new ByteArrayOutputStream();
       final LittleEndianDataOutputStream dataOut = makeStream(raw, rawTransaction);
       dataOut.flush();
       dataOut.close();
-      return new TxHash(of(digest(raw.toByteArray())));
+      return new BytesValue(digest(raw.toByteArray()));
     } catch (final IOException e) {
       throw new HerajException(e);
     }
@@ -43,7 +47,7 @@ public class TransactionUtils {
    * @param signature a signature
    * @return a hash of transaction
    */
-  public static TxHash calculateHash(final RawTransaction rawTransaction,
+  public BytesValue calculateHash(final RawTransaction rawTransaction,
       final Signature signature) {
     try {
       final ByteArrayOutputStream raw = new ByteArrayOutputStream();
@@ -51,13 +55,13 @@ public class TransactionUtils {
       dataOut.write(signature.getSign().getValue());
       dataOut.flush();
       dataOut.close();
-      return new TxHash(of(digest(raw.toByteArray())));
+      return new BytesValue(digest(raw.toByteArray()));
     } catch (final IOException e) {
       throw new HerajException(e);
     }
   }
 
-  protected static LittleEndianDataOutputStream makeStream(final ByteArrayOutputStream raw,
+  protected LittleEndianDataOutputStream makeStream(final ByteArrayOutputStream raw,
       final RawTransaction rawTransaction) throws IOException {
     final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(raw);
     // WARNING : follow the stream order with server

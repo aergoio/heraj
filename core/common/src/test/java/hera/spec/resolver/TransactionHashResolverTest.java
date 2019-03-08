@@ -2,9 +2,8 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.util;
+package hera.spec.resolver;
 
-import static hera.api.model.BytesValue.of;
 import static hera.util.EncodingUtils.decodeBase58;
 import static hera.util.ValidationUtils.assertNotNull;
 import static org.junit.Assert.assertEquals;
@@ -13,15 +12,16 @@ import hera.AbstractTestCase;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
+import hera.api.model.BytesValue;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
-import hera.api.model.TxHash;
+import hera.util.Base58Utils;
 import java.io.IOException;
 import org.junit.Test;
 
-public class TransactionUtilsTest extends AbstractTestCase {
+public class TransactionHashResolverTest extends AbstractTestCase {
 
   protected static final String encodedAddress =
       "AmLo9CGR3xFZPVKZ5moSVRNW1kyscY9rVkCvgrpwNJjRUPUWadC5";
@@ -30,6 +30,8 @@ public class TransactionUtilsTest extends AbstractTestCase {
       "381yXYmc3SjtBcSf5crwXjKZGRNSVurhTAkF8ZDwo6hWoj9uDtrf2uRTvE1KR5eTHvyPYfqVJ5Le3m6iALTtR3Yq4Q1JnnzS";
 
   protected final String hashWithSign = "DXmEDh6EYFnVZ8ux5xTX4U4VzF1MJcSphyYADEimAEzg";
+
+  protected final TransactionHashResolver resolver = new TransactionHashResolver();
 
   @Test
   public void testCalculateHashWithRawTx() {
@@ -41,7 +43,7 @@ public class TransactionUtilsTest extends AbstractTestCase {
         .fee(Fee.of(Aer.of("100", Unit.AER), 5))
         .build();
 
-    assertNotNull(TransactionUtils.calculateHash(rawTransaction));
+    assertNotNull(resolver.calculateHash(rawTransaction));
   }
 
   @Test
@@ -55,8 +57,8 @@ public class TransactionUtilsTest extends AbstractTestCase {
         .build();
 
     final Signature signature = Signature.of(decodeBase58(encodedSignature));
-    final TxHash expected = TxHash.of(of(Base58Utils.decode(hashWithSign)));
-    final TxHash actual = TransactionUtils.calculateHash(rawTransaction, signature);
+    final BytesValue expected = new BytesValue(Base58Utils.decode(hashWithSign));
+    final BytesValue actual = resolver.calculateHash(rawTransaction, signature);
     assertEquals(expected, actual);
   }
 

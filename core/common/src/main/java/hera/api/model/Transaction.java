@@ -6,7 +6,7 @@ package hera.api.model;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.util.TransactionUtils;
+import hera.spec.resolver.TransactionHashResolver;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -117,8 +117,9 @@ public class Transaction extends RawTransaction {
 
     @Override
     public Transaction build() {
-      return new Transaction(rawTransaction, signature,
-          TransactionUtils.calculateHash(rawTransaction, signature), null, 0, false);
+      final BytesValue rawHash =
+          new TransactionHashResolver().calculateHash(rawTransaction, signature);
+      return new Transaction(rawTransaction, signature, new TxHash(rawHash), null, 0, false);
     }
   }
 

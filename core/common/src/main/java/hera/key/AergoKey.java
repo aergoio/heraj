@@ -19,9 +19,9 @@ import hera.exception.SignException;
 import hera.exception.UnableToGenerateKeyException;
 import hera.spec.resolver.EncryptedPrivateKeyResolver;
 import hera.spec.resolver.SignatureResolver;
+import hera.spec.resolver.TransactionHashResolver;
 import hera.util.AddressUtils;
 import hera.util.NumberUtils;
-import hera.util.TransactionUtils;
 import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSAKeyGenerator;
 import hera.util.pki.ECDSASignature;
@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@EqualsAndHashCode(exclude = {"signatureResolver", "privateKeyResolver"})
+@EqualsAndHashCode(exclude = {"transactionHashResolver", "signatureResolver", "privateKeyResolver"})
 public class AergoKey implements KeyPair, Signer {
 
   protected static final String CHAR_SET = "UTF-8";
@@ -66,6 +66,8 @@ public class AergoKey implements KeyPair, Signer {
   }
 
   protected final transient Logger logger = getLogger(getClass());
+
+  protected final TransactionHashResolver transactionHashResolver = new TransactionHashResolver();
 
   protected final SignatureResolver signatureResolver = new SignatureResolver();
 
@@ -132,7 +134,7 @@ public class AergoKey implements KeyPair, Signer {
   @Override
   public Transaction sign(final RawTransaction rawTransaction) {
     try {
-      final BytesValue plainText = TransactionUtils.calculateHash(rawTransaction).getBytesValue();
+      final BytesValue plainText = transactionHashResolver.calculateHash(rawTransaction);
       final ECDSASignature ecdsaSignature = ecdsakey.sign(plainText.getInputStream());
       final BytesValue serialized =
           signatureResolver.serialize(ecdsaSignature, ecdsakey.getParams().getN());
@@ -149,7 +151,7 @@ public class AergoKey implements KeyPair, Signer {
   @Override
   public boolean verify(final Transaction transaction) {
     try {
-      final BytesValue plainText = TransactionUtils.calculateHash(transaction).getBytesValue();
+      final BytesValue plainText = transactionHashResolver.calculateHash(transaction);
       final ECDSASignature parsedSignature =
           signatureResolver.parse(transaction.getSignature(), ecdsakey.getParams().getN());
       return ecdsakey.verify(plainText.getInputStream(), parsedSignature);

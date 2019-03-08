@@ -156,5 +156,4 @@ public class SignatureResolver {
     return new Pair<BigInteger, Integer>(r, index);
   }
 
-
 }
