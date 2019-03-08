@@ -17,7 +17,6 @@ import hera.api.model.Fee;
 import hera.contract.SmartContractFactory;
 import hera.exception.ContractException;
 import hera.key.AergoKey;
-import hera.key.AergoKeyGenerator;
 import hera.util.IoUtils;
 import hera.util.ThreadUtils;
 import hera.wallet.Wallet;
@@ -34,26 +33,22 @@ public class SmartContractIT extends AbstractIT {
   protected ContractAddress contractAddress;
 
   @Before
-  public void setUp() {
-    try {
-      this.wallet = new WalletBuilder()
-          .withEndpoint(endpoint)
-          .build(WalletType.Naive);
-      final String password = randomUUID().toString();
-      AergoKey key = new AergoKeyGenerator().create();
-      wallet.saveKey(key, password);
-      wallet.unlock(Authentication.of(key.getAddress(), password));
+  public void setUp() throws Exception {
+    super.setUp();
+    this.wallet = new WalletBuilder()
+        .withEndpoint(hostname)
+        .build(WalletType.Naive);
+    final AergoKey key = AergoKey.of(encrypted, password);
+    wallet.saveKey(key, password);
+    wallet.unlock(Authentication.of(key.getAddress(), password));
 
-      final String payload = IoUtils.from(new InputStreamReader(open("payload")));
-      final ContractDefinition definition = ContractDefinition.newBuilder()
-          .encodedContract(payload)
-          .build();
-      final ContractTxHash deployTxHash = wallet.deploy(definition, Fee.getDefaultFee());
-      Thread.sleep(2200L);
-      this.contractAddress = wallet.getReceipt(deployTxHash).getContractAddress();
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
+    final String payload = IoUtils.from(new InputStreamReader(open("payload")));
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(payload)
+        .build();
+    final ContractTxHash deployTxHash = wallet.deploy(definition, Fee.getDefaultFee());
+    Thread.sleep(2200L);
+    this.contractAddress = wallet.getReceipt(deployTxHash).getContractAddress();
   }
 
   @Test

@@ -115,7 +115,7 @@ public class TransactionOperationIT extends AbstractIT {
     for (final Account account : supplyAccounts()) {
 
       // give recipient an name
-      final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());
+      final Account recipient = supplyLocalAccount();
       final String name = randomUUID().toString().substring(0, 12).replace('-', 'a');
       aergoClient.getAccountOperation().createName(recipient, name,
           recipient.incrementAndGetNonce());
@@ -326,7 +326,7 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testCommitOnLockedKeyStoreAccount() {
-    final Account account = aergoClient.getKeyStoreOperation().create(password);
+    final Account account = supplyServerAccount();
     final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .from(account)
@@ -347,7 +347,8 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testSendWithKeyStoreAccount() {
-    final Account account = aergoClient.getKeyStoreOperation().create(password);
+    final Account account = supplyServerAccount();
+
     final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());
 
     // snapshot pre state
@@ -373,7 +374,8 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testSendOnLockedKeyStoreAccount() {
-    final Account account = aergoClient.getKeyStoreOperation().create(password);
+    final Account account = supplyServerAccount();
+
     final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());
 
     try {

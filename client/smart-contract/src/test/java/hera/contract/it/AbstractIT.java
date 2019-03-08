@@ -7,14 +7,40 @@ package hera.contract.it;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.contract.SmartContract;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.Properties;
+import org.junit.Before;
 import org.slf4j.Logger;
 
 public abstract class AbstractIT {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final String endpoint = "localhost:7845";
+  protected final String propertiesPath = "/it.properties";
+
+  protected String hostname;
+
+  protected String encrypted;
+
+  protected String password;
+
+  protected String peer;
+
+  @Before
+  public void setUp() throws Exception {
+    final Properties properties = readProperties();
+    hostname = (String) properties.get("hostname");
+    encrypted = (String) properties.get("encrypted");
+    password = (String) properties.get("password");
+    peer = (String) properties.get("peer");
+  }
+
+  protected Properties readProperties() throws IOException {
+    Properties properties = new Properties();
+    properties.load(getClass().getResourceAsStream(propertiesPath));
+    return properties;
+  }
 
   protected InputStream open(final String ext) {
     final String path = "/" + getClass().getName().replace('.', '/') + "." + ext;

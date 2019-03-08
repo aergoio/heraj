@@ -19,6 +19,7 @@ import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerId;
 import hera.api.model.PeerMetric;
+import hera.api.model.StakingInfo;
 import hera.api.model.VotingInfo;
 import hera.exception.RpcCommitException;
 import java.util.List;
@@ -81,7 +82,10 @@ public class BlockchainOperationIT extends AbstractIT {
           account.incrementAndGetNonce());
       waitForNextBlockToGenerate();
 
-      final PeerId peerId = new PeerId("16Uiu2HAmV6iVGuN31sZTz2GDicFPpBr6eaHn1mVM499BGwSBf6Nb");
+      StakingInfo fuck = aergoClient.getAccountOperation().getStakingInfo(account.getAddress());
+      System.out.println(fuck);
+
+      final PeerId peerId = new PeerId(peer);
       aergoClient.getBlockchainOperation().vote(account, peerId, account.incrementAndGetNonce());
       waitForNextBlockToGenerate();
 
@@ -106,7 +110,7 @@ public class BlockchainOperationIT extends AbstractIT {
       unlockAccount(account, password);
 
       try {
-        final PeerId peerId = new PeerId("16Uiu2HAmV6iVGuN31sZTz2GDicFPpBr6eaHn1mVM499BGwSBf6Nb");
+        final PeerId peerId = new PeerId(peer);
         aergoClient.getBlockchainOperation().vote(account, peerId, account.incrementAndGetNonce());
         fail();
       } catch (RpcCommitException e) {

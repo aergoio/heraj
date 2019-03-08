@@ -23,7 +23,6 @@ import hera.api.model.Fee;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.util.IoUtils;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.CountDownLatch;
 import lombok.Getter;
@@ -48,12 +47,9 @@ public class ContractOperationIT extends AbstractIT {
   protected String queryFunction = "get";
 
   @Before
-  public void setUp() {
-    try {
-      contractPayload = IoUtils.from(new InputStreamReader(open("payload")));
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
+  public void setUp() throws Exception {
+    super.setUp();
+    contractPayload = IoUtils.from(new InputStreamReader(open("payload")));
   }
 
   protected ContractTxHash deploy(final Account account, final ContractDefinition definition,
@@ -197,7 +193,7 @@ public class ContractOperationIT extends AbstractIT {
 
   @Test
   public void testLuaContractDeployOnLockedAccount() throws Exception {
-    final Account account = aergoClient.getKeyStoreOperation().create(password);
+    final Account account = supplyServerAccount();
     // unlockAccount(account, password);
     try {
       final ContractDefinition definition = ContractDefinition.newBuilder()
@@ -210,7 +206,7 @@ public class ContractOperationIT extends AbstractIT {
 
   @Test
   public void testLuaContractExecuteOnLockedAccount() {
-    final Account account = aergoClient.getKeyStoreOperation().create(password);
+    final Account account = supplyServerAccount();
     unlockAccount(account, password);
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(contractPayload).build();

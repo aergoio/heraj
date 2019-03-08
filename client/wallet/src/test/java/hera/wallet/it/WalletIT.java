@@ -10,6 +10,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
@@ -34,10 +35,9 @@ import hera.api.model.StreamObserver;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.VotingInfo;
-import hera.exception.WalletCommitException;
 import hera.exception.UnbindedAccountException;
+import hera.exception.WalletCommitException;
 import hera.key.AergoKey;
-import hera.key.AergoKeyGenerator;
 import hera.model.KeyAlias;
 import hera.util.IoUtils;
 import hera.wallet.ServerKeyStoreWallet;
@@ -53,6 +53,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -85,12 +86,11 @@ public class WalletIT extends AbstractIT {
   protected java.security.KeyStore keyStore;
 
 
-
   @Parameters(name = "{0}")
   public static Collection<WalletType> data() {
     return Arrays.asList(
-        // WalletType.Naive,
-        // WalletType.Secure,
+        WalletType.Naive,
+        WalletType.Secure,
         WalletType.ServerKeyStore);
   }
 
@@ -187,7 +187,13 @@ public class WalletIT extends AbstractIT {
 
   @Before
   public void setUp() throws Exception {
+    super.setUp();
     this.keyStore = supplyKeyStore();
+  }
+
+  @After
+  public void tearDown() {
+    super.tearDown();
   }
 
   protected java.security.KeyStore supplyKeyStore() throws Exception {
@@ -210,7 +216,7 @@ public class WalletIT extends AbstractIT {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = new AergoKeyGenerator().create();
+      final AergoKey key = supplyKeyWithAergo(wallet);
       final String password = randomUUID().toString();
       wallet.saveKey(key, password);
       wallet.unlock(Authentication.of(key.getAddress(), password));
@@ -253,7 +259,7 @@ public class WalletIT extends AbstractIT {
 
       final int beforeSize = wallet.listKeyStoreIdentities().size();
 
-      final AergoKey key = new AergoKeyGenerator().create();
+      final AergoKey key = supplyKeyWithAergo(wallet);
       wallet.saveKey(key, password);
 
       final int afterSize = wallet.listKeyStoreIdentities().size();
@@ -274,7 +280,7 @@ public class WalletIT extends AbstractIT {
 
       final String info = randomUUID().toString().toLowerCase().replace("-", "");
       final Identity identity = new KeyAlias(info);
-      final AergoKey key = new AergoKeyGenerator().create();
+      final AergoKey key = supplyKeyWithAergo(wallet);
 
       if (wallet instanceof ServerKeyStoreWallet) {
         try {
@@ -301,7 +307,7 @@ public class WalletIT extends AbstractIT {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = new AergoKeyGenerator().create();
+      final AergoKey key = supplyKeyWithAergo(wallet);
       wallet.saveKey(key, password);
       wallet.storeKeyStore(keyStorePath, keyStorePasword);
 
@@ -321,7 +327,7 @@ public class WalletIT extends AbstractIT {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = new AergoKeyGenerator().create();
+      final AergoKey key = supplyKeyWithAergo(wallet);
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -356,7 +362,7 @@ public class WalletIT extends AbstractIT {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = new AergoKeyGenerator().create();
+      final AergoKey key = supplyKeyWithAergo(wallet);
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -380,7 +386,7 @@ public class WalletIT extends AbstractIT {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = new AergoKeyGenerator().create();
+      final AergoKey key = supplyKeyWithAergo(wallet);
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -411,7 +417,7 @@ public class WalletIT extends AbstractIT {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = new AergoKeyGenerator().create();
+      final AergoKey key = supplyKeyWithAergo(wallet);
       wallet.saveKey(key, password);
 
       try {
@@ -430,7 +436,7 @@ public class WalletIT extends AbstractIT {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = new AergoKeyGenerator().create();
+      final AergoKey key = supplyKeyWithAergo(wallet);
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -461,7 +467,7 @@ public class WalletIT extends AbstractIT {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = new AergoKeyGenerator().create();
+      final AergoKey key = supplyKeyWithAergo(wallet);
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -474,7 +480,7 @@ public class WalletIT extends AbstractIT {
       wallet.stake(stakingAmount);
       waitForNextBlockToGenerate();
 
-      final PeerId peerId = new PeerId("16Uiu2HAmV6iVGuN31sZTz2GDicFPpBr6eaHn1mVM499BGwSBf6Nb");
+      final PeerId peerId = new PeerId(peer);
       wallet.vote(peerId);
       waitForNextBlockToGenerate();
 
@@ -496,7 +502,7 @@ public class WalletIT extends AbstractIT {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = new AergoKeyGenerator().create();
+      final AergoKey key = supplyKeyWithAergo(wallet);
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -520,7 +526,7 @@ public class WalletIT extends AbstractIT {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = new AergoKeyGenerator().create();
+      final AergoKey key = supplyKeyWithAergo(wallet);
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -548,7 +554,7 @@ public class WalletIT extends AbstractIT {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = new AergoKeyGenerator().create();
+      final AergoKey key = supplyKeyWithAergo(wallet);
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -573,7 +579,7 @@ public class WalletIT extends AbstractIT {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = new AergoKeyGenerator().create();
+      final AergoKey key = supplyKeyWithAergo(wallet);
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
       wallet.unlock(auth);
@@ -608,7 +614,7 @@ public class WalletIT extends AbstractIT {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = new AergoKeyGenerator().create();
+      final AergoKey key = supplyKeyWithAergo(wallet);
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
       wallet.unlock(auth);
@@ -644,7 +650,7 @@ public class WalletIT extends AbstractIT {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = new AergoKeyGenerator().create();
+      final AergoKey key = supplyKeyWithAergo(wallet);
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
       wallet.unlock(auth);
@@ -677,7 +683,7 @@ public class WalletIT extends AbstractIT {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = new AergoKeyGenerator().create();
+      final AergoKey key = supplyKeyWithAergo(wallet);
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
       wallet.unlock(auth);
@@ -707,7 +713,7 @@ public class WalletIT extends AbstractIT {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = new AergoKeyGenerator().create();
+      final AergoKey key = supplyKeyWithAergo(wallet);
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
       wallet.unlock(auth);
@@ -726,7 +732,7 @@ public class WalletIT extends AbstractIT {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = new AergoKeyGenerator().create();
+      final AergoKey key = supplyKeyWithAergo(wallet);
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
       wallet.unlock(auth);
@@ -749,7 +755,7 @@ public class WalletIT extends AbstractIT {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = new AergoKeyGenerator().create();
+      final AergoKey key = supplyKeyWithAergo(wallet);
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
 
@@ -775,7 +781,7 @@ public class WalletIT extends AbstractIT {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = new AergoKeyGenerator().create();
+      final AergoKey key = supplyKeyWithAergo(wallet);
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
 

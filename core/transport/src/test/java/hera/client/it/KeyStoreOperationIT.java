@@ -11,12 +11,10 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import hera.api.model.Account;
-import hera.api.model.AccountFactory;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Identity;
 import hera.key.AergoKey;
-import hera.key.AergoKeyGenerator;
 import org.junit.Test;
 
 public class KeyStoreOperationIT extends AbstractIT {
@@ -38,7 +36,7 @@ public class KeyStoreOperationIT extends AbstractIT {
 
   @Test
   public void testCreateAndExport() {
-    final Account account = aergoClient.getKeyStoreOperation().create(password);
+    final Account account = supplyServerAccount();
     assertTrue(aergoClient.getKeyStoreOperation().list().contains(account.getAddress()));
 
     final Authentication authentication = Authentication.of(account.getAddress(), password);
@@ -50,7 +48,7 @@ public class KeyStoreOperationIT extends AbstractIT {
 
   @Test
   public void testCreateAndExportWithInvalidAuthentication() {
-    final Account account = aergoClient.getKeyStoreOperation().create(password);
+    final Account account = supplyServerAccount();
     assertTrue(aergoClient.getKeyStoreOperation().list().contains(account.getAddress()));
 
     final Authentication authentication =
@@ -65,7 +63,7 @@ public class KeyStoreOperationIT extends AbstractIT {
 
   @Test
   public void testImportAndExport() {
-    final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
+    final Account account = supplyLocalAccount();
     final String oldPassword = randomUUID().toString();
     final String newPassword = randomUUID().toString();
     final EncryptedPrivateKey encrypted = account.getKey().export(oldPassword);

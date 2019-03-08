@@ -178,7 +178,8 @@ configure(javaProjects) {
       jvmArgs('--add-opens', 'java.xml/jdk.xml.internal=ALL-UNNAMED')
     }
 
-    maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors())
+    // must be single thread becase of funding
+    maxParallelForks = 1
     include '**/*IT.class'
   }
 
