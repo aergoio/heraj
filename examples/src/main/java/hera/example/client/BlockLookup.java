@@ -2,78 +2,79 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.example.highlevel;
+package hera.example.client;
 
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
+import hera.api.model.BlockchainStatus;
+import hera.client.AergoClient;
+import hera.client.AergoClientBuilder;
 import hera.example.AbstractExample;
-import hera.wallet.Wallet;
-import hera.wallet.WalletBuilder;
-import hera.wallet.WalletType;
 import java.util.List;
 
 public class BlockLookup extends AbstractExample {
 
   protected void blockLookup() {
-    // make wallet object
-    final Wallet wallet = new WalletBuilder()
+    // make aergo client object
+    final AergoClient aergoClient = new AergoClientBuilder()
         .withEndpoint(hostname)
         .withNonBlockingConnect()
-        .build(WalletType.Naive);
+        .build();
 
-    // get best block hash, height
-    final BlockHash bestHash = wallet.getBestBlockHash();
-    final long bestHeight = wallet.getBestBlockHeight();
+    // query current blockchain status
+    final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
 
     // query block by best block hash
-    final Block blockByHash = wallet.getBlock(bestHash);
+    final Block blockByHash = aergoClient.getBlockOperation().getBlock(status.getBestBlockHash());
     System.out.println("Block by hash: " + blockByHash);
 
     // query block by best height
-    final Block blockByHeight = wallet.getBlock(bestHeight);
+    final Block blockByHeight = aergoClient.getBlockOperation().getBlock(status.getBestHeight());
     System.out.println("Block by height: " + blockByHeight);
 
     // query previous block by hash
     final Block previousBlock =
-        wallet.getBlock(blockByHash.getPreviousHash());
+        aergoClient.getBlockOperation().getBlock(blockByHash.getPreviousHash());
     System.out.println("Previous block: " + previousBlock);
 
-    // close the wallet
-    wallet.close();
+    // close the client
+    aergoClient.close();
   }
 
   protected void blockHeaderLookup() {
     // make aergo client object
-    final Wallet wallet = new WalletBuilder()
+    final AergoClient aergoClient = new AergoClientBuilder()
         .withEndpoint(hostname)
         .withNonBlockingConnect()
-        .build(WalletType.Naive);
+        .build();
 
-    // get best block hash, height
-    final BlockHash bestHash = wallet.getBestBlockHash();
-    final long bestHeight = wallet.getBestBlockHeight();
+    // query best block
+    final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
+    final BlockHash bestHash = status.getBestBlockHash();
+    final long bestHeight = status.getBestHeight();
 
     // query block header corresponding to the block hash
-    final BlockHeader blockHeaderByHash = wallet.getBlockHeader(bestHash);
+    final BlockHeader blockHeaderByHash = aergoClient.getBlockOperation().getBlockHeader(bestHash);
     System.out.println("Block header by hash: " + blockHeaderByHash);
 
     // query block header corresponding to the block hash
-    final BlockHeader blockHeaderByHeight = wallet.getBlockHeader(bestHeight);
+    final BlockHeader blockHeaderByHeight =
+        aergoClient.getBlockOperation().getBlockHeader(bestHeight);
     System.out.println("Block header by height: " + blockHeaderByHeight);
 
     // query 10 block headers starting from best block backward with best block hash
     final List<BlockHeader> blockHeadersByHash =
-        wallet.listBlockHeaders(bestHash, 10);
+        aergoClient.getBlockOperation().listBlockHeaders(bestHash, 10);
     System.out.println("Block headers by hash: " + blockHeadersByHash);
 
     // query 10 block headers starting from best block backward with best block height
     final List<BlockHeader> blockHeadersByHeight =
-        wallet.listBlockHeaders(bestHeight, 10);
+        aergoClient.getBlockOperation().listBlockHeaders(bestHeight, 10);
     System.out.println("Block headers by height: " + blockHeadersByHeight);
 
     // close the client
-    wallet.close();
+    aergoClient.close();
   }
 
   @Override

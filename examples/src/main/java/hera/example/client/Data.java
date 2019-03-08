@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.example.highlevel;
+package hera.example.client;
 
 public class Data {
 

@@ -2,14 +2,14 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.example.highlevel;
+package hera.example.wallet;
 
 import hera.contract.SmartContract;
 
 public interface SmartContractInterface extends SmartContract {
 
-  void set(final String key, final int intVal, final String stringVal);
+  void set(String key, int intVal, String stringVal);
 
-  Data get(final String key);
+  Data get(String key);
 
 }

@@ -10,6 +10,7 @@ Describe basic models of blockchain.
 
 * Account
 * AccountAddress
+* Identity
 * Authentication
 * AccountState
 * EncryptedPrivateKey
@@ -54,6 +55,13 @@ Describe basic models of blockchain.
 * ContractFunction
 * ContractInvocation
 * ContractResult
+* Event
+* EventFilter
+
+#### Streaming
+
+* StreamObserver
+* Subscription
 
 ### Internal
 

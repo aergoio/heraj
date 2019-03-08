@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.example.lowlevel;
+package hera.example.client;
 
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
@@ -27,6 +27,9 @@ public class BuildTransactionAndCommit extends AbstractExample {
 
     // create an account
     final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
+
+    // funding account
+    fund(account.getAddress());
 
     // make a transaction
     final RawTransaction rawTransaction = Transaction.newBuilder()

@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.example.lowlevel;
+package hera.example.client;
 
 import static java.util.UUID.randomUUID;
 
@@ -76,7 +76,6 @@ public class CreateAccount extends AbstractExample {
         .withEndpoint(hostname)
         .withNonBlockingConnect()
         .build();
-
 
     // create aergokey
     final AergoKey key = new AergoKeyGenerator().create();

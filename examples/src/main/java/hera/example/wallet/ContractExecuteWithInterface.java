@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.example.highlevel;
+package hera.example.wallet;
 
 import static java.util.UUID.randomUUID;
 
@@ -34,6 +34,9 @@ public class ContractExecuteWithInterface extends AbstractExample {
     // create an account
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
+
+    // funding account
+    fund(key.getAddress());
 
     // save and unlock it
     wallet.saveKey(key, password);
