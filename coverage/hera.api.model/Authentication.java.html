@@ -21,17 +21,17 @@ public class Authentication {
   /**
    * Create {@code Authentication} constructor.
    *
-   * @param accountAddress an account address
+   * @param identity an identity
    * @param password a password
    * @return an {@code Authentication} instance
    */
   @ApiAudience.Public
-  public static Authentication of(final AccountAddress accountAddress, final String password) {
-<span class="fc" id="L30">    return new Authentication(accountAddress, password);</span>
+  public static Authentication of(final Identity identity, final String password) {
+<span class="fc" id="L30">    return new Authentication(identity, password);</span>
   }
 
 <span class="fc" id="L33">  @Getter</span>
-  protected AccountAddress address;
+  protected Identity identity;
 
 <span class="fc" id="L36">  @Getter</span>
   protected String password;
@@ -39,21 +39,21 @@ public class Authentication {
   /**
    * Authentication constructor.
    *
-   * @param accountAddress an account address
+   * @param identity an identity
    * @param password a password
    */
   @ApiAudience.Public
-<span class="fc" id="L46">  public Authentication(final AccountAddress accountAddress, final String password) {</span>
-<span class="fc" id="L47">    assertNotNull(accountAddress, &quot;Account address must not null&quot;);</span>
+<span class="fc" id="L46">  public Authentication(final Identity identity, final String password) {</span>
+<span class="fc" id="L47">    assertNotNull(identity, &quot;Identity must not null&quot;);</span>
 <span class="fc" id="L48">    assertNotNull(password, &quot;Pasasword must not null&quot;);</span>
-<span class="fc" id="L49">    this.address = accountAddress;</span>
+<span class="fc" id="L49">    this.identity = identity;</span>
 <span class="fc" id="L50">    this.password = password;</span>
 <span class="fc" id="L51">  }</span>
 
   @Override
   public String toString() {
-<span class="fc" id="L55">    return String.format(&quot;Authentication(address=%s, password=%s)&quot;, address,</span>
-<span class="fc" id="L56">        HexUtils.encode(Sha256Utils.digest(password.getBytes())));</span>
+<span class="nc" id="L55">    return String.format(&quot;Authentication(address=%s, password=%s)&quot;, identity,</span>
+<span class="nc" id="L56">        HexUtils.encode(Sha256Utils.digest(password.getBytes())));</span>
   }
 
 }

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EventFilterConverterFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.transport</a> &gt; <span class="el_source">EventFilterConverterFactory.java</span></div><h1>EventFilterConverterFactory.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.transport;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
+import com.google.protobuf.ByteString;
+import hera.api.function.Function1;
+import hera.api.model.AccountAddress;
+import hera.api.model.EventFilter;
+import org.slf4j.Logger;
+import types.Blockchain;
+import types.Blockchain.FilterInfo;
+
+<span class="fc" id="L17">public class EventFilterConverterFactory {</span>
+
+<span class="fc" id="L19">  protected final transient Logger logger = getLogger(getClass());</span>
+
+<span class="fc" id="L21">  protected final ModelConverter&lt;AccountAddress,</span>
+      com.google.protobuf.ByteString&gt; accountAddressConverter =
+<span class="fc" id="L23">          new AccountAddressConverterFactory().create();</span>
+
+<span class="fc" id="L25">  protected final Function1&lt;EventFilter, Blockchain.FilterInfo&gt; domainConverter =</span>
+<span class="fc" id="L26">      new Function1&lt;EventFilter, Blockchain.FilterInfo&gt;() {</span>
+
+        @Override
+        public Blockchain.FilterInfo apply(final EventFilter domainEventFilter) {
+<span class="fc" id="L30">          logger.trace(&quot;Domain event filter: {}&quot;, domainEventFilter);</span>
+
+<span class="fc" id="L32">          final ByteString rpcContractAddress =</span>
+<span class="fc" id="L33">              accountAddressConverter.convertToRpcModel(domainEventFilter.getContractAddress());</span>
+
+<span class="fc" id="L35">          final FilterInfo rpcEventFilter = Blockchain.FilterInfo.newBuilder()</span>
+<span class="fc" id="L36">              .setContractAddress(rpcContractAddress)</span>
+<span class="fc" id="L37">              .setEventName(domainEventFilter.getEventName())</span>
+<span class="fc" id="L38">              .setBlockfrom(domainEventFilter.getFromBlockNumber())</span>
+<span class="fc" id="L39">              .setBlockto(domainEventFilter.getToBlockNumber())</span>
+<span class="fc" id="L40">              .setDesc(domainEventFilter.isDecending())</span>
+<span class="fc" id="L41">              .setArgFilter(ByteString.EMPTY) // TODO</span>
+<span class="fc" id="L42">              .setRecentBlockCnt(domainEventFilter.getRecentBlockCount())</span>
+<span class="fc" id="L43">              .build();</span>
+<span class="fc" id="L44">          logger.trace(&quot;Rpc event filter converted: {}&quot;, rpcEventFilter);</span>
+<span class="fc" id="L45">          return rpcEventFilter;</span>
+        }
+      };
+
+<span class="fc" id="L49">  protected final Function1&lt;Blockchain.FilterInfo, EventFilter&gt; rpcConverter =</span>
+<span class="fc" id="L50">      new Function1&lt;Blockchain.FilterInfo, EventFilter&gt;() {</span>
+
+        @Override
+        public EventFilter apply(Blockchain.FilterInfo rpcEventFilter) {
+<span class="nc" id="L54">          throw new UnsupportedOperationException();</span>
+        }
+      };
+
+  public ModelConverter&lt;EventFilter, Blockchain.FilterInfo&gt; create() {
+<span class="fc" id="L59">    return new ModelConverter&lt;EventFilter, Blockchain.FilterInfo&gt;(domainConverter,</span>
+        rpcConverter);
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

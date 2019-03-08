@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EncryptedPrivateKeyResolver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.spec.resolver</a> &gt; <span class="el_source">EncryptedPrivateKeyResolver.java</span></div><h1>EncryptedPrivateKeyResolver.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.spec.resolver;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.spec.EncryptedPrivateKeySpec;
+import hera.util.CryptoUtils;
+import hera.util.HexUtils;
+import hera.util.Sha256Utils;
+import hera.util.VersionUtils;
+import java.util.Arrays;
+import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.slf4j.Logger;
+
+<span class="fc" id="L18">public class EncryptedPrivateKeyResolver {</span>
+
+<span class="fc" id="L20">  protected final transient Logger logger = getLogger(getClass());</span>
+
+  /**
+   * Encrypt private key with a {@code password}.
+   * 
+   * @param rawPrivateKey a raw private key
+   * @param rawPassword a password to encrypt
+   * @return encrypted private key
+   * @throws InvalidCipherTextException on encryption failure
+   */
+  public byte[] encrypt(final byte[] rawPrivateKey, final byte[] rawPassword)
+      throws InvalidCipherTextException {
+<span class="fc" id="L32">    final byte[] hashedPassword = Sha256Utils.digest(rawPassword);</span>
+<span class="fc" id="L33">    final byte[] encryptKey = Sha256Utils.digest(rawPassword, hashedPassword);</span>
+<span class="fc" id="L34">    final byte[] nonce = calculateNonce(hashedPassword);</span>
+<span class="fc" id="L35">    final byte[] encrypted = CryptoUtils.encryptToAesGcm(rawPrivateKey, encryptKey, nonce);</span>
+<span class="fc" id="L36">    return VersionUtils.envelop(encrypted, EncryptedPrivateKeySpec.PREFIX);</span>
+  }
+
+  /**
+   * Decrypt encrypted private key with a {@code password}.
+   * 
+   * @param rawEncrypted an encrypted private key
+   * @param rawPassword a password to decrypt
+   * @return a decrypted private key
+   * @throws InvalidCipherTextException on decryption failure
+   */
+  public byte[] decrypt(final byte[] rawEncrypted, final byte[] rawPassword)
+      throws InvalidCipherTextException {
+<span class="fc" id="L49">    final byte[] withoutVersion = VersionUtils.trim(rawEncrypted);</span>
+<span class="fc" id="L50">    final byte[] hashedPassword = Sha256Utils.digest(rawPassword);</span>
+<span class="fc" id="L51">    final byte[] decryptKey = Sha256Utils.digest(rawPassword, hashedPassword);</span>
+<span class="fc" id="L52">    final byte[] nonce = calculateNonce(hashedPassword);</span>
+<span class="fc" id="L53">    logger.trace(&quot;Decript data: {}&quot;, HexUtils.encode(withoutVersion));</span>
+<span class="fc" id="L54">    final byte[] rawPrivateKey = CryptoUtils.decryptFromAesGcm(withoutVersion, decryptKey, nonce);</span>
+<span class="fc" id="L55">    return rawPrivateKey;</span>
+  }
+
+  protected byte[] calculateNonce(final byte[] hashedPassword) {
+<span class="fc" id="L59">    return Arrays.copyOfRange(hashedPassword, 4, 16);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

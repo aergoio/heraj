@@ -9,40 +9,42 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
 import hera.api.model.BytesValue;
 import hera.api.model.StakingInfo;
 import org.slf4j.Logger;
 import types.Rpc;
 
-<span class="fc" id="L17">public class StakingInfoConverterFactory {</span>
+<span class="fc" id="L18">public class StakingInfoConverterFactory {</span>
 
-<span class="fc" id="L19">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L20">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L21">  protected final Function1&lt;StakingInfo, Rpc.Staking&gt; domainConverter =</span>
-<span class="fc" id="L22">      new Function1&lt;StakingInfo, Rpc.Staking&gt;() {</span>
+<span class="fc" id="L22">  protected final Function1&lt;StakingInfo, Rpc.Staking&gt; domainConverter =</span>
+<span class="fc" id="L23">      new Function1&lt;StakingInfo, Rpc.Staking&gt;() {</span>
 
         @Override
         public Rpc.Staking apply(StakingInfo domainStakingInfo) {
-<span class="nc" id="L26">          throw new UnsupportedOperationException();</span>
+<span class="nc" id="L27">          throw new UnsupportedOperationException();</span>
         }
       };
 
-<span class="fc" id="L30">  protected final Function1&lt;Rpc.Staking, StakingInfo&gt; rpcConverter =</span>
-<span class="fc" id="L31">      new Function1&lt;Rpc.Staking, StakingInfo&gt;() {</span>
+<span class="fc" id="L31">  protected final Function1&lt;Rpc.Staking, StakingInfo&gt; rpcConverter =</span>
+<span class="fc" id="L32">      new Function1&lt;Rpc.Staking, StakingInfo&gt;() {</span>
 
         @Override
         public StakingInfo apply(final Rpc.Staking rpcStakingInfo) {
-<span class="fc" id="L35">          logger.trace(&quot;Rpc staking info to convert: {}&quot;, rpcStakingInfo);</span>
-<span class="fc" id="L36">          final StakingInfo domainStakingInfo = new StakingInfo(AccountAddress.of(BytesValue.EMPTY),</span>
-<span class="fc" id="L37">              parseToAer(rpcStakingInfo.getAmount()),</span>
-<span class="fc" id="L38">              rpcStakingInfo.getWhen());</span>
-<span class="fc" id="L39">          logger.trace(&quot;Domain staking info converted: {}&quot;, domainStakingInfo);</span>
-<span class="fc" id="L40">          return domainStakingInfo;</span>
+<span class="fc" id="L36">          logger.trace(&quot;Rpc staking info to convert: {}&quot;, rpcStakingInfo);</span>
+<span class="fc" id="L37">          final Aer parsedAer = parseToAer(rpcStakingInfo.getAmount());</span>
+<span class="fc" id="L38">          final StakingInfo domainStakingInfo = new StakingInfo(AccountAddress.of(BytesValue.EMPTY),</span>
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">              parsedAer.equals(Aer.EMPTY) ? Aer.ZERO : parsedAer,</span>
+<span class="fc" id="L40">              rpcStakingInfo.getWhen());</span>
+<span class="fc" id="L41">          logger.trace(&quot;Domain staking info converted: {}&quot;, domainStakingInfo);</span>
+<span class="fc" id="L42">          return domainStakingInfo;</span>
         }
       };
 
   public ModelConverter&lt;StakingInfo, Rpc.Staking&gt; create() {
-<span class="fc" id="L45">    return new ModelConverter&lt;StakingInfo, Rpc.Staking&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L47">    return new ModelConverter&lt;StakingInfo, Rpc.Staking&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

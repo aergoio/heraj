@@ -6,7 +6,7 @@ package hera.api.model;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.util.TransactionUtils;
+import hera.spec.resolver.TransactionHashResolver;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L17">@ToString(callSuper = true)</span>
+<span class="nc" id="L17">@ToString(callSuper = true)</span>
 <span class="pc bpc" id="L18" title="26 of 38 branches missed.">@EqualsAndHashCode(callSuper = true)</span>
 public class Transaction extends RawTransaction {
 
@@ -117,8 +117,9 @@ public class Transaction extends RawTransaction {
 
     @Override
     public Transaction build() {
-<span class="fc" id="L120">      return new Transaction(rawTransaction, signature,</span>
-<span class="fc" id="L121">          TransactionUtils.calculateHash(rawTransaction, signature), null, 0, false);</span>
+<span class="fc" id="L120">      final BytesValue rawHash =</span>
+<span class="fc" id="L121">          new TransactionHashResolver().calculateHash(rawTransaction, signature);</span>
+<span class="fc" id="L122">      return new Transaction(rawTransaction, signature, new TxHash(rawHash), null, 0, false);</span>
     }
   }
 

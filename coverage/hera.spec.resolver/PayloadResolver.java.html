@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PayloadResolver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.spec.resolver</a> &gt; <span class="el_source">PayloadResolver.java</span></div><h1>PayloadResolver.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.spec.resolver;
+
+import static hera.api.model.BytesValue.of;
+import static hera.util.VersionUtils.trim;
+import static java.util.Arrays.asList;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.api.model.AccountAddress;
+import hera.api.model.BytesValue;
+import hera.api.model.ContractDefinition;
+import hera.api.model.ContractInvocation;
+import hera.api.model.PeerId;
+import hera.exception.HerajException;
+import hera.spec.PayloadSpec.Type;
+import hera.util.LittleEndianDataOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import org.slf4j.Logger;
+
+<span class="fc" id="L28">public class PayloadResolver {</span>
+
+  public static final String JSON_START = &quot;{ &quot;;
+  public static final String JSON_END = &quot; }&quot;;
+  public static final String JSON_ARRAY_START = &quot;[ &quot;;
+  public static final String JSON_ARRAY_END = &quot; ]&quot;;
+  public static final String JSON_NEXT = &quot;,&quot;;
+
+<span class="fc" id="L36">  protected final Logger logger = getLogger(getClass());</span>
+
+  /**
+   * Resolve targets in a payload form.
+   *
+   * @param type a payload type
+   * @param targets targets
+   * @return resolved payload
+   *
+   * @throws HerajException if fails
+   */
+  public BytesValue resolve(final Type type, final Object... targets) {
+<span class="fc" id="L48">    logger.trace(&quot;Payload resolve type: {}, target size: {}&quot;, type, targets.length);</span>
+<span class="fc" id="L49">    validateResolveArgs(type, targets);</span>
+<span class="fc" id="L50">    BytesValue resolved = BytesValue.EMPTY;</span>
+    try {
+<span class="pc bpc" id="L52" title="1 of 8 branches missed.">      switch (type) {</span>
+        case ContractDefinition:
+<span class="fc" id="L54">          resolved = resolveContractDefinition(targets);</span>
+<span class="fc" id="L55">          break;</span>
+        case ContractInvocation:
+<span class="fc" id="L57">          resolved = resolveContractInvocation(targets);</span>
+<span class="fc" id="L58">          break;</span>
+        case Stake:
+<span class="fc" id="L60">          resolved = resolveStake(type, targets);</span>
+<span class="fc" id="L61">          break;</span>
+        case Unstake:
+<span class="fc" id="L63">          resolved = resolveUnstake(type, targets);</span>
+<span class="fc" id="L64">          break;</span>
+        case Vote:
+<span class="fc" id="L66">          resolved = resolveVote(type, targets);</span>
+<span class="fc" id="L67">          break;</span>
+        case CreateName:
+<span class="fc" id="L69">          resolved = resolveCreateName(type, targets);</span>
+<span class="fc" id="L70">          break;</span>
+        case UpdateName:
+<span class="fc" id="L72">          resolved = resolveUpdateName(type, targets);</span>
+<span class="fc" id="L73">          break;</span>
+        default:
+<span class="nc" id="L75">          resolved = of(targets.toString().getBytes());</span>
+          break;
+      }
+<span class="nc" id="L78">    } catch (HerajException e) {</span>
+<span class="nc" id="L79">      throw e;</span>
+<span class="nc" id="L80">    } catch (Exception e) {</span>
+<span class="nc" id="L81">      throw new HerajException(e);</span>
+<span class="fc" id="L82">    }</span>
+<span class="fc" id="L83">    logger.trace(&quot;Resolved payload: {}&quot;, resolved);</span>
+<span class="fc" id="L84">    return resolved;</span>
+  }
+
+  protected void validateResolveArgs(final Type type, final Object[] instances) {
+<span class="fc" id="L88">    final int expectedSize = type.getTargets().length;</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">    if (instances.length != expectedSize) {</span>
+<span class="nc" id="L90">      throw new HerajException(&quot;Targets length must be &quot; + expectedSize);</span>
+    }
+<span class="fc bfc" id="L92" title="All 2 branches covered.">    for (int i = 0; i &lt; expectedSize; ++i) {</span>
+<span class="fc" id="L93">      final Class&lt;?&gt; mustbe = type.getTargets()[i];</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">      if (!mustbe.isInstance(instances[i])) {</span>
+<span class="nc" id="L95">        throw new HerajException(&quot;Target must be &quot; + mustbe.getName());</span>
+      }
+    }
+<span class="fc" id="L98">  }</span>
+
+  protected BytesValue resolveContractDefinition(final Object[] targets) throws IOException {
+<span class="fc" id="L101">    final ContractDefinition contractDefinition = (ContractDefinition) targets[0];</span>
+<span class="fc" id="L102">    final byte[] rawPayload = trim(contractDefinition.getDecodedContract().getValue());</span>
+<span class="fc" id="L103">    final ByteArrayOutputStream rawStream = new ByteArrayOutputStream();</span>
+<span class="fc" id="L104">    final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(rawStream);</span>
+    try {
+<span class="fc" id="L106">      dataOut.writeInt(rawPayload.length + 4);</span>
+<span class="fc" id="L107">      dataOut.write(rawPayload);</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">      if (!contractDefinition.getConstructorArgs().isEmpty()) {</span>
+<span class="fc" id="L109">        final String constructorArgs = asJsonArray(contractDefinition.getConstructorArgs());</span>
+<span class="fc" id="L110">        dataOut.write(constructorArgs.getBytes());</span>
+      }
+<span class="nc" id="L112">    } catch (Exception e) {</span>
+<span class="nc" id="L113">      throw new HerajException(e);</span>
+    } finally {
+<span class="fc" id="L115">      dataOut.close();</span>
+    }
+
+<span class="fc" id="L118">    return new BytesValue(rawStream.toByteArray());</span>
+  }
+
+  protected BytesValue resolveContractInvocation(final Object[] targets) {
+<span class="fc" id="L122">    final ContractInvocation contractInvocation = (ContractInvocation) targets[0];</span>
+<span class="fc" id="L123">    final String name = contractInvocation.getFunction().getName();</span>
+<span class="fc" id="L124">    final List&lt;Object&gt; args = contractInvocation.getArgs();</span>
+<span class="fc" id="L125">    final String jsonForm = asJsonForm(name, args);</span>
+<span class="fc" id="L126">    return new BytesValue(jsonForm.getBytes());</span>
+  }
+
+  protected BytesValue resolveStake(final Type type, final Object[] targets) {
+<span class="fc" id="L130">    final String jsonForm = asJsonForm(type.getName(), asList(targets));</span>
+<span class="fc" id="L131">    return new BytesValue(jsonForm.getBytes());</span>
+  }
+
+  protected BytesValue resolveUnstake(final Type type, final Object[] targets) {
+<span class="fc" id="L135">    final String jsonForm = asJsonForm(type.getName(), asList(targets));</span>
+<span class="fc" id="L136">    return new BytesValue(jsonForm.getBytes());</span>
+  }
+
+  protected BytesValue resolveVote(final Type type, final Object[] targets) throws IOException {
+<span class="fc" id="L140">    final List&lt;Object&gt; args = new ArrayList&lt;Object&gt;();</span>
+<span class="fc bfc" id="L141" title="All 2 branches covered.">    for (final Object peerId : targets) {</span>
+<span class="fc" id="L142">      args.add(((PeerId) peerId).getEncoded());</span>
+    }
+<span class="fc" id="L144">    final String jsonForm = asJsonForm(type.getName(), args);</span>
+<span class="fc" id="L145">    return new BytesValue(jsonForm.getBytes());</span>
+  }
+
+  protected BytesValue resolveCreateName(final Type type, final Object[] targets) {
+<span class="fc" id="L149">    final String jsonForm = asJsonForm(type.getName(), asList(targets));</span>
+<span class="fc" id="L150">    return new BytesValue(jsonForm.getBytes());</span>
+  }
+
+  protected BytesValue resolveUpdateName(final Type type, final Object[] targets)
+      throws IOException {
+<span class="fc" id="L155">    final String name = (String) targets[0];</span>
+<span class="fc" id="L156">    final String newOwner = ((AccountAddress) targets[1]).getEncoded();</span>
+<span class="fc" id="L157">    final List&lt;Object&gt; args = new ArrayList&lt;Object&gt;();</span>
+<span class="fc" id="L158">    args.add(name);</span>
+<span class="fc" id="L159">    args.add(newOwner);</span>
+<span class="fc" id="L160">    final String jsonForm = asJsonForm(type.getName(), args);</span>
+<span class="fc" id="L161">    return new BytesValue(jsonForm.toString().getBytes());</span>
+  }
+
+  protected String asJsonForm(final String name, final List&lt;Object&gt; args) {
+<span class="fc" id="L165">    final StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L166">    sb.append(JSON_START);</span>
+<span class="fc" id="L167">    sb.append(keyAndValue(&quot;Name&quot;, asJsonString(name)));</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">    if (!args.isEmpty()) {</span>
+<span class="fc" id="L169">      sb.append(JSON_NEXT);</span>
+<span class="fc" id="L170">      sb.append(keyAndValue(&quot;Args&quot;, asJsonArray(args)));</span>
+    }
+<span class="fc" id="L172">    sb.append(JSON_END);</span>
+<span class="fc" id="L173">    return sb.toString();</span>
+  }
+
+  protected String asJsonArray(final List&lt;Object&gt; args) {
+<span class="fc" id="L177">    final StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L178">    sb.append(JSON_ARRAY_START);</span>
+    // nil, boolean, number, string, table?
+<span class="fc bfc" id="L180" title="All 2 branches covered.">    for (int i = 0; i &lt; args.size(); ++i) {</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">      if (i != 0) {</span>
+<span class="fc" id="L182">        sb.append(JSON_NEXT);</span>
+      }
+
+<span class="fc" id="L185">      final Object arg = args.get(i);</span>
+<span class="pc bpc" id="L186" title="1 of 2 branches missed.">      if (null == arg) {</span>
+<span class="nc" id="L187">        sb.append(asJsonNull());</span>
+<span class="pc bpc" id="L188" title="1 of 2 branches missed.">      } else if (arg instanceof Number) {</span>
+<span class="nc" id="L189">        sb.append(asJsonNumber((Number) arg));</span>
+<span class="pc bpc" id="L190" title="1 of 2 branches missed.">      } else if (arg instanceof BigInteger) {</span>
+<span class="nc" id="L191">        sb.append(asJsonNumber((BigInteger) arg));</span>
+<span class="pc bpc" id="L192" title="1 of 2 branches missed.">      } else if (arg instanceof BigDecimal) {</span>
+<span class="nc" id="L193">        sb.append(asJsonNumber((BigDecimal) arg));</span>
+<span class="pc bpc" id="L194" title="1 of 2 branches missed.">      } else if (arg instanceof String) {</span>
+<span class="fc" id="L195">        sb.append(asJsonString((String) arg));</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">      } else if (arg instanceof Boolean) {</span>
+<span class="nc" id="L197">        sb.append(asJsonBoolean((Boolean) arg));</span>
+      } else {
+<span class="nc" id="L199">        throw new IllegalArgumentException(&quot;Args type must be number or string&quot;);</span>
+      }
+    }
+<span class="fc" id="L202">    sb.append(JSON_ARRAY_END);</span>
+<span class="fc" id="L203">    return sb.toString();</span>
+  }
+
+  protected String keyAndValue(final String key, final String value) {
+<span class="fc" id="L207">    return &quot;\&quot;&quot; + key + &quot;\&quot;&quot; + &quot;:&quot; + value;</span>
+  }
+
+  protected String asJsonString(final String target) {
+<span class="fc" id="L211">    return &quot;\&quot;&quot; + target + &quot;\&quot;&quot;;</span>
+  }
+
+  protected String asJsonNumber(final Number target) {
+<span class="nc" id="L215">    return target.toString();</span>
+  }
+
+  protected String asJsonNumber(final BigInteger target) {
+<span class="nc" id="L219">    return target.toString(10);</span>
+  }
+
+  protected String asJsonNumber(final BigDecimal target) {
+<span class="nc" id="L223">    return target.toString();</span>
+  }
+
+  protected String asJsonNull() {
+<span class="nc" id="L227">    return &quot;null&quot;;</span>
+  }
+
+  protected String asJsonBoolean(final Boolean target) {
+<span class="nc" id="L231">    return target.toString();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

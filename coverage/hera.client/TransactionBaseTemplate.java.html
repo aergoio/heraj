@@ -25,7 +25,7 @@ import hera.api.model.Fee;
 import hera.api.model.Transaction;
 import hera.api.model.Transaction.TxType;
 import hera.api.model.TxHash;
-import hera.exception.CommitException;
+import hera.exception.RpcCommitException;
 import hera.exception.RpcException;
 import hera.transport.ModelConverter;
 import hera.transport.TransactionConverterFactory;
@@ -138,7 +138,7 @@ import types.Rpc;
               public TxHash apply(final Rpc.CommitResultList commitResultList) {
 <span class="fc" id="L139">                final Rpc.CommitResult commitResult = commitResultList.getResultsList().get(0);</span>
 <span class="pc bpc" id="L140" title="1 of 2 branches missed.">                if (Rpc.CommitStatus.TX_OK != commitResult.getError()) {</span>
-<span class="nc" id="L141">                  throw new CommitException(commitResult.getError(), commitResult.getDetail());</span>
+<span class="nc" id="L141">                  throw new RpcCommitException(commitResult.getError(), commitResult.getDetail());</span>
                 }
 <span class="fc" id="L143">                return new TxHash(of(commitResult.getHash().toByteArray()));</span>
               }
@@ -181,7 +181,7 @@ import types.Rpc;
               @Override
               public TxHash apply(final Rpc.CommitResult commitResult) {
 <span class="pc bpc" id="L183" title="1 of 2 branches missed.">                if (Rpc.CommitStatus.TX_OK != commitResult.getError()) {</span>
-<span class="nc" id="L184">                  throw new CommitException(commitResult.getError(), commitResult.getDetail());</span>
+<span class="nc" id="L184">                  throw new RpcCommitException(commitResult.getError(), commitResult.getDetail());</span>
                 }
 <span class="fc" id="L186">                return new TxHash(of(commitResult.getHash().toByteArray()));</span>
               }

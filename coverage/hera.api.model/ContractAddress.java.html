@@ -62,5 +62,14 @@ public class ContractAddress extends AccountAddress {
 <span class="fc" id="L62">    super(bytesValue);</span>
 <span class="fc" id="L63">  }</span>
 
+  @SuppressWarnings(&quot;unchecked&quot;)
+  @Override
+  public &lt;T&gt; T adapt(Class&lt;T&gt; adaptor) {
+<span class="nc bnc" id="L68" title="All 2 branches missed.">    if (adaptor.isAssignableFrom(ContractAddress.class)) {</span>
+<span class="nc" id="L69">      return (T) this;</span>
+    }
+<span class="nc" id="L71">    return null;</span>
+  }
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

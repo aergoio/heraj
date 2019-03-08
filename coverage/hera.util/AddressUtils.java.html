@@ -4,14 +4,16 @@
 
 package hera.util;
 
+import static hera.util.EncodingUtils.decodeHexa;
+
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
+import hera.api.model.Identity;
+import hera.exception.HerajException;
+import hera.spec.AddressSpec;
 import java.security.PublicKey;
 
-<span class="nc" id="L11">public class AddressUtils {</span>
-
-  // [odd|even] of publickey.y + [optional 0x00] + publickey.x
-  public static final int ADDRESS_LENGTH = 33;
+<span class="nc" id="L16">public class AddressUtils {</span>
 
   /**
    * Derive an {@link AccountAddress} from a public key.
@@ -20,16 +22,42 @@ import java.security.PublicKey;
    * @return an {@link AccountAddress}
    */
   public static AccountAddress deriveAddress(final PublicKey publicKey) {
-<span class="fc" id="L23">    final byte[] rawAddress = new byte[ADDRESS_LENGTH];</span>
-<span class="fc" id="L24">    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
+<span class="fc" id="L25">    final byte[] rawAddress = new byte[AddressSpec.LENGTH];</span>
+<span class="fc" id="L26">    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
         (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
-<span class="fc bfc" id="L26" title="All 2 branches covered.">    rawAddress[0] = (byte) (ecPublicKey.getQ().getYCoord().toBigInteger().testBit(0) ? 0x03 : 0x02);</span>
-<span class="fc" id="L27">    final byte[] xbyteArray =</span>
-<span class="fc" id="L28">        NumberUtils.positiveToByteArray(ecPublicKey.getQ().getXCoord().toBigInteger());</span>
-<span class="fc" id="L29">    System.arraycopy(xbyteArray, 0, rawAddress, rawAddress.length - xbyteArray.length,</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">    rawAddress[0] = (byte) (ecPublicKey.getQ().getYCoord().toBigInteger().testBit(0) ? 0x03 : 0x02);</span>
+<span class="fc" id="L29">    final byte[] xbyteArray =</span>
+<span class="fc" id="L30">        NumberUtils.positiveToByteArray(ecPublicKey.getQ().getXCoord().toBigInteger());</span>
+<span class="fc" id="L31">    System.arraycopy(xbyteArray, 0, rawAddress, rawAddress.length - xbyteArray.length,</span>
         xbyteArray.length);
-<span class="fc" id="L31">    return AccountAddress</span>
-<span class="fc" id="L32">        .of(BytesValue.of(VersionUtils.envelop(rawAddress, AccountAddress.VERSION)));</span>
+<span class="fc" id="L33">    return AccountAddress</span>
+<span class="fc" id="L34">        .of(BytesValue.of(VersionUtils.envelop(rawAddress, AddressSpec.PREFIX)));</span>
+  }
+
+  /**
+   * Derive an {@link AccountAddress} from an identity.
+   *
+   * @param identity an identity
+   * @return an {@link AccountAddress}
+   */
+  public static AccountAddress deriveAddress(final Identity identity) {
+<span class="fc bfc" id="L44" title="All 2 branches covered.">    if (identity instanceof AccountAddress) {</span>
+<span class="fc" id="L45">      return (AccountAddress) identity;</span>
+    }
+
+    try {
+<span class="fc" id="L49">      final String encoded = identity.getInfo();</span>
+<span class="fc" id="L50">      final BytesValue decoded = decodeHexa(encoded);</span>
+<span class="nc" id="L51">      final AccountAddress derived = AccountAddress.of(decoded);</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">      if ((derived.getBytesValue().getValue().length - 1) != AddressSpec.LENGTH) {</span>
+<span class="nc" id="L53">        throw new HerajException(&quot;Invalid identity of account address&quot;);</span>
+      }
+<span class="nc" id="L55">      return derived;</span>
+<span class="fc" id="L56">    } catch (HerajException e) {</span>
+<span class="fc" id="L57">      throw e;</span>
+<span class="nc" id="L58">    } catch (Exception e) {</span>
+<span class="nc" id="L59">      throw new HerajException(e);</span>
+    }
   }
 
 }

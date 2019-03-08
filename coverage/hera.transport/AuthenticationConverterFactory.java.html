@@ -4,6 +4,7 @@
 
 package hera.transport;
 
+import static hera.util.AddressUtils.deriveAddress;
 import static hera.util.TransportUtils.sha256AndEncodeHexa;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -15,46 +16,47 @@ import org.slf4j.Logger;
 import types.AccountOuterClass;
 import types.Rpc;
 
-<span class="fc" id="L18">public class AuthenticationConverterFactory {</span>
+<span class="fc" id="L19">public class AuthenticationConverterFactory {</span>
 
-<span class="fc" id="L20">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L21">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L22">  protected final ModelConverter&lt;AccountAddress, ByteString&gt; accountAddressConverter =</span>
-<span class="fc" id="L23">      new AccountAddressConverterFactory().create();</span>
+<span class="fc" id="L23">  protected final ModelConverter&lt;AccountAddress, ByteString&gt; accountAddressConverter =</span>
+<span class="fc" id="L24">      new AccountAddressConverterFactory().create();</span>
 
-<span class="fc" id="L25">  protected final Function1&lt;Authentication, Rpc.Personal&gt; domainConverter =</span>
-<span class="fc" id="L26">      new Function1&lt;Authentication, Rpc.Personal&gt;() {</span>
+<span class="fc" id="L26">  protected final Function1&lt;Authentication, Rpc.Personal&gt; domainConverter =</span>
+<span class="fc" id="L27">      new Function1&lt;Authentication, Rpc.Personal&gt;() {</span>
 
         @Override
         public Rpc.Personal apply(final Authentication domainAuthentication) {
-<span class="fc" id="L30">          logger.trace(&quot;Domain authentication to convert: {}&quot;, domainAuthentication);</span>
-<span class="fc" id="L31">          final AccountOuterClass.Account rpcAccount = AccountOuterClass.Account.newBuilder()</span>
-<span class="fc" id="L32">              .setAddress(</span>
-<span class="fc" id="L33">                  accountAddressConverter.convertToRpcModel(domainAuthentication.getAddress()))</span>
-<span class="fc" id="L34">              .build();</span>
-<span class="fc" id="L35">          final Rpc.Personal rpcAuthentication = Rpc.Personal.newBuilder()</span>
-<span class="fc" id="L36">              .setAccount(rpcAccount)</span>
-<span class="fc" id="L37">              .setPassphrase(domainAuthentication.getPassword()).build();</span>
-<span class="pc bpc" id="L38" title="1 of 2 branches missed.">          if (logger.isTraceEnabled()) {</span>
-<span class="fc" id="L39">            logger.trace(&quot;Rpc authentication converted: Personal(account={}, passphrase={})&quot;,</span>
-<span class="fc" id="L40">                rpcAuthentication.getAccount(),</span>
-<span class="fc" id="L41">                sha256AndEncodeHexa(rpcAuthentication.getPassphrase()));</span>
+<span class="fc" id="L31">          logger.trace(&quot;Domain authentication to convert: {}&quot;, domainAuthentication);</span>
+
+<span class="fc" id="L33">          final AccountAddress accountAddress = deriveAddress(domainAuthentication.getIdentity());</span>
+<span class="fc" id="L34">          final AccountOuterClass.Account rpcAccount = AccountOuterClass.Account.newBuilder()</span>
+<span class="fc" id="L35">              .setAddress(accountAddressConverter.convertToRpcModel(accountAddress))</span>
+<span class="fc" id="L36">              .build();</span>
+<span class="fc" id="L37">          final Rpc.Personal rpcAuthentication = Rpc.Personal.newBuilder()</span>
+<span class="fc" id="L38">              .setAccount(rpcAccount)</span>
+<span class="fc" id="L39">              .setPassphrase(domainAuthentication.getPassword()).build();</span>
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">          if (logger.isTraceEnabled()) {</span>
+<span class="nc" id="L41">            logger.trace(&quot;Rpc authentication converted: Personal(account={}, passphrase={})&quot;,</span>
+<span class="nc" id="L42">                rpcAuthentication.getAccount(),</span>
+<span class="nc" id="L43">                sha256AndEncodeHexa(rpcAuthentication.getPassphrase()));</span>
           }
-<span class="fc" id="L43">          return rpcAuthentication;</span>
+<span class="fc" id="L45">          return rpcAuthentication;</span>
         }
       };
 
-<span class="fc" id="L47">  protected final Function1&lt;Rpc.Personal, Authentication&gt; rpcConverter =</span>
-<span class="fc" id="L48">      new Function1&lt;Rpc.Personal, Authentication&gt;() {</span>
+<span class="fc" id="L49">  protected final Function1&lt;Rpc.Personal, Authentication&gt; rpcConverter =</span>
+<span class="fc" id="L50">      new Function1&lt;Rpc.Personal, Authentication&gt;() {</span>
 
         @Override
         public Authentication apply(final Rpc.Personal rpcAuthentication) {
-<span class="nc" id="L52">          throw new UnsupportedOperationException();</span>
+<span class="nc" id="L54">          throw new UnsupportedOperationException();</span>
         }
       };
 
   public ModelConverter&lt;Authentication, Rpc.Personal&gt; create() {
-<span class="fc" id="L57">    return new ModelConverter&lt;Authentication, Rpc.Personal&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L59">    return new ModelConverter&lt;Authentication, Rpc.Personal&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

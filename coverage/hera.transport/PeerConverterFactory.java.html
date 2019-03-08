@@ -45,17 +45,19 @@ import types.Rpc;
 <span class="fc" id="L45">            new PeerId(of(rpcPeer.getAddress().getPeerID().toByteArray())),</span>
             blockchainStatus,
 <span class="fc" id="L47">            rpcPeer.getState(),</span>
-<span class="fc" id="L48">            rpcPeer.getHidden());</span>
-<span class="fc" id="L49">        logger.trace(&quot;Domain peer converted: {}&quot;, domainPeer);</span>
-<span class="fc" id="L50">        return domainPeer;</span>
-<span class="nc" id="L51">      } catch (UnknownHostException e) {</span>
-<span class="nc" id="L52">        throw new RpcException(&quot;Invalid peer host name&quot;, e);</span>
+<span class="fc" id="L48">            rpcPeer.getHidden(),</span>
+<span class="fc" id="L49">            rpcPeer.getLashCheck(),</span>
+<span class="fc" id="L50">            rpcPeer.getSelfpeer());</span>
+<span class="fc" id="L51">        logger.trace(&quot;Domain peer converted: {}&quot;, domainPeer);</span>
+<span class="fc" id="L52">        return domainPeer;</span>
+<span class="nc" id="L53">      } catch (UnknownHostException e) {</span>
+<span class="nc" id="L54">        throw new RpcException(&quot;Invalid peer host name&quot;, e);</span>
       }
     }
   };
 
   public ModelConverter&lt;Peer, Rpc.Peer&gt; create() {
-<span class="fc" id="L58">    return new ModelConverter&lt;Peer, Rpc.Peer&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L60">    return new ModelConverter&lt;Peer, Rpc.Peer&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

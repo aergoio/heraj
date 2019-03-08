@@ -12,8 +12,8 @@ import hera.api.function.Function1;
 import hera.api.model.Account;
 import hera.api.model.TxHash;
 import hera.api.model.internal.TryCountAndInterval;
-import hera.exception.CommitException;
-import hera.exception.CommitException.CommitStatus;
+import hera.exception.RpcCommitException;
+import hera.exception.WalletException;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -60,7 +60,7 @@ public class TransactionTrier {
   public TxHash request(Function0&lt;TxHash&gt; firstTrier,
       Function1&lt;Long, TxHash&gt; transactionRequester) {
 <span class="fc" id="L62">    assertNotNull(transactionRequester);</span>
-<span class="fc" id="L63">    logger.trace(&quot;Transaction try with firstTrier: {}, transactionRequester: {}&quot;, firstTrier,</span>
+<span class="fc" id="L63">    logger.debug(&quot;Transaction try with firstTrier: {}, transactionRequester: {}&quot;, firstTrier,</span>
         transactionRequester);
 
 <span class="fc" id="L66">    TxHash txHash = null;</span>
@@ -69,8 +69,8 @@ public class TransactionTrier {
       try {
 <span class="fc" id="L70">        txHash = firstTrier.apply();</span>
 <span class="fc bfc" id="L71" title="All 2 branches covered.">        success = null != txHash;</span>
-<span class="nc" id="L72">      } catch (CommitException e) {</span>
-        // keep failure
+<span class="nc" id="L72">      } catch (WalletException e) {</span>
+<span class="nc" id="L73">        logger.debug(&quot;First try failure by {}&quot;, e.toString());</span>
 <span class="fc" id="L74">      }</span>
     }
 
@@ -79,11 +79,11 @@ public class TransactionTrier {
       try {
 <span class="fc" id="L80">        txHash = transactionRequester.apply(accountProvider.apply().incrementAndGetNonce());</span>
 <span class="fc" id="L81">        success = true;</span>
-<span class="fc" id="L82">      } catch (CommitException e) {</span>
+<span class="fc" id="L82">      } catch (WalletException e) {</span>
 <span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (!isNonceRelatedException(e)) {</span>
 <span class="nc" id="L84">          throw e;</span>
         }
-<span class="fc" id="L86">        logger.debug(&quot;Request failed with invalid nonce.. try left: {}&quot;, i);</span>
+<span class="fc" id="L86">        logger.info(&quot;Request failed with invalid nonce.. try left: {}&quot;, i);</span>
 <span class="fc" id="L87">        nonceSynchronizer.run();</span>
 <span class="fc" id="L88">        tryCountAndInterval.trySleep();</span>
 <span class="fc" id="L89">        --i;</span>
@@ -92,9 +92,13 @@ public class TransactionTrier {
 <span class="fc" id="L92">    return txHash;</span>
   }
 
-  protected boolean isNonceRelatedException(final CommitException e) {
-<span class="pc bpc" id="L96" title="1 of 2 branches missed.">    return e.getCommitStatus() == CommitStatus.NONCE_TOO_LOW</span>
-<span class="pc bnc" id="L97" title="All 2 branches missed.">        || e.getCommitStatus() == CommitStatus.TX_HAS_SAME_NONCE;</span>
+  protected boolean isNonceRelatedException(final WalletException e) {
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">    if (!(e.getCause() instanceof RpcCommitException)) {</span>
+<span class="nc" id="L97">      return false;</span>
+    }
+<span class="fc" id="L99">    final RpcCommitException cause = (RpcCommitException) e.getCause();</span>
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">    return cause.getCommitStatus() == RpcCommitException.CommitStatus.NONCE_TOO_LOW</span>
+<span class="pc bnc" id="L101" title="All 2 branches missed.">        || cause.getCommitStatus() == RpcCommitException.CommitStatus.TX_HAS_SAME_NONCE;</span>
   }
 
 }

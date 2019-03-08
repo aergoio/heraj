@@ -21,7 +21,7 @@ import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L24">@ToString</span>
+<span class="nc" id="L24">@ToString</span>
 public class ContractDefinition {
 
   /**
@@ -50,7 +50,7 @@ public class ContractDefinition {
 <span class="fc" id="L50">  @Getter</span>
   protected final BytesValue decodedContract;
 
-<span class="fc" id="L53">  @Getter</span>
+<span class="nc" id="L53">  @Getter</span>
   protected final String encodedContract;
 
 <span class="fc" id="L56">  @Getter</span>
@@ -72,29 +72,28 @@ public class ContractDefinition {
 <span class="fc" id="L72">    VersionUtils.validate(this.decodedContract, ContractDefinition.PAYLOAD_VERSION);</span>
 
 <span class="fc" id="L74">    this.encodedContract = encodedContract;</span>
-<span class="pc bpc" id="L75" title="1 of 2 branches missed.">    this.constructorArgs =</span>
-<span class="pc" id="L76">        null != args ? unmodifiableList(asList(args)) : unmodifiableList(emptyList());</span>
-<span class="fc" id="L77">  }</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">    this.constructorArgs = unmodifiableList(null == args ? emptyList() : asList(args));</span>
+<span class="fc" id="L76">  }</span>
 
   @Override
   public boolean equals(final Object obj) {
-<span class="pc bpc" id="L81" title="1 of 2 branches missed.">    if (null == obj) {</span>
-<span class="nc" id="L82">      return false;</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">    if (null == obj) {</span>
+<span class="nc" id="L81">      return false;</span>
     }
-<span class="pc bpc" id="L84" title="1 of 2 branches missed.">    if (!obj.getClass().equals(getClass())) {</span>
-<span class="nc" id="L85">      return false;</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">    if (!obj.getClass().equals(getClass())) {</span>
+<span class="nc" id="L84">      return false;</span>
     }
-<span class="fc" id="L87">    final ContractDefinition other = (ContractDefinition) obj;</span>
-<span class="pc bpc" id="L88" title="1 of 2 branches missed.">    return this.encodedContract.equals(other.encodedContract)</span>
-<span class="pc bpc" id="L89" title="1 of 2 branches missed.">        &amp;&amp; this.constructorArgs.equals(other.constructorArgs);</span>
+<span class="fc" id="L86">    final ContractDefinition other = (ContractDefinition) obj;</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">    return this.encodedContract.equals(other.encodedContract)</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">        &amp;&amp; this.constructorArgs.equals(other.constructorArgs);</span>
   }
 
   @Override
   public int hashCode() {
-<span class="nc" id="L94">    int hash = 1;</span>
-<span class="nc" id="L95">    hash = (31 * hash) + encodedContract.hashCode();</span>
-<span class="nc" id="L96">    hash = (31 * hash) + constructorArgs.hashCode();</span>
-<span class="nc" id="L97">    return hash;</span>
+<span class="nc" id="L93">    int hash = 1;</span>
+<span class="nc" id="L94">    hash = (31 * hash) + encodedContract.hashCode();</span>
+<span class="nc" id="L95">    hash = (31 * hash) + constructorArgs.hashCode();</span>
+<span class="nc" id="L96">    return hash;</span>
   }
 
   public interface ContractDefinitionWithNothing {
@@ -109,28 +108,28 @@ public class ContractDefinition {
       extends hera.util.Builder&lt;ContractDefinition&gt; {
   }
 
-<span class="fc" id="L112">  protected static class Builder implements ContractDefinitionWithNothing,</span>
+<span class="fc" id="L111">  protected static class Builder implements ContractDefinitionWithNothing,</span>
       ContractDefinitionWithPayload, ContractDefinitionWithPayloadAndConstructorArgs {
 
     protected String encodedContract;
 
-<span class="fc" id="L117">    protected Object[] constructorArgs = new Object[0];</span>
+<span class="fc" id="L116">    protected Object[] constructorArgs = new Object[0];</span>
 
     @Override
     public ContractDefinitionWithPayload encodedContract(final String encodedContract) {
-<span class="fc" id="L121">      this.encodedContract = encodedContract;</span>
-<span class="fc" id="L122">      return this;</span>
+<span class="fc" id="L120">      this.encodedContract = encodedContract;</span>
+<span class="fc" id="L121">      return this;</span>
     }
 
     @Override
     public ContractDefinitionWithPayloadAndConstructorArgs constructorArgs(final Object... args) {
-<span class="fc" id="L127">      this.constructorArgs = args;</span>
-<span class="fc" id="L128">      return this;</span>
+<span class="fc" id="L126">      this.constructorArgs = args;</span>
+<span class="fc" id="L127">      return this;</span>
     }
 
     @Override
     public ContractDefinition build() {
-<span class="fc" id="L133">      return new ContractDefinition(this.encodedContract, this.constructorArgs);</span>
+<span class="fc" id="L132">      return new ContractDefinition(this.encodedContract, this.constructorArgs);</span>
     }
 
   }

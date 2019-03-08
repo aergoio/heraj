@@ -10,19 +10,20 @@ import static hera.util.VersionUtils.envelop;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Transaction.TxType;
+import hera.spec.AddressSpec;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L19">@ToString</span>
-<span class="pc bpc" id="L20" title="45 of 62 branches missed.">@EqualsAndHashCode</span>
+<span class="nc" id="L20">@ToString</span>
+<span class="pc bpc" id="L21" title="45 of 62 branches missed.">@EqualsAndHashCode</span>
 public class RawTransaction {
 
   @ApiAudience.Public
   public static RawTransactionWithNothing newBuilder() {
-<span class="fc" id="L25">    return new RawTransaction.Builder();</span>
+<span class="fc" id="L26">    return new RawTransaction.Builder();</span>
   }
 
   /**
@@ -34,30 +35,30 @@ public class RawTransaction {
    */
   @ApiAudience.Public
   public static RawTransaction copyOf(final RawTransaction rawTransaction, final long nonce) {
-<span class="nc" id="L37">    return new RawTransaction(rawTransaction.getSender(), rawTransaction.getRecipient(),</span>
-<span class="nc" id="L38">        rawTransaction.getAmount(), nonce, rawTransaction.getFee(), rawTransaction.getPayload(),</span>
-<span class="nc" id="L39">        rawTransaction.getTxType());</span>
+<span class="nc" id="L38">    return new RawTransaction(rawTransaction.getSender(), rawTransaction.getRecipient(),</span>
+<span class="nc" id="L39">        rawTransaction.getAmount(), nonce, rawTransaction.getFee(), rawTransaction.getPayload(),</span>
+<span class="nc" id="L40">        rawTransaction.getTxType());</span>
   }
 
-<span class="fc" id="L42">  @Getter</span>
+<span class="fc" id="L43">  @Getter</span>
   protected final AccountAddress sender;
 
-<span class="fc" id="L45">  @Getter</span>
+<span class="fc" id="L46">  @Getter</span>
   protected final AccountAddress recipient;
 
-<span class="fc" id="L48">  @Getter</span>
+<span class="fc" id="L49">  @Getter</span>
   protected final Aer amount;
 
-<span class="fc" id="L51">  @Getter</span>
+<span class="fc" id="L52">  @Getter</span>
   protected final Long nonce;
 
-<span class="fc" id="L54">  @Getter</span>
+<span class="fc" id="L55">  @Getter</span>
   protected final Fee fee;
 
-<span class="fc" id="L57">  @Getter</span>
+<span class="fc" id="L58">  @Getter</span>
   protected final BytesValue payload;
 
-<span class="fc" id="L60">  @Getter</span>
+<span class="fc" id="L61">  @Getter</span>
   protected final TxType txType;
 
   /**
@@ -74,15 +75,15 @@ public class RawTransaction {
   @ApiAudience.Private
   public RawTransaction(final AccountAddress sender, final AccountAddress recipient,
       final Aer amount, final Long nonce, final Fee fee, final BytesValue payload,
-<span class="fc" id="L77">      final TxType txType) {</span>
-<span class="pc bpc" id="L78" title="1 of 2 branches missed.">    this.sender = null != sender ? sender : AccountAddress.of(BytesValue.EMPTY);</span>
-<span class="pc bpc" id="L79" title="1 of 2 branches missed.">    this.recipient = null != recipient ? recipient : AccountAddress.of(BytesValue.EMPTY);</span>
-<span class="fc bfc" id="L80" title="All 2 branches covered.">    this.amount = null != amount ? amount : Aer.EMPTY;</span>
-<span class="fc" id="L81">    this.nonce = nonce;</span>
-<span class="pc bpc" id="L82" title="1 of 2 branches missed.">    this.fee = null != fee ? fee : Fee.EMPTY;</span>
-<span class="pc bpc" id="L83" title="1 of 2 branches missed.">    this.payload = null != payload ? payload : BytesValue.EMPTY;</span>
-<span class="pc bpc" id="L84" title="1 of 2 branches missed.">    this.txType = null != txType ? txType : TxType.UNRECOGNIZED;</span>
-<span class="fc" id="L85">  }</span>
+<span class="fc" id="L78">      final TxType txType) {</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">    this.sender = null != sender ? sender : AccountAddress.of(BytesValue.EMPTY);</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">    this.recipient = null != recipient ? recipient : AccountAddress.of(BytesValue.EMPTY);</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">    this.amount = null != amount ? amount : Aer.EMPTY;</span>
+<span class="fc" id="L82">    this.nonce = nonce;</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">    this.fee = null != fee ? fee : Fee.EMPTY;</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">    this.payload = null != payload ? payload : BytesValue.EMPTY;</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">    this.txType = null != txType ? txType : TxType.UNRECOGNIZED;</span>
+<span class="fc" id="L86">  }</span>
 
   public interface RawTransactionWithNothing {
     RawTransactionWithSender from(String sender);
@@ -117,7 +118,7 @@ public class RawTransaction {
     RawTransactionWithReady payload(BytesValue payload);
   }
 
-<span class="fc" id="L120">  protected static class Builder</span>
+<span class="fc" id="L121">  protected static class Builder</span>
       implements RawTransactionWithNothing, RawTransactionWithSender,
       RawTransactionWithSenderAndRecipient, RawTransactionWithSenderAndRecipientAndAmount,
       RawTransactionWithReady {
@@ -126,86 +127,86 @@ public class RawTransaction {
 
     private AccountAddress recipient;
 
-<span class="fc" id="L129">    private Aer amount = Aer.ZERO;</span>
+<span class="fc" id="L130">    private Aer amount = Aer.ZERO;</span>
 
     private long nonce;
 
-<span class="fc" id="L133">    private Fee fee = Fee.ZERO;</span>
+<span class="fc" id="L134">    private Fee fee = Fee.ZERO;</span>
 
-<span class="fc" id="L135">    private BytesValue payload = BytesValue.EMPTY;</span>
+<span class="fc" id="L136">    private BytesValue payload = BytesValue.EMPTY;</span>
 
-<span class="fc" id="L137">    private TxType txType = TxType.NORMAL;</span>
+<span class="fc" id="L138">    private TxType txType = TxType.NORMAL;</span>
 
     @Override
     public RawTransactionWithSender from(final String sender) {
-<span class="fc" id="L141">      this.sender =</span>
-<span class="fc" id="L142">          new AccountAddress(of(envelop(sender.getBytes(), AccountAddress.VERSION)));</span>
-<span class="fc" id="L143">      return this;</span>
+<span class="fc" id="L142">      this.sender =</span>
+<span class="fc" id="L143">          new AccountAddress(of(envelop(sender.getBytes(), AddressSpec.PREFIX)));</span>
+<span class="fc" id="L144">      return this;</span>
     }
 
     @Override
     public RawTransactionWithSender from(final Account sender) {
-<span class="fc" id="L148">      return from(sender.getAddress());</span>
+<span class="fc" id="L149">      return from(sender.getAddress());</span>
     }
 
     @Override
     public RawTransactionWithSender from(final AccountAddress sender) {
-<span class="fc" id="L153">      this.sender = sender;</span>
-<span class="fc" id="L154">      return this;</span>
+<span class="fc" id="L154">      this.sender = sender;</span>
+<span class="fc" id="L155">      return this;</span>
     }
 
     @Override
     public RawTransactionWithSenderAndRecipient to(final String recipient) {
-<span class="fc" id="L159">      this.recipient =</span>
-<span class="fc" id="L160">          new AccountAddress(of(envelop(recipient.getBytes(), AccountAddress.VERSION)));</span>
-<span class="fc" id="L161">      return this;</span>
+<span class="fc" id="L160">      this.recipient =</span>
+<span class="fc" id="L161">          new AccountAddress(of(envelop(recipient.getBytes(), AddressSpec.PREFIX)));</span>
+<span class="fc" id="L162">      return this;</span>
     }
 
     @Override
     public RawTransactionWithSenderAndRecipient to(final Account recipient) {
-<span class="nc" id="L166">      return to(recipient.getAddress());</span>
+<span class="nc" id="L167">      return to(recipient.getAddress());</span>
     }
 
     @Override
     public RawTransactionWithSenderAndRecipient to(final AccountAddress recipient) {
-<span class="fc" id="L171">      this.recipient = recipient;</span>
-<span class="fc" id="L172">      return this;</span>
+<span class="fc" id="L172">      this.recipient = recipient;</span>
+<span class="fc" id="L173">      return this;</span>
     }
 
     @Override
     public RawTransactionWithSenderAndRecipientAndAmount amount(final String amount,
         final Aer.Unit unit) {
-<span class="fc" id="L178">      return amount(Aer.of(amount, unit));</span>
+<span class="fc" id="L179">      return amount(Aer.of(amount, unit));</span>
     }
 
     @Override
     public RawTransactionWithSenderAndRecipientAndAmount amount(final Aer amount) {
-<span class="fc" id="L183">      this.amount = amount;</span>
-<span class="fc" id="L184">      return this;</span>
+<span class="fc" id="L184">      this.amount = amount;</span>
+<span class="fc" id="L185">      return this;</span>
     }
 
     @Override
     public RawTransactionWithReady nonce(final long nonce) {
-<span class="fc" id="L189">      this.nonce = nonce;</span>
-<span class="fc" id="L190">      return this;</span>
+<span class="fc" id="L190">      this.nonce = nonce;</span>
+<span class="fc" id="L191">      return this;</span>
     }
 
     @Override
     public RawTransactionWithReady fee(final Fee fee) {
-<span class="fc" id="L195">      this.fee = fee;</span>
-<span class="fc" id="L196">      return this;</span>
+<span class="fc" id="L196">      this.fee = fee;</span>
+<span class="fc" id="L197">      return this;</span>
     }
 
     @Override
     public RawTransactionWithReady payload(
         final BytesValue payload) {
-<span class="fc" id="L202">      this.payload = payload;</span>
-<span class="fc" id="L203">      return this;</span>
+<span class="fc" id="L203">      this.payload = payload;</span>
+<span class="fc" id="L204">      return this;</span>
     }
 
     @Override
     public RawTransaction build() {
-<span class="fc" id="L208">      return new RawTransaction(sender, recipient, amount, nonce, fee, payload, txType);</span>
+<span class="fc" id="L209">      return new RawTransaction(sender, recipient, amount, nonce, fee, payload, txType);</span>
     }
   }
 

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Event.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.model</a> &gt; <span class="el_source">Event.java</span></div><h1>Event.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.api.model;
+
+import static hera.util.ValidationUtils.assertNotNull;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
+
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.util.StringUtils;
+import java.util.List;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+
+@ApiAudience.Public
+@ApiStability.Unstable
+<span class="nc" id="L21">@ToString</span>
+<span class="nc bnc" id="L22" title="All 52 branches missed.">@EqualsAndHashCode</span>
+public class Event {
+
+<span class="nc" id="L25">  @Getter</span>
+  protected final ContractAddress from;
+
+<span class="nc" id="L28">  @Getter</span>
+  protected final String name;
+
+<span class="nc" id="L31">  @Getter</span>
+  protected final List&lt;Object&gt; args;
+
+<span class="nc" id="L34">  @Getter</span>
+  protected final int index;
+
+<span class="nc" id="L37">  @Getter</span>
+  protected final TxHash txHash;
+
+<span class="nc" id="L40">  @Getter</span>
+  protected final int indexInBlock;
+
+<span class="nc" id="L43">  @Getter</span>
+  protected final BlockHash blockHash;
+
+<span class="nc" id="L46">  @Getter</span>
+  protected final long blockNumber;
+
+  /**
+   * Event constructor.
+   *
+   * @param from a contract address where event comes from
+   * @param name an event name
+   * @param args an event arguments
+   * @param index an event index
+   * @param txHash a transaction hash where contract call is confirmed
+   * @param indexInBlock a transaction index in block
+   * @param blockHash a block hash where contract call is confirmed
+   * @param blockNumber a block block number where contract call is confirmed
+   */
+  @ApiAudience.Private
+  public Event(final ContractAddress from, final String name, final List&lt;Object&gt; args,
+      final int index, final TxHash txHash, int indexInBlock, final BlockHash blockHash,
+<span class="fc" id="L64">      final long blockNumber) {</span>
+<span class="fc" id="L65">    assertNotNull(from, &quot;Contract address must not null&quot;);</span>
+<span class="fc" id="L66">    assertNotNull(txHash, &quot;Event transaction hash must not null&quot;);</span>
+<span class="fc" id="L67">    assertNotNull(blockHash, &quot;Event block hash must not null&quot;);</span>
+<span class="fc" id="L68">    this.from = from;</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">    this.name = name == null ? StringUtils.EMPTY_STRING : name;</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">    this.args = unmodifiableList(args == null ? emptyList() : args);</span>
+<span class="fc" id="L71">    this.index = index;</span>
+<span class="fc" id="L72">    this.txHash = txHash;</span>
+<span class="fc" id="L73">    this.indexInBlock = indexInBlock;</span>
+<span class="fc" id="L74">    this.blockHash = blockHash;</span>
+<span class="fc" id="L75">    this.blockNumber = blockNumber;</span>
+<span class="fc" id="L76">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

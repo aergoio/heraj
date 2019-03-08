@@ -7,12 +7,16 @@ hera.api.function.impl
 hera.api.model
 hera.api.model.internal
 hera.client
+hera.client.grpc
 hera.contract
 hera.custom
 hera.exception
 hera.key
 hera.keystore
+hera.model
 hera.server
+hera.spec
+hera.spec.resolver
 hera.strategy
 hera.transport
 hera.util

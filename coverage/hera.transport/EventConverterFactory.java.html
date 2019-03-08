@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EventConverterFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.transport</a> &gt; <span class="el_source">EventConverterFactory.java</span></div><h1>EventConverterFactory.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.transport;
+
+import static hera.util.TransportUtils.parseToBlockHash;
+import static hera.util.TransportUtils.parseToTxHash;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import hera.api.function.Function1;
+import hera.api.model.AccountAddress;
+import hera.api.model.ContractAddress;
+import hera.api.model.Event;
+import java.util.List;
+import org.slf4j.Logger;
+import types.Blockchain;
+
+<span class="fc" id="L20">public class EventConverterFactory {</span>
+
+<span class="fc" id="L22">  protected final transient Logger logger = getLogger(getClass());</span>
+
+<span class="fc" id="L24">  protected final ObjectMapper mapper = new ObjectMapper();</span>
+
+<span class="fc" id="L26">  protected final ModelConverter&lt;AccountAddress,</span>
+      com.google.protobuf.ByteString&gt; accountAddressConverter =
+<span class="fc" id="L28">          new AccountAddressConverterFactory().create();</span>
+
+<span class="fc" id="L30">  protected final Function1&lt;Event, Blockchain.Event&gt; domainConverter =</span>
+<span class="fc" id="L31">      new Function1&lt;Event, Blockchain.Event&gt;() {</span>
+
+        @Override
+        public Blockchain.Event apply(final Event domainEvent) {
+<span class="nc" id="L35">          throw new UnsupportedOperationException();</span>
+        }
+      };
+
+<span class="fc" id="L39">  protected final Function1&lt;Blockchain.Event, Event&gt; rpcConverter =</span>
+<span class="fc" id="L40">      new Function1&lt;Blockchain.Event, Event&gt;() {</span>
+
+        @SuppressWarnings(&quot;unchecked&quot;)
+        @Override
+        public Event apply(Blockchain.Event rpcEvent) {
+<span class="fc" id="L45">          logger.trace(&quot;Rpc event: {}&quot;, rpcEvent);</span>
+
+          try {
+<span class="fc" id="L48">            final ContractAddress contractAddress = accountAddressConverter</span>
+<span class="fc" id="L49">                .convertToDomainModel(rpcEvent.getContractAddress()).adapt(ContractAddress.class);</span>
+<span class="fc" id="L50">            final Event domainEvent = new Event(</span>
+                contractAddress,
+<span class="fc" id="L52">                rpcEvent.getEventName(),</span>
+<span class="fc" id="L53">                mapper.readValue(rpcEvent.getJsonArgs(), List.class),</span>
+<span class="fc" id="L54">                rpcEvent.getEventIdx(),</span>
+<span class="fc" id="L55">                parseToTxHash(rpcEvent.getTxHash()),</span>
+<span class="fc" id="L56">                rpcEvent.getTxIndex(),</span>
+<span class="fc" id="L57">                parseToBlockHash(rpcEvent.getBlockHash()),</span>
+<span class="fc" id="L58">                rpcEvent.getBlockNo());</span>
+<span class="fc" id="L59">            logger.trace(&quot;Rpc event converted: {}&quot;, domainEvent);</span>
+<span class="fc" id="L60">            return domainEvent;</span>
+<span class="nc" id="L61">          } catch (Exception e) {</span>
+<span class="nc" id="L62">            throw new IllegalArgumentException(e);</span>
+          }
+        }
+      };
+
+  public ModelConverter&lt;Event, Blockchain.Event&gt; create() {
+<span class="fc" id="L68">    return new ModelConverter&lt;Event, Blockchain.Event&gt;(domainConverter,</span>
+        rpcConverter);
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

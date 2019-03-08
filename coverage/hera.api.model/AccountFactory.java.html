@@ -4,6 +4,8 @@
 
 package hera.api.model;
 
+import static hera.util.ValidationUtils.assertNotNull;
+
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.internal.AccountWithAddress;
@@ -14,7 +16,7 @@ import hera.key.Signer;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L17">public class AccountFactory {</span>
+<span class="fc" id="L19">public class AccountFactory {</span>
 
   /**
    * Create an account with address.
@@ -24,7 +26,8 @@ import hera.key.Signer;
    */
   @ApiAudience.Public
   public Account create(final AccountAddress accountAddress) {
-<span class="fc" id="L27">    return new AccountWithAddress(accountAddress);</span>
+<span class="fc" id="L29">    assertNotNull(accountAddress);</span>
+<span class="fc" id="L30">    return new AccountWithAddress(accountAddress);</span>
   }
 
   /**
@@ -35,12 +38,22 @@ import hera.key.Signer;
    */
   @ApiAudience.Public
   public Account create(final AergoKey aergoKey) {
-<span class="fc" id="L38">    return new AccountWithKey(aergoKey);</span>
+<span class="fc" id="L41">    assertNotNull(aergoKey);</span>
+<span class="fc" id="L42">    return new AccountWithKey(aergoKey);</span>
   }
 
+  /**
+   * Create an account with address and signer.
+   *
+   * @param accountAddress an account address
+   * @param signer a signer
+   * @return created account
+   */
   @ApiAudience.Private
   public Account create(final AccountAddress accountAddress, final Signer signer) {
-<span class="fc" id="L43">    return new AccountWithAddressAndSigner(accountAddress, signer);</span>
+<span class="fc" id="L54">    assertNotNull(accountAddress);</span>
+<span class="fc" id="L55">    assertNotNull(signer);</span>
+<span class="fc" id="L56">    return new AccountWithAddressAndSigner(accountAddress, signer);</span>
   }
 
 }

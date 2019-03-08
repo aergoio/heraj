@@ -16,7 +16,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.slf4j.Logger;
 
-<span class="nc" id="L19">@ToString</span>
+<span class="nc" id="L19">@ToString(exclude = &quot;logger&quot;)</span>
 <span class="pc bpc" id="L20" title="20 of 22 branches missed.">@EqualsAndHashCode(callSuper = false)</span>
 public class RetryStrategy extends FailoverStrategy {
 

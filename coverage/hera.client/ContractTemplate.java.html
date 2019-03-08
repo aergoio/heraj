@@ -8,7 +8,9 @@ import static hera.TransportConstants.CONTRACT_DEPLOY;
 import static hera.TransportConstants.CONTRACT_EXECUTE;
 import static hera.TransportConstants.CONTRACT_GETINTERFACE;
 import static hera.TransportConstants.CONTRACT_GETRECEIPT;
+import static hera.TransportConstants.CONTRACT_LIST_EVENT;
 import static hera.TransportConstants.CONTRACT_QUERY;
+import static hera.TransportConstants.CONTRACT_SUBSCRIBE_EVENT;
 import static hera.api.function.Functions.identify;
 
 import hera.ContextProvider;
@@ -17,6 +19,7 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.ContractOperation;
 import hera.api.function.Function1;
+import hera.api.function.Function2;
 import hera.api.function.Function4;
 import hera.api.model.Account;
 import hera.api.model.ContractAddress;
@@ -26,91 +29,117 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.Event;
+import hera.api.model.EventFilter;
 import hera.api.model.Fee;
+import hera.api.model.StreamObserver;
+import hera.api.model.Subscription;
 import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="fc" id="L37">public class ContractTemplate</span>
+<span class="fc" id="L45">public class ContractTemplate</span>
     implements ContractOperation, ChannelInjectable, ContextProviderInjectable {
 
-<span class="fc" id="L40">  @Getter</span>
+<span class="fc" id="L48">  @Getter</span>
   protected ContractBaseTemplate contractBaseTemplate = new ContractBaseTemplate();
 
   protected ContextProvider contextProvider;
 
-<span class="pc bpc" id="L45" title="4 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L53" title="4 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-<span class="fc" id="L50">    getContractBaseTemplate().setChannel(channel);</span>
-<span class="fc" id="L51">  }</span>
+<span class="fc" id="L58">    getContractBaseTemplate().setChannel(channel);</span>
+<span class="fc" id="L59">  }</span>
 
   @Override
   public void setContextProvider(final ContextProvider contextProvider) {
-<span class="fc" id="L55">    this.contextProvider = contextProvider;</span>
-<span class="fc" id="L56">    getContractBaseTemplate().setContextProvider(contextProvider);</span>
-<span class="fc" id="L57">  }</span>
+<span class="fc" id="L63">    this.contextProvider = contextProvider;</span>
+<span class="fc" id="L64">    getContractBaseTemplate().setContextProvider(contextProvider);</span>
+<span class="fc" id="L65">  }</span>
 
-<span class="pc bpc" id="L59" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L67" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function1&lt;ContractTxHash,
       FinishableFuture&lt;ContractTxReceipt&gt;&gt; receiptFunction = getStrategyChain().apply(
           identify(contractBaseTemplate.getReceiptFunction(), CONTRACT_GETRECEIPT));
 
 
-<span class="pc bpc" id="L65" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L73" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function4&lt;Account, ContractDefinition, Long, Fee,
       FinishableFuture&lt;ContractTxHash&gt;&gt; deployFunction =
           getStrategyChain()
               .apply(identify(contractBaseTemplate.getDeployFunction(), CONTRACT_DEPLOY));
 
 
-<span class="pc bpc" id="L72" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L80" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function1&lt;ContractAddress,
       FinishableFuture&lt;ContractInterface&gt;&gt; contractInterfaceFunction =
           getStrategyChain().apply(identify(contractBaseTemplate.getContractInterfaceFunction(),
               CONTRACT_GETINTERFACE));
 
-<span class="pc bpc" id="L78" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L86" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function4&lt;Account, ContractInvocation, Long, Fee,
       FinishableFuture&lt;ContractTxHash&gt;&gt; executeFunction =
           getStrategyChain()
               .apply(identify(contractBaseTemplate.getExecuteFunction(), CONTRACT_EXECUTE));
 
-<span class="pc bpc" id="L84" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L92" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function1&lt;ContractInvocation, FinishableFuture&lt;ContractResult&gt;&gt; queryFunction =
       getStrategyChain().apply(identify(contractBaseTemplate.getQueryFunction(), CONTRACT_QUERY));
 
+<span class="pc bpc" id="L96" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function1&lt;EventFilter, FinishableFuture&lt;List&lt;Event&gt;&gt;&gt; listEventFunction =
+      getStrategyChain()
+          .apply(identify(contractBaseTemplate.getListEventFunction(), CONTRACT_LIST_EVENT));
+
+<span class="pc bpc" id="L101" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function2&lt;EventFilter, StreamObserver&lt;Event&gt;,
+      Subscription&lt;Event&gt;&gt; subscribeEventFunction =
+          getStrategyChain().apply(
+              identify(contractBaseTemplate.getSubscribeEventFunction(), CONTRACT_SUBSCRIBE_EVENT));
+
   @Override
   public ContractTxReceipt getReceipt(final ContractTxHash contractTxHash) {
-<span class="fc" id="L90">    return getReceiptFunction().apply(contractTxHash).get();</span>
+<span class="fc" id="L109">    return getReceiptFunction().apply(contractTxHash).get();</span>
   }
 
   @Override
   public ContractTxHash deploy(final Account creator, final ContractDefinition contractDefinition,
       final long nonce, final Fee fee) {
-<span class="fc" id="L96">    return getDeployFunction().apply(creator, contractDefinition, nonce, fee).get();</span>
+<span class="fc" id="L115">    return getDeployFunction().apply(creator, contractDefinition, nonce, fee).get();</span>
   }
 
   @Override
   public ContractInterface getContractInterface(
       final ContractAddress contractAddress) {
-<span class="fc" id="L102">    return getContractInterfaceFunction().apply(contractAddress).get();</span>
+<span class="fc" id="L121">    return getContractInterfaceFunction().apply(contractAddress).get();</span>
   }
 
   @Override
   public ContractTxHash execute(final Account executor, final ContractInvocation contractInvocation,
       final long nonce, final Fee fee) {
-<span class="fc" id="L108">    return getExecuteFunction().apply(executor, contractInvocation, nonce, fee).get();</span>
+<span class="fc" id="L127">    return getExecuteFunction().apply(executor, contractInvocation, nonce, fee).get();</span>
   }
 
   @Override
   public ContractResult query(final ContractInvocation contractInvocation) {
-<span class="fc" id="L113">    return getQueryFunction().apply(contractInvocation).get();</span>
+<span class="fc" id="L132">    return getQueryFunction().apply(contractInvocation).get();</span>
+  }
+
+  @Override
+  public List&lt;Event&gt; listEvents(final EventFilter filter) {
+<span class="fc" id="L137">    return getListEventFunction().apply(filter).get();</span>
+  }
+
+  @Override
+  public Subscription&lt;Event&gt; subscribeEvent(EventFilter filter, StreamObserver&lt;Event&gt; observer) {
+<span class="fc" id="L142">    return getSubscribeEventFunction().apply(filter, observer);</span>
   }
 
 }

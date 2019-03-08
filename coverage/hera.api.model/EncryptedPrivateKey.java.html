@@ -12,14 +12,13 @@ import hera.annotation.ApiStability;
 import hera.api.encode.Encodable;
 import hera.exception.DecodingFailureException;
 import hera.exception.InvalidVersionException;
+import hera.spec.EncryptedPrivateKeySpec;
 import hera.util.VersionUtils;
 import lombok.Getter;
 
 @ApiAudience.Public
 @ApiStability.Unstable
 public class EncryptedPrivateKey implements Encodable {
-
-  public static final byte VERSION = (byte) 0xAA;
 
   /**
    * Create {@code EncryptedPrivateKey} with a base58 with checksum encoded value.
@@ -32,7 +31,7 @@ public class EncryptedPrivateKey implements Encodable {
    */
   @ApiAudience.Public
   public static EncryptedPrivateKey of(final String encoded) {
-<span class="fc" id="L35">    return new EncryptedPrivateKey(encoded);</span>
+<span class="fc" id="L34">    return new EncryptedPrivateKey(encoded);</span>
   }
 
   /**
@@ -45,10 +44,10 @@ public class EncryptedPrivateKey implements Encodable {
    */
   @ApiAudience.Private
   public static EncryptedPrivateKey of(final BytesValue bytesValue) {
-<span class="nc" id="L48">    return new EncryptedPrivateKey(bytesValue);</span>
+<span class="nc" id="L47">    return new EncryptedPrivateKey(bytesValue);</span>
   }
 
-<span class="fc" id="L51">  @Getter</span>
+<span class="fc" id="L50">  @Getter</span>
   protected final BytesValue bytesValue;
 
   /**
@@ -61,8 +60,8 @@ public class EncryptedPrivateKey implements Encodable {
    */
   @ApiAudience.Public
   public EncryptedPrivateKey(final String encoded) {
-<span class="fc" id="L64">    this(decodeBase58WithCheck(encoded));</span>
-<span class="fc" id="L65">  }</span>
+<span class="fc" id="L63">    this(decodeBase58WithCheck(encoded));</span>
+<span class="fc" id="L64">  }</span>
 
   /**
    * EncryptedPrivateKey constructor.
@@ -72,38 +71,38 @@ public class EncryptedPrivateKey implements Encodable {
    * @throws InvalidVersionException when address version mismatch
    */
   @ApiAudience.Private
-<span class="fc" id="L75">  public EncryptedPrivateKey(final BytesValue bytesValue) {</span>
-<span class="fc bfc" id="L76" title="All 2 branches covered.">    if (BytesValue.EMPTY != bytesValue) {</span>
-<span class="fc" id="L77">      VersionUtils.validate(bytesValue, VERSION);</span>
+<span class="fc" id="L74">  public EncryptedPrivateKey(final BytesValue bytesValue) {</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">    if (BytesValue.EMPTY != bytesValue) {</span>
+<span class="fc" id="L76">      VersionUtils.validate(bytesValue, EncryptedPrivateKeySpec.PREFIX);</span>
     }
-<span class="fc" id="L79">    this.bytesValue = bytesValue;</span>
-<span class="fc" id="L80">  }</span>
+<span class="fc" id="L78">    this.bytesValue = bytesValue;</span>
+<span class="fc" id="L79">  }</span>
 
   @Override
   public String getEncoded() {
-<span class="fc" id="L84">    return encodeBase58WithCheck(getBytesValue());</span>
+<span class="fc" id="L83">    return encodeBase58WithCheck(getBytesValue());</span>
   }
 
   @Override
   public int hashCode() {
-<span class="nc" id="L89">    return bytesValue.hashCode();</span>
+<span class="nc" id="L88">    return bytesValue.hashCode();</span>
   }
 
   @Override
   public boolean equals(Object obj) {
-<span class="pc bpc" id="L94" title="1 of 2 branches missed.">    if (null == obj) {</span>
-<span class="nc" id="L95">      return false;</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">    if (null == obj) {</span>
+<span class="nc" id="L94">      return false;</span>
     }
-<span class="pc bpc" id="L97" title="1 of 2 branches missed.">    if (!obj.getClass().equals(getClass())) {</span>
-<span class="nc" id="L98">      return false;</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">    if (!obj.getClass().equals(getClass())) {</span>
+<span class="nc" id="L97">      return false;</span>
     }
-<span class="fc" id="L100">    final EncryptedPrivateKey other = (EncryptedPrivateKey) obj;</span>
-<span class="fc" id="L101">    return bytesValue.equals(other.bytesValue);</span>
+<span class="fc" id="L99">    final EncryptedPrivateKey other = (EncryptedPrivateKey) obj;</span>
+<span class="fc" id="L100">    return bytesValue.equals(other.bytesValue);</span>
   }
 
   @Override
   public String toString() {
-<span class="fc" id="L106">    return getEncoded();</span>
+<span class="fc" id="L105">    return getEncoded();</span>
   }
 
 }

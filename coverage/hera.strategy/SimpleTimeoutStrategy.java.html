@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.slf4j.Logger;
 
-<span class="fc" id="L18">@ToString</span>
+<span class="fc" id="L18">@ToString(exclude = &quot;logger&quot;)</span>
 <span class="pc bpc" id="L19" title="20 of 22 branches missed.">@EqualsAndHashCode(callSuper = false)</span>
 public class SimpleTimeoutStrategy extends TimeoutStrategy {
 

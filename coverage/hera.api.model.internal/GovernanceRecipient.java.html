@@ -10,18 +10,19 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
+import hera.spec.AddressSpec;
 
 @ApiAudience.Private
 @ApiStability.Unstable
 public class GovernanceRecipient extends AccountAddress {
 
-<span class="fc" id="L18">  public static GovernanceRecipient AERGO_SYSTEM = new GovernanceRecipient(&quot;aergo.system&quot;);</span>
+<span class="fc" id="L19">  public static GovernanceRecipient AERGO_SYSTEM = new GovernanceRecipient(&quot;aergo.system&quot;);</span>
 
-<span class="fc" id="L20">  public static GovernanceRecipient AERGO_NAME = new GovernanceRecipient(&quot;aergo.name&quot;);</span>
+<span class="fc" id="L21">  public static GovernanceRecipient AERGO_NAME = new GovernanceRecipient(&quot;aergo.name&quot;);</span>
 
   private GovernanceRecipient(final String specialName) {
-<span class="fc" id="L23">    super(new BytesValue(envelop(specialName.getBytes(), VERSION)));</span>
-<span class="fc" id="L24">  }</span>
+<span class="fc" id="L24">    super(new BytesValue(envelop(specialName.getBytes(), AddressSpec.PREFIX)));</span>
+<span class="fc" id="L25">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
