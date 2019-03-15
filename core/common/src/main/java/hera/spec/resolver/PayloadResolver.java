@@ -27,6 +27,31 @@ import org.slf4j.Logger;
 
 public class PayloadResolver {
 
+  /**
+   * Lookup table used for determining which output characters in 7-bit ASCII range need to be
+   * quoted. This is from jackson CharTypes class.
+   */
+  static final int[] sOutputEscapes128;
+
+  static {
+    int[] table = new int[128];
+    for (int i = 0; i < 32; ++i) {
+      table[i] = -1;
+    }
+    /*
+     * Others (and some within that range too) have explicit shorter sequences
+     */
+    table['"'] = '"';
+    table['\\'] = '\\';
+    // Escaping of slash is optional, so let's not add it
+    table[0x08] = 'b';
+    table[0x09] = 't';
+    table[0x0C] = 'f';
+    table[0x0A] = 'n';
+    table[0x0D] = 'r';
+    sOutputEscapes128 = table;
+  }
+
   public static final String JSON_START = "{ ";
   public static final String JSON_END = " }";
   public static final String JSON_ARRAY_START = "[ ";
@@ -204,11 +229,30 @@ public class PayloadResolver {
   }
 
   protected String keyAndValue(final String key, final String value) {
-    return "\"" + key + "\"" + ":" + value;
+    return asJsonString(key) + ":" + value;
   }
 
   protected String asJsonString(final String target) {
-    return "\"" + target + "\"";
+    final StringBuilder sb = new StringBuilder();
+    sb.append('"');
+    appendQuoted(sb, target);
+    sb.append('"');
+    return sb.toString();
+  }
+
+  protected void appendQuoted(StringBuilder sb, String content) {
+    final int[] escCodes = sOutputEscapes128;
+    int escLen = escCodes.length;
+    for (int i = 0, len = content.length(); i < len; ++i) {
+      char c = content.charAt(i);
+      if (c >= escLen || escCodes[c] == 0) {
+        sb.append(c);
+      } else {
+        sb.append('\\');
+        int escCode = escCodes[c];
+        sb.append((char) escCode);
+      }
+    }
   }
 
   protected String asJsonNumber(final Number target) {

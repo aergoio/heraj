@@ -78,7 +78,7 @@ public abstract class AbstractIT {
 
   protected AergoKey supplyKeyWithAergo(final Wallet wallet) {
     final AergoKey key = new AergoKeyGenerator().create();
-    fund(key.getAddress());
+    // fund(key.getAddress());
     return key;
   }
 

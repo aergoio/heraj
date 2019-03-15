@@ -87,13 +87,13 @@ public abstract class AbstractIT {
 
   protected Account supplyLocalAccount() {
     final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
-    fund(account);
+    // fund(account);
     return account;
   }
 
   protected Account supplyServerAccount() {
     final Account account = aergoClient.getKeyStoreOperation().create(password);
-    fund(account);
+    // fund(account);
     return account;
   }
 
