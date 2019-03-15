@@ -11,7 +11,7 @@ This repository, heraj is java implementation for hera.
 
 ## Lastest
 
-v0.12.0
+v0.12.1
 
 build with aergo-protobuf v0.12.0
 
@@ -47,17 +47,17 @@ If you just want a minimum one, use `heraj-transport`. Or need more feature, use
   <dependency>
     <groupId>io.aergo</groupId>
     <artifactId>heraj-transport</artifactId>
-    <version>0.12.0</version>
+    <version>${herajVersion}</version>
   </dependency>
   <dependency>
     <groupId>io.aergo</groupId>
     <artifactId>heraj-wallet</artifactId>
-    <version>0.12.0</version>
+    <version>${herajVersion}</version>
   </dependency>
   <dependency>
     <groupId>io.aergo</groupId>
     <artifactId>heraj-smart-contract</artifactId>
-    <version>0.12.0</version>
+    <version>${herajVersion}</version>
   </dependency>
 </dependencies>
 ```
@@ -72,9 +72,9 @@ repositories {
 ...
 
 dependencies {
-  implementation 'io.aergo:heraj-transport:0.12.0'
-  implementation 'io.aergo:heraj-wallet:0.12.0'
-  implementation 'io.aergo:heraj-smart-contract:0.12.0'
+  implementation "io.aergo:heraj-transport:${herajVersion}"
+  implementation "io.aergo:heraj-wallet:${herajVersion}"
+  implementation "io.aergo:heraj-smart-contract:${herajVersion}"
 }
 ```
 
