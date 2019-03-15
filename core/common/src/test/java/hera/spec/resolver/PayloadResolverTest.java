@@ -46,7 +46,7 @@ public class PayloadResolverTest extends AbstractTestCase {
   @Test
   public void testResolveOnContractInvocation() {
     final ContractInvocation invocation = new ContractInvocation(contractAddress,
-        new ContractFunction(randomUUID().toString()));
+        new ContractFunction(randomUUID().toString()), randomUUID().toString());
     final BytesValue payload = resolver.resolve(Type.ContractInvocation, invocation);
     assertNotNull(payload);
   }

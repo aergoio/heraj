@@ -144,6 +144,40 @@ public class ContractOperationIT extends AbstractIT {
   }
 
   @Test
+  public void testLuaContractDeployAndExecuteWithEscapeString() throws Exception {
+    for (final Account account : supplyAccounts()) {
+      unlockAccount(account, password);
+      final ContractDefinition definition = ContractDefinition.newBuilder()
+          .encodedContract(contractPayload).build();
+      final ContractTxHash deployTxHash = deploy(account, definition, fee);
+      lockAccount(account, password);
+
+      final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
+      assertEquals("CREATED", deployTxReceipt.getStatus());
+
+      final ContractInterface contractInterface =
+          getContractInterface(deployTxReceipt.getContractAddress());
+
+      unlockAccount(account, password);
+      final String escapeString = "\b\t\f\n\r";
+      final ContractInvocation execution = contractInterface.newInvocationBuilder()
+          .function(executeFunction)
+          .args(new Object[] {executeKey, executeIntVal, escapeString})
+          .build();
+      final ContractTxHash executionTxHash = execute(account, execution, fee);
+      lockAccount(account, password);
+
+      final ContractTxReceipt executionReceipt = getContractTxReceipt(executionTxHash);
+      assertEquals("SUCCESS", executionReceipt.getStatus());
+
+      final ContractResult queryResult = query(contractInterface, queryFunction, executeKey);
+      final Data data = queryResult.bind(Data.class);
+      assertEquals(executeIntVal, data.getIntVal());
+      assertEquals(escapeString, data.getStringVal());
+    }
+  }
+
+  @Test
   public void testLuaContractDeployWithInvalidNonce() throws Exception {
     for (final Account account : supplyAccounts()) {
       unlockAccount(account, password);
