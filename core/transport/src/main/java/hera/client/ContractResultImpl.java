@@ -7,6 +7,7 @@ package hera.client;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractResult;
 import java.io.IOException;
@@ -16,9 +17,9 @@ import org.slf4j.Logger;
 @RequiredArgsConstructor
 public class ContractResultImpl implements ContractResult {
 
-  protected final Logger logger = getLogger(getClass());
+  protected static final ObjectReader reader = new ObjectMapper().reader();
 
-  protected final ObjectMapper mapper = new ObjectMapper();
+  protected final Logger logger = getLogger(getClass());
 
   protected final BytesValue result;
 
@@ -30,7 +31,7 @@ public class ContractResultImpl implements ContractResult {
     if (stringFormat.isEmpty() || "{}".equals(stringFormat)) {
       return null;
     }
-    return mapper.readValue(rawBytes, clazz);
+    return reader.forType(clazz).readValue(rawBytes);
   }
 
   @Override

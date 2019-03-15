@@ -179,7 +179,8 @@ configure(javaProjects) {
     }
 
     // must be single thread becase of funding
-    maxParallelForks = 1
+    // uncomment if you want to test it in non-test mode
+    // maxParallelForks = 1
     include '**/*IT.class'
   }
 
