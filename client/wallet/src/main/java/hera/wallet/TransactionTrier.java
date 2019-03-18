@@ -64,6 +64,7 @@ public class TransactionTrier {
         transactionRequester);
 
     TxHash txHash = null;
+    WalletException exception = null;
     boolean success = false;
     if (null != firstTrier) {
       try {
@@ -71,6 +72,7 @@ public class TransactionTrier {
         success = null != txHash;
       } catch (WalletException e) {
         logger.debug("First try failure by {}", e.toString());
+        exception = e;
       }
     }
 
@@ -83,12 +85,18 @@ public class TransactionTrier {
         if (!isNonceRelatedException(e)) {
           throw e;
         }
+        exception = e;
         logger.info("Request failed with invalid nonce.. try left: {}", i);
         nonceSynchronizer.run();
         tryCountAndInterval.trySleep();
         --i;
       }
     }
+
+    if (!success) {
+      throw exception;
+    }
+
     return txHash;
   }
 
