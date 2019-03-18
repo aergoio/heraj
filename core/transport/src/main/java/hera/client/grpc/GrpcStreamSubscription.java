@@ -19,7 +19,9 @@ public class GrpcStreamSubscription<T> implements hera.api.model.Subscription<T>
   @Override
   public void unsubscribe() {
     logger.info("Unsubscribe subscription: {}", getClass());
-    context.close();
+    synchronized (this) {
+      context.close();
+    }
   }
 
   @Override

@@ -12,7 +12,7 @@ import hera.annotation.ApiStability;
 public interface Subscription<T> {
 
   /**
-   * UnSubscribe current subscription.
+   * UnSubscribe current subscription. This method is thread-safe.
    */
   void unsubscribe();
 

@@ -362,9 +362,10 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
           logger.debug("Event subsribe with filter: {}, observer: {}", filter, observer);
 
           final Blockchain.FilterInfo filterInfo = eventFilterConverter.convertToRpcModel(filter);
-          final io.grpc.stub.StreamObserver<Blockchain.Event> adaptor =
-              new GrpcStreamObserverAdaptor<Blockchain.Event, Event>(observer, eventConverter);
           Context.CancellableContext cancellableContext = Context.current().withCancellation();
+          final io.grpc.stub.StreamObserver<Blockchain.Event> adaptor =
+              new GrpcStreamObserverAdaptor<Blockchain.Event, Event>(cancellableContext, observer,
+                  eventConverter);
           cancellableContext.run(new Runnable() {
             @Override
             public void run() {

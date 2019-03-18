@@ -81,7 +81,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
     try {
       saveKey(key, key.getAddress(), password);
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -92,7 +92,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
       logger.debug("Save key {} with identity {}", key, identity);
       getKeyStore().saveKey(key, Authentication.of(identity, password));
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -102,7 +102,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
       logger.debug("Export key with authentication: {}", authentication);
       return getKeyStore().export(authentication).getEncoded();
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -112,7 +112,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
       logger.debug("List key store identities");
       return getKeyStore().listIdentities();
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -132,7 +132,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
       this.account = unlocked;
       return true;
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -142,7 +142,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
       logger.debug("Lock account with authentication: {}", authentication);
       return getKeyStore().lock(authentication);
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -152,7 +152,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
       logger.debug("Store keystore to {}", path);
       getKeyStore().store(path, password);
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -201,7 +201,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
       logger.debug("Sign raw transaction {}", rawTransaction);
       return getAergoClient().getAccountOperation().sign(getAccount(), rawTransaction);
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -211,7 +211,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
       logger.debug("Verify signed transaction {}", transaction);
       return getAergoClient().getAccountOperation().verify(getAccount(), transaction);
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -225,7 +225,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
           return getAergoClient().getAccountOperation()
               .createName(getAccount(), name, nonce);
         } catch (Exception e) {
-          throw handler.handle(e);
+          throw exceptionConverter.convert(e);
         }
       }
     });
@@ -241,7 +241,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
           return getAergoClient().getAccountOperation()
               .updateName(getAccount(), name, newOwner, nonce);
         } catch (Exception e) {
-          throw handler.handle(e);
+          throw exceptionConverter.convert(e);
         }
       }
     });
@@ -257,7 +257,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
           return getAergoClient().getAccountOperation()
               .stake(getAccount(), amount, nonce);
         } catch (Exception e) {
-          throw handler.handle(e);
+          throw exceptionConverter.convert(e);
         }
       }
     });
@@ -273,7 +273,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
           return getAergoClient().getAccountOperation()
               .unstake(getAccount(), amount, nonce);
         } catch (Exception e) {
-          throw handler.handle(e);
+          throw exceptionConverter.convert(e);
         }
       }
     });
@@ -289,7 +289,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
           return getAergoClient().getBlockchainOperation()
               .vote(getAccount(), peerId, nonce);
         } catch (Exception e) {
-          throw handler.handle(e);
+          throw exceptionConverter.convert(e);
         }
       }
     });
@@ -319,7 +319,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
               .build();
           return getAergoClient().getTransactionOperation().commit(sign(rawTransaction));
         } catch (Exception e) {
-          throw handler.handle(e);
+          throw exceptionConverter.convert(e);
         }
       }
     });
@@ -349,7 +349,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
               .build();
           return getAergoClient().getTransactionOperation().commit(sign(rawTransaction));
         } catch (Exception e) {
-          throw handler.handle(e);
+          throw exceptionConverter.convert(e);
         }
       }
     });
@@ -370,7 +370,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
         try {
           return getAergoClient().getTransactionOperation().commit(signedTransaction);
         } catch (Exception e) {
-          throw handler.handle(e);
+          throw exceptionConverter.convert(e);
         }
       }
     }, new Function1<Long, TxHash>() {
@@ -382,7 +382,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
               RawTransaction.copyOf(signedTransaction, nonce.longValue());
           return getAergoClient().getTransactionOperation().commit(sign(withNewNonce));
         } catch (Exception e) {
-          throw handler.handle(e);
+          throw exceptionConverter.convert(e);
         }
       }
     });
@@ -398,7 +398,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
           return getAergoClient().getContractOperation().deploy(getAccount(),
               contractDefinition, nonce, fee);
         } catch (Exception e) {
-          throw handler.handle(e);
+          throw exceptionConverter.convert(e);
         }
       }
     }).adapt(ContractTxHash.class);
@@ -414,7 +414,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
           return getAergoClient().getContractOperation().execute(getAccount(),
               contractInvocation, nonce, fee);
         } catch (Exception e) {
-          throw handler.handle(e);
+          throw exceptionConverter.convert(e);
         }
       }
     }).adapt(ContractTxHash.class);

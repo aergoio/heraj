@@ -6,8 +6,11 @@ package hera.client.grpc;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.exception.RpcConnectionException;
+import hera.exception.RpcException;
+import hera.exception.RpcExceptionConverter;
 import hera.transport.ModelConverter;
-import lombok.Getter;
+import hera.util.ExceptionConverter;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 
@@ -17,7 +20,10 @@ public class GrpcStreamObserverAdaptor<RpcModelT, DomainModelT>
 
   protected final Logger logger = getLogger(getClass());
 
-  @Getter
+  protected final ExceptionConverter<RpcException> exceptionConverter = new RpcExceptionConverter();
+
+  protected final io.grpc.Context.CancellableContext context;
+
   protected final hera.api.model.StreamObserver<DomainModelT> delegate;
 
   protected final ModelConverter<DomainModelT, RpcModelT> converter;
@@ -31,7 +37,12 @@ public class GrpcStreamObserverAdaptor<RpcModelT, DomainModelT>
 
   @Override
   public void onError(final Throwable t) {
-    logger.error("Streaming failed by {}", t.toString());
+    final RpcException converted = exceptionConverter.convert(t);
+    logger.error("Streaming failed by {}", converted.toString());
+    if (converted instanceof RpcConnectionException) {
+      logger.info("Stop subscription by connection error");
+      context.cancel(converted);
+    }
     delegate.onError(t);
   }
 

@@ -6,10 +6,6 @@ package hera;
 
 public final class TransportConstants {
 
-  /*
-   * plain functions
-   */
-
   public static final String ACCOUNT_GETSTATE = "heraj.getstate";
   public static final String ACCOUNT_CREATE_NAME = "heraj.create.name";
   public static final String ACCOUNT_UPDATE_NAME = "heraj.update.name";

@@ -10,7 +10,6 @@ import hera.Context;
 import hera.DefaultConstants;
 import hera.api.model.internal.HostnameAndPort;
 import io.grpc.netty.NettyChannelBuilder;
-import java.util.concurrent.TimeUnit;
 import lombok.Setter;
 import lombok.ToString;
 import org.slf4j.Logger;
@@ -34,9 +33,6 @@ public class NettyConnectStrategy implements ConnectStrategy<NettyChannelBuilder
     logger.info("Connect to {} with strategy {}", endpoint, getClass().getName());
     return NettyChannelBuilder
         .forAddress(endpoint.getHostname(), endpoint.getPort())
-        .keepAliveTime(30, TimeUnit.SECONDS)
-        .keepAliveTimeout(10, TimeUnit.SECONDS)
-        .keepAliveWithoutCalls(true)
         .usePlaintext();
   }
 
