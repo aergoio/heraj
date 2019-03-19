@@ -31,8 +31,9 @@ import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.VotingInfo;
 import hera.client.AergoClient;
-import hera.exception.ExceptionHandler;
 import hera.exception.WalletException;
+import hera.exception.WalletExceptionConverter;
+import hera.util.ExceptionConverter;
 import java.io.Closeable;
 import java.util.List;
 import lombok.AccessLevel;
@@ -45,7 +46,8 @@ public abstract class QueryWallet implements QueryClient, Closeable {
 
   protected final Logger logger = getLogger(getClass());
 
-  protected final ExceptionHandler handler = new ExceptionHandler();
+  protected final ExceptionConverter<WalletException> exceptionConverter =
+      new WalletExceptionConverter();
 
   @Getter(value = AccessLevel.PROTECTED)
   protected final AergoClient aergoClient;
@@ -66,7 +68,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("Get account state of {}", accountAddress);
       return getAergoClient().getAccountOperation().getState(accountAddress);
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -76,7 +78,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("Get name owner of {}", name);
       return getAergoClient().getAccountOperation().getNameOwner(name);
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -91,7 +93,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("Get staking info of {}", accountAddress);
       return getAergoClient().getAccountOperation().getStakingInfo(accountAddress);
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -106,7 +108,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("List elected bps with show count: {}", showCount);
       return getAergoClient().getBlockchainOperation().listElectedBlockProducers(showCount);
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -121,7 +123,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("List votes of {}", accountAddress);
       return getAergoClient().getBlockchainOperation().listVotesOf(accountAddress);
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -131,7 +133,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("List server keystore stored addresses");
       return getAergoClient().getKeyStoreOperation().list();
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -141,7 +143,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("Get best block hash");
       return getAergoClient().getBlockchainOperation().getBlockchainStatus().getBestBlockHash();
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -151,7 +153,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("Get best block height");
       return getAergoClient().getBlockchainOperation().getBlockchainStatus().getBestHeight();
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -161,7 +163,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("Get chain info");
       return getAergoClient().getBlockchainOperation().getChainInfo();
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -171,7 +173,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("List peers info");
       return getAergoClient().getBlockchainOperation().listPeers();
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -181,7 +183,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("List metric of peers");
       return getAergoClient().getBlockchainOperation().listPeerMetrics();
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -191,7 +193,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("Get node status");
       return getAergoClient().getBlockchainOperation().getNodeStatus();
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -201,7 +203,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("Get block header with hash: {}", blockHash);
       return getAergoClient().getBlockOperation().getBlockHeader(blockHash);
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -211,7 +213,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("Get block header with height: {}", height);
       return getAergoClient().getBlockOperation().getBlockHeader(height);
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -221,7 +223,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("List block headers with hash: {}, size: {}", blockHash, size);
       return getAergoClient().getBlockOperation().listBlockHeaders(blockHash, size);
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -231,7 +233,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("List block headers with height: {}, size: {}", height, size);
       return getAergoClient().getBlockOperation().listBlockHeaders(height, size);
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -241,7 +243,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("Get block with hash: {}", blockHash);
       return getAergoClient().getBlockOperation().getBlock(blockHash);
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -251,7 +253,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("Get block with height: {}", height);
       return getAergoClient().getBlockOperation().getBlock(height);
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -261,7 +263,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("Get transaction with hash: {}", txHash);
       return getAergoClient().getTransactionOperation().getTransaction(txHash);
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -271,7 +273,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("Get contract transaction receipt with hash: {}", contractTxHash);
       return getAergoClient().getContractOperation().getReceipt(contractTxHash);
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -281,7 +283,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("Get contract interface with address: {}", contractAddress);
       return getAergoClient().getContractOperation().getContractInterface(contractAddress);
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -291,7 +293,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("Query request with: {}", contractInvocation);
       return getAergoClient().getContractOperation().query(contractInvocation);
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -301,7 +303,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("List events with filter: {}", filter);
       return getAergoClient().getContractOperation().listEvents(filter);
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 
@@ -312,7 +314,7 @@ public abstract class QueryWallet implements QueryClient, Closeable {
       logger.debug("Subscribe events with filter: {}, observer: {}", filter, observer);
       return getAergoClient().getContractOperation().subscribeEvent(filter, observer);
     } catch (Exception e) {
-      throw handler.handle(e);
+      throw exceptionConverter.convert(e);
     }
   }
 

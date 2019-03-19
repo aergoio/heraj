@@ -17,6 +17,7 @@ import hera.api.model.internal.Time;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.exception.RpcCommitException;
 import hera.exception.WalletCommitException;
+import hera.exception.WalletException;
 import hera.key.AergoKeyGenerator;
 import java.util.concurrent.CountDownLatch;
 import org.junit.Before;
@@ -102,6 +103,19 @@ public class TransactionTrierTest extends AbstractTestCase {
       }
     });
     assertNotNull(txHash);
+  }
+
+  @Test(expected = WalletException.class)
+  public void testRequestOnAllTryFail() {
+    trier.request(new Function1<Long, TxHash>() {
+
+      @Override
+      public TxHash apply(Long nonce) {
+        final RpcCommitException rpcCommitException =
+            new RpcCommitException(types.Rpc.CommitStatus.TX_NONCE_TOO_LOW, "Nonce is too low");
+        throw new WalletCommitException(rpcCommitException);
+      }
+    });
   }
 
 }

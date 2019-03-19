@@ -4,6 +4,7 @@
 
 package hera.strategy;
 
+import static hera.TransportConstants.KEEP_ALIVE_INTERVAL;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Context;
@@ -34,8 +35,7 @@ public class NettyConnectStrategy implements ConnectStrategy<NettyChannelBuilder
     logger.info("Connect to {} with strategy {}", endpoint, getClass().getName());
     return NettyChannelBuilder
         .forAddress(endpoint.getHostname(), endpoint.getPort())
-        .keepAliveTime(30, TimeUnit.SECONDS)
-        .keepAliveTimeout(10, TimeUnit.SECONDS)
+        .keepAliveTime(KEEP_ALIVE_INTERVAL, TimeUnit.SECONDS)
         .keepAliveWithoutCalls(true)
         .usePlaintext();
   }

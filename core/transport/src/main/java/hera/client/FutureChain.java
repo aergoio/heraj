@@ -10,9 +10,9 @@ import com.google.common.util.concurrent.FutureCallback;
 import hera.Context;
 import hera.ContextHolder;
 import hera.api.function.Function1;
-import hera.exception.RpcConnectionException;
 import hera.exception.RpcException;
-import io.grpc.StatusRuntimeException;
+import hera.exception.RpcExceptionConverter;
+import hera.util.ExceptionConverter;
 import javax.annotation.Nullable;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +29,8 @@ public class FutureChain<T, R> implements FutureCallback<T> {
 
   // store Exception since getting stack trace element object is too expensive
   protected Exception stackTraceHolder = new Exception();
+
+  protected ExceptionConverter<RpcException> exceptionConverter = new RpcExceptionConverter();
 
   @NonNull
   protected final FinishableFuture<R> nextFuture;
@@ -51,7 +53,7 @@ public class FutureChain<T, R> implements FutureCallback<T> {
       final R handled = successHandler.apply(t);
       nextFuture.success(handled);
     } catch (Exception e) {
-      failNext(wrapWithRpcException(e));
+      failNext(exceptionConverter.convert(e));
     }
   }
 
@@ -65,30 +67,15 @@ public class FutureChain<T, R> implements FutureCallback<T> {
         final R handled = failureHandler.apply(error);
         nextFuture.success(handled);
       } else {
-        failNext(wrapWithRpcException(error));
+        failNext(exceptionConverter.convert(error));
       }
     } catch (Exception e) {
-      failNext(wrapWithRpcException(e));
+      failNext(exceptionConverter.convert(e));
     }
   }
 
   protected void connectAsyncContextWithSourceContext() {
     ContextHolder.set(this, sourceContext);
-  }
-
-  protected RpcException wrapWithRpcException(final Throwable e) {
-    return e instanceof StatusRuntimeException
-        ? convertGrpcBasisException((StatusRuntimeException) e)
-        : (e instanceof RpcException) ? (RpcException) e : new RpcException(e);
-  }
-
-  protected RpcException convertGrpcBasisException(final StatusRuntimeException e) {
-    switch (e.getStatus().getCode()) {
-      case UNAVAILABLE:
-        return new RpcConnectionException(e);
-      default:
-        return new RpcException(e);
-    }
   }
 
   protected void failNext(final RpcException wrapped) {
