@@ -19,12 +19,14 @@ public class GrpcStreamSubscription&lt;T&gt; implements hera.api.model.Subscript
   @Override
   public void unsubscribe() {
 <span class="nc" id="L21">    logger.info(&quot;Unsubscribe subscription: {}&quot;, getClass());</span>
-<span class="nc" id="L22">    context.close();</span>
-<span class="nc" id="L23">  }</span>
+<span class="nc" id="L22">    synchronized (this) {</span>
+<span class="nc" id="L23">      context.close();</span>
+<span class="nc" id="L24">    }</span>
+<span class="nc" id="L25">  }</span>
 
   @Override
   public boolean isUnsubscribed() {
-<span class="nc" id="L27">    return context.isCancelled();</span>
+<span class="nc" id="L29">    return context.isCancelled();</span>
   }
 
 }

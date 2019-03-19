@@ -362,17 +362,18 @@ import types.Rpc;
 <span class="fc" id="L362">          logger.debug(&quot;Event subsribe with filter: {}, observer: {}&quot;, filter, observer);</span>
 
 <span class="fc" id="L364">          final Blockchain.FilterInfo filterInfo = eventFilterConverter.convertToRpcModel(filter);</span>
-<span class="fc" id="L365">          final io.grpc.stub.StreamObserver&lt;Blockchain.Event&gt; adaptor =</span>
-              new GrpcStreamObserverAdaptor&lt;Blockchain.Event, Event&gt;(observer, eventConverter);
-<span class="fc" id="L367">          Context.CancellableContext cancellableContext = Context.current().withCancellation();</span>
-<span class="fc" id="L368">          cancellableContext.run(new Runnable() {</span>
+<span class="fc" id="L365">          Context.CancellableContext cancellableContext = Context.current().withCancellation();</span>
+<span class="fc" id="L366">          final io.grpc.stub.StreamObserver&lt;Blockchain.Event&gt; adaptor =</span>
+              new GrpcStreamObserverAdaptor&lt;Blockchain.Event, Event&gt;(cancellableContext, observer,
+                  eventConverter);
+<span class="fc" id="L369">          cancellableContext.run(new Runnable() {</span>
             @Override
             public void run() {
-<span class="fc" id="L371">              streamService.listEventStream(filterInfo, adaptor);</span>
-<span class="fc" id="L372">            }</span>
+<span class="fc" id="L372">              streamService.listEventStream(filterInfo, adaptor);</span>
+<span class="fc" id="L373">            }</span>
           });
 
-<span class="fc" id="L375">          return new GrpcStreamSubscription&lt;Event&gt;(cancellableContext);</span>
+<span class="fc" id="L376">          return new GrpcStreamSubscription&lt;Event&gt;(cancellableContext);</span>
         }
       };
 

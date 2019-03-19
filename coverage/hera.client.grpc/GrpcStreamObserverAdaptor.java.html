@@ -6,40 +6,51 @@ package hera.client.grpc;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.exception.RpcConnectionException;
+import hera.exception.RpcException;
+import hera.exception.RpcExceptionConverter;
 import hera.transport.ModelConverter;
-import lombok.Getter;
+import hera.util.ExceptionConverter;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 
-<span class="fc" id="L14">@RequiredArgsConstructor</span>
+<span class="fc" id="L17">@RequiredArgsConstructor</span>
 public class GrpcStreamObserverAdaptor&lt;RpcModelT, DomainModelT&gt;
     implements io.grpc.stub.StreamObserver&lt;RpcModelT&gt; {
 
-<span class="fc" id="L18">  protected final Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L21">  protected final Logger logger = getLogger(getClass());</span>
 
-<span class="nc" id="L20">  @Getter</span>
+<span class="fc" id="L23">  protected final ExceptionConverter&lt;RpcException&gt; exceptionConverter = new RpcExceptionConverter();</span>
+
+  protected final io.grpc.Context.CancellableContext context;
+
   protected final hera.api.model.StreamObserver&lt;DomainModelT&gt; delegate;
 
   protected final ModelConverter&lt;DomainModelT, RpcModelT&gt; converter;
 
   @Override
   public void onNext(final RpcModelT value) {
-<span class="nc" id="L27">    final DomainModelT converted = converter.convertToDomainModel(value);</span>
-<span class="nc" id="L28">    logger.info(&quot;Streaming next: {}&quot;, converted);</span>
-<span class="nc" id="L29">    delegate.onNext(converted);</span>
-<span class="nc" id="L30">  }</span>
-
-  @Override
-  public void onError(final Throwable t) {
-<span class="nc" id="L34">    logger.error(&quot;Streaming failed by {}&quot;, t.toString());</span>
-<span class="nc" id="L35">    delegate.onError(t);</span>
+<span class="nc" id="L33">    final DomainModelT converted = converter.convertToDomainModel(value);</span>
+<span class="nc" id="L34">    logger.info(&quot;Streaming next: {}&quot;, converted);</span>
+<span class="nc" id="L35">    delegate.onNext(converted);</span>
 <span class="nc" id="L36">  }</span>
 
   @Override
+  public void onError(final Throwable t) {
+<span class="nc" id="L40">    final RpcException converted = exceptionConverter.convert(t);</span>
+<span class="nc" id="L41">    logger.error(&quot;Streaming failed by {}&quot;, converted.toString());</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">    if (converted instanceof RpcConnectionException) {</span>
+<span class="nc" id="L43">      logger.info(&quot;Stop subscription by connection error&quot;);</span>
+<span class="nc" id="L44">      context.cancel(converted);</span>
+    }
+<span class="nc" id="L46">    delegate.onError(t);</span>
+<span class="nc" id="L47">  }</span>
+
+  @Override
   public void onCompleted() {
-<span class="nc" id="L40">    logger.info(&quot;Streaming finished successfully&quot;);</span>
-<span class="nc" id="L41">    delegate.onCompleted();</span>
-<span class="nc" id="L42">  }</span>
+<span class="nc" id="L51">    logger.info(&quot;Streaming finished successfully&quot;);</span>
+<span class="nc" id="L52">    delegate.onCompleted();</span>
+<span class="nc" id="L53">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

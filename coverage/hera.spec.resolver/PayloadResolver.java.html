@@ -27,13 +27,38 @@ import org.slf4j.Logger;
 
 <span class="fc" id="L28">public class PayloadResolver {</span>
 
+  /**
+   * Lookup table used for determining which output characters in 7-bit ASCII range need to be
+   * quoted. This is from jackson CharTypes class.
+   */
+  static final int[] sOutputEscapes128;
+
+  static {
+<span class="fc" id="L37">    int[] table = new int[128];</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">    for (int i = 0; i &lt; 32; ++i) {</span>
+<span class="fc" id="L39">      table[i] = -1;</span>
+    }
+    /*
+     * Others (and some within that range too) have explicit shorter sequences
+     */
+<span class="fc" id="L44">    table['&quot;'] = '&quot;';</span>
+<span class="fc" id="L45">    table['\\'] = '\\';</span>
+    // Escaping of slash is optional, so let's not add it
+<span class="fc" id="L47">    table[0x08] = 'b';</span>
+<span class="fc" id="L48">    table[0x09] = 't';</span>
+<span class="fc" id="L49">    table[0x0C] = 'f';</span>
+<span class="fc" id="L50">    table[0x0A] = 'n';</span>
+<span class="fc" id="L51">    table[0x0D] = 'r';</span>
+<span class="fc" id="L52">    sOutputEscapes128 = table;</span>
+<span class="fc" id="L53">  }</span>
+
   public static final String JSON_START = &quot;{ &quot;;
   public static final String JSON_END = &quot; }&quot;;
   public static final String JSON_ARRAY_START = &quot;[ &quot;;
   public static final String JSON_ARRAY_END = &quot; ]&quot;;
   public static final String JSON_NEXT = &quot;,&quot;;
 
-<span class="fc" id="L36">  protected final Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L61">  protected final Logger logger = getLogger(getClass());</span>
 
   /**
    * Resolve targets in a payload form.
@@ -45,190 +70,209 @@ import org.slf4j.Logger;
    * @throws HerajException if fails
    */
   public BytesValue resolve(final Type type, final Object... targets) {
-<span class="fc" id="L48">    logger.trace(&quot;Payload resolve type: {}, target size: {}&quot;, type, targets.length);</span>
-<span class="fc" id="L49">    validateResolveArgs(type, targets);</span>
-<span class="fc" id="L50">    BytesValue resolved = BytesValue.EMPTY;</span>
+<span class="fc" id="L73">    logger.trace(&quot;Payload resolve type: {}, target size: {}&quot;, type, targets.length);</span>
+<span class="fc" id="L74">    validateResolveArgs(type, targets);</span>
+<span class="fc" id="L75">    BytesValue resolved = BytesValue.EMPTY;</span>
     try {
-<span class="pc bpc" id="L52" title="1 of 8 branches missed.">      switch (type) {</span>
+<span class="pc bpc" id="L77" title="1 of 8 branches missed.">      switch (type) {</span>
         case ContractDefinition:
-<span class="fc" id="L54">          resolved = resolveContractDefinition(targets);</span>
-<span class="fc" id="L55">          break;</span>
+<span class="fc" id="L79">          resolved = resolveContractDefinition(targets);</span>
+<span class="fc" id="L80">          break;</span>
         case ContractInvocation:
-<span class="fc" id="L57">          resolved = resolveContractInvocation(targets);</span>
-<span class="fc" id="L58">          break;</span>
+<span class="fc" id="L82">          resolved = resolveContractInvocation(targets);</span>
+<span class="fc" id="L83">          break;</span>
         case Stake:
-<span class="fc" id="L60">          resolved = resolveStake(type, targets);</span>
-<span class="fc" id="L61">          break;</span>
+<span class="fc" id="L85">          resolved = resolveStake(type, targets);</span>
+<span class="fc" id="L86">          break;</span>
         case Unstake:
-<span class="fc" id="L63">          resolved = resolveUnstake(type, targets);</span>
-<span class="fc" id="L64">          break;</span>
+<span class="fc" id="L88">          resolved = resolveUnstake(type, targets);</span>
+<span class="fc" id="L89">          break;</span>
         case Vote:
-<span class="fc" id="L66">          resolved = resolveVote(type, targets);</span>
-<span class="fc" id="L67">          break;</span>
+<span class="fc" id="L91">          resolved = resolveVote(type, targets);</span>
+<span class="fc" id="L92">          break;</span>
         case CreateName:
-<span class="fc" id="L69">          resolved = resolveCreateName(type, targets);</span>
-<span class="fc" id="L70">          break;</span>
+<span class="fc" id="L94">          resolved = resolveCreateName(type, targets);</span>
+<span class="fc" id="L95">          break;</span>
         case UpdateName:
-<span class="fc" id="L72">          resolved = resolveUpdateName(type, targets);</span>
-<span class="fc" id="L73">          break;</span>
+<span class="fc" id="L97">          resolved = resolveUpdateName(type, targets);</span>
+<span class="fc" id="L98">          break;</span>
         default:
-<span class="nc" id="L75">          resolved = of(targets.toString().getBytes());</span>
+<span class="nc" id="L100">          resolved = of(targets.toString().getBytes());</span>
           break;
       }
-<span class="nc" id="L78">    } catch (HerajException e) {</span>
-<span class="nc" id="L79">      throw e;</span>
-<span class="nc" id="L80">    } catch (Exception e) {</span>
-<span class="nc" id="L81">      throw new HerajException(e);</span>
-<span class="fc" id="L82">    }</span>
-<span class="fc" id="L83">    logger.trace(&quot;Resolved payload: {}&quot;, resolved);</span>
-<span class="fc" id="L84">    return resolved;</span>
+<span class="nc" id="L103">    } catch (HerajException e) {</span>
+<span class="nc" id="L104">      throw e;</span>
+<span class="nc" id="L105">    } catch (Exception e) {</span>
+<span class="nc" id="L106">      throw new HerajException(e);</span>
+<span class="fc" id="L107">    }</span>
+<span class="fc" id="L108">    logger.trace(&quot;Resolved payload: {}&quot;, resolved);</span>
+<span class="fc" id="L109">    return resolved;</span>
   }
 
   protected void validateResolveArgs(final Type type, final Object[] instances) {
-<span class="fc" id="L88">    final int expectedSize = type.getTargets().length;</span>
-<span class="pc bpc" id="L89" title="1 of 2 branches missed.">    if (instances.length != expectedSize) {</span>
-<span class="nc" id="L90">      throw new HerajException(&quot;Targets length must be &quot; + expectedSize);</span>
+<span class="fc" id="L113">    final int expectedSize = type.getTargets().length;</span>
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">    if (instances.length != expectedSize) {</span>
+<span class="nc" id="L115">      throw new HerajException(&quot;Targets length must be &quot; + expectedSize);</span>
     }
-<span class="fc bfc" id="L92" title="All 2 branches covered.">    for (int i = 0; i &lt; expectedSize; ++i) {</span>
-<span class="fc" id="L93">      final Class&lt;?&gt; mustbe = type.getTargets()[i];</span>
-<span class="pc bpc" id="L94" title="1 of 2 branches missed.">      if (!mustbe.isInstance(instances[i])) {</span>
-<span class="nc" id="L95">        throw new HerajException(&quot;Target must be &quot; + mustbe.getName());</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">    for (int i = 0; i &lt; expectedSize; ++i) {</span>
+<span class="fc" id="L118">      final Class&lt;?&gt; mustbe = type.getTargets()[i];</span>
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">      if (!mustbe.isInstance(instances[i])) {</span>
+<span class="nc" id="L120">        throw new HerajException(&quot;Target must be &quot; + mustbe.getName());</span>
       }
     }
-<span class="fc" id="L98">  }</span>
+<span class="fc" id="L123">  }</span>
 
   protected BytesValue resolveContractDefinition(final Object[] targets) throws IOException {
-<span class="fc" id="L101">    final ContractDefinition contractDefinition = (ContractDefinition) targets[0];</span>
-<span class="fc" id="L102">    final byte[] rawPayload = trim(contractDefinition.getDecodedContract().getValue());</span>
-<span class="fc" id="L103">    final ByteArrayOutputStream rawStream = new ByteArrayOutputStream();</span>
-<span class="fc" id="L104">    final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(rawStream);</span>
+<span class="fc" id="L126">    final ContractDefinition contractDefinition = (ContractDefinition) targets[0];</span>
+<span class="fc" id="L127">    final byte[] rawPayload = trim(contractDefinition.getDecodedContract().getValue());</span>
+<span class="fc" id="L128">    final ByteArrayOutputStream rawStream = new ByteArrayOutputStream();</span>
+<span class="fc" id="L129">    final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(rawStream);</span>
     try {
-<span class="fc" id="L106">      dataOut.writeInt(rawPayload.length + 4);</span>
-<span class="fc" id="L107">      dataOut.write(rawPayload);</span>
-<span class="fc bfc" id="L108" title="All 2 branches covered.">      if (!contractDefinition.getConstructorArgs().isEmpty()) {</span>
-<span class="fc" id="L109">        final String constructorArgs = asJsonArray(contractDefinition.getConstructorArgs());</span>
-<span class="fc" id="L110">        dataOut.write(constructorArgs.getBytes());</span>
+<span class="fc" id="L131">      dataOut.writeInt(rawPayload.length + 4);</span>
+<span class="fc" id="L132">      dataOut.write(rawPayload);</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">      if (!contractDefinition.getConstructorArgs().isEmpty()) {</span>
+<span class="fc" id="L134">        final String constructorArgs = asJsonArray(contractDefinition.getConstructorArgs());</span>
+<span class="fc" id="L135">        dataOut.write(constructorArgs.getBytes());</span>
       }
-<span class="nc" id="L112">    } catch (Exception e) {</span>
-<span class="nc" id="L113">      throw new HerajException(e);</span>
+<span class="nc" id="L137">    } catch (Exception e) {</span>
+<span class="nc" id="L138">      throw new HerajException(e);</span>
     } finally {
-<span class="fc" id="L115">      dataOut.close();</span>
+<span class="fc" id="L140">      dataOut.close();</span>
     }
 
-<span class="fc" id="L118">    return new BytesValue(rawStream.toByteArray());</span>
+<span class="fc" id="L143">    return new BytesValue(rawStream.toByteArray());</span>
   }
 
   protected BytesValue resolveContractInvocation(final Object[] targets) {
-<span class="fc" id="L122">    final ContractInvocation contractInvocation = (ContractInvocation) targets[0];</span>
-<span class="fc" id="L123">    final String name = contractInvocation.getFunction().getName();</span>
-<span class="fc" id="L124">    final List&lt;Object&gt; args = contractInvocation.getArgs();</span>
-<span class="fc" id="L125">    final String jsonForm = asJsonForm(name, args);</span>
-<span class="fc" id="L126">    return new BytesValue(jsonForm.getBytes());</span>
+<span class="fc" id="L147">    final ContractInvocation contractInvocation = (ContractInvocation) targets[0];</span>
+<span class="fc" id="L148">    final String name = contractInvocation.getFunction().getName();</span>
+<span class="fc" id="L149">    final List&lt;Object&gt; args = contractInvocation.getArgs();</span>
+<span class="fc" id="L150">    final String jsonForm = asJsonForm(name, args);</span>
+<span class="fc" id="L151">    return new BytesValue(jsonForm.getBytes());</span>
   }
 
   protected BytesValue resolveStake(final Type type, final Object[] targets) {
-<span class="fc" id="L130">    final String jsonForm = asJsonForm(type.getName(), asList(targets));</span>
-<span class="fc" id="L131">    return new BytesValue(jsonForm.getBytes());</span>
+<span class="fc" id="L155">    final String jsonForm = asJsonForm(type.getName(), asList(targets));</span>
+<span class="fc" id="L156">    return new BytesValue(jsonForm.getBytes());</span>
   }
 
   protected BytesValue resolveUnstake(final Type type, final Object[] targets) {
-<span class="fc" id="L135">    final String jsonForm = asJsonForm(type.getName(), asList(targets));</span>
-<span class="fc" id="L136">    return new BytesValue(jsonForm.getBytes());</span>
+<span class="fc" id="L160">    final String jsonForm = asJsonForm(type.getName(), asList(targets));</span>
+<span class="fc" id="L161">    return new BytesValue(jsonForm.getBytes());</span>
   }
 
   protected BytesValue resolveVote(final Type type, final Object[] targets) throws IOException {
-<span class="fc" id="L140">    final List&lt;Object&gt; args = new ArrayList&lt;Object&gt;();</span>
-<span class="fc bfc" id="L141" title="All 2 branches covered.">    for (final Object peerId : targets) {</span>
-<span class="fc" id="L142">      args.add(((PeerId) peerId).getEncoded());</span>
+<span class="fc" id="L165">    final List&lt;Object&gt; args = new ArrayList&lt;Object&gt;();</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">    for (final Object peerId : targets) {</span>
+<span class="fc" id="L167">      args.add(((PeerId) peerId).getEncoded());</span>
     }
-<span class="fc" id="L144">    final String jsonForm = asJsonForm(type.getName(), args);</span>
-<span class="fc" id="L145">    return new BytesValue(jsonForm.getBytes());</span>
+<span class="fc" id="L169">    final String jsonForm = asJsonForm(type.getName(), args);</span>
+<span class="fc" id="L170">    return new BytesValue(jsonForm.getBytes());</span>
   }
 
   protected BytesValue resolveCreateName(final Type type, final Object[] targets) {
-<span class="fc" id="L149">    final String jsonForm = asJsonForm(type.getName(), asList(targets));</span>
-<span class="fc" id="L150">    return new BytesValue(jsonForm.getBytes());</span>
+<span class="fc" id="L174">    final String jsonForm = asJsonForm(type.getName(), asList(targets));</span>
+<span class="fc" id="L175">    return new BytesValue(jsonForm.getBytes());</span>
   }
 
   protected BytesValue resolveUpdateName(final Type type, final Object[] targets)
       throws IOException {
-<span class="fc" id="L155">    final String name = (String) targets[0];</span>
-<span class="fc" id="L156">    final String newOwner = ((AccountAddress) targets[1]).getEncoded();</span>
-<span class="fc" id="L157">    final List&lt;Object&gt; args = new ArrayList&lt;Object&gt;();</span>
-<span class="fc" id="L158">    args.add(name);</span>
-<span class="fc" id="L159">    args.add(newOwner);</span>
-<span class="fc" id="L160">    final String jsonForm = asJsonForm(type.getName(), args);</span>
-<span class="fc" id="L161">    return new BytesValue(jsonForm.toString().getBytes());</span>
+<span class="fc" id="L180">    final String name = (String) targets[0];</span>
+<span class="fc" id="L181">    final String newOwner = ((AccountAddress) targets[1]).getEncoded();</span>
+<span class="fc" id="L182">    final List&lt;Object&gt; args = new ArrayList&lt;Object&gt;();</span>
+<span class="fc" id="L183">    args.add(name);</span>
+<span class="fc" id="L184">    args.add(newOwner);</span>
+<span class="fc" id="L185">    final String jsonForm = asJsonForm(type.getName(), args);</span>
+<span class="fc" id="L186">    return new BytesValue(jsonForm.toString().getBytes());</span>
   }
 
   protected String asJsonForm(final String name, final List&lt;Object&gt; args) {
-<span class="fc" id="L165">    final StringBuilder sb = new StringBuilder();</span>
-<span class="fc" id="L166">    sb.append(JSON_START);</span>
-<span class="fc" id="L167">    sb.append(keyAndValue(&quot;Name&quot;, asJsonString(name)));</span>
-<span class="fc bfc" id="L168" title="All 2 branches covered.">    if (!args.isEmpty()) {</span>
-<span class="fc" id="L169">      sb.append(JSON_NEXT);</span>
-<span class="fc" id="L170">      sb.append(keyAndValue(&quot;Args&quot;, asJsonArray(args)));</span>
+<span class="fc" id="L190">    final StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L191">    sb.append(JSON_START);</span>
+<span class="fc" id="L192">    sb.append(keyAndValue(&quot;Name&quot;, asJsonString(name)));</span>
+<span class="fc bfc" id="L193" title="All 2 branches covered.">    if (!args.isEmpty()) {</span>
+<span class="fc" id="L194">      sb.append(JSON_NEXT);</span>
+<span class="fc" id="L195">      sb.append(keyAndValue(&quot;Args&quot;, asJsonArray(args)));</span>
     }
-<span class="fc" id="L172">    sb.append(JSON_END);</span>
-<span class="fc" id="L173">    return sb.toString();</span>
+<span class="fc" id="L197">    sb.append(JSON_END);</span>
+<span class="fc" id="L198">    return sb.toString();</span>
   }
 
   protected String asJsonArray(final List&lt;Object&gt; args) {
-<span class="fc" id="L177">    final StringBuilder sb = new StringBuilder();</span>
-<span class="fc" id="L178">    sb.append(JSON_ARRAY_START);</span>
+<span class="fc" id="L202">    final StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L203">    sb.append(JSON_ARRAY_START);</span>
     // nil, boolean, number, string, table?
-<span class="fc bfc" id="L180" title="All 2 branches covered.">    for (int i = 0; i &lt; args.size(); ++i) {</span>
-<span class="fc bfc" id="L181" title="All 2 branches covered.">      if (i != 0) {</span>
-<span class="fc" id="L182">        sb.append(JSON_NEXT);</span>
+<span class="fc bfc" id="L205" title="All 2 branches covered.">    for (int i = 0; i &lt; args.size(); ++i) {</span>
+<span class="fc bfc" id="L206" title="All 2 branches covered.">      if (i != 0) {</span>
+<span class="fc" id="L207">        sb.append(JSON_NEXT);</span>
       }
 
-<span class="fc" id="L185">      final Object arg = args.get(i);</span>
-<span class="pc bpc" id="L186" title="1 of 2 branches missed.">      if (null == arg) {</span>
-<span class="nc" id="L187">        sb.append(asJsonNull());</span>
-<span class="pc bpc" id="L188" title="1 of 2 branches missed.">      } else if (arg instanceof Number) {</span>
-<span class="nc" id="L189">        sb.append(asJsonNumber((Number) arg));</span>
-<span class="pc bpc" id="L190" title="1 of 2 branches missed.">      } else if (arg instanceof BigInteger) {</span>
-<span class="nc" id="L191">        sb.append(asJsonNumber((BigInteger) arg));</span>
-<span class="pc bpc" id="L192" title="1 of 2 branches missed.">      } else if (arg instanceof BigDecimal) {</span>
-<span class="nc" id="L193">        sb.append(asJsonNumber((BigDecimal) arg));</span>
-<span class="pc bpc" id="L194" title="1 of 2 branches missed.">      } else if (arg instanceof String) {</span>
-<span class="fc" id="L195">        sb.append(asJsonString((String) arg));</span>
-<span class="nc bnc" id="L196" title="All 2 branches missed.">      } else if (arg instanceof Boolean) {</span>
-<span class="nc" id="L197">        sb.append(asJsonBoolean((Boolean) arg));</span>
+<span class="fc" id="L210">      final Object arg = args.get(i);</span>
+<span class="pc bpc" id="L211" title="1 of 2 branches missed.">      if (null == arg) {</span>
+<span class="nc" id="L212">        sb.append(asJsonNull());</span>
+<span class="pc bpc" id="L213" title="1 of 2 branches missed.">      } else if (arg instanceof Number) {</span>
+<span class="nc" id="L214">        sb.append(asJsonNumber((Number) arg));</span>
+<span class="pc bpc" id="L215" title="1 of 2 branches missed.">      } else if (arg instanceof BigInteger) {</span>
+<span class="nc" id="L216">        sb.append(asJsonNumber((BigInteger) arg));</span>
+<span class="pc bpc" id="L217" title="1 of 2 branches missed.">      } else if (arg instanceof BigDecimal) {</span>
+<span class="nc" id="L218">        sb.append(asJsonNumber((BigDecimal) arg));</span>
+<span class="pc bpc" id="L219" title="1 of 2 branches missed.">      } else if (arg instanceof String) {</span>
+<span class="fc" id="L220">        sb.append(asJsonString((String) arg));</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">      } else if (arg instanceof Boolean) {</span>
+<span class="nc" id="L222">        sb.append(asJsonBoolean((Boolean) arg));</span>
       } else {
-<span class="nc" id="L199">        throw new IllegalArgumentException(&quot;Args type must be number or string&quot;);</span>
+<span class="nc" id="L224">        throw new IllegalArgumentException(&quot;Args type must be number or string&quot;);</span>
       }
     }
-<span class="fc" id="L202">    sb.append(JSON_ARRAY_END);</span>
-<span class="fc" id="L203">    return sb.toString();</span>
+<span class="fc" id="L227">    sb.append(JSON_ARRAY_END);</span>
+<span class="fc" id="L228">    return sb.toString();</span>
   }
 
   protected String keyAndValue(final String key, final String value) {
-<span class="fc" id="L207">    return &quot;\&quot;&quot; + key + &quot;\&quot;&quot; + &quot;:&quot; + value;</span>
+<span class="fc" id="L232">    return asJsonString(key) + &quot;:&quot; + value;</span>
   }
 
   protected String asJsonString(final String target) {
-<span class="fc" id="L211">    return &quot;\&quot;&quot; + target + &quot;\&quot;&quot;;</span>
+<span class="fc" id="L236">    final StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L237">    sb.append('&quot;');</span>
+<span class="fc" id="L238">    appendQuoted(sb, target);</span>
+<span class="fc" id="L239">    sb.append('&quot;');</span>
+<span class="fc" id="L240">    return sb.toString();</span>
   }
 
+  protected void appendQuoted(StringBuilder sb, String content) {
+<span class="fc" id="L244">    final int[] escCodes = sOutputEscapes128;</span>
+<span class="fc" id="L245">    int escLen = escCodes.length;</span>
+<span class="fc bfc" id="L246" title="All 2 branches covered.">    for (int i = 0, len = content.length(); i &lt; len; ++i) {</span>
+<span class="fc" id="L247">      char c = content.charAt(i);</span>
+<span class="pc bpc" id="L248" title="2 of 4 branches missed.">      if (c &gt;= escLen || escCodes[c] == 0) {</span>
+<span class="fc" id="L249">        sb.append(c);</span>
+      } else {
+<span class="nc" id="L251">        sb.append('\\');</span>
+<span class="nc" id="L252">        int escCode = escCodes[c];</span>
+<span class="nc" id="L253">        sb.append((char) escCode);</span>
+      }
+    }
+<span class="fc" id="L256">  }</span>
+
   protected String asJsonNumber(final Number target) {
-<span class="nc" id="L215">    return target.toString();</span>
+<span class="nc" id="L259">    return target.toString();</span>
   }
 
   protected String asJsonNumber(final BigInteger target) {
-<span class="nc" id="L219">    return target.toString(10);</span>
+<span class="nc" id="L263">    return target.toString(10);</span>
   }
 
   protected String asJsonNumber(final BigDecimal target) {
-<span class="nc" id="L223">    return target.toString();</span>
+<span class="nc" id="L267">    return target.toString();</span>
   }
 
   protected String asJsonNull() {
-<span class="nc" id="L227">    return &quot;null&quot;;</span>
+<span class="nc" id="L271">    return &quot;null&quot;;</span>
   }
 
   protected String asJsonBoolean(final Boolean target) {
-<span class="nc" id="L231">    return target.toString();</span>
+<span class="nc" id="L275">    return target.toString();</span>
   }
 
 }

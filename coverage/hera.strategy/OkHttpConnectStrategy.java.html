@@ -4,6 +4,7 @@
 
 package hera.strategy;
 
+import static hera.TransportConstants.KEEP_ALIVE_INTERVAL;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Context;
@@ -15,27 +16,26 @@ import lombok.Setter;
 import lombok.ToString;
 import org.slf4j.Logger;
 
-<span class="nc" id="L18">@ToString(exclude = {&quot;logger&quot;, &quot;context&quot;})</span>
-<span class="fc" id="L19">public class OkHttpConnectStrategy implements ConnectStrategy&lt;OkHttpChannelBuilder&gt; {</span>
+<span class="fc" id="L19">@ToString(exclude = {&quot;logger&quot;, &quot;context&quot;})</span>
+<span class="fc" id="L20">public class OkHttpConnectStrategy implements ConnectStrategy&lt;OkHttpChannelBuilder&gt; {</span>
 
-<span class="fc" id="L21">  protected final Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L22">  protected final Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L23">  @Setter</span>
+<span class="fc" id="L24">  @Setter</span>
   protected Context context;
 
   protected HostnameAndPort getEndpoint() {
-<span class="fc" id="L27">    return HostnameAndPort.of(this.context.getConfiguration().getAsString(&quot;endpoint&quot;,</span>
+<span class="fc" id="L28">    return HostnameAndPort.of(this.context.getConfiguration().getAsString(&quot;endpoint&quot;,</span>
         DefaultConstants.DEFAULT_ENDPOINT));
   }
 
   @Override
   public OkHttpChannelBuilder connect() {
-<span class="fc" id="L33">    final HostnameAndPort endpoint = getEndpoint();</span>
-<span class="fc" id="L34">    logger.info(&quot;Connect to {} with strategy {}&quot;, endpoint, getClass().getName());</span>
-<span class="fc" id="L35">    return OkHttpChannelBuilder</span>
-<span class="fc" id="L36">        .forAddress(endpoint.getHostname(), endpoint.getPort())</span>
-<span class="fc" id="L37">        .keepAliveTime(30, TimeUnit.SECONDS)</span>
-<span class="fc" id="L38">        .keepAliveTimeout(10, TimeUnit.SECONDS)</span>
+<span class="fc" id="L34">    final HostnameAndPort endpoint = getEndpoint();</span>
+<span class="fc" id="L35">    logger.info(&quot;Connect to {} with strategy {}&quot;, endpoint, getClass().getName());</span>
+<span class="fc" id="L36">    return OkHttpChannelBuilder</span>
+<span class="fc" id="L37">        .forAddress(endpoint.getHostname(), endpoint.getPort())</span>
+<span class="fc" id="L38">        .keepAliveTime(KEEP_ALIVE_INTERVAL, TimeUnit.SECONDS)</span>
 <span class="fc" id="L39">        .keepAliveWithoutCalls(true)</span>
 <span class="fc" id="L40">        .usePlaintext();</span>
   }

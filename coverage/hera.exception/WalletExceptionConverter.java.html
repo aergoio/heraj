@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WalletExceptionConverter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.exception</a> &gt; <span class="el_source">WalletExceptionConverter.java</span></div><h1>WalletExceptionConverter.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.exception;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.util.ExceptionConverter;
+import org.slf4j.Logger;
+
+<span class="fc" id="L12">public class WalletExceptionConverter implements ExceptionConverter&lt;WalletException&gt; {</span>
+
+<span class="fc" id="L14">  protected final Logger logger = getLogger(getClass());</span>
+
+  @Override
+  public WalletException convert(final Throwable t) {
+<span class="fc" id="L18">    logger.debug(&quot;Handle exception {}&quot;, t.toString());</span>
+<span class="pc bpc" id="L19" title="1 of 2 branches missed.">    if (t instanceof WalletException) {</span>
+<span class="nc" id="L20">      return (WalletException) t;</span>
+<span class="pc bpc" id="L21" title="1 of 2 branches missed.">    } else if (t instanceof RpcCommitException) {</span>
+<span class="nc" id="L22">      return new WalletCommitException(t);</span>
+<span class="pc bpc" id="L23" title="1 of 2 branches missed.">    } else if (t instanceof RpcConnectionException) {</span>
+<span class="nc" id="L24">      return new WalletConnectionException(t);</span>
+<span class="pc bpc" id="L25" title="1 of 2 branches missed.">    } else if (t instanceof RpcException) {</span>
+<span class="nc" id="L26">      return new WalletRpcException(t);</span>
+    } else {
+<span class="fc" id="L28">      return new WalletException(&quot;Unexpected one&quot;, t);</span>
+    }
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
