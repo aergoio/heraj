@@ -51,4 +51,6 @@ public final class TransportConstants {
   public static final String CONTRACT_LIST_EVENT = "heraj.listevent";
   public static final String CONTRACT_SUBSCRIBE_EVENT = "heraj.subscribe.event";
 
+  public static final long KEEP_ALIVE_INTERVAL = 300L; // seconds
+
 }
