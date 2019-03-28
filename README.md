@@ -11,7 +11,7 @@ This repository, heraj is java implementation for hera.
 
 ## Lastest
 
-v0.12.2
+v0.12.3
 
 build with aergo-protobuf v0.12.0
 
