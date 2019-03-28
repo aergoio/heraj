@@ -144,11 +144,11 @@ public final class ContextConc implements Context {
       final Class&lt;StrategyT&gt; strategyClass) {
 <span class="fc" id="L145">    StrategyT ret = null;</span>
 <span class="fc bfc" id="L146" title="All 2 branches covered.">    for (final Strategy strategy : getStrategies()) {</span>
-<span class="fc bfc" id="L147" title="All 2 branches covered.">      if (strategyClass.isInstance(strategy)) {</span>
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">      if (strategyClass.isInstance(strategy)) {</span>
 <span class="fc" id="L148">        ret = (StrategyT) strategy;</span>
 <span class="fc" id="L149">        break;</span>
       }
-<span class="fc" id="L151">    }</span>
+<span class="nc" id="L151">    }</span>
 <span class="fc" id="L152">    return ret;</span>
   }
 
