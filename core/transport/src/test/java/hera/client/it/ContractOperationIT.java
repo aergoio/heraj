@@ -4,6 +4,7 @@
 
 package hera.client.it;
 
+import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -25,6 +26,7 @@ import hera.api.model.Subscription;
 import hera.util.IoUtils;
 import java.io.InputStreamReader;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -319,6 +321,206 @@ public class ContractOperationIT extends AbstractIT {
 
       assertTrue(subscription.isUnsubscribed());
       assertEquals(0L, latch.getCount());
+    }
+  }
+
+  @Test
+  public void testLuaContractEventWithEventNameFilter() {
+    for (final Account account : supplyAccounts()) {
+      unlockAccount(account, password);
+      final ContractDefinition definition = ContractDefinition.newBuilder()
+          .encodedContract(contractPayload)
+          .build();
+      final ContractTxHash deployTxHash = deploy(account, definition, fee);
+
+      final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
+      assertEquals("CREATED", deployTxReceipt.getStatus());
+
+      final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
+      final ContractInterface contractInterface = getContractInterface(contractAddress);
+
+      final EventFilter eventFilter = EventFilter.newBuilder(contractAddress)
+          .eventName("set")
+          .build();
+
+      final AtomicInteger count = new AtomicInteger(2);
+      final Subscription<Event> subscription =
+          aergoClient.getContractOperation().subscribeEvent(eventFilter,
+              new StreamObserver<Event>() {
+
+                @Override
+                public void onNext(Event value) {
+                  count.decrementAndGet();
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                  // do nothing
+                }
+
+                @Override
+                public void onCompleted() {
+                  // do nothing
+                }
+              });
+
+      final ContractInvocation targetExec = contractInterface.newInvocationBuilder()
+          .function(executeFunction)
+          .args(new Object[] {executeKey, executeIntVal, executeStringVal})
+          .build();
+
+      final ContractInvocation otherExec = contractInterface.newInvocationBuilder()
+          .function("set2")
+          .args(new Object[] {randomUUID().toString(), randomUUID().toString().hashCode(),
+              randomUUID().toString()})
+          .build();
+
+      execute(account, targetExec, fee);
+      execute(account, targetExec, fee);
+
+      execute(account, otherExec, fee);
+      execute(account, otherExec, fee);
+      execute(account, otherExec, fee);
+
+      subscription.unsubscribe();
+
+      execute(account, targetExec, fee);
+
+      assertTrue(subscription.isUnsubscribed());
+      assertEquals(0, count.get());
+    }
+  }
+
+  @Test
+  public void testLuaContractEventWithArgFilter() {
+    for (final Account account : supplyAccounts()) {
+      unlockAccount(account, password);
+      final ContractDefinition definition = ContractDefinition.newBuilder()
+          .encodedContract(contractPayload)
+          .build();
+      final ContractTxHash deployTxHash = deploy(account, definition, fee);
+
+      final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
+      assertEquals("CREATED", deployTxReceipt.getStatus());
+
+      final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
+      final ContractInterface contractInterface = getContractInterface(contractAddress);
+
+      final EventFilter eventFilter = EventFilter.newBuilder(contractAddress)
+          .args(asList(new Object[] {executeKey}))
+          .build();
+
+      final AtomicInteger count = new AtomicInteger(2);
+      final Subscription<Event> subscription =
+          aergoClient.getContractOperation().subscribeEvent(eventFilter,
+              new StreamObserver<Event>() {
+
+                @Override
+                public void onNext(Event value) {
+                  count.decrementAndGet();
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                  // do nothing
+                }
+
+                @Override
+                public void onCompleted() {
+                  // do nothing
+                }
+              });
+
+      final ContractInvocation targetExec = contractInterface.newInvocationBuilder()
+          .function("set2")
+          .args(new Object[] {executeKey, executeIntVal, executeStringVal})
+          .build();
+
+      final ContractInvocation otherExec = contractInterface.newInvocationBuilder()
+          .function("set2")
+          .args(new Object[] {randomUUID().toString(), executeIntVal, executeStringVal})
+          .build();
+
+      execute(account, targetExec, fee);
+      execute(account, targetExec, fee);
+
+      execute(account, otherExec, fee);
+      execute(account, otherExec, fee);
+      execute(account, otherExec, fee);
+
+      subscription.unsubscribe();
+
+      execute(account, targetExec, fee);
+
+      assertTrue(subscription.isUnsubscribed());
+      assertEquals(0, count.get());
+    }
+  }
+
+  @Test
+  public void testLuaContractEventWithEventNameAndArgFilter() {
+    for (final Account account : supplyAccounts()) {
+      unlockAccount(account, password);
+      final ContractDefinition definition = ContractDefinition.newBuilder()
+          .encodedContract(contractPayload)
+          .build();
+      final ContractTxHash deployTxHash = deploy(account, definition, fee);
+
+      final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
+      assertEquals("CREATED", deployTxReceipt.getStatus());
+
+      final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
+      final ContractInterface contractInterface = getContractInterface(contractAddress);
+
+      final EventFilter eventFilter = EventFilter.newBuilder(contractAddress)
+          .eventName("set")
+          .args(asList(new Object[] {executeKey}))
+          .build();
+
+      final AtomicInteger count = new AtomicInteger(2);
+      final Subscription<Event> subscription =
+          aergoClient.getContractOperation().subscribeEvent(eventFilter,
+              new StreamObserver<Event>() {
+
+                @Override
+                public void onNext(Event value) {
+                  count.decrementAndGet();
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                  // do nothing
+                }
+
+                @Override
+                public void onCompleted() {
+                  // do nothing
+                }
+              });
+
+      final ContractInvocation targetExec = contractInterface.newInvocationBuilder()
+          .function(executeFunction)
+          .args(new Object[] {executeKey, executeIntVal, executeStringVal})
+          .build();
+
+      final ContractInvocation otherExec = contractInterface.newInvocationBuilder()
+          .function(executeFunction)
+          .args(new Object[] {randomUUID().toString(), executeIntVal, executeStringVal})
+          .build();
+
+      execute(account, targetExec, fee);
+      execute(account, targetExec, fee);
+
+      execute(account, otherExec, fee);
+      execute(account, otherExec, fee);
+      execute(account, otherExec, fee);
+
+      subscription.unsubscribe();
+
+      execute(account, targetExec, fee);
+
+      assertTrue(subscription.isUnsubscribed());
+      assertEquals(0, count.get());
     }
   }
 

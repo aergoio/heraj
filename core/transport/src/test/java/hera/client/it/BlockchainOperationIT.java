@@ -82,8 +82,9 @@ public class BlockchainOperationIT extends AbstractIT {
           account.incrementAndGetNonce());
       waitForNextBlockToGenerate();
 
-      StakingInfo fuck = aergoClient.getAccountOperation().getStakingInfo(account.getAddress());
-      System.out.println(fuck);
+      final StakingInfo stakingInfo =
+          aergoClient.getAccountOperation().getStakingInfo(account.getAddress());
+      logger.info("Staking info: {}", stakingInfo);
 
       final PeerId peerId = new PeerId(peer);
       aergoClient.getBlockchainOperation().vote(account, peerId, account.incrementAndGetNonce());

@@ -50,16 +50,15 @@ public abstract class AbstractIT {
 
   @Before
   public void setUp() throws Exception {
-    aergoClient = new AergoClientBuilder()
-        .withNonBlockingConnect()
-        .withEndpoint(hostname)
-        .build();
     final Properties properties = readProperties();
     hostname = (String) properties.get("hostname");
     encrypted = (String) properties.get("encrypted");
     password = (String) properties.get("password");
     peer = (String) properties.get("peer");
-    System.out.println(properties);
+    aergoClient = new AergoClientBuilder()
+        .withNonBlockingConnect()
+        .withEndpoint(hostname)
+        .build();
   }
 
   protected Properties readProperties() throws IOException {

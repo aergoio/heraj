@@ -9,6 +9,7 @@ import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.exception.HerajException;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -102,6 +103,10 @@ public class ContractInterface {
     @Override
     public ContractInvocationWithFunction function(final String functionName) {
       this.function = contractInterface.findFunction(functionName);
+      if (null == this.function) {
+        throw new HerajException(
+            "Cannot find function from interface [name: " + functionName + "]");
+      }
       return this;
     }
 
