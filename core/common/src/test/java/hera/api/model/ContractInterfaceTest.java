@@ -6,6 +6,7 @@ package hera.api.model;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,30 @@ public class ContractInterfaceTest {
         .args(args)
         .build();
     assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testInvocationBuilderWithInvalidFunction() {
+    final ContractAddress address = new ContractAddress(encodedAddress);
+    final String version = randomUUID().toString();
+    final String language = randomUUID().toString();
+    final ContractFunction function = new ContractFunction(functionName);
+    final List<ContractFunction> functions = new ArrayList<ContractFunction>();
+    functions.add(function);
+    final Object[] args = new Object[] {randomUUID().toString(), randomUUID().toString()};
+
+    final ContractInterface contractInterface =
+        new ContractInterface(address, version, language, functions);
+
+    try {
+      contractInterface.newInvocationBuilder()
+          .function(randomUUID().toString())
+          .args(args)
+          .build();
+      fail();
+    } catch (Exception e) {
+      // good we expected this
+    }
   }
 
 }
