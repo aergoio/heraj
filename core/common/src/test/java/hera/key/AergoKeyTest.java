@@ -4,6 +4,7 @@
 
 package hera.key;
 
+import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -11,11 +12,15 @@ import static org.junit.Assert.assertTrue;
 
 import hera.AbstractTestCase;
 import hera.api.model.Aer.Unit;
+import hera.api.model.ChainIdHash;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import org.junit.Test;
 
 public class AergoKeyTest extends AbstractTestCase {
+
+  protected static final ChainIdHash chainIdHash =
+      new ChainIdHash(of(randomUUID().toString().getBytes()));
 
   private static final String ENCRYPTED_PRIVATE_KEY =
       "47RHxbUL3DhA1TMHksEPdVrhumcjdXLAB3Hkv61mqkC9M1Wncai5b91q7hpKydfFHKyyVvgKt";
@@ -42,7 +47,7 @@ public class AergoKeyTest extends AbstractTestCase {
     for (int i = 0; i < N_TEST; ++i) {
       final AergoKey key = new AergoKeyGenerator().create();
 
-      final RawTransaction rawTransaction = RawTransaction.newBuilder()
+      final RawTransaction rawTransaction = RawTransaction.newBuilder(chainIdHash)
           .from(key.getAddress())
           .to(key.getAddress())
           .amount("10000", Unit.AER)

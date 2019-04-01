@@ -5,6 +5,7 @@
 package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
+import static hera.util.ValidationUtils.assertTrue;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
@@ -26,10 +27,13 @@ public class Peer {
   protected int port;
 
   @Getter
-  protected PeerId peerId;
+  protected String peerId;
 
   @Getter
-  protected BlockchainStatus blockchainStatus;
+  protected long bestHeight;
+
+  @Getter
+  protected BlockHash bestBlockHash;
 
   @Getter
   protected int state;
@@ -49,23 +53,27 @@ public class Peer {
    * @param address a peer address
    * @param port a peer port
    * @param peerId a peer id
-   * @param blockchainStatus a blockchain status of peer
+   * @param bestHeight a best height of peer
+   * @param bestBlockHash a best block hash of peer
    * @param state a peer state
    * @param hidden whether a peer is hidden or not
    * @param lashCheck a lash check value
    * @param selfPeer whether it is a peer which have received request or not
    */
   @ApiAudience.Private
-  public Peer(final InetAddress address, final int port, final PeerId peerId,
-      final BlockchainStatus blockchainStatus,
-      final int state, final boolean hidden, final long lashCheck, final boolean selfPeer) {
+  public Peer(final InetAddress address, final int port, final String peerId,
+      final long bestHeight, final BlockHash bestBlockHash,
+      final int state, final boolean hidden,
+      final long lashCheck, final boolean selfPeer) {
     assertNotNull(address, "Peer address must not null");
     assertNotNull(peerId, "Peer id must not null");
-    assertNotNull(blockchainStatus, "Peer blockchain status must not null");
+    assertTrue(bestHeight >= 0L, "Peer best block height >= 0");
+    assertNotNull(bestBlockHash, "Peer best block hash must not null");
     this.address = address;
     this.port = port;
     this.peerId = peerId;
-    this.blockchainStatus = blockchainStatus;
+    this.bestHeight = bestHeight;
+    this.bestBlockHash = bestBlockHash;
     this.state = state;
     this.hidden = hidden;
     this.lashCheck = lashCheck;

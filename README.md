@@ -9,7 +9,7 @@
 The hera is the client-side framework for the aergo.
 This repository, heraj is java implementation for hera.
 
-## Lastest
+## Latest
 
 v0.12.3
 

@@ -5,6 +5,7 @@
 package hera.api.model;
 
 import static hera.api.model.BytesValue.of;
+import static hera.util.ValidationUtils.assertNotNull;
 import static hera.util.VersionUtils.envelop;
 
 import hera.annotation.ApiAudience;
@@ -13,6 +14,7 @@ import hera.api.model.Transaction.TxType;
 import hera.spec.AddressSpec;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @ApiAudience.Public
@@ -22,8 +24,8 @@ import lombok.ToString;
 public class RawTransaction {
 
   @ApiAudience.Public
-  public static RawTransactionWithNothing newBuilder() {
-    return new RawTransaction.Builder();
+  public static RawTransactionWithNothing newBuilder(final ChainIdHash chainIdHash) {
+    return new RawTransaction.Builder(chainIdHash);
   }
 
   /**
@@ -35,10 +37,14 @@ public class RawTransaction {
    */
   @ApiAudience.Public
   public static RawTransaction copyOf(final RawTransaction rawTransaction, final long nonce) {
-    return new RawTransaction(rawTransaction.getSender(), rawTransaction.getRecipient(),
+    return new RawTransaction(rawTransaction.chainIdHash, rawTransaction.getSender(),
+        rawTransaction.getRecipient(),
         rawTransaction.getAmount(), nonce, rawTransaction.getFee(), rawTransaction.getPayload(),
         rawTransaction.getTxType());
   }
+
+  @Getter
+  protected final ChainIdHash chainIdHash;
 
   @Getter
   protected final AccountAddress sender;
@@ -73,9 +79,12 @@ public class RawTransaction {
    * @param txType a txType
    */
   @ApiAudience.Private
-  public RawTransaction(final AccountAddress sender, final AccountAddress recipient,
+  public RawTransaction(final ChainIdHash chainIdHash, final AccountAddress sender,
+      final AccountAddress recipient,
       final Aer amount, final Long nonce, final Fee fee, final BytesValue payload,
       final TxType txType) {
+    assertNotNull(chainIdHash, "Chain id hash must not null");
+    this.chainIdHash = chainIdHash;
     this.sender = null != sender ? sender : AccountAddress.of(BytesValue.EMPTY);
     this.recipient = null != recipient ? recipient : AccountAddress.of(BytesValue.EMPTY);
     this.amount = null != amount ? amount : Aer.EMPTY;
@@ -118,10 +127,13 @@ public class RawTransaction {
     RawTransactionWithReady payload(BytesValue payload);
   }
 
+  @RequiredArgsConstructor
   protected static class Builder
       implements RawTransactionWithNothing, RawTransactionWithSender,
       RawTransactionWithSenderAndRecipient, RawTransactionWithSenderAndRecipientAndAmount,
       RawTransactionWithReady {
+
+    private final ChainIdHash chainIdHash;
 
     private AccountAddress sender;
 
@@ -206,7 +218,8 @@ public class RawTransaction {
 
     @Override
     public RawTransaction build() {
-      return new RawTransaction(sender, recipient, amount, nonce, fee, payload, txType);
+      return new RawTransaction(chainIdHash, sender, recipient, amount, nonce, fee, payload,
+          txType);
     }
   }
 

@@ -13,8 +13,8 @@ import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInvocation;
-import hera.api.model.PeerId;
 import hera.exception.HerajException;
+import hera.spec.PayloadSpec;
 import hera.spec.PayloadSpec.Type;
 import hera.util.LittleEndianDataOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -152,26 +152,28 @@ public class PayloadResolver {
   }
 
   protected BytesValue resolveStake(final Type type, final Object[] targets) {
-    final String jsonForm = asJsonForm(type.getName(), asList(targets));
+    final String jsonForm = asJsonForm(PayloadSpec.VERSION + type.getName(), asList(targets));
     return new BytesValue(jsonForm.getBytes());
   }
 
   protected BytesValue resolveUnstake(final Type type, final Object[] targets) {
-    final String jsonForm = asJsonForm(type.getName(), asList(targets));
+    final String jsonForm = asJsonForm(PayloadSpec.VERSION + type.getName(), asList(targets));
     return new BytesValue(jsonForm.getBytes());
   }
 
   protected BytesValue resolveVote(final Type type, final Object[] targets) throws IOException {
+    final String voteId = (String) targets[0];
+    final String[] candidates = (String[]) targets[1];
     final List<Object> args = new ArrayList<Object>();
-    for (final Object peerId : targets) {
-      args.add(((PeerId) peerId).getEncoded());
+    for (final String candidate : candidates) {
+      args.add(candidate);
     }
-    final String jsonForm = asJsonForm(type.getName(), args);
+    final String jsonForm = asJsonForm(PayloadSpec.VERSION + voteId, args);
     return new BytesValue(jsonForm.getBytes());
   }
 
   protected BytesValue resolveCreateName(final Type type, final Object[] targets) {
-    final String jsonForm = asJsonForm(type.getName(), asList(targets));
+    final String jsonForm = asJsonForm(PayloadSpec.VERSION + type.getName(), asList(targets));
     return new BytesValue(jsonForm.getBytes());
   }
 
@@ -182,7 +184,7 @@ public class PayloadResolver {
     final List<Object> args = new ArrayList<Object>();
     args.add(name);
     args.add(newOwner);
-    final String jsonForm = asJsonForm(type.getName(), args);
+    final String jsonForm = asJsonForm(PayloadSpec.VERSION + type.getName(), args);
     return new BytesValue(jsonForm.toString().getBytes());
   }
 

@@ -6,6 +6,7 @@ package hera;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.api.model.ChainIdHash;
 import hera.util.Configuration;
 import java.util.Set;
 
@@ -34,6 +35,21 @@ public interface Context {
    * @return a context instance without current scope.
    */
   Context popScope();
+
+  /**
+   * Make a context instance with {@code chainIdHash}.
+   *
+   * @param chainIdHash a chain id hash
+   * @return a context instance with {@code chainIdHash}
+   */
+  Context withChainIdHash(ChainIdHash chainIdHash);
+
+  /**
+   * Get chain id hash of a context. null if no one.
+   * 
+   * @return a scope
+   */
+  ChainIdHash getChainIdHash();
 
   /**
    * Make a context instance with corresponding {@code key} and a {@code value}.

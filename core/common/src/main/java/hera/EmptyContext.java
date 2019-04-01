@@ -11,6 +11,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.api.model.ChainIdHash;
 import hera.util.Configuration;
 import hera.util.conf.InMemoryConfiguration;
 import java.util.Collections;
@@ -30,30 +31,42 @@ import org.slf4j.Logger;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class EmptyContext implements Context {
 
-  protected final Logger logger = getLogger(getClass());
-
   public static final String SCOPE = "empty";
 
-  protected static Context emptyContext = new EmptyContext();
+  protected static final Context emptyContext = new EmptyContext();
 
   public static Context getInstance() {
     return emptyContext;
   }
 
-  @Getter
-  protected String scope = EmptyContext.SCOPE;
+  protected final Logger logger = getLogger(getClass());
 
   @Getter
-  protected Configuration configuration = new InMemoryConfiguration(true);
+  protected final String scope = EmptyContext.SCOPE;
 
   @Getter
-  protected Set<Strategy> strategies = unmodifiableSet(Collections.<Strategy>emptySet());
+  protected final ChainIdHash chainIdHash = null;
+
+  @Getter
+  protected final Configuration configuration = new InMemoryConfiguration(true);
+
+  @Getter
+  protected final Set<Strategy> strategies = unmodifiableSet(Collections.<Strategy>emptySet());
+
+  @Override
+  public Context withChainIdHash(final ChainIdHash chainIdHash) {
+    logger.debug("New chain id hash: {}", chainIdHash);
+    final ContextConc newContext =
+        new ContextConc(this, getScope(), chainIdHash, getConfiguration(), getStrategies());
+    logger.debug("New context: {}", newContext);
+    return newContext;
+  }
 
   @Override
   public Context withScope(final String scope) {
     logger.debug("New scope: {}", scope);
     final ContextConc newContext =
-        new ContextConc(this, scope, getConfiguration(), getStrategies());
+        new ContextConc(this, scope, getChainIdHash(), getConfiguration(), getStrategies());
     logger.debug("New context: {}", newContext);
     return newContext;
   }
@@ -69,7 +82,7 @@ public class EmptyContext implements Context {
     final Configuration newConfiguration = new InMemoryConfiguration();
     newConfiguration.define(key, value);
     final ContextConc newContext =
-        new ContextConc(this, getScope(), newConfiguration, getStrategies());
+        new ContextConc(this, getScope(), getChainIdHash(), newConfiguration, getStrategies());
     logger.debug("New context: {}", newContext);
     return newContext;
   }
@@ -78,7 +91,7 @@ public class EmptyContext implements Context {
   public Context withConfiguration(final Configuration configuration) {
     logger.debug("New configuration: {}", configuration);
     final ContextConc newContext =
-        new ContextConc(this, getScope(), configuration, getStrategies());
+        new ContextConc(this, getScope(), getChainIdHash(), configuration, getStrategies());
     logger.debug("New context: {}", newContext);
     return newContext;
   }
@@ -93,7 +106,7 @@ public class EmptyContext implements Context {
   public <StrategyT extends Strategy> Context withStrategy(final StrategyT strategy) {
     logger.debug("New strategy: {}", strategy);
     final ContextConc newContext =
-        new ContextConc(this, getScope(), getConfiguration(),
+        new ContextConc(this, getScope(), getChainIdHash(), getConfiguration(),
             new HashSet<Strategy>(asList(strategy)));
     logger.debug("New context: {}", newContext);
     return newContext;
@@ -104,7 +117,7 @@ public class EmptyContext implements Context {
     logger.debug("New strategies: {}", strategies);
     final Set<Strategy> newStrategies = new HashSet<Strategy>(strategies);
     final ContextConc newContext =
-        new ContextConc(this, getScope(), getConfiguration(), newStrategies);
+        new ContextConc(this, getScope(), getChainIdHash(), getConfiguration(), newStrategies);
     logger.debug("New context: {}", newContext);
     return newContext;
   }

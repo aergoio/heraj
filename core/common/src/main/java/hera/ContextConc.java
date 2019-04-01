@@ -9,11 +9,11 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.api.model.ChainIdHash;
 import hera.util.Configuration;
 import hera.util.conf.InMemoryConfiguration;
 import java.util.HashSet;
 import java.util.Set;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.slf4j.Logger;
@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 @ApiAudience.Private
 @ApiStability.Unstable
 @ToString(exclude = {"logger", "parent"})
-@EqualsAndHashCode(exclude = {"logger", "parent"})
 public final class ContextConc implements Context {
 
   protected final Logger logger = getLogger(getClass());
@@ -32,14 +31,18 @@ public final class ContextConc implements Context {
   protected final String scope;
 
   @Getter
+  protected final ChainIdHash chainIdHash;
+
+  @Getter
   protected final Configuration configuration;
 
   protected final Set<Strategy> strategies;
 
-  protected ContextConc(final Context parent, final String scope,
+  protected ContextConc(final Context parent, final String scope, final ChainIdHash chainIdHash,
       final Configuration configuration, final Set<Strategy> strageties) {
     this.parent = parent;
     this.scope = scope;
+    this.chainIdHash = chainIdHash;
     this.configuration = (configuration instanceof InMemoryConfiguration
         && ((InMemoryConfiguration) configuration).isReadOnly()) ? configuration
             : new InMemoryConfiguration(true, configuration);
@@ -51,10 +54,12 @@ public final class ContextConc implements Context {
     logger.debug("New scope: {}", scope);
     Context newContext = null;
     if (isScopeBase()) {
-      newContext = new ContextConc(this, scope, this.configuration, this.strategies);
+      newContext =
+          new ContextConc(this, scope, this.chainIdHash, this.configuration, this.strategies);
     } else {
       final Context newScopeBase = getScopeBase().withScope(scope);
-      newContext = new ContextConc(newScopeBase, scope, this.configuration, this.strategies);
+      newContext = new ContextConc(newScopeBase, scope, this.chainIdHash, this.configuration,
+          this.strategies);
     }
     logger.debug("New context: {}", newContext);
     return newContext;
@@ -69,8 +74,17 @@ public final class ContextConc implements Context {
     } else {
       final Context scopeParent = getScopeParent();
       newContext = new ContextConc(scopeParent,
-          scopeParent.getScope(), this.configuration, this.strategies);
+          scopeParent.getScope(), this.chainIdHash, this.configuration, this.strategies);
     }
+    logger.debug("New context: {}", newContext);
+    return newContext;
+  }
+
+  @Override
+  public Context withChainIdHash(final ChainIdHash chainIdHash) {
+    logger.debug("New chain id hash: {}", chainIdHash);
+    final ContextConc newContext =
+        new ContextConc(this.parent, this.scope, chainIdHash, this.configuration, this.strategies);
     logger.debug("New context: {}", newContext);
     return newContext;
   }
@@ -90,7 +104,7 @@ public final class ContextConc implements Context {
   @Override
   public Context withKeyValue(final String key, final Object value) {
     logger.debug("Define key: {}, value: {}", key, value);
-    final Configuration newConfiguration = new InMemoryConfiguration(this.getConfiguration());
+    final Configuration newConfiguration = new InMemoryConfiguration(getConfiguration());
     newConfiguration.define(key, value);
     return withConfiguration(newConfiguration);
   }
@@ -99,7 +113,7 @@ public final class ContextConc implements Context {
   public Context withConfiguration(final Configuration configuration) {
     logger.debug("New configuration: {}", configuration);
     final ContextConc newContext =
-        new ContextConc(this.parent, this.scope, configuration, this.strategies);
+        new ContextConc(this.parent, this.scope, this.chainIdHash, configuration, this.strategies);
     logger.debug("New context: {}", newContext);
     return newContext;
   }
@@ -110,10 +124,11 @@ public final class ContextConc implements Context {
     if (null == getConfiguration().get(key)) {
       return this;
     }
-    final Configuration newConfiguration = new InMemoryConfiguration(this.getConfiguration());
+    final Configuration newConfiguration = new InMemoryConfiguration(getConfiguration());
     newConfiguration.remove(key);;
     final ContextConc newContext =
-        new ContextConc(this.parent, this.scope, newConfiguration, this.strategies);
+        new ContextConc(this.parent, this.scope, this.chainIdHash, newConfiguration,
+            this.strategies);
     logger.debug("New context: {}", newContext);
     return newContext;
   }
@@ -133,7 +148,7 @@ public final class ContextConc implements Context {
   public Context withStrategies(final Set<Strategy> strategies) {
     logger.debug("New strategies: {}", strategies);
     final ContextConc newContext =
-        new ContextConc(this.parent, this.scope, this.configuration, strategies);
+        new ContextConc(this.parent, this.scope, this.chainIdHash, this.configuration, strategies);
     logger.debug("New context: {}", newContext);
     return newContext;
   }
@@ -160,7 +175,8 @@ public final class ContextConc implements Context {
         newStrategies.remove(oldStrategy);
       }
     }
-    return new ContextConc(this.parent, this.scope, this.configuration, newStrategies);
+    return new ContextConc(this.parent, this.scope, this.chainIdHash, this.configuration,
+        newStrategies);
   }
 
   @Override
@@ -172,6 +188,39 @@ public final class ContextConc implements Context {
       }
     }
     return strategies;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((parent == null) ? 0 : parent.hashCode());
+    result = prime * result + ((scope == null) ? 0 : scope.hashCode());
+    result = prime * result + ((chainIdHash == null) ? 0 : chainIdHash.hashCode());
+    result = prime * result + ((configuration == null) ? 0 : configuration.hashCode());
+    result = prime * result + ((strategies == null) ? 0 : strategies.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (null == obj) {
+      return false;
+    }
+    if (!obj.getClass().equals(getClass())) {
+      return false;
+    }
+
+    final ContextConc other = (ContextConc) obj;
+    // don't use lombok because of it
+    if (this.parent != other.parent) {
+      return false;
+    }
+
+    return this.scope.equals(other.scope)
+        && this.chainIdHash.equals(other.chainIdHash)
+        && this.configuration.equals(other.configuration)
+        && this.strategies.equals(other.strategies);
   }
 
 }

@@ -11,7 +11,6 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 
-@SuppressWarnings("rawtypes")
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore({
     "javax.crypto.*",

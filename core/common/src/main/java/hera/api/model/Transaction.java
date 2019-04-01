@@ -60,8 +60,8 @@ public class Transaction extends RawTransaction {
   public Transaction(final RawTransaction rawTransaction, final Signature signature,
       final TxHash txHash, final BlockHash blockHash, final int indexInBlock,
       final boolean isConfirmed) {
-    this(rawTransaction.getSender(), rawTransaction.getRecipient(), rawTransaction.getAmount(),
-        rawTransaction.getNonce(), rawTransaction.getFee(),
+    this(rawTransaction.getChainIdHash(), rawTransaction.getSender(), rawTransaction.getRecipient(),
+        rawTransaction.getAmount(), rawTransaction.getNonce(), rawTransaction.getFee(),
         rawTransaction.getPayload(), rawTransaction.getTxType(),
         signature, txHash, blockHash, indexInBlock, isConfirmed);
   }
@@ -83,11 +83,12 @@ public class Transaction extends RawTransaction {
    * @param isConfirmed an confirm state
    */
   @ApiAudience.Private
-  public Transaction(final AccountAddress sender, final AccountAddress recipient,
+  public Transaction(final ChainIdHash chainIdHash, final AccountAddress sender,
+      final AccountAddress recipient,
       final Aer amount, long nonce, final Fee fee, final BytesValue payload,
       final TxType txType, final Signature signature, final TxHash txHash,
       final BlockHash blockHash, final int indexInBlock, final boolean isConfirmed) {
-    super(sender, recipient, amount, nonce, fee, payload, txType);
+    super(chainIdHash, sender, recipient, amount, nonce, fee, payload, txType);
     this.signature = null != signature ? signature : Signature.of(BytesValue.EMPTY);
     this.hash = null != txHash ? txHash : TxHash.of(BytesValue.EMPTY);
     this.blockHash = null != blockHash ? blockHash : BlockHash.of(BytesValue.EMPTY);

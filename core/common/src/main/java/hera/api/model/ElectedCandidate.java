@@ -16,25 +16,25 @@ import lombok.ToString;
 @ApiStability.Unstable
 @ToString
 @EqualsAndHashCode
-public class BlockProducer {
+public class ElectedCandidate {
 
   @Getter
-  protected final PeerId peerId;
+  protected final String candidateId;
 
   @Getter
-  protected final Aer votedAmount;
+  protected final Aer voted;
 
   /**
    * Vote constructor.
    *
-   * @param peerId a peer id
-   * @param votedAmount an voted amount
+   * @param candidateId a candidate id
+   * @param voted a voted amount
    */
-  public BlockProducer(final PeerId peerId, final Aer votedAmount) {
-    assertNotNull(peerId, "Peer id must not null");
-    assertNotNull(votedAmount, "Voted amount must not null");
-    this.peerId = peerId;
-    this.votedAmount = votedAmount;
+  public ElectedCandidate(final String candidateId, final Aer voted) {
+    assertNotNull(candidateId, "Candidate id must not null");
+    assertNotNull(voted, "Voted amount must not null");
+    this.candidateId = candidateId;
+    this.voted = voted;
   }
 
 }

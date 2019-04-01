@@ -8,20 +8,27 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.BlockProducer;
+import hera.api.model.AccountTotalVote;
 import hera.api.model.BlockchainStatus;
+import hera.api.model.ChainIdHash;
 import hera.api.model.ChainInfo;
+import hera.api.model.ElectedCandidate;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
-import hera.api.model.PeerId;
 import hera.api.model.PeerMetric;
 import hera.api.model.TxHash;
-import hera.api.model.VotingInfo;
 import java.util.List;
 
 @ApiAudience.Public
 @ApiStability.Unstable
 public interface BlockchainOperation {
+
+  /**
+   * Get chain id hash.
+   *
+   * @return a chain id hash
+   */
+  ChainIdHash getChainIdHash();
 
   /**
    * Get blockchain status.
@@ -49,6 +56,7 @@ public interface BlockchainOperation {
    *
    * @param showHidden whether to show hidden peers
    * @param showSelf whether to show node which receives request itself
+   *
    * @return peer addresses
    */
   List<Peer> listPeers(boolean showHidden, boolean showSelf);
@@ -68,30 +76,34 @@ public interface BlockchainOperation {
   NodeStatus getNodeStatus();
 
   /**
-   * Vote to {@code peerId}.
+   * Vote to {@code candidates}.
    *
    * @param account an account to sign to voting transaction.
-   * @param peerId a peer id to vote
+   * @param voteId a vote id (pre-defined : "voteBP")
+   * @param candidates a candidates
    * @param nonce an nonce which is used in a transaction
+   *
    * @return voting transaction hash
    */
-  TxHash vote(Account account, PeerId peerId, long nonce);
+  TxHash vote(Account account, String voteId, List<String> candidates, long nonce);
 
   /**
-   * Get elected block producer from the top voted. Note that this is just a voting result. Not
-   * really working block block producers since block producers are renewed after one round.
+   * Get elected candidates per {@code voteId} for current round.
    *
-   * @param showCount show count
-   * @return elected block producer list
+   * @param voteId a vote id
+   * @param showCount a show count
+   *
+   * @return a vote total
    */
-  List<BlockProducer> listElectedBlockProducers(long showCount);
+  List<ElectedCandidate> listElected(String voteId, int showCount);
 
   /**
    * Get votes which {@code accountAddress} votes for.
    *
    * @param accountAddress an account address
-   * @return votes list
+   *
+   * @return voting info
    */
-  List<VotingInfo> listVotesOf(AccountAddress accountAddress);
+  AccountTotalVote getVotesOf(AccountAddress accountAddress);
 
 }

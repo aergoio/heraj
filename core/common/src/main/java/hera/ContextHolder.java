@@ -15,7 +15,7 @@ import java.util.Map;
 @ApiStability.Unstable
 public class ContextHolder {
 
-  protected static final ThreadLocal<Map<Integer, Context>> threadLocal =
+  protected static final ThreadLocal<Map<Integer, Context>> cabinet =
       new ThreadLocal<Map<Integer, Context>>() {
         @Override
         public Map<Integer, Context> initialValue() {
@@ -24,7 +24,7 @@ public class ContextHolder {
       };
 
   public static void set(final Object keyObject, final Context context) {
-    threadLocal.get().put(identityHashCode(keyObject), context);
+    cabinet.get().put(identityHashCode(keyObject), context);
   }
 
   /**
@@ -35,7 +35,7 @@ public class ContextHolder {
    */
   public static Context get(final Object keyObject) {
     final int key = identityHashCode(keyObject);
-    final Context context = threadLocal.get().get(key);
+    final Context context = cabinet.get().get(key);
     return null != context ? context : EmptyContext.getInstance();
   }
 

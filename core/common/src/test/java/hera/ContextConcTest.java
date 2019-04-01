@@ -4,12 +4,14 @@
 
 package hera;
 
+import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 
+import hera.api.model.ChainIdHash;
 import hera.strategy.FailoverStrategy;
 import hera.util.conf.InMemoryConfiguration;
 import java.util.HashMap;
@@ -44,6 +46,24 @@ public class ContextConcTest extends AbstractTestCase {
       assertEquals(source.getScope(), withoutScope.getScope());
       assertEquals(source.getConfiguration(), withoutScope.getConfiguration());
       assertEquals(source.getStrategies(), withoutScope.getStrategies());
+    }
+  }
+
+  @Test
+  public void testChainIdHash() {
+    final Object[] testParameters =
+        new Object[] {ContextProvider.defaultProvider.get(),
+            ContextProvider.defaultProvider.get().withScope("test")};
+
+    for (final Object testParameter : testParameters) {
+      final Context origin = (Context) testParameter;
+
+      final ChainIdHash chainIdHash = new ChainIdHash(of(randomUUID().toString().getBytes()));
+      final Context withChainIdHash = origin.withChainIdHash(chainIdHash);
+      assertEquals(origin.getScope(), withChainIdHash.getScope());
+      assertEquals(origin.getConfiguration(), withChainIdHash.getConfiguration());
+      assertEquals(origin.getStrategies(), withChainIdHash.getStrategies());
+      assertEquals(chainIdHash, withChainIdHash.getChainIdHash());
     }
   }
 

@@ -16,7 +16,7 @@ import lombok.ToString;
 @ApiStability.Unstable
 @ToString
 @EqualsAndHashCode
-public class StakingInfo {
+public class StakeInfo {
 
   @Getter
   protected final AccountAddress address;
@@ -35,7 +35,7 @@ public class StakingInfo {
    * @param blockNumber a staking block number
    */
   @ApiAudience.Private
-  public StakingInfo(final AccountAddress address, final Aer amount, final long blockNumber) {
+  public StakeInfo(final AccountAddress address, final Aer amount, final long blockNumber) {
     assertNotNull(address, "Staking address must not null");
     assertNotNull(amount, "Staking amount must not null");
     this.address = address;

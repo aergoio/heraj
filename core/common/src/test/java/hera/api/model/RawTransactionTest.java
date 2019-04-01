@@ -4,6 +4,8 @@
 
 package hera.api.model;
 
+import static hera.api.model.BytesValue.of;
+import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 
 import hera.api.model.Aer.Unit;
@@ -12,13 +14,16 @@ import org.junit.Test;
 
 public class RawTransactionTest {
 
-  protected static final String encodedAddress =
+  protected final ChainIdHash chainIdHash =
+      new ChainIdHash(of(randomUUID().toString().getBytes()));
+
+  protected final String encodedAddress =
       "AtmxbVvjDN5LYwaf5QrCZPc3FoAqUCMVegVXjf8CMCz59wL21X6j";
 
   @Test
   public void testBuilder() {
     final RawTransactionWithReady minimum =
-        RawTransaction.newBuilder()
+        RawTransaction.newBuilder(chainIdHash)
             .from(AccountAddress.of(encodedAddress))
             .to(AccountAddress.of(encodedAddress))
             .amount("10000", Unit.AER)
@@ -36,7 +41,7 @@ public class RawTransactionTest {
 
   @Test
   public void testBuilderWithName() {
-    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+    final RawTransaction rawTransaction = RawTransaction.newBuilder(chainIdHash)
         .from("namenamenam1")
         .to("namenamenam2")
         .amount("10000", Unit.AER)

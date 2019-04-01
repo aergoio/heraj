@@ -73,6 +73,7 @@ public class TransactionHashResolver {
     dataOut.writeLong(rawTransaction.getFee().getLimit());
     dataOut.write(positiveToByteArray(rawTransaction.getFee().getPrice().getValue()));
     dataOut.writeInt(rawTransaction.getTxType().getIntValue());
+    dataOut.write(rawTransaction.getChainIdHash().getBytesValue().getValue());
     return dataOut;
   }
 

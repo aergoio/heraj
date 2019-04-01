@@ -15,7 +15,6 @@ import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInvocation;
-import hera.api.model.PeerId;
 import hera.key.AergoKeyGenerator;
 import hera.spec.AddressSpec;
 import hera.spec.PayloadSpec.Type;
@@ -65,8 +64,9 @@ public class PayloadResolverTest extends AbstractTestCase {
 
   @Test
   public void testResolveOnVote() {
-    final PeerId peerId = new PeerId(of(randomUUID().toString().getBytes()));
-    final BytesValue payload = resolver.resolve(Type.Vote, peerId);
+    final String voteId = randomUUID().toString();
+    final String[] candidates = new String[] {randomUUID().toString(), randomUUID().toString()};
+    final BytesValue payload = resolver.resolve(Type.Vote, voteId, candidates);
     assertNotNull(payload);
   }
 

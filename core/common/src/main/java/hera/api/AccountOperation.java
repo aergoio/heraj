@@ -11,7 +11,7 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.RawTransaction;
-import hera.api.model.StakingInfo;
+import hera.api.model.StakeInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 
@@ -90,7 +90,7 @@ public interface AccountOperation {
    * @param accountAddress an account address to check staking information
    * @return a staking information
    */
-  StakingInfo getStakingInfo(AccountAddress accountAddress);
+  StakeInfo getStakingInfo(AccountAddress accountAddress);
 
   /**
    * Sign for transaction.
