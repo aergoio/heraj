@@ -42,7 +42,8 @@ public class ContractInterfaceConverterFactory {
               domainArguments.add(rpcArgument.getName());
             }
             final ContractFunction domainContractFunction =
-                new ContractFunction(rpcFunction.getName(), domainArguments);
+                new ContractFunction(rpcFunction.getName(), domainArguments,
+                    rpcFunction.getPayable(), rpcFunction.getView());
             domainFunctions.add(domainContractFunction);
           }
           final ContractInterface domainContractInterface =
