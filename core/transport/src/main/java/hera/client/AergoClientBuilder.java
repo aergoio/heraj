@@ -7,6 +7,7 @@ package hera.client;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Context;
+import hera.ContextHolder;
 import hera.ContextProvider;
 import hera.DefaultConstants;
 import hera.Strategy;
@@ -93,7 +94,9 @@ public class AergoClientBuilder implements ContextConfiguer<AergoClientBuilder> 
    * @return {@link AergoClient}
    */
   public AergoClient build() {
-    return new AergoClient(buildContext());
+    final AergoClient client = new AergoClient();
+    ContextHolder.set(client, buildContext());
+    return client;
   }
 
   protected Context buildContext() {

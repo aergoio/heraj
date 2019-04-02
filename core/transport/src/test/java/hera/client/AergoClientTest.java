@@ -20,7 +20,7 @@ public class AergoClientTest extends AbstractTestCase {
 
   @Test
   public void testGetAccountOperation() {
-    final AergoClient client = new AergoClient(context);
+    final AergoClient client = new AergoClientBuilder().build();
     try {
       assertNotNull(client.getAccountOperation());
     } finally {
@@ -30,7 +30,7 @@ public class AergoClientTest extends AbstractTestCase {
 
   @Test
   public void testGetKeyStoreOperation() {
-    final AergoClient client = new AergoClient(context);
+    final AergoClient client = new AergoClientBuilder().build();
     try {
       assertNotNull(client.getKeyStoreOperation());
     } finally {
@@ -40,7 +40,7 @@ public class AergoClientTest extends AbstractTestCase {
 
   @Test
   public void testGetBlockOperation() {
-    final AergoClient client = new AergoClient(context);
+    final AergoClient client = new AergoClientBuilder().build();
     try {
       assertNotNull(client.getBlockOperation());
     } finally {
@@ -50,7 +50,7 @@ public class AergoClientTest extends AbstractTestCase {
 
   @Test
   public void testGetBlockchainOperation() {
-    final AergoClient client = new AergoClient(context);
+    final AergoClient client = new AergoClientBuilder().build();
     try {
       assertNotNull(client.getBlockchainOperation());
     } finally {
@@ -60,7 +60,7 @@ public class AergoClientTest extends AbstractTestCase {
 
   @Test
   public void testGetTransactionOperation() {
-    final AergoClient client = new AergoClient(context);
+    final AergoClient client = new AergoClientBuilder().build();
     try {
       assertNotNull(client.getTransactionOperation());
     } finally {
@@ -70,7 +70,7 @@ public class AergoClientTest extends AbstractTestCase {
 
   @Test
   public void testGetContractOperation() {
-    final AergoClient client = new AergoClient(context);
+    final AergoClient client = new AergoClientBuilder().build();
     try {
       assertNotNull(client.getContractOperation());
     } finally {

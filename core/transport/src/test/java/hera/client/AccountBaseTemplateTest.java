@@ -26,7 +26,7 @@ import hera.api.model.Aer.Unit;
 import hera.api.model.BytesValue;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
-import hera.api.model.StakingInfo;
+import hera.api.model.StakeInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.key.AergoKey;
@@ -62,7 +62,7 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetStateAsync() {
+  public void testGetState() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Blockchain.State> mockListenableFuture =
         service.submit(new Callable<Blockchain.State>() {
@@ -157,7 +157,7 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
 
     final AergoKey key = new AergoKeyGenerator().create();
     final Account account = new AccountFactory().create(key);
-    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+    final RawTransaction rawTransaction = RawTransaction.newBuilder(chainIdHash)
         .from(accountAddress)
         .to(accountAddress)
         .amount("1000", Unit.AER)
@@ -226,12 +226,12 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
             return Rpc.Staking.newBuilder().setAmount(copyFrom(Aer.ONE)).build();
           }
         });
-    when(aergoService.getStaking(any(Rpc.SingleBytes.class))).thenReturn(mockListenableFuture);
+    when(aergoService.getStaking(any(Rpc.AccountAddress.class))).thenReturn(mockListenableFuture);
 
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
     accountTemplateBase.aergoService = aergoService;
 
-    final FinishableFuture<StakingInfo> stakingInfo =
+    final FinishableFuture<StakeInfo> stakingInfo =
         accountTemplateBase.getStakingInfoFunction().apply(accountAddress);
     assertNotNull(stakingInfo.get());
   }
@@ -255,7 +255,7 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
     final Account account = mock(Account.class);
-    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+    final RawTransaction rawTransaction = RawTransaction.newBuilder(chainIdHash)
         .from(accountAddress)
         .to(accountAddress)
         .amount("1000", Unit.AER)
@@ -273,7 +273,7 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
 
     final AergoKey key = new AergoKeyGenerator().create();
     final Account account = new AccountFactory().create(key);
-    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+    final RawTransaction rawTransaction = RawTransaction.newBuilder(chainIdHash)
         .from(accountAddress)
         .to(accountAddress)
         .amount("1000", Unit.AER)
@@ -301,7 +301,7 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
     final Account account = mock(Account.class);
-    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+    final RawTransaction rawTransaction = RawTransaction.newBuilder(chainIdHash)
         .from(accountAddress)
         .to(accountAddress)
         .amount("1000", Unit.AER)

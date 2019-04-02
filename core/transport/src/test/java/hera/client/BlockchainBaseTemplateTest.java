@@ -4,7 +4,7 @@
 
 package hera.client;
 
-import static hera.api.model.BytesValue.of;
+import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -18,17 +18,16 @@ import hera.ContextProvider;
 import hera.api.function.Function1;
 import hera.api.model.Account;
 import hera.api.model.AccountFactory;
-import hera.api.model.BlockProducer;
+import hera.api.model.AccountTotalVote;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.BytesValue;
 import hera.api.model.ChainInfo;
+import hera.api.model.ElectedCandidate;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
-import hera.api.model.PeerId;
 import hera.api.model.PeerMetric;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.api.model.VotingInfo;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import java.util.List;
@@ -182,12 +181,13 @@ public class BlockchainBaseTemplateTest extends AbstractTestCase {
     final Account account = new AccountFactory().create(key);
     final FinishableFuture<TxHash> nameTxHash =
         blockchainBaseTemplate.getVoteFunction().apply(account,
-            new PeerId(of(randomUUID().toString().getBytes())), account.incrementAndGetNonce());
+            randomUUID().toString(), asList(new String[] {randomUUID().toString()}),
+            account.incrementAndGetNonce());
     assertNotNull(nameTxHash.get());
   }
 
   @Test
-  public void testListElectedBlockProducers() {
+  public void testListElected() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Rpc.VoteList> mockListenableFuture =
         service.submit(new Callable<Rpc.VoteList>() {
@@ -196,33 +196,34 @@ public class BlockchainBaseTemplateTest extends AbstractTestCase {
             return Rpc.VoteList.newBuilder().build();
           }
         });
-    when(aergoService.getVotes(any(Rpc.SingleBytes.class))).thenReturn(mockListenableFuture);
+    when(aergoService.getVotes(any(Rpc.VoteParams.class))).thenReturn(mockListenableFuture);
 
     final BlockchainBaseTemplate blockchainBaseTemplate =
         supplyBlockchainBaseTemplate(aergoService);
 
-    final FinishableFuture<List<BlockProducer>> electedBlockProducers =
-        blockchainBaseTemplate.getListElectedBlockProducersFunction().apply(23L);
+    final FinishableFuture<List<ElectedCandidate>> electedBlockProducers =
+        blockchainBaseTemplate.getListElectedFunction().apply(randomUUID().toString(), 23);
     assertNotNull(electedBlockProducers.get());
   }
 
   @Test
-  public void testListVotesOf() {
+  public void testGetVotesOf() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture<Rpc.VoteList> mockListenableFuture =
-        service.submit(new Callable<Rpc.VoteList>() {
+    ListenableFuture<Rpc.AccountVoteInfo> mockListenableFuture =
+        service.submit(new Callable<Rpc.AccountVoteInfo>() {
           @Override
-          public Rpc.VoteList call() throws Exception {
-            return Rpc.VoteList.newBuilder().build();
+          public Rpc.AccountVoteInfo call() throws Exception {
+            return Rpc.AccountVoteInfo.newBuilder().build();
           }
         });
-    when(aergoService.getVotes(any(Rpc.SingleBytes.class))).thenReturn(mockListenableFuture);
+    when(aergoService.getAccountVotes(any(Rpc.AccountAddress.class)))
+        .thenReturn(mockListenableFuture);
 
     final BlockchainBaseTemplate blockchainBaseTemplate =
         supplyBlockchainBaseTemplate(aergoService);
 
-    final FinishableFuture<List<VotingInfo>> votes =
-        blockchainBaseTemplate.getListVotesOfFunction().apply(accountAddress);
+    final FinishableFuture<AccountTotalVote> votes =
+        blockchainBaseTemplate.getVotesOfFunction().apply(accountAddress);
     assertNotNull(votes.get());
   }
 

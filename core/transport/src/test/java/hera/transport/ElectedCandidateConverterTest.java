@@ -11,26 +11,26 @@ import static org.junit.Assert.assertNotNull;
 
 import hera.AbstractTestCase;
 import hera.api.model.Aer;
-import hera.api.model.PeerId;
-import hera.api.model.VotingInfo;
+import hera.api.model.ElectedCandidate;
 import java.net.UnknownHostException;
 import org.junit.Test;
 import types.Rpc;
 
-public class VotingInfoConverterTest extends AbstractTestCase {
+public class ElectedCandidateConverterTest extends AbstractTestCase {
 
   @Test
   public void testConvert() throws UnknownHostException {
-    final ModelConverter<VotingInfo, Rpc.Vote> converter =
-        new VotingInfoConverterFactory().create();
+    final ModelConverter<ElectedCandidate, Rpc.Vote> converter =
+        new ElectedCandidateConverterFactory().create();
 
-    final Rpc.Vote rpcVotingInfo = Rpc.Vote.newBuilder()
-        .setCandidate(copyFrom(new PeerId(of(randomUUID().toString().getBytes())).getBytesValue()))
+    final Rpc.Vote rpcElectedCandidate = Rpc.Vote.newBuilder()
+        .setCandidate(copyFrom(of(randomUUID().toString().getBytes())))
         .setAmount(copyFrom(Aer.AERGO_ONE))
         .build();
 
-    final VotingInfo actualDomainVotingInfo = converter.convertToDomainModel(rpcVotingInfo);
-    assertNotNull(actualDomainVotingInfo);
+    final ElectedCandidate actualDomainElectedCandidate =
+        converter.convertToDomainModel(rpcElectedCandidate);
+    assertNotNull(actualDomainElectedCandidate);
   }
 
 }

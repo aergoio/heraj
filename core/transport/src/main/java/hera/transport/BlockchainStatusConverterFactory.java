@@ -10,6 +10,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import hera.api.function.Function1;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockchainStatus;
+import hera.api.model.ChainIdHash;
 import org.slf4j.Logger;
 import types.Rpc;
 
@@ -34,7 +35,9 @@ public class BlockchainStatusConverterFactory {
           logger.trace("Rpc blockchain status to convert: {}", rpcBlockchainStatus);
           final BlockchainStatus domainBlockchainStatus = new BlockchainStatus(
               rpcBlockchainStatus.getBestHeight(),
-              new BlockHash(of(rpcBlockchainStatus.getBestBlockHash().toByteArray())));
+              new BlockHash(of(rpcBlockchainStatus.getBestBlockHash().toByteArray())),
+              rpcBlockchainStatus.getConsensusInfo(),
+              new ChainIdHash(of(rpcBlockchainStatus.getBestChainIdHash().toByteArray())));
           logger.trace("Domain blockchain status converted: {}", domainBlockchainStatus);
           return domainBlockchainStatus;
         }

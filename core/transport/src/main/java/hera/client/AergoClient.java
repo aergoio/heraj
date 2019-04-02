@@ -4,11 +4,10 @@
 
 package hera.client;
 
-import hera.Context;
 import hera.ContextHolder;
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
-import hera.EmptyContext;
+import hera.ThreadLocalContextProvider;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.AbstractAergoApi;
@@ -18,33 +17,20 @@ import hera.api.BlockchainOperation;
 import hera.api.ContractOperation;
 import hera.api.KeyStoreOperation;
 import hera.api.TransactionOperation;
+import hera.api.model.ChainIdHash;
 import io.grpc.ManagedChannel;
 import java.io.Closeable;
 import java.util.concurrent.TimeUnit;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-@RequiredArgsConstructor
 public class AergoClient extends AbstractAergoApi implements Closeable {
 
-  @NonNull
-  protected Context globalContext;
-
-  protected ContextProvider contextProvider = new ContextProvider() {
-
-    @Override
-    public Context get() {
-      final Context context = ContextHolder.get(this);
-      if (context.equals(EmptyContext.getInstance())) {
-        ContextHolder.set(this, globalContext);
-      }
-      return ContextHolder.get(this);
-    }
-  };
+  protected ContextProvider contextProvider =
+      new ThreadLocalContextProvider(ContextHolder.get(this), this);
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final ManagedChannel channel = new ManagedChannelFactory().apply(contextProvider.get());
@@ -77,6 +63,16 @@ public class AergoClient extends AbstractAergoApi implements Closeable {
       ((ChannelInjectable) target).setChannel(getChannel());
     }
     return target;
+  }
+
+  @Override
+  public ChainIdHash getCachedChainIdHash() {
+    return contextProvider.get().getChainIdHash();
+  }
+
+  @Override
+  public void cacheChainIdHash(final ChainIdHash chainIdHash) {
+    contextProvider.get().withChainIdHash(chainIdHash);
   }
 
   @Override

@@ -4,45 +4,44 @@
 
 package hera.transport;
 
-import static hera.api.model.BytesValue.of;
 import static hera.util.TransportUtils.parseToAer;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.function.Function1;
-import hera.api.model.PeerId;
-import hera.api.model.VotingInfo;
+import hera.api.model.ElectedCandidate;
+import hera.util.Base58Utils;
 import org.slf4j.Logger;
 import types.Rpc;
 
-public class VotingInfoConverterFactory {
+public class ElectedCandidateConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final Function1<VotingInfo, Rpc.Vote> domainConverter =
-      new Function1<VotingInfo, Rpc.Vote>() {
+  protected final Function1<ElectedCandidate, Rpc.Vote> domainConverter =
+      new Function1<ElectedCandidate, Rpc.Vote>() {
 
         @Override
-        public Rpc.Vote apply(final VotingInfo domainVote) {
+        public Rpc.Vote apply(final ElectedCandidate domainVote) {
           throw new UnsupportedOperationException();
         }
       };
 
-  protected final Function1<Rpc.Vote, VotingInfo> rpcConverter =
-      new Function1<Rpc.Vote, VotingInfo>() {
+  protected final Function1<Rpc.Vote, ElectedCandidate> rpcConverter =
+      new Function1<Rpc.Vote, ElectedCandidate>() {
 
         @Override
-        public VotingInfo apply(final Rpc.Vote rpcVotingInfo) {
-          logger.trace("Rpc vote status to convert: {}", rpcVotingInfo);
-          final VotingInfo domainVotingInfo = new VotingInfo(
-              new PeerId(of(rpcVotingInfo.getCandidate().toByteArray())),
-              parseToAer(rpcVotingInfo.getAmount()));
-          logger.trace("Domain vote status converted: {}", domainVotingInfo);
-          return domainVotingInfo;
+        public ElectedCandidate apply(final Rpc.Vote rpcElectedCandidate) {
+          logger.trace("Rpc vote status to convert: {}", rpcElectedCandidate);
+          final ElectedCandidate domainElectedCandidate = new ElectedCandidate(
+              Base58Utils.encode(rpcElectedCandidate.getCandidate().toByteArray()),
+              parseToAer(rpcElectedCandidate.getAmount()));
+          logger.trace("Domain vote status converted: {}", domainElectedCandidate);
+          return domainElectedCandidate;
         }
       };
 
-  public ModelConverter<VotingInfo, Rpc.Vote> create() {
-    return new ModelConverter<VotingInfo, Rpc.Vote>(domainConverter, rpcConverter);
+  public ModelConverter<ElectedCandidate, Rpc.Vote> create() {
+    return new ModelConverter<ElectedCandidate, Rpc.Vote>(domainConverter, rpcConverter);
   }
 
 }

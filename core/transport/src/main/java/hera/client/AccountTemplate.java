@@ -29,7 +29,7 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.RawTransaction;
-import hera.api.model.StakingInfo;
+import hera.api.model.StakeInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.strategy.StrategyChain;
@@ -98,7 +98,7 @@ public class AccountTemplate
               identify(getAccountBaseTemplate().getUnstakingFunction(), ACCOUNT_UNSTAKING));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<AccountAddress, FinishableFuture<StakingInfo>> stakingInfoFunction =
+  private final Function1<AccountAddress, FinishableFuture<StakeInfo>> stakingInfoFunction =
       getStrategyChain().apply(
           identify(getAccountBaseTemplate().getStakingInfoFunction(), ACCOUNT_GETSTAKINGINFO));
 
@@ -150,7 +150,7 @@ public class AccountTemplate
   }
 
   @Override
-  public StakingInfo getStakingInfo(final AccountAddress accountAddress) {
+  public StakeInfo getStakingInfo(final AccountAddress accountAddress) {
     return getStakingInfoFunction().apply(accountAddress).get();
   }
 

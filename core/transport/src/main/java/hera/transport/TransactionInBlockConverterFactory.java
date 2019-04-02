@@ -13,6 +13,7 @@ import com.google.protobuf.ByteString;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.BlockHash;
+import hera.api.model.ChainIdHash;
 import hera.api.model.Fee;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
@@ -69,6 +70,7 @@ public class TransactionInBlockConverterFactory {
           logger.trace("Domain transaction in block to convert: {}", domainTransaction);
 
           final Blockchain.TxBody.Builder txBodyBuilder = Blockchain.TxBody.newBuilder()
+              .setChainIdHash(copyFrom(domainTransaction.getChainIdHash().getBytesValue()))
               .setAccount(accountAddressConverter.convertToRpcModel(domainTransaction.getSender()))
               .setRecipient(
                   accountAddressConverter.convertToRpcModel(domainTransaction.getRecipient()))
@@ -77,8 +79,8 @@ public class TransactionInBlockConverterFactory {
               .setPayload(copyFrom(domainTransaction.getPayload()))
               .setType(txTypeDomainConverter.apply(domainTransaction.getTxType()))
               .setSign(copyFrom(domainTransaction.getSignature().getSign()))
-              .setPrice(copyFrom(domainTransaction.getFee().getPrice()))
-              .setLimit(domainTransaction.getFee().getLimit());
+              .setGasPrice(copyFrom(domainTransaction.getFee().getPrice()))
+              .setGasLimit(domainTransaction.getFee().getLimit());
 
           final Blockchain.TxBody txBody = txBodyBuilder.build();
 
@@ -110,11 +112,12 @@ public class TransactionInBlockConverterFactory {
           final Blockchain.TxBody txBody = rpcTx.getBody();
 
           final Transaction domainTransaction = new Transaction(
+              new ChainIdHash(of(txBody.getChainIdHash().toByteArray())),
               accountAddressConverter.convertToDomainModel(txBody.getAccount()),
               accountAddressConverter.convertToDomainModel(txBody.getRecipient()),
               parseToAer(txBody.getAmount()),
               txBody.getNonce(),
-              new Fee(parseToAer(txBody.getPrice()), txBody.getLimit()),
+              new Fee(parseToAer(txBody.getGasPrice()), txBody.getGasLimit()),
               of(txBody.getPayload().toByteArray()),
               txTypeRpcConverter.apply(txBody.getType()),
               new Signature(of(txBody.getSign().toByteArray())),

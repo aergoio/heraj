@@ -19,32 +19,32 @@ import hera.annotation.ApiStability;
 import hera.api.function.Function0;
 import hera.api.function.Function1;
 import hera.api.function.Function2;
-import hera.api.function.Function3;
+import hera.api.function.Function4;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.BlockProducer;
+import hera.api.model.AccountTotalVote;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.ChainInfo;
+import hera.api.model.ElectedCandidate;
 import hera.api.model.Fee;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
-import hera.api.model.PeerId;
 import hera.api.model.PeerMetric;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.api.model.VotingInfo;
 import hera.api.model.internal.GovernanceRecipient;
 import hera.spec.PayloadSpec.Type;
 import hera.spec.resolver.PayloadResolver;
 import hera.transport.AccountAddressConverterFactory;
+import hera.transport.AccountTotalVoteConverterFactory;
 import hera.transport.BlockchainStatusConverterFactory;
 import hera.transport.ChainInfoConverterFactory;
+import hera.transport.ElectedCandidateConverterFactory;
 import hera.transport.ModelConverter;
 import hera.transport.NodeStatusConverterFactory;
 import hera.transport.PeerConverterFactory;
 import hera.transport.PeerMetricConverterFactory;
-import hera.transport.VotingInfoConverterFactory;
 import io.grpc.ManagedChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -80,8 +80,11 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
   protected final ModelConverter<AccountAddress, ByteString> accountAddressConverter =
       new AccountAddressConverterFactory().create();
 
-  protected final ModelConverter<VotingInfo, Rpc.Vote> voteConverter =
-      new VotingInfoConverterFactory().create();
+  protected final ModelConverter<ElectedCandidate, Rpc.Vote> electedCandidateConverter =
+      new ElectedCandidateConverterFactory().create();
+
+  protected final ModelConverter<AccountTotalVote, Rpc.AccountVoteInfo> accountTotalVoteConverter =
+      new AccountTotalVoteConverterFactory().create();
 
   protected AccountBaseTemplate accountBaseTemplate = new AccountBaseTemplate();
 
@@ -287,22 +290,25 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
       };
 
   @Getter
-  private final Function3<Account, PeerId, Long, FinishableFuture<TxHash>> voteFunction =
-      new Function3<Account, PeerId, Long, FinishableFuture<TxHash>>() {
+  private final Function4<Account, String, List<String>, Long,
+      FinishableFuture<TxHash>> voteFunction = new Function4<
+          Account, String, List<String>, Long, FinishableFuture<TxHash>>() {
 
         @Override
-        public FinishableFuture<TxHash> apply(final Account account, final PeerId peerId,
-            final Long nonce) {
-          logger.debug("Voting with account: {}, peerId: {}, nonce: {}",
-              account.getAddress(), peerId, nonce);
+        public FinishableFuture<TxHash> apply(final Account account, final String voteId,
+            final List<String> candidates, final Long nonce) {
+          logger.debug("Voting with account: {}, voteId: {}, candidates: {}, nonce: {}",
+              account.getAddress(), voteId, candidates, nonce);
 
-          final RawTransaction rawTransaction = new RawTransaction(account.getAddress(),
-              GovernanceRecipient.AERGO_SYSTEM,
-              null,
-              nonce,
-              Fee.ZERO,
-              payloadResolver.resolve(Type.Vote, peerId),
-              Transaction.TxType.GOVERNANCE);
+          final RawTransaction rawTransaction =
+              new RawTransaction(contextProvider.get().getChainIdHash(),
+                  account.getAddress(),
+                  GovernanceRecipient.AERGO_SYSTEM,
+                  null,
+                  nonce,
+                  Fee.ZERO,
+                  payloadResolver.resolve(Type.Vote, voteId, candidates.toArray()),
+                  Transaction.TxType.GOVERNANCE);
           final Transaction signed =
               accountBaseTemplate.getSignFunction().apply(account, rawTransaction).get();
           return transactionBaseTemplate.getCommitFunction().apply(signed);
@@ -310,38 +316,39 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
       };
 
   @Getter
-  private final Function1<Long,
-      FinishableFuture<List<BlockProducer>>> listElectedBlockProducersFunction = new Function1<
-          Long, FinishableFuture<List<BlockProducer>>>() {
+  private final Function2<String, Integer,
+      FinishableFuture<List<ElectedCandidate>>> listElectedFunction = new Function2<
+          String, Integer, FinishableFuture<List<ElectedCandidate>>>() {
 
         @Override
-        public FinishableFuture<List<BlockProducer>> apply(final Long showCount) {
-          logger.debug("Get votes status with showCount: {}", showCount);
+        public FinishableFuture<List<ElectedCandidate>> apply(final String voteId,
+            final Integer showCount) {
+          logger.debug("Get votes status with voteId: {}, showCount: {}", voteId, showCount);
 
-          FinishableFuture<List<BlockProducer>> nextFuture =
-              new FinishableFuture<List<BlockProducer>>();
+          FinishableFuture<List<ElectedCandidate>> nextFuture =
+              new FinishableFuture<List<ElectedCandidate>>();
           try {
-            final Rpc.SingleBytes rpcShowCount = Rpc.SingleBytes.newBuilder()
-                .setValue(copyFrom(showCount.longValue()))
+            final Rpc.VoteParams rpcVoteParams = Rpc.VoteParams.newBuilder()
+                .setId(voteId)
+                .setCount(showCount)
                 .build();
-            logger.trace("AergoService getVotes arg: {}", rpcShowCount);
+            logger.trace("AergoService getVotes arg: {}", rpcVoteParams);
 
-            ListenableFuture<Rpc.VoteList> listenableFuture =
-                aergoService.getVotes(rpcShowCount);
-            FutureChain<Rpc.VoteList, List<BlockProducer>> callback =
-                new FutureChain<Rpc.VoteList, List<BlockProducer>>(nextFuture,
+            ListenableFuture<Rpc.VoteList> listenableFuture = aergoService.getVotes(rpcVoteParams);
+            FutureChain<Rpc.VoteList, List<ElectedCandidate>> callback =
+                new FutureChain<Rpc.VoteList, List<ElectedCandidate>>(nextFuture,
                     contextProvider.get());
-            callback.setSuccessHandler(new Function1<Rpc.VoteList, List<BlockProducer>>() {
+            callback.setSuccessHandler(new Function1<Rpc.VoteList, List<ElectedCandidate>>() {
 
               @Override
-              public List<BlockProducer> apply(final Rpc.VoteList rpcVoteList) {
-                final List<BlockProducer> votes = new ArrayList<BlockProducer>();
-                for (final Rpc.Vote rpcVote : rpcVoteList.getVotesList()) {
-                  final VotingInfo rpcVotingInfo = voteConverter.convertToDomainModel(rpcVote);
-                  votes.add(new BlockProducer(
-                      rpcVotingInfo.getPeerId(), rpcVotingInfo.getAmount()));
+              public List<ElectedCandidate> apply(final Rpc.VoteList rpcVoteList) {
+                final List<ElectedCandidate> electedCandidates = new ArrayList<ElectedCandidate>();
+                for (final Rpc.Vote rpcCandidate : rpcVoteList.getVotesList()) {
+                  final ElectedCandidate domainElectedCandidate =
+                      electedCandidateConverter.convertToDomainModel(rpcCandidate);
+                  electedCandidates.add(domainElectedCandidate);
                 }
-                return votes;
+                return electedCandidates;
               }
             });
             addCallback(listenableFuture, callback, directExecutor());
@@ -353,32 +360,30 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
       };
 
   @Getter
-  private final Function1<AccountAddress, FinishableFuture<List<VotingInfo>>> listVotesOfFunction =
-      new Function1<AccountAddress, FinishableFuture<List<VotingInfo>>>() {
+  private final Function1<AccountAddress, FinishableFuture<AccountTotalVote>> votesOfFunction =
+      new Function1<AccountAddress, FinishableFuture<AccountTotalVote>>() {
 
         @Override
-        public FinishableFuture<List<VotingInfo>> apply(final AccountAddress accountAddress) {
+        public FinishableFuture<AccountTotalVote> apply(final AccountAddress accountAddress) {
           logger.debug("Get votes with address: {}", accountAddress);
 
-          FinishableFuture<List<VotingInfo>> nextFuture = new FinishableFuture<List<VotingInfo>>();
+          FinishableFuture<AccountTotalVote> nextFuture = new FinishableFuture<AccountTotalVote>();
           try {
-            final Rpc.SingleBytes rpcAddress = Rpc.SingleBytes.newBuilder()
+            final Rpc.AccountAddress rpcAddress = Rpc.AccountAddress.newBuilder()
                 .setValue(accountAddressConverter.convertToRpcModel(accountAddress))
                 .build();
-            logger.trace("AergoService getVotes arg: {}", rpcAddress);
+            logger.trace("AergoService getAccountVotes arg: {}", rpcAddress);
 
-            ListenableFuture<Rpc.VoteList> listenableFuture = aergoService.getVotes(rpcAddress);
-            FutureChain<Rpc.VoteList, List<VotingInfo>> callback =
-                new FutureChain<Rpc.VoteList, List<VotingInfo>>(nextFuture, contextProvider.get());
-            callback.setSuccessHandler(new Function1<Rpc.VoteList, List<VotingInfo>>() {
+            ListenableFuture<Rpc.AccountVoteInfo> listenableFuture =
+                aergoService.getAccountVotes(rpcAddress);
+            FutureChain<Rpc.AccountVoteInfo, AccountTotalVote> callback =
+                new FutureChain<Rpc.AccountVoteInfo, AccountTotalVote>(nextFuture,
+                    contextProvider.get());
+            callback.setSuccessHandler(new Function1<Rpc.AccountVoteInfo, AccountTotalVote>() {
 
               @Override
-              public List<VotingInfo> apply(final Rpc.VoteList rpcVoteList) {
-                final List<VotingInfo> votes = new ArrayList<VotingInfo>();
-                for (final Rpc.Vote rpcVote : rpcVoteList.getVotesList()) {
-                  votes.add(voteConverter.convertToDomainModel(rpcVote));
-                }
-                return votes;
+              public AccountTotalVote apply(final Rpc.AccountVoteInfo rpcAccountVoteTotal) {
+                return accountTotalVoteConverter.convertToDomainModel(rpcAccountVoteTotal);
               }
             });
             addCallback(listenableFuture, callback, directExecutor());

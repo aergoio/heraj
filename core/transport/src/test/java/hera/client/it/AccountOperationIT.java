@@ -11,7 +11,7 @@ import static org.junit.Assert.fail;
 import hera.api.model.Account;
 import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
-import hera.api.model.StakingInfo;
+import hera.api.model.StakeInfo;
 import hera.exception.RpcCommitException;
 import hera.key.AergoKeyGenerator;
 import org.junit.Test;
@@ -89,6 +89,10 @@ public class AccountOperationIT extends AbstractIT {
 
   @Test
   public void testStakingAndUnstaking() {
+    if (!isDpos()) {
+      return;
+    }
+
     for (final Account account : supplyAccounts()) {
       final AccountState state = aergoClient.getAccountOperation().getState(account);
       unlockAccount(account, password);
@@ -97,7 +101,7 @@ public class AccountOperationIT extends AbstractIT {
 
       waitForNextBlockToGenerate();
 
-      final StakingInfo stakingInfoAfterStaked =
+      final StakeInfo stakingInfoAfterStaked =
           aergoClient.getAccountOperation().getStakingInfo(account.getAddress());
       assertEquals(account.getAddress(), stakingInfoAfterStaked.getAddress());
       assertEquals(state.getBalance(), stakingInfoAfterStaked.getAmount());
@@ -114,6 +118,10 @@ public class AccountOperationIT extends AbstractIT {
 
   @Test
   public void testStakingWithInvalidNonce() {
+    if (!isDpos()) {
+      return;
+    }
+
     for (final Account account : supplyAccounts()) {
       final AccountState state = aergoClient.getAccountOperation().getState(account);
       unlockAccount(account, password);
@@ -130,6 +138,10 @@ public class AccountOperationIT extends AbstractIT {
 
   @Test
   public void testUnstakingWithInvalidNonce() {
+    if (!isDpos()) {
+      return;
+    }
+
     for (final Account account : supplyAccounts()) {
       final AccountState state = aergoClient.getAccountOperation().getState(account);
       unlockAccount(account, password);
@@ -139,7 +151,7 @@ public class AccountOperationIT extends AbstractIT {
 
       waitForNextBlockToGenerate();
 
-      final StakingInfo stakingInfo =
+      final StakeInfo stakingInfo =
           aergoClient.getAccountOperation().getStakingInfo(account.getAddress());
       assertEquals(account.getAddress(), stakingInfo.getAddress());
       assertEquals(state.getBalance(), stakingInfo.getAmount());

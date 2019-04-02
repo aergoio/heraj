@@ -11,31 +11,31 @@ import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.BytesValue;
-import hera.api.model.StakingInfo;
+import hera.api.model.StakeInfo;
 import org.slf4j.Logger;
 import types.Rpc;
 
-public class StakingInfoConverterFactory {
+public class StakeInfoConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final Function1<StakingInfo, Rpc.Staking> domainConverter =
-      new Function1<StakingInfo, Rpc.Staking>() {
+  protected final Function1<StakeInfo, Rpc.Staking> domainConverter =
+      new Function1<StakeInfo, Rpc.Staking>() {
 
         @Override
-        public Rpc.Staking apply(StakingInfo domainStakingInfo) {
+        public Rpc.Staking apply(StakeInfo domainStakingInfo) {
           throw new UnsupportedOperationException();
         }
       };
 
-  protected final Function1<Rpc.Staking, StakingInfo> rpcConverter =
-      new Function1<Rpc.Staking, StakingInfo>() {
+  protected final Function1<Rpc.Staking, StakeInfo> rpcConverter =
+      new Function1<Rpc.Staking, StakeInfo>() {
 
         @Override
-        public StakingInfo apply(final Rpc.Staking rpcStakingInfo) {
+        public StakeInfo apply(final Rpc.Staking rpcStakingInfo) {
           logger.trace("Rpc staking info to convert: {}", rpcStakingInfo);
           final Aer parsedAer = parseToAer(rpcStakingInfo.getAmount());
-          final StakingInfo domainStakingInfo = new StakingInfo(AccountAddress.of(BytesValue.EMPTY),
+          final StakeInfo domainStakingInfo = new StakeInfo(AccountAddress.of(BytesValue.EMPTY),
               parsedAer.equals(Aer.EMPTY) ? Aer.ZERO : parsedAer,
               rpcStakingInfo.getWhen());
           logger.trace("Domain staking info converted: {}", domainStakingInfo);
@@ -43,8 +43,8 @@ public class StakingInfoConverterFactory {
         }
       };
 
-  public ModelConverter<StakingInfo, Rpc.Staking> create() {
-    return new ModelConverter<StakingInfo, Rpc.Staking>(domainConverter, rpcConverter);
+  public ModelConverter<StakeInfo, Rpc.Staking> create() {
+    return new ModelConverter<StakeInfo, Rpc.Staking>(domainConverter, rpcConverter);
   }
 
 }

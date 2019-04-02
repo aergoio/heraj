@@ -35,12 +35,13 @@ public class SignLocalBenchmark {
     @Setup(Level.Trial)
     public synchronized void setUp() {
       client = new AergoClientBuilder().build();
+      client.cacheChainIdHash(client.getBlockchainOperation().getChainIdHash());
 
       final AergoKeyGenerator generator = new AergoKeyGenerator();
       sender = new AccountFactory().create(generator.create());
       receipt = new AccountFactory().create(generator.create());
 
-      raw = Transaction.newBuilder()
+      raw = RawTransaction.newBuilder(client.getCachedChainIdHash())
           .from(sender)
           .to(receipt)
           .amount("30", Unit.AER)

@@ -35,7 +35,7 @@ import hera.api.model.Aer;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.RawTransaction;
-import hera.api.model.StakingInfo;
+import hera.api.model.StakeInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.key.AergoKeyGenerator;
@@ -209,12 +209,12 @@ public class AccountTemplateTest extends AbstractTestCase {
   @Test
   public void testGetStakingInfo() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
-    final FinishableFuture<StakingInfo> future = new FinishableFuture<StakingInfo>();
-    future.success(mock(StakingInfo.class));
+    final FinishableFuture<StakeInfo> future = new FinishableFuture<StakeInfo>();
+    future.success(mock(StakeInfo.class));
     when(base.getStakingInfoFunction())
-        .thenReturn(new Function1<AccountAddress, FinishableFuture<StakingInfo>>() {
+        .thenReturn(new Function1<AccountAddress, FinishableFuture<StakeInfo>>() {
           @Override
-          public FinishableFuture<StakingInfo> apply(AccountAddress t) {
+          public FinishableFuture<StakeInfo> apply(AccountAddress t) {
             return future;
           }
         });
@@ -222,7 +222,7 @@ public class AccountTemplateTest extends AbstractTestCase {
     final AccountTemplate accountTemplate = supplyAccountTemplate(base);
 
     final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
-    final StakingInfo stakingInfo = accountTemplate.getStakingInfo(account.getAddress());
+    final StakeInfo stakingInfo = accountTemplate.getStakingInfo(account.getAddress());
     assertNotNull(stakingInfo);
     assertEquals(ACCOUNT_GETSTAKINGINFO,
         ((WithIdentity) accountTemplate.getStakingInfoFunction()).getIdentity());

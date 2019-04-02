@@ -25,7 +25,7 @@ import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
-import hera.api.model.StakingInfo;
+import hera.api.model.StakeInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.internal.GovernanceRecipient;
@@ -36,7 +36,7 @@ import hera.spec.resolver.PayloadResolver;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.AccountStateConverterFactory;
 import hera.transport.ModelConverter;
-import hera.transport.StakingInfoConverterFactory;
+import hera.transport.StakeInfoConverterFactory;
 import hera.transport.TransactionConverterFactory;
 import io.grpc.ManagedChannel;
 import lombok.Getter;
@@ -57,8 +57,8 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
   protected final ModelConverter<AccountState, Blockchain.State> accountStateConverter =
       new AccountStateConverterFactory().create();
 
-  protected final ModelConverter<StakingInfo, Rpc.Staking> stakingInfoConverter =
-      new StakingInfoConverterFactory().create();
+  protected final ModelConverter<StakeInfo, Rpc.Staking> stakingInfoConverter =
+      new StakeInfoConverterFactory().create();
 
   protected final ModelConverter<Transaction, Blockchain.Tx> transactionConverter =
       new TransactionConverterFactory().create();
@@ -129,13 +129,15 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
           logger.debug("Create account name to account: {}, name: {}, nonce: {}",
               account.getAddress(), name, nonce);
 
-          final RawTransaction rawTransaction = new RawTransaction(account.getAddress(),
-              GovernanceRecipient.AERGO_NAME,
-              Aer.AERGO_ONE,
-              nonce,
-              Fee.ZERO,
-              payloadResolver.resolve(Type.CreateName, name),
-              Transaction.TxType.GOVERNANCE);
+          final RawTransaction rawTransaction =
+              new RawTransaction(contextProvider.get().getChainIdHash(),
+                  account.getAddress(),
+                  GovernanceRecipient.AERGO_NAME,
+                  Aer.AERGO_ONE,
+                  nonce,
+                  Fee.ZERO,
+                  payloadResolver.resolve(Type.CreateName, name),
+                  Transaction.TxType.GOVERNANCE);
           final Transaction signed = getSignFunction().apply(account, rawTransaction).get();
           return transactionBaseTemplate.getCommitFunction().apply(signed);
         }
@@ -152,13 +154,15 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
           logger.debug("Update account name from account: {}, name: {}, to account: {}, nonce: {}",
               owner.getAddress(), name, newOwner, nonce);
 
-          final RawTransaction rawTransaction = new RawTransaction(owner.getAddress(),
-              GovernanceRecipient.AERGO_NAME,
-              Aer.AERGO_ONE,
-              nonce,
-              Fee.ZERO,
-              payloadResolver.resolve(Type.UpdateName, name, newOwner),
-              Transaction.TxType.GOVERNANCE);
+          final RawTransaction rawTransaction =
+              new RawTransaction(contextProvider.get().getChainIdHash(),
+                  owner.getAddress(),
+                  GovernanceRecipient.AERGO_NAME,
+                  Aer.AERGO_ONE,
+                  nonce,
+                  Fee.ZERO,
+                  payloadResolver.resolve(Type.UpdateName, name, newOwner),
+                  Transaction.TxType.GOVERNANCE);
           final Transaction signed = getSignFunction().apply(owner, rawTransaction).get();
           return transactionBaseTemplate.getCommitFunction().apply(signed);
         }
@@ -204,13 +208,15 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
           logger.debug("Staking account with account: {}, amount: {}, nonce: {}",
               account.getAddress(), amount, nonce);
 
-          final RawTransaction rawTransaction = new RawTransaction(account.getAddress(),
-              GovernanceRecipient.AERGO_SYSTEM,
-              amount,
-              nonce,
-              Fee.ZERO,
-              payloadResolver.resolve(Type.Stake),
-              Transaction.TxType.GOVERNANCE);
+          final RawTransaction rawTransaction =
+              new RawTransaction(contextProvider.get().getChainIdHash(),
+                  account.getAddress(),
+                  GovernanceRecipient.AERGO_SYSTEM,
+                  amount,
+                  nonce,
+                  Fee.ZERO,
+                  payloadResolver.resolve(Type.Stake),
+                  Transaction.TxType.GOVERNANCE);
           final Transaction signed = getSignFunction().apply(account, rawTransaction).get();
           return transactionBaseTemplate.getCommitFunction().apply(signed);
         }
@@ -226,13 +232,15 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
           logger.debug("Unstaking account with account: {}, amount: {}, nonce: {}",
               account.getAddress(), amount, nonce);
 
-          final RawTransaction rawTransaction = new RawTransaction(account.getAddress(),
-              GovernanceRecipient.AERGO_SYSTEM,
-              amount,
-              nonce,
-              Fee.ZERO,
-              payloadResolver.resolve(Type.Unstake),
-              Transaction.TxType.GOVERNANCE);
+          final RawTransaction rawTransaction =
+              new RawTransaction(contextProvider.get().getChainIdHash(),
+                  account.getAddress(),
+                  GovernanceRecipient.AERGO_SYSTEM,
+                  amount,
+                  nonce,
+                  Fee.ZERO,
+                  payloadResolver.resolve(Type.Unstake),
+                  Transaction.TxType.GOVERNANCE);
           final Transaction signed = getSignFunction().apply(account, rawTransaction).get();
           return transactionBaseTemplate.getCommitFunction().apply(signed);
         }
@@ -240,29 +248,29 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
 
 
   @Getter
-  private final Function1<AccountAddress, FinishableFuture<StakingInfo>> stakingInfoFunction =
-      new Function1<AccountAddress, FinishableFuture<StakingInfo>>() {
+  private final Function1<AccountAddress, FinishableFuture<StakeInfo>> stakingInfoFunction =
+      new Function1<AccountAddress, FinishableFuture<StakeInfo>>() {
 
         @Override
-        public FinishableFuture<StakingInfo> apply(final AccountAddress accountAddress) {
+        public FinishableFuture<StakeInfo> apply(final AccountAddress accountAddress) {
           logger.debug("Get staking information with address: {}", accountAddress);
 
-          FinishableFuture<StakingInfo> nextFuture = new FinishableFuture<StakingInfo>();
+          FinishableFuture<StakeInfo> nextFuture = new FinishableFuture<StakeInfo>();
           try {
-            final Rpc.SingleBytes rpcAddress = Rpc.SingleBytes.newBuilder()
+            final Rpc.AccountAddress rpcAddress = Rpc.AccountAddress.newBuilder()
                 .setValue(accountAddressConverter.convertToRpcModel(accountAddress))
                 .build();
             logger.trace("AergoService getStaking arg: {}", rpcAddress);
 
             ListenableFuture<Rpc.Staking> listenableFuture = aergoService.getStaking(rpcAddress);
-            FutureChain<Rpc.Staking, StakingInfo> callback =
-                new FutureChain<Rpc.Staking, StakingInfo>(nextFuture, contextProvider.get());
-            callback.setSuccessHandler(new Function1<Rpc.Staking, StakingInfo>() {
+            FutureChain<Rpc.Staking, StakeInfo> callback =
+                new FutureChain<Rpc.Staking, StakeInfo>(nextFuture, contextProvider.get());
+            callback.setSuccessHandler(new Function1<Rpc.Staking, StakeInfo>() {
               @Override
-              public StakingInfo apply(final Rpc.Staking rpcStaking) {
-                final StakingInfo withoutAddress =
+              public StakeInfo apply(final Rpc.Staking rpcStaking) {
+                final StakeInfo withoutAddress =
                     stakingInfoConverter.convertToDomainModel(rpcStaking);
-                return new StakingInfo(accountAddress, withoutAddress.getAmount(),
+                return new StakeInfo(accountAddress, withoutAddress.getAmount(),
                     withoutAddress.getBlockNumber());
               }
             });

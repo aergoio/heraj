@@ -165,7 +165,7 @@ public class TransactionBaseTemplate implements ChannelInjectable, ContextProvid
 
           FinishableFuture<TxHash> nextFuture = new FinishableFuture<TxHash>();
           try {
-            final Transaction transaction = new Transaction(
+            final Transaction transaction = new Transaction(contextProvider.get().getChainIdHash(),
                 sender, recipient, amount, 0L, Fee.getDefaultFee(), BytesValue.EMPTY,
                 TxType.NORMAL,
                 null, null, null, 0, false);

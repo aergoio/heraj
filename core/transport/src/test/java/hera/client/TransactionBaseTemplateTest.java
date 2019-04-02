@@ -116,7 +116,7 @@ public class TransactionBaseTemplateTest extends AbstractTestCase {
     final TransactionBaseTemplate transactionBaseTemplate =
         supplyTransactionBaseTemplate(aergoService);
 
-    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+    final RawTransaction rawTransaction = RawTransaction.newBuilder(chainIdHash)
         .from(accountAddress)
         .to(accountAddress)
         .amount("1000", Unit.AER)

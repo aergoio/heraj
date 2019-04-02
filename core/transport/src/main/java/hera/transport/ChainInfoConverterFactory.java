@@ -33,19 +33,21 @@ public class ChainInfoConverterFactory {
         public ChainInfo apply(final Rpc.ChainInfo rpcChainInfo) {
           logger.trace("Rpc chain info to convert: {}", rpcChainInfo);
 
-          final Rpc.ChainId rpcChainId = rpcChainInfo.getChainid();
+          final Rpc.ChainId rpcChainId = rpcChainInfo.getId();
           final ChainId domainChainId = new ChainId(rpcChainId.getMagic(),
               rpcChainId.getPublic(),
               rpcChainId.getMainnet(),
-              parseToAer(rpcChainId.getCoinbasefee()),
               rpcChainId.getConsensus());
 
           final ChainInfo domainChainInfo = new ChainInfo(
               domainChainId,
-              rpcChainInfo.getBpnumber(),
+              rpcChainInfo.getBpNumber(),
               rpcChainInfo.getMaxblocksize(),
               parseToAer(rpcChainInfo.getMaxtokens()),
-              parseToAer(rpcChainInfo.getStakingminimum()));
+              parseToAer(rpcChainInfo.getStakingminimum()),
+              parseToAer(rpcChainInfo.getTotalstaking()),
+              parseToAer(rpcChainInfo.getGasprice()),
+              parseToAer(rpcChainInfo.getNameprice()));
           logger.trace("Domain blockchain status converted: {}", domainChainInfo);
           return domainChainInfo;
         }

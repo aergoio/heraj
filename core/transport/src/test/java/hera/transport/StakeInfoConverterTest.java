@@ -9,22 +9,22 @@ import static org.junit.Assert.assertNotNull;
 
 import hera.AbstractTestCase;
 import hera.api.model.Aer;
-import hera.api.model.StakingInfo;
+import hera.api.model.StakeInfo;
 import org.junit.Test;
 import types.Rpc;
 
-public class StakingInfoConverterTest extends AbstractTestCase {
+public class StakeInfoConverterTest extends AbstractTestCase {
 
   @Test
   public void testConvert() {
-    final ModelConverter<StakingInfo, Rpc.Staking> converter =
-        new StakingInfoConverterFactory().create();
+    final ModelConverter<StakeInfo, Rpc.Staking> converter =
+        new StakeInfoConverterFactory().create();
 
     final Rpc.Staking rpcStakingInfo = Rpc.Staking.newBuilder()
         .setAmount(copyFrom(Aer.ONE))
         .setWhen(10000L)
         .build();
-    final StakingInfo domainStakingInfo = converter.convertToDomainModel(rpcStakingInfo);
+    final StakeInfo domainStakingInfo = converter.convertToDomainModel(rpcStakingInfo);
     assertNotNull(domainStakingInfo);
   }
 

@@ -13,6 +13,7 @@ import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
+import hera.api.model.ChainIdHash;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
@@ -44,7 +45,9 @@ public abstract class AbstractIT {
 
   protected String password;
 
-  protected String peer;
+  protected String[] peerIds;
+
+  protected boolean isFundEnabled;
 
   protected AergoClient aergoClient;
 
@@ -54,11 +57,16 @@ public abstract class AbstractIT {
     hostname = (String) properties.get("hostname");
     encrypted = (String) properties.get("encrypted");
     password = (String) properties.get("password");
-    peer = (String) properties.get("peer");
+    peerIds = ((String) properties.get("peer")).split(",");
+    isFundEnabled = Boolean.valueOf((String) properties.get("enablefund"));
     aergoClient = new AergoClientBuilder()
         .withNonBlockingConnect()
         .withEndpoint(hostname)
         .build();
+
+    final ChainIdHash chainIdHash =
+        aergoClient.getBlockchainOperation().getBlockchainStatus().getChainIdHash();
+    aergoClient.cacheChainIdHash(chainIdHash);
   }
 
   protected Properties readProperties() throws IOException {
@@ -86,13 +94,17 @@ public abstract class AbstractIT {
 
   protected Account supplyLocalAccount() {
     final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
-    // fund(account);
+    if (isFundEnabled) {
+      fund(account);
+    }
     return account;
   }
 
   protected Account supplyServerAccount() {
     final Account account = aergoClient.getKeyStoreOperation().create(password);
-    // fund(account);
+    if (isFundEnabled) {
+      fund(account);
+    }
     return account;
   }
 
@@ -101,12 +113,13 @@ public abstract class AbstractIT {
     final AccountState richState = aergoClient.getAccountOperation().getState(rich);
     rich.bindState(richState);
     logger.info("Rich state: {}", richState);
-    final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .from(rich)
-        .to(account)
-        .amount(Aer.of("10", Unit.AERGO))
-        .nonce(rich.incrementAndGetNonce())
-        .build();
+    final RawTransaction rawTransaction =
+        RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
+            .from(rich)
+            .to(account)
+            .amount(Aer.of("10000", Unit.AERGO))
+            .nonce(rich.incrementAndGetNonce())
+            .build();
     final Transaction signed = aergoClient.getAccountOperation().sign(rich, rawTransaction);
     aergoClient.getTransactionOperation().commit(signed);
     waitForNextBlockToGenerate();
@@ -128,11 +141,14 @@ public abstract class AbstractIT {
     return true;
   }
 
-  protected void verifyState(final AccountState preState, final AccountState refreshed,
-      final Aer sendAmount) {
+  protected void verifyState(final AccountState preState, final AccountState refreshed) {
     assertEquals(preState.getNonce() + 1, refreshed.getNonce());
-    assertEquals(preState.getBalance().subtract(sendAmount.add(fee.getPrice())),
-        refreshed.getBalance());
+  }
+
+  protected boolean isDpos() {
+    final String consensus =
+        aergoClient.getBlockchainOperation().getBlockchainStatus().getConsensus();
+    return "dpos".equals(consensus);
   }
 
   @After

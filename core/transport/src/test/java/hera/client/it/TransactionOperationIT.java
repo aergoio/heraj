@@ -15,7 +15,6 @@ import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
-import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
@@ -33,13 +32,14 @@ public class TransactionOperationIT extends AbstractIT {
       final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());
       final AccountState preState = aergoClient.getAccountOperation().getState(account);
 
-      final RawTransaction rawTransaction = RawTransaction.newBuilder()
-          .from(account)
-          .to(recipient)
-          .amount(amount)
-          .nonce(account.incrementAndGetNonce())
-          .fee(fee)
-          .build();
+      final RawTransaction rawTransaction =
+          RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
+              .from(account)
+              .to(recipient)
+              .amount(amount)
+              .nonce(account.incrementAndGetNonce())
+              .fee(fee)
+              .build();
 
       unlockAccount(account, password);
       final Transaction signed = aergoClient.getAccountOperation().sign(account, rawTransaction);
@@ -56,7 +56,7 @@ public class TransactionOperationIT extends AbstractIT {
       final AccountState refreshed = aergoClient.getAccountOperation().getState(account);
       assertTrue(true == confirmed.isConfirmed());
 
-      verifyState(preState, refreshed, amount);
+      verifyState(preState, refreshed);
 
       try {
         aergoClient.getTransactionOperation().commit(confirmed);
@@ -84,13 +84,14 @@ public class TransactionOperationIT extends AbstractIT {
       // snapshot pre state
       final AccountState preState = aergoClient.getAccountOperation().getState(account);
 
-      final RawTransaction rawTransaction = RawTransaction.newBuilder()
-          .from(name)
-          .to(recipient)
-          .amount(amount)
-          .nonce(account.incrementAndGetNonce())
-          .fee(fee)
-          .build();
+      final RawTransaction rawTransaction =
+          RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
+              .from(name)
+              .to(recipient)
+              .amount(amount)
+              .nonce(account.incrementAndGetNonce())
+              .fee(fee)
+              .build();
 
       unlockAccount(account, password);
       final Transaction signed = aergoClient.getAccountOperation().sign(account, rawTransaction);
@@ -106,7 +107,7 @@ public class TransactionOperationIT extends AbstractIT {
       final Transaction confirmed = aergoClient.getTransactionOperation().getTransaction(txHash);
       final AccountState refreshed = aergoClient.getAccountOperation().getState(account);
       assertTrue(true == confirmed.isConfirmed());
-      verifyState(preState, refreshed, amount);
+      verifyState(preState, refreshed);
     }
   }
 
@@ -125,13 +126,14 @@ public class TransactionOperationIT extends AbstractIT {
       // snapshot pre state
       final AccountState preState = aergoClient.getAccountOperation().getState(account);
 
-      final RawTransaction rawTransaction = RawTransaction.newBuilder()
-          .from(account)
-          .to(name)
-          .amount(amount)
-          .nonce(account.incrementAndGetNonce())
-          .fee(fee)
-          .build();
+      final RawTransaction rawTransaction =
+          RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
+              .from(account)
+              .to(name)
+              .amount(amount)
+              .nonce(account.incrementAndGetNonce())
+              .fee(fee)
+              .build();
 
       unlockAccount(account, password);
       final Transaction signed = aergoClient.getAccountOperation().sign(account, rawTransaction);
@@ -147,7 +149,7 @@ public class TransactionOperationIT extends AbstractIT {
       final Transaction confirmed = aergoClient.getTransactionOperation().getTransaction(txHash);
       final AccountState refreshed = aergoClient.getAccountOperation().getState(account);
       assertTrue(true == confirmed.isConfirmed());
-      verifyState(preState, refreshed, amount);
+      verifyState(preState, refreshed);
     }
   }
 
@@ -159,13 +161,14 @@ public class TransactionOperationIT extends AbstractIT {
       // snapshot pre state
       final AccountState preState = aergoClient.getAccountOperation().getState(account);
 
-      final RawTransaction rawTransaction = RawTransaction.newBuilder()
-          .from(account)
-          .to(recipient)
-          .amount(null)
-          .nonce(account.incrementAndGetNonce())
-          .fee(fee)
-          .build();
+      final RawTransaction rawTransaction =
+          RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
+              .from(account)
+              .to(recipient)
+              .amount(null)
+              .nonce(account.incrementAndGetNonce())
+              .fee(fee)
+              .build();
 
       unlockAccount(account, password);
       final Transaction signed = aergoClient.getAccountOperation().sign(account, rawTransaction);
@@ -182,7 +185,7 @@ public class TransactionOperationIT extends AbstractIT {
       final AccountState refreshed = aergoClient.getAccountOperation().getState(account);
       assertTrue(true == confirmed.isConfirmed());
       assertEquals(preState.getNonce() + 1, refreshed.getNonce());
-      assertEquals(preState.getBalance().subtract(fee.getPrice()), refreshed.getBalance());
+      verifyState(preState, refreshed);
     }
   }
 
@@ -192,13 +195,14 @@ public class TransactionOperationIT extends AbstractIT {
       final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());
 
       final AccountAddress invalidSender = null;
-      final RawTransaction rawTransaction = RawTransaction.newBuilder()
-          .from(invalidSender)
-          .to(recipient)
-          .amount(amount)
-          .nonce(account.incrementAndGetNonce())
-          .fee(fee)
-          .build();
+      final RawTransaction rawTransaction =
+          RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
+              .from(invalidSender)
+              .to(recipient)
+              .amount(amount)
+              .nonce(account.incrementAndGetNonce())
+              .fee(fee)
+              .build();
 
       unlockAccount(account, password);
       try {
@@ -218,13 +222,14 @@ public class TransactionOperationIT extends AbstractIT {
   public void testCommitOnInvalidRecipient() {
     for (final Account account : supplyAccounts()) {
       final AccountAddress invalidRecipient = null;
-      final RawTransaction rawTransaction = RawTransaction.newBuilder()
-          .from(account)
-          .to(invalidRecipient)
-          .amount(amount)
-          .nonce(account.incrementAndGetNonce())
-          .fee(fee)
-          .build();
+      final RawTransaction rawTransaction =
+          RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
+              .from(account)
+              .to(invalidRecipient)
+              .amount(amount)
+              .nonce(account.incrementAndGetNonce())
+              .fee(fee)
+              .build();
 
       unlockAccount(account, password);
       final Transaction signed = aergoClient.getAccountOperation().sign(account, rawTransaction);
@@ -243,13 +248,14 @@ public class TransactionOperationIT extends AbstractIT {
   public void testCommitOnInvalidNonce() {
     for (final Account account : supplyAccounts()) {
       final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());
-      final RawTransaction rawTransaction = RawTransaction.newBuilder()
-          .from(account)
-          .to(recipient)
-          .amount(amount)
-          .nonce(account.getRecentlyUsedNonce()) // invalid
-          .fee(fee)
-          .build();
+      final RawTransaction rawTransaction =
+          RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
+              .from(account)
+              .to(recipient)
+              .amount(amount)
+              .nonce(account.getRecentlyUsedNonce()) // invalid
+              .fee(fee)
+              .build();
 
       unlockAccount(account, password);
       final Transaction signed = aergoClient.getAccountOperation().sign(account, rawTransaction);
@@ -268,13 +274,14 @@ public class TransactionOperationIT extends AbstractIT {
   public void testCommitOnInvalidSignature() {
     for (final Account account : supplyAccounts()) {
       final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());
-      final RawTransaction rawTransaction = RawTransaction.newBuilder()
-          .from(account)
-          .to(recipient)
-          .amount(amount)
-          .nonce(account.getRecentlyUsedNonce()) // invalid
-          .fee(fee)
-          .build();
+      final RawTransaction rawTransaction =
+          RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
+              .from(account)
+              .to(recipient)
+              .amount(amount)
+              .nonce(account.getRecentlyUsedNonce()) // invalid
+              .fee(fee)
+              .build();
 
       // sign with recipient
       unlockAccount(recipient, password);
@@ -303,13 +310,14 @@ public class TransactionOperationIT extends AbstractIT {
       waitForNextBlockToGenerate();
 
       final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());
-      final RawTransaction rawTransaction = RawTransaction.newBuilder()
-          .from(account)
-          .to(recipient)
-          .amount(amount) // staked amount
-          .nonce(account.incrementAndGetNonce())
-          .fee(fee)
-          .build();
+      final RawTransaction rawTransaction =
+          RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
+              .from(account)
+              .to(recipient)
+              .amount(amount) // staked amount
+              .nonce(account.incrementAndGetNonce())
+              .fee(fee)
+              .build();
 
       unlockAccount(account, password);
       final Transaction signed = aergoClient.getAccountOperation().sign(account, rawTransaction);
@@ -328,13 +336,14 @@ public class TransactionOperationIT extends AbstractIT {
   public void testCommitOnLockedKeyStoreAccount() {
     final Account account = supplyServerAccount();
     final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());
-    final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .from(account)
-        .to(recipient)
-        .amount(amount)
-        .nonce(account.getRecentlyUsedNonce()) // invalid
-        .fee(fee)
-        .build();
+    final RawTransaction rawTransaction =
+        RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
+            .from(account)
+            .to(recipient)
+            .amount(amount)
+            .nonce(account.getRecentlyUsedNonce()) // invalid
+            .fee(fee)
+            .build();
 
     // unlockAccount(account, password);
     try {
@@ -367,9 +376,8 @@ public class TransactionOperationIT extends AbstractIT {
     final Transaction confirmed = aergoClient.getTransactionOperation().getTransaction(txHash);
     final AccountState refreshed = aergoClient.getAccountOperation().getState(account);
     assertTrue(true == confirmed.isConfirmed());
+    verifyState(preState, refreshed);
     assertEquals(preState.getNonce() + 1, refreshed.getNonce());
-    assertEquals(preState.getBalance().subtract(amount.add(Fee.getDefaultFee().getPrice())),
-        refreshed.getBalance());
   }
 
   @Test
