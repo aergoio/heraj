@@ -30,7 +30,6 @@ import hera.api.model.ContractTxHash;
 import hera.api.model.ElectedCandidate;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
-import hera.api.model.Fee;
 import hera.api.model.Identity;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
@@ -142,7 +141,7 @@ public class WalletIT extends AbstractIT {
         .constructorArgs(deployKey, deployIntVal, deployStringVal)
         .build();
 
-    final ContractTxHash deployTxHash = wallet.deploy(contractDefinition, Fee.getDefaultFee());
+    final ContractTxHash deployTxHash = wallet.deploy(contractDefinition);
     waitForNextBlockToGenerate();
 
     final long postCachedNonce = wallet.getRecentlyUsedNonce();
@@ -162,7 +161,7 @@ public class WalletIT extends AbstractIT {
         .args(executeKey, executeIntVal, executeStringVal)
         .build();
 
-    wallet.execute(contractInvocation, Fee.getDefaultFee());
+    wallet.execute(contractInvocation);
     waitForNextBlockToGenerate();
 
     final long postCachedNonce = wallet.getRecentlyUsedNonce();
@@ -382,9 +381,9 @@ public class WalletIT extends AbstractIT {
       final long preCachedNonce = wallet.getRecentlyUsedNonce();
       final AccountState preState = wallet.getAccountState();
 
-      wallet.send(recipientName, Aer.of("100", Unit.GAER), Fee.getDefaultFee());
-      wallet.send(recipientName, Aer.of("100", Unit.GAER), Fee.getDefaultFee());
-      wallet.send(recipientName, Aer.of("100", Unit.GAER), Fee.getDefaultFee());
+      wallet.send(recipientName, Aer.of("100", Unit.GAER));
+      wallet.send(recipientName, Aer.of("100", Unit.GAER));
+      wallet.send(recipientName, Aer.of("100", Unit.GAER));
       waitForNextBlockToGenerate();
 
       final long postCachedNonce = wallet.getRecentlyUsedNonce();
@@ -409,7 +408,7 @@ public class WalletIT extends AbstractIT {
 
       try {
         final String recipientName = randomUUID().toString().substring(0, 12).replace('-', 'a');
-        wallet.send(recipientName, Aer.of("100", Unit.GAER), Fee.getDefaultFee());
+        wallet.send(recipientName, Aer.of("100", Unit.GAER));
         fail();
       } catch (Exception e) {
         // good we expected this
@@ -440,7 +439,7 @@ public class WalletIT extends AbstractIT {
 
       wallet.lock(auth);
       try {
-        wallet.send(accountAddress, Aer.of("100", Unit.AERGO), Fee.getDefaultFee());
+        wallet.send(accountAddress, Aer.of("100", Unit.AERGO));
         fail();
       } catch (Exception e) {
         // good we expected this
@@ -571,9 +570,9 @@ public class WalletIT extends AbstractIT {
       final long preCachedNonce = wallet.getRecentlyUsedNonce();
       final AccountState preState = wallet.getAccountState();
 
-      wallet.send(accountAddress, Aer.of("100", Unit.GAER), Fee.ZERO);
-      wallet.send(accountAddress, Aer.of("100", Unit.GAER), Fee.ZERO);
-      wallet.send(accountAddress, Aer.of("100", Unit.GAER), Fee.ZERO);
+      wallet.send(accountAddress, Aer.of("100", Unit.GAER));
+      wallet.send(accountAddress, Aer.of("100", Unit.GAER));
+      wallet.send(accountAddress, Aer.of("100", Unit.GAER));
       waitForNextBlockToGenerate();
 
       final long postCachedNonce = wallet.getRecentlyUsedNonce();
@@ -599,7 +598,7 @@ public class WalletIT extends AbstractIT {
       wallet.lock(auth);
 
       try {
-        wallet.send(accountAddress, Aer.of("100", Unit.AERGO), Fee.getDefaultFee());
+        wallet.send(accountAddress, Aer.of("100", Unit.AERGO));
         fail();
       } catch (Exception e) {
         // good we expected this

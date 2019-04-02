@@ -20,7 +20,6 @@ import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
-import hera.api.model.Fee;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.util.IoUtils;
@@ -54,10 +53,9 @@ public class ContractOperationIT extends AbstractIT {
     contractPayload = IoUtils.from(new InputStreamReader(open("payload")));
   }
 
-  protected ContractTxHash deploy(final Account account, final ContractDefinition definition,
-      final Fee fee) {
+  protected ContractTxHash deploy(final Account account, final ContractDefinition definition) {
     final ContractTxHash txHash = aergoClient.getContractOperation().deploy(account,
-        definition, account.incrementAndGetNonce(), fee);
+        definition, account.incrementAndGetNonce());
     waitForNextBlockToGenerate();
     return txHash;
   }
@@ -73,10 +71,9 @@ public class ContractOperationIT extends AbstractIT {
     return contractInterface;
   }
 
-  protected ContractTxHash execute(final Account account, final ContractInvocation execution,
-      final Fee fee) {
+  protected ContractTxHash execute(final Account account, final ContractInvocation execution) {
     final ContractTxHash txHash = aergoClient.getContractOperation().execute(account,
-        execution, account.incrementAndGetNonce(), fee);
+        execution, account.incrementAndGetNonce());
     waitForNextBlockToGenerate();
     return txHash;
   }
@@ -96,7 +93,7 @@ public class ContractOperationIT extends AbstractIT {
           .constructorArgs(deployKey, deployIntVal, deployStringVal)
           .build();
       unlockAccount(account, password);
-      final ContractTxHash deployTxHash = deploy(account, definition, fee);
+      final ContractTxHash deployTxHash = deploy(account, definition);
       lockAccount(account, password);
 
       final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
@@ -118,7 +115,7 @@ public class ContractOperationIT extends AbstractIT {
       unlockAccount(account, password);
       final ContractDefinition definition = ContractDefinition.newBuilder()
           .encodedContract(contractPayload).build();
-      final ContractTxHash deployTxHash = deploy(account, definition, fee);
+      final ContractTxHash deployTxHash = deploy(account, definition);
       lockAccount(account, password);
 
       final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
@@ -132,7 +129,7 @@ public class ContractOperationIT extends AbstractIT {
           .function(executeFunction)
           .args(new Object[] {executeKey, executeIntVal, executeStringVal})
           .build();
-      final ContractTxHash executionTxHash = execute(account, execution, fee);
+      final ContractTxHash executionTxHash = execute(account, execution);
       lockAccount(account, password);
 
       final ContractTxReceipt executionReceipt = getContractTxReceipt(executionTxHash);
@@ -151,7 +148,7 @@ public class ContractOperationIT extends AbstractIT {
       unlockAccount(account, password);
       final ContractDefinition definition = ContractDefinition.newBuilder()
           .encodedContract(contractPayload).build();
-      final ContractTxHash deployTxHash = deploy(account, definition, fee);
+      final ContractTxHash deployTxHash = deploy(account, definition);
       lockAccount(account, password);
 
       final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
@@ -166,7 +163,7 @@ public class ContractOperationIT extends AbstractIT {
           .function(executeFunction)
           .args(new Object[] {executeKey, executeIntVal, escapeString})
           .build();
-      final ContractTxHash executionTxHash = execute(account, execution, fee);
+      final ContractTxHash executionTxHash = execute(account, execution);
       lockAccount(account, password);
 
       final ContractTxReceipt executionReceipt = getContractTxReceipt(executionTxHash);
@@ -187,7 +184,7 @@ public class ContractOperationIT extends AbstractIT {
           .encodedContract(contractPayload).build();
       try {
         aergoClient.getContractOperation().deploy(account,
-            definition, account.getRecentlyUsedNonce(), fee);
+            definition, account.getRecentlyUsedNonce());
         fail();
       } catch (Exception e) {
         // good we expected this
@@ -202,7 +199,7 @@ public class ContractOperationIT extends AbstractIT {
       unlockAccount(account, password);
       final ContractDefinition definition = ContractDefinition.newBuilder()
           .encodedContract(contractPayload).build();
-      final ContractTxHash deployTxHash = deploy(account, definition, fee);
+      final ContractTxHash deployTxHash = deploy(account, definition);
       lockAccount(account, password);
 
       final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
@@ -218,7 +215,7 @@ public class ContractOperationIT extends AbstractIT {
           .build();
       try {
         account.setNonce(0L);
-        execute(account, execution, fee);
+        execute(account, execution);
         fail();
       } catch (Exception e) {
         // good we expected this
@@ -234,7 +231,7 @@ public class ContractOperationIT extends AbstractIT {
     try {
       final ContractDefinition definition = ContractDefinition.newBuilder()
           .encodedContract(contractPayload).build();
-      deploy(account, definition, fee);
+      deploy(account, definition);
     } catch (Exception e) {
       // good we expected this
     }
@@ -246,7 +243,7 @@ public class ContractOperationIT extends AbstractIT {
     unlockAccount(account, password);
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(contractPayload).build();
-    final ContractTxHash deployTxHash = deploy(account, definition, fee);
+    final ContractTxHash deployTxHash = deploy(account, definition);
     lockAccount(account, password);
 
     final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
@@ -261,7 +258,7 @@ public class ContractOperationIT extends AbstractIT {
           .function(executeFunction)
           .args(executeKey, executeIntVal, executeStringVal)
           .build();
-      execute(account, execution, fee);
+      execute(account, execution);
     } catch (Exception e) {
       // good we expected this
     }
@@ -274,7 +271,7 @@ public class ContractOperationIT extends AbstractIT {
       final ContractDefinition definition = ContractDefinition.newBuilder()
           .encodedContract(contractPayload)
           .build();
-      final ContractTxHash deployTxHash = deploy(account, definition, fee);
+      final ContractTxHash deployTxHash = deploy(account, definition);
 
       final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
       assertEquals("CREATED", deployTxReceipt.getStatus());
@@ -312,12 +309,12 @@ public class ContractOperationIT extends AbstractIT {
           .args(new Object[] {executeKey, executeIntVal, executeStringVal})
           .build();
 
-      execute(account, execution, fee);
-      execute(account, execution, fee);
+      execute(account, execution);
+      execute(account, execution);
 
       subscription.unsubscribe();
 
-      execute(account, execution, fee);
+      execute(account, execution);
 
       assertTrue(subscription.isUnsubscribed());
       assertEquals(0L, latch.getCount());
@@ -331,7 +328,7 @@ public class ContractOperationIT extends AbstractIT {
       final ContractDefinition definition = ContractDefinition.newBuilder()
           .encodedContract(contractPayload)
           .build();
-      final ContractTxHash deployTxHash = deploy(account, definition, fee);
+      final ContractTxHash deployTxHash = deploy(account, definition);
 
       final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
       assertEquals("CREATED", deployTxReceipt.getStatus());
@@ -375,16 +372,16 @@ public class ContractOperationIT extends AbstractIT {
               randomUUID().toString()})
           .build();
 
-      execute(account, targetExec, fee);
-      execute(account, targetExec, fee);
+      execute(account, targetExec);
+      execute(account, targetExec);
 
-      execute(account, otherExec, fee);
-      execute(account, otherExec, fee);
-      execute(account, otherExec, fee);
+      execute(account, otherExec);
+      execute(account, otherExec);
+      execute(account, otherExec);
 
       subscription.unsubscribe();
 
-      execute(account, targetExec, fee);
+      execute(account, targetExec);
 
       assertTrue(subscription.isUnsubscribed());
       assertEquals(0, count.get());
@@ -398,7 +395,7 @@ public class ContractOperationIT extends AbstractIT {
       final ContractDefinition definition = ContractDefinition.newBuilder()
           .encodedContract(contractPayload)
           .build();
-      final ContractTxHash deployTxHash = deploy(account, definition, fee);
+      final ContractTxHash deployTxHash = deploy(account, definition);
 
       final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
       assertEquals("CREATED", deployTxReceipt.getStatus());
@@ -441,16 +438,16 @@ public class ContractOperationIT extends AbstractIT {
           .args(new Object[] {randomUUID().toString(), executeIntVal, executeStringVal})
           .build();
 
-      execute(account, targetExec, fee);
-      execute(account, targetExec, fee);
+      execute(account, targetExec);
+      execute(account, targetExec);
 
-      execute(account, otherExec, fee);
-      execute(account, otherExec, fee);
-      execute(account, otherExec, fee);
+      execute(account, otherExec);
+      execute(account, otherExec);
+      execute(account, otherExec);
 
       subscription.unsubscribe();
 
-      execute(account, targetExec, fee);
+      execute(account, targetExec);
 
       assertTrue(subscription.isUnsubscribed());
       assertEquals(0, count.get());
@@ -464,7 +461,7 @@ public class ContractOperationIT extends AbstractIT {
       final ContractDefinition definition = ContractDefinition.newBuilder()
           .encodedContract(contractPayload)
           .build();
-      final ContractTxHash deployTxHash = deploy(account, definition, fee);
+      final ContractTxHash deployTxHash = deploy(account, definition);
 
       final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
       assertEquals("CREATED", deployTxReceipt.getStatus());
@@ -508,16 +505,16 @@ public class ContractOperationIT extends AbstractIT {
           .args(new Object[] {randomUUID().toString(), executeIntVal, executeStringVal})
           .build();
 
-      execute(account, targetExec, fee);
-      execute(account, targetExec, fee);
+      execute(account, targetExec);
+      execute(account, targetExec);
 
-      execute(account, otherExec, fee);
-      execute(account, otherExec, fee);
-      execute(account, otherExec, fee);
+      execute(account, otherExec);
+      execute(account, otherExec);
+      execute(account, otherExec);
 
       subscription.unsubscribe();
 
-      execute(account, targetExec, fee);
+      execute(account, targetExec);
 
       assertTrue(subscription.isUnsubscribed());
       assertEquals(0, count.get());

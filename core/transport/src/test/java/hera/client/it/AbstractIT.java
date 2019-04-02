@@ -37,8 +37,6 @@ public abstract class AbstractIT {
 
   protected final String propertiesPath = "/it.properties";
 
-  protected final Fee fee = Fee.getDefaultFee();
-
   protected String hostname;
 
   protected String encrypted;

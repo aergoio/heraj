@@ -38,7 +38,6 @@ public class TransactionOperationIT extends AbstractIT {
               .to(recipient)
               .amount(amount)
               .nonce(account.incrementAndGetNonce())
-              .fee(fee)
               .build();
 
       unlockAccount(account, password);
@@ -90,7 +89,6 @@ public class TransactionOperationIT extends AbstractIT {
               .to(recipient)
               .amount(amount)
               .nonce(account.incrementAndGetNonce())
-              .fee(fee)
               .build();
 
       unlockAccount(account, password);
@@ -132,7 +130,6 @@ public class TransactionOperationIT extends AbstractIT {
               .to(name)
               .amount(amount)
               .nonce(account.incrementAndGetNonce())
-              .fee(fee)
               .build();
 
       unlockAccount(account, password);
@@ -167,7 +164,6 @@ public class TransactionOperationIT extends AbstractIT {
               .to(recipient)
               .amount(null)
               .nonce(account.incrementAndGetNonce())
-              .fee(fee)
               .build();
 
       unlockAccount(account, password);
@@ -201,7 +197,6 @@ public class TransactionOperationIT extends AbstractIT {
               .to(recipient)
               .amount(amount)
               .nonce(account.incrementAndGetNonce())
-              .fee(fee)
               .build();
 
       unlockAccount(account, password);
@@ -228,7 +223,6 @@ public class TransactionOperationIT extends AbstractIT {
               .to(invalidRecipient)
               .amount(amount)
               .nonce(account.incrementAndGetNonce())
-              .fee(fee)
               .build();
 
       unlockAccount(account, password);
@@ -254,7 +248,6 @@ public class TransactionOperationIT extends AbstractIT {
               .to(recipient)
               .amount(amount)
               .nonce(account.getRecentlyUsedNonce()) // invalid
-              .fee(fee)
               .build();
 
       unlockAccount(account, password);
@@ -280,7 +273,6 @@ public class TransactionOperationIT extends AbstractIT {
               .to(recipient)
               .amount(amount)
               .nonce(account.getRecentlyUsedNonce()) // invalid
-              .fee(fee)
               .build();
 
       // sign with recipient
@@ -316,7 +308,6 @@ public class TransactionOperationIT extends AbstractIT {
               .to(recipient)
               .amount(amount) // staked amount
               .nonce(account.incrementAndGetNonce())
-              .fee(fee)
               .build();
 
       unlockAccount(account, password);
@@ -342,7 +333,6 @@ public class TransactionOperationIT extends AbstractIT {
             .to(recipient)
             .amount(amount)
             .nonce(account.getRecentlyUsedNonce()) // invalid
-            .fee(fee)
             .build();
 
     // unlockAccount(account, password);

@@ -11,7 +11,6 @@ import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
-import hera.api.model.Fee;
 import hera.contract.SmartContractFactory;
 import hera.example.AbstractExample;
 import hera.key.AergoKey;
@@ -46,7 +45,7 @@ public class ContractExecuteWithInterface extends AbstractExample {
     final InputStream inputStream = getClass().getResourceAsStream("/payload");
     String encodedContract;
     Scanner scanner = new Scanner(inputStream, "UTF-8");
-    try  {
+    try {
       encodedContract = scanner.useDelimiter("\\A").next();
     } finally {
       scanner.close();
@@ -60,7 +59,7 @@ public class ContractExecuteWithInterface extends AbstractExample {
     System.out.println("Contract definition: " + definition);
 
     // deploy contract definition
-    final ContractTxHash deployTxHash = wallet.deploy(definition, Fee.getDefaultFee());
+    final ContractTxHash deployTxHash = wallet.deploy(definition);
     System.out.println("Deploy hash: " + deployTxHash);
 
     sleep(1500L);
@@ -77,7 +76,6 @@ public class ContractExecuteWithInterface extends AbstractExample {
         new SmartContractFactory().create(SmartContractInterface.class, contractAddress);
     contract.bind(wallet);
 
-    contract.bind(Fee.getDefaultFee());
     contract.set("execKey", 70, "execute");
 
     sleep(1500L);

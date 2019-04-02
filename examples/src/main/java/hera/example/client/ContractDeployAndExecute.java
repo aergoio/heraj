@@ -15,7 +15,6 @@ import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
-import hera.api.model.Fee;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.client.AergoClient;
@@ -63,7 +62,7 @@ public class ContractDeployAndExecute extends AbstractExample {
 
     // deploy contract definition
     final ContractTxHash deployTxHash = aergoClient.getContractOperation().deploy(account,
-        definition, account.incrementAndGetNonce(), Fee.getDefaultFee());
+        definition, account.incrementAndGetNonce());
     System.out.println("Deploy hash: " + deployTxHash);
 
     sleep(1500L);
@@ -88,7 +87,7 @@ public class ContractDeployAndExecute extends AbstractExample {
 
     // execute
     final ContractTxHash executionTxHash = aergoClient.getContractOperation().execute(account,
-        execution, account.incrementAndGetNonce(), Fee.getDefaultFee());
+        execution, account.incrementAndGetNonce());
     System.out.println("Execution hash: " + executionTxHash);
 
     sleep(1500L);
@@ -174,7 +173,7 @@ public class ContractDeployAndExecute extends AbstractExample {
 
     // deploy contract definition
     final ContractTxHash deployTxHash = aergoClient.getContractOperation().deploy(account,
-        definition, account.incrementAndGetNonce(), Fee.getDefaultFee());
+        definition, account.incrementAndGetNonce());
     System.out.println("Deploy hash: " + deployTxHash);
 
     sleep(1500L);
@@ -217,10 +216,8 @@ public class ContractDeployAndExecute extends AbstractExample {
         .function("set")
         .args("execKey", 70, "execute")
         .build();
-    aergoClient.getContractOperation().execute(account, execution, account.incrementAndGetNonce(),
-        Fee.getDefaultFee());
-    aergoClient.getContractOperation().execute(account, execution, account.incrementAndGetNonce(),
-        Fee.getDefaultFee());
+    aergoClient.getContractOperation().execute(account, execution, account.incrementAndGetNonce());
+    aergoClient.getContractOperation().execute(account, execution, account.incrementAndGetNonce());
 
     sleep(1500L);
 

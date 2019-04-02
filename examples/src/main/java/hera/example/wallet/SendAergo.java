@@ -10,7 +10,6 @@ import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
-import hera.api.model.Fee;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.example.AbstractExample;
@@ -48,7 +47,7 @@ public class SendAergo extends AbstractExample {
     // send aergo
     final AccountAddress recipient =
         AccountAddress.of("AmLbHdVs4dNpRzyLirs8cKdV26rPJJxpVXG1w2LLZ9pKfqAHHdyg");
-    final TxHash txHash = wallet.send(recipient, Aer.of("10", Unit.GAER), Fee.getDefaultFee());
+    final TxHash txHash = wallet.send(recipient, Aer.of("10", Unit.GAER));
     System.out.println("TxHash: " + txHash);
 
     // query tx with hash
@@ -94,7 +93,7 @@ public class SendAergo extends AbstractExample {
     // send aergo
     final AccountAddress recipient =
         AccountAddress.of("AmLbHdVs4dNpRzyLirs8cKdV26rPJJxpVXG1w2LLZ9pKfqAHHdyg");
-    final TxHash txHash = wallet.send(recipient, Aer.of("10", Unit.GAER), Fee.getDefaultFee());
+    final TxHash txHash = wallet.send(recipient, Aer.of("10", Unit.GAER));
     System.out.println("TxHash: " + txHash);
 
     // query tx with hash

@@ -163,6 +163,20 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
   TxHash vote(String voteId, List<String> candidates);
 
   /**
+   * Send <b>aer</b>.
+   *
+   * @param recipient a recipient name
+   * @param amount an amount
+   * @return a send transaction hash
+   *
+   * @throws UnbindedAccountException if account isn't binded
+   * @throws WalletCommitException on commit failure
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
+   */
+  TxHash send(String recipient, Aer amount);
+
+  /**
    * Send <b>aer</b> with {@code fee}.
    *
    * @param recipient a recipient name
@@ -176,6 +190,21 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @throws WalletRpcException on rpc error
    */
   TxHash send(String recipient, Aer amount, Fee fee);
+
+  /**
+   * Send <b>aer</b> and {@code payload}.
+   *
+   * @param recipient a recipient name
+   * @param amount an amount
+   * @param payload a payload
+   * @return a send transaction hash
+   *
+   * @throws UnbindedAccountException if account isn't binded
+   * @throws WalletCommitException on commit failure
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
+   */
+  TxHash send(String recipient, Aer amount, BytesValue payload);
 
   /**
    * Send <b>aer</b> with {@code fee} and {@code payload}.
@@ -198,6 +227,20 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    *
    * @param recipient a recipient
    * @param amount an amount
+   * @return a send transaction hash
+   *
+   * @throws UnbindedAccountException if account isn't binded
+   * @throws WalletCommitException on commit failure
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
+   */
+  TxHash send(AccountAddress recipient, Aer amount);
+
+  /**
+   * Send <b>aer</b> with {@code fee}.
+   *
+   * @param recipient a recipient
+   * @param amount an amount
    * @param fee a fee
    * @return a send transaction hash
    *
@@ -207,6 +250,21 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @throws WalletRpcException on rpc error
    */
   TxHash send(AccountAddress recipient, Aer amount, Fee fee);
+
+  /**
+   * Send <b>aer</b> with {@code fee} and {@code payload}.
+   *
+   * @param recipient a recipient
+   * @param amount an amount
+   * @param payload a payload
+   * @return a send transaction hash
+   *
+   * @throws UnbindedAccountException if account isn't binded
+   * @throws WalletCommitException on commit failure
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
+   */
+  TxHash send(AccountAddress recipient, Aer amount, BytesValue payload);
 
   /**
    * Send <b>aer</b> with {@code fee} and {@code payload}.
@@ -254,6 +312,19 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * Deploy smart contract.
    *
    * @param contractDefinition a contract definition
+   * @return a contract transaction hash
+   *
+   * @throws UnbindedAccountException if account isn't binded
+   * @throws WalletCommitException on commit failure
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
+   */
+  ContractTxHash deploy(ContractDefinition contractDefinition);
+
+  /**
+   * Deploy smart contract.
+   *
+   * @param contractDefinition a contract definition
    * @param fee a fee to make a transaction
    * @return a contract transaction hash
    *
@@ -263,6 +334,19 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @throws WalletRpcException on rpc error
    */
   ContractTxHash deploy(ContractDefinition contractDefinition, Fee fee);
+
+  /**
+   * Execute a smart contract function.
+   *
+   * @param contractInvocation a contract invocation
+   * @return a contract transaction hash
+   *
+   * @throws UnbindedAccountException if account isn't binded
+   * @throws WalletCommitException on commit failure
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
+   */
+  ContractTxHash execute(ContractInvocation contractInvocation);
 
   /**
    * Execute a smart contract function.

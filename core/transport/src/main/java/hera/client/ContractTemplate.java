@@ -111,6 +111,12 @@ public class ContractTemplate
 
   @Override
   public ContractTxHash deploy(final Account creator, final ContractDefinition contractDefinition,
+      final long nonce) {
+    return deploy(creator, contractDefinition, nonce, Fee.ZERO);
+  }
+
+  @Override
+  public ContractTxHash deploy(final Account creator, final ContractDefinition contractDefinition,
       final long nonce, final Fee fee) {
     return getDeployFunction().apply(creator, contractDefinition, nonce, fee).get();
   }
@@ -119,6 +125,12 @@ public class ContractTemplate
   public ContractInterface getContractInterface(
       final ContractAddress contractAddress) {
     return getContractInterfaceFunction().apply(contractAddress).get();
+  }
+
+  @Override
+  public ContractTxHash execute(final Account executor, final ContractInvocation contractInvocation,
+      final long nonce) {
+    return execute(executor, contractInvocation, nonce, Fee.ZERO);
   }
 
   @Override
@@ -141,5 +153,4 @@ public class ContractTemplate
   public Subscription<Event> subscribeEvent(EventFilter filter, StreamObserver<Event> observer) {
     return getSubscribeEventFunction().apply(filter, observer);
   }
-
 }

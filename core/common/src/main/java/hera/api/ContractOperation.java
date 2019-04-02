@@ -38,6 +38,16 @@ public interface ContractOperation {
    * @param creator smart contract creator
    * @param contractDefinition contract definition
    * @param nonce an nonce used in making transaction
+   * @return contract definition transaction hash
+   */
+  ContractTxHash deploy(Account creator, ContractDefinition contractDefinition, long nonce);
+
+  /**
+   * Deploy smart contract.
+   *
+   * @param creator smart contract creator
+   * @param contractDefinition contract definition
+   * @param nonce an nonce used in making transaction
    * @param fee transaction fee
    * @return contract definition transaction hash
    */
@@ -51,6 +61,16 @@ public interface ContractOperation {
    * @return contract interface
    */
   ContractInterface getContractInterface(ContractAddress contractAddress);
+
+  /**
+   * Execute the smart contract.
+   *
+   * @param executor smart contract executor
+   * @param contractInvocation {@link ContractInvocation}
+   * @param nonce an nonce used in making transaction
+   * @return contract execution transaction hash
+   */
+  ContractTxHash execute(Account executor, ContractInvocation contractInvocation, long nonce);
 
   /**
    * Execute the smart contract.

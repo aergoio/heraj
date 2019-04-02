@@ -16,7 +16,6 @@ import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
-import hera.api.model.Fee;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.example.AbstractExample;
@@ -67,7 +66,7 @@ public class ContractDeployAndExecute extends AbstractExample {
     System.out.println("Contract definition: " + definition);
 
     // deploy contract definition
-    final ContractTxHash deployTxHash = wallet.deploy(definition, Fee.getDefaultFee());
+    final ContractTxHash deployTxHash = wallet.deploy(definition);
     System.out.println("Deploy hash: " + deployTxHash);
 
     sleep(1500L);
@@ -89,7 +88,7 @@ public class ContractDeployAndExecute extends AbstractExample {
     System.out.println("Contract invocation: " + execution);
 
     // execute
-    final ContractTxHash executionTxHash = wallet.execute(execution, Fee.getDefaultFee());
+    final ContractTxHash executionTxHash = wallet.execute(execution);
     System.out.println("Execution hash: " + executionTxHash);
 
     sleep(1500L);
@@ -174,7 +173,7 @@ public class ContractDeployAndExecute extends AbstractExample {
     System.out.println("Contract definition: " + definition);
 
     // deploy contract definition
-    final ContractTxHash deployTxHash = wallet.deploy(definition, Fee.getDefaultFee());
+    final ContractTxHash deployTxHash = wallet.deploy(definition);
     System.out.println("Deploy hash: " + deployTxHash);
 
     sleep(1500L);
@@ -215,8 +214,8 @@ public class ContractDeployAndExecute extends AbstractExample {
         .function("set")
         .args("execKey", 70, "execute")
         .build();
-    wallet.execute(execution, Fee.getDefaultFee());
-    wallet.execute(execution, Fee.getDefaultFee());
+    wallet.execute(execution);
+    wallet.execute(execution);
 
     sleep(1500L);
 

@@ -49,8 +49,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 @PrepareForTest({ContractBaseTemplate.class})
 public class ContractTemplateTest extends AbstractTestCase {
 
-  protected final Fee fee = Fee.getDefaultFee();
-
   protected final AergoKeyGenerator generator = new AergoKeyGenerator();
 
   @Override
@@ -108,7 +106,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     Account account = mock(Account.class);
     String encoded = Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
     final ContractTxHash deployTxHash =
-        contractTemplate.deploy(account, ContractDefinition.of(encoded), 0L, fee);
+        contractTemplate.deploy(account, ContractDefinition.of(encoded), 0L);
     assertNotNull(deployTxHash);
     assertEquals(CONTRACT_DEPLOY,
         ((WithIdentity) contractTemplate.getDeployFunction()).getIdentity());
@@ -156,7 +154,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     final Account account = mock(Account.class);
     final ContractFunction contractFunction = new ContractFunction(randomUUID().toString());
     final ContractTxHash executionTxHash = contractTemplate
-        .execute(account, new ContractInvocation(contractAddress, contractFunction), 0L, fee);
+        .execute(account, new ContractInvocation(contractAddress, contractFunction), 0L);
     assertNotNull(executionTxHash);
     assertEquals(CONTRACT_EXECUTE,
         ((WithIdentity) contractTemplate.getExecuteFunction()).getIdentity());

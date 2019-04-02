@@ -325,8 +325,18 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
   }
 
   @Override
+  public TxHash send(final String recipient, final Aer amount) {
+    return send(recipient, amount, Fee.ZERO);
+  }
+
+  @Override
   public TxHash send(final String recipient, final Aer amount, final Fee fee) {
     return send(recipient, amount, fee, BytesValue.EMPTY);
+  }
+
+  @Override
+  public TxHash send(final String recipient, final Aer amount, final BytesValue payload) {
+    return send(recipient, amount, Fee.ZERO);
   }
 
   @Override
@@ -356,8 +366,18 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
   }
 
   @Override
+  public TxHash send(final AccountAddress recipient, final Aer amount) {
+    return send(recipient, amount, Fee.ZERO);
+  }
+
+  @Override
   public TxHash send(final AccountAddress recipient, final Aer amount, final Fee fee) {
     return send(recipient, amount, fee, BytesValue.EMPTY);
+  }
+
+  @Override
+  public TxHash send(final AccountAddress recipient, final Aer amount, final BytesValue payload) {
+    return send(recipient, amount, Fee.ZERO);
   }
 
   @Override
@@ -420,6 +440,11 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
   }
 
   @Override
+  public ContractTxHash deploy(final ContractDefinition contractDefinition) {
+    return deploy(contractDefinition, Fee.ZERO);
+  }
+
+  @Override
   public ContractTxHash deploy(final ContractDefinition contractDefinition, final Fee fee) {
     logger.debug("Deploy contract {} with fee {}", contractDefinition, fee);
     return trier.request(new Function1<Long, TxHash>() {
@@ -433,6 +458,11 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
         }
       }
     }).adapt(ContractTxHash.class);
+  }
+
+  @Override
+  public ContractTxHash execute(final ContractInvocation contractInvocation) {
+    return execute(contractInvocation, Fee.ZERO);
   }
 
   @Override
