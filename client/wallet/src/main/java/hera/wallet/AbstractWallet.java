@@ -11,20 +11,20 @@ import hera.api.function.Function1;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.model.AccountTotalVote;
 import hera.api.model.Aer;
 import hera.api.model.Authentication;
 import hera.api.model.BytesValue;
+import hera.api.model.ChainIdHash;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
 import hera.api.model.Identity;
-import hera.api.model.PeerId;
 import hera.api.model.RawTransaction;
-import hera.api.model.StakingInfo;
+import hera.api.model.StakeInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.api.model.VotingInfo;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
 import hera.exception.UnbindedAccountException;
@@ -54,6 +54,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
 
   protected TransactionTrier buildTrier(final TryCountAndInterval tryCountAndInterval) {
     final TransactionTrier trier = new TransactionTrier(tryCountAndInterval);
+
     trier.setAccountProvider(new Function0<Account>() {
       @Override
       public Account apply() {
@@ -66,6 +67,13 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
         getAccount().bindState(getAccountState());
       }
     });
+    trier.setChainIdSynchronizer(new Runnable() {
+      @Override
+      public void run() {
+        cacheChainIdHash(aergoClient.getBlockchainOperation().getChainIdHash());
+      }
+    });
+
     return trier;
   }
 
@@ -170,13 +178,13 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
   }
 
   @Override
-  public StakingInfo getStakingInfo() {
+  public StakeInfo getStakingInfo() {
     return getStakingInfo(getAccount());
   }
 
   @Override
-  public List<VotingInfo> listVotes() {
-    return listVotesOf(getAccount());
+  public AccountTotalVote getVotes() {
+    return getVotesOf(getAccount());
   }
 
   @Override
@@ -187,6 +195,22 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
   @Override
   public long incrementAndGetNonce() {
     return getAccount().incrementAndGetNonce();
+  }
+
+  @Override
+  public ChainIdHash getCachedChainIdHash() {
+    return aergoClient.getCachedChainIdHash();
+  }
+
+  @Override
+  public void cacheChainIdHash() {
+    cacheChainIdHash(getChainIdHash());
+  }
+
+  @Override
+  public void cacheChainIdHash(final ChainIdHash chainIdHash) {
+    logger.info("Cache chain id: {}", chainIdHash);
+    aergoClient.cacheChainIdHash(chainIdHash);
   }
 
   @Override
@@ -280,14 +304,19 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
   }
 
   @Override
-  public TxHash vote(final PeerId peerId) {
-    logger.debug("Vote to {}", peerId);
+  public TxHash voteBp(final List<String> candidates) {
+    return vote("voteBP", candidates);
+  }
+
+  @Override
+  public TxHash vote(final String voteId, final List<String> candidates) {
+    logger.debug("Vote to {} with {}", voteId, candidates);
     return trier.request(new Function1<Long, TxHash>() {
       @Override
       public TxHash apply(final Long nonce) {
         try {
           return getAergoClient().getBlockchainOperation()
-              .vote(getAccount(), peerId, nonce);
+              .vote(getAccount(), voteId, candidates, nonce);
         } catch (Exception e) {
           throw exceptionConverter.convert(e);
         }
@@ -309,14 +338,15 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
       @Override
       public TxHash apply(final Long nonce) {
         try {
-          final RawTransaction rawTransaction = RawTransaction.newBuilder()
-              .from(getAccount())
-              .to(recipient)
-              .amount(amount)
-              .nonce(nonce)
-              .fee(fee)
-              .payload(payload)
-              .build();
+          final RawTransaction rawTransaction =
+              RawTransaction.newBuilder(getCachedChainIdHash())
+                  .from(getAccount())
+                  .to(recipient)
+                  .amount(amount)
+                  .nonce(nonce)
+                  .fee(fee)
+                  .payload(payload)
+                  .build();
           return getAergoClient().getTransactionOperation().commit(sign(rawTransaction));
         } catch (Exception e) {
           throw exceptionConverter.convert(e);
@@ -339,14 +369,15 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
       @Override
       public TxHash apply(final Long nonce) {
         try {
-          final RawTransaction rawTransaction = RawTransaction.newBuilder()
-              .from(getAccount())
-              .to(recipient)
-              .amount(amount)
-              .nonce(nonce)
-              .fee(fee)
-              .payload(payload)
-              .build();
+          final RawTransaction rawTransaction =
+              RawTransaction.newBuilder(getCachedChainIdHash())
+                  .from(getAccount())
+                  .to(recipient)
+                  .amount(amount)
+                  .nonce(nonce)
+                  .fee(fee)
+                  .payload(payload)
+                  .build();
           return getAergoClient().getTransactionOperation().commit(sign(rawTransaction));
         } catch (Exception e) {
           throw exceptionConverter.convert(e);

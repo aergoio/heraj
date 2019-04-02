@@ -8,12 +8,11 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountState;
-import hera.api.model.StakingInfo;
-import hera.api.model.VotingInfo;
+import hera.api.model.AccountTotalVote;
+import hera.api.model.StakeInfo;
 import hera.exception.UnbindedAccountException;
 import hera.exception.WalletConnectionException;
 import hera.exception.WalletRpcException;
-import java.util.List;
 
 @ApiAudience.Public
 @ApiStability.Unstable
@@ -48,7 +47,7 @@ public interface AccountHoldable {
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
    */
-  StakingInfo getStakingInfo();
+  StakeInfo getStakingInfo();
 
   /**
    * Get votes which current account votes for.
@@ -59,7 +58,7 @@ public interface AccountHoldable {
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
    */
-  List<VotingInfo> listVotes();
+  AccountTotalVote getVotes();
 
   /**
    * Get recently used nonce value.

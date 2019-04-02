@@ -11,11 +11,11 @@ import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.Authentication;
 import hera.api.model.BytesValue;
+import hera.api.model.ChainIdHash;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
-import hera.api.model.PeerId;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
@@ -26,10 +26,30 @@ import hera.exception.WalletCommitException;
 import hera.exception.WalletConnectionException;
 import hera.exception.WalletRpcException;
 import java.io.Closeable;
+import java.util.List;
 
 @ApiAudience.Public
 @ApiStability.Unstable
 public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Closeable {
+
+  /**
+   * Get cached chain id hash. null if no cached one.
+   *
+   * @return a chain id hash
+   */
+  ChainIdHash getCachedChainIdHash();
+
+  /**
+   * Cache chain id hash with current node.
+   */
+  void cacheChainIdHash();
+
+  /**
+   * Cache chain id hash with corresponding {@code chainIdHash}.
+   *
+   * @param chainIdHash a chain id hash
+   */
+  void cacheChainIdHash(ChainIdHash chainIdHash);
 
   /**
    * Unlock and load account corresponding with {@code authentication}.
@@ -116,9 +136,9 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
   TxHash unstake(Aer amount);
 
   /**
-   * Vote to {@code peerId}.
+   * Vote to bp {@code candidates}.
    *
-   * @param peerId a peer id to vote
+   * @param candidates a candidates to vote
    * @return voting transaction hash
    *
    * @throws UnbindedAccountException if account isn't binded
@@ -126,7 +146,21 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
    */
-  TxHash vote(PeerId peerId);
+  TxHash voteBp(List<String> candidates);
+
+  /**
+   * Vote to {@code candidates} with {@code voteId}.
+   *
+   * @param voteId a vote id
+   * @param candidates a candidates to vote
+   * @return voting transaction hash
+   *
+   * @throws UnbindedAccountException if account isn't binded
+   * @throws WalletCommitException on commit failure
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
+   */
+  TxHash vote(String voteId, List<String> candidates);
 
   /**
    * Send <b>aer</b> with {@code fee}.

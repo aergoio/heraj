@@ -26,10 +26,10 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
+import hera.api.model.AccountTotalVote;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
-import hera.api.model.BlockProducer;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.BytesValue;
 import hera.api.model.ChainInfo;
@@ -40,18 +40,18 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.ElectedCandidate;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
 import hera.api.model.ModuleStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
-import hera.api.model.StakingInfo;
+import hera.api.model.StakeInfo;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.api.model.VotingInfo;
 import hera.client.AergoClient;
 import hera.key.AergoKeyGenerator;
 import java.util.ArrayList;
@@ -94,7 +94,7 @@ public class QueryWalletTest extends AbstractTestCase {
     final AergoClient mockClient = mock(AergoClient.class);
     final AccountOperation mockOperation = mock(AccountOperation.class);
     when(mockOperation.getStakingInfo(any(AccountAddress.class)))
-        .thenReturn(mock(StakingInfo.class));
+        .thenReturn(mock(StakeInfo.class));
     when(mockClient.getAccountOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
@@ -105,32 +105,32 @@ public class QueryWalletTest extends AbstractTestCase {
   }
 
   @Test
-  public void testListElectedBlockProducers() {
+  public void testListElected() {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
-    when(mockOperation.listElectedBlockProducers(anyLong()))
-        .thenReturn(new ArrayList<BlockProducer>());
+    when(mockOperation.listElected(anyString(), anyInt()))
+        .thenReturn(new ArrayList<ElectedCandidate>());
     when(mockClient.getBlockchainOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
         withSettings().useConstructor(mockClient).defaultAnswer(CALLS_REAL_METHODS));
 
-    assertNotNull(wallet.listElectedBlockProducers());
+    assertNotNull(wallet.listElected(randomUUID().toString(), randomUUID().toString().hashCode()));
   }
 
   @Test
-  public void testListVotesOf() {
+  public void testGetVotesOf() {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
-    when(mockOperation.listVotesOf(any(AccountAddress.class)))
-        .thenReturn(new ArrayList<VotingInfo>());
+    when(mockOperation.getVotesOf(any(AccountAddress.class)))
+        .thenReturn(mock(AccountTotalVote.class));
     when(mockClient.getBlockchainOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
         withSettings().useConstructor(mockClient).defaultAnswer(CALLS_REAL_METHODS));
 
     final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
-    assertNotNull(wallet.listVotesOf(account));
+    assertNotNull(wallet.getVotesOf(account));
   }
 
   @Test
@@ -151,7 +151,8 @@ public class QueryWalletTest extends AbstractTestCase {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
     when(mockOperation.getBlockchainStatus()).thenReturn(
-        new BlockchainStatus(1, BlockHash.of(BytesValue.EMPTY)));
+        new BlockchainStatus(1, BlockHash.of(BytesValue.EMPTY), randomUUID().toString(),
+            chainIdHash));
     when(mockClient.getBlockchainOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
@@ -165,13 +166,44 @@ public class QueryWalletTest extends AbstractTestCase {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
     when(mockOperation.getBlockchainStatus()).thenReturn(
-        new BlockchainStatus(1, BlockHash.of(BytesValue.EMPTY)));
+        new BlockchainStatus(1, BlockHash.of(BytesValue.EMPTY), randomUUID().toString(),
+            chainIdHash));
     when(mockClient.getBlockchainOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
         withSettings().useConstructor(mockClient).defaultAnswer(CALLS_REAL_METHODS));
 
     assertNotNull(wallet.getBestBlockHeight());
+  }
+
+  @Test
+  public void testGetChainIdHash() {
+    final AergoClient mockClient = mock(AergoClient.class);
+    final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
+    when(mockOperation.getBlockchainStatus()).thenReturn(
+        new BlockchainStatus(1, BlockHash.of(BytesValue.EMPTY), randomUUID().toString(),
+            chainIdHash));
+    when(mockClient.getBlockchainOperation()).thenReturn(mockOperation);
+
+    final QueryWallet wallet = mock(QueryWallet.class,
+        withSettings().useConstructor(mockClient).defaultAnswer(CALLS_REAL_METHODS));
+
+    assertNotNull(wallet.getChainIdHash());
+  }
+
+  @Test
+  public void testGetBlockchainStatus() {
+    final AergoClient mockClient = mock(AergoClient.class);
+    final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
+    when(mockOperation.getBlockchainStatus()).thenReturn(
+        new BlockchainStatus(1, BlockHash.of(BytesValue.EMPTY), randomUUID().toString(),
+            chainIdHash));
+    when(mockClient.getBlockchainOperation()).thenReturn(mockOperation);
+
+    final QueryWallet wallet = mock(QueryWallet.class,
+        withSettings().useConstructor(mockClient).defaultAnswer(CALLS_REAL_METHODS));
+
+    assertNotNull(wallet.getBlockchainStatus());
   }
 
   @Test

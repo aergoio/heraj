@@ -39,7 +39,9 @@ public abstract class AbstractIT {
 
   protected String password;
 
-  protected String peer;
+  protected String[] peerIds;
+
+  protected boolean isFundEnabled;
 
   protected AergoClient aergoClient;
 
@@ -49,11 +51,14 @@ public abstract class AbstractIT {
     hostname = (String) properties.get("hostname");
     encrypted = (String) properties.get("encrypted");
     password = (String) properties.get("password");
-    peer = (String) properties.get("peer");
+    peerIds = ((String) properties.get("peer")).split(",");
+    isFundEnabled = Boolean.valueOf((String) properties.get("enablefund"));
+
     aergoClient = new AergoClientBuilder()
         .withNonBlockingConnect()
         .withEndpoint(hostname)
         .build();
+    aergoClient.cacheChainIdHash(aergoClient.getBlockchainOperation().getChainIdHash());
   }
 
   protected Properties readProperties() throws IOException {
@@ -78,7 +83,9 @@ public abstract class AbstractIT {
 
   protected AergoKey supplyKeyWithAergo(final Wallet wallet) {
     final AergoKey key = new AergoKeyGenerator().create();
-    // fund(key.getAddress());
+    if (isFundEnabled) {
+      fund(key.getAddress());
+    }
     return key;
   }
 
@@ -87,12 +94,13 @@ public abstract class AbstractIT {
     final AccountState richState = aergoClient.getAccountOperation().getState(rich);
     rich.bindState(richState);
     logger.info("Rich state: {}", richState);
-    final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .from(rich)
-        .to(poor)
-        .amount(Aer.of("10", Unit.AERGO))
-        .nonce(rich.incrementAndGetNonce())
-        .build();
+    final RawTransaction rawTransaction =
+        RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
+            .from(rich)
+            .to(poor)
+            .amount(Aer.of("10000", Unit.AERGO))
+            .nonce(rich.incrementAndGetNonce())
+            .build();
     final Transaction signed = aergoClient.getAccountOperation().sign(rich, rawTransaction);
     aergoClient.getTransactionOperation().commit(signed);
     waitForNextBlockToGenerate();

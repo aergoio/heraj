@@ -148,7 +148,7 @@ public abstract class AbstractIT {
   protected boolean isDpos() {
     final String consensus =
         aergoClient.getBlockchainOperation().getBlockchainStatus().getConsensus();
-    return "dpos".equals(consensus);
+    return consensus.indexOf("dpos") != -1;
   }
 
   @After

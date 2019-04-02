@@ -13,28 +13,33 @@ import static org.junit.Assert.fail;
 
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.model.AccountTotalVote;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
-import hera.api.model.BlockProducer;
+import hera.api.model.BlockchainStatus;
+import hera.api.model.ChainIdHash;
+import hera.api.model.ChainInfo;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractTxHash;
+import hera.api.model.ElectedCandidate;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
 import hera.api.model.Fee;
 import hera.api.model.Identity;
-import hera.api.model.PeerId;
+import hera.api.model.NodeStatus;
+import hera.api.model.Peer;
+import hera.api.model.PeerMetric;
 import hera.api.model.RawTransaction;
-import hera.api.model.StakingInfo;
+import hera.api.model.StakeInfo;
 import hera.api.model.StreamObserver;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.api.model.VotingInfo;
 import hera.exception.UnbindedAccountException;
 import hera.exception.WalletCommitException;
 import hera.key.AergoKey;
@@ -211,7 +216,7 @@ public class WalletIT extends AbstractIT {
   }
 
   @Test
-  public void testQuery() throws Exception {
+  public void testLookupOfAccount() throws Exception {
     for (Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
@@ -221,19 +226,53 @@ public class WalletIT extends AbstractIT {
       wallet.saveKey(key, password);
       wallet.unlock(Authentication.of(key.getAddress(), password));
 
+      assertNotNull(wallet.getAccount());
       assertNotNull(wallet.getAccountState());
-      assertNotNull(wallet.getAccountState(wallet.getAccount()));
-      assertNotNull(wallet.listServerKeyStoreAccounts());
-      assertNotNull(wallet.listNodePeers());
-      assertNotNull(wallet.listPeerMetrics());
-      assertNotNull(wallet.getNodeStatus());
-      assertNotNull(wallet.getChainInfo());
+      assertNotNull(wallet.getStakingInfo());
+      assertNotNull(wallet.getVotes());
+    }
+  }
+
+  @Test
+  public void testLookup() throws Exception {
+    for (Wallet wallet : supplyWorkingWalletList()) {
+      logger.info("Current wallet: {}", wallet);
+      wallet.bindKeyStore(keyStore);
+
+      final AergoKey key = supplyKeyWithAergo(wallet);
+      final String password = randomUUID().toString();
+      wallet.saveKey(key, password);
+      wallet.unlock(Authentication.of(key.getAddress(), password));
+
+      final AccountState accountState = wallet.getAccountState(wallet.getAccount());
+      assertNotNull(accountState);
+
+      final List<AccountAddress> keyStoreAccounts = wallet.listServerKeyStoreAccounts();
+      assertNotNull(keyStoreAccounts);
+
+      final List<Peer> nodePeers = wallet.listNodePeers();
+      assertNotNull(nodePeers);
+
+      final List<PeerMetric> peerMetrics = wallet.listPeerMetrics();
+      assertNotNull(peerMetrics);
+
+      final NodeStatus nodeStatus = wallet.getNodeStatus();
+      assertNotNull(nodeStatus);
+
+      final ChainInfo chainInfo = wallet.getChainInfo();
+      assertNotNull(chainInfo);
 
       final BlockHash blockhash = wallet.getBestBlockHash();
       assertNotNull(blockhash);
 
       final long blockHeight = wallet.getBestBlockHeight();
       assertNotNull(blockHeight);
+
+      final ChainIdHash chainIdHash = wallet.getChainIdHash();
+      assertNotNull(chainIdHash);
+
+      final BlockchainStatus blockchainStatus = wallet.getBlockchainStatus();
+      assertNotNull(blockchainStatus);
 
       final BlockHeader blockHeaderByHash = wallet.getBlockHeader(blockhash);
       assertNotNull(blockHeaderByHash);
@@ -450,7 +489,7 @@ public class WalletIT extends AbstractIT {
       wallet.stake(stakingAmount);
       waitForNextBlockToGenerate();
 
-      final StakingInfo stakingInfo = wallet.getStakingInfo();
+      final StakeInfo stakingInfo = wallet.getStakingInfo();
       assertEquals(stakingAmount, stakingInfo.getAmount());
 
       final long postCachedNonce = wallet.getRecentlyUsedNonce();
@@ -462,7 +501,7 @@ public class WalletIT extends AbstractIT {
   }
 
   @Test
-  public void testVoting() {
+  public void testVote() {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
       wallet.bindKeyStore(keyStore);
@@ -480,17 +519,15 @@ public class WalletIT extends AbstractIT {
       wallet.stake(stakingAmount);
       waitForNextBlockToGenerate();
 
-      final PeerId peerId = new PeerId(peer);
-      wallet.vote(peerId);
+      wallet.voteBp(asList(peerIds));
       waitForNextBlockToGenerate();
 
-      final List<BlockProducer> electedBlockProducers = wallet.listElectedBlockProducers();
-      assertTrue(1 <= electedBlockProducers.size());
-      assertEquals(peerId, electedBlockProducers.get(0).getPeerId());
+      final List<ElectedCandidate> electedBlockProducers = wallet.listElectedBps(100);
+      assertTrue(peerIds.length == electedBlockProducers.size());
 
-      final List<VotingInfo> votingInfos = wallet.listVotes();
-      assertTrue(1 == votingInfos.size());
-      assertEquals(peerId, votingInfos.get(0).getPeerId());
+      final AccountTotalVote accountTotalVote = wallet.getVotes();
+      assertTrue(1 <= accountTotalVote.getVoteInfos().size());
+      assertEquals(peerIds.length, accountTotalVote.getVoteInfos().get(0).getCandidateIds().size());
 
       wallet.close();
     }
@@ -509,8 +546,7 @@ public class WalletIT extends AbstractIT {
       wallet.unlock(auth);
 
       try {
-        final PeerId peerId = new PeerId("16Uiu2HAmV6iVGuN31sZTz2GDicFPpBr6eaHn1mVM499BGwSBf6Nb");
-        wallet.vote(peerId);
+        wallet.voteBp(asList(peerIds));
         fail();
       } catch (WalletCommitException e) {
         // good we expected this
@@ -535,9 +571,9 @@ public class WalletIT extends AbstractIT {
       final long preCachedNonce = wallet.getRecentlyUsedNonce();
       final AccountState preState = wallet.getAccountState();
 
-      wallet.send(accountAddress, Aer.of("100", Unit.GAER), Fee.getDefaultFee());
-      wallet.send(accountAddress, Aer.of("100", Unit.GAER), Fee.getDefaultFee());
-      wallet.send(accountAddress, Aer.of("100", Unit.GAER), Fee.getDefaultFee());
+      wallet.send(accountAddress, Aer.of("100", Unit.GAER), Fee.ZERO);
+      wallet.send(accountAddress, Aer.of("100", Unit.GAER), Fee.ZERO);
+      wallet.send(accountAddress, Aer.of("100", Unit.GAER), Fee.ZERO);
       waitForNextBlockToGenerate();
 
       final long postCachedNonce = wallet.getRecentlyUsedNonce();
@@ -587,7 +623,8 @@ public class WalletIT extends AbstractIT {
       final long preCachedNonce = wallet.getRecentlyUsedNonce();
       final AccountState preState = wallet.getAccountState();
 
-      final RawTransaction rawTransaction = RawTransaction.newBuilder()
+      wallet.cacheChainIdHash();
+      final RawTransaction rawTransaction = RawTransaction.newBuilder(wallet.getCachedChainIdHash())
           .from(key.getAddress())
           .to(accountAddress)
           .amount(Aer.of("100", Unit.AER))
@@ -622,7 +659,8 @@ public class WalletIT extends AbstractIT {
       final long preCachedNonce = wallet.getRecentlyUsedNonce();
       final AccountState preState = wallet.getAccountState();
 
-      final RawTransaction rawTransaction = RawTransaction.newBuilder()
+      wallet.cacheChainIdHash();
+      final RawTransaction rawTransaction = RawTransaction.newBuilder(wallet.getCachedChainIdHash())
           .from(key.getAddress())
           .to(accountAddress)
           .amount(Aer.of("100", Unit.AER))
@@ -658,7 +696,8 @@ public class WalletIT extends AbstractIT {
       final long preCachedNonce = wallet.getRecentlyUsedNonce();
       final AccountState preState = wallet.getAccountState();
 
-      final RawTransaction rawTransaction = RawTransaction.newBuilder()
+      wallet.cacheChainIdHash();
+      final RawTransaction rawTransaction = RawTransaction.newBuilder(wallet.getCachedChainIdHash())
           .from(key.getAddress())
           .to(accountAddress)
           .amount(Aer.of("100", Unit.AER))
@@ -689,7 +728,7 @@ public class WalletIT extends AbstractIT {
       wallet.unlock(auth);
       wallet.lock(auth);
 
-      final RawTransaction rawTransaction = RawTransaction.newBuilder()
+      final RawTransaction rawTransaction = RawTransaction.newBuilder(wallet.getCachedChainIdHash())
           .from(key.getAddress())
           .to(accountAddress)
           .amount(Aer.of("100", Unit.AER))

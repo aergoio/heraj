@@ -32,6 +32,10 @@ public class TransactionTrier {
   @Setter
   protected Runnable nonceSynchronizer;
 
+  @Getter
+  @Setter
+  protected Runnable chainIdSynchronizer;
+
   public TransactionTrier(final TryCountAndInterval tryCountAndInterval) {
     logger.debug("Binded nonce refresh: {}", tryCountAndInterval);
     this.tryCountAndInterval = tryCountAndInterval;
@@ -82,12 +86,17 @@ public class TransactionTrier {
         txHash = transactionRequester.apply(accountProvider.apply().incrementAndGetNonce());
         success = true;
       } catch (WalletException e) {
-        if (!isNonceRelatedException(e)) {
+        if (isNonceRelatedException(e)) {
+          logger.info("Request failed with invalid nonce.. try left: {}", i);
+          nonceSynchronizer.run();
+        } else if (isChainIdHashException(e)) {
+          logger.info("Request failed with invalid chain id hash.. try left: {}", i);
+          chainIdSynchronizer.run();
+          nonceSynchronizer.run();
+        } else {
           throw e;
         }
         exception = e;
-        logger.info("Request failed with invalid nonce.. try left: {}", i);
-        nonceSynchronizer.run();
         tryCountAndInterval.trySleep();
         --i;
       }
@@ -107,6 +116,15 @@ public class TransactionTrier {
     final RpcCommitException cause = (RpcCommitException) e.getCause();
     return cause.getCommitStatus() == RpcCommitException.CommitStatus.NONCE_TOO_LOW
         || cause.getCommitStatus() == RpcCommitException.CommitStatus.TX_HAS_SAME_NONCE;
+  }
+
+  protected boolean isChainIdHashException(final WalletException e) {
+    if (!(e.getCause() instanceof RpcCommitException)) {
+      return false;
+    }
+    final RpcCommitException cause = (RpcCommitException) e.getCause();
+    // FIXME : no another way?
+    return cause.getMessage().indexOf("invalid chain id") != -1;
   }
 
 }

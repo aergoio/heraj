@@ -4,6 +4,7 @@
 
 package hera;
 
+import static java.lang.System.identityHashCode;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
@@ -13,12 +14,10 @@ import hera.util.Configuration;
 import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import org.slf4j.Logger;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-@ToString(exclude = {"logger"})
 @EqualsAndHashCode(exclude = {"logger"})
 @RequiredArgsConstructor
 public final class ThreadLocalContext implements Context {
@@ -115,4 +114,11 @@ public final class ThreadLocalContext implements Context {
     ContextHolder.set(cabinetKey, withoutStrategies);
     return this;
   }
+
+  @Override
+  public String toString() {
+    return String.format("ThreadLocalContext(cabinetKey: %s, cabinetContext: %s",
+        identityHashCode(cabinetKey), ContextHolder.get(cabinetKey));
+  }
+
 }

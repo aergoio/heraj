@@ -7,6 +7,7 @@ package hera.wallet;
 import static hera.api.model.BytesValue.of;
 import static hera.util.EncodingUtils.encodeBase58WithCheck;
 import static hera.util.VersionUtils.envelop;
+import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -45,7 +46,6 @@ import hera.api.model.ContractTxHash;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Fee;
 import hera.api.model.Identity;
-import hera.api.model.PeerId;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
@@ -305,11 +305,12 @@ public class AbstractWalletTest extends AbstractTestCase {
     assertNotNull(stakingHash);
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testVote() {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
-    when(mockOperation.vote(any(Account.class), any(PeerId.class), anyLong()))
+    when(mockOperation.vote(any(Account.class), any(String.class), any(List.class), anyLong()))
         .thenReturn(mock(TxHash.class));
     when(mockClient.getBlockchainOperation()).thenReturn(mockOperation);
 
@@ -317,7 +318,8 @@ public class AbstractWalletTest extends AbstractTestCase {
     wallet.account = new AccountFactory().create(accountAddress);
     wallet.trier = trier;
 
-    final TxHash votingHash = wallet.vote(new PeerId(of(randomUUID().toString().getBytes())));
+    final TxHash votingHash =
+        wallet.vote(randomUUID().toString(), asList(new String[] {randomUUID().toString()}));
     assertNotNull(votingHash);
   }
 

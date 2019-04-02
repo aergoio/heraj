@@ -35,6 +35,9 @@ public class ContractDeployAndExecute extends AbstractExample {
         .withNonBlockingConnect()
         .build();
 
+    // cache chain id hash
+    aergoClient.cacheChainIdHash(aergoClient.getBlockchainOperation().getChainIdHash());
+
     // create an account
     final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
 
@@ -142,6 +145,9 @@ public class ContractDeployAndExecute extends AbstractExample {
         .withEndpoint(hostname)
         .withNonBlockingConnect()
         .build();
+
+    // cache chain id hash
+    aergoClient.cacheChainIdHash(aergoClient.getBlockchainOperation().getChainIdHash());
 
     // create an account
     final Account account = new AccountFactory().create(new AergoKeyGenerator().create());

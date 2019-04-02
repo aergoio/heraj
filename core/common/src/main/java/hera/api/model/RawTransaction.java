@@ -70,6 +70,7 @@ public class RawTransaction {
   /**
    * RawTransaction constructor.
    *
+   * @param chainIdHash a chain id hash
    * @param sender a sender
    * @param recipient a recipient
    * @param amount an amount

@@ -9,10 +9,12 @@ import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.model.AccountTotalVote;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
-import hera.api.model.BlockProducer;
+import hera.api.model.BlockchainStatus;
+import hera.api.model.ChainIdHash;
 import hera.api.model.ChainInfo;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractInterface;
@@ -20,16 +22,16 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.ElectedCandidate;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
-import hera.api.model.StakingInfo;
+import hera.api.model.StakeInfo;
 import hera.api.model.Subscription;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.api.model.VotingInfo;
 import hera.exception.WalletConnectionException;
 import hera.exception.WalletRpcException;
 import java.io.Closeable;
@@ -81,7 +83,7 @@ public interface QueryClient extends Closeable {
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
    */
-  StakingInfo getStakingInfo(Account account);
+  StakeInfo getStakingInfo(Account account);
 
   /**
    * Get staking information of {@code accountAddress}.
@@ -92,30 +94,30 @@ public interface QueryClient extends Closeable {
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
    */
-  StakingInfo getStakingInfo(AccountAddress accountAddress);
+  StakeInfo getStakingInfo(AccountAddress accountAddress);
 
   /**
-   * Get 23 elected block producer from the top voted. Note that this is just a voting result. Not
-   * really working block block producers since block producers are renewed after one round.
+   * Get elected block producers for current round.
    *
+   * @param showCount a show count
    * @return elected block producer list
    *
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
    */
-  List<BlockProducer> listElectedBlockProducers();
+  List<ElectedCandidate> listElectedBps(int showCount);
 
   /**
-   * Get elected block producer from the top voted. Note that this is just a voting result. Not
-   * really working block block producers since block producers are renewed after one round.
+   * Get elected candidates per {@code voteId} for current round.
    *
-   * @param showCount show count
+   * @param voteId a vote id
+   * @param showCount a show count
    * @return elected block producer list
    *
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
    */
-  List<BlockProducer> listElectedBlockProducers(long showCount);
+  List<ElectedCandidate> listElected(String voteId, int showCount);
 
   /**
    * Get votes which {@code account} votes for.
@@ -126,7 +128,7 @@ public interface QueryClient extends Closeable {
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
    */
-  List<VotingInfo> listVotesOf(Account account);
+  AccountTotalVote getVotesOf(Account account);
 
   /**
    * Get votes which {@code accountAddress} votes for.
@@ -137,7 +139,7 @@ public interface QueryClient extends Closeable {
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
    */
-  List<VotingInfo> listVotesOf(AccountAddress accountAddress);
+  AccountTotalVote getVotesOf(AccountAddress accountAddress);
 
   /**
    * Get account list on a server key store.
@@ -168,6 +170,20 @@ public interface QueryClient extends Closeable {
    * @throws WalletRpcException on rpc error
    */
   long getBestBlockHeight();
+
+  /**
+   * Get chain id hash.
+   *
+   * @return a chain id hash
+   */
+  ChainIdHash getChainIdHash();
+
+  /**
+   * Get blockchain status.
+   *
+   * @return blockchain status
+   */
+  BlockchainStatus getBlockchainStatus();
 
   /**
    * Get chain info of current node.

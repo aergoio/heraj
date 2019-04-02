@@ -9,10 +9,12 @@ import static org.slf4j.LoggerFactory.getLogger;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.model.AccountTotalVote;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
-import hera.api.model.BlockProducer;
+import hera.api.model.BlockchainStatus;
+import hera.api.model.ChainIdHash;
 import hera.api.model.ChainInfo;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractInterface;
@@ -20,16 +22,16 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.ElectedCandidate;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
-import hera.api.model.StakingInfo;
+import hera.api.model.StakeInfo;
 import hera.api.model.Subscription;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.api.model.VotingInfo;
 import hera.client.AergoClient;
 import hera.exception.WalletException;
 import hera.exception.WalletExceptionConverter;
@@ -41,8 +43,6 @@ import lombok.Getter;
 import org.slf4j.Logger;
 
 public abstract class QueryWallet implements QueryClient, Closeable {
-
-  protected static final int SHOW_COUNT = 23;
 
   protected final Logger logger = getLogger(getClass());
 
@@ -83,12 +83,12 @@ public abstract class QueryWallet implements QueryClient, Closeable {
   }
 
   @Override
-  public StakingInfo getStakingInfo(final Account account) {
+  public StakeInfo getStakingInfo(final Account account) {
     return getStakingInfo(account.getAddress());
   }
 
   @Override
-  public StakingInfo getStakingInfo(final AccountAddress accountAddress) {
+  public StakeInfo getStakingInfo(final AccountAddress accountAddress) {
     try {
       logger.debug("Get staking info of {}", accountAddress);
       return getAergoClient().getAccountOperation().getStakingInfo(accountAddress);
@@ -98,30 +98,30 @@ public abstract class QueryWallet implements QueryClient, Closeable {
   }
 
   @Override
-  public List<BlockProducer> listElectedBlockProducers() {
-    return listElectedBlockProducers(SHOW_COUNT);
+  public List<ElectedCandidate> listElectedBps(final int showCount) {
+    return listElected("voteBP", showCount);
   }
 
   @Override
-  public List<BlockProducer> listElectedBlockProducers(final long showCount) {
+  public List<ElectedCandidate> listElected(String voteId, int showCount) {
     try {
       logger.debug("List elected bps with show count: {}", showCount);
-      return getAergoClient().getBlockchainOperation().listElectedBlockProducers(showCount);
+      return getAergoClient().getBlockchainOperation().listElected(voteId, showCount);
     } catch (Exception e) {
       throw exceptionConverter.convert(e);
     }
   }
 
   @Override
-  public List<VotingInfo> listVotesOf(final Account account) {
-    return listVotesOf(account.getAddress());
+  public AccountTotalVote getVotesOf(Account account) {
+    return getVotesOf(account.getAddress());
   }
 
   @Override
-  public List<VotingInfo> listVotesOf(final AccountAddress accountAddress) {
+  public AccountTotalVote getVotesOf(AccountAddress accountAddress) {
     try {
       logger.debug("List votes of {}", accountAddress);
-      return getAergoClient().getBlockchainOperation().listVotesOf(accountAddress);
+      return getAergoClient().getBlockchainOperation().getVotesOf(accountAddress);
     } catch (Exception e) {
       throw exceptionConverter.convert(e);
     }
@@ -139,19 +139,24 @@ public abstract class QueryWallet implements QueryClient, Closeable {
 
   @Override
   public BlockHash getBestBlockHash() {
-    try {
-      logger.debug("Get best block hash");
-      return getAergoClient().getBlockchainOperation().getBlockchainStatus().getBestBlockHash();
-    } catch (Exception e) {
-      throw exceptionConverter.convert(e);
-    }
+    return getBlockchainStatus().getBestBlockHash();
   }
 
   @Override
   public long getBestBlockHeight() {
+    return getBlockchainStatus().getBestHeight();
+  }
+
+  @Override
+  public ChainIdHash getChainIdHash() {
+    return getBlockchainStatus().getChainIdHash();
+  }
+
+  @Override
+  public BlockchainStatus getBlockchainStatus() {
     try {
-      logger.debug("Get best block height");
-      return getAergoClient().getBlockchainOperation().getBlockchainStatus().getBestHeight();
+      logger.debug("Get blockchain status");
+      return getAergoClient().getBlockchainOperation().getBlockchainStatus();
     } catch (Exception e) {
       throw exceptionConverter.convert(e);
     }

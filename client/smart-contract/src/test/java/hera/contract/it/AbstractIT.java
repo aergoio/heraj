@@ -25,15 +25,12 @@ public abstract class AbstractIT {
 
   protected String password;
 
-  protected String peer;
-
   @Before
   public void setUp() throws Exception {
     final Properties properties = readProperties();
     hostname = (String) properties.get("hostname");
     encrypted = (String) properties.get("encrypted");
     password = (String) properties.get("password");
-    peer = (String) properties.get("peer");
   }
 
   protected Properties readProperties() throws IOException {

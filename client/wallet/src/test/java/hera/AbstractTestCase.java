@@ -4,14 +4,15 @@
 
 package hera;
 
+import static hera.api.model.BytesValue.of;
+import static java.util.UUID.randomUUID;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.model.ChainIdHash;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore({
@@ -23,5 +24,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractTestCase {
 
   protected final transient Logger logger = getLogger(getClass());
+
+  protected final ChainIdHash chainIdHash = new ChainIdHash(of(randomUUID().toString().getBytes()));
 
 }

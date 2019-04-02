@@ -11,6 +11,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.api.model.BytesValue;
 import hera.api.model.ChainIdHash;
 import hera.util.Configuration;
 import hera.util.conf.InMemoryConfiguration;
@@ -45,7 +46,7 @@ public class EmptyContext implements Context {
   protected final String scope = EmptyContext.SCOPE;
 
   @Getter
-  protected final ChainIdHash chainIdHash = null;
+  protected final ChainIdHash chainIdHash = new ChainIdHash(BytesValue.EMPTY);
 
   @Getter
   protected final Configuration configuration = new InMemoryConfiguration(true);
