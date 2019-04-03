@@ -18,4 +18,5 @@ function get(key)
   return system.getItem(key)
 end
 
-abi.register(set, set2, get)
+abi.register(set, set2)
+abi.register_view(get)

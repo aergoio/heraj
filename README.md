@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![LoC](https://tokei.rs/b1/github/aergoio/heraj)](https://github.com/aergoio/heraj)
-[![Travis_ci](https://travis-ci.org/aergoio/heraj.svg?branch=master)](https://travis-ci.org/aergoio/heraj)
+[![Travis_ci](https://travis-ci.org/aergoio/heraj.svg?branch=develop)](https://travis-ci.org/aergoio/heraj)
 [![codecov.io](http://codecov.io/github/aergoio/heraj/coverage.svg?branch=master)](http://codecov.io/github/aergoio/heraj?branch=master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/a0aa6cecd0067bddc770/maintainability)](https://codeclimate.com/github/aergoio/heraj/maintainability)
 

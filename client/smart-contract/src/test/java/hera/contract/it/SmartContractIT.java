@@ -13,7 +13,6 @@ import hera.api.model.Authentication;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractTxHash;
-import hera.api.model.Fee;
 import hera.contract.SmartContractFactory;
 import hera.exception.ContractException;
 import hera.key.AergoKey;
@@ -46,7 +45,7 @@ public class SmartContractIT extends AbstractIT {
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payload)
         .build();
-    final ContractTxHash deployTxHash = wallet.deploy(definition, Fee.getDefaultFee());
+    final ContractTxHash deployTxHash = wallet.deploy(definition);
     Thread.sleep(2200L);
     this.contractAddress = wallet.getReceipt(deployTxHash).getContractAddress();
   }
@@ -56,7 +55,6 @@ public class SmartContractIT extends AbstractIT {
     final ValidInterface smartContarct =
         new SmartContractFactory().create(ValidInterface.class, contractAddress);
     smartContarct.bind(wallet);
-    smartContarct.bind(Fee.getDefaultFee());
 
     final Object nilArg = null;
     final boolean booleanArg = true;
@@ -81,7 +79,6 @@ public class SmartContractIT extends AbstractIT {
     final ValidInterface smartContarct = new SmartContractFactory()
         .create(ValidInterface.class, contractAddress);
     // smartContarct.bind(wallet);
-    smartContarct.bind(Fee.getDefaultFee());
 
     try {
       smartContarct.setBoolean(true);
@@ -96,7 +93,6 @@ public class SmartContractIT extends AbstractIT {
     final InvalidMethodNameInterface smartContract = new SmartContractFactory()
         .create(InvalidMethodNameInterface.class, contractAddress);
     smartContract.bind(wallet);
-    smartContract.bind(Fee.getDefaultFee());
 
     try {
       smartContract.getNil();
@@ -111,7 +107,6 @@ public class SmartContractIT extends AbstractIT {
     final InvalidMethodParameterCountInterface smartContract = new SmartContractFactory()
         .create(InvalidMethodParameterCountInterface.class, contractAddress);
     smartContract.bind(wallet);
-    smartContract.bind(Fee.getDefaultFee());
 
     try {
       smartContract.getNil();

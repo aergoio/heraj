@@ -19,8 +19,8 @@ import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
-import hera.api.model.Fee;
 import hera.client.ContractResultImpl;
+import hera.exception.ContractException;
 import hera.wallet.Wallet;
 import hera.wallet.WalletBuilder;
 import hera.wallet.WalletType;
@@ -64,7 +64,6 @@ public class ContractInvocationHandlerTest extends AbstractTestCase {
   public void testConfigMethods() throws Throwable {
     final SimpleSmartContract smartContract = new SmartContractFactory()
         .create(SimpleSmartContract.class, contractAddress);
-    smartContract.bind(Fee.getDefaultFee());
     smartContract.bind(new WalletBuilder().build(WalletType.Naive));
   }
 
@@ -84,11 +83,7 @@ public class ContractInvocationHandlerTest extends AbstractTestCase {
     final SimpleSmartContract smartContract = new SmartContractFactory()
         .create(SimpleSmartContract.class, contractAddress);
     final Wallet mockWallet = mock(Wallet.class);
-    final List<ContractFunction> contractFunctions = new ArrayList<ContractFunction>();
-    contractFunctions.add(new ContractFunction("testExecute", asList("arg")));
-    contractFunctions.add(new ContractFunction("testQuery"));
-    final ContractInterface contractInterface =
-        new ContractInterface(contractAddress, "1.0", "lua", contractFunctions);
+    final ContractInterface contractInterface = supplyContractInterface();
     when(mockWallet.getContractInterface(contractAddress)).thenReturn(contractInterface);
     when(mockWallet.query(any(ContractInvocation.class)))
         .thenReturn(new ContractResultImpl(of("1".getBytes())));
@@ -98,11 +93,72 @@ public class ContractInvocationHandlerTest extends AbstractTestCase {
     assertNotNull(smartContract.testQuery());
   }
 
+  @Test
+  public void testExecuteWithQueryFunction() {
+    final ExecuteAsQuery smartContract = new SmartContractFactory()
+        .create(ExecuteAsQuery.class, contractAddress);
+
+    final Wallet mockWallet = mock(Wallet.class);
+    final ContractInterface contractInterface = supplyContractInterface();
+    when(mockWallet.getContractInterface(contractAddress)).thenReturn(contractInterface);
+    when(mockWallet.query(any(ContractInvocation.class)))
+        .thenReturn(new ContractResultImpl(of("1".getBytes())));
+    smartContract.bind(mockWallet);
+
+    try {
+      smartContract.testQuery();
+      fail();
+    } catch (ContractException e) {
+      // good we expected this
+    }
+  }
+
+  @Test
+  public void testQueryWithExecuteFunction() {
+    final QueryAsExecute smartContract = new SmartContractFactory()
+        .create(QueryAsExecute.class, contractAddress);
+
+    final Wallet mockWallet = mock(Wallet.class);
+    final ContractInterface contractInterface = supplyContractInterface();
+    when(mockWallet.getContractInterface(contractAddress)).thenReturn(contractInterface);
+    when(mockWallet.query(any(ContractInvocation.class)))
+        .thenReturn(new ContractResultImpl(of("1".getBytes())));
+    smartContract.bind(mockWallet);
+
+    try {
+      smartContract.testExecute(randomUUID().toString().hashCode());
+      fail();
+    } catch (ContractException e) {
+      // good we expected this
+    }
+  }
+
+  protected ContractInterface supplyContractInterface() {
+    final List<ContractFunction> contractFunctions = new ArrayList<ContractFunction>();
+    contractFunctions.add(new ContractFunction("testExecute", asList("arg")));
+    contractFunctions.add(new ContractFunction("testQuery", false, true));
+    final ContractInterface contractInterface =
+        new ContractInterface(contractAddress, "1.0", "lua", contractFunctions);
+    return contractInterface;
+  }
+
   protected interface SimpleSmartContract extends SmartContract {
 
     void testExecute(int arg);
 
     int testQuery();
+
+  }
+
+  protected interface ExecuteAsQuery extends SmartContract {
+
+    void testQuery();
+
+  }
+
+  protected interface QueryAsExecute extends SmartContract {
+
+    int testExecute(int arg);
 
   }
 

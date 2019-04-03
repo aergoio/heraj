@@ -37,7 +37,7 @@ public class ContractInvocationHandler implements InvocationHandler {
 
   @Getter(value = AccessLevel.PROTECTED)
   @Setter
-  protected Fee fee = Fee.getDefaultFee();
+  protected Fee fee = Fee.ZERO;
 
   ContractInvocationHandler(final ContractAddress contractAddress) {
     if (null == contractAddress) {
@@ -73,6 +73,8 @@ public class ContractInvocationHandler implements InvocationHandler {
         logger.debug("Invocation is contract call: {}", method);
         return invokeUserMethod(proxy, method, args);
       }
+    } catch (ContractException e) {
+      throw e;
     } catch (Exception e) {
       throw new ContractException(e);
     }
@@ -115,10 +117,17 @@ public class ContractInvocationHandler implements InvocationHandler {
 
     if (Void.TYPE.equals(method.getReturnType())) {
       logger.debug("Contract execution: {}", contractInvocation);
+      if (contractInvocation.getFunction().isView()) {
+        throw new ContractException(
+            "Unable to execute with function registered with abi.register_view()");
+      }
       wallet.execute(contractInvocation, getFee());
       return null;
     } else {
       logger.debug("Contract query: {}", contractInvocation);
+      if (!contractInvocation.getFunction().isView()) {
+        throw new ContractException("Unable to query with function registered with abi.register()");
+      }
       ContractResult result = wallet.query(contractInvocation);
       return result.bind(method.getReturnType());
     }

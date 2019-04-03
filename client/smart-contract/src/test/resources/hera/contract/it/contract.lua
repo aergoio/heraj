@@ -31,8 +31,15 @@ function getString()
 end
 
 abi.register(
-  setNil, getNil,
-  setBoolean, getBoolean,
-  setNumber, getNumber,
-  setString, getString
+  setNil,
+  setBoolean,
+  setNumber,
+  setString
+)
+
+abi.register_view(
+  getNil,
+  getBoolean,
+  getNumber,
+  getString
 )
