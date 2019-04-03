@@ -4,6 +4,9 @@
 
 package hera.client;
 
+import static hera.util.ValidationUtils.assertNotNull;
+
+import hera.Context;
 import hera.ContextHolder;
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
@@ -23,14 +26,14 @@ import java.io.Closeable;
 import java.util.concurrent.TimeUnit;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @ApiAudience.Private
 @ApiStability.Unstable
 public class AergoClient extends AbstractAergoApi implements Closeable {
 
-  protected ContextProvider contextProvider =
-      new ThreadLocalContextProvider(ContextHolder.get(this), this);
+  protected final Context baseContext;
+
+  protected final ContextProvider contextProvider;
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final ManagedChannel channel = new ManagedChannelFactory().apply(contextProvider.get());
@@ -54,6 +57,19 @@ public class AergoClient extends AbstractAergoApi implements Closeable {
 
   @Getter(lazy = true)
   private final ContractOperation contractOperation = resolveInjection(new ContractTemplate());
+
+  /**
+   * AergoClient constructor.
+   *
+   * @param baseContext a client base context
+   */
+  @ApiAudience.Private
+  public AergoClient(final Context baseContext) {
+    assertNotNull(baseContext, "Base context must not null");
+    this.baseContext = baseContext;
+    this.contextProvider = new ThreadLocalContextProvider(baseContext, this);
+    ContextHolder.set(this, baseContext);
+  }
 
   protected <T> T resolveInjection(final T target) {
     if (target instanceof ContextProviderInjectable) {

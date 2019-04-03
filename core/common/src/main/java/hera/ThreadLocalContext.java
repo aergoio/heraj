@@ -26,6 +26,10 @@ public final class ThreadLocalContext implements Context {
 
   protected final Object cabinetKey;
 
+  public Context getCabinetContext() {
+    return ContextHolder.get(cabinetKey);
+  }
+
   @Override
   public Context withScope(final String scope) {
     final Context withScope = ContextHolder.get(cabinetKey).withScope(scope);
@@ -118,7 +122,7 @@ public final class ThreadLocalContext implements Context {
   @Override
   public String toString() {
     return String.format("ThreadLocalContext(cabinetKey: %s, cabinetContext: %s",
-        identityHashCode(cabinetKey), ContextHolder.get(cabinetKey));
+        identityHashCode(cabinetKey), getCabinetContext());
   }
 
 }
