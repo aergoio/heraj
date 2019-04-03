@@ -23,7 +23,6 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
-import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.StakeInfo;
 import hera.api.model.Transaction;
@@ -130,14 +129,14 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
               account.getAddress(), name, nonce);
 
           final RawTransaction rawTransaction =
-              new RawTransaction(contextProvider.get().getChainIdHash(),
-                  account.getAddress(),
-                  GovernanceRecipient.AERGO_NAME,
-                  Aer.AERGO_ONE,
-                  nonce,
-                  Fee.ZERO,
-                  payloadResolver.resolve(Type.CreateName, name),
-                  Transaction.TxType.GOVERNANCE);
+              Transaction.newBuilder(contextProvider.get().getChainIdHash())
+                  .from(account.getAddress())
+                  .to(GovernanceRecipient.AERGO_NAME)
+                  .amount(Aer.AERGO_ONE)
+                  .nonce(nonce)
+                  .payload(payloadResolver.resolve(Type.CreateName, name))
+                  .type(Transaction.TxType.GOVERNANCE)
+                  .build();
           final Transaction signed = getSignFunction().apply(account, rawTransaction).get();
           return transactionBaseTemplate.getCommitFunction().apply(signed);
         }
@@ -155,14 +154,14 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
               owner.getAddress(), name, newOwner, nonce);
 
           final RawTransaction rawTransaction =
-              new RawTransaction(contextProvider.get().getChainIdHash(),
-                  owner.getAddress(),
-                  GovernanceRecipient.AERGO_NAME,
-                  Aer.AERGO_ONE,
-                  nonce,
-                  Fee.ZERO,
-                  payloadResolver.resolve(Type.UpdateName, name, newOwner),
-                  Transaction.TxType.GOVERNANCE);
+              Transaction.newBuilder(contextProvider.get().getChainIdHash())
+                  .from(owner.getAddress())
+                  .to(GovernanceRecipient.AERGO_NAME)
+                  .amount(Aer.AERGO_ONE)
+                  .nonce(nonce)
+                  .payload(payloadResolver.resolve(Type.UpdateName, name, newOwner))
+                  .type(Transaction.TxType.GOVERNANCE)
+                  .build();
           final Transaction signed = getSignFunction().apply(owner, rawTransaction).get();
           return transactionBaseTemplate.getCommitFunction().apply(signed);
         }
@@ -209,14 +208,14 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
               account.getAddress(), amount, nonce);
 
           final RawTransaction rawTransaction =
-              new RawTransaction(contextProvider.get().getChainIdHash(),
-                  account.getAddress(),
-                  GovernanceRecipient.AERGO_SYSTEM,
-                  amount,
-                  nonce,
-                  Fee.ZERO,
-                  payloadResolver.resolve(Type.Stake),
-                  Transaction.TxType.GOVERNANCE);
+              RawTransaction.newBuilder(contextProvider.get().getChainIdHash())
+                  .from(account.getAddress())
+                  .to(GovernanceRecipient.AERGO_SYSTEM)
+                  .amount(amount)
+                  .nonce(nonce)
+                  .payload(payloadResolver.resolve(Type.Stake))
+                  .type(Transaction.TxType.GOVERNANCE)
+                  .build();
           final Transaction signed = getSignFunction().apply(account, rawTransaction).get();
           return transactionBaseTemplate.getCommitFunction().apply(signed);
         }
@@ -233,14 +232,14 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
               account.getAddress(), amount, nonce);
 
           final RawTransaction rawTransaction =
-              new RawTransaction(contextProvider.get().getChainIdHash(),
-                  account.getAddress(),
-                  GovernanceRecipient.AERGO_SYSTEM,
-                  amount,
-                  nonce,
-                  Fee.ZERO,
-                  payloadResolver.resolve(Type.Unstake),
-                  Transaction.TxType.GOVERNANCE);
+              Transaction.newBuilder(contextProvider.get().getChainIdHash())
+                  .from(account.getAddress())
+                  .to(GovernanceRecipient.AERGO_SYSTEM)
+                  .amount(Aer.AERGO_ONE)
+                  .nonce(nonce)
+                  .payload(payloadResolver.resolve(Type.Unstake))
+                  .type(Transaction.TxType.GOVERNANCE)
+                  .build();
           final Transaction signed = getSignFunction().apply(account, rawTransaction).get();
           return transactionBaseTemplate.getCommitFunction().apply(signed);
         }

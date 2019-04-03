@@ -9,6 +9,8 @@ import static hera.util.VersionUtils.trim;
 import static java.util.Arrays.asList;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractDefinition;
@@ -25,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class PayloadResolver {
 
   /**

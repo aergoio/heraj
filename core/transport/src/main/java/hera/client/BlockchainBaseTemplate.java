@@ -26,7 +26,6 @@ import hera.api.model.AccountTotalVote;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.ChainInfo;
 import hera.api.model.ElectedCandidate;
-import hera.api.model.Fee;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
@@ -300,15 +299,16 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
           logger.debug("Voting with account: {}, voteId: {}, candidates: {}, nonce: {}",
               account.getAddress(), voteId, candidates, nonce);
 
-          final RawTransaction rawTransaction =
-              new RawTransaction(contextProvider.get().getChainIdHash(),
-                  account.getAddress(),
-                  GovernanceRecipient.AERGO_SYSTEM,
-                  null,
-                  nonce,
-                  Fee.ZERO,
-                  payloadResolver.resolve(Type.Vote, voteId, candidates.toArray(new String[] {})),
-                  Transaction.TxType.GOVERNANCE);
+          final RawTransaction rawTransaction = Transaction
+              .newBuilder(contextProvider.get().getChainIdHash())
+              .from(account.getAddress())
+              .to(GovernanceRecipient.AERGO_SYSTEM)
+              .amount(null)
+              .nonce(nonce)
+              .payload(
+                  payloadResolver.resolve(Type.Vote, voteId, candidates.toArray(new String[] {})))
+              .type(Transaction.TxType.GOVERNANCE)
+              .build();
           final Transaction signed =
               accountBaseTemplate.getSignFunction().apply(account, rawTransaction).get();
           return transactionBaseTemplate.getCommitFunction().apply(signed);

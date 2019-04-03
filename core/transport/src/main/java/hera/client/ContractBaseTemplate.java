@@ -159,15 +159,14 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
           logger.debug("Deploy contract with creator: {}, definition: {}, nonce: {}, fee: {}",
               creator.getAddress(), contractDefinition, nonce, fee);
           try {
-            final RawTransaction rawTransaction =
-                RawTransaction.newBuilder(contextProvider.get().getChainIdHash())
-                    .from(creator)
-                    .to(AccountAddress.of(BytesValue.EMPTY))
-                    .amount(Aer.ZERO)
-                    .nonce(nonce)
-                    .fee(fee)
-                    .payload(payloadResolver.resolve(Type.ContractDefinition, contractDefinition))
-                    .build();
+            final RawTransaction rawTransaction = Transaction
+                .newBuilder(contextProvider.get().getChainIdHash())
+                .from(creator)
+                .to(AccountAddress.of(BytesValue.EMPTY))
+                .amount(Aer.ZERO)
+                .nonce(nonce)
+                .payload(payloadResolver.resolve(Type.ContractDefinition, contractDefinition))
+                .build();
             return signAndCommit(creator, rawTransaction);
           } catch (Exception e) {
             FinishableFuture<ContractTxHash> next = new FinishableFuture<ContractTxHash>();
@@ -230,15 +229,14 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
           logger.debug("Execute contract with executor: {}, invocation: {}, nonce: {}, fee: {}",
               executor.getAddress(), contractInvocation, nonce, fee);
           try {
-            final RawTransaction rawTransaction =
-                RawTransaction.newBuilder(contextProvider.get().getChainIdHash())
-                    .from(executor)
-                    .to(contractInvocation.getAddress())
-                    .amount(Aer.ZERO)
-                    .nonce(nonce)
-                    .fee(fee)
-                    .payload(payloadResolver.resolve(Type.ContractInvocation, contractInvocation))
-                    .build();
+            final RawTransaction rawTransaction = Transaction
+                .newBuilder(contextProvider.get().getChainIdHash())
+                .from(executor)
+                .to(contractInvocation.getAddress())
+                .amount(Aer.ZERO)
+                .nonce(nonce)
+                .payload(payloadResolver.resolve(Type.ContractInvocation, contractInvocation))
+                .build();
             return signAndCommit(executor, rawTransaction);
           } catch (Exception e) {
             FinishableFuture<ContractTxHash> next = new FinishableFuture<ContractTxHash>();

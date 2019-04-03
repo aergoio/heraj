@@ -10,6 +10,7 @@ import static org.junit.Assert.assertNotNull;
 
 import hera.api.model.Aer.Unit;
 import hera.api.model.RawTransaction.RawTransactionWithReady;
+import hera.api.model.Transaction.TxType;
 import org.junit.Test;
 
 public class RawTransactionTest {
@@ -30,12 +31,10 @@ public class RawTransactionTest {
             .nonce(1L);
     assertNotNull(minimum.build());
 
-    final RawTransactionWithReady minimumWithFee =
-        minimum.fee(Fee.of(Aer.of("100", Unit.AER), 5));
-    assertNotNull(minimumWithFee.build());
-
-    final RawTransactionWithReady maximum =
-        minimumWithFee.payload(BytesValue.EMPTY);
+    final RawTransactionWithReady maximum = minimum
+        .fee(Fee.ZERO)
+        .payload(BytesValue.EMPTY)
+        .type(TxType.NORMAL);
     assertNotNull(maximum.build());
   }
 
@@ -48,6 +47,7 @@ public class RawTransactionTest {
         .nonce(1L)
         .fee(Fee.of(Aer.of("100", Unit.AER), 5))
         .payload(BytesValue.EMPTY)
+        .type(TxType.NORMAL)
         .build();
     assertNotNull(rawTransaction);
   }

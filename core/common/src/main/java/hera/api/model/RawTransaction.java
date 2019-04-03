@@ -126,6 +126,8 @@ public class RawTransaction {
     RawTransactionWithReady fee(Fee fee);
 
     RawTransactionWithReady payload(BytesValue payload);
+
+    RawTransactionWithReady type(TxType txType);
   }
 
   @RequiredArgsConstructor
@@ -211,9 +213,14 @@ public class RawTransaction {
     }
 
     @Override
-    public RawTransactionWithReady payload(
-        final BytesValue payload) {
+    public RawTransactionWithReady payload(final BytesValue payload) {
       this.payload = payload;
+      return this;
+    }
+
+    @Override
+    public RawTransactionWithReady type(final TxType txType) {
+      this.txType = txType;
       return this;
     }
 
