@@ -307,7 +307,7 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
                   null,
                   nonce,
                   Fee.ZERO,
-                  payloadResolver.resolve(Type.Vote, voteId, candidates.toArray()),
+                  payloadResolver.resolve(Type.Vote, voteId, candidates.toArray(new String[] {})),
                   Transaction.TxType.GOVERNANCE);
           final Transaction signed =
               accountBaseTemplate.getSignFunction().apply(account, rawTransaction).get();

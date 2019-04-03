@@ -116,8 +116,10 @@ public class PayloadResolver {
     }
     for (int i = 0; i < expectedSize; ++i) {
       final Class<?> mustbe = type.getTargets()[i];
-      if (!mustbe.isInstance(instances[i])) {
-        throw new HerajException("Target must be " + mustbe.getName());
+      final Object instance = instances[i];
+      if (!mustbe.isInstance(instance)) {
+        throw new HerajException(
+            "Target must be " + mustbe.getName() + " but was " + instance.getClass().getName());
       }
     }
   }
