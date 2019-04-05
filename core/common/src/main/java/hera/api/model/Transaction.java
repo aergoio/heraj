@@ -119,9 +119,9 @@ public class Transaction extends RawTransaction {
 
     @Override
     public Transaction build() {
-      final BytesValue rawHash =
+      final TxHash txHash =
           new TransactionHashResolver().calculateHash(rawTransaction, signature);
-      return new Transaction(rawTransaction, signature, new TxHash(rawHash), null, 0, false);
+      return new Transaction(rawTransaction, signature, txHash, null, 0, false);
     }
   }
 

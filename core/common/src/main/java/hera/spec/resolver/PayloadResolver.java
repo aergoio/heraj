@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 
-@ApiAudience.Private
+@ApiAudience.Public
 @ApiStability.Unstable
 public class PayloadResolver {
 

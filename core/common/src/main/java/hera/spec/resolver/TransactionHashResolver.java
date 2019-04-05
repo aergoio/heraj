@@ -4,20 +4,25 @@
 
 package hera.spec.resolver;
 
+import static hera.api.model.BytesValue.of;
 import static hera.util.NumberUtils.positiveToByteArray;
 import static hera.util.Sha256Utils.digest;
 import static hera.util.VersionUtils.trim;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import hera.api.model.BytesValue;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
+import hera.api.model.TxHash;
 import hera.exception.HerajException;
 import hera.util.LittleEndianDataOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import org.slf4j.Logger;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class TransactionHashResolver {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -28,13 +33,13 @@ public class TransactionHashResolver {
    * @param rawTransaction a raw transaction
    * @return a hash of transaction
    */
-  public BytesValue calculateHash(final RawTransaction rawTransaction) {
+  public TxHash calculateHash(final RawTransaction rawTransaction) {
     try {
       final ByteArrayOutputStream raw = new ByteArrayOutputStream();
       final LittleEndianDataOutputStream dataOut = makeStream(raw, rawTransaction);
       dataOut.flush();
       dataOut.close();
-      return new BytesValue(digest(raw.toByteArray()));
+      return new TxHash(of(digest(raw.toByteArray())));
     } catch (final IOException e) {
       throw new HerajException(e);
     }
@@ -47,7 +52,7 @@ public class TransactionHashResolver {
    * @param signature a signature
    * @return a hash of transaction
    */
-  public BytesValue calculateHash(final RawTransaction rawTransaction,
+  public TxHash calculateHash(final RawTransaction rawTransaction,
       final Signature signature) {
     try {
       final ByteArrayOutputStream raw = new ByteArrayOutputStream();
@@ -55,7 +60,7 @@ public class TransactionHashResolver {
       dataOut.write(signature.getSign().getValue());
       dataOut.flush();
       dataOut.close();
-      return new BytesValue(digest(raw.toByteArray()));
+      return new TxHash(of(digest(raw.toByteArray())));
     } catch (final IOException e) {
       throw new HerajException(e);
     }

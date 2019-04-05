@@ -2,6 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
+
 package hera.util.pki;
 
 import static java.security.Security.addProvider;
@@ -37,7 +38,7 @@ public class ECDSAKeyGenerator implements KeyGenerator<ECDSAKey> {
 
   protected static final ECNamedCurveParameterSpec ecSpec;
 
-  protected static final ECDomainParameters ecParams;
+  public static final ECDomainParameters ecParams;
 
   static {
     java.security.Provider provider = getProvider(PROVIDER_NAME);
@@ -92,9 +93,7 @@ public class ECDSAKeyGenerator implements KeyGenerator<ECDSAKey> {
    * @throws Exception On failure of recovery
    */
   public ECDSAKey create(final BigInteger d) throws Exception {
-    final KeyFactory factory = KeyFactory.getInstance(KEY_ALGORITHM);
-    final ECPrivateKeySpec spec = new ECPrivateKeySpec(d, ecSpec);
-    return create(factory.generatePrivate(spec));
+    return create(createPrivateKey(d));
   }
 
   /**
@@ -111,6 +110,50 @@ public class ECDSAKeyGenerator implements KeyGenerator<ECDSAKey> {
     final ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(Q, ecSpec);
     final PublicKey publicKey = factory.generatePublic(ecPublicKeySpec);
     return new ECDSAKey(privateKey, publicKey, ecParams);
+  }
+
+  /**
+   * Create private key from d value.
+   *
+   * @param d d value of private key
+   * @return a generated private key
+   * @throws Exception on failure of create
+   */
+  public PrivateKey createPrivateKey(final BigInteger d) throws Exception {
+    final KeyFactory factory = KeyFactory.getInstance(KEY_ALGORITHM);
+    final ECPrivateKeySpec spec = new ECPrivateKeySpec(d, ecSpec);
+    return factory.generatePrivate(spec);
+  }
+
+  /**
+   * Create public key from compressed one. The compression format is <code>F<sub>p</sub></code>(
+   * X9.62 s 4.2.1).
+   *
+   * @param compressed an compressed
+   * @return a generated public key
+   * @throws Exception on failure of create
+   */
+
+  public PublicKey createPublicKey(final byte[] compressed) throws Exception {
+    return createPublicKey(ecParams.getCurve().decodePoint(compressed));
+  }
+
+  /**
+   * Create public key from ECPoint x, y value.
+   *
+   * @param x x value of public key
+   * @param y y value of public key
+   * @return a generated public key
+   * @throws Exception on failure of create
+   */
+  public PublicKey createPublicKey(final BigInteger x, final BigInteger y) throws Exception {
+    return createPublicKey(ecParams.getCurve().createPoint(x, y));
+  }
+
+  protected PublicKey createPublicKey(final ECPoint ecPoint) throws Exception {
+    final KeyFactory factory = KeyFactory.getInstance(KEY_ALGORITHM);
+    final ECPublicKeySpec spec = new ECPublicKeySpec(ecPoint, ecSpec);
+    return factory.generatePublic(spec);
   }
 
 }

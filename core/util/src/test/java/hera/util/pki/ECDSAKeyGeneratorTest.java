@@ -6,9 +6,12 @@ package hera.util.pki;
 
 import static hera.util.HexUtils.dump;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import hera.AbstractTestCase;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import org.junit.Test;
 
 public class ECDSAKeyGeneratorTest extends AbstractTestCase {
@@ -37,4 +40,31 @@ public class ECDSAKeyGeneratorTest extends AbstractTestCase {
     logger.debug("Recovered public key:\n{}", dump(keyRecovered.getPublicKey().getEncoded()));
     assertArrayEquals(key.getPublicKey().getEncoded(), keyRecovered.getPublicKey().getEncoded());
   }
+
+  @Test
+  public void testCreatePrivateKey() throws Exception {
+    final ECDSAKeyGenerator generator = new ECDSAKeyGenerator();
+    final ECDSAKey key = generator.create();
+
+    final org.bouncycastle.jce.interfaces.ECPrivateKey ecPrivateKey =
+        (org.bouncycastle.jce.interfaces.ECPrivateKey) key.getPrivateKey();
+    final PrivateKey recovered = generator.createPrivateKey(ecPrivateKey.getD());
+    assertEquals(ecPrivateKey.getD(),
+        ((org.bouncycastle.jce.interfaces.ECPrivateKey) recovered).getD());
+  }
+
+  @Test
+  public void testCreatePublicKey() throws Exception {
+    final ECDSAKeyGenerator generator = new ECDSAKeyGenerator();
+    final ECDSAKey key = generator.create();
+
+    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =
+        (org.bouncycastle.jce.interfaces.ECPublicKey) key.getPublicKey();
+    final PublicKey recovered =
+        generator.createPublicKey(ecPublicKey.getQ().getXCoord().toBigInteger(),
+            ecPublicKey.getQ().getYCoord().toBigInteger());
+    assertEquals(ecPublicKey.getQ(),
+        ((org.bouncycastle.jce.interfaces.ECPublicKey) recovered).getQ());
+  }
+
 }

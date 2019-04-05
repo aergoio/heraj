@@ -14,12 +14,13 @@ import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import hera.exception.HerajException;
 import hera.exception.UnableToGenerateKeyException;
+import hera.spec.resolver.AddressResolver;
 import hera.spec.resolver.EncryptedPrivateKeyResolver;
 import hera.spec.resolver.SignatureResolver;
 import hera.spec.resolver.TransactionHashResolver;
-import hera.util.AddressUtils;
 import hera.util.Base64Utils;
 import hera.util.NumberUtils;
 import hera.util.pki.ECDSAKey;
@@ -34,10 +35,9 @@ import org.slf4j.Logger;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@EqualsAndHashCode(exclude = {"transactionHashResolver", "signatureResolver", "privateKeyResolver"})
+@EqualsAndHashCode(exclude = {"addressResolver", "transactionHashResolver", "signatureResolver",
+    "privateKeyResolver"})
 public class AergoKey implements KeyPair, Signer {
-
-  protected static final String CHAR_SET = "UTF-8";
 
   /**
    * Create a key pair with encoded encrypted private key and password.
@@ -66,6 +66,8 @@ public class AergoKey implements KeyPair, Signer {
   }
 
   protected final transient Logger logger = getLogger(getClass());
+
+  protected final AddressResolver addressResolver = new AddressResolver();
 
   protected final TransactionHashResolver transactionHashResolver = new TransactionHashResolver();
 
@@ -101,11 +103,10 @@ public class AergoKey implements KeyPair, Signer {
    */
   public AergoKey(final EncryptedPrivateKey encryptedPrivateKey, final String password) {
     try {
-      final byte[] rawPrivateKey =
-          privateKeyResolver.decrypt(encryptedPrivateKey.getBytesValue().getValue(),
-              password.getBytes(CHAR_SET));
+      final BytesValue decryptedBytes = privateKeyResolver.decrypt(encryptedPrivateKey, password);
+      final byte[] rawPrivateKey = decryptedBytes.getValue();
       this.ecdsakey = new ECDSAKeyGenerator().create(new BigInteger(1, rawPrivateKey));
-      this.address = AddressUtils.deriveAddress(this.ecdsakey.getPublicKey());
+      this.address = addressResolver.deriveAddress(ecdsakey.getPublicKey());
     } catch (final Exception e) {
       throw new UnableToGenerateKeyException(e);
     }
@@ -118,7 +119,7 @@ public class AergoKey implements KeyPair, Signer {
    */
   public AergoKey(final ECDSAKey ecdsakey) {
     this.ecdsakey = ecdsakey;
-    this.address = AddressUtils.deriveAddress(this.ecdsakey.getPublicKey());
+    this.address = addressResolver.deriveAddress(ecdsakey.getPublicKey());
   }
 
   @Override
@@ -135,12 +136,12 @@ public class AergoKey implements KeyPair, Signer {
   public Transaction sign(final RawTransaction rawTransaction) {
     try {
       logger.debug("Sign raw transaction: {}", rawTransaction);
-      final BytesValue plainText = transactionHashResolver.calculateHash(rawTransaction);
+      final TxHash txHash = transactionHashResolver.calculateHash(rawTransaction);
+      final BytesValue plainText = txHash.getBytesValue();
       final ECDSASignature ecdsaSignature = ecdsakey.sign(plainText.getInputStream());
-      final BytesValue serialized =
+      final Signature signature =
           signatureResolver.serialize(ecdsaSignature, ecdsakey.getParams().getN());
-      logger.trace("Serialized signature: {}", serialized);
-      final Signature signature = Signature.of(serialized);
+      logger.trace("Serialized signature: {}", signature);
       return Transaction.newBuilder(rawTransaction)
           .signature(signature)
           .build();
@@ -160,10 +161,10 @@ public class AergoKey implements KeyPair, Signer {
       logger.debug("Sign message: {}", message);
       final BytesValue plainText = new BytesValue(message.getBytes());
       final ECDSASignature ecdsaSignature = ecdsakey.sign(plainText.getInputStream());
-      final BytesValue serialized =
+      final Signature signature =
           signatureResolver.serialize(ecdsaSignature, ecdsakey.getParams().getN());
-      logger.trace("Serialized signature: {}", serialized);
-      return Base64Utils.encode(serialized.getValue());
+      logger.trace("Serialized signature: {}", signature);
+      return Base64Utils.encode(signature.getSign().getValue());
     } catch (Exception e) {
       throw new HerajException(e);
     }
@@ -173,9 +174,10 @@ public class AergoKey implements KeyPair, Signer {
   public boolean verify(final Transaction transaction) {
     try {
       logger.debug("Verify transaction: {}", transaction);
-      final BytesValue plainText = transactionHashResolver.calculateHash(transaction);
-      final ECDSASignature parsedSignature = signatureResolver
-          .parse(transaction.getSignature().getSign(), ecdsakey.getParams().getN());
+      final TxHash txHash = transactionHashResolver.calculateHash(transaction);
+      final BytesValue plainText = txHash.getBytesValue();
+      final ECDSASignature parsedSignature =
+          signatureResolver.parse(transaction.getSignature(), ecdsakey.getParams().getN());
       return ecdsakey.verify(plainText.getInputStream(), parsedSignature);
     } catch (final Exception e) {
       logger.info("Verification failed by exception {}", e.getLocalizedMessage());
@@ -194,7 +196,8 @@ public class AergoKey implements KeyPair, Signer {
     try {
       logger.debug("Verify message {} with signature", message, base64EncodedSignature);
       final BytesValue plainText = new BytesValue(message.getBytes());
-      final BytesValue signature = new BytesValue(Base64Utils.decode(base64EncodedSignature));
+      final Signature signature =
+          new Signature(BytesValue.of(Base64Utils.decode(base64EncodedSignature)));
       final ECDSASignature parsedSignature =
           signatureResolver.parse(signature, ecdsakey.getParams().getN());
       return ecdsakey.verify(plainText.getInputStream(), parsedSignature);
@@ -207,10 +210,8 @@ public class AergoKey implements KeyPair, Signer {
   @Override
   public EncryptedPrivateKey export(final String password) {
     try {
-      final byte[] rawPrivateKey = getRawPrivateKey();
-      final byte[] rawPassword = password.getBytes(CHAR_SET);
-      return new EncryptedPrivateKey(
-          BytesValue.of(privateKeyResolver.encrypt(rawPrivateKey, rawPassword)));
+      final BytesValue privateKeyBytes = new BytesValue(getRawPrivateKey());
+      return privateKeyResolver.encrypt(privateKeyBytes, password);
     } catch (Exception e) {
       throw new HerajException(e);
     }

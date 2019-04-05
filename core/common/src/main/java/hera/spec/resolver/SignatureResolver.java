@@ -4,9 +4,12 @@
 
 package hera.spec.resolver;
 
+import static hera.api.model.BytesValue.of;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import hera.api.model.BytesValue;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.api.model.Signature;
 import hera.exception.HerajException;
 import hera.spec.SignatureSpec;
 import hera.util.HexUtils;
@@ -16,6 +19,8 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import org.slf4j.Logger;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class SignatureResolver {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -27,7 +32,7 @@ public class SignatureResolver {
    * @param order an order of the sign key
    * @return serialized signature
    */
-  public BytesValue serialize(final ECDSASignature signature, final BigInteger order) {
+  public Signature serialize(final ECDSASignature signature, final BigInteger order) {
     final BigInteger halfOrder = order.divide(BigInteger.valueOf(2L));
 
     final BigInteger r = signature.getR();
@@ -61,22 +66,22 @@ public class SignatureResolver {
     serialized[offset + 1] = (byte) sbyteArray.length;
     System.arraycopy(sbyteArray, 0, serialized, offset + 2, sbyteArray.length);
 
-    return new BytesValue(serialized);
+    return new Signature(of(serialized));
   }
 
   /**
    * Parse {@link ECDSASignature} from the serialized one.
    *
-   * @param signature serialized ecdsa signature
+   * @param signature an signature
    * @param order a order of signature key
    * @return parsed {@link ECDSASignature}. null if parsing failed.
    */
-  public ECDSASignature parse(final BytesValue signature, final BigInteger order) {
+  public ECDSASignature parse(final Signature signature, final BigInteger order) {
     if (null == signature) {
       throw new HerajException("Serialized signature is null");
     }
 
-    final byte[] rawSignature = signature.getValue();
+    final byte[] rawSignature = signature.getSign().getValue();
     if (logger.isTraceEnabled()) {
       logger.trace("Raw signature: {}, len: {}", HexUtils.encode(rawSignature),
           rawSignature.length);
