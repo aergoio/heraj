@@ -9,6 +9,8 @@ import static hera.util.VersionUtils.envelop;
 import static hera.util.VersionUtils.trim;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.exception.HerajException;
 import hera.spec.AddressSpec;
@@ -17,6 +19,8 @@ import hera.util.pki.ECDSAKeyGenerator;
 import java.security.PublicKey;
 import org.slf4j.Logger;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class AddressResolver {
 
   protected final transient Logger logger = getLogger(getClass());

@@ -27,7 +27,7 @@ public class ChainIdHash extends Hash implements Adaptor, Encodable {
   }
 
   /**
-   * Create {@code Hash}.
+   * Create {@code ChainIdHash}.
    *
    * @param bytesValue {@link BytesValue}
    * @return created {@link ChainIdHash}
@@ -38,7 +38,7 @@ public class ChainIdHash extends Hash implements Adaptor, Encodable {
   }
 
   /**
-   * BlockHash constructor.
+   * ChainIdHash constructor.
    *
    * @param encoded String with base58 encoded
    * @throws DecodingFailureException if decoding failed
@@ -49,7 +49,7 @@ public class ChainIdHash extends Hash implements Adaptor, Encodable {
   }
 
   /**
-   * BlockHash constructor.
+   * ChainIdHash constructor.
    *
    * @param bytesValue {@link BytesValue}
    */

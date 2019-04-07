@@ -14,8 +14,10 @@ import hera.api.encode.Encodable;
 import hera.exception.DecodingFailureException;
 import hera.exception.InvalidVersionException;
 import hera.spec.AddressSpec;
+import hera.spec.resolver.AddressResolver;
 import hera.util.Adaptor;
 import hera.util.VersionUtils;
+import java.security.PublicKey;
 import lombok.Getter;
 
 @ApiAudience.Public
@@ -78,6 +80,15 @@ public class AccountAddress implements Identity, Encodable, Adaptor {
       VersionUtils.validate(bytesValue, AddressSpec.PREFIX);
     }
     this.bytesValue = bytesValue;
+  }
+
+  /**
+   * Recover ECPublicKey from address.
+   *
+   * @return an ECPublicKey
+   */
+  public PublicKey asPublicKey() {
+    return new AddressResolver().recoverPublicKey(this);
   }
 
   @Override

@@ -5,11 +5,15 @@
 package hera.api.model;
 
 import static java.util.UUID.randomUUID;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import hera.exception.InvalidVersionException;
+import hera.key.AergoKey;
+import hera.key.AergoKeyGenerator;
 import hera.spec.AddressSpec;
 import hera.util.Base58Utils;
+import java.security.PublicKey;
 import java.util.Arrays;
 import org.junit.Test;
 
@@ -39,6 +43,14 @@ public class AccountAddressTest {
   @Test(expected = InvalidVersionException.class)
   public void testOfWithEncodedWithoutVersion() {
     AccountAddress.of(encodedAddressWithoutVersion);
+  }
+
+  @Test
+  public void testRecoverPublicKey() {
+    final AergoKey aergoKey = new AergoKeyGenerator().create();
+    final AccountAddress address = aergoKey.getAddress();
+    final PublicKey actual = address.asPublicKey();
+    assertEquals(aergoKey.getPublicKey(), actual);
   }
 
 }

@@ -17,9 +17,11 @@ import hera.api.model.Account;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
+import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Identity;
 import hera.api.model.RawTransaction;
+import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
@@ -102,7 +104,7 @@ public class JavaKeyStoreTest extends AbstractTestCase {
   }
 
   @Test
-  public void testSignAndVerify() {
+  public void testSignRawTransaction() {
     final JavaKeyStore keyStore = new JavaKeyStore(this.keyStore);
 
     final AergoKey key = new AergoKeyGenerator().create();
@@ -117,9 +119,37 @@ public class JavaKeyStoreTest extends AbstractTestCase {
         .amount(Aer.of("100", Unit.GAER))
         .nonce(1)
         .build();
-    final Transaction signed = keyStore.sign(rawTransaction);
 
-    assertTrue(keyStore.verify(signed));
+    final Transaction signed = keyStore.sign(rawTransaction);
+    assertNotNull(signed);
+  }
+
+  @Test
+  public void testSignPlainText() {
+    final JavaKeyStore keyStore = new JavaKeyStore(this.keyStore);
+
+    final AergoKey key = new AergoKeyGenerator().create();
+    final String password = randomUUID().toString();
+    final Authentication authentication = Authentication.of(identity, password);
+    keyStore.saveKey(key, authentication);
+    keyStore.unlock(authentication);
+
+    final Signature signature = keyStore.sign(new BytesValue(randomUUID().toString().getBytes()));
+    assertNotNull(signature);
+  }
+
+  @Test
+  public void testSignMessage() {
+    final JavaKeyStore keyStore = new JavaKeyStore(this.keyStore);
+
+    final AergoKey key = new AergoKeyGenerator().create();
+    final String password = randomUUID().toString();
+    final Authentication authentication = Authentication.of(identity, password);
+    keyStore.saveKey(key, authentication);
+    keyStore.unlock(authentication);
+
+    final String signedMessage = keyStore.signMessage(randomUUID().toString());
+    assertNotNull(signedMessage);
   }
 
   @Test

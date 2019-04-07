@@ -7,7 +7,9 @@ package hera.api.model.internal;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
+import hera.api.model.BytesValue;
 import hera.api.model.RawTransaction;
+import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.key.AergoKey;
 import hera.key.Signer;
@@ -43,8 +45,13 @@ public class AccountWithAddressAndSigner extends AbstractAccount implements Sign
   }
 
   @Override
-  public boolean verify(final Transaction transaction) {
-    return delegate.verify(transaction);
+  public Signature sign(final BytesValue plainText) {
+    return delegate.sign(plainText);
+  }
+
+  @Override
+  public String signMessage(final String message) {
+    return delegate.signMessage(message);
   }
 
 }

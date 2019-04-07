@@ -14,9 +14,11 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountFactory;
 import hera.api.model.Authentication;
+import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Identity;
 import hera.api.model.RawTransaction;
+import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.exception.KeyStoreException;
 import hera.key.AergoKey;
@@ -195,7 +197,7 @@ public class JavaKeyStore implements KeyStore, Signer {
       if (null == sender) {
         throw new IllegalArgumentException("Sender is null");
       }
-      final AergoKey key = getUnlockedKey(sender);
+      final AergoKey key = getUnlockedKey();
       return key.sign(rawTransaction);
     } catch (Exception e) {
       throw new KeyStoreException(e);
@@ -203,21 +205,29 @@ public class JavaKeyStore implements KeyStore, Signer {
   }
 
   @Override
-  public boolean verify(final Transaction transaction) {
+  public Signature sign(final BytesValue plainText) {
     try {
-      logger.debug("Verify signed transaction: {}", transaction);
-      final AccountAddress sender = transaction.getSender();
-      if (null == sender) {
-        throw new IllegalArgumentException("Sender is null");
-      }
-      return getUnlockedKey(sender).verify(transaction);
+      logger.debug("Sign plain text: {}", plainText);
+      final AergoKey key = getUnlockedKey();
+      return key.sign(plainText);
     } catch (Exception e) {
       throw new KeyStoreException(e);
     }
   }
 
-  protected AergoKey getUnlockedKey(final AccountAddress address) {
-    if (null == currentUnlockedKey || !currentUnlockedKey.getAddress().equals(address)) {
+  @Override
+  public String signMessage(final String message) {
+    try {
+      logger.debug("Sign message: {}", message);
+      final AergoKey key = getUnlockedKey();
+      return key.signMessage(message);
+    } catch (Exception e) {
+      throw new KeyStoreException(e);
+    }
+  }
+
+  protected AergoKey getUnlockedKey() {
+    if (null == currentUnlockedKey) {
       throw new IllegalStateException("Unlock account first");
     }
     return currentUnlockedKey;

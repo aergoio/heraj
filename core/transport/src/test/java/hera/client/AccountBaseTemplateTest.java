@@ -267,26 +267,7 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testVerifyWithLocalAccount() {
-    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
-
-    final AergoKey key = new AergoKeyGenerator().create();
-    final Account account = new AccountFactory().create(key);
-    final RawTransaction rawTransaction = RawTransaction.newBuilder(chainIdHash)
-        .from(accountAddress)
-        .to(accountAddress)
-        .amount("1000", Unit.AER)
-        .nonce(1L)
-        .build();
-    final Transaction transaction = key.sign(rawTransaction);
-    final FinishableFuture<Boolean> verifyResultFuture =
-        accountTemplateBase.getVerifyFunction().apply(account, transaction);
-    assertNotNull(verifyResultFuture.get());
-  }
-
-  @Test
-  public void testVerifyWithRemoteAccount() {
+  public void testVerify() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Rpc.VerifyResult> mockListenableFuture =
         service.submit(new Callable<Rpc.VerifyResult>() {

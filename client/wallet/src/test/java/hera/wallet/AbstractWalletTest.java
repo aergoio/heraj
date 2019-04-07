@@ -52,6 +52,7 @@ import hera.api.model.TxHash;
 import hera.api.model.internal.Time;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
+import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.keystore.KeyStore;
 import java.util.ArrayList;
@@ -230,14 +231,20 @@ public class AbstractWalletTest extends AbstractTestCase {
   @Test
   public void testVerify() {
     final AergoClient mockClient = mock(AergoClient.class);
-    final AccountOperation mockOperation = mock(AccountOperation.class);
-    when(mockOperation.verify(any(Account.class), any(Transaction.class))).thenReturn(true);
-    when(mockClient.getAccountOperation()).thenReturn(mockOperation);
 
     final AbstractWallet wallet = supplyWallet(mockClient);
     wallet.account = new AccountFactory().create(accountAddress);
 
-    final boolean verifyResult = wallet.verify(mock(Transaction.class));
+    final AergoKey key = new AergoKeyGenerator().create();
+    final RawTransaction rawTransaction = RawTransaction.newBuilder(chainIdHash)
+        .from(key.getAddress())
+        .to(accountAddress)
+        .amount(Aer.ZERO)
+        .nonce(0L)
+        .build();
+    final Transaction signed = key.sign(rawTransaction);
+
+    final boolean verifyResult = wallet.verify(signed);
     assertTrue(verifyResult);
   }
 

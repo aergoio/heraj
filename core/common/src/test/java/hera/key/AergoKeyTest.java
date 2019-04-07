@@ -12,8 +12,10 @@ import static org.junit.Assert.assertTrue;
 
 import hera.AbstractTestCase;
 import hera.api.model.Aer.Unit;
+import hera.api.model.BytesValue;
 import hera.api.model.ChainIdHash;
 import hera.api.model.RawTransaction;
+import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import org.junit.Test;
 
@@ -43,7 +45,7 @@ public class AergoKeyTest extends AbstractTestCase {
   }
 
   @Test
-  public void testSignAndVerify() throws Exception {
+  public void testSignAndVerifyTransaction() throws Exception {
     for (int i = 0; i < N_TEST; ++i) {
       final AergoKey key = new AergoKeyGenerator().create();
 
@@ -55,6 +57,16 @@ public class AergoKeyTest extends AbstractTestCase {
           .build();
       final Transaction signedTransaction = key.sign(rawTransaction);
       assertTrue(key.verify(signedTransaction));
+    }
+  }
+
+  @Test
+  public void testSignAndVerifyPlainText() throws Exception {
+    for (int i = 0; i < N_TEST; ++i) {
+      final AergoKey key = new AergoKeyGenerator().create();
+      final BytesValue plainText = new BytesValue(randomUUID().toString().getBytes());
+      final Signature signature = key.sign(plainText);
+      assertTrue(key.verify(plainText, signature));
     }
   }
 

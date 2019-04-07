@@ -36,8 +36,8 @@ import org.slf4j.Logger;
 @ApiAudience.Public
 @ApiStability.Unstable
 @EqualsAndHashCode(exclude = {"addressResolver", "transactionHashResolver", "signatureResolver",
-    "privateKeyResolver"})
-public class AergoKey implements KeyPair, Signer {
+    "privateKeyResolver", "verifier"})
+public class AergoKey implements KeyPair, Signer, TransactionVerifier {
 
   /**
    * Create a key pair with encoded encrypted private key and password.
@@ -75,6 +75,8 @@ public class AergoKey implements KeyPair, Signer {
 
   protected final EncryptedPrivateKeyResolver privateKeyResolver =
       new EncryptedPrivateKeyResolver();
+
+  protected final AergoSignVerifier verifier = new AergoSignVerifier();
 
   protected final ECDSAKey ecdsakey;
 
@@ -138,24 +140,31 @@ public class AergoKey implements KeyPair, Signer {
       logger.debug("Sign raw transaction: {}", rawTransaction);
       final TxHash txHash = transactionHashResolver.calculateHash(rawTransaction);
       final BytesValue plainText = txHash.getBytesValue();
-      final ECDSASignature ecdsaSignature = ecdsakey.sign(plainText.getInputStream());
-      final Signature signature =
-          signatureResolver.serialize(ecdsaSignature, ecdsakey.getParams().getN());
-      logger.trace("Serialized signature: {}", signature);
+      final Signature signature = sign(plainText);
       return Transaction.newBuilder(rawTransaction)
           .signature(signature)
           .build();
-    } catch (final Exception e) {
+    } catch (HerajException e) {
+      throw e;
+    } catch (Exception e) {
       throw new HerajException(e);
     }
   }
 
-  /**
-   * Sign a plain message.
-   *
-   * @param message a message to sign
-   * @return base64 encoded signature
-   */
+  @Override
+  public Signature sign(final BytesValue plainText) {
+    try {
+      final ECDSASignature ecdsaSignature = ecdsakey.sign(plainText.getInputStream());
+      final Signature signature =
+          signatureResolver.serialize(ecdsaSignature, ecdsakey.getParams().getN());
+      logger.trace("Serialized signature: {}", signature);
+      return signature;
+    } catch (Exception e) {
+      throw new HerajException(e);
+    }
+  }
+
+  @Override
   public String signMessage(final String message) {
     try {
       logger.debug("Sign message: {}", message);
@@ -173,15 +182,28 @@ public class AergoKey implements KeyPair, Signer {
   @Override
   public boolean verify(final Transaction transaction) {
     try {
-      logger.debug("Verify transaction: {}", transaction);
-      final TxHash txHash = transactionHashResolver.calculateHash(transaction);
-      final BytesValue plainText = txHash.getBytesValue();
-      final ECDSASignature parsedSignature =
-          signatureResolver.parse(transaction.getSignature(), ecdsakey.getParams().getN());
-      return ecdsakey.verify(plainText.getInputStream(), parsedSignature);
-    } catch (final Exception e) {
-      logger.info("Verification failed by exception {}", e.getLocalizedMessage());
-      return false;
+      return verifier.verify(transaction);
+    } catch (HerajException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HerajException(e);
+    }
+  }
+
+  /**
+   * Check if {@code Transaction} is valid.
+   *
+   * @param plainText a plain text
+   * @param signature signature to verify
+   * @return if valid
+   */
+  public boolean verify(final BytesValue plainText, final Signature signature) {
+    try {
+      return verifier.verify(getAddress(), plainText, signature);
+    } catch (HerajException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HerajException(e);
     }
   }
 
@@ -194,16 +216,11 @@ public class AergoKey implements KeyPair, Signer {
    */
   public boolean verifyMessage(final String message, final String base64EncodedSignature) {
     try {
-      logger.debug("Verify message {} with signature", message, base64EncodedSignature);
-      final BytesValue plainText = new BytesValue(message.getBytes());
-      final Signature signature =
-          new Signature(BytesValue.of(Base64Utils.decode(base64EncodedSignature)));
-      final ECDSASignature parsedSignature =
-          signatureResolver.parse(signature, ecdsakey.getParams().getN());
-      return ecdsakey.verify(plainText.getInputStream(), parsedSignature);
-    } catch (final Exception e) {
-      logger.info("Verification failed by exception {}", e.getLocalizedMessage());
-      return false;
+      return verifier.verifyMessage(getAddress(), message, base64EncodedSignature);
+    } catch (HerajException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HerajException(e);
     }
   }
 

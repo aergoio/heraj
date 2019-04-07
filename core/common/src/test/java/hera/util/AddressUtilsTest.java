@@ -13,20 +13,9 @@ import hera.AbstractTestCase;
 import hera.api.model.AccountAddress;
 import hera.api.model.Identity;
 import hera.key.AergoKeyGenerator;
-import hera.util.pki.ECDSAKey;
-import hera.util.pki.ECDSAKeyGenerator;
-import java.security.PublicKey;
 import org.junit.Test;
 
 public class AddressUtilsTest extends AbstractTestCase {
-
-  @Test
-  public void testDeriveAddressFromPublicKey() throws Exception {
-    final ECDSAKey ecKey = new ECDSAKeyGenerator().create();
-    final PublicKey publicKey = ecKey.getPublicKey();
-    final AccountAddress derived = deriveAddress(publicKey);
-    assertNotNull(derived);
-  }
 
   @Test
   public void testDeriveAddressFromIdentity() {

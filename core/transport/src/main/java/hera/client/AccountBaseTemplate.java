@@ -293,7 +293,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
 
           FinishableFuture<Transaction> nextFuture = new FinishableFuture<Transaction>();
           if (account instanceof Signer) {
-            Signer signer = (Signer) account;
+            final Signer signer = (Signer) account;
             final Transaction signed = signer.sign(rawTransaction);
             nextFuture.success(signed);
           } else {
@@ -328,29 +328,23 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
 
           FinishableFuture<Boolean> nextFuture = new FinishableFuture<Boolean>();
           try {
-            if (account instanceof Signer) {
-              Signer signer = (Signer) account;
-              final boolean verifyResult = signer.verify(transaction);
-              nextFuture.success(verifyResult);
-            } else {
-              final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(transaction);
-              logger.trace("AergoService verifyTX arg: {}", rpcTx);
+            final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(transaction);
+            logger.trace("AergoService verifyTX arg: {}", rpcTx);
 
-              ListenableFuture<Rpc.VerifyResult> listenableFuture = aergoService.verifyTX(rpcTx);
-              FutureChain<Rpc.VerifyResult, Boolean> callback =
-                  new FutureChain<Rpc.VerifyResult, Boolean>(nextFuture, contextProvider.get());
-              callback.setSuccessHandler(new Function1<Rpc.VerifyResult, Boolean>() {
+            ListenableFuture<Rpc.VerifyResult> listenableFuture = aergoService.verifyTX(rpcTx);
+            FutureChain<Rpc.VerifyResult, Boolean> callback =
+                new FutureChain<Rpc.VerifyResult, Boolean>(nextFuture, contextProvider.get());
+            callback.setSuccessHandler(new Function1<Rpc.VerifyResult, Boolean>() {
 
-                @Override
-                public Boolean apply(final Rpc.VerifyResult result) {
-                  if (Rpc.VerifyStatus.VERIFY_STATUS_OK != result.getError()) {
-                    new TransactionVerificationException(result.getError());
-                  }
-                  return true;
+              @Override
+              public Boolean apply(final Rpc.VerifyResult result) {
+                if (Rpc.VerifyStatus.VERIFY_STATUS_OK != result.getError()) {
+                  new TransactionVerificationException(result.getError());
                 }
-              });
-              addCallback(listenableFuture, callback, directExecutor());
-            }
+                return true;
+              }
+            });
+            addCallback(listenableFuture, callback, directExecutor());
           } catch (Exception e) {
             nextFuture.fail(e);
           }

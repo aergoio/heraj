@@ -31,6 +31,7 @@ import hera.exception.UnbindedAccountException;
 import hera.exception.UnbindedKeyStoreException;
 import hera.exception.WalletException;
 import hera.key.AergoKey;
+import hera.key.AergoSignVerifier;
 import hera.keystore.KeyStore;
 import java.util.List;
 import org.slf4j.Logger;
@@ -233,7 +234,8 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
   public boolean verify(final Transaction transaction) {
     try {
       logger.debug("Verify signed transaction {}", transaction);
-      return getAergoClient().getAccountOperation().verify(getAccount(), transaction);
+      final AergoSignVerifier verifier = new AergoSignVerifier();
+      return verifier.verify(transaction);
     } catch (Exception e) {
       throw exceptionConverter.convert(e);
     }

@@ -14,38 +14,31 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.params.ECDomainParameters;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
-import org.bouncycastle.crypto.params.ECPublicKeyParameters;
 import org.bouncycastle.crypto.signers.ECDSASigner;
 import org.bouncycastle.crypto.signers.HMacDSAKCalculator;
 import org.slf4j.Logger;
 
 @EqualsAndHashCode(exclude = "logger")
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class ECDSAKey {
-
-  protected static final String CURVE_NAME = "secp256k1";
-
 
   protected final transient Logger logger = getLogger(getClass());
 
   /**
    * Create ECDSAKey with keypair.
    *
-   * @param privatekey a private key
+   * @param privateKey a private key
    * @param publicKey a public key
    * @param ecParams an ec parameters
    * @return {@link ECDSAKey}
    */
-  public static ECDSAKey of(final PrivateKey privatekey, final PublicKey publicKey,
+  public static ECDSAKey of(final PrivateKey privateKey, final PublicKey publicKey,
       final ECDomainParameters ecParams) {
-    return new ECDSAKey(privatekey, publicKey, ecParams);
+    return new ECDSAKey(privateKey, publicKey, ecParams);
   }
 
   @Getter
@@ -56,6 +49,24 @@ public class ECDSAKey {
 
   @Getter
   protected final ECDomainParameters params;
+
+  @Getter
+  protected final ECDSAVerifier verifier;
+
+  /**
+   * ECDSAKey constructor.
+   *
+   * @param privateKey a private key
+   * @param publicKey a public key
+   * @param ecParams an ec parameters
+   */
+  protected ECDSAKey(final PrivateKey privateKey, final PublicKey publicKey,
+      final ECDomainParameters ecParams) {
+    this.privateKey = privateKey;
+    this.publicKey = publicKey;
+    this.params = ecParams;
+    this.verifier = new ECDSAVerifier(params);
+  }
 
   /**
    * Sign to plain text.
@@ -113,37 +124,10 @@ public class ECDSAKey {
    */
   public boolean verify(final InputStream plainText, final ECDSASignature signature) {
     try {
-      final byte[] message = toByteArray(plainText);
-      if (logger.isTraceEnabled()) {
-        logger.trace("Message in hexa: {}", HexUtils.encode(message));
-        logger.trace("ECDSASignature signature: {}", signature);
-      }
-      return verify(getPublicKey(), message, signature);
+      return verifier.verify(getPublicKey(), plainText, signature);
     } catch (final Throwable e) {
       throw new IllegalStateException(e);
     }
-  }
-
-  /**
-   * Verify signature with a message and public key x and y point value.
-   *
-   * @see <a href="https://github.com/golang/go/blob/master/src/crypto/ecdsa/ecdsa.go">verify
-   *      function in ecdsa.go</a>
-   *
-   * @param publicKey a publicKey
-   * @param message a message
-   * @param signature ECDSA signature
-   *
-   * @return verification result
-   */
-  protected boolean verify(final PublicKey publicKey, final byte[] message,
-      final ECDSASignature signature) {
-    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =
-        (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
-    final ECDSASigner signer = new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));
-    final ECPublicKeyParameters privKey = new ECPublicKeyParameters(ecPublicKey.getQ(), params);
-    signer.init(false, privKey);
-    return signer.verifySignature(message, signature.getR(), signature.getS());
   }
 
   @Override
