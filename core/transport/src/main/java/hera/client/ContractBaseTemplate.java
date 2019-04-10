@@ -93,8 +93,6 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
 
   protected TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();
 
-  protected PayloadResolver payloadResolver = new PayloadResolver();
-
   @Override
   public void setChannel(final ManagedChannel channel) {
     this.futureService = newFutureStub(channel);
@@ -165,7 +163,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
                 .to(AccountAddress.of(BytesValue.EMPTY))
                 .amount(Aer.ZERO)
                 .nonce(nonce)
-                .payload(payloadResolver.resolve(Type.ContractDefinition, contractDefinition))
+                .payload(PayloadResolver.resolve(Type.ContractDefinition, contractDefinition))
                 .build();
             return signAndCommit(creator, rawTransaction);
           } catch (Exception e) {
@@ -235,7 +233,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
                 .to(contractInvocation.getAddress())
                 .amount(Aer.ZERO)
                 .nonce(nonce)
-                .payload(payloadResolver.resolve(Type.ContractInvocation, contractInvocation))
+                .payload(PayloadResolver.resolve(Type.ContractInvocation, contractInvocation))
                 .build();
             return signAndCommit(executor, rawTransaction);
           } catch (Exception e) {
@@ -287,7 +285,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
             final ByteString rpcContractAddress =
                 accountAddressConverter.convertToRpcModel(contractInvocation.getAddress());
             final BytesValue rpcContractInvocation =
-                payloadResolver.resolve(Type.ContractInvocation, contractInvocation);
+                PayloadResolver.resolve(Type.ContractInvocation, contractInvocation);
             final Blockchain.Query rpcQuery = Blockchain.Query.newBuilder()
                 .setContractAddress(rpcContractAddress)
                 .setQueryinfo(copyFrom(rpcContractInvocation))

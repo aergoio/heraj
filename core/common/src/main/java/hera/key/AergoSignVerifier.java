@@ -31,17 +31,13 @@ public class AergoSignVerifier implements TransactionVerifier {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final TransactionHashResolver transactionHashResolver = new TransactionHashResolver();
-
-  protected final SignatureResolver signatureResolver = new SignatureResolver();
-
   protected final ECDSAVerifier ecdsaVerifier = new ECDSAVerifier(ECDSAKeyGenerator.ecParams);
 
   @Override
   public boolean verify(final Transaction transaction) {
     try {
       logger.debug("Verify transaction: {}", transaction);
-      final TxHash txHash = transactionHashResolver.calculateHash(transaction);
+      final TxHash txHash = TransactionHashResolver.calculateHash(transaction);
       final BytesValue plainText = txHash.getBytesValue();
       return verify(transaction.getSender(), plainText, transaction.getSignature());
     } catch (HerajException e) {
@@ -65,7 +61,7 @@ public class AergoSignVerifier implements TransactionVerifier {
       logger.debug("Verify with address: {}, plainText: {}, signature: {}", accountAddress,
           plainText, signature);
       final ECDSASignature parsedSignature =
-          signatureResolver.parse(signature, ecdsaVerifier.getParams().getN());
+          SignatureResolver.parse(signature, ecdsaVerifier.getParams().getN());
       return ecdsaVerifier.verify(accountAddress.asPublicKey(), plainText.getInputStream(),
           parsedSignature);
     } catch (Exception e) {

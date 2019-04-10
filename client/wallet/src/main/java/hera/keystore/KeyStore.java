@@ -4,8 +4,6 @@
 
 package hera.keystore;
 
-import hera.annotation.ApiAudience;
-import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
@@ -14,8 +12,6 @@ import hera.exception.KeyStoreException;
 import hera.key.AergoKey;
 import java.util.List;
 
-@ApiAudience.Private
-@ApiStability.Unstable
 public interface KeyStore {
 
   /**

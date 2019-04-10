@@ -29,8 +29,6 @@ public class PayloadResolverTest extends AbstractTestCase {
   protected final ContractAddress contractAddress =
       new ContractAddress(of(new byte[] {AddressSpec.PREFIX}));
 
-  protected final PayloadResolver resolver = new PayloadResolver();
-
   @Test
   public void testResolveOnContractDefinition() {
     final ContractDefinition definition = ContractDefinition.newBuilder()
@@ -38,7 +36,7 @@ public class PayloadResolverTest extends AbstractTestCase {
             Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION}))
         .constructorArgs("1", "2")
         .build();
-    final BytesValue payload = resolver.resolve(Type.ContractDefinition, definition);
+    final BytesValue payload = PayloadResolver.resolve(Type.ContractDefinition, definition);
     assertNotNull(payload);
   }
 
@@ -46,19 +44,19 @@ public class PayloadResolverTest extends AbstractTestCase {
   public void testResolveOnContractInvocation() {
     final ContractInvocation invocation = new ContractInvocation(contractAddress,
         new ContractFunction(randomUUID().toString()), randomUUID().toString());
-    final BytesValue payload = resolver.resolve(Type.ContractInvocation, invocation);
+    final BytesValue payload = PayloadResolver.resolve(Type.ContractInvocation, invocation);
     assertNotNull(payload);
   }
 
   @Test
   public void testResolveOnStake() {
-    final BytesValue payload = resolver.resolve(Type.Stake);
+    final BytesValue payload = PayloadResolver.resolve(Type.Stake);
     assertNotNull(payload);
   }
 
   @Test
   public void testResolveOnUnstake() {
-    final BytesValue payload = resolver.resolve(Type.Unstake);
+    final BytesValue payload = PayloadResolver.resolve(Type.Unstake);
     assertNotNull(payload);
   }
 
@@ -66,14 +64,14 @@ public class PayloadResolverTest extends AbstractTestCase {
   public void testResolveOnVote() {
     final String voteId = randomUUID().toString();
     final String[] candidates = new String[] {randomUUID().toString(), randomUUID().toString()};
-    final BytesValue payload = resolver.resolve(Type.Vote, voteId, candidates);
+    final BytesValue payload = PayloadResolver.resolve(Type.Vote, voteId, candidates);
     assertNotNull(payload);
   }
 
   @Test
   public void testResolveOnCreateName() {
     final String name = randomUUID().toString();
-    final BytesValue payload = resolver.resolve(Type.CreateName, name);
+    final BytesValue payload = PayloadResolver.resolve(Type.CreateName, name);
     assertNotNull(payload);
   }
 
@@ -81,7 +79,7 @@ public class PayloadResolverTest extends AbstractTestCase {
   public void testResolveOnUpdateName() {
     final String name = randomUUID().toString();
     final AccountAddress nextOwner = new AergoKeyGenerator().create().getAddress();
-    final BytesValue payload = resolver.resolve(Type.UpdateName, name, nextOwner);
+    final BytesValue payload = PayloadResolver.resolve(Type.UpdateName, name, nextOwner);
     assertNotNull(payload);
   }
 

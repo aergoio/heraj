@@ -69,8 +69,6 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
 
   protected TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();
 
-  protected PayloadResolver payloadResolver = new PayloadResolver();
-
   @Override
   public void setContextProvider(final ContextProvider contextProvider) {
     this.contextProvider = contextProvider;
@@ -134,7 +132,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
                   .to(GovernanceRecipient.AERGO_NAME)
                   .amount(Aer.AERGO_ONE)
                   .nonce(nonce)
-                  .payload(payloadResolver.resolve(Type.CreateName, name))
+                  .payload(PayloadResolver.resolve(Type.CreateName, name))
                   .type(Transaction.TxType.GOVERNANCE)
                   .build();
           final Transaction signed = getSignFunction().apply(account, rawTransaction).get();
@@ -159,7 +157,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
                   .to(GovernanceRecipient.AERGO_NAME)
                   .amount(Aer.AERGO_ONE)
                   .nonce(nonce)
-                  .payload(payloadResolver.resolve(Type.UpdateName, name, newOwner))
+                  .payload(PayloadResolver.resolve(Type.UpdateName, name, newOwner))
                   .type(Transaction.TxType.GOVERNANCE)
                   .build();
           final Transaction signed = getSignFunction().apply(owner, rawTransaction).get();
@@ -213,7 +211,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
                   .to(GovernanceRecipient.AERGO_SYSTEM)
                   .amount(amount)
                   .nonce(nonce)
-                  .payload(payloadResolver.resolve(Type.Stake))
+                  .payload(PayloadResolver.resolve(Type.Stake))
                   .type(Transaction.TxType.GOVERNANCE)
                   .build();
           final Transaction signed = getSignFunction().apply(account, rawTransaction).get();
@@ -237,7 +235,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
                   .to(GovernanceRecipient.AERGO_SYSTEM)
                   .amount(Aer.AERGO_ONE)
                   .nonce(nonce)
-                  .payload(payloadResolver.resolve(Type.Unstake))
+                  .payload(PayloadResolver.resolve(Type.Unstake))
                   .type(Transaction.TxType.GOVERNANCE)
                   .build();
           final Transaction signed = getSignFunction().apply(account, rawTransaction).get();

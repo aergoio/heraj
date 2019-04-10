@@ -14,13 +14,11 @@ import org.junit.Test;
 
 public class AddressResolverTest extends AbstractTestCase {
 
-  protected AddressResolver resolver = new AddressResolver();
-
   @Test
   public void testDeriveAndRecover() throws Exception {
     final PublicKey publicKey = new AergoKeyGenerator().create().getPublicKey();
-    final AccountAddress derived = resolver.deriveAddress(publicKey);
-    final PublicKey recovered = resolver.recoverPublicKey(derived);
+    final AccountAddress derived = AddressResolver.deriveAddress(publicKey);
+    final PublicKey recovered = AddressResolver.recoverPublicKey(derived);
     assertEquals(publicKey, recovered);
   }
 

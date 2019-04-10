@@ -31,7 +31,7 @@ public class AddressResolver {
    * @param publicKey a public key
    * @return an {@link AccountAddress}
    */
-  public AccountAddress deriveAddress(final PublicKey publicKey) {
+  public static AccountAddress deriveAddress(final PublicKey publicKey) {
     try {
       final byte[] rawAddress = new byte[AddressSpec.LENGTH];
       final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =
@@ -54,7 +54,7 @@ public class AddressResolver {
    * @param accountAddress an account address
    * @return an extracted public key
    */
-  public PublicKey recoverPublicKey(final AccountAddress accountAddress) {
+  public static PublicKey recoverPublicKey(final AccountAddress accountAddress) {
     try {
       final byte[] rawAddress = trim(accountAddress.getBytesValue().getValue());
       return new ECDSAKeyGenerator().createPublicKey(rawAddress);

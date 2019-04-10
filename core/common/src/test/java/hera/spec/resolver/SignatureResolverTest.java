@@ -19,8 +19,6 @@ import org.junit.Test;
 
 public class SignatureResolverTest extends AbstractTestCase {
 
-  protected SignatureResolver signatureResolver = new SignatureResolver();
-
   @Test
   public void testSerialize() throws Exception {
     final ECDSAKey key = new ECDSAKeyGenerator().create();
@@ -30,7 +28,7 @@ public class SignatureResolverTest extends AbstractTestCase {
         new BigInteger(
             "24080111729304174841921585755879357193051484773881703660717104599905026449822"));
     final Signature signature =
-        signatureResolver.serialize(ecdsaSignature, key.getParams().getN());
+        SignatureResolver.serialize(ecdsaSignature, key.getParams().getN());
     assertTrue(Arrays.equals(HexUtils.decode(
         "3045022100ABE06C1B99DE0C51B4790D24EE52674F532D9057744ED9EEF3F61425F9D1BDF60220353CDC395B12ABB6E297085B4D6F1A9DF7783DB66F95A7E0CE28246FC538219E"),
         signature.getSign().getValue()));
@@ -44,8 +42,8 @@ public class SignatureResolverTest extends AbstractTestCase {
             "77742016982977049819968937189730099006007209897399569418319639670259283246582"),
         new BigInteger(
             "24080111729304174841921585755879357193051484773881703660717104599905026449822"));
-    final Signature signature = signatureResolver.serialize(expected, key.getParams().getN());
-    final ECDSASignature actual = signatureResolver.parse(signature, key.getParams().getN());
+    final Signature signature = SignatureResolver.serialize(expected, key.getParams().getN());
+    final ECDSASignature actual = SignatureResolver.parse(signature, key.getParams().getN());
     assertEquals(expected, actual);
   }
 

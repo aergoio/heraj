@@ -35,7 +35,7 @@ public class ServerKeyStore implements KeyStore {
   @Override
   public void saveKey(final AergoKey key, final Authentication authentication) {
     try {
-      logger.debug("Save key: {}, authentication: {}", authentication);
+      logger.debug("Save key: {}, authentication: {}", key, authentication);
       if (!(authentication.getIdentity() instanceof AccountAddress)) {
         throw new UnsupportedOperationException(
             "Server keystore only support account address identity");
@@ -71,7 +71,7 @@ public class ServerKeyStore implements KeyStore {
   }
 
   @Override
-  public Account unlock(final Authentication authentication) {
+  public synchronized Account unlock(final Authentication authentication) {
     try {
       logger.debug("Unlock key with authentication: {}", authentication);
       final boolean unlocked = aergoClient.getKeyStoreOperation().unlock(authentication);
@@ -87,7 +87,7 @@ public class ServerKeyStore implements KeyStore {
   }
 
   @Override
-  public boolean lock(final Authentication authentication) {
+  public synchronized boolean lock(final Authentication authentication) {
     try {
       logger.debug("Lock key with authentication: {}", authentication);
       return aergoClient.getKeyStoreOperation().lock(authentication);

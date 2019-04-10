@@ -88,7 +88,7 @@ public class AccountAddress implements Identity, Encodable, Adaptor {
    * @return an ECPublicKey
    */
   public PublicKey asPublicKey() {
-    return new AddressResolver().recoverPublicKey(this);
+    return AddressResolver.recoverPublicKey(this);
   }
 
   @Override

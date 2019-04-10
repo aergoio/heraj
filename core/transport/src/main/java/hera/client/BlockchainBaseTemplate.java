@@ -89,8 +89,6 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
 
   protected TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();
 
-  protected PayloadResolver payloadResolver = new PayloadResolver();
-
   @Getter
   protected AergoRPCServiceFutureStub aergoService;
 
@@ -306,7 +304,7 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
               .amount(null)
               .nonce(nonce)
               .payload(
-                  payloadResolver.resolve(Type.Vote, voteId, candidates.toArray(new String[] {})))
+                  PayloadResolver.resolve(Type.Vote, voteId, candidates.toArray(new String[] {})))
               .type(Transaction.TxType.GOVERNANCE)
               .build();
           final Transaction signed =

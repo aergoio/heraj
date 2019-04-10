@@ -120,7 +120,7 @@ public class Transaction extends RawTransaction {
     @Override
     public Transaction build() {
       final TxHash txHash =
-          new TransactionHashResolver().calculateHash(rawTransaction, signature);
+          TransactionHashResolver.calculateHash(rawTransaction, signature);
       return new Transaction(rawTransaction, signature, txHash, null, 0, false);
     }
   }

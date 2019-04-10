@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 @ApiStability.Unstable
 public class SignatureResolver {
 
-  protected final transient Logger logger = getLogger(getClass());
+  protected static final Logger logger = getLogger(SignatureResolver.class);
 
   /**
    * Serialize ecdsa signature.
@@ -32,7 +32,7 @@ public class SignatureResolver {
    * @param order an order of the sign key
    * @return serialized signature
    */
-  public Signature serialize(final ECDSASignature signature, final BigInteger order) {
+  public static Signature serialize(final ECDSASignature signature, final BigInteger order) {
     final BigInteger halfOrder = order.divide(BigInteger.valueOf(2L));
 
     final BigInteger r = signature.getR();
@@ -76,7 +76,7 @@ public class SignatureResolver {
    * @param order a order of signature key
    * @return parsed {@link ECDSASignature}. null if parsing failed.
    */
-  public ECDSASignature parse(final Signature signature, final BigInteger order) {
+  public static ECDSASignature parse(final Signature signature, final BigInteger order) {
     if (null == signature) {
       throw new HerajException("Serialized signature is null");
     }
@@ -114,7 +114,7 @@ public class SignatureResolver {
     return ECDSASignature.of(r, s);
   }
 
-  protected int validateHeader(final byte[] source, final int start) {
+  protected static int validateHeader(final byte[] source, final int start) {
     int index = start;
 
     if (source[index] != SignatureSpec.HEADER_MAGIC) {
@@ -133,7 +133,7 @@ public class SignatureResolver {
     return index;
   }
 
-  protected Pair<BigInteger, Integer> parseInteger(final byte[] source, final int start,
+  protected static Pair<BigInteger, Integer> parseInteger(final byte[] source, final int start,
       final BigInteger order) {
     int index = start;
 

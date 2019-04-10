@@ -62,7 +62,7 @@ public class PayloadResolver {
   public static final String JSON_ARRAY_END = " ]";
   public static final String JSON_NEXT = ",";
 
-  protected final Logger logger = getLogger(getClass());
+  protected static final Logger logger = getLogger(PayloadResolver.class);
 
   /**
    * Resolve targets in a payload form.
@@ -73,7 +73,7 @@ public class PayloadResolver {
    *
    * @throws HerajException if fails
    */
-  public BytesValue resolve(final Type type, final Object... targets) {
+  public static BytesValue resolve(final Type type, final Object... targets) {
     logger.trace("Payload resolve type: {}, target size: {}", type, targets.length);
     validateResolveArgs(type, targets);
     BytesValue resolved = BytesValue.EMPTY;
@@ -113,7 +113,7 @@ public class PayloadResolver {
     return resolved;
   }
 
-  protected void validateResolveArgs(final Type type, final Object[] instances) {
+  protected static void validateResolveArgs(final Type type, final Object[] instances) {
     final int expectedSize = type.getTargets().length;
     if (instances.length != expectedSize) {
       throw new HerajException("Targets length must be " + expectedSize);
@@ -128,7 +128,7 @@ public class PayloadResolver {
     }
   }
 
-  protected BytesValue resolveContractDefinition(final Object[] targets) throws IOException {
+  protected static BytesValue resolveContractDefinition(final Object[] targets) throws IOException {
     final ContractDefinition contractDefinition = (ContractDefinition) targets[0];
     final byte[] rawPayload = trim(contractDefinition.getDecodedContract().getValue());
     final ByteArrayOutputStream rawStream = new ByteArrayOutputStream();
@@ -149,7 +149,7 @@ public class PayloadResolver {
     return new BytesValue(rawStream.toByteArray());
   }
 
-  protected BytesValue resolveContractInvocation(final Object[] targets) {
+  protected static BytesValue resolveContractInvocation(final Object[] targets) {
     final ContractInvocation contractInvocation = (ContractInvocation) targets[0];
     final String name = contractInvocation.getFunction().getName();
     final List<Object> args = contractInvocation.getArgs();
@@ -157,17 +157,18 @@ public class PayloadResolver {
     return new BytesValue(jsonForm.getBytes());
   }
 
-  protected BytesValue resolveStake(final Type type, final Object[] targets) {
+  protected static BytesValue resolveStake(final Type type, final Object[] targets) {
     final String jsonForm = asJsonForm(PayloadSpec.VERSION + type.getName(), asList(targets));
     return new BytesValue(jsonForm.getBytes());
   }
 
-  protected BytesValue resolveUnstake(final Type type, final Object[] targets) {
+  protected static BytesValue resolveUnstake(final Type type, final Object[] targets) {
     final String jsonForm = asJsonForm(PayloadSpec.VERSION + type.getName(), asList(targets));
     return new BytesValue(jsonForm.getBytes());
   }
 
-  protected BytesValue resolveVote(final Type type, final Object[] targets) throws IOException {
+  protected static BytesValue resolveVote(final Type type, final Object[] targets)
+      throws IOException {
     final String voteId = (String) targets[0];
     final String[] candidates = (String[]) targets[1];
     final List<Object> args = new ArrayList<Object>();
@@ -178,12 +179,12 @@ public class PayloadResolver {
     return new BytesValue(jsonForm.getBytes());
   }
 
-  protected BytesValue resolveCreateName(final Type type, final Object[] targets) {
+  protected static BytesValue resolveCreateName(final Type type, final Object[] targets) {
     final String jsonForm = asJsonForm(PayloadSpec.VERSION + type.getName(), asList(targets));
     return new BytesValue(jsonForm.getBytes());
   }
 
-  protected BytesValue resolveUpdateName(final Type type, final Object[] targets)
+  protected static BytesValue resolveUpdateName(final Type type, final Object[] targets)
       throws IOException {
     final String name = (String) targets[0];
     final String newOwner = ((AccountAddress) targets[1]).getEncoded();
@@ -194,7 +195,7 @@ public class PayloadResolver {
     return new BytesValue(jsonForm.toString().getBytes());
   }
 
-  protected String asJsonForm(final String name, final List<Object> args) {
+  protected static String asJsonForm(final String name, final List<Object> args) {
     final StringBuilder sb = new StringBuilder();
     sb.append(JSON_START);
     sb.append(keyAndValue("Name", asJsonString(name)));
@@ -206,7 +207,7 @@ public class PayloadResolver {
     return sb.toString();
   }
 
-  protected String asJsonArray(final List<Object> args) {
+  protected static String asJsonArray(final List<Object> args) {
     final StringBuilder sb = new StringBuilder();
     sb.append(JSON_ARRAY_START);
     // nil, boolean, number, string, table?
@@ -236,11 +237,11 @@ public class PayloadResolver {
     return sb.toString();
   }
 
-  protected String keyAndValue(final String key, final String value) {
+  protected static String keyAndValue(final String key, final String value) {
     return asJsonString(key) + ":" + value;
   }
 
-  protected String asJsonString(final String target) {
+  protected static String asJsonString(final String target) {
     final StringBuilder sb = new StringBuilder();
     sb.append('"');
     appendQuoted(sb, target);
@@ -248,7 +249,7 @@ public class PayloadResolver {
     return sb.toString();
   }
 
-  protected void appendQuoted(StringBuilder sb, String content) {
+  protected static void appendQuoted(StringBuilder sb, String content) {
     final int[] escCodes = sOutputEscapes128;
     int escLen = escCodes.length;
     for (int i = 0, len = content.length(); i < len; ++i) {
@@ -263,23 +264,23 @@ public class PayloadResolver {
     }
   }
 
-  protected String asJsonNumber(final Number target) {
+  protected static String asJsonNumber(final Number target) {
     return target.toString();
   }
 
-  protected String asJsonNumber(final BigInteger target) {
+  protected static String asJsonNumber(final BigInteger target) {
     return target.toString(10);
   }
 
-  protected String asJsonNumber(final BigDecimal target) {
+  protected static String asJsonNumber(final BigDecimal target) {
     return target.toString();
   }
 
-  protected String asJsonNull() {
+  protected static String asJsonNull() {
     return "null";
   }
 
-  protected String asJsonBoolean(final Boolean target) {
+  protected static String asJsonBoolean(final Boolean target) {
     return target.toString();
   }
 

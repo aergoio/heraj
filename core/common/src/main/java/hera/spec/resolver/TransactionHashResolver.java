@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 @ApiStability.Unstable
 public class TransactionHashResolver {
 
-  protected final transient Logger logger = getLogger(getClass());
+  protected static final Logger logger = getLogger(TransactionHashResolver.class);
 
   /**
    * Calculate a hash of transaction.
@@ -33,7 +33,7 @@ public class TransactionHashResolver {
    * @param rawTransaction a raw transaction
    * @return a hash of transaction
    */
-  public TxHash calculateHash(final RawTransaction rawTransaction) {
+  public static TxHash calculateHash(final RawTransaction rawTransaction) {
     try {
       final ByteArrayOutputStream raw = new ByteArrayOutputStream();
       final LittleEndianDataOutputStream dataOut = makeStream(raw, rawTransaction);
@@ -52,7 +52,7 @@ public class TransactionHashResolver {
    * @param signature a signature
    * @return a hash of transaction
    */
-  public TxHash calculateHash(final RawTransaction rawTransaction,
+  public static TxHash calculateHash(final RawTransaction rawTransaction,
       final Signature signature) {
     try {
       final ByteArrayOutputStream raw = new ByteArrayOutputStream();
@@ -66,7 +66,7 @@ public class TransactionHashResolver {
     }
   }
 
-  protected LittleEndianDataOutputStream makeStream(final ByteArrayOutputStream raw,
+  protected static LittleEndianDataOutputStream makeStream(final ByteArrayOutputStream raw,
       final RawTransaction rawTransaction) throws IOException {
     final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(raw);
     // WARNING : follow the stream order with server

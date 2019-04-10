@@ -11,7 +11,7 @@ import hera.api.model.EncryptedPrivateKey;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-@ApiAudience.Private
+@ApiAudience.Public
 @ApiStability.Unstable
 public interface KeyPair {
 

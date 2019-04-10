@@ -28,8 +28,6 @@ public class TransactionHashResolverTest extends AbstractTestCase {
   protected final AccountAddress accountAddress =
       new AccountAddress("AmLo9CGR3xFZPVKZ5moSVRNW1kyscY9rVkCvgrpwNJjRUPUWadC5");
 
-  protected final TransactionHashResolver resolver = new TransactionHashResolver();
-
   @Test
   public void testCalculateHashWithRawTx() {
     final RawTransaction rawTransaction = Transaction.newBuilder(chainIdHash)
@@ -40,7 +38,7 @@ public class TransactionHashResolverTest extends AbstractTestCase {
         .fee(Fee.of(Aer.of("100", Unit.AER), 5))
         .build();
 
-    assertNotNull(resolver.calculateHash(rawTransaction));
+    assertNotNull(TransactionHashResolver.calculateHash(rawTransaction));
   }
 
   @Test
@@ -54,7 +52,7 @@ public class TransactionHashResolverTest extends AbstractTestCase {
         .build();
 
     final Signature signature = new Signature(of(randomUUID().toString().getBytes()));
-    final TxHash hash = resolver.calculateHash(rawTransaction, signature);
+    final TxHash hash = TransactionHashResolver.calculateHash(rawTransaction, signature);
     assertNotNull(hash);
   }
 
