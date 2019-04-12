@@ -10,6 +10,7 @@ import static hera.TransportConstants.BLOCKCHAIN_LIST_ELECTED;
 import static hera.TransportConstants.BLOCKCHAIN_LIST_PEERS;
 import static hera.TransportConstants.BLOCKCHAIN_NODESTATUS;
 import static hera.TransportConstants.BLOCKCHAIN_PEERMETRICS;
+import static hera.TransportConstants.BLOCKCHAIN_SERVERINFO;
 import static hera.TransportConstants.BLOCKCHAIN_VOTE;
 import static hera.TransportConstants.BLOCKCHAIN_VOTESOF;
 import static java.util.Arrays.asList;
@@ -40,6 +41,7 @@ import hera.api.model.ModuleStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
+import hera.api.model.ServerInfo;
 import hera.api.model.TxHash;
 import hera.key.AergoKeyGenerator;
 import java.util.ArrayList;
@@ -167,6 +169,27 @@ public class BlockchainTemplateTest extends AbstractTestCase {
     assertNotNull(peerMetrics);
     assertEquals(BLOCKCHAIN_PEERMETRICS,
         ((WithIdentity) blockchainTemplate.getListPeerMetricsFunction()).getIdentity());
+  }
+
+  @Test
+  public void testGetServerInfo() {
+    final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
+    final FinishableFuture<ServerInfo> future = new FinishableFuture<ServerInfo>();
+    future.success(mock(ServerInfo.class));
+    when(base.getServerInfoFunction())
+        .thenReturn(new Function1<List<String>, FinishableFuture<ServerInfo>>() {
+          @Override
+          public FinishableFuture<ServerInfo> apply(List<String> t) {
+            return future;
+          }
+        });
+
+    final BlockchainTemplate blockchainTemplate = supplyBlockchainTemplate(base);
+
+    final ServerInfo nodeStatus = blockchainTemplate.getServerInfo(new ArrayList<String>());
+    assertNotNull(nodeStatus);
+    assertEquals(BLOCKCHAIN_SERVERINFO,
+        ((WithIdentity) blockchainTemplate.getServerInfoFunction()).getIdentity());
   }
 
   @Test

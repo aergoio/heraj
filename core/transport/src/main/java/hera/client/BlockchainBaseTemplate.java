@@ -30,6 +30,7 @@ import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
 import hera.api.model.RawTransaction;
+import hera.api.model.ServerInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.internal.GovernanceRecipient;
@@ -44,6 +45,7 @@ import hera.transport.ModelConverter;
 import hera.transport.NodeStatusConverterFactory;
 import hera.transport.PeerConverterFactory;
 import hera.transport.PeerMetricConverterFactory;
+import hera.transport.ServerInfoConverterFactory;
 import io.grpc.ManagedChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +74,9 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
 
   protected final ModelConverter<PeerMetric, Metric.PeerMetric> peerMetricConverter =
       new PeerMetricConverterFactory().create();
+
+  protected final ModelConverter<ServerInfo, Rpc.ServerInfo> serverInfoConverter =
+      new ServerInfoConverterFactory().create();
 
   protected final ModelConverter<NodeStatus, Rpc.SingleBytes> nodeStatusConverter =
       new NodeStatusConverterFactory().create();
@@ -242,6 +247,40 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
                   domainMetrics.add(peerMetricConverter.convertToDomainModel(rpcMetric));
                 }
                 return domainMetrics;
+              }
+            });
+            addCallback(listenableFuture, callback, directExecutor());
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+          return nextFuture;
+        }
+      };
+
+  @Getter
+  private final Function1<List<String>, FinishableFuture<ServerInfo>> serverInfoFunction =
+      new Function1<List<String>, FinishableFuture<ServerInfo>>() {
+
+        @Override
+        public FinishableFuture<ServerInfo> apply(final List<String> keys) {
+          logger.debug("Get node status");
+
+          FinishableFuture<ServerInfo> nextFuture = new FinishableFuture<ServerInfo>();
+          try {
+            final Rpc.KeyParams rpcServerInfoRequest = Rpc.KeyParams.newBuilder()
+                .addAllKey(keys)
+                .build();
+            logger.trace("AergoService getServerInfo arg: {}", rpcServerInfoRequest);
+
+            ListenableFuture<Rpc.ServerInfo> listenableFuture =
+                aergoService.getServerInfo(rpcServerInfoRequest);
+            FutureChain<Rpc.ServerInfo, ServerInfo> callback =
+                new FutureChain<Rpc.ServerInfo, ServerInfo>(nextFuture, contextProvider.get());
+            callback.setSuccessHandler(new Function1<Rpc.ServerInfo, ServerInfo>() {
+
+              @Override
+              public ServerInfo apply(final Rpc.ServerInfo status) {
+                return serverInfoConverter.convertToDomainModel(status);
               }
             });
             addCallback(listenableFuture, callback, directExecutor());

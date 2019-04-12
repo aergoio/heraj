@@ -35,6 +35,7 @@ import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
 import hera.api.model.RawTransaction;
+import hera.api.model.ServerInfo;
 import hera.api.model.StakeInfo;
 import hera.api.model.StreamObserver;
 import hera.api.model.Transaction;
@@ -52,6 +53,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -254,6 +256,9 @@ public class WalletIT extends AbstractIT {
 
       final List<PeerMetric> peerMetrics = wallet.listPeerMetrics();
       assertNotNull(peerMetrics);
+
+      final ServerInfo serverInfo = wallet.getServerInfo(new ArrayList<String>());
+      assertNotNull(serverInfo);
 
       final NodeStatus nodeStatus = wallet.getNodeStatus();
       assertNotNull(nodeStatus);

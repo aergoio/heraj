@@ -26,10 +26,12 @@ import hera.api.model.ElectedCandidate;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
+import hera.api.model.ServerInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.junit.Test;
@@ -137,6 +139,26 @@ public class BlockchainBaseTemplateTest extends AbstractTestCase {
     final FinishableFuture<List<PeerMetric>> peers =
         blockchainBaseTemplate.getListPeersMetricsFunction().apply();
     assertNotNull(peers.get());
+  }
+
+  @Test
+  public void testGetServerInfo() {
+    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
+    ListenableFuture<Rpc.ServerInfo> mockListenableFuture =
+        service.submit(new Callable<Rpc.ServerInfo>() {
+          @Override
+          public Rpc.ServerInfo call() throws Exception {
+            return Rpc.ServerInfo.newBuilder().build();
+          }
+        });
+    when(aergoService.getServerInfo(any(Rpc.KeyParams.class))).thenReturn(mockListenableFuture);
+
+    final BlockchainBaseTemplate blockchainBaseTemplate =
+        supplyBlockchainBaseTemplate(aergoService);
+
+    final FinishableFuture<ServerInfo> nodeStatus =
+        blockchainBaseTemplate.getServerInfoFunction().apply(new ArrayList<String>());
+    assertNotNull(nodeStatus.get());
   }
 
   @Test

@@ -16,6 +16,7 @@ import hera.api.model.ElectedCandidate;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
+import hera.api.model.ServerInfo;
 import hera.api.model.TxHash;
 import java.util.List;
 
@@ -67,6 +68,15 @@ public interface BlockchainOperation {
    * @return peer metrics
    */
   List<PeerMetric> listPeerMetrics();
+
+  /**
+   * Get server info.
+   *
+   * @param categories a categories
+   *
+   * @return server info
+   */
+  ServerInfo getServerInfo(List<String> categories);
 
   /**
    * Get status of current node.

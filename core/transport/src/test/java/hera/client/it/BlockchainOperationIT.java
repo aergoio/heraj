@@ -20,8 +20,10 @@ import hera.api.model.ElectedCandidate;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
+import hera.api.model.ServerInfo;
 import hera.api.model.StakeInfo;
 import hera.exception.RpcCommitException;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 
@@ -42,6 +44,15 @@ public class BlockchainOperationIT extends AbstractIT {
     logger.info("Current node chain info: {}", chainInfo);
 
     assertNotNull(chainInfo);
+  }
+
+  @Test
+  public void testServerInfo() {
+    final ServerInfo serverInfo =
+        aergoClient.getBlockchainOperation().getServerInfo(new ArrayList<String>());
+    logger.info("Current server info: {}", serverInfo);
+
+    assertNotNull(serverInfo);
   }
 
   @Test

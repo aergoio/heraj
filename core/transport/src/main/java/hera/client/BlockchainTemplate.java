@@ -10,6 +10,7 @@ import static hera.TransportConstants.BLOCKCHAIN_LIST_ELECTED;
 import static hera.TransportConstants.BLOCKCHAIN_LIST_PEERS;
 import static hera.TransportConstants.BLOCKCHAIN_NODESTATUS;
 import static hera.TransportConstants.BLOCKCHAIN_PEERMETRICS;
+import static hera.TransportConstants.BLOCKCHAIN_SERVERINFO;
 import static hera.TransportConstants.BLOCKCHAIN_VOTE;
 import static hera.TransportConstants.BLOCKCHAIN_VOTESOF;
 import static hera.api.function.Functions.identify;
@@ -33,6 +34,7 @@ import hera.api.model.ElectedCandidate;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
+import hera.api.model.ServerInfo;
 import hera.api.model.TxHash;
 import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
@@ -88,6 +90,11 @@ public class BlockchainTemplate
               BLOCKCHAIN_PEERMETRICS));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<List<String>, FinishableFuture<ServerInfo>> serverInfoFunction =
+      getStrategyChain().apply(
+          identify(getBlockchainBaseTemplate().getServerInfoFunction(), BLOCKCHAIN_SERVERINFO));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function0<FinishableFuture<NodeStatus>> nodeStatusFunction =
       getStrategyChain().apply(
           identify(getBlockchainBaseTemplate().getNodeStatusFunction(), BLOCKCHAIN_NODESTATUS));
@@ -136,6 +143,11 @@ public class BlockchainTemplate
   @Override
   public List<PeerMetric> listPeerMetrics() {
     return getListPeerMetricsFunction().apply().get();
+  }
+
+  @Override
+  public ServerInfo getServerInfo(final List<String> categories) {
+    return getServerInfoFunction().apply(categories).get();
   }
 
   @Override

@@ -8,6 +8,7 @@ import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyListOf;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
@@ -47,6 +48,7 @@ import hera.api.model.ModuleStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
+import hera.api.model.ServerInfo;
 import hera.api.model.StakeInfo;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
@@ -243,6 +245,20 @@ public class QueryWalletTest extends AbstractTestCase {
         withSettings().useConstructor(mockClient).defaultAnswer(CALLS_REAL_METHODS));
 
     assertNotNull(wallet.listPeerMetrics());
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  public void testGetServerInfo() {
+    final AergoClient mockClient = mock(AergoClient.class);
+    final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
+    when(mockOperation.getServerInfo(anyListOf(String.class))).thenReturn(mock(ServerInfo.class));
+    when(mockClient.getBlockchainOperation()).thenReturn(mockOperation);
+
+    final QueryWallet wallet = mock(QueryWallet.class,
+        withSettings().useConstructor(mockClient).defaultAnswer(CALLS_REAL_METHODS));
+
+    assertNotNull(wallet.getServerInfo(new ArrayList<String>()));
   }
 
   @Test

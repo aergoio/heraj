@@ -28,6 +28,7 @@ import hera.api.model.EventFilter;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
+import hera.api.model.ServerInfo;
 import hera.api.model.StakeInfo;
 import hera.api.model.Subscription;
 import hera.api.model.Transaction;
@@ -214,6 +215,17 @@ public interface QueryClient extends Closeable {
    * @throws WalletRpcException on rpc error
    */
   List<PeerMetric> listPeerMetrics();
+
+  /**
+   * Get server info of current node.
+   *
+   * @param categories a categories
+   * @return server info
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
+   */
+  ServerInfo getServerInfo(List<String> categories);
 
   /**
    * Get status of current node.

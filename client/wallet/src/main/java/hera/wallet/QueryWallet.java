@@ -28,6 +28,7 @@ import hera.api.model.EventFilter;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
+import hera.api.model.ServerInfo;
 import hera.api.model.StakeInfo;
 import hera.api.model.Subscription;
 import hera.api.model.Transaction;
@@ -187,6 +188,16 @@ public abstract class QueryWallet implements QueryClient, Closeable {
     try {
       logger.debug("List metric of peers");
       return getAergoClient().getBlockchainOperation().listPeerMetrics();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
+  }
+
+  @Override
+  public ServerInfo getServerInfo(final List<String> categories) {
+    try {
+      logger.debug("Get server info");
+      return getAergoClient().getBlockchainOperation().getServerInfo(categories);
     } catch (Exception e) {
       throw exceptionConverter.convert(e);
     }
