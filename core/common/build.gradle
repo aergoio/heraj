@@ -5,5 +5,5 @@
 dependencies {
   implementation project(":core:annotation")
   implementation project(":core:util")
-  implementation 'org.bouncycastle:bcprov-jdk15on:${bouncyCastleVersion}'
+  implementation "org.bouncycastle:bcprov-jdk15on:${bouncyCastleVersion}"
 }
