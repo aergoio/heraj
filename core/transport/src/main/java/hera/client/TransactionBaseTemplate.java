@@ -41,7 +41,7 @@ import types.Rpc;
 @ApiStability.Unstable
 public class TransactionBaseTemplate implements ChannelInjectable, ContextProviderInjectable {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   protected final ModelConverter<Transaction, Blockchain.Tx> transactionConverter =
       new TransactionConverterFactory().create();

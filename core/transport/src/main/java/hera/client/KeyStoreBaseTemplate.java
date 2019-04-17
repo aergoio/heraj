@@ -39,7 +39,7 @@ import types.Rpc;
 @ApiStability.Unstable
 public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderInjectable {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   protected final ModelConverter<EncryptedPrivateKey, Rpc.SingleBytes> encryptedPkConverter =
       new EncryptedPrivateKeyConverterFactory().create();

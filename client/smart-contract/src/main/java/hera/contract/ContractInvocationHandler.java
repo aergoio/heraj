@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 @ApiStability.Unstable
 public class ContractInvocationHandler implements InvocationHandler {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   @Getter(value = AccessLevel.PROTECTED)
   protected ContractAddress contractAddress;

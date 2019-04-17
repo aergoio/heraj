@@ -61,7 +61,7 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
 
   protected static final long NODE_STATUS_TIMEOUT = 3000L;
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   protected final ModelConverter<BlockchainStatus, Rpc.BlockchainStatus> blockchainConverter =
       new BlockchainStatusConverterFactory().create();

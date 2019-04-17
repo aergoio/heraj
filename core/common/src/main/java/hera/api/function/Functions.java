@@ -16,12 +16,14 @@ public final class Functions {
    * Identify a function by name.
    *
    * @param <R> a function return type
+   *
    * @param f a function to identify
-   * @param identification an identification
-   * @return a function with identification
+   * @param identity an identity
+   *
+   * @return a function with identity
    */
-  public static <R> Function0<R> identify(final Function0<R> f, final String identification) {
-    return new Function0WithIdentity<R>(f, identification);
+  public static <R> Function0<R> identify(final Function0<R> f, final String identity) {
+    return new Function0WithIdentity<R>(f, identity);
   }
 
   /**
@@ -29,13 +31,15 @@ public final class Functions {
    *
    * @param <T> a function argument type
    * @param <R> a function return type
+   *
    * @param f a function to identify
-   * @param identification an identification
-   * @return a function with identification
+   * @param identity an identity
+   *
+   * @return a function with identity
    */
   public static <T, R> Function1<T, R> identify(final Function1<T, R> f,
-      final String identification) {
-    return new Function1WithIdentity<T, R>(f, identification);
+      final String identity) {
+    return new Function1WithIdentity<T, R>(f, identity);
   }
 
   /**
@@ -44,13 +48,15 @@ public final class Functions {
    * @param <T1> a function 1st argument type
    * @param <T2> a function 2nd argument type
    * @param <R> a function return type
+   *
    * @param f a function to identify
-   * @param identification an identification
-   * @return a function with identification
+   * @param identity an identity
+   *
+   * @return a function with identity
    */
   public static <T1, T2, R> Function2<T1, T2, R> identify(final Function2<T1, T2, R> f,
-      final String identification) {
-    return new Function2WithIdentity<T1, T2, R>(f, identification);
+      final String identity) {
+    return new Function2WithIdentity<T1, T2, R>(f, identity);
   }
 
   /**
@@ -60,13 +66,15 @@ public final class Functions {
    * @param <T2> a function 2nd argument type
    * @param <T3> a function 3rd argument type
    * @param <R> a function return type
+   *
    * @param f a function to identify
-   * @param identification an identification
-   * @return a function with identification
+   * @param identity an identity
+   *
+   * @return a function with identity
    */
   public static <T1, T2, T3, R> Function3<T1, T2, T3, R> identify(final Function3<T1, T2, T3, R> f,
-      final String identification) {
-    return new Function3WithIdentity<T1, T2, T3, R>(f, identification);
+      final String identity) {
+    return new Function3WithIdentity<T1, T2, T3, R>(f, identity);
   }
 
   /**
@@ -77,13 +85,15 @@ public final class Functions {
    * @param <T3> a function 3rd argument type
    * @param <T4> a function 4th argument type
    * @param <R> a function return type
+   *
    * @param f a function to identify
-   * @param identification an identification
-   * @return a function with identification
+   * @param identity an identity
+   *
+   * @return a function with identity
    */
   public static <T1, T2, T3, T4, R> Function4<T1, T2, T3, T4, R> identify(
-      final Function4<T1, T2, T3, T4, R> f, final String identification) {
-    return new Function4WithIdentity<T1, T2, T3, T4, R>(f, identification);
+      final Function4<T1, T2, T3, T4, R> f, final String identity) {
+    return new Function4WithIdentity<T1, T2, T3, T4, R>(f, identity);
   }
 
   /**
@@ -95,8 +105,10 @@ public final class Functions {
    *
    * @param first the function to invoke first
    * @param second the function to invoke second
+   *
    * @return a composed function that first applies {@code first} function and then applies the
    *         {@code second} function
+   *
    * @throws NullPointerException if before or after is null
    */
   public static <R, V> Function0<V> compose(final Function0<R> first,
@@ -125,8 +137,10 @@ public final class Functions {
    *
    * @param first the function to invoke first
    * @param second the function to invoke second
+   *
    * @return a composed function that first applies {@code first} function and then applies the
    *         {@code second} function
+   *
    * @throws NullPointerException if before or after is null
    */
   public static <T, R, V> Function1<T, V> compose(final Function1<? super T, ? extends R> first,
@@ -156,8 +170,10 @@ public final class Functions {
    *
    * @param first the function to invoke first
    * @param second the function to invoke second
+   *
    * @return a composed function that first applies {@code first} function and then applies the
    *         {@code second} function
+   *
    * @throws NullPointerException if before or after is null
    */
   public static <T1, T2, R, V> Function2<T1, T2, V> compose(
@@ -189,8 +205,10 @@ public final class Functions {
    *
    * @param first the function to invoke first
    * @param second the function to invoke second
+   *
    * @return a composed function that first applies {@code first} function and then applies the
    *         {@code second} function
+   *
    * @throws NullPointerException if before or after is null
    */
   public static <T1, T2, T3, R, V> Function3<T1, T2, T3, V> compose(
@@ -223,8 +241,10 @@ public final class Functions {
    *
    * @param first the function to invoke first
    * @param second the function to invoke second
+   *
    * @return a composed function that first applies {@code first} function and then applies the
    *         {@code second} function
+   *
    * @throws NullPointerException if before or after is null
    */
   public static <T1, T2, T3, T4, R, V> Function4<T1, T2, T3, T4, V> compose(

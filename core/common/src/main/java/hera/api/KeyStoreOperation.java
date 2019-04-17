@@ -12,6 +12,18 @@ import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import java.util.List;
 
+/**
+ * Provide server keystore related operations. It provides followings:
+ *
+ * <ul>
+ *  <li>lookup stored accounts</li>
+ *  <li>locking / unlocking account</li>
+ *  <li>importing / exporting account</li>
+ * </ul>
+ *
+ * @author Taeik Lim
+ *
+ */
 @ApiAudience.Public
 @ApiStability.Unstable
 public interface KeyStoreOperation {

@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 @RequiredArgsConstructor
 public class GrpcStreamSubscription<T> implements hera.api.model.Subscription<T> {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   protected final io.grpc.Context.CancellableContext context;
 

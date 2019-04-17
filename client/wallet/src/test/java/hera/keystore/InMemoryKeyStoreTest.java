@@ -25,6 +25,7 @@ import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
+import hera.model.KeyAlias;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,13 +35,7 @@ public class InMemoryKeyStoreTest extends AbstractTestCase {
 
   @Before
   public void setUp() {
-    identity = new Identity() {
-
-      @Override
-      public String getInfo() {
-        return randomUUID().toString();
-      }
-    };
+    identity = new KeyAlias(randomUUID().toString());
   }
 
   @Test

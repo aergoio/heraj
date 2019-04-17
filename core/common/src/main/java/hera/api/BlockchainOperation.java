@@ -20,6 +20,18 @@ import hera.api.model.ServerInfo;
 import hera.api.model.TxHash;
 import java.util.List;
 
+/**
+ * Provide blockchain related operations. It provides followings:
+ *
+ * <ul>
+ *  <li>lookup chain id hash</li>
+ *  <li>lookup blockchain status, node status, peers, server info</li>
+ *  <li>voting related operations</li>
+ * </ul>
+ *
+ * @author Taeik Lim
+ *
+ */
 @ApiAudience.Public
 @ApiStability.Unstable
 public interface BlockchainOperation {

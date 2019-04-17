@@ -19,7 +19,7 @@ public interface Subscription<T> {
   /**
    * Return whether it's been unsubscribed or not.
    *
-   * @return whether it's been unsubscribed or not
+   * @return an subscription status
    */
   boolean isUnsubscribed();
 

@@ -57,7 +57,7 @@ public class JavaKeyStore extends AbstractKeyStore implements KeyStore, Signer {
   public void saveKey(final AergoKey key, final Authentication authentication) {
     try {
       logger.debug("Save key: {}, authentication: {}", key, authentication);
-      final String alias = authentication.getIdentity().getInfo();
+      final String alias = authentication.getIdentity().getValue();
       final PrivateKey privateKey = key.getPrivateKey();
       final char[] rawPassword = authentication.getPassword().toCharArray();
       final Certificate cert = generateCertificate(key);
@@ -73,7 +73,7 @@ public class JavaKeyStore extends AbstractKeyStore implements KeyStore, Signer {
     final Calendar start = Calendar.getInstance();
     final Calendar expiry = Calendar.getInstance();
     expiry.add(Calendar.YEAR, 1);
-    final X500Name name = new X500Name("CN=" + key.getAddress().getInfo());
+    final X500Name name = new X500Name("CN=" + key.getAddress().getValue());
     final ContentSigner signer = new JcaContentSignerBuilder("SHA256WithECDSA")
         .setProvider(provider).build(key.getPrivateKey());
     final X509CertificateHolder holder = new X509v3CertificateBuilder(
@@ -91,7 +91,7 @@ public class JavaKeyStore extends AbstractKeyStore implements KeyStore, Signer {
   public EncryptedPrivateKey export(final Authentication authentication) {
     try {
       logger.debug("Export key with authentication: {}", authentication);
-      final Key privateKey = delegate.getKey(authentication.getIdentity().getInfo(),
+      final Key privateKey = delegate.getKey(authentication.getIdentity().getValue(),
           authentication.getPassword().toCharArray());
       final AergoKey restored = restoreKey(privateKey);
       return restored.export(authentication.getPassword());
@@ -109,14 +109,16 @@ public class JavaKeyStore extends AbstractKeyStore implements KeyStore, Signer {
       for (final String alias : aliases) {
         Identity identity = null;
         try {
+          // first try to derive address
           identity = deriveAddress(new Identity() {
 
             @Override
-            public String getInfo() {
+            public String getValue() {
               return alias;
             }
           });
         } catch (Exception e) {
+          // if fails, then its just an alias
           identity = new KeyAlias(alias);
         }
         storedIdentities.add(identity);
@@ -131,11 +133,11 @@ public class JavaKeyStore extends AbstractKeyStore implements KeyStore, Signer {
   public synchronized Account unlock(final Authentication authentication) {
     try {
       logger.debug("Unlock key with authentication: {}", authentication);
-      final java.security.Key privateKey = delegate.getKey(authentication.getIdentity().getInfo(),
+      final java.security.Key privateKey = delegate.getKey(authentication.getIdentity().getValue(),
           authentication.getPassword().toCharArray());
       final AergoKey key = restoreKey(privateKey);
-      currentUnlockedAuth = digest(authentication);
-      currentUnlockedKey = key;
+      currentlyUnlockedAuth = digest(authentication);
+      currentlyUnlockedKey = key;
       return new AccountFactory().create(key.getAddress(), this);
     } catch (Exception e) {
       logger.debug("Unlock failed by {}", e.toString());

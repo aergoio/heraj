@@ -11,6 +11,18 @@ import hera.api.model.Aer;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 
+/**
+ * Provide transaction related operations. It provides followings:
+ *
+ * <ul>
+ *  <li>lookup transaction</li>
+ *  <li>commit transaction</li>
+ *  <li>sending aergo with a key stored in server keystore</li>
+ * </ul>
+ *
+ * @author bylee, Taeik Lim
+ *
+ */
 @ApiAudience.Public
 @ApiStability.Unstable
 public interface TransactionOperation {

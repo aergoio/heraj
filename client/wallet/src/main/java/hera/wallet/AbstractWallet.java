@@ -38,7 +38,7 @@ import org.slf4j.Logger;
 
 public abstract class AbstractWallet extends QueryWallet implements Wallet {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   protected KeyStore keyStore;
 

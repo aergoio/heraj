@@ -12,10 +12,10 @@ import hera.annotation.ApiStability;
 public interface Identity {
 
   /**
-   * Get identity.
+   * Get identity value.
    *
-   * @return an identity
+   * @return an identity value
    */
-  String getInfo();
+  String getValue();
 
 }

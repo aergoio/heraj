@@ -37,7 +37,7 @@ import types.Rpc;
 @ApiStability.Unstable
 public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInjectable {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   protected final ModelConverter<BlockHeader, Rpc.BlockMetadata> blockMetadataConverter =
       new BlockHeaderConverterFactory().create();

@@ -25,7 +25,7 @@ public class FutureChain<T, R> implements FutureCallback<T> {
   protected static final String ASYNC_CALL_MESSAGE =
       "============================== Async call ==============================";
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   // store Exception since getting stack trace element object is too expensive
   protected Exception stackTraceHolder = new Exception();

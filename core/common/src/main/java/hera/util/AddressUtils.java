@@ -26,7 +26,7 @@ public class AddressUtils {
     }
 
     try {
-      final String encoded = identity.getInfo();
+      final String encoded = identity.getValue();
       final BytesValue decoded = decodeHexa(encoded);
       final AccountAddress derived = AccountAddress.of(decoded);
       if ((derived.getBytesValue().getValue().length - 1) != AddressSpec.LENGTH) {

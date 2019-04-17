@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 
 public class RpcExceptionConverter implements ExceptionConverter<RpcException> {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   @Override
   public RpcException convert(final Throwable t) {

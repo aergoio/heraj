@@ -92,7 +92,7 @@ public class AccountAddress implements Identity, Encodable, Adaptor {
   }
 
   @Override
-  public String getInfo() {
+  public String getValue() {
     return encodeHexa(getBytesValue());
   }
 

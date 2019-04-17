@@ -75,8 +75,8 @@ public class InMemoryKeyStore extends AbstractKeyStore implements KeyStore, Sign
       }
       final EncryptedPrivateKey encrypted = auth2EncryptedPrivateKey.get(digestedAuth);
       final AergoKey key = AergoKey.of(encrypted, authentication.getPassword());
-      currentUnlockedAuth = digestedAuth;
-      currentUnlockedKey = key;
+      currentlyUnlockedAuth = digestedAuth;
+      currentlyUnlockedKey = key;
       return new AccountFactory().create(key.getAddress(), this);
     } catch (Exception e) {
       logger.debug("Unlock failed by {}", e.toString());

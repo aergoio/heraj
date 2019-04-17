@@ -18,15 +18,15 @@ import lombok.ToString;
 public class KeyAlias implements Identity {
 
   @Getter
-  public String info;
+  public final String value;
 
   /**
    * KeyAlias constructor.
    *
-   * @param info an alias info
+   * @param alias an alias value
    */
-  public KeyAlias(final String info) {
-    this.info = info;
+  public KeyAlias(final String alias) {
+    this.value = alias;
   }
 
 }

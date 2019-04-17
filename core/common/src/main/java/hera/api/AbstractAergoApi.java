@@ -27,7 +27,7 @@ public class AbstractAergoApi implements AergoApi, Adaptor {
 
   @Override
   public void cacheChainIdHash(final ChainIdHash chainIdHash) {
-    // do nothing
+    throw new UnsupportedOperationException();
   }
 
   @Override

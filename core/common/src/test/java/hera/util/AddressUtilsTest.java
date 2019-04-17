@@ -26,7 +26,7 @@ public class AddressUtilsTest extends AbstractTestCase {
     try {
       final Identity invalidIdentity = new Identity() {
         @Override
-        public String getInfo() {
+        public String getValue() {
           return randomUUID().toString();
         }
       };

@@ -11,6 +11,17 @@ import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
 import java.util.List;
 
+/**
+ * Provide block related operations. It provides followings:
+ *
+ * <ul>
+ *  <li>lookup block header</li>
+ *  <li>lookup block</li>
+ * </ul>
+ *
+ * @author bylee, Taeik Lim
+ *
+ */
 @ApiAudience.Public
 @ApiStability.Unstable
 public interface BlockOperation {

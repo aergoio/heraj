@@ -8,7 +8,6 @@ import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyListOf;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
@@ -57,6 +56,7 @@ import hera.api.model.TxHash;
 import hera.client.AergoClient;
 import hera.key.AergoKeyGenerator;
 import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 
 public class QueryWalletTest extends AbstractTestCase {
@@ -247,12 +247,12 @@ public class QueryWalletTest extends AbstractTestCase {
     assertNotNull(wallet.listPeerMetrics());
   }
 
-  @SuppressWarnings("deprecation")
+  @SuppressWarnings("unchecked")
   @Test
   public void testGetServerInfo() {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
-    when(mockOperation.getServerInfo(anyListOf(String.class))).thenReturn(mock(ServerInfo.class));
+    when(mockOperation.getServerInfo(any(List.class))).thenReturn(mock(ServerInfo.class));
     when(mockClient.getBlockchainOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,

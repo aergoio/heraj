@@ -20,22 +20,22 @@ import org.slf4j.Logger;
 
 public abstract class AbstractKeyStore implements KeyStore, Signer {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
-  protected Authentication currentUnlockedAuth;
+  protected Authentication currentlyUnlockedAuth;
 
-  protected AergoKey currentUnlockedKey;
+  protected AergoKey currentlyUnlockedKey;
 
   @Override
   public synchronized boolean lock(final Authentication authentication) {
     try {
       logger.debug("Lock key with authentication: {}", authentication);
       final Authentication digested = digest(authentication);
-      if (!currentUnlockedAuth.equals(digested)) {
+      if (!currentlyUnlockedAuth.equals(digested)) {
         return false;
       }
-      currentUnlockedAuth = null;
-      currentUnlockedKey = null;
+      currentlyUnlockedAuth = null;
+      currentlyUnlockedKey = null;
       return true;
     } catch (Exception e) {
       throw new KeyStoreException(e);
@@ -85,10 +85,10 @@ public abstract class AbstractKeyStore implements KeyStore, Signer {
   }
 
   protected AergoKey getUnlockedKey() {
-    if (null == currentUnlockedKey) {
+    if (null == currentlyUnlockedKey) {
       throw new IllegalStateException("Unlock account first");
     }
-    return currentUnlockedKey;
+    return currentlyUnlockedKey;
   }
 
 }

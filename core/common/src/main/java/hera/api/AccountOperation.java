@@ -15,6 +15,19 @@ import hera.api.model.StakeInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 
+/**
+ * Provide account related operations. It provides followings:
+ *
+ * <ul>
+ *  <li>lookup account state</li>
+ *  <li>naming related operations</li>
+ *  <li>staking related operations</li>
+ *  <li>signing / verifying</li>
+ * </ul>
+ *
+ * @author bylee, Taeik Lim
+ *
+ */
 @ApiAudience.Public
 @ApiStability.Unstable
 public interface AccountOperation {
@@ -22,7 +35,7 @@ public interface AccountOperation {
   /**
    * Get account state by account.
    *
-   * @param account account
+   * @param account an account
    * @return an account state
    */
   AccountState getState(Account account);
@@ -30,7 +43,7 @@ public interface AccountOperation {
   /**
    * Get account state by address.
    *
-   * @param address account address
+   * @param address an account address
    * @return an account state
    */
   AccountState getState(AccountAddress address);

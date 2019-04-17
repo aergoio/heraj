@@ -25,7 +25,7 @@ public class KeyStoreOperationIT extends AbstractIT {
     final Identity identity = new Identity() {
 
       @Override
-      public String getInfo() {
+      public String getValue() {
         return randomUUID().toString();
       }
     };

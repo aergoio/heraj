@@ -16,15 +16,17 @@ import org.slf4j.Logger;
 @ApiStability.Unstable
 public class SmartContractFactory {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   /**
    * Create a proxy instance to call smart contract corresponding to {@code type}. Class loader is
    * set by {@code getClass().getClassLoader()}.
    *
    * @param <ContractT> a smart contract interface type which extends {@link SmartContract}
+   *
    * @param type a proxy type
    * @param contractAddress a contract address
+   *
    * @return a proxy instance
    */
   public <ContractT extends SmartContract> ContractT create(final Class<ContractT> type,
@@ -36,9 +38,11 @@ public class SmartContractFactory {
    * Create a proxy instance to call smart contract corresponding to {@code type}.
    *
    * @param <ContractT> a smart contract interface type which extends {@link SmartContract}
+   *
    * @param type a proxy type
    * @param contractAddress a contract address
    * @param classLoader a class loader used in making proxy instance
+   *
    * @return a proxy instance
    */
   @SuppressWarnings("unchecked")
