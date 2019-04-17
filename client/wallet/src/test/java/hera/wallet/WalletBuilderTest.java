@@ -17,7 +17,7 @@ public class WalletBuilderTest extends AbstractTestCase {
     final WalletBuilder builder = new WalletBuilder()
         .withBlockingConnect()
         .withEndpoint("localhost:7845")
-        .withNonceRefresh(3, 1000L, TimeUnit.MILLISECONDS)
+        .withRefresh(3, 1000L, TimeUnit.MILLISECONDS)
         .withTimeout(1000L, TimeUnit.MILLISECONDS)
         .withRetry(3, 5, TimeUnit.SECONDS)
         .addConfiguration("key", "value");

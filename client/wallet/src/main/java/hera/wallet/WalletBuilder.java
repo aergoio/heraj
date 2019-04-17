@@ -62,14 +62,14 @@ public class WalletBuilder implements ContextConfiguer<WalletBuilder> {
   }
 
   /**
-   * A nonce refresh count to handle invalid nonce. A minimum is 1.
+   * A nonce (or chain id hash) refresh count to handle invalid case. A minimum is 1.
    *
    * @param count retry count. If it is less than 0, set as 1
    * @param interval interval value. If it's less than 0, set as 1
    * @param unit interval unit
    * @return an instance of this
    */
-  public WalletBuilder withNonceRefresh(final int count, final long interval, final TimeUnit unit) {
+  public WalletBuilder withRefresh(final int count, final long interval, final TimeUnit unit) {
     this.nonceRefreshTryInterval =
         TryCountAndInterval.of(count <= 0 ? 1 : count, Time.of(interval <= 0 ? 1 : interval, unit));
     return this;

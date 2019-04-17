@@ -42,7 +42,7 @@ public class WalletBenchmark {
       wallet = new WalletBuilder()
           .withNonBlockingConnect()
           .withEndpoint("localhost:7845")
-          .withNonceRefresh(1, 10, TimeUnit.MILLISECONDS)
+          .withRefresh(1, 10, TimeUnit.MILLISECONDS)
           .withTimeout(3, TimeUnit.SECONDS)
           .build(WalletType.Naive);
 
