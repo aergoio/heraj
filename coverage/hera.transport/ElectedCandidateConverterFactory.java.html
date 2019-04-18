@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ElectedCandidateConverterFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.transport</a> &gt; <span class="el_source">ElectedCandidateConverterFactory.java</span></div><h1>ElectedCandidateConverterFactory.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.transport;
+
+import static hera.util.TransportUtils.parseToAer;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.api.function.Function1;
+import hera.api.model.ElectedCandidate;
+import hera.util.Base58Utils;
+import org.slf4j.Logger;
+import types.Rpc;
+
+<span class="fc" id="L16">public class ElectedCandidateConverterFactory {</span>
+
+<span class="fc" id="L18">  protected final transient Logger logger = getLogger(getClass());</span>
+
+<span class="fc" id="L20">  protected final Function1&lt;ElectedCandidate, Rpc.Vote&gt; domainConverter =</span>
+<span class="fc" id="L21">      new Function1&lt;ElectedCandidate, Rpc.Vote&gt;() {</span>
+
+        @Override
+        public Rpc.Vote apply(final ElectedCandidate domainVote) {
+<span class="nc" id="L25">          throw new UnsupportedOperationException();</span>
+        }
+      };
+
+<span class="fc" id="L29">  protected final Function1&lt;Rpc.Vote, ElectedCandidate&gt; rpcConverter =</span>
+<span class="fc" id="L30">      new Function1&lt;Rpc.Vote, ElectedCandidate&gt;() {</span>
+
+        @Override
+        public ElectedCandidate apply(final Rpc.Vote rpcElectedCandidate) {
+<span class="fc" id="L34">          logger.trace(&quot;Rpc vote status to convert: {}&quot;, rpcElectedCandidate);</span>
+<span class="fc" id="L35">          final ElectedCandidate domainElectedCandidate = new ElectedCandidate(</span>
+<span class="fc" id="L36">              Base58Utils.encode(rpcElectedCandidate.getCandidate().toByteArray()),</span>
+<span class="fc" id="L37">              parseToAer(rpcElectedCandidate.getAmount()));</span>
+<span class="fc" id="L38">          logger.trace(&quot;Domain vote status converted: {}&quot;, domainElectedCandidate);</span>
+<span class="fc" id="L39">          return domainElectedCandidate;</span>
+        }
+      };
+
+  public ModelConverter&lt;ElectedCandidate, Rpc.Vote&gt; create() {
+<span class="fc" id="L44">    return new ModelConverter&lt;ElectedCandidate, Rpc.Vote&gt;(domainConverter, rpcConverter);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

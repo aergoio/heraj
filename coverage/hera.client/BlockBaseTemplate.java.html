@@ -37,7 +37,7 @@ import types.Rpc;
 @ApiStability.Unstable
 <span class="fc" id="L38">public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInjectable {</span>
 
-<span class="fc" id="L40">  protected final Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L40">  protected final transient Logger logger = getLogger(getClass());</span>
 
 <span class="fc" id="L42">  protected final ModelConverter&lt;BlockHeader, Rpc.BlockMetadata&gt; blockMetadataConverter =</span>
 <span class="fc" id="L43">      new BlockHeaderConverterFactory().create();</span>
@@ -52,13 +52,13 @@ import types.Rpc;
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-<span class="fc" id="L55">    this.aergoService = newFutureStub(channel);</span>
-<span class="fc" id="L56">  }</span>
+<span class="nc" id="L55">    this.aergoService = newFutureStub(channel);</span>
+<span class="nc" id="L56">  }</span>
 
   @Override
   public void setContextProvider(final ContextProvider contextProvider) {
-<span class="fc" id="L60">    this.contextProvider = contextProvider;</span>
-<span class="fc" id="L61">  }</span>
+<span class="nc" id="L60">    this.contextProvider = contextProvider;</span>
+<span class="nc" id="L61">  }</span>
 
 <span class="fc" id="L63">  @Getter</span>
   private final Function1&lt;BlockHash, FinishableFuture&lt;BlockHeader&gt;&gt; blockHeaderByHashFunction =

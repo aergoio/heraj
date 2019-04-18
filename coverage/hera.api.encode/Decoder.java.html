@@ -6,21 +6,17 @@ package hera.api.encode;
 
 import static hera.util.IoUtils.from;
 
-import hera.annotation.ApiAudience;
-import hera.annotation.ApiStability;
 import hera.util.HexUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 
-@ApiAudience.Private
-@ApiStability.Unstable
 public interface Decoder {
-<span class="fc" id="L20">  Decoder defaultDecoder = new Decoder() {</span>
+<span class="fc" id="L16">  Decoder defaultDecoder = new Decoder() {</span>
     @Override
     public InputStream decode(Reader reader) throws IOException {
-<span class="fc" id="L23">      return new ByteArrayInputStream(HexUtils.decode(from(reader)));</span>
+<span class="fc" id="L19">      return new ByteArrayInputStream(HexUtils.decode(from(reader)));</span>
     }
   };
 

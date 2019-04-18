@@ -55,8 +55,8 @@ import lombok.Getter;
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-<span class="fc" id="L58">    getContractBaseTemplate().setChannel(channel);</span>
-<span class="fc" id="L59">  }</span>
+<span class="nc" id="L58">    getContractBaseTemplate().setChannel(channel);</span>
+<span class="nc" id="L59">  }</span>
 
   @Override
   public void setContextProvider(final ContextProvider contextProvider) {
@@ -111,36 +111,47 @@ import lombok.Getter;
 
   @Override
   public ContractTxHash deploy(final Account creator, final ContractDefinition contractDefinition,
+      final long nonce) {
+<span class="fc" id="L115">    return deploy(creator, contractDefinition, nonce, Fee.ZERO);</span>
+  }
+
+  @Override
+  public ContractTxHash deploy(final Account creator, final ContractDefinition contractDefinition,
       final long nonce, final Fee fee) {
-<span class="fc" id="L115">    return getDeployFunction().apply(creator, contractDefinition, nonce, fee).get();</span>
+<span class="fc" id="L121">    return getDeployFunction().apply(creator, contractDefinition, nonce, fee).get();</span>
   }
 
   @Override
   public ContractInterface getContractInterface(
       final ContractAddress contractAddress) {
-<span class="fc" id="L121">    return getContractInterfaceFunction().apply(contractAddress).get();</span>
+<span class="fc" id="L127">    return getContractInterfaceFunction().apply(contractAddress).get();</span>
+  }
+
+  @Override
+  public ContractTxHash execute(final Account executor, final ContractInvocation contractInvocation,
+      final long nonce) {
+<span class="fc" id="L133">    return execute(executor, contractInvocation, nonce, Fee.ZERO);</span>
   }
 
   @Override
   public ContractTxHash execute(final Account executor, final ContractInvocation contractInvocation,
       final long nonce, final Fee fee) {
-<span class="fc" id="L127">    return getExecuteFunction().apply(executor, contractInvocation, nonce, fee).get();</span>
+<span class="fc" id="L139">    return getExecuteFunction().apply(executor, contractInvocation, nonce, fee).get();</span>
   }
 
   @Override
   public ContractResult query(final ContractInvocation contractInvocation) {
-<span class="fc" id="L132">    return getQueryFunction().apply(contractInvocation).get();</span>
+<span class="fc" id="L144">    return getQueryFunction().apply(contractInvocation).get();</span>
   }
 
   @Override
   public List&lt;Event&gt; listEvents(final EventFilter filter) {
-<span class="fc" id="L137">    return getListEventFunction().apply(filter).get();</span>
+<span class="fc" id="L149">    return getListEventFunction().apply(filter).get();</span>
   }
 
   @Override
   public Subscription&lt;Event&gt; subscribeEvent(EventFilter filter, StreamObserver&lt;Event&gt; observer) {
-<span class="fc" id="L142">    return getSubscribeEventFunction().apply(filter, observer);</span>
+<span class="fc" id="L154">    return getSubscribeEventFunction().apply(filter, observer);</span>
   }
-
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

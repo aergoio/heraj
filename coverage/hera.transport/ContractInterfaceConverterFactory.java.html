@@ -42,21 +42,22 @@ import types.Blockchain;
 <span class="nc" id="L42">              domainArguments.add(rpcArgument.getName());</span>
 <span class="nc" id="L43">            }</span>
 <span class="nc" id="L44">            final ContractFunction domainContractFunction =</span>
-<span class="nc" id="L45">                new ContractFunction(rpcFunction.getName(), domainArguments);</span>
-<span class="nc" id="L46">            domainFunctions.add(domainContractFunction);</span>
-<span class="nc" id="L47">          }</span>
-<span class="fc" id="L48">          final ContractInterface domainContractInterface =</span>
+<span class="nc" id="L45">                new ContractFunction(rpcFunction.getName(), domainArguments,</span>
+<span class="nc" id="L46">                    rpcFunction.getPayable(), rpcFunction.getView());</span>
+<span class="nc" id="L47">            domainFunctions.add(domainContractFunction);</span>
+<span class="nc" id="L48">          }</span>
+<span class="fc" id="L49">          final ContractInterface domainContractInterface =</span>
               new ContractInterface(new ContractAddress(BytesValue.EMPTY),
-<span class="fc" id="L50">                  rpcContractInterface.getVersion(),</span>
-<span class="fc" id="L51">                  rpcContractInterface.getLanguage(),</span>
+<span class="fc" id="L51">                  rpcContractInterface.getVersion(),</span>
+<span class="fc" id="L52">                  rpcContractInterface.getLanguage(),</span>
                   domainFunctions);
-<span class="fc" id="L53">          logger.trace(&quot;Domain contract interface converted: {}&quot;, domainContractInterface);</span>
-<span class="fc" id="L54">          return domainContractInterface;</span>
+<span class="fc" id="L54">          logger.trace(&quot;Domain contract interface converted: {}&quot;, domainContractInterface);</span>
+<span class="fc" id="L55">          return domainContractInterface;</span>
         }
       };
 
   public ModelConverter&lt;ContractInterface, Blockchain.ABI&gt; create() {
-<span class="fc" id="L59">    return new ModelConverter&lt;ContractInterface, Blockchain.ABI&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L60">    return new ModelConverter&lt;ContractInterface, Blockchain.ABI&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

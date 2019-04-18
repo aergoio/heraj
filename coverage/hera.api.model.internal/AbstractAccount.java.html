@@ -10,8 +10,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-<span class="fc" id="L13">@ToString</span>
-<span class="nc bnc" id="L14" title="All 8 branches missed.">@EqualsAndHashCode</span>
+<span class="nc" id="L13">@ToString</span>
+<span class="nc bnc" id="L14" title="All 14 branches missed.">@EqualsAndHashCode</span>
 <span class="fc" id="L15">public abstract class AbstractAccount implements Account {</span>
 
 <span class="fc" id="L17">  protected AtomicLong nonce = new AtomicLong(0);</span>
@@ -32,13 +32,8 @@ import lombok.ToString;
   }
 
   @Override
-  public long getNonce() {
-<span class="fc" id="L36">    return getRecentlyUsedNonce();</span>
-  }
-
-  @Override
   public long incrementAndGetNonce() {
-<span class="fc" id="L41">    return nonce.incrementAndGet();</span>
+<span class="fc" id="L36">    return nonce.incrementAndGet();</span>
   }
 
 }

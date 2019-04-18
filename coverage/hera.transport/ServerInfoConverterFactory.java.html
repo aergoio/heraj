@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ServerInfoConverterFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.transport</a> &gt; <span class="el_source">ServerInfoConverterFactory.java</span></div><h1>ServerInfoConverterFactory.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.transport;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.api.function.Function1;
+import hera.api.model.ServerInfo;
+import hera.exception.RpcException;
+import java.util.HashMap;
+import java.util.Map;
+import org.slf4j.Logger;
+import types.Rpc;
+
+<span class="fc" id="L17">public class ServerInfoConverterFactory {</span>
+
+<span class="fc" id="L19">  protected final transient Logger logger = getLogger(getClass());</span>
+
+<span class="fc" id="L21">  protected final Function1&lt;ServerInfo, Rpc.ServerInfo&gt; domainConverter =</span>
+<span class="fc" id="L22">      new Function1&lt;ServerInfo, Rpc.ServerInfo&gt;() {</span>
+
+        @Override
+        public Rpc.ServerInfo apply(final ServerInfo domainServerInfo) {
+<span class="nc" id="L26">          throw new UnsupportedOperationException();</span>
+        }
+      };
+
+<span class="fc" id="L30">  protected final Function1&lt;Rpc.ServerInfo, ServerInfo&gt; rpcConverter =</span>
+<span class="fc" id="L31">      new Function1&lt;Rpc.ServerInfo, ServerInfo&gt;() {</span>
+
+        @Override
+        public ServerInfo apply(final Rpc.ServerInfo rpcServerInfo) {
+          try {
+<span class="fc" id="L36">            logger.trace(&quot;Rpc server info to convert: {}&quot;, rpcServerInfo);</span>
+<span class="fc" id="L37">            final Map&lt;String, String&gt; domainStatus = rpcServerInfo.getStatusMap();</span>
+<span class="fc" id="L38">            final Map&lt;String, Map&lt;String, String&gt;&gt; domainConfig =</span>
+                new HashMap&lt;String, Map&lt;String, String&gt;&gt;();
+<span class="fc" id="L40">            final Map&lt;String, Rpc.ConfigItem&gt; rpcConfig = rpcServerInfo.getConfigMap();</span>
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">            for (final String key : rpcConfig.keySet()) {</span>
+<span class="nc" id="L42">              final Rpc.ConfigItem rpcConfigItem = rpcConfig.get(key);</span>
+<span class="nc" id="L43">              domainConfig.put(key, rpcConfigItem.getPropsMap());</span>
+<span class="nc" id="L44">            }</span>
+<span class="fc" id="L45">            final ServerInfo domainServerInfo = new ServerInfo(domainStatus, domainConfig);</span>
+<span class="fc" id="L46">            logger.trace(&quot;Domain server info converted: {}&quot;, domainServerInfo);</span>
+<span class="fc" id="L47">            return domainServerInfo;</span>
+<span class="nc" id="L48">          } catch (Throwable e) {</span>
+<span class="nc" id="L49">            throw new RpcException(e);</span>
+          }
+        }
+      };
+
+  public ModelConverter&lt;ServerInfo, Rpc.ServerInfo&gt; create() {
+<span class="fc" id="L55">    return new ModelConverter&lt;ServerInfo, Rpc.ServerInfo&gt;(domainConverter, rpcConverter);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

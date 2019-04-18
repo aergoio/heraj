@@ -15,7 +15,7 @@ import lombok.ToString;
 @ApiAudience.Public
 @ApiStability.Unstable
 <span class="nc" id="L17">@ToString</span>
-<span class="nc bnc" id="L18" title="All 38 branches missed.">@EqualsAndHashCode</span>
+<span class="nc bnc" id="L18" title="All 30 branches missed.">@EqualsAndHashCode</span>
 public class ChainId {
 
 <span class="nc" id="L21">  @Getter</span>
@@ -28,9 +28,6 @@ public class ChainId {
   protected boolean isMainNet;
 
 <span class="nc" id="L30">  @Getter</span>
-  protected Aer coinbasePrice;
-
-<span class="nc" id="L33">  @Getter</span>
   protected String consensus;
 
   /**
@@ -39,21 +36,18 @@ public class ChainId {
    * @param magic a magic of chain id
    * @param isPublic whether it's public or not
    * @param isMainNet whether it's mainnet or not
-   * @param coinbasePrice coinbase fee
    * @param consensus a consensus type
    */
   @ApiAudience.Private
   public ChainId(final String magic, final boolean isPublic, final boolean isMainNet,
-<span class="fc" id="L47">      final Aer coinbasePrice, final String consensus) {</span>
-<span class="fc" id="L48">    assertNotNull(magic, &quot;Magis must not null&quot;);</span>
-<span class="fc" id="L49">    assertNotNull(coinbasePrice, &quot;Coinbase price must not null&quot;);</span>
-<span class="fc" id="L50">    assertNotNull(consensus, &quot;Consensus must not null&quot;);</span>
-<span class="fc" id="L51">    this.magic = magic;</span>
-<span class="fc" id="L52">    this.isPublic = isPublic;</span>
-<span class="fc" id="L53">    this.isMainNet = isMainNet;</span>
-<span class="fc" id="L54">    this.coinbasePrice = coinbasePrice;</span>
-<span class="fc" id="L55">    this.consensus = consensus;</span>
-<span class="fc" id="L56">  }</span>
+<span class="fc" id="L43">      final String consensus) {</span>
+<span class="fc" id="L44">    assertNotNull(magic, &quot;Magis must not null&quot;);</span>
+<span class="fc" id="L45">    assertNotNull(consensus, &quot;Consensus must not null&quot;);</span>
+<span class="fc" id="L46">    this.magic = magic;</span>
+<span class="fc" id="L47">    this.isPublic = isPublic;</span>
+<span class="fc" id="L48">    this.isMainNet = isMainNet;</span>
+<span class="fc" id="L49">    this.consensus = consensus;</span>
+<span class="fc" id="L50">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

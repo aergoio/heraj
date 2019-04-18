@@ -15,23 +15,32 @@ import lombok.ToString;
 @ApiAudience.Public
 @ApiStability.Unstable
 <span class="nc" id="L17">@ToString</span>
-<span class="nc bnc" id="L18" title="All 34 branches missed.">@EqualsAndHashCode</span>
+<span class="nc bnc" id="L18" title="All 58 branches missed.">@EqualsAndHashCode</span>
 public class ChainInfo {
 
 <span class="nc" id="L21">  @Getter</span>
-  protected ChainId chainId;
+  protected final ChainId chainId;
 
 <span class="nc" id="L24">  @Getter</span>
-  protected int blockProducerCount;
+  protected final int blockProducerCount;
 
 <span class="nc" id="L27">  @Getter</span>
-  protected long maxBlockSize; // bytes
+  protected final long maxBlockSize; // bytes
 
 <span class="nc" id="L30">  @Getter</span>
-  protected Aer totalTokenAmount;
+  protected final Aer totalTokenAmount;
 
 <span class="nc" id="L33">  @Getter</span>
-  protected Aer minimumStakingAmount;
+  protected final Aer minimumStakingAmount;
+
+<span class="nc" id="L36">  @Getter</span>
+  protected final Aer totalStaked;
+
+<span class="nc" id="L39">  @Getter</span>
+  protected final Aer gasPrice;
+
+<span class="nc" id="L42">  @Getter</span>
+  protected final Aer namingPrice;
 
   /**
    * ChainInfo constructor.
@@ -41,19 +50,26 @@ public class ChainInfo {
    * @param maxBlockSize max block size in bytes
    * @param totalTokenAmount a total aer token amount
    * @param minimumStakingAmount an minimun staking amount
+   * @param totalStaked a total staked amount
+   * @param gasPrice a gas price
+   * @param namingPrice an naming price
    */
   @ApiAudience.Private
   public ChainInfo(final ChainId chainId, final int blockProducerCount, final long maxBlockSize,
-<span class="fc" id="L47">      final Aer totalTokenAmount, final Aer minimumStakingAmount) {</span>
-<span class="fc" id="L48">    assertNotNull(chainId, &quot;Chain id must not null&quot;);</span>
-<span class="fc" id="L49">    assertNotNull(totalTokenAmount, &quot;Total token amount must not null&quot;);</span>
-<span class="fc" id="L50">    assertNotNull(minimumStakingAmount, &quot;Minumum staking amount must not null&quot;);</span>
-<span class="fc" id="L51">    this.chainId = chainId;</span>
-<span class="fc" id="L52">    this.blockProducerCount = blockProducerCount;</span>
-<span class="fc" id="L53">    this.maxBlockSize = maxBlockSize;</span>
-<span class="fc" id="L54">    this.totalTokenAmount = totalTokenAmount;</span>
-<span class="fc" id="L55">    this.minimumStakingAmount = minimumStakingAmount;</span>
-<span class="fc" id="L56">  }</span>
+      final Aer totalTokenAmount, final Aer minimumStakingAmount, final Aer totalStaked,
+<span class="fc" id="L60">      final Aer gasPrice, final Aer namingPrice) {</span>
+<span class="fc" id="L61">    assertNotNull(chainId, &quot;Chain id must not null&quot;);</span>
+<span class="fc" id="L62">    assertNotNull(totalTokenAmount, &quot;Total token amount must not null&quot;);</span>
+<span class="fc" id="L63">    assertNotNull(minimumStakingAmount, &quot;Minumum staking amount must not null&quot;);</span>
+<span class="fc" id="L64">    this.chainId = chainId;</span>
+<span class="fc" id="L65">    this.blockProducerCount = blockProducerCount;</span>
+<span class="fc" id="L66">    this.maxBlockSize = maxBlockSize;</span>
+<span class="fc" id="L67">    this.totalTokenAmount = totalTokenAmount;</span>
+<span class="fc" id="L68">    this.minimumStakingAmount = minimumStakingAmount;</span>
+<span class="fc" id="L69">    this.totalStaked = totalStaked;</span>
+<span class="fc" id="L70">    this.gasPrice = gasPrice;</span>
+<span class="fc" id="L71">    this.namingPrice = namingPrice;</span>
+<span class="fc" id="L72">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

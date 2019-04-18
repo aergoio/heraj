@@ -7,31 +7,30 @@ package hera.spec;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInvocation;
-import hera.api.model.PeerId;
 import lombok.Getter;
 
-<span class="nc" id="L13">public class PayloadSpec {</span>
+<span class="nc" id="L12">public class PayloadSpec {</span>
 
   public static final String VERSION = &quot;v1&quot;;
 
-<span class="fc" id="L17">  public enum Type {</span>
-<span class="fc" id="L18">    ContractDefinition(&quot;&quot;, ContractDefinition.class),</span>
-<span class="fc" id="L19">    ContractInvocation(&quot;&quot;, ContractInvocation.class),</span>
-<span class="fc" id="L20">    Vote(&quot;voteBP&quot;, PeerId.class),</span>
-<span class="fc" id="L21">    Stake(&quot;stake&quot;),</span>
-<span class="fc" id="L22">    Unstake(&quot;unstake&quot;),</span>
-<span class="fc" id="L23">    CreateName(&quot;createName&quot;, String.class),</span>
-<span class="fc" id="L24">    UpdateName(&quot;updateName&quot;, String.class, AccountAddress.class);</span>
+<span class="fc" id="L16">  public enum Type {</span>
+<span class="fc" id="L17">    ContractDefinition(&quot;&quot;, ContractDefinition.class),</span>
+<span class="fc" id="L18">    ContractInvocation(&quot;&quot;, ContractInvocation.class),</span>
+<span class="fc" id="L19">    Vote(&quot;&quot;, String.class, String[].class),</span>
+<span class="fc" id="L20">    Stake(&quot;stake&quot;),</span>
+<span class="fc" id="L21">    Unstake(&quot;unstake&quot;),</span>
+<span class="fc" id="L22">    CreateName(&quot;createName&quot;, String.class),</span>
+<span class="fc" id="L23">    UpdateName(&quot;updateName&quot;, String.class, AccountAddress.class);</span>
 
-<span class="fc" id="L26">    @Getter</span>
+<span class="fc" id="L25">    @Getter</span>
     protected final String name;
-<span class="fc" id="L28">    @Getter</span>
+<span class="fc" id="L27">    @Getter</span>
     protected final Class&lt;?&gt;[] targets;
 
-<span class="fc" id="L31">    private Type(final String name, final Class&lt;?&gt;... targets) {</span>
-<span class="fc" id="L32">      this.name = VERSION + name;</span>
-<span class="fc" id="L33">      this.targets = targets;</span>
-<span class="fc" id="L34">    }</span>
+<span class="fc" id="L30">    private Type(final String name, final Class&lt;?&gt;... targets) {</span>
+<span class="fc" id="L31">      this.name = name;</span>
+<span class="fc" id="L32">      this.targets = targets;</span>
+<span class="fc" id="L33">    }</span>
   }
 
 

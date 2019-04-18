@@ -41,7 +41,7 @@ import types.Rpc;
 @ApiStability.Unstable
 <span class="fc" id="L42">public class TransactionBaseTemplate implements ChannelInjectable, ContextProviderInjectable {</span>
 
-<span class="fc" id="L44">  protected final Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L44">  protected final transient Logger logger = getLogger(getClass());</span>
 
 <span class="fc" id="L46">  protected final ModelConverter&lt;Transaction, Blockchain.Tx&gt; transactionConverter =</span>
 <span class="fc" id="L47">      new TransactionConverterFactory().create();</span>
@@ -56,13 +56,13 @@ import types.Rpc;
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-<span class="fc" id="L59">    this.aergoService = newFutureStub(channel);</span>
-<span class="fc" id="L60">  }</span>
+<span class="nc" id="L59">    this.aergoService = newFutureStub(channel);</span>
+<span class="nc" id="L60">  }</span>
 
   @Override
   public void setContextProvider(final ContextProvider contextProvider) {
-<span class="fc" id="L64">    this.contextProvider = contextProvider;</span>
-<span class="fc" id="L65">  }</span>
+<span class="nc" id="L64">    this.contextProvider = contextProvider;</span>
+<span class="nc" id="L65">  }</span>
 
 <span class="fc" id="L67">  @Getter</span>
   private final Function1&lt;TxHash, FinishableFuture&lt;Transaction&gt;&gt; transactionFunction =
@@ -165,7 +165,7 @@ import types.Rpc;
 
 <span class="fc" id="L166">          FinishableFuture&lt;TxHash&gt; nextFuture = new FinishableFuture&lt;TxHash&gt;();</span>
           try {
-<span class="fc" id="L168">            final Transaction transaction = new Transaction(</span>
+<span class="fc" id="L168">            final Transaction transaction = new Transaction(contextProvider.get().getChainIdHash(),</span>
 <span class="fc" id="L169">                sender, recipient, amount, 0L, Fee.getDefaultFee(), BytesValue.EMPTY,</span>
                 TxType.NORMAL,
                 null, null, null, 0, false);

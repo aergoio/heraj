@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 public class GrpcStreamObserverAdaptor&lt;RpcModelT, DomainModelT&gt;
     implements io.grpc.stub.StreamObserver&lt;RpcModelT&gt; {
 
-<span class="fc" id="L21">  protected final Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L21">  protected final transient Logger logger = getLogger(getClass());</span>
 
 <span class="fc" id="L23">  protected final ExceptionConverter&lt;RpcException&gt; exceptionConverter = new RpcExceptionConverter();</span>
 

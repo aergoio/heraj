@@ -14,48 +14,59 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.params.ECDomainParameters;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
-import org.bouncycastle.crypto.params.ECPublicKeyParameters;
 import org.bouncycastle.crypto.signers.ECDSASigner;
 import org.bouncycastle.crypto.signers.HMacDSAKCalculator;
 import org.slf4j.Logger;
 
-<span class="pc bpc" id="L29" title="21 of 30 branches missed.">@EqualsAndHashCode(exclude = &quot;logger&quot;)</span>
-<span class="fc" id="L30">@RequiredArgsConstructor(access = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L26" title="27 of 38 branches missed.">@EqualsAndHashCode(exclude = &quot;logger&quot;)</span>
 public class ECDSAKey {
 
-  protected static final String CURVE_NAME = &quot;secp256k1&quot;;
-
-
-<span class="fc" id="L36">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L29">  protected final transient Logger logger = getLogger(getClass());</span>
 
   /**
    * Create ECDSAKey with keypair.
    *
-   * @param privatekey a private key
+   * @param privateKey a private key
    * @param publicKey a public key
    * @param ecParams an ec parameters
    * @return {@link ECDSAKey}
    */
-  public static ECDSAKey of(final PrivateKey privatekey, final PublicKey publicKey,
+  public static ECDSAKey of(final PrivateKey privateKey, final PublicKey publicKey,
       final ECDomainParameters ecParams) {
-<span class="nc" id="L48">    return new ECDSAKey(privatekey, publicKey, ecParams);</span>
+<span class="nc" id="L41">    return new ECDSAKey(privateKey, publicKey, ecParams);</span>
   }
 
-<span class="fc" id="L51">  @Getter</span>
+<span class="fc" id="L44">  @Getter</span>
   protected final PrivateKey privateKey;
 
-<span class="fc" id="L54">  @Getter</span>
+<span class="fc" id="L47">  @Getter</span>
   protected final PublicKey publicKey;
 
-<span class="fc" id="L57">  @Getter</span>
+<span class="fc" id="L50">  @Getter</span>
   protected final ECDomainParameters params;
+
+<span class="fc" id="L53">  @Getter</span>
+  protected final ECDSAVerifier verifier;
+
+  /**
+   * ECDSAKey constructor.
+   *
+   * @param privateKey a private key
+   * @param publicKey a public key
+   * @param ecParams an ec parameters
+   */
+  protected ECDSAKey(final PrivateKey privateKey, final PublicKey publicKey,
+<span class="fc" id="L64">      final ECDomainParameters ecParams) {</span>
+<span class="fc" id="L65">    this.privateKey = privateKey;</span>
+<span class="fc" id="L66">    this.publicKey = publicKey;</span>
+<span class="fc" id="L67">    this.params = ecParams;</span>
+<span class="fc" id="L68">    this.verifier = new ECDSAVerifier(params);</span>
+<span class="fc" id="L69">  }</span>
 
   /**
    * Sign to plain text.
@@ -66,15 +77,15 @@ public class ECDSAKey {
    */
   public ECDSASignature sign(final InputStream plainText) {
     try {
-<span class="fc" id="L69">      final byte[] message = toByteArray(plainText);</span>
-<span class="fc" id="L70">      final ECDSASignature signature = sign(this.privateKey, message);</span>
-<span class="pc bpc" id="L71" title="1 of 2 branches missed.">      if (logger.isTraceEnabled()) {</span>
-<span class="nc" id="L72">        logger.trace(&quot;Message in hexa: {}&quot;, HexUtils.encode(message));</span>
-<span class="nc" id="L73">        logger.trace(&quot;ECDSASignature signature: {}&quot;, signature);</span>
+<span class="fc" id="L80">      final byte[] message = toByteArray(plainText);</span>
+<span class="fc" id="L81">      final ECDSASignature signature = sign(this.privateKey, message);</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">      if (logger.isTraceEnabled()) {</span>
+<span class="nc" id="L83">        logger.trace(&quot;Message in hexa: {}&quot;, HexUtils.encode(message));</span>
+<span class="nc" id="L84">        logger.trace(&quot;ECDSASignature signature: {}&quot;, signature);</span>
       }
-<span class="fc" id="L75">      return signature;</span>
-<span class="nc" id="L76">    } catch (final Throwable e) {</span>
-<span class="nc" id="L77">      throw new IllegalStateException(e);</span>
+<span class="fc" id="L86">      return signature;</span>
+<span class="nc" id="L87">    } catch (final Throwable e) {</span>
+<span class="nc" id="L88">      throw new IllegalStateException(e);</span>
     }
   }
 
@@ -91,16 +102,16 @@ public class ECDSAKey {
    */
   protected ECDSASignature sign(final PrivateKey privateKey, final byte[] message)
       throws Exception {
-<span class="fc" id="L94">    final ECDSASigner signer = new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));</span>
-<span class="fc" id="L95">    final BigInteger d = ((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD();</span>
-<span class="fc" id="L96">    final ECPrivateKeyParameters privKey = new ECPrivateKeyParameters(d, params);</span>
-<span class="fc" id="L97">    signer.init(true, privKey);</span>
-<span class="fc" id="L98">    final BigInteger[] components = signer.generateSignature(message);</span>
+<span class="fc" id="L105">    final ECDSASigner signer = new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));</span>
+<span class="fc" id="L106">    final BigInteger d = ((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD();</span>
+<span class="fc" id="L107">    final ECPrivateKeyParameters privKey = new ECPrivateKeyParameters(d, params);</span>
+<span class="fc" id="L108">    signer.init(true, privKey);</span>
+<span class="fc" id="L109">    final BigInteger[] components = signer.generateSignature(message);</span>
 
-<span class="fc" id="L100">    final BigInteger r = components[0];</span>
-<span class="fc" id="L101">    final BigInteger s = params.getN().subtract(components[1]);</span>
+<span class="fc" id="L111">    final BigInteger r = components[0];</span>
+<span class="fc" id="L112">    final BigInteger s = params.getN().subtract(components[1]);</span>
 
-<span class="fc" id="L103">    return new ECDSASignature(r, s);</span>
+<span class="fc" id="L114">    return new ECDSASignature(r, s);</span>
   }
 
   /**
@@ -113,57 +124,30 @@ public class ECDSAKey {
    */
   public boolean verify(final InputStream plainText, final ECDSASignature signature) {
     try {
-<span class="fc" id="L116">      final byte[] message = toByteArray(plainText);</span>
-<span class="pc bpc" id="L117" title="1 of 2 branches missed.">      if (logger.isTraceEnabled()) {</span>
-<span class="nc" id="L118">        logger.trace(&quot;Message in hexa: {}&quot;, HexUtils.encode(message));</span>
-<span class="nc" id="L119">        logger.trace(&quot;ECDSASignature signature: {}&quot;, signature);</span>
-      }
-<span class="fc" id="L121">      return verify(getPublicKey(), message, signature);</span>
-<span class="nc" id="L122">    } catch (final Throwable e) {</span>
-<span class="nc" id="L123">      throw new IllegalStateException(e);</span>
+<span class="fc" id="L127">      return verifier.verify(getPublicKey(), plainText, signature);</span>
+<span class="nc" id="L128">    } catch (final Throwable e) {</span>
+<span class="nc" id="L129">      throw new IllegalStateException(e);</span>
     }
-  }
-
-  /**
-   * Verify signature with a message and public key x and y point value.
-   *
-   * @see &lt;a href=&quot;https://github.com/golang/go/blob/master/src/crypto/ecdsa/ecdsa.go&quot;&gt;verify
-   *      function in ecdsa.go&lt;/a&gt;
-   *
-   * @param publicKey a publicKey
-   * @param message a message
-   * @param signature ECDSA signature
-   *
-   * @return verification result
-   */
-  protected boolean verify(final PublicKey publicKey, final byte[] message,
-      final ECDSASignature signature) {
-<span class="fc" id="L141">    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
-        (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
-<span class="fc" id="L143">    final ECDSASigner signer = new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));</span>
-<span class="fc" id="L144">    final ECPublicKeyParameters privKey = new ECPublicKeyParameters(ecPublicKey.getQ(), params);</span>
-<span class="fc" id="L145">    signer.init(false, privKey);</span>
-<span class="fc" id="L146">    return signer.verifySignature(message, signature.getR(), signature.getS());</span>
   }
 
   @Override
   public String toString() {
-<span class="nc" id="L151">    final org.bouncycastle.jce.interfaces.ECPrivateKey ecPrivateKey =</span>
+<span class="nc" id="L135">    final org.bouncycastle.jce.interfaces.ECPrivateKey ecPrivateKey =</span>
         (org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey;
-<span class="nc" id="L153">    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
+<span class="nc" id="L137">    final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
         (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
-<span class="nc" id="L155">    return String.format(&quot;%s\n%s&quot;, ecPrivateKey.toString(), ecPublicKey.toString());</span>
+<span class="nc" id="L139">    return String.format(&quot;%s\n%s&quot;, ecPrivateKey.toString(), ecPublicKey.toString());</span>
   }
 
   protected byte[] toByteArray(final InputStream plainText) throws Exception {
-<span class="fc" id="L159">    final ByteArrayOutputStream os = new ByteArrayOutputStream();</span>
-<span class="fc" id="L160">    stream(plainText, new StreamConsumer() {</span>
+<span class="fc" id="L143">    final ByteArrayOutputStream os = new ByteArrayOutputStream();</span>
+<span class="fc" id="L144">    stream(plainText, new StreamConsumer() {</span>
       @Override
       public void apply(byte[] bytes, int offset, int length) throws Exception {
-<span class="fc" id="L163">        os.write(bytes);</span>
-<span class="fc" id="L164">      }</span>
+<span class="fc" id="L147">        os.write(bytes);</span>
+<span class="fc" id="L148">      }</span>
     });
-<span class="fc" id="L166">    return os.toByteArray();</span>
+<span class="fc" id="L150">    return os.toByteArray();</span>
   }
 
 }

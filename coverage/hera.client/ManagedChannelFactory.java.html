@@ -9,23 +9,23 @@ import hera.strategy.ConnectStrategy;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
-<span class="fc" id="L12">public class ManagedChannelFactory implements Function1&lt;Context, ManagedChannel&gt; {</span>
+<span class="nc" id="L12">public class ManagedChannelFactory implements Function1&lt;Context, ManagedChannel&gt; {</span>
 
   @Override
   public ManagedChannel apply(final Context context) {
-<span class="fc" id="L16">    final ConnectStrategy&lt;?&gt; connectStrategy = context.getStrategy(ConnectStrategy.class);</span>
-<span class="pc bpc" id="L17" title="1 of 2 branches missed.">    if (null == connectStrategy) {</span>
+<span class="nc" id="L16">    final ConnectStrategy&lt;?&gt; connectStrategy = context.getStrategy(ConnectStrategy.class);</span>
+<span class="nc bnc" id="L17" title="All 2 branches missed.">    if (null == connectStrategy) {</span>
 <span class="nc" id="L18">      throw new RpcException(&quot;ConnectStrategy must be present in context&quot;);</span>
     }
-<span class="fc" id="L20">    final ManagedChannelBuilder&lt;?&gt; builder =</span>
-<span class="fc" id="L21">        (ManagedChannelBuilder&lt;?&gt;) connectStrategy.connect();</span>
+<span class="nc" id="L20">    final ManagedChannelBuilder&lt;?&gt; builder =</span>
+<span class="nc" id="L21">        (ManagedChannelBuilder&lt;?&gt;) connectStrategy.connect();</span>
 
-<span class="fc bfc" id="L23" title="All 2 branches covered.">    for (final Strategy strategy : context.getStrategies()) {</span>
-<span class="pc bpc" id="L24" title="1 of 2 branches missed.">      if (strategy instanceof ChannelConfigurationStrategy) {</span>
+<span class="nc bnc" id="L23" title="All 2 branches missed.">    for (final Strategy strategy : context.getStrategies()) {</span>
+<span class="nc bnc" id="L24" title="All 2 branches missed.">      if (strategy instanceof ChannelConfigurationStrategy) {</span>
 <span class="nc" id="L25">        ((ChannelConfigurationStrategy) strategy).configure(builder);</span>
       }
-<span class="fc" id="L27">    }</span>
-<span class="fc" id="L28">    return builder.build();</span>
+<span class="nc" id="L27">    }</span>
+<span class="nc" id="L28">    return builder.build();</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

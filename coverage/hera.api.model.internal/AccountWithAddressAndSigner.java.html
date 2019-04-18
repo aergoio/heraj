@@ -7,7 +7,9 @@ package hera.api.model.internal;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
+import hera.api.model.BytesValue;
 import hera.api.model.RawTransaction;
+import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.key.AergoKey;
 import hera.key.Signer;
@@ -19,32 +21,37 @@ import lombok.ToString;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="nc" id="L22">@ToString(callSuper = true)</span>
-<span class="nc bnc" id="L23" title="All 24 branches missed.">@EqualsAndHashCode(callSuper = true)</span>
-<span class="pc bpc" id="L24" title="2 of 4 branches missed.">@RequiredArgsConstructor</span>
+<span class="nc" id="L24">@ToString(callSuper = true)</span>
+<span class="nc bnc" id="L25" title="All 24 branches missed.">@EqualsAndHashCode(callSuper = true)</span>
+<span class="pc bpc" id="L26" title="2 of 4 branches missed.">@RequiredArgsConstructor</span>
 public class AccountWithAddressAndSigner extends AbstractAccount implements Signer {
 
   @NonNull
-<span class="fc" id="L28">  @Getter</span>
+<span class="fc" id="L30">  @Getter</span>
   protected final AccountAddress address;
 
   @NonNull
-<span class="nc" id="L32">  @Getter</span>
+<span class="nc" id="L34">  @Getter</span>
   protected final Signer delegate;
 
   @Override
   public AergoKey getKey() {
-<span class="nc" id="L37">    return null;</span>
+<span class="nc" id="L39">    return null;</span>
   }
 
   @Override
   public Transaction sign(final RawTransaction rawTransaction) {
-<span class="fc" id="L42">    return delegate.sign(rawTransaction);</span>
+<span class="fc" id="L44">    return delegate.sign(rawTransaction);</span>
   }
 
   @Override
-  public boolean verify(final Transaction transaction) {
-<span class="fc" id="L47">    return delegate.verify(transaction);</span>
+  public Signature sign(final BytesValue plainText) {
+<span class="fc" id="L49">    return delegate.sign(plainText);</span>
+  }
+
+  @Override
+  public String signMessage(final String message) {
+<span class="fc" id="L54">    return delegate.signMessage(message);</span>
   }
 
 }

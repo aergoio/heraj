@@ -16,7 +16,7 @@ import lombok.ToString;
 @ApiAudience.Public
 @ApiStability.Unstable
 <span class="nc" id="L18">@ToString</span>
-<span class="nc bnc" id="L19" title="All 16 branches missed.">@EqualsAndHashCode</span>
+<span class="nc bnc" id="L19" title="All 32 branches missed.">@EqualsAndHashCode</span>
 public class BlockchainStatus {
 
 <span class="fc" id="L22">  @Getter</span>
@@ -25,19 +25,32 @@ public class BlockchainStatus {
 <span class="fc" id="L25">  @Getter</span>
   protected BlockHash bestBlockHash;
 
+<span class="nc" id="L28">  @Getter</span>
+  protected String consensus;
+
+<span class="fc" id="L31">  @Getter</span>
+  protected ChainIdHash chainIdHash;
+
   /**
    * BlockchainStatus constructor.
    *
    * @param bestHeight a best block height. Must be &amp;gt;= 0
    * @param bestBlockHash a best block hash
+   * @param consensus a consensus info
+   * @param chainIdHash a chain id hash
    */
   @ApiAudience.Private
-<span class="fc" id="L35">  public BlockchainStatus(final long bestHeight, final BlockHash bestBlockHash) {</span>
-<span class="pc bpc" id="L36" title="1 of 2 branches missed.">    assertTrue(bestHeight &gt;= 0, &quot;Best block height must be &gt;= 0&quot;);</span>
-<span class="fc" id="L37">    assertNotNull(bestBlockHash, &quot;Best block hash must not null&quot;);</span>
-<span class="fc" id="L38">    this.bestHeight = bestHeight;</span>
-<span class="fc" id="L39">    this.bestBlockHash = bestBlockHash;</span>
-<span class="fc" id="L40">  }</span>
+  public BlockchainStatus(final long bestHeight, final BlockHash bestBlockHash,
+<span class="fc" id="L44">      final String consensus, final ChainIdHash chainIdHash) {</span>
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">    assertTrue(bestHeight &gt;= 0, &quot;Best block height must be &gt;= 0&quot;);</span>
+<span class="fc" id="L46">    assertNotNull(bestBlockHash, &quot;Best block hash must not null&quot;);</span>
+<span class="fc" id="L47">    assertNotNull(consensus, &quot;Consensus must not null&quot;);</span>
+<span class="fc" id="L48">    assertNotNull(chainIdHash, &quot;Best chain id hash must not null&quot;);</span>
+<span class="fc" id="L49">    this.bestHeight = bestHeight;</span>
+<span class="fc" id="L50">    this.bestBlockHash = bestBlockHash;</span>
+<span class="fc" id="L51">    this.consensus = consensus;</span>
+<span class="fc" id="L52">    this.chainIdHash = chainIdHash;</span>
+<span class="fc" id="L53">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -93,21 +93,22 @@ import org.slf4j.Logger;
    * @return {@link AergoClient}
    */
   public AergoClient build() {
-<span class="fc" id="L96">    return new AergoClient(buildContext());</span>
+<span class="fc" id="L96">    final AergoClient client = new AergoClient(buildContext());</span>
+<span class="fc" id="L97">    return client;</span>
   }
 
   protected Context buildContext() {
-<span class="fc bfc" id="L100" title="All 2 branches covered.">    for (final Class&lt;?&gt; necessaryClass : necessaryStrategyMap.keySet()) {</span>
-<span class="fc bfc" id="L101" title="All 2 branches covered.">      if (!strategyMap.containsKey(necessaryClass)) {</span>
-<span class="fc" id="L102">        strategyMap.put(necessaryClass, necessaryStrategyMap.get(necessaryClass));</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">    for (final Class&lt;?&gt; necessaryClass : necessaryStrategyMap.keySet()) {</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">      if (!strategyMap.containsKey(necessaryClass)) {</span>
+<span class="fc" id="L103">        strategyMap.put(necessaryClass, necessaryStrategyMap.get(necessaryClass));</span>
       }
-<span class="fc" id="L104">    }</span>
-<span class="fc" id="L105">    final Context context = ContextProvider.defaultProvider.get()</span>
-<span class="fc" id="L106">        .withStrategies(new HashSet&lt;Strategy&gt;(this.strategyMap.values()))</span>
-<span class="fc" id="L107">        .withConfiguration(configuration)</span>
-<span class="fc" id="L108">        .withScope(AergoClientBuilder.SCOPE);</span>
-<span class="fc" id="L109">    logger.info(&quot;Global context: {}&quot;, context);</span>
-<span class="fc" id="L110">    return context;</span>
+<span class="fc" id="L105">    }</span>
+<span class="fc" id="L106">    final Context context = ContextProvider.defaultProvider.get()</span>
+<span class="fc" id="L107">        .withStrategies(new HashSet&lt;Strategy&gt;(this.strategyMap.values()))</span>
+<span class="fc" id="L108">        .withConfiguration(configuration)</span>
+<span class="fc" id="L109">        .withScope(AergoClientBuilder.SCOPE);</span>
+<span class="fc" id="L110">    logger.info(&quot;Global context: {}&quot;, context);</span>
+<span class="fc" id="L111">    return context;</span>
   }
 
 }

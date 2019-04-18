@@ -7,40 +7,41 @@ package hera.client;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractResult;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 
-<span class="fc" id="L16">@RequiredArgsConstructor</span>
+<span class="fc" id="L17">@RequiredArgsConstructor</span>
 public class ContractResultImpl implements ContractResult {
 
-<span class="fc" id="L19">  protected final Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L20">  protected static final ObjectReader reader = new ObjectMapper().reader();</span>
 
-<span class="fc" id="L21">  protected final ObjectMapper mapper = new ObjectMapper();</span>
+<span class="fc" id="L22">  protected final Logger logger = getLogger(getClass());</span>
 
   protected final BytesValue result;
 
   @Override
   public &lt;T&gt; T bind(final Class&lt;T&gt; clazz) throws IOException {
-<span class="fc" id="L27">    final byte[] rawBytes = this.result.getValue();</span>
-<span class="fc" id="L28">    final String stringFormat = new String(rawBytes);</span>
-<span class="fc" id="L29">    logger.debug(&quot;Raw result to bind: {}&quot;, stringFormat);</span>
-<span class="pc bpc" id="L30" title="2 of 4 branches missed.">    if (stringFormat.isEmpty() || &quot;{}&quot;.equals(stringFormat)) {</span>
-<span class="nc" id="L31">      return null;</span>
+<span class="fc" id="L28">    final byte[] rawBytes = this.result.getValue();</span>
+<span class="fc" id="L29">    final String stringFormat = new String(rawBytes);</span>
+<span class="fc" id="L30">    logger.debug(&quot;Raw result to bind: {}&quot;, stringFormat);</span>
+<span class="pc bpc" id="L31" title="2 of 4 branches missed.">    if (stringFormat.isEmpty() || &quot;{}&quot;.equals(stringFormat)) {</span>
+<span class="nc" id="L32">      return null;</span>
     }
-<span class="fc" id="L33">    return mapper.readValue(rawBytes, clazz);</span>
+<span class="fc" id="L34">    return reader.forType(clazz).readValue(rawBytes);</span>
   }
 
   @Override
   public BytesValue getResultInRawBytes() {
-<span class="nc" id="L38">    return result;</span>
+<span class="nc" id="L39">    return result;</span>
   }
 
   @Override
   public String toString() {
-<span class="nc" id="L43">    return new String(result.getValue());</span>
+<span class="nc" id="L44">    return new String(result.getValue());</span>
   }
 
 }

@@ -32,10 +32,14 @@ public class TransactionTrier {
 <span class="fc" id="L32">  @Setter</span>
   protected Runnable nonceSynchronizer;
 
-<span class="fc" id="L35">  public TransactionTrier(final TryCountAndInterval tryCountAndInterval) {</span>
-<span class="fc" id="L36">    logger.debug(&quot;Binded nonce refresh: {}&quot;, tryCountAndInterval);</span>
-<span class="fc" id="L37">    this.tryCountAndInterval = tryCountAndInterval;</span>
-<span class="fc" id="L38">  }</span>
+<span class="nc" id="L35">  @Getter</span>
+<span class="fc" id="L36">  @Setter</span>
+  protected Runnable chainIdSynchronizer;
+
+<span class="fc" id="L39">  public TransactionTrier(final TryCountAndInterval tryCountAndInterval) {</span>
+<span class="fc" id="L40">    logger.debug(&quot;Binded nonce refresh: {}&quot;, tryCountAndInterval);</span>
+<span class="fc" id="L41">    this.tryCountAndInterval = tryCountAndInterval;</span>
+<span class="fc" id="L42">  }</span>
 
   /**
    * Try transaction request with a requester. If {@code transactionRequester} fails, retry after
@@ -45,7 +49,7 @@ public class TransactionTrier {
    * @return a transaction hash
    */
   public TxHash request(Function1&lt;Long, TxHash&gt; transactionRequester) {
-<span class="fc" id="L48">    return request(null, transactionRequester);</span>
+<span class="fc" id="L52">    return request(null, transactionRequester);</span>
   }
 
   /**
@@ -59,54 +63,68 @@ public class TransactionTrier {
    */
   public TxHash request(Function0&lt;TxHash&gt; firstTrier,
       Function1&lt;Long, TxHash&gt; transactionRequester) {
-<span class="fc" id="L62">    assertNotNull(transactionRequester);</span>
-<span class="fc" id="L63">    logger.debug(&quot;Transaction try with firstTrier: {}, transactionRequester: {}&quot;, firstTrier,</span>
+<span class="fc" id="L66">    assertNotNull(transactionRequester);</span>
+<span class="fc" id="L67">    logger.debug(&quot;Transaction try with firstTrier: {}, transactionRequester: {}&quot;, firstTrier,</span>
         transactionRequester);
 
-<span class="fc" id="L66">    TxHash txHash = null;</span>
-<span class="fc" id="L67">    WalletException exception = null;</span>
-<span class="fc" id="L68">    boolean success = false;</span>
-<span class="fc bfc" id="L69" title="All 2 branches covered.">    if (null != firstTrier) {</span>
+<span class="fc" id="L70">    TxHash txHash = null;</span>
+<span class="fc" id="L71">    WalletException exception = null;</span>
+<span class="fc" id="L72">    boolean success = false;</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">    if (null != firstTrier) {</span>
       try {
-<span class="fc" id="L71">        txHash = firstTrier.apply();</span>
-<span class="fc bfc" id="L72" title="All 2 branches covered.">        success = null != txHash;</span>
-<span class="nc" id="L73">      } catch (WalletException e) {</span>
-<span class="nc" id="L74">        logger.debug(&quot;First try failure by {}&quot;, e.toString());</span>
-<span class="nc" id="L75">        exception = e;</span>
-<span class="fc" id="L76">      }</span>
+<span class="fc" id="L75">        txHash = firstTrier.apply();</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        success = null != txHash;</span>
+<span class="nc" id="L77">      } catch (WalletException e) {</span>
+<span class="nc" id="L78">        logger.debug(&quot;First try failure by {}&quot;, e.toString());</span>
+<span class="nc" id="L79">        exception = e;</span>
+<span class="fc" id="L80">      }</span>
     }
 
-<span class="fc" id="L79">    int i = tryCountAndInterval.getCount();</span>
-<span class="fc bfc" id="L80" title="All 4 branches covered.">    while (0 &lt;= i &amp;&amp; !success) {</span>
+<span class="fc" id="L83">    int i = tryCountAndInterval.getCount();</span>
+<span class="fc bfc" id="L84" title="All 4 branches covered.">    while (0 &lt;= i &amp;&amp; !success) {</span>
       try {
-<span class="fc" id="L82">        txHash = transactionRequester.apply(accountProvider.apply().incrementAndGetNonce());</span>
-<span class="fc" id="L83">        success = true;</span>
-<span class="fc" id="L84">      } catch (WalletException e) {</span>
-<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if (!isNonceRelatedException(e)) {</span>
-<span class="nc" id="L86">          throw e;</span>
+<span class="fc" id="L86">        txHash = transactionRequester.apply(accountProvider.apply().incrementAndGetNonce());</span>
+<span class="fc" id="L87">        success = true;</span>
+<span class="fc" id="L88">      } catch (WalletException e) {</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">        if (isNonceRelatedException(e)) {</span>
+<span class="fc" id="L90">          logger.info(&quot;Request failed with invalid nonce.. try left: {}&quot;, i);</span>
+<span class="fc" id="L91">          nonceSynchronizer.run();</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        } else if (isChainIdHashException(e)) {</span>
+<span class="nc" id="L93">          logger.info(&quot;Request failed with invalid chain id hash.. try left: {}&quot;, i);</span>
+<span class="nc" id="L94">          chainIdSynchronizer.run();</span>
+<span class="nc" id="L95">          nonceSynchronizer.run();</span>
+        } else {
+<span class="nc" id="L97">          throw e;</span>
         }
-<span class="fc" id="L88">        exception = e;</span>
-<span class="fc" id="L89">        logger.info(&quot;Request failed with invalid nonce.. try left: {}&quot;, i);</span>
-<span class="fc" id="L90">        nonceSynchronizer.run();</span>
-<span class="fc" id="L91">        tryCountAndInterval.trySleep();</span>
-<span class="fc" id="L92">        --i;</span>
-<span class="fc" id="L93">      }</span>
+<span class="fc" id="L99">        exception = e;</span>
+<span class="fc" id="L100">        tryCountAndInterval.trySleep();</span>
+<span class="fc" id="L101">        --i;</span>
+<span class="fc" id="L102">      }</span>
     }
 
-<span class="fc bfc" id="L96" title="All 2 branches covered.">    if (!success) {</span>
-<span class="fc" id="L97">      throw exception;</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">    if (!success) {</span>
+<span class="fc" id="L106">      throw exception;</span>
     }
 
-<span class="fc" id="L100">    return txHash;</span>
+<span class="fc" id="L109">    return txHash;</span>
   }
 
   protected boolean isNonceRelatedException(final WalletException e) {
-<span class="pc bpc" id="L104" title="1 of 2 branches missed.">    if (!(e.getCause() instanceof RpcCommitException)) {</span>
-<span class="nc" id="L105">      return false;</span>
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">    if (!(e.getCause() instanceof RpcCommitException)) {</span>
+<span class="nc" id="L114">      return false;</span>
     }
-<span class="fc" id="L107">    final RpcCommitException cause = (RpcCommitException) e.getCause();</span>
-<span class="pc bpc" id="L108" title="1 of 2 branches missed.">    return cause.getCommitStatus() == RpcCommitException.CommitStatus.NONCE_TOO_LOW</span>
-<span class="pc bnc" id="L109" title="All 2 branches missed.">        || cause.getCommitStatus() == RpcCommitException.CommitStatus.TX_HAS_SAME_NONCE;</span>
+<span class="fc" id="L116">    final RpcCommitException cause = (RpcCommitException) e.getCause();</span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">    return cause.getCommitStatus() == RpcCommitException.CommitStatus.NONCE_TOO_LOW</span>
+<span class="pc bnc" id="L118" title="All 2 branches missed.">        || cause.getCommitStatus() == RpcCommitException.CommitStatus.TX_HAS_SAME_NONCE;</span>
+  }
+
+  protected boolean isChainIdHashException(final WalletException e) {
+<span class="nc bnc" id="L122" title="All 2 branches missed.">    if (!(e.getCause() instanceof RpcCommitException)) {</span>
+<span class="nc" id="L123">      return false;</span>
+    }
+<span class="nc" id="L125">    final RpcCommitException cause = (RpcCommitException) e.getCause();</span>
+    // FIXME : no another way?
+<span class="nc bnc" id="L127" title="All 2 branches missed.">    return cause.getMessage().indexOf(&quot;invalid chain id&quot;) != -1;</span>
   }
 
 }

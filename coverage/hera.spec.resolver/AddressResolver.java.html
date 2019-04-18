@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AddressResolver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.spec.resolver</a> &gt; <span class="el_source">AddressResolver.java</span></div><h1>AddressResolver.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.spec.resolver;
+
+import static hera.api.model.BytesValue.of;
+import static hera.util.VersionUtils.envelop;
+import static hera.util.VersionUtils.trim;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.api.model.AccountAddress;
+import hera.exception.HerajException;
+import hera.spec.AddressSpec;
+import hera.util.NumberUtils;
+import hera.util.pki.ECDSAKeyGenerator;
+import java.security.PublicKey;
+import org.slf4j.Logger;
+
+@ApiAudience.Private
+@ApiStability.Unstable
+<span class="nc" id="L24">public class AddressResolver {</span>
+
+<span class="nc" id="L26">  protected final transient Logger logger = getLogger(getClass());</span>
+
+  /**
+   * Derive an {@link AccountAddress} from a public key.
+   *
+   * @param publicKey a public key
+   * @return an {@link AccountAddress}
+   */
+  public static AccountAddress deriveAddress(final PublicKey publicKey) {
+    try {
+<span class="fc" id="L36">      final byte[] rawAddress = new byte[AddressSpec.LENGTH];</span>
+<span class="fc" id="L37">      final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
+          (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
+<span class="fc" id="L39">      rawAddress[0] =</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">          (byte) (ecPublicKey.getQ().getYCoord().toBigInteger().testBit(0) ? 0x03 : 0x02);</span>
+<span class="fc" id="L41">      final byte[] xbyteArray =</span>
+<span class="fc" id="L42">          NumberUtils.positiveToByteArray(ecPublicKey.getQ().getXCoord().toBigInteger());</span>
+<span class="fc" id="L43">      System.arraycopy(xbyteArray, 0, rawAddress, rawAddress.length - xbyteArray.length,</span>
+          xbyteArray.length);
+<span class="fc" id="L45">      return new AccountAddress(of(envelop(rawAddress, AddressSpec.PREFIX)));</span>
+<span class="nc" id="L46">    } catch (Exception e) {</span>
+<span class="nc" id="L47">      throw new HerajException(e);</span>
+    }
+  }
+
+  /**
+   * Recover public key from {@code accountAddress}.
+   *
+   * @param accountAddress an account address
+   * @return an extracted public key
+   */
+  public static PublicKey recoverPublicKey(final AccountAddress accountAddress) {
+    try {
+<span class="fc" id="L59">      final byte[] rawAddress = trim(accountAddress.getBytesValue().getValue());</span>
+<span class="fc" id="L60">      return new ECDSAKeyGenerator().createPublicKey(rawAddress);</span>
+<span class="nc" id="L61">    } catch (HerajException e) {</span>
+<span class="nc" id="L62">      throw e;</span>
+<span class="nc" id="L63">    } catch (Exception e) {</span>
+<span class="nc" id="L64">      throw new HerajException(e);</span>
+    }
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

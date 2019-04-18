@@ -4,59 +4,71 @@
 
 package hera.spec.resolver;
 
-import static org.slf4j.LoggerFactory.getLogger;
+import static hera.util.CryptoUtils.encryptToAesGcm;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.api.model.BytesValue;
+import hera.api.model.EncryptedPrivateKey;
 import hera.spec.EncryptedPrivateKeySpec;
 import hera.util.CryptoUtils;
-import hera.util.HexUtils;
 import hera.util.Sha256Utils;
 import hera.util.VersionUtils;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import org.bouncycastle.crypto.InvalidCipherTextException;
-import org.slf4j.Logger;
 
-<span class="fc" id="L18">public class EncryptedPrivateKeyResolver {</span>
+@ApiAudience.Private
+@ApiStability.Unstable
+<span class="nc" id="L23">public class EncryptedPrivateKeyResolver {</span>
 
-<span class="fc" id="L20">  protected final transient Logger logger = getLogger(getClass());</span>
+  protected static final String CHAR_SET = &quot;UTF-8&quot;;
 
   /**
    * Encrypt private key with a {@code password}.
    * 
-   * @param rawPrivateKey a raw private key
-   * @param rawPassword a password to encrypt
+   * @param privateKeyBytes a raw private key
+   * @param password a password to encrypt
    * @return encrypted private key
    * @throws InvalidCipherTextException on encryption failure
+   * @throws UnsupportedEncodingException on password encoding failure
    */
-  public byte[] encrypt(final byte[] rawPrivateKey, final byte[] rawPassword)
-      throws InvalidCipherTextException {
-<span class="fc" id="L32">    final byte[] hashedPassword = Sha256Utils.digest(rawPassword);</span>
-<span class="fc" id="L33">    final byte[] encryptKey = Sha256Utils.digest(rawPassword, hashedPassword);</span>
-<span class="fc" id="L34">    final byte[] nonce = calculateNonce(hashedPassword);</span>
-<span class="fc" id="L35">    final byte[] encrypted = CryptoUtils.encryptToAesGcm(rawPrivateKey, encryptKey, nonce);</span>
-<span class="fc" id="L36">    return VersionUtils.envelop(encrypted, EncryptedPrivateKeySpec.PREFIX);</span>
+  public static EncryptedPrivateKey encrypt(final BytesValue privateKeyBytes, final String password)
+      throws InvalidCipherTextException, UnsupportedEncodingException {
+<span class="fc" id="L38">    final byte[] rawPassword = password.getBytes(CHAR_SET);</span>
+<span class="fc" id="L39">    final byte[] hashedPassword = Sha256Utils.digest(rawPassword);</span>
+<span class="fc" id="L40">    final byte[] encryptKey = Sha256Utils.digest(rawPassword, hashedPassword);</span>
+<span class="fc" id="L41">    final byte[] nonce = calculateNonce(hashedPassword);</span>
+<span class="fc" id="L42">    final byte[] encrypted = encryptToAesGcm(privateKeyBytes.getValue(), encryptKey, nonce);</span>
+<span class="fc" id="L43">    final BytesValue encryptedBytesValue =</span>
+<span class="fc" id="L44">        new BytesValue(VersionUtils.envelop(encrypted, EncryptedPrivateKeySpec.PREFIX));</span>
+<span class="fc" id="L45">    return new EncryptedPrivateKey(encryptedBytesValue);</span>
   }
 
   /**
    * Decrypt encrypted private key with a {@code password}.
    * 
-   * @param rawEncrypted an encrypted private key
-   * @param rawPassword a password to decrypt
+   * @param encryptedPrivateKey an encrypted private key
+   * @param password a password to decrypt
    * @return a decrypted private key
    * @throws InvalidCipherTextException on decryption failure
+   * @throws UnsupportedEncodingException on password encoding failure
    */
-  public byte[] decrypt(final byte[] rawEncrypted, final byte[] rawPassword)
-      throws InvalidCipherTextException {
-<span class="fc" id="L49">    final byte[] withoutVersion = VersionUtils.trim(rawEncrypted);</span>
-<span class="fc" id="L50">    final byte[] hashedPassword = Sha256Utils.digest(rawPassword);</span>
-<span class="fc" id="L51">    final byte[] decryptKey = Sha256Utils.digest(rawPassword, hashedPassword);</span>
-<span class="fc" id="L52">    final byte[] nonce = calculateNonce(hashedPassword);</span>
-<span class="fc" id="L53">    logger.trace(&quot;Decript data: {}&quot;, HexUtils.encode(withoutVersion));</span>
-<span class="fc" id="L54">    final byte[] rawPrivateKey = CryptoUtils.decryptFromAesGcm(withoutVersion, decryptKey, nonce);</span>
-<span class="fc" id="L55">    return rawPrivateKey;</span>
+  public static BytesValue decrypt(final EncryptedPrivateKey encryptedPrivateKey,
+      final String password)
+      throws InvalidCipherTextException, UnsupportedEncodingException {
+<span class="fc" id="L60">    final byte[] rawEncrypted = encryptedPrivateKey.getBytesValue().getValue();</span>
+<span class="fc" id="L61">    final byte[] rawPassword = password.getBytes(CHAR_SET);</span>
+<span class="fc" id="L62">    final byte[] withoutVersion = VersionUtils.trim(rawEncrypted);</span>
+<span class="fc" id="L63">    final byte[] hashedPassword = Sha256Utils.digest(rawPassword);</span>
+<span class="fc" id="L64">    final byte[] decryptKey = Sha256Utils.digest(rawPassword, hashedPassword);</span>
+<span class="fc" id="L65">    final byte[] nonce = calculateNonce(hashedPassword);</span>
+<span class="fc" id="L66">    final byte[] rawPrivateKey = CryptoUtils.decryptFromAesGcm(withoutVersion, decryptKey, nonce);</span>
+<span class="fc" id="L67">    return new BytesValue(rawPrivateKey);</span>
   }
 
-  protected byte[] calculateNonce(final byte[] hashedPassword) {
-<span class="fc" id="L59">    return Arrays.copyOfRange(hashedPassword, 4, 16);</span>
+  protected static byte[] calculateNonce(final byte[] hashedPassword) {
+<span class="fc" id="L71">    return Arrays.copyOfRange(hashedPassword, 4, 16);</span>
   }
 
 }

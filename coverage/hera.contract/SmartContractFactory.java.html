@@ -16,38 +16,42 @@ import org.slf4j.Logger;
 @ApiStability.Unstable
 <span class="fc" id="L17">public class SmartContractFactory {</span>
 
-<span class="fc" id="L19">  protected final Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L19">  protected final transient Logger logger = getLogger(getClass());</span>
 
   /**
    * Create a proxy instance to call smart contract corresponding to {@code type}. Class loader is
    * set by {@code getClass().getClassLoader()}.
    *
    * @param &lt;ContractT&gt; a smart contract interface type which extends {@link SmartContract}
+   *
    * @param type a proxy type
    * @param contractAddress a contract address
+   *
    * @return a proxy instance
    */
   public &lt;ContractT extends SmartContract&gt; ContractT create(final Class&lt;ContractT&gt; type,
       final ContractAddress contractAddress) {
-<span class="fc" id="L32">    return create(type, contractAddress, getClass().getClassLoader());</span>
+<span class="fc" id="L34">    return create(type, contractAddress, getClass().getClassLoader());</span>
   }
 
   /**
    * Create a proxy instance to call smart contract corresponding to {@code type}.
    *
    * @param &lt;ContractT&gt; a smart contract interface type which extends {@link SmartContract}
+   *
    * @param type a proxy type
    * @param contractAddress a contract address
    * @param classLoader a class loader used in making proxy instance
+   *
    * @return a proxy instance
    */
   @SuppressWarnings(&quot;unchecked&quot;)
   public &lt;ContractT extends SmartContract&gt; ContractT create(final Class&lt;ContractT&gt; type,
       final ContractAddress contractAddress, final ClassLoader classLoader) {
-<span class="fc" id="L47">    logger.debug(&quot;Create contract client type: {}, contract address: {}, class loader: {}&quot;, type,</span>
+<span class="fc" id="L51">    logger.debug(&quot;Create contract client type: {}, contract address: {}, class loader: {}&quot;, type,</span>
         contractAddress, classLoader);
-<span class="fc" id="L49">    final ContractInvocationHandler handler = new ContractInvocationHandler(contractAddress);</span>
-<span class="fc" id="L50">    return (ContractT) Proxy.newProxyInstance(classLoader, new Class&lt;?&gt;[] {type}, handler);</span>
+<span class="fc" id="L53">    final ContractInvocationHandler handler = new ContractInvocationHandler(contractAddress);</span>
+<span class="fc" id="L54">    return (ContractT) Proxy.newProxyInstance(classLoader, new Class&lt;?&gt;[] {type}, handler);</span>
   }
 
 }

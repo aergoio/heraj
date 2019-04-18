@@ -8,6 +8,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.api.model.ChainIdHash;
 import hera.custom.Adaptor;
 import hera.custom.AdaptorManager;
 import java.util.List;
@@ -15,56 +16,66 @@ import org.slf4j.Logger;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L18">public class AbstractAergoApi implements AergoApi, Adaptor {</span>
+<span class="fc" id="L19">public class AbstractAergoApi implements AergoApi, Adaptor {</span>
 
-<span class="fc" id="L20">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L21">  protected final transient Logger logger = getLogger(getClass());</span>
+
+  @Override
+  public ChainIdHash getCachedChainIdHash() {
+<span class="nc" id="L25">    return null;</span>
+  }
+
+  @Override
+  public void cacheChainIdHash(final ChainIdHash chainIdHash) {
+<span class="nc" id="L30">    throw new UnsupportedOperationException();</span>
+  }
 
   @Override
   public AccountOperation getAccountOperation() {
-<span class="fc" id="L24">    throw new UnsupportedOperationException();</span>
+<span class="fc" id="L35">    throw new UnsupportedOperationException();</span>
   }
 
   @Override
   public KeyStoreOperation getKeyStoreOperation() {
-<span class="fc" id="L29">    throw new UnsupportedOperationException();</span>
+<span class="fc" id="L40">    throw new UnsupportedOperationException();</span>
   }
 
   @Override
   public BlockOperation getBlockOperation() {
-<span class="fc" id="L34">    throw new UnsupportedOperationException();</span>
+<span class="fc" id="L45">    throw new UnsupportedOperationException();</span>
   }
 
   @Override
   public BlockchainOperation getBlockchainOperation() {
-<span class="fc" id="L39">    throw new UnsupportedOperationException();</span>
+<span class="fc" id="L50">    throw new UnsupportedOperationException();</span>
   }
 
   @Override
   public TransactionOperation getTransactionOperation() {
-<span class="fc" id="L44">    throw new UnsupportedOperationException();</span>
+<span class="fc" id="L55">    throw new UnsupportedOperationException();</span>
   }
 
   @Override
   public ContractOperation getContractOperation() {
-<span class="fc" id="L49">    throw new UnsupportedOperationException();</span>
+<span class="fc" id="L60">    throw new UnsupportedOperationException();</span>
   }
 
   public &lt;AdapteeT&gt; List&lt;? extends AdapteeT&gt; getCandidates(final Class&lt;AdapteeT&gt; candidateClass) {
-<span class="nc" id="L53">    return AdaptorManager.getInstance().getAdaptors(candidateClass);</span>
+<span class="nc" id="L64">    return AdaptorManager.getInstance().getAdaptors(candidateClass);</span>
   }
 
   @Override
   public &lt;OperationT&gt; OperationT adapt(final Class&lt;OperationT&gt; operationClass) {
-<span class="nc" id="L58">    final List&lt;? extends OperationT&gt; candidates = getCandidates(operationClass);</span>
-<span class="nc bnc" id="L59" title="All 2 branches missed.">    if (candidates.isEmpty()) {</span>
-<span class="nc" id="L60">      return null;</span>
+<span class="nc" id="L69">    final List&lt;? extends OperationT&gt; candidates = getCandidates(operationClass);</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">    if (candidates.isEmpty()) {</span>
+<span class="nc" id="L71">      return null;</span>
     }
-<span class="nc bnc" id="L62" title="All 2 branches missed.">    if (1 &lt; candidates.size()) {</span>
-<span class="nc" id="L63">      throw new IllegalStateException();</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">    if (1 &lt; candidates.size()) {</span>
+<span class="nc" id="L74">      throw new IllegalStateException();</span>
     }
-<span class="nc" id="L65">    final OperationT op = candidates.get(0);</span>
-<span class="nc" id="L66">    logger.debug(&quot;Custom operation: {}&quot;, op);</span>
-<span class="nc" id="L67">    return op;</span>
+<span class="nc" id="L76">    final OperationT op = candidates.get(0);</span>
+<span class="nc" id="L77">    logger.debug(&quot;Custom operation: {}&quot;, op);</span>
+<span class="nc" id="L78">    return op;</span>
   }
 
 }

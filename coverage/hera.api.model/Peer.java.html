@@ -5,6 +5,7 @@
 package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
+import static hera.util.ValidationUtils.assertTrue;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
@@ -15,32 +16,35 @@ import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="nc" id="L18">@ToString</span>
-<span class="nc bnc" id="L19" title="All 44 branches missed.">@EqualsAndHashCode</span>
+<span class="nc" id="L19">@ToString</span>
+<span class="nc bnc" id="L20" title="All 46 branches missed.">@EqualsAndHashCode</span>
 public class Peer {
 
-<span class="nc" id="L22">  @Getter</span>
+<span class="nc" id="L23">  @Getter</span>
   protected InetAddress address;
 
-<span class="nc" id="L25">  @Getter</span>
+<span class="nc" id="L26">  @Getter</span>
   protected int port;
 
-<span class="nc" id="L28">  @Getter</span>
-  protected PeerId peerId;
+<span class="nc" id="L29">  @Getter</span>
+  protected String peerId;
 
-<span class="nc" id="L31">  @Getter</span>
-  protected BlockchainStatus blockchainStatus;
+<span class="nc" id="L32">  @Getter</span>
+  protected long bestHeight;
 
-<span class="nc" id="L34">  @Getter</span>
+<span class="nc" id="L35">  @Getter</span>
+  protected BlockHash bestBlockHash;
+
+<span class="nc" id="L38">  @Getter</span>
   protected int state;
 
-<span class="nc" id="L37">  @Getter</span>
+<span class="nc" id="L41">  @Getter</span>
   protected boolean hidden;
 
-<span class="nc" id="L40">  @Getter</span>
+<span class="nc" id="L44">  @Getter</span>
   protected long lashCheck;
 
-<span class="nc" id="L43">  @Getter</span>
+<span class="nc" id="L47">  @Getter</span>
   protected boolean selfPeer;
 
   /**
@@ -49,28 +53,32 @@ public class Peer {
    * @param address a peer address
    * @param port a peer port
    * @param peerId a peer id
-   * @param blockchainStatus a blockchain status of peer
+   * @param bestHeight a best height of peer
+   * @param bestBlockHash a best block hash of peer
    * @param state a peer state
    * @param hidden whether a peer is hidden or not
    * @param lashCheck a lash check value
    * @param selfPeer whether it is a peer which have received request or not
    */
   @ApiAudience.Private
-  public Peer(final InetAddress address, final int port, final PeerId peerId,
-      final BlockchainStatus blockchainStatus,
-<span class="fc" id="L61">      final int state, final boolean hidden, final long lashCheck, final boolean selfPeer) {</span>
-<span class="fc" id="L62">    assertNotNull(address, &quot;Peer address must not null&quot;);</span>
-<span class="fc" id="L63">    assertNotNull(peerId, &quot;Peer id must not null&quot;);</span>
-<span class="fc" id="L64">    assertNotNull(blockchainStatus, &quot;Peer blockchain status must not null&quot;);</span>
-<span class="fc" id="L65">    this.address = address;</span>
-<span class="fc" id="L66">    this.port = port;</span>
-<span class="fc" id="L67">    this.peerId = peerId;</span>
-<span class="fc" id="L68">    this.blockchainStatus = blockchainStatus;</span>
-<span class="fc" id="L69">    this.state = state;</span>
-<span class="fc" id="L70">    this.hidden = hidden;</span>
-<span class="fc" id="L71">    this.lashCheck = lashCheck;</span>
-<span class="fc" id="L72">    this.selfPeer = selfPeer;</span>
-<span class="fc" id="L73">  }</span>
+  public Peer(final InetAddress address, final int port, final String peerId,
+      final long bestHeight, final BlockHash bestBlockHash,
+      final int state, final boolean hidden,
+<span class="fc" id="L67">      final long lashCheck, final boolean selfPeer) {</span>
+<span class="fc" id="L68">    assertNotNull(address, &quot;Peer address must not null&quot;);</span>
+<span class="fc" id="L69">    assertNotNull(peerId, &quot;Peer id must not null&quot;);</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">    assertTrue(bestHeight &gt;= 0L, &quot;Peer best block height &gt;= 0&quot;);</span>
+<span class="fc" id="L71">    assertNotNull(bestBlockHash, &quot;Peer best block hash must not null&quot;);</span>
+<span class="fc" id="L72">    this.address = address;</span>
+<span class="fc" id="L73">    this.port = port;</span>
+<span class="fc" id="L74">    this.peerId = peerId;</span>
+<span class="fc" id="L75">    this.bestHeight = bestHeight;</span>
+<span class="fc" id="L76">    this.bestBlockHash = bestBlockHash;</span>
+<span class="fc" id="L77">    this.state = state;</span>
+<span class="fc" id="L78">    this.hidden = hidden;</span>
+<span class="fc" id="L79">    this.lashCheck = lashCheck;</span>
+<span class="fc" id="L80">    this.selfPeer = selfPeer;</span>
+<span class="fc" id="L81">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

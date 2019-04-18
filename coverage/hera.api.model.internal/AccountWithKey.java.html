@@ -7,7 +7,9 @@ package hera.api.model.internal;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
+import hera.api.model.BytesValue;
 import hera.api.model.RawTransaction;
+import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.key.AergoKey;
 import hera.key.Signer;
@@ -19,28 +21,33 @@ import lombok.ToString;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="fc" id="L22">@ToString(callSuper = true, exclude = &quot;key&quot;)</span>
-<span class="nc bnc" id="L23" title="All 16 branches missed.">@EqualsAndHashCode(callSuper = true)</span>
-<span class="pc bpc" id="L24" title="1 of 2 branches missed.">@RequiredArgsConstructor</span>
+<span class="nc" id="L24">@ToString(callSuper = true, exclude = &quot;key&quot;)</span>
+<span class="nc bnc" id="L25" title="All 16 branches missed.">@EqualsAndHashCode(callSuper = true)</span>
+<span class="pc bpc" id="L26" title="1 of 2 branches missed.">@RequiredArgsConstructor</span>
 public class AccountWithKey extends AbstractAccount implements Signer {
 
   @NonNull
-<span class="nc" id="L28">  @Getter</span>
+<span class="nc" id="L30">  @Getter</span>
   protected final AergoKey key;
 
   @Override
   public AccountAddress getAddress() {
-<span class="fc" id="L33">    return key.getAddress();</span>
+<span class="fc" id="L35">    return key.getAddress();</span>
   }
 
   @Override
   public Transaction sign(final RawTransaction rawTransaction) {
-<span class="fc" id="L38">    return key.sign(rawTransaction);</span>
+<span class="fc" id="L40">    return key.sign(rawTransaction);</span>
   }
 
   @Override
-  public boolean verify(final Transaction transaction) {
-<span class="fc" id="L43">    return key.verify(transaction);</span>
+  public Signature sign(final BytesValue plainText) {
+<span class="nc" id="L45">    return key.sign(plainText);</span>
+  }
+
+  @Override
+  public String signMessage(final String message) {
+<span class="nc" id="L50">    return key.signMessage(message);</span>
   }
 
 }

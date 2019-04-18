@@ -60,8 +60,8 @@ public class Transaction extends RawTransaction {
   public Transaction(final RawTransaction rawTransaction, final Signature signature,
       final TxHash txHash, final BlockHash blockHash, final int indexInBlock,
       final boolean isConfirmed) {
-<span class="fc" id="L63">    this(rawTransaction.getSender(), rawTransaction.getRecipient(), rawTransaction.getAmount(),</span>
-<span class="fc" id="L64">        rawTransaction.getNonce(), rawTransaction.getFee(),</span>
+<span class="fc" id="L63">    this(rawTransaction.getChainIdHash(), rawTransaction.getSender(), rawTransaction.getRecipient(),</span>
+<span class="fc" id="L64">        rawTransaction.getAmount(), rawTransaction.getNonce(), rawTransaction.getFee(),</span>
 <span class="fc" id="L65">        rawTransaction.getPayload(), rawTransaction.getTxType(),</span>
         signature, txHash, blockHash, indexInBlock, isConfirmed);
 <span class="fc" id="L67">  }</span>
@@ -69,6 +69,7 @@ public class Transaction extends RawTransaction {
   /**
    * Transaction constructor.
    *
+   * @param chainIdHash a chain id hash
    * @param sender a sender
    * @param recipient a recipient
    * @param amount an amount
@@ -83,17 +84,18 @@ public class Transaction extends RawTransaction {
    * @param isConfirmed an confirm state
    */
   @ApiAudience.Private
-  public Transaction(final AccountAddress sender, final AccountAddress recipient,
+  public Transaction(final ChainIdHash chainIdHash, final AccountAddress sender,
+      final AccountAddress recipient,
       final Aer amount, long nonce, final Fee fee, final BytesValue payload,
       final TxType txType, final Signature signature, final TxHash txHash,
       final BlockHash blockHash, final int indexInBlock, final boolean isConfirmed) {
-<span class="fc" id="L90">    super(sender, recipient, amount, nonce, fee, payload, txType);</span>
-<span class="fc bfc" id="L91" title="All 2 branches covered.">    this.signature = null != signature ? signature : Signature.of(BytesValue.EMPTY);</span>
-<span class="fc bfc" id="L92" title="All 2 branches covered.">    this.hash = null != txHash ? txHash : TxHash.of(BytesValue.EMPTY);</span>
-<span class="fc bfc" id="L93" title="All 2 branches covered.">    this.blockHash = null != blockHash ? blockHash : BlockHash.of(BytesValue.EMPTY);</span>
-<span class="fc" id="L94">    this.indexInBlock = indexInBlock;</span>
-<span class="fc" id="L95">    this.confirmed = isConfirmed;</span>
-<span class="fc" id="L96">  }</span>
+<span class="fc" id="L92">    super(chainIdHash, sender, recipient, amount, nonce, fee, payload, txType);</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">    this.signature = null != signature ? signature : Signature.of(BytesValue.EMPTY);</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">    this.hash = null != txHash ? txHash : TxHash.of(BytesValue.EMPTY);</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">    this.blockHash = null != blockHash ? blockHash : BlockHash.of(BytesValue.EMPTY);</span>
+<span class="fc" id="L96">    this.indexInBlock = indexInBlock;</span>
+<span class="fc" id="L97">    this.confirmed = isConfirmed;</span>
+<span class="fc" id="L98">  }</span>
 
   public interface TransactionWithoutSign {
     TransactionWithSign signature(Signature signature);
@@ -102,7 +104,7 @@ public class Transaction extends RawTransaction {
   public interface TransactionWithSign extends hera.util.Builder&lt;Transaction&gt; {
   }
 
-<span class="fc" id="L105">  @RequiredArgsConstructor</span>
+<span class="fc" id="L107">  @RequiredArgsConstructor</span>
   protected static class Builder implements TransactionWithoutSign, TransactionWithSign {
 
     private final RawTransaction rawTransaction;
@@ -111,15 +113,15 @@ public class Transaction extends RawTransaction {
 
     @Override
     public TransactionWithSign signature(final Signature signature) {
-<span class="fc" id="L114">      this.signature = signature;</span>
-<span class="fc" id="L115">      return this;</span>
+<span class="fc" id="L116">      this.signature = signature;</span>
+<span class="fc" id="L117">      return this;</span>
     }
 
     @Override
     public Transaction build() {
-<span class="fc" id="L120">      final BytesValue rawHash =</span>
-<span class="fc" id="L121">          new TransactionHashResolver().calculateHash(rawTransaction, signature);</span>
-<span class="fc" id="L122">      return new Transaction(rawTransaction, signature, new TxHash(rawHash), null, 0, false);</span>
+<span class="fc" id="L122">      final TxHash txHash =</span>
+<span class="fc" id="L123">          TransactionHashResolver.calculateHash(rawTransaction, signature);</span>
+<span class="fc" id="L124">      return new Transaction(rawTransaction, signature, txHash, null, 0, false);</span>
     }
   }
 

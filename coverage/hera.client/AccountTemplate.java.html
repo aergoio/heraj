@@ -29,7 +29,7 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.RawTransaction;
-import hera.api.model.StakingInfo;
+import hera.api.model.StakeInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.strategy.StrategyChain;
@@ -52,8 +52,8 @@ import lombok.Getter;
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-<span class="fc" id="L55">    getAccountBaseTemplate().setChannel(channel);;</span>
-<span class="fc" id="L56">  }</span>
+<span class="nc" id="L55">    getAccountBaseTemplate().setChannel(channel);;</span>
+<span class="nc" id="L56">  }</span>
 
   @Override
   public void setContextProvider(final ContextProvider contextProvider) {
@@ -98,7 +98,7 @@ import lombok.Getter;
               identify(getAccountBaseTemplate().getUnstakingFunction(), ACCOUNT_UNSTAKING));
 
 <span class="pc bpc" id="L100" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
-  private final Function1&lt;AccountAddress, FinishableFuture&lt;StakingInfo&gt;&gt; stakingInfoFunction =
+  private final Function1&lt;AccountAddress, FinishableFuture&lt;StakeInfo&gt;&gt; stakingInfoFunction =
       getStrategyChain().apply(
           identify(getAccountBaseTemplate().getStakingInfoFunction(), ACCOUNT_GETSTAKINGINFO));
 
@@ -150,7 +150,7 @@ import lombok.Getter;
   }
 
   @Override
-  public StakingInfo getStakingInfo(final AccountAddress accountAddress) {
+  public StakeInfo getStakingInfo(final AccountAddress accountAddress) {
 <span class="fc" id="L154">    return getStakingInfoFunction().apply(accountAddress).get();</span>
   }
 

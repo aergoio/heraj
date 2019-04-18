@@ -71,8 +71,8 @@ import hera.exception.DecodingFailureException.Format;
    * @return base58 with checksum encoded string
    */
   public static String encodeBase58WithCheck(final BytesValue bytesValue) {
-<span class="pc bpc" id="L74" title="1 of 4 branches missed.">    return (null != bytesValue &amp;&amp; !bytesValue.isEmpty())</span>
-<span class="fc" id="L75">        ? Base58Utils.encodeWithCheck(bytesValue.getValue())</span>
+<span class="pc bpc" id="L74" title="2 of 4 branches missed.">    return (null != bytesValue &amp;&amp; !bytesValue.isEmpty())</span>
+<span class="pc" id="L75">        ? Base58Utils.encodeWithCheck(bytesValue.getValue())</span>
         : &quot;&quot;;
   }
 

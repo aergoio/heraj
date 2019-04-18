@@ -67,8 +67,8 @@ public abstract class AbstractConfiguration implements Configuration {
   @Override
   public String getAsString(final String key, final String defaultValue) {
 <span class="fc" id="L69">    Object value = get(key);</span>
-<span class="fc bfc" id="L70" title="All 2 branches covered.">    if (null == value) {</span>
-<span class="fc" id="L71">      return defaultValue;</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">    if (null == value) {</span>
+<span class="nc" id="L71">      return defaultValue;</span>
     }
 <span class="fc" id="L73">    logger.trace(&quot;Value type: {}&quot;, value.getClass());</span>
 <span class="pc bpc" id="L74" title="1 of 2 branches missed.">    if (value instanceof String) {</span>

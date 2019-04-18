@@ -12,24 +12,24 @@ import org.slf4j.Logger;
 
 <span class="fc" id="L13">public class RpcExceptionConverter implements ExceptionConverter&lt;RpcException&gt; {</span>
 
-<span class="fc" id="L15">  protected final Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L15">  protected final transient Logger logger = getLogger(getClass());</span>
 
   @Override
   public RpcException convert(final Throwable t) {
 <span class="fc" id="L19">    logger.debug(&quot;Handle exception {}&quot;, t.toString());</span>
 <span class="pc bpc" id="L20" title="1 of 2 branches missed.">    if (t instanceof RpcException) {</span>
 <span class="nc" id="L21">      return (RpcException) t;</span>
-<span class="fc bfc" id="L22" title="All 2 branches covered.">    } else if (t instanceof StatusRuntimeException) {</span>
-<span class="fc" id="L23">      return convertGrpcBasisException((StatusRuntimeException) t);</span>
+<span class="pc bpc" id="L22" title="1 of 2 branches missed.">    } else if (t instanceof StatusRuntimeException) {</span>
+<span class="nc" id="L23">      return convertGrpcBasisException((StatusRuntimeException) t);</span>
     } else {
 <span class="fc" id="L25">      return new RpcException(t);</span>
     }
   }
 
   protected RpcException convertGrpcBasisException(final StatusRuntimeException e) {
-<span class="pc bpc" id="L30" title="1 of 2 branches missed.">    switch (e.getStatus().getCode()) {</span>
+<span class="nc bnc" id="L30" title="All 2 branches missed.">    switch (e.getStatus().getCode()) {</span>
       case UNAVAILABLE:
-<span class="fc" id="L32">        return new RpcConnectionException(e);</span>
+<span class="nc" id="L32">        return new RpcConnectionException(e);</span>
       default:
 <span class="nc" id="L34">        return new RpcException(e);</span>
     }
