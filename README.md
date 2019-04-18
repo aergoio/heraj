@@ -3,7 +3,7 @@
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![LoC](https://tokei.rs/b1/github/aergoio/heraj)](https://github.com/aergoio/heraj)
 [![Travis_ci](https://travis-ci.org/aergoio/heraj.svg?branch=develop)](https://travis-ci.org/aergoio/heraj)
-[![codecov.io](http://codecov.io/github/aergoio/heraj/coverage.svg?branch=master)](http://codecov.io/github/aergoio/heraj?branch=master)
+[![codecov.io](http://codecov.io/github/aergoio/heraj/coverage.svg?branch=develop)](http://codecov.io/github/aergoio/heraj?branch=develop)
 [![Maintainability](https://api.codeclimate.com/v1/badges/a0aa6cecd0067bddc770/maintainability)](https://codeclimate.com/github/aergoio/heraj/maintainability)
 
 The hera is the client-side framework for the aergo.
@@ -11,9 +11,9 @@ This repository, heraj is java implementation for hera.
 
 ## Latest
 
-v1.0.0-RC2
+v1.0.0
 
-build with aergo-protobuf [9a34ce2505988a015c293ee00752435c6172a8f5](https://github.com/aergoio/aergo-protobuf/commits/9a34ce2505988a015c293ee00752435c6172a8f5)
+build with aergo-protobuf [f759bbac53b6aed8e768f5d9b1dc0182bfc35342](https://github.com/aergoio/aergo-protobuf/commits/f759bbac53b6aed8e768f5d9b1dc0182bfc35342)
 
 ## Compatibility
 
@@ -157,8 +157,16 @@ They are classes with 'Benchmark' suffix, which using jmh.
 
 ## Run tests
 
+### Unit test
+
 ```console
 $ ./build.sh test
+```
+
+### Integration test
+
+```console
+$ ./build.sh it
 ```
 
 # Documentation

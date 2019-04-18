@@ -32,11 +32,13 @@ Describe basic models of blockchain.
 * Peer
 * PeerId
 * PeerMetric
-* StakingInfo
-* BlockProducer
-* VotingInfo
+* StakeInfo
+* ElectedCandidate
+* AccountTotalVote
+* VoteInfo
 * ChainId
 * ChainInfo
+* ChainIdHash
 
 #### Transaction related
 
