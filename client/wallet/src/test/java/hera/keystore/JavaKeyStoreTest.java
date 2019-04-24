@@ -4,6 +4,8 @@
 
 package hera.keystore;
 
+import static hera.api.model.BytesValue.of;
+import static hera.util.Sha256Utils.digest;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -19,6 +21,7 @@ import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.Hash;
 import hera.api.model.Identity;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
@@ -125,7 +128,7 @@ public class JavaKeyStoreTest extends AbstractTestCase {
   }
 
   @Test
-  public void testSignPlainText() {
+  public void testSignHash() {
     final JavaKeyStore keyStore = new JavaKeyStore(this.keyStore);
 
     final AergoKey key = new AergoKeyGenerator().create();
@@ -134,12 +137,28 @@ public class JavaKeyStoreTest extends AbstractTestCase {
     keyStore.saveKey(key, authentication);
     keyStore.unlock(authentication);
 
-    final Signature signature = keyStore.sign(new BytesValue(randomUUID().toString().getBytes()));
+    final Hash hash = new Hash(of(digest(randomUUID().toString().getBytes())));
+    final Signature signature = keyStore.sign(hash);
     assertNotNull(signature);
   }
 
   @Test
-  public void testSignMessage() {
+  public void testSignMessageInBytesValue() {
+    final JavaKeyStore keyStore = new JavaKeyStore(this.keyStore);
+
+    final AergoKey key = new AergoKeyGenerator().create();
+    final String password = randomUUID().toString();
+    final Authentication authentication = Authentication.of(identity, password);
+    keyStore.saveKey(key, authentication);
+    keyStore.unlock(authentication);
+
+    final Signature signature =
+        keyStore.signMessage(new BytesValue(randomUUID().toString().getBytes()));
+    assertNotNull(signature);
+  }
+
+  @Test
+  public void testSignMessageInString() {
     final JavaKeyStore keyStore = new JavaKeyStore(this.keyStore);
 
     final AergoKey key = new AergoKeyGenerator().create();

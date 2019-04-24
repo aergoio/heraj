@@ -9,6 +9,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.BytesValue;
+import hera.api.model.Hash;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
@@ -63,11 +64,22 @@ public abstract class AbstractKeyStore implements KeyStore, Signer {
   }
 
   @Override
-  public Signature sign(final BytesValue plainText) {
+  public Signature sign(final Hash hash) {
     try {
-      logger.debug("Sign plain text: {}", plainText);
+      logger.debug("Sign to hash: {}", hash);
       final AergoKey key = getUnlockedKey();
-      return key.sign(plainText);
+      return key.sign(hash);
+    } catch (Exception e) {
+      throw new KeyStoreException(e);
+    }
+  }
+
+  @Override
+  public Signature signMessage(final BytesValue message) {
+    try {
+      logger.debug("Sign message: {}", message);
+      final AergoKey key = getUnlockedKey();
+      return key.signMessage(message);
     } catch (Exception e) {
       throw new KeyStoreException(e);
     }

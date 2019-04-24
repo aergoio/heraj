@@ -5,8 +5,10 @@
 package hera.key;
 
 import static hera.api.model.BytesValue.of;
+import static hera.util.Sha256Utils.digest;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -14,9 +16,12 @@ import hera.AbstractTestCase;
 import hera.api.model.Aer.Unit;
 import hera.api.model.BytesValue;
 import hera.api.model.ChainIdHash;
+import hera.api.model.Hash;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
+import hera.util.IoUtils;
+import java.io.InputStreamReader;
 import org.junit.Test;
 
 public class AergoKeyTest extends AbstractTestCase {
@@ -61,23 +66,53 @@ public class AergoKeyTest extends AbstractTestCase {
   }
 
   @Test
-  public void testSignAndVerifyPlainText() throws Exception {
+  public void testSignAndVerifyHash() throws Exception {
     for (int i = 0; i < N_TEST; ++i) {
       final AergoKey key = new AergoKeyGenerator().create();
-      final BytesValue plainText = new BytesValue(randomUUID().toString().getBytes());
-      final Signature signature = key.sign(plainText);
-      assertTrue(key.verify(plainText, signature));
+      final byte[] raw = randomUUID().toString().getBytes();
+      final Hash hash = new Hash(of(digest(raw)));
+      final Signature signature = key.sign(hash);
+      assertTrue(key.verify(hash, signature));
     }
   }
 
   @Test
-  public void testSignAndVerifyMessage() throws Exception {
+  public void testSignAndVerifyMessageInBytesValue() throws Exception {
+    for (int i = 0; i < N_TEST; ++i) {
+      final AergoKey key = new AergoKeyGenerator().create();
+
+      final BytesValue message = new BytesValue(randomUUID().toString().getBytes());
+      final Signature signature = key.signMessage(message);
+      assertTrue(key.verifyMessage(message, signature));
+    }
+  }
+
+  @Test
+  public void testSignAndVerifyMessageInString() throws Exception {
     for (int i = 0; i < N_TEST; ++i) {
       final AergoKey key = new AergoKeyGenerator().create();
 
       final String message = randomUUID().toString();
       final String signature = key.signMessage(message);
       assertTrue(key.verifyMessage(message, signature));
+    }
+  }
+
+  @Test
+  public void testSignOnLargeMessage() throws Exception {
+    final String largeone = IoUtils.from(new InputStreamReader(open("largeone")));
+    final String largetwo = IoUtils.from(new InputStreamReader(open("large-with-one-char-diff")));
+
+    for (int i = 0; i < N_TEST; ++i) {
+      final AergoKey key = new AergoKeyGenerator().create();
+
+      final String signatureForone = key.signMessage(largeone);
+      final String signatureFortwo = key.signMessage(largetwo);
+      logger.debug("Sign for one: {}", signatureForone);
+      logger.debug("Sign for two: {}", signatureFortwo);
+      assertTrue(key.verifyMessage(largeone, signatureForone));
+      assertTrue(key.verifyMessage(largetwo, signatureFortwo));
+      assertNotEquals(signatureForone, signatureFortwo);
     }
   }
 
