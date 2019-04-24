@@ -46,18 +46,29 @@ public class AcconntWithAddressAndSignerTest {
   }
 
   @Test
-  public void testSignPlainText() {
+  public void testSignHash() {
     final AccountAddress address = AccountAddress.of(encodedAddress);
     final Signer signer = mock(Signer.class);
-    when(signer.sign(any(BytesValue.class))).thenReturn(mock(Signature.class));
+    when(signer.sign(any(RawTransaction.class))).thenReturn(mock(Transaction.class));
 
     final AccountWithAddressAndSigner account = new AccountWithAddressAndSigner(address, signer);
     assertEquals(address, account.getAddress());
-    assertNotNull(account.sign(BytesValue.EMPTY));
+    assertNotNull(account.sign(mock(RawTransaction.class)));
   }
 
   @Test
-  public void testSignMessage() {
+  public void testSignMessageInBytesValue() {
+    final AccountAddress address = AccountAddress.of(encodedAddress);
+    final Signer signer = mock(Signer.class);
+    when(signer.signMessage(any(BytesValue.class))).thenReturn(mock(Signature.class));
+
+    final AccountWithAddressAndSigner account = new AccountWithAddressAndSigner(address, signer);
+    assertEquals(address, account.getAddress());
+    assertNotNull(account.signMessage(BytesValue.EMPTY));
+  }
+
+  @Test
+  public void testSignMessageInString() {
     final AccountAddress address = AccountAddress.of(encodedAddress);
     final Signer signer = mock(Signer.class);
     when(signer.signMessage(anyString())).thenReturn(randomUUID().toString());

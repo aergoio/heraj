@@ -4,6 +4,7 @@
 
 package hera.key;
 
+import static hera.util.Sha256Utils.digest;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
@@ -11,6 +12,7 @@ import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.Hash;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
@@ -130,8 +132,7 @@ public class AergoKey implements KeyPair, Signer, TransactionVerifier {
     try {
       logger.debug("Sign raw transaction: {}", rawTransaction);
       final TxHash txHash = TransactionHashResolver.calculateHash(rawTransaction);
-      final BytesValue plainText = txHash.getBytesValue();
-      final Signature signature = sign(plainText);
+      final Signature signature = sign(txHash);
       return Transaction.newBuilder(rawTransaction)
           .signature(signature)
           .build();
@@ -143,9 +144,10 @@ public class AergoKey implements KeyPair, Signer, TransactionVerifier {
   }
 
   @Override
-  public Signature sign(final BytesValue plainText) {
+  public Signature sign(final Hash hash) {
     try {
-      final ECDSASignature ecdsaSignature = ecdsakey.sign(plainText.getInputStream());
+      logger.debug("Sign to hash: {}", hash);
+      final ECDSASignature ecdsaSignature = ecdsakey.sign(hash.getBytesValue().getValue());
       final Signature signature =
           SignatureResolver.serialize(ecdsaSignature, ecdsakey.getParams().getN());
       logger.trace("Serialized signature: {}", signature);
@@ -158,13 +160,26 @@ public class AergoKey implements KeyPair, Signer, TransactionVerifier {
   @Override
   public String signMessage(final String message) {
     try {
-      logger.debug("Sign message: {}", message);
-      final BytesValue plainText = new BytesValue(message.getBytes());
-      final ECDSASignature ecdsaSignature = ecdsakey.sign(plainText.getInputStream());
+      final Signature signature = signMessage(new BytesValue(message.getBytes()));
+      return Base64Utils.encode(signature.getSign().getValue());
+    } catch (HerajException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HerajException(e);
+    }
+  }
+
+  @Override
+  public Signature signMessage(final BytesValue message) {
+    try {
+      logger.debug("Sign to message: {}", message);
+      final Hash hash = new Hash(new BytesValue(digest(message.getValue())));
+      logger.debug("Hashed message: {}", hash);
+      final ECDSASignature ecdsaSignature = ecdsakey.sign(hash.getBytesValue().getValue());
       final Signature signature =
           SignatureResolver.serialize(ecdsaSignature, ecdsakey.getParams().getN());
       logger.trace("Serialized signature: {}", signature);
-      return Base64Utils.encode(signature.getSign().getValue());
+      return signature;
     } catch (Exception e) {
       throw new HerajException(e);
     }
@@ -182,15 +197,15 @@ public class AergoKey implements KeyPair, Signer, TransactionVerifier {
   }
 
   /**
-   * Check if {@code Transaction} is valid.
+   * Check if {@code signature} is valid for {@code hash} and current address.
    *
-   * @param plainText a plain text
+   * @param hash a hash
    * @param signature signature to verify
    * @return if valid
    */
-  public boolean verify(final BytesValue plainText, final Signature signature) {
+  public boolean verify(final Hash hash, final Signature signature) {
     try {
-      return verifier.verify(getAddress(), plainText, signature);
+      return verifier.verify(getAddress(), hash, signature);
     } catch (HerajException e) {
       throw e;
     } catch (Exception e) {
@@ -199,15 +214,34 @@ public class AergoKey implements KeyPair, Signer, TransactionVerifier {
   }
 
   /**
-   * Verify message with base64 encoded signature.
+   * Check if {@code base64EncodedSignature} is valid for current {@code accountAddress} and
+   * {@code message}. It hashes {@code message} and verify hashed one.
    *
-   * @param message a message to verify
+   * @param message a message
    * @param base64EncodedSignature a base64 encoded signature
-   * @return verification result
+   * @return if valid
    */
   public boolean verifyMessage(final String message, final String base64EncodedSignature) {
     try {
       return verifier.verifyMessage(getAddress(), message, base64EncodedSignature);
+    } catch (HerajException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HerajException(e);
+    }
+  }
+
+  /**
+   * Check if {@code signature} is valid for current {@code accountAddress} and {@code message}. It
+   * hashes {@code message} and verify hashed one.
+   *
+   * @param message a message
+   * @param signature signature
+   * @return if valid
+   */
+  public boolean verifyMessage(final BytesValue message, final Signature signature) {
+    try {
+      return verifier.verifyMessage(getAddress(), message, signature);
     } catch (HerajException e) {
       throw e;
     } catch (Exception e) {

@@ -8,6 +8,7 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
+import hera.api.model.Hash;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
@@ -41,12 +42,17 @@ public class AccountWithKey extends AbstractAccount implements Signer {
   }
 
   @Override
-  public Signature sign(final BytesValue plainText) {
-    return key.sign(plainText);
+  public Signature sign(final Hash hash) {
+    return key.sign(hash);
   }
 
   @Override
   public String signMessage(final String message) {
+    return key.signMessage(message);
+  }
+
+  @Override
+  public Signature signMessage(final BytesValue message) {
     return key.signMessage(message);
   }
 

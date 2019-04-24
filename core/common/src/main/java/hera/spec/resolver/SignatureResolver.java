@@ -73,7 +73,7 @@ public class SignatureResolver {
    * Parse {@link ECDSASignature} from the serialized one.
    *
    * @param signature an signature
-   * @param order a order of signature key
+   * @param order an order of signature key
    * @return parsed {@link ECDSASignature}. null if parsing failed.
    */
   public static ECDSASignature parse(final Signature signature, final BigInteger order) {

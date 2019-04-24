@@ -4,13 +4,10 @@
 
 package hera.util.pki;
 
-import static hera.util.IoUtils.stream;
+import static hera.util.ValidationUtils.assertEquals;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.util.HexUtils;
-import hera.util.StreamConsumer;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -69,18 +66,18 @@ public class ECDSAKey {
   }
 
   /**
-   * Sign to plain text.
+   * Sign to message.
    *
-   * @param plainText text to sign to
+   * @param hashedMessage a sha256-hashed message
    *
    * @return signature ECDSA signature
    */
-  public ECDSASignature sign(final InputStream plainText) {
+  public ECDSASignature sign(final byte[] hashedMessage) {
     try {
-      final byte[] message = toByteArray(plainText);
-      final ECDSASignature signature = sign(this.privateKey, message);
+      assertEquals(hashedMessage.length, 32, "Sha-256 hashed message should have 32 bytes length");
+      final ECDSASignature signature = sign(this.privateKey, hashedMessage);
       if (logger.isTraceEnabled()) {
-        logger.trace("Message in hexa: {}", HexUtils.encode(message));
+        logger.trace("Message in hexa: {}", HexUtils.encode(hashedMessage));
         logger.trace("ECDSASignature signature: {}", signature);
       }
       return signature;
@@ -89,17 +86,6 @@ public class ECDSAKey {
     }
   }
 
-  /**
-   * Generate a deterministic ECDSA signature according to RFC6979.
-   *
-   * @see <a href="https://github.com/btcsuite/btcd/blob/master/btcec/signature.go">signRFC6979
-   *      function in signature.go</a>
-   *
-   * @param privateKey a private key
-   * @param message message to sign
-   * @return ECDSASignature result
-   * @throws Exception when sign error occurred
-   */
   protected ECDSASignature sign(final PrivateKey privateKey, final byte[] message)
       throws Exception {
     final ECDSASigner signer = new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));
@@ -117,14 +103,14 @@ public class ECDSAKey {
   /**
    * Check if {@code signature} is valid for {@code plainText}.
    *
-   * @param plainText plain text
+   * @param hashedMessage a sha256-hashed message
    * @param signature ECDSA signature
    *
    * @return if valid
    */
-  public boolean verify(final InputStream plainText, final ECDSASignature signature) {
+  public boolean verify(final byte[] hashedMessage, final ECDSASignature signature) {
     try {
-      return verifier.verify(getPublicKey(), plainText, signature);
+      return verifier.verify(getPublicKey(), hashedMessage, signature);
     } catch (final Throwable e) {
       throw new IllegalStateException(e);
     }
@@ -137,17 +123,6 @@ public class ECDSAKey {
     final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =
         (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
     return String.format("%s\n%s", ecPrivateKey.toString(), ecPublicKey.toString());
-  }
-
-  protected byte[] toByteArray(final InputStream plainText) throws Exception {
-    final ByteArrayOutputStream os = new ByteArrayOutputStream();
-    stream(plainText, new StreamConsumer() {
-      @Override
-      public void apply(byte[] bytes, int offset, int length) throws Exception {
-        os.write(bytes);
-      }
-    });
-    return os.toByteArray();
   }
 
 }
