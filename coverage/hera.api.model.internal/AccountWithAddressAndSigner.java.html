@@ -8,6 +8,7 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
+import hera.api.model.Hash;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
@@ -21,37 +22,42 @@ import lombok.ToString;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="nc" id="L24">@ToString(callSuper = true)</span>
-<span class="nc bnc" id="L25" title="All 24 branches missed.">@EqualsAndHashCode(callSuper = true)</span>
-<span class="pc bpc" id="L26" title="2 of 4 branches missed.">@RequiredArgsConstructor</span>
+<span class="nc" id="L25">@ToString(callSuper = true)</span>
+<span class="nc bnc" id="L26" title="All 24 branches missed.">@EqualsAndHashCode(callSuper = true)</span>
+<span class="pc bpc" id="L27" title="2 of 4 branches missed.">@RequiredArgsConstructor</span>
 public class AccountWithAddressAndSigner extends AbstractAccount implements Signer {
 
   @NonNull
-<span class="fc" id="L30">  @Getter</span>
+<span class="fc" id="L31">  @Getter</span>
   protected final AccountAddress address;
 
   @NonNull
-<span class="nc" id="L34">  @Getter</span>
+<span class="nc" id="L35">  @Getter</span>
   protected final Signer delegate;
 
   @Override
   public AergoKey getKey() {
-<span class="nc" id="L39">    return null;</span>
+<span class="nc" id="L40">    return null;</span>
   }
 
   @Override
   public Transaction sign(final RawTransaction rawTransaction) {
-<span class="fc" id="L44">    return delegate.sign(rawTransaction);</span>
+<span class="fc" id="L45">    return delegate.sign(rawTransaction);</span>
   }
 
   @Override
-  public Signature sign(final BytesValue plainText) {
-<span class="fc" id="L49">    return delegate.sign(plainText);</span>
+  public Signature sign(final Hash hash) {
+<span class="nc" id="L50">    return delegate.sign(hash);</span>
   }
 
   @Override
   public String signMessage(final String message) {
-<span class="fc" id="L54">    return delegate.signMessage(message);</span>
+<span class="fc" id="L55">    return delegate.signMessage(message);</span>
+  }
+
+  @Override
+  public Signature signMessage(final BytesValue message) {
+<span class="fc" id="L60">    return delegate.signMessage(message);</span>
   }
 
 }

@@ -4,6 +4,7 @@
 
 package hera.key;
 
+import static hera.util.Sha256Utils.digest;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
@@ -11,6 +12,7 @@ import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.Hash;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
@@ -35,7 +37,7 @@ import org.slf4j.Logger;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="pc bpc" id="L38" title="15 of 22 branches missed.">@EqualsAndHashCode(exclude = {&quot;logger&quot;, &quot;verifier&quot;})</span>
+<span class="pc bpc" id="L40" title="15 of 22 branches missed.">@EqualsAndHashCode(exclude = {&quot;logger&quot;, &quot;verifier&quot;})</span>
 public class AergoKey implements KeyPair, Signer, TransactionVerifier {
 
   /**
@@ -48,7 +50,7 @@ public class AergoKey implements KeyPair, Signer, TransactionVerifier {
    * @throws UnableToGenerateKeyException on failure of creation
    */
   public static AergoKey of(final String encodedEncryptedPrivateKey, final String password) {
-<span class="fc" id="L51">    return new AergoKey(encodedEncryptedPrivateKey, password);</span>
+<span class="fc" id="L53">    return new AergoKey(encodedEncryptedPrivateKey, password);</span>
   }
 
   /**
@@ -61,16 +63,16 @@ public class AergoKey implements KeyPair, Signer, TransactionVerifier {
    * @throws UnableToGenerateKeyException on failure of creation
    */
   public static AergoKey of(final EncryptedPrivateKey encryptedPrivateKey, final String password) {
-<span class="fc" id="L64">    return new AergoKey(encryptedPrivateKey, password);</span>
+<span class="fc" id="L66">    return new AergoKey(encryptedPrivateKey, password);</span>
   }
 
-<span class="fc" id="L67">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L69">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L69">  protected final AergoSignVerifier verifier = new AergoSignVerifier();</span>
+<span class="fc" id="L71">  protected final AergoSignVerifier verifier = new AergoSignVerifier();</span>
 
   protected final ECDSAKey ecdsakey;
 
-<span class="fc" id="L73">  @Getter</span>
+<span class="fc" id="L75">  @Getter</span>
   protected final AccountAddress address;
 
   /**
@@ -82,8 +84,8 @@ public class AergoKey implements KeyPair, Signer, TransactionVerifier {
    * @throws UnableToGenerateKeyException on failure of creation
    */
   public AergoKey(final String encodedEncryptedPrivateKey, final String password) {
-<span class="fc" id="L85">    this(new EncryptedPrivateKey(encodedEncryptedPrivateKey), password);</span>
-<span class="fc" id="L86">  }</span>
+<span class="fc" id="L87">    this(new EncryptedPrivateKey(encodedEncryptedPrivateKey), password);</span>
+<span class="fc" id="L88">  }</span>
 
   /**
    * AergoKey constructor.
@@ -93,148 +95,180 @@ public class AergoKey implements KeyPair, Signer, TransactionVerifier {
    *
    * @throws UnableToGenerateKeyException on failure of creation
    */
-<span class="fc" id="L96">  public AergoKey(final EncryptedPrivateKey encryptedPrivateKey, final String password) {</span>
+<span class="fc" id="L98">  public AergoKey(final EncryptedPrivateKey encryptedPrivateKey, final String password) {</span>
     try {
-<span class="fc" id="L98">      final BytesValue decryptedBytes =</span>
-<span class="fc" id="L99">          EncryptedPrivateKeyResolver.decrypt(encryptedPrivateKey, password);</span>
-<span class="fc" id="L100">      final byte[] rawPrivateKey = decryptedBytes.getValue();</span>
-<span class="fc" id="L101">      this.ecdsakey = new ECDSAKeyGenerator().create(new BigInteger(1, rawPrivateKey));</span>
-<span class="fc" id="L102">      this.address = AddressResolver.deriveAddress(ecdsakey.getPublicKey());</span>
-<span class="nc" id="L103">    } catch (final Exception e) {</span>
-<span class="nc" id="L104">      throw new UnableToGenerateKeyException(e);</span>
-<span class="fc" id="L105">    }</span>
-<span class="fc" id="L106">  }</span>
+<span class="fc" id="L100">      final BytesValue decryptedBytes =</span>
+<span class="fc" id="L101">          EncryptedPrivateKeyResolver.decrypt(encryptedPrivateKey, password);</span>
+<span class="fc" id="L102">      final byte[] rawPrivateKey = decryptedBytes.getValue();</span>
+<span class="fc" id="L103">      this.ecdsakey = new ECDSAKeyGenerator().create(new BigInteger(1, rawPrivateKey));</span>
+<span class="fc" id="L104">      this.address = AddressResolver.deriveAddress(ecdsakey.getPublicKey());</span>
+<span class="nc" id="L105">    } catch (final Exception e) {</span>
+<span class="nc" id="L106">      throw new UnableToGenerateKeyException(e);</span>
+<span class="fc" id="L107">    }</span>
+<span class="fc" id="L108">  }</span>
 
   /**
    * AergoKey constructor.
    *
    * @param ecdsakey keypair
    */
-<span class="fc" id="L113">  public AergoKey(final ECDSAKey ecdsakey) {</span>
-<span class="fc" id="L114">    this.ecdsakey = ecdsakey;</span>
-<span class="fc" id="L115">    this.address = AddressResolver.deriveAddress(ecdsakey.getPublicKey());</span>
-<span class="fc" id="L116">  }</span>
+<span class="fc" id="L115">  public AergoKey(final ECDSAKey ecdsakey) {</span>
+<span class="fc" id="L116">    this.ecdsakey = ecdsakey;</span>
+<span class="fc" id="L117">    this.address = AddressResolver.deriveAddress(ecdsakey.getPublicKey());</span>
+<span class="fc" id="L118">  }</span>
 
   @Override
   public PrivateKey getPrivateKey() {
-<span class="fc" id="L120">    return ecdsakey.getPrivateKey();</span>
+<span class="fc" id="L122">    return ecdsakey.getPrivateKey();</span>
   }
 
   @Override
   public PublicKey getPublicKey() {
-<span class="fc" id="L125">    return ecdsakey.getPublicKey();</span>
+<span class="fc" id="L127">    return ecdsakey.getPublicKey();</span>
   }
 
   @Override
   public Transaction sign(final RawTransaction rawTransaction) {
     try {
-<span class="fc" id="L131">      logger.debug(&quot;Sign raw transaction: {}&quot;, rawTransaction);</span>
-<span class="fc" id="L132">      final TxHash txHash = TransactionHashResolver.calculateHash(rawTransaction);</span>
-<span class="fc" id="L133">      final BytesValue plainText = txHash.getBytesValue();</span>
-<span class="fc" id="L134">      final Signature signature = sign(plainText);</span>
-<span class="fc" id="L135">      return Transaction.newBuilder(rawTransaction)</span>
-<span class="fc" id="L136">          .signature(signature)</span>
-<span class="fc" id="L137">          .build();</span>
-<span class="nc" id="L138">    } catch (HerajException e) {</span>
-<span class="nc" id="L139">      throw e;</span>
-<span class="nc" id="L140">    } catch (Exception e) {</span>
-<span class="nc" id="L141">      throw new HerajException(e);</span>
+<span class="fc" id="L133">      logger.debug(&quot;Sign raw transaction: {}&quot;, rawTransaction);</span>
+<span class="fc" id="L134">      final TxHash txHash = TransactionHashResolver.calculateHash(rawTransaction);</span>
+<span class="fc" id="L135">      final Signature signature = sign(txHash);</span>
+<span class="fc" id="L136">      return Transaction.newBuilder(rawTransaction)</span>
+<span class="fc" id="L137">          .signature(signature)</span>
+<span class="fc" id="L138">          .build();</span>
+<span class="nc" id="L139">    } catch (HerajException e) {</span>
+<span class="nc" id="L140">      throw e;</span>
+<span class="nc" id="L141">    } catch (Exception e) {</span>
+<span class="nc" id="L142">      throw new HerajException(e);</span>
     }
   }
 
   @Override
-  public Signature sign(final BytesValue plainText) {
+  public Signature sign(final Hash hash) {
     try {
-<span class="fc" id="L148">      final ECDSASignature ecdsaSignature = ecdsakey.sign(plainText.getInputStream());</span>
-<span class="fc" id="L149">      final Signature signature =</span>
-<span class="fc" id="L150">          SignatureResolver.serialize(ecdsaSignature, ecdsakey.getParams().getN());</span>
-<span class="fc" id="L151">      logger.trace(&quot;Serialized signature: {}&quot;, signature);</span>
-<span class="fc" id="L152">      return signature;</span>
-<span class="nc" id="L153">    } catch (Exception e) {</span>
-<span class="nc" id="L154">      throw new HerajException(e);</span>
+<span class="fc" id="L149">      logger.debug(&quot;Sign to hash: {}&quot;, hash);</span>
+<span class="fc" id="L150">      final ECDSASignature ecdsaSignature = ecdsakey.sign(hash.getBytesValue().getValue());</span>
+<span class="fc" id="L151">      final Signature signature =</span>
+<span class="fc" id="L152">          SignatureResolver.serialize(ecdsaSignature, ecdsakey.getParams().getN());</span>
+<span class="fc" id="L153">      logger.trace(&quot;Serialized signature: {}&quot;, signature);</span>
+<span class="fc" id="L154">      return signature;</span>
+<span class="nc" id="L155">    } catch (Exception e) {</span>
+<span class="nc" id="L156">      throw new HerajException(e);</span>
     }
   }
 
   @Override
   public String signMessage(final String message) {
     try {
-<span class="fc" id="L161">      logger.debug(&quot;Sign message: {}&quot;, message);</span>
-<span class="fc" id="L162">      final BytesValue plainText = new BytesValue(message.getBytes());</span>
-<span class="fc" id="L163">      final ECDSASignature ecdsaSignature = ecdsakey.sign(plainText.getInputStream());</span>
-<span class="fc" id="L164">      final Signature signature =</span>
-<span class="fc" id="L165">          SignatureResolver.serialize(ecdsaSignature, ecdsakey.getParams().getN());</span>
-<span class="fc" id="L166">      logger.trace(&quot;Serialized signature: {}&quot;, signature);</span>
-<span class="fc" id="L167">      return Base64Utils.encode(signature.getSign().getValue());</span>
-<span class="nc" id="L168">    } catch (Exception e) {</span>
-<span class="nc" id="L169">      throw new HerajException(e);</span>
+<span class="fc" id="L163">      final Signature signature = signMessage(new BytesValue(message.getBytes()));</span>
+<span class="fc" id="L164">      return Base64Utils.encode(signature.getSign().getValue());</span>
+<span class="nc" id="L165">    } catch (HerajException e) {</span>
+<span class="nc" id="L166">      throw e;</span>
+<span class="nc" id="L167">    } catch (Exception e) {</span>
+<span class="nc" id="L168">      throw new HerajException(e);</span>
+    }
+  }
+
+  @Override
+  public Signature signMessage(final BytesValue message) {
+    try {
+<span class="fc" id="L175">      logger.debug(&quot;Sign to message: {}&quot;, message);</span>
+<span class="fc" id="L176">      final Hash hash = new Hash(new BytesValue(digest(message.getValue())));</span>
+<span class="fc" id="L177">      logger.debug(&quot;Hashed message: {}&quot;, hash);</span>
+<span class="fc" id="L178">      final ECDSASignature ecdsaSignature = ecdsakey.sign(hash.getBytesValue().getValue());</span>
+<span class="fc" id="L179">      final Signature signature =</span>
+<span class="fc" id="L180">          SignatureResolver.serialize(ecdsaSignature, ecdsakey.getParams().getN());</span>
+<span class="fc" id="L181">      logger.trace(&quot;Serialized signature: {}&quot;, signature);</span>
+<span class="fc" id="L182">      return signature;</span>
+<span class="nc" id="L183">    } catch (Exception e) {</span>
+<span class="nc" id="L184">      throw new HerajException(e);</span>
     }
   }
 
   @Override
   public boolean verify(final Transaction transaction) {
     try {
-<span class="fc" id="L176">      return verifier.verify(transaction);</span>
-<span class="nc" id="L177">    } catch (HerajException e) {</span>
-<span class="nc" id="L178">      throw e;</span>
-<span class="nc" id="L179">    } catch (Exception e) {</span>
-<span class="nc" id="L180">      throw new HerajException(e);</span>
+<span class="fc" id="L191">      return verifier.verify(transaction);</span>
+<span class="nc" id="L192">    } catch (HerajException e) {</span>
+<span class="nc" id="L193">      throw e;</span>
+<span class="nc" id="L194">    } catch (Exception e) {</span>
+<span class="nc" id="L195">      throw new HerajException(e);</span>
     }
   }
 
   /**
-   * Check if {@code Transaction} is valid.
+   * Check if {@code signature} is valid for {@code hash} and current address.
    *
-   * @param plainText a plain text
+   * @param hash a hash
    * @param signature signature to verify
    * @return if valid
    */
-  public boolean verify(final BytesValue plainText, final Signature signature) {
+  public boolean verify(final Hash hash, final Signature signature) {
     try {
-<span class="fc" id="L193">      return verifier.verify(getAddress(), plainText, signature);</span>
-<span class="nc" id="L194">    } catch (HerajException e) {</span>
-<span class="nc" id="L195">      throw e;</span>
-<span class="nc" id="L196">    } catch (Exception e) {</span>
-<span class="nc" id="L197">      throw new HerajException(e);</span>
+<span class="fc" id="L208">      return verifier.verify(getAddress(), hash, signature);</span>
+<span class="nc" id="L209">    } catch (HerajException e) {</span>
+<span class="nc" id="L210">      throw e;</span>
+<span class="nc" id="L211">    } catch (Exception e) {</span>
+<span class="nc" id="L212">      throw new HerajException(e);</span>
     }
   }
 
   /**
-   * Verify message with base64 encoded signature.
+   * Check if {@code base64EncodedSignature} is valid for current {@code accountAddress} and
+   * {@code message}. It hashes {@code message} and verify hashed one.
    *
-   * @param message a message to verify
+   * @param message a message
    * @param base64EncodedSignature a base64 encoded signature
-   * @return verification result
+   * @return if valid
    */
   public boolean verifyMessage(final String message, final String base64EncodedSignature) {
     try {
-<span class="fc" id="L210">      return verifier.verifyMessage(getAddress(), message, base64EncodedSignature);</span>
-<span class="nc" id="L211">    } catch (HerajException e) {</span>
-<span class="nc" id="L212">      throw e;</span>
-<span class="nc" id="L213">    } catch (Exception e) {</span>
-<span class="nc" id="L214">      throw new HerajException(e);</span>
+<span class="fc" id="L226">      return verifier.verifyMessage(getAddress(), message, base64EncodedSignature);</span>
+<span class="nc" id="L227">    } catch (HerajException e) {</span>
+<span class="nc" id="L228">      throw e;</span>
+<span class="nc" id="L229">    } catch (Exception e) {</span>
+<span class="nc" id="L230">      throw new HerajException(e);</span>
+    }
+  }
+
+  /**
+   * Check if {@code signature} is valid for current {@code accountAddress} and {@code message}. It
+   * hashes {@code message} and verify hashed one.
+   *
+   * @param message a message
+   * @param signature signature
+   * @return if valid
+   */
+  public boolean verifyMessage(final BytesValue message, final Signature signature) {
+    try {
+<span class="fc" id="L244">      return verifier.verifyMessage(getAddress(), message, signature);</span>
+<span class="nc" id="L245">    } catch (HerajException e) {</span>
+<span class="nc" id="L246">      throw e;</span>
+<span class="nc" id="L247">    } catch (Exception e) {</span>
+<span class="nc" id="L248">      throw new HerajException(e);</span>
     }
   }
 
   @Override
   public EncryptedPrivateKey export(final String password) {
     try {
-<span class="fc" id="L221">      final BytesValue privateKeyBytes = new BytesValue(getRawPrivateKey());</span>
-<span class="fc" id="L222">      return EncryptedPrivateKeyResolver.encrypt(privateKeyBytes, password);</span>
-<span class="nc" id="L223">    } catch (Exception e) {</span>
-<span class="nc" id="L224">      throw new HerajException(e);</span>
+<span class="fc" id="L255">      final BytesValue privateKeyBytes = new BytesValue(getRawPrivateKey());</span>
+<span class="fc" id="L256">      return EncryptedPrivateKeyResolver.encrypt(privateKeyBytes, password);</span>
+<span class="nc" id="L257">    } catch (Exception e) {</span>
+<span class="nc" id="L258">      throw new HerajException(e);</span>
     }
   }
 
   protected byte[] getRawPrivateKey() {
-<span class="fc" id="L229">    final org.bouncycastle.jce.interfaces.ECPrivateKey ecPrivateKey =</span>
-<span class="fc" id="L230">        (org.bouncycastle.jce.interfaces.ECPrivateKey) getPrivateKey();</span>
-<span class="fc" id="L231">    final BigInteger d = ecPrivateKey.getD();</span>
-<span class="fc" id="L232">    return NumberUtils.positiveToByteArray(d);</span>
+<span class="fc" id="L263">    final org.bouncycastle.jce.interfaces.ECPrivateKey ecPrivateKey =</span>
+<span class="fc" id="L264">        (org.bouncycastle.jce.interfaces.ECPrivateKey) getPrivateKey();</span>
+<span class="fc" id="L265">    final BigInteger d = ecPrivateKey.getD();</span>
+<span class="fc" id="L266">    return NumberUtils.positiveToByteArray(d);</span>
   }
 
   @Override
   public String toString() {
-<span class="nc" id="L237">    return String.format(&quot;Address: %s&quot;, getAddress());</span>
+<span class="nc" id="L271">    return String.format(&quot;Address: %s&quot;, getAddress());</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

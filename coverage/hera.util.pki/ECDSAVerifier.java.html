@@ -4,13 +4,10 @@
 
 package hera.util.pki;
 
-import static hera.util.IoUtils.stream;
+import static hera.util.ValidationUtils.assertEquals;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.util.HexUtils;
-import hera.util.StreamConsumer;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.security.PublicKey;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -23,57 +20,43 @@ import org.bouncycastle.crypto.signers.ECDSASigner;
 import org.bouncycastle.crypto.signers.HMacDSAKCalculator;
 import org.slf4j.Logger;
 
-<span class="nc" id="L26">@ToString</span>
-<span class="pc bpc" id="L27" title="9 of 14 branches missed.">@EqualsAndHashCode(exclude = &quot;logger&quot;)</span>
-<span class="fc" id="L28">@RequiredArgsConstructor</span>
+<span class="nc" id="L23">@ToString</span>
+<span class="pc bpc" id="L24" title="9 of 14 branches missed.">@EqualsAndHashCode(exclude = &quot;logger&quot;)</span>
+<span class="fc" id="L25">@RequiredArgsConstructor</span>
 public class ECDSAVerifier {
 
-<span class="fc" id="L31">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L28">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L33">  @Getter</span>
+<span class="fc" id="L30">  @Getter</span>
   protected final ECDomainParameters params;
 
   /**
    * Verify signature with a message and public key x and y point value.
    *
-   * @see &lt;a href=&quot;https://github.com/golang/go/blob/master/src/crypto/ecdsa/ecdsa.go&quot;&gt;verify
-   *      function in ecdsa.go&lt;/a&gt;
-   *
    * @param publicKey a publicKey
-   * @param plainText a plain text
+   * @param hashedMessage a sha256-hashed message
    * @param signature ECDSA signature
    *
    * @return verification result
    */
-  public boolean verify(final PublicKey publicKey, final InputStream plainText,
+  public boolean verify(final PublicKey publicKey, final byte[] hashedMessage,
       final ECDSASignature signature) {
     try {
-<span class="fc" id="L51">      final byte[] message = toByteArray(plainText);</span>
-<span class="pc bpc" id="L52" title="1 of 2 branches missed.">      if (logger.isTraceEnabled()) {</span>
-<span class="nc" id="L53">        logger.trace(&quot;Message in hexa: {}&quot;, HexUtils.encode(message));</span>
-<span class="nc" id="L54">        logger.trace(&quot;ECDSASignature signature: {}&quot;, signature);</span>
+<span class="fc" id="L45">      assertEquals(hashedMessage.length, 32, &quot;Sha-256 hashed message should have 32 byte length&quot;);</span>
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">      if (logger.isTraceEnabled()) {</span>
+<span class="nc" id="L47">        logger.trace(&quot;Message in hexa: {}&quot;, HexUtils.encode(hashedMessage));</span>
+<span class="nc" id="L48">        logger.trace(&quot;ECDSASignature signature: {}&quot;, signature);</span>
       }
-<span class="fc" id="L56">      final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
+<span class="fc" id="L50">      final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
           (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
-<span class="fc" id="L58">      final ECDSASigner signer = new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));</span>
-<span class="fc" id="L59">      final ECPublicKeyParameters privKey =</span>
-<span class="fc" id="L60">          new ECPublicKeyParameters(ecPublicKey.getQ(), params);</span>
-<span class="fc" id="L61">      signer.init(false, privKey);</span>
-<span class="fc" id="L62">      return signer.verifySignature(message, signature.getR(), signature.getS());</span>
-<span class="nc" id="L63">    } catch (Exception e) {</span>
-<span class="nc" id="L64">      throw new IllegalArgumentException(e);</span>
+<span class="fc" id="L52">      final ECDSASigner signer = new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));</span>
+<span class="fc" id="L53">      final ECPublicKeyParameters privKey =</span>
+<span class="fc" id="L54">          new ECPublicKeyParameters(ecPublicKey.getQ(), params);</span>
+<span class="fc" id="L55">      signer.init(false, privKey);</span>
+<span class="fc" id="L56">      return signer.verifySignature(hashedMessage, signature.getR(), signature.getS());</span>
+<span class="nc" id="L57">    } catch (Exception e) {</span>
+<span class="nc" id="L58">      throw new IllegalArgumentException(e);</span>
     }
-  }
-
-  protected byte[] toByteArray(final InputStream plainText) throws Exception {
-<span class="fc" id="L69">    final ByteArrayOutputStream os = new ByteArrayOutputStream();</span>
-<span class="fc" id="L70">    stream(plainText, new StreamConsumer() {</span>
-      @Override
-      public void apply(byte[] bytes, int offset, int length) throws Exception {
-<span class="fc" id="L73">        os.write(bytes);</span>
-<span class="fc" id="L74">      }</span>
-    });
-<span class="fc" id="L76">    return os.toByteArray();</span>
   }
 
 }
