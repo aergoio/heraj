@@ -204,7 +204,8 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
                 final ContractInterface withoutAddress =
                     contractInterfaceConverter.convertToDomainModel(abi);
                 return new ContractInterface(contractAddress, withoutAddress.getVersion(),
-                    withoutAddress.getLanguage(), withoutAddress.getFunctions());
+                    withoutAddress.getLanguage(), withoutAddress.getFunctions(),
+                    withoutAddress.getStateVariables());
               }
             });
             addCallback(listenableFuture, callback, directExecutor());

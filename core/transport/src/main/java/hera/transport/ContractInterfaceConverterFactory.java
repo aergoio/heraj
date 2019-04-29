@@ -11,6 +11,7 @@ import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
+import hera.api.model.StateVariable;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -20,8 +21,11 @@ public class ContractInterfaceConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final Function1<ContractInterface, Blockchain.ABI> domainConverter =
-      new Function1<ContractInterface, Blockchain.ABI>() {
+  protected final ModelConverter<StateVariable, Blockchain.StateVar> stateVariableConverter =
+      new StateVariableConverterFactory().create();
+
+  protected final Function1<ContractInterface,
+      Blockchain.ABI> domainConverter = new Function1<ContractInterface, Blockchain.ABI>() {
 
         @Override
         public Blockchain.ABI apply(final ContractInterface domainContractInterface) {
@@ -35,6 +39,7 @@ public class ContractInterfaceConverterFactory {
         @Override
         public ContractInterface apply(final Blockchain.ABI rpcContractInterface) {
           logger.trace("Rpc contract interface to convert: {}", rpcContractInterface);
+
           final List<ContractFunction> domainFunctions = new ArrayList<ContractFunction>();
           for (final Blockchain.Function rpcFunction : rpcContractInterface.getFunctionsList()) {
             final List<String> domainArguments = new ArrayList<String>();
@@ -46,11 +51,19 @@ public class ContractInterfaceConverterFactory {
                     rpcFunction.getPayable(), rpcFunction.getView());
             domainFunctions.add(domainContractFunction);
           }
+
+          final List<StateVariable> domainStateVariables = new ArrayList<StateVariable>();
+          for (final Blockchain.StateVar rpcStateVariable : rpcContractInterface
+              .getStateVariablesList()) {
+            domainStateVariables.add(stateVariableConverter.convertToDomainModel(rpcStateVariable));
+          }
+
           final ContractInterface domainContractInterface =
               new ContractInterface(new ContractAddress(BytesValue.EMPTY),
                   rpcContractInterface.getVersion(),
                   rpcContractInterface.getLanguage(),
-                  domainFunctions);
+                  domainFunctions,
+                  domainStateVariables);
           logger.trace("Domain contract interface converted: {}", domainContractInterface);
           return domainContractInterface;
         }

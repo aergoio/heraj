@@ -27,11 +27,12 @@ public class ContractInterfaceTest {
     final ContractFunction function = new ContractFunction(functionName);
     final List<ContractFunction> functions = new ArrayList<ContractFunction>();
     functions.add(function);
-    final Object[] args = new Object[] {randomUUID().toString(), randomUUID().toString()};
+    final List<StateVariable> stateVariables = new ArrayList<StateVariable>();
 
     final ContractInterface contractInterface =
-        new ContractInterface(address, version, language, functions);
+        new ContractInterface(address, version, language, functions, stateVariables);
 
+    final Object[] args = new Object[] {randomUUID().toString(), randomUUID().toString()};
     final ContractInvocation expected = new ContractInvocation(address, function, args);
     final ContractInvocation actual = contractInterface.newInvocationBuilder()
         .function(functionName)
@@ -48,11 +49,13 @@ public class ContractInterfaceTest {
     final ContractFunction function = new ContractFunction(functionName);
     final List<ContractFunction> functions = new ArrayList<ContractFunction>();
     functions.add(function);
-    final Object[] args = new Object[] {randomUUID().toString(), randomUUID().toString()};
+    final List<StateVariable> stateVariables = new ArrayList<StateVariable>();
+
 
     final ContractInterface contractInterface =
-        new ContractInterface(address, version, language, functions);
+        new ContractInterface(address, version, language, functions, stateVariables);
 
+    final Object[] args = new Object[] {randomUUID().toString(), randomUUID().toString()};
     try {
       contractInterface.newInvocationBuilder()
           .function(randomUUID().toString())

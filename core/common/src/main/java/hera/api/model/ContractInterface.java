@@ -35,6 +35,9 @@ public class ContractInterface {
   @Getter
   protected final List<ContractFunction> functions;
 
+  @Getter
+  protected final List<StateVariable> stateVariables;
+
   /**
    * ContractInterface constructor.
    * 
@@ -42,18 +45,22 @@ public class ContractInterface {
    * @param version a contract version
    * @param language a contract language
    * @param functions a contract functions to invoke
+   * @param stateVariables a contract state variables
    */
   @ApiAudience.Private
   public ContractInterface(final ContractAddress contractAddress, final String version,
-      final String language, final List<ContractFunction> functions) {
+      final String language, final List<ContractFunction> functions,
+      final List<StateVariable> stateVariables) {
     assertNotNull(contractAddress, "Contract address must not null");
     assertNotNull(version, "Version must not null");
     assertNotNull(language, "Language must not null");
     assertNotNull(functions, "Functions must not null");
+    assertNotNull(stateVariables, "State variables must not null");
     this.address = contractAddress;
     this.version = version;
     this.language = language;
     this.functions = unmodifiableList(functions);
+    this.stateVariables = unmodifiableList(stateVariables);
   }
 
   /**

@@ -48,7 +48,7 @@ public class ChainInfoConverterFactory {
               parseToAer(rpcChainInfo.getTotalstaking()),
               parseToAer(rpcChainInfo.getGasprice()),
               parseToAer(rpcChainInfo.getNameprice()));
-          logger.trace("Domain blockchain status converted: {}", domainChainInfo);
+          logger.trace("Domain chain info converted: {}", domainChainInfo);
           return domainChainInfo;
         }
       };

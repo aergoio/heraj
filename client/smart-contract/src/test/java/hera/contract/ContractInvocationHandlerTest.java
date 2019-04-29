@@ -19,6 +19,7 @@ import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
+import hera.api.model.StateVariable;
 import hera.client.ContractResultImpl;
 import hera.exception.ContractException;
 import hera.wallet.Wallet;
@@ -137,8 +138,9 @@ public class ContractInvocationHandlerTest extends AbstractTestCase {
     final List<ContractFunction> contractFunctions = new ArrayList<ContractFunction>();
     contractFunctions.add(new ContractFunction("testExecute", asList("arg")));
     contractFunctions.add(new ContractFunction("testQuery", false, true));
+    final List<StateVariable> stateVariables = new ArrayList<StateVariable>();
     final ContractInterface contractInterface =
-        new ContractInterface(contractAddress, "1.0", "lua", contractFunctions);
+        new ContractInterface(contractAddress, "1.0", "lua", contractFunctions, stateVariables);
     return contractInterface;
   }
 
