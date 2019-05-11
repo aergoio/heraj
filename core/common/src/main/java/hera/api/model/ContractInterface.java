@@ -5,6 +5,7 @@
 package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
+import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
@@ -85,30 +86,30 @@ public class ContractInterface {
   }
 
   public interface ContractInvocationWithNothing {
-    ContractInvocationWithFunction function(String functionName);
+    ContractInvocationWithReady function(String functionName);
   }
 
-  public interface ContractInvocationWithFunction extends hera.util.Builder<ContractInvocation> {
-    ContractInvocationWithFunctionAndArgs args(Object... args);
-  }
+  public interface ContractInvocationWithReady extends hera.util.Builder<ContractInvocation> {
+    ContractInvocationWithReady args(Object... args);
 
-  public interface ContractInvocationWithFunctionAndArgs
-      extends hera.util.Builder<ContractInvocation> {
+    ContractInvocationWithReady amount(Aer amount);
   }
 
   @RequiredArgsConstructor
-  protected static class InvocationBuilder implements ContractInvocationWithNothing,
-      ContractInvocationWithFunction, ContractInvocationWithFunctionAndArgs {
+  protected static class InvocationBuilder
+      implements ContractInvocationWithNothing, ContractInvocationWithReady {
 
     @NonNull
     protected final ContractInterface contractInterface;
 
     protected ContractFunction function;
 
-    protected Object[] args;
+    protected Object[] args = new Object[0];
+
+    protected Aer amount = Aer.ZERO;
 
     @Override
-    public ContractInvocationWithFunction function(final String functionName) {
+    public ContractInvocationWithReady function(final String functionName) {
       this.function = contractInterface.findFunction(functionName);
       if (null == this.function) {
         throw new HerajException(
@@ -118,15 +119,24 @@ public class ContractInterface {
     }
 
     @Override
-    public ContractInvocationWithFunctionAndArgs args(final Object... args) {
-      this.args = args;
+    public ContractInvocationWithReady args(final Object... args) {
+      if (null != args) {
+        this.args = args;
+      }
+      return this;
+    }
+
+    @Override
+    public ContractInvocationWithReady amount(final Aer amount) {
+      this.amount = amount;
       return this;
     }
 
     @Override
     public hera.api.model.ContractInvocation build() {
-      return new ContractInvocation(contractInterface.getAddress(), function, args);
+      return new ContractInvocation(contractInterface.getAddress(), function, asList(args), amount);
     }
+
   }
 
 }

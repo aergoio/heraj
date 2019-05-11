@@ -6,10 +6,12 @@ package hera.spec.resolver;
 
 import static hera.api.model.BytesValue.of;
 import static hera.util.ValidationUtils.assertNotNull;
+import static java.util.Collections.emptyList;
 import static java.util.UUID.randomUUID;
 
 import hera.AbstractTestCase;
 import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
@@ -43,7 +45,7 @@ public class PayloadResolverTest extends AbstractTestCase {
   @Test
   public void testResolveOnContractInvocation() {
     final ContractInvocation invocation = new ContractInvocation(contractAddress,
-        new ContractFunction(randomUUID().toString()), randomUUID().toString());
+        new ContractFunction(randomUUID().toString()), emptyList(), Aer.ZERO);
     final BytesValue payload = PayloadResolver.resolve(Type.ContractInvocation, invocation);
     assertNotNull(payload);
   }

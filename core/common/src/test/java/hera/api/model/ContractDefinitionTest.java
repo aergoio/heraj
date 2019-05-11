@@ -5,6 +5,8 @@
 package hera.api.model;
 
 import static hera.api.model.BytesValue.of;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -23,10 +25,11 @@ public class ContractDefinitionTest {
   public void testBuilder() {
     final Object[] args = new Object[] {1, 2, 3};
 
-    final ContractDefinition expected = new ContractDefinition(payload, args);
+    final ContractDefinition expected = new ContractDefinition(payload, asList(args), Aer.ONE);
     final ContractDefinition actual = ContractDefinition.newBuilder()
         .encodedContract(payload)
         .constructorArgs(args)
+        .amount(Aer.ONE)
         .build();
     assertEquals(expected, actual);
   }
@@ -35,7 +38,7 @@ public class ContractDefinitionTest {
   public void testBuildWithInvalidPayload() {
     try {
       final String wrongEncodedPayload = randomUUID().toString();
-      new ContractDefinition(wrongEncodedPayload);
+      new ContractDefinition(wrongEncodedPayload, emptyList(), Aer.ONE);
       fail();
     } catch (DecodingFailureException e) {
       // good we expected this
@@ -44,7 +47,7 @@ public class ContractDefinitionTest {
     try {
       final String wrongVersionPayload =
           EncodingUtils.encodeBase58WithCheck(of(new byte[] {(byte) 0xAA}));
-      new ContractDefinition(wrongVersionPayload);
+      new ContractDefinition(wrongVersionPayload, emptyList(), Aer.ONE);
       fail();
     } catch (InvalidVersionException e) {
       // good we expected this

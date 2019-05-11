@@ -5,6 +5,7 @@
 package hera.client;
 
 import static hera.api.model.BytesValue.of;
+import static java.util.Collections.emptyList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -19,6 +20,7 @@ import hera.api.function.Function1;
 import hera.api.function.Function2;
 import hera.api.model.Account;
 import hera.api.model.AccountFactory;
+import hera.api.model.Aer;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractFunction;
@@ -123,7 +125,8 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
     final Account account = new AccountFactory().create(generator.create());
     String encoded = Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
     final FinishableFuture<ContractTxHash> deployTxHash = contractBaseTemplate
-        .getDeployFunction().apply(account, ContractDefinition.of(encoded), 0L, fee);
+        .getDeployFunction()
+        .apply(account, new ContractDefinition(encoded), 0L, fee);
     assertNotNull(deployTxHash.get());
   }
 
@@ -160,7 +163,8 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
     Account account = new AccountFactory().create(accountAddress);
     String encoded = Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
     final FinishableFuture<ContractTxHash> deployTxHash = contractBaseTemplate
-        .getDeployFunction().apply(account, ContractDefinition.of(encoded), 0L, fee);
+        .getDeployFunction()
+        .apply(account, new ContractDefinition(encoded), 0L, fee);
     assertNotNull(deployTxHash.get());
   }
 
@@ -205,7 +209,9 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
     final ContractFunction contractFunction = new ContractFunction(randomUUID().toString());
     final FinishableFuture<ContractTxHash> executionTxHash = contractBaseTemplate
         .getExecuteFunction()
-        .apply(account, new ContractInvocation(contractAddress, contractFunction), 0L, fee);
+        .apply(account,
+            new ContractInvocation(contractAddress, contractFunction, emptyList(), Aer.ZERO), 0L,
+            fee);
     assertNotNull(executionTxHash.get());
   }
 
@@ -243,7 +249,8 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
     final ContractFunction contractFunction = new ContractFunction(randomUUID().toString());
     final FinishableFuture<ContractTxHash> executionTxHash =
         contractBaseTemplate.getExecuteFunction().apply(account,
-            new ContractInvocation(contractAddress, contractFunction), 0L, fee);
+            new ContractInvocation(contractAddress, contractFunction, emptyList(), Aer.ZERO), 0L,
+            fee);
     assertNotNull(executionTxHash.get());
   }
 
@@ -263,7 +270,8 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
 
     final ContractFunction contractFunction = new ContractFunction(randomUUID().toString());
     final FinishableFuture<ContractResult> contractResult = contractBaseTemplate
-        .getQueryFunction().apply(new ContractInvocation(contractAddress, contractFunction));
+        .getQueryFunction()
+        .apply(new ContractInvocation(contractAddress, contractFunction, emptyList(), Aer.ZERO));
 
     assertNotNull(contractResult.get());
   }

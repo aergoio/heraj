@@ -23,7 +23,6 @@ import hera.api.function.Function2;
 import hera.api.function.Function4;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.Aer;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
@@ -161,7 +160,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
                 .newBuilder(contextProvider.get().getChainIdHash())
                 .from(creator)
                 .to(AccountAddress.of(BytesValue.EMPTY))
-                .amount(Aer.ZERO)
+                .amount(contractDefinition.getAmount())
                 .nonce(nonce)
                 .payload(PayloadResolver.resolve(Type.ContractDefinition, contractDefinition))
                 .build();
@@ -232,7 +231,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
                 .newBuilder(contextProvider.get().getChainIdHash())
                 .from(executor)
                 .to(contractInvocation.getAddress())
-                .amount(Aer.ZERO)
+                .amount(contractInvocation.getAmount())
                 .nonce(nonce)
                 .payload(PayloadResolver.resolve(Type.ContractInvocation, contractInvocation))
                 .build();

@@ -11,6 +11,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import hera.api.model.Account;
+import hera.api.model.AccountState;
+import hera.api.model.Aer;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInterface;
@@ -65,6 +67,12 @@ public class ContractOperationIT extends AbstractIT {
     return receipt;
   }
 
+  protected Aer getAmount(final ContractAddress contractAddress) {
+    final AccountState accountState =
+        aergoClient.getAccountOperation().getState(contractAddress);
+    return accountState.getBalance();
+  }
+
   protected ContractInterface getContractInterface(final ContractAddress contractAddress) {
     final ContractInterface contractInterface =
         aergoClient.getContractOperation().getContractInterface(contractAddress);
@@ -110,6 +118,28 @@ public class ContractOperationIT extends AbstractIT {
   }
 
   @Test
+  public void testLuaContractDeployWithAmount() throws Exception {
+    for (final Account account : supplyAccounts()) {
+      final Aer expectedAmount = Aer.ONE;
+
+      unlockAccount(account, password);
+      final ContractDefinition definition = ContractDefinition.newBuilder()
+          .encodedContract(contractPayload)
+          .amount(expectedAmount)
+          .build();
+      final ContractTxHash deployTxHash = deploy(account, definition);
+      lockAccount(account, password);
+
+      final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
+      assertEquals("CREATED", deployTxReceipt.getStatus());
+
+      final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
+      final Aer actualAmount = getAmount(contractAddress);
+      assertEquals(expectedAmount, actualAmount);
+    }
+  }
+
+  @Test
   public void testLuaContractDeployAndExecute() throws Exception {
     for (final Account account : supplyAccounts()) {
       unlockAccount(account, password);
@@ -139,6 +169,38 @@ public class ContractOperationIT extends AbstractIT {
       final Data data = queryResult.bind(Data.class);
       assertEquals(executeIntVal, data.getIntVal());
       assertEquals(executeStringVal, data.getStringVal());
+    }
+  }
+
+  @Test
+  public void testLuaContractDeployAndExecuteWithAmount() throws Exception {
+    for (final Account account : supplyAccounts()) {
+      final Aer expectedAmount = Aer.ONE;
+
+      unlockAccount(account, password);
+      final ContractDefinition definition = ContractDefinition.newBuilder()
+          .encodedContract(contractPayload).build();
+      final ContractTxHash deployTxHash = deploy(account, definition);
+      lockAccount(account, password);
+
+      final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
+      assertEquals("CREATED", deployTxReceipt.getStatus());
+
+      final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
+      final ContractInterface contractInterface =
+          getContractInterface(contractAddress);
+
+      unlockAccount(account, password);
+      final ContractInvocation execution = contractInterface.newInvocationBuilder()
+          .function(executeFunction)
+          .args(new Object[] {executeKey, executeIntVal, executeStringVal})
+          .amount(expectedAmount)
+          .build();
+      execute(account, execution);
+      lockAccount(account, password);
+
+      final Aer actualAmount = getAmount(contractAddress);
+      assertEquals(expectedAmount, actualAmount);
     }
   }
 

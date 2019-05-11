@@ -24,22 +24,6 @@ import lombok.ToString;
 @ToString
 public class ContractDefinition {
 
-  /**
-   * Build contract definition.
-   *
-   * @param encodedContract base58 with checksum encoded contract definition
-   * @param args constructor arguments
-   *
-   * @return created {@code ContractDefinition}
-   *
-   * @throws DecodingFailureException if decoding failure
-   * @throws InvalidVersionException if encodedContract version mismatches
-   */
-  @ApiAudience.Public
-  public static ContractDefinition of(final String encodedContract, Object... args) {
-    return new ContractDefinition(encodedContract, args);
-  }
-
   public static final byte PAYLOAD_VERSION = (byte) 0xC0;
 
   @ApiAudience.Public
@@ -56,6 +40,22 @@ public class ContractDefinition {
   @Getter
   protected final List<Object> constructorArgs;
 
+  @Getter
+  protected final Aer amount;
+
+  /**
+   * Contract definition constructor.
+   *
+   * @param encodedContract base58 with checksum encoded contract definition
+   *
+   * @throws DecodingFailureException if decoding failure
+   * @throws InvalidVersionException if encodedContract version mismatches
+   */
+  @ApiAudience.Private
+  public ContractDefinition(final String encodedContract) {
+    this(encodedContract, emptyList());
+  }
+
   /**
    * Contract definition constructor.
    *
@@ -65,14 +65,47 @@ public class ContractDefinition {
    * @throws DecodingFailureException if decoding failure
    * @throws InvalidVersionException if encodedContract version mismatches
    */
-  @ApiAudience.Public
-  public ContractDefinition(final String encodedContract, final Object... args) {
+  @ApiAudience.Private
+  public ContractDefinition(final String encodedContract, final List<Object> args) {
+    this(encodedContract, args, Aer.ZERO);
+  }
+
+  /**
+   * Contract definition constructor.
+   *
+   * @param encodedContract base58 with checksum encoded contract definition
+   * @param amount an aergo amount
+   *
+   * @throws DecodingFailureException if decoding failure
+   * @throws InvalidVersionException if encodedContract version mismatches
+   */
+  @ApiAudience.Private
+  public ContractDefinition(final String encodedContract, final Aer amount) {
+    this(encodedContract, emptyList(), amount);
+  }
+
+  /**
+   * Contract definition constructor.
+   *
+   * @param encodedContract base58 with checksum encoded contract definition
+   * @param args constructor arguments
+   * @param amount an aergo amount
+   *
+   * @throws DecodingFailureException if decoding failure
+   * @throws InvalidVersionException if encodedContract version mismatches
+   */
+  @ApiAudience.Private
+  public ContractDefinition(final String encodedContract, final List<Object> args,
+      final Aer amount) {
     assertNotNull(encodedContract, "Encoded contract must not null");
+    assertNotNull(args, "Args must not null");
+    assertNotNull(amount, "Amount must not null");
     this.decodedContract = EncodingUtils.decodeBase58WithCheck(encodedContract);
     VersionUtils.validate(this.decodedContract, ContractDefinition.PAYLOAD_VERSION);
 
     this.encodedContract = encodedContract;
-    this.constructorArgs = unmodifiableList(null == args ? emptyList() : asList(args));
+    this.constructorArgs = unmodifiableList(args);
+    this.amount = amount;
   }
 
   @Override
@@ -85,53 +118,63 @@ public class ContractDefinition {
     }
     final ContractDefinition other = (ContractDefinition) obj;
     return this.encodedContract.equals(other.encodedContract)
-        && this.constructorArgs.equals(other.constructorArgs);
+        && this.constructorArgs.equals(other.constructorArgs)
+        && this.amount.equals(other.amount);
   }
 
   @Override
   public int hashCode() {
     int hash = 1;
     hash = (31 * hash) + encodedContract.hashCode();
+    hash = (31 * hash) + amount.hashCode();
     hash = (31 * hash) + constructorArgs.hashCode();
     return hash;
   }
 
   public interface ContractDefinitionWithNothing {
-    ContractDefinitionWithPayload encodedContract(String encodedContract);
+    ContractDefinitionWithPayloadReady encodedContract(String encodedContract);
   }
 
-  public interface ContractDefinitionWithPayload extends hera.util.Builder<ContractDefinition> {
-    ContractDefinitionWithPayloadAndConstructorArgs constructorArgs(Object... args);
-  }
-
-  public interface ContractDefinitionWithPayloadAndConstructorArgs
+  public interface ContractDefinitionWithPayloadReady
       extends hera.util.Builder<ContractDefinition> {
+    ContractDefinitionWithPayloadReady constructorArgs(Object... args);
+
+    ContractDefinitionWithPayloadReady amount(Aer amount);
   }
 
-  protected static class Builder implements ContractDefinitionWithNothing,
-      ContractDefinitionWithPayload, ContractDefinitionWithPayloadAndConstructorArgs {
+  protected static class Builder
+      implements ContractDefinitionWithNothing, ContractDefinitionWithPayloadReady {
 
     protected String encodedContract;
 
     protected Object[] constructorArgs = new Object[0];
 
+    protected Aer amount = Aer.ZERO;
+
     @Override
-    public ContractDefinitionWithPayload encodedContract(final String encodedContract) {
+    public ContractDefinitionWithPayloadReady encodedContract(final String encodedContract) {
       this.encodedContract = encodedContract;
       return this;
     }
 
     @Override
-    public ContractDefinitionWithPayloadAndConstructorArgs constructorArgs(final Object... args) {
+    public ContractDefinitionWithPayloadReady amount(final Aer amount) {
+      this.amount = amount;
+      return this;
+    }
+
+    @Override
+    public ContractDefinitionWithPayloadReady constructorArgs(final Object... args) {
       this.constructorArgs = args;
       return this;
     }
 
     @Override
     public ContractDefinition build() {
-      return new ContractDefinition(this.encodedContract, this.constructorArgs);
+      return new ContractDefinition(encodedContract, asList(constructorArgs), amount);
     }
 
   }
 
 }
+

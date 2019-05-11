@@ -13,6 +13,7 @@ import static hera.TransportConstants.CONTRACT_LIST_EVENT;
 import static hera.TransportConstants.CONTRACT_QUERY;
 import static hera.TransportConstants.CONTRACT_SUBSCRIBE_EVENT;
 import static hera.api.model.BytesValue.of;
+import static java.util.Collections.emptyList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -26,6 +27,7 @@ import hera.api.function.Function2;
 import hera.api.function.Function4;
 import hera.api.function.WithIdentity;
 import hera.api.model.Account;
+import hera.api.model.Aer;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractFunction;
@@ -106,7 +108,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     Account account = mock(Account.class);
     String encoded = Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
     final ContractTxHash deployTxHash =
-        contractTemplate.deploy(account, ContractDefinition.of(encoded), 0L);
+        contractTemplate.deploy(account, new ContractDefinition(encoded), 0L);
     assertNotNull(deployTxHash);
     assertEquals(CONTRACT_DEPLOY,
         ((WithIdentity) contractTemplate.getDeployFunction()).getIdentity());
@@ -154,7 +156,8 @@ public class ContractTemplateTest extends AbstractTestCase {
     final Account account = mock(Account.class);
     final ContractFunction contractFunction = new ContractFunction(randomUUID().toString());
     final ContractTxHash executionTxHash = contractTemplate
-        .execute(account, new ContractInvocation(contractAddress, contractFunction), 0L);
+        .execute(account,
+            new ContractInvocation(contractAddress, contractFunction, emptyList(), Aer.ZERO), 0L);
     assertNotNull(executionTxHash);
     assertEquals(CONTRACT_EXECUTE,
         ((WithIdentity) contractTemplate.getExecuteFunction()).getIdentity());
@@ -178,7 +181,7 @@ public class ContractTemplateTest extends AbstractTestCase {
 
     final ContractFunction contractFunction = new ContractFunction(randomUUID().toString());
     final ContractResult contractResult = contractTemplate
-        .query(new ContractInvocation(contractAddress, contractFunction));
+        .query(new ContractInvocation(contractAddress, contractFunction, emptyList(), Aer.ZERO));
 
     assertNotNull(contractResult);
     assertEquals(CONTRACT_QUERY,

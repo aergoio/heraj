@@ -4,6 +4,7 @@
 
 package hera.api.model;
 
+import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -33,7 +34,7 @@ public class ContractInterfaceTest {
         new ContractInterface(address, version, language, functions, stateVariables);
 
     final Object[] args = new Object[] {randomUUID().toString(), randomUUID().toString()};
-    final ContractInvocation expected = new ContractInvocation(address, function, args);
+    final ContractInvocation expected = new ContractInvocation(address, function, asList(args));
     final ContractInvocation actual = contractInterface.newInvocationBuilder()
         .function(functionName)
         .args(args)
