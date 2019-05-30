@@ -12,6 +12,7 @@ import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.client.ContextConfiguer;
 import hera.exception.WalletCreationException;
+import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
 @ApiAudience.Public
@@ -58,6 +59,29 @@ public class WalletBuilder implements ContextConfiguer<WalletBuilder> {
   @Override
   public WalletBuilder withRetry(final int count, final long interval, final TimeUnit unit) {
     clientBuilder.withRetry(count, interval, unit);
+    return this;
+  }
+
+  @Override
+  public WalletBuilder withPlainText() {
+    clientBuilder.withPlainText();
+    return this;
+  }
+
+  @Override
+  public WalletBuilder withTransportSecurity(final String serverCommonName,
+      final String serverCertPath, final String clientCertPath, final String clientKeyPath) {
+    clientBuilder.withTransportSecurity(serverCommonName, serverCertPath, clientCertPath,
+        clientKeyPath);
+    return this;
+  }
+
+  @Override
+  public WalletBuilder withTransportSecurity(final String serverCommonName,
+      final InputStream serverCertInputStream, final InputStream clientCertInputStream,
+      final InputStream clientKeyInputStream) {
+    clientBuilder.withTransportSecurity(serverCommonName, serverCertInputStream,
+        clientCertInputStream, clientKeyInputStream);
     return this;
   }
 

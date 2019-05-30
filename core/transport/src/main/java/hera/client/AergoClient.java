@@ -64,7 +64,7 @@ public class AergoClient extends AbstractAergoApi implements Closeable {
    * @param baseContext a client base context
    */
   @ApiAudience.Private
-  public AergoClient(final Context baseContext) {
+  AergoClient(final Context baseContext) {
     assertNotNull(baseContext, "Base context must not null");
     this.baseContext = baseContext;
     this.contextProvider = new ThreadLocalContextProvider(baseContext, this);

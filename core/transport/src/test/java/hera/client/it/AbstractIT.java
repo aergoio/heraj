@@ -6,7 +6,6 @@ package hera.client.it;
 
 import static org.junit.Assert.assertEquals;
 import static org.slf4j.LoggerFactory.getLogger;
-
 import hera.api.model.Account;
 import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
@@ -14,7 +13,6 @@ import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
 import hera.api.model.ChainIdHash;
-import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.client.AergoClient;
@@ -39,11 +37,11 @@ public abstract class AbstractIT {
 
   protected String hostname;
 
+  protected String[] peerIds;
+
   protected String encrypted;
 
   protected String password;
-
-  protected String[] peerIds;
 
   protected boolean isFundEnabled;
 
@@ -53,14 +51,27 @@ public abstract class AbstractIT {
   public void setUp() throws Exception {
     final Properties properties = readProperties();
     hostname = (String) properties.get("hostname");
+    peerIds = ((String) properties.get("peer")).split(",");
+
     encrypted = (String) properties.get("encrypted");
     password = (String) properties.get("password");
-    peerIds = ((String) properties.get("peer")).split(",");
-    isFundEnabled = Boolean.valueOf((String) properties.get("enablefund"));
-    aergoClient = new AergoClientBuilder()
+    isFundEnabled = Boolean.valueOf((String) properties.get("isFundEnabled"));
+
+    final boolean isTlsEnabled = Boolean.valueOf((String) properties.get("isTlsEnabled"));
+
+    final AergoClientBuilder clientBuilder = new AergoClientBuilder()
         .withNonBlockingConnect()
-        .withEndpoint(hostname)
-        .build();
+        .withEndpoint(hostname);
+
+    if (isTlsEnabled) {
+      clientBuilder.withTransportSecurity(
+          "aergo.node",
+          openInPackage("server.crt"),
+          openInPackage("client.crt"),
+          openInPackage("client.pem"));
+    }
+
+    this.aergoClient = clientBuilder.build();
 
     final ChainIdHash chainIdHash =
         aergoClient.getBlockchainOperation().getBlockchainStatus().getChainIdHash();
@@ -71,6 +82,12 @@ public abstract class AbstractIT {
     Properties properties = new Properties();
     properties.load(getClass().getResourceAsStream(propertiesPath));
     return properties;
+  }
+
+  protected InputStream openInPackage(final String ext) {
+    final String path = "/" + getClass().getPackage().getName().replace('.', '/') + "/" + ext;
+    logger.trace("Path: {}", path);
+    return getClass().getResourceAsStream(path);
   }
 
   protected InputStream open(final String ext) {

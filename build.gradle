@@ -28,7 +28,11 @@ repositories {
   jcenter()
 }
 
-def javaVersion = JavaVersion.VERSION_1_6
+// directory holding boot class jar files for jdk6
+def jdkBootClassDir = System.getenv("JDK6_LIB_PATH")
+
+def javaVersion6 = JavaVersion.VERSION_1_6
+def javaVersion8 = JavaVersion.VERSION_1_8
 
 def javaProjects = [
   project('core:annotation'),
@@ -69,8 +73,16 @@ configure(javaProjects) {
 
   def projectBaseName = 'heraj-' + project.name
 
-  sourceCompatibility = javaVersion
-  targetCompatibility = javaVersion
+  sourceCompatibility = javaVersion8
+  targetCompatibility = javaVersion8
+
+  compileJava {
+    sourceCompatibility = javaVersion6
+    targetCompatibility = javaVersion6
+    options.bootClasspath = fileTree(jdkBootClassDir).getFiles()
+      .collect { it.getAbsolutePath() }
+      .inject { curr, val -> curr + ":" + val }
+  }
 
   repositories {
     mavenLocal()
@@ -288,8 +300,8 @@ configure(javaProjects) {
 configure(exampleProjects) {
   apply plugin: 'java'
 
-  sourceCompatibility = javaVersion
-  targetCompatibility = javaVersion
+  sourceCompatibility = javaVersion6
+  targetCompatibility = javaVersion6
 
   repositories {
     mavenLocal()

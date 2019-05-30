@@ -99,7 +99,18 @@ TBD
 
 ## Prerequisites
 
-* JDK 7 or higher is recommanded because of gradle.
+### JDK
+
+* JDK 6 : class target environment
+* JDK 8 : test environment
+
+### Environment variable
+
+Set `JDK6_LIB_PATH` which is holding boot class files (rt.jar, jce.jar, etc..)
+
+```console
+$ export JDK6_LIB_PATH="YOUR_BOOT_CLASS_FILES_DIR"
+```
 
 ## Clone
 
