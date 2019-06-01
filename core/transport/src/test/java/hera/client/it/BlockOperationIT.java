@@ -11,7 +11,7 @@ import static org.junit.Assert.fail;
 
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
-import hera.api.model.BlockHeader;
+import hera.api.model.BlockMetadata;
 import hera.api.model.BlockchainStatus;
 import hera.exception.RpcArgumentException;
 import java.util.List;
@@ -20,26 +20,26 @@ import org.junit.Test;
 public class BlockOperationIT extends AbstractIT {
 
   @Test
-  public void testBlockHeaderLookup() {
+  public void testBlockMetadataLookup() {
     final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
     final Block block = aergoClient.getBlockOperation().getBlock(status.getBestBlockHash());
     logger.info("Best block: {}", block);
 
-    final BlockHeader blockHeaderByHash =
-        aergoClient.getBlockOperation().getBlockHeader(block.getHash());
-    final BlockHeader blockHeaderByHeight =
-        aergoClient.getBlockOperation().getBlockHeader(block.getBlockNumber());
-    logger.info("Block header by hash: {}", blockHeaderByHash);
-    logger.info("Block header by height: {}", blockHeaderByHeight);
+    final BlockMetadata blockMetadataByHash =
+        aergoClient.getBlockOperation().getBlockMetadata(block.getHash());
+    final BlockMetadata blockMetadataByHeight =
+        aergoClient.getBlockOperation().getBlockMetadata(block.getBlockHeader().getBlockNumber());
+    logger.info("Block header by hash: {}", blockMetadataByHash);
+    logger.info("Block header by height: {}", blockMetadataByHeight);
 
-    assertEquals(blockHeaderByHash, blockHeaderByHeight);
+    assertEquals(blockMetadataByHash, blockMetadataByHeight);
   }
 
   @Test
-  public void testInvalidBlockHeaderLookup() {
+  public void testInvalidBlockMetadataLookup() {
     try {
       aergoClient.getBlockOperation()
-          .getBlockHeader(new BlockHash(of(randomUUID().toString().getBytes())));
+          .getBlockMetadata(new BlockHash(of(randomUUID().toString().getBytes())));
       fail();
     } catch (Exception e) {
       // good we expected this
@@ -47,21 +47,21 @@ public class BlockOperationIT extends AbstractIT {
 
     try {
       aergoClient.getBlockOperation()
-          .getBlockHeader(new BlockHash("8WTYmYgmEGH9UYRYPzGTowS5vhPLumGyb3Pq9UQ3zcRv"));
+          .getBlockMetadata(new BlockHash("8WTYmYgmEGH9UYRYPzGTowS5vhPLumGyb3Pq9UQ3zcRv"));
       fail();
     } catch (Exception e) {
       // good we expected this
     }
 
     try {
-      aergoClient.getBlockOperation().getBlockHeader(Long.MAX_VALUE);
+      aergoClient.getBlockOperation().getBlockMetadata(Long.MAX_VALUE);
       fail();
     } catch (Exception e) {
       // good we expected this
     }
 
     try {
-      aergoClient.getBlockOperation().getBlockHeader(-1);
+      aergoClient.getBlockOperation().getBlockMetadata(-1);
       fail();
     } catch (RpcArgumentException e) {
       // good we expected this
@@ -69,56 +69,57 @@ public class BlockOperationIT extends AbstractIT {
   }
 
   @Test
-  public void testBlockHeadersLookup() {
+  public void testBlockMetadatasLookup() {
     final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
     final Block block = aergoClient.getBlockOperation().getBlock(status.getBestBlockHash());
     logger.info("Best block: {}", block);
 
-    final List<BlockHeader> blockHeadersByHash =
-        aergoClient.getBlockOperation().listBlockHeaders(block.getHash(), 10);
-    final List<BlockHeader> blockHeadersByHeight =
-        aergoClient.getBlockOperation().listBlockHeaders(block.getBlockNumber(), 10);
-    logger.info("Block headers by hash: {}", blockHeadersByHash);
-    logger.info("Block headers by height: {}", blockHeadersByHeight);
+    final List<BlockMetadata> blockMetadatasByHash =
+        aergoClient.getBlockOperation().listBlockMetadatas(block.getHash(), 10);
+    final List<BlockMetadata> blockMetadatasByHeight =
+        aergoClient.getBlockOperation().listBlockMetadatas(block.getBlockHeader().getBlockNumber(),
+            10);
+    logger.info("Block headers by hash: {}", blockMetadatasByHash);
+    logger.info("Block headers by height: {}", blockMetadatasByHeight);
 
-    assertEquals(blockHeadersByHash, blockHeadersByHeight);
+    assertEquals(blockMetadatasByHash, blockMetadatasByHeight);
   }
 
   @Test
-  public void testInvalidBlockHeadersLookup() {
+  public void testInvalidBlockMetadatasLookup() {
     final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
 
     try {
       aergoClient.getBlockOperation()
-          .listBlockHeaders(new BlockHash(of(randomUUID().toString().getBytes())), 1);
+          .listBlockMetadatas(new BlockHash(of(randomUUID().toString().getBytes())), 1);
       // fail(); // TODO : uncomment after fixed in a server
     } catch (Exception e) {
       // good we expected this
     }
 
     try {
-      aergoClient.getBlockOperation().listBlockHeaders(status.getBestBlockHash(), -1);
+      aergoClient.getBlockOperation().listBlockMetadatas(status.getBestBlockHash(), -1);
       fail();
     } catch (RpcArgumentException e) {
       // good we expected this
     }
 
     try {
-      aergoClient.getBlockOperation().listBlockHeaders(Long.MAX_VALUE, 1);
+      aergoClient.getBlockOperation().listBlockMetadatas(Long.MAX_VALUE, 1);
       // fail(); // TODO : uncomment after fixed in a server
     } catch (Exception e) {
       // good we expected this
     }
 
     try {
-      aergoClient.getBlockOperation().listBlockHeaders(-1, 1);
+      aergoClient.getBlockOperation().listBlockMetadatas(-1, 1);
       fail();
     } catch (RpcArgumentException e) {
       // good we expected this
     }
 
     try {
-      aergoClient.getBlockOperation().listBlockHeaders(status.getBestHeight(), -1);
+      aergoClient.getBlockOperation().listBlockMetadatas(status.getBestHeight(), -1);
       fail();
     } catch (RpcArgumentException e) {
       // good we expected this
@@ -138,11 +139,12 @@ public class BlockOperationIT extends AbstractIT {
 
     // lookup previous block by hash
     final Block previousBlock =
-        aergoClient.getBlockOperation().getBlock(blockByHash.getPreviousHash());
+        aergoClient.getBlockOperation().getBlock(blockByHash.getBlockHeader().getPreviousHash());
     logger.info("Previous block: {}", previousBlock);
 
-    assertEquals(previousBlock.getHash(), blockByHash.getPreviousHash());
-    assertEquals(previousBlock.getBlockNumber() + 1, blockByHash.getBlockNumber());
+    assertEquals(previousBlock.getHash(), blockByHash.getBlockHeader().getPreviousHash());
+    assertEquals(previousBlock.getBlockHeader().getBlockNumber() + 1,
+        blockByHash.getBlockHeader().getBlockNumber());
   }
 
   @Test

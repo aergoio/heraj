@@ -23,10 +23,10 @@ public final class TransportConstants {
   public static final String KEYSTORE_IMPORTKEY = "heraj.importkey";
   public static final String KEYSTORE_EXPORTKEY = "heraj.exportkey";
 
-  public static final String BLOCK_GET_HEADER_BY_HASH = "heraj.getheader.hash";
-  public static final String BLOCK_GET_HEADER_BY_HEIGHT = "heraj.getheader.height";
-  public static final String BLOCK_LIST_HEADERS_BY_HASH = "heraj.listheaders.hash";
-  public static final String BLOCK_LIST_HEADERS_BY_HEIGHT = "heraj.listheaders.height";
+  public static final String BLOCK_GET_METADATA_BY_HASH = "heraj.getmetadata.hash";
+  public static final String BLOCK_GET_METADATA_BY_HEIGHT = "heraj.getmetadata.height";
+  public static final String BLOCK_LIST_METADATAS_BY_HASH = "heraj.listmetadatas.hash";
+  public static final String BLOCK_LIST_METADATAS_BY_HEIGHT = "heraj.listmetadatas.height";
   public static final String BLOCK_GET_BLOCK_BY_HASH = "heraj.getblock.hash";
   public static final String BLOCK_GET_BLOCK_BY_HEIGHT = "heraj.getblock.height";
 

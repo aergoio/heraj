@@ -9,12 +9,10 @@ import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.function.Function1;
-import hera.api.model.AccountAddress;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
-import hera.api.model.Hash;
+import hera.api.model.BlockHeader;
 import hera.api.model.Transaction;
-import hera.api.model.TxHash;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,11 +23,11 @@ public class BlockConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final ModelConverter<AccountAddress, com.google.protobuf.ByteString> addressConverter =
-      new AccountAddressConverterFactory().create();
-
   protected final ModelConverter<Transaction, Blockchain.TxInBlock> transactionInBlockConverter =
       new TransactionInBlockConverterFactory().create();
+
+  protected final ModelConverter<BlockHeader, Blockchain.BlockHeader> blockHeaderConverter =
+      new BlockHeaderConverterFactory().create();
 
   protected final Function1<Block, Blockchain.Block> domainConverter =
       new Function1<Block, Blockchain.Block>() {
@@ -66,19 +64,8 @@ public class BlockConverterFactory {
           }
 
           final Block domainBlock = new Block(
-              new Hash(of(rpcBlockHeader.getChainID().toByteArray())),
               blockHash,
-              new BlockHash(of(rpcBlockHeader.getPrevBlockHash().toByteArray())),
-              rpcBlockHeader.getBlockNo(),
-              rpcBlockHeader.getTimestamp(),
-              new BlockHash(of(rpcBlockHeader.getBlocksRootHash().toByteArray())),
-              new TxHash(of(rpcBlockHeader.getTxsRootHash().toByteArray())),
-              new Hash(of(rpcBlockHeader.getReceiptsRootHash().toByteArray())),
-              rpcBlockHeader.getConfirms(),
-              new Hash(of(rpcBlockHeader.getPubKey().toByteArray())),
-              new Hash(of(rpcBlockHeader.getSign().toByteArray())),
-              addressConverter.convertToDomainModel(rpcBlockHeader.getCoinbaseAccount()),
-              transactions.size(),
+              blockHeaderConverter.convertToDomainModel(rpcBlockHeader),
               transactions);
           logger.trace("Domain block converted: {}", domainBlock);
           return domainBlock;

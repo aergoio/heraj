@@ -6,7 +6,7 @@ package hera.example.client;
 
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
-import hera.api.model.BlockHeader;
+import hera.api.model.BlockMetadata;
 import hera.api.model.BlockchainStatus;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
@@ -42,7 +42,7 @@ public class BlockLookup extends AbstractExample {
     aergoClient.close();
   }
 
-  protected void blockHeaderLookup() {
+  protected void blockMetadataLookup() {
     // make aergo client object
     final AergoClient aergoClient = new AergoClientBuilder()
         .withEndpoint(hostname)
@@ -54,24 +54,25 @@ public class BlockLookup extends AbstractExample {
     final BlockHash bestHash = status.getBestBlockHash();
     final long bestHeight = status.getBestHeight();
 
-    // query block header corresponding to the block hash
-    final BlockHeader blockHeaderByHash = aergoClient.getBlockOperation().getBlockHeader(bestHash);
-    System.out.println("Block header by hash: " + blockHeaderByHash);
+    // query block metadata corresponding to the block hash
+    final BlockMetadata blockMetadataByHash =
+        aergoClient.getBlockOperation().getBlockMetadata(bestHash);
+    System.out.println("Block metadata by hash: " + blockMetadataByHash);
 
-    // query block header corresponding to the block hash
-    final BlockHeader blockHeaderByHeight =
-        aergoClient.getBlockOperation().getBlockHeader(bestHeight);
-    System.out.println("Block header by height: " + blockHeaderByHeight);
+    // query block metadata corresponding to the block hash
+    final BlockMetadata blockMetadataByHeight =
+        aergoClient.getBlockOperation().getBlockMetadata(bestHeight);
+    System.out.println("Block metadata by height: " + blockMetadataByHeight);
 
-    // query 10 block headers starting from best block backward with best block hash
-    final List<BlockHeader> blockHeadersByHash =
-        aergoClient.getBlockOperation().listBlockHeaders(bestHash, 10);
-    System.out.println("Block headers by hash: " + blockHeadersByHash);
+    // query 10 block metadatas starting from best block backward with best block hash
+    final List<BlockMetadata> blockMetadatasByHash =
+        aergoClient.getBlockOperation().listBlockMetadatas(bestHash, 10);
+    System.out.println("Block metadatas by hash: " + blockMetadatasByHash);
 
-    // query 10 block headers starting from best block backward with best block height
-    final List<BlockHeader> blockHeadersByHeight =
-        aergoClient.getBlockOperation().listBlockHeaders(bestHeight, 10);
-    System.out.println("Block headers by height: " + blockHeadersByHeight);
+    // query 10 block metadatas starting from best block backward with best block height
+    final List<BlockMetadata> blockMetadatasByHeight =
+        aergoClient.getBlockOperation().listBlockMetadatas(bestHeight, 10);
+    System.out.println("Block metadatas by height: " + blockMetadatasByHeight);
 
     // close the client
     aergoClient.close();
@@ -80,7 +81,7 @@ public class BlockLookup extends AbstractExample {
   @Override
   public void run() {
     blockLookup();
-    blockHeaderLookup();
+    blockMetadataLookup();
   }
 
   public static void main(String[] args) {

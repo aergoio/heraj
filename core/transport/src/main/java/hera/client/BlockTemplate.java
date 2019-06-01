@@ -6,10 +6,10 @@ package hera.client;
 
 import static hera.TransportConstants.BLOCK_GET_BLOCK_BY_HASH;
 import static hera.TransportConstants.BLOCK_GET_BLOCK_BY_HEIGHT;
-import static hera.TransportConstants.BLOCK_GET_HEADER_BY_HASH;
-import static hera.TransportConstants.BLOCK_GET_HEADER_BY_HEIGHT;
-import static hera.TransportConstants.BLOCK_LIST_HEADERS_BY_HASH;
-import static hera.TransportConstants.BLOCK_LIST_HEADERS_BY_HEIGHT;
+import static hera.TransportConstants.BLOCK_GET_METADATA_BY_HASH;
+import static hera.TransportConstants.BLOCK_GET_METADATA_BY_HEIGHT;
+import static hera.TransportConstants.BLOCK_LIST_METADATAS_BY_HASH;
+import static hera.TransportConstants.BLOCK_LIST_METADATAS_BY_HEIGHT;
 import static hera.api.function.Functions.identify;
 
 import hera.ContextProvider;
@@ -21,7 +21,7 @@ import hera.api.function.Function1;
 import hera.api.function.Function2;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
-import hera.api.model.BlockHeader;
+import hera.api.model.BlockMetadata;
 import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import java.util.List;
@@ -53,30 +53,30 @@ public class BlockTemplate
   }
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<BlockHash, FinishableFuture<BlockHeader>> blockHeaderByHashFunction =
+  private final Function1<BlockHash, FinishableFuture<BlockMetadata>> blockMetadataByHashFunction =
       getStrategyChain()
-          .apply(identify(getBlockBaseTemplate().getBlockHeaderByHashFunction(),
-              BLOCK_GET_HEADER_BY_HASH));
+          .apply(identify(getBlockBaseTemplate().getBlockMetatdataByHashFunction(),
+              BLOCK_GET_METADATA_BY_HASH));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<Long, FinishableFuture<BlockHeader>> blockHeaderByHeightFunction =
+  private final Function1<Long, FinishableFuture<BlockMetadata>> blockMetadataByHeightFunction =
       getStrategyChain().apply(
-          identify(getBlockBaseTemplate().getBlockHeaderByHeightFunction(),
-              BLOCK_GET_HEADER_BY_HEIGHT));
+          identify(getBlockBaseTemplate().getBlockMetadataByHeightFunction(),
+              BLOCK_GET_METADATA_BY_HEIGHT));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function2<BlockHash, Integer,
-      FinishableFuture<List<BlockHeader>>> listBlockHeadersByHashFunction =
+      FinishableFuture<List<BlockMetadata>>> listBlockMetadatasByHashFunction =
           getStrategyChain()
-              .apply(identify(getBlockBaseTemplate().getListBlockHeadersByHashFunction(),
-                  BLOCK_LIST_HEADERS_BY_HASH));
+              .apply(identify(getBlockBaseTemplate().getListBlockMetadatasByHashFunction(),
+                  BLOCK_LIST_METADATAS_BY_HASH));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function2<Long, Integer,
-      FinishableFuture<List<BlockHeader>>> listBlockHeadersByHeightFunction =
+      FinishableFuture<List<BlockMetadata>>> listBlockMetadatasByHeightFunction =
           getStrategyChain()
-              .apply(identify(getBlockBaseTemplate().getListBlockHeadersByHeightFunction(),
-                  BLOCK_LIST_HEADERS_BY_HEIGHT));
+              .apply(identify(getBlockBaseTemplate().getListBlockMetadatasByHeightFunction(),
+                  BLOCK_LIST_METADATAS_BY_HEIGHT));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<BlockHash, FinishableFuture<Block>> blockByHashFunction =
@@ -90,25 +90,25 @@ public class BlockTemplate
           identify(getBlockBaseTemplate().getBlockByHeightFunction(), BLOCK_GET_BLOCK_BY_HEIGHT));
 
   @Override
-  public BlockHeader getBlockHeader(final BlockHash blockHash) {
-    return getBlockHeaderByHashFunction().apply(blockHash).get();
+  public BlockMetadata getBlockMetadata(final BlockHash blockHash) {
+    return getBlockMetadataByHashFunction().apply(blockHash).get();
   }
 
   @Override
-  public BlockHeader getBlockHeader(final long height) {
-    return getBlockHeaderByHeightFunction().apply(height).get();
+  public BlockMetadata getBlockMetadata(final long height) {
+    return getBlockMetadataByHeightFunction().apply(height).get();
   }
 
   @Override
-  public List<BlockHeader> listBlockHeaders(final BlockHash blockHash,
+  public List<BlockMetadata> listBlockMetadatas(final BlockHash blockHash,
       final int size) {
-    return getListBlockHeadersByHashFunction().apply(blockHash, size).get();
+    return getListBlockMetadatasByHashFunction().apply(blockHash, size).get();
   }
 
   @Override
-  public List<BlockHeader> listBlockHeaders(final long height,
+  public List<BlockMetadata> listBlockMetadatas(final long height,
       final int size) {
-    return getListBlockHeadersByHeightFunction().apply(height, size).get();
+    return getListBlockMetadatasByHeightFunction().apply(height, size).get();
   }
 
   @Override

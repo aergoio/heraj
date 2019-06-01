@@ -20,9 +20,9 @@ import hera.api.function.Function1;
 import hera.api.function.Function2;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
-import hera.api.model.BlockHeader;
+import hera.api.model.BlockMetadata;
 import hera.transport.BlockConverterFactory;
-import hera.transport.BlockHeaderConverterFactory;
+import hera.transport.BlockMetadataConverterFactory;
 import hera.transport.ModelConverter;
 import io.grpc.ManagedChannel;
 import java.util.ArrayList;
@@ -39,8 +39,8 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final ModelConverter<BlockHeader, Rpc.BlockMetadata> blockMetadataConverter =
-      new BlockHeaderConverterFactory().create();
+  protected final ModelConverter<BlockMetadata, types.Rpc.BlockMetadata> blockMetadataConverter =
+      new BlockMetadataConverterFactory().create();
 
   protected final ModelConverter<Block, Blockchain.Block> blockConverter =
       new BlockConverterFactory().create();
@@ -61,14 +61,14 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
   }
 
   @Getter
-  private final Function1<BlockHash, FinishableFuture<BlockHeader>> blockHeaderByHashFunction =
-      new Function1<BlockHash, FinishableFuture<BlockHeader>>() {
+  private final Function1<BlockHash, FinishableFuture<BlockMetadata>> blockMetatdataByHashFunction =
+      new Function1<BlockHash, FinishableFuture<BlockMetadata>>() {
 
         @Override
-        public FinishableFuture<BlockHeader> apply(final BlockHash hash) {
-          logger.debug("Get block header with hash: {}", hash);
+        public FinishableFuture<BlockMetadata> apply(final BlockHash hash) {
+          logger.debug("Get block metadata with hash: {}", hash);
 
-          FinishableFuture<BlockHeader> nextFuture = new FinishableFuture<BlockHeader>();
+          FinishableFuture<BlockMetadata> nextFuture = new FinishableFuture<BlockMetadata>();
           try {
             final Rpc.SingleBytes rpcHash = Rpc.SingleBytes.newBuilder()
                 .setValue(copyFrom(hash.getBytesValue()))
@@ -77,14 +77,14 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
 
             ListenableFuture<Rpc.BlockMetadata> listenableFuture =
                 aergoService.getBlockMetadata(rpcHash);
-            FutureChain<Rpc.BlockMetadata, BlockHeader> callback =
-                new FutureChain<Rpc.BlockMetadata, BlockHeader>(nextFuture,
+            FutureChain<Rpc.BlockMetadata, BlockMetadata> callback =
+                new FutureChain<Rpc.BlockMetadata, BlockMetadata>(nextFuture,
                     contextProvider.get());
             callback.setSuccessHandler(
-                new Function1<Rpc.BlockMetadata, BlockHeader>() {
+                new Function1<Rpc.BlockMetadata, BlockMetadata>() {
 
                   @Override
-                  public BlockHeader apply(final Rpc.BlockMetadata metadata) {
+                  public BlockMetadata apply(final Rpc.BlockMetadata metadata) {
                     return blockMetadataConverter.convertToDomainModel(metadata);
                   }
                 });
@@ -98,15 +98,15 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
       };
 
   @Getter
-  private final Function1<Long, FinishableFuture<BlockHeader>> blockHeaderByHeightFunction =
-      new Function1<Long, FinishableFuture<BlockHeader>>() {
+  private final Function1<Long, FinishableFuture<BlockMetadata>> blockMetadataByHeightFunction =
+      new Function1<Long, FinishableFuture<BlockMetadata>>() {
 
         @Override
-        public FinishableFuture<BlockHeader> apply(final Long height) {
-          logger.debug("Get block header with height: {}", height);
+        public FinishableFuture<BlockMetadata> apply(final Long height) {
+          logger.debug("Get block metadata with height: {}", height);
           assertArgument(height >= 0, "Height", ">= 0");
 
-          FinishableFuture<BlockHeader> nextFuture = new FinishableFuture<BlockHeader>();
+          FinishableFuture<BlockMetadata> nextFuture = new FinishableFuture<BlockMetadata>();
           try {
             final Rpc.SingleBytes rpcHeight = Rpc.SingleBytes.newBuilder()
                 .setValue(copyFrom(height.longValue()))
@@ -115,12 +115,12 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
 
             ListenableFuture<Rpc.BlockMetadata> listenableFuture =
                 aergoService.getBlockMetadata(rpcHeight);
-            FutureChain<Rpc.BlockMetadata, BlockHeader> callback =
-                new FutureChain<Rpc.BlockMetadata, BlockHeader>(nextFuture,
+            FutureChain<Rpc.BlockMetadata, BlockMetadata> callback =
+                new FutureChain<Rpc.BlockMetadata, BlockMetadata>(nextFuture,
                     contextProvider.get());
-            callback.setSuccessHandler(new Function1<Rpc.BlockMetadata, BlockHeader>() {
+            callback.setSuccessHandler(new Function1<Rpc.BlockMetadata, BlockMetadata>() {
               @Override
-              public BlockHeader apply(final Rpc.BlockMetadata metadata) {
+              public BlockMetadata apply(final Rpc.BlockMetadata metadata) {
                 return blockMetadataConverter.convertToDomainModel(metadata);
               }
             });
@@ -135,17 +135,17 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
 
   @Getter
   private final Function2<BlockHash, Integer,
-      FinishableFuture<List<BlockHeader>>> listBlockHeadersByHashFunction = new Function2<BlockHash,
-          Integer, FinishableFuture<List<BlockHeader>>>() {
+      FinishableFuture<List<BlockMetadata>>> listBlockMetadatasByHashFunction = new Function2<
+          BlockHash, Integer, FinishableFuture<List<BlockMetadata>>>() {
 
         @Override
-        public FinishableFuture<List<BlockHeader>> apply(final BlockHash hash,
+        public FinishableFuture<List<BlockMetadata>> apply(final BlockHash hash,
             final Integer size) {
-          logger.debug("List block headers with hash: {}, size: {}", hash, size);
+          logger.debug("List block meta datas with hash: {}, size: {}", hash, size);
           assertArgument(size > 0, "Block list size", "postive");
 
-          FinishableFuture<List<BlockHeader>> nextFuture =
-              new FinishableFuture<List<BlockHeader>>();
+          FinishableFuture<List<BlockMetadata>> nextFuture =
+              new FinishableFuture<List<BlockMetadata>>();
           try {
             final Rpc.ListParams rpcHashAndSize = Rpc.ListParams.newBuilder()
                 .setHash(copyFrom(hash.getBytesValue()))
@@ -155,20 +155,20 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
 
             ListenableFuture<Rpc.BlockMetadataList> listenableFuture =
                 aergoService.listBlockMetadata(rpcHashAndSize);
-            FutureChain<Rpc.BlockMetadataList, List<BlockHeader>> callback =
-                new FutureChain<Rpc.BlockMetadataList, List<BlockHeader>>(nextFuture,
+            FutureChain<Rpc.BlockMetadataList, List<BlockMetadata>> callback =
+                new FutureChain<Rpc.BlockMetadataList, List<BlockMetadata>>(nextFuture,
                     contextProvider.get());
             callback.setSuccessHandler(
-                new Function1<Rpc.BlockMetadataList, List<BlockHeader>>() {
+                new Function1<Rpc.BlockMetadataList, List<BlockMetadata>>() {
 
                   @Override
-                  public List<BlockHeader> apply(final Rpc.BlockMetadataList metadatas) {
-                    final List<BlockHeader> blockHeaders = new ArrayList<BlockHeader>();
-                    for (final Rpc.BlockMetadata metadata : metadatas.getBlocksList()) {
-                      blockHeaders
-                          .add(blockMetadataConverter.convertToDomainModel(metadata));
+                  public List<BlockMetadata> apply(final Rpc.BlockMetadataList metadatas) {
+                    final List<BlockMetadata> blockMetadatas = new ArrayList<BlockMetadata>();
+                    for (final Rpc.BlockMetadata rpcBlockMetadata : metadatas.getBlocksList()) {
+                      blockMetadatas
+                          .add(blockMetadataConverter.convertToDomainModel(rpcBlockMetadata));
                     }
-                    return blockHeaders;
+                    return blockMetadatas;
                   }
                 });
             addCallback(listenableFuture, callback, directExecutor());
@@ -182,18 +182,18 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
 
   @Getter
   private final Function2<Long, Integer,
-      FinishableFuture<List<BlockHeader>>> listBlockHeadersByHeightFunction = new Function2<
-          Long, Integer, FinishableFuture<List<BlockHeader>>>() {
+      FinishableFuture<List<BlockMetadata>>> listBlockMetadatasByHeightFunction = new Function2<
+          Long, Integer, FinishableFuture<List<BlockMetadata>>>() {
 
         @Override
-        public FinishableFuture<List<BlockHeader>> apply(final Long height,
+        public FinishableFuture<List<BlockMetadata>> apply(final Long height,
             final Integer size) {
-          logger.debug("List block headers with height: {}, size: {}", height, size);
+          logger.debug("List block meta datas with height: {}, size: {}", height, size);
           assertArgument(height >= 0, "Height", ">= 0");
           assertArgument(size > 0, "Block list size", "postive");
 
-          FinishableFuture<List<BlockHeader>> nextFuture =
-              new FinishableFuture<List<BlockHeader>>();
+          FinishableFuture<List<BlockMetadata>> nextFuture =
+              new FinishableFuture<List<BlockMetadata>>();
           try {
             final Rpc.ListParams rpcHeightAndSize = Rpc.ListParams.newBuilder()
                 .setHeight(height)
@@ -203,16 +203,17 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
 
             ListenableFuture<Rpc.BlockMetadataList> listenableFuture =
                 aergoService.listBlockMetadata(rpcHeightAndSize);
-            FutureChain<Rpc.BlockMetadataList, List<BlockHeader>> callback =
-                new FutureChain<Rpc.BlockMetadataList, List<BlockHeader>>(nextFuture,
+            FutureChain<Rpc.BlockMetadataList, List<BlockMetadata>> callback =
+                new FutureChain<Rpc.BlockMetadataList, List<BlockMetadata>>(nextFuture,
                     contextProvider.get());
             callback
-                .setSuccessHandler(new Function1<Rpc.BlockMetadataList, List<BlockHeader>>() {
+                .setSuccessHandler(new Function1<Rpc.BlockMetadataList, List<BlockMetadata>>() {
                   @Override
-                  public List<BlockHeader> apply(final Rpc.BlockMetadataList metadatas) {
-                    final List<BlockHeader> blockHeaders = new ArrayList<BlockHeader>();
-                    for (final Rpc.BlockMetadata metadata : metadatas.getBlocksList()) {
-                      blockHeaders.add(blockMetadataConverter.convertToDomainModel(metadata));
+                  public List<BlockMetadata> apply(final Rpc.BlockMetadataList metadatas) {
+                    final List<BlockMetadata> blockHeaders = new ArrayList<BlockMetadata>();
+                    for (final Rpc.BlockMetadata rpcBlockMetadata : metadatas.getBlocksList()) {
+                      blockHeaders
+                          .add(blockMetadataConverter.convertToDomainModel(rpcBlockMetadata));
                     }
                     return blockHeaders;
                   }

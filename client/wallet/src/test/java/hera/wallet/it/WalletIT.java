@@ -18,7 +18,7 @@ import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
 import hera.api.model.BlockHash;
-import hera.api.model.BlockHeader;
+import hera.api.model.BlockMetadata;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.ChainIdHash;
 import hera.api.model.ChainInfo;
@@ -278,17 +278,17 @@ public class WalletIT extends AbstractIT {
       final BlockchainStatus blockchainStatus = wallet.getBlockchainStatus();
       assertNotNull(blockchainStatus);
 
-      final BlockHeader blockHeaderByHash = wallet.getBlockHeader(blockhash);
-      assertNotNull(blockHeaderByHash);
+      final BlockMetadata blockMetadataByHash = wallet.getBlockMetadata(blockhash);
+      assertNotNull(blockMetadataByHash);
 
-      final BlockHeader blockHeaderByHeight = wallet.getBlockHeader(blockhash);
-      assertNotNull(blockHeaderByHeight);
+      final BlockMetadata blockMetadataByHeight = wallet.getBlockMetadata(blockhash);
+      assertNotNull(blockMetadataByHeight);
 
-      final List<BlockHeader> blockHeadersByHash = wallet.listBlockHeaders(blockhash, 10);
-      assertNotNull(blockHeadersByHash);
+      final List<BlockMetadata> blockMetadatasByHash = wallet.listBlockMetadatas(blockhash, 10);
+      assertNotNull(blockMetadatasByHash);
 
-      final List<BlockHeader> blockHeadersByHeight = wallet.listBlockHeaders(blockHeight, 10);
-      assertNotNull(blockHeadersByHeight);
+      final List<BlockMetadata> blockMetadatasByHeight = wallet.listBlockMetadatas(blockHeight, 10);
+      assertNotNull(blockMetadatasByHeight);
 
       wallet.close();
     }

@@ -12,7 +12,7 @@ import hera.api.model.AccountState;
 import hera.api.model.AccountTotalVote;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
-import hera.api.model.BlockHeader;
+import hera.api.model.BlockMetadata;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.ChainIdHash;
 import hera.api.model.ChainInfo;
@@ -238,7 +238,7 @@ public interface QueryClient extends Closeable {
   NodeStatus getNodeStatus();
 
   /**
-   * Get block header by hash.
+   * Get block metadata by hash.
    *
    * @param blockHash block hash
    * @return block
@@ -246,10 +246,10 @@ public interface QueryClient extends Closeable {
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
    */
-  BlockHeader getBlockHeader(BlockHash blockHash);
+  BlockMetadata getBlockMetadata(BlockHash blockHash);
 
   /**
-   * Get block header by height.
+   * Get block metadata by height.
    *
    * @param height block's height
    * @return block
@@ -257,10 +257,10 @@ public interface QueryClient extends Closeable {
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
    */
-  BlockHeader getBlockHeader(long height);
+  BlockMetadata getBlockMetadata(long height);
 
   /**
-   * Get block headers of {@code size} backward starting from block for provided hash.
+   * Get block metadatas of {@code size} backward starting from block for provided hash.
    *
    * @param blockHash block hash
    * @param size block list size whose upper bound is 1000
@@ -269,10 +269,10 @@ public interface QueryClient extends Closeable {
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
    */
-  List<BlockHeader> listBlockHeaders(BlockHash blockHash, int size);
+  List<BlockMetadata> listBlockMetadatas(BlockHash blockHash, int size);
 
   /**
-   * Get block headers of {@code size} backward starting from block for provided height.
+   * Get block metadatas of {@code size} backward starting from block for provided height.
    *
    * @param height block's height
    * @param size block list size whose upper bound is 1000
@@ -281,7 +281,7 @@ public interface QueryClient extends Closeable {
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
    */
-  List<BlockHeader> listBlockHeaders(long height, int size);
+  List<BlockMetadata> listBlockMetadatas(long height, int size);
 
   /**
    * Get block by hash.

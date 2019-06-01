@@ -12,10 +12,9 @@ import hera.api.model.AccountAddress;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
 import hera.api.model.Hash;
-import hera.api.model.TxHash;
+import hera.api.model.Signature;
 import org.slf4j.Logger;
 import types.Blockchain;
-import types.Rpc;
 
 public class BlockHeaderConverterFactory {
 
@@ -24,43 +23,40 @@ public class BlockHeaderConverterFactory {
   protected final ModelConverter<AccountAddress, com.google.protobuf.ByteString> addressConverter =
       new AccountAddressConverterFactory().create();
 
-  protected final Function1<BlockHeader, Rpc.BlockMetadata> domainConverter =
-      new Function1<BlockHeader, Rpc.BlockMetadata>() {
+  protected final Function1<BlockHeader, Blockchain.BlockHeader> domainConverter =
+      new Function1<BlockHeader, Blockchain.BlockHeader>() {
 
         @Override
-        public Rpc.BlockMetadata apply(BlockHeader domainBlock) {
+        public Blockchain.BlockHeader apply(BlockHeader domainBlock) {
           throw new UnsupportedOperationException();
         }
       };
 
-  protected final Function1<Rpc.BlockMetadata, BlockHeader> rpcConverter =
-      new Function1<Rpc.BlockMetadata, BlockHeader>() {
+  protected final Function1<Blockchain.BlockHeader, BlockHeader> rpcConverter =
+      new Function1<Blockchain.BlockHeader, BlockHeader>() {
 
         @Override
-        public BlockHeader apply(final Rpc.BlockMetadata rpcBlockMetaData) {
-          logger.trace("Rpc block header to convert: {}", rpcBlockMetaData);
-          final Blockchain.BlockHeader rpcBlockHeader = rpcBlockMetaData.getHeader();
+        public BlockHeader apply(final Blockchain.BlockHeader rpcBlockHeader) {
+          logger.trace("Rpc block header to convert: {}", rpcBlockHeader);
           final BlockHeader domainBlockHeader = new BlockHeader(
-              new Hash(of(rpcBlockHeader.getChainID().toByteArray())),
-              new BlockHash(of(rpcBlockMetaData.getHash().toByteArray())),
+              of(rpcBlockHeader.getChainID().toByteArray()),
               new BlockHash(of(rpcBlockHeader.getPrevBlockHash().toByteArray())),
               rpcBlockHeader.getBlockNo(),
               rpcBlockHeader.getTimestamp(),
               new BlockHash(of(rpcBlockHeader.getBlocksRootHash().toByteArray())),
-              new TxHash(of(rpcBlockHeader.getTxsRootHash().toByteArray())),
+              new Hash(of(rpcBlockHeader.getTxsRootHash().toByteArray())),
               new Hash(of(rpcBlockHeader.getReceiptsRootHash().toByteArray())),
               rpcBlockHeader.getConfirms(),
-              new Hash(of(rpcBlockHeader.getPubKey().toByteArray())),
-              new Hash(of(rpcBlockHeader.getSign().toByteArray())),
+              of(rpcBlockHeader.getPubKey().toByteArray()),
               addressConverter.convertToDomainModel(rpcBlockHeader.getCoinbaseAccount()),
-              rpcBlockMetaData.getTxcount());
+              new Signature(of(rpcBlockHeader.getSign().toByteArray())));
           logger.trace("Domain block header converted: {}", domainBlockHeader);
           return domainBlockHeader;
         }
       };
 
-  public ModelConverter<BlockHeader, Rpc.BlockMetadata> create() {
-    return new ModelConverter<BlockHeader, Rpc.BlockMetadata>(domainConverter, rpcConverter);
+  public ModelConverter<BlockHeader, Blockchain.BlockHeader> create() {
+    return new ModelConverter<BlockHeader, Blockchain.BlockHeader>(domainConverter, rpcConverter);
   }
 
 }

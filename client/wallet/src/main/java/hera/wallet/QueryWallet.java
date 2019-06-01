@@ -12,7 +12,7 @@ import hera.api.model.AccountState;
 import hera.api.model.AccountTotalVote;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
-import hera.api.model.BlockHeader;
+import hera.api.model.BlockMetadata;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.ChainIdHash;
 import hera.api.model.ChainInfo;
@@ -214,40 +214,40 @@ public abstract class QueryWallet implements QueryClient, Closeable {
   }
 
   @Override
-  public BlockHeader getBlockHeader(final BlockHash blockHash) {
+  public BlockMetadata getBlockMetadata(final BlockHash blockHash) {
     try {
-      logger.debug("Get block header with hash: {}", blockHash);
-      return getAergoClient().getBlockOperation().getBlockHeader(blockHash);
+      logger.debug("Get block metadata with hash: {}", blockHash);
+      return getAergoClient().getBlockOperation().getBlockMetadata(blockHash);
     } catch (Exception e) {
       throw exceptionConverter.convert(e);
     }
   }
 
   @Override
-  public BlockHeader getBlockHeader(final long height) {
+  public BlockMetadata getBlockMetadata(final long height) {
     try {
-      logger.debug("Get block header with height: {}", height);
-      return getAergoClient().getBlockOperation().getBlockHeader(height);
+      logger.debug("Get block metadata with height: {}", height);
+      return getAergoClient().getBlockOperation().getBlockMetadata(height);
     } catch (Exception e) {
       throw exceptionConverter.convert(e);
     }
   }
 
   @Override
-  public List<BlockHeader> listBlockHeaders(final BlockHash blockHash, final int size) {
+  public List<BlockMetadata> listBlockMetadatas(final BlockHash blockHash, final int size) {
     try {
-      logger.debug("List block headers with hash: {}, size: {}", blockHash, size);
-      return getAergoClient().getBlockOperation().listBlockHeaders(blockHash, size);
+      logger.debug("List block metadatas with hash: {}, size: {}", blockHash, size);
+      return getAergoClient().getBlockOperation().listBlockMetadatas(blockHash, size);
     } catch (Exception e) {
       throw exceptionConverter.convert(e);
     }
   }
 
   @Override
-  public List<BlockHeader> listBlockHeaders(final long height, final int size) {
+  public List<BlockMetadata> listBlockMetadatas(final long height, final int size) {
     try {
-      logger.debug("List block headers with height: {}, size: {}", height, size);
-      return getAergoClient().getBlockOperation().listBlockHeaders(height, size);
+      logger.debug("List block metadatas with height: {}, size: {}", height, size);
+      return getAergoClient().getBlockOperation().listBlockMetadatas(height, size);
     } catch (Exception e) {
       throw exceptionConverter.convert(e);
     }

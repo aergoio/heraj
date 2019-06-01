@@ -4,8 +4,6 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import lombok.EqualsAndHashCode;
@@ -19,10 +17,7 @@ import lombok.ToString;
 public class BlockHeader {
 
   @Getter
-  protected final Hash chainId;
-
-  @Getter
-  protected final BlockHash hash;
+  protected final BytesValue chainId;
 
   @Getter
   protected final BlockHash previousHash;
@@ -34,10 +29,10 @@ public class BlockHeader {
   protected final long timestamp;
 
   @Getter
-  protected final BlockHash rootHash;
+  protected final Hash rootHash;
 
   @Getter
-  protected final TxHash txRootHash;
+  protected final Hash txRootHash;
 
   @Getter
   protected final Hash receiptRootHash;
@@ -46,54 +41,46 @@ public class BlockHeader {
   protected final long confirmsCount;
 
   @Getter
-  protected final Hash publicKey;
-
-  @Getter
-  protected final Hash sign;
+  protected final BytesValue publicKey;
 
   @Getter
   protected final AccountAddress coinbaseAccount;
 
   @Getter
-  protected final long txCount;
+  protected final Signature sign;
 
   /**
    * BlockHeader constructor.
    *
-   * @param chainId a chain id
-   * @param hash a block hash
-   * @param previousHash a previous block hash
+   * @param chainId a chain identifier
+   * @param previousHash a hash of previous block
    * @param blockNumber a block number
-   * @param timestamp a timestamp
-   * @param rootHash a block root hash
-   * @param txRootHash a tx root hash
-   * @param receiptRootHash a receipt root hash
-   * @param confirmsCount confirmsCount
-   * @param publicKey a public key
-   * @param sign a sign
-   * @param coinbaseAccount a coinbase account
-   * @param txCount a transaction count in a block
+   * @param timestamp a creation time stamp
+   * @param rootHash a hash of root of block merkle tree
+   * @param txRootHash a hash of root of transaction merkle tree
+   * @param receiptRootHash a number of blocks this block is able to confirm
+   * @param confirmsCount a number of blocks this block is able to confirm
+   * @param publicKey a block producer's public key
+   * @param coinbaseAccount a address of account to receive fees
+   * @param sign a block producer's signature of BlockHeader
    */
   @ApiAudience.Private
-  public BlockHeader(final Hash chainId, final BlockHash hash, final BlockHash previousHash,
-      final long blockNumber, long timestamp, final BlockHash rootHash, final TxHash txRootHash,
-      final Hash receiptRootHash, final long confirmsCount, final Hash publicKey, final Hash sign,
-      final AccountAddress coinbaseAccount, final long txCount) {
-    assertNotNull(hash, "Block hash must not null");
-    this.chainId = null != chainId ? chainId : Hash.of(BytesValue.EMPTY);
-    this.hash = hash;
+  public BlockHeader(final BytesValue chainId, final BlockHash previousHash, final long blockNumber,
+      final long timestamp, final Hash rootHash, final Hash txRootHash, final Hash receiptRootHash,
+      final long confirmsCount, final BytesValue publicKey, final AccountAddress coinbaseAccount,
+      final Signature sign) {
+    this.chainId = null != chainId ? chainId : BytesValue.EMPTY;
     this.previousHash = null != previousHash ? previousHash : BlockHash.of(BytesValue.EMPTY);
     this.blockNumber = blockNumber;
     this.timestamp = timestamp;
-    this.rootHash = null != rootHash ? rootHash : BlockHash.of(BytesValue.EMPTY);
-    this.txRootHash = null != txRootHash ? txRootHash : TxHash.of(BytesValue.EMPTY);
+    this.rootHash = null != rootHash ? rootHash : Hash.of(BytesValue.EMPTY);
+    this.txRootHash = null != txRootHash ? txRootHash : Hash.of(BytesValue.EMPTY);
     this.receiptRootHash = null != receiptRootHash ? receiptRootHash : Hash.of(BytesValue.EMPTY);
     this.confirmsCount = confirmsCount;
-    this.publicKey = null != publicKey ? publicKey : Hash.of(BytesValue.EMPTY);
-    this.sign = null != sign ? sign : Hash.of(BytesValue.EMPTY);
+    this.publicKey = null != publicKey ? publicKey : BytesValue.EMPTY;
     this.coinbaseAccount =
         null != coinbaseAccount ? coinbaseAccount : AccountAddress.of(BytesValue.EMPTY);
-    this.txCount = txCount;
+    this.sign = null != sign ? sign : Signature.of(BytesValue.EMPTY);
   }
 
 }

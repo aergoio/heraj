@@ -11,11 +11,19 @@ import hera.annotation.ApiStability;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@EqualsAndHashCode(callSuper = true)
-public class Block extends BlockHeader {
+@ToString
+@EqualsAndHashCode
+public class Block {
+
+  @Getter
+  protected final BlockHash hash;
+
+  @Getter
+  protected final BlockHeader blockHeader;
 
   @Getter
   protected final List<Transaction> transactions;
@@ -23,50 +31,60 @@ public class Block extends BlockHeader {
   /**
    * Block constructor.
    *
+   * @param blockHash a block hash
    * @param blockHeader a block header
-   * @param transactions transactions of block
+   * @param transactions transactions in block
    */
   @ApiAudience.Private
-  public Block(final BlockHeader blockHeader, final List<Transaction> transactions) {
-    this(blockHeader.getChainId(), blockHeader.getHash(), blockHeader.getPreviousHash(),
-        blockHeader.getBlockNumber(), blockHeader.getTimestamp(), blockHeader.getRootHash(),
-        blockHeader.getTxRootHash(), blockHeader.getReceiptRootHash(),
-        blockHeader.getConfirmsCount(), blockHeader.getPublicKey(), blockHeader.getSign(),
-        blockHeader.getCoinbaseAccount(), blockHeader.getTxCount(), transactions);
-  }
-
-  /**
-   * Block constructor.
-   *
-   * @param chainId a chain id
-   * @param hash a block hash
-   * @param previousHash a previous block hash
-   * @param blockNumber a block number
-   * @param timestamp a timestamp
-   * @param rootHash a block root hash
-   * @param txRootHash a tx root hash
-   * @param receiptRootHash a receipt root hash
-   * @param confirmsCount confirmsCount
-   * @param publicKey a public key
-   * @param sign a sign
-   * @param coinbaseAccount a coinbase account
-   * @param txCount a transaction count
-   * @param transactions transactions of block
-   */
-  @ApiAudience.Private
-  public Block(final Hash chainId, final BlockHash hash, final BlockHash previousHash,
-      final long blockNumber, final long timestamp, final BlockHash rootHash,
-      final TxHash txRootHash, final Hash receiptRootHash, final long confirmsCount,
-      final Hash publicKey, final Hash sign, final AccountAddress coinbaseAccount,
-      final long txCount, final List<Transaction> transactions) {
-    super(chainId, hash, previousHash, blockNumber, timestamp, rootHash, txRootHash,
-        receiptRootHash, confirmsCount, publicKey, sign, coinbaseAccount, txCount);
+  public Block(final BlockHash blockHash, final BlockHeader blockHeader,
+      final List<Transaction> transactions) {
+    this.hash = blockHash;
+    this.blockHeader = blockHeader;
     this.transactions = unmodifiableList(transactions);
   }
 
-  @Override
-  public String toString() {
-    return String.format("Block(%s, transactions=%s)", super.toString(), transactions.toString());
+  public BytesValue getChainId() {
+    return blockHeader.getChainId();
+  }
+
+  public BlockHash getPreviousHash() {
+    return blockHeader.getPreviousHash();
+  }
+
+  public long getBlockNumber() {
+    return blockHeader.getBlockNumber();
+  }
+
+  public long getTimestamp() {
+    return blockHeader.getTimestamp();
+  }
+
+  public Hash getRootHash() {
+    return blockHeader.getRootHash();
+  }
+
+  public Hash getTxRootHash() {
+    return blockHeader.getTxRootHash();
+  }
+
+  public Hash getReceiptRootHash() {
+    return blockHeader.getReceiptRootHash();
+  }
+
+  public long getConfirmsCount() {
+    return blockHeader.getConfirmsCount();
+  }
+
+  public BytesValue getPublicKey() {
+    return blockHeader.getPublicKey();
+  }
+
+  public AccountAddress getCoinbaseAccount() {
+    return blockHeader.getCoinbaseAccount();
+  }
+
+  public Signature getSign() {
+    return blockHeader.getSign();
   }
 
 }

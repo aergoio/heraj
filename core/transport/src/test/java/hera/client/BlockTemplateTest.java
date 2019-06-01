@@ -6,10 +6,10 @@ package hera.client;
 
 import static hera.TransportConstants.BLOCK_GET_BLOCK_BY_HASH;
 import static hera.TransportConstants.BLOCK_GET_BLOCK_BY_HEIGHT;
-import static hera.TransportConstants.BLOCK_GET_HEADER_BY_HASH;
-import static hera.TransportConstants.BLOCK_GET_HEADER_BY_HEIGHT;
-import static hera.TransportConstants.BLOCK_LIST_HEADERS_BY_HASH;
-import static hera.TransportConstants.BLOCK_LIST_HEADERS_BY_HEIGHT;
+import static hera.TransportConstants.BLOCK_GET_METADATA_BY_HASH;
+import static hera.TransportConstants.BLOCK_GET_METADATA_BY_HEIGHT;
+import static hera.TransportConstants.BLOCK_LIST_METADATAS_BY_HASH;
+import static hera.TransportConstants.BLOCK_LIST_METADATAS_BY_HEIGHT;
 import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
@@ -24,7 +24,7 @@ import hera.api.function.Function2;
 import hera.api.function.WithIdentity;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
-import hera.api.model.BlockHeader;
+import hera.api.model.BlockMetadata;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
@@ -48,93 +48,95 @@ public class BlockTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetBlockHeaderByHash() {
+  public void testGetBlockMetadataByHash() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
-    final BlockHeader mockBlockHeader = mock(BlockHeader.class);
-    final FinishableFuture<BlockHeader> future = new FinishableFuture<BlockHeader>();
-    future.success(mockBlockHeader);
-    when(base.getBlockHeaderByHashFunction())
-        .thenReturn(new Function1<BlockHash, FinishableFuture<BlockHeader>>() {
+    final BlockMetadata mockBlockMetadata = mock(BlockMetadata.class);
+    final FinishableFuture<BlockMetadata> future = new FinishableFuture<BlockMetadata>();
+    future.success(mockBlockMetadata);
+    when(base.getBlockMetatdataByHashFunction())
+        .thenReturn(new Function1<BlockHash, FinishableFuture<BlockMetadata>>() {
           @Override
-          public FinishableFuture<BlockHeader> apply(BlockHash t) {
+          public FinishableFuture<BlockMetadata> apply(BlockHash t) {
             return future;
           }
         });
 
     final BlockTemplate blockTemplate = supplyBlockTemplate(base);
 
-    final BlockHeader blockHeader =
-        blockTemplate.getBlockHeader(new BlockHash(of(randomUUID().toString().getBytes())));
-    assertNotNull(blockHeader);
-    assertEquals(BLOCK_GET_HEADER_BY_HASH,
-        ((WithIdentity) blockTemplate.getBlockHeaderByHashFunction()).getIdentity());
+    final BlockMetadata blockMetadata =
+        blockTemplate.getBlockMetadata(new BlockHash(of(randomUUID().toString().getBytes())));
+    assertNotNull(blockMetadata);
+    assertEquals(BLOCK_GET_METADATA_BY_HASH,
+        ((WithIdentity) blockTemplate.getBlockMetadataByHashFunction()).getIdentity());
   }
 
   @Test
-  public void testGetBlockHeaderByHeight() {
+  public void testGetBlockMetadataByHeight() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
-    final BlockHeader mockBlockHeader = mock(BlockHeader.class);
-    final FinishableFuture<BlockHeader> future = new FinishableFuture<BlockHeader>();
-    future.success(mockBlockHeader);
-    when(base.getBlockHeaderByHeightFunction())
-        .thenReturn(new Function1<Long, FinishableFuture<BlockHeader>>() {
+    final BlockMetadata mockBlockMetadata = mock(BlockMetadata.class);
+    final FinishableFuture<BlockMetadata> future = new FinishableFuture<BlockMetadata>();
+    future.success(mockBlockMetadata);
+    when(base.getBlockMetadataByHeightFunction())
+        .thenReturn(new Function1<Long, FinishableFuture<BlockMetadata>>() {
           @Override
-          public FinishableFuture<BlockHeader> apply(Long t) {
+          public FinishableFuture<BlockMetadata> apply(Long t) {
             return future;
           }
         });
 
     final BlockTemplate blockTemplate = supplyBlockTemplate(base);
 
-    final BlockHeader blockHeader =
-        blockTemplate.getBlockHeader(randomUUID().hashCode());
-    assertNotNull(blockHeader);
-    assertEquals(BLOCK_GET_HEADER_BY_HEIGHT,
-        ((WithIdentity) blockTemplate.getBlockHeaderByHeightFunction()).getIdentity());
+    final BlockMetadata blockMetadata =
+        blockTemplate.getBlockMetadata(randomUUID().hashCode());
+    assertNotNull(blockMetadata);
+    assertEquals(BLOCK_GET_METADATA_BY_HEIGHT,
+        ((WithIdentity) blockTemplate.getBlockMetadataByHeightFunction()).getIdentity());
   }
 
   @Test
-  public void testListBlockHeadersByHash() {
+  public void testListBlockMetadatasByHash() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
-    final FinishableFuture<List<BlockHeader>> future = new FinishableFuture<List<BlockHeader>>();
-    future.success(new ArrayList<BlockHeader>());
-    when(base.getListBlockHeadersByHashFunction())
-        .thenReturn(new Function2<BlockHash, Integer, FinishableFuture<List<BlockHeader>>>() {
+    final FinishableFuture<List<BlockMetadata>> future =
+        new FinishableFuture<List<BlockMetadata>>();
+    future.success(new ArrayList<BlockMetadata>());
+    when(base.getListBlockMetadatasByHashFunction())
+        .thenReturn(new Function2<BlockHash, Integer, FinishableFuture<List<BlockMetadata>>>() {
           @Override
-          public FinishableFuture<List<BlockHeader>> apply(BlockHash t1, Integer t2) {
+          public FinishableFuture<List<BlockMetadata>> apply(BlockHash t1, Integer t2) {
             return future;
           }
         });
 
     final BlockTemplate blockTemplate = supplyBlockTemplate(base);
 
-    final List<BlockHeader> blockHeaders = blockTemplate.listBlockHeaders(
+    final List<BlockMetadata> blockMetadatas = blockTemplate.listBlockMetadatas(
         new BlockHash(of(randomUUID().toString().getBytes())), randomUUID().hashCode());
-    assertNotNull(blockHeaders);
-    assertEquals(BLOCK_LIST_HEADERS_BY_HASH,
-        ((WithIdentity) blockTemplate.getListBlockHeadersByHashFunction()).getIdentity());
+    assertNotNull(blockMetadatas);
+    assertEquals(BLOCK_LIST_METADATAS_BY_HASH,
+        ((WithIdentity) blockTemplate.getListBlockMetadatasByHashFunction()).getIdentity());
   }
 
   @Test
-  public void testListBlockHeadersByHeight() {
+  public void testListBlockMetadatasByHeight() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
-    final FinishableFuture<List<BlockHeader>> future = new FinishableFuture<List<BlockHeader>>();
-    future.success(new ArrayList<BlockHeader>());
-    when(base.getListBlockHeadersByHeightFunction())
-        .thenReturn(new Function2<Long, Integer, FinishableFuture<List<BlockHeader>>>() {
+    final FinishableFuture<List<BlockMetadata>> future =
+        new FinishableFuture<List<BlockMetadata>>();
+    future.success(new ArrayList<BlockMetadata>());
+    when(base.getListBlockMetadatasByHeightFunction())
+        .thenReturn(new Function2<Long, Integer, FinishableFuture<List<BlockMetadata>>>() {
           @Override
-          public FinishableFuture<List<BlockHeader>> apply(Long t1, Integer t2) {
+          public FinishableFuture<List<BlockMetadata>> apply(Long t1, Integer t2) {
             return future;
           }
         });
 
     final BlockTemplate blockTemplate = supplyBlockTemplate(base);
 
-    final List<BlockHeader> blockHeaders =
-        blockTemplate.listBlockHeaders(randomUUID().hashCode(), randomUUID().hashCode());
-    assertNotNull(blockHeaders);
-    assertEquals(BLOCK_LIST_HEADERS_BY_HEIGHT,
-        ((WithIdentity) blockTemplate.getListBlockHeadersByHeightFunction()).getIdentity());
+    final List<BlockMetadata> blockMetadatas =
+        blockTemplate.listBlockMetadatas(randomUUID().hashCode(), randomUUID().hashCode());
+    assertNotNull(blockMetadatas);
+    assertEquals(BLOCK_LIST_METADATAS_BY_HEIGHT,
+        ((WithIdentity) blockTemplate.getListBlockMetadatasByHeightFunction()).getIdentity());
   }
 
   @Test

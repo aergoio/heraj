@@ -29,7 +29,7 @@ import hera.api.model.AccountState;
 import hera.api.model.AccountTotalVote;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
-import hera.api.model.BlockHeader;
+import hera.api.model.BlockMetadata;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.BytesValue;
 import hera.api.model.ChainInfo;
@@ -275,57 +275,57 @@ public class QueryWalletTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetBlockHeaderByHash() {
+  public void testGetBlockMetadataByHash() {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockOperation mockOperation = mock(BlockOperation.class);
-    when(mockOperation.getBlockHeader(any(BlockHash.class))).thenReturn(mock(Block.class));
+    when(mockOperation.getBlockMetadata(any(BlockHash.class))).thenReturn(mock(BlockMetadata.class));
     when(mockClient.getBlockOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
         withSettings().useConstructor(mockClient).defaultAnswer(CALLS_REAL_METHODS));
 
-    assertNotNull(wallet.getBlockHeader(BlockHash.of(BytesValue.EMPTY)));
+    assertNotNull(wallet.getBlockMetadata(BlockHash.of(BytesValue.EMPTY)));
   }
 
   @Test
-  public void testGetBlockHeaderByHeight() {
+  public void testGetBlockMetadataByHeight() {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockOperation mockOperation = mock(BlockOperation.class);
-    when(mockOperation.getBlockHeader(any(Long.class))).thenReturn(mock(Block.class));
+    when(mockOperation.getBlockMetadata(any(Long.class))).thenReturn(mock(BlockMetadata.class));
     when(mockClient.getBlockOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
         withSettings().useConstructor(mockClient).defaultAnswer(CALLS_REAL_METHODS));
 
-    assertNotNull(wallet.getBlockHeader(1L));
+    assertNotNull(wallet.getBlockMetadata(1L));
   }
 
   @Test
-  public void testListBlockHeadersByHash() {
+  public void testListBlockMetadatasByHash() {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockOperation mockOperation = mock(BlockOperation.class);
-    when(mockOperation.listBlockHeaders(any(BlockHash.class), anyInt()))
-        .thenReturn(new ArrayList<BlockHeader>());
+    when(mockOperation.listBlockMetadatas(any(BlockHash.class), anyInt()))
+        .thenReturn(new ArrayList<BlockMetadata>());
     when(mockClient.getBlockOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
         withSettings().useConstructor(mockClient).defaultAnswer(CALLS_REAL_METHODS));
 
-    assertNotNull(wallet.listBlockHeaders(BlockHash.of(BytesValue.EMPTY), 1));
+    assertNotNull(wallet.listBlockMetadatas(BlockHash.of(BytesValue.EMPTY), 1));
   }
 
   @Test
-  public void testListBlockHeadersByHeight() {
+  public void testListBlockMetadatasByHeight() {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockOperation mockOperation = mock(BlockOperation.class);
-    when(mockOperation.listBlockHeaders(anyLong(), anyInt()))
-        .thenReturn(new ArrayList<BlockHeader>());
+    when(mockOperation.listBlockMetadatas(anyLong(), anyInt()))
+        .thenReturn(new ArrayList<BlockMetadata>());
     when(mockClient.getBlockOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
         withSettings().useConstructor(mockClient).defaultAnswer(CALLS_REAL_METHODS));
 
-    assertNotNull(wallet.listBlockHeaders(1L, 1));
+    assertNotNull(wallet.listBlockMetadatas(1L, 1));
   }
 
   @Test

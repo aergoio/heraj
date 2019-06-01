@@ -6,7 +6,7 @@ package hera.example.wallet;
 
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
-import hera.api.model.BlockHeader;
+import hera.api.model.BlockMetadata;
 import hera.example.AbstractExample;
 import hera.wallet.Wallet;
 import hera.wallet.WalletBuilder;
@@ -54,23 +54,23 @@ public class BlockLookup extends AbstractExample {
     final BlockHash bestHash = wallet.getBestBlockHash();
     final long bestHeight = wallet.getBestBlockHeight();
 
-    // query block header corresponding to the block hash
-    final BlockHeader blockHeaderByHash = wallet.getBlockHeader(bestHash);
-    System.out.println("Block header by hash: " + blockHeaderByHash);
+    // query block metadata corresponding to the block hash
+    final BlockMetadata blockHeaderByHash = wallet.getBlockMetadata(bestHash);
+    System.out.println("Block metadata by hash: " + blockHeaderByHash);
 
-    // query block header corresponding to the block hash
-    final BlockHeader blockHeaderByHeight = wallet.getBlockHeader(bestHeight);
-    System.out.println("Block header by height: " + blockHeaderByHeight);
+    // query block metadata corresponding to the block hash
+    final BlockMetadata blockHeaderByHeight = wallet.getBlockMetadata(bestHeight);
+    System.out.println("Block metadata by height: " + blockHeaderByHeight);
 
-    // query 10 block headers starting from best block backward with best block hash
-    final List<BlockHeader> blockHeadersByHash =
-        wallet.listBlockHeaders(bestHash, 10);
-    System.out.println("Block headers by hash: " + blockHeadersByHash);
+    // query 10 block metadatas starting from best block backward with best block hash
+    final List<BlockMetadata> blockHeadersByHash =
+        wallet.listBlockMetadatas(bestHash, 10);
+    System.out.println("Block metadatas by hash: " + blockHeadersByHash);
 
-    // query 10 block headers starting from best block backward with best block height
-    final List<BlockHeader> blockHeadersByHeight =
-        wallet.listBlockHeaders(bestHeight, 10);
-    System.out.println("Block headers by height: " + blockHeadersByHeight);
+    // query 10 block metadatas starting from best block backward with best block height
+    final List<BlockMetadata> blockHeadersByHeight =
+        wallet.listBlockMetadatas(bestHeight, 10);
+    System.out.println("Block metadatas by height: " + blockHeadersByHeight);
 
     // close the client
     wallet.close();
