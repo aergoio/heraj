@@ -27,6 +27,8 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.client.internal.FinishableFuture;
+import hera.client.internal.KeyStoreBaseTemplate;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;

@@ -36,6 +36,8 @@ import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
 import hera.api.model.ServerInfo;
 import hera.api.model.TxHash;
+import hera.client.internal.BlockchainBaseTemplate;
+import hera.client.internal.FinishableFuture;
 import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import java.util.List;

@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.client;
+package hera.client.internal;
 
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
@@ -37,8 +37,9 @@ import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Subscription;
 import hera.api.model.Transaction;
-import hera.client.grpc.GrpcStreamObserverAdaptor;
-import hera.client.grpc.GrpcStreamSubscription;
+import hera.client.ChannelInjectable;
+import hera.client.stream.GrpcStreamObserverAdaptor;
+import hera.client.stream.GrpcStreamSubscription;
 import hera.spec.PayloadSpec.Type;
 import hera.spec.resolver.PayloadResolver;
 import hera.transport.AccountAddressConverterFactory;
@@ -112,7 +113,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
       new Function1<ContractTxHash, FinishableFuture<ContractTxReceipt>>() {
 
         @Override
-        public hera.client.FinishableFuture<ContractTxReceipt> apply(
+        public hera.client.internal.FinishableFuture<ContractTxReceipt> apply(
             final ContractTxHash deployTxHash) {
           logger.debug("Get receipt with txHash: {}", deployTxHash);
 

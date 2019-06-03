@@ -38,6 +38,8 @@ import hera.api.model.RawTransaction;
 import hera.api.model.StakeInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.client.internal.AccountBaseTemplate;
+import hera.client.internal.FinishableFuture;
 import hera.key.AergoKeyGenerator;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;

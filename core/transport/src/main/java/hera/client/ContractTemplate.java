@@ -34,6 +34,8 @@ import hera.api.model.EventFilter;
 import hera.api.model.Fee;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
+import hera.client.internal.ContractBaseTemplate;
+import hera.client.internal.FinishableFuture;
 import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import java.util.List;

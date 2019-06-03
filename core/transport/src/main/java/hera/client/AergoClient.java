@@ -5,7 +5,6 @@
 package hera.client;
 
 import static hera.util.ValidationUtils.assertNotNull;
-
 import hera.Context;
 import hera.ContextHolder;
 import hera.ContextProvider;
@@ -17,26 +16,27 @@ import hera.api.AbstractAergoApi;
 import hera.api.AccountOperation;
 import hera.api.BlockOperation;
 import hera.api.BlockchainOperation;
+import hera.api.ChainIdHashHolder;
 import hera.api.ContractOperation;
 import hera.api.KeyStoreOperation;
 import hera.api.TransactionOperation;
 import hera.api.model.ChainIdHash;
+import hera.client.internal.ManagedChannelFactory;
+import hera.exception.RpcException;
 import io.grpc.ManagedChannel;
 import java.io.Closeable;
 import java.util.concurrent.TimeUnit;
-import lombok.AccessLevel;
 import lombok.Getter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-public class AergoClient extends AbstractAergoApi implements Closeable {
+public class AergoClient extends AbstractAergoApi implements ChainIdHashHolder, Closeable {
 
   protected final Context baseContext;
 
   protected final ContextProvider contextProvider;
 
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final ManagedChannel channel = new ManagedChannelFactory().apply(contextProvider.get());
+  protected ManagedChannel channel;
 
   @Getter(lazy = true)
   private final AccountOperation accountOperation = resolveInjection(new AccountTemplate());
@@ -63,12 +63,18 @@ public class AergoClient extends AbstractAergoApi implements Closeable {
    *
    * @param baseContext a client base context
    */
-  @ApiAudience.Private
-  public AergoClient(final Context baseContext) {
+  AergoClient(final Context baseContext) {
     assertNotNull(baseContext, "Base context must not null");
     this.baseContext = baseContext;
     this.contextProvider = new ThreadLocalContextProvider(baseContext, this);
     ContextHolder.set(this, baseContext);
+  }
+
+  protected ManagedChannel getChannel() {
+    if (null == this.channel) {
+      this.channel = new ManagedChannelFactory().apply(contextProvider.get());
+    }
+    return this.channel;
   }
 
   protected <T> T resolveInjection(final T target) {
@@ -94,11 +100,12 @@ public class AergoClient extends AbstractAergoApi implements Closeable {
   @Override
   public void close() {
     try {
-      if (null != getChannel()) {
-        getChannel().shutdown().awaitTermination(3, TimeUnit.SECONDS);
+      if (null != this.channel) {
+        this.channel.shutdown().awaitTermination(3, TimeUnit.SECONDS);
       }
-    } catch (final Throwable e) {
+    } catch (Exception e) {
       logger.info("Fail to close aergo client by {}", e.toString());
+      throw new RpcException(e);
     }
   }
 

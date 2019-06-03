@@ -11,7 +11,7 @@ import hera.strategy.RetryStrategy;
 import hera.strategy.SimpleTimeoutStrategy;
 import java.util.concurrent.TimeUnit;
 
-public interface ContextConfiguer<ConfiguerT> {
+public interface ClientConfiguer<ConfiguerT> {
 
   /**
    * Add a configuration with {@code key} and {@code value}.

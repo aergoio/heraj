@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.client;
+package hera.client.internal;
 
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
@@ -25,6 +25,7 @@ import hera.api.model.Fee;
 import hera.api.model.Transaction;
 import hera.api.model.Transaction.TxType;
 import hera.api.model.TxHash;
+import hera.client.ChannelInjectable;
 import hera.exception.RpcCommitException;
 import hera.exception.RpcException;
 import hera.transport.ModelConverter;

@@ -20,6 +20,8 @@ import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.client.internal.FinishableFuture;
+import hera.client.internal.TransactionBaseTemplate;
 import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import lombok.AccessLevel;

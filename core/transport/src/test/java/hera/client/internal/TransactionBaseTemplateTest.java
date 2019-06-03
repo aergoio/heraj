@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.client;
+package hera.client.internal;
 
 import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
@@ -17,6 +17,7 @@ import hera.Context;
 import hera.ContextProvider;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
+import hera.client.internal.TransactionBaseTemplate;
 import hera.api.model.BytesValue;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;

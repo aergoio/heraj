@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.client;
+package hera.client.internal;
 
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
@@ -22,6 +22,7 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.client.ChannelInjectable;
 import hera.transport.AccountConverterFactory;
 import hera.transport.AuthenticationConverterFactory;
 import hera.transport.EncryptedPrivateKeyConverterFactory;

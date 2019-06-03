@@ -1,4 +1,4 @@
-package hera.client;
+package hera.client.internal;
 
 import hera.Context;
 import hera.Strategy;

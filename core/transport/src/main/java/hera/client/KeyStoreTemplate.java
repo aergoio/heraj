@@ -24,6 +24,8 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.client.internal.FinishableFuture;
+import hera.client.internal.KeyStoreBaseTemplate;
 import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import java.util.List;

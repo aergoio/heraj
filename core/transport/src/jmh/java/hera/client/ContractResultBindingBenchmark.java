@@ -5,6 +5,7 @@
 package hera.client;
 
 import hera.api.model.BytesValue;
+import hera.client.internal.ContractResultImpl;
 import java.io.IOException;
 import lombok.Getter;
 import lombok.Setter;

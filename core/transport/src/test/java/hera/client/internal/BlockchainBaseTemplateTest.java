@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.client;
+package hera.client.internal;
 
 import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
@@ -29,6 +29,8 @@ import hera.api.model.PeerMetric;
 import hera.api.model.ServerInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.client.internal.BlockchainBaseTemplate;
+import hera.client.internal.TransactionBaseTemplate;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import java.util.ArrayList;

@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.client;
+package hera.client.internal;
 
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
@@ -21,6 +21,7 @@ import hera.api.function.Function2;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockMetadata;
+import hera.client.ChannelInjectable;
 import hera.transport.BlockConverterFactory;
 import hera.transport.BlockMetadataConverterFactory;
 import hera.transport.ModelConverter;

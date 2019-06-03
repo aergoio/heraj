@@ -9,7 +9,7 @@ import static org.junit.Assert.fail;
 
 import hera.AbstractTestCase;
 import hera.api.function.Function0;
-import hera.client.FinishableFuture;
+import hera.client.internal.FinishableFuture;
 import hera.util.ThreadUtils;
 import org.junit.Test;
 

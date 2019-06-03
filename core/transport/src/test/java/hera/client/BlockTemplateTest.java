@@ -25,6 +25,8 @@ import hera.api.function.WithIdentity;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockMetadata;
+import hera.client.internal.BlockBaseTemplate;
+import hera.client.internal.FinishableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;

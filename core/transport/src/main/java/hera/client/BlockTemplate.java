@@ -22,6 +22,8 @@ import hera.api.function.Function2;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockMetadata;
+import hera.client.internal.BlockBaseTemplate;
+import hera.client.internal.FinishableFuture;
 import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import java.util.List;

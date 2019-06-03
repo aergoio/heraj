@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.client;
+package hera.client.internal;
 
 import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
@@ -18,6 +18,7 @@ import hera.ContextProvider;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockMetadata;
+import hera.client.internal.BlockBaseTemplate;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.junit.Test;

@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.client;
+package hera.client.internal;
 
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
@@ -28,6 +28,7 @@ import hera.api.model.StakeInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.internal.GovernanceRecipient;
+import hera.client.ChannelInjectable;
 import hera.exception.TransactionVerificationException;
 import hera.key.Signer;
 import hera.spec.PayloadSpec.Type;
@@ -86,7 +87,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
       new Function1<AccountAddress, FinishableFuture<AccountState>>() {
 
         @Override
-        public hera.client.FinishableFuture<AccountState> apply(final AccountAddress address) {
+        public FinishableFuture<AccountState> apply(final AccountAddress address) {
           logger.debug("GetState with {}", address);
 
           FinishableFuture<AccountState> nextFuture = new FinishableFuture<AccountState>();

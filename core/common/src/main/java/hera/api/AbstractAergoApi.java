@@ -8,7 +8,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.model.ChainIdHash;
 import hera.custom.Adaptor;
 import hera.custom.AdaptorManager;
 import java.util.List;
@@ -19,16 +18,6 @@ import org.slf4j.Logger;
 public class AbstractAergoApi implements AergoApi, Adaptor {
 
   protected final transient Logger logger = getLogger(getClass());
-
-  @Override
-  public ChainIdHash getCachedChainIdHash() {
-    return null;
-  }
-
-  @Override
-  public void cacheChainIdHash(final ChainIdHash chainIdHash) {
-    throw new UnsupportedOperationException();
-  }
 
   @Override
   public AccountOperation getAccountOperation() {

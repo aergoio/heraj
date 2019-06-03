@@ -41,6 +41,8 @@ import hera.api.model.EventFilter;
 import hera.api.model.Fee;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
+import hera.client.internal.ContractBaseTemplate;
+import hera.client.internal.FinishableFuture;
 import hera.key.AergoKeyGenerator;
 import hera.util.Base58Utils;
 import java.util.ArrayList;

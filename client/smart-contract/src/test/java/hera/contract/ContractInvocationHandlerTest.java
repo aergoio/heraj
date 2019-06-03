@@ -20,7 +20,7 @@ import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.StateVariable;
-import hera.client.ContractResultImpl;
+import hera.client.internal.ContractResultImpl;
 import hera.exception.ContractException;
 import hera.wallet.Wallet;
 import hera.wallet.WalletBuilder;

@@ -8,6 +8,8 @@ import static java.util.UUID.randomUUID;
 
 import hera.AbstractTestCase;
 import hera.api.function.Function1;
+import hera.client.internal.FinishableFuture;
+import hera.client.internal.FutureChain;
 import hera.exception.RpcException;
 import org.junit.Test;
 

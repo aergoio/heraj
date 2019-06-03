@@ -249,7 +249,12 @@ public class AergoKey implements KeyPair, Signer, TransactionVerifier {
     }
   }
 
-  @Override
+  /**
+   * Return encrypted private key.
+   *
+   * @param password encrypt key
+   * @return encrypted key
+   */
   public EncryptedPrivateKey export(final String password) {
     try {
       final BytesValue privateKeyBytes = new BytesValue(getRawPrivateKey());
@@ -270,4 +275,5 @@ public class AergoKey implements KeyPair, Signer, TransactionVerifier {
   public String toString() {
     return String.format("Address: %s", getAddress());
   }
+
 }

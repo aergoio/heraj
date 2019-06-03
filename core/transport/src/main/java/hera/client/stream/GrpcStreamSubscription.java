@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.client.grpc;
+package hera.client.stream;
 
 import static org.slf4j.LoggerFactory.getLogger;
 

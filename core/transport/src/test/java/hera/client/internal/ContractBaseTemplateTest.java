@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.client;
+package hera.client.internal;
 
 import static hera.api.model.BytesValue.of;
 import static java.util.Collections.emptyList;
@@ -36,6 +36,9 @@ import hera.api.model.RawTransaction;
 import hera.api.model.Subscription;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.client.internal.AccountBaseTemplate;
+import hera.client.internal.ContractBaseTemplate;
+import hera.client.internal.TransactionBaseTemplate;
 import hera.key.AergoKeyGenerator;
 import hera.util.Base58Utils;
 import java.util.List;

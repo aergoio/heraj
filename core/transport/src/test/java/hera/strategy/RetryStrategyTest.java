@@ -10,7 +10,7 @@ import static org.junit.Assert.fail;
 import hera.AbstractTestCase;
 import hera.api.function.Function0;
 import hera.api.model.internal.Time;
-import hera.client.FinishableFuture;
+import hera.client.internal.FinishableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;

@@ -22,6 +22,8 @@ import hera.api.function.WithIdentity;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
+import hera.client.internal.FinishableFuture;
+import hera.client.internal.TransactionBaseTemplate;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import org.junit.Test;

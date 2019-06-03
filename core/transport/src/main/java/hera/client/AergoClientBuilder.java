@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public class AergoClientBuilder implements ContextConfiguer<AergoClientBuilder> {
+public class AergoClientBuilder implements ClientConfiguer<AergoClientBuilder> {
 
   public static final String SCOPE = "global";
 

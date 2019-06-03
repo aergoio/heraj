@@ -43,6 +43,8 @@ import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
 import hera.api.model.ServerInfo;
 import hera.api.model.TxHash;
+import hera.client.internal.BlockchainBaseTemplate;
+import hera.client.internal.FinishableFuture;
 import hera.key.AergoKeyGenerator;
 import java.util.ArrayList;
 import java.util.List;
