@@ -81,20 +81,20 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
   @Test
   public void testCreate() {
     final KeyStoreBaseTemplate base = mock(KeyStoreBaseTemplate.class);
-    final Account mockAccount = mock(Account.class);
-    final FinishableFuture<Account> future = new FinishableFuture<Account>();
+    final AccountAddress mockAccount = mock(AccountAddress.class);
+    final FinishableFuture<AccountAddress> future = new FinishableFuture<AccountAddress>();
     future.success(mockAccount);
-    when(base.getCreateFunction()).thenReturn(new Function1<String, FinishableFuture<Account>>() {
-      @Override
-      public FinishableFuture<Account> apply(String t) {
-        return future;
-      }
-    });
+    when(base.getCreateFunction())
+        .thenReturn(new Function1<String, FinishableFuture<AccountAddress>>() {
+          @Override
+          public FinishableFuture<AccountAddress> apply(String t) {
+            return future;
+          }
+        });
 
     final KeyStoreTemplate keyStoreTemplate = supplyKeyStoreTemplate(base);
 
-    final Account account =
-        keyStoreTemplate.create(randomUUID().toString());
+    final AccountAddress account = keyStoreTemplate.create(randomUUID().toString());
     assertNotNull(account);
     assertEquals(KEYSTORE_CREATE,
         ((WithIdentity) keyStoreTemplate.getCreateFunction()).getIdentity());
@@ -146,20 +146,21 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
   @Test
   public void testImportKey() {
     final KeyStoreBaseTemplate base = mock(KeyStoreBaseTemplate.class);
-    final Account mockAccount = mock(Account.class);
-    final FinishableFuture<Account> future = new FinishableFuture<Account>();
+    final AccountAddress mockAccount = mock(AccountAddress.class);
+    final FinishableFuture<AccountAddress> future = new FinishableFuture<AccountAddress>();
     future.success(mockAccount);
     when(base.getImportKeyFunction()).thenReturn(
-        new Function3<EncryptedPrivateKey, String, String, FinishableFuture<Account>>() {
+        new Function3<EncryptedPrivateKey, String, String, FinishableFuture<AccountAddress>>() {
           @Override
-          public FinishableFuture<Account> apply(EncryptedPrivateKey t1, String t2, String t3) {
+          public FinishableFuture<AccountAddress> apply(EncryptedPrivateKey t1, String t2,
+              String t3) {
             return future;
           }
         });
 
     final KeyStoreTemplate keyStoreTemplate = supplyKeyStoreTemplate(base);
 
-    final Account account =
+    final AccountAddress account =
         keyStoreTemplate.importKey(encryptedPrivateKey, PASSWORD, PASSWORD);
     assertNotNull(account);
     assertEquals(KEYSTORE_IMPORTKEY,

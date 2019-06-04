@@ -6,19 +6,20 @@ package hera.api;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.RawTransaction;
+import hera.api.model.Transaction;
 import java.util.List;
 
 /**
  * Provide server keystore related operations. It provides followings:
  *
  * <ul>
- *  <li>lookup stored accounts</li>
- *  <li>locking / unlocking account</li>
- *  <li>importing / exporting account</li>
+ * <li>lookup stored accounts</li>
+ * <li>locking / unlocking account</li>
+ * <li>importing / exporting account</li>
  * </ul>
  *
  * @author Taeik Lim
@@ -41,7 +42,7 @@ public interface KeyStoreOperation {
    * @param password account password
    * @return created account
    */
-  Account create(String password);
+  AccountAddress create(String password);
 
   /**
    * Lock an account whose key is in a server key store.
@@ -60,6 +61,14 @@ public interface KeyStoreOperation {
   boolean unlock(Authentication authentication);
 
   /**
+   * Sign for transaction. A transaction sender should be unlocked.
+   *
+   * @param rawTransaction raw transaction to sign
+   * @return signed transaction
+   */
+  Transaction sign(RawTransaction rawTransaction);
+
+  /**
    * Import an encrypted private key to a server key store. An {@code oldPassword} is used to
    * decrypt private key passed by and an {@code newPassword} is used to store private key encrypted
    * in a server.
@@ -67,9 +76,10 @@ public interface KeyStoreOperation {
    * @param encryptedKey an encrypted private key
    * @param oldPassword old password to decrypt encrypted private key
    * @param newPassword new password to store in a remote storage
-   * @return account result
+   * @return an imported accoungt
    */
-  Account importKey(EncryptedPrivateKey encryptedKey, String oldPassword, String newPassword);
+  AccountAddress importKey(EncryptedPrivateKey encryptedKey, String oldPassword,
+      String newPassword);
 
   /**
    * Export an encrypted private key of account whose key is stored in a server key store.

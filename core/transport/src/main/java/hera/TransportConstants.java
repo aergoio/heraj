@@ -13,13 +13,14 @@ public final class TransportConstants {
   public static final String ACCOUNT_STAKING = "heraj.staking";
   public static final String ACCOUNT_UNSTAKING = "heraj.unstaking";
   public static final String ACCOUNT_GETSTAKINGINFO = "heraj.getstakinginfo";
-  public static final String ACCOUNT_SIGN = "heraj.sign";
+  public static final String ACCOUNT_SIGN = "heraj.account.sign";
   public static final String ACCOUNT_VERIFY = "heraj.verify";
 
   public static final String KEYSTORE_LIST = "heraj.list";
   public static final String KEYSTORE_CREATE = "heraj.create";
   public static final String KEYSTORE_LOCK = "heraj.lock";
   public static final String KEYSTORE_UNLOCK = "heraj.unlock";
+  public static final String KEYSTORE_SIGN = "heraj.sign";
   public static final String KEYSTORE_IMPORTKEY = "heraj.importkey";
   public static final String KEYSTORE_EXPORTKEY = "heraj.exportkey";
 

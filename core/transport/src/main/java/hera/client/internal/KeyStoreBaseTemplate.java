@@ -18,15 +18,17 @@ import hera.annotation.ApiStability;
 import hera.api.function.Function0;
 import hera.api.function.Function1;
 import hera.api.function.Function3;
-import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.RawTransaction;
+import hera.api.model.Transaction;
 import hera.client.ChannelInjectable;
-import hera.transport.AccountConverterFactory;
+import hera.transport.AccountAddressConverterFactory;
 import hera.transport.AuthenticationConverterFactory;
 import hera.transport.EncryptedPrivateKeyConverterFactory;
 import hera.transport.ModelConverter;
+import hera.transport.TransactionConverterFactory;
 import io.grpc.ManagedChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +36,7 @@ import lombok.Getter;
 import org.slf4j.Logger;
 import types.AccountOuterClass;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
+import types.Blockchain;
 import types.Rpc;
 
 @ApiAudience.Private
@@ -45,11 +48,15 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
   protected final ModelConverter<EncryptedPrivateKey, Rpc.SingleBytes> encryptedPkConverter =
       new EncryptedPrivateKeyConverterFactory().create();
 
-  protected final ModelConverter<Account, AccountOuterClass.Account> accountConverter =
-      new AccountConverterFactory().create();
+  protected final ModelConverter<AccountAddress,
+      com.google.protobuf.ByteString> accountAddressConverter =
+          new AccountAddressConverterFactory().create();
 
   protected final ModelConverter<Authentication, Rpc.Personal> authenticationConverter =
       new AuthenticationConverterFactory().create();
+
+  protected final ModelConverter<Transaction, Blockchain.Tx> transactionConverter =
+      new TransactionConverterFactory().create();
 
   @Getter
   protected AergoRPCServiceFutureStub aergoService;
@@ -94,8 +101,8 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
                     final List<AccountAddress> domainAccountList = new ArrayList<AccountAddress>();
                     for (final AccountOuterClass.Account rpcAccount : rpcAccountList
                         .getAccountsList()) {
-                      domainAccountList
-                          .add(accountConverter.convertToDomainModel(rpcAccount).getAddress());
+                      domainAccountList.add(
+                          accountAddressConverter.convertToDomainModel(rpcAccount.getAddress()));
                     }
                     return domainAccountList;
                   }
@@ -109,17 +116,17 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
       };
 
   @Getter
-  private final Function1<String, FinishableFuture<Account>> createFunction =
-      new Function1<String, FinishableFuture<Account>>() {
+  private final Function1<String, FinishableFuture<AccountAddress>> createFunction =
+      new Function1<String, FinishableFuture<AccountAddress>>() {
 
         @Override
-        public FinishableFuture<Account> apply(final String password) {
+        public FinishableFuture<AccountAddress> apply(final String password) {
           if (logger.isDebugEnabled()) {
             logger.debug("Create an account to server keystore with password: {}",
                 sha256AndEncodeHexa(password));
           }
 
-          FinishableFuture<Account> nextFuture = new FinishableFuture<Account>();
+          FinishableFuture<AccountAddress> nextFuture = new FinishableFuture<AccountAddress>();
           try {
             final Rpc.Personal rpcPassword = Rpc.Personal.newBuilder()
                 .setPassphrase(password)
@@ -131,14 +138,14 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
 
             ListenableFuture<AccountOuterClass.Account> listenableFuture =
                 aergoService.createAccount(rpcPassword);
-            FutureChain<AccountOuterClass.Account, Account> callback =
-                new FutureChain<AccountOuterClass.Account, Account>(nextFuture,
+            FutureChain<AccountOuterClass.Account, AccountAddress> callback =
+                new FutureChain<AccountOuterClass.Account, AccountAddress>(nextFuture,
                     contextProvider.get());
-            callback.setSuccessHandler(new Function1<AccountOuterClass.Account, Account>() {
+            callback.setSuccessHandler(new Function1<AccountOuterClass.Account, AccountAddress>() {
 
               @Override
-              public Account apply(final AccountOuterClass.Account rpcAccount) {
-                return accountConverter.convertToDomainModel(rpcAccount);
+              public AccountAddress apply(final AccountOuterClass.Account rpcAccount) {
+                return accountAddressConverter.convertToDomainModel(rpcAccount.getAddress());
               }
             });
             addCallback(listenableFuture, callback, directExecutor());
@@ -249,12 +256,41 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
       };
 
   @Getter
-  private final Function3<EncryptedPrivateKey, String, String,
-      FinishableFuture<Account>> importKeyFunction = new Function3<
-          EncryptedPrivateKey, String, String, FinishableFuture<Account>>() {
+  private final Function1<RawTransaction, FinishableFuture<Transaction>> signFunction =
+      new Function1<RawTransaction, FinishableFuture<Transaction>>() {
 
         @Override
-        public FinishableFuture<Account> apply(final EncryptedPrivateKey encryptedKey,
+        public FinishableFuture<Transaction> apply(final RawTransaction rawTransaction) {
+          logger.debug("Sign request with rawTx: {}", rawTransaction);
+
+          FinishableFuture<Transaction> nextFuture = new FinishableFuture<Transaction>();
+          final Transaction domainTransaction =
+              new Transaction(rawTransaction, null, null, null, 0, false);
+          final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(domainTransaction);
+          logger.trace("AergoService signTX arg: {}", rpcTx);
+
+          ListenableFuture<Blockchain.Tx> listenableFuture = aergoService.signTX(rpcTx);
+          FutureChain<Blockchain.Tx, Transaction> callback =
+              new FutureChain<Blockchain.Tx, Transaction>(nextFuture, contextProvider.get());
+          callback.setSuccessHandler(new Function1<Blockchain.Tx, Transaction>() {
+            @Override
+            public Transaction apply(final Blockchain.Tx tx) {
+              return transactionConverter.convertToDomainModel(tx);
+            }
+          });
+          addCallback(listenableFuture, callback, directExecutor());
+
+          return nextFuture;
+        }
+      };
+
+  @Getter
+  private final Function3<EncryptedPrivateKey, String, String,
+      FinishableFuture<AccountAddress>> importKeyFunction = new Function3<
+          EncryptedPrivateKey, String, String, FinishableFuture<AccountAddress>>() {
+
+        @Override
+        public FinishableFuture<AccountAddress> apply(final EncryptedPrivateKey encryptedKey,
             final String oldPassword, final String newPassword) {
           if (logger.isDebugEnabled()) {
             logger.debug("Import an account to server keystore with "
@@ -263,7 +299,7 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
                 sha256AndEncodeHexa(newPassword));
           }
 
-          FinishableFuture<Account> nextFuture = new FinishableFuture<Account>();
+          FinishableFuture<AccountAddress> nextFuture = new FinishableFuture<AccountAddress>();
           try {
             final Rpc.ImportFormat rpcImport = Rpc.ImportFormat.newBuilder()
                 .setWif(encryptedPkConverter.convertToRpcModel(encryptedKey))
@@ -280,14 +316,14 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
 
             ListenableFuture<AccountOuterClass.Account> listenableFuture =
                 aergoService.importAccount(rpcImport);
-            FutureChain<AccountOuterClass.Account, Account> callback =
-                new FutureChain<AccountOuterClass.Account, Account>(nextFuture,
+            FutureChain<AccountOuterClass.Account, AccountAddress> callback =
+                new FutureChain<AccountOuterClass.Account, AccountAddress>(nextFuture,
                     contextProvider.get());
-            callback.setSuccessHandler(new Function1<AccountOuterClass.Account, Account>() {
+            callback.setSuccessHandler(new Function1<AccountOuterClass.Account, AccountAddress>() {
 
               @Override
-              public Account apply(final AccountOuterClass.Account rpcAccount) {
-                return accountConverter.convertToDomainModel(rpcAccount);
+              public AccountAddress apply(final AccountOuterClass.Account rpcAccount) {
+                return accountAddressConverter.convertToDomainModel(rpcAccount.getAddress());
               }
             });
             addCallback(listenableFuture, callback, directExecutor());

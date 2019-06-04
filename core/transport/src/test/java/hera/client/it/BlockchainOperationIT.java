@@ -89,34 +89,30 @@ public class BlockchainOperationIT extends AbstractIT {
       return;
     }
 
-    for (final Account account : supplyAccounts()) {
-      unlockAccount(account, password);
+    final Account account = supplyLocalAccount();
 
-      aergoClient.getAccountOperation().stake(account, Aer.of("10000", Unit.AERGO),
-          account.incrementAndGetNonce());
-      waitForNextBlockToGenerate();
+    aergoClient.getAccountOperation().stake(account, Aer.of("10000", Unit.AERGO),
+        account.incrementAndGetNonce());
+    waitForNextBlockToGenerate();
 
-      final StakeInfo stakingInfo =
-          aergoClient.getAccountOperation().getStakingInfo(account.getAddress());
-      logger.info("Staking info: {}", stakingInfo);
+    final StakeInfo stakingInfo =
+        aergoClient.getAccountOperation().getStakingInfo(account.getAddress());
+    logger.info("Staking info: {}", stakingInfo);
 
-      final List<String> candidates = asList(peerIds);
-      aergoClient.getBlockchainOperation().vote(account, "voteBP", candidates,
-          account.incrementAndGetNonce());
-      waitForNextBlockToGenerate();
+    final List<String> candidates = asList(peerIds);
+    aergoClient.getBlockchainOperation().vote(account, "voteBP", candidates,
+        account.incrementAndGetNonce());
+    waitForNextBlockToGenerate();
 
-      lockAccount(account, password);
+    final List<ElectedCandidate> electedBlockProducers =
+        aergoClient.getBlockchainOperation().listElected("voteBP", 23);
+    logger.info("Current elected bps: {}", electedBlockProducers);
+    assertTrue(peerIds.length <= electedBlockProducers.size());
 
-      final List<ElectedCandidate> electedBlockProducers =
-          aergoClient.getBlockchainOperation().listElected("voteBP", 23);
-      logger.info("Current elected bps: {}", electedBlockProducers);
-      assertTrue(peerIds.length <= electedBlockProducers.size());
-
-      final AccountTotalVote accountVoteTotal =
-          aergoClient.getBlockchainOperation().getVotesOf(account.getAddress());
-      assertTrue(1 == accountVoteTotal.getVoteInfos().size());
-      assertEquals(peerIds.length, accountVoteTotal.getVoteInfos().get(0).getCandidateIds().size());
-    }
+    final AccountTotalVote accountVoteTotal =
+        aergoClient.getBlockchainOperation().getVotesOf(account.getAddress());
+    assertTrue(1 == accountVoteTotal.getVoteInfos().size());
+    assertEquals(peerIds.length, accountVoteTotal.getVoteInfos().get(0).getCandidateIds().size());
   }
 
   @Test
@@ -125,19 +121,15 @@ public class BlockchainOperationIT extends AbstractIT {
       return;
     }
 
-    for (final Account account : supplyAccounts()) {
-      unlockAccount(account, password);
+    final Account account = supplyLocalAccount();
 
-      try {
-        final List<String> candidates = asList(peerIds);
-        aergoClient.getBlockchainOperation().vote(account, "voteBP", candidates,
-            account.incrementAndGetNonce());
-        fail();
-      } catch (RpcCommitException e) {
-        // good we expected this
-      }
-
-      lockAccount(account, password);
+    try {
+      final List<String> candidates = asList(peerIds);
+      aergoClient.getBlockchainOperation().vote(account, "voteBP", candidates,
+          account.incrementAndGetNonce());
+      fail();
+    } catch (RpcCommitException e) {
+      // good we expected this
     }
   }
 

@@ -49,8 +49,8 @@ public class CreateAccount extends AbstractExample {
 
     // create an account which store an encrypted key in a server
     final String password = randomUUID().toString();
-    final Account account = aergoClient.getKeyStoreOperation().create(password);
-    System.out.println("Created account: " + account);
+    final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
+    System.out.println("Created account: " + created);
 
     // query account list
     final List<AccountAddress> accountList = aergoClient.getKeyStoreOperation().list();
@@ -59,7 +59,7 @@ public class CreateAccount extends AbstractExample {
     // find an account from remote keystore
     boolean findIt = false;
     for (AccountAddress keyStoreAccount : aergoClient.getKeyStoreOperation().list()) {
-      if (keyStoreAccount.equals(account.getAddress())) {
+      if (keyStoreAccount.equals(created)) {
         findIt = true;
         break;
       }
@@ -82,9 +82,9 @@ public class CreateAccount extends AbstractExample {
     final String password = randomUUID().toString();
     final EncryptedPrivateKey encryptedKey = key.export(password);
 
-    final Account account =
+    final AccountAddress imported =
         aergoClient.getKeyStoreOperation().importKey(encryptedKey, password, password);
-    System.out.println("Imported account: " + account);
+    System.out.println("Imported account: " + imported);
 
     // query account list
     final List<AccountAddress> accountList = aergoClient.getKeyStoreOperation().list();
@@ -93,7 +93,7 @@ public class CreateAccount extends AbstractExample {
     // find an account from remote keystore
     boolean findIt = false;
     for (AccountAddress keyStoreAccount : aergoClient.getKeyStoreOperation().list()) {
-      if (keyStoreAccount.equals(account.getAddress())) {
+      if (keyStoreAccount.equals(imported)) {
         findIt = true;
         break;
       }

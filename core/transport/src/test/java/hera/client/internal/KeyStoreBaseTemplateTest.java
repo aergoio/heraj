@@ -14,11 +14,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
 import hera.Context;
 import hera.ContextProvider;
-import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
-import hera.client.internal.KeyStoreBaseTemplate;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.junit.Test;
@@ -83,7 +81,7 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
 
     final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
-    final FinishableFuture<Account> accountFuture =
+    final FinishableFuture<AccountAddress> accountFuture =
         accountTemplateBase.getCreateFunction().apply(randomUUID().toString());
     assertNotNull(accountFuture.get());
   }
@@ -140,7 +138,7 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
 
     final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
-    final FinishableFuture<Account> accountFuture =
+    final FinishableFuture<AccountAddress> accountFuture =
         accountTemplateBase.getImportKeyFunction().apply(encryptedPrivateKey, PASSWORD, PASSWORD);
     assertNotNull(accountFuture.get());
   }

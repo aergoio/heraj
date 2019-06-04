@@ -95,218 +95,12 @@ public class ContractOperationIT extends AbstractIT {
 
   @Test
   public void testLuaContractConstructor() throws Exception {
-    for (final Account account : supplyAccounts()) {
-      final ContractDefinition definition = ContractDefinition.newBuilder()
-          .encodedContract(contractPayload)
-          .constructorArgs(deployKey, deployIntVal, deployStringVal)
-          .build();
-      unlockAccount(account, password);
-      final ContractTxHash deployTxHash = deploy(account, definition);
-      lockAccount(account, password);
-
-      final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
-      assertEquals("CREATED", deployTxReceipt.getStatus());
-
-      final ContractInterface contractInterface =
-          getContractInterface(deployTxReceipt.getContractAddress());
-
-      final ContractResult queryResult = query(contractInterface, queryFunction, deployKey);
-      final Data data = queryResult.bind(Data.class);
-      assertEquals(deployIntVal, data.getIntVal());
-      assertEquals(deployStringVal, data.getStringVal());
-    }
-  }
-
-  @Test
-  public void testLuaContractDeployWithAmount() throws Exception {
-    for (final Account account : supplyAccounts()) {
-      final Aer expectedAmount = Aer.ONE;
-
-      unlockAccount(account, password);
-      final ContractDefinition definition = ContractDefinition.newBuilder()
-          .encodedContract(contractPayload)
-          .amount(expectedAmount)
-          .build();
-      final ContractTxHash deployTxHash = deploy(account, definition);
-      lockAccount(account, password);
-
-      final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
-      assertEquals("CREATED", deployTxReceipt.getStatus());
-
-      final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
-      final Aer actualAmount = getAmount(contractAddress);
-      assertEquals(expectedAmount, actualAmount);
-    }
-  }
-
-  @Test
-  public void testLuaContractDeployAndExecute() throws Exception {
-    for (final Account account : supplyAccounts()) {
-      unlockAccount(account, password);
-      final ContractDefinition definition = ContractDefinition.newBuilder()
-          .encodedContract(contractPayload).build();
-      final ContractTxHash deployTxHash = deploy(account, definition);
-      lockAccount(account, password);
-
-      final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
-      assertEquals("CREATED", deployTxReceipt.getStatus());
-
-      final ContractInterface contractInterface =
-          getContractInterface(deployTxReceipt.getContractAddress());
-
-      unlockAccount(account, password);
-      final ContractInvocation execution = contractInterface.newInvocationBuilder()
-          .function(executeFunction)
-          .args(new Object[] {executeKey, executeIntVal, executeStringVal})
-          .build();
-      final ContractTxHash executionTxHash = execute(account, execution);
-      lockAccount(account, password);
-
-      final ContractTxReceipt executionReceipt = getContractTxReceipt(executionTxHash);
-      assertEquals("SUCCESS", executionReceipt.getStatus());
-
-      final ContractResult queryResult = query(contractInterface, queryFunction, executeKey);
-      final Data data = queryResult.bind(Data.class);
-      assertEquals(executeIntVal, data.getIntVal());
-      assertEquals(executeStringVal, data.getStringVal());
-    }
-  }
-
-  @Test
-  public void testLuaContractDeployAndExecuteWithAmount() throws Exception {
-    for (final Account account : supplyAccounts()) {
-      final Aer expectedAmount = Aer.ONE;
-
-      unlockAccount(account, password);
-      final ContractDefinition definition = ContractDefinition.newBuilder()
-          .encodedContract(contractPayload).build();
-      final ContractTxHash deployTxHash = deploy(account, definition);
-      lockAccount(account, password);
-
-      final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
-      assertEquals("CREATED", deployTxReceipt.getStatus());
-
-      final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
-      final ContractInterface contractInterface =
-          getContractInterface(contractAddress);
-
-      unlockAccount(account, password);
-      final ContractInvocation execution = contractInterface.newInvocationBuilder()
-          .function(executeFunction)
-          .args(new Object[] {executeKey, executeIntVal, executeStringVal})
-          .amount(expectedAmount)
-          .build();
-      execute(account, execution);
-      lockAccount(account, password);
-
-      final Aer actualAmount = getAmount(contractAddress);
-      assertEquals(expectedAmount, actualAmount);
-    }
-  }
-
-  @Test
-  public void testLuaContractDeployAndExecuteWithEscapeString() throws Exception {
-    for (final Account account : supplyAccounts()) {
-      unlockAccount(account, password);
-      final ContractDefinition definition = ContractDefinition.newBuilder()
-          .encodedContract(contractPayload).build();
-      final ContractTxHash deployTxHash = deploy(account, definition);
-      lockAccount(account, password);
-
-      final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
-      assertEquals("CREATED", deployTxReceipt.getStatus());
-
-      final ContractInterface contractInterface =
-          getContractInterface(deployTxReceipt.getContractAddress());
-
-      unlockAccount(account, password);
-      final String escapeString = "\b\t\f\n\r";
-      final ContractInvocation execution = contractInterface.newInvocationBuilder()
-          .function(executeFunction)
-          .args(new Object[] {executeKey, executeIntVal, escapeString})
-          .build();
-      final ContractTxHash executionTxHash = execute(account, execution);
-      lockAccount(account, password);
-
-      final ContractTxReceipt executionReceipt = getContractTxReceipt(executionTxHash);
-      assertEquals("SUCCESS", executionReceipt.getStatus());
-
-      final ContractResult queryResult = query(contractInterface, queryFunction, executeKey);
-      final Data data = queryResult.bind(Data.class);
-      assertEquals(executeIntVal, data.getIntVal());
-      assertEquals(escapeString, data.getStringVal());
-    }
-  }
-
-  @Test
-  public void testLuaContractDeployWithInvalidNonce() throws Exception {
-    for (final Account account : supplyAccounts()) {
-      unlockAccount(account, password);
-      final ContractDefinition definition = ContractDefinition.newBuilder()
-          .encodedContract(contractPayload).build();
-      try {
-        aergoClient.getContractOperation().deploy(account,
-            definition, account.getRecentlyUsedNonce());
-        fail();
-      } catch (Exception e) {
-        // good we expected this
-      }
-      lockAccount(account, password);
-    }
-  }
-
-  @Test
-  public void testLuaContractExecuteWithInvalidNonce() throws Exception {
-    for (final Account account : supplyAccounts()) {
-      unlockAccount(account, password);
-      final ContractDefinition definition = ContractDefinition.newBuilder()
-          .encodedContract(contractPayload).build();
-      final ContractTxHash deployTxHash = deploy(account, definition);
-      lockAccount(account, password);
-
-      final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
-      assertEquals("CREATED", deployTxReceipt.getStatus());
-
-      final ContractInterface contractInterface =
-          getContractInterface(deployTxReceipt.getContractAddress());
-
-      unlockAccount(account, password);
-      final ContractInvocation execution = contractInterface.newInvocationBuilder()
-          .function(executeFunction)
-          .args(new Object[] {executeKey, executeIntVal, executeStringVal})
-          .build();
-      try {
-        account.setNonce(0L);
-        execute(account, execution);
-        fail();
-      } catch (Exception e) {
-        // good we expected this
-      }
-      lockAccount(account, password);
-    }
-  }
-
-  @Test
-  public void testLuaContractDeployOnLockedAccount() throws Exception {
-    final Account account = supplyServerAccount();
-    // unlockAccount(account, password);
-    try {
-      final ContractDefinition definition = ContractDefinition.newBuilder()
-          .encodedContract(contractPayload).build();
-      deploy(account, definition);
-    } catch (Exception e) {
-      // good we expected this
-    }
-  }
-
-  @Test
-  public void testLuaContractExecuteOnLockedAccount() {
-    final Account account = supplyServerAccount();
-    unlockAccount(account, password);
+    final Account account = supplyLocalAccount();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(contractPayload).build();
+        .encodedContract(contractPayload)
+        .constructorArgs(deployKey, deployIntVal, deployStringVal)
+        .build();
     final ContractTxHash deployTxHash = deploy(account, definition);
-    lockAccount(account, password);
 
     final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
     assertEquals("CREATED", deployTxReceipt.getStatus());
@@ -314,13 +108,150 @@ public class ContractOperationIT extends AbstractIT {
     final ContractInterface contractInterface =
         getContractInterface(deployTxReceipt.getContractAddress());
 
-    // unlockAccount(account, password);
+    final ContractResult queryResult = query(contractInterface, queryFunction, deployKey);
+    final Data data = queryResult.bind(Data.class);
+    assertEquals(deployIntVal, data.getIntVal());
+    assertEquals(deployStringVal, data.getStringVal());
+  }
+
+  @Test
+  public void testLuaContractDeployWithAmount() throws Exception {
+    final Account account = supplyLocalAccount();
+    final Aer expectedAmount = Aer.ONE;
+
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(contractPayload)
+        .amount(expectedAmount)
+        .build();
+    final ContractTxHash deployTxHash = deploy(account, definition);
+
+    final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
+    assertEquals("CREATED", deployTxReceipt.getStatus());
+
+    final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
+    final Aer actualAmount = getAmount(contractAddress);
+    assertEquals(expectedAmount, actualAmount);
+  }
+
+  @Test
+  public void testLuaContractDeployAndExecute() throws Exception {
+    final Account account = supplyLocalAccount();
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(contractPayload).build();
+    final ContractTxHash deployTxHash = deploy(account, definition);
+
+    final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
+    assertEquals("CREATED", deployTxReceipt.getStatus());
+
+    final ContractInterface contractInterface =
+        getContractInterface(deployTxReceipt.getContractAddress());
+
+    final ContractInvocation execution = contractInterface.newInvocationBuilder()
+        .function(executeFunction)
+        .args(new Object[] {executeKey, executeIntVal, executeStringVal})
+        .build();
+    final ContractTxHash executionTxHash = execute(account, execution);
+
+    final ContractTxReceipt executionReceipt = getContractTxReceipt(executionTxHash);
+    assertEquals("SUCCESS", executionReceipt.getStatus());
+
+    final ContractResult queryResult = query(contractInterface, queryFunction, executeKey);
+    final Data data = queryResult.bind(Data.class);
+    assertEquals(executeIntVal, data.getIntVal());
+    assertEquals(executeStringVal, data.getStringVal());
+  }
+
+  @Test
+  public void testLuaContractDeployAndExecuteWithAmount() throws Exception {
+    final Account account = supplyLocalAccount();
+    final Aer expectedAmount = Aer.ONE;
+
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(contractPayload).build();
+    final ContractTxHash deployTxHash = deploy(account, definition);
+
+    final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
+    assertEquals("CREATED", deployTxReceipt.getStatus());
+
+    final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
+    final ContractInterface contractInterface =
+        getContractInterface(contractAddress);
+
+    final ContractInvocation execution = contractInterface.newInvocationBuilder()
+        .function(executeFunction)
+        .args(new Object[] {executeKey, executeIntVal, executeStringVal})
+        .amount(expectedAmount)
+        .build();
+    execute(account, execution);
+
+    final Aer actualAmount = getAmount(contractAddress);
+    assertEquals(expectedAmount, actualAmount);
+  }
+
+  @Test
+  public void testLuaContractDeployAndExecuteWithEscapeString() throws Exception {
+    final Account account = supplyLocalAccount();
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(contractPayload).build();
+    final ContractTxHash deployTxHash = deploy(account, definition);
+
+    final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
+    assertEquals("CREATED", deployTxReceipt.getStatus());
+
+    final ContractInterface contractInterface =
+        getContractInterface(deployTxReceipt.getContractAddress());
+
+    final String escapeString = "\b\t\f\n\r";
+    final ContractInvocation execution = contractInterface.newInvocationBuilder()
+        .function(executeFunction)
+        .args(new Object[] {executeKey, executeIntVal, escapeString})
+        .build();
+    final ContractTxHash executionTxHash = execute(account, execution);
+
+    final ContractTxReceipt executionReceipt = getContractTxReceipt(executionTxHash);
+    assertEquals("SUCCESS", executionReceipt.getStatus());
+
+    final ContractResult queryResult = query(contractInterface, queryFunction, executeKey);
+    final Data data = queryResult.bind(Data.class);
+    assertEquals(executeIntVal, data.getIntVal());
+    assertEquals(escapeString, data.getStringVal());
+  }
+
+  @Test
+  public void testLuaContractDeployWithInvalidNonce() throws Exception {
+    final Account account = supplyLocalAccount();
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(contractPayload).build();
     try {
-      final ContractInvocation execution = contractInterface.newInvocationBuilder()
-          .function(executeFunction)
-          .args(executeKey, executeIntVal, executeStringVal)
-          .build();
+      aergoClient.getContractOperation().deploy(account,
+          definition, account.getRecentlyUsedNonce());
+      fail();
+    } catch (Exception e) {
+      // good we expected this
+    }
+  }
+
+  @Test
+  public void testLuaContractExecuteWithInvalidNonce() throws Exception {
+    final Account account = supplyLocalAccount();
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(contractPayload).build();
+    final ContractTxHash deployTxHash = deploy(account, definition);
+
+    final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
+    assertEquals("CREATED", deployTxReceipt.getStatus());
+
+    final ContractInterface contractInterface =
+        getContractInterface(deployTxReceipt.getContractAddress());
+
+    final ContractInvocation execution = contractInterface.newInvocationBuilder()
+        .function(executeFunction)
+        .args(new Object[] {executeKey, executeIntVal, executeStringVal})
+        .build();
+    try {
+      account.setNonce(0L);
       execute(account, execution);
+      fail();
     } catch (Exception e) {
       // good we expected this
     }
@@ -328,259 +259,251 @@ public class ContractOperationIT extends AbstractIT {
 
   @Test
   public void testLuaContractEvent() {
-    for (final Account account : supplyAccounts()) {
-      unlockAccount(account, password);
-      final ContractDefinition definition = ContractDefinition.newBuilder()
-          .encodedContract(contractPayload)
-          .build();
-      final ContractTxHash deployTxHash = deploy(account, definition);
+    final Account account = supplyLocalAccount();
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(contractPayload)
+        .build();
+    final ContractTxHash deployTxHash = deploy(account, definition);
 
-      final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
-      assertEquals("CREATED", deployTxReceipt.getStatus());
+    final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
+    assertEquals("CREATED", deployTxReceipt.getStatus());
 
-      final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
-      final ContractInterface contractInterface = getContractInterface(contractAddress);
+    final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
+    final ContractInterface contractInterface = getContractInterface(contractAddress);
 
-      final EventFilter eventFilter = EventFilter.newBuilder(contractAddress)
-          .recentBlockCount(100)
-          .build();
+    final EventFilter eventFilter = EventFilter.newBuilder(contractAddress)
+        .recentBlockCount(100)
+        .build();
 
-      final CountDownLatch latch = new CountDownLatch(2);
-      final Subscription<Event> subscription =
-          aergoClient.getContractOperation().subscribeEvent(eventFilter,
-              new StreamObserver<Event>() {
+    final CountDownLatch latch = new CountDownLatch(2);
+    final Subscription<Event> subscription =
+        aergoClient.getContractOperation().subscribeEvent(eventFilter,
+            new StreamObserver<Event>() {
 
-                @Override
-                public void onNext(Event value) {
-                  latch.countDown();
-                }
+              @Override
+              public void onNext(Event value) {
+                latch.countDown();
+              }
 
-                @Override
-                public void onError(Throwable t) {
-                  // do nothing
-                }
+              @Override
+              public void onError(Throwable t) {
+                // do nothing
+              }
 
-                @Override
-                public void onCompleted() {
-                  // do nothing
-                }
-              });
+              @Override
+              public void onCompleted() {
+                // do nothing
+              }
+            });
 
-      final ContractInvocation execution = contractInterface.newInvocationBuilder()
-          .function(executeFunction)
-          .args(new Object[] {executeKey, executeIntVal, executeStringVal})
-          .build();
+    final ContractInvocation execution = contractInterface.newInvocationBuilder()
+        .function(executeFunction)
+        .args(new Object[] {executeKey, executeIntVal, executeStringVal})
+        .build();
 
-      execute(account, execution);
-      execute(account, execution);
+    execute(account, execution);
+    execute(account, execution);
 
-      subscription.unsubscribe();
+    subscription.unsubscribe();
 
-      execute(account, execution);
+    execute(account, execution);
 
-      assertTrue(subscription.isUnsubscribed());
-      assertEquals(0L, latch.getCount());
-    }
+    assertTrue(subscription.isUnsubscribed());
+    assertEquals(0L, latch.getCount());
   }
 
   @Test
   public void testLuaContractEventWithEventNameFilter() {
-    for (final Account account : supplyAccounts()) {
-      unlockAccount(account, password);
-      final ContractDefinition definition = ContractDefinition.newBuilder()
-          .encodedContract(contractPayload)
-          .build();
-      final ContractTxHash deployTxHash = deploy(account, definition);
+    final Account account = supplyLocalAccount();
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(contractPayload)
+        .build();
+    final ContractTxHash deployTxHash = deploy(account, definition);
 
-      final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
-      assertEquals("CREATED", deployTxReceipt.getStatus());
+    final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
+    assertEquals("CREATED", deployTxReceipt.getStatus());
 
-      final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
-      final ContractInterface contractInterface = getContractInterface(contractAddress);
+    final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
+    final ContractInterface contractInterface = getContractInterface(contractAddress);
 
-      final EventFilter eventFilter = EventFilter.newBuilder(contractAddress)
-          .eventName("set")
-          .build();
+    final EventFilter eventFilter = EventFilter.newBuilder(contractAddress)
+        .eventName("set")
+        .build();
 
-      final AtomicInteger count = new AtomicInteger(2);
-      final Subscription<Event> subscription =
-          aergoClient.getContractOperation().subscribeEvent(eventFilter,
-              new StreamObserver<Event>() {
+    final AtomicInteger count = new AtomicInteger(2);
+    final Subscription<Event> subscription =
+        aergoClient.getContractOperation().subscribeEvent(eventFilter,
+            new StreamObserver<Event>() {
 
-                @Override
-                public void onNext(Event value) {
-                  count.decrementAndGet();
-                }
+              @Override
+              public void onNext(Event value) {
+                count.decrementAndGet();
+              }
 
-                @Override
-                public void onError(Throwable t) {
-                  // do nothing
-                }
+              @Override
+              public void onError(Throwable t) {
+                // do nothing
+              }
 
-                @Override
-                public void onCompleted() {
-                  // do nothing
-                }
-              });
+              @Override
+              public void onCompleted() {
+                // do nothing
+              }
+            });
 
-      final ContractInvocation targetExec = contractInterface.newInvocationBuilder()
-          .function(executeFunction)
-          .args(new Object[] {executeKey, executeIntVal, executeStringVal})
-          .build();
+    final ContractInvocation targetExec = contractInterface.newInvocationBuilder()
+        .function(executeFunction)
+        .args(new Object[] {executeKey, executeIntVal, executeStringVal})
+        .build();
 
-      final ContractInvocation otherExec = contractInterface.newInvocationBuilder()
-          .function("set2")
-          .args(new Object[] {randomUUID().toString(), randomUUID().toString().hashCode(),
-              randomUUID().toString()})
-          .build();
+    final ContractInvocation otherExec = contractInterface.newInvocationBuilder()
+        .function("set2")
+        .args(new Object[] {randomUUID().toString(), randomUUID().toString().hashCode(),
+            randomUUID().toString()})
+        .build();
 
-      execute(account, targetExec);
-      execute(account, targetExec);
+    execute(account, targetExec);
+    execute(account, targetExec);
 
-      execute(account, otherExec);
-      execute(account, otherExec);
-      execute(account, otherExec);
+    execute(account, otherExec);
+    execute(account, otherExec);
+    execute(account, otherExec);
 
-      subscription.unsubscribe();
+    subscription.unsubscribe();
 
-      execute(account, targetExec);
+    execute(account, targetExec);
 
-      assertTrue(subscription.isUnsubscribed());
-      assertEquals(0, count.get());
-    }
+    assertTrue(subscription.isUnsubscribed());
+    assertEquals(0, count.get());
   }
 
   @Test
   public void testLuaContractEventWithArgFilter() {
-    for (final Account account : supplyAccounts()) {
-      unlockAccount(account, password);
-      final ContractDefinition definition = ContractDefinition.newBuilder()
-          .encodedContract(contractPayload)
-          .build();
-      final ContractTxHash deployTxHash = deploy(account, definition);
+    final Account account = supplyLocalAccount();
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(contractPayload)
+        .build();
+    final ContractTxHash deployTxHash = deploy(account, definition);
 
-      final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
-      assertEquals("CREATED", deployTxReceipt.getStatus());
+    final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
+    assertEquals("CREATED", deployTxReceipt.getStatus());
 
-      final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
-      final ContractInterface contractInterface = getContractInterface(contractAddress);
+    final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
+    final ContractInterface contractInterface = getContractInterface(contractAddress);
 
-      final EventFilter eventFilter = EventFilter.newBuilder(contractAddress)
-          .args(asList(new Object[] {executeKey}))
-          .build();
+    final EventFilter eventFilter = EventFilter.newBuilder(contractAddress)
+        .args(asList(new Object[] {executeKey}))
+        .build();
 
-      final AtomicInteger count = new AtomicInteger(2);
-      final Subscription<Event> subscription =
-          aergoClient.getContractOperation().subscribeEvent(eventFilter,
-              new StreamObserver<Event>() {
+    final AtomicInteger count = new AtomicInteger(2);
+    final Subscription<Event> subscription =
+        aergoClient.getContractOperation().subscribeEvent(eventFilter,
+            new StreamObserver<Event>() {
 
-                @Override
-                public void onNext(Event value) {
-                  count.decrementAndGet();
-                }
+              @Override
+              public void onNext(Event value) {
+                count.decrementAndGet();
+              }
 
-                @Override
-                public void onError(Throwable t) {
-                  // do nothing
-                }
+              @Override
+              public void onError(Throwable t) {
+                // do nothing
+              }
 
-                @Override
-                public void onCompleted() {
-                  // do nothing
-                }
-              });
+              @Override
+              public void onCompleted() {
+                // do nothing
+              }
+            });
 
-      final ContractInvocation targetExec = contractInterface.newInvocationBuilder()
-          .function("set2")
-          .args(new Object[] {executeKey, executeIntVal, executeStringVal})
-          .build();
+    final ContractInvocation targetExec = contractInterface.newInvocationBuilder()
+        .function("set2")
+        .args(new Object[] {executeKey, executeIntVal, executeStringVal})
+        .build();
 
-      final ContractInvocation otherExec = contractInterface.newInvocationBuilder()
-          .function("set2")
-          .args(new Object[] {randomUUID().toString(), executeIntVal, executeStringVal})
-          .build();
+    final ContractInvocation otherExec = contractInterface.newInvocationBuilder()
+        .function("set2")
+        .args(new Object[] {randomUUID().toString(), executeIntVal, executeStringVal})
+        .build();
 
-      execute(account, targetExec);
-      execute(account, targetExec);
+    execute(account, targetExec);
+    execute(account, targetExec);
 
-      execute(account, otherExec);
-      execute(account, otherExec);
-      execute(account, otherExec);
+    execute(account, otherExec);
+    execute(account, otherExec);
+    execute(account, otherExec);
 
-      subscription.unsubscribe();
+    subscription.unsubscribe();
 
-      execute(account, targetExec);
+    execute(account, targetExec);
 
-      assertTrue(subscription.isUnsubscribed());
-      assertEquals(0, count.get());
-    }
+    assertTrue(subscription.isUnsubscribed());
+    assertEquals(0, count.get());
   }
 
   @Test
   public void testLuaContractEventWithEventNameAndArgFilter() {
-    for (final Account account : supplyAccounts()) {
-      unlockAccount(account, password);
-      final ContractDefinition definition = ContractDefinition.newBuilder()
-          .encodedContract(contractPayload)
-          .build();
-      final ContractTxHash deployTxHash = deploy(account, definition);
+    final Account account = supplyLocalAccount();
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(contractPayload)
+        .build();
+    final ContractTxHash deployTxHash = deploy(account, definition);
 
-      final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
-      assertEquals("CREATED", deployTxReceipt.getStatus());
+    final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
+    assertEquals("CREATED", deployTxReceipt.getStatus());
 
-      final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
-      final ContractInterface contractInterface = getContractInterface(contractAddress);
+    final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
+    final ContractInterface contractInterface = getContractInterface(contractAddress);
 
-      final EventFilter eventFilter = EventFilter.newBuilder(contractAddress)
-          .eventName("set")
-          .args(asList(new Object[] {executeKey}))
-          .build();
+    final EventFilter eventFilter = EventFilter.newBuilder(contractAddress)
+        .eventName("set")
+        .args(asList(new Object[] {executeKey}))
+        .build();
 
-      final AtomicInteger count = new AtomicInteger(2);
-      final Subscription<Event> subscription =
-          aergoClient.getContractOperation().subscribeEvent(eventFilter,
-              new StreamObserver<Event>() {
+    final AtomicInteger count = new AtomicInteger(2);
+    final Subscription<Event> subscription =
+        aergoClient.getContractOperation().subscribeEvent(eventFilter,
+            new StreamObserver<Event>() {
 
-                @Override
-                public void onNext(Event value) {
-                  count.decrementAndGet();
-                }
+              @Override
+              public void onNext(Event value) {
+                count.decrementAndGet();
+              }
 
-                @Override
-                public void onError(Throwable t) {
-                  // do nothing
-                }
+              @Override
+              public void onError(Throwable t) {
+                // do nothing
+              }
 
-                @Override
-                public void onCompleted() {
-                  // do nothing
-                }
-              });
+              @Override
+              public void onCompleted() {
+                // do nothing
+              }
+            });
 
-      final ContractInvocation targetExec = contractInterface.newInvocationBuilder()
-          .function(executeFunction)
-          .args(new Object[] {executeKey, executeIntVal, executeStringVal})
-          .build();
+    final ContractInvocation targetExec = contractInterface.newInvocationBuilder()
+        .function(executeFunction)
+        .args(new Object[] {executeKey, executeIntVal, executeStringVal})
+        .build();
 
-      final ContractInvocation otherExec = contractInterface.newInvocationBuilder()
-          .function(executeFunction)
-          .args(new Object[] {randomUUID().toString(), executeIntVal, executeStringVal})
-          .build();
+    final ContractInvocation otherExec = contractInterface.newInvocationBuilder()
+        .function(executeFunction)
+        .args(new Object[] {randomUUID().toString(), executeIntVal, executeStringVal})
+        .build();
 
-      execute(account, targetExec);
-      execute(account, targetExec);
+    execute(account, targetExec);
+    execute(account, targetExec);
 
-      execute(account, otherExec);
-      execute(account, otherExec);
-      execute(account, otherExec);
+    execute(account, otherExec);
+    execute(account, otherExec);
+    execute(account, otherExec);
 
-      subscription.unsubscribe();
+    subscription.unsubscribe();
 
-      execute(account, targetExec);
+    execute(account, targetExec);
 
-      assertTrue(subscription.isUnsubscribed());
-      assertEquals(0, count.get());
-    }
+    assertTrue(subscription.isUnsubscribed());
+    assertEquals(0, count.get());
   }
 
   @ToString

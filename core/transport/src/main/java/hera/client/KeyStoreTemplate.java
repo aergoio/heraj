@@ -9,6 +9,7 @@ import static hera.TransportConstants.KEYSTORE_EXPORTKEY;
 import static hera.TransportConstants.KEYSTORE_IMPORTKEY;
 import static hera.TransportConstants.KEYSTORE_LIST;
 import static hera.TransportConstants.KEYSTORE_LOCK;
+import static hera.TransportConstants.KEYSTORE_SIGN;
 import static hera.TransportConstants.KEYSTORE_UNLOCK;
 import static hera.api.function.Functions.identify;
 
@@ -20,10 +21,11 @@ import hera.api.KeyStoreOperation;
 import hera.api.function.Function0;
 import hera.api.function.Function1;
 import hera.api.function.Function3;
-import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.RawTransaction;
+import hera.api.model.Transaction;
 import hera.client.internal.FinishableFuture;
 import hera.client.internal.KeyStoreBaseTemplate;
 import hera.strategy.StrategyChain;
@@ -62,21 +64,28 @@ public class KeyStoreTemplate
           .apply(identify(getKeyStoreBaseTemplate().getListFunction(), KEYSTORE_LIST));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<String, FinishableFuture<Account>> createFunction =
+  private final Function1<String, FinishableFuture<AccountAddress>> createFunction =
       getStrategyChain()
           .apply(identify(getKeyStoreBaseTemplate().getCreateFunction(), KEYSTORE_CREATE));
+
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<Authentication, FinishableFuture<Boolean>> unlockFunction =
       getStrategyChain()
           .apply(identify(getKeyStoreBaseTemplate().getUnlockFunction(), KEYSTORE_UNLOCK));
+
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<Authentication, FinishableFuture<Boolean>> lockFunction =
       getStrategyChain()
           .apply(identify(getKeyStoreBaseTemplate().getLockFunction(), KEYSTORE_LOCK));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<RawTransaction, FinishableFuture<Transaction>> signFunction =
+      getStrategyChain()
+          .apply(identify(getKeyStoreBaseTemplate().getSignFunction(), KEYSTORE_SIGN));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function3<EncryptedPrivateKey, String, String,
-      FinishableFuture<Account>> importKeyFunction = getStrategyChain().apply(
+      FinishableFuture<AccountAddress>> importKeyFunction = getStrategyChain().apply(
           identify(getKeyStoreBaseTemplate().getImportKeyFunction(), KEYSTORE_IMPORTKEY));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
@@ -90,7 +99,7 @@ public class KeyStoreTemplate
   }
 
   @Override
-  public Account create(final String password) {
+  public AccountAddress create(final String password) {
     return getCreateFunction().apply(password).get();
   }
 
@@ -105,7 +114,12 @@ public class KeyStoreTemplate
   }
 
   @Override
-  public Account importKey(final EncryptedPrivateKey encryptedKey,
+  public Transaction sign(final RawTransaction rawTransaction) {
+    return getSignFunction().apply(rawTransaction).get();
+  }
+
+  @Override
+  public AccountAddress importKey(final EncryptedPrivateKey encryptedKey,
       final String oldPassword, final String newPassword) {
     return getImportKeyFunction().apply(encryptedKey, oldPassword, newPassword).get();
   }
