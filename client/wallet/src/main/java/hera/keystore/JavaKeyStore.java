@@ -16,7 +16,6 @@ import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Identity;
 import hera.exception.KeyStoreException;
 import hera.key.AergoKey;
-import hera.key.Signer;
 import hera.model.KeyAlias;
 import hera.util.Sha256Utils;
 import hera.util.pki.ECDSAKey;
@@ -46,7 +45,7 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 @ApiAudience.Private
 @ApiStability.Unstable
 @RequiredArgsConstructor
-public class JavaKeyStore extends AbstractKeyStore implements KeyStore, Signer {
+public class JavaKeyStore extends AbstractKeyStore {
 
   protected java.security.Provider provider = new BouncyCastleProvider();
 

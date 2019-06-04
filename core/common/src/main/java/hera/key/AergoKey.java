@@ -1,3 +1,4 @@
+
 /*
  * @copyright defined in LICENSE.txt
  */
@@ -23,6 +24,7 @@ import hera.spec.resolver.AddressResolver;
 import hera.spec.resolver.EncryptedPrivateKeyResolver;
 import hera.spec.resolver.SignatureResolver;
 import hera.spec.resolver.TransactionHashResolver;
+import hera.transaction.TxVerifier;
 import hera.util.Base64Utils;
 import hera.util.NumberUtils;
 import hera.util.pki.ECDSAKey;
@@ -38,7 +40,7 @@ import org.slf4j.Logger;
 @ApiAudience.Public
 @ApiStability.Unstable
 @EqualsAndHashCode(exclude = {"logger", "verifier"})
-public class AergoKey implements KeyPair, Signer, TransactionVerifier {
+public class AergoKey implements KeyPair, Signer, MessageSigner, TxVerifier {
 
   /**
    * Create a key pair with encoded encrypted private key and password.
@@ -128,30 +130,25 @@ public class AergoKey implements KeyPair, Signer, TransactionVerifier {
   }
 
   @Override
+  public AccountAddress getPrincipal() {
+    return getAddress();
+  }
+
+  @Override
   public Transaction sign(final RawTransaction rawTransaction) {
     try {
       logger.debug("Sign raw transaction: {}", rawTransaction);
       final TxHash txHash = TransactionHashResolver.calculateHash(rawTransaction);
-      final Signature signature = sign(txHash);
+      final ECDSASignature ecdsaSignature = ecdsakey.sign(txHash.getBytesValue().getValue());
+      final Signature signature =
+          SignatureResolver.serialize(ecdsaSignature, ecdsakey.getParams().getN());
+      logger.trace("Raw signature: {}", ecdsaSignature);
+      logger.trace("Serialized signature: {}", signature);
       return Transaction.newBuilder(rawTransaction)
           .signature(signature)
           .build();
     } catch (HerajException e) {
       throw e;
-    } catch (Exception e) {
-      throw new HerajException(e);
-    }
-  }
-
-  @Override
-  public Signature sign(final Hash hash) {
-    try {
-      logger.debug("Sign to hash: {}", hash);
-      final ECDSASignature ecdsaSignature = ecdsakey.sign(hash.getBytesValue().getValue());
-      final Signature signature =
-          SignatureResolver.serialize(ecdsaSignature, ecdsakey.getParams().getN());
-      logger.trace("Serialized signature: {}", signature);
-      return signature;
     } catch (Exception e) {
       throw new HerajException(e);
     }
@@ -188,6 +185,9 @@ public class AergoKey implements KeyPair, Signer, TransactionVerifier {
   @Override
   public boolean verify(final Transaction transaction) {
     try {
+      if (!getAddress().equals(transaction.getSender())) {
+        return false;
+      }
       return verifier.verify(transaction);
     } catch (HerajException e) {
       throw e;
@@ -275,5 +275,4 @@ public class AergoKey implements KeyPair, Signer, TransactionVerifier {
   public String toString() {
     return String.format("Address: %s", getAddress());
   }
-
 }

@@ -9,7 +9,7 @@ import static org.mockito.Mockito.mock;
 
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
-import hera.key.Signer;
+import hera.transaction.TxSigner;
 import org.junit.Test;
 
 public class AccountFactoryTest {
@@ -31,7 +31,7 @@ public class AccountFactoryTest {
   @Test
   public void testCreateWithAddressAndSigner() {
     final AergoKey key = new AergoKeyGenerator().create();
-    final Account account = new AccountFactory().create(key.getAddress(), mock(Signer.class));
+    final Account account = new AccountFactory().create(key.getAddress(), mock(TxSigner.class));
     assertNotNull(account);
   }
 

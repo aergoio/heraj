@@ -19,6 +19,7 @@ import hera.api.model.TxHash;
 import hera.exception.HerajException;
 import hera.spec.resolver.SignatureResolver;
 import hera.spec.resolver.TransactionHashResolver;
+import hera.transaction.TxVerifier;
 import hera.util.Base64Utils;
 import hera.util.pki.ECDSAKeyGenerator;
 import hera.util.pki.ECDSASignature;
@@ -29,7 +30,7 @@ import org.slf4j.Logger;
 @ApiAudience.Public
 @ApiStability.Unstable
 @RequiredArgsConstructor
-public class AergoSignVerifier implements TransactionVerifier {
+public class AergoSignVerifier implements TxVerifier {
 
   protected final transient Logger logger = getLogger(getClass());
 

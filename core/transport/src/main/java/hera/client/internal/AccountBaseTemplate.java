@@ -30,9 +30,9 @@ import hera.api.model.TxHash;
 import hera.api.model.internal.GovernanceRecipient;
 import hera.client.ChannelInjectable;
 import hera.exception.TransactionVerificationException;
-import hera.key.Signer;
 import hera.spec.PayloadSpec.Type;
 import hera.spec.resolver.PayloadResolver;
+import hera.transaction.TxSigner;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.AccountStateConverterFactory;
 import hera.transport.ModelConverter;
@@ -291,8 +291,8 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
               rawTransaction);
 
           FinishableFuture<Transaction> nextFuture = new FinishableFuture<Transaction>();
-          if (account instanceof Signer) {
-            final Signer signer = (Signer) account;
+          if (account instanceof TxSigner) {
+            final TxSigner signer = (TxSigner) account;
             final Transaction signed = signer.sign(rawTransaction);
             nextFuture.success(signed);
           } else {

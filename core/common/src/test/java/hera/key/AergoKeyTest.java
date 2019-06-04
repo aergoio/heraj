@@ -5,7 +5,6 @@
 package hera.key;
 
 import static hera.api.model.BytesValue.of;
-import static hera.util.Sha256Utils.digest;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -16,7 +15,6 @@ import hera.AbstractTestCase;
 import hera.api.model.Aer.Unit;
 import hera.api.model.BytesValue;
 import hera.api.model.ChainIdHash;
-import hera.api.model.Hash;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
@@ -62,17 +60,6 @@ public class AergoKeyTest extends AbstractTestCase {
           .build();
       final Transaction signedTransaction = key.sign(rawTransaction);
       assertTrue(key.verify(signedTransaction));
-    }
-  }
-
-  @Test
-  public void testSignAndVerifyHash() throws Exception {
-    for (int i = 0; i < N_TEST; ++i) {
-      final AergoKey key = new AergoKeyGenerator().create();
-      final byte[] raw = randomUUID().toString().getBytes();
-      final Hash hash = new Hash(of(digest(raw)));
-      final Signature signature = key.sign(hash);
-      assertTrue(key.verify(hash, signature));
     }
   }
 

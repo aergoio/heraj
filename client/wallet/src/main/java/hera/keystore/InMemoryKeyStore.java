@@ -13,7 +13,6 @@ import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Identity;
 import hera.exception.KeyStoreException;
 import hera.key.AergoKey;
-import hera.key.Signer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-public class InMemoryKeyStore extends AbstractKeyStore implements KeyStore, Signer {
+public class InMemoryKeyStore extends AbstractKeyStore {
 
   protected Map<Authentication, EncryptedPrivateKey> auth2EncryptedPrivateKey =
       new ConcurrentHashMap<Authentication, EncryptedPrivateKey>();

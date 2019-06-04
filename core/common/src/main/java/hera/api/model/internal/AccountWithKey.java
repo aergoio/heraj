@@ -7,13 +7,10 @@ package hera.api.model.internal;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
-import hera.api.model.BytesValue;
-import hera.api.model.Hash;
 import hera.api.model.RawTransaction;
-import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.key.AergoKey;
-import hera.key.Signer;
+import hera.transaction.TxSigner;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -25,7 +22,7 @@ import lombok.ToString;
 @ToString(callSuper = true, exclude = "key")
 @EqualsAndHashCode(callSuper = true)
 @RequiredArgsConstructor
-public class AccountWithKey extends AbstractAccount implements Signer {
+public class AccountWithKey extends AbstractAccount implements TxSigner {
 
   @NonNull
   @Getter
@@ -39,21 +36,6 @@ public class AccountWithKey extends AbstractAccount implements Signer {
   @Override
   public Transaction sign(final RawTransaction rawTransaction) {
     return key.sign(rawTransaction);
-  }
-
-  @Override
-  public Signature sign(final Hash hash) {
-    return key.sign(hash);
-  }
-
-  @Override
-  public String signMessage(final String message) {
-    return key.signMessage(message);
-  }
-
-  @Override
-  public Signature signMessage(final BytesValue message) {
-    return key.signMessage(message);
   }
 
 }

@@ -8,18 +8,15 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
-import hera.api.model.BytesValue;
-import hera.api.model.Hash;
 import hera.api.model.RawTransaction;
-import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.exception.KeyStoreException;
 import hera.key.AergoKey;
-import hera.key.Signer;
+import hera.transaction.TxSigner;
 import hera.util.Sha256Utils;
 import org.slf4j.Logger;
 
-public abstract class AbstractKeyStore implements KeyStore, Signer {
+public abstract class AbstractKeyStore implements KeyStore, TxSigner {
 
   protected final transient Logger logger = getLogger(getClass());
 
@@ -58,39 +55,6 @@ public abstract class AbstractKeyStore implements KeyStore, Signer {
       }
       final AergoKey key = getUnlockedKey();
       return key.sign(rawTransaction);
-    } catch (Exception e) {
-      throw new KeyStoreException(e);
-    }
-  }
-
-  @Override
-  public Signature sign(final Hash hash) {
-    try {
-      logger.debug("Sign to hash: {}", hash);
-      final AergoKey key = getUnlockedKey();
-      return key.sign(hash);
-    } catch (Exception e) {
-      throw new KeyStoreException(e);
-    }
-  }
-
-  @Override
-  public Signature signMessage(final BytesValue message) {
-    try {
-      logger.debug("Sign message: {}", message);
-      final AergoKey key = getUnlockedKey();
-      return key.signMessage(message);
-    } catch (Exception e) {
-      throw new KeyStoreException(e);
-    }
-  }
-
-  @Override
-  public String signMessage(final String message) {
-    try {
-      logger.debug("Sign message: {}", message);
-      final AergoKey key = getUnlockedKey();
-      return key.signMessage(message);
     } catch (Exception e) {
       throw new KeyStoreException(e);
     }

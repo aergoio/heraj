@@ -12,7 +12,7 @@ import hera.api.model.internal.AccountWithAddress;
 import hera.api.model.internal.AccountWithAddressAndSigner;
 import hera.api.model.internal.AccountWithKey;
 import hera.key.AergoKey;
-import hera.key.Signer;
+import hera.transaction.TxSigner;
 
 @ApiAudience.Public
 @ApiStability.Unstable
@@ -46,14 +46,14 @@ public class AccountFactory {
    * Create an account with address and signer.
    *
    * @param accountAddress an account address
-   * @param signer a signer
+   * @param txSigner a tx signer
    * @return created account
    */
   @ApiAudience.Private
-  public Account create(final AccountAddress accountAddress, final Signer signer) {
+  public Account create(final AccountAddress accountAddress, final TxSigner txSigner) {
     assertNotNull(accountAddress);
-    assertNotNull(signer);
-    return new AccountWithAddressAndSigner(accountAddress, signer);
+    assertNotNull(txSigner);
+    return new AccountWithAddressAndSigner(accountAddress, txSigner);
   }
 
 }
