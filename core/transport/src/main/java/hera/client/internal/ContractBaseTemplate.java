@@ -157,13 +157,11 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
           logger.debug("Deploy contract with creator: {}, definition: {}, nonce: {}, fee: {}",
               creator.getAddress(), contractDefinition, nonce, fee);
           try {
-            final RawTransaction rawTransaction = Transaction
-                .newBuilder(contextProvider.get().getChainIdHash())
+            final RawTransaction rawTransaction = RawTransaction.newDeployContractBuilder()
+                .chainIdHash(contextProvider.get().getChainIdHash())
                 .from(creator)
-                .to(AccountAddress.of(BytesValue.EMPTY))
-                .amount(contractDefinition.getAmount())
                 .nonce(nonce)
-                .payload(PayloadResolver.resolve(Type.ContractDefinition, contractDefinition))
+                .definition(contractDefinition)
                 .build();
             return signAndCommit(creator, rawTransaction);
           } catch (Exception e) {
@@ -228,13 +226,11 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
           logger.debug("Execute contract with executor: {}, invocation: {}, nonce: {}, fee: {}",
               executor.getAddress(), contractInvocation, nonce, fee);
           try {
-            final RawTransaction rawTransaction = Transaction
-                .newBuilder(contextProvider.get().getChainIdHash())
+            final RawTransaction rawTransaction = RawTransaction.newInvokeContractBuilder()
+                .chainIdHash(contextProvider.get().getChainIdHash())
                 .from(executor)
-                .to(contractInvocation.getAddress())
-                .amount(contractInvocation.getAmount())
                 .nonce(nonce)
-                .payload(PayloadResolver.resolve(Type.ContractInvocation, contractInvocation))
+                .invocation(contractInvocation)
                 .build();
             return signAndCommit(executor, rawTransaction);
           } catch (Exception e) {

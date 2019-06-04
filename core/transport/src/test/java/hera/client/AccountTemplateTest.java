@@ -247,7 +247,7 @@ public class AccountTemplateTest extends AbstractTestCase {
     final AccountTemplate accountTemplate = supplyAccountTemplate(base);
 
     final Account account = mock(Account.class);
-    final Transaction transaction = mock(Transaction.class);
+    final RawTransaction transaction = mock(RawTransaction.class);
     final Transaction signedTransaction = accountTemplate.sign(account, transaction);
     assertNotNull(signedTransaction);
     assertEquals(ACCOUNT_SIGN, ((WithIdentity) accountTemplate.getSignFunction()).getIdentity());

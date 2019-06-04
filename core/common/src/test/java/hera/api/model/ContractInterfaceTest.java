@@ -34,10 +34,12 @@ public class ContractInterfaceTest {
         new ContractInterface(address, version, language, functions, stateVariables);
 
     final Object[] args = new Object[] {randomUUID().toString(), randomUUID().toString()};
-    final ContractInvocation expected = new ContractInvocation(address, function, asList(args));
+    final ContractInvocation expected =
+        new ContractInvocation(address, function, asList(args), Aer.ZERO);
     final ContractInvocation actual = contractInterface.newInvocationBuilder()
         .function(functionName)
         .args(args)
+        .amount(Aer.ZERO)
         .build();
     assertEquals(expected, actual);
   }

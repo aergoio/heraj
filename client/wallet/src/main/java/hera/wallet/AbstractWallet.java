@@ -432,7 +432,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
       public TxHash apply(final Long nonce) {
         try {
           final RawTransaction withNewNonce =
-              RawTransaction.copyOf(signedTransaction, nonce.longValue());
+              signedTransaction.getRawTransaction().withNonce(nonce);
           return getAergoClient().getTransactionOperation().commit(sign(withNewNonce));
         } catch (Exception e) {
           throw exceptionConverter.convert(e);

@@ -4,17 +4,29 @@
 
 package hera.api.model;
 
-import static hera.api.model.BytesValue.of;
 import static hera.util.ValidationUtils.assertNotNull;
-import static hera.util.VersionUtils.envelop;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Transaction.TxType;
-import hera.spec.AddressSpec;
+import hera.transaction.CreateNameTransactionBuilder;
+import hera.transaction.DeployContractTransactionBuilder;
+import hera.transaction.InvokeContractTransactionBuilder;
+import hera.transaction.PlainTransactionBuilder;
+import hera.transaction.StakeTransactionBuilder;
+import hera.transaction.UnstakeTransactionBuilder;
+import hera.transaction.UpdateNameTransactionBuilder;
+import hera.transaction.VoteTransactionBuilder;
+import hera.transaction.dsl.CreateNameTransaction;
+import hera.transaction.dsl.DeployContractTransaction;
+import hera.transaction.dsl.InvokeContractTransaction;
+import hera.transaction.dsl.PlainTransaction;
+import hera.transaction.dsl.StakeTransaction;
+import hera.transaction.dsl.UnstakeTransaction;
+import hera.transaction.dsl.UpdateNameTransaction;
+import hera.transaction.dsl.VoteTransaction;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @ApiAudience.Public
@@ -24,23 +36,48 @@ import lombok.ToString;
 public class RawTransaction {
 
   @ApiAudience.Public
-  public static RawTransactionWithNothing newBuilder(final ChainIdHash chainIdHash) {
-    return new RawTransaction.Builder(chainIdHash);
+  public static PlainTransaction.WithNothing newBuilder() {
+    return new PlainTransactionBuilder();
   }
 
-  /**
-   * Copy {@code RawTransaction} except for nonce. Nonce is set as passed once.
-   *
-   * @param rawTransaction a raw transaction to copy
-   * @param nonce an new nonce
-   * @return a {@code RawTransaction} instance
-   */
   @ApiAudience.Public
-  public static RawTransaction copyOf(final RawTransaction rawTransaction, final long nonce) {
-    return new RawTransaction(rawTransaction.chainIdHash, rawTransaction.getSender(),
-        rawTransaction.getRecipient(),
-        rawTransaction.getAmount(), nonce, rawTransaction.getFee(), rawTransaction.getPayload(),
-        rawTransaction.getTxType());
+  public static PlainTransaction.WithChainIdHash newBuilder(final ChainIdHash chainIdHash) {
+    return new PlainTransactionBuilder().chainIdHash(chainIdHash);
+  }
+
+  @ApiAudience.Public
+  public static DeployContractTransaction.WithNothing newDeployContractBuilder() {
+    return new DeployContractTransactionBuilder();
+  }
+
+  @ApiAudience.Public
+  public static InvokeContractTransaction.WithNothing newInvokeContractBuilder() {
+    return new InvokeContractTransactionBuilder();
+  }
+
+  @ApiAudience.Public
+  public static CreateNameTransaction.WithNothing newCreateNameTxBuilder() {
+    return new CreateNameTransactionBuilder();
+  }
+
+  @ApiAudience.Public
+  public static UpdateNameTransaction.WithNothing newUpdateNameTxBuilder() {
+    return new UpdateNameTransactionBuilder();
+  }
+
+  @ApiAudience.Public
+  public static StakeTransaction.WithNothing newStakeTxBuilder() {
+    return new StakeTransactionBuilder();
+  }
+
+  @ApiAudience.Public
+  public static UnstakeTransaction.WithNothing newUnstakeTxBuilder() {
+    return new UnstakeTransactionBuilder();
+  }
+
+  @ApiAudience.Public
+  public static VoteTransaction.WithNothing newVoteTxBuilder() {
+    return new VoteTransactionBuilder();
   }
 
   @Getter
@@ -95,140 +132,24 @@ public class RawTransaction {
     this.txType = null != txType ? txType : TxType.UNRECOGNIZED;
   }
 
-  public interface RawTransactionWithNothing {
-    RawTransactionWithSender from(String sender);
-
-    RawTransactionWithSender from(Account sender);
-
-    RawTransactionWithSender from(AccountAddress sender);
+  /**
+   * Return a {@code RawTransaction} with new chain id hash.
+   *
+   * @param chainIdHash a chain id hash
+   * @return a {@code RawTransaction} instance
+   */
+  public RawTransaction withChainIdHash(final ChainIdHash chainIdHash) {
+    return new RawTransaction(chainIdHash, sender, recipient, amount, nonce, fee, payload, txType);
   }
 
-  public interface RawTransactionWithSender {
-    RawTransactionWithSenderAndRecipient to(String recipientName);
-
-    RawTransactionWithSenderAndRecipient to(Account recipient);
-
-    RawTransactionWithSenderAndRecipient to(AccountAddress recipient);
-
-  }
-
-  public interface RawTransactionWithSenderAndRecipient {
-    RawTransactionWithSenderAndRecipientAndAmount amount(String amount, Aer.Unit unit);
-
-    RawTransactionWithSenderAndRecipientAndAmount amount(Aer amount);
-  }
-
-  public interface RawTransactionWithSenderAndRecipientAndAmount {
-    RawTransactionWithReady nonce(long nonce);
-  }
-
-  public interface RawTransactionWithReady extends hera.util.Builder<RawTransaction> {
-    RawTransactionWithReady fee(Fee fee);
-
-    RawTransactionWithReady payload(BytesValue payload);
-
-    RawTransactionWithReady type(TxType txType);
-  }
-
-  @RequiredArgsConstructor
-  protected static class Builder
-      implements RawTransactionWithNothing, RawTransactionWithSender,
-      RawTransactionWithSenderAndRecipient, RawTransactionWithSenderAndRecipientAndAmount,
-      RawTransactionWithReady {
-
-    private final ChainIdHash chainIdHash;
-
-    private AccountAddress sender;
-
-    private AccountAddress recipient;
-
-    private Aer amount = Aer.ZERO;
-
-    private long nonce;
-
-    private Fee fee = Fee.ZERO;
-
-    private BytesValue payload = BytesValue.EMPTY;
-
-    private TxType txType = TxType.NORMAL;
-
-    @Override
-    public RawTransactionWithSender from(final String sender) {
-      this.sender =
-          new AccountAddress(of(envelop(sender.getBytes(), AddressSpec.PREFIX)));
-      return this;
-    }
-
-    @Override
-    public RawTransactionWithSender from(final Account sender) {
-      return from(sender.getAddress());
-    }
-
-    @Override
-    public RawTransactionWithSender from(final AccountAddress sender) {
-      this.sender = sender;
-      return this;
-    }
-
-    @Override
-    public RawTransactionWithSenderAndRecipient to(final String recipient) {
-      this.recipient =
-          new AccountAddress(of(envelop(recipient.getBytes(), AddressSpec.PREFIX)));
-      return this;
-    }
-
-    @Override
-    public RawTransactionWithSenderAndRecipient to(final Account recipient) {
-      return to(recipient.getAddress());
-    }
-
-    @Override
-    public RawTransactionWithSenderAndRecipient to(final AccountAddress recipient) {
-      this.recipient = recipient;
-      return this;
-    }
-
-    @Override
-    public RawTransactionWithSenderAndRecipientAndAmount amount(final String amount,
-        final Aer.Unit unit) {
-      return amount(Aer.of(amount, unit));
-    }
-
-    @Override
-    public RawTransactionWithSenderAndRecipientAndAmount amount(final Aer amount) {
-      this.amount = amount;
-      return this;
-    }
-
-    @Override
-    public RawTransactionWithReady nonce(final long nonce) {
-      this.nonce = nonce;
-      return this;
-    }
-
-    @Override
-    public RawTransactionWithReady fee(final Fee fee) {
-      this.fee = fee;
-      return this;
-    }
-
-    @Override
-    public RawTransactionWithReady payload(final BytesValue payload) {
-      this.payload = payload;
-      return this;
-    }
-
-    @Override
-    public RawTransactionWithReady type(final TxType txType) {
-      this.txType = txType;
-      return this;
-    }
-
-    @Override
-    public RawTransaction build() {
-      return new RawTransaction(chainIdHash, sender, recipient, amount, nonce, fee, payload,
-          txType);
-    }
+  /**
+   * Return a {@code RawTransaction} with new nonce.
+   *
+   * @param nonce an new nonce
+   * @return a {@code RawTransaction} instance
+   */
+  public RawTransaction withNonce(final long nonce) {
+    return new RawTransaction(chainIdHash, sender, recipient, amount, nonce, fee, payload, txType);
   }
 
 }

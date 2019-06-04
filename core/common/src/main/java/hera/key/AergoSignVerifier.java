@@ -40,7 +40,7 @@ public class AergoSignVerifier implements TxVerifier {
   public boolean verify(final Transaction transaction) {
     try {
       logger.debug("Verify transaction: {}", transaction);
-      final TxHash txHash = TransactionHashResolver.calculateHash(transaction);
+      final TxHash txHash = TransactionHashResolver.calculateHash(transaction.getRawTransaction());
       return verify(transaction.getSender(), txHash, transaction.getSignature());
     } catch (HerajException e) {
       throw e;

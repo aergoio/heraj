@@ -5,7 +5,6 @@
 package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
@@ -38,49 +37,10 @@ public class ContractInvocation {
    *
    * @param contractAddress contract address
    * @param contractFunction invocation function
-   */
-  @ApiAudience.Private
-  public ContractInvocation(final ContractAddress contractAddress,
-      final ContractFunction contractFunction) {
-    this(contractAddress, contractFunction, emptyList());
-  }
-
-  /**
-   * Contract invocation constructor.
-   *
-   * @param contractAddress contract address
-   * @param contractFunction invocation function
-   * @param args arguments of invocation function
-   */
-  @ApiAudience.Private
-  public ContractInvocation(final ContractAddress contractAddress,
-      final ContractFunction contractFunction, final List<Object> args) {
-    this(contractAddress, contractFunction, args, Aer.ZERO);
-  }
-
-  /**
-   * Contract invocation constructor.
-   *
-   * @param contractAddress contract address
-   * @param contractFunction invocation function
-   * @param amount an amount
-   */
-  @ApiAudience.Private
-  public ContractInvocation(final ContractAddress contractAddress,
-      final ContractFunction contractFunction, final Aer amount) {
-    this(contractAddress, contractFunction, emptyList(), amount);
-  }
-
-  /**
-   * Contract invocation constructor.
-   *
-   * @param contractAddress contract address
-   * @param contractFunction invocation function
    * @param args arguments of invocation function
    * @param amount an amount
    */
-  @ApiAudience.Private
-  public ContractInvocation(final ContractAddress contractAddress,
+  ContractInvocation(final ContractAddress contractAddress,
       final ContractFunction contractFunction, final List<Object> args, final Aer amount) {
     assertNotNull(contractAddress, "Contract address must not null");
     assertNotNull(contractFunction, "Contract function must not null");

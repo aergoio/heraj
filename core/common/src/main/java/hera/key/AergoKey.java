@@ -138,15 +138,15 @@ public class AergoKey implements KeyPair, Signer, MessageSigner, TxVerifier {
   public Transaction sign(final RawTransaction rawTransaction) {
     try {
       logger.debug("Sign raw transaction: {}", rawTransaction);
-      final TxHash txHash = TransactionHashResolver.calculateHash(rawTransaction);
-      final ECDSASignature ecdsaSignature = ecdsakey.sign(txHash.getBytesValue().getValue());
+      final TxHash withoutSignature = TransactionHashResolver.calculateHash(rawTransaction);
+      final ECDSASignature ecdsaSignature =
+          ecdsakey.sign(withoutSignature.getBytesValue().getValue());
       final Signature signature =
           SignatureResolver.serialize(ecdsaSignature, ecdsakey.getParams().getN());
       logger.trace("Raw signature: {}", ecdsaSignature);
       logger.trace("Serialized signature: {}", signature);
-      return Transaction.newBuilder(rawTransaction)
-          .signature(signature)
-          .build();
+      final TxHash withSignature = TransactionHashResolver.calculateHash(rawTransaction, signature);
+      return new Transaction(rawTransaction, signature, withSignature);
     } catch (HerajException e) {
       throw e;
     } catch (Exception e) {

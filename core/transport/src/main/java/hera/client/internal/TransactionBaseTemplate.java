@@ -20,10 +20,8 @@ import hera.api.function.Function1;
 import hera.api.function.Function3;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
-import hera.api.model.BytesValue;
-import hera.api.model.Fee;
+import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
-import hera.api.model.Transaction.TxType;
 import hera.api.model.TxHash;
 import hera.client.ChannelInjectable;
 import hera.exception.RpcCommitException;
@@ -166,10 +164,14 @@ public class TransactionBaseTemplate implements ChannelInjectable, ContextProvid
 
           FinishableFuture<TxHash> nextFuture = new FinishableFuture<TxHash>();
           try {
-            final Transaction transaction = new Transaction(contextProvider.get().getChainIdHash(),
-                sender, recipient, amount, 0L, Fee.getDefaultFee(), BytesValue.EMPTY,
-                TxType.NORMAL,
-                null, null, null, 0, false);
+            final RawTransaction rawTransaction = RawTransaction.newBuilder()
+                .chainIdHash(contextProvider.get().getChainIdHash())
+                .from(sender)
+                .to(recipient)
+                .amount(amount)
+                .nonce(0L)
+                .build();
+            final Transaction transaction = new Transaction(rawTransaction, null, null);
 
             final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(transaction);
             logger.trace("AergoService sendTX arg: {}", rpcTx);

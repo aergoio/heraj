@@ -4,9 +4,6 @@
 
 package hera.wallet;
 
-import static hera.api.model.BytesValue.of;
-import static hera.util.EncodingUtils.encodeBase58WithCheck;
-import static hera.util.VersionUtils.envelop;
 import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
@@ -38,9 +35,7 @@ import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
 import hera.api.model.BytesValue;
-import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
-import hera.api.model.ContractFunction;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractTxHash;
 import hera.api.model.EncryptedPrivateKey;
@@ -67,10 +62,6 @@ public class AbstractWalletTest extends AbstractTestCase {
 
   private final EncryptedPrivateKey encryptedPrivatekey = EncryptedPrivateKey
       .of("47RHxbUL3DhA1TMHksEPdVrhumcjdXLAB3Hkv61mqkC9M1Wncai5b91q7hpKydfFHKyyVvgKt");
-
-  private final ContractAddress contractAddress =
-      ContractAddress.of("AmLo9CGR3xFZPVKZ5moSVRNW1kyscY9rVkCvgrpwNJjRUPUWadC5");
-
 
   protected TransactionTrier trier;
 
@@ -382,9 +373,7 @@ public class AbstractWalletTest extends AbstractTestCase {
     wallet.account = new AccountFactory().create(accountAddress);
     wallet.trier = trier;
 
-    final ContractDefinition definition = new ContractDefinition(encodeBase58WithCheck(
-        of(envelop(randomUUID().toString().getBytes(), ContractDefinition.PAYLOAD_VERSION))));
-    assertNotNull(wallet.deploy(definition, Fee.getDefaultFee()));
+    assertNotNull(wallet.deploy(mock(ContractDefinition.class), Fee.getDefaultFee()));
   }
 
   @Test
@@ -399,8 +388,7 @@ public class AbstractWalletTest extends AbstractTestCase {
     wallet.account = new AccountFactory().create(accountAddress);
     wallet.trier = trier;
 
-    assertNotNull(wallet.execute(new ContractInvocation(contractAddress, new ContractFunction("")),
-        Fee.getDefaultFee()));
+    assertNotNull(wallet.execute(mock(ContractInvocation.class), Fee.getDefaultFee()));
   }
 
   @Test

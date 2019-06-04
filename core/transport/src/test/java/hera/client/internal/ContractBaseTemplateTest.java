@@ -5,7 +5,6 @@
 package hera.client.internal;
 
 import static hera.api.model.BytesValue.of;
-import static java.util.Collections.emptyList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -20,8 +19,8 @@ import hera.api.function.Function1;
 import hera.api.function.Function2;
 import hera.api.model.Account;
 import hera.api.model.AccountFactory;
-import hera.api.model.Aer;
 import hera.api.model.BytesValue;
+import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
@@ -33,14 +32,14 @@ import hera.api.model.Event;
 import hera.api.model.EventFilter;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
+import hera.api.model.StateVariable;
 import hera.api.model.Subscription;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.client.internal.AccountBaseTemplate;
-import hera.client.internal.ContractBaseTemplate;
-import hera.client.internal.TransactionBaseTemplate;
 import hera.key.AergoKeyGenerator;
+import hera.spec.ContractDefinitionSpec;
 import hera.util.Base58Utils;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.junit.Test;
@@ -53,6 +52,13 @@ import types.Rpc;
 @PrepareForTest({AergoRPCServiceFutureStub.class, AergoRPCServiceStub.class})
 public class ContractBaseTemplateTest extends AbstractTestCase {
 
+  protected final String encodedContract =
+      Base58Utils.encodeWithCheck(new byte[] {ContractDefinitionSpec.PAYLOAD_VERSION});
+
+  protected ContractInterface contractInterface;
+
+  protected String functionName = randomUUID().toString();
+
   protected final Fee fee = Fee.getDefaultFee();
 
   protected final AergoKeyGenerator generator = new AergoKeyGenerator();
@@ -60,6 +66,10 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
   @Override
   public void setUp() {
     super.setUp();
+    final List<ContractFunction> functions = new ArrayList<ContractFunction>();
+    functions.add(new ContractFunction(functionName));
+    this.contractInterface = new ContractInterface(ContractAddress.of(BytesValue.EMPTY), "", "",
+        functions, new ArrayList<StateVariable>());
   }
 
   protected ContractBaseTemplate supplyContractBaseTemplate(
@@ -108,33 +118,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testDeployWithClientManagedAccount() throws Exception {
-    final AergoRPCServiceFutureStub futureService = mock(AergoRPCServiceFutureStub.class);
-
-    TransactionBaseTemplate mockTransactionBaseTemplate = mock(TransactionBaseTemplate.class);
-    when(mockTransactionBaseTemplate.getCommitFunction())
-        .thenReturn(new Function1<Transaction, FinishableFuture<TxHash>>() {
-          @Override
-          public FinishableFuture<TxHash> apply(Transaction t) {
-            final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
-            future.success(new TxHash(BytesValue.of(randomUUID().toString().getBytes())));
-            return future;
-          }
-        });
-
-    final ContractBaseTemplate contractBaseTemplate = supplyContractBaseTemplate(futureService);
-    contractBaseTemplate.transactionBaseTemplate = mockTransactionBaseTemplate;
-
-    final Account account = new AccountFactory().create(generator.create());
-    String encoded = Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
-    final FinishableFuture<ContractTxHash> deployTxHash = contractBaseTemplate
-        .getDeployFunction()
-        .apply(account, new ContractDefinition(encoded), 0L, fee);
-    assertNotNull(deployTxHash.get());
-  }
-
-  @Test
-  public void testDeployWithsServerManagedAccount() {
+  public void testDeploy() {
     final AergoRPCServiceFutureStub futureService = mock(AergoRPCServiceFutureStub.class);
 
     AccountBaseTemplate mockAccountBaseTemplate = mock(AccountBaseTemplate.class);
@@ -164,10 +148,10 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
     contractBaseTemplate.transactionBaseTemplate = mockTransactionBaseTemplate;
 
     Account account = new AccountFactory().create(accountAddress);
-    String encoded = Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
     final FinishableFuture<ContractTxHash> deployTxHash = contractBaseTemplate
         .getDeployFunction()
-        .apply(account, new ContractDefinition(encoded), 0L, fee);
+        .apply(account, ContractDefinition.newBuilder().encodedContract(encodedContract).build(),
+            0L, fee);
     assertNotNull(deployTxHash.get());
   }
 
@@ -191,35 +175,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testExecuteWithClientManagedAccount() throws Exception {
-    final AergoRPCServiceFutureStub futureService = mock(AergoRPCServiceFutureStub.class);
-
-    TransactionBaseTemplate mockTransactionBaseTemplate = mock(TransactionBaseTemplate.class);
-    when(mockTransactionBaseTemplate.getCommitFunction())
-        .thenReturn(new Function1<Transaction, FinishableFuture<TxHash>>() {
-          @Override
-          public FinishableFuture<TxHash> apply(Transaction t) {
-            final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
-            future.success(new TxHash(BytesValue.of(randomUUID().toString().getBytes())));
-            return future;
-          }
-        });
-
-    final ContractBaseTemplate contractBaseTemplate = supplyContractBaseTemplate(futureService);
-    contractBaseTemplate.transactionBaseTemplate = mockTransactionBaseTemplate;
-
-    final Account account = new AccountFactory().create(generator.create());
-    final ContractFunction contractFunction = new ContractFunction(randomUUID().toString());
-    final FinishableFuture<ContractTxHash> executionTxHash = contractBaseTemplate
-        .getExecuteFunction()
-        .apply(account,
-            new ContractInvocation(contractAddress, contractFunction, emptyList(), Aer.ZERO), 0L,
-            fee);
-    assertNotNull(executionTxHash.get());
-  }
-
-  @Test
-  public void testExecuteWithServerManagedAccount() {
+  public void testExecute() {
     final AergoRPCServiceFutureStub futureService = mock(AergoRPCServiceFutureStub.class);
 
     AccountBaseTemplate mockAccountBaseTemplate = mock(AccountBaseTemplate.class);
@@ -249,11 +205,11 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
     contractBaseTemplate.transactionBaseTemplate = mockTransactionBaseTemplate;
 
     final Account account = new AccountFactory().create(accountAddress);
-    final ContractFunction contractFunction = new ContractFunction(randomUUID().toString());
+
+    final ContractInvocation invocation =
+        contractInterface.newInvocationBuilder().function(functionName).build();
     final FinishableFuture<ContractTxHash> executionTxHash =
-        contractBaseTemplate.getExecuteFunction().apply(account,
-            new ContractInvocation(contractAddress, contractFunction, emptyList(), Aer.ZERO), 0L,
-            fee);
+        contractBaseTemplate.getExecuteFunction().apply(account, invocation, 0L, fee);
     assertNotNull(executionTxHash.get());
   }
 
@@ -271,10 +227,10 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
 
     final ContractBaseTemplate contractBaseTemplate = supplyContractBaseTemplate(futureService);
 
-    final ContractFunction contractFunction = new ContractFunction(randomUUID().toString());
+    final ContractInvocation invocation =
+        contractInterface.newInvocationBuilder().function(functionName).build();
     final FinishableFuture<ContractResult> contractResult = contractBaseTemplate
-        .getQueryFunction()
-        .apply(new ContractInvocation(contractAddress, contractFunction, emptyList(), Aer.ZERO));
+        .getQueryFunction().apply(invocation);
 
     assertNotNull(contractResult.get());
   }

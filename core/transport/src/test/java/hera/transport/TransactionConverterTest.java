@@ -43,14 +43,7 @@ public class TransactionConverterTest extends AbstractTestCase {
             .build();
 
     final Transaction expected = new Transaction(
-        rawTransaction.getChainIdHash(),
-        rawTransaction.getSender(),
-        rawTransaction.getRecipient(),
-        rawTransaction.getAmount(),
-        rawTransaction.getNonce(),
-        rawTransaction.getFee(),
-        rawTransaction.getPayload(),
-        rawTransaction.getTxType(),
+        rawTransaction,
         Signature.of(BytesValue.EMPTY),
         TxHash.of(BytesValue.EMPTY),
         BlockHash.of(BytesValue.EMPTY),

@@ -16,7 +16,6 @@ import hera.api.model.ChainIdHash;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
-import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import java.io.IOException;
 import org.junit.Test;
@@ -30,7 +29,7 @@ public class TransactionHashResolverTest extends AbstractTestCase {
 
   @Test
   public void testCalculateHashWithRawTx() {
-    final RawTransaction rawTransaction = Transaction.newBuilder(chainIdHash)
+    final RawTransaction rawTransaction = RawTransaction.newBuilder(chainIdHash)
         .from(accountAddress)
         .to(accountAddress)
         .amount("10000", Unit.AER)
@@ -43,7 +42,7 @@ public class TransactionHashResolverTest extends AbstractTestCase {
 
   @Test
   public void testCalculateHashWithRawTxAndSignature() throws IOException {
-    final RawTransaction rawTransaction = Transaction.newBuilder(chainIdHash)
+    final RawTransaction rawTransaction = RawTransaction.newBuilder(chainIdHash)
         .from(accountAddress)
         .to(accountAddress)
         .amount("10000", Unit.AER)

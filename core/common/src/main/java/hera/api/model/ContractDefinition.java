@@ -6,13 +6,13 @@ package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.exception.DecodingFailureException;
 import hera.exception.InvalidVersionException;
+import hera.spec.ContractDefinitionSpec;
 import hera.util.EncodingUtils;
 import hera.util.VersionUtils;
 import java.util.List;
@@ -23,8 +23,6 @@ import lombok.ToString;
 @ApiStability.Unstable
 @ToString
 public class ContractDefinition {
-
-  public static final byte PAYLOAD_VERSION = (byte) 0xC0;
 
   @ApiAudience.Public
   public static ContractDefinitionWithNothing newBuilder() {
@@ -47,62 +45,21 @@ public class ContractDefinition {
    * Contract definition constructor.
    *
    * @param encodedContract base58 with checksum encoded contract definition
-   *
-   * @throws DecodingFailureException if decoding failure
-   * @throws InvalidVersionException if encodedContract version mismatches
-   */
-  @ApiAudience.Private
-  public ContractDefinition(final String encodedContract) {
-    this(encodedContract, emptyList());
-  }
-
-  /**
-   * Contract definition constructor.
-   *
-   * @param encodedContract base58 with checksum encoded contract definition
-   * @param args constructor arguments
-   *
-   * @throws DecodingFailureException if decoding failure
-   * @throws InvalidVersionException if encodedContract version mismatches
-   */
-  @ApiAudience.Private
-  public ContractDefinition(final String encodedContract, final List<Object> args) {
-    this(encodedContract, args, Aer.ZERO);
-  }
-
-  /**
-   * Contract definition constructor.
-   *
-   * @param encodedContract base58 with checksum encoded contract definition
-   * @param amount an aergo amount
-   *
-   * @throws DecodingFailureException if decoding failure
-   * @throws InvalidVersionException if encodedContract version mismatches
-   */
-  @ApiAudience.Private
-  public ContractDefinition(final String encodedContract, final Aer amount) {
-    this(encodedContract, emptyList(), amount);
-  }
-
-  /**
-   * Contract definition constructor.
-   *
-   * @param encodedContract base58 with checksum encoded contract definition
    * @param args constructor arguments
    * @param amount an aergo amount
    *
    * @throws DecodingFailureException if decoding failure
    * @throws InvalidVersionException if encodedContract version mismatches
    */
-  @ApiAudience.Private
-  public ContractDefinition(final String encodedContract, final List<Object> args,
+  ContractDefinition(final String encodedContract, final List<Object> args,
       final Aer amount) {
     assertNotNull(encodedContract, "Encoded contract must not null");
     assertNotNull(args, "Args must not null");
     assertNotNull(amount, "Amount must not null");
-    this.decodedContract = EncodingUtils.decodeBase58WithCheck(encodedContract);
-    VersionUtils.validate(this.decodedContract, ContractDefinition.PAYLOAD_VERSION);
+    final BytesValue decodedContract = EncodingUtils.decodeBase58WithCheck(encodedContract);
+    VersionUtils.validate(decodedContract, ContractDefinitionSpec.PAYLOAD_VERSION);
 
+    this.decodedContract = decodedContract;
     this.encodedContract = encodedContract;
     this.constructorArgs = unmodifiableList(args);
     this.amount = amount;
@@ -149,7 +106,7 @@ public class ContractDefinition {
 
     protected Object[] constructorArgs = new Object[0];
 
-    protected Aer amount = Aer.ZERO;
+    protected Aer amount = Aer.EMPTY;
 
     @Override
     public ContractDefinitionWithPayloadReady encodedContract(final String encodedContract) {
@@ -177,4 +134,3 @@ public class ContractDefinition {
   }
 
 }
-

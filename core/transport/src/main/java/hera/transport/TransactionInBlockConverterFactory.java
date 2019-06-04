@@ -15,6 +15,7 @@ import hera.api.model.AccountAddress;
 import hera.api.model.BlockHash;
 import hera.api.model.ChainIdHash;
 import hera.api.model.Fee;
+import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.Transaction.TxType;
@@ -111,20 +112,25 @@ public class TransactionInBlockConverterFactory {
           final Blockchain.Tx rpcTx = rpcTransaction.getTx();
           final Blockchain.TxBody txBody = rpcTx.getBody();
 
+          final RawTransaction rawTransaction = RawTransaction.newBuilder()
+              .chainIdHash(new ChainIdHash(of(txBody.getChainIdHash().toByteArray())))
+              .from(accountAddressConverter.convertToDomainModel(txBody.getAccount()))
+              .to(accountAddressConverter.convertToDomainModel(txBody.getRecipient()))
+              .amount(parseToAer(txBody.getAmount()))
+              .nonce(txBody.getNonce())
+              .fee(new Fee(parseToAer(txBody.getGasPrice()), txBody.getGasLimit()))
+              .payload(of(txBody.getPayload().toByteArray()))
+              .type(txTypeRpcConverter.apply(txBody.getType()))
+              .build();
+
           final Transaction domainTransaction = new Transaction(
-              new ChainIdHash(of(txBody.getChainIdHash().toByteArray())),
-              accountAddressConverter.convertToDomainModel(txBody.getAccount()),
-              accountAddressConverter.convertToDomainModel(txBody.getRecipient()),
-              parseToAer(txBody.getAmount()),
-              txBody.getNonce(),
-              new Fee(parseToAer(txBody.getGasPrice()), txBody.getGasLimit()),
-              of(txBody.getPayload().toByteArray()),
-              txTypeRpcConverter.apply(txBody.getType()),
+              rawTransaction,
               new Signature(of(txBody.getSign().toByteArray())),
               new TxHash(of(rpcTx.getHash().toByteArray())),
               new BlockHash(of(rpcTxIdx.getBlockHash().toByteArray())),
               rpcTxIdx.getIdx(),
               !rpcTxIdx.getBlockHash().equals(com.google.protobuf.ByteString.EMPTY));
+
           logger.trace("Domain transaction in block converted: {}", domainTransaction);
           return domainTransaction;
         }

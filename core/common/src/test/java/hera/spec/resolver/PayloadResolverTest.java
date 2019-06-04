@@ -6,21 +6,24 @@ package hera.spec.resolver;
 
 import static hera.api.model.BytesValue.of;
 import static hera.util.ValidationUtils.assertNotNull;
-import static java.util.Collections.emptyList;
 import static java.util.UUID.randomUUID;
 
 import hera.AbstractTestCase;
 import hera.api.model.AccountAddress;
-import hera.api.model.Aer;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractFunction;
+import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
+import hera.api.model.StateVariable;
 import hera.key.AergoKeyGenerator;
 import hera.spec.AddressSpec;
+import hera.spec.ContractDefinitionSpec;
 import hera.spec.PayloadSpec.Type;
 import hera.util.Base58Utils;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 
 public class PayloadResolverTest extends AbstractTestCase {
@@ -35,7 +38,7 @@ public class PayloadResolverTest extends AbstractTestCase {
   public void testResolveOnContractDefinition() {
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(
-            Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION}))
+            Base58Utils.encodeWithCheck(new byte[] {ContractDefinitionSpec.PAYLOAD_VERSION}))
         .constructorArgs("1", "2")
         .build();
     final BytesValue payload = PayloadResolver.resolve(Type.ContractDefinition, definition);
@@ -44,8 +47,13 @@ public class PayloadResolverTest extends AbstractTestCase {
 
   @Test
   public void testResolveOnContractInvocation() {
-    final ContractInvocation invocation = new ContractInvocation(contractAddress,
-        new ContractFunction(randomUUID().toString()), emptyList(), Aer.ZERO);
+    final String functionName = randomUUID().toString();
+    final List<ContractFunction> functions = new ArrayList<ContractFunction>();
+    functions.add(new ContractFunction(functionName));
+    final ContractInterface contractInterface =
+        new ContractInterface(contractAddress, "", "", functions, new ArrayList<StateVariable>());
+    final ContractInvocation invocation =
+        contractInterface.newInvocationBuilder().function(functionName).build();
     final BytesValue payload = PayloadResolver.resolve(Type.ContractInvocation, invocation);
     assertNotNull(payload);
   }

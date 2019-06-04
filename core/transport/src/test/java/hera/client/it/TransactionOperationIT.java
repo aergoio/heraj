@@ -8,13 +8,13 @@ import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
+import hera.api.model.BytesValue;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
@@ -158,13 +158,13 @@ public class TransactionOperationIT extends AbstractIT {
       // snapshot pre state
       final AccountState preState = aergoClient.getAccountOperation().getState(account);
 
-      final RawTransaction rawTransaction =
-          RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
-              .from(account)
-              .to(recipient)
-              .amount(null)
-              .nonce(account.incrementAndGetNonce())
-              .build();
+      final RawTransaction rawTransaction = RawTransaction.newBuilder()
+          .chainIdHash(aergoClient.getCachedChainIdHash())
+          .from(account)
+          .to(recipient)
+          .amount(Aer.EMPTY)
+          .nonce(account.incrementAndGetNonce())
+          .build();
 
       unlockAccount(account, password);
       final Transaction signed = aergoClient.getAccountOperation().sign(account, rawTransaction);
@@ -190,14 +190,14 @@ public class TransactionOperationIT extends AbstractIT {
     for (final Account account : supplyAccounts()) {
       final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());
 
-      final AccountAddress invalidSender = null;
-      final RawTransaction rawTransaction =
-          RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
-              .from(invalidSender)
-              .to(recipient)
-              .amount(amount)
-              .nonce(account.incrementAndGetNonce())
-              .build();
+      final AccountAddress invalidSender = AccountAddress.of(BytesValue.EMPTY);
+      final RawTransaction rawTransaction = RawTransaction.newBuilder()
+          .chainIdHash(aergoClient.getCachedChainIdHash())
+          .from(invalidSender)
+          .to(recipient)
+          .amount(amount)
+          .nonce(account.incrementAndGetNonce())
+          .build();
 
       unlockAccount(account, password);
       try {
@@ -216,14 +216,14 @@ public class TransactionOperationIT extends AbstractIT {
   @Test
   public void testCommitOnInvalidRecipient() {
     for (final Account account : supplyAccounts()) {
-      final AccountAddress invalidRecipient = null;
-      final RawTransaction rawTransaction =
-          RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
-              .from(account)
-              .to(invalidRecipient)
-              .amount(amount)
-              .nonce(account.incrementAndGetNonce())
-              .build();
+      final AccountAddress invalidRecipient = AccountAddress.of(BytesValue.EMPTY);
+      final RawTransaction rawTransaction = RawTransaction.newBuilder()
+          .chainIdHash(aergoClient.getCachedChainIdHash())
+          .from(account)
+          .to(invalidRecipient)
+          .amount(amount)
+          .nonce(account.incrementAndGetNonce())
+          .build();
 
       unlockAccount(account, password);
       final Transaction signed = aergoClient.getAccountOperation().sign(account, rawTransaction);

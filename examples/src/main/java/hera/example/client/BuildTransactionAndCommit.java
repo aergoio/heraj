@@ -24,7 +24,7 @@ public class BuildTransactionAndCommit extends AbstractExample {
         .withEndpoint(hostname)
         .withNonBlockingConnect()
         .build();
-    
+
     // cache chain id hash
     aergoClient.cacheChainIdHash(aergoClient.getBlockchainOperation().getChainIdHash());
 
@@ -35,7 +35,8 @@ public class BuildTransactionAndCommit extends AbstractExample {
     fund(account.getAddress());
 
     // make a transaction
-    final RawTransaction rawTransaction = Transaction.newBuilder(aergoClient.getCachedChainIdHash())
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .chainIdHash(aergoClient.getCachedChainIdHash())
         .from(account)
         .to(AccountAddress.of("AmLbHdVs4dNpRzyLirs8cKdV26rPJJxpVXG1w2LLZ9pKfqAHHdyg"))
         .amount("10", Unit.GAER)

@@ -13,7 +13,6 @@ import static hera.TransportConstants.CONTRACT_LIST_EVENT;
 import static hera.TransportConstants.CONTRACT_QUERY;
 import static hera.TransportConstants.CONTRACT_SUBSCRIBE_EVENT;
 import static hera.api.model.BytesValue.of;
-import static java.util.Collections.emptyList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -27,7 +26,7 @@ import hera.api.function.Function2;
 import hera.api.function.Function4;
 import hera.api.function.WithIdentity;
 import hera.api.model.Account;
-import hera.api.model.Aer;
+import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractFunction;
@@ -39,11 +38,13 @@ import hera.api.model.ContractTxReceipt;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
 import hera.api.model.Fee;
+import hera.api.model.StateVariable;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.client.internal.ContractBaseTemplate;
 import hera.client.internal.FinishableFuture;
 import hera.key.AergoKeyGenerator;
+import hera.spec.ContractDefinitionSpec;
 import hera.util.Base58Utils;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,11 +54,22 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 @PrepareForTest({ContractBaseTemplate.class})
 public class ContractTemplateTest extends AbstractTestCase {
 
+  protected final String encodedContract =
+      Base58Utils.encodeWithCheck(new byte[] {ContractDefinitionSpec.PAYLOAD_VERSION});
+
+  protected ContractInterface contractInterface;
+
+  protected String functionName = randomUUID().toString();
+
   protected final AergoKeyGenerator generator = new AergoKeyGenerator();
 
   @Override
   public void setUp() {
     super.setUp();
+    final List<ContractFunction> functions = new ArrayList<ContractFunction>();
+    functions.add(new ContractFunction(functionName));
+    this.contractInterface = new ContractInterface(ContractAddress.of(BytesValue.EMPTY), "", "",
+        functions, new ArrayList<StateVariable>());
   }
 
   protected ContractTemplate supplyContractTemplate(
@@ -108,9 +120,9 @@ public class ContractTemplateTest extends AbstractTestCase {
     final ContractTemplate contractTemplate = supplyContractTemplate(base);
 
     Account account = mock(Account.class);
-    String encoded = Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
-    final ContractTxHash deployTxHash =
-        contractTemplate.deploy(account, new ContractDefinition(encoded), 0L);
+    final ContractDefinition definition =
+        ContractDefinition.newBuilder().encodedContract(encodedContract).build();
+    final ContractTxHash deployTxHash = contractTemplate.deploy(account, definition, 0L);
     assertNotNull(deployTxHash);
     assertEquals(CONTRACT_DEPLOY,
         ((WithIdentity) contractTemplate.getDeployFunction()).getIdentity());
@@ -156,10 +168,10 @@ public class ContractTemplateTest extends AbstractTestCase {
     final ContractTemplate contractTemplate = supplyContractTemplate(base);
 
     final Account account = mock(Account.class);
-    final ContractFunction contractFunction = new ContractFunction(randomUUID().toString());
+    final ContractInvocation invocation =
+        contractInterface.newInvocationBuilder().function(functionName).build();
     final ContractTxHash executionTxHash = contractTemplate
-        .execute(account,
-            new ContractInvocation(contractAddress, contractFunction, emptyList(), Aer.ZERO), 0L);
+        .execute(account, invocation, 0L);
     assertNotNull(executionTxHash);
     assertEquals(CONTRACT_EXECUTE,
         ((WithIdentity) contractTemplate.getExecuteFunction()).getIdentity());
@@ -181,9 +193,9 @@ public class ContractTemplateTest extends AbstractTestCase {
 
     final ContractTemplate contractTemplate = supplyContractTemplate(base);
 
-    final ContractFunction contractFunction = new ContractFunction(randomUUID().toString());
-    final ContractResult contractResult = contractTemplate
-        .query(new ContractInvocation(contractAddress, contractFunction, emptyList(), Aer.ZERO));
+    final ContractInvocation invocation =
+        contractInterface.newInvocationBuilder().function(functionName).build();
+    final ContractResult contractResult = contractTemplate.query(invocation);
 
     assertNotNull(contractResult);
     assertEquals(CONTRACT_QUERY,

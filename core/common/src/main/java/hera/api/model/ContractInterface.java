@@ -106,7 +106,7 @@ public class ContractInterface {
 
     protected Object[] args = new Object[0];
 
-    protected Aer amount = Aer.ZERO;
+    protected Aer amount = Aer.EMPTY;
 
     @Override
     public ContractInvocationWithReady function(final String functionName) {

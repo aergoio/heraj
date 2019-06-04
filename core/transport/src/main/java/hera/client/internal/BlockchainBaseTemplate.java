@@ -33,10 +33,7 @@ import hera.api.model.RawTransaction;
 import hera.api.model.ServerInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.api.model.internal.GovernanceRecipient;
 import hera.client.ChannelInjectable;
-import hera.spec.PayloadSpec.Type;
-import hera.spec.resolver.PayloadResolver;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.AccountTotalVoteConverterFactory;
 import hera.transport.BlockchainStatusConverterFactory;
@@ -337,15 +334,12 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
           logger.debug("Voting with account: {}, voteId: {}, candidates: {}, nonce: {}",
               account.getAddress(), voteId, candidates, nonce);
 
-          final RawTransaction rawTransaction = Transaction
-              .newBuilder(contextProvider.get().getChainIdHash())
+          final RawTransaction rawTransaction = RawTransaction.newVoteTxBuilder()
+              .chainIdHash(contextProvider.get().getChainIdHash())
               .from(account.getAddress())
-              .to(GovernanceRecipient.AERGO_SYSTEM)
-              .amount(null)
               .nonce(nonce)
-              .payload(
-                  PayloadResolver.resolve(Type.Vote, voteId, candidates.toArray(new String[] {})))
-              .type(Transaction.TxType.GOVERNANCE)
+              .voteId(voteId)
+              .candidates(candidates)
               .build();
           final Transaction signed =
               accountBaseTemplate.getSignFunction().apply(account, rawTransaction).get();

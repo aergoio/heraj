@@ -31,25 +31,18 @@ public class TransactionInBlockConverterTest extends AbstractTestCase {
   public void testConvert() {
     final ModelConverter<Transaction, Blockchain.TxInBlock> converter =
         new TransactionInBlockConverterFactory().create();
-    final RawTransaction rawTransaction =
-        Transaction.newBuilder(new ChainIdHash(of(randomUUID().toString().getBytes())))
-            .from(AccountAddress.of(encodedAddress))
-            .to(AccountAddress.of(encodedAddress))
-            .amount("0.001", Unit.AERGO)
-            .nonce(1L)
-            .fee(Fee.of(Aer.of("100", Unit.AER), 5))
-            .payload(BytesValue.EMPTY)
-            .build();
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .chainIdHash(new ChainIdHash(of(randomUUID().toString().getBytes())))
+        .from(AccountAddress.of(encodedAddress))
+        .to(AccountAddress.of(encodedAddress))
+        .amount("0.001", Unit.AERGO)
+        .nonce(1L)
+        .fee(Fee.of(Aer.of("100", Unit.AER), 5))
+        .payload(BytesValue.EMPTY)
+        .build();
 
     final Transaction expected = new Transaction(
-        rawTransaction.getChainIdHash(),
-        rawTransaction.getSender(),
-        rawTransaction.getRecipient(),
-        rawTransaction.getAmount(),
-        rawTransaction.getNonce(),
-        rawTransaction.getFee(),
-        rawTransaction.getPayload(),
-        rawTransaction.getTxType(),
+        rawTransaction,
         Signature.of(BytesValue.EMPTY),
         TxHash.of(BytesValue.EMPTY),
         BlockHash.of(BytesValue.of(randomUUID().toString().getBytes())),

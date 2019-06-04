@@ -34,7 +34,6 @@ import hera.api.model.BlockchainStatus;
 import hera.api.model.BytesValue;
 import hera.api.model.ChainInfo;
 import hera.api.model.ContractAddress;
-import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
@@ -278,7 +277,8 @@ public class QueryWalletTest extends AbstractTestCase {
   public void testGetBlockMetadataByHash() {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockOperation mockOperation = mock(BlockOperation.class);
-    when(mockOperation.getBlockMetadata(any(BlockHash.class))).thenReturn(mock(BlockMetadata.class));
+    when(mockOperation.getBlockMetadata(any(BlockHash.class)))
+        .thenReturn(mock(BlockMetadata.class));
     when(mockClient.getBlockOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
@@ -405,7 +405,7 @@ public class QueryWalletTest extends AbstractTestCase {
     final QueryWallet wallet = mock(QueryWallet.class,
         withSettings().useConstructor(mockClient).defaultAnswer(CALLS_REAL_METHODS));
 
-    assertNotNull(wallet.query(new ContractInvocation(contractAddress, new ContractFunction(""))));
+    assertNotNull(wallet.query(mock(ContractInvocation.class)));
   }
 
   @Test
