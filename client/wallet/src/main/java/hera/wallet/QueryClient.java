@@ -76,6 +76,18 @@ public interface QueryClient extends Closeable {
   AccountAddress getNameOwner(String name);
 
   /**
+   * Get owner of an account name at block number {@code blockNumber}.
+   *
+   * @param name an name of account
+   * @param blockNumber a block number
+   * @return an account address binded with name
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
+   */
+  AccountAddress getNameOwner(String name, long blockNumber);
+
+  /**
    * Get staking information of {@code account}.
    *
    * @param account an account to check staking information

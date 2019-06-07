@@ -21,6 +21,7 @@ import hera.AbstractTestCase;
 import hera.Context;
 import hera.ContextProvider;
 import hera.api.function.Function1;
+import hera.api.function.Function2;
 import hera.api.function.Function3;
 import hera.api.function.Function4;
 import hera.api.function.WithIdentity;
@@ -138,9 +139,9 @@ public class AccountTemplateTest extends AbstractTestCase {
     final FinishableFuture<AccountAddress> future = new FinishableFuture<AccountAddress>();
     future.success(new AccountAddress(BytesValue.EMPTY));
     when(base.getGetNameOwnerFunction())
-        .thenReturn(new Function1<String, FinishableFuture<AccountAddress>>() {
+        .thenReturn(new Function2<String, Long, FinishableFuture<AccountAddress>>() {
           @Override
-          public FinishableFuture<AccountAddress> apply(String t) {
+          public FinishableFuture<AccountAddress> apply(String t1, Long t2) {
             return future;
           }
         });

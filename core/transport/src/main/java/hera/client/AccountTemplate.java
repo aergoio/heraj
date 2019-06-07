@@ -103,10 +103,9 @@ public class AccountTemplate
               identify(getAccountBaseTemplate().getUpdateNameFunction(), ACCOUNT_UPDATE_NAME));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<String, FinishableFuture<AccountAddress>> nameOwnerFunction =
-      getStrategyChain()
-          .apply(
-              identify(getAccountBaseTemplate().getGetNameOwnerFunction(), ACCOUNT_GETNAMEOWNER));
+  private final Function2<String, Long, FinishableFuture<AccountAddress>> nameOwnerFunction =
+      getStrategyChain().apply(
+          identify(getAccountBaseTemplate().getGetNameOwnerFunction(), ACCOUNT_GETNAMEOWNER));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function3<Account, Aer, Long,
@@ -199,7 +198,12 @@ public class AccountTemplate
 
   @Override
   public AccountAddress getNameOwner(final String name) {
-    return getNameOwnerFunction().apply(name).get();
+    return getNameOwner(name, 0);
+  }
+
+  @Override
+  public AccountAddress getNameOwner(final String name, final long blockNumber) {
+    return getNameOwnerFunction().apply(name, blockNumber).get();
   }
 
   @Override

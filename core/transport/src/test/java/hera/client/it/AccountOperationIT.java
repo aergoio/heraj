@@ -7,9 +7,9 @@ package hera.client.it;
 import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.AccountTotalVote;
@@ -42,9 +42,17 @@ public class AccountOperationIT extends AbstractIT {
     aergoClient.getAccountOperation().updateName(key, name, newOwner,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
 
-    waitForNextBlockToGenerate();
+    long bestHeight = aergoClient.getBlockchainOperation().getBlockchainStatus().getBestHeight();
 
+    waitForNextBlockToGenerate();
+    
+    assertEquals(newOwner, aergoClient.getAccountOperation().getNameOwner(name, bestHeight + 1));
     assertEquals(newOwner, aergoClient.getAccountOperation().getNameOwner(name));
+  }
+
+  @Test
+  public void testGetNameOwnerOfInvalidName() {
+    assertNull(aergoClient.getAccountOperation().getNameOwner(randomUUID().toString()));
   }
 
   @Test

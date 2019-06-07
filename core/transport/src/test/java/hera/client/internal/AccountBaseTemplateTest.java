@@ -12,6 +12,7 @@ import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.protobuf.ByteString;
 import hera.AbstractTestCase;
 import hera.Context;
 import hera.ContextProvider;
@@ -128,7 +129,8 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
         service.submit(new Callable<Rpc.NameInfo>() {
           @Override
           public Rpc.NameInfo call() throws Exception {
-            return Rpc.NameInfo.newBuilder().build();
+            return Rpc.NameInfo.newBuilder()
+                .setOwner(ByteString.copyFrom(randomUUID().toString().getBytes())).build();
           }
         });
     when(aergoService.getNameInfo(any(Rpc.Name.class))).thenReturn(mockListenableFuture);
@@ -137,7 +139,7 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     accountTemplateBase.aergoService = aergoService;
 
     final FinishableFuture<AccountAddress> nameTxHash =
-        accountTemplateBase.getGetNameOwnerFunction().apply(randomUUID().toString());
+        accountTemplateBase.getGetNameOwnerFunction().apply(randomUUID().toString(), 3L);
     assertNotNull(nameTxHash.get());
   }
 

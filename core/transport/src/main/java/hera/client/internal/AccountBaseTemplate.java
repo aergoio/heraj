@@ -6,6 +6,7 @@ package hera.client.internal;
 
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
+import static hera.util.ValidationUtils.assertTrue;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
@@ -24,6 +25,7 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.AccountTotalVote;
 import hera.api.model.Aer;
+import hera.api.model.BytesValue;
 import hera.api.model.ElectedCandidate;
 import hera.api.model.RawTransaction;
 import hera.api.model.StakeInfo;
@@ -217,16 +219,21 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
       };
 
   @Getter
-  private final Function1<String, FinishableFuture<AccountAddress>> getNameOwnerFunction =
-      new Function1<String, FinishableFuture<AccountAddress>>() {
+  private final Function2<String, Long, FinishableFuture<AccountAddress>> getNameOwnerFunction =
+      new Function2<String, Long, FinishableFuture<AccountAddress>>() {
 
         @Override
-        public FinishableFuture<AccountAddress> apply(final String name) {
-          logger.debug("Get name owner of name: {}", name);
+        public FinishableFuture<AccountAddress> apply(final String name, final Long blockNumber) {
+          logger.debug("Get name owner of name: {}, blockNumber: {}", name, blockNumber);
 
           FinishableFuture<AccountAddress> nextFuture = new FinishableFuture<AccountAddress>();
           try {
-            final Rpc.Name rpcName = Rpc.Name.newBuilder().setName(name).build();
+            assertTrue(blockNumber >= 0, "Block number must >= 0");
+
+            final Rpc.Name rpcName = Rpc.Name.newBuilder()
+                .setName(name)
+                .setBlockNo(blockNumber)
+                .build();
             logger.trace("AergoService getNameInfo arg: {}", rpcName);
 
             ListenableFuture<Rpc.NameInfo> listenableFuture = aergoService.getNameInfo(rpcName);
@@ -235,7 +242,9 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
             callback.setSuccessHandler(new Function1<Rpc.NameInfo, AccountAddress>() {
               @Override
               public AccountAddress apply(final Rpc.NameInfo nameInfo) {
-                return accountAddressConverter.convertToDomainModel(nameInfo.getOwner());
+                final AccountAddress converted =
+                    accountAddressConverter.convertToDomainModel(nameInfo.getOwner());
+                return BytesValue.EMPTY.equals(converted.getBytesValue()) ? null : converted;
               }
             });
             addCallback(listenableFuture, callback, directExecutor());

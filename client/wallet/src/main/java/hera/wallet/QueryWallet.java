@@ -85,6 +85,16 @@ public abstract class QueryWallet implements QueryClient, Closeable {
   }
 
   @Override
+  public AccountAddress getNameOwner(final String name, final long blockNumber) {
+    try {
+      logger.debug("Get name owner of {}", name);
+      return getAergoClient().getAccountOperation().getNameOwner(name, blockNumber);
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
+  }
+
+  @Override
   public StakeInfo getStakingInfo(final Account account) {
     return getStakingInfo(account.getAddress());
   }

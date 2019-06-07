@@ -105,6 +105,15 @@ public interface AccountOperation {
   AccountAddress getNameOwner(String name);
 
   /**
+   * Get owner of an account name at block {@code blockNumber}.
+   *
+   * @param name an name of account
+   * @param blockNumber a block number
+   * @return an account address binded with name. null if is has no owner
+   */
+  AccountAddress getNameOwner(String name, long blockNumber);
+
+  /**
    * Will be removed in 1.2. Use {@link #stake(Signer, Aer, long)} instead.
    *
    * @param account an account
