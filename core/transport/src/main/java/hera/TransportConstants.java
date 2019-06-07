@@ -38,6 +38,7 @@ public final class TransportConstants {
 
   public static final String BLOCKCHAIN_BLOCKCHAINSTATUS = "heraj.blockchainstatus";
   public static final String BLOCKCHAIN_CHAININFO = "heraj.chaininfo";
+  public static final String BLOCKCHAIN_CHAINSTATS = "heraj.chainstats";
   public static final String BLOCKCHAIN_LIST_PEERS = "heraj.listpeers";
   public static final String BLOCKCHAIN_PEERMETRICS = "heraj.peermetrics";
   public static final String BLOCKCHAIN_SERVERINFO = "heraj.serverinfo";

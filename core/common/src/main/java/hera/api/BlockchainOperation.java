@@ -12,6 +12,7 @@ import hera.api.model.AccountTotalVote;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.ChainIdHash;
 import hera.api.model.ChainInfo;
+import hera.api.model.ChainStats;
 import hera.api.model.ElectedCandidate;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
@@ -57,6 +58,13 @@ public interface BlockchainOperation {
    * @return a chain info
    */
   ChainInfo getChainInfo();
+
+  /**
+   * Get chain stats of current node.
+   *
+   * @return a chain stats
+   */
+  ChainStats getChainStats();
 
   /**
    * Get blockchain peer addresses filtering hidden peers and itself.

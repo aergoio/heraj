@@ -16,6 +16,7 @@ import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.ChainInfo;
+import hera.api.model.ChainStats;
 import hera.api.model.ElectedCandidate;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
@@ -44,6 +45,14 @@ public class BlockchainOperationIT extends AbstractIT {
     logger.info("Current node chain info: {}", chainInfo);
 
     assertNotNull(chainInfo);
+  }
+
+  @Test
+  public void testChainStats() {
+    final ChainStats chainStats = aergoClient.getBlockchainOperation().getChainStats();
+    logger.info("Current node chain stats: {}", chainStats);
+
+    assertNotNull(chainStats);
   }
 
   @Test

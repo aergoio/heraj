@@ -6,6 +6,7 @@ package hera.client;
 
 import static hera.TransportConstants.BLOCKCHAIN_BLOCKCHAINSTATUS;
 import static hera.TransportConstants.BLOCKCHAIN_CHAININFO;
+import static hera.TransportConstants.BLOCKCHAIN_CHAINSTATS;
 import static hera.TransportConstants.BLOCKCHAIN_LIST_ELECTED;
 import static hera.TransportConstants.BLOCKCHAIN_LIST_PEERS;
 import static hera.TransportConstants.BLOCKCHAIN_NODESTATUS;
@@ -13,13 +14,13 @@ import static hera.TransportConstants.BLOCKCHAIN_PEERMETRICS;
 import static hera.TransportConstants.BLOCKCHAIN_SERVERINFO;
 import static hera.TransportConstants.BLOCKCHAIN_VOTE;
 import static hera.TransportConstants.BLOCKCHAIN_VOTESOF;
+
 import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
 import hera.AbstractTestCase;
 import hera.ContextProvider;
 import hera.api.function.Function0;
@@ -36,6 +37,7 @@ import hera.api.model.BlockchainStatus;
 import hera.api.model.BytesValue;
 import hera.api.model.ChainIdHash;
 import hera.api.model.ChainInfo;
+import hera.api.model.ChainStats;
 import hera.api.model.ElectedCandidate;
 import hera.api.model.ModuleStatus;
 import hera.api.model.NodeStatus;
@@ -129,6 +131,27 @@ public class BlockchainTemplateTest extends AbstractTestCase {
     assertNotNull(chainInfo);
     assertEquals(BLOCKCHAIN_CHAININFO,
         ((WithIdentity) blockchainTemplate.getChainInfoFunction()).getIdentity());
+  }
+
+  @Test
+  public void testGetChainStats() {
+    final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
+    final FinishableFuture<ChainStats> future = new FinishableFuture<ChainStats>();
+    future.success(mock(ChainStats.class));
+    when(base.getChainStatsFunction())
+        .thenReturn(new Function0<FinishableFuture<ChainStats>>() {
+          @Override
+          public FinishableFuture<ChainStats> apply() {
+            return future;
+          }
+        });
+
+    final BlockchainTemplate blockchainTemplate = supplyBlockchainTemplate(base);
+
+    final ChainStats chainStats = blockchainTemplate.getChainStats();
+    assertNotNull(chainStats);
+    assertEquals(BLOCKCHAIN_CHAINSTATS,
+        ((WithIdentity) blockchainTemplate.getChainStatsFunction()).getIdentity());
   }
 
   @Test

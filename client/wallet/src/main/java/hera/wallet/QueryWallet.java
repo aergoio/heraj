@@ -16,6 +16,7 @@ import hera.api.model.BlockMetadata;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.ChainIdHash;
 import hera.api.model.ChainInfo;
+import hera.api.model.ChainStats;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
@@ -179,6 +180,16 @@ public abstract class QueryWallet implements QueryClient, Closeable {
     try {
       logger.debug("Get chain info");
       return getAergoClient().getBlockchainOperation().getChainInfo();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
+  }
+
+  @Override
+  public ChainStats getChainStats() {
+    try {
+      logger.debug("Get chain stats");
+      return getAergoClient().getBlockchainOperation().getChainStats();
     } catch (Exception e) {
       throw exceptionConverter.convert(e);
     }

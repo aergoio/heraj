@@ -6,6 +6,7 @@ package hera.client;
 
 import static hera.TransportConstants.BLOCKCHAIN_BLOCKCHAINSTATUS;
 import static hera.TransportConstants.BLOCKCHAIN_CHAININFO;
+import static hera.TransportConstants.BLOCKCHAIN_CHAINSTATS;
 import static hera.TransportConstants.BLOCKCHAIN_LIST_ELECTED;
 import static hera.TransportConstants.BLOCKCHAIN_LIST_PEERS;
 import static hera.TransportConstants.BLOCKCHAIN_NODESTATUS;
@@ -30,6 +31,7 @@ import hera.api.model.AccountTotalVote;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.ChainIdHash;
 import hera.api.model.ChainInfo;
+import hera.api.model.ChainStats;
 import hera.api.model.ElectedCandidate;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
@@ -81,6 +83,11 @@ public class BlockchainTemplate
           BLOCKCHAIN_CHAININFO));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function0<FinishableFuture<ChainStats>> chainStatsFunction =
+      getStrategyChain().apply(identify(getBlockchainBaseTemplate().getChainStatsFunction(),
+          BLOCKCHAIN_CHAINSTATS));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function2<Boolean, Boolean, FinishableFuture<List<Peer>>> listPeersFunction =
       getStrategyChain().apply(
           identify(getBlockchainBaseTemplate().getListPeersFunction(), BLOCKCHAIN_LIST_PEERS));
@@ -130,6 +137,11 @@ public class BlockchainTemplate
   @Override
   public ChainInfo getChainInfo() {
     return getChainInfoFunction().apply().get();
+  }
+
+  @Override
+  public ChainStats getChainStats() {
+    return getChainStatsFunction().apply().get();
   }
 
   @Override

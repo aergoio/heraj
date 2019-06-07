@@ -16,6 +16,7 @@ import hera.api.model.BlockMetadata;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.ChainIdHash;
 import hera.api.model.ChainInfo;
+import hera.api.model.ChainStats;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
@@ -207,6 +208,16 @@ public interface QueryClient extends Closeable {
    * @throws WalletRpcException on rpc error
    */
   ChainInfo getChainInfo();
+
+  /**
+   * Get chain stats of current node.
+   *
+   * @return a chain stats
+   *
+   * @throws WalletConnectionException on connection failure
+   * @throws WalletRpcException on rpc error
+   */
+  ChainStats getChainStats();
 
   /**
    * Get blockchain peer addresses.
