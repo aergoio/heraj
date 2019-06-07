@@ -10,7 +10,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import hera.api.model.Account;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.ContractAddress;
@@ -22,8 +21,13 @@ import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
+import hera.api.model.Fee;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
+import hera.key.AergoKey;
+import hera.key.Signer;
+import hera.transaction.NonceProvider;
+import hera.transaction.SimpleNonceProvider;
 import hera.util.IoUtils;
 import java.io.InputStreamReader;
 import java.util.concurrent.CountDownLatch;
@@ -55,9 +59,9 @@ public class ContractOperationIT extends AbstractIT {
     contractPayload = IoUtils.from(new InputStreamReader(open("payload")));
   }
 
-  protected ContractTxHash deploy(final Account account, final ContractDefinition definition) {
-    final ContractTxHash txHash = aergoClient.getContractOperation().deploy(account,
-        definition, account.incrementAndGetNonce());
+  protected ContractTxHash deploy(final Signer signer, final ContractDefinition definition) {
+    final ContractTxHash txHash = aergoClient.getContractOperation().deploy(signer,
+        definition, nonceProvider.incrementAndGetNonce(signer.getPrincipal()), Fee.getDefaultFee());
     waitForNextBlockToGenerate();
     return txHash;
   }
@@ -79,9 +83,9 @@ public class ContractOperationIT extends AbstractIT {
     return contractInterface;
   }
 
-  protected ContractTxHash execute(final Account account, final ContractInvocation execution) {
-    final ContractTxHash txHash = aergoClient.getContractOperation().execute(account,
-        execution, account.incrementAndGetNonce());
+  protected ContractTxHash execute(final Signer signer, final ContractInvocation execution) {
+    final ContractTxHash txHash = aergoClient.getContractOperation().execute(signer,
+        execution, nonceProvider.incrementAndGetNonce(signer.getPrincipal()), Fee.getDefaultFee());
     waitForNextBlockToGenerate();
     return txHash;
   }
@@ -95,12 +99,12 @@ public class ContractOperationIT extends AbstractIT {
 
   @Test
   public void testLuaContractConstructor() throws Exception {
-    final Account account = supplyLocalAccount();
+    final AergoKey key = supplyLocalAccount();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(contractPayload)
         .constructorArgs(deployKey, deployIntVal, deployStringVal)
         .build();
-    final ContractTxHash deployTxHash = deploy(account, definition);
+    final ContractTxHash deployTxHash = deploy(key, definition);
 
     final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
     assertEquals("CREATED", deployTxReceipt.getStatus());
@@ -116,14 +120,14 @@ public class ContractOperationIT extends AbstractIT {
 
   @Test
   public void testLuaContractDeployWithAmount() throws Exception {
-    final Account account = supplyLocalAccount();
+    final AergoKey key = supplyLocalAccount();
     final Aer expectedAmount = Aer.ONE;
 
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(contractPayload)
         .amount(expectedAmount)
         .build();
-    final ContractTxHash deployTxHash = deploy(account, definition);
+    final ContractTxHash deployTxHash = deploy(key, definition);
 
     final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
     assertEquals("CREATED", deployTxReceipt.getStatus());
@@ -135,10 +139,10 @@ public class ContractOperationIT extends AbstractIT {
 
   @Test
   public void testLuaContractDeployAndExecute() throws Exception {
-    final Account account = supplyLocalAccount();
+    final AergoKey key = supplyLocalAccount();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(contractPayload).build();
-    final ContractTxHash deployTxHash = deploy(account, definition);
+    final ContractTxHash deployTxHash = deploy(key, definition);
 
     final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
     assertEquals("CREATED", deployTxReceipt.getStatus());
@@ -150,7 +154,7 @@ public class ContractOperationIT extends AbstractIT {
         .function(executeFunction)
         .args(new Object[] {executeKey, executeIntVal, executeStringVal})
         .build();
-    final ContractTxHash executionTxHash = execute(account, execution);
+    final ContractTxHash executionTxHash = execute(key, execution);
 
     final ContractTxReceipt executionReceipt = getContractTxReceipt(executionTxHash);
     assertEquals("SUCCESS", executionReceipt.getStatus());
@@ -163,12 +167,12 @@ public class ContractOperationIT extends AbstractIT {
 
   @Test
   public void testLuaContractDeployAndExecuteWithAmount() throws Exception {
-    final Account account = supplyLocalAccount();
+    final AergoKey key = supplyLocalAccount();
     final Aer expectedAmount = Aer.ONE;
 
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(contractPayload).build();
-    final ContractTxHash deployTxHash = deploy(account, definition);
+    final ContractTxHash deployTxHash = deploy(key, definition);
 
     final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
     assertEquals("CREATED", deployTxReceipt.getStatus());
@@ -182,7 +186,7 @@ public class ContractOperationIT extends AbstractIT {
         .args(new Object[] {executeKey, executeIntVal, executeStringVal})
         .amount(expectedAmount)
         .build();
-    execute(account, execution);
+    execute(key, execution);
 
     final Aer actualAmount = getAmount(contractAddress);
     assertEquals(expectedAmount, actualAmount);
@@ -190,10 +194,10 @@ public class ContractOperationIT extends AbstractIT {
 
   @Test
   public void testLuaContractDeployAndExecuteWithEscapeString() throws Exception {
-    final Account account = supplyLocalAccount();
+    final AergoKey key = supplyLocalAccount();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(contractPayload).build();
-    final ContractTxHash deployTxHash = deploy(account, definition);
+    final ContractTxHash deployTxHash = deploy(key, definition);
 
     final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
     assertEquals("CREATED", deployTxReceipt.getStatus());
@@ -206,7 +210,7 @@ public class ContractOperationIT extends AbstractIT {
         .function(executeFunction)
         .args(new Object[] {executeKey, executeIntVal, escapeString})
         .build();
-    final ContractTxHash executionTxHash = execute(account, execution);
+    final ContractTxHash executionTxHash = execute(key, execution);
 
     final ContractTxReceipt executionReceipt = getContractTxReceipt(executionTxHash);
     assertEquals("SUCCESS", executionReceipt.getStatus());
@@ -219,12 +223,11 @@ public class ContractOperationIT extends AbstractIT {
 
   @Test
   public void testLuaContractDeployWithInvalidNonce() throws Exception {
-    final Account account = supplyLocalAccount();
+    final AergoKey key = supplyLocalAccount();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(contractPayload).build();
     try {
-      aergoClient.getContractOperation().deploy(account,
-          definition, account.getRecentlyUsedNonce());
+      aergoClient.getContractOperation().deploy(key, definition, 0L, Fee.getDefaultFee());
       fail();
     } catch (Exception e) {
       // good we expected this
@@ -233,10 +236,10 @@ public class ContractOperationIT extends AbstractIT {
 
   @Test
   public void testLuaContractExecuteWithInvalidNonce() throws Exception {
-    final Account account = supplyLocalAccount();
+    final AergoKey key = supplyLocalAccount();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(contractPayload).build();
-    final ContractTxHash deployTxHash = deploy(account, definition);
+    final ContractTxHash deployTxHash = deploy(key, definition);
 
     final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
     assertEquals("CREATED", deployTxReceipt.getStatus());
@@ -249,8 +252,7 @@ public class ContractOperationIT extends AbstractIT {
         .args(new Object[] {executeKey, executeIntVal, executeStringVal})
         .build();
     try {
-      account.setNonce(0L);
-      execute(account, execution);
+      aergoClient.getContractOperation().execute(key, execution, 0L, Fee.getDefaultFee());
       fail();
     } catch (Exception e) {
       // good we expected this
@@ -259,11 +261,11 @@ public class ContractOperationIT extends AbstractIT {
 
   @Test
   public void testLuaContractEvent() {
-    final Account account = supplyLocalAccount();
+    final AergoKey key = supplyLocalAccount();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(contractPayload)
         .build();
-    final ContractTxHash deployTxHash = deploy(account, definition);
+    final ContractTxHash deployTxHash = deploy(key, definition);
 
     final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
     assertEquals("CREATED", deployTxReceipt.getStatus());
@@ -301,12 +303,12 @@ public class ContractOperationIT extends AbstractIT {
         .args(new Object[] {executeKey, executeIntVal, executeStringVal})
         .build();
 
-    execute(account, execution);
-    execute(account, execution);
+    execute(key, execution);
+    execute(key, execution);
 
     subscription.unsubscribe();
 
-    execute(account, execution);
+    execute(key, execution);
 
     assertTrue(subscription.isUnsubscribed());
     assertEquals(0L, latch.getCount());
@@ -314,11 +316,11 @@ public class ContractOperationIT extends AbstractIT {
 
   @Test
   public void testLuaContractEventWithEventNameFilter() {
-    final Account account = supplyLocalAccount();
+    final AergoKey key = supplyLocalAccount();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(contractPayload)
         .build();
-    final ContractTxHash deployTxHash = deploy(account, definition);
+    final ContractTxHash deployTxHash = deploy(key, definition);
 
     final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
     assertEquals("CREATED", deployTxReceipt.getStatus());
@@ -362,16 +364,16 @@ public class ContractOperationIT extends AbstractIT {
             randomUUID().toString()})
         .build();
 
-    execute(account, targetExec);
-    execute(account, targetExec);
+    execute(key, targetExec);
+    execute(key, targetExec);
 
-    execute(account, otherExec);
-    execute(account, otherExec);
-    execute(account, otherExec);
+    execute(key, otherExec);
+    execute(key, otherExec);
+    execute(key, otherExec);
 
     subscription.unsubscribe();
 
-    execute(account, targetExec);
+    execute(key, targetExec);
 
     assertTrue(subscription.isUnsubscribed());
     assertEquals(0, count.get());
@@ -379,11 +381,11 @@ public class ContractOperationIT extends AbstractIT {
 
   @Test
   public void testLuaContractEventWithArgFilter() {
-    final Account account = supplyLocalAccount();
+    final AergoKey key = supplyLocalAccount();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(contractPayload)
         .build();
-    final ContractTxHash deployTxHash = deploy(account, definition);
+    final ContractTxHash deployTxHash = deploy(key, definition);
 
     final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
     assertEquals("CREATED", deployTxReceipt.getStatus());
@@ -426,16 +428,16 @@ public class ContractOperationIT extends AbstractIT {
         .args(new Object[] {randomUUID().toString(), executeIntVal, executeStringVal})
         .build();
 
-    execute(account, targetExec);
-    execute(account, targetExec);
+    execute(key, targetExec);
+    execute(key, targetExec);
 
-    execute(account, otherExec);
-    execute(account, otherExec);
-    execute(account, otherExec);
+    execute(key, otherExec);
+    execute(key, otherExec);
+    execute(key, otherExec);
 
     subscription.unsubscribe();
 
-    execute(account, targetExec);
+    execute(key, targetExec);
 
     assertTrue(subscription.isUnsubscribed());
     assertEquals(0, count.get());
@@ -443,11 +445,11 @@ public class ContractOperationIT extends AbstractIT {
 
   @Test
   public void testLuaContractEventWithEventNameAndArgFilter() {
-    final Account account = supplyLocalAccount();
+    final AergoKey key = supplyLocalAccount();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(contractPayload)
         .build();
-    final ContractTxHash deployTxHash = deploy(account, definition);
+    final ContractTxHash deployTxHash = deploy(key, definition);
 
     final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
     assertEquals("CREATED", deployTxReceipt.getStatus());
@@ -491,16 +493,16 @@ public class ContractOperationIT extends AbstractIT {
         .args(new Object[] {randomUUID().toString(), executeIntVal, executeStringVal})
         .build();
 
-    execute(account, targetExec);
-    execute(account, targetExec);
+    execute(key, targetExec);
+    execute(key, targetExec);
 
-    execute(account, otherExec);
-    execute(account, otherExec);
-    execute(account, otherExec);
+    execute(key, otherExec);
+    execute(key, otherExec);
+    execute(key, otherExec);
 
     subscription.unsubscribe();
 
-    execute(account, targetExec);
+    execute(key, targetExec);
 
     assertTrue(subscription.isUnsubscribed());
     assertEquals(0, count.get());

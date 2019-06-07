@@ -20,6 +20,8 @@ import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
+import hera.transaction.NonceProvider;
+import hera.transaction.SimpleNonceProvider;
 import hera.util.ThreadUtils;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +33,8 @@ import org.slf4j.Logger;
 public abstract class AbstractIT {
 
   protected final transient Logger logger = getLogger(getClass());
+
+  protected final NonceProvider nonceProvider = new SimpleNonceProvider();
 
   protected final String propertiesPath = "/it.properties";
 
@@ -80,12 +84,12 @@ public abstract class AbstractIT {
     ThreadUtils.trySleep(1200L);
   }
 
-  protected Account supplyLocalAccount() {
-    final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
+  protected AergoKey supplyLocalAccount() {
+    final AergoKey aergoKey = new AergoKeyGenerator().create();
     if (isFundEnabled) {
-      fund(account.getAddress());
+      fund(aergoKey.getAddress());
     }
-    return account;
+    return aergoKey;
   }
 
   protected AccountAddress supplyServerAccount() {

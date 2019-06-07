@@ -172,4 +172,5 @@ public class BlockchainTemplate
   public AccountTotalVote getVotesOf(final AccountAddress accountAddress) {
     return getVotesOfFunction().apply(accountAddress).get();
   }
+
 }

@@ -15,6 +15,9 @@ public final class TransportConstants {
   public static final String ACCOUNT_GETSTAKINGINFO = "heraj.getstakinginfo";
   public static final String ACCOUNT_SIGN = "heraj.account.sign";
   public static final String ACCOUNT_VERIFY = "heraj.verify";
+  public static final String ACCOUNT_VOTE = "heraj.vote";
+  public static final String ACCOUNT_LIST_ELECTED = "heraj.list.elected";
+  public static final String ACCOUNT_VOTESOF = "heraj.votesof";
 
   public static final String KEYSTORE_LIST = "heraj.list";
   public static final String KEYSTORE_CREATE = "heraj.create";

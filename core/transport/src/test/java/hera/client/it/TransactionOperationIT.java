@@ -9,9 +9,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
@@ -20,6 +18,7 @@ import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.exception.RpcCommitException;
+import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import org.junit.Test;
 
@@ -29,20 +28,19 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testCommit() {
-    final Account account = supplyLocalAccount();
-    final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());
-    final AccountState preState = aergoClient.getAccountOperation().getState(account);
+    final AergoKey key = supplyLocalAccount();
+    final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
+    final AccountState preState = aergoClient.getAccountOperation().getState(key.getAddress());
 
-    final RawTransaction rawTransaction =
-        RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
-            .from(account)
-            .to(recipient)
-            .amount(amount)
-            .nonce(account.incrementAndGetNonce())
-            .build();
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .chainIdHash(aergoClient.getCachedChainIdHash())
+        .from(key.getAddress())
+        .to(recipient)
+        .amount(amount)
+        .nonce(1L)
+        .build();
 
-    final Transaction signed = aergoClient.getAccountOperation().sign(account, rawTransaction);
-
+    final Transaction signed = key.sign(rawTransaction);
     final TxHash txHash = aergoClient.getTransactionOperation().commit(signed);
 
     final Transaction notConfirmed = aergoClient.getTransactionOperation().getTransaction(txHash);
@@ -51,7 +49,7 @@ public class TransactionOperationIT extends AbstractIT {
     waitForNextBlockToGenerate();
 
     final Transaction confirmed = aergoClient.getTransactionOperation().getTransaction(txHash);
-    final AccountState refreshed = aergoClient.getAccountOperation().getState(account);
+    final AccountState refreshed = aergoClient.getAccountOperation().getState(key.getAddress());
     assertTrue(true == confirmed.isConfirmed());
 
     verifyState(preState, refreshed);
@@ -66,28 +64,28 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testCommitWithNameSender() {
-    final Account account = supplyLocalAccount();
-    final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());
+    final AergoKey key = supplyLocalAccount();
+    final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
 
     // give sender an name
     final String name = randomUUID().toString().substring(0, 12).replace('-', 'a');
-    aergoClient.getAccountOperation().createName(account, name,
-        account.incrementAndGetNonce());
+    aergoClient.getAccountOperation().createName(key, name,
+        nonceProvider.incrementAndGetNonce(key.getAddress()));
 
     waitForNextBlockToGenerate();
 
     // snapshot pre state
-    final AccountState preState = aergoClient.getAccountOperation().getState(account);
+    final AccountState preState = aergoClient.getAccountOperation().getState(key.getAddress());
 
-    final RawTransaction rawTransaction =
-        RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
-            .from(name)
-            .to(recipient)
-            .amount(amount)
-            .nonce(account.incrementAndGetNonce())
-            .build();
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .chainIdHash(aergoClient.getCachedChainIdHash())
+        .from(name)
+        .to(recipient)
+        .amount(amount)
+        .nonce(nonceProvider.incrementAndGetNonce(key.getAddress()))
+        .build();
 
-    final Transaction signed = aergoClient.getAccountOperation().sign(account, rawTransaction);
+    final Transaction signed = key.sign(rawTransaction);
 
     final TxHash txHash = aergoClient.getTransactionOperation().commit(signed);
 
@@ -97,35 +95,35 @@ public class TransactionOperationIT extends AbstractIT {
     waitForNextBlockToGenerate();
 
     final Transaction confirmed = aergoClient.getTransactionOperation().getTransaction(txHash);
-    final AccountState refreshed = aergoClient.getAccountOperation().getState(account);
+    final AccountState refreshed = aergoClient.getAccountOperation().getState(key.getAddress());
     assertTrue(true == confirmed.isConfirmed());
     verifyState(preState, refreshed);
   }
 
   @Test
   public void testCommitWithNameRecipient() {
-    final Account account = supplyLocalAccount();
+    final AergoKey key = supplyLocalAccount();
 
     // give recipient an name
-    final Account recipient = supplyLocalAccount();
+    final AergoKey recipient = supplyLocalAccount();
     final String name = randomUUID().toString().substring(0, 12).replace('-', 'a');
     aergoClient.getAccountOperation().createName(recipient, name,
-        recipient.incrementAndGetNonce());
+        nonceProvider.incrementAndGetNonce(recipient.getAddress()));
 
     waitForNextBlockToGenerate();
 
     // snapshot pre state
-    final AccountState preState = aergoClient.getAccountOperation().getState(account);
+    final AccountState preState = aergoClient.getAccountOperation().getState(key.getAddress());
 
-    final RawTransaction rawTransaction =
-        RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
-            .from(account)
-            .to(name)
-            .amount(amount)
-            .nonce(account.incrementAndGetNonce())
-            .build();
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .chainIdHash(aergoClient.getCachedChainIdHash())
+        .from(key.getAddress())
+        .to(name)
+        .amount(amount)
+        .nonce(nonceProvider.incrementAndGetNonce(key.getAddress()))
+        .build();
 
-    final Transaction signed = aergoClient.getAccountOperation().sign(account, rawTransaction);
+    final Transaction signed = key.sign(rawTransaction);
 
     final TxHash txHash = aergoClient.getTransactionOperation().commit(signed);
 
@@ -135,28 +133,28 @@ public class TransactionOperationIT extends AbstractIT {
     waitForNextBlockToGenerate();
 
     final Transaction confirmed = aergoClient.getTransactionOperation().getTransaction(txHash);
-    final AccountState refreshed = aergoClient.getAccountOperation().getState(account);
+    final AccountState refreshed = aergoClient.getAccountOperation().getState(key.getAddress());
     assertTrue(true == confirmed.isConfirmed());
     verifyState(preState, refreshed);
   }
 
   @Test
   public void testCommitOnEmptyAmount() {
-    final Account account = supplyLocalAccount();
-    final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());
+    final AergoKey key = supplyLocalAccount();
+    final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
 
     // snapshot pre state
-    final AccountState preState = aergoClient.getAccountOperation().getState(account);
+    final AccountState preState = aergoClient.getAccountOperation().getState(key.getAddress());
 
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .chainIdHash(aergoClient.getCachedChainIdHash())
-        .from(account)
+        .from(key.getAddress())
         .to(recipient)
         .amount(Aer.EMPTY)
-        .nonce(account.incrementAndGetNonce())
+        .nonce(nonceProvider.incrementAndGetNonce(key.getAddress()))
         .build();
 
-    final Transaction signed = aergoClient.getAccountOperation().sign(account, rawTransaction);
+    final Transaction signed = key.sign(rawTransaction);
 
     final TxHash txHash = aergoClient.getTransactionOperation().commit(signed);
 
@@ -166,7 +164,7 @@ public class TransactionOperationIT extends AbstractIT {
     waitForNextBlockToGenerate();
 
     final Transaction confirmed = aergoClient.getTransactionOperation().getTransaction(txHash);
-    final AccountState refreshed = aergoClient.getAccountOperation().getState(account);
+    final AccountState refreshed = aergoClient.getAccountOperation().getState(key.getAddress());
     assertTrue(true == confirmed.isConfirmed());
     assertEquals(preState.getNonce() + 1, refreshed.getNonce());
     verifyState(preState, refreshed);
@@ -174,8 +172,8 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testCommitOnInvalidSender() {
-    final Account account = supplyLocalAccount();
-    final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());
+    final AergoKey key = supplyLocalAccount();
+    final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
 
     final AccountAddress invalidSender = AccountAddress.of(BytesValue.EMPTY);
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
@@ -183,14 +181,12 @@ public class TransactionOperationIT extends AbstractIT {
         .from(invalidSender)
         .to(recipient)
         .amount(amount)
-        .nonce(account.incrementAndGetNonce())
+        .nonce(nonceProvider.incrementAndGetNonce(key.getAddress()))
         .build();
 
     try {
-      aergoClient.getAccountOperation().sign(account, rawTransaction);
-      if (null == account.getKey()) {
-        fail();
-      }
+      final Transaction signed = key.sign(rawTransaction);
+      aergoClient.getTransactionOperation().commit(signed);
     } catch (Exception e) {
       // good we expected this
     }
@@ -198,17 +194,17 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testCommitOnInvalidRecipient() {
-    final Account account = supplyLocalAccount();
+    final AergoKey key = supplyLocalAccount();
     final AccountAddress invalidRecipient = AccountAddress.of(BytesValue.EMPTY);
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .chainIdHash(aergoClient.getCachedChainIdHash())
-        .from(account)
+        .from(key.getAddress())
         .to(invalidRecipient)
         .amount(amount)
-        .nonce(account.incrementAndGetNonce())
+        .nonce(nonceProvider.incrementAndGetNonce(key.getAddress()))
         .build();
 
-    final Transaction signed = aergoClient.getAccountOperation().sign(account, rawTransaction);
+    final Transaction signed = key.sign(rawTransaction);
 
     try {
       aergoClient.getTransactionOperation().commit(signed);
@@ -220,17 +216,17 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testCommitOnInvalidNonce() {
-    final Account account = supplyLocalAccount();
-    final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());
+    final AergoKey key = supplyLocalAccount();
+    final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
     final RawTransaction rawTransaction =
         RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
-            .from(account)
+            .from(key.getAddress())
             .to(recipient)
             .amount(amount)
-            .nonce(account.getRecentlyUsedNonce()) // invalid
+            .nonce(0L)
             .build();
 
-    final Transaction signed = aergoClient.getAccountOperation().sign(account, rawTransaction);
+    final Transaction signed = key.sign(rawTransaction);
 
     try {
       aergoClient.getTransactionOperation().commit(signed);
@@ -242,18 +238,18 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testCommitOnInvalidSignature() {
-    final Account account = supplyLocalAccount();
-    final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());
+    final AergoKey key = supplyLocalAccount();
+    final AergoKey recipient = supplyLocalAccount();
     final RawTransaction rawTransaction =
         RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
-            .from(account)
-            .to(recipient)
+            .from(key.getAddress())
+            .to(recipient.getAddress())
             .amount(amount)
-            .nonce(account.getRecentlyUsedNonce()) // invalid
+            .nonce(nonceProvider.incrementAndGetNonce(key.getAddress()))
             .build();
 
     // sign with recipient
-    final Transaction signed = aergoClient.getAccountOperation().sign(recipient, rawTransaction);
+    final Transaction signed = recipient.sign(rawTransaction);
 
     try {
       aergoClient.getTransactionOperation().commit(signed);
@@ -265,24 +261,24 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testCommitOnStaked() {
-    final Account account = supplyLocalAccount();
-    final AccountState state = aergoClient.getAccountOperation().getState(account);
+    final AergoKey key = supplyLocalAccount();
+    final AccountState state = aergoClient.getAccountOperation().getState(key.getAddress());
 
-    aergoClient.getAccountOperation().stake(account, state.getBalance(),
-        account.incrementAndGetNonce());
+    aergoClient.getAccountOperation().stake(key, state.getBalance(),
+        nonceProvider.incrementAndGetNonce(key.getAddress()));
 
     waitForNextBlockToGenerate();
 
-    final Account recipient = new AccountFactory().create(new AergoKeyGenerator().create());
+    final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
     final RawTransaction rawTransaction =
         RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
-            .from(account)
+            .from(key.getAddress())
             .to(recipient)
             .amount(amount) // staked amount
-            .nonce(account.incrementAndGetNonce())
+            .nonce(nonceProvider.incrementAndGetNonce(key.getAddress()))
             .build();
 
-    final Transaction signed = aergoClient.getAccountOperation().sign(account, rawTransaction);
+    final Transaction signed = key.sign(rawTransaction);
 
     try {
       aergoClient.getTransactionOperation().commit(signed);

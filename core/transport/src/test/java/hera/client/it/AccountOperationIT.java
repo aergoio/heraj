@@ -4,48 +4,56 @@
 
 package hera.client.it;
 
+import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import hera.api.model.Account;
-import hera.api.model.AccountFactory;
+import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.model.AccountTotalVote;
+import hera.api.model.Aer;
+import hera.api.model.Aer.Unit;
+import hera.api.model.ElectedCandidate;
 import hera.api.model.StakeInfo;
 import hera.exception.RpcCommitException;
+import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
+import java.util.List;
 import org.junit.Test;
 
 public class AccountOperationIT extends AbstractIT {
 
   @Test
   public void testCreateAndGetName() {
-    final Account account = supplyLocalAccount();
+    final AergoKey key = supplyLocalAccount();
     final String name = randomUUID().toString().substring(0, 12).replace('-', 'a');
 
-    aergoClient.getAccountOperation().createName(account, name, account.incrementAndGetNonce());
+    aergoClient.getAccountOperation().createName(key, name,
+        nonceProvider.incrementAndGetNonce(key.getAddress()));
 
     waitForNextBlockToGenerate();
 
-    assertEquals(account.getAddress(), aergoClient.getAccountOperation().getNameOwner(name));
+    assertEquals(key.getAddress(), aergoClient.getAccountOperation().getNameOwner(name));
 
-    final Account passed = new AccountFactory().create(new AergoKeyGenerator().create());
+    final AccountAddress newOwner = new AergoKeyGenerator().create().getAddress();
 
-    aergoClient.getAccountOperation().updateName(account, name, passed.getAddress(),
-        account.incrementAndGetNonce());
+    aergoClient.getAccountOperation().updateName(key, name, newOwner,
+        nonceProvider.incrementAndGetNonce(key.getAddress()));
 
     waitForNextBlockToGenerate();
 
-    assertEquals(passed.getAddress(), aergoClient.getAccountOperation().getNameOwner(name));
+    assertEquals(newOwner, aergoClient.getAccountOperation().getNameOwner(name));
   }
 
   @Test
   public void testCreateWithInvalidNonce() {
-    final Account account = supplyLocalAccount();
+    final AergoKey key = supplyLocalAccount();
     final String name = randomUUID().toString().substring(0, 12).replace('-', 'a');
 
     try {
-      aergoClient.getAccountOperation().createName(account, name, account.getRecentlyUsedNonce());
+      aergoClient.getAccountOperation().createName(key, name, 0L);
       fail();
     } catch (RpcCommitException e) {
       assertEquals(RpcCommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
@@ -54,20 +62,20 @@ public class AccountOperationIT extends AbstractIT {
 
   @Test
   public void testUpdateWithInvalidNonce() {
-    final Account account = supplyLocalAccount();
+    final AergoKey key = supplyLocalAccount();
     final String name = randomUUID().toString().substring(0, 12).replace('-', 'a');
 
-    aergoClient.getAccountOperation().createName(account, name, account.incrementAndGetNonce());
+    aergoClient.getAccountOperation().createName(key, name,
+        nonceProvider.incrementAndGetNonce(key.getAddress()));
 
     waitForNextBlockToGenerate();
 
-    assertEquals(account.getAddress(), aergoClient.getAccountOperation().getNameOwner(name));
+    assertEquals(key.getAddress(), aergoClient.getAccountOperation().getNameOwner(name));
 
-    final Account passed = new AccountFactory().create(new AergoKeyGenerator().create());
+    final AccountAddress newOwner = new AergoKeyGenerator().create().getAddress();
 
     try {
-      aergoClient.getAccountOperation().updateName(account, name, passed.getAddress(),
-          account.getRecentlyUsedNonce());
+      aergoClient.getAccountOperation().updateName(key, name, newOwner, 0L);
       fail();
     } catch (RpcCommitException e) {
       assertEquals(RpcCommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
@@ -80,21 +88,21 @@ public class AccountOperationIT extends AbstractIT {
       return;
     }
 
-    final Account account = supplyLocalAccount();
-    final AccountState state = aergoClient.getAccountOperation().getState(account);
-    aergoClient.getAccountOperation().stake(account, state.getBalance(),
-        account.incrementAndGetNonce());
+    final AergoKey key = supplyLocalAccount();
+    final AccountState state = aergoClient.getAccountOperation().getState(key.getAddress());
+    aergoClient.getAccountOperation().stake(key, state.getBalance(),
+        nonceProvider.incrementAndGetNonce(key.getAddress()));
 
     waitForNextBlockToGenerate();
 
     final StakeInfo stakingInfoAfterStaked =
-        aergoClient.getAccountOperation().getStakingInfo(account.getAddress());
-    assertEquals(account.getAddress(), stakingInfoAfterStaked.getAddress());
+        aergoClient.getAccountOperation().getStakingInfo(key.getAddress());
+    assertEquals(key.getAddress(), stakingInfoAfterStaked.getAddress());
     assertEquals(state.getBalance(), stakingInfoAfterStaked.getAmount());
 
     try {
-      aergoClient.getAccountOperation().unstake(account, stakingInfoAfterStaked.getAmount(),
-          account.incrementAndGetNonce());
+      aergoClient.getAccountOperation().unstake(key, stakingInfoAfterStaked.getAmount(),
+          nonceProvider.incrementAndGetNonce(key.getAddress()));
     } catch (Exception e) {
       // good we expected this not enough time has passed to unstake
     }
@@ -106,11 +114,10 @@ public class AccountOperationIT extends AbstractIT {
       return;
     }
 
-    final Account account = supplyLocalAccount();
-    final AccountState state = aergoClient.getAccountOperation().getState(account);
+    final AergoKey key = supplyLocalAccount();
+    final AccountState state = aergoClient.getAccountOperation().getState(key.getAddress());
     try {
-      aergoClient.getAccountOperation().stake(account, state.getBalance(),
-          account.getRecentlyUsedNonce());
+      aergoClient.getAccountOperation().stake(key, state.getBalance(), 0L);
       fail();
     } catch (RpcCommitException e) {
       assertEquals(RpcCommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
@@ -123,25 +130,74 @@ public class AccountOperationIT extends AbstractIT {
       return;
     }
 
-    final Account account = supplyLocalAccount();
-    final AccountState state = aergoClient.getAccountOperation().getState(account);
+    final AergoKey key = supplyLocalAccount();
+    final AccountState state = aergoClient.getAccountOperation().getState(key.getAddress());
 
-    aergoClient.getAccountOperation().stake(account, state.getBalance(),
-        account.incrementAndGetNonce());
+    aergoClient.getAccountOperation().stake(key, state.getBalance(),
+        nonceProvider.incrementAndGetNonce(key.getAddress()));
 
     waitForNextBlockToGenerate();
 
     final StakeInfo stakingInfo =
-        aergoClient.getAccountOperation().getStakingInfo(account.getAddress());
-    assertEquals(account.getAddress(), stakingInfo.getAddress());
+        aergoClient.getAccountOperation().getStakingInfo(key.getAddress());
+    assertEquals(key.getAddress(), stakingInfo.getAddress());
     assertEquals(state.getBalance(), stakingInfo.getAmount());
 
     try {
-      aergoClient.getAccountOperation().unstake(account, stakingInfo.getAmount(),
-          account.getRecentlyUsedNonce());
+      aergoClient.getAccountOperation().unstake(key, stakingInfo.getAmount(), 0L);
       fail();
     } catch (RpcCommitException e) {
       assertEquals(RpcCommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
+    }
+  }
+
+  @Test
+  public void testVote() {
+    if (!isDpos()) {
+      return;
+    }
+
+    final AergoKey key = supplyLocalAccount();
+
+    aergoClient.getAccountOperation().stake(key, Aer.of("10000", Unit.AERGO),
+        nonceProvider.incrementAndGetNonce(key.getAddress()));
+    waitForNextBlockToGenerate();
+
+    final StakeInfo stakingInfo =
+        aergoClient.getAccountOperation().getStakingInfo(key.getAddress());
+    logger.info("Staking info: {}", stakingInfo);
+
+    final List<String> candidates = asList(peerIds);
+    aergoClient.getAccountOperation().vote(key, "voteBP", candidates,
+        nonceProvider.incrementAndGetNonce(key.getAddress()));
+    waitForNextBlockToGenerate();
+
+    final List<ElectedCandidate> electedBlockProducers =
+        aergoClient.getBlockchainOperation().listElected("voteBP", 23);
+    logger.info("Current elected bps: {}", electedBlockProducers);
+    assertTrue(peerIds.length <= electedBlockProducers.size());
+
+    final AccountTotalVote keyVoteTotal =
+        aergoClient.getBlockchainOperation().getVotesOf(key.getAddress());
+    assertTrue(1 == keyVoteTotal.getVoteInfos().size());
+    assertEquals(peerIds.length, keyVoteTotal.getVoteInfos().get(0).getCandidateIds().size());
+  }
+
+  @Test
+  public void testVoteOnUnStakedOne() {
+    if (!isDpos()) {
+      return;
+    }
+
+    final AergoKey key = supplyLocalAccount();
+
+    try {
+      final List<String> candidates = asList(peerIds);
+      aergoClient.getAccountOperation().vote(key, "voteBP", candidates,
+          nonceProvider.incrementAndGetNonce(key.getAddress()));
+      fail();
+    } catch (RpcCommitException e) {
+      // good we expected this
     }
   }
 

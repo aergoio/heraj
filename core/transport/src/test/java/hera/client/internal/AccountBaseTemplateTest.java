@@ -4,7 +4,6 @@
 
 package hera.client.internal;
 
-import static hera.api.model.BytesValue.of;
 import static hera.util.TransportUtils.copyFrom;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
@@ -17,22 +16,15 @@ import hera.AbstractTestCase;
 import hera.Context;
 import hera.ContextProvider;
 import hera.api.function.Function1;
-import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
-import hera.api.model.Aer.Unit;
-import hera.client.internal.AccountBaseTemplate;
-import hera.client.internal.TransactionBaseTemplate;
 import hera.api.model.BytesValue;
-import hera.api.model.RawTransaction;
-import hera.api.model.Signature;
 import hera.api.model.StakeInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
+import hera.key.Signer;
 import java.util.concurrent.Callable;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -99,11 +91,9 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
     accountTemplateBase.transactionBaseTemplate = mockTransactionBaseTemplate;
 
-    final AergoKey key = new AergoKeyGenerator().create();
-    final Account account = new AccountFactory().create(key);
+    final Signer key = new AergoKeyGenerator().create();
     final FinishableFuture<TxHash> nameTxHash =
-        accountTemplateBase.getCreateNameFunction().apply(account, randomUUID().toString(),
-            account.incrementAndGetNonce());
+        accountTemplateBase.getCreateNameFunction().apply(key, randomUUID().toString(), 0L);
     assertNotNull(nameTxHash.get());
   }
 
@@ -124,11 +114,10 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
     accountTemplateBase.transactionBaseTemplate = mockTransactionBaseTemplate;
 
-    final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
-    final Account newOwner = new AccountFactory().create(new AergoKeyGenerator().create());
-    final FinishableFuture<TxHash> nameTxHash =
-        accountTemplateBase.getUpdateNameFunction().apply(account, randomUUID().toString(),
-            newOwner.getAddress(), account.incrementAndGetNonce());
+    final Signer account = new AergoKeyGenerator().create();
+    final AccountAddress newOwner = new AergoKeyGenerator().create().getAddress();
+    final FinishableFuture<TxHash> nameTxHash = accountTemplateBase.getUpdateNameFunction()
+        .apply(account, randomUUID().toString(), newOwner, 0L);
     assertNotNull(nameTxHash.get());
   }
 
@@ -153,24 +142,6 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testSignWithLocalAccount() {
-    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
-
-    final AergoKey key = new AergoKeyGenerator().create();
-    final Account account = new AccountFactory().create(key);
-    final RawTransaction rawTransaction = RawTransaction.newBuilder(chainIdHash)
-        .from(accountAddress)
-        .to(accountAddress)
-        .amount("1000", Unit.AER)
-        .nonce(1L)
-        .build();
-    final FinishableFuture<Transaction> accountStateFuture =
-        accountTemplateBase.getSignFunction().apply(account, rawTransaction);
-    assertNotNull(accountStateFuture.get());
-  }
-
-  @Test
   public void testStake() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
@@ -187,10 +158,9 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
     accountTemplateBase.transactionBaseTemplate = mockTransactionBaseTemplate;
 
-    final AergoKey key = new AergoKeyGenerator().create();
-    final Account account = new AccountFactory().create(key);
+    final Signer signer = new AergoKeyGenerator().create();
     final FinishableFuture<TxHash> staTxHash = accountTemplateBase.getStakingFunction()
-        .apply(account, Aer.ONE, account.incrementAndGetNonce());
+        .apply(signer, Aer.ONE, 0L);
     assertNotNull(staTxHash.get());
   }
 
@@ -211,10 +181,9 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
     accountTemplateBase.transactionBaseTemplate = mockTransactionBaseTemplate;
 
-    final AergoKey key = new AergoKeyGenerator().create();
-    final Account account = new AccountFactory().create(key);
-    final FinishableFuture<TxHash> staTxHash = accountTemplateBase.getUnstakingFunction()
-        .apply(account, Aer.ONE, account.incrementAndGetNonce());
+    final Signer signer = new AergoKeyGenerator().create();
+    final FinishableFuture<TxHash> staTxHash =
+        accountTemplateBase.getUnstakingFunction().apply(signer, Aer.ONE, 0L);
     assertNotNull(staTxHash.get());
   }
 
@@ -236,66 +205,6 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     final FinishableFuture<StakeInfo> stakingInfo =
         accountTemplateBase.getStakingInfoFunction().apply(accountAddress);
     assertNotNull(stakingInfo.get());
-  }
-
-  @Test
-  public void testSignWithRemoteAccount() {
-    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture<Blockchain.Tx> mockListenableFuture =
-        service.submit(new Callable<Blockchain.Tx>() {
-          @Override
-          public Blockchain.Tx call() throws Exception {
-            return Blockchain.Tx.newBuilder()
-                .setHash(copyFrom(of(randomUUID().toString().getBytes())))
-                .setBody(Blockchain.TxBody.newBuilder()
-                    .setSign(copyFrom(of(randomUUID().toString().getBytes()))))
-                .build();
-          }
-        });
-    when(aergoService.signTX(any(Blockchain.Tx.class))).thenReturn(mockListenableFuture);
-
-    final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
-
-    final Account account = mock(Account.class);
-    final RawTransaction rawTransaction = RawTransaction.newBuilder(chainIdHash)
-        .from(accountAddress)
-        .to(accountAddress)
-        .amount("1000", Unit.AER)
-        .nonce(1L)
-        .build();
-    final FinishableFuture<Transaction> signedTransactionStateFuture =
-        accountTemplateBase.getSignFunction().apply(account, rawTransaction);
-    assertNotNull(signedTransactionStateFuture.get());
-  }
-
-  @Test
-  public void testVerify() {
-    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture<Rpc.VerifyResult> mockListenableFuture =
-        service.submit(new Callable<Rpc.VerifyResult>() {
-          @Override
-          public Rpc.VerifyResult call() throws Exception {
-            return Rpc.VerifyResult.newBuilder().setError(Rpc.VerifyStatus.VERIFY_STATUS_OK)
-                .build();
-          }
-        });
-    when(aergoService.verifyTX(any(Blockchain.Tx.class))).thenReturn(mockListenableFuture);
-
-    final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
-
-    final Account account = mock(Account.class);
-    final RawTransaction rawTransaction = RawTransaction.newBuilder(chainIdHash)
-        .from(accountAddress)
-        .to(accountAddress)
-        .amount("1000", Unit.AER)
-        .nonce(1L)
-        .build();
-    final Transaction transaction = new Transaction(rawTransaction, Signature.of(BytesValue.EMPTY),
-        TxHash.of(BytesValue.EMPTY), null, 0, false);
-
-    final FinishableFuture<Boolean> verifyResultFuture =
-        accountTemplateBase.getVerifyFunction().apply(account, transaction);
-    assertNotNull(verifyResultFuture.get());
   }
 
 }

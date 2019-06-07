@@ -36,6 +36,7 @@ import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.client.internal.ContractBaseTemplate;
 import hera.client.internal.FinishableFuture;
+import hera.key.Signer;
 import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import java.util.List;
@@ -74,6 +75,12 @@ public class ContractTemplate
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function4<Account, ContractDefinition, Long, Fee,
+      FinishableFuture<ContractTxHash>> deprecatedDeployFunction =
+          getStrategyChain()
+              .apply(identify(contractBaseTemplate.getDeprecatedDeployFunction(), CONTRACT_DEPLOY));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function4<Signer, ContractDefinition, Long, Fee,
       FinishableFuture<ContractTxHash>> deployFunction =
           getStrategyChain()
               .apply(identify(contractBaseTemplate.getDeployFunction(), CONTRACT_DEPLOY));
@@ -87,6 +94,13 @@ public class ContractTemplate
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function4<Account, ContractInvocation, Long, Fee,
+      FinishableFuture<ContractTxHash>> deprecatedExecuteFunction =
+          getStrategyChain()
+              .apply(
+                  identify(contractBaseTemplate.getDeprecatedExecuteFunction(), CONTRACT_EXECUTE));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function4<Signer, ContractInvocation, Long, Fee,
       FinishableFuture<ContractTxHash>> executeFunction =
           getStrategyChain()
               .apply(identify(contractBaseTemplate.getExecuteFunction(), CONTRACT_EXECUTE));
@@ -120,7 +134,13 @@ public class ContractTemplate
   @Override
   public ContractTxHash deploy(final Account creator, final ContractDefinition contractDefinition,
       final long nonce, final Fee fee) {
-    return getDeployFunction().apply(creator, contractDefinition, nonce, fee).get();
+    return getDeprecatedDeployFunction().apply(creator, contractDefinition, nonce, fee).get();
+  }
+
+  @Override
+  public ContractTxHash deploy(final Signer signer, final ContractDefinition contractDefinition,
+      final long nonce, final Fee fee) {
+    return getDeployFunction().apply(signer, contractDefinition, nonce, fee).get();
   }
 
   @Override
@@ -138,7 +158,13 @@ public class ContractTemplate
   @Override
   public ContractTxHash execute(final Account executor, final ContractInvocation contractInvocation,
       final long nonce, final Fee fee) {
-    return getExecuteFunction().apply(executor, contractInvocation, nonce, fee).get();
+    return getDeprecatedExecuteFunction().apply(executor, contractInvocation, nonce, fee).get();
+  }
+
+  @Override
+  public ContractTxHash execute(final Signer signer, final ContractInvocation contractInvocation,
+      final long nonce, final Fee fee) {
+    return getExecuteFunction().apply(signer, contractInvocation, nonce, fee).get();
   }
 
   @Override
@@ -155,4 +181,5 @@ public class ContractTemplate
   public Subscription<Event> subscribeEvent(EventFilter filter, StreamObserver<Event> observer) {
     return getSubscribeEventFunction().apply(filter, observer);
   }
+
 }

@@ -37,9 +37,11 @@ import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Subscription;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import hera.client.ChannelInjectable;
 import hera.client.stream.GrpcStreamObserverAdaptor;
 import hera.client.stream.GrpcStreamSubscription;
+import hera.key.Signer;
 import hera.spec.PayloadSpec.Type;
 import hera.spec.resolver.PayloadResolver;
 import hera.transport.AccountAddressConverterFactory;
@@ -147,8 +149,8 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
 
   @Getter
   private final Function4<Account, ContractDefinition, Long, Fee,
-      FinishableFuture<ContractTxHash>> deployFunction = new Function4<Account, ContractDefinition,
-          Long, Fee, FinishableFuture<ContractTxHash>>() {
+      FinishableFuture<ContractTxHash>> deprecatedDeployFunction = new Function4<Account,
+          ContractDefinition, Long, Fee, FinishableFuture<ContractTxHash>>() {
 
         @Override
         public FinishableFuture<ContractTxHash> apply(final Account creator,
@@ -164,6 +166,33 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
                 .definition(contractDefinition)
                 .build();
             return signAndCommit(creator, rawTransaction);
+          } catch (Exception e) {
+            FinishableFuture<ContractTxHash> next = new FinishableFuture<ContractTxHash>();
+            next.fail(e);
+            return next;
+          }
+        }
+      };
+
+  @Getter
+  private final Function4<Signer, ContractDefinition, Long, Fee,
+      FinishableFuture<ContractTxHash>> deployFunction = new Function4<Signer, ContractDefinition,
+          Long, Fee, FinishableFuture<ContractTxHash>>() {
+
+        @Override
+        public FinishableFuture<ContractTxHash> apply(final Signer signer,
+            final ContractDefinition contractDefinition, final Long nonce,
+            final Fee fee) {
+          logger.debug("Deploy contract with creator: {}, definition: {}, nonce: {}, fee: {}",
+              signer, contractDefinition, nonce, fee);
+          try {
+            final RawTransaction rawTransaction = RawTransaction.newDeployContractBuilder()
+                .chainIdHash(contextProvider.get().getChainIdHash())
+                .from(signer.getPrincipal())
+                .nonce(nonce)
+                .definition(contractDefinition)
+                .build();
+            return signAndCommitWithSigner(signer, rawTransaction);
           } catch (Exception e) {
             FinishableFuture<ContractTxHash> next = new FinishableFuture<ContractTxHash>();
             next.fail(e);
@@ -216,8 +245,8 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
 
   @Getter
   private final Function4<Account, ContractInvocation, Long, Fee,
-      FinishableFuture<ContractTxHash>> executeFunction = new Function4<Account, ContractInvocation,
-          Long, Fee, FinishableFuture<ContractTxHash>>() {
+      FinishableFuture<ContractTxHash>> deprecatedExecuteFunction = new Function4<Account,
+          ContractInvocation, Long, Fee, FinishableFuture<ContractTxHash>>() {
 
         @Override
         public FinishableFuture<ContractTxHash> apply(final Account executor,
@@ -241,6 +270,33 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
         }
       };
 
+  @Getter
+  private final Function4<Signer, ContractInvocation, Long, Fee,
+      FinishableFuture<ContractTxHash>> executeFunction = new Function4<Signer, ContractInvocation,
+          Long, Fee, FinishableFuture<ContractTxHash>>() {
+
+        @Override
+        public FinishableFuture<ContractTxHash> apply(final Signer signer,
+            final ContractInvocation contractInvocation, final Long nonce,
+            final Fee fee) {
+          logger.debug("Execute contract with executor: {}, invocation: {}, nonce: {}, fee: {}",
+              signer.getPrincipal(), contractInvocation, nonce, fee);
+          try {
+            final RawTransaction rawTransaction = RawTransaction.newInvokeContractBuilder()
+                .chainIdHash(contextProvider.get().getChainIdHash())
+                .from(signer.getPrincipal())
+                .nonce(nonce)
+                .invocation(contractInvocation)
+                .build();
+            return signAndCommitWithSigner(signer, rawTransaction);
+          } catch (Exception e) {
+            FinishableFuture<ContractTxHash> next = new FinishableFuture<ContractTxHash>();
+            next.fail(e);
+            return next;
+          }
+        }
+      };
+
   protected FinishableFuture<ContractTxHash> signAndCommit(final Account account,
       final RawTransaction transaction) {
     final FinishableFuture<ContractTxHash> contractTxHash = new FinishableFuture<ContractTxHash>();
@@ -254,6 +310,33 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
         try {
           contractTxHash.success(transactionBaseTemplate.getCommitFunction().apply(signed).get()
               .adapt(ContractTxHash.class));
+        } catch (Exception e) {
+          contractTxHash.fail(e);
+        }
+      }
+
+      @Override
+      public void onFailure(final Throwable t) {
+        contractTxHash.fail(t);
+      }
+    }, directExecutor());
+
+    return contractTxHash;
+  }
+
+  protected FinishableFuture<ContractTxHash> signAndCommitWithSigner(final Signer signer,
+      final RawTransaction rawTransaction) {
+    final FinishableFuture<ContractTxHash> contractTxHash = new FinishableFuture<ContractTxHash>();
+
+    final Transaction signed = signer.sign(rawTransaction);
+    final FinishableFuture<TxHash> txHash =
+        transactionBaseTemplate.getCommitFunction().apply(signed);
+    addCallback(txHash, new FutureCallback<TxHash>() {
+
+      @Override
+      public void onSuccess(final TxHash signed) {
+        try {
+          contractTxHash.success(signed.adapt(ContractTxHash.class));
         } catch (Exception e) {
           contractTxHash.fail(e);
         }

@@ -8,11 +8,9 @@ import static hera.TransportConstants.ACCOUNT_CREATE_NAME;
 import static hera.TransportConstants.ACCOUNT_GETNAMEOWNER;
 import static hera.TransportConstants.ACCOUNT_GETSTAKINGINFO;
 import static hera.TransportConstants.ACCOUNT_GETSTATE;
-import static hera.TransportConstants.ACCOUNT_SIGN;
 import static hera.TransportConstants.ACCOUNT_STAKING;
 import static hera.TransportConstants.ACCOUNT_UNSTAKING;
 import static hera.TransportConstants.ACCOUNT_UPDATE_NAME;
-import static hera.TransportConstants.ACCOUNT_VERIFY;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -23,28 +21,24 @@ import hera.AbstractTestCase;
 import hera.Context;
 import hera.ContextProvider;
 import hera.api.function.Function1;
-import hera.api.function.Function2;
 import hera.api.function.Function3;
 import hera.api.function.Function4;
 import hera.api.function.WithIdentity;
-import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
-import hera.api.model.RawTransaction;
 import hera.api.model.StakeInfo;
-import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.client.internal.AccountBaseTemplate;
 import hera.client.internal.FinishableFuture;
 import hera.key.AergoKeyGenerator;
+import hera.key.Signer;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
-@PrepareForTest({AccountBaseTemplate.class, Account.class, EncryptedPrivateKey.class})
+@PrepareForTest({AccountBaseTemplate.class, EncryptedPrivateKey.class})
 public class AccountTemplateTest extends AbstractTestCase {
 
   protected static final String PASSWORD = randomUUID().toString();
@@ -96,18 +90,17 @@ public class AccountTemplateTest extends AbstractTestCase {
     final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
     future.success(mockHash);
     when(base.getCreateNameFunction())
-        .thenReturn(new Function3<Account, String, Long, FinishableFuture<TxHash>>() {
+        .thenReturn(new Function3<Signer, String, Long, FinishableFuture<TxHash>>() {
           @Override
-          public FinishableFuture<TxHash> apply(Account t1, String t2, Long t3) {
+          public FinishableFuture<TxHash> apply(Signer t1, String t2, Long t3) {
             return future;
           }
         });
 
     final AccountTemplate accountTemplate = supplyAccountTemplate(base);
 
-    final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
-    final TxHash nameTxHash = accountTemplate.createName(account, randomUUID().toString(),
-        account.incrementAndGetNonce());
+    final Signer signer = new AergoKeyGenerator().create();
+    final TxHash nameTxHash = accountTemplate.createName(signer, randomUUID().toString(), 0L);
     assertNotNull(nameTxHash);
     assertEquals(ACCOUNT_CREATE_NAME,
         ((WithIdentity) accountTemplate.getCreateNameFunction()).getIdentity());
@@ -120,9 +113,9 @@ public class AccountTemplateTest extends AbstractTestCase {
     final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
     future.success(mockHash);
     when(base.getUpdateNameFunction()).thenReturn(
-        new Function4<Account, String, AccountAddress, Long, FinishableFuture<TxHash>>() {
+        new Function4<Signer, String, AccountAddress, Long, FinishableFuture<TxHash>>() {
           @Override
-          public FinishableFuture<TxHash> apply(Account t1, String t2, AccountAddress t3,
+          public FinishableFuture<TxHash> apply(Signer t1, String t2, AccountAddress t3,
               Long t4) {
             return future;
           }
@@ -130,10 +123,10 @@ public class AccountTemplateTest extends AbstractTestCase {
 
     final AccountTemplate accountTemplate = supplyAccountTemplate(base);
 
-    final Account owner = new AccountFactory().create(new AergoKeyGenerator().create());
-    final Account newOwner = new AccountFactory().create(new AergoKeyGenerator().create());
+    final Signer owner = new AergoKeyGenerator().create();
+    final AccountAddress newOwner = new AergoKeyGenerator().create().getAddress();
     final TxHash updateTxHash = accountTemplate.updateName(owner, randomUUID().toString(),
-        newOwner.getAddress(), owner.incrementAndGetNonce());
+        newOwner, 0L);
     assertNotNull(updateTxHash);
     assertEquals(ACCOUNT_UPDATE_NAME,
         ((WithIdentity) accountTemplate.getUpdateNameFunction()).getIdentity());
@@ -167,18 +160,17 @@ public class AccountTemplateTest extends AbstractTestCase {
     final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
     future.success(mockHash);
     when(base.getStakingFunction()).thenReturn(
-        new Function3<Account, Aer, Long, FinishableFuture<TxHash>>() {
+        new Function3<Signer, Aer, Long, FinishableFuture<TxHash>>() {
           @Override
-          public FinishableFuture<TxHash> apply(Account t1, Aer t2, Long t4) {
+          public FinishableFuture<TxHash> apply(Signer t1, Aer t2, Long t4) {
             return future;
           }
         });
 
     final AccountTemplate accountTemplate = supplyAccountTemplate(base);
 
-    final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
-    final TxHash stakingTxHash =
-        accountTemplate.stake(account, Aer.GIGA_ONE, account.incrementAndGetNonce());
+    final Signer signer = new AergoKeyGenerator().create();
+    final TxHash stakingTxHash = accountTemplate.stake(signer, Aer.GIGA_ONE, 0L);
     assertNotNull(stakingTxHash);
     assertEquals(ACCOUNT_STAKING,
         ((WithIdentity) accountTemplate.getStakingFunction()).getIdentity());
@@ -191,18 +183,17 @@ public class AccountTemplateTest extends AbstractTestCase {
     final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
     future.success(mockHash);
     when(base.getUnstakingFunction()).thenReturn(
-        new Function3<Account, Aer, Long, FinishableFuture<TxHash>>() {
+        new Function3<Signer, Aer, Long, FinishableFuture<TxHash>>() {
           @Override
-          public FinishableFuture<TxHash> apply(Account t1, Aer t2, Long t4) {
+          public FinishableFuture<TxHash> apply(Signer t1, Aer t2, Long t4) {
             return future;
           }
         });
 
     final AccountTemplate accountTemplate = supplyAccountTemplate(base);
 
-    final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
-    final TxHash unstakingTxHash =
-        accountTemplate.unstake(account, Aer.GIGA_ONE, account.incrementAndGetNonce());
+    final Signer signer = new AergoKeyGenerator().create();
+    final TxHash unstakingTxHash = accountTemplate.unstake(signer, Aer.GIGA_ONE, 0L);
     assertNotNull(unstakingTxHash);
     assertEquals(ACCOUNT_UNSTAKING,
         ((WithIdentity) accountTemplate.getUnstakingFunction()).getIdentity());
@@ -223,58 +214,11 @@ public class AccountTemplateTest extends AbstractTestCase {
 
     final AccountTemplate accountTemplate = supplyAccountTemplate(base);
 
-    final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
-    final StakeInfo stakingInfo = accountTemplate.getStakingInfo(account.getAddress());
+    final Signer signer = new AergoKeyGenerator().create();
+    final StakeInfo stakingInfo = accountTemplate.getStakingInfo(signer.getPrincipal());
     assertNotNull(stakingInfo);
     assertEquals(ACCOUNT_GETSTAKINGINFO,
         ((WithIdentity) accountTemplate.getStakingInfoFunction()).getIdentity());
-  }
-
-  @Test
-  public void testSign() {
-    final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
-    final Transaction mockTransaction = mock(Transaction.class);
-    final FinishableFuture<Transaction> future = new FinishableFuture<Transaction>();
-    future.success(mockTransaction);
-    when(base.getSignFunction())
-        .thenReturn(new Function2<Account, RawTransaction, FinishableFuture<Transaction>>() {
-          @Override
-          public FinishableFuture<Transaction> apply(Account t1, RawTransaction t2) {
-            return future;
-          }
-        });
-
-    final AccountTemplate accountTemplate = supplyAccountTemplate(base);
-
-    final Account account = mock(Account.class);
-    final RawTransaction transaction = mock(RawTransaction.class);
-    final Transaction signedTransaction = accountTemplate.sign(account, transaction);
-    assertNotNull(signedTransaction);
-    assertEquals(ACCOUNT_SIGN, ((WithIdentity) accountTemplate.getSignFunction()).getIdentity());
-  }
-
-  @Test
-  public void testVerify() {
-    final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
-    final FinishableFuture<Boolean> future = new FinishableFuture<Boolean>();
-    future.success(true);
-    when(base.getVerifyFunction())
-        .thenReturn(new Function2<Account, Transaction, FinishableFuture<Boolean>>() {
-          @Override
-          public FinishableFuture<Boolean> apply(Account t1, Transaction t2) {
-            return future;
-          }
-        });
-
-    final AccountTemplate accountTemplate = supplyAccountTemplate(base);
-
-    final Account account = mock(Account.class);
-    final Transaction transaction = mock(Transaction.class);
-    final boolean verifyResult =
-        accountTemplate.verify(account, transaction);
-    assertNotNull(verifyResult);
-    assertEquals(ACCOUNT_VERIFY,
-        ((WithIdentity) accountTemplate.getVerifyFunction()).getIdentity());
   }
 
 }

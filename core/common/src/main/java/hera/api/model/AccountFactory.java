@@ -7,15 +7,16 @@ package hera.api.model;
 import static hera.util.ValidationUtils.assertNotNull;
 
 import hera.annotation.ApiAudience;
-import hera.annotation.ApiStability;
 import hera.api.model.internal.AccountWithAddress;
 import hera.api.model.internal.AccountWithAddressAndSigner;
 import hera.api.model.internal.AccountWithKey;
 import hera.key.AergoKey;
 import hera.transaction.TxSigner;
 
-@ApiAudience.Public
-@ApiStability.Unstable
+/**
+ * Will be removed in 1.2.
+ */
+@Deprecated
 public class AccountFactory {
 
   /**

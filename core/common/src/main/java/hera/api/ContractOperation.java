@@ -18,16 +18,17 @@ import hera.api.model.Event;
 import hera.api.model.EventFilter;
 import hera.api.model.Fee;
 import hera.api.model.Subscription;
+import hera.key.Signer;
 import java.util.List;
 
 /**
  * Provide contract related operations. It provides followings:
  *
  * <ul>
- *  <li>lookup contract transaction receipt</li>
- *  <li>getting already deployed contract interface</li>
- *  <li>deploying / executing / querying contract</li>
- *  <li>contract event related operations</li>
+ * <li>lookup contract transaction receipt</li>
+ * <li>getting already deployed contract interface</li>
+ * <li>deploying / executing / querying contract</li>
+ * <li>contract event related operations</li>
  * </ul>
  *
  * @author bylee, Taeik Lim
@@ -46,9 +47,9 @@ public interface ContractOperation {
   ContractTxReceipt getReceipt(ContractTxHash contractTxHash);
 
   /**
-   * Deploy smart contract.
+   * Will be removed in 1.2. Use {@link #deploy(Signer, ContractDefinition, long, Fee)} instead.
    *
-   * @param creator smart contract creator
+   * @param creator an creator account
    * @param contractDefinition contract definition
    * @param nonce an nonce used in making transaction
    * @return contract definition transaction hash
@@ -56,15 +57,27 @@ public interface ContractOperation {
   ContractTxHash deploy(Account creator, ContractDefinition contractDefinition, long nonce);
 
   /**
-   * Deploy smart contract.
+   * Will be removed in 1.2. Use {@link #deploy(Signer, ContractDefinition, long, Fee)} instead.
    *
-   * @param creator smart contract creator
+   * @param creator an creator account
    * @param contractDefinition contract definition
    * @param nonce an nonce used in making transaction
    * @param fee transaction fee
    * @return contract definition transaction hash
    */
   ContractTxHash deploy(Account creator, ContractDefinition contractDefinition, long nonce,
+      Fee fee);
+
+  /**
+   * Deploy smart contract.
+   *
+   * @param signer a signer whose principle is smart contract creator.
+   * @param contractDefinition contract definition
+   * @param nonce an nonce used in making transaction
+   * @param fee transaction fee
+   * @return contract definition transaction hash
+   */
+  ContractTxHash deploy(Signer signer, ContractDefinition contractDefinition, long nonce,
       Fee fee);
 
   /**
@@ -76,9 +89,9 @@ public interface ContractOperation {
   ContractInterface getContractInterface(ContractAddress contractAddress);
 
   /**
-   * Execute the smart contract.
+   * Will be removed in 1.2. Use {@link #execute(Signer, ContractInvocation, long, Fee)} instead.
    *
-   * @param executor smart contract executor
+   * @param executor an executor account
    * @param contractInvocation {@link ContractInvocation}
    * @param nonce an nonce used in making transaction
    * @return contract execution transaction hash
@@ -86,15 +99,27 @@ public interface ContractOperation {
   ContractTxHash execute(Account executor, ContractInvocation contractInvocation, long nonce);
 
   /**
-   * Execute the smart contract.
+   * Will be removed in 1.2. Use {@link #execute(Signer, ContractInvocation, long, Fee)} instead.
    *
-   * @param executor smart contract executor
+   * @param executor an executor account
    * @param contractInvocation {@link ContractInvocation}
    * @param nonce an nonce used in making transaction
    * @param fee transaction fee
    * @return contract execution transaction hash
    */
   ContractTxHash execute(Account executor, ContractInvocation contractInvocation, long nonce,
+      Fee fee);
+
+  /**
+   * Execute the smart contract.
+   *
+   * @param signer a signer which will execute smart contract.
+   * @param contractInvocation {@link ContractInvocation}
+   * @param nonce an nonce used in making transaction
+   * @param fee transaction fee
+   * @return contract execution transaction hash
+   */
+  ContractTxHash execute(Signer signer, ContractInvocation contractInvocation, long nonce,
       Fee fee);
 
   /**

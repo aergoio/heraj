@@ -22,20 +22,27 @@ import hera.api.function.Function4;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.model.AccountTotalVote;
 import hera.api.model.Aer;
+import hera.api.model.ElectedCandidate;
 import hera.api.model.RawTransaction;
 import hera.api.model.StakeInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.client.ChannelInjectable;
 import hera.exception.TransactionVerificationException;
+import hera.key.Signer;
 import hera.transaction.TxSigner;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.AccountStateConverterFactory;
+import hera.transport.AccountTotalVoteConverterFactory;
+import hera.transport.ElectedCandidateConverterFactory;
 import hera.transport.ModelConverter;
 import hera.transport.StakeInfoConverterFactory;
 import hera.transport.TransactionConverterFactory;
 import io.grpc.ManagedChannel;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -59,6 +66,12 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
 
   protected final ModelConverter<Transaction, Blockchain.Tx> transactionConverter =
       new TransactionConverterFactory().create();
+
+  protected final ModelConverter<ElectedCandidate, Rpc.Vote> electedCandidateConverter =
+      new ElectedCandidateConverterFactory().create();
+
+  protected final ModelConverter<AccountTotalVote, Rpc.AccountVoteInfo> accountTotalVoteConverter =
+      new AccountTotalVoteConverterFactory().create();
 
   @Getter
   protected AergoRPCServiceFutureStub aergoService;
@@ -115,8 +128,9 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
       };
 
   @Getter
-  private final Function3<Account, String, Long, FinishableFuture<TxHash>> createNameFunction =
-      new Function3<Account, String, Long, FinishableFuture<TxHash>>() {
+  private final Function3<Account, String, Long,
+      FinishableFuture<TxHash>> deprecatedCreateNameFunction = new Function3<
+          Account, String, Long, FinishableFuture<TxHash>>() {
 
         @Override
         public FinishableFuture<TxHash> apply(final Account account, final String name,
@@ -136,8 +150,29 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
       };
 
   @Getter
+  private final Function3<Signer, String, Long, FinishableFuture<TxHash>> createNameFunction =
+      new Function3<Signer, String, Long, FinishableFuture<TxHash>>() {
+
+        @Override
+        public FinishableFuture<TxHash> apply(final Signer signer, final String name,
+            final Long nonce) {
+          logger.debug("Create account name with signer: {}, name: {}, nonce: {}",
+              signer.getPrincipal(), name, nonce);
+
+          final RawTransaction rawTransaction = RawTransaction.newCreateNameTxBuilder()
+              .chainIdHash(contextProvider.get().getChainIdHash())
+              .from(signer.getPrincipal())
+              .nonce(nonce)
+              .name(name)
+              .build();
+          final Transaction signed = signer.sign(rawTransaction);
+          return transactionBaseTemplate.getCommitFunction().apply(signed);
+        }
+      };
+
+  @Getter
   private final Function4<Account, String, AccountAddress, Long,
-      FinishableFuture<TxHash>> updateNameFunction = new Function4<Account, String,
+      FinishableFuture<TxHash>> deprecatedUpdateNameFunction = new Function4<Account, String,
           AccountAddress, Long, FinishableFuture<TxHash>>() {
 
         @Override
@@ -154,6 +189,29 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
               .newOwner(newOwner)
               .build();
           final Transaction signed = getSignFunction().apply(owner, rawTransaction).get();
+          return transactionBaseTemplate.getCommitFunction().apply(signed);
+        }
+      };
+
+  @Getter
+  private final Function4<Signer, String, AccountAddress, Long,
+      FinishableFuture<TxHash>> updateNameFunction = new Function4<Signer, String,
+          AccountAddress, Long, FinishableFuture<TxHash>>() {
+
+        @Override
+        public FinishableFuture<TxHash> apply(final Signer signer, final String name,
+            final AccountAddress newOwner, final Long nonce) {
+          logger.debug("Update account name with signer: {}, name: {}, to account: {}, nonce: {}",
+              signer, name, newOwner, nonce);
+
+          final RawTransaction rawTransaction = RawTransaction.newUpdateNameTxBuilder()
+              .chainIdHash(contextProvider.get().getChainIdHash())
+              .from(signer.getPrincipal())
+              .nonce(nonce)
+              .name(name)
+              .newOwner(newOwner)
+              .build();
+          final Transaction signed = signer.sign(rawTransaction);
           return transactionBaseTemplate.getCommitFunction().apply(signed);
         }
       };
@@ -189,7 +247,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
       };
 
   @Getter
-  private final Function3<Account, Aer, Long, FinishableFuture<TxHash>> stakingFunction =
+  private final Function3<Account, Aer, Long, FinishableFuture<TxHash>> deprecatedStakingFunction =
       new Function3<Account, Aer, Long, FinishableFuture<TxHash>>() {
 
         @Override
@@ -210,8 +268,30 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
       };
 
   @Getter
-  private final Function3<Account, Aer, Long, FinishableFuture<TxHash>> unstakingFunction =
-      new Function3<Account, Aer, Long, FinishableFuture<TxHash>>() {
+  private final Function3<Signer, Aer, Long, FinishableFuture<TxHash>> stakingFunction =
+      new Function3<Signer, Aer, Long, FinishableFuture<TxHash>>() {
+
+        @Override
+        public FinishableFuture<TxHash> apply(final Signer signer, final Aer amount,
+            final Long nonce) {
+          logger.debug("Staking account with signer: {}, amount: {}, nonce: {}",
+              signer.getPrincipal(), amount, nonce);
+
+          final RawTransaction rawTransaction = RawTransaction.newStakeTxBuilder()
+              .chainIdHash(contextProvider.get().getChainIdHash())
+              .from(signer.getPrincipal())
+              .amount(amount)
+              .nonce(nonce)
+              .build();
+          final Transaction signed = signer.sign(rawTransaction);
+          return transactionBaseTemplate.getCommitFunction().apply(signed);
+        }
+      };
+
+  @Getter
+  private final Function3<Account, Aer, Long,
+      FinishableFuture<TxHash>> deprecatedUnstakingFunction = new Function3<Account,
+          Aer, Long, FinishableFuture<TxHash>>() {
 
         @Override
         public FinishableFuture<TxHash> apply(final Account account, final Aer amount,
@@ -230,6 +310,26 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
         }
       };
 
+  @Getter
+  private final Function3<Signer, Aer, Long, FinishableFuture<TxHash>> unstakingFunction =
+      new Function3<Signer, Aer, Long, FinishableFuture<TxHash>>() {
+
+        @Override
+        public FinishableFuture<TxHash> apply(final Signer signer, final Aer amount,
+            final Long nonce) {
+          logger.debug("Unstaking account with signer: {}, amount: {}, nonce: {}",
+              signer.getPrincipal(), amount, nonce);
+
+          final RawTransaction rawTransaction = RawTransaction.newUnstakeTxBuilder()
+              .chainIdHash(contextProvider.get().getChainIdHash())
+              .from(signer.getPrincipal())
+              .amount(amount)
+              .nonce(nonce)
+              .build();
+          final Transaction signed = signer.sign(rawTransaction);
+          return transactionBaseTemplate.getCommitFunction().apply(signed);
+        }
+      };
 
   @Getter
   private final Function1<AccountAddress, FinishableFuture<StakeInfo>> stakingInfoFunction =
@@ -327,6 +427,108 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
                   new TransactionVerificationException(result.getError());
                 }
                 return true;
+              }
+            });
+            addCallback(listenableFuture, callback, directExecutor());
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+          return nextFuture;
+        }
+      };
+
+  @Getter
+  private final Function4<Signer, String, List<String>, Long,
+      FinishableFuture<TxHash>> voteFunction = new Function4<
+          Signer, String, List<String>, Long, FinishableFuture<TxHash>>() {
+
+        @Override
+        public FinishableFuture<TxHash> apply(final Signer signer, final String voteId,
+            final List<String> candidates, final Long nonce) {
+          logger.debug("Voting with signer: }, voteId: {}, candidates: {}, nonce: {}",
+              signer.getPrincipal(), voteId, candidates, nonce);
+
+          final RawTransaction rawTransaction = RawTransaction.newVoteTxBuilder()
+              .chainIdHash(contextProvider.get().getChainIdHash())
+              .from(signer.getPrincipal())
+              .nonce(nonce)
+              .voteId(voteId)
+              .candidates(candidates)
+              .build();
+          final Transaction signed = signer.sign(rawTransaction);
+          return transactionBaseTemplate.getCommitFunction().apply(signed);
+        }
+      };
+
+  @Getter
+  private final Function2<String, Integer,
+      FinishableFuture<List<ElectedCandidate>>> listElectedFunction = new Function2<
+          String, Integer, FinishableFuture<List<ElectedCandidate>>>() {
+
+        @Override
+        public FinishableFuture<List<ElectedCandidate>> apply(final String voteId,
+            final Integer showCount) {
+          logger.debug("Get votes status with voteId: {}, showCount: {}", voteId, showCount);
+
+          FinishableFuture<List<ElectedCandidate>> nextFuture =
+              new FinishableFuture<List<ElectedCandidate>>();
+          try {
+            final Rpc.VoteParams rpcVoteParams = Rpc.VoteParams.newBuilder()
+                .setId(voteId)
+                .setCount(showCount)
+                .build();
+            logger.trace("AergoService getVotes arg: {}", rpcVoteParams);
+
+            ListenableFuture<Rpc.VoteList> listenableFuture = aergoService.getVotes(rpcVoteParams);
+            FutureChain<Rpc.VoteList, List<ElectedCandidate>> callback =
+                new FutureChain<Rpc.VoteList, List<ElectedCandidate>>(nextFuture,
+                    contextProvider.get());
+            callback.setSuccessHandler(new Function1<Rpc.VoteList, List<ElectedCandidate>>() {
+
+              @Override
+              public List<ElectedCandidate> apply(final Rpc.VoteList rpcVoteList) {
+                final List<ElectedCandidate> electedCandidates = new ArrayList<ElectedCandidate>();
+                for (final Rpc.Vote rpcCandidate : rpcVoteList.getVotesList()) {
+                  final ElectedCandidate domainElectedCandidate =
+                      electedCandidateConverter.convertToDomainModel(rpcCandidate);
+                  electedCandidates.add(domainElectedCandidate);
+                }
+                return electedCandidates;
+              }
+            });
+            addCallback(listenableFuture, callback, directExecutor());
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+          return nextFuture;
+        }
+      };
+
+  @Getter
+  private final Function1<AccountAddress, FinishableFuture<AccountTotalVote>> votesOfFunction =
+      new Function1<AccountAddress, FinishableFuture<AccountTotalVote>>() {
+
+        @Override
+        public FinishableFuture<AccountTotalVote> apply(final AccountAddress accountAddress) {
+          logger.debug("Get votes with address: {}", accountAddress);
+
+          FinishableFuture<AccountTotalVote> nextFuture = new FinishableFuture<AccountTotalVote>();
+          try {
+            final Rpc.AccountAddress rpcAddress = Rpc.AccountAddress.newBuilder()
+                .setValue(accountAddressConverter.convertToRpcModel(accountAddress))
+                .build();
+            logger.trace("AergoService getAccountVotes arg: {}", rpcAddress);
+
+            ListenableFuture<Rpc.AccountVoteInfo> listenableFuture =
+                aergoService.getAccountVotes(rpcAddress);
+            FutureChain<Rpc.AccountVoteInfo, AccountTotalVote> callback =
+                new FutureChain<Rpc.AccountVoteInfo, AccountTotalVote>(nextFuture,
+                    contextProvider.get());
+            callback.setSuccessHandler(new Function1<Rpc.AccountVoteInfo, AccountTotalVote>() {
+
+              @Override
+              public AccountTotalVote apply(final Rpc.AccountVoteInfo rpcAccountVoteTotal) {
+                return accountTotalVoteConverter.convertToDomainModel(rpcAccountVoteTotal);
               }
             });
             addCallback(listenableFuture, callback, directExecutor());

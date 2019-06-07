@@ -4,12 +4,12 @@
 
 package hera.api.model;
 
-import hera.annotation.ApiAudience;
-import hera.annotation.ApiStability;
 import hera.key.AergoKey;
 
-@ApiAudience.Public
-@ApiStability.Unstable
+/**
+ * Will be removed in 1.2.
+ */
+@Deprecated
 public interface Account {
 
   /**

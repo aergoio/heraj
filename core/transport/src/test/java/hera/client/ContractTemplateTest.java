@@ -25,7 +25,6 @@ import hera.api.function.Function1;
 import hera.api.function.Function2;
 import hera.api.function.Function4;
 import hera.api.function.WithIdentity;
-import hera.api.model.Account;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
@@ -44,6 +43,7 @@ import hera.api.model.Subscription;
 import hera.client.internal.ContractBaseTemplate;
 import hera.client.internal.FinishableFuture;
 import hera.key.AergoKeyGenerator;
+import hera.key.Signer;
 import hera.spec.ContractDefinitionSpec;
 import hera.util.Base58Utils;
 import java.util.ArrayList;
@@ -109,9 +109,9 @@ public class ContractTemplateTest extends AbstractTestCase {
     final FinishableFuture<ContractTxHash> future = new FinishableFuture<ContractTxHash>();
     future.success(new ContractTxHash(of(randomUUID().toString().getBytes())));
     when(base.getDeployFunction()).thenReturn(
-        new Function4<Account, ContractDefinition, Long, Fee, FinishableFuture<ContractTxHash>>() {
+        new Function4<Signer, ContractDefinition, Long, Fee, FinishableFuture<ContractTxHash>>() {
           @Override
-          public FinishableFuture<ContractTxHash> apply(Account t1, ContractDefinition t2,
+          public FinishableFuture<ContractTxHash> apply(Signer t1, ContractDefinition t2,
               Long t3, Fee t4) {
             return future;
           }
@@ -119,10 +119,10 @@ public class ContractTemplateTest extends AbstractTestCase {
 
     final ContractTemplate contractTemplate = supplyContractTemplate(base);
 
-    Account account = mock(Account.class);
+    Signer signer = new AergoKeyGenerator().create();
     final ContractDefinition definition =
         ContractDefinition.newBuilder().encodedContract(encodedContract).build();
-    final ContractTxHash deployTxHash = contractTemplate.deploy(account, definition, 0L);
+    final ContractTxHash deployTxHash = contractTemplate.deploy(signer, definition, 0L, Fee.ZERO);
     assertNotNull(deployTxHash);
     assertEquals(CONTRACT_DEPLOY,
         ((WithIdentity) contractTemplate.getDeployFunction()).getIdentity());
@@ -157,9 +157,9 @@ public class ContractTemplateTest extends AbstractTestCase {
     final FinishableFuture<ContractTxHash> future = new FinishableFuture<ContractTxHash>();
     future.success(new ContractTxHash(of(randomUUID().toString().getBytes())));
     when(base.getExecuteFunction()).thenReturn(
-        new Function4<Account, ContractInvocation, Long, Fee, FinishableFuture<ContractTxHash>>() {
+        new Function4<Signer, ContractInvocation, Long, Fee, FinishableFuture<ContractTxHash>>() {
           @Override
-          public FinishableFuture<ContractTxHash> apply(Account t1, ContractInvocation t2,
+          public FinishableFuture<ContractTxHash> apply(Signer t1, ContractInvocation t2,
               Long t3, Fee t4) {
             return future;
           }
@@ -167,11 +167,11 @@ public class ContractTemplateTest extends AbstractTestCase {
 
     final ContractTemplate contractTemplate = supplyContractTemplate(base);
 
-    final Account account = mock(Account.class);
+    final Signer signer = new AergoKeyGenerator().create();
     final ContractInvocation invocation =
         contractInterface.newInvocationBuilder().function(functionName).build();
-    final ContractTxHash executionTxHash = contractTemplate
-        .execute(account, invocation, 0L);
+    final ContractTxHash executionTxHash =
+        contractTemplate.execute(signer, invocation, 0L, Fee.ZERO);
     assertNotNull(executionTxHash);
     assertEquals(CONTRACT_EXECUTE,
         ((WithIdentity) contractTemplate.getExecuteFunction()).getIdentity());

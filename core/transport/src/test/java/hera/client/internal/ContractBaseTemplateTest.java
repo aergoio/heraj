@@ -16,9 +16,6 @@ import hera.AbstractTestCase;
 import hera.Context;
 import hera.ContextProvider;
 import hera.api.function.Function1;
-import hera.api.function.Function2;
-import hera.api.model.Account;
-import hera.api.model.AccountFactory;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
@@ -31,12 +28,12 @@ import hera.api.model.ContractTxReceipt;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
 import hera.api.model.Fee;
-import hera.api.model.RawTransaction;
 import hera.api.model.StateVariable;
 import hera.api.model.Subscription;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.key.AergoKeyGenerator;
+import hera.key.Signer;
 import hera.spec.ContractDefinitionSpec;
 import hera.util.Base58Utils;
 import java.util.ArrayList;
@@ -59,7 +56,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
 
   protected String functionName = randomUUID().toString();
 
-  protected final Fee fee = Fee.getDefaultFee();
+  protected final Fee fee = Fee.ZERO;
 
   protected final AergoKeyGenerator generator = new AergoKeyGenerator();
 
@@ -121,17 +118,6 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
   public void testDeploy() {
     final AergoRPCServiceFutureStub futureService = mock(AergoRPCServiceFutureStub.class);
 
-    AccountBaseTemplate mockAccountBaseTemplate = mock(AccountBaseTemplate.class);
-    final Transaction mockSignedTransaction = mock(Transaction.class);
-    when(mockAccountBaseTemplate.getSignFunction())
-        .thenReturn(new Function2<Account, RawTransaction, FinishableFuture<Transaction>>() {
-          @Override
-          public FinishableFuture<Transaction> apply(Account t1, RawTransaction t2) {
-            final FinishableFuture<Transaction> future = new FinishableFuture<Transaction>();
-            future.success(mockSignedTransaction);
-            return future;
-          }
-        });
     TransactionBaseTemplate mockTransactionBaseTemplate = mock(TransactionBaseTemplate.class);
     when(mockTransactionBaseTemplate.getCommitFunction())
         .thenReturn(new Function1<Transaction, FinishableFuture<TxHash>>() {
@@ -144,13 +130,12 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
         });
 
     final ContractBaseTemplate contractBaseTemplate = supplyContractBaseTemplate(futureService);
-    contractBaseTemplate.accountBaseTemplate = mockAccountBaseTemplate;
     contractBaseTemplate.transactionBaseTemplate = mockTransactionBaseTemplate;
 
-    Account account = new AccountFactory().create(accountAddress);
+    Signer signer = new AergoKeyGenerator().create();
     final FinishableFuture<ContractTxHash> deployTxHash = contractBaseTemplate
         .getDeployFunction()
-        .apply(account, ContractDefinition.newBuilder().encodedContract(encodedContract).build(),
+        .apply(signer, ContractDefinition.newBuilder().encodedContract(encodedContract).build(),
             0L, fee);
     assertNotNull(deployTxHash.get());
   }
@@ -178,17 +163,6 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
   public void testExecute() {
     final AergoRPCServiceFutureStub futureService = mock(AergoRPCServiceFutureStub.class);
 
-    AccountBaseTemplate mockAccountBaseTemplate = mock(AccountBaseTemplate.class);
-    final Transaction mockSignedTransaction = mock(Transaction.class);
-    when(mockAccountBaseTemplate.getSignFunction())
-        .thenReturn(new Function2<Account, RawTransaction, FinishableFuture<Transaction>>() {
-          @Override
-          public FinishableFuture<Transaction> apply(Account t1, RawTransaction t2) {
-            final FinishableFuture<Transaction> future = new FinishableFuture<Transaction>();
-            future.success(mockSignedTransaction);
-            return future;
-          }
-        });
     TransactionBaseTemplate mockTransactionBaseTemplate = mock(TransactionBaseTemplate.class);
     when(mockTransactionBaseTemplate.getCommitFunction())
         .thenReturn(new Function1<Transaction, FinishableFuture<TxHash>>() {
@@ -201,15 +175,14 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
         });
 
     final ContractBaseTemplate contractBaseTemplate = supplyContractBaseTemplate(futureService);
-    contractBaseTemplate.accountBaseTemplate = mockAccountBaseTemplate;
     contractBaseTemplate.transactionBaseTemplate = mockTransactionBaseTemplate;
 
-    final Account account = new AccountFactory().create(accountAddress);
+    final Signer signer = new AergoKeyGenerator().create();
 
     final ContractInvocation invocation =
         contractInterface.newInvocationBuilder().function(functionName).build();
     final FinishableFuture<ContractTxHash> executionTxHash =
-        contractBaseTemplate.getExecuteFunction().apply(account, invocation, 0L, fee);
+        contractBaseTemplate.getExecuteFunction().apply(signer, invocation, 0L, fee);
     assertNotNull(executionTxHash.get());
   }
 

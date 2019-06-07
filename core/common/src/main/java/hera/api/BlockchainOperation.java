@@ -18,15 +18,16 @@ import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
 import hera.api.model.ServerInfo;
 import hera.api.model.TxHash;
+import hera.key.Signer;
 import java.util.List;
 
 /**
  * Provide blockchain related operations. It provides followings:
  *
  * <ul>
- *  <li>lookup chain id hash</li>
- *  <li>lookup blockchain status, node status, peers, server info</li>
- *  <li>voting related operations</li>
+ * <li>lookup chain id hash</li>
+ * <li>lookup blockchain status, node status, peers, server info</li>
+ * <li>voting related operations</li>
  * </ul>
  *
  * @author Taeik Lim
@@ -98,10 +99,10 @@ public interface BlockchainOperation {
   NodeStatus getNodeStatus();
 
   /**
-   * Vote to {@code candidates}.
+   * Will be removed in 1.2. Use {@link AccountOperation#vote(Signer, String, List, long)} instead.
    *
-   * @param account an account to sign to voting transaction.
-   * @param voteId a vote id (pre-defined : "voteBP")
+   * @param account an account
+   * @param voteId a vote id
    * @param candidates a candidates
    * @param nonce an nonce which is used in a transaction
    *
@@ -110,20 +111,18 @@ public interface BlockchainOperation {
   TxHash vote(Account account, String voteId, List<String> candidates, long nonce);
 
   /**
-   * Get elected candidates per {@code voteId} for current round.
+   * Will be removed in 1.2. Use {@link AccountOperation#listElected(String, int)} instead.
    *
    * @param voteId a vote id
    * @param showCount a show count
-   *
    * @return a vote total
    */
   List<ElectedCandidate> listElected(String voteId, int showCount);
 
   /**
-   * Get votes which {@code accountAddress} votes for.
+   * Will be removed in 1.2. Use {@link AccountOperation#getVotesOf(AccountAddress)} instead.
    *
    * @param accountAddress an account address
-   *
    * @return voting info
    */
   AccountTotalVote getVotesOf(AccountAddress accountAddress);

@@ -10,7 +10,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
@@ -80,21 +79,21 @@ public class KeyStoreOperationIT extends AbstractIT {
 
   @Test
   public void testImportAndExport() {
-    final Account account = supplyLocalAccount();
+    final AergoKey key = new AergoKeyGenerator().create();
     final String oldPassword = randomUUID().toString();
     final String newPassword = randomUUID().toString();
-    final EncryptedPrivateKey encrypted = account.getKey().export(oldPassword);
+    final EncryptedPrivateKey encrypted = key.export(oldPassword);
     final AccountAddress imported =
         aergoClient.getKeyStoreOperation().importKey(encrypted, oldPassword, newPassword);
 
-    assertTrue(aergoClient.getKeyStoreOperation().list().contains(account.getAddress()));
-    assertEquals(account.getAddress(), imported);
+    assertTrue(aergoClient.getKeyStoreOperation().list().contains(imported));
+    assertEquals(key.getAddress(), imported);
 
     final Authentication authentication = Authentication.of(imported, newPassword);
     final EncryptedPrivateKey exported =
         aergoClient.getKeyStoreOperation().exportKey(authentication);
-    final AergoKey key = AergoKey.of(exported, newPassword);
-    assertEquals(account.getAddress(), key.getAddress());
+    final AergoKey revived = AergoKey.of(exported, newPassword);
+    assertEquals(revived.getAddress(), key.getAddress());
   }
 
   @Test

@@ -9,20 +9,25 @@ import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.model.AccountTotalVote;
 import hera.api.model.Aer;
+import hera.api.model.ElectedCandidate;
 import hera.api.model.RawTransaction;
 import hera.api.model.StakeInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.key.AergoSignVerifier;
+import hera.key.Signer;
+import java.util.List;
 
 /**
  * Provide account related operations. It provides followings:
  *
  * <ul>
- *  <li>lookup account state</li>
- *  <li>naming related operations</li>
- *  <li>staking related operations</li>
- *  <li>signing / verifying</li>
+ * <li>lookup account state</li>
+ * <li>naming related operations</li>
+ * <li>staking related operations</li>
+ * <li>signing / verifying</li>
  * </ul>
  *
  * @author bylee, Taeik Lim
@@ -49,25 +54,47 @@ public interface AccountOperation {
   AccountState getState(AccountAddress address);
 
   /**
-   * Create name info of an account.
+   * Will be removed in 1.2. Use {@link #createName(Signer, String, long)} instead.
    *
    * @param account an account
    * @param name an new name
    * @param nonce an nonce which is used in a transaction
    * @return a create name transaction hash
    */
+  @Deprecated
   TxHash createName(Account account, String name, long nonce);
 
   /**
-   * Update name info of an account.
+   * Create name info of an account. Created name will be owned by {@code signer}.
    *
-   * @param owner an name owner
+   * @param signer a signer
+   * @param name an new name
+   * @param nonce an nonce which is used in a transaction
+   * @return a create name transaction hash
+   */
+  TxHash createName(Signer signer, String name, long nonce);
+
+  /**
+   * Will be removed in 1.2. Use {@link #updateName(Signer, String, AccountAddress, long)} instead.
+   *
+   * @param owner an account
    * @param name an already binded name
    * @param newOwner an new owner of name
    * @param nonce an nonce which is used in a transaction
    * @return a update name transaction hash
    */
   TxHash updateName(Account owner, String name, AccountAddress newOwner, long nonce);
+
+  /**
+   * Update name info of an account. An signer must be owner of {@code name}.
+   *
+   * @param signer a signer
+   * @param name an already binded name
+   * @param newOwner an new owner of name
+   * @param nonce an nonce which is used in a transaction
+   * @return a update name transaction hash
+   */
+  TxHash updateName(Signer signer, String name, AccountAddress newOwner, long nonce);
 
   /**
    * Get owner of an account name.
@@ -78,9 +105,9 @@ public interface AccountOperation {
   AccountAddress getNameOwner(String name);
 
   /**
-   * Staking an account with amount.
+   * Will be removed in 1.2. Use {@link #stake(Signer, Aer, long)} instead.
    *
-   * @param account an account to stake
+   * @param account an account
    * @param amount an amount to stake
    * @param nonce an nonce which is used in a transaction
    * @return a staking transaction hash
@@ -88,14 +115,34 @@ public interface AccountOperation {
   TxHash stake(Account account, Aer amount, long nonce);
 
   /**
-   * Unstaking an account with amount.
+   * Staking an account with amount. An {@code amount} will be staked by {@code signer}.
    *
-   * @param account an account to stake
+   * @param signer a signer
+   * @param amount an amount to stake
+   * @param nonce an nonce which is used in a transaction
+   * @return a staking transaction hash
+   */
+  TxHash stake(Signer signer, Aer amount, long nonce);
+
+  /**
+   * Will be removed in 1.2. Use {@link #unstake(Signer, Aer, long)} instead.
+   *
+   * @param account an account
    * @param amount an amount to stake
    * @param nonce an nonce which is used in a transaction
    * @return a staking transaction hash
    */
   TxHash unstake(Account account, Aer amount, long nonce);
+
+  /**
+   * Unstaking an account with amount.
+   *
+   * @param signer a signer
+   * @param amount an amount to stake
+   * @param nonce an nonce which is used in a transaction
+   * @return a staking transaction hash
+   */
+  TxHash unstake(Signer signer, Aer amount, long nonce);
 
   /**
    * Get staking information of {@code accountAddress}.
@@ -106,20 +153,56 @@ public interface AccountOperation {
   StakeInfo getStakingInfo(AccountAddress accountAddress);
 
   /**
-   * Sign for transaction.
+   * Vote to {@code candidates} with corresponding {@code voteId}. Pre-defined vote id is
+   * followings:
    *
-   * @param account account to sign
-   * @param rawTransaction raw transaction to sign
+   *
+   * <ul>
+   * <li>"voteBP"</li>
+   * </ul>
+   * A {@code signer} must have staked aergo.
+   *
+   * @param signer a signer
+   * @param voteId a vote id
+   * @param candidates a candidates
+   * @param nonce an nonce which is used in a transaction
+   *
+   * @return voting transaction hash
+   */
+  TxHash vote(Signer signer, String voteId, List<String> candidates, long nonce);
+
+  /**
+   * Get votes which {@code accountAddress} votes for.
+   *
+   * @param accountAddress an account address
+   * @return voting info
+   */
+  AccountTotalVote getVotesOf(AccountAddress accountAddress);
+
+  /**
+   * Get elected candidates per {@code voteId} for current round.
+   *
+   * @param voteId a vote id
+   * @param showCount a show count
+   * @return a vote total
+   */
+  List<ElectedCandidate> listElected(String voteId, int showCount);
+
+  /**
+   * Will be removed in 1.2. Use {@link Signer#sign(RawTransaction)} instead.
+   *
+   * @param account an account to sign
+   * @param rawTransaction a raw transaction to sign
    * @return signed transaction
    */
   Transaction sign(Account account, RawTransaction rawTransaction);
 
   /**
-   * Verify transaction.
+   * Will be removed in 1.2. Use {@link AergoSignVerifier#verify(Transaction)} instead.
    *
-   * @param account account to verify
-   * @param transaction transaction to verify
-   * @return verify result
+   * @param account an account to verify
+   * @param transaction a signed transaction to verify
+   * @return verification result
    */
   boolean verify(Account account, Transaction transaction);
 
