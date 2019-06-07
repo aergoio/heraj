@@ -7,14 +7,18 @@ package hera.client.it;
 import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockMetadata;
 import hera.api.model.BlockchainStatus;
+import hera.api.model.StreamObserver;
+import hera.api.model.Subscription;
 import hera.exception.RpcArgumentException;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import org.junit.Test;
 
 public class BlockOperationIT extends AbstractIT {
@@ -178,6 +182,60 @@ public class BlockOperationIT extends AbstractIT {
     } catch (RpcArgumentException e) {
       // good we expected this
     }
+  }
+
+  @Test
+  public void testBlockMetadataSubscription() throws InterruptedException {
+
+    final CountDownLatch latch = new CountDownLatch(3);
+    Subscription<BlockMetadata> subscription = aergoClient.getBlockOperation()
+        .subscribeNewBlockMetadata(new StreamObserver<BlockMetadata>() {
+
+          @Override
+          public void onNext(BlockMetadata value) {
+            logger.info("New block metadata: {}", value);
+            latch.countDown();
+          }
+
+          @Override
+          public void onError(Throwable t) {}
+
+          @Override
+          public void onCompleted() {}
+        });
+
+    Thread.sleep(5000L);
+    subscription.unsubscribe();
+
+    assertTrue(subscription.isUnsubscribed());
+    assertEquals(0, latch.getCount());
+  }
+
+  @Test
+  public void testBlockSubscription() throws InterruptedException {
+
+    final CountDownLatch latch = new CountDownLatch(3);
+    Subscription<Block> subscription = aergoClient.getBlockOperation()
+        .subscribeNewBlock(new StreamObserver<Block>() {
+
+          @Override
+          public void onNext(Block value) {
+            logger.info("New block: {}", value);
+            latch.countDown();
+          }
+
+          @Override
+          public void onError(Throwable t) {}
+
+          @Override
+          public void onCompleted() {}
+        });
+
+    Thread.sleep(5000L);
+    subscription.unsubscribe();
+
+    assertTrue(subscription.isUnsubscribed());
+    assertEquals(0, latch.getCount());
   }
 
 }

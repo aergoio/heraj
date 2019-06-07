@@ -33,6 +33,8 @@ public final class TransportConstants {
   public static final String BLOCK_LIST_METADATAS_BY_HEIGHT = "heraj.listmetadatas.height";
   public static final String BLOCK_GET_BLOCK_BY_HASH = "heraj.getblock.hash";
   public static final String BLOCK_GET_BLOCK_BY_HEIGHT = "heraj.getblock.height";
+  public static final String BLOCK_SUBSCRIBE_BLOCKMETADATA = "heraj.subscribe.blockmetadata";
+  public static final String BLOCK_SUBSCRIBE_BLOCK = "heraj.subscribe.block";
 
   public static final String BLOCKCHAIN_BLOCKCHAINSTATUS = "heraj.blockchainstatus";
   public static final String BLOCKCHAIN_CHAININFO = "heraj.chaininfo";

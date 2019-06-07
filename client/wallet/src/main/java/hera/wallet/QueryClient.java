@@ -306,6 +306,23 @@ public interface QueryClient extends Closeable {
   Block getBlock(long height);
 
   /**
+   * Subscribe block metadata stream which is triggered everytime new block is generated.
+   *
+   * @param observer a stream observer which is invoked on new block metadata
+   * @return a block subscription
+   */
+  Subscription<BlockMetadata> subscribeNewBlockMetadata(
+      hera.api.model.StreamObserver<BlockMetadata> observer);
+
+  /**
+   * Subscribe block stream which is triggered everytime new block is generated.
+   *
+   * @param observer a stream observer which is invoked on new block
+   * @return a block subscription
+   */
+  Subscription<Block> subscribeNewBlock(hera.api.model.StreamObserver<Block> observer);
+
+  /**
    * Get transaction.
    *
    * @param txHash transaction's hash

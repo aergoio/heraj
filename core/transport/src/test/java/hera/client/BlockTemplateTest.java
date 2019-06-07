@@ -10,6 +10,8 @@ import static hera.TransportConstants.BLOCK_GET_METADATA_BY_HASH;
 import static hera.TransportConstants.BLOCK_GET_METADATA_BY_HEIGHT;
 import static hera.TransportConstants.BLOCK_LIST_METADATAS_BY_HASH;
 import static hera.TransportConstants.BLOCK_LIST_METADATAS_BY_HEIGHT;
+import static hera.TransportConstants.BLOCK_SUBSCRIBE_BLOCK;
+import static hera.TransportConstants.BLOCK_SUBSCRIBE_BLOCKMETADATA;
 import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
@@ -25,6 +27,8 @@ import hera.api.function.WithIdentity;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockMetadata;
+import hera.api.model.StreamObserver;
+import hera.api.model.Subscription;
 import hera.client.internal.BlockBaseTemplate;
 import hera.client.internal.FinishableFuture;
 import java.util.ArrayList;
@@ -184,6 +188,50 @@ public class BlockTemplateTest extends AbstractTestCase {
     assertNotNull(block);
     assertEquals(BLOCK_GET_BLOCK_BY_HEIGHT,
         ((WithIdentity) blockTemplate.getBlockByHeightFunction()).getIdentity());
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testSubscribeBlockMetadata() {
+    final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
+    final Subscription<BlockMetadata> mockSubscription = mock(Subscription.class);
+    when(base.getSubscribeBlockMetadataFunction())
+        .thenReturn(new Function1<StreamObserver<BlockMetadata>, Subscription<BlockMetadata>>() {
+
+          @Override
+          public Subscription<BlockMetadata> apply(StreamObserver<BlockMetadata> t2) {
+            return mockSubscription;
+          }
+        });
+
+    final BlockTemplate blockTemplate = supplyBlockTemplate(base);
+
+    final Subscription<BlockMetadata> subscription = blockTemplate.subscribeNewBlockMetadata(null);
+    assertNotNull(subscription);
+    assertEquals(BLOCK_SUBSCRIBE_BLOCKMETADATA,
+        ((WithIdentity) blockTemplate.getSubscribeBlockMetadataFunction()).getIdentity());
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testSubscribeBlock() {
+    final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
+    final Subscription<Block> mockSubscription = mock(Subscription.class);
+    when(base.getSubscribeBlockFunction())
+        .thenReturn(new Function1<StreamObserver<Block>, Subscription<Block>>() {
+
+          @Override
+          public Subscription<Block> apply(StreamObserver<Block> t2) {
+            return mockSubscription;
+          }
+        });
+
+    final BlockTemplate blockTemplate = supplyBlockTemplate(base);
+
+    final Subscription<Block> subscription = blockTemplate.subscribeNewBlock(null);
+    assertNotNull(subscription);
+    assertEquals(BLOCK_SUBSCRIBE_BLOCK,
+        ((WithIdentity) blockTemplate.getSubscribeBlockFunction()).getIdentity());
   }
 
 }

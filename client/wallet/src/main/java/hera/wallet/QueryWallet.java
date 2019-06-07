@@ -30,6 +30,7 @@ import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
 import hera.api.model.ServerInfo;
 import hera.api.model.StakeInfo;
+import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
@@ -268,6 +269,27 @@ public abstract class QueryWallet implements QueryClient, Closeable {
     try {
       logger.debug("Get block with height: {}", height);
       return getAergoClient().getBlockOperation().getBlock(height);
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
+  }
+
+  @Override
+  public Subscription<BlockMetadata> subscribeNewBlockMetadata(
+      StreamObserver<BlockMetadata> observer) {
+    try {
+      logger.debug("Stream block metadata with observer: {}", observer);
+      return getAergoClient().getBlockOperation().subscribeNewBlockMetadata(observer);
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
+  }
+
+  @Override
+  public Subscription<Block> subscribeNewBlock(StreamObserver<Block> observer) {
+    try {
+      logger.debug("Stream block with observer: {}", observer);
+      return getAergoClient().getBlockOperation().subscribeNewBlock(observer);
     } catch (Exception e) {
       throw exceptionConverter.convert(e);
     }

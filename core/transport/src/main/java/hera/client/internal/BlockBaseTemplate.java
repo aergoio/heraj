@@ -10,6 +10,7 @@ import static hera.util.TransportUtils.assertArgument;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
+import static types.AergoRPCServiceGrpc.newStub;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.ContextProvider;
@@ -21,16 +22,21 @@ import hera.api.function.Function2;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockMetadata;
+import hera.api.model.Subscription;
 import hera.client.ChannelInjectable;
+import hera.client.stream.GrpcStreamObserverAdaptor;
+import hera.client.stream.GrpcStreamSubscription;
 import hera.transport.BlockConverterFactory;
 import hera.transport.BlockMetadataConverterFactory;
 import hera.transport.ModelConverter;
+import io.grpc.Context;
 import io.grpc.ManagedChannel;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
+import types.AergoRPCServiceGrpc.AergoRPCServiceStub;
 import types.Blockchain;
 import types.Rpc;
 
@@ -46,14 +52,15 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
   protected final ModelConverter<Block, Blockchain.Block> blockConverter =
       new BlockConverterFactory().create();
 
-  @Getter
   protected AergoRPCServiceFutureStub aergoService;
+  protected AergoRPCServiceStub streamService;
 
   protected ContextProvider contextProvider;
 
   @Override
   public void setChannel(final ManagedChannel channel) {
     this.aergoService = newFutureStub(channel);
+    this.streamService = newStub(channel);
   }
 
   @Override
@@ -294,6 +301,58 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
           }
 
           return nextFuture;
+        }
+      };
+
+  @Getter
+  private final Function1<hera.api.model.StreamObserver<BlockMetadata>,
+      Subscription<BlockMetadata>> subscribeBlockMetadataFunction = new Function1<
+          hera.api.model.StreamObserver<BlockMetadata>, Subscription<BlockMetadata>>() {
+
+        @Override
+        public Subscription<BlockMetadata> apply(
+            final hera.api.model.StreamObserver<BlockMetadata> observer) {
+          logger.debug("Subscribe block metadata stream with observer {}", observer);
+
+          final Rpc.Empty blockMetadataStreamRequest = Rpc.Empty.newBuilder().build();
+          Context.CancellableContext cancellableContext = Context.current().withCancellation();
+          final io.grpc.stub.StreamObserver<Rpc.BlockMetadata> adaptor =
+              new GrpcStreamObserverAdaptor<Rpc.BlockMetadata, BlockMetadata>(cancellableContext,
+                  observer, blockMetadataConverter);
+          cancellableContext.run(new Runnable() {
+            @Override
+            public void run() {
+              streamService.listBlockMetadataStream(blockMetadataStreamRequest, adaptor);
+            }
+          });
+
+          return new GrpcStreamSubscription<BlockMetadata>(cancellableContext);
+        }
+      };
+
+  @Getter
+  private final Function1<hera.api.model.StreamObserver<Block>,
+      Subscription<Block>> subscribeBlockFunction = new Function1<
+          hera.api.model.StreamObserver<Block>, Subscription<Block>>() {
+
+        @Override
+        public Subscription<Block> apply(
+            final hera.api.model.StreamObserver<Block> observer) {
+          logger.debug("Subscribe block metadata stream with observer {}", observer);
+
+          final Rpc.Empty blockStreamRequest = Rpc.Empty.newBuilder().build();
+          Context.CancellableContext cancellableContext = Context.current().withCancellation();
+          final io.grpc.stub.StreamObserver<Blockchain.Block> adaptor =
+              new GrpcStreamObserverAdaptor<Blockchain.Block, Block>(cancellableContext,
+                  observer, blockConverter);
+          cancellableContext.run(new Runnable() {
+            @Override
+            public void run() {
+              streamService.listBlockStream(blockStreamRequest, adaptor);
+            }
+          });
+
+          return new GrpcStreamSubscription<Block>(cancellableContext);
         }
       };
 

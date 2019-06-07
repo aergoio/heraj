@@ -9,6 +9,7 @@ import hera.annotation.ApiStability;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockMetadata;
+import hera.api.model.Subscription;
 import java.util.List;
 
 /**
@@ -75,5 +76,22 @@ public interface BlockOperation {
    * @return block
    */
   Block getBlock(long height);
+
+  /**
+   * Subscribe block metadata stream which is triggered everytime new block is generated.
+   *
+   * @param observer a stream observer which is invoked on new block metadata
+   * @return a block subscription
+   */
+  Subscription<BlockMetadata> subscribeNewBlockMetadata(
+      hera.api.model.StreamObserver<BlockMetadata> observer);
+
+  /**
+   * Subscribe block stream which is triggered everytime new block is generated.
+   *
+   * @param observer a stream observer which is invoked on new block
+   * @return a block subscription
+   */
+  Subscription<Block> subscribeNewBlock(hera.api.model.StreamObserver<Block> observer);
 
 }

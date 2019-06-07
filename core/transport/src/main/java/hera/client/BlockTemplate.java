@@ -10,6 +10,8 @@ import static hera.TransportConstants.BLOCK_GET_METADATA_BY_HASH;
 import static hera.TransportConstants.BLOCK_GET_METADATA_BY_HEIGHT;
 import static hera.TransportConstants.BLOCK_LIST_METADATAS_BY_HASH;
 import static hera.TransportConstants.BLOCK_LIST_METADATAS_BY_HEIGHT;
+import static hera.TransportConstants.BLOCK_SUBSCRIBE_BLOCK;
+import static hera.TransportConstants.BLOCK_SUBSCRIBE_BLOCKMETADATA;
 import static hera.api.function.Functions.identify;
 
 import hera.ContextProvider;
@@ -22,6 +24,8 @@ import hera.api.function.Function2;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockMetadata;
+import hera.api.model.StreamObserver;
+import hera.api.model.Subscription;
 import hera.client.internal.BlockBaseTemplate;
 import hera.client.internal.FinishableFuture;
 import hera.strategy.StrategyChain;
@@ -91,6 +95,19 @@ public class BlockTemplate
       getStrategyChain().apply(
           identify(getBlockBaseTemplate().getBlockByHeightFunction(), BLOCK_GET_BLOCK_BY_HEIGHT));
 
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<StreamObserver<BlockMetadata>,
+      Subscription<BlockMetadata>> subscribeBlockMetadataFunction =
+          getStrategyChain().apply(
+              identify(getBlockBaseTemplate().getSubscribeBlockMetadataFunction(),
+                  BLOCK_SUBSCRIBE_BLOCKMETADATA));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function1<StreamObserver<Block>,
+      Subscription<Block>> subscribeBlockFunction =
+          getStrategyChain().apply(
+              identify(getBlockBaseTemplate().getSubscribeBlockFunction(), BLOCK_SUBSCRIBE_BLOCK));
+
   @Override
   public BlockMetadata getBlockMetadata(final BlockHash blockHash) {
     return getBlockMetadataByHashFunction().apply(blockHash).get();
@@ -121,6 +138,17 @@ public class BlockTemplate
   @Override
   public Block getBlock(final long height) {
     return getBlockByHeightFunction().apply(height).get();
+  }
+
+  @Override
+  public Subscription<BlockMetadata> subscribeNewBlockMetadata(
+      final StreamObserver<BlockMetadata> observer) {
+    return getSubscribeBlockMetadataFunction().apply(observer);
+  }
+
+  @Override
+  public Subscription<Block> subscribeNewBlock(final StreamObserver<Block> observer) {
+    return getSubscribeBlockFunction().apply(observer);
   }
 
 }

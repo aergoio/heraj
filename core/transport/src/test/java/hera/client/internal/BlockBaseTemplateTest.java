@@ -18,16 +18,17 @@ import hera.ContextProvider;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockMetadata;
-import hera.client.internal.BlockBaseTemplate;
+import hera.api.model.Subscription;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
+import types.AergoRPCServiceGrpc.AergoRPCServiceStub;
 import types.Blockchain;
 import types.Rpc;
 
-@PrepareForTest({AergoRPCServiceFutureStub.class})
+@PrepareForTest({AergoRPCServiceFutureStub.class, AergoRPCServiceStub.class})
 public class BlockBaseTemplateTest extends AbstractTestCase {
 
   @Override
@@ -39,6 +40,19 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
       final AergoRPCServiceFutureStub aergoService) {
     final BlockBaseTemplate blockBaseTemplate = new BlockBaseTemplate();
     blockBaseTemplate.aergoService = aergoService;
+    blockBaseTemplate.contextProvider = new ContextProvider() {
+      @Override
+      public Context get() {
+        return context;
+      }
+    };
+    return blockBaseTemplate;
+  }
+
+  protected BlockBaseTemplate supplyBlockBaseTemplate(
+      final AergoRPCServiceStub streamService) {
+    final BlockBaseTemplate blockBaseTemplate = new BlockBaseTemplate();
+    blockBaseTemplate.streamService = streamService;
     blockBaseTemplate.contextProvider = new ContextProvider() {
       @Override
       public Context get() {
@@ -169,6 +183,26 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
     final FinishableFuture<Block> block =
         blockBaseTemplate.getBlockByHeightFunction().apply(10L);
     assertNotNull(block.get());
+  }
+
+  @Test
+  public void testSubscribeBlockMetadata() {
+    final AergoRPCServiceStub streamService = mock(AergoRPCServiceStub.class);
+    final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(streamService);
+
+    final Subscription<BlockMetadata> subscription =
+        blockBaseTemplate.getSubscribeBlockMetadataFunction().apply(null);
+    assertNotNull(subscription);
+  }
+
+  @Test
+  public void testSubscribeBlock() {
+    final AergoRPCServiceStub streamService = mock(AergoRPCServiceStub.class);
+    final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(streamService);
+
+    final Subscription<Block> subscription =
+        blockBaseTemplate.getSubscribeBlockFunction().apply(null);
+    assertNotNull(subscription);
   }
 
 }
