@@ -7,13 +7,21 @@ package hera.transaction;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountState;
 
 @ApiAudience.Public
 @ApiStability.Unstable
 public interface NonceProvider {
 
   /**
-   * Bind nonce of {@code accountAddress}. Next time nonce is required, it will be provided on base
+   * Bind nonce of {@link AccountState#getAddress()} with {@link AccountState#getNonce()}.
+   *
+   * @param accountState an account state
+   */
+  void bindNonce(AccountState accountState);
+
+  /**
+   * Bind nonce to {@code accountAddress}. Next time nonce is required, it will be provided on base
    * of passed nonce.
    *
    * @param accountAddress an account address

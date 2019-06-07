@@ -4,11 +4,13 @@
 
 package hera.transaction;
 
+import static hera.util.ValidationUtils.assertNotNull;
 import static hera.util.ValidationUtils.assertTrue;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
+import hera.api.model.AccountState;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -45,7 +47,14 @@ public class SimpleNonceProvider implements NonceProvider {
   }
 
   @Override
+  public synchronized void bindNonce(final AccountState accountState) {
+    assertNotNull(accountState);
+    bindNonce(accountState.getAddress(), accountState.getNonce());
+  }
+
+  @Override
   public synchronized void bindNonce(final AccountAddress accountAddress, final long nonce) {
+    assertNotNull(accountAddress);
     address2Nonce.put(accountAddress, nonce);
   }
 
