@@ -47,6 +47,9 @@ public class Peer {
   @Getter
   protected boolean selfPeer;
 
+  @Getter
+  protected String version;
+
   /**
    * Peer constructor.
    *
@@ -59,16 +62,17 @@ public class Peer {
    * @param hidden whether a peer is hidden or not
    * @param lashCheck a lash check value
    * @param selfPeer whether it is a peer which have received request or not
+   * @param version a versoin
    */
   @ApiAudience.Private
-  public Peer(final InetAddress address, final int port, final String peerId,
-      final long bestHeight, final BlockHash bestBlockHash,
-      final int state, final boolean hidden,
-      final long lashCheck, final boolean selfPeer) {
+  public Peer(final InetAddress address, final int port, final String peerId, final long bestHeight,
+      final BlockHash bestBlockHash, final int state, final boolean hidden, final long lashCheck,
+      final boolean selfPeer, final String version) {
     assertNotNull(address, "Peer address must not null");
     assertNotNull(peerId, "Peer id must not null");
     assertTrue(bestHeight >= 0L, "Peer best block height >= 0");
     assertNotNull(bestBlockHash, "Peer best block hash must not null");
+    assertNotNull(version, "Peer version must not null");
     this.address = address;
     this.port = port;
     this.peerId = peerId;
@@ -78,6 +82,7 @@ public class Peer {
     this.hidden = hidden;
     this.lashCheck = lashCheck;
     this.selfPeer = selfPeer;
+    this.version = version;
   }
 
 }

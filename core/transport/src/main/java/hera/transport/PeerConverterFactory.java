@@ -21,11 +21,12 @@ public class PeerConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final Function1<Peer, Rpc.Peer> domainConverter = new Function1<Peer, Rpc.Peer>() {
-    public Rpc.Peer apply(final Peer domainPeer) {
-      throw new UnsupportedOperationException();
-    }
-  };
+  protected final Function1<Peer,
+      Rpc.Peer> domainConverter = new Function1<Peer, Rpc.Peer>() {
+        public Rpc.Peer apply(final Peer domainPeer) {
+          throw new UnsupportedOperationException();
+        }
+      };
 
   protected final Function1<Rpc.Peer, Peer> rpcConverter = new Function1<Rpc.Peer, Peer>() {
 
@@ -41,7 +42,8 @@ public class PeerConverterFactory {
             rpcPeer.getState(),
             rpcPeer.getHidden(),
             rpcPeer.getLashCheck(),
-            rpcPeer.getSelfpeer());
+            rpcPeer.getSelfpeer(),
+            rpcPeer.getVersion());
         logger.trace("Domain peer converted: {}", domainPeer);
         return domainPeer;
       } catch (UnknownHostException e) {
