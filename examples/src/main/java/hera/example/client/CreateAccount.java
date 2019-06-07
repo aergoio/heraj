@@ -4,11 +4,7 @@
 
 package hera.example.client;
 
-import static java.util.UUID.randomUUID;
-
-import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.AccountFactory;
 import hera.api.model.EncryptedPrivateKey;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
@@ -19,13 +15,10 @@ import java.util.List;
 
 public class CreateAccount extends AbstractExample {
 
-  protected void createWithLocalKey() {
+  protected void createNewAergoKey() {
     // create aergokey
     final AergoKey key = new AergoKeyGenerator().create();
-
-    // create account
-    final Account account = new AccountFactory().create(key);
-    System.out.println("Created account: " + account);
+    System.out.println("Created key: " + key);
   }
 
   protected void createWithExported() {
@@ -34,10 +27,7 @@ public class CreateAccount extends AbstractExample {
         "47pArdc5PNS9HYY9jMMC7zAuHzytzsAuCYGm5jAUFuD3amQ4mQkvyUaPnmRVSPc2iWzVJpC9Z";
     final String encryptPassword = "password";
     final AergoKey key = AergoKey.of(encryptedKey, encryptPassword);
-
-    // create account
-    final Account account = new AccountFactory().create(key);
-    System.out.println("Created account: " + account);
+    System.out.println("Created key: " + key);
   }
 
   protected void createWithServerKeyStore() {
@@ -48,7 +38,7 @@ public class CreateAccount extends AbstractExample {
         .build();
 
     // create an account which store an encrypted key in a server
-    final String password = randomUUID().toString();
+    final String password = "some_password";
     final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
     System.out.println("Created account: " + created);
 
@@ -79,7 +69,7 @@ public class CreateAccount extends AbstractExample {
 
     // create aergokey
     final AergoKey key = new AergoKeyGenerator().create();
-    final String password = randomUUID().toString();
+    final String password = "some_password";
     final EncryptedPrivateKey encryptedKey = key.export(password);
 
     final AccountAddress imported =
@@ -106,7 +96,7 @@ public class CreateAccount extends AbstractExample {
 
   @Override
   public void run() {
-    createWithLocalKey();
+    createNewAergoKey();
     createWithExported();
     createWithServerKeyStore();
     importToServerKeyStore();

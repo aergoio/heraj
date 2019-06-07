@@ -4,8 +4,6 @@
 
 package hera.example.client;
 
-import hera.api.model.Account;
-import hera.api.model.AccountFactory;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInterface;
@@ -15,12 +13,16 @@ import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
+import hera.api.model.Fee;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.example.AbstractExample;
 import hera.key.AergoKeyGenerator;
+import hera.key.Signer;
+import hera.transaction.NonceProvider;
+import hera.transaction.SimpleNonceProvider;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Scanner;
@@ -38,10 +40,16 @@ public class ContractDeployAndExecute extends AbstractExample {
     aergoClient.cacheChainIdHash(aergoClient.getBlockchainOperation().getChainIdHash());
 
     // create an account
-    final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
+    final Signer signer = new AergoKeyGenerator().create();
+
+    // create an nonce provider
+    final NonceProvider nonceProvider = new SimpleNonceProvider();
+
+    // bind nonce state
+    nonceProvider.bindNonce(aergoClient.getAccountOperation().getState(signer.getPrincipal()));
 
     // funding account
-    fund(account.getAddress());
+    fund(signer.getPrincipal());
 
     // read contract in a payload form
     final InputStream inputStream = getClass().getResourceAsStream("/payload");
@@ -61,8 +69,8 @@ public class ContractDeployAndExecute extends AbstractExample {
     System.out.println("Contract definition: " + definition);
 
     // deploy contract definition
-    final ContractTxHash deployTxHash = aergoClient.getContractOperation().deploy(account,
-        definition, account.incrementAndGetNonce());
+    final ContractTxHash deployTxHash = aergoClient.getContractOperation().deploy(signer,
+        definition, nonceProvider.incrementAndGetNonce(signer.getPrincipal()), Fee.ZERO);
     System.out.println("Deploy hash: " + deployTxHash);
 
     sleep(1500L);
@@ -86,8 +94,8 @@ public class ContractDeployAndExecute extends AbstractExample {
     System.out.println("Contract invocation: " + execution);
 
     // execute
-    final ContractTxHash executionTxHash = aergoClient.getContractOperation().execute(account,
-        execution, account.incrementAndGetNonce());
+    final ContractTxHash executionTxHash = aergoClient.getContractOperation().execute(signer,
+        execution, nonceProvider.incrementAndGetNonce(signer.getPrincipal()), Fee.ZERO);
     System.out.println("Execution hash: " + executionTxHash);
 
     sleep(1500L);
@@ -124,11 +132,11 @@ public class ContractDeployAndExecute extends AbstractExample {
     System.out.println("Query invocation : " + queryForExecute);
 
     // request query invocation
-    final ContractResult executeResult = aergoClient.getContractOperation().query(queryForExecute);
+    final ContractResult queryResult = aergoClient.getContractOperation().query(queryForExecute);
     System.out.println("Query result: " + deployResult);
 
     try {
-      final Data data = executeResult.bind(Data.class);
+      final Data data = queryResult.bind(Data.class);
       System.out.println("Binded result: " + data);
     } catch (Exception e) {
       throw new IllegalStateException("Binding error", e);
@@ -149,10 +157,16 @@ public class ContractDeployAndExecute extends AbstractExample {
     aergoClient.cacheChainIdHash(aergoClient.getBlockchainOperation().getChainIdHash());
 
     // create an account
-    final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
+    final Signer signer = new AergoKeyGenerator().create();
+
+    // create an nonce provider
+    final NonceProvider nonceProvider = new SimpleNonceProvider();
+
+    // bind nonce state
+    nonceProvider.bindNonce(aergoClient.getAccountOperation().getState(signer.getPrincipal()));
 
     // funding account
-    fund(account.getAddress());
+    fund(signer.getPrincipal());
 
     // read contract in a payload form
     final InputStream inputStream = getClass().getResourceAsStream("/payload");
@@ -172,8 +186,8 @@ public class ContractDeployAndExecute extends AbstractExample {
     System.out.println("Contract definition: " + definition);
 
     // deploy contract definition
-    final ContractTxHash deployTxHash = aergoClient.getContractOperation().deploy(account,
-        definition, account.incrementAndGetNonce());
+    final ContractTxHash deployTxHash = aergoClient.getContractOperation().deploy(signer,
+        definition, nonceProvider.incrementAndGetNonce(signer.getPrincipal()), Fee.ZERO);
     System.out.println("Deploy hash: " + deployTxHash);
 
     sleep(1500L);
@@ -216,8 +230,10 @@ public class ContractDeployAndExecute extends AbstractExample {
         .function("set")
         .args("execKey", 70, "execute")
         .build();
-    aergoClient.getContractOperation().execute(account, execution, account.incrementAndGetNonce());
-    aergoClient.getContractOperation().execute(account, execution, account.incrementAndGetNonce());
+    aergoClient.getContractOperation().execute(signer, execution,
+        nonceProvider.incrementAndGetNonce(signer.getPrincipal()), Fee.ZERO);
+    aergoClient.getContractOperation().execute(signer, execution,
+        nonceProvider.incrementAndGetNonce(signer.getPrincipal()), Fee.ZERO);
 
     sleep(1500L);
 

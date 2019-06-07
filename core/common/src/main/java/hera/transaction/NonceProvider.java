@@ -14,7 +14,7 @@ import hera.api.model.AccountState;
 public interface NonceProvider {
 
   /**
-   * Bind nonce of {@link AccountState#getAddress()} with {@link AccountState#getNonce()}.
+   * Bind nonce of {@code accountState} with accountAddress of {@code accountState}.
    *
    * @param accountState an account state
    */

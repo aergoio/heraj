@@ -4,9 +4,7 @@
 
 package hera.example.client;
 
-import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.AccountFactory;
 import hera.api.model.Aer.Unit;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
@@ -15,6 +13,9 @@ import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.example.AbstractExample;
 import hera.key.AergoKeyGenerator;
+import hera.key.Signer;
+import hera.transaction.NonceProvider;
+import hera.transaction.SimpleNonceProvider;
 
 public class BuildTransactionAndCommit extends AbstractExample {
 
@@ -29,23 +30,28 @@ public class BuildTransactionAndCommit extends AbstractExample {
     aergoClient.cacheChainIdHash(aergoClient.getBlockchainOperation().getChainIdHash());
 
     // create an account
-    final Account account = new AccountFactory().create(new AergoKeyGenerator().create());
+    final Signer signer = new AergoKeyGenerator().create();
+
+    // create an nonce provider
+    final NonceProvider nonceProvider = new SimpleNonceProvider();
+
+    // bind nonce state
+    nonceProvider.bindNonce(aergoClient.getAccountOperation().getState(signer.getPrincipal()));
 
     // funding account
-    fund(account.getAddress());
+    fund(signer.getPrincipal());
 
     // make a transaction
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .chainIdHash(aergoClient.getCachedChainIdHash())
-        .from(account)
+        .from(signer.getPrincipal())
         .to(AccountAddress.of("AmLbHdVs4dNpRzyLirs8cKdV26rPJJxpVXG1w2LLZ9pKfqAHHdyg"))
         .amount("10", Unit.GAER)
-        .nonce(account.incrementAndGetNonce())
+        .nonce(nonceProvider.incrementAndGetNonce(signer.getPrincipal()))
         .build();
 
     // sign a transaction
-    final Transaction signedTransaction =
-        aergoClient.getAccountOperation().sign(account, rawTransaction);
+    final Transaction signedTransaction = signer.sign(rawTransaction);
 
     // commit request
     final TxHash txHash = aergoClient.getTransactionOperation().commit(signedTransaction);
