@@ -44,9 +44,9 @@ import org.slf4j.Logger;
     // in this case, use canonical byte array, not raw bytes
 <span class="fc" id="L45">    final byte[] rbyteArray = r.toByteArray();</span>
 <span class="fc" id="L46">    final byte[] sbyteArray = s.toByteArray();</span>
-<span class="pc bpc" id="L47" title="1 of 2 branches missed.">    if (logger.isTraceEnabled()) {</span>
-<span class="nc" id="L48">      logger.trace(&quot;Canonical r: {}, len: {}&quot;, HexUtils.encode(rbyteArray), rbyteArray.length);</span>
-<span class="nc" id="L49">      logger.trace(&quot;Canonical s: {}, len: {}&quot;, HexUtils.encode(sbyteArray), sbyteArray.length);</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">    if (logger.isTraceEnabled()) {</span>
+<span class="fc" id="L48">      logger.trace(&quot;Canonical r: {}, len: {}&quot;, HexUtils.encode(rbyteArray), rbyteArray.length);</span>
+<span class="fc" id="L49">      logger.trace(&quot;Canonical s: {}, len: {}&quot;, HexUtils.encode(sbyteArray), sbyteArray.length);</span>
     }
 
 <span class="fc" id="L52">    final byte[] serialized = new byte[6 + rbyteArray.length + sbyteArray.length];</span>

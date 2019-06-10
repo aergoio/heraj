@@ -34,12 +34,12 @@ import org.slf4j.Logger;
 <span class="nc" id="L34">                encodeHexa(domainAccountAddress.getBytesValue()));</span>
           }
           ByteString rpcAccountAddress;
-<span class="pc bpc" id="L37" title="1 of 2 branches missed.">          if (false == domainAccountAddress.getBytesValue().isEmpty()) {</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">          if (false == domainAccountAddress.getBytesValue().isEmpty()) {</span>
 <span class="fc" id="L38">            final byte[] withVersion = domainAccountAddress.getBytesValue().getValue();</span>
 <span class="fc" id="L39">            final byte[] withoutVersion = trim(withVersion);</span>
 <span class="fc" id="L40">            rpcAccountAddress = copyFrom(withoutVersion);</span>
 <span class="fc" id="L41">          } else {</span>
-<span class="nc" id="L42">            rpcAccountAddress = ByteString.EMPTY;</span>
+<span class="fc" id="L42">            rpcAccountAddress = ByteString.EMPTY;</span>
           }
 <span class="pc bpc" id="L44" title="1 of 2 branches missed.">          if (logger.isTraceEnabled()) {</span>
 <span class="nc" id="L45">            logger.trace(&quot;Rpc account address converted. hexa: {}&quot;,</span>

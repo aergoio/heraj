@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CreateNameTransactionBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.transaction</a> &gt; <span class="el_source">CreateNameTransactionBuilder.java</span></div><h1>CreateNameTransactionBuilder.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.transaction;
+
+import static hera.util.ValidationUtils.assertNotNull;
+
+import hera.api.model.Account;
+import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
+import hera.api.model.ChainIdHash;
+import hera.api.model.RawTransaction;
+import hera.api.model.Transaction.TxType;
+import hera.api.model.internal.GovernanceRecipient;
+import hera.spec.PayloadSpec.Type;
+import hera.spec.resolver.PayloadResolver;
+import hera.transaction.dsl.CreateNameTransaction;
+import hera.transaction.dsl.CreateNameTransaction.WithChainIdHash;
+import hera.transaction.dsl.CreateNameTransaction.WithChainIdHashAndSender;
+import hera.transaction.dsl.CreateNameTransaction.WithChainIdHashAndSenderAndNonce;
+import hera.transaction.dsl.CreateNameTransaction.WithReady;
+
+<span class="fc" id="L24">public class CreateNameTransactionBuilder implements</span>
+    CreateNameTransaction.WithNothing,
+    CreateNameTransaction.WithChainIdHash,
+    CreateNameTransaction.WithChainIdHashAndSender,
+    CreateNameTransaction.WithChainIdHashAndSenderAndNonce,
+    CreateNameTransaction.WithReady {
+
+  protected String name;
+
+<span class="fc" id="L33">  protected final PlainTransactionBuilder delegate = new PlainTransactionBuilder();</span>
+
+  @Override
+  public WithChainIdHash chainIdHash(final ChainIdHash chainIdHash) {
+<span class="fc" id="L37">    this.delegate.chainIdHash(chainIdHash);</span>
+<span class="fc" id="L38">    return this;</span>
+  }
+
+  @Override
+  public WithChainIdHashAndSender from(final String senderName) {
+<span class="nc" id="L43">    this.delegate.from(senderName);</span>
+<span class="nc" id="L44">    return this;</span>
+  }
+
+  @Override
+  public WithChainIdHashAndSender from(final Account sender) {
+<span class="nc" id="L49">    this.delegate.from(sender);</span>
+<span class="nc" id="L50">    return this;</span>
+  }
+
+  @Override
+  public WithChainIdHashAndSender from(final AccountAddress sender) {
+<span class="fc" id="L55">    this.delegate.from(sender);</span>
+<span class="fc" id="L56">    return this;</span>
+  }
+
+  @Override
+  public WithChainIdHashAndSenderAndNonce nonce(long nonce) {
+<span class="fc" id="L61">    this.delegate.nonce(nonce);</span>
+<span class="fc" id="L62">    return this;</span>
+  }
+
+  @Override
+  public WithReady name(final String name) {
+<span class="fc" id="L67">    assertNotNull(name);</span>
+<span class="fc" id="L68">    this.name = name;</span>
+<span class="fc" id="L69">    return this;</span>
+  }
+
+  @Override
+  public RawTransaction build() {
+<span class="fc" id="L74">    this.delegate.to(GovernanceRecipient.AERGO_NAME);</span>
+<span class="fc" id="L75">    this.delegate.amount(Aer.AERGO_ONE);</span>
+<span class="fc" id="L76">    this.delegate.payload(PayloadResolver.resolve(Type.CreateName, name));</span>
+<span class="fc" id="L77">    this.delegate.type(TxType.GOVERNANCE);</span>
+<span class="fc" id="L78">    return this.delegate.build();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -4,67 +4,104 @@
 
 package hera.api.model;
 
-import static hera.api.model.BytesValue.of;
 import static hera.util.ValidationUtils.assertNotNull;
-import static hera.util.VersionUtils.envelop;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Transaction.TxType;
-import hera.spec.AddressSpec;
+import hera.transaction.CreateNameTransactionBuilder;
+import hera.transaction.DeployContractTransactionBuilder;
+import hera.transaction.InvokeContractTransactionBuilder;
+import hera.transaction.PlainTransactionBuilder;
+import hera.transaction.StakeTransactionBuilder;
+import hera.transaction.UnstakeTransactionBuilder;
+import hera.transaction.UpdateNameTransactionBuilder;
+import hera.transaction.VoteTransactionBuilder;
+import hera.transaction.dsl.CreateNameTransaction;
+import hera.transaction.dsl.DeployContractTransaction;
+import hera.transaction.dsl.InvokeContractTransaction;
+import hera.transaction.dsl.PlainTransaction;
+import hera.transaction.dsl.StakeTransaction;
+import hera.transaction.dsl.UnstakeTransaction;
+import hera.transaction.dsl.UpdateNameTransaction;
+import hera.transaction.dsl.VoteTransaction;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L22">@ToString</span>
-<span class="pc bpc" id="L23" title="51 of 70 branches missed.">@EqualsAndHashCode</span>
+<span class="fc" id="L34">@ToString</span>
+<span class="pc bpc" id="L35" title="43 of 70 branches missed.">@EqualsAndHashCode</span>
 public class RawTransaction {
 
   @ApiAudience.Public
-  public static RawTransactionWithNothing newBuilder(final ChainIdHash chainIdHash) {
-<span class="fc" id="L28">    return new RawTransaction.Builder(chainIdHash);</span>
+  public static PlainTransaction.WithNothing newBuilder() {
+<span class="fc" id="L40">    return new PlainTransactionBuilder();</span>
   }
 
-  /**
-   * Copy {@code RawTransaction} except for nonce. Nonce is set as passed once.
-   *
-   * @param rawTransaction a raw transaction to copy
-   * @param nonce an new nonce
-   * @return a {@code RawTransaction} instance
-   */
   @ApiAudience.Public
-  public static RawTransaction copyOf(final RawTransaction rawTransaction, final long nonce) {
-<span class="nc" id="L40">    return new RawTransaction(rawTransaction.chainIdHash, rawTransaction.getSender(),</span>
-<span class="nc" id="L41">        rawTransaction.getRecipient(),</span>
-<span class="nc" id="L42">        rawTransaction.getAmount(), nonce, rawTransaction.getFee(), rawTransaction.getPayload(),</span>
-<span class="nc" id="L43">        rawTransaction.getTxType());</span>
+  public static PlainTransaction.WithChainIdHash newBuilder(final ChainIdHash chainIdHash) {
+<span class="fc" id="L45">    return new PlainTransactionBuilder().chainIdHash(chainIdHash);</span>
   }
 
-<span class="fc" id="L46">  @Getter</span>
+  @ApiAudience.Public
+  public static DeployContractTransaction.WithNothing newDeployContractBuilder() {
+<span class="fc" id="L50">    return new DeployContractTransactionBuilder();</span>
+  }
+
+  @ApiAudience.Public
+  public static InvokeContractTransaction.WithNothing newInvokeContractBuilder() {
+<span class="fc" id="L55">    return new InvokeContractTransactionBuilder();</span>
+  }
+
+  @ApiAudience.Public
+  public static CreateNameTransaction.WithNothing newCreateNameTxBuilder() {
+<span class="fc" id="L60">    return new CreateNameTransactionBuilder();</span>
+  }
+
+  @ApiAudience.Public
+  public static UpdateNameTransaction.WithNothing newUpdateNameTxBuilder() {
+<span class="fc" id="L65">    return new UpdateNameTransactionBuilder();</span>
+  }
+
+  @ApiAudience.Public
+  public static StakeTransaction.WithNothing newStakeTxBuilder() {
+<span class="fc" id="L70">    return new StakeTransactionBuilder();</span>
+  }
+
+  @ApiAudience.Public
+  public static UnstakeTransaction.WithNothing newUnstakeTxBuilder() {
+<span class="fc" id="L75">    return new UnstakeTransactionBuilder();</span>
+  }
+
+  @ApiAudience.Public
+  public static VoteTransaction.WithNothing newVoteTxBuilder() {
+<span class="fc" id="L80">    return new VoteTransactionBuilder();</span>
+  }
+
+<span class="fc" id="L83">  @Getter</span>
   protected final ChainIdHash chainIdHash;
 
-<span class="fc" id="L49">  @Getter</span>
+<span class="fc" id="L86">  @Getter</span>
   protected final AccountAddress sender;
 
-<span class="fc" id="L52">  @Getter</span>
+<span class="fc" id="L89">  @Getter</span>
   protected final AccountAddress recipient;
 
-<span class="fc" id="L55">  @Getter</span>
+<span class="fc" id="L92">  @Getter</span>
   protected final Aer amount;
 
-<span class="fc" id="L58">  @Getter</span>
+<span class="fc" id="L95">  @Getter</span>
   protected final Long nonce;
 
-<span class="fc" id="L61">  @Getter</span>
+<span class="fc" id="L98">  @Getter</span>
   protected final Fee fee;
 
-<span class="fc" id="L64">  @Getter</span>
+<span class="fc" id="L101">  @Getter</span>
   protected final BytesValue payload;
 
-<span class="fc" id="L67">  @Getter</span>
+<span class="fc" id="L104">  @Getter</span>
   protected final TxType txType;
 
   /**
@@ -83,152 +120,36 @@ public class RawTransaction {
   public RawTransaction(final ChainIdHash chainIdHash, final AccountAddress sender,
       final AccountAddress recipient,
       final Aer amount, final Long nonce, final Fee fee, final BytesValue payload,
-<span class="fc" id="L86">      final TxType txType) {</span>
-<span class="fc" id="L87">    assertNotNull(chainIdHash, &quot;Chain id hash must not null&quot;);</span>
-<span class="fc" id="L88">    this.chainIdHash = chainIdHash;</span>
-<span class="pc bpc" id="L89" title="1 of 2 branches missed.">    this.sender = null != sender ? sender : AccountAddress.of(BytesValue.EMPTY);</span>
-<span class="pc bpc" id="L90" title="1 of 2 branches missed.">    this.recipient = null != recipient ? recipient : AccountAddress.of(BytesValue.EMPTY);</span>
-<span class="fc bfc" id="L91" title="All 2 branches covered.">    this.amount = null != amount ? amount : Aer.EMPTY;</span>
-<span class="fc" id="L92">    this.nonce = nonce;</span>
-<span class="pc bpc" id="L93" title="1 of 2 branches missed.">    this.fee = null != fee ? fee : Fee.EMPTY;</span>
-<span class="pc bpc" id="L94" title="1 of 2 branches missed.">    this.payload = null != payload ? payload : BytesValue.EMPTY;</span>
-<span class="pc bpc" id="L95" title="1 of 2 branches missed.">    this.txType = null != txType ? txType : TxType.UNRECOGNIZED;</span>
-<span class="fc" id="L96">  }</span>
+<span class="fc" id="L123">      final TxType txType) {</span>
+<span class="fc" id="L124">    assertNotNull(chainIdHash, &quot;Chain id hash must not null&quot;);</span>
+<span class="fc" id="L125">    this.chainIdHash = chainIdHash;</span>
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">    this.sender = null != sender ? sender : AccountAddress.of(BytesValue.EMPTY);</span>
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">    this.recipient = null != recipient ? recipient : AccountAddress.of(BytesValue.EMPTY);</span>
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">    this.amount = null != amount ? amount : Aer.EMPTY;</span>
+<span class="fc" id="L129">    this.nonce = nonce;</span>
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">    this.fee = null != fee ? fee : Fee.EMPTY;</span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">    this.payload = null != payload ? payload : BytesValue.EMPTY;</span>
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">    this.txType = null != txType ? txType : TxType.UNRECOGNIZED;</span>
+<span class="fc" id="L133">  }</span>
 
-  public interface RawTransactionWithNothing {
-    RawTransactionWithSender from(String sender);
-
-    RawTransactionWithSender from(Account sender);
-
-    RawTransactionWithSender from(AccountAddress sender);
+  /**
+   * Return a {@code RawTransaction} with new chain id hash.
+   *
+   * @param chainIdHash a chain id hash
+   * @return a {@code RawTransaction} instance
+   */
+  public RawTransaction withChainIdHash(final ChainIdHash chainIdHash) {
+<span class="nc" id="L142">    return new RawTransaction(chainIdHash, sender, recipient, amount, nonce, fee, payload, txType);</span>
   }
 
-  public interface RawTransactionWithSender {
-    RawTransactionWithSenderAndRecipient to(String recipientName);
-
-    RawTransactionWithSenderAndRecipient to(Account recipient);
-
-    RawTransactionWithSenderAndRecipient to(AccountAddress recipient);
-
-  }
-
-  public interface RawTransactionWithSenderAndRecipient {
-    RawTransactionWithSenderAndRecipientAndAmount amount(String amount, Aer.Unit unit);
-
-    RawTransactionWithSenderAndRecipientAndAmount amount(Aer amount);
-  }
-
-  public interface RawTransactionWithSenderAndRecipientAndAmount {
-    RawTransactionWithReady nonce(long nonce);
-  }
-
-  public interface RawTransactionWithReady extends hera.util.Builder&lt;RawTransaction&gt; {
-    RawTransactionWithReady fee(Fee fee);
-
-    RawTransactionWithReady payload(BytesValue payload);
-
-    RawTransactionWithReady type(TxType txType);
-  }
-
-<span class="fc" id="L133">  @RequiredArgsConstructor</span>
-  protected static class Builder
-      implements RawTransactionWithNothing, RawTransactionWithSender,
-      RawTransactionWithSenderAndRecipient, RawTransactionWithSenderAndRecipientAndAmount,
-      RawTransactionWithReady {
-
-    private final ChainIdHash chainIdHash;
-
-    private AccountAddress sender;
-
-    private AccountAddress recipient;
-
-<span class="fc" id="L145">    private Aer amount = Aer.ZERO;</span>
-
-    private long nonce;
-
-<span class="fc" id="L149">    private Fee fee = Fee.ZERO;</span>
-
-<span class="fc" id="L151">    private BytesValue payload = BytesValue.EMPTY;</span>
-
-<span class="fc" id="L153">    private TxType txType = TxType.NORMAL;</span>
-
-    @Override
-    public RawTransactionWithSender from(final String sender) {
-<span class="fc" id="L157">      this.sender =</span>
-<span class="fc" id="L158">          new AccountAddress(of(envelop(sender.getBytes(), AddressSpec.PREFIX)));</span>
-<span class="fc" id="L159">      return this;</span>
-    }
-
-    @Override
-    public RawTransactionWithSender from(final Account sender) {
-<span class="fc" id="L164">      return from(sender.getAddress());</span>
-    }
-
-    @Override
-    public RawTransactionWithSender from(final AccountAddress sender) {
-<span class="fc" id="L169">      this.sender = sender;</span>
-<span class="fc" id="L170">      return this;</span>
-    }
-
-    @Override
-    public RawTransactionWithSenderAndRecipient to(final String recipient) {
-<span class="fc" id="L175">      this.recipient =</span>
-<span class="fc" id="L176">          new AccountAddress(of(envelop(recipient.getBytes(), AddressSpec.PREFIX)));</span>
-<span class="fc" id="L177">      return this;</span>
-    }
-
-    @Override
-    public RawTransactionWithSenderAndRecipient to(final Account recipient) {
-<span class="nc" id="L182">      return to(recipient.getAddress());</span>
-    }
-
-    @Override
-    public RawTransactionWithSenderAndRecipient to(final AccountAddress recipient) {
-<span class="fc" id="L187">      this.recipient = recipient;</span>
-<span class="fc" id="L188">      return this;</span>
-    }
-
-    @Override
-    public RawTransactionWithSenderAndRecipientAndAmount amount(final String amount,
-        final Aer.Unit unit) {
-<span class="fc" id="L194">      return amount(Aer.of(amount, unit));</span>
-    }
-
-    @Override
-    public RawTransactionWithSenderAndRecipientAndAmount amount(final Aer amount) {
-<span class="fc" id="L199">      this.amount = amount;</span>
-<span class="fc" id="L200">      return this;</span>
-    }
-
-    @Override
-    public RawTransactionWithReady nonce(final long nonce) {
-<span class="fc" id="L205">      this.nonce = nonce;</span>
-<span class="fc" id="L206">      return this;</span>
-    }
-
-    @Override
-    public RawTransactionWithReady fee(final Fee fee) {
-<span class="fc" id="L211">      this.fee = fee;</span>
-<span class="fc" id="L212">      return this;</span>
-    }
-
-    @Override
-    public RawTransactionWithReady payload(final BytesValue payload) {
-<span class="fc" id="L217">      this.payload = payload;</span>
-<span class="fc" id="L218">      return this;</span>
-    }
-
-    @Override
-    public RawTransactionWithReady type(final TxType txType) {
-<span class="fc" id="L223">      this.txType = txType;</span>
-<span class="fc" id="L224">      return this;</span>
-    }
-
-    @Override
-    public RawTransaction build() {
-<span class="fc" id="L229">      return new RawTransaction(chainIdHash, sender, recipient, amount, nonce, fee, payload,</span>
-          txType);
-    }
+  /**
+   * Return a {@code RawTransaction} with new nonce.
+   *
+   * @param nonce an new nonce
+   * @return a {@code RawTransaction} instance
+   */
+  public RawTransaction withNonce(final long nonce) {
+<span class="nc" id="L152">    return new RawTransaction(chainIdHash, sender, recipient, amount, nonce, fee, payload, txType);</span>
   }
 
 }

@@ -50,8 +50,8 @@ import org.slf4j.Logger;
 
     // Count leading zeros.
 <span class="fc" id="L52">    int zeros = 0;</span>
-<span class="pc bpc" id="L53" title="1 of 4 branches missed.">    while (zeros &lt; input.length &amp;&amp; input[zeros] == 0) {</span>
-<span class="fc" id="L54">      ++zeros;</span>
+<span class="pc bpc" id="L53" title="2 of 4 branches missed.">    while (zeros &lt; input.length &amp;&amp; input[zeros] == 0) {</span>
+<span class="nc" id="L54">      ++zeros;</span>
     }
 
 <span class="fc" id="L57">    int inputIndex = zeros;</span>
@@ -67,8 +67,8 @@ import org.slf4j.Logger;
 <span class="pc bpc" id="L67" title="2 of 4 branches missed.">    while (outputIndex &lt; encoded.length &amp;&amp; encoded[outputIndex] == ENCODED_ZERO) {</span>
 <span class="nc" id="L68">      ++outputIndex;</span>
     }
-<span class="fc bfc" id="L70" title="All 2 branches covered.">    while (--zeros &gt;= 0) {</span>
-<span class="fc" id="L71">      encoded[--outputIndex] = ENCODED_ZERO;</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">    while (--zeros &gt;= 0) {</span>
+<span class="nc" id="L71">      encoded[--outputIndex] = ENCODED_ZERO;</span>
     }
     // Return encoded string (including encoded leading zeros).
 <span class="fc" id="L74">    return new String(encoded, outputIndex, encoded.length - outputIndex);</span>

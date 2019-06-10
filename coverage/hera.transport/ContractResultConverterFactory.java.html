@@ -9,7 +9,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.function.Function1;
 import hera.api.model.ContractResult;
-import hera.client.ContractResultImpl;
+import hera.client.internal.ContractResultImpl;
 import org.slf4j.Logger;
 import types.Rpc;
 

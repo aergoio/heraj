@@ -11,62 +11,80 @@ import hera.annotation.ApiStability;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="nc bnc" id="L17" title="All 16 branches missed.">@EqualsAndHashCode(callSuper = true)</span>
-public class Block extends BlockHeader {
+<span class="nc" id="L18">@ToString</span>
+<span class="nc bnc" id="L19" title="All 30 branches missed.">@EqualsAndHashCode</span>
+public class Block {
 
-<span class="nc" id="L20">  @Getter</span>
+<span class="nc" id="L22">  @Getter</span>
+  protected final BlockHash hash;
+
+<span class="nc" id="L25">  @Getter</span>
+  protected final BlockHeader blockHeader;
+
+<span class="nc" id="L28">  @Getter</span>
   protected final List&lt;Transaction&gt; transactions;
 
   /**
    * Block constructor.
    *
+   * @param blockHash a block hash
    * @param blockHeader a block header
-   * @param transactions transactions of block
+   * @param transactions transactions in block
    */
   @ApiAudience.Private
-  public Block(final BlockHeader blockHeader, final List&lt;Transaction&gt; transactions) {
-<span class="nc" id="L31">    this(blockHeader.getChainId(), blockHeader.getHash(), blockHeader.getPreviousHash(),</span>
-<span class="nc" id="L32">        blockHeader.getBlockNumber(), blockHeader.getTimestamp(), blockHeader.getRootHash(),</span>
-<span class="nc" id="L33">        blockHeader.getTxRootHash(), blockHeader.getReceiptRootHash(),</span>
-<span class="nc" id="L34">        blockHeader.getConfirmsCount(), blockHeader.getPublicKey(), blockHeader.getSign(),</span>
-<span class="nc" id="L35">        blockHeader.getCoinbaseAccount(), blockHeader.getTxCount(), transactions);</span>
-<span class="nc" id="L36">  }</span>
+  public Block(final BlockHash blockHash, final BlockHeader blockHeader,
+<span class="fc" id="L40">      final List&lt;Transaction&gt; transactions) {</span>
+<span class="fc" id="L41">    this.hash = blockHash;</span>
+<span class="fc" id="L42">    this.blockHeader = blockHeader;</span>
+<span class="fc" id="L43">    this.transactions = unmodifiableList(transactions);</span>
+<span class="fc" id="L44">  }</span>
 
-  /**
-   * Block constructor.
-   *
-   * @param chainId a chain id
-   * @param hash a block hash
-   * @param previousHash a previous block hash
-   * @param blockNumber a block number
-   * @param timestamp a timestamp
-   * @param rootHash a block root hash
-   * @param txRootHash a tx root hash
-   * @param receiptRootHash a receipt root hash
-   * @param confirmsCount confirmsCount
-   * @param publicKey a public key
-   * @param sign a sign
-   * @param coinbaseAccount a coinbase account
-   * @param txCount a transaction count
-   * @param transactions transactions of block
-   */
-  @ApiAudience.Private
-  public Block(final Hash chainId, final BlockHash hash, final BlockHash previousHash,
-      final long blockNumber, final long timestamp, final BlockHash rootHash,
-      final TxHash txRootHash, final Hash receiptRootHash, final long confirmsCount,
-      final Hash publicKey, final Hash sign, final AccountAddress coinbaseAccount,
-      final long txCount, final List&lt;Transaction&gt; transactions) {
-<span class="fc" id="L62">    super(chainId, hash, previousHash, blockNumber, timestamp, rootHash, txRootHash,</span>
-        receiptRootHash, confirmsCount, publicKey, sign, coinbaseAccount, txCount);
-<span class="fc" id="L64">    this.transactions = unmodifiableList(transactions);</span>
-<span class="fc" id="L65">  }</span>
+  public BytesValue getChainId() {
+<span class="nc" id="L47">    return blockHeader.getChainId();</span>
+  }
 
-  @Override
-  public String toString() {
-<span class="nc" id="L69">    return String.format(&quot;Block(%s, transactions=%s)&quot;, super.toString(), transactions.toString());</span>
+  public BlockHash getPreviousHash() {
+<span class="nc" id="L51">    return blockHeader.getPreviousHash();</span>
+  }
+
+  public long getBlockNumber() {
+<span class="nc" id="L55">    return blockHeader.getBlockNumber();</span>
+  }
+
+  public long getTimestamp() {
+<span class="nc" id="L59">    return blockHeader.getTimestamp();</span>
+  }
+
+  public Hash getRootHash() {
+<span class="nc" id="L63">    return blockHeader.getRootHash();</span>
+  }
+
+  public Hash getTxRootHash() {
+<span class="nc" id="L67">    return blockHeader.getTxRootHash();</span>
+  }
+
+  public Hash getReceiptRootHash() {
+<span class="nc" id="L71">    return blockHeader.getReceiptRootHash();</span>
+  }
+
+  public long getConfirmsCount() {
+<span class="nc" id="L75">    return blockHeader.getConfirmsCount();</span>
+  }
+
+  public BytesValue getPublicKey() {
+<span class="nc" id="L79">    return blockHeader.getPublicKey();</span>
+  }
+
+  public AccountAddress getCoinbaseAccount() {
+<span class="nc" id="L83">    return blockHeader.getCoinbaseAccount();</span>
+  }
+
+  public Signature getSign() {
+<span class="nc" id="L87">    return blockHeader.getSign();</span>
   }
 
 }

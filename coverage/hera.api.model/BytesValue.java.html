@@ -57,7 +57,7 @@ public class BytesValue {
   @Override
   public int hashCode() {
 <span class="fc" id="L59">    int h = this.hash;</span>
-<span class="pc bpc" id="L60" title="2 of 4 branches missed.">    if (h == 0 &amp;&amp; this.value.length &gt; 0) {</span>
+<span class="fc bfc" id="L60" title="All 4 branches covered.">    if (h == 0 &amp;&amp; this.value.length &gt; 0) {</span>
 <span class="fc bfc" id="L61" title="All 2 branches covered.">      for (final byte byteValue : this.value) {</span>
 <span class="fc" id="L62">        h = 31 * h + byteValue;</span>
       }

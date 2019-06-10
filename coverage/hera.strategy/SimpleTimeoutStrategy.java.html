@@ -9,7 +9,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import hera.api.function.Function;
 import hera.api.function.Function0;
 import hera.api.model.internal.Time;
-import hera.client.FinishableFuture;
+import hera.client.internal.FinishableFuture;
 import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;

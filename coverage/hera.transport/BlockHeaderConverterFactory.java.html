@@ -12,55 +12,51 @@ import hera.api.model.AccountAddress;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockHeader;
 import hera.api.model.Hash;
-import hera.api.model.TxHash;
+import hera.api.model.Signature;
 import org.slf4j.Logger;
 import types.Blockchain;
-import types.Rpc;
 
-<span class="fc" id="L20">public class BlockHeaderConverterFactory {</span>
+<span class="fc" id="L19">public class BlockHeaderConverterFactory {</span>
 
-<span class="fc" id="L22">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L21">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L24">  protected final ModelConverter&lt;AccountAddress, com.google.protobuf.ByteString&gt; addressConverter =</span>
-<span class="fc" id="L25">      new AccountAddressConverterFactory().create();</span>
+<span class="fc" id="L23">  protected final ModelConverter&lt;AccountAddress, com.google.protobuf.ByteString&gt; addressConverter =</span>
+<span class="fc" id="L24">      new AccountAddressConverterFactory().create();</span>
 
-<span class="fc" id="L27">  protected final Function1&lt;BlockHeader, Rpc.BlockMetadata&gt; domainConverter =</span>
-<span class="fc" id="L28">      new Function1&lt;BlockHeader, Rpc.BlockMetadata&gt;() {</span>
+<span class="fc" id="L26">  protected final Function1&lt;BlockHeader, Blockchain.BlockHeader&gt; domainConverter =</span>
+<span class="fc" id="L27">      new Function1&lt;BlockHeader, Blockchain.BlockHeader&gt;() {</span>
 
         @Override
-        public Rpc.BlockMetadata apply(BlockHeader domainBlock) {
-<span class="nc" id="L32">          throw new UnsupportedOperationException();</span>
+        public Blockchain.BlockHeader apply(BlockHeader domainBlock) {
+<span class="nc" id="L31">          throw new UnsupportedOperationException();</span>
         }
       };
 
-<span class="fc" id="L36">  protected final Function1&lt;Rpc.BlockMetadata, BlockHeader&gt; rpcConverter =</span>
-<span class="fc" id="L37">      new Function1&lt;Rpc.BlockMetadata, BlockHeader&gt;() {</span>
+<span class="fc" id="L35">  protected final Function1&lt;Blockchain.BlockHeader, BlockHeader&gt; rpcConverter =</span>
+<span class="fc" id="L36">      new Function1&lt;Blockchain.BlockHeader, BlockHeader&gt;() {</span>
 
         @Override
-        public BlockHeader apply(final Rpc.BlockMetadata rpcBlockMetaData) {
-<span class="fc" id="L41">          logger.trace(&quot;Rpc block header to convert: {}&quot;, rpcBlockMetaData);</span>
-<span class="fc" id="L42">          final Blockchain.BlockHeader rpcBlockHeader = rpcBlockMetaData.getHeader();</span>
-<span class="fc" id="L43">          final BlockHeader domainBlockHeader = new BlockHeader(</span>
-<span class="fc" id="L44">              new Hash(of(rpcBlockHeader.getChainID().toByteArray())),</span>
-<span class="fc" id="L45">              new BlockHash(of(rpcBlockMetaData.getHash().toByteArray())),</span>
-<span class="fc" id="L46">              new BlockHash(of(rpcBlockHeader.getPrevBlockHash().toByteArray())),</span>
-<span class="fc" id="L47">              rpcBlockHeader.getBlockNo(),</span>
-<span class="fc" id="L48">              rpcBlockHeader.getTimestamp(),</span>
-<span class="fc" id="L49">              new BlockHash(of(rpcBlockHeader.getBlocksRootHash().toByteArray())),</span>
-<span class="fc" id="L50">              new TxHash(of(rpcBlockHeader.getTxsRootHash().toByteArray())),</span>
-<span class="fc" id="L51">              new Hash(of(rpcBlockHeader.getReceiptsRootHash().toByteArray())),</span>
-<span class="fc" id="L52">              rpcBlockHeader.getConfirms(),</span>
-<span class="fc" id="L53">              new Hash(of(rpcBlockHeader.getPubKey().toByteArray())),</span>
-<span class="fc" id="L54">              new Hash(of(rpcBlockHeader.getSign().toByteArray())),</span>
-<span class="fc" id="L55">              addressConverter.convertToDomainModel(rpcBlockHeader.getCoinbaseAccount()),</span>
-<span class="fc" id="L56">              rpcBlockMetaData.getTxcount());</span>
-<span class="fc" id="L57">          logger.trace(&quot;Domain block header converted: {}&quot;, domainBlockHeader);</span>
-<span class="fc" id="L58">          return domainBlockHeader;</span>
+        public BlockHeader apply(final Blockchain.BlockHeader rpcBlockHeader) {
+<span class="fc" id="L40">          logger.trace(&quot;Rpc block header to convert: {}&quot;, rpcBlockHeader);</span>
+<span class="fc" id="L41">          final BlockHeader domainBlockHeader = new BlockHeader(</span>
+<span class="fc" id="L42">              of(rpcBlockHeader.getChainID().toByteArray()),</span>
+<span class="fc" id="L43">              new BlockHash(of(rpcBlockHeader.getPrevBlockHash().toByteArray())),</span>
+<span class="fc" id="L44">              rpcBlockHeader.getBlockNo(),</span>
+<span class="fc" id="L45">              rpcBlockHeader.getTimestamp(),</span>
+<span class="fc" id="L46">              new BlockHash(of(rpcBlockHeader.getBlocksRootHash().toByteArray())),</span>
+<span class="fc" id="L47">              new Hash(of(rpcBlockHeader.getTxsRootHash().toByteArray())),</span>
+<span class="fc" id="L48">              new Hash(of(rpcBlockHeader.getReceiptsRootHash().toByteArray())),</span>
+<span class="fc" id="L49">              rpcBlockHeader.getConfirms(),</span>
+<span class="fc" id="L50">              of(rpcBlockHeader.getPubKey().toByteArray()),</span>
+<span class="fc" id="L51">              addressConverter.convertToDomainModel(rpcBlockHeader.getCoinbaseAccount()),</span>
+<span class="fc" id="L52">              new Signature(of(rpcBlockHeader.getSign().toByteArray())));</span>
+<span class="fc" id="L53">          logger.trace(&quot;Domain block header converted: {}&quot;, domainBlockHeader);</span>
+<span class="fc" id="L54">          return domainBlockHeader;</span>
         }
       };
 
-  public ModelConverter&lt;BlockHeader, Rpc.BlockMetadata&gt; create() {
-<span class="fc" id="L63">    return new ModelConverter&lt;BlockHeader, Rpc.BlockMetadata&gt;(domainConverter, rpcConverter);</span>
+  public ModelConverter&lt;BlockHeader, Blockchain.BlockHeader&gt; create() {
+<span class="fc" id="L59">    return new ModelConverter&lt;BlockHeader, Blockchain.BlockHeader&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

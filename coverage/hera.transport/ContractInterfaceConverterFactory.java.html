@@ -11,53 +11,66 @@ import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
+import hera.api.model.StateVariable;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import types.Blockchain;
 
-<span class="fc" id="L19">public class ContractInterfaceConverterFactory {</span>
+<span class="fc" id="L20">public class ContractInterfaceConverterFactory {</span>
 
-<span class="fc" id="L21">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L22">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L23">  protected final Function1&lt;ContractInterface, Blockchain.ABI&gt; domainConverter =</span>
-<span class="fc" id="L24">      new Function1&lt;ContractInterface, Blockchain.ABI&gt;() {</span>
+<span class="fc" id="L24">  protected final ModelConverter&lt;StateVariable, Blockchain.StateVar&gt; stateVariableConverter =</span>
+<span class="fc" id="L25">      new StateVariableConverterFactory().create();</span>
+
+<span class="fc" id="L27">  protected final Function1&lt;ContractInterface,</span>
+<span class="fc" id="L28">      Blockchain.ABI&gt; domainConverter = new Function1&lt;ContractInterface, Blockchain.ABI&gt;() {</span>
 
         @Override
         public Blockchain.ABI apply(final ContractInterface domainContractInterface) {
-<span class="nc" id="L28">          throw new UnsupportedOperationException();</span>
+<span class="nc" id="L32">          throw new UnsupportedOperationException();</span>
         }
       };
 
-<span class="fc" id="L32">  protected final Function1&lt;Blockchain.ABI, ContractInterface&gt; rpcConverter =</span>
-<span class="fc" id="L33">      new Function1&lt;Blockchain.ABI, ContractInterface&gt;() {</span>
+<span class="fc" id="L36">  protected final Function1&lt;Blockchain.ABI, ContractInterface&gt; rpcConverter =</span>
+<span class="fc" id="L37">      new Function1&lt;Blockchain.ABI, ContractInterface&gt;() {</span>
 
         @Override
         public ContractInterface apply(final Blockchain.ABI rpcContractInterface) {
-<span class="fc" id="L37">          logger.trace(&quot;Rpc contract interface to convert: {}&quot;, rpcContractInterface);</span>
-<span class="fc" id="L38">          final List&lt;ContractFunction&gt; domainFunctions = new ArrayList&lt;ContractFunction&gt;();</span>
-<span class="pc bpc" id="L39" title="1 of 2 branches missed.">          for (final Blockchain.Function rpcFunction : rpcContractInterface.getFunctionsList()) {</span>
-<span class="nc" id="L40">            final List&lt;String&gt; domainArguments = new ArrayList&lt;String&gt;();</span>
-<span class="nc bnc" id="L41" title="All 2 branches missed.">            for (final Blockchain.FnArgument rpcArgument : rpcFunction.getArgumentsList()) {</span>
-<span class="nc" id="L42">              domainArguments.add(rpcArgument.getName());</span>
-<span class="nc" id="L43">            }</span>
-<span class="nc" id="L44">            final ContractFunction domainContractFunction =</span>
-<span class="nc" id="L45">                new ContractFunction(rpcFunction.getName(), domainArguments,</span>
-<span class="nc" id="L46">                    rpcFunction.getPayable(), rpcFunction.getView());</span>
-<span class="nc" id="L47">            domainFunctions.add(domainContractFunction);</span>
-<span class="nc" id="L48">          }</span>
-<span class="fc" id="L49">          final ContractInterface domainContractInterface =</span>
+<span class="fc" id="L41">          logger.trace(&quot;Rpc contract interface to convert: {}&quot;, rpcContractInterface);</span>
+
+<span class="fc" id="L43">          final List&lt;ContractFunction&gt; domainFunctions = new ArrayList&lt;ContractFunction&gt;();</span>
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">          for (final Blockchain.Function rpcFunction : rpcContractInterface.getFunctionsList()) {</span>
+<span class="nc" id="L45">            final List&lt;String&gt; domainArguments = new ArrayList&lt;String&gt;();</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">            for (final Blockchain.FnArgument rpcArgument : rpcFunction.getArgumentsList()) {</span>
+<span class="nc" id="L47">              domainArguments.add(rpcArgument.getName());</span>
+<span class="nc" id="L48">            }</span>
+<span class="nc" id="L49">            final ContractFunction domainContractFunction =</span>
+<span class="nc" id="L50">                new ContractFunction(rpcFunction.getName(), domainArguments,</span>
+<span class="nc" id="L51">                    rpcFunction.getPayable(), rpcFunction.getView());</span>
+<span class="nc" id="L52">            domainFunctions.add(domainContractFunction);</span>
+<span class="nc" id="L53">          }</span>
+
+<span class="fc" id="L55">          final List&lt;StateVariable&gt; domainStateVariables = new ArrayList&lt;StateVariable&gt;();</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">          for (final Blockchain.StateVar rpcStateVariable : rpcContractInterface</span>
+<span class="fc" id="L57">              .getStateVariablesList()) {</span>
+<span class="nc" id="L58">            domainStateVariables.add(stateVariableConverter.convertToDomainModel(rpcStateVariable));</span>
+<span class="nc" id="L59">          }</span>
+
+<span class="fc" id="L61">          final ContractInterface domainContractInterface =</span>
               new ContractInterface(new ContractAddress(BytesValue.EMPTY),
-<span class="fc" id="L51">                  rpcContractInterface.getVersion(),</span>
-<span class="fc" id="L52">                  rpcContractInterface.getLanguage(),</span>
-                  domainFunctions);
-<span class="fc" id="L54">          logger.trace(&quot;Domain contract interface converted: {}&quot;, domainContractInterface);</span>
-<span class="fc" id="L55">          return domainContractInterface;</span>
+<span class="fc" id="L63">                  rpcContractInterface.getVersion(),</span>
+<span class="fc" id="L64">                  rpcContractInterface.getLanguage(),</span>
+                  domainFunctions,
+                  domainStateVariables);
+<span class="fc" id="L67">          logger.trace(&quot;Domain contract interface converted: {}&quot;, domainContractInterface);</span>
+<span class="fc" id="L68">          return domainContractInterface;</span>
         }
       };
 
   public ModelConverter&lt;ContractInterface, Blockchain.ABI&gt; create() {
-<span class="fc" id="L60">    return new ModelConverter&lt;ContractInterface, Blockchain.ABI&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L73">    return new ModelConverter&lt;ContractInterface, Blockchain.ABI&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

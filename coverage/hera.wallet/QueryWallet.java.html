@@ -12,10 +12,11 @@ import hera.api.model.AccountState;
 import hera.api.model.AccountTotalVote;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
-import hera.api.model.BlockHeader;
+import hera.api.model.BlockMetadata;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.ChainIdHash;
 import hera.api.model.ChainInfo;
+import hera.api.model.ChainStats;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
@@ -30,6 +31,7 @@ import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
 import hera.api.model.ServerInfo;
 import hera.api.model.StakeInfo;
+import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
@@ -45,281 +47,322 @@ import org.slf4j.Logger;
 
 public abstract class QueryWallet implements QueryClient, Closeable {
 
-<span class="fc" id="L48">  protected final Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L50">  protected final Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L50">  protected final ExceptionConverter&lt;WalletException&gt; exceptionConverter =</span>
+<span class="fc" id="L52">  protected final ExceptionConverter&lt;WalletException&gt; exceptionConverter =</span>
       new WalletExceptionConverter();
 
-<span class="fc" id="L53">  @Getter(value = AccessLevel.PROTECTED)</span>
+<span class="fc" id="L55">  @Getter(value = AccessLevel.PROTECTED)</span>
   protected final AergoClient aergoClient;
 
-<span class="fc" id="L56">  protected QueryWallet(final AergoClient aergoClient) {</span>
-<span class="fc" id="L57">    logger.debug(&quot;Binded client: {}&quot;, aergoClient);</span>
-<span class="fc" id="L58">    this.aergoClient = aergoClient;</span>
-<span class="fc" id="L59">  }</span>
+<span class="fc" id="L58">  protected QueryWallet(final AergoClient aergoClient) {</span>
+<span class="fc" id="L59">    logger.debug(&quot;Binded client: {}&quot;, aergoClient);</span>
+<span class="fc" id="L60">    this.aergoClient = aergoClient;</span>
+<span class="fc" id="L61">  }</span>
 
   @Override
   public AccountState getAccountState(final Account account) {
-<span class="fc" id="L63">    return getAccountState(account.getAddress());</span>
+<span class="fc" id="L65">    return getAccountState(account.getAddress());</span>
   }
 
   @Override
   public AccountState getAccountState(final AccountAddress accountAddress) {
     try {
-<span class="fc" id="L69">      logger.debug(&quot;Get account state of {}&quot;, accountAddress);</span>
-<span class="fc" id="L70">      return getAergoClient().getAccountOperation().getState(accountAddress);</span>
-<span class="fc" id="L71">    } catch (Exception e) {</span>
-<span class="fc" id="L72">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L71">      logger.debug(&quot;Get account state of {}&quot;, accountAddress);</span>
+<span class="fc" id="L72">      return getAergoClient().getAccountOperation().getState(accountAddress);</span>
+<span class="fc" id="L73">    } catch (Exception e) {</span>
+<span class="fc" id="L74">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
   public AccountAddress getNameOwner(final String name) {
     try {
-<span class="fc" id="L79">      logger.debug(&quot;Get name owner of {}&quot;, name);</span>
-<span class="fc" id="L80">      return getAergoClient().getAccountOperation().getNameOwner(name);</span>
-<span class="nc" id="L81">    } catch (Exception e) {</span>
-<span class="nc" id="L82">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L81">      logger.debug(&quot;Get name owner of {}&quot;, name);</span>
+<span class="fc" id="L82">      return getAergoClient().getAccountOperation().getNameOwner(name);</span>
+<span class="nc" id="L83">    } catch (Exception e) {</span>
+<span class="nc" id="L84">      throw exceptionConverter.convert(e);</span>
+    }
+  }
+
+  @Override
+  public AccountAddress getNameOwner(final String name, final long blockNumber) {
+    try {
+<span class="nc" id="L91">      logger.debug(&quot;Get name owner of {}&quot;, name);</span>
+<span class="nc" id="L92">      return getAergoClient().getAccountOperation().getNameOwner(name, blockNumber);</span>
+<span class="nc" id="L93">    } catch (Exception e) {</span>
+<span class="nc" id="L94">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
   public StakeInfo getStakingInfo(final Account account) {
-<span class="fc" id="L88">    return getStakingInfo(account.getAddress());</span>
+<span class="fc" id="L100">    return getStakingInfo(account.getAddress());</span>
   }
 
   @Override
   public StakeInfo getStakingInfo(final AccountAddress accountAddress) {
     try {
-<span class="fc" id="L94">      logger.debug(&quot;Get staking info of {}&quot;, accountAddress);</span>
-<span class="fc" id="L95">      return getAergoClient().getAccountOperation().getStakingInfo(accountAddress);</span>
-<span class="nc" id="L96">    } catch (Exception e) {</span>
-<span class="nc" id="L97">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L106">      logger.debug(&quot;Get staking info of {}&quot;, accountAddress);</span>
+<span class="fc" id="L107">      return getAergoClient().getAccountOperation().getStakingInfo(accountAddress);</span>
+<span class="nc" id="L108">    } catch (Exception e) {</span>
+<span class="nc" id="L109">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
   public List&lt;ElectedCandidate&gt; listElectedBps(final int showCount) {
-<span class="nc" id="L103">    return listElected(&quot;voteBP&quot;, showCount);</span>
+<span class="nc" id="L115">    return listElected(&quot;voteBP&quot;, showCount);</span>
   }
 
   @Override
   public List&lt;ElectedCandidate&gt; listElected(String voteId, int showCount) {
     try {
-<span class="fc" id="L109">      logger.debug(&quot;List elected bps with show count: {}&quot;, showCount);</span>
-<span class="fc" id="L110">      return getAergoClient().getBlockchainOperation().listElected(voteId, showCount);</span>
-<span class="nc" id="L111">    } catch (Exception e) {</span>
-<span class="nc" id="L112">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L121">      logger.debug(&quot;List elected bps with show count: {}&quot;, showCount);</span>
+<span class="fc" id="L122">      return getAergoClient().getBlockchainOperation().listElected(voteId, showCount);</span>
+<span class="nc" id="L123">    } catch (Exception e) {</span>
+<span class="nc" id="L124">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
   public AccountTotalVote getVotesOf(Account account) {
-<span class="fc" id="L118">    return getVotesOf(account.getAddress());</span>
+<span class="fc" id="L130">    return getVotesOf(account.getAddress());</span>
   }
 
   @Override
   public AccountTotalVote getVotesOf(AccountAddress accountAddress) {
     try {
-<span class="fc" id="L124">      logger.debug(&quot;List votes of {}&quot;, accountAddress);</span>
-<span class="fc" id="L125">      return getAergoClient().getBlockchainOperation().getVotesOf(accountAddress);</span>
-<span class="nc" id="L126">    } catch (Exception e) {</span>
-<span class="nc" id="L127">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L136">      logger.debug(&quot;List votes of {}&quot;, accountAddress);</span>
+<span class="fc" id="L137">      return getAergoClient().getBlockchainOperation().getVotesOf(accountAddress);</span>
+<span class="nc" id="L138">    } catch (Exception e) {</span>
+<span class="nc" id="L139">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
   public List&lt;AccountAddress&gt; listServerKeyStoreAccounts() {
     try {
-<span class="fc" id="L134">      logger.debug(&quot;List server keystore stored addresses&quot;);</span>
-<span class="fc" id="L135">      return getAergoClient().getKeyStoreOperation().list();</span>
-<span class="nc" id="L136">    } catch (Exception e) {</span>
-<span class="nc" id="L137">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L146">      logger.debug(&quot;List server keystore stored addresses&quot;);</span>
+<span class="fc" id="L147">      return getAergoClient().getKeyStoreOperation().list();</span>
+<span class="nc" id="L148">    } catch (Exception e) {</span>
+<span class="nc" id="L149">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
   public BlockHash getBestBlockHash() {
-<span class="fc" id="L143">    return getBlockchainStatus().getBestBlockHash();</span>
+<span class="fc" id="L155">    return getBlockchainStatus().getBestBlockHash();</span>
   }
 
   @Override
   public long getBestBlockHeight() {
-<span class="fc" id="L148">    return getBlockchainStatus().getBestHeight();</span>
+<span class="fc" id="L160">    return getBlockchainStatus().getBestHeight();</span>
   }
 
   @Override
   public ChainIdHash getChainIdHash() {
-<span class="fc" id="L153">    return getBlockchainStatus().getChainIdHash();</span>
+<span class="fc" id="L165">    return getBlockchainStatus().getChainIdHash();</span>
   }
 
   @Override
   public BlockchainStatus getBlockchainStatus() {
     try {
-<span class="fc" id="L159">      logger.debug(&quot;Get blockchain status&quot;);</span>
-<span class="fc" id="L160">      return getAergoClient().getBlockchainOperation().getBlockchainStatus();</span>
-<span class="nc" id="L161">    } catch (Exception e) {</span>
-<span class="nc" id="L162">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L171">      logger.debug(&quot;Get blockchain status&quot;);</span>
+<span class="fc" id="L172">      return getAergoClient().getBlockchainOperation().getBlockchainStatus();</span>
+<span class="nc" id="L173">    } catch (Exception e) {</span>
+<span class="nc" id="L174">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
   public ChainInfo getChainInfo() {
     try {
-<span class="fc" id="L169">      logger.debug(&quot;Get chain info&quot;);</span>
-<span class="fc" id="L170">      return getAergoClient().getBlockchainOperation().getChainInfo();</span>
-<span class="nc" id="L171">    } catch (Exception e) {</span>
-<span class="nc" id="L172">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L181">      logger.debug(&quot;Get chain info&quot;);</span>
+<span class="fc" id="L182">      return getAergoClient().getBlockchainOperation().getChainInfo();</span>
+<span class="nc" id="L183">    } catch (Exception e) {</span>
+<span class="nc" id="L184">      throw exceptionConverter.convert(e);</span>
+    }
+  }
+
+  @Override
+  public ChainStats getChainStats() {
+    try {
+<span class="nc" id="L191">      logger.debug(&quot;Get chain stats&quot;);</span>
+<span class="nc" id="L192">      return getAergoClient().getBlockchainOperation().getChainStats();</span>
+<span class="nc" id="L193">    } catch (Exception e) {</span>
+<span class="nc" id="L194">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
   public List&lt;Peer&gt; listNodePeers() {
     try {
-<span class="fc" id="L179">      logger.debug(&quot;List peers info&quot;);</span>
-<span class="fc" id="L180">      return getAergoClient().getBlockchainOperation().listPeers();</span>
-<span class="nc" id="L181">    } catch (Exception e) {</span>
-<span class="nc" id="L182">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L201">      logger.debug(&quot;List peers info&quot;);</span>
+<span class="fc" id="L202">      return getAergoClient().getBlockchainOperation().listPeers();</span>
+<span class="nc" id="L203">    } catch (Exception e) {</span>
+<span class="nc" id="L204">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
   public List&lt;PeerMetric&gt; listPeerMetrics() {
     try {
-<span class="fc" id="L189">      logger.debug(&quot;List metric of peers&quot;);</span>
-<span class="fc" id="L190">      return getAergoClient().getBlockchainOperation().listPeerMetrics();</span>
-<span class="nc" id="L191">    } catch (Exception e) {</span>
-<span class="nc" id="L192">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L211">      logger.debug(&quot;List metric of peers&quot;);</span>
+<span class="fc" id="L212">      return getAergoClient().getBlockchainOperation().listPeerMetrics();</span>
+<span class="nc" id="L213">    } catch (Exception e) {</span>
+<span class="nc" id="L214">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
   public ServerInfo getServerInfo(final List&lt;String&gt; categories) {
     try {
-<span class="fc" id="L199">      logger.debug(&quot;Get server info&quot;);</span>
-<span class="fc" id="L200">      return getAergoClient().getBlockchainOperation().getServerInfo(categories);</span>
-<span class="nc" id="L201">    } catch (Exception e) {</span>
-<span class="nc" id="L202">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L221">      logger.debug(&quot;Get server info&quot;);</span>
+<span class="fc" id="L222">      return getAergoClient().getBlockchainOperation().getServerInfo(categories);</span>
+<span class="nc" id="L223">    } catch (Exception e) {</span>
+<span class="nc" id="L224">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
   public NodeStatus getNodeStatus() {
     try {
-<span class="fc" id="L209">      logger.debug(&quot;Get node status&quot;);</span>
-<span class="fc" id="L210">      return getAergoClient().getBlockchainOperation().getNodeStatus();</span>
-<span class="nc" id="L211">    } catch (Exception e) {</span>
-<span class="nc" id="L212">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L231">      logger.debug(&quot;Get node status&quot;);</span>
+<span class="fc" id="L232">      return getAergoClient().getBlockchainOperation().getNodeStatus();</span>
+<span class="nc" id="L233">    } catch (Exception e) {</span>
+<span class="nc" id="L234">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
-  public BlockHeader getBlockHeader(final BlockHash blockHash) {
+  public BlockMetadata getBlockMetadata(final BlockHash blockHash) {
     try {
-<span class="fc" id="L219">      logger.debug(&quot;Get block header with hash: {}&quot;, blockHash);</span>
-<span class="fc" id="L220">      return getAergoClient().getBlockOperation().getBlockHeader(blockHash);</span>
-<span class="nc" id="L221">    } catch (Exception e) {</span>
-<span class="nc" id="L222">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L241">      logger.debug(&quot;Get block metadata with hash: {}&quot;, blockHash);</span>
+<span class="fc" id="L242">      return getAergoClient().getBlockOperation().getBlockMetadata(blockHash);</span>
+<span class="nc" id="L243">    } catch (Exception e) {</span>
+<span class="nc" id="L244">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
-  public BlockHeader getBlockHeader(final long height) {
+  public BlockMetadata getBlockMetadata(final long height) {
     try {
-<span class="fc" id="L229">      logger.debug(&quot;Get block header with height: {}&quot;, height);</span>
-<span class="fc" id="L230">      return getAergoClient().getBlockOperation().getBlockHeader(height);</span>
-<span class="nc" id="L231">    } catch (Exception e) {</span>
-<span class="nc" id="L232">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L251">      logger.debug(&quot;Get block metadata with height: {}&quot;, height);</span>
+<span class="fc" id="L252">      return getAergoClient().getBlockOperation().getBlockMetadata(height);</span>
+<span class="nc" id="L253">    } catch (Exception e) {</span>
+<span class="nc" id="L254">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
-  public List&lt;BlockHeader&gt; listBlockHeaders(final BlockHash blockHash, final int size) {
+  public List&lt;BlockMetadata&gt; listBlockMetadatas(final BlockHash blockHash, final int size) {
     try {
-<span class="fc" id="L239">      logger.debug(&quot;List block headers with hash: {}, size: {}&quot;, blockHash, size);</span>
-<span class="fc" id="L240">      return getAergoClient().getBlockOperation().listBlockHeaders(blockHash, size);</span>
-<span class="nc" id="L241">    } catch (Exception e) {</span>
-<span class="nc" id="L242">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L261">      logger.debug(&quot;List block metadatas with hash: {}, size: {}&quot;, blockHash, size);</span>
+<span class="fc" id="L262">      return getAergoClient().getBlockOperation().listBlockMetadatas(blockHash, size);</span>
+<span class="nc" id="L263">    } catch (Exception e) {</span>
+<span class="nc" id="L264">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
-  public List&lt;BlockHeader&gt; listBlockHeaders(final long height, final int size) {
+  public List&lt;BlockMetadata&gt; listBlockMetadatas(final long height, final int size) {
     try {
-<span class="fc" id="L249">      logger.debug(&quot;List block headers with height: {}, size: {}&quot;, height, size);</span>
-<span class="fc" id="L250">      return getAergoClient().getBlockOperation().listBlockHeaders(height, size);</span>
-<span class="nc" id="L251">    } catch (Exception e) {</span>
-<span class="nc" id="L252">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L271">      logger.debug(&quot;List block metadatas with height: {}, size: {}&quot;, height, size);</span>
+<span class="fc" id="L272">      return getAergoClient().getBlockOperation().listBlockMetadatas(height, size);</span>
+<span class="nc" id="L273">    } catch (Exception e) {</span>
+<span class="nc" id="L274">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
   public Block getBlock(final BlockHash blockHash) {
     try {
-<span class="fc" id="L259">      logger.debug(&quot;Get block with hash: {}&quot;, blockHash);</span>
-<span class="fc" id="L260">      return getAergoClient().getBlockOperation().getBlock(blockHash);</span>
-<span class="nc" id="L261">    } catch (Exception e) {</span>
-<span class="nc" id="L262">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L281">      logger.debug(&quot;Get block with hash: {}&quot;, blockHash);</span>
+<span class="fc" id="L282">      return getAergoClient().getBlockOperation().getBlock(blockHash);</span>
+<span class="nc" id="L283">    } catch (Exception e) {</span>
+<span class="nc" id="L284">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
   public Block getBlock(final long height) {
     try {
-<span class="fc" id="L269">      logger.debug(&quot;Get block with height: {}&quot;, height);</span>
-<span class="fc" id="L270">      return getAergoClient().getBlockOperation().getBlock(height);</span>
-<span class="nc" id="L271">    } catch (Exception e) {</span>
-<span class="nc" id="L272">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L291">      logger.debug(&quot;Get block with height: {}&quot;, height);</span>
+<span class="fc" id="L292">      return getAergoClient().getBlockOperation().getBlock(height);</span>
+<span class="nc" id="L293">    } catch (Exception e) {</span>
+<span class="nc" id="L294">      throw exceptionConverter.convert(e);</span>
+    }
+  }
+
+  @Override
+  public Subscription&lt;BlockMetadata&gt; subscribeNewBlockMetadata(
+      StreamObserver&lt;BlockMetadata&gt; observer) {
+    try {
+<span class="nc" id="L302">      logger.debug(&quot;Stream block metadata with observer: {}&quot;, observer);</span>
+<span class="nc" id="L303">      return getAergoClient().getBlockOperation().subscribeNewBlockMetadata(observer);</span>
+<span class="nc" id="L304">    } catch (Exception e) {</span>
+<span class="nc" id="L305">      throw exceptionConverter.convert(e);</span>
+    }
+  }
+
+  @Override
+  public Subscription&lt;Block&gt; subscribeNewBlock(StreamObserver&lt;Block&gt; observer) {
+    try {
+<span class="nc" id="L312">      logger.debug(&quot;Stream block with observer: {}&quot;, observer);</span>
+<span class="nc" id="L313">      return getAergoClient().getBlockOperation().subscribeNewBlock(observer);</span>
+<span class="nc" id="L314">    } catch (Exception e) {</span>
+<span class="nc" id="L315">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
   public Transaction getTransaction(final TxHash txHash) {
     try {
-<span class="fc" id="L279">      logger.debug(&quot;Get transaction with hash: {}&quot;, txHash);</span>
-<span class="fc" id="L280">      return getAergoClient().getTransactionOperation().getTransaction(txHash);</span>
-<span class="nc" id="L281">    } catch (Exception e) {</span>
-<span class="nc" id="L282">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L322">      logger.debug(&quot;Get transaction with hash: {}&quot;, txHash);</span>
+<span class="fc" id="L323">      return getAergoClient().getTransactionOperation().getTransaction(txHash);</span>
+<span class="nc" id="L324">    } catch (Exception e) {</span>
+<span class="nc" id="L325">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
   public ContractTxReceipt getReceipt(final ContractTxHash contractTxHash) {
     try {
-<span class="fc" id="L289">      logger.debug(&quot;Get contract transaction receipt with hash: {}&quot;, contractTxHash);</span>
-<span class="fc" id="L290">      return getAergoClient().getContractOperation().getReceipt(contractTxHash);</span>
-<span class="nc" id="L291">    } catch (Exception e) {</span>
-<span class="nc" id="L292">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L332">      logger.debug(&quot;Get contract transaction receipt with hash: {}&quot;, contractTxHash);</span>
+<span class="fc" id="L333">      return getAergoClient().getContractOperation().getReceipt(contractTxHash);</span>
+<span class="nc" id="L334">    } catch (Exception e) {</span>
+<span class="nc" id="L335">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
   public ContractInterface getContractInterface(final ContractAddress contractAddress) {
     try {
-<span class="fc" id="L299">      logger.debug(&quot;Get contract interface with address: {}&quot;, contractAddress);</span>
-<span class="fc" id="L300">      return getAergoClient().getContractOperation().getContractInterface(contractAddress);</span>
-<span class="nc" id="L301">    } catch (Exception e) {</span>
-<span class="nc" id="L302">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L342">      logger.debug(&quot;Get contract interface with address: {}&quot;, contractAddress);</span>
+<span class="fc" id="L343">      return getAergoClient().getContractOperation().getContractInterface(contractAddress);</span>
+<span class="nc" id="L344">    } catch (Exception e) {</span>
+<span class="nc" id="L345">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
   public ContractResult query(final ContractInvocation contractInvocation) {
     try {
-<span class="fc" id="L309">      logger.debug(&quot;Query request with: {}&quot;, contractInvocation);</span>
-<span class="fc" id="L310">      return getAergoClient().getContractOperation().query(contractInvocation);</span>
-<span class="nc" id="L311">    } catch (Exception e) {</span>
-<span class="nc" id="L312">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L352">      logger.debug(&quot;Query request with: {}&quot;, contractInvocation);</span>
+<span class="fc" id="L353">      return getAergoClient().getContractOperation().query(contractInvocation);</span>
+<span class="nc" id="L354">    } catch (Exception e) {</span>
+<span class="nc" id="L355">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
   public List&lt;Event&gt; listEvents(EventFilter filter) {
     try {
-<span class="fc" id="L319">      logger.debug(&quot;List events with filter: {}&quot;, filter);</span>
-<span class="fc" id="L320">      return getAergoClient().getContractOperation().listEvents(filter);</span>
-<span class="nc" id="L321">    } catch (Exception e) {</span>
-<span class="nc" id="L322">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L362">      logger.debug(&quot;List events with filter: {}&quot;, filter);</span>
+<span class="fc" id="L363">      return getAergoClient().getContractOperation().listEvents(filter);</span>
+<span class="nc" id="L364">    } catch (Exception e) {</span>
+<span class="nc" id="L365">      throw exceptionConverter.convert(e);</span>
     }
   }
 
@@ -327,21 +370,21 @@ public abstract class QueryWallet implements QueryClient, Closeable {
   public Subscription&lt;Event&gt; subscribeEvent(EventFilter filter,
       hera.api.model.StreamObserver&lt;Event&gt; observer) {
     try {
-<span class="fc" id="L330">      logger.debug(&quot;Subscribe events with filter: {}, observer: {}&quot;, filter, observer);</span>
-<span class="fc" id="L331">      return getAergoClient().getContractOperation().subscribeEvent(filter, observer);</span>
-<span class="nc" id="L332">    } catch (Exception e) {</span>
-<span class="nc" id="L333">      throw exceptionConverter.convert(e);</span>
+<span class="fc" id="L373">      logger.debug(&quot;Subscribe events with filter: {}, observer: {}&quot;, filter, observer);</span>
+<span class="fc" id="L374">      return getAergoClient().getContractOperation().subscribeEvent(filter, observer);</span>
+<span class="nc" id="L375">    } catch (Exception e) {</span>
+<span class="nc" id="L376">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
   public void close() {
     try {
-<span class="nc" id="L340">      getAergoClient().close();</span>
-<span class="nc" id="L341">    } catch (Exception e) {</span>
-<span class="nc" id="L342">      throw new WalletException(e);</span>
-<span class="nc" id="L343">    }</span>
-<span class="nc" id="L344">  }</span>
+<span class="nc" id="L383">      getAergoClient().close();</span>
+<span class="nc" id="L384">    } catch (Exception e) {</span>
+<span class="nc" id="L385">      throw new WalletException(e);</span>
+<span class="nc" id="L386">    }</span>
+<span class="nc" id="L387">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BlockBaseTemplate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.client.internal</a> &gt; <span class="el_source">BlockBaseTemplate.java</span></div><h1>BlockBaseTemplate.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.client.internal;
+
+import static com.google.common.util.concurrent.Futures.addCallback;
+import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
+import static hera.util.TransportUtils.assertArgument;
+import static hera.util.TransportUtils.copyFrom;
+import static org.slf4j.LoggerFactory.getLogger;
+import static types.AergoRPCServiceGrpc.newFutureStub;
+import static types.AergoRPCServiceGrpc.newStub;
+
+import com.google.common.util.concurrent.ListenableFuture;
+import hera.ContextProvider;
+import hera.ContextProviderInjectable;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.api.function.Function1;
+import hera.api.function.Function2;
+import hera.api.model.Block;
+import hera.api.model.BlockHash;
+import hera.api.model.BlockMetadata;
+import hera.api.model.Subscription;
+import hera.client.ChannelInjectable;
+import hera.client.stream.GrpcStreamObserverAdaptor;
+import hera.client.stream.GrpcStreamSubscription;
+import hera.transport.BlockConverterFactory;
+import hera.transport.BlockMetadataConverterFactory;
+import hera.transport.ModelConverter;
+import io.grpc.Context;
+import io.grpc.ManagedChannel;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Getter;
+import org.slf4j.Logger;
+import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
+import types.AergoRPCServiceGrpc.AergoRPCServiceStub;
+import types.Blockchain;
+import types.Rpc;
+
+@ApiAudience.Private
+@ApiStability.Unstable
+<span class="fc" id="L45">public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInjectable {</span>
+
+<span class="fc" id="L47">  protected final transient Logger logger = getLogger(getClass());</span>
+
+<span class="fc" id="L49">  protected final ModelConverter&lt;BlockMetadata, types.Rpc.BlockMetadata&gt; blockMetadataConverter =</span>
+<span class="fc" id="L50">      new BlockMetadataConverterFactory().create();</span>
+
+<span class="fc" id="L52">  protected final ModelConverter&lt;Block, Blockchain.Block&gt; blockConverter =</span>
+<span class="fc" id="L53">      new BlockConverterFactory().create();</span>
+
+  protected AergoRPCServiceFutureStub aergoService;
+  protected AergoRPCServiceStub streamService;
+
+  protected ContextProvider contextProvider;
+
+  @Override
+  public void setChannel(final ManagedChannel channel) {
+<span class="nc" id="L62">    this.aergoService = newFutureStub(channel);</span>
+<span class="nc" id="L63">    this.streamService = newStub(channel);</span>
+<span class="nc" id="L64">  }</span>
+
+  @Override
+  public void setContextProvider(final ContextProvider contextProvider) {
+<span class="nc" id="L68">    this.contextProvider = contextProvider;</span>
+<span class="nc" id="L69">  }</span>
+
+<span class="fc" id="L71">  @Getter</span>
+  private final Function1&lt;BlockHash, FinishableFuture&lt;BlockMetadata&gt;&gt; blockMetatdataByHashFunction =
+<span class="fc" id="L73">      new Function1&lt;BlockHash, FinishableFuture&lt;BlockMetadata&gt;&gt;() {</span>
+
+        @Override
+        public FinishableFuture&lt;BlockMetadata&gt; apply(final BlockHash hash) {
+<span class="fc" id="L77">          logger.debug(&quot;Get block metadata with hash: {}&quot;, hash);</span>
+
+<span class="fc" id="L79">          FinishableFuture&lt;BlockMetadata&gt; nextFuture = new FinishableFuture&lt;BlockMetadata&gt;();</span>
+          try {
+<span class="fc" id="L81">            final Rpc.SingleBytes rpcHash = Rpc.SingleBytes.newBuilder()</span>
+<span class="fc" id="L82">                .setValue(copyFrom(hash.getBytesValue()))</span>
+<span class="fc" id="L83">                .build();</span>
+<span class="fc" id="L84">            logger.trace(&quot;AergoService getBlockMetadata arg: {}&quot;, rpcHash);</span>
+
+<span class="fc" id="L86">            ListenableFuture&lt;Rpc.BlockMetadata&gt; listenableFuture =</span>
+<span class="fc" id="L87">                aergoService.getBlockMetadata(rpcHash);</span>
+<span class="fc" id="L88">            FutureChain&lt;Rpc.BlockMetadata, BlockMetadata&gt; callback =</span>
+                new FutureChain&lt;Rpc.BlockMetadata, BlockMetadata&gt;(nextFuture,
+<span class="fc" id="L90">                    contextProvider.get());</span>
+<span class="fc" id="L91">            callback.setSuccessHandler(</span>
+<span class="fc" id="L92">                new Function1&lt;Rpc.BlockMetadata, BlockMetadata&gt;() {</span>
+
+                  @Override
+                  public BlockMetadata apply(final Rpc.BlockMetadata metadata) {
+<span class="fc" id="L96">                    return blockMetadataConverter.convertToDomainModel(metadata);</span>
+                  }
+                });
+<span class="fc" id="L99">            addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="nc" id="L100">          } catch (Exception e) {</span>
+<span class="nc" id="L101">            nextFuture.fail(e);</span>
+<span class="fc" id="L102">          }</span>
+
+<span class="fc" id="L104">          return nextFuture;</span>
+        }
+      };
+
+<span class="fc" id="L108">  @Getter</span>
+  private final Function1&lt;Long, FinishableFuture&lt;BlockMetadata&gt;&gt; blockMetadataByHeightFunction =
+<span class="fc" id="L110">      new Function1&lt;Long, FinishableFuture&lt;BlockMetadata&gt;&gt;() {</span>
+
+        @Override
+        public FinishableFuture&lt;BlockMetadata&gt; apply(final Long height) {
+<span class="fc" id="L114">          logger.debug(&quot;Get block metadata with height: {}&quot;, height);</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">          assertArgument(height &gt;= 0, &quot;Height&quot;, &quot;&gt;= 0&quot;);</span>
+
+<span class="fc" id="L117">          FinishableFuture&lt;BlockMetadata&gt; nextFuture = new FinishableFuture&lt;BlockMetadata&gt;();</span>
+          try {
+<span class="fc" id="L119">            final Rpc.SingleBytes rpcHeight = Rpc.SingleBytes.newBuilder()</span>
+<span class="fc" id="L120">                .setValue(copyFrom(height.longValue()))</span>
+<span class="fc" id="L121">                .build();</span>
+<span class="fc" id="L122">            logger.trace(&quot;AergoService getBlockMetadata arg: {}&quot;, rpcHeight);</span>
+
+<span class="fc" id="L124">            ListenableFuture&lt;Rpc.BlockMetadata&gt; listenableFuture =</span>
+<span class="fc" id="L125">                aergoService.getBlockMetadata(rpcHeight);</span>
+<span class="fc" id="L126">            FutureChain&lt;Rpc.BlockMetadata, BlockMetadata&gt; callback =</span>
+                new FutureChain&lt;Rpc.BlockMetadata, BlockMetadata&gt;(nextFuture,
+<span class="fc" id="L128">                    contextProvider.get());</span>
+<span class="fc" id="L129">            callback.setSuccessHandler(new Function1&lt;Rpc.BlockMetadata, BlockMetadata&gt;() {</span>
+              @Override
+              public BlockMetadata apply(final Rpc.BlockMetadata metadata) {
+<span class="fc" id="L132">                return blockMetadataConverter.convertToDomainModel(metadata);</span>
+              }
+            });
+<span class="fc" id="L135">            addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="nc" id="L136">          } catch (Exception e) {</span>
+<span class="nc" id="L137">            nextFuture.fail(e);</span>
+<span class="fc" id="L138">          }</span>
+
+<span class="fc" id="L140">          return nextFuture;</span>
+        }
+      };
+
+<span class="fc" id="L144">  @Getter</span>
+  private final Function2&lt;BlockHash, Integer,
+      FinishableFuture&lt;List&lt;BlockMetadata&gt;&gt;&gt; listBlockMetadatasByHashFunction = new Function2&lt;
+<span class="fc" id="L147">          BlockHash, Integer, FinishableFuture&lt;List&lt;BlockMetadata&gt;&gt;&gt;() {</span>
+
+        @Override
+        public FinishableFuture&lt;List&lt;BlockMetadata&gt;&gt; apply(final BlockHash hash,
+            final Integer size) {
+<span class="fc" id="L152">          logger.debug(&quot;List block meta datas with hash: {}, size: {}&quot;, hash, size);</span>
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">          assertArgument(size &gt; 0, &quot;Block list size&quot;, &quot;postive&quot;);</span>
+
+<span class="fc" id="L155">          FinishableFuture&lt;List&lt;BlockMetadata&gt;&gt; nextFuture =</span>
+              new FinishableFuture&lt;List&lt;BlockMetadata&gt;&gt;();
+          try {
+<span class="fc" id="L158">            final Rpc.ListParams rpcHashAndSize = Rpc.ListParams.newBuilder()</span>
+<span class="fc" id="L159">                .setHash(copyFrom(hash.getBytesValue()))</span>
+<span class="fc" id="L160">                .setSize(size)</span>
+<span class="fc" id="L161">                .build();</span>
+<span class="fc" id="L162">            logger.trace(&quot;AergoService listBlockMetadata arg: {}&quot;, rpcHashAndSize);</span>
+
+<span class="fc" id="L164">            ListenableFuture&lt;Rpc.BlockMetadataList&gt; listenableFuture =</span>
+<span class="fc" id="L165">                aergoService.listBlockMetadata(rpcHashAndSize);</span>
+<span class="fc" id="L166">            FutureChain&lt;Rpc.BlockMetadataList, List&lt;BlockMetadata&gt;&gt; callback =</span>
+                new FutureChain&lt;Rpc.BlockMetadataList, List&lt;BlockMetadata&gt;&gt;(nextFuture,
+<span class="fc" id="L168">                    contextProvider.get());</span>
+<span class="fc" id="L169">            callback.setSuccessHandler(</span>
+<span class="fc" id="L170">                new Function1&lt;Rpc.BlockMetadataList, List&lt;BlockMetadata&gt;&gt;() {</span>
+
+                  @Override
+                  public List&lt;BlockMetadata&gt; apply(final Rpc.BlockMetadataList metadatas) {
+<span class="fc" id="L174">                    final List&lt;BlockMetadata&gt; blockMetadatas = new ArrayList&lt;BlockMetadata&gt;();</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">                    for (final Rpc.BlockMetadata rpcBlockMetadata : metadatas.getBlocksList()) {</span>
+<span class="fc" id="L176">                      blockMetadatas</span>
+<span class="fc" id="L177">                          .add(blockMetadataConverter.convertToDomainModel(rpcBlockMetadata));</span>
+<span class="fc" id="L178">                    }</span>
+<span class="fc" id="L179">                    return blockMetadatas;</span>
+                  }
+                });
+<span class="fc" id="L182">            addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="nc" id="L183">          } catch (Exception e) {</span>
+<span class="nc" id="L184">            nextFuture.fail(e);</span>
+<span class="fc" id="L185">          }</span>
+
+<span class="fc" id="L187">          return nextFuture;</span>
+        }
+      };
+
+<span class="fc" id="L191">  @Getter</span>
+  private final Function2&lt;Long, Integer,
+      FinishableFuture&lt;List&lt;BlockMetadata&gt;&gt;&gt; listBlockMetadatasByHeightFunction = new Function2&lt;
+<span class="fc" id="L194">          Long, Integer, FinishableFuture&lt;List&lt;BlockMetadata&gt;&gt;&gt;() {</span>
+
+        @Override
+        public FinishableFuture&lt;List&lt;BlockMetadata&gt;&gt; apply(final Long height,
+            final Integer size) {
+<span class="fc" id="L199">          logger.debug(&quot;List block meta datas with height: {}, size: {}&quot;, height, size);</span>
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">          assertArgument(height &gt;= 0, &quot;Height&quot;, &quot;&gt;= 0&quot;);</span>
+<span class="pc bpc" id="L201" title="1 of 2 branches missed.">          assertArgument(size &gt; 0, &quot;Block list size&quot;, &quot;postive&quot;);</span>
+
+<span class="fc" id="L203">          FinishableFuture&lt;List&lt;BlockMetadata&gt;&gt; nextFuture =</span>
+              new FinishableFuture&lt;List&lt;BlockMetadata&gt;&gt;();
+          try {
+<span class="fc" id="L206">            final Rpc.ListParams rpcHeightAndSize = Rpc.ListParams.newBuilder()</span>
+<span class="fc" id="L207">                .setHeight(height)</span>
+<span class="fc" id="L208">                .setSize(size)</span>
+<span class="fc" id="L209">                .build();</span>
+<span class="fc" id="L210">            logger.trace(&quot;AergoService listBlockMetadata arg: {}&quot;, rpcHeightAndSize);</span>
+
+<span class="fc" id="L212">            ListenableFuture&lt;Rpc.BlockMetadataList&gt; listenableFuture =</span>
+<span class="fc" id="L213">                aergoService.listBlockMetadata(rpcHeightAndSize);</span>
+<span class="fc" id="L214">            FutureChain&lt;Rpc.BlockMetadataList, List&lt;BlockMetadata&gt;&gt; callback =</span>
+                new FutureChain&lt;Rpc.BlockMetadataList, List&lt;BlockMetadata&gt;&gt;(nextFuture,
+<span class="fc" id="L216">                    contextProvider.get());</span>
+<span class="fc" id="L217">            callback</span>
+<span class="fc" id="L218">                .setSuccessHandler(new Function1&lt;Rpc.BlockMetadataList, List&lt;BlockMetadata&gt;&gt;() {</span>
+                  @Override
+                  public List&lt;BlockMetadata&gt; apply(final Rpc.BlockMetadataList metadatas) {
+<span class="fc" id="L221">                    final List&lt;BlockMetadata&gt; blockHeaders = new ArrayList&lt;BlockMetadata&gt;();</span>
+<span class="fc bfc" id="L222" title="All 2 branches covered.">                    for (final Rpc.BlockMetadata rpcBlockMetadata : metadatas.getBlocksList()) {</span>
+<span class="fc" id="L223">                      blockHeaders</span>
+<span class="fc" id="L224">                          .add(blockMetadataConverter.convertToDomainModel(rpcBlockMetadata));</span>
+<span class="fc" id="L225">                    }</span>
+<span class="fc" id="L226">                    return blockHeaders;</span>
+                  }
+                });
+<span class="fc" id="L229">            addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="nc" id="L230">          } catch (Exception e) {</span>
+<span class="nc" id="L231">            nextFuture.fail(e);</span>
+<span class="fc" id="L232">          }</span>
+
+<span class="fc" id="L234">          return nextFuture;</span>
+        }
+      };
+
+<span class="fc" id="L238">  @Getter</span>
+  private final Function1&lt;BlockHash,
+      FinishableFuture&lt;Block&gt;&gt; blockByHashFunction = new Function1&lt;
+<span class="fc" id="L241">          BlockHash, FinishableFuture&lt;Block&gt;&gt;() {</span>
+
+        @Override
+        public FinishableFuture&lt;Block&gt; apply(final BlockHash hash) {
+<span class="fc" id="L245">          logger.debug(&quot;Get block with hash: {}&quot;, hash);</span>
+
+<span class="fc" id="L247">          FinishableFuture&lt;Block&gt; nextFuture = new FinishableFuture&lt;Block&gt;();</span>
+          try {
+<span class="fc" id="L249">            final Rpc.SingleBytes rpcHash = Rpc.SingleBytes.newBuilder()</span>
+<span class="fc" id="L250">                .setValue(copyFrom(hash.getBytesValue()))</span>
+<span class="fc" id="L251">                .build();</span>
+<span class="fc" id="L252">            logger.trace(&quot;AergoService getBlock arg: {}&quot;, rpcHash);</span>
+
+<span class="fc" id="L254">            ListenableFuture&lt;Blockchain.Block&gt; listenableFuture = aergoService.getBlock(rpcHash);</span>
+<span class="fc" id="L255">            FutureChain&lt;Blockchain.Block, Block&gt; callback =</span>
+<span class="fc" id="L256">                new FutureChain&lt;Blockchain.Block, Block&gt;(nextFuture, contextProvider.get());</span>
+<span class="fc" id="L257">            callback.setSuccessHandler(new Function1&lt;Blockchain.Block, Block&gt;() {</span>
+              @Override
+              public Block apply(final Blockchain.Block block) {
+<span class="fc" id="L260">                return blockConverter.convertToDomainModel(block);</span>
+              }
+            });
+<span class="fc" id="L263">            addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="nc" id="L264">          } catch (Exception e) {</span>
+<span class="nc" id="L265">            nextFuture.fail(e);</span>
+<span class="fc" id="L266">          }</span>
+
+<span class="fc" id="L268">          return nextFuture;</span>
+        }
+      };
+
+<span class="fc" id="L272">  @Getter</span>
+  private final Function1&lt;Long,
+      FinishableFuture&lt;Block&gt;&gt; blockByHeightFunction = new Function1&lt;
+<span class="fc" id="L275">          Long, FinishableFuture&lt;Block&gt;&gt;() {</span>
+
+        @Override
+        public FinishableFuture&lt;Block&gt; apply(final Long height) {
+<span class="fc" id="L279">          logger.debug(&quot;Get block with height: {}&quot;, height);</span>
+<span class="pc bpc" id="L280" title="1 of 2 branches missed.">          assertArgument(height &gt;= 0, &quot;Height&quot;, &quot;&gt;= 0&quot;);</span>
+
+<span class="fc" id="L282">          FinishableFuture&lt;Block&gt; nextFuture = new FinishableFuture&lt;Block&gt;();</span>
+          try {
+<span class="fc" id="L284">            final Rpc.SingleBytes rpcHeight = Rpc.SingleBytes.newBuilder()</span>
+<span class="fc" id="L285">                .setValue(copyFrom(height.longValue()))</span>
+<span class="fc" id="L286">                .build();</span>
+<span class="fc" id="L287">            logger.trace(&quot;AergoService getBlock arg: {}&quot;, rpcHeight);</span>
+
+<span class="fc" id="L289">            ListenableFuture&lt;Blockchain.Block&gt; listenableFuture = aergoService.getBlock(rpcHeight);</span>
+<span class="fc" id="L290">            FutureChain&lt;Blockchain.Block, Block&gt; callback =</span>
+<span class="fc" id="L291">                new FutureChain&lt;Blockchain.Block, Block&gt;(nextFuture, contextProvider.get());</span>
+<span class="fc" id="L292">            callback.setSuccessHandler(new Function1&lt;Blockchain.Block, Block&gt;() {</span>
+              @Override
+              public Block apply(final Blockchain.Block block) {
+<span class="fc" id="L295">                return blockConverter.convertToDomainModel(block);</span>
+              }
+            });
+<span class="fc" id="L298">            addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="nc" id="L299">          } catch (Exception e) {</span>
+<span class="nc" id="L300">            nextFuture.fail(e);</span>
+<span class="fc" id="L301">          }</span>
+
+<span class="fc" id="L303">          return nextFuture;</span>
+        }
+      };
+
+<span class="fc" id="L307">  @Getter</span>
+  private final Function1&lt;hera.api.model.StreamObserver&lt;BlockMetadata&gt;,
+      Subscription&lt;BlockMetadata&gt;&gt; subscribeBlockMetadataFunction = new Function1&lt;
+<span class="fc" id="L310">          hera.api.model.StreamObserver&lt;BlockMetadata&gt;, Subscription&lt;BlockMetadata&gt;&gt;() {</span>
+
+        @Override
+        public Subscription&lt;BlockMetadata&gt; apply(
+            final hera.api.model.StreamObserver&lt;BlockMetadata&gt; observer) {
+<span class="fc" id="L315">          logger.debug(&quot;Subscribe block metadata stream with observer {}&quot;, observer);</span>
+
+<span class="fc" id="L317">          final Rpc.Empty blockMetadataStreamRequest = Rpc.Empty.newBuilder().build();</span>
+<span class="fc" id="L318">          Context.CancellableContext cancellableContext = Context.current().withCancellation();</span>
+<span class="fc" id="L319">          final io.grpc.stub.StreamObserver&lt;Rpc.BlockMetadata&gt; adaptor =</span>
+              new GrpcStreamObserverAdaptor&lt;Rpc.BlockMetadata, BlockMetadata&gt;(cancellableContext,
+                  observer, blockMetadataConverter);
+<span class="fc" id="L322">          cancellableContext.run(new Runnable() {</span>
+            @Override
+            public void run() {
+<span class="fc" id="L325">              streamService.listBlockMetadataStream(blockMetadataStreamRequest, adaptor);</span>
+<span class="fc" id="L326">            }</span>
+          });
+
+<span class="fc" id="L329">          return new GrpcStreamSubscription&lt;BlockMetadata&gt;(cancellableContext);</span>
+        }
+      };
+
+<span class="fc" id="L333">  @Getter</span>
+  private final Function1&lt;hera.api.model.StreamObserver&lt;Block&gt;,
+      Subscription&lt;Block&gt;&gt; subscribeBlockFunction = new Function1&lt;
+<span class="fc" id="L336">          hera.api.model.StreamObserver&lt;Block&gt;, Subscription&lt;Block&gt;&gt;() {</span>
+
+        @Override
+        public Subscription&lt;Block&gt; apply(
+            final hera.api.model.StreamObserver&lt;Block&gt; observer) {
+<span class="fc" id="L341">          logger.debug(&quot;Subscribe block metadata stream with observer {}&quot;, observer);</span>
+
+<span class="fc" id="L343">          final Rpc.Empty blockStreamRequest = Rpc.Empty.newBuilder().build();</span>
+<span class="fc" id="L344">          Context.CancellableContext cancellableContext = Context.current().withCancellation();</span>
+<span class="fc" id="L345">          final io.grpc.stub.StreamObserver&lt;Blockchain.Block&gt; adaptor =</span>
+              new GrpcStreamObserverAdaptor&lt;Blockchain.Block, Block&gt;(cancellableContext,
+                  observer, blockConverter);
+<span class="fc" id="L348">          cancellableContext.run(new Runnable() {</span>
+            @Override
+            public void run() {
+<span class="fc" id="L351">              streamService.listBlockStream(blockStreamRequest, adaptor);</span>
+<span class="fc" id="L352">            }</span>
+          });
+
+<span class="fc" id="L355">          return new GrpcStreamSubscription&lt;Block&gt;(cancellableContext);</span>
+        }
+      };
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

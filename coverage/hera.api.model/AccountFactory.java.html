@@ -7,16 +7,17 @@ package hera.api.model;
 import static hera.util.ValidationUtils.assertNotNull;
 
 import hera.annotation.ApiAudience;
-import hera.annotation.ApiStability;
 import hera.api.model.internal.AccountWithAddress;
 import hera.api.model.internal.AccountWithAddressAndSigner;
 import hera.api.model.internal.AccountWithKey;
 import hera.key.AergoKey;
-import hera.key.Signer;
+import hera.transaction.TxSigner;
 
-@ApiAudience.Public
-@ApiStability.Unstable
-<span class="fc" id="L19">public class AccountFactory {</span>
+/**
+ * Will be removed in 1.2.
+ */
+@Deprecated
+<span class="fc" id="L20">public class AccountFactory {</span>
 
   /**
    * Create an account with address.
@@ -26,8 +27,8 @@ import hera.key.Signer;
    */
   @ApiAudience.Public
   public Account create(final AccountAddress accountAddress) {
-<span class="fc" id="L29">    assertNotNull(accountAddress);</span>
-<span class="fc" id="L30">    return new AccountWithAddress(accountAddress);</span>
+<span class="fc" id="L30">    assertNotNull(accountAddress);</span>
+<span class="fc" id="L31">    return new AccountWithAddress(accountAddress);</span>
   }
 
   /**
@@ -38,22 +39,22 @@ import hera.key.Signer;
    */
   @ApiAudience.Public
   public Account create(final AergoKey aergoKey) {
-<span class="fc" id="L41">    assertNotNull(aergoKey);</span>
-<span class="fc" id="L42">    return new AccountWithKey(aergoKey);</span>
+<span class="fc" id="L42">    assertNotNull(aergoKey);</span>
+<span class="fc" id="L43">    return new AccountWithKey(aergoKey);</span>
   }
 
   /**
    * Create an account with address and signer.
    *
    * @param accountAddress an account address
-   * @param signer a signer
+   * @param txSigner a tx signer
    * @return created account
    */
   @ApiAudience.Private
-  public Account create(final AccountAddress accountAddress, final Signer signer) {
-<span class="fc" id="L54">    assertNotNull(accountAddress);</span>
-<span class="fc" id="L55">    assertNotNull(signer);</span>
-<span class="fc" id="L56">    return new AccountWithAddressAndSigner(accountAddress, signer);</span>
+  public Account create(final AccountAddress accountAddress, final TxSigner txSigner) {
+<span class="fc" id="L55">    assertNotNull(accountAddress);</span>
+<span class="fc" id="L56">    assertNotNull(txSigner);</span>
+<span class="fc" id="L57">    return new AccountWithAddressAndSigner(accountAddress, txSigner);</span>
   }
 
 }

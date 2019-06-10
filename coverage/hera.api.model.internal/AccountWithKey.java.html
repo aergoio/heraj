@@ -7,13 +7,10 @@ package hera.api.model.internal;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
-import hera.api.model.BytesValue;
-import hera.api.model.Hash;
 import hera.api.model.RawTransaction;
-import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.key.AergoKey;
-import hera.key.Signer;
+import hera.transaction.TxSigner;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -22,38 +19,23 @@ import lombok.ToString;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="nc" id="L25">@ToString(callSuper = true, exclude = &quot;key&quot;)</span>
-<span class="nc bnc" id="L26" title="All 16 branches missed.">@EqualsAndHashCode(callSuper = true)</span>
-<span class="pc bpc" id="L27" title="1 of 2 branches missed.">@RequiredArgsConstructor</span>
-public class AccountWithKey extends AbstractAccount implements Signer {
+<span class="nc" id="L22">@ToString(callSuper = true, exclude = &quot;key&quot;)</span>
+<span class="nc bnc" id="L23" title="All 16 branches missed.">@EqualsAndHashCode(callSuper = true)</span>
+<span class="pc bpc" id="L24" title="1 of 2 branches missed.">@RequiredArgsConstructor</span>
+public class AccountWithKey extends AbstractAccount implements TxSigner {
 
   @NonNull
-<span class="nc" id="L31">  @Getter</span>
+<span class="nc" id="L28">  @Getter</span>
   protected final AergoKey key;
 
   @Override
   public AccountAddress getAddress() {
-<span class="fc" id="L36">    return key.getAddress();</span>
+<span class="fc" id="L33">    return key.getAddress();</span>
   }
 
   @Override
   public Transaction sign(final RawTransaction rawTransaction) {
-<span class="fc" id="L41">    return key.sign(rawTransaction);</span>
-  }
-
-  @Override
-  public Signature sign(final Hash hash) {
-<span class="nc" id="L46">    return key.sign(hash);</span>
-  }
-
-  @Override
-  public String signMessage(final String message) {
-<span class="nc" id="L51">    return key.signMessage(message);</span>
-  }
-
-  @Override
-  public Signature signMessage(final BytesValue message) {
-<span class="nc" id="L56">    return key.signMessage(message);</span>
+<span class="fc" id="L38">    return key.sign(rawTransaction);</span>
   }
 
 }

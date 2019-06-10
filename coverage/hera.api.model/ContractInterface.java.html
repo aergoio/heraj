@@ -5,6 +5,7 @@
 package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
+import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
@@ -19,21 +20,24 @@ import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L22">@ToString</span>
-<span class="nc bnc" id="L23" title="All 38 branches missed.">@EqualsAndHashCode</span>
+<span class="fc" id="L23">@ToString</span>
+<span class="nc bnc" id="L24" title="All 46 branches missed.">@EqualsAndHashCode</span>
 public class ContractInterface {
 
-<span class="fc" id="L26">  @Getter</span>
+<span class="fc" id="L27">  @Getter</span>
   protected final ContractAddress address;
 
-<span class="fc" id="L29">  @Getter</span>
+<span class="fc" id="L30">  @Getter</span>
   protected final String version;
 
-<span class="fc" id="L32">  @Getter</span>
+<span class="fc" id="L33">  @Getter</span>
   protected final String language;
 
-<span class="fc" id="L35">  @Getter</span>
+<span class="fc" id="L36">  @Getter</span>
   protected final List&lt;ContractFunction&gt; functions;
+
+<span class="fc" id="L39">  @Getter</span>
+  protected final List&lt;StateVariable&gt; stateVariables;
 
   /**
    * ContractInterface constructor.
@@ -42,19 +46,23 @@ public class ContractInterface {
    * @param version a contract version
    * @param language a contract language
    * @param functions a contract functions to invoke
+   * @param stateVariables a contract state variables
    */
   @ApiAudience.Private
   public ContractInterface(final ContractAddress contractAddress, final String version,
-<span class="fc" id="L48">      final String language, final List&lt;ContractFunction&gt; functions) {</span>
-<span class="fc" id="L49">    assertNotNull(contractAddress, &quot;Contract address must not null&quot;);</span>
-<span class="fc" id="L50">    assertNotNull(version, &quot;Version must not null&quot;);</span>
-<span class="fc" id="L51">    assertNotNull(language, &quot;Language must not null&quot;);</span>
-<span class="fc" id="L52">    assertNotNull(functions, &quot;Functions must not null&quot;);</span>
-<span class="fc" id="L53">    this.address = contractAddress;</span>
-<span class="fc" id="L54">    this.version = version;</span>
-<span class="fc" id="L55">    this.language = language;</span>
-<span class="fc" id="L56">    this.functions = unmodifiableList(functions);</span>
-<span class="fc" id="L57">  }</span>
+      final String language, final List&lt;ContractFunction&gt; functions,
+<span class="fc" id="L54">      final List&lt;StateVariable&gt; stateVariables) {</span>
+<span class="fc" id="L55">    assertNotNull(contractAddress, &quot;Contract address must not null&quot;);</span>
+<span class="fc" id="L56">    assertNotNull(version, &quot;Version must not null&quot;);</span>
+<span class="fc" id="L57">    assertNotNull(language, &quot;Language must not null&quot;);</span>
+<span class="fc" id="L58">    assertNotNull(functions, &quot;Functions must not null&quot;);</span>
+<span class="fc" id="L59">    assertNotNull(stateVariables, &quot;State variables must not null&quot;);</span>
+<span class="fc" id="L60">    this.address = contractAddress;</span>
+<span class="fc" id="L61">    this.version = version;</span>
+<span class="fc" id="L62">    this.language = language;</span>
+<span class="fc" id="L63">    this.functions = unmodifiableList(functions);</span>
+<span class="fc" id="L64">    this.stateVariables = unmodifiableList(stateVariables);</span>
+<span class="fc" id="L65">  }</span>
 
   /**
    * Find a contract function with the given function name.
@@ -63,63 +71,72 @@ public class ContractInterface {
    * @return {@code ContractFunction} if found. Otherwise, null
    */
   public ContractFunction findFunction(final String functionName) {
-<span class="fc" id="L66">    ContractFunction foundFunction = null;</span>
-<span class="fc bfc" id="L67" title="All 2 branches covered.">    for (final ContractFunction contractFunction : functions) {</span>
-<span class="fc bfc" id="L68" title="All 2 branches covered.">      if (contractFunction.getName().equals(functionName)) {</span>
-<span class="fc" id="L69">        foundFunction = contractFunction;</span>
-<span class="fc" id="L70">        break;</span>
+<span class="fc" id="L74">    ContractFunction foundFunction = null;</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">    for (final ContractFunction contractFunction : functions) {</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">      if (contractFunction.getName().equals(functionName)) {</span>
+<span class="fc" id="L77">        foundFunction = contractFunction;</span>
+<span class="fc" id="L78">        break;</span>
       }
-<span class="fc" id="L72">    }</span>
-<span class="fc" id="L73">    return foundFunction;</span>
+<span class="fc" id="L80">    }</span>
+<span class="fc" id="L81">    return foundFunction;</span>
   }
 
   public ContractInvocationWithNothing newInvocationBuilder() {
-<span class="fc" id="L77">    return new ContractInterface.InvocationBuilder(this);</span>
+<span class="fc" id="L85">    return new ContractInterface.InvocationBuilder(this);</span>
   }
 
   public interface ContractInvocationWithNothing {
-    ContractInvocationWithFunction function(String functionName);
+    ContractInvocationWithReady function(String functionName);
   }
 
-  public interface ContractInvocationWithFunction extends hera.util.Builder&lt;ContractInvocation&gt; {
-    ContractInvocationWithFunctionAndArgs args(Object... args);
+  public interface ContractInvocationWithReady extends hera.util.Builder&lt;ContractInvocation&gt; {
+    ContractInvocationWithReady args(Object... args);
+
+    ContractInvocationWithReady amount(Aer amount);
   }
 
-  public interface ContractInvocationWithFunctionAndArgs
-      extends hera.util.Builder&lt;ContractInvocation&gt; {
-  }
-
-<span class="pc bpc" id="L92" title="1 of 2 branches missed.">  @RequiredArgsConstructor</span>
-  protected static class InvocationBuilder implements ContractInvocationWithNothing,
-      ContractInvocationWithFunction, ContractInvocationWithFunctionAndArgs {
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">  @RequiredArgsConstructor</span>
+  protected static class InvocationBuilder
+      implements ContractInvocationWithNothing, ContractInvocationWithReady {
 
     @NonNull
     protected final ContractInterface contractInterface;
 
     protected ContractFunction function;
 
-    protected Object[] args;
+<span class="fc" id="L107">    protected Object[] args = new Object[0];</span>
+
+<span class="fc" id="L109">    protected Aer amount = Aer.EMPTY;</span>
 
     @Override
-    public ContractInvocationWithFunction function(final String functionName) {
-<span class="fc" id="L105">      this.function = contractInterface.findFunction(functionName);</span>
-<span class="fc bfc" id="L106" title="All 2 branches covered.">      if (null == this.function) {</span>
-<span class="fc" id="L107">        throw new HerajException(</span>
+    public ContractInvocationWithReady function(final String functionName) {
+<span class="fc" id="L113">      this.function = contractInterface.findFunction(functionName);</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">      if (null == this.function) {</span>
+<span class="fc" id="L115">        throw new HerajException(</span>
             &quot;Cannot find function from interface [name: &quot; + functionName + &quot;]&quot;);
       }
-<span class="fc" id="L110">      return this;</span>
+<span class="fc" id="L118">      return this;</span>
     }
 
     @Override
-    public ContractInvocationWithFunctionAndArgs args(final Object... args) {
-<span class="fc" id="L115">      this.args = args;</span>
-<span class="fc" id="L116">      return this;</span>
+    public ContractInvocationWithReady args(final Object... args) {
+<span class="fc bfc" id="L123" title="All 2 branches covered.">      if (null != args) {</span>
+<span class="fc" id="L124">        this.args = args;</span>
+      }
+<span class="fc" id="L126">      return this;</span>
+    }
+
+    @Override
+    public ContractInvocationWithReady amount(final Aer amount) {
+<span class="fc" id="L131">      this.amount = amount;</span>
+<span class="fc" id="L132">      return this;</span>
     }
 
     @Override
     public hera.api.model.ContractInvocation build() {
-<span class="fc" id="L121">      return new ContractInvocation(contractInterface.getAddress(), function, args);</span>
+<span class="fc" id="L137">      return new ContractInvocation(contractInterface.getAddress(), function, asList(args), amount);</span>
     }
+
   }
 
 }

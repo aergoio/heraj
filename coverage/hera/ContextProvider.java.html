@@ -4,17 +4,12 @@
 
 package hera;
 
-import hera.annotation.ApiAudience;
-import hera.annotation.ApiStability;
-
-@ApiAudience.Private
-@ApiStability.Unstable
 public interface ContextProvider {
 
-<span class="fc" id="L14">  ContextProvider defaultProvider = new ContextProvider() {</span>
+<span class="fc" id="L9">  ContextProvider defaultProvider = new ContextProvider() {</span>
     @Override
     public Context get() {
-<span class="fc" id="L17">      return EmptyContext.getInstance();</span>
+<span class="fc" id="L12">      return EmptyContext.getInstance();</span>
     }
   };
 

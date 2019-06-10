@@ -20,6 +20,8 @@ import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.client.internal.FinishableFuture;
+import hera.client.internal.TransactionBaseTemplate;
 import hera.strategy.StrategyChain;
 import io.grpc.ManagedChannel;
 import lombok.AccessLevel;
@@ -27,39 +29,39 @@ import lombok.Getter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="fc" id="L30">public class TransactionTemplate</span>
+<span class="fc" id="L32">public class TransactionTemplate</span>
     implements TransactionOperation, ChannelInjectable, ContextProviderInjectable {
 
-<span class="fc" id="L33">  @Getter</span>
+<span class="fc" id="L35">  @Getter</span>
   protected TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();
 
   protected ContextProvider contextProvider;
 
-<span class="pc bpc" id="L38" title="4 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L40" title="4 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-<span class="nc" id="L43">    getTransactionBaseTemplate().setChannel(channel);</span>
-<span class="nc" id="L44">  }</span>
+<span class="nc" id="L45">    getTransactionBaseTemplate().setChannel(channel);</span>
+<span class="nc" id="L46">  }</span>
 
   @Override
   public void setContextProvider(final ContextProvider contextProvider) {
-<span class="fc" id="L48">    this.contextProvider = contextProvider;</span>
-<span class="fc" id="L49">    getTransactionBaseTemplate().setContextProvider(contextProvider);</span>
-<span class="fc" id="L50">  }</span>
+<span class="fc" id="L50">    this.contextProvider = contextProvider;</span>
+<span class="fc" id="L51">    getTransactionBaseTemplate().setContextProvider(contextProvider);</span>
+<span class="fc" id="L52">  }</span>
 
-<span class="pc bpc" id="L52" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L54" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function1&lt;TxHash, FinishableFuture&lt;Transaction&gt;&gt; transactionFunction =
       getStrategyChain().apply(identify(getTransactionBaseTemplate().getTransactionFunction(),
           TRANSACTION_GETTX));
 
-<span class="pc bpc" id="L57" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L59" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function1&lt;Transaction, FinishableFuture&lt;TxHash&gt;&gt; commitFunction =
       getStrategyChain()
           .apply(identify(getTransactionBaseTemplate().getCommitFunction(), TRANSACTION_COMMIT));
 
-<span class="pc bpc" id="L62" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L64" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function3&lt;AccountAddress, AccountAddress, Aer,
       FinishableFuture&lt;TxHash&gt;&gt; sendFunction =
           getStrategyChain()
@@ -67,19 +69,19 @@ import lombok.Getter;
 
   @Override
   public Transaction getTransaction(final TxHash txHash) {
-<span class="fc" id="L70">    return getTransactionFunction().apply(txHash).get();</span>
+<span class="fc" id="L72">    return getTransactionFunction().apply(txHash).get();</span>
   }
 
   @Override
   public TxHash commit(final Transaction transaction) {
-<span class="fc" id="L75">    return getCommitFunction().apply(transaction).get();</span>
+<span class="fc" id="L77">    return getCommitFunction().apply(transaction).get();</span>
   }
 
   @Override
   public TxHash send(final AccountAddress sender,
       final AccountAddress recipient,
       final Aer amount) {
-<span class="fc" id="L82">    return getSendFunction().apply(sender, recipient, amount).get();</span>
+<span class="fc" id="L84">    return getSendFunction().apply(sender, recipient, amount).get();</span>
   }
 
 }

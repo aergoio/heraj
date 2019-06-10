@@ -10,13 +10,13 @@ import hera.api.model.internal.Time;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
-import hera.client.ContextConfiguer;
+import hera.client.ClientConfiguer;
 import hera.exception.WalletCreationException;
 import java.util.concurrent.TimeUnit;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L19">public class WalletBuilder implements ContextConfiguer&lt;WalletBuilder&gt; {</span>
+<span class="fc" id="L19">public class WalletBuilder implements ClientConfiguer&lt;WalletBuilder&gt; {</span>
 
 <span class="fc" id="L21">  protected static final TryCountAndInterval MIMINUM_NONCE_REFRESH_COUNT =</span>
 <span class="fc" id="L22">      TryCountAndInterval.of(1, Time.of(0, TimeUnit.SECONDS));</span>

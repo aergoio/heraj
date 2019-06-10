@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BlockMetadataConverterFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.transport</a> &gt; <span class="el_source">BlockMetadataConverterFactory.java</span></div><h1>BlockMetadataConverterFactory.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.transport;
+
+import static hera.api.model.BytesValue.of;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.api.function.Function1;
+import hera.api.model.BlockHash;
+import hera.api.model.BlockHeader;
+import hera.api.model.BlockMetadata;
+import org.slf4j.Logger;
+import types.Blockchain;
+import types.Rpc;
+
+<span class="fc" id="L18">public class BlockMetadataConverterFactory {</span>
+
+<span class="fc" id="L20">  protected final transient Logger logger = getLogger(getClass());</span>
+
+<span class="fc" id="L22">  protected final ModelConverter&lt;BlockHeader, Blockchain.BlockHeader&gt; blockHeaderConverter =</span>
+<span class="fc" id="L23">      new BlockHeaderConverterFactory().create();</span>
+
+<span class="fc" id="L25">  protected final Function1&lt;BlockMetadata,</span>
+<span class="fc" id="L26">      Rpc.BlockMetadata&gt; domainConverter = new Function1&lt;BlockMetadata, Rpc.BlockMetadata&gt;() {</span>
+
+        @Override
+        public Rpc.BlockMetadata apply(BlockMetadata domainBlock) {
+<span class="nc" id="L30">          throw new UnsupportedOperationException();</span>
+        }
+      };
+
+<span class="fc" id="L34">  protected final Function1&lt;Rpc.BlockMetadata, BlockMetadata&gt; rpcConverter =</span>
+<span class="fc" id="L35">      new Function1&lt;Rpc.BlockMetadata, BlockMetadata&gt;() {</span>
+
+        @Override
+        public BlockMetadata apply(final Rpc.BlockMetadata rpcBlockMetadata) {
+<span class="fc" id="L39">          logger.trace(&quot;Rpc block metadata to convert: {}&quot;, rpcBlockMetadata);</span>
+<span class="fc" id="L40">          final BlockMetadata domainBlockMetadata = new BlockMetadata(</span>
+<span class="fc" id="L41">              new BlockHash(of(rpcBlockMetadata.getHash().toByteArray())),</span>
+<span class="fc" id="L42">              blockHeaderConverter.convertToDomainModel(rpcBlockMetadata.getHeader()),</span>
+<span class="fc" id="L43">              rpcBlockMetadata.getTxcount(),</span>
+<span class="fc" id="L44">              rpcBlockMetadata.getSize());</span>
+<span class="fc" id="L45">          logger.trace(&quot;Domain block metadata converted: {}&quot;, domainBlockMetadata);</span>
+<span class="fc" id="L46">          return domainBlockMetadata;</span>
+        }
+      };
+
+  public ModelConverter&lt;BlockMetadata, Rpc.BlockMetadata&gt; create() {
+<span class="fc" id="L51">    return new ModelConverter&lt;BlockMetadata, Rpc.BlockMetadata&gt;(domainConverter, rpcConverter);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

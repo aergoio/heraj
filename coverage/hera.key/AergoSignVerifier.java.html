@@ -19,6 +19,7 @@ import hera.api.model.TxHash;
 import hera.exception.HerajException;
 import hera.spec.resolver.SignatureResolver;
 import hera.spec.resolver.TransactionHashResolver;
+import hera.transaction.TxVerifier;
 import hera.util.Base64Utils;
 import hera.util.pki.ECDSAKeyGenerator;
 import hera.util.pki.ECDSASignature;
@@ -28,23 +29,23 @@ import org.slf4j.Logger;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L31">@RequiredArgsConstructor</span>
-public class AergoSignVerifier implements TransactionVerifier {
+<span class="fc" id="L32">@RequiredArgsConstructor</span>
+public class AergoSignVerifier implements TxVerifier {
 
-<span class="fc" id="L34">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L35">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L36">  protected final ECDSAVerifier ecdsaVerifier = new ECDSAVerifier(ECDSAKeyGenerator.ecParams);</span>
+<span class="fc" id="L37">  protected final ECDSAVerifier ecdsaVerifier = new ECDSAVerifier(ECDSAKeyGenerator.ecParams);</span>
 
   @Override
   public boolean verify(final Transaction transaction) {
     try {
-<span class="fc" id="L41">      logger.debug(&quot;Verify transaction: {}&quot;, transaction);</span>
-<span class="fc" id="L42">      final TxHash txHash = TransactionHashResolver.calculateHash(transaction);</span>
-<span class="fc" id="L43">      return verify(transaction.getSender(), txHash, transaction.getSignature());</span>
-<span class="nc" id="L44">    } catch (HerajException e) {</span>
-<span class="nc" id="L45">      throw e;</span>
-<span class="nc" id="L46">    } catch (Exception e) {</span>
-<span class="nc" id="L47">      throw new HerajException(e);</span>
+<span class="fc" id="L42">      logger.debug(&quot;Verify transaction: {}&quot;, transaction);</span>
+<span class="fc" id="L43">      final TxHash txHash = TransactionHashResolver.calculateHash(transaction.getRawTransaction());</span>
+<span class="fc" id="L44">      return verify(transaction.getSender(), txHash, transaction.getSignature());</span>
+<span class="nc" id="L45">    } catch (HerajException e) {</span>
+<span class="nc" id="L46">      throw e;</span>
+<span class="nc" id="L47">    } catch (Exception e) {</span>
+<span class="nc" id="L48">      throw new HerajException(e);</span>
     }
   }
 
@@ -60,14 +61,14 @@ public class AergoSignVerifier implements TransactionVerifier {
   public boolean verify(final AccountAddress accountAddress, final Hash hash,
       final Signature signature) {
     try {
-<span class="fc" id="L63">      logger.debug(&quot;Verify with address: {}, hash: {}, signature: {}&quot;, accountAddress,</span>
+<span class="fc" id="L64">      logger.debug(&quot;Verify with address: {}, hash: {}, signature: {}&quot;, accountAddress,</span>
           hash, signature);
-<span class="fc" id="L65">      final ECDSASignature parsedSignature =</span>
-<span class="fc" id="L66">          SignatureResolver.parse(signature, ecdsaVerifier.getParams().getN());</span>
-<span class="fc" id="L67">      return ecdsaVerifier.verify(accountAddress.asPublicKey(), hash.getBytesValue().getValue(),</span>
+<span class="fc" id="L66">      final ECDSASignature parsedSignature =</span>
+<span class="fc" id="L67">          SignatureResolver.parse(signature, ecdsaVerifier.getParams().getN());</span>
+<span class="fc" id="L68">      return ecdsaVerifier.verify(accountAddress.asPublicKey(), hash.getBytesValue().getValue(),</span>
           parsedSignature);
-<span class="nc" id="L69">    } catch (Exception e) {</span>
-<span class="nc" id="L70">      throw new HerajException(e);</span>
+<span class="nc" id="L70">    } catch (Exception e) {</span>
+<span class="nc" id="L71">      throw new HerajException(e);</span>
     }
   }
 
@@ -84,12 +85,12 @@ public class AergoSignVerifier implements TransactionVerifier {
   public boolean verifyMessage(final AccountAddress accountAddress, final String message,
       final String base64EncodedSignature) {
     try {
-<span class="fc" id="L87">      final Signature signature = new Signature(of(Base64Utils.decode(base64EncodedSignature)));</span>
-<span class="fc" id="L88">      return verifyMessage(accountAddress, new BytesValue(message.getBytes()), signature);</span>
-<span class="nc" id="L89">    } catch (HerajException e) {</span>
-<span class="nc" id="L90">      throw e;</span>
-<span class="nc" id="L91">    } catch (Exception e) {</span>
-<span class="nc" id="L92">      throw new HerajException(e);</span>
+<span class="fc" id="L88">      final Signature signature = new Signature(of(Base64Utils.decode(base64EncodedSignature)));</span>
+<span class="fc" id="L89">      return verifyMessage(accountAddress, new BytesValue(message.getBytes()), signature);</span>
+<span class="nc" id="L90">    } catch (HerajException e) {</span>
+<span class="nc" id="L91">      throw e;</span>
+<span class="nc" id="L92">    } catch (Exception e) {</span>
+<span class="nc" id="L93">      throw new HerajException(e);</span>
     }
   }
 
@@ -106,14 +107,14 @@ public class AergoSignVerifier implements TransactionVerifier {
   public boolean verifyMessage(final AccountAddress accountAddress, final BytesValue message,
       final Signature signature) {
     try {
-<span class="fc" id="L109">      logger.debug(&quot;Verify with address: {}, message: {}, signature: {}&quot;, accountAddress,</span>
+<span class="fc" id="L110">      logger.debug(&quot;Verify with address: {}, message: {}, signature: {}&quot;, accountAddress,</span>
           message, signature);
-<span class="fc" id="L111">      final ECDSASignature parsedSignature =</span>
-<span class="fc" id="L112">          SignatureResolver.parse(signature, ecdsaVerifier.getParams().getN());</span>
-<span class="fc" id="L113">      final byte[] hashed = digest(message.getValue());</span>
-<span class="fc" id="L114">      return ecdsaVerifier.verify(accountAddress.asPublicKey(), hashed, parsedSignature);</span>
-<span class="nc" id="L115">    } catch (Exception e) {</span>
-<span class="nc" id="L116">      throw new HerajException(e);</span>
+<span class="fc" id="L112">      final ECDSASignature parsedSignature =</span>
+<span class="fc" id="L113">          SignatureResolver.parse(signature, ecdsaVerifier.getParams().getN());</span>
+<span class="fc" id="L114">      final byte[] hashed = digest(message.getValue());</span>
+<span class="fc" id="L115">      return ecdsaVerifier.verify(accountAddress.asPublicKey(), hashed, parsedSignature);</span>
+<span class="nc" id="L116">    } catch (Exception e) {</span>
+<span class="nc" id="L117">      throw new HerajException(e);</span>
     }
   }
 

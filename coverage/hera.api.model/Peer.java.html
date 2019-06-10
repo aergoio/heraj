@@ -17,7 +17,7 @@ import lombok.ToString;
 @ApiAudience.Public
 @ApiStability.Unstable
 <span class="nc" id="L19">@ToString</span>
-<span class="nc bnc" id="L20" title="All 46 branches missed.">@EqualsAndHashCode</span>
+<span class="nc bnc" id="L20" title="All 54 branches missed.">@EqualsAndHashCode</span>
 public class Peer {
 
 <span class="nc" id="L23">  @Getter</span>
@@ -47,6 +47,9 @@ public class Peer {
 <span class="nc" id="L47">  @Getter</span>
   protected boolean selfPeer;
 
+<span class="nc" id="L50">  @Getter</span>
+  protected String version;
+
   /**
    * Peer constructor.
    *
@@ -59,26 +62,28 @@ public class Peer {
    * @param hidden whether a peer is hidden or not
    * @param lashCheck a lash check value
    * @param selfPeer whether it is a peer which have received request or not
+   * @param version a versoin
    */
   @ApiAudience.Private
-  public Peer(final InetAddress address, final int port, final String peerId,
-      final long bestHeight, final BlockHash bestBlockHash,
-      final int state, final boolean hidden,
-<span class="fc" id="L67">      final long lashCheck, final boolean selfPeer) {</span>
-<span class="fc" id="L68">    assertNotNull(address, &quot;Peer address must not null&quot;);</span>
-<span class="fc" id="L69">    assertNotNull(peerId, &quot;Peer id must not null&quot;);</span>
-<span class="pc bpc" id="L70" title="1 of 2 branches missed.">    assertTrue(bestHeight &gt;= 0L, &quot;Peer best block height &gt;= 0&quot;);</span>
-<span class="fc" id="L71">    assertNotNull(bestBlockHash, &quot;Peer best block hash must not null&quot;);</span>
-<span class="fc" id="L72">    this.address = address;</span>
-<span class="fc" id="L73">    this.port = port;</span>
-<span class="fc" id="L74">    this.peerId = peerId;</span>
-<span class="fc" id="L75">    this.bestHeight = bestHeight;</span>
-<span class="fc" id="L76">    this.bestBlockHash = bestBlockHash;</span>
-<span class="fc" id="L77">    this.state = state;</span>
-<span class="fc" id="L78">    this.hidden = hidden;</span>
-<span class="fc" id="L79">    this.lashCheck = lashCheck;</span>
-<span class="fc" id="L80">    this.selfPeer = selfPeer;</span>
-<span class="fc" id="L81">  }</span>
+  public Peer(final InetAddress address, final int port, final String peerId, final long bestHeight,
+      final BlockHash bestBlockHash, final int state, final boolean hidden, final long lashCheck,
+<span class="fc" id="L70">      final boolean selfPeer, final String version) {</span>
+<span class="fc" id="L71">    assertNotNull(address, &quot;Peer address must not null&quot;);</span>
+<span class="fc" id="L72">    assertNotNull(peerId, &quot;Peer id must not null&quot;);</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">    assertTrue(bestHeight &gt;= 0L, &quot;Peer best block height &gt;= 0&quot;);</span>
+<span class="fc" id="L74">    assertNotNull(bestBlockHash, &quot;Peer best block hash must not null&quot;);</span>
+<span class="fc" id="L75">    assertNotNull(version, &quot;Peer version must not null&quot;);</span>
+<span class="fc" id="L76">    this.address = address;</span>
+<span class="fc" id="L77">    this.port = port;</span>
+<span class="fc" id="L78">    this.peerId = peerId;</span>
+<span class="fc" id="L79">    this.bestHeight = bestHeight;</span>
+<span class="fc" id="L80">    this.bestBlockHash = bestBlockHash;</span>
+<span class="fc" id="L81">    this.state = state;</span>
+<span class="fc" id="L82">    this.hidden = hidden;</span>
+<span class="fc" id="L83">    this.lashCheck = lashCheck;</span>
+<span class="fc" id="L84">    this.selfPeer = selfPeer;</span>
+<span class="fc" id="L85">    this.version = version;</span>
+<span class="fc" id="L86">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

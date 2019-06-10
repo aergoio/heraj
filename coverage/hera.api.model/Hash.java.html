@@ -38,7 +38,7 @@ public class Hash implements Adaptor, Encodable {
    */
   @ApiAudience.Private
   public static Hash of(final BytesValue bytesValue) {
-<span class="fc" id="L41">    return new Hash(bytesValue);</span>
+<span class="nc" id="L41">    return new Hash(bytesValue);</span>
   }
 
 <span class="fc" id="L44">  @Getter</span>
@@ -72,7 +72,7 @@ public class Hash implements Adaptor, Encodable {
 
   @Override
   public int hashCode() {
-<span class="nc" id="L75">    return bytesValue.hashCode();</span>
+<span class="fc" id="L75">    return bytesValue.hashCode();</span>
   }
 
   @Override
