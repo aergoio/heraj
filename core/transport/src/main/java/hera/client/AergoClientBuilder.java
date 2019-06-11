@@ -13,14 +13,20 @@ import hera.Strategy;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.internal.Time;
+import hera.exception.RpcException;
 import hera.strategy.ConnectStrategy;
 import hera.strategy.NettyConnectStrategy;
 import hera.strategy.OkHttpConnectStrategy;
+import hera.strategy.PlainTextChannelStrategy;
 import hera.strategy.RetryStrategy;
+import hera.strategy.SecurityConfigurationStrategy;
 import hera.strategy.SimpleTimeoutStrategy;
 import hera.strategy.TimeoutStrategy;
+import hera.strategy.TlsChannelStrategy;
 import hera.util.Configuration;
 import hera.util.conf.InMemoryConfiguration;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,6 +47,7 @@ public class AergoClientBuilder implements ClientConfiguer<AergoClientBuilder> {
     final Map<Class<?>, Strategy> map = new HashMap<Class<?>, Strategy>();
     map.put(ConnectStrategy.class, new NettyConnectStrategy());
     map.put(TimeoutStrategy.class, new SimpleTimeoutStrategy(DefaultConstants.DEFAULT_TIMEOUT));
+    map.put(SecurityConfigurationStrategy.class, new PlainTextChannelStrategy());
     necessaryStrategyMap = Collections.unmodifiableMap(map);
   }
 
@@ -83,6 +90,32 @@ public class AergoClientBuilder implements ClientConfiguer<AergoClientBuilder> {
   @Override
   public AergoClientBuilder withRetry(final int count, final long interval, final TimeUnit unit) {
     strategyMap.put(RetryStrategy.class, new RetryStrategy(count, Time.of(interval, unit)));
+    return this;
+  }
+
+  @Override
+  public AergoClientBuilder withPlainText() {
+    strategyMap.put(SecurityConfigurationStrategy.class, new PlainTextChannelStrategy());
+    return this;
+  }
+
+  @Override
+  public AergoClientBuilder withTransportSecurity(final String serverCommonName,
+      final String serverCertPath, final String clientCertPath, final String clientKeyPath) {
+    try {
+      return withTransportSecurity(serverCommonName, new FileInputStream(serverCertPath),
+          new FileInputStream(clientCertPath), new FileInputStream(clientKeyPath));
+    } catch (Exception e) {
+      throw new RpcException(e);
+    }
+  }
+
+  @Override
+  public AergoClientBuilder withTransportSecurity(final String serverCommonName,
+      final InputStream serverCertInputStream,
+      final InputStream clientCertInputStream, final InputStream clientKeyInputStream) {
+    strategyMap.put(SecurityConfigurationStrategy.class, new TlsChannelStrategy(serverCommonName,
+        serverCertInputStream, clientCertInputStream, clientKeyInputStream));
     return this;
   }
 

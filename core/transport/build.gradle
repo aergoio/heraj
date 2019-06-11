@@ -14,7 +14,7 @@ dependencies {
   implementation ("io.grpc:grpc-okhttp:${grpcVersion}") {
     exclude group: 'com.google.guava', module: 'guava'
   }
-  implementation ("io.grpc:grpc-netty:${grpcVersion}") {
+  implementation ("io.grpc:grpc-netty-shaded:${grpcVersion}") {
     exclude group: 'com.google.guava', module: 'guava'
   }
   implementation ("io.grpc:grpc-protobuf:${grpcVersion}") {

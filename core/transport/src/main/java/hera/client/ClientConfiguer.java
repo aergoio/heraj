@@ -5,10 +5,7 @@
 package hera.client;
 
 import hera.strategy.ConnectStrategy;
-import hera.strategy.NettyConnectStrategy;
-import hera.strategy.OkHttpConnectStrategy;
-import hera.strategy.RetryStrategy;
-import hera.strategy.SimpleTimeoutStrategy;
+import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
 public interface ClientConfiguer<ConfiguerT> {
@@ -31,7 +28,7 @@ public interface ClientConfiguer<ConfiguerT> {
   ConfiguerT withEndpoint(String endpoint);
 
   /**
-   * Use {@link NettyConnectStrategy}. If other {@link ConnectStrategy} is already set, that will be
+   * Use non-blocking connection. If other {@link ConnectStrategy} is already set, that will be
    * overridden.
    *
    * @return an instance of this
@@ -39,16 +36,15 @@ public interface ClientConfiguer<ConfiguerT> {
   ConfiguerT withNonBlockingConnect();
 
   /**
-   * Use {@link OkHttpConnectStrategy}. If other {@link ConnectStrategy} is already set, that will
-   * be overridden. This method works for <strong>jdk 1.7 or higher</strong>.
+   * Use blocking connection. If other {@link ConnectStrategy} is already set, that will be
+   * overridden. This method works for <strong>jdk 1.7 or higher</strong>.
    *
    * @return an instance of this
    */
   ConfiguerT withBlockingConnect();
 
   /**
-   * Set timeout for each request with {@link SimpleTimeoutStrategy}. If timeout is already set,
-   * that will be overridden.
+   * Set timeout for each request. If timeout is already set, that will be overridden.
    *
    * @param timeout time to time out
    * @param unit time's unit
@@ -58,7 +54,8 @@ public interface ClientConfiguer<ConfiguerT> {
   ConfiguerT withTimeout(long timeout, TimeUnit unit);
 
   /**
-   * Use {@link RetryStrategy}. Default retry count : 0, default retry interval : 5000 milliseconds.
+   * If fails with non-connection error, after {@code interval} {@code count} times. Default retry
+   * count : 0, default retry interval : 5000 milliseconds.
    *
    * @param count retry count. If it is less than 0, set as 0
    * @param interval interval value. If it's less than 0, set as 0
@@ -67,5 +64,38 @@ public interface ClientConfiguer<ConfiguerT> {
    * @return an instance of this
    */
   ConfiguerT withRetry(int count, long interval, TimeUnit unit);
+
+  /**
+   * Use plain text on connection.
+   *
+   * @return an instance of this
+   */
+  ConfiguerT withPlainText();
+
+  /**
+   * Use transport security on connection.
+   *
+   * @param serverCommonName a server common name
+   * @param serverCertPath a server certification path
+   * @param clientCertPath a client certification path
+   * @param clientKeyPath a client key path. Must be PKCS#8 format
+   *
+   * @return an instance of this
+   */
+  ConfiguerT withTransportSecurity(String serverCommonName, String serverCertPath,
+      String clientCertPath, String clientKeyPath);
+
+  /**
+   * Use transport security on connection.
+   *
+   * @param serverCommonName a server common name
+   * @param serverCertInputStream a server certification stream
+   * @param clientCertInputStream a client certification stream
+   * @param clientKeyInputStream a client key stream. Must be PKCS#8 format
+   *
+   * @return an instance of this
+   */
+  ConfiguerT withTransportSecurity(String serverCommonName, InputStream serverCertInputStream,
+      InputStream clientCertInputStream, InputStream clientKeyInputStream);
 
 }

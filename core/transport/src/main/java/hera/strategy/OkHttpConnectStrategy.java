@@ -36,8 +36,7 @@ public class OkHttpConnectStrategy implements ConnectStrategy<OkHttpChannelBuild
     return OkHttpChannelBuilder
         .forAddress(endpoint.getHostname(), endpoint.getPort())
         .keepAliveTime(KEEP_ALIVE_INTERVAL, TimeUnit.SECONDS)
-        .keepAliveWithoutCalls(true)
-        .usePlaintext();
+        .keepAliveWithoutCalls(true);
   }
 
   @Override

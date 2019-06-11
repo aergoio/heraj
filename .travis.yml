@@ -16,7 +16,15 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
+addons:
+  apt:
+    packages:
+      - openjdk-6-jdk
+
 install: true
+
+before_script:
+  - export JDK6_LIB_PATH=/usr/lib/jvm/java-6-openjdk-amd64/jre/lib
 
 script:
   - ./gradlew build jacocoTestReport alljavadoc
