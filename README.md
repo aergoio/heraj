@@ -18,7 +18,7 @@ build with aergo-protobuf [6c66b16b4c0f891646f8f49d728893ca5a937da4](https://git
 ## Compatibility
 
 * Aergo : v1.1.x
-* Java : JDK 6 or higher
+* Java : JDK 7 or higher
 * Android : Android 3.0 (API 11) or higher
 
 ## Download
@@ -101,16 +101,7 @@ TBD
 
 ### JDK
 
-* JDK 6 : class target environment
-* JDK 8 : test environment
-
-### Environment variable
-
-Set `JDK6_LIB_PATH` which is holding boot class files (rt.jar, jce.jar, etc..)
-
-```console
-$ export JDK6_LIB_PATH="YOUR_BOOT_CLASS_FILES_DIR"
-```
+* [JDK8](https://openjdk.java.net/projects/jdk8/)
 
 ## Clone
 
