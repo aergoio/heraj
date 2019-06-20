@@ -107,7 +107,7 @@ public interface BlockchainOperation {
   NodeStatus getNodeStatus();
 
   /**
-   * Will be removed in 1.2. Use {@link AccountOperation#vote(Signer, String, List, long)} instead.
+   * Use {@link AccountOperation#vote(Signer, String, List, long)} instead.
    *
    * @param account an account
    * @param voteId a vote id
@@ -116,23 +116,26 @@ public interface BlockchainOperation {
    *
    * @return voting transaction hash
    */
+  @Deprecated
   TxHash vote(Account account, String voteId, List<String> candidates, long nonce);
 
   /**
-   * Will be removed in 1.2. Use {@link AccountOperation#listElected(String, int)} instead.
+   * Use {@link AccountOperation#listElected(String, int)} instead.
    *
    * @param voteId a vote id
    * @param showCount a show count
    * @return a vote total
    */
+  @Deprecated
   List<ElectedCandidate> listElected(String voteId, int showCount);
 
   /**
-   * Will be removed in 1.2. Use {@link AccountOperation#getVotesOf(AccountAddress)} instead.
+   * Use {@link AccountOperation#getVotesOf(AccountAddress)} instead.
    *
    * @param accountAddress an account address
    * @return voting info
    */
+  @Deprecated
   AccountTotalVote getVotesOf(AccountAddress accountAddress);
 
 }

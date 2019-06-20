@@ -47,17 +47,18 @@ public interface ContractOperation {
   ContractTxReceipt getReceipt(ContractTxHash contractTxHash);
 
   /**
-   * Will be removed in 1.2. Use {@link #deploy(Signer, ContractDefinition, long, Fee)} instead.
+   * Use {@link #deploy(Signer, ContractDefinition, long, Fee)} instead.
    *
    * @param creator an creator account
    * @param contractDefinition contract definition
    * @param nonce an nonce used in making transaction
    * @return contract definition transaction hash
    */
+  @Deprecated
   ContractTxHash deploy(Account creator, ContractDefinition contractDefinition, long nonce);
 
   /**
-   * Will be removed in 1.2. Use {@link #deploy(Signer, ContractDefinition, long, Fee)} instead.
+   * Use {@link #deploy(Signer, ContractDefinition, long, Fee)} instead.
    *
    * @param creator an creator account
    * @param contractDefinition contract definition
@@ -65,6 +66,7 @@ public interface ContractOperation {
    * @param fee transaction fee
    * @return contract definition transaction hash
    */
+  @Deprecated
   ContractTxHash deploy(Account creator, ContractDefinition contractDefinition, long nonce,
       Fee fee);
 
@@ -89,17 +91,18 @@ public interface ContractOperation {
   ContractInterface getContractInterface(ContractAddress contractAddress);
 
   /**
-   * Will be removed in 1.2. Use {@link #execute(Signer, ContractInvocation, long, Fee)} instead.
+   * Use {@link #execute(Signer, ContractInvocation, long, Fee)} instead.
    *
    * @param executor an executor account
    * @param contractInvocation {@link ContractInvocation}
    * @param nonce an nonce used in making transaction
    * @return contract execution transaction hash
    */
+  @Deprecated
   ContractTxHash execute(Account executor, ContractInvocation contractInvocation, long nonce);
 
   /**
-   * Will be removed in 1.2. Use {@link #execute(Signer, ContractInvocation, long, Fee)} instead.
+   * Use {@link #execute(Signer, ContractInvocation, long, Fee)} instead.
    *
    * @param executor an executor account
    * @param contractInvocation {@link ContractInvocation}
@@ -107,6 +110,7 @@ public interface ContractOperation {
    * @param fee transaction fee
    * @return contract execution transaction hash
    */
+  @Deprecated
   ContractTxHash execute(Account executor, ContractInvocation contractInvocation, long nonce,
       Fee fee);
 

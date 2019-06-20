@@ -43,6 +43,7 @@ public interface AccountOperation {
    * @param account an account
    * @return an account state
    */
+  @Deprecated
   AccountState getState(Account account);
 
   /**
@@ -54,7 +55,7 @@ public interface AccountOperation {
   AccountState getState(AccountAddress address);
 
   /**
-   * Will be removed in 1.2. Use {@link #createName(Signer, String, long)} instead.
+   * Use {@link #createName(Signer, String, long)} instead.
    *
    * @param account an account
    * @param name an new name
@@ -75,7 +76,7 @@ public interface AccountOperation {
   TxHash createName(Signer signer, String name, long nonce);
 
   /**
-   * Will be removed in 1.2. Use {@link #updateName(Signer, String, AccountAddress, long)} instead.
+   * Use {@link #updateName(Signer, String, AccountAddress, long)} instead.
    *
    * @param owner an account
    * @param name an already binded name
@@ -83,6 +84,7 @@ public interface AccountOperation {
    * @param nonce an nonce which is used in a transaction
    * @return a update name transaction hash
    */
+  @Deprecated
   TxHash updateName(Account owner, String name, AccountAddress newOwner, long nonce);
 
   /**
@@ -114,13 +116,14 @@ public interface AccountOperation {
   AccountAddress getNameOwner(String name, long blockNumber);
 
   /**
-   * Will be removed in 1.2. Use {@link #stake(Signer, Aer, long)} instead.
+   * Use {@link #stake(Signer, Aer, long)} instead.
    *
    * @param account an account
    * @param amount an amount to stake
    * @param nonce an nonce which is used in a transaction
    * @return a staking transaction hash
    */
+  @Deprecated
   TxHash stake(Account account, Aer amount, long nonce);
 
   /**
@@ -134,13 +137,14 @@ public interface AccountOperation {
   TxHash stake(Signer signer, Aer amount, long nonce);
 
   /**
-   * Will be removed in 1.2. Use {@link #unstake(Signer, Aer, long)} instead.
+   * Use {@link #unstake(Signer, Aer, long)} instead.
    *
    * @param account an account
    * @param amount an amount to stake
    * @param nonce an nonce which is used in a transaction
    * @return a staking transaction hash
    */
+  @Deprecated
   TxHash unstake(Account account, Aer amount, long nonce);
 
   /**
@@ -198,21 +202,23 @@ public interface AccountOperation {
   List<ElectedCandidate> listElected(String voteId, int showCount);
 
   /**
-   * Will be removed in 1.2. Use {@link Signer#sign(RawTransaction)} instead.
+   * Use {@link Signer#sign(RawTransaction)} instead.
    *
    * @param account an account to sign
    * @param rawTransaction a raw transaction to sign
    * @return signed transaction
    */
+  @Deprecated
   Transaction sign(Account account, RawTransaction rawTransaction);
 
   /**
-   * Will be removed in 1.2. Use {@link AergoSignVerifier#verify(Transaction)} instead.
+   * Use {@link AergoSignVerifier#verify(Transaction)} instead.
    *
    * @param account an account to verify
    * @param transaction a signed transaction to verify
    * @return verification result
    */
+  @Deprecated
   boolean verify(Account account, Transaction transaction);
 
 }

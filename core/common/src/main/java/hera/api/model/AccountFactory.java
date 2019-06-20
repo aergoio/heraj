@@ -13,9 +13,6 @@ import hera.api.model.internal.AccountWithKey;
 import hera.key.AergoKey;
 import hera.transaction.TxSigner;
 
-/**
- * Will be removed in 1.2.
- */
 @Deprecated
 public class AccountFactory {
 

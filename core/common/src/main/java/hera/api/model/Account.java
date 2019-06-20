@@ -6,9 +6,6 @@ package hera.api.model;
 
 import hera.key.AergoKey;
 
-/**
- * Will be removed in 1.2.
- */
 @Deprecated
 public interface Account {
 
