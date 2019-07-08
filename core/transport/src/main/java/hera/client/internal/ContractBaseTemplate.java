@@ -21,6 +21,7 @@ import hera.annotation.ApiStability;
 import hera.api.function.Function1;
 import hera.api.function.Function2;
 import hera.api.function.Function4;
+import hera.api.function.Function5;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
@@ -190,6 +191,35 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
                 .chainIdHash(contextProvider.get().getChainIdHash())
                 .from(signer.getPrincipal())
                 .nonce(nonce)
+                .definition(contractDefinition)
+                .build();
+            return signAndCommitWithSigner(signer, rawTransaction);
+          } catch (Exception e) {
+            FinishableFuture<ContractTxHash> next = new FinishableFuture<ContractTxHash>();
+            next.fail(e);
+            return next;
+          }
+        }
+      };
+
+  @Getter
+  private final Function5<Signer, ContractAddress, ContractDefinition, Long, Fee,
+      FinishableFuture<ContractTxHash>> reDeployFunction = new Function5<
+          Signer, ContractAddress, ContractDefinition, Long, Fee,
+          FinishableFuture<ContractTxHash>>() {
+
+        @Override
+        public FinishableFuture<ContractTxHash> apply(final Signer signer,
+            final ContractAddress contractAddress, final ContractDefinition contractDefinition,
+            final Long nonce, final Fee fee) {
+          logger.debug("Deploy contract with creator: {}, definition: {}, nonce: {}, fee: {}",
+              signer, contractDefinition, nonce, fee);
+          try {
+            final RawTransaction rawTransaction = RawTransaction.newReDeployContractBuilder()
+                .chainIdHash(contextProvider.get().getChainIdHash())
+                .creator(signer.getPrincipal())
+                .nonce(nonce)
+                .contractAddress(contractAddress)
                 .definition(contractDefinition)
                 .build();
             return signAndCommitWithSigner(signer, rawTransaction);

@@ -10,6 +10,7 @@ import hera.api.function.Function1;
 import hera.api.function.Function2;
 import hera.api.function.Function3;
 import hera.api.function.Function4;
+import hera.api.function.Function5;
 import hera.api.function.FunctionDecorator;
 
 public abstract class PreInvocationStrategy implements Strategy, FunctionDecorator {
@@ -68,6 +69,18 @@ public abstract class PreInvocationStrategy implements Strategy, FunctionDecorat
       public R apply(T1 t1, T2 t2, T3 t3, T4 t4) {
         before(f);
         return f.apply(t1, t2, t3, t4);
+      }
+    };
+  }
+
+  @Override
+  public <T1, T2, T3, T4, T5, R> Function5<T1, T2, T3, T4, T5, R> apply(
+      final Function5<T1, T2, T3, T4, T5, R> f) {
+    return new Function5<T1, T2, T3, T4, T5, R>() {
+      @Override
+      public R apply(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5) {
+        before(f);
+        return f.apply(t1, t2, t3, t4, t5);
       }
     };
   }

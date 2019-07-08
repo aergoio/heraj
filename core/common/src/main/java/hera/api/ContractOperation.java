@@ -83,6 +83,20 @@ public interface ContractOperation {
       Fee fee);
 
   /**
+   * Re-deploy smart contract. A principle of {@code signer} must be creator and
+   * {@code contractAddress} must be existing one.
+   *
+   * @param signer a signer whose principle is smart contract creator.
+   * @param contractAddress an existing contract address
+   * @param contractDefinition contract definition to re-deploy
+   * @param nonce an nonce used in making transaction
+   * @param fee transaction fee
+   * @return contract definition transaction hash
+   */
+  ContractTxHash redeploy(Signer signer, ContractAddress contractAddress,
+      ContractDefinition contractDefinition, long nonce, Fee fee);
+
+  /**
    * Get smart contract interface corresponding to contract address.
    *
    * @param contractAddress contract address

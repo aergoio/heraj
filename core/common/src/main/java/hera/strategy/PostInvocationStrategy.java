@@ -10,6 +10,7 @@ import hera.api.function.Function1;
 import hera.api.function.Function2;
 import hera.api.function.Function3;
 import hera.api.function.Function4;
+import hera.api.function.Function5;
 import hera.api.function.FunctionDecorator;
 import hera.api.function.Functions;
 
@@ -60,6 +61,17 @@ public abstract class PostInvocationStrategy implements Strategy, FunctionDecora
   @Override
   public <T1, T2, T3, T4, R> Function4<T1, T2, T3, T4, R> apply(
       final Function4<T1, T2, T3, T4, R> f) {
+    return Functions.compose(f, new Function1<R, R>() {
+      public R apply(R r) {
+        after(f, r);
+        return r;
+      }
+    });
+  }
+
+  @Override
+  public <T1, T2, T3, T4, T5, R> Function5<T1, T2, T3, T4, T5, R> apply(
+      final Function5<T1, T2, T3, T4, T5, R> f) {
     return Functions.compose(f, new Function1<R, R>() {
       public R apply(R r) {
         after(f, r);

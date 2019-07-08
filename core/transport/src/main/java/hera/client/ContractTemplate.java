@@ -10,6 +10,7 @@ import static hera.TransportConstants.CONTRACT_GETINTERFACE;
 import static hera.TransportConstants.CONTRACT_GETRECEIPT;
 import static hera.TransportConstants.CONTRACT_LIST_EVENT;
 import static hera.TransportConstants.CONTRACT_QUERY;
+import static hera.TransportConstants.CONTRACT_REDEPLOY;
 import static hera.TransportConstants.CONTRACT_SUBSCRIBE_EVENT;
 import static hera.api.function.Functions.identify;
 
@@ -21,6 +22,7 @@ import hera.api.ContractOperation;
 import hera.api.function.Function1;
 import hera.api.function.Function2;
 import hera.api.function.Function4;
+import hera.api.function.Function5;
 import hera.api.model.Account;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
@@ -85,6 +87,11 @@ public class ContractTemplate
           getStrategyChain()
               .apply(identify(contractBaseTemplate.getDeployFunction(), CONTRACT_DEPLOY));
 
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function5<Signer, ContractAddress, ContractDefinition, Long, Fee,
+      FinishableFuture<ContractTxHash>> reDeployFunction =
+          getStrategyChain()
+              .apply(identify(contractBaseTemplate.getReDeployFunction(), CONTRACT_REDEPLOY));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<ContractAddress,
@@ -141,6 +148,13 @@ public class ContractTemplate
   public ContractTxHash deploy(final Signer signer, final ContractDefinition contractDefinition,
       final long nonce, final Fee fee) {
     return getDeployFunction().apply(signer, contractDefinition, nonce, fee).get();
+  }
+
+  @Override
+  public ContractTxHash redeploy(final Signer signer, final ContractAddress contractAddress,
+      final ContractDefinition contractDefinition, final long nonce, final Fee fee) {
+    return getReDeployFunction().apply(signer, contractAddress, contractDefinition, nonce, fee)
+        .get();
   }
 
   @Override

@@ -13,6 +13,7 @@ import hera.transaction.CreateNameTransactionBuilder;
 import hera.transaction.DeployContractTransactionBuilder;
 import hera.transaction.InvokeContractTransactionBuilder;
 import hera.transaction.PlainTransactionBuilder;
+import hera.transaction.ReDeployContractTransactionBuilder;
 import hera.transaction.StakeTransactionBuilder;
 import hera.transaction.UnstakeTransactionBuilder;
 import hera.transaction.UpdateNameTransactionBuilder;
@@ -21,6 +22,7 @@ import hera.transaction.dsl.CreateNameTransaction;
 import hera.transaction.dsl.DeployContractTransaction;
 import hera.transaction.dsl.InvokeContractTransaction;
 import hera.transaction.dsl.PlainTransaction;
+import hera.transaction.dsl.ReDeployContractTransaction;
 import hera.transaction.dsl.StakeTransaction;
 import hera.transaction.dsl.UnstakeTransaction;
 import hera.transaction.dsl.UpdateNameTransaction;
@@ -48,6 +50,11 @@ public class RawTransaction {
   @ApiAudience.Public
   public static DeployContractTransaction.WithNothing newDeployContractBuilder() {
     return new DeployContractTransactionBuilder();
+  }
+
+  @ApiAudience.Public
+  public static ReDeployContractTransaction.WithNothing newReDeployContractBuilder() {
+    return new ReDeployContractTransactionBuilder();
   }
 
   @ApiAudience.Public

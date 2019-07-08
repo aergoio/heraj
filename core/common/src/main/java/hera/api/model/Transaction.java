@@ -39,7 +39,7 @@ public class Transaction {
 
   @RequiredArgsConstructor
   public enum TxType {
-    UNRECOGNIZED(-1), NORMAL(0), GOVERNANCE(1);
+    UNRECOGNIZED(-1), NORMAL(0), GOVERNANCE(1), REDEPLOY(2);
 
     @Getter
     private final int intValue;

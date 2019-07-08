@@ -6,9 +6,8 @@ package hera.client.it;
 
 import static org.junit.Assert.assertEquals;
 import static org.slf4j.LoggerFactory.getLogger;
-import hera.api.model.Account;
+
 import hera.api.model.AccountAddress;
-import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
@@ -102,7 +101,7 @@ public abstract class AbstractIT {
     ThreadUtils.trySleep(1200L);
   }
 
-  protected AergoKey supplyLocalAccount() {
+  protected AergoKey createNewKey() {
     final AergoKey aergoKey = new AergoKeyGenerator().create();
     if (isFundEnabled) {
       fund(aergoKey.getAddress());
@@ -110,27 +109,19 @@ public abstract class AbstractIT {
     return aergoKey;
   }
 
-  protected AccountAddress supplyServerAccount() {
-    final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
-    if (isFundEnabled) {
-      fund(created);
-    }
-    return created;
-  }
-
   protected void fund(final AccountAddress accountAddress) {
-    final Account rich = new AccountFactory().create(AergoKey.of(encrypted, password));
-    final AccountState richState = aergoClient.getAccountOperation().getState(rich);
-    rich.bindState(richState);
+    final AergoKey rich = AergoKey.of(encrypted, password);
+    final AccountState richState = aergoClient.getAccountOperation().getState(rich.getPrincipal());
+    nonceProvider.bindNonce(richState);
     logger.info("Rich state: {}", richState);
     final RawTransaction rawTransaction =
         RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
-            .from(rich)
+            .from(rich.getPrincipal())
             .to(accountAddress)
             .amount(Aer.of("10000", Unit.AERGO))
-            .nonce(rich.incrementAndGetNonce())
+            .nonce(nonceProvider.incrementAndGetNonce(rich.getPrincipal()))
             .build();
-    final Transaction signed = aergoClient.getAccountOperation().sign(rich, rawTransaction);
+    final Transaction signed = rich.sign(rawTransaction);
     aergoClient.getTransactionOperation().commit(signed);
     waitForNextBlockToGenerate();
   }
@@ -143,6 +134,12 @@ public abstract class AbstractIT {
     final String consensus =
         aergoClient.getBlockchainOperation().getBlockchainStatus().getConsensus();
     return consensus.indexOf("dpos") != -1;
+  }
+
+  protected Aer getAmount(final AccountAddress accountAddress) {
+    final AccountState accountState =
+        aergoClient.getAccountOperation().getState(accountAddress);
+    return accountState.getBalance();
   }
 
   @After

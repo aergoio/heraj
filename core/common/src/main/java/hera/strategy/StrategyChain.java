@@ -14,6 +14,7 @@ import hera.api.function.Function1;
 import hera.api.function.Function2;
 import hera.api.function.Function3;
 import hera.api.function.Function4;
+import hera.api.function.Function5;
 import hera.api.function.FunctionDecorator;
 import hera.api.function.FunctionDecoratorChain;
 import hera.api.function.WithIdentity;
@@ -112,6 +113,20 @@ public class StrategyChain implements FunctionDecoratorChain {
   @Override
   public <T1, T2, T3, T4, R> Function4<T1, T2, T3, T4, R> apply(Function4<T1, T2, T3, T4, R> f) {
     Function4<T1, T2, T3, T4, R> ret = f;
+    for (final FunctionDecorator next : chain) {
+      logger.debug("Apply strategy [{}] to a function", next);
+      ret = next.apply(ret);
+      if (f instanceof WithIdentity) {
+        ret = identify(ret, ((WithIdentity) f).getIdentity());
+      }
+    }
+    return ret;
+  }
+
+  @Override
+  public <T1, T2, T3, T4, T5, R> Function5<T1, T2, T3, T4, T5, R> apply(
+      Function5<T1, T2, T3, T4, T5, R> f) {
+    Function5<T1, T2, T3, T4, T5, R> ret = f;
     for (final FunctionDecorator next : chain) {
       logger.debug("Apply strategy [{}] to a function", next);
       ret = next.apply(ret);

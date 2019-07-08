@@ -141,6 +141,33 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
   }
 
   @Test
+  public void testReDeploy() {
+    final AergoRPCServiceFutureStub futureService = mock(AergoRPCServiceFutureStub.class);
+
+    TransactionBaseTemplate mockTransactionBaseTemplate = mock(TransactionBaseTemplate.class);
+    when(mockTransactionBaseTemplate.getCommitFunction())
+        .thenReturn(new Function1<Transaction, FinishableFuture<TxHash>>() {
+          @Override
+          public FinishableFuture<TxHash> apply(Transaction t) {
+            final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
+            future.success(new TxHash(BytesValue.of(randomUUID().toString().getBytes())));
+            return future;
+          }
+        });
+
+    final ContractBaseTemplate contractBaseTemplate = supplyContractBaseTemplate(futureService);
+    contractBaseTemplate.transactionBaseTemplate = mockTransactionBaseTemplate;
+
+    final Signer signer = new AergoKeyGenerator().create();
+    final FinishableFuture<ContractTxHash> deployTxHash = contractBaseTemplate
+        .getReDeployFunction()
+        .apply(signer, contractAddress,
+            ContractDefinition.newBuilder().encodedContract(encodedContract).build(),
+            0L, fee);
+    assertNotNull(deployTxHash.get());
+  }
+
+  @Test
   public void testGetContractInterface() {
     final AergoRPCServiceFutureStub futureService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Blockchain.ABI> mockListenableFuture =

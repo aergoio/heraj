@@ -16,4 +16,7 @@ public interface FunctionDecorator {
 
   <T1, T2, T3, T4, R> Function4<T1, T2, T3, T4, R> apply(Function4<T1, T2, T3, T4, R> f);
 
+  <T1, T2, T3, T4, T5, R> Function5<T1, T2, T3, T4, T5, R> apply(
+      Function5<T1, T2, T3, T4, T5, R> f);
+
 }

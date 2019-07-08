@@ -38,6 +38,8 @@ public class TransactionInBlockConverterFactory {
               return Blockchain.TxType.NORMAL;
             case GOVERNANCE:
               return Blockchain.TxType.GOVERNANCE;
+            case REDEPLOY:
+              return Blockchain.TxType.REDEPLOY;
             default:
               return Blockchain.TxType.UNRECOGNIZED;
           }
@@ -54,6 +56,8 @@ public class TransactionInBlockConverterFactory {
               return Transaction.TxType.NORMAL;
             case GOVERNANCE:
               return Transaction.TxType.GOVERNANCE;
+            case REDEPLOY:
+              return Transaction.TxType.REDEPLOY;
             default:
               return Transaction.TxType.UNRECOGNIZED;
           }

@@ -9,6 +9,7 @@ import hera.api.function.impl.Function1WithIdentity;
 import hera.api.function.impl.Function2WithIdentity;
 import hera.api.function.impl.Function3WithIdentity;
 import hera.api.function.impl.Function4WithIdentity;
+import hera.api.function.impl.Function5WithIdentity;
 
 public final class Functions {
 
@@ -94,6 +95,26 @@ public final class Functions {
   public static <T1, T2, T3, T4, R> Function4<T1, T2, T3, T4, R> identify(
       final Function4<T1, T2, T3, T4, R> f, final String identity) {
     return new Function4WithIdentity<T1, T2, T3, T4, R>(f, identity);
+  }
+
+  /**
+   * Identify a function by name.
+   *
+   * @param <T1> a function 1st argument type
+   * @param <T2> a function 2nd argument type
+   * @param <T3> a function 3rd argument type
+   * @param <T4> a function 4th argument type
+   * @param <T5> a function 5th argument type
+   * @param <R> a function return type
+   *
+   * @param f a function to identify
+   * @param identity an identity
+   *
+   * @return a function with identity
+   */
+  public static <T1, T2, T3, T4, T5, R> Function5<T1, T2, T3, T4, T5, R> identify(
+      final Function5<T1, T2, T3, T4, T5, R> f, final String identity) {
+    return new Function5WithIdentity<T1, T2, T3, T4, T5, R>(f, identity);
   }
 
   /**
@@ -260,6 +281,44 @@ public final class Functions {
       @Override
       public V apply(final T1 t1, final T2 t2, final T3 t3, final T4 t4) {
         return second.apply(first.apply(t1, t2, t3, t4));
+      }
+    };
+  }
+
+  /**
+   * Returns a composed function that first applies {@code first} function to its input, and then
+   * applies the {@code second} function to the result.
+   *
+   * @param <T1> the 1st input type of {@code first}
+   * @param <T2> the 2nd input type of {@code first}
+   * @param <T3> the 3rd input type of {@code first}
+   * @param <T4> the 3rd input type of {@code first}
+   * @param <T5> the 4th input type of {@code first}
+   * @param <R> the output type of {@code first} and the input type of {@code second}
+   * @param <V> the type of output of the {@code second} function
+   *
+   * @param first the function to invoke first
+   * @param second the function to invoke second
+   *
+   * @return a composed function that first applies {@code first} function and then applies the
+   *         {@code second} function
+   *
+   * @throws NullPointerException if before or after is null
+   */
+  public static <T1, T2, T3, T4, T5, R, V> Function5<T1, T2, T3, T4, T5, V> compose(
+      final Function5<? super T1, ? super T2, ? super T3, ? super T4, ? super T5,
+          ? extends R> first,
+      final Function1<? super R, ? extends V> second) {
+    if (null == first) {
+      throw new NullPointerException();
+    }
+    if (null == second) {
+      throw new NullPointerException();
+    }
+    return new Function5<T1, T2, T3, T4, T5, V>() {
+      @Override
+      public V apply(final T1 t1, final T2 t2, final T3 t3, final T4 t4, final T5 t5) {
+        return second.apply(first.apply(t1, t2, t3, t4, t5));
       }
     };
   }

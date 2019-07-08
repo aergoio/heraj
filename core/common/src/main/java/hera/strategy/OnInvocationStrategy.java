@@ -10,6 +10,7 @@ import hera.api.function.Function1;
 import hera.api.function.Function2;
 import hera.api.function.Function3;
 import hera.api.function.Function4;
+import hera.api.function.Function5;
 import hera.api.function.FunctionDecorator;
 
 public abstract class OnInvocationStrategy implements Strategy, FunctionDecorator {
@@ -82,6 +83,22 @@ public abstract class OnInvocationStrategy implements Strategy, FunctionDecorato
           @Override
           public R apply() {
             return f.apply(t1, t2, t3, t4);
+          }
+        });
+      }
+    };
+  }
+
+  @Override
+  public <T1, T2, T3, T4, T5, R> Function5<T1, T2, T3, T4, T5, R> apply(
+      final Function5<T1, T2, T3, T4, T5, R> f) {
+    return new Function5<T1, T2, T3, T4, T5, R>() {
+      @Override
+      public R apply(final T1 t1, final T2 t2, final T3 t3, final T4 t4, final T5 t5) {
+        return action(f, new Function0<R>() {
+          @Override
+          public R apply() {
+            return f.apply(t1, t2, t3, t4, t5);
           }
         });
       }

@@ -53,6 +53,7 @@ public final class TransportConstants {
 
   public static final String CONTRACT_GETRECEIPT = "heraj.getreceipt";
   public static final String CONTRACT_DEPLOY = "heraj.deploy";
+  public static final String CONTRACT_REDEPLOY = "heraj.redeploy";
   public static final String CONTRACT_GETINTERFACE = "heraj.getinterface";
   public static final String CONTRACT_EXECUTE = "heraj.execute";
   public static final String CONTRACT_QUERY = "heraj.query";

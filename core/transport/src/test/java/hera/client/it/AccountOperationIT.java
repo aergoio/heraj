@@ -27,7 +27,7 @@ public class AccountOperationIT extends AbstractIT {
 
   @Test
   public void testCreateAndGetName() {
-    final AergoKey key = supplyLocalAccount();
+    final AergoKey key = createNewKey();
     final String name = randomUUID().toString().substring(0, 12).replace('-', 'a');
 
     aergoClient.getAccountOperation().createName(key, name,
@@ -57,7 +57,7 @@ public class AccountOperationIT extends AbstractIT {
 
   @Test
   public void testCreateWithInvalidNonce() {
-    final AergoKey key = supplyLocalAccount();
+    final AergoKey key = createNewKey();
     final String name = randomUUID().toString().substring(0, 12).replace('-', 'a');
 
     try {
@@ -70,7 +70,7 @@ public class AccountOperationIT extends AbstractIT {
 
   @Test
   public void testUpdateWithInvalidNonce() {
-    final AergoKey key = supplyLocalAccount();
+    final AergoKey key = createNewKey();
     final String name = randomUUID().toString().substring(0, 12).replace('-', 'a');
 
     aergoClient.getAccountOperation().createName(key, name,
@@ -96,7 +96,7 @@ public class AccountOperationIT extends AbstractIT {
       return;
     }
 
-    final AergoKey key = supplyLocalAccount();
+    final AergoKey key = createNewKey();
     final AccountState state = aergoClient.getAccountOperation().getState(key.getAddress());
     aergoClient.getAccountOperation().stake(key, state.getBalance(),
         nonceProvider.incrementAndGetNonce(key.getAddress()));
@@ -122,7 +122,7 @@ public class AccountOperationIT extends AbstractIT {
       return;
     }
 
-    final AergoKey key = supplyLocalAccount();
+    final AergoKey key = createNewKey();
     final AccountState state = aergoClient.getAccountOperation().getState(key.getAddress());
     try {
       aergoClient.getAccountOperation().stake(key, state.getBalance(), 0L);
@@ -138,7 +138,7 @@ public class AccountOperationIT extends AbstractIT {
       return;
     }
 
-    final AergoKey key = supplyLocalAccount();
+    final AergoKey key = createNewKey();
     final AccountState state = aergoClient.getAccountOperation().getState(key.getAddress());
 
     aergoClient.getAccountOperation().stake(key, state.getBalance(),
@@ -165,7 +165,7 @@ public class AccountOperationIT extends AbstractIT {
       return;
     }
 
-    final AergoKey key = supplyLocalAccount();
+    final AergoKey key = createNewKey();
 
     aergoClient.getAccountOperation().stake(key, Aer.of("10000", Unit.AERGO),
         nonceProvider.incrementAndGetNonce(key.getAddress()));
@@ -197,7 +197,7 @@ public class AccountOperationIT extends AbstractIT {
       return;
     }
 
-    final AergoKey key = supplyLocalAccount();
+    final AergoKey key = createNewKey();
 
     try {
       final List<String> candidates = asList(peerIds);

@@ -28,7 +28,7 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testCommit() {
-    final AergoKey key = supplyLocalAccount();
+    final AergoKey key = createNewKey();
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
     final AccountState preState = aergoClient.getAccountOperation().getState(key.getAddress());
 
@@ -64,7 +64,7 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testCommitWithNameSender() {
-    final AergoKey key = supplyLocalAccount();
+    final AergoKey key = createNewKey();
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
 
     // give sender an name
@@ -102,10 +102,10 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testCommitWithNameRecipient() {
-    final AergoKey key = supplyLocalAccount();
+    final AergoKey key = createNewKey();
 
     // give recipient an name
-    final AergoKey recipient = supplyLocalAccount();
+    final AergoKey recipient = createNewKey();
     final String name = randomUUID().toString().substring(0, 12).replace('-', 'a');
     aergoClient.getAccountOperation().createName(recipient, name,
         nonceProvider.incrementAndGetNonce(recipient.getAddress()));
@@ -140,7 +140,7 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testCommitOnEmptyAmount() {
-    final AergoKey key = supplyLocalAccount();
+    final AergoKey key = createNewKey();
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
 
     // snapshot pre state
@@ -172,7 +172,7 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testCommitOnInvalidSender() {
-    final AergoKey key = supplyLocalAccount();
+    final AergoKey key = createNewKey();
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
 
     final AccountAddress invalidSender = AccountAddress.of(BytesValue.EMPTY);
@@ -194,7 +194,7 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testCommitOnInvalidRecipient() {
-    final AergoKey key = supplyLocalAccount();
+    final AergoKey key = createNewKey();
     final AccountAddress invalidRecipient = AccountAddress.of(BytesValue.EMPTY);
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .chainIdHash(aergoClient.getCachedChainIdHash())
@@ -216,7 +216,7 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testCommitOnInvalidNonce() {
-    final AergoKey key = supplyLocalAccount();
+    final AergoKey key = createNewKey();
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
     final RawTransaction rawTransaction =
         RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
@@ -238,8 +238,8 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testCommitOnInvalidSignature() {
-    final AergoKey key = supplyLocalAccount();
-    final AergoKey recipient = supplyLocalAccount();
+    final AergoKey key = createNewKey();
+    final AergoKey recipient = createNewKey();
     final RawTransaction rawTransaction =
         RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
             .from(key.getAddress())
@@ -261,7 +261,7 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void testCommitOnStaked() {
-    final AergoKey key = supplyLocalAccount();
+    final AergoKey key = createNewKey();
     final AccountState state = aergoClient.getAccountOperation().getState(key.getAddress());
 
     aergoClient.getAccountOperation().stake(key, state.getBalance(),

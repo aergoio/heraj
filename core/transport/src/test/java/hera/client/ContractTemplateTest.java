@@ -11,6 +11,7 @@ import static hera.TransportConstants.CONTRACT_GETINTERFACE;
 import static hera.TransportConstants.CONTRACT_GETRECEIPT;
 import static hera.TransportConstants.CONTRACT_LIST_EVENT;
 import static hera.TransportConstants.CONTRACT_QUERY;
+import static hera.TransportConstants.CONTRACT_REDEPLOY;
 import static hera.TransportConstants.CONTRACT_SUBSCRIBE_EVENT;
 import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
@@ -24,6 +25,7 @@ import hera.ContextProvider;
 import hera.api.function.Function1;
 import hera.api.function.Function2;
 import hera.api.function.Function4;
+import hera.api.function.Function5;
 import hera.api.function.WithIdentity;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
@@ -106,13 +108,13 @@ public class ContractTemplateTest extends AbstractTestCase {
   @Test
   public void testDeploy() throws Exception {
     final ContractBaseTemplate base = mock(ContractBaseTemplate.class);
-    final FinishableFuture<ContractTxHash> future = new FinishableFuture<ContractTxHash>();
-    future.success(new ContractTxHash(of(randomUUID().toString().getBytes())));
     when(base.getDeployFunction()).thenReturn(
         new Function4<Signer, ContractDefinition, Long, Fee, FinishableFuture<ContractTxHash>>() {
           @Override
           public FinishableFuture<ContractTxHash> apply(Signer t1, ContractDefinition t2,
               Long t3, Fee t4) {
+            final FinishableFuture<ContractTxHash> future = new FinishableFuture<ContractTxHash>();
+            future.success(new ContractTxHash(of(randomUUID().toString().getBytes())));
             return future;
           }
         });
@@ -126,6 +128,33 @@ public class ContractTemplateTest extends AbstractTestCase {
     assertNotNull(deployTxHash);
     assertEquals(CONTRACT_DEPLOY,
         ((WithIdentity) contractTemplate.getDeployFunction()).getIdentity());
+  }
+
+  @Test
+  public void testReDeploy() {
+    final ContractBaseTemplate base = mock(ContractBaseTemplate.class);
+    when(base.getReDeployFunction()).thenReturn(new Function5<Signer, ContractAddress,
+        ContractDefinition, Long, Fee, FinishableFuture<ContractTxHash>>() {
+
+      @Override
+      public FinishableFuture<ContractTxHash> apply(Signer t1, ContractAddress t2,
+          ContractDefinition t3, Long t4, Fee t5) {
+        final FinishableFuture<ContractTxHash> future = new FinishableFuture<ContractTxHash>();
+        future.success(new ContractTxHash(of(randomUUID().toString().getBytes())));
+        return future;
+      }
+    });
+
+    final ContractTemplate contractTemplate = supplyContractTemplate(base);
+
+    final Signer signer = new AergoKeyGenerator().create();
+    final ContractDefinition definition =
+        ContractDefinition.newBuilder().encodedContract(encodedContract).build();
+    final ContractTxHash deployTxHash =
+        contractTemplate.redeploy(signer, contractAddress, definition, 0L, Fee.ZERO);
+    assertNotNull(deployTxHash);
+    assertEquals(CONTRACT_REDEPLOY,
+        ((WithIdentity) contractTemplate.getReDeployFunction()).getIdentity());
   }
 
   @Test
