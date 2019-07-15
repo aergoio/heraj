@@ -27,8 +27,11 @@ import java.util.List;
  *
  * <ul>
  * <li>lookup chain id hash</li>
- * <li>lookup blockchain status, node status, peers, server info</li>
- * <li>voting related operations</li>
+ * <li>lookup blockchain status</li>
+ * <li>lookup chain info, status</li>
+ * <li>lookup server info</li>
+ * <li>lookup peer info</li>
+ * <li>lookup node info</li>
  * </ul>
  *
  * @author Taeik Lim
@@ -139,3 +142,4 @@ public interface BlockchainOperation {
   AccountTotalVote getVotesOf(AccountAddress accountAddress);
 
 }
+

@@ -4,14 +4,17 @@
 
 package hera.client.it;
 
-import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
+import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
@@ -26,7 +29,7 @@ import hera.key.AergoKey;
 import hera.key.Signer;
 import hera.util.IoUtils;
 import java.io.InputStreamReader;
-import java.util.concurrent.CountDownLatch;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,21 +39,38 @@ import org.junit.Test;
 
 public class ContractOperationIT extends AbstractIT {
 
-  protected String payload;
-  protected String redeployPayload;
-
   protected String executeFunction = "set";
-  protected String executeKey = randomUUID().toString();
-  protected int executeIntVal = randomUUID().toString().hashCode();
-  protected String executeStringVal = randomUUID().toString();
-
+  protected String executeFunction2 = "set2";
   protected String queryFunction = "get";
+  protected String newQueryFunction = "newGet";
+
+  protected String simplePayload;
+  protected String withPayablePayload;
+  protected String withAbiAddedPayload;
+  protected String withEventPayload;
 
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    payload = IoUtils.from(new InputStreamReader(open("payload")));
-    redeployPayload = IoUtils.from(new InputStreamReader(open("redeployPayload")));
+    simplePayload = IoUtils.from(new InputStreamReader(open("simple_payload")));
+    withPayablePayload = IoUtils.from(new InputStreamReader(open("with_payable_payload")));
+    withAbiAddedPayload = IoUtils.from(new InputStreamReader(open("with_abi_added_payload")));
+    withEventPayload = IoUtils.from(new InputStreamReader(open("with_event_payload")));
+  }
+
+  @Test
+  public void shouldDeployOnPlainContract() throws Exception {
+    // given
+    final AergoKey key = createNewKey();
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(simplePayload)
+        .build();
+
+    // when
+    final ContractTxReceipt receipt = deploy(key, definition);
+
+    // then
+    assertEquals("CREATED", receipt.getStatus());
   }
 
   @Test
@@ -61,22 +81,39 @@ public class ContractOperationIT extends AbstractIT {
     final int deployIntVal = randomUUID().toString().hashCode();
     final String deployStringVal = randomUUID().toString();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(payload)
+        .encodedContract(simplePayload)
         .constructorArgs(deployKey, deployIntVal, deployStringVal)
         .build();
 
     // when
-    final ContractTxHash deployTxHash = deploy(key, definition);
+    final ContractInterface contractInterface = deployAndGetAbi(key, definition);
 
     // then
-    final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
-    assertEquals("CREATED", deployTxReceipt.getStatus());
-    final ContractInterface contractInterface =
-        getABI(deployTxReceipt.getContractAddress());
-    final ContractResult queryResult = query(contractInterface, queryFunction, deployKey);
+    final ContractInvocation query = contractInterface.newInvocationBuilder()
+        .function(queryFunction)
+        .args(deployKey)
+        .build();
+    final ContractResult queryResult = aergoClient.getContractOperation().query(query);
     final Data data = queryResult.bind(Data.class);
     assertEquals(deployIntVal, data.getIntVal());
     assertEquals(deployStringVal, data.getStringVal());
+  }
+
+  @Test
+  public void shouldDeployFailOnInvaidNonce() throws Exception {
+    // given
+    final AergoKey key = createNewKey();
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(simplePayload)
+        .build();
+
+    try {
+      // when
+      aergoClient.getContractOperation().deploy(key, definition, 0L, Fee.ZERO);
+      fail();
+    } catch (Exception e) {
+      // then
+    }
   }
 
   @Test
@@ -84,205 +121,271 @@ public class ContractOperationIT extends AbstractIT {
     // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(payload)
+        .encodedContract(simplePayload)
         .build();
-    // deploy
-    final ContractTxHash deployTxHash = deploy(key, definition);
-    final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
-    final ContractInterface contractInterface = getABI(deployTxReceipt.getContractAddress());
-    final ContractAddress deployedContract = contractInterface.getAddress();
+    final ContractTxReceipt deployReceipt = deploy(key, definition);
+    final ContractAddress originAddress = deployReceipt.getContractAddress();
 
     // when
     final String reDeployKey = randomUUID().toString();
     final int reDeployIntVal = randomUUID().toString().hashCode();
     final String reDeployStringVal = randomUUID().toString();
     final ContractDefinition newDefinition = ContractDefinition.newBuilder()
-        .encodedContract(redeployPayload)
+        .encodedContract(withAbiAddedPayload)
         .constructorArgs(reDeployKey, reDeployIntVal, reDeployStringVal)
         .build();
-    final ContractTxHash reDeployTxHash = redeploy(key, deployedContract, newDefinition);
+    final ContractTxReceipt reDeployTxReceipt = redeploy(key, originAddress, newDefinition);
 
     // then
-    final ContractTxReceipt reDeployTxReceipt = getContractTxReceipt(reDeployTxHash);
     assertEquals("RECREATED", reDeployTxReceipt.getStatus());
-    final ContractInterface newContractInterface = getABI(reDeployTxReceipt.getContractAddress());
-    assertEquals(deployedContract, newContractInterface.getAddress());
-    final ContractResult newQueryResult = query(newContractInterface, queryFunction, reDeployKey);
-    final Data newQueryData = newQueryResult.bind(Data.class);
-    assertEquals(reDeployIntVal, newQueryData.getIntVal());
-    assertEquals(reDeployStringVal, newQueryData.getStringVal());
+    assertEquals(originAddress, reDeployTxReceipt.getContractAddress());
+    final ContractInterface contractInterface = getAbi(reDeployTxReceipt);
+    final ContractFunction newQueryFunc = contractInterface.findFunction(newQueryFunction);
+    assertNotNull(newQueryFunc);
+  }
+
+  @Test
+  public void shouldApplyConstructorArgsOnReDeploy() throws Exception {
+    // given
+    final AergoKey key = createNewKey();
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(simplePayload)
+        .build();
+    final ContractTxReceipt deployReceipt = deploy(key, definition);
+    final ContractAddress originAddress = deployReceipt.getContractAddress();
+
+    // when
+    final String reDeployKey = randomUUID().toString();
+    final int reDeployIntVal = randomUUID().toString().hashCode();
+    final String reDeployStringVal = randomUUID().toString();
+    final ContractDefinition newDefinition = ContractDefinition.newBuilder()
+        .encodedContract(withAbiAddedPayload)
+        .constructorArgs(reDeployKey, reDeployIntVal, reDeployStringVal)
+        .build();
+    final ContractInterface contractInterface =
+        redeployAndGetAbi(key, originAddress, newDefinition);
+
+    // then
+    final ContractInvocation query = contractInterface.newInvocationBuilder()
+        .function(newQueryFunction)
+        .args(reDeployKey)
+        .build();
+    final ContractResult queryResult = aergoClient.getContractOperation().query(query);
+    final Data data = queryResult.bind(Data.class);
+    assertEquals(data.getIntVal(), reDeployIntVal);
+    assertEquals(data.getStringVal(), reDeployStringVal);
+  }
+
+  @Test
+  public void shouldKeepStateVariablesOnReDeploy() throws Exception {
+    // given
+    final AergoKey key = createNewKey();
+    final String deployKey = randomUUID().toString();
+    final int deployIntVal = randomUUID().toString().hashCode();
+    final String deployStringVal = randomUUID().toString();
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(simplePayload)
+        .constructorArgs(deployKey, deployIntVal, deployStringVal)
+        .build();
+    final ContractTxReceipt deployReceipt = deploy(key, definition);
+    final ContractAddress originAddress = deployReceipt.getContractAddress();
+
+    // when
+    final ContractDefinition newDefinition = ContractDefinition.newBuilder()
+        .encodedContract(withAbiAddedPayload)
+        .build();
+    final ContractInterface contractInterface =
+        redeployAndGetAbi(key, originAddress, newDefinition);
+
+    // then
+    final ContractInvocation query = contractInterface.newInvocationBuilder()
+        .function(newQueryFunction)
+        .args(deployKey)
+        .build();
+    final ContractResult queryResult = aergoClient.getContractOperation().query(query);
+    final Data data = queryResult.bind(Data.class);
+    assertEquals(data.getIntVal(), deployIntVal);
+    assertEquals(data.getStringVal(), deployStringVal);
+  }
+
+  @Test
+  public void shouldNewFunctionSetOnReDeploy() throws Exception {
+    // given
+    final AergoKey key = createNewKey();
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(simplePayload)
+        .build();
+    final ContractTxReceipt deployReceipt = deploy(key, definition);
+    final ContractAddress originAddress = deployReceipt.getContractAddress();
+
+    // when
+    final ContractDefinition newDefinition = ContractDefinition.newBuilder()
+        .encodedContract(withAbiAddedPayload)
+        .build();
+    final ContractInterface contractInterface =
+        redeployAndGetAbi(key, originAddress, newDefinition);
+
+    // then
+    final ContractFunction newQueryFunc = contractInterface.findFunction(newQueryFunction);
+    assertNotNull(newQueryFunc);
   }
 
   @Test
   public void shouldHasAmountSameAsDeployedOne() throws Exception {
     // given
     final AergoKey key = createNewKey();
-    final Aer expectedAmount = Aer.ONE;
+    final Aer expected = Aer.GIGA_ONE;
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(payload)
-        .amount(expectedAmount)
+        .encodedContract(withPayablePayload)
+        .amount(expected)
         .build();
 
     // when
-    final ContractTxHash deployTxHash = deploy(key, definition);
+    final ContractInterface contractInterface = deployAndGetAbi(key, definition);
+    final ContractAddress contractAddress = contractInterface.getAddress();
 
     // then
-    final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
-    assertEquals("CREATED", deployTxReceipt.getStatus());
-    final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
-    final Aer actualAmount = getAmount(contractAddress);
-    assertEquals(expectedAmount, actualAmount);
+    final AccountState state = aergoClient.getAccountOperation().getState(contractAddress);
+    final Aer actual = state.getBalance();
+    assertEquals(expected, actual);
   }
 
   @Test
-  public void testLuaContractDeployAndExecute() throws Exception {
+  public void shouldExecuteOnDeployedOne() throws Exception {
+    // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(payload)
+        .encodedContract(simplePayload)
         .build();
-    final ContractTxHash deployTxHash = deploy(key, definition);
+    final ContractInterface contractInterface = deployAndGetAbi(key, definition);
 
-    final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
-    assertEquals("CREATED", deployTxReceipt.getStatus());
-
-    final ContractInterface contractInterface =
-        getABI(deployTxReceipt.getContractAddress());
-
+    // when
+    final String executeKey = randomUUID().toString();
+    final int executeIntVal = randomUUID().toString().hashCode();
+    final String executeStringVal = randomUUID().toString();
     final ContractInvocation execution = contractInterface.newInvocationBuilder()
         .function(executeFunction)
-        .args(new Object[] {executeKey, executeIntVal, executeStringVal})
+        .args(executeKey, executeIntVal, executeStringVal)
         .build();
-    final ContractTxHash executionTxHash = execute(key, execution);
+    final ContractTxReceipt executionReceipt = execute(key, execution);
 
-    final ContractTxReceipt executionReceipt = getContractTxReceipt(executionTxHash);
+    // then
     assertEquals("SUCCESS", executionReceipt.getStatus());
-
-    final ContractResult queryResult = query(contractInterface, queryFunction, executeKey);
+    final ContractInvocation query = contractInterface.newInvocationBuilder()
+        .function(queryFunction)
+        .args(executeKey)
+        .build();
+    final ContractResult queryResult = aergoClient.getContractOperation().query(query);
     final Data data = queryResult.bind(Data.class);
     assertEquals(executeIntVal, data.getIntVal());
     assertEquals(executeStringVal, data.getStringVal());
   }
 
   @Test
-  public void testLuaContractDeployAndExecuteWithAmount() throws Exception {
+  public void shouldHasAmountSameAsUsedInExecution() throws Exception {
+    // given
     final AergoKey key = createNewKey();
-    final Aer expectedAmount = Aer.ONE;
-
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(payload).build();
-    final ContractTxHash deployTxHash = deploy(key, definition);
+        .encodedContract(withPayablePayload)
+        .build();
+    final ContractInterface contractInterface = deployAndGetAbi(key, definition);
 
-    final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
-    assertEquals("CREATED", deployTxReceipt.getStatus());
-
-    final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
-    final ContractInterface contractInterface =
-        getABI(contractAddress);
-
+    // when
+    final String executeKey = randomUUID().toString();
+    final int executeIntVal = randomUUID().toString().hashCode();
+    final String executeStringVal = randomUUID().toString();
+    final Aer expected = Aer.GIGA_ONE;
     final ContractInvocation execution = contractInterface.newInvocationBuilder()
         .function(executeFunction)
-        .args(new Object[] {executeKey, executeIntVal, executeStringVal})
-        .amount(expectedAmount)
+        .args(executeKey, executeIntVal, executeStringVal)
+        .amount(expected)
         .build();
     execute(key, execution);
 
-    final Aer actualAmount = getAmount(contractAddress);
-    assertEquals(expectedAmount, actualAmount);
+    // then
+    final AccountState state =
+        aergoClient.getAccountOperation().getState(contractInterface.getAddress());
+    assertEquals(expected, state.getBalance());
   }
 
   @Test
-  public void testLuaContractDeployAndExecuteWithEscapeString() throws Exception {
+  public void shouldExecuteWithEscapeStringAsArgs() throws Exception {
+    // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(payload).build();
-    final ContractTxHash deployTxHash = deploy(key, definition);
+        .encodedContract(simplePayload)
+        .build();
+    final ContractInterface contractInterface = deployAndGetAbi(key, definition);
 
-    final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
-    assertEquals("CREATED", deployTxReceipt.getStatus());
-
-    final ContractInterface contractInterface =
-        getABI(deployTxReceipt.getContractAddress());
-
+    // when
+    final String executeKey = randomUUID().toString();
+    final int executeIntVal = randomUUID().toString().hashCode();
     final String escapeString = "\b\t\f\n\r";
     final ContractInvocation execution = contractInterface.newInvocationBuilder()
         .function(executeFunction)
-        .args(new Object[] {executeKey, executeIntVal, escapeString})
+        .args(executeKey, executeIntVal, escapeString)
         .build();
-    final ContractTxHash executionTxHash = execute(key, execution);
+    final ContractTxReceipt executionReceipt = execute(key, execution);
 
-    final ContractTxReceipt executionReceipt = getContractTxReceipt(executionTxHash);
+    // then
     assertEquals("SUCCESS", executionReceipt.getStatus());
-
-    final ContractResult queryResult = query(contractInterface, queryFunction, executeKey);
+    final ContractInvocation query = contractInterface.newInvocationBuilder()
+        .function(queryFunction)
+        .args(executeKey)
+        .build();
+    final ContractResult queryResult = aergoClient.getContractOperation().query(query);
     final Data data = queryResult.bind(Data.class);
     assertEquals(executeIntVal, data.getIntVal());
     assertEquals(escapeString, data.getStringVal());
   }
 
   @Test
-  public void testLuaContractDeployWithInvalidNonce() throws Exception {
+  public void shouldExecuteFailOnInvalidNonce() throws Exception {
+    // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(payload).build();
+        .encodedContract(simplePayload)
+        .build();
+    final ContractInterface contractInterface = deployAndGetAbi(key, definition);
+
     try {
-      aergoClient.getContractOperation().deploy(key, definition, 0L, Fee.getDefaultFee());
+      // when
+      final String executeKey = randomUUID().toString();
+      final int executeIntVal = randomUUID().toString().hashCode();
+      final String executeStringVal = randomUUID().toString();
+      final ContractInvocation execution = contractInterface.newInvocationBuilder()
+          .function(executeFunction)
+          .args(executeKey, executeIntVal, executeStringVal)
+          .build();
+      aergoClient.getContractOperation().execute(key, execution, 0L, Fee.ZERO);
       fail();
     } catch (Exception e) {
-      // good we expected this
+      // then
     }
   }
 
   @Test
-  public void testLuaContractExecuteWithInvalidNonce() throws Exception {
+  public void shouldSubscribeOnExecute() {
+    // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(payload).build();
-    final ContractTxHash deployTxHash = deploy(key, definition);
-
-    final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
-    assertEquals("CREATED", deployTxReceipt.getStatus());
-
-    final ContractInterface contractInterface =
-        getABI(deployTxReceipt.getContractAddress());
-
-    final ContractInvocation execution = contractInterface.newInvocationBuilder()
-        .function(executeFunction)
-        .args(new Object[] {executeKey, executeIntVal, executeStringVal})
+        .encodedContract(withEventPayload)
         .build();
-    try {
-      aergoClient.getContractOperation().execute(key, execution, 0L, Fee.getDefaultFee());
-      fail();
-    } catch (Exception e) {
-      // good we expected this
-    }
-  }
+    final ContractInterface contractInterface = deployAndGetAbi(key, definition);
 
-  @Test
-  public void testLuaContractEvent() {
-    final AergoKey key = createNewKey();
-    final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(payload)
-        .build();
-    final ContractTxHash deployTxHash = deploy(key, definition);
-
-    final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
-    assertEquals("CREATED", deployTxReceipt.getStatus());
-
-    final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
-    final ContractInterface contractInterface = getABI(contractAddress);
-
-    final EventFilter eventFilter = EventFilter.newBuilder(contractAddress)
+    // when
+    final EventFilter eventFilter = EventFilter.newBuilder(contractInterface.getAddress())
         .recentBlockCount(100)
         .build();
-
-    final CountDownLatch latch = new CountDownLatch(2);
+    final int count = 3;
+    final AtomicInteger countDown = new AtomicInteger(count);
     final Subscription<Event> subscription =
         aergoClient.getContractOperation().subscribeEvent(eventFilter,
             new StreamObserver<Event>() {
 
               @Override
               public void onNext(Event value) {
-                latch.countDown();
+                countDown.decrementAndGet();
               }
 
               @Override
@@ -295,49 +398,93 @@ public class ContractOperationIT extends AbstractIT {
                 // do nothing
               }
             });
-
     final ContractInvocation execution = contractInterface.newInvocationBuilder()
         .function(executeFunction)
-        .args(new Object[] {executeKey, executeIntVal, executeStringVal})
+        .args(randomUUID().toString(), randomUUID().toString().hashCode(), randomUUID().toString())
         .build();
 
-    execute(key, execution);
-    execute(key, execution);
-
+    for (int i = 0; i < count; ++i) {
+      execute(key, execution);
+    }
     subscription.unsubscribe();
 
-    execute(key, execution);
-
+    // then
     assertTrue(subscription.isUnsubscribed());
-    assertEquals(0L, latch.getCount());
+    assertEquals(0, countDown.get());
   }
 
   @Test
-  public void testLuaContractEventWithEventNameFilter() {
+  public void shouldNotCallBackOnUnsubscribedOne() {
+    // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(payload)
+        .encodedContract(withEventPayload)
         .build();
-    final ContractTxHash deployTxHash = deploy(key, definition);
+    final ContractInterface contractInterface = deployAndGetAbi(key, definition);
 
-    final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
-    assertEquals("CREATED", deployTxReceipt.getStatus());
-
-    final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
-    final ContractInterface contractInterface = getABI(contractAddress);
-
-    final EventFilter eventFilter = EventFilter.newBuilder(contractAddress)
-        .eventName("set")
+    // when
+    final EventFilter eventFilter = EventFilter.newBuilder(contractInterface.getAddress())
+        .recentBlockCount(100)
         .build();
-
-    final AtomicInteger count = new AtomicInteger(2);
+    final int count = 3;
+    final AtomicInteger countDown = new AtomicInteger(count);
     final Subscription<Event> subscription =
         aergoClient.getContractOperation().subscribeEvent(eventFilter,
             new StreamObserver<Event>() {
 
               @Override
               public void onNext(Event value) {
-                count.decrementAndGet();
+                countDown.decrementAndGet();
+              }
+
+              @Override
+              public void onError(Throwable t) {
+                // do nothing
+              }
+
+              @Override
+              public void onCompleted() {
+                // do nothing
+              }
+            });
+    final ContractInvocation execution = contractInterface.newInvocationBuilder()
+        .function(executeFunction)
+        .args(randomUUID().toString(), randomUUID().toString().hashCode(), randomUUID().toString())
+        .build();
+
+    for (int i = 0; i < count; ++i) {
+      execute(key, execution);
+    }
+    subscription.unsubscribe();
+    execute(key, execution);
+
+    // then
+    assertTrue(subscription.isUnsubscribed());
+    assertEquals(0, countDown.get());
+  }
+
+  @Test
+  public void shouldFilterEventWithNameOnSubscription() {
+    // given
+    final AergoKey key = createNewKey();
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(withEventPayload)
+        .build();
+    final ContractInterface contractInterface = deployAndGetAbi(key, definition);
+
+    // when
+    final EventFilter eventFilter = EventFilter.newBuilder(contractInterface.getAddress())
+        .eventName(executeFunction)
+        .build();
+    final int count = 3;
+    final AtomicInteger countDown = new AtomicInteger(count);
+    final Subscription<Event> subscription =
+        aergoClient.getContractOperation().subscribeEvent(eventFilter,
+            new StreamObserver<Event>() {
+
+              @Override
+              public void onNext(Event value) {
+                countDown.decrementAndGet();
               }
 
               @Override
@@ -353,121 +500,48 @@ public class ContractOperationIT extends AbstractIT {
 
     final ContractInvocation targetExec = contractInterface.newInvocationBuilder()
         .function(executeFunction)
-        .args(new Object[] {executeKey, executeIntVal, executeStringVal})
+        .args(randomUUID().toString(), randomUUID().toString().hashCode(), randomUUID().toString())
         .build();
-
     final ContractInvocation otherExec = contractInterface.newInvocationBuilder()
-        .function("set2")
-        .args(new Object[] {randomUUID().toString(), randomUUID().toString().hashCode(),
-            randomUUID().toString()})
+        .function(executeFunction2)
+        .args(randomUUID().toString(), randomUUID().toString().hashCode(), randomUUID().toString())
         .build();
-
-    execute(key, targetExec);
-    execute(key, targetExec);
-
-    execute(key, otherExec);
-    execute(key, otherExec);
-    execute(key, otherExec);
-
+    for (int i = 0; i < count; ++i) {
+      execute(key, targetExec);
+    }
+    for (int i = 0; i < count - 1; ++i) {
+      execute(key, otherExec);
+    }
     subscription.unsubscribe();
 
-    execute(key, targetExec);
-
+    // then
     assertTrue(subscription.isUnsubscribed());
-    assertEquals(0, count.get());
+    assertEquals(0, countDown.get());
   }
 
   @Test
-  public void testLuaContractEventWithArgFilter() {
+  public void shouldFilterEventWithArgsOnSubscription() {
+    // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(payload)
+        .encodedContract(withEventPayload)
         .build();
-    final ContractTxHash deployTxHash = deploy(key, definition);
+    final ContractInterface contractInterface = deployAndGetAbi(key, definition);
 
-    final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
-    assertEquals("CREATED", deployTxReceipt.getStatus());
-
-    final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
-    final ContractInterface contractInterface = getABI(contractAddress);
-
-    final EventFilter eventFilter = EventFilter.newBuilder(contractAddress)
-        .args(asList(new Object[] {executeKey}))
+    // when
+    final String targetArg = randomUUID().toString();
+    final EventFilter eventFilter = EventFilter.newBuilder(contractInterface.getAddress())
+        .args(targetArg)
         .build();
-
-    final AtomicInteger count = new AtomicInteger(2);
+    final int count = 3;
+    final AtomicInteger countDown = new AtomicInteger(count);
     final Subscription<Event> subscription =
         aergoClient.getContractOperation().subscribeEvent(eventFilter,
             new StreamObserver<Event>() {
 
               @Override
               public void onNext(Event value) {
-                count.decrementAndGet();
-              }
-
-              @Override
-              public void onError(Throwable t) {
-                // do nothing
-              }
-
-              @Override
-              public void onCompleted() {
-                // do nothing
-              }
-            });
-
-    final ContractInvocation targetExec = contractInterface.newInvocationBuilder()
-        .function("set2")
-        .args(new Object[] {executeKey, executeIntVal, executeStringVal})
-        .build();
-
-    final ContractInvocation otherExec = contractInterface.newInvocationBuilder()
-        .function("set2")
-        .args(new Object[] {randomUUID().toString(), executeIntVal, executeStringVal})
-        .build();
-
-    execute(key, targetExec);
-    execute(key, targetExec);
-
-    execute(key, otherExec);
-    execute(key, otherExec);
-    execute(key, otherExec);
-
-    subscription.unsubscribe();
-
-    execute(key, targetExec);
-
-    assertTrue(subscription.isUnsubscribed());
-    assertEquals(0, count.get());
-  }
-
-  @Test
-  public void testLuaContractEventWithEventNameAndArgFilter() {
-    final AergoKey key = createNewKey();
-    final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(payload)
-        .build();
-    final ContractTxHash deployTxHash = deploy(key, definition);
-
-    final ContractTxReceipt deployTxReceipt = getContractTxReceipt(deployTxHash);
-    assertEquals("CREATED", deployTxReceipt.getStatus());
-
-    final ContractAddress contractAddress = deployTxReceipt.getContractAddress();
-    final ContractInterface contractInterface = getABI(contractAddress);
-
-    final EventFilter eventFilter = EventFilter.newBuilder(contractAddress)
-        .eventName("set")
-        .args(asList(new Object[] {executeKey}))
-        .build();
-
-    final AtomicInteger count = new AtomicInteger(2);
-    final Subscription<Event> subscription =
-        aergoClient.getContractOperation().subscribeEvent(eventFilter,
-            new StreamObserver<Event>() {
-
-              @Override
-              public void onNext(Event value) {
-                count.decrementAndGet();
+                countDown.decrementAndGet();
               }
 
               @Override
@@ -483,31 +557,100 @@ public class ContractOperationIT extends AbstractIT {
 
     final ContractInvocation targetExec = contractInterface.newInvocationBuilder()
         .function(executeFunction)
-        .args(new Object[] {executeKey, executeIntVal, executeStringVal})
+        .args(targetArg, randomUUID().toString().hashCode(), randomUUID().toString())
         .build();
-
     final ContractInvocation otherExec = contractInterface.newInvocationBuilder()
-        .function(executeFunction)
-        .args(new Object[] {randomUUID().toString(), executeIntVal, executeStringVal})
+        .function(executeFunction2)
+        .args(randomUUID().toString(), randomUUID().toString().hashCode(), randomUUID().toString())
         .build();
-
-    execute(key, targetExec);
-    execute(key, targetExec);
-
-    execute(key, otherExec);
-    execute(key, otherExec);
-    execute(key, otherExec);
-
+    for (int i = 0; i < count; ++i) {
+      execute(key, targetExec);
+    }
+    for (int i = 0; i < count - 1; ++i) {
+      execute(key, otherExec);
+    }
     subscription.unsubscribe();
 
-    execute(key, targetExec);
-
+    // then
     assertTrue(subscription.isUnsubscribed());
-    assertEquals(0, count.get());
+    assertEquals(0, countDown.get());
   }
+
+  @Test
+  public void shouldFilterEventWithNameOnList() {
+    // given
+    final AergoKey key = createNewKey();
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(withEventPayload)
+        .build();
+    final ContractInterface contractInterface = deployAndGetAbi(key, definition);
+
+    // when
+    final EventFilter eventFilter = EventFilter.newBuilder(contractInterface.getAddress())
+        .eventName(executeFunction)
+        .recentBlockCount(1000)
+        .build();
+    final int count = 3;
+    final ContractInvocation targetExec = contractInterface.newInvocationBuilder()
+        .function(executeFunction)
+        .args(randomUUID().toString(), randomUUID().toString().hashCode(), randomUUID().toString())
+        .build();
+    final ContractInvocation otherExec = contractInterface.newInvocationBuilder()
+        .function(executeFunction2)
+        .args(randomUUID().toString(), randomUUID().toString().hashCode(), randomUUID().toString())
+        .build();
+    for (int i = 0; i < count; ++i) {
+      execute(key, targetExec);
+    }
+    for (int i = 0; i < count - 1; ++i) {
+      execute(key, otherExec);
+    }
+
+    // then
+    final List<Event> events = aergoClient.getContractOperation().listEvents(eventFilter);
+    assertEquals(count, events.size());
+  }
+
+  @Test
+  public void shouldFilterEventWithArgsOnList() {
+    // given
+    final AergoKey key = createNewKey();
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(withEventPayload)
+        .build();
+    final ContractInterface contractInterface = deployAndGetAbi(key, definition);
+
+    // when
+    final String targetArg = randomUUID().toString();
+    final EventFilter eventFilter = EventFilter.newBuilder(contractInterface.getAddress())
+        .args(targetArg)
+        .recentBlockCount(1000)
+        .build();
+    final int count = 3;
+    final ContractInvocation targetExec = contractInterface.newInvocationBuilder()
+        .function(executeFunction)
+        .args(targetArg, randomUUID().toString().hashCode(), randomUUID().toString())
+        .build();
+    final ContractInvocation otherExec = contractInterface.newInvocationBuilder()
+        .function(executeFunction2)
+        .args(randomUUID().toString(), randomUUID().toString().hashCode(), randomUUID().toString())
+        .build();
+    for (int i = 0; i < count; ++i) {
+      execute(key, targetExec);
+    }
+    for (int i = 0; i < count - 1; ++i) {
+      execute(key, otherExec);
+    }
+
+    // then
+    final List<Event> events = aergoClient.getContractOperation().listEvents(eventFilter);
+    assertEquals(count, events.size());
+  }
+
+
 
   @ToString
-  public static class Data {
+  protected static class Data {
 
     @Getter
     @Setter
@@ -518,45 +661,50 @@ public class ContractOperationIT extends AbstractIT {
     protected String stringVal;
   }
 
-  protected ContractTxHash deploy(final Signer signer, final ContractDefinition definition) {
-    final ContractTxHash txHash = aergoClient.getContractOperation().deploy(signer,
-        definition, nonceProvider.incrementAndGetNonce(signer.getPrincipal()), Fee.getDefaultFee());
-    waitForNextBlockToGenerate();
-    return txHash;
+  protected ContractInterface deployAndGetAbi(final Signer signer,
+      final ContractDefinition definition) {
+    final ContractTxReceipt receipt = deploy(signer, definition);
+    return getAbi(receipt);
   }
 
-  protected ContractTxHash redeploy(final Signer signer, final ContractAddress contractAddress,
+  protected ContractTxReceipt deploy(final Signer signer,
       final ContractDefinition definition) {
-    final ContractTxHash txHash =
+    final ContractTxHash contractTxHash = aergoClient.getContractOperation().deploy(signer,
+        definition, nonceProvider.incrementAndGetNonce(signer.getPrincipal()), Fee.getDefaultFee());
+
+    waitForNextBlockToGenerate();
+
+    return aergoClient.getContractOperation().getReceipt(contractTxHash);
+  }
+
+  protected ContractInterface redeployAndGetAbi(final Signer signer,
+      final ContractAddress contractAddress, final ContractDefinition definition) {
+    final ContractTxReceipt receipt = redeploy(signer, contractAddress, definition);
+    return getAbi(receipt);
+  }
+
+  protected ContractTxReceipt redeploy(final Signer signer, final ContractAddress contractAddress,
+      final ContractDefinition definition) {
+    final ContractTxHash contractTxHash =
         aergoClient.getContractOperation().redeploy(signer, contractAddress, definition,
             nonceProvider.incrementAndGetNonce(signer.getPrincipal()), Fee.getDefaultFee());
+
     waitForNextBlockToGenerate();
-    return txHash;
+
+    return aergoClient.getContractOperation().getReceipt(contractTxHash);
   }
 
-  protected ContractTxReceipt getContractTxReceipt(final ContractTxHash contractTxHash) {
-    final ContractTxReceipt receipt = aergoClient.getContractOperation().getReceipt(contractTxHash);
-    return receipt;
+  protected ContractInterface getAbi(final ContractTxReceipt receipt) {
+    return aergoClient.getContractOperation().getContractInterface(receipt.getContractAddress());
   }
 
-  protected ContractInterface getABI(final ContractAddress contractAddress) {
-    final ContractInterface contractInterface =
-        aergoClient.getContractOperation().getContractInterface(contractAddress);
-    return contractInterface;
-  }
-
-  protected ContractTxHash execute(final Signer signer, final ContractInvocation execution) {
-    final ContractTxHash txHash = aergoClient.getContractOperation().execute(signer,
+  protected ContractTxReceipt execute(final Signer signer, final ContractInvocation execution) {
+    final ContractTxHash contractTxHash = aergoClient.getContractOperation().execute(signer,
         execution, nonceProvider.incrementAndGetNonce(signer.getPrincipal()), Fee.getDefaultFee());
-    waitForNextBlockToGenerate();
-    return txHash;
-  }
 
-  protected ContractResult query(final ContractInterface contractInterface, final String function,
-      final Object... args) {
-    final ContractInvocation query =
-        contractInterface.newInvocationBuilder().function(function).args(args).build();
-    return aergoClient.getContractOperation().query(query);
+    waitForNextBlockToGenerate();
+
+    return aergoClient.getContractOperation().getReceipt(contractTxHash);
   }
 
 }

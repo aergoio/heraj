@@ -6,160 +6,262 @@ package hera.client.it;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
-import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
-import hera.api.model.Identity;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
-import hera.api.model.TxHash;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
+import hera.key.AergoSignVerifier;
+import java.util.List;
 import org.junit.Test;
 
 public class KeyStoreOperationIT extends AbstractIT {
 
-  protected final Aer amount = Aer.of("100", Unit.GAER);
-
-  protected boolean unlock(final AccountAddress accountAddress, final String password) {
-    return aergoClient.getKeyStoreOperation().unlock(Authentication.of(accountAddress, password));
-  }
-
-  protected boolean lock(final AccountAddress accountAddress, final String password) {
-    return aergoClient.getKeyStoreOperation().lock(Authentication.of(accountAddress, password));
-  }
-
   @Test
-  public void testUnlockOnInvalidIdentity() {
+  public void shouldCreateSuccessfully() {
+    // given
+    final String password = randomUUID().toString();
+    final List<AccountAddress> before = aergoClient.getKeyStoreOperation().list();
 
-    final Identity identity = new Identity() {
-
-      @Override
-      public String getValue() {
-        return randomUUID().toString();
-      }
-    };
-    final Authentication authentication = new Authentication(identity, randomUUID().toString());
-    boolean unlockResult = aergoClient.getKeyStoreOperation().unlock(authentication);
-    assertFalse(unlockResult);
-  }
-
-  @Test
-  public void testCreateAndExport() {
+    // when
     final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
-    assertTrue(aergoClient.getKeyStoreOperation().list().contains(created));
 
-    final Authentication authentication = Authentication.of(created, password);
-    final EncryptedPrivateKey exported =
-        aergoClient.getKeyStoreOperation().exportKey(authentication);
-    final AergoKey key = AergoKey.of(exported, password);
-    assertEquals(key.getAddress(), created);
+    // then
+    final List<AccountAddress> after = aergoClient.getKeyStoreOperation().list();
+    assertEquals(before.size() + 1, after.size());
+    assertTrue(false == before.contains(created));
+    assertTrue(after.contains(created));
   }
 
   @Test
-  public void testCreateAndExportWithInvalidAuthentication() {
-    final AccountAddress account = aergoClient.getKeyStoreOperation().create(password);
-    assertTrue(aergoClient.getKeyStoreOperation().list().contains(account));
+  public void shouldUnlockOnValidAuth() {
+    // given
+    final String password = randomUUID().toString();
+    final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
 
-    final Authentication authentication = Authentication.of(account, randomUUID().toString());
+    // when
+    final Authentication auth = new Authentication(created, password);
+    boolean unlockResult = aergoClient.getKeyStoreOperation().unlock(auth);
+
+    // then
+    assertTrue(unlockResult);
+  }
+
+  @Test
+  public void shouldUnlockFailOnInvalidAuth() {
+    // given
+    final String password = randomUUID().toString();
+    final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
+
+    // when
+    final String invalidPassword = randomUUID().toString();
+    final Authentication auth = new Authentication(created, invalidPassword);
+    boolean unlockResult = aergoClient.getKeyStoreOperation().unlock(auth);
+
+    // then
+    assertTrue(false == unlockResult);
+  }
+
+  @Test
+  public void shouldLockOnValidAuth() {
+    // given
+    final String password = randomUUID().toString();
+    final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
+    final Authentication valid = new Authentication(created, password);
+    aergoClient.getKeyStoreOperation().unlock(valid);
+
+    // when
+    final boolean lockResult = aergoClient.getKeyStoreOperation().lock(valid);
+
+    // then
+    assertTrue(lockResult);
+  }
+
+  @Test
+  public void shouldLockFailOnInvalidAuth() {
+    // given
+    final String password = randomUUID().toString();
+    final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
+    final Authentication valid = new Authentication(created, password);
+    aergoClient.getKeyStoreOperation().unlock(valid);
+
+    // when
+    final Authentication invalid = new Authentication(created, randomUUID().toString());
+    final boolean lockResult = aergoClient.getKeyStoreOperation().lock(invalid);
+
+    // then
+    assertTrue(false == lockResult);
+  }
+
+  @Test
+  public void shouldExportCreatedOne() {
+    // given
+    final String password = randomUUID().toString();
+    final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
+
+    // when
+    final Authentication auth = new Authentication(created, password);
+    final EncryptedPrivateKey exported = aergoClient.getKeyStoreOperation().exportKey(auth);
+
+    // then
+    final AergoKey decrypted = AergoKey.of(exported, password);
+    assertEquals(decrypted.getAddress(), created);
+  }
+
+  @Test
+  public void shouldExportFailOnInvalidAuth() {
+    // given
+    final String password = randomUUID().toString();
+    final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
+    final String invalidPassword = randomUUID().toString();
+    final Authentication auth = new Authentication(created, invalidPassword);
+
     try {
-      aergoClient.getKeyStoreOperation().exportKey(authentication);
+      // when
+      aergoClient.getKeyStoreOperation().exportKey(auth);
       fail();
     } catch (Exception e) {
-      // good we expected this
+      // then
     }
   }
 
   @Test
-  public void testImportAndExport() {
+  public void shouldImportOnValidPassword() {
+    // given
     final AergoKey key = new AergoKeyGenerator().create();
     final String oldPassword = randomUUID().toString();
     final String newPassword = randomUUID().toString();
     final EncryptedPrivateKey encrypted = key.export(oldPassword);
+
+    // when
     final AccountAddress imported =
         aergoClient.getKeyStoreOperation().importKey(encrypted, oldPassword, newPassword);
 
-    assertTrue(aergoClient.getKeyStoreOperation().list().contains(imported));
-    assertEquals(key.getAddress(), imported);
-
-    final Authentication authentication = Authentication.of(imported, newPassword);
-    final EncryptedPrivateKey exported =
-        aergoClient.getKeyStoreOperation().exportKey(authentication);
-    final AergoKey revived = AergoKey.of(exported, newPassword);
-    assertEquals(revived.getAddress(), key.getAddress());
+    // then
+    final List<AccountAddress> stored = aergoClient.getKeyStoreOperation().list();
+    assertTrue(stored.contains(imported));
   }
 
   @Test
-  public void testSignOnLockedKeyStoreAccount() {
-    final String password = randomUUID().toString();
-    final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
+  public void shouldImportFailOnInvalidPassword() {
+    // given
+    final AergoKey key = new AergoKeyGenerator().create();
+    final String oldPassword = randomUUID().toString();
+    final String newPassword = randomUUID().toString();
+    final EncryptedPrivateKey encrypted = key.export(oldPassword);
 
-    final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
-
-    final RawTransaction rawTransaction =
-        RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
-            .from(created)
-            .to(recipient)
-            .amount(amount)
-            .nonce(1L)
-            .build();
-
-    // unlock(account, password);
     try {
-      aergoClient.getKeyStoreOperation().sign(rawTransaction);
+      // when
+      final String invalidPassword = randomUUID().toString();
+      aergoClient.getKeyStoreOperation().importKey(encrypted, invalidPassword, newPassword);
       fail();
     } catch (Exception e) {
-      // good we expected this
+      // then
     }
   }
 
   @Test
-  public void testSendWithKeyStoreAccount() {
+  public void shouldUnlockWithImportOne() {
+    // given
+    final AergoKey key = new AergoKeyGenerator().create();
+    final String oldPassword = randomUUID().toString();
+    final String newPassword = randomUUID().toString();
+    final EncryptedPrivateKey encrypted = key.export(oldPassword);
+
+    // when
+    final AccountAddress imported =
+        aergoClient.getKeyStoreOperation().importKey(encrypted, oldPassword, newPassword);
+    final Authentication auth = new Authentication(imported, newPassword);
+    final boolean unlockResult = aergoClient.getKeyStoreOperation().unlock(auth);
+
+    // then
+    assertTrue(unlockResult);
+  }
+
+  @Test
+  public void shouldSignUnlockedOne() {
+    // given
+    final String password = randomUUID().toString();
+    final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .chainIdHash(aergoClient.getCachedChainIdHash())
+        .from(created)
+        .to(created)
+        .amount(Aer.GIGA_ONE)
+        .nonce(1L)
+        .build();
+    final Authentication auth = new Authentication(created, password);
+    aergoClient.getKeyStoreOperation().unlock(auth);
+
+    // when
+    final Transaction signed = aergoClient.getKeyStoreOperation().sign(rawTransaction);
+
+    // then
+    final boolean verifyResult = new AergoSignVerifier().verify(signed);
+    assertTrue(verifyResult);
+  }
+
+  @Test
+  public void shouldSignFailOnLockedOne() {
+    // given
+    final String password = randomUUID().toString();
+    final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .chainIdHash(aergoClient.getCachedChainIdHash())
+        .from(created)
+        .to(created)
+        .amount(Aer.GIGA_ONE)
+        .nonce(1L)
+        .build();
+
+    try {
+      // when
+      aergoClient.getKeyStoreOperation().sign(rawTransaction);
+      fail();
+    } catch (Exception e) {
+      // then
+    }
+  }
+
+  @Test
+  public void shouldSendOnUnlockedOne() {
+    // given
+    final String password = randomUUID().toString();
+    final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
+    fund(created);
+    aergoClient.getKeyStoreOperation().unlock(Authentication.of(created, password));
+
+    // when
+    final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
+    aergoClient.getTransactionOperation().send(created, recipient, Aer.GIGA_ONE);
+    waitForNextBlockToGenerate();
+
+    // then
+    final AccountState refreshed = aergoClient.getAccountOperation().getState(recipient);
+    assertEquals(Aer.GIGA_ONE, refreshed.getBalance());
+  }
+
+  @Test
+  public void shouldSendFailOnLockedOne() {
+    // given
     final String password = randomUUID().toString();
     final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
     fund(created);
 
-    final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
-
-    // snapshot pre state
-    final AccountState preState = aergoClient.getAccountOperation().getState(created);
-
-    unlock(created, password);
-    final TxHash txHash = aergoClient.getTransactionOperation().send(created, recipient, amount);
-    lock(created, password);
-
-    final Transaction notConfirmed = aergoClient.getTransactionOperation().getTransaction(txHash);
-    assertTrue(false == notConfirmed.isConfirmed());
-
-    waitForNextBlockToGenerate();
-
-    final Transaction confirmed = aergoClient.getTransactionOperation().getTransaction(txHash);
-    final AccountState refreshed = aergoClient.getAccountOperation().getState(created);
-    assertTrue(true == confirmed.isConfirmed());
-    verifyState(preState, refreshed);
-    assertEquals(preState.getNonce() + 1, refreshed.getNonce());
-  }
-
-  @Test
-  public void testSendOnLockedKeyStoreAccount() {
-    final String password = randomUUID().toString();
-    final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
-
-    final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
-
     try {
-      // unlock(account, password);
-      aergoClient.getTransactionOperation().send(created, recipient, amount);
+      // when
+      final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
+      aergoClient.getTransactionOperation().send(created, recipient, Aer.GIGA_ONE);
       fail();
     } catch (Exception e) {
-      // good we expected this
+      // then
     }
   }
 

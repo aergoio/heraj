@@ -5,6 +5,7 @@
 package hera.client.it;
 
 import static hera.api.model.BytesValue.of;
+import static java.lang.System.currentTimeMillis;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -24,69 +25,146 @@ import org.junit.Test;
 public class BlockOperationIT extends AbstractIT {
 
   @Test
-  public void testBlockMetadataLookup() {
+  public void shouldFetchBlockMetadataByHash() {
+    // given
     final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
-    final Block block = aergoClient.getBlockOperation().getBlock(status.getBestBlockHash());
-    logger.info("Best block: {}", block);
+    final BlockHash hash = status.getBestBlockHash();
 
-    final BlockMetadata blockMetadataByHash =
-        aergoClient.getBlockOperation().getBlockMetadata(block.getHash());
-    final BlockMetadata blockMetadataByHeight =
-        aergoClient.getBlockOperation().getBlockMetadata(block.getBlockHeader().getBlockNumber());
-    logger.info("Block header by hash: {}", blockMetadataByHash);
-    logger.info("Block header by height: {}", blockMetadataByHeight);
+    // when
+    final BlockMetadata metadata = aergoClient.getBlockOperation().getBlockMetadata(hash);
 
-    assertEquals(blockMetadataByHash, blockMetadataByHeight);
+    // when
+    assertEquals(hash, metadata.getBlockHash());
   }
 
   @Test
-  public void testInvalidBlockMetadataLookup() {
-    try {
-      aergoClient.getBlockOperation()
-          .getBlockMetadata(new BlockHash(of(randomUUID().toString().getBytes())));
-      fail();
-    } catch (Exception e) {
-      // good we expected this
-    }
+  public void shouldFetchBlockMetadataFailOnInvalidHash() {
+    // given
+    final BlockHash hash = new BlockHash("8WTYmYgmEGH9UYRYPzGTowS5vhPLumGyb3Pq9UQ3zcRv");
 
     try {
-      aergoClient.getBlockOperation()
-          .getBlockMetadata(new BlockHash("8WTYmYgmEGH9UYRYPzGTowS5vhPLumGyb3Pq9UQ3zcRv"));
+      // when
+      aergoClient.getBlockOperation().getBlockMetadata(hash);
       fail();
     } catch (Exception e) {
-      // good we expected this
-    }
-
-    try {
-      aergoClient.getBlockOperation().getBlockMetadata(Long.MAX_VALUE);
-      fail();
-    } catch (Exception e) {
-      // good we expected this
-    }
-
-    try {
-      aergoClient.getBlockOperation().getBlockMetadata(-1);
-      fail();
-    } catch (RpcArgumentException e) {
-      // good we expected this
+      // then
     }
   }
 
   @Test
-  public void testBlockMetadatasLookup() {
+  public void shouldFetchBlockMetadataByHeight() {
+    // given
     final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
-    final Block block = aergoClient.getBlockOperation().getBlock(status.getBestBlockHash());
-    logger.info("Best block: {}", block);
+    final BlockHash hash = status.getBestBlockHash();
+    final long height = status.getBestHeight();
 
-    final List<BlockMetadata> blockMetadatasByHash =
-        aergoClient.getBlockOperation().listBlockMetadatas(block.getHash(), 10);
-    final List<BlockMetadata> blockMetadatasByHeight =
-        aergoClient.getBlockOperation().listBlockMetadatas(block.getBlockHeader().getBlockNumber(),
-            10);
-    logger.info("Block headers by hash: {}", blockMetadatasByHash);
-    logger.info("Block headers by height: {}", blockMetadatasByHeight);
+    // when
+    final BlockMetadata metadata = aergoClient.getBlockOperation().getBlockMetadata(height);
 
-    assertEquals(blockMetadatasByHash, blockMetadatasByHeight);
+    // when
+    assertEquals(hash, metadata.getBlockHash());
+  }
+
+  @Test
+  public void shouldFetchBlockMetadataFailOnInvalidHeight() {
+    // given
+    final long height = currentTimeMillis() % 2 == 0 ? Long.MAX_VALUE : -1;
+
+    try {
+      // when
+      aergoClient.getBlockOperation().getBlockMetadata(height);
+      fail();
+    } catch (Exception e) {
+      // then
+    }
+  }
+
+  @Test
+  public void shouldListBlockMetadataByHash() {
+    // given
+    final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
+    final BlockHash hash = status.getBestBlockHash();
+
+    // when
+    final int size = 10;
+    final List<BlockMetadata> metadata =
+        aergoClient.getBlockOperation().listBlockMetadatas(hash, size);
+
+    // when
+    assertEquals(size, metadata.size());
+  }
+
+  @Test
+  public void shouldListBlockMetadataFailOnInvalidHash() {
+    // given
+    final BlockHash hash = new BlockHash("8WTYmYgmEGH9UYRYPzGTowS5vhPLumGyb3Pq9UQ3zcRv");
+
+    try {
+      // when
+      aergoClient.getBlockOperation().listBlockMetadatas(hash, 10);
+      fail();
+    } catch (Exception e) {
+      // then
+    }
+  }
+
+  @Test
+  public void shouldListBlockMetadataFailOnValidHashAndInvalidSize() {
+    // given
+    final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
+    final BlockHash hash = status.getBestBlockHash();
+
+    try {
+      // when
+      aergoClient.getBlockOperation().listBlockMetadatas(hash, -1);
+      fail();
+    } catch (Exception e) {
+      // then
+    }
+  }
+
+  @Test
+  public void shouldListBlockMetadataByHeight() {
+    // given
+    final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
+    final long height = status.getBestHeight();
+
+    // when
+    final int size = 10;
+    final List<BlockMetadata> metadata =
+        aergoClient.getBlockOperation().listBlockMetadatas(height, size);
+
+    // when
+    assertEquals(size, metadata.size());
+  }
+
+  @Test
+  public void shouldListBlockMetadataFailOnInvalidHeight() {
+    // given
+    final long height = currentTimeMillis() % 2 == 0 ? Long.MAX_VALUE : -1;
+
+    try {
+      // when
+      aergoClient.getBlockOperation().listBlockMetadatas(height, 10);
+      fail();
+    } catch (Exception e) {
+      // then
+    }
+  }
+
+  @Test
+  public void shouldListBlockMetadataFailOnValidHeightAndInvalidSize() {
+    // given
+    final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
+    final long height = status.getBestHeight();
+
+    try {
+      // when
+      aergoClient.getBlockOperation().listBlockMetadatas(height, -1);
+      fail();
+    } catch (Exception e) {
+      // then
+    }
   }
 
   @Test
@@ -131,69 +209,18 @@ public class BlockOperationIT extends AbstractIT {
   }
 
   @Test
-  public void testBlockLoopup() {
-    final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
+  public void shouldSubcribeBlockMetadata() throws InterruptedException {
+    // given
+    final int count = 3;
+    final CountDownLatch latch = new CountDownLatch(count);
 
-    final Block blockByHash = aergoClient.getBlockOperation().getBlock(status.getBestBlockHash());
-    final Block blockByHeight = aergoClient.getBlockOperation().getBlock(status.getBestHeight());
-    logger.info("Block by hash: {}", blockByHash);
-    logger.info("Block by height: {}", blockByHeight);
-
-    assertEquals(blockByHash, blockByHeight);
-
-    // lookup previous block by hash
-    final Block previousBlock =
-        aergoClient.getBlockOperation().getBlock(blockByHash.getBlockHeader().getPreviousHash());
-    logger.info("Previous block: {}", previousBlock);
-
-    assertEquals(previousBlock.getHash(), blockByHash.getBlockHeader().getPreviousHash());
-    assertEquals(previousBlock.getBlockHeader().getBlockNumber() + 1,
-        blockByHash.getBlockHeader().getBlockNumber());
-  }
-
-  @Test
-  public void testInvalidBlockLookup() {
-    try {
-      aergoClient.getBlockOperation()
-          .getBlock(new BlockHash(of(randomUUID().toString().getBytes())));
-      fail();
-    } catch (Exception e) {
-      // good we expected this
-    }
-
-    try {
-      aergoClient.getBlockOperation()
-          .getBlock(new BlockHash("8WTYmYgmEGH9UYRYPzGTowS5vhPLumGyb3Pq9UQ3zcRv"));
-      fail();
-    } catch (Exception e) {
-      // good we expected this
-    }
-
-    try {
-      aergoClient.getBlockOperation().getBlock(Long.MAX_VALUE);
-      fail();
-    } catch (Exception e) {
-      // good we expected this
-    }
-
-    try {
-      aergoClient.getBlockOperation().getBlock(-1);
-      fail();
-    } catch (RpcArgumentException e) {
-      // good we expected this
-    }
-  }
-
-  @Test
-  public void testBlockMetadataSubscription() throws InterruptedException {
-
-    final CountDownLatch latch = new CountDownLatch(3);
+    // when
     Subscription<BlockMetadata> subscription = aergoClient.getBlockOperation()
         .subscribeNewBlockMetadata(new StreamObserver<BlockMetadata>() {
 
           @Override
           public void onNext(BlockMetadata value) {
-            logger.info("New block metadata: {}", value);
+            logger.debug("Next block metadata : {}", value);
             latch.countDown();
           }
 
@@ -203,24 +230,29 @@ public class BlockOperationIT extends AbstractIT {
           @Override
           public void onCompleted() {}
         });
-
-    Thread.sleep(5000L);
+    for (int i = 0; i < count; ++i) {
+      waitForNextBlockToGenerate();
+    }
     subscription.unsubscribe();
 
+    // then
     assertTrue(subscription.isUnsubscribed());
     assertEquals(0, latch.getCount());
   }
 
   @Test
-  public void testBlockSubscription() throws InterruptedException {
+  public void shouldSubcribeBlock() throws InterruptedException {
+    // given
+    final int count = 3;
+    final CountDownLatch latch = new CountDownLatch(count);
 
-    final CountDownLatch latch = new CountDownLatch(3);
-    Subscription<Block> subscription = aergoClient.getBlockOperation()
+    // when
+    final Subscription<Block> subscription = aergoClient.getBlockOperation()
         .subscribeNewBlock(new StreamObserver<Block>() {
 
           @Override
           public void onNext(Block value) {
-            logger.info("New block: {}", value);
+            logger.debug("Next block : {}", value);
             latch.countDown();
           }
 
@@ -230,10 +262,12 @@ public class BlockOperationIT extends AbstractIT {
           @Override
           public void onCompleted() {}
         });
-
-    Thread.sleep(5000L);
+    for (int i = 0; i < count; ++i) {
+      waitForNextBlockToGenerate();
+    }
     subscription.unsubscribe();
 
+    // then
     assertTrue(subscription.isUnsubscribed());
     assertEquals(0, latch.getCount());
   }

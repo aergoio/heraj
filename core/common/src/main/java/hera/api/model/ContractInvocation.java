@@ -32,14 +32,6 @@ public class ContractInvocation {
   @Getter
   protected final Aer amount;
 
-  /**
-   * Contract invocation constructor.
-   *
-   * @param contractAddress contract address
-   * @param contractFunction invocation function
-   * @param args arguments of invocation function
-   * @param amount an amount
-   */
   ContractInvocation(final ContractAddress contractAddress,
       final ContractFunction contractFunction, final List<Object> args, final Aer amount) {
     assertNotNull(contractAddress, "Contract address must not null");

@@ -27,7 +27,7 @@ import java.util.List;
  * <li>lookup account state</li>
  * <li>naming related operations</li>
  * <li>staking related operations</li>
- * <li>signing / verifying</li>
+ * <li>voting related operations</li>
  * </ul>
  *
  * @author bylee, Taeik Lim
@@ -38,7 +38,7 @@ import java.util.List;
 public interface AccountOperation {
 
   /**
-   * Get account state by account.
+   * Use {@link AccountOperation#getState(AccountAddress)} instead.
    *
    * @param account an account
    * @return an account state
@@ -102,7 +102,7 @@ public interface AccountOperation {
    * Get owner of an account name.
    *
    * @param name an name of account
-   * @return an account address binded with name
+   * @return an account address binded with name. null if it has no owner
    */
   AccountAddress getNameOwner(String name);
 
@@ -111,7 +111,7 @@ public interface AccountOperation {
    *
    * @param name an name of account
    * @param blockNumber a block number
-   * @return an account address binded with name. null if is has no owner
+   * @return an account address binded with name. null if it has no owner
    */
   AccountAddress getNameOwner(String name, long blockNumber);
 

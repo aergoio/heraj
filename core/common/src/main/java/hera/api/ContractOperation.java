@@ -17,6 +17,7 @@ import hera.api.model.ContractTxReceipt;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
 import hera.api.model.Fee;
+import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.key.Signer;
 import java.util.List;
@@ -73,24 +74,24 @@ public interface ContractOperation {
   /**
    * Deploy smart contract.
    *
-   * @param signer a signer whose principle is smart contract creator.
-   * @param contractDefinition contract definition
+   * @param signer a signer whose principal is smart contract creator.
+   * @param contractDefinition a contract definition
    * @param nonce an nonce used in making transaction
-   * @param fee transaction fee
+   * @param fee a transaction fee
    * @return contract definition transaction hash
    */
   ContractTxHash deploy(Signer signer, ContractDefinition contractDefinition, long nonce,
       Fee fee);
 
   /**
-   * Re-deploy smart contract. A principle of {@code signer} must be creator and
+   * Re-deploy smart contract. A principal of {@code signer} must be creator and
    * {@code contractAddress} must be existing one.
    *
-   * @param signer a signer whose principle is smart contract creator.
+   * @param signer a signer whose principal is smart contract creator.
    * @param contractAddress an existing contract address
    * @param contractDefinition contract definition to re-deploy
    * @param nonce an nonce used in making transaction
-   * @param fee transaction fee
+   * @param fee a transaction fee
    * @return contract definition transaction hash
    */
   ContractTxHash redeploy(Signer signer, ContractAddress contractAddress,
@@ -149,7 +150,7 @@ public interface ContractOperation {
   ContractResult query(ContractInvocation contractInvocation);
 
   /**
-   * List events corresponding with event filter.
+   * List events corresponding to an event filter.
    *
    * @param filter an event filter
    * @return event list
@@ -157,13 +158,12 @@ public interface ContractOperation {
   List<Event> listEvents(EventFilter filter);
 
   /**
-   * Subscribe event corresponding with event filter.
+   * Subscribe event corresponding to an event filter.
    *
    * @param filter an event filter
    * @param observer a stream observer which is invoked on event
    * @return a subscription
    */
-  Subscription<Event> subscribeEvent(EventFilter filter,
-      hera.api.model.StreamObserver<Event> observer);
+  Subscription<Event> subscribeEvent(EventFilter filter, StreamObserver<Event> observer);
 
 }

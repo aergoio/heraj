@@ -4,6 +4,7 @@
 
 package hera.client.it;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -114,37 +115,25 @@ public abstract class AbstractIT {
     final AccountState richState = aergoClient.getAccountOperation().getState(rich.getPrincipal());
     nonceProvider.bindNonce(richState);
     logger.info("Rich state: {}", richState);
-    final RawTransaction rawTransaction =
-        RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
-            .from(rich.getPrincipal())
-            .to(accountAddress)
-            .amount(Aer.of("10000", Unit.AERGO))
-            .nonce(nonceProvider.incrementAndGetNonce(rich.getPrincipal()))
-            .build();
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .chainIdHash(aergoClient.getCachedChainIdHash())
+        .from(rich.getPrincipal())
+        .to(accountAddress)
+        .amount(Aer.of("10000", Unit.AERGO))
+        .nonce(nonceProvider.incrementAndGetNonce(rich.getPrincipal()))
+        .build();
     final Transaction signed = rich.sign(rawTransaction);
     aergoClient.getTransactionOperation().commit(signed);
     waitForNextBlockToGenerate();
   }
 
-  protected void verifyState(final AccountState preState, final AccountState refreshed) {
-    assertEquals(preState.getNonce() + 1, refreshed.getNonce());
-  }
-
-  protected boolean isDpos() {
-    final String consensus =
-        aergoClient.getBlockchainOperation().getBlockchainStatus().getConsensus();
-    return consensus.indexOf("dpos") != -1;
-  }
-
-  protected Aer getAmount(final AccountAddress accountAddress) {
-    final AccountState accountState =
-        aergoClient.getAccountOperation().getState(accountAddress);
-    return accountState.getBalance();
-  }
-
   @After
   public void tearDown() {
     aergoClient.close();
+  }
+
+  protected String randomName() {
+    return randomUUID().toString().substring(0, 12).replace('-', 'a');
   }
 
 }

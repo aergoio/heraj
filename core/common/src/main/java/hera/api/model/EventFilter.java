@@ -6,6 +6,7 @@ package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
 import static hera.util.ValidationUtils.assertTrue;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
@@ -99,6 +100,10 @@ public class EventFilter {
     public EventFilterBuilder eventName(final String eventName) {
       this.eventName = eventName;
       return this;
+    }
+
+    public EventFilterBuilder args(final Object... args) {
+      return args(asList(args));
     }
 
     public EventFilterBuilder args(final List<Object> args) {

@@ -17,8 +17,9 @@ import java.util.List;
  * Provide server keystore related operations. It provides followings:
  *
  * <ul>
- * <li>lookup stored accounts</li>
+ * <li>create / lookup stored accounts</li>
  * <li>locking / unlocking account</li>
+ * <li>sign raw transaction with unlocked account</li>
  * <li>importing / exporting account</li>
  * </ul>
  *
@@ -37,31 +38,31 @@ public interface KeyStoreOperation {
   List<AccountAddress> list();
 
   /**
-   * Create an accountwith password. The private key is stored in a server key store.
+   * Create an account with a password. The private key is stored in a server key store.
    *
-   * @param password account password
+   * @param password a password to encrypt private key
    * @return created account
    */
   AccountAddress create(String password);
 
   /**
-   * Lock an account whose key is in a server key store.
+   * Lock a private key of account which is stored in a server key store.
    *
-   * @param authentication account authentication
+   * @param authentication an authentication to lock
    * @return lock result
    */
   boolean lock(Authentication authentication);
 
   /**
-   * Unlock an account whose key is in a server key store.
+   * Unlock a private key of account which is stored in a server key store.
    *
-   * @param authentication account authentication
+   * @param authentication an authentication to unlock
    * @return unlock result
    */
   boolean unlock(Authentication authentication);
 
   /**
-   * Sign for transaction. A transaction sender should be unlocked.
+   * Sign for transaction. A sender of transaction should be unlocked.
    *
    * @param rawTransaction raw transaction to sign
    * @return signed transaction
@@ -70,21 +71,22 @@ public interface KeyStoreOperation {
 
   /**
    * Import an encrypted private key to a server key store. An {@code oldPassword} is used to
-   * decrypt private key passed by and an {@code newPassword} is used to store private key encrypted
-   * in a server.
+   * decrypt passed private key. An {@code newPassword} is used to store private key as encrypted
+   * state in a server.
    *
    * @param encryptedKey an encrypted private key
-   * @param oldPassword old password to decrypt encrypted private key
-   * @param newPassword new password to store in a remote storage
-   * @return an imported accoungt
+   * @param oldPassword an old password to decrypt encrypted private key
+   * @param newPassword an new password to encrypt passed private key in a server keystore
+   * @return an imported account
    */
   AccountAddress importKey(EncryptedPrivateKey encryptedKey, String oldPassword,
       String newPassword);
 
   /**
-   * Export an encrypted private key of account whose key is stored in a server key store.
+   * Export an encrypted private key of account which is stored in a server key store. An encrypt
+   * password is set from authentication
    *
-   * @param authentication account authentication
+   * @param authentication an authentication of stored account
    * @return an encrypted private key
    */
   EncryptedPrivateKey exportKey(Authentication authentication);

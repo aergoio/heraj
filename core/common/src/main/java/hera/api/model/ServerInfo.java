@@ -41,6 +41,4 @@ public class ServerInfo {
     this.config = unmodifiableMap(config);
   }
 
-
-
 }

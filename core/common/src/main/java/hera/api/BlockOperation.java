@@ -9,6 +9,7 @@ import hera.annotation.ApiStability;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockMetadata;
+import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import java.util.List;
 
@@ -16,8 +17,9 @@ import java.util.List;
  * Provide block related operations. It provides followings:
  *
  * <ul>
- * <li>lookup block metadata</li>
+ * <li>lookup block metadata (or metadatas)</li>
  * <li>lookup block</li>
+ * <li>streaming block metadata / block</li>
  * </ul>
  *
  * @author bylee, Taeik Lim
@@ -83,8 +85,7 @@ public interface BlockOperation {
    * @param observer a stream observer which is invoked on new block metadata
    * @return a block subscription
    */
-  Subscription<BlockMetadata> subscribeNewBlockMetadata(
-      hera.api.model.StreamObserver<BlockMetadata> observer);
+  Subscription<BlockMetadata> subscribeNewBlockMetadata(StreamObserver<BlockMetadata> observer);
 
   /**
    * Subscribe block stream which is triggered everytime new block is generated.
@@ -92,6 +93,6 @@ public interface BlockOperation {
    * @param observer a stream observer which is invoked on new block
    * @return a block subscription
    */
-  Subscription<Block> subscribeNewBlock(hera.api.model.StreamObserver<Block> observer);
+  Subscription<Block> subscribeNewBlock(StreamObserver<Block> observer);
 
 }

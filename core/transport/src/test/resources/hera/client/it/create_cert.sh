@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash -e
 
 SERVER_KEY="server.key"
 SERVER_CERT="server.crt"
