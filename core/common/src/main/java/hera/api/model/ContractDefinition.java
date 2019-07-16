@@ -11,7 +11,7 @@ import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.spec.ContractDefinitionSpec;
+import hera.spec.resolver.ContractDefinitionSpec;
 import hera.util.EncodingUtils;
 import hera.util.VersionUtils;
 import java.util.List;

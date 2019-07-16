@@ -11,7 +11,7 @@ import hera.api.model.internal.AccountWithAddress;
 import hera.api.model.internal.AccountWithAddressAndSigner;
 import hera.api.model.internal.AccountWithKey;
 import hera.key.AergoKey;
-import hera.transaction.TxSigner;
+import hera.key.TxSigner;
 
 @Deprecated
 public class AccountFactory {

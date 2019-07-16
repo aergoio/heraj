@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 
 import hera.AbstractTestCase;
 import hera.api.model.EncryptedPrivateKey;
-import hera.spec.EncryptedPrivateKeySpec;
+import hera.spec.resolver.EncryptedPrivateKeySpec;
 import org.junit.Test;
 import types.Rpc;
 

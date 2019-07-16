@@ -11,7 +11,7 @@ import hera.annotation.ApiStability;
 import hera.api.model.BytesValue;
 import hera.api.model.Signature;
 import hera.exception.HerajException;
-import hera.spec.SignatureSpec;
+import hera.spec.AergoSpec;
 import hera.util.HexUtils;
 import hera.util.Pair;
 import hera.util.pki.ECDSASignature;
@@ -52,17 +52,17 @@ public class SignatureResolver {
     final byte[] serialized = new byte[6 + rbyteArray.length + sbyteArray.length];
 
     // Header
-    serialized[0] = SignatureSpec.HEADER_MAGIC;
+    serialized[0] = AergoSpec.SIGN_HEADER_MAGIC;
     serialized[1] = (byte) (serialized.length - 2);
 
     // <int-marker> + <R.length> + <R.bytes>
-    serialized[2] = SignatureSpec.INT_MARKER;
+    serialized[2] = AergoSpec.SIGN_INT_MARKER;
     serialized[3] = (byte) rbyteArray.length;
     System.arraycopy(rbyteArray, 0, serialized, 4, rbyteArray.length);
 
     // <int-marker> + <S.length> + <S.bytes>
     final int offset = 4 + rbyteArray.length;
-    serialized[offset] = SignatureSpec.INT_MARKER;
+    serialized[offset] = AergoSpec.SIGN_INT_MARKER;
     serialized[offset + 1] = (byte) sbyteArray.length;
     System.arraycopy(sbyteArray, 0, serialized, offset + 2, sbyteArray.length);
 
@@ -89,10 +89,10 @@ public class SignatureResolver {
 
     int index = 0;
 
-    if (rawSignature.length < SignatureSpec.MINIMUM_SIGNATURE_LEN) {
+    if (rawSignature.length < AergoSpec.SIGN_MINIMUM_LENGTH) {
       throw new HerajException(
           "Invalid serialized length: length is shorter than "
-              + SignatureSpec.MINIMUM_SIGNATURE_LEN);
+              + AergoSpec.SIGN_MINIMUM_LENGTH);
     }
 
     index = validateHeader(rawSignature, index);
@@ -117,15 +117,15 @@ public class SignatureResolver {
   protected static int validateHeader(final byte[] source, final int start) {
     int index = start;
 
-    if (source[index] != SignatureSpec.HEADER_MAGIC) {
+    if (source[index] != AergoSpec.SIGN_HEADER_MAGIC) {
       throw new HerajException(
-          "Invalid magic number. expected: " + SignatureSpec.HEADER_MAGIC + ", but was: "
+          "Invalid magic number. expected: " + AergoSpec.SIGN_HEADER_MAGIC + ", but was: "
               + source[index]);
     }
     ++index;
 
     int sigDataLen = source[index];
-    if (sigDataLen < SignatureSpec.MINIMUM_SIGNATURE_LEN || (source.length - 2) < sigDataLen) {
+    if (sigDataLen < AergoSpec.SIGN_MINIMUM_LENGTH || (source.length - 2) < sigDataLen) {
       throw new HerajException("Invalid signature length");
     }
     ++index;
@@ -138,9 +138,9 @@ public class SignatureResolver {
     int index = start;
 
     // parse marker
-    if (source[index] != SignatureSpec.INT_MARKER) {
+    if (source[index] != AergoSpec.SIGN_INT_MARKER) {
       throw new HerajException(
-          "Invalid integer header. expected: " + SignatureSpec.INT_MARKER + ", but was: "
+          "Invalid integer header. expected: " + AergoSpec.SIGN_INT_MARKER + ", but was: "
               + source[index]);
     }
     ++index;

@@ -7,11 +7,10 @@ package hera.api.model;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import hera.exception.InvalidVersionException;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
-import hera.spec.AddressSpec;
+import hera.spec.resolver.AddressSpec;
 import hera.util.Base58Utils;
 import java.security.PublicKey;
 import java.util.Arrays;

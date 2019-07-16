@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 import hera.api.model.AccountAddress;
-import hera.transaction.TxSigner;
+import hera.key.TxSigner;
 import org.junit.Test;
 
 public class AcconntWithAddressAndSignerTest {

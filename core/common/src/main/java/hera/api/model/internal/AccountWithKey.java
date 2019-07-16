@@ -10,7 +10,7 @@ import hera.api.model.AccountAddress;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.key.AergoKey;
-import hera.transaction.TxSigner;
+import hera.key.TxSigner;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;

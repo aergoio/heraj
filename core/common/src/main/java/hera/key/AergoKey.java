@@ -24,7 +24,6 @@ import hera.spec.resolver.AddressResolver;
 import hera.spec.resolver.EncryptedPrivateKeyResolver;
 import hera.spec.resolver.SignatureResolver;
 import hera.spec.resolver.TransactionHashResolver;
-import hera.transaction.TxVerifier;
 import hera.util.Base64Utils;
 import hera.util.NumberUtils;
 import hera.util.pki.ECDSAKey;

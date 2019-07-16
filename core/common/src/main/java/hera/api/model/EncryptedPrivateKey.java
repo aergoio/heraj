@@ -12,7 +12,7 @@ import hera.annotation.ApiStability;
 import hera.api.encode.Encodable;
 import hera.exception.DecodingFailureException;
 import hera.exception.InvalidVersionException;
-import hera.spec.EncryptedPrivateKeySpec;
+import hera.spec.resolver.EncryptedPrivateKeySpec;
 import hera.util.VersionUtils;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

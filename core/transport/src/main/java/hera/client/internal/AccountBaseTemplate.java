@@ -34,7 +34,7 @@ import hera.api.model.TxHash;
 import hera.client.ChannelInjectable;
 import hera.exception.TransactionVerificationException;
 import hera.key.Signer;
-import hera.transaction.TxSigner;
+import hera.key.TxSigner;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.AccountStateConverterFactory;
 import hera.transport.AccountTotalVoteConverterFactory;

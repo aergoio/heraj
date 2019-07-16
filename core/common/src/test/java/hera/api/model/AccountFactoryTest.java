@@ -6,10 +6,9 @@ package hera.api.model;
 
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
-
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
-import hera.transaction.TxSigner;
+import hera.key.TxSigner;
 import org.junit.Test;
 
 public class AccountFactoryTest {

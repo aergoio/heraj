@@ -7,7 +7,6 @@ package hera.key;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
-import hera.transaction.TxSigner;
 
 @ApiAudience.Public
 @ApiStability.Unstable

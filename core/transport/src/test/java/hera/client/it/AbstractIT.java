@@ -5,7 +5,6 @@
 package hera.client.it;
 
 import static java.util.UUID.randomUUID;
-import static org.junit.Assert.assertEquals;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.AccountAddress;
@@ -15,12 +14,12 @@ import hera.api.model.Aer.Unit;
 import hera.api.model.ChainIdHash;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
+import hera.api.transaction.NonceProvider;
+import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
-import hera.transaction.NonceProvider;
-import hera.transaction.SimpleNonceProvider;
 import hera.util.ThreadUtils;
 import java.io.IOException;
 import java.io.InputStream;

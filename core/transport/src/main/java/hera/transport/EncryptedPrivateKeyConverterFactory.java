@@ -14,7 +14,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import hera.api.function.Function1;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
-import hera.spec.EncryptedPrivateKeySpec;
+import hera.spec.resolver.EncryptedPrivateKeySpec;
 import hera.util.HexUtils;
 import org.slf4j.Logger;
 import types.Rpc;

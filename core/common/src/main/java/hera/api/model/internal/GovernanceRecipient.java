@@ -10,7 +10,7 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
-import hera.spec.AddressSpec;
+import hera.spec.resolver.AddressSpec;
 
 @ApiAudience.Private
 @ApiStability.Unstable

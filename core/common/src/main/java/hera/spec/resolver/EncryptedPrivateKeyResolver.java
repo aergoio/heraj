@@ -10,7 +10,6 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
-import hera.spec.EncryptedPrivateKeySpec;
 import hera.util.CryptoUtils;
 import hera.util.Sha256Utils;
 import hera.util.VersionUtils;

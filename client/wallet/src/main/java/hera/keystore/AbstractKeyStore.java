@@ -12,7 +12,7 @@ import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.exception.KeyStoreException;
 import hera.key.AergoKey;
-import hera.transaction.TxSigner;
+import hera.key.TxSigner;
 import hera.util.Sha256Utils;
 import org.slf4j.Logger;
 

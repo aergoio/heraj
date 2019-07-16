@@ -13,7 +13,6 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.exception.HerajException;
-import hera.spec.AddressSpec;
 import hera.util.NumberUtils;
 import hera.util.pki.ECDSAKeyGenerator;
 import java.security.PublicKey;

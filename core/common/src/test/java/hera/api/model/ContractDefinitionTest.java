@@ -10,10 +10,9 @@ import static java.util.Collections.emptyList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-
 import hera.exception.DecodingFailureException;
 import hera.exception.InvalidVersionException;
-import hera.spec.ContractDefinitionSpec;
+import hera.spec.resolver.ContractDefinitionSpec;
 import hera.util.EncodingUtils;
 import org.junit.Test;
 

@@ -47,7 +47,7 @@ import hera.client.AergoClient;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.keystore.KeyStore;
-import hera.spec.ContractDefinitionSpec;
+import hera.spec.resolver.ContractDefinitionSpec;
 import hera.util.Base58Utils;
 import java.util.ArrayList;
 import java.util.List;

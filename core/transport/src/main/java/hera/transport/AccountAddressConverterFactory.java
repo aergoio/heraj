@@ -15,7 +15,7 @@ import com.google.protobuf.ByteString;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
-import hera.spec.AddressSpec;
+import hera.spec.resolver.AddressSpec;
 import hera.util.HexUtils;
 import org.slf4j.Logger;
 

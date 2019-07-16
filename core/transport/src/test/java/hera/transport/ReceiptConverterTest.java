@@ -9,7 +9,7 @@ import static org.junit.Assert.assertNotNull;
 import com.google.protobuf.ByteString;
 import hera.AbstractTestCase;
 import hera.api.model.ContractTxReceipt;
-import hera.spec.AddressSpec;
+import hera.spec.resolver.AddressSpec;
 import org.junit.Test;
 import types.Blockchain;
 

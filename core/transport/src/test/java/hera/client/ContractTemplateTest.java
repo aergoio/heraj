@@ -46,7 +46,7 @@ import hera.client.internal.ContractBaseTemplate;
 import hera.client.internal.FinishableFuture;
 import hera.key.AergoKeyGenerator;
 import hera.key.Signer;
-import hera.spec.ContractDefinitionSpec;
+import hera.spec.resolver.ContractDefinitionSpec;
 import hera.util.Base58Utils;
 import java.util.ArrayList;
 import java.util.List;

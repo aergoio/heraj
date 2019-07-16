@@ -18,7 +18,6 @@ import hera.api.model.TxHash;
 import hera.exception.HerajException;
 import hera.spec.resolver.SignatureResolver;
 import hera.spec.resolver.TransactionHashResolver;
-import hera.transaction.TxVerifier;
 import hera.util.Base64Utils;
 import hera.util.pki.ECDSAKeyGenerator;
 import hera.util.pki.ECDSASignature;

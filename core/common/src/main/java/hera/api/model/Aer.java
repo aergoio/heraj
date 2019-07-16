@@ -9,7 +9,7 @@ import static hera.util.ValidationUtils.assertNotNull;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.exception.InvalidAerAmountException;
-import hera.spec.AerSpec;
+import hera.spec.AergoSpec;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import lombok.EqualsAndHashCode;
@@ -75,10 +75,10 @@ public class Aer implements Comparable<Aer> {
   @ApiAudience.Public
   @RequiredArgsConstructor
   public enum Unit {
-    AER(AerSpec.Unit.AER), GAER(AerSpec.Unit.GAER), AERGO(AerSpec.Unit.AERGO);
+    AER(AergoSpec.Unit.AER), GAER(AergoSpec.Unit.GAER), AERGO(AergoSpec.Unit.AERGO);
 
     @Getter
-    final AerSpec.Unit delegate;
+    final AergoSpec.Unit delegate;
   }
 
   @Getter

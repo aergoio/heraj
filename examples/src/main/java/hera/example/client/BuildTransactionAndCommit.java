@@ -9,13 +9,13 @@ import hera.api.model.Aer.Unit;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.transaction.NonceProvider;
+import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.example.AbstractExample;
 import hera.key.AergoKeyGenerator;
 import hera.key.Signer;
-import hera.transaction.NonceProvider;
-import hera.transaction.SimpleNonceProvider;
 
 public class BuildTransactionAndCommit extends AbstractExample {
 

@@ -10,7 +10,7 @@ import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.Identity;
 import hera.exception.HerajException;
-import hera.spec.AddressSpec;
+import hera.spec.resolver.AddressSpec;
 
 public class AddressUtils {
 
