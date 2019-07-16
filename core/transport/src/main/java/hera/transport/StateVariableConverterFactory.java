@@ -31,9 +31,10 @@ public class StateVariableConverterFactory {
         public StateVariable apply(final Blockchain.StateVar rpcStateVariable) {
           logger.trace("Rpc state variable to convert: {}", rpcStateVariable);
 
-          final StateVariable domainStateVariable = new StateVariable(
-              rpcStateVariable.getName(),
-              rpcStateVariable.getType());
+          final StateVariable domainStateVariable = StateVariable.newBuilder()
+              .name(rpcStateVariable.getName())
+              .type(rpcStateVariable.getType())
+              .build();
           logger.trace("Domain state variable converted: {}", domainStateVariable);
           return domainStateVariable;
         }

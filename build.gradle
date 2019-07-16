@@ -55,6 +55,7 @@ ext {
   bouncyCastleVersion = '1.60'
   grpcVersion = '1.13.1'
   guavaVersion = '20.0'
+  lombokVersion = '1.18.8'
 }
 
 configure(javaProjects) {
@@ -100,11 +101,11 @@ configure(javaProjects) {
   compileTestJava.options.encoding = 'UTF-8'
 
   dependencies {
-    compileOnly 'org.projectlombok:lombok:1.18.2'
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
     implementation 'org.slf4j:slf4j-api:1.7.25'
 
     runtime 'ch.qos.logback:logback-classic:1.2.3'
-    testImplementation 'org.projectlombok:lombok:1.18.2'
+    testImplementation "org.projectlombok:lombok:${lombokVersion}"
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:2.23.0'
     testImplementation('org.powermock:powermock-api-mockito2:2.0.0-beta.5') {

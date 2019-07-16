@@ -4,37 +4,26 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import hera.util.StringUtils;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@ToString
-@EqualsAndHashCode
+@Value
+@Builder(builderMethodName = "newBuilder")
 public class ElectedCandidate {
 
-  @Getter
-  protected final String candidateId;
+  @NonNull
+  @Default
+  String candidateId = StringUtils.EMPTY_STRING;
 
-  @Getter
-  protected final Aer voted;
-
-  /**
-   * Vote constructor.
-   *
-   * @param candidateId a candidate id
-   * @param voted a voted amount
-   */
-  public ElectedCandidate(final String candidateId, final Aer voted) {
-    assertNotNull(candidateId, "Candidate id must not null");
-    assertNotNull(voted, "Voted amount must not null");
-    this.candidateId = candidateId;
-    this.voted = voted;
-  }
+  @NonNull
+  @Default
+  Aer voted = Aer.EMPTY;
 
 }

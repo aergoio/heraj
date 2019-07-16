@@ -23,7 +23,6 @@ import hera.api.function.Function0;
 import hera.api.function.Function1;
 import hera.api.function.Function3;
 import hera.api.function.WithIdentity;
-import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
@@ -34,7 +33,7 @@ import java.util.List;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
-@PrepareForTest({KeyStoreBaseTemplate.class, Account.class, EncryptedPrivateKey.class})
+@PrepareForTest({KeyStoreBaseTemplate.class, EncryptedPrivateKey.class})
 public class KeyStoreTemplateTest extends AbstractTestCase {
 
   protected static final String PASSWORD = randomUUID().toString();

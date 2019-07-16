@@ -4,40 +4,41 @@
 
 package hera.api.model;
 
+import static hera.util.ValidationUtils.assertNotNull;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import java.util.List;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@ToString
-@EqualsAndHashCode
+@Value
+@Builder(builderMethodName = "newBuilder")
 public class Block {
 
-  @Getter
-  protected final BlockHash hash;
+  @NonNull
+  @Default
+  BlockHash hash = BlockHash.of(BytesValue.EMPTY);
 
-  @Getter
-  protected final BlockHeader blockHeader;
+  @NonNull
+  @Default
+  BlockHeader blockHeader = BlockHeader.newBuilder().build();
 
-  @Getter
-  protected final List<Transaction> transactions;
+  @NonNull
+  @Default
+  List<Transaction> transactions = emptyList();
 
-  /**
-   * Block constructor.
-   *
-   * @param blockHash a block hash
-   * @param blockHeader a block header
-   * @param transactions transactions in block
-   */
-  @ApiAudience.Private
-  public Block(final BlockHash blockHash, final BlockHeader blockHeader,
+  Block(final BlockHash blockHash, final BlockHeader blockHeader,
       final List<Transaction> transactions) {
+    assertNotNull(blockHash, "The blockHash must not null");
+    assertNotNull(blockHeader, "The blockHeader must not null");
+    assertNotNull(transactions, "The transactions must not null");
     this.hash = blockHash;
     this.blockHeader = blockHeader;
     this.transactions = unmodifiableList(transactions);

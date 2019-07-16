@@ -44,13 +44,19 @@ public class AccountTotalVoteConverterFactory {
             for (final String rpcCandidate : rpcVoteInfo.getCandidatesList()) {
               domainCandidates.add(rpcCandidate);
             }
-            domainVoteInfos.add(new VoteInfo(rpcVoteInfo.getId(), domainCandidates));
+            final VoteInfo voteInfo = VoteInfo.newBuilder()
+                .voteId(rpcVoteInfo.getId())
+                .candidateIds(domainCandidates)
+                .build();
+            domainVoteInfos.add(voteInfo);
           }
 
           final StakeInfo domainStakeInfo =
               stakeInfoConverterFactory.convertToDomainModel(rpcAccountVoteTotal.getStaking());
-          final AccountTotalVote domainAccountVoteTotal =
-              new AccountTotalVote(domainStakeInfo, domainVoteInfos);
+          final AccountTotalVote domainAccountVoteTotal = AccountTotalVote.newBuilder()
+              .stakeInfo(domainStakeInfo)
+              .voteInfos(domainVoteInfos)
+              .build();
           logger.trace("Domain vote status converted: {}", domainAccountVoteTotal);
           return domainAccountVoteTotal;
         }

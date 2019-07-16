@@ -27,6 +27,7 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
 import hera.api.model.AccountTotalVote;
+import hera.api.model.Aer;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockMetadata;
@@ -42,10 +43,10 @@ import hera.api.model.ContractTxReceipt;
 import hera.api.model.ElectedCandidate;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
-import hera.api.model.ModuleStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
+import hera.api.model.RawTransaction;
 import hera.api.model.ServerInfo;
 import hera.api.model.StakeInfo;
 import hera.api.model.StreamObserver;
@@ -53,6 +54,7 @@ import hera.api.model.Subscription;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.client.AergoClient;
+import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +69,8 @@ public class QueryWalletTest extends AbstractTestCase {
   public void testGetAccountState() {
     final AergoClient mockClient = mock(AergoClient.class);
     final AccountOperation mockOperation = mock(AccountOperation.class);
-    when(mockOperation.getState(any(AccountAddress.class))).thenReturn(mock(AccountState.class));
+    when(mockOperation.getState(any(AccountAddress.class)))
+        .thenReturn(AccountState.newBuilder().build());
     when(mockClient.getAccountOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
@@ -81,7 +84,7 @@ public class QueryWalletTest extends AbstractTestCase {
   public void testGetNameOwner() {
     final AergoClient mockClient = mock(AergoClient.class);
     final AccountOperation mockOperation = mock(AccountOperation.class);
-    when(mockOperation.getNameOwner(anyString())).thenReturn(mock(AccountAddress.class));
+    when(mockOperation.getNameOwner(anyString())).thenReturn(AccountAddress.of(BytesValue.EMPTY));
     when(mockClient.getAccountOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
@@ -95,7 +98,7 @@ public class QueryWalletTest extends AbstractTestCase {
     final AergoClient mockClient = mock(AergoClient.class);
     final AccountOperation mockOperation = mock(AccountOperation.class);
     when(mockOperation.getStakingInfo(any(AccountAddress.class)))
-        .thenReturn(mock(StakeInfo.class));
+        .thenReturn(StakeInfo.newBuilder().build());
     when(mockClient.getAccountOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
@@ -124,7 +127,7 @@ public class QueryWalletTest extends AbstractTestCase {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
     when(mockOperation.getVotesOf(any(AccountAddress.class)))
-        .thenReturn(mock(AccountTotalVote.class));
+        .thenReturn(AccountTotalVote.newBuilder().build());
     when(mockClient.getBlockchainOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
@@ -151,9 +154,12 @@ public class QueryWalletTest extends AbstractTestCase {
   public void testGetBestBlockHash() {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
-    when(mockOperation.getBlockchainStatus()).thenReturn(
-        new BlockchainStatus(1, BlockHash.of(BytesValue.EMPTY), randomUUID().toString(),
-            chainIdHash));
+    final BlockchainStatus mockStatus = BlockchainStatus.newBuilder()
+        .bestBlockHash(BlockHash.of(BytesValue.EMPTY))
+        .consensus(randomUUID().toString())
+        .chainIdHash(chainIdHash)
+        .build();
+    when(mockOperation.getBlockchainStatus()).thenReturn(mockStatus);
     when(mockClient.getBlockchainOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
@@ -166,9 +172,12 @@ public class QueryWalletTest extends AbstractTestCase {
   public void testGetBestBlockHeight() {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
-    when(mockOperation.getBlockchainStatus()).thenReturn(
-        new BlockchainStatus(1, BlockHash.of(BytesValue.EMPTY), randomUUID().toString(),
-            chainIdHash));
+    final BlockchainStatus mockStatus = BlockchainStatus.newBuilder()
+        .bestBlockHash(BlockHash.of(BytesValue.EMPTY))
+        .consensus(randomUUID().toString())
+        .chainIdHash(chainIdHash)
+        .build();
+    when(mockOperation.getBlockchainStatus()).thenReturn(mockStatus);
     when(mockClient.getBlockchainOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
@@ -181,9 +190,12 @@ public class QueryWalletTest extends AbstractTestCase {
   public void testGetChainIdHash() {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
-    when(mockOperation.getBlockchainStatus()).thenReturn(
-        new BlockchainStatus(1, BlockHash.of(BytesValue.EMPTY), randomUUID().toString(),
-            chainIdHash));
+    final BlockchainStatus mockStatus = BlockchainStatus.newBuilder()
+        .bestBlockHash(BlockHash.of(BytesValue.EMPTY))
+        .consensus(randomUUID().toString())
+        .chainIdHash(chainIdHash)
+        .build();
+    when(mockOperation.getBlockchainStatus()).thenReturn(mockStatus);
     when(mockClient.getBlockchainOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
@@ -196,9 +208,12 @@ public class QueryWalletTest extends AbstractTestCase {
   public void testGetBlockchainStatus() {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
-    when(mockOperation.getBlockchainStatus()).thenReturn(
-        new BlockchainStatus(1, BlockHash.of(BytesValue.EMPTY), randomUUID().toString(),
-            chainIdHash));
+    final BlockchainStatus mockStatus = BlockchainStatus.newBuilder()
+        .bestBlockHash(BlockHash.of(BytesValue.EMPTY))
+        .consensus(randomUUID().toString())
+        .chainIdHash(chainIdHash)
+        .build();
+    when(mockOperation.getBlockchainStatus()).thenReturn(mockStatus);
     when(mockClient.getBlockchainOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
@@ -211,7 +226,7 @@ public class QueryWalletTest extends AbstractTestCase {
   public void testGetChainInfo() {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
-    when(mockOperation.getChainInfo()).thenReturn(mock(ChainInfo.class));
+    when(mockOperation.getChainInfo()).thenReturn(ChainInfo.newBuilder().build());
     when(mockClient.getBlockchainOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
@@ -251,7 +266,7 @@ public class QueryWalletTest extends AbstractTestCase {
   public void testGetServerInfo() {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
-    when(mockOperation.getServerInfo(any(List.class))).thenReturn(mock(ServerInfo.class));
+    when(mockOperation.getServerInfo(any(List.class))).thenReturn(ServerInfo.newBuilder().build());
     when(mockClient.getBlockchainOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
@@ -264,7 +279,7 @@ public class QueryWalletTest extends AbstractTestCase {
   public void testGetNodeStatus() {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
-    when(mockOperation.getNodeStatus()).thenReturn(new NodeStatus(new ArrayList<ModuleStatus>()));
+    when(mockOperation.getNodeStatus()).thenReturn(NodeStatus.newBuilder().build());
     when(mockClient.getBlockchainOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
@@ -278,7 +293,7 @@ public class QueryWalletTest extends AbstractTestCase {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockOperation mockOperation = mock(BlockOperation.class);
     when(mockOperation.getBlockMetadata(any(BlockHash.class)))
-        .thenReturn(mock(BlockMetadata.class));
+        .thenReturn(BlockMetadata.newBuilder().build());
     when(mockClient.getBlockOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
@@ -291,7 +306,8 @@ public class QueryWalletTest extends AbstractTestCase {
   public void testGetBlockMetadataByHeight() {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockOperation mockOperation = mock(BlockOperation.class);
-    when(mockOperation.getBlockMetadata(any(Long.class))).thenReturn(mock(BlockMetadata.class));
+    when(mockOperation.getBlockMetadata(any(Long.class)))
+        .thenReturn(BlockMetadata.newBuilder().build());
     when(mockClient.getBlockOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
@@ -332,7 +348,7 @@ public class QueryWalletTest extends AbstractTestCase {
   public void testGetBlockByHash() {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockOperation mockOperation = mock(BlockOperation.class);
-    when(mockOperation.getBlock(any(BlockHash.class))).thenReturn(mock(Block.class));
+    when(mockOperation.getBlock(any(BlockHash.class))).thenReturn(Block.newBuilder().build());
     when(mockClient.getBlockOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
@@ -345,7 +361,7 @@ public class QueryWalletTest extends AbstractTestCase {
   public void testGetBlockByHeight() {
     final AergoClient mockClient = mock(AergoClient.class);
     final BlockOperation mockOperation = mock(BlockOperation.class);
-    when(mockOperation.getBlock(any(Long.class))).thenReturn(mock(Block.class));
+    when(mockOperation.getBlock(any(Long.class))).thenReturn(Block.newBuilder().build());
     when(mockClient.getBlockOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
@@ -358,7 +374,18 @@ public class QueryWalletTest extends AbstractTestCase {
   public void testGetTransaction() {
     final AergoClient mockClient = mock(AergoClient.class);
     final TransactionOperation mockOperation = mock(TransactionOperation.class);
-    when(mockOperation.getTransaction(any(TxHash.class))).thenReturn(mock(Transaction.class));
+    final AergoKey key = new AergoKeyGenerator().create();
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .chainIdHash(chainIdHash)
+        .from(key.getAddress())
+        .to(key.getAddress())
+        .amount(Aer.ZERO)
+        .nonce(1L)
+        .build();
+    final Transaction mockTransaction = Transaction.newBuilder()
+        .rawTransaction(rawTransaction)
+        .build();
+    when(mockOperation.getTransaction(any(TxHash.class))).thenReturn(mockTransaction);
     when(mockClient.getTransactionOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
@@ -372,7 +399,7 @@ public class QueryWalletTest extends AbstractTestCase {
     final AergoClient mockClient = mock(AergoClient.class);
     final ContractOperation mockOperation = mock(ContractOperation.class);
     when(mockOperation.getReceipt(any(ContractTxHash.class)))
-        .thenReturn(mock(ContractTxReceipt.class));
+        .thenReturn(ContractTxReceipt.newBuilder().build());
     when(mockClient.getContractOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,

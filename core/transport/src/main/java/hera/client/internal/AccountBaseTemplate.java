@@ -117,8 +117,10 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
               public AccountState apply(final Blockchain.State state) {
                 final AccountState withoutAddress =
                     accountStateConverter.convertToDomainModel(state);
-                return new AccountState(address, withoutAddress.getNonce(),
-                    withoutAddress.getBalance());
+                return AccountState.newBuilder().address(address)
+                    .nonce(withoutAddress.getNonce())
+                    .balance(withoutAddress.getBalance())
+                    .build();
               }
             });
             addCallback(listenableFuture, callback, directExecutor());
@@ -363,8 +365,10 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
               public StakeInfo apply(final Rpc.Staking rpcStaking) {
                 final StakeInfo withoutAddress =
                     stakingInfoConverter.convertToDomainModel(rpcStaking);
-                return new StakeInfo(accountAddress, withoutAddress.getAmount(),
-                    withoutAddress.getBlockNumber());
+                return StakeInfo.newBuilder().address(accountAddress)
+                    .amount(withoutAddress.getAmount())
+                    .blockNumber(withoutAddress.getBlockNumber())
+                    .build();
               }
             });
             addCallback(listenableFuture, callback, directExecutor());
@@ -391,8 +395,9 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
             final Transaction signed = signer.sign(rawTransaction);
             nextFuture.success(signed);
           } else {
-            final Transaction domainTransaction =
-                new Transaction(rawTransaction, null, null, null, 0, false);
+            final Transaction domainTransaction = Transaction.newBuilder()
+                .rawTransaction(rawTransaction)
+                .build();
             final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(domainTransaction);
             logger.trace("AergoService signTX arg: {}", rpcTx);
 

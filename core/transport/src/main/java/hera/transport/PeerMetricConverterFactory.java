@@ -31,10 +31,13 @@ public class PeerMetricConverterFactory {
         @Override
         public PeerMetric apply(final Metric.PeerMetric rpcPeerMetric) {
           logger.trace("Rpc peer metric to convert: {}", rpcPeerMetric);
-          final PeerMetric domainPeerMetric =
-              new PeerMetric(Base58Utils.encode(rpcPeerMetric.getPeerID().toByteArray()),
-                  rpcPeerMetric.getSumIn(), rpcPeerMetric.getAvrIn(),
-                  rpcPeerMetric.getSumOut(), rpcPeerMetric.getAvrOut());
+          final PeerMetric domainPeerMetric = PeerMetric.newBuilder()
+              .peerId(Base58Utils.encode(rpcPeerMetric.getPeerID().toByteArray()))
+              .sumIn(rpcPeerMetric.getSumIn())
+              .sumOut(rpcPeerMetric.getSumOut())
+              .averageIn(rpcPeerMetric.getAvrIn())
+              .averageOut(rpcPeerMetric.getAvrOut())
+              .build();
           logger.trace("Domain peer metric converted: {}", domainPeerMetric);
           return domainPeerMetric;
         }

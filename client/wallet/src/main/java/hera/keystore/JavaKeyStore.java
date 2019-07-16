@@ -56,7 +56,7 @@ public class JavaKeyStore extends AbstractKeyStore {
   public void saveKey(final AergoKey key, final Authentication authentication) {
     try {
       logger.debug("Save key: {}, authentication: {}", key, authentication);
-      final String alias = authentication.getIdentity().getValue();
+      final String alias = authentication.getIdentity().getValue().toLowerCase();
       final PrivateKey privateKey = key.getPrivateKey();
       final char[] rawPassword = authentication.getPassword().toCharArray();
       final Certificate cert = generateCertificate(key);

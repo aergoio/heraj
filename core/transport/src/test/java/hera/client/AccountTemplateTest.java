@@ -65,9 +65,8 @@ public class AccountTemplateTest extends AbstractTestCase {
   @Test
   public void testGetState() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
-    final AccountState mockState = mock(AccountState.class);
     final FinishableFuture<AccountState> future = new FinishableFuture<AccountState>();
-    future.success(mockState);
+    future.success(AccountState.newBuilder().build());
     when(base.getStateFunction())
         .thenReturn(new Function1<AccountAddress, FinishableFuture<AccountState>>() {
           @Override
@@ -204,7 +203,7 @@ public class AccountTemplateTest extends AbstractTestCase {
   public void testGetStakingInfo() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
     final FinishableFuture<StakeInfo> future = new FinishableFuture<StakeInfo>();
-    future.success(mock(StakeInfo.class));
+    future.success(StakeInfo.newBuilder().build());
     when(base.getStakingInfoFunction())
         .thenReturn(new Function1<AccountAddress, FinishableFuture<StakeInfo>>() {
           @Override

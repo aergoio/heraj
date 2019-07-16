@@ -34,16 +34,18 @@ public class PeerConverterFactory {
     public Peer apply(final Rpc.Peer rpcPeer) {
       try {
         logger.trace("Rpc peer to convert: {}", rpcPeer);
-        final Peer domainPeer = new Peer(Inet6Address.getByName(rpcPeer.getAddress().getAddress()),
-            rpcPeer.getAddress().getPort(),
-            Base58Utils.encode(rpcPeer.getAddress().getPeerID().toByteArray()),
-            rpcPeer.getBestblock().getBlockNo(),
-            new BlockHash(of(rpcPeer.getBestblock().getBlockHash().toByteArray())),
-            rpcPeer.getState(),
-            rpcPeer.getHidden(),
-            rpcPeer.getLashCheck(),
-            rpcPeer.getSelfpeer(),
-            rpcPeer.getVersion());
+        final Peer domainPeer = Peer.newBuilder()
+            .address(Inet6Address.getByName(rpcPeer.getAddress().getAddress()))
+            .port(rpcPeer.getAddress().getPort())
+            .peerId(Base58Utils.encode(rpcPeer.getAddress().getPeerID().toByteArray()))
+            .bestHeight(rpcPeer.getBestblock().getBlockNo())
+            .bestBlockHash(new BlockHash(of(rpcPeer.getBestblock().getBlockHash().toByteArray())))
+            .state(rpcPeer.getState())
+            .hidden(rpcPeer.getHidden())
+            .lashCheck(rpcPeer.getLashCheck())
+            .selfPeer(rpcPeer.getSelfpeer())
+            .version(rpcPeer.getVersion())
+            .build();
         logger.trace("Domain peer converted: {}", domainPeer);
         return domainPeer;
       } catch (UnknownHostException e) {

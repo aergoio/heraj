@@ -4,8 +4,6 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Transaction.TxType;
@@ -27,14 +25,12 @@ import hera.transaction.dsl.StakeTransaction;
 import hera.transaction.dsl.UnstakeTransaction;
 import hera.transaction.dsl.UpdateNameTransaction;
 import hera.transaction.dsl.VoteTransaction;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@ToString
-@EqualsAndHashCode
+@Value
 public class RawTransaction {
 
   @ApiAudience.Public
@@ -87,57 +83,31 @@ public class RawTransaction {
     return new VoteTransactionBuilder();
   }
 
-  @Getter
-  protected final ChainIdHash chainIdHash;
+  @NonNull
+  ChainIdHash chainIdHash;
 
-  @Getter
-  protected final AccountAddress sender;
+  @NonNull
+  AccountAddress sender;
 
-  @Getter
-  protected final AccountAddress recipient;
+  @NonNull
+  AccountAddress recipient;
 
-  @Getter
-  protected final Aer amount;
+  @NonNull
+  Aer amount;
 
-  @Getter
-  protected final Long nonce;
+  long nonce;
 
-  @Getter
-  protected final Fee fee;
+  @NonNull
+  Fee fee;
 
-  @Getter
-  protected final BytesValue payload;
+  @NonNull
+  BytesValue payload;
 
-  @Getter
-  protected final TxType txType;
+  @NonNull
+  TxType txType;
 
-  /**
-   * RawTransaction constructor.
-   *
-   * @param chainIdHash a chain id hash
-   * @param sender a sender
-   * @param recipient a recipient
-   * @param amount an amount
-   * @param nonce an nonce
-   * @param fee a fee
-   * @param payload a payload
-   * @param txType a txType
-   */
-  @ApiAudience.Private
-  public RawTransaction(final ChainIdHash chainIdHash, final AccountAddress sender,
-      final AccountAddress recipient,
-      final Aer amount, final Long nonce, final Fee fee, final BytesValue payload,
-      final TxType txType) {
-    assertNotNull(chainIdHash, "Chain id hash must not null");
-    this.chainIdHash = chainIdHash;
-    this.sender = null != sender ? sender : AccountAddress.of(BytesValue.EMPTY);
-    this.recipient = null != recipient ? recipient : AccountAddress.of(BytesValue.EMPTY);
-    this.amount = null != amount ? amount : Aer.EMPTY;
-    this.nonce = nonce;
-    this.fee = null != fee ? fee : Fee.EMPTY;
-    this.payload = null != payload ? payload : BytesValue.EMPTY;
-    this.txType = null != txType ? txType : TxType.UNRECOGNIZED;
-  }
+
+  // remove those withers when Wither of lombok is stable.
 
   /**
    * Return a {@code RawTransaction} with new chain id hash.

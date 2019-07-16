@@ -33,11 +33,14 @@ public class BlockchainStatusConverterFactory {
         @Override
         public BlockchainStatus apply(final Rpc.BlockchainStatus rpcBlockchainStatus) {
           logger.trace("Rpc blockchain status to convert: {}", rpcBlockchainStatus);
-          final BlockchainStatus domainBlockchainStatus = new BlockchainStatus(
-              rpcBlockchainStatus.getBestHeight(),
-              new BlockHash(of(rpcBlockchainStatus.getBestBlockHash().toByteArray())),
-              rpcBlockchainStatus.getConsensusInfo(),
-              new ChainIdHash(of(rpcBlockchainStatus.getBestChainIdHash().toByteArray())));
+          final BlockchainStatus domainBlockchainStatus = BlockchainStatus.newBuilder()
+              .bestHeight(rpcBlockchainStatus.getBestHeight())
+              .bestBlockHash(
+                  new BlockHash(of(rpcBlockchainStatus.getBestBlockHash().toByteArray())))
+              .consensus(rpcBlockchainStatus.getConsensusInfo())
+              .chainIdHash(
+                  new ChainIdHash(of(rpcBlockchainStatus.getBestChainIdHash().toByteArray())))
+              .build();
           logger.trace("Domain blockchain status converted: {}", domainBlockchainStatus);
           return domainBlockchainStatus;
         }

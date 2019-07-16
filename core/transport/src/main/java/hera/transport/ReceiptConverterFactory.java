@@ -38,10 +38,11 @@ public class ReceiptConverterFactory {
           logger.trace("Rpc tx receipt to convert: {}", rpcReceipt);
           final AccountAddress accountAddress =
               accountAddressConverter.convertToDomainModel(rpcReceipt.getContractAddress());
-          final ContractTxReceipt domainTxReceipt = new ContractTxReceipt(
-              new ContractAddress(accountAddress.getBytesValue()),
-              rpcReceipt.getStatus(),
-              rpcReceipt.getRet());
+          final ContractTxReceipt domainTxReceipt = ContractTxReceipt.newBuilder()
+              .contractAddress(new ContractAddress(accountAddress.getBytesValue()))
+              .status(rpcReceipt.getStatus())
+              .ret(rpcReceipt.getRet())
+              .build();
           logger.trace("Domain tx receipt converted: {}", domainTxReceipt);
           return domainTxReceipt;
         }

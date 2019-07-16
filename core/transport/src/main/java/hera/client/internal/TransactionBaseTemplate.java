@@ -171,7 +171,9 @@ public class TransactionBaseTemplate implements ChannelInjectable, ContextProvid
                 .amount(amount)
                 .nonce(0L)
                 .build();
-            final Transaction transaction = new Transaction(rawTransaction, null, null);
+            final Transaction transaction = Transaction.newBuilder()
+                .rawTransaction(rawTransaction)
+                .build();
 
             final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(transaction);
             logger.trace("AergoService sendTX arg: {}", rpcTx);

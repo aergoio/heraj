@@ -21,8 +21,11 @@ public class AbstractAccountTest {
     final Aer balance = Aer.ONE;
 
     final AbstractAccount account = spy(AbstractAccount.class);
-    final AccountState state =
-        new AccountState(AccountAddress.of(BytesValue.EMPTY), nonce, balance);
+    final AccountState state = AccountState.newBuilder()
+        .address(AccountAddress.of(BytesValue.EMPTY))
+        .nonce(nonce)
+        .balance(balance)
+        .build();
 
     account.bindState(state);
     assertEquals(nonce, account.getRecentlyUsedNonce());

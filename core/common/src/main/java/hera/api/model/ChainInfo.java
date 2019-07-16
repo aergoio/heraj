@@ -4,71 +4,45 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@ToString
-@EqualsAndHashCode
+@Value
+@Builder(builderMethodName = "newBuilder")
 public class ChainInfo {
 
-  @Getter
-  protected final ChainId chainId;
+  @NonNull
+  @Default
+  ChainId chainId = ChainId.newBuilder().build();
 
-  @Getter
-  protected final int blockProducerCount;
+  int blockProducerCount;
 
-  @Getter
-  protected final long maxBlockSize; // bytes
+  long maxBlockSize; // bytes
 
-  @Getter
-  protected final Aer totalTokenAmount;
+  @NonNull
+  @Default
+  Aer totalTokenAmount = Aer.EMPTY;
 
-  @Getter
-  protected final Aer minimumStakingAmount;
+  @NonNull
+  @Default
+  Aer minimumStakingAmount = Aer.EMPTY;
 
-  @Getter
-  protected final Aer totalStaked;
+  @NonNull
+  @Default
+  Aer totalStaked = Aer.EMPTY;
 
-  @Getter
-  protected final Aer gasPrice;
+  @NonNull
+  @Default
+  Aer gasPrice = Aer.EMPTY;
 
-  @Getter
-  protected final Aer namingPrice;
-
-  /**
-   * ChainInfo constructor.
-   *
-   * @param chainId a chain id
-   * @param blockProducerCount a number of block producers
-   * @param maxBlockSize max block size in bytes
-   * @param totalTokenAmount a total aer token amount
-   * @param minimumStakingAmount an minimun staking amount
-   * @param totalStaked a total staked amount
-   * @param gasPrice a gas price
-   * @param namingPrice an naming price
-   */
-  @ApiAudience.Private
-  public ChainInfo(final ChainId chainId, final int blockProducerCount, final long maxBlockSize,
-      final Aer totalTokenAmount, final Aer minimumStakingAmount, final Aer totalStaked,
-      final Aer gasPrice, final Aer namingPrice) {
-    assertNotNull(chainId, "Chain id must not null");
-    assertNotNull(totalTokenAmount, "Total token amount must not null");
-    assertNotNull(minimumStakingAmount, "Minumum staking amount must not null");
-    this.chainId = chainId;
-    this.blockProducerCount = blockProducerCount;
-    this.maxBlockSize = maxBlockSize;
-    this.totalTokenAmount = totalTokenAmount;
-    this.minimumStakingAmount = minimumStakingAmount;
-    this.totalStaked = totalStaked;
-    this.gasPrice = gasPrice;
-    this.namingPrice = namingPrice;
-  }
+  @NonNull
+  @Default
+  Aer namingPrice = Aer.EMPTY;
 
 }

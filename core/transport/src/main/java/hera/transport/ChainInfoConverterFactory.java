@@ -34,20 +34,23 @@ public class ChainInfoConverterFactory {
           logger.trace("Rpc chain info to convert: {}", rpcChainInfo);
 
           final Rpc.ChainId rpcChainId = rpcChainInfo.getId();
-          final ChainId domainChainId = new ChainId(rpcChainId.getMagic(),
-              rpcChainId.getPublic(),
-              rpcChainId.getMainnet(),
-              rpcChainId.getConsensus());
+          final ChainId domainChainId = ChainId.newBuilder()
+              .magic(rpcChainId.getMagic())
+              .isPublic(rpcChainId.getPublic())
+              .isMainNet(rpcChainId.getMainnet())
+              .consensus(rpcChainId.getConsensus())
+              .build();
 
-          final ChainInfo domainChainInfo = new ChainInfo(
-              domainChainId,
-              rpcChainInfo.getBpNumber(),
-              rpcChainInfo.getMaxblocksize(),
-              parseToAer(rpcChainInfo.getMaxtokens()),
-              parseToAer(rpcChainInfo.getStakingminimum()),
-              parseToAer(rpcChainInfo.getTotalstaking()),
-              parseToAer(rpcChainInfo.getGasprice()),
-              parseToAer(rpcChainInfo.getNameprice()));
+          final ChainInfo domainChainInfo = ChainInfo.newBuilder()
+              .chainId(domainChainId)
+              .blockProducerCount(rpcChainInfo.getBpNumber())
+              .maxBlockSize(rpcChainInfo.getMaxblocksize())
+              .totalTokenAmount(parseToAer(rpcChainInfo.getMaxtokens()))
+              .minimumStakingAmount(parseToAer(rpcChainInfo.getStakingminimum()))
+              .totalStaked(parseToAer(rpcChainInfo.getTotalstaking()))
+              .gasPrice(parseToAer(rpcChainInfo.getGasprice()))
+              .namingPrice(parseToAer(rpcChainInfo.getNameprice()))
+              .build();
           logger.trace("Domain chain info converted: {}", domainChainInfo);
           return domainChainInfo;
         }

@@ -4,45 +4,27 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
-import static hera.util.ValidationUtils.assertTrue;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@ToString
-@EqualsAndHashCode
+@Value
+@Builder(builderMethodName = "newBuilder")
 public class AccountState {
 
-  @Getter
-  protected final AccountAddress address;
+  @NonNull
+  @Default
+  AccountAddress address = AccountAddress.of(BytesValue.EMPTY);
 
-  @Getter
-  protected final long nonce;
+  long nonce;
 
-  @Getter
-  protected final Aer balance;
-
-  /**
-   * AccountState constructor.
-   *
-   * @param address an account address
-   * @param nonce a nonce.
-   * @param balance a balance. Must be &gt;= 0
-   */
-  @ApiAudience.Private
-  public AccountState(final AccountAddress address, final long nonce, final Aer balance) {
-    assertNotNull(address, "Account address must not null");
-    assertTrue(nonce >= 0, "Nonce must >= 0");
-    assertNotNull(balance, "Account balance must not null");
-    this.address = address;
-    this.nonce = nonce;
-    this.balance = balance;
-  }
+  @NonNull
+  @Default
+  Aer balance = Aer.EMPTY;
 
 }

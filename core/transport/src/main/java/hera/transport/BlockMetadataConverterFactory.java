@@ -37,11 +37,12 @@ public class BlockMetadataConverterFactory {
         @Override
         public BlockMetadata apply(final Rpc.BlockMetadata rpcBlockMetadata) {
           logger.trace("Rpc block metadata to convert: {}", rpcBlockMetadata);
-          final BlockMetadata domainBlockMetadata = new BlockMetadata(
-              new BlockHash(of(rpcBlockMetadata.getHash().toByteArray())),
-              blockHeaderConverter.convertToDomainModel(rpcBlockMetadata.getHeader()),
-              rpcBlockMetadata.getTxcount(),
-              rpcBlockMetadata.getSize());
+          final BlockMetadata domainBlockMetadata = BlockMetadata.newBuilder()
+              .blockHash(new BlockHash(of(rpcBlockMetadata.getHash().toByteArray())))
+              .blockHeader(blockHeaderConverter.convertToDomainModel(rpcBlockMetadata.getHeader()))
+              .txCount(rpcBlockMetadata.getTxcount())
+              .blockSize(rpcBlockMetadata.getSize())
+              .build();
           logger.trace("Domain block metadata converted: {}", domainBlockMetadata);
           return domainBlockMetadata;
         }

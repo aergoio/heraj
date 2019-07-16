@@ -264,8 +264,9 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
           logger.debug("Sign request with rawTx: {}", rawTransaction);
 
           FinishableFuture<Transaction> nextFuture = new FinishableFuture<Transaction>();
-          final Transaction domainTransaction =
-              new Transaction(rawTransaction, null, null, null, 0, false);
+          final Transaction domainTransaction = Transaction.newBuilder()
+              .rawTransaction(rawTransaction)
+              .build();
           final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(domainTransaction);
           logger.trace("AergoService signTX arg: {}", rpcTx);
 

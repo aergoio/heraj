@@ -85,9 +85,8 @@ public class ContractTemplateTest extends AbstractTestCase {
   @Test
   public void testGetReceipt() {
     final ContractBaseTemplate base = mock(ContractBaseTemplate.class);
-    final ContractTxReceipt mockTxReceipt = mock(ContractTxReceipt.class);
     final FinishableFuture<ContractTxReceipt> future = new FinishableFuture<ContractTxReceipt>();
-    future.success(mockTxReceipt);
+    future.success(ContractTxReceipt.newBuilder().build());
     when(base.getReceiptFunction())
         .thenReturn(new Function1<ContractTxHash, FinishableFuture<ContractTxReceipt>>() {
           @Override

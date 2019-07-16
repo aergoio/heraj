@@ -26,13 +26,6 @@ public class TxHash extends Hash implements Adaptor, Encodable {
     return new TxHash(encoded);
   }
 
-  /**
-   * Create {@code Hash}.
-   *
-   * @param bytesValue {@link BytesValue}
-   * @return created {@link TxHash}
-   */
-  @ApiAudience.Private
   public static TxHash of(final BytesValue bytesValue) {
     return new TxHash(bytesValue);
   }
@@ -48,11 +41,6 @@ public class TxHash extends Hash implements Adaptor, Encodable {
     super(encoded);
   }
 
-  /**
-   * TxHash constructor.
-   *
-   * @param bytesValue {@link BytesValue}
-   */
   @ApiAudience.Private
   public TxHash(final BytesValue bytesValue) {
     super(bytesValue);

@@ -12,14 +12,11 @@ import hera.AbstractTestCase;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
-import hera.api.model.BlockHash;
 import hera.api.model.BytesValue;
 import hera.api.model.ChainIdHash;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
-import hera.api.model.Signature;
 import hera.api.model.Transaction;
-import hera.api.model.TxHash;
 import org.junit.Test;
 import types.Blockchain;
 
@@ -41,13 +38,7 @@ public class TransactionInBlockConverterTest extends AbstractTestCase {
         .payload(BytesValue.EMPTY)
         .build();
 
-    final Transaction expected = new Transaction(
-        rawTransaction,
-        Signature.of(BytesValue.EMPTY),
-        TxHash.of(BytesValue.EMPTY),
-        BlockHash.of(BytesValue.of(randomUUID().toString().getBytes())),
-        1,
-        true);
+    final Transaction expected = Transaction.newBuilder().rawTransaction(rawTransaction).build();
 
     final Blockchain.TxInBlock rpcTransaction = converter.convertToRpcModel(expected);
     final Transaction actual = converter.convertToDomainModel(rpcTransaction);

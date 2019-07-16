@@ -4,45 +4,21 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@ToString
-@EqualsAndHashCode
+@Value
+@Builder(builderMethodName = "newBuilder")
 public class Signature {
 
-  /**
-   * Create {@link Signature}.
-   *
-   * @param sign sign value
-   *
-   * @return created signature
-   */
-  @ApiAudience.Private
-  public static Signature of(final BytesValue sign) {
-    final Signature signature = new Signature(sign);
-    return signature;
-  }
-
-  @Getter
-  protected final BytesValue sign;
-
-  /**
-   * Signature constructor.
-   *
-   * @param sign a sign value
-   */
-  @ApiAudience.Private
-  public Signature(final BytesValue sign) {
-    assertNotNull(sign, "Sign value must not null");
-    this.sign = sign;
-  }
+  @NonNull
+  @Default
+  BytesValue sign = BytesValue.EMPTY;
 
 }

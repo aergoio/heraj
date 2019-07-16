@@ -31,8 +31,9 @@ public class ChainStatsConverterFactory {
         public ChainStats apply(final Rpc.ChainStats rpcChainStats) {
           logger.trace("Rpc chain info to convert: {}", rpcChainStats);
 
-          final ChainStats domainChainStats = new ChainStats(
-              rpcChainStats.getReport());
+          final ChainStats domainChainStats = ChainStats.newBuilder()
+              .report(rpcChainStats.getReport())
+              .build();
           logger.trace("Domain chain stats converted: {}", domainChainStats);
           return domainChainStats;
         }

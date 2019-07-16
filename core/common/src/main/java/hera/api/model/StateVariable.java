@@ -4,38 +4,26 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import hera.util.StringUtils;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@ToString
-@EqualsAndHashCode
+@Value
+@Builder(builderMethodName = "newBuilder")
 public class StateVariable {
 
-  @Getter
-  protected String name;
+  @NonNull
+  @Default
+  String name = StringUtils.EMPTY_STRING;
 
-  @Getter
-  protected String type;
-
-  /**
-   * StateVariable constructor.
-   *
-   * @param name a state variable name
-   * @param type a state variable type
-   */
-  @ApiAudience.Private
-  public StateVariable(final String name, final String type) {
-    assertNotNull(name, "Name must not null");
-    assertNotNull(type, "Type must not null");
-    this.name = name;
-    this.type = type;
-  }
+  @NonNull
+  @Default
+  String type = StringUtils.EMPTY_STRING;
 
 }

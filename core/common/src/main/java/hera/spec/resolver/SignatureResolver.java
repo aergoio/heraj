@@ -4,11 +4,11 @@
 
 package hera.spec.resolver;
 
-import static hera.api.model.BytesValue.of;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.api.model.BytesValue;
 import hera.api.model.Signature;
 import hera.exception.HerajException;
 import hera.spec.SignatureSpec;
@@ -66,7 +66,7 @@ public class SignatureResolver {
     serialized[offset + 1] = (byte) sbyteArray.length;
     System.arraycopy(sbyteArray, 0, serialized, offset + 2, sbyteArray.length);
 
-    return new Signature(of(serialized));
+    return Signature.newBuilder().sign(BytesValue.of(serialized)).build();
   }
 
   /**

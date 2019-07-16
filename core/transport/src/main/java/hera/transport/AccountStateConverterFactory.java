@@ -35,10 +35,11 @@ public class AccountStateConverterFactory {
         public AccountState apply(final Blockchain.State rpcAccountState) {
           logger.trace("Rpc account state to convert: {}", rpcAccountState);
           final Aer parsedAer = parseToAer(rpcAccountState.getBalance());
-          final AccountState domainAccountState =
-              new AccountState(AccountAddress.of(BytesValue.EMPTY),
-                  rpcAccountState.getNonce(),
-                  parsedAer.equals(Aer.EMPTY) ? Aer.ZERO : parsedAer);
+          final AccountState domainAccountState = AccountState.newBuilder()
+              .address(AccountAddress.of(BytesValue.EMPTY))
+              .nonce(rpcAccountState.getNonce())
+              .balance(parsedAer.equals(Aer.EMPTY) ? Aer.ZERO : parsedAer)
+              .build();
           logger.trace("Domain account state converted: {}", domainAccountState);
           return domainAccountState;
         }

@@ -4,43 +4,27 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@ToString
-@EqualsAndHashCode
+@Value
+@Builder(builderMethodName = "newBuilder")
 public class StakeInfo {
 
-  @Getter
-  protected final AccountAddress address;
+  @NonNull
+  @Default
+  AccountAddress address = AccountAddress.of(BytesValue.EMPTY);
 
-  @Getter
-  protected final Aer amount;
+  @NonNull
+  @Default
+  Aer amount = Aer.ZERO;
 
-  @Getter
-  protected final long blockNumber;
-
-  /**
-   * StakingInfo constructor.
-   *
-   * @param address an account address
-   * @param amount a staking amount. Must be &gt;= 0
-   * @param blockNumber a staking block number
-   */
-  @ApiAudience.Private
-  public StakeInfo(final AccountAddress address, final Aer amount, final long blockNumber) {
-    assertNotNull(address, "Staking address must not null");
-    assertNotNull(amount, "Staking amount must not null");
-    this.address = address;
-    this.amount = amount;
-    this.blockNumber = blockNumber;
-  }
+  long blockNumber;
 
 }

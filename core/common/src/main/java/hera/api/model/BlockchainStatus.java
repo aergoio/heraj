@@ -4,52 +4,32 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
-import static hera.util.ValidationUtils.assertTrue;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import hera.util.StringUtils;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@ToString
-@EqualsAndHashCode
+@Value
+@Builder(builderMethodName = "newBuilder")
 public class BlockchainStatus {
 
-  @Getter
-  protected long bestHeight;
+  long bestHeight;
 
-  @Getter
-  protected BlockHash bestBlockHash;
+  @NonNull
+  @Default
+  BlockHash bestBlockHash = BlockHash.of(BytesValue.EMPTY);
 
-  @Getter
-  protected String consensus;
+  @NonNull
+  @Default
+  String consensus = StringUtils.EMPTY_STRING;
 
-  @Getter
-  protected ChainIdHash chainIdHash;
-
-  /**
-   * BlockchainStatus constructor.
-   *
-   * @param bestHeight a best block height. Must be &gt;= 0
-   * @param bestBlockHash a best block hash
-   * @param consensus a consensus info
-   * @param chainIdHash a chain id hash
-   */
-  @ApiAudience.Private
-  public BlockchainStatus(final long bestHeight, final BlockHash bestBlockHash,
-      final String consensus, final ChainIdHash chainIdHash) {
-    assertTrue(bestHeight >= 0, "Best block height must be >= 0");
-    assertNotNull(bestBlockHash, "Best block hash must not null");
-    assertNotNull(consensus, "Consensus must not null");
-    assertNotNull(chainIdHash, "Best chain id hash must not null");
-    this.bestHeight = bestHeight;
-    this.bestBlockHash = bestBlockHash;
-    this.consensus = consensus;
-    this.chainIdHash = chainIdHash;
-  }
+  @NonNull
+  @Default
+  ChainIdHash chainIdHash = ChainIdHash.of(BytesValue.EMPTY);
 
 }

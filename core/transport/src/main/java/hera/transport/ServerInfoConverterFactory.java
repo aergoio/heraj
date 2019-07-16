@@ -42,7 +42,10 @@ public class ServerInfoConverterFactory {
               final Rpc.ConfigItem rpcConfigItem = rpcConfig.get(key);
               domainConfig.put(key, rpcConfigItem.getPropsMap());
             }
-            final ServerInfo domainServerInfo = new ServerInfo(domainStatus, domainConfig);
+            final ServerInfo domainServerInfo = ServerInfo.newBuilder()
+                .status(domainStatus)
+                .config(domainConfig)
+                .build();
             logger.trace("Domain server info converted: {}", domainServerInfo);
             return domainServerInfo;
           } catch (Throwable e) {

@@ -56,9 +56,8 @@ public class BlockTemplateTest extends AbstractTestCase {
   @Test
   public void testGetBlockMetadataByHash() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
-    final BlockMetadata mockBlockMetadata = mock(BlockMetadata.class);
     final FinishableFuture<BlockMetadata> future = new FinishableFuture<BlockMetadata>();
-    future.success(mockBlockMetadata);
+    future.success(BlockMetadata.newBuilder().build());
     when(base.getBlockMetatdataByHashFunction())
         .thenReturn(new Function1<BlockHash, FinishableFuture<BlockMetadata>>() {
           @Override
@@ -79,9 +78,8 @@ public class BlockTemplateTest extends AbstractTestCase {
   @Test
   public void testGetBlockMetadataByHeight() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
-    final BlockMetadata mockBlockMetadata = mock(BlockMetadata.class);
     final FinishableFuture<BlockMetadata> future = new FinishableFuture<BlockMetadata>();
-    future.success(mockBlockMetadata);
+    future.success(BlockMetadata.newBuilder().build());
     when(base.getBlockMetadataByHeightFunction())
         .thenReturn(new Function1<Long, FinishableFuture<BlockMetadata>>() {
           @Override
@@ -148,9 +146,8 @@ public class BlockTemplateTest extends AbstractTestCase {
   @Test
   public void testGetBlockByHash() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
-    final Block mockBlock = mock(Block.class);
     final FinishableFuture<Block> future = new FinishableFuture<Block>();
-    future.success(mockBlock);
+    future.success(Block.newBuilder().build());
     when(base.getBlockByHashFunction())
         .thenReturn(new Function1<BlockHash, FinishableFuture<Block>>() {
           @Override
@@ -171,9 +168,8 @@ public class BlockTemplateTest extends AbstractTestCase {
   @Test
   public void testGetBlockByHeight() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
-    final Block mockBlock = mock(Block.class);
     final FinishableFuture<Block> future = new FinishableFuture<Block>();
-    future.success(mockBlock);
+    future.success(Block.newBuilder().build());
     when(base.getBlockByHeightFunction())
         .thenReturn(new Function1<Long, FinishableFuture<Block>>() {
           @Override

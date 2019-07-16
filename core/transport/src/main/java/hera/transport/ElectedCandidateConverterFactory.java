@@ -32,9 +32,10 @@ public class ElectedCandidateConverterFactory {
         @Override
         public ElectedCandidate apply(final Rpc.Vote rpcElectedCandidate) {
           logger.trace("Rpc vote status to convert: {}", rpcElectedCandidate);
-          final ElectedCandidate domainElectedCandidate = new ElectedCandidate(
-              Base58Utils.encode(rpcElectedCandidate.getCandidate().toByteArray()),
-              parseToAer(rpcElectedCandidate.getAmount()));
+          final ElectedCandidate domainElectedCandidate = ElectedCandidate.newBuilder()
+              .candidateId(Base58Utils.encode(rpcElectedCandidate.getCandidate().toByteArray()))
+              .voted(parseToAer(rpcElectedCandidate.getAmount()))
+              .build();
           logger.trace("Domain vote status converted: {}", domainElectedCandidate);
           return domainElectedCandidate;
         }

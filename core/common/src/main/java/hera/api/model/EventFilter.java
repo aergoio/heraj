@@ -14,76 +14,61 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.util.StringUtils;
 import java.util.List;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@ToString
-@EqualsAndHashCode
+@Value
 public class EventFilter {
 
   public static EventFilterBuilder newBuilder(final ContractAddress contractAddress) {
     return new EventFilterBuilder(contractAddress);
   }
 
-  @Getter
-  protected final ContractAddress contractAddress;
+  @NonNull
+  ContractAddress contractAddress;
 
-  @Getter
-  protected final String eventName;
+  @NonNull
+  String eventName;
 
-  @Getter
-  protected final List<Object> args;
+  @NonNull
+  List<Object> args;
 
-  @Getter
-  protected final long fromBlockNumber;
+  long fromBlockNumber;
 
-  @Getter
-  protected final long toBlockNumber;
+  long toBlockNumber;
 
-  @Getter
-  protected final boolean decending;
+  boolean decending;
 
-  @Getter
-  protected final int recentBlockCount;
+  int recentBlockCount;
 
-  /**
-   * EventFilter constructor.
-   *
-   * @param contractAddress a contract address where event comes from
-   * @param eventName an event name
-   * @param args an event arguments
-   * @param fromBlockNumber a block number where search starts
-   * @param toBlockNumber a block number where search finishes
-   * @param decending whether to search block in a decending order or not
-   * @param recentBlockCount a recent block count
-   */
-  @ApiAudience.Private
-  public EventFilter(final ContractAddress contractAddress, final String eventName,
+  EventFilter(final ContractAddress contractAddress, final String eventName,
       final List<Object> args, long fromBlockNumber, final long toBlockNumber,
       final boolean decending, final int recentBlockCount) {
     assertNotNull(contractAddress, "Contract address must not null");
+    assertNotNull(eventName, "Event name must not null");
+    assertNotNull(args, "Event args must not null");
     assertTrue(fromBlockNumber >= 0, "From block number must be >= 0");
     assertTrue(toBlockNumber >= 0, "To block number must be >= 0");
     assertTrue(recentBlockCount >= 0, "Recent block count must be >= 0");
     this.contractAddress = contractAddress;
-    this.eventName = null == eventName ? StringUtils.EMPTY_STRING : eventName;
-    this.args = unmodifiableList(args == null ? emptyList() : args);
+    this.eventName = eventName;
+    this.args = unmodifiableList(args);
     this.fromBlockNumber = fromBlockNumber;
     this.toBlockNumber = toBlockNumber;
     this.decending = decending;
     this.recentBlockCount = recentBlockCount;
   }
 
+  // TODO : change to step builder
   public static class EventFilterBuilder implements hera.util.Builder<EventFilter> {
 
     protected final ContractAddress contractAddress;
 
-    protected String eventName;
+    protected String eventName = StringUtils.EMPTY_STRING;
 
-    protected List<Object> args;
+    protected List<Object> args = emptyList();
 
     protected long fromBlockNumber;
 

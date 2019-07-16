@@ -12,62 +12,53 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.util.StringUtils;
 import java.util.List;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@ToString
-@EqualsAndHashCode
+@Value
+@Builder(builderMethodName = "newBuilder")
 public class Event {
 
-  @Getter
-  protected final ContractAddress from;
+  @NonNull
+  ContractAddress from;
 
-  @Getter
-  protected final String name;
+  @NonNull
+  @Default
+  String name = StringUtils.EMPTY_STRING;
 
-  @Getter
-  protected final List<Object> args;
+  @NonNull
+  @Default
+  List<Object> args = emptyList();
 
-  @Getter
-  protected final int index;
+  int index;
 
-  @Getter
-  protected final TxHash txHash;
+  @NonNull
+  @Default
+  TxHash txHash = TxHash.of(BytesValue.EMPTY);
 
-  @Getter
-  protected final int indexInBlock;
+  int indexInBlock;
 
-  @Getter
-  protected final BlockHash blockHash;
+  @NonNull
+  @Default
+  BlockHash blockHash = BlockHash.of(BytesValue.EMPTY);
 
-  @Getter
-  protected final long blockNumber;
+  long blockNumber;
 
-  /**
-   * Event constructor.
-   *
-   * @param from a contract address where event comes from
-   * @param name an event name
-   * @param args an event arguments
-   * @param index an event index
-   * @param txHash a transaction hash where contract call is confirmed
-   * @param indexInBlock a transaction index in block
-   * @param blockHash a block hash where contract call is confirmed
-   * @param blockNumber a block block number where contract call is confirmed
-   */
-  @ApiAudience.Private
-  public Event(final ContractAddress from, final String name, final List<Object> args,
+  Event(final ContractAddress from, final String name, final List<Object> args,
       final int index, final TxHash txHash, int indexInBlock, final BlockHash blockHash,
       final long blockNumber) {
     assertNotNull(from, "Contract address must not null");
+    assertNotNull(name, "Name must not null");
+    assertNotNull(args, "Event args must not null");
     assertNotNull(txHash, "Event transaction hash must not null");
     assertNotNull(blockHash, "Event block hash must not null");
     this.from = from;
-    this.name = name == null ? StringUtils.EMPTY_STRING : name;
-    this.args = unmodifiableList(args == null ? emptyList() : args);
+    this.name = name;
+    this.args = unmodifiableList(args);
     this.index = index;
     this.txHash = txHash;
     this.indexInBlock = indexInBlock;

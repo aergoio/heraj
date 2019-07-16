@@ -63,10 +63,11 @@ public class BlockConverterFactory {
             transactions.add(transactionInBlockConverter.convertToDomainModel(rpcTxInBlock));
           }
 
-          final Block domainBlock = new Block(
-              blockHash,
-              blockHeaderConverter.convertToDomainModel(rpcBlockHeader),
-              transactions);
+          final Block domainBlock = Block.newBuilder()
+              .hash(blockHash)
+              .blockHeader(blockHeaderConverter.convertToDomainModel(rpcBlockHeader))
+              .transactions(transactions)
+              .build();
           logger.trace("Domain block converted: {}", domainBlock);
           return domainBlock;
         }

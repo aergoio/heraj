@@ -4,7 +4,6 @@
 
 package hera.key;
 
-import static hera.api.model.BytesValue.of;
 import static hera.util.Sha256Utils.digest;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -85,7 +84,8 @@ public class AergoSignVerifier implements TxVerifier {
   public boolean verifyMessage(final AccountAddress accountAddress, final String message,
       final String base64EncodedSignature) {
     try {
-      final Signature signature = new Signature(of(Base64Utils.decode(base64EncodedSignature)));
+      final BytesValue rawSignature = BytesValue.of(Base64Utils.decode(base64EncodedSignature));
+      final Signature signature = Signature.newBuilder().sign(rawSignature).build();
       return verifyMessage(accountAddress, new BytesValue(message.getBytes()), signature);
     } catch (HerajException e) {
       throw e;

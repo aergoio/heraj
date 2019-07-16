@@ -146,7 +146,12 @@ public class AergoKey implements KeyPair, Signer, MessageSigner, TxVerifier {
       logger.trace("Raw signature: {}", ecdsaSignature);
       logger.trace("Serialized signature: {}", signature);
       final TxHash withSignature = TransactionHashResolver.calculateHash(rawTransaction, signature);
-      return new Transaction(rawTransaction, signature, withSignature);
+      final Transaction transaction = Transaction.newBuilder()
+          .rawTransaction(rawTransaction)
+          .signature(signature)
+          .hash(withSignature)
+          .build();
+      return transaction;
     } catch (HerajException e) {
       throw e;
     } catch (Exception e) {

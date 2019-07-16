@@ -22,6 +22,7 @@ import hera.util.ParsingUtils;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -52,9 +53,9 @@ public class NodeStatusConverterFactory {
           try {
             logger.trace("Rpc node status to convert: {}", rpcNodeStatus);
             final byte[] rawNodeStatus = rpcNodeStatus.getValue().toByteArray();
-            final NodeStatus domainNodeStatus =
-                rawNodeStatus.length == 0 ? new NodeStatus(new ArrayList<ModuleStatus>())
-                    : mapper.readValue(rawNodeStatus, NodeStatus.class);
+            final NodeStatus domainNodeStatus = rawNodeStatus.length == 0
+                ? NodeStatus.newBuilder().moduleStatus(new ArrayList<ModuleStatus>()).build()
+                : mapper.readValue(rawNodeStatus, NodeStatus.class);
             logger.trace("Domain node status converted: {}", domainNodeStatus);
             return domainNodeStatus;
           } catch (Throwable e) {
@@ -91,18 +92,21 @@ public class NodeStatusConverterFactory {
       while (it.hasNext()) {
         final String moduleName = it.next();
         final JsonNode componentStatus = nodeStatusNode.get(moduleName);
-        final ModuleStatus moduleStatus = new ModuleStatus(
-            moduleName,
-            componentStatus.get("status").asText(),
-            componentStatus.get("acc_processed_msg").asLong(),
-            componentStatus.get("msg_queue_len").asLong(),
-            convertToTime(componentStatus.get("msg_latency").asText()),
-            componentStatus.get("error").asText(),
-            mapper.convertValue(componentStatus.get("actor"), Map.class));
+        final Map<String, Object> actor =
+            mapper.convertValue(componentStatus.get("actor"), Map.class);
+        final ModuleStatus moduleStatus = ModuleStatus.newBuilder()
+            .moduleName(moduleName)
+            .status(componentStatus.get("status").asText())
+            .processedMessageCount(componentStatus.get("acc_processed_msg").asLong())
+            .queuedMessageCount(componentStatus.get("msg_queue_len").asLong())
+            .latency(convertToTime(componentStatus.get("msg_latency").asText()))
+            .error(componentStatus.get("error").asText())
+            .actor(null == actor ? new HashMap<String, Object>() : actor)
+            .build();
         moduleStatusList.add(moduleStatus);
       }
 
-      return new NodeStatus(moduleStatusList);
+      return NodeStatus.newBuilder().moduleStatus(moduleStatusList).build();
     }
   }
 

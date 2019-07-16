@@ -47,15 +47,16 @@ public class EventConverterFactory {
           try {
             final ContractAddress contractAddress = accountAddressConverter
                 .convertToDomainModel(rpcEvent.getContractAddress()).adapt(ContractAddress.class);
-            final Event domainEvent = new Event(
-                contractAddress,
-                rpcEvent.getEventName(),
-                mapper.readValue(rpcEvent.getJsonArgs(), List.class),
-                rpcEvent.getEventIdx(),
-                parseToTxHash(rpcEvent.getTxHash()),
-                rpcEvent.getTxIndex(),
-                parseToBlockHash(rpcEvent.getBlockHash()),
-                rpcEvent.getBlockNo());
+            final Event domainEvent = Event.newBuilder()
+                .from(contractAddress)
+                .name(rpcEvent.getEventName())
+                .args(mapper.readValue(rpcEvent.getJsonArgs(), List.class))
+                .index(rpcEvent.getEventIdx())
+                .txHash(parseToTxHash(rpcEvent.getTxHash()))
+                .indexInBlock(rpcEvent.getTxIndex())
+                .blockHash(parseToBlockHash(rpcEvent.getBlockHash()))
+                .blockNumber(rpcEvent.getBlockNo())
+                .build();
             logger.trace("Rpc event converted: {}", domainEvent);
             return domainEvent;
           } catch (Exception e) {

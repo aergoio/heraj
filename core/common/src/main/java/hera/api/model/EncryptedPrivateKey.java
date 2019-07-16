@@ -14,10 +14,12 @@ import hera.exception.DecodingFailureException;
 import hera.exception.InvalidVersionException;
 import hera.spec.EncryptedPrivateKeySpec;
 import hera.util.VersionUtils;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @ApiAudience.Public
 @ApiStability.Unstable
+@EqualsAndHashCode
 public class EncryptedPrivateKey implements Encodable {
 
   /**
@@ -81,23 +83,6 @@ public class EncryptedPrivateKey implements Encodable {
   @Override
   public String getEncoded() {
     return encodeBase58WithCheck(getBytesValue());
-  }
-
-  @Override
-  public int hashCode() {
-    return bytesValue.hashCode();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (null == obj) {
-      return false;
-    }
-    if (!obj.getClass().equals(getClass())) {
-      return false;
-    }
-    final EncryptedPrivateKey other = (EncryptedPrivateKey) obj;
-    return bytesValue.equals(other.bytesValue);
   }
 
   @Override

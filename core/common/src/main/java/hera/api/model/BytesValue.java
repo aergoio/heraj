@@ -45,6 +45,10 @@ public class BytesValue {
     return Arrays.copyOf(value, value.length);
   }
 
+  public int length() {
+    return value.length;
+  }
+
   public boolean isEmpty() {
     return 0 == value.length;
   }

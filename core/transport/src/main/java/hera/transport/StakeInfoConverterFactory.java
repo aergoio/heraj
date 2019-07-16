@@ -19,8 +19,8 @@ public class StakeInfoConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final Function1<StakeInfo, Rpc.Staking> domainConverter =
-      new Function1<StakeInfo, Rpc.Staking>() {
+  protected final Function1<StakeInfo,
+      Rpc.Staking> domainConverter = new Function1<StakeInfo, Rpc.Staking>() {
 
         @Override
         public Rpc.Staking apply(StakeInfo domainStakingInfo) {
@@ -35,9 +35,11 @@ public class StakeInfoConverterFactory {
         public StakeInfo apply(final Rpc.Staking rpcStakingInfo) {
           logger.trace("Rpc staking info to convert: {}", rpcStakingInfo);
           final Aer parsedAer = parseToAer(rpcStakingInfo.getAmount());
-          final StakeInfo domainStakingInfo = new StakeInfo(AccountAddress.of(BytesValue.EMPTY),
-              parsedAer.equals(Aer.EMPTY) ? Aer.ZERO : parsedAer,
-              rpcStakingInfo.getWhen());
+          final StakeInfo domainStakingInfo = StakeInfo.newBuilder()
+              .address(AccountAddress.of(BytesValue.EMPTY))
+              .amount(parsedAer.equals(Aer.EMPTY) ? Aer.ZERO : parsedAer)
+              .blockNumber(rpcStakingInfo.getWhen())
+              .build();
           logger.trace("Domain staking info converted: {}", domainStakingInfo);
           return domainStakingInfo;
         }

@@ -6,7 +6,6 @@ package hera.api.model;
 
 import static hera.util.EncodingUtils.decodeBase58WithCheck;
 import static hera.util.EncodingUtils.encodeBase58WithCheck;
-import static hera.util.EncodingUtils.encodeHexa;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
@@ -18,10 +17,12 @@ import hera.spec.resolver.AddressResolver;
 import hera.util.Adaptor;
 import hera.util.VersionUtils;
 import java.security.PublicKey;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @ApiAudience.Public
 @ApiStability.Unstable
+@EqualsAndHashCode
 public class AccountAddress implements Identity, Encodable, Adaptor {
 
   /**
@@ -92,35 +93,18 @@ public class AccountAddress implements Identity, Encodable, Adaptor {
   }
 
   @Override
+  public String toString() {
+    return getEncoded();
+  }
+
+  @Override
   public String getValue() {
-    return encodeHexa(getBytesValue());
+    return getEncoded();
   }
 
   @Override
   public String getEncoded() {
     return encodeBase58WithCheck(getBytesValue());
-  }
-
-  @Override
-  public int hashCode() {
-    return bytesValue.hashCode();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (null == obj) {
-      return false;
-    }
-    if (!obj.getClass().equals(getClass())) {
-      return false;
-    }
-    final AccountAddress other = (AccountAddress) obj;
-    return bytesValue.equals(other.bytesValue);
-  }
-
-  @Override
-  public String toString() {
-    return getEncoded();
   }
 
   @SuppressWarnings("unchecked")

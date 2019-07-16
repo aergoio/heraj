@@ -75,6 +75,12 @@ public abstract class AbstractIT {
 
     this.aergoClient = clientBuilder.build();
 
+    // setup rich
+    final AergoKey rich = AergoKey.of(encrypted, password);
+    final AccountState richState = aergoClient.getAccountOperation().getState(rich.getPrincipal());
+    nonceProvider.bindNonce(richState);
+    logger.info("Rich state: {}", richState);
+
     final ChainIdHash chainIdHash =
         aergoClient.getBlockchainOperation().getBlockchainStatus().getChainIdHash();
     aergoClient.cacheChainIdHash(chainIdHash);
@@ -112,9 +118,6 @@ public abstract class AbstractIT {
 
   protected void fund(final AccountAddress accountAddress) {
     final AergoKey rich = AergoKey.of(encrypted, password);
-    final AccountState richState = aergoClient.getAccountOperation().getState(rich.getPrincipal());
-    nonceProvider.bindNonce(richState);
-    logger.info("Rich state: {}", richState);
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .chainIdHash(aergoClient.getCachedChainIdHash())
         .from(rich.getPrincipal())

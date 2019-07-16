@@ -23,7 +23,8 @@ public class PeerMetricConverterFactoryTest extends AbstractTestCase {
     final Metric.PeerMetric rpcPeerMetric = Metric.PeerMetric.newBuilder()
         .setPeerID(ByteString.EMPTY)
         .build();
-    final PeerMetric actual = new PeerMetric(Base58Utils.encode(new byte[0]), 0, 0, 0, 0);
+    final PeerMetric actual =
+        PeerMetric.newBuilder().peerId(Base58Utils.encode(new byte[0])).build();
     final PeerMetric expected = converter.convertToDomainModel(rpcPeerMetric);
     assertEquals(expected, actual);
   }

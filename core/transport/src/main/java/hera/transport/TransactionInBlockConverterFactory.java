@@ -127,13 +127,14 @@ public class TransactionInBlockConverterFactory {
               .type(txTypeRpcConverter.apply(txBody.getType()))
               .build();
 
-          final Transaction domainTransaction = new Transaction(
-              rawTransaction,
-              new Signature(of(txBody.getSign().toByteArray())),
-              new TxHash(of(rpcTx.getHash().toByteArray())),
-              new BlockHash(of(rpcTxIdx.getBlockHash().toByteArray())),
-              rpcTxIdx.getIdx(),
-              !rpcTxIdx.getBlockHash().equals(com.google.protobuf.ByteString.EMPTY));
+          final Transaction domainTransaction = Transaction.newBuilder()
+              .rawTransaction(rawTransaction)
+              .signature(Signature.newBuilder().sign(of(txBody.getSign().toByteArray())).build())
+              .hash(new TxHash(of(rpcTx.getHash().toByteArray())))
+              .blockHash(new BlockHash(of(rpcTxIdx.getBlockHash().toByteArray())))
+              .indexInBlock(rpcTxIdx.getIdx())
+              .confirmed(!rpcTxIdx.getBlockHash().equals(com.google.protobuf.ByteString.EMPTY))
+              .build();
 
           logger.trace("Domain transaction in block converted: {}", domainTransaction);
           return domainTransaction;

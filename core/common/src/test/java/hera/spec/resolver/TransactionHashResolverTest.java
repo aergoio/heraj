@@ -12,6 +12,7 @@ import hera.AbstractTestCase;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
+import hera.api.model.BytesValue;
 import hera.api.model.ChainIdHash;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
@@ -50,8 +51,9 @@ public class TransactionHashResolverTest extends AbstractTestCase {
         .fee(Fee.of(Aer.of("100", Unit.AER), 5))
         .build();
 
-    final Signature signature = new Signature(of(randomUUID().toString().getBytes()));
-    final TxHash hash = TransactionHashResolver.calculateHash(rawTransaction, signature);
+    final BytesValue signValue = BytesValue.of(randomUUID().toString().getBytes());
+    final Signature sign = Signature.newBuilder().sign(signValue).build();
+    final TxHash hash = TransactionHashResolver.calculateHash(rawTransaction, sign);
     assertNotNull(hash);
   }
 

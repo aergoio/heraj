@@ -4,66 +4,65 @@
 
 package hera.api.model;
 
+import static hera.util.ValidationUtils.assertNotNull;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.internal.Time;
+import hera.util.StringUtils;
 import java.util.Map;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@ToString
-@EqualsAndHashCode
+@Value
+@Builder(builderMethodName = "newBuilder")
 public class ModuleStatus {
 
-  @Getter
-  protected final String moduleName;
+  @NonNull
+  @Default
+  String moduleName = StringUtils.EMPTY_STRING;
 
-  @Getter
-  protected final String status;
+  @NonNull
+  @Default
+  String status = StringUtils.EMPTY_STRING;
 
-  @Getter
-  protected final long processedMessageCount;
+  long processedMessageCount;
 
-  @Getter
-  protected final long queuedMessageCount;
+  long queuedMessageCount;
 
-  @Getter
-  protected final Time latency;
+  @NonNull
+  @Default
+  Time latency = Time.of(0L);
 
-  @Getter
-  protected final String error;
+  @NonNull
+  @Default
+  String error = StringUtils.EMPTY_STRING;
 
-  @Getter
-  protected final Map<String, Object> actor;
+  @NonNull
+  @Default
+  Map<String, Object> actor = emptyMap();
 
-  /**
-   * ModuleStatus constructor.
-   *
-   * @param moduleName a module name
-   * @param status a module status
-   * @param processedMessageCount a processed message count
-   * @param queuedMessageCount a queued message count
-   * @param latency a latency
-   * @param error a kind of error
-   * @param actor an actor status
-   */
-  @ApiAudience.Private
-  public ModuleStatus(final String moduleName, final String status,
-      final long processedMessageCount,
+  ModuleStatus(final String moduleName, final String status, final long processedMessageCount,
       final long queuedMessageCount, final Time latency, final String error,
       final Map<String, Object> actor) {
+    assertNotNull(moduleName, "Module name must not null");
+    assertNotNull(status, "Module status must not null");
+    assertNotNull(latency, "Module latency must not null");
+    assertNotNull(error, "Module error must not null");
+    assertNotNull(actor, "Actor must not null");
     this.moduleName = moduleName;
     this.status = status;
     this.processedMessageCount = processedMessageCount;
     this.queuedMessageCount = queuedMessageCount;
     this.latency = latency;
     this.error = error;
-    this.actor = actor != null ? unmodifiableMap(actor) : null;
+    this.actor = unmodifiableMap(actor);
   }
 
 }

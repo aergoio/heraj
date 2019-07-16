@@ -14,7 +14,6 @@ import static hera.TransportConstants.BLOCKCHAIN_PEERMETRICS;
 import static hera.TransportConstants.BLOCKCHAIN_SERVERINFO;
 import static hera.TransportConstants.BLOCKCHAIN_VOTE;
 import static hera.TransportConstants.BLOCKCHAIN_VOTESOF;
-
 import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
@@ -32,14 +31,11 @@ import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountFactory;
 import hera.api.model.AccountTotalVote;
-import hera.api.model.BlockHash;
 import hera.api.model.BlockchainStatus;
-import hera.api.model.BytesValue;
 import hera.api.model.ChainIdHash;
 import hera.api.model.ChainInfo;
 import hera.api.model.ChainStats;
 import hera.api.model.ElectedCandidate;
-import hera.api.model.ModuleStatus;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
@@ -73,8 +69,7 @@ public class BlockchainTemplateTest extends AbstractTestCase {
   public void testGetChainIdHash() {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
     final FinishableFuture<BlockchainStatus> future = new FinishableFuture<BlockchainStatus>();
-    future.success(new BlockchainStatus(10L, BlockHash.of(BytesValue.EMPTY),
-        randomUUID().toString(), chainIdHash));
+    future.success(BlockchainStatus.newBuilder().build());
     when(base.getBlockchainStatusFunction())
         .thenReturn(new Function0<FinishableFuture<BlockchainStatus>>() {
           @Override
@@ -93,8 +88,7 @@ public class BlockchainTemplateTest extends AbstractTestCase {
   public void testGetBlockchainStatus() {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
     final FinishableFuture<BlockchainStatus> future = new FinishableFuture<BlockchainStatus>();
-    future.success(new BlockchainStatus(10L, BlockHash.of(BytesValue.EMPTY),
-        randomUUID().toString(), chainIdHash));
+    future.success(BlockchainStatus.newBuilder().build());
     when(base.getBlockchainStatusFunction())
         .thenReturn(new Function0<FinishableFuture<BlockchainStatus>>() {
           @Override
@@ -116,7 +110,7 @@ public class BlockchainTemplateTest extends AbstractTestCase {
   public void testGetChainInfo() {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
     final FinishableFuture<ChainInfo> future = new FinishableFuture<ChainInfo>();
-    future.success(mock(ChainInfo.class));
+    future.success(ChainInfo.newBuilder().build());
     when(base.getChainInfoFunction())
         .thenReturn(new Function0<FinishableFuture<ChainInfo>>() {
           @Override
@@ -137,7 +131,7 @@ public class BlockchainTemplateTest extends AbstractTestCase {
   public void testGetChainStats() {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
     final FinishableFuture<ChainStats> future = new FinishableFuture<ChainStats>();
-    future.success(mock(ChainStats.class));
+    future.success(ChainStats.newBuilder().build());
     when(base.getChainStatsFunction())
         .thenReturn(new Function0<FinishableFuture<ChainStats>>() {
           @Override
@@ -200,7 +194,7 @@ public class BlockchainTemplateTest extends AbstractTestCase {
   public void testGetServerInfo() {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
     final FinishableFuture<ServerInfo> future = new FinishableFuture<ServerInfo>();
-    future.success(mock(ServerInfo.class));
+    future.success(ServerInfo.newBuilder().build());
     when(base.getServerInfoFunction())
         .thenReturn(new Function1<List<String>, FinishableFuture<ServerInfo>>() {
           @Override
@@ -221,7 +215,7 @@ public class BlockchainTemplateTest extends AbstractTestCase {
   public void testGetNodeStatus() {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
     final FinishableFuture<NodeStatus> future = new FinishableFuture<NodeStatus>();
-    future.success(new NodeStatus(new ArrayList<ModuleStatus>()));
+    future.success(NodeStatus.newBuilder().build());
     when(base.getNodeStatusFunction()).thenReturn(new Function0<FinishableFuture<NodeStatus>>() {
       @Override
       public FinishableFuture<NodeStatus> apply() {
@@ -293,8 +287,7 @@ public class BlockchainTemplateTest extends AbstractTestCase {
   public void testListVotesOf() {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
     final FinishableFuture<AccountTotalVote> future = new FinishableFuture<AccountTotalVote>();
-    final AccountTotalVote mockTotalVote = mock(AccountTotalVote.class);
-    future.success(mockTotalVote);
+    future.success(AccountTotalVote.newBuilder().build());
     when(base.getVotesOfFunction()).thenReturn(new Function1<AccountAddress,
         FinishableFuture<AccountTotalVote>>() {
 

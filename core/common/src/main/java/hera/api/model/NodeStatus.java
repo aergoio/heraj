@@ -5,30 +5,29 @@
 package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.util.StringUtils;
 import java.util.List;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@EqualsAndHashCode
+@Value
+@Builder(builderMethodName = "newBuilder")
 public class NodeStatus {
 
-  @Getter
-  protected final List<ModuleStatus> moduleStatus;
+  @NonNull
+  @Default
+  List<ModuleStatus> moduleStatus = emptyList();
 
-  /**
-   * NodeStatus constructor.
-   *
-   * @param moduleStatus a module status list
-   */
-  @ApiAudience.Private
-  public NodeStatus(final List<ModuleStatus> moduleStatus) {
+  NodeStatus(final List<ModuleStatus> moduleStatus) {
     assertNotNull(moduleStatus, "Module status list must not null");
     this.moduleStatus = unmodifiableList(moduleStatus);
   }

@@ -17,10 +17,7 @@ import hera.Context;
 import hera.ContextProvider;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
-import hera.client.internal.TransactionBaseTemplate;
-import hera.api.model.BytesValue;
 import hera.api.model.RawTransaction;
-import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import java.util.concurrent.Callable;
@@ -123,8 +120,9 @@ public class TransactionBaseTemplateTest extends AbstractTestCase {
         .amount("1000", Unit.AER)
         .nonce(1L)
         .build();
-    final Transaction transaction = new Transaction(rawTransaction, Signature.of(BytesValue.EMPTY),
-        TxHash.of(BytesValue.EMPTY), null, 0, false);
+    final Transaction transaction = Transaction.newBuilder()
+        .rawTransaction(rawTransaction)
+        .build();
 
     final FinishableFuture<TxHash> txHash =
         transactionBaseTemplate.getCommitFunction().apply(transaction);

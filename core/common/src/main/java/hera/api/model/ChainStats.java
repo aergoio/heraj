@@ -4,31 +4,22 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import hera.util.StringUtils;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@ToString
-@EqualsAndHashCode
+@Value
+@Builder(builderMethodName = "newBuilder")
 public class ChainStats {
 
-  @Getter
-  protected final String report;
-
-  /**
-   * VoteInfo constructor.
-   * 
-   * @param report a report
-   */
-  public ChainStats(final String report) {
-    assertNotNull(report, "Report must not null");
-    this.report = report;
-  }
+  @NonNull
+  @Default
+  String report = StringUtils.EMPTY_STRING;
 
 }
