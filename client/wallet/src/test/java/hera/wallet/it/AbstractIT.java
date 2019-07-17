@@ -6,14 +6,14 @@ package hera.wallet.it;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.AccountFactory;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
+import hera.api.transaction.NonceProvider;
+import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.key.AergoKey;
@@ -32,6 +32,8 @@ public abstract class AbstractIT {
   protected final transient Logger logger = getLogger(getClass());
 
   protected final String propertiesPath = "/it.properties";
+
+  protected final NonceProvider nonceProvider = new SimpleNonceProvider();
 
   protected String hostname;
 
@@ -59,6 +61,11 @@ public abstract class AbstractIT {
         .withEndpoint(hostname)
         .build();
     aergoClient.cacheChainIdHash(aergoClient.getBlockchainOperation().getChainIdHash());
+
+    final AergoKey rich = AergoKey.of(encrypted, password);
+    final AccountState richState = aergoClient.getAccountOperation().getState(rich.getIdentity());
+    logger.info("Rich state: {}", richState);
+    nonceProvider.bindNonce(richState);
   }
 
   protected Properties readProperties() throws IOException {
@@ -90,18 +97,15 @@ public abstract class AbstractIT {
   }
 
   private void fund(final AccountAddress poor) {
-    final Account rich = new AccountFactory().create(AergoKey.of(encrypted, password));
-    final AccountState richState = aergoClient.getAccountOperation().getState(rich);
-    rich.bindState(richState);
-    logger.info("Rich state: {}", richState);
+    final AergoKey rich = AergoKey.of(encrypted, password);
     final RawTransaction rawTransaction =
         RawTransaction.newBuilder(aergoClient.getCachedChainIdHash())
-            .from(rich)
+            .from(rich.getAddress())
             .to(poor)
             .amount(Aer.of("10000", Unit.AERGO))
-            .nonce(rich.incrementAndGetNonce())
+            .nonce(nonceProvider.incrementAndGetNonce(rich.getAddress()))
             .build();
-    final Transaction signed = aergoClient.getAccountOperation().sign(rich, rawTransaction);
+    final Transaction signed = rich.sign(rawTransaction);
     aergoClient.getTransactionOperation().commit(signed);
     waitForNextBlockToGenerate();
   }

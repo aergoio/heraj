@@ -7,7 +7,6 @@ package hera.transport;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.function.Function1;
-import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
@@ -59,7 +58,7 @@ public class ContractInterfaceConverterFactory {
           }
 
           final ContractInterface domainContractInterface =
-              new ContractInterface(new ContractAddress(BytesValue.EMPTY),
+              new ContractInterface(ContractAddress.EMPTY,
                   rpcContractInterface.getVersion(),
                   rpcContractInterface.getLanguage(),
                   domainFunctions,

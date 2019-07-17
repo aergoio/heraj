@@ -84,7 +84,7 @@ public class QueryWalletTest extends AbstractTestCase {
   public void testGetNameOwner() {
     final AergoClient mockClient = mock(AergoClient.class);
     final AccountOperation mockOperation = mock(AccountOperation.class);
-    when(mockOperation.getNameOwner(anyString())).thenReturn(AccountAddress.of(BytesValue.EMPTY));
+    when(mockOperation.getNameOwner(anyString())).thenReturn(AccountAddress.EMPTY);
     when(mockClient.getAccountOperation()).thenReturn(mockOperation);
 
     final QueryWallet wallet = mock(QueryWallet.class,
@@ -419,7 +419,7 @@ public class QueryWalletTest extends AbstractTestCase {
     final QueryWallet wallet = mock(QueryWallet.class,
         withSettings().useConstructor(mockClient).defaultAnswer(CALLS_REAL_METHODS));
 
-    assertNotNull(wallet.getContractInterface(ContractAddress.of(BytesValue.EMPTY)));
+    assertNotNull(wallet.getContractInterface(ContractAddress.EMPTY));
   }
 
   @Test

@@ -27,7 +27,6 @@ import hera.api.function.Function2;
 import hera.api.function.Function4;
 import hera.api.function.Function5;
 import hera.api.function.WithIdentity;
-import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractFunction;
@@ -70,7 +69,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     super.setUp();
     final List<ContractFunction> functions = new ArrayList<ContractFunction>();
     functions.add(new ContractFunction(functionName));
-    this.contractInterface = new ContractInterface(ContractAddress.of(BytesValue.EMPTY), "", "",
+    this.contractInterface = new ContractInterface(ContractAddress.EMPTY, "", "",
         functions, new ArrayList<StateVariable>());
   }
 

@@ -352,7 +352,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
         try {
           final RawTransaction rawTransaction =
               RawTransaction.newBuilder(getCachedChainIdHash())
-                  .from(getAccount())
+                  .from(getAccount().getAddress())
                   .to(recipient)
                   .amount(amount)
                   .nonce(nonce)
@@ -393,7 +393,7 @@ public abstract class AbstractWallet extends QueryWallet implements Wallet {
         try {
           final RawTransaction rawTransaction =
               RawTransaction.newBuilder(getCachedChainIdHash())
-                  .from(getAccount())
+                  .from(getAccount().getAddress())
                   .to(recipient)
                   .amount(amount)
                   .nonce(nonce)

@@ -22,7 +22,6 @@ import hera.api.function.Function1;
 import hera.api.function.Function2;
 import hera.api.function.Function4;
 import hera.api.function.Function5;
-import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
@@ -149,33 +148,6 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
       };
 
   @Getter
-  private final Function4<Account, ContractDefinition, Long, Fee,
-      FinishableFuture<ContractTxHash>> deprecatedDeployFunction = new Function4<Account,
-          ContractDefinition, Long, Fee, FinishableFuture<ContractTxHash>>() {
-
-        @Override
-        public FinishableFuture<ContractTxHash> apply(final Account creator,
-            final ContractDefinition contractDefinition, final Long nonce,
-            final Fee fee) {
-          logger.debug("Deploy contract with creator: {}, definition: {}, nonce: {}, fee: {}",
-              creator.getAddress(), contractDefinition, nonce, fee);
-          try {
-            final RawTransaction rawTransaction = RawTransaction.newDeployContractBuilder()
-                .chainIdHash(contextProvider.get().getChainIdHash())
-                .from(creator)
-                .nonce(nonce)
-                .definition(contractDefinition)
-                .build();
-            return signAndCommit(creator, rawTransaction);
-          } catch (Exception e) {
-            FinishableFuture<ContractTxHash> next = new FinishableFuture<ContractTxHash>();
-            next.fail(e);
-            return next;
-          }
-        }
-      };
-
-  @Getter
   private final Function4<Signer, ContractDefinition, Long, Fee,
       FinishableFuture<ContractTxHash>> deployFunction = new Function4<Signer, ContractDefinition,
           Long, Fee, FinishableFuture<ContractTxHash>>() {
@@ -274,33 +246,6 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
       };
 
   @Getter
-  private final Function4<Account, ContractInvocation, Long, Fee,
-      FinishableFuture<ContractTxHash>> deprecatedExecuteFunction = new Function4<Account,
-          ContractInvocation, Long, Fee, FinishableFuture<ContractTxHash>>() {
-
-        @Override
-        public FinishableFuture<ContractTxHash> apply(final Account executor,
-            final ContractInvocation contractInvocation, final Long nonce,
-            final Fee fee) {
-          logger.debug("Execute contract with executor: {}, invocation: {}, nonce: {}, fee: {}",
-              executor.getAddress(), contractInvocation, nonce, fee);
-          try {
-            final RawTransaction rawTransaction = RawTransaction.newInvokeContractBuilder()
-                .chainIdHash(contextProvider.get().getChainIdHash())
-                .from(executor)
-                .nonce(nonce)
-                .invocation(contractInvocation)
-                .build();
-            return signAndCommit(executor, rawTransaction);
-          } catch (Exception e) {
-            FinishableFuture<ContractTxHash> next = new FinishableFuture<ContractTxHash>();
-            next.fail(e);
-            return next;
-          }
-        }
-      };
-
-  @Getter
   private final Function4<Signer, ContractInvocation, Long, Fee,
       FinishableFuture<ContractTxHash>> executeFunction = new Function4<Signer, ContractInvocation,
           Long, Fee, FinishableFuture<ContractTxHash>>() {
@@ -326,33 +271,6 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
           }
         }
       };
-
-  protected FinishableFuture<ContractTxHash> signAndCommit(final Account account,
-      final RawTransaction transaction) {
-    final FinishableFuture<ContractTxHash> contractTxHash = new FinishableFuture<ContractTxHash>();
-
-    final FinishableFuture<Transaction> signed =
-        accountBaseTemplate.getSignFunction().apply(account, transaction);
-    addCallback(signed, new FutureCallback<Transaction>() {
-
-      @Override
-      public void onSuccess(final Transaction signed) {
-        try {
-          contractTxHash.success(transactionBaseTemplate.getCommitFunction().apply(signed).get()
-              .adapt(ContractTxHash.class));
-        } catch (Exception e) {
-          contractTxHash.fail(e);
-        }
-      }
-
-      @Override
-      public void onFailure(final Throwable t) {
-        contractTxHash.fail(t);
-      }
-    }, directExecutor());
-
-    return contractTxHash;
-  }
 
   protected FinishableFuture<ContractTxHash> signAndCommitWithSigner(final Signer signer,
       final RawTransaction rawTransaction) {

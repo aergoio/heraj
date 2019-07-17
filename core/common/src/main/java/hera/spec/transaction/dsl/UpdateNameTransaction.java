@@ -1,6 +1,7 @@
 package hera.spec.transaction.dsl;
 
 import hera.api.model.AccountAddress;
+import hera.api.model.Name;
 
 public interface UpdateNameTransaction {
 
@@ -21,6 +22,14 @@ public interface UpdateNameTransaction {
      * @return next state after accepting name
      */
     WithChainIdHashAndSenderAndNonceAndName name(String name);
+
+    /**
+     * Accept name which is supposed to be owned by other account.
+     *
+     * @param name an name which is supposed to be owned by other account
+     * @return next state after accepting name
+     */
+    WithChainIdHashAndSenderAndNonceAndName name(Name name);
   }
 
   interface WithChainIdHashAndSenderAndNonceAndName {

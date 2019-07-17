@@ -49,7 +49,7 @@ public class BlockHeader {
 
   @NonNull
   @Default
-  AccountAddress coinbaseAccount = AccountAddress.of(BytesValue.EMPTY);
+  AccountAddress coinbaseAccount = AccountAddress.EMPTY;
 
   @NonNull
   @Default

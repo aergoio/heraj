@@ -19,7 +19,7 @@ public class AccountState {
 
   @NonNull
   @Default
-  AccountAddress address = AccountAddress.of(BytesValue.EMPTY);
+  AccountAddress address = AccountAddress.EMPTY;
 
   long nonce;
 

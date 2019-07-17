@@ -4,12 +4,11 @@
 
 package hera.transport;
 
+import static hera.util.TransportUtils.copyFrom;
 import static org.junit.Assert.assertNotNull;
 
-import com.google.protobuf.ByteString;
 import hera.AbstractTestCase;
 import hera.api.model.ContractTxReceipt;
-import hera.spec.resolver.AddressSpec;
 import org.junit.Test;
 import types.Blockchain;
 
@@ -21,7 +20,7 @@ public class ReceiptConverterTest extends AbstractTestCase {
         new ReceiptConverterFactory().create();
 
     final Blockchain.Receipt rpcAccount = Blockchain.Receipt.newBuilder()
-        .setContractAddress(ByteString.copyFrom(new byte[] {AddressSpec.PREFIX}))
+        .setContractAddress(copyFrom(accountAddress.getBytesValue()))
         .build();
     final ContractTxReceipt domainReceipt = converter.convertToDomainModel(rpcAccount);
     assertNotNull(domainReceipt);

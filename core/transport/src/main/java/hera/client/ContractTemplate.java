@@ -74,13 +74,6 @@ public class ContractTemplate
       FinishableFuture<ContractTxReceipt>> receiptFunction = getStrategyChain().apply(
           identify(contractBaseTemplate.getReceiptFunction(), CONTRACT_GETRECEIPT));
 
-
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function4<Account, ContractDefinition, Long, Fee,
-      FinishableFuture<ContractTxHash>> deprecatedDeployFunction =
-          getStrategyChain()
-              .apply(identify(contractBaseTemplate.getDeprecatedDeployFunction(), CONTRACT_DEPLOY));
-
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function4<Signer, ContractDefinition, Long, Fee,
       FinishableFuture<ContractTxHash>> deployFunction =
@@ -98,13 +91,6 @@ public class ContractTemplate
       FinishableFuture<ContractInterface>> contractInterfaceFunction =
           getStrategyChain().apply(identify(contractBaseTemplate.getContractInterfaceFunction(),
               CONTRACT_GETINTERFACE));
-
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function4<Account, ContractInvocation, Long, Fee,
-      FinishableFuture<ContractTxHash>> deprecatedExecuteFunction =
-          getStrategyChain()
-              .apply(
-                  identify(contractBaseTemplate.getDeprecatedExecuteFunction(), CONTRACT_EXECUTE));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function4<Signer, ContractInvocation, Long, Fee,
@@ -141,7 +127,7 @@ public class ContractTemplate
   @Override
   public ContractTxHash deploy(final Account creator, final ContractDefinition contractDefinition,
       final long nonce, final Fee fee) {
-    return getDeprecatedDeployFunction().apply(creator, contractDefinition, nonce, fee).get();
+    return deploy(creator.getKey(), contractDefinition, nonce, fee);
   }
 
   @Override
@@ -172,7 +158,7 @@ public class ContractTemplate
   @Override
   public ContractTxHash execute(final Account executor, final ContractInvocation contractInvocation,
       final long nonce, final Fee fee) {
-    return getDeprecatedExecuteFunction().apply(executor, contractInvocation, nonce, fee).get();
+    return execute(executor.getKey(), contractInvocation, nonce, fee);
   }
 
   @Override

@@ -1,6 +1,4 @@
-/*
- * @copyright defined in LICENSE.txt
- */
+/* @copyright defined in LICENSE.txt */
 
 package hera.transport;
 
@@ -9,7 +7,6 @@ import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 
 import hera.AbstractTestCase;
-import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.BytesValue;
@@ -22,22 +19,20 @@ import types.Blockchain;
 
 public class TransactionConverterTest extends AbstractTestCase {
 
-  protected final String encodedAddress = "AtmxbVvjDN5LYwaf5QrCZPc3FoAqUCMVegVXjf8CMCz59wL21X6j";
-
   @Test
   public void testConvert() {
     final ModelConverter<Transaction, Blockchain.Tx> converter =
         new TransactionConverterFactory().create();
 
-    final RawTransaction rawTransaction =
-        RawTransaction.newBuilder(new ChainIdHash(of(randomUUID().toString().getBytes())))
-            .from(AccountAddress.of(encodedAddress))
-            .to(AccountAddress.of(encodedAddress))
-            .amount("10000", Unit.GAER)
-            .nonce(1L)
-            .fee(Fee.of(Aer.of("100", Unit.GAER), 5))
-            .payload(BytesValue.EMPTY)
-            .build();
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .chainIdHash(new ChainIdHash(of(randomUUID().toString().getBytes())))
+        .from(accountAddress)
+        .to(accountAddress)
+        .amount("10000", Unit.GAER)
+        .nonce(1L)
+        .fee(Fee.of(Aer.of("100", Unit.GAER), 5))
+        .payload(BytesValue.EMPTY)
+        .build();
 
     final Transaction expected = Transaction.newBuilder().rawTransaction(rawTransaction).build();
 

@@ -20,7 +20,7 @@ public class ContractTxReceipt {
 
   @NonNull
   @Default
-  ContractAddress contractAddress = ContractAddress.of(BytesValue.EMPTY);
+  ContractAddress contractAddress = ContractAddress.EMPTY;
 
   @NonNull
   @Default

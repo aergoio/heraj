@@ -11,9 +11,8 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.encode.Encodable;
 import hera.exception.DecodingFailureException;
-import hera.exception.InvalidVersionException;
 import hera.spec.resolver.EncryptedPrivateKeySpec;
-import hera.util.VersionUtils;
+import hera.util.BytesValueUtils;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -29,7 +28,6 @@ public class EncryptedPrivateKey implements Encodable {
    * @return created {@link EncryptedPrivateKey}
    *
    * @throws DecodingFailureException if decoding failed
-   * @throws InvalidVersionException when address version mismatch
    */
   @ApiAudience.Public
   public static EncryptedPrivateKey of(final String encoded) {
@@ -42,7 +40,6 @@ public class EncryptedPrivateKey implements Encodable {
    * @param bytesValue {@link BytesValue}
    * @return created {@link EncryptedPrivateKey}
    *
-   * @throws InvalidVersionException when address version mismatch
    */
   @ApiAudience.Private
   public static EncryptedPrivateKey of(final BytesValue bytesValue) {
@@ -58,7 +55,6 @@ public class EncryptedPrivateKey implements Encodable {
    * @param encoded a base58 with checksum encoded encoded value
    *
    * @throws DecodingFailureException if decoding failed
-   * @throws InvalidVersionException when address version mismatch
    */
   @ApiAudience.Public
   public EncryptedPrivateKey(final String encoded) {
@@ -70,12 +66,11 @@ public class EncryptedPrivateKey implements Encodable {
    *
    * @param bytesValue {@link BytesValue}
    *
-   * @throws InvalidVersionException when address version mismatch
    */
   @ApiAudience.Private
   public EncryptedPrivateKey(final BytesValue bytesValue) {
     if (BytesValue.EMPTY != bytesValue) {
-      VersionUtils.validate(bytesValue, EncryptedPrivateKeySpec.PREFIX);
+      BytesValueUtils.validatePrefix(bytesValue, EncryptedPrivateKeySpec.PREFIX);
     }
     this.bytesValue = bytesValue;
   }

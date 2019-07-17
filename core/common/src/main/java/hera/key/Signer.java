@@ -13,9 +13,16 @@ import hera.api.model.AccountAddress;
 public interface Signer extends TxSigner {
 
   /**
-   * Get principal of signer.
+   * Get identity of a signer.
    *
-   * @return an principal of signer
+   * @return an identity of signer
+   */
+  AccountAddress getIdentity();
+
+  /**
+   * Get principal of a signer.
+   *
+   * @return a identitprincipal of signer
    */
   AccountAddress getPrincipal();
 

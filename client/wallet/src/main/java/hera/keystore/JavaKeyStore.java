@@ -4,12 +4,13 @@
 
 package hera.keystore;
 
-import static hera.util.AddressUtils.deriveAddress;
+import static hera.api.model.BytesValue.of;
 import static java.util.Collections.list;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Account;
+import hera.api.model.AccountAddress;
 import hera.api.model.AccountFactory;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
@@ -17,6 +18,7 @@ import hera.api.model.Identity;
 import hera.exception.KeyStoreException;
 import hera.key.AergoKey;
 import hera.model.KeyAlias;
+import hera.util.HexUtils;
 import hera.util.Sha256Utils;
 import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSAKeyGenerator;
@@ -56,7 +58,17 @@ public class JavaKeyStore extends AbstractKeyStore {
   public void saveKey(final AergoKey key, final Authentication authentication) {
     try {
       logger.debug("Save key: {}, authentication: {}", key, authentication);
-      final String alias = authentication.getIdentity().getValue().toLowerCase();
+      final Identity identity = authentication.getIdentity();
+      String alias = null;
+      if (identity instanceof KeyAlias) {
+        alias = identity.getValue();
+      } else if (identity instanceof AccountAddress) {
+        final String inHexa =
+            HexUtils.encode(((AccountAddress) identity).getBytesValue().getValue());
+        alias = inHexa.toLowerCase();
+      } else {
+        // TODO
+      }
       final PrivateKey privateKey = key.getPrivateKey();
       final char[] rawPassword = authentication.getPassword().toCharArray();
       final Certificate cert = generateCertificate(key);
@@ -109,13 +121,8 @@ public class JavaKeyStore extends AbstractKeyStore {
         Identity identity = null;
         try {
           // first try to derive address
-          identity = deriveAddress(new Identity() {
-
-            @Override
-            public String getValue() {
-              return alias;
-            }
-          });
+          final byte[] decoded = HexUtils.decode(alias);
+          identity = new AccountAddress(of(decoded));
         } catch (Exception e) {
           // if fails, then its just an alias
           identity = new KeyAlias(alias);

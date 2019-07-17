@@ -4,6 +4,7 @@
 
 package hera.transport;
 
+import static hera.util.TransportUtils.copyFrom;
 import static org.junit.Assert.assertNotNull;
 
 import hera.AbstractTestCase;
@@ -19,6 +20,7 @@ public class EventConverterTest extends AbstractTestCase {
     final ModelConverter<Event, Blockchain.Event> converter = new EventConverterFactory().create();
 
     final Blockchain.Event rpcEvent = Blockchain.Event.newBuilder()
+        .setContractAddress(copyFrom(accountAddress.getBytesValue()))
         .setJsonArgs("[]")
         .build();
     final Event converted = converter.convertToDomainModel(rpcEvent);

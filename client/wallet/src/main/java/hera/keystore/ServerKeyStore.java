@@ -4,7 +4,6 @@
 
 package hera.keystore;
 
-import static hera.util.AddressUtils.deriveAddress;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
@@ -78,7 +77,13 @@ public class ServerKeyStore implements KeyStore {
       if (!unlocked) {
         return null;
       }
-      final AccountAddress derivedAddress = deriveAddress(authentication.getIdentity());
+      final Identity identity = authentication.getIdentity();
+      AccountAddress derivedAddress;
+      if (identity instanceof AccountAddress) {
+        derivedAddress = (AccountAddress) identity;
+      } else {
+        derivedAddress = new AccountAddress(identity.getValue());
+      }
       return new AccountFactory().create(derivedAddress);
     } catch (final Exception e) {
       logger.debug("Unlock failed by {}", e.toString());

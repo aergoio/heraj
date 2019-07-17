@@ -6,11 +6,15 @@ package hera.api.model;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.InvalidVersionException;
+import hera.exception.DecodingFailureException;
+import hera.util.StringUtils;
 
 @ApiAudience.Public
 @ApiStability.Unstable
 public class ContractAddress extends AccountAddress {
+
+  public static final ContractAddress EMPTY =
+      new ContractAddress(BytesValue.EMPTY, StringUtils.EMPTY_STRING);
 
   /**
    * Create {@code ContractAddress} with a base58 with checksum encoded value.
@@ -18,7 +22,7 @@ public class ContractAddress extends AccountAddress {
    * @param encoded a base58 with checksum encoded encoded value
    * @return created {@link ContractAddress}
    *
-   * @throws InvalidVersionException when address version mismatch
+   * @throws DecodingFailureException if decoding failed
    */
   @ApiAudience.Public
   public static ContractAddress of(final String encoded) {
@@ -31,7 +35,6 @@ public class ContractAddress extends AccountAddress {
    * @param bytesValue {@link BytesValue}
    * @return created {@link ContractAddress}
    *
-   * @throws InvalidVersionException when address version mismatch
    */
   @ApiAudience.Private
   public static ContractAddress of(final BytesValue bytesValue) {
@@ -43,7 +46,7 @@ public class ContractAddress extends AccountAddress {
    *
    * @param encoded a base58 with checksum encoded encoded value
    *
-   * @throws InvalidVersionException when address version mismatch
+   * @throws DecodingFailureException if decoding failed
    */
   @ApiAudience.Public
   public ContractAddress(final String encoded) {
@@ -55,11 +58,14 @@ public class ContractAddress extends AccountAddress {
    *
    * @param bytesValue {@link BytesValue}
    *
-   * @throws InvalidVersionException when address version mismatch
    */
   @ApiAudience.Private
   public ContractAddress(final BytesValue bytesValue) {
     super(bytesValue);
+  }
+
+  protected ContractAddress(final BytesValue bytesValue, final String value) {
+    super(bytesValue, value);
   }
 
   @SuppressWarnings("unchecked")

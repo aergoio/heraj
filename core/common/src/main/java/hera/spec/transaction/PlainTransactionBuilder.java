@@ -4,19 +4,18 @@
 
 package hera.spec.transaction;
 
-import static hera.api.model.BytesValue.of;
 import static hera.util.ValidationUtils.assertNotNull;
-import static hera.util.VersionUtils.envelop;
 
-import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.BytesValue;
 import hera.api.model.ChainIdHash;
 import hera.api.model.Fee;
+import hera.api.model.Identity;
+import hera.api.model.Name;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction.TxType;
-import hera.spec.resolver.AddressSpec;
+import hera.exception.HerajException;
 import hera.spec.transaction.dsl.PlainTransaction;
 
 public class PlainTransactionBuilder implements
@@ -55,42 +54,30 @@ public class PlainTransactionBuilder implements
   }
 
   @Override
-  public PlainTransaction.WithChainIdHashAndSender from(final String sender) {
+  public PlainTransaction.WithChainIdHashAndSender from(final Identity sender) {
     assertNotNull(sender);
-    this.sender =
-        new AccountAddress(of(envelop(sender.getBytes(), AddressSpec.PREFIX)));
+    this.sender = deriveAddress(sender);
     return this;
   }
 
   @Override
-  public PlainTransaction.WithChainIdHashAndSender from(final Account sender) {
-    return from(sender.getAddress());
-  }
-
-  @Override
-  public PlainTransaction.WithChainIdHashAndSender from(final AccountAddress sender) {
+  public PlainTransaction.WithChainIdHashAndSender from(final String sender) {
     assertNotNull(sender);
-    this.sender = sender;
+    this.sender = deriveAddress(sender);
     return this;
   }
 
   @Override
   public PlainTransaction.WithChainIdHashAndSenderAndRecipient to(final String recipient) {
     assertNotNull(recipient);
-    this.recipient =
-        new AccountAddress(of(envelop(recipient.getBytes(), AddressSpec.PREFIX)));
+    this.recipient = deriveAddress(recipient);
     return this;
   }
 
   @Override
-  public PlainTransaction.WithChainIdHashAndSenderAndRecipient to(final Account recipient) {
-    return to(recipient.getAddress());
-  }
-
-  @Override
-  public PlainTransaction.WithChainIdHashAndSenderAndRecipient to(final AccountAddress recipient) {
+  public PlainTransaction.WithChainIdHashAndSenderAndRecipient to(final Identity recipient) {
     assertNotNull(recipient);
-    this.recipient = recipient;
+    this.recipient = deriveAddress(recipient);
     return this;
   }
 
@@ -137,6 +124,39 @@ public class PlainTransactionBuilder implements
   public RawTransaction build() {
     return new RawTransaction(chainIdHash, sender, recipient, amount, nonce, fee, payload,
         txType);
+  }
+
+  protected AccountAddress deriveAddress(final Identity identity) {
+    try {
+      if (identity instanceof AccountAddress) {
+        return (AccountAddress) identity;
+      } else if (identity instanceof Name) {
+        return ((Name) identity).adapt(AccountAddress.class);
+      } else {
+        return new AccountAddress(identity.getValue());
+      }
+    } catch (HerajException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HerajException(e);
+    }
+  }
+
+  protected AccountAddress deriveAddress(final String encodedAddressOrName) {
+    try {
+      final String encodedAddress = encodedAddressOrName;
+      return new AccountAddress(encodedAddress);
+    } catch (final HerajException notEncodedAddress) {
+      try {
+        // it's not address, treat it as name
+        final String name = encodedAddressOrName;
+        return new Name(name).adapt(AccountAddress.class);
+      } catch (HerajException e) {
+        throw e;
+      } catch (Exception e) {
+        throw new HerajException(e);
+      }
+    }
   }
 
 }

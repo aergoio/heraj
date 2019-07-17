@@ -1,32 +1,23 @@
 package hera.spec.transaction.dsl;
 
-import hera.api.model.Account;
-import hera.api.model.AccountAddress;
+import hera.api.model.Identity;
 
 public interface NeedSender<NextStateT> {
 
   /**
-   * Accept transaction sender as name.
-   *
-   * @param senderName a name of sender
-   * @return next state after accepting sender
-   */
-  NextStateT from(String senderName);
-
-  /**
    * Accept transaction sender.
    *
    * @param sender a sender
    * @return next state after accepting sender
    */
-  NextStateT from(Account sender);
+  NextStateT from(Identity sender);
 
   /**
-   * Accept transaction sender.
+   * Accept transaction sender as an account address or an name.
    *
    * @param sender a sender
    * @return next state after accepting sender
    */
-  NextStateT from(AccountAddress sender);
+  NextStateT from(String sender);
 
 }

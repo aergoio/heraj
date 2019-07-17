@@ -134,6 +134,11 @@ public class AergoKey implements KeyPair, Signer, MessageSigner, TxVerifier {
   }
 
   @Override
+  public AccountAddress getIdentity() {
+    return getAddress();
+  }
+
+  @Override
   public Transaction sign(final RawTransaction rawTransaction) {
     try {
       logger.debug("Sign raw transaction: {}", rawTransaction);

@@ -18,5 +18,7 @@ public class AergoKeyGeneratorTest extends AbstractTestCase {
     assertNotNull(key.getPrivateKey());
     assertNotNull(key.getPublicKey());
     assertNotNull(key.getAddress());
+    
+    System.out.println(key.getAddress());
   }
 }

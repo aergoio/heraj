@@ -1,6 +1,6 @@
 # Common
 
-Common module contains basic model, encoding/decoding, strategies, key, exceptions.
+Common module contains basic api including model, key, context, encoding, decoding, strategies and exceptions.
 
 ## Model
 

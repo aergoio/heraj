@@ -5,6 +5,7 @@
 package hera.client.internal;
 
 import static hera.api.model.BytesValue.of;
+import static hera.util.TransportUtils.copyFrom;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -12,6 +13,7 @@ import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.protobuf.ByteString;
 import hera.AbstractTestCase;
 import hera.Context;
 import hera.ContextProvider;
@@ -65,7 +67,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
     super.setUp();
     final List<ContractFunction> functions = new ArrayList<ContractFunction>();
     functions.add(new ContractFunction(functionName));
-    this.contractInterface = new ContractInterface(ContractAddress.of(BytesValue.EMPTY), "", "",
+    this.contractInterface = new ContractInterface(ContractAddress.EMPTY, "", "",
         functions, new ArrayList<StateVariable>());
   }
 
@@ -102,7 +104,8 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
         service.submit(new Callable<Blockchain.Receipt>() {
           @Override
           public Blockchain.Receipt call() throws Exception {
-            return Blockchain.Receipt.newBuilder().build();
+            final ByteString rpcAddress = copyFrom(contractAddress.getBytesValue());
+            return Blockchain.Receipt.newBuilder().setContractAddress(rpcAddress).build();
           }
         });
     when(futureService.getReceipt(any(Rpc.SingleBytes.class))).thenReturn(mockListenableFuture);

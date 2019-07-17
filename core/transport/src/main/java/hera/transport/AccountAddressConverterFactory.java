@@ -7,15 +7,11 @@ package hera.transport;
 import static hera.api.model.BytesValue.of;
 import static hera.util.EncodingUtils.encodeHexa;
 import static hera.util.TransportUtils.copyFrom;
-import static hera.util.VersionUtils.envelop;
-import static hera.util.VersionUtils.trim;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
-import hera.api.model.BytesValue;
-import hera.spec.resolver.AddressSpec;
 import hera.util.HexUtils;
 import org.slf4j.Logger;
 
@@ -34,10 +30,8 @@ public class AccountAddressConverterFactory {
                 encodeHexa(domainAccountAddress.getBytesValue()));
           }
           ByteString rpcAccountAddress;
-          if (false == domainAccountAddress.getBytesValue().isEmpty()) {
-            final byte[] withVersion = domainAccountAddress.getBytesValue().getValue();
-            final byte[] withoutVersion = trim(withVersion);
-            rpcAccountAddress = copyFrom(withoutVersion);
+          if (!domainAccountAddress.equals(AccountAddress.EMPTY)) {
+            rpcAccountAddress = copyFrom(domainAccountAddress.getBytesValue());
           } else {
             rpcAccountAddress = ByteString.EMPTY;
           }
@@ -59,12 +53,10 @@ public class AccountAddressConverterFactory {
                 HexUtils.encode(rpcAccountAddress.toByteArray()));
           }
           AccountAddress domainAccountAddress;
-          if (false == rpcAccountAddress.isEmpty()) {
-            final byte[] withoutVersion = rpcAccountAddress.toByteArray();
-            final byte[] withVersion = envelop(withoutVersion, AddressSpec.PREFIX);
-            domainAccountAddress = new AccountAddress(of(withVersion));
+          if (!rpcAccountAddress.equals(ByteString.EMPTY)) {
+            domainAccountAddress = new AccountAddress(of(rpcAccountAddress.toByteArray()));
           } else {
-            domainAccountAddress = new AccountAddress(BytesValue.EMPTY);
+            domainAccountAddress = AccountAddress.EMPTY;
           }
           if (logger.isTraceEnabled()) {
             logger.trace("Domain account address converted. with checksum: {}, hexa: {}",

@@ -16,12 +16,14 @@ import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.exception.HerajException;
+import hera.spec.resolver.AddressResolver;
 import hera.spec.resolver.SignatureResolver;
 import hera.spec.resolver.TransactionHashResolver;
 import hera.util.Base64Utils;
 import hera.util.pki.ECDSAKeyGenerator;
 import hera.util.pki.ECDSASignature;
 import hera.util.pki.ECDSAVerifier;
+import java.security.PublicKey;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 
@@ -63,7 +65,8 @@ public class AergoSignVerifier implements TxVerifier {
           hash, signature);
       final ECDSASignature parsedSignature =
           SignatureResolver.parse(signature, ecdsaVerifier.getParams().getN());
-      return ecdsaVerifier.verify(accountAddress.asPublicKey(), hash.getBytesValue().getValue(),
+      final PublicKey publicKey = AddressResolver.recoverPublicKey(accountAddress);
+      return ecdsaVerifier.verify(publicKey, hash.getBytesValue().getValue(),
           parsedSignature);
     } catch (Exception e) {
       throw new HerajException(e);
@@ -111,7 +114,8 @@ public class AergoSignVerifier implements TxVerifier {
       final ECDSASignature parsedSignature =
           SignatureResolver.parse(signature, ecdsaVerifier.getParams().getN());
       final byte[] hashed = digest(message.getValue());
-      return ecdsaVerifier.verify(accountAddress.asPublicKey(), hashed, parsedSignature);
+      final PublicKey publicKey = AddressResolver.recoverPublicKey(accountAddress);
+      return ecdsaVerifier.verify(publicKey, hashed, parsedSignature);
     } catch (Exception e) {
       throw new HerajException(e);
     }

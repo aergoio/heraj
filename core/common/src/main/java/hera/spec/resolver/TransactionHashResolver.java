@@ -7,7 +7,6 @@ package hera.spec.resolver;
 import static hera.api.model.BytesValue.of;
 import static hera.util.NumberUtils.positiveToByteArray;
 import static hera.util.Sha256Utils.digest;
-import static hera.util.VersionUtils.trim;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
@@ -71,8 +70,8 @@ public class TransactionHashResolver {
     final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(raw);
     // WARNING : follow the stream order with server
     dataOut.writeLong(rawTransaction.getNonce());
-    dataOut.write(trim(rawTransaction.getSender().getBytesValue().getValue()));
-    dataOut.write(trim(rawTransaction.getRecipient().getBytesValue().getValue()));
+    dataOut.write(rawTransaction.getSender().getBytesValue().getValue());
+    dataOut.write(rawTransaction.getRecipient().getBytesValue().getValue());
     dataOut.write(positiveToByteArray(rawTransaction.getAmount().getValue()));
     dataOut.write(rawTransaction.getPayload().getValue());
     dataOut.writeLong(rawTransaction.getFee().getLimit());

@@ -136,7 +136,7 @@ public class AccountTemplateTest extends AbstractTestCase {
   public void testGetNameOwner() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
     final FinishableFuture<AccountAddress> future = new FinishableFuture<AccountAddress>();
-    future.success(new AccountAddress(BytesValue.EMPTY));
+    future.success(AccountAddress.EMPTY);
     when(base.getGetNameOwnerFunction())
         .thenReturn(new Function2<String, Long, FinishableFuture<AccountAddress>>() {
           @Override

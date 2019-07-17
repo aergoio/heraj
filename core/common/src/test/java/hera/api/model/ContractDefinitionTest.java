@@ -10,8 +10,9 @@ import static java.util.Collections.emptyList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+
 import hera.exception.DecodingFailureException;
-import hera.exception.InvalidVersionException;
+import hera.exception.HerajException;
 import hera.spec.resolver.ContractDefinitionSpec;
 import hera.util.EncodingUtils;
 import org.junit.Test;
@@ -47,9 +48,12 @@ public class ContractDefinitionTest {
     try {
       final String wrongVersionPayload =
           EncodingUtils.encodeBase58WithCheck(of(new byte[] {(byte) 0xAA}));
-      new ContractDefinition(wrongVersionPayload, emptyList(), Aer.ONE);
+      ContractDefinition.newBuilder()
+          .encodedContract(wrongVersionPayload)
+          .amount(Aer.ONE)
+          .build();
       fail();
-    } catch (InvalidVersionException e) {
+    } catch (HerajException e) {
       // good we expected this
     }
 

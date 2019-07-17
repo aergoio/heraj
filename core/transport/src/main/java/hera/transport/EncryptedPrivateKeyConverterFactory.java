@@ -5,10 +5,10 @@
 package hera.transport;
 
 import static hera.api.model.BytesValue.of;
+import static hera.util.BytesValueUtils.append;
+import static hera.util.BytesValueUtils.trimPrefix;
 import static hera.util.EncodingUtils.encodeHexa;
 import static hera.util.TransportUtils.copyFrom;
-import static hera.util.VersionUtils.envelop;
-import static hera.util.VersionUtils.trim;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.function.Function1;
@@ -37,7 +37,7 @@ public class EncryptedPrivateKeyConverterFactory {
                 .setValue(copyFrom(domainEncryptedPrivateKey.getBytesValue())).build();
           }
           final BytesValue withVersion = domainEncryptedPrivateKey.getBytesValue();
-          final BytesValue withoutVersion = trim(withVersion);
+          final BytesValue withoutVersion = trimPrefix(withVersion);
           final Rpc.SingleBytes rpcEncryptedPrivateKey =
               Rpc.SingleBytes.newBuilder().setValue(copyFrom(withoutVersion)).build();
           if (logger.isTraceEnabled()) {
@@ -61,7 +61,7 @@ public class EncryptedPrivateKeyConverterFactory {
             return new EncryptedPrivateKey(BytesValue.EMPTY);
           }
           final byte[] withoutVersion = rpcEncryptedPrivateKey.getValue().toByteArray();
-          final byte[] withVersion = envelop(withoutVersion, EncryptedPrivateKeySpec.PREFIX);
+          final byte[] withVersion = append(withoutVersion, EncryptedPrivateKeySpec.PREFIX);
           final EncryptedPrivateKey domainEncryptedPrivateKey =
               new EncryptedPrivateKey(of(withVersion));
           if (logger.isTraceEnabled()) {

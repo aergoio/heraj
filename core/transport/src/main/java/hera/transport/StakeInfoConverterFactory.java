@@ -10,7 +10,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
-import hera.api.model.BytesValue;
 import hera.api.model.StakeInfo;
 import org.slf4j.Logger;
 import types.Rpc;
@@ -36,7 +35,7 @@ public class StakeInfoConverterFactory {
           logger.trace("Rpc staking info to convert: {}", rpcStakingInfo);
           final Aer parsedAer = parseToAer(rpcStakingInfo.getAmount());
           final StakeInfo domainStakingInfo = StakeInfo.newBuilder()
-              .address(AccountAddress.of(BytesValue.EMPTY))
+              .address(AccountAddress.EMPTY)
               .amount(parsedAer.equals(Aer.EMPTY) ? Aer.ZERO : parsedAer)
               .blockNumber(rpcStakingInfo.getWhen())
               .build();

@@ -6,13 +6,13 @@ package hera.spec.transaction;
 
 import static hera.util.ValidationUtils.assertNotNull;
 
-import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.ChainIdHash;
+import hera.api.model.Identity;
+import hera.api.model.Name;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction.TxType;
-import hera.api.model.internal.GovernanceRecipient;
 import hera.spec.resolver.PayloadResolver;
 import hera.spec.resolver.PayloadSpec.Type;
 import hera.spec.transaction.dsl.UpdateNameTransaction;
@@ -30,7 +30,7 @@ public class UpdateNameTransactionBuilder implements
     UpdateNameTransaction.WithChainIdHashAndSenderAndNonceAndName,
     UpdateNameTransaction.WithReady {
 
-  protected String name;
+  protected Name name;
 
   protected AccountAddress newOwner;
 
@@ -43,19 +43,13 @@ public class UpdateNameTransactionBuilder implements
   }
 
   @Override
-  public WithChainIdHashAndSender from(final String senderName) {
-    this.delegate.from(senderName);
-    return this;
-  }
-
-  @Override
-  public WithChainIdHashAndSender from(final Account sender) {
+  public WithChainIdHashAndSender from(final String sender) {
     this.delegate.from(sender);
     return this;
   }
 
   @Override
-  public WithChainIdHashAndSender from(final AccountAddress sender) {
+  public WithChainIdHashAndSender from(final Identity sender) {
     this.delegate.from(sender);
     return this;
   }
@@ -68,6 +62,12 @@ public class UpdateNameTransactionBuilder implements
 
   @Override
   public WithChainIdHashAndSenderAndNonceAndName name(final String name) {
+    assertNotNull(name);
+    return name(new Name(name));
+  }
+  
+  @Override
+  public WithChainIdHashAndSenderAndNonceAndName name(final Name name) {
     assertNotNull(name);
     this.name = name;
     return this;
@@ -82,9 +82,9 @@ public class UpdateNameTransactionBuilder implements
 
   @Override
   public RawTransaction build() {
-    this.delegate.to(GovernanceRecipient.AERGO_NAME);
+    this.delegate.to(Name.AERGO_NAME);
     this.delegate.amount(Aer.AERGO_ONE);
-    this.delegate.payload(PayloadResolver.resolve(Type.UpdateName, name, newOwner));
+    this.delegate.payload(PayloadResolver.resolve(Type.UpdateName, name.getValue(), newOwner));
     this.delegate.type(TxType.GOVERNANCE);
     return this.delegate.build();
   }

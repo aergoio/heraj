@@ -11,7 +11,6 @@ import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
-import hera.api.model.BytesValue;
 import org.slf4j.Logger;
 import types.Blockchain;
 
@@ -36,7 +35,7 @@ public class AccountStateConverterFactory {
           logger.trace("Rpc account state to convert: {}", rpcAccountState);
           final Aer parsedAer = parseToAer(rpcAccountState.getBalance());
           final AccountState domainAccountState = AccountState.newBuilder()
-              .address(AccountAddress.of(BytesValue.EMPTY))
+              .address(AccountAddress.EMPTY)
               .nonce(rpcAccountState.getNonce())
               .balance(parsedAer.equals(Aer.EMPTY) ? Aer.ZERO : parsedAer)
               .build();

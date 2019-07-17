@@ -10,9 +10,9 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
+import hera.util.BytesValueUtils;
 import hera.util.CryptoUtils;
 import hera.util.Sha256Utils;
-import hera.util.VersionUtils;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import org.bouncycastle.crypto.InvalidCipherTextException;
@@ -40,7 +40,7 @@ public class EncryptedPrivateKeyResolver {
     final byte[] nonce = calculateNonce(hashedPassword);
     final byte[] encrypted = encryptToAesGcm(privateKeyBytes.getValue(), encryptKey, nonce);
     final BytesValue encryptedBytesValue =
-        new BytesValue(VersionUtils.envelop(encrypted, EncryptedPrivateKeySpec.PREFIX));
+        new BytesValue(BytesValueUtils.append(encrypted, EncryptedPrivateKeySpec.PREFIX));
     return new EncryptedPrivateKey(encryptedBytesValue);
   }
 
@@ -58,7 +58,7 @@ public class EncryptedPrivateKeyResolver {
       throws InvalidCipherTextException, UnsupportedEncodingException {
     final byte[] rawEncrypted = encryptedPrivateKey.getBytesValue().getValue();
     final byte[] rawPassword = password.getBytes(CHAR_SET);
-    final byte[] withoutVersion = VersionUtils.trim(rawEncrypted);
+    final byte[] withoutVersion = BytesValueUtils.trimPrefix(rawEncrypted);
     final byte[] hashedPassword = Sha256Utils.digest(rawPassword);
     final byte[] decryptKey = Sha256Utils.digest(rawPassword, hashedPassword);
     final byte[] nonce = calculateNonce(hashedPassword);

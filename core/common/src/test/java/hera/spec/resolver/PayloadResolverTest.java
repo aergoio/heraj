@@ -4,7 +4,6 @@
 
 package hera.spec.resolver;
 
-import static hera.api.model.BytesValue.of;
 import static hera.util.ValidationUtils.assertNotNull;
 import static java.util.UUID.randomUUID;
 
@@ -26,11 +25,8 @@ import org.junit.Test;
 
 public class PayloadResolverTest extends AbstractTestCase {
 
-  protected final AccountAddress accountAddress =
-      new AccountAddress(of(new byte[] {AddressSpec.PREFIX}));
-
   protected final ContractAddress contractAddress =
-      new ContractAddress(of(new byte[] {AddressSpec.PREFIX}));
+      new AergoKeyGenerator().create().getAddress().adapt(ContractAddress.class);
 
   @Test
   public void testResolveOnContractDefinition() {

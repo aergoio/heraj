@@ -6,11 +6,10 @@ package hera.spec.transaction;
 
 import static hera.util.ValidationUtils.assertNotNull;
 
-import hera.api.model.Account;
-import hera.api.model.AccountAddress;
 import hera.api.model.ChainIdHash;
 import hera.api.model.ContractInvocation;
 import hera.api.model.Fee;
+import hera.api.model.Identity;
 import hera.api.model.RawTransaction;
 import hera.spec.resolver.PayloadResolver;
 import hera.spec.resolver.PayloadSpec.Type;
@@ -38,19 +37,13 @@ public class InvokeContractTransactionBuilder implements
   }
 
   @Override
-  public WithChainIdHashAndSender from(final String senderName) {
-    this.delegate.from(senderName);
-    return this;
-  }
-
-  @Override
-  public WithChainIdHashAndSender from(final Account sender) {
+  public WithChainIdHashAndSender from(final String sender) {
     this.delegate.from(sender);
     return this;
   }
 
   @Override
-  public WithChainIdHashAndSender from(final AccountAddress sender) {
+  public WithChainIdHashAndSender from(final Identity sender) {
     this.delegate.from(sender);
     return this;
   }

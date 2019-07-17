@@ -190,7 +190,7 @@ public class TransactionOperationIT extends AbstractIT {
   public void shouldNotCommitOnInvalidRecipient() {
     // given
     final AergoKey senderKey = createNewKey();
-    final AccountAddress recipient = new AccountAddress(BytesValue.EMPTY);
+    final AccountAddress recipient = AccountAddress.EMPTY;
     final Aer amount = Aer.AERGO_ONE;
 
     try {

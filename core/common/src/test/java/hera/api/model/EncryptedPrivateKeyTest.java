@@ -7,7 +7,6 @@ package hera.api.model;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 
-import hera.exception.InvalidVersionException;
 import hera.util.Base58Utils;
 import org.junit.Test;
 
@@ -24,11 +23,6 @@ public class EncryptedPrivateKeyTest {
     final EncryptedPrivateKey encryptedPrivateKey =
         EncryptedPrivateKey.of(encodedEncryptedPrivateKey);
     assertNotNull(encryptedPrivateKey);
-  }
-
-  @Test(expected = InvalidVersionException.class)
-  public void testCreationWithInvalidVersion() {
-    EncryptedPrivateKey.of(encodedEncryptedPrivateKeyWithoutVersion);
   }
 
 }

@@ -1,32 +1,23 @@
 package hera.spec.transaction.dsl;
 
-import hera.api.model.Account;
-import hera.api.model.AccountAddress;
+import hera.api.model.Identity;
 
 public interface NeedRecipient<NextStateT> {
 
   /**
-   * Accept transaction recipient as name.
-   *
-   * @param recipientName a name of recipient
-   * @return next state after accepting recipient
-   */
-  NextStateT to(String recipientName);
-
-  /**
    * Accept transaction recipient.
    *
    * @param recipient a recipient
    * @return next state after accepting recipient
    */
-  NextStateT to(Account recipient);
+  NextStateT to(Identity recipient);
 
   /**
-   * Accept transaction recipient.
+   * Accept transaction recipient as an account address or an name.
    *
    * @param recipient a recipient
    * @return next state after accepting recipient
    */
-  NextStateT to(AccountAddress recipient);
+  NextStateT to(String recipient);
 
 }

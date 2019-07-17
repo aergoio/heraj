@@ -12,8 +12,8 @@ import static java.util.Collections.unmodifiableList;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.spec.resolver.ContractDefinitionSpec;
+import hera.util.BytesValueUtils;
 import hera.util.EncodingUtils;
-import hera.util.VersionUtils;
 import java.util.List;
 import lombok.NonNull;
 import lombok.Value;
@@ -46,7 +46,7 @@ public class ContractDefinition {
     assertNotNull(args, "Args must not null");
     assertNotNull(amount, "Amount must not null");
     final BytesValue decodedContract = EncodingUtils.decodeBase58WithCheck(encodedContract);
-    VersionUtils.validate(decodedContract, ContractDefinitionSpec.PAYLOAD_VERSION);
+    BytesValueUtils.validatePrefix(decodedContract, ContractDefinitionSpec.PAYLOAD_VERSION);
 
     this.decodedContract = decodedContract;
     this.encodedContract = encodedContract;

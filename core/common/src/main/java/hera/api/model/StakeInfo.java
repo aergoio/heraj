@@ -19,7 +19,7 @@ public class StakeInfo {
 
   @NonNull
   @Default
-  AccountAddress address = AccountAddress.of(BytesValue.EMPTY);
+  AccountAddress address = AccountAddress.EMPTY;
 
   @NonNull
   @Default

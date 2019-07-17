@@ -5,7 +5,7 @@
 package hera.spec.resolver;
 
 import static hera.api.model.BytesValue.of;
-import static hera.util.VersionUtils.trim;
+import static hera.util.BytesValueUtils.trimPrefix;
 import static java.util.Arrays.asList;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -129,7 +129,7 @@ public class PayloadResolver {
 
   protected static BytesValue resolveContractDefinition(final Object[] targets) throws IOException {
     final ContractDefinition contractDefinition = (ContractDefinition) targets[0];
-    final byte[] rawPayload = trim(contractDefinition.getDecodedContract().getValue());
+    final byte[] rawPayload = trimPrefix(contractDefinition.getDecodedContract().getValue());
     final ByteArrayOutputStream rawStream = new ByteArrayOutputStream();
     final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(rawStream);
     try {

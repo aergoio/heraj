@@ -4,19 +4,13 @@
 
 package hera.api.model;
 
-import static hera.util.EncodingUtils.decodeBase58WithCheck;
-import static hera.util.EncodingUtils.encodeBase58WithCheck;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.encode.Encodable;
 import hera.exception.DecodingFailureException;
-import hera.exception.InvalidVersionException;
 import hera.spec.resolver.AddressResolver;
-import hera.spec.resolver.AddressSpec;
 import hera.util.Adaptor;
-import hera.util.VersionUtils;
-import java.security.PublicKey;
+import hera.util.StringUtils;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -25,6 +19,9 @@ import lombok.Getter;
 @EqualsAndHashCode
 public class AccountAddress implements Identity, Encodable, Adaptor {
 
+  public static final AccountAddress EMPTY =
+      new AccountAddress(BytesValue.EMPTY, StringUtils.EMPTY_STRING);
+
   /**
    * Create {@code AccountAddress} with a base58 with checksum encoded value.
    *
@@ -32,28 +29,17 @@ public class AccountAddress implements Identity, Encodable, Adaptor {
    * @return created {@link AccountAddress}
    *
    * @throws DecodingFailureException if decoding failed
-   * @throws InvalidVersionException when address version mismatch
    */
   @ApiAudience.Public
   public static AccountAddress of(final String encoded) {
     return new AccountAddress(encoded);
   }
 
-  /**
-   * Create {@code AccountAddress}.
-   *
-   * @param bytesValue {@link BytesValue}
-   * @return created {@link AccountAddress}
-   *
-   * @throws InvalidVersionException when address version mismatch
-   */
-  @ApiAudience.Private
-  public static AccountAddress of(final BytesValue bytesValue) {
-    return new AccountAddress(bytesValue);
-  }
+  @Getter
+  protected final String value; // holds encoded value including prefix
 
   @Getter
-  protected final BytesValue bytesValue;
+  protected final BytesValue bytesValue; // holds raw bytes array without prefix
 
   /**
    * AccountAddress constructor.
@@ -61,50 +47,35 @@ public class AccountAddress implements Identity, Encodable, Adaptor {
    * @param encoded a base58 with checksum encoded encoded value
    *
    * @throws DecodingFailureException if decoding failed
-   * @throws InvalidVersionException when address version mismatch
    */
   @ApiAudience.Public
   public AccountAddress(final String encoded) {
-    this(decodeBase58WithCheck(encoded));
+    this(AddressResolver.convertToRaw(encoded), encoded);
   }
 
   /**
    * AccountAddress constructor.
    *
    * @param bytesValue {@link BytesValue}
-   *
-   * @throws InvalidVersionException when address version mismatch
    */
   @ApiAudience.Private
   public AccountAddress(final BytesValue bytesValue) {
-    if (BytesValue.EMPTY != bytesValue) {
-      VersionUtils.validate(bytesValue, AddressSpec.PREFIX);
-    }
-    this.bytesValue = bytesValue;
+    this(bytesValue, AddressResolver.convertToEncoded(bytesValue));
   }
 
-  /**
-   * Recover ECPublicKey from address.
-   *
-   * @return an ECPublicKey
-   */
-  public PublicKey asPublicKey() {
-    return AddressResolver.recoverPublicKey(this);
+  protected AccountAddress(final BytesValue bytesValue, final String value) {
+    this.bytesValue = bytesValue;
+    this.value = value;
   }
 
   @Override
   public String toString() {
-    return getEncoded();
-  }
-
-  @Override
-  public String getValue() {
-    return getEncoded();
+    return getValue();
   }
 
   @Override
   public String getEncoded() {
-    return encodeBase58WithCheck(getBytesValue());
+    return getValue();
   }
 
   @SuppressWarnings("unchecked")
