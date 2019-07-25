@@ -4,25 +4,45 @@
 
 package hera.keystore;
 
-import hera.api.model.Account;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Identity;
 import hera.exception.KeyStoreException;
 import hera.key.AergoKey;
+import hera.key.Signer;
 import java.util.List;
 
-public interface KeyStore {
+public interface KeyStore extends Signer {
 
   /**
-   * Store an {@code AergoKey} to the storage.
+   * Unlock and return unlocked account.
    *
-   * @param key an aergo key to store
-   * @param authentication an authentication to save key
+   * @param authentication an authentication which is used in unlocking account
+   * @return an unlocked account
    *
    * @throws KeyStoreException on keystore error
    */
-  void saveKey(AergoKey key, Authentication authentication);
+  boolean unlock(Authentication authentication);
+
+  /**
+   * Lock an account corresponding to {@code authentication}.
+   *
+   * @param authentication an authentication which is used in locking account
+   * @return a lock result
+   *
+   * @throws KeyStoreException on keystore error
+   */
+  boolean lock(Authentication authentication);
+
+  /**
+   * Store an {@code AergoKey} to the keystore.
+   *
+   * @param authentication an authentication to save key
+   * @param key an aergo key to store
+   *
+   * @throws KeyStoreException on keystore error
+   */
+  void save(Authentication authentication, AergoKey key);
 
   /**
    * Export an private key encrypted.
@@ -42,35 +62,5 @@ public interface KeyStore {
    * @throws KeyStoreException on keystore error
    */
   List<Identity> listIdentities();
-
-  /**
-   * Unlock and return unlocked account.
-   *
-   * @param authentication an authentication which is used in unlocking account
-   * @return an unlocked account. null if failure
-   *
-   * @throws KeyStoreException on keystore error
-   */
-  Account unlock(Authentication authentication);
-
-  /**
-   * Lock an account corresponding to {@code authentication}.
-   *
-   * @param authentication an authentication which is used in locking account
-   * @return a locked account.
-   *
-   * @throws KeyStoreException on keystore error
-   */
-  boolean lock(Authentication authentication);
-
-  /**
-   * Store the keystore to the path.
-   *
-   * @param path a path
-   * @param password a password used in storing key store
-   *
-   * @throws KeyStoreException on keystore error
-   */
-  void store(String path, String password);
 
 }

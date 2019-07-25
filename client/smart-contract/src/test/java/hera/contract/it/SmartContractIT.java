@@ -22,6 +22,7 @@ import hera.wallet.Wallet;
 import hera.wallet.WalletBuilder;
 import hera.wallet.WalletType;
 import java.io.InputStreamReader;
+import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,6 +37,7 @@ public class SmartContractIT extends AbstractIT {
     super.setUp();
     this.wallet = new WalletBuilder()
         .withEndpoint(hostname)
+        .withRefresh(3, 500L, TimeUnit.MILLISECONDS)
         .build(WalletType.Naive);
     final AergoKey key = AergoKey.of(encrypted, password);
     wallet.saveKey(key, password);

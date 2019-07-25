@@ -4,18 +4,13 @@
 
 package hera.wallet;
 
-import hera.annotation.ApiAudience;
-import hera.annotation.ApiStability;
 import hera.api.model.Authentication;
 import hera.api.model.Identity;
 import hera.exception.KeyStoreException;
-import hera.exception.UnbindedKeyStoreException;
 import hera.key.AergoKey;
 import java.io.Closeable;
 import java.util.List;
 
-@ApiAudience.Public
-@ApiStability.Unstable
 public interface KeyManageable extends Closeable {
 
   /**
@@ -32,7 +27,6 @@ public interface KeyManageable extends Closeable {
    * @param aergoKey an aergo key
    * @param password an encrypt key
    *
-   * @throws UnbindedKeyStoreException if it's {@link WalletType#Secure} and keystore is not binded
    * @throws KeyStoreException on keystore error
    */
   void saveKey(AergoKey aergoKey, String password);
@@ -44,7 +38,6 @@ public interface KeyManageable extends Closeable {
    * @param identity an identity to save key
    * @param password an encrypt key
    *
-   * @throws UnbindedKeyStoreException if it's {@link WalletType#Secure} and keystore is not binded
    * @throws KeyStoreException on keystore error
    */
   void saveKey(AergoKey aergoKey, Identity identity, String password);
@@ -55,7 +48,6 @@ public interface KeyManageable extends Closeable {
    * @param authentication an authentication
    * @return encoded encrypted private key
    *
-   * @throws UnbindedKeyStoreException if it's {@link WalletType#Secure} and keystore is not binded
    * @throws KeyStoreException on keystore error
    */
   String exportKey(Authentication authentication);
@@ -65,7 +57,6 @@ public interface KeyManageable extends Closeable {
    *
    * @return stored identities
    *
-   * @throws UnbindedKeyStoreException if it's {@link WalletType#Secure} and keystore is not binded
    * @throws KeyStoreException on keystore error
    */
   List<Identity> listKeyStoreIdentities();
@@ -76,7 +67,6 @@ public interface KeyManageable extends Closeable {
    * @param authentication an authentication
    * @return unlock result
    *
-   * @throws UnbindedKeyStoreException if it's {@link WalletType#Secure} and keystore is not binded
    * @throws KeyStoreException on keystore error
    */
   boolean unlock(Authentication authentication);
@@ -87,7 +77,6 @@ public interface KeyManageable extends Closeable {
    * @param authentication an authentication
    * @return unlock result
    *
-   * @throws UnbindedKeyStoreException if it's {@link WalletType#Secure} and keystore is not binded
    * @throws KeyStoreException on keystore error
    */
   boolean lock(Authentication authentication);
@@ -99,7 +88,6 @@ public interface KeyManageable extends Closeable {
    * @param path a path
    * @param password a password used in storing key store
    *
-   * @throws UnbindedKeyStoreException if it's {@link WalletType#Secure} and keystore is not binded
    * @throws KeyStoreException on keystore error
    */
   void storeKeyStore(String path, String password);

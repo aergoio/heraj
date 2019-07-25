@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.wallet;
+package hera.wallet.internal;
 
 import static hera.util.ValidationUtils.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -18,6 +18,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
 
+@Deprecated
 public class TransactionTrier {
 
   protected final Logger logger = getLogger(getClass());

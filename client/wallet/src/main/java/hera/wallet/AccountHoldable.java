@@ -4,26 +4,19 @@
 
 package hera.wallet;
 
-import hera.annotation.ApiAudience;
-import hera.annotation.ApiStability;
 import hera.api.model.Account;
 import hera.api.model.AccountState;
 import hera.api.model.AccountTotalVote;
 import hera.api.model.StakeInfo;
-import hera.exception.UnbindedAccountException;
 import hera.exception.WalletConnectionException;
 import hera.exception.WalletRpcException;
 
-@ApiAudience.Public
-@ApiStability.Unstable
 public interface AccountHoldable {
 
   /**
    * Get a current account.
    *
    * @return an account
-   *
-   * @throws UnbindedAccountException if account isn't binded
    */
   Account getAccount();
 
@@ -31,8 +24,6 @@ public interface AccountHoldable {
    * Get state of current account.
    *
    * @return a state of current account
-   *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
    */
@@ -43,7 +34,6 @@ public interface AccountHoldable {
    *
    * @return a staking information of current account
    *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
    */
@@ -54,7 +44,6 @@ public interface AccountHoldable {
    *
    * @return votes list
    *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
    */
@@ -64,8 +53,6 @@ public interface AccountHoldable {
    * Get recently used nonce value.
    *
    * @return a recently used nonce
-   *
-   * @throws UnbindedAccountException if account isn't binded
    */
   long getRecentlyUsedNonce();
 
@@ -73,8 +60,6 @@ public interface AccountHoldable {
    * Increment an nonce and get it.
    *
    * @return an incremented nonce
-   *
-   * @throws UnbindedAccountException if account isn't binded
    */
   long incrementAndGetNonce();
 

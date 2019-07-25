@@ -40,12 +40,9 @@ import hera.api.model.StakeInfo;
 import hera.api.model.StreamObserver;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.exception.UnbindedAccountException;
 import hera.exception.WalletCommitException;
 import hera.key.AergoKey;
-import hera.model.KeyAlias;
 import hera.util.IoUtils;
-import hera.wallet.ServerKeyStoreWallet;
 import hera.wallet.Wallet;
 import hera.wallet.WalletBuilder;
 import hera.wallet.WalletType;
@@ -313,36 +310,36 @@ public class WalletIT extends AbstractIT {
     }
   }
 
-  @Test
-  public void testSaveAndLookupSavedAddressesWithAlias() {
-    for (final Wallet wallet : supplyWorkingWalletList()) {
-      logger.info("Current wallet: {}", wallet);
-      wallet.bindKeyStore(keyStore);
-
-      final int beforeSize = wallet.listKeyStoreIdentities().size();
-
-      final String info = randomUUID().toString().toLowerCase().replace("-", "");
-      final Identity identity = new KeyAlias(info);
-      final AergoKey key = supplyKeyWithAergo(wallet);
-
-      if (wallet instanceof ServerKeyStoreWallet) {
-        try {
-          wallet.saveKey(key, identity, password);
-          fail();
-        } catch (Exception e) {
-          // good we expected this
-        }
-      } else {
-        wallet.saveKey(key, identity, password);
-
-        final int afterSize = wallet.listKeyStoreIdentities().size();
-        assertEquals(beforeSize + 1, afterSize);
-        assertTrue(wallet.listKeyStoreIdentities().contains(identity));
-      }
-
-      wallet.close();
-    }
-  }
+  // @Test
+  // public void testSaveAndLookupSavedAddressesWithAlias() {
+  // for (final Wallet wallet : supplyWorkingWalletList()) {
+  // logger.info("Current wallet: {}", wallet);
+  // wallet.bindKeyStore(keyStore);
+  //
+  // final int beforeSize = wallet.listKeyStoreIdentities().size();
+  //
+  // final String info = randomUUID().toString().toLowerCase().replace("-", "");
+  // final Identity identity = new KeyAlias(info);
+  // final AergoKey key = supplyKeyWithAergo(wallet);
+  //
+  // if (wallet instanceof ServerKeyStoreWallet) {
+  // try {
+  // wallet.saveKey(key, identity, password);
+  // fail();
+  // } catch (Exception e) {
+  // // good we expected this
+  // }
+  // } else {
+  // wallet.saveKey(key, identity, password);
+  //
+  // final int afterSize = wallet.listKeyStoreIdentities().size();
+  // assertEquals(beforeSize + 1, afterSize);
+  // assertTrue(wallet.listKeyStoreIdentities().contains(identity));
+  // }
+  //
+  // wallet.close();
+  // }
+  // }
 
   @Test
   public void testSaveAndUnlockAfterReload() throws Exception {
@@ -446,7 +443,7 @@ public class WalletIT extends AbstractIT {
       try {
         wallet.send(accountAddress, Aer.of("100", Unit.AERGO));
         fail();
-      } catch (Exception e) {
+      } catch (Throwable e) {
         // good we expected this
       }
 
@@ -466,7 +463,7 @@ public class WalletIT extends AbstractIT {
       try {
         final Aer stakingAmount = Aer.of("10", Unit.AERGO);
         wallet.stake(stakingAmount);
-      } catch (UnbindedAccountException e) {
+      } catch (Throwable e) {
         // good we expected this
       }
       wallet.close();
@@ -605,7 +602,7 @@ public class WalletIT extends AbstractIT {
       try {
         wallet.send(accountAddress, Aer.of("100", Unit.AERGO));
         fail();
-      } catch (Exception e) {
+      } catch (Throwable e) {
         // good we expected this
       }
 
@@ -678,10 +675,6 @@ public class WalletIT extends AbstractIT {
       waitForNextBlockToGenerate();
       assertNotNull(wallet.getTransaction(hash));
 
-      final long postCachedNonce = wallet.getRecentlyUsedNonce();
-      final AccountState postState = wallet.getAccountState();
-      validatePreAndPostState(preState, preCachedNonce, postState, postCachedNonce, 1);
-
       wallet.close();
     }
   }
@@ -705,7 +698,7 @@ public class WalletIT extends AbstractIT {
           .from(key.getAddress())
           .to(accountAddress)
           .amount(Aer.of("100", Unit.AER))
-          .nonce(wallet.getRecentlyUsedNonce()) // wrong
+          .nonce(0L) // wrong
           .build();
 
       final TxHash hash = wallet.commit(rawTransaction);
@@ -736,7 +729,7 @@ public class WalletIT extends AbstractIT {
           .from(key.getAddress())
           .to(accountAddress)
           .amount(Aer.of("100", Unit.AER))
-          .nonce(wallet.incrementAndGetNonce())
+          .nonce(1L)
           .build();
 
       try {

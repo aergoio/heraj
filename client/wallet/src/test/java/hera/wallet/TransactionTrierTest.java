@@ -19,6 +19,7 @@ import hera.exception.RpcCommitException;
 import hera.exception.WalletCommitException;
 import hera.exception.WalletException;
 import hera.key.AergoKeyGenerator;
+import hera.wallet.internal.TransactionTrier;
 import java.util.concurrent.CountDownLatch;
 import org.junit.Before;
 import org.junit.Test;

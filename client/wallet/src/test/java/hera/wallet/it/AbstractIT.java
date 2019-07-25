@@ -63,7 +63,7 @@ public abstract class AbstractIT {
     aergoClient.cacheChainIdHash(aergoClient.getBlockchainOperation().getChainIdHash());
 
     final AergoKey rich = AergoKey.of(encrypted, password);
-    final AccountState richState = aergoClient.getAccountOperation().getState(rich.getIdentity());
+    final AccountState richState = aergoClient.getAccountOperation().getState(rich.getPrincipal());
     logger.info("Rich state: {}", richState);
     nonceProvider.bindNonce(richState);
   }

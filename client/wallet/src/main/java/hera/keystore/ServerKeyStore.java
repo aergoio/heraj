@@ -8,39 +8,92 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.model.Account;
 import hera.api.model.AccountAddress;
-import hera.api.model.AccountFactory;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Identity;
+import hera.api.model.RawTransaction;
+import hera.api.model.Transaction;
 import hera.client.AergoClient;
 import hera.exception.KeyStoreException;
 import hera.key.AergoKey;
+import hera.wallet.internal.ClientInjectable;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
+import lombok.NonNull;
+import lombok.Setter;
 import org.slf4j.Logger;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-@RequiredArgsConstructor
-public class ServerKeyStore implements KeyStore {
+public class ServerKeyStore implements KeyStore, ClientInjectable {
 
   protected final Logger logger = getLogger(getClass());
 
-  protected final AergoClient aergoClient;
+  @Setter
+  @NonNull
+  protected AergoClient client;
+
+  protected AccountAddress currentlyUnlocked;
 
   @Override
-  public void saveKey(final AergoKey key, final Authentication authentication) {
+  public synchronized boolean unlock(final Authentication authentication) {
+    try {
+      logger.debug("Unlock key with authentication: {}", authentication);
+      if (!(authentication.getIdentity() instanceof AccountAddress)) {
+        throw new IllegalArgumentException(
+            "Server keystore only support account address identity");
+      }
+
+      final boolean result = client.getKeyStoreOperation().unlock(authentication);
+      if (true == result) {
+        currentlyUnlocked = (AccountAddress) authentication.getIdentity();
+      }
+      return result;
+    } catch (final Exception e) {
+      logger.info("Unlock failed by {}", e.toString());
+      return false;
+    }
+  }
+
+  @Override
+  public synchronized boolean lock(final Authentication authentication) {
+    try {
+      logger.debug("Lock key with authentication: {}", authentication);
+      if (!(authentication.getIdentity() instanceof AccountAddress)) {
+        throw new IllegalArgumentException(
+            "Server keystore only support account address identity");
+      }
+
+      final boolean result = client.getKeyStoreOperation().lock(authentication);
+      if (true == result) {
+        currentlyUnlocked = null;
+      }
+      return result;
+    } catch (final Exception e) {
+      logger.info("Lock failed by {}", e.toString());
+      return false;
+    }
+  }
+
+  @Override
+  public void save(final Authentication authentication, final AergoKey key) {
     try {
       logger.debug("Save key: {}, authentication: {}", key, authentication);
       if (!(authentication.getIdentity() instanceof AccountAddress)) {
-        throw new UnsupportedOperationException(
+        throw new IllegalArgumentException(
             "Server keystore only support account address identity");
       }
+
+      final AccountAddress authAddress = (AccountAddress) authentication.getIdentity();
+      if (!authAddress.equals(key.getAddress())) {
+        throw new IllegalArgumentException(
+            "Account address ot authentication must equals with "
+                + "address of key in a server keystore");
+      }
+
       final String password = authentication.getPassword();
-      aergoClient.getKeyStoreOperation().importKey(key.export(password), password, password);
+      client.getKeyStoreOperation().importKey(key.export(password), password, password);
     } catch (final Exception e) {
       throw new KeyStoreException(e);
     }
@@ -50,7 +103,7 @@ public class ServerKeyStore implements KeyStore {
   public EncryptedPrivateKey export(final Authentication authentication) {
     try {
       logger.debug("Export key with authentication: {}", authentication);
-      return aergoClient.getKeyStoreOperation().exportKey(authentication);
+      return client.getKeyStoreOperation().exportKey(authentication);
     } catch (final Exception e) {
       throw new KeyStoreException(e);
     }
@@ -59,51 +112,31 @@ public class ServerKeyStore implements KeyStore {
   @Override
   public List<Identity> listIdentities() {
     try {
-      final List<Identity> identifications = new ArrayList<Identity>();
-      for (final AccountAddress accountAddress : aergoClient.getKeyStoreOperation().list()) {
-        identifications.add(accountAddress);
+      final List<Identity> identities = new ArrayList<Identity>();
+      for (final AccountAddress accountAddress : client.getKeyStoreOperation().list()) {
+        identities.add(accountAddress);
       }
-      return identifications;
+      return identities;
     } catch (final Exception e) {
       throw new KeyStoreException(e);
     }
   }
 
   @Override
-  public synchronized Account unlock(final Authentication authentication) {
-    try {
-      logger.debug("Unlock key with authentication: {}", authentication);
-      final boolean unlocked = aergoClient.getKeyStoreOperation().unlock(authentication);
-      if (!unlocked) {
-        return null;
-      }
-      final Identity identity = authentication.getIdentity();
-      AccountAddress derivedAddress;
-      if (identity instanceof AccountAddress) {
-        derivedAddress = (AccountAddress) identity;
-      } else {
-        derivedAddress = new AccountAddress(identity.getValue());
-      }
-      return new AccountFactory().create(derivedAddress);
-    } catch (final Exception e) {
-      logger.debug("Unlock failed by {}", e.toString());
-      return null;
-    }
+  public AccountAddress getPrincipal() {
+    return currentlyUnlocked;
   }
 
   @Override
-  public synchronized boolean lock(final Authentication authentication) {
-    try {
-      logger.debug("Lock key with authentication: {}", authentication);
-      return aergoClient.getKeyStoreOperation().lock(authentication);
-    } catch (final Exception e) {
-      throw new KeyStoreException(e);
+  public Transaction sign(final RawTransaction rawTransaction) {
+    if (null == currentlyUnlocked) {
+      throw new KeyStoreException("No unlocked address");
     }
-  }
-
-  @Override
-  public void store(final String path, final String password) {
-    // do nothing
+    if (!currentlyUnlocked.equals(rawTransaction.getSender())) {
+      throw new KeyStoreException(
+          "Currently unlocked one is different with sender of raw transaction");
+    }
+    return client.getKeyStoreOperation().sign(rawTransaction);
   }
 
 }

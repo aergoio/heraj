@@ -69,9 +69,13 @@ public class AddressResolver {
   }
 
   protected static void validateRawAddress(final BytesValue rawAddress) {
-    if (rawAddress.length() != AergoSpec.ADDRESS_BYTE_LENGTH) {
+    if (!isValidRawAddress(rawAddress)) {
       throw new HerajException("RawAddress length must be " + AergoSpec.ADDRESS_BYTE_LENGTH);
     }
+  }
+
+  public static boolean isValidRawAddress(final BytesValue rawAddress) {
+    return rawAddress.length() == AergoSpec.ADDRESS_BYTE_LENGTH;
   }
 
   /**

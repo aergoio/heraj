@@ -6,9 +6,14 @@ package hera.key;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.api.model.BytesValue;
+import hera.api.model.EncryptedPrivateKey;
 import hera.exception.UnableToGenerateKeyException;
+import hera.spec.resolver.EncryptedPrivateKeyResolver;
+import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSAKeyGenerator;
 import hera.util.pki.KeyGenerator;
+import java.math.BigInteger;
 
 @ApiAudience.Public
 @ApiStability.Unstable
@@ -24,7 +29,41 @@ public class AergoKeyGenerator implements KeyGenerator<AergoKey> {
    */
   public AergoKey create() {
     try {
-      return new AergoKey(ecdsaKeyGenerator.create());
+      final ECDSAKey ecdsaKey = ecdsaKeyGenerator.create();
+      return new AergoKey(ecdsaKey);
+    } catch (Exception e) {
+      throw new UnableToGenerateKeyException(e);
+    }
+  }
+
+  /**
+   * Create an {@code Aergokey}.
+   *
+   * @param encrypted an encrypted private key
+   * @param password a password to decrypt
+   *
+   * @return created {@code AergoKey}
+   * @throws UnableToGenerateKeyException if an error occured in creating key
+   */
+  public AergoKey create(final String encrypted, final String password) {
+    return create(EncryptedPrivateKey.of(encrypted), password);
+  }
+
+  /**
+   * Create an {@code Aergokey}.
+   *
+   * @param encrypted an encrypted private key
+   * @param password a password to decrypt
+   *
+   * @return created {@code AergoKey}
+   * @throws UnableToGenerateKeyException if an error occured in creating key
+   */
+  public AergoKey create(final EncryptedPrivateKey encrypted, final String password) {
+    try {
+      final BytesValue decrypted = EncryptedPrivateKeyResolver.decrypt(encrypted, password);
+      final ECDSAKey ecdsaKey =
+          new ECDSAKeyGenerator().create(new BigInteger(1, decrypted.getValue()));
+      return new AergoKey(ecdsaKey);
     } catch (Exception e) {
       throw new UnableToGenerateKeyException(e);
     }

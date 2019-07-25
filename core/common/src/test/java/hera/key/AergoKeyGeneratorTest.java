@@ -4,6 +4,8 @@
 
 package hera.key;
 
+import static java.util.UUID.randomUUID;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import hera.AbstractTestCase;
@@ -18,7 +20,16 @@ public class AergoKeyGeneratorTest extends AbstractTestCase {
     assertNotNull(key.getPrivateKey());
     assertNotNull(key.getPublicKey());
     assertNotNull(key.getAddress());
-    
-    System.out.println(key.getAddress());
   }
+
+  @Test
+  public void testImport() throws Exception {
+    final AergoKeyGenerator generator = new AergoKeyGenerator();
+    final AergoKey expected = generator.create();
+    final String password = randomUUID().toString();
+
+    final AergoKey actual = generator.create(expected.export(password), password);
+    assertEquals(expected, actual);
+  }
+
 }

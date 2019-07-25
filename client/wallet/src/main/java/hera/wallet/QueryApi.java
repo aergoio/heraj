@@ -4,7 +4,6 @@
 
 package hera.wallet;
 
-import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.AccountTotalVote;
@@ -32,32 +31,15 @@ import hera.api.model.StakeInfo;
 import hera.api.model.Subscription;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.exception.WalletConnectionException;
-import hera.exception.WalletRpcException;
-import java.io.Closeable;
 import java.util.List;
 
-public interface QueryClient extends Closeable {
-
-  /**
-   * Get account state by address.
-   *
-   * @param account an account
-   * @return an account state
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
-   */
-  AccountState getAccountState(Account account);
+public interface QueryApi {
 
   /**
    * Get account state by account.
    *
    * @param accountAddress account address
    * @return an account state
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   AccountState getAccountState(AccountAddress accountAddress);
 
@@ -66,9 +48,6 @@ public interface QueryClient extends Closeable {
    *
    * @param name an name of account
    * @return an account address binded with name
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   AccountAddress getNameOwner(String name);
 
@@ -78,31 +57,14 @@ public interface QueryClient extends Closeable {
    * @param name an name of account
    * @param blockNumber a block number
    * @return an account address binded with name
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   AccountAddress getNameOwner(String name, long blockNumber);
-
-  /**
-   * Get staking information of {@code account}.
-   *
-   * @param account an account to check staking information
-   * @return a staking information
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
-   */
-  StakeInfo getStakingInfo(Account account);
 
   /**
    * Get staking information of {@code accountAddress}.
    *
    * @param accountAddress an account address to check staking information
    * @return a staking information
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   StakeInfo getStakingInfo(AccountAddress accountAddress);
 
@@ -111,9 +73,6 @@ public interface QueryClient extends Closeable {
    *
    * @param showCount a show count
    * @return elected block producer list
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   List<ElectedCandidate> listElectedBps(int showCount);
 
@@ -123,31 +82,14 @@ public interface QueryClient extends Closeable {
    * @param voteId a vote id
    * @param showCount a show count
    * @return elected block producer list
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   List<ElectedCandidate> listElected(String voteId, int showCount);
-
-  /**
-   * Get votes which {@code account} votes for.
-   *
-   * @param account an account
-   * @return votes list
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
-   */
-  AccountTotalVote getVotesOf(Account account);
 
   /**
    * Get votes which {@code accountAddress} votes for.
    *
    * @param accountAddress an account address
    * @return votes list
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   AccountTotalVote getVotesOf(AccountAddress accountAddress);
 
@@ -155,9 +97,6 @@ public interface QueryClient extends Closeable {
    * Get account list on a server key store.
    *
    * @return account list
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   List<AccountAddress> listServerKeyStoreAccounts();
 
@@ -165,9 +104,6 @@ public interface QueryClient extends Closeable {
    * Get best block hash.
    *
    * @return block hash
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   BlockHash getBestBlockHash();
 
@@ -175,9 +111,6 @@ public interface QueryClient extends Closeable {
    * Get best block height.
    *
    * @return block height
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   long getBestBlockHeight();
 
@@ -199,9 +132,6 @@ public interface QueryClient extends Closeable {
    * Get chain info of current node.
    *
    * @return a chain info
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   ChainInfo getChainInfo();
 
@@ -209,9 +139,6 @@ public interface QueryClient extends Closeable {
    * Get chain stats of current node.
    *
    * @return a chain stats
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   ChainStats getChainStats();
 
@@ -219,19 +146,23 @@ public interface QueryClient extends Closeable {
    * Get blockchain peer addresses.
    *
    * @return peer addresses
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   List<Peer> listNodePeers();
+
+  /**
+   * Get blockchain peer addresses.
+   *
+   * @param showHidden whether to show hidden peers
+   * @param showSelf whether to show node which receives request itself
+   *
+   * @return peer addresses
+   */
+  List<Peer> listNodePeers(boolean showHidden, boolean showSelf);
 
   /**
    * Get metrics of peers.
    *
    * @return peer metrics
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   List<PeerMetric> listPeerMetrics();
 
@@ -240,9 +171,6 @@ public interface QueryClient extends Closeable {
    *
    * @param categories a categories
    * @return server info
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   ServerInfo getServerInfo(List<String> categories);
 
@@ -250,9 +178,6 @@ public interface QueryClient extends Closeable {
    * Get status of current node.
    *
    * @return node status
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   NodeStatus getNodeStatus();
 
@@ -261,9 +186,6 @@ public interface QueryClient extends Closeable {
    *
    * @param blockHash block hash
    * @return block
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   BlockMetadata getBlockMetadata(BlockHash blockHash);
 
@@ -272,9 +194,6 @@ public interface QueryClient extends Closeable {
    *
    * @param height block's height
    * @return block
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   BlockMetadata getBlockMetadata(long height);
 
@@ -284,9 +203,6 @@ public interface QueryClient extends Closeable {
    * @param blockHash block hash
    * @param size block list size whose upper bound is 1000
    * @return block list
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   List<BlockMetadata> listBlockMetadatas(BlockHash blockHash, int size);
 
@@ -296,9 +212,6 @@ public interface QueryClient extends Closeable {
    * @param height block's height
    * @param size block list size whose upper bound is 1000
    * @return block list
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   List<BlockMetadata> listBlockMetadatas(long height, int size);
 
@@ -307,9 +220,6 @@ public interface QueryClient extends Closeable {
    *
    * @param blockHash block hash
    * @return block
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   Block getBlock(BlockHash blockHash);
 
@@ -318,9 +228,6 @@ public interface QueryClient extends Closeable {
    *
    * @param height block's height
    * @return block
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   Block getBlock(long height);
 
@@ -346,9 +253,6 @@ public interface QueryClient extends Closeable {
    *
    * @param txHash transaction's hash
    * @return transaction
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   Transaction getTransaction(TxHash txHash);
 
@@ -357,9 +261,6 @@ public interface QueryClient extends Closeable {
    *
    * @param contractTxHash contract transaction hash
    * @return receipt of transaction
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   ContractTxReceipt getReceipt(ContractTxHash contractTxHash);
 
@@ -368,9 +269,6 @@ public interface QueryClient extends Closeable {
    *
    * @param contractAddress contract address
    * @return contract interface
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   ContractInterface getContractInterface(ContractAddress contractAddress);
 
@@ -379,9 +277,6 @@ public interface QueryClient extends Closeable {
    *
    * @param contractInvocation a contract invocation
    * @return contract result
-   *
-   * @throws WalletConnectionException on connection failure
-   * @throws WalletRpcException on rpc error
    */
   ContractResult query(ContractInvocation contractInvocation);
 
@@ -402,10 +297,5 @@ public interface QueryClient extends Closeable {
    */
   Subscription<Event> subscribeEvent(EventFilter filter,
       hera.api.model.StreamObserver<Event> observer);
-
-  /**
-   * {@inheritDoc}
-   */
-  void close();
 
 }

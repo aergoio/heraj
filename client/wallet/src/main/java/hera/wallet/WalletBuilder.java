@@ -11,7 +11,8 @@ import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.client.ClientConfiguer;
-import hera.exception.WalletCreationException;
+import hera.wallet.internal.LegacyWallet;
+import hera.wallet.internal.WalletFactory;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
@@ -102,25 +103,18 @@ public class WalletBuilder implements ClientConfiguer<WalletBuilder> {
   /**
    * Create a wallet instance.
    *
-   * @param type a wallet type
+   * @param walletType a wallet type
    * @return a wallet instance
-   * @throws WalletCreationException if wallet type is invalid
    */
-  public Wallet build(final WalletType type) {
-    if (null == type) {
-      throw new WalletCreationException("Unrecognized wallet type");
-    }
+  public Wallet build(final WalletType walletType) {
     final AergoClient aergoClient = clientBuilder.build();
-    switch (type) {
-      case Naive:
-        return new NaiveWallet(aergoClient, nonceRefreshTryInterval);
-      case Secure:
-        return new SecureWallet(aergoClient, nonceRefreshTryInterval);
-      case ServerKeyStore:
-        return new ServerKeyStoreWallet(aergoClient, nonceRefreshTryInterval);
-      default:
-        throw new WalletCreationException("Unrecognized wallet type");
-    }
+
+    final WalletFactory walletFactory = new WalletFactory();
+    walletFactory.setTryCountAndInterval(nonceRefreshTryInterval);
+    final WalletApi delegate = walletFactory.create(walletType);
+    delegate.use(aergoClient);
+
+    return new LegacyWallet(delegate);
   }
 
 }

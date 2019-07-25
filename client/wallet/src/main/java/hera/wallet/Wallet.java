@@ -20,8 +20,6 @@ import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.exception.KeyStoreException;
-import hera.exception.UnbindedAccountException;
-import hera.exception.UnbindedKeyStoreException;
 import hera.exception.WalletCommitException;
 import hera.exception.WalletConnectionException;
 import hera.exception.WalletRpcException;
@@ -57,7 +55,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @param authentication an authentication
    * @return an unlocked account. null if failure
    *
-   * @throws UnbindedKeyStoreException if it's {@link WalletType#Secure} and keystore is not binded
    * @throws KeyStoreException on keystore error
    */
   Account loadAccount(Authentication authentication);
@@ -67,8 +64,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    *
    * @param rawTransaction raw transaction to sign
    * @return signed transaction
-   *
-   * @throws UnbindedAccountException if account isn't binded
    */
   Transaction sign(RawTransaction rawTransaction);
 
@@ -77,8 +72,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    *
    * @param transaction transaction to verify
    * @return verify result
-   *
-   * @throws UnbindedAccountException if account isn't binded
    */
   boolean verify(Transaction transaction);
 
@@ -88,7 +81,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @param name an new name
    * @return a create name transaction hash
    *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletCommitException on commit failure
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
@@ -102,7 +94,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @param newOwner an new owner of name
    * @return a update name transaction hash
    *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletCommitException on commit failure
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
@@ -115,7 +106,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @param amount an amount to stake
    * @return a staking transaction hash
    *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletCommitException on commit failure
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
@@ -128,7 +118,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @param amount an amount to stake
    * @return a staking transaction hash
    *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletCommitException on commit failure
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
@@ -141,7 +130,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @param candidates a candidates to vote
    * @return voting transaction hash
    *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletCommitException on commit failure
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
@@ -155,7 +143,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @param candidates a candidates to vote
    * @return voting transaction hash
    *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletCommitException on commit failure
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
@@ -169,7 +156,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @param amount an amount
    * @return a send transaction hash
    *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletCommitException on commit failure
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
@@ -184,7 +170,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @param fee a fee
    * @return a send transaction hash
    *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletCommitException on commit failure
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
@@ -199,7 +184,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @param payload a payload
    * @return a send transaction hash
    *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletCommitException on commit failure
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
@@ -215,7 +199,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @param payload a payload
    * @return a send transaction hash
    *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletCommitException on commit failure
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
@@ -229,7 +212,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @param amount an amount
    * @return a send transaction hash
    *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletCommitException on commit failure
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
@@ -244,7 +226,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @param fee a fee
    * @return a send transaction hash
    *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletCommitException on commit failure
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
@@ -259,7 +240,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @param payload a payload
    * @return a send transaction hash
    *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletCommitException on commit failure
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
@@ -275,7 +255,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @param payload a payload
    * @return a send transaction hash
    *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletCommitException on commit failure
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
@@ -288,7 +267,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @param rawTransaction a raw transaction
    * @return a transaction hash
    *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletCommitException on commit failure
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
@@ -301,7 +279,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @param signedTransaction a signed transaction
    * @return a transaction hash
    *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletCommitException on commit failure
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
@@ -314,7 +291,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @param contractDefinition a contract definition
    * @return a contract transaction hash
    *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletCommitException on commit failure
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
@@ -328,7 +304,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @param fee a fee to make a transaction
    * @return a contract transaction hash
    *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletCommitException on commit failure
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
@@ -341,7 +316,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @param contractInvocation a contract invocation
    * @return a contract transaction hash
    *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletCommitException on commit failure
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
@@ -355,7 +329,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * @param fee a fee to make a transaction
    * @return a contract transaction hash
    *
-   * @throws UnbindedAccountException if account isn't binded
    * @throws WalletCommitException on commit failure
    * @throws WalletConnectionException on connection failure
    * @throws WalletRpcException on rpc error
