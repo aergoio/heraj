@@ -23,10 +23,18 @@ public interface ContractResult {
   <T> T bind(Class<T> clazz) throws IOException;
 
   /**
-   * Get contract result in a raw bytes.
+   * Use {@link ContractResult#inBytesValue()} instead.
    *
    * @return contract result in a raw bytes
    */
+  @Deprecated
   BytesValue getResultInRawBytes();
+
+  /**
+   * Get contract result in a bytes value.
+   *
+   * @return contract result in a bytes value
+   */
+  BytesValue inBytesValue();
 
 }

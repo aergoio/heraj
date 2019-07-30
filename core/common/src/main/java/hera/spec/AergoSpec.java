@@ -65,6 +65,8 @@ public class AergoSpec {
     }
   }
 
+  public static final String BIGNUM_JSON_KEY = "_bignum";
+
   public static final byte CONTRACT_PAYLOAD_VERSION = (byte) 0xC0;
 
 
@@ -76,6 +78,6 @@ public class AergoSpec {
 
   // minimum length of a DER encoded signature which both R and S are 1 byte each.
   // <header-magic> + <1-byte> + <int-marker> + 0x01 + <r.byte> + <int-marker> + 0x01 + <s.byte>
-  public static final int SIGN_MINIMUM_LENGTH   = 8;
+  public static final int SIGN_MINIMUM_LENGTH = 8;
 
 }
