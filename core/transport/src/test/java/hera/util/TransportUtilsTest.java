@@ -8,6 +8,7 @@ import static hera.util.NumberUtils.positiveToByteArray;
 import static hera.util.TransportUtils.assertArgument;
 import static hera.util.TransportUtils.copyFrom;
 import static hera.util.TransportUtils.parseToAer;
+import static hera.util.TransportUtils.parseToBytesValue;
 import static hera.util.TransportUtils.sha256AndEncodeHexa;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
@@ -58,6 +59,13 @@ public class TransportUtilsTest extends AbstractTestCase {
         ByteString.copyFrom(new byte[] {0x7f, 0x6f, 0x5f, 0x4f, 0x3f, 0x2f, 0x1f, 0x0f});
     ByteString actual = copyFrom(Long.decode("0x0f1f2f3f4f5f6f7f").longValue());
     assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testParseToBytesValue() {
+    final BytesValue expected = BytesValue.of(randomUUID().toString().getBytes());
+    final ByteString byteString = copyFrom(expected);
+    assertEquals(expected, parseToBytesValue(byteString));
   }
 
   @Test

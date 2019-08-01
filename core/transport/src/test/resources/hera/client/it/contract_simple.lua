@@ -8,6 +8,7 @@ end
 
 function set(key, arg1, arg2)
   system.setItem(key, {intVal=arg1, stringVal=arg2})
+  return get(key)
 end
 
 function get(key)

@@ -285,6 +285,31 @@ public class ContractOperationIT extends AbstractIT {
   }
 
   @Test
+  public void shouldBindExecuteResult() throws Exception {
+    // given
+    final AergoKey key = createNewKey();
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(simplePayload)
+        .build();
+    final ContractInterface contractInterface = deployAndGetAbi(key, definition);
+
+    // when
+    final String executeKey = randomUUID().toString();
+    final int executeIntVal = randomUUID().toString().hashCode();
+    final String executeStringVal = randomUUID().toString();
+    final ContractInvocation execution = contractInterface.newInvocationBuilder()
+        .function(executeFunction)
+        .args(executeKey, executeIntVal, executeStringVal)
+        .build();
+    final ContractTxReceipt executionReceipt = execute(key, execution);
+
+    // then
+    final Data data = executionReceipt.getRet().bind(Data.class);
+    assertEquals(executeIntVal, data.getIntVal());
+    assertEquals(executeStringVal, data.getStringVal());
+  }
+
+  @Test
   public void shouldExecuteWithBignumberArguments() throws Exception {
     // given
     final AergoKey key = createNewKey();

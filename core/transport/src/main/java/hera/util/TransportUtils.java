@@ -78,6 +78,19 @@ public class TransportUtils {
   }
 
   /**
+   * Parse protobuf {@link ByteString} to {@link BytesValue}.
+   *
+   * @param bytesString a protobuf ByteString
+   * @return parsed {@link BytesValue}.
+   */
+  public static BytesValue parseToBytesValue(final ByteString bytesString) {
+    if (null == bytesString || ByteString.EMPTY.equals(bytesString)) {
+      return BytesValue.EMPTY;
+    }
+    return BytesValue.of(bytesString.toByteArray());
+  }
+
+  /**
    * Parse raw aer to {@link Aer}.
    *
    * @param rawAer a raw aer

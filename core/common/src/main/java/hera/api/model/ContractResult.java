@@ -12,6 +12,25 @@ import java.io.IOException;
 @ApiStability.Unstable
 public interface ContractResult {
 
+  ContractResult EMPTY = new ContractResult() {
+
+    @Override
+    public BytesValue inBytesValue() {
+      return BytesValue.EMPTY;
+    }
+
+    @Override
+    public BytesValue getResultInRawBytes() {
+      return inBytesValue();
+    }
+
+    @Override
+    public <T> T bind(Class<T> clazz) throws IOException {
+      return null;
+    }
+  };
+
+
   /**
    * Bind contract result to class. It returns null if result is empty or json result is {}.
    *
