@@ -9,6 +9,7 @@ import hera.api.function.Function2;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.BytesValue;
+import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractTxHash;
@@ -255,6 +256,23 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
         public TxHash apply(Signer signer, Long t) {
           return client.getContractOperation().deploy(signer, contractDefinition, t,
               buildFee(feeLimit));
+        }
+      }).adapt(ContractTxHash.class);
+    } catch (Exception e) {
+      throw converter.convert(e);
+    }
+  }
+
+  @Override
+  public ContractTxHash redeploy(final ContractAddress existingContract,
+      final ContractDefinition contractDefinition, final long feeLimit) {
+    try {
+      return trier.request(signer, new Function2<Signer, Long, TxHash>() {
+
+        @Override
+        public TxHash apply(Signer signer, Long t) {
+          return client.getContractOperation().redeploy(signer, existingContract,
+              contractDefinition, t, buildFee(feeLimit));
         }
       }).adapt(ContractTxHash.class);
     } catch (Exception e) {

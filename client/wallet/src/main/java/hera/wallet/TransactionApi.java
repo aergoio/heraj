@@ -7,6 +7,7 @@ package hera.wallet;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.BytesValue;
+import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractTxHash;
@@ -133,6 +134,17 @@ public interface TransactionApi {
    * @return a contract transaction hash
    */
   ContractTxHash deploy(ContractDefinition contractDefinition, long feeLimit);
+
+  /**
+   * Deploy smart contract.
+   *
+   * @param existingContract an existing contract address
+   * @param contractDefinition a contract definition to re-deploy
+   * @param feeLimit a fee limit
+   * @return a contract transaction hash
+   */
+  ContractTxHash redeploy(ContractAddress existingContract, ContractDefinition contractDefinition,
+      long feeLimit);
 
   /**
    * Execute a smart contract function.

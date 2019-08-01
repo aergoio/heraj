@@ -88,13 +88,13 @@ public interface ContractOperation {
    * {@code contractAddress} must be existing one.
    *
    * @param signer a signer whose principal is smart contract creator.
-   * @param contractAddress an existing contract address
+   * @param existingContract an existing contract address
    * @param contractDefinition contract definition to re-deploy
    * @param nonce an nonce used in making transaction
    * @param fee a transaction fee
    * @return contract definition transaction hash
    */
-  ContractTxHash redeploy(Signer signer, ContractAddress contractAddress,
+  ContractTxHash redeploy(Signer signer, ContractAddress existingContract,
       ContractDefinition contractDefinition, long nonce, Fee fee);
 
   /**

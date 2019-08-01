@@ -2,29 +2,35 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.wallet.internal;
+package hera.wallet;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.api.model.internal.Time;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.exception.WalletException;
 import hera.keystore.InMemoryKeyStore;
 import hera.keystore.JavaKeyStore;
 import hera.keystore.ServerKeyStore;
-import hera.wallet.WalletApi;
-import hera.wallet.WalletType;
-import lombok.NonNull;
-import lombok.Setter;
+import hera.wallet.internal.WalletApiImpl;
+import java.util.concurrent.TimeUnit;
 
 /**
- * Factory for Wallet implementation v2. Publicly available on further version.
+ * Factory for Wallet implementation v2. This is beta version
  *
  * @author taeiklim
  *
  */
+@ApiAudience.Public
+@ApiStability.Unstable
 public class WalletFactory {
 
-  @Setter
-  @NonNull
-  protected TryCountAndInterval tryCountAndInterval;
+  protected TryCountAndInterval tryCountAndInterval =
+      TryCountAndInterval.of(3, Time.of(0, TimeUnit.SECONDS));
+
+  public void setRefresh(final int count, final long interval, final TimeUnit unit) {
+    this.tryCountAndInterval = new TryCountAndInterval(count, Time.of(interval, unit));
+  }
 
   /**
    * Create a wallet instance.

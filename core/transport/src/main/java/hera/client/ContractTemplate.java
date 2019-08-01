@@ -137,9 +137,9 @@ public class ContractTemplate
   }
 
   @Override
-  public ContractTxHash redeploy(final Signer signer, final ContractAddress contractAddress,
+  public ContractTxHash redeploy(final Signer signer, final ContractAddress existingContract,
       final ContractDefinition contractDefinition, final long nonce, final Fee fee) {
-    return getReDeployFunction().apply(signer, contractAddress, contractDefinition, nonce, fee)
+    return getReDeployFunction().apply(signer, existingContract, contractDefinition, nonce, fee)
         .get();
   }
 

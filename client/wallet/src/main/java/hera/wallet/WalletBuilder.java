@@ -12,7 +12,6 @@ import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.client.ClientConfiguer;
 import hera.wallet.internal.LegacyWallet;
-import hera.wallet.internal.WalletFactory;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
@@ -110,7 +109,9 @@ public class WalletBuilder implements ClientConfiguer<WalletBuilder> {
     final AergoClient aergoClient = clientBuilder.build();
 
     final WalletFactory walletFactory = new WalletFactory();
-    walletFactory.setTryCountAndInterval(nonceRefreshTryInterval);
+    walletFactory.setRefresh(nonceRefreshTryInterval.getCount(),
+        nonceRefreshTryInterval.getInterval().getValue(),
+        nonceRefreshTryInterval.getInterval().getUnit());
     final WalletApi delegate = walletFactory.create(walletType);
     delegate.use(aergoClient);
 

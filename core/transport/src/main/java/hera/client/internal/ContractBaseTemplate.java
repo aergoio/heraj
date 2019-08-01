@@ -182,16 +182,17 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
 
         @Override
         public FinishableFuture<ContractTxHash> apply(final Signer signer,
-            final ContractAddress contractAddress, final ContractDefinition contractDefinition,
+            final ContractAddress existingContract, final ContractDefinition contractDefinition,
             final Long nonce, final Fee fee) {
-          logger.debug("Deploy contract with creator: {}, definition: {}, nonce: {}, fee: {}",
-              signer, contractDefinition, nonce, fee);
+          logger.debug("Re deploy contract with creator: {}, existing one: {}, "
+              + "definition: {}, nonce: {}, fee: {}",
+              signer, existingContract, contractDefinition, nonce, fee);
           try {
             final RawTransaction rawTransaction = RawTransaction.newReDeployContractBuilder()
                 .chainIdHash(contextProvider.get().getChainIdHash())
                 .creator(signer.getPrincipal())
                 .nonce(nonce)
-                .contractAddress(contractAddress)
+                .contractAddress(existingContract)
                 .definition(contractDefinition)
                 .build();
             return signAndCommitWithSigner(signer, rawTransaction);
