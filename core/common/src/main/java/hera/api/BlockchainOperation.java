@@ -6,20 +6,14 @@ package hera.api;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.model.Account;
-import hera.api.model.AccountAddress;
-import hera.api.model.AccountTotalVote;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.ChainIdHash;
 import hera.api.model.ChainInfo;
 import hera.api.model.ChainStats;
-import hera.api.model.ElectedCandidate;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
 import hera.api.model.ServerInfo;
-import hera.api.model.TxHash;
-import hera.key.Signer;
 import java.util.List;
 
 /**
@@ -109,37 +103,4 @@ public interface BlockchainOperation {
    */
   NodeStatus getNodeStatus();
 
-  /**
-   * Use {@link AccountOperation#vote(Signer, String, List, long)} instead.
-   *
-   * @param account an account
-   * @param voteId a vote id
-   * @param candidates a candidates
-   * @param nonce an nonce which is used in a transaction
-   *
-   * @return voting transaction hash
-   */
-  @Deprecated
-  TxHash vote(Account account, String voteId, List<String> candidates, long nonce);
-
-  /**
-   * Use {@link AccountOperation#listElected(String, int)} instead.
-   *
-   * @param voteId a vote id
-   * @param showCount a show count
-   * @return a vote total
-   */
-  @Deprecated
-  List<ElectedCandidate> listElected(String voteId, int showCount);
-
-  /**
-   * Use {@link AccountOperation#getVotesOf(AccountAddress)} instead.
-   *
-   * @param accountAddress an account address
-   * @return voting info
-   */
-  @Deprecated
-  AccountTotalVote getVotesOf(AccountAddress accountAddress);
-
 }
-

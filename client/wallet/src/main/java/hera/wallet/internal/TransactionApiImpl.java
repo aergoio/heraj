@@ -143,12 +143,12 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
   }
 
   @Override
-  public TxHash send(String recipient, Aer amount, long feeLimit) {
-    return send(recipient, amount, feeLimit, BytesValue.EMPTY);
+  public TxHash send(String recipient, Aer amount, Fee fee) {
+    return send(recipient, amount, fee, BytesValue.EMPTY);
   }
 
   @Override
-  public TxHash send(final String recipient, final Aer amount, final long feeLimit,
+  public TxHash send(final String recipient, final Aer amount, final Fee fee,
       final BytesValue payload) {
     try {
       return trier.request(signer, new Function2<Signer, Long, TxHash>() {
@@ -172,12 +172,12 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
   }
 
   @Override
-  public TxHash send(AccountAddress recipient, Aer amount, long feeLimit) {
-    return send(recipient, amount, feeLimit, BytesValue.EMPTY);
+  public TxHash send(AccountAddress recipient, Aer amount, Fee fee) {
+    return send(recipient, amount, fee, BytesValue.EMPTY);
   }
 
   @Override
-  public TxHash send(final AccountAddress recipient, final Aer amount, final long feeLimit,
+  public TxHash send(final AccountAddress recipient, final Aer amount, final Fee fee,
       final BytesValue payload) {
     try {
       return trier.request(signer, new Function2<Signer, Long, TxHash>() {
@@ -248,14 +248,14 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
   }
 
   @Override
-  public ContractTxHash deploy(final ContractDefinition contractDefinition, final long feeLimit) {
+  public ContractTxHash deploy(final ContractDefinition contractDefinition, final Fee fee) {
     try {
       return trier.request(signer, new Function2<Signer, Long, TxHash>() {
 
         @Override
         public TxHash apply(Signer signer, Long t) {
           return client.getContractOperation().deploy(signer, contractDefinition, t,
-              buildFee(feeLimit));
+              fee);
         }
       }).adapt(ContractTxHash.class);
     } catch (Exception e) {
@@ -265,14 +265,14 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
 
   @Override
   public ContractTxHash redeploy(final ContractAddress existingContract,
-      final ContractDefinition contractDefinition, final long feeLimit) {
+      final ContractDefinition contractDefinition, final Fee fee) {
     try {
       return trier.request(signer, new Function2<Signer, Long, TxHash>() {
 
         @Override
         public TxHash apply(Signer signer, Long t) {
           return client.getContractOperation().redeploy(signer, existingContract,
-              contractDefinition, t, buildFee(feeLimit));
+              contractDefinition, t, fee);
         }
       }).adapt(ContractTxHash.class);
     } catch (Exception e) {
@@ -281,24 +281,19 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
   }
 
   @Override
-  public ContractTxHash execute(final ContractInvocation contractInvocation, final long feeLimit) {
+  public ContractTxHash execute(final ContractInvocation contractInvocation, final Fee fee) {
     try {
       return trier.request(signer, new Function2<Signer, Long, TxHash>() {
 
         @Override
         public TxHash apply(Signer signer, Long t) {
           return client.getContractOperation().execute(signer, contractInvocation, t,
-              buildFee(feeLimit));
+              fee);
         }
       }).adapt(ContractTxHash.class);
     } catch (Exception e) {
       throw converter.convert(e);
     }
-  }
-
-  // TODO : remove Fee object
-  protected Fee buildFee(final long feeLimit) {
-    return Fee.of(Aer.ONE, feeLimit);
   }
 
 }

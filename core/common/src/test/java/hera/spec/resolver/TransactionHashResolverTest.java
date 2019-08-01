@@ -10,7 +10,6 @@ import static java.util.UUID.randomUUID;
 
 import hera.AbstractTestCase;
 import hera.api.model.AccountAddress;
-import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.BytesValue;
 import hera.api.model.ChainIdHash;
@@ -35,7 +34,7 @@ public class TransactionHashResolverTest extends AbstractTestCase {
         .to(accountAddress)
         .amount("10000", Unit.AER)
         .nonce(1L)
-        .fee(Fee.of(Aer.of("100", Unit.AER), 5))
+        .fee(Fee.of(5))
         .build();
 
     assertNotNull(TransactionHashResolver.calculateHash(rawTransaction));
@@ -48,7 +47,7 @@ public class TransactionHashResolverTest extends AbstractTestCase {
         .to(accountAddress)
         .amount("10000", Unit.AER)
         .nonce(1L)
-        .fee(Fee.of(Aer.of("100", Unit.AER), 5))
+        .fee(Fee.of(5))
         .build();
 
     final BytesValue signValue = BytesValue.of(randomUUID().toString().getBytes());

@@ -403,42 +403,42 @@ public class LegacyWallet implements Wallet {
 
   @Override
   public TxHash send(String recipient, Aer amount) {
-    return delegate.transactionApi().send(recipient, amount, 0);
+    return delegate.transactionApi().send(recipient, amount, Fee.ZERO);
   }
 
   @Override
   public TxHash send(String recipient, Aer amount, Fee fee) {
-    return delegate.transactionApi().send(recipient, amount, 0);
+    return delegate.transactionApi().send(recipient, amount, fee);
   }
 
   @Override
   public TxHash send(String recipient, Aer amount, BytesValue payload) {
-    return delegate.transactionApi().send(recipient, amount, 0, payload);
+    return delegate.transactionApi().send(recipient, amount, Fee.ZERO, payload);
   }
 
   @Override
   public TxHash send(String recipient, Aer amount, Fee fee, BytesValue payload) {
-    return delegate.transactionApi().send(recipient, amount, 0, payload);
+    return delegate.transactionApi().send(recipient, amount, fee, payload);
   }
 
   @Override
   public TxHash send(AccountAddress recipient, Aer amount) {
-    return delegate.transactionApi().send(recipient, amount, 0);
+    return delegate.transactionApi().send(recipient, amount, Fee.ZERO);
   }
 
   @Override
   public TxHash send(AccountAddress recipient, Aer amount, Fee fee) {
-    return delegate.transactionApi().send(recipient, amount, 0);
+    return delegate.transactionApi().send(recipient, amount, fee);
   }
 
   @Override
   public TxHash send(AccountAddress recipient, Aer amount, BytesValue payload) {
-    return delegate.transactionApi().send(recipient, amount, 0, payload);
+    return delegate.transactionApi().send(recipient, amount, Fee.ZERO, payload);
   }
 
   @Override
   public TxHash send(AccountAddress recipient, Aer amount, Fee fee, BytesValue payload) {
-    return delegate.transactionApi().send(recipient, amount, 0, payload);
+    return delegate.transactionApi().send(recipient, amount, fee, payload);
   }
 
   @Override
@@ -453,22 +453,22 @@ public class LegacyWallet implements Wallet {
 
   @Override
   public ContractTxHash deploy(ContractDefinition contractDefinition) {
-    return delegate.transactionApi().deploy(contractDefinition, 0);
+    return delegate.transactionApi().deploy(contractDefinition, Fee.ZERO);
   }
 
   @Override
   public ContractTxHash deploy(ContractDefinition contractDefinition, Fee fee) {
-    return delegate.transactionApi().deploy(contractDefinition, 0);
+    return delegate.transactionApi().deploy(contractDefinition, fee);
   }
 
   @Override
   public ContractTxHash execute(ContractInvocation contractInvocation) {
-    return delegate.transactionApi().execute(contractInvocation, 0);
+    return delegate.transactionApi().execute(contractInvocation, Fee.ZERO);
   }
 
   @Override
   public ContractTxHash execute(ContractInvocation contractInvocation, Fee fee) {
-    return delegate.transactionApi().execute(contractInvocation, 0);
+    return delegate.transactionApi().execute(contractInvocation, fee);
   }
 
   @Override

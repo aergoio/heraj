@@ -19,8 +19,6 @@ import hera.annotation.ApiStability;
 import hera.api.function.Function0;
 import hera.api.function.Function1;
 import hera.api.function.Function2;
-import hera.api.function.Function4;
-import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountTotalVote;
 import hera.api.model.BlockchainStatus;
@@ -30,10 +28,7 @@ import hera.api.model.ElectedCandidate;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
-import hera.api.model.RawTransaction;
 import hera.api.model.ServerInfo;
-import hera.api.model.Transaction;
-import hera.api.model.TxHash;
 import hera.client.ChannelInjectable;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.AccountTotalVoteConverterFactory;
@@ -350,109 +345,6 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
               @Override
               public NodeStatus apply(final Rpc.SingleBytes status) {
                 return nodeStatusConverter.convertToDomainModel(status);
-              }
-            });
-            addCallback(listenableFuture, callback, directExecutor());
-          } catch (Exception e) {
-            nextFuture.fail(e);
-          }
-          return nextFuture;
-        }
-      };
-
-  @Getter
-  private final Function4<Account, String, List<String>, Long,
-      FinishableFuture<TxHash>> voteFunction = new Function4<
-          Account, String, List<String>, Long, FinishableFuture<TxHash>>() {
-
-        @Override
-        public FinishableFuture<TxHash> apply(final Account account, final String voteId,
-            final List<String> candidates, final Long nonce) {
-          logger.debug("Voting with account: {}, voteId: {}, candidates: {}, nonce: {}",
-              account.getAddress(), voteId, candidates, nonce);
-
-          final RawTransaction rawTransaction = RawTransaction.newVoteTxBuilder()
-              .chainIdHash(contextProvider.get().getChainIdHash())
-              .from(account.getAddress())
-              .nonce(nonce)
-              .voteId(voteId)
-              .candidates(candidates)
-              .build();
-          final Transaction signed =
-              accountBaseTemplate.getSignFunction().apply(account, rawTransaction).get();
-          return transactionBaseTemplate.getCommitFunction().apply(signed);
-        }
-      };
-
-  @Getter
-  private final Function2<String, Integer,
-      FinishableFuture<List<ElectedCandidate>>> listElectedFunction = new Function2<
-          String, Integer, FinishableFuture<List<ElectedCandidate>>>() {
-
-        @Override
-        public FinishableFuture<List<ElectedCandidate>> apply(final String voteId,
-            final Integer showCount) {
-          logger.debug("Get votes status with voteId: {}, showCount: {}", voteId, showCount);
-
-          FinishableFuture<List<ElectedCandidate>> nextFuture =
-              new FinishableFuture<List<ElectedCandidate>>();
-          try {
-            final Rpc.VoteParams rpcVoteParams = Rpc.VoteParams.newBuilder()
-                .setId(voteId)
-                .setCount(showCount)
-                .build();
-            logger.trace("AergoService getVotes arg: {}", rpcVoteParams);
-
-            ListenableFuture<Rpc.VoteList> listenableFuture = aergoService.getVotes(rpcVoteParams);
-            FutureChain<Rpc.VoteList, List<ElectedCandidate>> callback =
-                new FutureChain<Rpc.VoteList, List<ElectedCandidate>>(nextFuture,
-                    contextProvider.get());
-            callback.setSuccessHandler(new Function1<Rpc.VoteList, List<ElectedCandidate>>() {
-
-              @Override
-              public List<ElectedCandidate> apply(final Rpc.VoteList rpcVoteList) {
-                final List<ElectedCandidate> electedCandidates = new ArrayList<ElectedCandidate>();
-                for (final Rpc.Vote rpcCandidate : rpcVoteList.getVotesList()) {
-                  final ElectedCandidate domainElectedCandidate =
-                      electedCandidateConverter.convertToDomainModel(rpcCandidate);
-                  electedCandidates.add(domainElectedCandidate);
-                }
-                return electedCandidates;
-              }
-            });
-            addCallback(listenableFuture, callback, directExecutor());
-          } catch (Exception e) {
-            nextFuture.fail(e);
-          }
-          return nextFuture;
-        }
-      };
-
-  @Getter
-  private final Function1<AccountAddress, FinishableFuture<AccountTotalVote>> votesOfFunction =
-      new Function1<AccountAddress, FinishableFuture<AccountTotalVote>>() {
-
-        @Override
-        public FinishableFuture<AccountTotalVote> apply(final AccountAddress accountAddress) {
-          logger.debug("Get votes with address: {}", accountAddress);
-
-          FinishableFuture<AccountTotalVote> nextFuture = new FinishableFuture<AccountTotalVote>();
-          try {
-            final Rpc.AccountAddress rpcAddress = Rpc.AccountAddress.newBuilder()
-                .setValue(accountAddressConverter.convertToRpcModel(accountAddress))
-                .build();
-            logger.trace("AergoService getAccountVotes arg: {}", rpcAddress);
-
-            ListenableFuture<Rpc.AccountVoteInfo> listenableFuture =
-                aergoService.getAccountVotes(rpcAddress);
-            FutureChain<Rpc.AccountVoteInfo, AccountTotalVote> callback =
-                new FutureChain<Rpc.AccountVoteInfo, AccountTotalVote>(nextFuture,
-                    contextProvider.get());
-            callback.setSuccessHandler(new Function1<Rpc.AccountVoteInfo, AccountTotalVote>() {
-
-              @Override
-              public AccountTotalVote apply(final Rpc.AccountVoteInfo rpcAccountVoteTotal) {
-                return accountTotalVoteConverter.convertToDomainModel(rpcAccountVoteTotal);
               }
             });
             addCallback(listenableFuture, callback, directExecutor());

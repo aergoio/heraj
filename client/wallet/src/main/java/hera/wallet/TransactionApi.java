@@ -11,6 +11,7 @@ import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractTxHash;
+import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
@@ -73,42 +74,42 @@ public interface TransactionApi {
    *
    * @param recipient a recipient name
    * @param amount an amount
-   * @param feeLimit a fee limit
+   * @param fee a fee
    * @return a send transaction hash
    */
-  TxHash send(String recipient, Aer amount, long feeLimit);
+  TxHash send(String recipient, Aer amount, Fee fee);
 
   /**
    * Send <b>aer</b> with {@code fee} and {@code payload}.
    *
    * @param recipient a recipient name
    * @param amount an amount
-   * @param feeLimit a fee limit
+   * @param fee a fee
    * @param payload a payload
    * @return a send transaction hash
    */
-  TxHash send(String recipient, Aer amount, long feeLimit, BytesValue payload);
+  TxHash send(String recipient, Aer amount, Fee fee, BytesValue payload);
 
   /**
    * Send <b>aer</b> with {@code fee}.
    *
    * @param recipient a recipient
    * @param amount an amount
-   * @param feeLimit a fee limit
+   * @param fee a fee
    * @return a send transaction hash
    */
-  TxHash send(AccountAddress recipient, Aer amount, long feeLimit);
+  TxHash send(AccountAddress recipient, Aer amount, Fee fee);
 
   /**
    * Send <b>aer</b> with {@code fee} and {@code payload}.
    *
    * @param recipient a recipient
    * @param amount an amount
-   * @param feeLimit a fee limit
+   * @param fee a fee
    * @param payload a payload
    * @return a send transaction hash
    */
-  TxHash send(AccountAddress recipient, Aer amount, long feeLimit, BytesValue payload);
+  TxHash send(AccountAddress recipient, Aer amount, Fee fee, BytesValue payload);
 
   /**
    * Sign and commit transaction.
@@ -130,29 +131,29 @@ public interface TransactionApi {
    * Deploy smart contract.
    *
    * @param contractDefinition a contract definition
-   * @param feeLimit a fee limit
+   * @param fee a fee
    * @return a contract transaction hash
    */
-  ContractTxHash deploy(ContractDefinition contractDefinition, long feeLimit);
+  ContractTxHash deploy(ContractDefinition contractDefinition, Fee fee);
 
   /**
    * Deploy smart contract.
    *
    * @param existingContract an existing contract address
    * @param contractDefinition a contract definition to re-deploy
-   * @param feeLimit a fee limit
+   * @param fee a fee
    * @return a contract transaction hash
    */
   ContractTxHash redeploy(ContractAddress existingContract, ContractDefinition contractDefinition,
-      long feeLimit);
+      Fee fee);
 
   /**
    * Execute a smart contract function.
    *
    * @param contractInvocation a contract invocation
-   * @param feeLimit a fee limit
+   * @param fee a fee
    * @return a contract transaction hash
    */
-  ContractTxHash execute(ContractInvocation contractInvocation, long feeLimit);
+  ContractTxHash execute(ContractInvocation contractInvocation, Fee fee);
 
 }

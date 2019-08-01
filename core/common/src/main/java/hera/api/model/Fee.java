@@ -26,13 +26,12 @@ public class Fee {
   /**
    * Build {@code Fee} object.
    *
-   * @param price fee price
-   * @param limit fee limit
+   * @param limit a fee limit
    * @return created {@code Fee}
    */
   @ApiAudience.Public
-  public static Fee of(final Aer price, final long limit) {
-    return new Fee(price, limit);
+  public static Fee of(final long limit) {
+    return new Fee(limit);
   }
 
   @Getter
@@ -42,12 +41,22 @@ public class Fee {
   protected final long limit;
 
   /**
-   * Fee constructor.
+   * Build {@code Fee} object.
    *
-   * @param price fee price
-   * @param limit fee limit
+   * @param limit a fee limit
    */
   @ApiAudience.Public
+  public Fee(final long limit) {
+    this(Aer.EMPTY, limit);
+  }
+
+  /**
+   * Build {@code Fee} object.
+   *
+   * @param price a fee price
+   * @param limit a fee limit
+   */
+  @ApiAudience.Private
   public Fee(final Aer price, final long limit) {
     this.price = null != price ? price : Aer.EMPTY;
     this.limit = limit >= 0 ? limit : 0L;
