@@ -6,6 +6,7 @@ package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
 import static hera.util.ValidationUtils.assertTrue;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
@@ -13,76 +14,61 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.util.StringUtils;
 import java.util.List;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L22">@ToString</span>
-<span class="nc bnc" id="L23" title="All 40 branches missed.">@EqualsAndHashCode</span>
+<span class="pc bnc" id="L22" title="All 38 branches missed.">@Value</span>
 public class EventFilter {
 
   public static EventFilterBuilder newBuilder(final ContractAddress contractAddress) {
-<span class="fc" id="L27">    return new EventFilterBuilder(contractAddress);</span>
+<span class="fc" id="L26">    return new EventFilterBuilder(contractAddress);</span>
   }
 
-<span class="fc" id="L30">  @Getter</span>
-  protected final ContractAddress contractAddress;
+  @NonNull
+<span class="fc" id="L30">  ContractAddress contractAddress;</span>
 
-<span class="fc" id="L33">  @Getter</span>
-  protected final String eventName;
+  @NonNull
+<span class="fc" id="L33">  String eventName;</span>
 
-<span class="fc" id="L36">  @Getter</span>
-  protected final List&lt;Object&gt; args;
+  @NonNull
+<span class="fc" id="L36">  List&lt;Object&gt; args;</span>
 
-<span class="fc" id="L39">  @Getter</span>
-  protected final long fromBlockNumber;
+<span class="fc" id="L38">  long fromBlockNumber;</span>
 
-<span class="fc" id="L42">  @Getter</span>
-  protected final long toBlockNumber;
+<span class="fc" id="L40">  long toBlockNumber;</span>
 
-<span class="fc" id="L45">  @Getter</span>
-  protected final boolean decending;
+<span class="fc" id="L42">  boolean decending;</span>
 
-<span class="fc" id="L48">  @Getter</span>
-  protected final int recentBlockCount;
+<span class="fc" id="L44">  int recentBlockCount;</span>
 
-  /**
-   * EventFilter constructor.
-   *
-   * @param contractAddress a contract address where event comes from
-   * @param eventName an event name
-   * @param args an event arguments
-   * @param fromBlockNumber a block number where search starts
-   * @param toBlockNumber a block number where search finishes
-   * @param decending whether to search block in a decending order or not
-   * @param recentBlockCount a recent block count
-   */
-  @ApiAudience.Private
-  public EventFilter(final ContractAddress contractAddress, final String eventName,
+  EventFilter(final ContractAddress contractAddress, final String eventName,
       final List&lt;Object&gt; args, long fromBlockNumber, final long toBlockNumber,
-<span class="fc" id="L65">      final boolean decending, final int recentBlockCount) {</span>
-<span class="fc" id="L66">    assertNotNull(contractAddress, &quot;Contract address must not null&quot;);</span>
-<span class="pc bpc" id="L67" title="1 of 2 branches missed.">    assertTrue(fromBlockNumber &gt;= 0, &quot;From block number must be &gt;= 0&quot;);</span>
-<span class="pc bpc" id="L68" title="1 of 2 branches missed.">    assertTrue(toBlockNumber &gt;= 0, &quot;To block number must be &gt;= 0&quot;);</span>
-<span class="pc bpc" id="L69" title="1 of 2 branches missed.">    assertTrue(recentBlockCount &gt;= 0, &quot;Recent block count must be &gt;= 0&quot;);</span>
-<span class="fc" id="L70">    this.contractAddress = contractAddress;</span>
-<span class="pc bpc" id="L71" title="1 of 2 branches missed.">    this.eventName = null == eventName ? StringUtils.EMPTY_STRING : eventName;</span>
-<span class="pc bpc" id="L72" title="1 of 2 branches missed.">    this.args = unmodifiableList(args == null ? emptyList() : args);</span>
-<span class="fc" id="L73">    this.fromBlockNumber = fromBlockNumber;</span>
-<span class="fc" id="L74">    this.toBlockNumber = toBlockNumber;</span>
-<span class="fc" id="L75">    this.decending = decending;</span>
-<span class="fc" id="L76">    this.recentBlockCount = recentBlockCount;</span>
-<span class="fc" id="L77">  }</span>
+<span class="fc" id="L48">      final boolean decending, final int recentBlockCount) {</span>
+<span class="fc" id="L49">    assertNotNull(contractAddress, &quot;Contract address must not null&quot;);</span>
+<span class="fc" id="L50">    assertNotNull(eventName, &quot;Event name must not null&quot;);</span>
+<span class="fc" id="L51">    assertNotNull(args, &quot;Event args must not null&quot;);</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">    assertTrue(fromBlockNumber &gt;= 0, &quot;From block number must be &gt;= 0&quot;);</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">    assertTrue(toBlockNumber &gt;= 0, &quot;To block number must be &gt;= 0&quot;);</span>
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">    assertTrue(recentBlockCount &gt;= 0, &quot;Recent block count must be &gt;= 0&quot;);</span>
+<span class="fc" id="L55">    this.contractAddress = contractAddress;</span>
+<span class="fc" id="L56">    this.eventName = eventName;</span>
+<span class="fc" id="L57">    this.args = unmodifiableList(args);</span>
+<span class="fc" id="L58">    this.fromBlockNumber = fromBlockNumber;</span>
+<span class="fc" id="L59">    this.toBlockNumber = toBlockNumber;</span>
+<span class="fc" id="L60">    this.decending = decending;</span>
+<span class="fc" id="L61">    this.recentBlockCount = recentBlockCount;</span>
+<span class="fc" id="L62">  }</span>
 
+  // TODO : change to step builder
   public static class EventFilterBuilder implements hera.util.Builder&lt;EventFilter&gt; {
 
     protected final ContractAddress contractAddress;
 
-    protected String eventName;
+<span class="fc" id="L69">    protected String eventName = StringUtils.EMPTY_STRING;</span>
 
-    protected List&lt;Object&gt; args;
+<span class="fc" id="L71">    protected List&lt;Object&gt; args = emptyList();</span>
 
     protected long fromBlockNumber;
 
@@ -92,43 +78,47 @@ public class EventFilter {
 
     protected int recentBlockCount;
 
-<span class="fc" id="L95">    public EventFilterBuilder(final ContractAddress contractAddress) {</span>
-<span class="fc" id="L96">      this.contractAddress = contractAddress;</span>
-<span class="fc" id="L97">    }</span>
+<span class="fc" id="L81">    public EventFilterBuilder(final ContractAddress contractAddress) {</span>
+<span class="fc" id="L82">      this.contractAddress = contractAddress;</span>
+<span class="fc" id="L83">    }</span>
 
     public EventFilterBuilder eventName(final String eventName) {
-<span class="nc" id="L100">      this.eventName = eventName;</span>
-<span class="nc" id="L101">      return this;</span>
+<span class="nc" id="L86">      this.eventName = eventName;</span>
+<span class="nc" id="L87">      return this;</span>
+    }
+
+    public EventFilterBuilder args(final Object... args) {
+<span class="nc" id="L91">      return args(asList(args));</span>
     }
 
     public EventFilterBuilder args(final List&lt;Object&gt; args) {
-<span class="nc" id="L105">      this.args = args;</span>
-<span class="nc" id="L106">      return this;</span>
+<span class="nc" id="L95">      this.args = args;</span>
+<span class="nc" id="L96">      return this;</span>
     }
 
     public EventFilterBuilder fromBlockNumber(final long fromBlockNumber) {
-<span class="nc" id="L110">      this.fromBlockNumber = fromBlockNumber;</span>
-<span class="nc" id="L111">      return this;</span>
+<span class="nc" id="L100">      this.fromBlockNumber = fromBlockNumber;</span>
+<span class="nc" id="L101">      return this;</span>
     }
 
     public EventFilterBuilder toBlockNumber(final long toBlockNumber) {
-<span class="nc" id="L115">      this.toBlockNumber = toBlockNumber;</span>
-<span class="nc" id="L116">      return this;</span>
+<span class="nc" id="L105">      this.toBlockNumber = toBlockNumber;</span>
+<span class="nc" id="L106">      return this;</span>
     }
 
     public EventFilterBuilder decending(final boolean decending) {
-<span class="nc" id="L120">      this.decending = decending;</span>
-<span class="nc" id="L121">      return this;</span>
+<span class="nc" id="L110">      this.decending = decending;</span>
+<span class="nc" id="L111">      return this;</span>
     }
 
     public EventFilterBuilder recentBlockCount(final int recentBlockCount) {
-<span class="nc" id="L125">      this.recentBlockCount = recentBlockCount;</span>
-<span class="nc" id="L126">      return this;</span>
+<span class="nc" id="L115">      this.recentBlockCount = recentBlockCount;</span>
+<span class="nc" id="L116">      return this;</span>
     }
 
     @Override
     public EventFilter build() {
-<span class="fc" id="L131">      return new EventFilter(contractAddress, eventName, args, fromBlockNumber, toBlockNumber,</span>
+<span class="fc" id="L121">      return new EventFilter(contractAddress, eventName, args, fromBlockNumber, toBlockNumber,</span>
           decending, recentBlockCount);
     }
 

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AergoSpec.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.spec</a> &gt; <span class="el_source">AergoSpec.java</span></div><h1>AergoSpec.java</h1><pre class="source lang-java linenums">package hera.spec;
+
+import hera.api.model.AccountAddress;
+import hera.api.model.ContractDefinition;
+import hera.api.model.ContractInvocation;
+import java.math.BigDecimal;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+<span class="nc" id="L10">public class AergoSpec {</span>
+
+  /* address, name, private key */
+
+  public static final byte ADDRESS_PREFIX = 0x42;
+
+  // [odd|even] of publickey.y + [optional 0x00] + publickey.x
+  // which is equivalent with s compressed public key (see also X9.62 s 4.2.1)
+  public static final int ADDRESS_BYTE_LENGTH = 33;
+
+  public static final int NAME_LENGTH = 12;
+
+  public static final byte ENCRYPTED_PRIVATE_KEY_PREFIX = (byte) 0xAA;
+
+
+  /* amount unit */
+
+<span class="fc" id="L27">  @RequiredArgsConstructor</span>
+  public enum Unit {
+<span class="fc" id="L29">    AER(&quot;aer&quot;, new BigDecimal(&quot;1&quot;), new BigDecimal(&quot;1&quot;)),</span>
+<span class="fc" id="L30">    GAER(&quot;gaer&quot;, new BigDecimal(&quot;1.E-9&quot;), new BigDecimal(&quot;1.E9&quot;)),</span>
+<span class="fc" id="L31">    AERGO(&quot;aergo&quot;, new BigDecimal(&quot;1.E-18&quot;), new BigDecimal(&quot;1.E18&quot;));</span>
+
+<span class="fc" id="L33">    @Getter</span>
+    protected final String name;
+
+<span class="fc" id="L36">    @Getter</span>
+    protected final BigDecimal minimum;
+
+<span class="fc" id="L39">    @Getter</span>
+    protected final BigDecimal timesToAer;
+  }
+
+
+  /* payload */
+
+  public static final String PAYLOAD_VERSION = &quot;v1&quot;;
+
+<span class="nc" id="L48">  public enum PayloadType {</span>
+<span class="nc" id="L49">    ContractDefinition(&quot;&quot;, ContractDefinition.class),</span>
+<span class="nc" id="L50">    ContractInvocation(&quot;&quot;, ContractInvocation.class),</span>
+<span class="nc" id="L51">    Vote(&quot;&quot;, String.class, String[].class),</span>
+<span class="nc" id="L52">    Stake(&quot;stake&quot;),</span>
+<span class="nc" id="L53">    Unstake(&quot;unstake&quot;),</span>
+<span class="nc" id="L54">    CreateName(&quot;createName&quot;, String.class),</span>
+<span class="nc" id="L55">    UpdateName(&quot;updateName&quot;, String.class, AccountAddress.class);</span>
+
+<span class="nc" id="L57">    @Getter</span>
+    protected final String name;
+<span class="nc" id="L59">    @Getter</span>
+    protected final Class&lt;?&gt;[] targets;
+
+<span class="nc" id="L62">    private PayloadType(final String name, final Class&lt;?&gt;... targets) {</span>
+<span class="nc" id="L63">      this.name = name;</span>
+<span class="nc" id="L64">      this.targets = targets;</span>
+<span class="nc" id="L65">    }</span>
+  }
+
+  public static final String BIGNUM_JSON_KEY = &quot;_bignum&quot;;
+
+  public static final byte CONTRACT_PAYLOAD_VERSION = (byte) 0xC0;
+
+
+  /* signature */
+
+  public static final int SIGN_HEADER_MAGIC = 0x30;
+
+  public static final int SIGN_INT_MARKER = 0x02;
+
+  // minimum length of a DER encoded signature which both R and S are 1 byte each.
+  // &lt;header-magic&gt; + &lt;1-byte&gt; + &lt;int-marker&gt; + 0x01 + &lt;r.byte&gt; + &lt;int-marker&gt; + 0x01 + &lt;s.byte&gt;
+  public static final int SIGN_MINIMUM_LENGTH = 8;
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

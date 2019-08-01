@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TlsChannelStrategy.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.strategy</a> &gt; <span class="el_source">TlsChannelStrategy.java</span></div><h1>TlsChannelStrategy.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.strategy;
+
+import static hera.util.ValidationUtils.assertNotNull;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.exception.RpcException;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
+import io.grpc.netty.shaded.io.netty.handler.ssl.SslContext;
+import io.grpc.okhttp.OkHttpChannelBuilder;
+import java.io.InputStream;
+import javax.net.ssl.SSLSocketFactory;
+import lombok.ToString;
+import org.slf4j.Logger;
+
+<span class="nc" id="L21">@ToString(exclude = &quot;logger&quot;)</span>
+public class TlsChannelStrategy implements SecurityConfigurationStrategy {
+
+<span class="nc" id="L24">  protected final Logger logger = getLogger(getClass());</span>
+
+  protected final String serverCommonName;
+
+  protected final InputStream serverCertInputStream;
+
+  protected final InputStream clientCertInputStream;
+
+  protected final InputStream clientKeyInputStream;
+
+  /**
+   * TlsChannelStrategy constructor.
+   *
+   * @param serverCommonName a server common name (CN)
+   * @param serverCertInputStream a server certification input stream
+   * @param clientCertInputStream a client certification input stream
+   * @param clientKeyInputStream a server key input stream
+   */
+  public TlsChannelStrategy(final String serverCommonName, final InputStream serverCertInputStream,
+<span class="nc" id="L43">      final InputStream clientCertInputStream, final InputStream clientKeyInputStream) {</span>
+<span class="nc" id="L44">    assertNotNull(serverCommonName, &quot;Server common name must not null&quot;);</span>
+<span class="nc" id="L45">    assertNotNull(serverCertInputStream, &quot;Server cert input stream must not null&quot;);</span>
+<span class="nc" id="L46">    assertNotNull(clientCertInputStream, &quot;Client cert input stream must not null&quot;);</span>
+<span class="nc" id="L47">    assertNotNull(clientKeyInputStream, &quot;Client key input stream must not null&quot;);</span>
+<span class="nc" id="L48">    this.serverCommonName = serverCommonName;</span>
+<span class="nc" id="L49">    this.serverCertInputStream = serverCertInputStream;</span>
+<span class="nc" id="L50">    this.clientCertInputStream = clientCertInputStream;</span>
+<span class="nc" id="L51">    this.clientKeyInputStream = clientKeyInputStream;</span>
+<span class="nc" id="L52">  }</span>
+
+  @Override
+  public void configure(final ManagedChannelBuilder&lt;?&gt; builder) {
+<span class="nc" id="L56">    logger.debug(</span>
+        &quot;Configure cls with serverCertStream: {}, clientCertStream: {}, clientKeyStream: {}&quot;,
+        serverCertInputStream, clientCertInputStream, clientKeyInputStream);
+    try {
+<span class="nc bnc" id="L60" title="All 2 branches missed.">      if (builder instanceof NettyChannelBuilder) {</span>
+<span class="nc" id="L61">        final SslContext sslContext = GrpcSslContexts.forClient()</span>
+<span class="nc" id="L62">            .trustManager(serverCertInputStream)</span>
+<span class="nc" id="L63">            .keyManager(clientCertInputStream, clientKeyInputStream)</span>
+<span class="nc" id="L64">            .build();</span>
+<span class="nc" id="L65">        ((NettyChannelBuilder) builder).sslContext(sslContext);</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">      } else if (builder instanceof OkHttpChannelBuilder) {</span>
+        // TODO : not yet implemented
+<span class="nc" id="L68">        final SSLSocketFactory sslSocketFactory = null;</span>
+<span class="nc" id="L69">        ((OkHttpChannelBuilder) builder).sslSocketFactory(sslSocketFactory);</span>
+<span class="nc" id="L70">      } else {</span>
+<span class="nc" id="L71">        throw new RpcException(&quot;Unsupported channel builder type &quot; + builder.getClass());</span>
+      }
+<span class="nc" id="L73">      builder.overrideAuthority(serverCommonName).useTransportSecurity();</span>
+<span class="nc" id="L74">    } catch (final RpcException e) {</span>
+<span class="nc" id="L75">      throw e;</span>
+<span class="nc" id="L76">    } catch (final Exception e) {</span>
+<span class="nc" id="L77">      throw new RpcException(e);</span>
+<span class="nc" id="L78">    }</span>
+<span class="nc" id="L79">  }</span>
+
+  @Override
+  public boolean equals(final Object obj) {
+<span class="nc bnc" id="L83" title="All 4 branches missed.">    return (null != obj) &amp;&amp; (obj instanceof SecurityConfigurationStrategy);</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="nc" id="L88">    return TlsChannelStrategy.class.hashCode();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

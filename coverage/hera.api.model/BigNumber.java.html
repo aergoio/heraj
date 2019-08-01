@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BigNumber.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.model</a> &gt; <span class="el_source">BigNumber.java</span></div><h1>BigNumber.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.api.model;
+
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import java.math.BigInteger;
+import lombok.EqualsAndHashCode;
+
+@ApiAudience.Public
+@ApiStability.Unstable
+<span class="nc bnc" id="L14" title="All 14 branches missed.">@EqualsAndHashCode</span>
+public class BigNumber {
+
+  public static BigNumber of(final String value) {
+<span class="nc" id="L18">    return new BigNumber(value);</span>
+  }
+
+  protected final BigInteger delegate;
+
+  public BigNumber(final String value) {
+<span class="nc" id="L24">    this(new BigInteger(value));</span>
+<span class="nc" id="L25">  }</span>
+
+<span class="nc" id="L27">  protected BigNumber(final BigInteger value) {</span>
+<span class="nc" id="L28">    this.delegate = value;</span>
+<span class="nc" id="L29">  }</span>
+
+  public String getValue() {
+<span class="nc" id="L32">    return delegate.toString(10);</span>
+  }
+
+  public BigNumber add(final BigNumber other) {
+<span class="nc" id="L36">    return new BigNumber(this.delegate.add(other.delegate));</span>
+  }
+
+  public BigNumber subtract(final BigNumber other) {
+<span class="nc" id="L40">    return new BigNumber(this.delegate.subtract(other.delegate));</span>
+  }
+
+  public BigNumber multiply(final BigNumber other) {
+<span class="nc" id="L44">    return new BigNumber(this.delegate.multiply(other.delegate));</span>
+  }
+
+  public BigNumber divide(final BigNumber other) {
+<span class="nc" id="L48">    return new BigNumber(this.delegate.divide(other.delegate));</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="nc" id="L53">    return &quot;BigNumber(value=&quot; + delegate.toString() + &quot;)&quot;;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

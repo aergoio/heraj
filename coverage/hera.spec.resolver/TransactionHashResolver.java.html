@@ -7,7 +7,6 @@ package hera.spec.resolver;
 import static hera.api.model.BytesValue.of;
 import static hera.util.NumberUtils.positiveToByteArray;
 import static hera.util.Sha256Utils.digest;
-import static hera.util.VersionUtils.trim;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
@@ -23,9 +22,9 @@ import org.slf4j.Logger;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="nc" id="L26">public class TransactionHashResolver {</span>
+<span class="nc" id="L25">public class TransactionHashResolver {</span>
 
-<span class="fc" id="L28">  protected static final Logger logger = getLogger(TransactionHashResolver.class);</span>
+<span class="fc" id="L27">  protected static final Logger logger = getLogger(TransactionHashResolver.class);</span>
 
   /**
    * Calculate a hash of transaction.
@@ -35,13 +34,13 @@ import org.slf4j.Logger;
    */
   public static TxHash calculateHash(final RawTransaction rawTransaction) {
     try {
-<span class="fc" id="L38">      final ByteArrayOutputStream raw = new ByteArrayOutputStream();</span>
-<span class="fc" id="L39">      final LittleEndianDataOutputStream dataOut = makeStream(raw, rawTransaction);</span>
-<span class="fc" id="L40">      dataOut.flush();</span>
-<span class="fc" id="L41">      dataOut.close();</span>
-<span class="fc" id="L42">      return new TxHash(of(digest(raw.toByteArray())));</span>
-<span class="nc" id="L43">    } catch (final IOException e) {</span>
-<span class="nc" id="L44">      throw new HerajException(e);</span>
+<span class="fc" id="L37">      final ByteArrayOutputStream raw = new ByteArrayOutputStream();</span>
+<span class="fc" id="L38">      final LittleEndianDataOutputStream dataOut = makeStream(raw, rawTransaction);</span>
+<span class="fc" id="L39">      dataOut.flush();</span>
+<span class="fc" id="L40">      dataOut.close();</span>
+<span class="fc" id="L41">      return new TxHash(of(digest(raw.toByteArray())));</span>
+<span class="nc" id="L42">    } catch (final IOException e) {</span>
+<span class="nc" id="L43">      throw new HerajException(e);</span>
     }
   }
 
@@ -55,31 +54,31 @@ import org.slf4j.Logger;
   public static TxHash calculateHash(final RawTransaction rawTransaction,
       final Signature signature) {
     try {
-<span class="fc" id="L58">      final ByteArrayOutputStream raw = new ByteArrayOutputStream();</span>
-<span class="fc" id="L59">      final LittleEndianDataOutputStream dataOut = makeStream(raw, rawTransaction);</span>
-<span class="fc" id="L60">      dataOut.write(signature.getSign().getValue());</span>
-<span class="fc" id="L61">      dataOut.flush();</span>
-<span class="fc" id="L62">      dataOut.close();</span>
-<span class="fc" id="L63">      return new TxHash(of(digest(raw.toByteArray())));</span>
-<span class="nc" id="L64">    } catch (final IOException e) {</span>
-<span class="nc" id="L65">      throw new HerajException(e);</span>
+<span class="fc" id="L57">      final ByteArrayOutputStream raw = new ByteArrayOutputStream();</span>
+<span class="fc" id="L58">      final LittleEndianDataOutputStream dataOut = makeStream(raw, rawTransaction);</span>
+<span class="fc" id="L59">      dataOut.write(signature.getSign().getValue());</span>
+<span class="fc" id="L60">      dataOut.flush();</span>
+<span class="fc" id="L61">      dataOut.close();</span>
+<span class="fc" id="L62">      return new TxHash(of(digest(raw.toByteArray())));</span>
+<span class="nc" id="L63">    } catch (final IOException e) {</span>
+<span class="nc" id="L64">      throw new HerajException(e);</span>
     }
   }
 
   protected static LittleEndianDataOutputStream makeStream(final ByteArrayOutputStream raw,
       final RawTransaction rawTransaction) throws IOException {
-<span class="fc" id="L71">    final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(raw);</span>
+<span class="fc" id="L70">    final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(raw);</span>
     // WARNING : follow the stream order with server
-<span class="fc" id="L73">    dataOut.writeLong(rawTransaction.getNonce());</span>
-<span class="fc" id="L74">    dataOut.write(trim(rawTransaction.getSender().getBytesValue().getValue()));</span>
-<span class="fc" id="L75">    dataOut.write(trim(rawTransaction.getRecipient().getBytesValue().getValue()));</span>
-<span class="fc" id="L76">    dataOut.write(positiveToByteArray(rawTransaction.getAmount().getValue()));</span>
-<span class="fc" id="L77">    dataOut.write(rawTransaction.getPayload().getValue());</span>
-<span class="fc" id="L78">    dataOut.writeLong(rawTransaction.getFee().getLimit());</span>
-<span class="fc" id="L79">    dataOut.write(positiveToByteArray(rawTransaction.getFee().getPrice().getValue()));</span>
-<span class="fc" id="L80">    dataOut.writeInt(rawTransaction.getTxType().getIntValue());</span>
-<span class="fc" id="L81">    dataOut.write(rawTransaction.getChainIdHash().getBytesValue().getValue());</span>
-<span class="fc" id="L82">    return dataOut;</span>
+<span class="fc" id="L72">    dataOut.writeLong(rawTransaction.getNonce());</span>
+<span class="fc" id="L73">    dataOut.write(rawTransaction.getSender().getBytesValue().getValue());</span>
+<span class="fc" id="L74">    dataOut.write(rawTransaction.getRecipient().getBytesValue().getValue());</span>
+<span class="fc" id="L75">    dataOut.write(positiveToByteArray(rawTransaction.getAmount().getValue()));</span>
+<span class="fc" id="L76">    dataOut.write(rawTransaction.getPayload().getValue());</span>
+<span class="fc" id="L77">    dataOut.writeLong(rawTransaction.getFee().getLimit());</span>
+<span class="fc" id="L78">    dataOut.write(positiveToByteArray(rawTransaction.getFee().getPrice().getValue()));</span>
+<span class="fc" id="L79">    dataOut.writeInt(rawTransaction.getTxType().getIntValue());</span>
+<span class="fc" id="L80">    dataOut.write(rawTransaction.getChainIdHash().getBytesValue().getValue());</span>
+<span class="fc" id="L81">    return dataOut;</span>
   }
 
 }

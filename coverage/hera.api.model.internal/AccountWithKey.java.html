@@ -10,7 +10,7 @@ import hera.api.model.AccountAddress;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.key.AergoKey;
-import hera.transaction.TxSigner;
+import hera.key.TxSigner;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -35,7 +35,7 @@ public class AccountWithKey extends AbstractAccount implements TxSigner {
 
   @Override
   public Transaction sign(final RawTransaction rawTransaction) {
-<span class="fc" id="L38">    return key.sign(rawTransaction);</span>
+<span class="nc" id="L38">    return key.sign(rawTransaction);</span>
   }
 
 }

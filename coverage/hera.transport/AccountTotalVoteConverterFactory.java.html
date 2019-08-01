@@ -44,20 +44,26 @@ import types.Rpc;
 <span class="nc bnc" id="L44" title="All 2 branches missed.">            for (final String rpcCandidate : rpcVoteInfo.getCandidatesList()) {</span>
 <span class="nc" id="L45">              domainCandidates.add(rpcCandidate);</span>
 <span class="nc" id="L46">            }</span>
-<span class="nc" id="L47">            domainVoteInfos.add(new VoteInfo(rpcVoteInfo.getId(), domainCandidates));</span>
-<span class="nc" id="L48">          }</span>
+<span class="nc" id="L47">            final VoteInfo voteInfo = VoteInfo.newBuilder()</span>
+<span class="nc" id="L48">                .voteId(rpcVoteInfo.getId())</span>
+<span class="nc" id="L49">                .candidateIds(domainCandidates)</span>
+<span class="nc" id="L50">                .build();</span>
+<span class="nc" id="L51">            domainVoteInfos.add(voteInfo);</span>
+<span class="nc" id="L52">          }</span>
 
-<span class="fc" id="L50">          final StakeInfo domainStakeInfo =</span>
-<span class="fc" id="L51">              stakeInfoConverterFactory.convertToDomainModel(rpcAccountVoteTotal.getStaking());</span>
-<span class="fc" id="L52">          final AccountTotalVote domainAccountVoteTotal =</span>
-              new AccountTotalVote(domainStakeInfo, domainVoteInfos);
-<span class="fc" id="L54">          logger.trace(&quot;Domain vote status converted: {}&quot;, domainAccountVoteTotal);</span>
-<span class="fc" id="L55">          return domainAccountVoteTotal;</span>
+<span class="fc" id="L54">          final StakeInfo domainStakeInfo =</span>
+<span class="fc" id="L55">              stakeInfoConverterFactory.convertToDomainModel(rpcAccountVoteTotal.getStaking());</span>
+<span class="fc" id="L56">          final AccountTotalVote domainAccountVoteTotal = AccountTotalVote.newBuilder()</span>
+<span class="fc" id="L57">              .stakeInfo(domainStakeInfo)</span>
+<span class="fc" id="L58">              .voteInfos(domainVoteInfos)</span>
+<span class="fc" id="L59">              .build();</span>
+<span class="fc" id="L60">          logger.trace(&quot;Domain vote status converted: {}&quot;, domainAccountVoteTotal);</span>
+<span class="fc" id="L61">          return domainAccountVoteTotal;</span>
         }
       };
 
   public ModelConverter&lt;AccountTotalVote, Rpc.AccountVoteInfo&gt; create() {
-<span class="fc" id="L60">    return new ModelConverter&lt;AccountTotalVote, Rpc.AccountVoteInfo&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L66">    return new ModelConverter&lt;AccountTotalVote, Rpc.AccountVoteInfo&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

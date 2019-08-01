@@ -63,17 +63,18 @@ import types.Blockchain;
 <span class="nc" id="L63">            transactions.add(transactionInBlockConverter.convertToDomainModel(rpcTxInBlock));</span>
 <span class="nc" id="L64">          }</span>
 
-<span class="fc" id="L66">          final Block domainBlock = new Block(</span>
-              blockHash,
-<span class="fc" id="L68">              blockHeaderConverter.convertToDomainModel(rpcBlockHeader),</span>
-              transactions);
-<span class="fc" id="L70">          logger.trace(&quot;Domain block converted: {}&quot;, domainBlock);</span>
-<span class="fc" id="L71">          return domainBlock;</span>
+<span class="fc" id="L66">          final Block domainBlock = Block.newBuilder()</span>
+<span class="fc" id="L67">              .hash(blockHash)</span>
+<span class="fc" id="L68">              .blockHeader(blockHeaderConverter.convertToDomainModel(rpcBlockHeader))</span>
+<span class="fc" id="L69">              .transactions(transactions)</span>
+<span class="fc" id="L70">              .build();</span>
+<span class="fc" id="L71">          logger.trace(&quot;Domain block converted: {}&quot;, domainBlock);</span>
+<span class="fc" id="L72">          return domainBlock;</span>
         }
       };
 
   public ModelConverter&lt;Block, Blockchain.Block&gt; create() {
-<span class="fc" id="L76">    return new ModelConverter&lt;Block, Blockchain.Block&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L77">    return new ModelConverter&lt;Block, Blockchain.Block&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

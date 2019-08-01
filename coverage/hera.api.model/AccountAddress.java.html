@@ -4,25 +4,23 @@
 
 package hera.api.model;
 
-import static hera.util.EncodingUtils.decodeBase58WithCheck;
-import static hera.util.EncodingUtils.encodeBase58WithCheck;
-import static hera.util.EncodingUtils.encodeHexa;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.encode.Encodable;
 import hera.exception.DecodingFailureException;
-import hera.exception.InvalidVersionException;
-import hera.spec.AddressSpec;
 import hera.spec.resolver.AddressResolver;
 import hera.util.Adaptor;
-import hera.util.VersionUtils;
-import java.security.PublicKey;
+import hera.util.StringUtils;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @ApiAudience.Public
 @ApiStability.Unstable
+<span class="pc bpc" id="L19" title="10 of 22 branches missed.">@EqualsAndHashCode</span>
 public class AccountAddress implements Identity, Encodable, Adaptor {
+
+<span class="fc" id="L22">  public static final AccountAddress EMPTY =</span>
+      new AccountAddress(BytesValue.EMPTY, StringUtils.EMPTY_STRING);
 
   /**
    * Create {@code AccountAddress} with a base58 with checksum encoded value.
@@ -31,28 +29,17 @@ public class AccountAddress implements Identity, Encodable, Adaptor {
    * @return created {@link AccountAddress}
    *
    * @throws DecodingFailureException if decoding failed
-   * @throws InvalidVersionException when address version mismatch
    */
   @ApiAudience.Public
   public static AccountAddress of(final String encoded) {
-<span class="fc" id="L38">    return new AccountAddress(encoded);</span>
+<span class="fc" id="L35">    return new AccountAddress(encoded);</span>
   }
 
-  /**
-   * Create {@code AccountAddress}.
-   *
-   * @param bytesValue {@link BytesValue}
-   * @return created {@link AccountAddress}
-   *
-   * @throws InvalidVersionException when address version mismatch
-   */
-  @ApiAudience.Private
-  public static AccountAddress of(final BytesValue bytesValue) {
-<span class="fc" id="L51">    return new AccountAddress(bytesValue);</span>
-  }
+<span class="fc" id="L38">  @Getter</span>
+  protected final String value; // holds encoded value including prefix
 
-<span class="fc" id="L54">  @Getter</span>
-  protected final BytesValue bytesValue;
+<span class="fc" id="L41">  @Getter</span>
+  protected final BytesValue bytesValue; // holds raw bytes array without prefix
 
   /**
    * AccountAddress constructor.
@@ -60,78 +47,46 @@ public class AccountAddress implements Identity, Encodable, Adaptor {
    * @param encoded a base58 with checksum encoded encoded value
    *
    * @throws DecodingFailureException if decoding failed
-   * @throws InvalidVersionException when address version mismatch
    */
   @ApiAudience.Public
   public AccountAddress(final String encoded) {
-<span class="fc" id="L67">    this(decodeBase58WithCheck(encoded));</span>
-<span class="fc" id="L68">  }</span>
+<span class="fc" id="L53">    this(AddressResolver.convertToRaw(encoded), encoded);</span>
+<span class="fc" id="L54">  }</span>
 
   /**
    * AccountAddress constructor.
    *
    * @param bytesValue {@link BytesValue}
-   *
-   * @throws InvalidVersionException when address version mismatch
    */
   @ApiAudience.Private
-<span class="fc" id="L78">  public AccountAddress(final BytesValue bytesValue) {</span>
-<span class="fc bfc" id="L79" title="All 2 branches covered.">    if (BytesValue.EMPTY != bytesValue) {</span>
-<span class="fc" id="L80">      VersionUtils.validate(bytesValue, AddressSpec.PREFIX);</span>
-    }
-<span class="fc" id="L82">    this.bytesValue = bytesValue;</span>
-<span class="fc" id="L83">  }</span>
+  public AccountAddress(final BytesValue bytesValue) {
+<span class="fc" id="L63">    this(bytesValue, AddressResolver.convertToEncoded(bytesValue));</span>
+<span class="fc" id="L64">  }</span>
 
-  /**
-   * Recover ECPublicKey from address.
-   *
-   * @return an ECPublicKey
-   */
-  public PublicKey asPublicKey() {
-<span class="fc" id="L91">    return AddressResolver.recoverPublicKey(this);</span>
-  }
+<span class="fc" id="L66">  protected AccountAddress(final BytesValue bytesValue, final String value) {</span>
+<span class="fc" id="L67">    this.bytesValue = bytesValue;</span>
+<span class="fc" id="L68">    this.value = value;</span>
+<span class="fc" id="L69">  }</span>
 
   @Override
-  public String getValue() {
-<span class="fc" id="L96">    return encodeHexa(getBytesValue());</span>
+  public String toString() {
+<span class="fc" id="L73">    return getValue();</span>
   }
 
   @Override
   public String getEncoded() {
-<span class="fc" id="L101">    return encodeBase58WithCheck(getBytesValue());</span>
-  }
-
-  @Override
-  public int hashCode() {
-<span class="fc" id="L106">    return bytesValue.hashCode();</span>
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-<span class="pc bpc" id="L111" title="1 of 2 branches missed.">    if (null == obj) {</span>
-<span class="nc" id="L112">      return false;</span>
-    }
-<span class="pc bpc" id="L114" title="1 of 2 branches missed.">    if (!obj.getClass().equals(getClass())) {</span>
-<span class="nc" id="L115">      return false;</span>
-    }
-<span class="fc" id="L117">    final AccountAddress other = (AccountAddress) obj;</span>
-<span class="fc" id="L118">    return bytesValue.equals(other.bytesValue);</span>
-  }
-
-  @Override
-  public String toString() {
-<span class="fc" id="L123">    return getEncoded();</span>
+<span class="fc" id="L78">    return getValue();</span>
   }
 
   @SuppressWarnings(&quot;unchecked&quot;)
   @Override
   public &lt;T&gt; T adapt(Class&lt;T&gt; adaptor) {
-<span class="pc bpc" id="L129" title="1 of 2 branches missed.">    if (adaptor.isAssignableFrom(AccountAddress.class)) {</span>
-<span class="nc" id="L130">      return (T) this;</span>
-<span class="pc bpc" id="L131" title="1 of 2 branches missed.">    } else if (adaptor.isAssignableFrom(ContractAddress.class)) {</span>
-<span class="fc" id="L132">      return (T) ContractAddress.of(getBytesValue());</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">    if (adaptor.isAssignableFrom(AccountAddress.class)) {</span>
+<span class="nc" id="L85">      return (T) this;</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">    } else if (adaptor.isAssignableFrom(ContractAddress.class)) {</span>
+<span class="fc" id="L87">      return (T) ContractAddress.of(getBytesValue());</span>
     }
-<span class="nc" id="L134">    return null;</span>
+<span class="nc" id="L89">    return null;</span>
   }
 
 }

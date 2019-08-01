@@ -52,7 +52,7 @@ import hera.exception.RpcArgumentException;
    * @return protobuf {@link ByteString}
    */
   public static ByteString copyFrom(final Aer aer) {
-<span class="pc bpc" id="L55" title="1 of 4 branches missed.">    if (null == aer || Aer.EMPTY == aer) {</span>
+<span class="fc bfc" id="L55" title="All 4 branches covered.">    if (null == aer || Aer.EMPTY == aer) {</span>
 <span class="fc" id="L56">      return ByteString.EMPTY;</span>
     }
 <span class="fc" id="L58">    return ByteString.copyFrom(positiveToByteArray(aer.getValue()));</span>
@@ -78,16 +78,29 @@ import hera.exception.RpcArgumentException;
   }
 
   /**
+   * Parse protobuf {@link ByteString} to {@link BytesValue}.
+   *
+   * @param bytesString a protobuf ByteString
+   * @return parsed {@link BytesValue}.
+   */
+  public static BytesValue parseToBytesValue(final ByteString bytesString) {
+<span class="pc bpc" id="L87" title="1 of 4 branches missed.">    if (null == bytesString || ByteString.EMPTY.equals(bytesString)) {</span>
+<span class="fc" id="L88">      return BytesValue.EMPTY;</span>
+    }
+<span class="fc" id="L90">    return BytesValue.of(bytesString.toByteArray());</span>
+  }
+
+  /**
    * Parse raw aer to {@link Aer}.
    *
    * @param rawAer a raw aer
    * @return parsed {@link Aer}.
    */
   public static Aer parseToAer(final byte[] rawAer) {
-<span class="pc bpc" id="L87" title="2 of 4 branches missed.">    if (null == rawAer || 0 == rawAer.length) {</span>
-<span class="nc" id="L88">      return Aer.EMPTY;</span>
+<span class="pc bpc" id="L100" title="2 of 4 branches missed.">    if (null == rawAer || 0 == rawAer.length) {</span>
+<span class="nc" id="L101">      return Aer.EMPTY;</span>
     }
-<span class="fc" id="L90">    return Aer.of(byteArrayToPositive(rawAer));</span>
+<span class="fc" id="L103">    return Aer.of(byteArrayToPositive(rawAer));</span>
   }
 
   /**
@@ -97,10 +110,10 @@ import hera.exception.RpcArgumentException;
    * @return parsed {@link Aer}.
    */
   public static Aer parseToAer(final ByteString rawAer) {
-<span class="pc bpc" id="L100" title="1 of 4 branches missed.">    if (null == rawAer || ByteString.EMPTY.equals(rawAer)) {</span>
-<span class="fc" id="L101">      return Aer.EMPTY;</span>
+<span class="pc bpc" id="L113" title="1 of 4 branches missed.">    if (null == rawAer || ByteString.EMPTY.equals(rawAer)) {</span>
+<span class="fc" id="L114">      return Aer.EMPTY;</span>
     }
-<span class="fc" id="L103">    return parseToAer(rawAer.toByteArray());</span>
+<span class="fc" id="L116">    return parseToAer(rawAer.toByteArray());</span>
   }
 
   /**
@@ -110,10 +123,10 @@ import hera.exception.RpcArgumentException;
    * @return txHash
    */
   public static TxHash parseToTxHash(final ByteString byteString) {
-<span class="pc bpc" id="L113" title="2 of 4 branches missed.">    if (null == byteString || ByteString.EMPTY == byteString) {</span>
-<span class="fc" id="L114">      return new TxHash(BytesValue.EMPTY);</span>
+<span class="pc bpc" id="L126" title="2 of 4 branches missed.">    if (null == byteString || ByteString.EMPTY == byteString) {</span>
+<span class="fc" id="L127">      return new TxHash(BytesValue.EMPTY);</span>
     }
-<span class="nc" id="L116">    return new TxHash(BytesValue.of(byteString.toByteArray()));</span>
+<span class="nc" id="L129">    return new TxHash(BytesValue.of(byteString.toByteArray()));</span>
   }
 
   /**
@@ -123,10 +136,10 @@ import hera.exception.RpcArgumentException;
    * @return blockHash
    */
   public static BlockHash parseToBlockHash(final ByteString byteString) {
-<span class="pc bpc" id="L126" title="2 of 4 branches missed.">    if (null == byteString || ByteString.EMPTY == byteString) {</span>
-<span class="fc" id="L127">      return new BlockHash(BytesValue.EMPTY);</span>
+<span class="pc bpc" id="L139" title="2 of 4 branches missed.">    if (null == byteString || ByteString.EMPTY == byteString) {</span>
+<span class="fc" id="L140">      return new BlockHash(BytesValue.EMPTY);</span>
     }
-<span class="nc" id="L129">    return new BlockHash(BytesValue.of(byteString.toByteArray()));</span>
+<span class="nc" id="L142">    return new BlockHash(BytesValue.of(byteString.toByteArray()));</span>
   }
 
   /**
@@ -136,7 +149,7 @@ import hera.exception.RpcArgumentException;
    * @return a hexa encoded digested raw bytes
    */
   public static String sha256AndEncodeHexa(final String string) {
-<span class="fc" id="L139">    return sha256AndEncodeHexa(string.getBytes());</span>
+<span class="fc" id="L152">    return sha256AndEncodeHexa(string.getBytes());</span>
   }
 
   /**
@@ -146,7 +159,7 @@ import hera.exception.RpcArgumentException;
    * @return a hexa encoded digested raw bytes
    */
   public static String sha256AndEncodeHexa(final byte[] rawBytes) {
-<span class="fc" id="L149">    return HexUtils.encode(Sha256Utils.digest(rawBytes));</span>
+<span class="fc" id="L162">    return HexUtils.encode(Sha256Utils.digest(rawBytes));</span>
   }
 
   /**
@@ -159,10 +172,10 @@ import hera.exception.RpcArgumentException;
    */
   public static void assertArgument(final boolean condition, final String target,
       final String requirement) {
-<span class="fc bfc" id="L162" title="All 2 branches covered.">    if (false == condition) {</span>
-<span class="fc" id="L163">      throw new RpcArgumentException(target, requirement);</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">    if (false == condition) {</span>
+<span class="fc" id="L176">      throw new RpcArgumentException(target, requirement);</span>
     }
-<span class="fc" id="L165">  }</span>
+<span class="fc" id="L178">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BigNumberResolver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.spec.resolver</a> &gt; <span class="el_source">BigNumberResolver.java</span></div><h1>BigNumberResolver.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.spec.resolver;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.api.model.BigNumber;
+import hera.spec.AergoSpec;
+import java.util.Map;
+import java.util.Map.Entry;
+import org.slf4j.Logger;
+
+@ApiAudience.Private
+@ApiStability.Unstable
+<span class="nc" id="L19">public class BigNumberResolver {</span>
+
+<span class="nc" id="L21">  protected static final Logger logger = getLogger(BigNumberResolver.class);</span>
+
+  public static String toJsonForm(final BigNumber bigNumber) {
+<span class="nc" id="L24">    return &quot;{ \&quot;&quot; + AergoSpec.BIGNUM_JSON_KEY + &quot;\&quot;: \&quot;&quot; + bigNumber.getValue() + &quot;\&quot; }&quot;;</span>
+  }
+
+  /**
+   * Convert aergo bignum in java {@link Map} form into {@link BigNumber} instance.
+   *
+   * @param bigNumberAndValue a bignum in java map form
+   * @return converted {@link BigNumber} instance
+   */
+  public static BigNumber fromMap(final Map&lt;String, String&gt; bigNumberAndValue) {
+<span class="nc bnc" id="L34" title="All 2 branches missed.">    if (1 != bigNumberAndValue.size()) {</span>
+<span class="nc" id="L35">      throw new IllegalArgumentException(&quot;Map size must be 1&quot;);</span>
+    }
+
+<span class="nc" id="L38">    BigNumber ret = null;</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">    for (final Entry&lt;String, String&gt; element : bigNumberAndValue.entrySet()) {</span>
+<span class="nc" id="L40">      final String key = element.getKey();</span>
+<span class="nc" id="L41">      final String value = element.getValue();</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">      if (!AergoSpec.BIGNUM_JSON_KEY.equals(key)) {</span>
+<span class="nc" id="L43">        throw new IllegalArgumentException(&quot;Map key must be &quot; + AergoSpec.BIGNUM_JSON_KEY);</span>
+      }
+<span class="nc" id="L45">      ret = new BigNumber(value);</span>
+<span class="nc" id="L46">    }</span>
+
+<span class="nc" id="L48">    return ret;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

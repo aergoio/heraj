@@ -11,13 +11,10 @@ import hera.api.model.internal.AccountWithAddress;
 import hera.api.model.internal.AccountWithAddressAndSigner;
 import hera.api.model.internal.AccountWithKey;
 import hera.key.AergoKey;
-import hera.transaction.TxSigner;
+import hera.key.TxSigner;
 
-/**
- * Will be removed in 1.2.
- */
 @Deprecated
-<span class="fc" id="L20">public class AccountFactory {</span>
+<span class="fc" id="L17">public class AccountFactory {</span>
 
   /**
    * Create an account with address.
@@ -27,8 +24,8 @@ import hera.transaction.TxSigner;
    */
   @ApiAudience.Public
   public Account create(final AccountAddress accountAddress) {
-<span class="fc" id="L30">    assertNotNull(accountAddress);</span>
-<span class="fc" id="L31">    return new AccountWithAddress(accountAddress);</span>
+<span class="fc" id="L27">    assertNotNull(accountAddress);</span>
+<span class="fc" id="L28">    return new AccountWithAddress(accountAddress);</span>
   }
 
   /**
@@ -39,8 +36,8 @@ import hera.transaction.TxSigner;
    */
   @ApiAudience.Public
   public Account create(final AergoKey aergoKey) {
-<span class="fc" id="L42">    assertNotNull(aergoKey);</span>
-<span class="fc" id="L43">    return new AccountWithKey(aergoKey);</span>
+<span class="fc" id="L39">    assertNotNull(aergoKey);</span>
+<span class="fc" id="L40">    return new AccountWithKey(aergoKey);</span>
   }
 
   /**
@@ -52,9 +49,9 @@ import hera.transaction.TxSigner;
    */
   @ApiAudience.Private
   public Account create(final AccountAddress accountAddress, final TxSigner txSigner) {
-<span class="fc" id="L55">    assertNotNull(accountAddress);</span>
-<span class="fc" id="L56">    assertNotNull(txSigner);</span>
-<span class="fc" id="L57">    return new AccountWithAddressAndSigner(accountAddress, txSigner);</span>
+<span class="fc" id="L52">    assertNotNull(accountAddress);</span>
+<span class="fc" id="L53">    assertNotNull(txSigner);</span>
+<span class="fc" id="L54">    return new AccountWithAddressAndSigner(accountAddress, txSigner);</span>
   }
 
 }

@@ -6,6 +6,7 @@ hera.api.function
 hera.api.function.impl
 hera.api.model
 hera.api.model.internal
+hera.api.transaction
 hera.client
 hera.client.internal
 hera.client.stream
@@ -18,11 +19,12 @@ hera.model
 hera.server
 hera.spec
 hera.spec.resolver
+hera.spec.transaction
+hera.spec.transaction.dsl
 hera.strategy
-hera.transaction
-hera.transaction.dsl
 hera.transport
 hera.util
 hera.util.conf
 hera.util.pki
 hera.wallet
+hera.wallet.internal

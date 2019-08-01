@@ -4,51 +4,81 @@
 
 package hera.transport;
 
+import static hera.util.TransportUtils.parseToAer;
+import static hera.util.TransportUtils.parseToBlockHash;
+import static hera.util.TransportUtils.parseToBytesValue;
+import static hera.util.TransportUtils.parseToTxHash;
+import static java.util.Collections.unmodifiableList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
+import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractTxReceipt;
+import hera.api.model.Event;
+import hera.client.internal.ContractResultImpl;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import types.Blockchain;
 
-<span class="fc" id="L17">public class ReceiptConverterFactory {</span>
+<span class="fc" id="L27">public class ReceiptConverterFactory {</span>
 
-<span class="fc" id="L19">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L29">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L21">  protected final ModelConverter&lt;AccountAddress, ByteString&gt; accountAddressConverter =</span>
-<span class="fc" id="L22">      new AccountAddressConverterFactory().create();</span>
+<span class="fc" id="L31">  protected final ModelConverter&lt;AccountAddress, ByteString&gt; accountAddressConverter =</span>
+<span class="fc" id="L32">      new AccountAddressConverterFactory().create();</span>
 
-<span class="fc" id="L24">  protected final Function1&lt;ContractTxReceipt, Blockchain.Receipt&gt; domainConverter =</span>
-<span class="fc" id="L25">      new Function1&lt;ContractTxReceipt, Blockchain.Receipt&gt;() {</span>
+<span class="fc" id="L34">  protected final ModelConverter&lt;Event, Blockchain.Event&gt; eventConverter =</span>
+<span class="fc" id="L35">      new EventConverterFactory().create();</span>
+
+<span class="fc" id="L37">  protected final Function1&lt;ContractTxReceipt, Blockchain.Receipt&gt; domainConverter =</span>
+<span class="fc" id="L38">      new Function1&lt;ContractTxReceipt, Blockchain.Receipt&gt;() {</span>
 
         @Override
         public Blockchain.Receipt apply(final ContractTxReceipt domainRecepit) {
-<span class="nc" id="L29">          throw new UnsupportedOperationException();</span>
+<span class="nc" id="L42">          throw new UnsupportedOperationException();</span>
         }
       };
 
-<span class="fc" id="L33">  protected final Function1&lt;Blockchain.Receipt, ContractTxReceipt&gt; rpcConverter =</span>
-<span class="fc" id="L34">      new Function1&lt;Blockchain.Receipt, ContractTxReceipt&gt;() {</span>
+<span class="fc" id="L46">  protected final Function1&lt;Blockchain.Receipt, ContractTxReceipt&gt; rpcConverter =</span>
+<span class="fc" id="L47">      new Function1&lt;Blockchain.Receipt, ContractTxReceipt&gt;() {</span>
 
         @Override
         public ContractTxReceipt apply(final Blockchain.Receipt rpcReceipt) {
-<span class="fc" id="L38">          logger.trace(&quot;Rpc tx receipt to convert: {}&quot;, rpcReceipt);</span>
-<span class="fc" id="L39">          final AccountAddress accountAddress =</span>
-<span class="fc" id="L40">              accountAddressConverter.convertToDomainModel(rpcReceipt.getContractAddress());</span>
-<span class="fc" id="L41">          final ContractTxReceipt domainTxReceipt = new ContractTxReceipt(</span>
-<span class="fc" id="L42">              new ContractAddress(accountAddress.getBytesValue()),</span>
-<span class="fc" id="L43">              rpcReceipt.getStatus(),</span>
-<span class="fc" id="L44">              rpcReceipt.getRet());</span>
-<span class="fc" id="L45">          logger.trace(&quot;Domain tx receipt converted: {}&quot;, domainTxReceipt);</span>
-<span class="fc" id="L46">          return domainTxReceipt;</span>
+<span class="fc" id="L51">          logger.trace(&quot;Rpc tx receipt to convert: {}&quot;, rpcReceipt);</span>
+<span class="fc" id="L52">          final AccountAddress accountAddress =</span>
+<span class="fc" id="L53">              accountAddressConverter.convertToDomainModel(rpcReceipt.getContractAddress());</span>
+
+<span class="fc" id="L55">          final List&lt;Event&gt; domainEvents = new ArrayList&lt;&gt;();</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">          for (final Blockchain.Event rpcEvent : rpcReceipt.getEventsList()) {</span>
+<span class="nc" id="L57">            domainEvents.add(eventConverter.convertToDomainModel(rpcEvent));</span>
+<span class="nc" id="L58">          }</span>
+
+<span class="fc" id="L60">          final ContractTxReceipt domainTxReceipt = ContractTxReceipt.newBuilder()</span>
+<span class="fc" id="L61">              .contractAddress(new ContractAddress(accountAddress.getBytesValue()))</span>
+<span class="fc" id="L62">              .status(rpcReceipt.getStatus())</span>
+<span class="fc" id="L63">              .ret(new ContractResultImpl(BytesValue.of(rpcReceipt.getRet().getBytes())))</span>
+<span class="fc" id="L64">              .txHash(parseToTxHash(rpcReceipt.getTxHash()))</span>
+<span class="fc" id="L65">              .feeUsed(parseToAer(rpcReceipt.getFeeUsed()))</span>
+<span class="fc" id="L66">              .cumulativeFeeUsed(parseToAer(rpcReceipt.getCumulativeFeeUsed()))</span>
+<span class="fc" id="L67">              .bloom(parseToBytesValue(rpcReceipt.getBloom()))</span>
+<span class="fc" id="L68">              .events(unmodifiableList(domainEvents))</span>
+<span class="fc" id="L69">              .blockNumber(rpcReceipt.getBlockNo())</span>
+<span class="fc" id="L70">              .blockHash(parseToBlockHash(rpcReceipt.getBlockHash()))</span>
+<span class="fc" id="L71">              .indexInBlock(rpcReceipt.getTxIndex())</span>
+<span class="fc" id="L72">              .sender(accountAddressConverter.convertToDomainModel(rpcReceipt.getFrom()))</span>
+<span class="fc" id="L73">              .recipient(accountAddressConverter.convertToDomainModel(rpcReceipt.getTo()))</span>
+<span class="fc" id="L74">              .build();</span>
+<span class="fc" id="L75">          logger.trace(&quot;Domain tx receipt converted: {}&quot;, domainTxReceipt);</span>
+<span class="fc" id="L76">          return domainTxReceipt;</span>
         }
       };
 
   public ModelConverter&lt;ContractTxReceipt, Blockchain.Receipt&gt; create() {
-<span class="fc" id="L51">    return new ModelConverter&lt;ContractTxReceipt, Blockchain.Receipt&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L81">    return new ModelConverter&lt;ContractTxReceipt, Blockchain.Receipt&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

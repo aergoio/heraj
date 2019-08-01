@@ -4,46 +4,28 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
-import static hera.util.ValidationUtils.assertTrue;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="nc" id="L18">@ToString</span>
-<span class="nc bnc" id="L19" title="All 24 branches missed.">@EqualsAndHashCode</span>
+<span class="pc bnc" id="L16" title="All 22 branches missed.">@Value</span>
+<span class="pc bpc" id="L17" title="4 of 12 branches missed.">@Builder(builderMethodName = &quot;newBuilder&quot;)</span>
 public class AccountState {
 
-<span class="nc" id="L22">  @Getter</span>
-  protected final AccountAddress address;
+  @NonNull
+  @Default
+<span class="fc" id="L22">  AccountAddress address = AccountAddress.EMPTY;</span>
 
-<span class="fc" id="L25">  @Getter</span>
-  protected final long nonce;
+<span class="fc" id="L24">  long nonce;</span>
 
-<span class="fc" id="L28">  @Getter</span>
-  protected final Aer balance;
-
-  /**
-   * AccountState constructor.
-   *
-   * @param address an account address
-   * @param nonce a nonce.
-   * @param balance a balance. Must be &amp;gt;= 0
-   */
-  @ApiAudience.Private
-<span class="fc" id="L39">  public AccountState(final AccountAddress address, final long nonce, final Aer balance) {</span>
-<span class="fc" id="L40">    assertNotNull(address, &quot;Account address must not null&quot;);</span>
-<span class="pc bpc" id="L41" title="1 of 2 branches missed.">    assertTrue(nonce &gt;= 0, &quot;Nonce must &gt;= 0&quot;);</span>
-<span class="fc" id="L42">    assertNotNull(balance, &quot;Account balance must not null&quot;);</span>
-<span class="fc" id="L43">    this.address = address;</span>
-<span class="fc" id="L44">    this.nonce = nonce;</span>
-<span class="fc" id="L45">    this.balance = balance;</span>
-<span class="fc" id="L46">  }</span>
+  @NonNull
+  @Default
+<span class="fc" id="L28">  Aer balance = Aer.EMPTY;</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

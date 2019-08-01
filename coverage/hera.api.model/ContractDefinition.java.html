@@ -6,87 +6,53 @@ package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.DecodingFailureException;
-import hera.exception.InvalidVersionException;
-import hera.spec.ContractDefinitionSpec;
+import hera.spec.resolver.ContractDefinitionSpec;
+import hera.util.BytesValueUtils;
 import hera.util.EncodingUtils;
-import hera.util.VersionUtils;
 import java.util.List;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L24">@ToString</span>
+<span class="pc bpc" id="L23" title="26 of 36 branches missed.">@Value</span>
 public class ContractDefinition {
 
   @ApiAudience.Public
   public static ContractDefinitionWithNothing newBuilder() {
-<span class="fc" id="L29">    return new ContractDefinition.Builder();</span>
+<span class="fc" id="L28">    return new ContractDefinition.Builder();</span>
   }
 
-<span class="fc" id="L32">  @Getter</span>
-  protected final BytesValue decodedContract;
+  @NonNull
+<span class="fc" id="L32">  BytesValue decodedContract;</span>
 
-<span class="fc" id="L35">  @Getter</span>
-  protected final String encodedContract;
+  @NonNull
+<span class="fc" id="L35">  String encodedContract;</span>
 
-<span class="fc" id="L38">  @Getter</span>
-  protected final List&lt;Object&gt; constructorArgs;
+  @NonNull
+<span class="fc" id="L38">  List&lt;Object&gt; constructorArgs;</span>
 
-<span class="fc" id="L41">  @Getter</span>
-  protected final Aer amount;
+  @NonNull
+<span class="fc" id="L41">  Aer amount;</span>
 
-  /**
-   * Contract definition constructor.
-   *
-   * @param encodedContract base58 with checksum encoded contract definition
-   * @param args constructor arguments
-   * @param amount an aergo amount
-   *
-   * @throws DecodingFailureException if decoding failure
-   * @throws InvalidVersionException if encodedContract version mismatches
-   */
   ContractDefinition(final String encodedContract, final List&lt;Object&gt; args,
-<span class="fc" id="L55">      final Aer amount) {</span>
-<span class="fc" id="L56">    assertNotNull(encodedContract, &quot;Encoded contract must not null&quot;);</span>
-<span class="fc" id="L57">    assertNotNull(args, &quot;Args must not null&quot;);</span>
-<span class="fc" id="L58">    assertNotNull(amount, &quot;Amount must not null&quot;);</span>
-<span class="fc" id="L59">    final BytesValue decodedContract = EncodingUtils.decodeBase58WithCheck(encodedContract);</span>
-<span class="fc" id="L60">    VersionUtils.validate(decodedContract, ContractDefinitionSpec.PAYLOAD_VERSION);</span>
+<span class="fc" id="L44">      final Aer amount) {</span>
+<span class="fc" id="L45">    assertNotNull(encodedContract, &quot;Encoded contract must not null&quot;);</span>
+<span class="fc" id="L46">    assertNotNull(args, &quot;Args must not null&quot;);</span>
+<span class="fc" id="L47">    assertNotNull(amount, &quot;Amount must not null&quot;);</span>
+<span class="fc" id="L48">    final BytesValue decodedContract = EncodingUtils.decodeBase58WithCheck(encodedContract);</span>
+<span class="fc" id="L49">    BytesValueUtils.validatePrefix(decodedContract, ContractDefinitionSpec.PAYLOAD_VERSION);</span>
 
-<span class="fc" id="L62">    this.decodedContract = decodedContract;</span>
-<span class="fc" id="L63">    this.encodedContract = encodedContract;</span>
-<span class="fc" id="L64">    this.constructorArgs = unmodifiableList(args);</span>
-<span class="fc" id="L65">    this.amount = amount;</span>
-<span class="fc" id="L66">  }</span>
-
-  @Override
-  public boolean equals(final Object obj) {
-<span class="pc bpc" id="L70" title="1 of 2 branches missed.">    if (null == obj) {</span>
-<span class="nc" id="L71">      return false;</span>
-    }
-<span class="pc bpc" id="L73" title="1 of 2 branches missed.">    if (!obj.getClass().equals(getClass())) {</span>
-<span class="nc" id="L74">      return false;</span>
-    }
-<span class="fc" id="L76">    final ContractDefinition other = (ContractDefinition) obj;</span>
-<span class="pc bpc" id="L77" title="1 of 2 branches missed.">    return this.encodedContract.equals(other.encodedContract)</span>
-<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        &amp;&amp; this.constructorArgs.equals(other.constructorArgs)</span>
-<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        &amp;&amp; this.amount.equals(other.amount);</span>
-  }
-
-  @Override
-  public int hashCode() {
-<span class="nc" id="L84">    int hash = 1;</span>
-<span class="nc" id="L85">    hash = (31 * hash) + encodedContract.hashCode();</span>
-<span class="nc" id="L86">    hash = (31 * hash) + amount.hashCode();</span>
-<span class="nc" id="L87">    hash = (31 * hash) + constructorArgs.hashCode();</span>
-<span class="nc" id="L88">    return hash;</span>
-  }
+<span class="fc" id="L51">    this.decodedContract = decodedContract;</span>
+<span class="fc" id="L52">    this.encodedContract = encodedContract;</span>
+<span class="fc" id="L53">    this.constructorArgs = unmodifiableList(args);</span>
+<span class="fc" id="L54">    this.amount = amount;</span>
+<span class="fc" id="L55">  }</span>
 
   public interface ContractDefinitionWithNothing {
     ContractDefinitionWithPayloadReady encodedContract(String encodedContract);
@@ -99,36 +65,36 @@ public class ContractDefinition {
     ContractDefinitionWithPayloadReady amount(Aer amount);
   }
 
-<span class="fc" id="L102">  protected static class Builder</span>
+<span class="fc" id="L68">  protected static class Builder</span>
       implements ContractDefinitionWithNothing, ContractDefinitionWithPayloadReady {
 
     protected String encodedContract;
 
-<span class="fc" id="L107">    protected Object[] constructorArgs = new Object[0];</span>
+<span class="fc" id="L73">    protected List&lt;Object&gt; constructorArgs = emptyList();</span>
 
-<span class="fc" id="L109">    protected Aer amount = Aer.EMPTY;</span>
+<span class="fc" id="L75">    protected Aer amount = Aer.EMPTY;</span>
 
     @Override
     public ContractDefinitionWithPayloadReady encodedContract(final String encodedContract) {
-<span class="fc" id="L113">      this.encodedContract = encodedContract;</span>
-<span class="fc" id="L114">      return this;</span>
+<span class="fc" id="L79">      this.encodedContract = encodedContract;</span>
+<span class="fc" id="L80">      return this;</span>
     }
 
     @Override
     public ContractDefinitionWithPayloadReady amount(final Aer amount) {
-<span class="fc" id="L119">      this.amount = amount;</span>
-<span class="fc" id="L120">      return this;</span>
+<span class="fc" id="L85">      this.amount = amount;</span>
+<span class="fc" id="L86">      return this;</span>
     }
 
     @Override
     public ContractDefinitionWithPayloadReady constructorArgs(final Object... args) {
-<span class="fc" id="L125">      this.constructorArgs = args;</span>
-<span class="fc" id="L126">      return this;</span>
+<span class="fc" id="L91">      this.constructorArgs = asList(args);</span>
+<span class="fc" id="L92">      return this;</span>
     }
 
     @Override
     public ContractDefinition build() {
-<span class="fc" id="L131">      return new ContractDefinition(encodedContract, asList(constructorArgs), amount);</span>
+<span class="fc" id="L97">      return new ContractDefinition(encodedContract, constructorArgs, amount);</span>
     }
 
   }

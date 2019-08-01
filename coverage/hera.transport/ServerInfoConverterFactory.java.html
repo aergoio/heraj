@@ -42,17 +42,20 @@ import types.Rpc;
 <span class="nc" id="L42">              final Rpc.ConfigItem rpcConfigItem = rpcConfig.get(key);</span>
 <span class="nc" id="L43">              domainConfig.put(key, rpcConfigItem.getPropsMap());</span>
 <span class="nc" id="L44">            }</span>
-<span class="fc" id="L45">            final ServerInfo domainServerInfo = new ServerInfo(domainStatus, domainConfig);</span>
-<span class="fc" id="L46">            logger.trace(&quot;Domain server info converted: {}&quot;, domainServerInfo);</span>
-<span class="fc" id="L47">            return domainServerInfo;</span>
-<span class="nc" id="L48">          } catch (Throwable e) {</span>
-<span class="nc" id="L49">            throw new RpcException(e);</span>
+<span class="fc" id="L45">            final ServerInfo domainServerInfo = ServerInfo.newBuilder()</span>
+<span class="fc" id="L46">                .status(domainStatus)</span>
+<span class="fc" id="L47">                .config(domainConfig)</span>
+<span class="fc" id="L48">                .build();</span>
+<span class="fc" id="L49">            logger.trace(&quot;Domain server info converted: {}&quot;, domainServerInfo);</span>
+<span class="fc" id="L50">            return domainServerInfo;</span>
+<span class="nc" id="L51">          } catch (Throwable e) {</span>
+<span class="nc" id="L52">            throw new RpcException(e);</span>
           }
         }
       };
 
   public ModelConverter&lt;ServerInfo, Rpc.ServerInfo&gt; create() {
-<span class="fc" id="L55">    return new ModelConverter&lt;ServerInfo, Rpc.ServerInfo&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L58">    return new ModelConverter&lt;ServerInfo, Rpc.ServerInfo&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

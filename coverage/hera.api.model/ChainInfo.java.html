@@ -4,72 +4,46 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="nc" id="L17">@ToString</span>
-<span class="nc bnc" id="L18" title="All 58 branches missed.">@EqualsAndHashCode</span>
+<span class="pc bnc" id="L16" title="All 56 branches missed.">@Value</span>
+<span class="pc bpc" id="L17" title="12 of 36 branches missed.">@Builder(builderMethodName = &quot;newBuilder&quot;)</span>
 public class ChainInfo {
 
-<span class="nc" id="L21">  @Getter</span>
-  protected final ChainId chainId;
+  @NonNull
+  @Default
+<span class="fc" id="L22">  ChainId chainId = ChainId.newBuilder().build();</span>
 
-<span class="nc" id="L24">  @Getter</span>
-  protected final int blockProducerCount;
+<span class="fc" id="L24">  int blockProducerCount;</span>
 
-<span class="nc" id="L27">  @Getter</span>
-  protected final long maxBlockSize; // bytes
+<span class="fc" id="L26">  long maxBlockSize; // bytes</span>
 
-<span class="nc" id="L30">  @Getter</span>
-  protected final Aer totalTokenAmount;
+  @NonNull
+  @Default
+<span class="fc" id="L30">  Aer totalTokenAmount = Aer.EMPTY;</span>
 
-<span class="nc" id="L33">  @Getter</span>
-  protected final Aer minimumStakingAmount;
+  @NonNull
+  @Default
+<span class="fc" id="L34">  Aer minimumStakingAmount = Aer.EMPTY;</span>
 
-<span class="nc" id="L36">  @Getter</span>
-  protected final Aer totalStaked;
+  @NonNull
+  @Default
+<span class="fc" id="L38">  Aer totalStaked = Aer.EMPTY;</span>
 
-<span class="nc" id="L39">  @Getter</span>
-  protected final Aer gasPrice;
+  @NonNull
+  @Default
+<span class="fc" id="L42">  Aer gasPrice = Aer.EMPTY;</span>
 
-<span class="nc" id="L42">  @Getter</span>
-  protected final Aer namingPrice;
-
-  /**
-   * ChainInfo constructor.
-   *
-   * @param chainId a chain id
-   * @param blockProducerCount a number of block producers
-   * @param maxBlockSize max block size in bytes
-   * @param totalTokenAmount a total aer token amount
-   * @param minimumStakingAmount an minimun staking amount
-   * @param totalStaked a total staked amount
-   * @param gasPrice a gas price
-   * @param namingPrice an naming price
-   */
-  @ApiAudience.Private
-  public ChainInfo(final ChainId chainId, final int blockProducerCount, final long maxBlockSize,
-      final Aer totalTokenAmount, final Aer minimumStakingAmount, final Aer totalStaked,
-<span class="fc" id="L60">      final Aer gasPrice, final Aer namingPrice) {</span>
-<span class="fc" id="L61">    assertNotNull(chainId, &quot;Chain id must not null&quot;);</span>
-<span class="fc" id="L62">    assertNotNull(totalTokenAmount, &quot;Total token amount must not null&quot;);</span>
-<span class="fc" id="L63">    assertNotNull(minimumStakingAmount, &quot;Minumum staking amount must not null&quot;);</span>
-<span class="fc" id="L64">    this.chainId = chainId;</span>
-<span class="fc" id="L65">    this.blockProducerCount = blockProducerCount;</span>
-<span class="fc" id="L66">    this.maxBlockSize = maxBlockSize;</span>
-<span class="fc" id="L67">    this.totalTokenAmount = totalTokenAmount;</span>
-<span class="fc" id="L68">    this.minimumStakingAmount = minimumStakingAmount;</span>
-<span class="fc" id="L69">    this.totalStaked = totalStaked;</span>
-<span class="fc" id="L70">    this.gasPrice = gasPrice;</span>
-<span class="fc" id="L71">    this.namingPrice = namingPrice;</span>
-<span class="fc" id="L72">  }</span>
+  @NonNull
+  @Default
+<span class="fc" id="L46">  Aer namingPrice = Aer.EMPTY;</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

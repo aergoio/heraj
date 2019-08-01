@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Function5WithIdentity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.function.impl</a> &gt; <span class="el_source">Function5WithIdentity.java</span></div><h1>Function5WithIdentity.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.api.function.impl;
+
+import hera.api.function.Function5;
+import hera.api.function.WithIdentity;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+<span class="fc" id="L12">@RequiredArgsConstructor</span>
+public class Function5WithIdentity&lt;T1, T2, T3, T4, T5, R&gt;
+    implements Function5&lt;T1, T2, T3, T4, T5, R&gt;, WithIdentity {
+
+  protected final Function5&lt;T1, T2, T3, T4, T5, R&gt; delegate;
+
+<span class="fc" id="L18">  @Getter</span>
+  protected final String identity;
+
+  @Override
+  public R apply(final T1 t1, final T2 t2, final T3 t3, final T4 t4, final T5 t5) {
+<span class="fc" id="L23">    return delegate.apply(t1, t2, t3, t4, t5);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

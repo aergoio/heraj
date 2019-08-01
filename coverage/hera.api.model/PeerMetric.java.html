@@ -4,54 +4,28 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="nc" id="L17">@ToString</span>
-<span class="pc bpc" id="L18" title="13 of 22 branches missed.">@EqualsAndHashCode</span>
+<span class="pc bpc" id="L15" title="12 of 20 branches missed.">@Value</span>
+<span class="pc bpc" id="L16" title="2 of 4 branches missed.">@Builder(builderMethodName = &quot;newBuilder&quot;)</span>
 public class PeerMetric {
 
-<span class="fc" id="L21">  @Getter</span>
-  protected String peerId;
+  @NonNull
+<span class="fc" id="L20">  String peerId;</span>
 
-<span class="fc" id="L24">  @Getter</span>
-  protected long sumIn;
+<span class="fc" id="L22">  long sumIn;</span>
 
-<span class="fc" id="L27">  @Getter</span>
-  protected long averageIn;
+<span class="fc" id="L24">  long averageIn;</span>
 
-<span class="fc" id="L30">  @Getter</span>
-  protected long sumOut;
+<span class="fc" id="L26">  long sumOut;</span>
 
-<span class="fc" id="L33">  @Getter</span>
-  protected long averageOut;
-
-  /**
-   * PeerMetric constructor.
-   * 
-   * @param peerId a peer id
-   * @param sumIn sum of in counts
-   * @param averageIn average of in counts
-   * @param sumOut sum of out counts
-   * @param averageOut average of out counts
-   */
-  @ApiAudience.Private
-  public PeerMetric(final String peerId, final long sumIn, final long averageIn, final long sumOut,
-<span class="fc" id="L47">      final long averageOut) {</span>
-<span class="fc" id="L48">    assertNotNull(peerId, &quot;Peer id must not null&quot;);</span>
-<span class="fc" id="L49">    this.peerId = peerId;</span>
-<span class="fc" id="L50">    this.sumIn = sumIn;</span>
-<span class="fc" id="L51">    this.averageIn = averageIn;</span>
-<span class="fc" id="L52">    this.sumOut = sumOut;</span>
-<span class="fc" id="L53">    this.averageOut = averageOut;</span>
-<span class="fc" id="L54">  }</span>
+<span class="fc" id="L28">  long averageOut;</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

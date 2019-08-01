@@ -5,37 +5,36 @@
 package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.util.StringUtils;
 import java.util.List;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="nc bnc" id="L19" title="All 14 branches missed.">@EqualsAndHashCode</span>
+<span class="nc bnc" id="L22" title="All 12 branches missed.">@Value</span>
+<span class="pc bpc" id="L23" title="1 of 4 branches missed.">@Builder(builderMethodName = &quot;newBuilder&quot;)</span>
 public class NodeStatus {
 
-<span class="nc" id="L22">  @Getter</span>
-  protected final List&lt;ModuleStatus&gt; moduleStatus;
+  @NonNull
+  @Default
+<span class="nc" id="L28">  List&lt;ModuleStatus&gt; moduleStatus = emptyList();</span>
 
-  /**
-   * NodeStatus constructor.
-   *
-   * @param moduleStatus a module status list
-   */
-  @ApiAudience.Private
-<span class="fc" id="L31">  public NodeStatus(final List&lt;ModuleStatus&gt; moduleStatus) {</span>
-<span class="fc" id="L32">    assertNotNull(moduleStatus, &quot;Module status list must not null&quot;);</span>
-<span class="fc" id="L33">    this.moduleStatus = unmodifiableList(moduleStatus);</span>
-<span class="fc" id="L34">  }</span>
+<span class="fc" id="L30">  NodeStatus(final List&lt;ModuleStatus&gt; moduleStatus) {</span>
+<span class="fc" id="L31">    assertNotNull(moduleStatus, &quot;Module status list must not null&quot;);</span>
+<span class="fc" id="L32">    this.moduleStatus = unmodifiableList(moduleStatus);</span>
+<span class="fc" id="L33">  }</span>
 
   @Override
   public String toString() {
-<span class="nc" id="L38">    return String.format(&quot;Node status:\n%s&quot;, StringUtils.join(moduleStatus, &quot;\n&quot;));</span>
+<span class="fc" id="L37">    return String.format(&quot;Node status:\n%s&quot;, StringUtils.join(moduleStatus, &quot;\n&quot;));</span>
   }
 
 }

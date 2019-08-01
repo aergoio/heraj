@@ -33,18 +33,21 @@ import types.Rpc;
         @Override
         public BlockchainStatus apply(final Rpc.BlockchainStatus rpcBlockchainStatus) {
 <span class="fc" id="L35">          logger.trace(&quot;Rpc blockchain status to convert: {}&quot;, rpcBlockchainStatus);</span>
-<span class="fc" id="L36">          final BlockchainStatus domainBlockchainStatus = new BlockchainStatus(</span>
-<span class="fc" id="L37">              rpcBlockchainStatus.getBestHeight(),</span>
-<span class="fc" id="L38">              new BlockHash(of(rpcBlockchainStatus.getBestBlockHash().toByteArray())),</span>
-<span class="fc" id="L39">              rpcBlockchainStatus.getConsensusInfo(),</span>
-<span class="fc" id="L40">              new ChainIdHash(of(rpcBlockchainStatus.getBestChainIdHash().toByteArray())));</span>
-<span class="fc" id="L41">          logger.trace(&quot;Domain blockchain status converted: {}&quot;, domainBlockchainStatus);</span>
-<span class="fc" id="L42">          return domainBlockchainStatus;</span>
+<span class="fc" id="L36">          final BlockchainStatus domainBlockchainStatus = BlockchainStatus.newBuilder()</span>
+<span class="fc" id="L37">              .bestHeight(rpcBlockchainStatus.getBestHeight())</span>
+<span class="fc" id="L38">              .bestBlockHash(</span>
+<span class="fc" id="L39">                  new BlockHash(of(rpcBlockchainStatus.getBestBlockHash().toByteArray())))</span>
+<span class="fc" id="L40">              .consensus(rpcBlockchainStatus.getConsensusInfo())</span>
+<span class="fc" id="L41">              .chainIdHash(</span>
+<span class="fc" id="L42">                  new ChainIdHash(of(rpcBlockchainStatus.getBestChainIdHash().toByteArray())))</span>
+<span class="fc" id="L43">              .build();</span>
+<span class="fc" id="L44">          logger.trace(&quot;Domain blockchain status converted: {}&quot;, domainBlockchainStatus);</span>
+<span class="fc" id="L45">          return domainBlockchainStatus;</span>
         }
       };
 
   public ModelConverter&lt;BlockchainStatus, Rpc.BlockchainStatus&gt; create() {
-<span class="fc" id="L47">    return new ModelConverter&lt;BlockchainStatus, Rpc.BlockchainStatus&gt;(domainConverter,</span>
+<span class="fc" id="L50">    return new ModelConverter&lt;BlockchainStatus, Rpc.BlockchainStatus&gt;(domainConverter,</span>
         rpcConverter);
   }
 

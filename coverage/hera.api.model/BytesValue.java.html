@@ -45,42 +45,46 @@ public class BytesValue {
 <span class="fc" id="L45">    return Arrays.copyOf(value, value.length);</span>
   }
 
+  public int length() {
+<span class="fc" id="L49">    return value.length;</span>
+  }
+
   public boolean isEmpty() {
-<span class="fc bfc" id="L49" title="All 2 branches covered.">    return 0 == value.length;</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">    return 0 == value.length;</span>
   }
 
   @Override
   public String toString() {
-<span class="pc bpc" id="L54" title="1 of 2 branches missed.">    return null == value ? &quot;&quot; : new String(value);</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">    return null == value ? &quot;&quot; : new String(value);</span>
   }
 
   @Override
   public int hashCode() {
-<span class="fc" id="L59">    int h = this.hash;</span>
-<span class="fc bfc" id="L60" title="All 4 branches covered.">    if (h == 0 &amp;&amp; this.value.length &gt; 0) {</span>
-<span class="fc bfc" id="L61" title="All 2 branches covered.">      for (final byte byteValue : this.value) {</span>
-<span class="fc" id="L62">        h = 31 * h + byteValue;</span>
+<span class="fc" id="L63">    int h = this.hash;</span>
+<span class="pc bpc" id="L64" title="1 of 4 branches missed.">    if (h == 0 &amp;&amp; this.value.length &gt; 0) {</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">      for (final byte byteValue : this.value) {</span>
+<span class="fc" id="L66">        h = 31 * h + byteValue;</span>
       }
 
-<span class="fc" id="L65">      this.hash = h;</span>
+<span class="fc" id="L69">      this.hash = h;</span>
     }
-<span class="fc" id="L67">    return h;</span>
+<span class="fc" id="L71">    return h;</span>
   }
 
   @Override
   public boolean equals(final Object obj) {
-<span class="pc bpc" id="L72" title="1 of 2 branches missed.">    if (null == obj) {</span>
-<span class="nc" id="L73">      return false;</span>
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">    if (null == obj) {</span>
+<span class="nc" id="L77">      return false;</span>
     }
-<span class="pc bpc" id="L75" title="1 of 2 branches missed.">    if (!obj.getClass().equals(getClass())) {</span>
-<span class="nc" id="L76">      return false;</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">    if (!obj.getClass().equals(getClass())) {</span>
+<span class="nc" id="L80">      return false;</span>
     }
-<span class="fc" id="L78">    final BytesValue other = (BytesValue) obj;</span>
-<span class="fc" id="L79">    return Arrays.equals(this.value, other.value);</span>
+<span class="fc" id="L82">    final BytesValue other = (BytesValue) obj;</span>
+<span class="fc" id="L83">    return Arrays.equals(this.value, other.value);</span>
   }
 
   public InputStream getInputStream() {
-<span class="nc" id="L83">    return new ByteArrayInputStream(getValue());</span>
+<span class="nc" id="L87">    return new ByteArrayInputStream(getValue());</span>
   }
 
 }

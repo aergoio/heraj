@@ -12,68 +12,59 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.util.StringUtils;
 import java.util.List;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="nc" id="L21">@ToString</span>
-<span class="nc bnc" id="L22" title="All 52 branches missed.">@EqualsAndHashCode</span>
+<span class="pc bnc" id="L22" title="All 50 branches missed.">@Value</span>
+<span class="pc bpc" id="L23" title="9 of 18 branches missed.">@Builder(builderMethodName = &quot;newBuilder&quot;)</span>
 public class Event {
 
-<span class="nc" id="L25">  @Getter</span>
-  protected final ContractAddress from;
+  @NonNull
+<span class="fc" id="L27">  ContractAddress from;</span>
 
-<span class="nc" id="L28">  @Getter</span>
-  protected final String name;
+  @NonNull
+  @Default
+<span class="fc" id="L31">  String name = StringUtils.EMPTY_STRING;</span>
 
-<span class="nc" id="L31">  @Getter</span>
-  protected final List&lt;Object&gt; args;
+  @NonNull
+  @Default
+<span class="fc" id="L35">  List&lt;Object&gt; args = emptyList();</span>
 
-<span class="nc" id="L34">  @Getter</span>
-  protected final int index;
+<span class="fc" id="L37">  int index;</span>
 
-<span class="nc" id="L37">  @Getter</span>
-  protected final TxHash txHash;
+  @NonNull
+  @Default
+<span class="fc" id="L41">  TxHash txHash = TxHash.of(BytesValue.EMPTY);</span>
 
-<span class="nc" id="L40">  @Getter</span>
-  protected final int indexInBlock;
+<span class="fc" id="L43">  int indexInBlock;</span>
 
-<span class="nc" id="L43">  @Getter</span>
-  protected final BlockHash blockHash;
+  @NonNull
+  @Default
+<span class="fc" id="L47">  BlockHash blockHash = BlockHash.of(BytesValue.EMPTY);</span>
 
-<span class="nc" id="L46">  @Getter</span>
-  protected final long blockNumber;
+<span class="fc" id="L49">  long blockNumber;</span>
 
-  /**
-   * Event constructor.
-   *
-   * @param from a contract address where event comes from
-   * @param name an event name
-   * @param args an event arguments
-   * @param index an event index
-   * @param txHash a transaction hash where contract call is confirmed
-   * @param indexInBlock a transaction index in block
-   * @param blockHash a block hash where contract call is confirmed
-   * @param blockNumber a block block number where contract call is confirmed
-   */
-  @ApiAudience.Private
-  public Event(final ContractAddress from, final String name, final List&lt;Object&gt; args,
+  Event(final ContractAddress from, final String name, final List&lt;Object&gt; args,
       final int index, final TxHash txHash, int indexInBlock, final BlockHash blockHash,
-<span class="fc" id="L64">      final long blockNumber) {</span>
-<span class="fc" id="L65">    assertNotNull(from, &quot;Contract address must not null&quot;);</span>
-<span class="fc" id="L66">    assertNotNull(txHash, &quot;Event transaction hash must not null&quot;);</span>
-<span class="fc" id="L67">    assertNotNull(blockHash, &quot;Event block hash must not null&quot;);</span>
-<span class="fc" id="L68">    this.from = from;</span>
-<span class="pc bpc" id="L69" title="1 of 2 branches missed.">    this.name = name == null ? StringUtils.EMPTY_STRING : name;</span>
-<span class="pc bpc" id="L70" title="1 of 2 branches missed.">    this.args = unmodifiableList(args == null ? emptyList() : args);</span>
-<span class="fc" id="L71">    this.index = index;</span>
-<span class="fc" id="L72">    this.txHash = txHash;</span>
-<span class="fc" id="L73">    this.indexInBlock = indexInBlock;</span>
-<span class="fc" id="L74">    this.blockHash = blockHash;</span>
-<span class="fc" id="L75">    this.blockNumber = blockNumber;</span>
-<span class="fc" id="L76">  }</span>
+<span class="fc" id="L53">      final long blockNumber) {</span>
+<span class="fc" id="L54">    assertNotNull(from, &quot;Contract address must not null&quot;);</span>
+<span class="fc" id="L55">    assertNotNull(name, &quot;Name must not null&quot;);</span>
+<span class="fc" id="L56">    assertNotNull(args, &quot;Event args must not null&quot;);</span>
+<span class="fc" id="L57">    assertNotNull(txHash, &quot;Event transaction hash must not null&quot;);</span>
+<span class="fc" id="L58">    assertNotNull(blockHash, &quot;Event block hash must not null&quot;);</span>
+<span class="fc" id="L59">    this.from = from;</span>
+<span class="fc" id="L60">    this.name = name;</span>
+<span class="fc" id="L61">    this.args = unmodifiableList(args);</span>
+<span class="fc" id="L62">    this.index = index;</span>
+<span class="fc" id="L63">    this.txHash = txHash;</span>
+<span class="fc" id="L64">    this.indexInBlock = indexInBlock;</span>
+<span class="fc" id="L65">    this.blockHash = blockHash;</span>
+<span class="fc" id="L66">    this.blockNumber = blockNumber;</span>
+<span class="fc" id="L67">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

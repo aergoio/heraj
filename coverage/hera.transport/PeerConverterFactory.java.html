@@ -34,26 +34,28 @@ import types.Rpc;
     public Peer apply(final Rpc.Peer rpcPeer) {
       try {
 <span class="fc" id="L36">        logger.trace(&quot;Rpc peer to convert: {}&quot;, rpcPeer);</span>
-<span class="fc" id="L37">        final Peer domainPeer = new Peer(Inet6Address.getByName(rpcPeer.getAddress().getAddress()),</span>
-<span class="fc" id="L38">            rpcPeer.getAddress().getPort(),</span>
-<span class="fc" id="L39">            Base58Utils.encode(rpcPeer.getAddress().getPeerID().toByteArray()),</span>
-<span class="fc" id="L40">            rpcPeer.getBestblock().getBlockNo(),</span>
-<span class="fc" id="L41">            new BlockHash(of(rpcPeer.getBestblock().getBlockHash().toByteArray())),</span>
-<span class="fc" id="L42">            rpcPeer.getState(),</span>
-<span class="fc" id="L43">            rpcPeer.getHidden(),</span>
-<span class="fc" id="L44">            rpcPeer.getLashCheck(),</span>
-<span class="fc" id="L45">            rpcPeer.getSelfpeer(),</span>
-<span class="fc" id="L46">            rpcPeer.getVersion());</span>
-<span class="fc" id="L47">        logger.trace(&quot;Domain peer converted: {}&quot;, domainPeer);</span>
-<span class="fc" id="L48">        return domainPeer;</span>
-<span class="nc" id="L49">      } catch (UnknownHostException e) {</span>
-<span class="nc" id="L50">        throw new RpcException(&quot;Invalid peer host name&quot;, e);</span>
+<span class="fc" id="L37">        final Peer domainPeer = Peer.newBuilder()</span>
+<span class="fc" id="L38">            .address(Inet6Address.getByName(rpcPeer.getAddress().getAddress()))</span>
+<span class="fc" id="L39">            .port(rpcPeer.getAddress().getPort())</span>
+<span class="fc" id="L40">            .peerId(Base58Utils.encode(rpcPeer.getAddress().getPeerID().toByteArray()))</span>
+<span class="fc" id="L41">            .bestHeight(rpcPeer.getBestblock().getBlockNo())</span>
+<span class="fc" id="L42">            .bestBlockHash(new BlockHash(of(rpcPeer.getBestblock().getBlockHash().toByteArray())))</span>
+<span class="fc" id="L43">            .state(rpcPeer.getState())</span>
+<span class="fc" id="L44">            .hidden(rpcPeer.getHidden())</span>
+<span class="fc" id="L45">            .lashCheck(rpcPeer.getLashCheck())</span>
+<span class="fc" id="L46">            .selfPeer(rpcPeer.getSelfpeer())</span>
+<span class="fc" id="L47">            .version(rpcPeer.getVersion())</span>
+<span class="fc" id="L48">            .build();</span>
+<span class="fc" id="L49">        logger.trace(&quot;Domain peer converted: {}&quot;, domainPeer);</span>
+<span class="fc" id="L50">        return domainPeer;</span>
+<span class="nc" id="L51">      } catch (UnknownHostException e) {</span>
+<span class="nc" id="L52">        throw new RpcException(&quot;Invalid peer host name&quot;, e);</span>
       }
     }
   };
 
   public ModelConverter&lt;Peer, Rpc.Peer&gt; create() {
-<span class="fc" id="L56">    return new ModelConverter&lt;Peer, Rpc.Peer&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L58">    return new ModelConverter&lt;Peer, Rpc.Peer&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

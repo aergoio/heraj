@@ -34,7 +34,7 @@ import hera.api.model.TxHash;
 import hera.client.ChannelInjectable;
 import hera.exception.TransactionVerificationException;
 import hera.key.Signer;
-import hera.transaction.TxSigner;
+import hera.key.TxSigner;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.AccountStateConverterFactory;
 import hera.transport.AccountTotalVoteConverterFactory;
@@ -117,434 +117,439 @@ import types.Rpc;
               public AccountState apply(final Blockchain.State state) {
 <span class="fc" id="L118">                final AccountState withoutAddress =</span>
 <span class="fc" id="L119">                    accountStateConverter.convertToDomainModel(state);</span>
-<span class="fc" id="L120">                return new AccountState(address, withoutAddress.getNonce(),</span>
-<span class="fc" id="L121">                    withoutAddress.getBalance());</span>
+<span class="fc" id="L120">                return AccountState.newBuilder().address(address)</span>
+<span class="fc" id="L121">                    .nonce(withoutAddress.getNonce())</span>
+<span class="fc" id="L122">                    .balance(withoutAddress.getBalance())</span>
+<span class="fc" id="L123">                    .build();</span>
               }
             });
-<span class="fc" id="L124">            addCallback(listenableFuture, callback, directExecutor());</span>
-<span class="nc" id="L125">          } catch (Exception e) {</span>
-<span class="nc" id="L126">            nextFuture.fail(e);</span>
-<span class="fc" id="L127">          }</span>
-<span class="fc" id="L128">          return nextFuture;</span>
+<span class="fc" id="L126">            addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="nc" id="L127">          } catch (Exception e) {</span>
+<span class="nc" id="L128">            nextFuture.fail(e);</span>
+<span class="fc" id="L129">          }</span>
+<span class="fc" id="L130">          return nextFuture;</span>
         }
       };
 
-<span class="pc" id="L132">  @Getter</span>
+<span class="pc" id="L134">  @Getter</span>
   private final Function3&lt;Account, String, Long,
       FinishableFuture&lt;TxHash&gt;&gt; deprecatedCreateNameFunction = new Function3&lt;
-<span class="fc" id="L135">          Account, String, Long, FinishableFuture&lt;TxHash&gt;&gt;() {</span>
+<span class="fc" id="L137">          Account, String, Long, FinishableFuture&lt;TxHash&gt;&gt;() {</span>
 
         @Override
         public FinishableFuture&lt;TxHash&gt; apply(final Account account, final String name,
             final Long nonce) {
-<span class="nc" id="L140">          logger.debug(&quot;Create account name to account: {}, name: {}, nonce: {}&quot;,</span>
-<span class="nc" id="L141">              account.getAddress(), name, nonce);</span>
+<span class="nc" id="L142">          logger.debug(&quot;Create account name to account: {}, name: {}, nonce: {}&quot;,</span>
+<span class="nc" id="L143">              account.getAddress(), name, nonce);</span>
 
-<span class="nc" id="L143">          final RawTransaction rawTransaction = RawTransaction.newCreateNameTxBuilder()</span>
-<span class="nc" id="L144">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
-<span class="nc" id="L145">              .from(account.getAddress())</span>
-<span class="nc" id="L146">              .nonce(nonce)</span>
-<span class="nc" id="L147">              .name(name)</span>
-<span class="nc" id="L148">              .build();</span>
-<span class="nc" id="L149">          final Transaction signed = getSignFunction().apply(account, rawTransaction).get();</span>
-<span class="nc" id="L150">          return transactionBaseTemplate.getCommitFunction().apply(signed);</span>
+<span class="nc" id="L145">          final RawTransaction rawTransaction = RawTransaction.newCreateNameTxBuilder()</span>
+<span class="nc" id="L146">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
+<span class="nc" id="L147">              .from(account.getAddress())</span>
+<span class="nc" id="L148">              .nonce(nonce)</span>
+<span class="nc" id="L149">              .name(name)</span>
+<span class="nc" id="L150">              .build();</span>
+<span class="nc" id="L151">          final Transaction signed = getSignFunction().apply(account, rawTransaction).get();</span>
+<span class="nc" id="L152">          return transactionBaseTemplate.getCommitFunction().apply(signed);</span>
         }
       };
 
-<span class="fc" id="L154">  @Getter</span>
+<span class="fc" id="L156">  @Getter</span>
   private final Function3&lt;Signer, String, Long, FinishableFuture&lt;TxHash&gt;&gt; createNameFunction =
-<span class="fc" id="L156">      new Function3&lt;Signer, String, Long, FinishableFuture&lt;TxHash&gt;&gt;() {</span>
+<span class="fc" id="L158">      new Function3&lt;Signer, String, Long, FinishableFuture&lt;TxHash&gt;&gt;() {</span>
 
         @Override
         public FinishableFuture&lt;TxHash&gt; apply(final Signer signer, final String name,
             final Long nonce) {
-<span class="fc" id="L161">          logger.debug(&quot;Create account name with signer: {}, name: {}, nonce: {}&quot;,</span>
-<span class="fc" id="L162">              signer.getPrincipal(), name, nonce);</span>
+<span class="fc" id="L163">          logger.debug(&quot;Create account name with signer: {}, name: {}, nonce: {}&quot;,</span>
+<span class="fc" id="L164">              signer.getPrincipal(), name, nonce);</span>
 
-<span class="fc" id="L164">          final RawTransaction rawTransaction = RawTransaction.newCreateNameTxBuilder()</span>
-<span class="fc" id="L165">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
-<span class="fc" id="L166">              .from(signer.getPrincipal())</span>
-<span class="fc" id="L167">              .nonce(nonce)</span>
-<span class="fc" id="L168">              .name(name)</span>
-<span class="fc" id="L169">              .build();</span>
-<span class="fc" id="L170">          final Transaction signed = signer.sign(rawTransaction);</span>
-<span class="fc" id="L171">          return transactionBaseTemplate.getCommitFunction().apply(signed);</span>
+<span class="fc" id="L166">          final RawTransaction rawTransaction = RawTransaction.newCreateNameTxBuilder()</span>
+<span class="fc" id="L167">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
+<span class="fc" id="L168">              .from(signer.getPrincipal())</span>
+<span class="fc" id="L169">              .nonce(nonce)</span>
+<span class="fc" id="L170">              .name(name)</span>
+<span class="fc" id="L171">              .build();</span>
+<span class="fc" id="L172">          final Transaction signed = signer.sign(rawTransaction);</span>
+<span class="fc" id="L173">          return transactionBaseTemplate.getCommitFunction().apply(signed);</span>
         }
       };
 
-<span class="pc" id="L175">  @Getter</span>
+<span class="pc" id="L177">  @Getter</span>
   private final Function4&lt;Account, String, AccountAddress, Long,
       FinishableFuture&lt;TxHash&gt;&gt; deprecatedUpdateNameFunction = new Function4&lt;Account, String,
-<span class="fc" id="L178">          AccountAddress, Long, FinishableFuture&lt;TxHash&gt;&gt;() {</span>
+<span class="fc" id="L180">          AccountAddress, Long, FinishableFuture&lt;TxHash&gt;&gt;() {</span>
 
         @Override
         public FinishableFuture&lt;TxHash&gt; apply(final Account owner, final String name,
             final AccountAddress newOwner, final Long nonce) {
-<span class="nc" id="L183">          logger.debug(&quot;Update account name from account: {}, name: {}, to account: {}, nonce: {}&quot;,</span>
-<span class="nc" id="L184">              owner.getAddress(), name, newOwner, nonce);</span>
+<span class="nc" id="L185">          logger.debug(&quot;Update account name from account: {}, name: {}, to account: {}, nonce: {}&quot;,</span>
+<span class="nc" id="L186">              owner.getAddress(), name, newOwner, nonce);</span>
 
-<span class="nc" id="L186">          final RawTransaction rawTransaction = RawTransaction.newUpdateNameTxBuilder()</span>
-<span class="nc" id="L187">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
-<span class="nc" id="L188">              .from(owner.getAddress())</span>
-<span class="nc" id="L189">              .nonce(nonce)</span>
-<span class="nc" id="L190">              .name(name)</span>
-<span class="nc" id="L191">              .newOwner(newOwner)</span>
-<span class="nc" id="L192">              .build();</span>
-<span class="nc" id="L193">          final Transaction signed = getSignFunction().apply(owner, rawTransaction).get();</span>
-<span class="nc" id="L194">          return transactionBaseTemplate.getCommitFunction().apply(signed);</span>
+<span class="nc" id="L188">          final RawTransaction rawTransaction = RawTransaction.newUpdateNameTxBuilder()</span>
+<span class="nc" id="L189">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
+<span class="nc" id="L190">              .from(owner.getAddress())</span>
+<span class="nc" id="L191">              .nonce(nonce)</span>
+<span class="nc" id="L192">              .name(name)</span>
+<span class="nc" id="L193">              .newOwner(newOwner)</span>
+<span class="nc" id="L194">              .build();</span>
+<span class="nc" id="L195">          final Transaction signed = getSignFunction().apply(owner, rawTransaction).get();</span>
+<span class="nc" id="L196">          return transactionBaseTemplate.getCommitFunction().apply(signed);</span>
         }
       };
 
-<span class="fc" id="L198">  @Getter</span>
+<span class="fc" id="L200">  @Getter</span>
   private final Function4&lt;Signer, String, AccountAddress, Long,
       FinishableFuture&lt;TxHash&gt;&gt; updateNameFunction = new Function4&lt;Signer, String,
-<span class="fc" id="L201">          AccountAddress, Long, FinishableFuture&lt;TxHash&gt;&gt;() {</span>
+<span class="fc" id="L203">          AccountAddress, Long, FinishableFuture&lt;TxHash&gt;&gt;() {</span>
 
         @Override
         public FinishableFuture&lt;TxHash&gt; apply(final Signer signer, final String name,
             final AccountAddress newOwner, final Long nonce) {
-<span class="fc" id="L206">          logger.debug(&quot;Update account name with signer: {}, name: {}, to account: {}, nonce: {}&quot;,</span>
+<span class="fc" id="L208">          logger.debug(&quot;Update account name with signer: {}, name: {}, to account: {}, nonce: {}&quot;,</span>
               signer, name, newOwner, nonce);
 
-<span class="fc" id="L209">          final RawTransaction rawTransaction = RawTransaction.newUpdateNameTxBuilder()</span>
-<span class="fc" id="L210">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
-<span class="fc" id="L211">              .from(signer.getPrincipal())</span>
-<span class="fc" id="L212">              .nonce(nonce)</span>
-<span class="fc" id="L213">              .name(name)</span>
-<span class="fc" id="L214">              .newOwner(newOwner)</span>
-<span class="fc" id="L215">              .build();</span>
-<span class="fc" id="L216">          final Transaction signed = signer.sign(rawTransaction);</span>
-<span class="fc" id="L217">          return transactionBaseTemplate.getCommitFunction().apply(signed);</span>
+<span class="fc" id="L211">          final RawTransaction rawTransaction = RawTransaction.newUpdateNameTxBuilder()</span>
+<span class="fc" id="L212">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
+<span class="fc" id="L213">              .from(signer.getPrincipal())</span>
+<span class="fc" id="L214">              .nonce(nonce)</span>
+<span class="fc" id="L215">              .name(name)</span>
+<span class="fc" id="L216">              .newOwner(newOwner)</span>
+<span class="fc" id="L217">              .build();</span>
+<span class="fc" id="L218">          final Transaction signed = signer.sign(rawTransaction);</span>
+<span class="fc" id="L219">          return transactionBaseTemplate.getCommitFunction().apply(signed);</span>
         }
       };
 
-<span class="fc" id="L221">  @Getter</span>
+<span class="fc" id="L223">  @Getter</span>
   private final Function2&lt;String, Long, FinishableFuture&lt;AccountAddress&gt;&gt; getNameOwnerFunction =
-<span class="fc" id="L223">      new Function2&lt;String, Long, FinishableFuture&lt;AccountAddress&gt;&gt;() {</span>
+<span class="fc" id="L225">      new Function2&lt;String, Long, FinishableFuture&lt;AccountAddress&gt;&gt;() {</span>
 
         @Override
         public FinishableFuture&lt;AccountAddress&gt; apply(final String name, final Long blockNumber) {
-<span class="fc" id="L227">          logger.debug(&quot;Get name owner of name: {}, blockNumber: {}&quot;, name, blockNumber);</span>
+<span class="fc" id="L229">          logger.debug(&quot;Get name owner of name: {}, blockNumber: {}&quot;, name, blockNumber);</span>
 
-<span class="fc" id="L229">          FinishableFuture&lt;AccountAddress&gt; nextFuture = new FinishableFuture&lt;AccountAddress&gt;();</span>
+<span class="fc" id="L231">          FinishableFuture&lt;AccountAddress&gt; nextFuture = new FinishableFuture&lt;AccountAddress&gt;();</span>
           try {
-<span class="pc bpc" id="L231" title="1 of 2 branches missed.">            assertTrue(blockNumber &gt;= 0, &quot;Block number must &gt;= 0&quot;);</span>
+<span class="pc bpc" id="L233" title="1 of 2 branches missed.">            assertTrue(blockNumber &gt;= 0, &quot;Block number must &gt;= 0&quot;);</span>
 
-<span class="fc" id="L233">            final Rpc.Name rpcName = Rpc.Name.newBuilder()</span>
-<span class="fc" id="L234">                .setName(name)</span>
-<span class="fc" id="L235">                .setBlockNo(blockNumber)</span>
-<span class="fc" id="L236">                .build();</span>
-<span class="fc" id="L237">            logger.trace(&quot;AergoService getNameInfo arg: {}&quot;, rpcName);</span>
+<span class="fc" id="L235">            final Rpc.Name rpcName = Rpc.Name.newBuilder()</span>
+<span class="fc" id="L236">                .setName(name)</span>
+<span class="fc" id="L237">                .setBlockNo(blockNumber)</span>
+<span class="fc" id="L238">                .build();</span>
+<span class="fc" id="L239">            logger.trace(&quot;AergoService getNameInfo arg: {}&quot;, rpcName);</span>
 
-<span class="fc" id="L239">            ListenableFuture&lt;Rpc.NameInfo&gt; listenableFuture = aergoService.getNameInfo(rpcName);</span>
-<span class="fc" id="L240">            FutureChain&lt;Rpc.NameInfo, AccountAddress&gt; callback =</span>
-<span class="fc" id="L241">                new FutureChain&lt;Rpc.NameInfo, AccountAddress&gt;(nextFuture, contextProvider.get());</span>
-<span class="fc" id="L242">            callback.setSuccessHandler(new Function1&lt;Rpc.NameInfo, AccountAddress&gt;() {</span>
+<span class="fc" id="L241">            ListenableFuture&lt;Rpc.NameInfo&gt; listenableFuture = aergoService.getNameInfo(rpcName);</span>
+<span class="fc" id="L242">            FutureChain&lt;Rpc.NameInfo, AccountAddress&gt; callback =</span>
+<span class="fc" id="L243">                new FutureChain&lt;Rpc.NameInfo, AccountAddress&gt;(nextFuture, contextProvider.get());</span>
+<span class="fc" id="L244">            callback.setSuccessHandler(new Function1&lt;Rpc.NameInfo, AccountAddress&gt;() {</span>
               @Override
               public AccountAddress apply(final Rpc.NameInfo nameInfo) {
-<span class="fc" id="L245">                final AccountAddress converted =</span>
-<span class="fc" id="L246">                    accountAddressConverter.convertToDomainModel(nameInfo.getOwner());</span>
-<span class="pc bpc" id="L247" title="1 of 2 branches missed.">                return BytesValue.EMPTY.equals(converted.getBytesValue()) ? null : converted;</span>
+<span class="fc" id="L247">                final AccountAddress converted =</span>
+<span class="fc" id="L248">                    accountAddressConverter.convertToDomainModel(nameInfo.getOwner());</span>
+<span class="pc bpc" id="L249" title="1 of 2 branches missed.">                return BytesValue.EMPTY.equals(converted.getBytesValue()) ? null : converted;</span>
               }
             });
-<span class="fc" id="L250">            addCallback(listenableFuture, callback, directExecutor());</span>
-<span class="nc" id="L251">          } catch (Exception e) {</span>
-<span class="nc" id="L252">            nextFuture.fail(e);</span>
-<span class="fc" id="L253">          }</span>
-<span class="fc" id="L254">          return nextFuture;</span>
+<span class="fc" id="L252">            addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="nc" id="L253">          } catch (Exception e) {</span>
+<span class="nc" id="L254">            nextFuture.fail(e);</span>
+<span class="fc" id="L255">          }</span>
+<span class="fc" id="L256">          return nextFuture;</span>
         }
       };
 
-<span class="pc" id="L258">  @Getter</span>
+<span class="pc" id="L260">  @Getter</span>
   private final Function3&lt;Account, Aer, Long, FinishableFuture&lt;TxHash&gt;&gt; deprecatedStakingFunction =
-<span class="fc" id="L260">      new Function3&lt;Account, Aer, Long, FinishableFuture&lt;TxHash&gt;&gt;() {</span>
+<span class="fc" id="L262">      new Function3&lt;Account, Aer, Long, FinishableFuture&lt;TxHash&gt;&gt;() {</span>
 
         @Override
         public FinishableFuture&lt;TxHash&gt; apply(final Account account, final Aer amount,
             final Long nonce) {
-<span class="nc" id="L265">          logger.debug(&quot;Staking account with account: {}, amount: {}, nonce: {}&quot;,</span>
-<span class="nc" id="L266">              account.getAddress(), amount, nonce);</span>
+<span class="nc" id="L267">          logger.debug(&quot;Staking account with account: {}, amount: {}, nonce: {}&quot;,</span>
+<span class="nc" id="L268">              account.getAddress(), amount, nonce);</span>
 
-<span class="nc" id="L268">          final RawTransaction rawTransaction = RawTransaction.newStakeTxBuilder()</span>
-<span class="nc" id="L269">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
-<span class="nc" id="L270">              .from(account.getAddress())</span>
-<span class="nc" id="L271">              .amount(amount)</span>
-<span class="nc" id="L272">              .nonce(nonce)</span>
-<span class="nc" id="L273">              .build();</span>
-<span class="nc" id="L274">          final Transaction signed = getSignFunction().apply(account, rawTransaction).get();</span>
-<span class="nc" id="L275">          return transactionBaseTemplate.getCommitFunction().apply(signed);</span>
+<span class="nc" id="L270">          final RawTransaction rawTransaction = RawTransaction.newStakeTxBuilder()</span>
+<span class="nc" id="L271">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
+<span class="nc" id="L272">              .from(account.getAddress())</span>
+<span class="nc" id="L273">              .amount(amount)</span>
+<span class="nc" id="L274">              .nonce(nonce)</span>
+<span class="nc" id="L275">              .build();</span>
+<span class="nc" id="L276">          final Transaction signed = getSignFunction().apply(account, rawTransaction).get();</span>
+<span class="nc" id="L277">          return transactionBaseTemplate.getCommitFunction().apply(signed);</span>
         }
       };
 
-<span class="fc" id="L279">  @Getter</span>
+<span class="fc" id="L281">  @Getter</span>
   private final Function3&lt;Signer, Aer, Long, FinishableFuture&lt;TxHash&gt;&gt; stakingFunction =
-<span class="fc" id="L281">      new Function3&lt;Signer, Aer, Long, FinishableFuture&lt;TxHash&gt;&gt;() {</span>
+<span class="fc" id="L283">      new Function3&lt;Signer, Aer, Long, FinishableFuture&lt;TxHash&gt;&gt;() {</span>
 
         @Override
         public FinishableFuture&lt;TxHash&gt; apply(final Signer signer, final Aer amount,
             final Long nonce) {
-<span class="fc" id="L286">          logger.debug(&quot;Staking account with signer: {}, amount: {}, nonce: {}&quot;,</span>
-<span class="fc" id="L287">              signer.getPrincipal(), amount, nonce);</span>
+<span class="fc" id="L288">          logger.debug(&quot;Staking account with signer: {}, amount: {}, nonce: {}&quot;,</span>
+<span class="fc" id="L289">              signer.getPrincipal(), amount, nonce);</span>
 
-<span class="fc" id="L289">          final RawTransaction rawTransaction = RawTransaction.newStakeTxBuilder()</span>
-<span class="fc" id="L290">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
-<span class="fc" id="L291">              .from(signer.getPrincipal())</span>
-<span class="fc" id="L292">              .amount(amount)</span>
-<span class="fc" id="L293">              .nonce(nonce)</span>
-<span class="fc" id="L294">              .build();</span>
-<span class="fc" id="L295">          final Transaction signed = signer.sign(rawTransaction);</span>
-<span class="fc" id="L296">          return transactionBaseTemplate.getCommitFunction().apply(signed);</span>
+<span class="fc" id="L291">          final RawTransaction rawTransaction = RawTransaction.newStakeTxBuilder()</span>
+<span class="fc" id="L292">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
+<span class="fc" id="L293">              .from(signer.getPrincipal())</span>
+<span class="fc" id="L294">              .amount(amount)</span>
+<span class="fc" id="L295">              .nonce(nonce)</span>
+<span class="fc" id="L296">              .build();</span>
+<span class="fc" id="L297">          final Transaction signed = signer.sign(rawTransaction);</span>
+<span class="fc" id="L298">          return transactionBaseTemplate.getCommitFunction().apply(signed);</span>
         }
       };
 
-<span class="pc" id="L300">  @Getter</span>
+<span class="pc" id="L302">  @Getter</span>
   private final Function3&lt;Account, Aer, Long,
       FinishableFuture&lt;TxHash&gt;&gt; deprecatedUnstakingFunction = new Function3&lt;Account,
-<span class="fc" id="L303">          Aer, Long, FinishableFuture&lt;TxHash&gt;&gt;() {</span>
+<span class="fc" id="L305">          Aer, Long, FinishableFuture&lt;TxHash&gt;&gt;() {</span>
 
         @Override
         public FinishableFuture&lt;TxHash&gt; apply(final Account account, final Aer amount,
             final Long nonce) {
-<span class="nc" id="L308">          logger.debug(&quot;Unstaking account with account: {}, amount: {}, nonce: {}&quot;,</span>
-<span class="nc" id="L309">              account.getAddress(), amount, nonce);</span>
+<span class="nc" id="L310">          logger.debug(&quot;Unstaking account with account: {}, amount: {}, nonce: {}&quot;,</span>
+<span class="nc" id="L311">              account.getAddress(), amount, nonce);</span>
 
-<span class="nc" id="L311">          final RawTransaction rawTransaction = RawTransaction.newUnstakeTxBuilder()</span>
-<span class="nc" id="L312">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
-<span class="nc" id="L313">              .from(account.getAddress())</span>
-<span class="nc" id="L314">              .amount(amount)</span>
-<span class="nc" id="L315">              .nonce(nonce)</span>
-<span class="nc" id="L316">              .build();</span>
-<span class="nc" id="L317">          final Transaction signed = getSignFunction().apply(account, rawTransaction).get();</span>
-<span class="nc" id="L318">          return transactionBaseTemplate.getCommitFunction().apply(signed);</span>
+<span class="nc" id="L313">          final RawTransaction rawTransaction = RawTransaction.newUnstakeTxBuilder()</span>
+<span class="nc" id="L314">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
+<span class="nc" id="L315">              .from(account.getAddress())</span>
+<span class="nc" id="L316">              .amount(amount)</span>
+<span class="nc" id="L317">              .nonce(nonce)</span>
+<span class="nc" id="L318">              .build();</span>
+<span class="nc" id="L319">          final Transaction signed = getSignFunction().apply(account, rawTransaction).get();</span>
+<span class="nc" id="L320">          return transactionBaseTemplate.getCommitFunction().apply(signed);</span>
         }
       };
 
-<span class="fc" id="L322">  @Getter</span>
+<span class="fc" id="L324">  @Getter</span>
   private final Function3&lt;Signer, Aer, Long, FinishableFuture&lt;TxHash&gt;&gt; unstakingFunction =
-<span class="fc" id="L324">      new Function3&lt;Signer, Aer, Long, FinishableFuture&lt;TxHash&gt;&gt;() {</span>
+<span class="fc" id="L326">      new Function3&lt;Signer, Aer, Long, FinishableFuture&lt;TxHash&gt;&gt;() {</span>
 
         @Override
         public FinishableFuture&lt;TxHash&gt; apply(final Signer signer, final Aer amount,
             final Long nonce) {
-<span class="fc" id="L329">          logger.debug(&quot;Unstaking account with signer: {}, amount: {}, nonce: {}&quot;,</span>
-<span class="fc" id="L330">              signer.getPrincipal(), amount, nonce);</span>
+<span class="fc" id="L331">          logger.debug(&quot;Unstaking account with signer: {}, amount: {}, nonce: {}&quot;,</span>
+<span class="fc" id="L332">              signer.getPrincipal(), amount, nonce);</span>
 
-<span class="fc" id="L332">          final RawTransaction rawTransaction = RawTransaction.newUnstakeTxBuilder()</span>
-<span class="fc" id="L333">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
-<span class="fc" id="L334">              .from(signer.getPrincipal())</span>
-<span class="fc" id="L335">              .amount(amount)</span>
-<span class="fc" id="L336">              .nonce(nonce)</span>
-<span class="fc" id="L337">              .build();</span>
-<span class="fc" id="L338">          final Transaction signed = signer.sign(rawTransaction);</span>
-<span class="fc" id="L339">          return transactionBaseTemplate.getCommitFunction().apply(signed);</span>
+<span class="fc" id="L334">          final RawTransaction rawTransaction = RawTransaction.newUnstakeTxBuilder()</span>
+<span class="fc" id="L335">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
+<span class="fc" id="L336">              .from(signer.getPrincipal())</span>
+<span class="fc" id="L337">              .amount(amount)</span>
+<span class="fc" id="L338">              .nonce(nonce)</span>
+<span class="fc" id="L339">              .build();</span>
+<span class="fc" id="L340">          final Transaction signed = signer.sign(rawTransaction);</span>
+<span class="fc" id="L341">          return transactionBaseTemplate.getCommitFunction().apply(signed);</span>
         }
       };
 
-<span class="fc" id="L343">  @Getter</span>
+<span class="fc" id="L345">  @Getter</span>
   private final Function1&lt;AccountAddress, FinishableFuture&lt;StakeInfo&gt;&gt; stakingInfoFunction =
-<span class="fc" id="L345">      new Function1&lt;AccountAddress, FinishableFuture&lt;StakeInfo&gt;&gt;() {</span>
+<span class="fc" id="L347">      new Function1&lt;AccountAddress, FinishableFuture&lt;StakeInfo&gt;&gt;() {</span>
 
         @Override
         public FinishableFuture&lt;StakeInfo&gt; apply(final AccountAddress accountAddress) {
-<span class="fc" id="L349">          logger.debug(&quot;Get staking information with address: {}&quot;, accountAddress);</span>
+<span class="fc" id="L351">          logger.debug(&quot;Get staking information with address: {}&quot;, accountAddress);</span>
 
-<span class="fc" id="L351">          FinishableFuture&lt;StakeInfo&gt; nextFuture = new FinishableFuture&lt;StakeInfo&gt;();</span>
+<span class="fc" id="L353">          FinishableFuture&lt;StakeInfo&gt; nextFuture = new FinishableFuture&lt;StakeInfo&gt;();</span>
           try {
-<span class="fc" id="L353">            final Rpc.AccountAddress rpcAddress = Rpc.AccountAddress.newBuilder()</span>
-<span class="fc" id="L354">                .setValue(accountAddressConverter.convertToRpcModel(accountAddress))</span>
-<span class="fc" id="L355">                .build();</span>
-<span class="fc" id="L356">            logger.trace(&quot;AergoService getStaking arg: {}&quot;, rpcAddress);</span>
+<span class="fc" id="L355">            final Rpc.AccountAddress rpcAddress = Rpc.AccountAddress.newBuilder()</span>
+<span class="fc" id="L356">                .setValue(accountAddressConverter.convertToRpcModel(accountAddress))</span>
+<span class="fc" id="L357">                .build();</span>
+<span class="fc" id="L358">            logger.trace(&quot;AergoService getStaking arg: {}&quot;, rpcAddress);</span>
 
-<span class="fc" id="L358">            ListenableFuture&lt;Rpc.Staking&gt; listenableFuture = aergoService.getStaking(rpcAddress);</span>
-<span class="fc" id="L359">            FutureChain&lt;Rpc.Staking, StakeInfo&gt; callback =</span>
-<span class="fc" id="L360">                new FutureChain&lt;Rpc.Staking, StakeInfo&gt;(nextFuture, contextProvider.get());</span>
-<span class="fc" id="L361">            callback.setSuccessHandler(new Function1&lt;Rpc.Staking, StakeInfo&gt;() {</span>
+<span class="fc" id="L360">            ListenableFuture&lt;Rpc.Staking&gt; listenableFuture = aergoService.getStaking(rpcAddress);</span>
+<span class="fc" id="L361">            FutureChain&lt;Rpc.Staking, StakeInfo&gt; callback =</span>
+<span class="fc" id="L362">                new FutureChain&lt;Rpc.Staking, StakeInfo&gt;(nextFuture, contextProvider.get());</span>
+<span class="fc" id="L363">            callback.setSuccessHandler(new Function1&lt;Rpc.Staking, StakeInfo&gt;() {</span>
               @Override
               public StakeInfo apply(final Rpc.Staking rpcStaking) {
-<span class="fc" id="L364">                final StakeInfo withoutAddress =</span>
-<span class="fc" id="L365">                    stakingInfoConverter.convertToDomainModel(rpcStaking);</span>
-<span class="fc" id="L366">                return new StakeInfo(accountAddress, withoutAddress.getAmount(),</span>
-<span class="fc" id="L367">                    withoutAddress.getBlockNumber());</span>
+<span class="fc" id="L366">                final StakeInfo withoutAddress =</span>
+<span class="fc" id="L367">                    stakingInfoConverter.convertToDomainModel(rpcStaking);</span>
+<span class="fc" id="L368">                return StakeInfo.newBuilder().address(accountAddress)</span>
+<span class="fc" id="L369">                    .amount(withoutAddress.getAmount())</span>
+<span class="fc" id="L370">                    .blockNumber(withoutAddress.getBlockNumber())</span>
+<span class="fc" id="L371">                    .build();</span>
               }
             });
-<span class="fc" id="L370">            addCallback(listenableFuture, callback, directExecutor());</span>
-<span class="nc" id="L371">          } catch (Exception e) {</span>
-<span class="nc" id="L372">            nextFuture.fail(e);</span>
-<span class="fc" id="L373">          }</span>
-<span class="fc" id="L374">          return nextFuture;</span>
+<span class="fc" id="L374">            addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="nc" id="L375">          } catch (Exception e) {</span>
+<span class="nc" id="L376">            nextFuture.fail(e);</span>
+<span class="fc" id="L377">          }</span>
+<span class="fc" id="L378">          return nextFuture;</span>
         }
       };
 
-<span class="fc" id="L378">  @Getter</span>
+<span class="pc" id="L382">  @Getter</span>
   private final Function2&lt;Account, RawTransaction, FinishableFuture&lt;Transaction&gt;&gt; signFunction =
-<span class="fc" id="L380">      new Function2&lt;Account, RawTransaction, FinishableFuture&lt;Transaction&gt;&gt;() {</span>
+<span class="fc" id="L384">      new Function2&lt;Account, RawTransaction, FinishableFuture&lt;Transaction&gt;&gt;() {</span>
 
         @Override
         public FinishableFuture&lt;Transaction&gt; apply(final Account account,
             final RawTransaction rawTransaction) {
-<span class="fc" id="L385">          logger.debug(&quot;Sign request with account: {}, rawTx: {}&quot;, account.getAddress(),</span>
+<span class="nc" id="L389">          logger.debug(&quot;Sign request with account: {}, rawTx: {}&quot;, account.getAddress(),</span>
               rawTransaction);
 
-<span class="fc" id="L388">          FinishableFuture&lt;Transaction&gt; nextFuture = new FinishableFuture&lt;Transaction&gt;();</span>
-<span class="pc bpc" id="L389" title="1 of 2 branches missed.">          if (account instanceof TxSigner) {</span>
-<span class="fc" id="L390">            final TxSigner signer = (TxSigner) account;</span>
-<span class="fc" id="L391">            final Transaction signed = signer.sign(rawTransaction);</span>
-<span class="fc" id="L392">            nextFuture.success(signed);</span>
-<span class="fc" id="L393">          } else {</span>
-<span class="nc" id="L394">            final Transaction domainTransaction =</span>
-                new Transaction(rawTransaction, null, null, null, 0, false);
-<span class="nc" id="L396">            final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(domainTransaction);</span>
-<span class="nc" id="L397">            logger.trace(&quot;AergoService signTX arg: {}&quot;, rpcTx);</span>
+<span class="nc" id="L392">          FinishableFuture&lt;Transaction&gt; nextFuture = new FinishableFuture&lt;Transaction&gt;();</span>
+<span class="nc bnc" id="L393" title="All 2 branches missed.">          if (account instanceof TxSigner) {</span>
+<span class="nc" id="L394">            final TxSigner signer = (TxSigner) account;</span>
+<span class="nc" id="L395">            final Transaction signed = signer.sign(rawTransaction);</span>
+<span class="nc" id="L396">            nextFuture.success(signed);</span>
+<span class="nc" id="L397">          } else {</span>
+<span class="nc" id="L398">            final Transaction domainTransaction = Transaction.newBuilder()</span>
+<span class="nc" id="L399">                .rawTransaction(rawTransaction)</span>
+<span class="nc" id="L400">                .build();</span>
+<span class="nc" id="L401">            final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(domainTransaction);</span>
+<span class="nc" id="L402">            logger.trace(&quot;AergoService signTX arg: {}&quot;, rpcTx);</span>
 
-<span class="nc" id="L399">            ListenableFuture&lt;Blockchain.Tx&gt; listenableFuture = aergoService.signTX(rpcTx);</span>
-<span class="nc" id="L400">            FutureChain&lt;Blockchain.Tx, Transaction&gt; callback =</span>
-<span class="nc" id="L401">                new FutureChain&lt;Blockchain.Tx, Transaction&gt;(nextFuture, contextProvider.get());</span>
-<span class="nc" id="L402">            callback.setSuccessHandler(new Function1&lt;Blockchain.Tx, Transaction&gt;() {</span>
+<span class="nc" id="L404">            ListenableFuture&lt;Blockchain.Tx&gt; listenableFuture = aergoService.signTX(rpcTx);</span>
+<span class="nc" id="L405">            FutureChain&lt;Blockchain.Tx, Transaction&gt; callback =</span>
+<span class="nc" id="L406">                new FutureChain&lt;Blockchain.Tx, Transaction&gt;(nextFuture, contextProvider.get());</span>
+<span class="nc" id="L407">            callback.setSuccessHandler(new Function1&lt;Blockchain.Tx, Transaction&gt;() {</span>
               @Override
               public Transaction apply(final Blockchain.Tx tx) {
-<span class="nc" id="L405">                return transactionConverter.convertToDomainModel(tx);</span>
+<span class="nc" id="L410">                return transactionConverter.convertToDomainModel(tx);</span>
               }
             });
-<span class="nc" id="L408">            addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="nc" id="L413">            addCallback(listenableFuture, callback, directExecutor());</span>
           }
-<span class="fc" id="L410">          return nextFuture;</span>
+<span class="nc" id="L415">          return nextFuture;</span>
         }
       };
 
-<span class="pc" id="L414">  @Getter</span>
+<span class="pc" id="L419">  @Getter</span>
   private final Function2&lt;Account, Transaction, FinishableFuture&lt;Boolean&gt;&gt; verifyFunction =
-<span class="fc" id="L416">      new Function2&lt;Account, Transaction, FinishableFuture&lt;Boolean&gt;&gt;() {</span>
+<span class="fc" id="L421">      new Function2&lt;Account, Transaction, FinishableFuture&lt;Boolean&gt;&gt;() {</span>
 
         @Override
         public FinishableFuture&lt;Boolean&gt; apply(final Account account,
             final Transaction transaction) {
-<span class="nc" id="L421">          logger.debug(&quot;Sign verify with account: {}, signedTx: {}&quot;, account, transaction);</span>
+<span class="nc" id="L426">          logger.debug(&quot;Sign verify with account: {}, signedTx: {}&quot;, account, transaction);</span>
 
-<span class="nc" id="L423">          FinishableFuture&lt;Boolean&gt; nextFuture = new FinishableFuture&lt;Boolean&gt;();</span>
+<span class="nc" id="L428">          FinishableFuture&lt;Boolean&gt; nextFuture = new FinishableFuture&lt;Boolean&gt;();</span>
           try {
-<span class="nc" id="L425">            final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(transaction);</span>
-<span class="nc" id="L426">            logger.trace(&quot;AergoService verifyTX arg: {}&quot;, rpcTx);</span>
+<span class="nc" id="L430">            final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(transaction);</span>
+<span class="nc" id="L431">            logger.trace(&quot;AergoService verifyTX arg: {}&quot;, rpcTx);</span>
 
-<span class="nc" id="L428">            ListenableFuture&lt;Rpc.VerifyResult&gt; listenableFuture = aergoService.verifyTX(rpcTx);</span>
-<span class="nc" id="L429">            FutureChain&lt;Rpc.VerifyResult, Boolean&gt; callback =</span>
-<span class="nc" id="L430">                new FutureChain&lt;Rpc.VerifyResult, Boolean&gt;(nextFuture, contextProvider.get());</span>
-<span class="nc" id="L431">            callback.setSuccessHandler(new Function1&lt;Rpc.VerifyResult, Boolean&gt;() {</span>
+<span class="nc" id="L433">            ListenableFuture&lt;Rpc.VerifyResult&gt; listenableFuture = aergoService.verifyTX(rpcTx);</span>
+<span class="nc" id="L434">            FutureChain&lt;Rpc.VerifyResult, Boolean&gt; callback =</span>
+<span class="nc" id="L435">                new FutureChain&lt;Rpc.VerifyResult, Boolean&gt;(nextFuture, contextProvider.get());</span>
+<span class="nc" id="L436">            callback.setSuccessHandler(new Function1&lt;Rpc.VerifyResult, Boolean&gt;() {</span>
 
               @Override
               public Boolean apply(final Rpc.VerifyResult result) {
-<span class="nc bnc" id="L435" title="All 2 branches missed.">                if (Rpc.VerifyStatus.VERIFY_STATUS_OK != result.getError()) {</span>
-<span class="nc" id="L436">                  new TransactionVerificationException(result.getError());</span>
+<span class="nc bnc" id="L440" title="All 2 branches missed.">                if (Rpc.VerifyStatus.VERIFY_STATUS_OK != result.getError()) {</span>
+<span class="nc" id="L441">                  new TransactionVerificationException(result.getError());</span>
                 }
-<span class="nc" id="L438">                return true;</span>
+<span class="nc" id="L443">                return true;</span>
               }
             });
-<span class="nc" id="L441">            addCallback(listenableFuture, callback, directExecutor());</span>
-<span class="nc" id="L442">          } catch (Exception e) {</span>
-<span class="nc" id="L443">            nextFuture.fail(e);</span>
-<span class="nc" id="L444">          }</span>
-<span class="nc" id="L445">          return nextFuture;</span>
+<span class="nc" id="L446">            addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="nc" id="L447">          } catch (Exception e) {</span>
+<span class="nc" id="L448">            nextFuture.fail(e);</span>
+<span class="nc" id="L449">          }</span>
+<span class="nc" id="L450">          return nextFuture;</span>
         }
       };
 
-<span class="pc" id="L449">  @Getter</span>
+<span class="pc" id="L454">  @Getter</span>
   private final Function4&lt;Signer, String, List&lt;String&gt;, Long,
       FinishableFuture&lt;TxHash&gt;&gt; voteFunction = new Function4&lt;
-<span class="fc" id="L452">          Signer, String, List&lt;String&gt;, Long, FinishableFuture&lt;TxHash&gt;&gt;() {</span>
+<span class="fc" id="L457">          Signer, String, List&lt;String&gt;, Long, FinishableFuture&lt;TxHash&gt;&gt;() {</span>
 
         @Override
         public FinishableFuture&lt;TxHash&gt; apply(final Signer signer, final String voteId,
             final List&lt;String&gt; candidates, final Long nonce) {
-<span class="nc" id="L457">          logger.debug(&quot;Voting with signer: }, voteId: {}, candidates: {}, nonce: {}&quot;,</span>
-<span class="nc" id="L458">              signer.getPrincipal(), voteId, candidates, nonce);</span>
+<span class="nc" id="L462">          logger.debug(&quot;Voting with signer: }, voteId: {}, candidates: {}, nonce: {}&quot;,</span>
+<span class="nc" id="L463">              signer.getPrincipal(), voteId, candidates, nonce);</span>
 
-<span class="nc" id="L460">          final RawTransaction rawTransaction = RawTransaction.newVoteTxBuilder()</span>
-<span class="nc" id="L461">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
-<span class="nc" id="L462">              .from(signer.getPrincipal())</span>
-<span class="nc" id="L463">              .nonce(nonce)</span>
-<span class="nc" id="L464">              .voteId(voteId)</span>
-<span class="nc" id="L465">              .candidates(candidates)</span>
-<span class="nc" id="L466">              .build();</span>
-<span class="nc" id="L467">          final Transaction signed = signer.sign(rawTransaction);</span>
-<span class="nc" id="L468">          return transactionBaseTemplate.getCommitFunction().apply(signed);</span>
+<span class="nc" id="L465">          final RawTransaction rawTransaction = RawTransaction.newVoteTxBuilder()</span>
+<span class="nc" id="L466">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
+<span class="nc" id="L467">              .from(signer.getPrincipal())</span>
+<span class="nc" id="L468">              .nonce(nonce)</span>
+<span class="nc" id="L469">              .voteId(voteId)</span>
+<span class="nc" id="L470">              .candidates(candidates)</span>
+<span class="nc" id="L471">              .build();</span>
+<span class="nc" id="L472">          final Transaction signed = signer.sign(rawTransaction);</span>
+<span class="nc" id="L473">          return transactionBaseTemplate.getCommitFunction().apply(signed);</span>
         }
       };
 
-<span class="pc" id="L472">  @Getter</span>
+<span class="pc" id="L477">  @Getter</span>
   private final Function2&lt;String, Integer,
       FinishableFuture&lt;List&lt;ElectedCandidate&gt;&gt;&gt; listElectedFunction = new Function2&lt;
-<span class="fc" id="L475">          String, Integer, FinishableFuture&lt;List&lt;ElectedCandidate&gt;&gt;&gt;() {</span>
+<span class="fc" id="L480">          String, Integer, FinishableFuture&lt;List&lt;ElectedCandidate&gt;&gt;&gt;() {</span>
 
         @Override
         public FinishableFuture&lt;List&lt;ElectedCandidate&gt;&gt; apply(final String voteId,
             final Integer showCount) {
-<span class="nc" id="L480">          logger.debug(&quot;Get votes status with voteId: {}, showCount: {}&quot;, voteId, showCount);</span>
+<span class="nc" id="L485">          logger.debug(&quot;Get votes status with voteId: {}, showCount: {}&quot;, voteId, showCount);</span>
 
-<span class="nc" id="L482">          FinishableFuture&lt;List&lt;ElectedCandidate&gt;&gt; nextFuture =</span>
+<span class="nc" id="L487">          FinishableFuture&lt;List&lt;ElectedCandidate&gt;&gt; nextFuture =</span>
               new FinishableFuture&lt;List&lt;ElectedCandidate&gt;&gt;();
           try {
-<span class="nc" id="L485">            final Rpc.VoteParams rpcVoteParams = Rpc.VoteParams.newBuilder()</span>
-<span class="nc" id="L486">                .setId(voteId)</span>
-<span class="nc" id="L487">                .setCount(showCount)</span>
-<span class="nc" id="L488">                .build();</span>
-<span class="nc" id="L489">            logger.trace(&quot;AergoService getVotes arg: {}&quot;, rpcVoteParams);</span>
+<span class="nc" id="L490">            final Rpc.VoteParams rpcVoteParams = Rpc.VoteParams.newBuilder()</span>
+<span class="nc" id="L491">                .setId(voteId)</span>
+<span class="nc" id="L492">                .setCount(showCount)</span>
+<span class="nc" id="L493">                .build();</span>
+<span class="nc" id="L494">            logger.trace(&quot;AergoService getVotes arg: {}&quot;, rpcVoteParams);</span>
 
-<span class="nc" id="L491">            ListenableFuture&lt;Rpc.VoteList&gt; listenableFuture = aergoService.getVotes(rpcVoteParams);</span>
-<span class="nc" id="L492">            FutureChain&lt;Rpc.VoteList, List&lt;ElectedCandidate&gt;&gt; callback =</span>
+<span class="nc" id="L496">            ListenableFuture&lt;Rpc.VoteList&gt; listenableFuture = aergoService.getVotes(rpcVoteParams);</span>
+<span class="nc" id="L497">            FutureChain&lt;Rpc.VoteList, List&lt;ElectedCandidate&gt;&gt; callback =</span>
                 new FutureChain&lt;Rpc.VoteList, List&lt;ElectedCandidate&gt;&gt;(nextFuture,
-<span class="nc" id="L494">                    contextProvider.get());</span>
-<span class="nc" id="L495">            callback.setSuccessHandler(new Function1&lt;Rpc.VoteList, List&lt;ElectedCandidate&gt;&gt;() {</span>
+<span class="nc" id="L499">                    contextProvider.get());</span>
+<span class="nc" id="L500">            callback.setSuccessHandler(new Function1&lt;Rpc.VoteList, List&lt;ElectedCandidate&gt;&gt;() {</span>
 
               @Override
               public List&lt;ElectedCandidate&gt; apply(final Rpc.VoteList rpcVoteList) {
-<span class="nc" id="L499">                final List&lt;ElectedCandidate&gt; electedCandidates = new ArrayList&lt;ElectedCandidate&gt;();</span>
-<span class="nc bnc" id="L500" title="All 2 branches missed.">                for (final Rpc.Vote rpcCandidate : rpcVoteList.getVotesList()) {</span>
-<span class="nc" id="L501">                  final ElectedCandidate domainElectedCandidate =</span>
-<span class="nc" id="L502">                      electedCandidateConverter.convertToDomainModel(rpcCandidate);</span>
-<span class="nc" id="L503">                  electedCandidates.add(domainElectedCandidate);</span>
-<span class="nc" id="L504">                }</span>
-<span class="nc" id="L505">                return electedCandidates;</span>
+<span class="nc" id="L504">                final List&lt;ElectedCandidate&gt; electedCandidates = new ArrayList&lt;ElectedCandidate&gt;();</span>
+<span class="nc bnc" id="L505" title="All 2 branches missed.">                for (final Rpc.Vote rpcCandidate : rpcVoteList.getVotesList()) {</span>
+<span class="nc" id="L506">                  final ElectedCandidate domainElectedCandidate =</span>
+<span class="nc" id="L507">                      electedCandidateConverter.convertToDomainModel(rpcCandidate);</span>
+<span class="nc" id="L508">                  electedCandidates.add(domainElectedCandidate);</span>
+<span class="nc" id="L509">                }</span>
+<span class="nc" id="L510">                return electedCandidates;</span>
               }
             });
-<span class="nc" id="L508">            addCallback(listenableFuture, callback, directExecutor());</span>
-<span class="nc" id="L509">          } catch (Exception e) {</span>
-<span class="nc" id="L510">            nextFuture.fail(e);</span>
-<span class="nc" id="L511">          }</span>
-<span class="nc" id="L512">          return nextFuture;</span>
+<span class="nc" id="L513">            addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="nc" id="L514">          } catch (Exception e) {</span>
+<span class="nc" id="L515">            nextFuture.fail(e);</span>
+<span class="nc" id="L516">          }</span>
+<span class="nc" id="L517">          return nextFuture;</span>
         }
       };
 
-<span class="pc" id="L516">  @Getter</span>
+<span class="pc" id="L521">  @Getter</span>
   private final Function1&lt;AccountAddress, FinishableFuture&lt;AccountTotalVote&gt;&gt; votesOfFunction =
-<span class="fc" id="L518">      new Function1&lt;AccountAddress, FinishableFuture&lt;AccountTotalVote&gt;&gt;() {</span>
+<span class="fc" id="L523">      new Function1&lt;AccountAddress, FinishableFuture&lt;AccountTotalVote&gt;&gt;() {</span>
 
         @Override
         public FinishableFuture&lt;AccountTotalVote&gt; apply(final AccountAddress accountAddress) {
-<span class="nc" id="L522">          logger.debug(&quot;Get votes with address: {}&quot;, accountAddress);</span>
+<span class="nc" id="L527">          logger.debug(&quot;Get votes with address: {}&quot;, accountAddress);</span>
 
-<span class="nc" id="L524">          FinishableFuture&lt;AccountTotalVote&gt; nextFuture = new FinishableFuture&lt;AccountTotalVote&gt;();</span>
+<span class="nc" id="L529">          FinishableFuture&lt;AccountTotalVote&gt; nextFuture = new FinishableFuture&lt;AccountTotalVote&gt;();</span>
           try {
-<span class="nc" id="L526">            final Rpc.AccountAddress rpcAddress = Rpc.AccountAddress.newBuilder()</span>
-<span class="nc" id="L527">                .setValue(accountAddressConverter.convertToRpcModel(accountAddress))</span>
-<span class="nc" id="L528">                .build();</span>
-<span class="nc" id="L529">            logger.trace(&quot;AergoService getAccountVotes arg: {}&quot;, rpcAddress);</span>
+<span class="nc" id="L531">            final Rpc.AccountAddress rpcAddress = Rpc.AccountAddress.newBuilder()</span>
+<span class="nc" id="L532">                .setValue(accountAddressConverter.convertToRpcModel(accountAddress))</span>
+<span class="nc" id="L533">                .build();</span>
+<span class="nc" id="L534">            logger.trace(&quot;AergoService getAccountVotes arg: {}&quot;, rpcAddress);</span>
 
-<span class="nc" id="L531">            ListenableFuture&lt;Rpc.AccountVoteInfo&gt; listenableFuture =</span>
-<span class="nc" id="L532">                aergoService.getAccountVotes(rpcAddress);</span>
-<span class="nc" id="L533">            FutureChain&lt;Rpc.AccountVoteInfo, AccountTotalVote&gt; callback =</span>
+<span class="nc" id="L536">            ListenableFuture&lt;Rpc.AccountVoteInfo&gt; listenableFuture =</span>
+<span class="nc" id="L537">                aergoService.getAccountVotes(rpcAddress);</span>
+<span class="nc" id="L538">            FutureChain&lt;Rpc.AccountVoteInfo, AccountTotalVote&gt; callback =</span>
                 new FutureChain&lt;Rpc.AccountVoteInfo, AccountTotalVote&gt;(nextFuture,
-<span class="nc" id="L535">                    contextProvider.get());</span>
-<span class="nc" id="L536">            callback.setSuccessHandler(new Function1&lt;Rpc.AccountVoteInfo, AccountTotalVote&gt;() {</span>
+<span class="nc" id="L540">                    contextProvider.get());</span>
+<span class="nc" id="L541">            callback.setSuccessHandler(new Function1&lt;Rpc.AccountVoteInfo, AccountTotalVote&gt;() {</span>
 
               @Override
               public AccountTotalVote apply(final Rpc.AccountVoteInfo rpcAccountVoteTotal) {
-<span class="nc" id="L540">                return accountTotalVoteConverter.convertToDomainModel(rpcAccountVoteTotal);</span>
+<span class="nc" id="L545">                return accountTotalVoteConverter.convertToDomainModel(rpcAccountVoteTotal);</span>
               }
             });
-<span class="nc" id="L543">            addCallback(listenableFuture, callback, directExecutor());</span>
-<span class="nc" id="L544">          } catch (Exception e) {</span>
-<span class="nc" id="L545">            nextFuture.fail(e);</span>
-<span class="nc" id="L546">          }</span>
-<span class="nc" id="L547">          return nextFuture;</span>
+<span class="nc" id="L548">            addCallback(listenableFuture, callback, directExecutor());</span>
+<span class="nc" id="L549">          } catch (Exception e) {</span>
+<span class="nc" id="L550">            nextFuture.fail(e);</span>
+<span class="nc" id="L551">          }</span>
+<span class="nc" id="L552">          return nextFuture;</span>
         }
       };
 

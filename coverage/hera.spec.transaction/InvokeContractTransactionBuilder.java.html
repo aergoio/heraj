@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InvokeContractTransactionBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.spec.transaction</a> &gt; <span class="el_source">InvokeContractTransactionBuilder.java</span></div><h1>InvokeContractTransactionBuilder.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.spec.transaction;
+
+import static hera.util.ValidationUtils.assertNotNull;
+
+import hera.api.model.ChainIdHash;
+import hera.api.model.ContractInvocation;
+import hera.api.model.Fee;
+import hera.api.model.Identity;
+import hera.api.model.RawTransaction;
+import hera.spec.resolver.PayloadResolver;
+import hera.spec.resolver.PayloadSpec.Type;
+import hera.spec.transaction.dsl.InvokeContractTransaction;
+import hera.spec.transaction.dsl.InvokeContractTransaction.WithChainIdHash;
+import hera.spec.transaction.dsl.InvokeContractTransaction.WithChainIdHashAndSender;
+import hera.spec.transaction.dsl.InvokeContractTransaction.WithChainIdHashAndSenderAndNonce;
+import hera.spec.transaction.dsl.InvokeContractTransaction.WithReady;
+
+<span class="fc" id="L22">public class InvokeContractTransactionBuilder implements</span>
+    InvokeContractTransaction.WithNothing,
+    InvokeContractTransaction.WithChainIdHash,
+    InvokeContractTransaction.WithChainIdHashAndSender,
+    InvokeContractTransaction.WithChainIdHashAndSenderAndNonce,
+    InvokeContractTransaction.WithReady {
+
+  protected ContractInvocation contractInvocation;
+
+<span class="fc" id="L31">  protected final PlainTransactionBuilder delegate = new PlainTransactionBuilder();</span>
+
+  @Override
+  public WithChainIdHash chainIdHash(final ChainIdHash chainIdHash) {
+<span class="fc" id="L35">    this.delegate.chainIdHash(chainIdHash);</span>
+<span class="fc" id="L36">    return this;</span>
+  }
+
+  @Override
+  public WithChainIdHashAndSender from(final String sender) {
+<span class="nc" id="L41">    this.delegate.from(sender);</span>
+<span class="nc" id="L42">    return this;</span>
+  }
+
+  @Override
+  public WithChainIdHashAndSender from(final Identity sender) {
+<span class="fc" id="L47">    this.delegate.from(sender);</span>
+<span class="fc" id="L48">    return this;</span>
+  }
+
+  @Override
+  public WithChainIdHashAndSenderAndNonce nonce(final long nonce) {
+<span class="fc" id="L53">    this.delegate.nonce(nonce);</span>
+<span class="fc" id="L54">    return this;</span>
+  }
+
+  @Override
+  public WithReady invocation(final ContractInvocation contractInvocation) {
+<span class="fc" id="L59">    assertNotNull(contractInvocation);</span>
+<span class="fc" id="L60">    this.contractInvocation = contractInvocation;</span>
+<span class="fc" id="L61">    return this;</span>
+  }
+
+  @Override
+  public WithReady fee(final Fee fee) {
+<span class="nc" id="L66">    this.delegate.fee(fee);</span>
+<span class="nc" id="L67">    return this;</span>
+  }
+
+  @Override
+  public RawTransaction build() {
+<span class="fc" id="L72">    this.delegate.to(contractInvocation.getAddress());</span>
+<span class="fc" id="L73">    this.delegate.amount(contractInvocation.getAmount());</span>
+<span class="fc" id="L74">    this.delegate.payload(PayloadResolver.resolve(Type.ContractInvocation, contractInvocation));</span>
+<span class="fc" id="L75">    return delegate.build();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

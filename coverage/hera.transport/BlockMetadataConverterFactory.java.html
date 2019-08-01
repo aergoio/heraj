@@ -37,18 +37,19 @@ import types.Rpc;
         @Override
         public BlockMetadata apply(final Rpc.BlockMetadata rpcBlockMetadata) {
 <span class="fc" id="L39">          logger.trace(&quot;Rpc block metadata to convert: {}&quot;, rpcBlockMetadata);</span>
-<span class="fc" id="L40">          final BlockMetadata domainBlockMetadata = new BlockMetadata(</span>
-<span class="fc" id="L41">              new BlockHash(of(rpcBlockMetadata.getHash().toByteArray())),</span>
-<span class="fc" id="L42">              blockHeaderConverter.convertToDomainModel(rpcBlockMetadata.getHeader()),</span>
-<span class="fc" id="L43">              rpcBlockMetadata.getTxcount(),</span>
-<span class="fc" id="L44">              rpcBlockMetadata.getSize());</span>
-<span class="fc" id="L45">          logger.trace(&quot;Domain block metadata converted: {}&quot;, domainBlockMetadata);</span>
-<span class="fc" id="L46">          return domainBlockMetadata;</span>
+<span class="fc" id="L40">          final BlockMetadata domainBlockMetadata = BlockMetadata.newBuilder()</span>
+<span class="fc" id="L41">              .blockHash(new BlockHash(of(rpcBlockMetadata.getHash().toByteArray())))</span>
+<span class="fc" id="L42">              .blockHeader(blockHeaderConverter.convertToDomainModel(rpcBlockMetadata.getHeader()))</span>
+<span class="fc" id="L43">              .txCount(rpcBlockMetadata.getTxcount())</span>
+<span class="fc" id="L44">              .blockSize(rpcBlockMetadata.getSize())</span>
+<span class="fc" id="L45">              .build();</span>
+<span class="fc" id="L46">          logger.trace(&quot;Domain block metadata converted: {}&quot;, domainBlockMetadata);</span>
+<span class="fc" id="L47">          return domainBlockMetadata;</span>
         }
       };
 
   public ModelConverter&lt;BlockMetadata, Rpc.BlockMetadata&gt; create() {
-<span class="fc" id="L51">    return new ModelConverter&lt;BlockMetadata, Rpc.BlockMetadata&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L52">    return new ModelConverter&lt;BlockMetadata, Rpc.BlockMetadata&gt;(domainConverter, rpcConverter);</span>
   }
 
 }

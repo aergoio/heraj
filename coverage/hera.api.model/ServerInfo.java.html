@@ -5,43 +5,38 @@
 package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import java.util.Map;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="nc" id="L19">@ToString</span>
-<span class="nc bnc" id="L20" title="All 22 branches missed.">@EqualsAndHashCode</span>
+<span class="pc bnc" id="L21" title="All 20 branches missed.">@Value</span>
+<span class="pc bpc" id="L22" title="2 of 8 branches missed.">@Builder(builderMethodName = &quot;newBuilder&quot;)</span>
 public class ServerInfo {
 
-<span class="nc" id="L23">  @Getter</span>
-  protected final Map&lt;String, String&gt; status;
+  @NonNull
+  @Default
+<span class="fc" id="L27">  Map&lt;String, String&gt; status = emptyMap();</span>
 
-<span class="nc" id="L26">  @Getter</span>
-  protected final Map&lt;String, Map&lt;String, String&gt;&gt; config;
+  @NonNull
+  @Default
+<span class="fc" id="L31">  Map&lt;String, Map&lt;String, String&gt;&gt; config = emptyMap();</span>
 
-  /**
-   * ServerInfo constructor.
-   *
-   * @param status a server status
-   * @param config a server config
-   */
-  @ApiAudience.Private
-  public ServerInfo(final Map&lt;String, String&gt; status,
-<span class="fc" id="L37">      final Map&lt;String, Map&lt;String, String&gt;&gt; config) {</span>
-<span class="fc" id="L38">    assertNotNull(status, &quot;Server status list must not null&quot;);</span>
-<span class="fc" id="L39">    assertNotNull(config, &quot;Module status list must not null&quot;);</span>
-<span class="fc" id="L40">    this.status = unmodifiableMap(status);</span>
-<span class="fc" id="L41">    this.config = unmodifiableMap(config);</span>
-<span class="fc" id="L42">  }</span>
-
-
+  ServerInfo(final Map&lt;String, String&gt; status,
+<span class="fc" id="L34">      final Map&lt;String, Map&lt;String, String&gt;&gt; config) {</span>
+<span class="fc" id="L35">    assertNotNull(status, &quot;Server status list must not null&quot;);</span>
+<span class="fc" id="L36">    assertNotNull(config, &quot;Module status list must not null&quot;);</span>
+<span class="fc" id="L37">    this.status = unmodifiableMap(status);</span>
+<span class="fc" id="L38">    this.config = unmodifiableMap(config);</span>
+<span class="fc" id="L39">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

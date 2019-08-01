@@ -31,16 +31,17 @@ import types.Blockchain;
         public StateVariable apply(final Blockchain.StateVar rpcStateVariable) {
 <span class="nc" id="L32">          logger.trace(&quot;Rpc state variable to convert: {}&quot;, rpcStateVariable);</span>
 
-<span class="nc" id="L34">          final StateVariable domainStateVariable = new StateVariable(</span>
-<span class="nc" id="L35">              rpcStateVariable.getName(),</span>
-<span class="nc" id="L36">              rpcStateVariable.getType());</span>
-<span class="nc" id="L37">          logger.trace(&quot;Domain state variable converted: {}&quot;, domainStateVariable);</span>
-<span class="nc" id="L38">          return domainStateVariable;</span>
+<span class="nc" id="L34">          final StateVariable domainStateVariable = StateVariable.newBuilder()</span>
+<span class="nc" id="L35">              .name(rpcStateVariable.getName())</span>
+<span class="nc" id="L36">              .type(rpcStateVariable.getType())</span>
+<span class="nc" id="L37">              .build();</span>
+<span class="nc" id="L38">          logger.trace(&quot;Domain state variable converted: {}&quot;, domainStateVariable);</span>
+<span class="nc" id="L39">          return domainStateVariable;</span>
         }
       };
 
   public ModelConverter&lt;StateVariable, Blockchain.StateVar&gt; create() {
-<span class="fc" id="L43">    return new ModelConverter&lt;StateVariable, Blockchain.StateVar&gt;(domainConverter,</span>
+<span class="fc" id="L44">    return new ModelConverter&lt;StateVariable, Blockchain.StateVar&gt;(domainConverter,</span>
         rpcConverter);
   }
 

@@ -4,50 +4,31 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import hera.util.StringUtils;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="nc" id="L17">@ToString</span>
-<span class="nc bnc" id="L18" title="All 30 branches missed.">@EqualsAndHashCode</span>
+<span class="pc bnc" id="L17" title="All 28 branches missed.">@Value</span>
+<span class="pc bpc" id="L18" title="4 of 12 branches missed.">@Builder(builderMethodName = &quot;newBuilder&quot;)</span>
 public class ChainId {
 
-<span class="nc" id="L21">  @Getter</span>
-  protected String magic;
+  @NonNull
+  @Default
+<span class="fc" id="L23">  String magic = StringUtils.EMPTY_STRING;</span>
 
-<span class="nc" id="L24">  @Getter</span>
-  protected boolean isPublic;
+<span class="fc" id="L25">  boolean isPublic;</span>
 
-<span class="nc" id="L27">  @Getter</span>
-  protected boolean isMainNet;
+<span class="fc" id="L27">  boolean isMainNet;</span>
 
-<span class="nc" id="L30">  @Getter</span>
-  protected String consensus;
-
-  /**
-   * ChainId constructor.
-   *
-   * @param magic a magic of chain id
-   * @param isPublic whether it's public or not
-   * @param isMainNet whether it's mainnet or not
-   * @param consensus a consensus type
-   */
-  @ApiAudience.Private
-  public ChainId(final String magic, final boolean isPublic, final boolean isMainNet,
-<span class="fc" id="L43">      final String consensus) {</span>
-<span class="fc" id="L44">    assertNotNull(magic, &quot;Magis must not null&quot;);</span>
-<span class="fc" id="L45">    assertNotNull(consensus, &quot;Consensus must not null&quot;);</span>
-<span class="fc" id="L46">    this.magic = magic;</span>
-<span class="fc" id="L47">    this.isPublic = isPublic;</span>
-<span class="fc" id="L48">    this.isMainNet = isMainNet;</span>
-<span class="fc" id="L49">    this.consensus = consensus;</span>
-<span class="fc" id="L50">  }</span>
+  @NonNull
+  @Default
+<span class="fc" id="L31">  String consensus = StringUtils.EMPTY_STRING;</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

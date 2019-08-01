@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReDeployContractTransactionBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.spec.transaction</a> &gt; <span class="el_source">ReDeployContractTransactionBuilder.java</span></div><h1>ReDeployContractTransactionBuilder.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.spec.transaction;
+
+import static hera.util.ValidationUtils.assertNotNull;
+
+import hera.api.model.AccountAddress;
+import hera.api.model.ChainIdHash;
+import hera.api.model.ContractAddress;
+import hera.api.model.ContractDefinition;
+import hera.api.model.Fee;
+import hera.api.model.RawTransaction;
+import hera.api.model.Transaction.TxType;
+import hera.spec.resolver.PayloadResolver;
+import hera.spec.resolver.PayloadSpec.Type;
+import hera.spec.transaction.dsl.ReDeployContractTransaction;
+import hera.spec.transaction.dsl.ReDeployContractTransaction.WithChainIdHash;
+import hera.spec.transaction.dsl.ReDeployContractTransaction.WithChainIdHashAndCreator;
+import hera.spec.transaction.dsl.ReDeployContractTransaction.WithChainIdHashAndCreatorAndNonce;
+import hera.spec.transaction.dsl.ReDeployContractTransaction.WithChainIdHashAndCreatorAndNonceAndContractAddress;
+import hera.spec.transaction.dsl.ReDeployContractTransaction.WithReady;
+
+<span class="fc" id="L25">public class ReDeployContractTransactionBuilder implements</span>
+    ReDeployContractTransaction.WithNothing,
+    ReDeployContractTransaction.WithChainIdHash,
+    ReDeployContractTransaction.WithChainIdHashAndCreator,
+    ReDeployContractTransaction.WithChainIdHashAndCreatorAndNonce,
+    ReDeployContractTransaction.WithChainIdHashAndCreatorAndNonceAndContractAddress,
+    ReDeployContractTransaction.WithReady {
+
+  protected ContractDefinition contractDefinition;
+
+<span class="fc" id="L35">  protected final PlainTransactionBuilder delegate = new PlainTransactionBuilder();</span>
+
+  @Override
+  public WithChainIdHash chainIdHash(final ChainIdHash chainIdHash) {
+<span class="fc" id="L39">    this.delegate.chainIdHash(chainIdHash);</span>
+<span class="fc" id="L40">    return this;</span>
+  }
+
+  @Override
+  public WithChainIdHashAndCreator creator(final String creatorName) {
+<span class="nc" id="L45">    this.delegate.from(creatorName);</span>
+<span class="nc" id="L46">    return this;</span>
+  }
+
+  @Override
+  public WithChainIdHashAndCreator creator(final AccountAddress creator) {
+<span class="fc" id="L51">    this.delegate.from(creator);</span>
+<span class="fc" id="L52">    return this;</span>
+  }
+
+  @Override
+  public WithChainIdHashAndCreatorAndNonce nonce(final long nonce) {
+<span class="fc" id="L57">    this.delegate.nonce(nonce);</span>
+<span class="fc" id="L58">    return this;</span>
+  }
+
+  @Override
+  public WithChainIdHashAndCreatorAndNonceAndContractAddress contractAddress(
+      final ContractAddress contractAddress) {
+<span class="fc" id="L64">    this.delegate.to(contractAddress);</span>
+<span class="fc" id="L65">    return this;</span>
+  }
+
+  @Override
+  public WithReady definition(final ContractDefinition contractDefinition) {
+<span class="fc" id="L70">    assertNotNull(contractDefinition);</span>
+<span class="fc" id="L71">    this.contractDefinition = contractDefinition;</span>
+<span class="fc" id="L72">    return this;</span>
+  }
+
+  @Override
+  public WithReady fee(final Fee fee) {
+<span class="nc" id="L77">    this.delegate.fee(fee);</span>
+<span class="nc" id="L78">    return this;</span>
+  }
+
+  @Override
+  public RawTransaction build() {
+<span class="fc" id="L83">    this.delegate.amount(contractDefinition.getAmount());</span>
+<span class="fc" id="L84">    this.delegate.payload(PayloadResolver.resolve(Type.ContractDefinition, contractDefinition));</span>
+<span class="fc" id="L85">    this.delegate.type(TxType.REDEPLOY);</span>
+<span class="fc" id="L86">    return delegate.build();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

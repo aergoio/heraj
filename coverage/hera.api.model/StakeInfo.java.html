@@ -4,44 +4,28 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="nc" id="L17">@ToString</span>
-<span class="nc bnc" id="L18" title="All 24 branches missed.">@EqualsAndHashCode</span>
+<span class="pc bnc" id="L16" title="All 22 branches missed.">@Value</span>
+<span class="pc bpc" id="L17" title="4 of 12 branches missed.">@Builder(builderMethodName = &quot;newBuilder&quot;)</span>
 public class StakeInfo {
 
-<span class="nc" id="L21">  @Getter</span>
-  protected final AccountAddress address;
+  @NonNull
+  @Default
+<span class="fc" id="L22">  AccountAddress address = AccountAddress.EMPTY;</span>
 
-<span class="fc" id="L24">  @Getter</span>
-  protected final Aer amount;
+  @NonNull
+  @Default
+<span class="fc" id="L26">  Aer amount = Aer.ZERO;</span>
 
-<span class="fc" id="L27">  @Getter</span>
-  protected final long blockNumber;
-
-  /**
-   * StakingInfo constructor.
-   *
-   * @param address an account address
-   * @param amount a staking amount. Must be &amp;gt;= 0
-   * @param blockNumber a staking block number
-   */
-  @ApiAudience.Private
-<span class="fc" id="L38">  public StakeInfo(final AccountAddress address, final Aer amount, final long blockNumber) {</span>
-<span class="fc" id="L39">    assertNotNull(address, &quot;Staking address must not null&quot;);</span>
-<span class="fc" id="L40">    assertNotNull(amount, &quot;Staking amount must not null&quot;);</span>
-<span class="fc" id="L41">    this.address = address;</span>
-<span class="fc" id="L42">    this.amount = amount;</span>
-<span class="fc" id="L43">    this.blockNumber = blockNumber;</span>
-<span class="fc" id="L44">  }</span>
+<span class="fc" id="L28">  long blockNumber;</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

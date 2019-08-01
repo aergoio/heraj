@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Name.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.api.model</a> &gt; <span class="el_source">Name.java</span></div><h1>Name.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.api.model;
+
+import static hera.util.ValidationUtils.assertNotNull;
+
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.api.model.internal.AccountAddressAdaptor;
+import hera.util.Adaptor;
+import lombok.Getter;
+
+@ApiAudience.Public
+@ApiStability.Unstable
+public class Name implements Identity, Adaptor {
+
+<span class="fc" id="L19">  public static Name AERGO_SYSTEM = new Name(&quot;aergo.system&quot;);</span>
+<span class="fc" id="L20">  public static Name AERGO_NAME = new Name(&quot;aergo.name&quot;);</span>
+
+  @ApiAudience.Public
+  public static Name of(final String value) {
+<span class="nc" id="L24">    return new Name(value);</span>
+  }
+
+<span class="fc" id="L27">  @Getter</span>
+  protected final String value;
+
+  /**
+   * Name constructor.
+   *
+   * @param value a name value
+   */
+  @ApiAudience.Public
+<span class="fc" id="L36">  public Name(final String value) {</span>
+<span class="fc" id="L37">    assertNotNull(value, &quot;Name value must not null&quot;);</span>
+<span class="fc" id="L38">    this.value = value;</span>
+<span class="fc" id="L39">  }</span>
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  @Override
+  public &lt;T&gt; T adapt(Class&lt;T&gt; adaptor) {
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">    if (adaptor.isAssignableFrom(Name.class)) {</span>
+<span class="nc" id="L45">      return (T) this;</span>
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">    } else if (adaptor.isAssignableFrom(AccountAddress.class)) {</span>
+<span class="fc" id="L47">      return (T) new AccountAddressAdaptor(this);</span>
+    }
+<span class="nc" id="L49">    return null;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

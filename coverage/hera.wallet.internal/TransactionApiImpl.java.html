@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransactionApiImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.wallet.internal</a> &gt; <span class="el_source">TransactionApiImpl.java</span></div><h1>TransactionApiImpl.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.wallet.internal;
+
+import hera.api.function.Function0;
+import hera.api.function.Function2;
+import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
+import hera.api.model.BytesValue;
+import hera.api.model.ContractAddress;
+import hera.api.model.ContractDefinition;
+import hera.api.model.ContractInvocation;
+import hera.api.model.ContractTxHash;
+import hera.api.model.Fee;
+import hera.api.model.RawTransaction;
+import hera.api.model.Transaction;
+import hera.api.model.TxHash;
+import hera.api.model.internal.TryCountAndInterval;
+import hera.api.transaction.SimpleNonceProvider;
+import hera.client.AergoClient;
+import hera.exception.WalletException;
+import hera.exception.WalletExceptionConverter;
+import hera.key.Signer;
+import hera.util.ExceptionConverter;
+import hera.wallet.TransactionApi;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import lombok.AccessLevel;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
+<span class="nc bnc" id="L35" title="All 2 branches missed.">@RequiredArgsConstructor(access = AccessLevel.PACKAGE)</span>
+public class TransactionApiImpl implements TransactionApi, ClientInjectable {
+
+  protected final Trier trier;
+
+  protected final Signer signer;
+
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">  @Setter</span>
+  @NonNull
+  protected AergoClient client;
+
+<span class="pc" id="L46">  protected final ExceptionConverter&lt;WalletException&gt; converter = new WalletExceptionConverter();</span>
+
+<span class="fc" id="L48">  TransactionApiImpl(final TryCountAndInterval tryCountAndInterval, final Signer signer) {</span>
+<span class="fc" id="L49">    final Trier trier = new Trier();</span>
+<span class="fc" id="L50">    trier.setTryCountAndInterval(tryCountAndInterval);</span>
+<span class="fc" id="L51">    trier.setNonceProvider(new SimpleNonceProvider());</span>
+<span class="fc" id="L52">    trier.setClientProvider(new Function0&lt;AergoClient&gt;() {</span>
+
+      @Override
+      public AergoClient apply() {
+<span class="nc" id="L56">        return client;</span>
+      }
+    });
+<span class="fc" id="L59">    this.trier = trier;</span>
+
+<span class="fc" id="L61">    this.signer = signer;</span>
+<span class="fc" id="L62">  }</span>
+
+  @Override
+  public TxHash createName(final String name) {
+    try {
+<span class="nc" id="L67">      return trier.request(signer, new Function2&lt;Signer, Long, TxHash&gt;() {</span>
+
+        @Override
+        public TxHash apply(Signer signer, Long t) {
+<span class="nc" id="L71">          return client.getAccountOperation().createName(signer, name, t);</span>
+        }
+      });
+<span class="nc" id="L74">    } catch (Exception e) {</span>
+<span class="nc" id="L75">      throw converter.convert(e);</span>
+    }
+  }
+
+  @Override
+  public TxHash updateName(final String name, final AccountAddress newOwner) {
+    try {
+<span class="nc" id="L82">      return trier.request(signer, new Function2&lt;Signer, Long, TxHash&gt;() {</span>
+
+        @Override
+        public TxHash apply(Signer signer, Long t) {
+<span class="nc" id="L86">          return client.getAccountOperation().updateName(signer, name, newOwner, t);</span>
+        }
+      });
+<span class="nc" id="L89">    } catch (Exception e) {</span>
+<span class="nc" id="L90">      throw converter.convert(e);</span>
+    }
+  }
+
+  @Override
+  public TxHash stake(final Aer amount) {
+    try {
+<span class="nc" id="L97">      return trier.request(signer, new Function2&lt;Signer, Long, TxHash&gt;() {</span>
+
+        @Override
+        public TxHash apply(Signer signer, Long t) {
+<span class="nc" id="L101">          return client.getAccountOperation().stake(signer, amount, t);</span>
+        }
+      });
+<span class="nc" id="L104">    } catch (Exception e) {</span>
+<span class="nc" id="L105">      throw converter.convert(e);</span>
+    }
+  }
+
+  @Override
+  public TxHash unstake(final Aer amount) {
+    try {
+<span class="nc" id="L112">      return trier.request(signer, new Function2&lt;Signer, Long, TxHash&gt;() {</span>
+
+        @Override
+        public TxHash apply(Signer signer, Long t) {
+<span class="nc" id="L116">          return client.getAccountOperation().unstake(signer, amount, t);</span>
+        }
+      });
+<span class="nc" id="L119">    } catch (Exception e) {</span>
+<span class="nc" id="L120">      throw converter.convert(e);</span>
+    }
+  }
+
+  @Override
+  public TxHash voteBp(List&lt;String&gt; candidates) {
+<span class="nc" id="L126">    return vote(&quot;voteBP&quot;, candidates);</span>
+  }
+
+
+  @Override
+  public TxHash vote(final String voteId, final List&lt;String&gt; candidates) {
+    try {
+<span class="nc" id="L133">      return trier.request(signer, new Function2&lt;Signer, Long, TxHash&gt;() {</span>
+
+        @Override
+        public TxHash apply(Signer signer, Long t) {
+<span class="nc" id="L137">          return client.getAccountOperation().vote(signer, voteId, candidates, t);</span>
+        }
+      });
+<span class="nc" id="L140">    } catch (Exception e) {</span>
+<span class="nc" id="L141">      throw converter.convert(e);</span>
+    }
+  }
+
+  @Override
+  public TxHash send(String recipient, Aer amount, Fee fee) {
+<span class="nc" id="L147">    return send(recipient, amount, fee, BytesValue.EMPTY);</span>
+  }
+
+  @Override
+  public TxHash send(final String recipient, final Aer amount, final Fee fee,
+      final BytesValue payload) {
+    try {
+<span class="nc" id="L154">      return trier.request(signer, new Function2&lt;Signer, Long, TxHash&gt;() {</span>
+
+        @Override
+        public TxHash apply(Signer signer, Long t) {
+<span class="nc" id="L158">          final RawTransaction rawTransaction = RawTransaction.newBuilder()</span>
+<span class="nc" id="L159">              .chainIdHash(client.getCachedChainIdHash())</span>
+<span class="nc" id="L160">              .from(signer.getPrincipal())</span>
+<span class="nc" id="L161">              .to(recipient)</span>
+<span class="nc" id="L162">              .amount(amount)</span>
+<span class="nc" id="L163">              .nonce(t)</span>
+<span class="nc" id="L164">              .payload(payload)</span>
+<span class="nc" id="L165">              .build();</span>
+<span class="nc" id="L166">          return client.getTransactionOperation().commit(signer.sign(rawTransaction));</span>
+        }
+      });
+<span class="nc" id="L169">    } catch (Exception e) {</span>
+<span class="nc" id="L170">      throw converter.convert(e);</span>
+    }
+  }
+
+  @Override
+  public TxHash send(AccountAddress recipient, Aer amount, Fee fee) {
+<span class="nc" id="L176">    return send(recipient, amount, fee, BytesValue.EMPTY);</span>
+  }
+
+  @Override
+  public TxHash send(final AccountAddress recipient, final Aer amount, final Fee fee,
+      final BytesValue payload) {
+    try {
+<span class="nc" id="L183">      return trier.request(signer, new Function2&lt;Signer, Long, TxHash&gt;() {</span>
+
+        @Override
+        public TxHash apply(Signer signer, Long t) {
+<span class="nc" id="L187">          final RawTransaction rawTransaction = RawTransaction.newBuilder()</span>
+<span class="nc" id="L188">              .chainIdHash(client.getCachedChainIdHash())</span>
+<span class="nc" id="L189">              .from(signer.getPrincipal())</span>
+<span class="nc" id="L190">              .to(recipient)</span>
+<span class="nc" id="L191">              .amount(amount)</span>
+<span class="nc" id="L192">              .nonce(t)</span>
+<span class="nc" id="L193">              .payload(payload)</span>
+<span class="nc" id="L194">              .build();</span>
+<span class="nc" id="L195">          return client.getTransactionOperation().commit(signer.sign(rawTransaction));</span>
+        }
+      });
+<span class="nc" id="L198">    } catch (Exception e) {</span>
+<span class="nc" id="L199">      throw converter.convert(e);</span>
+    }
+  }
+
+  @Override
+  public TxHash commit(final RawTransaction rawTransaction) {
+    try {
+<span class="nc" id="L206">      return trier.request(signer, new Function2&lt;Signer, Long, TxHash&gt;() {</span>
+
+<span class="nc" id="L208">        protected AtomicBoolean isFirst = new AtomicBoolean(true);</span>
+
+        @Override
+        public TxHash apply(Signer signer, Long t) {
+<span class="nc bnc" id="L212" title="All 2 branches missed.">          if (isFirst.get()) {</span>
+<span class="nc" id="L213">            isFirst.set(false);</span>
+<span class="nc" id="L214">            return client.getTransactionOperation().commit(signer.sign(rawTransaction));</span>
+          } else {
+<span class="nc" id="L216">            final RawTransaction withNewNonce = rawTransaction.withNonce(t);</span>
+<span class="nc" id="L217">            return client.getTransactionOperation().commit(signer.sign(withNewNonce));</span>
+          }
+        }
+      });
+<span class="nc" id="L221">    } catch (Exception e) {</span>
+<span class="nc" id="L222">      throw converter.convert(e);</span>
+    }
+  }
+
+  @Override
+  public TxHash commit(final Transaction signedTransaction) {
+    try {
+<span class="nc" id="L229">      return trier.request(signer, new Function2&lt;Signer, Long, TxHash&gt;() {</span>
+
+<span class="nc" id="L231">        protected AtomicBoolean isFirst = new AtomicBoolean(true);</span>
+
+        @Override
+        public TxHash apply(Signer signer, Long t) {
+<span class="nc bnc" id="L235" title="All 2 branches missed.">          if (isFirst.get()) {</span>
+<span class="nc" id="L236">            isFirst.set(false);</span>
+<span class="nc" id="L237">            return client.getTransactionOperation().commit(signedTransaction);</span>
+          } else {
+<span class="nc" id="L239">            final RawTransaction rawTransaction = signedTransaction.getRawTransaction();</span>
+<span class="nc" id="L240">            final RawTransaction withNewNonce = rawTransaction.withNonce(t);</span>
+<span class="nc" id="L241">            return client.getTransactionOperation().commit(signer.sign(withNewNonce));</span>
+          }
+        }
+      });
+<span class="nc" id="L245">    } catch (Exception e) {</span>
+<span class="nc" id="L246">      throw converter.convert(e);</span>
+    }
+  }
+
+  @Override
+  public ContractTxHash deploy(final ContractDefinition contractDefinition, final Fee fee) {
+    try {
+<span class="nc" id="L253">      return trier.request(signer, new Function2&lt;Signer, Long, TxHash&gt;() {</span>
+
+        @Override
+        public TxHash apply(Signer signer, Long t) {
+<span class="nc" id="L257">          return client.getContractOperation().deploy(signer, contractDefinition, t,</span>
+              fee);
+        }
+<span class="nc" id="L260">      }).adapt(ContractTxHash.class);</span>
+<span class="nc" id="L261">    } catch (Exception e) {</span>
+<span class="nc" id="L262">      throw converter.convert(e);</span>
+    }
+  }
+
+  @Override
+  public ContractTxHash redeploy(final ContractAddress existingContract,
+      final ContractDefinition contractDefinition, final Fee fee) {
+    try {
+<span class="nc" id="L270">      return trier.request(signer, new Function2&lt;Signer, Long, TxHash&gt;() {</span>
+
+        @Override
+        public TxHash apply(Signer signer, Long t) {
+<span class="nc" id="L274">          return client.getContractOperation().redeploy(signer, existingContract,</span>
+<span class="nc" id="L275">              contractDefinition, t, fee);</span>
+        }
+<span class="nc" id="L277">      }).adapt(ContractTxHash.class);</span>
+<span class="nc" id="L278">    } catch (Exception e) {</span>
+<span class="nc" id="L279">      throw converter.convert(e);</span>
+    }
+  }
+
+  @Override
+  public ContractTxHash execute(final ContractInvocation contractInvocation, final Fee fee) {
+    try {
+<span class="nc" id="L286">      return trier.request(signer, new Function2&lt;Signer, Long, TxHash&gt;() {</span>
+
+        @Override
+        public TxHash apply(Signer signer, Long t) {
+<span class="nc" id="L290">          return client.getContractOperation().execute(signer, contractInvocation, t,</span>
+              fee);
+        }
+<span class="nc" id="L293">      }).adapt(ContractTxHash.class);</span>
+<span class="nc" id="L294">    } catch (Exception e) {</span>
+<span class="nc" id="L295">      throw converter.convert(e);</span>
+    }
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

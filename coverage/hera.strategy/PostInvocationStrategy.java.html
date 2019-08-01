@@ -10,49 +10,50 @@ import hera.api.function.Function1;
 import hera.api.function.Function2;
 import hera.api.function.Function3;
 import hera.api.function.Function4;
+import hera.api.function.Function5;
 import hera.api.function.FunctionDecorator;
 import hera.api.function.Functions;
 
-<span class="nc" id="L16">public abstract class PostInvocationStrategy implements Strategy, FunctionDecorator {</span>
+<span class="nc" id="L17">public abstract class PostInvocationStrategy implements Strategy, FunctionDecorator {</span>
 
   public abstract &lt;R&gt; R after(hera.api.function.Function f, R r);
 
   @Override
   public &lt;R&gt; Function0&lt;R&gt; apply(final Function0&lt;R&gt; f) {
-<span class="nc" id="L22">    return Functions.compose(f, new Function1&lt;R, R&gt;() {</span>
+<span class="nc" id="L23">    return Functions.compose(f, new Function1&lt;R, R&gt;() {</span>
       public R apply(R r) {
-<span class="nc" id="L24">        after(f, r);</span>
-<span class="nc" id="L25">        return r;</span>
+<span class="nc" id="L25">        after(f, r);</span>
+<span class="nc" id="L26">        return r;</span>
       }
     });
   }
 
   @Override
   public &lt;T, R&gt; Function1&lt;T, R&gt; apply(final Function1&lt;T, R&gt; f) {
-<span class="nc" id="L32">    return Functions.compose(f, new Function1&lt;R, R&gt;() {</span>
+<span class="nc" id="L33">    return Functions.compose(f, new Function1&lt;R, R&gt;() {</span>
       public R apply(R r) {
-<span class="nc" id="L34">        after(f, r);</span>
-<span class="nc" id="L35">        return r;</span>
+<span class="nc" id="L35">        after(f, r);</span>
+<span class="nc" id="L36">        return r;</span>
       }
     });
   }
 
   @Override
   public &lt;T1, T2, R&gt; Function2&lt;T1, T2, R&gt; apply(final Function2&lt;T1, T2, R&gt; f) {
-<span class="nc" id="L42">    return Functions.compose(f, new Function1&lt;R, R&gt;() {</span>
+<span class="nc" id="L43">    return Functions.compose(f, new Function1&lt;R, R&gt;() {</span>
       public R apply(R r) {
-<span class="nc" id="L44">        after(f, r);</span>
-<span class="nc" id="L45">        return r;</span>
+<span class="nc" id="L45">        after(f, r);</span>
+<span class="nc" id="L46">        return r;</span>
       }
     });
   }
 
   @Override
   public &lt;T1, T2, T3, R&gt; Function3&lt;T1, T2, T3, R&gt; apply(final Function3&lt;T1, T2, T3, R&gt; f) {
-<span class="nc" id="L52">    return Functions.compose(f, new Function1&lt;R, R&gt;() {</span>
+<span class="nc" id="L53">    return Functions.compose(f, new Function1&lt;R, R&gt;() {</span>
       public R apply(R r) {
-<span class="nc" id="L54">        after(f, r);</span>
-<span class="nc" id="L55">        return r;</span>
+<span class="nc" id="L55">        after(f, r);</span>
+<span class="nc" id="L56">        return r;</span>
       }
     });
   }
@@ -60,10 +61,21 @@ import hera.api.function.Functions;
   @Override
   public &lt;T1, T2, T3, T4, R&gt; Function4&lt;T1, T2, T3, T4, R&gt; apply(
       final Function4&lt;T1, T2, T3, T4, R&gt; f) {
-<span class="nc" id="L63">    return Functions.compose(f, new Function1&lt;R, R&gt;() {</span>
+<span class="nc" id="L64">    return Functions.compose(f, new Function1&lt;R, R&gt;() {</span>
       public R apply(R r) {
-<span class="nc" id="L65">        after(f, r);</span>
-<span class="nc" id="L66">        return r;</span>
+<span class="nc" id="L66">        after(f, r);</span>
+<span class="nc" id="L67">        return r;</span>
+      }
+    });
+  }
+
+  @Override
+  public &lt;T1, T2, T3, T4, T5, R&gt; Function5&lt;T1, T2, T3, T4, T5, R&gt; apply(
+      final Function5&lt;T1, T2, T3, T4, T5, R&gt; f) {
+<span class="nc" id="L75">    return Functions.compose(f, new Function1&lt;R, R&gt;() {</span>
+      public R apply(R r) {
+<span class="nc" id="L77">        after(f, r);</span>
+<span class="nc" id="L78">        return r;</span>
       }
     });
   }

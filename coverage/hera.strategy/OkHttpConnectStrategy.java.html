@@ -16,7 +16,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.slf4j.Logger;
 
-<span class="nc" id="L19">@ToString(exclude = {&quot;logger&quot;, &quot;context&quot;})</span>
+<span class="fc" id="L19">@ToString(exclude = {&quot;logger&quot;, &quot;context&quot;})</span>
 <span class="fc" id="L20">public class OkHttpConnectStrategy implements ConnectStrategy&lt;OkHttpChannelBuilder&gt; {</span>
 
 <span class="fc" id="L22">  protected final Logger logger = getLogger(getClass());</span>
@@ -36,18 +36,17 @@ import org.slf4j.Logger;
 <span class="fc" id="L36">    return OkHttpChannelBuilder</span>
 <span class="fc" id="L37">        .forAddress(endpoint.getHostname(), endpoint.getPort())</span>
 <span class="fc" id="L38">        .keepAliveTime(KEEP_ALIVE_INTERVAL, TimeUnit.SECONDS)</span>
-<span class="fc" id="L39">        .keepAliveWithoutCalls(true)</span>
-<span class="fc" id="L40">        .usePlaintext();</span>
+<span class="fc" id="L39">        .keepAliveWithoutCalls(true);</span>
   }
 
   @Override
   public boolean equals(final Object obj) {
-<span class="nc bnc" id="L45" title="All 4 branches missed.">    return (null != obj) &amp;&amp; (obj instanceof ConnectStrategy);</span>
+<span class="nc bnc" id="L44" title="All 4 branches missed.">    return (null != obj) &amp;&amp; (obj instanceof ConnectStrategy);</span>
   }
 
   @Override
   public int hashCode() {
-<span class="fc" id="L50">    return OkHttpConnectStrategy.class.hashCode();</span>
+<span class="fc" id="L49">    return OkHttpConnectStrategy.class.hashCode();</span>
   }
 
 }

@@ -4,16 +4,17 @@
 
 package hera.spec.resolver;
 
-import static hera.api.model.BytesValue.of;
-import static hera.util.VersionUtils.envelop;
-import static hera.util.VersionUtils.trim;
+import static hera.util.EncodingUtils.decodeBase58WithCheck;
+import static hera.util.EncodingUtils.encodeBase58WithCheck;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
+import hera.api.model.BytesValue;
 import hera.exception.HerajException;
-import hera.spec.AddressSpec;
+import hera.spec.AergoSpec;
+import hera.util.BytesValueUtils;
 import hera.util.NumberUtils;
 import hera.util.pki.ECDSAKeyGenerator;
 import java.security.PublicKey;
@@ -21,31 +22,60 @@ import org.slf4j.Logger;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="nc" id="L24">public class AddressResolver {</span>
+<span class="nc" id="L25">public class AddressResolver {</span>
 
-<span class="nc" id="L26">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L27">  protected static final Logger logger = getLogger(AddressResolver.class);</span>
 
   /**
-   * Derive an {@link AccountAddress} from a public key.
+   * Convert encoded address into raw one.
    *
-   * @param publicKey a public key
-   * @return an {@link AccountAddress}
+   * @param encodedAddress an encoded address to convert
+   * @return raw account address
    */
-  public static AccountAddress deriveAddress(final PublicKey publicKey) {
+  public static BytesValue convertToRaw(final String encodedAddress) {
     try {
-<span class="fc" id="L36">      final byte[] rawAddress = new byte[AddressSpec.LENGTH];</span>
-<span class="fc" id="L37">      final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
-          (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
-<span class="fc" id="L39">      rawAddress[0] =</span>
-<span class="fc bfc" id="L40" title="All 2 branches covered.">          (byte) (ecPublicKey.getQ().getYCoord().toBigInteger().testBit(0) ? 0x03 : 0x02);</span>
-<span class="fc" id="L41">      final byte[] xbyteArray =</span>
-<span class="fc" id="L42">          NumberUtils.positiveToByteArray(ecPublicKey.getQ().getXCoord().toBigInteger());</span>
-<span class="fc" id="L43">      System.arraycopy(xbyteArray, 0, rawAddress, rawAddress.length - xbyteArray.length,</span>
-          xbyteArray.length);
-<span class="fc" id="L45">      return new AccountAddress(of(envelop(rawAddress, AddressSpec.PREFIX)));</span>
+<span class="fc" id="L37">      logger.trace(&quot;Convert encoded address {} to raw address&quot;, encodedAddress);</span>
+<span class="fc" id="L38">      final BytesValue rawWithPrefix = decodeBase58WithCheck(encodedAddress);</span>
+<span class="fc" id="L39">      BytesValueUtils.validatePrefix(rawWithPrefix, AergoSpec.ADDRESS_PREFIX);</span>
+
+<span class="fc" id="L41">      final BytesValue rawAddress = BytesValueUtils.trimPrefix(rawWithPrefix);</span>
+<span class="fc" id="L42">      validateRawAddress(rawAddress);</span>
+<span class="fc" id="L43">      return rawAddress;</span>
+<span class="nc" id="L44">    } catch (HerajException e) {</span>
+<span class="nc" id="L45">      throw e;</span>
 <span class="nc" id="L46">    } catch (Exception e) {</span>
 <span class="nc" id="L47">      throw new HerajException(e);</span>
     }
+  }
+
+  /**
+   * Convert raw address into encoded one.
+   *
+   * @param rawAddress a raw address to convert
+   * @return encoded address
+   */
+  public static String convertToEncoded(final BytesValue rawAddress) {
+    try {
+<span class="fc" id="L59">      logger.trace(&quot;Convert raw address {} to encoded form&quot;, rawAddress);</span>
+<span class="fc" id="L60">      validateRawAddress(rawAddress);</span>
+
+<span class="fc" id="L62">      final BytesValue withPrefix = BytesValueUtils.append(rawAddress, AergoSpec.ADDRESS_PREFIX);</span>
+<span class="fc" id="L63">      return encodeBase58WithCheck(withPrefix);</span>
+<span class="nc" id="L64">    } catch (HerajException e) {</span>
+<span class="nc" id="L65">      throw e;</span>
+<span class="nc" id="L66">    } catch (Exception e) {</span>
+<span class="nc" id="L67">      throw new HerajException(e);</span>
+    }
+  }
+
+  protected static void validateRawAddress(final BytesValue rawAddress) {
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">    if (!isValidRawAddress(rawAddress)) {</span>
+<span class="nc" id="L73">      throw new HerajException(&quot;RawAddress length must be &quot; + AergoSpec.ADDRESS_BYTE_LENGTH);</span>
+    }
+<span class="fc" id="L75">  }</span>
+
+  public static boolean isValidRawAddress(final BytesValue rawAddress) {
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">    return rawAddress.length() == AergoSpec.ADDRESS_BYTE_LENGTH;</span>
   }
 
   /**
@@ -56,12 +86,37 @@ import org.slf4j.Logger;
    */
   public static PublicKey recoverPublicKey(final AccountAddress accountAddress) {
     try {
-<span class="fc" id="L59">      final byte[] rawAddress = trim(accountAddress.getBytesValue().getValue());</span>
-<span class="fc" id="L60">      return new ECDSAKeyGenerator().createPublicKey(rawAddress);</span>
-<span class="nc" id="L61">    } catch (HerajException e) {</span>
-<span class="nc" id="L62">      throw e;</span>
-<span class="nc" id="L63">    } catch (Exception e) {</span>
-<span class="nc" id="L64">      throw new HerajException(e);</span>
+<span class="fc" id="L89">      logger.trace(&quot;Recover public key from {}&quot;, accountAddress);</span>
+<span class="fc" id="L90">      final byte[] rawAddress = accountAddress.getBytesValue().getValue();</span>
+<span class="fc" id="L91">      return new ECDSAKeyGenerator().createPublicKey(rawAddress);</span>
+<span class="nc" id="L92">    } catch (HerajException e) {</span>
+<span class="nc" id="L93">      throw e;</span>
+<span class="nc" id="L94">    } catch (Exception e) {</span>
+<span class="nc" id="L95">      throw new HerajException(e);</span>
+    }
+  }
+
+  /**
+   * Derive an {@link AccountAddress} from a public key.
+   *
+   * @param publicKey a public key
+   * @return an {@link AccountAddress}
+   */
+  public static AccountAddress deriveAddress(final PublicKey publicKey) {
+    try {
+<span class="fc" id="L107">      logger.trace(&quot;derive account address from {}&quot;, publicKey);</span>
+<span class="fc" id="L108">      final byte[] rawAddress = new byte[AergoSpec.ADDRESS_BYTE_LENGTH];</span>
+<span class="fc" id="L109">      final org.bouncycastle.jce.interfaces.ECPublicKey ecPublicKey =</span>
+          (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
+<span class="fc" id="L111">      rawAddress[0] =</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">          (byte) (ecPublicKey.getQ().getYCoord().toBigInteger().testBit(0) ? 0x03 : 0x02);</span>
+<span class="fc" id="L113">      final byte[] xbyteArray =</span>
+<span class="fc" id="L114">          NumberUtils.positiveToByteArray(ecPublicKey.getQ().getXCoord().toBigInteger());</span>
+<span class="fc" id="L115">      System.arraycopy(xbyteArray, 0, rawAddress, rawAddress.length - xbyteArray.length,</span>
+          xbyteArray.length);
+<span class="fc" id="L117">      return new AccountAddress(BytesValue.of(rawAddress));</span>
+<span class="nc" id="L118">    } catch (Exception e) {</span>
+<span class="nc" id="L119">      throw new HerajException(e);</span>
     }
   }
 

@@ -22,6 +22,7 @@ import hera.util.ParsingUtils;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,80 +30,83 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import types.Rpc;
 
-<span class="fc" id="L32">public class NodeStatusConverterFactory {</span>
+<span class="fc" id="L33">public class NodeStatusConverterFactory {</span>
 
-<span class="fc" id="L34">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L35">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L36">  protected final ObjectMapper mapper = getObjectMapper();</span>
+<span class="fc" id="L37">  protected final ObjectMapper mapper = getObjectMapper();</span>
 
-<span class="fc" id="L38">  protected final Function1&lt;NodeStatus, Rpc.SingleBytes&gt; domainConverter =</span>
-<span class="fc" id="L39">      new Function1&lt;NodeStatus, Rpc.SingleBytes&gt;() {</span>
+<span class="fc" id="L39">  protected final Function1&lt;NodeStatus, Rpc.SingleBytes&gt; domainConverter =</span>
+<span class="fc" id="L40">      new Function1&lt;NodeStatus, Rpc.SingleBytes&gt;() {</span>
 
         @Override
         public Rpc.SingleBytes apply(final NodeStatus domainNodeStatus) {
-<span class="nc" id="L43">          throw new UnsupportedOperationException();</span>
+<span class="nc" id="L44">          throw new UnsupportedOperationException();</span>
         }
       };
 
-<span class="fc" id="L47">  protected final Function1&lt;Rpc.SingleBytes, NodeStatus&gt; rpcConverter =</span>
-<span class="fc" id="L48">      new Function1&lt;Rpc.SingleBytes, NodeStatus&gt;() {</span>
+<span class="fc" id="L48">  protected final Function1&lt;Rpc.SingleBytes, NodeStatus&gt; rpcConverter =</span>
+<span class="fc" id="L49">      new Function1&lt;Rpc.SingleBytes, NodeStatus&gt;() {</span>
 
         @Override
         public NodeStatus apply(final Rpc.SingleBytes rpcNodeStatus) {
           try {
-<span class="fc" id="L53">            logger.trace(&quot;Rpc node status to convert: {}&quot;, rpcNodeStatus);</span>
-<span class="fc" id="L54">            final byte[] rawNodeStatus = rpcNodeStatus.getValue().toByteArray();</span>
-<span class="fc bfc" id="L55" title="All 2 branches covered.">            final NodeStatus domainNodeStatus =</span>
-                rawNodeStatus.length == 0 ? new NodeStatus(new ArrayList&lt;ModuleStatus&gt;())
-<span class="fc" id="L57">                    : mapper.readValue(rawNodeStatus, NodeStatus.class);</span>
-<span class="fc" id="L58">            logger.trace(&quot;Domain node status converted: {}&quot;, domainNodeStatus);</span>
-<span class="fc" id="L59">            return domainNodeStatus;</span>
-<span class="nc" id="L60">          } catch (Throwable e) {</span>
-<span class="nc" id="L61">            throw new RpcException(e);</span>
+<span class="fc" id="L54">            logger.trace(&quot;Rpc node status to convert: {}&quot;, rpcNodeStatus);</span>
+<span class="fc" id="L55">            final byte[] rawNodeStatus = rpcNodeStatus.getValue().toByteArray();</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">            final NodeStatus domainNodeStatus = rawNodeStatus.length == 0</span>
+<span class="fc" id="L57">                ? NodeStatus.newBuilder().moduleStatus(new ArrayList&lt;ModuleStatus&gt;()).build()</span>
+<span class="fc" id="L58">                : mapper.readValue(rawNodeStatus, NodeStatus.class);</span>
+<span class="fc" id="L59">            logger.trace(&quot;Domain node status converted: {}&quot;, domainNodeStatus);</span>
+<span class="fc" id="L60">            return domainNodeStatus;</span>
+<span class="nc" id="L61">          } catch (Throwable e) {</span>
+<span class="nc" id="L62">            throw new RpcException(e);</span>
           }
         }
       };
 
   public ModelConverter&lt;NodeStatus, Rpc.SingleBytes&gt; create() {
-<span class="fc" id="L67">    return new ModelConverter&lt;NodeStatus, Rpc.SingleBytes&gt;(domainConverter, rpcConverter);</span>
+<span class="fc" id="L68">    return new ModelConverter&lt;NodeStatus, Rpc.SingleBytes&gt;(domainConverter, rpcConverter);</span>
   }
 
   protected ObjectMapper getObjectMapper() {
-<span class="fc" id="L71">    ObjectMapper objectMapper = new ObjectMapper();</span>
+<span class="fc" id="L72">    ObjectMapper objectMapper = new ObjectMapper();</span>
 
-<span class="fc" id="L73">    SimpleModule simpleModule = new SimpleModule();</span>
-<span class="fc" id="L74">    simpleModule.addDeserializer(NodeStatus.class, new NodeStatusDeserializer());</span>
-<span class="fc" id="L75">    objectMapper.registerModule(simpleModule);</span>
+<span class="fc" id="L74">    SimpleModule simpleModule = new SimpleModule();</span>
+<span class="fc" id="L75">    simpleModule.addDeserializer(NodeStatus.class, new NodeStatusDeserializer());</span>
+<span class="fc" id="L76">    objectMapper.registerModule(simpleModule);</span>
 
-<span class="fc" id="L77">    return objectMapper;</span>
+<span class="fc" id="L78">    return objectMapper;</span>
   }
 
-<span class="fc" id="L80">  private class NodeStatusDeserializer extends JsonDeserializer&lt;NodeStatus&gt; {</span>
+<span class="fc" id="L81">  private class NodeStatusDeserializer extends JsonDeserializer&lt;NodeStatus&gt; {</span>
 
     @SuppressWarnings(&quot;unchecked&quot;)
     @Override
     public NodeStatus deserialize(JsonParser parser, DeserializationContext context)
         throws IOException {
-<span class="fc" id="L86">      ObjectCodec objectCodec = parser.getCodec();</span>
-<span class="fc" id="L87">      JsonNode nodeStatusNode = objectCodec.readTree(parser);</span>
+<span class="fc" id="L87">      ObjectCodec objectCodec = parser.getCodec();</span>
+<span class="fc" id="L88">      JsonNode nodeStatusNode = objectCodec.readTree(parser);</span>
 
-<span class="fc" id="L89">      final List&lt;ModuleStatus&gt; moduleStatusList = new ArrayList&lt;ModuleStatus&gt;();</span>
-<span class="fc" id="L90">      final Iterator&lt;String&gt; it = nodeStatusNode.fieldNames();</span>
-<span class="fc bfc" id="L91" title="All 2 branches covered.">      while (it.hasNext()) {</span>
-<span class="fc" id="L92">        final String moduleName = it.next();</span>
-<span class="fc" id="L93">        final JsonNode componentStatus = nodeStatusNode.get(moduleName);</span>
-<span class="fc" id="L94">        final ModuleStatus moduleStatus = new ModuleStatus(</span>
-            moduleName,
-<span class="fc" id="L96">            componentStatus.get(&quot;status&quot;).asText(),</span>
-<span class="fc" id="L97">            componentStatus.get(&quot;acc_processed_msg&quot;).asLong(),</span>
-<span class="fc" id="L98">            componentStatus.get(&quot;msg_queue_len&quot;).asLong(),</span>
-<span class="fc" id="L99">            convertToTime(componentStatus.get(&quot;msg_latency&quot;).asText()),</span>
-<span class="fc" id="L100">            componentStatus.get(&quot;error&quot;).asText(),</span>
-<span class="fc" id="L101">            mapper.convertValue(componentStatus.get(&quot;actor&quot;), Map.class));</span>
-<span class="fc" id="L102">        moduleStatusList.add(moduleStatus);</span>
-<span class="fc" id="L103">      }</span>
+<span class="fc" id="L90">      final List&lt;ModuleStatus&gt; moduleStatusList = new ArrayList&lt;ModuleStatus&gt;();</span>
+<span class="fc" id="L91">      final Iterator&lt;String&gt; it = nodeStatusNode.fieldNames();</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">      while (it.hasNext()) {</span>
+<span class="fc" id="L93">        final String moduleName = it.next();</span>
+<span class="fc" id="L94">        final JsonNode componentStatus = nodeStatusNode.get(moduleName);</span>
+<span class="fc" id="L95">        final Map&lt;String, Object&gt; actor =</span>
+<span class="fc" id="L96">            mapper.convertValue(componentStatus.get(&quot;actor&quot;), Map.class);</span>
+<span class="fc" id="L97">        final ModuleStatus moduleStatus = ModuleStatus.newBuilder()</span>
+<span class="fc" id="L98">            .moduleName(moduleName)</span>
+<span class="fc" id="L99">            .status(componentStatus.get(&quot;status&quot;).asText())</span>
+<span class="fc" id="L100">            .processedMessageCount(componentStatus.get(&quot;acc_processed_msg&quot;).asLong())</span>
+<span class="fc" id="L101">            .queuedMessageCount(componentStatus.get(&quot;msg_queue_len&quot;).asLong())</span>
+<span class="fc" id="L102">            .latency(convertToTime(componentStatus.get(&quot;msg_latency&quot;).asText()))</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">            .error(componentStatus.get(&quot;error&quot;).asText())</span>
+<span class="fc" id="L104">            .actor(null == actor ? new HashMap&lt;String, Object&gt;() : actor)</span>
+<span class="fc" id="L105">            .build();</span>
+<span class="fc" id="L106">        moduleStatusList.add(moduleStatus);</span>
+<span class="fc" id="L107">      }</span>
 
-<span class="fc" id="L105">      return new NodeStatus(moduleStatusList);</span>
+<span class="fc" id="L109">      return NodeStatus.newBuilder().moduleStatus(moduleStatusList).build();</span>
     }
   }
 
@@ -118,14 +122,14 @@ import types.Rpc;
    * @see ParsingUtils#convertToTime(String)
    */
   protected Time convertToTime(final String val) throws IOException {
-<span class="pc bpc" id="L121" title="1 of 2 branches missed.">    if (null == val) {</span>
-<span class="nc" id="L122">      throw new IOException(&quot;Can't parse &quot; + val);</span>
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">    if (null == val) {</span>
+<span class="nc" id="L126">      throw new IOException(&quot;Can't parse &quot; + val);</span>
     }
     try {
-<span class="fc" id="L125">      long time = ParsingUtils.convertToTime(val);</span>
-<span class="fc" id="L126">      return Time.of(time, TimeUnit.MICROSECONDS);</span>
-<span class="nc" id="L127">    } catch (ParseException e) {</span>
-<span class="nc" id="L128">      throw new IOException(&quot;Can't parse &quot; + val);</span>
+<span class="fc" id="L129">      long time = ParsingUtils.convertToTime(val);</span>
+<span class="fc" id="L130">      return Time.of(time, TimeUnit.MICROSECONDS);</span>
+<span class="nc" id="L131">    } catch (ParseException e) {</span>
+<span class="nc" id="L132">      throw new IOException(&quot;Can't parse &quot; + val);</span>
     }
   }
 

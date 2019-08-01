@@ -4,42 +4,71 @@
 
 package hera.api.model;
 
+import static java.util.Collections.emptyList;
+
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import hera.util.StringUtils;
+import java.util.List;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="nc" id="L15">@ToString</span>
-<span class="nc bnc" id="L16" title="All 30 branches missed.">@EqualsAndHashCode</span>
+<span class="pc bnc" id="L20" title="All 96 branches missed.">@Value</span>
+<span class="pc bpc" id="L21" title="20 of 66 branches missed.">@Builder(builderMethodName = &quot;newBuilder&quot;)</span>
 public class ContractTxReceipt {
 
-<span class="nc" id="L19">  @Getter</span>
-  protected final ContractAddress contractAddress;
+  @NonNull
+  @Default
+<span class="fc" id="L26">  ContractAddress contractAddress = ContractAddress.EMPTY;</span>
 
-<span class="nc" id="L22">  @Getter</span>
-  protected final String status;
+  @NonNull
+  @Default
+<span class="fc" id="L30">  String status = StringUtils.EMPTY_STRING;</span>
 
-<span class="nc" id="L25">  @Getter</span>
-  protected final String ret;
+  @NonNull
+  @Default
+<span class="fc" id="L34">  ContractResult ret = ContractResult.EMPTY;</span>
 
-  /**
-   * ContractTxReceipt constructor.
-   *
-   * @param contractAddress a contract address
-   * @param status a contract status
-   * @param ret a return value
-   */
-  @ApiAudience.Private
-  public ContractTxReceipt(final ContractAddress contractAddress, final String status,
-<span class="fc" id="L37">      final String ret) {</span>
-<span class="pc bpc" id="L38" title="1 of 2 branches missed.">    this.contractAddress =</span>
-        null != contractAddress ? contractAddress : new ContractAddress(BytesValue.EMPTY);
-<span class="fc" id="L40">    this.status = status;</span>
-<span class="fc" id="L41">    this.ret = ret;</span>
-<span class="fc" id="L42">  }</span>
+  @NonNull
+  @Default
+<span class="fc" id="L38">  TxHash txHash = TxHash.of(BytesValue.EMPTY);</span>
+
+  @NonNull
+  @Default
+<span class="fc" id="L42">  Aer feeUsed = Aer.EMPTY;</span>
+
+  @NonNull
+  @Default
+<span class="fc" id="L46">  Aer cumulativeFeeUsed = Aer.EMPTY;</span>
+
+  @NonNull
+  @Default
+<span class="fc" id="L50">  BytesValue bloom = BytesValue.EMPTY;</span>
+
+  @NonNull
+  @Default
+<span class="fc" id="L54">  List&lt;Event&gt; events = emptyList();</span>
+
+  @Default
+<span class="fc" id="L57">  long blockNumber = 0L;</span>
+
+  @Default
+<span class="fc" id="L60">  BlockHash blockHash = BlockHash.of(BytesValue.EMPTY);</span>
+
+  @Default
+<span class="fc" id="L63">  int indexInBlock = 0;</span>
+
+  @NonNull
+  @Default
+<span class="fc" id="L67">  AccountAddress sender = AccountAddress.EMPTY;</span>
+
+  @NonNull
+  @Default
+<span class="fc" id="L71">  AccountAddress recipient = AccountAddress.EMPTY;</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

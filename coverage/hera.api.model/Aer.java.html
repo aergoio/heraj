@@ -9,7 +9,7 @@ import static hera.util.ValidationUtils.assertNotNull;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.exception.InvalidAerAmountException;
-import hera.spec.AerSpec;
+import hera.spec.AergoSpec;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import lombok.EqualsAndHashCode;
@@ -20,7 +20,7 @@ import lombok.ToString;
 @ApiAudience.Public
 @ApiStability.Unstable
 <span class="fc" id="L22">@ToString</span>
-<span class="pc bpc" id="L23" title="6 of 14 branches missed.">@EqualsAndHashCode</span>
+<span class="pc bpc" id="L23" title="7 of 14 branches missed.">@EqualsAndHashCode</span>
 public class Aer implements Comparable&lt;Aer&gt; {
 
 <span class="fc" id="L26">  public static final Aer EMPTY = new Aer();</span>
@@ -75,10 +75,10 @@ public class Aer implements Comparable&lt;Aer&gt; {
 <span class="fc" id="L75">  @ApiAudience.Public</span>
 <span class="fc" id="L76">  @RequiredArgsConstructor</span>
   public enum Unit {
-<span class="fc" id="L78">    AER(AerSpec.Unit.AER), GAER(AerSpec.Unit.GAER), AERGO(AerSpec.Unit.AERGO);</span>
+<span class="fc" id="L78">    AER(AergoSpec.Unit.AER), GAER(AergoSpec.Unit.GAER), AERGO(AergoSpec.Unit.AERGO);</span>
 
 <span class="fc" id="L80">    @Getter</span>
-    final AerSpec.Unit delegate;
+    final AergoSpec.Unit delegate;
   }
 
 <span class="fc" id="L84">  @Getter</span>

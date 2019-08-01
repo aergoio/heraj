@@ -4,14 +4,14 @@
 
 package hera.spec.resolver;
 
-import static hera.api.model.BytesValue.of;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.api.model.BytesValue;
 import hera.api.model.Signature;
 import hera.exception.HerajException;
-import hera.spec.SignatureSpec;
+import hera.spec.AergoSpec;
 import hera.util.HexUtils;
 import hera.util.Pair;
 import hera.util.pki.ECDSASignature;
@@ -44,29 +44,29 @@ import org.slf4j.Logger;
     // in this case, use canonical byte array, not raw bytes
 <span class="fc" id="L45">    final byte[] rbyteArray = r.toByteArray();</span>
 <span class="fc" id="L46">    final byte[] sbyteArray = s.toByteArray();</span>
-<span class="fc bfc" id="L47" title="All 2 branches covered.">    if (logger.isTraceEnabled()) {</span>
-<span class="fc" id="L48">      logger.trace(&quot;Canonical r: {}, len: {}&quot;, HexUtils.encode(rbyteArray), rbyteArray.length);</span>
-<span class="fc" id="L49">      logger.trace(&quot;Canonical s: {}, len: {}&quot;, HexUtils.encode(sbyteArray), sbyteArray.length);</span>
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">    if (logger.isTraceEnabled()) {</span>
+<span class="nc" id="L48">      logger.trace(&quot;Canonical r: {}, len: {}&quot;, HexUtils.encode(rbyteArray), rbyteArray.length);</span>
+<span class="nc" id="L49">      logger.trace(&quot;Canonical s: {}, len: {}&quot;, HexUtils.encode(sbyteArray), sbyteArray.length);</span>
     }
 
 <span class="fc" id="L52">    final byte[] serialized = new byte[6 + rbyteArray.length + sbyteArray.length];</span>
 
     // Header
-<span class="fc" id="L55">    serialized[0] = SignatureSpec.HEADER_MAGIC;</span>
+<span class="fc" id="L55">    serialized[0] = AergoSpec.SIGN_HEADER_MAGIC;</span>
 <span class="fc" id="L56">    serialized[1] = (byte) (serialized.length - 2);</span>
 
     // &lt;int-marker&gt; + &lt;R.length&gt; + &lt;R.bytes&gt;
-<span class="fc" id="L59">    serialized[2] = SignatureSpec.INT_MARKER;</span>
+<span class="fc" id="L59">    serialized[2] = AergoSpec.SIGN_INT_MARKER;</span>
 <span class="fc" id="L60">    serialized[3] = (byte) rbyteArray.length;</span>
 <span class="fc" id="L61">    System.arraycopy(rbyteArray, 0, serialized, 4, rbyteArray.length);</span>
 
     // &lt;int-marker&gt; + &lt;S.length&gt; + &lt;S.bytes&gt;
 <span class="fc" id="L64">    final int offset = 4 + rbyteArray.length;</span>
-<span class="fc" id="L65">    serialized[offset] = SignatureSpec.INT_MARKER;</span>
+<span class="fc" id="L65">    serialized[offset] = AergoSpec.SIGN_INT_MARKER;</span>
 <span class="fc" id="L66">    serialized[offset + 1] = (byte) sbyteArray.length;</span>
 <span class="fc" id="L67">    System.arraycopy(sbyteArray, 0, serialized, offset + 2, sbyteArray.length);</span>
 
-<span class="fc" id="L69">    return new Signature(of(serialized));</span>
+<span class="fc" id="L69">    return Signature.newBuilder().sign(BytesValue.of(serialized)).build();</span>
   }
 
   /**
@@ -89,10 +89,10 @@ import org.slf4j.Logger;
 
 <span class="fc" id="L90">    int index = 0;</span>
 
-<span class="pc bpc" id="L92" title="1 of 2 branches missed.">    if (rawSignature.length &lt; SignatureSpec.MINIMUM_SIGNATURE_LEN) {</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">    if (rawSignature.length &lt; AergoSpec.SIGN_MINIMUM_LENGTH) {</span>
 <span class="nc" id="L93">      throw new HerajException(</span>
           &quot;Invalid serialized length: length is shorter than &quot;
-              + SignatureSpec.MINIMUM_SIGNATURE_LEN);
+              + AergoSpec.SIGN_MINIMUM_LENGTH);
     }
 
 <span class="fc" id="L98">    index = validateHeader(rawSignature, index);</span>
@@ -117,15 +117,15 @@ import org.slf4j.Logger;
   protected static int validateHeader(final byte[] source, final int start) {
 <span class="fc" id="L118">    int index = start;</span>
 
-<span class="pc bpc" id="L120" title="1 of 2 branches missed.">    if (source[index] != SignatureSpec.HEADER_MAGIC) {</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">    if (source[index] != AergoSpec.SIGN_HEADER_MAGIC) {</span>
 <span class="nc" id="L121">      throw new HerajException(</span>
-          &quot;Invalid magic number. expected: &quot; + SignatureSpec.HEADER_MAGIC + &quot;, but was: &quot;
+          &quot;Invalid magic number. expected: &quot; + AergoSpec.SIGN_HEADER_MAGIC + &quot;, but was: &quot;
               + source[index]);
     }
 <span class="fc" id="L125">    ++index;</span>
 
 <span class="fc" id="L127">    int sigDataLen = source[index];</span>
-<span class="pc bpc" id="L128" title="2 of 4 branches missed.">    if (sigDataLen &lt; SignatureSpec.MINIMUM_SIGNATURE_LEN || (source.length - 2) &lt; sigDataLen) {</span>
+<span class="pc bpc" id="L128" title="2 of 4 branches missed.">    if (sigDataLen &lt; AergoSpec.SIGN_MINIMUM_LENGTH || (source.length - 2) &lt; sigDataLen) {</span>
 <span class="nc" id="L129">      throw new HerajException(&quot;Invalid signature length&quot;);</span>
     }
 <span class="fc" id="L131">    ++index;</span>
@@ -138,9 +138,9 @@ import org.slf4j.Logger;
 <span class="fc" id="L138">    int index = start;</span>
 
     // parse marker
-<span class="pc bpc" id="L141" title="1 of 2 branches missed.">    if (source[index] != SignatureSpec.INT_MARKER) {</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">    if (source[index] != AergoSpec.SIGN_INT_MARKER) {</span>
 <span class="nc" id="L142">      throw new HerajException(</span>
-          &quot;Invalid integer header. expected: &quot; + SignatureSpec.INT_MARKER + &quot;, but was: &quot;
+          &quot;Invalid integer header. expected: &quot; + AergoSpec.SIGN_INT_MARKER + &quot;, but was: &quot;
               + source[index]);
     }
 <span class="fc" id="L146">    ++index;</span>

@@ -32,25 +32,17 @@ public class ContractInvocation {
 <span class="fc" id="L32">  @Getter</span>
   protected final Aer amount;
 
-  /**
-   * Contract invocation constructor.
-   *
-   * @param contractAddress contract address
-   * @param contractFunction invocation function
-   * @param args arguments of invocation function
-   * @param amount an amount
-   */
   ContractInvocation(final ContractAddress contractAddress,
-<span class="fc" id="L44">      final ContractFunction contractFunction, final List&lt;Object&gt; args, final Aer amount) {</span>
-<span class="fc" id="L45">    assertNotNull(contractAddress, &quot;Contract address must not null&quot;);</span>
-<span class="fc" id="L46">    assertNotNull(contractFunction, &quot;Contract function must not null&quot;);</span>
-<span class="fc" id="L47">    assertNotNull(args, &quot;Contract function args must not null&quot;);</span>
-<span class="fc" id="L48">    assertNotNull(amount, &quot;Amount must not null&quot;);</span>
-<span class="fc" id="L49">    this.address = contractAddress;</span>
-<span class="fc" id="L50">    this.function = contractFunction;</span>
-<span class="fc" id="L51">    this.args = unmodifiableList(args);</span>
-<span class="fc" id="L52">    this.amount = amount;</span>
-<span class="fc" id="L53">  }</span>
+<span class="fc" id="L36">      final ContractFunction contractFunction, final List&lt;Object&gt; args, final Aer amount) {</span>
+<span class="fc" id="L37">    assertNotNull(contractAddress, &quot;Contract address must not null&quot;);</span>
+<span class="fc" id="L38">    assertNotNull(contractFunction, &quot;Contract function must not null&quot;);</span>
+<span class="fc" id="L39">    assertNotNull(args, &quot;Contract function args must not null&quot;);</span>
+<span class="fc" id="L40">    assertNotNull(amount, &quot;Amount must not null&quot;);</span>
+<span class="fc" id="L41">    this.address = contractAddress;</span>
+<span class="fc" id="L42">    this.function = contractFunction;</span>
+<span class="fc" id="L43">    this.args = unmodifiableList(args);</span>
+<span class="fc" id="L44">    this.amount = amount;</span>
+<span class="fc" id="L45">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

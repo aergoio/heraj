@@ -5,7 +5,7 @@
 package hera.spec.resolver;
 
 import static hera.api.model.BytesValue.of;
-import static hera.util.VersionUtils.trim;
+import static hera.util.BytesValueUtils.trimPrefix;
 import static java.util.Arrays.asList;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -16,53 +16,21 @@ import hera.api.model.BytesValue;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInvocation;
 import hera.exception.HerajException;
-import hera.spec.PayloadSpec;
-import hera.spec.PayloadSpec.Type;
+import hera.spec.resolver.PayloadSpec.Type;
 import hera.util.LittleEndianDataOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 
-@ApiAudience.Public
+@ApiAudience.Private
 @ApiStability.Unstable
-<span class="nc" id="L32">public class PayloadResolver {</span>
+<span class="nc" id="L31">public class PayloadResolver {</span>
 
-  /**
-   * Lookup table used for determining which output characters in 7-bit ASCII range need to be
-   * quoted. This is from jackson CharTypes class.
-   */
-  static final int[] sOutputEscapes128;
-
-  static {
-<span class="fc" id="L41">    int[] table = new int[128];</span>
-<span class="fc bfc" id="L42" title="All 2 branches covered.">    for (int i = 0; i &lt; 32; ++i) {</span>
-<span class="fc" id="L43">      table[i] = -1;</span>
-    }
-    /*
-     * Others (and some within that range too) have explicit shorter sequences
-     */
-<span class="fc" id="L48">    table['&quot;'] = '&quot;';</span>
-<span class="fc" id="L49">    table['\\'] = '\\';</span>
-    // Escaping of slash is optional, so let's not add it
-<span class="fc" id="L51">    table[0x08] = 'b';</span>
-<span class="fc" id="L52">    table[0x09] = 't';</span>
-<span class="fc" id="L53">    table[0x0C] = 'f';</span>
-<span class="fc" id="L54">    table[0x0A] = 'n';</span>
-<span class="fc" id="L55">    table[0x0D] = 'r';</span>
-<span class="fc" id="L56">    sOutputEscapes128 = table;</span>
-  }
-
-  public static final String JSON_START = &quot;{ &quot;;
-  public static final String JSON_END = &quot; }&quot;;
-  public static final String JSON_ARRAY_START = &quot;[ &quot;;
-  public static final String JSON_ARRAY_END = &quot; ]&quot;;
-  public static final String JSON_NEXT = &quot;,&quot;;
-
-<span class="fc" id="L65">  protected static final Logger logger = getLogger(PayloadResolver.class);</span>
+<span class="fc" id="L33">  protected static final Logger logger = getLogger(PayloadResolver.class);</span>
 
   /**
    * Resolve targets in a payload form.
@@ -74,214 +42,131 @@ import org.slf4j.Logger;
    * @throws HerajException if fails
    */
   public static BytesValue resolve(final Type type, final Object... targets) {
-<span class="fc" id="L77">    logger.trace(&quot;Payload resolve type: {}, target size: {}&quot;, type, targets.length);</span>
-<span class="fc" id="L78">    validateResolveArgs(type, targets);</span>
-<span class="fc" id="L79">    BytesValue resolved = BytesValue.EMPTY;</span>
     try {
-<span class="pc bpc" id="L81" title="1 of 8 branches missed.">      switch (type) {</span>
+<span class="fc" id="L46">      logger.trace(&quot;Payload resolve type: {}, target size: {}&quot;, type, targets.length);</span>
+<span class="fc" id="L47">      validateResolveArgs(type, targets);</span>
+<span class="fc" id="L48">      BytesValue resolved = BytesValue.EMPTY;</span>
+<span class="pc bpc" id="L49" title="1 of 8 branches missed.">      switch (type) {</span>
         case ContractDefinition:
-<span class="fc" id="L83">          resolved = resolveContractDefinition(targets);</span>
-<span class="fc" id="L84">          break;</span>
+<span class="fc" id="L51">          resolved = resolveContractDefinition(targets);</span>
+<span class="fc" id="L52">          break;</span>
         case ContractInvocation:
-<span class="fc" id="L86">          resolved = resolveContractInvocation(targets);</span>
-<span class="fc" id="L87">          break;</span>
+<span class="fc" id="L54">          resolved = resolveContractInvocation(targets);</span>
+<span class="fc" id="L55">          break;</span>
         case Stake:
-<span class="fc" id="L89">          resolved = resolveStake(type, targets);</span>
-<span class="fc" id="L90">          break;</span>
+<span class="fc" id="L57">          resolved = resolveStake(type, targets);</span>
+<span class="fc" id="L58">          break;</span>
         case Unstake:
-<span class="fc" id="L92">          resolved = resolveUnstake(type, targets);</span>
-<span class="fc" id="L93">          break;</span>
+<span class="fc" id="L60">          resolved = resolveUnstake(type, targets);</span>
+<span class="fc" id="L61">          break;</span>
         case Vote:
-<span class="fc" id="L95">          resolved = resolveVote(type, targets);</span>
-<span class="fc" id="L96">          break;</span>
+<span class="fc" id="L63">          resolved = resolveVote(type, targets);</span>
+<span class="fc" id="L64">          break;</span>
         case CreateName:
-<span class="fc" id="L98">          resolved = resolveCreateName(type, targets);</span>
-<span class="fc" id="L99">          break;</span>
+<span class="fc" id="L66">          resolved = resolveCreateName(type, targets);</span>
+<span class="fc" id="L67">          break;</span>
         case UpdateName:
-<span class="fc" id="L101">          resolved = resolveUpdateName(type, targets);</span>
-<span class="fc" id="L102">          break;</span>
+<span class="fc" id="L69">          resolved = resolveUpdateName(type, targets);</span>
+<span class="fc" id="L70">          break;</span>
         default:
-<span class="nc" id="L104">          resolved = of(targets.toString().getBytes());</span>
+<span class="nc" id="L72">          resolved = of(targets.toString().getBytes());</span>
           break;
       }
-<span class="nc" id="L107">    } catch (HerajException e) {</span>
-<span class="nc" id="L108">      throw e;</span>
-<span class="nc" id="L109">    } catch (Exception e) {</span>
-<span class="nc" id="L110">      throw new HerajException(e);</span>
-<span class="fc" id="L111">    }</span>
-<span class="fc" id="L112">    logger.trace(&quot;Resolved payload: {}&quot;, resolved);</span>
-<span class="fc" id="L113">    return resolved;</span>
+<span class="fc" id="L75">      logger.trace(&quot;Resolved payload: {}&quot;, resolved);</span>
+<span class="fc" id="L76">      return resolved;</span>
+<span class="nc" id="L77">    } catch (HerajException e) {</span>
+<span class="nc" id="L78">      throw e;</span>
+<span class="nc" id="L79">    } catch (Exception e) {</span>
+<span class="nc" id="L80">      throw new HerajException(e);</span>
+    }
   }
 
   protected static void validateResolveArgs(final Type type, final Object[] instances) {
-<span class="fc" id="L117">    final int expectedSize = type.getTargets().length;</span>
-<span class="pc bpc" id="L118" title="1 of 2 branches missed.">    if (instances.length != expectedSize) {</span>
-<span class="nc" id="L119">      throw new HerajException(&quot;Targets length must be &quot; + expectedSize);</span>
+<span class="fc" id="L85">    final int expectedSize = type.getTargets().length;</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">    if (instances.length != expectedSize) {</span>
+<span class="nc" id="L87">      throw new IllegalArgumentException(&quot;Targets length must be &quot; + expectedSize);</span>
     }
-<span class="fc bfc" id="L121" title="All 2 branches covered.">    for (int i = 0; i &lt; expectedSize; ++i) {</span>
-<span class="fc" id="L122">      final Class&lt;?&gt; mustbe = type.getTargets()[i];</span>
-<span class="fc" id="L123">      final Object instance = instances[i];</span>
-<span class="pc bpc" id="L124" title="1 of 2 branches missed.">      if (!mustbe.isInstance(instance)) {</span>
-<span class="nc" id="L125">        throw new HerajException(</span>
-<span class="nc" id="L126">            &quot;Target must be &quot; + mustbe.getName() + &quot; but was &quot; + instance.getClass().getName());</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">    for (int i = 0; i &lt; expectedSize; ++i) {</span>
+<span class="fc" id="L90">      final Class&lt;?&gt; mustbe = type.getTargets()[i];</span>
+<span class="fc" id="L91">      final Object instance = instances[i];</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">      if (!mustbe.isInstance(instance)) {</span>
+<span class="nc" id="L93">        throw new IllegalArgumentException(</span>
+<span class="nc" id="L94">            &quot;Target must be &quot; + mustbe.getName() + &quot; but was &quot; + instance.getClass().getName());</span>
       }
     }
-<span class="fc" id="L129">  }</span>
+<span class="fc" id="L97">  }</span>
 
   protected static BytesValue resolveContractDefinition(final Object[] targets) throws IOException {
-<span class="fc" id="L132">    final ContractDefinition contractDefinition = (ContractDefinition) targets[0];</span>
-<span class="fc" id="L133">    final byte[] rawPayload = trim(contractDefinition.getDecodedContract().getValue());</span>
-<span class="fc" id="L134">    final ByteArrayOutputStream rawStream = new ByteArrayOutputStream();</span>
-<span class="fc" id="L135">    final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(rawStream);</span>
+<span class="fc" id="L100">    final ContractDefinition contractDefinition = (ContractDefinition) targets[0];</span>
+<span class="fc" id="L101">    final byte[] rawPayload = trimPrefix(contractDefinition.getDecodedContract().getValue());</span>
+<span class="fc" id="L102">    final ByteArrayOutputStream rawStream = new ByteArrayOutputStream();</span>
+<span class="fc" id="L103">    final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(rawStream);</span>
     try {
-<span class="fc" id="L137">      dataOut.writeInt(rawPayload.length + 4);</span>
-<span class="fc" id="L138">      dataOut.write(rawPayload);</span>
-<span class="fc bfc" id="L139" title="All 2 branches covered.">      if (!contractDefinition.getConstructorArgs().isEmpty()) {</span>
-<span class="fc" id="L140">        final String constructorArgs = asJsonArray(contractDefinition.getConstructorArgs());</span>
-<span class="fc" id="L141">        dataOut.write(constructorArgs.getBytes());</span>
+<span class="fc" id="L105">      dataOut.writeInt(rawPayload.length + 4);</span>
+<span class="fc" id="L106">      dataOut.write(rawPayload);</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">      if (!contractDefinition.getConstructorArgs().isEmpty()) {</span>
+<span class="fc" id="L108">        final String constructorArgs =</span>
+<span class="fc" id="L109">            JsonResolver.asJsonArray(contractDefinition.getConstructorArgs());</span>
+<span class="fc" id="L110">        dataOut.write(constructorArgs.getBytes());</span>
       }
-<span class="nc" id="L143">    } catch (Exception e) {</span>
-<span class="nc" id="L144">      throw new HerajException(e);</span>
     } finally {
-<span class="fc" id="L146">      dataOut.close();</span>
+<span class="fc" id="L113">      dataOut.close();</span>
     }
 
-<span class="fc" id="L149">    return new BytesValue(rawStream.toByteArray());</span>
+<span class="fc" id="L116">    return new BytesValue(rawStream.toByteArray());</span>
   }
 
   protected static BytesValue resolveContractInvocation(final Object[] targets) {
-<span class="fc" id="L153">    final ContractInvocation contractInvocation = (ContractInvocation) targets[0];</span>
-<span class="fc" id="L154">    final String name = contractInvocation.getFunction().getName();</span>
-<span class="fc" id="L155">    final List&lt;Object&gt; args = contractInvocation.getArgs();</span>
-<span class="fc" id="L156">    final String jsonForm = asJsonForm(name, args);</span>
-<span class="fc" id="L157">    return new BytesValue(jsonForm.getBytes());</span>
+<span class="fc" id="L120">    final ContractInvocation contractInvocation = (ContractInvocation) targets[0];</span>
+<span class="fc" id="L121">    final String name = contractInvocation.getFunction().getName();</span>
+<span class="fc" id="L122">    final List&lt;Object&gt; args = contractInvocation.getArgs();</span>
+<span class="fc" id="L123">    final String jsonForm = asJsonForm(name, args);</span>
+<span class="fc" id="L124">    return new BytesValue(jsonForm.getBytes());</span>
   }
 
   protected static BytesValue resolveStake(final Type type, final Object[] targets) {
-<span class="fc" id="L161">    final String jsonForm = asJsonForm(PayloadSpec.VERSION + type.getName(), asList(targets));</span>
-<span class="fc" id="L162">    return new BytesValue(jsonForm.getBytes());</span>
+<span class="fc" id="L128">    final String jsonForm = asJsonForm(PayloadSpec.VERSION + type.getName(), asList(targets));</span>
+<span class="fc" id="L129">    return new BytesValue(jsonForm.getBytes());</span>
   }
 
   protected static BytesValue resolveUnstake(final Type type, final Object[] targets) {
-<span class="fc" id="L166">    final String jsonForm = asJsonForm(PayloadSpec.VERSION + type.getName(), asList(targets));</span>
-<span class="fc" id="L167">    return new BytesValue(jsonForm.getBytes());</span>
+<span class="fc" id="L133">    final String jsonForm = asJsonForm(PayloadSpec.VERSION + type.getName(), asList(targets));</span>
+<span class="fc" id="L134">    return new BytesValue(jsonForm.getBytes());</span>
   }
 
   protected static BytesValue resolveVote(final Type type, final Object[] targets)
       throws IOException {
-<span class="fc" id="L172">    final String voteId = (String) targets[0];</span>
-<span class="fc" id="L173">    final String[] candidates = (String[]) targets[1];</span>
-<span class="fc" id="L174">    final List&lt;Object&gt; args = new ArrayList&lt;Object&gt;();</span>
-<span class="fc bfc" id="L175" title="All 2 branches covered.">    for (final String candidate : candidates) {</span>
-<span class="fc" id="L176">      args.add(candidate);</span>
+<span class="fc" id="L139">    final String voteId = (String) targets[0];</span>
+<span class="fc" id="L140">    final String[] candidates = (String[]) targets[1];</span>
+<span class="fc" id="L141">    final List&lt;Object&gt; args = new ArrayList&lt;Object&gt;();</span>
+<span class="fc bfc" id="L142" title="All 2 branches covered.">    for (final String candidate : candidates) {</span>
+<span class="fc" id="L143">      args.add(candidate);</span>
     }
-<span class="fc" id="L178">    final String jsonForm = asJsonForm(PayloadSpec.VERSION + voteId, args);</span>
-<span class="fc" id="L179">    return new BytesValue(jsonForm.getBytes());</span>
+<span class="fc" id="L145">    final String jsonForm = asJsonForm(PayloadSpec.VERSION + voteId, args);</span>
+<span class="fc" id="L146">    return new BytesValue(jsonForm.getBytes());</span>
   }
 
   protected static BytesValue resolveCreateName(final Type type, final Object[] targets) {
-<span class="fc" id="L183">    final String jsonForm = asJsonForm(PayloadSpec.VERSION + type.getName(), asList(targets));</span>
-<span class="fc" id="L184">    return new BytesValue(jsonForm.getBytes());</span>
+<span class="fc" id="L150">    final String jsonForm = asJsonForm(PayloadSpec.VERSION + type.getName(), asList(targets));</span>
+<span class="fc" id="L151">    return new BytesValue(jsonForm.getBytes());</span>
   }
 
   protected static BytesValue resolveUpdateName(final Type type, final Object[] targets)
       throws IOException {
-<span class="fc" id="L189">    final String name = (String) targets[0];</span>
-<span class="fc" id="L190">    final String newOwner = ((AccountAddress) targets[1]).getEncoded();</span>
-<span class="fc" id="L191">    final List&lt;Object&gt; args = new ArrayList&lt;Object&gt;();</span>
-<span class="fc" id="L192">    args.add(name);</span>
-<span class="fc" id="L193">    args.add(newOwner);</span>
-<span class="fc" id="L194">    final String jsonForm = asJsonForm(PayloadSpec.VERSION + type.getName(), args);</span>
-<span class="fc" id="L195">    return new BytesValue(jsonForm.toString().getBytes());</span>
+<span class="fc" id="L156">    final String name = (String) targets[0];</span>
+<span class="fc" id="L157">    final String newOwner = ((AccountAddress) targets[1]).getEncoded();</span>
+<span class="fc" id="L158">    final List&lt;Object&gt; args = new ArrayList&lt;Object&gt;();</span>
+<span class="fc" id="L159">    args.add(name);</span>
+<span class="fc" id="L160">    args.add(newOwner);</span>
+<span class="fc" id="L161">    final String jsonForm = asJsonForm(PayloadSpec.VERSION + type.getName(), args);</span>
+<span class="fc" id="L162">    return new BytesValue(jsonForm.toString().getBytes());</span>
   }
 
   protected static String asJsonForm(final String name, final List&lt;Object&gt; args) {
-<span class="fc" id="L199">    final StringBuilder sb = new StringBuilder();</span>
-<span class="fc" id="L200">    sb.append(JSON_START);</span>
-<span class="fc" id="L201">    sb.append(keyAndValue(&quot;Name&quot;, asJsonString(name)));</span>
-<span class="fc bfc" id="L202" title="All 2 branches covered.">    if (!args.isEmpty()) {</span>
-<span class="fc" id="L203">      sb.append(JSON_NEXT);</span>
-<span class="fc" id="L204">      sb.append(keyAndValue(&quot;Args&quot;, asJsonArray(args)));</span>
-    }
-<span class="fc" id="L206">    sb.append(JSON_END);</span>
-<span class="fc" id="L207">    return sb.toString();</span>
-  }
-
-  protected static String asJsonArray(final List&lt;Object&gt; args) {
-<span class="fc" id="L211">    final StringBuilder sb = new StringBuilder();</span>
-<span class="fc" id="L212">    sb.append(JSON_ARRAY_START);</span>
-    // nil, boolean, number, string, table?
-<span class="fc bfc" id="L214" title="All 2 branches covered.">    for (int i = 0; i &lt; args.size(); ++i) {</span>
-<span class="fc bfc" id="L215" title="All 2 branches covered.">      if (i != 0) {</span>
-<span class="fc" id="L216">        sb.append(JSON_NEXT);</span>
-      }
-
-<span class="fc" id="L219">      final Object arg = args.get(i);</span>
-<span class="pc bpc" id="L220" title="1 of 2 branches missed.">      if (null == arg) {</span>
-<span class="nc" id="L221">        sb.append(asJsonNull());</span>
-<span class="pc bpc" id="L222" title="1 of 2 branches missed.">      } else if (arg instanceof Number) {</span>
-<span class="nc" id="L223">        sb.append(asJsonNumber((Number) arg));</span>
-<span class="pc bpc" id="L224" title="1 of 2 branches missed.">      } else if (arg instanceof BigInteger) {</span>
-<span class="nc" id="L225">        sb.append(asJsonNumber((BigInteger) arg));</span>
-<span class="pc bpc" id="L226" title="1 of 2 branches missed.">      } else if (arg instanceof BigDecimal) {</span>
-<span class="nc" id="L227">        sb.append(asJsonNumber((BigDecimal) arg));</span>
-<span class="pc bpc" id="L228" title="1 of 2 branches missed.">      } else if (arg instanceof String) {</span>
-<span class="fc" id="L229">        sb.append(asJsonString((String) arg));</span>
-<span class="nc bnc" id="L230" title="All 2 branches missed.">      } else if (arg instanceof Boolean) {</span>
-<span class="nc" id="L231">        sb.append(asJsonBoolean((Boolean) arg));</span>
-      } else {
-<span class="nc" id="L233">        throw new IllegalArgumentException(&quot;Args type must be number or string&quot;);</span>
-      }
-    }
-<span class="fc" id="L236">    sb.append(JSON_ARRAY_END);</span>
-<span class="fc" id="L237">    return sb.toString();</span>
-  }
-
-  protected static String keyAndValue(final String key, final String value) {
-<span class="fc" id="L241">    return asJsonString(key) + &quot;:&quot; + value;</span>
-  }
-
-  protected static String asJsonString(final String target) {
-<span class="fc" id="L245">    final StringBuilder sb = new StringBuilder();</span>
-<span class="fc" id="L246">    sb.append('&quot;');</span>
-<span class="fc" id="L247">    appendQuoted(sb, target);</span>
-<span class="fc" id="L248">    sb.append('&quot;');</span>
-<span class="fc" id="L249">    return sb.toString();</span>
-  }
-
-  protected static void appendQuoted(StringBuilder sb, String content) {
-<span class="fc" id="L253">    final int[] escCodes = sOutputEscapes128;</span>
-<span class="fc" id="L254">    int escLen = escCodes.length;</span>
-<span class="fc bfc" id="L255" title="All 2 branches covered.">    for (int i = 0, len = content.length(); i &lt; len; ++i) {</span>
-<span class="fc" id="L256">      char c = content.charAt(i);</span>
-<span class="pc bpc" id="L257" title="2 of 4 branches missed.">      if (c &gt;= escLen || escCodes[c] == 0) {</span>
-<span class="fc" id="L258">        sb.append(c);</span>
-      } else {
-<span class="nc" id="L260">        sb.append('\\');</span>
-<span class="nc" id="L261">        int escCode = escCodes[c];</span>
-<span class="nc" id="L262">        sb.append((char) escCode);</span>
-      }
-    }
-<span class="fc" id="L265">  }</span>
-
-  protected static String asJsonNumber(final Number target) {
-<span class="nc" id="L268">    return target.toString();</span>
-  }
-
-  protected static String asJsonNumber(final BigInteger target) {
-<span class="nc" id="L272">    return target.toString(10);</span>
-  }
-
-  protected static String asJsonNumber(final BigDecimal target) {
-<span class="nc" id="L276">    return target.toString();</span>
-  }
-
-  protected static String asJsonNull() {
-<span class="nc" id="L280">    return &quot;null&quot;;</span>
-  }
-
-  protected static String asJsonBoolean(final Boolean target) {
-<span class="nc" id="L284">    return target.toString();</span>
+<span class="fc" id="L166">    final Map&lt;String, Object&gt; map = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L167">    map.put(&quot;Name&quot;, name);</span>
+<span class="fc" id="L168">    map.put(&quot;Args&quot;, args);</span>
+<span class="fc" id="L169">    return JsonResolver.asJsonObject(map);</span>
   }
 
 }

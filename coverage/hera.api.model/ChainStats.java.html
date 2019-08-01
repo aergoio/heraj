@@ -4,32 +4,23 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import hera.util.StringUtils;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="nc" id="L17">@ToString</span>
-<span class="nc bnc" id="L18" title="All 14 branches missed.">@EqualsAndHashCode</span>
+<span class="pc bnc" id="L17" title="All 12 branches missed.">@Value</span>
+<span class="pc bpc" id="L18" title="2 of 6 branches missed.">@Builder(builderMethodName = &quot;newBuilder&quot;)</span>
 public class ChainStats {
 
-<span class="nc" id="L21">  @Getter</span>
-  protected final String report;
-
-  /**
-   * VoteInfo constructor.
-   * 
-   * @param report a report
-   */
-<span class="fc" id="L29">  public ChainStats(final String report) {</span>
-<span class="fc" id="L30">    assertNotNull(report, &quot;Report must not null&quot;);</span>
-<span class="fc" id="L31">    this.report = report;</span>
-<span class="fc" id="L32">  }</span>
+  @NonNull
+  @Default
+<span class="fc" id="L23">  String report = StringUtils.EMPTY_STRING;</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

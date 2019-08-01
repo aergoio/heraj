@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlainTransactionBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.spec.transaction</a> &gt; <span class="el_source">PlainTransactionBuilder.java</span></div><h1>PlainTransactionBuilder.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.spec.transaction;
+
+import static hera.util.ValidationUtils.assertNotNull;
+
+import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
+import hera.api.model.BytesValue;
+import hera.api.model.ChainIdHash;
+import hera.api.model.Fee;
+import hera.api.model.Identity;
+import hera.api.model.Name;
+import hera.api.model.RawTransaction;
+import hera.api.model.Transaction.TxType;
+import hera.exception.HerajException;
+import hera.spec.transaction.dsl.PlainTransaction;
+
+<span class="fc" id="L21">public class PlainTransactionBuilder implements</span>
+    PlainTransaction.WithNothing,
+    PlainTransaction.WithChainIdHash,
+    PlainTransaction.WithChainIdHashAndSender,
+    PlainTransaction.WithChainIdHashAndSenderAndRecipient,
+    PlainTransaction.WithChainIdHashAndSenderAndRecipientAndAmount,
+    PlainTransaction.WithReady {
+
+  private ChainIdHash chainIdHash;
+
+  private AccountAddress sender;
+
+  private AccountAddress recipient;
+
+<span class="fc" id="L35">  private Aer amount = Aer.EMPTY;</span>
+
+  private long nonce;
+
+
+  // following fields aren't need to be explicitly provided
+
+<span class="fc" id="L42">  private Fee fee = Fee.ZERO;</span>
+
+<span class="fc" id="L44">  private BytesValue payload = BytesValue.EMPTY;</span>
+
+<span class="fc" id="L46">  private TxType txType = TxType.NORMAL;</span>
+
+
+  @Override
+  public PlainTransaction.WithChainIdHash chainIdHash(final ChainIdHash chainIdHash) {
+<span class="fc" id="L51">    assertNotNull(chainIdHash);</span>
+<span class="fc" id="L52">    this.chainIdHash = chainIdHash;</span>
+<span class="fc" id="L53">    return this;</span>
+  }
+
+  @Override
+  public PlainTransaction.WithChainIdHashAndSender from(final Identity sender) {
+<span class="fc" id="L58">    assertNotNull(sender);</span>
+<span class="fc" id="L59">    this.sender = deriveAddress(sender);</span>
+<span class="fc" id="L60">    return this;</span>
+  }
+
+  @Override
+  public PlainTransaction.WithChainIdHashAndSender from(final String sender) {
+<span class="nc" id="L65">    assertNotNull(sender);</span>
+<span class="nc" id="L66">    this.sender = deriveAddress(sender);</span>
+<span class="nc" id="L67">    return this;</span>
+  }
+
+  @Override
+  public PlainTransaction.WithChainIdHashAndSenderAndRecipient to(final String recipient) {
+<span class="nc" id="L72">    assertNotNull(recipient);</span>
+<span class="nc" id="L73">    this.recipient = deriveAddress(recipient);</span>
+<span class="nc" id="L74">    return this;</span>
+  }
+
+  @Override
+  public PlainTransaction.WithChainIdHashAndSenderAndRecipient to(final Identity recipient) {
+<span class="fc" id="L79">    assertNotNull(recipient);</span>
+<span class="fc" id="L80">    this.recipient = deriveAddress(recipient);</span>
+<span class="fc" id="L81">    return this;</span>
+  }
+
+  @Override
+  public PlainTransaction.WithChainIdHashAndSenderAndRecipientAndAmount amount(final String amount,
+      final Aer.Unit unit) {
+<span class="fc" id="L87">    return amount(Aer.of(amount, unit));</span>
+  }
+
+  @Override
+  public PlainTransaction.WithChainIdHashAndSenderAndRecipientAndAmount amount(final Aer amount) {
+<span class="fc" id="L92">    assertNotNull(amount);</span>
+<span class="fc" id="L93">    this.amount = amount;</span>
+<span class="fc" id="L94">    return this;</span>
+  }
+
+  @Override
+  public PlainTransaction.WithReady nonce(final long nonce) {
+<span class="fc" id="L99">    this.nonce = nonce;</span>
+<span class="fc" id="L100">    return this;</span>
+  }
+
+  @Override
+  public PlainTransaction.WithReady fee(final Fee fee) {
+<span class="fc" id="L105">    assertNotNull(fee);</span>
+<span class="fc" id="L106">    this.fee = fee;</span>
+<span class="fc" id="L107">    return this;</span>
+  }
+
+  @Override
+  public PlainTransaction.WithReady payload(final BytesValue payload) {
+<span class="fc" id="L112">    assertNotNull(payload);</span>
+<span class="fc" id="L113">    this.payload = payload;</span>
+<span class="fc" id="L114">    return this;</span>
+  }
+
+  @Override
+  public PlainTransaction.WithReady type(final TxType txType) {
+<span class="fc" id="L119">    this.txType = txType;</span>
+<span class="fc" id="L120">    return this;</span>
+  }
+
+  @Override
+  public RawTransaction build() {
+<span class="fc" id="L125">    return new RawTransaction(chainIdHash, sender, recipient, amount, nonce, fee, payload,</span>
+        txType);
+  }
+
+  protected AccountAddress deriveAddress(final Identity identity) {
+    try {
+<span class="fc bfc" id="L131" title="All 2 branches covered.">      if (identity instanceof AccountAddress) {</span>
+<span class="fc" id="L132">        return (AccountAddress) identity;</span>
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">      } else if (identity instanceof Name) {</span>
+<span class="fc" id="L134">        return ((Name) identity).adapt(AccountAddress.class);</span>
+      } else {
+<span class="nc" id="L136">        return new AccountAddress(identity.getValue());</span>
+      }
+<span class="nc" id="L138">    } catch (HerajException e) {</span>
+<span class="nc" id="L139">      throw e;</span>
+<span class="nc" id="L140">    } catch (Exception e) {</span>
+<span class="nc" id="L141">      throw new HerajException(e);</span>
+    }
+  }
+
+  protected AccountAddress deriveAddress(final String encodedAddressOrName) {
+    try {
+<span class="nc" id="L147">      final String encodedAddress = encodedAddressOrName;</span>
+<span class="nc" id="L148">      return new AccountAddress(encodedAddress);</span>
+<span class="nc" id="L149">    } catch (final HerajException notEncodedAddress) {</span>
+      try {
+        // it's not address, treat it as name
+<span class="nc" id="L152">        final String name = encodedAddressOrName;</span>
+<span class="nc" id="L153">        return new Name(name).adapt(AccountAddress.class);</span>
+<span class="nc" id="L154">      } catch (HerajException e) {</span>
+<span class="nc" id="L155">        throw e;</span>
+<span class="nc" id="L156">      } catch (Exception e) {</span>
+<span class="nc" id="L157">        throw new HerajException(e);</span>
+      }
+    }
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

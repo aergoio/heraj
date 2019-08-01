@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Trier.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.wallet.internal</a> &gt; <span class="el_source">Trier.java</span></div><h1>Trier.java</h1><pre class="source lang-java linenums">package hera.wallet.internal;
+
+import static hera.util.ValidationUtils.assertNotNull;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.api.function.Function0;
+import hera.api.function.Function2;
+import hera.api.model.AccountAddress;
+import hera.api.model.AccountState;
+import hera.api.model.ChainIdHash;
+import hera.api.model.TxHash;
+import hera.api.model.internal.TryCountAndInterval;
+import hera.api.transaction.NonceProvider;
+import hera.client.AergoClient;
+import hera.exception.RpcCommitException;
+import hera.exception.RpcException;
+import hera.key.Signer;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.slf4j.Logger;
+
+<span class="fc" id="L23">@RequiredArgsConstructor</span>
+public class Trier {
+
+<span class="fc" id="L26">  protected final Logger logger = getLogger(getClass());</span>
+
+<span class="nc" id="L28">  @Getter</span>
+<span class="fc" id="L29">  @Setter</span>
+  protected TryCountAndInterval tryCountAndInterval;
+
+<span class="nc" id="L32">  @Getter</span>
+<span class="fc" id="L33">  @Setter</span>
+  protected NonceProvider nonceProvider;
+
+<span class="nc" id="L36">  @Getter</span>
+<span class="fc" id="L37">  @Setter</span>
+  protected Function0&lt;AergoClient&gt; clientProvider;
+
+  /**
+   * Try transaction request with a requester. If {@code transactionRequester} fails, retry after
+   * refreshing nonce.
+   *
+   * @param signer a signer to sign transaction
+   * @param transactionRequester a transaction requester
+   * @return a transaction hash
+   */
+  public TxHash request(final Signer signer,
+      final Function2&lt;Signer, Long, TxHash&gt; transactionRequester) {
+<span class="nc" id="L50">    assertNotNull(signer);</span>
+<span class="nc" id="L51">    assertNotNull(transactionRequester);</span>
+<span class="nc" id="L52">    logger.debug(&quot;Transaction try with signer: {}, transactionRequester: {}&quot;, signer,</span>
+        transactionRequester);
+
+<span class="nc" id="L55">    TxHash txHash = null;</span>
+<span class="nc" id="L56">    RpcException recentException = null;</span>
+
+<span class="nc" id="L58">    int i = tryCountAndInterval.getCount();</span>
+<span class="nc bnc" id="L59" title="All 4 branches missed.">    while (0 &lt;= i &amp;&amp; null == txHash) {</span>
+<span class="nc" id="L60">      final long nonceToBeUsed = nonceProvider.incrementAndGetNonce(signer.getPrincipal());</span>
+      try {
+<span class="nc" id="L62">        txHash = transactionRequester.apply(signer, nonceToBeUsed);</span>
+<span class="nc" id="L63">      } catch (RpcException e) {</span>
+<span class="nc" id="L64">        recentException = e;</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (isNonceRelatedException(e)) {</span>
+<span class="nc" id="L66">          logger.info(&quot;Request failed with invalid nonce.. try left: {}&quot;, i);</span>
+<span class="nc" id="L67">          syncNonceOf(signer.getPrincipal());</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        } else if (isChainIdHashException(e)) {</span>
+<span class="nc" id="L69">          logger.info(&quot;Request failed with invalid chain id hash.. try left: {}&quot;, i);</span>
+<span class="nc" id="L70">          nonceProvider.bindNonce(signer.getPrincipal(), nonceToBeUsed - 1);</span>
+<span class="nc" id="L71">          syncChainIdHash(clientProvider.apply());</span>
+        } else {
+<span class="nc" id="L73">          throw e;</span>
+        }
+<span class="nc" id="L75">        tryCountAndInterval.trySleep();</span>
+<span class="nc" id="L76">        --i;</span>
+<span class="nc" id="L77">      }</span>
+<span class="nc" id="L78">    }</span>
+
+<span class="nc bnc" id="L80" title="All 4 branches missed.">    if (null == txHash &amp;&amp; null != recentException) {</span>
+<span class="nc" id="L81">      throw recentException;</span>
+    }
+
+<span class="nc" id="L84">    return txHash;</span>
+  }
+
+  protected boolean isNonceRelatedException(final RpcException e) {
+<span class="nc bnc" id="L88" title="All 2 branches missed.">    if (!(e instanceof RpcCommitException)) {</span>
+<span class="nc" id="L89">      return false;</span>
+    }
+<span class="nc" id="L91">    final RpcCommitException cause = (RpcCommitException) e;</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">    return cause.getCommitStatus() == RpcCommitException.CommitStatus.NONCE_TOO_LOW</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        || cause.getCommitStatus() == RpcCommitException.CommitStatus.TX_HAS_SAME_NONCE;</span>
+  }
+
+  protected boolean isChainIdHashException(final RpcException e) {
+<span class="nc bnc" id="L97" title="All 2 branches missed.">    if (!(e instanceof RpcCommitException)) {</span>
+<span class="nc" id="L98">      return false;</span>
+    }
+<span class="nc" id="L100">    final RpcCommitException cause = (RpcCommitException) e;</span>
+    // FIXME : no other way?
+<span class="nc bnc" id="L102" title="All 2 branches missed.">    return cause.getMessage().indexOf(&quot;invalid chain id&quot;) != -1;</span>
+  }
+
+  protected void syncNonceOf(final AccountAddress address) {
+<span class="nc" id="L106">    final AergoClient client = clientProvider.apply();</span>
+<span class="nc" id="L107">    final AccountState recentState = client.getAccountOperation().getState(address);</span>
+<span class="nc" id="L108">    nonceProvider.bindNonce(recentState);</span>
+<span class="nc" id="L109">  }</span>
+
+  protected void syncChainIdHash(final AergoClient client) {
+<span class="nc" id="L112">    final ChainIdHash chainIdHash = client.getBlockchainOperation().getChainIdHash();</span>
+<span class="nc" id="L113">    client.cacheChainIdHash(chainIdHash);</span>
+<span class="nc" id="L114">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

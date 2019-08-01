@@ -4,39 +4,27 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import hera.util.StringUtils;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="nc" id="L17">@ToString</span>
-<span class="nc bnc" id="L18" title="All 22 branches missed.">@EqualsAndHashCode</span>
+<span class="nc bnc" id="L17" title="All 20 branches missed.">@Value</span>
+<span class="nc bnc" id="L18" title="All 12 branches missed.">@Builder(builderMethodName = &quot;newBuilder&quot;)</span>
 public class StateVariable {
 
-<span class="nc" id="L21">  @Getter</span>
-  protected String name;
+  @NonNull
+  @Default
+<span class="nc" id="L23">  String name = StringUtils.EMPTY_STRING;</span>
 
-<span class="nc" id="L24">  @Getter</span>
-  protected String type;
-
-  /**
-   * StateVariable constructor.
-   *
-   * @param name a state variable name
-   * @param type a state variable type
-   */
-  @ApiAudience.Private
-<span class="nc" id="L34">  public StateVariable(final String name, final String type) {</span>
-<span class="nc" id="L35">    assertNotNull(name, &quot;Name must not null&quot;);</span>
-<span class="nc" id="L36">    assertNotNull(type, &quot;Type must not null&quot;);</span>
-<span class="nc" id="L37">    this.name = name;</span>
-<span class="nc" id="L38">    this.type = type;</span>
-<span class="nc" id="L39">  }</span>
+  @NonNull
+  @Default
+<span class="nc" id="L27">  String type = StringUtils.EMPTY_STRING;</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

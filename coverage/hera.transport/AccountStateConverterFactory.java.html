@@ -11,34 +11,34 @@ import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
-import hera.api.model.BytesValue;
 import org.slf4j.Logger;
 import types.Blockchain;
 
-<span class="fc" id="L18">public class AccountStateConverterFactory {</span>
+<span class="fc" id="L17">public class AccountStateConverterFactory {</span>
 
-<span class="fc" id="L20">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L19">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L22">  protected final Function1&lt;AccountState, Blockchain.State&gt; domainConverter =</span>
-<span class="fc" id="L23">      new Function1&lt;AccountState, Blockchain.State&gt;() {</span>
+<span class="fc" id="L21">  protected final Function1&lt;AccountState, Blockchain.State&gt; domainConverter =</span>
+<span class="fc" id="L22">      new Function1&lt;AccountState, Blockchain.State&gt;() {</span>
 
         @Override
         public Blockchain.State apply(final AccountState domainAccountState) {
-<span class="nc" id="L27">          throw new UnsupportedOperationException();</span>
+<span class="nc" id="L26">          throw new UnsupportedOperationException();</span>
         }
       };
 
-<span class="fc" id="L31">  protected final Function1&lt;Blockchain.State, AccountState&gt; rpcConverter =</span>
-<span class="fc" id="L32">      new Function1&lt;Blockchain.State, AccountState&gt;() {</span>
+<span class="fc" id="L30">  protected final Function1&lt;Blockchain.State, AccountState&gt; rpcConverter =</span>
+<span class="fc" id="L31">      new Function1&lt;Blockchain.State, AccountState&gt;() {</span>
 
         @Override
         public AccountState apply(final Blockchain.State rpcAccountState) {
-<span class="fc" id="L36">          logger.trace(&quot;Rpc account state to convert: {}&quot;, rpcAccountState);</span>
-<span class="fc" id="L37">          final Aer parsedAer = parseToAer(rpcAccountState.getBalance());</span>
-<span class="fc" id="L38">          final AccountState domainAccountState =</span>
-<span class="fc" id="L39">              new AccountState(AccountAddress.of(BytesValue.EMPTY),</span>
-<span class="fc" id="L40">                  rpcAccountState.getNonce(),</span>
-<span class="pc bpc" id="L41" title="1 of 2 branches missed.">                  parsedAer.equals(Aer.EMPTY) ? Aer.ZERO : parsedAer);</span>
+<span class="fc" id="L35">          logger.trace(&quot;Rpc account state to convert: {}&quot;, rpcAccountState);</span>
+<span class="fc" id="L36">          final Aer parsedAer = parseToAer(rpcAccountState.getBalance());</span>
+<span class="fc" id="L37">          final AccountState domainAccountState = AccountState.newBuilder()</span>
+<span class="fc" id="L38">              .address(AccountAddress.EMPTY)</span>
+<span class="fc" id="L39">              .nonce(rpcAccountState.getNonce())</span>
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">              .balance(parsedAer.equals(Aer.EMPTY) ? Aer.ZERO : parsedAer)</span>
+<span class="fc" id="L41">              .build();</span>
 <span class="fc" id="L42">          logger.trace(&quot;Domain account state converted: {}&quot;, domainAccountState);</span>
 <span class="fc" id="L43">          return domainAccountState;</span>
         }

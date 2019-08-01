@@ -8,40 +8,56 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import hera.api.model.BigNumber;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractResult;
+import hera.spec.resolver.BigNumberResolver;
 import java.io.IOException;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 
-<span class="fc" id="L17">@RequiredArgsConstructor</span>
+<span class="fc" id="L20">@RequiredArgsConstructor</span>
 public class ContractResultImpl implements ContractResult {
 
-<span class="fc" id="L20">  protected static final ObjectReader reader = new ObjectMapper().reader();</span>
+<span class="fc" id="L23">  protected static final ObjectReader reader = new ObjectMapper().reader();</span>
 
-<span class="fc" id="L22">  protected final Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L25">  protected final Logger logger = getLogger(getClass());</span>
 
   protected final BytesValue result;
 
+  @SuppressWarnings(&quot;unchecked&quot;)
   @Override
   public &lt;T&gt; T bind(final Class&lt;T&gt; clazz) throws IOException {
-<span class="fc" id="L28">    final byte[] rawBytes = this.result.getValue();</span>
-<span class="fc" id="L29">    final String stringFormat = new String(rawBytes);</span>
-<span class="fc" id="L30">    logger.debug(&quot;Raw result to bind: {}&quot;, stringFormat);</span>
-<span class="pc bpc" id="L31" title="2 of 4 branches missed.">    if (stringFormat.isEmpty() || &quot;{}&quot;.equals(stringFormat)) {</span>
-<span class="nc" id="L32">      return null;</span>
+<span class="fc" id="L32">    final byte[] rawBytes = this.result.getValue();</span>
+<span class="fc" id="L33">    final String stringFormat = new String(rawBytes);</span>
+<span class="fc" id="L34">    logger.debug(&quot;Raw result to bind: {}&quot;, stringFormat);</span>
+<span class="pc bpc" id="L35" title="2 of 4 branches missed.">    if (stringFormat.isEmpty() || &quot;{}&quot;.equals(stringFormat)) {</span>
+<span class="nc" id="L36">      return null;</span>
     }
-<span class="fc" id="L34">    return reader.forType(clazz).readValue(rawBytes);</span>
+
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">    if (clazz.isAssignableFrom(BigNumber.class)) {</span>
+<span class="nc" id="L40">      final Map&lt;String, String&gt; bigNumMap = reader.forType(Map.class).readValue(rawBytes);</span>
+<span class="nc" id="L41">      return (T) BigNumberResolver.fromMap(bigNumMap);</span>
+    } else {
+<span class="fc" id="L43">      return reader.forType(clazz).readValue(rawBytes);</span>
+    }
+
   }
 
   @Override
   public BytesValue getResultInRawBytes() {
-<span class="nc" id="L39">    return result;</span>
+<span class="nc" id="L50">    return inBytesValue();</span>
+  }
+
+  @Override
+  public BytesValue inBytesValue() {
+<span class="nc" id="L55">    return this.result;</span>
   }
 
   @Override
   public String toString() {
-<span class="nc" id="L44">    return new String(result.getValue());</span>
+<span class="fc" id="L60">    return new String(result.getValue());</span>
   }
 
 }

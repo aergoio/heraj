@@ -47,25 +47,26 @@ import types.Blockchain;
           try {
 <span class="fc" id="L48">            final ContractAddress contractAddress = accountAddressConverter</span>
 <span class="fc" id="L49">                .convertToDomainModel(rpcEvent.getContractAddress()).adapt(ContractAddress.class);</span>
-<span class="fc" id="L50">            final Event domainEvent = new Event(</span>
-                contractAddress,
-<span class="fc" id="L52">                rpcEvent.getEventName(),</span>
-<span class="fc" id="L53">                mapper.readValue(rpcEvent.getJsonArgs(), List.class),</span>
-<span class="fc" id="L54">                rpcEvent.getEventIdx(),</span>
-<span class="fc" id="L55">                parseToTxHash(rpcEvent.getTxHash()),</span>
-<span class="fc" id="L56">                rpcEvent.getTxIndex(),</span>
-<span class="fc" id="L57">                parseToBlockHash(rpcEvent.getBlockHash()),</span>
-<span class="fc" id="L58">                rpcEvent.getBlockNo());</span>
-<span class="fc" id="L59">            logger.trace(&quot;Rpc event converted: {}&quot;, domainEvent);</span>
-<span class="fc" id="L60">            return domainEvent;</span>
-<span class="nc" id="L61">          } catch (Exception e) {</span>
-<span class="nc" id="L62">            throw new IllegalArgumentException(e);</span>
+<span class="fc" id="L50">            final Event domainEvent = Event.newBuilder()</span>
+<span class="fc" id="L51">                .from(contractAddress)</span>
+<span class="fc" id="L52">                .name(rpcEvent.getEventName())</span>
+<span class="fc" id="L53">                .args(mapper.readValue(rpcEvent.getJsonArgs(), List.class))</span>
+<span class="fc" id="L54">                .index(rpcEvent.getEventIdx())</span>
+<span class="fc" id="L55">                .txHash(parseToTxHash(rpcEvent.getTxHash()))</span>
+<span class="fc" id="L56">                .indexInBlock(rpcEvent.getTxIndex())</span>
+<span class="fc" id="L57">                .blockHash(parseToBlockHash(rpcEvent.getBlockHash()))</span>
+<span class="fc" id="L58">                .blockNumber(rpcEvent.getBlockNo())</span>
+<span class="fc" id="L59">                .build();</span>
+<span class="fc" id="L60">            logger.trace(&quot;Rpc event converted: {}&quot;, domainEvent);</span>
+<span class="fc" id="L61">            return domainEvent;</span>
+<span class="nc" id="L62">          } catch (Exception e) {</span>
+<span class="nc" id="L63">            throw new IllegalArgumentException(e);</span>
           }
         }
       };
 
   public ModelConverter&lt;Event, Blockchain.Event&gt; create() {
-<span class="fc" id="L68">    return new ModelConverter&lt;Event, Blockchain.Event&gt;(domainConverter,</span>
+<span class="fc" id="L69">    return new ModelConverter&lt;Event, Blockchain.Event&gt;(domainConverter,</span>
         rpcConverter);
   }
 

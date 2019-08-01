@@ -7,13 +7,11 @@ package hera.transport;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.protobuf.ByteString;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.EventFilter;
+import hera.spec.resolver.JsonResolver;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,60 +19,54 @@ import org.slf4j.Logger;
 import types.Blockchain;
 import types.Blockchain.FilterInfo;
 
-<span class="fc" id="L24">public class EventFilterConverterFactory {</span>
+<span class="fc" id="L22">public class EventFilterConverterFactory {</span>
 
-<span class="fc" id="L26">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L24">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L28">  protected final ObjectWriter objectWriter = new ObjectMapper().writer();</span>
-
-<span class="fc" id="L30">  protected final ModelConverter&lt;AccountAddress,</span>
+<span class="fc" id="L26">  protected final ModelConverter&lt;AccountAddress,</span>
       com.google.protobuf.ByteString&gt; accountAddressConverter =
-<span class="fc" id="L32">          new AccountAddressConverterFactory().create();</span>
+<span class="fc" id="L28">          new AccountAddressConverterFactory().create();</span>
 
-<span class="fc" id="L34">  protected final Function1&lt;EventFilter, Blockchain.FilterInfo&gt; domainConverter =</span>
-<span class="fc" id="L35">      new Function1&lt;EventFilter, Blockchain.FilterInfo&gt;() {</span>
+<span class="fc" id="L30">  protected final Function1&lt;EventFilter, Blockchain.FilterInfo&gt; domainConverter =</span>
+<span class="fc" id="L31">      new Function1&lt;EventFilter, Blockchain.FilterInfo&gt;() {</span>
 
         @Override
         public Blockchain.FilterInfo apply(final EventFilter domainEventFilter) {
-          try {
-<span class="fc" id="L40">            logger.trace(&quot;Domain event filter: {}&quot;, domainEventFilter);</span>
-<span class="fc" id="L41">            final ByteString rpcContractAddress =</span>
-<span class="fc" id="L42">                accountAddressConverter.convertToRpcModel(domainEventFilter.getContractAddress());</span>
+<span class="fc" id="L35">          logger.trace(&quot;Domain event filter: {}&quot;, domainEventFilter);</span>
+<span class="fc" id="L36">          final ByteString rpcContractAddress =</span>
+<span class="fc" id="L37">              accountAddressConverter.convertToRpcModel(domainEventFilter.getContractAddress());</span>
 
-<span class="fc" id="L44">            final Map&lt;Integer, Object&gt; goMap = new HashMap&lt;Integer, Object&gt;();</span>
-<span class="fc" id="L45">            final List&lt;Object&gt; filterArgs = domainEventFilter.getArgs();</span>
-<span class="pc bpc" id="L46" title="1 of 2 branches missed.">            for (int i = 0; i &lt; filterArgs.size(); ++i) {</span>
-<span class="nc" id="L47">              goMap.put(i, filterArgs.get(i));</span>
-            }
-
-<span class="fc" id="L50">            final FilterInfo rpcEventFilter = Blockchain.FilterInfo.newBuilder()</span>
-<span class="fc" id="L51">                .setContractAddress(rpcContractAddress)</span>
-<span class="fc" id="L52">                .setEventName(domainEventFilter.getEventName())</span>
-<span class="fc" id="L53">                .setBlockfrom(domainEventFilter.getFromBlockNumber())</span>
-<span class="fc" id="L54">                .setBlockto(domainEventFilter.getToBlockNumber())</span>
-<span class="fc" id="L55">                .setDesc(domainEventFilter.isDecending())</span>
-<span class="fc" id="L56">                .setArgFilter(copyFrom(objectWriter.writeValueAsBytes(goMap)))</span>
-<span class="fc" id="L57">                .setRecentBlockCnt(domainEventFilter.getRecentBlockCount())</span>
-<span class="fc" id="L58">                .build();</span>
-<span class="fc" id="L59">            logger.trace(&quot;Rpc event filter converted: {}&quot;, rpcEventFilter);</span>
-<span class="fc" id="L60">            return rpcEventFilter;</span>
-<span class="nc" id="L61">          } catch (JsonProcessingException e) {</span>
-<span class="nc" id="L62">            throw new IllegalArgumentException(e);</span>
+<span class="fc" id="L39">          final Map&lt;String, Object&gt; orderToValue = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L40">          final List&lt;Object&gt; filterArgs = domainEventFilter.getArgs();</span>
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">          for (int i = 0; i &lt; filterArgs.size(); ++i) {</span>
+<span class="nc" id="L42">            orderToValue.put(Integer.toString(i), filterArgs.get(i));</span>
           }
+
+<span class="fc" id="L45">          final FilterInfo rpcEventFilter = Blockchain.FilterInfo.newBuilder()</span>
+<span class="fc" id="L46">              .setContractAddress(rpcContractAddress)</span>
+<span class="fc" id="L47">              .setEventName(domainEventFilter.getEventName())</span>
+<span class="fc" id="L48">              .setBlockfrom(domainEventFilter.getFromBlockNumber())</span>
+<span class="fc" id="L49">              .setBlockto(domainEventFilter.getToBlockNumber())</span>
+<span class="fc" id="L50">              .setDesc(domainEventFilter.isDecending())</span>
+<span class="fc" id="L51">              .setArgFilter(copyFrom(JsonResolver.asJsonObject(orderToValue).getBytes()))</span>
+<span class="fc" id="L52">              .setRecentBlockCnt(domainEventFilter.getRecentBlockCount())</span>
+<span class="fc" id="L53">              .build();</span>
+<span class="fc" id="L54">          logger.trace(&quot;Rpc event filter converted: {}&quot;, rpcEventFilter);</span>
+<span class="fc" id="L55">          return rpcEventFilter;</span>
         }
       };
 
-<span class="fc" id="L67">  protected final Function1&lt;Blockchain.FilterInfo, EventFilter&gt; rpcConverter =</span>
-<span class="fc" id="L68">      new Function1&lt;Blockchain.FilterInfo, EventFilter&gt;() {</span>
+<span class="fc" id="L59">  protected final Function1&lt;Blockchain.FilterInfo, EventFilter&gt; rpcConverter =</span>
+<span class="fc" id="L60">      new Function1&lt;Blockchain.FilterInfo, EventFilter&gt;() {</span>
 
         @Override
         public EventFilter apply(Blockchain.FilterInfo rpcEventFilter) {
-<span class="nc" id="L72">          throw new UnsupportedOperationException();</span>
+<span class="nc" id="L64">          throw new UnsupportedOperationException();</span>
         }
       };
 
   public ModelConverter&lt;EventFilter, Blockchain.FilterInfo&gt; create() {
-<span class="fc" id="L77">    return new ModelConverter&lt;EventFilter, Blockchain.FilterInfo&gt;(domainConverter,</span>
+<span class="fc" id="L69">    return new ModelConverter&lt;EventFilter, Blockchain.FilterInfo&gt;(domainConverter,</span>
         rpcConverter);
   }
 

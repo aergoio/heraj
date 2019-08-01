@@ -7,27 +7,16 @@ package hera.model;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Identity;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="nc" id="L16">@ToString</span>
-<span class="pc bpc" id="L17" title="6 of 14 branches missed.">@EqualsAndHashCode</span>
+<span class="pc bpc" id="L15" title="7 of 14 branches missed.">@Value</span>
 public class KeyAlias implements Identity {
 
-<span class="fc" id="L20">  @Getter</span>
-  public final String value;
-
-  /**
-   * KeyAlias constructor.
-   *
-   * @param alias an alias value
-   */
-<span class="fc" id="L28">  public KeyAlias(final String alias) {</span>
-<span class="fc" id="L29">    this.value = alias;</span>
-<span class="fc" id="L30">  }</span>
+  @NonNull
+<span class="fc" id="L19">  String value;</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -4,133 +4,110 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Transaction.TxType;
-import hera.transaction.CreateNameTransactionBuilder;
-import hera.transaction.DeployContractTransactionBuilder;
-import hera.transaction.InvokeContractTransactionBuilder;
-import hera.transaction.PlainTransactionBuilder;
-import hera.transaction.StakeTransactionBuilder;
-import hera.transaction.UnstakeTransactionBuilder;
-import hera.transaction.UpdateNameTransactionBuilder;
-import hera.transaction.VoteTransactionBuilder;
-import hera.transaction.dsl.CreateNameTransaction;
-import hera.transaction.dsl.DeployContractTransaction;
-import hera.transaction.dsl.InvokeContractTransaction;
-import hera.transaction.dsl.PlainTransaction;
-import hera.transaction.dsl.StakeTransaction;
-import hera.transaction.dsl.UnstakeTransaction;
-import hera.transaction.dsl.UpdateNameTransaction;
-import hera.transaction.dsl.VoteTransaction;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import hera.spec.transaction.CreateNameTransactionBuilder;
+import hera.spec.transaction.DeployContractTransactionBuilder;
+import hera.spec.transaction.InvokeContractTransactionBuilder;
+import hera.spec.transaction.PlainTransactionBuilder;
+import hera.spec.transaction.ReDeployContractTransactionBuilder;
+import hera.spec.transaction.StakeTransactionBuilder;
+import hera.spec.transaction.UnstakeTransactionBuilder;
+import hera.spec.transaction.UpdateNameTransactionBuilder;
+import hera.spec.transaction.VoteTransactionBuilder;
+import hera.spec.transaction.dsl.CreateNameTransaction;
+import hera.spec.transaction.dsl.DeployContractTransaction;
+import hera.spec.transaction.dsl.InvokeContractTransaction;
+import hera.spec.transaction.dsl.PlainTransaction;
+import hera.spec.transaction.dsl.ReDeployContractTransaction;
+import hera.spec.transaction.dsl.StakeTransaction;
+import hera.spec.transaction.dsl.UnstakeTransaction;
+import hera.spec.transaction.dsl.UpdateNameTransaction;
+import hera.spec.transaction.dsl.VoteTransaction;
+import lombok.NonNull;
+import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L34">@ToString</span>
-<span class="pc bpc" id="L35" title="43 of 70 branches missed.">@EqualsAndHashCode</span>
+<span class="pc bpc" id="L33" title="52 of 76 branches missed.">@Value</span>
 public class RawTransaction {
 
   @ApiAudience.Public
   public static PlainTransaction.WithNothing newBuilder() {
-<span class="fc" id="L40">    return new PlainTransactionBuilder();</span>
+<span class="fc" id="L38">    return new PlainTransactionBuilder();</span>
   }
 
   @ApiAudience.Public
   public static PlainTransaction.WithChainIdHash newBuilder(final ChainIdHash chainIdHash) {
-<span class="fc" id="L45">    return new PlainTransactionBuilder().chainIdHash(chainIdHash);</span>
+<span class="fc" id="L43">    return new PlainTransactionBuilder().chainIdHash(chainIdHash);</span>
   }
 
   @ApiAudience.Public
   public static DeployContractTransaction.WithNothing newDeployContractBuilder() {
-<span class="fc" id="L50">    return new DeployContractTransactionBuilder();</span>
+<span class="fc" id="L48">    return new DeployContractTransactionBuilder();</span>
+  }
+
+  @ApiAudience.Public
+  public static ReDeployContractTransaction.WithNothing newReDeployContractBuilder() {
+<span class="fc" id="L53">    return new ReDeployContractTransactionBuilder();</span>
   }
 
   @ApiAudience.Public
   public static InvokeContractTransaction.WithNothing newInvokeContractBuilder() {
-<span class="fc" id="L55">    return new InvokeContractTransactionBuilder();</span>
+<span class="fc" id="L58">    return new InvokeContractTransactionBuilder();</span>
   }
 
   @ApiAudience.Public
   public static CreateNameTransaction.WithNothing newCreateNameTxBuilder() {
-<span class="fc" id="L60">    return new CreateNameTransactionBuilder();</span>
+<span class="fc" id="L63">    return new CreateNameTransactionBuilder();</span>
   }
 
   @ApiAudience.Public
   public static UpdateNameTransaction.WithNothing newUpdateNameTxBuilder() {
-<span class="fc" id="L65">    return new UpdateNameTransactionBuilder();</span>
+<span class="fc" id="L68">    return new UpdateNameTransactionBuilder();</span>
   }
 
   @ApiAudience.Public
   public static StakeTransaction.WithNothing newStakeTxBuilder() {
-<span class="fc" id="L70">    return new StakeTransactionBuilder();</span>
+<span class="fc" id="L73">    return new StakeTransactionBuilder();</span>
   }
 
   @ApiAudience.Public
   public static UnstakeTransaction.WithNothing newUnstakeTxBuilder() {
-<span class="fc" id="L75">    return new UnstakeTransactionBuilder();</span>
+<span class="fc" id="L78">    return new UnstakeTransactionBuilder();</span>
   }
 
   @ApiAudience.Public
   public static VoteTransaction.WithNothing newVoteTxBuilder() {
-<span class="fc" id="L80">    return new VoteTransactionBuilder();</span>
+<span class="nc" id="L83">    return new VoteTransactionBuilder();</span>
   }
 
-<span class="fc" id="L83">  @Getter</span>
-  protected final ChainIdHash chainIdHash;
+  @NonNull
+<span class="fc" id="L87">  ChainIdHash chainIdHash;</span>
 
-<span class="fc" id="L86">  @Getter</span>
-  protected final AccountAddress sender;
+  @NonNull
+<span class="fc" id="L90">  AccountAddress sender;</span>
 
-<span class="fc" id="L89">  @Getter</span>
-  protected final AccountAddress recipient;
+  @NonNull
+<span class="fc" id="L93">  AccountAddress recipient;</span>
 
-<span class="fc" id="L92">  @Getter</span>
-  protected final Aer amount;
+  @NonNull
+<span class="fc" id="L96">  Aer amount;</span>
 
-<span class="fc" id="L95">  @Getter</span>
-  protected final Long nonce;
+<span class="fc" id="L98">  long nonce;</span>
 
-<span class="fc" id="L98">  @Getter</span>
-  protected final Fee fee;
+  @NonNull
+<span class="fc" id="L101">  Fee fee;</span>
 
-<span class="fc" id="L101">  @Getter</span>
-  protected final BytesValue payload;
+  @NonNull
+<span class="fc" id="L104">  BytesValue payload;</span>
 
-<span class="fc" id="L104">  @Getter</span>
-  protected final TxType txType;
+  @NonNull
+<span class="fc" id="L107">  TxType txType;</span>
 
-  /**
-   * RawTransaction constructor.
-   *
-   * @param chainIdHash a chain id hash
-   * @param sender a sender
-   * @param recipient a recipient
-   * @param amount an amount
-   * @param nonce an nonce
-   * @param fee a fee
-   * @param payload a payload
-   * @param txType a txType
-   */
-  @ApiAudience.Private
-  public RawTransaction(final ChainIdHash chainIdHash, final AccountAddress sender,
-      final AccountAddress recipient,
-      final Aer amount, final Long nonce, final Fee fee, final BytesValue payload,
-<span class="fc" id="L123">      final TxType txType) {</span>
-<span class="fc" id="L124">    assertNotNull(chainIdHash, &quot;Chain id hash must not null&quot;);</span>
-<span class="fc" id="L125">    this.chainIdHash = chainIdHash;</span>
-<span class="pc bpc" id="L126" title="1 of 2 branches missed.">    this.sender = null != sender ? sender : AccountAddress.of(BytesValue.EMPTY);</span>
-<span class="pc bpc" id="L127" title="1 of 2 branches missed.">    this.recipient = null != recipient ? recipient : AccountAddress.of(BytesValue.EMPTY);</span>
-<span class="pc bpc" id="L128" title="1 of 2 branches missed.">    this.amount = null != amount ? amount : Aer.EMPTY;</span>
-<span class="fc" id="L129">    this.nonce = nonce;</span>
-<span class="pc bpc" id="L130" title="1 of 2 branches missed.">    this.fee = null != fee ? fee : Fee.EMPTY;</span>
-<span class="pc bpc" id="L131" title="1 of 2 branches missed.">    this.payload = null != payload ? payload : BytesValue.EMPTY;</span>
-<span class="pc bpc" id="L132" title="1 of 2 branches missed.">    this.txType = null != txType ? txType : TxType.UNRECOGNIZED;</span>
-<span class="fc" id="L133">  }</span>
+
+  // remove those withers when Wither of lombok is stable.
 
   /**
    * Return a {@code RawTransaction} with new chain id hash.
@@ -139,7 +116,7 @@ public class RawTransaction {
    * @return a {@code RawTransaction} instance
    */
   public RawTransaction withChainIdHash(final ChainIdHash chainIdHash) {
-<span class="nc" id="L142">    return new RawTransaction(chainIdHash, sender, recipient, amount, nonce, fee, payload, txType);</span>
+<span class="nc" id="L119">    return new RawTransaction(chainIdHash, sender, recipient, amount, nonce, fee, payload, txType);</span>
   }
 
   /**
@@ -149,7 +126,7 @@ public class RawTransaction {
    * @return a {@code RawTransaction} instance
    */
   public RawTransaction withNonce(final long nonce) {
-<span class="nc" id="L152">    return new RawTransaction(chainIdHash, sender, recipient, amount, nonce, fee, payload, txType);</span>
+<span class="nc" id="L129">    return new RawTransaction(chainIdHash, sender, recipient, amount, nonce, fee, payload, txType);</span>
   }
 
 }
