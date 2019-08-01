@@ -142,20 +142,18 @@ public class JsonResolver {
       ret = asJsonString((String) object);
     } else if (null == object) {
       ret = asJsonNull();;
-    } else if (object instanceof Integer) {
-      ret = asJsonNumber((Integer) object);
-    } else if (object instanceof Long) {
-      ret = asJsonNumber((Long) object);
-    } else if (object instanceof Float) {
-      ret = asJsonNumber((Float) object);
-    } else if (object instanceof Double) {
-      ret = asJsonNumber((Double) object);
+    } else if (object instanceof Integer
+        || object instanceof Long
+        || object instanceof Float
+        || object instanceof Double) {
+      ret = asJsonNumber((Number) object);
     } else if (object instanceof Boolean) {
       ret = asJsonBoolean((Boolean) object);
     } else if (object instanceof BigNumber) {
       ret = BigNumberResolver.toJsonForm((BigNumber) object);
     } else {
-      throw new IllegalArgumentException("Cannot process argument type: " + object.getClass());
+      throw new IllegalArgumentException("Cannot convert argument type: " + object.getClass()
+          + " into aergo argument json format");
     }
 
     return ret;
