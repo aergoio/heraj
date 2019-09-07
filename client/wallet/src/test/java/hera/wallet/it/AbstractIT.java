@@ -85,7 +85,7 @@ public abstract class AbstractIT {
   }
 
   protected void waitForNextBlockToGenerate() {
-    ThreadUtils.trySleep(1200L);
+    ThreadUtils.trySleep(2200L);
   }
 
   protected AergoKey supplyKeyWithAergo(final Wallet wallet) {

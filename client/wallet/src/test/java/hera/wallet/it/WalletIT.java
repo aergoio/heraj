@@ -524,7 +524,7 @@ public class WalletIT extends AbstractIT {
       waitForNextBlockToGenerate();
 
       final List<ElectedCandidate> electedBlockProducers = wallet.listElectedBps(100);
-      assertTrue(peerIds.length == electedBlockProducers.size());
+      assertEquals(peerIds.length + 1, electedBlockProducers.size());
 
       final AccountTotalVote accountTotalVote = wallet.getVotes();
       assertTrue(1 <= accountTotalVote.getVoteInfos().size());
@@ -656,9 +656,6 @@ public class WalletIT extends AbstractIT {
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
       wallet.unlock(auth);
-
-      final long preCachedNonce = wallet.getRecentlyUsedNonce();
-      final AccountState preState = wallet.getAccountState();
 
       wallet.cacheChainIdHash();
       final RawTransaction rawTransaction = RawTransaction.newBuilder(wallet.getCachedChainIdHash())
