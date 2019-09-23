@@ -110,8 +110,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
             logger.trace("AergoService getstate arg: {}", rpcAddress);
 
             ListenableFuture<Blockchain.State> listenableFuture = aergoService.getState(rpcAddress);
-            FutureChain<Blockchain.State, AccountState> callback =
-                new FutureChain<Blockchain.State, AccountState>(nextFuture, contextProvider.get());
+            FutureChain<Blockchain.State, AccountState> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Blockchain.State, AccountState>() {
               @Override
               public AccountState apply(final Blockchain.State state) {
@@ -239,8 +238,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
             logger.trace("AergoService getNameInfo arg: {}", rpcName);
 
             ListenableFuture<Rpc.NameInfo> listenableFuture = aergoService.getNameInfo(rpcName);
-            FutureChain<Rpc.NameInfo, AccountAddress> callback =
-                new FutureChain<Rpc.NameInfo, AccountAddress>(nextFuture, contextProvider.get());
+            FutureChain<Rpc.NameInfo, AccountAddress> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Rpc.NameInfo, AccountAddress>() {
               @Override
               public AccountAddress apply(final Rpc.NameInfo nameInfo) {
@@ -358,8 +356,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
             logger.trace("AergoService getStaking arg: {}", rpcAddress);
 
             ListenableFuture<Rpc.Staking> listenableFuture = aergoService.getStaking(rpcAddress);
-            FutureChain<Rpc.Staking, StakeInfo> callback =
-                new FutureChain<Rpc.Staking, StakeInfo>(nextFuture, contextProvider.get());
+            FutureChain<Rpc.Staking, StakeInfo> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Rpc.Staking, StakeInfo>() {
               @Override
               public StakeInfo apply(final Rpc.Staking rpcStaking) {
@@ -402,8 +399,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
             logger.trace("AergoService signTX arg: {}", rpcTx);
 
             ListenableFuture<Blockchain.Tx> listenableFuture = aergoService.signTX(rpcTx);
-            FutureChain<Blockchain.Tx, Transaction> callback =
-                new FutureChain<Blockchain.Tx, Transaction>(nextFuture, contextProvider.get());
+            FutureChain<Blockchain.Tx, Transaction> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Blockchain.Tx, Transaction>() {
               @Override
               public Transaction apply(final Blockchain.Tx tx) {
@@ -431,8 +427,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
             logger.trace("AergoService verifyTX arg: {}", rpcTx);
 
             ListenableFuture<Rpc.VerifyResult> listenableFuture = aergoService.verifyTX(rpcTx);
-            FutureChain<Rpc.VerifyResult, Boolean> callback =
-                new FutureChain<Rpc.VerifyResult, Boolean>(nextFuture, contextProvider.get());
+            FutureChain<Rpc.VerifyResult, Boolean> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Rpc.VerifyResult, Boolean>() {
 
               @Override
@@ -495,8 +490,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
 
             ListenableFuture<Rpc.VoteList> listenableFuture = aergoService.getVotes(rpcVoteParams);
             FutureChain<Rpc.VoteList, List<ElectedCandidate>> callback =
-                new FutureChain<Rpc.VoteList, List<ElectedCandidate>>(nextFuture,
-                    contextProvider.get());
+                new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Rpc.VoteList, List<ElectedCandidate>>() {
 
               @Override
@@ -536,8 +530,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
             ListenableFuture<Rpc.AccountVoteInfo> listenableFuture =
                 aergoService.getAccountVotes(rpcAddress);
             FutureChain<Rpc.AccountVoteInfo, AccountTotalVote> callback =
-                new FutureChain<Rpc.AccountVoteInfo, AccountTotalVote>(nextFuture,
-                    contextProvider.get());
+                new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Rpc.AccountVoteInfo, AccountTotalVote>() {
 
               @Override

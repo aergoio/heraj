@@ -11,8 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
-import hera.Context;
-import hera.ContextProvider;
+import hera.ThreadLocalContextProvider;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.ChainInfo;
 import hera.api.model.ChainStats;
@@ -41,12 +40,7 @@ public class BlockchainBaseTemplateTest extends AbstractTestCase {
       final AergoRPCServiceFutureStub aergoService) {
     final BlockchainBaseTemplate blockchainBaseTemplate = new BlockchainBaseTemplate();
     blockchainBaseTemplate.aergoService = aergoService;
-    blockchainBaseTemplate.contextProvider = new ContextProvider() {
-      @Override
-      public Context get() {
-        return context;
-      }
-    };
+    blockchainBaseTemplate.contextProvider = new ThreadLocalContextProvider(context, this);
     return blockchainBaseTemplate;
   }
 

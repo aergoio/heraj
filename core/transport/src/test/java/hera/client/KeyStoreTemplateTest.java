@@ -17,7 +17,6 @@ import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import hera.AbstractTestCase;
-import hera.Context;
 import hera.ContextProvider;
 import hera.api.function.Function0;
 import hera.api.function.Function1;
@@ -42,12 +41,7 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
       final KeyStoreBaseTemplate keyStoreBaseTemplate) {
     final KeyStoreTemplate keyStoreTemplate = new KeyStoreTemplate();
     keyStoreTemplate.keyStoreBaseTemplate = keyStoreBaseTemplate;
-    keyStoreTemplate.setContextProvider(new ContextProvider() {
-      @Override
-      public Context get() {
-        return context;
-      }
-    });
+    keyStoreTemplate.setContextProvider(ContextProvider.defaultProvider);
     return keyStoreTemplate;
   }
 

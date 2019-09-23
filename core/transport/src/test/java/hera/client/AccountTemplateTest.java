@@ -48,12 +48,7 @@ public class AccountTemplateTest extends AbstractTestCase {
       final AccountBaseTemplate accountBaseTemplate) {
     final AccountTemplate accountTemplate = new AccountTemplate();
     accountTemplate.accountBaseTemplate = accountBaseTemplate;
-    accountTemplate.setContextProvider(new ContextProvider() {
-      @Override
-      public Context get() {
-        return context;
-      }
-    });
+    accountTemplate.setContextProvider(ContextProvider.defaultProvider);
     return accountTemplate;
   }
 

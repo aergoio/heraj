@@ -13,8 +13,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
-import hera.Context;
-import hera.ContextProvider;
+import hera.ThreadLocalContextProvider;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
@@ -41,12 +40,7 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
       final AergoRPCServiceFutureStub aergoService) {
     final AccountBaseTemplate accountTemplateBase = new AccountBaseTemplate();
     accountTemplateBase.aergoService = aergoService;
-    accountTemplateBase.contextProvider = new ContextProvider() {
-      @Override
-      public Context get() {
-        return context;
-      }
-    };
+    accountTemplateBase.contextProvider = new ThreadLocalContextProvider(context, this);
     return accountTemplateBase;
   }
 

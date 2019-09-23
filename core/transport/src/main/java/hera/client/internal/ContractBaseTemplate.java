@@ -130,8 +130,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
             final ListenableFuture<Blockchain.Receipt> listenableFuture =
                 futureService.getReceipt(rpcDeployTxHash);
             FutureChain<Blockchain.Receipt, ContractTxReceipt> callback =
-                new FutureChain<Blockchain.Receipt, ContractTxReceipt>(nextFuture,
-                    contextProvider.get());
+                new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Blockchain.Receipt, ContractTxReceipt>() {
 
               @Override
@@ -224,9 +223,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
 
             final ListenableFuture<Blockchain.ABI> listenableFuture =
                 futureService.getABI(rpcContractAddress);
-            FutureChain<Blockchain.ABI, ContractInterface> callback =
-                new FutureChain<Blockchain.ABI, ContractInterface>(nextFuture,
-                    contextProvider.get());
+            FutureChain<Blockchain.ABI, ContractInterface> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Blockchain.ABI, ContractInterface>() {
 
               @Override
@@ -323,8 +320,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
 
             final ListenableFuture<Rpc.SingleBytes> listenableFuture =
                 futureService.queryContract(rpcQuery);
-            FutureChain<Rpc.SingleBytes, ContractResult> callback =
-                new FutureChain<Rpc.SingleBytes, ContractResult>(nextFuture, contextProvider.get());
+            FutureChain<Rpc.SingleBytes, ContractResult> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Rpc.SingleBytes, ContractResult>() {
 
               @Override
@@ -357,8 +353,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
 
             final ListenableFuture<Rpc.EventList> listenableFuture =
                 futureService.listEvents(rpcEventFilter);
-            FutureChain<Rpc.EventList, List<Event>> callback =
-                new FutureChain<Rpc.EventList, List<Event>>(nextFuture, contextProvider.get());
+            FutureChain<Rpc.EventList, List<Event>> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Rpc.EventList, List<Event>>() {
 
               @Override

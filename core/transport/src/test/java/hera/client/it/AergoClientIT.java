@@ -7,6 +7,7 @@ package hera.client.it;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+import hera.api.model.ChainIdHash;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.exception.RpcConnectionException;
@@ -56,12 +57,15 @@ public class AergoClientIT extends AbstractIT {
     final AergoClient client = new AergoClientBuilder()
         .withEndpoint(hostname)
         .build();
+    final ChainIdHash chainIdHash = client.getBlockchainOperation().getChainIdHash();
+    client.cacheChainIdHash(chainIdHash);
     final ExecutorService executorService = Executors.newSingleThreadExecutor();
     final Future<?> future = executorService.submit(new Runnable() {
 
       @Override
       public void run() {
-        client.getBlockchainOperation().getBlockchainStatus();
+        final ChainIdHash cached = client.getCachedChainIdHash();
+        assertNotNull(cached);
       }
     });
     future.get();

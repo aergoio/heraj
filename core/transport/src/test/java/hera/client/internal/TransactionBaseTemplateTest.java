@@ -13,8 +13,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
-import hera.Context;
-import hera.ContextProvider;
+import hera.ThreadLocalContextProvider;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.RawTransaction;
@@ -39,12 +38,7 @@ public class TransactionBaseTemplateTest extends AbstractTestCase {
       final AergoRPCServiceFutureStub aergoService) {
     final TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();
     transactionBaseTemplate.aergoService = aergoService;
-    transactionBaseTemplate.contextProvider = new ContextProvider() {
-      @Override
-      public Context get() {
-        return context;
-      }
-    };
+    transactionBaseTemplate.contextProvider = new ThreadLocalContextProvider(context, this);
     return transactionBaseTemplate;
   }
 

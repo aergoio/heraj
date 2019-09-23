@@ -46,7 +46,7 @@ public class EmptyContext implements Context {
   protected final String scope = EmptyContext.SCOPE;
 
   @Getter
-  protected final ChainIdHash chainIdHash = new ChainIdHash(BytesValue.EMPTY);
+  protected final ChainIdHash chainIdHash = null;
 
   @Getter
   protected final Configuration configuration = new InMemoryConfiguration(true);

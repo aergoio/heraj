@@ -85,9 +85,7 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
 
             ListenableFuture<Rpc.BlockMetadata> listenableFuture =
                 aergoService.getBlockMetadata(rpcHash);
-            FutureChain<Rpc.BlockMetadata, BlockMetadata> callback =
-                new FutureChain<Rpc.BlockMetadata, BlockMetadata>(nextFuture,
-                    contextProvider.get());
+            FutureChain<Rpc.BlockMetadata, BlockMetadata> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(
                 new Function1<Rpc.BlockMetadata, BlockMetadata>() {
 
@@ -123,9 +121,7 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
 
             ListenableFuture<Rpc.BlockMetadata> listenableFuture =
                 aergoService.getBlockMetadata(rpcHeight);
-            FutureChain<Rpc.BlockMetadata, BlockMetadata> callback =
-                new FutureChain<Rpc.BlockMetadata, BlockMetadata>(nextFuture,
-                    contextProvider.get());
+            FutureChain<Rpc.BlockMetadata, BlockMetadata> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Rpc.BlockMetadata, BlockMetadata>() {
               @Override
               public BlockMetadata apply(final Rpc.BlockMetadata metadata) {
@@ -164,8 +160,7 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
             ListenableFuture<Rpc.BlockMetadataList> listenableFuture =
                 aergoService.listBlockMetadata(rpcHashAndSize);
             FutureChain<Rpc.BlockMetadataList, List<BlockMetadata>> callback =
-                new FutureChain<Rpc.BlockMetadataList, List<BlockMetadata>>(nextFuture,
-                    contextProvider.get());
+                new FutureChain<>(nextFuture);
             callback.setSuccessHandler(
                 new Function1<Rpc.BlockMetadataList, List<BlockMetadata>>() {
 
@@ -212,8 +207,7 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
             ListenableFuture<Rpc.BlockMetadataList> listenableFuture =
                 aergoService.listBlockMetadata(rpcHeightAndSize);
             FutureChain<Rpc.BlockMetadataList, List<BlockMetadata>> callback =
-                new FutureChain<Rpc.BlockMetadataList, List<BlockMetadata>>(nextFuture,
-                    contextProvider.get());
+                new FutureChain<>(nextFuture);
             callback
                 .setSuccessHandler(new Function1<Rpc.BlockMetadataList, List<BlockMetadata>>() {
                   @Override
@@ -252,8 +246,7 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
             logger.trace("AergoService getBlock arg: {}", rpcHash);
 
             ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(rpcHash);
-            FutureChain<Blockchain.Block, Block> callback =
-                new FutureChain<Blockchain.Block, Block>(nextFuture, contextProvider.get());
+            FutureChain<Blockchain.Block, Block> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Blockchain.Block, Block>() {
               @Override
               public Block apply(final Blockchain.Block block) {
@@ -287,8 +280,7 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
             logger.trace("AergoService getBlock arg: {}", rpcHeight);
 
             ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(rpcHeight);
-            FutureChain<Blockchain.Block, Block> callback =
-                new FutureChain<Blockchain.Block, Block>(nextFuture, contextProvider.get());
+            FutureChain<Blockchain.Block, Block> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Blockchain.Block, Block>() {
               @Override
               public Block apply(final Blockchain.Block block) {

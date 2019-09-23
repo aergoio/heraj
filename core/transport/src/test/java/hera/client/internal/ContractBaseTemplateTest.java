@@ -15,8 +15,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
 import hera.AbstractTestCase;
-import hera.Context;
-import hera.ContextProvider;
+import hera.ThreadLocalContextProvider;
 import hera.api.function.Function1;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
@@ -75,12 +74,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
       final AergoRPCServiceFutureStub futureService) {
     final ContractBaseTemplate contractBaseTemplate = new ContractBaseTemplate();
     contractBaseTemplate.futureService = futureService;
-    contractBaseTemplate.contextProvider = new ContextProvider() {
-      @Override
-      public Context get() {
-        return context;
-      }
-    };
+    contractBaseTemplate.contextProvider = new ThreadLocalContextProvider(context, this);
     return contractBaseTemplate;
   }
 
@@ -88,12 +82,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
       final AergoRPCServiceStub streamService) {
     final ContractBaseTemplate contractBaseTemplate = new ContractBaseTemplate();
     contractBaseTemplate.streamService = streamService;
-    contractBaseTemplate.contextProvider = new ContextProvider() {
-      @Override
-      public Context get() {
-        return context;
-      }
-    };
+    contractBaseTemplate.contextProvider = new ThreadLocalContextProvider(context, this);
     return contractBaseTemplate;
   }
 

@@ -217,8 +217,9 @@ public final class ContextConc implements Context {
       return false;
     }
 
-    return this.scope.equals(other.scope)
-        && this.chainIdHash.equals(other.chainIdHash)
+    return ((null == this.chainIdHash) ? (null == other.chainIdHash)
+        : (this.chainIdHash.equals(other.chainIdHash)))
+        && this.scope.equals(other.scope)
         && this.configuration.equals(other.configuration)
         && this.strategies.equals(other.strategies);
   }

@@ -7,7 +7,6 @@ package hera.client;
 import static hera.util.ValidationUtils.assertNotNull;
 
 import hera.Context;
-import hera.ContextHolder;
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
 import hera.ThreadLocalContextProvider;
@@ -32,8 +31,6 @@ import lombok.Getter;
 @ApiAudience.Private
 @ApiStability.Unstable
 public class AergoClient extends AbstractAergoApi implements ChainIdHashHolder, Closeable {
-
-  protected final Context baseContext;
 
   protected final ContextProvider contextProvider;
 
@@ -66,9 +63,7 @@ public class AergoClient extends AbstractAergoApi implements ChainIdHashHolder, 
    */
   AergoClient(final Context baseContext) {
     assertNotNull(baseContext, "Base context must not null");
-    this.baseContext = baseContext;
     this.contextProvider = new ThreadLocalContextProvider(baseContext, this);
-    ContextHolder.set(this, baseContext);
   }
 
   protected ManagedChannel getChannel() {
@@ -95,7 +90,8 @@ public class AergoClient extends AbstractAergoApi implements ChainIdHashHolder, 
 
   @Override
   public void cacheChainIdHash(final ChainIdHash chainIdHash) {
-    contextProvider.get().withChainIdHash(chainIdHash);
+    final Context context = contextProvider.get();
+    contextProvider.put(context.withChainIdHash(chainIdHash));
   }
 
   @Override
