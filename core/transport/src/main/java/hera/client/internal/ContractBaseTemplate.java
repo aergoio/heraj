@@ -380,27 +380,34 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
 
   @Getter
   private final Function2<EventFilter, hera.api.model.StreamObserver<Event>,
-      Subscription<Event>> subscribeEventFunction = new Function2<EventFilter,
-          hera.api.model.StreamObserver<Event>, Subscription<Event>>() {
+      FinishableFuture<Subscription<Event>>> subscribeEventFunction = new Function2<EventFilter,
+          hera.api.model.StreamObserver<Event>, FinishableFuture<Subscription<Event>>>() {
 
         @Override
-        public Subscription<Event> apply(final EventFilter filter,
+        public FinishableFuture<Subscription<Event>> apply(final EventFilter filter,
             final hera.api.model.StreamObserver<Event> observer) {
           logger.debug("Event subsribe with filter: {}, observer: {}", filter, observer);
 
-          final Blockchain.FilterInfo filterInfo = eventFilterConverter.convertToRpcModel(filter);
-          Context.CancellableContext cancellableContext = Context.current().withCancellation();
-          final io.grpc.stub.StreamObserver<Blockchain.Event> adaptor =
-              new GrpcStreamObserverAdaptor<Blockchain.Event, Event>(cancellableContext, observer,
-                  eventConverter);
-          cancellableContext.run(new Runnable() {
-            @Override
-            public void run() {
-              streamService.listEventStream(filterInfo, adaptor);
-            }
-          });
+          final FinishableFuture<Subscription<Event>> nextFuture = new FinishableFuture<>();
+          try {
+            final Blockchain.FilterInfo filterInfo = eventFilterConverter.convertToRpcModel(filter);
+            Context.CancellableContext cancellableContext = Context.current().withCancellation();
+            final io.grpc.stub.StreamObserver<Blockchain.Event> adaptor =
+                new GrpcStreamObserverAdaptor<Blockchain.Event, Event>(cancellableContext, observer,
+                    eventConverter);
+            cancellableContext.run(new Runnable() {
+              @Override
+              public void run() {
+                streamService.listEventStream(filterInfo, adaptor);
+              }
+            });
 
-          return new GrpcStreamSubscription<Event>(cancellableContext);
+            nextFuture.success(new GrpcStreamSubscription<Event>(cancellableContext));
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+
+          return nextFuture;
         }
       };
 

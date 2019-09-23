@@ -4,19 +4,19 @@
 
 package hera.client;
 
-import static hera.TransportConstants.ACCOUNT_CREATE_NAME;
-import static hera.TransportConstants.ACCOUNT_GETNAMEOWNER;
-import static hera.TransportConstants.ACCOUNT_GETSTAKINGINFO;
-import static hera.TransportConstants.ACCOUNT_GETSTATE;
-import static hera.TransportConstants.ACCOUNT_LIST_ELECTED;
-import static hera.TransportConstants.ACCOUNT_SIGN;
-import static hera.TransportConstants.ACCOUNT_STAKING;
-import static hera.TransportConstants.ACCOUNT_UNSTAKING;
-import static hera.TransportConstants.ACCOUNT_UPDATE_NAME;
-import static hera.TransportConstants.ACCOUNT_VERIFY;
-import static hera.TransportConstants.ACCOUNT_VOTE;
-import static hera.TransportConstants.ACCOUNT_VOTESOF;
 import static hera.api.function.Functions.identify;
+import static hera.client.ClientConstants.ACCOUNT_CREATE_NAME;
+import static hera.client.ClientConstants.ACCOUNT_GETNAMEOWNER;
+import static hera.client.ClientConstants.ACCOUNT_GETSTAKINGINFO;
+import static hera.client.ClientConstants.ACCOUNT_GETSTATE;
+import static hera.client.ClientConstants.ACCOUNT_LIST_ELECTED;
+import static hera.client.ClientConstants.ACCOUNT_SIGN;
+import static hera.client.ClientConstants.ACCOUNT_STAKING;
+import static hera.client.ClientConstants.ACCOUNT_UNSTAKING;
+import static hera.client.ClientConstants.ACCOUNT_UPDATE_NAME;
+import static hera.client.ClientConstants.ACCOUNT_VERIFY;
+import static hera.client.ClientConstants.ACCOUNT_VOTE;
+import static hera.client.ClientConstants.ACCOUNT_VOTESOF;
 
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
@@ -40,7 +40,8 @@ import hera.api.model.TxHash;
 import hera.client.internal.AccountBaseTemplate;
 import hera.client.internal.FinishableFuture;
 import hera.key.Signer;
-import hera.strategy.StrategyChain;
+import hera.strategy.PriorityProvider;
+import hera.strategy.StrategyApplier;
 import io.grpc.ManagedChannel;
 import java.util.List;
 import lombok.AccessLevel;
@@ -57,7 +58,8 @@ public class AccountTemplate
   protected ContextProvider contextProvider;
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
+  private final StrategyApplier strategyApplier =
+      StrategyApplier.of(contextProvider.get(), PriorityProvider.get());
 
   @Override
   public void setChannel(final ManagedChannel channel) {
@@ -72,96 +74,96 @@ public class AccountTemplate
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<AccountAddress, FinishableFuture<AccountState>> stateFunction =
-      getStrategyChain()
+      getStrategyApplier()
           .apply(identify(getAccountBaseTemplate().getStateFunction(), ACCOUNT_GETSTATE));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function3<Account, String, Long,
       FinishableFuture<TxHash>> deprecatedCreateNameFunction =
-          getStrategyChain()
+          getStrategyApplier()
               .apply(identify(getAccountBaseTemplate().getDeprecatedCreateNameFunction(),
                   ACCOUNT_CREATE_NAME));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function3<Signer, String, Long,
       FinishableFuture<TxHash>> createNameFunction =
-          getStrategyChain()
+          getStrategyApplier()
               .apply(identify(getAccountBaseTemplate().getCreateNameFunction(),
                   ACCOUNT_CREATE_NAME));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function4<Account, String, AccountAddress, Long,
       FinishableFuture<TxHash>> deprecatedUpdateNameFunction =
-          getStrategyChain().apply(
+          getStrategyApplier().apply(
               identify(getAccountBaseTemplate().getDeprecatedUpdateNameFunction(),
                   ACCOUNT_UPDATE_NAME));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function4<Signer, String, AccountAddress, Long,
       FinishableFuture<TxHash>> updateNameFunction =
-          getStrategyChain().apply(
+          getStrategyApplier().apply(
               identify(getAccountBaseTemplate().getUpdateNameFunction(), ACCOUNT_UPDATE_NAME));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function2<String, Long, FinishableFuture<AccountAddress>> nameOwnerFunction =
-      getStrategyChain().apply(
+      getStrategyApplier().apply(
           identify(getAccountBaseTemplate().getGetNameOwnerFunction(), ACCOUNT_GETNAMEOWNER));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function3<Account, Aer, Long,
       FinishableFuture<TxHash>> deprecatedStakingFunction =
-          getStrategyChain().apply(
+          getStrategyApplier().apply(
               identify(getAccountBaseTemplate().getDeprecatedStakingFunction(), ACCOUNT_STAKING));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function3<Signer, Aer, Long,
       FinishableFuture<TxHash>> stakingFunction =
-          getStrategyChain().apply(
+          getStrategyApplier().apply(
               identify(getAccountBaseTemplate().getStakingFunction(), ACCOUNT_STAKING));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function3<Account, Aer, Long,
       FinishableFuture<TxHash>> deprecatedUnstakingFunction =
-          getStrategyChain().apply(
+          getStrategyApplier().apply(
               identify(getAccountBaseTemplate().getDeprecatedUnstakingFunction(),
                   ACCOUNT_UNSTAKING));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function3<Signer, Aer, Long,
       FinishableFuture<TxHash>> unstakingFunction =
-          getStrategyChain().apply(
+          getStrategyApplier().apply(
               identify(getAccountBaseTemplate().getUnstakingFunction(), ACCOUNT_UNSTAKING));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<AccountAddress, FinishableFuture<StakeInfo>> stakingInfoFunction =
-      getStrategyChain().apply(
+      getStrategyApplier().apply(
           identify(getAccountBaseTemplate().getStakingInfoFunction(), ACCOUNT_GETSTAKINGINFO));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function2<Account, RawTransaction,
       FinishableFuture<Transaction>> signFunction =
-          getStrategyChain()
+          getStrategyApplier()
               .apply(identify(getAccountBaseTemplate().getSignFunction(), ACCOUNT_SIGN));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function2<Account, Transaction, FinishableFuture<Boolean>> verifyFunction =
-      getStrategyChain()
+      getStrategyApplier()
           .apply(identify(getAccountBaseTemplate().getVerifyFunction(), ACCOUNT_VERIFY));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function4<Signer, String, List<String>, Long,
       FinishableFuture<TxHash>> voteFunction =
-          getStrategyChain().apply(
+          getStrategyApplier().apply(
               identify(getAccountBaseTemplate().getVoteFunction(), ACCOUNT_VOTE));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function2<String, Integer,
-      FinishableFuture<List<ElectedCandidate>>> listElectedFunction = getStrategyChain().apply(
+      FinishableFuture<List<ElectedCandidate>>> listElectedFunction = getStrategyApplier().apply(
           identify(getAccountBaseTemplate().getListElectedFunction(), ACCOUNT_LIST_ELECTED));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<AccountAddress, FinishableFuture<AccountTotalVote>> votesOfFunction =
-      getStrategyChain().apply(
+      getStrategyApplier().apply(
           identify(getAccountBaseTemplate().getVotesOfFunction(), ACCOUNT_VOTESOF));
 
   @Override

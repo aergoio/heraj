@@ -102,7 +102,6 @@ public class EmptyContext implements Context {
     return this;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public <StrategyT extends Strategy> Context withStrategy(final StrategyT strategy) {
     logger.debug("New strategy: {}", strategy);

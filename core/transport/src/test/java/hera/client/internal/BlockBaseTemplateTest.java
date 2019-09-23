@@ -190,7 +190,7 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
     final AergoRPCServiceStub streamService = mock(AergoRPCServiceStub.class);
     final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(streamService);
 
-    final Subscription<BlockMetadata> subscription =
+    final FinishableFuture<Subscription<BlockMetadata>> subscription =
         blockBaseTemplate.getSubscribeBlockMetadataFunction().apply(null);
     assertNotNull(subscription);
   }
@@ -200,7 +200,7 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
     final AergoRPCServiceStub streamService = mock(AergoRPCServiceStub.class);
     final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(streamService);
 
-    final Subscription<Block> subscription =
+    final FinishableFuture<Subscription<Block>> subscription =
         blockBaseTemplate.getSubscribeBlockFunction().apply(null);
     assertNotNull(subscription);
   }

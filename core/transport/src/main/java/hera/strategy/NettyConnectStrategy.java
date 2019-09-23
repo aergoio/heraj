@@ -4,7 +4,7 @@
 
 package hera.strategy;
 
-import static hera.TransportConstants.KEEP_ALIVE_INTERVAL;
+import static hera.client.ClientConstants.KEEP_ALIVE_INTERVAL;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Context;

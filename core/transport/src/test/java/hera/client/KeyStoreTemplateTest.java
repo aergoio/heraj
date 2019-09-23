@@ -4,12 +4,12 @@
 
 package hera.client;
 
-import static hera.TransportConstants.KEYSTORE_CREATE;
-import static hera.TransportConstants.KEYSTORE_EXPORTKEY;
-import static hera.TransportConstants.KEYSTORE_IMPORTKEY;
-import static hera.TransportConstants.KEYSTORE_LIST;
-import static hera.TransportConstants.KEYSTORE_LOCK;
-import static hera.TransportConstants.KEYSTORE_UNLOCK;
+import static hera.client.ClientConstants.KEYSTORE_CREATE;
+import static hera.client.ClientConstants.KEYSTORE_EXPORTKEY;
+import static hera.client.ClientConstants.KEYSTORE_IMPORTKEY;
+import static hera.client.ClientConstants.KEYSTORE_LIST;
+import static hera.client.ClientConstants.KEYSTORE_LOCK;
+import static hera.client.ClientConstants.KEYSTORE_UNLOCK;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

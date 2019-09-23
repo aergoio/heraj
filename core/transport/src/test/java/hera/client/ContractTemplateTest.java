@@ -5,15 +5,15 @@
 
 package hera.client;
 
-import static hera.TransportConstants.CONTRACT_DEPLOY;
-import static hera.TransportConstants.CONTRACT_EXECUTE;
-import static hera.TransportConstants.CONTRACT_GETINTERFACE;
-import static hera.TransportConstants.CONTRACT_GETRECEIPT;
-import static hera.TransportConstants.CONTRACT_LIST_EVENT;
-import static hera.TransportConstants.CONTRACT_QUERY;
-import static hera.TransportConstants.CONTRACT_REDEPLOY;
-import static hera.TransportConstants.CONTRACT_SUBSCRIBE_EVENT;
 import static hera.api.model.BytesValue.of;
+import static hera.client.ClientConstants.CONTRACT_DEPLOY;
+import static hera.client.ClientConstants.CONTRACT_EXECUTE;
+import static hera.client.ClientConstants.CONTRACT_GETINTERFACE;
+import static hera.client.ClientConstants.CONTRACT_GETRECEIPT;
+import static hera.client.ClientConstants.CONTRACT_LIST_EVENT;
+import static hera.client.ClientConstants.CONTRACT_QUERY;
+import static hera.client.ClientConstants.CONTRACT_REDEPLOY;
+import static hera.client.ClientConstants.CONTRACT_SUBSCRIBE_EVENT;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -258,12 +258,16 @@ public class ContractTemplateTest extends AbstractTestCase {
   public void testSubscribeEvent() {
     final ContractBaseTemplate base = mock(ContractBaseTemplate.class);
     final Subscription<Event> mockSubscription = mock(Subscription.class);
+    final FinishableFuture<Subscription<Event>> future = new FinishableFuture<>();
+    future.success(mockSubscription);
     when(base.getSubscribeEventFunction())
-        .thenReturn(new Function2<EventFilter, StreamObserver<Event>, Subscription<Event>>() {
+        .thenReturn(new Function2<EventFilter, StreamObserver<Event>,
+            FinishableFuture<Subscription<Event>>>() {
 
           @Override
-          public Subscription<Event> apply(EventFilter t1, StreamObserver<Event> t2) {
-            return mockSubscription;
+          public FinishableFuture<Subscription<Event>> apply(EventFilter t1,
+              StreamObserver<Event> t2) {
+            return future;
           }
         });
 

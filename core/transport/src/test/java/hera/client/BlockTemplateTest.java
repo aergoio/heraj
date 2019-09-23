@@ -4,15 +4,15 @@
 
 package hera.client;
 
-import static hera.TransportConstants.BLOCK_GET_BLOCK_BY_HASH;
-import static hera.TransportConstants.BLOCK_GET_BLOCK_BY_HEIGHT;
-import static hera.TransportConstants.BLOCK_GET_METADATA_BY_HASH;
-import static hera.TransportConstants.BLOCK_GET_METADATA_BY_HEIGHT;
-import static hera.TransportConstants.BLOCK_LIST_METADATAS_BY_HASH;
-import static hera.TransportConstants.BLOCK_LIST_METADATAS_BY_HEIGHT;
-import static hera.TransportConstants.BLOCK_SUBSCRIBE_BLOCK;
-import static hera.TransportConstants.BLOCK_SUBSCRIBE_BLOCKMETADATA;
 import static hera.api.model.BytesValue.of;
+import static hera.client.ClientConstants.BLOCK_GET_BLOCK_BY_HASH;
+import static hera.client.ClientConstants.BLOCK_GET_BLOCK_BY_HEIGHT;
+import static hera.client.ClientConstants.BLOCK_GET_METADATA_BY_HASH;
+import static hera.client.ClientConstants.BLOCK_GET_METADATA_BY_HEIGHT;
+import static hera.client.ClientConstants.BLOCK_LIST_METADATAS_BY_HASH;
+import static hera.client.ClientConstants.BLOCK_LIST_METADATAS_BY_HEIGHT;
+import static hera.client.ClientConstants.BLOCK_SUBSCRIBE_BLOCK;
+import static hera.client.ClientConstants.BLOCK_SUBSCRIBE_BLOCKMETADATA;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -191,12 +191,16 @@ public class BlockTemplateTest extends AbstractTestCase {
   public void testSubscribeBlockMetadata() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
     final Subscription<BlockMetadata> mockSubscription = mock(Subscription.class);
+    final FinishableFuture<Subscription<BlockMetadata>> future = new FinishableFuture<>();
+    future.success(mockSubscription);
     when(base.getSubscribeBlockMetadataFunction())
-        .thenReturn(new Function1<StreamObserver<BlockMetadata>, Subscription<BlockMetadata>>() {
+        .thenReturn(new Function1<StreamObserver<BlockMetadata>,
+            FinishableFuture<Subscription<BlockMetadata>>>() {
 
           @Override
-          public Subscription<BlockMetadata> apply(StreamObserver<BlockMetadata> t2) {
-            return mockSubscription;
+          public FinishableFuture<Subscription<BlockMetadata>> apply(
+              StreamObserver<BlockMetadata> t2) {
+            return future;
           }
         });
 
@@ -213,12 +217,14 @@ public class BlockTemplateTest extends AbstractTestCase {
   public void testSubscribeBlock() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
     final Subscription<Block> mockSubscription = mock(Subscription.class);
+    final FinishableFuture<Subscription<Block>> future = new FinishableFuture<>();
+    future.success(mockSubscription);
     when(base.getSubscribeBlockFunction())
-        .thenReturn(new Function1<StreamObserver<Block>, Subscription<Block>>() {
+        .thenReturn(new Function1<StreamObserver<Block>, FinishableFuture<Subscription<Block>>>() {
 
           @Override
-          public Subscription<Block> apply(StreamObserver<Block> t2) {
-            return mockSubscription;
+          public FinishableFuture<Subscription<Block>> apply(StreamObserver<Block> t2) {
+            return future;
           }
         });
 

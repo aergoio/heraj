@@ -4,7 +4,7 @@
 
 package hera.api.function;
 
-public interface Function1<T, R> extends Function {
+public interface Function1<T, R> extends Function<R> {
 
   /**
    * Applies this function to the given argument.

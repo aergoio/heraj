@@ -16,46 +16,70 @@ import hera.api.function.Function3;
 import hera.api.function.Function4;
 import hera.api.function.Function5;
 import hera.api.function.FunctionDecorator;
-import hera.api.function.FunctionDecoratorChain;
 import hera.api.function.WithIdentity;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.PriorityQueue;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.slf4j.Logger;
 
 @ToString
 @EqualsAndHashCode
-public class StrategyChain implements FunctionDecoratorChain {
+public class StrategyApplier implements FunctionDecorator {
 
   /**
    * Make {@code StrategyChain} with a strategy in a context.
    *
-   * @see Context
    * @param context a context
+   * @param priorityConfig priority config
+   *
    * @return {@code StrategyChain}
    */
-  public static StrategyChain of(final Context context) {
-    return new StrategyChain(context);
+  public static StrategyApplier of(final Context context, final PriorityConfig priorityConfig) {
+    return new StrategyApplier(context, priorityConfig);
   }
 
   protected final Logger logger = getLogger(getClass());
 
-  protected final List<FunctionDecorator> chain = new ArrayList<FunctionDecorator>();
+  protected final Collection<FunctionDecorator> chain;
 
   /**
-   * Make {@code StrategyChain} with a strategy in a context.
+   * Make {@code StrategyChain} based on {@code context}.
    *
-   * @see Context
    * @param context a context
+   * @param priorityConfig priority config
    */
-  public StrategyChain(final Context context) {
+  public StrategyApplier(final Context context, final PriorityConfig priorityConfig) {
+    this.chain = new PriorityQueue<>(new Comparator<FunctionDecorator>() {
+
+      protected final Map<Class<? extends Strategy>, Integer> inner =
+          priorityConfig.getStrategy2Priority();
+
+      @Override
+      public int compare(final FunctionDecorator left, final FunctionDecorator right) {
+        final Integer leftPriority = inner.get(left.getClass());
+        final Integer rightPriority = inner.get(right.getClass());
+
+        if (null == leftPriority && null == rightPriority) {
+          return 0;
+        } else if (null == leftPriority) {
+          return -1;
+        } else if (null == rightPriority) {
+          return 1;
+        } else {
+          return (leftPriority < rightPriority) ? -1 : ((leftPriority == rightPriority) ? 0 : 1);
+        }
+      }
+    });
+
     for (final Strategy strategy : context.getStrategies()) {
       if (strategy instanceof FunctionDecorator) {
         chain.add((FunctionDecorator) strategy);
       }
     }
-    logger.debug("Build strategy chain: {}", chain);
+    logger.debug("Build strategy chain in order: {}", chain);
   }
 
   @Override

@@ -4,13 +4,13 @@
 
 package hera.client;
 
-import static hera.TransportConstants.BLOCKCHAIN_BLOCKCHAINSTATUS;
-import static hera.TransportConstants.BLOCKCHAIN_CHAININFO;
-import static hera.TransportConstants.BLOCKCHAIN_CHAINSTATS;
-import static hera.TransportConstants.BLOCKCHAIN_LIST_PEERS;
-import static hera.TransportConstants.BLOCKCHAIN_NODESTATUS;
-import static hera.TransportConstants.BLOCKCHAIN_PEERMETRICS;
-import static hera.TransportConstants.BLOCKCHAIN_SERVERINFO;
+import static hera.client.ClientConstants.BLOCKCHAIN_BLOCKCHAINSTATUS;
+import static hera.client.ClientConstants.BLOCKCHAIN_CHAININFO;
+import static hera.client.ClientConstants.BLOCKCHAIN_CHAINSTATS;
+import static hera.client.ClientConstants.BLOCKCHAIN_LIST_PEERS;
+import static hera.client.ClientConstants.BLOCKCHAIN_NODESTATUS;
+import static hera.client.ClientConstants.BLOCKCHAIN_PEERMETRICS;
+import static hera.client.ClientConstants.BLOCKCHAIN_SERVERINFO;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;

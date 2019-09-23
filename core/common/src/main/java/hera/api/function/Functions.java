@@ -4,14 +4,92 @@
 
 package hera.api.function;
 
+import static hera.util.ValidationUtils.assertNotNull;
+
 import hera.api.function.impl.Function0WithIdentity;
 import hera.api.function.impl.Function1WithIdentity;
 import hera.api.function.impl.Function2WithIdentity;
 import hera.api.function.impl.Function3WithIdentity;
 import hera.api.function.impl.Function4WithIdentity;
 import hera.api.function.impl.Function5WithIdentity;
+import hera.exception.HerajException;
+import java.util.List;
 
 public final class Functions {
+
+  protected static final Class<?>[] functions = {
+      Function0.class,
+      Function1.class,
+      Function2.class,
+      Function3.class,
+      Function4.class,
+      Function5.class,
+  };
+
+  /**
+   * Invoke target {@code f} with {@code args} and return result.
+   *
+   * @param <R> an invocation return type
+   *
+   * @param f a function to invoke
+   * @param args arguments to pass
+   * @return invocation result
+   */
+  public static <R> R invoke(final Function<R> f, final List<Object> args) {
+    return buildInvocation(f, args).apply();
+  }
+
+  /**
+   * Make invocation with {@code f} and {@code args}.
+   *
+   * @param <R> an invocation return type
+   *
+   * @param f a function to invoke
+   * @param args arguments to pass
+   * @return invocation object
+   */
+  @SuppressWarnings("unchecked")
+  public static <R> Function0<R> buildInvocation(final Function<R> f, final List<Object> args) {
+    assertNotNull(f);
+    assertNotNull(args);
+
+    if (functions.length < args.size()) {
+      throw new HerajException("Invalid arguments length for target " + f);
+    }
+
+    final Class<?> possibleTarget = functions[args.size()];
+    if (!possibleTarget.isInstance(f)) {
+      throw new HerajException("Invalid arguments length for target " + f);
+    }
+
+    return new Function0<R>() {
+
+      @Override
+      public R apply() {
+        R ret = null;
+        if (f instanceof Function0) {
+          ret = ((Function0<R>) f)
+              .apply();
+        } else if (f instanceof Function1) {
+          ret = ((Function1<Object, R>) f)
+              .apply(args.get(0));
+        } else if (f instanceof Function2) {
+          ret = ((Function2<Object, Object, R>) f)
+              .apply(args.get(0), args.get(1));
+        } else if (f instanceof Function3) {
+          ret = ((Function3<Object, Object, Object, R>) f)
+              .apply(args.get(0), args.get(1), args.get(2));
+        } else if (f instanceof Function4) {
+          ret = ((Function4<Object, Object, Object, Object, R>) f)
+              .apply(args.get(0), args.get(1), args.get(2), args.get(3));
+        } else if (f instanceof Function5) {
+          ret = ((Function5<Object, Object, Object, Object, Object, R>) f)
+              .apply(args.get(0), args.get(1), args.get(2), args.get(3), args.get(4));
+        }
+        return ret;
+      }
+    };
+  }
 
   /**
    * Identify a function by name.

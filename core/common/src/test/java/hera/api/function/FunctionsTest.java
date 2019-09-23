@@ -4,6 +4,7 @@
 
 package hera.api.function;
 
+import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 
@@ -11,6 +12,64 @@ import hera.AbstractTestCase;
 import org.junit.Test;
 
 public class FunctionsTest extends AbstractTestCase {
+
+  @Test
+  public void testInvoke() {
+    final int[] expected = {
+        randomUUID().hashCode(),
+        randomUUID().hashCode(),
+        randomUUID().hashCode(),
+        randomUUID().hashCode(),
+        randomUUID().hashCode(),
+        randomUUID().hashCode(),
+    };
+
+    final Function<?>[] functions = {
+        new Function0<Object>() {
+          @Override
+          public Object apply() {
+            return expected[0];
+          }
+        },
+        new Function1<Object, Object>() {
+          @Override
+          public Object apply(Object t1) {
+            return expected[1];
+          }
+        },
+        new Function2<Object, Object, Object>() {
+          @Override
+          public Object apply(Object t1, Object t2) {
+            return expected[2];
+          }
+        },
+        new Function3<Object, Object, Object, Object>() {
+          @Override
+          public Object apply(Object t1, Object t2, Object t3) {
+            return expected[3];
+          }
+        },
+        new Function4<Object, Object, Object, Object, Object>() {
+          @Override
+          public Object apply(Object t1, Object t2, Object t3, Object t4) {
+            return expected[4];
+          }
+        },
+        new Function5<Object, Object, Object, Object, Object, Object>() {
+          @Override
+          public Object apply(Object t1, Object t2, Object t3, Object t4, Object t5) {
+            return expected[5];
+          }
+        },
+    };
+
+    for (int i = 0; i < functions.length; ++i) {
+      final Function<?> f = functions[i];
+      final Object[] args = new Object[i];
+      final Object actual = Functions.invoke(f, asList(args));
+      assertEquals(expected[i], actual);
+    }
+  }
 
   @Test
   public void testCompose0() {

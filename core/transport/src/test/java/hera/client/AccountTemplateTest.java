@@ -4,13 +4,13 @@
 
 package hera.client;
 
-import static hera.TransportConstants.ACCOUNT_CREATE_NAME;
-import static hera.TransportConstants.ACCOUNT_GETNAMEOWNER;
-import static hera.TransportConstants.ACCOUNT_GETSTAKINGINFO;
-import static hera.TransportConstants.ACCOUNT_GETSTATE;
-import static hera.TransportConstants.ACCOUNT_STAKING;
-import static hera.TransportConstants.ACCOUNT_UNSTAKING;
-import static hera.TransportConstants.ACCOUNT_UPDATE_NAME;
+import static hera.client.ClientConstants.ACCOUNT_CREATE_NAME;
+import static hera.client.ClientConstants.ACCOUNT_GETNAMEOWNER;
+import static hera.client.ClientConstants.ACCOUNT_GETSTAKINGINFO;
+import static hera.client.ClientConstants.ACCOUNT_GETSTATE;
+import static hera.client.ClientConstants.ACCOUNT_STAKING;
+import static hera.client.ClientConstants.ACCOUNT_UNSTAKING;
+import static hera.client.ClientConstants.ACCOUNT_UPDATE_NAME;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

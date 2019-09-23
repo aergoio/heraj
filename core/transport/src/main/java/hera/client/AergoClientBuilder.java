@@ -15,12 +15,11 @@ import hera.annotation.ApiStability;
 import hera.api.model.internal.Time;
 import hera.exception.RpcException;
 import hera.strategy.ConnectStrategy;
+import hera.strategy.JustRetryStrategy;
 import hera.strategy.NettyConnectStrategy;
 import hera.strategy.OkHttpConnectStrategy;
 import hera.strategy.PlainTextChannelStrategy;
-import hera.strategy.RetryStrategy;
 import hera.strategy.SecurityConfigurationStrategy;
-import hera.strategy.SimpleTimeoutStrategy;
 import hera.strategy.TimeoutStrategy;
 import hera.strategy.TlsChannelStrategy;
 import hera.util.Configuration;
@@ -46,7 +45,7 @@ public class AergoClientBuilder implements ClientConfiguer<AergoClientBuilder> {
   static {
     final Map<Class<?>, Strategy> map = new HashMap<Class<?>, Strategy>();
     map.put(ConnectStrategy.class, new NettyConnectStrategy());
-    map.put(TimeoutStrategy.class, new SimpleTimeoutStrategy(DefaultConstants.DEFAULT_TIMEOUT));
+    map.put(TimeoutStrategy.class, new TimeoutStrategy(DefaultConstants.DEFAULT_TIMEOUT));
     map.put(SecurityConfigurationStrategy.class, new PlainTextChannelStrategy());
     necessaryStrategyMap = Collections.unmodifiableMap(map);
   }
@@ -83,13 +82,13 @@ public class AergoClientBuilder implements ClientConfiguer<AergoClientBuilder> {
 
   @Override
   public AergoClientBuilder withTimeout(final long timeout, final TimeUnit unit) {
-    strategyMap.put(TimeoutStrategy.class, new SimpleTimeoutStrategy(timeout, unit));
+    strategyMap.put(TimeoutStrategy.class, new TimeoutStrategy(timeout, unit));
     return this;
   }
 
   @Override
   public AergoClientBuilder withRetry(final int count, final long interval, final TimeUnit unit) {
-    strategyMap.put(RetryStrategy.class, new RetryStrategy(count, Time.of(interval, unit)));
+    strategyMap.put(JustRetryStrategy.class, new JustRetryStrategy(count, Time.of(interval, unit)));
     return this;
   }
 

@@ -2,16 +2,18 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera;
+package hera.client;
 
-public final class TransportConstants {
+public final class ClientConstants {
+
+  /* function names */
 
   public static final String ACCOUNT_GETSTATE = "heraj.getstate";
-  public static final String ACCOUNT_CREATE_NAME = "heraj.create.name";
-  public static final String ACCOUNT_UPDATE_NAME = "heraj.update.name";
+  public static final String ACCOUNT_CREATE_NAME = "heraj.createname";
+  public static final String ACCOUNT_UPDATE_NAME = "heraj.updatename";
   public static final String ACCOUNT_GETNAMEOWNER = "heraj.getnameowner";
-  public static final String ACCOUNT_STAKING = "heraj.staking";
-  public static final String ACCOUNT_UNSTAKING = "heraj.unstaking";
+  public static final String ACCOUNT_STAKING = "heraj.stake";
+  public static final String ACCOUNT_UNSTAKING = "heraj.unstake";
   public static final String ACCOUNT_GETSTAKINGINFO = "heraj.getstakinginfo";
   public static final String ACCOUNT_SIGN = "heraj.account.sign";
   public static final String ACCOUNT_VERIFY = "heraj.verify";
@@ -56,6 +58,9 @@ public final class TransportConstants {
   public static final String CONTRACT_QUERY = "heraj.query";
   public static final String CONTRACT_LIST_EVENT = "heraj.listevent";
   public static final String CONTRACT_SUBSCRIBE_EVENT = "heraj.subscribe.event";
+
+
+  /* etc */
 
   public static final long KEEP_ALIVE_INTERVAL = 300L; // seconds
 

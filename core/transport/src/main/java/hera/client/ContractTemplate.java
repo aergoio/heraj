@@ -4,15 +4,15 @@
 
 package hera.client;
 
-import static hera.TransportConstants.CONTRACT_DEPLOY;
-import static hera.TransportConstants.CONTRACT_EXECUTE;
-import static hera.TransportConstants.CONTRACT_GETINTERFACE;
-import static hera.TransportConstants.CONTRACT_GETRECEIPT;
-import static hera.TransportConstants.CONTRACT_LIST_EVENT;
-import static hera.TransportConstants.CONTRACT_QUERY;
-import static hera.TransportConstants.CONTRACT_REDEPLOY;
-import static hera.TransportConstants.CONTRACT_SUBSCRIBE_EVENT;
 import static hera.api.function.Functions.identify;
+import static hera.client.ClientConstants.CONTRACT_DEPLOY;
+import static hera.client.ClientConstants.CONTRACT_EXECUTE;
+import static hera.client.ClientConstants.CONTRACT_GETINTERFACE;
+import static hera.client.ClientConstants.CONTRACT_GETRECEIPT;
+import static hera.client.ClientConstants.CONTRACT_LIST_EVENT;
+import static hera.client.ClientConstants.CONTRACT_QUERY;
+import static hera.client.ClientConstants.CONTRACT_REDEPLOY;
+import static hera.client.ClientConstants.CONTRACT_SUBSCRIBE_EVENT;
 
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
@@ -39,7 +39,8 @@ import hera.api.model.Subscription;
 import hera.client.internal.ContractBaseTemplate;
 import hera.client.internal.FinishableFuture;
 import hera.key.Signer;
-import hera.strategy.StrategyChain;
+import hera.strategy.PriorityProvider;
+import hera.strategy.StrategyApplier;
 import io.grpc.ManagedChannel;
 import java.util.List;
 import lombok.AccessLevel;
@@ -56,7 +57,8 @@ public class ContractTemplate
   protected ContextProvider contextProvider;
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
+  private final StrategyApplier strategyApplier =
+      StrategyApplier.of(contextProvider.get(), PriorityProvider.get());
 
   @Override
   public void setChannel(final ManagedChannel channel) {
@@ -71,46 +73,46 @@ public class ContractTemplate
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<ContractTxHash,
-      FinishableFuture<ContractTxReceipt>> receiptFunction = getStrategyChain().apply(
+      FinishableFuture<ContractTxReceipt>> receiptFunction = getStrategyApplier().apply(
           identify(contractBaseTemplate.getReceiptFunction(), CONTRACT_GETRECEIPT));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function4<Signer, ContractDefinition, Long, Fee,
       FinishableFuture<ContractTxHash>> deployFunction =
-          getStrategyChain()
+          getStrategyApplier()
               .apply(identify(contractBaseTemplate.getDeployFunction(), CONTRACT_DEPLOY));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function5<Signer, ContractAddress, ContractDefinition, Long, Fee,
       FinishableFuture<ContractTxHash>> reDeployFunction =
-          getStrategyChain()
+          getStrategyApplier()
               .apply(identify(contractBaseTemplate.getReDeployFunction(), CONTRACT_REDEPLOY));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<ContractAddress,
       FinishableFuture<ContractInterface>> contractInterfaceFunction =
-          getStrategyChain().apply(identify(contractBaseTemplate.getContractInterfaceFunction(),
+          getStrategyApplier().apply(identify(contractBaseTemplate.getContractInterfaceFunction(),
               CONTRACT_GETINTERFACE));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function4<Signer, ContractInvocation, Long, Fee,
       FinishableFuture<ContractTxHash>> executeFunction =
-          getStrategyChain()
+          getStrategyApplier()
               .apply(identify(contractBaseTemplate.getExecuteFunction(), CONTRACT_EXECUTE));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<ContractInvocation, FinishableFuture<ContractResult>> queryFunction =
-      getStrategyChain().apply(identify(contractBaseTemplate.getQueryFunction(), CONTRACT_QUERY));
+      getStrategyApplier().apply(identify(contractBaseTemplate.getQueryFunction(), CONTRACT_QUERY));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<EventFilter, FinishableFuture<List<Event>>> listEventFunction =
-      getStrategyChain()
+      getStrategyApplier()
           .apply(identify(contractBaseTemplate.getListEventFunction(), CONTRACT_LIST_EVENT));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function2<EventFilter, StreamObserver<Event>,
-      Subscription<Event>> subscribeEventFunction =
-          getStrategyChain().apply(
+      FinishableFuture<Subscription<Event>>> subscribeEventFunction =
+          getStrategyApplier().apply(
               identify(contractBaseTemplate.getSubscribeEventFunction(), CONTRACT_SUBSCRIBE_EVENT));
 
   @Override
@@ -179,7 +181,7 @@ public class ContractTemplate
 
   @Override
   public Subscription<Event> subscribeEvent(EventFilter filter, StreamObserver<Event> observer) {
-    return getSubscribeEventFunction().apply(filter, observer);
+    return getSubscribeEventFunction().apply(filter, observer).get();
   }
 
 }

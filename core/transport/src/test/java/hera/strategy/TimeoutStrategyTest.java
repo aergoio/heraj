@@ -13,11 +13,11 @@ import hera.client.internal.FinishableFuture;
 import hera.util.ThreadUtils;
 import org.junit.Test;
 
-public class SimpleTimeoutStrategyTest extends AbstractTestCase {
+public class TimeoutStrategyTest extends AbstractTestCase {
 
   @Test
   public void testTimeout() {
-    final SimpleTimeoutStrategy timeoutStrategy = new SimpleTimeoutStrategy(1000L);
+    final TimeoutStrategy timeoutStrategy = new TimeoutStrategy(1000L);
     final FinishableFuture<Integer> future = new FinishableFuture<Integer>();
     service.submit(new Runnable() {
       @Override
@@ -26,17 +26,17 @@ public class SimpleTimeoutStrategyTest extends AbstractTestCase {
         future.success(randomUUID().toString().hashCode());
       }
     });
-    timeoutStrategy.action(null, new Function0<FinishableFuture<Integer>>() {
+    timeoutStrategy.apply(new Function0<FinishableFuture<Integer>>() {
       @Override
       public FinishableFuture<Integer> apply() {
         return future;
       }
-    });
+    }).apply().get();
   }
 
   @Test
   public void shouldThrowException() {
-    final SimpleTimeoutStrategy timeoutStrategy = new SimpleTimeoutStrategy(100L);
+    final TimeoutStrategy timeoutStrategy = new TimeoutStrategy(100L);
     try {
       final FinishableFuture<Integer> future = new FinishableFuture<Integer>();
       service.submit(new Runnable() {
@@ -46,12 +46,12 @@ public class SimpleTimeoutStrategyTest extends AbstractTestCase {
           future.success(randomUUID().toString().hashCode());
         }
       });
-      timeoutStrategy.action(null, new Function0<FinishableFuture<Integer>>() {
+      timeoutStrategy.apply(new Function0<FinishableFuture<Integer>>() {
         @Override
         public FinishableFuture<Integer> apply() {
           return future;
         }
-      }).get();
+      }).apply().get();
       fail();
     } catch (Exception e) {
       // good we expected this

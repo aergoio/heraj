@@ -4,15 +4,15 @@
 
 package hera.client;
 
-import static hera.TransportConstants.BLOCK_GET_BLOCK_BY_HASH;
-import static hera.TransportConstants.BLOCK_GET_BLOCK_BY_HEIGHT;
-import static hera.TransportConstants.BLOCK_GET_METADATA_BY_HASH;
-import static hera.TransportConstants.BLOCK_GET_METADATA_BY_HEIGHT;
-import static hera.TransportConstants.BLOCK_LIST_METADATAS_BY_HASH;
-import static hera.TransportConstants.BLOCK_LIST_METADATAS_BY_HEIGHT;
-import static hera.TransportConstants.BLOCK_SUBSCRIBE_BLOCK;
-import static hera.TransportConstants.BLOCK_SUBSCRIBE_BLOCKMETADATA;
 import static hera.api.function.Functions.identify;
+import static hera.client.ClientConstants.BLOCK_GET_BLOCK_BY_HASH;
+import static hera.client.ClientConstants.BLOCK_GET_BLOCK_BY_HEIGHT;
+import static hera.client.ClientConstants.BLOCK_GET_METADATA_BY_HASH;
+import static hera.client.ClientConstants.BLOCK_GET_METADATA_BY_HEIGHT;
+import static hera.client.ClientConstants.BLOCK_LIST_METADATAS_BY_HASH;
+import static hera.client.ClientConstants.BLOCK_LIST_METADATAS_BY_HEIGHT;
+import static hera.client.ClientConstants.BLOCK_SUBSCRIBE_BLOCK;
+import static hera.client.ClientConstants.BLOCK_SUBSCRIBE_BLOCKMETADATA;
 
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
@@ -28,7 +28,8 @@ import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.client.internal.BlockBaseTemplate;
 import hera.client.internal.FinishableFuture;
-import hera.strategy.StrategyChain;
+import hera.strategy.PriorityProvider;
+import hera.strategy.StrategyApplier;
 import io.grpc.ManagedChannel;
 import java.util.List;
 import lombok.AccessLevel;
@@ -45,7 +46,8 @@ public class BlockTemplate
   protected ContextProvider contextProvider;
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
+  private final StrategyApplier strategyApplier =
+      StrategyApplier.of(contextProvider.get(), PriorityProvider.get());
 
   @Override
   public void setChannel(final ManagedChannel channel) {
@@ -60,52 +62,52 @@ public class BlockTemplate
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<BlockHash, FinishableFuture<BlockMetadata>> blockMetadataByHashFunction =
-      getStrategyChain()
+      getStrategyApplier()
           .apply(identify(getBlockBaseTemplate().getBlockMetatdataByHashFunction(),
               BLOCK_GET_METADATA_BY_HASH));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<Long, FinishableFuture<BlockMetadata>> blockMetadataByHeightFunction =
-      getStrategyChain().apply(
+      getStrategyApplier().apply(
           identify(getBlockBaseTemplate().getBlockMetadataByHeightFunction(),
               BLOCK_GET_METADATA_BY_HEIGHT));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function2<BlockHash, Integer,
       FinishableFuture<List<BlockMetadata>>> listBlockMetadatasByHashFunction =
-          getStrategyChain()
+          getStrategyApplier()
               .apply(identify(getBlockBaseTemplate().getListBlockMetadatasByHashFunction(),
                   BLOCK_LIST_METADATAS_BY_HASH));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function2<Long, Integer,
       FinishableFuture<List<BlockMetadata>>> listBlockMetadatasByHeightFunction =
-          getStrategyChain()
+          getStrategyApplier()
               .apply(identify(getBlockBaseTemplate().getListBlockMetadatasByHeightFunction(),
                   BLOCK_LIST_METADATAS_BY_HEIGHT));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<BlockHash, FinishableFuture<Block>> blockByHashFunction =
-      getStrategyChain()
+      getStrategyApplier()
           .apply(
               identify(getBlockBaseTemplate().getBlockByHashFunction(), BLOCK_GET_BLOCK_BY_HASH));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<Long, FinishableFuture<Block>> blockByHeightFunction =
-      getStrategyChain().apply(
+      getStrategyApplier().apply(
           identify(getBlockBaseTemplate().getBlockByHeightFunction(), BLOCK_GET_BLOCK_BY_HEIGHT));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<StreamObserver<BlockMetadata>,
-      Subscription<BlockMetadata>> subscribeBlockMetadataFunction =
-          getStrategyChain().apply(
+      FinishableFuture<Subscription<BlockMetadata>>> subscribeBlockMetadataFunction =
+          getStrategyApplier().apply(
               identify(getBlockBaseTemplate().getSubscribeBlockMetadataFunction(),
                   BLOCK_SUBSCRIBE_BLOCKMETADATA));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<StreamObserver<Block>,
-      Subscription<Block>> subscribeBlockFunction =
-          getStrategyChain().apply(
+      FinishableFuture<Subscription<Block>>> subscribeBlockFunction =
+          getStrategyApplier().apply(
               identify(getBlockBaseTemplate().getSubscribeBlockFunction(), BLOCK_SUBSCRIBE_BLOCK));
 
   @Override
@@ -143,12 +145,12 @@ public class BlockTemplate
   @Override
   public Subscription<BlockMetadata> subscribeNewBlockMetadata(
       final StreamObserver<BlockMetadata> observer) {
-    return getSubscribeBlockMetadataFunction().apply(observer);
+    return getSubscribeBlockMetadataFunction().apply(observer).get();
   }
 
   @Override
   public Subscription<Block> subscribeNewBlock(final StreamObserver<Block> observer) {
-    return getSubscribeBlockFunction().apply(observer);
+    return getSubscribeBlockFunction().apply(observer).get();
   }
 
 }

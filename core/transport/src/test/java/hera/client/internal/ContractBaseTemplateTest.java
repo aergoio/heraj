@@ -265,7 +265,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
     final ContractBaseTemplate contractBaseTemplate = supplyContractBaseTemplate(streamService);
 
     final EventFilter eventFilter = EventFilter.newBuilder(contractAddress).build();
-    final Subscription<Event> subscription =
+    final FinishableFuture<Subscription<Event>> subscription =
         contractBaseTemplate.getSubscribeEventFunction().apply(eventFilter, null);
     assertNotNull(subscription);
   }

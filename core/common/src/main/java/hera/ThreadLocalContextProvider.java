@@ -26,7 +26,7 @@ public class ThreadLocalContextProvider implements ContextProvider {
   public Context get() {
     final Context context = ContextHolder.get(cabinetKey);
     if (context.equals(EmptyContext.getInstance())) {
-      logger.debug("Context in current thread is empty. Set context from base: {}",
+      logger.info("Context in current thread is empty. Set context from base: {}",
           baseContext);
       final Context candidate = baseContext instanceof ThreadLocalContext
           ? ((ThreadLocalContext) baseContext).getCabinetContext()
