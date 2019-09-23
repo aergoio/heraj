@@ -335,7 +335,7 @@ configure(jmhProjects) {
     benchmarkMode = ['thrpt']
     timeUnit = 's'
     include += '.*Benchmark'
-    threads = 8
+    // threads = 8
     fork = 2
   }
   jmhReport {

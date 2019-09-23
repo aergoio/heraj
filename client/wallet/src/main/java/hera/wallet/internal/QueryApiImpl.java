@@ -51,6 +51,13 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
 
   QueryApiImpl() {}
 
+  protected AergoClient getClient() {
+    if (null == this.client) {
+      throw new WalletException("Aergo client isn't binded yet");
+    }
+    return this.client;
+  }
+
   @Override
   public AccountState getAccountState(final AccountAddress accountAddress) {
     try {
@@ -63,7 +70,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public AccountAddress getNameOwner(final String name) {
     try {
-      return client.getAccountOperation().getNameOwner(name);
+      return getClient().getAccountOperation().getNameOwner(name);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -72,7 +79,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public AccountAddress getNameOwner(final String name, final long blockNumber) {
     try {
-      return client.getAccountOperation().getNameOwner(name, blockNumber);
+      return getClient().getAccountOperation().getNameOwner(name, blockNumber);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -81,7 +88,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public StakeInfo getStakingInfo(final AccountAddress accountAddress) {
     try {
-      return client.getAccountOperation().getStakingInfo(accountAddress);
+      return getClient().getAccountOperation().getStakingInfo(accountAddress);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -90,7 +97,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public List<ElectedCandidate> listElectedBps(final int showCount) {
     try {
-      return client.getAccountOperation().listElected("voteBP", showCount);
+      return getClient().getAccountOperation().listElected("voteBP", showCount);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -99,7 +106,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public List<ElectedCandidate> listElected(final String voteId, final int showCount) {
     try {
-      return client.getAccountOperation().listElected(voteId, showCount);
+      return getClient().getAccountOperation().listElected(voteId, showCount);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -108,7 +115,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public AccountTotalVote getVotesOf(final AccountAddress accountAddress) {
     try {
-      return client.getAccountOperation().getVotesOf(accountAddress);
+      return getClient().getAccountOperation().getVotesOf(accountAddress);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -117,7 +124,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public List<AccountAddress> listServerKeyStoreAccounts() {
     try {
-      return client.getKeyStoreOperation().list();
+      return getClient().getKeyStoreOperation().list();
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -126,7 +133,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public BlockHash getBestBlockHash() {
     try {
-      return client.getBlockchainOperation().getBlockchainStatus().getBestBlockHash();
+      return getClient().getBlockchainOperation().getBlockchainStatus().getBestBlockHash();
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -135,7 +142,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public long getBestBlockHeight() {
     try {
-      return client.getBlockchainOperation().getBlockchainStatus().getBestHeight();
+      return getClient().getBlockchainOperation().getBlockchainStatus().getBestHeight();
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -144,7 +151,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public ChainIdHash getChainIdHash() {
     try {
-      return client.getBlockchainOperation().getBlockchainStatus().getChainIdHash();
+      return getClient().getBlockchainOperation().getBlockchainStatus().getChainIdHash();
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -153,7 +160,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public BlockchainStatus getBlockchainStatus() {
     try {
-      return client.getBlockchainOperation().getBlockchainStatus();
+      return getClient().getBlockchainOperation().getBlockchainStatus();
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -162,7 +169,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public ChainInfo getChainInfo() {
     try {
-      return client.getBlockchainOperation().getChainInfo();
+      return getClient().getBlockchainOperation().getChainInfo();
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -171,7 +178,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public ChainStats getChainStats() {
     try {
-      return client.getBlockchainOperation().getChainStats();
+      return getClient().getBlockchainOperation().getChainStats();
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -180,7 +187,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public List<Peer> listPeers() {
     try {
-      return client.getBlockchainOperation().listPeers();
+      return getClient().getBlockchainOperation().listPeers();
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -190,7 +197,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public List<Peer> listPeers(boolean showHidden, boolean showSelf) {
     try {
-      return client.getBlockchainOperation().listPeers(showHidden, showSelf);
+      return getClient().getBlockchainOperation().listPeers(showHidden, showSelf);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -199,7 +206,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public List<PeerMetric> listPeerMetrics() {
     try {
-      return client.getBlockchainOperation().listPeerMetrics();
+      return getClient().getBlockchainOperation().listPeerMetrics();
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -208,7 +215,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public ServerInfo getServerInfo(final List<String> categories) {
     try {
-      return client.getBlockchainOperation().getServerInfo(categories);
+      return getClient().getBlockchainOperation().getServerInfo(categories);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -217,7 +224,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public NodeStatus getNodeStatus() {
     try {
-      return client.getBlockchainOperation().getNodeStatus();
+      return getClient().getBlockchainOperation().getNodeStatus();
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -226,7 +233,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public BlockMetadata getBlockMetadata(final BlockHash blockHash) {
     try {
-      return client.getBlockOperation().getBlockMetadata(blockHash);
+      return getClient().getBlockOperation().getBlockMetadata(blockHash);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -235,7 +242,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public BlockMetadata getBlockMetadata(final long height) {
     try {
-      return client.getBlockOperation().getBlockMetadata(height);
+      return getClient().getBlockOperation().getBlockMetadata(height);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -244,7 +251,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public List<BlockMetadata> listBlockMetadatas(final BlockHash blockHash, final int size) {
     try {
-      return client.getBlockOperation().listBlockMetadatas(blockHash, size);
+      return getClient().getBlockOperation().listBlockMetadatas(blockHash, size);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -253,7 +260,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public List<BlockMetadata> listBlockMetadatas(final long height, final int size) {
     try {
-      return client.getBlockOperation().listBlockMetadatas(height, size);
+      return getClient().getBlockOperation().listBlockMetadatas(height, size);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -262,7 +269,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public Block getBlock(final BlockHash blockHash) {
     try {
-      return client.getBlockOperation().getBlock(blockHash);
+      return getClient().getBlockOperation().getBlock(blockHash);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -271,7 +278,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public Block getBlock(final long height) {
     try {
-      return client.getBlockOperation().getBlock(height);
+      return getClient().getBlockOperation().getBlock(height);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -281,7 +288,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   public Subscription<BlockMetadata> subscribeNewBlockMetadata(
       final StreamObserver<BlockMetadata> observer) {
     try {
-      return client.getBlockOperation().subscribeNewBlockMetadata(observer);
+      return getClient().getBlockOperation().subscribeNewBlockMetadata(observer);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -290,7 +297,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public Subscription<Block> subscribeNewBlock(final StreamObserver<Block> observer) {
     try {
-      return client.getBlockOperation().subscribeNewBlock(observer);
+      return getClient().getBlockOperation().subscribeNewBlock(observer);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -299,7 +306,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public Transaction getTransaction(final TxHash txHash) {
     try {
-      return client.getTransactionOperation().getTransaction(txHash);
+      return getClient().getTransactionOperation().getTransaction(txHash);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -308,7 +315,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public ContractTxReceipt getReceipt(final ContractTxHash contractTxHash) {
     try {
-      return client.getContractOperation().getReceipt(contractTxHash);
+      return getClient().getContractOperation().getReceipt(contractTxHash);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -317,7 +324,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public ContractInterface getContractInterface(final ContractAddress contractAddress) {
     try {
-      return client.getContractOperation().getContractInterface(contractAddress);
+      return getClient().getContractOperation().getContractInterface(contractAddress);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -326,7 +333,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public ContractResult query(final ContractInvocation contractInvocation) {
     try {
-      return client.getContractOperation().query(contractInvocation);
+      return getClient().getContractOperation().query(contractInvocation);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -335,7 +342,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public List<Event> listEvents(final EventFilter filter) {
     try {
-      return client.getContractOperation().listEvents(filter);
+      return getClient().getContractOperation().listEvents(filter);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -345,7 +352,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   public Subscription<Event> subscribeEvent(final EventFilter filter,
       final StreamObserver<Event> observer) {
     try {
-      return client.getContractOperation().subscribeEvent(filter, observer);
+      return getClient().getContractOperation().subscribeEvent(filter, observer);
     } catch (Exception e) {
       throw converter.convert(e);
     }

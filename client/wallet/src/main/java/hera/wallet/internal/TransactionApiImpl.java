@@ -61,6 +61,13 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
     this.signer = signer;
   }
 
+  protected AergoClient getClient() {
+    if (null == this.client) {
+      throw new WalletException("Aergo client isn't binded yet");
+    }
+    return this.client;
+  }
+
   @Override
   public TxHash createName(final String name) {
     try {
@@ -68,7 +75,7 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
 
         @Override
         public TxHash apply(Signer signer, Long t) {
-          return client.getAccountOperation().createName(signer, name, t);
+          return getClient().getAccountOperation().createName(signer, name, t);
         }
       });
     } catch (Exception e) {
@@ -83,7 +90,7 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
 
         @Override
         public TxHash apply(Signer signer, Long t) {
-          return client.getAccountOperation().updateName(signer, name, newOwner, t);
+          return getClient().getAccountOperation().updateName(signer, name, newOwner, t);
         }
       });
     } catch (Exception e) {
@@ -98,7 +105,7 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
 
         @Override
         public TxHash apply(Signer signer, Long t) {
-          return client.getAccountOperation().stake(signer, amount, t);
+          return getClient().getAccountOperation().stake(signer, amount, t);
         }
       });
     } catch (Exception e) {
@@ -113,7 +120,7 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
 
         @Override
         public TxHash apply(Signer signer, Long t) {
-          return client.getAccountOperation().unstake(signer, amount, t);
+          return getClient().getAccountOperation().unstake(signer, amount, t);
         }
       });
     } catch (Exception e) {
@@ -134,7 +141,7 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
 
         @Override
         public TxHash apply(Signer signer, Long t) {
-          return client.getAccountOperation().vote(signer, voteId, candidates, t);
+          return getClient().getAccountOperation().vote(signer, voteId, candidates, t);
         }
       });
     } catch (Exception e) {
@@ -156,14 +163,14 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
         @Override
         public TxHash apply(Signer signer, Long t) {
           final RawTransaction rawTransaction = RawTransaction.newBuilder()
-              .chainIdHash(client.getCachedChainIdHash())
+              .chainIdHash(getClient().getCachedChainIdHash())
               .from(signer.getPrincipal())
               .to(recipient)
               .amount(amount)
               .nonce(t)
               .payload(payload)
               .build();
-          return client.getTransactionOperation().commit(signer.sign(rawTransaction));
+          return getClient().getTransactionOperation().commit(signer.sign(rawTransaction));
         }
       });
     } catch (Exception e) {
@@ -185,14 +192,14 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
         @Override
         public TxHash apply(Signer signer, Long t) {
           final RawTransaction rawTransaction = RawTransaction.newBuilder()
-              .chainIdHash(client.getCachedChainIdHash())
+              .chainIdHash(getClient().getCachedChainIdHash())
               .from(signer.getPrincipal())
               .to(recipient)
               .amount(amount)
               .nonce(t)
               .payload(payload)
               .build();
-          return client.getTransactionOperation().commit(signer.sign(rawTransaction));
+          return getClient().getTransactionOperation().commit(signer.sign(rawTransaction));
         }
       });
     } catch (Exception e) {
@@ -211,10 +218,10 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
         public TxHash apply(Signer signer, Long t) {
           if (isFirst.get()) {
             isFirst.set(false);
-            return client.getTransactionOperation().commit(signer.sign(rawTransaction));
+            return getClient().getTransactionOperation().commit(signer.sign(rawTransaction));
           } else {
             final RawTransaction withNewNonce = rawTransaction.withNonce(t);
-            return client.getTransactionOperation().commit(signer.sign(withNewNonce));
+            return getClient().getTransactionOperation().commit(signer.sign(withNewNonce));
           }
         }
       });
@@ -234,11 +241,11 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
         public TxHash apply(Signer signer, Long t) {
           if (isFirst.get()) {
             isFirst.set(false);
-            return client.getTransactionOperation().commit(signedTransaction);
+            return getClient().getTransactionOperation().commit(signedTransaction);
           } else {
             final RawTransaction rawTransaction = signedTransaction.getRawTransaction();
             final RawTransaction withNewNonce = rawTransaction.withNonce(t);
-            return client.getTransactionOperation().commit(signer.sign(withNewNonce));
+            return getClient().getTransactionOperation().commit(signer.sign(withNewNonce));
           }
         }
       });
@@ -254,7 +261,7 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
 
         @Override
         public TxHash apply(Signer signer, Long t) {
-          return client.getContractOperation().deploy(signer, contractDefinition, t,
+          return getClient().getContractOperation().deploy(signer, contractDefinition, t,
               fee);
         }
       }).adapt(ContractTxHash.class);
@@ -271,7 +278,7 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
 
         @Override
         public TxHash apply(Signer signer, Long t) {
-          return client.getContractOperation().redeploy(signer, existingContract,
+          return getClient().getContractOperation().redeploy(signer, existingContract,
               contractDefinition, t, fee);
         }
       }).adapt(ContractTxHash.class);
@@ -287,7 +294,7 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
 
         @Override
         public TxHash apply(Signer signer, Long t) {
-          return client.getContractOperation().execute(signer, contractInvocation, t,
+          return getClient().getContractOperation().execute(signer, contractInvocation, t,
               fee);
         }
       }).adapt(ContractTxHash.class);
