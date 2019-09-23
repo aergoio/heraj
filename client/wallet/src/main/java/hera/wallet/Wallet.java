@@ -26,8 +26,15 @@ import hera.exception.WalletRpcException;
 import java.io.Closeable;
 import java.util.List;
 
+/**
+ * A legacy wallet api.
+ *
+ * @deprecated use {@link WalletApi} instead.
+ *
+ */
 @ApiAudience.Public
 @ApiStability.Unstable
+@Deprecated
 public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Closeable {
 
   /**

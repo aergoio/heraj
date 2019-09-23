@@ -16,13 +16,13 @@ import lombok.Getter;
 public class Time {
 
   /**
-   * Create a time object with a {@code value} and {@link TimeUnit#MICROSECONDS}.
+   * Create a time object with a {@code value} and {@link TimeUnit#MILLISECONDS}.
    *
    * @param value time value
    * @return created {@link Time}
    */
   public static Time of(final long value) {
-    return new Time(value, TimeUnit.MICROSECONDS);
+    return new Time(value, TimeUnit.MILLISECONDS);
   }
 
   /**

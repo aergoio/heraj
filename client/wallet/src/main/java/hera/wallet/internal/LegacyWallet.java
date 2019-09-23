@@ -51,7 +51,6 @@ import hera.keystore.JavaKeyStore;
 import hera.util.ExceptionConverter;
 import hera.wallet.Wallet;
 import hera.wallet.WalletApi;
-import java.io.FileOutputStream;
 import java.security.KeyStore;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -96,27 +95,27 @@ public class LegacyWallet implements Wallet {
 
   @Override
   public void bindKeyStore(KeyStore keyStore) {
-    delegate.bind(keyStore);
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void saveKey(AergoKey key, String password) {
-    delegate.save(Authentication.of(key.getAddress(), password), key);
+    saveKey(key, key.getAddress(), password);
   }
 
   @Override
   public void saveKey(AergoKey key, Identity identity, String password) {
-    delegate.save(Authentication.of(identity, password), key);
+    ((WalletApiImpl) delegate).keyStore.save(Authentication.of(identity, password), key);
   }
 
   @Override
   public String exportKey(Authentication authentication) {
-    return delegate.export(authentication);
+    return ((WalletApiImpl) delegate).keyStore.export(authentication).getEncoded();
   }
 
   @Override
   public List<Identity> listKeyStoreIdentities() {
-    return delegate.listIdentities();
+    return ((WalletApiImpl) delegate).keyStore.listIdentities();
   }
 
   @Override
@@ -134,8 +133,7 @@ public class LegacyWallet implements Wallet {
     try {
       final WalletApiImpl walletApiImpl = (WalletApiImpl) delegate;
       if (walletApiImpl.keyStore instanceof JavaKeyStore) {
-        final KeyStore javaKeyStore = ((JavaKeyStore) walletApiImpl.keyStore).getJavaKeyStore();
-        javaKeyStore.store(new FileOutputStream(path), password.toCharArray());
+        ((JavaKeyStore) walletApiImpl.keyStore).store(path, password.toCharArray());
       }
     } catch (Exception e) {
       throw new WalletException(e);
@@ -239,7 +237,7 @@ public class LegacyWallet implements Wallet {
 
   @Override
   public List<Peer> listNodePeers() {
-    return delegate.queryApi().listNodePeers();
+    return delegate.queryApi().listPeers();
   }
 
   @Override

@@ -147,7 +147,7 @@ public interface QueryApi {
    *
    * @return peer addresses
    */
-  List<Peer> listNodePeers();
+  List<Peer> listPeers();
 
   /**
    * Get blockchain peer addresses.
@@ -157,7 +157,7 @@ public interface QueryApi {
    *
    * @return peer addresses
    */
-  List<Peer> listNodePeers(boolean showHidden, boolean showSelf);
+  List<Peer> listPeers(boolean showHidden, boolean showSelf);
 
   /**
    * Get metrics of peers.

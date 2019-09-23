@@ -178,7 +178,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   }
 
   @Override
-  public List<Peer> listNodePeers() {
+  public List<Peer> listPeers() {
     try {
       return client.getBlockchainOperation().listPeers();
     } catch (Exception e) {
@@ -188,7 +188,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
 
 
   @Override
-  public List<Peer> listNodePeers(boolean showHidden, boolean showSelf) {
+  public List<Peer> listPeers(boolean showHidden, boolean showSelf) {
     try {
       return client.getBlockchainOperation().listPeers(showHidden, showSelf);
     } catch (Exception e) {

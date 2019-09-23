@@ -92,9 +92,7 @@ public class WalletIT extends AbstractIT {
   @Parameters(name = "{0}")
   public static Collection<WalletType> data() {
     return Arrays.asList(
-        WalletType.Naive,
-        WalletType.Secure,
-        WalletType.ServerKeyStore);
+        WalletType.Naive);
   }
 
   @Parameter
@@ -107,19 +105,14 @@ public class WalletIT extends AbstractIT {
             .withTimeout(1000L, TimeUnit.MILLISECONDS)
             .withNonBlockingConnect()
             .withEndpoint(hostname)
-            .build(type),
-        new WalletBuilder()
-            .withTimeout(1000L, TimeUnit.MILLISECONDS)
-            .withNonBlockingConnect()
-            .withEndpoint(hostname)
-            .build(type),
-        new WalletBuilder()
-            .withTimeout(1000L, TimeUnit.MILLISECONDS)
-            .withNonBlockingConnect()
-            .withEndpoint(hostname)
             .build(type));
   }
 
+  protected boolean isDpos() {
+    final String consensus =
+        aergoClient.getBlockchainOperation().getBlockchainStatus().getConsensus();
+    return consensus.indexOf("dpos") != -1;
+  }
 
   protected void validatePreAndPostState(final AccountState preState, final long preCachedNonce,
       final AccountState postState, final long postCachedNonce, final long requestCount) {
@@ -191,7 +184,6 @@ public class WalletIT extends AbstractIT {
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    this.keyStore = supplyKeyStore();
   }
 
   @After
@@ -217,17 +209,19 @@ public class WalletIT extends AbstractIT {
   public void testLookupOfAccount() throws Exception {
     for (Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
-      wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = supplyKeyWithAergo(wallet);
+      final AergoKey key = supplyKeyAergo(wallet);
       final String password = randomUUID().toString();
       wallet.saveKey(key, password);
       wallet.unlock(Authentication.of(key.getAddress(), password));
 
       assertNotNull(wallet.getAccount());
       assertNotNull(wallet.getAccountState());
-      assertNotNull(wallet.getStakingInfo());
-      assertNotNull(wallet.getVotes());
+
+      if (isDpos()) {
+        assertNotNull(wallet.getStakingInfo());
+        assertNotNull(wallet.getVotes());
+      }
     }
   }
 
@@ -235,9 +229,8 @@ public class WalletIT extends AbstractIT {
   public void testLookup() throws Exception {
     for (Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
-      wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = supplyKeyWithAergo(wallet);
+      final AergoKey key = supplyKeyAergo(wallet);
       final String password = randomUUID().toString();
       wallet.saveKey(key, password);
       wallet.unlock(Authentication.of(key.getAddress(), password));
@@ -295,12 +288,11 @@ public class WalletIT extends AbstractIT {
   public void testSaveAndLookupSavedAddresses() {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
-      wallet.bindKeyStore(keyStore);
 
       final List<Identity> before = wallet.listKeyStoreIdentities();
       logger.info("Before: {}", before);
 
-      final AergoKey key = supplyKeyWithAergo(wallet);
+      final AergoKey key = supplyKeyAergo(wallet);
       wallet.saveKey(key, password);
 
       final List<Identity> after = wallet.listKeyStoreIdentities();
@@ -310,64 +302,12 @@ public class WalletIT extends AbstractIT {
     }
   }
 
-  // @Test
-  // public void testSaveAndLookupSavedAddressesWithAlias() {
-  // for (final Wallet wallet : supplyWorkingWalletList()) {
-  // logger.info("Current wallet: {}", wallet);
-  // wallet.bindKeyStore(keyStore);
-  //
-  // final int beforeSize = wallet.listKeyStoreIdentities().size();
-  //
-  // final String info = randomUUID().toString().toLowerCase().replace("-", "");
-  // final Identity identity = new KeyAlias(info);
-  // final AergoKey key = supplyKeyWithAergo(wallet);
-  //
-  // if (wallet instanceof ServerKeyStoreWallet) {
-  // try {
-  // wallet.saveKey(key, identity, password);
-  // fail();
-  // } catch (Exception e) {
-  // // good we expected this
-  // }
-  // } else {
-  // wallet.saveKey(key, identity, password);
-  //
-  // final int afterSize = wallet.listKeyStoreIdentities().size();
-  // assertEquals(beforeSize + 1, afterSize);
-  // assertTrue(wallet.listKeyStoreIdentities().contains(identity));
-  // }
-  //
-  // wallet.close();
-  // }
-  // }
-
-  @Test
-  public void testSaveAndUnlockAfterReload() throws Exception {
-    for (final Wallet wallet : supplyWorkingWalletList()) {
-      logger.info("Current wallet: {}", wallet);
-      wallet.bindKeyStore(keyStore);
-
-      final AergoKey key = supplyKeyWithAergo(wallet);
-      wallet.saveKey(key, password);
-      wallet.storeKeyStore(keyStorePath, keyStorePasword);
-
-      // bind new keystore
-      wallet.bindKeyStore(supplyKeyStore());
-
-      final Authentication auth = Authentication.of(key.getAddress(), password);
-      assertTrue(wallet.unlock(auth));
-
-      wallet.close();
-    }
-  }
-
   @Test
   public void testSendWithNameOnUnlocked() throws IOException {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
-      wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = supplyKeyWithAergo(wallet);
+      final AergoKey key = supplyKeyAergo(wallet);
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -400,9 +340,8 @@ public class WalletIT extends AbstractIT {
   public void testSendWithNameOnInvalidName() throws IOException {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
-      wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = supplyKeyWithAergo(wallet);
+      final AergoKey key = supplyKeyAergo(wallet);
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -424,9 +363,8 @@ public class WalletIT extends AbstractIT {
   public void testSendWithNameOnlocked() throws IOException {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
-      wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = supplyKeyWithAergo(wallet);
+      final AergoKey key = supplyKeyAergo(wallet);
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -453,11 +391,14 @@ public class WalletIT extends AbstractIT {
 
   @Test
   public void testStakeOnLocked() throws IOException {
+    if (!isDpos()) {
+      return;
+    }
+
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
-      wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = supplyKeyWithAergo(wallet);
+      final AergoKey key = supplyKeyAergo(wallet);
       wallet.saveKey(key, password);
 
       try {
@@ -472,11 +413,14 @@ public class WalletIT extends AbstractIT {
 
   @Test
   public void testStake() throws IOException {
+    if (!isDpos()) {
+      return;
+    }
+
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
-      wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = supplyKeyWithAergo(wallet);
+      final AergoKey key = supplyKeyAergo(wallet);
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -503,11 +447,14 @@ public class WalletIT extends AbstractIT {
 
   @Test
   public void testVote() {
+    if (!isDpos()) {
+      return;
+    }
+
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
-      wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = supplyKeyWithAergo(wallet);
+      final AergoKey key = supplyKeyAergo(wallet);
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -538,9 +485,8 @@ public class WalletIT extends AbstractIT {
   public void testVotingOnUnStakedOne() {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
-      wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = supplyKeyWithAergo(wallet);
+      final AergoKey key = supplyKeyAergo(wallet);
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -561,9 +507,8 @@ public class WalletIT extends AbstractIT {
   public void testSendWithAddressOnUnlocked() throws IOException {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
-      wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = supplyKeyWithAergo(wallet);
+      final AergoKey key = supplyKeyAergo(wallet);
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -589,9 +534,8 @@ public class WalletIT extends AbstractIT {
   public void testSendWithAddressOnlocked() throws IOException {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
-      wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = supplyKeyWithAergo(wallet);
+      final AergoKey key = supplyKeyAergo(wallet);
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -614,9 +558,8 @@ public class WalletIT extends AbstractIT {
   public void testSignAndCommitOnUnlocked() throws IOException {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
-      wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = supplyKeyWithAergo(wallet);
+      final AergoKey key = supplyKeyAergo(wallet);
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
       wallet.unlock(auth);
@@ -650,9 +593,8 @@ public class WalletIT extends AbstractIT {
   public void testUnlockAndSignAndLockAndCommit() throws Exception {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
-      wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = supplyKeyWithAergo(wallet);
+      final AergoKey key = supplyKeyAergo(wallet);
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
       wallet.unlock(auth);
@@ -680,9 +622,8 @@ public class WalletIT extends AbstractIT {
   public void testSignAndCommitOnUnlockedWithInvalidNonce() throws Exception {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
-      wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = supplyKeyWithAergo(wallet);
+      final AergoKey key = supplyKeyAergo(wallet);
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
       wallet.unlock(auth);
@@ -714,9 +655,8 @@ public class WalletIT extends AbstractIT {
   public void testSignOnLocked() throws Exception {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
-      wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = supplyKeyWithAergo(wallet);
+      final AergoKey key = supplyKeyAergo(wallet);
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
       wallet.unlock(auth);
@@ -744,9 +684,8 @@ public class WalletIT extends AbstractIT {
   public void testContractOnUnlocked() throws Exception {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
-      wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = supplyKeyWithAergo(wallet);
+      final AergoKey key = supplyKeyAergo(wallet);
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
       wallet.unlock(auth);
@@ -763,9 +702,8 @@ public class WalletIT extends AbstractIT {
   public void testDeployOnLocked() throws Exception {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
-      wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = supplyKeyWithAergo(wallet);
+      final AergoKey key = supplyKeyAergo(wallet);
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
       wallet.unlock(auth);
@@ -786,9 +724,8 @@ public class WalletIT extends AbstractIT {
   public void testExecuteOnLocked() throws Exception {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
-      wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = supplyKeyWithAergo(wallet);
+      final AergoKey key = supplyKeyAergo(wallet);
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
 
@@ -812,9 +749,8 @@ public class WalletIT extends AbstractIT {
   public void testContractEvent() throws Exception {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
-      wallet.bindKeyStore(keyStore);
 
-      final AergoKey key = supplyKeyWithAergo(wallet);
+      final AergoKey key = supplyKeyAergo(wallet);
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
 

@@ -109,6 +109,7 @@ public class Trier {
   }
 
   protected void syncChainIdHash(final AergoClient client) {
+    // TODO: aergo client should have a role handling chain id hash
     final ChainIdHash chainIdHash = client.getBlockchainOperation().getChainIdHash();
     client.cacheChainIdHash(chainIdHash);
   }
