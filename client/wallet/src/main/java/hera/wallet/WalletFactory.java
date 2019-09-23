@@ -50,7 +50,7 @@ public class WalletFactory {
   public WalletApi create(final hera.keystore.KeyStore keyStore, final int retryCount,
       final long retryInterval) {
     assertNotNull(keyStore);
-    assertTrue(1 < retryCount);
+    assertTrue(1 <= retryCount);
     assertTrue(0 < retryInterval);
     return new WalletApiImpl(new TryCountAndInterval(retryCount, Time.of(retryInterval)), keyStore);
   }

@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 public class WalletBuilder implements ClientConfiguer<WalletBuilder> {
 
   protected static final TryCountAndInterval MIMINUM_NONCE_REFRESH_COUNT =
-      TryCountAndInterval.of(1, Time.of(0, TimeUnit.SECONDS));
+      TryCountAndInterval.of(2, Time.of(100L, TimeUnit.MILLISECONDS));
 
   protected AergoClientBuilder clientBuilder = new AergoClientBuilder();
 
