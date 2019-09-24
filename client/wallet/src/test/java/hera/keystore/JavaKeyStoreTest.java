@@ -153,7 +153,7 @@ public class JavaKeyStoreTest extends AbstractTestCase {
     final Authentication authentication = Authentication.of(identity, password);
     keyStore.save(authentication, key);
 
-    final String path = System.getProperty("java.io.tmpdir") + randomUUID().toString();
+    final String path = System.getProperty("java.io.tmpdir") + "/" + randomUUID().toString();
     final char[] keyStorePassword = randomUUID().toString().toCharArray();
     keyStore.store(path, keyStorePassword);
 
