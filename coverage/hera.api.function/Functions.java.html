@@ -4,14 +4,92 @@
 
 package hera.api.function;
 
+import static hera.util.ValidationUtils.assertNotNull;
+
 import hera.api.function.impl.Function0WithIdentity;
 import hera.api.function.impl.Function1WithIdentity;
 import hera.api.function.impl.Function2WithIdentity;
 import hera.api.function.impl.Function3WithIdentity;
 import hera.api.function.impl.Function4WithIdentity;
 import hera.api.function.impl.Function5WithIdentity;
+import hera.exception.HerajException;
+import java.util.List;
 
-<span class="nc" id="L14">public final class Functions {</span>
+<span class="nc" id="L18">public final class Functions {</span>
+
+<span class="fc" id="L20">  protected static final Class&lt;?&gt;[] functions = {</span>
+      Function0.class,
+      Function1.class,
+      Function2.class,
+      Function3.class,
+      Function4.class,
+      Function5.class,
+  };
+
+  /**
+   * Invoke target {@code f} with {@code args} and return result.
+   *
+   * @param &lt;R&gt; an invocation return type
+   *
+   * @param f a function to invoke
+   * @param args arguments to pass
+   * @return invocation result
+   */
+  public static &lt;R&gt; R invoke(final Function&lt;R&gt; f, final List&lt;Object&gt; args) {
+<span class="fc" id="L39">    return buildInvocation(f, args).apply();</span>
+  }
+
+  /**
+   * Make invocation with {@code f} and {@code args}.
+   *
+   * @param &lt;R&gt; an invocation return type
+   *
+   * @param f a function to invoke
+   * @param args arguments to pass
+   * @return invocation object
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public static &lt;R&gt; Function0&lt;R&gt; buildInvocation(final Function&lt;R&gt; f, final List&lt;Object&gt; args) {
+<span class="fc" id="L53">    assertNotNull(f);</span>
+<span class="fc" id="L54">    assertNotNull(args);</span>
+
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">    if (functions.length &lt; args.size()) {</span>
+<span class="nc" id="L57">      throw new HerajException(&quot;Invalid arguments length for target &quot; + f);</span>
+    }
+
+<span class="fc" id="L60">    final Class&lt;?&gt; possibleTarget = functions[args.size()];</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">    if (!possibleTarget.isInstance(f)) {</span>
+<span class="nc" id="L62">      throw new HerajException(&quot;Invalid arguments length for target &quot; + f);</span>
+    }
+
+<span class="fc" id="L65">    return new Function0&lt;R&gt;() {</span>
+
+      @Override
+      public R apply() {
+<span class="fc" id="L69">        R ret = null;</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (f instanceof Function0) {</span>
+<span class="fc" id="L71">          ret = ((Function0&lt;R&gt;) f)</span>
+<span class="fc" id="L72">              .apply();</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        } else if (f instanceof Function1) {</span>
+<span class="fc" id="L74">          ret = ((Function1&lt;Object, R&gt;) f)</span>
+<span class="fc" id="L75">              .apply(args.get(0));</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        } else if (f instanceof Function2) {</span>
+<span class="fc" id="L77">          ret = ((Function2&lt;Object, Object, R&gt;) f)</span>
+<span class="fc" id="L78">              .apply(args.get(0), args.get(1));</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        } else if (f instanceof Function3) {</span>
+<span class="fc" id="L80">          ret = ((Function3&lt;Object, Object, Object, R&gt;) f)</span>
+<span class="fc" id="L81">              .apply(args.get(0), args.get(1), args.get(2));</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        } else if (f instanceof Function4) {</span>
+<span class="fc" id="L83">          ret = ((Function4&lt;Object, Object, Object, Object, R&gt;) f)</span>
+<span class="fc" id="L84">              .apply(args.get(0), args.get(1), args.get(2), args.get(3));</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        } else if (f instanceof Function5) {</span>
+<span class="fc" id="L86">          ret = ((Function5&lt;Object, Object, Object, Object, Object, R&gt;) f)</span>
+<span class="fc" id="L87">              .apply(args.get(0), args.get(1), args.get(2), args.get(3), args.get(4));</span>
+        }
+<span class="fc" id="L89">        return ret;</span>
+      }
+    };
+  }
 
   /**
    * Identify a function by name.
@@ -24,7 +102,7 @@ import hera.api.function.impl.Function5WithIdentity;
    * @return a function with identity
    */
   public static &lt;R&gt; Function0&lt;R&gt; identify(final Function0&lt;R&gt; f, final String identity) {
-<span class="fc" id="L27">    return new Function0WithIdentity&lt;R&gt;(f, identity);</span>
+<span class="fc" id="L105">    return new Function0WithIdentity&lt;R&gt;(f, identity);</span>
   }
 
   /**
@@ -40,7 +118,7 @@ import hera.api.function.impl.Function5WithIdentity;
    */
   public static &lt;T, R&gt; Function1&lt;T, R&gt; identify(final Function1&lt;T, R&gt; f,
       final String identity) {
-<span class="fc" id="L43">    return new Function1WithIdentity&lt;T, R&gt;(f, identity);</span>
+<span class="fc" id="L121">    return new Function1WithIdentity&lt;T, R&gt;(f, identity);</span>
   }
 
   /**
@@ -57,7 +135,7 @@ import hera.api.function.impl.Function5WithIdentity;
    */
   public static &lt;T1, T2, R&gt; Function2&lt;T1, T2, R&gt; identify(final Function2&lt;T1, T2, R&gt; f,
       final String identity) {
-<span class="fc" id="L60">    return new Function2WithIdentity&lt;T1, T2, R&gt;(f, identity);</span>
+<span class="fc" id="L138">    return new Function2WithIdentity&lt;T1, T2, R&gt;(f, identity);</span>
   }
 
   /**
@@ -75,7 +153,7 @@ import hera.api.function.impl.Function5WithIdentity;
    */
   public static &lt;T1, T2, T3, R&gt; Function3&lt;T1, T2, T3, R&gt; identify(final Function3&lt;T1, T2, T3, R&gt; f,
       final String identity) {
-<span class="fc" id="L78">    return new Function3WithIdentity&lt;T1, T2, T3, R&gt;(f, identity);</span>
+<span class="fc" id="L156">    return new Function3WithIdentity&lt;T1, T2, T3, R&gt;(f, identity);</span>
   }
 
   /**
@@ -94,7 +172,7 @@ import hera.api.function.impl.Function5WithIdentity;
    */
   public static &lt;T1, T2, T3, T4, R&gt; Function4&lt;T1, T2, T3, T4, R&gt; identify(
       final Function4&lt;T1, T2, T3, T4, R&gt; f, final String identity) {
-<span class="fc" id="L97">    return new Function4WithIdentity&lt;T1, T2, T3, T4, R&gt;(f, identity);</span>
+<span class="fc" id="L175">    return new Function4WithIdentity&lt;T1, T2, T3, T4, R&gt;(f, identity);</span>
   }
 
   /**
@@ -114,7 +192,7 @@ import hera.api.function.impl.Function5WithIdentity;
    */
   public static &lt;T1, T2, T3, T4, T5, R&gt; Function5&lt;T1, T2, T3, T4, T5, R&gt; identify(
       final Function5&lt;T1, T2, T3, T4, T5, R&gt; f, final String identity) {
-<span class="fc" id="L117">    return new Function5WithIdentity&lt;T1, T2, T3, T4, T5, R&gt;(f, identity);</span>
+<span class="fc" id="L195">    return new Function5WithIdentity&lt;T1, T2, T3, T4, T5, R&gt;(f, identity);</span>
   }
 
   /**
@@ -134,16 +212,16 @@ import hera.api.function.impl.Function5WithIdentity;
    */
   public static &lt;R, V&gt; Function0&lt;V&gt; compose(final Function0&lt;R&gt; first,
       final Function1&lt;? super R, ? extends V&gt; second) {
-<span class="pc bpc" id="L137" title="1 of 2 branches missed.">    if (null == first) {</span>
-<span class="nc" id="L138">      throw new NullPointerException();</span>
+<span class="pc bpc" id="L215" title="1 of 2 branches missed.">    if (null == first) {</span>
+<span class="nc" id="L216">      throw new NullPointerException();</span>
     }
-<span class="pc bpc" id="L140" title="1 of 2 branches missed.">    if (null == second) {</span>
-<span class="nc" id="L141">      throw new NullPointerException();</span>
+<span class="pc bpc" id="L218" title="1 of 2 branches missed.">    if (null == second) {</span>
+<span class="nc" id="L219">      throw new NullPointerException();</span>
     }
-<span class="fc" id="L143">    return new Function0&lt;V&gt;() {</span>
+<span class="fc" id="L221">    return new Function0&lt;V&gt;() {</span>
       @Override
       public V apply() {
-<span class="fc" id="L146">        return second.apply(first.apply());</span>
+<span class="fc" id="L224">        return second.apply(first.apply());</span>
       }
     };
   }
@@ -166,16 +244,16 @@ import hera.api.function.impl.Function5WithIdentity;
    */
   public static &lt;T, R, V&gt; Function1&lt;T, V&gt; compose(final Function1&lt;? super T, ? extends R&gt; first,
       final Function1&lt;? super R, ? extends V&gt; second) {
-<span class="pc bpc" id="L169" title="1 of 2 branches missed.">    if (null == first) {</span>
-<span class="nc" id="L170">      throw new NullPointerException();</span>
+<span class="pc bpc" id="L247" title="1 of 2 branches missed.">    if (null == first) {</span>
+<span class="nc" id="L248">      throw new NullPointerException();</span>
     }
-<span class="pc bpc" id="L172" title="1 of 2 branches missed.">    if (null == second) {</span>
-<span class="nc" id="L173">      throw new NullPointerException();</span>
+<span class="pc bpc" id="L250" title="1 of 2 branches missed.">    if (null == second) {</span>
+<span class="nc" id="L251">      throw new NullPointerException();</span>
     }
-<span class="fc" id="L175">    return new Function1&lt;T, V&gt;() {</span>
+<span class="fc" id="L253">    return new Function1&lt;T, V&gt;() {</span>
       @Override
       public V apply(final T t) {
-<span class="fc" id="L178">        return second.apply(first.apply(t));</span>
+<span class="fc" id="L256">        return second.apply(first.apply(t));</span>
       }
     };
   }
@@ -200,16 +278,16 @@ import hera.api.function.impl.Function5WithIdentity;
   public static &lt;T1, T2, R, V&gt; Function2&lt;T1, T2, V&gt; compose(
       final Function2&lt;? super T1, ? super T2, ? extends R&gt; first,
       final Function1&lt;? super R, ? extends V&gt; second) {
-<span class="pc bpc" id="L203" title="1 of 2 branches missed.">    if (null == first) {</span>
-<span class="nc" id="L204">      throw new NullPointerException();</span>
+<span class="pc bpc" id="L281" title="1 of 2 branches missed.">    if (null == first) {</span>
+<span class="nc" id="L282">      throw new NullPointerException();</span>
     }
-<span class="pc bpc" id="L206" title="1 of 2 branches missed.">    if (null == second) {</span>
-<span class="nc" id="L207">      throw new NullPointerException();</span>
+<span class="pc bpc" id="L284" title="1 of 2 branches missed.">    if (null == second) {</span>
+<span class="nc" id="L285">      throw new NullPointerException();</span>
     }
-<span class="fc" id="L209">    return new Function2&lt;T1, T2, V&gt;() {</span>
+<span class="fc" id="L287">    return new Function2&lt;T1, T2, V&gt;() {</span>
       @Override
       public V apply(final T1 t1, final T2 t2) {
-<span class="fc" id="L212">        return second.apply(first.apply(t1, t2));</span>
+<span class="fc" id="L290">        return second.apply(first.apply(t1, t2));</span>
       }
     };
   }
@@ -235,16 +313,16 @@ import hera.api.function.impl.Function5WithIdentity;
   public static &lt;T1, T2, T3, R, V&gt; Function3&lt;T1, T2, T3, V&gt; compose(
       final Function3&lt;? super T1, ? super T2, ? super T3, ? extends R&gt; first,
       final Function1&lt;? super R, ? extends V&gt; second) {
-<span class="pc bpc" id="L238" title="1 of 2 branches missed.">    if (null == first) {</span>
-<span class="nc" id="L239">      throw new NullPointerException();</span>
+<span class="pc bpc" id="L316" title="1 of 2 branches missed.">    if (null == first) {</span>
+<span class="nc" id="L317">      throw new NullPointerException();</span>
     }
-<span class="pc bpc" id="L241" title="1 of 2 branches missed.">    if (null == second) {</span>
-<span class="nc" id="L242">      throw new NullPointerException();</span>
+<span class="pc bpc" id="L319" title="1 of 2 branches missed.">    if (null == second) {</span>
+<span class="nc" id="L320">      throw new NullPointerException();</span>
     }
-<span class="fc" id="L244">    return new Function3&lt;T1, T2, T3, V&gt;() {</span>
+<span class="fc" id="L322">    return new Function3&lt;T1, T2, T3, V&gt;() {</span>
       @Override
       public V apply(final T1 t1, final T2 t2, final T3 t3) {
-<span class="fc" id="L247">        return second.apply(first.apply(t1, t2, t3));</span>
+<span class="fc" id="L325">        return second.apply(first.apply(t1, t2, t3));</span>
       }
     };
   }
@@ -271,16 +349,16 @@ import hera.api.function.impl.Function5WithIdentity;
   public static &lt;T1, T2, T3, T4, R, V&gt; Function4&lt;T1, T2, T3, T4, V&gt; compose(
       final Function4&lt;? super T1, ? super T2, ? super T3, ? super T4, ? extends R&gt; first,
       final Function1&lt;? super R, ? extends V&gt; second) {
-<span class="pc bpc" id="L274" title="1 of 2 branches missed.">    if (null == first) {</span>
-<span class="nc" id="L275">      throw new NullPointerException();</span>
+<span class="pc bpc" id="L352" title="1 of 2 branches missed.">    if (null == first) {</span>
+<span class="nc" id="L353">      throw new NullPointerException();</span>
     }
-<span class="pc bpc" id="L277" title="1 of 2 branches missed.">    if (null == second) {</span>
-<span class="nc" id="L278">      throw new NullPointerException();</span>
+<span class="pc bpc" id="L355" title="1 of 2 branches missed.">    if (null == second) {</span>
+<span class="nc" id="L356">      throw new NullPointerException();</span>
     }
-<span class="fc" id="L280">    return new Function4&lt;T1, T2, T3, T4, V&gt;() {</span>
+<span class="fc" id="L358">    return new Function4&lt;T1, T2, T3, T4, V&gt;() {</span>
       @Override
       public V apply(final T1 t1, final T2 t2, final T3 t3, final T4 t4) {
-<span class="fc" id="L283">        return second.apply(first.apply(t1, t2, t3, t4));</span>
+<span class="fc" id="L361">        return second.apply(first.apply(t1, t2, t3, t4));</span>
       }
     };
   }
@@ -309,16 +387,16 @@ import hera.api.function.impl.Function5WithIdentity;
       final Function5&lt;? super T1, ? super T2, ? super T3, ? super T4, ? super T5,
           ? extends R&gt; first,
       final Function1&lt;? super R, ? extends V&gt; second) {
-<span class="nc bnc" id="L312" title="All 2 branches missed.">    if (null == first) {</span>
-<span class="nc" id="L313">      throw new NullPointerException();</span>
+<span class="nc bnc" id="L390" title="All 2 branches missed.">    if (null == first) {</span>
+<span class="nc" id="L391">      throw new NullPointerException();</span>
     }
-<span class="nc bnc" id="L315" title="All 2 branches missed.">    if (null == second) {</span>
-<span class="nc" id="L316">      throw new NullPointerException();</span>
+<span class="nc bnc" id="L393" title="All 2 branches missed.">    if (null == second) {</span>
+<span class="nc" id="L394">      throw new NullPointerException();</span>
     }
-<span class="nc" id="L318">    return new Function5&lt;T1, T2, T3, T4, T5, V&gt;() {</span>
+<span class="nc" id="L396">    return new Function5&lt;T1, T2, T3, T4, T5, V&gt;() {</span>
       @Override
       public V apply(final T1 t1, final T2 t2, final T3 t3, final T4 t4, final T5 t5) {
-<span class="nc" id="L321">        return second.apply(first.apply(t1, t2, t3, t4, t5));</span>
+<span class="nc" id="L399">        return second.apply(first.apply(t1, t2, t3, t4, t5));</span>
       }
     };
   }

@@ -15,12 +15,11 @@ import hera.annotation.ApiStability;
 import hera.api.model.internal.Time;
 import hera.exception.RpcException;
 import hera.strategy.ConnectStrategy;
+import hera.strategy.JustRetryStrategy;
 import hera.strategy.NettyConnectStrategy;
 import hera.strategy.OkHttpConnectStrategy;
 import hera.strategy.PlainTextChannelStrategy;
-import hera.strategy.RetryStrategy;
 import hera.strategy.SecurityConfigurationStrategy;
-import hera.strategy.SimpleTimeoutStrategy;
 import hera.strategy.TimeoutStrategy;
 import hera.strategy.TlsChannelStrategy;
 import hera.util.Configuration;
@@ -37,76 +36,76 @@ import org.slf4j.Logger;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L40">public class AergoClientBuilder implements ClientConfiguer&lt;AergoClientBuilder&gt; {</span>
+<span class="fc" id="L39">public class AergoClientBuilder implements ClientConfiguer&lt;AergoClientBuilder&gt; {</span>
 
   public static final String SCOPE = &quot;global&quot;;
 
   protected static final Map&lt;Class&lt;?&gt;, Strategy&gt; necessaryStrategyMap;
 
   static {
-<span class="fc" id="L47">    final Map&lt;Class&lt;?&gt;, Strategy&gt; map = new HashMap&lt;Class&lt;?&gt;, Strategy&gt;();</span>
-<span class="fc" id="L48">    map.put(ConnectStrategy.class, new NettyConnectStrategy());</span>
-<span class="fc" id="L49">    map.put(TimeoutStrategy.class, new SimpleTimeoutStrategy(DefaultConstants.DEFAULT_TIMEOUT));</span>
-<span class="fc" id="L50">    map.put(SecurityConfigurationStrategy.class, new PlainTextChannelStrategy());</span>
-<span class="fc" id="L51">    necessaryStrategyMap = Collections.unmodifiableMap(map);</span>
-<span class="fc" id="L52">  }</span>
+<span class="fc" id="L46">    final Map&lt;Class&lt;?&gt;, Strategy&gt; map = new HashMap&lt;Class&lt;?&gt;, Strategy&gt;();</span>
+<span class="fc" id="L47">    map.put(ConnectStrategy.class, new NettyConnectStrategy());</span>
+<span class="fc" id="L48">    map.put(TimeoutStrategy.class, new TimeoutStrategy(DefaultConstants.DEFAULT_TIMEOUT));</span>
+<span class="fc" id="L49">    map.put(SecurityConfigurationStrategy.class, new PlainTextChannelStrategy());</span>
+<span class="fc" id="L50">    necessaryStrategyMap = Collections.unmodifiableMap(map);</span>
+<span class="fc" id="L51">  }</span>
 
-<span class="fc" id="L54">  protected final Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L53">  protected final Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L56">  protected final Map&lt;Class&lt;?&gt;, Strategy&gt; strategyMap = new LinkedHashMap&lt;Class&lt;?&gt;, Strategy&gt;();</span>
+<span class="fc" id="L55">  protected final Map&lt;Class&lt;?&gt;, Strategy&gt; strategyMap = new LinkedHashMap&lt;Class&lt;?&gt;, Strategy&gt;();</span>
 
-<span class="fc" id="L58">  protected Configuration configuration = new InMemoryConfiguration();</span>
+<span class="fc" id="L57">  protected Configuration configuration = new InMemoryConfiguration();</span>
 
   @Override
   public AergoClientBuilder addConfiguration(final String key, final String value) {
-<span class="fc" id="L62">    configuration.define(key, value);</span>
-<span class="fc" id="L63">    return this;</span>
+<span class="nc" id="L61">    configuration.define(key, value);</span>
+<span class="nc" id="L62">    return this;</span>
   }
 
   @Override
   public AergoClientBuilder withEndpoint(final String endpoint) {
-<span class="fc" id="L68">    configuration.define(&quot;endpoint&quot;, endpoint);</span>
-<span class="fc" id="L69">    return this;</span>
+<span class="fc" id="L67">    configuration.define(&quot;endpoint&quot;, endpoint);</span>
+<span class="fc" id="L68">    return this;</span>
   }
 
   @Override
   public AergoClientBuilder withNonBlockingConnect() {
-<span class="fc" id="L74">    strategyMap.put(ConnectStrategy.class, new NettyConnectStrategy());</span>
-<span class="fc" id="L75">    return this;</span>
+<span class="fc" id="L73">    strategyMap.put(ConnectStrategy.class, new NettyConnectStrategy());</span>
+<span class="fc" id="L74">    return this;</span>
   }
 
   @Override
   public AergoClientBuilder withBlockingConnect() {
-<span class="fc" id="L80">    strategyMap.put(ConnectStrategy.class, new OkHttpConnectStrategy());</span>
-<span class="fc" id="L81">    return this;</span>
+<span class="nc" id="L79">    strategyMap.put(ConnectStrategy.class, new OkHttpConnectStrategy());</span>
+<span class="nc" id="L80">    return this;</span>
   }
 
   @Override
   public AergoClientBuilder withTimeout(final long timeout, final TimeUnit unit) {
-<span class="fc" id="L86">    strategyMap.put(TimeoutStrategy.class, new SimpleTimeoutStrategy(timeout, unit));</span>
-<span class="fc" id="L87">    return this;</span>
+<span class="nc" id="L85">    strategyMap.put(TimeoutStrategy.class, new TimeoutStrategy(timeout, unit));</span>
+<span class="nc" id="L86">    return this;</span>
   }
 
   @Override
   public AergoClientBuilder withRetry(final int count, final long interval, final TimeUnit unit) {
-<span class="fc" id="L92">    strategyMap.put(RetryStrategy.class, new RetryStrategy(count, Time.of(interval, unit)));</span>
-<span class="fc" id="L93">    return this;</span>
+<span class="nc" id="L91">    strategyMap.put(JustRetryStrategy.class, new JustRetryStrategy(count, Time.of(interval, unit)));</span>
+<span class="nc" id="L92">    return this;</span>
   }
 
   @Override
   public AergoClientBuilder withPlainText() {
-<span class="nc" id="L98">    strategyMap.put(SecurityConfigurationStrategy.class, new PlainTextChannelStrategy());</span>
-<span class="nc" id="L99">    return this;</span>
+<span class="nc" id="L97">    strategyMap.put(SecurityConfigurationStrategy.class, new PlainTextChannelStrategy());</span>
+<span class="nc" id="L98">    return this;</span>
   }
 
   @Override
   public AergoClientBuilder withTransportSecurity(final String serverCommonName,
       final String serverCertPath, final String clientCertPath, final String clientKeyPath) {
     try {
-<span class="nc" id="L106">      return withTransportSecurity(serverCommonName, new FileInputStream(serverCertPath),</span>
+<span class="nc" id="L105">      return withTransportSecurity(serverCommonName, new FileInputStream(serverCertPath),</span>
           new FileInputStream(clientCertPath), new FileInputStream(clientKeyPath));
-<span class="nc" id="L108">    } catch (Exception e) {</span>
-<span class="nc" id="L109">      throw new RpcException(e);</span>
+<span class="nc" id="L107">    } catch (Exception e) {</span>
+<span class="nc" id="L108">      throw new RpcException(e);</span>
     }
   }
 
@@ -114,9 +113,9 @@ import org.slf4j.Logger;
   public AergoClientBuilder withTransportSecurity(final String serverCommonName,
       final InputStream serverCertInputStream,
       final InputStream clientCertInputStream, final InputStream clientKeyInputStream) {
-<span class="nc" id="L117">    strategyMap.put(SecurityConfigurationStrategy.class, new TlsChannelStrategy(serverCommonName,</span>
+<span class="nc" id="L116">    strategyMap.put(SecurityConfigurationStrategy.class, new TlsChannelStrategy(serverCommonName,</span>
         serverCertInputStream, clientCertInputStream, clientKeyInputStream));
-<span class="nc" id="L119">    return this;</span>
+<span class="nc" id="L118">    return this;</span>
   }
 
   /**
@@ -126,22 +125,22 @@ import org.slf4j.Logger;
    * @return {@link AergoClient}
    */
   public AergoClient build() {
-<span class="fc" id="L129">    final AergoClient client = new AergoClient(buildContext());</span>
-<span class="fc" id="L130">    return client;</span>
+<span class="fc" id="L128">    final AergoClient client = new AergoClient(buildContext());</span>
+<span class="fc" id="L129">    return client;</span>
   }
 
   protected Context buildContext() {
-<span class="fc bfc" id="L134" title="All 2 branches covered.">    for (final Class&lt;?&gt; necessaryClass : necessaryStrategyMap.keySet()) {</span>
-<span class="fc bfc" id="L135" title="All 2 branches covered.">      if (!strategyMap.containsKey(necessaryClass)) {</span>
-<span class="fc" id="L136">        strategyMap.put(necessaryClass, necessaryStrategyMap.get(necessaryClass));</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">    for (final Class&lt;?&gt; necessaryClass : necessaryStrategyMap.keySet()) {</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">      if (!strategyMap.containsKey(necessaryClass)) {</span>
+<span class="fc" id="L135">        strategyMap.put(necessaryClass, necessaryStrategyMap.get(necessaryClass));</span>
       }
-<span class="fc" id="L138">    }</span>
-<span class="fc" id="L139">    final Context context = ContextProvider.defaultProvider.get()</span>
-<span class="fc" id="L140">        .withStrategies(new HashSet&lt;Strategy&gt;(this.strategyMap.values()))</span>
-<span class="fc" id="L141">        .withConfiguration(configuration)</span>
-<span class="fc" id="L142">        .withScope(AergoClientBuilder.SCOPE);</span>
-<span class="fc" id="L143">    logger.info(&quot;Global context: {}&quot;, context);</span>
-<span class="fc" id="L144">    return context;</span>
+<span class="fc" id="L137">    }</span>
+<span class="fc" id="L138">    final Context context = ContextProvider.defaultProvider.get()</span>
+<span class="fc" id="L139">        .withStrategies(new HashSet&lt;Strategy&gt;(this.strategyMap.values()))</span>
+<span class="fc" id="L140">        .withConfiguration(configuration)</span>
+<span class="fc" id="L141">        .withScope(AergoClientBuilder.SCOPE);</span>
+<span class="fc" id="L142">    logger.info(&quot;Global context: {}&quot;, context);</span>
+<span class="fc" id="L143">    return context;</span>
   }
 
 }

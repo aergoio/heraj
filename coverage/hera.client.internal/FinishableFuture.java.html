@@ -36,7 +36,7 @@ import org.slf4j.Logger;
    * @return complete result
    */
   public boolean fail(final Throwable error) {
-<span class="fc bfc" id="L39" title="All 2 branches covered.">    return super.setException(</span>
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">    return super.setException(</span>
         error instanceof RpcException ? (RpcException) error : new RpcException(error));
   }
 

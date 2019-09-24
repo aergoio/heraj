@@ -4,15 +4,15 @@
 
 package hera.client;
 
-import static hera.TransportConstants.BLOCK_GET_BLOCK_BY_HASH;
-import static hera.TransportConstants.BLOCK_GET_BLOCK_BY_HEIGHT;
-import static hera.TransportConstants.BLOCK_GET_METADATA_BY_HASH;
-import static hera.TransportConstants.BLOCK_GET_METADATA_BY_HEIGHT;
-import static hera.TransportConstants.BLOCK_LIST_METADATAS_BY_HASH;
-import static hera.TransportConstants.BLOCK_LIST_METADATAS_BY_HEIGHT;
-import static hera.TransportConstants.BLOCK_SUBSCRIBE_BLOCK;
-import static hera.TransportConstants.BLOCK_SUBSCRIBE_BLOCKMETADATA;
 import static hera.api.function.Functions.identify;
+import static hera.client.ClientConstants.BLOCK_GET_BLOCK_BY_HASH;
+import static hera.client.ClientConstants.BLOCK_GET_BLOCK_BY_HEIGHT;
+import static hera.client.ClientConstants.BLOCK_GET_METADATA_BY_HASH;
+import static hera.client.ClientConstants.BLOCK_GET_METADATA_BY_HEIGHT;
+import static hera.client.ClientConstants.BLOCK_LIST_METADATAS_BY_HASH;
+import static hera.client.ClientConstants.BLOCK_LIST_METADATAS_BY_HEIGHT;
+import static hera.client.ClientConstants.BLOCK_SUBSCRIBE_BLOCK;
+import static hera.client.ClientConstants.BLOCK_SUBSCRIBE_BLOCKMETADATA;
 
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
@@ -28,7 +28,8 @@ import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.client.internal.BlockBaseTemplate;
 import hera.client.internal.FinishableFuture;
-import hera.strategy.StrategyChain;
+import hera.strategy.PriorityProvider;
+import hera.strategy.StrategyApplier;
 import io.grpc.ManagedChannel;
 import java.util.List;
 import lombok.AccessLevel;
@@ -36,119 +37,120 @@ import lombok.Getter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="fc" id="L39">public class BlockTemplate</span>
+<span class="fc" id="L40">public class BlockTemplate</span>
     implements BlockOperation, ChannelInjectable, ContextProviderInjectable {
 
-<span class="fc" id="L42">  @Getter</span>
+<span class="fc" id="L43">  @Getter</span>
   protected BlockBaseTemplate blockBaseTemplate = new BlockBaseTemplate();
 
   protected ContextProvider contextProvider;
 
-<span class="pc bpc" id="L47" title="4 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
-  private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
+<span class="pc bpc" id="L48" title="4 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final StrategyApplier strategyApplier =
+      StrategyApplier.of(contextProvider.get(), PriorityProvider.get());
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-<span class="nc" id="L52">    getBlockBaseTemplate().setChannel(channel);</span>
-<span class="nc" id="L53">  }</span>
+<span class="nc" id="L54">    getBlockBaseTemplate().setChannel(channel);</span>
+<span class="nc" id="L55">  }</span>
 
   @Override
   public void setContextProvider(ContextProvider contextProvider) {
-<span class="fc" id="L57">    this.contextProvider = contextProvider;</span>
-<span class="fc" id="L58">    getBlockBaseTemplate().setContextProvider(contextProvider);</span>
-<span class="fc" id="L59">  }</span>
+<span class="fc" id="L59">    this.contextProvider = contextProvider;</span>
+<span class="fc" id="L60">    getBlockBaseTemplate().setContextProvider(contextProvider);</span>
+<span class="fc" id="L61">  }</span>
 
-<span class="pc bpc" id="L61" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L63" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function1&lt;BlockHash, FinishableFuture&lt;BlockMetadata&gt;&gt; blockMetadataByHashFunction =
-      getStrategyChain()
+      getStrategyApplier()
           .apply(identify(getBlockBaseTemplate().getBlockMetatdataByHashFunction(),
               BLOCK_GET_METADATA_BY_HASH));
 
-<span class="pc bpc" id="L67" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L69" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function1&lt;Long, FinishableFuture&lt;BlockMetadata&gt;&gt; blockMetadataByHeightFunction =
-      getStrategyChain().apply(
+      getStrategyApplier().apply(
           identify(getBlockBaseTemplate().getBlockMetadataByHeightFunction(),
               BLOCK_GET_METADATA_BY_HEIGHT));
 
-<span class="pc bpc" id="L73" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L75" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function2&lt;BlockHash, Integer,
       FinishableFuture&lt;List&lt;BlockMetadata&gt;&gt;&gt; listBlockMetadatasByHashFunction =
-          getStrategyChain()
+          getStrategyApplier()
               .apply(identify(getBlockBaseTemplate().getListBlockMetadatasByHashFunction(),
                   BLOCK_LIST_METADATAS_BY_HASH));
 
-<span class="pc bpc" id="L80" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L82" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function2&lt;Long, Integer,
       FinishableFuture&lt;List&lt;BlockMetadata&gt;&gt;&gt; listBlockMetadatasByHeightFunction =
-          getStrategyChain()
+          getStrategyApplier()
               .apply(identify(getBlockBaseTemplate().getListBlockMetadatasByHeightFunction(),
                   BLOCK_LIST_METADATAS_BY_HEIGHT));
 
-<span class="pc bpc" id="L87" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L89" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function1&lt;BlockHash, FinishableFuture&lt;Block&gt;&gt; blockByHashFunction =
-      getStrategyChain()
+      getStrategyApplier()
           .apply(
               identify(getBlockBaseTemplate().getBlockByHashFunction(), BLOCK_GET_BLOCK_BY_HASH));
 
-<span class="pc bpc" id="L93" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L95" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function1&lt;Long, FinishableFuture&lt;Block&gt;&gt; blockByHeightFunction =
-      getStrategyChain().apply(
+      getStrategyApplier().apply(
           identify(getBlockBaseTemplate().getBlockByHeightFunction(), BLOCK_GET_BLOCK_BY_HEIGHT));
 
-<span class="pc bpc" id="L98" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L100" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function1&lt;StreamObserver&lt;BlockMetadata&gt;,
-      Subscription&lt;BlockMetadata&gt;&gt; subscribeBlockMetadataFunction =
-          getStrategyChain().apply(
+      FinishableFuture&lt;Subscription&lt;BlockMetadata&gt;&gt;&gt; subscribeBlockMetadataFunction =
+          getStrategyApplier().apply(
               identify(getBlockBaseTemplate().getSubscribeBlockMetadataFunction(),
                   BLOCK_SUBSCRIBE_BLOCKMETADATA));
 
-<span class="pc bpc" id="L105" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L107" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function1&lt;StreamObserver&lt;Block&gt;,
-      Subscription&lt;Block&gt;&gt; subscribeBlockFunction =
-          getStrategyChain().apply(
+      FinishableFuture&lt;Subscription&lt;Block&gt;&gt;&gt; subscribeBlockFunction =
+          getStrategyApplier().apply(
               identify(getBlockBaseTemplate().getSubscribeBlockFunction(), BLOCK_SUBSCRIBE_BLOCK));
 
   @Override
   public BlockMetadata getBlockMetadata(final BlockHash blockHash) {
-<span class="fc" id="L113">    return getBlockMetadataByHashFunction().apply(blockHash).get();</span>
+<span class="fc" id="L115">    return getBlockMetadataByHashFunction().apply(blockHash).get();</span>
   }
 
   @Override
   public BlockMetadata getBlockMetadata(final long height) {
-<span class="fc" id="L118">    return getBlockMetadataByHeightFunction().apply(height).get();</span>
+<span class="fc" id="L120">    return getBlockMetadataByHeightFunction().apply(height).get();</span>
   }
 
   @Override
   public List&lt;BlockMetadata&gt; listBlockMetadatas(final BlockHash blockHash,
       final int size) {
-<span class="fc" id="L124">    return getListBlockMetadatasByHashFunction().apply(blockHash, size).get();</span>
+<span class="fc" id="L126">    return getListBlockMetadatasByHashFunction().apply(blockHash, size).get();</span>
   }
 
   @Override
   public List&lt;BlockMetadata&gt; listBlockMetadatas(final long height,
       final int size) {
-<span class="fc" id="L130">    return getListBlockMetadatasByHeightFunction().apply(height, size).get();</span>
+<span class="fc" id="L132">    return getListBlockMetadatasByHeightFunction().apply(height, size).get();</span>
   }
 
   @Override
   public Block getBlock(final BlockHash blockHash) {
-<span class="fc" id="L135">    return getBlockByHashFunction().apply(blockHash).get();</span>
+<span class="fc" id="L137">    return getBlockByHashFunction().apply(blockHash).get();</span>
   }
 
   @Override
   public Block getBlock(final long height) {
-<span class="fc" id="L140">    return getBlockByHeightFunction().apply(height).get();</span>
+<span class="fc" id="L142">    return getBlockByHeightFunction().apply(height).get();</span>
   }
 
   @Override
   public Subscription&lt;BlockMetadata&gt; subscribeNewBlockMetadata(
       final StreamObserver&lt;BlockMetadata&gt; observer) {
-<span class="fc" id="L146">    return getSubscribeBlockMetadataFunction().apply(observer);</span>
+<span class="fc" id="L148">    return getSubscribeBlockMetadataFunction().apply(observer).get();</span>
   }
 
   @Override
   public Subscription&lt;Block&gt; subscribeNewBlock(final StreamObserver&lt;Block&gt; observer) {
-<span class="fc" id="L151">    return getSubscribeBlockFunction().apply(observer);</span>
+<span class="fc" id="L153">    return getSubscribeBlockFunction().apply(observer).get();</span>
   }
 
 }

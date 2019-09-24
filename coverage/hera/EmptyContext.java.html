@@ -46,7 +46,7 @@ public class EmptyContext implements Context {
   protected final String scope = EmptyContext.SCOPE;
 
 <span class="fc" id="L48">  @Getter</span>
-  protected final ChainIdHash chainIdHash = new ChainIdHash(BytesValue.EMPTY);
+  protected final ChainIdHash chainIdHash = null;
 
 <span class="fc" id="L51">  @Getter</span>
   protected final Configuration configuration = new InMemoryConfiguration(true);
@@ -90,11 +90,11 @@ public class EmptyContext implements Context {
 
   @Override
   public Context withConfiguration(final Configuration configuration) {
-<span class="fc" id="L93">    logger.debug(&quot;New configuration: {}&quot;, configuration);</span>
-<span class="fc" id="L94">    final ContextConc newContext =</span>
-<span class="fc" id="L95">        new ContextConc(this, getScope(), getChainIdHash(), configuration, getStrategies());</span>
-<span class="fc" id="L96">    logger.debug(&quot;New context: {}&quot;, newContext);</span>
-<span class="fc" id="L97">    return newContext;</span>
+<span class="nc" id="L93">    logger.debug(&quot;New configuration: {}&quot;, configuration);</span>
+<span class="nc" id="L94">    final ContextConc newContext =</span>
+<span class="nc" id="L95">        new ContextConc(this, getScope(), getChainIdHash(), configuration, getStrategies());</span>
+<span class="nc" id="L96">    logger.debug(&quot;New context: {}&quot;, newContext);</span>
+<span class="nc" id="L97">    return newContext;</span>
   }
 
   @Override
@@ -102,36 +102,35 @@ public class EmptyContext implements Context {
 <span class="nc" id="L102">    return this;</span>
   }
 
-  @SuppressWarnings(&quot;unchecked&quot;)
   @Override
   public &lt;StrategyT extends Strategy&gt; Context withStrategy(final StrategyT strategy) {
-<span class="fc" id="L108">    logger.debug(&quot;New strategy: {}&quot;, strategy);</span>
-<span class="fc" id="L109">    final ContextConc newContext =</span>
-<span class="fc" id="L110">        new ContextConc(this, getScope(), getChainIdHash(), getConfiguration(),</span>
-<span class="fc" id="L111">            new HashSet&lt;Strategy&gt;(asList(strategy)));</span>
-<span class="fc" id="L112">    logger.debug(&quot;New context: {}&quot;, newContext);</span>
-<span class="fc" id="L113">    return newContext;</span>
+<span class="fc" id="L107">    logger.debug(&quot;New strategy: {}&quot;, strategy);</span>
+<span class="fc" id="L108">    final ContextConc newContext =</span>
+<span class="fc" id="L109">        new ContextConc(this, getScope(), getChainIdHash(), getConfiguration(),</span>
+<span class="fc" id="L110">            new HashSet&lt;Strategy&gt;(asList(strategy)));</span>
+<span class="fc" id="L111">    logger.debug(&quot;New context: {}&quot;, newContext);</span>
+<span class="fc" id="L112">    return newContext;</span>
   }
 
   @Override
   public Context withStrategies(final Set&lt;Strategy&gt; strategies) {
-<span class="fc" id="L118">    logger.debug(&quot;New strategies: {}&quot;, strategies);</span>
-<span class="fc" id="L119">    final Set&lt;Strategy&gt; newStrategies = new HashSet&lt;Strategy&gt;(strategies);</span>
-<span class="fc" id="L120">    final ContextConc newContext =</span>
-<span class="fc" id="L121">        new ContextConc(this, getScope(), getChainIdHash(), getConfiguration(), newStrategies);</span>
-<span class="fc" id="L122">    logger.debug(&quot;New context: {}&quot;, newContext);</span>
-<span class="fc" id="L123">    return newContext;</span>
+<span class="fc" id="L117">    logger.debug(&quot;New strategies: {}&quot;, strategies);</span>
+<span class="fc" id="L118">    final Set&lt;Strategy&gt; newStrategies = new HashSet&lt;Strategy&gt;(strategies);</span>
+<span class="fc" id="L119">    final ContextConc newContext =</span>
+<span class="fc" id="L120">        new ContextConc(this, getScope(), getChainIdHash(), getConfiguration(), newStrategies);</span>
+<span class="fc" id="L121">    logger.debug(&quot;New context: {}&quot;, newContext);</span>
+<span class="fc" id="L122">    return newContext;</span>
   }
 
   @Override
   public &lt;StrategyT extends Strategy&gt; StrategyT getStrategy(
       final Class&lt;StrategyT&gt; strategyClass) {
-<span class="nc" id="L129">    return null;</span>
+<span class="nc" id="L128">    return null;</span>
   }
 
   @Override
   public &lt;StrategyT extends Strategy&gt; Context withoutStrategy(final Class&lt;StrategyT&gt; strategy) {
-<span class="nc" id="L134">    return this;</span>
+<span class="nc" id="L133">    return this;</span>
   }
 
 }

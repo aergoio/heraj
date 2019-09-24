@@ -8,66 +8,198 @@ import static hera.util.TransportUtils.parseToBlockHash;
 import static hera.util.TransportUtils.parseToTxHash;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
+import com.fasterxml.jackson.databind.type.CollectionType;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
+import hera.api.model.BigNumber;
 import hera.api.model.ContractAddress;
 import hera.api.model.Event;
+import hera.spec.AergoSpec;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.slf4j.Logger;
 import types.Blockchain;
 
-<span class="fc" id="L20">public class EventConverterFactory {</span>
+<span class="fc" id="L37">public class EventConverterFactory {</span>
 
-<span class="fc" id="L22">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L39">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L24">  protected final ObjectMapper mapper = new ObjectMapper();</span>
+<span class="fc" id="L41">  protected final ObjectMapper mapper = getObjectMapper();</span>
 
-<span class="fc" id="L26">  protected final ModelConverter&lt;AccountAddress,</span>
+<span class="fc" id="L43">  protected final ModelConverter&lt;AccountAddress,</span>
       com.google.protobuf.ByteString&gt; accountAddressConverter =
-<span class="fc" id="L28">          new AccountAddressConverterFactory().create();</span>
+<span class="fc" id="L45">          new AccountAddressConverterFactory().create();</span>
 
-<span class="fc" id="L30">  protected final Function1&lt;Event, Blockchain.Event&gt; domainConverter =</span>
-<span class="fc" id="L31">      new Function1&lt;Event, Blockchain.Event&gt;() {</span>
+<span class="fc" id="L47">  protected final Function1&lt;Event, Blockchain.Event&gt; domainConverter =</span>
+<span class="fc" id="L48">      new Function1&lt;Event, Blockchain.Event&gt;() {</span>
 
         @Override
         public Blockchain.Event apply(final Event domainEvent) {
-<span class="nc" id="L35">          throw new UnsupportedOperationException();</span>
+<span class="nc" id="L52">          throw new UnsupportedOperationException();</span>
         }
       };
 
-<span class="fc" id="L39">  protected final Function1&lt;Blockchain.Event, Event&gt; rpcConverter =</span>
-<span class="fc" id="L40">      new Function1&lt;Blockchain.Event, Event&gt;() {</span>
+<span class="fc" id="L56">  protected final Function1&lt;Blockchain.Event, Event&gt; rpcConverter =</span>
+<span class="fc" id="L57">      new Function1&lt;Blockchain.Event, Event&gt;() {</span>
 
-        @SuppressWarnings(&quot;unchecked&quot;)
         @Override
         public Event apply(Blockchain.Event rpcEvent) {
-<span class="fc" id="L45">          logger.trace(&quot;Rpc event: {}&quot;, rpcEvent);</span>
+<span class="fc" id="L61">          logger.trace(&quot;Rpc event: {}&quot;, rpcEvent);</span>
 
           try {
-<span class="fc" id="L48">            final ContractAddress contractAddress = accountAddressConverter</span>
-<span class="fc" id="L49">                .convertToDomainModel(rpcEvent.getContractAddress()).adapt(ContractAddress.class);</span>
-<span class="fc" id="L50">            final Event domainEvent = Event.newBuilder()</span>
-<span class="fc" id="L51">                .from(contractAddress)</span>
-<span class="fc" id="L52">                .name(rpcEvent.getEventName())</span>
-<span class="fc" id="L53">                .args(mapper.readValue(rpcEvent.getJsonArgs(), List.class))</span>
-<span class="fc" id="L54">                .index(rpcEvent.getEventIdx())</span>
-<span class="fc" id="L55">                .txHash(parseToTxHash(rpcEvent.getTxHash()))</span>
-<span class="fc" id="L56">                .indexInBlock(rpcEvent.getTxIndex())</span>
-<span class="fc" id="L57">                .blockHash(parseToBlockHash(rpcEvent.getBlockHash()))</span>
-<span class="fc" id="L58">                .blockNumber(rpcEvent.getBlockNo())</span>
-<span class="fc" id="L59">                .build();</span>
-<span class="fc" id="L60">            logger.trace(&quot;Rpc event converted: {}&quot;, domainEvent);</span>
-<span class="fc" id="L61">            return domainEvent;</span>
-<span class="nc" id="L62">          } catch (Exception e) {</span>
-<span class="nc" id="L63">            throw new IllegalArgumentException(e);</span>
+<span class="fc" id="L64">            final ContractAddress contractAddress = accountAddressConverter</span>
+<span class="fc" id="L65">                .convertToDomainModel(rpcEvent.getContractAddress()).adapt(ContractAddress.class);</span>
+<span class="fc" id="L66">            final CollectionType listType =</span>
+<span class="fc" id="L67">                mapper.getTypeFactory().constructCollectionType(List.class, Object.class);</span>
+<span class="fc" id="L68">            final List&lt;Object&gt; deserializedArgs =</span>
+<span class="fc" id="L69">                mapper.readValue(rpcEvent.getJsonArgs(), listType);</span>
+<span class="fc" id="L70">            final Event domainEvent = Event.newBuilder()</span>
+<span class="fc" id="L71">                .from(contractAddress)</span>
+<span class="fc" id="L72">                .name(rpcEvent.getEventName())</span>
+<span class="fc" id="L73">                .args(deserializedArgs)</span>
+<span class="fc" id="L74">                .index(rpcEvent.getEventIdx())</span>
+<span class="fc" id="L75">                .txHash(parseToTxHash(rpcEvent.getTxHash()))</span>
+<span class="fc" id="L76">                .indexInBlock(rpcEvent.getTxIndex())</span>
+<span class="fc" id="L77">                .blockHash(parseToBlockHash(rpcEvent.getBlockHash()))</span>
+<span class="fc" id="L78">                .blockNumber(rpcEvent.getBlockNo())</span>
+<span class="fc" id="L79">                .build();</span>
+<span class="fc" id="L80">            logger.trace(&quot;Rpc event converted: {}&quot;, domainEvent);</span>
+<span class="fc" id="L81">            return domainEvent;</span>
+<span class="nc" id="L82">          } catch (Exception e) {</span>
+<span class="nc" id="L83">            throw new IllegalArgumentException(e);</span>
           }
         }
       };
 
   public ModelConverter&lt;Event, Blockchain.Event&gt; create() {
-<span class="fc" id="L69">    return new ModelConverter&lt;Event, Blockchain.Event&gt;(domainConverter,</span>
+<span class="fc" id="L89">    return new ModelConverter&lt;Event, Blockchain.Event&gt;(domainConverter,</span>
         rpcConverter);
+  }
+
+  protected ObjectMapper getObjectMapper() {
+<span class="fc" id="L94">    final ObjectMapper objectMapper = new ObjectMapper();</span>
+
+<span class="fc" id="L96">    final SimpleModule simpleModule = new SimpleModule();</span>
+<span class="fc" id="L97">    simpleModule.addDeserializer(List.class, new CustomDeserializer());</span>
+<span class="fc" id="L98">    objectMapper.registerModule(simpleModule);</span>
+
+<span class="fc" id="L100">    return objectMapper;</span>
+  }
+
+<span class="fc" id="L103">  protected class CustomDeserializer extends JsonDeserializer&lt;List&lt;Object&gt;&gt; {</span>
+
+    @Override
+    public List&lt;Object&gt; deserialize(JsonParser parser, DeserializationContext context)
+        throws IOException {
+<span class="fc" id="L108">      final List&lt;Object&gt; ret = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L110">      final JsonNode jsonNode = parser.getCodec().readTree(parser);</span>
+<span class="fc" id="L111">      logger.trace(&quot;Raw event args: {}&quot;, jsonNode);</span>
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">      if (!(jsonNode instanceof ArrayNode)) {</span>
+<span class="nc" id="L113">        throw new IllegalStateException(&quot;Event args must be array but was &quot; + jsonNode.getClass());</span>
+      }
+
+<span class="fc" id="L116">      final Iterator&lt;JsonNode&gt; it = ((ArrayNode) jsonNode).elements();</span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">      while (it.hasNext()) {</span>
+<span class="nc" id="L118">        final JsonNode next = it.next();</span>
+<span class="nc" id="L119">        ret.add(parseJsonNode(next));</span>
+<span class="nc" id="L120">      }</span>
+<span class="fc" id="L121">      logger.trace(&quot;Parsed event args: {}&quot;, ret);</span>
+
+<span class="fc" id="L123">      return ret;</span>
+    }
+
+    protected Object parseJsonNode(final JsonNode jsonNode) {
+<span class="nc" id="L127">      Object ret = null;</span>
+
+      // null, boolean, string, number
+<span class="nc bnc" id="L130" title="All 2 branches missed.">      if (jsonNode.isValueNode()) {</span>
+<span class="nc" id="L131">        ret = parseValueNode((ValueNode) jsonNode);</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">      } else if (jsonNode.isArray()) {</span>
+<span class="nc" id="L133">        ret = parseArrayNode((ArrayNode) jsonNode);</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">      } else if (jsonNode.isObject()) {</span>
+<span class="nc" id="L135">        ret = parseObjectNode((ObjectNode) jsonNode);</span>
+      } else {
+<span class="nc" id="L137">        throw new IllegalArgumentException(&quot;Can't process json node &quot; + jsonNode);</span>
+      }
+
+<span class="nc" id="L140">      return ret;</span>
+    }
+
+    protected Object parseValueNode(final ValueNode valueNode) {
+      Object ret;
+
+<span class="nc bnc" id="L146" title="All 2 branches missed.">      if (valueNode.isNull()) {</span>
+<span class="nc" id="L147">        ret = null;</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">      } else if (valueNode.isBoolean()) {</span>
+<span class="nc" id="L149">        ret = valueNode.asBoolean();</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">      } else if (valueNode.isTextual()) {</span>
+<span class="nc" id="L151">        ret = valueNode.asText();</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">      } else if (valueNode.isNumber()) {</span>
+<span class="nc" id="L153">        ret = valueNode.numberValue();</span>
+      } else {
+<span class="nc" id="L155">        throw new IllegalArgumentException(&quot;Can't process &quot; + valueNode);</span>
+      }
+
+<span class="nc" id="L158">      return ret;</span>
+    }
+
+    protected List&lt;Object&gt; parseArrayNode(final ArrayNode arrayNode) {
+<span class="nc" id="L162">      final List&lt;Object&gt; ret = new ArrayList&lt;&gt;(arrayNode.size());</span>
+
+<span class="nc" id="L164">      final Iterator&lt;JsonNode&gt; it = arrayNode.elements();</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">      while (it.hasNext()) {</span>
+<span class="nc" id="L166">        final JsonNode next = it.next();</span>
+<span class="nc" id="L167">        ret.add(next);</span>
+<span class="nc" id="L168">      }</span>
+
+<span class="nc" id="L170">      return ret;</span>
+    }
+
+    protected Object parseObjectNode(final ObjectNode objectNode) {
+<span class="nc" id="L174">      final Map&lt;String, Object&gt; ret = new HashMap&lt;&gt;(objectNode.size());</span>
+
+<span class="nc bnc" id="L176" title="All 2 branches missed.">      if (isAergoBigNum(objectNode)) {</span>
+<span class="nc" id="L177">        return parseBignumNode(objectNode);</span>
+      }
+
+<span class="nc" id="L180">      final Iterator&lt;Entry&lt;String, JsonNode&gt;&gt; it = objectNode.fields();</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">      while (it.hasNext()) {</span>
+<span class="nc" id="L182">        final Entry&lt;String, JsonNode&gt; next = it.next();</span>
+<span class="nc" id="L183">        ret.put(next.getKey(), parseJsonNode(next.getValue()));</span>
+<span class="nc" id="L184">      }</span>
+
+<span class="nc" id="L186">      return ret;</span>
+    }
+
+    protected boolean isAergoBigNum(final ObjectNode objectNode) {
+<span class="nc" id="L190">      final JsonNode possiblyBignum = objectNode.get(AergoSpec.BIGNUM_JSON_KEY);</span>
+<span class="nc bnc" id="L191" title="All 6 branches missed.">      return objectNode.size() == 1 &amp;&amp; null != possiblyBignum &amp;&amp; possiblyBignum.isTextual();</span>
+    }
+
+    protected BigNumber parseBignumNode(final ObjectNode objectNode) {
+      try {
+<span class="nc" id="L196">        final JsonNode bignumNode = objectNode.get(AergoSpec.BIGNUM_JSON_KEY);</span>
+<span class="nc" id="L197">        return new BigNumber(bignumNode.asText());</span>
+<span class="nc" id="L198">      } catch (Exception e) {</span>
+<span class="nc" id="L199">        throw new IllegalArgumentException(e);</span>
+      }
+    }
+
   }
 
 }

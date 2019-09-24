@@ -4,7 +4,53 @@
 
 package hera.strategy;
 
-<span class="fc" id="L7">public abstract class TimeoutStrategy extends OnInvocationStrategy {</span>
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.api.function.Function;
+import hera.api.function.Functions;
+import hera.api.model.internal.Time;
+import hera.client.internal.FinishableFuture;
+import hera.exception.RpcException;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.slf4j.Logger;
+
+<span class="fc" id="L20">@ToString(exclude = &quot;logger&quot;)</span>
+<span class="pc bpc" id="L21" title="20 of 22 branches missed.">@EqualsAndHashCode(callSuper = false)</span>
+public class TimeoutStrategy extends InvocationStrategy {
+
+<span class="fc" id="L24">  protected final Logger logger = getLogger(getClass());</span>
+
+  protected final Time timeout;
+
+  public TimeoutStrategy(final long timeout) {
+<span class="fc" id="L29">    this(timeout, TimeUnit.MILLISECONDS);</span>
+<span class="fc" id="L30">  }</span>
+
+<span class="fc" id="L32">  public TimeoutStrategy(final long timeout, final TimeUnit timeUnit) {</span>
+<span class="pc bpc" id="L33" title="1 of 2 branches missed.">    this.timeout = Time.of(timeout &lt; 0 ? 0 : timeout, timeUnit);</span>
+<span class="fc" id="L34">  }</span>
+
+  @Override
+  protected &lt;R&gt; R wrap(Function&lt;R&gt; f, List&lt;Object&gt; args) {
+<span class="fc" id="L38">    final R shouldBeFuture = Functions.invoke(f, args);</span>
+
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">    if (!(shouldBeFuture instanceof FinishableFuture)) {</span>
+<span class="nc" id="L41">      throw new RpcException(&quot;Return type of function must be future&quot;);</span>
+    }
+
+<span class="fc" id="L44">    final FinishableFuture&lt;?&gt; future = (FinishableFuture&lt;?&gt;) shouldBeFuture;</span>
+    try {
+<span class="fc" id="L46">      future.get(timeout.getValue(), timeout.getUnit());</span>
+<span class="fc" id="L47">    } catch (Exception e) {</span>
+<span class="fc" id="L48">      logger.info(&quot;Attempt timeout after {}&quot;, timeout);</span>
+<span class="fc" id="L49">      future.fail(e);</span>
+<span class="fc" id="L50">    }</span>
+
+<span class="fc" id="L52">    return shouldBeFuture;</span>
+  }
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

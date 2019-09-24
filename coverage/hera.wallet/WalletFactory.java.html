@@ -4,16 +4,14 @@
 
 package hera.wallet;
 
+import static hera.util.ValidationUtils.assertNotNull;
+import static hera.util.ValidationUtils.assertTrue;
+
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.internal.Time;
 import hera.api.model.internal.TryCountAndInterval;
-import hera.exception.WalletException;
-import hera.keystore.InMemoryKeyStore;
-import hera.keystore.JavaKeyStore;
-import hera.keystore.ServerKeyStore;
 import hera.wallet.internal.WalletApiImpl;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Factory for Wallet implementation v2. This is beta version
@@ -23,34 +21,38 @@ import java.util.concurrent.TimeUnit;
  */
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L26">public class WalletFactory {</span>
+<span class="fc" id="L24">public class WalletFactory {</span>
 
-<span class="fc" id="L28">  protected TryCountAndInterval tryCountAndInterval =</span>
-<span class="fc" id="L29">      TryCountAndInterval.of(3, Time.of(0, TimeUnit.SECONDS));</span>
+  public static final int DEFAULT_RETRY_COUNT = 2;
 
-  public void setRefresh(final int count, final long interval, final TimeUnit unit) {
-<span class="fc" id="L32">    this.tryCountAndInterval = new TryCountAndInterval(count, Time.of(interval, unit));</span>
-<span class="fc" id="L33">  }</span>
+  public static final long DEFAULT_RETRY_INTERVAL = 100L;
+
+  /**
+   * Create a wallet instance with retryCont as {@value #DEFAULT_RETRY_COUNT} and retry interval as
+   * {@value #DEFAULT_RETRY_INTERVAL} milliseconds.
+   *
+   * @param keyStore an keystore instance
+   *
+   * @return a wallet instance
+   */
+  public WalletApi create(final hera.keystore.KeyStore keyStore) {
+<span class="nc" id="L39">    return create(keyStore, DEFAULT_RETRY_COUNT, DEFAULT_RETRY_INTERVAL);</span>
+  }
 
   /**
    * Create a wallet instance.
    *
-   * @param walletType a wallet type
-   *
+   * @param keyStore an keystore instance
+   * @param retryCount a retry count on nonce failure
+   * @param retryInterval a retry interval in milliseconds on nonce failure
    * @return a wallet instance
    */
-  public WalletApi create(final WalletType walletType) {
-<span class="pc bpc" id="L43" title="2 of 4 branches missed.">    switch (walletType) {</span>
-      case Naive:
-<span class="fc" id="L45">        return new WalletApiImpl(tryCountAndInterval, new InMemoryKeyStore());</span>
-      case Secure:
-<span class="nc" id="L47">        return new WalletApiImpl(tryCountAndInterval, new JavaKeyStore());</span>
-      case ServerKeyStore:
-<span class="fc" id="L49">        return new WalletApiImpl(tryCountAndInterval, new ServerKeyStore());</span>
-      default:
-<span class="nc" id="L51">        throw new WalletException(&quot;Invalid wallet type &quot; + walletType);</span>
-    }
-
+  public WalletApi create(final hera.keystore.KeyStore keyStore, final int retryCount,
+      final long retryInterval) {
+<span class="fc" id="L52">    assertNotNull(keyStore);</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">    assertTrue(1 &lt;= retryCount);</span>
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">    assertTrue(0 &lt; retryInterval);</span>
+<span class="fc" id="L55">    return new WalletApiImpl(new TryCountAndInterval(retryCount, Time.of(retryInterval)), keyStore);</span>
   }
 
 }

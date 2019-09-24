@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="pc bpc" id="L18" title="12 of 22 branches missed.">@EqualsAndHashCode</span>
+<span class="pc bpc" id="L18" title="13 of 22 branches missed.">@EqualsAndHashCode</span>
 <span class="pc bpc" id="L19" title="2 of 4 branches missed.">@RequiredArgsConstructor</span>
 public class Authentication {
 
@@ -34,8 +34,8 @@ public class Authentication {
 
   @Override
   public String toString() {
-<span class="fc" id="L37">    return String.format(&quot;Authentication(identity=%s, password=%s)&quot;, identity.getValue(),</span>
-<span class="fc" id="L38">        HexUtils.encode(Sha256Utils.digest(password.getBytes())));</span>
+<span class="nc" id="L37">    return String.format(&quot;Authentication(identity=%s, password=%s)&quot;, identity.getValue(),</span>
+<span class="nc" id="L38">        HexUtils.encode(Sha256Utils.digest(password.getBytes())));</span>
   }
 
 }

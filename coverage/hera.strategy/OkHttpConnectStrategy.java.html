@@ -4,7 +4,7 @@
 
 package hera.strategy;
 
-import static hera.TransportConstants.KEEP_ALIVE_INTERVAL;
+import static hera.client.ClientConstants.KEEP_ALIVE_INTERVAL;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Context;
@@ -16,7 +16,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.slf4j.Logger;
 
-<span class="fc" id="L19">@ToString(exclude = {&quot;logger&quot;, &quot;context&quot;})</span>
+<span class="nc" id="L19">@ToString(exclude = {&quot;logger&quot;, &quot;context&quot;})</span>
 <span class="fc" id="L20">public class OkHttpConnectStrategy implements ConnectStrategy&lt;OkHttpChannelBuilder&gt; {</span>
 
 <span class="fc" id="L22">  protected final Logger logger = getLogger(getClass());</span>
@@ -46,7 +46,7 @@ import org.slf4j.Logger;
 
   @Override
   public int hashCode() {
-<span class="fc" id="L49">    return OkHttpConnectStrategy.class.hashCode();</span>
+<span class="nc" id="L49">    return OkHttpConnectStrategy.class.hashCode();</span>
   }
 
 }

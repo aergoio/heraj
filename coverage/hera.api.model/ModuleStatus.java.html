@@ -20,33 +20,33 @@ import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="pc bnc" id="L23" title="All 48 branches missed.">@Value</span>
+<span class="nc bnc" id="L23" title="All 48 branches missed.">@Value</span>
 <span class="pc bpc" id="L24" title="10 of 20 branches missed.">@Builder(builderMethodName = &quot;newBuilder&quot;)</span>
 public class ModuleStatus {
 
   @NonNull
   @Default
-<span class="fc" id="L29">  String moduleName = StringUtils.EMPTY_STRING;</span>
+<span class="nc" id="L29">  String moduleName = StringUtils.EMPTY_STRING;</span>
 
   @NonNull
   @Default
-<span class="fc" id="L33">  String status = StringUtils.EMPTY_STRING;</span>
+<span class="nc" id="L33">  String status = StringUtils.EMPTY_STRING;</span>
 
-<span class="fc" id="L35">  long processedMessageCount;</span>
+<span class="nc" id="L35">  long processedMessageCount;</span>
 
-<span class="fc" id="L37">  long queuedMessageCount;</span>
-
-  @NonNull
-  @Default
-<span class="fc" id="L41">  Time latency = Time.of(0L);</span>
+<span class="nc" id="L37">  long queuedMessageCount;</span>
 
   @NonNull
   @Default
-<span class="fc" id="L45">  String error = StringUtils.EMPTY_STRING;</span>
+<span class="nc" id="L41">  Time latency = Time.of(0L);</span>
 
   @NonNull
   @Default
-<span class="fc" id="L49">  Map&lt;String, Object&gt; actor = emptyMap();</span>
+<span class="nc" id="L45">  String error = StringUtils.EMPTY_STRING;</span>
+
+  @NonNull
+  @Default
+<span class="nc" id="L49">  Map&lt;String, Object&gt; actor = emptyMap();</span>
 
   ModuleStatus(final String moduleName, final String status, final long processedMessageCount,
       final long queuedMessageCount, final Time latency, final String error,

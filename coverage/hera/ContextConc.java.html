@@ -217,10 +217,11 @@ public final class ContextConc implements Context {
 <span class="nc" id="L217">      return false;</span>
     }
 
-<span class="nc bnc" id="L220" title="All 2 branches missed.">    return this.scope.equals(other.scope)</span>
-<span class="nc bnc" id="L221" title="All 2 branches missed.">        &amp;&amp; this.chainIdHash.equals(other.chainIdHash)</span>
-<span class="nc bnc" id="L222" title="All 2 branches missed.">        &amp;&amp; this.configuration.equals(other.configuration)</span>
-<span class="nc bnc" id="L223" title="All 2 branches missed.">        &amp;&amp; this.strategies.equals(other.strategies);</span>
+<span class="nc bnc" id="L220" title="All 4 branches missed.">    return ((null == this.chainIdHash) ? (null == other.chainIdHash)</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">        : (this.chainIdHash.equals(other.chainIdHash)))</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">        &amp;&amp; this.scope.equals(other.scope)</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">        &amp;&amp; this.configuration.equals(other.configuration)</span>
+<span class="nc bnc" id="L224" title="All 2 branches missed.">        &amp;&amp; this.strategies.equals(other.strategies);</span>
   }
 
 }

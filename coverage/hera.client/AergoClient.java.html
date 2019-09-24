@@ -7,7 +7,6 @@ package hera.client;
 import static hera.util.ValidationUtils.assertNotNull;
 
 import hera.Context;
-import hera.ContextHolder;
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
 import hera.ThreadLocalContextProvider;
@@ -33,30 +32,28 @@ import lombok.Getter;
 @ApiStability.Unstable
 public class AergoClient extends AbstractAergoApi implements ChainIdHashHolder, Closeable {
 
-  protected final Context baseContext;
-
   protected final ContextProvider contextProvider;
 
   protected ManagedChannel channel;
 
-<span class="pc bnc" id="L42" title="All 8 branches missed.">  @Getter(lazy = true)</span>
+<span class="pc bnc" id="L39" title="All 8 branches missed.">  @Getter(lazy = true)</span>
   private final AccountOperation accountOperation = resolveInjection(new AccountTemplate());
 
-<span class="pc bnc" id="L45" title="All 8 branches missed.">  @Getter(lazy = true)</span>
+<span class="pc bnc" id="L42" title="All 8 branches missed.">  @Getter(lazy = true)</span>
   private final KeyStoreOperation keyStoreOperation = resolveInjection(new KeyStoreTemplate());
 
-<span class="pc bnc" id="L48" title="All 8 branches missed.">  @Getter(lazy = true)</span>
+<span class="pc bnc" id="L45" title="All 8 branches missed.">  @Getter(lazy = true)</span>
   private final BlockOperation blockOperation = resolveInjection(new BlockTemplate());
 
-<span class="pc bnc" id="L51" title="All 8 branches missed.">  @Getter(lazy = true)</span>
+<span class="pc bnc" id="L48" title="All 8 branches missed.">  @Getter(lazy = true)</span>
   private final BlockchainOperation blockchainOperation =
       resolveInjection(new BlockchainTemplate());
 
-<span class="pc bnc" id="L55" title="All 8 branches missed.">  @Getter(lazy = true)</span>
+<span class="pc bnc" id="L52" title="All 8 branches missed.">  @Getter(lazy = true)</span>
   private final TransactionOperation transactionOperation =
       resolveInjection(new TransactionTemplate());
 
-<span class="pc bnc" id="L59" title="All 8 branches missed.">  @Getter(lazy = true)</span>
+<span class="pc bnc" id="L56" title="All 8 branches missed.">  @Getter(lazy = true)</span>
   private final ContractOperation contractOperation = resolveInjection(new ContractTemplate());
 
   /**
@@ -64,51 +61,50 @@ public class AergoClient extends AbstractAergoApi implements ChainIdHashHolder, 
    *
    * @param baseContext a client base context
    */
-<span class="fc" id="L67">  AergoClient(final Context baseContext) {</span>
-<span class="fc" id="L68">    assertNotNull(baseContext, &quot;Base context must not null&quot;);</span>
-<span class="fc" id="L69">    this.baseContext = baseContext;</span>
-<span class="fc" id="L70">    this.contextProvider = new ThreadLocalContextProvider(baseContext, this);</span>
-<span class="fc" id="L71">    ContextHolder.set(this, baseContext);</span>
-<span class="fc" id="L72">  }</span>
+<span class="fc" id="L64">  AergoClient(final Context baseContext) {</span>
+<span class="fc" id="L65">    assertNotNull(baseContext, &quot;Base context must not null&quot;);</span>
+<span class="fc" id="L66">    this.contextProvider = new ThreadLocalContextProvider(baseContext, this);</span>
+<span class="fc" id="L67">  }</span>
 
   protected ManagedChannel getChannel() {
-<span class="nc bnc" id="L75" title="All 2 branches missed.">    if (null == this.channel) {</span>
-<span class="nc" id="L76">      this.channel = new ManagedChannelFactory().apply(contextProvider.get());</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">    if (null == this.channel) {</span>
+<span class="nc" id="L71">      this.channel = new ManagedChannelFactory().apply(contextProvider.get());</span>
     }
-<span class="nc" id="L78">    return this.channel;</span>
+<span class="nc" id="L73">    return this.channel;</span>
   }
 
   protected &lt;T&gt; T resolveInjection(final T target) {
-<span class="nc bnc" id="L82" title="All 2 branches missed.">    if (target instanceof ContextProviderInjectable) {</span>
-<span class="nc" id="L83">      ((ContextProviderInjectable) target).setContextProvider(contextProvider);</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">    if (target instanceof ContextProviderInjectable) {</span>
+<span class="nc" id="L78">      ((ContextProviderInjectable) target).setContextProvider(contextProvider);</span>
     }
-<span class="nc bnc" id="L85" title="All 2 branches missed.">    if (target instanceof ChannelInjectable) {</span>
-<span class="nc" id="L86">      ((ChannelInjectable) target).setChannel(getChannel());</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">    if (target instanceof ChannelInjectable) {</span>
+<span class="nc" id="L81">      ((ChannelInjectable) target).setChannel(getChannel());</span>
     }
-<span class="nc" id="L88">    return target;</span>
+<span class="nc" id="L83">    return target;</span>
   }
 
   @Override
   public ChainIdHash getCachedChainIdHash() {
-<span class="nc" id="L93">    return contextProvider.get().getChainIdHash();</span>
+<span class="nc" id="L88">    return contextProvider.get().getChainIdHash();</span>
   }
 
   @Override
   public void cacheChainIdHash(final ChainIdHash chainIdHash) {
-<span class="nc" id="L98">    contextProvider.get().withChainIdHash(chainIdHash);</span>
-<span class="nc" id="L99">  }</span>
+<span class="nc" id="L93">    final Context context = contextProvider.get();</span>
+<span class="nc" id="L94">    contextProvider.put(context.withChainIdHash(chainIdHash));</span>
+<span class="nc" id="L95">  }</span>
 
   @Override
   public void close() {
     try {
-<span class="nc bnc" id="L104" title="All 2 branches missed.">      if (null != this.channel) {</span>
-<span class="nc" id="L105">        this.channel.shutdown().awaitTermination(3, TimeUnit.SECONDS);</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">      if (null != this.channel) {</span>
+<span class="nc" id="L101">        this.channel.shutdown().awaitTermination(3, TimeUnit.SECONDS);</span>
       }
-<span class="nc" id="L107">    } catch (Exception e) {</span>
-<span class="nc" id="L108">      logger.info(&quot;Fail to close aergo client by {}&quot;, e.toString());</span>
-<span class="nc" id="L109">      throw new RpcException(e);</span>
-<span class="nc" id="L110">    }</span>
-<span class="nc" id="L111">  }</span>
+<span class="nc" id="L103">    } catch (Exception e) {</span>
+<span class="nc" id="L104">      logger.info(&quot;Fail to close aergo client by {}&quot;, e.toString());</span>
+<span class="nc" id="L105">      throw new RpcException(e);</span>
+<span class="nc" id="L106">    }</span>
+<span class="nc" id="L107">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

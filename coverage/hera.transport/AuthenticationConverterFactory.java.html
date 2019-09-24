@@ -44,9 +44,9 @@ import types.Rpc;
 <span class="fc" id="L44">              .setAccount(rpcAccount)</span>
 <span class="fc" id="L45">              .setPassphrase(domainAuthentication.getPassword()).build();</span>
 <span class="pc bpc" id="L46" title="1 of 2 branches missed.">          if (logger.isTraceEnabled()) {</span>
-<span class="fc" id="L47">            logger.trace(&quot;Rpc authentication converted: Personal(account={}, passphrase={})&quot;,</span>
-<span class="fc" id="L48">                rpcAuthentication.getAccount(),</span>
-<span class="fc" id="L49">                sha256AndEncodeHexa(rpcAuthentication.getPassphrase()));</span>
+<span class="nc" id="L47">            logger.trace(&quot;Rpc authentication converted: Personal(account={}, passphrase={})&quot;,</span>
+<span class="nc" id="L48">                rpcAuthentication.getAccount(),</span>
+<span class="nc" id="L49">                sha256AndEncodeHexa(rpcAuthentication.getPassphrase()));</span>
           }
 <span class="fc" id="L51">          return rpcAuthentication;</span>
         }

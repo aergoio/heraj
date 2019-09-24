@@ -51,7 +51,6 @@ import hera.keystore.JavaKeyStore;
 import hera.util.ExceptionConverter;
 import hera.wallet.Wallet;
 import hera.wallet.WalletApi;
-import java.io.FileOutputStream;
 import java.security.KeyStore;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -64,419 +63,418 @@ import org.slf4j.Logger;
  * @author taeiklim
  *
  */
-<span class="fc" id="L67">@RequiredArgsConstructor</span>
+<span class="fc" id="L66">@RequiredArgsConstructor</span>
 public class LegacyWallet implements Wallet {
 
-<span class="fc" id="L70">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L69">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L72">  protected final ExceptionConverter&lt;WalletException&gt; exceptionConverter =</span>
+<span class="fc" id="L71">  protected final ExceptionConverter&lt;WalletException&gt; exceptionConverter =</span>
       new WalletExceptionConverter();
 
   protected final WalletApi delegate;
 
   @Override
   public Account getAccount() {
-<span class="nc" id="L79">    return new AccountFactory().create(delegate.getPrincipal(), delegate);</span>
+<span class="nc" id="L78">    return new AccountFactory().create(delegate.getPrincipal(), delegate);</span>
   }
 
   @Override
   public AccountTotalVote getVotes() {
-<span class="nc" id="L84">    return delegate.queryApi().getVotesOf(delegate.getPrincipal());</span>
+<span class="nc" id="L83">    return delegate.queryApi().getVotesOf(delegate.getPrincipal());</span>
   }
 
   @Override
   public long getRecentlyUsedNonce() {
-<span class="nc" id="L89">    return getAccountState().getNonce();</span>
+<span class="nc" id="L88">    return getAccountState().getNonce();</span>
   }
 
   @Override
   public long incrementAndGetNonce() {
-<span class="nc" id="L94">    return getAccountState().getNonce() + 1L;</span>
+<span class="nc" id="L93">    return getAccountState().getNonce() + 1L;</span>
   }
 
   @Override
   public void bindKeyStore(KeyStore keyStore) {
-<span class="nc" id="L99">    delegate.bind(keyStore);</span>
-<span class="nc" id="L100">  }</span>
+<span class="nc" id="L98">    throw new UnsupportedOperationException();</span>
+  }
 
   @Override
   public void saveKey(AergoKey key, String password) {
-<span class="nc" id="L104">    delegate.save(Authentication.of(key.getAddress(), password), key);</span>
-<span class="nc" id="L105">  }</span>
+<span class="nc" id="L103">    saveKey(key, key.getAddress(), password);</span>
+<span class="nc" id="L104">  }</span>
 
   @Override
   public void saveKey(AergoKey key, Identity identity, String password) {
-<span class="nc" id="L109">    delegate.save(Authentication.of(identity, password), key);</span>
-<span class="nc" id="L110">  }</span>
+<span class="nc" id="L108">    ((WalletApiImpl) delegate).keyStore.save(Authentication.of(identity, password), key);</span>
+<span class="nc" id="L109">  }</span>
 
   @Override
   public String exportKey(Authentication authentication) {
-<span class="nc" id="L114">    return delegate.export(authentication);</span>
+<span class="nc" id="L113">    return ((WalletApiImpl) delegate).keyStore.export(authentication).getEncoded();</span>
   }
 
   @Override
   public List&lt;Identity&gt; listKeyStoreIdentities() {
-<span class="nc" id="L119">    return delegate.listIdentities();</span>
+<span class="nc" id="L118">    return ((WalletApiImpl) delegate).keyStore.listIdentities();</span>
   }
 
   @Override
   public boolean unlock(Authentication authentication) {
-<span class="nc" id="L124">    return delegate.unlock(authentication);</span>
+<span class="nc" id="L123">    return delegate.unlock(authentication);</span>
   }
 
   @Override
   public boolean lock(Authentication authentication) {
-<span class="nc" id="L129">    return delegate.lock(authentication);</span>
+<span class="nc" id="L128">    return delegate.lock(authentication);</span>
   }
 
   @Override
   public void storeKeyStore(String path, String password) {
     try {
-<span class="nc" id="L135">      final WalletApiImpl walletApiImpl = (WalletApiImpl) delegate;</span>
-<span class="nc bnc" id="L136" title="All 2 branches missed.">      if (walletApiImpl.keyStore instanceof JavaKeyStore) {</span>
-<span class="nc" id="L137">        final KeyStore javaKeyStore = ((JavaKeyStore) walletApiImpl.keyStore).getJavaKeyStore();</span>
-<span class="nc" id="L138">        javaKeyStore.store(new FileOutputStream(path), password.toCharArray());</span>
+<span class="nc" id="L134">      final WalletApiImpl walletApiImpl = (WalletApiImpl) delegate;</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">      if (walletApiImpl.keyStore instanceof JavaKeyStore) {</span>
+<span class="nc" id="L136">        ((JavaKeyStore) walletApiImpl.keyStore).store(path, password.toCharArray());</span>
       }
-<span class="nc" id="L140">    } catch (Exception e) {</span>
-<span class="nc" id="L141">      throw new WalletException(e);</span>
-<span class="nc" id="L142">    }</span>
-<span class="nc" id="L143">  }</span>
+<span class="nc" id="L138">    } catch (Exception e) {</span>
+<span class="nc" id="L139">      throw new WalletException(e);</span>
+<span class="nc" id="L140">    }</span>
+<span class="nc" id="L141">  }</span>
 
   @Override
   public AccountState getAccountState() {
-<span class="nc" id="L147">    return delegate.queryApi().getAccountState(delegate.getPrincipal());</span>
+<span class="nc" id="L145">    return delegate.queryApi().getAccountState(delegate.getPrincipal());</span>
   }
 
   @Override
   public AccountState getAccountState(Account account) {
-<span class="nc" id="L152">    return delegate.queryApi().getAccountState(account.getAddress());</span>
+<span class="nc" id="L150">    return delegate.queryApi().getAccountState(account.getAddress());</span>
   }
 
   @Override
   public AccountState getAccountState(AccountAddress accountAddress) {
-<span class="nc" id="L157">    return delegate.queryApi().getAccountState(accountAddress);</span>
+<span class="nc" id="L155">    return delegate.queryApi().getAccountState(accountAddress);</span>
   }
 
   @Override
   public AccountAddress getNameOwner(String name) {
-<span class="nc" id="L162">    return delegate.queryApi().getNameOwner(name);</span>
+<span class="nc" id="L160">    return delegate.queryApi().getNameOwner(name);</span>
   }
 
   @Override
   public AccountAddress getNameOwner(String name, long blockNumber) {
-<span class="nc" id="L167">    return delegate.queryApi().getNameOwner(name, blockNumber);</span>
+<span class="nc" id="L165">    return delegate.queryApi().getNameOwner(name, blockNumber);</span>
   }
 
   @Override
   public StakeInfo getStakingInfo() {
-<span class="nc" id="L172">    return delegate.queryApi().getStakingInfo(delegate.getPrincipal());</span>
+<span class="nc" id="L170">    return delegate.queryApi().getStakingInfo(delegate.getPrincipal());</span>
   }
 
   @Override
   public StakeInfo getStakingInfo(Account account) {
-<span class="nc" id="L177">    return delegate.queryApi().getStakingInfo(account.getAddress());</span>
+<span class="nc" id="L175">    return delegate.queryApi().getStakingInfo(account.getAddress());</span>
   }
 
   @Override
   public StakeInfo getStakingInfo(AccountAddress accountAddress) {
-<span class="nc" id="L182">    return delegate.queryApi().getStakingInfo(accountAddress);</span>
+<span class="nc" id="L180">    return delegate.queryApi().getStakingInfo(accountAddress);</span>
   }
 
   @Override
   public List&lt;ElectedCandidate&gt; listElectedBps(int showCount) {
-<span class="nc" id="L187">    return delegate.queryApi().listElectedBps(showCount);</span>
+<span class="nc" id="L185">    return delegate.queryApi().listElectedBps(showCount);</span>
   }
 
   @Override
   public List&lt;ElectedCandidate&gt; listElected(String voteId, int showCount) {
-<span class="nc" id="L192">    return delegate.queryApi().listElected(voteId, showCount);</span>
+<span class="nc" id="L190">    return delegate.queryApi().listElected(voteId, showCount);</span>
   }
 
   @Override
   public AccountTotalVote getVotesOf(Account account) {
-<span class="nc" id="L197">    return delegate.queryApi().getVotesOf(account.getAddress());</span>
+<span class="nc" id="L195">    return delegate.queryApi().getVotesOf(account.getAddress());</span>
   }
 
   @Override
   public AccountTotalVote getVotesOf(AccountAddress accountAddress) {
-<span class="nc" id="L202">    return delegate.queryApi().getVotesOf(accountAddress);</span>
+<span class="nc" id="L200">    return delegate.queryApi().getVotesOf(accountAddress);</span>
   }
 
   @Override
   public List&lt;AccountAddress&gt; listServerKeyStoreAccounts() {
-<span class="nc" id="L207">    return delegate.queryApi().listServerKeyStoreAccounts();</span>
+<span class="nc" id="L205">    return delegate.queryApi().listServerKeyStoreAccounts();</span>
   }
 
   @Override
   public BlockHash getBestBlockHash() {
-<span class="nc" id="L212">    return delegate.queryApi().getBestBlockHash();</span>
+<span class="nc" id="L210">    return delegate.queryApi().getBestBlockHash();</span>
   }
 
   @Override
   public long getBestBlockHeight() {
-<span class="nc" id="L217">    return delegate.queryApi().getBestBlockHeight();</span>
+<span class="nc" id="L215">    return delegate.queryApi().getBestBlockHeight();</span>
   }
 
   @Override
   public ChainIdHash getChainIdHash() {
-<span class="nc" id="L222">    return delegate.queryApi().getChainIdHash();</span>
+<span class="nc" id="L220">    return delegate.queryApi().getChainIdHash();</span>
   }
 
   @Override
   public BlockchainStatus getBlockchainStatus() {
-<span class="nc" id="L227">    return delegate.queryApi().getBlockchainStatus();</span>
+<span class="nc" id="L225">    return delegate.queryApi().getBlockchainStatus();</span>
   }
 
   @Override
   public ChainInfo getChainInfo() {
-<span class="nc" id="L232">    return delegate.queryApi().getChainInfo();</span>
+<span class="nc" id="L230">    return delegate.queryApi().getChainInfo();</span>
   }
 
   @Override
   public ChainStats getChainStats() {
-<span class="nc" id="L237">    return delegate.queryApi().getChainStats();</span>
+<span class="nc" id="L235">    return delegate.queryApi().getChainStats();</span>
   }
 
   @Override
   public List&lt;Peer&gt; listNodePeers() {
-<span class="nc" id="L242">    return delegate.queryApi().listNodePeers();</span>
+<span class="nc" id="L240">    return delegate.queryApi().listPeers();</span>
   }
 
   @Override
   public List&lt;PeerMetric&gt; listPeerMetrics() {
-<span class="nc" id="L247">    return delegate.queryApi().listPeerMetrics();</span>
+<span class="nc" id="L245">    return delegate.queryApi().listPeerMetrics();</span>
   }
 
   @Override
   public ServerInfo getServerInfo(List&lt;String&gt; categories) {
-<span class="nc" id="L252">    return delegate.queryApi().getServerInfo(categories);</span>
+<span class="nc" id="L250">    return delegate.queryApi().getServerInfo(categories);</span>
   }
 
   @Override
   public NodeStatus getNodeStatus() {
-<span class="nc" id="L257">    return delegate.queryApi().getNodeStatus();</span>
+<span class="nc" id="L255">    return delegate.queryApi().getNodeStatus();</span>
   }
 
   @Override
   public BlockMetadata getBlockMetadata(BlockHash blockHash) {
-<span class="nc" id="L262">    return delegate.queryApi().getBlockMetadata(blockHash);</span>
+<span class="nc" id="L260">    return delegate.queryApi().getBlockMetadata(blockHash);</span>
   }
 
   @Override
   public BlockMetadata getBlockMetadata(long height) {
-<span class="nc" id="L267">    return delegate.queryApi().getBlockMetadata(height);</span>
+<span class="nc" id="L265">    return delegate.queryApi().getBlockMetadata(height);</span>
   }
 
   @Override
   public List&lt;BlockMetadata&gt; listBlockMetadatas(BlockHash blockHash, int size) {
-<span class="nc" id="L272">    return delegate.queryApi().listBlockMetadatas(blockHash, size);</span>
+<span class="nc" id="L270">    return delegate.queryApi().listBlockMetadatas(blockHash, size);</span>
   }
 
   @Override
   public List&lt;BlockMetadata&gt; listBlockMetadatas(long height, int size) {
-<span class="nc" id="L277">    return delegate.queryApi().listBlockMetadatas(height, size);</span>
+<span class="nc" id="L275">    return delegate.queryApi().listBlockMetadatas(height, size);</span>
   }
 
   @Override
   public Block getBlock(BlockHash blockHash) {
-<span class="nc" id="L282">    return delegate.queryApi().getBlock(blockHash);</span>
+<span class="nc" id="L280">    return delegate.queryApi().getBlock(blockHash);</span>
   }
 
   @Override
   public Block getBlock(long height) {
-<span class="nc" id="L287">    return delegate.queryApi().getBlock(height);</span>
+<span class="nc" id="L285">    return delegate.queryApi().getBlock(height);</span>
   }
 
   @Override
   public Subscription&lt;BlockMetadata&gt; subscribeNewBlockMetadata(
       StreamObserver&lt;BlockMetadata&gt; observer) {
-<span class="nc" id="L293">    return delegate.queryApi().subscribeNewBlockMetadata(observer);</span>
+<span class="nc" id="L291">    return delegate.queryApi().subscribeNewBlockMetadata(observer);</span>
   }
 
   @Override
   public Subscription&lt;Block&gt; subscribeNewBlock(StreamObserver&lt;Block&gt; observer) {
-<span class="nc" id="L298">    return delegate.queryApi().subscribeNewBlock(observer);</span>
+<span class="nc" id="L296">    return delegate.queryApi().subscribeNewBlock(observer);</span>
   }
 
   @Override
   public Transaction getTransaction(TxHash txHash) {
-<span class="nc" id="L303">    return delegate.queryApi().getTransaction(txHash);</span>
+<span class="nc" id="L301">    return delegate.queryApi().getTransaction(txHash);</span>
   }
 
   @Override
   public ContractTxReceipt getReceipt(ContractTxHash contractTxHash) {
-<span class="nc" id="L308">    return delegate.queryApi().getReceipt(contractTxHash);</span>
+<span class="nc" id="L306">    return delegate.queryApi().getReceipt(contractTxHash);</span>
   }
 
   @Override
   public ContractInterface getContractInterface(ContractAddress contractAddress) {
-<span class="nc" id="L313">    return delegate.queryApi().getContractInterface(contractAddress);</span>
+<span class="nc" id="L311">    return delegate.queryApi().getContractInterface(contractAddress);</span>
   }
 
   @Override
   public ContractResult query(ContractInvocation contractInvocation) {
-<span class="nc" id="L318">    return delegate.queryApi().query(contractInvocation);</span>
+<span class="nc" id="L316">    return delegate.queryApi().query(contractInvocation);</span>
   }
 
   @Override
   public List&lt;Event&gt; listEvents(EventFilter filter) {
-<span class="nc" id="L323">    return delegate.queryApi().listEvents(filter);</span>
+<span class="nc" id="L321">    return delegate.queryApi().listEvents(filter);</span>
   }
 
   @Override
   public Subscription&lt;Event&gt; subscribeEvent(EventFilter filter, StreamObserver&lt;Event&gt; observer) {
-<span class="nc" id="L328">    return delegate.queryApi().subscribeEvent(filter, observer);</span>
+<span class="nc" id="L326">    return delegate.queryApi().subscribeEvent(filter, observer);</span>
   }
 
   @Override
   public ChainIdHash getCachedChainIdHash() {
-<span class="nc" id="L333">    final WalletApiImpl walletApiImpl = (WalletApiImpl) delegate;</span>
-<span class="nc" id="L334">    QueryApiImpl queryApiImpl = (QueryApiImpl) walletApiImpl.queryApi;</span>
-<span class="nc" id="L335">    return queryApiImpl.client.getCachedChainIdHash();</span>
+<span class="nc" id="L331">    final WalletApiImpl walletApiImpl = (WalletApiImpl) delegate;</span>
+<span class="nc" id="L332">    QueryApiImpl queryApiImpl = (QueryApiImpl) walletApiImpl.queryApi;</span>
+<span class="nc" id="L333">    return queryApiImpl.client.getCachedChainIdHash();</span>
   }
 
   @Override
   public void cacheChainIdHash() {
-<span class="nc" id="L340">    final WalletApiImpl walletApiImpl = (WalletApiImpl) delegate;</span>
-<span class="nc" id="L341">    QueryApiImpl queryApiImpl = (QueryApiImpl) walletApiImpl.queryApi;</span>
-<span class="nc" id="L342">    queryApiImpl.client.cacheChainIdHash(getChainIdHash());</span>
-<span class="nc" id="L343">  }</span>
+<span class="nc" id="L338">    final WalletApiImpl walletApiImpl = (WalletApiImpl) delegate;</span>
+<span class="nc" id="L339">    QueryApiImpl queryApiImpl = (QueryApiImpl) walletApiImpl.queryApi;</span>
+<span class="nc" id="L340">    queryApiImpl.client.cacheChainIdHash(getChainIdHash());</span>
+<span class="nc" id="L341">  }</span>
 
   @Override
   public void cacheChainIdHash(ChainIdHash chainIdHash) {
-<span class="nc" id="L347">    final WalletApiImpl walletApiImpl = (WalletApiImpl) delegate;</span>
-<span class="nc" id="L348">    QueryApiImpl queryApiImpl = (QueryApiImpl) walletApiImpl.queryApi;</span>
-<span class="nc" id="L349">    queryApiImpl.client.cacheChainIdHash(chainIdHash);</span>
-<span class="nc" id="L350">  }</span>
+<span class="nc" id="L345">    final WalletApiImpl walletApiImpl = (WalletApiImpl) delegate;</span>
+<span class="nc" id="L346">    QueryApiImpl queryApiImpl = (QueryApiImpl) walletApiImpl.queryApi;</span>
+<span class="nc" id="L347">    queryApiImpl.client.cacheChainIdHash(chainIdHash);</span>
+<span class="nc" id="L348">  }</span>
 
   @Override
   public Account loadAccount(Authentication authentication) {
-<span class="nc" id="L354">    unlock(authentication);</span>
-<span class="nc" id="L355">    return getAccount();</span>
+<span class="nc" id="L352">    unlock(authentication);</span>
+<span class="nc" id="L353">    return getAccount();</span>
   }
 
   @Override
   public Transaction sign(RawTransaction rawTransaction) {
-<span class="nc" id="L360">    return delegate.sign(rawTransaction);</span>
+<span class="nc" id="L358">    return delegate.sign(rawTransaction);</span>
   }
 
   @Override
   public boolean verify(Transaction transaction) {
     try {
-<span class="nc" id="L366">      logger.debug(&quot;Verify signed transaction {}&quot;, transaction);</span>
-<span class="nc" id="L367">      final AergoSignVerifier verifier = new AergoSignVerifier();</span>
-<span class="nc" id="L368">      return verifier.verify(transaction);</span>
-<span class="nc" id="L369">    } catch (Exception e) {</span>
-<span class="nc" id="L370">      throw exceptionConverter.convert(e);</span>
+<span class="nc" id="L364">      logger.debug(&quot;Verify signed transaction {}&quot;, transaction);</span>
+<span class="nc" id="L365">      final AergoSignVerifier verifier = new AergoSignVerifier();</span>
+<span class="nc" id="L366">      return verifier.verify(transaction);</span>
+<span class="nc" id="L367">    } catch (Exception e) {</span>
+<span class="nc" id="L368">      throw exceptionConverter.convert(e);</span>
     }
   }
 
   @Override
   public TxHash createName(String name) {
-<span class="nc" id="L376">    return delegate.transactionApi().createName(name);</span>
+<span class="nc" id="L374">    return delegate.transactionApi().createName(name);</span>
   }
 
   @Override
   public TxHash updateName(String name, AccountAddress newOwner) {
-<span class="nc" id="L381">    return delegate.transactionApi().updateName(name, newOwner);</span>
+<span class="nc" id="L379">    return delegate.transactionApi().updateName(name, newOwner);</span>
   }
 
   @Override
   public TxHash stake(Aer amount) {
-<span class="nc" id="L386">    return delegate.transactionApi().stake(amount);</span>
+<span class="nc" id="L384">    return delegate.transactionApi().stake(amount);</span>
   }
 
   @Override
   public TxHash unstake(Aer amount) {
-<span class="nc" id="L391">    return delegate.transactionApi().stake(amount);</span>
+<span class="nc" id="L389">    return delegate.transactionApi().stake(amount);</span>
   }
 
   @Override
   public TxHash voteBp(List&lt;String&gt; candidates) {
-<span class="nc" id="L396">    return delegate.transactionApi().voteBp(candidates);</span>
+<span class="nc" id="L394">    return delegate.transactionApi().voteBp(candidates);</span>
   }
 
   @Override
   public TxHash vote(String voteId, List&lt;String&gt; candidates) {
-<span class="nc" id="L401">    return delegate.transactionApi().vote(voteId, candidates);</span>
+<span class="nc" id="L399">    return delegate.transactionApi().vote(voteId, candidates);</span>
   }
 
   @Override
   public TxHash send(String recipient, Aer amount) {
-<span class="nc" id="L406">    return delegate.transactionApi().send(recipient, amount, Fee.ZERO);</span>
+<span class="nc" id="L404">    return delegate.transactionApi().send(recipient, amount, Fee.ZERO);</span>
   }
 
   @Override
   public TxHash send(String recipient, Aer amount, Fee fee) {
-<span class="nc" id="L411">    return delegate.transactionApi().send(recipient, amount, fee);</span>
+<span class="nc" id="L409">    return delegate.transactionApi().send(recipient, amount, fee);</span>
   }
 
   @Override
   public TxHash send(String recipient, Aer amount, BytesValue payload) {
-<span class="nc" id="L416">    return delegate.transactionApi().send(recipient, amount, Fee.ZERO, payload);</span>
+<span class="nc" id="L414">    return delegate.transactionApi().send(recipient, amount, Fee.ZERO, payload);</span>
   }
 
   @Override
   public TxHash send(String recipient, Aer amount, Fee fee, BytesValue payload) {
-<span class="nc" id="L421">    return delegate.transactionApi().send(recipient, amount, fee, payload);</span>
+<span class="nc" id="L419">    return delegate.transactionApi().send(recipient, amount, fee, payload);</span>
   }
 
   @Override
   public TxHash send(AccountAddress recipient, Aer amount) {
-<span class="nc" id="L426">    return delegate.transactionApi().send(recipient, amount, Fee.ZERO);</span>
+<span class="nc" id="L424">    return delegate.transactionApi().send(recipient, amount, Fee.ZERO);</span>
   }
 
   @Override
   public TxHash send(AccountAddress recipient, Aer amount, Fee fee) {
-<span class="nc" id="L431">    return delegate.transactionApi().send(recipient, amount, fee);</span>
+<span class="nc" id="L429">    return delegate.transactionApi().send(recipient, amount, fee);</span>
   }
 
   @Override
   public TxHash send(AccountAddress recipient, Aer amount, BytesValue payload) {
-<span class="nc" id="L436">    return delegate.transactionApi().send(recipient, amount, Fee.ZERO, payload);</span>
+<span class="nc" id="L434">    return delegate.transactionApi().send(recipient, amount, Fee.ZERO, payload);</span>
   }
 
   @Override
   public TxHash send(AccountAddress recipient, Aer amount, Fee fee, BytesValue payload) {
-<span class="nc" id="L441">    return delegate.transactionApi().send(recipient, amount, fee, payload);</span>
+<span class="nc" id="L439">    return delegate.transactionApi().send(recipient, amount, fee, payload);</span>
   }
 
   @Override
   public TxHash commit(RawTransaction rawTransaction) {
-<span class="nc" id="L446">    return delegate.transactionApi().commit(rawTransaction);</span>
+<span class="nc" id="L444">    return delegate.transactionApi().commit(rawTransaction);</span>
   }
 
   @Override
   public TxHash commit(Transaction signedTransaction) {
-<span class="nc" id="L451">    return delegate.transactionApi().commit(signedTransaction);</span>
+<span class="nc" id="L449">    return delegate.transactionApi().commit(signedTransaction);</span>
   }
 
   @Override
   public ContractTxHash deploy(ContractDefinition contractDefinition) {
-<span class="nc" id="L456">    return delegate.transactionApi().deploy(contractDefinition, Fee.ZERO);</span>
+<span class="nc" id="L454">    return delegate.transactionApi().deploy(contractDefinition, Fee.ZERO);</span>
   }
 
   @Override
   public ContractTxHash deploy(ContractDefinition contractDefinition, Fee fee) {
-<span class="nc" id="L461">    return delegate.transactionApi().deploy(contractDefinition, fee);</span>
+<span class="nc" id="L459">    return delegate.transactionApi().deploy(contractDefinition, fee);</span>
   }
 
   @Override
   public ContractTxHash execute(ContractInvocation contractInvocation) {
-<span class="nc" id="L466">    return delegate.transactionApi().execute(contractInvocation, Fee.ZERO);</span>
+<span class="nc" id="L464">    return delegate.transactionApi().execute(contractInvocation, Fee.ZERO);</span>
   }
 
   @Override
   public ContractTxHash execute(ContractInvocation contractInvocation, Fee fee) {
-<span class="nc" id="L471">    return delegate.transactionApi().execute(contractInvocation, fee);</span>
+<span class="nc" id="L469">    return delegate.transactionApi().execute(contractInvocation, fee);</span>
   }
 
   @Override
   public void close() {
-<span class="nc" id="L476">    final WalletApiImpl walletApiImpl = (WalletApiImpl) delegate;</span>
-<span class="nc" id="L477">    QueryApiImpl queryApiImpl = (QueryApiImpl) walletApiImpl.queryApi;</span>
-<span class="nc" id="L478">    queryApiImpl.client.close();</span>
-<span class="nc" id="L479">  }</span>
+<span class="nc" id="L474">    final WalletApiImpl walletApiImpl = (WalletApiImpl) delegate;</span>
+<span class="nc" id="L475">    QueryApiImpl queryApiImpl = (QueryApiImpl) walletApiImpl.queryApi;</span>
+<span class="nc" id="L476">    queryApiImpl.client.close();</span>
+<span class="nc" id="L477">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

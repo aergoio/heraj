@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PriorityConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.strategy</a> &gt; <span class="el_source">PriorityConfig.java</span></div><h1>PriorityConfig.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.strategy;
+
+import static hera.util.ValidationUtils.assertNotNull;
+import static hera.util.ValidationUtils.assertTrue;
+import static java.util.Collections.unmodifiableMap;
+
+import hera.Strategy;
+import java.util.HashMap;
+import java.util.Map;
+
+<span class="fc" id="L15">public class PriorityConfig {</span>
+
+<span class="fc" id="L17">  protected final Map&lt;Class&lt;? extends Strategy&gt;, Integer&gt; strategy2Priority = new HashMap&lt;&gt;();</span>
+
+  /**
+   * Set priority of strategy.
+   *
+   * @param strategy a strategy to set priority
+   * @param priority a priority. must be positive
+   * @return an instance of this
+   */
+  public PriorityConfig set(final Class&lt;? extends Strategy&gt; strategy, final int priority) {
+<span class="fc" id="L27">    assertNotNull(strategy);</span>
+<span class="pc bpc" id="L28" title="1 of 2 branches missed.">    assertTrue(0 &lt; priority, &quot;Priority must be positive&quot;);</span>
+<span class="fc" id="L29">    this.strategy2Priority.put(strategy, priority);</span>
+<span class="fc" id="L30">    return this;</span>
+  }
+
+  public Map&lt;Class&lt;? extends Strategy&gt;, Integer&gt; getStrategy2Priority() {
+<span class="fc" id="L34">    return unmodifiableMap(this.strategy2Priority);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

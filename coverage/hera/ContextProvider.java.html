@@ -11,9 +11,16 @@ public interface ContextProvider {
     public Context get() {
 <span class="fc" id="L12">      return EmptyContext.getInstance();</span>
     }
+
+    @Override
+    public void put(Context context) {
+<span class="nc" id="L17">      throw new UnsupportedOperationException();</span>
+    }
   };
 
   Context get();
+
+  void put(Context context);
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

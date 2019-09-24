@@ -4,14 +4,14 @@
 
 package hera.client;
 
-import static hera.TransportConstants.BLOCKCHAIN_BLOCKCHAINSTATUS;
-import static hera.TransportConstants.BLOCKCHAIN_CHAININFO;
-import static hera.TransportConstants.BLOCKCHAIN_CHAINSTATS;
-import static hera.TransportConstants.BLOCKCHAIN_LIST_PEERS;
-import static hera.TransportConstants.BLOCKCHAIN_NODESTATUS;
-import static hera.TransportConstants.BLOCKCHAIN_PEERMETRICS;
-import static hera.TransportConstants.BLOCKCHAIN_SERVERINFO;
 import static hera.api.function.Functions.identify;
+import static hera.client.ClientConstants.BLOCKCHAIN_BLOCKCHAINSTATUS;
+import static hera.client.ClientConstants.BLOCKCHAIN_CHAININFO;
+import static hera.client.ClientConstants.BLOCKCHAIN_CHAINSTATS;
+import static hera.client.ClientConstants.BLOCKCHAIN_LIST_PEERS;
+import static hera.client.ClientConstants.BLOCKCHAIN_NODESTATUS;
+import static hera.client.ClientConstants.BLOCKCHAIN_PEERMETRICS;
+import static hera.client.ClientConstants.BLOCKCHAIN_SERVERINFO;
 
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
@@ -31,7 +31,8 @@ import hera.api.model.PeerMetric;
 import hera.api.model.ServerInfo;
 import hera.client.internal.BlockchainBaseTemplate;
 import hera.client.internal.FinishableFuture;
-import hera.strategy.StrategyChain;
+import hera.strategy.PriorityProvider;
+import hera.strategy.StrategyApplier;
 import io.grpc.ManagedChannel;
 import java.util.List;
 import lombok.AccessLevel;
@@ -40,108 +41,109 @@ import lombok.RequiredArgsConstructor;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="fc" id="L43">@RequiredArgsConstructor</span>
+<span class="fc" id="L44">@RequiredArgsConstructor</span>
 public class BlockchainTemplate
     implements BlockchainOperation, ChannelInjectable, ContextProviderInjectable {
 
-<span class="fc" id="L47">  @Getter</span>
+<span class="fc" id="L48">  @Getter</span>
   protected BlockchainBaseTemplate blockchainBaseTemplate = new BlockchainBaseTemplate();
 
   protected ContextProvider contextProvider;
 
-<span class="pc bpc" id="L52" title="4 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
-  private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
+<span class="pc bpc" id="L53" title="4 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final StrategyApplier strategyApplier =
+      StrategyApplier.of(contextProvider.get(), PriorityProvider.get());
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-<span class="nc" id="L57">    getBlockchainBaseTemplate().setChannel(channel);</span>
-<span class="nc" id="L58">  }</span>
+<span class="nc" id="L59">    getBlockchainBaseTemplate().setChannel(channel);</span>
+<span class="nc" id="L60">  }</span>
 
   @Override
   public void setContextProvider(final ContextProvider contextProvider) {
-<span class="fc" id="L62">    this.contextProvider = contextProvider;</span>
-<span class="fc" id="L63">    getBlockchainBaseTemplate().setContextProvider(contextProvider);</span>
-<span class="fc" id="L64">  }</span>
+<span class="fc" id="L64">    this.contextProvider = contextProvider;</span>
+<span class="fc" id="L65">    getBlockchainBaseTemplate().setContextProvider(contextProvider);</span>
+<span class="fc" id="L66">  }</span>
 
-<span class="pc bpc" id="L66" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L68" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function0&lt;FinishableFuture&lt;BlockchainStatus&gt;&gt; blockchainStatusFunction =
-      getStrategyChain().apply(identify(getBlockchainBaseTemplate().getBlockchainStatusFunction(),
+      getStrategyApplier().apply(identify(getBlockchainBaseTemplate().getBlockchainStatusFunction(),
           BLOCKCHAIN_BLOCKCHAINSTATUS));
 
-<span class="pc bpc" id="L71" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L73" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function0&lt;FinishableFuture&lt;ChainInfo&gt;&gt; chainInfoFunction =
-      getStrategyChain().apply(identify(getBlockchainBaseTemplate().getChainInfoFunction(),
+      getStrategyApplier().apply(identify(getBlockchainBaseTemplate().getChainInfoFunction(),
           BLOCKCHAIN_CHAININFO));
 
-<span class="pc bpc" id="L76" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L78" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function0&lt;FinishableFuture&lt;ChainStats&gt;&gt; chainStatsFunction =
-      getStrategyChain().apply(identify(getBlockchainBaseTemplate().getChainStatsFunction(),
+      getStrategyApplier().apply(identify(getBlockchainBaseTemplate().getChainStatsFunction(),
           BLOCKCHAIN_CHAINSTATS));
 
-<span class="pc bpc" id="L81" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L83" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function2&lt;Boolean, Boolean, FinishableFuture&lt;List&lt;Peer&gt;&gt;&gt; listPeersFunction =
-      getStrategyChain().apply(
+      getStrategyApplier().apply(
           identify(getBlockchainBaseTemplate().getListPeersFunction(), BLOCKCHAIN_LIST_PEERS));
 
-<span class="pc bpc" id="L86" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L88" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function0&lt;FinishableFuture&lt;List&lt;PeerMetric&gt;&gt;&gt; listPeerMetricsFunction =
-      getStrategyChain().apply(
+      getStrategyApplier().apply(
           identify(getBlockchainBaseTemplate().getListPeersMetricsFunction(),
               BLOCKCHAIN_PEERMETRICS));
 
-<span class="pc bpc" id="L92" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L94" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function1&lt;List&lt;String&gt;, FinishableFuture&lt;ServerInfo&gt;&gt; serverInfoFunction =
-      getStrategyChain().apply(
+      getStrategyApplier().apply(
           identify(getBlockchainBaseTemplate().getServerInfoFunction(), BLOCKCHAIN_SERVERINFO));
 
-<span class="pc bpc" id="L97" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L99" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function0&lt;FinishableFuture&lt;NodeStatus&gt;&gt; nodeStatusFunction =
-      getStrategyChain().apply(
+      getStrategyApplier().apply(
           identify(getBlockchainBaseTemplate().getNodeStatusFunction(), BLOCKCHAIN_NODESTATUS));
 
   @Override
   public ChainIdHash getChainIdHash() {
-<span class="fc" id="L104">    return getBlockchainStatus().getChainIdHash();</span>
+<span class="fc" id="L106">    return getBlockchainStatus().getChainIdHash();</span>
   }
 
   @Override
   public BlockchainStatus getBlockchainStatus() {
-<span class="fc" id="L109">    return getBlockchainStatusFunction().apply().get();</span>
+<span class="fc" id="L111">    return getBlockchainStatusFunction().apply().get();</span>
   }
 
   @Override
   public ChainInfo getChainInfo() {
-<span class="fc" id="L114">    return getChainInfoFunction().apply().get();</span>
+<span class="fc" id="L116">    return getChainInfoFunction().apply().get();</span>
   }
 
   @Override
   public ChainStats getChainStats() {
-<span class="fc" id="L119">    return getChainStatsFunction().apply().get();</span>
+<span class="fc" id="L121">    return getChainStatsFunction().apply().get();</span>
   }
 
   @Override
   public List&lt;Peer&gt; listPeers() {
-<span class="nc" id="L124">    return listPeers(false, false);</span>
+<span class="nc" id="L126">    return listPeers(false, false);</span>
   }
 
   @Override
   public List&lt;Peer&gt; listPeers(final boolean showHidden, final boolean showSelf) {
-<span class="fc" id="L129">    return getListPeersFunction().apply(showHidden, showSelf).get();</span>
+<span class="fc" id="L131">    return getListPeersFunction().apply(showHidden, showSelf).get();</span>
   }
 
   @Override
   public List&lt;PeerMetric&gt; listPeerMetrics() {
-<span class="fc" id="L134">    return getListPeerMetricsFunction().apply().get();</span>
+<span class="fc" id="L136">    return getListPeerMetricsFunction().apply().get();</span>
   }
 
   @Override
   public ServerInfo getServerInfo(final List&lt;String&gt; categories) {
-<span class="fc" id="L139">    return getServerInfoFunction().apply(categories).get();</span>
+<span class="fc" id="L141">    return getServerInfoFunction().apply(categories).get();</span>
   }
 
   @Override
   public NodeStatus getNodeStatus() {
-<span class="fc" id="L144">    return getNodeStatusFunction().apply().get();</span>
+<span class="fc" id="L146">    return getNodeStatusFunction().apply().get();</span>
   }
 
 }

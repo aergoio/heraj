@@ -4,7 +4,22 @@
 
 package hera.strategy;
 
-<span class="fc" id="L7">public abstract class FailoverStrategy extends OnInvocationStrategy {</span>
+import hera.api.function.Function;
+import hera.api.function.Functions;
+import java.util.List;
+
+<span class="fc" id="L11">public abstract class FailoverStrategy extends InvocationStrategy {</span>
+
+  protected abstract &lt;R&gt; R onFailure(Exception error, Function&lt;R&gt; f, List&lt;Object&gt; args);
+
+  @Override
+  protected &lt;R&gt; R wrap(Function&lt;R&gt; f, List&lt;Object&gt; args) {
+    try {
+<span class="nc" id="L18">      return Functions.invoke(f, args);</span>
+<span class="fc" id="L19">    } catch (Exception e) {</span>
+<span class="fc" id="L20">      return onFailure(e, f, args);</span>
+    }
+  }
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

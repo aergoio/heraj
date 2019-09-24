@@ -19,34 +19,34 @@ import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="pc bnc" id="L22" title="All 50 branches missed.">@Value</span>
+<span class="nc bnc" id="L22" title="All 50 branches missed.">@Value</span>
 <span class="pc bpc" id="L23" title="9 of 18 branches missed.">@Builder(builderMethodName = &quot;newBuilder&quot;)</span>
 public class Event {
 
   @NonNull
-<span class="fc" id="L27">  ContractAddress from;</span>
+<span class="nc" id="L27">  ContractAddress from;</span>
 
   @NonNull
   @Default
-<span class="fc" id="L31">  String name = StringUtils.EMPTY_STRING;</span>
+<span class="nc" id="L31">  String name = StringUtils.EMPTY_STRING;</span>
 
   @NonNull
   @Default
-<span class="fc" id="L35">  List&lt;Object&gt; args = emptyList();</span>
+<span class="nc" id="L35">  List&lt;Object&gt; args = emptyList();</span>
 
-<span class="fc" id="L37">  int index;</span>
-
-  @NonNull
-  @Default
-<span class="fc" id="L41">  TxHash txHash = TxHash.of(BytesValue.EMPTY);</span>
-
-<span class="fc" id="L43">  int indexInBlock;</span>
+<span class="nc" id="L37">  int index;</span>
 
   @NonNull
   @Default
-<span class="fc" id="L47">  BlockHash blockHash = BlockHash.of(BytesValue.EMPTY);</span>
+<span class="nc" id="L41">  TxHash txHash = TxHash.of(BytesValue.EMPTY);</span>
 
-<span class="fc" id="L49">  long blockNumber;</span>
+<span class="nc" id="L43">  int indexInBlock;</span>
+
+  @NonNull
+  @Default
+<span class="nc" id="L47">  BlockHash blockHash = BlockHash.of(BytesValue.EMPTY);</span>
+
+<span class="nc" id="L49">  long blockNumber;</span>
 
   Event(final ContractAddress from, final String name, final List&lt;Object&gt; args,
       final int index, final TxHash txHash, int indexInBlock, final BlockHash blockHash,

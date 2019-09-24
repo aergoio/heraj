@@ -11,78 +11,86 @@ import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.client.ClientConfiguer;
+import hera.keystore.InMemoryKeyStore;
+import hera.keystore.KeyStore;
 import hera.wallet.internal.LegacyWallet;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * A legacy wallet api builder.
+ *
+ * @deprecated use {@link WalletFactory} instead.
+ *
+ */
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L20">public class WalletBuilder implements ClientConfiguer&lt;WalletBuilder&gt; {</span>
+<span class="fc" id="L28">public class WalletBuilder implements ClientConfiguer&lt;WalletBuilder&gt; {</span>
 
-<span class="fc" id="L22">  protected static final TryCountAndInterval MIMINUM_NONCE_REFRESH_COUNT =</span>
-<span class="fc" id="L23">      TryCountAndInterval.of(1, Time.of(0, TimeUnit.SECONDS));</span>
+<span class="fc" id="L30">  protected static final TryCountAndInterval MIMINUM_NONCE_REFRESH_COUNT =</span>
+<span class="fc" id="L31">      TryCountAndInterval.of(2, Time.of(100L, TimeUnit.MILLISECONDS));</span>
 
-<span class="fc" id="L25">  protected AergoClientBuilder clientBuilder = new AergoClientBuilder();</span>
+<span class="fc" id="L33">  protected AergoClientBuilder clientBuilder = new AergoClientBuilder();</span>
 
-<span class="fc" id="L27">  protected TryCountAndInterval nonceRefreshTryInterval = MIMINUM_NONCE_REFRESH_COUNT;</span>
+<span class="fc" id="L35">  protected TryCountAndInterval nonceRefreshTryInterval = MIMINUM_NONCE_REFRESH_COUNT;</span>
 
   @Override
   public WalletBuilder addConfiguration(final String key, final String value) {
-<span class="fc" id="L31">    clientBuilder.addConfiguration(key, value);</span>
-<span class="fc" id="L32">    return this;</span>
+<span class="nc" id="L39">    clientBuilder.addConfiguration(key, value);</span>
+<span class="nc" id="L40">    return this;</span>
   }
 
   @Override
   public WalletBuilder withEndpoint(final String endpoint) {
-<span class="fc" id="L37">    clientBuilder.withEndpoint(endpoint);</span>
-<span class="fc" id="L38">    return this;</span>
+<span class="nc" id="L45">    clientBuilder.withEndpoint(endpoint);</span>
+<span class="nc" id="L46">    return this;</span>
   }
 
   @Override
   public WalletBuilder withNonBlockingConnect() {
-<span class="nc" id="L43">    clientBuilder.withNonBlockingConnect();</span>
-<span class="nc" id="L44">    return this;</span>
+<span class="nc" id="L51">    clientBuilder.withNonBlockingConnect();</span>
+<span class="nc" id="L52">    return this;</span>
   }
 
   @Override
   public WalletBuilder withBlockingConnect() {
-<span class="fc" id="L49">    clientBuilder.withBlockingConnect();</span>
-<span class="fc" id="L50">    return this;</span>
+<span class="nc" id="L57">    clientBuilder.withBlockingConnect();</span>
+<span class="nc" id="L58">    return this;</span>
   }
 
   @Override
   public WalletBuilder withTimeout(final long timeout, final TimeUnit unit) {
-<span class="fc" id="L55">    clientBuilder.withTimeout(timeout, unit);</span>
-<span class="fc" id="L56">    return this;</span>
+<span class="nc" id="L63">    clientBuilder.withTimeout(timeout, unit);</span>
+<span class="nc" id="L64">    return this;</span>
   }
 
   @Override
   public WalletBuilder withRetry(final int count, final long interval, final TimeUnit unit) {
-<span class="fc" id="L61">    clientBuilder.withRetry(count, interval, unit);</span>
-<span class="fc" id="L62">    return this;</span>
+<span class="nc" id="L69">    clientBuilder.withRetry(count, interval, unit);</span>
+<span class="nc" id="L70">    return this;</span>
   }
 
   @Override
   public WalletBuilder withPlainText() {
-<span class="nc" id="L67">    clientBuilder.withPlainText();</span>
-<span class="nc" id="L68">    return this;</span>
+<span class="nc" id="L75">    clientBuilder.withPlainText();</span>
+<span class="nc" id="L76">    return this;</span>
   }
 
   @Override
   public WalletBuilder withTransportSecurity(final String serverCommonName,
       final String serverCertPath, final String clientCertPath, final String clientKeyPath) {
-<span class="nc" id="L74">    clientBuilder.withTransportSecurity(serverCommonName, serverCertPath, clientCertPath,</span>
+<span class="nc" id="L82">    clientBuilder.withTransportSecurity(serverCommonName, serverCertPath, clientCertPath,</span>
         clientKeyPath);
-<span class="nc" id="L76">    return this;</span>
+<span class="nc" id="L84">    return this;</span>
   }
 
   @Override
   public WalletBuilder withTransportSecurity(final String serverCommonName,
       final InputStream serverCertInputStream, final InputStream clientCertInputStream,
       final InputStream clientKeyInputStream) {
-<span class="nc" id="L83">    clientBuilder.withTransportSecurity(serverCommonName, serverCertInputStream,</span>
+<span class="nc" id="L91">    clientBuilder.withTransportSecurity(serverCommonName, serverCertInputStream,</span>
         clientCertInputStream, clientKeyInputStream);
-<span class="nc" id="L85">    return this;</span>
+<span class="nc" id="L93">    return this;</span>
   }
 
   /**
@@ -94,9 +102,9 @@ import java.util.concurrent.TimeUnit;
    * @return an instance of this
    */
   public WalletBuilder withRefresh(final int count, final long interval, final TimeUnit unit) {
-<span class="pc bpc" id="L97" title="2 of 4 branches missed.">    this.nonceRefreshTryInterval =</span>
-<span class="fc" id="L98">        TryCountAndInterval.of(count &lt;= 0 ? 1 : count, Time.of(interval &lt;= 0 ? 1 : interval, unit));</span>
-<span class="fc" id="L99">    return this;</span>
+<span class="nc bnc" id="L105" title="All 4 branches missed.">    this.nonceRefreshTryInterval =</span>
+<span class="nc" id="L106">        TryCountAndInterval.of(count &lt;= 0 ? 1 : count, Time.of(interval &lt;= 0 ? 1 : interval, unit));</span>
+<span class="nc" id="L107">    return this;</span>
   }
 
   /**
@@ -106,16 +114,18 @@ import java.util.concurrent.TimeUnit;
    * @return a wallet instance
    */
   public Wallet build(final WalletType walletType) {
-<span class="fc" id="L109">    final AergoClient aergoClient = clientBuilder.build();</span>
+<span class="fc" id="L117">    final AergoClient aergoClient = clientBuilder.build();</span>
 
-<span class="fc" id="L111">    final WalletFactory walletFactory = new WalletFactory();</span>
-<span class="fc" id="L112">    walletFactory.setRefresh(nonceRefreshTryInterval.getCount(),</span>
-<span class="fc" id="L113">        nonceRefreshTryInterval.getInterval().getValue(),</span>
-<span class="fc" id="L114">        nonceRefreshTryInterval.getInterval().getUnit());</span>
-<span class="fc" id="L115">    final WalletApi delegate = walletFactory.create(walletType);</span>
-<span class="fc" id="L116">    delegate.use(aergoClient);</span>
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">    if (!walletType.equals(WalletType.Naive)) {</span>
+<span class="nc" id="L120">      throw new UnsupportedOperationException();</span>
+    }
 
-<span class="fc" id="L118">    return new LegacyWallet(delegate);</span>
+<span class="fc" id="L123">    final KeyStore keyStore = new InMemoryKeyStore();</span>
+<span class="fc" id="L124">    WalletApi delegate = new WalletFactory().create(keyStore, nonceRefreshTryInterval.getCount(),</span>
+<span class="fc" id="L125">        nonceRefreshTryInterval.getInterval().toMilliseconds());</span>
+<span class="fc" id="L126">    delegate.bind(aergoClient);</span>
+
+<span class="fc" id="L128">    return new LegacyWallet(delegate);</span>
   }
 
 }

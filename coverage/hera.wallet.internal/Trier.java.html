@@ -109,9 +109,10 @@ public class Trier {
 <span class="nc" id="L109">  }</span>
 
   protected void syncChainIdHash(final AergoClient client) {
-<span class="nc" id="L112">    final ChainIdHash chainIdHash = client.getBlockchainOperation().getChainIdHash();</span>
-<span class="nc" id="L113">    client.cacheChainIdHash(chainIdHash);</span>
-<span class="nc" id="L114">  }</span>
+    // TODO: aergo client should have a role handling chain id hash
+<span class="nc" id="L113">    final ChainIdHash chainIdHash = client.getBlockchainOperation().getChainIdHash();</span>
+<span class="nc" id="L114">    client.cacheChainIdHash(chainIdHash);</span>
+<span class="nc" id="L115">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

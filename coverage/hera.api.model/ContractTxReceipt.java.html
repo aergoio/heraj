@@ -17,58 +17,58 @@ import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="pc bnc" id="L20" title="All 96 branches missed.">@Value</span>
+<span class="nc bnc" id="L20" title="All 96 branches missed.">@Value</span>
 <span class="pc bpc" id="L21" title="20 of 66 branches missed.">@Builder(builderMethodName = &quot;newBuilder&quot;)</span>
 public class ContractTxReceipt {
 
   @NonNull
   @Default
-<span class="fc" id="L26">  ContractAddress contractAddress = ContractAddress.EMPTY;</span>
+<span class="nc" id="L26">  ContractAddress contractAddress = ContractAddress.EMPTY;</span>
 
   @NonNull
   @Default
-<span class="fc" id="L30">  String status = StringUtils.EMPTY_STRING;</span>
+<span class="nc" id="L30">  String status = StringUtils.EMPTY_STRING;</span>
 
   @NonNull
   @Default
-<span class="fc" id="L34">  ContractResult ret = ContractResult.EMPTY;</span>
+<span class="nc" id="L34">  ContractResult ret = ContractResult.EMPTY;</span>
 
   @NonNull
   @Default
-<span class="fc" id="L38">  TxHash txHash = TxHash.of(BytesValue.EMPTY);</span>
+<span class="nc" id="L38">  TxHash txHash = TxHash.of(BytesValue.EMPTY);</span>
 
   @NonNull
   @Default
-<span class="fc" id="L42">  Aer feeUsed = Aer.EMPTY;</span>
+<span class="nc" id="L42">  Aer feeUsed = Aer.EMPTY;</span>
 
   @NonNull
   @Default
-<span class="fc" id="L46">  Aer cumulativeFeeUsed = Aer.EMPTY;</span>
+<span class="nc" id="L46">  Aer cumulativeFeeUsed = Aer.EMPTY;</span>
 
   @NonNull
   @Default
-<span class="fc" id="L50">  BytesValue bloom = BytesValue.EMPTY;</span>
+<span class="nc" id="L50">  BytesValue bloom = BytesValue.EMPTY;</span>
 
   @NonNull
   @Default
-<span class="fc" id="L54">  List&lt;Event&gt; events = emptyList();</span>
+<span class="nc" id="L54">  List&lt;Event&gt; events = emptyList();</span>
 
   @Default
-<span class="fc" id="L57">  long blockNumber = 0L;</span>
+<span class="nc" id="L57">  long blockNumber = 0L;</span>
 
   @Default
-<span class="fc" id="L60">  BlockHash blockHash = BlockHash.of(BytesValue.EMPTY);</span>
+<span class="nc" id="L60">  BlockHash blockHash = BlockHash.of(BytesValue.EMPTY);</span>
 
   @Default
-<span class="fc" id="L63">  int indexInBlock = 0;</span>
-
-  @NonNull
-  @Default
-<span class="fc" id="L67">  AccountAddress sender = AccountAddress.EMPTY;</span>
+<span class="nc" id="L63">  int indexInBlock = 0;</span>
 
   @NonNull
   @Default
-<span class="fc" id="L71">  AccountAddress recipient = AccountAddress.EMPTY;</span>
+<span class="nc" id="L67">  AccountAddress sender = AccountAddress.EMPTY;</span>
+
+  @NonNull
+  @Default
+<span class="nc" id="L71">  AccountAddress recipient = AccountAddress.EMPTY;</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
