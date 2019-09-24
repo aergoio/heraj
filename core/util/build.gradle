@@ -4,6 +4,6 @@
 
 dependencies {
   implementation project(":core:annotation")
-  implementation "com.google.guava:guava:${guavaVersion}"
+  implementation "com.google.guava:guava:${guavaVersion}-android"
   implementation "org.bouncycastle:bcpkix-jdk15on:${bouncyCastleVersion}"
 }

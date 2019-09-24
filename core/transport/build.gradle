@@ -8,19 +8,11 @@ dependencies {
   implementation project(":core:protobuf")
   implementation project(":core:common")
 
-  implementation ("com.google.guava:guava:${guavaVersion}")
+  implementation "com.google.guava:guava:${guavaVersion}-android"
   implementation "com.fasterxml.jackson.core:jackson-databind:2.6.7"
 
-  implementation ("io.grpc:grpc-okhttp:${grpcVersion}") {
-    exclude group: 'com.google.guava', module: 'guava'
-  }
-  implementation ("io.grpc:grpc-netty-shaded:${grpcVersion}") {
-    exclude group: 'com.google.guava', module: 'guava'
-  }
-  implementation ("io.grpc:grpc-protobuf:${grpcVersion}") {
-    exclude group: 'com.google.guava', module: 'guava'
-  }
-  implementation ("io.grpc:grpc-stub:${grpcVersion}") {
-    exclude group: 'com.google.guava', module: 'guava'
-  }
+  implementation "io.grpc:grpc-okhttp:${grpcVersion}"
+  implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
+  implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+  implementation "io.grpc:grpc-stub:${grpcVersion}"
 }
