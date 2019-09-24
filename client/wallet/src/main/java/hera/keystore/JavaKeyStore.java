@@ -64,7 +64,7 @@ public class JavaKeyStore extends AbstractKeyStore {
    */
   public JavaKeyStore(final String type, final String path, final char[] password) {
     try {
-      this.delegate = java.security.KeyStore.getInstance("PKCS12");
+      this.delegate = java.security.KeyStore.getInstance(type);
       InputStream inputStream = null;
       if (null != path) {
         inputStream = new FileInputStream(path);
@@ -138,7 +138,7 @@ public class JavaKeyStore extends AbstractKeyStore {
       final List<String> aliases = list(delegate.aliases());
       logger.trace("Aliases: {}", aliases);
 
-      final List<Identity> storedIdentities = new ArrayList<Identity>();
+      final List<Identity> storedIdentities = new ArrayList<>();
       for (final String alias : aliases) {
         storedIdentities.add(new KeyAlias(alias));
       }
