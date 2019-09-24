@@ -4,10 +4,10 @@
 
 package hera.client;
 
-import static hera.TransportConstants.TRANSACTION_COMMIT;
-import static hera.TransportConstants.TRANSACTION_GETTX;
-import static hera.TransportConstants.TRANSACTION_SEND;
 import static hera.api.model.BytesValue.of;
+import static hera.client.ClientConstants.TRANSACTION_COMMIT;
+import static hera.client.ClientConstants.TRANSACTION_GETTX;
+import static hera.client.ClientConstants.TRANSACTION_SEND;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

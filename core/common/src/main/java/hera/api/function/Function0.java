@@ -4,7 +4,7 @@
 
 package hera.api.function;
 
-public interface Function0<R> extends Function {
+public interface Function0<R> extends Function<R> {
 
   /**
    * Applies this function. This function is like supplier.

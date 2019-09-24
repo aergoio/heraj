@@ -46,7 +46,7 @@ public class EmptyContext implements Context {
   protected final String scope = EmptyContext.SCOPE;
 
   @Getter
-  protected final ChainIdHash chainIdHash = new ChainIdHash(BytesValue.EMPTY);
+  protected final ChainIdHash chainIdHash = null;
 
   @Getter
   protected final Configuration configuration = new InMemoryConfiguration(true);
@@ -102,7 +102,6 @@ public class EmptyContext implements Context {
     return this;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public <StrategyT extends Strategy> Context withStrategy(final StrategyT strategy) {
     logger.debug("New strategy: {}", strategy);

@@ -4,5 +4,5 @@
 
 package hera.api.function;
 
-public interface Function {
+public interface Function<R> {
 }

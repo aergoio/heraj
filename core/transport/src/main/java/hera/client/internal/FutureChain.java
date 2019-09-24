@@ -7,8 +7,6 @@ package hera.client.internal;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.common.util.concurrent.FutureCallback;
-import hera.Context;
-import hera.ContextHolder;
 import hera.api.function.Function1;
 import hera.exception.RpcException;
 import hera.exception.RpcExceptionConverter;
@@ -35,10 +33,6 @@ public class FutureChain<T, R> implements FutureCallback<T> {
   @NonNull
   protected final FinishableFuture<R> nextFuture;
 
-  // hold main thread context
-  @NonNull
-  protected final Context sourceContext;
-
   @Setter
   protected Function1<T, R> successHandler;
 
@@ -47,8 +41,7 @@ public class FutureChain<T, R> implements FutureCallback<T> {
 
   @Override
   public void onSuccess(@Nullable T t) {
-    connectAsyncContextWithSourceContext();
-    logger.trace("Async request success result: {}, context: {}", t, ContextHolder.get(this));
+    logger.trace("Async request success result: {}", t);
     try {
       final R handled = successHandler.apply(t);
       nextFuture.success(handled);
@@ -59,9 +52,7 @@ public class FutureChain<T, R> implements FutureCallback<T> {
 
   @Override
   public void onFailure(final Throwable error) {
-    connectAsyncContextWithSourceContext();
-    logger.trace("Async request fail result: {}, context: {}", error.toString(),
-        ContextHolder.get(this));
+    logger.trace("Async request fail result: {}", error.toString());
     try {
       if (null != failureHandler) {
         final R handled = failureHandler.apply(error);
@@ -72,10 +63,6 @@ public class FutureChain<T, R> implements FutureCallback<T> {
     } catch (Exception e) {
       failNext(exceptionConverter.convert(e));
     }
-  }
-
-  protected void connectAsyncContextWithSourceContext() {
-    ContextHolder.set(this, sourceContext);
   }
 
   protected void failNext(final RpcException wrapped) {

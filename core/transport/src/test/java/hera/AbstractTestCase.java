@@ -17,7 +17,7 @@ import hera.api.model.EncryptedPrivateKey;
 import hera.key.AergoKeyGenerator;
 import hera.spec.resolver.EncryptedPrivateKeySpec;
 import hera.strategy.NettyConnectStrategy;
-import hera.strategy.SimpleTimeoutStrategy;
+import hera.strategy.TimeoutStrategy;
 import java.util.concurrent.Executors;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -54,7 +54,7 @@ public abstract class AbstractTestCase {
   @Before
   public void setUp() {
     this.context = ContextProvider.defaultProvider.get()
-        .withStrategy(new SimpleTimeoutStrategy(10000L))
+        .withStrategy(new TimeoutStrategy(10000L))
         .withStrategy(new NettyConnectStrategy())
         .withChainIdHash(chainIdHash);
   }

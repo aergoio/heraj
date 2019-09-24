@@ -85,9 +85,7 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
 
             ListenableFuture<Rpc.BlockMetadata> listenableFuture =
                 aergoService.getBlockMetadata(rpcHash);
-            FutureChain<Rpc.BlockMetadata, BlockMetadata> callback =
-                new FutureChain<Rpc.BlockMetadata, BlockMetadata>(nextFuture,
-                    contextProvider.get());
+            FutureChain<Rpc.BlockMetadata, BlockMetadata> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(
                 new Function1<Rpc.BlockMetadata, BlockMetadata>() {
 
@@ -123,9 +121,7 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
 
             ListenableFuture<Rpc.BlockMetadata> listenableFuture =
                 aergoService.getBlockMetadata(rpcHeight);
-            FutureChain<Rpc.BlockMetadata, BlockMetadata> callback =
-                new FutureChain<Rpc.BlockMetadata, BlockMetadata>(nextFuture,
-                    contextProvider.get());
+            FutureChain<Rpc.BlockMetadata, BlockMetadata> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Rpc.BlockMetadata, BlockMetadata>() {
               @Override
               public BlockMetadata apply(final Rpc.BlockMetadata metadata) {
@@ -164,8 +160,7 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
             ListenableFuture<Rpc.BlockMetadataList> listenableFuture =
                 aergoService.listBlockMetadata(rpcHashAndSize);
             FutureChain<Rpc.BlockMetadataList, List<BlockMetadata>> callback =
-                new FutureChain<Rpc.BlockMetadataList, List<BlockMetadata>>(nextFuture,
-                    contextProvider.get());
+                new FutureChain<>(nextFuture);
             callback.setSuccessHandler(
                 new Function1<Rpc.BlockMetadataList, List<BlockMetadata>>() {
 
@@ -212,8 +207,7 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
             ListenableFuture<Rpc.BlockMetadataList> listenableFuture =
                 aergoService.listBlockMetadata(rpcHeightAndSize);
             FutureChain<Rpc.BlockMetadataList, List<BlockMetadata>> callback =
-                new FutureChain<Rpc.BlockMetadataList, List<BlockMetadata>>(nextFuture,
-                    contextProvider.get());
+                new FutureChain<>(nextFuture);
             callback
                 .setSuccessHandler(new Function1<Rpc.BlockMetadataList, List<BlockMetadata>>() {
                   @Override
@@ -252,8 +246,7 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
             logger.trace("AergoService getBlock arg: {}", rpcHash);
 
             ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(rpcHash);
-            FutureChain<Blockchain.Block, Block> callback =
-                new FutureChain<Blockchain.Block, Block>(nextFuture, contextProvider.get());
+            FutureChain<Blockchain.Block, Block> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Blockchain.Block, Block>() {
               @Override
               public Block apply(final Blockchain.Block block) {
@@ -287,8 +280,7 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
             logger.trace("AergoService getBlock arg: {}", rpcHeight);
 
             ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(rpcHeight);
-            FutureChain<Blockchain.Block, Block> callback =
-                new FutureChain<Blockchain.Block, Block>(nextFuture, contextProvider.get());
+            FutureChain<Blockchain.Block, Block> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Blockchain.Block, Block>() {
               @Override
               public Block apply(final Blockchain.Block block) {
@@ -306,53 +298,69 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
 
   @Getter
   private final Function1<hera.api.model.StreamObserver<BlockMetadata>,
-      Subscription<BlockMetadata>> subscribeBlockMetadataFunction = new Function1<
-          hera.api.model.StreamObserver<BlockMetadata>, Subscription<BlockMetadata>>() {
+      FinishableFuture<Subscription<BlockMetadata>>> subscribeBlockMetadataFunction = new Function1<
+          hera.api.model.StreamObserver<BlockMetadata>,
+          FinishableFuture<Subscription<BlockMetadata>>>() {
 
         @Override
-        public Subscription<BlockMetadata> apply(
+        public FinishableFuture<Subscription<BlockMetadata>> apply(
             final hera.api.model.StreamObserver<BlockMetadata> observer) {
-          logger.debug("Subscribe block metadata stream with observer {}", observer);
 
-          final Rpc.Empty blockMetadataStreamRequest = Rpc.Empty.newBuilder().build();
-          Context.CancellableContext cancellableContext = Context.current().withCancellation();
-          final io.grpc.stub.StreamObserver<Rpc.BlockMetadata> adaptor =
-              new GrpcStreamObserverAdaptor<Rpc.BlockMetadata, BlockMetadata>(cancellableContext,
-                  observer, blockMetadataConverter);
-          cancellableContext.run(new Runnable() {
-            @Override
-            public void run() {
-              streamService.listBlockMetadataStream(blockMetadataStreamRequest, adaptor);
-            }
-          });
+          FinishableFuture<Subscription<BlockMetadata>> nextFuture = new FinishableFuture<>();
+          try {
+            logger.debug("Subscribe block metadata stream with observer {}", observer);
 
-          return new GrpcStreamSubscription<BlockMetadata>(cancellableContext);
+            final Rpc.Empty blockMetadataStreamRequest = Rpc.Empty.newBuilder().build();
+            Context.CancellableContext cancellableContext = Context.current().withCancellation();
+            final io.grpc.stub.StreamObserver<Rpc.BlockMetadata> adaptor =
+                new GrpcStreamObserverAdaptor<Rpc.BlockMetadata, BlockMetadata>(cancellableContext,
+                    observer, blockMetadataConverter);
+            cancellableContext.run(new Runnable() {
+              @Override
+              public void run() {
+                streamService.listBlockMetadataStream(blockMetadataStreamRequest, adaptor);
+              }
+            });
+
+            nextFuture.success(new GrpcStreamSubscription<BlockMetadata>(cancellableContext));
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+
+          return nextFuture;
         }
       };
 
   @Getter
   private final Function1<hera.api.model.StreamObserver<Block>,
-      Subscription<Block>> subscribeBlockFunction = new Function1<
-          hera.api.model.StreamObserver<Block>, Subscription<Block>>() {
+      FinishableFuture<Subscription<Block>>> subscribeBlockFunction = new Function1<
+          hera.api.model.StreamObserver<Block>, FinishableFuture<Subscription<Block>>>() {
 
         @Override
-        public Subscription<Block> apply(
+        public FinishableFuture<Subscription<Block>> apply(
             final hera.api.model.StreamObserver<Block> observer) {
           logger.debug("Subscribe block metadata stream with observer {}", observer);
 
-          final Rpc.Empty blockStreamRequest = Rpc.Empty.newBuilder().build();
-          Context.CancellableContext cancellableContext = Context.current().withCancellation();
-          final io.grpc.stub.StreamObserver<Blockchain.Block> adaptor =
-              new GrpcStreamObserverAdaptor<Blockchain.Block, Block>(cancellableContext,
-                  observer, blockConverter);
-          cancellableContext.run(new Runnable() {
-            @Override
-            public void run() {
-              streamService.listBlockStream(blockStreamRequest, adaptor);
-            }
-          });
+          FinishableFuture<Subscription<Block>> nextFuture = new FinishableFuture<>();
+          try {
+            final Rpc.Empty blockStreamRequest = Rpc.Empty.newBuilder().build();
+            Context.CancellableContext cancellableContext = Context.current().withCancellation();
+            final io.grpc.stub.StreamObserver<Blockchain.Block> adaptor =
+                new GrpcStreamObserverAdaptor<Blockchain.Block, Block>(cancellableContext,
+                    observer, blockConverter);
+            cancellableContext.run(new Runnable() {
+              @Override
+              public void run() {
+                streamService.listBlockStream(blockStreamRequest, adaptor);
+              }
+            });
 
-          return new GrpcStreamSubscription<Block>(cancellableContext);
+            nextFuture.success(new GrpcStreamSubscription<Block>(cancellableContext));
+          } catch (Exception e) {
+            nextFuture.fail(e);
+          }
+
+          return nextFuture;
         }
       };
 

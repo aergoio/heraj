@@ -5,23 +5,21 @@
 package hera.keystore;
 
 import static java.util.Collections.list;
-import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Identity;
-import hera.api.model.RawTransaction;
-import hera.api.model.Transaction;
 import hera.exception.KeyStoreException;
 import hera.key.AergoKey;
-import hera.key.Signer;
 import hera.model.KeyAlias;
 import hera.util.Sha256Utils;
 import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSAKeyGenerator;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
@@ -30,9 +28,6 @@ import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -42,53 +37,50 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
-import org.slf4j.Logger;
 
-@ApiAudience.Private
+@ApiAudience.Public
 @ApiStability.Unstable
-public class JavaKeyStore implements KeyStore, JavaKeyStoreInjectable {
+public class JavaKeyStore extends AbstractKeyStore {
 
-  protected final transient Logger logger = getLogger(getClass());
+  protected final java.security.Provider provider = new BouncyCastleProvider();
 
-  protected Signer current;
+  protected volatile java.security.KeyStore delegate;
 
-  protected Authentication currentAuth;
+  /**
+   * Create a keystore using {@link java.security.KeyStore}.
+   *
+   * @param type a keystore type see {@link java.security.KeyStore#getInstance(String)}
+   */
+  public JavaKeyStore(final String type) {
+    this(type, null, null);
+  }
 
-  protected java.security.Provider provider = new BouncyCastleProvider();
-
-  @Getter
-  @Setter
-  @NonNull
-  protected volatile java.security.KeyStore javaKeyStore;
-
-  @Override
-  public synchronized boolean unlock(final Authentication authentication) {
+  /**
+   * Create a keystore using {@link java.security.KeyStore}.
+   *
+   * @param type a keystore type see {@link java.security.KeyStore#getInstance(String)}
+   * @param path a keystore path
+   * @param password a keystore password
+   */
+  public JavaKeyStore(final String type, final String path, final char[] password) {
     try {
-      logger.debug("Unlock key with authentication: {}", authentication);
-      current = load(authentication);
-      currentAuth = digest(authentication);
-      return true;
+      this.delegate = java.security.KeyStore.getInstance("PKCS12");
+      InputStream inputStream = null;
+      if (null != path) {
+        inputStream = new FileInputStream(path);
+      }
+      this.delegate.load(inputStream, password);
     } catch (Exception e) {
-      logger.debug("Unlock failed by {}", e.toString());
-      return false;
+      throw new KeyStoreException(e);
     }
   }
 
   @Override
-  public synchronized boolean lock(final Authentication authentication) {
+  protected AergoKey getUnlockedOne(final Authentication authentication) {
     try {
-      logger.debug("Lock key with authentication: {}", authentication);
-      final Authentication digested = digest(authentication);
-      if (!currentAuth.equals(digested)) {
-        throw new KeyStoreException("Invalid authentication");
-      }
-
-      current = null;
-      currentAuth = null;
-      return true;
+      return load(authentication);
     } catch (Exception e) {
-      logger.info("Lock failed by {}", e.toString());
-      return false;
+      throw new KeyStoreException(e);
     }
   }
 
@@ -103,7 +95,7 @@ public class JavaKeyStore implements KeyStore, JavaKeyStoreInjectable {
       final Certificate cert = generateCertificate(key);
       final Certificate[] certChain = new Certificate[] {cert};
 
-      javaKeyStore.setKeyEntry(alias, privateKey, rawPassword, certChain);
+      delegate.setKeyEntry(alias, privateKey, rawPassword, certChain);
     } catch (Exception e) {
       throw new KeyStoreException(e);
     }
@@ -143,7 +135,7 @@ public class JavaKeyStore implements KeyStore, JavaKeyStoreInjectable {
   @Override
   public List<Identity> listIdentities() {
     try {
-      final List<String> aliases = list(javaKeyStore.aliases());
+      final List<String> aliases = list(delegate.aliases());
       logger.trace("Aliases: {}", aliases);
 
       final List<Identity> storedIdentities = new ArrayList<Identity>();
@@ -156,26 +148,12 @@ public class JavaKeyStore implements KeyStore, JavaKeyStoreInjectable {
     }
   }
 
-  @Override
-  public AccountAddress getPrincipal() {
-    return null != current ? current.getPrincipal() : null;
-  }
-
-  @Override
-  public Transaction sign(final RawTransaction rawTransaction) {
-    logger.debug("Sign raw transaction: {}", rawTransaction);
-    if (null == current) {
-      throw new KeyStoreException("No unlocked account");
-    }
-    return current.sign(rawTransaction);
-  }
-
   protected AergoKey load(final Authentication authentication)
       throws java.security.KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException,
       Exception {
     final String alias = authentication.getIdentity().getValue();
     final char[] password = authentication.getPassword().toCharArray();
-    final java.security.Key privateKey = javaKeyStore.getKey(alias, password);
+    final java.security.Key privateKey = delegate.getKey(alias, password);
 
     return convertPrivateKey(privateKey);
   }
@@ -197,6 +175,15 @@ public class JavaKeyStore implements KeyStore, JavaKeyStoreInjectable {
   protected Authentication digest(final Authentication rawAuthentication) {
     final byte[] digestedPassword = Sha256Utils.digest(rawAuthentication.getPassword().getBytes());
     return Authentication.of(rawAuthentication.getIdentity(), new String(digestedPassword));
+  }
+
+  @Override
+  public void store(final String path, final char[] password) {
+    try {
+      this.delegate.store(new FileOutputStream(path), password);
+    } catch (Exception e) {
+      throw new KeyStoreException(e);
+    }
   }
 
 }

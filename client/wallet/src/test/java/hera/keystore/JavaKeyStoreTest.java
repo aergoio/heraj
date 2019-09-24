@@ -12,6 +12,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import hera.AbstractTestCase;
+import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
@@ -36,14 +37,11 @@ public class JavaKeyStoreTest extends AbstractTestCase {
   @Before
   public void setUp() throws Exception {
     identity = new KeyAlias(randomUUID().toString().replace("-", "").toLowerCase());
-    keyStore = java.security.KeyStore.getInstance("PKCS12");
-    keyStore.load(null, keyStorePasword.toCharArray());
   }
 
   @Test
   public void testSaveAndExport() {
-    final JavaKeyStore keyStore = new JavaKeyStore();
-    keyStore.setJavaKeyStore(this.keyStore);
+    final JavaKeyStore keyStore = new JavaKeyStore("PKCS12");
 
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
@@ -58,40 +56,42 @@ public class JavaKeyStoreTest extends AbstractTestCase {
 
   @Test
   public void testUnlockAndLock() {
-    final JavaKeyStore keyStore = new JavaKeyStore();
-    keyStore.setJavaKeyStore(this.keyStore);
+    final JavaKeyStore keyStore = new JavaKeyStore("PKCS12");
 
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
     final Authentication authentication = Authentication.of(identity, password);
     keyStore.save(authentication, key);
 
-    assertTrue(keyStore.unlock(authentication));
+    assertNotNull(keyStore.unlock(authentication));
     assertTrue(keyStore.lock(authentication));
   }
 
   @Test
   public void testUnlockOnInvalidAuth() {
-    final JavaKeyStore keyStore = new JavaKeyStore();
-    keyStore.setJavaKeyStore(this.keyStore);
+    final JavaKeyStore keyStore = new JavaKeyStore("PKCS12");
 
     final String password = randomUUID().toString();
     final Authentication authentication = Authentication.of(identity, password);
 
-    assertFalse(keyStore.unlock(authentication));
+    try {
+      keyStore.unlock(authentication);
+      fail();
+    } catch (Exception e) {
+      // good we expected this
+    }
   }
 
   @Test
   public void testLockWithInvalidAuth() {
-    final JavaKeyStore keyStore = new JavaKeyStore();
-    keyStore.setJavaKeyStore(this.keyStore);
+    final JavaKeyStore keyStore = new JavaKeyStore("PKCS12");
 
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
     final Authentication authentication = Authentication.of(identity, password);
     keyStore.save(authentication, key);
 
-    assertTrue(keyStore.unlock(authentication));
+    assertNotNull(keyStore.unlock(authentication));
 
     final Authentication invalid = Authentication.of(key.getAddress(), randomUUID().toString());
     assertFalse(keyStore.lock(invalid));
@@ -99,15 +99,14 @@ public class JavaKeyStoreTest extends AbstractTestCase {
 
   @Test
   public void testSignRawTransaction() {
-    final JavaKeyStore keyStore = new JavaKeyStore();
-    keyStore.setJavaKeyStore(this.keyStore);
+    final JavaKeyStore keyStore = new JavaKeyStore("PKCS12");
 
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
     final Authentication authentication = Authentication.of(identity, password);
     keyStore.save(authentication, key);
 
-    keyStore.unlock(authentication);
+    AccountAddress unlocked = keyStore.unlock(authentication);
     final RawTransaction rawTransaction = RawTransaction.newBuilder(chainIdHash)
         .from(key.getAddress())
         .to(key.getAddress())
@@ -115,14 +114,13 @@ public class JavaKeyStoreTest extends AbstractTestCase {
         .nonce(1)
         .build();
 
-    final Transaction signed = keyStore.sign(rawTransaction);
+    final Transaction signed = keyStore.sign(unlocked, rawTransaction);
     assertNotNull(signed);
   }
 
   @Test
   public void testSignOnLocked() {
-    final JavaKeyStore keyStore = new JavaKeyStore();
-    keyStore.setJavaKeyStore(this.keyStore);
+    final JavaKeyStore keyStore = new JavaKeyStore("PKCS12");
 
     final AergoKey key = new AergoKeyGenerator().create();
     final String password = randomUUID().toString();
@@ -138,11 +136,32 @@ public class JavaKeyStoreTest extends AbstractTestCase {
         .build();
 
     try {
-      keyStore.sign(rawTransaction);
+      keyStore.sign(key.getAddress(), rawTransaction);
       fail("Sign on locked account should throw exception");
     } catch (Exception e) {
       // good we expected this
     }
+  }
+
+  @Test
+  public void testStoreAndLoad() {
+    // given
+    final JavaKeyStore keyStore = new JavaKeyStore("PKCS12");
+
+    final AergoKey key = new AergoKeyGenerator().create();
+    final String password = randomUUID().toString();
+    final Authentication authentication = Authentication.of(identity, password);
+    keyStore.save(authentication, key);
+
+    final String path = System.getProperty("java.io.tmpdir") + "/" + randomUUID().toString();
+    final char[] keyStorePassword = randomUUID().toString().toCharArray();
+    keyStore.store(path, keyStorePassword);
+
+    // when
+    final JavaKeyStore loaded = new JavaKeyStore("PKCS12", path, keyStorePassword);
+
+    // then
+    assertNotNull(loaded.unlock(authentication));
   }
 
 }

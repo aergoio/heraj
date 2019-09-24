@@ -11,8 +11,15 @@ public interface ContextProvider {
     public Context get() {
       return EmptyContext.getInstance();
     }
+
+    @Override
+    public void put(Context context) {
+      throw new UnsupportedOperationException();
+    }
   };
 
   Context get();
+
+  void put(Context context);
 
 }

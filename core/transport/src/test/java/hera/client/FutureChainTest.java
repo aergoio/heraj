@@ -18,7 +18,7 @@ public class FutureChainTest extends AbstractTestCase {
   @Test
   public void testOnSuccess() {
     FinishableFuture<Integer> nextFuture = new FinishableFuture<Integer>();
-    FutureChain<String, Integer> callback = new FutureChain<String, Integer>(nextFuture, context);
+    FutureChain<String, Integer> callback = new FutureChain<String, Integer>(nextFuture);
     callback.setSuccessHandler(new Function1<String, Integer>() {
       @Override
       public Integer apply(final String s) {
@@ -32,7 +32,7 @@ public class FutureChainTest extends AbstractTestCase {
   @Test(expected = RpcException.class)
   public void testOnSuccessWithoutHandler() {
     FinishableFuture<Integer> nextFuture = new FinishableFuture<Integer>();
-    FutureChain<String, Integer> callback = new FutureChain<String, Integer>(nextFuture, context);
+    FutureChain<String, Integer> callback = new FutureChain<String, Integer>(nextFuture);
     callback.onSuccess(randomUUID().toString());
     nextFuture.get();
   }
@@ -40,7 +40,7 @@ public class FutureChainTest extends AbstractTestCase {
   @Test(expected = Exception.class)
   public void testOnFailure() {
     FinishableFuture<Integer> nextFuture = new FinishableFuture<Integer>();
-    FutureChain<String, Integer> callback = new FutureChain<String, Integer>(nextFuture, context);
+    FutureChain<String, Integer> callback = new FutureChain<String, Integer>(nextFuture);
     callback.setSuccessHandler(new Function1<String, Integer>() {
       @Override
       public Integer apply(final String s) {
@@ -53,7 +53,7 @@ public class FutureChainTest extends AbstractTestCase {
 
   @Test(expected = NullPointerException.class)
   public void testCreation() {
-    new FutureChain<String, Integer>(null, null);
+    new FutureChain<String, Integer>(null);
   }
 
 }

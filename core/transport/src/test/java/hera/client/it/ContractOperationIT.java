@@ -4,6 +4,7 @@
 
 package hera.client.it;
 
+import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -30,7 +31,9 @@ import hera.key.AergoKey;
 import hera.key.Signer;
 import hera.util.IoUtils;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,25 +43,22 @@ import org.junit.Test;
 
 public class ContractOperationIT extends AbstractIT {
 
-  protected String executeFunction = "set";
-  protected String executeFunction2 = "set2";
-  protected String queryFunction = "get";
-  protected String newQueryFunction = "newGet";
-
-  protected String simplePayload;
-  protected String withPayablePayload;
-  protected String withAbiAddedPayload;
-  protected String withEventPayload;
-  protected String withBignumPayload;
+  protected Map<String, String> payloadMap = new HashMap<>();
 
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    simplePayload = IoUtils.from(new InputStreamReader(open("simple_payload")));
-    withPayablePayload = IoUtils.from(new InputStreamReader(open("with_payable_payload")));
-    withAbiAddedPayload = IoUtils.from(new InputStreamReader(open("with_abi_added_payload")));
-    withEventPayload = IoUtils.from(new InputStreamReader(open("with_event_payload")));
-    withBignumPayload = IoUtils.from(new InputStreamReader(open("with_bignum_payload")));
+    payloadMap.put("simple_payload", IoUtils.from(new InputStreamReader(open("simple_payload"))));
+    payloadMap.put("with_payable_payload",
+        IoUtils.from(new InputStreamReader(open("with_payable_payload"))));
+    payloadMap.put("with_abi_added_payload",
+        IoUtils.from(new InputStreamReader(open("with_abi_added_payload"))));
+    payloadMap.put("with_event_payload",
+        IoUtils.from(new InputStreamReader(open("with_event_payload"))));
+    payloadMap.put("with_bignum_payload",
+        IoUtils.from(new InputStreamReader(open("with_bignum_payload"))));
+    payloadMap.put("with_event_nested_args_payload",
+        IoUtils.from(new InputStreamReader(open("with_event_args_payload"))));
   }
 
   @Test
@@ -66,7 +66,7 @@ public class ContractOperationIT extends AbstractIT {
     // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(simplePayload)
+        .encodedContract(payloadMap.get("simple_payload"))
         .build();
 
     // when
@@ -84,7 +84,7 @@ public class ContractOperationIT extends AbstractIT {
     final int deployIntVal = randomUUID().toString().hashCode();
     final String deployStringVal = randomUUID().toString();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(simplePayload)
+        .encodedContract(payloadMap.get("simple_payload"))
         .constructorArgs(deployKey, deployIntVal, deployStringVal)
         .build();
 
@@ -93,7 +93,7 @@ public class ContractOperationIT extends AbstractIT {
 
     // then
     final ContractInvocation query = contractInterface.newInvocationBuilder()
-        .function(queryFunction)
+        .function("get")
         .args(deployKey)
         .build();
     final ContractResult queryResult = aergoClient.getContractOperation().query(query);
@@ -107,7 +107,7 @@ public class ContractOperationIT extends AbstractIT {
     // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(simplePayload)
+        .encodedContract(payloadMap.get("simple_payload"))
         .build();
 
     try {
@@ -124,7 +124,7 @@ public class ContractOperationIT extends AbstractIT {
     // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(simplePayload)
+        .encodedContract(payloadMap.get("simple_payload"))
         .build();
     final ContractTxReceipt deployReceipt = deploy(key, definition);
     final ContractAddress originAddress = deployReceipt.getContractAddress();
@@ -134,7 +134,7 @@ public class ContractOperationIT extends AbstractIT {
     final int reDeployIntVal = randomUUID().toString().hashCode();
     final String reDeployStringVal = randomUUID().toString();
     final ContractDefinition newDefinition = ContractDefinition.newBuilder()
-        .encodedContract(withAbiAddedPayload)
+        .encodedContract(payloadMap.get("with_abi_added_payload"))
         .constructorArgs(reDeployKey, reDeployIntVal, reDeployStringVal)
         .build();
     final ContractTxReceipt reDeployTxReceipt = redeploy(key, originAddress, newDefinition);
@@ -143,7 +143,7 @@ public class ContractOperationIT extends AbstractIT {
     assertEquals("RECREATED", reDeployTxReceipt.getStatus());
     assertEquals(originAddress, reDeployTxReceipt.getContractAddress());
     final ContractInterface contractInterface = getAbi(reDeployTxReceipt);
-    final ContractFunction newQueryFunc = contractInterface.findFunction(newQueryFunction);
+    final ContractFunction newQueryFunc = contractInterface.findFunction("newGet");
     assertNotNull(newQueryFunc);
   }
 
@@ -152,7 +152,7 @@ public class ContractOperationIT extends AbstractIT {
     // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(simplePayload)
+        .encodedContract(payloadMap.get("simple_payload"))
         .build();
     final ContractTxReceipt deployReceipt = deploy(key, definition);
     final ContractAddress originAddress = deployReceipt.getContractAddress();
@@ -162,7 +162,7 @@ public class ContractOperationIT extends AbstractIT {
     final int reDeployIntVal = randomUUID().toString().hashCode();
     final String reDeployStringVal = randomUUID().toString();
     final ContractDefinition newDefinition = ContractDefinition.newBuilder()
-        .encodedContract(withAbiAddedPayload)
+        .encodedContract(payloadMap.get("with_abi_added_payload"))
         .constructorArgs(reDeployKey, reDeployIntVal, reDeployStringVal)
         .build();
     final ContractInterface contractInterface =
@@ -170,7 +170,7 @@ public class ContractOperationIT extends AbstractIT {
 
     // then
     final ContractInvocation query = contractInterface.newInvocationBuilder()
-        .function(newQueryFunction)
+        .function("newGet")
         .args(reDeployKey)
         .build();
     final ContractResult queryResult = aergoClient.getContractOperation().query(query);
@@ -187,7 +187,7 @@ public class ContractOperationIT extends AbstractIT {
     final int deployIntVal = randomUUID().toString().hashCode();
     final String deployStringVal = randomUUID().toString();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(simplePayload)
+        .encodedContract(payloadMap.get("simple_payload"))
         .constructorArgs(deployKey, deployIntVal, deployStringVal)
         .build();
     final ContractTxReceipt deployReceipt = deploy(key, definition);
@@ -195,14 +195,14 @@ public class ContractOperationIT extends AbstractIT {
 
     // when
     final ContractDefinition newDefinition = ContractDefinition.newBuilder()
-        .encodedContract(withAbiAddedPayload)
+        .encodedContract(payloadMap.get("with_abi_added_payload"))
         .build();
     final ContractInterface contractInterface =
         redeployAndGetAbi(key, originAddress, newDefinition);
 
     // then
     final ContractInvocation query = contractInterface.newInvocationBuilder()
-        .function(newQueryFunction)
+        .function("newGet")
         .args(deployKey)
         .build();
     final ContractResult queryResult = aergoClient.getContractOperation().query(query);
@@ -216,20 +216,20 @@ public class ContractOperationIT extends AbstractIT {
     // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(simplePayload)
+        .encodedContract(payloadMap.get("simple_payload"))
         .build();
     final ContractTxReceipt deployReceipt = deploy(key, definition);
     final ContractAddress originAddress = deployReceipt.getContractAddress();
 
     // when
     final ContractDefinition newDefinition = ContractDefinition.newBuilder()
-        .encodedContract(withAbiAddedPayload)
+        .encodedContract(payloadMap.get("with_abi_added_payload"))
         .build();
     final ContractInterface contractInterface =
         redeployAndGetAbi(key, originAddress, newDefinition);
 
     // then
-    final ContractFunction newQueryFunc = contractInterface.findFunction(newQueryFunction);
+    final ContractFunction newQueryFunc = contractInterface.findFunction("newGet");
     assertNotNull(newQueryFunc);
   }
 
@@ -239,7 +239,7 @@ public class ContractOperationIT extends AbstractIT {
     final AergoKey key = createNewKey();
     final Aer expected = Aer.GIGA_ONE;
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(withPayablePayload)
+        .encodedContract(payloadMap.get("with_payable_payload"))
         .amount(expected)
         .build();
 
@@ -258,7 +258,7 @@ public class ContractOperationIT extends AbstractIT {
     // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(simplePayload)
+        .encodedContract(payloadMap.get("simple_payload"))
         .build();
     final ContractInterface contractInterface = deployAndGetAbi(key, definition);
 
@@ -267,7 +267,7 @@ public class ContractOperationIT extends AbstractIT {
     final int executeIntVal = randomUUID().toString().hashCode();
     final String executeStringVal = randomUUID().toString();
     final ContractInvocation execution = contractInterface.newInvocationBuilder()
-        .function(executeFunction)
+        .function("set")
         .args(executeKey, executeIntVal, executeStringVal)
         .build();
     final ContractTxReceipt executionReceipt = execute(key, execution);
@@ -275,7 +275,7 @@ public class ContractOperationIT extends AbstractIT {
     // then
     assertEquals("SUCCESS", executionReceipt.getStatus());
     final ContractInvocation query = contractInterface.newInvocationBuilder()
-        .function(queryFunction)
+        .function("get")
         .args(executeKey)
         .build();
     final ContractResult queryResult = aergoClient.getContractOperation().query(query);
@@ -289,7 +289,7 @@ public class ContractOperationIT extends AbstractIT {
     // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(simplePayload)
+        .encodedContract(payloadMap.get("simple_payload"))
         .build();
     final ContractInterface contractInterface = deployAndGetAbi(key, definition);
 
@@ -298,7 +298,7 @@ public class ContractOperationIT extends AbstractIT {
     final int executeIntVal = randomUUID().toString().hashCode();
     final String executeStringVal = randomUUID().toString();
     final ContractInvocation execution = contractInterface.newInvocationBuilder()
-        .function(executeFunction)
+        .function("set")
         .args(executeKey, executeIntVal, executeStringVal)
         .build();
     final ContractTxReceipt executionReceipt = execute(key, execution);
@@ -314,7 +314,7 @@ public class ContractOperationIT extends AbstractIT {
     // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(withBignumPayload)
+        .encodedContract(payloadMap.get("with_bignum_payload"))
         .build();
     final ContractInterface contractInterface = deployAndGetAbi(key, definition);
 
@@ -323,14 +323,14 @@ public class ContractOperationIT extends AbstractIT {
     final BigNumber x = new BigNumber("111");
     final BigNumber y = new BigNumber("222");
     final ContractInvocation execution = contractInterface.newInvocationBuilder()
-        .function(executeFunction)
+        .function("set")
         .args(executeKey, x, y)
         .build();
     execute(key, execution);
 
     // then
     final ContractInvocation query = contractInterface.newInvocationBuilder()
-        .function(queryFunction)
+        .function("get")
         .args(executeKey)
         .build();
     final ContractResult queryResult = aergoClient.getContractOperation().query(query);
@@ -343,7 +343,7 @@ public class ContractOperationIT extends AbstractIT {
     // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(withPayablePayload)
+        .encodedContract(payloadMap.get("with_payable_payload"))
         .build();
     final ContractInterface contractInterface = deployAndGetAbi(key, definition);
 
@@ -353,7 +353,7 @@ public class ContractOperationIT extends AbstractIT {
     final String executeStringVal = randomUUID().toString();
     final Aer expected = Aer.GIGA_ONE;
     final ContractInvocation execution = contractInterface.newInvocationBuilder()
-        .function(executeFunction)
+        .function("set")
         .args(executeKey, executeIntVal, executeStringVal)
         .amount(expected)
         .build();
@@ -370,7 +370,7 @@ public class ContractOperationIT extends AbstractIT {
     // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(simplePayload)
+        .encodedContract(payloadMap.get("simple_payload"))
         .build();
     final ContractInterface contractInterface = deployAndGetAbi(key, definition);
 
@@ -379,7 +379,7 @@ public class ContractOperationIT extends AbstractIT {
     final int executeIntVal = randomUUID().toString().hashCode();
     final String escapeString = "\b\t\f\n\r";
     final ContractInvocation execution = contractInterface.newInvocationBuilder()
-        .function(executeFunction)
+        .function("set")
         .args(executeKey, executeIntVal, escapeString)
         .build();
     final ContractTxReceipt executionReceipt = execute(key, execution);
@@ -387,7 +387,7 @@ public class ContractOperationIT extends AbstractIT {
     // then
     assertEquals("SUCCESS", executionReceipt.getStatus());
     final ContractInvocation query = contractInterface.newInvocationBuilder()
-        .function(queryFunction)
+        .function("get")
         .args(executeKey)
         .build();
     final ContractResult queryResult = aergoClient.getContractOperation().query(query);
@@ -401,7 +401,7 @@ public class ContractOperationIT extends AbstractIT {
     // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(simplePayload)
+        .encodedContract(payloadMap.get("simple_payload"))
         .build();
     final ContractInterface contractInterface = deployAndGetAbi(key, definition);
 
@@ -411,7 +411,7 @@ public class ContractOperationIT extends AbstractIT {
       final int executeIntVal = randomUUID().toString().hashCode();
       final String executeStringVal = randomUUID().toString();
       final ContractInvocation execution = contractInterface.newInvocationBuilder()
-          .function(executeFunction)
+          .function("set")
           .args(executeKey, executeIntVal, executeStringVal)
           .build();
       aergoClient.getContractOperation().execute(key, execution, 0L, Fee.ZERO);
@@ -426,7 +426,7 @@ public class ContractOperationIT extends AbstractIT {
     // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(withEventPayload)
+        .encodedContract(payloadMap.get("with_event_payload"))
         .build();
     final ContractInterface contractInterface = deployAndGetAbi(key, definition);
 
@@ -456,7 +456,7 @@ public class ContractOperationIT extends AbstractIT {
               }
             });
     final ContractInvocation execution = contractInterface.newInvocationBuilder()
-        .function(executeFunction)
+        .function("set")
         .args(randomUUID().toString(), randomUUID().toString().hashCode(), randomUUID().toString())
         .build();
 
@@ -475,7 +475,7 @@ public class ContractOperationIT extends AbstractIT {
     // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(withEventPayload)
+        .encodedContract(payloadMap.get("with_event_payload"))
         .build();
     final ContractInterface contractInterface = deployAndGetAbi(key, definition);
 
@@ -505,7 +505,7 @@ public class ContractOperationIT extends AbstractIT {
               }
             });
     final ContractInvocation execution = contractInterface.newInvocationBuilder()
-        .function(executeFunction)
+        .function("set")
         .args(randomUUID().toString(), randomUUID().toString().hashCode(), randomUUID().toString())
         .build();
 
@@ -525,13 +525,13 @@ public class ContractOperationIT extends AbstractIT {
     // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(withEventPayload)
+        .encodedContract(payloadMap.get("with_event_payload"))
         .build();
     final ContractInterface contractInterface = deployAndGetAbi(key, definition);
 
     // when
     final EventFilter eventFilter = EventFilter.newBuilder(contractInterface.getAddress())
-        .eventName(executeFunction)
+        .eventName("set")
         .build();
     final int count = 3;
     final AtomicInteger countDown = new AtomicInteger(count);
@@ -556,11 +556,11 @@ public class ContractOperationIT extends AbstractIT {
             });
 
     final ContractInvocation targetExec = contractInterface.newInvocationBuilder()
-        .function(executeFunction)
+        .function("set")
         .args(randomUUID().toString(), randomUUID().toString().hashCode(), randomUUID().toString())
         .build();
     final ContractInvocation otherExec = contractInterface.newInvocationBuilder()
-        .function(executeFunction2)
+        .function("set2")
         .args(randomUUID().toString(), randomUUID().toString().hashCode(), randomUUID().toString())
         .build();
     for (int i = 0; i < count; ++i) {
@@ -581,7 +581,7 @@ public class ContractOperationIT extends AbstractIT {
     // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(withEventPayload)
+        .encodedContract(payloadMap.get("with_event_payload"))
         .build();
     final ContractInterface contractInterface = deployAndGetAbi(key, definition);
 
@@ -613,11 +613,11 @@ public class ContractOperationIT extends AbstractIT {
             });
 
     final ContractInvocation targetExec = contractInterface.newInvocationBuilder()
-        .function(executeFunction)
+        .function("set")
         .args(targetArg, randomUUID().toString().hashCode(), randomUUID().toString())
         .build();
     final ContractInvocation otherExec = contractInterface.newInvocationBuilder()
-        .function(executeFunction2)
+        .function("set2")
         .args(randomUUID().toString(), randomUUID().toString().hashCode(), randomUUID().toString())
         .build();
     for (int i = 0; i < count; ++i) {
@@ -638,22 +638,22 @@ public class ContractOperationIT extends AbstractIT {
     // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(withEventPayload)
+        .encodedContract(payloadMap.get("with_event_payload"))
         .build();
     final ContractInterface contractInterface = deployAndGetAbi(key, definition);
 
     // when
     final EventFilter eventFilter = EventFilter.newBuilder(contractInterface.getAddress())
-        .eventName(executeFunction)
+        .eventName("set")
         .recentBlockCount(1000)
         .build();
     final int count = 3;
     final ContractInvocation targetExec = contractInterface.newInvocationBuilder()
-        .function(executeFunction)
+        .function("set")
         .args(randomUUID().toString(), randomUUID().toString().hashCode(), randomUUID().toString())
         .build();
     final ContractInvocation otherExec = contractInterface.newInvocationBuilder()
-        .function(executeFunction2)
+        .function("set2")
         .args(randomUUID().toString(), randomUUID().toString().hashCode(), randomUUID().toString())
         .build();
     for (int i = 0; i < count; ++i) {
@@ -673,7 +673,7 @@ public class ContractOperationIT extends AbstractIT {
     // given
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(withEventPayload)
+        .encodedContract(payloadMap.get("with_event_payload"))
         .build();
     final ContractInterface contractInterface = deployAndGetAbi(key, definition);
 
@@ -685,11 +685,11 @@ public class ContractOperationIT extends AbstractIT {
         .build();
     final int count = 3;
     final ContractInvocation targetExec = contractInterface.newInvocationBuilder()
-        .function(executeFunction)
+        .function("set")
         .args(targetArg, randomUUID().toString().hashCode(), randomUUID().toString())
         .build();
     final ContractInvocation otherExec = contractInterface.newInvocationBuilder()
-        .function(executeFunction2)
+        .function("set2")
         .args(randomUUID().toString(), randomUUID().toString().hashCode(), randomUUID().toString())
         .build();
     for (int i = 0; i < count; ++i) {
@@ -702,6 +702,49 @@ public class ContractOperationIT extends AbstractIT {
     // then
     final List<Event> events = aergoClient.getContractOperation().listEvents(eventFilter);
     assertEquals(count, events.size());
+  }
+
+  @Test
+  public void shouldParseEventArgsInLuaTypes() {
+    // given
+    final AergoKey key = createNewKey();
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(payloadMap.get("with_event_nested_args_payload"))
+        .build();
+    final ContractInterface contractInterface = deployAndGetAbi(key, definition);
+
+    // when
+    final ContractInvocation targetExec = contractInterface.newInvocationBuilder()
+        .function("throwEvent")
+        .build();
+    final ContractTxReceipt receipt = execute(key, targetExec);
+
+    // then
+    final List<Event> events = receipt.getEvents();
+    final Event simpleArgs = events.get(0);
+    final Map<String, Object> simpleJson = new HashMap<>();
+    simpleJson.put("key", "value");
+    final List<Object> expectedSimpleArgs = asList(new Object[] {
+        simpleJson,
+        "text",
+        123.123,
+        123,
+        true
+    });
+    assertEquals(expectedSimpleArgs, simpleArgs.getArgs());
+
+    // and then
+    final Event nestedArgs = events.get(1);
+    final Map<String, Object> inner = new HashMap<>();
+    inner.put("innerKey", "123");
+    final Map<String, Object> expectedNested = new HashMap<>();
+    expectedNested.put("key", inner);
+    assertEquals(expectedNested, nestedArgs.getArgs().get(0));
+
+    // and then
+    final Event bignumArgs = events.get(2);
+    final BigNumber expectedBignum = new BigNumber("123");
+    assertEquals(expectedBignum, bignumArgs.getArgs().get(0));
   }
 
 

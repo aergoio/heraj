@@ -5,6 +5,7 @@
 package hera;
 
 import hera.client.it.AccountOperationIT;
+import hera.client.it.AergoClientIT;
 import hera.client.it.BlockOperationIT;
 import hera.client.it.BlockchainOperationIT;
 import hera.client.it.ContractOperationIT;
@@ -16,6 +17,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
+    AergoClientIT.class,
     AccountOperationIT.class,
     KeyStoreOperationIT.class,
     BlockOperationIT.class,

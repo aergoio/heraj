@@ -90,8 +90,7 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
             ListenableFuture<AccountOuterClass.AccountList> listenableFuture =
                 aergoService.getAccounts(empty);
             FutureChain<AccountOuterClass.AccountList, List<AccountAddress>> callback =
-                new FutureChain<AccountOuterClass.AccountList, List<AccountAddress>>(nextFuture,
-                    contextProvider.get());
+                new FutureChain<>(nextFuture);
             callback.setSuccessHandler(
                 new Function1<AccountOuterClass.AccountList, List<AccountAddress>>() {
 
@@ -139,8 +138,7 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
             ListenableFuture<AccountOuterClass.Account> listenableFuture =
                 aergoService.createAccount(rpcPassword);
             FutureChain<AccountOuterClass.Account, AccountAddress> callback =
-                new FutureChain<AccountOuterClass.Account, AccountAddress>(nextFuture,
-                    contextProvider.get());
+                new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<AccountOuterClass.Account, AccountAddress>() {
 
               @Override
@@ -181,8 +179,7 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
             ListenableFuture<AccountOuterClass.Account> listenableFuture =
                 aergoService.unlockAccount(rpcAuthentication);
             FutureChain<AccountOuterClass.Account, Boolean> callback =
-                new FutureChain<AccountOuterClass.Account, Boolean>(nextFuture,
-                    contextProvider.get());
+                new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<AccountOuterClass.Account, Boolean>() {
 
               @Override
@@ -230,8 +227,7 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
             ListenableFuture<AccountOuterClass.Account> listenableFuture =
                 aergoService.lockAccount(rpcAuthentication);
             FutureChain<AccountOuterClass.Account, Boolean> callback =
-                new FutureChain<AccountOuterClass.Account, Boolean>(nextFuture,
-                    contextProvider.get());
+                new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<AccountOuterClass.Account, Boolean>() {
 
               @Override
@@ -271,8 +267,7 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
           logger.trace("AergoService signTX arg: {}", rpcTx);
 
           ListenableFuture<Blockchain.Tx> listenableFuture = aergoService.signTX(rpcTx);
-          FutureChain<Blockchain.Tx, Transaction> callback =
-              new FutureChain<Blockchain.Tx, Transaction>(nextFuture, contextProvider.get());
+          FutureChain<Blockchain.Tx, Transaction> callback = new FutureChain<>(nextFuture);
           callback.setSuccessHandler(new Function1<Blockchain.Tx, Transaction>() {
             @Override
             public Transaction apply(final Blockchain.Tx tx) {
@@ -318,8 +313,7 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
             ListenableFuture<AccountOuterClass.Account> listenableFuture =
                 aergoService.importAccount(rpcImport);
             FutureChain<AccountOuterClass.Account, AccountAddress> callback =
-                new FutureChain<AccountOuterClass.Account, AccountAddress>(nextFuture,
-                    contextProvider.get());
+                new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<AccountOuterClass.Account, AccountAddress>() {
 
               @Override
@@ -364,8 +358,7 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
             ListenableFuture<Rpc.SingleBytes> listenableFuture =
                 aergoService.exportAccount(rpcAuthentication);
             FutureChain<Rpc.SingleBytes, EncryptedPrivateKey> callback =
-                new FutureChain<Rpc.SingleBytes, EncryptedPrivateKey>(nextFuture,
-                    contextProvider.get());
+                new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Rpc.SingleBytes, EncryptedPrivateKey>() {
 
               @Override

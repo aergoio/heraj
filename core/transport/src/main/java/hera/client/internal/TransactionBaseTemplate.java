@@ -80,9 +80,7 @@ public class TransactionBaseTemplate implements ChannelInjectable, ContextProvid
 
             ListenableFuture<Blockchain.TxInBlock> listenableFuture =
                 aergoService.getBlockTX(rpcTxHash);
-            FutureChain<Blockchain.TxInBlock, Transaction> callback =
-                new FutureChain<Blockchain.TxInBlock, Transaction>(nextFuture,
-                    contextProvider.get());
+            FutureChain<Blockchain.TxInBlock, Transaction> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Blockchain.TxInBlock, Transaction>() {
 
               @Override
@@ -129,8 +127,7 @@ public class TransactionBaseTemplate implements ChannelInjectable, ContextProvid
 
             ListenableFuture<Rpc.CommitResultList> listenableFuture =
                 aergoService.commitTX(rpcTxList);
-            FutureChain<Rpc.CommitResultList, TxHash> callback =
-                new FutureChain<Rpc.CommitResultList, TxHash>(nextFuture, contextProvider.get());
+            FutureChain<Rpc.CommitResultList, TxHash> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Rpc.CommitResultList, TxHash>() {
 
               @Override
@@ -179,8 +176,7 @@ public class TransactionBaseTemplate implements ChannelInjectable, ContextProvid
             logger.trace("AergoService sendTX arg: {}", rpcTx);
 
             ListenableFuture<Rpc.CommitResult> listenableFuture = aergoService.sendTX(rpcTx);
-            FutureChain<Rpc.CommitResult, TxHash> callback =
-                new FutureChain<Rpc.CommitResult, TxHash>(nextFuture, contextProvider.get());
+            FutureChain<Rpc.CommitResult, TxHash> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Rpc.CommitResult, TxHash>() {
 
               @Override

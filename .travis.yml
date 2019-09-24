@@ -8,6 +8,10 @@ jdk:
 
 dist: trusty
 
+env:
+  global:
+    - TMPDIR=/tmp
+
 sudo: false
 
 before_cache:

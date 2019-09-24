@@ -4,12 +4,12 @@
 
 package hera.client;
 
-import static hera.TransportConstants.KEYSTORE_CREATE;
-import static hera.TransportConstants.KEYSTORE_EXPORTKEY;
-import static hera.TransportConstants.KEYSTORE_IMPORTKEY;
-import static hera.TransportConstants.KEYSTORE_LIST;
-import static hera.TransportConstants.KEYSTORE_LOCK;
-import static hera.TransportConstants.KEYSTORE_UNLOCK;
+import static hera.client.ClientConstants.KEYSTORE_CREATE;
+import static hera.client.ClientConstants.KEYSTORE_EXPORTKEY;
+import static hera.client.ClientConstants.KEYSTORE_IMPORTKEY;
+import static hera.client.ClientConstants.KEYSTORE_LIST;
+import static hera.client.ClientConstants.KEYSTORE_LOCK;
+import static hera.client.ClientConstants.KEYSTORE_UNLOCK;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -17,7 +17,6 @@ import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import hera.AbstractTestCase;
-import hera.Context;
 import hera.ContextProvider;
 import hera.api.function.Function0;
 import hera.api.function.Function1;
@@ -42,12 +41,7 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
       final KeyStoreBaseTemplate keyStoreBaseTemplate) {
     final KeyStoreTemplate keyStoreTemplate = new KeyStoreTemplate();
     keyStoreTemplate.keyStoreBaseTemplate = keyStoreBaseTemplate;
-    keyStoreTemplate.setContextProvider(new ContextProvider() {
-      @Override
-      public Context get() {
-        return context;
-      }
-    });
+    keyStoreTemplate.setContextProvider(ContextProvider.defaultProvider);
     return keyStoreTemplate;
   }
 

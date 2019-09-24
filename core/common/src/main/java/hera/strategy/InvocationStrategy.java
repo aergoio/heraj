@@ -4,6 +4,9 @@
 
 package hera.strategy;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+
 import hera.Strategy;
 import hera.api.function.Function0;
 import hera.api.function.Function1;
@@ -12,18 +15,30 @@ import hera.api.function.Function3;
 import hera.api.function.Function4;
 import hera.api.function.Function5;
 import hera.api.function.FunctionDecorator;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 
-public abstract class OnInvocationStrategy implements Strategy, FunctionDecorator {
+@RequiredArgsConstructor
+public abstract class InvocationStrategy implements Strategy, FunctionDecorator {
 
-  public abstract <R> R action(hera.api.function.Function originFunction,
-      Function0<R> functionWithArgs);
+  /**
+   * An operation wrapping origin function.
+   *
+   * @param <R> an invocation return type
+   *
+   * @param f an origin function
+   * @param args function arguments
+   * 
+   * @return an invocation return value
+   */
+  protected abstract <R> R wrap(hera.api.function.Function<R> f, List<Object> args);
 
   @Override
   public <R> Function0<R> apply(final Function0<R> f) {
     return new Function0<R>() {
       @Override
       public R apply() {
-        return action(f, f);
+        return wrap(f, emptyList());
       }
     };
   }
@@ -33,12 +48,7 @@ public abstract class OnInvocationStrategy implements Strategy, FunctionDecorato
     return new Function1<T, R>() {
       @Override
       public R apply(final T t) {
-        return action(f, new Function0<R>() {
-          @Override
-          public R apply() {
-            return f.apply(t);
-          }
-        });
+        return wrap(f, asList(new Object[] {t}));
       }
     };
   }
@@ -48,12 +58,7 @@ public abstract class OnInvocationStrategy implements Strategy, FunctionDecorato
     return new Function2<T1, T2, R>() {
       @Override
       public R apply(final T1 t1, final T2 t2) {
-        return action(f, new Function0<R>() {
-          @Override
-          public R apply() {
-            return f.apply(t1, t2);
-          }
-        });
+        return wrap(f, asList(new Object[] {t1, t2}));
       }
     };
   }
@@ -63,12 +68,7 @@ public abstract class OnInvocationStrategy implements Strategy, FunctionDecorato
     return new Function3<T1, T2, T3, R>() {
       @Override
       public R apply(final T1 t1, final T2 t2, final T3 t3) {
-        return action(f, new Function0<R>() {
-          @Override
-          public R apply() {
-            return f.apply(t1, t2, t3);
-          }
-        });
+        return wrap(f, asList(new Object[] {t1, t2, t3}));
       }
     };
   }
@@ -79,12 +79,7 @@ public abstract class OnInvocationStrategy implements Strategy, FunctionDecorato
     return new Function4<T1, T2, T3, T4, R>() {
       @Override
       public R apply(final T1 t1, final T2 t2, final T3 t3, final T4 t4) {
-        return action(f, new Function0<R>() {
-          @Override
-          public R apply() {
-            return f.apply(t1, t2, t3, t4);
-          }
-        });
+        return wrap(f, asList(new Object[] {t1, t2, t3, t4}));
       }
     };
   }
@@ -95,12 +90,7 @@ public abstract class OnInvocationStrategy implements Strategy, FunctionDecorato
     return new Function5<T1, T2, T3, T4, T5, R>() {
       @Override
       public R apply(final T1 t1, final T2 t2, final T3 t3, final T4 t4, final T5 t5) {
-        return action(f, new Function0<R>() {
-          @Override
-          public R apply() {
-            return f.apply(t1, t2, t3, t4, t5);
-          }
-        });
+        return wrap(f, asList(new Object[] {t1, t2, t3, t4, t5}));
       }
     };
   }

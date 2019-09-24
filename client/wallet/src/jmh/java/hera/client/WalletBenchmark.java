@@ -5,19 +5,18 @@
 package hera.client;
 
 import static java.util.UUID.randomUUID;
-import hera.api.model.Account;
-import hera.api.model.AccountFactory;
+
+import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.Authentication;
 import hera.api.model.Fee;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
-import hera.wallet.Wallet;
-import hera.wallet.WalletBuilder;
-import hera.wallet.WalletType;
-import java.io.Closeable;
+import hera.keystore.InMemoryKeyStore;
+import hera.keystore.KeyStore;
+import hera.wallet.WalletApi;
+import hera.wallet.WalletFactory;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Level;
@@ -26,6 +25,7 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
+import org.openjdk.jmh.annotations.Threads;
 
 @BenchmarkMode(Mode.Throughput)
 public class WalletBenchmark {
@@ -33,40 +33,42 @@ public class WalletBenchmark {
   @State(Scope.Thread)
   public static class User {
 
-    protected Wallet wallet;
+    protected WalletApi walletApi;
 
-    protected Account recipient;
+    protected AergoClient client;
+
+    protected AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
 
     @Setup(Level.Trial)
     public synchronized void setUp() {
-      wallet = new WalletBuilder()
-          .withNonBlockingConnect()
-          .withEndpoint("localhost:7845")
-          .withRefresh(1, 10, TimeUnit.MILLISECONDS)
-          .withTimeout(3, TimeUnit.SECONDS)
-          .build(WalletType.Naive);
-
+      KeyStore keyStore = new InMemoryKeyStore();
       final AergoKey key = new AergoKeyGenerator().create();
-      final String password = randomUUID().toString();
-      wallet.saveKey(key, password);
-      wallet.unlock(Authentication.of(key.getAddress(), password));
-      recipient = new AccountFactory().create(key);
+      final Authentication auth = Authentication.of(key.getAddress(), randomUUID().toString());
+      keyStore.save(auth, key);
+
+      client = new AergoClientBuilder().withEndpoint("localhost:7845").build();
+
+      walletApi = new WalletFactory().create(keyStore);
+      walletApi.bind(client);
+      walletApi.unlock(auth);
     }
 
     public void send() {
-      wallet.send(recipient.getAddress(), Aer.ONE, Fee.getDefaultFee());
+      walletApi.transactionApi().send(recipient, Aer.ONE, Fee.EMPTY);
     }
 
     @TearDown(Level.Trial)
     public synchronized void tearDown() throws IOException {
-      ((Closeable) wallet).close();
+      client.close();
     }
   }
 
   @Benchmark
+  @Threads(1)
   public void send(final User user) {
     user.send();
   }
+
 }
 
 

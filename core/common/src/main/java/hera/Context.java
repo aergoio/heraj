@@ -45,9 +45,9 @@ public interface Context {
   Context withChainIdHash(ChainIdHash chainIdHash);
 
   /**
-   * Get chain id hash of a context.
+   * Get chain id hash of a context. null if not set.
    * 
-   * @return a scope
+   * @return a chain id hash
    */
   ChainIdHash getChainIdHash();
 

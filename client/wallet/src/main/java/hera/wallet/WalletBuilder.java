@@ -11,16 +11,24 @@ import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.client.ClientConfiguer;
+import hera.keystore.InMemoryKeyStore;
+import hera.keystore.KeyStore;
 import hera.wallet.internal.LegacyWallet;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * A legacy wallet api builder.
+ *
+ * @deprecated use {@link WalletFactory} instead.
+ *
+ */
 @ApiAudience.Public
 @ApiStability.Unstable
 public class WalletBuilder implements ClientConfiguer<WalletBuilder> {
 
   protected static final TryCountAndInterval MIMINUM_NONCE_REFRESH_COUNT =
-      TryCountAndInterval.of(1, Time.of(0, TimeUnit.SECONDS));
+      TryCountAndInterval.of(2, Time.of(100L, TimeUnit.MILLISECONDS));
 
   protected AergoClientBuilder clientBuilder = new AergoClientBuilder();
 
@@ -108,12 +116,14 @@ public class WalletBuilder implements ClientConfiguer<WalletBuilder> {
   public Wallet build(final WalletType walletType) {
     final AergoClient aergoClient = clientBuilder.build();
 
-    final WalletFactory walletFactory = new WalletFactory();
-    walletFactory.setRefresh(nonceRefreshTryInterval.getCount(),
-        nonceRefreshTryInterval.getInterval().getValue(),
-        nonceRefreshTryInterval.getInterval().getUnit());
-    final WalletApi delegate = walletFactory.create(walletType);
-    delegate.use(aergoClient);
+    if (!walletType.equals(WalletType.Naive)) {
+      throw new UnsupportedOperationException();
+    }
+
+    final KeyStore keyStore = new InMemoryKeyStore();
+    WalletApi delegate = new WalletFactory().create(keyStore, nonceRefreshTryInterval.getCount(),
+        nonceRefreshTryInterval.getInterval().toMilliseconds());
+    delegate.bind(aergoClient);
 
     return new LegacyWallet(delegate);
   }

@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.example.wallet;
+package hera.example.wallet.transaction;
 
 public class Data {
 

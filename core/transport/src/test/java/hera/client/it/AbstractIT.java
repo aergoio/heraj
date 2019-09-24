@@ -24,6 +24,7 @@ import hera.util.ThreadUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
@@ -62,6 +63,7 @@ public abstract class AbstractIT {
 
     final AergoClientBuilder clientBuilder = new AergoClientBuilder()
         .withNonBlockingConnect()
+        .withTimeout(180, TimeUnit.SECONDS)
         .withEndpoint(hostname);
 
     if (isTlsEnabled) {

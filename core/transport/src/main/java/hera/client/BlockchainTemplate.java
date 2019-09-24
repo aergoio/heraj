@@ -4,14 +4,14 @@
 
 package hera.client;
 
-import static hera.TransportConstants.BLOCKCHAIN_BLOCKCHAINSTATUS;
-import static hera.TransportConstants.BLOCKCHAIN_CHAININFO;
-import static hera.TransportConstants.BLOCKCHAIN_CHAINSTATS;
-import static hera.TransportConstants.BLOCKCHAIN_LIST_PEERS;
-import static hera.TransportConstants.BLOCKCHAIN_NODESTATUS;
-import static hera.TransportConstants.BLOCKCHAIN_PEERMETRICS;
-import static hera.TransportConstants.BLOCKCHAIN_SERVERINFO;
 import static hera.api.function.Functions.identify;
+import static hera.client.ClientConstants.BLOCKCHAIN_BLOCKCHAINSTATUS;
+import static hera.client.ClientConstants.BLOCKCHAIN_CHAININFO;
+import static hera.client.ClientConstants.BLOCKCHAIN_CHAINSTATS;
+import static hera.client.ClientConstants.BLOCKCHAIN_LIST_PEERS;
+import static hera.client.ClientConstants.BLOCKCHAIN_NODESTATUS;
+import static hera.client.ClientConstants.BLOCKCHAIN_PEERMETRICS;
+import static hera.client.ClientConstants.BLOCKCHAIN_SERVERINFO;
 
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
@@ -31,7 +31,8 @@ import hera.api.model.PeerMetric;
 import hera.api.model.ServerInfo;
 import hera.client.internal.BlockchainBaseTemplate;
 import hera.client.internal.FinishableFuture;
-import hera.strategy.StrategyChain;
+import hera.strategy.PriorityProvider;
+import hera.strategy.StrategyApplier;
 import io.grpc.ManagedChannel;
 import java.util.List;
 import lombok.AccessLevel;
@@ -50,7 +51,8 @@ public class BlockchainTemplate
   protected ContextProvider contextProvider;
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
+  private final StrategyApplier strategyApplier =
+      StrategyApplier.of(contextProvider.get(), PriorityProvider.get());
 
   @Override
   public void setChannel(final ManagedChannel channel) {
@@ -65,38 +67,38 @@ public class BlockchainTemplate
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function0<FinishableFuture<BlockchainStatus>> blockchainStatusFunction =
-      getStrategyChain().apply(identify(getBlockchainBaseTemplate().getBlockchainStatusFunction(),
+      getStrategyApplier().apply(identify(getBlockchainBaseTemplate().getBlockchainStatusFunction(),
           BLOCKCHAIN_BLOCKCHAINSTATUS));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function0<FinishableFuture<ChainInfo>> chainInfoFunction =
-      getStrategyChain().apply(identify(getBlockchainBaseTemplate().getChainInfoFunction(),
+      getStrategyApplier().apply(identify(getBlockchainBaseTemplate().getChainInfoFunction(),
           BLOCKCHAIN_CHAININFO));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function0<FinishableFuture<ChainStats>> chainStatsFunction =
-      getStrategyChain().apply(identify(getBlockchainBaseTemplate().getChainStatsFunction(),
+      getStrategyApplier().apply(identify(getBlockchainBaseTemplate().getChainStatsFunction(),
           BLOCKCHAIN_CHAINSTATS));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function2<Boolean, Boolean, FinishableFuture<List<Peer>>> listPeersFunction =
-      getStrategyChain().apply(
+      getStrategyApplier().apply(
           identify(getBlockchainBaseTemplate().getListPeersFunction(), BLOCKCHAIN_LIST_PEERS));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function0<FinishableFuture<List<PeerMetric>>> listPeerMetricsFunction =
-      getStrategyChain().apply(
+      getStrategyApplier().apply(
           identify(getBlockchainBaseTemplate().getListPeersMetricsFunction(),
               BLOCKCHAIN_PEERMETRICS));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<List<String>, FinishableFuture<ServerInfo>> serverInfoFunction =
-      getStrategyChain().apply(
+      getStrategyApplier().apply(
           identify(getBlockchainBaseTemplate().getServerInfoFunction(), BLOCKCHAIN_SERVERINFO));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function0<FinishableFuture<NodeStatus>> nodeStatusFunction =
-      getStrategyChain().apply(
+      getStrategyApplier().apply(
           identify(getBlockchainBaseTemplate().getNodeStatusFunction(), BLOCKCHAIN_NODESTATUS));
 
   @Override

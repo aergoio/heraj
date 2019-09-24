@@ -12,6 +12,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import hera.AbstractTestCase;
+import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
@@ -58,7 +59,7 @@ public class InMemoryKeyStoreTest extends AbstractTestCase {
         Authentication.of(key.getAddress(), password);
     keyStore.save(authentication, key);
 
-    assertTrue(keyStore.unlock(authentication));
+    assertNotNull(keyStore.unlock(authentication));
     assertTrue(keyStore.lock(authentication));
   }
 
@@ -68,7 +69,12 @@ public class InMemoryKeyStoreTest extends AbstractTestCase {
 
     final String password = randomUUID().toString();
     final Authentication authentication = Authentication.of(invalidIdentity, password);
-    assertFalse(keyStore.unlock(authentication));
+    try {
+      keyStore.unlock(authentication);
+      fail();
+    } catch (Exception e) {
+      // good we expected this
+    }
   }
 
   @Test
@@ -80,7 +86,7 @@ public class InMemoryKeyStoreTest extends AbstractTestCase {
     final Authentication authentication = Authentication.of(key.getAddress(), password);
     keyStore.save(authentication, key);
 
-    assertTrue(keyStore.unlock(authentication));
+    assertNotNull(keyStore.unlock(authentication));
 
     final Authentication invalid = Authentication.of(invalidIdentity, password);
     assertFalse(keyStore.lock(invalid));
@@ -95,7 +101,7 @@ public class InMemoryKeyStoreTest extends AbstractTestCase {
     final Authentication authentication = Authentication.of(key.getAddress(), password);
     keyStore.save(authentication, key);
 
-    keyStore.unlock(authentication);
+    final AccountAddress unlocked = keyStore.unlock(authentication);
     final RawTransaction rawTransaction = RawTransaction.newBuilder(chainIdHash)
         .from(key.getAddress())
         .to(key.getAddress())
@@ -103,7 +109,7 @@ public class InMemoryKeyStoreTest extends AbstractTestCase {
         .nonce(1)
         .build();
 
-    final Transaction signed = keyStore.sign(rawTransaction);
+    final Transaction signed = keyStore.sign(unlocked, rawTransaction);
     assertNotNull(signed);
   }
 
@@ -124,11 +130,17 @@ public class InMemoryKeyStoreTest extends AbstractTestCase {
         .build();
 
     try {
-      keyStore.sign(rawTransaction);
+      keyStore.sign(key.getAddress(), rawTransaction);
       fail("Sign on locked account should throw exception");
     } catch (Exception e) {
       // good we expected this
     }
+  }
+
+  @Test
+  public void testStore() {
+    InMemoryKeyStore keyStore = new InMemoryKeyStore();
+    keyStore.store(randomUUID().toString(), randomUUID().toString().toCharArray());
   }
 
 }

@@ -127,8 +127,7 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
             ListenableFuture<Rpc.BlockchainStatus> listenableFuture =
                 aergoService.blockchain(empty);
             FutureChain<Rpc.BlockchainStatus, BlockchainStatus> callback =
-                new FutureChain<Rpc.BlockchainStatus, BlockchainStatus>(nextFuture,
-                    contextProvider.get());
+                new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Rpc.BlockchainStatus, BlockchainStatus>() {
 
               @Override
@@ -159,9 +158,7 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
 
             ListenableFuture<Rpc.ChainInfo> listenableFuture =
                 aergoService.getChainInfo(empty);
-            FutureChain<Rpc.ChainInfo, ChainInfo> callback =
-                new FutureChain<Rpc.ChainInfo, ChainInfo>(nextFuture,
-                    contextProvider.get());
+            FutureChain<Rpc.ChainInfo, ChainInfo> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Rpc.ChainInfo, ChainInfo>() {
 
               @Override
@@ -191,9 +188,7 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
             logger.trace("AergoService getChainStats arg: {}", empty);
 
             ListenableFuture<Rpc.ChainStats> listenableFuture = aergoService.chainStat(empty);
-            FutureChain<Rpc.ChainStats, ChainStats> callback =
-                new FutureChain<Rpc.ChainStats, ChainStats>(nextFuture,
-                    contextProvider.get());
+            FutureChain<Rpc.ChainStats, ChainStats> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Rpc.ChainStats, ChainStats>() {
 
               @Override
@@ -227,8 +222,7 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
             logger.trace("AergoService getPeers arg: {}", peersParams);
 
             ListenableFuture<Rpc.PeerList> listenableFuture = aergoService.getPeers(peersParams);
-            FutureChain<Rpc.PeerList, List<Peer>> callback =
-                new FutureChain<Rpc.PeerList, List<Peer>>(nextFuture, contextProvider.get());
+            FutureChain<Rpc.PeerList, List<Peer>> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Rpc.PeerList, List<Peer>>() {
 
               @Override
@@ -265,9 +259,7 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
 
             ListenableFuture<Metric.Metrics> listenableFuture =
                 aergoService.metric(rpcMetricRequest);
-            FutureChain<Metric.Metrics, List<PeerMetric>> callback =
-                new FutureChain<Metric.Metrics, List<PeerMetric>>(nextFuture,
-                    contextProvider.get());
+            FutureChain<Metric.Metrics, List<PeerMetric>> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Metric.Metrics, List<PeerMetric>>() {
 
               @Override
@@ -304,8 +296,7 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
 
             ListenableFuture<Rpc.ServerInfo> listenableFuture =
                 aergoService.getServerInfo(rpcServerInfoRequest);
-            FutureChain<Rpc.ServerInfo, ServerInfo> callback =
-                new FutureChain<Rpc.ServerInfo, ServerInfo>(nextFuture, contextProvider.get());
+            FutureChain<Rpc.ServerInfo, ServerInfo> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Rpc.ServerInfo, ServerInfo>() {
 
               @Override
@@ -338,8 +329,7 @@ public class BlockchainBaseTemplate implements ChannelInjectable, ContextProvide
 
             ListenableFuture<Rpc.SingleBytes> listenableFuture =
                 aergoService.nodeState(rpcNodeRequest);
-            FutureChain<Rpc.SingleBytes, NodeStatus> callback =
-                new FutureChain<Rpc.SingleBytes, NodeStatus>(nextFuture, contextProvider.get());
+            FutureChain<Rpc.SingleBytes, NodeStatus> callback = new FutureChain<>(nextFuture);
             callback.setSuccessHandler(new Function1<Rpc.SingleBytes, NodeStatus>() {
 
               @Override

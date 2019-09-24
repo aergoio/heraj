@@ -48,8 +48,7 @@ public class PlainTransactionBuilder implements
 
   @Override
   public PlainTransaction.WithChainIdHash chainIdHash(final ChainIdHash chainIdHash) {
-    assertNotNull(chainIdHash);
-    this.chainIdHash = chainIdHash;
+    this.chainIdHash = null == chainIdHash ? new ChainIdHash(BytesValue.EMPTY) : chainIdHash;
     return this;
   }
 

@@ -4,10 +4,10 @@
 
 package hera.client;
 
-import static hera.TransportConstants.TRANSACTION_COMMIT;
-import static hera.TransportConstants.TRANSACTION_GETTX;
-import static hera.TransportConstants.TRANSACTION_SEND;
 import static hera.api.function.Functions.identify;
+import static hera.client.ClientConstants.TRANSACTION_COMMIT;
+import static hera.client.ClientConstants.TRANSACTION_GETTX;
+import static hera.client.ClientConstants.TRANSACTION_SEND;
 
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
@@ -22,7 +22,8 @@ import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.client.internal.FinishableFuture;
 import hera.client.internal.TransactionBaseTemplate;
-import hera.strategy.StrategyChain;
+import hera.strategy.PriorityProvider;
+import hera.strategy.StrategyApplier;
 import io.grpc.ManagedChannel;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -38,7 +39,8 @@ public class TransactionTemplate
   protected ContextProvider contextProvider;
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final StrategyChain strategyChain = StrategyChain.of(contextProvider.get());
+  private final StrategyApplier strategyApplier =
+      StrategyApplier.of(contextProvider.get(), PriorityProvider.get());
 
   @Override
   public void setChannel(final ManagedChannel channel) {
@@ -53,18 +55,18 @@ public class TransactionTemplate
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<TxHash, FinishableFuture<Transaction>> transactionFunction =
-      getStrategyChain().apply(identify(getTransactionBaseTemplate().getTransactionFunction(),
+      getStrategyApplier().apply(identify(getTransactionBaseTemplate().getTransactionFunction(),
           TRANSACTION_GETTX));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<Transaction, FinishableFuture<TxHash>> commitFunction =
-      getStrategyChain()
+      getStrategyApplier()
           .apply(identify(getTransactionBaseTemplate().getCommitFunction(), TRANSACTION_COMMIT));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function3<AccountAddress, AccountAddress, Aer,
       FinishableFuture<TxHash>> sendFunction =
-          getStrategyChain()
+          getStrategyApplier()
               .apply(identify(getTransactionBaseTemplate().getSendFunction(), TRANSACTION_SEND));
 
   @Override
