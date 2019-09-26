@@ -76,27 +76,27 @@ public class TransactionBaseTemplate implements ChannelInjectable, ContextProvid
             final Rpc.SingleBytes rpcTxHash = Rpc.SingleBytes.newBuilder()
                 .setValue(copyFrom(txHash.getBytesValue()))
                 .build();
-            logger.trace("AergoService getBlockTX arg: {}", rpcTxHash);
+            logger.trace("AergoService getTX arg: {}", rpcTxHash);
 
-            ListenableFuture<Blockchain.TxInBlock> listenableFuture =
-                aergoService.getBlockTX(rpcTxHash);
-            FutureChain<Blockchain.TxInBlock, Transaction> callback = new FutureChain<>(nextFuture);
-            callback.setSuccessHandler(new Function1<Blockchain.TxInBlock, Transaction>() {
+            ListenableFuture<Blockchain.Tx> listenableFuture =
+                aergoService.getTX(rpcTxHash);
+            FutureChain<Blockchain.Tx, Transaction> callback = new FutureChain<>(nextFuture);
+            callback.setSuccessHandler(new Function1<Blockchain.Tx, Transaction>() {
 
               @Override
-              public Transaction apply(final Blockchain.TxInBlock txInBlock) {
-                return transactionInBlockConverter.convertToDomainModel(txInBlock);
+              public Transaction apply(final Blockchain.Tx rpcTx) {
+                return transactionConverter.convertToDomainModel(rpcTx);
               }
             });
             callback.setFailureHandler(new Function1<Throwable, Transaction>() {
 
               @Override
               public Transaction apply(final Throwable t) {
-                logger.debug("Transaction {} is not in a block. Check mempool", txHash);
+                logger.debug("Transaction {} is not in a mempool. Check block", txHash);
                 try {
-                  logger.trace("AergoService getTX arg: {}", rpcTxHash);
-                  Blockchain.Tx tx = aergoService.getTX(rpcTxHash).get();
-                  return transactionConverter.convertToDomainModel(tx);
+                  logger.trace("AergoService getBlockTX arg: {}", rpcTxHash);
+                  Blockchain.TxInBlock tx = aergoService.getBlockTX(rpcTxHash).get();
+                  return transactionInBlockConverter.convertToDomainModel(tx);
                 } catch (Exception e) {
                   throw new RpcException(e);
                 }
