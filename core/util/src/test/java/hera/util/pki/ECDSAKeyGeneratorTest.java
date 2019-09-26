@@ -5,6 +5,7 @@
 package hera.util.pki;
 
 import static hera.util.HexUtils.dump;
+import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -39,6 +40,19 @@ public class ECDSAKeyGeneratorTest extends AbstractTestCase {
     logger.debug("Public Key:\n{}", dump(key.getPublicKey().getEncoded()));
     logger.debug("Recovered public key:\n{}", dump(keyRecovered.getPublicKey().getEncoded()));
     assertArrayEquals(key.getPublicKey().getEncoded(), keyRecovered.getPublicKey().getEncoded());
+  }
+
+  @Test
+  public void testCreateWithSeed() throws Exception {
+    final ECDSAKeyGenerator generator = new ECDSAKeyGenerator();
+    final String seed = randomUUID().toString();
+
+    ECDSAKey prev = generator.create(seed);
+    for (int i = 1; i < 100; ++i) {
+      final ECDSAKey curr = generator.create(seed);
+      assertEquals(curr, prev);
+      prev = curr;
+    }
   }
 
   @Test
