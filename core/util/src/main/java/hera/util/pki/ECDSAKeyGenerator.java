@@ -56,18 +56,6 @@ public class ECDSAKeyGenerator implements KeyGenerator<ECDSAKey> {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  @Override
-  public ECDSAKey create() throws Exception {
-    return generateKey(new SecureRandom());
-  }
-
-  @Override
-  public ECDSAKey create(final String seed) throws Exception {
-    final byte[] digested = Sha256Utils.digest(seed.getBytes());
-    final SecureRandom secureRandom = new FixedSecureRandom(digested);
-    return generateKey(secureRandom);
-  }
-
   protected ECDSAKey generateKey(final SecureRandom secureRandom)
       throws NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
     final KeyPairGenerator generator = getKeyPairGenerator(secureRandom);
@@ -85,6 +73,18 @@ public class ECDSAKeyGenerator implements KeyGenerator<ECDSAKey> {
     keyPairGenerator.initialize(ecSpec, secureRandom);
     logger.debug("Generator: {}", keyPairGenerator);
     return keyPairGenerator;
+  }
+
+  @Override
+  public ECDSAKey create() throws Exception {
+    return generateKey(new SecureRandom());
+  }
+
+  @Override
+  public ECDSAKey create(final String seed) throws Exception {
+    final byte[] digested = Sha256Utils.digest(seed.getBytes());
+    final SecureRandom secureRandom = new FixedSecureRandom(digested);
+    return generateKey(secureRandom);
   }
 
   /**
