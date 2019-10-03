@@ -5,11 +5,14 @@
 
 package hera.key;
 
+import static hera.util.IoUtils.from;
 import static hera.util.Sha256Utils.digest;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.api.encode.Decoder;
+import hera.api.encode.Encoder;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
@@ -24,11 +27,11 @@ import hera.spec.resolver.AddressResolver;
 import hera.spec.resolver.EncryptedPrivateKeyResolver;
 import hera.spec.resolver.SignatureResolver;
 import hera.spec.resolver.TransactionHashResolver;
-import hera.util.Base64Utils;
 import hera.util.NumberUtils;
 import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSAKeyGenerator;
 import hera.util.pki.ECDSASignature;
+import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -39,7 +42,7 @@ import org.slf4j.Logger;
 @ApiAudience.Public
 @ApiStability.Unstable
 @EqualsAndHashCode(exclude = {"logger", "verifier"})
-public class AergoKey implements KeyPair, Signer, MessageSigner, TxVerifier {
+public class AergoKey implements KeyPair, Signer, MessageSigner {
 
   /**
    * Create a key pair with encoded encrypted private key and password.
@@ -160,9 +163,15 @@ public class AergoKey implements KeyPair, Signer, MessageSigner, TxVerifier {
 
   @Override
   public String signMessage(final String message) {
+    return signMessage(message, Encoder.Base64);
+  }
+
+  @Override
+  public String signMessage(final String message, final Encoder encoder) {
     try {
       final Signature signature = signMessage(new BytesValue(message.getBytes()));
-      return Base64Utils.encode(signature.getSign().getValue());
+      final byte[] rawSignature = signature.getSign().getValue();
+      return from(encoder.encode(new ByteArrayInputStream(rawSignature)));
     } catch (HerajException e) {
       throw e;
     } catch (Exception e) {
@@ -186,35 +195,14 @@ public class AergoKey implements KeyPair, Signer, MessageSigner, TxVerifier {
     }
   }
 
-  @Override
-  public boolean verify(final Transaction transaction) {
-    try {
-      if (!getAddress().equals(transaction.getSender())) {
-        return false;
-      }
-      return verifier.verify(transaction);
-    } catch (HerajException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new HerajException(e);
-    }
-  }
-
   /**
-   * Check if {@code signature} is valid for {@code hash} and current address.
+   * Check if {@code Transaction} is valid.
    *
-   * @param hash a hash
-   * @param signature signature to verify
+   * @param transaction transaction to verify
    * @return if valid
    */
-  public boolean verify(final Hash hash, final Signature signature) {
-    try {
-      return verifier.verify(getAddress(), hash, signature);
-    } catch (HerajException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new HerajException(e);
-    }
+  public boolean verify(final Transaction transaction) {
+    return verifier.verify(transaction);
   }
 
   /**
@@ -226,13 +214,21 @@ public class AergoKey implements KeyPair, Signer, MessageSigner, TxVerifier {
    * @return if valid
    */
   public boolean verifyMessage(final String message, final String base64EncodedSignature) {
-    try {
-      return verifier.verifyMessage(getAddress(), message, base64EncodedSignature);
-    } catch (HerajException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new HerajException(e);
-    }
+    return verifier.verifyMessage(getAddress(), message, base64EncodedSignature);
+  }
+
+  /**
+   * Check if {@code base64EncodedSignature} is valid for current {@code accountAddress} and
+   * {@code message}. It hashes {@code message} and verify hashed one.
+   *
+   * @param message a message
+   * @param encodedSignature an encoded signature
+   * @param decoder a decoder to decode encoded signature
+   *
+   * @return if valid
+   */
+  public boolean verifyMessage(String message, String encodedSignature, Decoder decoder) {
+    return verifier.verifyMessage(getAddress(), message, encodedSignature, decoder);
   }
 
   /**
@@ -244,13 +240,18 @@ public class AergoKey implements KeyPair, Signer, MessageSigner, TxVerifier {
    * @return if valid
    */
   public boolean verifyMessage(final BytesValue message, final Signature signature) {
-    try {
-      return verifier.verifyMessage(getAddress(), message, signature);
-    } catch (HerajException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new HerajException(e);
-    }
+    return verifier.verifyMessage(getAddress(), message, signature);
+  }
+
+  /**
+   * Check if {@code signature} is valid for {@code hash} and current address.
+   *
+   * @param hashedMessage a hashed message
+   * @param signature signature to verify
+   * @return if valid
+   */
+  public boolean verifyMessage(final Hash hashedMessage, final Signature signature) {
+    return verifier.verifyMessage(getAddress(), hashedMessage, signature);
   }
 
   /**
@@ -279,4 +280,5 @@ public class AergoKey implements KeyPair, Signer, MessageSigner, TxVerifier {
   public String toString() {
     return String.format("Address: %s", getAddress());
   }
+
 }

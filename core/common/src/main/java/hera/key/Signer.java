@@ -6,17 +6,19 @@ package hera.key;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.model.AccountAddress;
+import hera.api.model.RawTransaction;
+import hera.api.model.Transaction;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public interface Signer extends TxSigner {
+public interface Signer extends WithPrincipal, TxSigner {
 
   /**
-   * Get principal of a signer.
+   * Sign to raw transaction.
    *
-   * @return a identitprincipal of signer
+   * @param rawTransaction raw transaction to sign
+   * @return a signed transaction
    */
-  AccountAddress getPrincipal();
+  Transaction sign(RawTransaction rawTransaction);
 
 }

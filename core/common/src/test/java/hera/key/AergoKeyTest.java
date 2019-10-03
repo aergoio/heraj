@@ -12,6 +12,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import hera.AbstractTestCase;
+import hera.api.encode.Decoder;
+import hera.api.encode.Encoder;
 import hera.api.model.Aer.Unit;
 import hera.api.model.BytesValue;
 import hera.api.model.ChainIdHash;
@@ -76,12 +78,19 @@ public class AergoKeyTest extends AbstractTestCase {
 
   @Test
   public void testSignAndVerifyMessageInString() throws Exception {
+    Encoder[] encoders = new Encoder[] {Encoder.Hex, Encoder.Base58, Encoder.Base64};
+    Decoder[] decoders = new Decoder[] {Decoder.Hex, Decoder.Base58, Decoder.Base64};
+
     for (int i = 0; i < N_TEST; ++i) {
       final AergoKey key = new AergoKeyGenerator().create();
 
       final String message = randomUUID().toString();
-      final String signature = key.signMessage(message);
-      assertTrue(key.verifyMessage(message, signature));
+      for (int j = 0; j < encoders.length; ++j) {
+        final Encoder encoder = encoders[j];
+        final Decoder decoder = decoders[j];
+        final String signature = key.signMessage(message, encoder);
+        assertTrue(key.verifyMessage(message, signature, decoder));
+      }
     }
   }
 
