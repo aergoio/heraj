@@ -11,6 +11,7 @@ import static org.bouncycastle.jce.ECNamedCurveTable.getParameterSpec;
 import static org.bouncycastle.jce.provider.BouncyCastleProvider.PROVIDER_NAME;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.util.Sha256Utils;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyFactory;
@@ -20,9 +21,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.Security;
 import java.security.spec.PKCS8EncodedKeySpec;
 import org.bouncycastle.crypto.params.ECDomainParameters;
+import org.bouncycastle.crypto.prng.FixedSecureRandom;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.jce.spec.ECPrivateKeySpec;
@@ -30,7 +33,7 @@ import org.bouncycastle.jce.spec.ECPublicKeySpec;
 import org.bouncycastle.math.ec.ECPoint;
 import org.slf4j.Logger;
 
-<span class="fc" id="L33">public class ECDSAKeyGenerator implements KeyGenerator&lt;ECDSAKey&gt; {</span>
+<span class="fc" id="L36">public class ECDSAKeyGenerator implements KeyGenerator&lt;ECDSAKey&gt; {</span>
 
   protected static final String KEY_ALGORITHM = &quot;ECDSA&quot;;
 
@@ -41,35 +44,47 @@ import org.slf4j.Logger;
   public static final ECDomainParameters ecParams;
 
   static {
-<span class="fc" id="L44">    java.security.Provider provider = getProvider(PROVIDER_NAME);</span>
-<span class="fc bfc" id="L45" title="All 2 branches covered.">    if (provider != null) {</span>
-<span class="fc" id="L46">      Security.removeProvider(PROVIDER_NAME);</span>
+<span class="fc" id="L47">    java.security.Provider provider = getProvider(PROVIDER_NAME);</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">    if (provider != null) {</span>
+<span class="fc" id="L49">      Security.removeProvider(PROVIDER_NAME);</span>
     }
-<span class="fc" id="L48">    addProvider(new BouncyCastleProvider());</span>
-<span class="fc" id="L49">    ecSpec = getParameterSpec(CURVE_NAME);</span>
-<span class="fc" id="L50">    ecParams = new ECDomainParameters(ecSpec.getCurve(), ecSpec.getG(), ecSpec.getN(),</span>
-<span class="fc" id="L51">        ecSpec.getH(), ecSpec.getSeed());</span>
-<span class="fc" id="L52">  }</span>
+<span class="fc" id="L51">    addProvider(new BouncyCastleProvider());</span>
+<span class="fc" id="L52">    ecSpec = getParameterSpec(CURVE_NAME);</span>
+<span class="fc" id="L53">    ecParams = new ECDomainParameters(ecSpec.getCurve(), ecSpec.getG(), ecSpec.getN(),</span>
+<span class="fc" id="L54">        ecSpec.getH(), ecSpec.getSeed());</span>
+<span class="fc" id="L55">  }</span>
 
-<span class="fc" id="L54">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L57">  protected final transient Logger logger = getLogger(getClass());</span>
 
-  protected KeyPairGenerator getKeyPairGenerator()
+  protected ECDSAKey generateKey(final SecureRandom secureRandom)
       throws NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
-<span class="fc" id="L58">    final KeyPairGenerator keyPairGenerator =</span>
-<span class="fc" id="L59">        KeyPairGenerator.getInstance(KEY_ALGORITHM, PROVIDER_NAME);</span>
-<span class="fc" id="L60">    keyPairGenerator.initialize(ecSpec);</span>
-<span class="fc" id="L61">    logger.debug(&quot;Generator: {}&quot;, keyPairGenerator);</span>
-<span class="fc" id="L62">    return keyPairGenerator;</span>
+<span class="fc" id="L61">    final KeyPairGenerator generator = getKeyPairGenerator(secureRandom);</span>
+<span class="fc" id="L62">    final KeyPair pair = generator.generateKeyPair();</span>
+<span class="fc" id="L63">    final PrivateKey privateKey = pair.getPrivate();</span>
+<span class="fc" id="L64">    final PublicKey publicKey = pair.getPublic();</span>
+<span class="fc" id="L65">    logger.trace(&quot;Public key: {}&quot;, publicKey);</span>
+<span class="fc" id="L66">    return new ECDSAKey(privateKey, publicKey, ecParams);</span>
+  }
+
+  protected KeyPairGenerator getKeyPairGenerator(final SecureRandom secureRandom)
+      throws NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
+<span class="fc" id="L71">    final KeyPairGenerator keyPairGenerator =</span>
+<span class="fc" id="L72">        KeyPairGenerator.getInstance(KEY_ALGORITHM, PROVIDER_NAME);</span>
+<span class="fc" id="L73">    keyPairGenerator.initialize(ecSpec, secureRandom);</span>
+<span class="fc" id="L74">    logger.debug(&quot;Generator: {}&quot;, keyPairGenerator);</span>
+<span class="fc" id="L75">    return keyPairGenerator;</span>
   }
 
   @Override
   public ECDSAKey create() throws Exception {
-<span class="fc" id="L67">    final KeyPairGenerator generator = getKeyPairGenerator();</span>
-<span class="fc" id="L68">    final KeyPair pair = generator.generateKeyPair();</span>
-<span class="fc" id="L69">    final PrivateKey privateKey = pair.getPrivate();</span>
-<span class="fc" id="L70">    final PublicKey publicKey = pair.getPublic();</span>
-<span class="fc" id="L71">    logger.trace(&quot;Public key: {}&quot;, publicKey);</span>
-<span class="fc" id="L72">    return new ECDSAKey(privateKey, publicKey, ecParams);</span>
+<span class="fc" id="L80">    return generateKey(new SecureRandom());</span>
+  }
+
+  @Override
+  public ECDSAKey create(final String seed) throws Exception {
+<span class="fc" id="L85">    final byte[] digested = Sha256Utils.digest(seed.getBytes());</span>
+<span class="fc" id="L86">    final SecureRandom secureRandom = new FixedSecureRandom(digested);</span>
+<span class="fc" id="L87">    return generateKey(secureRandom);</span>
   }
 
   /**
@@ -80,9 +95,9 @@ import org.slf4j.Logger;
    * @throws Exception On failure of recovery
    */
   public ECDSAKey create(final byte[] encodedPrivateKey) throws Exception {
-<span class="fc" id="L83">    final KeyFactory factory = KeyFactory.getInstance(KEY_ALGORITHM);</span>
-<span class="fc" id="L84">    final PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(encodedPrivateKey);</span>
-<span class="fc" id="L85">    return create(factory.generatePrivate(spec));</span>
+<span class="fc" id="L98">    final KeyFactory factory = KeyFactory.getInstance(KEY_ALGORITHM);</span>
+<span class="fc" id="L99">    final PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(encodedPrivateKey);</span>
+<span class="fc" id="L100">    return create(factory.generatePrivate(spec));</span>
   }
 
   /**
@@ -93,7 +108,7 @@ import org.slf4j.Logger;
    * @throws Exception On failure of recovery
    */
   public ECDSAKey create(final BigInteger d) throws Exception {
-<span class="fc" id="L96">    return create(createPrivateKey(d));</span>
+<span class="fc" id="L111">    return create(createPrivateKey(d));</span>
   }
 
   /**
@@ -104,12 +119,12 @@ import org.slf4j.Logger;
    * @throws Exception On failure of recovery
    */
   public ECDSAKey create(final PrivateKey privateKey) throws Exception {
-<span class="fc" id="L107">    final KeyFactory factory = KeyFactory.getInstance(KEY_ALGORITHM);</span>
-<span class="fc" id="L108">    final ECPoint Q = ecSpec.getG()</span>
-<span class="fc" id="L109">        .multiply(((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD());</span>
-<span class="fc" id="L110">    final ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(Q, ecSpec);</span>
-<span class="fc" id="L111">    final PublicKey publicKey = factory.generatePublic(ecPublicKeySpec);</span>
-<span class="fc" id="L112">    return new ECDSAKey(privateKey, publicKey, ecParams);</span>
+<span class="fc" id="L122">    final KeyFactory factory = KeyFactory.getInstance(KEY_ALGORITHM);</span>
+<span class="fc" id="L123">    final ECPoint Q = ecSpec.getG()</span>
+<span class="fc" id="L124">        .multiply(((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD());</span>
+<span class="fc" id="L125">    final ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(Q, ecSpec);</span>
+<span class="fc" id="L126">    final PublicKey publicKey = factory.generatePublic(ecPublicKeySpec);</span>
+<span class="fc" id="L127">    return new ECDSAKey(privateKey, publicKey, ecParams);</span>
   }
 
   /**
@@ -120,9 +135,9 @@ import org.slf4j.Logger;
    * @throws Exception on failure of create
    */
   public PrivateKey createPrivateKey(final BigInteger d) throws Exception {
-<span class="fc" id="L123">    final KeyFactory factory = KeyFactory.getInstance(KEY_ALGORITHM);</span>
-<span class="fc" id="L124">    final ECPrivateKeySpec spec = new ECPrivateKeySpec(d, ecSpec);</span>
-<span class="fc" id="L125">    return factory.generatePrivate(spec);</span>
+<span class="fc" id="L138">    final KeyFactory factory = KeyFactory.getInstance(KEY_ALGORITHM);</span>
+<span class="fc" id="L139">    final ECPrivateKeySpec spec = new ECPrivateKeySpec(d, ecSpec);</span>
+<span class="fc" id="L140">    return factory.generatePrivate(spec);</span>
   }
 
   /**
@@ -135,7 +150,7 @@ import org.slf4j.Logger;
    */
 
   public PublicKey createPublicKey(final byte[] compressed) throws Exception {
-<span class="fc" id="L138">    return createPublicKey(ecParams.getCurve().decodePoint(compressed));</span>
+<span class="fc" id="L153">    return createPublicKey(ecParams.getCurve().decodePoint(compressed));</span>
   }
 
   /**
@@ -147,13 +162,13 @@ import org.slf4j.Logger;
    * @throws Exception on failure of create
    */
   public PublicKey createPublicKey(final BigInteger x, final BigInteger y) throws Exception {
-<span class="fc" id="L150">    return createPublicKey(ecParams.getCurve().createPoint(x, y));</span>
+<span class="fc" id="L165">    return createPublicKey(ecParams.getCurve().createPoint(x, y));</span>
   }
 
   protected PublicKey createPublicKey(final ECPoint ecPoint) throws Exception {
-<span class="fc" id="L154">    final KeyFactory factory = KeyFactory.getInstance(KEY_ALGORITHM);</span>
-<span class="fc" id="L155">    final ECPublicKeySpec spec = new ECPublicKeySpec(ecPoint, ecSpec);</span>
-<span class="fc" id="L156">    return factory.generatePublic(spec);</span>
+<span class="fc" id="L169">    final KeyFactory factory = KeyFactory.getInstance(KEY_ALGORITHM);</span>
+<span class="fc" id="L170">    final ECPublicKeySpec spec = new ECPublicKeySpec(ecPoint, ecSpec);</span>
+<span class="fc" id="L171">    return factory.generatePublic(spec);</span>
   }
 
 }

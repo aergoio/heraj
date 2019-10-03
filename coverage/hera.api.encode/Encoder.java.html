@@ -6,6 +6,8 @@ package hera.api.encode;
 
 import static hera.util.IoUtils.from;
 
+import hera.util.Base58Utils;
+import hera.util.Base64Utils;
 import hera.util.HexUtils;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,12 +15,29 @@ import java.io.Reader;
 import java.io.StringReader;
 
 public interface Encoder {
-<span class="fc" id="L16">  Encoder defaultEncoder = new Encoder() {</span>
+
+<span class="fc" id="L19">  Encoder Hex = new Encoder() {</span>
     @Override
     public Reader encode(InputStream in) throws IOException {
-<span class="fc" id="L19">      return new StringReader(HexUtils.encode(from(in)));</span>
+<span class="fc" id="L22">      return new StringReader(HexUtils.encode(from(in)));</span>
     }
   };
+
+<span class="fc" id="L26">  Encoder Base58 = new Encoder() {</span>
+    @Override
+    public Reader encode(InputStream in) throws IOException {
+<span class="fc" id="L29">      return new StringReader(Base58Utils.encode(from(in)));</span>
+    }
+  };
+
+<span class="fc" id="L33">  Encoder Base64 = new Encoder() {</span>
+    @Override
+    public Reader encode(InputStream in) throws IOException {
+<span class="fc" id="L36">      return new StringReader(Base64Utils.encode(from(in)));</span>
+    }
+  };
+
+<span class="fc" id="L40">  Encoder defaultEncoder = Hex;</span>
 
   Reader encode(InputStream in) throws IOException;
 

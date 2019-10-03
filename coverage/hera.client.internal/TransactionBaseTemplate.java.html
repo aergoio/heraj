@@ -76,27 +76,27 @@ import types.Rpc;
 <span class="fc" id="L76">            final Rpc.SingleBytes rpcTxHash = Rpc.SingleBytes.newBuilder()</span>
 <span class="fc" id="L77">                .setValue(copyFrom(txHash.getBytesValue()))</span>
 <span class="fc" id="L78">                .build();</span>
-<span class="fc" id="L79">            logger.trace(&quot;AergoService getBlockTX arg: {}&quot;, rpcTxHash);</span>
+<span class="fc" id="L79">            logger.trace(&quot;AergoService getTX arg: {}&quot;, rpcTxHash);</span>
 
-<span class="fc" id="L81">            ListenableFuture&lt;Blockchain.TxInBlock&gt; listenableFuture =</span>
-<span class="fc" id="L82">                aergoService.getBlockTX(rpcTxHash);</span>
-<span class="fc" id="L83">            FutureChain&lt;Blockchain.TxInBlock, Transaction&gt; callback = new FutureChain&lt;&gt;(nextFuture);</span>
-<span class="fc" id="L84">            callback.setSuccessHandler(new Function1&lt;Blockchain.TxInBlock, Transaction&gt;() {</span>
+<span class="fc" id="L81">            ListenableFuture&lt;Blockchain.Tx&gt; listenableFuture =</span>
+<span class="fc" id="L82">                aergoService.getTX(rpcTxHash);</span>
+<span class="fc" id="L83">            FutureChain&lt;Blockchain.Tx, Transaction&gt; callback = new FutureChain&lt;&gt;(nextFuture);</span>
+<span class="fc" id="L84">            callback.setSuccessHandler(new Function1&lt;Blockchain.Tx, Transaction&gt;() {</span>
 
               @Override
-              public Transaction apply(final Blockchain.TxInBlock txInBlock) {
-<span class="fc" id="L88">                return transactionInBlockConverter.convertToDomainModel(txInBlock);</span>
+              public Transaction apply(final Blockchain.Tx rpcTx) {
+<span class="fc" id="L88">                return transactionConverter.convertToDomainModel(rpcTx);</span>
               }
             });
 <span class="fc" id="L91">            callback.setFailureHandler(new Function1&lt;Throwable, Transaction&gt;() {</span>
 
               @Override
               public Transaction apply(final Throwable t) {
-<span class="fc" id="L95">                logger.debug(&quot;Transaction {} is not in a block. Check mempool&quot;, txHash);</span>
+<span class="fc" id="L95">                logger.debug(&quot;Transaction {} is not in a mempool. Check block&quot;, txHash);</span>
                 try {
-<span class="fc" id="L97">                  logger.trace(&quot;AergoService getTX arg: {}&quot;, rpcTxHash);</span>
-<span class="fc" id="L98">                  Blockchain.Tx tx = aergoService.getTX(rpcTxHash).get();</span>
-<span class="fc" id="L99">                  return transactionConverter.convertToDomainModel(tx);</span>
+<span class="fc" id="L97">                  logger.trace(&quot;AergoService getBlockTX arg: {}&quot;, rpcTxHash);</span>
+<span class="fc" id="L98">                  Blockchain.TxInBlock tx = aergoService.getBlockTX(rpcTxHash).get();</span>
+<span class="fc" id="L99">                  return transactionInBlockConverter.convertToDomainModel(tx);</span>
 <span class="nc" id="L100">                } catch (Exception e) {</span>
 <span class="nc" id="L101">                  throw new RpcException(e);</span>
                 }
