@@ -14,7 +14,6 @@ import hera.api.model.Identity;
 import hera.exception.KeyStoreException;
 import hera.key.AergoKey;
 import hera.model.KeyAlias;
-import hera.util.Sha256Utils;
 import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSAKeyGenerator;
 import java.io.FileInputStream;
@@ -75,8 +74,7 @@ public class JavaKeyStore extends AbstractKeyStore {
     }
   }
 
-  @Override
-  protected AergoKey getUnlockedOne(final Authentication authentication) {
+  protected AergoKey loadAergoKey(final Authentication authentication) {
     try {
       return load(authentication);
     } catch (Exception e) {
@@ -89,13 +87,15 @@ public class JavaKeyStore extends AbstractKeyStore {
     try {
       logger.debug("Save key {} with authentication: {}", key, authentication);
 
-      final String alias = authentication.getIdentity().getValue();
-      final java.security.PrivateKey privateKey = key.getPrivateKey();
-      final char[] rawPassword = authentication.getPassword().toCharArray();
-      final Certificate cert = generateCertificate(key);
-      final Certificate[] certChain = new Certificate[] {cert};
+      synchronized (this) {
+        final String alias = authentication.getIdentity().getValue();
+        final java.security.PrivateKey privateKey = key.getPrivateKey();
+        final char[] rawPassword = authentication.getPassword().toCharArray();
+        final Certificate cert = generateCertificate(key);
+        final Certificate[] certChain = new Certificate[] {cert};
 
-      delegate.setKeyEntry(alias, privateKey, rawPassword, certChain);
+        delegate.setKeyEntry(alias, privateKey, rawPassword, certChain);
+      }
     } catch (Exception e) {
       throw new KeyStoreException(e);
     }
@@ -170,11 +170,6 @@ public class JavaKeyStore extends AbstractKeyStore {
     final ECDSAKey ecdsakey = new ECDSAKeyGenerator().create(d);
 
     return new AergoKey(ecdsakey);
-  }
-
-  protected Authentication digest(final Authentication rawAuthentication) {
-    final byte[] digestedPassword = Sha256Utils.digest(rawAuthentication.getPassword().getBytes());
-    return Authentication.of(rawAuthentication.getIdentity(), new String(digestedPassword));
   }
 
   @Override

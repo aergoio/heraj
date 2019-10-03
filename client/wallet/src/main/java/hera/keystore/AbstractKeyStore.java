@@ -31,44 +31,53 @@ public abstract class AbstractKeyStore implements KeyStore {
   protected final Map<AccountAddress, Signer> unlocked2Signer = new HashMap<>();
 
   @Override
-  public synchronized AccountAddress unlock(final Authentication authentication) {
+  public AccountAddress unlock(final Authentication authentication) {
     try {
       logger.debug("Unlock key with authentication: {}", authentication);
       final Authentication digested = digest(authentication);
-      if (auth2Unlocked.containsKey(digested)) {
-        return auth2Unlocked.get(digested);
-      }
 
-      final AergoKey unlockedKey = getUnlockedOne(authentication);
-      final AccountAddress unlocked = unlockedKey.getAddress();
-      auth2Unlocked.put(digested, unlocked);
-      unlocked2Signer.put(unlocked, unlockedKey);
-      return unlockedKey.getPrincipal();
-    } catch (KeyStoreException e) {
-      throw e;
+      synchronized (this) {
+        if (auth2Unlocked.containsKey(digested)) {
+          logger.info("Unlock failed");
+          return null;
+        }
+
+        final AergoKey unlockedKey = loadAergoKey(authentication);
+        final AccountAddress unlocked = unlockedKey.getAddress();
+        auth2Unlocked.put(digested, unlocked);
+        unlocked2Signer.put(unlocked, unlockedKey);
+
+        logger.info("UnLock success");
+        return unlockedKey.getPrincipal();
+      }
     } catch (Exception e) {
-      throw new KeyStoreException("Unlock failed", e);
+      logger.info("Unlock failed");
+      return null;
     }
   }
 
-  protected abstract AergoKey getUnlockedOne(Authentication authentication);
+  protected abstract AergoKey loadAergoKey(Authentication authentication);
 
   @Override
-  public synchronized boolean lock(final Authentication authentication) {
+  public boolean lock(final Authentication authentication) {
     try {
       logger.debug("Unlock key with authentication: {}", authentication);
       final Authentication digested = digest(authentication);
-      if (!auth2Unlocked.containsKey(digested)) {
-        logger.info("No unlocked one for authentication");
-        return false;
-      }
 
-      final AccountAddress unlocked = auth2Unlocked.get(digested);
-      auth2Unlocked.remove(digested);
-      unlocked2Signer.remove(unlocked);
-      return true;
+      synchronized (this) {
+        if (!auth2Unlocked.containsKey(digested)) {
+          logger.info("Lock failed");
+          return false;
+        }
+
+        final AccountAddress unlocked = auth2Unlocked.get(digested);
+        auth2Unlocked.remove(digested);
+        unlocked2Signer.remove(unlocked);
+        logger.info("Lock success");
+        return true;
+      }
     } catch (Exception e) {
-      logger.info("Lock failed by {}", e.toString());
+      logger.info("Lock failed");
       return false;
     }
   }
@@ -84,6 +93,7 @@ public abstract class AbstractKeyStore implements KeyStore {
     try {
       logger.debug("Sign with unlocked account: {} to raw transaction: {}", unlocked,
           rawTransaction);
+
       if (!unlocked2Signer.containsKey(unlocked)) {
         throw new IllegalArgumentException("No unlocked account for " + unlocked);
       }
