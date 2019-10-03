@@ -45,14 +45,22 @@ public class TransactionBaseTemplateTest extends AbstractTestCase {
   @Test
   public void testGetTransactionInBlock() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture<Blockchain.TxInBlock> mockListenableFuture =
+    ListenableFuture<Blockchain.Tx> txListenableFuture =
+        service.submit(new Callable<Blockchain.Tx>() {
+          @Override
+          public Blockchain.Tx call() throws Exception {
+            throw new UnsupportedOperationException();
+          }
+        });
+    ListenableFuture<Blockchain.TxInBlock> txInBlockListenableFuture =
         service.submit(new Callable<Blockchain.TxInBlock>() {
           @Override
           public Blockchain.TxInBlock call() throws Exception {
             return Blockchain.TxInBlock.newBuilder().build();
           }
         });
-    when(aergoService.getBlockTX(any(Rpc.SingleBytes.class))).thenReturn(mockListenableFuture);
+    when(aergoService.getTX(any(Rpc.SingleBytes.class))).thenReturn(txListenableFuture);
+    when(aergoService.getBlockTX(any(Rpc.SingleBytes.class))).thenReturn(txInBlockListenableFuture);
 
     final TransactionBaseTemplate transactionBaseTemplate =
         supplyTransactionBaseTemplate(aergoService);
@@ -64,24 +72,16 @@ public class TransactionBaseTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetTransactionInMemory() {
+  public void testGetTransactionInMempool() {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture<Blockchain.TxInBlock> txInBlockListenableFuture =
-        service.submit(new Callable<Blockchain.TxInBlock>() {
-          @Override
-          public Blockchain.TxInBlock call() throws Exception {
-            throw new UnsupportedOperationException();
-          }
-        });
-    ListenableFuture<Blockchain.Tx> txListenableFuture =
+    ListenableFuture<Blockchain.Tx> mockListenableFuture =
         service.submit(new Callable<Blockchain.Tx>() {
           @Override
           public Blockchain.Tx call() throws Exception {
             return Blockchain.Tx.newBuilder().build();
           }
         });
-    when(aergoService.getBlockTX(any(Rpc.SingleBytes.class))).thenReturn(txInBlockListenableFuture);
-    when(aergoService.getTX(any(Rpc.SingleBytes.class))).thenReturn(txListenableFuture);
+    when(aergoService.getTX(any(Rpc.SingleBytes.class))).thenReturn(mockListenableFuture);
 
     final TransactionBaseTemplate transactionBaseTemplate =
         supplyTransactionBaseTemplate(aergoService);

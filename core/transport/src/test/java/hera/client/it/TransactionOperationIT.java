@@ -11,7 +11,6 @@ import static org.junit.Assert.fail;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
-import hera.api.model.BytesValue;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;

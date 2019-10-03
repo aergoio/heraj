@@ -23,6 +23,19 @@ public class AergoKeyGeneratorTest extends AbstractTestCase {
   }
 
   @Test
+  public void testCreateWithSeed() throws Exception {
+    final AergoKeyGenerator generator = new AergoKeyGenerator();
+
+    final String seed = randomUUID().toString();
+    AergoKey prev = generator.create(seed);
+    for (int i = 1; i < 100; ++i) {
+      final AergoKey curr = generator.create(seed);
+      assertEquals(curr, prev);
+      prev = curr;
+    }
+  }
+
+  @Test
   public void testImport() throws Exception {
     final AergoKeyGenerator generator = new AergoKeyGenerator();
     final AergoKey expected = generator.create();

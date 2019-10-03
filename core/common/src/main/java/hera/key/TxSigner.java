@@ -11,6 +11,7 @@ import hera.api.model.Transaction;
 
 @ApiAudience.Public
 @ApiStability.Unstable
+@Deprecated
 public interface TxSigner {
 
   /**

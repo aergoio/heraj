@@ -11,6 +11,7 @@ import static org.bouncycastle.jce.ECNamedCurveTable.getParameterSpec;
 import static org.bouncycastle.jce.provider.BouncyCastleProvider.PROVIDER_NAME;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.util.Sha256Utils;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyFactory;
@@ -20,9 +21,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.Security;
 import java.security.spec.PKCS8EncodedKeySpec;
 import org.bouncycastle.crypto.params.ECDomainParameters;
+import org.bouncycastle.crypto.prng.FixedSecureRandom;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.jce.spec.ECPrivateKeySpec;
@@ -53,23 +56,35 @@ public class ECDSAKeyGenerator implements KeyGenerator<ECDSAKey> {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected KeyPairGenerator getKeyPairGenerator()
+  protected ECDSAKey generateKey(final SecureRandom secureRandom)
+      throws NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
+    final KeyPairGenerator generator = getKeyPairGenerator(secureRandom);
+    final KeyPair pair = generator.generateKeyPair();
+    final PrivateKey privateKey = pair.getPrivate();
+    final PublicKey publicKey = pair.getPublic();
+    logger.trace("Public key: {}", publicKey);
+    return new ECDSAKey(privateKey, publicKey, ecParams);
+  }
+
+  protected KeyPairGenerator getKeyPairGenerator(final SecureRandom secureRandom)
       throws NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
     final KeyPairGenerator keyPairGenerator =
         KeyPairGenerator.getInstance(KEY_ALGORITHM, PROVIDER_NAME);
-    keyPairGenerator.initialize(ecSpec);
+    keyPairGenerator.initialize(ecSpec, secureRandom);
     logger.debug("Generator: {}", keyPairGenerator);
     return keyPairGenerator;
   }
 
   @Override
   public ECDSAKey create() throws Exception {
-    final KeyPairGenerator generator = getKeyPairGenerator();
-    final KeyPair pair = generator.generateKeyPair();
-    final PrivateKey privateKey = pair.getPrivate();
-    final PublicKey publicKey = pair.getPublic();
-    logger.trace("Public key: {}", publicKey);
-    return new ECDSAKey(privateKey, publicKey, ecParams);
+    return generateKey(new SecureRandom());
+  }
+
+  @Override
+  public ECDSAKey create(final String seed) throws Exception {
+    final byte[] digested = Sha256Utils.digest(seed.getBytes());
+    final SecureRandom secureRandom = new FixedSecureRandom(digested);
+    return generateKey(secureRandom);
   }
 
   /**

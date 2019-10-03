@@ -29,6 +29,8 @@ import org.slf4j.Logger;
 @EqualsAndHashCode
 public class StrategyApplier implements FunctionDecorator {
 
+  protected static final int INITIAL_QUEUE_SIZE = 3;
+
   /**
    * Make {@code StrategyChain} with a strategy in a context.
    *
@@ -52,27 +54,29 @@ public class StrategyApplier implements FunctionDecorator {
    * @param priorityConfig priority config
    */
   public StrategyApplier(final Context context, final PriorityConfig priorityConfig) {
-    this.chain = new PriorityQueue<>(new Comparator<FunctionDecorator>() {
+    this.chain = new PriorityQueue<FunctionDecorator>(INITIAL_QUEUE_SIZE,
+        new Comparator<FunctionDecorator>() {
 
-      protected final Map<Class<? extends Strategy>, Integer> inner =
-          priorityConfig.getStrategy2Priority();
+          protected final Map<Class<? extends Strategy>, Integer> inner =
+              priorityConfig.getStrategy2Priority();
 
-      @Override
-      public int compare(final FunctionDecorator left, final FunctionDecorator right) {
-        final Integer leftPriority = inner.get(left.getClass());
-        final Integer rightPriority = inner.get(right.getClass());
+          @Override
+          public int compare(final FunctionDecorator left, final FunctionDecorator right) {
+            final Integer leftPriority = inner.get(left.getClass());
+            final Integer rightPriority = inner.get(right.getClass());
 
-        if (null == leftPriority && null == rightPriority) {
-          return 0;
-        } else if (null == leftPriority) {
-          return -1;
-        } else if (null == rightPriority) {
-          return 1;
-        } else {
-          return (leftPriority < rightPriority) ? -1 : ((leftPriority == rightPriority) ? 0 : 1);
-        }
-      }
-    });
+            if (null == leftPriority && null == rightPriority) {
+              return 0;
+            } else if (null == leftPriority) {
+              return -1;
+            } else if (null == rightPriority) {
+              return 1;
+            } else {
+              return (leftPriority < rightPriority) ? -1
+                  : ((leftPriority == rightPriority) ? 0 : 1);
+            }
+          }
+        });
 
     for (final Strategy strategy : context.getStrategies()) {
       if (strategy instanceof FunctionDecorator) {

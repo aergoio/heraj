@@ -21,17 +21,17 @@ import java.util.List;
 public interface KeyStore {
 
   /**
-   * Unlock an account corresponding to {@code authentication}.
+   * Unlock an account corresponding to {@code authentication}. If corresponding one is already
+   * unlocked or no corresponding one, return null.
    *
    * @param authentication an authentication to unlock account
-   * @return an unlocked account
-   *
-   * @throws KeyStoreException on keystore error
+   * @return an unlocked account. null on unlock failure
    */
   AccountAddress unlock(Authentication authentication);
 
   /**
-   * Lock an account corresponding to {@code authentication}.
+   * Lock an account corresponding to {@code authentication}. Return true only if corresponding one
+   * is unlocked status.
    *
    * @param authentication an authentication which is used in locking account
    * @return a lock result

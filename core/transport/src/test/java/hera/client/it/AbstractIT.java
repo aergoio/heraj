@@ -63,7 +63,7 @@ public abstract class AbstractIT {
 
     final AergoClientBuilder clientBuilder = new AergoClientBuilder()
         .withNonBlockingConnect()
-        .withTimeout(180, TimeUnit.SECONDS)
+        .withTimeout(3, TimeUnit.SECONDS)
         .withEndpoint(hostname);
 
     if (isTlsEnabled) {

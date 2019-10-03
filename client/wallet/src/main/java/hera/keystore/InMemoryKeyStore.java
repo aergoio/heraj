@@ -24,8 +24,7 @@ public class InMemoryKeyStore extends AbstractKeyStore {
   protected final Map<Authentication, EncryptedPrivateKey> auth2Encrypted =
       new HashMap<>();
 
-  @Override
-  protected AergoKey getUnlockedOne(final Authentication authentication) {
+  protected AergoKey loadAergoKey(final Authentication authentication) {
     final Authentication digested = digest(authentication);
     if (!auth2Encrypted.containsKey(digested)) {
       throw new IllegalArgumentException("No such authentication");
@@ -40,12 +39,15 @@ public class InMemoryKeyStore extends AbstractKeyStore {
     try {
       logger.debug("Save key {} with authentication: {}", key, authentication);
       final Authentication digested = digest(authentication);
-      if (auth2Encrypted.containsKey(digested)) {
-        throw new IllegalArgumentException("Authentication already exists");
-      }
 
-      final EncryptedPrivateKey encryptedKey = key.export(authentication.getPassword());
-      auth2Encrypted.put(digested, encryptedKey);
+      synchronized (this) {
+        if (auth2Encrypted.containsKey(digested)) {
+          throw new IllegalArgumentException("Authentication already exists");
+        }
+
+        final EncryptedPrivateKey encryptedKey = key.export(authentication.getPassword());
+        auth2Encrypted.put(digested, encryptedKey);
+      }
     } catch (final Exception e) {
       throw new KeyStoreException(e);
     }

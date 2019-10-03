@@ -27,9 +27,28 @@ public class AergoKeyGenerator implements KeyGenerator<AergoKey> {
    * @return created {@code AergoKey}
    * @throws UnableToGenerateKeyException if an error occured in creating key
    */
+  @Override
   public AergoKey create() {
     try {
       final ECDSAKey ecdsaKey = ecdsaKeyGenerator.create();
+      return new AergoKey(ecdsaKey);
+    } catch (Exception e) {
+      throw new UnableToGenerateKeyException(e);
+    }
+  }
+
+  /**
+   * Create an {@code Aergokey} with a seed.
+   *
+   * @param seed a seed to create aergo key
+   *
+   * @return created {@code AergoKey}
+   * @throws UnableToGenerateKeyException if an error occured in creating key
+   */
+  @Override
+  public AergoKey create(final String seed) {
+    try {
+      final ECDSAKey ecdsaKey = ecdsaKeyGenerator.create(seed);
       return new AergoKey(ecdsaKey);
     } catch (Exception e) {
       throw new UnableToGenerateKeyException(e);

@@ -8,6 +8,7 @@ import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -69,12 +70,7 @@ public class InMemoryKeyStoreTest extends AbstractTestCase {
 
     final String password = randomUUID().toString();
     final Authentication authentication = Authentication.of(invalidIdentity, password);
-    try {
-      keyStore.unlock(authentication);
-      fail();
-    } catch (Exception e) {
-      // good we expected this
-    }
+    assertNull(keyStore.unlock(authentication));
   }
 
   @Test

@@ -14,6 +14,24 @@ import org.junit.Test;
 public class EncoderTest extends AbstractTestCase {
 
   @Test
+  public void testHexaEncoder() throws IOException {
+    final Encoder encoder = Encoder.Hex;
+    encoder.encode(new ByteArrayInputStream(randomUUID().toString().getBytes()));
+  }
+
+  @Test
+  public void testBase58Encoder() throws IOException {
+    final Encoder encoder = Encoder.Base58;
+    encoder.encode(new ByteArrayInputStream(randomUUID().toString().getBytes()));
+  }
+
+  @Test
+  public void testBase64Encoder() throws IOException {
+    final Encoder encoder = Encoder.Base64;
+    encoder.encode(new ByteArrayInputStream(randomUUID().toString().getBytes()));
+  }
+
+  @Test
   public void testDefaultEncoder() throws IOException {
     final Encoder encoder = Encoder.defaultEncoder;
     encoder.encode(new ByteArrayInputStream(randomUUID().toString().getBytes()));
