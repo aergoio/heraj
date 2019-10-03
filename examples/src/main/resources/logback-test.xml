@@ -13,11 +13,5 @@
   </root>
   <logger name="ch.qos.logback" level="error"/>
 
-  <logger name="io.grpc" level="warn"/>
-  <logger name="types" level="warn"/>
-
-  <logger name="hera" level="debug"/>
-  <logger name="hera.strategy" level="trace"/>
-  <logger name="hera.transport" level="info"/>
-  <logger name="hera.util" level="error"/>
+  <logger name="hera" level="info"/>
 </configuration>

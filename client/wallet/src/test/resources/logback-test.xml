@@ -16,6 +16,9 @@
   <logger name="io.grpc" level="warn"/>
   <logger name="types" level="warn"/>
 
-  <logger name="hera" level="warn"/>
+  <logger name="hera" level="info"/>
+  <logger name="hera.client" level="info"/>
+  <logger name="hera.keystore" level="info"/>
+  <logger name="hera.wallet" level="info"/>
   <logger name="hera.util" level="error"/>
 </configuration>
