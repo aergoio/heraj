@@ -5,10 +5,7 @@
 package hera.keystore;
 
 import static java.util.UUID.randomUUID;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -22,7 +19,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 
 public class AbstractKeyStoreTest extends AbstractTestCase {
@@ -37,7 +34,7 @@ public class AbstractKeyStoreTest extends AbstractTestCase {
     when(keyStore.loadAergoKey(authentication)).thenReturn(key);
 
     // when
-    final AtomicBoolean first = new AtomicBoolean(true);
+    final AtomicInteger count = new AtomicInteger(0);
     final int nThreads = 2 * Runtime.getRuntime().availableProcessors();
     final ExecutorService service = Executors.newFixedThreadPool(nThreads);
     final Runnable runnable = new Runnable() {
@@ -46,10 +43,8 @@ public class AbstractKeyStoreTest extends AbstractTestCase {
       public void run() {
         logger.info("Request for {} started", Thread.currentThread());
         AccountAddress unlocked = keyStore.unlock(authentication);
-        if (first.getAndSet(false)) {
-          assertNotNull(unlocked);
-        } else {
-          assertNull(unlocked);
+        if (null != unlocked) {
+          count.incrementAndGet();
         }
         logger.info("Request for {} terminated", Thread.currentThread());
       }
@@ -63,6 +58,7 @@ public class AbstractKeyStoreTest extends AbstractTestCase {
     for (final Future<?> future : futures) {
       future.get();
     }
+    assertEquals(1, count.get());
   }
 
   @Test
@@ -76,7 +72,7 @@ public class AbstractKeyStoreTest extends AbstractTestCase {
     keyStore.unlock(authentication);
 
     // when
-    final AtomicBoolean first = new AtomicBoolean(true);
+    final AtomicInteger count = new AtomicInteger(0);
     final int nThreads = 2 * Runtime.getRuntime().availableProcessors();
     final ExecutorService service = Executors.newFixedThreadPool(nThreads);
     final Runnable runnable = new Runnable() {
@@ -85,10 +81,8 @@ public class AbstractKeyStoreTest extends AbstractTestCase {
       public void run() {
         logger.info("Request for {} started", Thread.currentThread());
         boolean unlockResult = keyStore.lock(authentication);
-        if (first.getAndSet(false)) {
-          assertTrue(unlockResult);
-        } else {
-          assertFalse(unlockResult);
+        if (true == unlockResult) {
+          count.incrementAndGet();
         }
         logger.info("Request for {} terminated", Thread.currentThread());
       }
@@ -102,6 +96,7 @@ public class AbstractKeyStoreTest extends AbstractTestCase {
     for (final Future<?> future : futures) {
       future.get();
     }
+    assertEquals(1, count.get());
   }
 
 }
