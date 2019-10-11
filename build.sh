@@ -23,6 +23,9 @@ readonly VERSION=$(grep "version" "$PROJECT_HOME/gradle.properties" | cut -d"=" 
 readonly BUILD_WORKSPACE=$PROJECT_HOME/build
 readonly PROJECT_PREFIX="heraj"
 readonly LIB_CORES=("wallet" "smart-contract" "transport")
+readonly LIB_ALL="smart-contract"
+readonly FAT_POSTFIX="fat"
+readonly ALL_POSTFIX="all"
 
 function print-usage() {
   echo "build.sh [command]"
@@ -77,7 +80,6 @@ function execute-documentation() {
   mv $BUILD_WORKSPACE/docs/javadoc $BUILD_WORKSPACE/heraj-doc/javadoc
   mv $BUILD_WORKSPACE/reports/jacoco/alljacoco/html $BUILD_WORKSPACE/heraj-doc/coverage
 }
-
 function execute-pack() {
   local -r dest="$PROJECT_HOME/pack"
 
@@ -98,9 +100,8 @@ function execute-pack() {
 
   echo -e "\nPacked files have been generated in $dest"
 }
-
 function execute-fat() {
-  local -r fat_postfix=$(grep "def shadowPostFix" < "$PROJECT_HOME/build.gradle" | awk '{print $4}' | tr -d "'")
+  local -r gradle_fat_postfix=$(grep "def shadowPostFix" < "$PROJECT_HOME/build.gradle" | awk '{print $4}' | tr -d "'")
   local -r dest="$PROJECT_HOME/fat"
 
   rm -rf "$dest" > /dev/null
@@ -108,12 +109,16 @@ function execute-fat() {
 
   $PROJECT_HOME/gradlew clean build shadowJar
   for lib in "${LIB_CORES[@]}"; do
-    local file=$(find . -name "$PROJECT_PREFIX-$lib-$fat_postfix*")
-    mv "$file" "$dest"
+    local file=$(find . -name "$PROJECT_PREFIX-$lib-$gradle_fat_postfix*")
+    cp "$file" "$dest/$PROJECT_PREFIX-$lib-$VERSION-$FAT_POSTFIX-.jar"
+
+    if [ $lib = $LIB_ALL ]; then
+      cp "$file" "$dest/$PROJECT_PREFIX-$VERSION-$ALL_POSTFIX.jar"
+    fi
   done
+
   echo -e "\nFat files have been generated in $dest"
 }
-
 
 if [ -z "$VERSION" ]; then
   echo "The version not detected. Check build script or environment."
