@@ -41,10 +41,6 @@ def javaProjects = [
   project('client:smart-contract')
 ]
 
-def exampleProjects = [
-  project('examples')
-]
-
 def jmhProjects = [
   project('core:common'),
   project('core:transport'),
@@ -285,22 +281,6 @@ configure(javaProjects) {
     classifier = null
   }
 
-}
-
-configure(exampleProjects) {
-  apply plugin: 'java'
-
-  sourceCompatibility = javaVersion7
-  targetCompatibility = javaVersion7
-
-  repositories {
-    mavenLocal()
-    maven {
-      url "http://dist.wso2.org/maven2"
-    }
-    mavenCentral()
-    jcenter()
-  }
 }
 
 configure(jmhProjects) {
