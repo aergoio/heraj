@@ -52,7 +52,7 @@ public class WalletFactory {
     assertNotNull(keyStore);
     assertTrue(1 <= retryCount);
     assertTrue(0 < retryInterval);
-    return new WalletApiImpl(new TryCountAndInterval(retryCount, Time.of(retryInterval)), keyStore);
+    return new WalletApiImpl(keyStore, new TryCountAndInterval(retryCount, Time.of(retryInterval)));
   }
 
 }

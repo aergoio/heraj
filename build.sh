@@ -35,7 +35,7 @@ function print-usage() {
   echo "  install     install to maven local"
   echo "  deploy      upload to jcenter"
   echo "  test        test built executable"
-  echo "  it          integraion test (on aergo test mode)"
+  echo "  it          integraion test (with docker)"
   echo "  docs        generate documents"
   echo "  pack        pack generated jar files info *.zip, *.tar.gz"
   echo "  fat         make single fat jar file"
@@ -64,7 +64,7 @@ function execute-test() {
   $PROJECT_HOME/gradlew test jacocoTestReport
 }
 function execute-integration-test() {
-  $PROJECT_HOME/gradlew integrationTest
+  $PROJECT_HOME/test/run-it.sh
 }
 function execute-documentation() {
   gem install bundler

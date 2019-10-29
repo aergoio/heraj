@@ -4,7 +4,6 @@
 
 package hera.client.it;
 
-import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -278,7 +277,7 @@ public class AccountOperationIT extends AbstractIT {
     waitForNextBlockToGenerate();
 
     // when
-    final List<String> candidates = asList(peerIds);
+    final List<String> candidates = peerIds;
     aergoClient.getAccountOperation().vote(key, "voteBP", candidates,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
     waitForNextBlockToGenerate();
@@ -286,11 +285,11 @@ public class AccountOperationIT extends AbstractIT {
     // then
     final List<ElectedCandidate> electeds =
         aergoClient.getAccountOperation().listElected("voteBP", 23);
-    assertTrue(peerIds.length <= electeds.size());
+    assertTrue(peerIds.size() <= electeds.size());
     final AccountTotalVote keyVoteTotal =
         aergoClient.getAccountOperation().getVotesOf(key.getAddress());
     assertTrue(1 == keyVoteTotal.getVoteInfos().size());
-    assertEquals(peerIds.length, keyVoteTotal.getVoteInfos().get(0).getCandidateIds().size());
+    assertEquals(peerIds.size(), keyVoteTotal.getVoteInfos().get(0).getCandidateIds().size());
   }
 
   @Test
@@ -304,7 +303,7 @@ public class AccountOperationIT extends AbstractIT {
 
     try {
       // when
-      final List<String> candidates = asList(peerIds);
+      final List<String> candidates = peerIds;
       aergoClient.getAccountOperation().vote(key, "voteBP", candidates,
           nonceProvider.incrementAndGetNonce(key.getAddress()));
       fail();

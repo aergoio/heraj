@@ -25,7 +25,11 @@ cache:
 install: true
 
 script:
-  - ./gradlew build jacocoTestReport alljavadoc
+  - ./build.sh gradle it
+  - ./gradlew build jacocoTestReport
+
+after_failure:
+  - docker logs aergo.node
 
 after_success:
   - ./gradlew alljacoco

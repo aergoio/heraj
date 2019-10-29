@@ -13,6 +13,7 @@ import hera.api.model.Authentication;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractTxHash;
+import hera.contract.SmartContract;
 import hera.contract.SmartContractFactory;
 import hera.exception.ContractException;
 import hera.key.AergoKey;
@@ -32,6 +33,9 @@ public class SmartContractIT extends AbstractIT {
 
   protected ContractAddress contractAddress;
 
+  protected String password = randomUUID().toString();
+
+  /*
   @Before
   public void setUp() throws Exception {
     super.setUp();
@@ -39,7 +43,7 @@ public class SmartContractIT extends AbstractIT {
         .withEndpoint(hostname)
         .withRefresh(3, 500L, TimeUnit.MILLISECONDS)
         .build(WalletType.Naive);
-    final AergoKey key = AergoKey.of(encrypted, password);
+    final AergoKey key = createNewKey();
     wallet.saveKey(key, password);
     wallet.unlock(Authentication.of(key.getAddress(), password));
 
@@ -116,6 +120,69 @@ public class SmartContractIT extends AbstractIT {
     } catch (ContractException e) {
       // good we expected this
     }
+  }
+  */
+
+  protected interface ValidInterface extends SmartContract {
+
+    void setNil(Object nilArg);
+
+    Object getNil();
+
+    void setBoolean(boolean booleanArg);
+
+    boolean getBoolean();
+
+    void setNumber(int numberArg);
+
+    int getNumber();
+
+    void setString(String stringArg);
+
+    String getString();
+
+  }
+
+  protected interface InvalidMethodNameInterface extends SmartContract {
+
+    // invalid
+    void setNill(Object nilArg);
+
+    Object getNil();
+
+    void setBoolean(boolean booleanArg);
+
+    boolean getBoolean();
+
+    void setNumber(int numberArg);
+
+    int getNumber();
+
+    void setString(String stringArg);
+
+    String getString();
+
+  }
+
+  protected interface InvalidMethodParameterCountInterface extends SmartContract {
+
+    // invalid
+    void setNil();
+
+    Object getNil();
+
+    void setBoolean(boolean booleanArg);
+
+    boolean getBoolean();
+
+    void setNumber(int numberArg);
+
+    int getNumber();
+
+    void setString(String stringArg);
+
+    String getString();
+
   }
 
 }

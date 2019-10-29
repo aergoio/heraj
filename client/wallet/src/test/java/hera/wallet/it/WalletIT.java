@@ -40,12 +40,18 @@ import hera.api.model.StakeInfo;
 import hera.api.model.StreamObserver;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.model.internal.Time;
+import hera.api.model.internal.TryCountAndInterval;
 import hera.exception.WalletCommitException;
 import hera.key.AergoKey;
+import hera.keystore.InMemoryKeyStore;
+import hera.keystore.KeyStore;
 import hera.util.IoUtils;
 import hera.wallet.Wallet;
-import hera.wallet.WalletBuilder;
+import hera.wallet.WalletApi;
+import hera.wallet.WalletFactory;
 import hera.wallet.WalletType;
+import hera.wallet.internal.LegacyWallet;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -100,12 +106,16 @@ public class WalletIT extends AbstractIT {
 
 
   protected List<Wallet> supplyWorkingWalletList() {
-    return asList(
-        new WalletBuilder()
-            .withTimeout(1000L, TimeUnit.MILLISECONDS)
-            .withNonBlockingConnect()
-            .withEndpoint(hostname)
-            .build(type));
+
+    final TryCountAndInterval nonceRefreshTryInterval =
+        TryCountAndInterval.of(2, Time.of(100L, TimeUnit.MILLISECONDS));
+    final KeyStore keyStore = new InMemoryKeyStore();
+    WalletApi delegate = new WalletFactory().create(keyStore, nonceRefreshTryInterval.getCount(),
+        nonceRefreshTryInterval.getInterval().toMilliseconds());
+    delegate.bind(aergoClient);
+    final Wallet wallet = new LegacyWallet(delegate);
+
+    return asList(wallet);
   }
 
   protected boolean isDpos() {
@@ -210,7 +220,7 @@ public class WalletIT extends AbstractIT {
     for (Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
 
-      final AergoKey key = supplyKeyAergo(wallet);
+      final AergoKey key = createNewKey();
       final String password = randomUUID().toString();
       wallet.saveKey(key, password);
       wallet.unlock(Authentication.of(key.getAddress(), password));
@@ -230,7 +240,7 @@ public class WalletIT extends AbstractIT {
     for (Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
 
-      final AergoKey key = supplyKeyAergo(wallet);
+      final AergoKey key = createNewKey();
       final String password = randomUUID().toString();
       wallet.saveKey(key, password);
       wallet.unlock(Authentication.of(key.getAddress(), password));
@@ -292,7 +302,7 @@ public class WalletIT extends AbstractIT {
       final List<Identity> before = wallet.listKeyStoreIdentities();
       logger.info("Before: {}", before);
 
-      final AergoKey key = supplyKeyAergo(wallet);
+      final AergoKey key = createNewKey();
       wallet.saveKey(key, password);
 
       final List<Identity> after = wallet.listKeyStoreIdentities();
@@ -307,7 +317,7 @@ public class WalletIT extends AbstractIT {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
 
-      final AergoKey key = supplyKeyAergo(wallet);
+      final AergoKey key = createNewKey();
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -341,7 +351,7 @@ public class WalletIT extends AbstractIT {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
 
-      final AergoKey key = supplyKeyAergo(wallet);
+      final AergoKey key = createNewKey();
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -364,7 +374,7 @@ public class WalletIT extends AbstractIT {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
 
-      final AergoKey key = supplyKeyAergo(wallet);
+      final AergoKey key = createNewKey();
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -398,7 +408,7 @@ public class WalletIT extends AbstractIT {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
 
-      final AergoKey key = supplyKeyAergo(wallet);
+      final AergoKey key = createNewKey();
       wallet.saveKey(key, password);
 
       try {
@@ -420,7 +430,7 @@ public class WalletIT extends AbstractIT {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
 
-      final AergoKey key = supplyKeyAergo(wallet);
+      final AergoKey key = createNewKey();
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -454,7 +464,7 @@ public class WalletIT extends AbstractIT {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
 
-      final AergoKey key = supplyKeyAergo(wallet);
+      final AergoKey key = createNewKey();
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -467,15 +477,14 @@ public class WalletIT extends AbstractIT {
       wallet.stake(stakingAmount);
       waitForNextBlockToGenerate();
 
-      wallet.voteBp(asList(peerIds));
+      wallet.voteBp(peerIds);
       waitForNextBlockToGenerate();
 
       final List<ElectedCandidate> electedBlockProducers = wallet.listElectedBps(100);
-      assertEquals(peerIds.length + 1, electedBlockProducers.size());
 
       final AccountTotalVote accountTotalVote = wallet.getVotes();
       assertTrue(1 <= accountTotalVote.getVoteInfos().size());
-      assertEquals(peerIds.length, accountTotalVote.getVoteInfos().get(0).getCandidateIds().size());
+      assertEquals(peerIds.size(), accountTotalVote.getVoteInfos().get(0).getCandidateIds().size());
 
       wallet.close();
     }
@@ -486,14 +495,14 @@ public class WalletIT extends AbstractIT {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
 
-      final AergoKey key = supplyKeyAergo(wallet);
+      final AergoKey key = createNewKey();
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
       wallet.unlock(auth);
 
       try {
-        wallet.voteBp(asList(peerIds));
+        wallet.voteBp(peerIds);
         fail();
       } catch (WalletCommitException e) {
         // good we expected this
@@ -508,7 +517,7 @@ public class WalletIT extends AbstractIT {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
 
-      final AergoKey key = supplyKeyAergo(wallet);
+      final AergoKey key = createNewKey();
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -535,7 +544,7 @@ public class WalletIT extends AbstractIT {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
 
-      final AergoKey key = supplyKeyAergo(wallet);
+      final AergoKey key = createNewKey();
       wallet.saveKey(key, password);
 
       final Authentication auth = Authentication.of(key.getAddress(), password);
@@ -559,7 +568,7 @@ public class WalletIT extends AbstractIT {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
 
-      final AergoKey key = supplyKeyAergo(wallet);
+      final AergoKey key = createNewKey();
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
       wallet.unlock(auth);
@@ -594,7 +603,7 @@ public class WalletIT extends AbstractIT {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
 
-      final AergoKey key = supplyKeyAergo(wallet);
+      final AergoKey key = createNewKey();
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
       wallet.unlock(auth);
@@ -623,7 +632,7 @@ public class WalletIT extends AbstractIT {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
 
-      final AergoKey key = supplyKeyAergo(wallet);
+      final AergoKey key = createNewKey();
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
       wallet.unlock(auth);
@@ -656,7 +665,7 @@ public class WalletIT extends AbstractIT {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
 
-      final AergoKey key = supplyKeyAergo(wallet);
+      final AergoKey key = createNewKey();
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
       wallet.unlock(auth);
@@ -685,7 +694,7 @@ public class WalletIT extends AbstractIT {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
 
-      final AergoKey key = supplyKeyAergo(wallet);
+      final AergoKey key = createNewKey();
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
       wallet.unlock(auth);
@@ -703,7 +712,7 @@ public class WalletIT extends AbstractIT {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
 
-      final AergoKey key = supplyKeyAergo(wallet);
+      final AergoKey key = createNewKey();
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
       wallet.unlock(auth);
@@ -725,7 +734,7 @@ public class WalletIT extends AbstractIT {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
 
-      final AergoKey key = supplyKeyAergo(wallet);
+      final AergoKey key = createNewKey();
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
 
@@ -750,7 +759,7 @@ public class WalletIT extends AbstractIT {
     for (final Wallet wallet : supplyWorkingWalletList()) {
       logger.info("Current wallet: {}", wallet);
 
-      final AergoKey key = supplyKeyAergo(wallet);
+      final AergoKey key = createNewKey();
       wallet.saveKey(key, password);
       final Authentication auth = Authentication.of(key.getAddress(), password);
 

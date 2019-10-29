@@ -4,6 +4,7 @@
 
 package hera.client.it;
 
+import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -21,8 +22,8 @@ import hera.client.AergoClientBuilder;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.util.ThreadUtils;
-import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
@@ -33,70 +34,64 @@ public abstract class AbstractIT {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final NonceProvider nonceProvider = new SimpleNonceProvider();
-
-  protected final String propertiesPath = "/it.properties";
-
-  protected String hostname;
-
-  protected String[] peerIds;
-
-  protected String encrypted;
-
-  protected String password;
-
-  protected boolean isFundEnabled;
+  protected final String aergoProperties = "aergo.properties";
+  protected final String certDir = "config/cert";
 
   protected AergoClient aergoClient;
+  protected String hostname;
+  protected List<String> peerIds;
+  protected AergoKey genesisKey;
+  protected final NonceProvider nonceProvider = new SimpleNonceProvider();
 
   @Before
   public void setUp() throws Exception {
-    final Properties properties = readProperties();
-    hostname = (String) properties.get("hostname");
-    peerIds = ((String) properties.get("peer")).split(",");
-
-    encrypted = (String) properties.get("encrypted");
-    password = (String) properties.get("password");
-    isFundEnabled = Boolean.valueOf((String) properties.get("isFundEnabled"));
-
-    final boolean isTlsEnabled = Boolean.valueOf((String) properties.get("isTlsEnabled"));
-
-    final AergoClientBuilder clientBuilder = new AergoClientBuilder()
-        .withNonBlockingConnect()
-        .withTimeout(3, TimeUnit.SECONDS)
-        .withEndpoint(hostname);
-
-    if (isTlsEnabled) {
-      clientBuilder.withTransportSecurity(
-          "aergo.node",
-          openInPackage("server.crt"),
-          openInPackage("client.crt"),
-          openInPackage("client.pem"));
+    final Properties properties = new Properties();
+    try (final InputStream in = getClass().getResourceAsStream(aergoProperties)) {
+      properties.load(in);
     }
 
-    this.aergoClient = clientBuilder.build();
+    // setup client (try plaintext first)
+    hostname = properties.getProperty("endpoint");
+    AergoClientBuilder clientBuilder = new AergoClientBuilder()
+        .withNonBlockingConnect()
+        .withTimeout(3, TimeUnit.SECONDS)
+        .withEndpoint(hostname)
+        .withPlainText();
+    AergoClient candidate = clientBuilder.build();
+    try {
+      candidate.getBlockchainOperation().getBlockchainStatus();
+      logger.trace("Connect with plaintext success");
+    } catch (Exception e) {
+      // if plaintext fails, use tls
+      final String aergoNodeName = properties.getProperty("aergoNodeName");
+      final InputStream serverCert = getClass().getResourceAsStream(certDir + "/server.crt");
+      final InputStream clientCert = getClass().getResourceAsStream(certDir + "/client.crt");
+      final InputStream clientKey = getClass().getResourceAsStream(certDir + "/client.pem");
+      clientBuilder.withTransportSecurity(aergoNodeName, serverCert, clientCert, clientKey);
+      candidate = clientBuilder.build();
+      candidate.getBlockchainOperation().getBlockchainStatus();
+      logger.trace("Connect with tls success");
+    }
+    this.aergoClient = candidate;
 
-    // setup rich
-    final AergoKey rich = AergoKey.of(encrypted, password);
-    final AccountState richState = aergoClient.getAccountOperation().getState(rich.getPrincipal());
-    nonceProvider.bindNonce(richState);
-    logger.info("Rich state: {}", richState);
+    // load genesis key
+    final String genesisEncrypted = properties.getProperty("genesisEncrypted");
+    final String genesisPassword = properties.getProperty("genesisPassword");
+    this.genesisKey = AergoKey.of(genesisEncrypted, genesisPassword);
+    logger.trace("Genesis key: {}", this.genesisKey);
+    final AccountState genesisState =
+        aergoClient.getAccountOperation().getState(this.genesisKey.getAddress());
+    this.nonceProvider.bindNonce(genesisState);
 
+    // load peers
+    this.peerIds = asList(properties.getProperty("peerIds").split(","));
+    logger.trace("Peer Ids: {}", this.peerIds);
+
+    // cache chain id hash
     final ChainIdHash chainIdHash =
         aergoClient.getBlockchainOperation().getBlockchainStatus().getChainIdHash();
     aergoClient.cacheChainIdHash(chainIdHash);
-  }
-
-  protected Properties readProperties() throws IOException {
-    Properties properties = new Properties();
-    properties.load(getClass().getResourceAsStream(propertiesPath));
-    return properties;
-  }
-
-  protected InputStream openInPackage(final String ext) {
-    final String path = "/" + getClass().getPackage().getName().replace('.', '/') + "/" + ext;
-    logger.trace("Path: {}", path);
-    return getClass().getResourceAsStream(path);
+    logger.trace("Cached chain id hash: {}", aergoClient.getCachedChainIdHash());
   }
 
   protected InputStream open(final String ext) {
@@ -106,38 +101,35 @@ public abstract class AbstractIT {
   }
 
   protected void waitForNextBlockToGenerate() {
-    ThreadUtils.trySleep(1200L);
+    ThreadUtils.trySleep(2200L);
   }
 
   protected AergoKey createNewKey() {
-    final AergoKey aergoKey = new AergoKeyGenerator().create();
-    if (isFundEnabled) {
-      fund(aergoKey.getAddress());
-    }
-    return aergoKey;
+    final AergoKey newKey = new AergoKeyGenerator().create();
+    fund(newKey.getAddress());
+    return newKey;
   }
 
   protected void fund(final AccountAddress accountAddress) {
-    final AergoKey rich = AergoKey.of(encrypted, password);
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .chainIdHash(aergoClient.getCachedChainIdHash())
-        .from(rich.getPrincipal())
+        .from(this.genesisKey.getPrincipal())
         .to(accountAddress)
         .amount(Aer.of("10000", Unit.AERGO))
-        .nonce(nonceProvider.incrementAndGetNonce(rich.getPrincipal()))
+        .nonce(nonceProvider.incrementAndGetNonce(this.genesisKey.getPrincipal()))
         .build();
-    final Transaction signed = rich.sign(rawTransaction);
+    final Transaction signed = this.genesisKey.sign(rawTransaction);
     aergoClient.getTransactionOperation().commit(signed);
     waitForNextBlockToGenerate();
+  }
+
+  protected String randomName() {
+    return randomUUID().toString().substring(0, 12).replace('-', 'a');
   }
 
   @After
   public void tearDown() {
     aergoClient.close();
-  }
-
-  protected String randomName() {
-    return randomUUID().toString().substring(0, 12).replace('-', 'a');
   }
 
 }

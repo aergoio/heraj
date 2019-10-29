@@ -11,11 +11,11 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath "me.champeau.gradle:jmh-gradle-plugin:0.4.7"
-    classpath "gradle.plugin.io.morethan.jmhreport:gradle-jmh-report:0.8.0"
-    classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0"
-    classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+"
-    classpath "com.github.jengelman.gradle.plugins:shadow:4.0.3"
+    classpath "me.champeau.gradle:jmh-gradle-plugin:${jmhVersion}"
+    classpath "gradle.plugin.io.morethan.jmhreport:gradle-jmh-report:${jmhReportVersion}"
+    classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:${licenseVersion}"
+    classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:${bintrayVersion}"
+    classpath "com.github.jengelman.gradle.plugins:shadow:${shadowVersion}"
   }
 }
 
@@ -27,9 +27,6 @@ repositories {
   mavenCentral()
   jcenter()
 }
-
-def javaVersion7 = JavaVersion.VERSION_1_7
-def javaVersion8 = JavaVersion.VERSION_1_8
 
 def javaProjects = [
   project('core:annotation'),
@@ -47,28 +44,26 @@ def jmhProjects = [
   project('client:wallet')
 ]
 
-ext {
-  bouncyCastleVersion = '1.63'
-  grpcVersion = '1.23.0'
-  guavaVersion = '28.0'
-  lombokVersion = '1.18.8'
-}
-
 configure(javaProjects) {
+  // base
   apply plugin: 'java-library'
-  apply plugin: 'maven-publish'
   apply plugin: 'jacoco'
   apply plugin: 'checkstyle'
   apply plugin: 'com.github.hierynomus.license-report'
+
+  // ide
   apply plugin: 'idea'
   apply plugin: 'eclipse'
+
+  // publish
   apply plugin: 'com.jfrog.bintray'
+  apply plugin: 'maven-publish'
   apply plugin: 'com.github.johnrengelman.shadow'
 
   def projectBaseName = 'heraj-' + project.name
 
-  sourceCompatibility = javaVersion7
-  targetCompatibility = javaVersion7
+  sourceCompatibility = sourceJavaVersion
+  targetCompatibility = targetJavaVersion
 
   repositories {
     mavenLocal()
@@ -98,17 +93,21 @@ configure(javaProjects) {
 
   dependencies {
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
-    implementation 'org.slf4j:slf4j-api:1.7.25'
+    implementation "org.slf4j:slf4j-api:${slf4jVersion}"
 
-    runtime 'ch.qos.logback:logback-classic:1.2.3'
+    runtime "ch.qos.logback:logback-classic:${logbackVersion}"
+
     testImplementation "org.projectlombok:lombok:${lombokVersion}"
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'org.mockito:mockito-core:2.23.0'
-    testImplementation('org.powermock:powermock-api-mockito2:2.0.0-beta.5') {
+    testImplementation "junit:junit:${junitVersion}"
+    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
+    testImplementation ("org.powermock:powermock-api-mockito2:${powerMockVersion}") {
       exclude group: 'org.mockito', module: 'mockito-core'
     }
-    testImplementation 'org.powermock:powermock-module-junit4:2.0.0-beta.5'
+    testImplementation "org.powermock:powermock-module-junit4:${powerMockVersion}"
   }
+
+
+  // test
 
   project.ext.jacocoOfflineSourceSets = [ 'main' ]
   task instrument(dependsOn: [classes, project.configurations.jacocoAnt]) {
@@ -141,6 +140,7 @@ configure(javaProjects) {
       }
     }
   }
+
   test.dependsOn instrument
 
   test {
@@ -163,7 +163,7 @@ configure(javaProjects) {
   }
 
   task integrationTest (type: Test) {
-    if(JavaVersion.current().isJava9Compatible()) {
+    if(JavaVersion.current().isJava10Compatible()) {
       jvmArgs('--add-opens', 'java.base/java.lang=ALL-UNNAMED')
       jvmArgs('--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED')
       jvmArgs('--add-opens', 'java.base/java.lang.invoke=ALL-UNNAMED')
@@ -181,12 +181,28 @@ configure(javaProjects) {
     include '**/*IT.class'
   }
 
+  jacoco {
+    toolVersion = "0.8.2"
+  }
+
+  jacocoTestReport {
+    group = "Reporting"
+    additionalSourceDirs = files(sourceSets.main.allSource.srcDirs)
+    sourceDirectories = files(sourceSets.main.allSource.srcDirs)
+    classDirectories = files(sourceSets.main.output.classesDir)
+    reports {
+      xml.enabled true
+      html.enabled true
+      csv.enabled false
+    }
+  }
+
+
+  // lint
+
   checkstyle {
-    project.ext.checkstyleVersion = '8.11'
-    project.ext.sevntuChecksVersion = '1.26.0'
     sourceSets = [project.sourceSets.main]
 
-    ignoreFailures = true
     configFile = file("${rootProject.projectDir}/styles.xml")
     reportsDir = file("${buildDir}/checkstyle-reports")
     configurations {
@@ -196,12 +212,13 @@ configure(javaProjects) {
       reportsDir = checkstyle.reportsDir
     }
     dependencies{
-      assert project.hasProperty("checkstyleVersion")
-
       checkstyle "com.puppycrawl.tools:checkstyle:${checkstyleVersion}"
       checkstyle "com.github.sevntu-checkstyle:sevntu-checks:${sevntuChecksVersion}"
     }
   }
+
+
+  // publish
 
   jar {
     archivesBaseName = projectBaseName
@@ -259,22 +276,6 @@ configure(javaProjects) {
     publications = ['maven']
   }
 
-  jacoco {
-    toolVersion = "0.8.2"
-  }
-
-  jacocoTestReport {
-    group = "Reporting"
-    additionalSourceDirs = files(sourceSets.main.allSource.srcDirs)
-    sourceDirectories = files(sourceSets.main.allSource.srcDirs)
-    classDirectories = files(sourceSets.main.output.classesDir)
-    reports {
-      xml.enabled true
-      html.enabled true
-      csv.enabled false
-    }
-  }
-
   shadowJar {
     def shadowPostFix = 'fat'
     baseName = projectBaseName + "-${shadowPostFix}"
@@ -327,6 +328,9 @@ configure(jmhProjects) {
 apply plugin: 'java'
 apply plugin: 'jacoco'
 
+sourceCompatibility = sourceJavaVersion
+targetCompatibility = targetJavaVersion
+
 jacoco {
   toolVersion = "0.8.2"
 }
@@ -359,7 +363,7 @@ task alljavadoc(type: Javadoc) {
   if (JavaVersion.current().isJava8Compatible()) {
     options.addStringOption('Xwerror', '-quiet')
   }
-  if(JavaVersion.current().isJava9Compatible()) {
+  if (JavaVersion.current().isJava9Compatible()) {
     options.addBooleanOption('html5', true)
   }
 }

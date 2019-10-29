@@ -34,7 +34,9 @@ public class WalletApiImpl implements WalletApi {
   @Getter
   protected AccountAddress principal = null;
 
-  public WalletApiImpl(final TryCountAndInterval tryCountAndInterval, final KeyStore keyStore) {
+  public WalletApiImpl(final KeyStore keyStore, final TryCountAndInterval tryCountAndInterval) {
+    assertNotNull(keyStore);
+    assertNotNull(tryCountAndInterval);
     this.keyStore = keyStore;
     this.transactionApi = new TransactionApiImpl(tryCountAndInterval, this);
   }

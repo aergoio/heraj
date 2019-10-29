@@ -38,9 +38,12 @@ import hera.exception.WalletExceptionConverter;
 import hera.util.ExceptionConverter;
 import hera.wallet.QueryApi;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class QueryApiImpl implements QueryApi, ClientInjectable {
 
   @Setter
@@ -48,8 +51,6 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   protected AergoClient client;
 
   protected final ExceptionConverter<WalletException> converter = new WalletExceptionConverter();
-
-  QueryApiImpl() {}
 
   protected AergoClient getClient() {
     if (null == this.client) {

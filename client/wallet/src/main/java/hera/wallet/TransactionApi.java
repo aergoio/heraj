@@ -137,7 +137,7 @@ public interface TransactionApi {
   ContractTxHash deploy(ContractDefinition contractDefinition, Fee fee);
 
   /**
-   * Deploy smart contract.
+   * Re-deploy a deployed smart smart contract. This works enterprise aergo only.
    *
    * @param existingContract an existing contract address
    * @param contractDefinition a contract definition to re-deploy

@@ -1,0 +1,15 @@
+{
+  "chain_id": {
+    "magic": "aergoio.heraj",
+    "public": false,
+    "mainnet": false,
+    "consensus": "dpos"
+  },
+  "timestamp": 1548918000000000000,
+  "balance": {
+    "AmMHQur9ye5bBpUdAATpswhaeygJa9xf4wjnXz27hy2TppUWoMM9": "500000000000000000000000000"
+  },
+  "bps": [
+    "16Uiu2HAkwWbv8nKx7S6S5NMvUpTLNeXMVCPr3NTnrx6rBPYYiQ4K"
+  ]
+}

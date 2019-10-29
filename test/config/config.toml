@@ -1,0 +1,44 @@
+# aergo TOML Configration File (https://github.com/toml-lang/toml)
+# base configurations
+datadir = "./data"
+enableprofile = true
+profileport = 6060
+enablerest = true
+personal = true # enable server keystore
+
+[rpc]
+netserviceaddr = "0.0.0.0"
+netserviceport = 7845
+nstls = false
+nscacert = ""
+nscert = ""
+nskey = ""
+nsallowcors = false
+
+[p2p]
+netprotocoladdr = ""
+netprotocolport = 7846
+npbindaddr = "0.0.0.0"
+npbindport = 7846
+nptls = false
+npcert = ""
+npkey = "./bp01.key"  # Name of key file of node
+npaddpeers = [
+]
+
+npexposeself = false
+npusepolaris = false
+nphiddenpeers= [
+]
+
+[blockchain]
+usefastsyncer = true
+blockchainplaceholder = false
+coinbaseaccount = "AmMo8Wv7mEDJXvFJV5sSo3hFmNLiCCNTt3heo2WkW7JYZwqtrxRa"
+
+[mempool]
+showmetrics = true
+dumpfilepath = "./data/mempool.dump"
+
+[consensus]
+enablebp = true

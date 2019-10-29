@@ -19,24 +19,6 @@ import org.junit.Test;
 public class AergoClientIT extends AbstractIT {
 
   @Test
-  public void testOperations() {
-    final AergoClient client = new AergoClientBuilder()
-        .withEndpoint(hostname)
-        .build();
-    try {
-      assertNotNull(client.getAccountOperation());
-      assertNotNull(client.getKeyStoreOperation());
-      assertNotNull(client.getBlockOperation());
-      assertNotNull(client.getBlockchainOperation());
-      assertNotNull(client.getTransactionOperation());
-      assertNotNull(client.getContractOperation());
-      assertNotNull(client.getKeyStoreOperation());
-    } finally {
-      client.close();
-    }
-  }
-
-  @Test
   public void testTryOnUnconnected() {
     final AergoClient client = new AergoClientBuilder()
         .withEndpoint("localhost:9999")
@@ -54,11 +36,7 @@ public class AergoClientIT extends AbstractIT {
 
   @Test
   public void testContextOnOtherThread() throws Exception {
-    final AergoClient client = new AergoClientBuilder()
-        .withEndpoint(hostname)
-        .build();
-    final ChainIdHash chainIdHash = client.getBlockchainOperation().getChainIdHash();
-    client.cacheChainIdHash(chainIdHash);
+    final AergoClient client = this.aergoClient;
     final ExecutorService executorService = Executors.newSingleThreadExecutor();
     final Future<?> future = executorService.submit(new Runnable() {
 
