@@ -69,13 +69,13 @@ public class TransactionTrier {
         transactionRequester);
 
     TxHash txHash = null;
-    WalletException exception = null;
+    Exception exception = null;
     boolean success = false;
     if (null != firstTrier) {
       try {
         txHash = firstTrier.apply();
         success = null != txHash;
-      } catch (WalletException e) {
+      } catch (Exception e) {
         logger.debug("First try failure by {}", e.toString());
         exception = e;
       }
@@ -86,7 +86,7 @@ public class TransactionTrier {
       try {
         txHash = transactionRequester.apply(accountProvider.apply().incrementAndGetNonce());
         success = true;
-      } catch (WalletException e) {
+      } catch (Exception e) {
         if (isNonceRelatedException(e)) {
           logger.info("Request failed with invalid nonce.. try left: {}", i);
           nonceSynchronizer.run();
@@ -104,26 +104,26 @@ public class TransactionTrier {
     }
 
     if (!success) {
-      throw exception;
+      throw new WalletException(exception);
     }
 
     return txHash;
   }
 
-  protected boolean isNonceRelatedException(final WalletException e) {
-    if (!(e.getCause() instanceof RpcCommitException)) {
+  protected boolean isNonceRelatedException(final Exception e) {
+    if (!(e instanceof RpcCommitException)) {
       return false;
     }
-    final RpcCommitException cause = (RpcCommitException) e.getCause();
+    final RpcCommitException cause = (RpcCommitException) e;
     return cause.getCommitStatus() == RpcCommitException.CommitStatus.NONCE_TOO_LOW
         || cause.getCommitStatus() == RpcCommitException.CommitStatus.TX_HAS_SAME_NONCE;
   }
 
-  protected boolean isChainIdHashException(final WalletException e) {
-    if (!(e.getCause() instanceof RpcCommitException)) {
+  protected boolean isChainIdHashException(final Exception e) {
+    if (!(e instanceof RpcCommitException)) {
       return false;
     }
-    final RpcCommitException cause = (RpcCommitException) e.getCause();
+    final RpcCommitException cause = (RpcCommitException) e;
     // FIXME : no another way?
     return cause.getMessage().indexOf("invalid chain id") != -1;
   }

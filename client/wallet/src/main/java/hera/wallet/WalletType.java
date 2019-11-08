@@ -9,6 +9,7 @@ import hera.annotation.ApiStability;
 
 @ApiAudience.Public
 @ApiStability.Unstable
+@Deprecated
 public enum WalletType {
   Naive,
   Secure,

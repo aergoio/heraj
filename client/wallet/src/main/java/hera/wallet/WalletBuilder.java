@@ -13,7 +13,6 @@ import hera.client.AergoClientBuilder;
 import hera.client.ClientConfiguer;
 import hera.keystore.InMemoryKeyStore;
 import hera.keystore.KeyStore;
-import hera.wallet.internal.LegacyWallet;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
@@ -116,7 +115,7 @@ public class WalletBuilder implements ClientConfiguer<WalletBuilder> {
   public Wallet build(final WalletType walletType) {
     final AergoClient aergoClient = clientBuilder.build();
 
-    if (!walletType.equals(WalletType.Naive)) {
+    if (walletType.equals(WalletType.ServerKeyStore)) {
       throw new UnsupportedOperationException();
     }
 
@@ -125,7 +124,7 @@ public class WalletBuilder implements ClientConfiguer<WalletBuilder> {
         nonceRefreshTryInterval.getInterval().toMilliseconds());
     delegate.bind(aergoClient);
 
-    return new LegacyWallet(delegate);
+    return new LegacyWallet(walletType, delegate);
   }
 
 }

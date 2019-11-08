@@ -278,7 +278,7 @@ public class AergoKey implements KeyPair, Signer, MessageSigner {
 
   @Override
   public String toString() {
-    return String.format("Address: %s", getAddress());
+    return String.format("AergoKey(address=%s)", getAddress());
   }
 
 }

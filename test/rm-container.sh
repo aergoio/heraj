@@ -19,4 +19,8 @@ readonly AERGO_VERSION=$(grep aergoVersion ${AERGO_PROPERTIES} | cut -d"=" -f2)
 readonly AERGO_NODE=$(grep aergoNodeName ${AERGO_PROPERTIES} | cut -d"=" -f2)
 
 echo "Remove container: $AERGO_NODE"
-docker ps -q -f name=${AERGO_NODE} | xargs docker stop | xargs docker rm
+readonly CONTAINER=$(docker ps -q -f name=${AERGO_NODE})
+if [ ! -z ${CONTAINER} ]; then
+  docker stop ${CONTAINER}
+  docker rm ${CONTAINER}
+fi

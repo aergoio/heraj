@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.wallet.internal;
+package hera.wallet;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -49,11 +49,9 @@ import hera.key.AergoKey;
 import hera.key.AergoSignVerifier;
 import hera.keystore.JavaKeyStore;
 import hera.util.ExceptionConverter;
-import hera.wallet.Wallet;
-import hera.wallet.WalletApi;
 import java.security.KeyStore;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 
 /**
@@ -63,7 +61,7 @@ import org.slf4j.Logger;
  * @author taeiklim
  *
  */
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class LegacyWallet implements Wallet {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -71,7 +69,9 @@ public class LegacyWallet implements Wallet {
   protected final ExceptionConverter<WalletException> exceptionConverter =
       new WalletExceptionConverter();
 
-  protected final WalletApi delegate;
+  protected final WalletType type;
+
+  protected WalletApi delegate;
 
   @Override
   public Account getAccount() {
@@ -95,7 +95,11 @@ public class LegacyWallet implements Wallet {
 
   @Override
   public void bindKeyStore(KeyStore keyStore) {
-    throw new UnsupportedOperationException();
+    if (this.type.equals(WalletType.Secure)) {
+      final WalletApiImpl origin = (WalletApiImpl) this.delegate;
+      this.delegate = new WalletFactory().create(new JavaKeyStore(keyStore));
+      this.delegate.bind(origin.aergoClient);
+    }
   }
 
   @Override
@@ -110,7 +114,8 @@ public class LegacyWallet implements Wallet {
 
   @Override
   public String exportKey(Authentication authentication) {
-    return ((WalletApiImpl) delegate).keyStore.export(authentication).getEncoded();
+    return ((WalletApiImpl) delegate).keyStore.export(authentication, authentication.getPassword())
+        .getEncoded();
   }
 
   @Override
@@ -329,22 +334,19 @@ public class LegacyWallet implements Wallet {
   @Override
   public ChainIdHash getCachedChainIdHash() {
     final WalletApiImpl walletApiImpl = (WalletApiImpl) delegate;
-    QueryApiImpl queryApiImpl = (QueryApiImpl) walletApiImpl.queryApi;
-    return queryApiImpl.client.getCachedChainIdHash();
+    return walletApiImpl.aergoClient.getCachedChainIdHash();
   }
 
   @Override
   public void cacheChainIdHash() {
     final WalletApiImpl walletApiImpl = (WalletApiImpl) delegate;
-    QueryApiImpl queryApiImpl = (QueryApiImpl) walletApiImpl.queryApi;
-    queryApiImpl.client.cacheChainIdHash(getChainIdHash());
+    walletApiImpl.aergoClient.cacheChainIdHash(getChainIdHash());
   }
 
   @Override
   public void cacheChainIdHash(ChainIdHash chainIdHash) {
     final WalletApiImpl walletApiImpl = (WalletApiImpl) delegate;
-    QueryApiImpl queryApiImpl = (QueryApiImpl) walletApiImpl.queryApi;
-    queryApiImpl.client.cacheChainIdHash(chainIdHash);
+    walletApiImpl.aergoClient.cacheChainIdHash(chainIdHash);
   }
 
   @Override
@@ -472,8 +474,7 @@ public class LegacyWallet implements Wallet {
   @Override
   public void close() {
     final WalletApiImpl walletApiImpl = (WalletApiImpl) delegate;
-    QueryApiImpl queryApiImpl = (QueryApiImpl) walletApiImpl.queryApi;
-    queryApiImpl.client.close();
+    walletApiImpl.aergoClient.close();
   }
 
 }

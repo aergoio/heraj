@@ -11,7 +11,6 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.internal.Time;
 import hera.api.model.internal.TryCountAndInterval;
-import hera.wallet.internal.WalletApiImpl;
 
 /**
  * Factory for Wallet implementation v2. This is beta version

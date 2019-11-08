@@ -6,129 +6,160 @@ package hera.keystore;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import hera.AbstractTestCase;
-import hera.api.model.AccountAddress;
-import hera.api.model.Aer;
-import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
-import hera.api.model.Identity;
-import hera.api.model.RawTransaction;
-import hera.api.model.Transaction;
+import hera.exception.InvalidAuthenticationException;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
+import hera.model.KeyAlias;
 import org.junit.Test;
 
 public class InMemoryKeyStoreTest extends AbstractTestCase {
 
-  protected Identity invalidIdentity = new Identity() {
+  @Test
+  public void testSave() {
+    // when
+    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
+    final KeyAlias alias = new KeyAlias(randomUUID().toString());
+    final Authentication authentication = Authentication.of(alias, randomUUID().toString());
+    final AergoKey key = new AergoKeyGenerator().create();
+    keyStore.save(authentication, key);
 
-    @Override
-    public String getValue() {
-      return randomUUID().toString();
-    }
-  };
+    // then
+    assertTrue(keyStore.listIdentities().contains(alias));
+  }
 
   @Test
-  public void testSaveAndExport() {
+  public void shouldSaveThrowErrorOnSameAlias() {
+    // when
     final InMemoryKeyStore keyStore = new InMemoryKeyStore();
-
+    final KeyAlias alias = new KeyAlias(randomUUID().toString());
+    final Authentication authentication = Authentication.of(alias, randomUUID().toString());
     final AergoKey key = new AergoKeyGenerator().create();
-    final String password = randomUUID().toString();
-    final Authentication authentication = Authentication.of(key.getAddress(), password);
     keyStore.save(authentication, key);
-    assertTrue(keyStore.listIdentities().contains(key.getAddress()));
 
-    final EncryptedPrivateKey exported = keyStore.export(authentication);
+    // then
+    try {
+      final AergoKey newKey = new AergoKeyGenerator().create();
+      final Authentication sameAlias = Authentication.of(alias, randomUUID().toString());
+      keyStore.save(sameAlias, newKey);
+      fail();
+    } catch (InvalidAuthenticationException e) {
+      // good we expected this
+    }
+  }
+
+  @Test
+  public void shouldSaveThrowErrorOnSameAuthentication() {
+    // when
+    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
+    final KeyAlias alias = new KeyAlias(randomUUID().toString());
+    final Authentication authentication = Authentication.of(alias, randomUUID().toString());
+    final AergoKey key = new AergoKeyGenerator().create();
+    keyStore.save(authentication, key);
+
+    // then
+    try {
+      final AergoKey newKey = new AergoKeyGenerator().create();
+      keyStore.save(authentication, newKey);
+      fail();
+    } catch (InvalidAuthenticationException e) {
+      // good we expected this
+    }
+  }
+
+  @Test
+  public void shouldLoadOnValidAuthentication() {
+    // when
+    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
+    final KeyAlias alias = new KeyAlias(randomUUID().toString());
+    final Authentication authentication = Authentication.of(alias, randomUUID().toString());
+    final AergoKey key = new AergoKeyGenerator().create();
+    keyStore.save(authentication, key);
+
+    // then
+    assertNotNull(keyStore.load(authentication));
+  }
+
+  @Test
+  public void shouldLoadThrowErrorOnInvalidAuthentication() {
+    // when
+    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
+    final KeyAlias alias = new KeyAlias(randomUUID().toString());
+    final Authentication invalid = Authentication.of(alias, randomUUID().toString());
+
+    // then
+    try {
+      keyStore.load(invalid);
+      fail();
+    } catch (InvalidAuthenticationException e) {
+      // good we expected this
+    }
+  }
+
+  @Test
+  public void shouldRemoveOnSavedOne() {
+    // when
+    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
+    final KeyAlias alias = new KeyAlias(randomUUID().toString());
+    final AergoKey key = new AergoKeyGenerator().create();
+    final Authentication authentication = Authentication.of(alias, randomUUID().toString());
+    keyStore.save(authentication, key);
+
+    // then
+    keyStore.remove(authentication);
+    assertTrue(false == keyStore.listIdentities().contains(alias));
+  }
+
+  @Test
+  public void shouldRemoveThrowErrorOnInvalidAuthentication() {
+    // when
+    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
+    final KeyAlias alias = new KeyAlias(randomUUID().toString());
+    final Authentication invalid = Authentication.of(alias, randomUUID().toString());
+
+    // then
+    try {
+      keyStore.remove(invalid);
+      fail();
+    } catch (InvalidAuthenticationException e) {
+      // good we expected this
+    }
+  }
+
+  @Test
+  public void shouldExportOnSavedOne() {
+    // when
+    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
+    final KeyAlias alias = new KeyAlias(randomUUID().toString());
+    final AergoKey key = new AergoKeyGenerator().create();
+    final Authentication authentication = Authentication.of(alias, randomUUID().toString());
+    keyStore.save(authentication, key);
+
+    // then
+    final String password = randomUUID().toString();
+    final EncryptedPrivateKey exported = keyStore.export(authentication, password);
     final AergoKey decrypted = new AergoKeyGenerator().create(exported, password);
     assertEquals(decrypted, key);
   }
 
   @Test
-  public void testUnlockAndLock() {
+  public void shouldExportThrowErrorOnInvalidAuthentication() {
+    // when
     final InMemoryKeyStore keyStore = new InMemoryKeyStore();
+    final KeyAlias alias = new KeyAlias(randomUUID().toString());
+    final Authentication invalid = Authentication.of(alias, randomUUID().toString());
 
-    final AergoKey key = new AergoKeyGenerator().create();
-    final String password = randomUUID().toString();
-    final Authentication authentication =
-        Authentication.of(key.getAddress(), password);
-    keyStore.save(authentication, key);
-
-    assertNotNull(keyStore.unlock(authentication));
-    assertTrue(keyStore.lock(authentication));
-  }
-
-  @Test
-  public void testUnlockOnInvalidAuth() {
-    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
-
-    final String password = randomUUID().toString();
-    final Authentication authentication = Authentication.of(invalidIdentity, password);
-    assertNull(keyStore.unlock(authentication));
-  }
-
-  @Test
-  public void testLockWithInvalidAuth() {
-    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
-
-    final AergoKey key = new AergoKeyGenerator().create();
-    final String password = randomUUID().toString();
-    final Authentication authentication = Authentication.of(key.getAddress(), password);
-    keyStore.save(authentication, key);
-
-    assertNotNull(keyStore.unlock(authentication));
-
-    final Authentication invalid = Authentication.of(invalidIdentity, password);
-    assertFalse(keyStore.lock(invalid));
-  }
-
-  @Test
-  public void testSignRawTransaction() {
-    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
-
-    final AergoKey key = new AergoKeyGenerator().create();
-    final String password = randomUUID().toString();
-    final Authentication authentication = Authentication.of(key.getAddress(), password);
-    keyStore.save(authentication, key);
-
-    final AccountAddress unlocked = keyStore.unlock(authentication);
-    final RawTransaction rawTransaction = RawTransaction.newBuilder(chainIdHash)
-        .from(key.getAddress())
-        .to(key.getAddress())
-        .amount(Aer.of("100", Unit.GAER))
-        .nonce(1)
-        .build();
-
-    final Transaction signed = keyStore.sign(unlocked, rawTransaction);
-    assertNotNull(signed);
-  }
-
-  @Test
-  public void testSignOnLocked() {
-    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
-
-    final AergoKey key = new AergoKeyGenerator().create();
-    final String password = randomUUID().toString();
-    final Authentication authentication = Authentication.of(invalidIdentity, password);
-    keyStore.save(authentication, key);
-
-    final RawTransaction rawTransaction = RawTransaction.newBuilder(chainIdHash)
-        .from(key.getAddress())
-        .to(key.getAddress())
-        .amount(Aer.of("100", Unit.GAER))
-        .nonce(1)
-        .build();
-
+    // then
     try {
-      keyStore.sign(key.getAddress(), rawTransaction);
-      fail("Sign on locked account should throw exception");
-    } catch (Exception e) {
+      keyStore.export(invalid, randomUUID().toString());
+      fail();
+    } catch (InvalidAuthenticationException e) {
       // good we expected this
     }
   }

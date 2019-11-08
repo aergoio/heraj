@@ -5,6 +5,7 @@
 package hera.wallet;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import hera.AbstractTestCase;
 import hera.api.function.Function0;
@@ -16,8 +17,6 @@ import hera.api.model.TxHash;
 import hera.api.model.internal.Time;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.exception.RpcCommitException;
-import hera.exception.WalletCommitException;
-import hera.exception.WalletException;
 import hera.key.AergoKeyGenerator;
 import hera.wallet.internal.TransactionTrier;
 import java.util.concurrent.CountDownLatch;
@@ -60,7 +59,7 @@ public class TransactionTrierTest extends AbstractTestCase {
         latch.countDown();
         final RpcCommitException rpcCommitException =
             new RpcCommitException(types.Rpc.CommitStatus.TX_NONCE_TOO_LOW, "Nonce is too low");
-        throw new WalletCommitException(rpcCommitException);
+        throw rpcCommitException;
       }
     });
     assertNotNull(txHash);
@@ -100,23 +99,28 @@ public class TransactionTrierTest extends AbstractTestCase {
         latch.countDown();
         final RpcCommitException rpcCommitException =
             new RpcCommitException(types.Rpc.CommitStatus.TX_NONCE_TOO_LOW, "Nonce is too low");
-        throw new WalletCommitException(rpcCommitException);
+        throw rpcCommitException;
       }
     });
     assertNotNull(txHash);
   }
 
-  @Test(expected = WalletException.class)
+  @Test
   public void testRequestOnAllTryFail() {
-    trier.request(new Function1<Long, TxHash>() {
+    try {
+      trier.request(new Function1<Long, TxHash>() {
 
-      @Override
-      public TxHash apply(Long nonce) {
-        final RpcCommitException rpcCommitException =
-            new RpcCommitException(types.Rpc.CommitStatus.TX_NONCE_TOO_LOW, "Nonce is too low");
-        throw new WalletCommitException(rpcCommitException);
-      }
-    });
+        @Override
+        public TxHash apply(Long nonce) {
+          final RpcCommitException rpcCommitException =
+              new RpcCommitException(types.Rpc.CommitStatus.TX_NONCE_TOO_LOW, "Nonce is too low");
+          throw rpcCommitException;
+        }
+      });
+      fail();
+    } catch (Exception e) {
+      // good we expected this
+    }
   }
 
 }

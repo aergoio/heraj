@@ -6,14 +6,13 @@ package hera.keystore;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Identity;
-import hera.api.model.RawTransaction;
-import hera.api.model.Transaction;
+import hera.exception.InvalidAuthenticationException;
 import hera.exception.KeyStoreException;
 import hera.key.AergoKey;
+import hera.key.Signer;
 import java.util.List;
 
 @ApiAudience.Public
@@ -21,47 +20,53 @@ import java.util.List;
 public interface KeyStore {
 
   /**
-   * Unlock an account corresponding to {@code authentication}. If corresponding one is already
-   * unlocked or no corresponding one, return null.
-   *
-   * @param authentication an authentication to unlock account
-   * @return an unlocked account. null on unlock failure
-   */
-  AccountAddress unlock(Authentication authentication);
-
-  /**
-   * Lock an account corresponding to {@code authentication}. Return true only if corresponding one
-   * is unlocked status.
-   *
-   * @param authentication an authentication which is used in locking account
-   * @return a lock result
-   */
-  boolean lock(Authentication authentication);
-
-  /**
    * Store an {@code AergoKey} to the keystore.
    *
    * @param authentication an authentication to save key
    * @param key an aergo key to store
    *
+   * @throws InvalidAuthenticationException on invalid authentication
    * @throws KeyStoreException on keystore error
    */
   void save(Authentication authentication, AergoKey key);
 
   /**
+   * Load signer with {@code authentication}.
+   *
+   * @param authentication an authentication
+   * @return a signer corresponding to authentication
+   *
+   * @throws InvalidAuthenticationException on invalid authentication
+   * @throws KeyStoreException on keystore error
+   */
+  Signer load(Authentication authentication);
+
+  /**
+   * Remove an {@code AergoKey} corresponding to {@code authentication}.
+   *
+   * @param authentication an authentication to remove key
+   *
+   * @throws InvalidAuthenticationException on invalid authentication
+   * @throws KeyStoreException on keystore error
+   */
+  void remove(Authentication authentication);
+
+  /**
    * Export an private key encrypted.
    *
    * @param authentication an authentication to used in exporting key
-   * @return an encrypted private key.
+   * @param password a password to encrypt
+   * @return an encrypted private key
    *
+   * @throws InvalidAuthenticationException on invalid authentication
    * @throws KeyStoreException on keystore error
    */
-  EncryptedPrivateKey export(Authentication authentication);
+  EncryptedPrivateKey export(Authentication authentication, String password);
 
   /**
    * Get all the stored identities.
    *
-   * @return stored identities.
+   * @return stored identities
    *
    * @throws KeyStoreException on keystore error
    */
@@ -72,18 +77,9 @@ public interface KeyStore {
    *
    * @param path a path to store keystore
    * @param password a password to encrypt keystore
+   *
+   * @throws KeyStoreException on keystore error
    */
   void store(String path, char[] password);
-
-  /**
-   * Sign to raw transaction.
-   *
-   * @param unlocked an account to sign
-   * @param rawTransaction raw transaction to sign
-   * @return a signed transaction
-   *
-   * @throws KeyStoreException on signing error
-   */
-  Transaction sign(AccountAddress unlocked, RawTransaction rawTransaction);
 
 }

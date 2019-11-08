@@ -18,14 +18,8 @@ public class WalletExceptionConverter implements ExceptionConverter<WalletExcept
     logger.debug("Handle exception {}", t.toString());
     if (t instanceof WalletException) {
       return (WalletException) t;
-    } else if (t instanceof RpcCommitException) {
-      return new WalletCommitException(t);
-    } else if (t instanceof RpcConnectionException) {
-      return new WalletConnectionException(t);
-    } else if (t instanceof RpcException) {
-      return new WalletRpcException(t);
     } else {
-      return new WalletException("Unexpected one", t);
+      return new WalletException(t);
     }
   }
 

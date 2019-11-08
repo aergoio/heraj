@@ -27,12 +27,9 @@ import hera.util.ExceptionConverter;
 import hera.wallet.TransactionApi;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import lombok.AccessLevel;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class TransactionApiImpl implements TransactionApi, ClientInjectable {
 
   protected final Trier trier;
@@ -45,7 +42,13 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
 
   protected final ExceptionConverter<WalletException> converter = new WalletExceptionConverter();
 
-  TransactionApiImpl(final TryCountAndInterval tryCountAndInterval, final Signer signer) {
+  /**
+   * TransactionApiImpl constructor.
+   * 
+   * @param tryCountAndInterval a tryCountAndInterval
+   * @param signer a signe
+   */
+  public TransactionApiImpl(final TryCountAndInterval tryCountAndInterval, final Signer signer) {
     final Trier trier = new Trier();
     trier.setTryCountAndInterval(tryCountAndInterval);
     trier.setNonceProvider(new SimpleNonceProvider());

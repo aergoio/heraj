@@ -38,12 +38,11 @@ import hera.exception.WalletExceptionConverter;
 import hera.util.ExceptionConverter;
 import hera.wallet.QueryApi;
 import java.util.List;
-import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor
 public class QueryApiImpl implements QueryApi, ClientInjectable {
 
   @Setter

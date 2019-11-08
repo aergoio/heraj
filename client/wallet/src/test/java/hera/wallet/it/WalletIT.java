@@ -4,7 +4,6 @@
 
 package hera.wallet.it;
 
-import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -42,42 +41,27 @@ import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.internal.Time;
 import hera.api.model.internal.TryCountAndInterval;
-import hera.exception.WalletCommitException;
+import hera.exception.WalletException;
 import hera.key.AergoKey;
-import hera.keystore.InMemoryKeyStore;
-import hera.keystore.KeyStore;
 import hera.util.IoUtils;
 import hera.wallet.Wallet;
-import hera.wallet.WalletApi;
-import hera.wallet.WalletFactory;
+import hera.wallet.WalletBuilder;
 import hera.wallet.WalletType;
-import hera.wallet.internal.LegacyWallet;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
 
-@RunWith(Parameterized.class)
 public class WalletIT extends AbstractIT {
 
   protected final AccountAddress accountAddress =
       AccountAddress.of("AmLo9CGR3xFZPVKZ5moSVRNW1kyscY9rVkCvgrpwNJjRUPUWadC5");
-
-  protected String keyStorePath = System.getProperty("java.io.tmpdir") + ".tmpkeystore";
-  protected String keyStorePasword = "password";
 
   protected String password = randomUUID().toString();
 
@@ -92,30 +76,53 @@ public class WalletIT extends AbstractIT {
 
   protected String queryFunction = "get";
 
-  protected java.security.KeyStore keyStore;
-
-
-  @Parameters(name = "{0}")
-  public static Collection<WalletType> data() {
-    return Arrays.asList(
-        WalletType.Naive);
-  }
-
-  @Parameter
-  public WalletType type;
-
-
   protected List<Wallet> supplyWorkingWalletList() {
-
     final TryCountAndInterval nonceRefreshTryInterval =
         TryCountAndInterval.of(2, Time.of(100L, TimeUnit.MILLISECONDS));
-    final KeyStore keyStore = new InMemoryKeyStore();
-    WalletApi delegate = new WalletFactory().create(keyStore, nonceRefreshTryInterval.getCount(),
-        nonceRefreshTryInterval.getInterval().toMilliseconds());
-    delegate.bind(aergoClient);
-    final Wallet wallet = new LegacyWallet(delegate);
 
-    return asList(wallet);
+    final List<Wallet> wallets = new ArrayList<>();
+
+    final Wallet naiveWallet = supplyWallet(WalletType.Naive);
+    wallets.add(naiveWallet);
+
+    final Wallet secureWallet = supplyWallet(WalletType.Secure);
+    secureWallet.bindKeyStore(supplyKeyStore());
+    wallets.add(secureWallet);
+
+    return wallets;
+  }
+
+  protected Wallet supplyWallet(final WalletType type) {
+    Wallet wallet = new WalletBuilder()
+        .withEndpoint(hostname)
+        .withRefresh(2, 1000L, TimeUnit.MILLISECONDS)
+        .withNonBlockingConnect()
+        .build(type);
+    try {
+      wallet.getBlockchainStatus();
+      logger.trace("Connect with plaintext success");
+    } catch (Exception e) {
+      final String aergoNodeName = properties.getProperty("aergoNodeName");
+      final InputStream serverCert = getClass().getResourceAsStream(certDir + "/server.crt");
+      final InputStream clientCert = getClass().getResourceAsStream(certDir + "/client.crt");
+      final InputStream clientKey = getClass().getResourceAsStream(certDir + "/client.pem");
+      wallet = new WalletBuilder()
+          .withEndpoint(hostname)
+          .withRefresh(2, 1000L, TimeUnit.MILLISECONDS)
+          .withTransportSecurity(aergoNodeName, serverCert, clientCert, clientKey)
+          .build(type);
+    }
+    return wallet;
+  }
+
+  protected java.security.KeyStore supplyKeyStore() {
+    try {
+      final java.security.KeyStore keyStore = java.security.KeyStore.getInstance("PKCS12");
+      keyStore.load(null, null);
+      return keyStore;
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
   }
 
   protected boolean isDpos() {
@@ -199,20 +206,6 @@ public class WalletIT extends AbstractIT {
   @After
   public void tearDown() {
     super.tearDown();
-  }
-
-  protected java.security.KeyStore supplyKeyStore() throws Exception {
-    final java.security.KeyStore keyStore = java.security.KeyStore.getInstance("PKCS12");
-    try {
-      keyStore.load(new FileInputStream(keyStorePath),
-          keyStorePasword.toCharArray());
-      return keyStore;
-    } catch (CertificateException e) {
-      keyStore.load(null, keyStorePasword.toCharArray());
-    } catch (IOException e) {
-      keyStore.load(null, keyStorePasword.toCharArray());
-    }
-    return keyStore;
   }
 
   @Test
@@ -504,7 +497,7 @@ public class WalletIT extends AbstractIT {
       try {
         wallet.voteBp(peerIds);
         fail();
-      } catch (WalletCommitException e) {
+      } catch (WalletException e) {
         // good we expected this
       }
 
