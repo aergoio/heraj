@@ -22,7 +22,6 @@ import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSAKeyGenerator;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
@@ -45,8 +44,6 @@ import org.slf4j.Logger;
 @ApiAudience.Public
 @ApiStability.Unstable
 public class JavaKeyStore implements KeyStore {
-
-  protected static final String[] POSSIBLE_GETD_METHODS = {"getS", "getD"};
 
   protected final Logger logger = getLogger(getClass());
 
@@ -296,29 +293,16 @@ public class JavaKeyStore implements KeyStore {
   }
 
   protected AergoKey convertPrivateKey(final java.security.Key privateKey) throws Exception {
-    Method getdMethod = null;
-    for (int i = 0; i < POSSIBLE_GETD_METHODS.length; ++i) {
-      try {
-        final String getdMethodName = POSSIBLE_GETD_METHODS[i];
-        final Method target = privateKey.getClass().getMethod(getdMethodName);
-        if (null != target) {
-          getdMethod = target;
-          break;
-        }
-      } catch (NoSuchMethodException e) {
-        // continue loop
-      }
-    }
-    if (null == getdMethod) {
+    BigInteger d = null;
+    if (privateKey instanceof java.security.interfaces.ECPrivateKey) {
+      d = ((java.security.interfaces.ECPrivateKey) privateKey).getS();
+    } else if (privateKey instanceof org.bouncycastle.jce.interfaces.ECPrivateKey) {
+      d = ((org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey).getD();
+    } else {
       throw new UnsupportedOperationException(
           "Unacceptable key type: " + privateKey.getClass().getName());
     }
-
-    logger.trace("Get d method: {}, class: {}", getdMethod.getName(),
-        privateKey.getClass().getName());
-    final BigInteger d = (BigInteger) getdMethod.invoke(privateKey);
     final ECDSAKey ecdsakey = new ECDSAKeyGenerator().create(d);
-
     return new AergoKey(ecdsakey);
   }
 
