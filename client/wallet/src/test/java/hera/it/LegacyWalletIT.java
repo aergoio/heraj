@@ -54,11 +54,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import org.junit.After;
-import org.junit.Before;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.junit.Test;
 
-public class WalletIT extends AbstractIT {
+public class LegacyWalletIT extends AbstractIT {
 
   protected final AccountAddress accountAddress =
       AccountAddress.of("AmLo9CGR3xFZPVKZ5moSVRNW1kyscY9rVkCvgrpwNJjRUPUWadC5");
@@ -196,16 +197,6 @@ public class WalletIT extends AbstractIT {
 
     assertEquals(data.getIntVal(), executeIntVal);
     assertEquals(data.getStringVal(), executeStringVal);
-  }
-
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
-  }
-
-  @After
-  public void tearDown() {
-    super.tearDown();
   }
 
   @Test
@@ -789,6 +780,19 @@ public class WalletIT extends AbstractIT {
 
       wallet.close();
     }
+
+  }
+
+  @ToString
+  protected static class Data {
+
+    @Getter
+    @Setter
+    protected int intVal;
+
+    @Getter
+    @Setter
+    protected String stringVal;
 
   }
 

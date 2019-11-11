@@ -143,7 +143,7 @@ public interface QueryApi {
   ChainStats getChainStats();
 
   /**
-   * Get blockchain peer addresses.
+   * Get blockchain peer addresses filtering hidden peers and itself.
    *
    * @return peer addresses
    */

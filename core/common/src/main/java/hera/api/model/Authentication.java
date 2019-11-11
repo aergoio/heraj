@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class Authentication {
 
-  @ApiAudience.Public
   public static Authentication of(final Identity identity, final String password) {
     return new Authentication(identity, password);
   }

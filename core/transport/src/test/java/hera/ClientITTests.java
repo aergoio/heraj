@@ -25,6 +25,6 @@ import org.junit.runners.Suite.SuiteClasses;
     TransactionOperationIT.class,
     ContractOperationIT.class
 })
-public class ITTests {
+public class ClientITTests {
 
 }

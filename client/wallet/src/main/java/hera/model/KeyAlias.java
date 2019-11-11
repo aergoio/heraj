@@ -15,6 +15,10 @@ import lombok.Value;
 @Value
 public class KeyAlias implements Identity {
 
+  public static KeyAlias of(final String value) {
+    return new KeyAlias(value);
+  }
+
   @NonNull
   String value;
 

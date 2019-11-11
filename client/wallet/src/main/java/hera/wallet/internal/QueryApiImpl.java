@@ -51,17 +51,10 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
 
   protected final ExceptionConverter<WalletException> converter = new WalletExceptionConverter();
 
-  protected AergoClient getClient() {
-    if (null == this.client) {
-      throw new WalletException("Aergo client isn't binded yet");
-    }
-    return this.client;
-  }
-
   @Override
   public AccountState getAccountState(final AccountAddress accountAddress) {
     try {
-      return client.getAccountOperation().getState(accountAddress);
+      return getClient().getAccountOperation().getState(accountAddress);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -356,6 +349,13 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
     } catch (Exception e) {
       throw converter.convert(e);
     }
+  }
+
+  protected AergoClient getClient() {
+    if (null == this.client) {
+      throw new WalletException("Aergo client isn't binded yet");
+    }
+    return this.client;
   }
 
 }

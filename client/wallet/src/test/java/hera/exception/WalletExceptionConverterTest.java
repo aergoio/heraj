@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.wallet.exception;
+package hera.exception;
 
 import static org.junit.Assert.assertEquals;
 

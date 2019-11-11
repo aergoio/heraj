@@ -117,7 +117,7 @@ public abstract class AbstractIT {
         .chainIdHash(aergoClient.getCachedChainIdHash())
         .from(this.genesisKey.getPrincipal())
         .to(accountAddress)
-        .amount(Aer.of("10000", Unit.AERGO))
+        .amount(Aer.of("30000", Unit.AERGO))
         .nonce(nonceProvider.incrementAndGetNonce(this.genesisKey.getPrincipal()))
         .build();
     final Transaction signed = this.genesisKey.sign(rawTransaction);
