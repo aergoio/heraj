@@ -4,15 +4,12 @@
 
 package hera.client.internal;
 
-import static com.google.common.util.concurrent.Futures.addCallback;
-import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
-import static hera.util.TransportUtils.assertArgument;
 import static hera.util.TransportUtils.copyFrom;
+import static hera.util.ValidationUtils.assertTrue;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 import static types.AergoRPCServiceGrpc.newStub;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
@@ -33,6 +30,7 @@ import io.grpc.Context;
 import io.grpc.ManagedChannel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
 import lombok.Getter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -69,298 +67,236 @@ public class BlockBaseTemplate implements ChannelInjectable, ContextProviderInje
   }
 
   @Getter
-  private final Function1<BlockHash, FinishableFuture<BlockMetadata>> blockMetatdataByHashFunction =
-      new Function1<BlockHash, FinishableFuture<BlockMetadata>>() {
+  private final Function1<BlockHash, Future<BlockMetadata>> blockMetatdataByHashFunction =
+      new Function1<BlockHash, Future<BlockMetadata>>() {
 
         @Override
-        public FinishableFuture<BlockMetadata> apply(final BlockHash hash) {
+        public Future<BlockMetadata> apply(final BlockHash hash) {
           logger.debug("Get block metadata with hash: {}", hash);
 
-          FinishableFuture<BlockMetadata> nextFuture = new FinishableFuture<BlockMetadata>();
-          try {
-            final Rpc.SingleBytes rpcHash = Rpc.SingleBytes.newBuilder()
-                .setValue(copyFrom(hash.getBytesValue()))
-                .build();
-            logger.trace("AergoService getBlockMetadata arg: {}", rpcHash);
+          final Rpc.SingleBytes rpcHash = Rpc.SingleBytes.newBuilder()
+              .setValue(copyFrom(hash.getBytesValue()))
+              .build();
+          logger.trace("AergoService getBlockMetadata arg: {}", rpcHash);
 
-            ListenableFuture<Rpc.BlockMetadata> listenableFuture =
-                aergoService.getBlockMetadata(rpcHash);
-            FutureChain<Rpc.BlockMetadata, BlockMetadata> callback = new FutureChain<>(nextFuture);
-            callback.setSuccessHandler(
-                new Function1<Rpc.BlockMetadata, BlockMetadata>() {
+          final Future<Rpc.BlockMetadata> rawFuture = aergoService.getBlockMetadata(rpcHash);
+          final Future<BlockMetadata> convertedFuture = HerajFutures.transform(rawFuture,
+              new Function1<Rpc.BlockMetadata, BlockMetadata>() {
 
-                  @Override
-                  public BlockMetadata apply(final Rpc.BlockMetadata metadata) {
-                    return blockMetadataConverter.convertToDomainModel(metadata);
-                  }
-                });
-            addCallback(listenableFuture, callback, directExecutor());
-          } catch (Exception e) {
-            nextFuture.fail(e);
-          }
-
-          return nextFuture;
+                @Override
+                public BlockMetadata apply(final Rpc.BlockMetadata metadata) {
+                  return blockMetadataConverter.convertToDomainModel(metadata);
+                }
+              });
+          return convertedFuture;
         }
       };
 
   @Getter
-  private final Function1<Long, FinishableFuture<BlockMetadata>> blockMetadataByHeightFunction =
-      new Function1<Long, FinishableFuture<BlockMetadata>>() {
+  private final Function1<Long, Future<BlockMetadata>> blockMetadataByHeightFunction =
+      new Function1<Long, Future<BlockMetadata>>() {
 
         @Override
-        public FinishableFuture<BlockMetadata> apply(final Long height) {
+        public Future<BlockMetadata> apply(final Long height) {
           logger.debug("Get block metadata with height: {}", height);
-          assertArgument(height >= 0, "Height", ">= 0");
+          assertTrue(height >= 0, "Height must >= 0");
 
-          FinishableFuture<BlockMetadata> nextFuture = new FinishableFuture<BlockMetadata>();
-          try {
-            final Rpc.SingleBytes rpcHeight = Rpc.SingleBytes.newBuilder()
-                .setValue(copyFrom(height.longValue()))
-                .build();
-            logger.trace("AergoService getBlockMetadata arg: {}", rpcHeight);
+          final Rpc.SingleBytes rpcHeight = Rpc.SingleBytes.newBuilder()
+              .setValue(copyFrom(height.longValue()))
+              .build();
+          logger.trace("AergoService getBlockMetadata arg: {}", rpcHeight);
 
-            ListenableFuture<Rpc.BlockMetadata> listenableFuture =
-                aergoService.getBlockMetadata(rpcHeight);
-            FutureChain<Rpc.BlockMetadata, BlockMetadata> callback = new FutureChain<>(nextFuture);
-            callback.setSuccessHandler(new Function1<Rpc.BlockMetadata, BlockMetadata>() {
-              @Override
-              public BlockMetadata apply(final Rpc.BlockMetadata metadata) {
-                return blockMetadataConverter.convertToDomainModel(metadata);
-              }
-            });
-            addCallback(listenableFuture, callback, directExecutor());
-          } catch (Exception e) {
-            nextFuture.fail(e);
-          }
+          final Future<Rpc.BlockMetadata> rawFuture = aergoService.getBlockMetadata(rpcHeight);
+          final Future<BlockMetadata> convertedFuture =
+              HerajFutures.transform(rawFuture, new Function1<Rpc.BlockMetadata, BlockMetadata>() {
 
-          return nextFuture;
+                @Override
+                public BlockMetadata apply(final Rpc.BlockMetadata metadata) {
+                  return blockMetadataConverter.convertToDomainModel(metadata);
+                }
+              });
+          return convertedFuture;
         }
       };
 
   @Getter
   private final Function2<BlockHash, Integer,
-      FinishableFuture<List<BlockMetadata>>> listBlockMetadatasByHashFunction = new Function2<
-          BlockHash, Integer, FinishableFuture<List<BlockMetadata>>>() {
+      Future<List<BlockMetadata>>> listBlockMetadatasByHashFunction = new Function2<
+          BlockHash, Integer, Future<List<BlockMetadata>>>() {
 
         @Override
-        public FinishableFuture<List<BlockMetadata>> apply(final BlockHash hash,
+        public Future<List<BlockMetadata>> apply(final BlockHash hash,
             final Integer size) {
           logger.debug("List block meta datas with hash: {}, size: {}", hash, size);
-          assertArgument(size > 0, "Block list size", "postive");
+          assertTrue(size > 0, "Block list size must be postive");
 
-          FinishableFuture<List<BlockMetadata>> nextFuture =
-              new FinishableFuture<List<BlockMetadata>>();
-          try {
-            final Rpc.ListParams rpcHashAndSize = Rpc.ListParams.newBuilder()
-                .setHash(copyFrom(hash.getBytesValue()))
-                .setSize(size)
-                .build();
-            logger.trace("AergoService listBlockMetadata arg: {}", rpcHashAndSize);
+          final Rpc.ListParams rpcHashAndSize = Rpc.ListParams.newBuilder()
+              .setHash(copyFrom(hash.getBytesValue()))
+              .setSize(size)
+              .build();
+          logger.trace("AergoService listBlockMetadata arg: {}", rpcHashAndSize);
 
-            ListenableFuture<Rpc.BlockMetadataList> listenableFuture =
-                aergoService.listBlockMetadata(rpcHashAndSize);
-            FutureChain<Rpc.BlockMetadataList, List<BlockMetadata>> callback =
-                new FutureChain<>(nextFuture);
-            callback.setSuccessHandler(
-                new Function1<Rpc.BlockMetadataList, List<BlockMetadata>>() {
+          final Future<Rpc.BlockMetadataList> rawFuture =
+              aergoService.listBlockMetadata(rpcHashAndSize);
+          final Future<List<BlockMetadata>> convertedFuture = HerajFutures.transform(rawFuture,
+              new Function1<Rpc.BlockMetadataList, List<BlockMetadata>>() {
 
-                  @Override
-                  public List<BlockMetadata> apply(final Rpc.BlockMetadataList metadatas) {
-                    final List<BlockMetadata> blockMetadatas = new ArrayList<BlockMetadata>();
-                    for (final Rpc.BlockMetadata rpcBlockMetadata : metadatas.getBlocksList()) {
-                      blockMetadatas
-                          .add(blockMetadataConverter.convertToDomainModel(rpcBlockMetadata));
-                    }
-                    return blockMetadatas;
+                @Override
+                public List<BlockMetadata> apply(final Rpc.BlockMetadataList rpcMetadatas) {
+                  final List<BlockMetadata> blockMetadatas = new ArrayList<>();
+                  for (final Rpc.BlockMetadata rpcBlockMetadata : rpcMetadatas.getBlocksList()) {
+                    blockMetadatas
+                        .add(blockMetadataConverter.convertToDomainModel(rpcBlockMetadata));
                   }
-                });
-            addCallback(listenableFuture, callback, directExecutor());
-          } catch (Exception e) {
-            nextFuture.fail(e);
-          }
-
-          return nextFuture;
+                  return blockMetadatas;
+                }
+              });
+          return convertedFuture;
         }
       };
 
   @Getter
   private final Function2<Long, Integer,
-      FinishableFuture<List<BlockMetadata>>> listBlockMetadatasByHeightFunction = new Function2<
-          Long, Integer, FinishableFuture<List<BlockMetadata>>>() {
+      Future<List<BlockMetadata>>> listBlockMetadatasByHeightFunction = new Function2<Long, Integer,
+          Future<List<BlockMetadata>>>() {
 
         @Override
-        public FinishableFuture<List<BlockMetadata>> apply(final Long height,
+        public Future<List<BlockMetadata>> apply(final Long height,
             final Integer size) {
           logger.debug("List block meta datas with height: {}, size: {}", height, size);
-          assertArgument(height >= 0, "Height", ">= 0");
-          assertArgument(size > 0, "Block list size", "postive");
+          assertTrue(height >= 0, "Height must >= 0");
+          assertTrue(size > 0, "Block list size must be postive");
 
-          FinishableFuture<List<BlockMetadata>> nextFuture =
-              new FinishableFuture<List<BlockMetadata>>();
-          try {
-            final Rpc.ListParams rpcHeightAndSize = Rpc.ListParams.newBuilder()
-                .setHeight(height)
-                .setSize(size)
-                .build();
-            logger.trace("AergoService listBlockMetadata arg: {}", rpcHeightAndSize);
+          final Rpc.ListParams rpcHeightAndSize = Rpc.ListParams.newBuilder()
+              .setHeight(height)
+              .setSize(size)
+              .build();
+          logger.trace("AergoService listBlockMetadata arg: {}", rpcHeightAndSize);
 
-            ListenableFuture<Rpc.BlockMetadataList> listenableFuture =
-                aergoService.listBlockMetadata(rpcHeightAndSize);
-            FutureChain<Rpc.BlockMetadataList, List<BlockMetadata>> callback =
-                new FutureChain<>(nextFuture);
-            callback
-                .setSuccessHandler(new Function1<Rpc.BlockMetadataList, List<BlockMetadata>>() {
-                  @Override
-                  public List<BlockMetadata> apply(final Rpc.BlockMetadataList metadatas) {
-                    final List<BlockMetadata> blockHeaders = new ArrayList<BlockMetadata>();
-                    for (final Rpc.BlockMetadata rpcBlockMetadata : metadatas.getBlocksList()) {
-                      blockHeaders
-                          .add(blockMetadataConverter.convertToDomainModel(rpcBlockMetadata));
-                    }
-                    return blockHeaders;
+          final Future<Rpc.BlockMetadataList> rawFuture =
+              aergoService.listBlockMetadata(rpcHeightAndSize);
+          final Future<List<BlockMetadata>> convertedFuture = HerajFutures.transform(rawFuture,
+              new Function1<Rpc.BlockMetadataList, List<BlockMetadata>>() {
+                @Override
+                public List<BlockMetadata> apply(final Rpc.BlockMetadataList rpcMetadatas) {
+                  final List<BlockMetadata> blockHeaders = new ArrayList<>();
+                  for (final Rpc.BlockMetadata rpcBlockMetadata : rpcMetadatas
+                      .getBlocksList()) {
+                    blockHeaders
+                        .add(blockMetadataConverter.convertToDomainModel(rpcBlockMetadata));
                   }
-                });
-            addCallback(listenableFuture, callback, directExecutor());
-          } catch (Exception e) {
-            nextFuture.fail(e);
-          }
-
-          return nextFuture;
+                  return blockHeaders;
+                }
+              });
+          return convertedFuture;
         }
       };
 
   @Getter
-  private final Function1<BlockHash,
-      FinishableFuture<Block>> blockByHashFunction = new Function1<
-          BlockHash, FinishableFuture<Block>>() {
+  private final Function1<BlockHash, Future<Block>> blockByHashFunction =
+      new Function1<BlockHash, Future<Block>>() {
 
         @Override
-        public FinishableFuture<Block> apply(final BlockHash hash) {
+        public Future<Block> apply(final BlockHash hash) {
           logger.debug("Get block with hash: {}", hash);
 
-          FinishableFuture<Block> nextFuture = new FinishableFuture<Block>();
-          try {
-            final Rpc.SingleBytes rpcHash = Rpc.SingleBytes.newBuilder()
-                .setValue(copyFrom(hash.getBytesValue()))
-                .build();
-            logger.trace("AergoService getBlock arg: {}", rpcHash);
+          final Rpc.SingleBytes rpcHash = Rpc.SingleBytes.newBuilder()
+              .setValue(copyFrom(hash.getBytesValue()))
+              .build();
+          logger.trace("AergoService getBlock arg: {}", rpcHash);
 
-            ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(rpcHash);
-            FutureChain<Blockchain.Block, Block> callback = new FutureChain<>(nextFuture);
-            callback.setSuccessHandler(new Function1<Blockchain.Block, Block>() {
-              @Override
-              public Block apply(final Blockchain.Block block) {
-                return blockConverter.convertToDomainModel(block);
-              }
-            });
-            addCallback(listenableFuture, callback, directExecutor());
-          } catch (Exception e) {
-            nextFuture.fail(e);
-          }
-
-          return nextFuture;
+          final Future<Blockchain.Block> rawFuture = aergoService.getBlock(rpcHash);
+          final Future<Block> convertedFuture = HerajFutures.transform(rawFuture,
+              new Function1<Blockchain.Block, Block>() {
+                @Override
+                public Block apply(final Blockchain.Block block) {
+                  return blockConverter.convertToDomainModel(block);
+                }
+              });
+          return convertedFuture;
         }
       };
 
   @Getter
-  private final Function1<Long,
-      FinishableFuture<Block>> blockByHeightFunction = new Function1<
-          Long, FinishableFuture<Block>>() {
+  private final Function1<Long, Future<Block>> blockByHeightFunction =
+      new Function1<Long, Future<Block>>() {
 
         @Override
-        public FinishableFuture<Block> apply(final Long height) {
+        public Future<Block> apply(final Long height) {
           logger.debug("Get block with height: {}", height);
-          assertArgument(height >= 0, "Height", ">= 0");
+          assertTrue(height >= 0, "Height must be >= 0");
 
-          FinishableFuture<Block> nextFuture = new FinishableFuture<Block>();
-          try {
-            final Rpc.SingleBytes rpcHeight = Rpc.SingleBytes.newBuilder()
-                .setValue(copyFrom(height.longValue()))
-                .build();
-            logger.trace("AergoService getBlock arg: {}", rpcHeight);
+          final Rpc.SingleBytes rpcHeight = Rpc.SingleBytes.newBuilder()
+              .setValue(copyFrom(height.longValue()))
+              .build();
+          logger.trace("AergoService getBlock arg: {}", rpcHeight);
 
-            ListenableFuture<Blockchain.Block> listenableFuture = aergoService.getBlock(rpcHeight);
-            FutureChain<Blockchain.Block, Block> callback = new FutureChain<>(nextFuture);
-            callback.setSuccessHandler(new Function1<Blockchain.Block, Block>() {
-              @Override
-              public Block apply(final Blockchain.Block block) {
-                return blockConverter.convertToDomainModel(block);
-              }
-            });
-            addCallback(listenableFuture, callback, directExecutor());
-          } catch (Exception e) {
-            nextFuture.fail(e);
-          }
-
-          return nextFuture;
+          final Future<Blockchain.Block> rawFuture = aergoService.getBlock(rpcHeight);
+          final Future<Block> convertedFuture = HerajFutures.transform(rawFuture,
+              new Function1<Blockchain.Block, Block>() {
+                @Override
+                public Block apply(final Blockchain.Block block) {
+                  return blockConverter.convertToDomainModel(block);
+                }
+              });
+          return convertedFuture;
         }
       };
 
   @Getter
   private final Function1<hera.api.model.StreamObserver<BlockMetadata>,
-      FinishableFuture<Subscription<BlockMetadata>>> subscribeBlockMetadataFunction = new Function1<
+      Future<Subscription<BlockMetadata>>> subscribeBlockMetadataFunction = new Function1<
           hera.api.model.StreamObserver<BlockMetadata>,
-          FinishableFuture<Subscription<BlockMetadata>>>() {
+          Future<Subscription<BlockMetadata>>>() {
 
         @Override
-        public FinishableFuture<Subscription<BlockMetadata>> apply(
+        public Future<Subscription<BlockMetadata>> apply(
             final hera.api.model.StreamObserver<BlockMetadata> observer) {
 
-          FinishableFuture<Subscription<BlockMetadata>> nextFuture = new FinishableFuture<>();
-          try {
-            logger.debug("Subscribe block metadata stream with observer {}", observer);
+          logger.debug("Subscribe block metadata stream with observer {}", observer);
 
-            final Rpc.Empty blockMetadataStreamRequest = Rpc.Empty.newBuilder().build();
-            Context.CancellableContext cancellableContext = Context.current().withCancellation();
-            final io.grpc.stub.StreamObserver<Rpc.BlockMetadata> adaptor =
-                new GrpcStreamObserverAdaptor<Rpc.BlockMetadata, BlockMetadata>(cancellableContext,
-                    observer, blockMetadataConverter);
-            cancellableContext.run(new Runnable() {
-              @Override
-              public void run() {
-                streamService.listBlockMetadataStream(blockMetadataStreamRequest, adaptor);
-              }
-            });
+          final Rpc.Empty blockMetadataStreamRequest = Rpc.Empty.newBuilder().build();
+          Context.CancellableContext cancellableContext = Context.current().withCancellation();
+          final io.grpc.stub.StreamObserver<Rpc.BlockMetadata> adaptor =
+              new GrpcStreamObserverAdaptor<Rpc.BlockMetadata, BlockMetadata>(cancellableContext,
+                  observer, blockMetadataConverter);
+          cancellableContext.run(new Runnable() {
+            @Override
+            public void run() {
+              streamService.listBlockMetadataStream(blockMetadataStreamRequest, adaptor);
+            }
+          });
 
-            nextFuture.success(new GrpcStreamSubscription<BlockMetadata>(cancellableContext));
-          } catch (Exception e) {
-            nextFuture.fail(e);
-          }
-
-          return nextFuture;
+          final Subscription<BlockMetadata> subscription =
+              new GrpcStreamSubscription<>(cancellableContext);
+          return HerajFutures.success(subscription);
         }
       };
 
   @Getter
   private final Function1<hera.api.model.StreamObserver<Block>,
-      FinishableFuture<Subscription<Block>>> subscribeBlockFunction = new Function1<
-          hera.api.model.StreamObserver<Block>, FinishableFuture<Subscription<Block>>>() {
+      Future<Subscription<Block>>> subscribeBlockFunction = new Function1<
+          hera.api.model.StreamObserver<Block>, Future<Subscription<Block>>>() {
 
         @Override
-        public FinishableFuture<Subscription<Block>> apply(
+        public Future<Subscription<Block>> apply(
             final hera.api.model.StreamObserver<Block> observer) {
           logger.debug("Subscribe block metadata stream with observer {}", observer);
 
-          FinishableFuture<Subscription<Block>> nextFuture = new FinishableFuture<>();
-          try {
-            final Rpc.Empty blockStreamRequest = Rpc.Empty.newBuilder().build();
-            Context.CancellableContext cancellableContext = Context.current().withCancellation();
-            final io.grpc.stub.StreamObserver<Blockchain.Block> adaptor =
-                new GrpcStreamObserverAdaptor<Blockchain.Block, Block>(cancellableContext,
-                    observer, blockConverter);
-            cancellableContext.run(new Runnable() {
-              @Override
-              public void run() {
-                streamService.listBlockStream(blockStreamRequest, adaptor);
-              }
-            });
+          final Rpc.Empty blockStreamRequest = Rpc.Empty.newBuilder().build();
+          Context.CancellableContext cancellableContext = Context.current().withCancellation();
+          final io.grpc.stub.StreamObserver<Blockchain.Block> adaptor =
+              new GrpcStreamObserverAdaptor<Blockchain.Block, Block>(cancellableContext,
+                  observer, blockConverter);
+          cancellableContext.run(new Runnable() {
+            @Override
+            public void run() {
+              streamService.listBlockStream(blockStreamRequest, adaptor);
+            }
+          });
 
-            nextFuture.success(new GrpcStreamSubscription<Block>(cancellableContext));
-          } catch (Exception e) {
-            nextFuture.fail(e);
-          }
-
-          return nextFuture;
+          final Subscription<Block> subscription = new GrpcStreamSubscription<>(cancellableContext);
+          return HerajFutures.success(subscription);
         }
       };
 

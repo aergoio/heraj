@@ -39,6 +39,7 @@ public abstract class AbstractIT {
   protected final String clientCrtFile = "client.crt";
   protected final String clientKeyFile = "client.pem";
 
+  protected Properties properties = new Properties();
   protected AergoClient aergoClient;
   protected String hostname;
   protected List<String> peerIds;
@@ -47,7 +48,6 @@ public abstract class AbstractIT {
 
   @Before
   public void setUp() throws Exception {
-    final Properties properties = new Properties();
     try (final InputStream in = getClass().getResourceAsStream(aergoProperties)) {
       properties.load(in);
     }

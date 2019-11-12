@@ -18,6 +18,7 @@ import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AccountOuterClass;
@@ -43,7 +44,7 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testListAsync() {
+  public void testListAsync() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<AccountOuterClass.AccountList> mockListenableFuture =
         service.submit(new Callable<AccountOuterClass.AccountList>() {
@@ -56,13 +57,13 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
 
     final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
-    final FinishableFuture<List<AccountAddress>> accountListFuture =
+    final Future<List<AccountAddress>> accountListFuture =
         accountTemplateBase.getListFunction().apply();
     assertNotNull(accountListFuture.get());
   }
 
   @Test
-  public void testCreateAsync() {
+  public void testCreateAsync() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<AccountOuterClass.Account> mockListenableFuture =
         service.submit(new Callable<AccountOuterClass.Account>() {
@@ -75,13 +76,13 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
 
     final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
-    final FinishableFuture<AccountAddress> accountFuture =
+    final Future<AccountAddress> accountFuture =
         accountTemplateBase.getCreateFunction().apply(randomUUID().toString());
     assertNotNull(accountFuture.get());
   }
 
   @Test
-  public void testLockAsync() {
+  public void testLockAsync() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<AccountOuterClass.Account> mockListenableFuture =
         service.submit(new Callable<AccountOuterClass.Account>() {
@@ -94,13 +95,13 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
 
     final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
-    final FinishableFuture<Boolean> lockResult =
+    final Future<Boolean> lockResult =
         accountTemplateBase.getLockFunction().apply(Authentication.of(accountAddress, PASSWORD));
     assertNotNull(lockResult.get());
   }
 
   @Test
-  public void testUnlock() {
+  public void testUnlock() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<AccountOuterClass.Account> mockListenableFuture =
         service.submit(new Callable<AccountOuterClass.Account>() {
@@ -113,13 +114,13 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
 
     final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
-    final FinishableFuture<Boolean> accountFuture =
+    final Future<Boolean> accountFuture =
         accountTemplateBase.getUnlockFunction().apply(Authentication.of(accountAddress, PASSWORD));
     assertNotNull(accountFuture.get());
   }
 
   @Test
-  public void testImportKey() {
+  public void testImportKey() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<AccountOuterClass.Account> mockListenableFuture =
         service.submit(new Callable<AccountOuterClass.Account>() {
@@ -132,13 +133,13 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
 
     final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
-    final FinishableFuture<AccountAddress> accountFuture =
+    final Future<AccountAddress> accountFuture =
         accountTemplateBase.getImportKeyFunction().apply(encryptedPrivateKey, PASSWORD, PASSWORD);
     assertNotNull(accountFuture.get());
   }
 
   @Test
-  public void testExportKey() {
+  public void testExportKey() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Rpc.SingleBytes> mockListenableFuture =
         service.submit(new Callable<Rpc.SingleBytes>() {
@@ -151,7 +152,7 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
 
     final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
-    final FinishableFuture<EncryptedPrivateKey> accountFuture =
+    final Future<EncryptedPrivateKey> accountFuture =
         accountTemplateBase.getExportKeyFunction()
             .apply(Authentication.of(accountAddress, PASSWORD));
     assertNotNull(accountFuture.get());

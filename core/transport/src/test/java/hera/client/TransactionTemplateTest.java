@@ -25,8 +25,9 @@ import hera.api.model.Aer.Unit;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.client.internal.FinishableFuture;
+import hera.client.internal.HerajFutures;
 import hera.client.internal.TransactionBaseTemplate;
+import java.util.concurrent.Future;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
@@ -60,12 +61,12 @@ public class TransactionTemplateTest extends AbstractTestCase {
   @Test
   public void testGetTransaction() {
     final TransactionBaseTemplate base = mock(TransactionBaseTemplate.class);
-    final FinishableFuture<Transaction> future = new FinishableFuture<Transaction>();
-    future.success(Transaction.newBuilder().rawTransaction(rawTransaction).build());
+    final Future<Transaction> future =
+        HerajFutures.success(Transaction.newBuilder().rawTransaction(rawTransaction).build());
     when(base.getTransactionFunction())
-        .thenReturn(new Function1<TxHash, FinishableFuture<Transaction>>() {
+        .thenReturn(new Function1<TxHash, Future<Transaction>>() {
           @Override
-          public FinishableFuture<Transaction> apply(TxHash t) {
+          public Future<Transaction> apply(TxHash t) {
             return future;
           }
         });
@@ -84,12 +85,12 @@ public class TransactionTemplateTest extends AbstractTestCase {
   @Test
   public void testCommit() {
     final TransactionBaseTemplate base = mock(TransactionBaseTemplate.class);
-    final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
-    future.success(new TxHash(of(randomUUID().toString().getBytes())));
+    final Future<TxHash> future =
+        HerajFutures.success(new TxHash(of(randomUUID().toString().getBytes())));
     when(base.getCommitFunction())
-        .thenReturn(new Function1<Transaction, FinishableFuture<TxHash>>() {
+        .thenReturn(new Function1<Transaction, Future<TxHash>>() {
           @Override
-          public FinishableFuture<TxHash> apply(Transaction t) {
+          public Future<TxHash> apply(Transaction t) {
             return future;
           }
         });
@@ -107,12 +108,12 @@ public class TransactionTemplateTest extends AbstractTestCase {
   @Test
   public void testSend() {
     final TransactionBaseTemplate base = mock(TransactionBaseTemplate.class);
-    final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
-    future.success(new TxHash(of(randomUUID().toString().getBytes())));
+    final Future<TxHash> future =
+        HerajFutures.success(new TxHash(of(randomUUID().toString().getBytes())));
     when(base.getSendFunction())
-        .thenReturn(new Function3<AccountAddress, AccountAddress, Aer, FinishableFuture<TxHash>>() {
+        .thenReturn(new Function3<AccountAddress, AccountAddress, Aer, Future<TxHash>>() {
           @Override
-          public FinishableFuture<TxHash> apply(AccountAddress t1, AccountAddress t2, Aer t3) {
+          public Future<TxHash> apply(AccountAddress t1, AccountAddress t2, Aer t3) {
             return future;
           }
         });
@@ -128,4 +129,3 @@ public class TransactionTemplateTest extends AbstractTestCase {
   }
 
 }
-

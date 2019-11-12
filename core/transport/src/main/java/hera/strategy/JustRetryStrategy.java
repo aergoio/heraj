@@ -11,6 +11,7 @@ import hera.api.function.Function;
 import hera.api.function.Function0;
 import hera.api.function.Functions;
 import hera.api.model.internal.Time;
+import hera.exception.DecoratorChainException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
@@ -48,11 +49,13 @@ public class JustRetryStrategy extends FailoverStrategy {
 
   @Override
   protected <R> R onFailure(final Exception e, final Function<R> f, final List<Object> args) {
-    logger.info("Fist attempt failed with {}", e.toString());
+    logger.debug("First attempt failed with {}", extractExactCause(e).toString());
 
     R ret = null;
 
     final Function0<R> invocation = Functions.buildInvocation(f, args);
+
+    Exception recentException = null;
     int countDown = this.count;
     boolean success = false;
     while (0 < countDown && !success) {
@@ -65,13 +68,24 @@ public class JustRetryStrategy extends FailoverStrategy {
         ret = invocation.apply();
 
         success = true;
-      } catch (Exception error) {
-        logger.info("Retry failed.. retry with same args after {} milliseconds.. (try left: {})",
-            this.interval, countDown);
+      } catch (Exception retryError) {
+        recentException = retryError;
+        logger.info(
+            "Retry failed.. retry with same args after {} milliseconds (try left: {}) cause: {}",
+            this.interval, countDown, extractExactCause(retryError).toString());
       }
     }
 
+    // failed even retry
+    if (null == ret) {
+      throw new DecoratorChainException(recentException);
+    }
+
     return ret;
+  }
+
+  protected Throwable extractExactCause(final Exception e) {
+    return (e instanceof DecoratorChainException) ? e.getCause() : e;
   }
 
 }

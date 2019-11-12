@@ -15,6 +15,7 @@ import hera.api.function.Function3;
 import hera.api.function.Function4;
 import hera.api.function.Function5;
 import hera.api.function.FunctionDecorator;
+import hera.exception.DecoratorChainException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
@@ -28,8 +29,9 @@ public abstract class InvocationStrategy implements Strategy, FunctionDecorator 
    *
    * @param f an origin function
    * @param args function arguments
-   * 
    * @return an invocation return value
+   *
+   * @throws DecoratorChainException on error in a chain
    */
   protected abstract <R> R wrap(hera.api.function.Function<R> f, List<Object> args);
 

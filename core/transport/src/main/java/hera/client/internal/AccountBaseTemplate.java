@@ -4,13 +4,10 @@
 
 package hera.client.internal;
 
-import static com.google.common.util.concurrent.Futures.addCallback;
-import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.util.ValidationUtils.assertTrue;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
@@ -45,6 +42,7 @@ import hera.transport.TransactionConverterFactory;
 import io.grpc.ManagedChannel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
 import lombok.Getter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -85,79 +83,52 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
   @Override
   public void setContextProvider(final ContextProvider contextProvider) {
     this.contextProvider = contextProvider;
-    transactionBaseTemplate.setContextProvider(contextProvider);
+    this.transactionBaseTemplate.setContextProvider(contextProvider);
   }
 
   @Override
   public void setChannel(final ManagedChannel channel) {
     this.aergoService = newFutureStub(channel);
-    transactionBaseTemplate.setChannel(channel);
+    this.transactionBaseTemplate.setChannel(channel);
   }
 
   @Getter
-  private final Function1<AccountAddress, FinishableFuture<AccountState>> stateFunction =
-      new Function1<AccountAddress, FinishableFuture<AccountState>>() {
+  private final Function1<AccountAddress, Future<AccountState>> stateFunction =
+      new Function1<AccountAddress, Future<AccountState>>() {
 
         @Override
-        public FinishableFuture<AccountState> apply(final AccountAddress address) {
+        public Future<AccountState> apply(final AccountAddress address) {
           logger.debug("GetState with {}", address);
 
-          FinishableFuture<AccountState> nextFuture = new FinishableFuture<AccountState>();
-          try {
-            final Rpc.SingleBytes rpcAddress = Rpc.SingleBytes.newBuilder()
-                .setValue(accountAddressConverter.convertToRpcModel(address))
-                .build();
-            logger.trace("AergoService getstate arg: {}", rpcAddress);
-
-            ListenableFuture<Blockchain.State> listenableFuture = aergoService.getState(rpcAddress);
-            FutureChain<Blockchain.State, AccountState> callback = new FutureChain<>(nextFuture);
-            callback.setSuccessHandler(new Function1<Blockchain.State, AccountState>() {
-              @Override
-              public AccountState apply(final Blockchain.State state) {
-                final AccountState withoutAddress =
-                    accountStateConverter.convertToDomainModel(state);
-                return AccountState.newBuilder().address(address)
-                    .nonce(withoutAddress.getNonce())
-                    .balance(withoutAddress.getBalance())
-                    .build();
-              }
-            });
-            addCallback(listenableFuture, callback, directExecutor());
-          } catch (Exception e) {
-            nextFuture.fail(e);
-          }
-          return nextFuture;
-        }
-      };
-
-  @Getter
-  private final Function3<Account, String, Long,
-      FinishableFuture<TxHash>> deprecatedCreateNameFunction = new Function3<
-          Account, String, Long, FinishableFuture<TxHash>>() {
-
-        @Override
-        public FinishableFuture<TxHash> apply(final Account account, final String name,
-            final Long nonce) {
-          logger.debug("Create account name to account: {}, name: {}, nonce: {}",
-              account.getAddress(), name, nonce);
-
-          final RawTransaction rawTransaction = RawTransaction.newCreateNameTxBuilder()
-              .chainIdHash(contextProvider.get().getChainIdHash())
-              .from(account.getAddress())
-              .nonce(nonce)
-              .name(name)
+          final Rpc.SingleBytes rpcAddress = Rpc.SingleBytes.newBuilder()
+              .setValue(accountAddressConverter.convertToRpcModel(address))
               .build();
-          final Transaction signed = getSignFunction().apply(account, rawTransaction).get();
-          return transactionBaseTemplate.getCommitFunction().apply(signed);
+          logger.trace("AergoService getstate arg: {}", rpcAddress);
+
+          final Future<Blockchain.State> rawFuture = aergoService.getState(rpcAddress);
+          final Future<AccountState> convertedFuture =
+              HerajFutures.transform(rawFuture, new Function1<Blockchain.State, AccountState>() {
+
+                @Override
+                public AccountState apply(final Blockchain.State state) {
+                  final AccountState withoutAddress =
+                      accountStateConverter.convertToDomainModel(state);
+                  return AccountState.newBuilder().address(address)
+                      .nonce(withoutAddress.getNonce())
+                      .balance(withoutAddress.getBalance())
+                      .build();
+                }
+              });
+          return convertedFuture;
         }
       };
 
   @Getter
-  private final Function3<Signer, String, Long, FinishableFuture<TxHash>> createNameFunction =
-      new Function3<Signer, String, Long, FinishableFuture<TxHash>>() {
+  private final Function3<Signer, String, Long, Future<TxHash>> createNameFunction =
+      new Function3<Signer, String, Long, Future<TxHash>>() {
 
         @Override
-        public FinishableFuture<TxHash> apply(final Signer signer, final String name,
+        public Future<TxHash> apply(final Signer signer, final String name,
             final Long nonce) {
           logger.debug("Create account name with signer: {}, name: {}, nonce: {}",
               signer.getPrincipal(), name, nonce);
@@ -174,35 +145,12 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
       };
 
   @Getter
-  private final Function4<Account, String, AccountAddress, Long,
-      FinishableFuture<TxHash>> deprecatedUpdateNameFunction = new Function4<Account, String,
-          AccountAddress, Long, FinishableFuture<TxHash>>() {
-
-        @Override
-        public FinishableFuture<TxHash> apply(final Account owner, final String name,
-            final AccountAddress newOwner, final Long nonce) {
-          logger.debug("Update account name from account: {}, name: {}, to account: {}, nonce: {}",
-              owner.getAddress(), name, newOwner, nonce);
-
-          final RawTransaction rawTransaction = RawTransaction.newUpdateNameTxBuilder()
-              .chainIdHash(contextProvider.get().getChainIdHash())
-              .from(owner.getAddress())
-              .nonce(nonce)
-              .name(name)
-              .newOwner(newOwner)
-              .build();
-          final Transaction signed = getSignFunction().apply(owner, rawTransaction).get();
-          return transactionBaseTemplate.getCommitFunction().apply(signed);
-        }
-      };
-
-  @Getter
   private final Function4<Signer, String, AccountAddress, Long,
-      FinishableFuture<TxHash>> updateNameFunction = new Function4<Signer, String,
-          AccountAddress, Long, FinishableFuture<TxHash>>() {
+      Future<TxHash>> updateNameFunction = new Function4<Signer, String,
+          AccountAddress, Long, Future<TxHash>>() {
 
         @Override
-        public FinishableFuture<TxHash> apply(final Signer signer, final String name,
+        public Future<TxHash> apply(final Signer signer, final String name,
             final AccountAddress newOwner, final Long nonce) {
           logger.debug("Update account name with signer: {}, name: {}, to account: {}, nonce: {}",
               signer, name, newOwner, nonce);
@@ -220,68 +168,41 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
       };
 
   @Getter
-  private final Function2<String, Long, FinishableFuture<AccountAddress>> getNameOwnerFunction =
-      new Function2<String, Long, FinishableFuture<AccountAddress>>() {
+  private final Function2<String, Long, Future<AccountAddress>> getNameOwnerFunction =
+      new Function2<String, Long, Future<AccountAddress>>() {
 
         @Override
-        public FinishableFuture<AccountAddress> apply(final String name, final Long blockNumber) {
+        public Future<AccountAddress> apply(final String name, final Long blockNumber) {
           logger.debug("Get name owner of name: {}, blockNumber: {}", name, blockNumber);
+          assertTrue(blockNumber >= 0, "Block number must >= 0");
 
-          FinishableFuture<AccountAddress> nextFuture = new FinishableFuture<AccountAddress>();
-          try {
-            assertTrue(blockNumber >= 0, "Block number must >= 0");
-
-            final Rpc.Name rpcName = Rpc.Name.newBuilder()
-                .setName(name)
-                .setBlockNo(blockNumber)
-                .build();
-            logger.trace("AergoService getNameInfo arg: {}", rpcName);
-
-            ListenableFuture<Rpc.NameInfo> listenableFuture = aergoService.getNameInfo(rpcName);
-            FutureChain<Rpc.NameInfo, AccountAddress> callback = new FutureChain<>(nextFuture);
-            callback.setSuccessHandler(new Function1<Rpc.NameInfo, AccountAddress>() {
-              @Override
-              public AccountAddress apply(final Rpc.NameInfo nameInfo) {
-                final AccountAddress converted =
-                    accountAddressConverter.convertToDomainModel(nameInfo.getOwner());
-                return BytesValue.EMPTY.equals(converted.getBytesValue()) ? null : converted;
-              }
-            });
-            addCallback(listenableFuture, callback, directExecutor());
-          } catch (Exception e) {
-            nextFuture.fail(e);
-          }
-          return nextFuture;
-        }
-      };
-
-  @Getter
-  private final Function3<Account, Aer, Long, FinishableFuture<TxHash>> deprecatedStakingFunction =
-      new Function3<Account, Aer, Long, FinishableFuture<TxHash>>() {
-
-        @Override
-        public FinishableFuture<TxHash> apply(final Account account, final Aer amount,
-            final Long nonce) {
-          logger.debug("Staking account with account: {}, amount: {}, nonce: {}",
-              account.getAddress(), amount, nonce);
-
-          final RawTransaction rawTransaction = RawTransaction.newStakeTxBuilder()
-              .chainIdHash(contextProvider.get().getChainIdHash())
-              .from(account.getAddress())
-              .amount(amount)
-              .nonce(nonce)
+          final Rpc.Name rpcName = Rpc.Name.newBuilder()
+              .setName(name)
+              .setBlockNo(blockNumber)
               .build();
-          final Transaction signed = getSignFunction().apply(account, rawTransaction).get();
-          return transactionBaseTemplate.getCommitFunction().apply(signed);
+          logger.trace("AergoService getNameInfo arg: {}", rpcName);
+
+          final Future<Rpc.NameInfo> rawFuture = aergoService.getNameInfo(rpcName);
+          final Future<AccountAddress> convertedFuture =
+              HerajFutures.transform(rawFuture, new Function1<Rpc.NameInfo, AccountAddress>() {
+
+                @Override
+                public AccountAddress apply(final Rpc.NameInfo nameInfo) {
+                  final AccountAddress converted =
+                      accountAddressConverter.convertToDomainModel(nameInfo.getOwner());
+                  return BytesValue.EMPTY.equals(converted.getBytesValue()) ? null : converted;
+                }
+              });
+          return convertedFuture;
         }
       };
 
   @Getter
-  private final Function3<Signer, Aer, Long, FinishableFuture<TxHash>> stakingFunction =
-      new Function3<Signer, Aer, Long, FinishableFuture<TxHash>>() {
+  private final Function3<Signer, Aer, Long, Future<TxHash>> stakingFunction =
+      new Function3<Signer, Aer, Long, Future<TxHash>>() {
 
         @Override
-        public FinishableFuture<TxHash> apply(final Signer signer, final Aer amount,
+        public Future<TxHash> apply(final Signer signer, final Aer amount,
             final Long nonce) {
           logger.debug("Staking account with signer: {}, amount: {}, nonce: {}",
               signer.getPrincipal(), amount, nonce);
@@ -298,33 +219,11 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
       };
 
   @Getter
-  private final Function3<Account, Aer, Long,
-      FinishableFuture<TxHash>> deprecatedUnstakingFunction = new Function3<Account,
-          Aer, Long, FinishableFuture<TxHash>>() {
+  private final Function3<Signer, Aer, Long, Future<TxHash>> unstakingFunction =
+      new Function3<Signer, Aer, Long, Future<TxHash>>() {
 
         @Override
-        public FinishableFuture<TxHash> apply(final Account account, final Aer amount,
-            final Long nonce) {
-          logger.debug("Unstaking account with account: {}, amount: {}, nonce: {}",
-              account.getAddress(), amount, nonce);
-
-          final RawTransaction rawTransaction = RawTransaction.newUnstakeTxBuilder()
-              .chainIdHash(contextProvider.get().getChainIdHash())
-              .from(account.getAddress())
-              .amount(amount)
-              .nonce(nonce)
-              .build();
-          final Transaction signed = getSignFunction().apply(account, rawTransaction).get();
-          return transactionBaseTemplate.getCommitFunction().apply(signed);
-        }
-      };
-
-  @Getter
-  private final Function3<Signer, Aer, Long, FinishableFuture<TxHash>> unstakingFunction =
-      new Function3<Signer, Aer, Long, FinishableFuture<TxHash>>() {
-
-        @Override
-        public FinishableFuture<TxHash> apply(final Signer signer, final Aer amount,
+        public Future<TxHash> apply(final Signer signer, final Aer amount,
             final Long nonce) {
           logger.debug("Unstaking account with signer: {}, amount: {}, nonce: {}",
               signer.getPrincipal(), amount, nonce);
@@ -341,56 +240,50 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
       };
 
   @Getter
-  private final Function1<AccountAddress, FinishableFuture<StakeInfo>> stakingInfoFunction =
-      new Function1<AccountAddress, FinishableFuture<StakeInfo>>() {
+  private final Function1<AccountAddress, Future<StakeInfo>> stakingInfoFunction =
+      new Function1<AccountAddress, Future<StakeInfo>>() {
 
         @Override
-        public FinishableFuture<StakeInfo> apply(final AccountAddress accountAddress) {
+        public Future<StakeInfo> apply(final AccountAddress accountAddress) {
           logger.debug("Get staking information with address: {}", accountAddress);
 
-          FinishableFuture<StakeInfo> nextFuture = new FinishableFuture<StakeInfo>();
-          try {
-            final Rpc.AccountAddress rpcAddress = Rpc.AccountAddress.newBuilder()
-                .setValue(accountAddressConverter.convertToRpcModel(accountAddress))
-                .build();
-            logger.trace("AergoService getStaking arg: {}", rpcAddress);
+          final Rpc.AccountAddress rpcAddress = Rpc.AccountAddress.newBuilder()
+              .setValue(accountAddressConverter.convertToRpcModel(accountAddress))
+              .build();
+          logger.trace("AergoService getStaking arg: {}", rpcAddress);
 
-            ListenableFuture<Rpc.Staking> listenableFuture = aergoService.getStaking(rpcAddress);
-            FutureChain<Rpc.Staking, StakeInfo> callback = new FutureChain<>(nextFuture);
-            callback.setSuccessHandler(new Function1<Rpc.Staking, StakeInfo>() {
-              @Override
-              public StakeInfo apply(final Rpc.Staking rpcStaking) {
-                final StakeInfo withoutAddress =
-                    stakingInfoConverter.convertToDomainModel(rpcStaking);
-                return StakeInfo.newBuilder().address(accountAddress)
-                    .amount(withoutAddress.getAmount())
-                    .blockNumber(withoutAddress.getBlockNumber())
-                    .build();
-              }
-            });
-            addCallback(listenableFuture, callback, directExecutor());
-          } catch (Exception e) {
-            nextFuture.fail(e);
-          }
-          return nextFuture;
+          final Future<Rpc.Staking> rawFuture = aergoService.getStaking(rpcAddress);
+          final Future<StakeInfo> convertedFuture =
+              HerajFutures.transform(rawFuture, new Function1<Rpc.Staking, StakeInfo>() {
+
+                @Override
+                public StakeInfo apply(final Rpc.Staking rpcStaking) {
+                  final StakeInfo withoutAddress =
+                      stakingInfoConverter.convertToDomainModel(rpcStaking);
+                  return StakeInfo.newBuilder().address(accountAddress)
+                      .amount(withoutAddress.getAmount())
+                      .blockNumber(withoutAddress.getBlockNumber())
+                      .build();
+                }
+              });
+          return convertedFuture;
         }
       };
 
   @Getter
-  private final Function2<Account, RawTransaction, FinishableFuture<Transaction>> signFunction =
-      new Function2<Account, RawTransaction, FinishableFuture<Transaction>>() {
+  private final Function2<Account, RawTransaction, Future<Transaction>> signFunction =
+      new Function2<Account, RawTransaction, Future<Transaction>>() {
 
         @Override
-        public FinishableFuture<Transaction> apply(final Account account,
+        public Future<Transaction> apply(final Account account,
             final RawTransaction rawTransaction) {
           logger.debug("Sign request with account: {}, rawTx: {}", account.getAddress(),
               rawTransaction);
 
-          FinishableFuture<Transaction> nextFuture = new FinishableFuture<Transaction>();
           if (account instanceof TxSigner) {
             final TxSigner signer = (TxSigner) account;
             final Transaction signed = signer.sign(rawTransaction);
-            nextFuture.success(signed);
+            return HerajFutures.success(signed);
           } else {
             final Transaction domainTransaction = Transaction.newBuilder()
                 .rawTransaction(rawTransaction)
@@ -398,61 +291,55 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
             final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(domainTransaction);
             logger.trace("AergoService signTX arg: {}", rpcTx);
 
-            ListenableFuture<Blockchain.Tx> listenableFuture = aergoService.signTX(rpcTx);
-            FutureChain<Blockchain.Tx, Transaction> callback = new FutureChain<>(nextFuture);
-            callback.setSuccessHandler(new Function1<Blockchain.Tx, Transaction>() {
-              @Override
-              public Transaction apply(final Blockchain.Tx tx) {
-                return transactionConverter.convertToDomainModel(tx);
-              }
-            });
-            addCallback(listenableFuture, callback, directExecutor());
+            final Future<Blockchain.Tx> rawFuture = aergoService.signTX(rpcTx);
+            final Future<Transaction> convertedFuture =
+                HerajFutures.transform(rawFuture, new Function1<Blockchain.Tx, Transaction>() {
+
+                  @Override
+                  public Transaction apply(final Blockchain.Tx rpcTx) {
+                    return transactionConverter.convertToDomainModel(rpcTx);
+                  }
+                });
+            return convertedFuture;
           }
-          return nextFuture;
         }
       };
 
   @Getter
-  private final Function2<Account, Transaction, FinishableFuture<Boolean>> verifyFunction =
-      new Function2<Account, Transaction, FinishableFuture<Boolean>>() {
+  private final Function2<Account, Transaction, Future<Boolean>> verifyFunction =
+      new Function2<Account, Transaction, Future<Boolean>>() {
 
         @Override
-        public FinishableFuture<Boolean> apply(final Account account,
+        public Future<Boolean> apply(final Account account,
             final Transaction transaction) {
           logger.debug("Sign verify with account: {}, signedTx: {}", account, transaction);
 
-          FinishableFuture<Boolean> nextFuture = new FinishableFuture<Boolean>();
-          try {
-            final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(transaction);
-            logger.trace("AergoService verifyTX arg: {}", rpcTx);
+          final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(transaction);
+          logger.trace("AergoService verifyTX arg: {}", rpcTx);
 
-            ListenableFuture<Rpc.VerifyResult> listenableFuture = aergoService.verifyTX(rpcTx);
-            FutureChain<Rpc.VerifyResult, Boolean> callback = new FutureChain<>(nextFuture);
-            callback.setSuccessHandler(new Function1<Rpc.VerifyResult, Boolean>() {
+          final Future<Rpc.VerifyResult> rawFuture = aergoService.verifyTX(rpcTx);
+          final Future<Boolean> convertedFuture =
+              HerajFutures.transform(rawFuture, new Function1<Rpc.VerifyResult, Boolean>() {
 
-              @Override
-              public Boolean apply(final Rpc.VerifyResult result) {
-                if (Rpc.VerifyStatus.VERIFY_STATUS_OK != result.getError()) {
-                  new TransactionVerificationException(result.getError());
+                @Override
+                public Boolean apply(final Rpc.VerifyResult result) {
+                  if (Rpc.VerifyStatus.VERIFY_STATUS_OK != result.getError()) {
+                    new TransactionVerificationException(result.getError());
+                  }
+                  return true;
                 }
-                return true;
-              }
-            });
-            addCallback(listenableFuture, callback, directExecutor());
-          } catch (Exception e) {
-            nextFuture.fail(e);
-          }
-          return nextFuture;
+              });
+          return convertedFuture;
         }
       };
 
   @Getter
   private final Function4<Signer, String, List<String>, Long,
-      FinishableFuture<TxHash>> voteFunction = new Function4<
-          Signer, String, List<String>, Long, FinishableFuture<TxHash>>() {
+      Future<TxHash>> voteFunction = new Function4<
+          Signer, String, List<String>, Long, Future<TxHash>>() {
 
         @Override
-        public FinishableFuture<TxHash> apply(final Signer signer, final String voteId,
+        public Future<TxHash> apply(final Signer signer, final String voteId,
             final List<String> candidates, final Long nonce) {
           logger.debug("Voting with signer: }, voteId: {}, candidates: {}, nonce: {}",
               signer.getPrincipal(), voteId, candidates, nonce);
@@ -471,78 +358,65 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
 
   @Getter
   private final Function2<String, Integer,
-      FinishableFuture<List<ElectedCandidate>>> listElectedFunction = new Function2<
-          String, Integer, FinishableFuture<List<ElectedCandidate>>>() {
+      Future<List<ElectedCandidate>>> listElectedFunction = new Function2<
+          String, Integer, Future<List<ElectedCandidate>>>() {
 
         @Override
-        public FinishableFuture<List<ElectedCandidate>> apply(final String voteId,
+        public Future<List<ElectedCandidate>> apply(final String voteId,
             final Integer showCount) {
           logger.debug("Get votes status with voteId: {}, showCount: {}", voteId, showCount);
 
-          FinishableFuture<List<ElectedCandidate>> nextFuture =
-              new FinishableFuture<List<ElectedCandidate>>();
-          try {
-            final Rpc.VoteParams rpcVoteParams = Rpc.VoteParams.newBuilder()
-                .setId(voteId)
-                .setCount(showCount)
-                .build();
-            logger.trace("AergoService getVotes arg: {}", rpcVoteParams);
+          final Rpc.VoteParams rpcVoteParams = Rpc.VoteParams.newBuilder()
+              .setId(voteId)
+              .setCount(showCount)
+              .build();
+          logger.trace("AergoService getVotes arg: {}", rpcVoteParams);
 
-            ListenableFuture<Rpc.VoteList> listenableFuture = aergoService.getVotes(rpcVoteParams);
-            FutureChain<Rpc.VoteList, List<ElectedCandidate>> callback =
-                new FutureChain<>(nextFuture);
-            callback.setSuccessHandler(new Function1<Rpc.VoteList, List<ElectedCandidate>>() {
+          final Future<Rpc.VoteList> rawFuture = aergoService.getVotes(rpcVoteParams);
+          final Future<List<ElectedCandidate>> convertedFuture =
+              HerajFutures.transform(rawFuture,
+                  new Function1<Rpc.VoteList, List<ElectedCandidate>>() {
 
-              @Override
-              public List<ElectedCandidate> apply(final Rpc.VoteList rpcVoteList) {
-                final List<ElectedCandidate> electedCandidates = new ArrayList<ElectedCandidate>();
-                for (final Rpc.Vote rpcCandidate : rpcVoteList.getVotesList()) {
-                  final ElectedCandidate domainElectedCandidate =
-                      electedCandidateConverter.convertToDomainModel(rpcCandidate);
-                  electedCandidates.add(domainElectedCandidate);
-                }
-                return electedCandidates;
-              }
-            });
-            addCallback(listenableFuture, callback, directExecutor());
-          } catch (Exception e) {
-            nextFuture.fail(e);
-          }
-          return nextFuture;
+                    @Override
+                    public List<ElectedCandidate> apply(final Rpc.VoteList rpcVoteList) {
+                      final List<ElectedCandidate> electedCandidates = new ArrayList<>();
+                      for (final Rpc.Vote rpcCandidate : rpcVoteList.getVotesList()) {
+                        final ElectedCandidate domainElectedCandidate =
+                            electedCandidateConverter.convertToDomainModel(rpcCandidate);
+                        electedCandidates.add(domainElectedCandidate);
+                      }
+                      return electedCandidates;
+                    }
+                  });
+          return convertedFuture;
         }
       };
 
   @Getter
-  private final Function1<AccountAddress, FinishableFuture<AccountTotalVote>> votesOfFunction =
-      new Function1<AccountAddress, FinishableFuture<AccountTotalVote>>() {
+  private final Function1<AccountAddress, Future<AccountTotalVote>> votesOfFunction =
+      new Function1<AccountAddress, Future<AccountTotalVote>>() {
 
         @Override
-        public FinishableFuture<AccountTotalVote> apply(final AccountAddress accountAddress) {
+        public Future<AccountTotalVote> apply(final AccountAddress accountAddress) {
           logger.debug("Get votes with address: {}", accountAddress);
 
-          FinishableFuture<AccountTotalVote> nextFuture = new FinishableFuture<AccountTotalVote>();
-          try {
-            final Rpc.AccountAddress rpcAddress = Rpc.AccountAddress.newBuilder()
-                .setValue(accountAddressConverter.convertToRpcModel(accountAddress))
-                .build();
-            logger.trace("AergoService getAccountVotes arg: {}", rpcAddress);
+          final Rpc.AccountAddress rpcAddress = Rpc.AccountAddress.newBuilder()
+              .setValue(accountAddressConverter.convertToRpcModel(accountAddress))
+              .build();
+          logger.trace("AergoService getAccountVotes arg: {}", rpcAddress);
 
-            ListenableFuture<Rpc.AccountVoteInfo> listenableFuture =
-                aergoService.getAccountVotes(rpcAddress);
-            FutureChain<Rpc.AccountVoteInfo, AccountTotalVote> callback =
-                new FutureChain<>(nextFuture);
-            callback.setSuccessHandler(new Function1<Rpc.AccountVoteInfo, AccountTotalVote>() {
+          final Future<Rpc.AccountVoteInfo> rawFuture =
+              aergoService.getAccountVotes(rpcAddress);
+          final Future<AccountTotalVote> convertedFuture =
+              HerajFutures.transform(rawFuture,
+                  new Function1<Rpc.AccountVoteInfo, AccountTotalVote>() {
 
-              @Override
-              public AccountTotalVote apply(final Rpc.AccountVoteInfo rpcAccountVoteTotal) {
-                return accountTotalVoteConverter.convertToDomainModel(rpcAccountVoteTotal);
-              }
-            });
-            addCallback(listenableFuture, callback, directExecutor());
-          } catch (Exception e) {
-            nextFuture.fail(e);
-          }
-          return nextFuture;
+                    @Override
+                    public AccountTotalVote apply(final Rpc.AccountVoteInfo rpcAccountVoteTotal) {
+                      return accountTotalVoteConverter.convertToDomainModel(rpcAccountVoteTotal);
+                    }
+                  });
+          return convertedFuture;
         }
       };
 

@@ -20,13 +20,14 @@ public class JustRetryStrategyTest extends AbstractTestCase {
         new JustRetryStrategy(count.get(), Time.of(100L, TimeUnit.MILLISECONDS));
     final Function0<Integer> strategyWrapped =
         retryStrategy.apply(new Function0<Integer>() {
+
           @Override
           public Integer apply() {
             if (0 < count.get()) {
+              count.decrementAndGet();
               throw new IllegalStateException();
             }
 
-            count.decrementAndGet();
             return 0;
           }
         });
@@ -39,13 +40,14 @@ public class JustRetryStrategyTest extends AbstractTestCase {
     final JustRetryStrategy retryStrategy = new JustRetryStrategy(count.get());
     final Function0<Integer> wrapped =
         retryStrategy.apply(new Function0<Integer>() {
+
           @Override
           public Integer apply() {
             if (0 < count.get()) {
+              count.decrementAndGet();
               throw new IllegalStateException();
             }
 
-            count.decrementAndGet();
             return 0;
           }
         });

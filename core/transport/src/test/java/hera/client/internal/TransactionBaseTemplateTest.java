@@ -20,6 +20,7 @@ import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -28,11 +29,6 @@ import types.Rpc;
 
 @PrepareForTest({AergoRPCServiceFutureStub.class})
 public class TransactionBaseTemplateTest extends AbstractTestCase {
-
-  @Override
-  public void setUp() {
-    super.setUp();
-  }
 
   protected TransactionBaseTemplate supplyTransactionBaseTemplate(
       final AergoRPCServiceFutureStub aergoService) {
@@ -43,36 +39,7 @@ public class TransactionBaseTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetTransactionInBlock() {
-    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    ListenableFuture<Blockchain.Tx> txListenableFuture =
-        service.submit(new Callable<Blockchain.Tx>() {
-          @Override
-          public Blockchain.Tx call() throws Exception {
-            throw new UnsupportedOperationException();
-          }
-        });
-    ListenableFuture<Blockchain.TxInBlock> txInBlockListenableFuture =
-        service.submit(new Callable<Blockchain.TxInBlock>() {
-          @Override
-          public Blockchain.TxInBlock call() throws Exception {
-            return Blockchain.TxInBlock.newBuilder().build();
-          }
-        });
-    when(aergoService.getTX(any(Rpc.SingleBytes.class))).thenReturn(txListenableFuture);
-    when(aergoService.getBlockTX(any(Rpc.SingleBytes.class))).thenReturn(txInBlockListenableFuture);
-
-    final TransactionBaseTemplate transactionBaseTemplate =
-        supplyTransactionBaseTemplate(aergoService);
-
-    final FinishableFuture<Transaction> transaction =
-        transactionBaseTemplate.getTransactionFunction()
-            .apply(new TxHash(of(randomUUID().toString().getBytes())));
-    assertNotNull(transaction.get());
-  }
-
-  @Test
-  public void testGetTransactionInMempool() {
+  public void testGetTransactionInMempool() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Blockchain.Tx> mockListenableFuture =
         service.submit(new Callable<Blockchain.Tx>() {
@@ -86,14 +53,35 @@ public class TransactionBaseTemplateTest extends AbstractTestCase {
     final TransactionBaseTemplate transactionBaseTemplate =
         supplyTransactionBaseTemplate(aergoService);
 
-    final FinishableFuture<Transaction> transaction =
+    final Future<Transaction> transaction =
         transactionBaseTemplate.getTransactionFunction()
             .apply(new TxHash(of(randomUUID().toString().getBytes())));
     assertNotNull(transaction.get());
   }
 
   @Test
-  public void testCommit() {
+  public void testGetTransactionInBlock() throws Exception {
+    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
+    ListenableFuture<Blockchain.TxInBlock> txInBlockListenableFuture =
+        service.submit(new Callable<Blockchain.TxInBlock>() {
+          @Override
+          public Blockchain.TxInBlock call() throws Exception {
+            return Blockchain.TxInBlock.newBuilder().build();
+          }
+        });
+    when(aergoService.getBlockTX(any(Rpc.SingleBytes.class))).thenReturn(txInBlockListenableFuture);
+
+    final TransactionBaseTemplate transactionBaseTemplate =
+        supplyTransactionBaseTemplate(aergoService);
+
+    final Future<Transaction> transaction =
+        transactionBaseTemplate.getTransactionInBlockFunction()
+            .apply(new TxHash(of(randomUUID().toString().getBytes())));
+    assertNotNull(transaction.get());
+  }
+
+  @Test
+  public void testCommit() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Rpc.CommitResultList> mockListenableFuture =
         service.submit(new Callable<Rpc.CommitResultList>() {
@@ -118,13 +106,13 @@ public class TransactionBaseTemplateTest extends AbstractTestCase {
         .rawTransaction(rawTransaction)
         .build();
 
-    final FinishableFuture<TxHash> txHash =
+    final Future<TxHash> txHash =
         transactionBaseTemplate.getCommitFunction().apply(transaction);
     assertNotNull(txHash.get());
   }
 
   @Test
-  public void testSend() {
+  public void testSend() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Rpc.CommitResult> mockListenableFuture =
         service.submit(new Callable<Rpc.CommitResult>() {
@@ -138,7 +126,7 @@ public class TransactionBaseTemplateTest extends AbstractTestCase {
     final TransactionBaseTemplate transactionBaseTemplate =
         supplyTransactionBaseTemplate(aergoService);
 
-    final FinishableFuture<TxHash> txHash = transactionBaseTemplate.getSendFunction()
+    final Future<TxHash> txHash = transactionBaseTemplate.getSendFunction()
         .apply(accountAddress, accountAddress, Aer.of("10", Unit.AER));
     assertNotNull(txHash.get());
   }

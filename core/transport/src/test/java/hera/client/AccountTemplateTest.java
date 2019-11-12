@@ -18,7 +18,6 @@ import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import hera.AbstractTestCase;
-import hera.Context;
 import hera.ContextProvider;
 import hera.api.function.Function1;
 import hera.api.function.Function2;
@@ -33,9 +32,10 @@ import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.StakeInfo;
 import hera.api.model.TxHash;
 import hera.client.internal.AccountBaseTemplate;
-import hera.client.internal.FinishableFuture;
+import hera.client.internal.HerajFutures;
 import hera.key.AergoKeyGenerator;
 import hera.key.Signer;
+import java.util.concurrent.Future;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
@@ -60,12 +60,11 @@ public class AccountTemplateTest extends AbstractTestCase {
   @Test
   public void testGetState() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
-    final FinishableFuture<AccountState> future = new FinishableFuture<AccountState>();
-    future.success(AccountState.newBuilder().build());
+    final Future<AccountState> future = HerajFutures.success(AccountState.newBuilder().build());
     when(base.getStateFunction())
-        .thenReturn(new Function1<AccountAddress, FinishableFuture<AccountState>>() {
+        .thenReturn(new Function1<AccountAddress, Future<AccountState>>() {
           @Override
-          public FinishableFuture<AccountState> apply(AccountAddress t) {
+          public Future<AccountState> apply(AccountAddress t) {
             return future;
           }
         });
@@ -81,13 +80,12 @@ public class AccountTemplateTest extends AbstractTestCase {
   @Test
   public void testCreateName() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
-    final TxHash mockHash = mock(TxHash.class);
-    final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
-    future.success(mockHash);
+    final Future<TxHash> future =
+        HerajFutures.success(TxHash.of(BytesValue.of(randomUUID().toString().getBytes())));
     when(base.getCreateNameFunction())
-        .thenReturn(new Function3<Signer, String, Long, FinishableFuture<TxHash>>() {
+        .thenReturn(new Function3<Signer, String, Long, Future<TxHash>>() {
           @Override
-          public FinishableFuture<TxHash> apply(Signer t1, String t2, Long t3) {
+          public Future<TxHash> apply(Signer t1, String t2, Long t3) {
             return future;
           }
         });
@@ -104,13 +102,12 @@ public class AccountTemplateTest extends AbstractTestCase {
   @Test
   public void testUpdateName() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
-    final TxHash mockHash = mock(TxHash.class);
-    final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
-    future.success(mockHash);
+    final Future<TxHash> future =
+        HerajFutures.success(TxHash.of(BytesValue.of(randomUUID().toString().getBytes())));
     when(base.getUpdateNameFunction()).thenReturn(
-        new Function4<Signer, String, AccountAddress, Long, FinishableFuture<TxHash>>() {
+        new Function4<Signer, String, AccountAddress, Long, Future<TxHash>>() {
           @Override
-          public FinishableFuture<TxHash> apply(Signer t1, String t2, AccountAddress t3,
+          public Future<TxHash> apply(Signer t1, String t2, AccountAddress t3,
               Long t4) {
             return future;
           }
@@ -130,12 +127,11 @@ public class AccountTemplateTest extends AbstractTestCase {
   @Test
   public void testGetNameOwner() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
-    final FinishableFuture<AccountAddress> future = new FinishableFuture<AccountAddress>();
-    future.success(AccountAddress.EMPTY);
+    final Future<AccountAddress> future = HerajFutures.success(AccountAddress.EMPTY);
     when(base.getGetNameOwnerFunction())
-        .thenReturn(new Function2<String, Long, FinishableFuture<AccountAddress>>() {
+        .thenReturn(new Function2<String, Long, Future<AccountAddress>>() {
           @Override
-          public FinishableFuture<AccountAddress> apply(String t1, Long t2) {
+          public Future<AccountAddress> apply(String t1, Long t2) {
             return future;
           }
         });
@@ -151,13 +147,12 @@ public class AccountTemplateTest extends AbstractTestCase {
   @Test
   public void testStake() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
-    final TxHash mockHash = mock(TxHash.class);
-    final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
-    future.success(mockHash);
+    final Future<TxHash> future =
+        HerajFutures.success(TxHash.of(BytesValue.of(randomUUID().toString().getBytes())));
     when(base.getStakingFunction()).thenReturn(
-        new Function3<Signer, Aer, Long, FinishableFuture<TxHash>>() {
+        new Function3<Signer, Aer, Long, Future<TxHash>>() {
           @Override
-          public FinishableFuture<TxHash> apply(Signer t1, Aer t2, Long t4) {
+          public Future<TxHash> apply(Signer t1, Aer t2, Long t4) {
             return future;
           }
         });
@@ -174,13 +169,12 @@ public class AccountTemplateTest extends AbstractTestCase {
   @Test
   public void testUnstake() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
-    final TxHash mockHash = mock(TxHash.class);
-    final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
-    future.success(mockHash);
+    final Future<TxHash> future =
+        HerajFutures.success(TxHash.of(BytesValue.of(randomUUID().toString().getBytes())));
     when(base.getUnstakingFunction()).thenReturn(
-        new Function3<Signer, Aer, Long, FinishableFuture<TxHash>>() {
+        new Function3<Signer, Aer, Long, Future<TxHash>>() {
           @Override
-          public FinishableFuture<TxHash> apply(Signer t1, Aer t2, Long t4) {
+          public Future<TxHash> apply(Signer t1, Aer t2, Long t4) {
             return future;
           }
         });
@@ -197,12 +191,11 @@ public class AccountTemplateTest extends AbstractTestCase {
   @Test
   public void testGetStakingInfo() {
     final AccountBaseTemplate base = mock(AccountBaseTemplate.class);
-    final FinishableFuture<StakeInfo> future = new FinishableFuture<StakeInfo>();
-    future.success(StakeInfo.newBuilder().build());
+    final Future<StakeInfo> future = HerajFutures.success(StakeInfo.newBuilder().build());
     when(base.getStakingInfoFunction())
-        .thenReturn(new Function1<AccountAddress, FinishableFuture<StakeInfo>>() {
+        .thenReturn(new Function1<AccountAddress, Future<StakeInfo>>() {
           @Override
-          public FinishableFuture<StakeInfo> apply(AccountAddress t) {
+          public Future<StakeInfo> apply(AccountAddress t) {
             return future;
           }
         });

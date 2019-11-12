@@ -42,13 +42,14 @@ import hera.api.model.StateVariable;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.client.internal.ContractBaseTemplate;
-import hera.client.internal.FinishableFuture;
+import hera.client.internal.HerajFutures;
 import hera.key.AergoKeyGenerator;
 import hera.key.Signer;
 import hera.spec.resolver.ContractDefinitionSpec;
 import hera.util.Base58Utils;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
@@ -84,12 +85,12 @@ public class ContractTemplateTest extends AbstractTestCase {
   @Test
   public void testGetReceipt() {
     final ContractBaseTemplate base = mock(ContractBaseTemplate.class);
-    final FinishableFuture<ContractTxReceipt> future = new FinishableFuture<ContractTxReceipt>();
-    future.success(ContractTxReceipt.newBuilder().build());
+    final Future<ContractTxReceipt> future =
+        HerajFutures.success(ContractTxReceipt.newBuilder().build());
     when(base.getReceiptFunction())
-        .thenReturn(new Function1<ContractTxHash, FinishableFuture<ContractTxReceipt>>() {
+        .thenReturn(new Function1<ContractTxHash, Future<ContractTxReceipt>>() {
           @Override
-          public FinishableFuture<ContractTxReceipt> apply(ContractTxHash t) {
+          public Future<ContractTxReceipt> apply(ContractTxHash t) {
             return future;
           }
         });
@@ -106,13 +107,13 @@ public class ContractTemplateTest extends AbstractTestCase {
   @Test
   public void testDeploy() throws Exception {
     final ContractBaseTemplate base = mock(ContractBaseTemplate.class);
+    final Future<ContractTxHash> future =
+        HerajFutures.success(new ContractTxHash(of(randomUUID().toString().getBytes())));
     when(base.getDeployFunction()).thenReturn(
-        new Function4<Signer, ContractDefinition, Long, Fee, FinishableFuture<ContractTxHash>>() {
+        new Function4<Signer, ContractDefinition, Long, Fee, Future<ContractTxHash>>() {
           @Override
-          public FinishableFuture<ContractTxHash> apply(Signer t1, ContractDefinition t2,
+          public Future<ContractTxHash> apply(Signer t1, ContractDefinition t2,
               Long t3, Fee t4) {
-            final FinishableFuture<ContractTxHash> future = new FinishableFuture<ContractTxHash>();
-            future.success(new ContractTxHash(of(randomUUID().toString().getBytes())));
             return future;
           }
         });
@@ -131,14 +132,14 @@ public class ContractTemplateTest extends AbstractTestCase {
   @Test
   public void testReDeploy() {
     final ContractBaseTemplate base = mock(ContractBaseTemplate.class);
+    final Future<ContractTxHash> future =
+        HerajFutures.success(new ContractTxHash(of(randomUUID().toString().getBytes())));
     when(base.getReDeployFunction()).thenReturn(new Function5<Signer, ContractAddress,
-        ContractDefinition, Long, Fee, FinishableFuture<ContractTxHash>>() {
+        ContractDefinition, Long, Fee, Future<ContractTxHash>>() {
 
       @Override
-      public FinishableFuture<ContractTxHash> apply(Signer t1, ContractAddress t2,
+      public Future<ContractTxHash> apply(Signer t1, ContractAddress t2,
           ContractDefinition t3, Long t4, Fee t5) {
-        final FinishableFuture<ContractTxHash> future = new FinishableFuture<ContractTxHash>();
-        future.success(new ContractTxHash(of(randomUUID().toString().getBytes())));
         return future;
       }
     });
@@ -159,12 +160,11 @@ public class ContractTemplateTest extends AbstractTestCase {
   public void testGetContractInterface() {
     final ContractBaseTemplate base = mock(ContractBaseTemplate.class);
     final ContractInterface mockContractInterface = mock(ContractInterface.class);
-    final FinishableFuture<ContractInterface> future = new FinishableFuture<ContractInterface>();
-    future.success(mockContractInterface);
+    final Future<ContractInterface> future = HerajFutures.success(mockContractInterface);
     when(base.getContractInterfaceFunction())
-        .thenReturn(new Function1<ContractAddress, FinishableFuture<ContractInterface>>() {
+        .thenReturn(new Function1<ContractAddress, Future<ContractInterface>>() {
           @Override
-          public FinishableFuture<ContractInterface> apply(ContractAddress t) {
+          public Future<ContractInterface> apply(ContractAddress t) {
             return future;
           }
         });
@@ -181,12 +181,12 @@ public class ContractTemplateTest extends AbstractTestCase {
   @Test
   public void testExecute() throws Exception {
     final ContractBaseTemplate base = mock(ContractBaseTemplate.class);
-    final FinishableFuture<ContractTxHash> future = new FinishableFuture<ContractTxHash>();
-    future.success(new ContractTxHash(of(randomUUID().toString().getBytes())));
+    final Future<ContractTxHash> future =
+        HerajFutures.success(new ContractTxHash(of(randomUUID().toString().getBytes())));
     when(base.getExecuteFunction()).thenReturn(
-        new Function4<Signer, ContractInvocation, Long, Fee, FinishableFuture<ContractTxHash>>() {
+        new Function4<Signer, ContractInvocation, Long, Fee, Future<ContractTxHash>>() {
           @Override
-          public FinishableFuture<ContractTxHash> apply(Signer t1, ContractInvocation t2,
+          public Future<ContractTxHash> apply(Signer t1, ContractInvocation t2,
               Long t3, Fee t4) {
             return future;
           }
@@ -208,12 +208,11 @@ public class ContractTemplateTest extends AbstractTestCase {
   public void testQuery() {
     final ContractBaseTemplate base = mock(ContractBaseTemplate.class);
     final ContractResult mockResult = mock(ContractResult.class);
-    final FinishableFuture<ContractResult> future = new FinishableFuture<ContractResult>();
-    future.success(mockResult);
+    final Future<ContractResult> future = HerajFutures.success(mockResult);
     when(base.getQueryFunction())
-        .thenReturn(new Function1<ContractInvocation, FinishableFuture<ContractResult>>() {
+        .thenReturn(new Function1<ContractInvocation, Future<ContractResult>>() {
           @Override
-          public FinishableFuture<ContractResult> apply(ContractInvocation t) {
+          public Future<ContractResult> apply(ContractInvocation t) {
             return future;
           }
         });
@@ -232,14 +231,13 @@ public class ContractTemplateTest extends AbstractTestCase {
   @Test
   public void testListEvent() {
     final ContractBaseTemplate base = mock(ContractBaseTemplate.class);
-    final List<Event> mockEventList = new ArrayList<Event>();
-    final FinishableFuture<List<Event>> future = new FinishableFuture<List<Event>>();
-    future.success(mockEventList);
+    final List<Event> list = new ArrayList<Event>();
+    final Future<List<Event>> future = HerajFutures.success(list);
     when(base.getListEventFunction())
-        .thenReturn(new Function1<EventFilter, FinishableFuture<List<Event>>>() {
+        .thenReturn(new Function1<EventFilter, Future<List<Event>>>() {
 
           @Override
-          public FinishableFuture<List<Event>> apply(EventFilter t) {
+          public Future<List<Event>> apply(EventFilter t) {
             return future;
           }
         });
@@ -258,14 +256,13 @@ public class ContractTemplateTest extends AbstractTestCase {
   public void testSubscribeEvent() {
     final ContractBaseTemplate base = mock(ContractBaseTemplate.class);
     final Subscription<Event> mockSubscription = mock(Subscription.class);
-    final FinishableFuture<Subscription<Event>> future = new FinishableFuture<>();
-    future.success(mockSubscription);
+    final Future<Subscription<Event>> future = HerajFutures.success(mockSubscription);
     when(base.getSubscribeEventFunction())
         .thenReturn(new Function2<EventFilter, StreamObserver<Event>,
-            FinishableFuture<Subscription<Event>>>() {
+            Future<Subscription<Event>>>() {
 
           @Override
-          public FinishableFuture<Subscription<Event>> apply(EventFilter t1,
+          public Future<Subscription<Event>> apply(EventFilter t1,
               StreamObserver<Event> t2) {
             return future;
           }
@@ -279,7 +276,5 @@ public class ContractTemplateTest extends AbstractTestCase {
     assertEquals(CONTRACT_SUBSCRIBE_EVENT,
         ((WithIdentity) contractTemplate.getSubscribeEventFunction()).getIdentity());
   }
-
-
 
 }

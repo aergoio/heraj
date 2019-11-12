@@ -4,51 +4,50 @@
 
 package hera.strategy;
 
-import static java.util.UUID.randomUUID;
 import static org.junit.Assert.fail;
 
 import hera.AbstractTestCase;
 import hera.api.function.Function0;
-import hera.client.internal.FinishableFuture;
 import hera.util.ThreadUtils;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import org.junit.Test;
 
 public class TimeoutStrategyTest extends AbstractTestCase {
 
   @Test
-  public void testTimeout() {
-    final TimeoutStrategy timeoutStrategy = new TimeoutStrategy(1000L);
-    final FinishableFuture<Integer> future = new FinishableFuture<Integer>();
-    service.submit(new Runnable() {
+  public void testTimeout() throws InterruptedException, ExecutionException {
+    final Future<Integer> future = service.submit(new Callable<Integer>() {
       @Override
-      public void run() {
+      public Integer call() {
         ThreadUtils.trySleep(100L);
-        future.success(randomUUID().toString().hashCode());
+        return 0;
       }
     });
-    timeoutStrategy.apply(new Function0<FinishableFuture<Integer>>() {
+    new TimeoutStrategy(1000L).apply(new Function0<Future<Integer>>() {
+
       @Override
-      public FinishableFuture<Integer> apply() {
+      public Future<Integer> apply() {
         return future;
       }
     }).apply().get();
   }
 
   @Test
-  public void shouldThrowException() {
-    final TimeoutStrategy timeoutStrategy = new TimeoutStrategy(100L);
+  public void shouldThrowException() throws InterruptedException, ExecutionException {
+    final Future<Integer> future = service.submit(new Callable<Integer>() {
+      @Override
+      public Integer call() {
+        ThreadUtils.trySleep(1000L);
+        return 0;
+      }
+    });
     try {
-      final FinishableFuture<Integer> future = new FinishableFuture<Integer>();
-      service.submit(new Runnable() {
+      new TimeoutStrategy(100L).apply(new Function0<Future<Integer>>() {
+
         @Override
-        public void run() {
-          ThreadUtils.trySleep(10000L);
-          future.success(randomUUID().toString().hashCode());
-        }
-      });
-      timeoutStrategy.apply(new Function0<FinishableFuture<Integer>>() {
-        @Override
-        public FinishableFuture<Integer> apply() {
+        public Future<Integer> apply() {
           return future;
         }
       }).apply().get();

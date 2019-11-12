@@ -93,7 +93,6 @@ public class AccountOperationIT extends AbstractIT {
       fail();
     } catch (RpcCommitException e) {
       // then
-      e.printStackTrace();
     }
   }
 

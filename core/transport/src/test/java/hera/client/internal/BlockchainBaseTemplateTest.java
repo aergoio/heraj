@@ -22,6 +22,7 @@ import hera.api.model.ServerInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -30,11 +31,6 @@ import types.Rpc;
 
 @PrepareForTest({AergoRPCServiceFutureStub.class})
 public class BlockchainBaseTemplateTest extends AbstractTestCase {
-
-  @Override
-  public void setUp() {
-    super.setUp();
-  }
 
   protected BlockchainBaseTemplate supplyBlockchainBaseTemplate(
       final AergoRPCServiceFutureStub aergoService) {
@@ -45,7 +41,7 @@ public class BlockchainBaseTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetBlockchainStatus() {
+  public void testGetBlockchainStatus() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Rpc.BlockchainStatus> mockListenableFuture =
         service.submit(new Callable<Rpc.BlockchainStatus>() {
@@ -59,13 +55,13 @@ public class BlockchainBaseTemplateTest extends AbstractTestCase {
     final BlockchainBaseTemplate blockchainBaseTemplate =
         supplyBlockchainBaseTemplate(aergoService);
 
-    final FinishableFuture<BlockchainStatus> blockchainStatus =
+    final Future<BlockchainStatus> blockchainStatus =
         blockchainBaseTemplate.getBlockchainStatusFunction().apply();
     assertNotNull(blockchainStatus.get());
   }
 
   @Test
-  public void testGetChainInfo() {
+  public void testGetChainInfo() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Rpc.ChainInfo> mockListenableFuture =
         service.submit(new Callable<Rpc.ChainInfo>() {
@@ -79,13 +75,13 @@ public class BlockchainBaseTemplateTest extends AbstractTestCase {
     final BlockchainBaseTemplate blockchainBaseTemplate =
         supplyBlockchainBaseTemplate(aergoService);
 
-    final FinishableFuture<ChainInfo> chainInfo =
+    final Future<ChainInfo> chainInfo =
         blockchainBaseTemplate.getChainInfoFunction().apply();
     assertNotNull(chainInfo.get());
   }
 
   @Test
-  public void testGetChainStats() {
+  public void testGetChainStats() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Rpc.ChainStats> mockListenableFuture =
         service.submit(new Callable<Rpc.ChainStats>() {
@@ -99,13 +95,13 @@ public class BlockchainBaseTemplateTest extends AbstractTestCase {
     final BlockchainBaseTemplate blockchainBaseTemplate =
         supplyBlockchainBaseTemplate(aergoService);
 
-    final FinishableFuture<ChainStats> chainStats =
+    final Future<ChainStats> chainStats =
         blockchainBaseTemplate.getChainStatsFunction().apply();
     assertNotNull(chainStats.get());
   }
 
   @Test
-  public void testListPeers() {
+  public void testListPeers() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Rpc.PeerList> mockListenableFuture =
         service.submit(new Callable<Rpc.PeerList>() {
@@ -119,13 +115,13 @@ public class BlockchainBaseTemplateTest extends AbstractTestCase {
     final BlockchainBaseTemplate blockchainBaseTemplate =
         supplyBlockchainBaseTemplate(aergoService);
 
-    final FinishableFuture<List<Peer>> peers =
+    final Future<List<Peer>> peers =
         blockchainBaseTemplate.getListPeersFunction().apply(false, false);
     assertNotNull(peers.get());
   }
 
   @Test
-  public void testListPeerMetrics() {
+  public void testListPeerMetrics() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Metric.Metrics> mockListenableFuture =
         service.submit(new Callable<Metric.Metrics>() {
@@ -139,13 +135,13 @@ public class BlockchainBaseTemplateTest extends AbstractTestCase {
     final BlockchainBaseTemplate blockchainBaseTemplate =
         supplyBlockchainBaseTemplate(aergoService);
 
-    final FinishableFuture<List<PeerMetric>> peers =
+    final Future<List<PeerMetric>> peers =
         blockchainBaseTemplate.getListPeersMetricsFunction().apply();
     assertNotNull(peers.get());
   }
 
   @Test
-  public void testGetServerInfo() {
+  public void testGetServerInfo() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Rpc.ServerInfo> mockListenableFuture =
         service.submit(new Callable<Rpc.ServerInfo>() {
@@ -159,13 +155,13 @@ public class BlockchainBaseTemplateTest extends AbstractTestCase {
     final BlockchainBaseTemplate blockchainBaseTemplate =
         supplyBlockchainBaseTemplate(aergoService);
 
-    final FinishableFuture<ServerInfo> nodeStatus =
+    final Future<ServerInfo> nodeStatus =
         blockchainBaseTemplate.getServerInfoFunction().apply(new ArrayList<String>());
     assertNotNull(nodeStatus.get());
   }
 
   @Test
-  public void testGetNodeStatus() {
+  public void testGetNodeStatus() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Rpc.SingleBytes> mockListenableFuture =
         service.submit(new Callable<Rpc.SingleBytes>() {
@@ -179,7 +175,7 @@ public class BlockchainBaseTemplateTest extends AbstractTestCase {
     final BlockchainBaseTemplate blockchainBaseTemplate =
         supplyBlockchainBaseTemplate(aergoService);
 
-    final FinishableFuture<NodeStatus> nodeStatus =
+    final Future<NodeStatus> nodeStatus =
         blockchainBaseTemplate.getNodeStatusFunction().apply();
     assertNotNull(nodeStatus.get());
   }

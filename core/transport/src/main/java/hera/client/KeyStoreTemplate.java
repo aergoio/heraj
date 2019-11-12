@@ -26,12 +26,18 @@ import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
-import hera.client.internal.FinishableFuture;
 import hera.client.internal.KeyStoreBaseTemplate;
+import hera.exception.DecoratorChainException;
+import hera.exception.RpcException;
+import hera.exception.RpcExceptionConverter;
 import hera.strategy.PriorityProvider;
 import hera.strategy.StrategyApplier;
+import hera.util.ExceptionConverter;
 import io.grpc.ManagedChannel;
+import io.grpc.Status.Code;
+import io.grpc.StatusRuntimeException;
 import java.util.List;
+import java.util.concurrent.Future;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -40,7 +46,8 @@ import lombok.Getter;
 public class KeyStoreTemplate
     implements KeyStoreOperation, ChannelInjectable, ContextProviderInjectable {
 
-  @Getter
+  protected final ExceptionConverter<RpcException> exceptionConverter = new RpcExceptionConverter();
+
   protected KeyStoreBaseTemplate keyStoreBaseTemplate = new KeyStoreBaseTemplate();
 
   protected ContextProvider contextProvider;
@@ -51,84 +58,127 @@ public class KeyStoreTemplate
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-    getKeyStoreBaseTemplate().setChannel(channel);;
+    this.keyStoreBaseTemplate.setChannel(channel);;
   }
 
   @Override
   public void setContextProvider(final ContextProvider contextProvider) {
     this.contextProvider = contextProvider;
-    getKeyStoreBaseTemplate().setContextProvider(contextProvider);
+    this.keyStoreBaseTemplate.setContextProvider(contextProvider);
   }
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function0<FinishableFuture<List<AccountAddress>>> listFunction =
+  private final Function0<Future<List<AccountAddress>>> listFunction =
       getStrategyApplier()
-          .apply(identify(getKeyStoreBaseTemplate().getListFunction(), KEYSTORE_LIST));
+          .apply(identify(this.keyStoreBaseTemplate.getListFunction(), KEYSTORE_LIST));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<String, FinishableFuture<AccountAddress>> createFunction =
+  private final Function1<String, Future<AccountAddress>> createFunction =
       getStrategyApplier()
-          .apply(identify(getKeyStoreBaseTemplate().getCreateFunction(), KEYSTORE_CREATE));
+          .apply(identify(this.keyStoreBaseTemplate.getCreateFunction(), KEYSTORE_CREATE));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<Authentication, FinishableFuture<Boolean>> unlockFunction =
+  private final Function1<Authentication, Future<Boolean>> unlockFunction =
       getStrategyApplier()
-          .apply(identify(getKeyStoreBaseTemplate().getUnlockFunction(), KEYSTORE_UNLOCK));
+          .apply(identify(this.keyStoreBaseTemplate.getUnlockFunction(), KEYSTORE_UNLOCK));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<Authentication, FinishableFuture<Boolean>> lockFunction =
+  private final Function1<Authentication, Future<Boolean>> lockFunction =
       getStrategyApplier()
-          .apply(identify(getKeyStoreBaseTemplate().getLockFunction(), KEYSTORE_LOCK));
+          .apply(identify(this.keyStoreBaseTemplate.getLockFunction(), KEYSTORE_LOCK));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<RawTransaction, FinishableFuture<Transaction>> signFunction =
+  private final Function1<RawTransaction, Future<Transaction>> signFunction =
       getStrategyApplier()
-          .apply(identify(getKeyStoreBaseTemplate().getSignFunction(), KEYSTORE_SIGN));
+          .apply(identify(this.keyStoreBaseTemplate.getSignFunction(), KEYSTORE_SIGN));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function3<EncryptedPrivateKey, String, String,
-      FinishableFuture<AccountAddress>> importKeyFunction = getStrategyApplier().apply(
-          identify(getKeyStoreBaseTemplate().getImportKeyFunction(), KEYSTORE_IMPORTKEY));
+      Future<AccountAddress>> importKeyFunction = getStrategyApplier().apply(
+          identify(this.keyStoreBaseTemplate.getImportKeyFunction(), KEYSTORE_IMPORTKEY));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<Authentication,
-      FinishableFuture<EncryptedPrivateKey>> exportKeyFunction = getStrategyApplier().apply(
-          identify(getKeyStoreBaseTemplate().getExportKeyFunction(), KEYSTORE_EXPORTKEY));
+      Future<EncryptedPrivateKey>> exportKeyFunction = getStrategyApplier().apply(
+          identify(this.keyStoreBaseTemplate.getExportKeyFunction(), KEYSTORE_EXPORTKEY));
 
   @Override
   public List<AccountAddress> list() {
-    return getListFunction().apply().get();
+    try {
+      return getListFunction().apply().get();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
   @Override
   public AccountAddress create(final String password) {
-    return getCreateFunction().apply(password).get();
+    try {
+      return getCreateFunction().apply(password).get();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
   @Override
   public boolean lock(final Authentication authentication) {
-    return getLockFunction().apply(authentication).get();
+    try {
+      return getLockFunction().apply(authentication).get();
+    } catch (DecoratorChainException e) {
+      if ((e.getCause() instanceof StatusRuntimeException)
+          && ((StatusRuntimeException) e.getCause()).getStatus().getCode().equals(Code.UNKNOWN)) {
+        return false;
+      } else {
+        throw exceptionConverter.convert(e);
+      }
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
   @Override
   public boolean unlock(final Authentication authentication) {
-    return getUnlockFunction().apply(authentication).get();
+    try {
+      return getUnlockFunction().apply(authentication).get();
+    } catch (DecoratorChainException e) {
+      e.printStackTrace();
+      if ((e.getCause() instanceof StatusRuntimeException)
+          && ((StatusRuntimeException) e.getCause()).getStatus().getCode().equals(Code.UNKNOWN)) {
+        return false;
+      } else {
+        throw exceptionConverter.convert(e);
+      }
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
   @Override
   public Transaction sign(final RawTransaction rawTransaction) {
-    return getSignFunction().apply(rawTransaction).get();
+    try {
+      return getSignFunction().apply(rawTransaction).get();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
   @Override
   public AccountAddress importKey(final EncryptedPrivateKey encryptedKey,
       final String oldPassword, final String newPassword) {
-    return getImportKeyFunction().apply(encryptedKey, oldPassword, newPassword).get();
+    try {
+      return getImportKeyFunction().apply(encryptedKey, oldPassword, newPassword).get();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
   @Override
   public EncryptedPrivateKey exportKey(final Authentication authentication) {
-    return getExportKeyFunction().apply(authentication).get();
+    try {
+      return getExportKeyFunction().apply(authentication).get();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
 }

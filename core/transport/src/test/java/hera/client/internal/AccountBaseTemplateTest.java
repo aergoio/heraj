@@ -25,6 +25,7 @@ import hera.api.model.TxHash;
 import hera.key.AergoKeyGenerator;
 import hera.key.Signer;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -50,7 +51,7 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetState() {
+  public void testGetState() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Blockchain.State> mockListenableFuture =
         service.submit(new Callable<Blockchain.State>() {
@@ -63,21 +64,21 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
 
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
 
-    final FinishableFuture<AccountState> accountStateFuture =
+    final Future<AccountState> accountStateFuture =
         accountTemplateBase.getStateFunction().apply(accountAddress);
     assertNotNull(accountStateFuture.get());
   }
 
   @Test
-  public void testCreateName() {
+  public void testCreateName() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
-    future.success(new TxHash(BytesValue.of(randomUUID().toString().getBytes())));
+    final Future<TxHash> future =
+        HerajFutures.success(new TxHash(BytesValue.of(randomUUID().toString().getBytes())));
     TransactionBaseTemplate mockTransactionBaseTemplate = mock(TransactionBaseTemplate.class);
     when(mockTransactionBaseTemplate.getCommitFunction())
-        .thenReturn(new Function1<Transaction, FinishableFuture<TxHash>>() {
+        .thenReturn(new Function1<Transaction, Future<TxHash>>() {
           @Override
-          public FinishableFuture<TxHash> apply(Transaction t) {
+          public Future<TxHash> apply(Transaction t) {
             return future;
           }
         });
@@ -86,21 +87,21 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     accountTemplateBase.transactionBaseTemplate = mockTransactionBaseTemplate;
 
     final Signer key = new AergoKeyGenerator().create();
-    final FinishableFuture<TxHash> nameTxHash =
+    final Future<TxHash> nameTxHash =
         accountTemplateBase.getCreateNameFunction().apply(key, randomUUID().toString(), 0L);
     assertNotNull(nameTxHash.get());
   }
 
   @Test
-  public void testUpdateName() {
+  public void testUpdateName() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
-    future.success(new TxHash(BytesValue.of(randomUUID().toString().getBytes())));
+    final Future<TxHash> future =
+        HerajFutures.success(new TxHash(BytesValue.of(randomUUID().toString().getBytes())));
     TransactionBaseTemplate mockTransactionBaseTemplate = mock(TransactionBaseTemplate.class);
     when(mockTransactionBaseTemplate.getCommitFunction())
-        .thenReturn(new Function1<Transaction, FinishableFuture<TxHash>>() {
+        .thenReturn(new Function1<Transaction, Future<TxHash>>() {
           @Override
-          public FinishableFuture<TxHash> apply(Transaction t) {
+          public Future<TxHash> apply(Transaction t) {
             return future;
           }
         });
@@ -110,13 +111,13 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
 
     final Signer account = new AergoKeyGenerator().create();
     final AccountAddress newOwner = new AergoKeyGenerator().create().getAddress();
-    final FinishableFuture<TxHash> nameTxHash = accountTemplateBase.getUpdateNameFunction()
+    final Future<TxHash> nameTxHash = accountTemplateBase.getUpdateNameFunction()
         .apply(account, randomUUID().toString(), newOwner, 0L);
     assertNotNull(nameTxHash.get());
   }
 
   @Test
-  public void testGetNameOwner() {
+  public void testGetNameOwner() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Rpc.NameInfo> mockListenableFuture =
         service.submit(new Callable<Rpc.NameInfo>() {
@@ -132,21 +133,21 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
     accountTemplateBase.aergoService = aergoService;
 
-    final FinishableFuture<AccountAddress> nameTxHash =
+    final Future<AccountAddress> nameTxHash =
         accountTemplateBase.getGetNameOwnerFunction().apply(randomUUID().toString(), 3L);
     assertNotNull(nameTxHash.get());
   }
 
   @Test
-  public void testStake() {
+  public void testStake() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
-    future.success(new TxHash(BytesValue.of(randomUUID().toString().getBytes())));
+    final Future<TxHash> future =
+        HerajFutures.success(new TxHash(BytesValue.of(randomUUID().toString().getBytes())));
     TransactionBaseTemplate mockTransactionBaseTemplate = mock(TransactionBaseTemplate.class);
     when(mockTransactionBaseTemplate.getCommitFunction())
-        .thenReturn(new Function1<Transaction, FinishableFuture<TxHash>>() {
+        .thenReturn(new Function1<Transaction, Future<TxHash>>() {
           @Override
-          public FinishableFuture<TxHash> apply(Transaction t) {
+          public Future<TxHash> apply(Transaction t) {
             return future;
           }
         });
@@ -155,21 +156,21 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     accountTemplateBase.transactionBaseTemplate = mockTransactionBaseTemplate;
 
     final Signer signer = new AergoKeyGenerator().create();
-    final FinishableFuture<TxHash> staTxHash = accountTemplateBase.getStakingFunction()
+    final Future<TxHash> staTxHash = accountTemplateBase.getStakingFunction()
         .apply(signer, Aer.ONE, 0L);
     assertNotNull(staTxHash.get());
   }
 
   @Test
-  public void testUnstake() {
+  public void testUnstake() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
-    final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
-    future.success(new TxHash(BytesValue.of(randomUUID().toString().getBytes())));
+    final Future<TxHash> future =
+        HerajFutures.success(new TxHash(BytesValue.of(randomUUID().toString().getBytes())));
     TransactionBaseTemplate mockTransactionBaseTemplate = mock(TransactionBaseTemplate.class);
     when(mockTransactionBaseTemplate.getCommitFunction())
-        .thenReturn(new Function1<Transaction, FinishableFuture<TxHash>>() {
+        .thenReturn(new Function1<Transaction, Future<TxHash>>() {
           @Override
-          public FinishableFuture<TxHash> apply(Transaction t) {
+          public Future<TxHash> apply(Transaction t) {
             return future;
           }
         });
@@ -178,13 +179,13 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     accountTemplateBase.transactionBaseTemplate = mockTransactionBaseTemplate;
 
     final Signer signer = new AergoKeyGenerator().create();
-    final FinishableFuture<TxHash> staTxHash =
+    final Future<TxHash> staTxHash =
         accountTemplateBase.getUnstakingFunction().apply(signer, Aer.ONE, 0L);
     assertNotNull(staTxHash.get());
   }
 
   @Test
-  public void testGetStakingInfo() {
+  public void testGetStakingInfo() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Rpc.Staking> mockListenableFuture =
         service.submit(new Callable<Rpc.Staking>() {
@@ -198,7 +199,7 @@ public class AccountBaseTemplateTest extends AbstractTestCase {
     final AccountBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
     accountTemplateBase.aergoService = aergoService;
 
-    final FinishableFuture<StakeInfo> stakingInfo =
+    final Future<StakeInfo> stakingInfo =
         accountTemplateBase.getStakingInfoFunction().apply(accountAddress);
     assertNotNull(stakingInfo.get());
   }

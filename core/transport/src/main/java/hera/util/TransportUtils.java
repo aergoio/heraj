@@ -12,7 +12,7 @@ import hera.api.model.Aer;
 import hera.api.model.BlockHash;
 import hera.api.model.BytesValue;
 import hera.api.model.TxHash;
-import hera.exception.RpcArgumentException;
+import hera.exception.HerajException;
 
 public class TransportUtils {
 
@@ -160,21 +160,6 @@ public class TransportUtils {
    */
   public static String sha256AndEncodeHexa(final byte[] rawBytes) {
     return HexUtils.encode(Sha256Utils.digest(rawBytes));
-  }
-
-  /**
-   * Check a condition and throws {@link RpcArgumentException} if condition isn't fulfilled.
-   *
-   * @param condition condition to check
-   * @param target argument target name
-   * @param requirement argument requirement
-   * @throws RpcArgumentException if condition is false
-   */
-  public static void assertArgument(final boolean condition, final String target,
-      final String requirement) {
-    if (false == condition) {
-      throw new RpcArgumentException(target, requirement);
-    }
   }
 
 }

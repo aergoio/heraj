@@ -4,15 +4,11 @@
 
 package hera.client.internal;
 
-import static com.google.common.util.concurrent.Futures.addCallback;
-import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 import static types.AergoRPCServiceGrpc.newStub;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
@@ -55,6 +51,7 @@ import io.grpc.Context;
 import io.grpc.ManagedChannel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
 import lombok.Getter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -111,298 +108,228 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
   }
 
   @Getter
-  private final Function1<ContractTxHash, FinishableFuture<ContractTxReceipt>> receiptFunction =
-      new Function1<ContractTxHash, FinishableFuture<ContractTxReceipt>>() {
+  private final Function1<ContractTxHash, Future<ContractTxReceipt>> receiptFunction =
+      new Function1<ContractTxHash, Future<ContractTxReceipt>>() {
 
         @Override
-        public hera.client.internal.FinishableFuture<ContractTxReceipt> apply(
+        public Future<ContractTxReceipt> apply(
             final ContractTxHash deployTxHash) {
           logger.debug("Get receipt with txHash: {}", deployTxHash);
 
-          FinishableFuture<ContractTxReceipt> nextFuture =
-              new FinishableFuture<ContractTxReceipt>();
-          try {
-            final Rpc.SingleBytes rpcDeployTxHash = Rpc.SingleBytes.newBuilder()
-                .setValue(copyFrom(deployTxHash.getBytesValue()))
-                .build();
-            logger.trace("AergoService getReceipt arg: {}", rpcDeployTxHash);
+          final Rpc.SingleBytes rpcDeployTxHash = Rpc.SingleBytes.newBuilder()
+              .setValue(copyFrom(deployTxHash.getBytesValue()))
+              .build();
+          logger.trace("AergoService getReceipt arg: {}", rpcDeployTxHash);
 
-            final ListenableFuture<Blockchain.Receipt> listenableFuture =
-                futureService.getReceipt(rpcDeployTxHash);
-            FutureChain<Blockchain.Receipt, ContractTxReceipt> callback =
-                new FutureChain<>(nextFuture);
-            callback.setSuccessHandler(new Function1<Blockchain.Receipt, ContractTxReceipt>() {
+          final Future<Blockchain.Receipt> rawFuture = futureService.getReceipt(rpcDeployTxHash);
+          final Future<ContractTxReceipt> convertedFuture = HerajFutures.transform(rawFuture,
+              new Function1<Blockchain.Receipt, ContractTxReceipt>() {
 
-              @Override
-              public ContractTxReceipt apply(final Blockchain.Receipt receipt) {
-                return receiptConverter.convertToDomainModel(receipt);
-              }
-            });
-            addCallback(listenableFuture, callback, directExecutor());
-          } catch (Exception e) {
-            nextFuture.fail(e);
-          }
-          return nextFuture;
+                @Override
+                public ContractTxReceipt apply(final Blockchain.Receipt receipt) {
+                  return receiptConverter.convertToDomainModel(receipt);
+                }
+              });
+          return convertedFuture;
         }
       };
 
   @Getter
   private final Function4<Signer, ContractDefinition, Long, Fee,
-      FinishableFuture<ContractTxHash>> deployFunction = new Function4<Signer, ContractDefinition,
-          Long, Fee, FinishableFuture<ContractTxHash>>() {
+      Future<ContractTxHash>> deployFunction = new Function4<Signer, ContractDefinition, Long, Fee,
+          Future<ContractTxHash>>() {
 
         @Override
-        public FinishableFuture<ContractTxHash> apply(final Signer signer,
-            final ContractDefinition contractDefinition, final Long nonce,
-            final Fee fee) {
+        public Future<ContractTxHash> apply(final Signer signer,
+            final ContractDefinition contractDefinition, final Long nonce, final Fee fee) {
           logger.debug("Deploy contract with creator: {}, definition: {}, nonce: {}, fee: {}",
               signer, contractDefinition, nonce, fee);
-          try {
-            final RawTransaction rawTransaction = RawTransaction.newDeployContractBuilder()
-                .chainIdHash(contextProvider.get().getChainIdHash())
-                .from(signer.getPrincipal())
-                .nonce(nonce)
-                .definition(contractDefinition)
-                .build();
-            return signAndCommitWithSigner(signer, rawTransaction);
-          } catch (Exception e) {
-            FinishableFuture<ContractTxHash> next = new FinishableFuture<ContractTxHash>();
-            next.fail(e);
-            return next;
-          }
+
+          final RawTransaction rawTransaction = RawTransaction.newDeployContractBuilder()
+              .chainIdHash(contextProvider.get().getChainIdHash())
+              .from(signer.getPrincipal())
+              .nonce(nonce)
+              .definition(contractDefinition)
+              .build();
+          return signAndCommit(signer, rawTransaction);
         }
       };
 
   @Getter
   private final Function5<Signer, ContractAddress, ContractDefinition, Long, Fee,
-      FinishableFuture<ContractTxHash>> reDeployFunction = new Function5<
-          Signer, ContractAddress, ContractDefinition, Long, Fee,
-          FinishableFuture<ContractTxHash>>() {
+      Future<ContractTxHash>> reDeployFunction = new Function5<Signer, ContractAddress,
+          ContractDefinition, Long, Fee, Future<ContractTxHash>>() {
 
         @Override
-        public FinishableFuture<ContractTxHash> apply(final Signer signer,
+        public Future<ContractTxHash> apply(final Signer signer,
             final ContractAddress existingContract, final ContractDefinition contractDefinition,
             final Long nonce, final Fee fee) {
-          logger.debug("Re deploy contract with creator: {}, existing one: {}, "
+          logger.debug("Re-deploy contract with creator: {}, existing one: {}, "
               + "definition: {}, nonce: {}, fee: {}",
               signer, existingContract, contractDefinition, nonce, fee);
-          try {
-            final RawTransaction rawTransaction = RawTransaction.newReDeployContractBuilder()
-                .chainIdHash(contextProvider.get().getChainIdHash())
-                .creator(signer.getPrincipal())
-                .nonce(nonce)
-                .contractAddress(existingContract)
-                .definition(contractDefinition)
-                .build();
-            return signAndCommitWithSigner(signer, rawTransaction);
-          } catch (Exception e) {
-            FinishableFuture<ContractTxHash> next = new FinishableFuture<ContractTxHash>();
-            next.fail(e);
-            return next;
-          }
+          final RawTransaction rawTransaction = RawTransaction.newReDeployContractBuilder()
+              .chainIdHash(contextProvider.get().getChainIdHash())
+              .creator(signer.getPrincipal())
+              .nonce(nonce)
+              .contractAddress(existingContract)
+              .definition(contractDefinition)
+              .build();
+          return signAndCommit(signer, rawTransaction);
         }
       };
 
   @Getter
   private final Function1<ContractAddress,
-      FinishableFuture<ContractInterface>> contractInterfaceFunction = new Function1<
-          ContractAddress, FinishableFuture<ContractInterface>>() {
+      Future<ContractInterface>> contractInterfaceFunction = new Function1<
+          ContractAddress, Future<ContractInterface>>() {
 
         @Override
-        public FinishableFuture<ContractInterface> apply(
+        public Future<ContractInterface> apply(
             final ContractAddress contractAddress) {
           logger.debug("Get contract interface with contract address: {}", contractAddress);
 
-          FinishableFuture<ContractInterface> nextFuture =
-              new FinishableFuture<ContractInterface>();
-          try {
-            final Rpc.SingleBytes rpcContractAddress = Rpc.SingleBytes.newBuilder()
-                .setValue(accountAddressConverter.convertToRpcModel(contractAddress))
-                .build();
-            logger.trace("AergoService getABI arg: {}", rpcContractAddress);
+          final Rpc.SingleBytes rpcContractAddress = Rpc.SingleBytes.newBuilder()
+              .setValue(accountAddressConverter.convertToRpcModel(contractAddress))
+              .build();
+          logger.trace("AergoService getABI arg: {}", rpcContractAddress);
 
-            final ListenableFuture<Blockchain.ABI> listenableFuture =
-                futureService.getABI(rpcContractAddress);
-            FutureChain<Blockchain.ABI, ContractInterface> callback = new FutureChain<>(nextFuture);
-            callback.setSuccessHandler(new Function1<Blockchain.ABI, ContractInterface>() {
+          final Future<Blockchain.ABI> rawFuture = futureService.getABI(rpcContractAddress);
+          final Future<ContractInterface> convertedFuture = HerajFutures.transform(rawFuture,
+              new Function1<Blockchain.ABI, ContractInterface>() {
 
-              @Override
-              public ContractInterface apply(final Blockchain.ABI abi) {
-                final ContractInterface withoutAddress =
-                    contractInterfaceConverter.convertToDomainModel(abi);
-                return new ContractInterface(contractAddress, withoutAddress.getVersion(),
-                    withoutAddress.getLanguage(), withoutAddress.getFunctions(),
-                    withoutAddress.getStateVariables());
-              }
-            });
-            addCallback(listenableFuture, callback, directExecutor());
-          } catch (Exception e) {
-            nextFuture.fail(e);
-          }
-          return nextFuture;
+                @Override
+                public ContractInterface apply(final Blockchain.ABI abi) {
+                  final ContractInterface withoutAddress =
+                      contractInterfaceConverter.convertToDomainModel(abi);
+                  return new ContractInterface(contractAddress, withoutAddress.getVersion(),
+                      withoutAddress.getLanguage(), withoutAddress.getFunctions(),
+                      withoutAddress.getStateVariables());
+                }
+              });
+          return convertedFuture;
         }
       };
 
   @Getter
   private final Function4<Signer, ContractInvocation, Long, Fee,
-      FinishableFuture<ContractTxHash>> executeFunction = new Function4<Signer, ContractInvocation,
-          Long, Fee, FinishableFuture<ContractTxHash>>() {
+      Future<ContractTxHash>> executeFunction = new Function4<Signer, ContractInvocation,
+          Long, Fee, Future<ContractTxHash>>() {
 
         @Override
-        public FinishableFuture<ContractTxHash> apply(final Signer signer,
+        public Future<ContractTxHash> apply(final Signer signer,
             final ContractInvocation contractInvocation, final Long nonce,
             final Fee fee) {
           logger.debug("Execute contract with executor: {}, invocation: {}, nonce: {}, fee: {}",
               signer.getPrincipal(), contractInvocation, nonce, fee);
-          try {
-            final RawTransaction rawTransaction = RawTransaction.newInvokeContractBuilder()
-                .chainIdHash(contextProvider.get().getChainIdHash())
-                .from(signer.getPrincipal())
-                .nonce(nonce)
-                .invocation(contractInvocation)
-                .build();
-            return signAndCommitWithSigner(signer, rawTransaction);
-          } catch (Exception e) {
-            FinishableFuture<ContractTxHash> next = new FinishableFuture<ContractTxHash>();
-            next.fail(e);
-            return next;
-          }
+          final RawTransaction rawTransaction = RawTransaction.newInvokeContractBuilder()
+              .chainIdHash(contextProvider.get().getChainIdHash())
+              .from(signer.getPrincipal())
+              .nonce(nonce)
+              .invocation(contractInvocation)
+              .build();
+          return signAndCommit(signer, rawTransaction);
         }
       };
 
-  protected FinishableFuture<ContractTxHash> signAndCommitWithSigner(final Signer signer,
+  protected Future<ContractTxHash> signAndCommit(final Signer signer,
       final RawTransaction rawTransaction) {
-    final FinishableFuture<ContractTxHash> contractTxHash = new FinishableFuture<ContractTxHash>();
-
     final Transaction signed = signer.sign(rawTransaction);
-    final FinishableFuture<TxHash> txHash =
-        transactionBaseTemplate.getCommitFunction().apply(signed);
-    addCallback(txHash, new FutureCallback<TxHash>() {
+    final Future<TxHash> txHashFuture = transactionBaseTemplate.getCommitFunction().apply(signed);
+    return HerajFutures.transform(txHashFuture, new Function1<TxHash, ContractTxHash>() {
 
       @Override
-      public void onSuccess(final TxHash signed) {
-        try {
-          contractTxHash.success(signed.adapt(ContractTxHash.class));
-        } catch (Exception e) {
-          contractTxHash.fail(e);
-        }
+      public ContractTxHash apply(final TxHash txHash) {
+        return txHash.adapt(ContractTxHash.class);
       }
-
-      @Override
-      public void onFailure(final Throwable t) {
-        contractTxHash.fail(t);
-      }
-    }, directExecutor());
-
-    return contractTxHash;
+    });
   }
 
   @Getter
-  private final Function1<ContractInvocation, FinishableFuture<ContractResult>> queryFunction =
-      new Function1<ContractInvocation, FinishableFuture<ContractResult>>() {
+  private final Function1<ContractInvocation, Future<
+      ContractResult>> queryFunction = new Function1<ContractInvocation, Future<ContractResult>>() {
 
         @Override
-        public FinishableFuture<ContractResult> apply(final ContractInvocation contractInvocation) {
+        public Future<ContractResult> apply(final ContractInvocation contractInvocation) {
           logger.debug("Query contract with invocation: {}", contractInvocation);
 
-          final FinishableFuture<ContractResult> nextFuture =
-              new FinishableFuture<ContractResult>();
-          try {
-            final ByteString rpcContractAddress =
-                accountAddressConverter.convertToRpcModel(contractInvocation.getAddress());
-            final BytesValue rpcContractInvocation =
-                PayloadResolver.resolve(Type.ContractInvocation, contractInvocation);
-            final Blockchain.Query rpcQuery = Blockchain.Query.newBuilder()
-                .setContractAddress(rpcContractAddress)
-                .setQueryinfo(copyFrom(rpcContractInvocation))
-                .build();
-            logger.trace("AergoService queryContract arg: {}", rpcQuery);
+          final ByteString rpcContractAddress =
+              accountAddressConverter.convertToRpcModel(contractInvocation.getAddress());
+          final BytesValue rpcContractInvocation =
+              PayloadResolver.resolve(Type.ContractInvocation, contractInvocation);
+          final Blockchain.Query rpcQuery = Blockchain.Query.newBuilder()
+              .setContractAddress(rpcContractAddress)
+              .setQueryinfo(copyFrom(rpcContractInvocation))
+              .build();
+          logger.trace("AergoService queryContract arg: {}", rpcQuery);
 
-            final ListenableFuture<Rpc.SingleBytes> listenableFuture =
-                futureService.queryContract(rpcQuery);
-            FutureChain<Rpc.SingleBytes, ContractResult> callback = new FutureChain<>(nextFuture);
-            callback.setSuccessHandler(new Function1<Rpc.SingleBytes, ContractResult>() {
+          final Future<Rpc.SingleBytes> rawFuture = futureService.queryContract(rpcQuery);
+          final Future<ContractResult> convertedFuture = HerajFutures.transform(rawFuture,
+              new Function1<Rpc.SingleBytes, ContractResult>() {
 
-              @Override
-              public ContractResult apply(final Rpc.SingleBytes rawQueryResult) {
-                return contractResultConverter.convertToDomainModel(rawQueryResult);
-              }
-            });
-            addCallback(listenableFuture, callback, directExecutor());
-          } catch (Exception e) {
-            nextFuture.fail(e);
-          }
-          return nextFuture;
+                @Override
+                public ContractResult apply(final Rpc.SingleBytes rawQueryResult) {
+                  return contractResultConverter.convertToDomainModel(rawQueryResult);
+                }
+              });
+          return convertedFuture;
         }
       };
 
   @Getter
-  private final Function1<EventFilter, FinishableFuture<List<Event>>> listEventFunction =
-      new Function1<EventFilter, FinishableFuture<List<Event>>>() {
+  private final Function1<EventFilter,
+      Future<List<Event>>> listEventFunction = new Function1<EventFilter, Future<List<Event>>>() {
 
         @Override
-        public FinishableFuture<List<Event>> apply(final EventFilter eventFilter) {
+        public Future<List<Event>> apply(final EventFilter eventFilter) {
           logger.debug("List event with filter: {}", eventFilter);
 
-          final FinishableFuture<List<Event>> nextFuture =
-              new FinishableFuture<List<Event>>();
-          try {
-            final Blockchain.FilterInfo rpcEventFilter =
-                eventFilterConverter.convertToRpcModel(eventFilter);
-            logger.trace("AergoService listEvents arg: {}", rpcEventFilter);
+          final Blockchain.FilterInfo rpcEventFilter =
+              eventFilterConverter.convertToRpcModel(eventFilter);
+          logger.trace("AergoService listEvents arg: {}", rpcEventFilter);
 
-            final ListenableFuture<Rpc.EventList> listenableFuture =
-                futureService.listEvents(rpcEventFilter);
-            FutureChain<Rpc.EventList, List<Event>> callback = new FutureChain<>(nextFuture);
-            callback.setSuccessHandler(new Function1<Rpc.EventList, List<Event>>() {
+          final Future<Rpc.EventList> rawFuture = futureService.listEvents(rpcEventFilter);
+          final Future<List<Event>> convertedFuture =
+              HerajFutures.transform(rawFuture, new Function1<Rpc.EventList, List<Event>>() {
 
-              @Override
-              public List<Event> apply(final Rpc.EventList rawEventList) {
-                final List<Event> domainEvents = new ArrayList<Event>();
-                for (Blockchain.Event rpcEvent : rawEventList.getEventsList()) {
-                  domainEvents.add(eventConverter.convertToDomainModel(rpcEvent));
+                @Override
+                public List<Event> apply(final Rpc.EventList rawEventList) {
+                  final List<Event> domainEvents = new ArrayList<>();
+                  for (final Blockchain.Event rpcEvent : rawEventList.getEventsList()) {
+                    domainEvents.add(eventConverter.convertToDomainModel(rpcEvent));
+                  }
+                  return domainEvents;
                 }
-                return domainEvents;
-              }
-            });
-            addCallback(listenableFuture, callback, directExecutor());
-          } catch (Exception e) {
-            nextFuture.fail(e);
-          }
-          return nextFuture;
+              });
+          return convertedFuture;
         }
       };
 
   @Getter
   private final Function2<EventFilter, hera.api.model.StreamObserver<Event>,
-      FinishableFuture<Subscription<Event>>> subscribeEventFunction = new Function2<EventFilter,
-          hera.api.model.StreamObserver<Event>, FinishableFuture<Subscription<Event>>>() {
+      Future<Subscription<Event>>> subscribeEventFunction = new Function2<EventFilter,
+          hera.api.model.StreamObserver<Event>, Future<Subscription<Event>>>() {
 
         @Override
-        public FinishableFuture<Subscription<Event>> apply(final EventFilter filter,
+        public Future<Subscription<Event>> apply(final EventFilter filter,
             final hera.api.model.StreamObserver<Event> observer) {
           logger.debug("Event subsribe with filter: {}, observer: {}", filter, observer);
 
-          final FinishableFuture<Subscription<Event>> nextFuture = new FinishableFuture<>();
-          try {
-            final Blockchain.FilterInfo filterInfo = eventFilterConverter.convertToRpcModel(filter);
-            Context.CancellableContext cancellableContext = Context.current().withCancellation();
-            final io.grpc.stub.StreamObserver<Blockchain.Event> adaptor =
-                new GrpcStreamObserverAdaptor<Blockchain.Event, Event>(cancellableContext, observer,
-                    eventConverter);
-            cancellableContext.run(new Runnable() {
-              @Override
-              public void run() {
-                streamService.listEventStream(filterInfo, adaptor);
-              }
-            });
+          final Blockchain.FilterInfo filterInfo =
+              eventFilterConverter.convertToRpcModel(filter);
+          Context.CancellableContext cancellableContext =
+              Context.current().withCancellation();
+          final io.grpc.stub.StreamObserver<Blockchain.Event> adaptor =
+              new GrpcStreamObserverAdaptor<Blockchain.Event, Event>(cancellableContext,
+                  observer, eventConverter);
+          cancellableContext.run(new Runnable() {
+            @Override
+            public void run() {
+              streamService.listEventStream(filterInfo, adaptor);
+            }
+          });
 
-            nextFuture.success(new GrpcStreamSubscription<Event>(cancellableContext));
-          } catch (Exception e) {
-            nextFuture.fail(e);
-          }
-
-          return nextFuture;
+          final Subscription<Event> subscription = new GrpcStreamSubscription<>(cancellableContext);
+          return HerajFutures.success(subscription);
         }
       };
 

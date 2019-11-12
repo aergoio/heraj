@@ -37,12 +37,15 @@ import hera.api.model.Fee;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.client.internal.ContractBaseTemplate;
-import hera.client.internal.FinishableFuture;
+import hera.exception.RpcException;
+import hera.exception.RpcExceptionConverter;
 import hera.key.Signer;
 import hera.strategy.PriorityProvider;
 import hera.strategy.StrategyApplier;
+import hera.util.ExceptionConverter;
 import io.grpc.ManagedChannel;
 import java.util.List;
+import java.util.concurrent.Future;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -51,7 +54,8 @@ import lombok.Getter;
 public class ContractTemplate
     implements ContractOperation, ChannelInjectable, ContextProviderInjectable {
 
-  @Getter
+  protected final ExceptionConverter<RpcException> exceptionConverter = new RpcExceptionConverter();
+
   protected ContractBaseTemplate contractBaseTemplate = new ContractBaseTemplate();
 
   protected ContextProvider contextProvider;
@@ -62,62 +66,66 @@ public class ContractTemplate
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-    getContractBaseTemplate().setChannel(channel);
+    this.contractBaseTemplate.setChannel(channel);
   }
 
   @Override
   public void setContextProvider(final ContextProvider contextProvider) {
     this.contextProvider = contextProvider;
-    getContractBaseTemplate().setContextProvider(contextProvider);
+    this.contractBaseTemplate.setContextProvider(contextProvider);
   }
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<ContractTxHash,
-      FinishableFuture<ContractTxReceipt>> receiptFunction = getStrategyApplier().apply(
+      Future<ContractTxReceipt>> receiptFunction = getStrategyApplier().apply(
           identify(contractBaseTemplate.getReceiptFunction(), CONTRACT_GETRECEIPT));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function4<Signer, ContractDefinition, Long, Fee,
-      FinishableFuture<ContractTxHash>> deployFunction =
+      Future<ContractTxHash>> deployFunction =
           getStrategyApplier()
               .apply(identify(contractBaseTemplate.getDeployFunction(), CONTRACT_DEPLOY));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function5<Signer, ContractAddress, ContractDefinition, Long, Fee,
-      FinishableFuture<ContractTxHash>> reDeployFunction =
+      Future<ContractTxHash>> reDeployFunction =
           getStrategyApplier()
               .apply(identify(contractBaseTemplate.getReDeployFunction(), CONTRACT_REDEPLOY));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<ContractAddress,
-      FinishableFuture<ContractInterface>> contractInterfaceFunction =
+      Future<ContractInterface>> contractInterfaceFunction =
           getStrategyApplier().apply(identify(contractBaseTemplate.getContractInterfaceFunction(),
               CONTRACT_GETINTERFACE));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function4<Signer, ContractInvocation, Long, Fee,
-      FinishableFuture<ContractTxHash>> executeFunction =
+      Future<ContractTxHash>> executeFunction =
           getStrategyApplier()
               .apply(identify(contractBaseTemplate.getExecuteFunction(), CONTRACT_EXECUTE));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<ContractInvocation, FinishableFuture<ContractResult>> queryFunction =
+  private final Function1<ContractInvocation, Future<ContractResult>> queryFunction =
       getStrategyApplier().apply(identify(contractBaseTemplate.getQueryFunction(), CONTRACT_QUERY));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<EventFilter, FinishableFuture<List<Event>>> listEventFunction =
+  private final Function1<EventFilter, Future<List<Event>>> listEventFunction =
       getStrategyApplier()
           .apply(identify(contractBaseTemplate.getListEventFunction(), CONTRACT_LIST_EVENT));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function2<EventFilter, StreamObserver<Event>,
-      FinishableFuture<Subscription<Event>>> subscribeEventFunction =
+      Future<Subscription<Event>>> subscribeEventFunction =
           getStrategyApplier().apply(
               identify(contractBaseTemplate.getSubscribeEventFunction(), CONTRACT_SUBSCRIBE_EVENT));
 
   @Override
   public ContractTxReceipt getReceipt(final ContractTxHash contractTxHash) {
-    return getReceiptFunction().apply(contractTxHash).get();
+    try {
+      return getReceiptFunction().apply(contractTxHash).get();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
   @Override
@@ -129,26 +137,40 @@ public class ContractTemplate
   @Override
   public ContractTxHash deploy(final Account creator, final ContractDefinition contractDefinition,
       final long nonce, final Fee fee) {
+    if (null == creator.getKey()) {
+      throw new UnsupportedOperationException();
+    }
     return deploy(creator.getKey(), contractDefinition, nonce, fee);
   }
 
   @Override
   public ContractTxHash deploy(final Signer signer, final ContractDefinition contractDefinition,
       final long nonce, final Fee fee) {
-    return getDeployFunction().apply(signer, contractDefinition, nonce, fee).get();
+    try {
+      return getDeployFunction().apply(signer, contractDefinition, nonce, fee).get();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
   @Override
   public ContractTxHash redeploy(final Signer signer, final ContractAddress existingContract,
       final ContractDefinition contractDefinition, final long nonce, final Fee fee) {
-    return getReDeployFunction().apply(signer, existingContract, contractDefinition, nonce, fee)
-        .get();
+    try {
+      return getReDeployFunction().apply(signer, existingContract, contractDefinition, nonce, fee)
+          .get();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
   @Override
-  public ContractInterface getContractInterface(
-      final ContractAddress contractAddress) {
-    return getContractInterfaceFunction().apply(contractAddress).get();
+  public ContractInterface getContractInterface(final ContractAddress contractAddress) {
+    try {
+      return getContractInterfaceFunction().apply(contractAddress).get();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
   @Override
@@ -160,28 +182,48 @@ public class ContractTemplate
   @Override
   public ContractTxHash execute(final Account executor, final ContractInvocation contractInvocation,
       final long nonce, final Fee fee) {
+    if (null == executor.getKey()) {
+      throw new UnsupportedOperationException();
+    }
     return execute(executor.getKey(), contractInvocation, nonce, fee);
   }
 
   @Override
   public ContractTxHash execute(final Signer signer, final ContractInvocation contractInvocation,
       final long nonce, final Fee fee) {
-    return getExecuteFunction().apply(signer, contractInvocation, nonce, fee).get();
+    try {
+      return getExecuteFunction().apply(signer, contractInvocation, nonce, fee).get();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
   @Override
   public ContractResult query(final ContractInvocation contractInvocation) {
-    return getQueryFunction().apply(contractInvocation).get();
+    try {
+      return getQueryFunction().apply(contractInvocation).get();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
   @Override
   public List<Event> listEvents(final EventFilter filter) {
-    return getListEventFunction().apply(filter).get();
+    try {
+      return getListEventFunction().apply(filter).get();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
   @Override
-  public Subscription<Event> subscribeEvent(EventFilter filter, StreamObserver<Event> observer) {
-    return getSubscribeEventFunction().apply(filter, observer).get();
+  public Subscription<Event> subscribeEvent(final EventFilter filter,
+      final StreamObserver<Event> observer) {
+    try {
+      return getSubscribeEventFunction().apply(filter, observer).get();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
 }

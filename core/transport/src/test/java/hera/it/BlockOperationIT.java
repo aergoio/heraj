@@ -17,7 +17,6 @@ import hera.api.model.BlockMetadata;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
-import hera.exception.RpcArgumentException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import org.junit.Test;
@@ -74,7 +73,7 @@ public class BlockOperationIT extends AbstractIT {
       // when
       aergoClient.getBlockOperation().getBlockMetadata(height);
       fail();
-    } catch (Exception e) {
+    } catch (AssertionError | Exception e) {
       // then
     }
   }
@@ -118,7 +117,7 @@ public class BlockOperationIT extends AbstractIT {
       // when
       aergoClient.getBlockOperation().listBlockMetadatas(hash, -1);
       fail();
-    } catch (Exception e) {
+    } catch (AssertionError e) {
       // then
     }
   }
@@ -147,7 +146,7 @@ public class BlockOperationIT extends AbstractIT {
       // when
       aergoClient.getBlockOperation().listBlockMetadatas(height, 10);
       fail();
-    } catch (Exception e) {
+    } catch (AssertionError | Exception e) {
       // then
     }
   }
@@ -162,7 +161,7 @@ public class BlockOperationIT extends AbstractIT {
       // when
       aergoClient.getBlockOperation().listBlockMetadatas(height, -1);
       fail();
-    } catch (Exception e) {
+    } catch (AssertionError e) {
       // then
     }
   }
@@ -182,7 +181,7 @@ public class BlockOperationIT extends AbstractIT {
     try {
       aergoClient.getBlockOperation().listBlockMetadatas(status.getBestBlockHash(), -1);
       fail();
-    } catch (RpcArgumentException e) {
+    } catch (AssertionError e) {
       // good we expected this
     }
 
@@ -196,14 +195,14 @@ public class BlockOperationIT extends AbstractIT {
     try {
       aergoClient.getBlockOperation().listBlockMetadatas(-1, 1);
       fail();
-    } catch (RpcArgumentException e) {
+    } catch (AssertionError e) {
       // good we expected this
     }
 
     try {
       aergoClient.getBlockOperation().listBlockMetadatas(status.getBestHeight(), -1);
       fail();
-    } catch (RpcArgumentException e) {
+    } catch (AssertionError e) {
       // good we expected this
     }
   }

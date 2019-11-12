@@ -25,10 +25,11 @@ import hera.api.function.WithIdentity;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
-import hera.client.internal.FinishableFuture;
+import hera.client.internal.HerajFutures;
 import hera.client.internal.KeyStoreBaseTemplate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
@@ -53,13 +54,12 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
   @Test
   public void testList() {
     final KeyStoreBaseTemplate base = mock(KeyStoreBaseTemplate.class);
-    final FinishableFuture<List<AccountAddress>> future =
-        new FinishableFuture<List<AccountAddress>>();
-    future.success(new ArrayList<AccountAddress>());
+    final List<AccountAddress> list = new ArrayList<AccountAddress>();
+    final Future<List<AccountAddress>> future = HerajFutures.success(list);
     when(base.getListFunction())
-        .thenReturn(new Function0<FinishableFuture<List<AccountAddress>>>() {
+        .thenReturn(new Function0<Future<List<AccountAddress>>>() {
           @Override
-          public FinishableFuture<List<AccountAddress>> apply() {
+          public Future<List<AccountAddress>> apply() {
             return future;
           }
         });
@@ -74,13 +74,11 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
   @Test
   public void testCreate() {
     final KeyStoreBaseTemplate base = mock(KeyStoreBaseTemplate.class);
-    final AccountAddress mockAccount = mock(AccountAddress.class);
-    final FinishableFuture<AccountAddress> future = new FinishableFuture<AccountAddress>();
-    future.success(mockAccount);
+    final Future<AccountAddress> future = HerajFutures.success(AccountAddress.EMPTY);
     when(base.getCreateFunction())
-        .thenReturn(new Function1<String, FinishableFuture<AccountAddress>>() {
+        .thenReturn(new Function1<String, Future<AccountAddress>>() {
           @Override
-          public FinishableFuture<AccountAddress> apply(String t) {
+          public Future<AccountAddress> apply(String t) {
             return future;
           }
         });
@@ -96,12 +94,11 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
   @Test
   public void testLock() {
     final KeyStoreBaseTemplate base = mock(KeyStoreBaseTemplate.class);
-    final FinishableFuture<Boolean> future = new FinishableFuture<Boolean>();
-    future.success(true);
+    final Future<Boolean> future = HerajFutures.success(true);
     when(base.getLockFunction())
-        .thenReturn(new Function1<Authentication, FinishableFuture<Boolean>>() {
+        .thenReturn(new Function1<Authentication, Future<Boolean>>() {
           @Override
-          public FinishableFuture<Boolean> apply(Authentication t) {
+          public Future<Boolean> apply(Authentication t) {
             return future;
           }
         });
@@ -117,12 +114,11 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
   @Test
   public void testUnlock() {
     final KeyStoreBaseTemplate base = mock(KeyStoreBaseTemplate.class);
-    final FinishableFuture<Boolean> future = new FinishableFuture<Boolean>();
-    future.success(true);
+    final Future<Boolean> future = HerajFutures.success(true);
     when(base.getUnlockFunction())
-        .thenReturn(new Function1<Authentication, FinishableFuture<Boolean>>() {
+        .thenReturn(new Function1<Authentication, Future<Boolean>>() {
           @Override
-          public FinishableFuture<Boolean> apply(Authentication t) {
+          public Future<Boolean> apply(Authentication t) {
             return future;
           }
         });
@@ -139,13 +135,11 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
   @Test
   public void testImportKey() {
     final KeyStoreBaseTemplate base = mock(KeyStoreBaseTemplate.class);
-    final AccountAddress mockAccount = mock(AccountAddress.class);
-    final FinishableFuture<AccountAddress> future = new FinishableFuture<AccountAddress>();
-    future.success(mockAccount);
+    final Future<AccountAddress> future = HerajFutures.success(AccountAddress.EMPTY);
     when(base.getImportKeyFunction()).thenReturn(
-        new Function3<EncryptedPrivateKey, String, String, FinishableFuture<AccountAddress>>() {
+        new Function3<EncryptedPrivateKey, String, String, Future<AccountAddress>>() {
           @Override
-          public FinishableFuture<AccountAddress> apply(EncryptedPrivateKey t1, String t2,
+          public Future<AccountAddress> apply(EncryptedPrivateKey t1, String t2,
               String t3) {
             return future;
           }
@@ -164,13 +158,11 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
   public void testExportKey() {
     final KeyStoreBaseTemplate base = mock(KeyStoreBaseTemplate.class);
     final EncryptedPrivateKey mockEncryptedKey = mock(EncryptedPrivateKey.class);
-    final FinishableFuture<EncryptedPrivateKey> future =
-        new FinishableFuture<EncryptedPrivateKey>();
-    future.success(mockEncryptedKey);
+    final Future<EncryptedPrivateKey> future = HerajFutures.success(mockEncryptedKey);
     when(base.getExportKeyFunction())
-        .thenReturn(new Function1<Authentication, FinishableFuture<EncryptedPrivateKey>>() {
+        .thenReturn(new Function1<Authentication, Future<EncryptedPrivateKey>>() {
           @Override
-          public FinishableFuture<EncryptedPrivateKey> apply(Authentication t) {
+          public Future<EncryptedPrivateKey> apply(Authentication t) {
             return future;
           }
         });

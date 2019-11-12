@@ -30,9 +30,10 @@ import hera.api.model.BlockMetadata;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.client.internal.BlockBaseTemplate;
-import hera.client.internal.FinishableFuture;
+import hera.client.internal.HerajFutures;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -56,12 +57,11 @@ public class BlockTemplateTest extends AbstractTestCase {
   @Test
   public void testGetBlockMetadataByHash() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
-    final FinishableFuture<BlockMetadata> future = new FinishableFuture<BlockMetadata>();
-    future.success(BlockMetadata.newBuilder().build());
+    final Future<BlockMetadata> future = HerajFutures.success(BlockMetadata.newBuilder().build());
     when(base.getBlockMetatdataByHashFunction())
-        .thenReturn(new Function1<BlockHash, FinishableFuture<BlockMetadata>>() {
+        .thenReturn(new Function1<BlockHash, Future<BlockMetadata>>() {
           @Override
-          public FinishableFuture<BlockMetadata> apply(BlockHash t) {
+          public Future<BlockMetadata> apply(BlockHash t) {
             return future;
           }
         });
@@ -78,12 +78,11 @@ public class BlockTemplateTest extends AbstractTestCase {
   @Test
   public void testGetBlockMetadataByHeight() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
-    final FinishableFuture<BlockMetadata> future = new FinishableFuture<BlockMetadata>();
-    future.success(BlockMetadata.newBuilder().build());
+    final Future<BlockMetadata> future = HerajFutures.success(BlockMetadata.newBuilder().build());
     when(base.getBlockMetadataByHeightFunction())
-        .thenReturn(new Function1<Long, FinishableFuture<BlockMetadata>>() {
+        .thenReturn(new Function1<Long, Future<BlockMetadata>>() {
           @Override
-          public FinishableFuture<BlockMetadata> apply(Long t) {
+          public Future<BlockMetadata> apply(Long t) {
             return future;
           }
         });
@@ -100,13 +99,12 @@ public class BlockTemplateTest extends AbstractTestCase {
   @Test
   public void testListBlockMetadatasByHash() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
-    final FinishableFuture<List<BlockMetadata>> future =
-        new FinishableFuture<List<BlockMetadata>>();
-    future.success(new ArrayList<BlockMetadata>());
+    final List<BlockMetadata> list = new ArrayList<BlockMetadata>();
+    final Future<List<BlockMetadata>> future = HerajFutures.success(list);
     when(base.getListBlockMetadatasByHashFunction())
-        .thenReturn(new Function2<BlockHash, Integer, FinishableFuture<List<BlockMetadata>>>() {
+        .thenReturn(new Function2<BlockHash, Integer, Future<List<BlockMetadata>>>() {
           @Override
-          public FinishableFuture<List<BlockMetadata>> apply(BlockHash t1, Integer t2) {
+          public Future<List<BlockMetadata>> apply(BlockHash t1, Integer t2) {
             return future;
           }
         });
@@ -123,13 +121,12 @@ public class BlockTemplateTest extends AbstractTestCase {
   @Test
   public void testListBlockMetadatasByHeight() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
-    final FinishableFuture<List<BlockMetadata>> future =
-        new FinishableFuture<List<BlockMetadata>>();
-    future.success(new ArrayList<BlockMetadata>());
+    final List<BlockMetadata> list = new ArrayList<BlockMetadata>();
+    final Future<List<BlockMetadata>> future = HerajFutures.success(list);
     when(base.getListBlockMetadatasByHeightFunction())
-        .thenReturn(new Function2<Long, Integer, FinishableFuture<List<BlockMetadata>>>() {
+        .thenReturn(new Function2<Long, Integer, Future<List<BlockMetadata>>>() {
           @Override
-          public FinishableFuture<List<BlockMetadata>> apply(Long t1, Integer t2) {
+          public Future<List<BlockMetadata>> apply(Long t1, Integer t2) {
             return future;
           }
         });
@@ -146,12 +143,11 @@ public class BlockTemplateTest extends AbstractTestCase {
   @Test
   public void testGetBlockByHash() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
-    final FinishableFuture<Block> future = new FinishableFuture<Block>();
-    future.success(Block.newBuilder().build());
+    final Future<Block> future = HerajFutures.success(Block.newBuilder().build());
     when(base.getBlockByHashFunction())
-        .thenReturn(new Function1<BlockHash, FinishableFuture<Block>>() {
+        .thenReturn(new Function1<BlockHash, Future<Block>>() {
           @Override
-          public FinishableFuture<Block> apply(BlockHash t) {
+          public Future<Block> apply(BlockHash t) {
             return future;
           }
         });
@@ -168,12 +164,11 @@ public class BlockTemplateTest extends AbstractTestCase {
   @Test
   public void testGetBlockByHeight() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
-    final FinishableFuture<Block> future = new FinishableFuture<Block>();
-    future.success(Block.newBuilder().build());
+    final Future<Block> future = HerajFutures.success(Block.newBuilder().build());
     when(base.getBlockByHeightFunction())
-        .thenReturn(new Function1<Long, FinishableFuture<Block>>() {
+        .thenReturn(new Function1<Long, Future<Block>>() {
           @Override
-          public FinishableFuture<Block> apply(Long t) {
+          public Future<Block> apply(Long t) {
             return future;
           }
         });
@@ -191,14 +186,13 @@ public class BlockTemplateTest extends AbstractTestCase {
   public void testSubscribeBlockMetadata() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
     final Subscription<BlockMetadata> mockSubscription = mock(Subscription.class);
-    final FinishableFuture<Subscription<BlockMetadata>> future = new FinishableFuture<>();
-    future.success(mockSubscription);
+    final Future<Subscription<BlockMetadata>> future = HerajFutures.success(mockSubscription);
     when(base.getSubscribeBlockMetadataFunction())
         .thenReturn(new Function1<StreamObserver<BlockMetadata>,
-            FinishableFuture<Subscription<BlockMetadata>>>() {
+            Future<Subscription<BlockMetadata>>>() {
 
           @Override
-          public FinishableFuture<Subscription<BlockMetadata>> apply(
+          public Future<Subscription<BlockMetadata>> apply(
               StreamObserver<BlockMetadata> t2) {
             return future;
           }
@@ -217,13 +211,12 @@ public class BlockTemplateTest extends AbstractTestCase {
   public void testSubscribeBlock() {
     final BlockBaseTemplate base = mock(BlockBaseTemplate.class);
     final Subscription<Block> mockSubscription = mock(Subscription.class);
-    final FinishableFuture<Subscription<Block>> future = new FinishableFuture<>();
-    future.success(mockSubscription);
+    final Future<Subscription<Block>> future = HerajFutures.success(mockSubscription);
     when(base.getSubscribeBlockFunction())
-        .thenReturn(new Function1<StreamObserver<Block>, FinishableFuture<Subscription<Block>>>() {
+        .thenReturn(new Function1<StreamObserver<Block>, Future<Subscription<Block>>>() {
 
           @Override
-          public FinishableFuture<Subscription<Block>> apply(StreamObserver<Block> t2) {
+          public Future<Subscription<Block>> apply(StreamObserver<Block> t2) {
             return future;
           }
         });

@@ -35,10 +35,13 @@ public class RpcCommitException extends RpcException {
   /**
    * Make a {@code CommitException} with rpc {@link types.Rpc.CommitStatus}.
    *
-   * @param rpcCommitStatus rpc commit status
-   * @param message a message
+   * @param internalCommitException an internal commit exception
    */
-  public RpcCommitException(final types.Rpc.CommitStatus rpcCommitStatus, final String message) {
+  public RpcCommitException(final InternalCommitException internalCommitException) {
+    super(internalCommitException);
+
+    final types.Rpc.CommitStatus rpcCommitStatus = internalCommitException.getCommitStatus();
+    this.message = internalCommitException.getMessage();
     switch (rpcCommitStatus) {
       case TX_OK:
         this.commitStatus = CommitStatus.OK;
@@ -71,7 +74,6 @@ public class RpcCommitException extends RpcException {
         this.commitStatus = CommitStatus.UNRECOGNIZED;
         break;
     }
-    this.message = message;
   }
 
   @Override

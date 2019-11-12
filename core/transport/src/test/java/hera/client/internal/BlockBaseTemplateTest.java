@@ -20,6 +20,7 @@ import hera.api.model.BlockMetadata;
 import hera.api.model.Subscription;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -52,7 +53,7 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetBlockMetadataByHash() {
+  public void testGetBlockMetadataByHash() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Rpc.BlockMetadata> mockListenableFuture =
         service.submit(new Callable<Rpc.BlockMetadata>() {
@@ -66,14 +67,14 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
 
     final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(aergoService);
 
-    final FinishableFuture<BlockMetadata> blockMetadata =
+    final Future<BlockMetadata> blockMetadata =
         blockBaseTemplate.getBlockMetatdataByHashFunction()
             .apply(new BlockHash(of(randomUUID().toString().getBytes())));
     assertNotNull(blockMetadata.get());
   }
 
   @Test
-  public void testGetBlockMetadataByHeight() {
+  public void testGetBlockMetadataByHeight() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Rpc.BlockMetadata> mockListenableFuture =
         service.submit(new Callable<Rpc.BlockMetadata>() {
@@ -87,13 +88,13 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
 
     final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(aergoService);
 
-    final FinishableFuture<BlockMetadata> blockMetadata =
+    final Future<BlockMetadata> blockMetadata =
         blockBaseTemplate.getBlockMetadataByHeightFunction().apply(10L);
     assertNotNull(blockMetadata.get());
   }
 
   @Test
-  public void testListBlockMetadatasByHash() {
+  public void testListBlockMetadatasByHash() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Rpc.BlockMetadataList> mockListenableFuture =
         service.submit(new Callable<Rpc.BlockMetadataList>() {
@@ -108,14 +109,14 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
 
     final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(aergoService);
 
-    final FinishableFuture<List<BlockMetadata>> blockMetadatas =
+    final Future<List<BlockMetadata>> blockMetadatas =
         blockBaseTemplate.getListBlockMetadatasByHashFunction().apply(
             new BlockHash(of(randomUUID().toString().getBytes())), 10);
     assertNotNull(blockMetadatas.get());
   }
 
   @Test
-  public void testListBlockMetadatasByHeight() {
+  public void testListBlockMetadatasByHeight() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Rpc.BlockMetadataList> mockListenableFuture =
         service.submit(new Callable<Rpc.BlockMetadataList>() {
@@ -130,13 +131,13 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
 
     final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(aergoService);
 
-    final FinishableFuture<List<BlockMetadata>> blockMetadatas =
+    final Future<List<BlockMetadata>> blockMetadatas =
         blockBaseTemplate.getListBlockMetadatasByHeightFunction().apply(10L, 10);
     assertNotNull(blockMetadatas.get());
   }
 
   @Test
-  public void testGetBlockByHash() {
+  public void testGetBlockByHash() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Blockchain.Block> mockListenableFuture =
         service.submit(new Callable<Blockchain.Block>() {
@@ -149,14 +150,14 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
 
     final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(aergoService);
 
-    final FinishableFuture<Block> block =
+    final Future<Block> block =
         blockBaseTemplate.getBlockByHashFunction()
             .apply(new BlockHash(of(randomUUID().toString().getBytes())));
     assertNotNull(block.get());
   }
 
   @Test
-  public void testGetBlockByHeight() {
+  public void testGetBlockByHeight() throws Exception {
     final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Blockchain.Block> mockListenableFuture =
         service.submit(new Callable<Blockchain.Block>() {
@@ -169,7 +170,7 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
 
     final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(aergoService);
 
-    final FinishableFuture<Block> block =
+    final Future<Block> block =
         blockBaseTemplate.getBlockByHeightFunction().apply(10L);
     assertNotNull(block.get());
   }
@@ -179,7 +180,7 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
     final AergoRPCServiceStub streamService = mock(AergoRPCServiceStub.class);
     final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(streamService);
 
-    final FinishableFuture<Subscription<BlockMetadata>> subscription =
+    final Future<Subscription<BlockMetadata>> subscription =
         blockBaseTemplate.getSubscribeBlockMetadataFunction().apply(null);
     assertNotNull(subscription);
   }
@@ -189,7 +190,7 @@ public class BlockBaseTemplateTest extends AbstractTestCase {
     final AergoRPCServiceStub streamService = mock(AergoRPCServiceStub.class);
     final BlockBaseTemplate blockBaseTemplate = supplyBlockBaseTemplate(streamService);
 
-    final FinishableFuture<Subscription<Block>> subscription =
+    final Future<Subscription<Block>> subscription =
         blockBaseTemplate.getSubscribeBlockFunction().apply(null);
     assertNotNull(subscription);
   }

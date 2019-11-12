@@ -154,14 +154,10 @@ public class ContractIT extends AbstractWalletApiIT {
 
           @Override
           public void onError(Throwable t) {
-            // TODO Auto-generated method stub
-
           }
 
           @Override
           public void onCompleted() {
-            // TODO Auto-generated method stub
-
           }
         });
 
@@ -200,14 +196,10 @@ public class ContractIT extends AbstractWalletApiIT {
 
           @Override
           public void onError(Throwable t) {
-            // TODO Auto-generated method stub
-
           }
 
           @Override
           public void onCompleted() {
-            // TODO Auto-generated method stub
-
           }
         });
 

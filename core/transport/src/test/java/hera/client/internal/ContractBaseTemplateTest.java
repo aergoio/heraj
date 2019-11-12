@@ -40,6 +40,7 @@ import hera.util.Base58Utils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -87,7 +88,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetReceipt() {
+  public void testGetReceipt() throws Exception {
     final AergoRPCServiceFutureStub futureService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Blockchain.Receipt> mockListenableFuture =
         service.submit(new Callable<Blockchain.Receipt>() {
@@ -101,22 +102,21 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
 
     final ContractBaseTemplate contractBaseTemplate = supplyContractBaseTemplate(futureService);
 
-    final FinishableFuture<ContractTxReceipt> receipt = contractBaseTemplate
+    final Future<ContractTxReceipt> receipt = contractBaseTemplate
         .getReceiptFunction().apply(new ContractTxHash(of(randomUUID().toString().getBytes())));
     assertNotNull(receipt.get());
   }
 
   @Test
-  public void testDeploy() {
+  public void testDeploy() throws Exception {
     final AergoRPCServiceFutureStub futureService = mock(AergoRPCServiceFutureStub.class);
-
+    final Future<TxHash> future =
+        HerajFutures.success(new TxHash(BytesValue.of(randomUUID().toString().getBytes())));
     TransactionBaseTemplate mockTransactionBaseTemplate = mock(TransactionBaseTemplate.class);
     when(mockTransactionBaseTemplate.getCommitFunction())
-        .thenReturn(new Function1<Transaction, FinishableFuture<TxHash>>() {
+        .thenReturn(new Function1<Transaction, Future<TxHash>>() {
           @Override
-          public FinishableFuture<TxHash> apply(Transaction t) {
-            final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
-            future.success(new TxHash(BytesValue.of(randomUUID().toString().getBytes())));
+          public Future<TxHash> apply(Transaction t) {
             return future;
           }
         });
@@ -125,7 +125,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
     contractBaseTemplate.transactionBaseTemplate = mockTransactionBaseTemplate;
 
     Signer signer = new AergoKeyGenerator().create();
-    final FinishableFuture<ContractTxHash> deployTxHash = contractBaseTemplate
+    final Future<ContractTxHash> deployTxHash = contractBaseTemplate
         .getDeployFunction()
         .apply(signer, ContractDefinition.newBuilder().encodedContract(encodedContract).build(),
             0L, fee);
@@ -133,16 +133,16 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testReDeploy() {
+  public void testReDeploy() throws Exception {
     final AergoRPCServiceFutureStub futureService = mock(AergoRPCServiceFutureStub.class);
 
+    final Future<TxHash> future =
+        HerajFutures.success(new TxHash(BytesValue.of(randomUUID().toString().getBytes())));
     TransactionBaseTemplate mockTransactionBaseTemplate = mock(TransactionBaseTemplate.class);
     when(mockTransactionBaseTemplate.getCommitFunction())
-        .thenReturn(new Function1<Transaction, FinishableFuture<TxHash>>() {
+        .thenReturn(new Function1<Transaction, Future<TxHash>>() {
           @Override
-          public FinishableFuture<TxHash> apply(Transaction t) {
-            final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
-            future.success(new TxHash(BytesValue.of(randomUUID().toString().getBytes())));
+          public Future<TxHash> apply(Transaction t) {
             return future;
           }
         });
@@ -151,7 +151,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
     contractBaseTemplate.transactionBaseTemplate = mockTransactionBaseTemplate;
 
     final Signer signer = new AergoKeyGenerator().create();
-    final FinishableFuture<ContractTxHash> deployTxHash = contractBaseTemplate
+    final Future<ContractTxHash> deployTxHash = contractBaseTemplate
         .getReDeployFunction()
         .apply(signer, contractAddress,
             ContractDefinition.newBuilder().encodedContract(encodedContract).build(),
@@ -160,7 +160,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetContractInterface() {
+  public void testGetContractInterface() throws Exception {
     final AergoRPCServiceFutureStub futureService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Blockchain.ABI> mockListenableFuture =
         service.submit(new Callable<Blockchain.ABI>() {
@@ -173,22 +173,22 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
 
     final ContractBaseTemplate contractBaseTemplate = supplyContractBaseTemplate(futureService);
 
-    final FinishableFuture<ContractInterface> contractInterface =
+    final Future<ContractInterface> contractInterface =
         contractBaseTemplate.getContractInterfaceFunction().apply(contractAddress);
     assertNotNull(contractInterface.get());
   }
 
   @Test
-  public void testExecute() {
+  public void testExecute() throws Exception {
     final AergoRPCServiceFutureStub futureService = mock(AergoRPCServiceFutureStub.class);
 
+    final Future<TxHash> future =
+        HerajFutures.success(new TxHash(BytesValue.of(randomUUID().toString().getBytes())));
     TransactionBaseTemplate mockTransactionBaseTemplate = mock(TransactionBaseTemplate.class);
     when(mockTransactionBaseTemplate.getCommitFunction())
-        .thenReturn(new Function1<Transaction, FinishableFuture<TxHash>>() {
+        .thenReturn(new Function1<Transaction, Future<TxHash>>() {
           @Override
-          public FinishableFuture<TxHash> apply(Transaction t) {
-            final FinishableFuture<TxHash> future = new FinishableFuture<TxHash>();
-            future.success(new TxHash(BytesValue.of(randomUUID().toString().getBytes())));
+          public Future<TxHash> apply(Transaction t) {
             return future;
           }
         });
@@ -200,13 +200,13 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
 
     final ContractInvocation invocation =
         contractInterface.newInvocationBuilder().function(functionName).build();
-    final FinishableFuture<ContractTxHash> executionTxHash =
+    final Future<ContractTxHash> executionTxHash =
         contractBaseTemplate.getExecuteFunction().apply(signer, invocation, 0L, fee);
     assertNotNull(executionTxHash.get());
   }
 
   @Test
-  public void testQuery() {
+  public void testQuery() throws Exception {
     final AergoRPCServiceFutureStub futureService = mock(AergoRPCServiceFutureStub.class);
     ListenableFuture<Rpc.SingleBytes> mockListenableFuture =
         service.submit(new Callable<Rpc.SingleBytes>() {
@@ -221,7 +221,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
 
     final ContractInvocation invocation =
         contractInterface.newInvocationBuilder().function(functionName).build();
-    final FinishableFuture<ContractResult> contractResult = contractBaseTemplate
+    final Future<ContractResult> contractResult = contractBaseTemplate
         .getQueryFunction().apply(invocation);
 
     assertNotNull(contractResult.get());
@@ -243,7 +243,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
     final ContractBaseTemplate contractBaseTemplate = supplyContractBaseTemplate(futureService);
 
     final EventFilter eventFilter = EventFilter.newBuilder(contractAddress).build();
-    final FinishableFuture<List<Event>> events =
+    final Future<List<Event>> events =
         contractBaseTemplate.getListEventFunction().apply(eventFilter);
     assertNotNull(events);
   }
@@ -254,7 +254,7 @@ public class ContractBaseTemplateTest extends AbstractTestCase {
     final ContractBaseTemplate contractBaseTemplate = supplyContractBaseTemplate(streamService);
 
     final EventFilter eventFilter = EventFilter.newBuilder(contractAddress).build();
-    final FinishableFuture<Subscription<Event>> subscription =
+    final Future<Subscription<Event>> subscription =
         contractBaseTemplate.getSubscribeEventFunction().apply(eventFilter, null);
     assertNotNull(subscription);
   }

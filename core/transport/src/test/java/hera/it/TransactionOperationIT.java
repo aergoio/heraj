@@ -181,7 +181,9 @@ public class TransactionOperationIT extends AbstractIT {
       fail();
     } catch (RpcCommitException e) {
       // then
-      assertEquals(RpcCommitException.CommitStatus.TX_ALREADY_EXISTS, e.getCommitStatus());
+      // TODO: when to use TX_ALREADY_EXISTS?
+      // assertEquals(RpcCommitException.CommitStatus.TX_ALREADY_EXISTS, e.getCommitStatus());
+      assertEquals(RpcCommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
     }
   }
 

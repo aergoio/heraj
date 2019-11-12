@@ -15,14 +15,28 @@ public class RpcExceptionConverter implements ExceptionConverter<RpcException> {
   protected final transient Logger logger = getLogger(getClass());
 
   @Override
-  public RpcException convert(final Throwable t) {
-    logger.debug("Handle exception {}", t.toString());
-    if (t instanceof RpcException) {
-      return (RpcException) t;
-    } else if (t instanceof StatusRuntimeException) {
-      return convertGrpcBasisException((StatusRuntimeException) t);
+  public RpcException convert(final Throwable rawError) {
+    logger.trace("Handle exception {}", rawError.toString());
+
+    Throwable target = rawError;
+    if (target instanceof DecoratorChainException) {
+      target = target.getCause();
+    }
+
+    // handle commit exception specially
+    // NOTE: a custom exception throws by callback must handle like this
+    // FIXME: no way to improve it?
+    if (target instanceof InternalCommitException) {
+      final InternalCommitException internalCommitException = (InternalCommitException) target;
+      return new RpcCommitException(internalCommitException);
+    }
+
+    if (target instanceof RpcException) {
+      return (RpcException) target;
+    } else if (target instanceof StatusRuntimeException) {
+      return convertGrpcBasisException((StatusRuntimeException) target);
     } else {
-      return new RpcException(t);
+      return new RpcException(target);
     }
   }
 

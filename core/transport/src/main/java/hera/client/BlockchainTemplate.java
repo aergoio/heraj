@@ -30,11 +30,14 @@ import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
 import hera.api.model.ServerInfo;
 import hera.client.internal.BlockchainBaseTemplate;
-import hera.client.internal.FinishableFuture;
+import hera.exception.RpcException;
+import hera.exception.RpcExceptionConverter;
 import hera.strategy.PriorityProvider;
 import hera.strategy.StrategyApplier;
+import hera.util.ExceptionConverter;
 import io.grpc.ManagedChannel;
 import java.util.List;
+import java.util.concurrent.Future;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +48,8 @@ import lombok.RequiredArgsConstructor;
 public class BlockchainTemplate
     implements BlockchainOperation, ChannelInjectable, ContextProviderInjectable {
 
-  @Getter
+  protected final ExceptionConverter<RpcException> exceptionConverter = new RpcExceptionConverter();
+
   protected BlockchainBaseTemplate blockchainBaseTemplate = new BlockchainBaseTemplate();
 
   protected ContextProvider contextProvider;
@@ -56,50 +60,50 @@ public class BlockchainTemplate
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-    getBlockchainBaseTemplate().setChannel(channel);
+    this.blockchainBaseTemplate.setChannel(channel);
   }
 
   @Override
   public void setContextProvider(final ContextProvider contextProvider) {
     this.contextProvider = contextProvider;
-    getBlockchainBaseTemplate().setContextProvider(contextProvider);
+    this.blockchainBaseTemplate.setContextProvider(contextProvider);
   }
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function0<FinishableFuture<BlockchainStatus>> blockchainStatusFunction =
-      getStrategyApplier().apply(identify(getBlockchainBaseTemplate().getBlockchainStatusFunction(),
+  private final Function0<Future<BlockchainStatus>> blockchainStatusFunction =
+      getStrategyApplier().apply(identify(this.blockchainBaseTemplate.getBlockchainStatusFunction(),
           BLOCKCHAIN_BLOCKCHAINSTATUS));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function0<FinishableFuture<ChainInfo>> chainInfoFunction =
-      getStrategyApplier().apply(identify(getBlockchainBaseTemplate().getChainInfoFunction(),
+  private final Function0<Future<ChainInfo>> chainInfoFunction =
+      getStrategyApplier().apply(identify(this.blockchainBaseTemplate.getChainInfoFunction(),
           BLOCKCHAIN_CHAININFO));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function0<FinishableFuture<ChainStats>> chainStatsFunction =
-      getStrategyApplier().apply(identify(getBlockchainBaseTemplate().getChainStatsFunction(),
+  private final Function0<Future<ChainStats>> chainStatsFunction =
+      getStrategyApplier().apply(identify(this.blockchainBaseTemplate.getChainStatsFunction(),
           BLOCKCHAIN_CHAINSTATS));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function2<Boolean, Boolean, FinishableFuture<List<Peer>>> listPeersFunction =
+  private final Function2<Boolean, Boolean, Future<List<Peer>>> listPeersFunction =
       getStrategyApplier().apply(
-          identify(getBlockchainBaseTemplate().getListPeersFunction(), BLOCKCHAIN_LIST_PEERS));
+          identify(this.blockchainBaseTemplate.getListPeersFunction(), BLOCKCHAIN_LIST_PEERS));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function0<FinishableFuture<List<PeerMetric>>> listPeerMetricsFunction =
+  private final Function0<Future<List<PeerMetric>>> listPeerMetricsFunction =
       getStrategyApplier().apply(
-          identify(getBlockchainBaseTemplate().getListPeersMetricsFunction(),
+          identify(this.blockchainBaseTemplate.getListPeersMetricsFunction(),
               BLOCKCHAIN_PEERMETRICS));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function1<List<String>, FinishableFuture<ServerInfo>> serverInfoFunction =
+  private final Function1<List<String>, Future<ServerInfo>> serverInfoFunction =
       getStrategyApplier().apply(
-          identify(getBlockchainBaseTemplate().getServerInfoFunction(), BLOCKCHAIN_SERVERINFO));
+          identify(this.blockchainBaseTemplate.getServerInfoFunction(), BLOCKCHAIN_SERVERINFO));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function0<FinishableFuture<NodeStatus>> nodeStatusFunction =
+  private final Function0<Future<NodeStatus>> nodeStatusFunction =
       getStrategyApplier().apply(
-          identify(getBlockchainBaseTemplate().getNodeStatusFunction(), BLOCKCHAIN_NODESTATUS));
+          identify(this.blockchainBaseTemplate.getNodeStatusFunction(), BLOCKCHAIN_NODESTATUS));
 
   @Override
   public ChainIdHash getChainIdHash() {
@@ -108,42 +112,74 @@ public class BlockchainTemplate
 
   @Override
   public BlockchainStatus getBlockchainStatus() {
-    return getBlockchainStatusFunction().apply().get();
+    try {
+      return getBlockchainStatusFunction().apply().get();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
   @Override
   public ChainInfo getChainInfo() {
-    return getChainInfoFunction().apply().get();
+    try {
+      return getChainInfoFunction().apply().get();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
   @Override
   public ChainStats getChainStats() {
-    return getChainStatsFunction().apply().get();
+    try {
+      return getChainStatsFunction().apply().get();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
   @Override
   public List<Peer> listPeers() {
-    return listPeers(false, false);
+    try {
+      return listPeers(false, false);
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
   @Override
   public List<Peer> listPeers(final boolean showHidden, final boolean showSelf) {
-    return getListPeersFunction().apply(showHidden, showSelf).get();
+    try {
+      return getListPeersFunction().apply(showHidden, showSelf).get();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
   @Override
   public List<PeerMetric> listPeerMetrics() {
-    return getListPeerMetricsFunction().apply().get();
+    try {
+      return getListPeerMetricsFunction().apply().get();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
   @Override
   public ServerInfo getServerInfo(final List<String> categories) {
-    return getServerInfoFunction().apply(categories).get();
+    try {
+      return getServerInfoFunction().apply(categories).get();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
   @Override
   public NodeStatus getNodeStatus() {
-    return getNodeStatusFunction().apply().get();
+    try {
+      return getNodeStatusFunction().apply().get();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
   }
 
 }

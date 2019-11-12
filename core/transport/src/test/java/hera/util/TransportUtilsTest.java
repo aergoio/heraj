@@ -5,21 +5,18 @@
 package hera.util;
 
 import static hera.util.NumberUtils.positiveToByteArray;
-import static hera.util.TransportUtils.assertArgument;
 import static hera.util.TransportUtils.copyFrom;
 import static hera.util.TransportUtils.parseToAer;
 import static hera.util.TransportUtils.parseToBytesValue;
 import static hera.util.TransportUtils.sha256AndEncodeHexa;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import com.google.protobuf.ByteString;
 import hera.AbstractTestCase;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.BytesValue;
-import hera.exception.RpcArgumentException;
 import org.junit.Test;
 
 public class TransportUtilsTest extends AbstractTestCase {
@@ -88,18 +85,6 @@ public class TransportUtilsTest extends AbstractTestCase {
     final String expected = HexUtils.encode(Sha256Utils.digest(string.getBytes()));
     final String actual = sha256AndEncodeHexa(string);
     assertEquals(expected, actual);
-  }
-
-  @Test
-  public void testAssertArgument() {
-    assertArgument(true, "object", "requirement");
-
-    try {
-      assertArgument(false, "object", "requirement");
-      fail();
-    } catch (RpcArgumentException e) {
-      // good we expected this
-    }
   }
 
 }

@@ -8,7 +8,7 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
-import hera.exception.UnableToGenerateKeyException;
+import hera.exception.HerajException;
 import hera.spec.resolver.EncryptedPrivateKeyResolver;
 import hera.util.pki.ECDSAKey;
 import hera.util.pki.ECDSAKeyGenerator;
@@ -25,7 +25,6 @@ public class AergoKeyGenerator implements KeyGenerator<AergoKey> {
    * Create an {@code Aergokey}.
    *
    * @return created {@code AergoKey}
-   * @throws UnableToGenerateKeyException if an error occured in creating key
    */
   @Override
   public AergoKey create() {
@@ -33,7 +32,7 @@ public class AergoKeyGenerator implements KeyGenerator<AergoKey> {
       final ECDSAKey ecdsaKey = ecdsaKeyGenerator.create();
       return new AergoKey(ecdsaKey);
     } catch (Exception e) {
-      throw new UnableToGenerateKeyException(e);
+      throw new HerajException(e);
     }
   }
 
@@ -43,7 +42,6 @@ public class AergoKeyGenerator implements KeyGenerator<AergoKey> {
    * @param seed a seed to create aergo key
    *
    * @return created {@code AergoKey}
-   * @throws UnableToGenerateKeyException if an error occured in creating key
    */
   @Override
   public AergoKey create(final String seed) {
@@ -51,7 +49,7 @@ public class AergoKeyGenerator implements KeyGenerator<AergoKey> {
       final ECDSAKey ecdsaKey = ecdsaKeyGenerator.create(seed);
       return new AergoKey(ecdsaKey);
     } catch (Exception e) {
-      throw new UnableToGenerateKeyException(e);
+      throw new HerajException(e);
     }
   }
 
@@ -62,7 +60,6 @@ public class AergoKeyGenerator implements KeyGenerator<AergoKey> {
    * @param password a password to decrypt
    *
    * @return created {@code AergoKey}
-   * @throws UnableToGenerateKeyException if an error occured in creating key
    */
   public AergoKey create(final String encrypted, final String password) {
     return create(EncryptedPrivateKey.of(encrypted), password);
@@ -75,7 +72,6 @@ public class AergoKeyGenerator implements KeyGenerator<AergoKey> {
    * @param password a password to decrypt
    *
    * @return created {@code AergoKey}
-   * @throws UnableToGenerateKeyException if an error occured in creating key
    */
   public AergoKey create(final EncryptedPrivateKey encrypted, final String password) {
     try {
@@ -84,7 +80,7 @@ public class AergoKeyGenerator implements KeyGenerator<AergoKey> {
           new ECDSAKeyGenerator().create(new BigInteger(1, decrypted.getValue()));
       return new AergoKey(ecdsaKey);
     } catch (Exception e) {
-      throw new UnableToGenerateKeyException(e);
+      throw new HerajException(e);
     }
   }
 

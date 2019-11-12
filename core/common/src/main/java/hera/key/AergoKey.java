@@ -22,7 +22,6 @@ import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.exception.HerajException;
-import hera.exception.UnableToGenerateKeyException;
 import hera.spec.resolver.AddressResolver;
 import hera.spec.resolver.EncryptedPrivateKeyResolver;
 import hera.spec.resolver.SignatureResolver;
@@ -50,8 +49,6 @@ public class AergoKey implements KeyPair, Signer, MessageSigner {
    * @param encodedEncryptedPrivateKey base58 with checksum encoded encrypted private key
    * @param password password to decrypt
    * @return key instance
-   *
-   * @throws UnableToGenerateKeyException on failure of creation
    */
   public static AergoKey of(final String encodedEncryptedPrivateKey, final String password) {
     return new AergoKey(encodedEncryptedPrivateKey, password);
@@ -63,8 +60,6 @@ public class AergoKey implements KeyPair, Signer, MessageSigner {
    * @param encryptedPrivateKey encrypted private key
    * @param password password to decrypt
    * @return key instance
-   *
-   * @throws UnableToGenerateKeyException on failure of creation
    */
   public static AergoKey of(final EncryptedPrivateKey encryptedPrivateKey, final String password) {
     return new AergoKey(encryptedPrivateKey, password);
@@ -84,8 +79,6 @@ public class AergoKey implements KeyPair, Signer, MessageSigner {
    *
    * @param encodedEncryptedPrivateKey base58 with checksum encoded encrypted private key
    * @param password password to decrypt
-   *
-   * @throws UnableToGenerateKeyException on failure of creation
    */
   public AergoKey(final String encodedEncryptedPrivateKey, final String password) {
     this(new EncryptedPrivateKey(encodedEncryptedPrivateKey), password);
@@ -96,8 +89,6 @@ public class AergoKey implements KeyPair, Signer, MessageSigner {
    *
    * @param encryptedPrivateKey encrypted private key
    * @param password password to decrypt
-   *
-   * @throws UnableToGenerateKeyException on failure of creation
    */
   public AergoKey(final EncryptedPrivateKey encryptedPrivateKey, final String password) {
     try {
@@ -107,7 +98,7 @@ public class AergoKey implements KeyPair, Signer, MessageSigner {
       this.ecdsakey = new ECDSAKeyGenerator().create(new BigInteger(1, rawPrivateKey));
       this.address = AddressResolver.deriveAddress(ecdsakey.getPublicKey());
     } catch (final Exception e) {
-      throw new UnableToGenerateKeyException(e);
+      throw new HerajException(e);
     }
   }
 

@@ -22,6 +22,7 @@ import hera.util.ThreadUtils;
 import hera.wallet.Wallet;
 import hera.wallet.WalletBuilder;
 import hera.wallet.WalletType;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
 import org.junit.Before;
@@ -35,14 +36,10 @@ public class SmartContractIT extends AbstractIT {
 
   protected String password = randomUUID().toString();
 
-  /*
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    this.wallet = new WalletBuilder()
-        .withEndpoint(hostname)
-        .withRefresh(3, 500L, TimeUnit.MILLISECONDS)
-        .build(WalletType.Naive);
+    this.wallet = supplyWallet(WalletType.Naive);
     final AergoKey key = createNewKey();
     wallet.saveKey(key, password);
     wallet.unlock(Authentication.of(key.getAddress(), password));
@@ -54,6 +51,29 @@ public class SmartContractIT extends AbstractIT {
     final ContractTxHash deployTxHash = wallet.deploy(definition);
     Thread.sleep(2200L);
     this.contractAddress = wallet.getReceipt(deployTxHash).getContractAddress();
+  }
+
+  protected Wallet supplyWallet(final WalletType type) {
+    Wallet wallet = new WalletBuilder()
+        .withEndpoint(hostname)
+        .withRefresh(2, 1000L, TimeUnit.MILLISECONDS)
+        .withNonBlockingConnect()
+        .build(type);
+    try {
+      wallet.getBlockchainStatus();
+      logger.trace("Connect with plaintext success");
+    } catch (Exception e) {
+      final String aergoNodeName = properties.getProperty("aergoNodeName");
+      final InputStream serverCert = getClass().getResourceAsStream(serverCrtFile);
+      final InputStream clientCert = getClass().getResourceAsStream(clientCrtFile);
+      final InputStream clientKey = getClass().getResourceAsStream(clientKeyFile);
+      wallet = new WalletBuilder()
+          .withEndpoint(hostname)
+          .withRefresh(2, 1000L, TimeUnit.MILLISECONDS)
+          .withTransportSecurity(aergoNodeName, serverCert, clientCert, clientKey)
+          .build(type);
+    }
+    return wallet;
   }
 
   @Test
@@ -121,7 +141,6 @@ public class SmartContractIT extends AbstractIT {
       // good we expected this
     }
   }
-  */
 
   protected interface ValidInterface extends SmartContract {
 

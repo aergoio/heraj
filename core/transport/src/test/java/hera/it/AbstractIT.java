@@ -56,7 +56,8 @@ public abstract class AbstractIT {
     hostname = properties.getProperty("endpoint");
     AergoClientBuilder clientBuilder = new AergoClientBuilder()
         .withNonBlockingConnect()
-        .withTimeout(3, TimeUnit.SECONDS)
+        .withTimeout(1000, TimeUnit.MILLISECONDS)
+        .withRetry(3, 500L, TimeUnit.MILLISECONDS)
         .withEndpoint(hostname)
         .withPlainText();
     AergoClient candidate = clientBuilder.build();

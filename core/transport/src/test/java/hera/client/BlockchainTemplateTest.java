@@ -31,9 +31,10 @@ import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
 import hera.api.model.ServerInfo;
 import hera.client.internal.BlockchainBaseTemplate;
-import hera.client.internal.FinishableFuture;
+import hera.client.internal.HerajFutures;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
@@ -56,12 +57,12 @@ public class BlockchainTemplateTest extends AbstractTestCase {
   @Test
   public void testGetChainIdHash() {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
-    final FinishableFuture<BlockchainStatus> future = new FinishableFuture<BlockchainStatus>();
-    future.success(BlockchainStatus.newBuilder().build());
+    final Future<BlockchainStatus> future =
+        HerajFutures.success(BlockchainStatus.newBuilder().build());
     when(base.getBlockchainStatusFunction())
-        .thenReturn(new Function0<FinishableFuture<BlockchainStatus>>() {
+        .thenReturn(new Function0<Future<BlockchainStatus>>() {
           @Override
-          public FinishableFuture<BlockchainStatus> apply() {
+          public Future<BlockchainStatus> apply() {
             return future;
           }
         });
@@ -75,12 +76,12 @@ public class BlockchainTemplateTest extends AbstractTestCase {
   @Test
   public void testGetBlockchainStatus() {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
-    final FinishableFuture<BlockchainStatus> future = new FinishableFuture<BlockchainStatus>();
-    future.success(BlockchainStatus.newBuilder().build());
+    final Future<BlockchainStatus> future =
+        HerajFutures.success(BlockchainStatus.newBuilder().build());
     when(base.getBlockchainStatusFunction())
-        .thenReturn(new Function0<FinishableFuture<BlockchainStatus>>() {
+        .thenReturn(new Function0<Future<BlockchainStatus>>() {
           @Override
-          public FinishableFuture<BlockchainStatus> apply() {
+          public Future<BlockchainStatus> apply() {
             return future;
           }
         });
@@ -97,12 +98,11 @@ public class BlockchainTemplateTest extends AbstractTestCase {
   @Test
   public void testGetChainInfo() {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
-    final FinishableFuture<ChainInfo> future = new FinishableFuture<ChainInfo>();
-    future.success(ChainInfo.newBuilder().build());
+    final Future<ChainInfo> future = HerajFutures.success(ChainInfo.newBuilder().build());
     when(base.getChainInfoFunction())
-        .thenReturn(new Function0<FinishableFuture<ChainInfo>>() {
+        .thenReturn(new Function0<Future<ChainInfo>>() {
           @Override
-          public FinishableFuture<ChainInfo> apply() {
+          public Future<ChainInfo> apply() {
             return future;
           }
         });
@@ -118,12 +118,11 @@ public class BlockchainTemplateTest extends AbstractTestCase {
   @Test
   public void testGetChainStats() {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
-    final FinishableFuture<ChainStats> future = new FinishableFuture<ChainStats>();
-    future.success(ChainStats.newBuilder().build());
+    final Future<ChainStats> future = HerajFutures.success(ChainStats.newBuilder().build());
     when(base.getChainStatsFunction())
-        .thenReturn(new Function0<FinishableFuture<ChainStats>>() {
+        .thenReturn(new Function0<Future<ChainStats>>() {
           @Override
-          public FinishableFuture<ChainStats> apply() {
+          public Future<ChainStats> apply() {
             return future;
           }
         });
@@ -139,12 +138,12 @@ public class BlockchainTemplateTest extends AbstractTestCase {
   @Test
   public void testListPeers() {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
-    final FinishableFuture<List<Peer>> future = new FinishableFuture<List<Peer>>();
-    future.success(new ArrayList<Peer>());
+    final List<Peer> list = new ArrayList<Peer>();
+    final Future<List<Peer>> future = HerajFutures.success(list);
     when(base.getListPeersFunction()).thenReturn(new Function2<Boolean, Boolean,
-        FinishableFuture<List<Peer>>>() {
+        Future<List<Peer>>>() {
       @Override
-      public FinishableFuture<List<Peer>> apply(Boolean t1, Boolean t2) {
+      public Future<List<Peer>> apply(Boolean t1, Boolean t2) {
         return future;
       }
     });
@@ -160,12 +159,12 @@ public class BlockchainTemplateTest extends AbstractTestCase {
   @Test
   public void testListPeerMetrics() {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
-    final FinishableFuture<List<PeerMetric>> future = new FinishableFuture<List<PeerMetric>>();
-    future.success(new ArrayList<PeerMetric>());
+    final List<PeerMetric> list = new ArrayList<PeerMetric>();
+    final Future<List<PeerMetric>> future = HerajFutures.success(list);
     when(base.getListPeersMetricsFunction())
-        .thenReturn(new Function0<FinishableFuture<List<PeerMetric>>>() {
+        .thenReturn(new Function0<Future<List<PeerMetric>>>() {
           @Override
-          public FinishableFuture<List<PeerMetric>> apply() {
+          public Future<List<PeerMetric>> apply() {
             return future;
           }
         });
@@ -181,12 +180,11 @@ public class BlockchainTemplateTest extends AbstractTestCase {
   @Test
   public void testGetServerInfo() {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
-    final FinishableFuture<ServerInfo> future = new FinishableFuture<ServerInfo>();
-    future.success(ServerInfo.newBuilder().build());
+    final Future<ServerInfo> future = HerajFutures.success(ServerInfo.newBuilder().build());
     when(base.getServerInfoFunction())
-        .thenReturn(new Function1<List<String>, FinishableFuture<ServerInfo>>() {
+        .thenReturn(new Function1<List<String>, Future<ServerInfo>>() {
           @Override
-          public FinishableFuture<ServerInfo> apply(List<String> t) {
+          public Future<ServerInfo> apply(List<String> t) {
             return future;
           }
         });
@@ -202,11 +200,10 @@ public class BlockchainTemplateTest extends AbstractTestCase {
   @Test
   public void testGetNodeStatus() {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
-    final FinishableFuture<NodeStatus> future = new FinishableFuture<NodeStatus>();
-    future.success(NodeStatus.newBuilder().build());
-    when(base.getNodeStatusFunction()).thenReturn(new Function0<FinishableFuture<NodeStatus>>() {
+    final Future<NodeStatus> future = HerajFutures.success(NodeStatus.newBuilder().build());
+    when(base.getNodeStatusFunction()).thenReturn(new Function0<Future<NodeStatus>>() {
       @Override
-      public FinishableFuture<NodeStatus> apply() {
+      public Future<NodeStatus> apply() {
         return future;
       }
     });
