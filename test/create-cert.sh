@@ -17,6 +17,9 @@ readonly SCRIPT_HOME="$( cd -P "$( dirname "$SOURCE" )" >/dev/null && pwd )"
 readonly AERGO_PROPERTIES="$SCRIPT_HOME/aergo.properties"
 readonly AERGO_NODE=$(grep aergoNodeName ${AERGO_PROPERTIES} | cut -d"=" -f2)
 
+###############################
+### Main
+
 # files
 readonly TARGET_DIR="$SCRIPT_HOME/config/cert"
 readonly SERVER_KEY=$TARGET_DIR/"server.key"

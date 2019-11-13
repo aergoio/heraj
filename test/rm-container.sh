@@ -15,8 +15,11 @@ readonly SCRIPT_HOME="$( cd -P "$( dirname "$SOURCE" )" >/dev/null && pwd )"
 ### Aergo Config
 
 readonly AERGO_PROPERTIES="$SCRIPT_HOME/aergo.properties"
-readonly AERGO_VERSION=$(grep aergoVersion ${AERGO_PROPERTIES} | cut -d"=" -f2)
 readonly AERGO_NODE=$(grep aergoNodeName ${AERGO_PROPERTIES} | cut -d"=" -f2)
+
+
+###############################
+### Main
 
 echo "Remove container: $AERGO_NODE"
 readonly CONTAINER=$(docker ps -q -f name=${AERGO_NODE})

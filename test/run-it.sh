@@ -11,21 +11,33 @@ while [ -h "$SOURCE" ]; do
 done
 readonly SCRIPT_HOME="$( cd -P "$( dirname "$SOURCE" )" >/dev/null && pwd )"
 
-readonly PROJECT_HOME="$SCRIPT_HOME/.."
+readonly PROJECT_HOME=$(cd "$SCRIPT_HOME/.." && pwd)
 
-# setup
-echo "Setup integration test env.."
-${SCRIPT_HOME}/rm-container.sh
-${SCRIPT_HOME}/setup-genesis.sh
+###############################
+### Aergo Config
 
-# plaintext
-echo "Run aergo node as plaintext.."
-${SCRIPT_HOME}/run-container.sh
-pushd ${PROJECT_HOME} && ${PROJECT_HOME}/gradlew clean integrationTest && popd
-${SCRIPT_HOME}/rm-container.sh
+readonly AERGO_PROPERTIES="$SCRIPT_HOME/aergo.properties"
+readonly AERGO_VERSIONS=($(grep aergoVersions ${AERGO_PROPERTIES} | cut -d"=" -f2))
 
-# tls
-echo "Run aergo node with tls.."
-${SCRIPT_HOME}/run-container-tls.sh
-pushd ${PROJECT_HOME} && ${PROJECT_HOME}/gradlew clean integrationTest && popd
-${SCRIPT_HOME}/rm-container.sh
+
+###############################
+### Main
+
+for aergo_version in "${AERGO_VERSIONS[@]}"; do
+  # setup
+  echo "Setup integration test env.."
+  ${SCRIPT_HOME}/rm-container.sh
+  ${SCRIPT_HOME}/setup-genesis.sh "$aergo_version"
+
+  # plaintext
+  echo "Run aergo node as plaintext.."
+  ${SCRIPT_HOME}/run-container.sh "$aergo_version"
+  pushd ${PROJECT_HOME} && ${PROJECT_HOME}/gradlew clean integrationTest && popd
+  ${SCRIPT_HOME}/rm-container.sh
+
+  # tls
+  echo "Run aergo node with tls.."
+  ${SCRIPT_HOME}/run-container-tls.sh "$aergo_version"
+  pushd ${PROJECT_HOME} && ${PROJECT_HOME}/gradlew clean integrationTest && popd
+  ${SCRIPT_HOME}/rm-container.sh
+done
