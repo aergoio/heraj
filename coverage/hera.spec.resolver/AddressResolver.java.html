@@ -41,8 +41,8 @@ import org.slf4j.Logger;
 <span class="fc" id="L41">      final BytesValue rawAddress = BytesValueUtils.trimPrefix(rawWithPrefix);</span>
 <span class="fc" id="L42">      validateRawAddress(rawAddress);</span>
 <span class="fc" id="L43">      return rawAddress;</span>
-<span class="nc" id="L44">    } catch (HerajException e) {</span>
-<span class="nc" id="L45">      throw e;</span>
+<span class="fc" id="L44">    } catch (HerajException e) {</span>
+<span class="fc" id="L45">      throw e;</span>
 <span class="nc" id="L46">    } catch (Exception e) {</span>
 <span class="nc" id="L47">      throw new HerajException(e);</span>
     }

@@ -15,17 +15,11 @@ import org.slf4j.Logger;
 
   @Override
   public WalletException convert(final Throwable t) {
-<span class="nc" id="L18">    logger.debug(&quot;Handle exception {}&quot;, t.toString());</span>
-<span class="nc bnc" id="L19" title="All 2 branches missed.">    if (t instanceof WalletException) {</span>
-<span class="nc" id="L20">      return (WalletException) t;</span>
-<span class="nc bnc" id="L21" title="All 2 branches missed.">    } else if (t instanceof RpcCommitException) {</span>
-<span class="nc" id="L22">      return new WalletCommitException(t);</span>
-<span class="nc bnc" id="L23" title="All 2 branches missed.">    } else if (t instanceof RpcConnectionException) {</span>
-<span class="nc" id="L24">      return new WalletConnectionException(t);</span>
-<span class="nc bnc" id="L25" title="All 2 branches missed.">    } else if (t instanceof RpcException) {</span>
-<span class="nc" id="L26">      return new WalletRpcException(t);</span>
+<span class="fc" id="L18">    logger.debug(&quot;Handle exception {}&quot;, t.toString());</span>
+<span class="fc bfc" id="L19" title="All 2 branches covered.">    if (t instanceof WalletException) {</span>
+<span class="fc" id="L20">      return (WalletException) t;</span>
     } else {
-<span class="nc" id="L28">      return new WalletException(&quot;Unexpected one&quot;, t);</span>
+<span class="fc" id="L22">      return new WalletException(t);</span>
     }
   }
 

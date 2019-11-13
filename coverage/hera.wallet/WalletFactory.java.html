@@ -11,7 +11,6 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.internal.Time;
 import hera.api.model.internal.TryCountAndInterval;
-import hera.wallet.internal.WalletApiImpl;
 
 /**
  * Factory for Wallet implementation v2. This is beta version
@@ -21,7 +20,7 @@ import hera.wallet.internal.WalletApiImpl;
  */
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L24">public class WalletFactory {</span>
+<span class="fc" id="L23">public class WalletFactory {</span>
 
   public static final int DEFAULT_RETRY_COUNT = 2;
 
@@ -36,7 +35,7 @@ import hera.wallet.internal.WalletApiImpl;
    * @return a wallet instance
    */
   public WalletApi create(final hera.keystore.KeyStore keyStore) {
-<span class="nc" id="L39">    return create(keyStore, DEFAULT_RETRY_COUNT, DEFAULT_RETRY_INTERVAL);</span>
+<span class="fc" id="L38">    return create(keyStore, DEFAULT_RETRY_COUNT, DEFAULT_RETRY_INTERVAL);</span>
   }
 
   /**
@@ -49,10 +48,10 @@ import hera.wallet.internal.WalletApiImpl;
    */
   public WalletApi create(final hera.keystore.KeyStore keyStore, final int retryCount,
       final long retryInterval) {
-<span class="fc" id="L52">    assertNotNull(keyStore);</span>
-<span class="pc bpc" id="L53" title="1 of 2 branches missed.">    assertTrue(1 &lt;= retryCount);</span>
-<span class="pc bpc" id="L54" title="1 of 2 branches missed.">    assertTrue(0 &lt; retryInterval);</span>
-<span class="fc" id="L55">    return new WalletApiImpl(new TryCountAndInterval(retryCount, Time.of(retryInterval)), keyStore);</span>
+<span class="fc" id="L51">    assertNotNull(keyStore);</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">    assertTrue(1 &lt;= retryCount);</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">    assertTrue(0 &lt; retryInterval);</span>
+<span class="fc" id="L54">    return new WalletApiImpl(keyStore, new TryCountAndInterval(retryCount, Time.of(retryInterval)));</span>
   }
 
 }

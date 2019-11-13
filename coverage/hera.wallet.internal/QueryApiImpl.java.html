@@ -38,158 +38,151 @@ import hera.exception.WalletExceptionConverter;
 import hera.util.ExceptionConverter;
 import hera.wallet.QueryApi;
 import java.util.List;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 
+<span class="fc" id="L45">@NoArgsConstructor</span>
 public class QueryApiImpl implements QueryApi, ClientInjectable {
 
-<span class="pc bpc" id="L46" title="1 of 2 branches missed.">  @Setter</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">  @Setter</span>
   @NonNull
   protected AergoClient client;
 
-<span class="fc" id="L50">  protected final ExceptionConverter&lt;WalletException&gt; converter = new WalletExceptionConverter();</span>
-
-<span class="fc" id="L52">  QueryApiImpl() {}</span>
-
-  protected AergoClient getClient() {
-<span class="nc bnc" id="L55" title="All 2 branches missed.">    if (null == this.client) {</span>
-<span class="nc" id="L56">      throw new WalletException(&quot;Aergo client isn't binded yet&quot;);</span>
-    }
-<span class="nc" id="L58">    return this.client;</span>
-  }
+<span class="fc" id="L52">  protected final ExceptionConverter&lt;WalletException&gt; converter = new WalletExceptionConverter();</span>
 
   @Override
   public AccountState getAccountState(final AccountAddress accountAddress) {
     try {
-<span class="nc" id="L64">      return client.getAccountOperation().getState(accountAddress);</span>
-<span class="nc" id="L65">    } catch (Exception e) {</span>
-<span class="nc" id="L66">      throw converter.convert(e);</span>
+<span class="nc" id="L57">      return getClient().getAccountOperation().getState(accountAddress);</span>
+<span class="nc" id="L58">    } catch (Exception e) {</span>
+<span class="nc" id="L59">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public AccountAddress getNameOwner(final String name) {
     try {
-<span class="nc" id="L73">      return getClient().getAccountOperation().getNameOwner(name);</span>
-<span class="nc" id="L74">    } catch (Exception e) {</span>
-<span class="nc" id="L75">      throw converter.convert(e);</span>
+<span class="nc" id="L66">      return getClient().getAccountOperation().getNameOwner(name);</span>
+<span class="nc" id="L67">    } catch (Exception e) {</span>
+<span class="nc" id="L68">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public AccountAddress getNameOwner(final String name, final long blockNumber) {
     try {
-<span class="nc" id="L82">      return getClient().getAccountOperation().getNameOwner(name, blockNumber);</span>
-<span class="nc" id="L83">    } catch (Exception e) {</span>
-<span class="nc" id="L84">      throw converter.convert(e);</span>
+<span class="nc" id="L75">      return getClient().getAccountOperation().getNameOwner(name, blockNumber);</span>
+<span class="nc" id="L76">    } catch (Exception e) {</span>
+<span class="nc" id="L77">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public StakeInfo getStakingInfo(final AccountAddress accountAddress) {
     try {
-<span class="nc" id="L91">      return getClient().getAccountOperation().getStakingInfo(accountAddress);</span>
-<span class="nc" id="L92">    } catch (Exception e) {</span>
-<span class="nc" id="L93">      throw converter.convert(e);</span>
+<span class="nc" id="L84">      return getClient().getAccountOperation().getStakingInfo(accountAddress);</span>
+<span class="nc" id="L85">    } catch (Exception e) {</span>
+<span class="nc" id="L86">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public List&lt;ElectedCandidate&gt; listElectedBps(final int showCount) {
     try {
-<span class="nc" id="L100">      return getClient().getAccountOperation().listElected(&quot;voteBP&quot;, showCount);</span>
-<span class="nc" id="L101">    } catch (Exception e) {</span>
-<span class="nc" id="L102">      throw converter.convert(e);</span>
+<span class="nc" id="L93">      return getClient().getAccountOperation().listElected(&quot;voteBP&quot;, showCount);</span>
+<span class="nc" id="L94">    } catch (Exception e) {</span>
+<span class="nc" id="L95">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public List&lt;ElectedCandidate&gt; listElected(final String voteId, final int showCount) {
     try {
-<span class="nc" id="L109">      return getClient().getAccountOperation().listElected(voteId, showCount);</span>
-<span class="nc" id="L110">    } catch (Exception e) {</span>
-<span class="nc" id="L111">      throw converter.convert(e);</span>
+<span class="nc" id="L102">      return getClient().getAccountOperation().listElected(voteId, showCount);</span>
+<span class="nc" id="L103">    } catch (Exception e) {</span>
+<span class="nc" id="L104">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public AccountTotalVote getVotesOf(final AccountAddress accountAddress) {
     try {
-<span class="nc" id="L118">      return getClient().getAccountOperation().getVotesOf(accountAddress);</span>
-<span class="nc" id="L119">    } catch (Exception e) {</span>
-<span class="nc" id="L120">      throw converter.convert(e);</span>
+<span class="nc" id="L111">      return getClient().getAccountOperation().getVotesOf(accountAddress);</span>
+<span class="nc" id="L112">    } catch (Exception e) {</span>
+<span class="nc" id="L113">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public List&lt;AccountAddress&gt; listServerKeyStoreAccounts() {
     try {
-<span class="nc" id="L127">      return getClient().getKeyStoreOperation().list();</span>
-<span class="nc" id="L128">    } catch (Exception e) {</span>
-<span class="nc" id="L129">      throw converter.convert(e);</span>
+<span class="nc" id="L120">      return getClient().getKeyStoreOperation().list();</span>
+<span class="nc" id="L121">    } catch (Exception e) {</span>
+<span class="nc" id="L122">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public BlockHash getBestBlockHash() {
     try {
-<span class="nc" id="L136">      return getClient().getBlockchainOperation().getBlockchainStatus().getBestBlockHash();</span>
-<span class="nc" id="L137">    } catch (Exception e) {</span>
-<span class="nc" id="L138">      throw converter.convert(e);</span>
+<span class="nc" id="L129">      return getClient().getBlockchainOperation().getBlockchainStatus().getBestBlockHash();</span>
+<span class="nc" id="L130">    } catch (Exception e) {</span>
+<span class="nc" id="L131">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public long getBestBlockHeight() {
     try {
-<span class="nc" id="L145">      return getClient().getBlockchainOperation().getBlockchainStatus().getBestHeight();</span>
-<span class="nc" id="L146">    } catch (Exception e) {</span>
-<span class="nc" id="L147">      throw converter.convert(e);</span>
+<span class="nc" id="L138">      return getClient().getBlockchainOperation().getBlockchainStatus().getBestHeight();</span>
+<span class="nc" id="L139">    } catch (Exception e) {</span>
+<span class="nc" id="L140">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public ChainIdHash getChainIdHash() {
     try {
-<span class="nc" id="L154">      return getClient().getBlockchainOperation().getBlockchainStatus().getChainIdHash();</span>
-<span class="nc" id="L155">    } catch (Exception e) {</span>
-<span class="nc" id="L156">      throw converter.convert(e);</span>
+<span class="nc" id="L147">      return getClient().getBlockchainOperation().getBlockchainStatus().getChainIdHash();</span>
+<span class="nc" id="L148">    } catch (Exception e) {</span>
+<span class="nc" id="L149">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public BlockchainStatus getBlockchainStatus() {
     try {
-<span class="nc" id="L163">      return getClient().getBlockchainOperation().getBlockchainStatus();</span>
-<span class="nc" id="L164">    } catch (Exception e) {</span>
-<span class="nc" id="L165">      throw converter.convert(e);</span>
+<span class="nc" id="L156">      return getClient().getBlockchainOperation().getBlockchainStatus();</span>
+<span class="nc" id="L157">    } catch (Exception e) {</span>
+<span class="nc" id="L158">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public ChainInfo getChainInfo() {
     try {
-<span class="nc" id="L172">      return getClient().getBlockchainOperation().getChainInfo();</span>
-<span class="nc" id="L173">    } catch (Exception e) {</span>
-<span class="nc" id="L174">      throw converter.convert(e);</span>
+<span class="nc" id="L165">      return getClient().getBlockchainOperation().getChainInfo();</span>
+<span class="nc" id="L166">    } catch (Exception e) {</span>
+<span class="nc" id="L167">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public ChainStats getChainStats() {
     try {
-<span class="nc" id="L181">      return getClient().getBlockchainOperation().getChainStats();</span>
-<span class="nc" id="L182">    } catch (Exception e) {</span>
-<span class="nc" id="L183">      throw converter.convert(e);</span>
+<span class="nc" id="L174">      return getClient().getBlockchainOperation().getChainStats();</span>
+<span class="nc" id="L175">    } catch (Exception e) {</span>
+<span class="nc" id="L176">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public List&lt;Peer&gt; listPeers() {
     try {
-<span class="nc" id="L190">      return getClient().getBlockchainOperation().listPeers();</span>
-<span class="nc" id="L191">    } catch (Exception e) {</span>
-<span class="nc" id="L192">      throw converter.convert(e);</span>
+<span class="nc" id="L183">      return getClient().getBlockchainOperation().listPeers();</span>
+<span class="nc" id="L184">    } catch (Exception e) {</span>
+<span class="nc" id="L185">      throw converter.convert(e);</span>
     }
   }
 
@@ -197,90 +190,90 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public List&lt;Peer&gt; listPeers(boolean showHidden, boolean showSelf) {
     try {
-<span class="nc" id="L200">      return getClient().getBlockchainOperation().listPeers(showHidden, showSelf);</span>
-<span class="nc" id="L201">    } catch (Exception e) {</span>
-<span class="nc" id="L202">      throw converter.convert(e);</span>
+<span class="nc" id="L193">      return getClient().getBlockchainOperation().listPeers(showHidden, showSelf);</span>
+<span class="nc" id="L194">    } catch (Exception e) {</span>
+<span class="nc" id="L195">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public List&lt;PeerMetric&gt; listPeerMetrics() {
     try {
-<span class="nc" id="L209">      return getClient().getBlockchainOperation().listPeerMetrics();</span>
-<span class="nc" id="L210">    } catch (Exception e) {</span>
-<span class="nc" id="L211">      throw converter.convert(e);</span>
+<span class="nc" id="L202">      return getClient().getBlockchainOperation().listPeerMetrics();</span>
+<span class="nc" id="L203">    } catch (Exception e) {</span>
+<span class="nc" id="L204">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public ServerInfo getServerInfo(final List&lt;String&gt; categories) {
     try {
-<span class="nc" id="L218">      return getClient().getBlockchainOperation().getServerInfo(categories);</span>
-<span class="nc" id="L219">    } catch (Exception e) {</span>
-<span class="nc" id="L220">      throw converter.convert(e);</span>
+<span class="nc" id="L211">      return getClient().getBlockchainOperation().getServerInfo(categories);</span>
+<span class="nc" id="L212">    } catch (Exception e) {</span>
+<span class="nc" id="L213">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public NodeStatus getNodeStatus() {
     try {
-<span class="nc" id="L227">      return getClient().getBlockchainOperation().getNodeStatus();</span>
-<span class="nc" id="L228">    } catch (Exception e) {</span>
-<span class="nc" id="L229">      throw converter.convert(e);</span>
+<span class="nc" id="L220">      return getClient().getBlockchainOperation().getNodeStatus();</span>
+<span class="nc" id="L221">    } catch (Exception e) {</span>
+<span class="nc" id="L222">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public BlockMetadata getBlockMetadata(final BlockHash blockHash) {
     try {
-<span class="nc" id="L236">      return getClient().getBlockOperation().getBlockMetadata(blockHash);</span>
-<span class="nc" id="L237">    } catch (Exception e) {</span>
-<span class="nc" id="L238">      throw converter.convert(e);</span>
+<span class="nc" id="L229">      return getClient().getBlockOperation().getBlockMetadata(blockHash);</span>
+<span class="nc" id="L230">    } catch (Exception e) {</span>
+<span class="nc" id="L231">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public BlockMetadata getBlockMetadata(final long height) {
     try {
-<span class="nc" id="L245">      return getClient().getBlockOperation().getBlockMetadata(height);</span>
-<span class="nc" id="L246">    } catch (Exception e) {</span>
-<span class="nc" id="L247">      throw converter.convert(e);</span>
+<span class="nc" id="L238">      return getClient().getBlockOperation().getBlockMetadata(height);</span>
+<span class="nc" id="L239">    } catch (Exception e) {</span>
+<span class="nc" id="L240">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public List&lt;BlockMetadata&gt; listBlockMetadatas(final BlockHash blockHash, final int size) {
     try {
-<span class="nc" id="L254">      return getClient().getBlockOperation().listBlockMetadatas(blockHash, size);</span>
-<span class="nc" id="L255">    } catch (Exception e) {</span>
-<span class="nc" id="L256">      throw converter.convert(e);</span>
+<span class="nc" id="L247">      return getClient().getBlockOperation().listBlockMetadatas(blockHash, size);</span>
+<span class="nc" id="L248">    } catch (Exception e) {</span>
+<span class="nc" id="L249">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public List&lt;BlockMetadata&gt; listBlockMetadatas(final long height, final int size) {
     try {
-<span class="nc" id="L263">      return getClient().getBlockOperation().listBlockMetadatas(height, size);</span>
-<span class="nc" id="L264">    } catch (Exception e) {</span>
-<span class="nc" id="L265">      throw converter.convert(e);</span>
+<span class="nc" id="L256">      return getClient().getBlockOperation().listBlockMetadatas(height, size);</span>
+<span class="nc" id="L257">    } catch (Exception e) {</span>
+<span class="nc" id="L258">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public Block getBlock(final BlockHash blockHash) {
     try {
-<span class="nc" id="L272">      return getClient().getBlockOperation().getBlock(blockHash);</span>
-<span class="nc" id="L273">    } catch (Exception e) {</span>
-<span class="nc" id="L274">      throw converter.convert(e);</span>
+<span class="nc" id="L265">      return getClient().getBlockOperation().getBlock(blockHash);</span>
+<span class="nc" id="L266">    } catch (Exception e) {</span>
+<span class="nc" id="L267">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public Block getBlock(final long height) {
     try {
-<span class="nc" id="L281">      return getClient().getBlockOperation().getBlock(height);</span>
-<span class="nc" id="L282">    } catch (Exception e) {</span>
-<span class="nc" id="L283">      throw converter.convert(e);</span>
+<span class="nc" id="L274">      return getClient().getBlockOperation().getBlock(height);</span>
+<span class="nc" id="L275">    } catch (Exception e) {</span>
+<span class="nc" id="L276">      throw converter.convert(e);</span>
     }
   }
 
@@ -288,63 +281,63 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   public Subscription&lt;BlockMetadata&gt; subscribeNewBlockMetadata(
       final StreamObserver&lt;BlockMetadata&gt; observer) {
     try {
-<span class="nc" id="L291">      return getClient().getBlockOperation().subscribeNewBlockMetadata(observer);</span>
-<span class="nc" id="L292">    } catch (Exception e) {</span>
-<span class="nc" id="L293">      throw converter.convert(e);</span>
+<span class="nc" id="L284">      return getClient().getBlockOperation().subscribeNewBlockMetadata(observer);</span>
+<span class="nc" id="L285">    } catch (Exception e) {</span>
+<span class="nc" id="L286">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public Subscription&lt;Block&gt; subscribeNewBlock(final StreamObserver&lt;Block&gt; observer) {
     try {
-<span class="nc" id="L300">      return getClient().getBlockOperation().subscribeNewBlock(observer);</span>
-<span class="nc" id="L301">    } catch (Exception e) {</span>
-<span class="nc" id="L302">      throw converter.convert(e);</span>
+<span class="nc" id="L293">      return getClient().getBlockOperation().subscribeNewBlock(observer);</span>
+<span class="nc" id="L294">    } catch (Exception e) {</span>
+<span class="nc" id="L295">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public Transaction getTransaction(final TxHash txHash) {
     try {
-<span class="nc" id="L309">      return getClient().getTransactionOperation().getTransaction(txHash);</span>
-<span class="nc" id="L310">    } catch (Exception e) {</span>
-<span class="nc" id="L311">      throw converter.convert(e);</span>
+<span class="nc" id="L302">      return getClient().getTransactionOperation().getTransaction(txHash);</span>
+<span class="nc" id="L303">    } catch (Exception e) {</span>
+<span class="nc" id="L304">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public ContractTxReceipt getReceipt(final ContractTxHash contractTxHash) {
     try {
-<span class="nc" id="L318">      return getClient().getContractOperation().getReceipt(contractTxHash);</span>
-<span class="nc" id="L319">    } catch (Exception e) {</span>
-<span class="nc" id="L320">      throw converter.convert(e);</span>
+<span class="nc" id="L311">      return getClient().getContractOperation().getReceipt(contractTxHash);</span>
+<span class="nc" id="L312">    } catch (Exception e) {</span>
+<span class="nc" id="L313">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public ContractInterface getContractInterface(final ContractAddress contractAddress) {
     try {
-<span class="nc" id="L327">      return getClient().getContractOperation().getContractInterface(contractAddress);</span>
-<span class="nc" id="L328">    } catch (Exception e) {</span>
-<span class="nc" id="L329">      throw converter.convert(e);</span>
+<span class="nc" id="L320">      return getClient().getContractOperation().getContractInterface(contractAddress);</span>
+<span class="nc" id="L321">    } catch (Exception e) {</span>
+<span class="nc" id="L322">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public ContractResult query(final ContractInvocation contractInvocation) {
     try {
-<span class="nc" id="L336">      return getClient().getContractOperation().query(contractInvocation);</span>
-<span class="nc" id="L337">    } catch (Exception e) {</span>
-<span class="nc" id="L338">      throw converter.convert(e);</span>
+<span class="nc" id="L329">      return getClient().getContractOperation().query(contractInvocation);</span>
+<span class="nc" id="L330">    } catch (Exception e) {</span>
+<span class="nc" id="L331">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public List&lt;Event&gt; listEvents(final EventFilter filter) {
     try {
-<span class="nc" id="L345">      return getClient().getContractOperation().listEvents(filter);</span>
-<span class="nc" id="L346">    } catch (Exception e) {</span>
-<span class="nc" id="L347">      throw converter.convert(e);</span>
+<span class="nc" id="L338">      return getClient().getContractOperation().listEvents(filter);</span>
+<span class="nc" id="L339">    } catch (Exception e) {</span>
+<span class="nc" id="L340">      throw converter.convert(e);</span>
     }
   }
 
@@ -352,10 +345,17 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   public Subscription&lt;Event&gt; subscribeEvent(final EventFilter filter,
       final StreamObserver&lt;Event&gt; observer) {
     try {
-<span class="nc" id="L355">      return getClient().getContractOperation().subscribeEvent(filter, observer);</span>
-<span class="nc" id="L356">    } catch (Exception e) {</span>
-<span class="nc" id="L357">      throw converter.convert(e);</span>
+<span class="nc" id="L348">      return getClient().getContractOperation().subscribeEvent(filter, observer);</span>
+<span class="nc" id="L349">    } catch (Exception e) {</span>
+<span class="nc" id="L350">      throw converter.convert(e);</span>
     }
+  }
+
+  protected AergoClient getClient() {
+<span class="nc bnc" id="L355" title="All 2 branches missed.">    if (null == this.client) {</span>
+<span class="nc" id="L356">      throw new WalletException(&quot;Aergo client isn't binded yet&quot;);</span>
+    }
+<span class="nc" id="L358">    return this.client;</span>
   }
 
 }

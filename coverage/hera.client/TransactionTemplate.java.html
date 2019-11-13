@@ -4,11 +4,15 @@
 
 package hera.client;
 
+import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.api.function.Functions.identify;
 import static hera.client.ClientConstants.TRANSACTION_COMMIT;
 import static hera.client.ClientConstants.TRANSACTION_GETTX;
 import static hera.client.ClientConstants.TRANSACTION_SEND;
 
+import com.google.common.base.Function;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
@@ -20,70 +24,112 @@ import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.client.internal.FinishableFuture;
 import hera.client.internal.TransactionBaseTemplate;
+import hera.exception.RpcException;
+import hera.exception.RpcExceptionConverter;
 import hera.strategy.PriorityProvider;
 import hera.strategy.StrategyApplier;
+import hera.util.ExceptionConverter;
 import io.grpc.ManagedChannel;
+import java.util.concurrent.Future;
 import lombok.AccessLevel;
 import lombok.Getter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="fc" id="L33">public class TransactionTemplate</span>
+<span class="fc" id="L40">public class TransactionTemplate</span>
     implements TransactionOperation, ChannelInjectable, ContextProviderInjectable {
 
-<span class="fc" id="L36">  @Getter</span>
-  protected TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();
+<span class="fc" id="L43">  protected final ExceptionConverter&lt;RpcException&gt; exceptionConverter = new RpcExceptionConverter();</span>
+
+<span class="fc" id="L45">  protected TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();</span>
 
   protected ContextProvider contextProvider;
 
-<span class="pc bpc" id="L41" title="4 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L49" title="4 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final StrategyApplier strategyApplier =
       StrategyApplier.of(contextProvider.get(), PriorityProvider.get());
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-<span class="nc" id="L47">    getTransactionBaseTemplate().setChannel(channel);</span>
-<span class="nc" id="L48">  }</span>
+<span class="nc" id="L55">    this.transactionBaseTemplate.setChannel(channel);</span>
+<span class="nc" id="L56">  }</span>
 
   @Override
   public void setContextProvider(final ContextProvider contextProvider) {
-<span class="fc" id="L52">    this.contextProvider = contextProvider;</span>
-<span class="fc" id="L53">    getTransactionBaseTemplate().setContextProvider(contextProvider);</span>
-<span class="fc" id="L54">  }</span>
+<span class="fc" id="L60">    this.contextProvider = contextProvider;</span>
+<span class="fc" id="L61">    this.transactionBaseTemplate.setContextProvider(contextProvider);</span>
+<span class="fc" id="L62">  }</span>
 
-<span class="pc bpc" id="L56" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
-  private final Function1&lt;TxHash, FinishableFuture&lt;Transaction&gt;&gt; transactionFunction =
-      getStrategyApplier().apply(identify(getTransactionBaseTemplate().getTransactionFunction(),
+<span class="fc" id="L64">  private final Function1&lt;TxHash, Future&lt;Transaction&gt;&gt; convertedTransactionFunction =</span>
+<span class="fc" id="L65">      new Function1&lt;TxHash, Future&lt;Transaction&gt;&gt;() {</span>
+
+        @Override
+        public Future&lt;Transaction&gt; apply(final TxHash txHash) {
+<span class="fc" id="L69">          final ListenableFuture&lt;Transaction&gt; txInMemory =</span>
+<span class="fc" id="L70">              (ListenableFuture&lt;Transaction&gt;) transactionBaseTemplate.getTransactionFunction()</span>
+<span class="fc" id="L71">                  .apply(txHash);</span>
+<span class="fc" id="L72">          final ListenableFuture&lt;Transaction&gt; future =</span>
+<span class="fc" id="L73">              Futures.catching(txInMemory, Throwable.class, new Function&lt;Throwable, Transaction&gt;() {</span>
+
+                @Override
+                public Transaction apply(final Throwable input) {
+                  try {
+<span class="nc" id="L78">                    return transactionBaseTemplate.getTransactionInBlockFunction().apply(txHash)</span>
+<span class="nc" id="L79">                        .get();</span>
+<span class="nc" id="L80">                  } catch (Exception e) {</span>
+                    // TODO: fixme
+<span class="nc" id="L82">                    throw new RpcException(e);</span>
+                  }
+                }
+<span class="fc" id="L85">              }, directExecutor());</span>
+<span class="fc" id="L86">          return future;</span>
+        }
+      };
+
+<span class="pc bpc" id="L90" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function1&lt;TxHash, Future&lt;Transaction&gt;&gt; transactionFunction =
+      getStrategyApplier().apply(identify(convertedTransactionFunction,
           TRANSACTION_GETTX));
 
-<span class="pc bpc" id="L61" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
-  private final Function1&lt;Transaction, FinishableFuture&lt;TxHash&gt;&gt; commitFunction =
+<span class="pc bpc" id="L95" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function1&lt;Transaction, Future&lt;TxHash&gt;&gt; commitFunction =
       getStrategyApplier()
-          .apply(identify(getTransactionBaseTemplate().getCommitFunction(), TRANSACTION_COMMIT));
+          .apply(identify(this.transactionBaseTemplate.getCommitFunction(), TRANSACTION_COMMIT));
 
-<span class="pc bpc" id="L66" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L100" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function3&lt;AccountAddress, AccountAddress, Aer,
-      FinishableFuture&lt;TxHash&gt;&gt; sendFunction =
+      Future&lt;TxHash&gt;&gt; sendFunction =
           getStrategyApplier()
-              .apply(identify(getTransactionBaseTemplate().getSendFunction(), TRANSACTION_SEND));
+              .apply(identify(this.transactionBaseTemplate.getSendFunction(), TRANSACTION_SEND));
 
   @Override
   public Transaction getTransaction(final TxHash txHash) {
-<span class="fc" id="L74">    return getTransactionFunction().apply(txHash).get();</span>
+    try {
+<span class="fc" id="L109">      return getTransactionFunction().apply(txHash).get();</span>
+<span class="nc" id="L110">    } catch (Exception e) {</span>
+<span class="nc" id="L111">      throw exceptionConverter.convert(e);</span>
+    }
   }
 
   @Override
   public TxHash commit(final Transaction transaction) {
-<span class="fc" id="L79">    return getCommitFunction().apply(transaction).get();</span>
+    try {
+<span class="fc" id="L118">      return getCommitFunction().apply(transaction).get();</span>
+<span class="nc" id="L119">    } catch (Exception e) {</span>
+<span class="nc" id="L120">      throw exceptionConverter.convert(e);</span>
+    }
   }
 
   @Override
   public TxHash send(final AccountAddress sender,
       final AccountAddress recipient,
       final Aer amount) {
-<span class="fc" id="L86">    return getSendFunction().apply(sender, recipient, amount).get();</span>
+    try {
+<span class="fc" id="L129">      return getSendFunction().apply(sender, recipient, amount).get();</span>
+<span class="nc" id="L130">    } catch (Exception e) {</span>
+<span class="nc" id="L131">      throw exceptionConverter.convert(e);</span>
+    }
   }
 
 }

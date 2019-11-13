@@ -35,48 +35,50 @@ public class RpcCommitException extends RpcException {
   /**
    * Make a {@code CommitException} with rpc {@link types.Rpc.CommitStatus}.
    *
-   * @param rpcCommitStatus rpc commit status
-   * @param message a message
+   * @param internalCommitException an internal commit exception
    */
-<span class="fc" id="L41">  public RpcCommitException(final types.Rpc.CommitStatus rpcCommitStatus, final String message) {</span>
-<span class="fc bfc" id="L42" title="All 10 branches covered.">    switch (rpcCommitStatus) {</span>
+  public RpcCommitException(final InternalCommitException internalCommitException) {
+<span class="fc" id="L41">    super(internalCommitException);</span>
+
+<span class="fc" id="L43">    final types.Rpc.CommitStatus rpcCommitStatus = internalCommitException.getCommitStatus();</span>
+<span class="fc" id="L44">    this.message = internalCommitException.getMessage();</span>
+<span class="fc bfc" id="L45" title="All 10 branches covered.">    switch (rpcCommitStatus) {</span>
       case TX_OK:
-<span class="fc" id="L44">        this.commitStatus = CommitStatus.OK;</span>
-<span class="fc" id="L45">        break;</span>
-      case TX_NONCE_TOO_LOW:
-<span class="fc" id="L47">        this.commitStatus = CommitStatus.NONCE_TOO_LOW;</span>
+<span class="fc" id="L47">        this.commitStatus = CommitStatus.OK;</span>
 <span class="fc" id="L48">        break;</span>
-      case TX_ALREADY_EXISTS:
-<span class="fc" id="L50">        this.commitStatus = CommitStatus.TX_ALREADY_EXISTS;</span>
+      case TX_NONCE_TOO_LOW:
+<span class="fc" id="L50">        this.commitStatus = CommitStatus.NONCE_TOO_LOW;</span>
 <span class="fc" id="L51">        break;</span>
-      case TX_INVALID_HASH:
-<span class="fc" id="L53">        this.commitStatus = CommitStatus.TX_INVALID_HASH;</span>
+      case TX_ALREADY_EXISTS:
+<span class="fc" id="L53">        this.commitStatus = CommitStatus.TX_ALREADY_EXISTS;</span>
 <span class="fc" id="L54">        break;</span>
-      case TX_INVALID_SIGN:
-<span class="fc" id="L56">        this.commitStatus = CommitStatus.TX_INVALID_SIGNATURE;</span>
+      case TX_INVALID_HASH:
+<span class="fc" id="L56">        this.commitStatus = CommitStatus.TX_INVALID_HASH;</span>
 <span class="fc" id="L57">        break;</span>
-      case TX_INVALID_FORMAT:
-<span class="fc" id="L59">        this.commitStatus = CommitStatus.TX_INVALID_FORMAT;</span>
+      case TX_INVALID_SIGN:
+<span class="fc" id="L59">        this.commitStatus = CommitStatus.TX_INVALID_SIGNATURE;</span>
 <span class="fc" id="L60">        break;</span>
-      case TX_INSUFFICIENT_BALANCE:
-<span class="fc" id="L62">        this.commitStatus = CommitStatus.INSUFFICIENT_BALANCE;</span>
+      case TX_INVALID_FORMAT:
+<span class="fc" id="L62">        this.commitStatus = CommitStatus.TX_INVALID_FORMAT;</span>
 <span class="fc" id="L63">        break;</span>
-      case TX_HAS_SAME_NONCE:
-<span class="fc" id="L65">        this.commitStatus = CommitStatus.TX_HAS_SAME_NONCE;</span>
+      case TX_INSUFFICIENT_BALANCE:
+<span class="fc" id="L65">        this.commitStatus = CommitStatus.INSUFFICIENT_BALANCE;</span>
 <span class="fc" id="L66">        break;</span>
-      case TX_INTERNAL_ERROR:
-<span class="fc" id="L68">        this.commitStatus = CommitStatus.INTERNAL_ERROR;</span>
+      case TX_HAS_SAME_NONCE:
+<span class="fc" id="L68">        this.commitStatus = CommitStatus.TX_HAS_SAME_NONCE;</span>
 <span class="fc" id="L69">        break;</span>
+      case TX_INTERNAL_ERROR:
+<span class="fc" id="L71">        this.commitStatus = CommitStatus.INTERNAL_ERROR;</span>
+<span class="fc" id="L72">        break;</span>
       default:
-<span class="fc" id="L71">        this.commitStatus = CommitStatus.UNRECOGNIZED;</span>
+<span class="fc" id="L74">        this.commitStatus = CommitStatus.UNRECOGNIZED;</span>
         break;
     }
-<span class="fc" id="L74">    this.message = message;</span>
-<span class="fc" id="L75">  }</span>
+<span class="fc" id="L77">  }</span>
 
   @Override
   public String getLocalizedMessage() {
-<span class="fc" id="L79">    return commitStatus.toString() + &quot; &quot; + message;</span>
+<span class="fc" id="L81">    return commitStatus.toString() + &quot; &quot; + message;</span>
   }
 
 }

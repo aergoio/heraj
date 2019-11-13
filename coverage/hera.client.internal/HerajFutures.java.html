@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HerajFutures.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.client.internal</a> &gt; <span class="el_source">HerajFutures.java</span></div><h1>HerajFutures.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ * 
+ */
+
+package hera.client.internal;
+
+import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
+import static hera.util.ValidationUtils.assertNotNull;
+
+import com.google.common.base.Function;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import hera.api.function.Function1;
+import hera.exception.HerajException;
+import java.util.concurrent.Future;
+
+<span class="nc" id="L18">public class HerajFutures {</span>
+
+  /**
+   * Transform Future of type T into Future of type R.
+   * 
+   * @param &lt;T&gt; an origin type of future
+   * @param &lt;R&gt; a transformed type of future
+   * @param origin an origin future
+   * @param converter a converter converting T to R
+   *
+   * @return a converted future
+   */
+  public static &lt;T, R&gt; Future&lt;R&gt; transform(final Future&lt;T&gt; origin,
+      final Function1&lt;T, R&gt; converter) {
+<span class="fc" id="L32">    assertNotNull(origin);</span>
+<span class="fc" id="L33">    assertNotNull(converter);</span>
+
+<span class="pc bpc" id="L35" title="1 of 2 branches missed.">    if (!(origin instanceof ListenableFuture)) {</span>
+<span class="nc" id="L36">      throw new HerajException(&quot;Unsupported future type: &quot; + origin.getClass().getName());</span>
+    }
+
+<span class="fc" id="L39">    final ListenableFuture&lt;T&gt; realOrigin = (ListenableFuture&lt;T&gt;) origin;</span>
+<span class="fc" id="L40">    final ListenableFuture&lt;R&gt; transformed = Futures.transform(realOrigin, new Function&lt;T, R&gt;() {</span>
+
+      @Override
+      public R apply(final T input) {
+<span class="fc" id="L44">        return converter.apply(input);</span>
+      }
+<span class="fc" id="L46">    }, directExecutor());</span>
+<span class="fc" id="L47">    return transformed;</span>
+  }
+
+  public static &lt;T&gt; Future&lt;T&gt; success(final T value) {
+<span class="fc" id="L51">    return Futures.immediateFuture(value);</span>
+  }
+
+  public static &lt;T&gt; Future&lt;T&gt; fail(final Throwable throwable) {
+<span class="nc" id="L55">    assertNotNull(throwable);</span>
+<span class="nc" id="L56">    return Futures.immediateFailedFuture(throwable);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

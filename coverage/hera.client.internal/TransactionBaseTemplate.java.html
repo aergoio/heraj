@@ -4,14 +4,11 @@
 
 package hera.client.internal;
 
-import static com.google.common.util.concurrent.Futures.addCallback;
-import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.api.model.BytesValue.of;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import hera.ContextProvider;
 import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
@@ -24,12 +21,12 @@ import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.client.ChannelInjectable;
-import hera.exception.RpcCommitException;
-import hera.exception.RpcException;
+import hera.exception.InternalCommitException;
 import hera.transport.ModelConverter;
 import hera.transport.TransactionConverterFactory;
 import hera.transport.TransactionInBlockConverterFactory;
 import io.grpc.ManagedChannel;
+import java.util.concurrent.Future;
 import lombok.Getter;
 import org.slf4j.Logger;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
@@ -38,160 +35,154 @@ import types.Rpc;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="fc" id="L41">public class TransactionBaseTemplate implements ChannelInjectable, ContextProviderInjectable {</span>
+<span class="fc" id="L38">public class TransactionBaseTemplate implements ChannelInjectable, ContextProviderInjectable {</span>
 
-<span class="fc" id="L43">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="fc" id="L40">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L45">  protected final ModelConverter&lt;Transaction, Blockchain.Tx&gt; transactionConverter =</span>
-<span class="fc" id="L46">      new TransactionConverterFactory().create();</span>
+<span class="fc" id="L42">  protected final ModelConverter&lt;Transaction, Blockchain.Tx&gt; transactionConverter =</span>
+<span class="fc" id="L43">      new TransactionConverterFactory().create();</span>
 
-<span class="fc" id="L48">  protected final ModelConverter&lt;Transaction, Blockchain.TxInBlock&gt; transactionInBlockConverter =</span>
-<span class="fc" id="L49">      new TransactionInBlockConverterFactory().create();</span>
+<span class="fc" id="L45">  protected final ModelConverter&lt;Transaction, Blockchain.TxInBlock&gt; transactionInBlockConverter =</span>
+<span class="fc" id="L46">      new TransactionInBlockConverterFactory().create();</span>
 
-<span class="nc" id="L51">  @Getter</span>
+<span class="nc" id="L48">  @Getter</span>
   protected AergoRPCServiceFutureStub aergoService;
 
   protected ContextProvider contextProvider;
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-<span class="nc" id="L58">    this.aergoService = newFutureStub(channel);</span>
-<span class="nc" id="L59">  }</span>
+<span class="nc" id="L55">    this.aergoService = newFutureStub(channel);</span>
+<span class="nc" id="L56">  }</span>
 
   @Override
   public void setContextProvider(final ContextProvider contextProvider) {
-<span class="nc" id="L63">    this.contextProvider = contextProvider;</span>
-<span class="nc" id="L64">  }</span>
+<span class="nc" id="L60">    this.contextProvider = contextProvider;</span>
+<span class="nc" id="L61">  }</span>
 
-<span class="fc" id="L66">  @Getter</span>
-  private final Function1&lt;TxHash, FinishableFuture&lt;Transaction&gt;&gt; transactionFunction =
-<span class="fc" id="L68">      new Function1&lt;TxHash, FinishableFuture&lt;Transaction&gt;&gt;() {</span>
+<span class="fc" id="L63">  @Getter</span>
+  private final Function1&lt;TxHash, Future&lt;Transaction&gt;&gt; transactionFunction =
+<span class="fc" id="L65">      new Function1&lt;TxHash, Future&lt;Transaction&gt;&gt;() {</span>
 
         @Override
-        public FinishableFuture&lt;Transaction&gt; apply(final TxHash txHash) {
-<span class="fc" id="L72">          logger.debug(&quot;Get transaction with txHash: {}&quot;, txHash);</span>
+        public Future&lt;Transaction&gt; apply(final TxHash txHash) {
+<span class="fc" id="L69">          logger.debug(&quot;Get transaction with txHash: {}&quot;, txHash);</span>
 
-<span class="fc" id="L74">          FinishableFuture&lt;Transaction&gt; nextFuture = new FinishableFuture&lt;Transaction&gt;();</span>
-          try {
-<span class="fc" id="L76">            final Rpc.SingleBytes rpcTxHash = Rpc.SingleBytes.newBuilder()</span>
-<span class="fc" id="L77">                .setValue(copyFrom(txHash.getBytesValue()))</span>
-<span class="fc" id="L78">                .build();</span>
-<span class="fc" id="L79">            logger.trace(&quot;AergoService getTX arg: {}&quot;, rpcTxHash);</span>
+<span class="fc" id="L71">          final Rpc.SingleBytes rpcTxHash = Rpc.SingleBytes.newBuilder()</span>
+<span class="fc" id="L72">              .setValue(copyFrom(txHash.getBytesValue()))</span>
+<span class="fc" id="L73">              .build();</span>
+<span class="fc" id="L74">          logger.trace(&quot;AergoService getTX arg: {}&quot;, rpcTxHash);</span>
 
-<span class="fc" id="L81">            ListenableFuture&lt;Blockchain.Tx&gt; listenableFuture =</span>
-<span class="fc" id="L82">                aergoService.getTX(rpcTxHash);</span>
-<span class="fc" id="L83">            FutureChain&lt;Blockchain.Tx, Transaction&gt; callback = new FutureChain&lt;&gt;(nextFuture);</span>
-<span class="fc" id="L84">            callback.setSuccessHandler(new Function1&lt;Blockchain.Tx, Transaction&gt;() {</span>
+<span class="fc" id="L76">          final Future&lt;Blockchain.Tx&gt; rawFuture = aergoService.getTX(rpcTxHash);</span>
+<span class="fc" id="L77">          final Future&lt;Transaction&gt; convertedFuture =</span>
+<span class="fc" id="L78">              HerajFutures.transform(rawFuture, new Function1&lt;Blockchain.Tx, Transaction&gt;() {</span>
 
-              @Override
-              public Transaction apply(final Blockchain.Tx rpcTx) {
-<span class="fc" id="L88">                return transactionConverter.convertToDomainModel(rpcTx);</span>
-              }
-            });
-<span class="fc" id="L91">            callback.setFailureHandler(new Function1&lt;Throwable, Transaction&gt;() {</span>
-
-              @Override
-              public Transaction apply(final Throwable t) {
-<span class="fc" id="L95">                logger.debug(&quot;Transaction {} is not in a mempool. Check block&quot;, txHash);</span>
-                try {
-<span class="fc" id="L97">                  logger.trace(&quot;AergoService getBlockTX arg: {}&quot;, rpcTxHash);</span>
-<span class="fc" id="L98">                  Blockchain.TxInBlock tx = aergoService.getBlockTX(rpcTxHash).get();</span>
-<span class="fc" id="L99">                  return transactionInBlockConverter.convertToDomainModel(tx);</span>
-<span class="nc" id="L100">                } catch (Exception e) {</span>
-<span class="nc" id="L101">                  throw new RpcException(e);</span>
+                @Override
+                public Transaction apply(final Blockchain.Tx rpcTx) {
+<span class="fc" id="L82">                  return transactionConverter.convertToDomainModel(rpcTx);</span>
                 }
-              }
-            });
-<span class="fc" id="L105">            addCallback(listenableFuture, callback, directExecutor());</span>
-<span class="nc" id="L106">          } catch (Exception e) {</span>
-<span class="nc" id="L107">            nextFuture.fail(e);</span>
-<span class="fc" id="L108">          }</span>
-<span class="fc" id="L109">          return nextFuture;</span>
+              });
+<span class="fc" id="L85">          return convertedFuture;</span>
         }
       };
 
-<span class="fc" id="L113">  @Getter</span>
-  private final Function1&lt;Transaction, FinishableFuture&lt;TxHash&gt;&gt; commitFunction =
-<span class="fc" id="L115">      new Function1&lt;Transaction, FinishableFuture&lt;TxHash&gt;&gt;() {</span>
+<span class="fc" id="L89">  @Getter</span>
+  private final Function1&lt;TxHash, Future&lt;Transaction&gt;&gt; transactionInBlockFunction =
+<span class="fc" id="L91">      new Function1&lt;TxHash, Future&lt;Transaction&gt;&gt;() {</span>
 
         @Override
-        public FinishableFuture&lt;TxHash&gt; apply(final Transaction transaction) {
-<span class="fc" id="L119">          logger.debug(&quot;Commit transaction with signedTx: {}&quot;, transaction);</span>
+        public Future&lt;Transaction&gt; apply(final TxHash txHash) {
+<span class="fc" id="L95">          logger.debug(&quot;Get transaction with txHash: {}&quot;, txHash);</span>
 
-<span class="fc" id="L121">          FinishableFuture&lt;TxHash&gt; nextFuture = new FinishableFuture&lt;TxHash&gt;();</span>
-          try {
-<span class="fc" id="L123">            final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(transaction);</span>
-            final Blockchain.TxList rpcTxList =
-<span class="fc" id="L125">                Blockchain.TxList.newBuilder().addTxs(rpcTx).build();</span>
-<span class="fc" id="L126">            logger.trace(&quot;AergoService commitTX arg: {}&quot;, rpcTxList);</span>
+<span class="fc" id="L97">          final Rpc.SingleBytes rpcTxHash = Rpc.SingleBytes.newBuilder()</span>
+<span class="fc" id="L98">              .setValue(copyFrom(txHash.getBytesValue()))</span>
+<span class="fc" id="L99">              .build();</span>
+<span class="fc" id="L100">          logger.trace(&quot;AergoService getTX arg: {}&quot;, rpcTxHash);</span>
 
-<span class="fc" id="L128">            ListenableFuture&lt;Rpc.CommitResultList&gt; listenableFuture =</span>
-<span class="fc" id="L129">                aergoService.commitTX(rpcTxList);</span>
-<span class="fc" id="L130">            FutureChain&lt;Rpc.CommitResultList, TxHash&gt; callback = new FutureChain&lt;&gt;(nextFuture);</span>
-<span class="fc" id="L131">            callback.setSuccessHandler(new Function1&lt;Rpc.CommitResultList, TxHash&gt;() {</span>
+<span class="fc" id="L102">          final Future&lt;Blockchain.TxInBlock&gt; rawFuture =</span>
+<span class="fc" id="L103">              aergoService.getBlockTX(rpcTxHash);</span>
+<span class="fc" id="L104">          final Future&lt;Transaction&gt; convertedFuture =</span>
+<span class="fc" id="L105">              HerajFutures.transform(rawFuture, new Function1&lt;Blockchain.TxInBlock, Transaction&gt;() {</span>
 
-              @Override
-              public TxHash apply(final Rpc.CommitResultList commitResultList) {
-<span class="fc" id="L135">                final Rpc.CommitResult commitResult = commitResultList.getResultsList().get(0);</span>
-<span class="pc bpc" id="L136" title="1 of 2 branches missed.">                if (Rpc.CommitStatus.TX_OK != commitResult.getError()) {</span>
-<span class="nc" id="L137">                  throw new RpcCommitException(commitResult.getError(), commitResult.getDetail());</span>
+                @Override
+                public Transaction apply(final Blockchain.TxInBlock rpcTxInBlock) {
+<span class="fc" id="L109">                  return transactionInBlockConverter.convertToDomainModel(rpcTxInBlock);</span>
                 }
-<span class="fc" id="L139">                return new TxHash(of(commitResult.getHash().toByteArray()));</span>
-              }
-            });
-<span class="fc" id="L142">            addCallback(listenableFuture, callback, directExecutor());</span>
-<span class="nc" id="L143">          } catch (Exception e) {</span>
-<span class="nc" id="L144">            nextFuture.fail(e);</span>
-<span class="fc" id="L145">          }</span>
-
-<span class="fc" id="L147">          return nextFuture;</span>
+              });
+<span class="fc" id="L112">          return convertedFuture;</span>
         }
       };
 
-<span class="fc" id="L151">  @Getter</span>
+<span class="fc" id="L116">  @Getter</span>
+  private final Function1&lt;Transaction, Future&lt;TxHash&gt;&gt; commitFunction =
+<span class="fc" id="L118">      new Function1&lt;Transaction, Future&lt;TxHash&gt;&gt;() {</span>
+
+        @Override
+        public Future&lt;TxHash&gt; apply(final Transaction transaction) {
+<span class="fc" id="L122">          logger.debug(&quot;Commit transaction with signedTx: {}&quot;, transaction);</span>
+
+<span class="fc" id="L124">          final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(transaction);</span>
+          final Blockchain.TxList rpcTxList =
+<span class="fc" id="L126">              Blockchain.TxList.newBuilder().addTxs(rpcTx).build();</span>
+<span class="fc" id="L127">          logger.trace(&quot;AergoService commitTX arg: {}&quot;, rpcTxList);</span>
+
+<span class="fc" id="L129">          final Future&lt;Rpc.CommitResultList&gt; rawFuture = aergoService.commitTX(rpcTxList);</span>
+<span class="fc" id="L130">          final Future&lt;TxHash&gt; convertedFuture =</span>
+<span class="fc" id="L131">              HerajFutures.transform(rawFuture, new Function1&lt;Rpc.CommitResultList, TxHash&gt;() {</span>
+
+                @Override
+                public TxHash apply(final Rpc.CommitResultList rpcCommitResultList) {
+<span class="fc" id="L135">                  final Rpc.CommitResult rpcCommitResult =</span>
+<span class="fc" id="L136">                      rpcCommitResultList.getResultsList().get(0);</span>
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">                  if (Rpc.CommitStatus.TX_OK != rpcCommitResult.getError()) {</span>
+<span class="nc" id="L138">                    throw new InternalCommitException(rpcCommitResult.getError(),</span>
+<span class="nc" id="L139">                        rpcCommitResult.getDetail());</span>
+                  }
+<span class="fc" id="L141">                  return new TxHash(of(rpcCommitResult.getHash().toByteArray()));</span>
+                }
+              });
+<span class="fc" id="L144">          return convertedFuture;</span>
+        }
+      };
+
+<span class="fc" id="L148">  @Getter</span>
   private final Function3&lt;AccountAddress, AccountAddress, Aer,
-      FinishableFuture&lt;TxHash&gt;&gt; sendFunction = new Function3&lt;
-<span class="fc" id="L154">          AccountAddress, AccountAddress, Aer, FinishableFuture&lt;TxHash&gt;&gt;() {</span>
+      Future&lt;TxHash&gt;&gt; sendFunction = new Function3&lt;
+<span class="fc" id="L151">          AccountAddress, AccountAddress, Aer, Future&lt;TxHash&gt;&gt;() {</span>
 
         @Override
-        public FinishableFuture&lt;TxHash&gt; apply(final AccountAddress sender,
+        public Future&lt;TxHash&gt; apply(final AccountAddress sender,
             final AccountAddress recipient, final Aer amount) {
-<span class="fc" id="L159">          logger.debug(&quot;Send transaction request with sender: {}, recipient: {}, amount&quot;, sender,</span>
+<span class="fc" id="L156">          logger.debug(&quot;Send transaction request with sender: {}, recipient: {}, amount&quot;, sender,</span>
               recipient, amount);
 
-<span class="fc" id="L162">          FinishableFuture&lt;TxHash&gt; nextFuture = new FinishableFuture&lt;TxHash&gt;();</span>
-          try {
-<span class="fc" id="L164">            final RawTransaction rawTransaction = RawTransaction.newBuilder()</span>
-<span class="fc" id="L165">                .chainIdHash(contextProvider.get().getChainIdHash())</span>
-<span class="fc" id="L166">                .from(sender)</span>
-<span class="fc" id="L167">                .to(recipient)</span>
-<span class="fc" id="L168">                .amount(amount)</span>
-<span class="fc" id="L169">                .nonce(0L)</span>
-<span class="fc" id="L170">                .build();</span>
-<span class="fc" id="L171">            final Transaction transaction = Transaction.newBuilder()</span>
-<span class="fc" id="L172">                .rawTransaction(rawTransaction)</span>
-<span class="fc" id="L173">                .build();</span>
+<span class="fc" id="L159">          final RawTransaction rawTransaction = RawTransaction.newBuilder()</span>
+<span class="fc" id="L160">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
+<span class="fc" id="L161">              .from(sender)</span>
+<span class="fc" id="L162">              .to(recipient)</span>
+<span class="fc" id="L163">              .amount(amount)</span>
+<span class="fc" id="L164">              .nonce(0L)</span>
+<span class="fc" id="L165">              .build();</span>
+<span class="fc" id="L166">          final Transaction transaction = Transaction.newBuilder()</span>
+<span class="fc" id="L167">              .rawTransaction(rawTransaction)</span>
+<span class="fc" id="L168">              .build();</span>
+<span class="fc" id="L169">          final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(transaction);</span>
+<span class="fc" id="L170">          logger.trace(&quot;AergoService sendTX arg: {}&quot;, rpcTx);</span>
 
-<span class="fc" id="L175">            final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(transaction);</span>
-<span class="fc" id="L176">            logger.trace(&quot;AergoService sendTX arg: {}&quot;, rpcTx);</span>
+<span class="fc" id="L172">          final Future&lt;Rpc.CommitResult&gt; rawFuture = aergoService.sendTX(rpcTx);</span>
+<span class="fc" id="L173">          final Future&lt;TxHash&gt; convertedFuture =</span>
+<span class="fc" id="L174">              HerajFutures.transform(rawFuture, new Function1&lt;Rpc.CommitResult, TxHash&gt;() {</span>
 
-<span class="fc" id="L178">            ListenableFuture&lt;Rpc.CommitResult&gt; listenableFuture = aergoService.sendTX(rpcTx);</span>
-<span class="fc" id="L179">            FutureChain&lt;Rpc.CommitResult, TxHash&gt; callback = new FutureChain&lt;&gt;(nextFuture);</span>
-<span class="fc" id="L180">            callback.setSuccessHandler(new Function1&lt;Rpc.CommitResult, TxHash&gt;() {</span>
-
-              @Override
-              public TxHash apply(final Rpc.CommitResult commitResult) {
-<span class="pc bpc" id="L184" title="1 of 2 branches missed.">                if (Rpc.CommitStatus.TX_OK != commitResult.getError()) {</span>
-<span class="nc" id="L185">                  throw new RpcCommitException(commitResult.getError(), commitResult.getDetail());</span>
+                @Override
+                public TxHash apply(final Rpc.CommitResult rpcCommitResult) {
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">                  if (Rpc.CommitStatus.TX_OK != rpcCommitResult.getError()) {</span>
+<span class="nc" id="L179">                    throw new InternalCommitException(rpcCommitResult.getError(),</span>
+<span class="nc" id="L180">                        rpcCommitResult.getDetail());</span>
+                  }
+<span class="fc" id="L182">                  return new TxHash(of(rpcCommitResult.getHash().toByteArray()));</span>
                 }
-<span class="fc" id="L187">                return new TxHash(of(commitResult.getHash().toByteArray()));</span>
-              }
-            });
-<span class="fc" id="L190">            addCallback(listenableFuture, callback, directExecutor());</span>
-<span class="nc" id="L191">          } catch (Exception e) {</span>
-<span class="nc" id="L192">            nextFuture.fail(e);</span>
-<span class="fc" id="L193">          }</span>
-<span class="fc" id="L194">          return nextFuture;</span>
+              });
+<span class="fc" id="L185">          return convertedFuture;</span>
         }
       };
 

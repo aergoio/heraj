@@ -38,225 +38,262 @@ import hera.api.model.StakeInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.client.internal.AccountBaseTemplate;
-import hera.client.internal.FinishableFuture;
+import hera.exception.RpcException;
+import hera.exception.RpcExceptionConverter;
 import hera.key.Signer;
 import hera.strategy.PriorityProvider;
 import hera.strategy.StrategyApplier;
+import hera.util.ExceptionConverter;
 import io.grpc.ManagedChannel;
 import java.util.List;
+import java.util.concurrent.Future;
 import lombok.AccessLevel;
 import lombok.Getter;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-<span class="fc" id="L52">public class AccountTemplate</span>
+<span class="fc" id="L55">public class AccountTemplate</span>
     implements AccountOperation, ChannelInjectable, ContextProviderInjectable {
 
-<span class="fc" id="L55">  @Getter</span>
-  protected AccountBaseTemplate accountBaseTemplate = new AccountBaseTemplate();
+<span class="fc" id="L58">  protected final ExceptionConverter&lt;RpcException&gt; exceptionConverter = new RpcExceptionConverter();</span>
+
+<span class="fc" id="L60">  protected AccountBaseTemplate accountBaseTemplate = new AccountBaseTemplate();</span>
 
   protected ContextProvider contextProvider;
 
-<span class="pc bpc" id="L60" title="4 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L64" title="4 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final StrategyApplier strategyApplier =
       StrategyApplier.of(contextProvider.get(), PriorityProvider.get());
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-<span class="nc" id="L66">    getAccountBaseTemplate().setChannel(channel);;</span>
-<span class="nc" id="L67">  }</span>
+<span class="nc" id="L70">    this.accountBaseTemplate.setChannel(channel);;</span>
+<span class="nc" id="L71">  }</span>
 
   @Override
   public void setContextProvider(final ContextProvider contextProvider) {
-<span class="fc" id="L71">    this.contextProvider = contextProvider;</span>
-<span class="fc" id="L72">    getAccountBaseTemplate().setContextProvider(contextProvider);</span>
-<span class="fc" id="L73">  }</span>
+<span class="fc" id="L75">    this.contextProvider = contextProvider;</span>
+<span class="fc" id="L76">    this.accountBaseTemplate.setContextProvider(contextProvider);</span>
+<span class="fc" id="L77">  }</span>
 
-<span class="pc bpc" id="L75" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
-  private final Function1&lt;AccountAddress, FinishableFuture&lt;AccountState&gt;&gt; stateFunction =
+<span class="pc bpc" id="L79" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function1&lt;AccountAddress, Future&lt;AccountState&gt;&gt; stateFunction =
       getStrategyApplier()
-          .apply(identify(getAccountBaseTemplate().getStateFunction(), ACCOUNT_GETSTATE));
+          .apply(identify(this.accountBaseTemplate.getStateFunction(), ACCOUNT_GETSTATE));
 
-<span class="pc bnc" id="L80" title="All 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
-  private final Function3&lt;Account, String, Long,
-      FinishableFuture&lt;TxHash&gt;&gt; deprecatedCreateNameFunction =
-          getStrategyApplier()
-              .apply(identify(getAccountBaseTemplate().getDeprecatedCreateNameFunction(),
-                  ACCOUNT_CREATE_NAME));
-
-<span class="pc bpc" id="L87" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L84" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function3&lt;Signer, String, Long,
-      FinishableFuture&lt;TxHash&gt;&gt; createNameFunction =
+      Future&lt;TxHash&gt;&gt; createNameFunction =
           getStrategyApplier()
-              .apply(identify(getAccountBaseTemplate().getCreateNameFunction(),
+              .apply(identify(this.accountBaseTemplate.getCreateNameFunction(),
                   ACCOUNT_CREATE_NAME));
 
-<span class="pc bnc" id="L94" title="All 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
-  private final Function4&lt;Account, String, AccountAddress, Long,
-      FinishableFuture&lt;TxHash&gt;&gt; deprecatedUpdateNameFunction =
-          getStrategyApplier().apply(
-              identify(getAccountBaseTemplate().getDeprecatedUpdateNameFunction(),
-                  ACCOUNT_UPDATE_NAME));
-
-<span class="pc bpc" id="L101" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L91" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function4&lt;Signer, String, AccountAddress, Long,
-      FinishableFuture&lt;TxHash&gt;&gt; updateNameFunction =
+      Future&lt;TxHash&gt;&gt; updateNameFunction =
           getStrategyApplier().apply(
-              identify(getAccountBaseTemplate().getUpdateNameFunction(), ACCOUNT_UPDATE_NAME));
+              identify(this.accountBaseTemplate.getUpdateNameFunction(), ACCOUNT_UPDATE_NAME));
 
-<span class="pc bpc" id="L107" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
-  private final Function2&lt;String, Long, FinishableFuture&lt;AccountAddress&gt;&gt; nameOwnerFunction =
+<span class="pc bpc" id="L97" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function2&lt;String, Long, Future&lt;AccountAddress&gt;&gt; nameOwnerFunction =
       getStrategyApplier().apply(
-          identify(getAccountBaseTemplate().getGetNameOwnerFunction(), ACCOUNT_GETNAMEOWNER));
+          identify(this.accountBaseTemplate.getGetNameOwnerFunction(), ACCOUNT_GETNAMEOWNER));
 
-<span class="pc bnc" id="L112" title="All 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
-  private final Function3&lt;Account, Aer, Long,
-      FinishableFuture&lt;TxHash&gt;&gt; deprecatedStakingFunction =
-          getStrategyApplier().apply(
-              identify(getAccountBaseTemplate().getDeprecatedStakingFunction(), ACCOUNT_STAKING));
-
-<span class="pc bpc" id="L118" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L102" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function3&lt;Signer, Aer, Long,
-      FinishableFuture&lt;TxHash&gt;&gt; stakingFunction =
+      Future&lt;TxHash&gt;&gt; stakingFunction =
           getStrategyApplier().apply(
-              identify(getAccountBaseTemplate().getStakingFunction(), ACCOUNT_STAKING));
+              identify(this.accountBaseTemplate.getStakingFunction(), ACCOUNT_STAKING));
 
-<span class="pc bnc" id="L124" title="All 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
-  private final Function3&lt;Account, Aer, Long,
-      FinishableFuture&lt;TxHash&gt;&gt; deprecatedUnstakingFunction =
-          getStrategyApplier().apply(
-              identify(getAccountBaseTemplate().getDeprecatedUnstakingFunction(),
-                  ACCOUNT_UNSTAKING));
-
-<span class="pc bpc" id="L131" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bpc" id="L108" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function3&lt;Signer, Aer, Long,
-      FinishableFuture&lt;TxHash&gt;&gt; unstakingFunction =
+      Future&lt;TxHash&gt;&gt; unstakingFunction =
           getStrategyApplier().apply(
-              identify(getAccountBaseTemplate().getUnstakingFunction(), ACCOUNT_UNSTAKING));
+              identify(this.accountBaseTemplate.getUnstakingFunction(), ACCOUNT_UNSTAKING));
 
-<span class="pc bpc" id="L137" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
-  private final Function1&lt;AccountAddress, FinishableFuture&lt;StakeInfo&gt;&gt; stakingInfoFunction =
+<span class="pc bpc" id="L114" title="3 of 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function1&lt;AccountAddress, Future&lt;StakeInfo&gt;&gt; stakingInfoFunction =
       getStrategyApplier().apply(
-          identify(getAccountBaseTemplate().getStakingInfoFunction(), ACCOUNT_GETSTAKINGINFO));
+          identify(this.accountBaseTemplate.getStakingInfoFunction(), ACCOUNT_GETSTAKINGINFO));
 
-<span class="pc bnc" id="L142" title="All 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bnc" id="L119" title="All 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function2&lt;Account, RawTransaction,
-      FinishableFuture&lt;Transaction&gt;&gt; signFunction =
+      Future&lt;Transaction&gt;&gt; signFunction =
           getStrategyApplier()
-              .apply(identify(getAccountBaseTemplate().getSignFunction(), ACCOUNT_SIGN));
+              .apply(identify(this.accountBaseTemplate.getSignFunction(), ACCOUNT_SIGN));
 
-<span class="pc bnc" id="L148" title="All 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
-  private final Function2&lt;Account, Transaction, FinishableFuture&lt;Boolean&gt;&gt; verifyFunction =
+<span class="pc bnc" id="L125" title="All 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function2&lt;Account, Transaction, Future&lt;Boolean&gt;&gt; verifyFunction =
       getStrategyApplier()
-          .apply(identify(getAccountBaseTemplate().getVerifyFunction(), ACCOUNT_VERIFY));
+          .apply(identify(this.accountBaseTemplate.getVerifyFunction(), ACCOUNT_VERIFY));
 
-<span class="pc bnc" id="L153" title="All 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bnc" id="L130" title="All 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function4&lt;Signer, String, List&lt;String&gt;, Long,
-      FinishableFuture&lt;TxHash&gt;&gt; voteFunction =
+      Future&lt;TxHash&gt;&gt; voteFunction =
           getStrategyApplier().apply(
-              identify(getAccountBaseTemplate().getVoteFunction(), ACCOUNT_VOTE));
+              identify(this.accountBaseTemplate.getVoteFunction(), ACCOUNT_VOTE));
 
-<span class="pc bnc" id="L159" title="All 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+<span class="pc bnc" id="L136" title="All 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
   private final Function2&lt;String, Integer,
-      FinishableFuture&lt;List&lt;ElectedCandidate&gt;&gt;&gt; listElectedFunction = getStrategyApplier().apply(
-          identify(getAccountBaseTemplate().getListElectedFunction(), ACCOUNT_LIST_ELECTED));
+      Future&lt;List&lt;ElectedCandidate&gt;&gt;&gt; listElectedFunction = getStrategyApplier().apply(
+          identify(this.accountBaseTemplate.getListElectedFunction(), ACCOUNT_LIST_ELECTED));
 
-<span class="pc bnc" id="L164" title="All 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
-  private final Function1&lt;AccountAddress, FinishableFuture&lt;AccountTotalVote&gt;&gt; votesOfFunction =
+<span class="pc bnc" id="L141" title="All 8 branches missed.">  @Getter(lazy = true, value = AccessLevel.PROTECTED)</span>
+  private final Function1&lt;AccountAddress, Future&lt;AccountTotalVote&gt;&gt; votesOfFunction =
       getStrategyApplier().apply(
-          identify(getAccountBaseTemplate().getVotesOfFunction(), ACCOUNT_VOTESOF));
+          identify(this.accountBaseTemplate.getVotesOfFunction(), ACCOUNT_VOTESOF));
 
   @Override
   public AccountState getState(final Account account) {
-<span class="nc" id="L171">    return getState(account.getAddress());</span>
+<span class="nc" id="L148">    return getState(account.getAddress());</span>
   }
 
   @Override
   public AccountState getState(final AccountAddress address) {
-<span class="fc" id="L176">    return getStateFunction().apply(address).get();</span>
+    try {
+<span class="fc" id="L154">      return getStateFunction().apply(address).get();</span>
+<span class="nc" id="L155">    } catch (Exception e) {</span>
+<span class="nc" id="L156">      throw exceptionConverter.convert(e);</span>
+    }
   }
 
   @Override
   public TxHash createName(final Account account, final String name, final long nonce) {
-<span class="nc" id="L181">    return getDeprecatedCreateNameFunction().apply(account, name, nonce).get();</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">    if (!(account.getKey() instanceof Signer)) {</span>
+<span class="nc" id="L163">      throw new UnsupportedOperationException();</span>
+    }
+<span class="nc" id="L165">    return createName(account.getKey(), name, nonce);</span>
   }
 
   @Override
   public TxHash createName(final Signer signer, final String name, final long nonce) {
-<span class="fc" id="L186">    return getCreateNameFunction().apply(signer, name, nonce).get();</span>
+    try {
+<span class="fc" id="L171">      return getCreateNameFunction().apply(signer, name, nonce).get();</span>
+<span class="nc" id="L172">    } catch (Exception e) {</span>
+<span class="nc" id="L173">      throw exceptionConverter.convert(e);</span>
+    }
   }
 
   @Override
-  public TxHash updateName(final Account ownerAccount, final String name,
-      final AccountAddress newOwner, final long nonce) {
-<span class="nc" id="L192">    return getDeprecatedUpdateNameFunction().apply(ownerAccount, name, newOwner, nonce).get();</span>
+  public TxHash updateName(final Account account, final String name, final AccountAddress newOwner,
+      final long nonce) {
+<span class="nc bnc" id="L180" title="All 2 branches missed.">    if (!(account.getKey() instanceof Signer)) {</span>
+<span class="nc" id="L181">      throw new UnsupportedOperationException();</span>
+    }
+<span class="nc" id="L183">    return updateName(account.getKey(), name, newOwner, nonce);</span>
   }
 
   @Override
   public TxHash updateName(final Signer signer, final String name, final AccountAddress newOwner,
       final long nonce) {
-<span class="fc" id="L198">    return getUpdateNameFunction().apply(signer, name, newOwner, nonce).get();</span>
+    try {
+<span class="fc" id="L190">      return getUpdateNameFunction().apply(signer, name, newOwner, nonce).get();</span>
+<span class="nc" id="L191">    } catch (Exception e) {</span>
+<span class="nc" id="L192">      throw exceptionConverter.convert(e);</span>
+    }
   }
 
   @Override
   public AccountAddress getNameOwner(final String name) {
-<span class="fc" id="L203">    return getNameOwner(name, 0);</span>
+<span class="fc" id="L198">    return getNameOwner(name, 0);</span>
   }
 
   @Override
   public AccountAddress getNameOwner(final String name, final long blockNumber) {
-<span class="fc" id="L208">    return getNameOwnerFunction().apply(name, blockNumber).get();</span>
+    try {
+<span class="fc" id="L204">      return getNameOwnerFunction().apply(name, blockNumber).get();</span>
+<span class="nc" id="L205">    } catch (Exception e) {</span>
+<span class="nc" id="L206">      throw exceptionConverter.convert(e);</span>
+    }
   }
 
   @Override
   public TxHash stake(final Account account, final Aer amount, final long nonce) {
-<span class="nc" id="L213">    return getDeprecatedStakingFunction().apply(account, amount, nonce).get();</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">    if (!(account.getKey() instanceof Signer)) {</span>
+<span class="nc" id="L213">      throw new UnsupportedOperationException();</span>
+    }
+<span class="nc" id="L215">    return stake(account.getKey(), amount, nonce);</span>
   }
 
   @Override
   public TxHash stake(final Signer signer, final Aer amount, final long nonce) {
-<span class="fc" id="L218">    return getStakingFunction().apply(signer, amount, nonce).get();</span>
+    try {
+<span class="fc" id="L221">      return getStakingFunction().apply(signer, amount, nonce).get();</span>
+<span class="nc" id="L222">    } catch (Exception e) {</span>
+<span class="nc" id="L223">      throw exceptionConverter.convert(e);</span>
+    }
   }
 
   @Override
   public TxHash unstake(final Account account, final Aer amount, final long nonce) {
-<span class="nc" id="L223">    return getDeprecatedUnstakingFunction().apply(account, amount, nonce).get();</span>
+<span class="nc bnc" id="L229" title="All 2 branches missed.">    if (!(account.getKey() instanceof Signer)) {</span>
+<span class="nc" id="L230">      throw new UnsupportedOperationException();</span>
+    }
+<span class="nc" id="L232">    return unstake(account.getKey(), amount, nonce);</span>
   }
 
   @Override
   public TxHash unstake(final Signer signer, final Aer amount, final long nonce) {
-<span class="fc" id="L228">    return getUnstakingFunction().apply(signer, amount, nonce).get();</span>
+    try {
+<span class="fc" id="L238">      return getUnstakingFunction().apply(signer, amount, nonce).get();</span>
+<span class="nc" id="L239">    } catch (Exception e) {</span>
+<span class="nc" id="L240">      throw exceptionConverter.convert(e);</span>
+    }
   }
 
   @Override
   public StakeInfo getStakingInfo(final AccountAddress accountAddress) {
-<span class="fc" id="L233">    return getStakingInfoFunction().apply(accountAddress).get();</span>
+    try {
+<span class="fc" id="L247">      return getStakingInfoFunction().apply(accountAddress).get();</span>
+<span class="nc" id="L248">    } catch (Exception e) {</span>
+<span class="nc" id="L249">      throw exceptionConverter.convert(e);</span>
+    }
   }
 
   @Override
   public Transaction sign(final Account account, final RawTransaction rawTransaction) {
-<span class="nc" id="L238">    return getSignFunction().apply(account, rawTransaction).get();</span>
+    try {
+<span class="nc" id="L256">      return getSignFunction().apply(account, rawTransaction).get();</span>
+<span class="nc" id="L257">    } catch (Exception e) {</span>
+<span class="nc" id="L258">      throw exceptionConverter.convert(e);</span>
+    }
   }
 
   @Override
   public boolean verify(final Account account, final Transaction signedTransaction) {
-<span class="nc" id="L243">    return getVerifyFunction().apply(account, signedTransaction).get();</span>
+    try {
+<span class="nc" id="L265">      return getVerifyFunction().apply(account, signedTransaction).get();</span>
+<span class="nc" id="L266">    } catch (Exception e) {</span>
+<span class="nc" id="L267">      throw exceptionConverter.convert(e);</span>
+    }
   }
 
   @Override
   public TxHash vote(final Signer signer, final String voteId, final List&lt;String&gt; candidates,
       final long nonce) {
-<span class="nc" id="L249">    return getVoteFunction().apply(signer, voteId, candidates, nonce).get();</span>
+    try {
+<span class="nc" id="L275">      return getVoteFunction().apply(signer, voteId, candidates, nonce).get();</span>
+<span class="nc" id="L276">    } catch (Exception e) {</span>
+<span class="nc" id="L277">      throw exceptionConverter.convert(e);</span>
+    }
   }
 
   @Override
   public List&lt;ElectedCandidate&gt; listElected(final String voteId, final int showCount) {
-<span class="nc" id="L254">    return getListElectedFunction().apply(voteId, showCount).get();</span>
+    try {
+<span class="nc" id="L284">      return getListElectedFunction().apply(voteId, showCount).get();</span>
+<span class="nc" id="L285">    } catch (Exception e) {</span>
+<span class="nc" id="L286">      throw exceptionConverter.convert(e);</span>
+    }
   }
 
   @Override
   public AccountTotalVote getVotesOf(final AccountAddress accountAddress) {
-<span class="nc" id="L259">    return getVotesOfFunction().apply(accountAddress).get();</span>
+    try {
+<span class="nc" id="L293">      return getVotesOfFunction().apply(accountAddress).get();</span>
+<span class="nc" id="L294">    } catch (Exception e) {</span>
+<span class="nc" id="L295">      throw exceptionConverter.convert(e);</span>
+    }
   }
 
 }

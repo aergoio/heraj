@@ -136,19 +136,19 @@ import org.slf4j.Logger;
 <span class="fc" id="L136">    logger.trace(&quot;Next json value: {}&quot;, object);</span>
 <span class="fc bfc" id="L137" title="All 2 branches covered.">    if (object instanceof List) {</span>
 <span class="fc" id="L138">      ret = asJsonArray((List&lt;Object&gt;) object);</span>
-<span class="pc bpc" id="L139" title="1 of 2 branches missed.">    } else if (object instanceof Map) {</span>
-<span class="nc" id="L140">      ret = asJsonObject((Map&lt;String, Object&gt;) object);</span>
-<span class="pc bpc" id="L141" title="1 of 2 branches missed.">    } else if (object instanceof String) {</span>
+<span class="fc bfc" id="L139" title="All 2 branches covered.">    } else if (object instanceof Map) {</span>
+<span class="fc" id="L140">      ret = asJsonObject((Map&lt;String, Object&gt;) object);</span>
+<span class="fc bfc" id="L141" title="All 2 branches covered.">    } else if (object instanceof String) {</span>
 <span class="fc" id="L142">      ret = asJsonString((String) object);</span>
-<span class="nc bnc" id="L143" title="All 2 branches missed.">    } else if (null == object) {</span>
-<span class="nc" id="L144">      ret = asJsonNull();;</span>
-<span class="nc bnc" id="L145" title="All 8 branches missed.">    } else if (object instanceof Integer</span>
+<span class="fc bfc" id="L143" title="All 2 branches covered.">    } else if (null == object) {</span>
+<span class="fc" id="L144">      ret = asJsonNull();;</span>
+<span class="pc bpc" id="L145" title="3 of 8 branches missed.">    } else if (object instanceof Integer</span>
         || object instanceof Long
         || object instanceof Float
         || object instanceof Double) {
-<span class="nc" id="L149">      ret = asJsonNumber((Number) object);</span>
-<span class="nc bnc" id="L150" title="All 2 branches missed.">    } else if (object instanceof Boolean) {</span>
-<span class="nc" id="L151">      ret = asJsonBoolean((Boolean) object);</span>
+<span class="fc" id="L149">      ret = asJsonNumber((Number) object);</span>
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">    } else if (object instanceof Boolean) {</span>
+<span class="fc" id="L151">      ret = asJsonBoolean((Boolean) object);</span>
 <span class="nc bnc" id="L152" title="All 2 branches missed.">    } else if (object instanceof BigNumber) {</span>
 <span class="nc" id="L153">      ret = BigNumberResolver.toJsonForm((BigNumber) object);</span>
     } else {
@@ -165,7 +165,7 @@ import org.slf4j.Logger;
    * @return a json null
    */
   public static String asJsonNull() {
-<span class="nc" id="L168">    return &quot;null&quot;;</span>
+<span class="fc" id="L168">    return &quot;null&quot;;</span>
   }
 
   /**
@@ -204,7 +204,7 @@ import org.slf4j.Logger;
    * @return a json number
    */
   public static String asJsonNumber(final Number target) {
-<span class="nc" id="L207">    return target.toString();</span>
+<span class="fc" id="L207">    return target.toString();</span>
   }
 
   /**
@@ -214,7 +214,7 @@ import org.slf4j.Logger;
    * @return a json boolean
    */
   public static String asJsonBoolean(final Boolean target) {
-<span class="nc" id="L217">    return target.toString();</span>
+<span class="fc" id="L217">    return target.toString();</span>
   }
 
 }

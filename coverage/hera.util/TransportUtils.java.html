@@ -12,7 +12,7 @@ import hera.api.model.Aer;
 import hera.api.model.BlockHash;
 import hera.api.model.BytesValue;
 import hera.api.model.TxHash;
-import hera.exception.RpcArgumentException;
+import hera.exception.HerajException;
 
 <span class="nc" id="L17">public class TransportUtils {</span>
 
@@ -161,21 +161,6 @@ import hera.exception.RpcArgumentException;
   public static String sha256AndEncodeHexa(final byte[] rawBytes) {
 <span class="fc" id="L162">    return HexUtils.encode(Sha256Utils.digest(rawBytes));</span>
   }
-
-  /**
-   * Check a condition and throws {@link RpcArgumentException} if condition isn't fulfilled.
-   *
-   * @param condition condition to check
-   * @param target argument target name
-   * @param requirement argument requirement
-   * @throws RpcArgumentException if condition is false
-   */
-  public static void assertArgument(final boolean condition, final String target,
-      final String requirement) {
-<span class="fc bfc" id="L175" title="All 2 branches covered.">    if (false == condition) {</span>
-<span class="fc" id="L176">      throw new RpcArgumentException(target, requirement);</span>
-    }
-<span class="fc" id="L178">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -15,27 +15,26 @@ import lombok.RequiredArgsConstructor;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="pc bpc" id="L18" title="13 of 22 branches missed.">@EqualsAndHashCode</span>
+<span class="nc bnc" id="L18" title="All 22 branches missed.">@EqualsAndHashCode</span>
 <span class="pc bpc" id="L19" title="2 of 4 branches missed.">@RequiredArgsConstructor</span>
 public class Authentication {
 
-  @ApiAudience.Public
   public static Authentication of(final Identity identity, final String password) {
-<span class="fc" id="L24">    return new Authentication(identity, password);</span>
+<span class="fc" id="L23">    return new Authentication(identity, password);</span>
   }
 
-<span class="fc" id="L27">  @Getter</span>
+<span class="fc" id="L26">  @Getter</span>
   @NonNull
   protected final Identity identity;
 
-<span class="fc" id="L31">  @Getter</span>
+<span class="fc" id="L30">  @Getter</span>
   @NonNull
   protected final String password;
 
   @Override
   public String toString() {
-<span class="nc" id="L37">    return String.format(&quot;Authentication(identity=%s, password=%s)&quot;, identity.getValue(),</span>
-<span class="nc" id="L38">        HexUtils.encode(Sha256Utils.digest(password.getBytes())));</span>
+<span class="fc" id="L36">    return String.format(&quot;Authentication(identity=%s, password=%s)&quot;, identity.getValue(),</span>
+<span class="fc" id="L37">        HexUtils.encode(Sha256Utils.digest(password.getBytes())));</span>
   }
 
 }

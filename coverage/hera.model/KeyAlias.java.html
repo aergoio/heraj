@@ -15,8 +15,12 @@ import lombok.Value;
 <span class="pc bpc" id="L15" title="7 of 14 branches missed.">@Value</span>
 public class KeyAlias implements Identity {
 
+  public static KeyAlias of(final String value) {
+<span class="nc" id="L19">    return new KeyAlias(value);</span>
+  }
+
   @NonNull
-<span class="fc" id="L19">  String value;</span>
+<span class="fc" id="L23">  String value;</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

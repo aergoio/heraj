@@ -71,8 +71,8 @@ public class ContractAddress extends AccountAddress {
   @SuppressWarnings(&quot;unchecked&quot;)
   @Override
   public &lt;T&gt; T adapt(Class&lt;T&gt; adaptor) {
-<span class="nc bnc" id="L74" title="All 2 branches missed.">    if (adaptor.isAssignableFrom(ContractAddress.class)) {</span>
-<span class="nc" id="L75">      return (T) this;</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">    if (adaptor.isAssignableFrom(ContractAddress.class)) {</span>
+<span class="fc" id="L75">      return (T) this;</span>
     }
 <span class="nc" id="L77">    return null;</span>
   }

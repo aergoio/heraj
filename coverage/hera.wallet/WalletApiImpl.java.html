@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WalletApiImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.wallet</a> &gt; <span class="el_source">WalletApiImpl.java</span></div><h1>WalletApiImpl.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.wallet;
+
+import static hera.util.ValidationUtils.assertNotNull;
+
+import hera.api.model.AccountAddress;
+import hera.api.model.Authentication;
+import hera.api.model.RawTransaction;
+import hera.api.model.Transaction;
+import hera.api.model.internal.TryCountAndInterval;
+import hera.client.AergoClient;
+import hera.exception.InvalidAuthenticationException;
+import hera.exception.WalletException;
+import hera.exception.WalletExceptionConverter;
+import hera.key.Signer;
+import hera.keystore.KeyStore;
+import hera.util.ExceptionConverter;
+import hera.util.Sha256Utils;
+import hera.wallet.internal.ClientInjectable;
+import hera.wallet.internal.QueryApiImpl;
+import hera.wallet.internal.TransactionApiImpl;
+import lombok.Getter;
+
+public class WalletApiImpl implements WalletApi {
+
+<span class="fc" id="L29">  protected final ExceptionConverter&lt;WalletException&gt; converter = new WalletExceptionConverter();</span>
+
+  protected final KeyStore keyStore;
+
+  protected final TransactionApi transactionApi;
+
+<span class="fc" id="L35">  protected final QueryApi queryApi = new QueryApiImpl();</span>
+
+<span class="fc" id="L37">  protected AergoClient aergoClient = null;</span>
+
+<span class="fc" id="L39">  protected Signer signer = null;</span>
+<span class="fc" id="L40">  protected String authMac = null;</span>
+<span class="fc" id="L41">  @Getter</span>
+  protected AccountAddress principal = null;
+
+<span class="fc" id="L44">  WalletApiImpl(final KeyStore keyStore, final TryCountAndInterval tryCountAndInterval) {</span>
+<span class="fc" id="L45">    assertNotNull(keyStore);</span>
+<span class="fc" id="L46">    assertNotNull(tryCountAndInterval);</span>
+<span class="fc" id="L47">    this.keyStore = keyStore;</span>
+<span class="fc" id="L48">    this.transactionApi = new TransactionApiImpl(tryCountAndInterval, this);</span>
+<span class="fc" id="L49">  }</span>
+
+  @Override
+  public void bind(final AergoClient aergoClient) {
+<span class="fc" id="L53">    assertNotNull(aergoClient);</span>
+<span class="fc" id="L54">    this.aergoClient = aergoClient;</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">    if (transactionApi instanceof ClientInjectable) {</span>
+<span class="fc" id="L56">      ((ClientInjectable) transactionApi).setClient(aergoClient);</span>
+    }
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">    if (queryApi instanceof ClientInjectable) {</span>
+<span class="fc" id="L59">      ((ClientInjectable) queryApi).setClient(aergoClient);</span>
+    }
+<span class="fc" id="L61">  }</span>
+
+  @Override
+  public synchronized boolean unlock(final Authentication authentication) {
+    try {
+<span class="fc" id="L66">      assertNotNull(authentication, &quot;Authentication must not null&quot;);</span>
+<span class="fc" id="L67">      this.signer = keyStore.load(authentication);</span>
+<span class="fc" id="L68">      this.authMac = digest(authentication);</span>
+<span class="fc" id="L69">      this.principal = signer.getPrincipal();</span>
+<span class="fc" id="L70">      return true;</span>
+<span class="fc" id="L71">    } catch (InvalidAuthenticationException e) {</span>
+<span class="fc" id="L72">      return false;</span>
+<span class="nc" id="L73">    } catch (Exception e) {</span>
+<span class="nc" id="L74">      throw converter.convert(e);</span>
+    }
+  }
+
+  @Override
+  public synchronized boolean lock(final Authentication authentication) {
+    try {
+<span class="fc" id="L81">      assertNotNull(authentication, &quot;Authentication must not null&quot;);</span>
+<span class="fc" id="L82">      final String digested = digest(authentication);</span>
+<span class="fc bfc" id="L83" title="All 4 branches covered.">      if (null == this.authMac || false == this.authMac.equals(digested)) {</span>
+<span class="fc" id="L84">        return false;</span>
+      }
+
+<span class="fc" id="L87">      this.signer = null;</span>
+<span class="fc" id="L88">      this.authMac = null;</span>
+<span class="fc" id="L89">      return true;</span>
+<span class="nc" id="L90">    } catch (Exception e) {</span>
+<span class="nc" id="L91">      throw converter.convert(e);</span>
+    }
+  }
+
+  protected String digest(final Authentication authentication) {
+<span class="fc" id="L96">    final byte[] rawIdentity = authentication.getIdentity().getValue().getBytes();</span>
+<span class="fc" id="L97">    final byte[] rawPassword = authentication.getPassword().getBytes();</span>
+<span class="fc" id="L98">    final byte[] plaintext = new byte[rawIdentity.length + rawPassword.length];</span>
+<span class="fc" id="L99">    System.arraycopy(rawIdentity, 0, plaintext, 0, rawIdentity.length);</span>
+<span class="fc" id="L100">    System.arraycopy(rawPassword, 0, plaintext, rawIdentity.length, rawPassword.length);</span>
+<span class="fc" id="L101">    return new String(Sha256Utils.digest(plaintext));</span>
+  }
+
+  @Override
+  public TransactionApi transactionApi() {
+<span class="fc bfc" id="L106" title="All 2 branches covered.">    if (null == this.aergoClient) {</span>
+<span class="fc" id="L107">      throw new WalletException(&quot;Bind client first by 'WalletApi.bind(aergoClient)'&quot;);</span>
+    }
+<span class="fc" id="L109">    return this.transactionApi;</span>
+  }
+
+  @Override
+  public QueryApi queryApi() {
+<span class="fc bfc" id="L114" title="All 2 branches covered.">    if (null == this.aergoClient) {</span>
+<span class="fc" id="L115">      throw new WalletException(&quot;Bind client first by 'WalletApi.bind(aergoClient)'&quot;);</span>
+    }
+<span class="fc" id="L117">    return this.queryApi;</span>
+  }
+
+  @Override
+  public Transaction sign(final RawTransaction rawTransaction) {
+    try {
+<span class="fc" id="L123">      assertNotNull(rawTransaction, &quot;Raw transaction must not null&quot;);</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">      if (!getPrincipal().equals(rawTransaction.getSender())) {</span>
+<span class="fc" id="L125">        throw new WalletException(&quot;Sender of the rawTransaction should equals with unlocked one&quot;);</span>
+      }
+
+<span class="fc" id="L128">      return getSigner().sign(rawTransaction);</span>
+<span class="fc" id="L129">    } catch (Exception e) {</span>
+<span class="fc" id="L130">      throw converter.convert(e);</span>
+    }
+  }
+
+  @Override
+  public String toString() {
+<span class="fc" id="L136">    final AccountAddress current = getPrincipal();</span>
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">    return String.format(&quot;WalletApi(keyStore=%s, pricipal=%s)&quot;, keyStore.getClass().getName(),</span>
+<span class="pc" id="L138">        null == current ? null : current.getEncoded());</span>
+  }
+
+  protected Signer getSigner() {
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">    if (null == this.signer) {</span>
+<span class="nc" id="L143">      throw new WalletException(&quot;Unlock account first&quot;);</span>
+    }
+<span class="fc" id="L145">    return this.signer;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

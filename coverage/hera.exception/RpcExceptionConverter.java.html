@@ -15,23 +15,37 @@ import org.slf4j.Logger;
 <span class="fc" id="L15">  protected final transient Logger logger = getLogger(getClass());</span>
 
   @Override
-  public RpcException convert(final Throwable t) {
-<span class="fc" id="L19">    logger.debug(&quot;Handle exception {}&quot;, t.toString());</span>
-<span class="pc bpc" id="L20" title="1 of 2 branches missed.">    if (t instanceof RpcException) {</span>
-<span class="nc" id="L21">      return (RpcException) t;</span>
-<span class="pc bpc" id="L22" title="1 of 2 branches missed.">    } else if (t instanceof StatusRuntimeException) {</span>
-<span class="nc" id="L23">      return convertGrpcBasisException((StatusRuntimeException) t);</span>
+  public RpcException convert(final Throwable rawError) {
+<span class="nc" id="L19">    logger.trace(&quot;Handle exception {}&quot;, rawError.toString());</span>
+
+<span class="nc" id="L21">    Throwable target = rawError;</span>
+<span class="nc bnc" id="L22" title="All 2 branches missed.">    if (target instanceof DecoratorChainException) {</span>
+<span class="nc" id="L23">      target = target.getCause();</span>
+    }
+
+    // handle commit exception specially
+    // NOTE: a custom exception throws by callback must handle like this
+    // FIXME: no way to improve it?
+<span class="nc bnc" id="L29" title="All 2 branches missed.">    if (target instanceof InternalCommitException) {</span>
+<span class="nc" id="L30">      final InternalCommitException internalCommitException = (InternalCommitException) target;</span>
+<span class="nc" id="L31">      return new RpcCommitException(internalCommitException);</span>
+    }
+
+<span class="nc bnc" id="L34" title="All 2 branches missed.">    if (target instanceof RpcException) {</span>
+<span class="nc" id="L35">      return (RpcException) target;</span>
+<span class="nc bnc" id="L36" title="All 2 branches missed.">    } else if (target instanceof StatusRuntimeException) {</span>
+<span class="nc" id="L37">      return convertGrpcBasisException((StatusRuntimeException) target);</span>
     } else {
-<span class="fc" id="L25">      return new RpcException(t);</span>
+<span class="nc" id="L39">      return new RpcException(target);</span>
     }
   }
 
   protected RpcException convertGrpcBasisException(final StatusRuntimeException e) {
-<span class="nc bnc" id="L30" title="All 2 branches missed.">    switch (e.getStatus().getCode()) {</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">    switch (e.getStatus().getCode()) {</span>
       case UNAVAILABLE:
-<span class="nc" id="L32">        return new RpcConnectionException(e);</span>
+<span class="nc" id="L46">        return new RpcConnectionException(e);</span>
       default:
-<span class="nc" id="L34">        return new RpcException(e);</span>
+<span class="nc" id="L48">        return new RpcException(e);</span>
     }
   }
 

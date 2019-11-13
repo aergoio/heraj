@@ -68,9 +68,9 @@ import hera.spec.transaction.dsl.PlainTransaction;
 
   @Override
   public PlainTransaction.WithChainIdHashAndSenderAndRecipient to(final String recipient) {
-<span class="nc" id="L71">    assertNotNull(recipient);</span>
-<span class="nc" id="L72">    this.recipient = deriveAddress(recipient);</span>
-<span class="nc" id="L73">    return this;</span>
+<span class="fc" id="L71">    assertNotNull(recipient);</span>
+<span class="fc" id="L72">    this.recipient = deriveAddress(recipient);</span>
+<span class="fc" id="L73">    return this;</span>
   }
 
   @Override
@@ -143,13 +143,13 @@ import hera.spec.transaction.dsl.PlainTransaction;
 
   protected AccountAddress deriveAddress(final String encodedAddressOrName) {
     try {
-<span class="nc" id="L146">      final String encodedAddress = encodedAddressOrName;</span>
+<span class="fc" id="L146">      final String encodedAddress = encodedAddressOrName;</span>
 <span class="nc" id="L147">      return new AccountAddress(encodedAddress);</span>
-<span class="nc" id="L148">    } catch (final HerajException notEncodedAddress) {</span>
+<span class="fc" id="L148">    } catch (final HerajException notEncodedAddress) {</span>
       try {
         // it's not address, treat it as name
-<span class="nc" id="L151">        final String name = encodedAddressOrName;</span>
-<span class="nc" id="L152">        return new Name(name).adapt(AccountAddress.class);</span>
+<span class="fc" id="L151">        final String name = encodedAddressOrName;</span>
+<span class="fc" id="L152">        return new Name(name).adapt(AccountAddress.class);</span>
 <span class="nc" id="L153">      } catch (HerajException e) {</span>
 <span class="nc" id="L154">        throw e;</span>
 <span class="nc" id="L155">      } catch (Exception e) {</span>

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ContractInvocationInfoExtractor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.spec.transaction</a> &gt; <span class="el_source">ContractInvocationInfoExtractor.java</span></div><h1>ContractInvocationInfoExtractor.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.spec.transaction;
+
+import static hera.util.ValidationUtils.assertEquals;
+import static hera.util.ValidationUtils.assertTrue;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.BooleanNode;
+import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.NumericNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
+import hera.api.model.BigNumber;
+import hera.api.model.ContractAddress;
+import hera.api.model.ContractFunction;
+import hera.api.model.ContractInvocation;
+import hera.api.model.Transaction;
+import hera.exception.HerajException;
+import hera.spec.AergoSpec;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.slf4j.Logger;
+
+<span class="fc" id="L38">@NoArgsConstructor(access = AccessLevel.PACKAGE)</span>
+public class ContractInvocationInfoExtractor
+    implements TransactionInfoExtractor&lt;ContractInvocation&gt; {
+
+<span class="fc" id="L42">  protected static final ObjectReader reader = new ObjectMapper().reader();</span>
+
+<span class="fc" id="L44">  protected final Logger logger = getLogger(getClass());</span>
+
+  @Override
+  public ContractInvocation extract(final Transaction transaction) {
+    try {
+<span class="fc" id="L49">      final JsonNode jsonNode = reader.readTree(transaction.getPayload().getInputStream());</span>
+<span class="fc" id="L50">      final JsonNode nameNode = jsonNode.findValue(&quot;Name&quot;);</span>
+<span class="fc" id="L51">      final JsonNode argsNode = jsonNode.findValue(&quot;Args&quot;);</span>
+
+<span class="fc" id="L53">      final ContractFunction function = parseToContractFunction(nameNode);</span>
+<span class="fc" id="L54">      final List&lt;Object&gt; args = parseToList(argsNode);</span>
+<span class="fc" id="L55">      final ContractInvocation recovered = ContractInvocation.newBuilder()</span>
+<span class="fc" id="L56">          .address(transaction.getRecipient().adapt(ContractAddress.class))</span>
+<span class="fc" id="L57">          .function(function)</span>
+<span class="fc" id="L58">          .amount(transaction.getAmount())</span>
+<span class="fc" id="L59">          .args(args)</span>
+<span class="fc" id="L60">          .build();</span>
+<span class="fc" id="L61">      return recovered;</span>
+<span class="nc" id="L62">    } catch (Exception e) {</span>
+<span class="nc" id="L63">      throw new HerajException(e);</span>
+    }
+  }
+
+  protected ContractFunction parseToContractFunction(final JsonNode jsonNode) {
+<span class="fc" id="L68">    final String functionName = jsonNode.asText();</span>
+<span class="fc" id="L69">    return new ContractFunction(functionName);</span>
+  }
+
+  protected List&lt;Object&gt; parseToList(final JsonNode jsonNode) {
+<span class="fc" id="L73">    assertTrue(jsonNode instanceof ArrayNode);</span>
+
+<span class="fc" id="L75">    final List&lt;Object&gt; ret = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L76">    final int size = jsonNode.size();</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">    for (int i = 0; i &lt; size; ++i) {</span>
+<span class="fc" id="L78">      final JsonNode next = jsonNode.get(i);</span>
+<span class="fc" id="L79">      Object parsedValue = null;</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">      if (next instanceof ArrayNode) {</span>
+<span class="fc" id="L81">        parsedValue = parseToList((ArrayNode) next);</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">      } else if (next instanceof ObjectNode) {</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (null != next.get(AergoSpec.BIGNUM_JSON_KEY)) {</span>
+<span class="nc" id="L84">          parsedValue = parseToBigNumber((ObjectNode) next);</span>
+        } else {
+<span class="fc" id="L86">          parsedValue = parseToMap((ObjectNode) next);</span>
+        }
+      } else {
+<span class="fc" id="L89">        parsedValue = parseValue((ValueNode) next);</span>
+      }
+<span class="fc" id="L91">      ret.add(parsedValue);</span>
+    }
+<span class="fc" id="L93">    return ret;</span>
+  }
+
+  protected Map&lt;String, Object&gt; parseToMap(final ObjectNode jsonNode) {
+<span class="fc" id="L97">    assertTrue(jsonNode instanceof ObjectNode);</span>
+
+<span class="fc" id="L99">    final Map&lt;String, Object&gt; ret = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L100">    final Iterator&lt;Entry&lt;String, JsonNode&gt;&gt; it = jsonNode.fields();</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">    while (it.hasNext()) {</span>
+<span class="fc" id="L102">      final Entry&lt;String, JsonNode&gt; nextObjectNode = it.next();</span>
+<span class="fc" id="L103">      final String key = nextObjectNode.getKey();</span>
+<span class="fc" id="L104">      final JsonNode value = nextObjectNode.getValue();</span>
+<span class="fc" id="L105">      Object parsedValue = null;</span>
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">      if (value instanceof ArrayNode) {</span>
+<span class="nc" id="L107">        parsedValue = parseToList((ArrayNode) value);</span>
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">      } else if (value instanceof ObjectNode) {</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (null != value.get(AergoSpec.BIGNUM_JSON_KEY)) {</span>
+<span class="nc" id="L110">          parsedValue = parseToBigNumber((ObjectNode) value);</span>
+        } else {
+<span class="nc" id="L112">          parsedValue = parseToMap((ObjectNode) value);</span>
+        }
+      } else {
+<span class="fc" id="L115">        parsedValue = parseValue((ValueNode) value);</span>
+      }
+<span class="fc" id="L117">      ret.put(key, parsedValue);</span>
+<span class="fc" id="L118">    }</span>
+<span class="fc" id="L119">    return ret;</span>
+  }
+
+  protected BigNumber parseToBigNumber(final ObjectNode jsonNode) {
+<span class="nc" id="L123">    assertTrue(jsonNode instanceof ObjectNode);</span>
+<span class="nc" id="L124">    assertEquals(1, jsonNode.size());</span>
+
+<span class="nc" id="L126">    final JsonNode bigNumberValueNode = jsonNode.get(AergoSpec.BIGNUM_JSON_KEY);</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">    if (null == bigNumberValueNode) {</span>
+<span class="nc" id="L128">      throw new IllegalArgumentException(&quot;JsonNode is not bignum value: &quot; + jsonNode.toString());</span>
+    }
+
+<span class="nc bnc" id="L131" title="All 2 branches missed.">    if (!(bigNumberValueNode instanceof TextNode)) {</span>
+<span class="nc" id="L132">      throw new IllegalArgumentException(</span>
+<span class="nc" id="L133">          &quot;JsonNode value is not bignum value: &quot; + bigNumberValueNode.toString());</span>
+    }
+
+<span class="nc" id="L136">    return new BigNumber(bigNumberValueNode.asText());</span>
+  }
+
+  protected Object parseValue(final ValueNode valueNode) {
+<span class="fc bfc" id="L140" title="All 2 branches covered.">    if (valueNode instanceof BooleanNode) {</span>
+<span class="fc" id="L141">      return parseToBoolean(valueNode);</span>
+<span class="fc bfc" id="L142" title="All 2 branches covered.">    } else if (valueNode instanceof NullNode) {</span>
+<span class="fc" id="L143">      return parseToNull(valueNode);</span>
+<span class="fc bfc" id="L144" title="All 2 branches covered.">    } else if (valueNode instanceof NumericNode) {</span>
+<span class="fc" id="L145">      return parseToNumber(valueNode);</span>
+<span class="pc bpc" id="L146" title="1 of 2 branches missed.">    } else if (valueNode instanceof TextNode) {</span>
+<span class="fc" id="L147">      return parseToString(valueNode);</span>
+    } else {
+<span class="nc" id="L149">      throw new UnsupportedOperationException(</span>
+<span class="nc" id="L150">          &quot;Unsupported node type: &quot; + valueNode.getClass().getName());</span>
+    }
+  }
+
+  protected String parseToString(final JsonNode jsonNode) {
+<span class="fc" id="L155">    return jsonNode.asText();</span>
+  }
+
+  protected Number parseToNumber(final JsonNode jsonNode) {
+<span class="fc" id="L159">    return ((NumericNode) jsonNode).numberValue();</span>
+  }
+
+  protected Boolean parseToBoolean(final JsonNode jsonNode) {
+<span class="fc" id="L163">    return jsonNode.asBoolean();</span>
+  }
+
+  protected String parseToNull(final JsonNode jsonNode) {
+<span class="fc" id="L167">    return null;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
