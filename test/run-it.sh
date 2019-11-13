@@ -21,11 +21,11 @@ ${SCRIPT_HOME}/setup-genesis.sh
 # plaintext
 echo "Run aergo node as plaintext.."
 ${SCRIPT_HOME}/run-container.sh
-${PROJECT_HOME}/gradlew clean integrationTest
+pushd ${PROJECT_HOME} && ${PROJECT_HOME}/gradlew clean integrationTest && popd
 ${SCRIPT_HOME}/rm-container.sh
 
 # tls
 echo "Run aergo node with tls.."
 ${SCRIPT_HOME}/run-container-tls.sh
-${PROJECT_HOME}/gradlew clean integrationTest
+pushd ${PROJECT_HOME} && ${PROJECT_HOME}/gradlew clean integrationTest && popd
 ${SCRIPT_HOME}/rm-container.sh

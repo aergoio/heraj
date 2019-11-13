@@ -131,7 +131,9 @@ public abstract class AbstractIT {
 
   @After
   public void tearDown() {
-    aergoClient.close();
+    if (null != aergoClient) {
+      aergoClient.close();
+    }
   }
 
 }
