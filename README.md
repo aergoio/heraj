@@ -11,13 +11,13 @@ This repository, heraj is java implementation for hera.
 
 ## Latest
 
-v1.2.1
+v1.2.2
 
-build with aergo-protobuf [e4c13cc39d766b275e940cebeb41ed6b9ac197ab](https://github.com/aergoio/aergo-protobuf/commits/e4c13cc39d766b275e940cebeb41ed6b9ac197ab)
+build with aergo-protobuf [c6fff9185d4d06a425f4ad254edd0f73d4a31c84](https://github.com/aergoio/aergo-protobuf/commits/c6fff9185d4d06a425f4ad254edd0f73d4a31c84)
 
 ## Compatibility
 
-* Aergo : v1.2.x
+* Aergo : v1.3.x
 * Java : JDK 7 or higher
 * Android : Android 3.0 (API 11) or higher
 
