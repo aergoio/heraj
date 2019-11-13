@@ -10,6 +10,7 @@ import static java.util.Collections.unmodifiableList;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import java.util.List;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -18,6 +19,7 @@ import lombok.ToString;
 @ApiStability.Unstable
 @ToString
 @EqualsAndHashCode
+@Builder(builderMethodName = "newBuilder")
 public class ContractInvocation {
 
   @Getter
