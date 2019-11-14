@@ -64,7 +64,8 @@ function execute-test() {
   $PROJECT_HOME/gradlew test jacocoTestReport
 }
 function execute-integration-test() {
-  $PROJECT_HOME/test/run-it.sh
+  echo "Integration test is temporary disabled for hardfork"
+  # $PROJECT_HOME/test/run-it.sh
 }
 function execute-documentation() {
   gem install bundler
