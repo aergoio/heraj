@@ -12,6 +12,7 @@ import hera.api.model.ContractDefinition;
 import hera.api.model.Fee;
 import hera.api.model.Identity;
 import hera.api.model.RawTransaction;
+import hera.api.model.Transaction.TxType;
 import hera.spec.resolver.PayloadResolver;
 import hera.spec.resolver.PayloadSpec.Type;
 import hera.spec.transaction.dsl.DeployContractTransaction;
@@ -73,6 +74,7 @@ public class DeployContractTransactionBuilder implements
     this.delegate.to(AccountAddress.EMPTY);
     this.delegate.amount(contractDefinition.getAmount());
     this.delegate.payload(PayloadResolver.resolve(Type.ContractDefinition, contractDefinition));
+    this.delegate.type(TxType.DEPLOY);
     return delegate.build();
   }
 }

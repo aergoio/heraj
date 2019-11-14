@@ -14,6 +14,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import com.google.protobuf.ByteString;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractTxReceipt;
@@ -57,12 +58,17 @@ public class TxReceiptConverterFactory {
             domainEvents.add(eventConverter.convertToDomainModel(rpcEvent));
           }
 
+          // for transaction, keep itself, but for receipt, no empty fee
+          Aer usedFee = parseToAer(rpcReceipt.getFeeUsed());
+          if (Aer.EMPTY.equals(usedFee)) {
+            usedFee = Aer.ZERO;
+          }
           final ContractTxReceipt domainTxReceipt = ContractTxReceipt.newBuilder()
               .contractAddress(new ContractAddress(accountAddress.getBytesValue()))
               .status(rpcReceipt.getStatus())
               .ret(new ContractResultImpl(BytesValue.of(rpcReceipt.getRet().getBytes())))
               .txHash(parseToTxHash(rpcReceipt.getTxHash()))
-              .feeUsed(parseToAer(rpcReceipt.getFeeUsed()))
+              .feeUsed(usedFee)
               .cumulativeFeeUsed(parseToAer(rpcReceipt.getCumulativeFeeUsed()))
               .bloom(parseToBytesValue(rpcReceipt.getBloom()))
               .events(unmodifiableList(domainEvents))

@@ -445,11 +445,12 @@ public class ContractOperationIT extends AbstractIT {
         .args(executeKey, executeValue)
         .delegateFee(false)
         .build();
-    execute(key, execution);
+    final ContractTxReceipt txReceipt = execute(key, execution);
 
     // then
     final AccountState afterState = aergoClient.getAccountOperation().getState(key.getAddress());
-    assertEquals(-1, afterState.getBalance().compareTo(preState.getBalance()));
+    final Aer preBalancePlusUsedFee = afterState.getBalance().add(txReceipt.getFeeUsed());
+    assertEquals(preState.getBalance(), preBalancePlusUsedFee);
   }
 
   @Test

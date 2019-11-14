@@ -43,7 +43,7 @@ public class PlainTransactionBuilder implements
 
   private BytesValue payload = BytesValue.EMPTY;
 
-  private TxType txType = TxType.NORMAL;
+  private TxType txType = TxType.TRANSFER;
 
 
   @Override

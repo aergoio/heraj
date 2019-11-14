@@ -73,7 +73,7 @@ public class InvokeContractTransactionBuilder implements
     this.delegate.to(contractInvocation.getAddress());
     this.delegate.amount(contractInvocation.getAmount());
     this.delegate.payload(PayloadResolver.resolve(Type.ContractInvocation, contractInvocation));
-    this.delegate.type(contractInvocation.isDelegateFee() ? TxType.FEE_DELEGATION : TxType.NORMAL);
+    this.delegate.type(contractInvocation.isDelegateFee() ? TxType.FEE_DELEGATION : TxType.CALL);
     return delegate.build();
   }
 

@@ -31,6 +31,12 @@ public class TransactionTypeConverterFactory {
               return Blockchain.TxType.REDEPLOY;
             case FEE_DELEGATION:
               return Blockchain.TxType.FEEDELEGATION;
+            case TRANSFER:
+              return Blockchain.TxType.TRANSFER;
+            case CALL:
+              return Blockchain.TxType.CALL;
+            case DEPLOY:
+              return Blockchain.TxType.DEPLOY;
             default:
               return Blockchain.TxType.UNRECOGNIZED;
           }
@@ -52,6 +58,12 @@ public class TransactionTypeConverterFactory {
               return Transaction.TxType.REDEPLOY;
             case FEEDELEGATION:
               return Transaction.TxType.FEE_DELEGATION;
+            case TRANSFER:
+              return Transaction.TxType.TRANSFER;
+            case CALL:
+              return Transaction.TxType.CALL;
+            case DEPLOY:
+              return Transaction.TxType.DEPLOY;
             default:
               return Transaction.TxType.UNRECOGNIZED;
           }

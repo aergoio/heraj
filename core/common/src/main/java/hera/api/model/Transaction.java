@@ -42,10 +42,18 @@ public class Transaction {
   @RequiredArgsConstructor
   public enum TxType {
     UNRECOGNIZED(-1),
+    /**
+     * Keep it for backward compatibility.
+     *
+     * @deprecated Use {@link TxType#TRANSFER}, {@link TxType#CALL}, {@link TxType#DEPLOY} instead
+     */
     NORMAL(0),
     GOVERNANCE(1),
     REDEPLOY(2),
-    FEE_DELEGATION(3);
+    FEE_DELEGATION(3),
+    TRANSFER(4),
+    CALL(5),
+    DEPLOY(6);
 
     @Getter
     private final int intValue;

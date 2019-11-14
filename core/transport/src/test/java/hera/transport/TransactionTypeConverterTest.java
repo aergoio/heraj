@@ -8,7 +8,6 @@ import static org.junit.Assert.assertEquals;
 
 import hera.AbstractTestCase;
 import hera.api.model.Transaction;
-import hera.api.model.Transaction.TxType;
 import org.junit.Test;
 import types.Blockchain;
 
@@ -18,10 +17,9 @@ public class TransactionTypeConverterTest extends AbstractTestCase {
   public void testConvert() {
     final ModelConverter<Transaction.TxType, Blockchain.TxType> converter =
         new TransactionTypeConverterFactory().create();
-    // final Blockchain.TxType[] rpcTxtypes = Blockchain.TxType.values();
-    for (final TxType expected : Transaction.TxType.values()) {
-      final Blockchain.TxType rpcTxType = converter.convertToRpcModel(expected);
-      final TxType actual = converter.convertToDomainModel(rpcTxType);
+    for (final Blockchain.TxType expected : Blockchain.TxType.values()) {
+      final Transaction.TxType domainTxType = converter.convertToDomainModel(expected);
+      final Blockchain.TxType actual = converter.convertToRpcModel(domainTxType);
       assertEquals(expected, actual);
     }
   }
