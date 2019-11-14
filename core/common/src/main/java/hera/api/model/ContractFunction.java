@@ -61,9 +61,24 @@ public class ContractFunction {
    * ContractFunction constructor.
    *
    * @param name a function name
+   * @param payable whether a function is payable or not
+   * @param view whether a function is view or not
+   * @param feeDelegation whether a function can delegate fee or not
+   */
+  @ApiAudience.Private
+  public ContractFunction(final String name, final boolean payable, final boolean view,
+      final boolean feeDelegation) {
+    this(name, Collections.<String>emptyList(), payable, view, feeDelegation);
+  }
+
+  /**
+   * ContractFunction constructor.
+   *
+   * @param name a function name
    * @param argumentNames an argument names
    * @param payable whether a function is payable or not
    * @param view whether a function is view or not
+   * @param feeDelegation whether a function can delegate fee or not
    */
   @ApiAudience.Private
   public ContractFunction(final String name, final List<String> argumentNames,

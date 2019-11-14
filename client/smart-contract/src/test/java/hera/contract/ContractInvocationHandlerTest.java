@@ -137,7 +137,7 @@ public class ContractInvocationHandlerTest extends AbstractTestCase {
   protected ContractInterface supplyContractInterface() {
     final List<ContractFunction> contractFunctions = new ArrayList<ContractFunction>();
     contractFunctions.add(new ContractFunction("testExecute", asList("arg")));
-    contractFunctions.add(new ContractFunction("testQuery", false, true));
+    contractFunctions.add(new ContractFunction("testQuery", false, true, false));
     final List<StateVariable> stateVariables = new ArrayList<StateVariable>();
     final ContractInterface contractInterface =
         new ContractInterface(contractAddress, "1.0", "lua", contractFunctions, stateVariables);

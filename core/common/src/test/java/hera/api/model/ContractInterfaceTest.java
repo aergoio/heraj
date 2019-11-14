@@ -25,7 +25,7 @@ public class ContractInterfaceTest {
     final ContractAddress address = new ContractAddress(encodedAddress);
     final String version = randomUUID().toString();
     final String language = randomUUID().toString();
-    final ContractFunction function = new ContractFunction(functionName);
+    final ContractFunction function = new ContractFunction(functionName, false, false, true);
     final List<ContractFunction> functions = new ArrayList<ContractFunction>();
     functions.add(function);
     final List<StateVariable> stateVariables = new ArrayList<StateVariable>();
