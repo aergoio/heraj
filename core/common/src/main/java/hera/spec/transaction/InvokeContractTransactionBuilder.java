@@ -11,6 +11,7 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.Fee;
 import hera.api.model.Identity;
 import hera.api.model.RawTransaction;
+import hera.api.model.Transaction.TxType;
 import hera.spec.resolver.PayloadResolver;
 import hera.spec.resolver.PayloadSpec.Type;
 import hera.spec.transaction.dsl.InvokeContractTransaction;
@@ -72,6 +73,7 @@ public class InvokeContractTransactionBuilder implements
     this.delegate.to(contractInvocation.getAddress());
     this.delegate.amount(contractInvocation.getAmount());
     this.delegate.payload(PayloadResolver.resolve(Type.ContractInvocation, contractInvocation));
+    this.delegate.type(contractInvocation.isDelegateFee() ? TxType.FEE_DELEGATION : TxType.NORMAL);
     return delegate.build();
   }
 

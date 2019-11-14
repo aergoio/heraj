@@ -45,9 +45,9 @@ public class ContractInterfaceConverterFactory {
             for (final Blockchain.FnArgument rpcArgument : rpcFunction.getArgumentsList()) {
               domainArguments.add(rpcArgument.getName());
             }
-            final ContractFunction domainContractFunction =
-                new ContractFunction(rpcFunction.getName(), domainArguments,
-                    rpcFunction.getPayable(), rpcFunction.getView());
+            final ContractFunction domainContractFunction = new ContractFunction(
+                rpcFunction.getName(), domainArguments, rpcFunction.getPayable(),
+                rpcFunction.getView(), rpcFunction.getFeeDelegation());
             domainFunctions.add(domainContractFunction);
           }
 

@@ -18,10 +18,11 @@ public class Fee {
 
   public static final Fee EMPTY = new Fee(null, 0L);
 
-  public static final Fee ZERO = new Fee(Aer.ZERO, 0);
+  public static final Fee ZERO = new Fee(null, 0);
 
   @Getter
-  protected static final Fee defaultFee = new Fee(Aer.GIGA_ONE, 1L);
+  @Deprecated
+  protected static final Fee defaultFee = new Fee(null, 10000L);
 
   /**
    * Build {@code Fee} object.

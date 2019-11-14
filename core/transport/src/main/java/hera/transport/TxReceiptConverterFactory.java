@@ -24,7 +24,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import types.Blockchain;
 
-public class ReceiptConverterFactory {
+public class TxReceiptConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
 
@@ -71,6 +71,7 @@ public class ReceiptConverterFactory {
               .indexInBlock(rpcReceipt.getTxIndex())
               .sender(accountAddressConverter.convertToDomainModel(rpcReceipt.getFrom()))
               .recipient(accountAddressConverter.convertToDomainModel(rpcReceipt.getTo()))
+              .feeDelegation(rpcReceipt.getFeeDelegation())
               .build();
           logger.trace("Domain tx receipt converted: {}", domainTxReceipt);
           return domainTxReceipt;

@@ -12,12 +12,12 @@ import hera.api.model.ContractTxReceipt;
 import org.junit.Test;
 import types.Blockchain;
 
-public class ReceiptConverterTest extends AbstractTestCase {
+public class TxReceiptConverterTest extends AbstractTestCase {
 
   @Test
   public void testConvert() {
     final ModelConverter<ContractTxReceipt, Blockchain.Receipt> converter =
-        new ReceiptConverterFactory().create();
+        new TxReceiptConverterFactory().create();
 
     final Blockchain.Receipt rpcAccount = Blockchain.Receipt.newBuilder()
         .setContractAddress(copyFrom(accountAddress.getBytesValue()))

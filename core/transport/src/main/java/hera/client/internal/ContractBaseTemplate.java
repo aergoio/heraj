@@ -46,7 +46,7 @@ import hera.transport.ContractResultConverterFactory;
 import hera.transport.EventConverterFactory;
 import hera.transport.EventFilterConverterFactory;
 import hera.transport.ModelConverter;
-import hera.transport.ReceiptConverterFactory;
+import hera.transport.TxReceiptConverterFactory;
 import io.grpc.Context;
 import io.grpc.ManagedChannel;
 import java.util.ArrayList;
@@ -69,7 +69,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
       new AccountAddressConverterFactory().create();
 
   protected final ModelConverter<ContractTxReceipt, Blockchain.Receipt> receiptConverter =
-      new ReceiptConverterFactory().create();
+      new TxReceiptConverterFactory().create();
 
   protected final ModelConverter<ContractInterface, Blockchain.ABI> contractInterfaceConverter =
       new ContractInterfaceConverterFactory().create();

@@ -70,4 +70,7 @@ public class ContractTxReceipt {
   @Default
   AccountAddress recipient = AccountAddress.EMPTY;
 
+  @Default
+  boolean feeDelegation = false;
+
 }

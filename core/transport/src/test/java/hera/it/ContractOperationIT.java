@@ -13,6 +13,7 @@ import static org.junit.Assert.fail;
 
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
+import hera.api.model.Aer.Unit;
 import hera.api.model.BigNumber;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
@@ -45,6 +46,8 @@ public class ContractOperationIT extends AbstractIT {
 
   protected Map<String, String> payloadMap = new HashMap<>();
 
+  protected final Fee fee = Fee.of(10000);
+
   @Before
   public void setUp() throws Exception {
     super.setUp();
@@ -59,6 +62,8 @@ public class ContractOperationIT extends AbstractIT {
         IoUtils.from(new InputStreamReader(open("with_bignum_payload"))));
     payloadMap.put("with_event_nested_args_payload",
         IoUtils.from(new InputStreamReader(open("with_event_args_payload"))));
+    payloadMap.put("with_fee_delegation_payload",
+        IoUtils.from(new InputStreamReader(open("with_fee_delegation_payload"))));
   }
 
   @Test
@@ -112,7 +117,7 @@ public class ContractOperationIT extends AbstractIT {
 
     try {
       // when
-      aergoClient.getContractOperation().deploy(key, definition, 0L, Fee.ZERO);
+      aergoClient.getContractOperation().deploy(key, definition, 0L, fee);
       fail();
     } catch (Exception e) {
       // then
@@ -414,11 +419,63 @@ public class ContractOperationIT extends AbstractIT {
           .function("set")
           .args(executeKey, executeIntVal, executeStringVal)
           .build();
-      aergoClient.getContractOperation().execute(key, execution, 0L, Fee.ZERO);
+      aergoClient.getContractOperation().execute(key, execution, 0L, fee);
       fail();
     } catch (Exception e) {
       // then
     }
+  }
+
+  @Test
+  public void shouldExecuteUseSenderFeeOnNotFeeDelegation() throws Exception {
+    // given
+    final AergoKey key = createNewKey();
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(payloadMap.get("with_fee_delegation_payload"))
+        .amount(Aer.of("10", Unit.AERGO))
+        .build();
+    final ContractInterface contractInterface = deployAndGetAbi(key, definition);
+
+    // when
+    final AccountState preState = aergoClient.getAccountOperation().getState(key.getAddress());
+    final String executeKey = randomUUID().toString();
+    final String executeValue = randomUUID().toString();
+    final ContractInvocation execution = contractInterface.newInvocationBuilder()
+        .function("set")
+        .args(executeKey, executeValue)
+        .delegateFee(false)
+        .build();
+    execute(key, execution);
+
+    // then
+    final AccountState afterState = aergoClient.getAccountOperation().getState(key.getAddress());
+    assertEquals(-1, afterState.getBalance().compareTo(preState.getBalance()));
+  }
+
+  @Test
+  public void shouldExecuteNotUseSenderFeeOnFeeDelegation() throws Exception {
+    // given
+    final AergoKey key = createNewKey();
+    final ContractDefinition definition = ContractDefinition.newBuilder()
+        .encodedContract(payloadMap.get("with_fee_delegation_payload"))
+        .amount(Aer.of("10", Unit.AERGO))
+        .build();
+    final ContractInterface contractInterface = deployAndGetAbi(key, definition);
+
+    // when
+    final AccountState preState = aergoClient.getAccountOperation().getState(key.getAddress());
+    final String executeKey = randomUUID().toString();
+    final String executeValue = randomUUID().toString();
+    final ContractInvocation execution = contractInterface.newInvocationBuilder()
+        .function("set")
+        .args(executeKey, executeValue)
+        .delegateFee(true)
+        .build();
+    execute(key, execution);
+
+    // then
+    final AccountState afterState = aergoClient.getAccountOperation().getState(key.getAddress());
+    assertEquals(preState.getBalance(), afterState.getBalance());
   }
 
   @Test
@@ -770,7 +827,7 @@ public class ContractOperationIT extends AbstractIT {
   protected ContractTxReceipt deploy(final Signer signer,
       final ContractDefinition definition) {
     final ContractTxHash contractTxHash = aergoClient.getContractOperation().deploy(signer,
-        definition, nonceProvider.incrementAndGetNonce(signer.getPrincipal()), Fee.getDefaultFee());
+        definition, nonceProvider.incrementAndGetNonce(signer.getPrincipal()), fee);
 
     waitForNextBlockToGenerate();
 
@@ -787,7 +844,7 @@ public class ContractOperationIT extends AbstractIT {
       final ContractDefinition definition) {
     final ContractTxHash contractTxHash =
         aergoClient.getContractOperation().redeploy(signer, contractAddress, definition,
-            nonceProvider.incrementAndGetNonce(signer.getPrincipal()), Fee.getDefaultFee());
+            nonceProvider.incrementAndGetNonce(signer.getPrincipal()), fee);
 
     waitForNextBlockToGenerate();
 
@@ -800,7 +857,7 @@ public class ContractOperationIT extends AbstractIT {
 
   protected ContractTxReceipt execute(final Signer signer, final ContractInvocation execution) {
     final ContractTxHash contractTxHash = aergoClient.getContractOperation().execute(signer,
-        execution, nonceProvider.incrementAndGetNonce(signer.getPrincipal()), Fee.getDefaultFee());
+        execution, nonceProvider.incrementAndGetNonce(signer.getPrincipal()), fee);
 
     waitForNextBlockToGenerate();
 

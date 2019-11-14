@@ -93,6 +93,8 @@ public class ContractInterface {
     ContractInvocationWithReady args(Object... args);
 
     ContractInvocationWithReady amount(Aer amount);
+
+    ContractInvocationWithReady delegateFee(boolean delegateFee);
   }
 
   @RequiredArgsConstructor
@@ -107,6 +109,8 @@ public class ContractInterface {
     protected Object[] args = new Object[0];
 
     protected Aer amount = Aer.EMPTY;
+
+    protected boolean delegateFee = false;
 
     @Override
     public ContractInvocationWithReady function(final String functionName) {
@@ -133,8 +137,18 @@ public class ContractInterface {
     }
 
     @Override
+    public ContractInvocationWithReady delegateFee(boolean delegateFee) {
+      if (false == this.function.isFeeDelegation()) {
+        throw new HerajException("Target function cannot delegate fee");
+      }
+      this.delegateFee = delegateFee;
+      return this;
+    }
+
+    @Override
     public hera.api.model.ContractInvocation build() {
-      return new ContractInvocation(contractInterface.getAddress(), function, asList(args), amount);
+      return new ContractInvocation(contractInterface.getAddress(), function, asList(args), amount,
+          delegateFee);
     }
 
   }

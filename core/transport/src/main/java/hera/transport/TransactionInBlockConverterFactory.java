@@ -18,7 +18,6 @@ import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
-import hera.api.model.Transaction.TxType;
 import hera.api.model.TxHash;
 import org.slf4j.Logger;
 import types.Blockchain;
@@ -28,44 +27,11 @@ public class TransactionInBlockConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final Function1<Transaction.TxType, Blockchain.TxType> txTypeDomainConverter =
-      new Function1<Transaction.TxType, Blockchain.TxType>() {
-
-        @Override
-        public Blockchain.TxType apply(final Transaction.TxType domainTxType) {
-          switch (domainTxType) {
-            case NORMAL:
-              return Blockchain.TxType.NORMAL;
-            case GOVERNANCE:
-              return Blockchain.TxType.GOVERNANCE;
-            case REDEPLOY:
-              return Blockchain.TxType.REDEPLOY;
-            default:
-              return Blockchain.TxType.UNRECOGNIZED;
-          }
-        }
-      };
-
-  protected final Function1<Blockchain.TxType, Transaction.TxType> txTypeRpcConverter =
-      new Function1<Blockchain.TxType, Transaction.TxType>() {
-
-        @Override
-        public TxType apply(Blockchain.TxType rpcTxType) {
-          switch (rpcTxType) {
-            case NORMAL:
-              return Transaction.TxType.NORMAL;
-            case GOVERNANCE:
-              return Transaction.TxType.GOVERNANCE;
-            case REDEPLOY:
-              return Transaction.TxType.REDEPLOY;
-            default:
-              return Transaction.TxType.UNRECOGNIZED;
-          }
-        }
-      };
-
   protected final ModelConverter<AccountAddress, ByteString> accountAddressConverter =
       new AccountAddressConverterFactory().create();
+
+  protected final ModelConverter<Transaction.TxType, Blockchain.TxType> txTypeConverter =
+      new TransactionTypeConverterFactory().create();
 
   protected final Function1<Transaction, Blockchain.TxInBlock> domainConverter =
       new Function1<Transaction, Blockchain.TxInBlock>() {
@@ -82,7 +48,7 @@ public class TransactionInBlockConverterFactory {
               .setAmount(copyFrom(domainTransaction.getAmount()))
               .setNonce(domainTransaction.getNonce())
               .setPayload(copyFrom(domainTransaction.getPayload()))
-              .setType(txTypeDomainConverter.apply(domainTransaction.getTxType()))
+              .setType(txTypeConverter.convertToRpcModel(domainTransaction.getTxType()))
               .setSign(copyFrom(domainTransaction.getSignature().getSign()))
               .setGasPrice(copyFrom(domainTransaction.getFee().getPrice()))
               .setGasLimit(domainTransaction.getFee().getLimit());
@@ -124,7 +90,7 @@ public class TransactionInBlockConverterFactory {
               .nonce(txBody.getNonce())
               .fee(new Fee(parseToAer(txBody.getGasPrice()), txBody.getGasLimit()))
               .payload(of(txBody.getPayload().toByteArray()))
-              .type(txTypeRpcConverter.apply(txBody.getType()))
+              .type(txTypeConverter.convertToDomainModel(txBody.getType()))
               .build();
 
           final Transaction domainTransaction = Transaction.newBuilder()

@@ -14,13 +14,14 @@ import java.util.List;
 import org.junit.Test;
 import types.Rpc;
 
-public class CommitExceptionTest extends AbstractTestCase {
+public class RpcCommitExceptionTest extends AbstractTestCase {
 
   @Test
   public void testCreate() {
-    final List<RpcCommitException> commitExceptions = new ArrayList<RpcCommitException>();
+    final List<RpcCommitException> commitExceptions = new ArrayList<>();
     for (final Rpc.CommitStatus rpcCommitStatus : Rpc.CommitStatus.values()) {
-      commitExceptions.add(new RpcCommitException(new InternalCommitException(rpcCommitStatus, "")));
+      commitExceptions
+          .add(new RpcCommitException(new InternalCommitException(rpcCommitStatus, "")));
     }
     Iterator<RpcCommitException> it = commitExceptions.iterator();
     for (final RpcCommitException.CommitStatus expected : RpcCommitException.CommitStatus

@@ -33,6 +33,9 @@ public class ContractFunction {
   @Getter
   protected final boolean view;
 
+  @Getter
+  protected final boolean feeDelegation;
+
   /**
    * ContractFunction constructor.
    *
@@ -47,23 +50,11 @@ public class ContractFunction {
    * ContractFunction constructor.
    *
    * @param name a function name
-   * @param payable whether a function is payable or not
-   * @param view whether a function is view or not
-   */
-  @ApiAudience.Private
-  public ContractFunction(final String name, final boolean payable, final boolean view) {
-    this(name, Collections.<String>emptyList(), payable, view);
-  }
-
-  /**
-   * ContractFunction constructor.
-   *
-   * @param name a function name
    * @param argumentNames an argument names
    */
   @ApiAudience.Private
   public ContractFunction(final String name, final List<String> argumentNames) {
-    this(name, argumentNames, false, false);
+    this(name, argumentNames, false, false, false);
   }
 
   /**
@@ -76,13 +67,14 @@ public class ContractFunction {
    */
   @ApiAudience.Private
   public ContractFunction(final String name, final List<String> argumentNames,
-      final boolean payable, final boolean view) {
+      final boolean payable, final boolean view, final boolean feeDelegation) {
     assertNotNull(name, "Function name must not null");
     assertNotNull(argumentNames, "Argument names must not null");
     this.name = name;
     this.argumentNames = unmodifiableList(argumentNames);
     this.payable = payable;
     this.view = view;
+    this.feeDelegation = feeDelegation;
   }
 
 

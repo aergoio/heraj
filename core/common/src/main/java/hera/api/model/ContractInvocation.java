@@ -34,8 +34,11 @@ public class ContractInvocation {
   @Getter
   protected final Aer amount;
 
-  ContractInvocation(final ContractAddress contractAddress,
-      final ContractFunction contractFunction, final List<Object> args, final Aer amount) {
+  @Getter
+  protected final boolean delegateFee;
+
+  ContractInvocation(final ContractAddress contractAddress, final ContractFunction contractFunction,
+      final List<Object> args, final Aer amount, final boolean delegateFee) {
     assertNotNull(contractAddress, "Contract address must not null");
     assertNotNull(contractFunction, "Contract function must not null");
     assertNotNull(args, "Contract function args must not null");
@@ -44,6 +47,7 @@ public class ContractInvocation {
     this.function = contractFunction;
     this.args = unmodifiableList(args);
     this.amount = amount;
+    this.delegateFee = delegateFee;
   }
 
 }

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 readonly IT_FILE="ContractOperationIT"
 
