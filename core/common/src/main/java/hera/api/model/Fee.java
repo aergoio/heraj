@@ -27,7 +27,7 @@ public class Fee {
   /**
    * Build {@code Fee} object.
    *
-   * @param limit a fee limit
+   * @param limit a gas limit
    * @return created {@code Fee}
    */
   @ApiAudience.Public
@@ -35,6 +35,7 @@ public class Fee {
     return new Fee(limit);
   }
 
+  // not used currently
   @Getter
   protected final Aer price;
 

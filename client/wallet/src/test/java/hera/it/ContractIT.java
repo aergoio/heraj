@@ -6,6 +6,7 @@ package hera.it;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
@@ -43,12 +44,13 @@ public class ContractIT extends AbstractWalletApiIT {
   protected final String execFunction2Event = "set2";
   protected final String queryFunction = "get";
 
+  protected final Fee fee = Fee.of(1000000L);
+
   @Test
   public void shouldDeployOnUnlocked() throws IOException {
     // when
     walletApi.unlock(authentication);
     final String payload = IoUtils.from(new InputStreamReader(open("payload")));
-    final Fee fee = Fee.EMPTY;
 
     // then
     final ContractInterface contractInterface = deploy(payload, fee);
@@ -59,7 +61,6 @@ public class ContractIT extends AbstractWalletApiIT {
   public void shouldDeployFailOnLocked() throws IOException {
     // when
     final String payload = IoUtils.from(new InputStreamReader(open("payload")));
-    final Fee fee = Fee.EMPTY;
 
     // then
     try {
@@ -75,7 +76,6 @@ public class ContractIT extends AbstractWalletApiIT {
     // when
     walletApi.unlock(authentication);
     final String payload = IoUtils.from(new InputStreamReader(open("payload")));
-    final Fee fee = Fee.EMPTY;
     final String key = randomUUID().toString();
     final int intVal = randomUUID().hashCode();
     final String stringVal = randomUUID().toString();
@@ -93,15 +93,13 @@ public class ContractIT extends AbstractWalletApiIT {
     // when
     walletApi.unlock(authentication);
     final String payload = IoUtils.from(new InputStreamReader(open("payload")));
-    final Fee deployFee = Fee.EMPTY;
-    final ContractInterface contractInterface = deploy(payload, deployFee);
+    final ContractInterface contractInterface = deploy(payload, fee);
 
     // then
     final String key = randomUUID().toString();
     final int intVal = randomUUID().hashCode();
     final String stringVal = randomUUID().toString();
-    final Fee execFee = Fee.EMPTY;
-    execute(contractInterface, execFunction, execFee, key, intVal, stringVal);
+    execute(contractInterface, execFunction, fee, key, intVal, stringVal);
     final ContractResult result = query(contractInterface, queryFunction, key);
     final Data data = result.bind(Data.class);
     assertEquals(intVal, data.getIntVal());
@@ -113,17 +111,15 @@ public class ContractIT extends AbstractWalletApiIT {
     // when
     walletApi.unlock(authentication);
     final String payload = IoUtils.from(new InputStreamReader(open("payload")));
-    final Fee deployFee = Fee.EMPTY;
-    final ContractInterface contractInterface = deploy(payload, deployFee);
+    final ContractInterface contractInterface = deploy(payload, fee);
     walletApi.lock(authentication);
 
     // then
     final String key = randomUUID().toString();
     final int intVal = randomUUID().hashCode();
     final String stringVal = randomUUID().toString();
-    final Fee execFee = Fee.EMPTY;
     try {
-      execute(contractInterface, execFunction, execFee, key, intVal, stringVal);
+      execute(contractInterface, execFunction, fee, key, intVal, stringVal);
       fail();
     } catch (Exception e) {
       // good we expected this
@@ -135,8 +131,7 @@ public class ContractIT extends AbstractWalletApiIT {
     // when
     walletApi.unlock(authentication);
     final String payload = IoUtils.from(new InputStreamReader(open("payload")));
-    final Fee deployFee = Fee.EMPTY;
-    final ContractInterface contractInterface = deploy(payload, deployFee);
+    final ContractInterface contractInterface = deploy(payload, fee);
 
     final int tryCount = 5;
     final Collection<Pair<String, Pair<Integer, String>>> execArgs = generateArgs(tryCount);
@@ -153,19 +148,16 @@ public class ContractIT extends AbstractWalletApiIT {
           }
 
           @Override
-          public void onError(Throwable t) {
-          }
+          public void onError(Throwable t) {}
 
           @Override
-          public void onCompleted() {
-          }
+          public void onCompleted() {}
         });
 
     // then
-    final Fee execFee = Fee.EMPTY;
     final Collection<Pair<String, Pair<Integer, String>>> clone = new HashSet<>(execArgs);
     for (final Pair<String, Pair<Integer, String>> next : clone) {
-      execute(contractInterface, execFunction, execFee, next.v1, next.v2.v1, next.v2.v2);
+      execute(contractInterface, execFunction, fee, next.v1, next.v2.v1, next.v2.v2);
     }
     assertEquals(0, execArgs.size());
     subsription.unsubscribe();
@@ -176,8 +168,7 @@ public class ContractIT extends AbstractWalletApiIT {
     // when
     walletApi.unlock(authentication);
     final String payload = IoUtils.from(new InputStreamReader(open("payload")));
-    final Fee deployFee = Fee.EMPTY;
-    final ContractInterface contractInterface = deploy(payload, deployFee);
+    final ContractInterface contractInterface = deploy(payload, fee);
 
     final int event1Try = 2;
     final int event2Try = 4;
@@ -195,22 +186,19 @@ public class ContractIT extends AbstractWalletApiIT {
           }
 
           @Override
-          public void onError(Throwable t) {
-          }
+          public void onError(Throwable t) {}
 
           @Override
-          public void onCompleted() {
-          }
+          public void onCompleted() {}
         });
 
     // then
-    final Fee execFee = Fee.EMPTY;
     for (int i = 0; i < event1Try; ++i) {
-      execute(contractInterface, execFunction, execFee, randomUUID().toString(),
+      execute(contractInterface, execFunction, fee, randomUUID().toString(),
           randomUUID().hashCode(), randomUUID().toString());
     }
     for (int i = 0; i < event2Try; ++i) {
-      execute(contractInterface, execFunction2, execFee, randomUUID().toString(),
+      execute(contractInterface, execFunction2, fee, randomUUID().toString(),
           randomUUID().hashCode(), randomUUID().toString());
     }
     assertEquals(0, count.get());
@@ -248,6 +236,7 @@ public class ContractIT extends AbstractWalletApiIT {
     waitForNextBlockToGenerate();
 
     final ContractTxReceipt receipt = walletApi.queryApi().getReceipt(deployTxHash);
+    assertNotEquals("ERROR", receipt.getStatus());
     final ContractAddress contractAddress = receipt.getContractAddress();
     final ContractInterface contractInterface =
         walletApi.queryApi().getContractInterface(contractAddress);
@@ -263,7 +252,9 @@ public class ContractIT extends AbstractWalletApiIT {
         .build();
     final ContractTxHash execTxHash = walletApi.transactionApi().execute(execution, fee);
     waitForNextBlockToGenerate();
-    return walletApi.queryApi().getReceipt(execTxHash);
+    final ContractTxReceipt receipt = walletApi.queryApi().getReceipt(execTxHash);
+    assertNotEquals("ERROR", receipt.getStatus());
+    return receipt;
   }
 
   protected ContractResult query(final ContractInterface contractInterface, final String funcName,

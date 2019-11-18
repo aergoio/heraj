@@ -150,6 +150,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
               .from(signer.getPrincipal())
               .nonce(nonce)
               .definition(contractDefinition)
+              .fee(fee)
               .build();
           return signAndCommit(signer, rawTransaction);
         }
@@ -173,6 +174,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
               .nonce(nonce)
               .contractAddress(existingContract)
               .definition(contractDefinition)
+              .fee(fee)
               .build();
           return signAndCommit(signer, rawTransaction);
         }
@@ -226,6 +228,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
               .from(signer.getPrincipal())
               .nonce(nonce)
               .invocation(contractInvocation)
+              .fee(fee)
               .build();
           return signAndCommit(signer, rawTransaction);
         }
@@ -322,6 +325,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
               new GrpcStreamObserverAdaptor<Blockchain.Event, Event>(cancellableContext,
                   observer, eventConverter);
           cancellableContext.run(new Runnable() {
+
             @Override
             public void run() {
               streamService.listEventStream(filterInfo, adaptor);

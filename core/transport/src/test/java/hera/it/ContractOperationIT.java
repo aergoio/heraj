@@ -7,6 +7,7 @@ package hera.it;
 import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -46,7 +47,7 @@ public class ContractOperationIT extends AbstractIT {
 
   protected Map<String, String> payloadMap = new HashMap<>();
 
-  protected final Fee fee = Fee.of(10000);
+  protected final Fee fee = Fee.of(1000000L);
 
   @Before
   public void setUp() throws Exception {
@@ -832,7 +833,9 @@ public class ContractOperationIT extends AbstractIT {
 
     waitForNextBlockToGenerate();
 
-    return aergoClient.getContractOperation().getReceipt(contractTxHash);
+    final ContractTxReceipt receipt = aergoClient.getContractOperation().getReceipt(contractTxHash);
+    assertNotEquals("ERROR", receipt.getStatus());
+    return receipt;
   }
 
   protected ContractInterface redeployAndGetAbi(final Signer signer,
@@ -849,7 +852,9 @@ public class ContractOperationIT extends AbstractIT {
 
     waitForNextBlockToGenerate();
 
-    return aergoClient.getContractOperation().getReceipt(contractTxHash);
+    final ContractTxReceipt receipt = aergoClient.getContractOperation().getReceipt(contractTxHash);
+    assertNotEquals("ERROR", receipt.getStatus());
+    return receipt;
   }
 
   protected ContractInterface getAbi(final ContractTxReceipt receipt) {
@@ -862,7 +867,9 @@ public class ContractOperationIT extends AbstractIT {
 
     waitForNextBlockToGenerate();
 
-    return aergoClient.getContractOperation().getReceipt(contractTxHash);
+    final ContractTxReceipt receipt = aergoClient.getContractOperation().getReceipt(contractTxHash);
+    assertNotEquals("ERROR", receipt.getStatus());
+    return receipt;
   }
 
 }
