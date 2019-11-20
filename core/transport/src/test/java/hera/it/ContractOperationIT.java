@@ -47,7 +47,7 @@ public class ContractOperationIT extends AbstractIT {
 
   protected Map<String, String> payloadMap = new HashMap<>();
 
-  protected final Fee fee = Fee.of(1000000L);
+  protected final Fee fee = Fee.ZERO;
 
   @Before
   public void setUp() throws Exception {
@@ -69,13 +69,11 @@ public class ContractOperationIT extends AbstractIT {
 
   @Test
   public void shouldDeployOnPlainContract() throws Exception {
-    // given
+    // when
     final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payloadMap.get("simple_payload"))
         .build();
-
-    // when
     final ContractTxReceipt receipt = deploy(key, definition);
 
     // then
@@ -84,7 +82,7 @@ public class ContractOperationIT extends AbstractIT {
 
   @Test
   public void shouldApplyConstructorArgsOnDeploy() throws Exception {
-    // given
+    // when
     final AergoKey key = createNewKey();
     final String deployKey = randomUUID().toString();
     final int deployIntVal = randomUUID().toString().hashCode();
@@ -93,8 +91,6 @@ public class ContractOperationIT extends AbstractIT {
         .encodedContract(payloadMap.get("simple_payload"))
         .constructorArgs(deployKey, deployIntVal, deployStringVal)
         .build();
-
-    // when
     final ContractInterface contractInterface = deployAndGetAbi(key, definition);
 
     // then
@@ -110,14 +106,12 @@ public class ContractOperationIT extends AbstractIT {
 
   @Test
   public void shouldDeployFailOnInvaidNonce() throws Exception {
-    // given
-    final AergoKey key = createNewKey();
-    final ContractDefinition definition = ContractDefinition.newBuilder()
-        .encodedContract(payloadMap.get("simple_payload"))
-        .build();
-
     try {
       // when
+      final AergoKey key = createNewKey();
+      final ContractDefinition definition = ContractDefinition.newBuilder()
+          .encodedContract(payloadMap.get("simple_payload"))
+          .build();
       aergoClient.getContractOperation().deploy(key, definition, 0L, fee);
       fail();
     } catch (Exception e) {
@@ -241,15 +235,13 @@ public class ContractOperationIT extends AbstractIT {
 
   @Test
   public void shouldHasAmountSameAsDeployedOne() throws Exception {
-    // given
+    // when
     final AergoKey key = createNewKey();
     final Aer expected = Aer.GIGA_ONE;
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payloadMap.get("with_payable_payload"))
         .amount(expected)
         .build();
-
-    // when
     final ContractInterface contractInterface = deployAndGetAbi(key, definition);
     final ContractAddress contractAddress = contractInterface.getAddress();
 

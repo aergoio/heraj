@@ -44,7 +44,7 @@ public class ContractIT extends AbstractWalletApiIT {
   protected final String execFunction2Event = "set2";
   protected final String queryFunction = "get";
 
-  protected final Fee fee = Fee.of(1000000L);
+  protected final Fee fee = Fee.ZERO;
 
   @Test
   public void shouldDeployOnUnlocked() throws IOException {

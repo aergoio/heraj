@@ -23,13 +23,11 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void shouldSendAergoByCommit() {
-    // given
+    // when
     final AergoKey senderKey = createNewKey();
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
     final Aer amount = Aer.AERGO_ONE;
     final AccountState preState = aergoClient.getAccountOperation().getState(recipient);
-
-    // when
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .chainIdHash(aergoClient.getCachedChainIdHash())
         .from(senderKey.getAddress())
@@ -48,11 +46,9 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void shouldNotConfirmedJustAfterCommit() {
-    // given
+    // when
     final AergoKey senderKey = createNewKey();
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
-
-    // when
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .chainIdHash(aergoClient.getCachedChainIdHash())
         .from(senderKey.getAddress())
@@ -72,12 +68,10 @@ public class TransactionOperationIT extends AbstractIT {
   public void shouldSendAergoByNameSender() {
     // given
     final AergoKey senderKey = createNewKey();
-    // create name
     final String name = randomName();
     aergoClient.getAccountOperation().createName(senderKey, name,
         nonceProvider.incrementAndGetNonce(senderKey.getAddress()));
     waitForNextBlockToGenerate();
-    // before state
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
     final Aer amount = Aer.AERGO_ONE;
     final AccountState preState = aergoClient.getAccountOperation().getState(recipient);
@@ -105,12 +99,10 @@ public class TransactionOperationIT extends AbstractIT {
     // given
     final AergoKey senderKey = createNewKey();
     final AergoKey recipient = createNewKey();
-    // create name
     final String name = randomName();
     aergoClient.getAccountOperation().createName(recipient, name,
         nonceProvider.incrementAndGetNonce(recipient.getAddress()));
     waitForNextBlockToGenerate();
-    // before state
     final Aer amount = Aer.AERGO_ONE;
     final AccountState preState =
         aergoClient.getAccountOperation().getState(recipient.getAddress());
@@ -181,8 +173,6 @@ public class TransactionOperationIT extends AbstractIT {
       fail();
     } catch (RpcCommitException e) {
       // then
-      // TODO: when to use TX_ALREADY_EXISTS?
-      // assertEquals(RpcCommitException.CommitStatus.TX_ALREADY_EXISTS, e.getCommitStatus());
       assertEquals(RpcCommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
     }
   }
@@ -236,12 +226,10 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Test
   public void shouldCommitFailOnInvalidSignature() {
-    // given
-    final AergoKey senderKey = createNewKey();
-    final AergoKey recipient = createNewKey();
-
     try {
       // when
+      final AergoKey senderKey = createNewKey();
+      final AergoKey recipient = createNewKey();
       final RawTransaction rawTransaction = RawTransaction.newBuilder()
           .chainIdHash(aergoClient.getCachedChainIdHash())
           .from(senderKey.getAddress())
@@ -255,7 +243,6 @@ public class TransactionOperationIT extends AbstractIT {
       fail();
     } catch (RpcCommitException e) {
       // then
-      // assertEquals(RpcCommitException.CommitStatus.TX_INVALID_SIGNATURE, e.getCommitStatus());
     }
   }
 

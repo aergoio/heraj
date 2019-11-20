@@ -25,11 +25,10 @@ public class BlockOperationIT extends AbstractIT {
 
   @Test
   public void shouldFetchBlockMetadataByHash() {
-    // given
+    // when
     final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
     final BlockHash hash = status.getBestBlockHash();
 
-    // when
     final BlockMetadata metadata = aergoClient.getBlockOperation().getBlockMetadata(hash);
 
     // when
@@ -38,11 +37,9 @@ public class BlockOperationIT extends AbstractIT {
 
   @Test
   public void shouldFetchBlockMetadataFailOnInvalidHash() {
-    // given
-    final BlockHash hash = new BlockHash("8WTYmYgmEGH9UYRYPzGTowS5vhPLumGyb3Pq9UQ3zcRv");
-
     try {
       // when
+      final BlockHash hash = new BlockHash("8WTYmYgmEGH9UYRYPzGTowS5vhPLumGyb3Pq9UQ3zcRv");
       aergoClient.getBlockOperation().getBlockMetadata(hash);
       fail();
     } catch (Exception e) {
@@ -52,12 +49,10 @@ public class BlockOperationIT extends AbstractIT {
 
   @Test
   public void shouldFetchBlockMetadataByHeight() {
-    // given
+    // when
     final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
     final BlockHash hash = status.getBestBlockHash();
     final long height = status.getBestHeight();
-
-    // when
     final BlockMetadata metadata = aergoClient.getBlockOperation().getBlockMetadata(height);
 
     // when
@@ -66,11 +61,9 @@ public class BlockOperationIT extends AbstractIT {
 
   @Test
   public void shouldFetchBlockMetadataFailOnInvalidHeight() {
-    // given
-    final long height = currentTimeMillis() % 2 == 0 ? Long.MAX_VALUE : -1;
-
     try {
       // when
+      final long height = currentTimeMillis() % 2 == 0 ? Long.MAX_VALUE : -1;
       aergoClient.getBlockOperation().getBlockMetadata(height);
       fail();
     } catch (AssertionError | Exception e) {
@@ -80,11 +73,9 @@ public class BlockOperationIT extends AbstractIT {
 
   @Test
   public void shouldListBlockMetadataByHash() {
-    // given
+    // when
     final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
     final BlockHash hash = status.getBestBlockHash();
-
-    // when
     final int size = 10;
     final List<BlockMetadata> metadata =
         aergoClient.getBlockOperation().listBlockMetadatas(hash, size);
@@ -95,11 +86,9 @@ public class BlockOperationIT extends AbstractIT {
 
   @Test
   public void shouldListBlockMetadataFailOnInvalidHash() {
-    // given
-    final BlockHash hash = new BlockHash("8WTYmYgmEGH9UYRYPzGTowS5vhPLumGyb3Pq9UQ3zcRv");
-
     try {
       // when
+      final BlockHash hash = new BlockHash("8WTYmYgmEGH9UYRYPzGTowS5vhPLumGyb3Pq9UQ3zcRv");
       aergoClient.getBlockOperation().listBlockMetadatas(hash, 10);
       fail();
     } catch (Exception e) {
@@ -109,12 +98,10 @@ public class BlockOperationIT extends AbstractIT {
 
   @Test
   public void shouldListBlockMetadataFailOnValidHashAndInvalidSize() {
-    // given
-    final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
-    final BlockHash hash = status.getBestBlockHash();
-
     try {
       // when
+      final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
+      final BlockHash hash = status.getBestBlockHash();
       aergoClient.getBlockOperation().listBlockMetadatas(hash, -1);
       fail();
     } catch (AssertionError e) {
@@ -124,11 +111,9 @@ public class BlockOperationIT extends AbstractIT {
 
   @Test
   public void shouldListBlockMetadataByHeight() {
-    // given
+    // when
     final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
     final long height = status.getBestHeight();
-
-    // when
     final int size = 10;
     final List<BlockMetadata> metadata =
         aergoClient.getBlockOperation().listBlockMetadatas(height, size);
@@ -139,11 +124,9 @@ public class BlockOperationIT extends AbstractIT {
 
   @Test
   public void shouldListBlockMetadataFailOnInvalidHeight() {
-    // given
-    final long height = currentTimeMillis() % 2 == 0 ? Long.MAX_VALUE : -1;
-
     try {
       // when
+      final long height = currentTimeMillis() % 2 == 0 ? Long.MAX_VALUE : -1;
       aergoClient.getBlockOperation().listBlockMetadatas(height, 10);
       fail();
     } catch (AssertionError | Exception e) {
@@ -153,12 +136,10 @@ public class BlockOperationIT extends AbstractIT {
 
   @Test
   public void shouldListBlockMetadataFailOnValidHeightAndInvalidSize() {
-    // given
-    final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
-    final long height = status.getBestHeight();
-
     try {
       // when
+      final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
+      final long height = status.getBestHeight();
       aergoClient.getBlockOperation().listBlockMetadatas(height, -1);
       fail();
     } catch (AssertionError e) {
@@ -171,50 +152,53 @@ public class BlockOperationIT extends AbstractIT {
     final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
 
     try {
+      // when
       aergoClient.getBlockOperation()
           .listBlockMetadatas(new BlockHash(of(randomUUID().toString().getBytes())), 1);
       // fail(); // TODO : uncomment after fixed in a server
     } catch (Exception e) {
-      // good we expected this
+      // then
     }
 
     try {
+      // and when
       aergoClient.getBlockOperation().listBlockMetadatas(status.getBestBlockHash(), -1);
       fail();
     } catch (AssertionError e) {
-      // good we expected this
+      // then
     }
 
     try {
+      // and when
       aergoClient.getBlockOperation().listBlockMetadatas(Long.MAX_VALUE, 1);
       // fail(); // TODO : uncomment after fixed in a server
     } catch (Exception e) {
-      // good we expected this
+      // then
     }
 
     try {
+      // and when
       aergoClient.getBlockOperation().listBlockMetadatas(-1, 1);
       fail();
     } catch (AssertionError e) {
-      // good we expected this
+      // then
     }
 
     try {
+      // and when
       aergoClient.getBlockOperation().listBlockMetadatas(status.getBestHeight(), -1);
       fail();
     } catch (AssertionError e) {
-      // good we expected this
+      // then
     }
   }
 
   @Test
   public void shouldSubcribeBlockMetadata() throws InterruptedException {
-    // given
+    // when
     final int count = 3;
     final CountDownLatch latch = new CountDownLatch(count);
-
-    // when
-    Subscription<BlockMetadata> subscription = aergoClient.getBlockOperation()
+    final Subscription<BlockMetadata> subscription = aergoClient.getBlockOperation()
         .subscribeNewBlockMetadata(new StreamObserver<BlockMetadata>() {
 
           @Override
@@ -241,11 +225,9 @@ public class BlockOperationIT extends AbstractIT {
 
   @Test
   public void shouldSubcribeBlock() throws InterruptedException {
-    // given
+    // when
     final int count = 3;
     final CountDownLatch latch = new CountDownLatch(count);
-
-    // when
     final Subscription<Block> subscription = aergoClient.getBlockOperation()
         .subscribeNewBlock(new StreamObserver<Block>() {
 

@@ -4,7 +4,6 @@
 
 package hera.it;
 
-import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -23,7 +22,6 @@ import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.util.ThreadUtils;
 import java.io.InputStream;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
@@ -41,7 +39,6 @@ public abstract class AbstractIT {
 
   protected AergoClient aergoClient;
   protected String hostname;
-  protected List<String> peerIds;
   protected AergoKey genesisKey;
   protected final NonceProvider nonceProvider = new SimpleNonceProvider();
 
@@ -85,10 +82,6 @@ public abstract class AbstractIT {
     final AccountState genesisState =
         aergoClient.getAccountOperation().getState(this.genesisKey.getAddress());
     this.nonceProvider.bindNonce(genesisState);
-
-    // load peers
-    this.peerIds = asList(properties.getProperty("peerIds").split(","));
-    logger.trace("Peer Ids: {}", this.peerIds);
 
     // cache chain id hash
     final ChainIdHash chainIdHash =

@@ -26,11 +26,9 @@ public class KeyStoreOperationIT extends AbstractIT {
 
   @Test
   public void shouldCreateSuccessfully() {
-    // given
+    // when
     final String password = randomUUID().toString();
     final List<AccountAddress> before = aergoClient.getKeyStoreOperation().list();
-
-    // when
     final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
 
     // then
@@ -47,8 +45,8 @@ public class KeyStoreOperationIT extends AbstractIT {
     final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
 
     // when
-    final Authentication auth = new Authentication(created, password);
-    boolean unlockResult = aergoClient.getKeyStoreOperation().unlock(auth);
+    final Authentication authentication = new Authentication(created, password);
+    boolean unlockResult = aergoClient.getKeyStoreOperation().unlock(authentication);
 
     // then
     assertTrue(unlockResult);
@@ -62,8 +60,8 @@ public class KeyStoreOperationIT extends AbstractIT {
 
     // when
     final String invalidPassword = randomUUID().toString();
-    final Authentication auth = new Authentication(created, invalidPassword);
-    boolean unlockResult = aergoClient.getKeyStoreOperation().unlock(auth);
+    final Authentication authentication = new Authentication(created, invalidPassword);
+    boolean unlockResult = aergoClient.getKeyStoreOperation().unlock(authentication);
 
     // then
     assertTrue(false == unlockResult);
@@ -121,11 +119,11 @@ public class KeyStoreOperationIT extends AbstractIT {
     final String password = randomUUID().toString();
     final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
     final String invalidPassword = randomUUID().toString();
-    final Authentication auth = new Authentication(created, invalidPassword);
+    final Authentication authentication = new Authentication(created, invalidPassword);
 
     try {
       // when
-      aergoClient.getKeyStoreOperation().exportKey(auth);
+      aergoClient.getKeyStoreOperation().exportKey(authentication);
       fail();
     } catch (Exception e) {
       // then
@@ -137,10 +135,10 @@ public class KeyStoreOperationIT extends AbstractIT {
     // given
     final AergoKey key = new AergoKeyGenerator().create();
     final String oldPassword = randomUUID().toString();
-    final String newPassword = randomUUID().toString();
     final EncryptedPrivateKey encrypted = key.export(oldPassword);
 
     // when
+    final String newPassword = randomUUID().toString();
     final AccountAddress imported =
         aergoClient.getKeyStoreOperation().importKey(encrypted, oldPassword, newPassword);
 
@@ -154,12 +152,12 @@ public class KeyStoreOperationIT extends AbstractIT {
     // given
     final AergoKey key = new AergoKeyGenerator().create();
     final String oldPassword = randomUUID().toString();
-    final String newPassword = randomUUID().toString();
     final EncryptedPrivateKey encrypted = key.export(oldPassword);
 
     try {
       // when
       final String invalidPassword = randomUUID().toString();
+      final String newPassword = randomUUID().toString();
       aergoClient.getKeyStoreOperation().importKey(encrypted, invalidPassword, newPassword);
       fail();
     } catch (Exception e) {
@@ -172,10 +170,10 @@ public class KeyStoreOperationIT extends AbstractIT {
     // given
     final AergoKey key = new AergoKeyGenerator().create();
     final String oldPassword = randomUUID().toString();
-    final String newPassword = randomUUID().toString();
     final EncryptedPrivateKey encrypted = key.export(oldPassword);
 
     // when
+    final String newPassword = randomUUID().toString();
     final AccountAddress imported =
         aergoClient.getKeyStoreOperation().importKey(encrypted, oldPassword, newPassword);
     final Authentication auth = new Authentication(imported, newPassword);
@@ -190,6 +188,10 @@ public class KeyStoreOperationIT extends AbstractIT {
     // given
     final String password = randomUUID().toString();
     final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
+    final Authentication auth = new Authentication(created, password);
+    aergoClient.getKeyStoreOperation().unlock(auth);
+
+    // when
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .chainIdHash(aergoClient.getCachedChainIdHash())
         .from(created)
@@ -197,10 +199,6 @@ public class KeyStoreOperationIT extends AbstractIT {
         .amount(Aer.GIGA_ONE)
         .nonce(1L)
         .build();
-    final Authentication auth = new Authentication(created, password);
-    aergoClient.getKeyStoreOperation().unlock(auth);
-
-    // when
     final Transaction signed = aergoClient.getKeyStoreOperation().sign(rawTransaction);
 
     // then
@@ -213,16 +211,16 @@ public class KeyStoreOperationIT extends AbstractIT {
     // given
     final String password = randomUUID().toString();
     final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
-    final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .chainIdHash(aergoClient.getCachedChainIdHash())
-        .from(created)
-        .to(created)
-        .amount(Aer.GIGA_ONE)
-        .nonce(1L)
-        .build();
 
     try {
       // when
+      final RawTransaction rawTransaction = RawTransaction.newBuilder()
+          .chainIdHash(aergoClient.getCachedChainIdHash())
+          .from(created)
+          .to(created)
+          .amount(Aer.GIGA_ONE)
+          .nonce(1L)
+          .build();
       aergoClient.getKeyStoreOperation().sign(rawTransaction);
       fail();
     } catch (Exception e) {

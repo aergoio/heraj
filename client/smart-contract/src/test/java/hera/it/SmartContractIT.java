@@ -13,6 +13,7 @@ import hera.api.model.Authentication;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractTxHash;
+import hera.api.model.Fee;
 import hera.contract.SmartContract;
 import hera.contract.SmartContractFactory;
 import hera.exception.ContractException;
@@ -35,6 +36,8 @@ public class SmartContractIT extends AbstractIT {
   protected ContractAddress contractAddress;
 
   protected String password = randomUUID().toString();
+
+  protected Fee fee = Fee.ZERO;
 
   @Before
   public void setUp() throws Exception {
@@ -81,6 +84,7 @@ public class SmartContractIT extends AbstractIT {
     final ValidInterface smartContarct =
         new SmartContractFactory().create(ValidInterface.class, contractAddress);
     smartContarct.bind(wallet);
+    smartContarct.bind(fee);
 
     final Object nilArg = null;
     final boolean booleanArg = true;
@@ -102,12 +106,13 @@ public class SmartContractIT extends AbstractIT {
 
   @Test
   public void testInvocationOnNoBindedWallet() {
-    final ValidInterface smartContarct = new SmartContractFactory()
+    final ValidInterface smartContract = new SmartContractFactory()
         .create(ValidInterface.class, contractAddress);
     // smartContarct.bind(wallet);
+    smartContract.bind(fee);
 
     try {
-      smartContarct.setBoolean(true);
+      smartContract.setBoolean(true);
       fail();
     } catch (ContractException e) {
       // good we expected this
@@ -119,6 +124,7 @@ public class SmartContractIT extends AbstractIT {
     final InvalidMethodNameInterface smartContract = new SmartContractFactory()
         .create(InvalidMethodNameInterface.class, contractAddress);
     smartContract.bind(wallet);
+    smartContract.bind(fee);
 
     try {
       smartContract.getNil();
@@ -133,6 +139,7 @@ public class SmartContractIT extends AbstractIT {
     final InvalidMethodParameterCountInterface smartContract = new SmartContractFactory()
         .create(InvalidMethodParameterCountInterface.class, contractAddress);
     smartContract.bind(wallet);
+    smartContract.bind(fee);
 
     try {
       smartContract.getNil();

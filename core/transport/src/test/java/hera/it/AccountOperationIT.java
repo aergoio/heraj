@@ -6,18 +6,19 @@ package hera.it;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.AccountTotalVote;
 import hera.api.model.Aer;
-import hera.api.model.ElectedCandidate;
+import hera.api.model.Peer;
 import hera.api.model.StakeInfo;
+import hera.api.model.VoteInfo;
 import hera.exception.RpcCommitException;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 
@@ -25,10 +26,8 @@ public class AccountOperationIT extends AbstractIT {
 
   @Test
   public void shouldCreateName() {
-    // given
-    final AergoKey key = createNewKey();
-
     // when
+    final AergoKey key = createNewKey();
     final String name = randomName();
     aergoClient.getAccountOperation().createName(key, name,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
@@ -41,11 +40,9 @@ public class AccountOperationIT extends AbstractIT {
 
   @Test
   public void shouldCreateNameFailOnInvalidNonce() {
-    // given
-    final AergoKey key = createNewKey();
-
     try {
       // when
+      final AergoKey key = createNewKey();
       final String name = randomName();
       aergoClient.getAccountOperation().createName(key, name, 0L);
       fail();
@@ -118,10 +115,8 @@ public class AccountOperationIT extends AbstractIT {
 
   @Test
   public void shouldReturnNullOnNameWithoutOwner() {
-    // given
-    final String name = randomName();
-
     // when
+    final String name = randomName();
     final AccountAddress nameOwner = aergoClient.getAccountOperation().getNameOwner(name);
 
     // then
@@ -130,17 +125,12 @@ public class AccountOperationIT extends AbstractIT {
 
   @Test
   public void shouldStake() {
-    if (!isDpos()) {
-      return;
-    }
-
-    // given
+    // when
     final AergoKey key = createNewKey();
     final AccountState beforeState = aergoClient.getAccountOperation().getState(key.getAddress());
-    final Aer stakeAmount = beforeState.getBalance();
-
-    // when
-    aergoClient.getAccountOperation().stake(key, stakeAmount,
+    final Aer minimumAmount =
+        aergoClient.getBlockchainOperation().getChainInfo().getMinimumStakingAmount();
+    aergoClient.getAccountOperation().stake(key, minimumAmount,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
     waitForNextBlockToGenerate();
 
@@ -148,23 +138,19 @@ public class AccountOperationIT extends AbstractIT {
     final StakeInfo stakingInfo =
         aergoClient.getAccountOperation().getStakingInfo(key.getAddress());
     assertEquals(key.getAddress(), stakingInfo.getAddress());
-    assertEquals(stakeAmount, stakingInfo.getAmount());
+    assertEquals(minimumAmount, stakingInfo.getAmount());
     final AccountState afterState = aergoClient.getAccountOperation().getState(key.getAddress());
-    assertEquals(Aer.ZERO, afterState.getBalance());
+    assertEquals(beforeState.getBalance(), afterState.getBalance().add(minimumAmount));
   }
 
   @Test
-  public void shouldStakeFailWithLessThanMiniuumAmount() {
-    if (!isDpos()) {
-      return;
-    }
-
-    // given
-    final AergoKey key = createNewKey();
-
+  public void shouldStakeFailWithLessThanMinimumAmount() {
     try {
       // when
-      aergoClient.getAccountOperation().stake(key, Aer.AERGO_ONE.subtract(Aer.ONE),
+      final AergoKey key = createNewKey();
+      final Aer minimumAmount =
+          aergoClient.getBlockchainOperation().getChainInfo().getMinimumStakingAmount();
+      aergoClient.getAccountOperation().stake(key, minimumAmount.subtract(Aer.ONE),
           nonceProvider.incrementAndGetNonce(key.getAddress()));
       fail();
     } catch (RpcCommitException e) {
@@ -174,18 +160,12 @@ public class AccountOperationIT extends AbstractIT {
 
   @Test
   public void shouldStakeFailWithPoor() {
-    if (!isDpos()) {
-      return;
-    }
-
-    // given
-    final AergoKey key = createNewKey();
-    final AccountState state = aergoClient.getAccountOperation().getState(key.getAddress());
-    final Aer amount = state.getBalance();
-
     try {
       // when
-      aergoClient.getAccountOperation().stake(key, amount.add(Aer.ONE),
+      final AergoKey key = new AergoKeyGenerator().create();
+      final Aer minimumAmount =
+          aergoClient.getBlockchainOperation().getChainInfo().getMinimumStakingAmount();
+      aergoClient.getAccountOperation().stake(key, minimumAmount,
           nonceProvider.incrementAndGetNonce(key.getAddress()));
       fail();
     } catch (RpcCommitException e) {
@@ -196,18 +176,12 @@ public class AccountOperationIT extends AbstractIT {
 
   @Test
   public void shouldStakeFailWithInvalidNonce() {
-    if (!isDpos()) {
-      return;
-    }
-
-    // given
-    final AergoKey key = new AergoKeyGenerator().create();
-    final AccountState state = aergoClient.getAccountOperation().getState(key.getAddress());
-    final Aer amount = state.getBalance();
-
     try {
       // when
-      aergoClient.getAccountOperation().stake(key, amount, 0L);
+      final AergoKey key = createNewKey();
+      final Aer minimumAmount =
+          aergoClient.getBlockchainOperation().getChainInfo().getMinimumStakingAmount();
+      aergoClient.getAccountOperation().stake(key, minimumAmount, 0L);
       fail();
     } catch (RpcCommitException e) {
       // then
@@ -217,21 +191,17 @@ public class AccountOperationIT extends AbstractIT {
 
   @Test
   public void shouldUnstakeFailOnRightAfterStake() {
-    if (!isDpos()) {
-      return;
-    }
-
     // given
     final AergoKey key = createNewKey();
-    final AccountState state = aergoClient.getAccountOperation().getState(key.getAddress());
-    final Aer amount = state.getBalance();
-    aergoClient.getAccountOperation().stake(key, amount,
+    final Aer minimumAmount =
+        aergoClient.getBlockchainOperation().getChainInfo().getMinimumStakingAmount();
+    aergoClient.getAccountOperation().stake(key, minimumAmount,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
     waitForNextBlockToGenerate();
 
     // when
     try {
-      aergoClient.getAccountOperation().unstake(key, amount,
+      aergoClient.getAccountOperation().unstake(key, minimumAmount,
           nonceProvider.incrementAndGetNonce(key.getAddress()));
     } catch (Exception e) {
       // then : not enough time has passed to unstake
@@ -240,21 +210,17 @@ public class AccountOperationIT extends AbstractIT {
 
   @Test
   public void shouldUnstakeFailOnInvalidNonce() {
-    if (!isDpos()) {
-      return;
-    }
-
     // given
     final AergoKey key = createNewKey();
-    final AccountState state = aergoClient.getAccountOperation().getState(key.getAddress());
-    final Aer amount = state.getBalance();
-    aergoClient.getAccountOperation().stake(key, amount,
+    final Aer minimumAmount =
+        aergoClient.getBlockchainOperation().getChainInfo().getMinimumStakingAmount();
+    aergoClient.getAccountOperation().stake(key, minimumAmount,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
     waitForNextBlockToGenerate();
 
     // when
     try {
-      aergoClient.getAccountOperation().unstake(key, amount, 0L);
+      aergoClient.getAccountOperation().unstake(key, minimumAmount, 0L);
     } catch (RpcCommitException e) {
       // then
       assertEquals(RpcCommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
@@ -263,58 +229,45 @@ public class AccountOperationIT extends AbstractIT {
 
   @Test
   public void shouldVoteOnStakedOne() {
-    if (!isDpos()) {
-      return;
-    }
-
     // given
     final AergoKey key = createNewKey();
-    final AccountState state = aergoClient.getAccountOperation().getState(key.getAddress());
-    final Aer amount = state.getBalance();
-    aergoClient.getAccountOperation().stake(key, amount,
+    final Aer minimumAmount =
+        aergoClient.getBlockchainOperation().getChainInfo().getMinimumStakingAmount();
+    aergoClient.getAccountOperation().stake(key, minimumAmount,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
     waitForNextBlockToGenerate();
 
     // when
-    final List<String> candidates = peerIds;
-    aergoClient.getAccountOperation().vote(key, "voteBP", candidates,
+    final List<Peer> peers = aergoClient.getBlockchainOperation().listPeers(true, true);
+    final List<String> expected = new ArrayList<>();
+    expected.add(peers.get(0).getPeerId());
+    aergoClient.getAccountOperation().vote(key, "voteBP", expected,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
     waitForNextBlockToGenerate();
 
     // then
-    final List<ElectedCandidate> electeds =
-        aergoClient.getAccountOperation().listElected("voteBP", 23);
-    assertTrue(peerIds.size() <= electeds.size());
     final AccountTotalVote keyVoteTotal =
         aergoClient.getAccountOperation().getVotesOf(key.getAddress());
-    assertTrue(1 == keyVoteTotal.getVoteInfos().size());
-    assertEquals(peerIds.size(), keyVoteTotal.getVoteInfos().get(0).getCandidateIds().size());
+    final List<VoteInfo> fuck = keyVoteTotal.getVoteInfos();
+    System.out.println(fuck);
+    final List<String> actual = fuck.get(0).getCandidateIds();
+    assertEquals(expected, actual);
   }
 
   @Test
   public void shouldVoteFailOnUnstakedOne() {
-    if (!isDpos()) {
-      return;
-    }
-
-    // given
-    final AergoKey key = createNewKey();
-
     try {
       // when
-      final List<String> candidates = peerIds;
+      final AergoKey key = createNewKey();
+      final List<Peer> peers = aergoClient.getBlockchainOperation().listPeers(true, true);
+      final List<String> candidates = new ArrayList<>();
+      candidates.add(peers.get(0).getPeerId());
       aergoClient.getAccountOperation().vote(key, "voteBP", candidates,
           nonceProvider.incrementAndGetNonce(key.getAddress()));
       fail();
     } catch (RpcCommitException e) {
       // then
     }
-  }
-
-  protected boolean isDpos() {
-    final String consensus =
-        aergoClient.getBlockchainOperation().getBlockchainStatus().getConsensus();
-    return consensus.indexOf("dpos") != -1;
   }
 
 }
