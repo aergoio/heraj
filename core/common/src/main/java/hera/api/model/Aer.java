@@ -4,24 +4,25 @@
 
 package hera.api.model;
 
+import static hera.util.ValidationUtils.assertNotEquals;
 import static hera.util.ValidationUtils.assertNotNull;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.InvalidAerAmountException;
+import hera.exception.HerajException;
 import hera.spec.AergoSpec;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@ToString
 @EqualsAndHashCode
 public class Aer implements Comparable<Aer> {
+
+  public static final String EMPTY_STRING = "Aer(EMPTY)";
 
   public static final Aer EMPTY = new Aer();
 
@@ -38,7 +39,6 @@ public class Aer implements Comparable<Aer> {
    *
    * @param amount an amount in string which is considered as {@link Unit#AER}
    * @return an aergo instance
-   * @throws InvalidAerAmountException if an amount is invalid
    */
   @ApiAudience.Public
   public static Aer of(final String amount) {
@@ -51,7 +51,6 @@ public class Aer implements Comparable<Aer> {
    * @param amount an amount in string
    * @param unit an unit {@link Unit}
    * @return an aergo instance
-   * @throws InvalidAerAmountException if an amount is invalid
    */
   @ApiAudience.Public
   public static Aer of(final String amount, final Unit unit) {
@@ -75,10 +74,38 @@ public class Aer implements Comparable<Aer> {
   @ApiAudience.Public
   @RequiredArgsConstructor
   public enum Unit {
+
     AER(AergoSpec.Unit.AER), GAER(AergoSpec.Unit.GAER), AERGO(AergoSpec.Unit.AERGO);
 
-    @Getter
-    final AergoSpec.Unit delegate;
+    protected final AergoSpec.Unit delegate;
+
+    /**
+     * Get name of the unit.
+     *
+     * @return an unit name
+     */
+    public String getName() {
+      return delegate.getName();
+    }
+
+    /**
+     * Get minimum value of unit to in an aer.
+     *
+     * @return an minimum value
+     */
+    public BigDecimal getMinimum() {
+      return delegate.getMinimum();
+    }
+
+    /**
+     * Get a ratio to aer.
+     *
+     * @return a ratio to aer
+     */
+    public BigDecimal getRatio() {
+      return delegate.getRatio();
+    }
+
   }
 
   @Getter
@@ -92,7 +119,6 @@ public class Aer implements Comparable<Aer> {
    * Create {@code Aer} instance.
    *
    * @param amount an amount in string which is considered as {@link Unit#AER}
-   * @throws InvalidAerAmountException if an amount is invalid
    */
   @ApiAudience.Public
   public Aer(final String amount) {
@@ -104,7 +130,6 @@ public class Aer implements Comparable<Aer> {
    *
    * @param amount an amount in string
    * @param unit an unit {@link Unit}
-   * @throws InvalidAerAmountException if an amount is invalid
    */
   @ApiAudience.Public
   public Aer(final String amount, final Unit unit) {
@@ -129,17 +154,19 @@ public class Aer implements Comparable<Aer> {
     try {
       final BigDecimal parsedValue = new BigDecimal(value);
       if (parsedValue.compareTo(BigDecimal.ZERO) == -1) {
-        throw new InvalidAerAmountException("Amount should be postive");
+        throw new HerajException("Amount should be postive");
       }
       if (parsedValue.compareTo(BigDecimal.ZERO) != 0
-          && parsedValue.compareTo(unit.getDelegate().getMinimum()) == -1) {
-        throw new InvalidAerAmountException(
+          && parsedValue.compareTo(unit.getMinimum()) == -1) {
+        throw new HerajException(
             String.format("Amount is smaller then minimum : %s %s",
-                unit.getDelegate().getMinimum().toPlainString(), unit.getDelegate().getName()));
+                unit.getMinimum().toPlainString(), unit.getName()));
       }
-      return parsedValue.multiply(unit.getDelegate().getTimesToAer()).toBigInteger();
+      return parsedValue.multiply(unit.getRatio()).toBigInteger();
+    } catch (HerajException e) {
+      throw e;
     } catch (NumberFormatException e) {
-      throw new InvalidAerAmountException(e);
+      throw new HerajException(e);
     }
   }
 
@@ -150,6 +177,15 @@ public class Aer implements Comparable<Aer> {
    * @return {@code this.value + other.value}
    */
   public Aer add(final Aer other) {
+    assertNotNull(other, "Other is null");
+    assertNotEquals(Aer.EMPTY, this, "Cannot add to Aer.EMPTY");
+    assertNotEquals(Aer.EMPTY, other, "Cannot add with Aer.EMPTY");
+    if (null == this.value) {
+      return other;
+    }
+    if (null == other.value) {
+      return this;
+    }
     return new Aer(this.value.add(other.value));
   }
 
@@ -161,18 +197,45 @@ public class Aer implements Comparable<Aer> {
    * @return {@code this.value - other.value}
    */
   public Aer subtract(final Aer other) {
+    assertNotNull(other, "Other is null");
+    assertNotEquals(Aer.EMPTY, this, "Cannot subtract to Aer.EMPTY");
+    assertNotEquals(Aer.EMPTY, other, "Cannot add with Aer.EMPTY");
     final BigInteger subtracted = this.value.subtract(other.value);
     return new Aer(subtracted.compareTo(BigInteger.ZERO) < 0 ? BigInteger.ZERO : subtracted);
   }
 
   /**
-   * {@inheritDoc}
-   *
-   * @throws NullPointerException if the specified object is null
+   * {@inheritDoc}.
    */
   @Override
   public int compareTo(final Aer other) {
+    assertNotNull(other, "Other is null");
     return this.value.compareTo(other.value);
+  }
+
+  @Override
+  public String toString() {
+    if (null == this.value) {
+      return EMPTY_STRING;
+    }
+    return toString(Unit.AER);
+  }
+
+  /**
+   * Convert aer with {@code unit}.
+   *
+   * @param unit an aergo unit
+   * @return an aer in {@code unit}
+   */
+  public String toString(final Unit unit) {
+    assertNotNull(unit, "Unit must not null");
+    if (null == this.value) {
+      return EMPTY_STRING;
+    }
+    final BigDecimal origin = new BigDecimal(this.value);
+    final BigDecimal ratio = unit.getRatio();
+    final BigDecimal calculated = origin.divide(ratio);
+    return String.format("%s(value=%s)", unit.getName(), calculated.toPlainString());
   }
 
 }

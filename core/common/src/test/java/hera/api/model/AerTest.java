@@ -10,7 +10,6 @@ import static org.junit.Assert.fail;
 
 import hera.AbstractTestCase;
 import hera.api.model.Aer.Unit;
-import hera.exception.InvalidAerAmountException;
 import java.math.BigInteger;
 import org.junit.Test;
 
@@ -66,10 +65,11 @@ public class AerTest extends AbstractTestCase {
       final String amount = (String) testParameter[0];
       final Unit unit = (Unit) testParameter[1];
       try {
+        // when
         Aer.of(amount, unit);
         fail(String.format("Should throw exception on Amount: %s, Unit: %s", amount, unit));
-      } catch (InvalidAerAmountException e) {
-        // good we expected this
+      } catch (Exception e) {
+        // then
       }
     }
   }
@@ -82,11 +82,51 @@ public class AerTest extends AbstractTestCase {
   }
 
   @Test
+  public void shouldAddFailOnEmptyOperand() {
+    final Object[][] parameters = new Object[][] {
+        {Aer.EMPTY, Aer.ONE},
+        {Aer.ONE, Aer.EMPTY}
+    };
+
+    for (final Object[] parameter : parameters) {
+      final Aer left = (Aer) parameter[0];
+      final Aer right = (Aer) parameter[1];
+      try {
+        // when
+        left.add(right);
+        fail();
+      } catch (AssertionError e) {
+        // then
+      }
+    }
+  }
+
+  @Test
   public void testSubstract() {
     final Aer left = Aer.of("1", Unit.AER);
     final Aer right = Aer.of("4", Unit.AER);
     assertEquals(Aer.ZERO, left.subtract(right));
     assertEquals(Aer.of("3", Unit.AER), right.subtract(left));
+  }
+
+  @Test
+  public void shouldSubstractFailOnEmptyOperand() {
+    final Object[][] parameters = new Object[][] {
+        {Aer.EMPTY, Aer.ONE},
+        {Aer.ONE, Aer.EMPTY}
+    };
+
+    for (final Object[] parameter : parameters) {
+      final Aer left = (Aer) parameter[0];
+      final Aer right = (Aer) parameter[1];
+      try {
+        // when
+        left.subtract(right);
+        fail();
+      } catch (AssertionError e) {
+        // then
+      }
+    }
   }
 
   @Test
@@ -100,10 +140,31 @@ public class AerTest extends AbstractTestCase {
     assertEquals(-1, middle.compareTo(top));
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void testCompareToOnNull() {
-    final Aer aer = Aer.ZERO;
-    aer.compareTo(null);
+    try {
+      final Aer aer = Aer.ZERO;
+      aer.compareTo(null);
+    } catch (AssertionError e) {
+      // then
+    }
+  }
+
+  @Test
+  public void testToString() {
+    final Object[][] testParameters = new Object[][] {
+        {"1", Unit.AER, Unit.AER.getName() + "(value=1)"},
+        {"1", Unit.GAER, Unit.GAER.getName() + "(value=0.000000001)"},
+        {"1", Unit.AERGO, Unit.AERGO.getName() + "(value=0.000000000000000001)"},
+    };
+
+    for (final Object[] parameters : testParameters) {
+      final String value = (String) parameters[0];
+      final Unit unit = (Unit) parameters[1];
+      final String expected = (String) parameters[2];
+      final String actual = Aer.of(value).toString(unit);
+      assertEquals(expected, actual);
+    }
   }
 
 }
