@@ -164,6 +164,7 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
               .to(recipient)
               .amount(amount)
               .nonce(t)
+              .fee(fee)
               .payload(payload)
               .build();
           return getClient().getTransactionOperation().commit(getSigner().sign(rawTransaction));
@@ -193,6 +194,7 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
               .to(recipient)
               .amount(amount)
               .nonce(t)
+              .fee(fee)
               .payload(payload)
               .build();
           return getClient().getTransactionOperation().commit(getSigner().sign(rawTransaction));

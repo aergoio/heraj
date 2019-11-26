@@ -11,6 +11,7 @@ import static org.junit.Assert.fail;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
+import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
@@ -20,6 +21,8 @@ import hera.key.AergoKeyGenerator;
 import org.junit.Test;
 
 public class TransactionOperationIT extends AbstractIT {
+
+  protected final Fee fee = Fee.ZERO;
 
   @Test
   public void shouldSendAergoByCommit() {
@@ -34,6 +37,7 @@ public class TransactionOperationIT extends AbstractIT {
         .to(recipient)
         .amount(amount)
         .nonce(nonceProvider.incrementAndGetNonce(senderKey.getAddress()))
+        .fee(fee)
         .build();
     final Transaction signed = senderKey.sign(rawTransaction);
     aergoClient.getTransactionOperation().commit(signed);
@@ -55,6 +59,7 @@ public class TransactionOperationIT extends AbstractIT {
         .to(recipient)
         .amount(Aer.AERGO_ONE)
         .nonce(nonceProvider.incrementAndGetNonce(senderKey.getAddress()))
+        .fee(fee)
         .build();
     final Transaction signed = senderKey.sign(rawTransaction);
     final TxHash txHash = aergoClient.getTransactionOperation().commit(signed);
@@ -83,6 +88,7 @@ public class TransactionOperationIT extends AbstractIT {
         .to(recipient)
         .amount(amount)
         .nonce(nonceProvider.incrementAndGetNonce(senderKey.getAddress()))
+        .fee(fee)
         .build();
     final Transaction signed = senderKey.sign(rawTransaction);
     aergoClient.getTransactionOperation().commit(signed);
@@ -114,6 +120,7 @@ public class TransactionOperationIT extends AbstractIT {
         .to(name)
         .amount(amount)
         .nonce(nonceProvider.incrementAndGetNonce(senderKey.getAddress()))
+        .fee(fee)
         .build();
     final Transaction signed = senderKey.sign(rawTransaction);
     aergoClient.getTransactionOperation().commit(signed);
@@ -140,6 +147,7 @@ public class TransactionOperationIT extends AbstractIT {
         .to(recipient)
         .amount(amount)
         .nonce(nonceProvider.incrementAndGetNonce(senderKey.getAddress()))
+        .fee(fee)
         .build();
     final Transaction signed = senderKey.sign(rawTransaction);
     aergoClient.getTransactionOperation().commit(signed);
@@ -163,6 +171,7 @@ public class TransactionOperationIT extends AbstractIT {
         .to(recipient)
         .amount(amount)
         .nonce(nonceProvider.incrementAndGetNonce(senderKey.getAddress()))
+        .fee(fee)
         .build();
     final Transaction signed = senderKey.sign(rawTransaction);
     aergoClient.getTransactionOperation().commit(signed);
@@ -192,6 +201,7 @@ public class TransactionOperationIT extends AbstractIT {
           .to(recipient)
           .amount(amount)
           .nonce(nonceProvider.incrementAndGetNonce(senderKey.getAddress()))
+          .fee(fee)
           .build();
       final Transaction signed = senderKey.sign(rawTransaction);
       aergoClient.getTransactionOperation().commit(signed);
@@ -215,6 +225,7 @@ public class TransactionOperationIT extends AbstractIT {
           .to(recipient)
           .amount(amount)
           .nonce(0L)
+          .fee(fee)
           .build();
       final Transaction signed = senderKey.sign(rawTransaction);
       aergoClient.getTransactionOperation().commit(signed);
@@ -236,6 +247,7 @@ public class TransactionOperationIT extends AbstractIT {
           .to(recipient.getAddress())
           .amount(Aer.AERGO_ONE)
           .nonce(nonceProvider.incrementAndGetNonce(senderKey.getAddress()))
+          .fee(fee)
           .build();
       // sign with recipient
       final Transaction signed = recipient.sign(rawTransaction);

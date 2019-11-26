@@ -20,13 +20,14 @@ import org.junit.Test;
 
 public class SendIT extends AbstractWalletApiIT {
 
+  protected final Fee fee = Fee.ZERO;
+
   @Test
   public void shouldSendAergo() {
     // when
     walletApi.unlock(authentication);
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
     final Aer amount = Aer.GIGA_ONE;
-    final Fee fee = Fee.EMPTY;
     final BytesValue payload = BytesValue.of(randomName().toString().getBytes());
     final TxHash txHash = walletApi.transactionApi().send(recipient, amount, fee, payload);
     waitForNextBlockToGenerate();
@@ -43,7 +44,6 @@ public class SendIT extends AbstractWalletApiIT {
     // when
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
     final Aer amount = Aer.GIGA_ONE;
-    final Fee fee = Fee.EMPTY;
     final BytesValue payload = BytesValue.of(randomName().toString().getBytes());
 
     // then
@@ -70,7 +70,6 @@ public class SendIT extends AbstractWalletApiIT {
     // when
     walletApi.unlock(authentication);
     final Aer amount = Aer.GIGA_ONE;
-    final Fee fee = Fee.EMPTY;
     final BytesValue payload = BytesValue.of(randomName().toString().getBytes());
     final TxHash txHash = walletApi.transactionApi().send(name, amount, fee, payload);
     waitForNextBlockToGenerate();
@@ -96,7 +95,6 @@ public class SendIT extends AbstractWalletApiIT {
 
     // when
     final Aer amount = Aer.GIGA_ONE;
-    final Fee fee = Fee.EMPTY;
     final BytesValue payload = BytesValue.of(randomName().toString().getBytes());
 
     // then
