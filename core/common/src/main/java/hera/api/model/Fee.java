@@ -18,7 +18,7 @@ public class Fee {
 
   public static final Fee EMPTY = new Fee(null, 0L);
 
-  public static final Fee ZERO = new Fee(null, 0);
+  public static final Fee ZERO = new Fee(null, 0L);
 
   @Getter
   @Deprecated

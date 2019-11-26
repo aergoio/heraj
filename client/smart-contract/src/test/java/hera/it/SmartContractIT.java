@@ -6,7 +6,6 @@ package hera.it;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import hera.api.model.Authentication;
@@ -14,142 +13,89 @@ import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
-import hera.contract.SmartContract;
-import hera.contract.SmartContractFactory;
+import hera.contract.ContractApi;
+import hera.contract.ContractApiFactory;
 import hera.exception.ContractException;
 import hera.key.AergoKey;
+import hera.keystore.InMemoryKeyStore;
+import hera.keystore.KeyStore;
+import hera.model.KeyAlias;
 import hera.util.IoUtils;
-import hera.util.ThreadUtils;
-import hera.wallet.Wallet;
-import hera.wallet.WalletBuilder;
-import hera.wallet.WalletType;
-import java.io.InputStream;
+import hera.wallet.WalletApi;
+import hera.wallet.WalletFactory;
 import java.io.InputStreamReader;
-import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
 
 public class SmartContractIT extends AbstractIT {
 
-  protected Wallet wallet;
+  protected WalletApi walletApi;
 
   protected ContractAddress contractAddress;
-
-  protected String password = randomUUID().toString();
 
   protected Fee fee = Fee.ZERO;
 
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    this.wallet = supplyWallet(WalletType.Naive);
+    final KeyStore keyStore = new InMemoryKeyStore();
+
+    final KeyAlias alias = new KeyAlias(randomUUID().toString());
+    final String password = randomUUID().toString();
+    final Authentication authentication = Authentication.of(alias, password);
     final AergoKey key = createNewKey();
-    wallet.saveKey(key, password);
-    wallet.unlock(Authentication.of(key.getAddress(), password));
+    keyStore.save(authentication, key);
+
+    this.walletApi = new WalletFactory().create(keyStore);
+    this.walletApi.bind(aergoClient);
+    this.walletApi.unlock(authentication);
 
     final String payload = IoUtils.from(new InputStreamReader(open("payload")));
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payload)
         .build();
-    final ContractTxHash deployTxHash = wallet.deploy(definition);
-    Thread.sleep(2200L);
-    this.contractAddress = wallet.getReceipt(deployTxHash).getContractAddress();
-  }
-
-  protected Wallet supplyWallet(final WalletType type) {
-    Wallet wallet = new WalletBuilder()
-        .withEndpoint(hostname)
-        .withRefresh(2, 1000L, TimeUnit.MILLISECONDS)
-        .withNonBlockingConnect()
-        .build(type);
-    try {
-      wallet.getBlockchainStatus();
-      logger.trace("Connect with plaintext success");
-    } catch (Exception e) {
-      final String aergoNodeName = properties.getProperty("aergoNodeName");
-      final InputStream serverCert = getClass().getResourceAsStream(serverCrtFile);
-      final InputStream clientCert = getClass().getResourceAsStream(clientCrtFile);
-      final InputStream clientKey = getClass().getResourceAsStream(clientKeyFile);
-      wallet = new WalletBuilder()
-          .withEndpoint(hostname)
-          .withRefresh(2, 1000L, TimeUnit.MILLISECONDS)
-          .withTransportSecurity(aergoNodeName, serverCert, clientCert, clientKey)
-          .build(type);
-    }
-    return wallet;
+    final ContractTxHash deployTxHash = walletApi.transactionApi().deploy(definition, fee);
+    waitForNextBlockToGenerate();
+    this.contractAddress = walletApi.queryApi().getReceipt(deployTxHash).getContractAddress();
   }
 
   @Test
   public void testInvocation() {
-    final ValidInterface smartContarct =
-        new SmartContractFactory().create(ValidInterface.class, contractAddress);
-    smartContarct.bind(wallet);
-    smartContarct.bind(fee);
+    final ContractApi<ValidInterface> contractApi =
+        new ContractApiFactory().create(contractAddress, ValidInterface.class);
 
-    final Object nilArg = null;
+    // final Object nilArg = null;
     final boolean booleanArg = true;
     final int numberArg = 20000;
     final String stringArg = randomUUID().toString();
 
-    smartContarct.setNil(nilArg);
-    smartContarct.setBoolean(booleanArg);
-    smartContarct.setNumber(numberArg);
-    smartContarct.setString(stringArg);
+    // contractApi.walletApi(walletApi).fee(fee).setNil(nilArg);
+    contractApi.walletApi(walletApi).fee(fee).setBoolean(booleanArg);
+    contractApi.walletApi(walletApi).fee(fee).setNumber(numberArg);
+    contractApi.walletApi(walletApi).fee(fee).setString(stringArg);;
 
-    ThreadUtils.trySleep(2200L);
+    waitForNextBlockToGenerate();
 
-    assertNull(smartContarct.getNil());
-    assertEquals(booleanArg, smartContarct.getBoolean());
-    assertEquals(numberArg, smartContarct.getNumber());
-    assertEquals(stringArg, smartContarct.getString());
-  }
-
-  @Test
-  public void testInvocationOnNoBindedWallet() {
-    final ValidInterface smartContract = new SmartContractFactory()
-        .create(ValidInterface.class, contractAddress);
-    // smartContarct.bind(wallet);
-    smartContract.bind(fee);
-
-    try {
-      smartContract.setBoolean(true);
-      fail();
-    } catch (ContractException e) {
-      // good we expected this
-    }
+    // assertNull(contractApi.walletApi(walletApi).noFee().getNil());
+    assertEquals(booleanArg, contractApi.walletApi(walletApi).noFee().getBoolean());
+    assertEquals(numberArg, contractApi.walletApi(walletApi).noFee().getNumber());
+    assertEquals(stringArg, contractApi.walletApi(walletApi).noFee().getString());
   }
 
   @Test
   public void testInvocationOnInvalidMethodNameInterface() {
-    final InvalidMethodNameInterface smartContract = new SmartContractFactory()
-        .create(InvalidMethodNameInterface.class, contractAddress);
-    smartContract.bind(wallet);
-    smartContract.bind(fee);
-
     try {
-      smartContract.getNil();
+      // when
+      final ContractApi<InvalidMethodNameInterface> contractApi = new ContractApiFactory()
+          .create(contractAddress, InvalidMethodNameInterface.class);
+      contractApi.walletApi(walletApi).fee(fee).getNill();
       fail();
     } catch (ContractException e) {
-      // good we expected this
+      // then
     }
   }
 
-  @Test
-  public void testInvocationOnInvalidMethodParameterCountInterface() {
-    final InvalidMethodParameterCountInterface smartContract = new SmartContractFactory()
-        .create(InvalidMethodParameterCountInterface.class, contractAddress);
-    smartContract.bind(wallet);
-    smartContract.bind(fee);
-
-    try {
-      smartContract.getNil();
-      fail();
-    } catch (ContractException e) {
-      // good we expected this
-    }
-  }
-
-  protected interface ValidInterface extends SmartContract {
+  public static interface ValidInterface {
 
     void setNil(Object nilArg);
 
@@ -169,33 +115,12 @@ public class SmartContractIT extends AbstractIT {
 
   }
 
-  protected interface InvalidMethodNameInterface extends SmartContract {
+  public static interface InvalidMethodNameInterface {
+
+    void setNil(Object nilArg);
 
     // invalid
-    void setNill(Object nilArg);
-
-    Object getNil();
-
-    void setBoolean(boolean booleanArg);
-
-    boolean getBoolean();
-
-    void setNumber(int numberArg);
-
-    int getNumber();
-
-    void setString(String stringArg);
-
-    String getString();
-
-  }
-
-  protected interface InvalidMethodParameterCountInterface extends SmartContract {
-
-    // invalid
-    void setNil();
-
-    Object getNil();
+    Object getNill();
 
     void setBoolean(boolean booleanArg);
 
