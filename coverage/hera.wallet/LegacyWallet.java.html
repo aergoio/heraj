@@ -56,17 +56,17 @@ import org.slf4j.Logger;
 
 /**
  * Legacy wallet with poor interfaces. I hacked some apis of WalletApi to keep behaviors of legacy
- * wallet. Remove after removing account interface.
+ * wallet. Remove after account interface is removed.
  *
  * @author taeiklim
  *
  */
-<span class="fc" id="L64">@AllArgsConstructor</span>
+<span class="nc" id="L64">@AllArgsConstructor</span>
 public class LegacyWallet implements Wallet {
 
-<span class="fc" id="L67">  protected final transient Logger logger = getLogger(getClass());</span>
+<span class="nc" id="L67">  protected final transient Logger logger = getLogger(getClass());</span>
 
-<span class="fc" id="L69">  protected final ExceptionConverter&lt;WalletException&gt; exceptionConverter =</span>
+<span class="nc" id="L69">  protected final ExceptionConverter&lt;WalletException&gt; exceptionConverter =</span>
       new WalletExceptionConverter();
 
   protected final WalletType type;
@@ -97,7 +97,7 @@ public class LegacyWallet implements Wallet {
   public void bindKeyStore(KeyStore keyStore) {
 <span class="nc bnc" id="L98" title="All 2 branches missed.">    if (this.type.equals(WalletType.Secure)) {</span>
 <span class="nc" id="L99">      final WalletApiImpl origin = (WalletApiImpl) this.delegate;</span>
-<span class="nc" id="L100">      this.delegate = new WalletFactory().create(new JavaKeyStore(keyStore));</span>
+<span class="nc" id="L100">      this.delegate = new WalletApiFactory().create(new JavaKeyStore(keyStore));</span>
 <span class="nc" id="L101">      this.delegate.bind(origin.aergoClient);</span>
     }
 <span class="nc" id="L103">  }</span>

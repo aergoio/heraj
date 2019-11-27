@@ -19,19 +19,19 @@ import java.util.concurrent.TimeUnit;
 /**
  * A legacy wallet api builder.
  *
- * @deprecated use {@link WalletFactory} instead.
+ * @deprecated use {@link WalletApiFactory} instead.
  *
  */
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="fc" id="L27">public class WalletBuilder implements ClientConfiguer&lt;WalletBuilder&gt; {</span>
+<span class="nc" id="L27">public class WalletBuilder implements ClientConfiguer&lt;WalletBuilder&gt; {</span>
 
-<span class="fc" id="L29">  protected static final TryCountAndInterval MIMINUM_NONCE_REFRESH_COUNT =</span>
-<span class="fc" id="L30">      TryCountAndInterval.of(2, Time.of(100L, TimeUnit.MILLISECONDS));</span>
+<span class="nc" id="L29">  protected static final TryCountAndInterval MIMINUM_NONCE_REFRESH_COUNT =</span>
+<span class="nc" id="L30">      TryCountAndInterval.of(2, Time.of(100L, TimeUnit.MILLISECONDS));</span>
 
-<span class="fc" id="L32">  protected AergoClientBuilder clientBuilder = new AergoClientBuilder();</span>
+<span class="nc" id="L32">  protected AergoClientBuilder clientBuilder = new AergoClientBuilder();</span>
 
-<span class="fc" id="L34">  protected TryCountAndInterval nonceRefreshTryInterval = MIMINUM_NONCE_REFRESH_COUNT;</span>
+<span class="nc" id="L34">  protected TryCountAndInterval nonceRefreshTryInterval = MIMINUM_NONCE_REFRESH_COUNT;</span>
 
   @Override
   public WalletBuilder addConfiguration(final String key, final String value) {
@@ -113,18 +113,18 @@ import java.util.concurrent.TimeUnit;
    * @return a wallet instance
    */
   public Wallet build(final WalletType walletType) {
-<span class="fc" id="L116">    final AergoClient aergoClient = clientBuilder.build();</span>
+<span class="nc" id="L116">    final AergoClient aergoClient = clientBuilder.build();</span>
 
-<span class="pc bpc" id="L118" title="1 of 2 branches missed.">    if (walletType.equals(WalletType.ServerKeyStore)) {</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">    if (walletType.equals(WalletType.ServerKeyStore)) {</span>
 <span class="nc" id="L119">      throw new UnsupportedOperationException();</span>
     }
 
-<span class="fc" id="L122">    final KeyStore keyStore = new InMemoryKeyStore();</span>
-<span class="fc" id="L123">    WalletApi delegate = new WalletFactory().create(keyStore, nonceRefreshTryInterval.getCount(),</span>
-<span class="fc" id="L124">        nonceRefreshTryInterval.getInterval().toMilliseconds());</span>
-<span class="fc" id="L125">    delegate.bind(aergoClient);</span>
+<span class="nc" id="L122">    final KeyStore keyStore = new InMemoryKeyStore();</span>
+<span class="nc" id="L123">    WalletApi delegate = new WalletApiFactory().create(keyStore, nonceRefreshTryInterval.getCount(),</span>
+<span class="nc" id="L124">        nonceRefreshTryInterval.getInterval().toMilliseconds());</span>
+<span class="nc" id="L125">    delegate.bind(aergoClient);</span>
 
-<span class="fc" id="L127">    return new LegacyWallet(walletType, delegate);</span>
+<span class="nc" id="L127">    return new LegacyWallet(walletType, delegate);</span>
   }
 
 }

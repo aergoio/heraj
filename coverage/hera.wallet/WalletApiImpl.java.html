@@ -134,8 +134,8 @@ public class WalletApiImpl implements WalletApi {
   @Override
   public String toString() {
 <span class="fc" id="L136">    final AccountAddress current = getPrincipal();</span>
-<span class="pc bpc" id="L137" title="1 of 2 branches missed.">    return String.format(&quot;WalletApi(keyStore=%s, pricipal=%s)&quot;, keyStore.getClass().getName(),</span>
-<span class="pc" id="L138">        null == current ? null : current.getEncoded());</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">    return String.format(&quot;WalletApi(keyStore=%s, pricipal=%s)&quot;, keyStore.getClass().getName(),</span>
+<span class="fc" id="L138">        null == current ? null : current.getEncoded());</span>
   }
 
   protected Signer getSigner() {

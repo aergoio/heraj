@@ -28,9 +28,9 @@ import org.slf4j.Logger;
         @Override
         public com.google.protobuf.ByteString apply(final AccountAddress domainAccountAddress) {
 <span class="pc bpc" id="L30" title="1 of 2 branches missed.">          if (logger.isTraceEnabled()) {</span>
-<span class="nc" id="L31">            logger.trace(&quot;Domain account address to convert. with checksum: {}, hexa: {}&quot;,</span>
+<span class="fc" id="L31">            logger.trace(&quot;Domain account address to convert. with checksum: {}, hexa: {}&quot;,</span>
                 domainAccountAddress,
-<span class="nc" id="L33">                encodeHexa(domainAccountAddress.getBytesValue()));</span>
+<span class="fc" id="L33">                encodeHexa(domainAccountAddress.getBytesValue()));</span>
           }
           ByteString rpcAccountAddress;
 <span class="fc bfc" id="L36" title="All 2 branches covered.">          if (!domainAccountAddress.equals(AccountAddress.EMPTY)) {</span>
@@ -39,8 +39,8 @@ import org.slf4j.Logger;
 <span class="fc" id="L39">            rpcAccountAddress = ByteString.EMPTY;</span>
           }
 <span class="pc bpc" id="L41" title="1 of 2 branches missed.">          if (logger.isTraceEnabled()) {</span>
-<span class="nc" id="L42">            logger.trace(&quot;Rpc account address converted. hexa: {}&quot;,</span>
-<span class="nc" id="L43">                HexUtils.encode(rpcAccountAddress.toByteArray()));</span>
+<span class="fc" id="L42">            logger.trace(&quot;Rpc account address converted. hexa: {}&quot;,</span>
+<span class="fc" id="L43">                HexUtils.encode(rpcAccountAddress.toByteArray()));</span>
           }
 <span class="fc" id="L45">          return rpcAccountAddress;</span>
         }
@@ -52,8 +52,8 @@ import org.slf4j.Logger;
         @Override
         public AccountAddress apply(com.google.protobuf.ByteString rpcAccountAddress) {
 <span class="pc bpc" id="L54" title="1 of 2 branches missed.">          if (logger.isTraceEnabled()) {</span>
-<span class="nc" id="L55">            logger.trace(&quot;Rpc account address to convert. hexa: {}&quot;,</span>
-<span class="nc" id="L56">                HexUtils.encode(rpcAccountAddress.toByteArray()));</span>
+<span class="fc" id="L55">            logger.trace(&quot;Rpc account address to convert. hexa: {}&quot;,</span>
+<span class="fc" id="L56">                HexUtils.encode(rpcAccountAddress.toByteArray()));</span>
           }
           AccountAddress domainAccountAddress;
 <span class="fc bfc" id="L59" title="All 2 branches covered.">          if (!rpcAccountAddress.equals(ByteString.EMPTY)) {</span>
@@ -69,9 +69,9 @@ import org.slf4j.Logger;
 <span class="fc" id="L69">            domainAccountAddress = AccountAddress.EMPTY;</span>
           }
 <span class="pc bpc" id="L71" title="1 of 2 branches missed.">          if (logger.isTraceEnabled()) {</span>
-<span class="nc" id="L72">            logger.trace(&quot;Domain account address converted. with checksum: {}, hexa: {}&quot;,</span>
+<span class="fc" id="L72">            logger.trace(&quot;Domain account address converted. with checksum: {}, hexa: {}&quot;,</span>
                 domainAccountAddress,
-<span class="nc" id="L74">                encodeHexa(domainAccountAddress.getBytesValue()));</span>
+<span class="fc" id="L74">                encodeHexa(domainAccountAddress.getBytesValue()));</span>
           }
 <span class="fc" id="L76">          return domainAccountAddress;</span>
         }

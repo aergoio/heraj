@@ -46,7 +46,7 @@ import hera.transport.ContractResultConverterFactory;
 import hera.transport.EventConverterFactory;
 import hera.transport.EventFilterConverterFactory;
 import hera.transport.ModelConverter;
-import hera.transport.ReceiptConverterFactory;
+import hera.transport.TxReceiptConverterFactory;
 import io.grpc.Context;
 import io.grpc.ManagedChannel;
 import java.util.ArrayList;
@@ -69,7 +69,7 @@ import types.Rpc;
 <span class="fc" id="L69">      new AccountAddressConverterFactory().create();</span>
 
 <span class="fc" id="L71">  protected final ModelConverter&lt;ContractTxReceipt, Blockchain.Receipt&gt; receiptConverter =</span>
-<span class="fc" id="L72">      new ReceiptConverterFactory().create();</span>
+<span class="fc" id="L72">      new TxReceiptConverterFactory().create();</span>
 
 <span class="fc" id="L74">  protected final ModelConverter&lt;ContractInterface, Blockchain.ABI&gt; contractInterfaceConverter =</span>
 <span class="fc" id="L75">      new ContractInterfaceConverterFactory().create();</span>
@@ -150,186 +150,190 @@ import types.Rpc;
 <span class="fc" id="L150">              .from(signer.getPrincipal())</span>
 <span class="fc" id="L151">              .nonce(nonce)</span>
 <span class="fc" id="L152">              .definition(contractDefinition)</span>
-<span class="fc" id="L153">              .build();</span>
-<span class="fc" id="L154">          return signAndCommit(signer, rawTransaction);</span>
+<span class="fc" id="L153">              .fee(fee)</span>
+<span class="fc" id="L154">              .build();</span>
+<span class="fc" id="L155">          return signAndCommit(signer, rawTransaction);</span>
         }
       };
 
-<span class="fc" id="L158">  @Getter</span>
+<span class="fc" id="L159">  @Getter</span>
   private final Function5&lt;Signer, ContractAddress, ContractDefinition, Long, Fee,
       Future&lt;ContractTxHash&gt;&gt; reDeployFunction = new Function5&lt;Signer, ContractAddress,
-<span class="fc" id="L161">          ContractDefinition, Long, Fee, Future&lt;ContractTxHash&gt;&gt;() {</span>
+<span class="fc" id="L162">          ContractDefinition, Long, Fee, Future&lt;ContractTxHash&gt;&gt;() {</span>
 
         @Override
         public Future&lt;ContractTxHash&gt; apply(final Signer signer,
             final ContractAddress existingContract, final ContractDefinition contractDefinition,
             final Long nonce, final Fee fee) {
-<span class="fc" id="L167">          logger.debug(&quot;Re-deploy contract with creator: {}, existing one: {}, &quot;</span>
+<span class="fc" id="L168">          logger.debug(&quot;Re-deploy contract with creator: {}, existing one: {}, &quot;</span>
               + &quot;definition: {}, nonce: {}, fee: {}&quot;,
               signer, existingContract, contractDefinition, nonce, fee);
-<span class="fc" id="L170">          final RawTransaction rawTransaction = RawTransaction.newReDeployContractBuilder()</span>
-<span class="fc" id="L171">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
-<span class="fc" id="L172">              .creator(signer.getPrincipal())</span>
-<span class="fc" id="L173">              .nonce(nonce)</span>
-<span class="fc" id="L174">              .contractAddress(existingContract)</span>
-<span class="fc" id="L175">              .definition(contractDefinition)</span>
-<span class="fc" id="L176">              .build();</span>
-<span class="fc" id="L177">          return signAndCommit(signer, rawTransaction);</span>
+<span class="fc" id="L171">          final RawTransaction rawTransaction = RawTransaction.newReDeployContractBuilder()</span>
+<span class="fc" id="L172">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
+<span class="fc" id="L173">              .creator(signer.getPrincipal())</span>
+<span class="fc" id="L174">              .nonce(nonce)</span>
+<span class="fc" id="L175">              .contractAddress(existingContract)</span>
+<span class="fc" id="L176">              .definition(contractDefinition)</span>
+<span class="fc" id="L177">              .fee(fee)</span>
+<span class="fc" id="L178">              .build();</span>
+<span class="fc" id="L179">          return signAndCommit(signer, rawTransaction);</span>
         }
       };
 
-<span class="fc" id="L181">  @Getter</span>
+<span class="fc" id="L183">  @Getter</span>
   private final Function1&lt;ContractAddress,
       Future&lt;ContractInterface&gt;&gt; contractInterfaceFunction = new Function1&lt;
-<span class="fc" id="L184">          ContractAddress, Future&lt;ContractInterface&gt;&gt;() {</span>
+<span class="fc" id="L186">          ContractAddress, Future&lt;ContractInterface&gt;&gt;() {</span>
 
         @Override
         public Future&lt;ContractInterface&gt; apply(
             final ContractAddress contractAddress) {
-<span class="fc" id="L189">          logger.debug(&quot;Get contract interface with contract address: {}&quot;, contractAddress);</span>
+<span class="fc" id="L191">          logger.debug(&quot;Get contract interface with contract address: {}&quot;, contractAddress);</span>
 
-<span class="fc" id="L191">          final Rpc.SingleBytes rpcContractAddress = Rpc.SingleBytes.newBuilder()</span>
-<span class="fc" id="L192">              .setValue(accountAddressConverter.convertToRpcModel(contractAddress))</span>
-<span class="fc" id="L193">              .build();</span>
-<span class="fc" id="L194">          logger.trace(&quot;AergoService getABI arg: {}&quot;, rpcContractAddress);</span>
+<span class="fc" id="L193">          final Rpc.SingleBytes rpcContractAddress = Rpc.SingleBytes.newBuilder()</span>
+<span class="fc" id="L194">              .setValue(accountAddressConverter.convertToRpcModel(contractAddress))</span>
+<span class="fc" id="L195">              .build();</span>
+<span class="fc" id="L196">          logger.trace(&quot;AergoService getABI arg: {}&quot;, rpcContractAddress);</span>
 
-<span class="fc" id="L196">          final Future&lt;Blockchain.ABI&gt; rawFuture = futureService.getABI(rpcContractAddress);</span>
-<span class="fc" id="L197">          final Future&lt;ContractInterface&gt; convertedFuture = HerajFutures.transform(rawFuture,</span>
-<span class="fc" id="L198">              new Function1&lt;Blockchain.ABI, ContractInterface&gt;() {</span>
+<span class="fc" id="L198">          final Future&lt;Blockchain.ABI&gt; rawFuture = futureService.getABI(rpcContractAddress);</span>
+<span class="fc" id="L199">          final Future&lt;ContractInterface&gt; convertedFuture = HerajFutures.transform(rawFuture,</span>
+<span class="fc" id="L200">              new Function1&lt;Blockchain.ABI, ContractInterface&gt;() {</span>
 
                 @Override
                 public ContractInterface apply(final Blockchain.ABI abi) {
-<span class="fc" id="L202">                  final ContractInterface withoutAddress =</span>
-<span class="fc" id="L203">                      contractInterfaceConverter.convertToDomainModel(abi);</span>
-<span class="fc" id="L204">                  return new ContractInterface(contractAddress, withoutAddress.getVersion(),</span>
-<span class="fc" id="L205">                      withoutAddress.getLanguage(), withoutAddress.getFunctions(),</span>
-<span class="fc" id="L206">                      withoutAddress.getStateVariables());</span>
+<span class="fc" id="L204">                  final ContractInterface withoutAddress =</span>
+<span class="fc" id="L205">                      contractInterfaceConverter.convertToDomainModel(abi);</span>
+<span class="fc" id="L206">                  return new ContractInterface(contractAddress, withoutAddress.getVersion(),</span>
+<span class="fc" id="L207">                      withoutAddress.getLanguage(), withoutAddress.getFunctions(),</span>
+<span class="fc" id="L208">                      withoutAddress.getStateVariables());</span>
                 }
               });
-<span class="fc" id="L209">          return convertedFuture;</span>
+<span class="fc" id="L211">          return convertedFuture;</span>
         }
       };
 
-<span class="fc" id="L213">  @Getter</span>
+<span class="fc" id="L215">  @Getter</span>
   private final Function4&lt;Signer, ContractInvocation, Long, Fee,
       Future&lt;ContractTxHash&gt;&gt; executeFunction = new Function4&lt;Signer, ContractInvocation,
-<span class="fc" id="L216">          Long, Fee, Future&lt;ContractTxHash&gt;&gt;() {</span>
+<span class="fc" id="L218">          Long, Fee, Future&lt;ContractTxHash&gt;&gt;() {</span>
 
         @Override
         public Future&lt;ContractTxHash&gt; apply(final Signer signer,
             final ContractInvocation contractInvocation, final Long nonce,
             final Fee fee) {
-<span class="fc" id="L222">          logger.debug(&quot;Execute contract with executor: {}, invocation: {}, nonce: {}, fee: {}&quot;,</span>
-<span class="fc" id="L223">              signer.getPrincipal(), contractInvocation, nonce, fee);</span>
-<span class="fc" id="L224">          final RawTransaction rawTransaction = RawTransaction.newInvokeContractBuilder()</span>
-<span class="fc" id="L225">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
-<span class="fc" id="L226">              .from(signer.getPrincipal())</span>
-<span class="fc" id="L227">              .nonce(nonce)</span>
-<span class="fc" id="L228">              .invocation(contractInvocation)</span>
-<span class="fc" id="L229">              .build();</span>
-<span class="fc" id="L230">          return signAndCommit(signer, rawTransaction);</span>
+<span class="fc" id="L224">          logger.debug(&quot;Execute contract with executor: {}, invocation: {}, nonce: {}, fee: {}&quot;,</span>
+<span class="fc" id="L225">              signer.getPrincipal(), contractInvocation, nonce, fee);</span>
+<span class="fc" id="L226">          final RawTransaction rawTransaction = RawTransaction.newInvokeContractBuilder()</span>
+<span class="fc" id="L227">              .chainIdHash(contextProvider.get().getChainIdHash())</span>
+<span class="fc" id="L228">              .from(signer.getPrincipal())</span>
+<span class="fc" id="L229">              .nonce(nonce)</span>
+<span class="fc" id="L230">              .invocation(contractInvocation)</span>
+<span class="fc" id="L231">              .fee(fee)</span>
+<span class="fc" id="L232">              .build();</span>
+<span class="fc" id="L233">          return signAndCommit(signer, rawTransaction);</span>
         }
       };
 
   protected Future&lt;ContractTxHash&gt; signAndCommit(final Signer signer,
       final RawTransaction rawTransaction) {
-<span class="fc" id="L236">    final Transaction signed = signer.sign(rawTransaction);</span>
-<span class="fc" id="L237">    final Future&lt;TxHash&gt; txHashFuture = transactionBaseTemplate.getCommitFunction().apply(signed);</span>
-<span class="fc" id="L238">    return HerajFutures.transform(txHashFuture, new Function1&lt;TxHash, ContractTxHash&gt;() {</span>
+<span class="fc" id="L239">    final Transaction signed = signer.sign(rawTransaction);</span>
+<span class="fc" id="L240">    final Future&lt;TxHash&gt; txHashFuture = transactionBaseTemplate.getCommitFunction().apply(signed);</span>
+<span class="fc" id="L241">    return HerajFutures.transform(txHashFuture, new Function1&lt;TxHash, ContractTxHash&gt;() {</span>
 
       @Override
       public ContractTxHash apply(final TxHash txHash) {
-<span class="fc" id="L242">        return txHash.adapt(ContractTxHash.class);</span>
+<span class="fc" id="L245">        return txHash.adapt(ContractTxHash.class);</span>
       }
     });
   }
 
-<span class="fc" id="L247">  @Getter</span>
+<span class="fc" id="L250">  @Getter</span>
   private final Function1&lt;ContractInvocation, Future&lt;
-<span class="fc" id="L249">      ContractResult&gt;&gt; queryFunction = new Function1&lt;ContractInvocation, Future&lt;ContractResult&gt;&gt;() {</span>
+<span class="fc" id="L252">      ContractResult&gt;&gt; queryFunction = new Function1&lt;ContractInvocation, Future&lt;ContractResult&gt;&gt;() {</span>
 
         @Override
         public Future&lt;ContractResult&gt; apply(final ContractInvocation contractInvocation) {
-<span class="fc" id="L253">          logger.debug(&quot;Query contract with invocation: {}&quot;, contractInvocation);</span>
+<span class="fc" id="L256">          logger.debug(&quot;Query contract with invocation: {}&quot;, contractInvocation);</span>
 
-<span class="fc" id="L255">          final ByteString rpcContractAddress =</span>
-<span class="fc" id="L256">              accountAddressConverter.convertToRpcModel(contractInvocation.getAddress());</span>
-<span class="fc" id="L257">          final BytesValue rpcContractInvocation =</span>
-<span class="fc" id="L258">              PayloadResolver.resolve(Type.ContractInvocation, contractInvocation);</span>
-<span class="fc" id="L259">          final Blockchain.Query rpcQuery = Blockchain.Query.newBuilder()</span>
-<span class="fc" id="L260">              .setContractAddress(rpcContractAddress)</span>
-<span class="fc" id="L261">              .setQueryinfo(copyFrom(rpcContractInvocation))</span>
-<span class="fc" id="L262">              .build();</span>
-<span class="fc" id="L263">          logger.trace(&quot;AergoService queryContract arg: {}&quot;, rpcQuery);</span>
+<span class="fc" id="L258">          final ByteString rpcContractAddress =</span>
+<span class="fc" id="L259">              accountAddressConverter.convertToRpcModel(contractInvocation.getAddress());</span>
+<span class="fc" id="L260">          final BytesValue rpcContractInvocation =</span>
+<span class="fc" id="L261">              PayloadResolver.resolve(Type.ContractInvocation, contractInvocation);</span>
+<span class="fc" id="L262">          final Blockchain.Query rpcQuery = Blockchain.Query.newBuilder()</span>
+<span class="fc" id="L263">              .setContractAddress(rpcContractAddress)</span>
+<span class="fc" id="L264">              .setQueryinfo(copyFrom(rpcContractInvocation))</span>
+<span class="fc" id="L265">              .build();</span>
+<span class="fc" id="L266">          logger.trace(&quot;AergoService queryContract arg: {}&quot;, rpcQuery);</span>
 
-<span class="fc" id="L265">          final Future&lt;Rpc.SingleBytes&gt; rawFuture = futureService.queryContract(rpcQuery);</span>
-<span class="fc" id="L266">          final Future&lt;ContractResult&gt; convertedFuture = HerajFutures.transform(rawFuture,</span>
-<span class="fc" id="L267">              new Function1&lt;Rpc.SingleBytes, ContractResult&gt;() {</span>
+<span class="fc" id="L268">          final Future&lt;Rpc.SingleBytes&gt; rawFuture = futureService.queryContract(rpcQuery);</span>
+<span class="fc" id="L269">          final Future&lt;ContractResult&gt; convertedFuture = HerajFutures.transform(rawFuture,</span>
+<span class="fc" id="L270">              new Function1&lt;Rpc.SingleBytes, ContractResult&gt;() {</span>
 
                 @Override
                 public ContractResult apply(final Rpc.SingleBytes rawQueryResult) {
-<span class="fc" id="L271">                  return contractResultConverter.convertToDomainModel(rawQueryResult);</span>
+<span class="fc" id="L274">                  return contractResultConverter.convertToDomainModel(rawQueryResult);</span>
                 }
               });
-<span class="fc" id="L274">          return convertedFuture;</span>
+<span class="fc" id="L277">          return convertedFuture;</span>
         }
       };
 
-<span class="fc" id="L278">  @Getter</span>
+<span class="fc" id="L281">  @Getter</span>
   private final Function1&lt;EventFilter,
-<span class="fc" id="L280">      Future&lt;List&lt;Event&gt;&gt;&gt; listEventFunction = new Function1&lt;EventFilter, Future&lt;List&lt;Event&gt;&gt;&gt;() {</span>
+<span class="fc" id="L283">      Future&lt;List&lt;Event&gt;&gt;&gt; listEventFunction = new Function1&lt;EventFilter, Future&lt;List&lt;Event&gt;&gt;&gt;() {</span>
 
         @Override
         public Future&lt;List&lt;Event&gt;&gt; apply(final EventFilter eventFilter) {
-<span class="fc" id="L284">          logger.debug(&quot;List event with filter: {}&quot;, eventFilter);</span>
+<span class="fc" id="L287">          logger.debug(&quot;List event with filter: {}&quot;, eventFilter);</span>
 
-<span class="fc" id="L286">          final Blockchain.FilterInfo rpcEventFilter =</span>
-<span class="fc" id="L287">              eventFilterConverter.convertToRpcModel(eventFilter);</span>
-<span class="fc" id="L288">          logger.trace(&quot;AergoService listEvents arg: {}&quot;, rpcEventFilter);</span>
+<span class="fc" id="L289">          final Blockchain.FilterInfo rpcEventFilter =</span>
+<span class="fc" id="L290">              eventFilterConverter.convertToRpcModel(eventFilter);</span>
+<span class="fc" id="L291">          logger.trace(&quot;AergoService listEvents arg: {}&quot;, rpcEventFilter);</span>
 
-<span class="fc" id="L290">          final Future&lt;Rpc.EventList&gt; rawFuture = futureService.listEvents(rpcEventFilter);</span>
-<span class="fc" id="L291">          final Future&lt;List&lt;Event&gt;&gt; convertedFuture =</span>
-<span class="fc" id="L292">              HerajFutures.transform(rawFuture, new Function1&lt;Rpc.EventList, List&lt;Event&gt;&gt;() {</span>
+<span class="fc" id="L293">          final Future&lt;Rpc.EventList&gt; rawFuture = futureService.listEvents(rpcEventFilter);</span>
+<span class="fc" id="L294">          final Future&lt;List&lt;Event&gt;&gt; convertedFuture =</span>
+<span class="fc" id="L295">              HerajFutures.transform(rawFuture, new Function1&lt;Rpc.EventList, List&lt;Event&gt;&gt;() {</span>
 
                 @Override
                 public List&lt;Event&gt; apply(final Rpc.EventList rawEventList) {
-<span class="fc" id="L296">                  final List&lt;Event&gt; domainEvents = new ArrayList&lt;&gt;();</span>
-<span class="pc bpc" id="L297" title="1 of 2 branches missed.">                  for (final Blockchain.Event rpcEvent : rawEventList.getEventsList()) {</span>
-<span class="nc" id="L298">                    domainEvents.add(eventConverter.convertToDomainModel(rpcEvent));</span>
-<span class="nc" id="L299">                  }</span>
-<span class="fc" id="L300">                  return domainEvents;</span>
+<span class="fc" id="L299">                  final List&lt;Event&gt; domainEvents = new ArrayList&lt;&gt;();</span>
+<span class="pc bpc" id="L300" title="1 of 2 branches missed.">                  for (final Blockchain.Event rpcEvent : rawEventList.getEventsList()) {</span>
+<span class="nc" id="L301">                    domainEvents.add(eventConverter.convertToDomainModel(rpcEvent));</span>
+<span class="nc" id="L302">                  }</span>
+<span class="fc" id="L303">                  return domainEvents;</span>
                 }
               });
-<span class="fc" id="L303">          return convertedFuture;</span>
+<span class="fc" id="L306">          return convertedFuture;</span>
         }
       };
 
-<span class="fc" id="L307">  @Getter</span>
+<span class="fc" id="L310">  @Getter</span>
   private final Function2&lt;EventFilter, hera.api.model.StreamObserver&lt;Event&gt;,
       Future&lt;Subscription&lt;Event&gt;&gt;&gt; subscribeEventFunction = new Function2&lt;EventFilter,
-<span class="fc" id="L310">          hera.api.model.StreamObserver&lt;Event&gt;, Future&lt;Subscription&lt;Event&gt;&gt;&gt;() {</span>
+<span class="fc" id="L313">          hera.api.model.StreamObserver&lt;Event&gt;, Future&lt;Subscription&lt;Event&gt;&gt;&gt;() {</span>
 
         @Override
         public Future&lt;Subscription&lt;Event&gt;&gt; apply(final EventFilter filter,
             final hera.api.model.StreamObserver&lt;Event&gt; observer) {
-<span class="fc" id="L315">          logger.debug(&quot;Event subsribe with filter: {}, observer: {}&quot;, filter, observer);</span>
+<span class="fc" id="L318">          logger.debug(&quot;Event subsribe with filter: {}, observer: {}&quot;, filter, observer);</span>
 
-<span class="fc" id="L317">          final Blockchain.FilterInfo filterInfo =</span>
-<span class="fc" id="L318">              eventFilterConverter.convertToRpcModel(filter);</span>
+<span class="fc" id="L320">          final Blockchain.FilterInfo filterInfo =</span>
+<span class="fc" id="L321">              eventFilterConverter.convertToRpcModel(filter);</span>
           Context.CancellableContext cancellableContext =
-<span class="fc" id="L320">              Context.current().withCancellation();</span>
-<span class="fc" id="L321">          final io.grpc.stub.StreamObserver&lt;Blockchain.Event&gt; adaptor =</span>
+<span class="fc" id="L323">              Context.current().withCancellation();</span>
+<span class="fc" id="L324">          final io.grpc.stub.StreamObserver&lt;Blockchain.Event&gt; adaptor =</span>
               new GrpcStreamObserverAdaptor&lt;Blockchain.Event, Event&gt;(cancellableContext,
                   observer, eventConverter);
-<span class="fc" id="L324">          cancellableContext.run(new Runnable() {</span>
+<span class="fc" id="L327">          cancellableContext.run(new Runnable() {</span>
+
             @Override
             public void run() {
-<span class="fc" id="L327">              streamService.listEventStream(filterInfo, adaptor);</span>
-<span class="fc" id="L328">            }</span>
+<span class="fc" id="L331">              streamService.listEventStream(filterInfo, adaptor);</span>
+<span class="fc" id="L332">            }</span>
           });
 
-<span class="fc" id="L331">          final Subscription&lt;Event&gt; subscription = new GrpcStreamSubscription&lt;&gt;(cancellableContext);</span>
-<span class="fc" id="L332">          return HerajFutures.success(subscription);</span>
+<span class="fc" id="L335">          final Subscription&lt;Event&gt; subscription = new GrpcStreamSubscription&lt;&gt;(cancellableContext);</span>
+<span class="fc" id="L336">          return HerajFutures.success(subscription);</span>
         }
       };
 

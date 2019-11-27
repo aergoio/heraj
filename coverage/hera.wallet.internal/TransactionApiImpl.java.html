@@ -164,105 +164,107 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
 <span class="nc" id="L164">              .to(recipient)</span>
 <span class="nc" id="L165">              .amount(amount)</span>
 <span class="nc" id="L166">              .nonce(t)</span>
-<span class="nc" id="L167">              .payload(payload)</span>
-<span class="nc" id="L168">              .build();</span>
-<span class="nc" id="L169">          return getClient().getTransactionOperation().commit(getSigner().sign(rawTransaction));</span>
+<span class="nc" id="L167">              .fee(fee)</span>
+<span class="nc" id="L168">              .payload(payload)</span>
+<span class="nc" id="L169">              .build();</span>
+<span class="nc" id="L170">          return getClient().getTransactionOperation().commit(getSigner().sign(rawTransaction));</span>
         }
       });
-<span class="nc" id="L172">    } catch (Exception e) {</span>
-<span class="nc" id="L173">      throw converter.convert(e);</span>
+<span class="nc" id="L173">    } catch (Exception e) {</span>
+<span class="nc" id="L174">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public TxHash send(AccountAddress recipient, Aer amount, Fee fee) {
-<span class="nc" id="L179">    return send(recipient, amount, fee, BytesValue.EMPTY);</span>
+<span class="nc" id="L180">    return send(recipient, amount, fee, BytesValue.EMPTY);</span>
   }
 
   @Override
   public TxHash send(final AccountAddress recipient, final Aer amount, final Fee fee,
       final BytesValue payload) {
     try {
-<span class="nc" id="L186">      return trier.request(getSigner(), new Function2&lt;Signer, Long, TxHash&gt;() {</span>
+<span class="nc" id="L187">      return trier.request(getSigner(), new Function2&lt;Signer, Long, TxHash&gt;() {</span>
 
         @Override
         public TxHash apply(Signer signer, Long t) {
-<span class="nc" id="L190">          final RawTransaction rawTransaction = RawTransaction.newBuilder()</span>
-<span class="nc" id="L191">              .chainIdHash(getClient().getCachedChainIdHash())</span>
-<span class="nc" id="L192">              .from(getSigner().getPrincipal())</span>
-<span class="nc" id="L193">              .to(recipient)</span>
-<span class="nc" id="L194">              .amount(amount)</span>
-<span class="nc" id="L195">              .nonce(t)</span>
-<span class="nc" id="L196">              .payload(payload)</span>
-<span class="nc" id="L197">              .build();</span>
-<span class="nc" id="L198">          return getClient().getTransactionOperation().commit(getSigner().sign(rawTransaction));</span>
+<span class="nc" id="L191">          final RawTransaction rawTransaction = RawTransaction.newBuilder()</span>
+<span class="nc" id="L192">              .chainIdHash(getClient().getCachedChainIdHash())</span>
+<span class="nc" id="L193">              .from(getSigner().getPrincipal())</span>
+<span class="nc" id="L194">              .to(recipient)</span>
+<span class="nc" id="L195">              .amount(amount)</span>
+<span class="nc" id="L196">              .nonce(t)</span>
+<span class="nc" id="L197">              .fee(fee)</span>
+<span class="nc" id="L198">              .payload(payload)</span>
+<span class="nc" id="L199">              .build();</span>
+<span class="nc" id="L200">          return getClient().getTransactionOperation().commit(getSigner().sign(rawTransaction));</span>
         }
       });
-<span class="nc" id="L201">    } catch (Exception e) {</span>
-<span class="nc" id="L202">      throw converter.convert(e);</span>
+<span class="nc" id="L203">    } catch (Exception e) {</span>
+<span class="nc" id="L204">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public TxHash commit(final RawTransaction rawTransaction) {
     try {
-<span class="nc" id="L209">      return trier.request(getSigner(), new Function2&lt;Signer, Long, TxHash&gt;() {</span>
+<span class="nc" id="L211">      return trier.request(getSigner(), new Function2&lt;Signer, Long, TxHash&gt;() {</span>
 
-<span class="nc" id="L211">        protected AtomicBoolean isFirst = new AtomicBoolean(true);</span>
+<span class="nc" id="L213">        protected AtomicBoolean isFirst = new AtomicBoolean(true);</span>
 
         @Override
         public TxHash apply(Signer signer, Long t) {
-<span class="nc bnc" id="L215" title="All 2 branches missed.">          if (isFirst.get()) {</span>
-<span class="nc" id="L216">            isFirst.set(false);</span>
-<span class="nc" id="L217">            return getClient().getTransactionOperation().commit(getSigner().sign(rawTransaction));</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">          if (isFirst.get()) {</span>
+<span class="nc" id="L218">            isFirst.set(false);</span>
+<span class="nc" id="L219">            return getClient().getTransactionOperation().commit(getSigner().sign(rawTransaction));</span>
           } else {
-<span class="nc" id="L219">            final RawTransaction withNewNonce = rawTransaction.withNonce(t);</span>
-<span class="nc" id="L220">            return getClient().getTransactionOperation().commit(getSigner().sign(withNewNonce));</span>
+<span class="nc" id="L221">            final RawTransaction withNewNonce = rawTransaction.withNonce(t);</span>
+<span class="nc" id="L222">            return getClient().getTransactionOperation().commit(getSigner().sign(withNewNonce));</span>
           }
         }
       });
-<span class="nc" id="L224">    } catch (Exception e) {</span>
-<span class="nc" id="L225">      throw converter.convert(e);</span>
+<span class="nc" id="L226">    } catch (Exception e) {</span>
+<span class="nc" id="L227">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public TxHash commit(final Transaction signedTransaction) {
     try {
-<span class="nc" id="L232">      return trier.request(getSigner(), new Function2&lt;Signer, Long, TxHash&gt;() {</span>
+<span class="nc" id="L234">      return trier.request(getSigner(), new Function2&lt;Signer, Long, TxHash&gt;() {</span>
 
-<span class="nc" id="L234">        protected AtomicBoolean isFirst = new AtomicBoolean(true);</span>
+<span class="nc" id="L236">        protected AtomicBoolean isFirst = new AtomicBoolean(true);</span>
 
         @Override
         public TxHash apply(Signer signer, Long t) {
-<span class="nc bnc" id="L238" title="All 2 branches missed.">          if (isFirst.get()) {</span>
-<span class="nc" id="L239">            isFirst.set(false);</span>
-<span class="nc" id="L240">            return getClient().getTransactionOperation().commit(signedTransaction);</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">          if (isFirst.get()) {</span>
+<span class="nc" id="L241">            isFirst.set(false);</span>
+<span class="nc" id="L242">            return getClient().getTransactionOperation().commit(signedTransaction);</span>
           } else {
-<span class="nc" id="L242">            final RawTransaction rawTransaction = signedTransaction.getRawTransaction();</span>
-<span class="nc" id="L243">            final RawTransaction withNewNonce = rawTransaction.withNonce(t);</span>
-<span class="nc" id="L244">            return getClient().getTransactionOperation().commit(getSigner().sign(withNewNonce));</span>
+<span class="nc" id="L244">            final RawTransaction rawTransaction = signedTransaction.getRawTransaction();</span>
+<span class="nc" id="L245">            final RawTransaction withNewNonce = rawTransaction.withNonce(t);</span>
+<span class="nc" id="L246">            return getClient().getTransactionOperation().commit(getSigner().sign(withNewNonce));</span>
           }
         }
       });
-<span class="nc" id="L248">    } catch (Exception e) {</span>
-<span class="nc" id="L249">      throw converter.convert(e);</span>
+<span class="nc" id="L250">    } catch (Exception e) {</span>
+<span class="nc" id="L251">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public ContractTxHash deploy(final ContractDefinition contractDefinition, final Fee fee) {
     try {
-<span class="nc" id="L256">      return trier.request(getSigner(), new Function2&lt;Signer, Long, TxHash&gt;() {</span>
+<span class="nc" id="L258">      return trier.request(getSigner(), new Function2&lt;Signer, Long, TxHash&gt;() {</span>
 
         @Override
         public TxHash apply(Signer signer, Long t) {
-<span class="nc" id="L260">          return getClient().getContractOperation().deploy(getSigner(), contractDefinition, t,</span>
+<span class="nc" id="L262">          return getClient().getContractOperation().deploy(getSigner(), contractDefinition, t,</span>
               fee);
         }
-<span class="nc" id="L263">      }).adapt(ContractTxHash.class);</span>
-<span class="nc" id="L264">    } catch (Exception e) {</span>
-<span class="nc" id="L265">      throw converter.convert(e);</span>
+<span class="nc" id="L265">      }).adapt(ContractTxHash.class);</span>
+<span class="nc" id="L266">    } catch (Exception e) {</span>
+<span class="nc" id="L267">      throw converter.convert(e);</span>
     }
   }
 
@@ -270,47 +272,47 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
   public ContractTxHash redeploy(final ContractAddress existingContract,
       final ContractDefinition contractDefinition, final Fee fee) {
     try {
-<span class="nc" id="L273">      return trier.request(getSigner(), new Function2&lt;Signer, Long, TxHash&gt;() {</span>
+<span class="nc" id="L275">      return trier.request(getSigner(), new Function2&lt;Signer, Long, TxHash&gt;() {</span>
 
         @Override
         public TxHash apply(Signer signer, Long t) {
-<span class="nc" id="L277">          return getClient().getContractOperation().redeploy(getSigner(), existingContract,</span>
-<span class="nc" id="L278">              contractDefinition, t, fee);</span>
+<span class="nc" id="L279">          return getClient().getContractOperation().redeploy(getSigner(), existingContract,</span>
+<span class="nc" id="L280">              contractDefinition, t, fee);</span>
         }
-<span class="nc" id="L280">      }).adapt(ContractTxHash.class);</span>
-<span class="nc" id="L281">    } catch (Exception e) {</span>
-<span class="nc" id="L282">      throw converter.convert(e);</span>
+<span class="nc" id="L282">      }).adapt(ContractTxHash.class);</span>
+<span class="nc" id="L283">    } catch (Exception e) {</span>
+<span class="nc" id="L284">      throw converter.convert(e);</span>
     }
   }
 
   @Override
   public ContractTxHash execute(final ContractInvocation contractInvocation, final Fee fee) {
     try {
-<span class="nc" id="L289">      return trier.request(getSigner(), new Function2&lt;Signer, Long, TxHash&gt;() {</span>
+<span class="fc" id="L291">      return trier.request(getSigner(), new Function2&lt;Signer, Long, TxHash&gt;() {</span>
 
         @Override
         public TxHash apply(Signer signer, Long t) {
-<span class="nc" id="L293">          return getClient().getContractOperation().execute(getSigner(), contractInvocation, t,</span>
+<span class="fc" id="L295">          return getClient().getContractOperation().execute(getSigner(), contractInvocation, t,</span>
               fee);
         }
-<span class="nc" id="L296">      }).adapt(ContractTxHash.class);</span>
-<span class="nc" id="L297">    } catch (Exception e) {</span>
-<span class="nc" id="L298">      throw converter.convert(e);</span>
+<span class="fc" id="L298">      }).adapt(ContractTxHash.class);</span>
+<span class="nc" id="L299">    } catch (Exception e) {</span>
+<span class="nc" id="L300">      throw converter.convert(e);</span>
     }
   }
 
   protected Signer getSigner() {
-<span class="nc bnc" id="L303" title="All 4 branches missed.">    if (null == this.signer || null == this.signer.getPrincipal()) {</span>
-<span class="nc" id="L304">      throw new WalletException(&quot;Unlock account first&quot;);</span>
+<span class="pc bpc" id="L305" title="2 of 4 branches missed.">    if (null == this.signer || null == this.signer.getPrincipal()) {</span>
+<span class="nc" id="L306">      throw new WalletException(&quot;Unlock account first&quot;);</span>
     }
-<span class="nc" id="L306">    return this.signer;</span>
+<span class="fc" id="L308">    return this.signer;</span>
   }
 
   protected AergoClient getClient() {
-<span class="nc bnc" id="L310" title="All 2 branches missed.">    if (null == this.client) {</span>
-<span class="nc" id="L311">      throw new WalletException(&quot;Aergo client isn't binded yet&quot;);</span>
+<span class="pc bpc" id="L312" title="1 of 2 branches missed.">    if (null == this.client) {</span>
+<span class="nc" id="L313">      throw new WalletException(&quot;Aergo client isn't binded yet&quot;);</span>
     }
-<span class="nc" id="L313">    return this.client;</span>
+<span class="fc" id="L315">    return this.client;</span>
   }
 
 }

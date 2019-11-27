@@ -45,9 +45,9 @@ import types.Blockchain;
 <span class="nc bnc" id="L45" title="All 2 branches missed.">            for (final Blockchain.FnArgument rpcArgument : rpcFunction.getArgumentsList()) {</span>
 <span class="nc" id="L46">              domainArguments.add(rpcArgument.getName());</span>
 <span class="nc" id="L47">            }</span>
-<span class="nc" id="L48">            final ContractFunction domainContractFunction =</span>
-<span class="nc" id="L49">                new ContractFunction(rpcFunction.getName(), domainArguments,</span>
-<span class="nc" id="L50">                    rpcFunction.getPayable(), rpcFunction.getView());</span>
+<span class="nc" id="L48">            final ContractFunction domainContractFunction = new ContractFunction(</span>
+<span class="nc" id="L49">                rpcFunction.getName(), domainArguments, rpcFunction.getPayable(),</span>
+<span class="nc" id="L50">                rpcFunction.getView(), rpcFunction.getFeeDelegation());</span>
 <span class="nc" id="L51">            domainFunctions.add(domainContractFunction);</span>
 <span class="nc" id="L52">          }</span>
 

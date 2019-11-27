@@ -13,21 +13,21 @@ import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="nc bnc" id="L16" title="All 24 branches missed.">@Value</span>
+<span class="pc bnc" id="L16" title="All 24 branches missed.">@Value</span>
 <span class="pc bpc" id="L17" title="4 of 12 branches missed.">@Builder(builderMethodName = &quot;newBuilder&quot;)</span>
 public class BlockMetadata {
 
   @NonNull
   @Default
-<span class="nc" id="L22">  BlockHash blockHash = BlockHash.of(BytesValue.EMPTY);</span>
+<span class="fc" id="L22">  BlockHash blockHash = BlockHash.of(BytesValue.EMPTY);</span>
 
   @NonNull
   @Default
-<span class="nc" id="L26">  BlockHeader blockHeader = BlockHeader.newBuilder().build();</span>
+<span class="fc" id="L26">  BlockHeader blockHeader = BlockHeader.newBuilder().build();</span>
 
-<span class="nc" id="L28">  int txCount;</span>
+<span class="fc" id="L28">  int txCount;</span>
 
-<span class="nc" id="L30">  long blockSize; // in bytes</span>
+<span class="fc" id="L30">  long blockSize; // in bytes</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

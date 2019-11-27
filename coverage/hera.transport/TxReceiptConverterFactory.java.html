@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TxReceiptConverterFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.transport</a> &gt; <span class="el_source">TxReceiptConverterFactory.java</span></div><h1>TxReceiptConverterFactory.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.transport;
+
+import static hera.util.TransportUtils.parseToAer;
+import static hera.util.TransportUtils.parseToBlockHash;
+import static hera.util.TransportUtils.parseToBytesValue;
+import static hera.util.TransportUtils.parseToTxHash;
+import static java.util.Collections.unmodifiableList;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import com.google.protobuf.ByteString;
+import hera.api.function.Function1;
+import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
+import hera.api.model.BytesValue;
+import hera.api.model.ContractAddress;
+import hera.api.model.ContractTxReceipt;
+import hera.api.model.Event;
+import hera.client.internal.ContractResultImpl;
+import java.util.ArrayList;
+import java.util.List;
+import org.slf4j.Logger;
+import types.Blockchain;
+
+<span class="fc" id="L28">public class TxReceiptConverterFactory {</span>
+
+<span class="fc" id="L30">  protected final transient Logger logger = getLogger(getClass());</span>
+
+<span class="fc" id="L32">  protected final ModelConverter&lt;AccountAddress, ByteString&gt; accountAddressConverter =</span>
+<span class="fc" id="L33">      new AccountAddressConverterFactory().create();</span>
+
+<span class="fc" id="L35">  protected final ModelConverter&lt;Event, Blockchain.Event&gt; eventConverter =</span>
+<span class="fc" id="L36">      new EventConverterFactory().create();</span>
+
+<span class="fc" id="L38">  protected final Function1&lt;ContractTxReceipt, Blockchain.Receipt&gt; domainConverter =</span>
+<span class="fc" id="L39">      new Function1&lt;ContractTxReceipt, Blockchain.Receipt&gt;() {</span>
+
+        @Override
+        public Blockchain.Receipt apply(final ContractTxReceipt domainRecepit) {
+<span class="nc" id="L43">          throw new UnsupportedOperationException();</span>
+        }
+      };
+
+<span class="fc" id="L47">  protected final Function1&lt;Blockchain.Receipt, ContractTxReceipt&gt; rpcConverter =</span>
+<span class="fc" id="L48">      new Function1&lt;Blockchain.Receipt, ContractTxReceipt&gt;() {</span>
+
+        @Override
+        public ContractTxReceipt apply(final Blockchain.Receipt rpcReceipt) {
+<span class="fc" id="L52">          logger.trace(&quot;Rpc tx receipt to convert: {}&quot;, rpcReceipt);</span>
+<span class="fc" id="L53">          final AccountAddress accountAddress =</span>
+<span class="fc" id="L54">              accountAddressConverter.convertToDomainModel(rpcReceipt.getContractAddress());</span>
+
+<span class="fc" id="L56">          final List&lt;Event&gt; domainEvents = new ArrayList&lt;&gt;();</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">          for (final Blockchain.Event rpcEvent : rpcReceipt.getEventsList()) {</span>
+<span class="nc" id="L58">            domainEvents.add(eventConverter.convertToDomainModel(rpcEvent));</span>
+<span class="nc" id="L59">          }</span>
+
+          // for transaction, keep itself, but for receipt, no empty fee
+<span class="fc" id="L62">          Aer usedFee = parseToAer(rpcReceipt.getFeeUsed());</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">          if (Aer.EMPTY.equals(usedFee)) {</span>
+<span class="fc" id="L64">            usedFee = Aer.ZERO;</span>
+          }
+<span class="fc" id="L66">          final ContractTxReceipt domainTxReceipt = ContractTxReceipt.newBuilder()</span>
+<span class="fc" id="L67">              .contractAddress(new ContractAddress(accountAddress.getBytesValue()))</span>
+<span class="fc" id="L68">              .status(rpcReceipt.getStatus())</span>
+<span class="fc" id="L69">              .ret(new ContractResultImpl(BytesValue.of(rpcReceipt.getRet().getBytes())))</span>
+<span class="fc" id="L70">              .txHash(parseToTxHash(rpcReceipt.getTxHash()))</span>
+<span class="fc" id="L71">              .feeUsed(usedFee)</span>
+<span class="fc" id="L72">              .cumulativeFeeUsed(parseToAer(rpcReceipt.getCumulativeFeeUsed()))</span>
+<span class="fc" id="L73">              .bloom(parseToBytesValue(rpcReceipt.getBloom()))</span>
+<span class="fc" id="L74">              .events(unmodifiableList(domainEvents))</span>
+<span class="fc" id="L75">              .blockNumber(rpcReceipt.getBlockNo())</span>
+<span class="fc" id="L76">              .blockHash(parseToBlockHash(rpcReceipt.getBlockHash()))</span>
+<span class="fc" id="L77">              .indexInBlock(rpcReceipt.getTxIndex())</span>
+<span class="fc" id="L78">              .sender(accountAddressConverter.convertToDomainModel(rpcReceipt.getFrom()))</span>
+<span class="fc" id="L79">              .recipient(accountAddressConverter.convertToDomainModel(rpcReceipt.getTo()))</span>
+<span class="fc" id="L80">              .feeDelegation(rpcReceipt.getFeeDelegation())</span>
+<span class="fc" id="L81">              .build();</span>
+<span class="fc" id="L82">          logger.trace(&quot;Domain tx receipt converted: {}&quot;, domainTxReceipt);</span>
+<span class="fc" id="L83">          return domainTxReceipt;</span>
+        }
+      };
+
+  public ModelConverter&lt;ContractTxReceipt, Blockchain.Receipt&gt; create() {
+<span class="fc" id="L88">    return new ModelConverter&lt;ContractTxReceipt, Blockchain.Receipt&gt;(domainConverter, rpcConverter);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

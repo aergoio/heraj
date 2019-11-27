@@ -41,42 +41,54 @@ public class Transaction {
 
 <span class="fc" id="L42">  @RequiredArgsConstructor</span>
   public enum TxType {
-<span class="fc" id="L44">    UNRECOGNIZED(-1), NORMAL(0), GOVERNANCE(1), REDEPLOY(2);</span>
+<span class="fc" id="L44">    UNRECOGNIZED(-1),</span>
+    /**
+     * Keep it for backward compatibility.
+     *
+     * @deprecated Use {@link TxType#TRANSFER}, {@link TxType#CALL}, {@link TxType#DEPLOY} instead
+     */
+<span class="fc" id="L50">    NORMAL(0),</span>
+<span class="fc" id="L51">    GOVERNANCE(1),</span>
+<span class="fc" id="L52">    REDEPLOY(2),</span>
+<span class="fc" id="L53">    FEE_DELEGATION(3),</span>
+<span class="fc" id="L54">    TRANSFER(4),</span>
+<span class="fc" id="L55">    CALL(5),</span>
+<span class="fc" id="L56">    DEPLOY(6);</span>
 
-<span class="fc" id="L46">    @Getter</span>
+<span class="fc" id="L58">    @Getter</span>
     private final int intValue;
   }
 
   public ChainIdHash getChainIdHash() {
-<span class="fc" id="L51">    return rawTransaction.getChainIdHash();</span>
+<span class="fc" id="L63">    return rawTransaction.getChainIdHash();</span>
   }
 
   public AccountAddress getSender() {
-<span class="fc" id="L55">    return rawTransaction.getSender();</span>
+<span class="fc" id="L67">    return rawTransaction.getSender();</span>
   }
 
   public AccountAddress getRecipient() {
-<span class="fc" id="L59">    return rawTransaction.getRecipient();</span>
+<span class="fc" id="L71">    return rawTransaction.getRecipient();</span>
   }
 
   public Aer getAmount() {
-<span class="fc" id="L63">    return rawTransaction.getAmount();</span>
+<span class="fc" id="L75">    return rawTransaction.getAmount();</span>
   }
 
   public Long getNonce() {
-<span class="fc" id="L67">    return rawTransaction.getNonce();</span>
+<span class="fc" id="L79">    return rawTransaction.getNonce();</span>
   }
 
   public Fee getFee() {
-<span class="fc" id="L71">    return rawTransaction.getFee();</span>
+<span class="fc" id="L83">    return rawTransaction.getFee();</span>
   }
 
   public BytesValue getPayload() {
-<span class="fc" id="L75">    return rawTransaction.getPayload();</span>
+<span class="fc" id="L87">    return rawTransaction.getPayload();</span>
   }
 
   public TxType getTxType() {
-<span class="fc" id="L79">    return rawTransaction.getTxType();</span>
+<span class="fc" id="L91">    return rawTransaction.getTxType();</span>
   }
 
 }

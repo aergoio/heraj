@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WalletApiFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.wallet</a> &gt; <span class="el_source">WalletApiFactory.java</span></div><h1>WalletApiFactory.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.wallet;
+
+import static hera.util.ValidationUtils.assertNotNull;
+import static hera.util.ValidationUtils.assertTrue;
+
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.api.model.internal.Time;
+import hera.api.model.internal.TryCountAndInterval;
+
+@ApiAudience.Public
+@ApiStability.Unstable
+<span class="fc" id="L17">public class WalletApiFactory {</span>
+
+  public static final int DEFAULT_RETRY_COUNT = 2;
+
+  public static final long DEFAULT_RETRY_INTERVAL = 100L;
+
+  /**
+   * Create a wallet instance with retryCont as {@value #DEFAULT_RETRY_COUNT} and retry interval as
+   * {@value #DEFAULT_RETRY_INTERVAL} milliseconds.
+   *
+   * @param keyStore an keystore instance
+   *
+   * @return a wallet instance
+   */
+  public WalletApi create(final hera.keystore.KeyStore keyStore) {
+<span class="fc" id="L32">    return create(keyStore, DEFAULT_RETRY_COUNT, DEFAULT_RETRY_INTERVAL);</span>
+  }
+
+  /**
+   * Create a wallet instance.
+   *
+   * @param keyStore an keystore instance
+   * @param retryCount a retry count on nonce failure
+   * @param retryInterval a retry interval in milliseconds on nonce failure
+   * @return a wallet instance
+   */
+  public WalletApi create(final hera.keystore.KeyStore keyStore, final int retryCount,
+      final long retryInterval) {
+<span class="fc" id="L45">    assertNotNull(keyStore);</span>
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">    assertTrue(1 &lt;= retryCount);</span>
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">    assertTrue(0 &lt; retryInterval);</span>
+<span class="fc" id="L48">    return new WalletApiImpl(keyStore, new TryCountAndInterval(retryCount, Time.of(retryInterval)));</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

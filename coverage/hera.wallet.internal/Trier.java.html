@@ -47,19 +47,19 @@ public class Trier {
    */
   public TxHash request(final Signer signer,
       final Function2&lt;Signer, Long, TxHash&gt; transactionRequester) {
-<span class="nc" id="L50">    assertNotNull(signer);</span>
-<span class="nc" id="L51">    assertNotNull(transactionRequester);</span>
-<span class="nc" id="L52">    logger.debug(&quot;Transaction try with signer: {}, transactionRequester: {}&quot;, signer,</span>
+<span class="fc" id="L50">    assertNotNull(signer);</span>
+<span class="fc" id="L51">    assertNotNull(transactionRequester);</span>
+<span class="fc" id="L52">    logger.debug(&quot;Transaction try with signer: {}, transactionRequester: {}&quot;, signer,</span>
         transactionRequester);
 
-<span class="nc" id="L55">    TxHash txHash = null;</span>
-<span class="nc" id="L56">    RpcException recentException = null;</span>
+<span class="fc" id="L55">    TxHash txHash = null;</span>
+<span class="fc" id="L56">    RpcException recentException = null;</span>
 
-<span class="nc" id="L58">    int i = tryCountAndInterval.getCount();</span>
-<span class="nc bnc" id="L59" title="All 4 branches missed.">    while (0 &lt;= i &amp;&amp; null == txHash) {</span>
-<span class="nc" id="L60">      final long nonceToBeUsed = nonceProvider.incrementAndGetNonce(signer.getPrincipal());</span>
+<span class="fc" id="L58">    int i = tryCountAndInterval.getCount();</span>
+<span class="pc bpc" id="L59" title="1 of 4 branches missed.">    while (0 &lt;= i &amp;&amp; null == txHash) {</span>
+<span class="fc" id="L60">      final long nonceToBeUsed = nonceProvider.incrementAndGetNonce(signer.getPrincipal());</span>
       try {
-<span class="nc" id="L62">        txHash = transactionRequester.apply(signer, nonceToBeUsed);</span>
+<span class="fc" id="L62">        txHash = transactionRequester.apply(signer, nonceToBeUsed);</span>
 <span class="nc" id="L63">      } catch (RpcException e) {</span>
 <span class="nc" id="L64">        recentException = e;</span>
 <span class="nc bnc" id="L65" title="All 2 branches missed.">        if (isNonceRelatedException(e)) {</span>
@@ -74,14 +74,14 @@ public class Trier {
         }
 <span class="nc" id="L75">        tryCountAndInterval.trySleep();</span>
 <span class="nc" id="L76">        --i;</span>
-<span class="nc" id="L77">      }</span>
-<span class="nc" id="L78">    }</span>
+<span class="fc" id="L77">      }</span>
+<span class="fc" id="L78">    }</span>
 
-<span class="nc bnc" id="L80" title="All 4 branches missed.">    if (null == txHash &amp;&amp; null != recentException) {</span>
+<span class="pc bpc" id="L80" title="3 of 4 branches missed.">    if (null == txHash &amp;&amp; null != recentException) {</span>
 <span class="nc" id="L81">      throw recentException;</span>
     }
 
-<span class="nc" id="L84">    return txHash;</span>
+<span class="fc" id="L84">    return txHash;</span>
   }
 
   protected boolean isNonceRelatedException(final RpcException e) {

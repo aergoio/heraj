@@ -93,9 +93,11 @@ public class ContractInterface {
     ContractInvocationWithReady args(Object... args);
 
     ContractInvocationWithReady amount(Aer amount);
+
+    ContractInvocationWithReady delegateFee(boolean delegateFee);
   }
 
-<span class="pc bpc" id="L98" title="1 of 2 branches missed.">  @RequiredArgsConstructor</span>
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">  @RequiredArgsConstructor</span>
   protected static class InvocationBuilder
       implements ContractInvocationWithNothing, ContractInvocationWithReady {
 
@@ -104,37 +106,49 @@ public class ContractInterface {
 
     protected ContractFunction function;
 
-<span class="fc" id="L107">    protected Object[] args = new Object[0];</span>
+<span class="fc" id="L109">    protected Object[] args = new Object[0];</span>
 
-<span class="fc" id="L109">    protected Aer amount = Aer.EMPTY;</span>
+<span class="fc" id="L111">    protected Aer amount = Aer.EMPTY;</span>
+
+<span class="fc" id="L113">    protected boolean delegateFee = false;</span>
 
     @Override
     public ContractInvocationWithReady function(final String functionName) {
-<span class="fc" id="L113">      this.function = contractInterface.findFunction(functionName);</span>
-<span class="fc bfc" id="L114" title="All 2 branches covered.">      if (null == this.function) {</span>
-<span class="fc" id="L115">        throw new HerajException(</span>
+<span class="fc" id="L117">      this.function = contractInterface.findFunction(functionName);</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">      if (null == this.function) {</span>
+<span class="fc" id="L119">        throw new HerajException(</span>
             &quot;Cannot find function from interface [name: &quot; + functionName + &quot;]&quot;);
       }
-<span class="fc" id="L118">      return this;</span>
+<span class="fc" id="L122">      return this;</span>
     }
 
     @Override
     public ContractInvocationWithReady args(final Object... args) {
-<span class="fc bfc" id="L123" title="All 2 branches covered.">      if (null != args) {</span>
-<span class="fc" id="L124">        this.args = args;</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">      if (null != args) {</span>
+<span class="fc" id="L128">        this.args = args;</span>
       }
-<span class="fc" id="L126">      return this;</span>
+<span class="fc" id="L130">      return this;</span>
     }
 
     @Override
     public ContractInvocationWithReady amount(final Aer amount) {
-<span class="fc" id="L131">      this.amount = amount;</span>
-<span class="fc" id="L132">      return this;</span>
+<span class="fc" id="L135">      this.amount = amount;</span>
+<span class="fc" id="L136">      return this;</span>
+    }
+
+    @Override
+    public ContractInvocationWithReady delegateFee(boolean delegateFee) {
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">      if (false == this.function.isFeeDelegation()) {</span>
+<span class="nc" id="L142">        throw new HerajException(&quot;Target function cannot delegate fee&quot;);</span>
+      }
+<span class="fc" id="L144">      this.delegateFee = delegateFee;</span>
+<span class="fc" id="L145">      return this;</span>
     }
 
     @Override
     public hera.api.model.ContractInvocation build() {
-<span class="fc" id="L137">      return new ContractInvocation(contractInterface.getAddress(), function, asList(args), amount);</span>
+<span class="fc" id="L150">      return new ContractInvocation(contractInterface.getAddress(), function, asList(args), amount,</span>
+          delegateFee);
     }
 
   }

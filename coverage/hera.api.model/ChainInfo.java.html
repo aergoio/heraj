@@ -13,37 +13,44 @@ import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="nc bnc" id="L16" title="All 56 branches missed.">@Value</span>
-<span class="pc bpc" id="L17" title="12 of 36 branches missed.">@Builder(builderMethodName = &quot;newBuilder&quot;)</span>
+<span class="pc bnc" id="L16" title="All 72 branches missed.">@Value</span>
+<span class="pc bpc" id="L17" title="16 of 48 branches missed.">@Builder(builderMethodName = &quot;newBuilder&quot;)</span>
 public class ChainInfo {
 
   @NonNull
   @Default
-<span class="nc" id="L22">  ChainId chainId = ChainId.newBuilder().build();</span>
+<span class="fc" id="L22">  ChainId chainId = ChainId.newBuilder().build();</span>
 
-<span class="nc" id="L24">  int blockProducerCount;</span>
+<span class="fc" id="L24">  int blockProducerCount;</span>
 
-<span class="nc" id="L26">  long maxBlockSize; // bytes</span>
-
-  @NonNull
-  @Default
-<span class="nc" id="L30">  Aer totalTokenAmount = Aer.EMPTY;</span>
+<span class="fc" id="L26">  long maxBlockSize; // bytes</span>
 
   @NonNull
   @Default
-<span class="nc" id="L34">  Aer minimumStakingAmount = Aer.EMPTY;</span>
+<span class="fc" id="L30">  Aer totalTokenAmount = Aer.ZERO;</span>
 
   @NonNull
   @Default
-<span class="nc" id="L38">  Aer totalStaked = Aer.EMPTY;</span>
+<span class="fc" id="L34">  Aer minimumStakingAmount = Aer.ZERO;</span>
 
   @NonNull
   @Default
-<span class="nc" id="L42">  Aer gasPrice = Aer.EMPTY;</span>
+<span class="fc" id="L38">  Aer totalStaked = Aer.ZERO;</span>
 
   @NonNull
   @Default
-<span class="nc" id="L46">  Aer namingPrice = Aer.EMPTY;</span>
+<span class="fc" id="L42">  Aer gasPrice = Aer.ZERO;</span>
 
+  @NonNull
+  @Default
+<span class="fc" id="L46">  Aer namingPrice = Aer.ZERO;</span>
+
+  @NonNull
+  @Default
+<span class="fc" id="L50">  Aer totalVotingPower = Aer.ZERO;</span>
+
+  @NonNull
+  @Default
+<span class="fc" id="L54">  Aer votingReward = Aer.ZERO;</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

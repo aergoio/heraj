@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ContractInvocationHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.contract.internal</a> &gt; <span class="el_source">ContractInvocationHandler.java</span></div><h1>ContractInvocationHandler.java</h1><pre class="source lang-java linenums">package hera.contract.internal;
+
+import static hera.util.ValidationUtils.assertNotNull;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.api.model.ContractAddress;
+import hera.api.model.ContractInterface;
+import hera.api.model.ContractInvocation;
+import hera.api.model.ContractResult;
+import hera.api.model.Fee;
+import hera.exception.ContractException;
+import hera.util.StringUtils;
+import hera.wallet.WalletApi;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import lombok.NonNull;
+import lombok.Setter;
+import org.slf4j.Logger;
+
+public class ContractInvocationHandler implements InvocationHandler {
+
+<span class="fc" id="L22">  protected final transient Logger logger = getLogger(getClass());</span>
+
+<span class="fc" id="L24">  protected final ContractInvocator contractInvocator = new ContractInvocator();</span>
+
+<span class="fc" id="L26">  ContractInvocationHandler(final ContractAddress contractAddress) {</span>
+<span class="fc" id="L27">    assertNotNull(contractAddress);</span>
+<span class="fc" id="L28">    this.contractInvocator.setContractAddress(contractAddress);</span>
+<span class="fc" id="L29">  }</span>
+
+  @Override
+  public Object invoke(final Object proxy, final Method method, final Object[] args)
+      throws Throwable {
+    try {
+<span class="fc" id="L35">      logger.debug(&quot;Method: {}&quot;, method);</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">      if (!method.getDeclaringClass().isInterface()) {</span>
+<span class="fc" id="L37">        return method.invoke(this, args);</span>
+      }
+
+<span class="fc bfc" id="L40" title="All 2 branches covered.">      logger.debug(&quot;Proxy: {}, Method: {}, Args: {}, Ret: {}&quot;, proxy, method,</span>
+<span class="fc" id="L41">          (args == null) ? null : StringUtils.join(args, &quot;,&quot;));</span>
+
+<span class="fc bfc" id="L43" title="All 2 branches covered.">      if (isPrepareMethod(method)) {</span>
+<span class="fc" id="L44">        logger.debug(&quot;Contract Invocation prepare: {}&quot;, method);</span>
+<span class="fc" id="L45">        method.invoke(this.contractInvocator, args);</span>
+<span class="fc" id="L46">        return null;</span>
+      } else {
+<span class="fc" id="L48">        logger.debug(&quot;Contract Invocation with  invocator: {}&quot;, this.contractInvocator);</span>
+<span class="fc" id="L49">        return contractInvocator.invoke(method, args);</span>
+      }
+<span class="nc" id="L51">    } catch (ContractException e) {</span>
+<span class="nc" id="L52">      throw e;</span>
+<span class="nc" id="L53">    } catch (Exception e) {</span>
+<span class="nc" id="L54">      throw new ContractException(e);</span>
+    }
+  }
+
+  protected boolean isPrepareMethod(final Method method) {
+<span class="fc" id="L59">    final Method[] methods = ContractInvocationPreparable.class.getDeclaredMethods();</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">    for (final Method prepareMethod : methods) {</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">      if (prepareMethod.getName().equals(method.getName())) {</span>
+<span class="fc" id="L62">        return true;</span>
+      }
+    }
+<span class="fc" id="L65">    return false;</span>
+  }
+
+<span class="fc" id="L68">  private class ContractInvocator implements ContractInvocationPreparable {</span>
+
+<span class="fc" id="L70">    protected final transient Logger logger = getLogger(getClass());</span>
+
+    protected ContractAddress contractAddress;
+
+    @NonNull
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">    @Setter</span>
+    protected WalletApi walletApi;
+
+    @NonNull
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">    @Setter</span>
+    protected Fee fee;
+
+    protected ContractInterface cachedContractInterface;
+
+    public Object invoke(final Method method, final Object[] args) throws Throwable {
+<span class="fc" id="L85">      final WalletApi walletApi = getWalletApi();</span>
+
+<span class="fc" id="L87">      final ContractInterface contractInterface = getContractInterface();</span>
+<span class="fc" id="L88">      final ContractInvocation contractInvocation = contractInterface.newInvocationBuilder()</span>
+<span class="fc" id="L89">          .function(method.getName())</span>
+<span class="fc" id="L90">          .args(args)</span>
+<span class="fc" id="L91">          .build();</span>
+
+<span class="fc" id="L93">      Object ret = null;</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">      if (Void.TYPE.equals(method.getReturnType())) {</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">        if (contractInvocation.getFunction().isView()) {</span>
+<span class="nc" id="L96">          throw new ContractException(</span>
+              &quot;Unable to execute with function registered with abi.register_view()&quot;);
+        }
+
+<span class="fc" id="L100">        logger.debug(&quot;Contract execution: {}&quot;, contractInvocation);</span>
+<span class="fc" id="L101">        final Fee fee = getFee();</span>
+<span class="fc" id="L102">        walletApi.transactionApi().execute(contractInvocation, fee);</span>
+<span class="fc" id="L103">      } else {</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">        if (!contractInvocation.getFunction().isView()) {</span>
+<span class="nc" id="L105">          throw new ContractException(</span>
+              &quot;Unable to query with function registered with abi.register()&quot;);
+        }
+
+<span class="fc" id="L109">        logger.debug(&quot;Contract query: {}&quot;, contractInvocation);</span>
+<span class="fc" id="L110">        final ContractResult result = walletApi.queryApi().query(contractInvocation);</span>
+<span class="fc" id="L111">        ret = result.bind(method.getReturnType());</span>
+      }
+
+<span class="fc" id="L114">      flush();</span>
+<span class="fc" id="L115">      return ret;</span>
+    }
+
+    protected void setContractAddress(final ContractAddress contractAddress) {
+<span class="fc" id="L119">      assertNotNull(contractAddress);</span>
+      // flush cached contract address when new contract address is set
+<span class="fc" id="L121">      this.cachedContractInterface = null;</span>
+<span class="fc" id="L122">      this.contractAddress = contractAddress;</span>
+<span class="fc" id="L123">    }</span>
+
+    protected ContractAddress getContractAddress() {
+<span class="fc" id="L126">      assertNotNull(this.contractAddress);</span>
+<span class="fc" id="L127">      return this.contractAddress;</span>
+    }
+
+    protected WalletApi getWalletApi() {
+<span class="fc" id="L131">      assertNotNull(this.walletApi);</span>
+<span class="fc" id="L132">      return this.walletApi;</span>
+    }
+
+    protected Fee getFee() {
+<span class="fc" id="L136">      assertNotNull(this.fee);</span>
+<span class="fc" id="L137">      return this.fee;</span>
+    }
+
+    protected ContractInterface getContractInterface() {
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">      if (null == this.cachedContractInterface) {</span>
+<span class="fc" id="L142">        final ContractAddress contractAddress = getContractAddress();</span>
+<span class="fc" id="L143">        final WalletApi walletApi = getWalletApi();</span>
+<span class="fc" id="L144">        this.cachedContractInterface = walletApi.queryApi().getContractInterface(contractAddress);</span>
+      }
+<span class="fc" id="L146">      return this.cachedContractInterface;</span>
+    }
+
+    protected void flush() {
+<span class="fc" id="L150">      this.walletApi = null;</span>
+<span class="fc" id="L151">      this.fee = null;</span>
+<span class="fc" id="L152">    }</span>
+
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

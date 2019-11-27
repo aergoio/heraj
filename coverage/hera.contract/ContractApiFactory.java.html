@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ContractApiFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.contract</a> &gt; <span class="el_source">ContractApiFactory.java</span></div><h1>ContractApiFactory.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.contract;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.api.model.ContractAddress;
+import hera.contract.internal.ContractApiImpl;
+import hera.contract.internal.ContractProxyFactory;
+import org.slf4j.Logger;
+
+@ApiAudience.Public
+@ApiStability.Unstable
+<span class="fc" id="L18">public class ContractApiFactory {</span>
+
+<span class="fc" id="L20">  protected final transient Logger logger = getLogger(getClass());</span>
+
+  /**
+   * Create a contract api to call smart contract corresponding to {@code type}. Class loader is set
+   * by {@code getClass().getClassLoader()}.
+   *
+   * @param &lt;ContractT&gt; a smart contract interface type
+   *
+   * @param contractAddress a contract address
+   * @param type a proxy type
+   *
+   * @return a proxy instance
+   */
+  public &lt;ContractT&gt; ContractApi&lt;ContractT&gt; create(final ContractAddress contractAddress,
+      final Class&lt;ContractT&gt; type) {
+<span class="nc" id="L35">    return create(contractAddress, type, getClass().getClassLoader());</span>
+  }
+
+  /**
+   * Create a contract api to call smart contract corresponding to {@code type}.
+   *
+   * @param &lt;ContractT&gt; a smart contract interface type
+   *
+   * @param contractAddress a contract address
+   * @param type a proxy type
+   * @param classLoader a class loader used in making proxy instance
+   *
+   * @return a proxy instance
+   */
+  public &lt;ContractT&gt; ContractApi&lt;ContractT&gt; create(final ContractAddress contractAddress,
+      final Class&lt;ContractT&gt; type, final ClassLoader classLoader) {
+<span class="fc" id="L51">    logger.debug(&quot;Create contract contract address: {}, interface: {}, class loader: {}&quot;,</span>
+        contractAddress, type, classLoader);
+<span class="fc" id="L53">    final ContractProxyFactory&lt;ContractT&gt; proxyFactory = new ContractProxyFactory&lt;&gt;();</span>
+<span class="fc" id="L54">    final ContractT contract = proxyFactory.create(contractAddress, type, classLoader);</span>
+<span class="fc" id="L55">    return new ContractApiImpl&lt;ContractT&gt;(contract);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

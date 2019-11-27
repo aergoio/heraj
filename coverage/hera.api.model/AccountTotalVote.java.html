@@ -18,17 +18,17 @@ import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="nc bnc" id="L21" title="All 20 branches missed.">@Value</span>
+<span class="pc bnc" id="L21" title="All 20 branches missed.">@Value</span>
 <span class="pc bpc" id="L22" title="4 of 8 branches missed.">@Builder(builderMethodName = &quot;newBuilder&quot;)</span>
 public class AccountTotalVote {
 
   @NonNull
   @Default
-<span class="nc" id="L27">  StakeInfo stakeInfo = StakeInfo.newBuilder().build();</span>
+<span class="fc" id="L27">  StakeInfo stakeInfo = StakeInfo.newBuilder().build();</span>
 
   @NonNull
   @Default
-<span class="nc" id="L31">  List&lt;VoteInfo&gt; voteInfos = emptyList();</span>
+<span class="fc" id="L31">  List&lt;VoteInfo&gt; voteInfos = emptyList();</span>
 
 <span class="fc" id="L33">  AccountTotalVote(final StakeInfo stakeInfo, final List&lt;VoteInfo&gt; voteInfos) {</span>
 <span class="fc" id="L34">    assertNotNull(stakeInfo, &quot;Staked amount must not null&quot;);</span>

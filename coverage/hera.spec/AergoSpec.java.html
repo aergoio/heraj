@@ -26,9 +26,9 @@ import lombok.RequiredArgsConstructor;
 
 <span class="fc" id="L27">  @RequiredArgsConstructor</span>
   public enum Unit {
-<span class="fc" id="L29">    AER(&quot;aer&quot;, new BigDecimal(&quot;1&quot;), new BigDecimal(&quot;1&quot;)),</span>
-<span class="fc" id="L30">    GAER(&quot;gaer&quot;, new BigDecimal(&quot;1.E-9&quot;), new BigDecimal(&quot;1.E9&quot;)),</span>
-<span class="fc" id="L31">    AERGO(&quot;aergo&quot;, new BigDecimal(&quot;1.E-18&quot;), new BigDecimal(&quot;1.E18&quot;));</span>
+<span class="fc" id="L29">    AER(&quot;Aer&quot;, new BigDecimal(&quot;1&quot;), new BigDecimal(&quot;1&quot;)),</span>
+<span class="fc" id="L30">    GAER(&quot;Gaer&quot;, new BigDecimal(&quot;1.E-9&quot;), new BigDecimal(&quot;1.E9&quot;)),</span>
+<span class="fc" id="L31">    AERGO(&quot;Aergo&quot;, new BigDecimal(&quot;1.E-18&quot;), new BigDecimal(&quot;1.E18&quot;));</span>
 
 <span class="fc" id="L33">    @Getter</span>
     protected final String name;
@@ -37,7 +37,7 @@ import lombok.RequiredArgsConstructor;
     protected final BigDecimal minimum;
 
 <span class="fc" id="L39">    @Getter</span>
-    protected final BigDecimal timesToAer;
+    protected final BigDecimal ratio;
   }
 
 

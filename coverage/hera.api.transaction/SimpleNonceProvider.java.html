@@ -11,7 +11,6 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
-import hera.api.transaction.NonceProvider;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -25,57 +24,58 @@ public class SimpleNonceProvider implements NonceProvider {
    * SimpleNonceProvider constructor. Capacity is set as 100.
    */
   public SimpleNonceProvider() {
-<span class="fc" id="L28">    this(100);</span>
-<span class="fc" id="L29">  }</span>
+<span class="fc" id="L27">    this(100);</span>
+<span class="fc" id="L28">  }</span>
 
   /**
    * SimpleNonceProvider constructor.
    *
    * @param capacity a number of account to hold
    */
-<span class="fc" id="L36">  public SimpleNonceProvider(final int capacity) {</span>
-<span class="pc bpc" id="L37" title="1 of 2 branches missed.">    assertTrue(capacity &gt; 0, &quot;Capacity must &gt; 0&quot;);</span>
-<span class="fc" id="L38">    this.address2Nonce = new LinkedHashMap&lt;AccountAddress, Long&gt;() {</span>
+<span class="fc" id="L35">  public SimpleNonceProvider(final int capacity) {</span>
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">    assertTrue(capacity &gt; 0, &quot;Capacity must &gt; 0&quot;);</span>
+<span class="fc" id="L37">    this.address2Nonce = new LinkedHashMap&lt;AccountAddress, Long&gt;() {</span>
 
       private static final long serialVersionUID = 7283839934243345689L;
 
       @Override
       protected boolean removeEldestEntry(java.util.Map.Entry&lt;AccountAddress, Long&gt; eldest) {
-<span class="fc bfc" id="L44" title="All 2 branches covered.">        return size() &gt; capacity;</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        return size() &gt; capacity;</span>
       }
 
     };
-<span class="fc" id="L48">  }</span>
+<span class="fc" id="L47">  }</span>
 
   @Override
-  public synchronized void bindNonce(final AccountState accountState) {
-<span class="nc" id="L52">    assertNotNull(accountState);</span>
-<span class="nc" id="L53">    bindNonce(accountState.getAddress(), accountState.getNonce());</span>
-<span class="nc" id="L54">  }</span>
+  public void bindNonce(final AccountState accountState) {
+<span class="nc" id="L51">    assertNotNull(accountState);</span>
+<span class="nc" id="L52">    bindNonce(accountState.getAddress(), accountState.getNonce());</span>
+<span class="nc" id="L53">  }</span>
 
   @Override
   public void bindNonce(final AccountAddress accountAddress, final long nonce) {
-<span class="fc" id="L58">    assertNotNull(accountAddress);</span>
-<span class="fc" id="L59">    synchronized (this) {</span>
-<span class="fc" id="L60">      address2Nonce.put(accountAddress, nonce);</span>
-<span class="fc" id="L61">    }</span>
-<span class="fc" id="L62">  }</span>
+<span class="fc" id="L57">    assertNotNull(accountAddress);</span>
+<span class="fc" id="L58">    synchronized (this) {</span>
+<span class="fc" id="L59">      address2Nonce.put(accountAddress, nonce);</span>
+<span class="fc" id="L60">    }</span>
+<span class="fc" id="L61">  }</span>
 
   @Override
-  public synchronized long incrementAndGetNonce(final AccountAddress accountAddress) {
-<span class="fc" id="L66">    final Long lastNonce = address2Nonce.get(accountAddress);</span>
-<span class="fc bfc" id="L67" title="All 2 branches covered.">    long nextNonce = null == lastNonce ? 1L : lastNonce + 1;</span>
-<span class="fc" id="L68">    address2Nonce.put(accountAddress, nextNonce);</span>
-<span class="fc" id="L69">    return nextNonce;</span>
+  public long incrementAndGetNonce(final AccountAddress accountAddress) {
+<span class="fc" id="L65">    synchronized (this) {</span>
+<span class="fc" id="L66">      final Long lastNonce = address2Nonce.get(accountAddress);</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">      final long nextNonce = null == lastNonce ? 1L : lastNonce + 1;</span>
+<span class="fc" id="L68">      address2Nonce.put(accountAddress, nextNonce);</span>
+<span class="fc" id="L69">      return nextNonce;</span>
+    }
   }
 
   @Override
   public long getLastUsedNonce(final AccountAddress accountAddress) {
-<span class="fc" id="L74">    Long lastNonce = null;</span>
 <span class="fc" id="L75">    synchronized (this) {</span>
-<span class="fc" id="L76">      lastNonce = address2Nonce.get(accountAddress);</span>
-<span class="fc" id="L77">    }</span>
-<span class="pc bpc" id="L78" title="1 of 2 branches missed.">    return null == lastNonce ? 0L : lastNonce;</span>
+<span class="fc" id="L76">      final Long lastNonce = address2Nonce.get(accountAddress);</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">      return null == lastNonce ? 0L : lastNonce;</span>
+    }
   }
 
 }

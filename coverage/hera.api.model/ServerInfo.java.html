@@ -18,17 +18,17 @@ import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="nc bnc" id="L21" title="All 20 branches missed.">@Value</span>
+<span class="pc bnc" id="L21" title="All 20 branches missed.">@Value</span>
 <span class="pc bpc" id="L22" title="2 of 8 branches missed.">@Builder(builderMethodName = &quot;newBuilder&quot;)</span>
 public class ServerInfo {
 
   @NonNull
   @Default
-<span class="nc" id="L27">  Map&lt;String, String&gt; status = emptyMap();</span>
+<span class="fc" id="L27">  Map&lt;String, String&gt; status = emptyMap();</span>
 
   @NonNull
   @Default
-<span class="nc" id="L31">  Map&lt;String, Map&lt;String, String&gt;&gt; config = emptyMap();</span>
+<span class="fc" id="L31">  Map&lt;String, Map&lt;String, String&gt;&gt; config = emptyMap();</span>
 
   ServerInfo(final Map&lt;String, String&gt; status,
 <span class="fc" id="L34">      final Map&lt;String, Map&lt;String, String&gt;&gt; config) {</span>

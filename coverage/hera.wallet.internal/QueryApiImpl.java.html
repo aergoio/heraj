@@ -317,7 +317,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public ContractInterface getContractInterface(final ContractAddress contractAddress) {
     try {
-<span class="nc" id="L320">      return getClient().getContractOperation().getContractInterface(contractAddress);</span>
+<span class="fc" id="L320">      return getClient().getContractOperation().getContractInterface(contractAddress);</span>
 <span class="nc" id="L321">    } catch (Exception e) {</span>
 <span class="nc" id="L322">      throw converter.convert(e);</span>
     }
@@ -326,7 +326,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public ContractResult query(final ContractInvocation contractInvocation) {
     try {
-<span class="nc" id="L329">      return getClient().getContractOperation().query(contractInvocation);</span>
+<span class="fc" id="L329">      return getClient().getContractOperation().query(contractInvocation);</span>
 <span class="nc" id="L330">    } catch (Exception e) {</span>
 <span class="nc" id="L331">      throw converter.convert(e);</span>
     }
@@ -352,10 +352,10 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   }
 
   protected AergoClient getClient() {
-<span class="nc bnc" id="L355" title="All 2 branches missed.">    if (null == this.client) {</span>
+<span class="pc bpc" id="L355" title="1 of 2 branches missed.">    if (null == this.client) {</span>
 <span class="nc" id="L356">      throw new WalletException(&quot;Aergo client isn't binded yet&quot;);</span>
     }
-<span class="nc" id="L358">    return this.client;</span>
+<span class="fc" id="L358">    return this.client;</span>
   }
 
 }

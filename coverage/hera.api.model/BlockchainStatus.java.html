@@ -14,19 +14,19 @@ import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-<span class="nc bnc" id="L17" title="All 30 branches missed.">@Value</span>
+<span class="pc bnc" id="L17" title="All 30 branches missed.">@Value</span>
 <span class="pc bpc" id="L18" title="6 of 18 branches missed.">@Builder(builderMethodName = &quot;newBuilder&quot;)</span>
 public class BlockchainStatus {
 
-<span class="nc" id="L21">  long bestHeight;</span>
+<span class="fc" id="L21">  long bestHeight;</span>
 
   @NonNull
   @Default
-<span class="nc" id="L25">  BlockHash bestBlockHash = BlockHash.of(BytesValue.EMPTY);</span>
+<span class="fc" id="L25">  BlockHash bestBlockHash = BlockHash.of(BytesValue.EMPTY);</span>
 
   @NonNull
   @Default
-<span class="nc" id="L29">  String consensus = StringUtils.EMPTY_STRING;</span>
+<span class="fc" id="L29">  String consensus = StringUtils.EMPTY_STRING;</span>
 
   @NonNull
   @Default

@@ -11,6 +11,7 @@ hera.client
 hera.client.internal
 hera.client.stream
 hera.contract
+hera.contract.internal
 hera.custom
 hera.exception
 hera.key

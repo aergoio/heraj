@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransactionTypeConverterFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">heraj</a> &gt; <a href="index.source.html" class="el_package">hera.transport</a> &gt; <span class="el_source">TransactionTypeConverterFactory.java</span></div><h1>TransactionTypeConverterFactory.java</h1><pre class="source lang-java linenums">/*
+ * @copyright defined in LICENSE.txt
+ */
+
+package hera.transport;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
+import hera.api.function.Function1;
+import hera.api.model.Transaction;
+import hera.api.model.Transaction.TxType;
+import org.slf4j.Logger;
+import types.Blockchain;
+
+<span class="fc" id="L15">public class TransactionTypeConverterFactory {</span>
+
+<span class="fc" id="L17">  protected final transient Logger logger = getLogger(getClass());</span>
+
+<span class="fc" id="L19">  protected final Function1&lt;Transaction.TxType, Blockchain.TxType&gt; domainConverter =</span>
+<span class="fc" id="L20">      new Function1&lt;Transaction.TxType, Blockchain.TxType&gt;() {</span>
+
+        @Override
+        public Blockchain.TxType apply(final Transaction.TxType domainTxType) {
+<span class="fc" id="L24">          logger.trace(&quot;Rpc transaction type to convert: {}&quot;, domainTxType);</span>
+<span class="fc bfc" id="L25" title="All 8 branches covered.">          switch (domainTxType) {</span>
+            case NORMAL:
+<span class="fc" id="L27">              return Blockchain.TxType.NORMAL;</span>
+            case GOVERNANCE:
+<span class="fc" id="L29">              return Blockchain.TxType.GOVERNANCE;</span>
+            case REDEPLOY:
+<span class="fc" id="L31">              return Blockchain.TxType.REDEPLOY;</span>
+            case FEE_DELEGATION:
+<span class="fc" id="L33">              return Blockchain.TxType.FEEDELEGATION;</span>
+            case TRANSFER:
+<span class="fc" id="L35">              return Blockchain.TxType.TRANSFER;</span>
+            case CALL:
+<span class="fc" id="L37">              return Blockchain.TxType.CALL;</span>
+            case DEPLOY:
+<span class="fc" id="L39">              return Blockchain.TxType.DEPLOY;</span>
+            default:
+<span class="fc" id="L41">              return Blockchain.TxType.UNRECOGNIZED;</span>
+          }
+        }
+      };
+
+<span class="fc" id="L46">  protected final Function1&lt;Blockchain.TxType, Transaction.TxType&gt; rpcConverter =</span>
+<span class="fc" id="L47">      new Function1&lt;Blockchain.TxType, Transaction.TxType&gt;() {</span>
+
+        @Override
+        public TxType apply(Blockchain.TxType rpcTxType) {
+<span class="fc" id="L51">          logger.trace(&quot;Domain transaction type to convert: {}&quot;, rpcTxType);</span>
+<span class="fc bfc" id="L52" title="All 8 branches covered.">          switch (rpcTxType) {</span>
+            case NORMAL:
+<span class="fc" id="L54">              return Transaction.TxType.NORMAL;</span>
+            case GOVERNANCE:
+<span class="fc" id="L56">              return Transaction.TxType.GOVERNANCE;</span>
+            case REDEPLOY:
+<span class="fc" id="L58">              return Transaction.TxType.REDEPLOY;</span>
+            case FEEDELEGATION:
+<span class="fc" id="L60">              return Transaction.TxType.FEE_DELEGATION;</span>
+            case TRANSFER:
+<span class="fc" id="L62">              return Transaction.TxType.TRANSFER;</span>
+            case CALL:
+<span class="fc" id="L64">              return Transaction.TxType.CALL;</span>
+            case DEPLOY:
+<span class="fc" id="L66">              return Transaction.TxType.DEPLOY;</span>
+            default:
+<span class="fc" id="L68">              return Transaction.TxType.UNRECOGNIZED;</span>
+          }
+        }
+      };
+
+  public ModelConverter&lt;Transaction.TxType, Blockchain.TxType&gt; create() {
+<span class="fc" id="L74">    return new ModelConverter&lt;Transaction.TxType, Blockchain.TxType&gt;(domainConverter, rpcConverter);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

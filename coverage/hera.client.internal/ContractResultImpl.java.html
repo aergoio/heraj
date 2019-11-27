@@ -29,18 +29,18 @@ public class ContractResultImpl implements ContractResult {
   @SuppressWarnings(&quot;unchecked&quot;)
   @Override
   public &lt;T&gt; T bind(final Class&lt;T&gt; clazz) throws IOException {
-<span class="fc" id="L32">    final byte[] rawBytes = this.result.getValue();</span>
-<span class="fc" id="L33">    final String stringFormat = new String(rawBytes);</span>
-<span class="fc" id="L34">    logger.debug(&quot;Raw result to bind: {}&quot;, stringFormat);</span>
-<span class="pc bpc" id="L35" title="2 of 4 branches missed.">    if (stringFormat.isEmpty() || &quot;{}&quot;.equals(stringFormat)) {</span>
+<span class="nc" id="L32">    final byte[] rawBytes = this.result.getValue();</span>
+<span class="nc" id="L33">    final String stringFormat = new String(rawBytes);</span>
+<span class="nc" id="L34">    logger.debug(&quot;Raw result to bind: {}&quot;, stringFormat);</span>
+<span class="nc bnc" id="L35" title="All 4 branches missed.">    if (stringFormat.isEmpty() || &quot;{}&quot;.equals(stringFormat)) {</span>
 <span class="nc" id="L36">      return null;</span>
     }
 
-<span class="pc bpc" id="L39" title="1 of 2 branches missed.">    if (clazz.isAssignableFrom(BigNumber.class)) {</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">    if (clazz.isAssignableFrom(BigNumber.class)) {</span>
 <span class="nc" id="L40">      final Map&lt;String, String&gt; bigNumMap = reader.forType(Map.class).readValue(rawBytes);</span>
 <span class="nc" id="L41">      return (T) BigNumberResolver.fromMap(bigNumMap);</span>
     } else {
-<span class="fc" id="L43">      return reader.forType(clazz).readValue(rawBytes);</span>
+<span class="nc" id="L43">      return reader.forType(clazz).readValue(rawBytes);</span>
     }
 
   }
@@ -57,7 +57,7 @@ public class ContractResultImpl implements ContractResult {
 
   @Override
   public String toString() {
-<span class="nc" id="L60">    return new String(result.getValue());</span>
+<span class="fc" id="L60">    return new String(result.getValue());</span>
   }
 
 }

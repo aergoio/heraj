@@ -11,6 +11,7 @@ import hera.api.model.ContractInvocation;
 import hera.api.model.Fee;
 import hera.api.model.Identity;
 import hera.api.model.RawTransaction;
+import hera.api.model.Transaction.TxType;
 import hera.spec.resolver.PayloadResolver;
 import hera.spec.resolver.PayloadSpec.Type;
 import hera.spec.transaction.dsl.InvokeContractTransaction;
@@ -19,7 +20,7 @@ import hera.spec.transaction.dsl.InvokeContractTransaction.WithChainIdHashAndSen
 import hera.spec.transaction.dsl.InvokeContractTransaction.WithChainIdHashAndSenderAndNonce;
 import hera.spec.transaction.dsl.InvokeContractTransaction.WithReady;
 
-<span class="fc" id="L22">public class InvokeContractTransactionBuilder implements</span>
+<span class="fc" id="L23">public class InvokeContractTransactionBuilder implements</span>
     InvokeContractTransaction.WithNothing,
     InvokeContractTransaction.WithChainIdHash,
     InvokeContractTransaction.WithChainIdHashAndSender,
@@ -28,51 +29,52 @@ import hera.spec.transaction.dsl.InvokeContractTransaction.WithReady;
 
   protected ContractInvocation contractInvocation;
 
-<span class="fc" id="L31">  protected final PlainTransactionBuilder delegate = new PlainTransactionBuilder();</span>
+<span class="fc" id="L32">  protected final PlainTransactionBuilder delegate = new PlainTransactionBuilder();</span>
 
   @Override
   public WithChainIdHash chainIdHash(final ChainIdHash chainIdHash) {
-<span class="fc" id="L35">    this.delegate.chainIdHash(chainIdHash);</span>
-<span class="fc" id="L36">    return this;</span>
+<span class="fc" id="L36">    this.delegate.chainIdHash(chainIdHash);</span>
+<span class="fc" id="L37">    return this;</span>
   }
 
   @Override
   public WithChainIdHashAndSender from(final String sender) {
-<span class="nc" id="L41">    this.delegate.from(sender);</span>
-<span class="nc" id="L42">    return this;</span>
+<span class="nc" id="L42">    this.delegate.from(sender);</span>
+<span class="nc" id="L43">    return this;</span>
   }
 
   @Override
   public WithChainIdHashAndSender from(final Identity sender) {
-<span class="fc" id="L47">    this.delegate.from(sender);</span>
-<span class="fc" id="L48">    return this;</span>
+<span class="fc" id="L48">    this.delegate.from(sender);</span>
+<span class="fc" id="L49">    return this;</span>
   }
 
   @Override
   public WithChainIdHashAndSenderAndNonce nonce(final long nonce) {
-<span class="fc" id="L53">    this.delegate.nonce(nonce);</span>
-<span class="fc" id="L54">    return this;</span>
+<span class="fc" id="L54">    this.delegate.nonce(nonce);</span>
+<span class="fc" id="L55">    return this;</span>
   }
 
   @Override
   public WithReady invocation(final ContractInvocation contractInvocation) {
-<span class="fc" id="L59">    assertNotNull(contractInvocation);</span>
-<span class="fc" id="L60">    this.contractInvocation = contractInvocation;</span>
-<span class="fc" id="L61">    return this;</span>
+<span class="fc" id="L60">    assertNotNull(contractInvocation);</span>
+<span class="fc" id="L61">    this.contractInvocation = contractInvocation;</span>
+<span class="fc" id="L62">    return this;</span>
   }
 
   @Override
   public WithReady fee(final Fee fee) {
-<span class="nc" id="L66">    this.delegate.fee(fee);</span>
-<span class="nc" id="L67">    return this;</span>
+<span class="fc" id="L67">    this.delegate.fee(fee);</span>
+<span class="fc" id="L68">    return this;</span>
   }
 
   @Override
   public RawTransaction build() {
-<span class="fc" id="L72">    this.delegate.to(contractInvocation.getAddress());</span>
-<span class="fc" id="L73">    this.delegate.amount(contractInvocation.getAmount());</span>
-<span class="fc" id="L74">    this.delegate.payload(PayloadResolver.resolve(Type.ContractInvocation, contractInvocation));</span>
-<span class="fc" id="L75">    return delegate.build();</span>
+<span class="fc" id="L73">    this.delegate.to(contractInvocation.getAddress());</span>
+<span class="fc" id="L74">    this.delegate.amount(contractInvocation.getAmount());</span>
+<span class="fc" id="L75">    this.delegate.payload(PayloadResolver.resolve(Type.ContractInvocation, contractInvocation));</span>
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">    this.delegate.type(contractInvocation.isDelegateFee() ? TxType.FEE_DELEGATION : TxType.CALL);</span>
+<span class="fc" id="L77">    return delegate.build();</span>
   }
 
 }
