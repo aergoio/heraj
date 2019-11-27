@@ -27,7 +27,7 @@ import java.io.InputStreamReader;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SmartContractIT extends AbstractIT {
+public class ContractApiIT extends AbstractIT {
 
   protected WalletApi walletApi;
 

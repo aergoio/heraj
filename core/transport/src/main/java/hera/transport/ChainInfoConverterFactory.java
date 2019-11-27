@@ -50,6 +50,8 @@ public class ChainInfoConverterFactory {
               .totalStaked(parseToAer(rpcChainInfo.getTotalstaking()))
               .gasPrice(parseToAer(rpcChainInfo.getGasprice()))
               .namingPrice(parseToAer(rpcChainInfo.getNameprice()))
+              .totalVotingPower(parseToAer(rpcChainInfo.getTotalvotingpower()))
+              .votingReward(parseToAer(rpcChainInfo.getVotingreward()))
               .build();
           logger.trace("Domain chain info converted: {}", domainChainInfo);
           return domainChainInfo;

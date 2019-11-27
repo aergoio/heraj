@@ -27,22 +27,29 @@ public class ChainInfo {
 
   @NonNull
   @Default
-  Aer totalTokenAmount = Aer.EMPTY;
+  Aer totalTokenAmount = Aer.ZERO;
 
   @NonNull
   @Default
-  Aer minimumStakingAmount = Aer.EMPTY;
+  Aer minimumStakingAmount = Aer.ZERO;
 
   @NonNull
   @Default
-  Aer totalStaked = Aer.EMPTY;
+  Aer totalStaked = Aer.ZERO;
 
   @NonNull
   @Default
-  Aer gasPrice = Aer.EMPTY;
+  Aer gasPrice = Aer.ZERO;
 
   @NonNull
   @Default
-  Aer namingPrice = Aer.EMPTY;
+  Aer namingPrice = Aer.ZERO;
 
+  @NonNull
+  @Default
+  Aer totalVotingPower = Aer.ZERO;
+
+  @NonNull
+  @Default
+  Aer votingReward = Aer.ZERO;
 }
