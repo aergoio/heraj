@@ -4,6 +4,9 @@
 
 package hera.wallet;
 
+/**
+ * Use {@link WalletApiFactory} instead.
+ */
 @Deprecated
 public class WalletFactory {
 

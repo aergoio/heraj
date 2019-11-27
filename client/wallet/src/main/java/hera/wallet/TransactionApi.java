@@ -4,6 +4,8 @@
 
 package hera.wallet;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.BytesValue;
@@ -17,6 +19,8 @@ import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import java.util.List;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public interface TransactionApi {
 
   /**

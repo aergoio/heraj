@@ -56,7 +56,7 @@ import org.slf4j.Logger;
 
 /**
  * Legacy wallet with poor interfaces. I hacked some apis of WalletApi to keep behaviors of legacy
- * wallet. Remove after removing account interface.
+ * wallet. Remove after account interface is removed.
  *
  * @author taeiklim
  *

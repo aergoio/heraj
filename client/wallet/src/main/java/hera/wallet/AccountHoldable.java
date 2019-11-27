@@ -9,6 +9,7 @@ import hera.api.model.AccountState;
 import hera.api.model.AccountTotalVote;
 import hera.api.model.StakeInfo;
 
+@Deprecated
 public interface AccountHoldable {
 
   /**

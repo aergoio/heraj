@@ -4,6 +4,8 @@
 
 package hera.wallet;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.client.AergoClient;
@@ -17,6 +19,8 @@ import hera.key.Signer;
  * @author taeiklim
  *
  */
+@ApiAudience.Public
+@ApiStability.Unstable
 public interface WalletApi extends Signer {
 
   /**

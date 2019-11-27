@@ -11,6 +11,7 @@ import hera.key.AergoKey;
 import java.io.Closeable;
 import java.util.List;
 
+@Deprecated
 public interface KeyManageable extends Closeable {
 
   /**
