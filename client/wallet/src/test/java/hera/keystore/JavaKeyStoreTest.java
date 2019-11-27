@@ -20,6 +20,7 @@ import hera.key.Signer;
 import hera.model.KeyAlias;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
 
@@ -194,6 +195,22 @@ public class JavaKeyStoreTest extends AbstractTestCase {
         new JavaKeyStore("PKCS12", new FileInputStream(path), keyStorePassword);
     final Signer loadedSigner = recovered.load(authentication);
     assertEquals(key.getAddress(), loadedSigner.getPrincipal());
+  }
+
+  @Test
+  public void testLoadExistingOne() {
+    // when
+    final InputStream in = open("keystore.p12");
+    final String ksPassword = "password";
+    final JavaKeyStore keyStore = new JavaKeyStore("PKCS12", in, ksPassword.toCharArray());
+    final KeyAlias alias = new KeyAlias("keyalias");
+    final String keyPassword = "password";
+    final Authentication authentication = Authentication.of(alias, keyPassword);
+
+    // then
+    final Signer signer = keyStore.load(authentication);
+    logger.info("Signer: {}", signer);
+    assertNotNull(signer);
   }
 
 }
