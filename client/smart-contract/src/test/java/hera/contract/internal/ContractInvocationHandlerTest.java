@@ -30,7 +30,7 @@ import hera.key.Signer;
 import hera.keystore.InMemoryKeyStore;
 import hera.model.KeyAlias;
 import hera.wallet.WalletApi;
-import hera.wallet.WalletFactory;
+import hera.wallet.WalletApiFactory;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -95,7 +95,7 @@ public class ContractInvocationHandlerTest extends AbstractTestCase {
     final AergoKey key = new AergoKeyGenerator().create();
     keyStore.save(authentication, key);
 
-    final WalletApi walletApi = new WalletFactory().create(keyStore);
+    final WalletApi walletApi = new WalletApiFactory().create(keyStore);
     walletApi.bind(supplyAergoClient());
     walletApi.unlock(authentication);
 

@@ -13,7 +13,7 @@ import hera.keystore.JavaKeyStore;
 import hera.keystore.KeyStore;
 import hera.model.KeyAlias;
 import hera.wallet.WalletApi;
-import hera.wallet.WalletFactory;
+import hera.wallet.WalletApiFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -58,7 +58,7 @@ public abstract class AbstractWalletApiIT extends AbstractIT {
     final AergoKey newKey = createNewKey();
     keyStore.save(authentication, newKey);
 
-    walletApi = new WalletFactory().create(keyStore);
+    walletApi = new WalletApiFactory().create(keyStore);
     walletApi.bind(aergoClient);
   }
 

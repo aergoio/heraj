@@ -22,7 +22,7 @@ import hera.keystore.KeyStore;
 import hera.model.KeyAlias;
 import hera.util.IoUtils;
 import hera.wallet.WalletApi;
-import hera.wallet.WalletFactory;
+import hera.wallet.WalletApiFactory;
 import java.io.InputStreamReader;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class SmartContractIT extends AbstractIT {
     final AergoKey key = createNewKey();
     keyStore.save(authentication, key);
 
-    this.walletApi = new WalletFactory().create(keyStore);
+    this.walletApi = new WalletApiFactory().create(keyStore);
     this.walletApi.bind(aergoClient);
     this.walletApi.unlock(authentication);
 

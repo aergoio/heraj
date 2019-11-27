@@ -97,7 +97,7 @@ public class LegacyWallet implements Wallet {
   public void bindKeyStore(KeyStore keyStore) {
     if (this.type.equals(WalletType.Secure)) {
       final WalletApiImpl origin = (WalletApiImpl) this.delegate;
-      this.delegate = new WalletFactory().create(new JavaKeyStore(keyStore));
+      this.delegate = new WalletApiFactory().create(new JavaKeyStore(keyStore));
       this.delegate.bind(origin.aergoClient);
     }
   }

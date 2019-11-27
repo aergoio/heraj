@@ -11,16 +11,12 @@ import hera.keystore.InMemoryKeyStore;
 import hera.keystore.KeyStore;
 import org.junit.Test;
 
-/**
- * @author TaeikLim
- *
- */
-public class WalletFactoryTest extends AbstractTestCase {
+public class WalletApiFactoryTest extends AbstractTestCase {
 
   @Test
   public void testCreate() {
     final KeyStore keyStore = new InMemoryKeyStore();
-    final WalletApi walletApi = new WalletFactory().create(keyStore);
+    final WalletApi walletApi = new WalletApiFactory().create(keyStore);
     assertNotNull(walletApi);
   }
 

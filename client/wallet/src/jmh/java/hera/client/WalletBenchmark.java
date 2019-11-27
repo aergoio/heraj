@@ -15,7 +15,7 @@ import hera.key.AergoKeyGenerator;
 import hera.keystore.InMemoryKeyStore;
 import hera.keystore.KeyStore;
 import hera.wallet.WalletApi;
-import hera.wallet.WalletFactory;
+import hera.wallet.WalletApiFactory;
 import java.io.IOException;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -48,7 +48,7 @@ public class WalletBenchmark {
 
       client = new AergoClientBuilder().withEndpoint("localhost:7845").build();
 
-      walletApi = new WalletFactory().create(keyStore);
+      walletApi = new WalletApiFactory().create(keyStore);
       walletApi.bind(client);
       walletApi.unlock(auth);
     }

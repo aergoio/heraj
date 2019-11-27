@@ -4,42 +4,24 @@
 
 package hera.wallet;
 
-import static hera.util.ValidationUtils.assertNotNull;
-import static hera.util.ValidationUtils.assertTrue;
-
-import hera.annotation.ApiAudience;
-import hera.annotation.ApiStability;
-import hera.api.model.internal.Time;
-import hera.api.model.internal.TryCountAndInterval;
-
-/**
- * Factory for Wallet implementation v2. This is beta version
- *
- * @author taeiklim
- *
- */
-@ApiAudience.Public
-@ApiStability.Unstable
+@Deprecated
 public class WalletFactory {
 
-  public static final int DEFAULT_RETRY_COUNT = 2;
-
-  public static final long DEFAULT_RETRY_INTERVAL = 100L;
+  protected final WalletApiFactory delegate = new WalletApiFactory();
 
   /**
-   * Create a wallet instance with retryCont as {@value #DEFAULT_RETRY_COUNT} and retry interval as
-   * {@value #DEFAULT_RETRY_INTERVAL} milliseconds.
+   * See {@link WalletApiFactory#create(hera.keystore.KeyStore)}.
    *
    * @param keyStore an keystore instance
    *
    * @return a wallet instance
    */
   public WalletApi create(final hera.keystore.KeyStore keyStore) {
-    return create(keyStore, DEFAULT_RETRY_COUNT, DEFAULT_RETRY_INTERVAL);
+    return delegate.create(keyStore);
   }
 
   /**
-   * Create a wallet instance.
+   * See {@link WalletApiFactory#create(hera.keystore.KeyStore, int, long)}.
    *
    * @param keyStore an keystore instance
    * @param retryCount a retry count on nonce failure
@@ -48,10 +30,7 @@ public class WalletFactory {
    */
   public WalletApi create(final hera.keystore.KeyStore keyStore, final int retryCount,
       final long retryInterval) {
-    assertNotNull(keyStore);
-    assertTrue(1 <= retryCount);
-    assertTrue(0 < retryInterval);
-    return new WalletApiImpl(keyStore, new TryCountAndInterval(retryCount, Time.of(retryInterval)));
+    return delegate.create(keyStore, retryCount, retryInterval);
   }
 
 }

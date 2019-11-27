@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * A legacy wallet api builder.
  *
- * @deprecated use {@link WalletFactory} instead.
+ * @deprecated use {@link WalletApiFactory} instead.
  *
  */
 @ApiAudience.Public
@@ -120,7 +120,7 @@ public class WalletBuilder implements ClientConfiguer<WalletBuilder> {
     }
 
     final KeyStore keyStore = new InMemoryKeyStore();
-    WalletApi delegate = new WalletFactory().create(keyStore, nonceRefreshTryInterval.getCount(),
+    WalletApi delegate = new WalletApiFactory().create(keyStore, nonceRefreshTryInterval.getCount(),
         nonceRefreshTryInterval.getInterval().toMilliseconds());
     delegate.bind(aergoClient);
 

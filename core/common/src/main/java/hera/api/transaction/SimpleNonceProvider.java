@@ -11,7 +11,6 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
-import hera.api.transaction.NonceProvider;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -48,7 +47,7 @@ public class SimpleNonceProvider implements NonceProvider {
   }
 
   @Override
-  public synchronized void bindNonce(final AccountState accountState) {
+  public void bindNonce(final AccountState accountState) {
     assertNotNull(accountState);
     bindNonce(accountState.getAddress(), accountState.getNonce());
   }
@@ -62,20 +61,21 @@ public class SimpleNonceProvider implements NonceProvider {
   }
 
   @Override
-  public synchronized long incrementAndGetNonce(final AccountAddress accountAddress) {
-    final Long lastNonce = address2Nonce.get(accountAddress);
-    long nextNonce = null == lastNonce ? 1L : lastNonce + 1;
-    address2Nonce.put(accountAddress, nextNonce);
-    return nextNonce;
+  public long incrementAndGetNonce(final AccountAddress accountAddress) {
+    synchronized (this) {
+      final Long lastNonce = address2Nonce.get(accountAddress);
+      final long nextNonce = null == lastNonce ? 1L : lastNonce + 1;
+      address2Nonce.put(accountAddress, nextNonce);
+      return nextNonce;
+    }
   }
 
   @Override
   public long getLastUsedNonce(final AccountAddress accountAddress) {
-    Long lastNonce = null;
     synchronized (this) {
-      lastNonce = address2Nonce.get(accountAddress);
+      final Long lastNonce = address2Nonce.get(accountAddress);
+      return null == lastNonce ? 0L : lastNonce;
     }
-    return null == lastNonce ? 0L : lastNonce;
   }
 
 }

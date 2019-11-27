@@ -31,9 +31,9 @@ public interface NonceProvider {
   void bindNonce(AccountAddress accountAddress, long nonce);
 
   /**
-   * Get next nonce of {@code accountAddress} and increment it. If an nonce of
-   * {@code accountAddress} is not binded yet, it will be treated as new account (nonce starts from
-   * 0). The operation must be thread-safe.
+   * Increment nonce of {@code accountAddress} get it. If an nonce of {@code accountAddress} is not
+   * binded yet, it will be treated as new account (nonce starts from 0). The operation must be
+   * thread-safe.
    *
    * @param accountAddress an accountAddress
    * @return an nonce
@@ -41,7 +41,7 @@ public interface NonceProvider {
   long incrementAndGetNonce(AccountAddress accountAddress);
 
   /**
-   * Get last used nonce of {@code accountAddress} If an nonce of {@code accountAddress} is not
+   * Get last used nonce of {@code accountAddress}. If an nonce of {@code accountAddress} is not
    * binded yet, it will be treated as new account (nonce starts from 0). The operation must be
    * thread-safe.
    *

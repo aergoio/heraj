@@ -11,7 +11,7 @@ import hera.api.model.Fee;
 import hera.contract.ContractApi;
 import hera.keystore.InMemoryKeyStore;
 import hera.wallet.WalletApi;
-import hera.wallet.WalletFactory;
+import hera.wallet.WalletApiFactory;
 import org.junit.Test;
 
 public class ContractApiImplTest extends AbstractTestCase {
@@ -34,7 +34,7 @@ public class ContractApiImplTest extends AbstractTestCase {
   public void testStep() {
     final ContractApi<ContractTest> contractApi =
         new ContractApiImpl<ContractTest>(new ContractTestImpl());
-    final WalletApi walletApi = new WalletFactory().create(new InMemoryKeyStore());
+    final WalletApi walletApi = new WalletApiFactory().create(new InMemoryKeyStore());
     final Fee fee = Fee.ZERO;
     final ContractTest withFee = contractApi.walletApi(walletApi).fee(fee);
     final ContractTest withoutFee = contractApi.walletApi(walletApi).noFee();
