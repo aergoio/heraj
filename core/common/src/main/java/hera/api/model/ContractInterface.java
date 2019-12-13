@@ -138,9 +138,9 @@ public class ContractInterface {
 
     @Override
     public ContractInvocationWithReady delegateFee(boolean delegateFee) {
-      if (false == this.function.isFeeDelegation()) {
-        throw new HerajException("Target function cannot delegate fee");
-      }
+      // if (false == this.function.isFeeDelegation()) {
+      //   throw new HerajException("Target function cannot delegate fee");
+      // }
       this.delegateFee = delegateFee;
       return this;
     }
