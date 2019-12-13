@@ -86,10 +86,12 @@ public class ContractInterface {
   }
 
   public interface ContractInvocationWithNothing {
+
     ContractInvocationWithReady function(String functionName);
   }
 
   public interface ContractInvocationWithReady extends hera.util.Builder<ContractInvocation> {
+
     ContractInvocationWithReady args(Object... args);
 
     ContractInvocationWithReady amount(Aer amount);
@@ -137,8 +139,8 @@ public class ContractInterface {
     }
 
     @Override
-    public ContractInvocationWithReady delegateFee(boolean delegateFee) {
-      if (false == this.function.isFeeDelegation()) {
+    public ContractInvocationWithReady delegateFee(final boolean delegateFee) {
+      if (delegateFee && !this.function.isFeeDelegation()) {
         throw new HerajException("Target function cannot delegate fee");
       }
       this.delegateFee = delegateFee;

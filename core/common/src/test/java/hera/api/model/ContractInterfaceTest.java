@@ -7,6 +7,7 @@ package hera.api.model;
 import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -67,8 +68,73 @@ public class ContractInterfaceTest {
           .build();
       fail();
     } catch (Exception e) {
-      // good we expected this
+      // then
     }
+  }
+
+  @Test
+  public void testFeeDelegation() {
+    final ContractAddress address = new ContractAddress(encodedAddress);
+    final String version = randomUUID().toString();
+    final String language = randomUUID().toString();
+    final ContractFunction function = new ContractFunction(functionName, false, false, true);
+    final List<ContractFunction> functions = new ArrayList<ContractFunction>();
+    functions.add(function);
+    final List<StateVariable> stateVariables = new ArrayList<StateVariable>();
+    final ContractInterface contractInterface =
+        new ContractInterface(address, version, language, functions, stateVariables);
+
+    final ContractInvocation invocation = contractInterface.newInvocationBuilder()
+        .function(functionName)
+        .amount(Aer.ZERO)
+        .delegateFee(true)
+        .build();
+    assertNotNull(invocation);
+  }
+
+  @Test
+  public void shouldThrowErrorOnNonFeeDelegateableFunction() {
+    // given
+    final ContractAddress address = new ContractAddress(encodedAddress);
+    final String version = randomUUID().toString();
+    final String language = randomUUID().toString();
+    final ContractFunction function = new ContractFunction(functionName, false, false, false);
+    final List<ContractFunction> functions = new ArrayList<ContractFunction>();
+    functions.add(function);
+    final List<StateVariable> stateVariables = new ArrayList<StateVariable>();
+    final ContractInterface contractInterface =
+        new ContractInterface(address, version, language, functions, stateVariables);
+
+    try {
+      final ContractInvocation actual = contractInterface.newInvocationBuilder()
+          .function(functionName)
+          .amount(Aer.ZERO)
+          .delegateFee(true)
+          .build();
+      fail();
+    } catch (Exception e) {
+      // then
+    }
+  }
+
+  @Test
+  public void shouldNotThrowErrorNotFeeDelegegatableOne() {
+    final ContractAddress address = new ContractAddress(encodedAddress);
+    final String version = randomUUID().toString();
+    final String language = randomUUID().toString();
+    final ContractFunction function = new ContractFunction(functionName, false, false, false);
+    final List<ContractFunction> functions = new ArrayList<ContractFunction>();
+    functions.add(function);
+    final List<StateVariable> stateVariables = new ArrayList<StateVariable>();
+    final ContractInterface contractInterface =
+        new ContractInterface(address, version, language, functions, stateVariables);
+
+    final ContractInvocation invocation = contractInterface.newInvocationBuilder()
+        .function(functionName)
+        .amount(Aer.ZERO)
+        .delegateFee(false)
+        .build();
+    assertNotNull(invocation);
   }
 
 }
