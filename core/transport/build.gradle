@@ -3,10 +3,10 @@
  */
 
 dependencies {
-  implementation project(":core:annotation")
-  implementation project(":core:util")
-  implementation project(":core:protobuf")
-  implementation project(":core:common")
+  api project(":core:annotation")
+  api project(":core:util")
+  api project(":core:protobuf")
+  api project(":core:common")
 
   implementation "com.google.guava:guava:${guavaVersion}-android"
   implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"

@@ -3,11 +3,7 @@
  */
 
 dependencies {
-  implementation project(":core:annotation")
-  implementation project(":core:util")
-  implementation project(":core:common")
-  implementation project(":core:transport")
-  implementation "org.bouncycastle:bcpkix-jdk15on:${bouncyCastleVersion}"
+  api project(":core:transport")
 
-  testImplementation project(":core:protobuf")
+  implementation "org.bouncycastle:bcpkix-jdk15on:${bouncyCastleVersion}"
 }

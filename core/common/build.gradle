@@ -3,8 +3,8 @@
  */
 
 dependencies {
-  implementation project(":core:annotation")
-  implementation project(":core:util")
+  api project(":core:annotation")
+  api project(":core:util")
 
   implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
   implementation "org.bouncycastle:bcprov-jdk15on:${bouncyCastleVersion}"
