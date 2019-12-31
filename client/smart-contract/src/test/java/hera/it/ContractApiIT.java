@@ -40,7 +40,7 @@ public class ContractApiIT extends AbstractIT {
     super.setUp();
     final KeyStore keyStore = new InMemoryKeyStore();
 
-    final KeyAlias alias = new KeyAlias(randomUUID().toString());
+    final KeyAlias alias = KeyAlias.of(randomUUID().toString().replaceAll("-", ""));
     final String password = randomUUID().toString();
     final Authentication authentication = Authentication.of(alias, password);
     final AergoKey key = createNewKey();

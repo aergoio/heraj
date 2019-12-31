@@ -260,7 +260,12 @@ public class AergoKey implements KeyPair, Signer, MessageSigner {
     }
   }
 
-  protected byte[] getRawPrivateKey() {
+  /**
+   * Get private in in a raw byte array.
+   *
+   * @return a raw private key
+   */
+  public byte[] getRawPrivateKey() {
     final org.bouncycastle.jce.interfaces.ECPrivateKey ecPrivateKey =
         (org.bouncycastle.jce.interfaces.ECPrivateKey) getPrivateKey();
     final BigInteger d = ecPrivateKey.getD();

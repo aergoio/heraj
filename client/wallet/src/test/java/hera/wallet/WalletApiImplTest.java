@@ -33,7 +33,7 @@ import org.junit.Test;
 public class WalletApiImplTest extends AbstractTestCase {
 
   protected final Authentication valid =
-      Authentication.of(new KeyAlias(randomUUID().toString()), randomUUID().toString());
+      Authentication.of(new KeyAlias(randomUUID().toString().replaceAll("-", "")), randomUUID().toString());
   protected final AergoKey storedKey = new AergoKeyGenerator().create();
 
   protected WalletApi supplyWalletApi() {
@@ -111,7 +111,7 @@ public class WalletApiImplTest extends AbstractTestCase {
     final WalletApi walletApi = supplyWalletApi();
     walletApi.bind(mock(AergoClient.class));
     final Authentication invalid =
-        Authentication.of(new KeyAlias(randomUUID().toString()), randomUUID().toString());
+        Authentication.of(new KeyAlias("invalid"), randomUUID().toString());
 
     // then
     assertTrue(false == walletApi.unlock(invalid));
@@ -146,7 +146,7 @@ public class WalletApiImplTest extends AbstractTestCase {
 
     // then
     final Authentication invalid =
-        Authentication.of(new KeyAlias(randomUUID().toString()), randomUUID().toString());
+        Authentication.of(new KeyAlias("invalid"), randomUUID().toString());
     assertTrue(false == walletApi.lock(invalid));
   }
 

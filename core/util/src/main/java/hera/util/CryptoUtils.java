@@ -142,12 +142,12 @@ public class CryptoUtils {
    */
   public static byte[] encryptToAesGcm(final byte[] message, final byte[] password,
       final byte[] nonce) throws IllegalStateException, InvalidCipherTextException {
-    final GCMBlockCipher cppher = new GCMBlockCipher(new AESEngine());
+    final GCMBlockCipher cipher = new GCMBlockCipher(new AESEngine());
     CipherParameters ivAndKey = new ParametersWithIV(new KeyParameter(password), nonce);
-    cppher.init(true, ivAndKey);
-    final byte[] outBuf = new byte[cppher.getOutputSize(message.length)];
-    int outOff = cppher.processBytes(message, 0, message.length, outBuf, 0);
-    cppher.doFinal(outBuf, outOff);
+    cipher.init(true, ivAndKey);
+    final byte[] outBuf = new byte[cipher.getOutputSize(message.length)];
+    int outOff = cipher.processBytes(message, 0, message.length, outBuf, 0);
+    cipher.doFinal(outBuf, outOff);
     return outBuf;
   }
 

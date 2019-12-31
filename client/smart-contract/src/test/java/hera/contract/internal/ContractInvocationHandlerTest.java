@@ -89,7 +89,7 @@ public class ContractInvocationHandlerTest extends AbstractTestCase {
 
   protected WalletApi supplyWalletApi() {
     final InMemoryKeyStore keyStore = new InMemoryKeyStore();
-    final KeyAlias alias = new KeyAlias(randomUUID().toString());
+    final KeyAlias alias = KeyAlias.of(randomUUID().toString().replaceAll("-", ""));
     final String password = randomUUID().toString();
     final Authentication authentication = Authentication.of(alias, password);
     final AergoKey key = new AergoKeyGenerator().create();

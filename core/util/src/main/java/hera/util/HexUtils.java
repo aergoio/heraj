@@ -15,11 +15,15 @@ import java.io.StringWriter;
 import java.io.Writer;
 
 public class HexUtils {
+
   /* Dump Format */
   protected static final char CONTROL_CHARS_SHOWER = '.';
 
-  protected static final char[] HEXA_CHARS =
+  protected static final char[] HEXA_CHARS_UPPER =
       new char[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+  protected static final char[] HEXA_CHARS_LOWER =
+      new char[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
   protected static final int N_INT_BY_BYTE = 4;
 
@@ -30,31 +34,34 @@ public class HexUtils {
   /**
    * Append hex value of {@code ch} to {@code buffer}.
    *
-   * @param buffer  buffer to append to
-   * @param ch      value to append
+   * @param buffer buffer to append to
+   * @param ch value to append
+   * @param hexChars a hex chars
    */
-  public static void appendHexa(final StringBuilder buffer, final int ch) {
+  protected static void appendHexa(final StringBuilder buffer, final int ch, final char[] hexChars) {
     if (ch < 16) {
       buffer.append('0');
-      buffer.append(HEXA_CHARS[(0x0f & (ch))]);
+      buffer.append(hexChars[(0x0f & (ch))]);
     } else {
-      buffer.append(HEXA_CHARS[(0x0f & (ch >> 4))]);
-      buffer.append(HEXA_CHARS[(0x0f & (ch))]);
+      buffer.append(hexChars[(0x0f & (ch >> 4))]);
+      buffer.append(hexChars[(0x0f & (ch))]);
     }
   }
 
   /**
    * Append hex values of {@code bytes} to {@code buffer}.
    *
-   * @param buffer  buffer to append to
-   * @param bytes   values to append
+   * @param buffer buffer to append to
+   * @param bytes values to append
+   * @param hexChars a hex chars
    */
-  public static void appendHexa(final StringBuilder buffer, final byte[] bytes) {
+  protected static void appendHexa(final StringBuilder buffer, final byte[] bytes,
+      final char[] hexChars) {
     try {
       final ByteArrayInputStream byteIn = new ByteArrayInputStream(bytes);
       int ch = 0;
       while (0 <= (ch = byteIn.read())) {
-        appendHexa(buffer, ch);
+        appendHexa(buffer, ch, hexChars);
       }
     } catch (final Exception e) {
       throw new IllegalStateException(e);
@@ -63,18 +70,31 @@ public class HexUtils {
 
   /**
    * Encode byte array to hexa.
-   * 
+   *
    * @param bytes byte array to encode
-   * 
+   *
    * @return encoded string
    */
   public static String encode(final byte[] bytes) {
     final StringBuilder buffer = new StringBuilder();
-    appendHexa(buffer, bytes);
+    appendHexa(buffer, bytes, HEXA_CHARS_UPPER);
     return buffer.toString();
   }
 
-  protected static  int convert(final int ch) {
+  /**
+   * Encode byte array to hexa.
+   *
+   * @param bytes byte array to encode
+   *
+   * @return encoded string
+   */
+  public static String encodeLower(final byte[] bytes) {
+    final StringBuilder buffer = new StringBuilder();
+    appendHexa(buffer, bytes, HEXA_CHARS_LOWER);
+    return buffer.toString();
+  }
+
+  protected static int convert(final int ch) {
     if ('0' <= ch && ch <= '9') {
       return ch - '0';
     } else if ('A' <= ch && ch <= 'F') {
@@ -139,9 +159,9 @@ public class HexUtils {
   /**
    * Convert {@code data}'s subsequence to readable dump for human.
    *
-   * @param data    byte array to convert
-   * @param offset  sequence start index
-   * @param length  sequence length
+   * @param data byte array to convert
+   * @param offset sequence start index
+   * @param length sequence length
    *
    * @return converted string
    */
@@ -154,10 +174,10 @@ public class HexUtils {
   /**
    * Convert {@code data}'s subsequence to readable dump for human and write to {@code writer}.
    *
-   * @param data    byte array to convert
-   * @param offset  sequence start index
-   * @param length  sequence length
-   * @param writer  writer to write result
+   * @param data byte array to convert
+   * @param offset sequence start index
+   * @param length sequence length
+   * @param writer writer to write result
    */
   public static void dump(final byte[] data, final int offset, final int length,
       final Writer writer) {
@@ -194,13 +214,13 @@ public class HexUtils {
         if (0 == cnt) {
           for (int i = N_INT_BY_BYTE - 1; i >= 0; i--) {
             final int printByte = 0xFF & (address >> (8 * i));
-            appendHexa(hexPart, printByte);
+            appendHexa(hexPart, printByte, HEXA_CHARS_UPPER);
           }
           hexPart.append("  ");
           address += WIDTH_PER_LINE;
         }
 
-        appendHexa(hexPart, ch);
+        appendHexa(hexPart, ch, HEXA_CHARS_UPPER);
         if (ch < 32 || 127 <= ch) {
           textPart.append(CONTROL_CHARS_SHOWER);
         } else {
