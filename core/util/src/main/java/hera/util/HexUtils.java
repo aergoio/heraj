@@ -38,7 +38,8 @@ public class HexUtils {
    * @param ch value to append
    * @param hexChars a hex chars
    */
-  protected static void appendHexa(final StringBuilder buffer, final int ch, final char[] hexChars) {
+  protected static void appendHexa(final StringBuilder buffer, final int ch,
+      final char[] hexChars) {
     if (ch < 16) {
       buffer.append('0');
       buffer.append(hexChars[(0x0f & (ch))]);

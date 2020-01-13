@@ -16,6 +16,7 @@ import hera.exception.InvalidKeyStoreFormatException;
 import hera.exception.KeyStoreException;
 import hera.key.AergoKey;
 import hera.util.HexUtils;
+import hera.util.Sha256Utils;
 import hera.util.pki.ECDSAKeyGenerator;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -27,7 +28,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bouncycastle.crypto.generators.SCrypt;
-import org.bouncycastle.jcajce.provider.digest.Keccak;
 import org.bouncycastle.util.Arrays;
 import org.slf4j.Logger;
 
@@ -124,10 +124,8 @@ class KeyStoreV1Strategy implements KeyStoreStrategy {
     return cipher.doFinal(plaintext);
   }
 
-  protected byte[] sha3(final byte[] message) {
-    final Keccak.DigestKeccak kecc = new Keccak.Digest256();
-    kecc.update(message, 0, message.length);
-    return kecc.digest();
+  protected byte[] generateHash(final byte[] message) {
+    return Sha256Utils.digest(message);
   }
 
   @Override
@@ -217,7 +215,7 @@ class KeyStoreV1Strategy implements KeyStoreStrategy {
     final byte[] rawMac = new byte[16 + cipherText.length];
     System.arraycopy(derivedKey, 16, rawMac, 0, 16);
     System.arraycopy(cipherText, 0, rawMac, 16, cipherText.length);
-    return sha3(rawMac);
+    return generateHash(rawMac);
   }
 
   @Data

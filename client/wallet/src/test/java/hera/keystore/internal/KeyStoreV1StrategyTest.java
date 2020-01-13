@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import org.junit.Test;
 
-public class AergoKeyStoreV1StrategyTest extends AbstractTestCase {
+public class KeyStoreV1StrategyTest extends AbstractTestCase {
 
   @Test
   public void testDecrypt() throws IOException {
