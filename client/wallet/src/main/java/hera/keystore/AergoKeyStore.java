@@ -6,6 +6,7 @@ package hera.keystore;
 
 import static hera.util.ValidationUtils.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +37,7 @@ import org.slf4j.Logger;
 
 public class AergoKeyStore implements KeyStore {
 
+  protected static final String STORAGE_DIR = "keystore";
   protected static final String FIELD_VERSION = "ks_version";
   protected static final String KEYSTORE_POSTFIX = "keystore.txt";
   protected static final String KEYSTORE_SPLITER = "__";
@@ -75,7 +77,7 @@ public class AergoKeyStore implements KeyStore {
     assertNotNull(keyFormatVersion, "KeyStore keyformat version must not null");
     logger.debug("Create Aergo KeyStore to {} with version: {}", root, keyFormatVersion);
 
-    final File file = new File(root);
+    final File file = new File(root + "/" + STORAGE_DIR);
     if (file.exists() && file.isFile()) {
       throw new KeyStoreException("Keystore target is a file");
     }
@@ -84,7 +86,7 @@ public class AergoKeyStore implements KeyStore {
       if (!mkdirSuccess) {
         throw new KeyStoreException("Unable to make directory: " + root);
       }
-      logger.debug("Create directory to {}", root);
+      logger.debug("Create directory: {}", root);
     }
     this.root = file;
     this.encryptVersion = keyFormatVersion;

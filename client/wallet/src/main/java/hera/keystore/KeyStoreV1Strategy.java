@@ -60,7 +60,8 @@ class KeyStoreV1Strategy implements KeyFormatStrategy {
   @Override
   public String encrypt(final AergoKey key, final char[] password) {
     try {
-      logger.debug("Encrypt with key: {}, password: {}", key.getAddress(), KeyStoreConstants.CREDENTIALS);
+      logger.debug("Encrypt with key: {}, password: {}", key.getAddress(),
+          KeyStoreConstants.CREDENTIALS);
 
       final KdfParams kdfParams = getNewKdfParams();
 
