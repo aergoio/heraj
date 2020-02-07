@@ -255,11 +255,8 @@ class KeyStoreV1Strategy implements KeyFormatStrategy {
   protected static final class KdfParams {
 
     protected int dklen;
-    @SuppressWarnings("checkstyle:MemberName")
     protected int n;
-    @SuppressWarnings("checkstyle:MemberName")
     protected int p;
-    @SuppressWarnings("checkstyle:MemberName")
     protected int r;
     protected String salt;
   }
