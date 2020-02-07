@@ -17,21 +17,14 @@ import hera.exception.InvalidAuthenticationException;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.model.KeyAlias;
-import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
-import org.junit.Before;
 import org.junit.Test;
 
 public class KeyStoreTest extends AbstractTestCase {
 
   protected final String keyStoreRoot =
       System.getProperty("java.io.tmpdir") + "/" + randomUUID().toString();
-
-  @Before
-  public void setUp() {
-    new File(keyStoreRoot).mkdirs();
-  }
 
   protected Collection<KeyStore> keyStores() {
     return Arrays.asList(new KeyStore[] {

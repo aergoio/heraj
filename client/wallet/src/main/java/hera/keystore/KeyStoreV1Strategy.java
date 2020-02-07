@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.keystore.internal;
+package hera.keystore;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -31,15 +31,18 @@ import org.bouncycastle.crypto.generators.SCrypt;
 import org.bouncycastle.util.Arrays;
 import org.slf4j.Logger;
 
-class KeyStoreV1Strategy implements KeyStoreStrategy {
+class KeyStoreV1Strategy implements KeyFormatStrategy {
 
   protected static final String CHARSET = "UTF-8";
 
+  // version
   protected static final String VERSION = "1";
 
+  // cipher
   protected static final String CIPHER_ALGORITHM = "aes-128-ctr";
   protected static final String KDF_ALGORITHM = "scrypt";
 
+  // kdf
   protected static final int SCRIPT_N_STANDARD = 1 << 18; // cpu, memory cost
   protected static final int SCRIPT_P_STANDARD = 1; // parallelism
   protected static final int SCRIPT_R = 8; // block size
@@ -57,7 +60,7 @@ class KeyStoreV1Strategy implements KeyStoreStrategy {
   @Override
   public String encrypt(final AergoKey key, final char[] password) {
     try {
-      logger.debug("Encrypt key: {}, password: {}", key, "[CREDENTIAL]");
+      logger.debug("Encrypt with key: {}, password: {}", key.getAddress(), KeyStoreConstants.CREDENTIALS);
 
       final KdfParams kdfParams = getNewKdfParams();
 
@@ -124,25 +127,10 @@ class KeyStoreV1Strategy implements KeyStoreStrategy {
     return cipher.doFinal(plaintext);
   }
 
-  protected byte[] generateHash(final byte[] message) {
-    return Sha256Utils.digest(message);
-  }
-
   @Override
   public AergoKey decrypt(final String json, final char[] password) {
     try {
       final JsonNode jsonNode = mapper.reader().readTree(json);
-      return decrypt(jsonNode, password);
-    } catch (KeyStoreException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new InvalidKeyStoreFormatException(e);
-    }
-  }
-
-  @Override
-  public AergoKey decrypt(final JsonNode jsonNode, final char[] password) {
-    try {
       final V1KeyStore v1KeyStore = parse(jsonNode);
 
       if (!VERSION.equals(v1KeyStore.getVersion())) {
@@ -218,14 +206,18 @@ class KeyStoreV1Strategy implements KeyStoreStrategy {
     return generateHash(rawMac);
   }
 
+  protected byte[] generateHash(final byte[] message) {
+    return Sha256Utils.digest(message);
+  }
+
   @Data
   @NoArgsConstructor
   @AllArgsConstructor
   protected static final class V1KeyStore {
 
-    @JsonProperty(KeyStoreConstants.FIELD_ADDRESS)
+    @JsonProperty("aergo_address")
     protected String address;
-    @JsonProperty(KeyStoreConstants.FIELD_VERSION)
+    @JsonProperty("ks_version")
     protected String version;
 
     protected Cipher cipher;
@@ -233,7 +225,7 @@ class KeyStoreV1Strategy implements KeyStoreStrategy {
   }
 
   @Data
-  @JsonRootName(KeyStoreConstants.FIELD_CIPHER)
+  @JsonRootName("cipher")
   protected static final class Cipher {
 
     protected String algorithm;
@@ -242,14 +234,14 @@ class KeyStoreV1Strategy implements KeyStoreStrategy {
   }
 
   @Data
-  @JsonRootName(KeyStoreConstants.FIELD_CIPHER_PARAMS)
+  @JsonRootName("params")
   protected static final class CipherParams {
 
     protected String iv;
   }
 
   @Data
-  @JsonRootName(KeyStoreConstants.FIELD_KDF)
+  @JsonRootName("kdf")
   protected static final class Kdf {
 
     protected String algorithm;
@@ -258,7 +250,7 @@ class KeyStoreV1Strategy implements KeyStoreStrategy {
   }
 
   @Data
-  @JsonRootName(KeyStoreConstants.FIELD_KDF_PARAMS)
+  @JsonRootName("params")
   protected static final class KdfParams {
 
     protected int dklen;

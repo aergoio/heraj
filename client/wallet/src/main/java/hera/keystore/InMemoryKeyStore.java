@@ -4,6 +4,7 @@
 
 package hera.keystore;
 
+import static hera.util.ValidationUtils.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
@@ -30,28 +31,32 @@ public class InMemoryKeyStore implements KeyStore {
 
   protected final transient Logger logger = getLogger(getClass());
 
+  protected final Object lock = new Object();
   protected final Set<Identity> storedIdentities = new HashSet<>();
   protected final Map<String, EncryptedPrivateKey> hashedAuth2Encrypted = new HashMap<>();
 
   @Override
   public void save(final Authentication authentication, final AergoKey key) {
     try {
-      logger.debug("Save with authentication: {}, key: {}", authentication, key);
-      final String digested = digest(authentication);
+      assertNotNull(authentication, "Save authentication must not null");
+      assertNotNull(key, "Save key must not null");
+      logger.debug("Save with authentication: {}, key: {}", KeyStoreConstants.CREDENTIALS,
+          key.getAddress());
 
-      synchronized (this) {
+      final String digested = digest(authentication);
+      synchronized (lock) {
         if (this.storedIdentities.contains(authentication.getIdentity())) {
           throw new InvalidAuthenticationException("Identity already exists");
         }
         if (this.hashedAuth2Encrypted.containsKey(digested)) {
           throw new InvalidAuthenticationException("Invalid authentication");
         }
-
-        final EncryptedPrivateKey encryptedKey = key.export(authentication.getPassword());
+        final EncryptedPrivateKey encrypted = key.export(authentication.getPassword());
+        logger.trace("Encrypted key: {}", encrypted);
         this.storedIdentities.add(authentication.getIdentity());
-        this.hashedAuth2Encrypted.put(digested, encryptedKey);
+        this.hashedAuth2Encrypted.put(digested, encrypted);
       }
-    } catch (InvalidAuthenticationException e) {
+    } catch (final KeyStoreException e) {
       throw e;
     } catch (final Exception e) {
       throw new KeyStoreException(e);
@@ -61,21 +66,25 @@ public class InMemoryKeyStore implements KeyStore {
   @Override
   public Signer load(final Authentication authentication) {
     try {
-      logger.debug("Unlock with authentication: {}", authentication);
-      final String digested = digest(authentication);
+      assertNotNull(authentication, "Load authentication must not null");
+      logger.debug("Load with authentication: {}", KeyStoreConstants.CREDENTIALS);
 
-      synchronized (this) {
+      final String digested = digest(authentication);
+      EncryptedPrivateKey encrypted = null;
+      synchronized (lock) {
         if (false == this.hashedAuth2Encrypted.containsKey(digested)) {
           throw new InvalidAuthenticationException("Invalid authentication");
         }
-
-        final EncryptedPrivateKey encrypted = hashedAuth2Encrypted.get(digested);
-        final AergoKey decrypted = AergoKey.of(encrypted, authentication.getPassword());
-        return decrypted;
+        encrypted = this.hashedAuth2Encrypted.get(digested);
+        logger.trace("Encrypted: {}", encrypted);
       }
-    } catch (InvalidAuthenticationException e) {
+
+      final AergoKey decrypted = AergoKey.of(encrypted, authentication.getPassword());
+      logger.trace("Decrypted address: {}", decrypted.getAddress());
+      return decrypted;
+    } catch (final KeyStoreException e) {
       throw e;
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new KeyStoreException(e);
     }
   }
@@ -83,18 +92,19 @@ public class InMemoryKeyStore implements KeyStore {
   @Override
   public void remove(final Authentication authentication) {
     try {
-      logger.debug("Remove aergo key with authentication: {}", authentication);
-      final String digested = digest(authentication);
+      assertNotNull(authentication, "Remove authentication must not null");
+      logger.debug("Remove with authentication: {}", KeyStoreConstants.CREDENTIALS);
 
-      synchronized (this) {
+      final String digested = digest(authentication);
+      synchronized (lock) {
         if (false == this.hashedAuth2Encrypted.containsKey(digested)) {
           throw new InvalidAuthenticationException("Invalid authentication");
         }
-
-        this.storedIdentities.remove(authentication.getIdentity());
+        final Identity identity = authentication.getIdentity();
+        this.storedIdentities.remove(identity);
         this.hashedAuth2Encrypted.remove(digested);
       }
-    } catch (InvalidAuthenticationException e) {
+    } catch (final KeyStoreException e) {
       throw e;
     } catch (final Exception e) {
       throw new KeyStoreException(e);
@@ -104,19 +114,24 @@ public class InMemoryKeyStore implements KeyStore {
   @Override
   public EncryptedPrivateKey export(final Authentication authentication, final String password) {
     try {
-      logger.debug("Export key with authentication: {}", authentication);
+      assertNotNull(authentication, "Export authentication must not null");
+      assertNotNull(password, "Export password must not null");
+      logger.debug("Export with authentication: {}, password: {}", KeyStoreConstants.CREDENTIALS,
+          KeyStoreConstants.CREDENTIALS);
+
       final String digested = digest(authentication);
 
-      synchronized (this) {
-        if (false == hashedAuth2Encrypted.containsKey(digested)) {
+      EncryptedPrivateKey encrypted = null;
+      synchronized (lock) {
+        if (false == this.hashedAuth2Encrypted.containsKey(digested)) {
           throw new InvalidAuthenticationException("Invalid authentication");
         }
-
-        final EncryptedPrivateKey encrypted = hashedAuth2Encrypted.get(digested);
-        final AergoKey decrypted = AergoKey.of(encrypted, authentication.getPassword());
-        return decrypted.export(password);
+        encrypted = this.hashedAuth2Encrypted.get(digested);
       }
-    } catch (InvalidAuthenticationException e) {
+
+      final AergoKey decrypted = AergoKey.of(encrypted, authentication.getPassword());
+      return decrypted.export(password);
+    } catch (final KeyStoreException e) {
       throw e;
     } catch (final Exception e) {
       throw new KeyStoreException(e);
@@ -126,7 +141,12 @@ public class InMemoryKeyStore implements KeyStore {
   @Override
   public List<Identity> listIdentities() {
     try {
-      return new ArrayList<>(this.storedIdentities);
+      List<Identity> identities;
+      synchronized (lock) {
+        identities = new ArrayList<>(this.storedIdentities);
+      }
+      logger.debug("Identities: {}", identities);
+      return identities;
     } catch (final Exception e) {
       throw new KeyStoreException(e);
     }

@@ -2,17 +2,16 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.keystore.internal;
+package hera.keystore;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import hera.AbstractTestCase;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
+import hera.util.IoUtils;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import org.junit.Test;
@@ -22,9 +21,8 @@ public class KeyStoreV1StrategyTest extends AbstractTestCase {
   @Test
   public void testDecrypt() throws IOException {
     final KeyStoreV1Strategy strategy = new KeyStoreV1Strategy();
-    final ObjectMapper mapper = new ObjectMapper();
-    final JsonNode jsonNode = mapper.reader().readTree(new InputStreamReader(open("keystore")));
-    AergoKey decrypted = strategy.decrypt(jsonNode, "password".toCharArray());
+    final String json = IoUtils.from(new InputStreamReader(open("keystore")));
+    final AergoKey decrypted = strategy.decrypt(json, "password".toCharArray());
     assertNotNull(decrypted);
   }
 

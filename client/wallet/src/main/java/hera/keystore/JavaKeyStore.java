@@ -7,7 +7,6 @@ package hera.keystore;
 import static hera.util.ValidationUtils.assertNotNull;
 import static java.util.Collections.list;
 import static org.slf4j.LoggerFactory.getLogger;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Authentication;
@@ -39,17 +38,18 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.util.Arrays;
 import org.slf4j.Logger;
 
 @ApiAudience.Public
 @ApiStability.Unstable
 public class JavaKeyStore implements KeyStore {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
+  protected final Object lock = new Object();
   protected final java.security.Provider bcProvider = new BouncyCastleProvider();
-
-  protected volatile java.security.KeyStore delegate;
+  protected final java.security.KeyStore delegate;
 
   /**
    * Create a keystore which uses {@link java.security.KeyStore}.
@@ -61,6 +61,7 @@ public class JavaKeyStore implements KeyStore {
   public JavaKeyStore(final java.security.KeyStore delegate) {
     try {
       assertNotNull(delegate);
+      logger.debug("Create JKS with delegate: {}", delegate);
       this.delegate = delegate;
     } catch (Exception e) {
       throw new KeyStoreException(e);
@@ -103,6 +104,7 @@ public class JavaKeyStore implements KeyStore {
   public JavaKeyStore(final String type, final InputStream inputStream, final char[] password) {
     try {
       assertNotNull(type, "Keystore type must not null");
+      logger.debug("Create JKS with type: {}", type);
       this.delegate = java.security.KeyStore.getInstance(type);
       this.delegate.load(inputStream, password);
     } catch (Exception e) {
@@ -126,6 +128,7 @@ public class JavaKeyStore implements KeyStore {
     try {
       assertNotNull(type, "Keystore type must not null");
       assertNotNull(provider, "Keystore provider must not null");
+      logger.debug("Create JKS with type: {}, provider: {}", type, provider);
       this.delegate = java.security.KeyStore.getInstance(type, provider);
       this.delegate.load(inputStream, password);
     } catch (Exception e) {
@@ -136,13 +139,15 @@ public class JavaKeyStore implements KeyStore {
   @Override
   public void save(final Authentication authentication, final AergoKey key) {
     try {
-      logger.debug("Save key {} with authentication: {}", key, authentication);
+      assertNotNull(authentication, "Save authentication must not null");
+      assertNotNull(key, "Save key must not null");
+      logger.debug("Save with authentication: {}, key: {}", KeyStoreConstants.CREDENTIALS,
+          key.getAddress());
 
-      synchronized (this) {
+      synchronized (lock) {
         if (isExists(authentication)) {
           throw new InvalidAuthenticationException("Invalid authentication");
         }
-
         final String alias = authentication.getIdentity().getValue();
         final java.security.PrivateKey privateKey = key.getPrivateKey();
         final char[] rawPassword = authentication.getPassword().toCharArray();
@@ -159,10 +164,11 @@ public class JavaKeyStore implements KeyStore {
 
   protected Certificate generateCertificate(final AergoKey key)
       throws OperatorCreationException, CertificateException {
-    logger.trace("Generate certificate for account: {}", key);
+    logger.trace("Generate certificate for account: {}", key.getAddress());
     final Calendar start = Calendar.getInstance();
     final Calendar expiry = Calendar.getInstance();
     expiry.add(Calendar.YEAR, 1);
+    logger.trace("Start: {}, expiry: {}", start, expiry);
     final X500Name name = new X500Name("CN=" + key.getAddress().getValue());
     final ContentSigner signer = new JcaContentSignerBuilder("SHA256WithECDSA")
         .setProvider(bcProvider).build(key.getPrivateKey());
@@ -180,16 +186,20 @@ public class JavaKeyStore implements KeyStore {
   @Override
   public Signer load(final Authentication authentication) {
     try {
-      logger.debug("Load key with authentication: {}", authentication);
+      assertNotNull(authentication, "Load authentication must not null");
+      logger.debug("Load with authentication: {}", KeyStoreConstants.CREDENTIALS);
 
-      synchronized (this) {
+      java.security.Key rawKey = null;
+      synchronized (lock) {
         if (false == isExists(authentication)) {
           throw new InvalidAuthenticationException("Invalid authentication");
         }
-
-        final java.security.Key rawKey = loadRawKey(authentication);
-        return convertPrivateKey(rawKey);
+        rawKey = loadRawKey(authentication);
       }
+
+      final AergoKey aergoKey = convertPrivateKey(rawKey);
+      logger.trace("Loaded key: {}", aergoKey);
+      return aergoKey;
     } catch (InvalidAuthenticationException e) {
       throw e;
     } catch (Exception e) {
@@ -200,15 +210,15 @@ public class JavaKeyStore implements KeyStore {
   @Override
   public void remove(final Authentication authentication) {
     try {
-      logger.debug("Export key with authentication: {}", authentication);
+      assertNotNull(authentication, "Remove authentication must not null");
+      logger.debug("Remove with authentication: {}", KeyStoreConstants.CREDENTIALS);
 
-      synchronized (this) {
+      synchronized (lock) {
         if (false == isExists(authentication)) {
           throw new InvalidAuthenticationException("Invalid authentication");
         }
-
-        final String alias = authentication.getIdentity().getValue();
-        this.delegate.deleteEntry(alias);
+        final Identity identity = authentication.getIdentity();
+        this.delegate.deleteEntry(identity.getValue());
       }
     } catch (InvalidAuthenticationException e) {
       throw e;
@@ -220,17 +230,20 @@ public class JavaKeyStore implements KeyStore {
   @Override
   public EncryptedPrivateKey export(final Authentication authentication, final String password) {
     try {
-      logger.debug("Export key with authentication: {}", authentication);
+      assertNotNull(authentication, "Export authentication must not null");
+      assertNotNull(password, "Export password must not null");
+      logger.debug("Export with authentication: {}, password: {}", KeyStoreConstants.CREDENTIALS,
+          KeyStoreConstants.CREDENTIALS);
 
-      synchronized (this) {
+      java.security.Key rawKey = null;
+      synchronized (lock) {
         if (false == isExists(authentication)) {
           throw new InvalidAuthenticationException("Invalid authentication");
         }
-
-        final java.security.Key rawKey = loadRawKey(authentication);
-        final AergoKey recovered = convertPrivateKey(rawKey);
-        return recovered.export(password);
+        rawKey = loadRawKey(authentication);
       }
+      final AergoKey decrypted = convertPrivateKey(rawKey);
+      return decrypted.export(password);
     } catch (InvalidAuthenticationException e) {
       throw e;
     } catch (Exception e) {
@@ -241,14 +254,18 @@ public class JavaKeyStore implements KeyStore {
   @Override
   public List<Identity> listIdentities() {
     try {
-      final List<String> aliases = list(delegate.aliases());
-      logger.trace("Aliases: {}", aliases);
-
-      final List<Identity> storedIdentities = new ArrayList<>();
-      for (final String alias : aliases) {
-        storedIdentities.add(new KeyAlias(alias));
+      List<String> aliases = null;
+      synchronized (lock) {
+        aliases = list(this.delegate.aliases());
+        logger.trace("Aliases: {}", aliases);
       }
-      return storedIdentities;
+
+      final List<Identity> identities = new ArrayList<>();
+      for (final String alias : aliases) {
+        identities.add(new KeyAlias(alias));
+      }
+      logger.debug("Identities: {}", identities);
+      return identities;
     } catch (Exception e) {
       throw new KeyStoreException(e);
     }
@@ -256,8 +273,11 @@ public class JavaKeyStore implements KeyStore {
 
   @Override
   public void store(final String path, final char[] password) {
-    try {
-      this.delegate.store(new FileOutputStream(path), password);
+    try (final FileOutputStream os = new FileOutputStream(path)) {
+      logger.debug("Save JKS to path: {}", path);
+      synchronized (lock) {
+        this.delegate.store(os, password);
+      }
     } catch (Exception e) {
       throw new KeyStoreException(e);
     }
@@ -289,6 +309,7 @@ public class JavaKeyStore implements KeyStore {
     final String alias = authentication.getIdentity().getValue();
     final char[] rawPassword = authentication.getPassword().toCharArray();
     final java.security.Key rawKey = delegate.getKey(alias, rawPassword);
+    Arrays.fill(rawPassword, '0');
     return rawKey;
   }
 

@@ -8,8 +8,6 @@ import static java.util.UUID.randomUUID;
 
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
-import hera.keystore.internal.KeyStoreStrategy;
-import hera.keystore.internal.KeyStoreStrategyFactory;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Level;
@@ -24,14 +22,14 @@ public class KeyStoreV1StrategyBenchmark {
   @State(Scope.Thread)
   public static class User {
 
-    protected KeyStoreStrategy keyStoreStrategy;
+    protected KeyFormatStrategy keyStoreStrategy;
     protected AergoKey key;
     protected char[] password;
     protected String json;
 
     @Setup(Level.Trial)
     public synchronized void setUp() {
-      final KeyStoreStrategy keyStoreStrategy = new KeyStoreStrategyFactory().create("v1");
+      final KeyFormatStrategy keyStoreStrategy = new KeyFormatStrategyFactory().create("v1");
 
       this.keyStoreStrategy = keyStoreStrategy;
       this.key = new AergoKeyGenerator().create();

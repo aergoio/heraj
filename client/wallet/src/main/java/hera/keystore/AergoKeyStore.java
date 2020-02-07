@@ -6,7 +6,6 @@ package hera.keystore;
 
 import static hera.util.ValidationUtils.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,9 +17,6 @@ import hera.exception.InvalidKeyStoreFormatException;
 import hera.exception.KeyStoreException;
 import hera.key.AergoKey;
 import hera.key.Signer;
-import hera.keystore.internal.KeyStoreConstants;
-import hera.keystore.internal.KeyStoreStrategy;
-import hera.keystore.internal.KeyStoreStrategyFactory;
 import hera.model.KeyAlias;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -32,6 +28,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -39,39 +36,67 @@ import org.slf4j.Logger;
 
 public class AergoKeyStore implements KeyStore {
 
+  protected static final String FIELD_VERSION = "ks_version";
   protected static final String KEYSTORE_POSTFIX = "keystore.txt";
   protected static final String KEYSTORE_SPLITER = "__";
   protected static final String KEYSTORE_TEMPLATE = "%s" + KEYSTORE_SPLITER
       + KEYSTORE_POSTFIX; // address__${postfix}
-  public static final Pattern STORE_REGEX = Pattern.compile("[a-zA-Z0-9]+__keystore\\.txt$");
+  protected static final Pattern STORE_REGEX = Pattern.compile("[a-zA-Z0-9]+__keystore\\.txt$");
 
   protected static final String KEYSTORE_DELIM_PATTERN = "[\\r\\n\\s]+";
 
-  protected static final String KEYSTORE_DEFAULT_VERSION = "v1";
+  protected final transient Logger logger = getLogger(getClass());
 
+  protected final Object lock = new Object();
   protected final ObjectMapper mapper = new ObjectMapper();
-
-  protected final KeyStoreStrategyFactory factory = new KeyStoreStrategyFactory();
-
   protected final FilenameFilter filenameFilter = new AergoKeyStoreFilenameFilter();
 
-  protected final Logger logger = getLogger(getClass());
-
-  protected final File keyStoreRoot;
+  protected final File root;
+  protected final String encryptVersion;
+  protected final HashMap<String, KeyFormatStrategy> version2Format;
 
   /**
    * Create aergo keystore with root directory {@code keyStoreDir}.
    *
-   * @param keyStoreDir a keystore directory
+   * @param root a keystore root directory
    */
-  public AergoKeyStore(final String keyStoreDir) {
-    assertNotNull(keyStoreDir);
+  public AergoKeyStore(final String root) {
+    this(root, "1");
+  }
 
-    final File file = new File(keyStoreDir);
+  /**
+   * Create aergo keystore with root directory {@code keyStoreDir}.
+   *
+   * @param root a keystore root directory
+   * @param keyFormatVersion a keyformat version
+   */
+  public AergoKeyStore(final String root, final String keyFormatVersion) {
+    assertNotNull(root, "KeyStore rootpath must not null");
+    assertNotNull(keyFormatVersion, "KeyStore keyformat version must not null");
+    logger.debug("Create Aergo KeyStore to {} with version: {}", root, keyFormatVersion);
+
+    final File file = new File(root);
     if (file.exists() && file.isFile()) {
       throw new KeyStoreException("Keystore target is a file");
     }
-    this.keyStoreRoot = file;
+    if (!file.exists()) {
+      final boolean mkdirSuccess = file.mkdirs();
+      if (!mkdirSuccess) {
+        throw new KeyStoreException("Unable to make directory: " + root);
+      }
+      logger.debug("Create directory to {}", root);
+    }
+    this.root = file;
+    this.encryptVersion = keyFormatVersion;
+
+    final HashMap<String, KeyFormatStrategy> version2Format = new HashMap<>();
+    final KeyFormatStrategyFactory factory = new KeyFormatStrategyFactory();
+    final List<String> versions = factory.listSupportedVersion();
+    logger.debug("Supported key format versions: {}", versions);
+    for (final String version : versions) {
+      version2Format.put(version, factory.create(version));
+    }
+    this.version2Format = version2Format;
   }
 
   @Override
@@ -79,19 +104,20 @@ public class AergoKeyStore implements KeyStore {
     try {
       assertNotNull(authentication, "Save authentication must not null");
       assertNotNull(key, "Save target key must not null");
+      logger.debug("Save with authentication: {}, key: {}", KeyStoreConstants.CREDENTIALS,
+          key.getAddress());
 
-      logger.debug("Save with authentication: {}, key: {}", authentication, key);
-      synchronized (this) {
+      synchronized (lock) {
         final String identity = authentication.getIdentity().getValue();
         if (hasIdentity(identity)) {
           throw new InvalidAuthenticationException();
         }
 
-        final String path = this.keyStoreRoot.getAbsolutePath() + "/" + deriveFilename(identity);
+        final String path = this.root.getAbsolutePath() + "/" + deriveFilename(identity);
         logger.debug("Save key file path: {}", path);
         try (final OutputStream os = new BufferedOutputStream(new FileOutputStream(path))) {
           final char[] password = authentication.getPassword().toCharArray();
-          final KeyStoreStrategy strategy = factory.create(KEYSTORE_DEFAULT_VERSION);
+          final KeyFormatStrategy strategy = this.version2Format.get(this.encryptVersion);
           final String json = strategy.encrypt(key, password);
           Arrays.fill(password, '0');
           os.write(json.getBytes());
@@ -108,9 +134,9 @@ public class AergoKeyStore implements KeyStore {
   public Signer load(final Authentication authentication) {
     try {
       assertNotNull(authentication, "Load authentication must not null");
-      logger.debug("Load key with authentication: {}", authentication);
+      logger.debug("Load with authentication: {}", KeyStoreConstants.CREDENTIALS);
 
-      synchronized (this) {
+      synchronized (lock) {
         return loadAergoKey(authentication);
       }
     } catch (KeyStoreException e) {
@@ -124,9 +150,9 @@ public class AergoKeyStore implements KeyStore {
   public void remove(final Authentication authentication) {
     try {
       assertNotNull(authentication, "Remove authentication must not null");
-      logger.debug("Remove key with authentication: {}", authentication);
+      logger.debug("Remove with authentication: {}", authentication);
 
-      synchronized (this) {
+      synchronized (lock) {
         final AergoKey loaded = loadAergoKey(authentication);
         // FIXME: refactor not to use loadAergoKey
         if (null != loaded) {
@@ -150,9 +176,12 @@ public class AergoKeyStore implements KeyStore {
     try {
       assertNotNull(authentication, "Export authentication must not null");
       assertNotNull(password, "Export password must not null");
-      logger.debug("Export key with authentication: {}", authentication);
+      logger.debug("Export with authentication: {}, password: {}", KeyStoreConstants.CREDENTIALS,
+          KeyStoreConstants.CREDENTIALS);
 
-      return loadAergoKey(authentication).export(password);
+      final AergoKey decrypted = loadAergoKey(authentication);
+      logger.trace("Address to export: {}", decrypted.getAddress());
+      return decrypted.export(password);
     } catch (KeyStoreException e) {
       throw e;
     } catch (Exception e) {
@@ -175,20 +204,21 @@ public class AergoKeyStore implements KeyStore {
       while (scanner.hasNext()) {
         sb.append(scanner.next());
       }
+      final String json = sb.toString();
+      logger.trace("Loaded key file: {}", json);
 
-      final String contentInJson = sb.toString();
-      final JsonNode jsonNode = mapper.reader().readTree(contentInJson);
-
-      final JsonNode jsonVersion = jsonNode.get(KeyStoreConstants.FIELD_VERSION);
+      final JsonNode jsonNode = mapper.reader().readTree(json);
+      final JsonNode jsonVersion = jsonNode.get(FIELD_VERSION);
       if (null == jsonVersion) {
         throw new InvalidKeyStoreFormatException(
-            "No " + KeyStoreConstants.FIELD_VERSION + " field");
+            "No " + FIELD_VERSION + " field");
       }
 
       final String version = jsonVersion.asText();
-      final KeyStoreStrategy strategy = factory.create(version);
+      logger.trace("Version: {}", version);
+      final KeyFormatStrategy strategy = this.version2Format.get(version);
       final char[] decryptPassword = authentication.getPassword().toCharArray();
-      final AergoKey decrypted = strategy.decrypt(jsonNode, decryptPassword);
+      final AergoKey decrypted = strategy.decrypt(json, decryptPassword);
       Arrays.fill(decryptPassword, '0');
 
       return decrypted;
@@ -220,15 +250,15 @@ public class AergoKeyStore implements KeyStore {
   }
 
   protected List<String> listMatchingFiles() {
-    logger.debug("Matcher: {}", STORE_REGEX);
-    final List<String> matchingList = Arrays.asList(this.keyStoreRoot.list(filenameFilter));
-    logger.debug("Matching files: {}", matchingList);
+    logger.trace("Matcher: {}", STORE_REGEX);
+    final List<String> matchingList = Arrays.asList(this.root.list(filenameFilter));
+    logger.trace("Matching files: {}", matchingList);
     return matchingList;
   }
 
   protected File loadKeyFile(final String identity) {
     final String filename = deriveFilename(identity);
-    final File[] files = this.keyStoreRoot.listFiles(new FilenameFilter() {
+    final File[] files = this.root.listFiles(new FilenameFilter() {
 
       @Override
       public boolean accept(final File dir, final String name) {
@@ -245,7 +275,7 @@ public class AergoKeyStore implements KeyStore {
     return String.format(KEYSTORE_TEMPLATE, identity);
   }
 
-  private final class AergoKeyStoreFilenameFilter implements FilenameFilter {
+  private class AergoKeyStoreFilenameFilter implements FilenameFilter {
 
     @Override
     public boolean accept(final File dir, final String name) {

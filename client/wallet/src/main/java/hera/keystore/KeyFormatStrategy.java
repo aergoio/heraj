@@ -2,17 +2,14 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.keystore.internal;
+package hera.keystore;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import hera.key.AergoKey;
 
-public interface KeyStoreStrategy {
+public interface KeyFormatStrategy {
 
   String encrypt(AergoKey key, char[] password);
 
   AergoKey decrypt(String json, char[] password);
-
-  AergoKey decrypt(JsonNode json, char[] password);
 
 }
