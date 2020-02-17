@@ -2,13 +2,12 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.contract.internal;
+package hera.contract;
 
 import static org.junit.Assert.assertNotNull;
 
 import hera.AbstractTestCase;
 import hera.api.model.Fee;
-import hera.contract.ContractApi;
 import hera.keystore.InMemoryKeyStore;
 import hera.wallet.WalletApi;
 import hera.wallet.WalletApiFactory;

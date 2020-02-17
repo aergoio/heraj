@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.contract.internal;
+package hera.contract;
 
 import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
@@ -24,6 +24,8 @@ import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
 import hera.api.model.StateVariable;
 import hera.client.AergoClient;
+import hera.contract.ContractInvocationHandler;
+import hera.contract.ContractInvocationPreparable;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.key.Signer;

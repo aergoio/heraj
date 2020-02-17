@@ -11,7 +11,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.model.BytesValue;
 import hera.api.model.ChainIdHash;
 import hera.util.Configuration;
 import hera.util.conf.InMemoryConfiguration;

@@ -1,4 +1,4 @@
-package hera.contract.internal;
+package hera.contract;
 
 import static hera.util.ValidationUtils.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -17,7 +17,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import org.slf4j.Logger;
 
-public class ContractInvocationHandler implements InvocationHandler {
+class ContractInvocationHandler implements InvocationHandler {
 
   protected final transient Logger logger = getLogger(getClass());
 
@@ -46,7 +46,7 @@ public class ContractInvocationHandler implements InvocationHandler {
         return null;
       } else {
         logger.debug("Contract Invocation with  invocator: {}", this.contractInvocator);
-        return contractInvocator.invoke(method, args);
+        return this.contractInvocator.invoke(method, args);
       }
     } catch (ContractException e) {
       throw e;
@@ -79,7 +79,7 @@ public class ContractInvocationHandler implements InvocationHandler {
     @Setter
     protected Fee fee;
 
-    protected ContractInterface cachedContractInterface;
+    protected volatile ContractInterface cachedContractInterface;
 
     public Object invoke(final Method method, final Object[] args) throws Throwable {
       final WalletApi walletApi = getWalletApi();
@@ -111,7 +111,6 @@ public class ContractInvocationHandler implements InvocationHandler {
         ret = result.bind(method.getReturnType());
       }
 
-      flush();
       return ret;
     }
 
@@ -144,11 +143,6 @@ public class ContractInvocationHandler implements InvocationHandler {
         this.cachedContractInterface = walletApi.queryApi().getContractInterface(contractAddress);
       }
       return this.cachedContractInterface;
-    }
-
-    protected void flush() {
-      this.walletApi = null;
-      this.fee = null;
     }
 
   }

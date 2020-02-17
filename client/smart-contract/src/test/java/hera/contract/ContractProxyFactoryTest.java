@@ -2,12 +2,13 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.contract.internal;
+package hera.contract;
 
 import static org.junit.Assert.assertNotNull;
 
 import hera.AbstractTestCase;
 import hera.api.model.ContractAddress;
+import hera.contract.ContractProxyFactory;
 import hera.key.AergoKeyGenerator;
 import org.junit.Test;
 

@@ -2,16 +2,15 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.contract.internal;
+package hera.contract;
 
 import static hera.util.ValidationUtils.assertNotNull;
 
 import hera.api.model.Fee;
-import hera.contract.ContractApi;
 import hera.contract.ContractApi.ContractApiWithWalletApi;
 import hera.wallet.WalletApi;
 
-public class ContractApiImpl<ContractT>
+class ContractApiImpl<ContractT>
     implements ContractApi<ContractT>, ContractApiWithWalletApi<ContractT> {
 
   protected ContractT contract;

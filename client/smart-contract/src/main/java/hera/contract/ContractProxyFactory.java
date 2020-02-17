@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.contract.internal;
+package hera.contract;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -11,7 +11,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import org.slf4j.Logger;
 
-public class ContractProxyFactory<ContractT> {
+class ContractProxyFactory<ContractT> {
 
   protected final transient Logger logger = getLogger(getClass());
 

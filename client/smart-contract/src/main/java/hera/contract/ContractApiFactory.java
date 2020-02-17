@@ -9,8 +9,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.ContractAddress;
-import hera.contract.internal.ContractApiImpl;
-import hera.contract.internal.ContractProxyFactory;
 import org.slf4j.Logger;
 
 @ApiAudience.Public
