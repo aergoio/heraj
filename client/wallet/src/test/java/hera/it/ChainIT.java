@@ -15,11 +15,44 @@ import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
 import hera.api.model.ServerInfo;
+import hera.api.transaction.NonceProvider;
+import hera.api.transaction.SimpleNonceProvider;
+import hera.client.AergoClient;
+import hera.key.AergoKey;
+import hera.wallet.WalletApi;
+import hera.wallet.WalletApiFactory;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ChainIT extends AbstractWalletApiIT {
+
+  protected static AergoClient aergoClient;
+
+  protected final NonceProvider nonceProvider = new SimpleNonceProvider();
+  protected final AergoKey rich = AergoKey
+      .of("483wcRWd1SbvATUXv7rMpoa9wg14bj35sPyzj3noSNf3NDHs5ABLhLFguJLF4jsfxi9KFJamT", "1234");
+  protected WalletApi walletApi;
+
+  @BeforeClass
+  public static void before() {
+    final TestClientFactory clientFactory = new TestClientFactory();
+    aergoClient = clientFactory.get();
+  }
+
+  @AfterClass
+  public static void after() throws Exception {
+    aergoClient.close();
+  }
+
+  @Before
+  public void setUp() {
+    walletApi = new WalletApiFactory().create(keyStore);
+    walletApi.bind(aergoClient);
+  }
 
   @Test
   public void testQueryChainInfos() {

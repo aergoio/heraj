@@ -27,9 +27,15 @@ import hera.api.model.ContractTxReceipt;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
 import hera.api.model.Fee;
+import hera.api.model.RawTransaction;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
+import hera.api.model.Transaction;
+import hera.api.transaction.NonceProvider;
+import hera.api.transaction.SimpleNonceProvider;
+import hera.client.AergoClient;
 import hera.key.AergoKey;
+import hera.key.AergoKeyGenerator;
 import hera.key.Signer;
 import hera.util.IoUtils;
 import java.io.InputStreamReader;
@@ -40,37 +46,77 @@ import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ContractOperationIT extends AbstractIT {
 
-  protected Map<String, String> payloadMap = new HashMap<>();
+  protected static AergoClient aergoClient;
 
+  protected final Map<String, String> payloadMap = new HashMap<>();
   protected final Fee fee = Fee.ZERO;
+  protected final TestClientFactory clientFactory = new TestClientFactory();
+  protected final NonceProvider nonceProvider = new SimpleNonceProvider();
+  protected final AergoKey rich = AergoKey
+      .of("47sbh237YhZePchrES9q5Gkooczkz7NLZL6ARvhUEiG25MPmm9c3Moth2FRFYhzKmzFR1nqUw", "1234");
+  protected AergoKey key;
+
+  {
+    try {
+      payloadMap.put("simple_payload", IoUtils.from(new InputStreamReader(open("simple_payload"))));
+      payloadMap.put("with_payable_payload",
+          IoUtils.from(new InputStreamReader(open("with_payable_payload"))));
+      payloadMap.put("with_abi_added_payload",
+          IoUtils.from(new InputStreamReader(open("with_abi_added_payload"))));
+      payloadMap.put("with_event_payload",
+          IoUtils.from(new InputStreamReader(open("with_event_payload"))));
+      payloadMap.put("with_bignum_payload",
+          IoUtils.from(new InputStreamReader(open("with_bignum_payload"))));
+      payloadMap.put("with_event_nested_args_payload",
+          IoUtils.from(new InputStreamReader(open("with_event_args_payload"))));
+      payloadMap.put("with_fee_delegation_payload",
+          IoUtils.from(new InputStreamReader(open("with_fee_delegation_payload"))));
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  @BeforeClass
+  public static void before() {
+    final TestClientFactory clientFactory = new TestClientFactory();
+    aergoClient = clientFactory.get();
+  }
+
+  @AfterClass
+  public static void after() throws Exception {
+    aergoClient.close();
+  }
 
   @Before
-  public void setUp() throws Exception {
-    super.setUp();
-    payloadMap.put("simple_payload", IoUtils.from(new InputStreamReader(open("simple_payload"))));
-    payloadMap.put("with_payable_payload",
-        IoUtils.from(new InputStreamReader(open("with_payable_payload"))));
-    payloadMap.put("with_abi_added_payload",
-        IoUtils.from(new InputStreamReader(open("with_abi_added_payload"))));
-    payloadMap.put("with_event_payload",
-        IoUtils.from(new InputStreamReader(open("with_event_payload"))));
-    payloadMap.put("with_bignum_payload",
-        IoUtils.from(new InputStreamReader(open("with_bignum_payload"))));
-    payloadMap.put("with_event_nested_args_payload",
-        IoUtils.from(new InputStreamReader(open("with_event_args_payload"))));
-    payloadMap.put("with_fee_delegation_payload",
-        IoUtils.from(new InputStreamReader(open("with_fee_delegation_payload"))));
+  public void setUp() {
+    key = new AergoKeyGenerator().create();
+
+    final AccountState state = aergoClient.getAccountOperation().getState(rich.getAddress());
+    logger.debug("Rich state: {}", state);
+    nonceProvider.bindNonce(state);;
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .chainIdHash(aergoClient.getCachedChainIdHash())
+        .from(rich.getPrincipal())
+        .to(key.getAddress())
+        .amount(Aer.of("10000", Unit.AERGO))
+        .nonce(nonceProvider.incrementAndGetNonce(rich.getPrincipal()))
+        .build();
+    final Transaction signed = rich.sign(rawTransaction);
+    logger.debug("Fill tx: ", signed);
+    aergoClient.getTransactionOperation().commit(signed);
+    waitForNextBlockToGenerate();
   }
 
   @Test
   public void shouldDeployOnPlainContract() throws Exception {
     // when
-    final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payloadMap.get("simple_payload"))
         .build();
@@ -83,7 +129,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void shouldApplyConstructorArgsOnDeploy() throws Exception {
     // when
-    final AergoKey key = createNewKey();
     final String deployKey = randomUUID().toString();
     final int deployIntVal = randomUUID().toString().hashCode();
     final String deployStringVal = randomUUID().toString();
@@ -108,7 +153,6 @@ public class ContractOperationIT extends AbstractIT {
   public void shouldDeployFailOnInvaidNonce() throws Exception {
     try {
       // when
-      final AergoKey key = createNewKey();
       final ContractDefinition definition = ContractDefinition.newBuilder()
           .encodedContract(payloadMap.get("simple_payload"))
           .build();
@@ -122,7 +166,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void shouldReDeployOnDeployedContract() throws Exception {
     // given
-    final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payloadMap.get("simple_payload"))
         .build();
@@ -150,7 +193,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void shouldApplyConstructorArgsOnReDeploy() throws Exception {
     // given
-    final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payloadMap.get("simple_payload"))
         .build();
@@ -182,7 +224,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void shouldKeepStateVariablesOnReDeploy() throws Exception {
     // given
-    final AergoKey key = createNewKey();
     final String deployKey = randomUUID().toString();
     final int deployIntVal = randomUUID().toString().hashCode();
     final String deployStringVal = randomUUID().toString();
@@ -214,7 +255,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void shouldNewFunctionSetOnReDeploy() throws Exception {
     // given
-    final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payloadMap.get("simple_payload"))
         .build();
@@ -236,7 +276,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void shouldHasAmountSameAsDeployedOne() throws Exception {
     // when
-    final AergoKey key = createNewKey();
     final Aer expected = Aer.GIGA_ONE;
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payloadMap.get("with_payable_payload"))
@@ -254,7 +293,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void shouldExecuteOnDeployedOne() throws Exception {
     // given
-    final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payloadMap.get("simple_payload"))
         .build();
@@ -285,7 +323,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void shouldBindExecuteResult() throws Exception {
     // given
-    final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payloadMap.get("simple_payload"))
         .build();
@@ -310,7 +347,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void shouldExecuteWithBignumberArguments() throws Exception {
     // given
-    final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payloadMap.get("with_bignum_payload"))
         .build();
@@ -339,7 +375,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void shouldHasAmountSameAsUsedInExecution() throws Exception {
     // given
-    final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payloadMap.get("with_payable_payload"))
         .build();
@@ -366,7 +401,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void shouldExecuteWithEscapeStringAsArgs() throws Exception {
     // given
-    final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payloadMap.get("simple_payload"))
         .build();
@@ -397,7 +431,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void shouldExecuteFailOnInvalidNonce() throws Exception {
     // given
-    final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payloadMap.get("simple_payload"))
         .build();
@@ -422,7 +455,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void shouldExecuteUseSenderFeeOnNotFeeDelegation() throws Exception {
     // given
-    final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payloadMap.get("with_fee_delegation_payload"))
         .amount(Aer.of("10", Unit.AERGO))
@@ -449,7 +481,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void shouldExecuteNotUseSenderFeeOnFeeDelegation() throws Exception {
     // given
-    final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payloadMap.get("with_fee_delegation_payload"))
         .amount(Aer.of("10", Unit.AERGO))
@@ -475,7 +506,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void shouldSubscribeOnExecute() {
     // given
-    final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payloadMap.get("with_event_payload"))
         .build();
@@ -524,7 +554,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void shouldNotCallBackOnUnsubscribedOne() {
     // given
-    final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payloadMap.get("with_event_payload"))
         .build();
@@ -574,7 +603,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void shouldFilterEventWithNameOnSubscription() {
     // given
-    final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payloadMap.get("with_event_payload"))
         .build();
@@ -630,7 +658,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void shouldFilterEventWithArgsOnSubscription() {
     // given
-    final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payloadMap.get("with_event_payload"))
         .build();
@@ -687,7 +714,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void shouldFilterEventWithNameOnList() {
     // given
-    final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payloadMap.get("with_event_payload"))
         .build();
@@ -722,7 +748,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void shouldFilterEventWithArgsOnList() {
     // given
-    final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payloadMap.get("with_event_payload"))
         .build();
@@ -758,7 +783,6 @@ public class ContractOperationIT extends AbstractIT {
   @Test
   public void shouldParseEventArgsInLuaTypes() {
     // given
-    final AergoKey key = createNewKey();
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payloadMap.get("with_event_nested_args_payload"))
         .build();

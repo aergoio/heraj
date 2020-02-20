@@ -4,9 +4,11 @@
 
 package hera.it;
 
-import static org.junit.Assert.assertNotNull;
+import static java.util.UUID.randomUUID;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import hera.api.model.BytesValue;
 import hera.api.model.ChainIdHash;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
@@ -36,14 +38,16 @@ public class AergoClientIT extends AbstractIT {
 
   @Test
   public void testContextOnOtherThread() throws Exception {
-    final AergoClient client = this.aergoClient;
+    final AergoClient client = new AergoClientBuilder().build();
+    final ChainIdHash expected = ChainIdHash.of(BytesValue.of(randomUUID().toString().getBytes()));
+    client.cacheChainIdHash(expected);
     final ExecutorService executorService = Executors.newSingleThreadExecutor();
     final Future<?> future = executorService.submit(new Runnable() {
 
       @Override
       public void run() {
-        final ChainIdHash cached = client.getCachedChainIdHash();
-        assertNotNull(cached);
+        final ChainIdHash actual = client.getCachedChainIdHash();
+        assertEquals(expected, actual);
       }
     });
     future.get();

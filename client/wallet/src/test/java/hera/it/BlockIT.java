@@ -12,14 +12,47 @@ import hera.api.model.BlockMetadata;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
+import hera.api.transaction.NonceProvider;
+import hera.api.transaction.SimpleNonceProvider;
+import hera.client.AergoClient;
+import hera.key.AergoKey;
+import hera.wallet.WalletApi;
+import hera.wallet.WalletApiFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class BlockIT extends AbstractWalletApiIT {
+
+  protected static AergoClient aergoClient;
+
+  protected final NonceProvider nonceProvider = new SimpleNonceProvider();
+  protected final AergoKey rich = AergoKey
+      .of("47ZhS5rhhGvgt6CqhMiTEPEjfeKS91dhRDNYesdvDhMYtNPu1YL9dqKu9cWxr8D3W3MPAg62m", "1234");
+  protected WalletApi walletApi;
+
+  @BeforeClass
+  public static void before() {
+    final TestClientFactory clientFactory = new TestClientFactory();
+    aergoClient = clientFactory.get();
+  }
+
+  @AfterClass
+  public static void after() throws Exception {
+    aergoClient.close();
+  }
+
+  @Before
+  public void setUp() {
+    walletApi = new WalletApiFactory().create(keyStore);
+    walletApi.bind(aergoClient);
+  }
 
   @Test
   public void shouldGetBlockInfoByBestInfo() {

@@ -14,11 +14,34 @@ import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
 import hera.api.model.ServerInfo;
+import hera.api.transaction.NonceProvider;
+import hera.api.transaction.SimpleNonceProvider;
+import hera.client.AergoClient;
+import hera.key.AergoKey;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class BlockchainOperationIT extends AbstractIT {
+
+  protected static AergoClient aergoClient;
+  protected final TestClientFactory clientFactory = new TestClientFactory();
+  protected final NonceProvider nonceProvider = new SimpleNonceProvider();
+  protected final AergoKey rich = AergoKey
+      .of("47hQNJjyUAMmjwdpXSwTYueRd3N8Cc3dwidU8ubtrb781ByAff7HPwPyGUqgA9RxZoeS2JhKs", "1234");
+
+  @BeforeClass
+  public static void before() {
+    final TestClientFactory clientFactory = new TestClientFactory();
+    aergoClient = clientFactory.get();
+  }
+
+  @AfterClass
+  public static void after() throws Exception {
+    aergoClient.close();
+  }
 
   @Test
   public void shouldFetchBlockchainStatus() {

@@ -17,11 +17,34 @@ import hera.api.model.BlockMetadata;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
+import hera.api.transaction.NonceProvider;
+import hera.api.transaction.SimpleNonceProvider;
+import hera.client.AergoClient;
+import hera.key.AergoKey;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class BlockOperationIT extends AbstractIT {
+
+  protected static AergoClient aergoClient;
+  protected final TestClientFactory clientFactory = new TestClientFactory();
+  protected final NonceProvider nonceProvider = new SimpleNonceProvider();
+  protected final AergoKey rich = AergoKey
+      .of("47aK1s1QDCrEvuDRxjx3xznB5naz6juRnVGFjH4hyZRkYDxN6yTHfBQyNQcEEzv42SjQdLx8D", "1234");
+
+  @BeforeClass
+  public static void before() {
+    final TestClientFactory clientFactory = new TestClientFactory();
+    aergoClient = clientFactory.get();
+  }
+
+  @AfterClass
+  public static void after() throws Exception {
+    aergoClient.close();
+  }
 
   @Test
   public void shouldFetchBlockMetadataByHash() {

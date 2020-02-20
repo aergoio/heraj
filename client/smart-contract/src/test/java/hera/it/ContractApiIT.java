@@ -8,15 +8,24 @@ import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import hera.api.model.AccountState;
+import hera.api.model.Aer;
+import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
+import hera.api.model.RawTransaction;
+import hera.api.model.Transaction;
+import hera.api.transaction.NonceProvider;
+import hera.api.transaction.SimpleNonceProvider;
+import hera.client.AergoClient;
 import hera.contract.ContractApi;
 import hera.contract.ContractApiFactory;
 import hera.exception.ContractException;
 import hera.key.AergoKey;
+import hera.key.AergoKeyGenerator;
 import hera.keystore.InMemoryKeyStore;
 import hera.keystore.KeyStore;
 import hera.model.KeyAlias;
@@ -24,33 +33,66 @@ import hera.util.IoUtils;
 import hera.wallet.WalletApi;
 import hera.wallet.WalletApiFactory;
 import java.io.InputStreamReader;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ContractApiIT extends AbstractIT {
 
-  protected WalletApi walletApi;
-
-  protected ContractAddress contractAddress;
+  protected static AergoClient aergoClient;
 
   protected Fee fee = Fee.ZERO;
+  protected final TestClientFactory clientFactory = new TestClientFactory();
+  protected final AergoKey rich = AergoKey
+      .of("47ExozzhsfEEVp2yhvNGxZxGLXPccRSdBydQeuJ5tmUpBij2M9gTSg2AESV83mGXGvu2U8bPR", "1234");
+  protected AergoKey key;
+  protected WalletApi walletApi;
+  protected ContractAddress contractAddress;
+
+  @BeforeClass
+  public static void before() {
+    final TestClientFactory clientFactory = new TestClientFactory();
+    aergoClient = clientFactory.get();
+  }
+
+  @AfterClass
+  public static void after() throws Exception {
+    aergoClient.close();
+  }
 
   @Before
   public void setUp() throws Exception {
-    super.setUp();
+    key = new AergoKeyGenerator().create();
+    final NonceProvider nonceProvider = new SimpleNonceProvider();
+    final AccountState state = aergoClient.getAccountOperation().getState(rich.getAddress());
+    logger.debug("Rich state: {}", state);
+    nonceProvider.bindNonce(state);;
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .chainIdHash(aergoClient.getCachedChainIdHash())
+        .from(rich.getPrincipal())
+        .to(key.getAddress())
+        .amount(Aer.of("10000", Unit.AERGO))
+        .nonce(nonceProvider.incrementAndGetNonce(rich.getPrincipal()))
+        .build();
+    final Transaction signed = rich.sign(rawTransaction);
+    logger.debug("Fill tx: ", signed);
+    aergoClient.getTransactionOperation().commit(signed);
+    waitForNextBlockToGenerate();
+
+    // create wallet api
     final KeyStore keyStore = new InMemoryKeyStore();
-
-    final KeyAlias alias = KeyAlias.of(randomUUID().toString().replaceAll("-", ""));
-    final String password = randomUUID().toString();
-    final Authentication authentication = Authentication.of(alias, password);
-    final AergoKey key = createNewKey();
-    keyStore.save(authentication, key);
-
     this.walletApi = new WalletApiFactory().create(keyStore);
     this.walletApi.bind(aergoClient);
+
+    // save
+    final KeyAlias alias = new KeyAlias(randomUUID().toString().replace("-", ""));
+    final Authentication authentication = Authentication.of(alias, randomUUID().toString());
+    keyStore.save(authentication, key);
     this.walletApi.unlock(authentication);
 
-    final String payload = IoUtils.from(new InputStreamReader(open("payload")));
+    // deploy contract
+    String payload = IoUtils.from(new InputStreamReader(open("payload")));
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payload)
         .build();

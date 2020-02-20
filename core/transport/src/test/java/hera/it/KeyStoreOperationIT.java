@@ -12,17 +12,77 @@ import static org.junit.Assert.fail;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
+import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.Identity;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
+import hera.api.transaction.NonceProvider;
+import hera.api.transaction.SimpleNonceProvider;
+import hera.client.AergoClient;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.key.AergoSignVerifier;
 import java.util.List;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class KeyStoreOperationIT extends AbstractIT {
+
+  protected static AergoClient aergoClient;
+
+  protected final NonceProvider nonceProvider = new SimpleNonceProvider();
+  protected final AergoKey rich = AergoKey
+      .of("486NtKUZPWxZj6n8m2axqyGggHJTJmusgLWnFW1s2ckvTGNsy5K5R6LZssRN2hijJQ2pbFGgk", "1234");
+  protected AergoKey key;
+
+  @BeforeClass
+  public static void before() {
+    final TestClientFactory clientFactory = new TestClientFactory();
+    aergoClient = clientFactory.get();
+  }
+
+  @AfterClass
+  public static void after() throws Exception {
+    aergoClient.close();
+  }
+
+  @Before
+  public void setUp() {
+    key = new AergoKeyGenerator().create();
+
+    final AccountState state = aergoClient.getAccountOperation().getState(rich.getAddress());
+    logger.debug("Rich state: {}", state);
+    nonceProvider.bindNonce(state);;
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .chainIdHash(aergoClient.getCachedChainIdHash())
+        .from(rich.getPrincipal())
+        .to(key.getAddress())
+        .amount(Aer.of("10000", Unit.AERGO))
+        .nonce(nonceProvider.incrementAndGetNonce(rich.getPrincipal()))
+        .build();
+    final Transaction signed = rich.sign(rawTransaction);
+    logger.debug("Fill tx: ", signed);
+    aergoClient.getTransactionOperation().commit(signed);
+    waitForNextBlockToGenerate();
+  }
+
+  protected void fund(final Identity identity) {
+    final RawTransaction rawTransaction = RawTransaction.newBuilder()
+        .chainIdHash(aergoClient.getCachedChainIdHash())
+        .from(rich.getPrincipal())
+        .to(identity)
+        .amount(Aer.of("10000", Unit.AERGO))
+        .nonce(nonceProvider.incrementAndGetNonce(rich.getPrincipal()))
+        .build();
+    final Transaction signed = rich.sign(rawTransaction);
+    logger.debug("Fill tx: ", signed);
+    aergoClient.getTransactionOperation().commit(signed);
+    waitForNextBlockToGenerate();
+  }
 
   @Test
   public void shouldCreateSuccessfully() {
@@ -234,6 +294,7 @@ public class KeyStoreOperationIT extends AbstractIT {
     final String password = randomUUID().toString();
     final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
     fund(created);
+    waitForNextBlockToGenerate();
     aergoClient.getKeyStoreOperation().unlock(Authentication.of(created, password));
 
     // when
@@ -252,6 +313,7 @@ public class KeyStoreOperationIT extends AbstractIT {
     final String password = randomUUID().toString();
     final AccountAddress created = aergoClient.getKeyStoreOperation().create(password);
     fund(created);
+    waitForNextBlockToGenerate();
 
     try {
       // when

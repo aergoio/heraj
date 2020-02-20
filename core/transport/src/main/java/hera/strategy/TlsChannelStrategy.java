@@ -54,7 +54,7 @@ public class TlsChannelStrategy implements SecurityConfigurationStrategy {
   @Override
   public void configure(final ManagedChannelBuilder<?> builder) {
     logger.debug(
-        "Configure cls with serverCertStream: {}, clientCertStream: {}, clientKeyStream: {}",
+        "Configure tls with serverCertStream: {}, clientCertStream: {}, clientKeyStream: {}",
         serverCertInputStream, clientCertInputStream, clientKeyInputStream);
     try {
       if (builder instanceof NettyChannelBuilder) {

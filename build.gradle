@@ -176,8 +176,8 @@ configure(javaProjects) {
       jvmArgs('--add-opens', 'java.xml/jdk.xml.internal=ALL-UNNAMED')
     }
 
-    // must be single thread because of funding
-    maxParallelForks = 1
+    // note that every *IT class must have own wallet
+    maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors())
     include '**/*IT.class'
   }
 
