@@ -41,7 +41,7 @@ public class TestClientFactory {
     final String hostname = properties.getProperty("endpoint");
     logger.debug("Provide client for {}", hostname);
     final AergoClientBuilder clientBuilder = new AergoClientBuilder()
-        .withBlockingConnect()
+        .withNonBlockingConnect()
         .withTimeout(3000, TimeUnit.MILLISECONDS)
         .withEndpoint(hostname)
         .withPlainText();

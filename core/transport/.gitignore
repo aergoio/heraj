@@ -1,6 +1,0 @@
-# cert, key for tls test
-*.key
-*.crt
-*.csr
-*.srl
-*.pem

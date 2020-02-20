@@ -74,9 +74,9 @@ public abstract class AbstractLegacyWalletIT extends AbstractIT {
       wallet.getBlockchainStatus();
     } catch (Exception e) {
       final String aergoNodeName = properties.getProperty("aergoNodeName");
-      final String serverCert = properties.getProperty(SERVER_CRT);
-      final String clientCert = properties.getProperty(CLIENT_CRT);
-      final String clientKey = properties.getProperty(CLIENT_KEY);
+      final InputStream serverCert = AbstractLegacyWalletIT.class.getResourceAsStream(SERVER_CRT);
+      final InputStream clientCert = AbstractLegacyWalletIT.class.getResourceAsStream(CLIENT_CRT);
+      final InputStream clientKey = AbstractLegacyWalletIT.class.getResourceAsStream(CLIENT_KEY);
       wallet = new WalletBuilder()
           .withEndpoint(hostname)
           .withRefresh(2, 1000L, TimeUnit.MILLISECONDS)

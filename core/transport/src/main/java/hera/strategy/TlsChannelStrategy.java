@@ -53,9 +53,7 @@ public class TlsChannelStrategy implements SecurityConfigurationStrategy {
 
   @Override
   public void configure(final ManagedChannelBuilder<?> builder) {
-    logger.debug(
-        "Configure tls with serverCertStream: {}, clientCertStream: {}, clientKeyStream: {}",
-        serverCertInputStream, clientCertInputStream, clientKeyInputStream);
+    logger.info("Configure channel with tls (server name: {})", serverCommonName);
     try {
       if (builder instanceof NettyChannelBuilder) {
         final SslContext sslContext = GrpcSslContexts.forClient()
