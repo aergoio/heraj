@@ -15,7 +15,6 @@ import hera.api.model.ChainIdHash;
 import hera.api.model.ContractAddress;
 import hera.api.model.EncryptedPrivateKey;
 import hera.key.AergoKeyGenerator;
-import hera.spec.resolver.EncryptedPrivateKeySpec;
 import hera.strategy.NettyConnectStrategy;
 import hera.strategy.TimeoutStrategy;
 import java.util.concurrent.Executors;
@@ -42,7 +41,7 @@ public abstract class AbstractTestCase {
   protected Context context;
 
   protected final EncryptedPrivateKey encryptedPrivateKey =
-      new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKeySpec.PREFIX}));
+      new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.ENCRYPTED_PREFIX}));
 
   protected final AccountAddress accountAddress = new AergoKeyGenerator().create().getAddress();
 

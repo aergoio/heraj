@@ -9,8 +9,9 @@ public interface Encodable {
   /**
    * Get encoded value.
    *
+   * @param encoder an encoder
    * @return an encoded value
    */
-  String getEncoded();
+  String getEncoded(Encoder encoder);
 
 }

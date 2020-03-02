@@ -4,28 +4,22 @@
 
 package hera.api.model;
 
-import static hera.api.model.BytesValue.of;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import hera.exception.DecodingFailureException;
 import hera.exception.HerajException;
-import hera.spec.resolver.ContractDefinitionSpec;
-import hera.util.EncodingUtils;
+import hera.util.Base58Utils;
 import org.junit.Test;
 
 public class ContractDefinitionTest {
 
-  public static final String payload =
-      EncodingUtils.encodeBase58WithCheck(of(new byte[] {ContractDefinitionSpec.PAYLOAD_VERSION}));
+  protected final String payload =
+      Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
 
   @Test
   public void testBuilder() {
     final Object[] args = new Object[] {1, 2, 3};
-
     final ContractDefinition expected = new ContractDefinition(payload, asList(args), Aer.ONE);
     final ContractDefinition actual = ContractDefinition.newBuilder()
         .encodedContract(payload)
@@ -36,27 +30,17 @@ public class ContractDefinitionTest {
   }
 
   @Test
-  public void testBuildWithInvalidPayload() {
+  public void shouldThrowExceptionOnPayloadWithoutVersion() {
     try {
-      final String wrongEncodedPayload = randomUUID().toString();
-      new ContractDefinition(wrongEncodedPayload, emptyList(), Aer.ONE);
-      fail();
-    } catch (DecodingFailureException e) {
-      // good we expected this
-    }
-
-    try {
-      final String wrongVersionPayload =
-          EncodingUtils.encodeBase58WithCheck(of(new byte[] {(byte) 0xAA}));
+      final String withoutVersion = Base58Utils.encodeWithCheck(new byte[] {(byte) 0xAA});
       ContractDefinition.newBuilder()
-          .encodedContract(wrongVersionPayload)
+          .encodedContract(withoutVersion)
           .amount(Aer.ONE)
           .build();
       fail();
     } catch (HerajException e) {
-      // good we expected this
+      // then
     }
-
   }
 
 }

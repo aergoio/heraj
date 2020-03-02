@@ -4,13 +4,13 @@
 
 package hera.api.model;
 
-import static hera.util.EncodingUtils.decodeBase58;
-import static hera.util.EncodingUtils.encodeBase58;
+import static hera.util.ValidationUtils.assertNotNull;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.api.encode.Decoder;
 import hera.api.encode.Encodable;
-import hera.exception.DecodingFailureException;
+import hera.api.encode.Encoder;
 import hera.util.Adaptor;
 import lombok.Getter;
 
@@ -19,24 +19,35 @@ import lombok.Getter;
 public class Hash implements Adaptor, Encodable {
 
   /**
-   * Create {@code Hash} with a base58 encoded value.
+   * Create {@code Hash} with a base58 encoded one.
    *
-   * @param encoded String with base58 encoded
+   * @param encoded a base58 encoded hash
+   *
    * @return created {@link Hash}
-   * @throws DecodingFailureException if decoding failed
    */
-  @ApiAudience.Public
   public static Hash of(final String encoded) {
     return new Hash(encoded);
   }
 
   /**
-   * Create {@code Hash}.
+   * Create {@code Hash} with an encoded one.
    *
-   * @param bytesValue {@link BytesValue}
+   * @param encoded an encoded hash
+   * @param decoder a decoder to decode
+   *
    * @return created {@link Hash}
    */
-  @ApiAudience.Private
+  public static Hash of(final String encoded, final Decoder decoder) {
+    return new Hash(encoded, decoder);
+  }
+
+  /**
+   * Create {@code Hash}.
+   *
+   * @param bytesValue a bytesValue
+   *
+   * @return created {@link Hash}
+   */
   public static Hash of(final BytesValue bytesValue) {
     return new Hash(bytesValue);
   }
@@ -45,34 +56,53 @@ public class Hash implements Adaptor, Encodable {
   protected final BytesValue bytesValue;
 
   /**
-   * Hash constructor.
+   * Create {@code Hash} with a base58 encoded one.
    *
-   * @param encoded String with base58 encoded
-   * @throws DecodingFailureException if decoding failed
+   * @param encoded a base58 encoded hash
    */
-  @ApiAudience.Public
   public Hash(final String encoded) {
-    this(decodeBase58(encoded));
+    this(encoded, Decoder.Base58);
   }
 
   /**
-   * Hash constructor.
+   * Create {@code Hash} with an encoded one.
    *
-   * @param bytesValue an bytes value
+   * @param encoded an encoded hash
+   * @param decoder a decoder to decode
    */
-  @ApiAudience.Private
+  public Hash(final String encoded, final Decoder decoder) {
+    assertNotNull(encoded, "Encoded value must not null");
+    assertNotNull(decoder, "Decoder must not null");
+    this.bytesValue = BytesValue.of(encoded, decoder);
+  }
+
+  /**
+   * Create {@code Hash} with a bytes value.
+   *
+   * @param bytesValue a bytesValue
+   */
   public Hash(final BytesValue bytesValue) {
-    this.bytesValue = null != bytesValue ? bytesValue : BytesValue.EMPTY;
+    assertNotNull(bytesValue, "Bytes value must not null");
+    this.bytesValue = bytesValue;
+  }
+
+  /**
+   * Get base58 encoded value.
+   * 
+   * @return a base58 encoded value
+   */
+  public String getEncoded() {
+    return getEncoded(Encoder.Base58);
   }
 
   @Override
-  public String getEncoded() {
-    return encodeBase58(getBytesValue());
+  public String getEncoded(final Encoder encoder) {
+    return getBytesValue().getEncoded(encoder);
   }
 
   @Override
   public int hashCode() {
-    return bytesValue.hashCode();
+    return getBytesValue().hashCode();
   }
 
   @Override
@@ -84,12 +114,12 @@ public class Hash implements Adaptor, Encodable {
       return false;
     }
     final Hash other = (Hash) obj;
-    return bytesValue.equals(other.bytesValue);
+    return getBytesValue().equals(other.getBytesValue());
   }
 
   @Override
   public String toString() {
-    return getEncoded();
+    return getEncoded(Encoder.Base58);
   }
 
   @SuppressWarnings("unchecked")
@@ -106,4 +136,5 @@ public class Hash implements Adaptor, Encodable {
     }
     return null;
   }
+
 }

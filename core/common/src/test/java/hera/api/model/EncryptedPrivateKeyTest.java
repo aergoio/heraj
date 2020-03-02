@@ -12,17 +12,25 @@ import org.junit.Test;
 
 public class EncryptedPrivateKeyTest {
 
-  public final String encodedEncryptedPrivateKey =
-      "4821ya4VmaLhw8Lyd8G6Ktc1ooFBpzrCjDbsZdvqddQMEfCFJZX28PRaBSxnct6rCgTowPToe";
+  protected final String encoded =
+      "47p451XCur4AdaxQF76h8FMt5ngxg7ewdrvhFj2J8qfFagc1musEVZf8LLV1kfNHVDDH27Mm6";
 
-  public final String encodedEncryptedPrivateKeyWithoutVersion =
+  public final String withoutVersion =
       Base58Utils.encodeWithCheck(("noversion" + randomUUID().toString()).getBytes());
 
   @Test
-  public void testCreation() {
-    final EncryptedPrivateKey encryptedPrivateKey =
-        EncryptedPrivateKey.of(encodedEncryptedPrivateKey);
+  public void testOf() {
+    final EncryptedPrivateKey encryptedPrivateKey = EncryptedPrivateKey.of(encoded);
     assertNotNull(encryptedPrivateKey);
+  }
+
+  @Test
+  public void shouldOfThrowExceptionOnInvalidVersion() {
+    try {
+      EncryptedPrivateKey.of(withoutVersion);
+    } catch (Exception e) {
+      // then
+    }
   }
 
 }

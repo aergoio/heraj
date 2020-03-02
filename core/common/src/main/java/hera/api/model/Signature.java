@@ -8,17 +8,19 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import lombok.Builder;
 import lombok.Builder.Default;
-import lombok.NonNull;
-import lombok.Value;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Value
+@ToString
+@EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
 public class Signature {
 
-  @NonNull
   @Default
-  BytesValue sign = BytesValue.EMPTY;
+  @Getter
+  protected final BytesValue sign = BytesValue.EMPTY;
 
 }

@@ -80,7 +80,6 @@ public class ECDSAKeyGenerator implements KeyGenerator<ECDSAKey> {
     return generateKey(new SecureRandom());
   }
 
-  @Override
   public ECDSAKey create(final String seed) throws Exception {
     final byte[] digested = Sha256Utils.digest(seed.getBytes());
     final SecureRandom secureRandom = new FixedSecureRandom(digested);

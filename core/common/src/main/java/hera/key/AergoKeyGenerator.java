@@ -43,7 +43,6 @@ public class AergoKeyGenerator implements KeyGenerator<AergoKey> {
    *
    * @return created {@code AergoKey}
    */
-  @Override
   public AergoKey create(final String seed) {
     try {
       final ECDSAKey ecdsaKey = ecdsaKeyGenerator.create(seed);

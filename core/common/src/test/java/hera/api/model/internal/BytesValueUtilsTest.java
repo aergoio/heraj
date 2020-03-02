@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.util;
+package hera.api.model.internal;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
@@ -10,6 +10,7 @@ import static org.junit.Assert.assertTrue;
 
 import hera.AbstractTestCase;
 import hera.api.model.BytesValue;
+import hera.api.model.internal.BytesValueUtils;
 import org.bouncycastle.util.Arrays;
 import org.junit.Test;
 
@@ -20,7 +21,8 @@ public class BytesValueUtilsTest extends AbstractTestCase {
     final byte prefix = randomUUID().toString().getBytes()[0];
     final byte[] source = randomUUID().toString().getBytes();
     final byte[] appended = BytesValueUtils.append(source, prefix);
-    BytesValueUtils.validatePrefix(BytesValue.of(appended), prefix);
+    final boolean result = BytesValueUtils.validatePrefix(BytesValue.of(appended), prefix);
+    assertTrue(result);
   }
 
   @Test
@@ -28,7 +30,8 @@ public class BytesValueUtilsTest extends AbstractTestCase {
     final byte prefix = randomUUID().toString().getBytes()[0];
     final byte[] source = randomUUID().toString().getBytes();
     final byte[] appended = BytesValueUtils.append(source, prefix);
-    BytesValueUtils.validatePrefix(appended, prefix);
+    final boolean result = BytesValueUtils.validatePrefix(appended, prefix);
+    assertTrue(result);
   }
 
   @Test

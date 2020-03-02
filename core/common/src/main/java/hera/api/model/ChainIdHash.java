@@ -7,7 +7,6 @@ package hera.api.model;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.encode.Encodable;
-import hera.exception.DecodingFailureException;
 import hera.util.Adaptor;
 
 @ApiAudience.Public
@@ -15,45 +14,39 @@ import hera.util.Adaptor;
 public class ChainIdHash extends Hash implements Adaptor, Encodable {
 
   /**
-   * Create {@code ChainIdHash} with a base58 encoded value.
+   * Create {@code ChainIdHash} with a base58 encoded one.
    *
-   * @param encoded String with base58 encoded
+   * @param encoded String with base58 encoded chain id hash
    * @return created {@link ChainIdHash}
-   * @throws DecodingFailureException if decoding failed
    */
-  @ApiAudience.Public
   public static ChainIdHash of(final String encoded) {
     return new ChainIdHash(encoded);
   }
 
   /**
-   * Create {@code ChainIdHash}.
+   * Create {@code BlockHash} with a bytes value.
    *
-   * @param bytesValue {@link BytesValue}
+   * @param bytesValue a bytes value
    * @return created {@link ChainIdHash}
    */
-  @ApiAudience.Private
   public static ChainIdHash of(final BytesValue bytesValue) {
     return new ChainIdHash(bytesValue);
   }
 
   /**
-   * ChainIdHash constructor.
+   * Create {@code ChainIdHash} with a base58 encoded one.
    *
-   * @param encoded String with base58 encoded
-   * @throws DecodingFailureException if decoding failed
+   * @param encoded String with base58 encoded chain id hash
    */
-  @ApiAudience.Public
   public ChainIdHash(final String encoded) {
     super(encoded);
   }
 
   /**
-   * ChainIdHash constructor.
+   * Create {@code BlockHash} with a bytes value.
    *
-   * @param bytesValue {@link BytesValue}
+   * @param bytesValue a bytes value
    */
-  @ApiAudience.Private
   public ChainIdHash(final BytesValue bytesValue) {
     super(bytesValue);
   }

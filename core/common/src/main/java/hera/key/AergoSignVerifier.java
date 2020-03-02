@@ -7,7 +7,6 @@ package hera.key;
 import static hera.util.IoUtils.from;
 import static hera.util.Sha256Utils.digest;
 import static org.slf4j.LoggerFactory.getLogger;
-
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.encode.Decoder;
@@ -26,12 +25,10 @@ import hera.util.pki.ECDSASignature;
 import hera.util.pki.ECDSAVerifier;
 import java.io.StringReader;
 import java.security.PublicKey;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@RequiredArgsConstructor
 public class AergoSignVerifier implements Verifier {
 
   protected final transient Logger logger = getLogger(getClass());

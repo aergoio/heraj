@@ -4,6 +4,7 @@
 
 package hera.api.model;
 
+import static hera.util.IoUtils.from;
 import static hera.util.ValidationUtils.assertNotNull;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -11,47 +12,69 @@ import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.spec.resolver.ContractDefinitionSpec;
-import hera.util.BytesValueUtils;
-import hera.util.EncodingUtils;
+import hera.api.encode.Decoder;
+import hera.api.model.internal.BytesValueUtils;
+import hera.exception.HerajException;
+import java.io.StringReader;
 import java.util.List;
-import lombok.NonNull;
-import lombok.Value;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Value
+@EqualsAndHashCode
 public class ContractDefinition {
 
-  @ApiAudience.Public
+  public static final byte PAYLOAD_VERSION = (byte) 0xC0;
+
   public static ContractDefinitionWithNothing newBuilder() {
     return new ContractDefinition.Builder();
   }
 
-  @NonNull
-  BytesValue decodedContract;
+  @Getter
+  protected final BytesValue decodedContract;
 
-  @NonNull
-  String encodedContract;
+  @Getter
+  protected final String encodedContract;
 
-  @NonNull
-  List<Object> constructorArgs;
+  @Getter
+  protected final List<Object> constructorArgs;
 
-  @NonNull
-  Aer amount;
+  @Getter
+  protected final Aer amount;
 
   ContractDefinition(final String encodedContract, final List<Object> args,
       final Aer amount) {
     assertNotNull(encodedContract, "Encoded contract must not null");
     assertNotNull(args, "Args must not null");
     assertNotNull(amount, "Amount must not null");
-    final BytesValue decodedContract = EncodingUtils.decodeBase58WithCheck(encodedContract);
-    BytesValueUtils.validatePrefix(decodedContract, ContractDefinitionSpec.PAYLOAD_VERSION);
+    try {
+      final Decoder decoder = Decoder.Base58Check;
+      final byte[] raw = from(decoder.decode(new StringReader(encodedContract)));
+      final BytesValue decoded = BytesValue.of(raw);
+      if (!hasVersion(decoded)) {
+        throw new HerajException("Encoded contract doesn't have a version");
+      }
 
-    this.decodedContract = decodedContract;
-    this.encodedContract = encodedContract;
-    this.constructorArgs = unmodifiableList(args);
-    this.amount = amount;
+      this.decodedContract = decoded;
+      this.encodedContract = encodedContract;
+      this.constructorArgs = unmodifiableList(args);
+      this.amount = amount;
+    } catch (HerajException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HerajException(e);
+    }
+  }
+
+  protected boolean hasVersion(final BytesValue bytesValue) {
+    return BytesValueUtils.validatePrefix(bytesValue, PAYLOAD_VERSION);
+  }
+
+  @Override
+  public String toString() {
+    return String.format("ContractDefinition(encodedContract=%s, args=%s, amount=%s)",
+        encodedContract, constructorArgs, amount);
   }
 
   public interface ContractDefinitionWithNothing {

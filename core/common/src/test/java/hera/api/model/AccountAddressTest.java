@@ -8,6 +8,7 @@ import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import hera.api.model.internal.BytesValueUtils;
 import hera.util.Base58Utils;
 import java.util.Arrays;
 import org.junit.Test;
@@ -27,7 +28,55 @@ public class AccountAddressTest {
   public void testOfWithEncoded() {
     final AccountAddress address = AccountAddress.of(encodedAddress);
     assertTrue(Arrays.equals(rawAddress, address.getBytesValue().getValue()));
-    assertEquals(encodedAddress, address.getEncoded());
+    assertEquals(encodedAddress, address.toString());
+  }
+
+  @Test
+  public void shouldOfWithEncodedThrowErrorOnNoPrefix() {
+    try {
+      final String invalid = Base58Utils.encodeWithCheck(randomUUID().toString().getBytes());
+      AccountAddress.of(invalid);
+    } catch (Exception e) {
+      // then
+    }
+  }
+
+  @Test
+  public void shouldOfWithEncodedThrowErrorOnInvalidLength() {
+    try {
+      final String invalid = Base58Utils.encodeWithCheck(BytesValueUtils
+          .append(randomUUID().toString().getBytes(), AccountAddress.ADDRESS_PREFIX));
+      AccountAddress.of(invalid);
+    } catch (Exception e) {
+      // then
+    }
+  }
+
+  @Test
+  public void testOfWithRaw() {
+    final AccountAddress address = AccountAddress.of(BytesValue.of(rawAddress));
+    assertTrue(Arrays.equals(rawAddress, address.getBytesValue().getValue()));
+    assertEquals(encodedAddress, address.toString());
+  }
+
+  @Test
+  public void shouldOfWithRawThrowErrorOnInvalidLength() {
+    try {
+      AccountAddress.of(BytesValue.of(randomUUID().toString().getBytes()));
+    } catch (Exception e) {
+      // then
+    }
+  }
+
+  @Test
+  public void testAdapt() {
+    final AccountAddress accountAddress = AccountAddress.of(encodedAddress);
+    final AccountAddress accountActual = accountAddress.adapt(AccountAddress.class);
+    final ContractAddress contractActual = accountAddress.adapt(ContractAddress.class);
+    final AccountAddress accountExpected = AccountAddress.of(encodedAddress);
+    final ContractAddress contractExpected = ContractAddress.of(encodedAddress);
+    assertEquals(accountExpected, accountActual);
+    assertEquals(contractExpected, contractActual);
   }
 
 }

@@ -4,6 +4,8 @@
 
 package hera.api.model.internal;
 
+import static hera.util.ValidationUtils.assertNotNull;
+
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.Name;
@@ -19,8 +21,18 @@ public class AccountAddressAdaptor extends AccountAddress {
   protected final Name name;
 
   public AccountAddressAdaptor(final Name name) {
-    super(BytesValue.of(name.getValue().getBytes()), name.getValue());
+    assertNotNull(name);
     this.name = name;
+  }
+
+  @Override
+  public BytesValue getBytesValue() {
+    return this.name.getBytesValue();
+  }
+
+  @Override
+  public String getValue() {
+    return this.name.getValue();
   }
 
 }

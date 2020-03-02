@@ -4,17 +4,16 @@
 
 package hera.transport;
 
-import static hera.util.EncodingUtils.encodeHexa;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
+import hera.api.encode.Encoder;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.BytesValue;
 import hera.api.model.Name;
 import hera.api.model.internal.AccountAddressAdaptor;
-import hera.spec.resolver.AddressResolver;
 import hera.util.HexUtils;
 import org.slf4j.Logger;
 
@@ -29,8 +28,7 @@ public class AccountAddressConverterFactory {
         public com.google.protobuf.ByteString apply(final AccountAddress domainAccountAddress) {
           if (logger.isTraceEnabled()) {
             logger.trace("Domain account address to convert. with checksum: {}, hexa: {}",
-                domainAccountAddress,
-                encodeHexa(domainAccountAddress.getBytesValue()));
+                domainAccountAddress, domainAccountAddress.getBytesValue().getEncoded(Encoder.Hex));
           }
           ByteString rpcAccountAddress;
           if (!domainAccountAddress.equals(AccountAddress.EMPTY)) {
@@ -58,20 +56,19 @@ public class AccountAddressConverterFactory {
           AccountAddress domainAccountAddress;
           if (!rpcAccountAddress.equals(ByteString.EMPTY)) {
             final BytesValue rawAddress = BytesValue.of(rpcAccountAddress.toByteArray());
-            if (AddressResolver.isValidRawAddress(rawAddress)) {
-            domainAccountAddress = new AccountAddress(rawAddress);
-            } else {
-            // FIXME : treat as name. no other way?
-            final Name name = Name.of(new String(rawAddress.getValue()));
-            domainAccountAddress = new AccountAddressAdaptor(name);
+            try {
+              domainAccountAddress = new AccountAddress(rawAddress);
+            } catch (Exception e) {
+              // FIXME : treat as name. no other way?
+              final Name name = Name.of(new String(rawAddress.getValue()));
+              domainAccountAddress = new AccountAddressAdaptor(name);
             }
           } else {
             domainAccountAddress = AccountAddress.EMPTY;
           }
           if (logger.isTraceEnabled()) {
             logger.trace("Domain account address converted. with checksum: {}, hexa: {}",
-                domainAccountAddress,
-                encodeHexa(domainAccountAddress.getBytesValue()));
+                domainAccountAddress, domainAccountAddress.getBytesValue().getEncoded(Encoder.Hex));
           }
           return domainAccountAddress;
         }

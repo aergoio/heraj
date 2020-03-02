@@ -5,16 +5,15 @@
 package hera.transport;
 
 import static hera.api.model.BytesValue.of;
-import static hera.util.BytesValueUtils.append;
-import static hera.util.BytesValueUtils.trimPrefix;
-import static hera.util.EncodingUtils.encodeHexa;
+import static hera.api.model.internal.BytesValueUtils.append;
+import static hera.api.model.internal.BytesValueUtils.trimPrefix;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.encode.Encoder;
 import hera.api.function.Function1;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
-import hera.spec.resolver.EncryptedPrivateKeySpec;
 import hera.util.HexUtils;
 import org.slf4j.Logger;
 import types.Rpc;
@@ -30,7 +29,8 @@ public class EncryptedPrivateKeyConverterFactory {
         public Rpc.SingleBytes apply(final EncryptedPrivateKey domainEncryptedPrivateKey) {
           if (logger.isTraceEnabled()) {
             logger.trace("Domain encrypted privateKey to convert. with checksum: {}, hexa: {}",
-                domainEncryptedPrivateKey, encodeHexa(domainEncryptedPrivateKey.getBytesValue()));
+                domainEncryptedPrivateKey,
+                domainEncryptedPrivateKey.getBytesValue().getEncoded(Encoder.Hex));
           }
           if (domainEncryptedPrivateKey.getBytesValue().isEmpty()) {
             return Rpc.SingleBytes.newBuilder()
@@ -61,12 +61,13 @@ public class EncryptedPrivateKeyConverterFactory {
             return new EncryptedPrivateKey(BytesValue.EMPTY);
           }
           final byte[] withoutVersion = rpcEncryptedPrivateKey.getValue().toByteArray();
-          final byte[] withVersion = append(withoutVersion, EncryptedPrivateKeySpec.PREFIX);
+          final byte[] withVersion = append(withoutVersion, EncryptedPrivateKey.ENCRYPTED_PREFIX);
           final EncryptedPrivateKey domainEncryptedPrivateKey =
               new EncryptedPrivateKey(of(withVersion));
           if (logger.isTraceEnabled()) {
             logger.trace("Domain encrypted private key converted. with checksum: {}, hexa: {}",
-                domainEncryptedPrivateKey, encodeHexa(domainEncryptedPrivateKey.getBytesValue()));
+                domainEncryptedPrivateKey,
+                domainEncryptedPrivateKey.getBytesValue().getEncoded(Encoder.Hex));
           }
           return domainEncryptedPrivateKey;
         }

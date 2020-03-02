@@ -32,7 +32,7 @@ public class PayloadResolverTest extends AbstractTestCase {
   public void testResolveOnContractDefinition() {
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(
-            Base58Utils.encodeWithCheck(new byte[] {ContractDefinitionSpec.PAYLOAD_VERSION}))
+            Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION}))
         .constructorArgs("1", "2")
         .build();
     final BytesValue payload = PayloadResolver.resolve(Type.ContractDefinition, definition);

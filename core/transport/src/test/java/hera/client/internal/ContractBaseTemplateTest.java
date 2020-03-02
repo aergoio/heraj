@@ -35,7 +35,6 @@ import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.key.AergoKeyGenerator;
 import hera.key.Signer;
-import hera.spec.resolver.ContractDefinitionSpec;
 import hera.util.Base58Utils;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +51,7 @@ import types.Rpc;
 public class ContractBaseTemplateTest extends AbstractTestCase {
 
   protected final String encodedContract =
-      Base58Utils.encodeWithCheck(new byte[] {ContractDefinitionSpec.PAYLOAD_VERSION});
+      Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
 
   protected ContractInterface contractInterface;
 

@@ -26,14 +26,14 @@ public class EncoderTest extends AbstractTestCase {
   }
 
   @Test
-  public void testBase64Encoder() throws IOException {
-    final Encoder encoder = Encoder.Base64;
+  public void testBase58CheckEncoder() throws IOException {
+    final Encoder encoder = Encoder.Base58Check;
     encoder.encode(new ByteArrayInputStream(randomUUID().toString().getBytes()));
   }
 
   @Test
-  public void testDefaultEncoder() throws IOException {
-    final Encoder encoder = Encoder.defaultEncoder;
+  public void testBase64Encoder() throws IOException {
+    final Encoder encoder = Encoder.Base64;
     encoder.encode(new ByteArrayInputStream(randomUUID().toString().getBytes()));
   }
 

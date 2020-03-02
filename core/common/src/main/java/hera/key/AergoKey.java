@@ -40,8 +40,8 @@ import org.slf4j.Logger;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@EqualsAndHashCode(exclude = {"logger", "verifier"})
-public class AergoKey implements KeyPair, Signer, MessageSigner {
+@EqualsAndHashCode
+public class AergoKey implements KeyPair, Signer {
 
   /**
    * Create a key pair with encoded encrypted private key and password.
@@ -66,8 +66,6 @@ public class AergoKey implements KeyPair, Signer, MessageSigner {
   }
 
   protected final transient Logger logger = getLogger(getClass());
-
-  protected final AergoSignVerifier verifier = new AergoSignVerifier();
 
   protected final ECDSAKey ecdsakey;
 
@@ -159,90 +157,23 @@ public class AergoKey implements KeyPair, Signer, MessageSigner {
 
   @Override
   public String signMessage(final String message, final Encoder encoder) {
-    try {
-      final Signature signature = signMessage(new BytesValue(message.getBytes()));
-      final byte[] rawSignature = signature.getSign().getValue();
-      return from(encoder.encode(new ByteArrayInputStream(rawSignature)));
-    } catch (HerajException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new HerajException(e);
-    }
+    return signMessage(new BytesValue(message.getBytes())).getSign().getEncoded(encoder);
   }
 
   @Override
   public Signature signMessage(final BytesValue message) {
     try {
       logger.debug("Sign to message: {}", message);
-      final Hash hash = new Hash(new BytesValue(digest(message.getValue())));
+      final Hash hash = Hash.of(BytesValue.of(digest(message.getValue())));
       logger.debug("Hashed message: {}", hash);
       final ECDSASignature ecdsaSignature = ecdsakey.sign(hash.getBytesValue().getValue());
       final Signature signature =
           SignatureResolver.serialize(ecdsaSignature, ecdsakey.getParams().getN());
-      logger.trace("Serialized signature: {}", signature);
+      logger.debug("Serialized signature: {}", signature);
       return signature;
     } catch (Exception e) {
       throw new HerajException(e);
     }
-  }
-
-  /**
-   * Check if {@code Transaction} is valid.
-   *
-   * @param transaction transaction to verify
-   * @return if valid
-   */
-  public boolean verify(final Transaction transaction) {
-    return verifier.verify(transaction);
-  }
-
-  /**
-   * Check if {@code base64EncodedSignature} is valid for current {@code accountAddress} and
-   * {@code message}. It hashes {@code message} and verify hashed one.
-   *
-   * @param message a message
-   * @param base64EncodedSignature a base64 encoded signature
-   * @return if valid
-   */
-  public boolean verifyMessage(final String message, final String base64EncodedSignature) {
-    return verifier.verifyMessage(getAddress(), message, base64EncodedSignature);
-  }
-
-  /**
-   * Check if {@code base64EncodedSignature} is valid for current {@code accountAddress} and
-   * {@code message}. It hashes {@code message} and verify hashed one.
-   *
-   * @param message a message
-   * @param encodedSignature an encoded signature
-   * @param decoder a decoder to decode encoded signature
-   *
-   * @return if valid
-   */
-  public boolean verifyMessage(String message, String encodedSignature, Decoder decoder) {
-    return verifier.verifyMessage(getAddress(), message, encodedSignature, decoder);
-  }
-
-  /**
-   * Check if {@code signature} is valid for current {@code accountAddress} and {@code message}. It
-   * hashes {@code message} and verify hashed one.
-   *
-   * @param message a message
-   * @param signature signature
-   * @return if valid
-   */
-  public boolean verifyMessage(final BytesValue message, final Signature signature) {
-    return verifier.verifyMessage(getAddress(), message, signature);
-  }
-
-  /**
-   * Check if {@code signature} is valid for {@code hash} and current address.
-   *
-   * @param hashedMessage a hashed message
-   * @param signature signature to verify
-   * @return if valid
-   */
-  public boolean verifyMessage(final Hash hashedMessage, final Signature signature) {
-    return verifier.verifyMessage(getAddress(), hashedMessage, signature);
   }
 
   /**

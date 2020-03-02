@@ -7,7 +7,6 @@ package hera.api.model;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.encode.Encodable;
-import hera.exception.DecodingFailureException;
 import hera.util.Adaptor;
 
 @ApiAudience.Public
@@ -15,45 +14,39 @@ import hera.util.Adaptor;
 public class ContractTxHash extends TxHash implements Adaptor, Encodable {
 
   /**
-   * Create {@code Hash} with a base58 encoded value.
+   * Create {@code ContractTxHash} with a base58 encoded one.
    *
-   * @param encoded String with base58 encoded
+   * @param encoded an base58 encoded contract tx hash
    * @return created {@link ContractTxHash}
-   * @throws DecodingFailureException if decoding failed
    */
-  @ApiAudience.Public
   public static ContractTxHash of(final String encoded) {
     return new ContractTxHash(encoded);
   }
 
   /**
-   * Create {@code Hash}.
+   * Create {@code ContractTxHash} with a bytes value.
    *
-   * @param bytesValue {@link BytesValue}
+   * @param bytesValue a bytesValue
    * @return created {@link ContractTxHash}
    */
-  @ApiAudience.Private
   public static ContractTxHash of(final BytesValue bytesValue) {
     return new ContractTxHash(bytesValue);
   }
 
   /**
-   * ContractTxHash constructor.
+   * Create {@code ContractTxHash} with a base58 encoded one.
    *
-   * @param encoded String with base58 encoded
-   * @throws DecodingFailureException if decoding failed
+   * @param encoded an base58 encoded contract tx hash
    */
-  @ApiAudience.Public
   public ContractTxHash(final String encoded) {
     super(encoded);
   }
 
   /**
-   * ContractTxHash constructor.
+   * Create {@code ContractTxHash} with a bytes value.
    *
-   * @param bytesValue {@link BytesValue}
+   * @param bytesValue a bytesValue
    */
-  @ApiAudience.Private
   public ContractTxHash(final BytesValue bytesValue) {
     super(bytesValue);
   }

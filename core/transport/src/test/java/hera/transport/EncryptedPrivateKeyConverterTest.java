@@ -9,7 +9,6 @@ import static org.junit.Assert.assertEquals;
 
 import hera.AbstractTestCase;
 import hera.api.model.EncryptedPrivateKey;
-import hera.spec.resolver.EncryptedPrivateKeySpec;
 import org.junit.Test;
 import types.Rpc;
 
@@ -21,7 +20,7 @@ public class EncryptedPrivateKeyConverterTest extends AbstractTestCase {
         new EncryptedPrivateKeyConverterFactory().create();
 
     final EncryptedPrivateKey expected =
-        new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKeySpec.PREFIX, 0x01}));
+        new EncryptedPrivateKey(of(new byte[] {EncryptedPrivateKey.ENCRYPTED_PREFIX, 0x01}));
     final Rpc.SingleBytes rpcKey = converter.convertToRpcModel(expected);
     final EncryptedPrivateKey actual = converter.convertToDomainModel(rpcKey);
     assertEquals(expected, actual);

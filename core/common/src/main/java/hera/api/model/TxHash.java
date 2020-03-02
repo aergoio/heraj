@@ -7,7 +7,6 @@ package hera.api.model;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.encode.Encodable;
-import hera.exception.DecodingFailureException;
 import hera.util.Adaptor;
 
 @ApiAudience.Public
@@ -15,33 +14,39 @@ import hera.util.Adaptor;
 public class TxHash extends Hash implements Adaptor, Encodable {
 
   /**
-   * Create {@code Hash} with a base58 encoded value.
+   * Create {@code TxHash} with a base58 encoded one.
    *
-   * @param encoded Base58 with checksum encoded
+   * @param encoded an base58 encoded tx hash
    * @return created {@link TxHash}
-   * @throws DecodingFailureException if decoding failed
    */
-  @ApiAudience.Public
   public static TxHash of(final String encoded) {
     return new TxHash(encoded);
   }
 
+  /**
+   * Create {@code TxHash} with a bytes value.
+   *
+   * @param bytesValue a bytesValue
+   * @return created {@link TxHash}
+   */
   public static TxHash of(final BytesValue bytesValue) {
     return new TxHash(bytesValue);
   }
 
   /**
-   * TxHash constructor.
+   * Create {@code TxHash} with a base58 encoded one.
    *
-   * @param encoded Base58 encoded value
-   * @throws DecodingFailureException if decoding failed
+   * @param encoded an base58 encoded tx hash
    */
-  @ApiAudience.Public
   public TxHash(final String encoded) {
     super(encoded);
   }
 
-  @ApiAudience.Private
+  /**
+   * Create {@code TxHash} with a bytes value.
+   *
+   * @param bytesValue a bytesValue
+   */
   public TxHash(final BytesValue bytesValue) {
     super(bytesValue);
   }

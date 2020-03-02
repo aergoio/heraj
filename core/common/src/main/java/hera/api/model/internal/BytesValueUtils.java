@@ -2,10 +2,9 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.util;
+package hera.api.model.internal;
 
 import hera.api.model.BytesValue;
-import hera.exception.HerajException;
 import java.util.Arrays;
 
 public class BytesValueUtils {
@@ -15,9 +14,10 @@ public class BytesValueUtils {
    *
    * @param target byte array to validate
    * @param prefix a prefix
+   * @return validation result
    */
-  public static void validatePrefix(final BytesValue target, final byte prefix) {
-    validatePrefix(target.getValue(), prefix);
+  public static boolean validatePrefix(final BytesValue target, final byte prefix) {
+    return validatePrefix(target.getValue(), prefix);
   }
 
   /**
@@ -25,14 +25,16 @@ public class BytesValueUtils {
    *
    * @param target byte array to validate
    * @param prefix a prefix
+   * @return validation result
    */
-  public static void validatePrefix(final byte[] target, final byte prefix) {
+  public static boolean validatePrefix(final byte[] target, final byte prefix) {
     if (null == target || 0 == target.length) {
-      throw new HerajException("Bytes is empty");
+      return false;
     }
     if (prefix != target[0]) {
-      throw new HerajException("Prefix should be " + prefix + " but was " + target[0]);
+      return false;
     }
+    return true;
   }
 
   /**

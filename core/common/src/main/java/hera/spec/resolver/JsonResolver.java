@@ -150,7 +150,7 @@ public class JsonResolver {
     } else if (object instanceof Boolean) {
       ret = asJsonBoolean((Boolean) object);
     } else if (object instanceof BigNumber) {
-      ret = BigNumberResolver.toJsonForm((BigNumber) object);
+      ret = ((BigNumber) object).toJson();
     } else {
       throw new IllegalArgumentException("Cannot convert argument type: " + object.getClass()
           + " into aergo argument json format");

@@ -6,12 +6,6 @@ package hera.api.function;
 
 import static hera.util.ValidationUtils.assertNotNull;
 
-import hera.api.function.impl.Function0WithIdentity;
-import hera.api.function.impl.Function1WithIdentity;
-import hera.api.function.impl.Function2WithIdentity;
-import hera.api.function.impl.Function3WithIdentity;
-import hera.api.function.impl.Function4WithIdentity;
-import hera.api.function.impl.Function5WithIdentity;
 import hera.exception.HerajException;
 import java.util.List;
 
@@ -384,8 +378,7 @@ public final class Functions {
    * @throws NullPointerException if before or after is null
    */
   public static <T1, T2, T3, T4, T5, R, V> Function5<T1, T2, T3, T4, T5, V> compose(
-      final Function5<? super T1, ? super T2, ? super T3, ? super T4, ? super T5,
-          ? extends R> first,
+      final Function5<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? extends R> first,
       final Function1<? super R, ? extends V> second) {
     if (null == first) {
       throw new NullPointerException();

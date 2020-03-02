@@ -45,7 +45,6 @@ import hera.client.internal.ContractBaseTemplate;
 import hera.client.internal.HerajFutures;
 import hera.key.AergoKeyGenerator;
 import hera.key.Signer;
-import hera.spec.resolver.ContractDefinitionSpec;
 import hera.util.Base58Utils;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +56,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 public class ContractTemplateTest extends AbstractTestCase {
 
   protected final String encodedContract =
-      Base58Utils.encodeWithCheck(new byte[] {ContractDefinitionSpec.PAYLOAD_VERSION});
+      Base58Utils.encodeWithCheck(new byte[] {ContractDefinition.PAYLOAD_VERSION});
 
   protected ContractInterface contractInterface;
 

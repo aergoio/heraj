@@ -6,73 +6,62 @@ package hera.api.model;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.DecodingFailureException;
-import hera.util.StringUtils;
 
 @ApiAudience.Public
 @ApiStability.Unstable
 public class ContractAddress extends AccountAddress {
 
-  public static final ContractAddress EMPTY =
-      new ContractAddress(BytesValue.EMPTY, StringUtils.EMPTY_STRING);
+  public static final ContractAddress EMPTY = new ContractAddress();
 
   /**
    * Create {@code ContractAddress} with a base58 with checksum encoded value.
    *
-   * @param encoded a base58 with checksum encoded encoded value
+   * @param encoded a base58 with checksum encoded account address
    * @return created {@link ContractAddress}
-   *
-   * @throws DecodingFailureException if decoding failed
    */
-  @ApiAudience.Public
   public static ContractAddress of(final String encoded) {
     return new ContractAddress(encoded);
   }
 
   /**
-   * Create {@code ContractAddress}.
+   * Create {@code ContractAddress} with a bytes value. Note that bytes value doesn't have a prefix.
    *
-   * @param bytesValue {@link BytesValue}
+   * @param bytesValue a bytes value
    * @return created {@link ContractAddress}
-   *
    */
-  @ApiAudience.Private
   public static ContractAddress of(final BytesValue bytesValue) {
     return new ContractAddress(bytesValue);
   }
 
   /**
-   * ContractAddress constructor.
+   * Create {@code ContractAddress} with a base58 with checksum encoded value.
    *
-   * @param encoded a base58 with checksum encoded encoded value
-   *
-   * @throws DecodingFailureException if decoding failed
+   * @param encoded a base58 with checksum encoded account address
    */
-  @ApiAudience.Public
   public ContractAddress(final String encoded) {
     super(encoded);
   }
 
   /**
-   * ContractAddress constructor.
+   * Create {@code ContractAddress} with a bytes value. Note that bytes value doesn't have a prefix.
    *
-   * @param bytesValue {@link BytesValue}
-   *
+   * @param bytesValue a bytes value
    */
-  @ApiAudience.Private
   public ContractAddress(final BytesValue bytesValue) {
     super(bytesValue);
   }
 
-  protected ContractAddress(final BytesValue bytesValue, final String value) {
-    super(bytesValue, value);
+  ContractAddress() {
+    super();
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> T adapt(Class<T> adaptor) {
+  public <T> T adapt(final Class<T> adaptor) {
     if (adaptor.isAssignableFrom(ContractAddress.class)) {
       return (T) this;
+    } else if (adaptor.isAssignableFrom(AccountAddress.class)) {
+      return (T) AccountAddress.of(getBytesValue());
     }
     return null;
   }

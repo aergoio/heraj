@@ -10,7 +10,6 @@ import static hera.util.ValidationUtils.assertNotNull;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.exception.HerajException;
-import hera.spec.AergoSpec;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import lombok.EqualsAndHashCode;
@@ -26,9 +25,9 @@ public class Aer implements Comparable<Aer> {
 
   public static final Aer EMPTY = new Aer();
 
-  public static final Aer ZERO = new Aer(BigInteger.valueOf(0L));
+  public static final Aer ZERO = new Aer(BigInteger.ZERO);
 
-  public static final Aer ONE = new Aer(BigInteger.valueOf(1L));
+  public static final Aer ONE = new Aer(BigInteger.ONE);
 
   public static final Aer GIGA_ONE = new Aer("1", Unit.GAER);
 
@@ -40,7 +39,6 @@ public class Aer implements Comparable<Aer> {
    * @param amount an amount in string which is considered as {@link Unit#AER}
    * @return an aergo instance
    */
-  @ApiAudience.Public
   public static Aer of(final String amount) {
     return new Aer(amount);
   }
@@ -52,7 +50,6 @@ public class Aer implements Comparable<Aer> {
    * @param unit an unit {@link Unit}
    * @return an aergo instance
    */
-  @ApiAudience.Public
   public static Aer of(final String amount, final Unit unit) {
     return new Aer(amount, unit);
   }
@@ -63,7 +60,6 @@ public class Aer implements Comparable<Aer> {
    * @param amount an amount in {@link Unit#AER}
    * @return an aergo instance
    */
-  @ApiAudience.Public
   public static Aer of(final BigInteger amount) {
     return new Aer(amount);
   }
@@ -71,56 +67,29 @@ public class Aer implements Comparable<Aer> {
   /**
    * An unit to represent aergo. Consist of {@code AER, GAER, AERGO}.
    */
-  @ApiAudience.Public
   @RequiredArgsConstructor
   public enum Unit {
+    AER("Aer", new BigDecimal("1"), new BigDecimal("1")), GAER("Gaer", new BigDecimal("1.E-9"),
+        new BigDecimal("1.E9")), AERGO("Aergo", new BigDecimal("1.E-18"), new BigDecimal("1.E18"));
 
-    AER(AergoSpec.Unit.AER), GAER(AergoSpec.Unit.GAER), AERGO(AergoSpec.Unit.AERGO);
+    @Getter
+    protected final String name;
 
-    protected final AergoSpec.Unit delegate;
+    @Getter
+    protected final BigDecimal minimum;
 
-    /**
-     * Get name of the unit.
-     *
-     * @return an unit name
-     */
-    public String getName() {
-      return delegate.getName();
-    }
-
-    /**
-     * Get minimum value of unit to in an aer.
-     *
-     * @return an minimum value
-     */
-    public BigDecimal getMinimum() {
-      return delegate.getMinimum();
-    }
-
-    /**
-     * Get a ratio to aer.
-     *
-     * @return a ratio to aer
-     */
-    public BigDecimal getRatio() {
-      return delegate.getRatio();
-    }
-
+    @Getter
+    protected final BigDecimal ratio;
   }
 
   @Getter
   protected final BigInteger value;
-
-  protected Aer() {
-    this.value = null;
-  }
 
   /**
    * Create {@code Aer} instance.
    *
    * @param amount an amount in string which is considered as {@link Unit#AER}
    */
-  @ApiAudience.Public
   public Aer(final String amount) {
     this(amount, Unit.AER);
   }
@@ -131,7 +100,6 @@ public class Aer implements Comparable<Aer> {
    * @param amount an amount in string
    * @param unit an unit {@link Unit}
    */
-  @ApiAudience.Public
   public Aer(final String amount, final Unit unit) {
     assertNotNull(amount, "Amount must not null");
     assertNotNull(unit, "Unit must not null");
@@ -139,30 +107,35 @@ public class Aer implements Comparable<Aer> {
   }
 
   /**
-   * Aer constructor.
+   * Create an {@code Aer} instance.
    *
    * @param amount an amount in {@link Unit#AER}
    */
-  @ApiAudience.Public
   public Aer(final BigInteger amount) {
-    this.value =
-        null != amount ? (amount.compareTo(BigInteger.ZERO) >= 0 ? amount : BigInteger.ZERO)
-            : BigInteger.ZERO;
+    assertNotNull(amount, "Amount must not null");
+    if (-1 == amount.compareTo(BigInteger.ZERO)) {
+      throw new HerajException("Amount must be positive");
+    }
+    this.value = amount;
+  }
+
+  protected Aer() {
+    this.value = null;
   }
 
   protected BigInteger parse(final String value, final Unit unit) {
     try {
-      final BigDecimal parsedValue = new BigDecimal(value);
-      if (parsedValue.compareTo(BigDecimal.ZERO) == -1) {
-        throw new HerajException("Amount should be postive");
+      final BigDecimal parsed = new BigDecimal(value);
+      if (-1 == parsed.compareTo(BigDecimal.ZERO)) {
+        throw new HerajException("Amount must be postive");
       }
-      if (parsedValue.compareTo(BigDecimal.ZERO) != 0
-          && parsedValue.compareTo(unit.getMinimum()) == -1) {
+      if (0 != parsed.compareTo(BigDecimal.ZERO)
+          && -1 == parsed.compareTo(unit.getMinimum())) {
         throw new HerajException(
             String.format("Amount is smaller then minimum : %s %s",
                 unit.getMinimum().toPlainString(), unit.getName()));
       }
-      return parsedValue.multiply(unit.getRatio()).toBigInteger();
+      return parsed.multiply(unit.getRatio()).toBigInteger();
     } catch (HerajException e) {
       throw e;
     } catch (NumberFormatException e) {

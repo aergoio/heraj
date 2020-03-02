@@ -10,7 +10,7 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
-import hera.util.BytesValueUtils;
+import hera.api.model.internal.BytesValueUtils;
 import hera.util.CryptoUtils;
 import hera.util.Sha256Utils;
 import java.io.UnsupportedEncodingException;
@@ -40,7 +40,7 @@ public class EncryptedPrivateKeyResolver {
     final byte[] nonce = calculateNonce(hashedPassword);
     final byte[] encrypted = encryptToAesGcm(privateKeyBytes.getValue(), encryptKey, nonce);
     final BytesValue encryptedBytesValue =
-        new BytesValue(BytesValueUtils.append(encrypted, EncryptedPrivateKeySpec.PREFIX));
+        new BytesValue(BytesValueUtils.append(encrypted, EncryptedPrivateKey.ENCRYPTED_PREFIX));
     return new EncryptedPrivateKey(encryptedBytesValue);
   }
 

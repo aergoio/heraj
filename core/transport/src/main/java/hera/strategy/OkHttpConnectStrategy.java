@@ -33,8 +33,7 @@ public class OkHttpConnectStrategy implements ConnectStrategy<OkHttpChannelBuild
   public OkHttpChannelBuilder connect() {
     final HostnameAndPort endpoint = getEndpoint();
     logger.info("Connect to {} with strategy {}", endpoint, getClass().getName());
-    return OkHttpChannelBuilder
-        .forAddress(endpoint.getHostname(), endpoint.getPort())
+    return OkHttpChannelBuilder.forAddress(endpoint.getHostname(), endpoint.getPort())
         .keepAliveTime(KEEP_ALIVE_INTERVAL, TimeUnit.SECONDS)
         .keepAliveWithoutCalls(true);
   }

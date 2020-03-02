@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import hera.api.model.BigNumber;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractResult;
-import hera.spec.resolver.BigNumberResolver;
 import java.io.IOException;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +37,7 @@ public class ContractResultImpl implements ContractResult {
 
     if (clazz.isAssignableFrom(BigNumber.class)) {
       final Map<String, String> bigNumMap = reader.forType(Map.class).readValue(rawBytes);
-      return (T) BigNumberResolver.fromMap(bigNumMap);
+      return (T) BigNumber.of(bigNumMap);
     } else {
       return reader.forType(clazz).readValue(rawBytes);
     }

@@ -5,7 +5,7 @@
 package hera.spec.resolver;
 
 import static hera.api.model.BytesValue.of;
-import static hera.util.BytesValueUtils.trimPrefix;
+import static hera.api.model.internal.BytesValueUtils.trimPrefix;
 import static java.util.Arrays.asList;
 import static org.slf4j.LoggerFactory.getLogger;
 

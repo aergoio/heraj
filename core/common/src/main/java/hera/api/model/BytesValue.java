@@ -4,27 +4,45 @@
 
 package hera.api.model;
 
+import static hera.util.IoUtils.from;
+import static hera.util.ValidationUtils.assertNotNull;
+
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.api.encode.Decoder;
+import hera.api.encode.Encodable;
+import hera.api.encode.Encoder;
+import hera.exception.HerajException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.util.Arrays;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public class BytesValue {
+public class BytesValue implements Encodable {
 
-  public static final BytesValue EMPTY = new BytesValue(null);
+  public static final BytesValue EMPTY = new BytesValue(new byte[0]);
 
   /**
    * Create {@code BytesValue} with a raw bytes array.
    *
-   * @param bytes value
+   * @param bytes a raw bytes value
    * @return created {@link BytesValue}
    */
-  @ApiAudience.Public
   public static BytesValue of(final byte[] bytes) {
     return new BytesValue(bytes);
+  }
+
+  /**
+   * Create {@code BytesValue} with an encoded one.
+   *
+   * @param encoded an encoded one
+   * @param decoder a decoder
+   * @return created {@link BytesValue}
+   */
+  public static BytesValue of(final String encoded, final Decoder decoder) {
+    return new BytesValue(encoded, decoder);
   }
 
   protected transient int hash;
@@ -32,13 +50,33 @@ public class BytesValue {
   protected final byte[] value;
 
   /**
-   * BytesValue} constructor.
+   * Create {@code BytesValue} with a raw bytes array.
    *
-   * @param bytes value
+   * @param bytes a raw bytes value
    */
-  @ApiAudience.Public
   public BytesValue(final byte[] bytes) {
-    this.value = bytes != null ? Arrays.copyOf(bytes, bytes.length) : new byte[0];
+    assertNotNull(bytes, "Raw bytes must not null");
+    this.value = Arrays.copyOf(bytes, bytes.length);
+  }
+
+  /**
+   * Create {@code BytesValue} with an encoded one.
+   *
+   * @param encoded an encoded one
+   * @param decoder a decoder
+   */
+  public BytesValue(final String encoded, final Decoder decoder) {
+    assertNotNull(encoded, "An encoded value must not null");
+    assertNotNull(decoder, "A decoder must not null");
+    try {
+      this.value = from(decoder.decode(new StringReader(encoded)));
+    } catch (Exception e) {
+      throw new HerajException(e);
+    }
+  }
+
+  public InputStream getInputStream() {
+    return new ByteArrayInputStream(getValue());
   }
 
   public byte[] getValue() {
@@ -54,18 +92,12 @@ public class BytesValue {
   }
 
   @Override
-  public String toString() {
-    return null == value ? "" : new String(value);
-  }
-
-  @Override
   public int hashCode() {
     int h = this.hash;
     if (h == 0 && this.value.length > 0) {
       for (final byte byteValue : this.value) {
         h = 31 * h + byteValue;
       }
-
       this.hash = h;
     }
     return h;
@@ -83,8 +115,19 @@ public class BytesValue {
     return Arrays.equals(this.value, other.value);
   }
 
-  public InputStream getInputStream() {
-    return new ByteArrayInputStream(getValue());
+  @Override
+  public String toString() {
+    return getEncoded(Encoder.Base58);
+  }
+
+  @Override
+  public String getEncoded(final Encoder encoder) {
+    try {
+      assertNotNull(encoder, "An encoder must not null");
+      return from(encoder.encode(getInputStream()));
+    } catch (Exception e) {
+      throw new HerajException(e);
+    }
   }
 
 }

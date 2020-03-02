@@ -18,26 +18,31 @@ public interface Decoder {
 
   Decoder Hex = new Decoder() {
     @Override
-    public InputStream decode(Reader reader) throws IOException {
+    public InputStream decode(final Reader reader) throws IOException {
       return new ByteArrayInputStream(HexUtils.decode(from(reader)));
     }
   };
 
   Decoder Base58 = new Decoder() {
     @Override
-    public InputStream decode(Reader reader) throws IOException {
+    public InputStream decode(final Reader reader) throws IOException {
       return new ByteArrayInputStream(Base58Utils.decode(from(reader)));
+    }
+  };
+
+  Decoder Base58Check = new Decoder() {
+    @Override
+    public InputStream decode(final Reader reader) throws IOException {
+      return new ByteArrayInputStream(Base58Utils.decodeWithCheck(from(reader)));
     }
   };
 
   Decoder Base64 = new Decoder() {
     @Override
-    public InputStream decode(Reader reader) throws IOException {
+    public InputStream decode(final Reader reader) throws IOException {
       return new ByteArrayInputStream(Base64Utils.decode(from(reader)));
     }
   };
-
-  Decoder defaultDecoder = Hex;
 
   InputStream decode(Reader reader) throws IOException;
 }

@@ -2,15 +2,13 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.api.function.impl;
+package hera.api.function;
 
-import hera.api.function.Function4;
-import hera.api.function.WithIdentity;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class Function4WithIdentity<T1, T2, T3, T4, R>
+class Function4WithIdentity<T1, T2, T3, T4, R>
     implements Function4<T1, T2, T3, T4, R>, WithIdentity {
 
   protected final Function4<T1, T2, T3, T4, R> delegate;
