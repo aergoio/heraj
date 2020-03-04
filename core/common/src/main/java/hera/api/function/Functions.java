@@ -378,8 +378,8 @@ public final class Functions {
    * @throws NullPointerException if before or after is null
    */
   public static <T1, T2, T3, T4, T5, R, V> Function5<T1, T2, T3, T4, T5, V> compose(
-      final Function5<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? extends R> first,
-      final Function1<? super R, ? extends V> second) {
+      final Function5<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? extends R>
+      first, final Function1<? super R, ? extends V> second) {
     if (null == first) {
       throw new NullPointerException();
     }

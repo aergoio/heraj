@@ -4,27 +4,34 @@
 
 package hera.api.model;
 
+import static hera.util.NumberUtils.positiveToByteArray;
+import static hera.util.Sha256Utils.digest;
+
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Transaction.TxType;
-import hera.spec.transaction.CreateNameTransactionBuilder;
-import hera.spec.transaction.DeployContractTransactionBuilder;
-import hera.spec.transaction.InvokeContractTransactionBuilder;
-import hera.spec.transaction.PlainTransactionBuilder;
-import hera.spec.transaction.ReDeployContractTransactionBuilder;
-import hera.spec.transaction.StakeTransactionBuilder;
-import hera.spec.transaction.UnstakeTransactionBuilder;
-import hera.spec.transaction.UpdateNameTransactionBuilder;
-import hera.spec.transaction.VoteTransactionBuilder;
-import hera.spec.transaction.dsl.CreateNameTransaction;
-import hera.spec.transaction.dsl.DeployContractTransaction;
-import hera.spec.transaction.dsl.InvokeContractTransaction;
-import hera.spec.transaction.dsl.PlainTransaction;
-import hera.spec.transaction.dsl.ReDeployContractTransaction;
-import hera.spec.transaction.dsl.StakeTransaction;
-import hera.spec.transaction.dsl.UnstakeTransaction;
-import hera.spec.transaction.dsl.UpdateNameTransaction;
-import hera.spec.transaction.dsl.VoteTransaction;
+import hera.api.transaction.CreateNameTransactionBuilder;
+import hera.api.transaction.DeployContractTransactionBuilder;
+import hera.api.transaction.InvokeContractTransactionBuilder;
+import hera.api.transaction.PlainTransactionBuilder;
+import hera.api.transaction.ReDeployContractTransactionBuilder;
+import hera.api.transaction.StakeTransactionBuilder;
+import hera.api.transaction.UnStakeTransactionBuilder;
+import hera.api.transaction.UpdateNameTransactionBuilder;
+import hera.api.transaction.VoteTransactionBuilder;
+import hera.api.transaction.dsl.CreateNameTransaction;
+import hera.api.transaction.dsl.DeployContractTransaction;
+import hera.api.transaction.dsl.InvokeContractTransaction;
+import hera.api.transaction.dsl.PlainTransaction;
+import hera.api.transaction.dsl.ReDeployContractTransaction;
+import hera.api.transaction.dsl.StakeTransaction;
+import hera.api.transaction.dsl.UnStakeTransaction;
+import hera.api.transaction.dsl.UpdateNameTransaction;
+import hera.api.transaction.dsl.VoteTransaction;
+import hera.exception.HerajException;
+import hera.util.LittleEndianDataOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import lombok.NonNull;
 import lombok.Value;
 
@@ -74,8 +81,8 @@ public class RawTransaction {
   }
 
   @ApiAudience.Public
-  public static UnstakeTransaction.WithNothing newUnstakeTxBuilder() {
-    return new UnstakeTransactionBuilder();
+  public static UnStakeTransaction.WithNothing newUnstakeTxBuilder() {
+    return new UnStakeTransactionBuilder();
   }
 
   @ApiAudience.Public
@@ -127,6 +134,60 @@ public class RawTransaction {
    */
   public RawTransaction withNonce(final long nonce) {
     return new RawTransaction(chainIdHash, sender, recipient, amount, nonce, fee, payload, txType);
+  }
+
+  /**
+   * Calculate a hash of transaction.
+   *
+   * @return a hash of transaction
+   */
+  public TxHash calculateHash() {
+    try {
+      final ByteArrayOutputStream raw = new ByteArrayOutputStream();
+      final LittleEndianDataOutputStream dataOut = makeStream(raw);
+      dataOut.flush();
+      dataOut.close();
+      final byte[] digested = digest(raw.toByteArray());
+      return TxHash.of(BytesValue.of(digested));
+    } catch (final IOException e) {
+      throw new HerajException(e);
+    }
+  }
+
+  /**
+   * Calculate a hash of transaction.
+   *
+   * @param signature a signature
+   * @return a hash of transaction
+   */
+  public TxHash calculateHash(final Signature signature) {
+    try {
+      final ByteArrayOutputStream raw = new ByteArrayOutputStream();
+      final LittleEndianDataOutputStream dataOut = makeStream(raw);
+      dataOut.write(signature.getSign().getValue());
+      dataOut.flush();
+      dataOut.close();
+      final byte[] digested = digest(raw.toByteArray());
+      return TxHash.of(BytesValue.of(digested));
+    } catch (final IOException e) {
+      throw new HerajException(e);
+    }
+  }
+
+  protected LittleEndianDataOutputStream makeStream(final ByteArrayOutputStream raw)
+      throws IOException {
+    final LittleEndianDataOutputStream dataOut = new LittleEndianDataOutputStream(raw);
+    // WARNING : follow the stream order with server
+    dataOut.writeLong(getNonce());
+    dataOut.write(getSender().getBytesValue().getValue());
+    dataOut.write(getRecipient().getBytesValue().getValue());
+    dataOut.write(positiveToByteArray(getAmount().getValue()));
+    dataOut.write(getPayload().getValue());
+    dataOut.writeLong(getFee().getLimit());
+    dataOut.write(positiveToByteArray(getFee().getPrice().getValue()));
+    dataOut.writeInt(getTxType().getIntValue());
+    dataOut.write(getChainIdHash().getBytesValue().getValue());
+    return dataOut;
   }
 
 }

@@ -53,6 +53,6 @@ public class BlockHeader {
 
   @NonNull
   @Default
-  Signature sign = Signature.newBuilder().build();
+  Signature sign = Signature.EMPTY;
 
 }

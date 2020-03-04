@@ -34,12 +34,12 @@ import hera.api.model.RawTransaction;
 import hera.api.model.Subscription;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.transaction.ContractInvocationPayloadConverter;
+import hera.api.transaction.PayloadConverter;
 import hera.client.ChannelInjectable;
 import hera.client.stream.GrpcStreamObserverAdaptor;
 import hera.client.stream.GrpcStreamSubscription;
 import hera.key.Signer;
-import hera.spec.resolver.PayloadResolver;
-import hera.spec.resolver.PayloadSpec.Type;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.ContractInterfaceConverterFactory;
 import hera.transport.ContractResultConverterFactory;
@@ -88,6 +88,9 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
 
   protected ContextProvider contextProvider;
 
+  protected PayloadConverter<ContractInvocation> payloadConverter =
+      new ContractInvocationPayloadConverter();
+
   protected AccountBaseTemplate accountBaseTemplate = new AccountBaseTemplate();
 
   protected TransactionBaseTemplate transactionBaseTemplate = new TransactionBaseTemplate();
@@ -135,9 +138,8 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
       };
 
   @Getter
-  private final Function4<Signer, ContractDefinition, Long, Fee,
-      Future<ContractTxHash>> deployFunction = new Function4<Signer, ContractDefinition, Long, Fee,
-          Future<ContractTxHash>>() {
+  private final Function4<Signer, ContractDefinition, Long, Fee, Future<ContractTxHash>> deployFunction =
+      new Function4<Signer, ContractDefinition, Long, Fee, Future<ContractTxHash>>() {
 
         @Override
         public Future<ContractTxHash> apply(final Signer signer,
@@ -157,9 +159,8 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
       };
 
   @Getter
-  private final Function5<Signer, ContractAddress, ContractDefinition, Long, Fee,
-      Future<ContractTxHash>> reDeployFunction = new Function5<Signer, ContractAddress,
-          ContractDefinition, Long, Fee, Future<ContractTxHash>>() {
+  private final Function5<Signer, ContractAddress, ContractDefinition, Long, Fee, Future<ContractTxHash>> reDeployFunction =
+      new Function5<Signer, ContractAddress, ContractDefinition, Long, Fee, Future<ContractTxHash>>() {
 
         @Override
         public Future<ContractTxHash> apply(final Signer signer,
@@ -181,9 +182,8 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
       };
 
   @Getter
-  private final Function1<ContractAddress,
-      Future<ContractInterface>> contractInterfaceFunction = new Function1<
-          ContractAddress, Future<ContractInterface>>() {
+  private final Function1<ContractAddress, Future<ContractInterface>> contractInterfaceFunction =
+      new Function1<ContractAddress, Future<ContractInterface>>() {
 
         @Override
         public Future<ContractInterface> apply(
@@ -213,9 +213,8 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
       };
 
   @Getter
-  private final Function4<Signer, ContractInvocation, Long, Fee,
-      Future<ContractTxHash>> executeFunction = new Function4<Signer, ContractInvocation,
-          Long, Fee, Future<ContractTxHash>>() {
+  private final Function4<Signer, ContractInvocation, Long, Fee, Future<ContractTxHash>> executeFunction =
+      new Function4<Signer, ContractInvocation, Long, Fee, Future<ContractTxHash>>() {
 
         @Override
         public Future<ContractTxHash> apply(final Signer signer,
@@ -248,8 +247,8 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
   }
 
   @Getter
-  private final Function1<ContractInvocation, Future<
-      ContractResult>> queryFunction = new Function1<ContractInvocation, Future<ContractResult>>() {
+  private final Function1<ContractInvocation, Future<ContractResult>> queryFunction =
+      new Function1<ContractInvocation, Future<ContractResult>>() {
 
         @Override
         public Future<ContractResult> apply(final ContractInvocation contractInvocation) {
@@ -258,7 +257,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
           final ByteString rpcContractAddress =
               accountAddressConverter.convertToRpcModel(contractInvocation.getAddress());
           final BytesValue rpcContractInvocation =
-              PayloadResolver.resolve(Type.ContractInvocation, contractInvocation);
+              payloadConverter.convertToPayload(contractInvocation);
           final Blockchain.Query rpcQuery = Blockchain.Query.newBuilder()
               .setContractAddress(rpcContractAddress)
               .setQueryinfo(copyFrom(rpcContractInvocation))
@@ -279,8 +278,8 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
       };
 
   @Getter
-  private final Function1<EventFilter,
-      Future<List<Event>>> listEventFunction = new Function1<EventFilter, Future<List<Event>>>() {
+  private final Function1<EventFilter, Future<List<Event>>> listEventFunction =
+      new Function1<EventFilter, Future<List<Event>>>() {
 
         @Override
         public Future<List<Event>> apply(final EventFilter eventFilter) {
@@ -308,9 +307,8 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
       };
 
   @Getter
-  private final Function2<EventFilter, hera.api.model.StreamObserver<Event>,
-      Future<Subscription<Event>>> subscribeEventFunction = new Function2<EventFilter,
-          hera.api.model.StreamObserver<Event>, Future<Subscription<Event>>>() {
+  private final Function2<EventFilter, hera.api.model.StreamObserver<Event>, Future<Subscription<Event>>> subscribeEventFunction =
+      new Function2<EventFilter, hera.api.model.StreamObserver<Event>, Future<Subscription<Event>>>() {
 
         @Override
         public Future<Subscription<Event>> apply(final EventFilter filter,

@@ -68,7 +68,7 @@ class KeyStoreV1Strategy implements KeyFormatStrategy {
       // encrypt raw key
       final byte[] derivedPassword = deriveCipherKey(password, kdfParams);
       final byte[] encryptKey = Arrays.copyOf(derivedPassword, 16);
-      final byte[] rawPrivateKey = key.getRawPrivateKey();
+      final byte[] rawPrivateKey = key.getRawPrivateKey().getValue();
       final byte[] iv = randomBytes(16);
       final byte[] rawCiphertext = encryptWithKeySpec(iv, encryptKey, rawPrivateKey);
       final byte[] rawMac = generateMac(derivedPassword, rawCiphertext);

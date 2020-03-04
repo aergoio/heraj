@@ -8,7 +8,10 @@ import static hera.util.ValidationUtils.assertNotNull;
 
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
+import hera.api.model.BytesValue;
+import hera.api.model.Hash;
 import hera.api.model.RawTransaction;
+import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
@@ -126,6 +129,26 @@ public class WalletApiImpl implements WalletApi {
       }
 
       return getSigner().sign(rawTransaction);
+    } catch (Exception e) {
+      throw converter.convert(e);
+    }
+  }
+
+  @Override
+  public Signature signMessage(final BytesValue message) {
+    try {
+      assertNotNull(message, "Message must not null");
+      return getSigner().signMessage(message);
+    } catch (Exception e) {
+      throw converter.convert(e);
+    }
+  }
+
+  @Override
+  public Signature signMessage(final Hash hashedMessage) {
+    try {
+      assertNotNull(hashedMessage, "Hashed message must not null");
+      return getSigner().signMessage(hashedMessage);
     } catch (Exception e) {
       throw converter.convert(e);
     }

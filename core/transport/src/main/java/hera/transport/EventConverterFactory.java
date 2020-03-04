@@ -23,7 +23,6 @@ import hera.api.model.AccountAddress;
 import hera.api.model.BigNumber;
 import hera.api.model.ContractAddress;
 import hera.api.model.Event;
-import hera.spec.AergoSpec;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,9 +39,8 @@ public class EventConverterFactory {
 
   protected final ObjectMapper mapper = getObjectMapper();
 
-  protected final ModelConverter<AccountAddress,
-      com.google.protobuf.ByteString> accountAddressConverter =
-          new AccountAddressConverterFactory().create();
+  protected final ModelConverter<AccountAddress, com.google.protobuf.ByteString> accountAddressConverter =
+      new AccountAddressConverterFactory().create();
 
   protected final Function1<Event, Blockchain.Event> domainConverter =
       new Function1<Event, Blockchain.Event>() {
@@ -187,13 +185,13 @@ public class EventConverterFactory {
     }
 
     protected boolean isAergoBigNum(final ObjectNode objectNode) {
-      final JsonNode possiblyBignum = objectNode.get(AergoSpec.BIGNUM_JSON_KEY);
+      final JsonNode possiblyBignum = objectNode.get(BigNumber.BIGNUM_JSON_KEY);
       return objectNode.size() == 1 && null != possiblyBignum && possiblyBignum.isTextual();
     }
 
     protected BigNumber parseBignumNode(final ObjectNode objectNode) {
       try {
-        final JsonNode bignumNode = objectNode.get(AergoSpec.BIGNUM_JSON_KEY);
+        final JsonNode bignumNode = objectNode.get(BigNumber.BIGNUM_JSON_KEY);
         return new BigNumber(bignumNode.asText());
       } catch (Exception e) {
         throw new IllegalArgumentException(e);

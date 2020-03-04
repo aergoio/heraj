@@ -34,15 +34,4 @@ public class AergoKeyGeneratorTest extends AbstractTestCase {
       prev = curr;
     }
   }
-
-  @Test
-  public void testImport() throws Exception {
-    final AergoKeyGenerator generator = new AergoKeyGenerator();
-    final AergoKey expected = generator.create();
-    final String password = randomUUID().toString();
-
-    final AergoKey actual = generator.create(expected.export(password), password);
-    assertEquals(expected, actual);
-  }
-
 }

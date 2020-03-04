@@ -140,13 +140,13 @@ public class BlockchainTemplateTest extends AbstractTestCase {
     final BlockchainBaseTemplate base = mock(BlockchainBaseTemplate.class);
     final List<Peer> list = new ArrayList<Peer>();
     final Future<List<Peer>> future = HerajFutures.success(list);
-    when(base.getListPeersFunction()).thenReturn(new Function2<Boolean, Boolean,
-        Future<List<Peer>>>() {
-      @Override
-      public Future<List<Peer>> apply(Boolean t1, Boolean t2) {
-        return future;
-      }
-    });
+    when(base.getListPeersFunction())
+        .thenReturn(new Function2<Boolean, Boolean, Future<List<Peer>>>() {
+          @Override
+          public Future<List<Peer>> apply(Boolean t1, Boolean t2) {
+            return future;
+          }
+        });
 
     final BlockchainTemplate blockchainTemplate = supplyBlockchainTemplate(base);
 

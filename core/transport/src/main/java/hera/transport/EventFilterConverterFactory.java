@@ -11,7 +11,7 @@ import com.google.protobuf.ByteString;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.EventFilter;
-import hera.spec.resolver.JsonResolver;
+import hera.api.transaction.JsonResolver;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,9 +23,8 @@ public class EventFilterConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final ModelConverter<AccountAddress,
-      com.google.protobuf.ByteString> accountAddressConverter =
-          new AccountAddressConverterFactory().create();
+  protected final ModelConverter<AccountAddress, com.google.protobuf.ByteString> accountAddressConverter =
+      new AccountAddressConverterFactory().create();
 
   protected final Function1<EventFilter, Blockchain.FilterInfo> domainConverter =
       new Function1<EventFilter, Blockchain.FilterInfo>() {

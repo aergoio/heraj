@@ -122,7 +122,7 @@ public class BigNumber {
   }
 
   public String toJson() {
-    return String.format(BIGNUM_JSON_FORM, getValue());
+    return String.format(BIGNUM_JSON_FORM, BIGNUM_JSON_KEY, getValue());
   }
 
   @Override

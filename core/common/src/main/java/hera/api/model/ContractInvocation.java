@@ -20,10 +20,7 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
-public class ContractInvocation {
-
-  @Getter
-  protected final ContractAddress address;
+public class ContractInvocation implements Payload {
 
   @Getter
   protected final ContractFunction function;
@@ -32,16 +29,20 @@ public class ContractInvocation {
   protected final List<Object> args;
 
   @Getter
+  protected final ContractAddress address;
+
+  @Getter
   protected final Aer amount;
 
+  // TODO: replace with Fee.DELEGATE
   @Getter
   protected final boolean delegateFee;
 
-  ContractInvocation(final ContractAddress contractAddress, final ContractFunction contractFunction,
-      final List<Object> args, final Aer amount, final boolean delegateFee) {
-    assertNotNull(contractAddress, "Contract address must not null");
+  ContractInvocation(final ContractFunction contractFunction, final List<Object> args,
+      final ContractAddress contractAddress, final Aer amount, final boolean delegateFee) {
     assertNotNull(contractFunction, "Contract function must not null");
     assertNotNull(args, "Contract function args must not null");
+    assertNotNull(contractAddress, "Contract address must not null");
     assertNotNull(amount, "Amount must not null");
     this.address = contractAddress;
     this.function = contractFunction;

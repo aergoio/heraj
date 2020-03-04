@@ -167,7 +167,7 @@ public class KeyStoreTest extends AbstractTestCase {
       // then
       final String password = randomUUID().toString();
       final EncryptedPrivateKey exported = keyStore.export(authentication, password);
-      final AergoKey decrypted = new AergoKeyGenerator().create(exported, password);
+      final AergoKey decrypted = AergoKey.of(exported, password);
       assertEquals(decrypted, key);
     }
   }

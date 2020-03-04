@@ -23,18 +23,17 @@ public class Transaction {
   RawTransaction rawTransaction;
 
   @NonNull
-  @Default
-  Signature signature = Signature.newBuilder().build();
+  Signature signature;
 
   @NonNull
-  @Default
-  TxHash hash = TxHash.of(BytesValue.EMPTY);
+  TxHash hash;
 
   @NonNull
   @Default
   BlockHash blockHash = BlockHash.of(BytesValue.EMPTY);
 
-  int indexInBlock;
+  @Default
+  int indexInBlock = 0;
 
   @Default
   boolean confirmed = false;

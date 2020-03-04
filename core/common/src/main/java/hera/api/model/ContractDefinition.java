@@ -23,7 +23,7 @@ import lombok.Getter;
 @ApiAudience.Public
 @ApiStability.Unstable
 @EqualsAndHashCode
-public class ContractDefinition {
+public class ContractDefinition implements Payload {
 
   public static final byte PAYLOAD_VERSION = (byte) 0xC0;
 
@@ -51,12 +51,12 @@ public class ContractDefinition {
     try {
       final Decoder decoder = Decoder.Base58Check;
       final byte[] raw = from(decoder.decode(new StringReader(encodedContract)));
-      final BytesValue decoded = BytesValue.of(raw);
-      if (!hasVersion(decoded)) {
+      final BytesValue withVersion = BytesValue.of(raw);
+      if (!hasVersion(withVersion)) {
         throw new HerajException("Encoded contract doesn't have a version");
       }
 
-      this.decodedContract = decoded;
+      this.decodedContract = BytesValueUtils.trimPrefix(withVersion);
       this.encodedContract = encodedContract;
       this.constructorArgs = unmodifiableList(args);
       this.amount = amount;

@@ -20,9 +20,11 @@ import lombok.Getter;
 @ApiAudience.Public
 @ApiStability.Unstable
 @EqualsAndHashCode
-public class EncryptedPrivateKey {
+public class EncryptedPrivateKey implements Encrypted {
 
   public static final byte ENCRYPTED_PREFIX = (byte) 0xAA;
+
+  public static final EncryptedPrivateKey EMPTY = new EncryptedPrivateKey();
 
   /**
    * Create {@code EncryptedPrivateKey} with a base58 with checksum encoded value.
@@ -86,6 +88,10 @@ public class EncryptedPrivateKey {
     }
     this.bytesValue = bytesValue;
   }
+  
+  protected EncryptedPrivateKey() {
+    this.bytesValue = BytesValue.EMPTY;
+  }
 
   protected boolean isValid(final BytesValue rawEncryptedPrivateKey) {
     return BytesValueUtils.validatePrefix(rawEncryptedPrivateKey, ENCRYPTED_PREFIX);
@@ -108,7 +114,6 @@ public class EncryptedPrivateKey {
           try {
             final Encoder encoder = Encoder.Base58Check;
             this.encoded = from(encoder.encode(getBytesValue().getInputStream()));
-            return null;
           } catch (Exception e) {
             throw new HerajException(e);
           }

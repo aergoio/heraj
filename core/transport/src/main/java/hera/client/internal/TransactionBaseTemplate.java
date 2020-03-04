@@ -17,7 +17,9 @@ import hera.api.function.Function1;
 import hera.api.function.Function3;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
+import hera.api.model.BytesValue;
 import hera.api.model.RawTransaction;
+import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.client.ChannelInjectable;
@@ -146,9 +148,8 @@ public class TransactionBaseTemplate implements ChannelInjectable, ContextProvid
       };
 
   @Getter
-  private final Function3<AccountAddress, AccountAddress, Aer,
-      Future<TxHash>> sendFunction = new Function3<
-          AccountAddress, AccountAddress, Aer, Future<TxHash>>() {
+  private final Function3<AccountAddress, AccountAddress, Aer, Future<TxHash>> sendFunction =
+      new Function3<AccountAddress, AccountAddress, Aer, Future<TxHash>>() {
 
         @Override
         public Future<TxHash> apply(final AccountAddress sender,
@@ -165,6 +166,8 @@ public class TransactionBaseTemplate implements ChannelInjectable, ContextProvid
               .build();
           final Transaction transaction = Transaction.newBuilder()
               .rawTransaction(rawTransaction)
+              .signature(Signature.EMPTY)
+              .hash(TxHash.of(BytesValue.EMPTY))
               .build();
           final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(transaction);
           logger.trace("AergoService sendTX arg: {}", rpcTx);

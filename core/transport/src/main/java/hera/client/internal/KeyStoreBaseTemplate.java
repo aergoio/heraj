@@ -17,9 +17,12 @@ import hera.api.function.Function1;
 import hera.api.function.Function3;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
+import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.RawTransaction;
+import hera.api.model.Signature;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import hera.client.ChannelInjectable;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.AuthenticationConverterFactory;
@@ -204,8 +207,11 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
         public Future<Transaction> apply(final RawTransaction rawTransaction) {
           logger.debug("Sign request with rawTx: {}", rawTransaction);
 
-          final Transaction domainTransaction =
-              Transaction.newBuilder().rawTransaction(rawTransaction).build();
+          final Transaction domainTransaction = Transaction.newBuilder()
+              .rawTransaction(rawTransaction)
+              .signature(Signature.EMPTY)
+              .hash(TxHash.of(BytesValue.EMPTY))
+              .build();
           final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(domainTransaction);
           logger.trace("AergoService signTX arg: {}", rpcTx);
 

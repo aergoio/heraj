@@ -58,7 +58,7 @@ public class EncryptedPrivateKeyConverterFactory {
                 HexUtils.encode(rpcEncryptedPrivateKey.getValue().toByteArray()));
           }
           if (rpcEncryptedPrivateKey.getValue().isEmpty()) {
-            return new EncryptedPrivateKey(BytesValue.EMPTY);
+            return EncryptedPrivateKey.EMPTY;
           }
           final byte[] withoutVersion = rpcEncryptedPrivateKey.getValue().toByteArray();
           final byte[] withVersion = append(withoutVersion, EncryptedPrivateKey.ENCRYPTED_PREFIX);

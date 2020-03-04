@@ -22,7 +22,9 @@ import hera.api.function.WithIdentity;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
+import hera.api.model.BytesValue;
 import hera.api.model.RawTransaction;
+import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.client.internal.HerajFutures;
@@ -61,8 +63,13 @@ public class TransactionTemplateTest extends AbstractTestCase {
   @Test
   public void testGetTransaction() {
     final TransactionBaseTemplate base = mock(TransactionBaseTemplate.class);
+    final Transaction mockTx = Transaction.newBuilder()
+        .rawTransaction(rawTransaction)
+        .signature(Signature.EMPTY)
+        .hash(TxHash.of(BytesValue.EMPTY))
+        .build();
     final Future<Transaction> future =
-        HerajFutures.success(Transaction.newBuilder().rawTransaction(rawTransaction).build());
+        HerajFutures.success(mockTx);
     when(base.getTransactionFunction())
         .thenReturn(new Function1<TxHash, Future<Transaction>>() {
           @Override
@@ -98,7 +105,11 @@ public class TransactionTemplateTest extends AbstractTestCase {
     final TransactionTemplate transactionTemplate =
         supplyTransactionTemplate(base);
 
-    final Transaction transaction = Transaction.newBuilder().rawTransaction(rawTransaction).build();
+    final Transaction transaction = Transaction.newBuilder()
+        .rawTransaction(rawTransaction)
+        .signature(Signature.EMPTY)
+        .hash(TxHash.of(BytesValue.EMPTY))
+        .build();
     final TxHash txHash = transactionTemplate.commit(transaction);
     assertNotNull(txHash);
     assertEquals(TRANSACTION_COMMIT,

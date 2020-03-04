@@ -36,7 +36,7 @@ public class ContractInterfaceTest {
 
     final Object[] args = new Object[] {randomUUID().toString(), randomUUID().toString()};
     final ContractInvocation expected =
-        new ContractInvocation(address, function, asList(args), Aer.ZERO, true);
+        new ContractInvocation(function, asList(args), address, Aer.ZERO, true);
     final ContractInvocation actual = contractInterface.newInvocationBuilder()
         .function(functionName)
         .args(args)
@@ -106,7 +106,7 @@ public class ContractInterfaceTest {
         new ContractInterface(address, version, language, functions, stateVariables);
 
     try {
-      final ContractInvocation actual = contractInterface.newInvocationBuilder()
+      contractInterface.newInvocationBuilder()
           .function(functionName)
           .amount(Aer.ZERO)
           .delegateFee(true)

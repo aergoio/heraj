@@ -12,7 +12,9 @@ import hera.api.model.BytesValue;
 import hera.api.model.ChainIdHash;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
+import hera.api.model.Signature;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import org.junit.Test;
 import types.Blockchain;
 
@@ -33,7 +35,11 @@ public class TransactionConverterTest extends AbstractTestCase {
         .payload(BytesValue.EMPTY)
         .build();
 
-    final Transaction expected = Transaction.newBuilder().rawTransaction(rawTransaction).build();
+    final Transaction expected = Transaction.newBuilder()
+        .rawTransaction(rawTransaction)
+        .signature(Signature.EMPTY)
+        .hash(TxHash.of(BytesValue.EMPTY))
+        .build();
 
     final Blockchain.Tx rpcTransaction = converter.convertToRpcModel(expected);
     final Transaction actual = converter.convertToDomainModel(rpcTransaction);

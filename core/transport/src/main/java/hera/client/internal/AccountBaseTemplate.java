@@ -160,7 +160,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
               .from(signer.getPrincipal())
               .nonce(nonce)
               .name(name)
-              .newOwner(newOwner)
+              .nextOwner(newOwner)
               .build();
           final Transaction signed = signer.sign(rawTransaction);
           return transactionBaseTemplate.getCommitFunction().apply(signed);

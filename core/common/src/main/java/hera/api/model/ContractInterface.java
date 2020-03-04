@@ -149,7 +149,7 @@ public class ContractInterface {
 
     @Override
     public hera.api.model.ContractInvocation build() {
-      return new ContractInvocation(contractInterface.getAddress(), function, asList(args), amount,
+      return new ContractInvocation(function, asList(args), contractInterface.getAddress(), amount,
           delegateFee);
     }
 
