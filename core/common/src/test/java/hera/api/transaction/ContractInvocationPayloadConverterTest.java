@@ -28,15 +28,13 @@ public class ContractInvocationPayloadConverterTest extends AbstractTestCase {
     final ContractFunction function = new ContractFunction(randomUUID().toString());
     final Map<String, Object> map = new HashMap<>();
     map.put(randomUUID().toString(), randomUUID().toString());
-    final List<Object> args = asList(new Object[] {
-        randomUUID().toString(),
+    final List<Object> args = asList(randomUUID().toString(),
         true,
         null,
         3,
-        asList(new Object[] {randomUUID().toString(), randomUUID().toString()}),
-        BigNumber.of("3000"),
-        map
-    });
+        asList(randomUUID().toString(), randomUUID().toString()),
+//        BigNumber.of("3000"),
+        map);
 
     final PayloadConverter<ContractInvocation> converter = new ContractInvocationPayloadConverter();
     final ContractInvocation expected = ContractInvocation.newBuilder()
@@ -46,6 +44,7 @@ public class ContractInvocationPayloadConverterTest extends AbstractTestCase {
         .amount(Aer.EMPTY)
         .build();
     final BytesValue payload = converter.convertToPayload(expected);
+    System.out.println(new String(payload.getValue()));
     final ContractInvocation actual = converter.parseToModel(payload);
     assertEquals(expected, actual);
   }

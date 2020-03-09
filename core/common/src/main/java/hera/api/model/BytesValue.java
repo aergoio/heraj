@@ -117,7 +117,7 @@ public class BytesValue implements Encodable {
 
   @Override
   public String toString() {
-    return getEncoded(Encoder.Base58);
+    return new String(this.value);
   }
 
   @Override

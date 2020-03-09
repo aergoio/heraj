@@ -5,11 +5,13 @@
 package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
+import static java.util.Collections.unmodifiableMap;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.exception.HerajException;
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
 
@@ -19,12 +21,12 @@ import lombok.EqualsAndHashCode;
 public class BigNumber {
 
   public static final String BIGNUM_JSON_KEY = "_bignum";
-  protected static final String BIGNUM_JSON_FORM = "{ \"%s\": \"%s\" }";
+  public static final String BIGNUM_JSON_FORM = "{ \"" + BIGNUM_JSON_KEY + "\": \"%s\" }";
 
   /**
    * Create {@code BigNumber}.
-   * 
-   * @param value a value
+   *
+   * @param value a value. eg. 100
    * @return created {@code BigNumber}
    */
   public static BigNumber of(final String value) {
@@ -33,7 +35,7 @@ public class BigNumber {
 
   /**
    * Create {@code BigNumber}.
-   * 
+   *
    * @param value a bigInteger
    * @return created {@code BigNumber}
    */
@@ -44,7 +46,7 @@ public class BigNumber {
   /**
    * Create {@code BigNumber} with a map. A map must have key {@link #BIGNUM_JSON_KEY} and be size
    * 1.
-   * 
+   *
    * @param map a map
    * @return created {@code BigNumber}
    */
@@ -56,8 +58,8 @@ public class BigNumber {
 
   /**
    * Create {@code BigNumber}.
-   * 
-   * @param value a value
+   *
+   * @param value a value. eg. 100
    */
   public BigNumber(final String value) {
     assertNotNull(value, "A biginteger value must not null");
@@ -70,7 +72,7 @@ public class BigNumber {
 
   /**
    * Create {@code BigNumber}.
-   * 
+   *
    * @param value a bigInteger
    */
   public BigNumber(final BigInteger value) {
@@ -81,7 +83,7 @@ public class BigNumber {
   /**
    * Create {@code BigNumber} with a map. A map must have key {@link #BIGNUM_JSON_KEY} and be size
    * 1.
-   * 
+   *
    * @param map a map
    */
   public BigNumber(final Map<String, String> map) {
@@ -93,7 +95,11 @@ public class BigNumber {
       if (!map.containsKey(BIGNUM_JSON_KEY)) {
         throw new HerajException("No value for " + BIGNUM_JSON_KEY);
       }
-      this.delegate = new BigInteger(map.get(BIGNUM_JSON_KEY));
+      final Object value = map.get(BIGNUM_JSON_KEY);
+      if (!(value instanceof String)) {
+        throw new HerajException("Value must be string");
+      }
+      this.delegate = new BigInteger((String) value);
     } catch (HerajException e) {
       throw e;
     } catch (Exception e) {
@@ -121,8 +127,16 @@ public class BigNumber {
     return new BigNumber(this.delegate.divide(other.delegate));
   }
 
-  public String toJson() {
-    return String.format(BIGNUM_JSON_FORM, BIGNUM_JSON_KEY, getValue());
+  /**
+   * Convert bignumber to a map corresponding to json format (key: {@link #BIGNUM_JSON_KEY}, value:
+   * bignum value).
+   *
+   * @return a bignumber in map corresponding to json format
+   */
+  public Map<String, String> toMap() {
+    final Map<String, String> map = new HashMap<>();
+    map.put(BIGNUM_JSON_KEY, getValue());
+    return unmodifiableMap(map);
   }
 
   @Override

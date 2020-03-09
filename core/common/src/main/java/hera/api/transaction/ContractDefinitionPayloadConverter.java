@@ -21,6 +21,8 @@ public class ContractDefinitionPayloadConverter implements PayloadConverter<Cont
 
   protected final Logger logger = getLogger(getClass());
 
+  protected final JsonMapper mapper = new AergoJsonMapper();
+
   @Override
   public BytesValue convertToPayload(final ContractDefinition contractDefinition) {
     try {
@@ -32,9 +34,9 @@ public class ContractDefinitionPayloadConverter implements PayloadConverter<Cont
         dataOut.writeInt(rawContract.length + 4);
         dataOut.write(rawContract);
         if (!contractDefinition.getConstructorArgs().isEmpty()) {
-          final String constructorArgs =
-              JsonResolver.asJsonArray(contractDefinition.getConstructorArgs());
-          dataOut.write(constructorArgs.getBytes());
+          final BytesValue constructorArgs =
+              mapper.marshal(contractDefinition.getConstructorArgs());
+          dataOut.write(constructorArgs.getValue());
         }
       } finally {
         dataOut.close();

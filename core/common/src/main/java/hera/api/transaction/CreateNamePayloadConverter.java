@@ -11,7 +11,9 @@ import hera.annotation.ApiStability;
 import hera.api.model.BytesValue;
 import hera.api.model.CreateName;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 
 
@@ -21,13 +23,17 @@ public class CreateNamePayloadConverter implements PayloadConverter<CreateName> 
 
   protected final Logger logger = getLogger(getClass());
 
+  protected final JsonMapper mapper = new AergoJsonMapper();
+
   @Override
   public BytesValue convertToPayload(final CreateName createName) {
     logger.debug("Convert to payload from {}", createName);
     final List<Object> args = new ArrayList<>();
     args.add(createName.getName().getValue());
-    final String json = JsonResolver.asJsonForm(createName.getOperationName(), args);
-    return BytesValue.of(json.getBytes());
+    final Map<String, Object> map = new HashMap<>();
+    map.put("Name", createName.getOperationName());
+    map.put("Args", args);
+    return mapper.marshal(map);
   }
 
   @Override

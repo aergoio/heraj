@@ -11,6 +11,8 @@ import hera.annotation.ApiStability;
 import hera.api.model.BytesValue;
 import hera.api.model.Vote;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 
 @ApiAudience.Public
@@ -19,11 +21,15 @@ public class VotePayloadConverter implements PayloadConverter<Vote> {
 
   protected final Logger logger = getLogger(getClass());
 
+  protected final JsonMapper mapper = new AergoJsonMapper();
+
   @Override
   public BytesValue convertToPayload(final Vote vote) {
     logger.debug("Convert to payload from {}", vote);
-    final String json = JsonResolver.asJsonForm(vote.getOperationName(), Collections.emptyList());
-    return BytesValue.of(json.getBytes());
+    final Map<String, Object> map = new HashMap<>();
+    map.put("Name", vote.getOperationName());
+    map.put("Args", Collections.emptyList());
+    return mapper.marshal(map);
   }
 
   @Override

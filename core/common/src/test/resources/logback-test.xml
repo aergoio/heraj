@@ -13,9 +13,10 @@
   </root>
   <logger name="ch.qos.logback" level="error"/>
 
-  <logger name="io.netty" level="warn"/>
-
-  <logger name="hera" level="warn"/>
-  <logger name="hera.transport" level="info"/>
+  <logger name="hera" level="debug"/>
+  <logger name="hera.api" level="debug"/>
+  <logger name="hera.api.transaction" level="debug"/>
+  <logger name="hera.key" level="debug"/>
+  <logger name="hera.strategy" level="debug"/>
   <logger name="hera.util" level="error"/>
 </configuration>

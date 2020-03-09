@@ -43,13 +43,18 @@ public class ContractInvocationPayloadConverter implements PayloadConverter<Cont
 
   protected final Logger logger = getLogger(getClass());
 
+  protected final JsonMapper mapper = new AergoJsonMapper();
+
   @Override
   public BytesValue convertToPayload(final ContractInvocation contractInvocation) {
     logger.debug("Convert to payload from {}", contractInvocation);
     final String name = contractInvocation.getFunction().getName();
     final List<Object> args = contractInvocation.getArgs();
-    final String json = JsonResolver.asJsonForm(name, args);
-    return BytesValue.of(json.getBytes());
+    final Map<String, Object> map = new HashMap<>();
+    map.put("Name", name);
+    map.put("Args", args);
+
+    return mapper.marshal(map);
   }
 
   @Override

@@ -11,7 +11,8 @@ import com.google.protobuf.ByteString;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.EventFilter;
-import hera.api.transaction.JsonResolver;
+import hera.api.transaction.AergoJsonMapper;
+import hera.api.transaction.JsonMapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +24,10 @@ public class EventFilterConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final ModelConverter<AccountAddress, com.google.protobuf.ByteString> accountAddressConverter =
-      new AccountAddressConverterFactory().create();
+  protected final JsonMapper mapper = new AergoJsonMapper();
+
+  protected final ModelConverter<AccountAddress, com.google.protobuf.ByteString>
+      accountAddressConverter = new AccountAddressConverterFactory().create();
 
   protected final Function1<EventFilter, Blockchain.FilterInfo> domainConverter =
       new Function1<EventFilter, Blockchain.FilterInfo>() {
@@ -47,7 +50,7 @@ public class EventFilterConverterFactory {
               .setBlockfrom(domainEventFilter.getFromBlockNumber())
               .setBlockto(domainEventFilter.getToBlockNumber())
               .setDesc(domainEventFilter.isDecending())
-              .setArgFilter(copyFrom(JsonResolver.asJsonObject(orderToValue).getBytes()))
+              .setArgFilter(copyFrom(mapper.marshal(orderToValue)))
               .setRecentBlockCnt(domainEventFilter.getRecentBlockCount())
               .build();
           logger.trace("Rpc event filter converted: {}", rpcEventFilter);

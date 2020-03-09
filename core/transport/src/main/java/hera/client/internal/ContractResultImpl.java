@@ -6,20 +6,18 @@ package hera.client.internal;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import hera.api.model.BigNumber;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractResult;
+import hera.api.transaction.AergoJsonMapper;
+import hera.api.transaction.JsonMapper;
 import java.io.IOException;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 
 @RequiredArgsConstructor
 public class ContractResultImpl implements ContractResult {
 
-  protected static final ObjectReader reader = new ObjectMapper().reader();
+  protected static final JsonMapper mapper = new AergoJsonMapper();
 
   protected final Logger logger = getLogger(getClass());
 
@@ -34,14 +32,7 @@ public class ContractResultImpl implements ContractResult {
     if (stringFormat.isEmpty() || "{}".equals(stringFormat)) {
       return null;
     }
-
-    if (clazz.isAssignableFrom(BigNumber.class)) {
-      final Map<String, String> bigNumMap = reader.forType(Map.class).readValue(rawBytes);
-      return (T) BigNumber.of(bigNumMap);
-    } else {
-      return reader.forType(clazz).readValue(rawBytes);
-    }
-
+    return mapper.unmarshal(result, clazz);
   }
 
   @Override
@@ -56,7 +47,7 @@ public class ContractResultImpl implements ContractResult {
 
   @Override
   public String toString() {
-    return new String(result.getValue());
+    return result.toString();
   }
 
 }

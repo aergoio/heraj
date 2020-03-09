@@ -179,8 +179,6 @@ public class AergoKey implements KeyPair, Signer {
    *
    * @param passphrase an passphrase to encrypt key
    * @return encrypted key
-   *
-   * @deprecated use {@link #exportAsWif(String)}
    */
   public EncryptedPrivateKey export(final String passphrase) {
     return export(new EncryptedPrivateKeyStrategy(), passphrase);

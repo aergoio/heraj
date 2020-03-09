@@ -138,7 +138,8 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
       };
 
   @Getter
-  private final Function4<Signer, ContractDefinition, Long, Fee, Future<ContractTxHash>> deployFunction =
+  private final Function4<Signer, ContractDefinition,
+      Long, Fee, Future<ContractTxHash>> deployFunction =
       new Function4<Signer, ContractDefinition, Long, Fee, Future<ContractTxHash>>() {
 
         @Override
@@ -167,7 +168,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
             final ContractAddress existingContract, final ContractDefinition contractDefinition,
             final Long nonce, final Fee fee) {
           logger.debug("Re-deploy contract with creator: {}, existing one: {}, "
-              + "definition: {}, nonce: {}, fee: {}",
+                  + "definition: {}, nonce: {}, fee: {}",
               signer, existingContract, contractDefinition, nonce, fee);
           final RawTransaction rawTransaction = RawTransaction.newReDeployContractBuilder()
               .chainIdHash(contextProvider.get().getChainIdHash())

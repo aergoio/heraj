@@ -141,7 +141,6 @@ public class KeyStoreTemplate
     try {
       return getUnlockFunction().apply(authentication).get();
     } catch (DecoratorChainException e) {
-      e.printStackTrace();
       if ((e.getCause() instanceof StatusRuntimeException)
           && ((StatusRuntimeException) e.getCause()).getStatus().getCode().equals(Code.UNKNOWN)) {
         return false;
