@@ -4,20 +4,19 @@
 [![LoC](https://tokei.rs/b1/github/aergoio/heraj)](https://github.com/aergoio/heraj)
 [![Travis_ci](https://travis-ci.org/aergoio/heraj.svg?branch=develop)](https://travis-ci.org/aergoio/heraj)
 [![codecov.io](http://codecov.io/github/aergoio/heraj/coverage.svg?branch=develop)](http://codecov.io/github/aergoio/heraj?branch=develop)
-[![Maintainability](https://api.codeclimate.com/v1/badges/a0aa6cecd0067bddc770/maintainability)](https://codeclimate.com/github/aergoio/heraj/maintainability)
 
 The hera is the client-side framework for the aergo.
 This repository, heraj is java implementation for hera.
 
 ## Latest
 
-v1.3.0
+v1.4.0
 
-build with aergo-protobuf [38d6a4fce32395997efbd66d0c61edab55c8e4a2](https://github.com/aergoio/aergo-protobuf/commits/38d6a4fce32395997efbd66d0c61edab55c8e4a2)
+build with aergo-protobuf [6ce439c7600ae7b167c6c61e66ce2ac38bb2bef9](https://github.com/aergoio/aergo-protobuf/commits/6ce439c7600ae7b167c6c61e66ce2ac38bb2bef9)
 
 ## Compatibility
 
-* Aergo : v2.0.x
+* Aergo : v2.2.x
 * Java : JDK 7 or higher
 * Android : Android 3.0 (API 11) or higher
 

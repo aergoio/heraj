@@ -262,7 +262,7 @@ configure(javaProjects) {
     user = System.getProperty("bintrayUser")
     key = System.getProperty("bintrayKey")
     pkg {
-      userOrg = System.getProperty("bintrayUser")
+      userOrg = 'aergoio'
       repo = 'maven'
       name = 'heraj-' + project.name
       licenses = ['MIT']
