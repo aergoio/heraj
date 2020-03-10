@@ -17,7 +17,7 @@ public class EncryptedPrivateKeyStrategyTest extends AbstractTestCase {
   public void testEncryptAndDecrypt() throws Exception {
     final AergoKey expected = new AergoKeyGenerator().create();
     final String passphrase = randomUUID().toString();
-    final AergoKeyCipherStrategy<EncryptedPrivateKey> strategy = new EncryptedPrivateKeyStrategy();
+    final KeyCipherStrategy<EncryptedPrivateKey> strategy = new EncryptedPrivateKeyStrategy();
     final EncryptedPrivateKey encrypted = strategy.encrypt(expected, passphrase);
     final AergoKey actual = strategy.decrypt(encrypted, passphrase);
     assertEquals(expected, actual);

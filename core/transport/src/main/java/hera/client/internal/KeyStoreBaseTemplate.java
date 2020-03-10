@@ -79,99 +79,99 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
   }
 
   @Getter
-  private final Function0<
-      Future<List<AccountAddress>>> listFunction = new Function0<Future<List<AccountAddress>>>() {
+  private final Function0<Future<List<AccountAddress>>> listFunction =
+      new Function0<Future<List<AccountAddress>>>() {
 
-    @Override
-    public Future<List<AccountAddress>> apply() {
-      logger.debug("List keystore addresses");
+        @Override
+        public Future<List<AccountAddress>> apply() {
+          logger.debug("List keystore addresses");
 
-      final Rpc.Empty empty = Rpc.Empty.newBuilder().build();
-      logger.trace("AergoService getAccounts arg: {}", empty);
+          final Rpc.Empty empty = Rpc.Empty.newBuilder().build();
+          logger.trace("AergoService getAccounts arg: {}", empty);
 
-      final Future<AccountOuterClass.AccountList> rawFuture = aergoService.getAccounts(empty);
-      final Future<List<AccountAddress>> convertedFuture = HerajFutures.transform(rawFuture,
-          new Function1<AccountOuterClass.AccountList, List<AccountAddress>>() {
+          final Future<AccountOuterClass.AccountList> rawFuture = aergoService.getAccounts(empty);
+          final Future<List<AccountAddress>> convertedFuture = HerajFutures.transform(rawFuture,
+              new Function1<AccountOuterClass.AccountList, List<AccountAddress>>() {
 
-            @Override
-            public List<AccountAddress> apply(
-                final AccountOuterClass.AccountList rpcAccountList) {
-              final List<AccountAddress> domainAccountList = new ArrayList<>();
-              for (final AccountOuterClass.Account rpcAccount : rpcAccountList
-                  .getAccountsList()) {
-                final AccountAddress domainAccount =
-                    accountAddressConverter.convertToDomainModel(rpcAccount.getAddress());
-                domainAccountList.add(domainAccount);
-              }
-              return domainAccountList;
-            }
-          });
-      return convertedFuture;
-    }
-  };
-
-  @Getter
-  private final Function1<String,
-      Future<AccountAddress>> createFunction = new Function1<String, Future<AccountAddress>>() {
-
-    @Override
-    public Future<AccountAddress> apply(final String password) {
-      if (logger.isDebugEnabled()) {
-        logger.debug("Create an account to server keystore with password: {}",
-            sha256AndEncodeHexa(password));
-      }
-
-      final Rpc.Personal rpcPassword =
-          Rpc.Personal.newBuilder().setPassphrase(password).build();
-      if (logger.isTraceEnabled()) {
-        logger.trace("AergoService createAccount arg: {}",
-            sha256AndEncodeHexa(rpcPassword.getPassphrase()));
-      }
-
-      final Future<AccountOuterClass.Account> rawFuture =
-          aergoService.createAccount(rpcPassword);
-      final Future<AccountAddress> convertedFuture = HerajFutures.transform(rawFuture,
-          new Function1<AccountOuterClass.Account, AccountAddress>() {
-
-            @Override
-            public AccountAddress apply(final AccountOuterClass.Account rpcAccount) {
-              return accountAddressConverter.convertToDomainModel(rpcAccount.getAddress());
-            }
-          });
-      return convertedFuture;
-    }
-  };
+                @Override
+                public List<AccountAddress> apply(
+                    final AccountOuterClass.AccountList rpcAccountList) {
+                  final List<AccountAddress> domainAccountList = new ArrayList<>();
+                  for (final AccountOuterClass.Account rpcAccount : rpcAccountList
+                      .getAccountsList()) {
+                    final AccountAddress domainAccount =
+                        accountAddressConverter.convertToDomainModel(rpcAccount.getAddress());
+                    domainAccountList.add(domainAccount);
+                  }
+                  return domainAccountList;
+                }
+              });
+          return convertedFuture;
+        }
+      };
 
   @Getter
-  private final Function1<Authentication,
-      Future<Boolean>> unlockFunction = new Function1<Authentication, Future<Boolean>>() {
+  private final Function1<String, Future<AccountAddress>> createFunction =
+      new Function1<String, Future<AccountAddress>>() {
 
-    @Override
-    public Future<Boolean> apply(final Authentication authentication) {
-      logger.debug("Unlock an account in server keystore with authentication: {}",
-          authentication);
+        @Override
+        public Future<AccountAddress> apply(final String password) {
+          if (logger.isDebugEnabled()) {
+            logger.debug("Create an account to server keystore with password: {}",
+                sha256AndEncodeHexa(password));
+          }
 
-      final Rpc.Personal rpcAuthentication =
-          authenticationConverter.convertToRpcModel(authentication);
-      if (logger.isTraceEnabled()) {
-        logger.trace("AergoService unlockAccount arg: {}, {}",
-            rpcAuthentication.getAccount(),
-            sha256AndEncodeHexa(rpcAuthentication.getPassphrase()));
-      }
+          final Rpc.Personal rpcPassword =
+              Rpc.Personal.newBuilder().setPassphrase(password).build();
+          if (logger.isTraceEnabled()) {
+            logger.trace("AergoService createAccount arg: {}",
+                sha256AndEncodeHexa(rpcPassword.getPassphrase()));
+          }
 
-      final Future<AccountOuterClass.Account> rawFuture =
-          aergoService.unlockAccount(rpcAuthentication);
-      final Future<Boolean> convertedFuture = HerajFutures.transform(rawFuture,
-          new Function1<AccountOuterClass.Account, Boolean>() {
+          final Future<AccountOuterClass.Account> rawFuture =
+              aergoService.createAccount(rpcPassword);
+          final Future<AccountAddress> convertedFuture = HerajFutures.transform(rawFuture,
+              new Function1<AccountOuterClass.Account, AccountAddress>() {
 
-            @Override
-            public Boolean apply(final AccountOuterClass.Account rpcAccount) {
-              return null != rpcAccount.getAddress();
-            }
-          });
-      return convertedFuture;
-    }
-  };
+                @Override
+                public AccountAddress apply(final AccountOuterClass.Account rpcAccount) {
+                  return accountAddressConverter.convertToDomainModel(rpcAccount.getAddress());
+                }
+              });
+          return convertedFuture;
+        }
+      };
+
+  @Getter
+  private final Function1<Authentication, Future<Boolean>> unlockFunction =
+      new Function1<Authentication, Future<Boolean>>() {
+
+        @Override
+        public Future<Boolean> apply(final Authentication authentication) {
+          logger.debug("Unlock an account in server keystore with authentication: {}",
+              authentication);
+
+          final Rpc.Personal rpcAuthentication =
+              authenticationConverter.convertToRpcModel(authentication);
+          if (logger.isTraceEnabled()) {
+            logger.trace("AergoService unlockAccount arg: {}, {}",
+                rpcAuthentication.getAccount(),
+                sha256AndEncodeHexa(rpcAuthentication.getPassphrase()));
+          }
+
+          final Future<AccountOuterClass.Account> rawFuture =
+              aergoService.unlockAccount(rpcAuthentication);
+          final Future<Boolean> convertedFuture = HerajFutures.transform(rawFuture,
+              new Function1<AccountOuterClass.Account, Boolean>() {
+
+                @Override
+                public Boolean apply(final AccountOuterClass.Account rpcAccount) {
+                  return null != rpcAccount.getAddress();
+                }
+              });
+          return convertedFuture;
+        }
+      };
 
   @Getter
   private final Function1<Authentication, Future<Boolean>> lockFunction =
@@ -204,73 +204,73 @@ public class KeyStoreBaseTemplate implements ChannelInjectable, ContextProviderI
       };
 
   @Getter
-  private final Function1<RawTransaction,
-      Future<Transaction>> signFunction = new Function1<RawTransaction, Future<Transaction>>() {
+  private final Function1<RawTransaction, Future<Transaction>> signFunction =
+      new Function1<RawTransaction, Future<Transaction>>() {
 
-    @Override
-    public Future<Transaction> apply(final RawTransaction rawTransaction) {
-      logger.debug("Sign request with rawTx: {}", rawTransaction);
+        @Override
+        public Future<Transaction> apply(final RawTransaction rawTransaction) {
+          logger.debug("Sign request with rawTx: {}", rawTransaction);
 
-      final Transaction domainTransaction = Transaction.newBuilder()
-          .rawTransaction(rawTransaction)
-          .signature(Signature.EMPTY)
-          .hash(TxHash.of(BytesValue.EMPTY))
-          .build();
-      final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(domainTransaction);
-      logger.trace("AergoService signTX arg: {}", rpcTx);
+          final Transaction domainTransaction = Transaction.newBuilder()
+              .rawTransaction(rawTransaction)
+              .signature(Signature.EMPTY)
+              .hash(TxHash.of(BytesValue.EMPTY))
+              .build();
+          final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(domainTransaction);
+          logger.trace("AergoService signTX arg: {}", rpcTx);
 
-      final Future<Blockchain.Tx> rawFuture = aergoService.signTX(rpcTx);
-      final Future<Transaction> convertedFuture =
-          HerajFutures.transform(rawFuture, new Function1<Blockchain.Tx, Transaction>() {
-            @Override
-            public Transaction apply(final Blockchain.Tx tx) {
-              return transactionConverter.convertToDomainModel(tx);
-            }
-          });
-      return convertedFuture;
-    }
-  };
+          final Future<Blockchain.Tx> rawFuture = aergoService.signTX(rpcTx);
+          final Future<Transaction> convertedFuture =
+              HerajFutures.transform(rawFuture, new Function1<Blockchain.Tx, Transaction>() {
+                @Override
+                public Transaction apply(final Blockchain.Tx tx) {
+                  return transactionConverter.convertToDomainModel(tx);
+                }
+              });
+          return convertedFuture;
+        }
+      };
 
   @Getter
-  private final Function3<EncryptedPrivateKey, String, String,
-      Future<AccountAddress>> importKeyFunction = new Function3<EncryptedPrivateKey, String, String,
-      Future<AccountAddress>>() {
+  private final Function3<EncryptedPrivateKey, String, String, Future<AccountAddress>>
+      importKeyFunction =
+      new Function3<EncryptedPrivateKey, String, String, Future<AccountAddress>>() {
 
-    @Override
-    public Future<AccountAddress> apply(final EncryptedPrivateKey encryptedKey,
-        final String oldPassword, final String newPassword) {
-      if (logger.isDebugEnabled()) {
-        logger.debug(
-            "Import an account to server keystore with "
-                + "encryptedKey: {}, oldPassword: {}, newPassword: {}",
-            encryptedKey, sha256AndEncodeHexa(oldPassword),
-            sha256AndEncodeHexa(newPassword));
-      }
+        @Override
+        public Future<AccountAddress> apply(final EncryptedPrivateKey encryptedKey,
+            final String oldPassword, final String newPassword) {
+          if (logger.isDebugEnabled()) {
+            logger.debug(
+                "Import an account to server keystore with "
+                    + "encryptedKey: {}, oldPassword: {}, newPassword: {}",
+                encryptedKey, sha256AndEncodeHexa(oldPassword),
+                sha256AndEncodeHexa(newPassword));
+          }
 
-      final Rpc.ImportFormat rpcImport = Rpc.ImportFormat.newBuilder()
-          .setWif(encryptedPkConverter.convertToRpcModel(encryptedKey))
-          .setOldpass(oldPassword).setNewpass(newPassword).build();
-      if (logger.isTraceEnabled()) {
-        logger.trace(
-            "AergoService importAccount arg: ImportFormat(wif={}, oldPass={}, newPass={})",
-            rpcImport.getWif(), sha256AndEncodeHexa(rpcImport.getOldpass()),
-            sha256AndEncodeHexa(rpcImport.getNewpass()));
-      }
+          final Rpc.ImportFormat rpcImport = Rpc.ImportFormat.newBuilder()
+              .setWif(encryptedPkConverter.convertToRpcModel(encryptedKey))
+              .setOldpass(oldPassword).setNewpass(newPassword).build();
+          if (logger.isTraceEnabled()) {
+            logger.trace(
+                "AergoService importAccount arg: ImportFormat(wif={}, oldPass={}, newPass={})",
+                rpcImport.getWif(), sha256AndEncodeHexa(rpcImport.getOldpass()),
+                sha256AndEncodeHexa(rpcImport.getNewpass()));
+          }
 
-      final Future<AccountOuterClass.Account> rawFuture =
-          aergoService.importAccount(rpcImport);
-      final Future<AccountAddress> convertedFuture = HerajFutures.transform(rawFuture,
-          new Function1<AccountOuterClass.Account, AccountAddress>() {
+          final Future<AccountOuterClass.Account> rawFuture =
+              aergoService.importAccount(rpcImport);
+          final Future<AccountAddress> convertedFuture = HerajFutures.transform(rawFuture,
+              new Function1<AccountOuterClass.Account, AccountAddress>() {
 
-            @Override
-            public AccountAddress apply(final AccountOuterClass.Account rpcAccount) {
-              return accountAddressConverter
-                  .convertToDomainModel(rpcAccount.getAddress());
-            }
-          });
-      return convertedFuture;
-    }
-  };
+                @Override
+                public AccountAddress apply(final AccountOuterClass.Account rpcAccount) {
+                  return accountAddressConverter
+                      .convertToDomainModel(rpcAccount.getAddress());
+                }
+              });
+          return convertedFuture;
+        }
+      };
 
   @Getter
   private final Function1<Authentication, Future<EncryptedPrivateKey>> exportKeyFunction =

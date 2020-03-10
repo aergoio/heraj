@@ -87,7 +87,7 @@ public class AergoKey implements KeyPair, Signer {
     this(new EncryptedPrivateKeyStrategy(), encryptedPrivateKey, passphrase);
   }
 
-  protected <T extends Encrypted> AergoKey(final AergoKeyCipherStrategy<T> strategy,
+  protected <T extends Encrypted> AergoKey(final KeyCipherStrategy<T> strategy,
       final T encrypted, final String passphrase) {
     assertNotNull(encrypted, "An encrypted must not null");
     assertNotNull(passphrase, "A passphrase must not null");
@@ -184,7 +184,7 @@ public class AergoKey implements KeyPair, Signer {
     return export(new EncryptedPrivateKeyStrategy(), passphrase);
   }
 
-  protected <T extends Encrypted> T export(final AergoKeyCipherStrategy<T> strategy,
+  protected <T extends Encrypted> T export(final KeyCipherStrategy<T> strategy,
       final String passphrase) {
     return strategy.encrypt(this, passphrase);
   }

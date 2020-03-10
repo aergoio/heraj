@@ -7,16 +7,18 @@ package hera.keystore;
 import static hera.util.ValidationUtils.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Identity;
+import hera.api.model.KeyFormat;
 import hera.exception.InvalidAuthenticationException;
 import hera.exception.InvalidKeyStoreFormatException;
 import hera.exception.KeyStoreException;
 import hera.key.AergoKey;
+import hera.key.KeyCipherStrategy;
+import hera.key.KeyFormatV1Strategy;
 import hera.key.Signer;
 import hera.model.KeyAlias;
 import java.io.BufferedInputStream;
@@ -31,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 
@@ -55,7 +56,7 @@ public class AergoKeyStore implements KeyStore {
 
   protected final File root;
   protected final String encryptVersion;
-  protected final HashMap<String, KeyFormatStrategy> version2Format;
+  protected final HashMap<String, KeyCipherStrategy> version2Format;
 
   /**
    * Create aergo keystore with root directory {@code keyStoreDir}.
@@ -69,7 +70,7 @@ public class AergoKeyStore implements KeyStore {
   /**
    * Create aergo keystore with root directory {@code keyStoreDir}.
    *
-   * @param root a keystore root directory
+   * @param root             a keystore root directory
    * @param keyFormatVersion a keyformat version
    */
   public AergoKeyStore(final String root, final String keyFormatVersion) {
@@ -91,13 +92,8 @@ public class AergoKeyStore implements KeyStore {
     this.root = file;
     this.encryptVersion = keyFormatVersion;
 
-    final HashMap<String, KeyFormatStrategy> version2Format = new HashMap<>();
-    final KeyFormatStrategyFactory factory = new KeyFormatStrategyFactory();
-    final List<String> versions = factory.listSupportedVersion();
-    logger.debug("Supported key format versions: {}", versions);
-    for (final String version : versions) {
-      version2Format.put(version, factory.create(version));
-    }
+    final HashMap<String, KeyCipherStrategy> version2Format = new HashMap<>();
+    version2Format.put("1", new KeyFormatV1Strategy());
     this.version2Format = version2Format;
   }
 
@@ -118,11 +114,11 @@ public class AergoKeyStore implements KeyStore {
         final String path = this.root.getAbsolutePath() + "/" + deriveFilename(identity);
         logger.debug("Save key file path: {}", path);
         try (final OutputStream os = new BufferedOutputStream(new FileOutputStream(path))) {
-          final char[] password = authentication.getPassword().toCharArray();
-          final KeyFormatStrategy strategy = this.version2Format.get(this.encryptVersion);
-          final String json = strategy.encrypt(key, password);
-          Arrays.fill(password, '0');
-          os.write(json.getBytes());
+          final String password = authentication.getPassword();
+          final KeyCipherStrategy<KeyFormat> strategy = this.version2Format
+              .get(this.encryptVersion);
+          final KeyFormat keyFormat = strategy.encrypt(key, password);
+          os.write(keyFormat.getBytesValue().getValue());
         }
       }
     } catch (KeyStoreException e) {
@@ -191,40 +187,30 @@ public class AergoKeyStore implements KeyStore {
     }
   }
 
-  protected AergoKey loadAergoKey(final Authentication authentication)
-      throws JsonProcessingException, IOException {
+  protected AergoKey loadAergoKey(final Authentication authentication) throws IOException {
     final String identity = authentication.getIdentity().getValue();
     if (!hasIdentity(identity)) {
       throw new InvalidAuthenticationException();
     }
 
     final File file = loadKeyFile(identity);
-    try (
-        final Scanner scanner = new Scanner(new BufferedInputStream(new FileInputStream(file)))) {
-      scanner.useDelimiter(KEYSTORE_DELIM_PATTERN);
-      final StringBuilder sb = new StringBuilder();
-      while (scanner.hasNext()) {
-        sb.append(scanner.next());
-      }
-      final String json = sb.toString();
-      logger.trace("Loaded key file: {}", json);
+    final KeyFormat keyFormat = KeyFormat.of(new BufferedInputStream(new FileInputStream(file)));
+    logger.trace("Loaded key file: {}", keyFormat);
 
-      final JsonNode jsonNode = mapper.reader().readTree(json);
-      final JsonNode jsonVersion = jsonNode.get(FIELD_VERSION);
-      if (null == jsonVersion) {
-        throw new InvalidKeyStoreFormatException(
-            "No " + FIELD_VERSION + " field");
-      }
-
-      final String version = jsonVersion.asText();
-      logger.trace("Version: {}", version);
-      final KeyFormatStrategy strategy = this.version2Format.get(version);
-      final char[] decryptPassword = authentication.getPassword().toCharArray();
-      final AergoKey decrypted = strategy.decrypt(json, decryptPassword);
-      Arrays.fill(decryptPassword, '0');
-
-      return decrypted;
+    final JsonNode jsonNode = mapper.reader().readTree(keyFormat.getBytesValue().getInputStream());
+    final JsonNode jsonVersion = jsonNode.get(FIELD_VERSION);
+    if (null == jsonVersion) {
+      throw new InvalidKeyStoreFormatException(
+          "No " + FIELD_VERSION + " field");
     }
+
+    final String version = jsonVersion.asText();
+    logger.trace("Version: {}", version);
+    final KeyCipherStrategy<KeyFormat> strategy = this.version2Format.get(version);
+    final String password = authentication.getPassword();
+    final AergoKey decrypted = strategy.decrypt(keyFormat, password);
+
+    return decrypted;
   }
 
   @Override

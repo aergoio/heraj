@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.keystore;
+package hera.key;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -12,14 +12,15 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hera.exception.InvalidKeyStoreFormatException;
-import hera.exception.KeyStoreException;
-import hera.key.AergoKey;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import hera.api.model.BytesValue;
+import hera.api.model.KeyFormat;
+import hera.exception.HerajException;
 import hera.util.HexUtils;
 import hera.util.Sha256Utils;
 import hera.util.pki.ECDSAKeyGenerator;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import javax.crypto.spec.IvParameterSpec;
@@ -31,7 +32,9 @@ import org.bouncycastle.crypto.generators.SCrypt;
 import org.bouncycastle.util.Arrays;
 import org.slf4j.Logger;
 
-class KeyStoreV1Strategy implements KeyFormatStrategy {
+@ApiAudience.Private
+@ApiStability.Unstable
+public class KeyFormatV1Strategy implements KeyCipherStrategy<KeyFormat> {
 
   protected static final String CHARSET = "UTF-8";
 
@@ -58,15 +61,13 @@ class KeyStoreV1Strategy implements KeyFormatStrategy {
   protected final ObjectMapper mapper = new ObjectMapper();
 
   @Override
-  public String encrypt(final AergoKey key, final char[] password) {
+  public KeyFormat encrypt(final AergoKey key, final String password) {
     try {
-      logger.debug("Encrypt with key: {}, password: {}", key.getAddress(),
-          KeyStoreConstants.CREDENTIALS);
-
+      logger.debug("Encrypt with key: {}, password: [CREDENTIALS]", key.getAddress());
       final KdfParams kdfParams = getNewKdfParams();
 
       // encrypt raw key
-      final byte[] derivedPassword = deriveCipherKey(password, kdfParams);
+      final byte[] derivedPassword = deriveCipherKey(password.getBytes(CHARSET), kdfParams);
       final byte[] encryptKey = Arrays.copyOf(derivedPassword, 16);
       final byte[] rawPrivateKey = key.getRawPrivateKey().getValue();
       final byte[] iv = randomBytes(16);
@@ -94,11 +95,10 @@ class KeyStoreV1Strategy implements KeyFormatStrategy {
       final String version = VERSION;
       final V1KeyStore v1KeyStore = new V1KeyStore(address, version, cipher, kdf);
 
-      return mapper.writeValueAsString(v1KeyStore);
-    } catch (KeyStoreException e) {
-      throw e;
+      final byte[] raw = mapper.writeValueAsBytes(v1KeyStore);
+      return KeyFormat.of(BytesValue.of(raw));
     } catch (Exception e) {
-      throw new KeyStoreException(e);
+      throw new HerajException(e);
     }
   }
 
@@ -129,34 +129,35 @@ class KeyStoreV1Strategy implements KeyFormatStrategy {
   }
 
   @Override
-  public AergoKey decrypt(final String json, final char[] password) {
+  public AergoKey decrypt(final KeyFormat keyFormat, final String password) {
     try {
-      final JsonNode jsonNode = mapper.reader().readTree(json);
+      final JsonNode jsonNode = mapper.reader()
+          .readTree(keyFormat.getBytesValue().getInputStream());
       final V1KeyStore v1KeyStore = parse(jsonNode);
 
       if (!VERSION.equals(v1KeyStore.getVersion())) {
-        throw new InvalidKeyStoreFormatException("Keystore version must be " + VERSION);
+        throw new HerajException("Keystore version must be " + VERSION);
       }
 
       final Cipher cipher = v1KeyStore.getCipher();
       if (!CIPHER_ALGORITHM.equals(cipher.getAlgorithm())) {
-        throw new InvalidKeyStoreFormatException("cipher algorithm must be " + CIPHER_ALGORITHM);
+        throw new HerajException("cipher algorithm must be " + CIPHER_ALGORITHM);
       }
 
       final Kdf kdf = v1KeyStore.getKdf();
       if (!KDF_ALGORITHM.equals(kdf.getAlgorithm())) {
-        throw new InvalidKeyStoreFormatException("kdf algorithm must be " + KDF_ALGORITHM);
+        throw new HerajException("kdf algorithm must be " + KDF_ALGORITHM);
       }
 
       // password, ciphertext
-      final byte[] derivedPassword = deriveCipherKey(password, kdf.getParams());
+      final byte[] derivedPassword = deriveCipherKey(password.getBytes(CHARSET), kdf.getParams());
       final byte[] ciphertext = HexUtils.decode(cipher.getCiphertext());
 
       // mac check
       final byte[] derivedMac = generateMac(derivedPassword, ciphertext);
       final byte[] actualMac = HexUtils.decode(kdf.getMac());
       if (!Arrays.areEqual(actualMac, derivedMac)) {
-        throw new InvalidKeyStoreFormatException("Invalid mac value");
+        throw new HerajException("Invalid mac value");
       }
 
       // decrypt
@@ -167,14 +168,14 @@ class KeyStoreV1Strategy implements KeyFormatStrategy {
       final AergoKey aergoKey = new AergoKey(new ECDSAKeyGenerator().create(d));
 
       if (!v1KeyStore.getAddress().equals(aergoKey.getAddress().getEncoded())) {
-        throw new InvalidKeyStoreFormatException("Invalid address");
+        throw new HerajException("Invalid address");
       }
 
       return aergoKey;
-    } catch (KeyStoreException e) {
+    } catch (HerajException e) {
       throw e;
     } catch (Exception e) {
-      throw new KeyStoreException(e);
+      throw new HerajException(e);
     }
   }
 
@@ -192,11 +193,9 @@ class KeyStoreV1Strategy implements KeyFormatStrategy {
     return cipher.doFinal(ciphertext);
   }
 
-  protected byte[] deriveCipherKey(final char[] password, final KdfParams kdfParams)
-      throws UnsupportedEncodingException {
-    final byte[] rawPassword = new String(password).getBytes(CHARSET);
+  protected byte[] deriveCipherKey(final byte[] password, final KdfParams kdfParams) {
     final byte[] rawSalt = HexUtils.decode(kdfParams.getSalt());
-    return SCrypt.generate(rawPassword, rawSalt, kdfParams.getN(), kdfParams.getR(),
+    return SCrypt.generate(password, rawSalt, kdfParams.getN(), kdfParams.getR(),
         kdfParams.getP(), kdfParams.getDklen());
   }
 

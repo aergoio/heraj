@@ -9,7 +9,7 @@ import hera.annotation.ApiStability;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-public interface AergoKeyCipherStrategy<T> {
+public interface KeyCipherStrategy<T> {
 
   T encrypt(AergoKey aergoKey, String passphrase);
 

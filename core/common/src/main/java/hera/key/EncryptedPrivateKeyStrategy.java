@@ -21,7 +21,7 @@ import java.util.Arrays;
 
 @ApiAudience.Private
 @ApiStability.Unstable
-public class EncryptedPrivateKeyStrategy implements AergoKeyCipherStrategy<EncryptedPrivateKey> {
+public class EncryptedPrivateKeyStrategy implements KeyCipherStrategy<EncryptedPrivateKey> {
 
   protected static final String CHAR_SET = "UTF-8";
 
