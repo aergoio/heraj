@@ -23,12 +23,27 @@ public class SimpleNonceProviderTest extends AbstractTestCase {
     final int capacity = 3;
     final SimpleNonceProvider nonceProvider = new SimpleNonceProvider(capacity);
 
-    for (int i = 0; i < capacity + 1; ++i) {
+    for (int i = 0; i < 5 * capacity; ++i) {
       final AergoKey key = new AergoKeyGenerator().create();
       nonceProvider.bindNonce(key.getAddress(), 3L);
     }
 
     assertEquals(capacity, nonceProvider.address2Nonce.size());
+  }
+
+  @Test
+  public void shoultLeastRecentlyUsedAddressRemoved() {
+    final int capacity = 3;
+    final SimpleNonceProvider nonceProvider = new SimpleNonceProvider(capacity);
+
+    final AccountAddress stale = new AergoKeyGenerator().create().getAddress();
+    for (int i = 0; i < capacity; ++i) {
+      final AccountAddress address = new AergoKeyGenerator().create().getAddress();
+      nonceProvider.bindNonce(address, 3L);
+    }
+
+    assertEquals(capacity, nonceProvider.address2Nonce.size());
+    assertEquals(0L, nonceProvider.getLastUsedNonce(stale));
   }
 
   @Test
