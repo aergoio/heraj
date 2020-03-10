@@ -7,10 +7,13 @@ package hera.api;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
 import hera.api.model.Authentication;
+import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import java.util.List;
 
 /**
@@ -90,5 +93,18 @@ public interface KeyStoreOperation {
    * @return an encrypted private key
    */
   EncryptedPrivateKey exportKey(Authentication authentication);
+
+  /**
+   * Send transaction. This method automatically fill nonce, sign and commit in a server. This
+   * method is valid only if sender is stored in a server key store. Make sure that {@code sender}
+   * is unlocked.
+   *
+   * @param sender aergo sender
+   * @param recipient aergo recipient
+   * @param amount aergo amount
+   * @param payload a payload
+   * @return a transaction hash
+   */
+  TxHash send(AccountAddress sender, AccountAddress recipient, Aer amount, BytesValue payload);
 
 }

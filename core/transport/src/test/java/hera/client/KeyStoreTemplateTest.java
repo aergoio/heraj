@@ -4,11 +4,13 @@
 
 package hera.client;
 
+import static hera.api.model.BytesValue.of;
 import static hera.client.ClientConstants.KEYSTORE_CREATE;
 import static hera.client.ClientConstants.KEYSTORE_EXPORTKEY;
 import static hera.client.ClientConstants.KEYSTORE_IMPORTKEY;
 import static hera.client.ClientConstants.KEYSTORE_LIST;
 import static hera.client.ClientConstants.KEYSTORE_LOCK;
+import static hera.client.ClientConstants.KEYSTORE_SEND;
 import static hera.client.ClientConstants.KEYSTORE_UNLOCK;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
@@ -21,16 +23,22 @@ import hera.ContextProvider;
 import hera.api.function.Function0;
 import hera.api.function.Function1;
 import hera.api.function.Function3;
+import hera.api.function.Function4;
 import hera.api.function.WithIdentity;
 import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
+import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
+import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.TxHash;
 import hera.client.internal.HerajFutures;
 import hera.client.internal.KeyStoreBaseTemplate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
 @PrepareForTest({KeyStoreBaseTemplate.class, EncryptedPrivateKey.class})
@@ -174,6 +182,30 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
     assertNotNull(account);
     assertEquals(KEYSTORE_EXPORTKEY,
         ((WithIdentity) keyStoreTemplate.getExportKeyFunction()).getIdentity());
+  }
+
+  @Test
+  public void testSend() {
+    final KeyStoreBaseTemplate base = mock(KeyStoreBaseTemplate.class);
+    final Future<TxHash> future =
+        HerajFutures.success(new TxHash(of(randomUUID().toString().getBytes())));
+    Mockito.when(base.getSendFunction())
+        .thenReturn(
+            new Function4<AccountAddress, AccountAddress, Aer, BytesValue, Future<TxHash>>() {
+              @Override
+              public Future<TxHash> apply(AccountAddress t1, AccountAddress t2, Aer t3,
+                  BytesValue t4) {
+                return future;
+              }
+            });
+
+    final KeyStoreTemplate keyStoreTemplate = supplyKeyStoreTemplate(base);
+
+    final TxHash txHash = keyStoreTemplate
+        .send(accountAddress, accountAddress, Aer.of("10", Unit.AER), BytesValue.EMPTY);
+    assertNotNull(txHash);
+    assertEquals(KEYSTORE_SEND,
+        ((WithIdentity) keyStoreTemplate.getSendFunction()).getIdentity());
   }
 
 }

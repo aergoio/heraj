@@ -28,6 +28,7 @@ public final class ClientConstants {
   public static final String KEYSTORE_SIGN = "heraj.sign";
   public static final String KEYSTORE_IMPORTKEY = "heraj.importkey";
   public static final String KEYSTORE_EXPORTKEY = "heraj.exportkey";
+  public static final String KEYSTORE_SEND = "heraj.sendtx";
 
   public static final String BLOCK_GET_METADATA_BY_HASH = "heraj.getmetadata.hash";
   public static final String BLOCK_GET_METADATA_BY_HEIGHT = "heraj.getmetadata.height";
@@ -48,7 +49,6 @@ public final class ClientConstants {
 
   public static final String TRANSACTION_GETTX = "heraj.gettx";
   public static final String TRANSACTION_COMMIT = "heraj.committx";
-  public static final String TRANSACTION_SEND = "heraj.sendtx";
 
   public static final String CONTRACT_GETRECEIPT = "heraj.getreceipt";
   public static final String CONTRACT_DEPLOY = "heraj.deploy";

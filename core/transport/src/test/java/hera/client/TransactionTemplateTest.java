@@ -7,7 +7,6 @@ package hera.client;
 import static hera.api.model.BytesValue.of;
 import static hera.client.ClientConstants.TRANSACTION_COMMIT;
 import static hera.client.ClientConstants.TRANSACTION_GETTX;
-import static hera.client.ClientConstants.TRANSACTION_SEND;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -17,11 +16,8 @@ import static org.mockito.Mockito.when;
 import hera.AbstractTestCase;
 import hera.ContextProvider;
 import hera.api.function.Function1;
-import hera.api.function.Function3;
 import hera.api.function.WithIdentity;
-import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
-import hera.api.model.Aer.Unit;
 import hera.api.model.BytesValue;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
@@ -114,29 +110,6 @@ public class TransactionTemplateTest extends AbstractTestCase {
     assertNotNull(txHash);
     assertEquals(TRANSACTION_COMMIT,
         ((WithIdentity) transactionTemplate.getCommitFunction()).getIdentity());
-  }
-
-  @Test
-  public void testSend() {
-    final TransactionBaseTemplate base = mock(TransactionBaseTemplate.class);
-    final Future<TxHash> future =
-        HerajFutures.success(new TxHash(of(randomUUID().toString().getBytes())));
-    when(base.getSendFunction())
-        .thenReturn(new Function3<AccountAddress, AccountAddress, Aer, Future<TxHash>>() {
-          @Override
-          public Future<TxHash> apply(AccountAddress t1, AccountAddress t2, Aer t3) {
-            return future;
-          }
-        });
-
-    final TransactionTemplate transactionTemplate =
-        supplyTransactionTemplate(base);
-
-    final TxHash txHash =
-        transactionTemplate.send(accountAddress, accountAddress, Aer.of("10", Unit.AER));
-    assertNotNull(txHash);
-    assertEquals(TRANSACTION_SEND,
-        ((WithIdentity) transactionTemplate.getSendFunction()).getIdentity());
   }
 
 }

@@ -14,12 +14,6 @@ import hera.ContextProviderInjectable;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.function.Function1;
-import hera.api.function.Function3;
-import hera.api.model.AccountAddress;
-import hera.api.model.Aer;
-import hera.api.model.BytesValue;
-import hera.api.model.RawTransaction;
-import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.client.ChannelInjectable;
@@ -136,48 +130,6 @@ public class TransactionBaseTemplate implements ChannelInjectable, ContextProvid
                 public TxHash apply(final Rpc.CommitResultList rpcCommitResultList) {
                   final Rpc.CommitResult rpcCommitResult =
                       rpcCommitResultList.getResultsList().get(0);
-                  if (Rpc.CommitStatus.TX_OK != rpcCommitResult.getError()) {
-                    throw new InternalCommitException(rpcCommitResult.getError(),
-                        rpcCommitResult.getDetail());
-                  }
-                  return new TxHash(of(rpcCommitResult.getHash().toByteArray()));
-                }
-              });
-          return convertedFuture;
-        }
-      };
-
-  @Getter
-  private final Function3<AccountAddress, AccountAddress, Aer, Future<TxHash>> sendFunction =
-      new Function3<AccountAddress, AccountAddress, Aer, Future<TxHash>>() {
-
-        @Override
-        public Future<TxHash> apply(final AccountAddress sender,
-            final AccountAddress recipient, final Aer amount) {
-          logger.debug("Send transaction request with sender: {}, recipient: {}, amount", sender,
-              recipient, amount);
-
-          final RawTransaction rawTransaction = RawTransaction.newBuilder()
-              .chainIdHash(contextProvider.get().getChainIdHash())
-              .from(sender)
-              .to(recipient)
-              .amount(amount)
-              .nonce(0L)
-              .build();
-          final Transaction transaction = Transaction.newBuilder()
-              .rawTransaction(rawTransaction)
-              .signature(Signature.EMPTY)
-              .hash(TxHash.of(BytesValue.EMPTY))
-              .build();
-          final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(transaction);
-          logger.trace("AergoService sendTX arg: {}", rpcTx);
-
-          final Future<Rpc.CommitResult> rawFuture = aergoService.sendTX(rpcTx);
-          final Future<TxHash> convertedFuture =
-              HerajFutures.transform(rawFuture, new Function1<Rpc.CommitResult, TxHash>() {
-
-                @Override
-                public TxHash apply(final Rpc.CommitResult rpcCommitResult) {
                   if (Rpc.CommitStatus.TX_OK != rpcCommitResult.getError()) {
                     throw new InternalCommitException(rpcCommitResult.getError(),
                         rpcCommitResult.getDetail());

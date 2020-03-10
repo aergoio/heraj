@@ -10,6 +10,7 @@ import static hera.client.ClientConstants.KEYSTORE_EXPORTKEY;
 import static hera.client.ClientConstants.KEYSTORE_IMPORTKEY;
 import static hera.client.ClientConstants.KEYSTORE_LIST;
 import static hera.client.ClientConstants.KEYSTORE_LOCK;
+import static hera.client.ClientConstants.KEYSTORE_SEND;
 import static hera.client.ClientConstants.KEYSTORE_SIGN;
 import static hera.client.ClientConstants.KEYSTORE_UNLOCK;
 
@@ -21,11 +22,15 @@ import hera.api.KeyStoreOperation;
 import hera.api.function.Function0;
 import hera.api.function.Function1;
 import hera.api.function.Function3;
+import hera.api.function.Function4;
 import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
 import hera.api.model.Authentication;
+import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import hera.client.internal.KeyStoreBaseTemplate;
 import hera.exception.DecoratorChainException;
 import hera.exception.RpcException;
@@ -58,7 +63,8 @@ public class KeyStoreTemplate
 
   @Override
   public void setChannel(final ManagedChannel channel) {
-    this.keyStoreBaseTemplate.setChannel(channel);;
+    this.keyStoreBaseTemplate.setChannel(channel);
+    ;
   }
 
   @Override
@@ -95,12 +101,18 @@ public class KeyStoreTemplate
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function3<EncryptedPrivateKey, String, String,
       Future<AccountAddress>> importKeyFunction = getStrategyApplier().apply(
-          identify(this.keyStoreBaseTemplate.getImportKeyFunction(), KEYSTORE_IMPORTKEY));
+      identify(this.keyStoreBaseTemplate.getImportKeyFunction(), KEYSTORE_IMPORTKEY));
 
   @Getter(lazy = true, value = AccessLevel.PROTECTED)
   private final Function1<Authentication,
       Future<EncryptedPrivateKey>> exportKeyFunction = getStrategyApplier().apply(
-          identify(this.keyStoreBaseTemplate.getExportKeyFunction(), KEYSTORE_EXPORTKEY));
+      identify(this.keyStoreBaseTemplate.getExportKeyFunction(), KEYSTORE_EXPORTKEY));
+
+  @Getter(lazy = true, value = AccessLevel.PROTECTED)
+  private final Function4<AccountAddress, AccountAddress, Aer, BytesValue,
+      Future<TxHash>> sendFunction =
+      getStrategyApplier()
+          .apply(identify(this.keyStoreBaseTemplate.getSendFunction(), KEYSTORE_SEND));
 
   @Override
   public List<AccountAddress> list() {
@@ -180,4 +192,14 @@ public class KeyStoreTemplate
     }
   }
 
+  @Override
+  public TxHash send(final AccountAddress sender, final AccountAddress recipient, final Aer amount,
+
+      final BytesValue payload) {
+    try {
+      return getSendFunction().apply(sender, recipient, amount, payload).get();
+    } catch (Exception e) {
+      throw exceptionConverter.convert(e);
+    }
+  }
 }

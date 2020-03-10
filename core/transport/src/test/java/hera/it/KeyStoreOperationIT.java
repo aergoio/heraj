@@ -14,8 +14,10 @@ import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
+import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Identity;
+import hera.api.model.Payload;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.transaction.NonceProvider;
@@ -56,7 +58,8 @@ public class KeyStoreOperationIT extends AbstractIT {
 
     final AccountState state = aergoClient.getAccountOperation().getState(rich.getAddress());
     logger.debug("Rich state: {}", state);
-    nonceProvider.bindNonce(state);;
+    nonceProvider.bindNonce(state);
+    ;
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .chainIdHash(aergoClient.getCachedChainIdHash())
         .from(rich.getPrincipal())
@@ -299,7 +302,8 @@ public class KeyStoreOperationIT extends AbstractIT {
 
     // when
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
-    aergoClient.getTransactionOperation().send(created, recipient, Aer.GIGA_ONE);
+    aergoClient.getKeyStoreOperation()
+        .send(created, recipient, Aer.GIGA_ONE, BytesValue.of(randomUUID().toString().getBytes()));
     waitForNextBlockToGenerate();
 
     // then
@@ -318,7 +322,7 @@ public class KeyStoreOperationIT extends AbstractIT {
     try {
       // when
       final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
-      aergoClient.getTransactionOperation().send(created, recipient, Aer.GIGA_ONE);
+      aergoClient.getKeyStoreOperation().send(created, recipient, Aer.GIGA_ONE, BytesValue.EMPTY);
       fail();
     } catch (Exception e) {
       // then

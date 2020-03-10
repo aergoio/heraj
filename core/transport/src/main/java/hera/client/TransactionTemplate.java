@@ -8,7 +8,6 @@ import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static hera.api.function.Functions.identify;
 import static hera.client.ClientConstants.TRANSACTION_COMMIT;
 import static hera.client.ClientConstants.TRANSACTION_GETTX;
-import static hera.client.ClientConstants.TRANSACTION_SEND;
 
 import com.google.common.base.Function;
 import com.google.common.util.concurrent.Futures;
@@ -19,9 +18,6 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.TransactionOperation;
 import hera.api.function.Function1;
-import hera.api.function.Function3;
-import hera.api.model.AccountAddress;
-import hera.api.model.Aer;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.client.internal.TransactionBaseTemplate;
@@ -97,12 +93,6 @@ public class TransactionTemplate
       getStrategyApplier()
           .apply(identify(this.transactionBaseTemplate.getCommitFunction(), TRANSACTION_COMMIT));
 
-  @Getter(lazy = true, value = AccessLevel.PROTECTED)
-  private final Function3<AccountAddress, AccountAddress, Aer,
-      Future<TxHash>> sendFunction =
-          getStrategyApplier()
-              .apply(identify(this.transactionBaseTemplate.getSendFunction(), TRANSACTION_SEND));
-
   @Override
   public Transaction getTransaction(final TxHash txHash) {
     try {
@@ -116,17 +106,6 @@ public class TransactionTemplate
   public TxHash commit(final Transaction transaction) {
     try {
       return getCommitFunction().apply(transaction).get();
-    } catch (Exception e) {
-      throw exceptionConverter.convert(e);
-    }
-  }
-
-  @Override
-  public TxHash send(final AccountAddress sender,
-      final AccountAddress recipient,
-      final Aer amount) {
-    try {
-      return getSendFunction().apply(sender, recipient, amount).get();
     } catch (Exception e) {
       throw exceptionConverter.convert(e);
     }

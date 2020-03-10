@@ -14,15 +14,21 @@ import com.google.common.util.concurrent.ListenableFuture;
 import hera.AbstractTestCase;
 import hera.ThreadLocalContextProvider;
 import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
+import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
+import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.TxHash;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AccountOuterClass;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;
+import types.Blockchain;
 import types.Rpc;
 
 @PrepareForTest({AergoRPCServiceFutureStub.class})
@@ -30,7 +36,7 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
 
   protected static final String PASSWORD = randomUUID().toString();
 
-  protected KeyStoreBaseTemplate supplyAccountTemplateBase(
+  protected KeyStoreBaseTemplate supplyKeyStoreTemplateBase(
       final AergoRPCServiceFutureStub aergoService) {
     final KeyStoreBaseTemplate accountTemplateBase = new KeyStoreBaseTemplate();
     accountTemplateBase.aergoService = aergoService;
@@ -55,10 +61,10 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
         });
     when(aergoService.getAccounts(any(Rpc.Empty.class))).thenReturn(mockListenableFuture);
 
-    final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
+    final KeyStoreBaseTemplate keyStoreBaseTemplate = supplyKeyStoreTemplateBase(aergoService);
 
     final Future<List<AccountAddress>> accountListFuture =
-        accountTemplateBase.getListFunction().apply();
+        keyStoreBaseTemplate.getListFunction().apply();
     assertNotNull(accountListFuture.get());
   }
 
@@ -74,10 +80,10 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
         });
     when(aergoService.createAccount(any(Rpc.Personal.class))).thenReturn(mockListenableFuture);
 
-    final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
+    final KeyStoreBaseTemplate keyStoreBaseTemplate = supplyKeyStoreTemplateBase(aergoService);
 
     final Future<AccountAddress> accountFuture =
-        accountTemplateBase.getCreateFunction().apply(randomUUID().toString());
+        keyStoreBaseTemplate.getCreateFunction().apply(randomUUID().toString());
     assertNotNull(accountFuture.get());
   }
 
@@ -93,10 +99,10 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
         });
     when(aergoService.lockAccount(any(Rpc.Personal.class))).thenReturn(mockListenableFuture);
 
-    final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
+    final KeyStoreBaseTemplate keyStoreBaseTemplate = supplyKeyStoreTemplateBase(aergoService);
 
     final Future<Boolean> lockResult =
-        accountTemplateBase.getLockFunction().apply(Authentication.of(accountAddress, PASSWORD));
+        keyStoreBaseTemplate.getLockFunction().apply(Authentication.of(accountAddress, PASSWORD));
     assertNotNull(lockResult.get());
   }
 
@@ -112,10 +118,10 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
         });
     when(aergoService.unlockAccount(any(Rpc.Personal.class))).thenReturn(mockListenableFuture);
 
-    final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
+    final KeyStoreBaseTemplate keyStoreBaseTemplate = supplyKeyStoreTemplateBase(aergoService);
 
     final Future<Boolean> accountFuture =
-        accountTemplateBase.getUnlockFunction().apply(Authentication.of(accountAddress, PASSWORD));
+        keyStoreBaseTemplate.getUnlockFunction().apply(Authentication.of(accountAddress, PASSWORD));
     assertNotNull(accountFuture.get());
   }
 
@@ -131,10 +137,10 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
         });
     when(aergoService.importAccount(any(Rpc.ImportFormat.class))).thenReturn(mockListenableFuture);
 
-    final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
+    final KeyStoreBaseTemplate keyStoreBaseTemplate = supplyKeyStoreTemplateBase(aergoService);
 
     final Future<AccountAddress> accountFuture =
-        accountTemplateBase.getImportKeyFunction().apply(encryptedPrivateKey, PASSWORD, PASSWORD);
+        keyStoreBaseTemplate.getImportKeyFunction().apply(encryptedPrivateKey, PASSWORD, PASSWORD);
     assertNotNull(accountFuture.get());
   }
 
@@ -150,12 +156,31 @@ public class KeyStoreBaseTemplateTest extends AbstractTestCase {
         });
     when(aergoService.exportAccount(any(Rpc.Personal.class))).thenReturn(mockListenableFuture);
 
-    final KeyStoreBaseTemplate accountTemplateBase = supplyAccountTemplateBase(aergoService);
+    final KeyStoreBaseTemplate keyStoreBaseTemplate = supplyKeyStoreTemplateBase(aergoService);
 
     final Future<EncryptedPrivateKey> accountFuture =
-        accountTemplateBase.getExportKeyFunction()
+        keyStoreBaseTemplate.getExportKeyFunction()
             .apply(Authentication.of(accountAddress, PASSWORD));
     assertNotNull(accountFuture.get());
+  }
+
+  @Test
+  public void testSend() throws Exception {
+    final AergoRPCServiceFutureStub aergoService = mock(AergoRPCServiceFutureStub.class);
+    ListenableFuture<Rpc.CommitResult> mockListenableFuture =
+        service.submit(new Callable<Rpc.CommitResult>() {
+          @Override
+          public Rpc.CommitResult call() throws Exception {
+            return Rpc.CommitResult.newBuilder().build();
+          }
+        });
+    Mockito.when(aergoService.sendTX(any(Blockchain.Tx.class))).thenReturn(mockListenableFuture);
+
+    final KeyStoreBaseTemplate keyStoreBaseTemplate = supplyKeyStoreTemplateBase(aergoService);
+
+    final Future<TxHash> txHash = keyStoreBaseTemplate.getSendFunction()
+        .apply(accountAddress, accountAddress, Aer.of("10", Unit.AER), BytesValue.EMPTY);
+    assertNotNull(txHash.get());
   }
 
 }
