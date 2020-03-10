@@ -28,6 +28,11 @@ import hera.api.model.RawTransaction;
 import hera.api.model.StakeInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.transaction.CreateNameTransactionBuilder;
+import hera.api.transaction.StakeTransactionBuilder;
+import hera.api.transaction.UnStakeTransactionBuilder;
+import hera.api.transaction.UpdateNameTransactionBuilder;
+import hera.api.transaction.VoteTransactionBuilder;
 import hera.client.ChannelInjectable;
 import hera.exception.TransactionVerificationException;
 import hera.key.Signer;
@@ -133,7 +138,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
           logger.debug("Create account name with signer: {}, name: {}, nonce: {}",
               signer.getPrincipal(), name, nonce);
 
-          final RawTransaction rawTransaction = RawTransaction.newCreateNameTxBuilder()
+          final RawTransaction rawTransaction = new CreateNameTransactionBuilder()
               .chainIdHash(contextProvider.get().getChainIdHash())
               .from(signer.getPrincipal())
               .nonce(nonce)
@@ -155,7 +160,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
           logger.debug("Update account name with signer: {}, name: {}, to account: {}, nonce: {}",
               signer, name, newOwner, nonce);
 
-          final RawTransaction rawTransaction = RawTransaction.newUpdateNameTxBuilder()
+          final RawTransaction rawTransaction = new UpdateNameTransactionBuilder()
               .chainIdHash(contextProvider.get().getChainIdHash())
               .from(signer.getPrincipal())
               .nonce(nonce)
@@ -207,7 +212,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
           logger.debug("Staking account with signer: {}, amount: {}, nonce: {}",
               signer.getPrincipal(), amount, nonce);
 
-          final RawTransaction rawTransaction = RawTransaction.newStakeTxBuilder()
+          final RawTransaction rawTransaction = new StakeTransactionBuilder()
               .chainIdHash(contextProvider.get().getChainIdHash())
               .from(signer.getPrincipal())
               .amount(amount)
@@ -228,7 +233,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
           logger.debug("Unstaking account with signer: {}, amount: {}, nonce: {}",
               signer.getPrincipal(), amount, nonce);
 
-          final RawTransaction rawTransaction = RawTransaction.newUnstakeTxBuilder()
+          final RawTransaction rawTransaction = new UnStakeTransactionBuilder()
               .chainIdHash(contextProvider.get().getChainIdHash())
               .from(signer.getPrincipal())
               .amount(amount)
@@ -344,7 +349,7 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
           logger.debug("Voting with signer: }, voteId: {}, candidates: {}, nonce: {}",
               signer.getPrincipal(), voteId, candidates, nonce);
 
-          final RawTransaction rawTransaction = RawTransaction.newVoteTxBuilder()
+          final RawTransaction rawTransaction = new VoteTransactionBuilder()
               .chainIdHash(contextProvider.get().getChainIdHash())
               .from(signer.getPrincipal())
               .nonce(nonce)

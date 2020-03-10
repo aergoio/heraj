@@ -285,9 +285,7 @@ public class AccountOperationIT extends AbstractIT {
     // then
     final AccountTotalVote keyVoteTotal =
         aergoClient.getAccountOperation().getVotesOf(key.getAddress());
-    final List<VoteInfo> fuck = keyVoteTotal.getVoteInfos();
-    System.out.println(fuck);
-    final List<String> actual = fuck.get(0).getCandidateIds();
+    final List<String> actual = keyVoteTotal.getVoteInfos().get(0).getCandidateIds();
     assertEquals(expected, actual);
   }
 

@@ -37,7 +37,7 @@ public class AergoJsonMapperTest extends AbstractTestCase {
         null,
         3,
         asList(randomUUID().toString(), randomUUID().toString()),
-//        BigNumber.of("3000"),
+        BigNumber.of("3000"),
         map);
     final BytesValue serialized = mapper.marshal(expected);
     final List<Object> actual = mapper.unmarshal(serialized, List.class);

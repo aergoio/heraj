@@ -15,7 +15,7 @@
 
   <logger name="hera" level="debug"/>
   <logger name="hera.api" level="debug"/>
-  <logger name="hera.api.transaction" level="debug"/>
+  <logger name="hera.api.transaction" level="trace"/>
   <logger name="hera.key" level="debug"/>
   <logger name="hera.strategy" level="debug"/>
   <logger name="hera.util" level="error"/>

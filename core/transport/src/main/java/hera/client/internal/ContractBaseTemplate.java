@@ -31,11 +31,15 @@ import hera.api.model.Event;
 import hera.api.model.EventFilter;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
+import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.transaction.ContractInvocationPayloadConverter;
+import hera.api.transaction.DeployContractTransactionBuilder;
+import hera.api.transaction.InvokeContractTransactionBuilder;
 import hera.api.transaction.PayloadConverter;
+import hera.api.transaction.ReDeployContractTransactionBuilder;
 import hera.client.ChannelInjectable;
 import hera.client.stream.GrpcStreamObserverAdaptor;
 import hera.client.stream.GrpcStreamSubscription;
@@ -138,8 +142,8 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
       };
 
   @Getter
-  private final Function4<Signer, ContractDefinition,
-      Long, Fee, Future<ContractTxHash>> deployFunction =
+  private final Function4<Signer, ContractDefinition, Long, Fee, Future<ContractTxHash>>
+      deployFunction =
       new Function4<Signer, ContractDefinition, Long, Fee, Future<ContractTxHash>>() {
 
         @Override
@@ -148,7 +152,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
           logger.debug("Deploy contract with creator: {}, definition: {}, nonce: {}, fee: {}",
               signer, contractDefinition, nonce, fee);
 
-          final RawTransaction rawTransaction = RawTransaction.newDeployContractBuilder()
+          final RawTransaction rawTransaction = new DeployContractTransactionBuilder()
               .chainIdHash(contextProvider.get().getChainIdHash())
               .from(signer.getPrincipal())
               .nonce(nonce)
@@ -160,8 +164,11 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
       };
 
   @Getter
-  private final Function5<Signer, ContractAddress, ContractDefinition, Long, Fee, Future<ContractTxHash>> reDeployFunction =
-      new Function5<Signer, ContractAddress, ContractDefinition, Long, Fee, Future<ContractTxHash>>() {
+  private final Function5<Signer, ContractAddress, ContractDefinition, Long, Fee,
+      Future<ContractTxHash>>
+      reDeployFunction =
+      new Function5<Signer, ContractAddress, ContractDefinition,
+          Long, Fee, Future<ContractTxHash>>() {
 
         @Override
         public Future<ContractTxHash> apply(final Signer signer,
@@ -170,7 +177,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
           logger.debug("Re-deploy contract with creator: {}, existing one: {}, "
                   + "definition: {}, nonce: {}, fee: {}",
               signer, existingContract, contractDefinition, nonce, fee);
-          final RawTransaction rawTransaction = RawTransaction.newReDeployContractBuilder()
+          final RawTransaction rawTransaction = new ReDeployContractTransactionBuilder()
               .chainIdHash(contextProvider.get().getChainIdHash())
               .creator(signer.getPrincipal())
               .nonce(nonce)
@@ -214,7 +221,8 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
       };
 
   @Getter
-  private final Function4<Signer, ContractInvocation, Long, Fee, Future<ContractTxHash>> executeFunction =
+  private final Function4<Signer, ContractInvocation, Long, Fee, Future<ContractTxHash>>
+      executeFunction =
       new Function4<Signer, ContractInvocation, Long, Fee, Future<ContractTxHash>>() {
 
         @Override
@@ -223,7 +231,7 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
             final Fee fee) {
           logger.debug("Execute contract with executor: {}, invocation: {}, nonce: {}, fee: {}",
               signer.getPrincipal(), contractInvocation, nonce, fee);
-          final RawTransaction rawTransaction = RawTransaction.newInvokeContractBuilder()
+          final RawTransaction rawTransaction = new InvokeContractTransactionBuilder()
               .chainIdHash(contextProvider.get().getChainIdHash())
               .from(signer.getPrincipal())
               .nonce(nonce)
@@ -308,16 +316,17 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
       };
 
   @Getter
-  private final Function2<EventFilter, hera.api.model.StreamObserver<Event>, Future<Subscription<Event>>> subscribeEventFunction =
-      new Function2<EventFilter, hera.api.model.StreamObserver<Event>, Future<Subscription<Event>>>() {
+  private final Function2<EventFilter, hera.api.model.StreamObserver<Event>,
+      Future<Subscription<Event>>> subscribeEventFunction =
+      new Function2<EventFilter, StreamObserver<Event>, Future<Subscription<Event>>>() {
 
         @Override
         public Future<Subscription<Event>> apply(final EventFilter filter,
             final hera.api.model.StreamObserver<Event> observer) {
           logger.debug("Event subsribe with filter: {}, observer: {}", filter, observer);
 
-          final Blockchain.FilterInfo filterInfo =
-              eventFilterConverter.convertToRpcModel(filter);
+          final Blockchain.FilterInfo filterInfo = eventFilterConverter.convertToRpcModel(filter);
+          logger.trace("Rpc filter: {}", filterInfo);
           Context.CancellableContext cancellableContext =
               Context.current().withCancellation();
           final io.grpc.stub.StreamObserver<Blockchain.Event> adaptor =

@@ -84,7 +84,7 @@ public class ECDSAKeyGenerator implements KeyGenerator<ECDSAKey> {
    * Create with a seed.
    * @param seed a seed
    * @return created ECDSAKey
-   * @throws Exception
+   * @throws Exception on creation failure
    */
   public ECDSAKey create(final String seed) throws Exception {
     final byte[] digested = Sha256Utils.digest(seed.getBytes());
@@ -97,7 +97,7 @@ public class ECDSAKeyGenerator implements KeyGenerator<ECDSAKey> {
    *
    * @param encodedPrivateKey PKCS #8 encoded private key
    * @return key pair to be recovered
-   * @throws Exception On failure of recovery
+   * @throws Exception on failure of recovery
    */
   public ECDSAKey create(final byte[] encodedPrivateKey) throws Exception {
     final KeyFactory factory = KeyFactory.getInstance(KEY_ALGORITHM);

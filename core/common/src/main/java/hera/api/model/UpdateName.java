@@ -16,7 +16,7 @@ import lombok.ToString;
 public class UpdateName implements GovernancePayload, Payload {
 
   @Getter
-  protected final String operationName = "v1stake";
+  protected final String operationName = "v1updateName";
 
   @Getter
   @NonNull

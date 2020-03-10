@@ -28,7 +28,7 @@ public class VotePayloadConverter implements PayloadConverter<Vote> {
     logger.debug("Convert to payload from {}", vote);
     final Map<String, Object> map = new HashMap<>();
     map.put("Name", vote.getOperationName());
-    map.put("Args", Collections.emptyList());
+    map.put("Args", vote.getCandidates());
     return mapper.marshal(map);
   }
 
