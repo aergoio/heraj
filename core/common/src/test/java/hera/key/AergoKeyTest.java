@@ -15,6 +15,7 @@ import hera.api.model.Aer.Unit;
 import hera.api.model.BytesValue;
 import hera.api.model.ChainIdHash;
 import hera.api.model.EncryptedPrivateKey;
+import hera.api.model.KeyFormat;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
@@ -26,24 +27,27 @@ public class AergoKeyTest extends AbstractTestCase {
 
   protected final ChainIdHash chainIdHash = ChainIdHash.of(BytesValue.EMPTY);
 
-  private final String encrypted =
-      "47RHxbUL3DhA1TMHksEPdVrhumcjdXLAB3Hkv61mqkC9M1Wncai5b91q7hpKydfFHKyyVvgKt";
-
   @Test
-  public void testOfWithEncodedEncryptedPrivateKey() throws Exception {
-    final String password = "password";
-    final AergoKey key = AergoKey.of(EncryptedPrivateKey.of(encrypted), password);
-    assertNotNull(key.getPrivateKey());
-    assertNotNull(key.getPublicKey());
-    assertNotNull(key.getAddress());
-  }
-
-  @Test
-  public void testGetEncryptedPrivateKey() throws Exception {
+  public void testExportAndImportWif() throws Exception {
+    final AergoKeyGenerator generator = new AergoKeyGenerator();
     final String passphrase = "password";
-    final AergoKey key = AergoKey.of(EncryptedPrivateKey.of(encrypted), passphrase);
-    final String actual = key.exportAsWif(passphrase).getEncoded();
-    assertEquals(encrypted, actual);
+    for (int i = 0; i < 10; ++i) {
+      final AergoKey expected = generator.create();
+      final EncryptedPrivateKey wif = expected.exportAsWif(passphrase);
+      final AergoKey actual = AergoKey.of(wif, passphrase);
+      assertEquals(expected, actual);
+    }
+  }
+  @Test
+  public void testExportAndImportKeyFormat() throws Exception {
+    final AergoKeyGenerator generator = new AergoKeyGenerator();
+    final String passphrase = "password";
+    for (int i = 0; i < 10; ++i) {
+      final AergoKey expected = generator.create();
+      final KeyFormat keyFormat = expected.exportAsKeyFormat(passphrase);
+      final AergoKey actual = AergoKey.of(keyFormat, passphrase);
+      assertEquals(expected, actual);
+    }
   }
 
   @Test

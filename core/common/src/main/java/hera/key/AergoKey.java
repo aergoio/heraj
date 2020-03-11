@@ -16,6 +16,7 @@ import hera.api.model.BytesValue;
 import hera.api.model.Encrypted;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Hash;
+import hera.api.model.KeyFormat;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
@@ -37,7 +38,7 @@ import org.slf4j.Logger;
 public class AergoKey implements KeyPair, Signer {
 
   /**
-   * Create a key pair with encoded encrypted private key and password.
+   * Create a key pair with encoded encrypted private key and passphrase.
    *
    * @param encodedEncryptedPrivateKey a base58 with checksum encoded encrypted private key
    * @param passphrase a passphrase to decrypt
@@ -48,7 +49,7 @@ public class AergoKey implements KeyPair, Signer {
   }
 
   /**
-   * Create a key pair with encrypted private key and password.
+   * Create a key pair with encrypted private key and passphrase.
    *
    * @param encryptedPrivateKey encrypted private key
    * @param passphrase a passphrase to decrypt
@@ -57,6 +58,17 @@ public class AergoKey implements KeyPair, Signer {
   public static AergoKey of(final EncryptedPrivateKey encryptedPrivateKey,
       final String passphrase) {
     return new AergoKey(encryptedPrivateKey, passphrase);
+  }
+
+  /**
+   * Create a key pair with a key format and passphrase.
+   *
+   * @param keyFormat a key format
+   * @param passphrase a passphrase to decrypt
+   * @return key instance
+   */
+  public static AergoKey of(final KeyFormat keyFormat, final String passphrase) {
+    return new AergoKey(keyFormat, passphrase);
   }
 
   protected final transient Logger logger = getLogger(getClass());
@@ -85,6 +97,16 @@ public class AergoKey implements KeyPair, Signer {
    */
   public AergoKey(final EncryptedPrivateKey encryptedPrivateKey, final String passphrase) {
     this(new EncryptedPrivateKeyStrategy(), encryptedPrivateKey, passphrase);
+  }
+
+  /**
+   * AergoKey constructor.
+   *
+   * @param keyFormat a key format
+   * @param passphrase a passphrase to decrypt
+   */
+  public AergoKey(final KeyFormat keyFormat, final String passphrase) {
+    this(new KeyFormatV1Strategy(), keyFormat, passphrase);
   }
 
   protected <T extends Encrypted> AergoKey(final KeyCipherStrategy<T> strategy,
@@ -197,6 +219,16 @@ public class AergoKey implements KeyPair, Signer {
    */
   public EncryptedPrivateKey exportAsWif(final String passphrase) {
     return export(new EncryptedPrivateKeyStrategy(), passphrase);
+  }
+
+  /**
+   * Return encryptd private key a key format
+   *
+   * @param passphrase an passphrase to encrypt key
+   * @return a key format
+   */
+  public KeyFormat exportAsKeyFormat(final String passphrase) {
+    return export(new KeyFormatV1Strategy(), passphrase);
   }
 
   /**

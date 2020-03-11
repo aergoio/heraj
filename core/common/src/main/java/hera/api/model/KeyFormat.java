@@ -20,7 +20,7 @@ import lombok.ToString;
 @ApiStability.Unstable
 @ToString
 @EqualsAndHashCode
-public class KeyFormat {
+public class KeyFormat implements Encrypted {
 
   /**
    * Create a {@code KeyFile} with an input stream.
