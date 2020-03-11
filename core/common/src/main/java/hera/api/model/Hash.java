@@ -22,7 +22,6 @@ public class Hash implements Adaptor, Encodable {
    * Create {@code Hash} with a base58 encoded one.
    *
    * @param encoded a base58 encoded hash
-   *
    * @return created {@link Hash}
    */
   public static Hash of(final String encoded) {
@@ -30,22 +29,9 @@ public class Hash implements Adaptor, Encodable {
   }
 
   /**
-   * Create {@code Hash} with an encoded one.
-   *
-   * @param encoded an encoded hash
-   * @param decoder a decoder to decode
-   *
-   * @return created {@link Hash}
-   */
-  public static Hash of(final String encoded, final Decoder decoder) {
-    return new Hash(encoded, decoder);
-  }
-
-  /**
    * Create {@code Hash}.
    *
    * @param bytesValue a bytesValue
-   *
    * @return created {@link Hash}
    */
   public static Hash of(final BytesValue bytesValue) {
@@ -61,19 +47,8 @@ public class Hash implements Adaptor, Encodable {
    * @param encoded a base58 encoded hash
    */
   public Hash(final String encoded) {
-    this(encoded, Decoder.Base58);
-  }
-
-  /**
-   * Create {@code Hash} with an encoded one.
-   *
-   * @param encoded an encoded hash
-   * @param decoder a decoder to decode
-   */
-  public Hash(final String encoded, final Decoder decoder) {
     assertNotNull(encoded, "Encoded value must not null");
-    assertNotNull(decoder, "Decoder must not null");
-    this.bytesValue = BytesValue.of(encoded, decoder);
+    this.bytesValue = BytesValue.of(encoded, Decoder.Base58);
   }
 
   /**
@@ -86,18 +61,9 @@ public class Hash implements Adaptor, Encodable {
     this.bytesValue = bytesValue;
   }
 
-  /**
-   * Get base58 encoded value.
-   * 
-   * @return a base58 encoded value
-   */
-  public String getEncoded() {
-    return getEncoded(Encoder.Base58);
-  }
-
   @Override
-  public String getEncoded(final Encoder encoder) {
-    return getBytesValue().getEncoded(encoder);
+  public String getEncoded() {
+    return getBytesValue().getEncoded(Encoder.Base58);
   }
 
   @Override
@@ -119,7 +85,7 @@ public class Hash implements Adaptor, Encodable {
 
   @Override
   public String toString() {
-    return getEncoded(Encoder.Base58);
+    return getEncoded();
   }
 
   @SuppressWarnings("unchecked")

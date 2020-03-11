@@ -20,7 +20,7 @@ import java.util.Arrays;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public class BytesValue implements Encodable {
+public class BytesValue {
 
   public static final BytesValue EMPTY = new BytesValue(new byte[0]);
 
@@ -120,7 +120,12 @@ public class BytesValue implements Encodable {
     return new String(this.value);
   }
 
-  @Override
+  /**
+   * Get encoded value.
+   *
+   * @param encoder an encoder
+   * @return an encoded value
+   */
   public String getEncoded(final Encoder encoder) {
     try {
       assertNotNull(encoder, "An encoder must not null");

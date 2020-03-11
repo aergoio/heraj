@@ -8,6 +8,9 @@ import static hera.util.ValidationUtils.assertNotNull;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.api.encode.Encodable;
+import hera.api.encode.Encoder;
+import java.util.concurrent.atomic.AtomicStampedReference;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -16,10 +19,9 @@ import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@ToString
 @EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
-public class Signature {
+public class Signature implements Encodable {
 
   public static final Signature EMPTY = new Signature();
 
@@ -50,6 +52,16 @@ public class Signature {
 
   protected Signature() {
     this.sign = BytesValue.EMPTY;
+  }
+
+  @Override
+  public String getEncoded() {
+    return sign.getEncoded(Encoder.Base58);
+  }
+
+  @Override
+  public String toString() {
+    return String.format("Signature(sign=%s)", sign.getEncoded(Encoder.Base58));
   }
 
 }
