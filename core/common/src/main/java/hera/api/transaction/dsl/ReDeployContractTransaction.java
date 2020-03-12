@@ -7,9 +7,11 @@ import hera.api.model.ContractDefinition;
 public interface ReDeployContractTransaction extends AergoTransaction {
 
   interface WithNothing extends NeedChainIdHash<WithChainIdHash> {
+
   }
 
   interface WithChainIdHash {
+
     /**
      * Accept contract creator as name.
      *
@@ -27,31 +29,37 @@ public interface ReDeployContractTransaction extends AergoTransaction {
     WithChainIdHashAndCreator creator(AccountAddress creator);
   }
 
-  interface WithChainIdHashAndCreator extends NeedNonce<WithChainIdHashAndCreatorAndNonce> {
-  }
+  interface WithChainIdHashAndCreator {
 
-  interface WithChainIdHashAndCreatorAndNonce {
     /**
      * Accept contract address. The contract address must be existing one.
      *
      * @param contractAddress an existing contract address.
      * @return next state after accepting contract address
      */
-    WithChainIdHashAndCreatorAndNonceAndContractAddress contractAddress(
+    WithChainIdHashAndCreatorAndContractAddress contractAddress(
         ContractAddress contractAddress);
   }
 
-  interface WithChainIdHashAndCreatorAndNonceAndContractAddress {
+  interface WithChainIdHashAndCreatorAndContractAddress {
+
     /**
      * Accept contract definition.
      *
      * @param contractDefinition a contract definition to re-deploy
      * @return next state after accepting contract definition
      */
-    WithReady definition(ContractDefinition contractDefinition);
+    WithChainIdHashAndCreatorAndContractAddressAndContractDefinition definition(
+        ContractDefinition contractDefinition);
+  }
+
+  interface WithChainIdHashAndCreatorAndContractAddressAndContractDefinition extends
+      NeedNonce<WithReady> {
+
   }
 
   interface WithReady extends NeedFee<WithReady>, BuildReady {
+
   }
 
 }

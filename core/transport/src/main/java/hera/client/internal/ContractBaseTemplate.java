@@ -155,8 +155,8 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
           final RawTransaction rawTransaction = new DeployContractTransactionBuilder()
               .chainIdHash(contextProvider.get().getChainIdHash())
               .from(signer.getPrincipal())
-              .nonce(nonce)
               .definition(contractDefinition)
+              .nonce(nonce)
               .fee(fee)
               .build();
           return signAndCommit(signer, rawTransaction);
@@ -180,9 +180,9 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
           final RawTransaction rawTransaction = new ReDeployContractTransactionBuilder()
               .chainIdHash(contextProvider.get().getChainIdHash())
               .creator(signer.getPrincipal())
-              .nonce(nonce)
               .contractAddress(existingContract)
               .definition(contractDefinition)
+              .nonce(nonce)
               .fee(fee)
               .build();
           return signAndCommit(signer, rawTransaction);
@@ -234,8 +234,8 @@ public class ContractBaseTemplate implements ChannelInjectable, ContextProviderI
           final RawTransaction rawTransaction = new InvokeContractTransactionBuilder()
               .chainIdHash(contextProvider.get().getChainIdHash())
               .from(signer.getPrincipal())
-              .nonce(nonce)
               .invocation(contractInvocation)
+              .nonce(nonce)
               .fee(fee)
               .build();
           return signAndCommit(signer, rawTransaction);

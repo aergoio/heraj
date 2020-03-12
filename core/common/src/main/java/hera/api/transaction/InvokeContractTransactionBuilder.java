@@ -17,7 +17,7 @@ import hera.api.model.Transaction.TxType;
 import hera.api.transaction.dsl.InvokeContractTransaction;
 import hera.api.transaction.dsl.InvokeContractTransaction.WithChainIdHash;
 import hera.api.transaction.dsl.InvokeContractTransaction.WithChainIdHashAndSender;
-import hera.api.transaction.dsl.InvokeContractTransaction.WithChainIdHashAndSenderAndNonce;
+import hera.api.transaction.dsl.InvokeContractTransaction.WithChainIdHashAndSenderAndInvocation;
 import hera.api.transaction.dsl.InvokeContractTransaction.WithReady;
 
 @ApiAudience.Public
@@ -26,7 +26,7 @@ public class InvokeContractTransactionBuilder implements
     InvokeContractTransaction.WithNothing,
     InvokeContractTransaction.WithChainIdHash,
     InvokeContractTransaction.WithChainIdHashAndSender,
-    InvokeContractTransaction.WithChainIdHashAndSenderAndNonce,
+    InvokeContractTransaction.WithChainIdHashAndSenderAndInvocation,
     InvokeContractTransaction.WithReady {
 
   protected final PlainTransactionBuilder delegate = new PlainTransactionBuilder();
@@ -55,15 +55,16 @@ public class InvokeContractTransactionBuilder implements
   }
 
   @Override
-  public WithChainIdHashAndSenderAndNonce nonce(final long nonce) {
-    this.delegate.nonce(nonce);
+  public WithChainIdHashAndSenderAndInvocation invocation(
+      final ContractInvocation contractInvocation) {
+    assertNotNull(contractInvocation);
+    this.contractInvocation = contractInvocation;
     return this;
   }
 
   @Override
-  public WithReady invocation(final ContractInvocation contractInvocation) {
-    assertNotNull(contractInvocation);
-    this.contractInvocation = contractInvocation;
+  public WithReady nonce(final long nonce) {
+    this.delegate.nonce(nonce);
     return this;
   }
 

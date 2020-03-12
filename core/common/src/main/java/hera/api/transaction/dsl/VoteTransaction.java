@@ -5,35 +5,41 @@ import java.util.List;
 public interface VoteTransaction extends AergoTransaction {
 
   interface WithNothing extends NeedChainIdHash<WithChainIdHash> {
+
   }
 
   interface WithChainIdHash extends NeedSender<WithChainIdHashAndSender> {
+
   }
 
-  interface WithChainIdHashAndSender extends NeedNonce<WithChainIdHashAndSenderAndNonce> {
-  }
+  interface WithChainIdHashAndSender {
 
-  interface WithChainIdHashAndSenderAndNonce {
     /**
      * Accept a vote id. (eg. voteBP).
      *
      * @param voteId a vote id
      * @return next state after accepting vote id
      */
-    WithChainIdHashAndSenderAndNonceAndVoteId voteId(String voteId);
+    WithChainIdHashAndSenderAndVoteId voteId(String voteId);
   }
 
-  interface WithChainIdHashAndSenderAndNonceAndVoteId {
+  interface WithChainIdHashAndSenderAndVoteId {
+
     /**
      * Accept candidates to be voted.
      *
      * @param candidates candidates to be voted
      * @return next state after accepting candidates
      */
-    WithReady candidates(List<String> candidates);
+    WithChainIdHashAndSenderAndVoteIdAndCandidates candidates(List<String> candidates);
+  }
+
+  interface WithChainIdHashAndSenderAndVoteIdAndCandidates extends NeedNonce<WithReady> {
+
   }
 
   interface WithReady extends BuildReady {
+
   }
 
 }

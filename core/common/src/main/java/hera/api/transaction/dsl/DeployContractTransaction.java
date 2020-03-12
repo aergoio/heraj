@@ -5,25 +5,30 @@ import hera.api.model.ContractDefinition;
 public interface DeployContractTransaction extends AergoTransaction {
 
   interface WithNothing extends NeedChainIdHash<WithChainIdHash> {
+
   }
 
   interface WithChainIdHash extends NeedSender<WithChainIdHashAndSender> {
+
   }
 
-  interface WithChainIdHashAndSender extends NeedNonce<WithChainIdHashAndSenderAndNonce> {
-  }
+  interface WithChainIdHashAndSender {
 
-  interface WithChainIdHashAndSenderAndNonce {
     /**
      * Accept contract definition.
      *
      * @param contractDefinition a contract definition
      * @return next state after accepting contract definition
      */
-    WithReady definition(ContractDefinition contractDefinition);
+    WithChainIdHashAndSenderAndDefinition definition(ContractDefinition contractDefinition);
+  }
+
+  interface WithChainIdHashAndSenderAndDefinition extends NeedNonce<WithReady> {
+
   }
 
   interface WithReady extends NeedFee<WithReady>, BuildReady {
+
   }
 
 }

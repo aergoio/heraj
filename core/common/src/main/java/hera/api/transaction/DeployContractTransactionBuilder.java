@@ -18,7 +18,7 @@ import hera.api.model.Transaction.TxType;
 import hera.api.transaction.dsl.DeployContractTransaction;
 import hera.api.transaction.dsl.DeployContractTransaction.WithChainIdHash;
 import hera.api.transaction.dsl.DeployContractTransaction.WithChainIdHashAndSender;
-import hera.api.transaction.dsl.DeployContractTransaction.WithChainIdHashAndSenderAndNonce;
+import hera.api.transaction.dsl.DeployContractTransaction.WithChainIdHashAndSenderAndDefinition;
 import hera.api.transaction.dsl.DeployContractTransaction.WithReady;
 
 
@@ -28,7 +28,7 @@ public class DeployContractTransactionBuilder implements
     DeployContractTransaction.WithNothing,
     DeployContractTransaction.WithChainIdHash,
     DeployContractTransaction.WithChainIdHashAndSender,
-    DeployContractTransaction.WithChainIdHashAndSenderAndNonce,
+    DeployContractTransaction.WithChainIdHashAndSenderAndDefinition,
     DeployContractTransaction.WithReady {
 
   protected final PlainTransactionBuilder delegate = new PlainTransactionBuilder();
@@ -57,15 +57,16 @@ public class DeployContractTransactionBuilder implements
   }
 
   @Override
-  public WithChainIdHashAndSenderAndNonce nonce(final long nonce) {
-    this.delegate.nonce(nonce);
+  public WithChainIdHashAndSenderAndDefinition definition(
+      final ContractDefinition contractDefinition) {
+    assertNotNull(contractDefinition);
+    this.contractDefinition = contractDefinition;
     return this;
   }
 
   @Override
-  public WithReady definition(final ContractDefinition contractDefinition) {
-    assertNotNull(contractDefinition);
-    this.contractDefinition = contractDefinition;
+  public WithReady nonce(final long nonce) {
+    this.delegate.nonce(nonce);
     return this;
   }
 
@@ -83,4 +84,5 @@ public class DeployContractTransactionBuilder implements
     this.delegate.type(TxType.DEPLOY);
     return delegate.build();
   }
+
 }

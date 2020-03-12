@@ -19,8 +19,8 @@ import hera.api.model.Vote;
 import hera.api.transaction.dsl.VoteTransaction;
 import hera.api.transaction.dsl.VoteTransaction.WithChainIdHash;
 import hera.api.transaction.dsl.VoteTransaction.WithChainIdHashAndSender;
-import hera.api.transaction.dsl.VoteTransaction.WithChainIdHashAndSenderAndNonce;
-import hera.api.transaction.dsl.VoteTransaction.WithChainIdHashAndSenderAndNonceAndVoteId;
+import hera.api.transaction.dsl.VoteTransaction.WithChainIdHashAndSenderAndVoteId;
+import hera.api.transaction.dsl.VoteTransaction.WithChainIdHashAndSenderAndVoteIdAndCandidates;
 import hera.api.transaction.dsl.VoteTransaction.WithReady;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,8 +31,8 @@ public class VoteTransactionBuilder implements
     VoteTransaction.WithNothing,
     VoteTransaction.WithChainIdHash,
     VoteTransaction.WithChainIdHashAndSender,
-    VoteTransaction.WithChainIdHashAndSenderAndNonce,
-    VoteTransaction.WithChainIdHashAndSenderAndNonceAndVoteId,
+    VoteTransaction.WithChainIdHashAndSenderAndVoteId,
+    VoteTransaction.WithChainIdHashAndSenderAndVoteIdAndCandidates,
     VoteTransaction.WithReady {
 
   protected final PlainTransactionBuilder delegate = new PlainTransactionBuilder();
@@ -62,22 +62,22 @@ public class VoteTransactionBuilder implements
   }
 
   @Override
-  public WithChainIdHashAndSenderAndNonce nonce(long nonce) {
-    this.delegate.nonce(nonce);
-    return this;
-  }
-
-  @Override
-  public WithChainIdHashAndSenderAndNonceAndVoteId voteId(final String voteId) {
+  public WithChainIdHashAndSenderAndVoteId voteId(final String voteId) {
     assertNotNull(voteId);
     this.voteId = voteId;
     return this;
   }
 
   @Override
-  public WithReady candidates(final List<String> candidates) {
+  public WithChainIdHashAndSenderAndVoteIdAndCandidates candidates(final List<String> candidates) {
     assertNotNull(candidates);
     this.candidates = unmodifiableList(new LinkedList<>(candidates));
+    return this;
+  }
+
+  @Override
+  public WithReady nonce(long nonce) {
+    this.delegate.nonce(nonce);
     return this;
   }
 

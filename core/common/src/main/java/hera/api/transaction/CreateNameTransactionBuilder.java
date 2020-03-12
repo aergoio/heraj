@@ -18,7 +18,7 @@ import hera.api.model.Transaction.TxType;
 import hera.api.transaction.dsl.CreateNameTransaction;
 import hera.api.transaction.dsl.CreateNameTransaction.WithChainIdHash;
 import hera.api.transaction.dsl.CreateNameTransaction.WithChainIdHashAndSender;
-import hera.api.transaction.dsl.CreateNameTransaction.WithChainIdHashAndSenderAndNonce;
+import hera.api.transaction.dsl.CreateNameTransaction.WithChainIdHashAndSenderAndName;
 import hera.api.transaction.dsl.CreateNameTransaction.WithReady;
 
 
@@ -28,7 +28,7 @@ public class CreateNameTransactionBuilder implements
     CreateNameTransaction.WithNothing,
     CreateNameTransaction.WithChainIdHash,
     CreateNameTransaction.WithChainIdHashAndSender,
-    CreateNameTransaction.WithChainIdHashAndSenderAndNonce,
+    CreateNameTransaction.WithChainIdHashAndSenderAndName,
     CreateNameTransaction.WithReady {
 
   protected final PlainTransactionBuilder delegate = new PlainTransactionBuilder();
@@ -56,21 +56,21 @@ public class CreateNameTransactionBuilder implements
   }
 
   @Override
-  public WithChainIdHashAndSenderAndNonce nonce(long nonce) {
-    this.delegate.nonce(nonce);
-    return this;
-  }
-
-  @Override
-  public WithReady name(final String name) {
+  public WithChainIdHashAndSenderAndName name(final String name) {
     assertNotNull(name);
     return name(new Name(name));
   }
 
   @Override
-  public WithReady name(final Name name) {
+  public WithChainIdHashAndSenderAndName name(final Name name) {
     assertNotNull(name);
     this.name = name;
+    return this;
+  }
+
+  @Override
+  public WithReady nonce(long nonce) {
+    this.delegate.nonce(nonce);
     return this;
   }
 

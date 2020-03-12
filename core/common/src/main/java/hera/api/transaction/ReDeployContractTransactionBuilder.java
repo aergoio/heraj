@@ -18,8 +18,8 @@ import hera.api.model.Transaction.TxType;
 import hera.api.transaction.dsl.ReDeployContractTransaction;
 import hera.api.transaction.dsl.ReDeployContractTransaction.WithChainIdHash;
 import hera.api.transaction.dsl.ReDeployContractTransaction.WithChainIdHashAndCreator;
-import hera.api.transaction.dsl.ReDeployContractTransaction.WithChainIdHashAndCreatorAndNonce;
-import hera.api.transaction.dsl.ReDeployContractTransaction.WithChainIdHashAndCreatorAndNonceAndContractAddress;
+import hera.api.transaction.dsl.ReDeployContractTransaction.WithChainIdHashAndCreatorAndContractAddress;
+import hera.api.transaction.dsl.ReDeployContractTransaction.WithChainIdHashAndCreatorAndContractAddressAndContractDefinition;
 import hera.api.transaction.dsl.ReDeployContractTransaction.WithReady;
 
 @ApiAudience.Public
@@ -28,8 +28,8 @@ public class ReDeployContractTransactionBuilder implements
     ReDeployContractTransaction.WithNothing,
     ReDeployContractTransaction.WithChainIdHash,
     ReDeployContractTransaction.WithChainIdHashAndCreator,
-    ReDeployContractTransaction.WithChainIdHashAndCreatorAndNonce,
-    ReDeployContractTransaction.WithChainIdHashAndCreatorAndNonceAndContractAddress,
+    ReDeployContractTransaction.WithChainIdHashAndCreatorAndContractAddress,
+    WithChainIdHashAndCreatorAndContractAddressAndContractDefinition,
     ReDeployContractTransaction.WithReady {
 
   protected final PlainTransactionBuilder delegate = new PlainTransactionBuilder();
@@ -58,22 +58,23 @@ public class ReDeployContractTransactionBuilder implements
   }
 
   @Override
-  public WithChainIdHashAndCreatorAndNonce nonce(final long nonce) {
-    this.delegate.nonce(nonce);
-    return this;
-  }
-
-  @Override
-  public WithChainIdHashAndCreatorAndNonceAndContractAddress contractAddress(
+  public WithChainIdHashAndCreatorAndContractAddress contractAddress(
       final ContractAddress contractAddress) {
     this.delegate.to(contractAddress);
     return this;
   }
 
   @Override
-  public WithReady definition(final ContractDefinition contractDefinition) {
+  public WithChainIdHashAndCreatorAndContractAddressAndContractDefinition definition(
+      final ContractDefinition contractDefinition) {
     assertNotNull(contractDefinition);
     this.contractDefinition = contractDefinition;
+    return this;
+  }
+
+  @Override
+  public WithReady nonce(final long nonce) {
+    this.delegate.nonce(nonce);
     return this;
   }
 

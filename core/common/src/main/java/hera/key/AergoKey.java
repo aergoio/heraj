@@ -222,7 +222,7 @@ public class AergoKey implements KeyPair, Signer {
   }
 
   /**
-   * Return encryptd private key a key format
+   * Return encryptd private key a key format.
    *
    * @param passphrase an passphrase to encrypt key
    * @return a key format

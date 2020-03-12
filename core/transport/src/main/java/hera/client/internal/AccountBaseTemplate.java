@@ -141,8 +141,8 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
           final RawTransaction rawTransaction = new CreateNameTransactionBuilder()
               .chainIdHash(contextProvider.get().getChainIdHash())
               .from(signer.getPrincipal())
-              .nonce(nonce)
               .name(name)
+              .nonce(nonce)
               .build();
           final Transaction signed = signer.sign(rawTransaction);
           return transactionBaseTemplate.getCommitFunction().apply(signed);
@@ -163,9 +163,9 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
           final RawTransaction rawTransaction = new UpdateNameTransactionBuilder()
               .chainIdHash(contextProvider.get().getChainIdHash())
               .from(signer.getPrincipal())
-              .nonce(nonce)
               .name(name)
               .nextOwner(newOwner)
+              .nonce(nonce)
               .build();
           final Transaction signed = signer.sign(rawTransaction);
           return transactionBaseTemplate.getCommitFunction().apply(signed);
@@ -352,9 +352,9 @@ public class AccountBaseTemplate implements ChannelInjectable, ContextProviderIn
           final RawTransaction rawTransaction = new VoteTransactionBuilder()
               .chainIdHash(contextProvider.get().getChainIdHash())
               .from(signer.getPrincipal())
-              .nonce(nonce)
               .voteId(voteId)
               .candidates(candidates)
+              .nonce(nonce)
               .build();
           final Transaction signed = signer.sign(rawTransaction);
           return transactionBaseTemplate.getCommitFunction().apply(signed);

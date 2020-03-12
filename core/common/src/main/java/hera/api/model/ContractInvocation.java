@@ -34,7 +34,6 @@ public class ContractInvocation implements Payload {
   @Getter
   protected final Aer amount;
 
-  // TODO: replace with Fee.DELEGATE
   @Getter
   protected final boolean delegateFee;
 

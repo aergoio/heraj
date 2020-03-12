@@ -18,8 +18,8 @@ import hera.api.model.UpdateName;
 import hera.api.transaction.dsl.UpdateNameTransaction;
 import hera.api.transaction.dsl.UpdateNameTransaction.WithChainIdHash;
 import hera.api.transaction.dsl.UpdateNameTransaction.WithChainIdHashAndSender;
-import hera.api.transaction.dsl.UpdateNameTransaction.WithChainIdHashAndSenderAndNonce;
-import hera.api.transaction.dsl.UpdateNameTransaction.WithChainIdHashAndSenderAndNonceAndName;
+import hera.api.transaction.dsl.UpdateNameTransaction.WithChainIdHashAndSenderAndName;
+import hera.api.transaction.dsl.UpdateNameTransaction.WithChainIdHashAndSenderAndNameAndNextOwner;
 import hera.api.transaction.dsl.UpdateNameTransaction.WithReady;
 
 @ApiAudience.Public
@@ -28,8 +28,8 @@ public class UpdateNameTransactionBuilder implements
     UpdateNameTransaction.WithNothing,
     UpdateNameTransaction.WithChainIdHash,
     UpdateNameTransaction.WithChainIdHashAndSender,
-    UpdateNameTransaction.WithChainIdHashAndSenderAndNonce,
-    UpdateNameTransaction.WithChainIdHashAndSenderAndNonceAndName,
+    UpdateNameTransaction.WithChainIdHashAndSenderAndName,
+    UpdateNameTransaction.WithChainIdHashAndSenderAndNameAndNextOwner,
     UpdateNameTransaction.WithReady {
 
   protected final PlainTransactionBuilder delegate = new PlainTransactionBuilder();
@@ -59,28 +59,28 @@ public class UpdateNameTransactionBuilder implements
   }
 
   @Override
-  public WithChainIdHashAndSenderAndNonce nonce(long nonce) {
-    this.delegate.nonce(nonce);
-    return this;
-  }
-
-  @Override
-  public WithChainIdHashAndSenderAndNonceAndName name(final String name) {
+  public WithChainIdHashAndSenderAndName name(final String name) {
     assertNotNull(name);
     return name(new Name(name));
   }
 
   @Override
-  public WithChainIdHashAndSenderAndNonceAndName name(final Name name) {
+  public WithChainIdHashAndSenderAndName name(final Name name) {
     assertNotNull(name);
     this.name = name;
     return this;
   }
 
   @Override
-  public WithReady nextOwner(final Identity nextOwner) {
+  public WithChainIdHashAndSenderAndNameAndNextOwner nextOwner(final Identity nextOwner) {
     assertNotNull(nextOwner);
     this.nextOwner = nextOwner;
+    return this;
+  }
+
+  @Override
+  public WithReady nonce(long nonce) {
+    this.delegate.nonce(nonce);
     return this;
   }
 
