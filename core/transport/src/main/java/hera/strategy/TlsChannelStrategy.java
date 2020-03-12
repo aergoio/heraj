@@ -4,9 +4,11 @@
 
 package hera.strategy;
 
+import static hera.util.IoUtils.from;
 import static hera.util.ValidationUtils.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.model.BytesValue;
 import hera.exception.RpcException;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
@@ -18,47 +20,56 @@ import javax.net.ssl.SSLSocketFactory;
 import lombok.ToString;
 import org.slf4j.Logger;
 
-@ToString(exclude = "logger")
+@ToString
 public class TlsChannelStrategy implements SecurityConfigurationStrategy {
 
-  protected final Logger logger = getLogger(getClass());
+  @ToString.Exclude
+  protected final transient Logger logger = getLogger(getClass());
 
-  protected final String serverCommonName;
+  @ToString.Include
+  protected final String serverName;
 
-  protected final InputStream serverCertInputStream;
+  @ToString.Exclude
+  protected final BytesValue serverCert;
 
-  protected final InputStream clientCertInputStream;
+  @ToString.Exclude
+  protected final BytesValue clientCert;
 
-  protected final InputStream clientKeyInputStream;
+  @ToString.Exclude
+  protected final BytesValue clientKey;
 
   /**
    * TlsChannelStrategy constructor.
    *
-   * @param serverCommonName a server common name (CN)
-   * @param serverCertInputStream a server certification input stream
-   * @param clientCertInputStream a client certification input stream
-   * @param clientKeyInputStream a server key input stream
+   * @param serverName a server common name (CN)
+   * @param serverCert a server certification input stream
+   * @param clientCert a client certification input stream
+   * @param clientKey a server key input stream
    */
-  public TlsChannelStrategy(final String serverCommonName, final InputStream serverCertInputStream,
-      final InputStream clientCertInputStream, final InputStream clientKeyInputStream) {
-    assertNotNull(serverCommonName, "Server common name must not null");
-    assertNotNull(serverCertInputStream, "Server cert input stream must not null");
-    assertNotNull(clientCertInputStream, "Client cert input stream must not null");
-    assertNotNull(clientKeyInputStream, "Client key input stream must not null");
-    this.serverCommonName = serverCommonName;
-    this.serverCertInputStream = serverCertInputStream;
-    this.clientCertInputStream = clientCertInputStream;
-    this.clientKeyInputStream = clientKeyInputStream;
+  public TlsChannelStrategy(final String serverName, final InputStream serverCert,
+      final InputStream clientCert, final InputStream clientKey) {
+    assertNotNull(serverName, "Server common name must not null");
+    assertNotNull(serverCert, "Server cert input stream must not null");
+    assertNotNull(clientCert, "Client cert input stream must not null");
+    assertNotNull(clientKey, "Client key input stream must not null");
+    try {
+      this.serverName = serverName;
+      this.serverCert = BytesValue.of(from(serverCert));
+      this.clientCert = BytesValue.of(from(clientCert));
+      this.clientKey = BytesValue.of(from(clientKey));
+    } catch (Exception e) {
+      throw new RpcException(e);
+    }
   }
 
   @Override
   public void configure(final ManagedChannelBuilder<?> builder) {
-    logger.info("Configure channel with tls (server name: {})", serverCommonName);
+    logger.info("Configure channel with tls (server name: {})", serverName);
     try {
       if (builder instanceof NettyChannelBuilder) {
         final SslContext sslContext = GrpcSslContexts.forClient()
-            .trustManager(serverCertInputStream)
-            .keyManager(clientCertInputStream, clientKeyInputStream)
+            .trustManager(serverCert.getInputStream())
+            .keyManager(clientCert.getInputStream(), clientKey.getInputStream())
             .build();
         ((NettyChannelBuilder) builder).sslContext(sslContext);
       } else if (builder instanceof OkHttpChannelBuilder) {
@@ -68,7 +79,7 @@ public class TlsChannelStrategy implements SecurityConfigurationStrategy {
       } else {
         throw new RpcException("Unsupported channel builder type " + builder.getClass());
       }
-      builder.overrideAuthority(serverCommonName).useTransportSecurity();
+      builder.overrideAuthority(serverName).useTransportSecurity();
     } catch (final RpcException e) {
       throw e;
     } catch (final Exception e) {

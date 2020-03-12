@@ -25,7 +25,8 @@ public class TimeoutStrategyTest extends AbstractTestCase {
         return 0;
       }
     });
-    new TimeoutStrategy(1000L).apply(new Function0<Future<Integer>>() {
+    final TimeoutStrategy strategy = new TimeoutStrategy(1000L);
+    strategy.apply(new Function0<Future<Integer>>() {
 
       @Override
       public Future<Integer> apply() {
@@ -44,7 +45,8 @@ public class TimeoutStrategyTest extends AbstractTestCase {
       }
     });
     try {
-      new TimeoutStrategy(100L).apply(new Function0<Future<Integer>>() {
+      final TimeoutStrategy strategy = new TimeoutStrategy(100L);
+      strategy.apply(new Function0<Future<Integer>>() {
 
         @Override
         public Future<Integer> apply() {

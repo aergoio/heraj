@@ -20,10 +20,11 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.slf4j.Logger;
 
-@ToString(exclude = "logger")
+@ToString
 @EqualsAndHashCode(callSuper = false)
 public class TimeoutStrategy extends InvocationStrategy {
 
+  @ToString.Exclude
   protected final Logger logger = getLogger(getClass());
 
   protected final Time timeout;

@@ -9,9 +9,11 @@ import hera.annotation.ApiStability;
 import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 @ApiAudience.Private
 @ApiStability.Unstable
+@ToString
 @EqualsAndHashCode
 public class Time {
 
@@ -29,7 +31,7 @@ public class Time {
    * Create a time object with a {@code value} and {@code unit}.
    *
    * @param value time value
-   * @param unit time unit
+   * @param unit  time unit
    * @return created {@link Time}
    */
   public static Time of(final long value, final TimeUnit unit) {
@@ -73,11 +75,6 @@ public class Time {
 
   public long toDays() {
     return unit.toDays(value);
-  }
-
-  @Override
-  public String toString() {
-    return String.format("%d %s", value, unit.toString());
   }
 
 }

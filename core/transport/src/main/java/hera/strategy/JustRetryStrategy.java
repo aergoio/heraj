@@ -18,14 +18,14 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.slf4j.Logger;
 
-@ToString(exclude = "logger")
+@ToString
 @EqualsAndHashCode(callSuper = false)
 public class JustRetryStrategy extends FailoverStrategy {
 
-  public static final int DEFAULT_RETRY_COUNT = 1;
   public static final long DEFAULT_RETRY_INTERVAL = 500L; // milliseconds
 
-  protected final Logger logger = getLogger(getClass());
+  @ToString.Exclude
+  protected final transient Logger logger = getLogger(getClass());
 
   protected final int count;
 
@@ -38,7 +38,7 @@ public class JustRetryStrategy extends FailoverStrategy {
   /**
    * {@code RetryStrategy} constructor.
    *
-   * @param count retry count. must be positive
+   * @param count    retry count. must be positive
    * @param interval retry interval
    */
   public JustRetryStrategy(final int count, final Time interval) {

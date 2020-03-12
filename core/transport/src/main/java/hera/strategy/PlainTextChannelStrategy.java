@@ -13,7 +13,8 @@ import org.slf4j.Logger;
 @ToString
 public class PlainTextChannelStrategy implements SecurityConfigurationStrategy {
 
-  protected final Logger logger = getLogger(getClass());
+  @ToString.Exclude
+  protected final transient Logger logger = getLogger(getClass());
 
   @Override
   public void configure(final ManagedChannelBuilder<?> builder) {

@@ -16,11 +16,13 @@ import lombok.Setter;
 import lombok.ToString;
 import org.slf4j.Logger;
 
-@ToString(exclude = {"logger", "context"})
+@ToString
 public class OkHttpConnectStrategy implements ConnectStrategy<OkHttpChannelBuilder> {
 
-  protected final Logger logger = getLogger(getClass());
+  @ToString.Exclude
+  protected final transient Logger logger = getLogger(getClass());
 
+  @ToString.Exclude
   @Setter
   protected Context context;
 
