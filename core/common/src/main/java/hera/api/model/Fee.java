@@ -4,6 +4,9 @@
 
 package hera.api.model;
 
+import static hera.util.ValidationUtils.assertNotNull;
+import static hera.util.ValidationUtils.assertTrue;
+
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import lombok.EqualsAndHashCode;
@@ -16,13 +19,24 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class Fee {
 
-  public static final Fee EMPTY = new Fee(null, 0L);
+  public static final Fee EMPTY = new Fee(Aer.EMPTY, 0L);
 
-  public static final Fee ZERO = new Fee(null, 0L);
+  /**
+   * Same as {@link Fee#INFINITY}.
+   */
+  public static final Fee ZERO = new Fee(Aer.EMPTY, 0L);
 
+  /**
+   * Indicates transaction can use fee as much as possible until aergo of fee providers is wasted.
+   */
+  public static final Fee INFINITY = ZERO;
+
+  /**
+   * Use explicit fee amount.
+   */
   @Getter
   @Deprecated
-  protected static final Fee defaultFee = new Fee(null, 10000L);
+  protected static final Fee defaultFee = new Fee(Aer.EMPTY, 10000L);
 
   /**
    * Build {@code Fee} object.
@@ -60,8 +74,10 @@ public class Fee {
    */
   @ApiAudience.Private
   public Fee(final Aer price, final long limit) {
-    this.price = null != price ? price : Aer.EMPTY;
-    this.limit = limit >= 0 ? limit : 0L;
+    assertNotNull(price, "Price must not null");
+    assertTrue(limit >= 0, "Limit must be >= 0");
+    this.price = price;
+    this.limit = limit;
   }
 
 }

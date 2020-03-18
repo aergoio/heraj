@@ -47,7 +47,7 @@ public class Aer implements Comparable<Aer> {
    * Create {@code Aer} instance.
    *
    * @param amount an amount in string
-   * @param unit an unit {@link Unit}
+   * @param unit   an unit {@link Unit}
    * @return an aergo instance
    */
   public static Aer of(final String amount, final Unit unit) {
@@ -69,8 +69,9 @@ public class Aer implements Comparable<Aer> {
    */
   @RequiredArgsConstructor
   public enum Unit {
-    AER("Aer", new BigDecimal("1"), new BigDecimal("1")), GAER("Gaer", new BigDecimal("1.E-9"),
-        new BigDecimal("1.E9")), AERGO("Aergo", new BigDecimal("1.E-18"), new BigDecimal("1.E18"));
+    AER("Aer", new BigDecimal("1"), new BigDecimal("1")),
+    GAER("Gaer", new BigDecimal("1.E-9"), new BigDecimal("1.E9")),
+    AERGO("Aergo", new BigDecimal("1.E-18"), new BigDecimal("1.E18"));
 
     @Getter
     protected final String name;
@@ -98,7 +99,7 @@ public class Aer implements Comparable<Aer> {
    * Create {@code Aer} instance.
    *
    * @param amount an amount in string
-   * @param unit an unit {@link Unit}
+   * @param unit   an unit {@link Unit}
    */
   public Aer(final String amount, final Unit unit) {
     assertNotNull(amount, "Amount must not null");

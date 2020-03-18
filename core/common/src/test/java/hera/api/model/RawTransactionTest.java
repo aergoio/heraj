@@ -196,5 +196,5 @@ public class RawTransactionTest extends AbstractTestCase {
         .build();
     assertNotNull(voteTransaction);
   }
- 
+
 }
