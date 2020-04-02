@@ -44,4 +44,21 @@ public class NewContextConcTest extends AbstractTestCase {
     assertEquals(expected, actual);
   }
 
+  @Test
+  public void testGetScope() {
+    final String expected = randomUUID().toString();
+    final NewContext context = new NewContextConc(root, expected);
+    final String actual = context.getScope();
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testWithScope() {
+    final NewContext context = new NewContextConc(root, randomUUID().toString());
+    final String expected = randomUUID().toString();
+    final NewContext newContext = context.withScope(expected);
+    final String actual = newContext.getScope();
+    assertEquals(expected, actual);
+  }
+
 }

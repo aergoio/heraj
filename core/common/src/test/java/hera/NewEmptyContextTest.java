@@ -49,4 +49,21 @@ public class NewEmptyContextTest extends AbstractTestCase {
     assertEquals(expected, actual);
   }
 
+  @Test
+  public void testGetScope() {
+    final NewContext instance = NewEmptyContext.getInstance();
+    final String expected = "<<empty>>";
+    final String actual = instance.getScope();
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testWithScope() {
+    final NewContext instance = NewEmptyContext.getInstance();
+    final String expected = randomUUID().toString();
+    final NewContext newContext = instance.withScope(expected);
+    final String actual = newContext.getScope();
+    assertEquals(expected, actual);
+  }
+
 }

@@ -36,4 +36,19 @@ public interface NewContext {
    */
   <T> T getOrDefault(Key<T> key, T defaultValue);
 
+  /**
+   * Get a context with a new scope.
+   *
+   * @param scope a scope
+   * @return a context with scope
+   */
+  NewContext withScope(String scope);
+
+  /**
+   * Get current scope.
+   *
+   * @return a scope
+   */
+  String getScope();
+
 }

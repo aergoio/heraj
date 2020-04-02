@@ -28,6 +28,8 @@ public class NewEmptyContext implements NewContext {
   @ToString.Exclude
   protected final transient Logger logger = getLogger(getClass());
 
+  protected final String scope = "<<empty>>";
+
   NewEmptyContext() {
   }
 
@@ -35,7 +37,7 @@ public class NewEmptyContext implements NewContext {
   public <T> NewContext withValue(final Key<T> key, final T value) {
     assertNotNull(key, "Key must not null");
     assertNotNull(value, "Value must not null");
-    logger.trace("New context with current: {}, key: {}, value: {}", this, key, value);
+    logger.trace("New context with parent: {}, key: {}, value: {}", this, key, value);
     return new NewContextConc(this, key, value);
   }
 
@@ -49,6 +51,18 @@ public class NewEmptyContext implements NewContext {
   public <T> T getOrDefault(final Key<T> key, final T defaultValue) {
     assertNotNull(key, "Key must not null");
     return defaultValue;
+  }
+
+  @Override
+  public NewContext withScope(final String scope) {
+    assertNotNull(scope, "Scope must not null");
+    logger.trace("New context with parent: {}, scope: {}", this, scope);
+    return new NewContextConc(this, scope);
+  }
+
+  @Override
+  public String getScope() {
+    return scope;
   }
 
 }
