@@ -65,7 +65,8 @@ public class NewContextConc implements NewContext {
   @Override
   public <T> T get(final Key<T> key) {
     assertNotNull(key, "Key must not null");
-    return (T) key2Value.get(key);
+    final T value = (T) key2Value.get(key);
+    return value;
   }
 
 

@@ -13,6 +13,7 @@ public class WriteSynchronizedContextStorage<ContextT extends NewContext> implem
     ContextStorage<ContextT> {
 
   protected final Object lock = new Object();
+
   protected ContextT current;
 
   @Override

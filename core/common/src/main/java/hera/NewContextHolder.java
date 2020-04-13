@@ -20,7 +20,7 @@ public class NewContextHolder {
    *
    * @return a current context
    */
-  public static NewContext get() {
+  public static NewContext current() {
     final NewContext context = cabinet.get();
     return null != context ? context : NewEmptyContext.getInstance();
   }
@@ -31,10 +31,21 @@ public class NewContextHolder {
    * @param context a context to attach
    * @return a previous context
    */
-  public static NewContext put(final NewContext context) {
+  public static NewContext attach(final NewContext context) {
     assertNotNull(context, "Context must not null");
-    final NewContext current = get();
+    final NewContext current = current();
     cabinet.set(context);
+    return current;
+  }
+
+  /**
+   * Remove current context.
+   *
+   * @return stored context
+   */
+  public static NewContext remove() {
+    final NewContext current = current();
+    cabinet.remove();
     return current;
   }
 

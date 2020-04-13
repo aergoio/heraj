@@ -4,6 +4,9 @@
 
 package hera.api.model.internal;
 
+import static hera.util.ValidationUtils.assertNotNull;
+import static hera.util.ValidationUtils.assertTrue;
+
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import java.util.concurrent.TimeUnit;
@@ -44,7 +47,9 @@ public class Time {
   @Getter
   protected final TimeUnit unit;
 
-  public Time(long value, TimeUnit unit) {
+  private Time(final long value, final TimeUnit unit) {
+    assertTrue(0 <= value, "Value must >= 0");
+    assertNotNull(unit, "Unit must not null");
     this.value = value < 0 ? 0 : value;
     this.unit = unit;
   }

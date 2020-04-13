@@ -21,7 +21,7 @@ public class NewContextHolderTest extends AbstractTestCase {
       @Override
       public void run() {
         final NewContext expected = NewEmptyContext.getInstance();
-        final NewContext actual = NewContextHolder.get();
+        final NewContext actual = NewContextHolder.current();
         assertTrue(expected == actual);
       }
     });
@@ -35,8 +35,8 @@ public class NewContextHolderTest extends AbstractTestCase {
         final Key<String> key = Key.of(randomUUID().toString(), String.class);
         final String value = randomUUID().toString();
         final NewContext expected = NewEmptyContext.getInstance().withValue(key, value);
-        NewContextHolder.put(expected);
-        final NewContext actual = NewContextHolder.get();
+        NewContextHolder.attach(expected);
+        final NewContext actual = NewContextHolder.current();
         assertEquals(expected, actual);
       }
     });
@@ -51,14 +51,14 @@ public class NewContextHolderTest extends AbstractTestCase {
         final Key<String> key = Key.of(randomUUID().toString(), String.class);
         final String value = randomUUID().toString();
         final NewContext context = NewEmptyContext.getInstance().withValue(key, value);
-        NewContextHolder.put(context);
+        NewContextHolder.attach(context);
 
         runOnOtherThread(new Runnable() {
           @Override
           public void run() {
             // then
             final NewContext expected = NewEmptyContext.getInstance();
-            final NewContext actual = NewContextHolder.get();
+            final NewContext actual = NewContextHolder.current();
             assertEquals(expected, actual);
           }
         });

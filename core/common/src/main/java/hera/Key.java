@@ -36,13 +36,7 @@ public class Key<ValueT> {
   @Getter
   protected final Class<ValueT> valueClass;
 
-  /**
-   * Key constructor.
-   *
-   * @param name       an name of key
-   * @param valueClass a class of value
-   */
-  public Key(final String name, final Class<ValueT> valueClass) {
+  private Key(final String name, final Class<ValueT> valueClass) {
     assertNotNull(name, "Name must not null");
     assertNotNull(valueClass, "Value class must not null");
     this.name = name;

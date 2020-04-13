@@ -2,6 +2,7 @@ package hera;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.api.function.Function1;
 
 @ApiAudience.Public
 @ApiStability.Unstable
