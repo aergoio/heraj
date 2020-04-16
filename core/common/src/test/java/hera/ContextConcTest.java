@@ -4,116 +4,61 @@
 
 package hera;
 
-import static hera.api.model.BytesValue.of;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.mock;
 
-import hera.api.model.ChainIdHash;
-import hera.strategy.FailoverStrategy;
-import hera.util.conf.InMemoryConfiguration;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.Test;
 
 public class ContextConcTest extends AbstractTestCase {
 
+  protected final Context root = EmptyContext.getInstance();
+
   @Test
-  public void testScope() {
-    final Object[] testParameters =
-        new Object[] {ContextProvider.defaultProvider.get(),
-            ContextProvider.defaultProvider.get().withScope("test")};
-
-    for (final Object testParameter : testParameters) {
-      final Context source = (Context) testParameter;
-      final String scope = randomUUID().toString();
-
-      final Context withScope = source.withScope(scope);
-      assertEquals(source.getScope(), ((ContextConc) withScope).getScopeParent().getScope());
-      assertEquals(scope, withScope.getScope());
-      assertEquals(source.getConfiguration(), withScope.getConfiguration());
-      assertEquals(source.getStrategies(), withScope.getStrategies());
-
-      final Context withoutScope = withScope.popScope();
-      if (source instanceof ContextConc) {
-        assertEquals(((ContextConc) source).getScopeParent().getScope(),
-            ((ContextConc) withoutScope).getScopeParent().getScope());
-      } else {
-        assertEquals(source, withoutScope);
-      }
-      assertEquals(source.getScope(), withoutScope.getScope());
-      assertEquals(source.getConfiguration(), withoutScope.getConfiguration());
-      assertEquals(source.getStrategies(), withoutScope.getStrategies());
-    }
+  public void testWithValue() {
+    final Key<String> parentKey = Key.of(randomUUID().toString(), String.class);
+    final String parentValue = randomUUID().toString();
+    final Context parent = new ContextConc(root, parentKey, parentValue);
+    final Key<String> childKey = Key.of(randomUUID().toString(), String.class);
+    final String childValue = randomUUID().toString();
+    final Context child = parent.withValue(childKey, childValue);
+    assertEquals(child.get(parentKey), parentValue);
+    assertEquals(child.get(childKey), childValue);
   }
 
   @Test
-  public void testChainIdHash() {
-    final Object[] testParameters =
-        new Object[] {ContextProvider.defaultProvider.get(),
-            ContextProvider.defaultProvider.get().withScope("test")};
-
-    for (final Object testParameter : testParameters) {
-      final Context origin = (Context) testParameter;
-
-      final ChainIdHash chainIdHash = new ChainIdHash(of(randomUUID().toString().getBytes()));
-      final Context withChainIdHash = origin.withChainIdHash(chainIdHash);
-      assertEquals(origin.getScope(), withChainIdHash.getScope());
-      assertEquals(origin.getConfiguration(), withChainIdHash.getConfiguration());
-      assertEquals(origin.getStrategies(), withChainIdHash.getStrategies());
-      assertEquals(chainIdHash, withChainIdHash.getChainIdHash());
-    }
+  public void testGet() {
+    final Key<String> key = Key.of(randomUUID().toString(), String.class);
+    final String expected = randomUUID().toString();
+    final Context context = new ContextConc(root, key, expected);
+    final String actual = context.get(key);
+    assertEquals(expected, actual);
   }
 
   @Test
-  public void testConfiguration() {
-    final Object[] testParameters =
-        new Object[] {ContextProvider.defaultProvider.get(),
-            ContextProvider.defaultProvider.get().withScope("test")};
-
-    for (final Object testParameter : testParameters) {
-      final Context origin = (Context) testParameter;
-      final String key = randomUUID().toString();
-      final String value = randomUUID().toString();
-
-      final Map<String, Object> map = new HashMap<String, Object>();
-      map.put(key, value);
-      final InMemoryConfiguration expected = new InMemoryConfiguration(true, map);
-
-      final Context withConfig = origin.withKeyValue(key, value);
-      assertEquals(origin.getScope(), withConfig.getScope());
-      assertEquals(expected, withConfig.getConfiguration());
-      assertEquals(origin.getStrategies(), withConfig.getStrategies());
-
-      final Context withoutConfig = withConfig.withoutKey(key);
-      assertEquals(origin.getScope(), withoutConfig.getScope());
-      assertEquals(origin.getConfiguration(), withoutConfig.getConfiguration());
-      assertEquals(origin.getStrategies(), withoutConfig.getStrategies());
-    }
+  public void testGetOrDefault() {
+    final Key<String> key = Key.of(randomUUID().toString(), String.class);
+    final Context context = new ContextConc(root, key, randomUUID().toString());
+    final Key<String> nokey = Key.of(randomUUID().toString(), String.class);
+    final String expected = randomUUID().toString();
+    final String actual = context.getOrDefault(nokey, expected);
+    assertEquals(expected, actual);
   }
 
   @Test
-  public void testStrategy() {
-    final Object[] testParameters =
-        new Object[] {ContextProvider.defaultProvider.get(),
-            ContextProvider.defaultProvider.get().withScope("test")};
+  public void testGetScope() {
+    final String expected = randomUUID().toString();
+    final Context context = new ContextConc(root, expected);
+    final String actual = context.getScope();
+    assertEquals(expected, actual);
+  }
 
-    for (final Object testParameter : testParameters) {
-      final Context origin = (Context) testParameter;
-      final FailoverStrategy strategy = mock(FailoverStrategy.class);
-
-      final Context withStrategy = origin.withStrategy(strategy);
-      assertEquals(origin.getScope(), withStrategy.getScope());
-      assertNotNull(withStrategy.getStrategy(FailoverStrategy.class));
-      assertEquals(origin.getConfiguration(), withStrategy.getConfiguration());
-
-      final Context withoutStrategy = withStrategy.withoutStrategy(strategy.getClass());
-      assertEquals(origin.getScope(), withoutStrategy.getScope());
-      assertNull(withoutStrategy.getStrategy(FailoverStrategy.class));
-      assertEquals(origin.getConfiguration(), withoutStrategy.getConfiguration());
-    }
+  @Test
+  public void testWithScope() {
+    final Context context = new ContextConc(root, randomUUID().toString());
+    final String expected = randomUUID().toString();
+    final Context newContext = context.withScope(expected);
+    final String actual = newContext.getScope();
+    assertEquals(expected, actual);
   }
 
 }

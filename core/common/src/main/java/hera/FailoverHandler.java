@@ -6,7 +6,6 @@ package hera;
 
 public interface FailoverHandler {
 
-  <T> void handle(Requester requester, Response<T> response,
-      FailoverHandlerChain failoverHandlerChain);
+  <T> void handle(Invocation<T> invocation, Response<T> response);
 
 }

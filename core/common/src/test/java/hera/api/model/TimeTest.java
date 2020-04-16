@@ -6,7 +6,6 @@ package hera.api.model;
 
 import static org.junit.Assert.assertEquals;
 
-import hera.api.model.internal.Time;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 

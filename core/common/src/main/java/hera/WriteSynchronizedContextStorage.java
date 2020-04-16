@@ -9,7 +9,7 @@ import hera.annotation.ApiStability;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public class WriteSynchronizedContextStorage<ContextT extends NewContext> implements
+public class WriteSynchronizedContextStorage<ContextT extends Context> implements
     ContextStorage<ContextT> {
 
   protected final Object lock = new Object();

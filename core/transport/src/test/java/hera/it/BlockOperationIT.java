@@ -89,7 +89,55 @@ public class BlockOperationIT extends AbstractIT {
       final long height = currentTimeMillis() % 2 == 0 ? Long.MAX_VALUE : -1;
       aergoClient.getBlockOperation().getBlockMetadata(height);
       fail();
-    } catch (AssertionError | Exception e) {
+    } catch (Exception e) {
+      // then
+    }
+  }
+
+  @Test
+  public void shouldFetchBlockByHash() {
+    // when
+    final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
+    final BlockHash hash = status.getBestBlockHash();
+
+    final Block block = aergoClient.getBlockOperation().getBlock(hash);
+
+    // when
+    assertEquals(hash, block.getHash());
+  }
+
+  @Test
+  public void shouldFetchBlockFailOnInvalidHash() {
+    try {
+      // when
+      final BlockHash hash = new BlockHash("8WTYmYgmEGH9UYRYPzGTowS5vhPLumGyb3Pq9UQ3zcRv");
+      aergoClient.getBlockOperation().getBlock(hash);
+      fail();
+    } catch (Exception e) {
+      // then
+    }
+  }
+
+  @Test
+  public void shouldFetchBlockByHeight() {
+    // when
+    final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
+    final BlockHash hash = status.getBestBlockHash();
+    final long height = status.getBestHeight();
+    final Block block = aergoClient.getBlockOperation().getBlock(height);
+
+    // when
+    assertEquals(hash, block.getHash());
+  }
+
+  @Test
+  public void shouldFetchBlockFailOnInvalidHeight() {
+    try {
+      // when
+      final long height = currentTimeMillis() % 2 == 0 ? Long.MAX_VALUE : -1;
+      aergoClient.getBlockOperation().getBlock(height);
+      fail();
+    } catch (Exception e) {
       // then
     }
   }
@@ -127,7 +175,7 @@ public class BlockOperationIT extends AbstractIT {
       final BlockHash hash = status.getBestBlockHash();
       aergoClient.getBlockOperation().listBlockMetadatas(hash, -1);
       fail();
-    } catch (AssertionError e) {
+    } catch (Exception e) {
       // then
     }
   }
@@ -152,7 +200,7 @@ public class BlockOperationIT extends AbstractIT {
       final long height = currentTimeMillis() % 2 == 0 ? Long.MAX_VALUE : -1;
       aergoClient.getBlockOperation().listBlockMetadatas(height, 10);
       fail();
-    } catch (AssertionError | Exception e) {
+    } catch (Exception e) {
       // then
     }
   }
@@ -165,7 +213,7 @@ public class BlockOperationIT extends AbstractIT {
       final long height = status.getBestHeight();
       aergoClient.getBlockOperation().listBlockMetadatas(height, -1);
       fail();
-    } catch (AssertionError e) {
+    } catch (Exception e) {
       // then
     }
   }
@@ -187,7 +235,7 @@ public class BlockOperationIT extends AbstractIT {
       // and when
       aergoClient.getBlockOperation().listBlockMetadatas(status.getBestBlockHash(), -1);
       fail();
-    } catch (AssertionError e) {
+    } catch (Exception e) {
       // then
     }
 
@@ -203,7 +251,7 @@ public class BlockOperationIT extends AbstractIT {
       // and when
       aergoClient.getBlockOperation().listBlockMetadatas(-1, 1);
       fail();
-    } catch (AssertionError e) {
+    } catch (Exception e) {
       // then
     }
 
@@ -211,7 +259,7 @@ public class BlockOperationIT extends AbstractIT {
       // and when
       aergoClient.getBlockOperation().listBlockMetadatas(status.getBestHeight(), -1);
       fail();
-    } catch (AssertionError e) {
+    } catch (Exception e) {
       // then
     }
   }
@@ -231,10 +279,12 @@ public class BlockOperationIT extends AbstractIT {
           }
 
           @Override
-          public void onError(Throwable t) {}
+          public void onError(Throwable t) {
+          }
 
           @Override
-          public void onCompleted() {}
+          public void onCompleted() {
+          }
         });
     for (int i = 0; i < count; ++i) {
       waitForNextBlockToGenerate();
@@ -261,10 +311,12 @@ public class BlockOperationIT extends AbstractIT {
           }
 
           @Override
-          public void onError(Throwable t) {}
+          public void onError(Throwable t) {
+          }
 
           @Override
-          public void onCompleted() {}
+          public void onCompleted() {
+          }
         });
     for (int i = 0; i < count; ++i) {
       waitForNextBlockToGenerate();

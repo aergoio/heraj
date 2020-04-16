@@ -17,9 +17,9 @@ import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
+import hera.api.model.ContractResult;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Event;
-import hera.client.internal.ContractResultImpl;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -66,7 +66,7 @@ public class TxReceiptConverterFactory {
           final ContractTxReceipt domainTxReceipt = ContractTxReceipt.newBuilder()
               .contractAddress(new ContractAddress(accountAddress.getBytesValue()))
               .status(rpcReceipt.getStatus())
-              .ret(new ContractResultImpl(BytesValue.of(rpcReceipt.getRet().getBytes())))
+              .ret(new ContractResult(BytesValue.of(rpcReceipt.getRet().getBytes())))
               .txHash(parseToTxHash(rpcReceipt.getTxHash()))
               .feeUsed(usedFee)
               .cumulativeFeeUsed(parseToAer(rpcReceipt.getCumulativeFeeUsed()))

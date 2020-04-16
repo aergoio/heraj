@@ -4,9 +4,9 @@
 
 package hera.strategy;
 
-import hera.ContextAware;
 import hera.Strategy;
+import hera.api.model.HostnameAndPort;
 
-public interface ConnectStrategy<ConnectionT> extends Strategy, ContextAware {
-  ConnectionT connect();
+public interface ConnectStrategy<ConnectionT> extends Strategy {
+  ConnectionT connect(HostnameAndPort hostnameAndPort);
 }

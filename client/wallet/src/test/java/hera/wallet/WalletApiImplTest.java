@@ -18,7 +18,7 @@ import hera.api.model.Authentication;
 import hera.api.model.BytesValue;
 import hera.api.model.ChainIdHash;
 import hera.api.model.RawTransaction;
-import hera.api.model.internal.Time;
+import hera.api.model.Time;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
@@ -33,7 +33,8 @@ import org.junit.Test;
 public class WalletApiImplTest extends AbstractTestCase {
 
   protected final Authentication valid =
-      Authentication.of(new KeyAlias(randomUUID().toString().replaceAll("-", "")), randomUUID().toString());
+      Authentication
+          .of(new KeyAlias(randomUUID().toString().replaceAll("-", "")), randomUUID().toString());
   protected final AergoKey storedKey = new AergoKeyGenerator().create();
 
   protected WalletApi supplyWalletApi() {

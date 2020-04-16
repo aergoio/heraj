@@ -4,61 +4,92 @@
 
 package hera.strategy;
 
+import static hera.util.ValidationUtils.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import hera.api.function.Function;
-import hera.api.function.Functions;
-import hera.api.model.internal.Time;
-import hera.client.internal.HerajFutures;
-import hera.exception.DecoratorChainException;
+import hera.Context;
+import hera.ContextHolder;
+import hera.Invocation;
+import hera.RequestMethod;
+import hera.api.model.Time;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.slf4j.Logger;
 
 @ToString
-@EqualsAndHashCode(callSuper = false)
-public class TimeoutStrategy extends InvocationStrategy {
+@RequiredArgsConstructor
+public class TimeoutStrategy implements InvocationStrategy {
 
   @ToString.Exclude
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   protected final Time timeout;
 
-  public TimeoutStrategy(final long timeout) {
-    this(timeout, TimeUnit.MILLISECONDS);
-  }
-
-  public TimeoutStrategy(final long timeout, final TimeUnit timeUnit) {
-    this.timeout = Time.of(timeout < 0 ? 0 : timeout, timeUnit);
-  }
-
-  @SuppressWarnings("unchecked")
   @Override
-  protected <R> R wrap(final Function<R> f, final List<Object> args) {
-    try {
-      final R shouldBeFuture = Functions.invoke(f, args);
-      if (!(shouldBeFuture instanceof Future)) {
-        // TODO: handle <R> if isn't future
-        throw new UnsupportedOperationException("Return type of function must be future");
-      }
+  public <T> Invocation<T> apply(final Invocation<T> invocation) {
+    assertNotNull(invocation, "Invocation must not null");
+    return new TimeoutInvocation<T>(timeout, invocation.getRequestMethod(),
+        invocation.getParameters());
+  }
 
-      final Future<?> future = (Future<?>) shouldBeFuture;
-      final Object ret = future.get(timeout.getValue(), timeout.getUnit());
-      return (R) HerajFutures.success(ret);
-    } catch (ExecutionException e) {
-      throw new DecoratorChainException(e.getCause());
-    } catch (InterruptedException | TimeoutException e) {
-      if (e instanceof TimeoutException) {
-        logger.info("Request timed out with timeout: {}", timeout);
+  @RequiredArgsConstructor
+  @ToString
+  @EqualsAndHashCode
+  private class TimeoutInvocation<T> implements Invocation<T> {
+
+    @Getter
+    protected final Time timeout;
+
+    @Getter
+    protected final RequestMethod<T> requestMethod;
+
+    @Getter
+    protected final List<Object> parameters;
+
+    @Override
+    public T invoke() throws Exception {
+      try {
+        final ExecutorService executorService = Executors.newSingleThreadExecutor();
+        final Context context = ContextHolder.current();
+        final Future<T> future = executorService.submit(new Callable<T>() {
+          @Override
+          public T call() throws Exception {
+            try {
+              // need to attach
+              ContextHolder.attach(context);
+              return requestMethod.invoke(parameters);
+            } finally {
+              ContextHolder.remove();
+            }
+          }
+        });
+        final T ret = future.get(timeout.getValue(), timeout.getUnit());
+        return ret;
+      } catch (Exception e) {
+        if (e instanceof TimeoutException) {
+          logger.debug("Request timed out within {}", timeout);
+          throw e;
+        } else if (e instanceof ExecutionException) {
+          throw (Exception) e.getCause();
+        } else {
+          throw e;
+        }
       }
-      throw new DecoratorChainException(e);
-    } catch (Exception e) {
-      throw new DecoratorChainException(e);
+    }
+
+    @Override
+    public Invocation<T> withParameters(final List<Object> parameters) {
+      assertNotNull(parameters, "Parameters must not null");
+      return new TimeoutInvocation<>(timeout, requestMethod, parameters);
     }
   }
 

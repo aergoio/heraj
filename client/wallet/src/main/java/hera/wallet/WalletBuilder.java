@@ -6,7 +6,7 @@ package hera.wallet;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.model.internal.Time;
+import hera.api.model.Time;
 import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
  * A legacy wallet api builder.
  *
  * @deprecated use {@link WalletApiFactory} instead.
- *
  */
 @ApiAudience.Public
 @ApiStability.Unstable
@@ -95,9 +94,9 @@ public class WalletBuilder implements ClientConfiguer<WalletBuilder> {
   /**
    * A nonce (or chain id hash) refresh count to handle invalid case. A minimum is 1.
    *
-   * @param count retry count. If it is less than 0, set as 1
+   * @param count    retry count. If it is less than 0, set as 1
    * @param interval interval value. If it's less than 0, set as 1
-   * @param unit interval unit
+   * @param unit     interval unit
    * @return an instance of this
    */
   public WalletBuilder withRefresh(final int count, final long interval, final TimeUnit unit) {

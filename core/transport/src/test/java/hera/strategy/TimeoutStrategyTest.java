@@ -7,55 +7,50 @@ package hera.strategy;
 import static org.junit.Assert.fail;
 
 import hera.AbstractTestCase;
-import hera.api.function.Function0;
+import hera.Invocation;
+import hera.RequestMethod;
+import hera.api.model.Time;
 import hera.util.ThreadUtils;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.junit.Test;
 
 public class TimeoutStrategyTest extends AbstractTestCase {
 
   @Test
-  public void testTimeout() throws InterruptedException, ExecutionException {
-    final Future<Integer> future = service.submit(new Callable<Integer>() {
-      @Override
-      public Integer call() {
-        ThreadUtils.trySleep(100L);
-        return 0;
-      }
-    });
-    final TimeoutStrategy strategy = new TimeoutStrategy(1000L);
-    strategy.apply(new Function0<Future<Integer>>() {
+  public void testTimeout() throws Exception {
+    final TimeoutStrategy strategy = new TimeoutStrategy(Time.of(1000L, TimeUnit.MILLISECONDS));
+    final RequestMethod<Integer> method = new RequestMethod<Integer>() {
 
       @Override
-      public Future<Integer> apply() {
-        return future;
+      protected Integer runInternal(List<Object> parameters) throws Exception {
+        return 0;
       }
-    }).apply().get();
+    };
+    final Invocation<Integer> invocation = strategy.apply(method.toInvocation());
+    invocation.invoke();
   }
 
   @Test
-  public void shouldThrowException() throws InterruptedException, ExecutionException {
-    final Future<Integer> future = service.submit(new Callable<Integer>() {
-      @Override
-      public Integer call() {
-        ThreadUtils.trySleep(1000L);
-        return 0;
-      }
-    });
+  public void shouldThrowException() {
     try {
-      final TimeoutStrategy strategy = new TimeoutStrategy(100L);
-      strategy.apply(new Function0<Future<Integer>>() {
+      final TimeoutStrategy strategy = new TimeoutStrategy(Time.of(100L, TimeUnit.MILLISECONDS));
+      final RequestMethod<Integer> method = new RequestMethod<Integer>() {
 
         @Override
-        public Future<Integer> apply() {
-          return future;
+        protected Integer runInternal(List<Object> parameters) throws Exception {
+          ThreadUtils.trySleep(1000L);
+          return 0;
         }
-      }).apply().get();
+      };
+      final Invocation<Integer> invocation = strategy.apply(method.toInvocation());
+      invocation.invoke();
       fail();
-    } catch (Exception e) {
+    } catch (TimeoutException e) {
       // good we expected this
+    } catch (Exception e) {
+      fail(e.getMessage());
     }
   }
 

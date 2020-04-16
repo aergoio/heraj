@@ -4,33 +4,37 @@
 
 package hera.client;
 
+import static hera.client.ClientContextKeys.GRPC_CONNECTION_ENDPOINT;
+import static hera.client.ClientContextKeys.GRPC_CONNECTION_NEGOTIATION;
+import static hera.client.ClientContextKeys.GRPC_CONNECTION_STRATEGY;
+import static hera.client.ClientContextKeys.GRPC_FAILOVER_HANDLER_CHAIN;
+import static hera.client.ClientContextKeys.GRPC_REQUEST_TIMEOUT;
+import static hera.client.ClientContextKeys.GRPC_STUB_PROVIDER;
+import static hera.client.ClientContextKeys.GRPC_VALUE_CHAIN_ID_HASH_HOLDER;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.Context;
-import hera.ContextProvider;
-import hera.DefaultConstants;
-import hera.Strategy;
+import hera.ContextStorage;
+import hera.EmptyContext;
+import hera.Key;
+import hera.WriteSynchronizedContextStorage;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.model.internal.Time;
+import hera.api.model.HostnameAndPort;
+import hera.api.model.Time;
 import hera.exception.RpcException;
-import hera.strategy.ConnectStrategy;
-import hera.strategy.JustRetryStrategy;
 import hera.strategy.NettyConnectStrategy;
 import hera.strategy.OkHttpConnectStrategy;
 import hera.strategy.PlainTextChannelStrategy;
-import hera.strategy.SecurityConfigurationStrategy;
 import hera.strategy.TimeoutStrategy;
 import hera.strategy.TlsChannelStrategy;
-import hera.util.Configuration;
-import hera.util.conf.InMemoryConfiguration;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 
@@ -38,72 +42,56 @@ import org.slf4j.Logger;
 @ApiStability.Unstable
 public class AergoClientBuilder implements ClientConfiguer<AergoClientBuilder> {
 
-  public static final String SCOPE = "global";
+  protected final transient Logger logger = getLogger(getClass());
 
-  protected static final Map<Class<?>, Strategy> necessaryStrategyMap;
+  protected Map<Object, Object> key2Value = new HashMap<>();
+  protected List<ComparableFailoverHandler> failoverHandlers = new ArrayList<>();
 
-  static {
-    final Map<Class<?>, Strategy> map = new HashMap<Class<?>, Strategy>();
-    map.put(ConnectStrategy.class, new NettyConnectStrategy());
-    map.put(TimeoutStrategy.class, new TimeoutStrategy(DefaultConstants.DEFAULT_TIMEOUT));
-    map.put(SecurityConfigurationStrategy.class, new PlainTextChannelStrategy());
-    necessaryStrategyMap = Collections.unmodifiableMap(map);
+  {
+    // add built in ones
+    key2Value.put(GRPC_VALUE_CHAIN_ID_HASH_HOLDER, new ChainIdHashHolder());
+
+    // add built in ones
+    failoverHandlers.add(new InvalidChainIdHashHandler());
   }
-
-  protected final Logger logger = getLogger(getClass());
-
-  protected final Map<Class<?>, Strategy> strategyMap = new LinkedHashMap<Class<?>, Strategy>();
-
-  protected Configuration configuration = new InMemoryConfiguration();
 
   @Override
   public AergoClientBuilder addConfiguration(final String key, final String value) {
-    configuration.define(key, value);
+    this.key2Value.put(Key.of(key, String.class), value);
     return this;
   }
 
   @Override
   public AergoClientBuilder withEndpoint(final String endpoint) {
-    configuration.define("endpoint", endpoint);
+    this.key2Value.put(GRPC_CONNECTION_ENDPOINT, HostnameAndPort.of(endpoint));
     return this;
   }
 
   @Override
   public AergoClientBuilder withNonBlockingConnect() {
-    strategyMap.put(ConnectStrategy.class, new NettyConnectStrategy());
+    this.key2Value.put(GRPC_CONNECTION_STRATEGY, new NettyConnectStrategy());
     return this;
   }
 
   @Override
   public AergoClientBuilder withBlockingConnect() {
-    strategyMap.put(ConnectStrategy.class, new OkHttpConnectStrategy());
-    return this;
-  }
-
-  @Override
-  public AergoClientBuilder withTimeout(final long timeout, final TimeUnit unit) {
-    strategyMap.put(TimeoutStrategy.class, new TimeoutStrategy(timeout, unit));
-    return this;
-  }
-
-  @Override
-  public AergoClientBuilder withRetry(final int count, final long interval, final TimeUnit unit) {
-    strategyMap.put(JustRetryStrategy.class, new JustRetryStrategy(count, Time.of(interval, unit)));
+    this.key2Value.put(GRPC_CONNECTION_STRATEGY, new OkHttpConnectStrategy());
     return this;
   }
 
   @Override
   public AergoClientBuilder withPlainText() {
-    strategyMap.put(SecurityConfigurationStrategy.class, new PlainTextChannelStrategy());
+    this.key2Value.put(GRPC_CONNECTION_NEGOTIATION, new PlainTextChannelStrategy());
     return this;
   }
 
   @Override
-  public AergoClientBuilder withTransportSecurity(final String serverCommonName,
-      final String serverCertPath, final String clientCertPath, final String clientKeyPath) {
+  public AergoClientBuilder withTransportSecurity(String serverCommonName, String serverCertPath,
+      String clientCertPath, String clientKeyPath) {
     try {
-      return withTransportSecurity(serverCommonName, new FileInputStream(serverCertPath),
+      withTransportSecurity(serverCommonName, new FileInputStream(serverCertPath),
           new FileInputStream(clientCertPath), new FileInputStream(clientKeyPath));
+      return this;
     } catch (Exception e) {
       throw new RpcException(e);
     }
@@ -111,10 +99,23 @@ public class AergoClientBuilder implements ClientConfiguer<AergoClientBuilder> {
 
   @Override
   public AergoClientBuilder withTransportSecurity(final String serverCommonName,
-      final InputStream serverCertInputStream,
-      final InputStream clientCertInputStream, final InputStream clientKeyInputStream) {
-    strategyMap.put(SecurityConfigurationStrategy.class, new TlsChannelStrategy(serverCommonName,
-        serverCertInputStream, clientCertInputStream, clientKeyInputStream));
+      final InputStream serverCertInputStream, final InputStream clientCertInputStream,
+      final InputStream clientKeyInputStream) {
+    this.key2Value.put(GRPC_CONNECTION_NEGOTIATION,
+        new TlsChannelStrategy(serverCommonName, serverCertInputStream, clientCertInputStream,
+            clientKeyInputStream));
+    return this;
+  }
+
+  @Override
+  public AergoClientBuilder withTimeout(final long timeout, final TimeUnit unit) {
+    this.key2Value.put(GRPC_REQUEST_TIMEOUT, new TimeoutStrategy(Time.of(timeout, unit)));
+    return this;
+  }
+
+  @Override
+  public AergoClientBuilder withRetry(int count, long interval, TimeUnit unit) {
+    this.failoverHandlers.add(new JustRetryFailoverHandler(count, Time.of(interval, unit)));
     return this;
   }
 
@@ -125,21 +126,31 @@ public class AergoClientBuilder implements ClientConfiguer<AergoClientBuilder> {
    * @return {@link AergoClient}
    */
   public AergoClient build() {
-    final AergoClient client = new AergoClient(buildContext());
-    return client;
+    final ContextStorage<Context> contextStorage = new WriteSynchronizedContextStorage<>();
+    final ConnectionManager connectionManager = new GrpcConnectionManager();
+    final Context initContext = initContext()
+        // Is it nice to use stub provider?
+        .withValue(GRPC_STUB_PROVIDER, new StubProvider(connectionManager));
+    logger.trace("Init context: {}", initContext);
+    contextStorage.put(initContext);
+
+    return new AergoClientImpl(contextStorage, connectionManager);
   }
 
-  protected Context buildContext() {
-    for (final Class<?> necessaryClass : necessaryStrategyMap.keySet()) {
-      if (!strategyMap.containsKey(necessaryClass)) {
-        strategyMap.put(necessaryClass, necessaryStrategyMap.get(necessaryClass));
-      }
+  @SuppressWarnings("unchecked")
+  protected Context initContext() {
+    Context context = EmptyContext.getInstance();
+
+    // general context values
+    for (final Entry<Object, Object> entry : key2Value.entrySet()) {
+      final Key<Object> key = (Key<Object>) entry.getKey();
+      context = context.withValue(key, entry.getValue());
     }
-    final Context context = ContextProvider.defaultProvider.get()
-        .withStrategies(new HashSet<Strategy>(this.strategyMap.values()))
-        .withConfiguration(configuration)
-        .withScope(AergoClientBuilder.SCOPE);
-    logger.info("Global context: {}", context);
+
+    // failover handlers have priority
+    final FailoverHandlerChain failoverHandlerChain = new FailoverHandlerChain(failoverHandlers);
+    context = context.withValue(GRPC_FAILOVER_HANDLER_CHAIN, failoverHandlerChain);
+
     return context;
   }
 

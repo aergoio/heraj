@@ -20,8 +20,7 @@ public class RpcCommitExceptionTest extends AbstractTestCase {
   public void testCreate() {
     final List<RpcCommitException> commitExceptions = new ArrayList<>();
     for (final Rpc.CommitStatus rpcCommitStatus : Rpc.CommitStatus.values()) {
-      commitExceptions
-          .add(new RpcCommitException(new InternalCommitException(rpcCommitStatus, "")));
+      commitExceptions.add(new RpcCommitException(rpcCommitStatus, ""));
     }
     Iterator<RpcCommitException> it = commitExceptions.iterator();
     for (final RpcCommitException.CommitStatus expected : RpcCommitException.CommitStatus

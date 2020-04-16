@@ -10,7 +10,6 @@ import static java.util.Collections.unmodifiableMap;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.model.internal.Time;
 import hera.util.StringUtils;
 import java.util.Map;
 import lombok.Builder;

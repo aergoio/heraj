@@ -17,20 +17,7 @@ public class RpcExceptionConverter implements ExceptionConverter<RpcException> {
   @Override
   public RpcException convert(final Throwable rawError) {
     logger.trace("Handle exception {}", rawError.toString());
-
-    Throwable target = rawError;
-    if (target instanceof DecoratorChainException) {
-      target = target.getCause();
-    }
-
-    // handle commit exception specially
-    // NOTE: a custom exception throws by callback must handle like this
-    // FIXME: no way to improve it?
-    if (target instanceof InternalCommitException) {
-      final InternalCommitException internalCommitException = (InternalCommitException) target;
-      return new RpcCommitException(internalCommitException);
-    }
-
+    final Throwable target = rawError;
     if (target instanceof RpcException) {
       return (RpcException) target;
     } else if (target instanceof StatusRuntimeException) {

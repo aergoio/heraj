@@ -27,7 +27,7 @@ public class Key<ValueT> {
    * @return a key instance
    */
   public static <T> Key<T> of(final String name, final Class<T> valueClass) {
-    return new Key(name, valueClass);
+    return new Key<>(name, valueClass);
   }
 
   @Getter

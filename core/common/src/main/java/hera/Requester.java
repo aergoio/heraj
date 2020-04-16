@@ -1,11 +1,11 @@
-package hera;
+/*
+ * @copyright defined in LICENSE.txt
+ */
 
-import java.util.List;
+package hera;
 
 public interface Requester {
 
   <T> T request(Invocation<T> invocation) throws Exception;
-
-  <T> Invocation<T> getInvocation();
 
 }

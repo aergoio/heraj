@@ -10,6 +10,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.api.model.Time;
 import hera.util.ThreadUtils;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -32,6 +33,7 @@ public class TryCountAndInterval {
    * @return an TryCountAndInterval instance
    */
   public static TryCountAndInterval of(final int tryCount, final Time interval) {
+    // TODO: remove dependency cycle caused by Time class
     return new TryCountAndInterval(tryCount, interval);
   }
 

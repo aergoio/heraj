@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import hera.api.model.ModuleStatus;
 import hera.api.model.NodeStatus;
-import hera.api.model.internal.Time;
+import hera.api.model.Time;
 import hera.util.ParsingUtils;
 import java.io.IOException;
 import java.text.ParseException;

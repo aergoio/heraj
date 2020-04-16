@@ -17,7 +17,8 @@
   <logger name="types" level="warn"/>
 
   <logger name="hera" level="debug"/>
-  <logger name="hera.strategy" level="trace"/>
-  <logger name="hera.transport" level="info"/>
+  <logger name="hera.client" level="debug"/>
+  <logger name="hera.strategy" level="debug"/>
+  <logger name="hera.transport" level="debug"/>
   <logger name="hera.util" level="error"/>
 </configuration>

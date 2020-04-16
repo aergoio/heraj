@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface Invocation<T> {
 
-  RequestMethod getRequestMethod();
+  RequestMethod<T> getRequestMethod();
 
   List<Object> getParameters();
 

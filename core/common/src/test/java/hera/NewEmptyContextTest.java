@@ -16,25 +16,25 @@ public class NewEmptyContextTest extends AbstractTestCase {
 
   @Test
   public void testNewInstance() {
-    final NewContext instance1 = NewEmptyContext.getInstance();
-    final NewContext instance2 = NewEmptyContext.getInstance();
+    final Context instance1 = EmptyContext.getInstance();
+    final Context instance2 = EmptyContext.getInstance();
     assertNotNull(instance1);
     assertTrue(instance1 == instance2);
   }
 
   @Test
   public void testWithValue() {
-    final NewContext instance = NewEmptyContext.getInstance();
+    final Context instance = EmptyContext.getInstance();
     final Key<String> key = Key.of(randomUUID().toString(), String.class);
     final String expected = randomUUID().toString();
-    final NewContext newContext = instance.withValue(key, expected);
-    final String actual = newContext.get(key);
+    final Context context = instance.withValue(key, expected);
+    final String actual = context.get(key);
     assertEquals(expected, actual);
   }
 
   @Test
   public void testGet() {
-    final NewContext instance = NewEmptyContext.getInstance();
+    final Context instance = EmptyContext.getInstance();
     final Key<String> key = Key.of(randomUUID().toString(), String.class);
     final String value = instance.get(key);
     assertNull(value);
@@ -42,7 +42,7 @@ public class NewEmptyContextTest extends AbstractTestCase {
 
   @Test
   public void testGetOrDefault() {
-    final NewContext instance = NewEmptyContext.getInstance();
+    final Context instance = EmptyContext.getInstance();
     final Key<String> key = Key.of(randomUUID().toString(), String.class);
     final String expected = randomUUID().toString();
     final String actual = instance.getOrDefault(key, expected);
@@ -51,7 +51,7 @@ public class NewEmptyContextTest extends AbstractTestCase {
 
   @Test
   public void testGetScope() {
-    final NewContext instance = NewEmptyContext.getInstance();
+    final Context instance = EmptyContext.getInstance();
     final String expected = "<<empty>>";
     final String actual = instance.getScope();
     assertEquals(expected, actual);
@@ -59,10 +59,10 @@ public class NewEmptyContextTest extends AbstractTestCase {
 
   @Test
   public void testWithScope() {
-    final NewContext instance = NewEmptyContext.getInstance();
+    final Context instance = EmptyContext.getInstance();
     final String expected = randomUUID().toString();
-    final NewContext newContext = instance.withScope(expected);
-    final String actual = newContext.getScope();
+    final Context context = instance.withScope(expected);
+    final String actual = context.getScope();
     assertEquals(expected, actual);
   }
 

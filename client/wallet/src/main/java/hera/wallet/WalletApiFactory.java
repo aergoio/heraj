@@ -9,7 +9,7 @@ import static hera.util.ValidationUtils.assertTrue;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.model.internal.Time;
+import hera.api.model.Time;
 import hera.api.model.internal.TryCountAndInterval;
 
 @ApiAudience.Public
@@ -25,7 +25,6 @@ public class WalletApiFactory {
    * {@value #DEFAULT_RETRY_INTERVAL} milliseconds.
    *
    * @param keyStore an keystore instance
-   *
    * @return a wallet instance
    */
   public WalletApi create(final hera.keystore.KeyStore keyStore) {
@@ -35,8 +34,8 @@ public class WalletApiFactory {
   /**
    * Create a wallet instance.
    *
-   * @param keyStore an keystore instance
-   * @param retryCount a retry count on nonce failure
+   * @param keyStore      an keystore instance
+   * @param retryCount    a retry count on nonce failure
    * @param retryInterval a retry interval in milliseconds on nonce failure
    * @return a wallet instance
    */

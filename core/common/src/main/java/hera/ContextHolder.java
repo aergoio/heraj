@@ -4,39 +4,53 @@
 
 package hera;
 
-import static java.lang.System.identityHashCode;
+import static hera.util.ValidationUtils.assertNotNull;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import java.util.HashMap;
-import java.util.Map;
 
 @ApiAudience.Public
 @ApiStability.Unstable
 public class ContextHolder {
 
-  protected static final ThreadLocal<Map<Integer, Context>> threadLocal =
-      new ThreadLocal<Map<Integer, Context>>() {
-        @Override
-        public Map<Integer, Context> initialValue() {
-          return new HashMap<Integer, Context>();
-        }
-      };
+  protected static final ThreadLocal<Context> cabinet = new ThreadLocal<>();
 
-  public static void set(final Object keyObject, final Context context) {
-    threadLocal.get().put(identityHashCode(keyObject), context);
+  /**
+   * Get current context.
+   *
+   * @return a current context
+   */
+  public static Context current() {
+    final Context context = cabinet.get();
+    return null != context ? context : EmptyContext.getInstance();
   }
 
   /**
-   * Get context of {@code keyObject}.
+   * Attach context to current thread scope.
    *
-   * @param keyObject a context key
-   * @return a context
+   * @param context a context to attach
+   * @return a previous context
    */
-  public static Context get(final Object keyObject) {
-    final int key = identityHashCode(keyObject);
-    final Context context = threadLocal.get().get(key);
-    return null != context ? context : EmptyContext.getInstance();
+  public static Context attach(final Context context) {
+    assertNotNull(context, "Context must not null");
+    final Context current = current();
+    cabinet.set(context);
+    return current;
+  }
+
+  /**
+   * Remove current context.
+   *
+   * @return stored context
+   */
+  public static Context remove() {
+    final Context current = current();
+    cabinet.remove();
+    return current;
+  }
+
+  private ContextHolder() {
+
   }
 
 }

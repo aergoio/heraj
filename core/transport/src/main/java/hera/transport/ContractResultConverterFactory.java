@@ -9,7 +9,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.function.Function1;
 import hera.api.model.ContractResult;
-import hera.client.internal.ContractResultImpl;
 import org.slf4j.Logger;
 import types.Rpc;
 
@@ -32,8 +31,8 @@ public class ContractResultConverterFactory {
         @Override
         public ContractResult apply(final Rpc.SingleBytes rpcContractResult) {
           logger.trace("Rpc contract result to convert: {}", rpcContractResult);
-          final ContractResultImpl domainContractResult =
-              new ContractResultImpl(of(rpcContractResult.getValue().toByteArray()));
+          final ContractResult domainContractResult = new ContractResult(
+              of(rpcContractResult.getValue().toByteArray()));
           logger.trace("Domain contract result converted: {}", domainContractResult);
           return domainContractResult;
         }
