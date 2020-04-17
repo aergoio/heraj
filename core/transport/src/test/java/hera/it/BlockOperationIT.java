@@ -30,7 +30,6 @@ import org.junit.Test;
 public class BlockOperationIT extends AbstractIT {
 
   protected static AergoClient aergoClient;
-  protected final TestClientFactory clientFactory = new TestClientFactory();
   protected final NonceProvider nonceProvider = new SimpleNonceProvider();
   protected final AergoKey rich = AergoKey
       .of("47aK1s1QDCrEvuDRxjx3xznB5naz6juRnVGFjH4hyZRkYDxN6yTHfBQyNQcEEzv42SjQdLx8D", "1234");

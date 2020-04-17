@@ -28,8 +28,8 @@ abstract class ClientContextKeys {
 
   /* request */
 
-  public static final Key<StubProvider> GRPC_STUB_PROVIDER = Key
-      .of("GRPC_STUB_PROVIDER", StubProvider.class);
+  public static final Key<ClientProvider> GRPC_CLIENT_PROVIDER = Key
+      .of("GRPC_CLIENT_PROVIDER", ClientProvider.class);
 
   public static final Key<InvocationStrategy> GRPC_REQUEST_TIMEOUT = Key
       .of("GRPC_REQUEST_TIMEOUT", InvocationStrategy.class);

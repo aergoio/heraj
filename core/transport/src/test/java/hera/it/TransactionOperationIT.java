@@ -33,7 +33,6 @@ public class TransactionOperationIT extends AbstractIT {
   protected static AergoClient aergoClient;
 
   protected final Fee fee = Fee.ZERO;
-  protected final TestClientFactory clientFactory = new TestClientFactory();
   protected final NonceProvider nonceProvider = new SimpleNonceProvider();
   protected final AergoKey rich = AergoKey
       .of("47GZYhinmvoUFtDvD8toTtceCbtb8Ry7jq5dTLzqqk6FHY11DW7BzdqDfsU3mjJpyTpiBQgmT", "1234");
@@ -52,7 +51,6 @@ public class TransactionOperationIT extends AbstractIT {
 
   @Before
   public void setUp() {
-    aergoClient = clientFactory.get();
     key = new AergoKeyGenerator().create();
 
     final AccountState state = aergoClient.getAccountOperation().getState(rich.getAddress());

@@ -35,7 +35,6 @@ public class AccountOperationIT extends AbstractIT {
 
   protected static AergoClient aergoClient;
 
-  protected final TestClientFactory clientFactory = new TestClientFactory();
   protected final NonceProvider nonceProvider = new SimpleNonceProvider();
   protected final AergoKey rich = AergoKey
       .of("47qD7YfyaZADwyShHWAWegf1ZqYKPT2aSJ9mDFr3qUzBENTLSNZQ7YxC9xqzDdmUTrpEPQUAS", "1234");
@@ -67,7 +66,7 @@ public class AccountOperationIT extends AbstractIT {
         .nonce(nonceProvider.incrementAndGetNonce(rich.getPrincipal()))
         .build();
     final Transaction signed = rich.sign(rawTransaction);
-    logger.debug("Fill tx: ", signed);
+    logger.debug("Fill tx: {}", signed);
     aergoClient.getTransactionOperation().commit(signed);
     waitForNextBlockToGenerate();
   }

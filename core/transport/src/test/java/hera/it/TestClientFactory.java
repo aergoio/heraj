@@ -32,7 +32,6 @@ public class TestClientFactory {
       }
       this.properties = properties;
     } catch (Exception e) {
-      e.printStackTrace();
       throw new IllegalStateException(e);
     }
   }

@@ -57,7 +57,6 @@ public class ContractOperationIT extends AbstractIT {
 
   protected final Map<String, String> payloadMap = new HashMap<>();
   protected final Fee fee = Fee.ZERO;
-  protected final TestClientFactory clientFactory = new TestClientFactory();
   protected final NonceProvider nonceProvider = new SimpleNonceProvider();
   protected final AergoKey rich = AergoKey
       .of("47sbh237YhZePchrES9q5Gkooczkz7NLZL6ARvhUEiG25MPmm9c3Moth2FRFYhzKmzFR1nqUw", "1234");

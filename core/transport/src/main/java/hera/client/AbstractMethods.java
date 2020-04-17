@@ -4,7 +4,7 @@
 
 package hera.client;
 
-import static hera.client.ClientContextKeys.GRPC_STUB_PROVIDER;
+import static hera.client.ClientContextKeys.GRPC_CLIENT_PROVIDER;
 import static hera.client.ClientContextKeys.GRPC_VALUE_CHAIN_ID_HASH_HOLDER;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -21,18 +21,16 @@ abstract class AbstractMethods {
 
   protected AergoRPCServiceBlockingStub getBlockingStub() {
     final Context current = ContextHolder.current();
-    final StubProvider stubProvider = current.get(GRPC_STUB_PROVIDER);
-    logger.trace("StubProvider: {}", stubProvider);
-    final AergoRPCServiceBlockingStub blockingStub = stubProvider.getBlockingStub();
-    return blockingStub;
+    final ClientProvider<GrpcClient> clientProvider = current.get(GRPC_CLIENT_PROVIDER);
+    logger.trace("ClientProvider: {}", clientProvider);
+    return clientProvider.get().getBlockingStub();
   }
 
   protected AergoRPCServiceStub getStreamStub() {
     final Context current = ContextHolder.current();
-    final StubProvider stubProvider = current.get(GRPC_STUB_PROVIDER);
-    logger.trace("StubProvider: {}", stubProvider);
-    final AergoRPCServiceStub streamStub = stubProvider.getStreamStub();
-    return streamStub;
+    final ClientProvider<GrpcClient> clientProvider = current.get(GRPC_CLIENT_PROVIDER);
+    logger.trace("ClientProvider: {}", clientProvider);
+    return clientProvider.get().getStreamStub();
   }
 
   protected ChainIdHash getChainIdHash() {

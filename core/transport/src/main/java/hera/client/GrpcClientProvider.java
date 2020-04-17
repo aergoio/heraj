@@ -17,7 +17,6 @@ import hera.strategy.ChannelConfigurationStrategy;
 import hera.strategy.ConnectStrategy;
 import hera.strategy.NettyConnectStrategy;
 import hera.strategy.PlainTextChannelStrategy;
-import io.grpc.Channel;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.ArrayList;
@@ -25,27 +24,32 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 
-class GrpcConnectionManager implements ConnectionManager {
-
-  protected final Object lock = new Object();
+class GrpcClientProvider implements ClientProvider<GrpcClient> {
 
   protected final transient Logger logger = getLogger(getClass());
 
+  protected final Object lock = new Object();
   protected volatile ManagedChannel channel;
+  protected volatile GrpcClient grpcClient;
+
+  GrpcClientProvider() {
+
+  }
 
   @Override
-  public Channel getConnection() {
-    if (null == channel) {
+  public GrpcClient get() {
+    if (null == grpcClient) {
       synchronized (lock) {
-        if (null == channel) {
+        if (null == grpcClient) {
           final Context current = ContextHolder.current();
           final ManagedChannelBuilder<?> raw = getChannelBuilder(current);
           final ManagedChannelBuilder<?> configured = configure(raw, current);
           channel = configured.build();
+          grpcClient = new GrpcClient(channel);
         }
       }
     }
-    return channel;
+    return grpcClient;
   }
 
   protected ManagedChannelBuilder<?> getChannelBuilder(final Context context) {
@@ -79,6 +83,11 @@ class GrpcConnectionManager implements ConnectionManager {
       logger.debug("Fail to close grpc client by {}", e.toString());
       throw new RpcException(e);
     }
+  }
+
+  @Override
+  public String toString() {
+    return String.format("GrpcClientProvider(channel=%s)", channel);
   }
 
 }

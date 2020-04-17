@@ -17,7 +17,6 @@ import hera.api.model.Authentication;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Identity;
-import hera.api.model.Payload;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.transaction.NonceProvider;

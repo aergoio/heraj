@@ -4,12 +4,12 @@
 
 package hera.client;
 
+import static hera.client.ClientContextKeys.GRPC_CLIENT_PROVIDER;
 import static hera.client.ClientContextKeys.GRPC_CONNECTION_ENDPOINT;
 import static hera.client.ClientContextKeys.GRPC_CONNECTION_NEGOTIATION;
 import static hera.client.ClientContextKeys.GRPC_CONNECTION_STRATEGY;
 import static hera.client.ClientContextKeys.GRPC_FAILOVER_HANDLER_CHAIN;
 import static hera.client.ClientContextKeys.GRPC_REQUEST_TIMEOUT;
-import static hera.client.ClientContextKeys.GRPC_STUB_PROVIDER;
 import static hera.client.ClientContextKeys.GRPC_VALUE_CHAIN_ID_HASH_HOLDER;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -127,14 +127,11 @@ public class AergoClientBuilder implements ClientConfiguer<AergoClientBuilder> {
    */
   public AergoClient build() {
     final ContextStorage<Context> contextStorage = new WriteSynchronizedContextStorage<>();
-    final ConnectionManager connectionManager = new GrpcConnectionManager();
-    final Context initContext = initContext()
-        // Is it nice to use stub provider?
-        .withValue(GRPC_STUB_PROVIDER, new StubProvider(connectionManager));
+    final Context initContext = initContext();
     logger.trace("Init context: {}", initContext);
     contextStorage.put(initContext);
 
-    return new AergoClientImpl(contextStorage, connectionManager);
+    return new AergoClientImpl(contextStorage);
   }
 
   @SuppressWarnings("unchecked")
@@ -150,6 +147,10 @@ public class AergoClientBuilder implements ClientConfiguer<AergoClientBuilder> {
     // failover handlers have priority
     final FailoverHandlerChain failoverHandlerChain = new FailoverHandlerChain(failoverHandlers);
     context = context.withValue(GRPC_FAILOVER_HANDLER_CHAIN, failoverHandlerChain);
+
+    // init client provider
+    final ClientProvider<GrpcClient> clientProvider = new GrpcClientProvider();
+    context = context.withValue(GRPC_CLIENT_PROVIDER, clientProvider);
 
     return context;
   }

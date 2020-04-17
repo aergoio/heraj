@@ -4,6 +4,7 @@
 
 package hera.client;
 
+import static hera.client.ClientContextKeys.GRPC_CLIENT_PROVIDER;
 import static hera.client.ClientContextKeys.GRPC_VALUE_CHAIN_ID_HASH_HOLDER;
 import static hera.util.ValidationUtils.assertNotNull;
 
@@ -24,8 +25,6 @@ import lombok.RequiredArgsConstructor;
 class AergoClientImpl implements AergoClient {
 
   protected final ContextStorage<Context> contextStorage;
-
-  protected final ConnectionManager connectionManager;
 
   @Getter(lazy = true)
   private final AccountOperation accountOperation = new AccountTemplate(contextStorage);
@@ -63,7 +62,9 @@ class AergoClientImpl implements AergoClient {
   @Override
   public void close() {
     try {
-      connectionManager.close();
+      final Context context = contextStorage.get();
+      final ClientProvider<?> clientProvider = context.get(GRPC_CLIENT_PROVIDER);
+      clientProvider.close();
     } catch (RpcException e) {
       throw e;
     } catch (Exception e) {
