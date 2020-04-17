@@ -21,7 +21,6 @@ import hera.api.transaction.dsl.CreateNameTransaction.WithChainIdHashAndSender;
 import hera.api.transaction.dsl.CreateNameTransaction.WithChainIdHashAndSenderAndName;
 import hera.api.transaction.dsl.CreateNameTransaction.WithReady;
 
-
 @ApiAudience.Public
 @ApiStability.Unstable
 public class CreateNameTransactionBuilder implements

@@ -4,8 +4,12 @@
 
 package hera;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import java.util.List;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public interface Invocation<T> {
 
   RequestMethod<T> getRequestMethod();

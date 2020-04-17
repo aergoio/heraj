@@ -13,7 +13,7 @@ import hera.custom.AdaptorManager;
 import java.util.List;
 import org.slf4j.Logger;
 
-@ApiAudience.Public
+@ApiAudience.Private
 @ApiStability.Unstable
 public class AbstractAergoApi implements AergoApi, Adaptor {
 

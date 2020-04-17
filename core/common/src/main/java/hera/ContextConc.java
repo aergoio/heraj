@@ -8,19 +8,15 @@ import static hera.util.ValidationUtils.assertNotNull;
 import static java.util.Collections.unmodifiableMap;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import hera.annotation.ApiAudience;
-import hera.annotation.ApiStability;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.slf4j.Logger;
 
-@ApiAudience.Private
-@ApiStability.Unstable
 @ToString
 @EqualsAndHashCode
-public class ContextConc implements Context {
+class ContextConc implements Context {
 
   protected static final Map<Key<?>, Object> EMPTY_KEY_VALUE_MAP = unmodifiableMap(
       new HashMap<Key<?>, Object>());

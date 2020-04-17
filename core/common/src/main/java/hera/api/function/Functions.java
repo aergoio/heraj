@@ -6,9 +6,13 @@ package hera.api.function;
 
 import static hera.util.ValidationUtils.assertNotNull;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.exception.HerajException;
 import java.util.List;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public final class Functions {
 
   protected static final Class<?>[] functions = {
@@ -23,9 +27,8 @@ public final class Functions {
   /**
    * Invoke target {@code f} with {@code args} and return result.
    *
-   * @param <R> an invocation return type
-   *
-   * @param f a function to invoke
+   * @param <R>  an invocation return type
+   * @param f    a function to invoke
    * @param args arguments to pass
    * @return invocation result
    */
@@ -36,9 +39,8 @@ public final class Functions {
   /**
    * Make invocation with {@code f} and {@code args}.
    *
-   * @param <R> an invocation return type
-   *
-   * @param f a function to invoke
+   * @param <R>  an invocation return type
+   * @param f    a function to invoke
    * @param args arguments to pass
    * @return invocation object
    */
@@ -88,11 +90,9 @@ public final class Functions {
   /**
    * Identify a function by name.
    *
-   * @param <R> a function return type
-   *
-   * @param f a function to identify
+   * @param <R>      a function return type
+   * @param f        a function to identify
    * @param identity an identity
-   *
    * @return a function with identity
    */
   public static <R> Function0<R> identify(final Function0<R> f, final String identity) {
@@ -102,12 +102,10 @@ public final class Functions {
   /**
    * Identify a function by name.
    *
-   * @param <T> a function argument type
-   * @param <R> a function return type
-   *
-   * @param f a function to identify
+   * @param <T>      a function argument type
+   * @param <R>      a function return type
+   * @param f        a function to identify
    * @param identity an identity
-   *
    * @return a function with identity
    */
   public static <T, R> Function1<T, R> identify(final Function1<T, R> f,
@@ -118,13 +116,11 @@ public final class Functions {
   /**
    * Identify a function by name.
    *
-   * @param <T1> a function 1st argument type
-   * @param <T2> a function 2nd argument type
-   * @param <R> a function return type
-   *
-   * @param f a function to identify
+   * @param <T1>     a function 1st argument type
+   * @param <T2>     a function 2nd argument type
+   * @param <R>      a function return type
+   * @param f        a function to identify
    * @param identity an identity
-   *
    * @return a function with identity
    */
   public static <T1, T2, R> Function2<T1, T2, R> identify(final Function2<T1, T2, R> f,
@@ -135,14 +131,12 @@ public final class Functions {
   /**
    * Identify a function by name.
    *
-   * @param <T1> a function 1st argument type
-   * @param <T2> a function 2nd argument type
-   * @param <T3> a function 3rd argument type
-   * @param <R> a function return type
-   *
-   * @param f a function to identify
+   * @param <T1>     a function 1st argument type
+   * @param <T2>     a function 2nd argument type
+   * @param <T3>     a function 3rd argument type
+   * @param <R>      a function return type
+   * @param f        a function to identify
    * @param identity an identity
-   *
    * @return a function with identity
    */
   public static <T1, T2, T3, R> Function3<T1, T2, T3, R> identify(final Function3<T1, T2, T3, R> f,
@@ -153,15 +147,13 @@ public final class Functions {
   /**
    * Identify a function by name.
    *
-   * @param <T1> a function 1st argument type
-   * @param <T2> a function 2nd argument type
-   * @param <T3> a function 3rd argument type
-   * @param <T4> a function 4th argument type
-   * @param <R> a function return type
-   *
-   * @param f a function to identify
+   * @param <T1>     a function 1st argument type
+   * @param <T2>     a function 2nd argument type
+   * @param <T3>     a function 3rd argument type
+   * @param <T4>     a function 4th argument type
+   * @param <R>      a function return type
+   * @param f        a function to identify
    * @param identity an identity
-   *
    * @return a function with identity
    */
   public static <T1, T2, T3, T4, R> Function4<T1, T2, T3, T4, R> identify(
@@ -172,16 +164,14 @@ public final class Functions {
   /**
    * Identify a function by name.
    *
-   * @param <T1> a function 1st argument type
-   * @param <T2> a function 2nd argument type
-   * @param <T3> a function 3rd argument type
-   * @param <T4> a function 4th argument type
-   * @param <T5> a function 5th argument type
-   * @param <R> a function return type
-   *
-   * @param f a function to identify
+   * @param <T1>     a function 1st argument type
+   * @param <T2>     a function 2nd argument type
+   * @param <T3>     a function 3rd argument type
+   * @param <T4>     a function 4th argument type
+   * @param <T5>     a function 5th argument type
+   * @param <R>      a function return type
+   * @param f        a function to identify
    * @param identity an identity
-   *
    * @return a function with identity
    */
   public static <T1, T2, T3, T4, T5, R> Function5<T1, T2, T3, T4, T5, R> identify(
@@ -193,15 +183,12 @@ public final class Functions {
    * Returns a composed function that first applies {@code first} function to its input, and then
    * applies the {@code second} function to the result.
    *
-   * @param <R> the output type of {@code first} and the input type of {@code second}
-   * @param <V> the type of output of the {@code second} function
-   *
-   * @param first the function to invoke first
+   * @param <R>    the output type of {@code first} and the input type of {@code second}
+   * @param <V>    the type of output of the {@code second} function
+   * @param first  the function to invoke first
    * @param second the function to invoke second
-   *
    * @return a composed function that first applies {@code first} function and then applies the
-   *         {@code second} function
-   *
+   * {@code second} function
    * @throws NullPointerException if before or after is null
    */
   public static <R, V> Function0<V> compose(final Function0<R> first,
@@ -224,16 +211,13 @@ public final class Functions {
    * Returns a composed function that first applies {@code first} function to its input, and then
    * applies the {@code second} function to the result.
    *
-   * @param <T> the input type of {@code first}
-   * @param <R> the output type of {@code first} and the input type of {@code second}
-   * @param <V> the type of output of the {@code second} function
-   *
-   * @param first the function to invoke first
+   * @param <T>    the input type of {@code first}
+   * @param <R>    the output type of {@code first} and the input type of {@code second}
+   * @param <V>    the type of output of the {@code second} function
+   * @param first  the function to invoke first
    * @param second the function to invoke second
-   *
    * @return a composed function that first applies {@code first} function and then applies the
-   *         {@code second} function
-   *
+   * {@code second} function
    * @throws NullPointerException if before or after is null
    */
   public static <T, R, V> Function1<T, V> compose(final Function1<? super T, ? extends R> first,
@@ -256,17 +240,14 @@ public final class Functions {
    * Returns a composed function that first applies {@code first} function to its input, and then
    * applies the {@code second} function to the result.
    *
-   * @param <T1> the 1st input type of {@code first}
-   * @param <T2> the 2nd input type of {@code first}
-   * @param <R> the output type of {@code first} and the input type of {@code second}
-   * @param <V> the type of output of the {@code second} function
-   *
-   * @param first the function to invoke first
+   * @param <T1>   the 1st input type of {@code first}
+   * @param <T2>   the 2nd input type of {@code first}
+   * @param <R>    the output type of {@code first} and the input type of {@code second}
+   * @param <V>    the type of output of the {@code second} function
+   * @param first  the function to invoke first
    * @param second the function to invoke second
-   *
    * @return a composed function that first applies {@code first} function and then applies the
-   *         {@code second} function
-   *
+   * {@code second} function
    * @throws NullPointerException if before or after is null
    */
   public static <T1, T2, R, V> Function2<T1, T2, V> compose(
@@ -290,18 +271,15 @@ public final class Functions {
    * Returns a composed function that first applies {@code first} function to its input, and then
    * applies the {@code second} function to the result.
    *
-   * @param <T1> the 1st input type of {@code first}
-   * @param <T2> the 2nd input type of {@code first}
-   * @param <T3> the 3rd input type of {@code first}
-   * @param <R> the output type of {@code first} and the input type of {@code second}
-   * @param <V> the type of output of the {@code second} function
-   *
-   * @param first the function to invoke first
+   * @param <T1>   the 1st input type of {@code first}
+   * @param <T2>   the 2nd input type of {@code first}
+   * @param <T3>   the 3rd input type of {@code first}
+   * @param <R>    the output type of {@code first} and the input type of {@code second}
+   * @param <V>    the type of output of the {@code second} function
+   * @param first  the function to invoke first
    * @param second the function to invoke second
-   *
    * @return a composed function that first applies {@code first} function and then applies the
-   *         {@code second} function
-   *
+   * {@code second} function
    * @throws NullPointerException if before or after is null
    */
   public static <T1, T2, T3, R, V> Function3<T1, T2, T3, V> compose(
@@ -325,19 +303,16 @@ public final class Functions {
    * Returns a composed function that first applies {@code first} function to its input, and then
    * applies the {@code second} function to the result.
    *
-   * @param <T1> the 1st input type of {@code first}
-   * @param <T2> the 2nd input type of {@code first}
-   * @param <T3> the 3rd input type of {@code first}
-   * @param <T4> the 3rd input type of {@code first}
-   * @param <R> the output type of {@code first} and the input type of {@code second}
-   * @param <V> the type of output of the {@code second} function
-   *
-   * @param first the function to invoke first
+   * @param <T1>   the 1st input type of {@code first}
+   * @param <T2>   the 2nd input type of {@code first}
+   * @param <T3>   the 3rd input type of {@code first}
+   * @param <T4>   the 3rd input type of {@code first}
+   * @param <R>    the output type of {@code first} and the input type of {@code second}
+   * @param <V>    the type of output of the {@code second} function
+   * @param first  the function to invoke first
    * @param second the function to invoke second
-   *
    * @return a composed function that first applies {@code first} function and then applies the
-   *         {@code second} function
-   *
+   * {@code second} function
    * @throws NullPointerException if before or after is null
    */
   public static <T1, T2, T3, T4, R, V> Function4<T1, T2, T3, T4, V> compose(
@@ -361,25 +336,22 @@ public final class Functions {
    * Returns a composed function that first applies {@code first} function to its input, and then
    * applies the {@code second} function to the result.
    *
-   * @param <T1> the 1st input type of {@code first}
-   * @param <T2> the 2nd input type of {@code first}
-   * @param <T3> the 3rd input type of {@code first}
-   * @param <T4> the 3rd input type of {@code first}
-   * @param <T5> the 4th input type of {@code first}
-   * @param <R> the output type of {@code first} and the input type of {@code second}
-   * @param <V> the type of output of the {@code second} function
-   *
-   * @param first the function to invoke first
+   * @param <T1>   the 1st input type of {@code first}
+   * @param <T2>   the 2nd input type of {@code first}
+   * @param <T3>   the 3rd input type of {@code first}
+   * @param <T4>   the 3rd input type of {@code first}
+   * @param <T5>   the 4th input type of {@code first}
+   * @param <R>    the output type of {@code first} and the input type of {@code second}
+   * @param <V>    the type of output of the {@code second} function
+   * @param first  the function to invoke first
    * @param second the function to invoke second
-   *
    * @return a composed function that first applies {@code first} function and then applies the
-   *         {@code second} function
-   *
+   * {@code second} function
    * @throws NullPointerException if before or after is null
    */
   public static <T1, T2, T3, T4, T5, R, V> Function5<T1, T2, T3, T4, T5, V> compose(
       final Function5<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? extends R>
-      first, final Function1<? super R, ? extends V> second) {
+          first, final Function1<? super R, ? extends V> second) {
     if (null == first) {
       throw new NullPointerException();
     }

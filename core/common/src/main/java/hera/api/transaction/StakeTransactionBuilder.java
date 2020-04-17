@@ -4,6 +4,8 @@
 
 package hera.api.transaction;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.ChainIdHash;
@@ -18,6 +20,8 @@ import hera.api.transaction.dsl.StakeTransaction.WithChainIdHashAndSender;
 import hera.api.transaction.dsl.StakeTransaction.WithChainIdHashAndSenderAndAmount;
 import hera.api.transaction.dsl.StakeTransaction.WithReady;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public class StakeTransactionBuilder implements
     StakeTransaction.WithNothing,
     StakeTransaction.WithChainIdHash,

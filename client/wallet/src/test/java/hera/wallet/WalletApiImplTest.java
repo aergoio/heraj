@@ -19,7 +19,6 @@ import hera.api.model.BytesValue;
 import hera.api.model.ChainIdHash;
 import hera.api.model.RawTransaction;
 import hera.api.model.Time;
-import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.exception.WalletException;
@@ -28,6 +27,7 @@ import hera.key.AergoKeyGenerator;
 import hera.keystore.InMemoryKeyStore;
 import hera.keystore.KeyStore;
 import hera.model.KeyAlias;
+import hera.model.TryCountAndInterval;
 import org.junit.Test;
 
 public class WalletApiImplTest extends AbstractTestCase {
@@ -40,7 +40,7 @@ public class WalletApiImplTest extends AbstractTestCase {
   protected WalletApi supplyWalletApi() {
     final KeyStore keyStore = new InMemoryKeyStore();
     keyStore.save(valid, storedKey);
-    final TryCountAndInterval tryCountAndInterval = new TryCountAndInterval(3, Time.of(1000L));
+    final TryCountAndInterval tryCountAndInterval = TryCountAndInterval.of(3, Time.of(1000L));
     return new WalletApiImpl(keyStore, tryCountAndInterval);
   }
 

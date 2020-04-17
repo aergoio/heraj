@@ -9,61 +9,115 @@ import static java.util.Collections.emptyList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.exception.HerajException;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-@ApiAudience.Public
+@ApiAudience.Private
 @ApiStability.Unstable
 public abstract class RequestMethod<T> {
 
-  public String getName() {
-    throw new UnsupportedOperationException("Name isn't defined");
-  }
+  /**
+   * Get name of method.
+   *
+   * @return an name
+   */
+  public abstract String getName();
 
+  /**
+   * Invoke current method.
+   *
+   * @return a return value
+   * @throws Exception on invocation failure
+   */
   public T invoke() throws Exception {
     return invoke(emptyList());
   }
 
+  /**
+   * Invoke current method with {@code parameters}.
+   *
+   * @param parameters parameters used in invocation
+   * @return a return value
+   * @throws Exception on invocation failure
+   */
   public T invoke(final List<Object> parameters) throws Exception {
     validate(parameters);
     return runInternal(parameters);
   }
 
+  /**
+   * Validte parameters. Default behavior does nothing. Override it to add validation logic.
+   *
+   * @param parameters parameters used in invocation
+   */
   protected void validate(final List<Object> parameters) {
     // default : do nothing
   }
 
+  /**
+   * Check if {@code parameters} at {@code index} is {@code clazz} type.
+   *
+   * @param parameters parameters used in invocation
+   * @param index      an index
+   * @param clazz      a class to check
+   * @throws IllegalArgumentException if type not matches
+   */
   protected void validateType(final List<Object> parameters, final int index,
       final Class<?> clazz) {
     if (parameters.size() <= index) {
-      throw new HerajException(
+      throw new IllegalArgumentException(
           String.format("No parameter at index %d (expected: %s)%n", index, clazz));
     }
 
     final Object parameter = parameters.get(index);
     if (!clazz.isInstance(parameter)) {
-      throw new HerajException(String
+      throw new IllegalArgumentException(String
           .format("Parameter at index %d is not %s (expected: %s)%n", index, clazz,
               parameter.getClass()));
     }
   }
 
+  /**
+   * Check it condition is true.
+   *
+   * @param condition a condition
+   * @param message   a message on failure
+   * @throws IllegalArgumentException if condition is false
+   */
   protected void validateValue(final boolean condition, final String message) {
     if (!condition) {
-      throw new HerajException(message);
+      throw new IllegalArgumentException(message);
     }
   }
 
+  /**
+   * Request method implementation.
+   *
+   * @param parameters parameters used in invocation
+   * @return a return value of invocation
+   * @throws Exception on invocation failure
+   */
   protected abstract T runInternal(final List<Object> parameters) throws Exception;
 
+  /**
+   * Convert to invocation.
+   *
+   * @return an invocation
+   */
   public Invocation<T> toInvocation() {
     return toInvocation(emptyList());
   }
 
+  /**
+   * Convert to invocation with {@code parameters}.
+   *
+   * @param parameters parameters used in invocation
+   * @return an invocation
+   */
   public Invocation<T> toInvocation(final List<Object> parameters) {
     assertNotNull(parameters);
     return new PlainInvocation<>(this, parameters);
@@ -90,7 +144,7 @@ public abstract class RequestMethod<T> {
     return getName().hashCode();
   }
 
-  @RequiredArgsConstructor
+  @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
   @ToString
   @EqualsAndHashCode
   private static class PlainInvocation<T> implements Invocation<T> {

@@ -46,8 +46,6 @@ public class AergoKeyStore implements KeyStore {
       + KEYSTORE_POSTFIX; // address__${postfix}
   protected static final Pattern STORE_REGEX = Pattern.compile("[a-zA-Z0-9]+__keystore\\.txt$");
 
-  protected static final String KEYSTORE_DELIM_PATTERN = "[\\r\\n\\s]+";
-
   protected final transient Logger logger = getLogger(getClass());
 
   protected final Object lock = new Object();

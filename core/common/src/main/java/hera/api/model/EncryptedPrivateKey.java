@@ -4,6 +4,7 @@
 
 package hera.api.model;
 
+import static hera.util.BytesValueUtils.validatePrefix;
 import static hera.util.IoUtils.from;
 import static hera.util.ValidationUtils.assertNotNull;
 
@@ -11,7 +12,6 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.encode.Decoder;
 import hera.api.encode.Encoder;
-import hera.api.model.internal.BytesValueUtils;
 import hera.exception.HerajException;
 import java.io.StringReader;
 import lombok.EqualsAndHashCode;
@@ -88,13 +88,13 @@ public class EncryptedPrivateKey implements Encrypted {
     }
     this.bytesValue = bytesValue;
   }
-  
+
   protected EncryptedPrivateKey() {
     this.bytesValue = BytesValue.EMPTY;
   }
 
   protected boolean isValid(final BytesValue rawEncryptedPrivateKey) {
-    return BytesValueUtils.validatePrefix(rawEncryptedPrivateKey, ENCRYPTED_PREFIX);
+    return validatePrefix(rawEncryptedPrivateKey, ENCRYPTED_PREFIX);
   }
 
   @Override

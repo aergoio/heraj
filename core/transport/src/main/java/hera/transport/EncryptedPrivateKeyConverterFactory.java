@@ -5,8 +5,8 @@
 package hera.transport;
 
 import static hera.api.model.BytesValue.of;
-import static hera.api.model.internal.BytesValueUtils.append;
-import static hera.api.model.internal.BytesValueUtils.trimPrefix;
+import static hera.util.BytesValueUtils.append;
+import static hera.util.BytesValueUtils.trimPrefix;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 

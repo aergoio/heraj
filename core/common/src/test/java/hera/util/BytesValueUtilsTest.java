@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.api.model.internal;
+package hera.util;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
@@ -10,7 +10,6 @@ import static org.junit.Assert.assertTrue;
 
 import hera.AbstractTestCase;
 import hera.api.model.BytesValue;
-import hera.api.model.internal.BytesValueUtils;
 import org.bouncycastle.util.Arrays;
 import org.junit.Test;
 

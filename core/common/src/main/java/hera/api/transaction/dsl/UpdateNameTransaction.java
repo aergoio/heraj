@@ -1,8 +1,12 @@
 package hera.api.transaction.dsl;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.Identity;
 import hera.api.model.Name;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public interface UpdateNameTransaction extends AergoTransaction {
 
   interface WithNothing extends NeedChainIdHash<WithChainIdHash> {

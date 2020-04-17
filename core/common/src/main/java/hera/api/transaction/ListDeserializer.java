@@ -2,12 +2,11 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.api.transaction.internal;
+package hera.api.transaction;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -26,7 +25,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import org.slf4j.Logger;
 
-public class ListDeserializer extends JsonDeserializer<List<?>> {
+class ListDeserializer extends JsonDeserializer<List<?>> {
 
   protected final Logger logger = getLogger(getClass());
 

@@ -8,8 +8,8 @@ import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import hera.api.model.internal.BytesValueUtils;
 import hera.util.Base58Utils;
+import hera.util.BytesValueUtils;
 import java.util.Arrays;
 import org.junit.Test;
 

@@ -17,8 +17,8 @@ public interface Account {
   AccountAddress getAddress();
 
   /**
-   * Bind state to an account. If nonce is less or equals to 0, nonce is set as 1. Remember,
-   * {@link AccountState#address} is not binded. Only nonce is binded.
+   * Bind state to an account. If nonce is less or equals to 0, nonce is set as 1. Remember, address
+   * is not binded. Only nonce is binded.
    *
    * @param state state to bind
    */

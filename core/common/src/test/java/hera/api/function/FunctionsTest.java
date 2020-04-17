@@ -179,4 +179,28 @@ public class FunctionsTest extends AbstractTestCase {
         randomUUID().toString(), randomUUID().toString()));
   }
 
+  @Test
+  public void testCompose5() {
+    final String ret = randomUUID().toString();
+    Function5<String, String, String, String, String, String> f =
+        new Function5<String, String, String, String, String, String>() {
+          @Override
+          public String apply(final String t1, final String t2, final String t3, final String t4,
+              final String t5) {
+            return ret;
+          }
+        };
+    Function1<String, Integer> s = new Function1<String, Integer>() {
+      @Override
+      public Integer apply(final String t) {
+        return t.length();
+      }
+    };
+    Function5<String, String, String, String, String, Integer> composed = Functions.compose(f, s);
+
+    final Integer expected = ret.length();
+    assertEquals(expected, composed.apply(randomUUID().toString(), randomUUID().toString(),
+        randomUUID().toString(), randomUUID().toString(), randomUUID().toString()));
+  }
+
 }

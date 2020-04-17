@@ -4,6 +4,11 @@
 
 package hera.api.function;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+
+@ApiAudience.Private
+@ApiStability.Unstable
 public interface Function0<R> extends Function<R> {
 
   /**

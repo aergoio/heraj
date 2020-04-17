@@ -1,7 +1,11 @@
 package hera.api.transaction.dsl;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import java.util.List;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public interface VoteTransaction extends AergoTransaction {
 
   interface WithNothing extends NeedChainIdHash<WithChainIdHash> {

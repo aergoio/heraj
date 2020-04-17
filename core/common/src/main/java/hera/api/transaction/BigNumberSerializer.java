@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.api.transaction.internal;
+package hera.api.transaction;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -14,7 +14,7 @@ import hera.api.model.BigNumber;
 import java.io.IOException;
 import org.slf4j.Logger;
 
-public class BigNumberSerializer extends JsonSerializer<BigNumber> {
+class BigNumberSerializer extends JsonSerializer<BigNumber> {
 
   protected final Logger logger = getLogger(getClass());
 

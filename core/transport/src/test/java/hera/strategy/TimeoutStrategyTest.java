@@ -24,6 +24,11 @@ public class TimeoutStrategyTest extends AbstractTestCase {
     final RequestMethod<Integer> method = new RequestMethod<Integer>() {
 
       @Override
+      public String getName() {
+        return null;
+      }
+
+      @Override
       protected Integer runInternal(List<Object> parameters) throws Exception {
         return 0;
       }
@@ -37,6 +42,11 @@ public class TimeoutStrategyTest extends AbstractTestCase {
     try {
       final TimeoutStrategy strategy = new TimeoutStrategy(Time.of(100L, TimeUnit.MILLISECONDS));
       final RequestMethod<Integer> method = new RequestMethod<Integer>() {
+
+        @Override
+        public String getName() {
+          return null;
+        }
 
         @Override
         protected Integer runInternal(List<Object> parameters) throws Exception {

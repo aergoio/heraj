@@ -12,7 +12,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-public class NewEmptyContextTest extends AbstractTestCase {
+public class EmptyContextTest extends AbstractTestCase {
 
   @Test
   public void testNewInstance() {

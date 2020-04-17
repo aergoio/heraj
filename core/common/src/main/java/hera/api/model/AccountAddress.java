@@ -4,6 +4,7 @@
 
 package hera.api.model;
 
+import static hera.util.BytesValueUtils.trimPrefix;
 import static hera.util.IoUtils.from;
 import static hera.util.ValidationUtils.assertNotNull;
 
@@ -11,9 +12,9 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.encode.Decoder;
 import hera.api.encode.Encoder;
-import hera.api.model.internal.BytesValueUtils;
 import hera.exception.HerajException;
 import hera.util.Adaptor;
+import hera.util.BytesValueUtils;
 import java.io.StringReader;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -71,7 +72,7 @@ public class AccountAddress implements Identity, Adaptor {
         throw new HerajException("Decoded address value must have prefix " + ADDRESS_PREFIX);
       }
 
-      final BytesValue withoutPrefix = BytesValueUtils.trimPrefix(withPrefix);
+      final BytesValue withoutPrefix = trimPrefix(withPrefix);
       if (!isValid(withoutPrefix)) {
         throw new HerajException("Raw bytes value length must be " + ADDRESS_BYTE_LENGTH
             + ", but was " + withoutPrefix.length());

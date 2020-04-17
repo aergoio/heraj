@@ -4,6 +4,7 @@
 
 package hera.api.model;
 
+import static hera.util.BytesValueUtils.trimPrefix;
 import static hera.util.IoUtils.from;
 import static hera.util.ValidationUtils.assertNotNull;
 import static java.util.Arrays.asList;
@@ -13,8 +14,8 @@ import static java.util.Collections.unmodifiableList;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.encode.Decoder;
-import hera.api.model.internal.BytesValueUtils;
 import hera.exception.HerajException;
+import hera.util.BytesValueUtils;
 import java.io.StringReader;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -56,7 +57,7 @@ public class ContractDefinition implements Payload {
         throw new HerajException("Encoded contract doesn't have a version");
       }
 
-      this.decodedContract = BytesValueUtils.trimPrefix(withVersion);
+      this.decodedContract = trimPrefix(withVersion);
       this.encodedContract = encodedContract;
       this.constructorArgs = unmodifiableList(args);
       this.amount = amount;
@@ -78,11 +79,13 @@ public class ContractDefinition implements Payload {
   }
 
   public interface ContractDefinitionWithNothing {
+
     ContractDefinitionWithPayloadReady encodedContract(String encodedContract);
   }
 
   public interface ContractDefinitionWithPayloadReady
       extends hera.util.Builder<ContractDefinition> {
+
     ContractDefinitionWithPayloadReady constructorArgs(Object... args);
 
     ContractDefinitionWithPayloadReady amount(Aer amount);

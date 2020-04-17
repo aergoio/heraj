@@ -2,9 +2,9 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.api.encode;
+package hera.api.model;
 
-public interface Encodable {
+interface Encodable {
 
   String getEncoded();
 

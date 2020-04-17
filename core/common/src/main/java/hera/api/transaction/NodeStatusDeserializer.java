@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.api.transaction.internal;
+package hera.api.transaction;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 
-public class NodeStatusDeserializer extends JsonDeserializer<NodeStatus> {
+class NodeStatusDeserializer extends JsonDeserializer<NodeStatus> {
 
   protected final Logger logger = getLogger(getClass());
 

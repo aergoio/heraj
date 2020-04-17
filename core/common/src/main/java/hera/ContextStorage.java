@@ -3,9 +3,9 @@ package hera;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 
-@ApiAudience.Public
+@ApiAudience.Private
 @ApiStability.Unstable
-public interface ContextStorage<ContextT> {
+public interface ContextStorage<ContextT extends Context> {
 
   /**
    * Get current context value.

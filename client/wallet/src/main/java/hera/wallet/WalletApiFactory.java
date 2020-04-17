@@ -10,7 +10,7 @@ import static hera.util.ValidationUtils.assertTrue;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Time;
-import hera.api.model.internal.TryCountAndInterval;
+import hera.model.TryCountAndInterval;
 
 @ApiAudience.Public
 @ApiStability.Unstable
@@ -44,7 +44,7 @@ public class WalletApiFactory {
     assertNotNull(keyStore);
     assertTrue(1 <= retryCount);
     assertTrue(0 < retryInterval);
-    return new WalletApiImpl(keyStore, new TryCountAndInterval(retryCount, Time.of(retryInterval)));
+    return new WalletApiImpl(keyStore, TryCountAndInterval.of(retryCount, Time.of(retryInterval)));
   }
 
 }

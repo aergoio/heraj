@@ -4,6 +4,8 @@
 
 package hera.key;
 
+import static hera.util.BytesValueUtils.append;
+import static hera.util.BytesValueUtils.trimPrefix;
 import static hera.util.CryptoUtils.decryptFromAesGcm;
 import static hera.util.CryptoUtils.encryptToAesGcm;
 
@@ -11,7 +13,6 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.BytesValue;
 import hera.api.model.EncryptedPrivateKey;
-import hera.api.model.internal.BytesValueUtils;
 import hera.exception.HerajException;
 import hera.util.Sha256Utils;
 import hera.util.pki.ECDSAKey;
@@ -34,8 +35,7 @@ public class EncryptedPrivateKeyStrategy implements KeyCipherStrategy<EncryptedP
       final byte[] nonce = calculateNonce(hashedPassword);
       final byte[] encrypted =
           encryptToAesGcm(aergoKey.getRawPrivateKey().getValue(), encryptKey, nonce);
-      final byte[] withVersion =
-          BytesValueUtils.append(encrypted, EncryptedPrivateKey.ENCRYPTED_PREFIX);
+      final byte[] withVersion = append(encrypted, EncryptedPrivateKey.ENCRYPTED_PREFIX);
       return EncryptedPrivateKey.of(BytesValue.of(withVersion));
     } catch (Exception e) {
       throw new HerajException(e);
@@ -48,7 +48,7 @@ public class EncryptedPrivateKeyStrategy implements KeyCipherStrategy<EncryptedP
     try {
       final byte[] rawEncrypted = encryptedPrivateKey.getBytesValue().getValue();
       final byte[] rawPassword = passphrase.getBytes(CHAR_SET);
-      final byte[] withoutVersion = BytesValueUtils.trimPrefix(rawEncrypted);
+      final byte[] withoutVersion = trimPrefix(rawEncrypted);
       final byte[] hashedPassword = Sha256Utils.digest(rawPassword);
       final byte[] decryptKey = Sha256Utils.digest(rawPassword, hashedPassword);
       final byte[] nonce = calculateNonce(hashedPassword);

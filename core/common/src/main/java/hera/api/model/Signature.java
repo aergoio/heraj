@@ -8,14 +8,11 @@ import static hera.util.ValidationUtils.assertNotNull;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.encode.Encodable;
 import hera.api.encode.Encoder;
-import java.util.concurrent.atomic.AtomicStampedReference;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable

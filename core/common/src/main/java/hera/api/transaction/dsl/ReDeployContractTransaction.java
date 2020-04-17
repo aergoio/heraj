@@ -1,9 +1,13 @@
 package hera.api.transaction.dsl;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public interface ReDeployContractTransaction extends AergoTransaction {
 
   interface WithNothing extends NeedChainIdHash<WithChainIdHash> {

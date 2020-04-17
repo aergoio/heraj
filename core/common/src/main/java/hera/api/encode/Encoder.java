@@ -6,6 +6,8 @@ package hera.api.encode;
 
 import static hera.util.IoUtils.from;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.util.Base58Utils;
 import hera.util.Base64Utils;
 import hera.util.HexUtils;
@@ -14,6 +16,8 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public interface Encoder {
 
   Encoder Hex = new Encoder() {

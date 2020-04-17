@@ -4,13 +4,12 @@
 
 package hera.api.model;
 
+import static hera.util.ValidationUtils.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 
 /**
@@ -21,22 +20,9 @@ import org.slf4j.Logger;
  */
 @ApiAudience.Public
 @ApiStability.Unstable
-@RequiredArgsConstructor
 public class HostnameAndPort {
 
   protected static final Logger logger = getLogger(HostnameAndPort.class);
-
-  @NonNull
-  @Getter
-  protected final String hostname;
-
-  @Getter
-  protected final int port;
-
-  public int getPort(int defaultPort) {
-    return (port < 0) ? defaultPort : port;
-  }
-
 
   /**
    * Create {@link HostnameAndPort} from string.
@@ -58,8 +44,25 @@ public class HostnameAndPort {
     return new HostnameAndPort(hostname, port);
   }
 
+  @Getter
+  protected final String hostname;
+
+  @Getter
+  protected final int port;
+
+  public int getPort(int defaultPort) {
+    return (port < 0) ? defaultPort : port;
+  }
+
+  private HostnameAndPort(final String hostname, final int port) {
+    assertNotNull(hostname, "Hostname must not null");
+    this.hostname = hostname;
+    this.port = port;
+  }
+
   @Override
   public String toString() {
     return (port < 0) ? hostname : (hostname + ":" + port);
   }
+
 }

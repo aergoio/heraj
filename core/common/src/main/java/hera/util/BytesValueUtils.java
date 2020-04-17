@@ -2,12 +2,19 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.api.model.internal;
+package hera.util;
 
 import hera.api.model.BytesValue;
 import java.util.Arrays;
 
+/**
+ * TODO: remove it after server keystore is removed.
+ */
 public class BytesValueUtils {
+
+  private BytesValueUtils() {
+
+  }
 
   /**
    * Validate a prefix of the target.
@@ -60,7 +67,7 @@ public class BytesValueUtils {
    */
   public static byte[] append(final byte[] target, final byte prefix) {
     if (null == target || 0 == target.length) {
-      return new byte[] {prefix};
+      return new byte[]{prefix};
     }
     final byte[] ret = new byte[target.length + 1];
     ret[0] = prefix;

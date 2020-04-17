@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.api.model.internal;
+package hera.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
 import static hera.util.ValidationUtils.assertTrue;
@@ -43,13 +43,7 @@ public class TryCountAndInterval {
   @Getter
   protected final Time interval;
 
-  /**
-   * TryCountAndInterval constructor.
-   *
-   * @param tryCount a try count
-   * @param interval an try interval
-   */
-  public TryCountAndInterval(final int tryCount, final Time interval) {
+  private TryCountAndInterval(final int tryCount, final Time interval) {
     assertTrue(tryCount >= 0, "Try count must be >= 0");
     assertNotNull(interval, "Interval hash must not null");
     this.count = tryCount;

@@ -41,7 +41,8 @@ public class JustRetryFailoverHandlerTest extends AbstractTestCase {
 
     };
     final Invocation<Integer> invocation = requestMethod.toInvocation();
-    retryStrategy.handle(invocation, Response.<Integer>empty());
+    final Response<Integer> response = Response.empty();
+    retryStrategy.handle(invocation, response);
   }
 
 }

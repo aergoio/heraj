@@ -10,25 +10,17 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import lombok.Getter;
 
-@ApiAudience.Public
+/**
+ * A mutable response class.
+ *
+ * @param <T> an type of response
+ */
+@ApiAudience.Private
 @ApiStability.Unstable
 public class Response<T> {
 
-  protected static Response<?> EMPTY = new Response<>(null, null);
-
-  @SuppressWarnings("unchecked")
   public static <T> Response<T> empty() {
-    return (Response<T>) EMPTY;
-  }
-
-  public static <T> Response<T> of(final T value) {
-    assertNotNull(value);
-    return new Response<>(value, null);
-  }
-
-  public static <T> Response<T> of(final Exception error) {
-    assertNotNull(error);
-    return new Response<>(null, error);
+    return new Response<>(null, null);
   }
 
   @Getter
@@ -46,21 +38,25 @@ public class Response<T> {
    * Success response with a value.
    *
    * @param value a value. Can be null.
+   * @return an instance of this
    */
-  public void success(final T value) {
+  public Response<T> success(final T value) {
     this.value = value;
     this.error = null;
+    return this;
   }
 
   /**
    * Fail response with an error.
    *
    * @param error an error
+   * @return an instance of this
    */
-  public void fail(final Exception error) {
+  public Response<T> fail(final Exception error) {
     assertNotNull(error);
     this.value = null;
     this.error = error;
+    return this;
   }
 
 }

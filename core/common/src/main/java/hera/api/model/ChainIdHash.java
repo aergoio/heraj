@@ -6,7 +6,6 @@ package hera.api.model;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.encode.Encodable;
 import hera.util.Adaptor;
 
 @ApiAudience.Public

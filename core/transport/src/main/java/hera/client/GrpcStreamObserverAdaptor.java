@@ -11,10 +11,11 @@ import hera.exception.RpcException;
 import hera.exception.RpcExceptionConverter;
 import hera.transport.ModelConverter;
 import hera.util.ExceptionConverter;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class GrpcStreamObserverAdaptor<RpcModelT, DomainModelT>
     implements io.grpc.stub.StreamObserver<RpcModelT> {
 

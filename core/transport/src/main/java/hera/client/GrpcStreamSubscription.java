@@ -6,10 +6,11 @@ package hera.client;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class GrpcStreamSubscription<T> implements hera.api.model.Subscription<T> {
 
   protected final transient Logger logger = getLogger(getClass());

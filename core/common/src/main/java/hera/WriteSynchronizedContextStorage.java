@@ -7,7 +7,7 @@ package hera;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 
-@ApiAudience.Public
+@ApiAudience.Private
 @ApiStability.Unstable
 public class WriteSynchronizedContextStorage<ContextT extends Context> implements
     ContextStorage<ContextT> {

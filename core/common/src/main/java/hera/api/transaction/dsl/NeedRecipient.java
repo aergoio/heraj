@@ -1,7 +1,11 @@
 package hera.api.transaction.dsl;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.Identity;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 public interface NeedRecipient<NextStateT> {
 
   /**

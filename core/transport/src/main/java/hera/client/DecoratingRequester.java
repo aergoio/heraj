@@ -20,10 +20,8 @@ import hera.Response;
 import hera.strategy.InvocationStrategy;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 
-@RequiredArgsConstructor
 class DecoratingRequester implements Requester {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -32,6 +30,10 @@ class DecoratingRequester implements Requester {
 
   protected final Object handlerChainLock = new Object();
   protected volatile FailoverHandler cached;
+
+  DecoratingRequester() {
+
+  }
 
   @Override
   public <T> T request(final Invocation<T> invocation) throws Exception {

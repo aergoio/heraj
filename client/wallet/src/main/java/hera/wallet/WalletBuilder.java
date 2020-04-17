@@ -7,12 +7,12 @@ package hera.wallet;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Time;
-import hera.api.model.internal.TryCountAndInterval;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
 import hera.client.ClientConfiguer;
 import hera.keystore.InMemoryKeyStore;
 import hera.keystore.KeyStore;
+import hera.model.TryCountAndInterval;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 

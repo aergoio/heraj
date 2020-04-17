@@ -21,7 +21,6 @@ import hera.api.transaction.dsl.DeployContractTransaction.WithChainIdHashAndSend
 import hera.api.transaction.dsl.DeployContractTransaction.WithChainIdHashAndSenderAndDefinition;
 import hera.api.transaction.dsl.DeployContractTransaction.WithReady;
 
-
 @ApiAudience.Public
 @ApiStability.Unstable
 public class DeployContractTransactionBuilder implements
