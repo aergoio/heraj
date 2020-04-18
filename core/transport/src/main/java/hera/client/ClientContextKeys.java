@@ -18,18 +18,20 @@ abstract class ClientContextKeys {
   public static final Key<HostnameAndPort> GRPC_CONNECTION_ENDPOINT = Key
       .of("GRPC_CONNECTION_ENDPOINT", HostnameAndPort.class);
 
+  @SuppressWarnings("rawtypes")
   public static final Key<ConnectStrategy> GRPC_CONNECTION_STRATEGY = Key
       .of("GRPC_CONNECTION_STRATEGY", ConnectStrategy.class);
 
   public static final Key<SecurityConfigurationStrategy> GRPC_CONNECTION_NEGOTIATION = Key
       .of("GRPC_CONNECTION_NEGOTIATION", SecurityConfigurationStrategy.class);
 
+  @SuppressWarnings("rawtypes")
+  public static final Key<ClientProvider> GRPC_CLIENT_PROVIDER = Key
+      .of("GRPC_CLIENT_PROVIDER", ClientProvider.class);
+
 
 
   /* request */
-
-  public static final Key<ClientProvider> GRPC_CLIENT_PROVIDER = Key
-      .of("GRPC_CLIENT_PROVIDER", ClientProvider.class);
 
   public static final Key<InvocationStrategy> GRPC_REQUEST_TIMEOUT = Key
       .of("GRPC_REQUEST_TIMEOUT", InvocationStrategy.class);

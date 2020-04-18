@@ -23,7 +23,6 @@ import hera.api.model.Subscription;
 import hera.key.Signer;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 class ContractTemplate extends AbstractTemplate implements ContractOperation {
 
@@ -35,14 +34,7 @@ class ContractTemplate extends AbstractTemplate implements ContractOperation {
 
   @Override
   public ContractTxReceipt getReceipt(final ContractTxHash contractTxHash) {
-    return request(new Callable<ContractTxReceipt>() {
-      @Override
-      public ContractTxReceipt call() throws Exception {
-        return requester.request(contractMethods
-            .getTxReceipt()
-            .toInvocation(Arrays.<Object>asList(contractTxHash)));
-      }
-    });
+    return request(contractMethods.getTxReceipt(), Arrays.<Object>asList(contractTxHash));
   }
 
   @Override
@@ -60,40 +52,20 @@ class ContractTemplate extends AbstractTemplate implements ContractOperation {
   @Override
   public ContractTxHash deploy(final Signer signer, final ContractDefinition contractDefinition,
       final long nonce, final Fee fee) {
-    return request(new Callable<ContractTxHash>() {
-      @Override
-      public ContractTxHash call() throws Exception {
-        return requester.request(contractMethods
-            .getDeploy()
-            .toInvocation(Arrays.asList(signer, contractDefinition, nonce, fee)));
-      }
-    });
+    return request(contractMethods.getDeploy(),
+        Arrays.<Object>asList(signer, contractDefinition, nonce, fee));
   }
 
   @Override
   public ContractTxHash redeploy(final Signer signer, final ContractAddress existingContract,
       final ContractDefinition contractDefinition, final long nonce, final Fee fee) {
-    return request(new Callable<ContractTxHash>() {
-      @Override
-      public ContractTxHash call() throws Exception {
-        return requester.request(contractMethods
-            .getReDeploy()
-            .toInvocation(
-                Arrays.asList(signer, existingContract, contractDefinition, nonce, fee)));
-      }
-    });
+    return request(contractMethods.getDeploy(),
+        Arrays.asList(signer, existingContract, contractDefinition, nonce, fee));
   }
 
   @Override
   public ContractInterface getContractInterface(final ContractAddress contractAddress) {
-    return request(new Callable<ContractInterface>() {
-      @Override
-      public ContractInterface call() throws Exception {
-        return requester.request(contractMethods
-            .getContractInterface()
-            .toInvocation(Arrays.<Object>asList(contractAddress)));
-      }
-    });
+    return request(contractMethods.getContractInterface(), Arrays.<Object>asList(contractAddress));
   }
 
   @Override
@@ -111,51 +83,24 @@ class ContractTemplate extends AbstractTemplate implements ContractOperation {
   @Override
   public ContractTxHash execute(final Signer signer, final ContractInvocation contractInvocation,
       final long nonce, final Fee fee) {
-    return request(new Callable<ContractTxHash>() {
-      @Override
-      public ContractTxHash call() throws Exception {
-        return requester.request(contractMethods
-            .getExecute()
-            .toInvocation(Arrays.asList(signer, contractInvocation, nonce, fee)));
-      }
-    });
+    return request(contractMethods.getExecute(),
+        Arrays.asList(signer, contractInvocation, nonce, fee));
   }
 
   @Override
   public ContractResult query(final ContractInvocation contractInvocation) {
-    return request(new Callable<ContractResult>() {
-      @Override
-      public ContractResult call() throws Exception {
-        return requester.request(contractMethods
-            .getQuery()
-            .toInvocation(Arrays.<Object>asList(contractInvocation)));
-      }
-    });
+    return request(contractMethods.getQuery(), Arrays.<Object>asList(contractInvocation));
   }
 
   @Override
   public List<Event> listEvents(final EventFilter filter) {
-    return request(new Callable<List<Event>>() {
-      @Override
-      public List<Event> call() throws Exception {
-        return requester.request(contractMethods
-            .getListEvent()
-            .toInvocation(Arrays.<Object>asList(filter)));
-      }
-    });
+    return request(contractMethods.getListEvent(), Arrays.<Object>asList(filter));
   }
 
   @Override
   public Subscription<Event> subscribeEvent(final EventFilter filter,
       final StreamObserver<Event> observer) {
-    return request(new Callable<Subscription<Event>>() {
-      @Override
-      public Subscription<Event> call() throws Exception {
-        return requester.request(contractMethods
-            .getSubscribeEvent()
-            .toInvocation(Arrays.<Object>asList(filter, observer)));
-      }
-    });
+    return request(contractMethods.getSubscribeEvent(), Arrays.asList(filter, observer));
   }
 
 }

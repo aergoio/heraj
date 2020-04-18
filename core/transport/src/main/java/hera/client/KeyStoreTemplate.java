@@ -17,7 +17,6 @@ import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 class KeyStoreTemplate extends AbstractTemplate implements KeyStoreOperation {
 
@@ -29,100 +28,46 @@ class KeyStoreTemplate extends AbstractTemplate implements KeyStoreOperation {
 
   @Override
   public List<AccountAddress> list() {
-    return request(new Callable<List<AccountAddress>>() {
-      @Override
-      public List<AccountAddress> call() throws Exception {
-        return requester.request(keyStoreMethods
-            .getList()
-            .toInvocation());
-      }
-    });
+    return request(keyStoreMethods.getList());
   }
 
   @Override
   public AccountAddress create(final String password) {
-    return request(new Callable<AccountAddress>() {
-      @Override
-      public AccountAddress call() throws Exception {
-        return requester.request(keyStoreMethods
-            .getCreate()
-            .toInvocation(Arrays.<Object>asList(password)));
-      }
-    });
+    return request(keyStoreMethods.getCreate(), Arrays.<Object>asList(password));
   }
 
   @Override
   public boolean lock(final Authentication authentication) {
-    return request(new Callable<Boolean>() {
-      @Override
-      public Boolean call() throws Exception {
-        return requester.request(keyStoreMethods
-            .lock
-            .toInvocation(Arrays.<Object>asList(authentication)));
-      }
-    });
+    return request(keyStoreMethods.getLock(), Arrays.<Object>asList(authentication));
   }
 
   @Override
   public boolean unlock(final Authentication authentication) {
-    return request(new Callable<Boolean>() {
-      @Override
-      public Boolean call() throws Exception {
-        return requester.request(keyStoreMethods
-            .getUnlock()
-            .toInvocation(Arrays.<Object>asList(authentication)));
-      }
-    });
+    return request(keyStoreMethods.getUnlock(), Arrays.<Object>asList(authentication));
   }
 
   @Override
   public Transaction sign(final RawTransaction rawTransaction) {
-    return request(new Callable<Transaction>() {
-      @Override
-      public Transaction call() throws Exception {
-        return requester.request(keyStoreMethods
-            .getSign()
-            .toInvocation(Arrays.<Object>asList(rawTransaction)));
-      }
-    });
+    return request(keyStoreMethods.getSign(), Arrays.<Object>asList(rawTransaction));
   }
 
   @Override
   public AccountAddress importKey(final EncryptedPrivateKey encryptedKey, final String oldPassword,
       final String newPassword) {
-    return request(new Callable<AccountAddress>() {
-      @Override
-      public AccountAddress call() throws Exception {
-        return requester.request(keyStoreMethods
-            .getImportKey()
-            .toInvocation(Arrays.asList(encryptedKey, oldPassword, newPassword)));
-      }
-    });
+    return request(keyStoreMethods.getImportKey(),
+        Arrays.asList(encryptedKey, oldPassword, newPassword));
   }
 
   @Override
   public EncryptedPrivateKey exportKey(final Authentication authentication) {
-    return request(new Callable<EncryptedPrivateKey>() {
-      @Override
-      public EncryptedPrivateKey call() throws Exception {
-        return requester.request(keyStoreMethods
-            .getExportKey()
-            .toInvocation(Arrays.<Object>asList(authentication)));
-      }
-    });
+    return request(keyStoreMethods.getExportKey(), Arrays.<Object>asList(authentication));
   }
 
   @Override
   public TxHash send(final AccountAddress sender, final AccountAddress recipient, final Aer amount,
       final BytesValue payload) {
-    return request(new Callable<TxHash>() {
-      @Override
-      public TxHash call() throws Exception {
-        return requester.request(keyStoreMethods
-            .getSend()
-            .toInvocation(Arrays.<Object>asList(sender, recipient, amount, payload)));
-      }
-    });
+    return request(keyStoreMethods.getSend(),
+        Arrays.asList(sender, recipient, amount, payload));
   }
 
 }

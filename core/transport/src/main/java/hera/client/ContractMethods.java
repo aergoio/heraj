@@ -4,6 +4,14 @@
 
 package hera.client;
 
+import static hera.client.Methods.CONTRACT_DEPLOY;
+import static hera.client.Methods.CONTRACT_EXECUTE;
+import static hera.client.Methods.CONTRACT_INTERFACE;
+import static hera.client.Methods.CONTRACT_LIST_EVENT;
+import static hera.client.Methods.CONTRACT_QUERY;
+import static hera.client.Methods.CONTRACT_RECEIPT;
+import static hera.client.Methods.CONTRACT_REDEPLOY;
+import static hera.client.Methods.CONTRACT_SUBSCRIBE_EVENT;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -79,7 +87,7 @@ class ContractMethods extends AbstractMethods {
       new RequestMethod<ContractTxReceipt>() {
 
         @Getter
-        protected final String name = "txReceipt";
+        protected final String name = CONTRACT_RECEIPT;
 
         @Override
         protected void validate(final List<Object> parameters) {
@@ -105,7 +113,7 @@ class ContractMethods extends AbstractMethods {
   protected final RequestMethod<ContractTxHash> deploy = new RequestMethod<ContractTxHash>() {
 
     @Getter
-    protected final String name = "deploy";
+    protected final String name = CONTRACT_DEPLOY;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -142,7 +150,7 @@ class ContractMethods extends AbstractMethods {
   protected final RequestMethod<ContractTxHash> reDeploy = new RequestMethod<ContractTxHash>() {
 
     @Getter
-    protected final String name = "reDeploy";
+    protected final String name = CONTRACT_REDEPLOY;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -183,7 +191,7 @@ class ContractMethods extends AbstractMethods {
       new RequestMethod<ContractInterface>() {
 
         @Getter
-        protected final String name = "contractInterface";
+        protected final String name = CONTRACT_INTERFACE;
 
         @Override
         protected void validate(final List<Object> parameters) {
@@ -214,7 +222,7 @@ class ContractMethods extends AbstractMethods {
   protected final RequestMethod<ContractTxHash> execute = new RequestMethod<ContractTxHash>() {
 
     @Getter
-    protected final String name = "execute";
+    protected final String name = CONTRACT_EXECUTE;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -250,7 +258,7 @@ class ContractMethods extends AbstractMethods {
   protected final RequestMethod<ContractResult> query = new RequestMethod<ContractResult>() {
 
     @Getter
-    protected final String name = "query";
+    protected final String name = CONTRACT_QUERY;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -281,7 +289,7 @@ class ContractMethods extends AbstractMethods {
   protected final RequestMethod<List<Event>> listEvent = new RequestMethod<List<Event>>() {
 
     @Getter
-    protected final String name = "listEvent";
+    protected final String name = CONTRACT_LIST_EVENT;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -312,7 +320,7 @@ class ContractMethods extends AbstractMethods {
       new RequestMethod<Subscription<Event>>() {
 
         @Getter
-        protected final String name = "subscribeEvent";
+        protected final String name = CONTRACT_SUBSCRIBE_EVENT;
 
         @Override
         protected void validate(final List<Object> parameters) {

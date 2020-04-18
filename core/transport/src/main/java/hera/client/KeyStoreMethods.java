@@ -5,6 +5,14 @@
 package hera.client;
 
 import static hera.api.model.BytesValue.of;
+import static hera.client.Methods.KEYSTORE_CREATE;
+import static hera.client.Methods.KEYSTORE_EXPORTKEY;
+import static hera.client.Methods.KEYSTORE_IMPORTKEY;
+import static hera.client.Methods.KEYSTORE_LIST;
+import static hera.client.Methods.KEYSTORE_LOCK;
+import static hera.client.Methods.KEYSTORE_SEND;
+import static hera.client.Methods.KEYSTORE_SIGN;
+import static hera.client.Methods.KEYSTORE_UNLOCK;
 import static hera.util.TransportUtils.sha256AndEncodeHexa;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -54,7 +62,7 @@ class KeyStoreMethods extends AbstractMethods {
       new RequestMethod<List<AccountAddress>>() {
 
         @Getter
-        protected final String name = "list";
+        protected final String name = KEYSTORE_LIST;
 
         @Override
         protected List<AccountAddress> runInternal(final List<Object> parameters) throws Exception {
@@ -79,7 +87,7 @@ class KeyStoreMethods extends AbstractMethods {
   protected final RequestMethod<AccountAddress> create = new RequestMethod<AccountAddress>() {
 
     @Getter
-    protected final String name = "create";
+    protected final String name = KEYSTORE_CREATE;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -111,7 +119,7 @@ class KeyStoreMethods extends AbstractMethods {
   protected final RequestMethod<Boolean> unlock = new RequestMethod<Boolean>() {
 
     @Getter
-    protected final String name = "unlock";
+    protected final String name = KEYSTORE_LOCK;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -146,7 +154,7 @@ class KeyStoreMethods extends AbstractMethods {
   protected final RequestMethod<Boolean> lock = new RequestMethod<Boolean>() {
 
     @Getter
-    protected final String name = "lock";
+    protected final String name = KEYSTORE_UNLOCK;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -181,7 +189,7 @@ class KeyStoreMethods extends AbstractMethods {
   protected final RequestMethod<Transaction> sign = new RequestMethod<Transaction>() {
 
     @Getter
-    protected final String name = "sign";
+    protected final String name = KEYSTORE_SIGN;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -210,7 +218,7 @@ class KeyStoreMethods extends AbstractMethods {
   protected final RequestMethod<AccountAddress> importKey = new RequestMethod<AccountAddress>() {
 
     @Getter
-    protected final String name = "importKey";
+    protected final String name = KEYSTORE_IMPORTKEY;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -254,7 +262,7 @@ class KeyStoreMethods extends AbstractMethods {
       new RequestMethod<EncryptedPrivateKey>() {
 
         @Getter
-        protected final String name = "exportKey";
+        protected final String name = KEYSTORE_EXPORTKEY;
 
         @Override
         protected void validate(final List<Object> parameters) {
@@ -285,7 +293,7 @@ class KeyStoreMethods extends AbstractMethods {
   protected final RequestMethod<TxHash> send = new RequestMethod<TxHash>() {
 
     @Getter
-    protected final String name = "send";
+    protected final String name = KEYSTORE_SEND;
 
     @Override
     protected void validate(final List<Object> parameters) {

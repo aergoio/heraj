@@ -17,7 +17,6 @@ import hera.api.model.PeerMetric;
 import hera.api.model.ServerInfo;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 class BlockchainTemplate extends AbstractTemplate implements BlockchainOperation {
 
@@ -34,38 +33,17 @@ class BlockchainTemplate extends AbstractTemplate implements BlockchainOperation
 
   @Override
   public BlockchainStatus getBlockchainStatus() {
-    return request(new Callable<BlockchainStatus>() {
-      @Override
-      public BlockchainStatus call() throws Exception {
-        return requester.request(blockchainMethods
-            .getBlockchainStatus()
-            .toInvocation());
-      }
-    });
+    return request(blockchainMethods.getBlockchainStatus());
   }
 
   @Override
   public ChainInfo getChainInfo() {
-    return request(new Callable<ChainInfo>() {
-      @Override
-      public ChainInfo call() throws Exception {
-        return requester.request(blockchainMethods
-            .getChainInfo()
-            .toInvocation());
-      }
-    });
+    return request(blockchainMethods.getChainInfo());
   }
 
   @Override
   public ChainStats getChainStats() {
-    return request(new Callable<ChainStats>() {
-      @Override
-      public ChainStats call() throws Exception {
-        return requester.request(blockchainMethods
-            .getChainStats()
-            .toInvocation());
-      }
-    });
+    return request(blockchainMethods.getChainStats());
   }
 
   @Override
@@ -75,49 +53,21 @@ class BlockchainTemplate extends AbstractTemplate implements BlockchainOperation
 
   @Override
   public List<Peer> listPeers(final boolean showHidden, final boolean showSelf) {
-    return request(new Callable<List<Peer>>() {
-      @Override
-      public List<Peer> call() throws Exception {
-        return requester.request(blockchainMethods
-            .getListPeers()
-            .toInvocation(Arrays.<Object>asList(showHidden, showSelf)));
-      }
-    });
+    return request(blockchainMethods.getListPeers(), Arrays.<Object>asList(showHidden, showSelf));
   }
 
   @Override
   public List<PeerMetric> listPeerMetrics() {
-    return request(new Callable<List<PeerMetric>>() {
-      @Override
-      public List<PeerMetric> call() throws Exception {
-        return requester.request(blockchainMethods
-            .getListPeersMetrics()
-            .toInvocation());
-      }
-    });
+    return request(blockchainMethods.getListPeersMetrics());
   }
 
   @Override
   public ServerInfo getServerInfo(final List<String> categories) {
-    return request(new Callable<ServerInfo>() {
-      @Override
-      public ServerInfo call() throws Exception {
-        return requester.request(blockchainMethods
-            .getServerInfo()
-            .toInvocation(Arrays.<Object>asList(categories)));
-      }
-    });
+    return request(blockchainMethods.getServerInfo(), Arrays.<Object>asList(categories));
   }
 
   @Override
   public NodeStatus getNodeStatus() {
-    return request(new Callable<NodeStatus>() {
-      @Override
-      public NodeStatus call() throws Exception {
-        return requester.request(blockchainMethods
-            .getNodeStatus()
-            .toInvocation());
-      }
-    });
+    return request(blockchainMethods.getNodeStatus());
   }
 }

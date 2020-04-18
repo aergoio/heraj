@@ -19,6 +19,7 @@ abstract class AbstractMethods {
 
   protected final transient Logger logger = getLogger(getClass());
 
+  @SuppressWarnings("unchecked")
   protected AergoRPCServiceBlockingStub getBlockingStub() {
     final Context current = ContextHolder.current();
     final ClientProvider<GrpcClient> clientProvider = current.get(GRPC_CLIENT_PROVIDER);
@@ -26,6 +27,7 @@ abstract class AbstractMethods {
     return clientProvider.get().getBlockingStub();
   }
 
+  @SuppressWarnings("unchecked")
   protected AergoRPCServiceStub getStreamStub() {
     final Context current = ContextHolder.current();
     final ClientProvider<GrpcClient> clientProvider = current.get(GRPC_CLIENT_PROVIDER);

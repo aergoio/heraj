@@ -4,6 +4,8 @@
 
 package hera.client;
 
+import static hera.client.Methods.TRANSACTION_TX;
+
 import hera.Context;
 import hera.ContextStorage;
 import hera.RequestMethod;
@@ -12,7 +14,6 @@ import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
 import lombok.Getter;
 
 class TransactionTemplate extends AbstractTemplate implements TransactionOperation {
@@ -23,7 +24,7 @@ class TransactionTemplate extends AbstractTemplate implements TransactionOperati
       new RequestMethod<Transaction>() {
 
         @Getter
-        protected final String name = "convertedTx";
+        protected final String name = TRANSACTION_TX;
 
         @Override
         protected Transaction runInternal(final List<Object> parameters) throws Exception {
@@ -31,7 +32,7 @@ class TransactionTemplate extends AbstractTemplate implements TransactionOperati
             return transactionMethods.getTransactionInBlock().invoke(parameters);
           } catch (Exception noTxInBlock) {
             try {
-              return transactionMethods.getTransaction().invoke(parameters);
+              return transactionMethods.getTransactionInMemPool().invoke(parameters);
             } catch (Exception noTx) {
               throw noTx;
             }
@@ -45,25 +46,12 @@ class TransactionTemplate extends AbstractTemplate implements TransactionOperati
 
   @Override
   public Transaction getTransaction(final TxHash txHash) {
-    return request(new Callable<Transaction>() {
-      @Override
-      public Transaction call() throws Exception {
-        return requester.request(convertedTransactionMethod
-            .toInvocation(Arrays.<Object>asList(txHash)));
-      }
-    });
+    return request(convertedTransactionMethod, Arrays.<Object>asList(txHash));
   }
 
   @Override
   public TxHash commit(final Transaction transaction) {
-    return request(new Callable<TxHash>() {
-      @Override
-      public TxHash call() throws Exception {
-        return requester.request(transactionMethods
-            .getCommit()
-            .toInvocation(Arrays.<Object>asList(transaction)));
-      }
-    });
+    return request(transactionMethods.getCommit(), Arrays.<Object>asList(transaction));
   }
 
 }

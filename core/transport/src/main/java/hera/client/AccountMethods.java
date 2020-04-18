@@ -4,6 +4,16 @@
 
 package hera.client;
 
+import static hera.client.Methods.ACCOUNT_CREATENAME;
+import static hera.client.Methods.ACCOUNT_LIST_ELECTED;
+import static hera.client.Methods.ACCOUNT_NAMEOWNER;
+import static hera.client.Methods.ACCOUNT_STAKE;
+import static hera.client.Methods.ACCOUNT_STAKEINFO;
+import static hera.client.Methods.ACCOUNT_STATE;
+import static hera.client.Methods.ACCOUNT_UNSTAKE;
+import static hera.client.Methods.ACCOUNT_UPDATENAME;
+import static hera.client.Methods.ACCOUNT_VOTE;
+import static hera.client.Methods.ACCOUNT_VOTESOF;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
@@ -63,7 +73,7 @@ class AccountMethods extends AbstractMethods {
   protected final RequestMethod<AccountState> accountState = new RequestMethod<AccountState>() {
 
     @Getter
-    protected final String name = "stateFunction";
+    protected final String name = ACCOUNT_STATE;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -93,7 +103,7 @@ class AccountMethods extends AbstractMethods {
   protected final RequestMethod<TxHash> createName = new RequestMethod<TxHash>() {
 
     @Getter
-    protected final String name = "createName";
+    protected final String name = ACCOUNT_CREATENAME;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -106,7 +116,7 @@ class AccountMethods extends AbstractMethods {
     protected TxHash runInternal(final List<Object> parameters) throws Exception {
       final Signer signer = (Signer) parameters.get(0);
       final String name = (String) parameters.get(1);
-      final Long nonce = (Long) parameters.get(2);
+      final long nonce = (long) parameters.get(2);
       logger.debug("Create account name with signer: {}, name: {}, nonce: {}", signer, name, nonce);
 
       final RawTransaction rawTransaction = new CreateNameTransactionBuilder()
@@ -124,7 +134,7 @@ class AccountMethods extends AbstractMethods {
   protected final RequestMethod<TxHash> updateName = new RequestMethod<TxHash>() {
 
     @Getter
-    protected final String name = "updateName";
+    protected final String name = ACCOUNT_UPDATENAME;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -139,7 +149,7 @@ class AccountMethods extends AbstractMethods {
       final Signer signer = (Signer) parameters.get(0);
       final String name = (String) parameters.get(1);
       final AccountAddress newOwner = (AccountAddress) parameters.get(2);
-      final Long nonce = (Long) parameters.get(3);
+      final long nonce = (long) parameters.get(3);
       logger.debug("Update account name with signer: {}, name: {}, newOwner: {}, nonce: {}", signer,
           name, newOwner, nonce);
 
@@ -160,7 +170,7 @@ class AccountMethods extends AbstractMethods {
   protected final RequestMethod<AccountAddress> nameOwner = new RequestMethod<AccountAddress>() {
 
     @Getter
-    protected final String name = "getNameOwner";
+    protected final String name = ACCOUNT_NAMEOWNER;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -171,9 +181,9 @@ class AccountMethods extends AbstractMethods {
 
     @Override
     protected AccountAddress runInternal(final List<Object> parameters) throws Exception {
-      logger.debug("Get name owner with {}", parameters);
       final String name = (String) parameters.get(0);
-      final Long blockNumber = (Long) parameters.get(1);
+      final long blockNumber = (long) parameters.get(1);
+      logger.debug("Get name owner with name: {}, blockNumber: {}", name, blockNumber);
 
       final Rpc.Name rpcName = Rpc.Name.newBuilder()
           .setName(name)
@@ -193,7 +203,7 @@ class AccountMethods extends AbstractMethods {
   protected final RequestMethod<TxHash> stake = new RequestMethod<TxHash>() {
 
     @Getter
-    protected final String name = "stake";
+    protected final String name = ACCOUNT_STAKE;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -204,10 +214,10 @@ class AccountMethods extends AbstractMethods {
 
     @Override
     protected TxHash runInternal(final List<Object> parameters) throws Exception {
-      logger.debug("Staking account with {}", parameters);
       final Signer signer = (Signer) parameters.get(0);
       final Aer amount = (Aer) parameters.get(1);
-      final Long nonce = (Long) parameters.get(2);
+      final long nonce = (long) parameters.get(2);
+      logger.debug("Staking account with signer: {}, amount: {}, nonce: {}", signer, amount, nonce);
 
       final RawTransaction rawTransaction = new StakeTransactionBuilder()
           .chainIdHash(getChainIdHash())
@@ -225,7 +235,7 @@ class AccountMethods extends AbstractMethods {
   protected final RequestMethod<TxHash> unstake = new RequestMethod<TxHash>() {
 
     @Getter
-    protected final String name = "unstake";
+    protected final String name = ACCOUNT_UNSTAKE;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -236,10 +246,11 @@ class AccountMethods extends AbstractMethods {
 
     @Override
     protected TxHash runInternal(final List<Object> parameters) throws Exception {
-      logger.debug("Unstaking account with {}", parameters);
       final Signer signer = (Signer) parameters.get(0);
       final Aer amount = (Aer) parameters.get(1);
-      final Long nonce = (Long) parameters.get(2);
+      final long nonce = (long) parameters.get(2);
+      logger.debug("Unstaking account with signer: {}, amount: {}, nonce: {}",
+          signer, amount, nonce);
 
       final RawTransaction rawTransaction = new UnStakeTransactionBuilder()
           .chainIdHash(getChainIdHash())
@@ -257,7 +268,7 @@ class AccountMethods extends AbstractMethods {
   protected final RequestMethod<StakeInfo> stakeInfo = new RequestMethod<StakeInfo>() {
 
     @Getter
-    protected final String name = "stakeInfo";
+    protected final String name = ACCOUNT_STAKEINFO;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -266,8 +277,8 @@ class AccountMethods extends AbstractMethods {
 
     @Override
     protected StakeInfo runInternal(final List<Object> parameters) throws Exception {
-      logger.debug("Get staking information with {}", parameters);
       final AccountAddress accountAddress = (AccountAddress) parameters.get(0);
+      logger.debug("Get staking information with address: {}", accountAddress);
 
       final Rpc.AccountAddress rpcAddress = Rpc.AccountAddress.newBuilder()
           .setValue(accountAddressConverter.convertToRpcModel(accountAddress))
@@ -288,7 +299,7 @@ class AccountMethods extends AbstractMethods {
   protected final RequestMethod<TxHash> vote = new RequestMethod<TxHash>() {
 
     @Getter
-    protected final String name = "vote";
+    protected final String name = ACCOUNT_VOTE;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -301,11 +312,12 @@ class AccountMethods extends AbstractMethods {
     @SuppressWarnings("unchecked")
     @Override
     protected TxHash runInternal(final List<Object> parameters) throws Exception {
-      logger.debug("Voting with {}", parameters);
       final Signer signer = (Signer) parameters.get(0);
       final String voteId = (String) parameters.get(1);
       final List<String> candidates = (List<String>) parameters.get(2);
-      final Long nonce = (Long) parameters.get(3);
+      final long nonce = (long) parameters.get(3);
+      logger.debug("Voting with signer: {}, voteId: {}, candidates: {}, nonce: {}", signer, voteId,
+          candidates, nonce);
 
       final RawTransaction rawTransaction = new VoteTransactionBuilder()
           .chainIdHash(getChainIdHash())
@@ -325,7 +337,7 @@ class AccountMethods extends AbstractMethods {
       new RequestMethod<List<ElectedCandidate>>() {
 
         @Getter
-        protected final String name = "listElected";
+        protected final String name = ACCOUNT_LIST_ELECTED;
 
         @Override
         protected void validate(final List<Object> parameters) {
@@ -336,9 +348,9 @@ class AccountMethods extends AbstractMethods {
         @Override
         protected List<ElectedCandidate> runInternal(final List<Object> parameters)
             throws Exception {
-          logger.debug("Get votes status with {}", parameters);
           final String voteId = (String) parameters.get(0);
           final int showCount = (int) parameters.get(1);
+          logger.debug("Get votes status with voteId: {}, showCount: {}", voteId, showCount);
 
           final Rpc.VoteParams rpcVoteParams = Rpc.VoteParams.newBuilder()
               .setId(voteId)
@@ -362,7 +374,7 @@ class AccountMethods extends AbstractMethods {
   protected final RequestMethod<AccountTotalVote> voteOf = new RequestMethod<AccountTotalVote>() {
 
     @Getter
-    protected final String name = "voteOf";
+    protected final String name = ACCOUNT_VOTESOF;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -371,8 +383,8 @@ class AccountMethods extends AbstractMethods {
 
     @Override
     protected AccountTotalVote runInternal(final List<Object> parameters) throws Exception {
-      logger.debug("Get votes with {}", parameters);
       final AccountAddress accountAddress = (AccountAddress) parameters.get(0);
+      logger.debug("Get votes with address: {}", accountAddress);
 
       final Rpc.AccountAddress rpcAddress = Rpc.AccountAddress.newBuilder()
           .setValue(accountAddressConverter.convertToRpcModel(accountAddress))

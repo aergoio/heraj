@@ -4,6 +4,14 @@
 
 package hera.client;
 
+import static hera.client.Methods.BLOCK_BY_HASH;
+import static hera.client.Methods.BLOCK_BY_HEIGHT;
+import static hera.client.Methods.BLOCK_LIST_METADATAS_BY_HASH;
+import static hera.client.Methods.BLOCK_LIST_METADATAS_BY_HEIGHT;
+import static hera.client.Methods.BLOCK_METADATA_BY_HASH;
+import static hera.client.Methods.BLOCK_METADATA_BY_HEIGHT;
+import static hera.client.Methods.BLOCK_SUBSCRIBE_BLOCK;
+import static hera.client.Methods.BLOCK_SUBSCRIBE_BLOCKMETADATA;
 import static hera.util.TransportUtils.copyFrom;
 
 import hera.RequestMethod;
@@ -35,7 +43,7 @@ class BlockMethods extends AbstractMethods {
       new RequestMethod<BlockMetadata>() {
 
         @Getter
-        protected final String name = "blockMetadataByHash";
+        protected final String name = BLOCK_METADATA_BY_HASH;
 
         @Override
         protected void validate(final List<Object> parameters) {
@@ -62,7 +70,7 @@ class BlockMethods extends AbstractMethods {
       new RequestMethod<BlockMetadata>() {
 
         @Getter
-        protected final String name = "blockMetadataByHeight";
+        protected final String name = BLOCK_METADATA_BY_HEIGHT;
 
         @Override
         protected void validate(final List<Object> parameters) {
@@ -91,7 +99,7 @@ class BlockMethods extends AbstractMethods {
       new RequestMethod<List<BlockMetadata>>() {
 
         @Getter
-        protected final String name = "listBlockMetadatasByHash";
+        protected final String name = BLOCK_LIST_METADATAS_BY_HASH;
 
         @Override
         protected void validate(final List<Object> parameters) {
@@ -127,7 +135,7 @@ class BlockMethods extends AbstractMethods {
       new RequestMethod<List<BlockMetadata>>() {
 
         @Getter
-        protected final String name = "listBlockMetadatasByHeight";
+        protected final String name = BLOCK_LIST_METADATAS_BY_HEIGHT;
 
         @Override
         protected void validate(final List<Object> parameters) {
@@ -163,7 +171,7 @@ class BlockMethods extends AbstractMethods {
   protected final RequestMethod<Block> blockByHash = new RequestMethod<Block>() {
 
     @Getter
-    protected final String name = "blockByHash";
+    protected final String name = BLOCK_BY_HASH;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -190,7 +198,7 @@ class BlockMethods extends AbstractMethods {
   protected final RequestMethod<Block> blockByHeight = new RequestMethod<Block>() {
 
     @Getter
-    protected final String name = "blockByHeight";
+    protected final String name = BLOCK_BY_HEIGHT;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -220,7 +228,7 @@ class BlockMethods extends AbstractMethods {
       new RequestMethod<Subscription<BlockMetadata>>() {
 
         @Getter
-        protected final String name = "subscribeBlockMetadata";
+        protected final String name = BLOCK_SUBSCRIBE_BLOCKMETADATA;
 
         @Override
         protected void validate(final List<Object> parameters) {
@@ -255,7 +263,7 @@ class BlockMethods extends AbstractMethods {
       new RequestMethod<Subscription<Block>>() {
 
         @Getter
-        protected final String name = "subscribeBlock";
+        protected final String name = BLOCK_SUBSCRIBE_BLOCK;
 
         @Override
         protected void validate(final List<Object> parameters) {

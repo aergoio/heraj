@@ -20,7 +20,6 @@ import hera.api.model.TxHash;
 import hera.key.Signer;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 class AccountTemplate extends AbstractTemplate implements AccountOperation {
 
@@ -37,14 +36,7 @@ class AccountTemplate extends AbstractTemplate implements AccountOperation {
 
   @Override
   public AccountState getState(final AccountAddress address) {
-    return request(new Callable<AccountState>() {
-      @Override
-      public AccountState call() throws Exception {
-        return requester.request(accountMethods
-            .getAccountState()
-            .toInvocation(Arrays.<Object>asList(address)));
-      }
-    });
+    return request(accountMethods.getAccountState(), Arrays.<Object>asList(address));
   }
 
   @Override
@@ -54,14 +46,7 @@ class AccountTemplate extends AbstractTemplate implements AccountOperation {
 
   @Override
   public TxHash createName(final Signer signer, final String name, final long nonce) {
-    return request(new Callable<TxHash>() {
-      @Override
-      public TxHash call() throws Exception {
-        return requester.request(accountMethods
-            .getCreateName()
-            .toInvocation(Arrays.asList(signer, name, nonce)));
-      }
-    });
+    return request(accountMethods.getCreateName(), Arrays.<Object>asList(signer, name, nonce));
   }
 
   @Override
@@ -73,14 +58,8 @@ class AccountTemplate extends AbstractTemplate implements AccountOperation {
   @Override
   public TxHash updateName(final Signer signer, final String name, final AccountAddress newOwner,
       final long nonce) {
-    return request(new Callable<TxHash>() {
-      @Override
-      public TxHash call() throws Exception {
-        return requester.request(accountMethods
-            .getUpdateName()
-            .toInvocation(Arrays.asList(signer, name, newOwner, nonce)));
-      }
-    });
+    return request(accountMethods.getUpdateName(),
+        Arrays.asList(signer, name, newOwner, nonce));
   }
 
   @Override
@@ -90,14 +69,7 @@ class AccountTemplate extends AbstractTemplate implements AccountOperation {
 
   @Override
   public AccountAddress getNameOwner(final String name, final long blockNumber) {
-    return request(new Callable<AccountAddress>() {
-      @Override
-      public AccountAddress call() throws Exception {
-        return requester.request(accountMethods
-            .getNameOwner()
-            .toInvocation(Arrays.<Object>asList(name, blockNumber)));
-      }
-    });
+    return request(accountMethods.getNameOwner(), Arrays.<Object>asList(name, blockNumber));
   }
 
   @Override
@@ -107,14 +79,7 @@ class AccountTemplate extends AbstractTemplate implements AccountOperation {
 
   @Override
   public TxHash stake(final Signer signer, final Aer amount, final long nonce) {
-    return request(new Callable<TxHash>() {
-      @Override
-      public TxHash call() throws Exception {
-        return requester.request(accountMethods
-            .getStake()
-            .toInvocation(Arrays.asList(signer, amount, nonce)));
-      }
-    });
+    return request(accountMethods.getStake(), Arrays.<Object>asList(signer, amount, nonce));
   }
 
   @Override
@@ -124,63 +89,29 @@ class AccountTemplate extends AbstractTemplate implements AccountOperation {
 
   @Override
   public TxHash unstake(final Signer signer, final Aer amount, final long nonce) {
-    return request(new Callable<TxHash>() {
-      @Override
-      public TxHash call() throws Exception {
-        return requester.request(accountMethods
-            .getUnstake()
-            .toInvocation(Arrays.asList(signer, amount, nonce)));
-      }
-    });
+    return request(accountMethods.getUnstake(), Arrays.<Object>asList(signer, amount, nonce));
   }
 
   @Override
   public StakeInfo getStakingInfo(final AccountAddress accountAddress) {
-    return request(new Callable<StakeInfo>() {
-      @Override
-      public StakeInfo call() throws Exception {
-        return requester.request(accountMethods
-            .getStakeInfo()
-            .toInvocation(Arrays.<Object>asList(accountAddress)));
-      }
-    });
+    return request(accountMethods.getStakeInfo(), Arrays.<Object>asList(accountAddress));
   }
 
   @Override
   public TxHash vote(final Signer signer, final String voteId, final List<String> candidates,
       final long nonce) {
-    return request(new Callable<TxHash>() {
-      @Override
-      public TxHash call() throws Exception {
-        return requester.request(accountMethods
-            .getVote()
-            .toInvocation(Arrays.asList(signer, voteId, candidates, nonce)));
-      }
-    });
+    return request(accountMethods.getVote(),
+        Arrays.<Object>asList(signer, voteId, candidates, nonce));
   }
 
   @Override
   public AccountTotalVote getVotesOf(final AccountAddress accountAddress) {
-    return request(new Callable<AccountTotalVote>() {
-      @Override
-      public AccountTotalVote call() throws Exception {
-        return requester.request(accountMethods
-            .getVoteOf()
-            .toInvocation(Arrays.<Object>asList(accountAddress)));
-      }
-    });
+    return request(accountMethods.getVoteOf(), Arrays.<Object>asList(accountAddress));
   }
 
   @Override
   public List<ElectedCandidate> listElected(final String voteId, final int showCount) {
-    return request(new Callable<List<ElectedCandidate>>() {
-      @Override
-      public List<ElectedCandidate> call() throws Exception {
-        return requester.request(accountMethods
-            .getListElected()
-            .toInvocation(Arrays.<Object>asList(voteId, showCount)));
-      }
-    });
+    return request(accountMethods.getListElected(), Arrays.<Object>asList(voteId, showCount));
   }
 
   @Override

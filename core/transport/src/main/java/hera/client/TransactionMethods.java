@@ -5,6 +5,9 @@
 package hera.client;
 
 import static hera.api.model.BytesValue.of;
+import static hera.client.Methods.TRANSACTION_COMMIT;
+import static hera.client.Methods.TRANSACTION_IN_BLOCK;
+import static hera.client.Methods.TRANSACTION_IN_MEMPOOL;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -32,10 +35,10 @@ class TransactionMethods extends AbstractMethods {
       new TransactionInBlockConverterFactory().create();
 
   @Getter
-  private final RequestMethod<Transaction> transaction = new RequestMethod<Transaction>() {
+  private final RequestMethod<Transaction> transactionInMemPool = new RequestMethod<Transaction>() {
 
     @Getter
-    protected final String name = "transaction";
+    protected final String name = TRANSACTION_IN_MEMPOOL;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -62,7 +65,7 @@ class TransactionMethods extends AbstractMethods {
   private final RequestMethod<Transaction> transactionInBlock = new RequestMethod<Transaction>() {
 
     @Getter
-    protected final String name = "transactionInBlock";
+    protected final String name = TRANSACTION_IN_BLOCK;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -89,7 +92,7 @@ class TransactionMethods extends AbstractMethods {
   private final RequestMethod<TxHash> commit = new RequestMethod<TxHash>() {
 
     @Getter
-    protected final String name = "commit";
+    protected final String name = TRANSACTION_COMMIT;
 
     @Override
     protected void validate(final List<Object> parameters) {

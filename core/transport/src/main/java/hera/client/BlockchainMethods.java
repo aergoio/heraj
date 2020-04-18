@@ -4,6 +4,13 @@
 
 package hera.client;
 
+import static hera.client.Methods.BLOCKCHAIN_BLOCKCHAINSTATUS;
+import static hera.client.Methods.BLOCKCHAIN_CHAININFO;
+import static hera.client.Methods.BLOCKCHAIN_CHAINSTATS;
+import static hera.client.Methods.BLOCKCHAIN_LIST_PEERS;
+import static hera.client.Methods.BLOCKCHAIN_NODESTATUS;
+import static hera.client.Methods.BLOCKCHAIN_PEERMETRICS;
+import static hera.client.Methods.BLOCKCHAIN_SERVERINFO;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -78,7 +85,7 @@ class BlockchainMethods extends AbstractMethods {
       new RequestMethod<BlockchainStatus>() {
 
         @Getter
-        protected final String name = "blockchainStatus";
+        protected final String name = BLOCKCHAIN_BLOCKCHAINSTATUS;
 
         @Override
         protected BlockchainStatus runInternal(final List<Object> parameters) throws Exception {
@@ -96,7 +103,7 @@ class BlockchainMethods extends AbstractMethods {
   protected final RequestMethod<ChainInfo> chainInfo = new RequestMethod<ChainInfo>() {
 
     @Getter
-    protected final String name = "chainInfo";
+    protected final String name = BLOCKCHAIN_CHAININFO;
 
     @Override
     protected ChainInfo runInternal(final List<Object> parameters) throws Exception {
@@ -114,7 +121,7 @@ class BlockchainMethods extends AbstractMethods {
   protected final RequestMethod<ChainStats> chainStats = new RequestMethod<ChainStats>() {
 
     @Getter
-    protected final String name = "chainStats";
+    protected final String name = BLOCKCHAIN_CHAINSTATS;
 
     @Override
     protected ChainStats runInternal(final List<Object> parameters) throws Exception {
@@ -132,7 +139,7 @@ class BlockchainMethods extends AbstractMethods {
   protected final RequestMethod<List<Peer>> listPeers = new RequestMethod<List<Peer>>() {
 
     @Getter
-    protected final String name = "listPeers";
+    protected final String name = BLOCKCHAIN_LIST_PEERS;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -167,7 +174,7 @@ class BlockchainMethods extends AbstractMethods {
       new RequestMethod<List<PeerMetric>>() {
 
         @Getter
-        protected final String name = "listPeersMetrics";
+        protected final String name = BLOCKCHAIN_PEERMETRICS;
 
         @Override
         protected List<PeerMetric> runInternal(final List<Object> parameters) throws Exception {
@@ -191,7 +198,7 @@ class BlockchainMethods extends AbstractMethods {
   protected final RequestMethod<ServerInfo> serverInfo = new RequestMethod<ServerInfo>() {
 
     @Getter
-    protected final String name = "serverInfo";
+    protected final String name = BLOCKCHAIN_SERVERINFO;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -217,7 +224,7 @@ class BlockchainMethods extends AbstractMethods {
   protected final RequestMethod<NodeStatus> nodeStatus = new RequestMethod<NodeStatus>() {
 
     @Getter
-    protected final String name = "nodeStatus";
+    protected final String name = BLOCKCHAIN_NODESTATUS;
 
     @Override
     protected NodeStatus runInternal(final List<Object> parameters) throws Exception {

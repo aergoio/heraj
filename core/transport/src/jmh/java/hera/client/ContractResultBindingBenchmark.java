@@ -5,6 +5,7 @@
 package hera.client;
 
 import hera.api.model.BytesValue;
+import hera.api.model.ContractResult;
 import java.io.IOException;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,7 +43,7 @@ public class ContractResultBindingBenchmark {
     }
 
     public void bind() throws IOException {
-      new ContractResultImpl(rawResult).bind(Data.class);
+      new ContractResult(rawResult).bind(Data.class);
     }
 
   }
