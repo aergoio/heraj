@@ -40,13 +40,13 @@ class ContractTemplate extends AbstractTemplate implements ContractOperation {
   @Override
   public ContractTxHash deploy(final Account creator, final ContractDefinition contractDefinition,
       final long nonce) {
-    throw new UnsupportedOperationException("Use Signer instead");
+    return deploy(creator.getKey(), contractDefinition, nonce, Fee.ZERO);
   }
 
   @Override
   public ContractTxHash deploy(final Account creator, final ContractDefinition contractDefinition,
       final long nonce, final Fee fee) {
-    throw new UnsupportedOperationException("Use Signer instead");
+    return deploy(creator.getKey(), contractDefinition, nonce, fee);
   }
 
   @Override
@@ -71,13 +71,13 @@ class ContractTemplate extends AbstractTemplate implements ContractOperation {
   @Override
   public ContractTxHash execute(final Account executor, final ContractInvocation contractInvocation,
       final long nonce) {
-    throw new UnsupportedOperationException("Use Signer instead");
+    return execute(executor.getKey(), contractInvocation, nonce, Fee.ZERO);
   }
 
   @Override
   public ContractTxHash execute(final Account executor, final ContractInvocation contractInvocation,
       final long nonce, final Fee fee) {
-    throw new UnsupportedOperationException("Use Signer instead");
+    return execute(executor.getKey(), contractInvocation, nonce, fee);
   }
 
   @Override

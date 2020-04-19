@@ -17,6 +17,7 @@ import hera.api.model.RawTransaction;
 import hera.api.model.StakeInfo;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.key.AergoSignVerifier;
 import hera.key.Signer;
 import java.util.Arrays;
 import java.util.List;
@@ -30,7 +31,7 @@ class AccountTemplate extends AbstractTemplate implements AccountOperation {
   }
 
   @Override
-  public AccountState getState(Account account) {
+  public AccountState getState(final Account account) {
     return getState(account.getAddress());
   }
 
@@ -41,7 +42,7 @@ class AccountTemplate extends AbstractTemplate implements AccountOperation {
 
   @Override
   public TxHash createName(final Account account, final String name, final long nonce) {
-    throw new UnsupportedOperationException();
+    return createName(account.getKey(), name, nonce);
   }
 
   @Override
@@ -52,7 +53,7 @@ class AccountTemplate extends AbstractTemplate implements AccountOperation {
   @Override
   public TxHash updateName(final Account owner, final String name, final AccountAddress newOwner,
       final long nonce) {
-    throw new UnsupportedOperationException("Use Signer instead");
+    return updateName(owner.getKey(), name, newOwner, nonce);
   }
 
   @Override
@@ -74,7 +75,7 @@ class AccountTemplate extends AbstractTemplate implements AccountOperation {
 
   @Override
   public TxHash stake(final Account account, final Aer amount, final long nonce) {
-    throw new UnsupportedOperationException("Use Signer instead");
+    return stake(account.getKey(), amount, nonce);
   }
 
   @Override
@@ -83,8 +84,8 @@ class AccountTemplate extends AbstractTemplate implements AccountOperation {
   }
 
   @Override
-  public TxHash unstake(Account account, Aer amount, long nonce) {
-    throw new UnsupportedOperationException("Use Signer instead");
+  public TxHash unstake(final Account account, final Aer amount, final long nonce) {
+    return unstake(account.getKey(), amount, nonce);
   }
 
   @Override
@@ -116,12 +117,12 @@ class AccountTemplate extends AbstractTemplate implements AccountOperation {
 
   @Override
   public Transaction sign(final Account account, final RawTransaction rawTransaction) {
-    throw new UnsupportedOperationException("Use AergoKey instead");
+    return account.getKey().sign(rawTransaction);
   }
 
   @Override
   public boolean verify(final Account account, final Transaction transaction) {
-    throw new UnsupportedOperationException("Use AergoSignVerifier instead");
+    return new AergoSignVerifier().verify(transaction);
   }
 
 }
