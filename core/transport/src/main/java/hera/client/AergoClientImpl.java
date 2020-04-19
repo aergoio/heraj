@@ -17,7 +17,7 @@ import hera.api.ContractOperation;
 import hera.api.KeyStoreOperation;
 import hera.api.TransactionOperation;
 import hera.api.model.ChainIdHash;
-import hera.exception.RpcException;
+import hera.exception.HerajException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -65,10 +65,10 @@ class AergoClientImpl implements AergoClient {
       final Context context = contextStorage.get();
       final ClientProvider<?> clientProvider = context.get(GRPC_CLIENT_PROVIDER);
       clientProvider.close();
-    } catch (RpcException e) {
+    } catch (HerajException e) {
       throw e;
     } catch (Exception e) {
-      throw new RpcException(e);
+      throw new HerajException(e);
     }
   }
 

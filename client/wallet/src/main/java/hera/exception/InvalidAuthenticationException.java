@@ -1,6 +1,11 @@
 package hera.exception;
 
-public class InvalidAuthenticationException extends KeyStoreException {
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+
+@ApiAudience.Public
+@ApiStability.Unstable
+public class InvalidAuthenticationException extends HerajException {
 
   private static final long serialVersionUID = -5982577098746592808L;
 

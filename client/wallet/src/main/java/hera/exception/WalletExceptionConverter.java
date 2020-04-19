@@ -6,20 +6,24 @@ package hera.exception;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.util.ExceptionConverter;
 import org.slf4j.Logger;
 
-public class WalletExceptionConverter implements ExceptionConverter<WalletException> {
+@ApiAudience.Private
+@ApiStability.Unstable
+public class WalletExceptionConverter implements ExceptionConverter<HerajException> {
 
-  protected final Logger logger = getLogger(getClass());
+  protected final transient Logger logger = getLogger(getClass());
 
   @Override
-  public WalletException convert(final Throwable t) {
+  public HerajException convert(final Throwable t) {
     logger.debug("Handle exception {}", t.toString());
-    if (t instanceof WalletException) {
-      return (WalletException) t;
+    if (t instanceof HerajException) {
+      return (HerajException) t;
     } else {
-      return new WalletException(t);
+      return new HerajException(t);
     }
   }
 

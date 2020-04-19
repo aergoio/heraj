@@ -31,7 +31,7 @@ import hera.api.model.Transaction;
 import hera.api.transaction.NonceProvider;
 import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
-import hera.exception.WalletException;
+import hera.exception.HerajException;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.model.KeyAlias;
@@ -93,7 +93,8 @@ public class ContractIT extends AbstractWalletApiIT {
 
     final AccountState state = aergoClient.getAccountOperation().getState(rich.getAddress());
     logger.debug("Rich state: {}", state);
-    nonceProvider.bindNonce(state);;
+    nonceProvider.bindNonce(state);
+    ;
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .chainIdHash(aergoClient.getCachedChainIdHash())
         .from(rich.getPrincipal())
@@ -127,7 +128,7 @@ public class ContractIT extends AbstractWalletApiIT {
     try {
       deploy(payload, fee);
       fail();
-    } catch (WalletException e) {
+    } catch (HerajException e) {
       // good we expected this
     }
   }
@@ -209,10 +210,12 @@ public class ContractIT extends AbstractWalletApiIT {
           }
 
           @Override
-          public void onError(Throwable t) {}
+          public void onError(Throwable t) {
+          }
 
           @Override
-          public void onCompleted() {}
+          public void onCompleted() {
+          }
         });
 
     // then
@@ -247,10 +250,12 @@ public class ContractIT extends AbstractWalletApiIT {
           }
 
           @Override
-          public void onError(Throwable t) {}
+          public void onError(Throwable t) {
+          }
 
           @Override
-          public void onCompleted() {}
+          public void onCompleted() {
+          }
         });
 
     // then

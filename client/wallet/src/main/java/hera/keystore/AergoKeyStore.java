@@ -13,9 +13,9 @@ import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Identity;
 import hera.api.model.KeyFormat;
+import hera.exception.HerajException;
 import hera.exception.InvalidAuthenticationException;
 import hera.exception.InvalidKeyStoreFormatException;
-import hera.exception.KeyStoreException;
 import hera.key.AergoKey;
 import hera.key.KeyCipherStrategy;
 import hera.key.KeyFormatV1Strategy;
@@ -78,12 +78,12 @@ public class AergoKeyStore implements KeyStore {
 
     final File file = new File(root + "/" + STORAGE_DIR);
     if (file.exists() && file.isFile()) {
-      throw new KeyStoreException("Keystore target is a file");
+      throw new HerajException("Keystore target is a file");
     }
     if (!file.exists()) {
       final boolean mkdirSuccess = file.mkdirs();
       if (!mkdirSuccess) {
-        throw new KeyStoreException("Unable to make directory: " + root);
+        throw new HerajException("Unable to make directory: " + root);
       }
       logger.debug("Create directory: {}", root);
     }
@@ -119,10 +119,10 @@ public class AergoKeyStore implements KeyStore {
           os.write(keyFormat.getBytesValue().getValue());
         }
       }
-    } catch (KeyStoreException e) {
+    } catch (HerajException e) {
       throw e;
     } catch (Exception e) {
-      throw new KeyStoreException(e);
+      throw new HerajException(e);
     }
   }
 
@@ -135,10 +135,10 @@ public class AergoKeyStore implements KeyStore {
       synchronized (lock) {
         return loadAergoKey(authentication);
       }
-    } catch (KeyStoreException e) {
+    } catch (HerajException e) {
       throw e;
     } catch (Exception e) {
-      throw new KeyStoreException(e);
+      throw new HerajException(e);
     }
   }
 
@@ -159,10 +159,10 @@ public class AergoKeyStore implements KeyStore {
           }
         }
       }
-    } catch (KeyStoreException e) {
+    } catch (HerajException e) {
       throw e;
     } catch (Exception e) {
-      throw new KeyStoreException(e);
+      throw new HerajException(e);
     }
   }
 
@@ -178,10 +178,10 @@ public class AergoKeyStore implements KeyStore {
       final AergoKey decrypted = loadAergoKey(authentication);
       logger.trace("Address to export: {}", decrypted.getAddress());
       return decrypted.export(password);
-    } catch (KeyStoreException e) {
+    } catch (HerajException e) {
       throw e;
     } catch (Exception e) {
-      throw new KeyStoreException(e);
+      throw new HerajException(e);
     }
   }
 
@@ -222,7 +222,7 @@ public class AergoKeyStore implements KeyStore {
       logger.debug("Identities: {}", identities);
       return identities;
     } catch (Exception e) {
-      throw new KeyStoreException(e);
+      throw new HerajException(e);
     }
   }
 

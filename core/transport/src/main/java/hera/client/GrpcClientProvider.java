@@ -12,7 +12,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import hera.Context;
 import hera.ContextHolder;
 import hera.api.model.HostnameAndPort;
-import hera.exception.RpcException;
+import hera.exception.HerajException;
 import hera.strategy.ChannelConfigurationStrategy;
 import hera.strategy.ConnectStrategy;
 import hera.strategy.NettyConnectStrategy;
@@ -81,7 +81,7 @@ class GrpcClientProvider implements ClientProvider<GrpcClient> {
       }
     } catch (Throwable e) {
       logger.debug("Fail to close grpc client by {}", e.toString());
-      throw new RpcException(e);
+      throw new HerajException(e);
     }
   }
 

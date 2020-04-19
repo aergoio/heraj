@@ -12,7 +12,7 @@ import hera.api.model.BytesValue;
 import hera.api.model.ChainIdHash;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
-import hera.exception.RpcConnectionException;
+import hera.exception.ConnectionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -29,7 +29,7 @@ public class AergoClientIT extends AbstractIT {
     try {
       client.getBlockchainOperation().getBlockchainStatus();
       fail();
-    } catch (RpcConnectionException e) {
+    } catch (ConnectionException e) {
       // good we expected this
     } finally {
       client.close();

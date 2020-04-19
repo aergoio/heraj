@@ -8,7 +8,7 @@ import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.Fee;
-import hera.exception.ContractException;
+import hera.exception.HerajException;
 import hera.util.StringUtils;
 import hera.wallet.WalletApi;
 import java.lang.reflect.InvocationHandler;
@@ -48,10 +48,10 @@ class ContractInvocationHandler implements InvocationHandler {
         logger.debug("Contract Invocation with  invocator: {}", this.contractInvocator);
         return this.contractInvocator.invoke(method, args);
       }
-    } catch (ContractException e) {
+    } catch (HerajException e) {
       throw e;
     } catch (Exception e) {
-      throw new ContractException(e);
+      throw new HerajException(e);
     }
   }
 
@@ -93,7 +93,7 @@ class ContractInvocationHandler implements InvocationHandler {
       Object ret = null;
       if (Void.TYPE.equals(method.getReturnType())) {
         if (contractInvocation.getFunction().isView()) {
-          throw new ContractException(
+          throw new HerajException(
               "Unable to execute with function registered with abi.register_view()");
         }
 
@@ -102,7 +102,7 @@ class ContractInvocationHandler implements InvocationHandler {
         walletApi.transactionApi().execute(contractInvocation, fee);
       } else {
         if (!contractInvocation.getFunction().isView()) {
-          throw new ContractException(
+          throw new HerajException(
               "Unable to query with function registered with abi.register()");
         }
 

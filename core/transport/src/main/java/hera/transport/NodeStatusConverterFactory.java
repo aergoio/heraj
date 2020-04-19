@@ -12,7 +12,7 @@ import hera.api.model.ModuleStatus;
 import hera.api.model.NodeStatus;
 import hera.api.transaction.AergoJsonMapper;
 import hera.api.transaction.JsonMapper;
-import hera.exception.RpcException;
+import hera.exception.HerajException;
 import java.util.ArrayList;
 import org.slf4j.Logger;
 import types.Rpc;
@@ -46,7 +46,7 @@ public class NodeStatusConverterFactory {
             logger.trace("Domain node status converted: {}", domainNodeStatus);
             return domainNodeStatus;
           } catch (Throwable e) {
-            throw new RpcException(e);
+            throw new HerajException(e);
           }
         }
       };

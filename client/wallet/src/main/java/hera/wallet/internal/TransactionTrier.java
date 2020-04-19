@@ -11,8 +11,8 @@ import hera.api.function.Function0;
 import hera.api.function.Function1;
 import hera.api.model.Account;
 import hera.api.model.TxHash;
-import hera.exception.RpcCommitException;
-import hera.exception.WalletException;
+import hera.exception.CommitException;
+import hera.exception.HerajException;
 import hera.model.TryCountAndInterval;
 import lombok.Getter;
 import lombok.Setter;
@@ -58,7 +58,7 @@ public class TransactionTrier {
    * is invoked when {@code firstTrier} has failed. If {@code transactionRequester} fails, retry
    * after refreshing nonce.
    *
-   * @param firstTrier a first trier
+   * @param firstTrier           a first trier
    * @param transactionRequester a transaction requester
    * @return a transaction hash
    */
@@ -104,26 +104,26 @@ public class TransactionTrier {
     }
 
     if (!success) {
-      throw new WalletException(exception);
+      throw new HerajException(exception);
     }
 
     return txHash;
   }
 
   protected boolean isNonceRelatedException(final Exception e) {
-    if (!(e instanceof RpcCommitException)) {
+    if (!(e instanceof CommitException)) {
       return false;
     }
-    final RpcCommitException cause = (RpcCommitException) e;
-    return cause.getCommitStatus() == RpcCommitException.CommitStatus.NONCE_TOO_LOW
-        || cause.getCommitStatus() == RpcCommitException.CommitStatus.TX_HAS_SAME_NONCE;
+    final CommitException cause = (CommitException) e;
+    return cause.getCommitStatus() == CommitException.CommitStatus.NONCE_TOO_LOW
+        || cause.getCommitStatus() == CommitException.CommitStatus.TX_HAS_SAME_NONCE;
   }
 
   protected boolean isChainIdHashException(final Exception e) {
-    if (!(e instanceof RpcCommitException)) {
+    if (!(e instanceof CommitException)) {
       return false;
     }
-    final RpcCommitException cause = (RpcCommitException) e;
+    final CommitException cause = (CommitException) e;
     // FIXME : no another way?
     return cause.getMessage().indexOf("invalid chain id") != -1;
   }

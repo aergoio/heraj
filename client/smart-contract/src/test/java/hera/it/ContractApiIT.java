@@ -23,7 +23,7 @@ import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
 import hera.contract.ContractApi;
 import hera.contract.ContractApiFactory;
-import hera.exception.ContractException;
+import hera.exception.HerajException;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.keystore.InMemoryKeyStore;
@@ -67,7 +67,8 @@ public class ContractApiIT extends AbstractIT {
     final NonceProvider nonceProvider = new SimpleNonceProvider();
     final AccountState state = aergoClient.getAccountOperation().getState(rich.getAddress());
     logger.debug("Rich state: {}", state);
-    nonceProvider.bindNonce(state);;
+    nonceProvider.bindNonce(state);
+    ;
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .chainIdHash(aergoClient.getCachedChainIdHash())
         .from(rich.getPrincipal())
@@ -114,7 +115,8 @@ public class ContractApiIT extends AbstractIT {
     // contractApi.walletApi(walletApi).fee(fee).setNil(nilArg);
     contractApi.walletApi(walletApi).fee(fee).setBoolean(booleanArg);
     contractApi.walletApi(walletApi).fee(fee).setNumber(numberArg);
-    contractApi.walletApi(walletApi).fee(fee).setString(stringArg);;
+    contractApi.walletApi(walletApi).fee(fee).setString(stringArg);
+    ;
 
     waitForNextBlockToGenerate();
 
@@ -132,7 +134,7 @@ public class ContractApiIT extends AbstractIT {
           .create(contractAddress, InvalidMethodNameInterface.class);
       contractApi.walletApi(walletApi).fee(fee).getNill();
       fail();
-    } catch (ContractException e) {
+    } catch (HerajException e) {
       // then
     }
   }

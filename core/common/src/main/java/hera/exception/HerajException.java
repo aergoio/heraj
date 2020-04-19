@@ -4,6 +4,11 @@
 
 package hera.exception;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+
+@ApiAudience.Public
+@ApiStability.Unstable
 public class HerajException extends RuntimeException {
 
   private static final long serialVersionUID = 1429103468497275409L;

@@ -6,9 +6,9 @@ package hera.client;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import hera.exception.RpcConnectionException;
-import hera.exception.RpcException;
-import hera.exception.RpcExceptionConverter;
+import hera.exception.ConnectionException;
+import hera.exception.HerajException;
+import hera.exception.TransportExceptionConverter;
 import hera.transport.ModelConverter;
 import hera.util.ExceptionConverter;
 import lombok.AccessLevel;
@@ -21,7 +21,8 @@ class GrpcStreamObserverAdaptor<RpcModelT, DomainModelT>
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final ExceptionConverter<RpcException> exceptionConverter = new RpcExceptionConverter();
+  protected final ExceptionConverter<HerajException> exceptionConverter =
+      new TransportExceptionConverter();
 
   protected final io.grpc.Context.CancellableContext context;
 
@@ -32,16 +33,16 @@ class GrpcStreamObserverAdaptor<RpcModelT, DomainModelT>
   @Override
   public void onNext(final RpcModelT value) {
     final DomainModelT converted = converter.convertToDomainModel(value);
-    logger.info("Streaming next: {}", converted);
+    logger.debug("Streaming next: {}", converted);
     delegate.onNext(converted);
   }
 
   @Override
   public void onError(final Throwable t) {
-    final RpcException converted = exceptionConverter.convert(t);
+    final HerajException converted = exceptionConverter.convert(t);
     logger.error("Streaming failed by {}", converted.toString());
-    if (converted instanceof RpcConnectionException) {
-      logger.info("Stop subscription by connection error");
+    if (converted instanceof ConnectionException) {
+      logger.debug("Stop subscription by connection error");
       context.cancel(converted);
     }
     delegate.onError(t);
@@ -49,7 +50,7 @@ class GrpcStreamObserverAdaptor<RpcModelT, DomainModelT>
 
   @Override
   public void onCompleted() {
-    logger.info("Streaming finished successfully");
+    logger.debug("Streaming finished successfully");
     delegate.onCompleted();
   }
 

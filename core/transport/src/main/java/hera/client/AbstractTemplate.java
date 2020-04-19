@@ -13,8 +13,8 @@ import hera.ContextHolder;
 import hera.ContextStorage;
 import hera.RequestMethod;
 import hera.Requester;
-import hera.exception.RpcException;
-import hera.exception.RpcExceptionConverter;
+import hera.exception.HerajException;
+import hera.exception.TransportExceptionConverter;
 import hera.util.ExceptionConverter;
 import java.util.List;
 import org.slf4j.Logger;
@@ -26,7 +26,8 @@ abstract class AbstractTemplate {
   // not final for test
   protected Requester requester = new DecoratingRequester();
 
-  protected final ExceptionConverter<RpcException> exceptionConverter = new RpcExceptionConverter();
+  protected final ExceptionConverter<HerajException> exceptionConverter =
+      new TransportExceptionConverter();
 
   protected final ContextStorage<Context> contextStorage;
 

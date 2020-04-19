@@ -8,7 +8,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.function.Function1;
 import hera.api.model.ServerInfo;
-import hera.exception.RpcException;
+import hera.exception.HerajException;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -49,7 +49,7 @@ public class ServerInfoConverterFactory {
             logger.trace("Domain server info converted: {}", domainServerInfo);
             return domainServerInfo;
           } catch (Throwable e) {
-            throw new RpcException(e);
+            throw new HerajException(e);
           }
         }
       };

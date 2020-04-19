@@ -19,7 +19,6 @@ import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.exception.KeyStoreException;
 import java.io.Closeable;
 import java.util.List;
 
@@ -27,7 +26,6 @@ import java.util.List;
  * A legacy wallet api.
  *
  * @deprecated use {@link WalletApi} instead.
- *
  */
 @ApiAudience.Public
 @ApiStability.Unstable
@@ -58,8 +56,6 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    *
    * @param authentication an authentication
    * @return an unlocked account. null if failure
-   *
-   * @throws KeyStoreException on keystore error
    */
   Account loadAccount(Authentication authentication);
 
@@ -90,7 +86,7 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
   /**
    * Update name info of to an new owner.
    *
-   * @param name an already binded name
+   * @param name     an already binded name
    * @param newOwner an new owner of name
    * @return a update name transaction hash
    */
@@ -123,7 +119,7 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
   /**
    * Vote to {@code candidates} with {@code voteId}.
    *
-   * @param voteId a vote id
+   * @param voteId     a vote id
    * @param candidates a candidates to vote
    * @return voting transaction hash
    */
@@ -133,7 +129,7 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * Send <b>aer</b>.
    *
    * @param recipient a recipient name
-   * @param amount an amount
+   * @param amount    an amount
    * @return a send transaction hash
    */
   TxHash send(String recipient, Aer amount);
@@ -142,8 +138,8 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * Send <b>aer</b> with {@code fee}.
    *
    * @param recipient a recipient name
-   * @param amount an amount
-   * @param fee a fee
+   * @param amount    an amount
+   * @param fee       a fee
    * @return a send transaction hash
    */
   TxHash send(String recipient, Aer amount, Fee fee);
@@ -152,8 +148,8 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * Send <b>aer</b> and {@code payload}.
    *
    * @param recipient a recipient name
-   * @param amount an amount
-   * @param payload a payload
+   * @param amount    an amount
+   * @param payload   a payload
    * @return a send transaction hash
    */
   TxHash send(String recipient, Aer amount, BytesValue payload);
@@ -162,9 +158,9 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * Send <b>aer</b> with {@code fee} and {@code payload}.
    *
    * @param recipient a recipient name
-   * @param amount an amount
-   * @param fee a fee
-   * @param payload a payload
+   * @param amount    an amount
+   * @param fee       a fee
+   * @param payload   a payload
    * @return a send transaction hash
    */
   TxHash send(String recipient, Aer amount, Fee fee, BytesValue payload);
@@ -173,7 +169,7 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * Send <b>aer</b> with {@code fee}.
    *
    * @param recipient a recipient
-   * @param amount an amount
+   * @param amount    an amount
    * @return a send transaction hash
    */
   TxHash send(AccountAddress recipient, Aer amount);
@@ -182,8 +178,8 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * Send <b>aer</b> with {@code fee}.
    *
    * @param recipient a recipient
-   * @param amount an amount
-   * @param fee a fee
+   * @param amount    an amount
+   * @param fee       a fee
    * @return a send transaction hash
    */
   TxHash send(AccountAddress recipient, Aer amount, Fee fee);
@@ -192,8 +188,8 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * Send <b>aer</b> with {@code fee} and {@code payload}.
    *
    * @param recipient a recipient
-   * @param amount an amount
-   * @param payload a payload
+   * @param amount    an amount
+   * @param payload   a payload
    * @return a send transaction hash
    */
   TxHash send(AccountAddress recipient, Aer amount, BytesValue payload);
@@ -202,9 +198,9 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * Send <b>aer</b> with {@code fee} and {@code payload}.
    *
    * @param recipient a recipient
-   * @param amount an amount
-   * @param fee a fee
-   * @param payload a payload
+   * @param amount    an amount
+   * @param fee       a fee
+   * @param payload   a payload
    * @return a send transaction hash
    */
   TxHash send(AccountAddress recipient, Aer amount, Fee fee, BytesValue payload);
@@ -237,7 +233,7 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * Deploy smart contract.
    *
    * @param contractDefinition a contract definition
-   * @param fee a fee to make a transaction
+   * @param fee                a fee to make a transaction
    * @return a contract transaction hash
    */
   ContractTxHash deploy(ContractDefinition contractDefinition, Fee fee);
@@ -254,7 +250,7 @@ public interface Wallet extends AccountHoldable, KeyManageable, QueryClient, Clo
    * Execute a smart contract function.
    *
    * @param contractInvocation a contract invocation
-   * @param fee a fee to make a transaction
+   * @param fee                a fee to make a transaction
    * @return a contract transaction hash
    */
   ContractTxHash execute(ContractInvocation contractInvocation, Fee fee);

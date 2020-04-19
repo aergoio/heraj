@@ -43,7 +43,7 @@ import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.exception.WalletException;
+import hera.exception.HerajException;
 import hera.exception.WalletExceptionConverter;
 import hera.key.AergoKey;
 import hera.key.AergoSignVerifier;
@@ -59,14 +59,13 @@ import org.slf4j.Logger;
  * wallet. Remove after account interface is removed.
  *
  * @author taeiklim
- *
  */
 @AllArgsConstructor
 public class LegacyWallet implements Wallet {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final ExceptionConverter<WalletException> exceptionConverter =
+  protected final ExceptionConverter<HerajException> exceptionConverter =
       new WalletExceptionConverter();
 
   protected final WalletType type;
@@ -138,10 +137,10 @@ public class LegacyWallet implements Wallet {
     try {
       final WalletApiImpl walletApiImpl = (WalletApiImpl) delegate;
       if (walletApiImpl.keyStore instanceof JavaKeyStore) {
-        ((JavaKeyStore) walletApiImpl.keyStore).store(path, password.toCharArray());
+        walletApiImpl.keyStore.store(path, password.toCharArray());
       }
     } catch (Exception e) {
-      throw new WalletException(e);
+      throw new HerajException(e);
     }
   }
 

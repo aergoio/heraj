@@ -12,8 +12,8 @@ import hera.annotation.ApiStability;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Identity;
+import hera.exception.HerajException;
 import hera.exception.InvalidAuthenticationException;
-import hera.exception.KeyStoreException;
 import hera.key.AergoKey;
 import hera.key.Signer;
 import hera.util.Sha256Utils;
@@ -56,10 +56,10 @@ public class InMemoryKeyStore implements KeyStore {
         this.storedIdentities.add(authentication.getIdentity());
         this.hashedAuth2Encrypted.put(digested, encrypted);
       }
-    } catch (final KeyStoreException e) {
+    } catch (final HerajException e) {
       throw e;
     } catch (final Exception e) {
-      throw new KeyStoreException(e);
+      throw new HerajException(e);
     }
   }
 
@@ -82,10 +82,10 @@ public class InMemoryKeyStore implements KeyStore {
       final AergoKey decrypted = AergoKey.of(encrypted, authentication.getPassword());
       logger.trace("Decrypted address: {}", decrypted.getAddress());
       return decrypted;
-    } catch (final KeyStoreException e) {
+    } catch (final HerajException e) {
       throw e;
     } catch (final Exception e) {
-      throw new KeyStoreException(e);
+      throw new HerajException(e);
     }
   }
 
@@ -104,10 +104,10 @@ public class InMemoryKeyStore implements KeyStore {
         this.storedIdentities.remove(identity);
         this.hashedAuth2Encrypted.remove(digested);
       }
-    } catch (final KeyStoreException e) {
+    } catch (final HerajException e) {
       throw e;
     } catch (final Exception e) {
-      throw new KeyStoreException(e);
+      throw new HerajException(e);
     }
   }
 
@@ -131,10 +131,10 @@ public class InMemoryKeyStore implements KeyStore {
 
       final AergoKey decrypted = AergoKey.of(encrypted, authentication.getPassword());
       return decrypted.export(password);
-    } catch (final KeyStoreException e) {
+    } catch (final HerajException e) {
       throw e;
     } catch (final Exception e) {
-      throw new KeyStoreException(e);
+      throw new HerajException(e);
     }
   }
 
@@ -148,7 +148,7 @@ public class InMemoryKeyStore implements KeyStore {
       logger.debug("Identities: {}", identities);
       return identities;
     } catch (final Exception e) {
-      throw new KeyStoreException(e);
+      throw new HerajException(e);
     }
   }
 

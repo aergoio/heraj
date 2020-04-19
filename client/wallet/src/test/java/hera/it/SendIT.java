@@ -21,7 +21,7 @@ import hera.api.model.TxHash;
 import hera.api.transaction.NonceProvider;
 import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
-import hera.exception.WalletException;
+import hera.exception.HerajException;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.model.KeyAlias;
@@ -66,7 +66,8 @@ public class SendIT extends AbstractWalletApiIT {
 
     final AccountState state = aergoClient.getAccountOperation().getState(rich.getAddress());
     logger.debug("Rich state: {}", state);
-    nonceProvider.bindNonce(state);;
+    nonceProvider.bindNonce(state);
+    ;
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .chainIdHash(aergoClient.getCachedChainIdHash())
         .from(rich.getPrincipal())
@@ -108,7 +109,7 @@ public class SendIT extends AbstractWalletApiIT {
     try {
       walletApi.transactionApi().send(recipient, amount, fee, payload);
       fail();
-    } catch (WalletException e) {
+    } catch (HerajException e) {
       // good we expected this
     }
   }
@@ -159,7 +160,7 @@ public class SendIT extends AbstractWalletApiIT {
     try {
       walletApi.transactionApi().send(name, amount, fee, payload);
       fail();
-    } catch (WalletException e) {
+    } catch (HerajException e) {
       // good we expected this
     }
   }

@@ -9,7 +9,7 @@ import static hera.util.ValidationUtils.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.BytesValue;
-import hera.exception.RpcException;
+import hera.exception.HerajException;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
@@ -44,7 +44,7 @@ public class TlsChannelStrategy implements SecurityConfigurationStrategy {
    * @param serverName a server common name (CN)
    * @param serverCert a server certification input stream
    * @param clientCert a client certification input stream
-   * @param clientKey a server key input stream
+   * @param clientKey  a server key input stream
    */
   public TlsChannelStrategy(final String serverName, final InputStream serverCert,
       final InputStream clientCert, final InputStream clientKey) {
@@ -58,7 +58,7 @@ public class TlsChannelStrategy implements SecurityConfigurationStrategy {
       this.clientCert = BytesValue.of(from(clientCert));
       this.clientKey = BytesValue.of(from(clientKey));
     } catch (Exception e) {
-      throw new RpcException(e);
+      throw new HerajException(e);
     }
   }
 
@@ -77,13 +77,13 @@ public class TlsChannelStrategy implements SecurityConfigurationStrategy {
         final SSLSocketFactory sslSocketFactory = null;
         ((OkHttpChannelBuilder) builder).sslSocketFactory(sslSocketFactory);
       } else {
-        throw new RpcException("Unsupported channel builder type " + builder.getClass());
+        throw new HerajException("Unsupported channel builder type " + builder.getClass());
       }
       builder.overrideAuthority(serverName).useTransportSecurity();
-    } catch (final RpcException e) {
+    } catch (final HerajException e) {
       throw e;
     } catch (final Exception e) {
-      throw new RpcException(e);
+      throw new HerajException(e);
     }
   }
 

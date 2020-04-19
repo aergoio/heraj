@@ -14,8 +14,8 @@ import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.client.AergoClient;
+import hera.exception.HerajException;
 import hera.exception.InvalidAuthenticationException;
-import hera.exception.WalletException;
 import hera.exception.WalletExceptionConverter;
 import hera.key.Signer;
 import hera.keystore.KeyStore;
@@ -29,7 +29,7 @@ import lombok.Getter;
 
 public class WalletApiImpl implements WalletApi {
 
-  protected final ExceptionConverter<WalletException> converter = new WalletExceptionConverter();
+  protected final ExceptionConverter<HerajException> converter = new WalletExceptionConverter();
 
   protected final KeyStore keyStore;
 
@@ -107,7 +107,7 @@ public class WalletApiImpl implements WalletApi {
   @Override
   public TransactionApi transactionApi() {
     if (null == this.aergoClient) {
-      throw new WalletException("Bind client first by 'WalletApi.bind(aergoClient)'");
+      throw new HerajException("Bind client first by 'WalletApi.bind(aergoClient)'");
     }
     return this.transactionApi;
   }
@@ -115,7 +115,7 @@ public class WalletApiImpl implements WalletApi {
   @Override
   public QueryApi queryApi() {
     if (null == this.aergoClient) {
-      throw new WalletException("Bind client first by 'WalletApi.bind(aergoClient)'");
+      throw new HerajException("Bind client first by 'WalletApi.bind(aergoClient)'");
     }
     return this.queryApi;
   }
@@ -125,7 +125,7 @@ public class WalletApiImpl implements WalletApi {
     try {
       assertNotNull(rawTransaction, "Raw transaction must not null");
       if (!getPrincipal().equals(rawTransaction.getSender())) {
-        throw new WalletException("Sender of the rawTransaction should equals with unlocked one");
+        throw new HerajException("Sender of the rawTransaction should equals with unlocked one");
       }
 
       return getSigner().sign(rawTransaction);
@@ -163,7 +163,7 @@ public class WalletApiImpl implements WalletApi {
 
   protected Signer getSigner() {
     if (null == this.signer) {
-      throw new WalletException("Unlock account first");
+      throw new HerajException("Unlock account first");
     }
     return this.signer;
   }

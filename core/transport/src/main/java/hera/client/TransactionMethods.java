@@ -14,7 +14,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import hera.RequestMethod;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.exception.RpcCommitException;
+import hera.exception.CommitException;
 import hera.transport.ModelConverter;
 import hera.transport.TransactionConverterFactory;
 import hera.transport.TransactionInBlockConverterFactory;
@@ -113,7 +113,7 @@ class TransactionMethods extends AbstractMethods {
       final Rpc.CommitResultList rpcCommitResultList = getBlockingStub().commitTX(rpcTxList);
       final Rpc.CommitResult rpcCommitResult = rpcCommitResultList.getResultsList().get(0);
       if (Rpc.CommitStatus.TX_OK != rpcCommitResult.getError()) {
-        throw new RpcCommitException(rpcCommitResult.getError(),
+        throw new CommitException(rpcCommitResult.getError(),
             rpcCommitResult.getDetail());
       }
       return new TxHash(of(rpcCommitResult.getHash().toByteArray()));

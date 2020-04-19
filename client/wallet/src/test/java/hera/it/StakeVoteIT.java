@@ -20,7 +20,7 @@ import hera.api.model.Transaction;
 import hera.api.transaction.NonceProvider;
 import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
-import hera.exception.WalletException;
+import hera.exception.HerajException;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.model.KeyAlias;
@@ -67,7 +67,8 @@ public class StakeVoteIT extends AbstractWalletApiIT {
 
     final AccountState state = aergoClient.getAccountOperation().getState(rich.getAddress());
     logger.debug("Rich state: {}", state);
-    nonceProvider.bindNonce(state);;
+    nonceProvider.bindNonce(state);
+    ;
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .chainIdHash(aergoClient.getCachedChainIdHash())
         .from(rich.getPrincipal())
@@ -109,7 +110,7 @@ public class StakeVoteIT extends AbstractWalletApiIT {
       final Aer minimum = walletApi.queryApi().getChainInfo().getMinimumStakingAmount();
       walletApi.transactionApi().stake(minimum.subtract(Aer.ONE));
       fail();
-    } catch (WalletException e) {
+    } catch (HerajException e) {
       // good we expected this
     }
   }
@@ -120,7 +121,7 @@ public class StakeVoteIT extends AbstractWalletApiIT {
     try {
       walletApi.transactionApi().stake(Aer.of("10000", Unit.AERGO));
       fail();
-    } catch (WalletException e) {
+    } catch (HerajException e) {
       // good we expected this
     }
   }

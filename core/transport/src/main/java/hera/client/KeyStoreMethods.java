@@ -26,7 +26,7 @@ import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
-import hera.exception.RpcCommitException;
+import hera.exception.CommitException;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.AuthenticationConverterFactory;
 import hera.transport.EncryptedPrivateKeyConverterFactory;
@@ -330,7 +330,7 @@ class KeyStoreMethods extends AbstractMethods {
 
       final Rpc.CommitResult rpcCommitResult = getBlockingStub().sendTX(rpcTx);
       if (Rpc.CommitStatus.TX_OK != rpcCommitResult.getError()) {
-        throw new RpcCommitException(rpcCommitResult.getError(),
+        throw new CommitException(rpcCommitResult.getError(),
             rpcCommitResult.getDetail());
       }
       return new TxHash(of(rpcCommitResult.getHash().toByteArray()));

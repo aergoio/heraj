@@ -11,8 +11,8 @@ import hera.api.model.ChainIdHash;
 import hera.api.model.TxHash;
 import hera.api.transaction.NonceProvider;
 import hera.client.AergoClient;
-import hera.exception.RpcCommitException;
-import hera.exception.RpcException;
+import hera.exception.CommitException;
+import hera.exception.HerajException;
 import hera.key.Signer;
 import hera.model.TryCountAndInterval;
 import lombok.Getter;
@@ -41,7 +41,7 @@ public class Trier {
    * Try transaction request with a requester. If {@code transactionRequester} fails, retry after
    * refreshing nonce.
    *
-   * @param signer a signer to sign transaction
+   * @param signer               a signer to sign transaction
    * @param transactionRequester a transaction requester
    * @return a transaction hash
    */
@@ -53,14 +53,14 @@ public class Trier {
         transactionRequester);
 
     TxHash txHash = null;
-    RpcException recentException = null;
+    HerajException recentException = null;
 
     int i = tryCountAndInterval.getCount();
     while (0 <= i && null == txHash) {
       final long nonceToBeUsed = nonceProvider.incrementAndGetNonce(signer.getPrincipal());
       try {
         txHash = transactionRequester.apply(signer, nonceToBeUsed);
-      } catch (RpcException e) {
+      } catch (HerajException e) {
         recentException = e;
         if (isNonceRelatedException(e)) {
           logger.info("Request failed with invalid nonce.. try left: {}", i);
@@ -84,20 +84,20 @@ public class Trier {
     return txHash;
   }
 
-  protected boolean isNonceRelatedException(final RpcException e) {
-    if (!(e instanceof RpcCommitException)) {
+  protected boolean isNonceRelatedException(final HerajException e) {
+    if (!(e instanceof CommitException)) {
       return false;
     }
-    final RpcCommitException cause = (RpcCommitException) e;
-    return cause.getCommitStatus() == RpcCommitException.CommitStatus.NONCE_TOO_LOW
-        || cause.getCommitStatus() == RpcCommitException.CommitStatus.TX_HAS_SAME_NONCE;
+    final CommitException cause = (CommitException) e;
+    return cause.getCommitStatus() == CommitException.CommitStatus.NONCE_TOO_LOW
+        || cause.getCommitStatus() == CommitException.CommitStatus.TX_HAS_SAME_NONCE;
   }
 
-  protected boolean isChainIdHashException(final RpcException e) {
-    if (!(e instanceof RpcCommitException)) {
+  protected boolean isChainIdHashException(final HerajException e) {
+    if (!(e instanceof CommitException)) {
       return false;
     }
-    final RpcCommitException cause = (RpcCommitException) e;
+    final CommitException cause = (CommitException) e;
     // FIXME : no other way?
     return cause.getMessage().indexOf("invalid chain id") != -1;
   }

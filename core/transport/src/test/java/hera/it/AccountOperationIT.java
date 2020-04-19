@@ -17,11 +17,10 @@ import hera.api.model.Peer;
 import hera.api.model.RawTransaction;
 import hera.api.model.StakeInfo;
 import hera.api.model.Transaction;
-import hera.api.model.VoteInfo;
 import hera.api.transaction.NonceProvider;
 import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
-import hera.exception.RpcCommitException;
+import hera.exception.CommitException;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import java.util.ArrayList;
@@ -91,9 +90,9 @@ public class AccountOperationIT extends AbstractIT {
       final String name = randomName();
       aergoClient.getAccountOperation().createName(key, name, 0L);
       fail();
-    } catch (RpcCommitException e) {
+    } catch (CommitException e) {
       // then
-      assertEquals(RpcCommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
+      assertEquals(CommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
     }
   }
 
@@ -131,7 +130,7 @@ public class AccountOperationIT extends AbstractIT {
       aergoClient.getAccountOperation().updateName(key, invalidName, newOwner,
           nonceProvider.incrementAndGetNonce(key.getAddress()));
       fail();
-    } catch (RpcCommitException e) {
+    } catch (CommitException e) {
       // then
     }
   }
@@ -149,9 +148,9 @@ public class AccountOperationIT extends AbstractIT {
       final AccountAddress newOwner = new AergoKeyGenerator().create().getAddress();
       aergoClient.getAccountOperation().updateName(key, name, newOwner, 0L);
       fail();
-    } catch (RpcCommitException e) {
+    } catch (CommitException e) {
       // then
-      assertEquals(RpcCommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
+      assertEquals(CommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
     }
   }
 
@@ -193,7 +192,7 @@ public class AccountOperationIT extends AbstractIT {
       aergoClient.getAccountOperation().stake(key, minimumAmount.subtract(Aer.ONE),
           nonceProvider.incrementAndGetNonce(key.getAddress()));
       fail();
-    } catch (RpcCommitException e) {
+    } catch (CommitException e) {
       // then
     }
   }
@@ -208,9 +207,9 @@ public class AccountOperationIT extends AbstractIT {
       aergoClient.getAccountOperation().stake(key, minimumAmount,
           nonceProvider.incrementAndGetNonce(key.getAddress()));
       fail();
-    } catch (RpcCommitException e) {
+    } catch (CommitException e) {
       // then
-      assertEquals(RpcCommitException.CommitStatus.INSUFFICIENT_BALANCE, e.getCommitStatus());
+      assertEquals(CommitException.CommitStatus.INSUFFICIENT_BALANCE, e.getCommitStatus());
     }
   }
 
@@ -222,9 +221,9 @@ public class AccountOperationIT extends AbstractIT {
           aergoClient.getBlockchainOperation().getChainInfo().getMinimumStakingAmount();
       aergoClient.getAccountOperation().stake(key, minimumAmount, 0L);
       fail();
-    } catch (RpcCommitException e) {
+    } catch (CommitException e) {
       // then
-      assertEquals(RpcCommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
+      assertEquals(CommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
     }
   }
 
@@ -258,9 +257,9 @@ public class AccountOperationIT extends AbstractIT {
     // when
     try {
       aergoClient.getAccountOperation().unstake(key, minimumAmount, 0L);
-    } catch (RpcCommitException e) {
+    } catch (CommitException e) {
       // then
-      assertEquals(RpcCommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
+      assertEquals(CommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
     }
   }
 
@@ -298,7 +297,7 @@ public class AccountOperationIT extends AbstractIT {
       aergoClient.getAccountOperation().vote(key, "voteBP", candidates,
           nonceProvider.incrementAndGetNonce(key.getAddress()));
       fail();
-    } catch (RpcCommitException e) {
+    } catch (CommitException e) {
       // then
     }
   }

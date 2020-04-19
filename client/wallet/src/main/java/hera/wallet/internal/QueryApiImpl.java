@@ -33,7 +33,7 @@ import hera.api.model.Subscription;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.client.AergoClient;
-import hera.exception.WalletException;
+import hera.exception.HerajException;
 import hera.exception.WalletExceptionConverter;
 import hera.util.ExceptionConverter;
 import hera.wallet.QueryApi;
@@ -49,7 +49,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @NonNull
   protected AergoClient client;
 
-  protected final ExceptionConverter<WalletException> converter = new WalletExceptionConverter();
+  protected final ExceptionConverter<HerajException> converter = new WalletExceptionConverter();
 
   @Override
   public AccountState getAccountState(final AccountAddress accountAddress) {
@@ -353,7 +353,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
 
   protected AergoClient getClient() {
     if (null == this.client) {
-      throw new WalletException("Aergo client isn't binded yet");
+      throw new HerajException("Aergo client isn't binded yet");
     }
     return this.client;
   }

@@ -4,12 +4,16 @@
 
 package hera.exception;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+@ApiAudience.Public
+@ApiStability.Unstable
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public class RpcCommitException extends RpcException {
+public class CommitException extends HerajException {
 
   private static final long serialVersionUID = -3973554154789144558L;
 
@@ -38,7 +42,7 @@ public class RpcCommitException extends RpcException {
    * @param rpcCommitStatus a rpc commit status
    * @param message         a message
    */
-  public RpcCommitException(final types.Rpc.CommitStatus rpcCommitStatus, final String message) {
+  public CommitException(final types.Rpc.CommitStatus rpcCommitStatus, final String message) {
     this.message = message;
     switch (rpcCommitStatus) {
       case TX_OK:

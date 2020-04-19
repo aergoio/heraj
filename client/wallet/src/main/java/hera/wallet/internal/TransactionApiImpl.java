@@ -19,7 +19,7 @@ import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
-import hera.exception.WalletException;
+import hera.exception.HerajException;
 import hera.exception.WalletExceptionConverter;
 import hera.key.Signer;
 import hera.model.TryCountAndInterval;
@@ -40,13 +40,13 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
   @NonNull
   protected AergoClient client;
 
-  protected final ExceptionConverter<WalletException> converter = new WalletExceptionConverter();
+  protected final ExceptionConverter<HerajException> converter = new WalletExceptionConverter();
 
   /**
    * TransactionApiImpl constructor.
-   * 
+   *
    * @param tryCountAndInterval a tryCountAndInterval
-   * @param signer a signe
+   * @param signer              a signe
    */
   public TransactionApiImpl(final TryCountAndInterval tryCountAndInterval, final Signer signer) {
     final Trier trier = new Trier();
@@ -303,14 +303,14 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
 
   protected Signer getSigner() {
     if (null == this.signer || null == this.signer.getPrincipal()) {
-      throw new WalletException("Unlock account first");
+      throw new HerajException("Unlock account first");
     }
     return this.signer;
   }
 
   protected AergoClient getClient() {
     if (null == this.client) {
-      throw new WalletException("Aergo client isn't binded yet");
+      throw new HerajException("Aergo client isn't binded yet");
     }
     return this.client;
   }

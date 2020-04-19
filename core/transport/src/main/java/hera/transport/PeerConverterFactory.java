@@ -10,7 +10,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import hera.api.function.Function1;
 import hera.api.model.BlockHash;
 import hera.api.model.Peer;
-import hera.exception.RpcException;
+import hera.exception.HerajException;
 import hera.util.Base58Utils;
 import java.net.Inet6Address;
 import java.net.UnknownHostException;
@@ -21,12 +21,11 @@ public class PeerConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final Function1<Peer,
-      Rpc.Peer> domainConverter = new Function1<Peer, Rpc.Peer>() {
-        public Rpc.Peer apply(final Peer domainPeer) {
-          throw new UnsupportedOperationException();
-        }
-      };
+  protected final Function1<Peer, Rpc.Peer> domainConverter = new Function1<Peer, Rpc.Peer>() {
+    public Rpc.Peer apply(final Peer domainPeer) {
+      throw new UnsupportedOperationException();
+    }
+  };
 
   protected final Function1<Rpc.Peer, Peer> rpcConverter = new Function1<Rpc.Peer, Peer>() {
 
@@ -49,7 +48,7 @@ public class PeerConverterFactory {
         logger.trace("Domain peer converted: {}", domainPeer);
         return domainPeer;
       } catch (UnknownHostException e) {
-        throw new RpcException("Invalid peer host name", e);
+        throw new HerajException("Invalid peer host name", e);
       }
     }
   };

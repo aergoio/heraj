@@ -13,8 +13,8 @@ import hera.annotation.ApiStability;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Identity;
+import hera.exception.HerajException;
 import hera.exception.InvalidAuthenticationException;
-import hera.exception.KeyStoreException;
 import hera.key.AergoKey;
 import hera.key.Signer;
 import hera.model.KeyAlias;
@@ -23,6 +23,7 @@ import hera.util.pki.ECDSAKeyGenerator;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
@@ -56,8 +57,7 @@ public class JavaKeyStore implements KeyStore {
    * Create a keystore which uses {@link java.security.KeyStore}.
    *
    * @param delegate a java keystore
-   *
-   * @throws KeyStoreException on keystore error
+   * @throws HerajException on keystore error
    */
   public JavaKeyStore(final java.security.KeyStore delegate) {
     try {
@@ -65,7 +65,7 @@ public class JavaKeyStore implements KeyStore {
       logger.debug("Create JKS with delegate: {}", delegate);
       this.delegate = delegate;
     } catch (Exception e) {
-      throw new KeyStoreException(e);
+      throw new HerajException(e);
     }
   }
 
@@ -73,8 +73,7 @@ public class JavaKeyStore implements KeyStore {
    * Create a keystore which uses {@link java.security.KeyStore}.
    *
    * @param type a keystore type see {@link java.security.KeyStore#getInstance(String)}
-   *
-   * @throws KeyStoreException on keystore error
+   * @throws HerajException on keystore error
    */
   public JavaKeyStore(final String type) {
     this(type, null, null);
@@ -83,11 +82,10 @@ public class JavaKeyStore implements KeyStore {
   /**
    * Create a keystore which uses {@link java.security.KeyStore}.
    *
-   * @param type a keystore type see
-   *        {@link java.security.KeyStore#getInstance(String, java.security.Provider)}
+   * @param type     a keystore type see {@link java.security.KeyStore#getInstance(String,
+   *                 java.security.Provider)}
    * @param provider a keystore provider
-   *
-   * @throws KeyStoreException on keystore error
+   * @throws HerajException on keystore error
    */
   public JavaKeyStore(final String type, final java.security.Provider provider) {
     this(type, provider, null, null);
@@ -96,11 +94,10 @@ public class JavaKeyStore implements KeyStore {
   /**
    * Create a keystore which uses {@link java.security.KeyStore}.
    *
-   * @param type a keystore type see {@link java.security.KeyStore#getInstance(String)}
+   * @param type        a keystore type see {@link java.security.KeyStore#getInstance(String)}
    * @param inputStream an input stream for keystore
-   * @param password a keystore password
-   *
-   * @throws KeyStoreException on keystore error
+   * @param password    a keystore password
+   * @throws HerajException on keystore error
    */
   public JavaKeyStore(final String type, final InputStream inputStream, final char[] password) {
     try {
@@ -109,20 +106,19 @@ public class JavaKeyStore implements KeyStore {
       this.delegate = java.security.KeyStore.getInstance(type);
       this.delegate.load(inputStream, password);
     } catch (Exception e) {
-      throw new KeyStoreException(e);
+      throw new HerajException(e);
     }
   }
 
   /**
    * Create a keystore which uses {@link java.security.KeyStore}.
    *
-   * @param type a keystore type see
-   *        {@link java.security.KeyStore#getInstance(String, java.security.Provider)}
-   * @param provider a keystore provider
+   * @param type        a keystore type see {@link java.security.KeyStore#getInstance(String,
+   *                    java.security.Provider)}
+   * @param provider    a keystore provider
    * @param inputStream an input stream for keystore
-   * @param password a keystore password
-   *
-   * @throws KeyStoreException on keystore error
+   * @param password    a keystore password
+   * @throws HerajException on keystore error
    */
   public JavaKeyStore(final String type, final java.security.Provider provider,
       final InputStream inputStream, final char[] password) {
@@ -133,7 +129,7 @@ public class JavaKeyStore implements KeyStore {
       this.delegate = java.security.KeyStore.getInstance(type, provider);
       this.delegate.load(inputStream, password);
     } catch (Exception e) {
-      throw new KeyStoreException(e);
+      throw new HerajException(e);
     }
   }
 
@@ -153,13 +149,13 @@ public class JavaKeyStore implements KeyStore {
         final java.security.PrivateKey privateKey = key.getPrivateKey();
         final char[] rawPassword = authentication.getPassword().toCharArray();
         final Certificate cert = generateCertificate(key);
-        final Certificate[] certChain = new Certificate[] {cert};
+        final Certificate[] certChain = new Certificate[]{cert};
         this.delegate.setKeyEntry(alias, privateKey, rawPassword, certChain);
       }
     } catch (InvalidAuthenticationException e) {
       throw e;
     } catch (Exception e) {
-      throw new KeyStoreException(e);
+      throw new HerajException(e);
     }
   }
 
@@ -176,7 +172,7 @@ public class JavaKeyStore implements KeyStore {
     final X509CertificateHolder holder = new X509v3CertificateBuilder(
         name, BigInteger.ONE, start.getTime(), expiry.getTime(), name,
         SubjectPublicKeyInfo.getInstance(key.getPublicKey().getEncoded()))
-            .build(signer);
+        .build(signer);
     final Certificate cert = new JcaX509CertificateConverter()
         .setProvider(bcProvider)
         .getCertificate(holder);
@@ -204,7 +200,7 @@ public class JavaKeyStore implements KeyStore {
     } catch (InvalidAuthenticationException e) {
       throw e;
     } catch (Exception e) {
-      throw new KeyStoreException(e);
+      throw new HerajException(e);
     }
   }
 
@@ -224,7 +220,7 @@ public class JavaKeyStore implements KeyStore {
     } catch (InvalidAuthenticationException e) {
       throw e;
     } catch (Exception e) {
-      throw new KeyStoreException(e);
+      throw new HerajException(e);
     }
   }
 
@@ -248,7 +244,7 @@ public class JavaKeyStore implements KeyStore {
     } catch (InvalidAuthenticationException e) {
       throw e;
     } catch (Exception e) {
-      throw new KeyStoreException(e);
+      throw new HerajException(e);
     }
   }
 
@@ -268,7 +264,7 @@ public class JavaKeyStore implements KeyStore {
       logger.debug("Identities: {}", identities);
       return identities;
     } catch (Exception e) {
-      throw new KeyStoreException(e);
+      throw new HerajException(e);
     }
   }
 
@@ -280,12 +276,12 @@ public class JavaKeyStore implements KeyStore {
         this.delegate.store(os, password);
       }
     } catch (Exception e) {
-      throw new KeyStoreException(e);
+      throw new HerajException(e);
     }
   }
 
   protected boolean isExists(final Authentication authentication)
-      throws java.security.KeyStoreException, NoSuchAlgorithmException {
+      throws KeyStoreException, NoSuchAlgorithmException {
     final String alias = authentication.getIdentity().getValue();
     if (this.delegate.containsAlias(alias)) {
       return true;
@@ -300,13 +296,13 @@ public class JavaKeyStore implements KeyStore {
     } catch (UnrecoverableKeyException e) {
       // decrypt failure
       return false;
-    } catch (java.security.KeyStoreException | NoSuchAlgorithmException e) {
+    } catch (NoSuchAlgorithmException e) {
       throw e;
     }
   }
 
   protected java.security.Key loadRawKey(final Authentication authentication)
-      throws UnrecoverableKeyException, java.security.KeyStoreException, NoSuchAlgorithmException {
+      throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException {
     final String alias = authentication.getIdentity().getValue();
     final char[] rawPassword = authentication.getPassword().toCharArray();
     final java.security.Key rawKey = delegate.getKey(alias, rawPassword);

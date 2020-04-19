@@ -20,7 +20,7 @@ import hera.api.model.TxHash;
 import hera.api.transaction.NonceProvider;
 import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
-import hera.exception.RpcCommitException;
+import hera.exception.CommitException;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import org.junit.AfterClass;
@@ -235,9 +235,9 @@ public class TransactionOperationIT extends AbstractIT {
       // when
       aergoClient.getTransactionOperation().commit(signed);
       fail();
-    } catch (RpcCommitException e) {
+    } catch (CommitException e) {
       // then
-      assertEquals(RpcCommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
+      assertEquals(CommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
     }
   }
 
@@ -282,9 +282,9 @@ public class TransactionOperationIT extends AbstractIT {
           .build();
       final Transaction signed = key.sign(rawTransaction);
       aergoClient.getTransactionOperation().commit(signed);
-    } catch (RpcCommitException e) {
+    } catch (CommitException e) {
       // then
-      assertEquals(RpcCommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
+      assertEquals(CommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
     }
   }
 
@@ -306,7 +306,7 @@ public class TransactionOperationIT extends AbstractIT {
       final Transaction signed = recipient.sign(rawTransaction);
       aergoClient.getTransactionOperation().commit(signed);
       fail();
-    } catch (RpcCommitException e) {
+    } catch (CommitException e) {
       // then
     }
   }

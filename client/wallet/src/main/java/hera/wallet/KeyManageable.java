@@ -6,7 +6,6 @@ package hera.wallet;
 
 import hera.api.model.Authentication;
 import hera.api.model.Identity;
-import hera.exception.KeyStoreException;
 import hera.key.AergoKey;
 import java.io.Closeable;
 import java.util.List;
@@ -27,8 +26,6 @@ public interface KeyManageable extends Closeable {
    *
    * @param aergoKey an aergo key
    * @param password an encrypt key
-   *
-   * @throws KeyStoreException on keystore error
    */
   void saveKey(AergoKey aergoKey, String password);
 
@@ -38,8 +35,6 @@ public interface KeyManageable extends Closeable {
    * @param aergoKey an aergo key
    * @param identity an identity to save key
    * @param password an encrypt key
-   *
-   * @throws KeyStoreException on keystore error
    */
   void saveKey(AergoKey aergoKey, Identity identity, String password);
 
@@ -48,8 +43,6 @@ public interface KeyManageable extends Closeable {
    *
    * @param authentication an authentication
    * @return encoded encrypted private key
-   *
-   * @throws KeyStoreException on keystore error
    */
   String exportKey(Authentication authentication);
 
@@ -57,8 +50,6 @@ public interface KeyManageable extends Closeable {
    * Get all the stored identities in a binded key store.
    *
    * @return stored identities
-   *
-   * @throws KeyStoreException on keystore error
    */
   List<Identity> listKeyStoreIdentities();
 
@@ -67,8 +58,6 @@ public interface KeyManageable extends Closeable {
    *
    * @param authentication an authentication
    * @return unlock result
-   *
-   * @throws KeyStoreException on keystore error
    */
   boolean unlock(Authentication authentication);
 
@@ -77,19 +66,15 @@ public interface KeyManageable extends Closeable {
    *
    * @param authentication an authentication
    * @return unlock result
-   *
-   * @throws KeyStoreException on keystore error
    */
   boolean lock(Authentication authentication);
 
   /**
-   * Store the keystore to the path. This operation has a meaning only for
-   * {@link WalletType#Secure}. For other wallet type, do nothing.
+   * Store the keystore to the path. This operation has a meaning only for {@link
+   * WalletType#Secure}. For other wallet type, do nothing.
    *
-   * @param path a path
+   * @param path     a path
    * @param password a password used in storing key store
-   *
-   * @throws KeyStoreException on keystore error
    */
   void storeKeyStore(String path, String password);
 

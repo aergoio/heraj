@@ -1,6 +1,11 @@
 package hera.exception;
 
-public class InvalidKeyStoreFormatException extends KeyStoreException {
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+
+@ApiAudience.Public
+@ApiStability.Unstable
+public class InvalidKeyStoreFormatException extends HerajException {
 
   private static final long serialVersionUID = 8640476144823299969L;
 

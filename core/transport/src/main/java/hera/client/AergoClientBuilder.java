@@ -22,7 +22,7 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.HostnameAndPort;
 import hera.api.model.Time;
-import hera.exception.RpcException;
+import hera.exception.HerajException;
 import hera.strategy.NettyConnectStrategy;
 import hera.strategy.OkHttpConnectStrategy;
 import hera.strategy.PlainTextChannelStrategy;
@@ -93,7 +93,7 @@ public class AergoClientBuilder implements ClientConfiguer<AergoClientBuilder> {
           new FileInputStream(clientCertPath), new FileInputStream(clientKeyPath));
       return this;
     } catch (Exception e) {
-      throw new RpcException(e);
+      throw new HerajException(e);
     }
   }
 

@@ -9,7 +9,6 @@ import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.client.AergoClient;
-import hera.exception.WalletException;
 import hera.key.Signer;
 
 /**
@@ -17,7 +16,6 @@ import hera.key.Signer;
  * signing role.
  *
  * @author taeiklim
- *
  */
 @ApiAudience.Public
 @ApiStability.Unstable
@@ -42,8 +40,6 @@ public interface WalletApi extends Signer {
    *
    * @param authentication an authentication to unlock account
    * @return an unlock result
-   *
-   * @throws WalletException on wallet error
    */
   boolean unlock(Authentication authentication);
 
@@ -52,8 +48,6 @@ public interface WalletApi extends Signer {
    *
    * @param authentication an authentication to lock account binded to wallet api
    * @return a lock result
-   *
-   * @throws WalletException on wallet error
    */
   boolean lock(Authentication authentication);
 
@@ -61,8 +55,6 @@ public interface WalletApi extends Signer {
    * Get transaction api.
    *
    * @return a transaction api
-   *
-   * @throws WalletException on wallet error
    */
   TransactionApi transactionApi();
 
@@ -70,8 +62,6 @@ public interface WalletApi extends Signer {
    * Get query api.
    *
    * @return a query api
-   *
-   * @throws WalletException on wallet error
    */
   QueryApi queryApi();
 

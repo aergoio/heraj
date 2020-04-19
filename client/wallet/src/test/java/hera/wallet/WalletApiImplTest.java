@@ -21,7 +21,7 @@ import hera.api.model.RawTransaction;
 import hera.api.model.Time;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
-import hera.exception.WalletException;
+import hera.exception.HerajException;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.keystore.InMemoryKeyStore;
@@ -167,14 +167,14 @@ public class WalletApiImplTest extends AbstractTestCase {
     // then
     try {
       walletApi.transactionApi();
-    } catch (WalletException e) {
+    } catch (HerajException e) {
       // good we expected this
     }
 
     // and then
     try {
       walletApi.queryApi();
-    } catch (WalletException e) {
+    } catch (HerajException e) {
       // good we expected this
     }
   }
@@ -238,7 +238,7 @@ public class WalletApiImplTest extends AbstractTestCase {
     try {
       walletApi.sign(rawTransaction);
       fail();
-    } catch (WalletException e) {
+    } catch (HerajException e) {
       // good we expected this
     }
   }

@@ -15,7 +15,7 @@ import hera.api.model.AccountFactory;
 import hera.api.model.BytesValue;
 import hera.api.model.Time;
 import hera.api.model.TxHash;
-import hera.exception.RpcCommitException;
+import hera.exception.CommitException;
 import hera.key.AergoKeyGenerator;
 import hera.model.TryCountAndInterval;
 import hera.wallet.internal.TransactionTrier;
@@ -57,8 +57,8 @@ public class TransactionTrierTest extends AbstractTestCase {
           return TxHash.of(BytesValue.EMPTY);
         }
         latch.countDown();
-        final RpcCommitException rpcCommitException =
-            new RpcCommitException(types.Rpc.CommitStatus.TX_NONCE_TOO_LOW, "Nonce is too low");
+        final CommitException rpcCommitException =
+            new CommitException(types.Rpc.CommitStatus.TX_NONCE_TOO_LOW, "Nonce is too low");
         throw rpcCommitException;
       }
     });
@@ -97,8 +97,8 @@ public class TransactionTrierTest extends AbstractTestCase {
           return TxHash.of(BytesValue.EMPTY);
         }
         latch.countDown();
-        final RpcCommitException rpcCommitException =
-            new RpcCommitException(types.Rpc.CommitStatus.TX_NONCE_TOO_LOW, "Nonce is too low");
+        final CommitException rpcCommitException =
+            new CommitException(types.Rpc.CommitStatus.TX_NONCE_TOO_LOW, "Nonce is too low");
         throw rpcCommitException;
       }
     });
@@ -112,8 +112,8 @@ public class TransactionTrierTest extends AbstractTestCase {
 
         @Override
         public TxHash apply(Long nonce) {
-          final RpcCommitException rpcCommitException =
-              new RpcCommitException(types.Rpc.CommitStatus.TX_NONCE_TOO_LOW, "Nonce is too low");
+          final CommitException rpcCommitException =
+              new CommitException(types.Rpc.CommitStatus.TX_NONCE_TOO_LOW, "Nonce is too low");
           throw rpcCommitException;
         }
       });
