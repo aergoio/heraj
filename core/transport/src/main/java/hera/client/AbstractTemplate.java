@@ -23,7 +23,8 @@ abstract class AbstractTemplate {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final Requester requester = new DecoratingRequester();
+  // not final for test
+  protected Requester requester = new DecoratingRequester();
 
   protected final ExceptionConverter<RpcException> exceptionConverter = new RpcExceptionConverter();
 

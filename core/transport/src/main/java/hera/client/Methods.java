@@ -34,7 +34,8 @@ public abstract class Methods {
   public static final String BLOCK_METADATA_BY_HASH = "heraj.block.metadata.by.hash";
   public static final String BLOCK_METADATA_BY_HEIGHT = "heraj.block.metadata.by.height";
   public static final String BLOCK_LIST_METADATAS_BY_HASH = "heraj.block.list.metadatas.by.hash";
-  public static final String BLOCK_LIST_METADATAS_BY_HEIGHT = "heraj.block.list.metadatas.by.height";
+  public static final String BLOCK_LIST_METADATAS_BY_HEIGHT = "heraj.block.list"
+      + ".metadatas.by.height";
   public static final String BLOCK_BY_HASH = "heraj.block.by.hash";
   public static final String BLOCK_BY_HEIGHT = "heraj.block.by.height";
   public static final String BLOCK_SUBSCRIBE_BLOCKMETADATA = "heraj.block.subscribe.blockmetadata";

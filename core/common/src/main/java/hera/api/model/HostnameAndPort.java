@@ -9,6 +9,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.slf4j.Logger;
 
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
  */
 @ApiAudience.Public
 @ApiStability.Unstable
+@EqualsAndHashCode
 public class HostnameAndPort {
 
   protected static final Logger logger = getLogger(HostnameAndPort.class);

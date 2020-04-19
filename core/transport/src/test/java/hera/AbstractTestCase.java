@@ -4,12 +4,9 @@
 
 package hera;
 
-import static hera.api.model.BytesValue.of;
-import static java.util.UUID.randomUUID;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.AccountAddress;
-import hera.api.model.ChainIdHash;
 import hera.api.model.ContractAddress;
 import hera.key.AergoKeyGenerator;
 import org.junit.Before;
@@ -33,8 +30,6 @@ public abstract class AbstractTestCase {
 
   protected final ContractAddress contractAddress =
       new AergoKeyGenerator().create().getAddress().adapt(ContractAddress.class);
-
-  protected final ChainIdHash chainIdHash = new ChainIdHash(of(randomUUID().toString().getBytes()));
 
   @Before
   public void setUp() {
