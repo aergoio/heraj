@@ -59,7 +59,7 @@ class ContractTemplate extends AbstractTemplate implements ContractOperation {
   @Override
   public ContractTxHash redeploy(final Signer signer, final ContractAddress existingContract,
       final ContractDefinition contractDefinition, final long nonce, final Fee fee) {
-    return request(contractMethods.getDeploy(),
+    return request(contractMethods.getReDeploy(),
         Arrays.asList(signer, existingContract, contractDefinition, nonce, fee));
   }
 

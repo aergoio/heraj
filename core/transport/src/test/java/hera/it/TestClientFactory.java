@@ -14,7 +14,7 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 
-public class TestClientFactory {
+class TestClientFactory {
 
   protected static final String AERGO_PROPERTIES = "aergo.properties";
   protected static final String SERVER_CRT = "server.crt";
@@ -24,7 +24,7 @@ public class TestClientFactory {
   protected final transient Logger logger = getLogger(getClass());
   protected final Properties properties;
 
-  public TestClientFactory() {
+  TestClientFactory() {
     try {
       final Properties properties = new Properties();
       try (final InputStream in = getClass().getResourceAsStream(AERGO_PROPERTIES)) {
@@ -61,7 +61,6 @@ public class TestClientFactory {
       client.getBlockchainOperation().getBlockchainStatus();
       logger.debug("Connect with tls");
     }
-
     final ChainIdHash chainIdHash = client.getBlockchainOperation().getChainIdHash();
     logger.debug("Cache chain id hash: {}", chainIdHash);
     client.cacheChainIdHash(chainIdHash);

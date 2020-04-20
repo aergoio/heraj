@@ -48,10 +48,10 @@ public class AergoClientBuilder implements ClientConfiguer<AergoClientBuilder> {
   protected List<ComparableFailoverHandler> failoverHandlers = new ArrayList<>();
 
   {
-    // add built in ones
+    // add built-in ones
     key2Value.put(GRPC_VALUE_CHAIN_ID_HASH_HOLDER, new ChainIdHashHolder());
 
-    // add built in ones
+    // add built-in ones
     failoverHandlers.add(new InvalidChainIdHashHandler());
   }
 
@@ -120,8 +120,7 @@ public class AergoClientBuilder implements ClientConfiguer<AergoClientBuilder> {
   }
 
   /**
-   * Build {@link AergoClient} with the current context. If necessary strategy is not provided,fill
-   * necessary strategy.
+   * Build {@link AergoClient} with the current context.
    *
    * @return {@link AergoClient}
    */

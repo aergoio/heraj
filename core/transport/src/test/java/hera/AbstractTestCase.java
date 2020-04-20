@@ -9,6 +9,11 @@ import static org.slf4j.LoggerFactory.getLogger;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
 import hera.key.AergoKeyGenerator;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
@@ -33,6 +38,18 @@ public abstract class AbstractTestCase {
 
   @Before
   public void setUp() {
+  }
+
+  protected void runOnOtherThread(final Callable<Object> callable) throws Throwable {
+    try {
+      final ExecutorService executorService = Executors.newSingleThreadExecutor();
+      final Future<?> future = executorService.submit(callable);
+      future.get();
+    } catch (InterruptedException e) {
+      throw e;
+    } catch (ExecutionException e) {
+      throw e.getCause();
+    }
   }
 
 }

@@ -56,7 +56,8 @@ public class AccountOperationIT extends AbstractIT {
 
     final AccountState state = aergoClient.getAccountOperation().getState(rich.getAddress());
     logger.debug("Rich state: {}", state);
-    nonceProvider.bindNonce(state);;
+    nonceProvider.bindNonce(state);
+    ;
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .chainIdHash(aergoClient.getCachedChainIdHash())
         .from(rich.getPrincipal())
