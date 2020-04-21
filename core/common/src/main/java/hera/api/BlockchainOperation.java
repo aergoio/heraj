@@ -19,17 +19,7 @@ import java.util.List;
 /**
  * Provide blockchain related operations. It provides followings:
  *
- * <ul>
- * <li>lookup chain id hash</li>
- * <li>lookup blockchain status</li>
- * <li>lookup chain info, status</li>
- * <li>lookup server info</li>
- * <li>lookup peer info</li>
- * <li>lookup node info</li>
- * </ul>
- *
  * @author Taeik Lim
- *
  */
 @ApiAudience.Public
 @ApiStability.Unstable
@@ -74,8 +64,7 @@ public interface BlockchainOperation {
    * Get blockchain peer addresses.
    *
    * @param showHidden whether to show hidden peers
-   * @param showSelf whether to show node which receives request itself
-   *
+   * @param showSelf   whether to show node which receives request itself
    * @return peer addresses
    */
   List<Peer> listPeers(boolean showHidden, boolean showSelf);
@@ -91,7 +80,6 @@ public interface BlockchainOperation {
    * Get server info.
    *
    * @param categories a categories
-   *
    * @return server info
    */
   ServerInfo getServerInfo(List<String> categories);

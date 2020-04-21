@@ -37,7 +37,6 @@ public class SendIT extends AbstractWalletApiIT {
   protected static AergoClient aergoClient;
 
   protected final Fee fee = Fee.ZERO;
-  protected final NonceProvider nonceProvider = new SimpleNonceProvider();
   protected final AergoKey rich = AergoKey
       .of("47ExozzhsfEEVp2yhvNGxZxGLXPccRSdBydQeuJ5tmUpBij2M9gTSg2AESV83mGXGvu2U8bPR", "1234");
   protected WalletApi walletApi;
@@ -64,20 +63,13 @@ public class SendIT extends AbstractWalletApiIT {
     authentication = Authentication.of(alias, randomUUID().toString());
     keyStore.save(authentication, key);
 
+    final NonceProvider nonceProvider = new SimpleNonceProvider();
     final AccountState state = aergoClient.getAccountOperation().getState(rich.getAddress());
     logger.debug("Rich state: {}", state);
     nonceProvider.bindNonce(state);
-    ;
-    final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .chainIdHash(aergoClient.getCachedChainIdHash())
-        .from(rich.getPrincipal())
-        .to(key.getAddress())
-        .amount(Aer.of("10000", Unit.AERGO))
-        .nonce(nonceProvider.incrementAndGetNonce(rich.getPrincipal()))
-        .build();
-    final Transaction signed = rich.sign(rawTransaction);
-    logger.debug("Fill tx: ", signed);
-    aergoClient.getTransactionOperation().commit(signed);
+    aergoClient.getTransactionOperation()
+        .sendTx(rich, key.getAddress(), Aer.of("10000", Unit.AERGO),
+            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY);
     waitForNextBlockToGenerate();
   }
 

@@ -21,6 +21,7 @@ import hera.api.transaction.NonceProvider;
 import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
 import hera.exception.CommitException;
+import hera.exception.CommitException.CommitStatus;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import org.junit.AfterClass;
@@ -52,20 +53,12 @@ public class TransactionOperationIT extends AbstractIT {
   @Before
   public void setUp() {
     key = new AergoKeyGenerator().create();
-
     final AccountState state = aergoClient.getAccountOperation().getState(rich.getAddress());
     logger.debug("Rich state: {}", state);
-    nonceProvider.bindNonce(state);;
-    final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .chainIdHash(aergoClient.getCachedChainIdHash())
-        .from(rich.getPrincipal())
-        .to(key.getAddress())
-        .amount(Aer.of("10000", Unit.AERGO))
-        .nonce(nonceProvider.incrementAndGetNonce(rich.getPrincipal()))
-        .build();
-    final Transaction signed = rich.sign(rawTransaction);
-    logger.debug("Fill tx: ", signed);
-    aergoClient.getTransactionOperation().commit(signed);
+    nonceProvider.bindNonce(state);
+    aergoClient.getTransactionOperation()
+        .sendTx(rich, key.getAddress(), Aer.of("10000", Unit.AERGO),
+            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY);
     waitForNextBlockToGenerate();
   }
 
@@ -308,6 +301,40 @@ public class TransactionOperationIT extends AbstractIT {
       fail();
     } catch (CommitException e) {
       // then
+    }
+  }
+
+  @Test
+  public void shouldSendTx() {
+    // when
+    final AergoKey sender = new AergoKeyGenerator().create();
+    fund(sender.getAddress());
+    final AergoKey recipient = new AergoKeyGenerator().create();
+    final Aer expected = Aer.AERGO_ONE;
+    aergoClient.getTransactionOperation()
+        .sendTx(sender, recipient.getAddress(), expected, nonceProvider
+            .incrementAndGetNonce(sender.getAddress()), Fee.INFINITY);
+    waitForNextBlockToGenerate();
+
+    // then
+    final AccountState actual = aergoClient.getAccountOperation().getState(recipient.getAddress());
+    assertEquals(expected, actual.getBalance());
+  }
+
+  @Test
+  public void shouldSendTxFailOnNoAmount() {
+    try {
+      // when
+      final AergoKey sender = new AergoKeyGenerator().create();
+      final AergoKey recipient = new AergoKeyGenerator().create();
+      final Aer expected = Aer.AERGO_ONE;
+      aergoClient.getTransactionOperation()
+          .sendTx(sender, recipient.getAddress(), expected, nonceProvider
+              .incrementAndGetNonce(sender.getAddress()), Fee.INFINITY);
+      fail();
+    } catch (CommitException e) {
+      // then
+      assertEquals(CommitStatus.INSUFFICIENT_BALANCE, e.getCommitStatus());
     }
   }
 

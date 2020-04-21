@@ -21,6 +21,8 @@ import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
+import hera.model.KeyAlias;
+import hera.wallet.WalletApiFactory;
 import java.io.IOException;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -31,7 +33,6 @@ public class LegacySendIT extends AbstractLegacyWalletIT {
 
   protected static AergoClient aergoClient;
 
-  protected final Fee fee = Fee.ZERO;
   protected final AergoKey rich = AergoKey
       .of("47DbxpF2GtHPNrqLe6rCGFLVVSY66F1yK6fuETtLALQeCjXbesLtyA1q6XQzSYJNXKn44vwSb", "1234");
   protected AergoKey key;
@@ -55,16 +56,9 @@ public class LegacySendIT extends AbstractLegacyWalletIT {
     final AccountState state = aergoClient.getAccountOperation().getState(rich.getAddress());
     logger.debug("Rich state: {}", state);
     nonceProvider.bindNonce(state);;
-    final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .chainIdHash(aergoClient.getCachedChainIdHash())
-        .from(rich.getPrincipal())
-        .to(key.getAddress())
-        .amount(Aer.of("10000", Unit.AERGO))
-        .nonce(nonceProvider.incrementAndGetNonce(rich.getPrincipal()))
-        .build();
-    final Transaction signed = rich.sign(rawTransaction);
-    logger.debug("Fill tx: ", signed);
-    aergoClient.getTransactionOperation().commit(signed);
+    aergoClient.getTransactionOperation()
+        .sendTx(rich, key.getAddress(), Aer.of("10000", Unit.AERGO),
+            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY);
     waitForNextBlockToGenerate();
   }
 

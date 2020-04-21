@@ -23,15 +23,7 @@ import java.util.List;
 /**
  * Provide account related operations. It provides followings:
  *
- * <ul>
- * <li>lookup account state</li>
- * <li>naming related operations</li>
- * <li>staking related operations</li>
- * <li>voting related operations</li>
- * </ul>
- *
  * @author bylee, Taeik Lim
- *
  */
 @ApiAudience.Public
 @ApiStability.Unstable
@@ -58,8 +50,8 @@ public interface AccountOperation {
    * Use {@link #createName(Signer, String, long)} instead.
    *
    * @param account an account
-   * @param name an new name
-   * @param nonce an nonce which is used in a transaction
+   * @param name    an new name
+   * @param nonce   an nonce which is used in a transaction
    * @return a create name transaction hash
    */
   @Deprecated
@@ -69,8 +61,8 @@ public interface AccountOperation {
    * Create name info of an account. Created name will be owned by {@code signer}.
    *
    * @param signer a signer
-   * @param name an new name
-   * @param nonce an nonce which is used in a transaction
+   * @param name   an new name
+   * @param nonce  an nonce which is used in a transaction
    * @return a create name transaction hash
    */
   TxHash createName(Signer signer, String name, long nonce);
@@ -78,10 +70,10 @@ public interface AccountOperation {
   /**
    * Use {@link #updateName(Signer, String, AccountAddress, long)} instead.
    *
-   * @param owner an account
-   * @param name an already binded name
+   * @param owner    an account
+   * @param name     an already binded name
    * @param newOwner an new owner of name
-   * @param nonce an nonce which is used in a transaction
+   * @param nonce    an nonce which is used in a transaction
    * @return a update name transaction hash
    */
   @Deprecated
@@ -90,10 +82,10 @@ public interface AccountOperation {
   /**
    * Update name info of an account. An signer must be owner of {@code name}.
    *
-   * @param signer a signer
-   * @param name an already binded name
+   * @param signer   a signer
+   * @param name     an already binded name
    * @param newOwner an new owner of name
-   * @param nonce an nonce which is used in a transaction
+   * @param nonce    an nonce which is used in a transaction
    * @return a update name transaction hash
    */
   TxHash updateName(Signer signer, String name, AccountAddress newOwner, long nonce);
@@ -109,7 +101,7 @@ public interface AccountOperation {
   /**
    * Get owner of an account name at block {@code blockNumber}.
    *
-   * @param name an name of account
+   * @param name        an name of account
    * @param blockNumber a block number
    * @return an account address binded with name. null if it has no owner
    */
@@ -119,8 +111,8 @@ public interface AccountOperation {
    * Use {@link #stake(Signer, Aer, long)} instead.
    *
    * @param account an account
-   * @param amount an amount to stake
-   * @param nonce an nonce which is used in a transaction
+   * @param amount  an amount to stake
+   * @param nonce   an nonce which is used in a transaction
    * @return a staking transaction hash
    */
   @Deprecated
@@ -131,7 +123,7 @@ public interface AccountOperation {
    *
    * @param signer a signer
    * @param amount an amount to stake
-   * @param nonce an nonce which is used in a transaction
+   * @param nonce  an nonce which is used in a transaction
    * @return a staking transaction hash
    */
   TxHash stake(Signer signer, Aer amount, long nonce);
@@ -140,8 +132,8 @@ public interface AccountOperation {
    * Use {@link #unstake(Signer, Aer, long)} instead.
    *
    * @param account an account
-   * @param amount an amount to stake
-   * @param nonce an nonce which is used in a transaction
+   * @param amount  an amount to stake
+   * @param nonce   an nonce which is used in a transaction
    * @return a staking transaction hash
    */
   @Deprecated
@@ -152,7 +144,7 @@ public interface AccountOperation {
    *
    * @param signer a signer
    * @param amount an amount to stake
-   * @param nonce an nonce which is used in a transaction
+   * @param nonce  an nonce which is used in a transaction
    * @return a staking transaction hash
    */
   TxHash unstake(Signer signer, Aer amount, long nonce);
@@ -175,11 +167,10 @@ public interface AccountOperation {
    * </ul>
    * A {@code signer} must have staked aergo.
    *
-   * @param signer a signer
-   * @param voteId a vote id
+   * @param signer     a signer
+   * @param voteId     a vote id
    * @param candidates a candidates
-   * @param nonce an nonce which is used in a transaction
-   *
+   * @param nonce      an nonce which is used in a transaction
    * @return voting transaction hash
    */
   TxHash vote(Signer signer, String voteId, List<String> candidates, long nonce);
@@ -195,7 +186,7 @@ public interface AccountOperation {
   /**
    * Get elected candidates per {@code voteId} for current round.
    *
-   * @param voteId a vote id
+   * @param voteId    a vote id
    * @param showCount a show count
    * @return a vote total
    */
@@ -204,7 +195,7 @@ public interface AccountOperation {
   /**
    * Use {@link Signer#sign(RawTransaction)} instead.
    *
-   * @param account an account to sign
+   * @param account        an account to sign
    * @param rawTransaction a raw transaction to sign
    * @return signed transaction
    */
@@ -214,7 +205,7 @@ public interface AccountOperation {
   /**
    * Use {@link AergoSignVerifier#verify(Transaction)} instead.
    *
-   * @param account an account to verify
+   * @param account     an account to verify
    * @param transaction a signed transaction to verify
    * @return verification result
    */

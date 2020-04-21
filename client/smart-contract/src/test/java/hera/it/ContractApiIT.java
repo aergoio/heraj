@@ -64,22 +64,16 @@ public class ContractApiIT extends AbstractIT {
 
   @Before
   public void setUp() throws Exception {
+    // fill aergo to key
     key = new AergoKeyGenerator().create();
+
     final NonceProvider nonceProvider = new SimpleNonceProvider();
     final AccountState state = aergoClient.getAccountOperation().getState(rich.getAddress());
     logger.debug("Rich state: {}", state);
     nonceProvider.bindNonce(state);
-    ;
-    final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .chainIdHash(aergoClient.getCachedChainIdHash())
-        .from(rich.getPrincipal())
-        .to(key.getAddress())
-        .amount(Aer.of("10000", Unit.AERGO))
-        .nonce(nonceProvider.incrementAndGetNonce(rich.getPrincipal()))
-        .build();
-    final Transaction signed = rich.sign(rawTransaction);
-    logger.debug("Fill tx: ", signed);
-    aergoClient.getTransactionOperation().commit(signed);
+    aergoClient.getTransactionOperation()
+        .sendTx(rich, key.getAddress(), Aer.of("10000", Unit.AERGO),
+            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY);
     waitForNextBlockToGenerate();
 
     // create wallet api
@@ -117,7 +111,6 @@ public class ContractApiIT extends AbstractIT {
     contractApi.walletApi(walletApi).fee(fee).setBoolean(booleanArg);
     contractApi.walletApi(walletApi).fee(fee).setNumber(numberArg);
     contractApi.walletApi(walletApi).fee(fee).setString(stringArg);
-    ;
 
     waitForNextBlockToGenerate();
 

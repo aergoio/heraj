@@ -16,12 +16,6 @@ import java.util.List;
 /**
  * Provide block related operations. It provides followings:
  *
- * <ul>
- * <li>lookup block metadata (or metadatas)</li>
- * <li>lookup block</li>
- * <li>streaming block metadata / block</li>
- * </ul>
- *
  * @author bylee, Taeik Lim
  */
 @ApiAudience.Public

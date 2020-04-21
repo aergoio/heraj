@@ -37,8 +37,6 @@ public class StakeVoteIT extends AbstractWalletApiIT {
 
   protected static AergoClient aergoClient;
 
-  protected final Fee fee = Fee.ZERO;
-  protected final NonceProvider nonceProvider = new SimpleNonceProvider();
   protected final AergoKey rich = AergoKey
       .of("47iTNDNk1S1HgQw4tJkMHBoHQwEkrwd7kbKpZ7ziX5r9jiCcZkeYkTRcuM4ZHbFBovzcgTD2Q", "1234");
   protected WalletApi walletApi;
@@ -65,20 +63,13 @@ public class StakeVoteIT extends AbstractWalletApiIT {
     authentication = Authentication.of(alias, randomUUID().toString());
     keyStore.save(authentication, key);
 
+    final NonceProvider nonceProvider = new SimpleNonceProvider();
     final AccountState state = aergoClient.getAccountOperation().getState(rich.getAddress());
     logger.debug("Rich state: {}", state);
     nonceProvider.bindNonce(state);
-    ;
-    final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .chainIdHash(aergoClient.getCachedChainIdHash())
-        .from(rich.getPrincipal())
-        .to(key.getAddress())
-        .amount(Aer.of("10000", Unit.AERGO))
-        .nonce(nonceProvider.incrementAndGetNonce(rich.getPrincipal()))
-        .build();
-    final Transaction signed = rich.sign(rawTransaction);
-    logger.debug("Fill tx: ", signed);
-    aergoClient.getTransactionOperation().commit(signed);
+    aergoClient.getTransactionOperation()
+        .sendTx(rich, key.getAddress(), Aer.of("10000", Unit.AERGO),
+            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY);
     waitForNextBlockToGenerate();
   }
 

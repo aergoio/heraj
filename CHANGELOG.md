@@ -8,6 +8,7 @@
 - Fixes & Improvements
   - Add KeyFormat
   - Improvement context structure
+  - Add sendTx api
 - Changes
   - Replace subscribeNewBlockXXX with subscribeBlockXXX
   - Deprecate ContractTxHash

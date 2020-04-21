@@ -8,16 +8,24 @@ import static hera.api.model.BytesValue.of;
 import static hera.client.Methods.TRANSACTION_COMMIT;
 import static hera.client.Methods.TRANSACTION_IN_BLOCK;
 import static hera.client.Methods.TRANSACTION_IN_MEMPOOL;
+import static hera.client.Methods.TRANSACTION_SENDTX;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.RequestMethod;
+import hera.api.model.AccountAddress;
+import hera.api.model.Aer;
+import hera.api.model.Fee;
+import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.transaction.PlainTransactionBuilder;
 import hera.exception.CommitException;
+import hera.key.Signer;
 import hera.transport.ModelConverter;
 import hera.transport.TransactionConverterFactory;
 import hera.transport.TransactionInBlockConverterFactory;
+import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
 import org.slf4j.Logger;
@@ -47,8 +55,8 @@ class TransactionMethods extends AbstractMethods {
 
     @Override
     protected Transaction runInternal(final List<Object> parameters) throws Exception {
-      logger.debug("Get transaction with {}", parameters);
       final TxHash txHash = (TxHash) parameters.get(0);
+      logger.debug("Get transaction with txHash: {}", txHash);
 
       final Rpc.SingleBytes rpcTxHash = Rpc.SingleBytes.newBuilder()
           .setValue(copyFrom(txHash.getBytesValue()))
@@ -74,8 +82,8 @@ class TransactionMethods extends AbstractMethods {
 
     @Override
     protected Transaction runInternal(final List<Object> parameters) throws Exception {
-      logger.debug("Get transaction with {}", parameters);
       final TxHash txHash = (TxHash) parameters.get(0);
+      logger.debug("Get transaction with txHash: {}", txHash);
 
       final Rpc.SingleBytes rpcTxHash = Rpc.SingleBytes.newBuilder()
           .setValue(copyFrom(txHash.getBytesValue()))
@@ -101,8 +109,8 @@ class TransactionMethods extends AbstractMethods {
 
     @Override
     protected TxHash runInternal(final List<Object> parameters) throws Exception {
-      logger.debug("Commit transaction with {}", parameters);
       final Transaction transaction = (Transaction) parameters.get(0);
+      logger.debug("Commit transaction with transaction: {}", transaction);
 
       final Blockchain.Tx rpcTx = transactionConverter.convertToRpcModel(transaction);
       final Blockchain.TxList rpcTxList = Blockchain.TxList.newBuilder()
@@ -117,6 +125,46 @@ class TransactionMethods extends AbstractMethods {
             rpcCommitResult.getDetail());
       }
       return new TxHash(of(rpcCommitResult.getHash().toByteArray()));
+    }
+
+  };
+
+  @Getter
+  private final RequestMethod<TxHash> sendTx = new RequestMethod<TxHash>() {
+
+    @Getter
+    protected final String name = TRANSACTION_SENDTX;
+
+    @Override
+    protected void validate(final List<Object> parameters) {
+      validateType(parameters, 0, Signer.class);
+      validateType(parameters, 1, AccountAddress.class);
+      validateType(parameters, 2, Aer.class);
+      validateType(parameters, 3, Long.class);
+      validateType(parameters, 4, Fee.class);
+    }
+
+    @Override
+    protected TxHash runInternal(final List<Object> parameters) throws Exception {
+      final Signer signer = (Signer) parameters.get(0);
+      final AccountAddress recipient = (AccountAddress) parameters.get(1);
+      final Aer amount = (Aer) parameters.get(2);
+      final long nonce = (long) parameters.get(3);
+      final Fee fee = (Fee) parameters.get(4);
+      logger.debug(
+          "Commit transaction with signer: {}, recipient: {}, amount: {}, nonce: {}, fee: {}",
+          signer, recipient, amount, nonce, fee);
+
+      final RawTransaction rawTransaction = new PlainTransactionBuilder()
+          .chainIdHash(getChainIdHash())
+          .from(signer.getPrincipal())
+          .to(recipient)
+          .amount(amount)
+          .nonce(nonce)
+          .fee(fee)
+          .build();
+      final Transaction signed = signer.sign(rawTransaction);
+      return getCommit().invoke(Arrays.<Object>asList(signed));
     }
 
   };

@@ -208,7 +208,7 @@ class BlockchainMethods extends AbstractMethods {
     @Override
     protected ServerInfo runInternal(final List<Object> parameters) throws Exception {
       final List<String> keys = (List<String>) parameters.get(0);
-      logger.debug("Get node status");
+      logger.debug("Get node status with keys: {}", keys);
 
       final Rpc.KeyParams rpcServerInfoRequest = Rpc.KeyParams.newBuilder()
           .addAllKey(keys)

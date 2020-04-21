@@ -32,7 +32,6 @@ public class BlockIT extends AbstractWalletApiIT {
 
   protected static AergoClient aergoClient;
 
-  protected final NonceProvider nonceProvider = new SimpleNonceProvider();
   protected final AergoKey rich = AergoKey
       .of("47ZhS5rhhGvgt6CqhMiTEPEjfeKS91dhRDNYesdvDhMYtNPu1YL9dqKu9cWxr8D3W3MPAg62m", "1234");
   protected WalletApi walletApi;

@@ -19,15 +19,7 @@ import java.util.List;
 /**
  * Provide server keystore related operations. It provides followings:
  *
- * <ul>
- * <li>create / lookup stored accounts</li>
- * <li>locking / unlocking account</li>
- * <li>sign raw transaction with unlocked account</li>
- * <li>importing / exporting account</li>
- * </ul>
- *
  * @author Taeik Lim
- *
  */
 @ApiAudience.Public
 @ApiStability.Unstable
@@ -78,8 +70,8 @@ public interface KeyStoreOperation {
    * state in a server.
    *
    * @param encryptedKey an encrypted private key
-   * @param oldPassword an old password to decrypt encrypted private key
-   * @param newPassword an new password to encrypt passed private key in a server keystore
+   * @param oldPassword  an old password to decrypt encrypted private key
+   * @param newPassword  an new password to encrypt passed private key in a server keystore
    * @return an imported account
    */
   AccountAddress importKey(EncryptedPrivateKey encryptedKey, String oldPassword,
@@ -99,10 +91,10 @@ public interface KeyStoreOperation {
    * method is valid only if sender is stored in a server key store. Make sure that {@code sender}
    * is unlocked.
    *
-   * @param sender aergo sender
+   * @param sender    aergo sender
    * @param recipient aergo recipient
-   * @param amount aergo amount
-   * @param payload a payload
+   * @param amount    aergo amount
+   * @param payload   a payload
    * @return a transaction hash
    */
   TxHash send(AccountAddress sender, AccountAddress recipient, Aer amount, BytesValue payload);

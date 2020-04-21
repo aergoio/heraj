@@ -62,10 +62,6 @@ class TestClientFactory {
       client.getBlockchainOperation().getBlockchainStatus();
       logger.debug("Connect with tls");
     }
-
-    final ChainIdHash chainIdHash = client.getBlockchainOperation().getChainIdHash();
-    logger.debug("Cache chain id hash: {}", chainIdHash);
-    client.cacheChainIdHash(chainIdHash);
     return client;
   }
 

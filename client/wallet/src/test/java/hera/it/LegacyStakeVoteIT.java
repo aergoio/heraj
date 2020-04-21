@@ -37,7 +37,6 @@ public class LegacyStakeVoteIT extends AbstractLegacyWalletIT {
 
   protected static AergoClient aergoClient;
 
-  protected final Fee fee = Fee.ZERO;
   protected final AergoKey rich = AergoKey
       .of("47u3AHf1buyuJrJ1yijeCHPAxxAy1L4znKW7KzAJi4H3vpe4ArTPh9fJf19hcwKMPjctEYhcq", "1234");
   protected AergoKey key;
@@ -60,18 +59,10 @@ public class LegacyStakeVoteIT extends AbstractLegacyWalletIT {
     final NonceProvider nonceProvider = new SimpleNonceProvider();
     final AccountState state = aergoClient.getAccountOperation().getState(rich.getAddress());
     logger.debug("Rich state: {}", state);
-    nonceProvider.bindNonce(state);
-    ;
-    final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .chainIdHash(aergoClient.getCachedChainIdHash())
-        .from(rich.getPrincipal())
-        .to(key.getAddress())
-        .amount(Aer.of("10000", Unit.AERGO))
-        .nonce(nonceProvider.incrementAndGetNonce(rich.getPrincipal()))
-        .build();
-    final Transaction signed = rich.sign(rawTransaction);
-    logger.debug("Fill tx: ", signed);
-    aergoClient.getTransactionOperation().commit(signed);
+    nonceProvider.bindNonce(state);;
+    aergoClient.getTransactionOperation()
+        .sendTx(rich, key.getAddress(), Aer.of("10000", Unit.AERGO),
+            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY);
     waitForNextBlockToGenerate();
   }
 

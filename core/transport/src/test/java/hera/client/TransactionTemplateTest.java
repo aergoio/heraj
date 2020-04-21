@@ -15,14 +15,17 @@ import hera.EmptyContext;
 import hera.Invocation;
 import hera.Requester;
 import hera.WriteSynchronizedContextStorage;
+import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.BytesValue;
 import hera.api.model.ChainIdHash;
+import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
+import hera.key.Signer;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 
@@ -72,6 +75,23 @@ public class TransactionTemplateTest extends AbstractTestCase {
 
     // then
     final TxHash actual = transactionTemplate.commit(anyTransaction);
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testSendTx() throws Exception {
+    // given
+    final TransactionTemplate transactionTemplate = new TransactionTemplate(contextStorage);
+    final Requester mockRequester = mock(Requester.class);
+    final TxHash expected = TxHash.of(BytesValue.EMPTY);
+    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+        .thenReturn(expected);
+    transactionTemplate.requester = mockRequester;
+
+    // then
+    final Signer signer = new AergoKeyGenerator().create();
+    final AccountAddress to = AccountAddress.EMPTY;
+    final TxHash actual = transactionTemplate.sendTx(signer, to, Aer.AERGO_ONE, 10L, Fee.ZERO);
     assertEquals(expected, actual);
   }
 

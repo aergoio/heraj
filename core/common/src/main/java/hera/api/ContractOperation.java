@@ -26,13 +26,6 @@ import java.util.List;
 /**
  * Provide contract related operations. It provides followings:
  *
- * <ul>
- * <li>lookup contract transaction receipt</li>
- * <li>getting already deployed contract interface</li>
- * <li>deploying / executing / querying contract</li>
- * <li>contract event related operations</li>
- * </ul>
- *
  * @author bylee, Taeik Lim
  */
 @ApiAudience.Public

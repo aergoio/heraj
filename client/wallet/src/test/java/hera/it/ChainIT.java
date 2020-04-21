@@ -32,7 +32,6 @@ public class ChainIT extends AbstractWalletApiIT {
 
   protected static AergoClient aergoClient;
 
-  protected final NonceProvider nonceProvider = new SimpleNonceProvider();
   protected final AergoKey rich = AergoKey
       .of("483wcRWd1SbvATUXv7rMpoa9wg14bj35sPyzj3noSNf3NDHs5ABLhLFguJLF4jsfxi9KFJamT", "1234");
   protected WalletApi walletApi;
