@@ -58,11 +58,22 @@ class BlockTemplate extends AbstractTemplate implements BlockOperation {
   @Override
   public Subscription<BlockMetadata> subscribeNewBlockMetadata(
       final StreamObserver<BlockMetadata> observer) {
-    return request(blockMethods.getSubscribeBlockMetadata(), Arrays.<Object>asList(observer));
+    return subscribeBlockMetadata(observer);
   }
 
   @Override
   public Subscription<Block> subscribeNewBlock(final StreamObserver<Block> observer) {
+    return subscribeBlock(observer);
+  }
+
+  @Override
+  public Subscription<BlockMetadata> subscribeBlockMetadata(
+      final StreamObserver<BlockMetadata> observer) {
+    return request(blockMethods.getSubscribeBlockMetadata(), Arrays.<Object>asList(observer));
+  }
+
+  @Override
+  public Subscription<Block> subscribeBlock(final StreamObserver<Block> observer) {
     return request(blockMethods.getSubscribeBlock(), Arrays.<Object>asList(observer));
   }
 

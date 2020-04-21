@@ -269,7 +269,7 @@ public class BlockOperationIT extends AbstractIT {
     final int count = 3;
     final CountDownLatch latch = new CountDownLatch(count);
     final Subscription<BlockMetadata> subscription = aergoClient.getBlockOperation()
-        .subscribeNewBlockMetadata(new StreamObserver<BlockMetadata>() {
+        .subscribeBlockMetadata(new StreamObserver<BlockMetadata>() {
 
           @Override
           public void onNext(BlockMetadata value) {
@@ -301,7 +301,7 @@ public class BlockOperationIT extends AbstractIT {
     final int count = 3;
     final CountDownLatch latch = new CountDownLatch(count);
     final Subscription<Block> subscription = aergoClient.getBlockOperation()
-        .subscribeNewBlock(new StreamObserver<Block>() {
+        .subscribeBlock(new StreamObserver<Block>() {
 
           @Override
           public void onNext(Block value) {

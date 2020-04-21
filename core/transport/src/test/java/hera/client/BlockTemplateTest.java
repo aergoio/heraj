@@ -126,7 +126,7 @@ public class BlockTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testSubscribeNewBlockMetadata() throws Exception {
+  public void testSubscribeBlockMetadata() throws Exception {
     // given
     final BlockTemplate blockTemplate = new BlockTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
@@ -136,7 +136,7 @@ public class BlockTemplateTest extends AbstractTestCase {
 
     // then
     final Subscription<BlockMetadata> actual = blockTemplate
-        .subscribeNewBlockMetadata(new StreamObserver<BlockMetadata>() {
+        .subscribeBlockMetadata(new StreamObserver<BlockMetadata>() {
           @Override
           public void onNext(BlockMetadata value) {
 
@@ -156,7 +156,7 @@ public class BlockTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testSubscribeNewBlock() throws Exception {
+  public void testSubscribeBlock() throws Exception {
     // given
     final BlockTemplate blockTemplate = new BlockTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
@@ -166,7 +166,7 @@ public class BlockTemplateTest extends AbstractTestCase {
 
     // then
     final Subscription<Block> actual = blockTemplate
-        .subscribeNewBlock(new StreamObserver<Block>() {
+        .subscribeBlock(new StreamObserver<Block>() {
           @Override
           public void onNext(Block value) {
 

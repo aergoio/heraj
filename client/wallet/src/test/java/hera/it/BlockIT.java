@@ -98,15 +98,17 @@ public class BlockIT extends AbstractWalletApiIT {
       }
 
       @Override
-      public void onError(Throwable t) {}
+      public void onError(Throwable t) {
+      }
 
       @Override
-      public void onCompleted() {}
+      public void onCompleted() {
+      }
     };
 
     // then
     final Subscription<BlockMetadata> subscription =
-        walletApi.queryApi().subscribeNewBlockMetadata(callback);
+        walletApi.queryApi().subscribeBlockMetadata(callback);
     latch.await();
     assertEquals(0L, latch.getCount());
 
@@ -133,14 +135,16 @@ public class BlockIT extends AbstractWalletApiIT {
       }
 
       @Override
-      public void onError(Throwable t) {}
+      public void onError(Throwable t) {
+      }
 
       @Override
-      public void onCompleted() {}
+      public void onCompleted() {
+      }
     };
 
     // then
-    final Subscription<Block> subscription = walletApi.queryApi().subscribeNewBlock(callback);
+    final Subscription<Block> subscription = walletApi.queryApi().subscribeBlock(callback);
     Thread.sleep(5000L);
     synchronized (lock) {
       assertEquals(atomicInteger.get(), blockNumber2Block.size());

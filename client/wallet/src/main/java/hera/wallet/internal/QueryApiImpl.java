@@ -280,6 +280,17 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public Subscription<BlockMetadata> subscribeNewBlockMetadata(
       final StreamObserver<BlockMetadata> observer) {
+    return subscribeBlockMetadata(observer);
+  }
+
+  @Override
+  public Subscription<Block> subscribeNewBlock(final StreamObserver<Block> observer) {
+    return subscribeBlock(observer);
+  }
+
+  @Override
+  public Subscription<BlockMetadata> subscribeBlockMetadata(
+      final StreamObserver<BlockMetadata> observer) {
     try {
       return getClient().getBlockOperation().subscribeNewBlockMetadata(observer);
     } catch (Exception e) {
@@ -288,7 +299,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   }
 
   @Override
-  public Subscription<Block> subscribeNewBlock(final StreamObserver<Block> observer) {
+  public Subscription<Block> subscribeBlock(final StreamObserver<Block> observer) {
     try {
       return getClient().getBlockOperation().subscribeNewBlock(observer);
     } catch (Exception e) {

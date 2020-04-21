@@ -23,7 +23,6 @@ import java.util.List;
  * </ul>
  *
  * @author bylee, Taeik Lim
- *
  */
 @ApiAudience.Public
 @ApiStability.Unstable
@@ -49,7 +48,7 @@ public interface BlockOperation {
    * Get list of block meta data of {@code size} backward starting from block for provided hash.
    *
    * @param blockHash block hash
-   * @param size block list size whose upper bound is 1000
+   * @param size      block list size whose upper bound is 1000
    * @return list of block meta data
    */
   List<BlockMetadata> listBlockMetadatas(BlockHash blockHash, int size);
@@ -58,7 +57,7 @@ public interface BlockOperation {
    * Get list of block meta data of {@code size} backward starting from block for provided height.
    *
    * @param height block's height
-   * @param size block list size whose upper bound is 1000
+   * @param size   block list size whose upper bound is 1000
    * @return list of block meta data
    */
   List<BlockMetadata> listBlockMetadatas(long height, int size);
@@ -80,12 +79,30 @@ public interface BlockOperation {
   Block getBlock(long height);
 
   /**
+   * Use {@link #subscribeBlockMetadata(StreamObserver)} instead.
+   *
+   * @param observer a stream observer which is invoked on new block metadata
+   * @return a block subscription
+   */
+  @Deprecated
+  Subscription<BlockMetadata> subscribeNewBlockMetadata(StreamObserver<BlockMetadata> observer);
+
+  /**
+   * Use {@link #subscribeBlock(StreamObserver)} instead.
+   *
+   * @param observer a stream observer which is invoked on new block
+   * @return a block subscription
+   */
+  @Deprecated
+  Subscription<Block> subscribeNewBlock(StreamObserver<Block> observer);
+
+  /**
    * Subscribe block metadata stream which is triggered everytime new block is generated.
    *
    * @param observer a stream observer which is invoked on new block metadata
    * @return a block subscription
    */
-  Subscription<BlockMetadata> subscribeNewBlockMetadata(StreamObserver<BlockMetadata> observer);
+  Subscription<BlockMetadata> subscribeBlockMetadata(StreamObserver<BlockMetadata> observer);
 
   /**
    * Subscribe block stream which is triggered everytime new block is generated.
@@ -93,6 +110,6 @@ public interface BlockOperation {
    * @param observer a stream observer which is invoked on new block
    * @return a block subscription
    */
-  Subscription<Block> subscribeNewBlock(StreamObserver<Block> observer);
+  Subscription<Block> subscribeBlock(StreamObserver<Block> observer);
 
 }

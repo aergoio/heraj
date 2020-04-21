@@ -30,6 +30,7 @@ import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
 import hera.api.model.ServerInfo;
 import hera.api.model.StakeInfo;
+import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
@@ -58,7 +59,7 @@ public interface QueryApi {
   /**
    * Get owner of an account name at block number {@code blockNumber}.
    *
-   * @param name an name of account
+   * @param name        an name of account
    * @param blockNumber a block number
    * @return an account address binded with name
    */
@@ -83,7 +84,7 @@ public interface QueryApi {
   /**
    * Get elected candidates per {@code voteId} for current round.
    *
-   * @param voteId a vote id
+   * @param voteId    a vote id
    * @param showCount a show count
    * @return elected block producer list
    */
@@ -157,8 +158,7 @@ public interface QueryApi {
    * Get blockchain peer addresses.
    *
    * @param showHidden whether to show hidden peers
-   * @param showSelf whether to show node which receives request itself
-   *
+   * @param showSelf   whether to show node which receives request itself
    * @return peer addresses
    */
   List<Peer> listPeers(boolean showHidden, boolean showSelf);
@@ -205,7 +205,7 @@ public interface QueryApi {
    * Get block metadatas of {@code size} backward starting from block for provided hash.
    *
    * @param blockHash block hash
-   * @param size block list size whose upper bound is 1000
+   * @param size      block list size whose upper bound is 1000
    * @return block list
    */
   List<BlockMetadata> listBlockMetadatas(BlockHash blockHash, int size);
@@ -214,7 +214,7 @@ public interface QueryApi {
    * Get block metadatas of {@code size} backward starting from block for provided height.
    *
    * @param height block's height
-   * @param size block list size whose upper bound is 1000
+   * @param size   block list size whose upper bound is 1000
    * @return block list
    */
   List<BlockMetadata> listBlockMetadatas(long height, int size);
@@ -236,12 +236,31 @@ public interface QueryApi {
   Block getBlock(long height);
 
   /**
+   * Use {@link #subscribeBlockMetadata(StreamObserver)} instead.
+   *
+   * @param observer a stream observer which is invoked on new block metadata
+   * @return a block subscription
+   */
+  @Deprecated
+  Subscription<BlockMetadata> subscribeNewBlockMetadata(
+      hera.api.model.StreamObserver<BlockMetadata> observer);
+
+  /**
+   * Use {@link #subscribeBlock(StreamObserver)} instead.
+   *
+   * @param observer a stream observer which is invoked on new block
+   * @return a block subscription
+   */
+  @Deprecated
+  Subscription<Block> subscribeNewBlock(hera.api.model.StreamObserver<Block> observer);
+
+  /**
    * Subscribe block metadata stream which is triggered everytime new block is generated.
    *
    * @param observer a stream observer which is invoked on new block metadata
    * @return a block subscription
    */
-  Subscription<BlockMetadata> subscribeNewBlockMetadata(
+  Subscription<BlockMetadata> subscribeBlockMetadata(
       hera.api.model.StreamObserver<BlockMetadata> observer);
 
   /**
@@ -250,7 +269,7 @@ public interface QueryApi {
    * @param observer a stream observer which is invoked on new block
    * @return a block subscription
    */
-  Subscription<Block> subscribeNewBlock(hera.api.model.StreamObserver<Block> observer);
+  Subscription<Block> subscribeBlock(hera.api.model.StreamObserver<Block> observer);
 
   /**
    * Get transaction.
@@ -295,7 +314,7 @@ public interface QueryApi {
   /**
    * Subscribe event corresponding with event filter.
    *
-   * @param filter an event filter
+   * @param filter   an event filter
    * @param observer a stream observer which is invoked on event
    * @return a subscription
    */

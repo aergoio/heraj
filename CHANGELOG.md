@@ -8,6 +8,8 @@
 - Fixes & Improvements
   - Add KeyFormat
   - Improvement context structure
+- Changes
+  - Replace subscribeNewBlockXXX with subscribeBlockXXX
 
 ## v1.4.0 (Mar 10, 2020)
 
