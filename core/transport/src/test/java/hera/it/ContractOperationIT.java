@@ -22,7 +22,6 @@ import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
-import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
@@ -31,6 +30,7 @@ import hera.api.model.RawTransaction;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import hera.api.transaction.NonceProvider;
 import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
@@ -99,7 +99,8 @@ public class ContractOperationIT extends AbstractIT {
 
     final AccountState state = aergoClient.getAccountOperation().getState(rich.getAddress());
     logger.debug("Rich state: {}", state);
-    nonceProvider.bindNonce(state);;
+    nonceProvider.bindNonce(state);
+    ;
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .chainIdHash(aergoClient.getCachedChainIdHash())
         .from(rich.getPrincipal())
@@ -798,7 +799,7 @@ public class ContractOperationIT extends AbstractIT {
     final Event simpleArgs = events.get(0);
     final Map<String, Object> simpleJson = new HashMap<>();
     simpleJson.put("key", "value");
-    final List<Object> expectedSimpleArgs = asList(new Object[] {
+    final List<Object> expectedSimpleArgs = asList(new Object[]{
         simpleJson,
         "text",
         123.123,
@@ -822,7 +823,6 @@ public class ContractOperationIT extends AbstractIT {
   }
 
 
-
   @ToString
   protected static class Data {
 
@@ -843,7 +843,7 @@ public class ContractOperationIT extends AbstractIT {
 
   protected ContractTxReceipt deploy(final Signer signer,
       final ContractDefinition definition) {
-    final ContractTxHash contractTxHash = aergoClient.getContractOperation().deploy(signer,
+    final TxHash contractTxHash = aergoClient.getContractOperation().deployTx(signer,
         definition, nonceProvider.incrementAndGetNonce(signer.getPrincipal()), fee);
 
     waitForNextBlockToGenerate();
@@ -861,8 +861,8 @@ public class ContractOperationIT extends AbstractIT {
 
   protected ContractTxReceipt redeploy(final Signer signer, final ContractAddress contractAddress,
       final ContractDefinition definition) {
-    final ContractTxHash contractTxHash =
-        aergoClient.getContractOperation().redeploy(signer, contractAddress, definition,
+    final TxHash contractTxHash =
+        aergoClient.getContractOperation().redeployTx(signer, contractAddress, definition,
             nonceProvider.incrementAndGetNonce(signer.getPrincipal()), fee);
 
     waitForNextBlockToGenerate();
@@ -877,7 +877,7 @@ public class ContractOperationIT extends AbstractIT {
   }
 
   protected ContractTxReceipt execute(final Signer signer, final ContractInvocation execution) {
-    final ContractTxHash contractTxHash = aergoClient.getContractOperation().execute(signer,
+    final TxHash contractTxHash = aergoClient.getContractOperation().executeTx(signer,
         execution, nonceProvider.incrementAndGetNonce(signer.getPrincipal()), fee);
 
     waitForNextBlockToGenerate();

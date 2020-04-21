@@ -37,7 +37,7 @@ class ContractInvocationHandler implements InvocationHandler {
         return method.invoke(this, args);
       }
 
-      logger.debug("Proxy: {}, Method: {}, Args: {}, Ret: {}", proxy, method,
+      logger.debug("Proxy: {}, Method: {}, Args: {}", proxy, method,
           (args == null) ? null : StringUtils.join(args, ","));
 
       if (isPrepareMethod(method)) {
@@ -99,7 +99,7 @@ class ContractInvocationHandler implements InvocationHandler {
 
         logger.debug("Contract execution: {}", contractInvocation);
         final Fee fee = getFee();
-        walletApi.transactionApi().execute(contractInvocation, fee);
+        walletApi.transactionApi().executeTx(contractInvocation, fee);
       } else {
         if (!contractInvocation.getFunction().isView()) {
           throw new HerajException(

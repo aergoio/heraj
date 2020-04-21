@@ -246,15 +246,6 @@ public interface QueryApi {
       hera.api.model.StreamObserver<BlockMetadata> observer);
 
   /**
-   * Use {@link #subscribeBlock(StreamObserver)} instead.
-   *
-   * @param observer a stream observer which is invoked on new block
-   * @return a block subscription
-   */
-  @Deprecated
-  Subscription<Block> subscribeNewBlock(hera.api.model.StreamObserver<Block> observer);
-
-  /**
    * Subscribe block metadata stream which is triggered everytime new block is generated.
    *
    * @param observer a stream observer which is invoked on new block metadata
@@ -262,6 +253,15 @@ public interface QueryApi {
    */
   Subscription<BlockMetadata> subscribeBlockMetadata(
       hera.api.model.StreamObserver<BlockMetadata> observer);
+
+  /**
+   * Use {@link #subscribeBlock(StreamObserver)} instead.
+   *
+   * @param observer a stream observer which is invoked on new block
+   * @return a block subscription
+   */
+  @Deprecated
+  Subscription<Block> subscribeNewBlock(hera.api.model.StreamObserver<Block> observer);
 
   /**
    * Subscribe block stream which is triggered everytime new block is generated.
@@ -280,12 +280,21 @@ public interface QueryApi {
   Transaction getTransaction(TxHash txHash);
 
   /**
-   * Get receipt of transaction.
+   * Use {@link #getReceipt(TxHash)} instead.
    *
-   * @param contractTxHash contract transaction hash
+   * @param contractTxHash a contract transaction hash
    * @return receipt of transaction
    */
+  @Deprecated
   ContractTxReceipt getReceipt(ContractTxHash contractTxHash);
+
+  /**
+   * Get receipt of transaction.
+   *
+   * @param txHash a contract transaction hash
+   * @return receipt of transaction
+   */
+  ContractTxReceipt getReceipt(TxHash txHash);
 
   /**
    * Get smart contract interface corresponding to contract address.

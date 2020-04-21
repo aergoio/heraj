@@ -22,13 +22,13 @@ import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
-import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
 import hera.api.model.Fee;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
+import hera.api.model.TxHash;
 import hera.key.AergoKeyGenerator;
 import hera.key.Signer;
 import java.util.List;
@@ -55,41 +55,41 @@ public class ContractTemplateTest extends AbstractTestCase {
 
     // then
     final ContractTxReceipt actual = contractTemplate
-        .getReceipt(ContractTxHash.of(BytesValue.EMPTY));
+        .getReceipt(TxHash.of(BytesValue.EMPTY));
     assertEquals(expected, actual);
   }
 
   @Test
-  public void testDeploy() throws Exception {
+  public void testDeployTx() throws Exception {
     // given
     final ContractTemplate contractTemplate = new ContractTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
-    final ContractTxHash expected = ContractTxHash.of(BytesValue.EMPTY);
+    final TxHash expected = TxHash.of(BytesValue.EMPTY);
     when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
         .thenReturn(expected);
     contractTemplate.requester = mockRequester;
 
     // then
     final Signer signer = new AergoKeyGenerator().create();
-    final ContractTxHash actual = contractTemplate
-        .deploy(signer, mock(ContractDefinition.class), 1L, Fee.ZERO);
+    final TxHash actual = contractTemplate
+        .deployTx(signer, mock(ContractDefinition.class), 1L, Fee.ZERO);
     assertEquals(expected, actual);
   }
 
   @Test
-  public void testRedeploy() throws Exception {
+  public void testRedeployTx() throws Exception {
     // given
     final ContractTemplate contractTemplate = new ContractTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
-    final ContractTxHash expected = ContractTxHash.of(BytesValue.EMPTY);
+    final TxHash expected = TxHash.of(BytesValue.EMPTY);
     when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
         .thenReturn(expected);
     contractTemplate.requester = mockRequester;
 
     // then
     final Signer signer = new AergoKeyGenerator().create();
-    final ContractTxHash actual = contractTemplate
-        .redeploy(signer, ContractAddress.EMPTY, mock(ContractDefinition.class), 1L, Fee.ZERO);
+    final TxHash actual = contractTemplate
+        .redeployTx(signer, ContractAddress.EMPTY, mock(ContractDefinition.class), 1L, Fee.ZERO);
     assertEquals(expected, actual);
   }
 
@@ -109,19 +109,19 @@ public class ContractTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testExecute() throws Exception {
+  public void testExecuteTx() throws Exception {
     // given
     final ContractTemplate contractTemplate = new ContractTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
-    final ContractTxHash expected = ContractTxHash.of(BytesValue.EMPTY);
+    final TxHash expected = TxHash.of(BytesValue.EMPTY);
     when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
         .thenReturn(expected);
     contractTemplate.requester = mockRequester;
 
     // then
     final Signer signer = new AergoKeyGenerator().create();
-    final ContractTxHash actual = contractTemplate
-        .execute(signer, mock(ContractInvocation.class), 1L, Fee.ZERO);
+    final TxHash actual = contractTemplate
+        .executeTx(signer, mock(ContractInvocation.class), 1L, Fee.ZERO);
     assertEquals(expected, actual);
   }
 
@@ -189,5 +189,3 @@ public class ContractTemplateTest extends AbstractTestCase {
   }
 
 }
-
-

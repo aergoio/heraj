@@ -20,7 +20,7 @@ public class TransportExceptionConverter implements ExceptionConverter<HerajExce
 
   @Override
   public HerajException convert(final Throwable target) {
-    logger.trace("Handle exception {}", target.toString());
+    logger.trace("Convert raw exception {}", target.toString());
     if (target instanceof HerajException) {
       return (HerajException) target;
     } else if (target instanceof StatusRuntimeException) {

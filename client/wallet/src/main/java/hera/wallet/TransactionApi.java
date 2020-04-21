@@ -34,7 +34,7 @@ public interface TransactionApi {
   /**
    * Update name info of to an new owner.
    *
-   * @param name an already binded name
+   * @param name     an already binded name
    * @param newOwner an new owner of name
    * @return a update name transaction hash
    */
@@ -67,7 +67,7 @@ public interface TransactionApi {
   /**
    * Vote to {@code candidates} with {@code voteId}.
    *
-   * @param voteId a vote id
+   * @param voteId     a vote id
    * @param candidates a candidates to vote
    * @return voting transaction hash
    */
@@ -77,8 +77,8 @@ public interface TransactionApi {
    * Send <b>aer</b> with {@code fee}.
    *
    * @param recipient a recipient name
-   * @param amount an amount
-   * @param fee a fee
+   * @param amount    an amount
+   * @param fee       a fee
    * @return a send transaction hash
    */
   TxHash send(String recipient, Aer amount, Fee fee);
@@ -87,9 +87,9 @@ public interface TransactionApi {
    * Send <b>aer</b> with {@code fee} and {@code payload}.
    *
    * @param recipient a recipient name
-   * @param amount an amount
-   * @param fee a fee
-   * @param payload a payload
+   * @param amount    an amount
+   * @param fee       a fee
+   * @param payload   a payload
    * @return a send transaction hash
    */
   TxHash send(String recipient, Aer amount, Fee fee, BytesValue payload);
@@ -98,8 +98,8 @@ public interface TransactionApi {
    * Send <b>aer</b> with {@code fee}.
    *
    * @param recipient a recipient
-   * @param amount an amount
-   * @param fee a fee
+   * @param amount    an amount
+   * @param fee       a fee
    * @return a send transaction hash
    */
   TxHash send(AccountAddress recipient, Aer amount, Fee fee);
@@ -108,9 +108,9 @@ public interface TransactionApi {
    * Send <b>aer</b> with {@code fee} and {@code payload}.
    *
    * @param recipient a recipient
-   * @param amount an amount
-   * @param fee a fee
-   * @param payload a payload
+   * @param amount    an amount
+   * @param fee       a fee
+   * @param payload   a payload
    * @return a send transaction hash
    */
   TxHash send(AccountAddress recipient, Aer amount, Fee fee, BytesValue payload);
@@ -132,32 +132,64 @@ public interface TransactionApi {
   TxHash commit(Transaction signedTransaction);
 
   /**
+   * Use {@link #deployTx(ContractDefinition, Fee)} instead.
+   *
+   * @param contractDefinition a contract definition
+   * @param fee                a fee
+   * @return a contract transaction hash
+   */
+  @Deprecated
+  ContractTxHash deploy(ContractDefinition contractDefinition, Fee fee);
+
+  /**
    * Deploy smart contract.
    *
    * @param contractDefinition a contract definition
-   * @param fee a fee
+   * @param fee                a fee
    * @return a contract transaction hash
    */
-  ContractTxHash deploy(ContractDefinition contractDefinition, Fee fee);
+  TxHash deployTx(ContractDefinition contractDefinition, Fee fee);
+
+  /**
+   * Use {@link #deployTx(ContractDefinition, Fee)} instead.
+   *
+   * @param existingContract   an existing contract address
+   * @param contractDefinition a contract definition to re-deploy
+   * @param fee                a fee
+   * @return a contract transaction hash
+   */
+  @Deprecated
+  ContractTxHash redeploy(ContractAddress existingContract, ContractDefinition contractDefinition,
+      Fee fee);
 
   /**
    * Re-deploy a deployed smart smart contract. This works enterprise aergo only.
    *
-   * @param existingContract an existing contract address
+   * @param existingContract   an existing contract address
    * @param contractDefinition a contract definition to re-deploy
-   * @param fee a fee
+   * @param fee                a fee
    * @return a contract transaction hash
    */
-  ContractTxHash redeploy(ContractAddress existingContract, ContractDefinition contractDefinition,
+  TxHash redeployTx(ContractAddress existingContract, ContractDefinition contractDefinition,
       Fee fee);
+
+  /**
+   * Use {@link #executeTx(ContractInvocation, Fee)} instead.
+   *
+   * @param contractInvocation a contract invocation
+   * @param fee                a fee
+   * @return a contract transaction hash
+   */
+  @Deprecated
+  ContractTxHash execute(ContractInvocation contractInvocation, Fee fee);
 
   /**
    * Execute a smart contract function.
    *
    * @param contractInvocation a contract invocation
-   * @param fee a fee
+   * @param fee                a fee
    * @return a contract transaction hash
    */
-  ContractTxHash execute(ContractInvocation contractInvocation, Fee fee);
+  TxHash executeTx(ContractInvocation contractInvocation, Fee fee);
 
 }

@@ -19,7 +19,6 @@ import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
-import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
@@ -28,6 +27,7 @@ import hera.api.model.RawTransaction;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import hera.api.transaction.NonceProvider;
 import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
@@ -103,7 +103,7 @@ public class ContractIT extends AbstractWalletApiIT {
         .nonce(nonceProvider.incrementAndGetNonce(rich.getPrincipal()))
         .build();
     final Transaction signed = rich.sign(rawTransaction);
-    logger.debug("Fill tx: ", signed);
+    logger.debug("Fill tx: {}", signed);
     aergoClient.getTransactionOperation().commit(signed);
     waitForNextBlockToGenerate();
   }
@@ -298,7 +298,7 @@ public class ContractIT extends AbstractWalletApiIT {
         .encodedContract(payload)
         .constructorArgs(args)
         .build();
-    final ContractTxHash deployTxHash = walletApi.transactionApi().deploy(definition, fee);
+    final TxHash deployTxHash = walletApi.transactionApi().deployTx(definition, fee);
     waitForNextBlockToGenerate();
 
     final ContractTxReceipt receipt = walletApi.queryApi().getReceipt(deployTxHash);
@@ -316,7 +316,7 @@ public class ContractIT extends AbstractWalletApiIT {
         .function(funcName)
         .args(args)
         .build();
-    final ContractTxHash execTxHash = walletApi.transactionApi().execute(execution, fee);
+    final TxHash execTxHash = walletApi.transactionApi().executeTx(execution, fee);
     waitForNextBlockToGenerate();
     final ContractTxReceipt receipt = walletApi.queryApi().getReceipt(execTxHash);
     assertNotEquals("ERROR", receipt.getStatus());

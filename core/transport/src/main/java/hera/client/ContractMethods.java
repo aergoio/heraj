@@ -24,7 +24,6 @@ import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
-import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
@@ -33,6 +32,7 @@ import hera.api.model.RawTransaction;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.api.model.Transaction;
+import hera.api.model.TxHash;
 import hera.api.transaction.ContractInvocationPayloadConverter;
 import hera.api.transaction.DeployContractTransactionBuilder;
 import hera.api.transaction.InvokeContractTransactionBuilder;
@@ -91,16 +91,16 @@ class ContractMethods extends AbstractMethods {
 
         @Override
         protected void validate(final List<Object> parameters) {
-          validateType(parameters, 0, ContractTxHash.class);
+          validateType(parameters, 0, TxHash.class);
         }
 
         @Override
         protected ContractTxReceipt runInternal(final List<Object> parameters) throws Exception {
-          final ContractTxHash contractTxHash = (ContractTxHash) parameters.get(0);
-          logger.debug("Get receipt with txHash: {}", contractTxHash);
+          final TxHash txHash = (TxHash) parameters.get(0);
+          logger.debug("Get receipt with txHash: {}", txHash);
 
           final Rpc.SingleBytes rpcDeployTxHash = Rpc.SingleBytes.newBuilder()
-              .setValue(copyFrom(contractTxHash.getBytesValue()))
+              .setValue(copyFrom(txHash.getBytesValue()))
               .build();
           logger.trace("AergoService getReceipt arg: {}", rpcDeployTxHash);
 
@@ -110,7 +110,7 @@ class ContractMethods extends AbstractMethods {
       };
 
   @Getter
-  protected final RequestMethod<ContractTxHash> deploy = new RequestMethod<ContractTxHash>() {
+  protected final RequestMethod<TxHash> deployTx = new RequestMethod<TxHash>() {
 
     @Getter
     protected final String name = CONTRACT_DEPLOY;
@@ -124,7 +124,7 @@ class ContractMethods extends AbstractMethods {
     }
 
     @Override
-    protected ContractTxHash runInternal(final List<Object> parameters) throws Exception {
+    protected TxHash runInternal(final List<Object> parameters) throws Exception {
       final Signer signer = (Signer) parameters.get(0);
       final ContractDefinition contractDefinition = (ContractDefinition) parameters.get(1);
       final long nonce = (long) parameters.get(2);
@@ -140,14 +140,13 @@ class ContractMethods extends AbstractMethods {
           .fee(fee)
           .build();
       final Transaction signed = signer.sign(rawTransaction);
-      return transactionMethods.getCommit().invoke(Arrays.<Object>asList(signed))
-          .adapt(ContractTxHash.class);
+      return transactionMethods.getCommit().invoke(Arrays.<Object>asList(signed));
     }
 
   };
 
   @Getter
-  protected final RequestMethod<ContractTxHash> reDeploy = new RequestMethod<ContractTxHash>() {
+  protected final RequestMethod<TxHash> redeployTx = new RequestMethod<TxHash>() {
 
     @Getter
     protected final String name = CONTRACT_REDEPLOY;
@@ -162,7 +161,7 @@ class ContractMethods extends AbstractMethods {
     }
 
     @Override
-    protected ContractTxHash runInternal(final List<Object> parameters) throws Exception {
+    protected TxHash runInternal(final List<Object> parameters) throws Exception {
       final Signer signer = (Signer) parameters.get(0);
       final ContractAddress existingContract = (ContractAddress) parameters.get(1);
       final ContractDefinition contractDefinition = (ContractDefinition) parameters.get(2);
@@ -181,8 +180,7 @@ class ContractMethods extends AbstractMethods {
           .fee(fee)
           .build();
       final Transaction signed = signer.sign(rawTransaction);
-      return transactionMethods.getCommit().invoke(Arrays.<Object>asList(signed))
-          .adapt(ContractTxHash.class);
+      return transactionMethods.getCommit().invoke(Arrays.<Object>asList(signed));
     }
   };
 
@@ -219,7 +217,7 @@ class ContractMethods extends AbstractMethods {
       };
 
   @Getter
-  protected final RequestMethod<ContractTxHash> execute = new RequestMethod<ContractTxHash>() {
+  protected final RequestMethod<TxHash> executeTx = new RequestMethod<TxHash>() {
 
     @Getter
     protected final String name = CONTRACT_EXECUTE;
@@ -233,7 +231,7 @@ class ContractMethods extends AbstractMethods {
     }
 
     @Override
-    protected ContractTxHash runInternal(final List<Object> parameters) throws Exception {
+    protected TxHash runInternal(final List<Object> parameters) throws Exception {
       final Signer signer = (Signer) parameters.get(0);
       final ContractInvocation contractInvocation = (ContractInvocation) parameters.get(1);
       final long nonce = (long) parameters.get(2);
@@ -249,8 +247,7 @@ class ContractMethods extends AbstractMethods {
           .fee(fee)
           .build();
       final Transaction signed = signer.sign(rawTransaction);
-      return transactionMethods.getCommit().invoke(Arrays.<Object>asList(signed))
-          .adapt(ContractTxHash.class);
+      return transactionMethods.getCommit().invoke(Arrays.<Object>asList(signed));
     }
   };
 

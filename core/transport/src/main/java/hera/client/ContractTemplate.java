@@ -20,6 +20,7 @@ import hera.api.model.EventFilter;
 import hera.api.model.Fee;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
+import hera.api.model.TxHash;
 import hera.key.Signer;
 import java.util.Arrays;
 import java.util.List;
@@ -34,7 +35,12 @@ class ContractTemplate extends AbstractTemplate implements ContractOperation {
 
   @Override
   public ContractTxReceipt getReceipt(final ContractTxHash contractTxHash) {
-    return request(contractMethods.getTxReceipt(), Arrays.<Object>asList(contractTxHash));
+    return getReceipt(contractTxHash.adapt(TxHash.class));
+  }
+
+  @Override
+  public ContractTxReceipt getReceipt(final TxHash txHash) {
+    return request(contractMethods.getTxReceipt(), Arrays.<Object>asList(txHash));
   }
 
   @Override
@@ -52,14 +58,27 @@ class ContractTemplate extends AbstractTemplate implements ContractOperation {
   @Override
   public ContractTxHash deploy(final Signer signer, final ContractDefinition contractDefinition,
       final long nonce, final Fee fee) {
-    return request(contractMethods.getDeploy(),
+    return deployTx(signer, contractDefinition, nonce, fee).adapt(ContractTxHash.class);
+  }
+
+  @Override
+  public TxHash deployTx(final Signer signer, final ContractDefinition contractDefinition,
+      final long nonce, final Fee fee) {
+    return request(contractMethods.getDeployTx(),
         Arrays.<Object>asList(signer, contractDefinition, nonce, fee));
   }
 
   @Override
   public ContractTxHash redeploy(final Signer signer, final ContractAddress existingContract,
       final ContractDefinition contractDefinition, final long nonce, final Fee fee) {
-    return request(contractMethods.getReDeploy(),
+    return redeployTx(signer, existingContract, contractDefinition, nonce, fee)
+        .adapt(ContractTxHash.class);
+  }
+
+  @Override
+  public TxHash redeployTx(final Signer signer, final ContractAddress existingContract,
+      final ContractDefinition contractDefinition, final long nonce, final Fee fee) {
+    return request(contractMethods.getRedeployTx(),
         Arrays.asList(signer, existingContract, contractDefinition, nonce, fee));
   }
 
@@ -83,7 +102,13 @@ class ContractTemplate extends AbstractTemplate implements ContractOperation {
   @Override
   public ContractTxHash execute(final Signer signer, final ContractInvocation contractInvocation,
       final long nonce, final Fee fee) {
-    return request(contractMethods.getExecute(),
+    return executeTx(signer, contractInvocation, nonce, fee).adapt(ContractTxHash.class);
+  }
+
+  @Override
+  public TxHash executeTx(final Signer signer, final ContractInvocation contractInvocation,
+      final long nonce, final Fee fee) {
+    return request(contractMethods.getExecuteTx(),
         Arrays.asList(signer, contractInvocation, nonce, fee));
   }
 

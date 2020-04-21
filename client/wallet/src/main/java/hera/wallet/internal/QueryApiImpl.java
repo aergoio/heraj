@@ -318,8 +318,13 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
 
   @Override
   public ContractTxReceipt getReceipt(final ContractTxHash contractTxHash) {
+    return getReceipt(contractTxHash.adapt(TxHash.class));
+  }
+
+  @Override
+  public ContractTxReceipt getReceipt(TxHash txHash) {
     try {
-      return getClient().getContractOperation().getReceipt(contractTxHash);
+      return getClient().getContractOperation().getReceipt(txHash);
     } catch (Exception e) {
       throw converter.convert(e);
     }
