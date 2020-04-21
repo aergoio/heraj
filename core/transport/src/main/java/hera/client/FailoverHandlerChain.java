@@ -31,16 +31,18 @@ class FailoverHandlerChain implements FailoverHandler {
   }
 
   @Override
-  public <T> void handle(final Invocation<T> invocation, final Response<T> response) {
+  public <T> Response<T> handle(final Invocation<T> invocation, final Response<T> response) {
     logger.debug("Handle {} with failover handler chain (handlers: {})", response.getError(),
         this.failoverHandlers);
+    Response<T> next = response;
     for (final FailoverHandler failoverHandler : this.failoverHandlers) {
-      if (null == response.getError()) {
-        return;
+      if (null == next.getError()) {
+        break;
       }
-
-      failoverHandler.handle(invocation, response);
+      logger.trace("Handle with {}", failoverHandler);
+      next = failoverHandler.handle(invocation, next);
     }
+    return next;
   }
 
 }

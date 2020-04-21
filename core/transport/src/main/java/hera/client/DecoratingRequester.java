@@ -44,17 +44,17 @@ class DecoratingRequester implements Requester {
     assertNotNull(invocation, "Invocation must not null");
     logger.debug("Request with invocation: {}", invocation);
 
-    final Response<T> response = Response.empty();
+    Response<T> response;
     final Invocation<T> decorated = withDecorated(invocation);
     logger.trace("Decorated: {}", decorated);
     try {
       final T value = decorated.invoke();
       logger.debug("Success: {}", value);
-      response.success(value);
+      response = Response.success(value);
     } catch (Exception e) {
       logger.debug("Failure: {}", e.toString());
-      response.fail(e);
-      handleFailover(decorated, response);
+      response = Response.fail(e);
+      response = handleFailover(decorated, response);
     }
 
     if (null != response.getError()) {
@@ -128,13 +128,14 @@ class DecoratingRequester implements Requester {
     return strategy.apply(invocation);
   }
 
-  protected <T> void handleFailover(final Invocation<T> invocation, final Response<T> response) {
+  protected <T> Response<T> handleFailover(final Invocation<T> invocation,
+      final Response<T> response) {
     final FailoverHandler failoverHandler = getFailoverHandler();
     if (null == failoverHandler) {
-      return;
+      return response;
     }
     logger.trace("Handle failover by {}", failoverHandler);
-    failoverHandler.handle(invocation, response);
+    return failoverHandler.handle(invocation, response);
   }
 
   protected FailoverHandler getFailoverHandler() {

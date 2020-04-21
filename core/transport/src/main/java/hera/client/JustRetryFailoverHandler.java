@@ -35,11 +35,12 @@ class JustRetryFailoverHandler extends ComparableFailoverHandler {
   }
 
   @Override
-  public <T> void handle(final Invocation<T> invocation, final Response<T> response) {
+  public <T> Response<T> handle(final Invocation<T> invocation, final Response<T> response) {
     logger.debug("Handle {} with {}", response.getError(), this);
 
+    Response<T> next = response;
     int countDown = this.count;
-    while (null != response.getError() && 0 < countDown) {
+    while (null != next.getError() && 0 < countDown) {
       try {
         logger.debug("Just retry with {} after sleep {}ms (count left: {})", this.interval,
             invocation, countDown);
@@ -50,12 +51,13 @@ class JustRetryFailoverHandler extends ComparableFailoverHandler {
 
       try {
         final T ret = invocation.invoke();
-        response.success(ret);
+        next = Response.success(ret);
       } catch (Exception e) {
-        response.fail(e);
+        next = Response.fail(e);
       }
       --countDown;
     }
+    return next;
   }
 
 }

@@ -11,52 +11,32 @@ import hera.annotation.ApiStability;
 import lombok.Getter;
 
 /**
- * A mutable response class.
+ * A response class.
  *
- * @param <T> an type of response
+ * @param <ValueT> a type of response
  */
 @ApiAudience.Private
 @ApiStability.Unstable
-public class Response<T> {
+public class Response<ValueT> {
 
-  public static <T> Response<T> empty() {
-    return new Response<>(null, null);
+  public static <T> Response<T> success(final T value) {
+    return new Response<>(value, null);
+  }
+
+  public static <T> Response<T> fail(final Exception error) {
+    assertNotNull(error, "Error must not null");
+    return new Response<>(null, error);
   }
 
   @Getter
-  protected T value;
+  protected ValueT value;
 
   @Getter
   protected Exception error;
 
-  private Response(final T value, final Exception error) {
+  private Response(final ValueT value, final Exception error) {
     this.value = value;
     this.error = error;
-  }
-
-  /**
-   * Success response with a value.
-   *
-   * @param value a value. Can be null.
-   * @return an instance of this
-   */
-  public Response<T> success(final T value) {
-    this.value = value;
-    this.error = null;
-    return this;
-  }
-
-  /**
-   * Fail response with an error.
-   *
-   * @param error an error
-   * @return an instance of this
-   */
-  public Response<T> fail(final Exception error) {
-    assertNotNull(error);
-    this.value = null;
-    this.error = error;
-    return this;
   }
 
 }

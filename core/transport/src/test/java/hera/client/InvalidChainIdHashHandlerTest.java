@@ -9,7 +9,6 @@ import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
-import static org.powermock.api.support.membermodification.MemberMatcher.field;
 
 import hera.AbstractTestCase;
 import hera.Context;
@@ -23,7 +22,6 @@ import hera.api.model.BlockchainStatus;
 import hera.api.model.BytesValue;
 import hera.api.model.ChainIdHash;
 import hera.exception.CommitException;
-import java.util.List;
 import java.util.concurrent.Callable;
 import org.junit.Test;
 
@@ -53,12 +51,11 @@ public class InvalidChainIdHashHandlerTest extends AbstractTestCase {
           final Object expected = randomUUID().toString();
           final Invocation<Object> invocation = new TestInvocation<>(
               TestRequestMethod.success(expected));
-          final Response<Object> response = Response.empty();
           final Exception error = new CommitException(types.Rpc.CommitStatus.TX_INTERNAL_ERROR,
               "invalid chain id hash");
-          response.fail(error);
-          failoverHandler.handle(invocation, response);
-          assertEquals(expected, response.getValue());
+          final Response<Object> response = Response.fail(error);
+          final Response<Object> handled = failoverHandler.handle(invocation, response);
+          assertEquals(expected, handled.getValue());
           return null;
         } finally {
           ContextHolder.remove();
@@ -91,12 +88,11 @@ public class InvalidChainIdHashHandlerTest extends AbstractTestCase {
           final Exception expected = new UnsupportedOperationException();
           final Invocation<Object> invocation = new TestInvocation<>(
               TestRequestMethod.fail(expected));
-          final Response<Object> response = Response.empty();
           final Exception error = new CommitException(types.Rpc.CommitStatus.TX_INTERNAL_ERROR,
               "invalid chain id hash");
-          response.fail(error);
-          failoverHandler.handle(invocation, response);
-          assertEquals(expected, response.getError());
+          final Response<Object> response = Response.fail(error);
+          final Response<Object> handled = failoverHandler.handle(invocation, response);
+          assertEquals(expected, handled.getError());
           return null;
         } finally {
           ContextHolder.remove();
@@ -108,21 +104,19 @@ public class InvalidChainIdHashHandlerTest extends AbstractTestCase {
   @Test
   public void shouldNotHandleOnNoError() {
     final FailoverHandler failoverHandler = new InvalidChainIdHashHandler();
-    final Response<Object> response = Response.empty();
     final String expected = randomUUID().toString();
-    response.success(expected);
-    failoverHandler.handle(null, response);
-    assertEquals(expected, response.getValue());
+    final Response<String> response = Response.success(expected);
+    final Response<String> handled = failoverHandler.handle(null, response);
+    assertEquals(expected, handled.getValue());
   }
 
   @Test
   public void shouldNotHandleOnNoCommitException() {
     final FailoverHandler failoverHandler = new InvalidChainIdHashHandler();
-    final Response<Object> response = Response.empty();
     final Exception expected = new UnsupportedOperationException();
-    response.fail(expected);
-    failoverHandler.handle(null, response);
-    assertEquals(expected, response.getError());
+    final Response<Object> response = Response.fail(expected);
+    final Response<Object> handled = failoverHandler.handle(null, response);
+    assertEquals(expected, handled.getError());
   }
 
 }

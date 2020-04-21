@@ -62,8 +62,8 @@ public class DecoratingRequesterTest extends AbstractTestCase {
         })
         .withValue(GRPC_FAILOVER_HANDLER_CHAIN, new FailoverHandler() {
           @Override
-          public <T> void handle(Invocation<T> invocation, Response<T> response) {
-
+          public <T> Response<T> handle(Invocation<T> invocation, Response<T> response) {
+            return response;
           }
         });
   }

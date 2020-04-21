@@ -45,10 +45,10 @@ public class JustRetryFailoverHandlerTest extends AbstractTestCase {
     };
 
     // then
-    final Response<Object> response = Response.empty();
-    response.fail(new UnsupportedOperationException());
-    justRetryFailoverHandler.handle(new TestInvocation<>(requestMethod), response);
-    assertEquals(expected, response.getValue());
+    final Response<Object> response = Response.fail(new UnsupportedOperationException());
+    final Response<Object> handled = justRetryFailoverHandler
+        .handle(new TestInvocation<>(requestMethod), response);
+    assertEquals(expected, handled.getValue());
     assertEquals(1, countDown.get());
   }
 
@@ -59,13 +59,13 @@ public class JustRetryFailoverHandlerTest extends AbstractTestCase {
     final JustRetryFailoverHandler justRetryFailoverHandler = new JustRetryFailoverHandler(count,
         Time.of(100L, TimeUnit.MILLISECONDS));
     final AtomicInteger countDown = new AtomicInteger(count);
-    final RequestMethod<Object> requestMethod = new RequestMethod<Object>() {
+    final RequestMethod<String> requestMethod = new RequestMethod<String>() {
 
       @Getter
       protected final String name = randomUUID().toString();
 
       @Override
-      protected Object runInternal(List<Object> parameters) throws Exception {
+      protected String runInternal(List<Object> parameters) throws Exception {
         countDown.decrementAndGet();
         return null;
       }
@@ -73,10 +73,10 @@ public class JustRetryFailoverHandlerTest extends AbstractTestCase {
 
     // then
     final String expected = randomUUID().toString();
-    final Response<Object> response = Response.empty();
-    response.success(expected);
-    justRetryFailoverHandler.handle(new TestInvocation<>(requestMethod), response);
-    assertEquals(expected, response.getValue());
+    final Response<String> response = Response.success(expected);
+    final Response<String> handled = justRetryFailoverHandler
+        .handle(new TestInvocation<>(requestMethod), response);
+    assertEquals(expected, handled.getValue());
     assertEquals(count, countDown.get());
   }
 
@@ -100,10 +100,10 @@ public class JustRetryFailoverHandlerTest extends AbstractTestCase {
     };
 
     // then
-    final Response<Object> response = Response.empty();
-    response.fail(new UnsupportedOperationException());
-    justRetryFailoverHandler.handle(new TestInvocation<>(requestMethod), response);
-    assertNotNull(response.getError());
+    final Response<Object> response = Response.fail(new UnsupportedOperationException());
+    final Response<Object> handled = justRetryFailoverHandler
+        .handle(new TestInvocation<>(requestMethod), response);
+    assertNotNull(handled.getError());
     assertEquals(0, countDown.get());
   }
 

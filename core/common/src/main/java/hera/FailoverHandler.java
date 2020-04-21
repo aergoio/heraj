@@ -11,6 +11,6 @@ import hera.annotation.ApiStability;
 @ApiStability.Unstable
 public interface FailoverHandler {
 
-  <T> void handle(Invocation<T> invocation, Response<T> response);
+  <T> Response<T> handle(Invocation<T> invocation, Response<T> response);
 
 }

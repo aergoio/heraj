@@ -38,18 +38,18 @@ class InvalidChainIdHashHandler extends ComparableFailoverHandler {
   }
 
   @Override
-  public <T> void handle(final Invocation<T> invocation, final Response<T> response) {
+  public <T> Response<T> handle(final Invocation<T> invocation, final Response<T> response) {
     try {
       logger.debug("Handle {} with {}", response.getError(), this);
 
       if (null == response.getError() || !(response.getError() instanceof CommitException)) {
-        return;
+        return response;
       }
 
       // FIXME: no other way to handle it?
       final CommitException commitException = (CommitException) response.getError();
       if (!commitException.getMessage().contains("invalid chain id hash")) {
-        return;
+        return response;
       }
 
       final Context current = ContextHolder.current();
@@ -68,12 +68,14 @@ class InvalidChainIdHashHandler extends ComparableFailoverHandler {
       throw new HerajException("Unexpected error", e);
     }
 
+    Response<T> next;
     try {
       final T ret = invocation.invoke();
-      response.success(ret);
+      next = Response.success(ret);
     } catch (Exception e) {
-      response.fail(e);
+      next = Response.fail(e);
     }
+    return next;
   }
 
 }

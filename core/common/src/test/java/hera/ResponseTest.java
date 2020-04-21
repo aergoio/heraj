@@ -14,18 +14,16 @@ public class ResponseTest extends AbstractTestCase {
 
   @Test
   public void testSuccess() {
-    final Response<String> response = Response.empty();
     final String expected = randomUUID().toString();
-    response.success(expected);
+    final Response<String> response = Response.success(expected);
     assertEquals(expected, response.getValue());
     assertNull(response.getError());
   }
 
   @Test
   public void testFail() {
-    final Response<String> response = Response.empty();
     final Exception expected = new UnsupportedOperationException();
-    response.fail(expected);
+    final Response<String> response = Response.fail(expected);
     assertNull(response.getValue());
     assertEquals(expected, response.getError());
   }
