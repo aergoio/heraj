@@ -4,23 +4,23 @@
 
 package hera.transport;
 
+import static hera.util.TransportUtils.copyFrom;
 import static org.junit.Assert.assertNotNull;
 
 import hera.AbstractTestCase;
 import hera.api.model.ContractTxReceipt;
-import hera.api.model.TxReceipt;
 import org.junit.Test;
 import types.Blockchain;
 
-public class TxReceiptConverterTest extends AbstractTestCase {
+public class ContractTxReceiptConverterTest extends AbstractTestCase {
 
   @Test
   public void testConvert() {
-    final ModelConverter<TxReceipt, Blockchain.Receipt> converter =
-        new TxReceiptConverterFactory().create();
+    final ModelConverter<ContractTxReceipt, Blockchain.Receipt> converter =
+        new ContractTxReceiptConverterFactory().create();
 
     final Blockchain.Receipt rpcAccount = Blockchain.Receipt.newBuilder().build();
-    final TxReceipt domainReceipt = converter.convertToDomainModel(rpcAccount);
+    final ContractTxReceipt domainReceipt = converter.convertToDomainModel(rpcAccount);
     assertNotNull(domainReceipt);
   }
 

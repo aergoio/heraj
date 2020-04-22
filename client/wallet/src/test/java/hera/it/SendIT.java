@@ -15,9 +15,9 @@ import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
 import hera.api.model.BytesValue;
 import hera.api.model.Fee;
-import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.model.TxReceipt;
 import hera.api.transaction.NonceProvider;
 import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
@@ -88,6 +88,10 @@ public class SendIT extends AbstractWalletApiIT {
     assertEquals(amount, actual.getBalance());
     final Transaction transaction = walletApi.queryApi().getTransaction(txHash);
     assertEquals(payload, transaction.getPayload());
+    final TxReceipt txReceipt = walletApi.queryApi().getTxReceipt(txHash);
+    assertEquals(recipient, txReceipt.getAccountAddress());
+    assertEquals("SUCCESS", txReceipt.getStatus());
+    assertEquals(txHash, txReceipt.getTxHash());
   }
 
   @Test
@@ -130,6 +134,10 @@ public class SendIT extends AbstractWalletApiIT {
     assertEquals(amount, actual.getBalance());
     final Transaction transaction = walletApi.queryApi().getTransaction(txHash);
     assertEquals(payload, transaction.getPayload());
+    final TxReceipt txReceipt = walletApi.queryApi().getTxReceipt(txHash);
+    assertEquals(recipient, txReceipt.getAccountAddress());
+    assertEquals("SUCCESS", txReceipt.getStatus());
+    assertEquals(txHash, txReceipt.getTxHash());
   }
 
   @Test

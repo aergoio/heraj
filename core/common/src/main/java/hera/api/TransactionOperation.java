@@ -11,6 +11,7 @@ import hera.api.model.Aer;
 import hera.api.model.Fee;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.model.TxReceipt;
 import hera.key.Signer;
 
 /**
@@ -25,10 +26,18 @@ public interface TransactionOperation {
   /**
    * Get transaction.
    *
-   * @param txHash transaction's hash
+   * @param txHash a transaction hash
    * @return transaction
    */
   Transaction getTransaction(TxHash txHash);
+
+  /**
+   * Get tx receipt.
+   *
+   * @param txHash a transaction hash
+   * @return a tx receipt
+   */
+  TxReceipt getTxReceipt(TxHash txHash);
 
   /**
    * Commit transaction.

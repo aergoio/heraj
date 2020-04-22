@@ -31,7 +31,7 @@ public class ContractResultConverterFactory {
         @Override
         public ContractResult apply(final Rpc.SingleBytes rpcContractResult) {
           logger.trace("Rpc contract result to convert: {}", rpcContractResult);
-          final ContractResult domainContractResult = new ContractResult(
+          final ContractResult domainContractResult = ContractResult.of(
               of(rpcContractResult.getValue().toByteArray()));
           logger.trace("Domain contract result converted: {}", domainContractResult);
           return domainContractResult;

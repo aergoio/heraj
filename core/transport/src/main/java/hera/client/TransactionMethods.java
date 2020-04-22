@@ -9,6 +9,7 @@ import static hera.client.Methods.TRANSACTION_COMMIT;
 import static hera.client.Methods.TRANSACTION_IN_BLOCK;
 import static hera.client.Methods.TRANSACTION_IN_MEMPOOL;
 import static hera.client.Methods.TRANSACTION_SENDTX;
+import static hera.client.Methods.TRANSACTION_TXRECEIPT;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -19,12 +20,14 @@ import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.model.TxReceipt;
 import hera.api.transaction.PlainTransactionBuilder;
 import hera.exception.CommitException;
 import hera.key.Signer;
 import hera.transport.ModelConverter;
 import hera.transport.TransactionConverterFactory;
 import hera.transport.TransactionInBlockConverterFactory;
+import hera.transport.TxReceiptConverterFactory;
 import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
@@ -41,6 +44,9 @@ class TransactionMethods extends AbstractMethods {
 
   protected final ModelConverter<Transaction, Blockchain.TxInBlock> transactionInBlockConverter =
       new TransactionInBlockConverterFactory().create();
+
+  protected final ModelConverter<TxReceipt, Blockchain.Receipt> txReceiptConverter =
+      new TxReceiptConverterFactory().create();
 
   @Getter
   private final RequestMethod<Transaction> transactionInMemPool = new RequestMethod<Transaction>() {
@@ -92,6 +98,33 @@ class TransactionMethods extends AbstractMethods {
 
       final Blockchain.TxInBlock rpcTxInBlock = getBlockingStub().getBlockTX(rpcTxHash);
       return transactionInBlockConverter.convertToDomainModel(rpcTxInBlock);
+    }
+
+  };
+
+  @Getter
+  private final RequestMethod<TxReceipt> txReceipt = new RequestMethod<TxReceipt>() {
+
+    @Getter
+    protected final String name = TRANSACTION_TXRECEIPT;
+
+    @Override
+    protected void validate(final List<Object> parameters) {
+      validateType(parameters, 0, TxHash.class);
+    }
+
+    @Override
+    protected TxReceipt runInternal(final List<Object> parameters) throws Exception {
+      final TxHash txHash = (TxHash) parameters.get(0);
+      logger.debug("Get transaction with txHash: {}", txHash);
+
+      final Rpc.SingleBytes rpcTxHash = Rpc.SingleBytes.newBuilder()
+          .setValue(copyFrom(txHash.getBytesValue()))
+          .build();
+      logger.trace("AergoService getTX arg: {}", rpcTxHash);
+
+      final Blockchain.Receipt rpcTxReceipt = getBlockingStub().getReceipt(rpcTxHash);
+      return txReceiptConverter.convertToDomainModel(rpcTxReceipt);
     }
 
   };

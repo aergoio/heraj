@@ -9,6 +9,7 @@
   - Add KeyFormat
   - Improvement context structure
   - Add sendTx api
+  - Split TxReceipt from ContractTxReceipt
 - Changes
   - Replace subscribeNewBlockXXX with subscribeBlockXXX
   - Deprecate ContractTxHash

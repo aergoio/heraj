@@ -8,69 +8,88 @@ import static java.util.Collections.emptyList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.util.StringUtils;
 import java.util.List;
 import lombok.Builder;
 import lombok.Builder.Default;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Value
+@ToString
+@EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
 public class ContractTxReceipt {
 
   @NonNull
-  @Default
-  ContractAddress contractAddress = ContractAddress.EMPTY;
+  protected final TxReceipt txReceipt;
 
   @NonNull
   @Default
-  String status = StringUtils.EMPTY_STRING;
+  @Getter
+  protected final BytesValue bloom = BytesValue.EMPTY;
 
   @NonNull
   @Default
-  ContractResult ret = ContractResult.EMPTY;
+  @Getter
+  protected final List<Event> events = emptyList();
 
-  @NonNull
-  @Default
-  TxHash txHash = TxHash.of(BytesValue.EMPTY);
+  public ContractAddress getContractAddress() {
+    return txReceipt.getAccountAddress().adapt(ContractAddress.class);
+  }
 
-  @NonNull
-  @Default
-  Aer feeUsed = Aer.EMPTY;
+  public String getStatus() {
+    return this.txReceipt.getStatus();
+  }
 
-  @NonNull
-  @Default
-  Aer cumulativeFeeUsed = Aer.EMPTY;
+  @Deprecated
+  public ContractResult getRet() {
+    return ContractResult.of(BytesValue.of(this.txReceipt.getResult().getBytes()));
+  }
 
-  @NonNull
-  @Default
-  BytesValue bloom = BytesValue.EMPTY;
+  public String getResult() {
+    return this.txReceipt.getResult();
+  }
 
-  @NonNull
-  @Default
-  List<Event> events = emptyList();
+  public TxHash getTxHash() {
+    return this.txReceipt.getTxHash();
+  }
 
-  @Default
-  long blockNumber = 0L;
+  public Aer getFeeUsed() {
+    return this.txReceipt.getFeeUsed();
+  }
 
-  @Default
-  BlockHash blockHash = BlockHash.of(BytesValue.EMPTY);
+  public Aer getCumulativeFeeUsed() {
+    return this.txReceipt.getCumulativeFeeUsed();
+  }
 
-  @Default
-  int indexInBlock = 0;
+  public long getBlockNumber() {
+    return this.txReceipt.getBlockNumber();
+  }
 
-  @NonNull
-  @Default
-  AccountAddress sender = AccountAddress.EMPTY;
+  public BlockHash getBlockHash() {
+    return this.txReceipt.getBlockHash();
+  }
 
-  @NonNull
-  @Default
-  AccountAddress recipient = AccountAddress.EMPTY;
+  public int getIndexInBlock() {
+    return this.txReceipt.getIndexInBlock();
+  }
 
-  @Default
-  boolean feeDelegation = false;
+  public AccountAddress getSender() {
+    return this.txReceipt.getSender();
+  }
 
+  public AccountAddress getRecipient() {
+    return this.txReceipt.getRecipient();
+  }
+
+  public boolean isFeeDelegation() {
+    return this.txReceipt.isFeeDelegation();
+  }
+
+  public long getGasUsed() {
+    return this.txReceipt.getGasUsed();
+  }
 }

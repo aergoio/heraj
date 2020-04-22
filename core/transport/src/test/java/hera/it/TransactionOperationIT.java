@@ -17,6 +17,7 @@ import hera.api.model.Identity;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.model.TxReceipt;
 import hera.api.transaction.NonceProvider;
 import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
@@ -91,12 +92,16 @@ public class TransactionOperationIT extends AbstractIT {
         .fee(fee)
         .build();
     final Transaction signed = key.sign(rawTransaction);
-    aergoClient.getTransactionOperation().commit(signed);
+    final TxHash txHash = aergoClient.getTransactionOperation().commit(signed);
     waitForNextBlockToGenerate();
 
     // then
     final AccountState refreshed = aergoClient.getAccountOperation().getState(recipient);
     assertEquals(preState.getBalance().add(amount), refreshed.getBalance());
+    final TxReceipt txReceipt = aergoClient.getTransactionOperation().getTxReceipt(txHash);
+    assertEquals(recipient, txReceipt.getAccountAddress());
+    assertEquals("SUCCESS", txReceipt.getStatus());
+    assertEquals(txHash, txReceipt.getTxHash());
   }
 
   @Test
@@ -140,13 +145,17 @@ public class TransactionOperationIT extends AbstractIT {
         .fee(fee)
         .build();
     final Transaction signed = key.sign(rawTransaction);
-    aergoClient.getTransactionOperation().commit(signed);
+    final TxHash txHash = aergoClient.getTransactionOperation().commit(signed);
     waitForNextBlockToGenerate();
 
     // then
     final AccountState refreshed =
         aergoClient.getAccountOperation().getState(recipient);
     assertEquals(preState.getBalance().add(amount), refreshed.getBalance());
+    final TxReceipt txReceipt = aergoClient.getTransactionOperation().getTxReceipt(txHash);
+    assertEquals(recipient, txReceipt.getAccountAddress());
+    assertEquals("SUCCESS", txReceipt.getStatus());
+    assertEquals(txHash, txReceipt.getTxHash());
   }
 
   @Test
@@ -172,13 +181,17 @@ public class TransactionOperationIT extends AbstractIT {
         .fee(fee)
         .build();
     final Transaction signed = key.sign(rawTransaction);
-    aergoClient.getTransactionOperation().commit(signed);
+    final TxHash txHash = aergoClient.getTransactionOperation().commit(signed);
     waitForNextBlockToGenerate();
 
     // then
     final AccountState refreshed =
         aergoClient.getAccountOperation().getState(recipient.getAddress());
     assertEquals(preState.getBalance().add(amount), refreshed.getBalance());
+    final TxReceipt txReceipt = aergoClient.getTransactionOperation().getTxReceipt(txHash);
+    assertEquals(recipient.getAddress(), txReceipt.getAccountAddress());
+    assertEquals("SUCCESS", txReceipt.getStatus());
+    assertEquals(txHash, txReceipt.getTxHash());
   }
 
   @Test
@@ -309,16 +322,20 @@ public class TransactionOperationIT extends AbstractIT {
     // when
     final AergoKey sender = new AergoKeyGenerator().create();
     fund(sender.getAddress());
-    final AergoKey recipient = new AergoKeyGenerator().create();
+    final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
     final Aer expected = Aer.AERGO_ONE;
-    aergoClient.getTransactionOperation()
-        .sendTx(sender, recipient.getAddress(), expected, nonceProvider
+    final TxHash txHash = aergoClient.getTransactionOperation()
+        .sendTx(sender, recipient, expected, nonceProvider
             .incrementAndGetNonce(sender.getAddress()), Fee.INFINITY);
     waitForNextBlockToGenerate();
 
     // then
-    final AccountState actual = aergoClient.getAccountOperation().getState(recipient.getAddress());
+    final AccountState actual = aergoClient.getAccountOperation().getState(recipient);
     assertEquals(expected, actual.getBalance());
+    final TxReceipt txReceipt = aergoClient.getTransactionOperation().getTxReceipt(txHash);
+    assertEquals(recipient, txReceipt.getAccountAddress());
+    assertEquals("SUCCESS", txReceipt.getStatus());
+    assertEquals(txHash, txReceipt.getTxHash());
   }
 
   @Test

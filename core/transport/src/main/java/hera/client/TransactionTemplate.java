@@ -15,6 +15,7 @@ import hera.api.model.Aer;
 import hera.api.model.Fee;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.model.TxReceipt;
 import hera.key.Signer;
 import java.util.Arrays;
 import java.util.List;
@@ -51,6 +52,11 @@ class TransactionTemplate extends AbstractTemplate implements TransactionOperati
   @Override
   public Transaction getTransaction(final TxHash txHash) {
     return request(convertedTransactionMethod, Arrays.<Object>asList(txHash));
+  }
+
+  @Override
+  public TxReceipt getTxReceipt(TxHash txHash) {
+    return request(transactionMethods.getTxReceipt(), Arrays.<Object>asList(txHash));
   }
 
   @Override

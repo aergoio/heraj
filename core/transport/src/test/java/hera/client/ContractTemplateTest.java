@@ -44,7 +44,7 @@ public class ContractTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetReceipt() throws Exception {
+  public void testGetContractTxReceipt() throws Exception {
     // given
     final ContractTemplate contractTemplate = new ContractTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
@@ -55,7 +55,7 @@ public class ContractTemplateTest extends AbstractTestCase {
 
     // then
     final ContractTxReceipt actual = contractTemplate
-        .getReceipt(TxHash.of(BytesValue.EMPTY));
+        .getContractTxReceipt(TxHash.of(BytesValue.EMPTY));
     assertEquals(expected, actual);
   }
 

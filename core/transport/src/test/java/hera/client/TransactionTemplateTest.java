@@ -23,6 +23,7 @@ import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.model.TxReceipt;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.key.Signer;
@@ -60,6 +61,21 @@ public class TransactionTemplateTest extends AbstractTestCase {
 
     // then
     final Transaction actual = transactionTemplate.getTransaction(TxHash.of(BytesValue.EMPTY));
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testGetTxReceipt() throws Exception {
+    // given
+    final TransactionTemplate transactionTemplate = new TransactionTemplate(contextStorage);
+    final Requester mockRequester = mock(Requester.class);
+    final TxReceipt expected = TxReceipt.newBuilder().build();
+    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+        .thenReturn(expected);
+    transactionTemplate.requester = mockRequester;
+
+    // then
+    final TxReceipt actual = transactionTemplate.getTxReceipt(TxHash.of(BytesValue.EMPTY));
     assertEquals(expected, actual);
   }
 

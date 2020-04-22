@@ -4,6 +4,7 @@
 
 package hera.api.model;
 
+import static hera.util.ValidationUtils.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
@@ -12,14 +13,11 @@ import hera.api.transaction.AergoJsonMapper;
 import hera.api.transaction.JsonMapper;
 import java.io.IOException;
 import lombok.EqualsAndHashCode;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.slf4j.Logger;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@RequiredArgsConstructor
 @ToString
 @EqualsAndHashCode
 public class ContractResult {
@@ -28,10 +26,19 @@ public class ContractResult {
 
   protected static final JsonMapper mapper = new AergoJsonMapper();
 
+  public static ContractResult of(final BytesValue result) {
+    return new ContractResult(result);
+  }
+
+  @ToString.Exclude
   protected final transient Logger logger = getLogger(getClass());
 
-  @NonNull
   protected final BytesValue result;
+
+  private ContractResult(final BytesValue result) {
+    assertNotNull(result, "Result must not null");
+    this.result = result;
+  }
 
   /**
    * Bind contract result to class. It returns null if result is empty or json result is {}.

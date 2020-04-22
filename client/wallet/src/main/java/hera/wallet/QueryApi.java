@@ -34,6 +34,7 @@ import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.model.TxReceipt;
 import java.util.List;
 
 @ApiAudience.Public
@@ -280,27 +281,35 @@ public interface QueryApi {
   Transaction getTransaction(TxHash txHash);
 
   /**
-   * Use {@link #getReceipt(TxHash)} instead.
+   * Get tx receipt.
+   *
+   * @param txHash a contract transaction hash
+   * @return a receipt of transaction
+   */
+  TxReceipt getTxReceipt(TxHash txHash);
+
+  /**
+   * Use {@link #getContractTxReceipt(TxHash)} instead.
    *
    * @param contractTxHash a contract transaction hash
    * @return receipt of transaction
    */
   @Deprecated
-  ContractTxReceipt getReceipt(ContractTxHash contractTxHash);
+  ContractTxReceipt getContractTxReceipt(ContractTxHash contractTxHash);
 
   /**
-   * Get receipt of transaction.
+   * Get contract tx receipt.
    *
    * @param txHash a contract transaction hash
-   * @return receipt of transaction
+   * @return a receipt of transaction
    */
-  ContractTxReceipt getReceipt(TxHash txHash);
+  ContractTxReceipt getContractTxReceipt(TxHash txHash);
 
   /**
    * Get smart contract interface corresponding to contract address.
    *
-   * @param contractAddress contract address
-   * @return contract interface
+   * @param contractAddress a contract address
+   * @return a contract interface
    */
   ContractInterface getContractInterface(ContractAddress contractAddress);
 
@@ -308,7 +317,7 @@ public interface QueryApi {
    * Query the smart contract state by calling smart contract function.
    *
    * @param contractInvocation a contract invocation
-   * @return contract result
+   * @return a contract result
    */
   ContractResult query(ContractInvocation contractInvocation);
 

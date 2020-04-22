@@ -32,6 +32,7 @@ import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
+import hera.api.model.TxReceipt;
 import hera.client.AergoClient;
 import hera.exception.HerajException;
 import hera.exception.WalletExceptionConverter;
@@ -317,14 +318,23 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   }
 
   @Override
-  public ContractTxReceipt getReceipt(final ContractTxHash contractTxHash) {
-    return getReceipt(contractTxHash.adapt(TxHash.class));
+  public TxReceipt getTxReceipt(final TxHash txHash) {
+    try {
+      return getClient().getTransactionOperation().getTxReceipt(txHash);
+    } catch (Exception e) {
+      throw converter.convert(e);
+    }
   }
 
   @Override
-  public ContractTxReceipt getReceipt(TxHash txHash) {
+  public ContractTxReceipt getContractTxReceipt(final ContractTxHash contractTxHash) {
+    return getContractTxReceipt(contractTxHash.adapt(TxHash.class));
+  }
+
+  @Override
+  public ContractTxReceipt getContractTxReceipt(final TxHash txHash) {
     try {
-      return getClient().getContractOperation().getReceipt(txHash);
+      return getClient().getContractOperation().getContractTxReceipt(txHash);
     } catch (Exception e) {
       throw converter.convert(e);
     }

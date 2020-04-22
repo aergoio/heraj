@@ -26,10 +26,8 @@ import hera.api.model.ContractTxReceipt;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
 import hera.api.model.Fee;
-import hera.api.model.RawTransaction;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
-import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.transaction.NonceProvider;
 import hera.api.transaction.SimpleNonceProvider;
@@ -790,13 +788,12 @@ public class ContractOperationIT extends AbstractIT {
     final Event simpleArgs = events.get(0);
     final Map<String, Object> simpleJson = new HashMap<>();
     simpleJson.put("key", "value");
-    final List<Object> expectedSimpleArgs = asList(new Object[]{
+    final List<Object> expectedSimpleArgs = asList(
         simpleJson,
         "text",
         123.123,
         123,
-        true
-    });
+        true);
     assertEquals(expectedSimpleArgs, simpleArgs.getArgs());
 
     // and then
@@ -839,7 +836,8 @@ public class ContractOperationIT extends AbstractIT {
 
     waitForNextBlockToGenerate();
 
-    final ContractTxReceipt receipt = aergoClient.getContractOperation().getReceipt(contractTxHash);
+    final ContractTxReceipt receipt = aergoClient.getContractOperation()
+        .getContractTxReceipt(contractTxHash);
     assertNotEquals("ERROR", receipt.getStatus());
     return receipt;
   }
@@ -858,7 +856,8 @@ public class ContractOperationIT extends AbstractIT {
 
     waitForNextBlockToGenerate();
 
-    final ContractTxReceipt receipt = aergoClient.getContractOperation().getReceipt(contractTxHash);
+    final ContractTxReceipt receipt = aergoClient.getContractOperation()
+        .getContractTxReceipt(contractTxHash);
     assertNotEquals("ERROR", receipt.getStatus());
     return receipt;
   }
@@ -873,7 +872,8 @@ public class ContractOperationIT extends AbstractIT {
 
     waitForNextBlockToGenerate();
 
-    final ContractTxReceipt receipt = aergoClient.getContractOperation().getReceipt(contractTxHash);
+    final ContractTxReceipt receipt = aergoClient.getContractOperation()
+        .getContractTxReceipt(contractTxHash);
     assertNotEquals("ERROR", receipt.getStatus());
     return receipt;
   }

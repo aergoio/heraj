@@ -6,20 +6,15 @@ package hera.transport;
 
 import static hera.util.TransportUtils.parseToAer;
 import static hera.util.TransportUtils.parseToBlockHash;
-import static hera.util.TransportUtils.parseToBytesValue;
 import static hera.util.TransportUtils.parseToTxHash;
-import static java.util.Collections.unmodifiableList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
-import hera.api.model.BytesValue;
-import hera.api.model.ContractAddress;
-import hera.api.model.ContractResult;
-import hera.api.model.ContractTxReceipt;
 import hera.api.model.Event;
+import hera.api.model.TxReceipt;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -35,20 +30,20 @@ public class TxReceiptConverterFactory {
   protected final ModelConverter<Event, Blockchain.Event> eventConverter =
       new EventConverterFactory().create();
 
-  protected final Function1<ContractTxReceipt, Blockchain.Receipt> domainConverter =
-      new Function1<ContractTxReceipt, Blockchain.Receipt>() {
+  protected final Function1<TxReceipt, Blockchain.Receipt> domainConverter =
+      new Function1<TxReceipt, Blockchain.Receipt>() {
 
         @Override
-        public Blockchain.Receipt apply(final ContractTxReceipt domainRecepit) {
+        public Blockchain.Receipt apply(final TxReceipt domainReceipt) {
           throw new UnsupportedOperationException();
         }
       };
 
-  protected final Function1<Blockchain.Receipt, ContractTxReceipt> rpcConverter =
-      new Function1<Blockchain.Receipt, ContractTxReceipt>() {
+  protected final Function1<Blockchain.Receipt, TxReceipt> rpcConverter =
+      new Function1<Blockchain.Receipt, TxReceipt>() {
 
         @Override
-        public ContractTxReceipt apply(final Blockchain.Receipt rpcReceipt) {
+        public TxReceipt apply(final Blockchain.Receipt rpcReceipt) {
           logger.trace("Rpc tx receipt to convert: {}", rpcReceipt);
           final AccountAddress accountAddress =
               accountAddressConverter.convertToDomainModel(rpcReceipt.getContractAddress());
@@ -63,29 +58,28 @@ public class TxReceiptConverterFactory {
           if (Aer.EMPTY.equals(usedFee)) {
             usedFee = Aer.ZERO;
           }
-          final ContractTxReceipt domainTxReceipt = ContractTxReceipt.newBuilder()
-              .contractAddress(new ContractAddress(accountAddress.getBytesValue()))
+          final TxReceipt domainTxReceipt = TxReceipt.newBuilder()
+              .accountAddress(accountAddress)
               .status(rpcReceipt.getStatus())
-              .ret(new ContractResult(BytesValue.of(rpcReceipt.getRet().getBytes())))
+              .result(rpcReceipt.getRet())
               .txHash(parseToTxHash(rpcReceipt.getTxHash()))
               .feeUsed(usedFee)
               .cumulativeFeeUsed(parseToAer(rpcReceipt.getCumulativeFeeUsed()))
-              .bloom(parseToBytesValue(rpcReceipt.getBloom()))
-              .events(unmodifiableList(domainEvents))
               .blockNumber(rpcReceipt.getBlockNo())
               .blockHash(parseToBlockHash(rpcReceipt.getBlockHash()))
               .indexInBlock(rpcReceipt.getTxIndex())
               .sender(accountAddressConverter.convertToDomainModel(rpcReceipt.getFrom()))
               .recipient(accountAddressConverter.convertToDomainModel(rpcReceipt.getTo()))
               .feeDelegation(rpcReceipt.getFeeDelegation())
+              .gasUsed(rpcReceipt.getGasUsed())
               .build();
           logger.trace("Domain tx receipt converted: {}", domainTxReceipt);
           return domainTxReceipt;
         }
       };
 
-  public ModelConverter<ContractTxReceipt, Blockchain.Receipt> create() {
-    return new ModelConverter<ContractTxReceipt, Blockchain.Receipt>(domainConverter, rpcConverter);
+  public ModelConverter<TxReceipt, Blockchain.Receipt> create() {
+    return new ModelConverter<>(domainConverter, rpcConverter);
   }
 
 }

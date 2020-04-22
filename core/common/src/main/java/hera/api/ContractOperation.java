@@ -33,21 +33,21 @@ import java.util.List;
 public interface ContractOperation {
 
   /**
-   * Use {@link #getReceipt(TxHash)} instead.
+   * Use {@link #getContractTxReceipt(TxHash)} instead.
    *
-   * @param contractTxHash contract transaction hash
-   * @return receipt of transaction
+   * @param contractTxHash a contract transaction hash
+   * @return a receipt of transaction
    */
   @Deprecated
   ContractTxReceipt getReceipt(ContractTxHash contractTxHash);
 
   /**
-   * Get receipt of transaction.
+   * Get contract tx receipt.
    *
-   * @param txHash contract transaction hash
-   * @return receipt of transaction
+   * @param txHash a contract transaction hash
+   * @return a receipt of transaction
    */
-  ContractTxReceipt getReceipt(TxHash txHash);
+  ContractTxReceipt getContractTxReceipt(TxHash txHash);
 
   /**
    * Use {@link #deployTx(Signer, ContractDefinition, long, Fee)} instead.

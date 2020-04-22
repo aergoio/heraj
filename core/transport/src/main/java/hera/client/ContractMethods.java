@@ -42,10 +42,10 @@ import hera.key.Signer;
 import hera.transport.AccountAddressConverterFactory;
 import hera.transport.ContractInterfaceConverterFactory;
 import hera.transport.ContractResultConverterFactory;
+import hera.transport.ContractTxReceiptConverterFactory;
 import hera.transport.EventConverterFactory;
 import hera.transport.EventFilterConverterFactory;
 import hera.transport.ModelConverter;
-import hera.transport.TxReceiptConverterFactory;
 import io.grpc.Context;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -63,7 +63,7 @@ class ContractMethods extends AbstractMethods {
       new AccountAddressConverterFactory().create();
 
   protected final ModelConverter<ContractTxReceipt, Blockchain.Receipt> receiptConverter =
-      new TxReceiptConverterFactory().create();
+      new ContractTxReceiptConverterFactory().create();
 
   protected final ModelConverter<ContractInterface, Blockchain.ABI> contractInterfaceConverter =
       new ContractInterfaceConverterFactory().create();
@@ -83,7 +83,7 @@ class ContractMethods extends AbstractMethods {
   protected final TransactionMethods transactionMethods = new TransactionMethods();
 
   @Getter
-  protected final RequestMethod<ContractTxReceipt> txReceipt =
+  protected final RequestMethod<ContractTxReceipt> contractTxReceipt =
       new RequestMethod<ContractTxReceipt>() {
 
         @Getter

@@ -307,7 +307,7 @@ public class LegacyWallet implements Wallet {
 
   @Override
   public ContractTxReceipt getReceipt(ContractTxHash contractTxHash) {
-    return delegate.queryApi().getReceipt(contractTxHash);
+    return delegate.queryApi().getContractTxReceipt(contractTxHash);
   }
 
   @Override

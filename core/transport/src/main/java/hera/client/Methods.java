@@ -52,6 +52,7 @@ public abstract class Methods {
   public static final String TRANSACTION_TX = "heraj.transaction.tx";
   static final String TRANSACTION_IN_MEMPOOL = "heraj.transaction.in.mempool";
   static final String TRANSACTION_IN_BLOCK = "heraj.transaction.in.block";
+  public static final String TRANSACTION_TXRECEIPT = "heraj.transaction.txreceipt";
   public static final String TRANSACTION_COMMIT = "heraj.transaction.commit";
   public static final String TRANSACTION_SENDTX = "heraj.transaction.sendtx";
 

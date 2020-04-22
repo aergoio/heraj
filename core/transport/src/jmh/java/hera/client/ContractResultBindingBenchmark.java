@@ -43,7 +43,7 @@ public class ContractResultBindingBenchmark {
     }
 
     public void bind() throws IOException {
-      new ContractResult(rawResult).bind(Data.class);
+      ContractResult.of(rawResult).bind(Data.class);
     }
 
   }

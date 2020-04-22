@@ -46,8 +46,11 @@ public class SimpleNonceProvider implements NonceProvider {
 
       @Override
       protected boolean removeEldestEntry(java.util.Map.Entry<AccountAddress, Long> eldest) {
-        logger.debug("Capacity is over {}. Remove stale entry: {}", capacity, eldest);
-        return size() > capacity;
+        final boolean shouldRemove = size() > capacity;
+        if (shouldRemove) {
+          logger.debug("Capacity is over (size: {}). Remove stale entry: {}", capacity, eldest);
+        }
+        return shouldRemove;
       }
 
     };
