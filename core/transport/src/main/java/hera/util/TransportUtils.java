@@ -8,12 +8,15 @@ import static hera.util.NumberUtils.byteArrayToPositive;
 import static hera.util.NumberUtils.positiveToByteArray;
 
 import com.google.protobuf.ByteString;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.Aer;
 import hera.api.model.BlockHash;
 import hera.api.model.BytesValue;
 import hera.api.model.TxHash;
-import hera.exception.HerajException;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class TransportUtils {
 
   /**
@@ -45,8 +48,8 @@ public class TransportUtils {
   }
 
   /**
-   * Transform {@link Aer} to {@link ByteString} in protobuf. If aer isn null, return
-   * {@link ByteString#EMPTY}.
+   * Transform {@link Aer} to {@link ByteString} in protobuf. If aer isn null, return {@link
+   * ByteString#EMPTY}.
    *
    * @param aer an aer
    * @return protobuf {@link ByteString}
@@ -124,9 +127,9 @@ public class TransportUtils {
    */
   public static TxHash parseToTxHash(final ByteString byteString) {
     if (null == byteString || ByteString.EMPTY == byteString) {
-      return new TxHash(BytesValue.EMPTY);
+      return TxHash.of(BytesValue.EMPTY);
     }
-    return new TxHash(BytesValue.of(byteString.toByteArray()));
+    return TxHash.of(BytesValue.of(byteString.toByteArray()));
   }
 
   /**
@@ -137,9 +140,9 @@ public class TransportUtils {
    */
   public static BlockHash parseToBlockHash(final ByteString byteString) {
     if (null == byteString || ByteString.EMPTY == byteString) {
-      return new BlockHash(BytesValue.EMPTY);
+      return BlockHash.of(BytesValue.EMPTY);
     }
-    return new BlockHash(BytesValue.of(byteString.toByteArray()));
+    return BlockHash.of(BytesValue.of(byteString.toByteArray()));
   }
 
   /**
@@ -160,6 +163,10 @@ public class TransportUtils {
    */
   public static String sha256AndEncodeHexa(final byte[] rawBytes) {
     return HexUtils.encode(Sha256Utils.digest(rawBytes));
+  }
+
+  private TransportUtils() {
+
   }
 
 }

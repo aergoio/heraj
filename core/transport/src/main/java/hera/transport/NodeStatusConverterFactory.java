@@ -6,6 +6,8 @@ package hera.transport;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.function.Function1;
 import hera.api.model.BytesValue;
 import hera.api.model.ModuleStatus;
@@ -17,6 +19,8 @@ import java.util.ArrayList;
 import org.slf4j.Logger;
 import types.Rpc;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class NodeStatusConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -52,7 +56,7 @@ public class NodeStatusConverterFactory {
       };
 
   public ModelConverter<NodeStatus, Rpc.SingleBytes> create() {
-    return new ModelConverter<NodeStatus, Rpc.SingleBytes>(domainConverter, rpcConverter);
+    return new ModelConverter<>(domainConverter, rpcConverter);
   }
 
 }

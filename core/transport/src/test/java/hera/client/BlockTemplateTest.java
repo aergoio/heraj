@@ -15,7 +15,6 @@ import hera.ContextStorage;
 import hera.EmptyContext;
 import hera.Invocation;
 import hera.Requester;
-import hera.WriteSynchronizedContextStorage;
 import hera.api.model.Block;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockMetadata;
@@ -28,11 +27,8 @@ import org.mockito.ArgumentMatchers;
 
 public class BlockTemplateTest extends AbstractTestCase {
 
-  protected final ContextStorage<Context> contextStorage = new WriteSynchronizedContextStorage<>();
-
-  {
-    contextStorage.put(EmptyContext.getInstance());
-  }
+  protected final ContextStorage<Context> contextStorage = new UnmodifiableContextStorage(
+      EmptyContext.getInstance());
 
   @Test
   public void testGetBlockMetadataByHash() throws Exception {

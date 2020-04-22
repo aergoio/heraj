@@ -6,11 +6,15 @@ package hera.transport;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.function.Function1;
 import hera.api.model.StateVariable;
 import org.slf4j.Logger;
 import types.Blockchain;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class StateVariableConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -41,7 +45,7 @@ public class StateVariableConverterFactory {
       };
 
   public ModelConverter<StateVariable, Blockchain.StateVar> create() {
-    return new ModelConverter<StateVariable, Blockchain.StateVar>(domainConverter,
+    return new ModelConverter<>(domainConverter,
         rpcConverter);
   }
 

@@ -9,6 +9,8 @@ import static hera.util.TransportUtils.parseToBytesValue;
 import static hera.util.TransportUtils.parseToTxHash;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
@@ -19,6 +21,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import types.Blockchain;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class EventConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -69,7 +73,7 @@ public class EventConverterFactory {
       };
 
   public ModelConverter<Event, Blockchain.Event> create() {
-    return new ModelConverter<Event, Blockchain.Event>(domainConverter,
+    return new ModelConverter<>(domainConverter,
         rpcConverter);
   }
 

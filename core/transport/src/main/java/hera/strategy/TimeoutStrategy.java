@@ -11,6 +11,8 @@ import hera.Context;
 import hera.ContextHolder;
 import hera.Invocation;
 import hera.RequestMethod;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.Time;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -19,12 +21,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.slf4j.Logger;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 @ToString
 @RequiredArgsConstructor
 public class TimeoutStrategy implements InvocationStrategy {
@@ -41,12 +46,11 @@ public class TimeoutStrategy implements InvocationStrategy {
         invocation.getParameters());
   }
 
-  @RequiredArgsConstructor
+  @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
   @ToString
   @EqualsAndHashCode
   private class TimeoutInvocation<T> implements Invocation<T> {
 
-    @Getter
     protected final Time timeout;
 
     @Getter
@@ -72,8 +76,7 @@ public class TimeoutStrategy implements InvocationStrategy {
             }
           }
         });
-        final T ret = future.get(timeout.getValue(), timeout.getUnit());
-        return ret;
+        return future.get(timeout.getValue(), timeout.getUnit());
       } catch (Exception e) {
         if (e instanceof TimeoutException) {
           logger.debug("Request timed out within {}", timeout);

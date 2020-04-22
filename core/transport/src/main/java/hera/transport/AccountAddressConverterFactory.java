@@ -8,6 +8,8 @@ import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.encode.Encoder;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
@@ -17,6 +19,8 @@ import hera.api.model.internal.AccountAddressAdaptor;
 import hera.util.HexUtils;
 import org.slf4j.Logger;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class AccountAddressConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -27,7 +31,7 @@ public class AccountAddressConverterFactory {
         @Override
         public com.google.protobuf.ByteString apply(final AccountAddress domainAccountAddress) {
           if (logger.isTraceEnabled()) {
-            logger.trace("Domain account address to convert. with checksum: {}, hexa: {}",
+            logger.trace("Domain account address to convert. with prefix: {}, hexa: {}",
                 domainAccountAddress, domainAccountAddress.getBytesValue().getEncoded(Encoder.Hex));
           }
           ByteString rpcAccountAddress;
@@ -67,7 +71,7 @@ public class AccountAddressConverterFactory {
             domainAccountAddress = AccountAddress.EMPTY;
           }
           if (logger.isTraceEnabled()) {
-            logger.trace("Domain account address converted. with checksum: {}, hexa: {}",
+            logger.trace("Domain account address converted. with prefix: {}, hexa: {}",
                 domainAccountAddress, domainAccountAddress.getBytesValue().getEncoded(Encoder.Hex));
           }
           return domainAccountAddress;
@@ -75,7 +79,7 @@ public class AccountAddressConverterFactory {
       };
 
   public ModelConverter<AccountAddress, com.google.protobuf.ByteString> create() {
-    return new ModelConverter<AccountAddress, com.google.protobuf.ByteString>(domainConverter,
+    return new ModelConverter<>(domainConverter,
         rpcConverter);
   }
 

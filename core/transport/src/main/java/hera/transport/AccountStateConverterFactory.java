@@ -7,6 +7,8 @@ package hera.transport;
 import static hera.util.TransportUtils.parseToAer;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
@@ -14,6 +16,8 @@ import hera.api.model.Aer;
 import org.slf4j.Logger;
 import types.Blockchain;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class AccountStateConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -45,7 +49,7 @@ public class AccountStateConverterFactory {
       };
 
   public ModelConverter<AccountState, Blockchain.State> create() {
-    return new ModelConverter<AccountState, Blockchain.State>(domainConverter, rpcConverter);
+    return new ModelConverter<>(domainConverter, rpcConverter);
   }
 
 }

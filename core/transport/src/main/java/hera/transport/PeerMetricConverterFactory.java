@@ -6,12 +6,16 @@ package hera.transport;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.function.Function1;
 import hera.api.model.PeerMetric;
 import hera.util.Base58Utils;
 import org.slf4j.Logger;
 import types.Metric;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class PeerMetricConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -44,7 +48,7 @@ public class PeerMetricConverterFactory {
       };
 
   public ModelConverter<PeerMetric, Metric.PeerMetric> create() {
-    return new ModelConverter<PeerMetric, Metric.PeerMetric>(domainConverter, rpcConverter);
+    return new ModelConverter<>(domainConverter, rpcConverter);
   }
 
 }

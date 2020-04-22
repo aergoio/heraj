@@ -10,6 +10,8 @@ import static hera.util.TransportUtils.parseToTxHash;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
@@ -20,6 +22,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import types.Blockchain;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class TxReceiptConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());

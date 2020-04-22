@@ -7,6 +7,8 @@ package hera.transport;
 import static hera.api.model.BytesValue.of;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.BlockHash;
@@ -17,6 +19,8 @@ import hera.api.model.Signature;
 import org.slf4j.Logger;
 import types.Blockchain;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class BlockHeaderConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -60,7 +64,7 @@ public class BlockHeaderConverterFactory {
       };
 
   public ModelConverter<BlockHeader, Blockchain.BlockHeader> create() {
-    return new ModelConverter<BlockHeader, Blockchain.BlockHeader>(domainConverter, rpcConverter);
+    return new ModelConverter<>(domainConverter, rpcConverter);
   }
 
 }

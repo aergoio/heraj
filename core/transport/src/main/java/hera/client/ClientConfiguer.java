@@ -22,7 +22,7 @@ public interface ClientConfiguer<ConfiguerT> {
   /**
    * Provide an endpoint of aergo server. eg. {@code localhost:7845}
    *
-   * @param endpoint aergo chain server endpoint
+   * @param endpoint an aergo chain server endpoint
    * @return an instance of this
    */
   ConfiguerT withEndpoint(String endpoint);
@@ -77,8 +77,8 @@ public interface ClientConfiguer<ConfiguerT> {
   /**
    * Set timeout for each request. If timeout is already set, that will be overridden.
    *
-   * @param timeout time to time out
-   * @param unit    time's unit
+   * @param timeout a time to time out
+   * @param unit    a time's unit
    * @return an instance of this
    */
   ConfiguerT withTimeout(long timeout, TimeUnit unit);
@@ -87,9 +87,9 @@ public interface ClientConfiguer<ConfiguerT> {
    * If fails with non-connection error, after {@code interval} {@code count} times. Default retry
    * count : 0, default retry interval : 5000 milliseconds.
    *
-   * @param count    retry count. If it is less than 0, set as 0
-   * @param interval interval value. If it's less than 0, set as 0
-   * @param unit     interval unit
+   * @param count    a retry count. If it is less than 0, set as 0
+   * @param interval an interval value. If it's less than 0, set as 0
+   * @param unit     an interval unit
    * @return an instance of this
    */
   ConfiguerT withRetry(int count, long interval, TimeUnit unit);

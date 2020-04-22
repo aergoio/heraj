@@ -20,6 +20,7 @@ import hera.Requester;
 import hera.Response;
 import hera.exception.HerajException;
 import hera.strategy.InvocationStrategy;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;

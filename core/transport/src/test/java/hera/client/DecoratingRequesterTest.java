@@ -9,7 +9,6 @@ import static hera.client.ClientContextKeys.GRPC_AFTER_SUCCESS;
 import static hera.client.ClientContextKeys.GRPC_BEFORE_REQUEST;
 import static hera.client.ClientContextKeys.GRPC_FAILOVER_HANDLER_CHAIN;
 import static hera.client.ClientContextKeys.GRPC_REQUEST_TIMEOUT;
-import static java.util.Collections.emptyList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -26,8 +25,6 @@ import hera.Response;
 import hera.strategy.InvocationStrategy;
 import java.util.List;
 import java.util.concurrent.Callable;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.junit.Test;
 
 public class DecoratingRequesterTest extends AbstractTestCase {
@@ -172,13 +169,9 @@ public class DecoratingRequesterTest extends AbstractTestCase {
           }
         }
       });
-    } catch (Exception actual) {
+    } catch (Throwable actual) {
       assertEquals(expected, actual);
-    } catch (Throwable throwable) {
-      throwable.printStackTrace();
     }
   }
-
-
 
 }

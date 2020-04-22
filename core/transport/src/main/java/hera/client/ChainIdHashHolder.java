@@ -5,22 +5,20 @@
 package hera.client;
 
 import hera.api.model.ChainIdHash;
+import java.util.concurrent.atomic.AtomicReference;
 import lombok.ToString;
 
 @ToString
 class ChainIdHashHolder {
 
-  protected final Object lock = new Object();
-  protected ChainIdHash chainIdHash;
+  protected AtomicReference<ChainIdHash> holder = new AtomicReference<>();
 
   public void put(final ChainIdHash chainIdHash) {
-    synchronized (lock) {
-      this.chainIdHash = chainIdHash;
-    }
+    holder.getAndSet(chainIdHash);
   }
 
   public ChainIdHash get() {
-    return this.chainIdHash;
+    return holder.get();
   }
 
 }

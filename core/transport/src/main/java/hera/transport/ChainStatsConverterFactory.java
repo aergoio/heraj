@@ -6,11 +6,15 @@ package hera.transport;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.function.Function1;
 import hera.api.model.ChainStats;
 import org.slf4j.Logger;
 import types.Rpc;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class ChainStatsConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -40,7 +44,7 @@ public class ChainStatsConverterFactory {
       };
 
   public ModelConverter<ChainStats, Rpc.ChainStats> create() {
-    return new ModelConverter<ChainStats, Rpc.ChainStats>(domainConverter,
+    return new ModelConverter<>(domainConverter,
         rpcConverter);
   }
 

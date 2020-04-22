@@ -14,7 +14,7 @@ import org.junit.Test;
 public class PlainTextChannelStrategyTest extends AbstractTestCase {
 
   @Test
-  public void testConnect() {
+  public void testConfigure() {
     final PlainTextChannelStrategy strategy = new PlainTextChannelStrategy();
     final NettyChannelBuilder channelBuilder =
         NettyChannelBuilder.forTarget(randomUUID().toString());

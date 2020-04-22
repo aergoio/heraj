@@ -58,7 +58,7 @@ public class ContractInvocationHandlerTest extends AbstractTestCase {
   public void testPrepare() {
     final InvocationHandler invocationHandler = new ContractInvocationHandler(contractAddress);
     ContractTest proxy = (ContractTest) Proxy.newProxyInstance(classLoader,
-        new Class<?>[] {ContractTest.class}, invocationHandler);
+        new Class<?>[]{ContractTest.class}, invocationHandler);
 
     final WalletApi walletApi = supplyWalletApi();
     final Fee fee = Fee.ZERO;
@@ -70,11 +70,11 @@ public class ContractInvocationHandlerTest extends AbstractTestCase {
   public void testWithReturn() {
     final InvocationHandler invocationHandler = new ContractInvocationHandler(contractAddress);
     ContractTest proxy = (ContractTest) Proxy.newProxyInstance(classLoader,
-        new Class<?>[] {ContractTest.class}, invocationHandler);
+        new Class<?>[]{ContractTest.class}, invocationHandler);
 
     final WalletApi walletApi = supplyWalletApi();
     proxy.setWalletApi(walletApi);
-    proxy.setFee(Fee.ZERO);;
+    proxy.setFee(Fee.ZERO);
     proxy.execute(0);
   }
 
@@ -82,7 +82,7 @@ public class ContractInvocationHandlerTest extends AbstractTestCase {
   public void testWithoutReturn() {
     final InvocationHandler invocationHandler = new ContractInvocationHandler(contractAddress);
     ContractTest proxy = (ContractTest) Proxy.newProxyInstance(classLoader,
-        new Class<?>[] {ContractTest.class}, invocationHandler);
+        new Class<?>[]{ContractTest.class}, invocationHandler);
 
     final WalletApi walletApi = supplyWalletApi();
     proxy.setWalletApi(walletApi);
@@ -113,9 +113,9 @@ public class ContractInvocationHandlerTest extends AbstractTestCase {
       when(mockContractOperation.getContractInterface(any(ContractAddress.class)))
           .thenReturn(contractInterface);
       final ContractTxHash contractTxHash = ContractTxHash.of(BytesValue.EMPTY);
-      when(
-          mockContractOperation.execute(any(Signer.class), any(ContractInvocation.class), anyLong(),
-              any(Fee.class))).thenReturn(contractTxHash);
+      when(mockContractOperation
+          .executeTx(any(Signer.class), any(ContractInvocation.class), anyLong(), any(Fee.class)))
+          .thenReturn(contractTxHash);
       final ContractResult contractResult = mock(ContractResult.class);
       when(contractResult.bind(any(Class.class))).thenReturn(1);
       when(mockContractOperation.query(any(ContractInvocation.class))).thenReturn(contractResult);

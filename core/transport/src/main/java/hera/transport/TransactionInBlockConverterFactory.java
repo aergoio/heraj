@@ -10,6 +10,8 @@ import static hera.util.TransportUtils.parseToAer;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.BlockHash;
@@ -23,6 +25,8 @@ import org.slf4j.Logger;
 import types.Blockchain;
 import types.Blockchain.TxInBlock;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class TransactionInBlockConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -108,7 +112,7 @@ public class TransactionInBlockConverterFactory {
       };
 
   public ModelConverter<Transaction, Blockchain.TxInBlock> create() {
-    return new ModelConverter<Transaction, Blockchain.TxInBlock>(domainConverter, rpcConverter);
+    return new ModelConverter<>(domainConverter, rpcConverter);
   }
 
 }

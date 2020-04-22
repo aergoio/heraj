@@ -7,6 +7,8 @@ package hera.transport;
 import static hera.api.model.BytesValue.of;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.function.Function1;
 import hera.api.model.BlockHash;
 import hera.api.model.BlockchainStatus;
@@ -14,6 +16,8 @@ import hera.api.model.ChainIdHash;
 import org.slf4j.Logger;
 import types.Rpc;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class BlockchainStatusConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -47,7 +51,7 @@ public class BlockchainStatusConverterFactory {
       };
 
   public ModelConverter<BlockchainStatus, Rpc.BlockchainStatus> create() {
-    return new ModelConverter<BlockchainStatus, Rpc.BlockchainStatus>(domainConverter,
+    return new ModelConverter<>(domainConverter,
         rpcConverter);
   }
 

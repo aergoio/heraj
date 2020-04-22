@@ -89,7 +89,7 @@ public class ContractApiIT extends AbstractIT {
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payload)
         .build();
-    final TxHash deployTxHash = walletApi.transactionApi().deployTx(definition, fee);
+    final TxHash deployTxHash = walletApi.transactionApi().deploy(definition, fee);
     waitForNextBlockToGenerate();
     this.contractAddress = walletApi.queryApi().getContractTxReceipt(deployTxHash).getContractAddress();
   }

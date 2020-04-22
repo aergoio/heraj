@@ -16,7 +16,7 @@ import org.junit.Test;
 public class TlsChannelStrategyTest extends AbstractTestCase {
 
   @Test
-  public void testConnect() {
+  public void testCreate() {
     final String serverName = "test";
     final InputStream serverCert = new ByteArrayInputStream(randomUUID().toString().getBytes());
     final InputStream clientCert = new ByteArrayInputStream(randomUUID().toString().getBytes());

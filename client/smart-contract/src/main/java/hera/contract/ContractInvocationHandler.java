@@ -99,7 +99,7 @@ class ContractInvocationHandler implements InvocationHandler {
 
         logger.debug("Contract execution: {}", contractInvocation);
         final Fee fee = getFee();
-        walletApi.transactionApi().executeTx(contractInvocation, fee);
+        walletApi.transactionApi().execute(contractInvocation, fee);
       } else {
         if (!contractInvocation.getFunction().isView()) {
           throw new HerajException(

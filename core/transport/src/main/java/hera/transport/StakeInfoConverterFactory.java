@@ -7,6 +7,8 @@ package hera.transport;
 import static hera.util.TransportUtils.parseToAer;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
@@ -14,6 +16,8 @@ import hera.api.model.StakeInfo;
 import org.slf4j.Logger;
 import types.Rpc;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class StakeInfoConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -45,7 +49,7 @@ public class StakeInfoConverterFactory {
       };
 
   public ModelConverter<StakeInfo, Rpc.Staking> create() {
-    return new ModelConverter<StakeInfo, Rpc.Staking>(domainConverter, rpcConverter);
+    return new ModelConverter<>(domainConverter, rpcConverter);
   }
 
 }

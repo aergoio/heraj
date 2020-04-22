@@ -4,11 +4,15 @@
 
 package hera.strategy;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.HostnameAndPort;
 import io.grpc.okhttp.OkHttpChannelBuilder;
 import java.util.concurrent.TimeUnit;
 import lombok.ToString;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 @ToString
 public class OkHttpConnectStrategy implements ConnectStrategy<OkHttpChannelBuilder> {
 

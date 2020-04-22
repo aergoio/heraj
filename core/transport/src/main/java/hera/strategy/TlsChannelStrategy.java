@@ -8,6 +8,8 @@ import static hera.util.IoUtils.from;
 import static hera.util.ValidationUtils.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.BytesValue;
 import hera.exception.HerajException;
 import io.grpc.ManagedChannelBuilder;
@@ -20,6 +22,8 @@ import javax.net.ssl.SSLSocketFactory;
 import lombok.ToString;
 import org.slf4j.Logger;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 @ToString
 public class TlsChannelStrategy implements SecurityConfigurationStrategy {
 
@@ -85,16 +89,6 @@ public class TlsChannelStrategy implements SecurityConfigurationStrategy {
     } catch (final Exception e) {
       throw new HerajException(e);
     }
-  }
-
-  @Override
-  public boolean equals(final Object obj) {
-    return (null != obj) && (obj instanceof SecurityConfigurationStrategy);
-  }
-
-  @Override
-  public int hashCode() {
-    return TlsChannelStrategy.class.hashCode();
   }
 
 }

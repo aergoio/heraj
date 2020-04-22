@@ -19,7 +19,7 @@ import hera.strategy.NettyConnectStrategy;
 import hera.strategy.PlainTextChannelStrategy;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
@@ -42,6 +42,7 @@ class GrpcClientProvider implements ClientProvider<GrpcClient> {
       synchronized (lock) {
         if (null == grpcClient) {
           final Context current = ContextHolder.current();
+          logger.trace("Context: {}", current);
           final ManagedChannelBuilder<?> raw = getChannelBuilder(current);
           final ManagedChannelBuilder<?> configured = configure(raw, current);
           channel = configured.build();
@@ -55,7 +56,7 @@ class GrpcClientProvider implements ClientProvider<GrpcClient> {
   protected ManagedChannelBuilder<?> getChannelBuilder(final Context context) {
     final HostnameAndPort hostnameAndPort = context.getOrDefault(GRPC_CONNECTION_ENDPOINT,
         HostnameAndPort.of("localhost:7845"));
-    final ConnectStrategy connectStrategy = context.getOrDefault(GRPC_CONNECTION_STRATEGY,
+    final ConnectStrategy<?> connectStrategy = context.getOrDefault(GRPC_CONNECTION_STRATEGY,
         new NettyConnectStrategy());
     logger.debug("Use connection strategy: {} with endpoint: {}", connectStrategy, hostnameAndPort);
     return (ManagedChannelBuilder<?>) connectStrategy.connect(hostnameAndPort);
@@ -63,7 +64,7 @@ class GrpcClientProvider implements ClientProvider<GrpcClient> {
 
   protected ManagedChannelBuilder<?> configure(final ManagedChannelBuilder<?> builder,
       final Context context) {
-    final List<ChannelConfigurationStrategy> configurationStrategies = new ArrayList<>();
+    final List<ChannelConfigurationStrategy> configurationStrategies = new LinkedList<>();
     configurationStrategies.add(context.getOrDefault(GRPC_CONNECTION_NEGOTIATION,
         new PlainTextChannelStrategy()));
     for (final ChannelConfigurationStrategy strategy : configurationStrategies) {

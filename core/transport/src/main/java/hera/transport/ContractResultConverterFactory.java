@@ -7,11 +7,15 @@ package hera.transport;
 import static hera.api.model.BytesValue.of;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.function.Function1;
 import hera.api.model.ContractResult;
 import org.slf4j.Logger;
 import types.Rpc;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class ContractResultConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -39,7 +43,7 @@ public class ContractResultConverterFactory {
       };
 
   public ModelConverter<ContractResult, Rpc.SingleBytes> create() {
-    return new ModelConverter<ContractResult, Rpc.SingleBytes>(domainConverter, rpcConverter);
+    return new ModelConverter<>(domainConverter, rpcConverter);
   }
 
 }

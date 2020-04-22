@@ -4,6 +4,7 @@
 
 package hera.strategy;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import hera.AbstractTestCase;
@@ -38,7 +39,7 @@ public class TimeoutStrategyTest extends AbstractTestCase {
   }
 
   @Test
-  public void shouldThrowException() {
+  public void shouldThrowExceptionOnTimedOut() {
     try {
       final TimeoutStrategy strategy = new TimeoutStrategy(Time.of(100L, TimeUnit.MILLISECONDS));
       final RequestMethod<Integer> method = new RequestMethod<Integer>() {
@@ -58,9 +59,34 @@ public class TimeoutStrategyTest extends AbstractTestCase {
       invocation.invoke();
       fail();
     } catch (TimeoutException e) {
-      // good we expected this
+      // then
     } catch (Exception e) {
       fail(e.getMessage());
+    }
+  }
+
+  @Test
+  public void shouldThrowExceptionOnError() {
+    final Exception expected = new UnsupportedOperationException();
+    try {
+      final TimeoutStrategy strategy = new TimeoutStrategy(Time.of(100L, TimeUnit.MILLISECONDS));
+      final RequestMethod<Integer> method = new RequestMethod<Integer>() {
+
+        @Override
+        public String getName() {
+          return null;
+        }
+
+        @Override
+        protected Integer runInternal(List<Object> parameters) throws Exception {
+          throw expected;
+        }
+      };
+      final Invocation<Integer> invocation = strategy.apply(method.toInvocation());
+      invocation.invoke();
+      fail();
+    } catch (Exception actual) {
+      assertEquals(expected, actual);
     }
   }
 

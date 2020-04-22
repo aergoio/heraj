@@ -4,11 +4,14 @@
 
 package hera.client;
 
+import static java.util.Arrays.asList;
 import static types.AergoRPCServiceGrpc.newBlockingStub;
 import static types.AergoRPCServiceGrpc.newFutureStub;
 import static types.AergoRPCServiceGrpc.newStub;
 
 import io.grpc.Channel;
+import java.util.Arrays;
+import java.util.List;
 import lombok.Getter;
 import types.AergoRPCServiceGrpc.AergoRPCServiceBlockingStub;
 import types.AergoRPCServiceGrpc.AergoRPCServiceFutureStub;

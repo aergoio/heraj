@@ -6,6 +6,8 @@ package hera.transport;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.function.Function1;
 import hera.api.model.ServerInfo;
 import hera.exception.HerajException;
@@ -14,6 +16,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import types.Rpc;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class ServerInfoConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -55,7 +59,7 @@ public class ServerInfoConverterFactory {
       };
 
   public ModelConverter<ServerInfo, Rpc.ServerInfo> create() {
-    return new ModelConverter<ServerInfo, Rpc.ServerInfo>(domainConverter, rpcConverter);
+    return new ModelConverter<>(domainConverter, rpcConverter);
   }
 
 }

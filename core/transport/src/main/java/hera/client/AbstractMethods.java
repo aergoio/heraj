@@ -39,8 +39,7 @@ abstract class AbstractMethods {
     final Context current = ContextHolder.current();
     final ChainIdHashHolder chainIdHashHolder = current.get(GRPC_VALUE_CHAIN_ID_HASH_HOLDER);
     logger.trace("ChainIdHashHolder: {}", chainIdHashHolder);
-    final ChainIdHash chainIdHash = chainIdHashHolder.get();
-    return chainIdHash;
+    return chainIdHashHolder.get();
   }
 
 }

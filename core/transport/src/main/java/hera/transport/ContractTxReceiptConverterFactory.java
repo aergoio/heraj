@@ -9,6 +9,8 @@ import static java.util.Collections.unmodifiableList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractTxReceipt;
@@ -19,6 +21,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import types.Blockchain;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class ContractTxReceiptConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());

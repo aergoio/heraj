@@ -17,7 +17,6 @@ import hera.Context;
 import hera.ContextStorage;
 import hera.EmptyContext;
 import hera.Key;
-import hera.WriteSynchronizedContextStorage;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.HostnameAndPort;
@@ -48,10 +47,10 @@ public class AergoClientBuilder implements ClientConfiguer<AergoClientBuilder> {
   protected List<ComparableFailoverHandler> failoverHandlers = new ArrayList<>();
 
   {
-    // add built-in ones
+    // add built-in holders
     key2Value.put(GRPC_VALUE_CHAIN_ID_HASH_HOLDER, new ChainIdHashHolder());
 
-    // add built-in ones
+    // add built-in failover handlers
     failoverHandlers.add(new InvalidChainIdHashHandler());
   }
 
@@ -125,11 +124,9 @@ public class AergoClientBuilder implements ClientConfiguer<AergoClientBuilder> {
    * @return {@link AergoClient}
    */
   public AergoClient build() {
-    final ContextStorage<Context> contextStorage = new WriteSynchronizedContextStorage<>();
-    final Context initContext = initContext();
-    logger.trace("Init context: {}", initContext);
-    contextStorage.put(initContext);
-
+    final Context context = initContext();
+    logger.trace("Init context: {}", context);
+    final ContextStorage<Context> contextStorage = new UnmodifiableContextStorage(context);
     return new AergoClientImpl(contextStorage);
   }
 

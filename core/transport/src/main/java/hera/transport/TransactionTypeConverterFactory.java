@@ -6,12 +6,16 @@ package hera.transport;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.function.Function1;
 import hera.api.model.Transaction;
 import hera.api.model.Transaction.TxType;
 import org.slf4j.Logger;
 import types.Blockchain;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class TransactionTypeConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -71,7 +75,7 @@ public class TransactionTypeConverterFactory {
       };
 
   public ModelConverter<Transaction.TxType, Blockchain.TxType> create() {
-    return new ModelConverter<Transaction.TxType, Blockchain.TxType>(domainConverter, rpcConverter);
+    return new ModelConverter<>(domainConverter, rpcConverter);
   }
 
 }

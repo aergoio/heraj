@@ -17,7 +17,6 @@ import hera.ContextStorage;
 import hera.EmptyContext;
 import hera.Invocation;
 import hera.Requester;
-import hera.WriteSynchronizedContextStorage;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountFactory;
@@ -41,11 +40,8 @@ import org.mockito.ArgumentMatchers;
 
 public class AccountTemplateTest extends AbstractTestCase {
 
-  protected final ContextStorage<Context> contextStorage = new WriteSynchronizedContextStorage<>();
-
-  {
-    contextStorage.put(EmptyContext.getInstance());
-  }
+  protected final ContextStorage<Context> contextStorage = new UnmodifiableContextStorage(
+      EmptyContext.getInstance());
 
   @Test
   public void testGetState() throws Exception {

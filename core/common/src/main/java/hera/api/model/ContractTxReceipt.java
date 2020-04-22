@@ -24,7 +24,8 @@ import lombok.ToString;
 public class ContractTxReceipt {
 
   @NonNull
-  protected final TxReceipt txReceipt;
+  @Default
+  protected final TxReceipt txReceipt = TxReceipt.newBuilder().build();
 
   @NonNull
   @Default

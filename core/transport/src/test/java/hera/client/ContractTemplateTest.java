@@ -15,13 +15,13 @@ import hera.ContextStorage;
 import hera.EmptyContext;
 import hera.Invocation;
 import hera.Requester;
-import hera.WriteSynchronizedContextStorage;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
+import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
@@ -37,11 +37,8 @@ import org.mockito.ArgumentMatchers;
 
 public class ContractTemplateTest extends AbstractTestCase {
 
-  protected final ContextStorage<Context> contextStorage = new WriteSynchronizedContextStorage<>();
-
-  {
-    contextStorage.put(EmptyContext.getInstance());
-  }
+  protected final ContextStorage<Context> contextStorage = new UnmodifiableContextStorage(
+      EmptyContext.getInstance());
 
   @Test
   public void testGetContractTxReceipt() throws Exception {
@@ -64,7 +61,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     // given
     final ContractTemplate contractTemplate = new ContractTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
-    final TxHash expected = TxHash.of(BytesValue.EMPTY);
+    final ContractTxHash expected = ContractTxHash.of(BytesValue.EMPTY);
     when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
         .thenReturn(expected);
     contractTemplate.requester = mockRequester;
@@ -81,7 +78,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     // given
     final ContractTemplate contractTemplate = new ContractTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
-    final TxHash expected = TxHash.of(BytesValue.EMPTY);
+    final ContractTxHash expected = ContractTxHash.of(BytesValue.EMPTY);
     when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
         .thenReturn(expected);
     contractTemplate.requester = mockRequester;
@@ -113,7 +110,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     // given
     final ContractTemplate contractTemplate = new ContractTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
-    final TxHash expected = TxHash.of(BytesValue.EMPTY);
+    final ContractTxHash expected = ContractTxHash.of(BytesValue.EMPTY);
     when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
         .thenReturn(expected);
     contractTemplate.requester = mockRequester;

@@ -7,6 +7,8 @@ package hera.transport;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.function.Function1;
 import hera.api.model.Account;
 import hera.api.model.AccountAddress;
@@ -14,6 +16,8 @@ import hera.api.model.AccountFactory;
 import org.slf4j.Logger;
 import types.AccountOuterClass;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class AccountConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -49,7 +53,7 @@ public class AccountConverterFactory {
       };
 
   public ModelConverter<Account, AccountOuterClass.Account> create() {
-    return new ModelConverter<Account, AccountOuterClass.Account>(domainConverter, rpcConverter);
+    return new ModelConverter<>(domainConverter, rpcConverter);
   }
 
 }

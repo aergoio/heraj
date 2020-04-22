@@ -16,7 +16,6 @@ import hera.ContextStorage;
 import hera.EmptyContext;
 import hera.Invocation;
 import hera.Requester;
-import hera.WriteSynchronizedContextStorage;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
 import hera.api.model.Authentication;
@@ -35,7 +34,8 @@ import org.mockito.ArgumentMatchers;
 
 public class KeyStoreTemplateTest extends AbstractTestCase {
 
-  protected final ContextStorage<Context> contextStorage = new WriteSynchronizedContextStorage<>();
+  protected final ContextStorage<Context> contextStorage = new UnmodifiableContextStorage(
+      EmptyContext.getInstance());
 
   protected RawTransaction anyRawTransaction;
 
@@ -44,7 +44,6 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
   protected Identity anyIdentity;
 
   {
-    contextStorage.put(EmptyContext.getInstance());
     final AergoKey signer = new AergoKeyGenerator().create();
     anyRawTransaction = RawTransaction
         .newBuilder(ChainIdHash.of(BytesValue.EMPTY))

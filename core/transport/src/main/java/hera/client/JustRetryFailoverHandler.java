@@ -42,8 +42,8 @@ class JustRetryFailoverHandler extends ComparableFailoverHandler {
     int countDown = this.count;
     while (null != next.getError() && 0 < countDown) {
       try {
-        logger.debug("Just retry with {} after sleep {}ms (count left: {})", this.interval,
-            invocation, countDown);
+        logger.debug("Just retry with {} after sleep {}ms (count left: {})", invocation,
+            this.interval, countDown);
         Thread.sleep(this.interval);
       } catch (Exception e) {
         throw new HerajException("Unexpected error", e);

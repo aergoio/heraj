@@ -50,7 +50,8 @@ abstract class AbstractTemplate {
     } catch (Exception e) {
       throw exceptionConverter.convert(e);
     } finally {
-      ContextHolder.remove();
+      final Context removed = ContextHolder.remove();
+      logger.trace("Remove context {} from Thread {}", removed, Thread.currentThread());
     }
   }
 

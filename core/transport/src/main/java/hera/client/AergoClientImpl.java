@@ -19,12 +19,15 @@ import hera.api.TransactionOperation;
 import hera.api.model.ChainIdHash;
 import hera.exception.HerajException;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 class AergoClientImpl implements AergoClient {
 
   protected final ContextStorage<Context> contextStorage;
+
+  AergoClientImpl(final ContextStorage<Context> contextStorage) {
+    assertNotNull(contextStorage, "ContextStorage must not null");
+    this.contextStorage = contextStorage;
+  }
 
   @Getter(lazy = true)
   private final AccountOperation accountOperation = new AccountTemplate(contextStorage);
@@ -48,6 +51,9 @@ class AergoClientImpl implements AergoClient {
   public ChainIdHash getCachedChainIdHash() {
     final Context context = contextStorage.get();
     final ChainIdHashHolder chainIdHashHolder = context.get(GRPC_VALUE_CHAIN_ID_HASH_HOLDER);
+    if (null == chainIdHashHolder) {
+      throw new HerajException("No chain id hash holder in context");
+    }
     return chainIdHashHolder.get();
   }
 
@@ -56,6 +62,9 @@ class AergoClientImpl implements AergoClient {
     assertNotNull(chainIdHash);
     final Context context = contextStorage.get();
     final ChainIdHashHolder chainIdHashHolder = context.get(GRPC_VALUE_CHAIN_ID_HASH_HOLDER);
+    if (null == chainIdHashHolder) {
+      throw new HerajException("No chain id hash holder in context");
+    }
     chainIdHashHolder.put(chainIdHash);
   }
 
@@ -64,6 +73,9 @@ class AergoClientImpl implements AergoClient {
     try {
       final Context context = contextStorage.get();
       final ClientProvider<?> clientProvider = context.get(GRPC_CLIENT_PROVIDER);
+      if (null == clientProvider) {
+        throw new HerajException("No client provider");
+      }
       clientProvider.close();
     } catch (HerajException e) {
       throw e;

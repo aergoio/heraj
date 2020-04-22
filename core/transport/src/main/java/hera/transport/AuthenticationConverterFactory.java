@@ -8,6 +8,8 @@ import static hera.util.TransportUtils.sha256AndEncodeHexa;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
@@ -16,6 +18,8 @@ import org.slf4j.Logger;
 import types.AccountOuterClass;
 import types.Rpc;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class AuthenticationConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -62,7 +66,7 @@ public class AuthenticationConverterFactory {
       };
 
   public ModelConverter<Authentication, Rpc.Personal> create() {
-    return new ModelConverter<Authentication, Rpc.Personal>(domainConverter, rpcConverter);
+    return new ModelConverter<>(domainConverter, rpcConverter);
   }
 
 }

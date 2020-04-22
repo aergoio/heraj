@@ -10,6 +10,7 @@ import hera.AbstractTestCase;
 import hera.api.model.ContractInterface;
 import org.junit.Test;
 import types.Blockchain;
+import types.Blockchain.Function;
 
 public class ContractInterfaceConverterTest extends AbstractTestCase {
 
@@ -17,7 +18,9 @@ public class ContractInterfaceConverterTest extends AbstractTestCase {
   public void testConvert() {
     final ModelConverter<ContractInterface, Blockchain.ABI> converter =
         new ContractInterfaceConverterFactory().create();
-    final Blockchain.ABI rpcContractInterface = Blockchain.ABI.newBuilder().build();
+    final Blockchain.ABI rpcContractInterface = Blockchain.ABI.newBuilder()
+        .addFunctions(Blockchain.Function.newBuilder().build())
+        .build();
     final ContractInterface converted =
         converter.convertToDomainModel(rpcContractInterface);
     assertNotNull(converted);

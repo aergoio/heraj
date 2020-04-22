@@ -7,7 +7,9 @@ package hera.util;
 import static hera.util.NumberUtils.positiveToByteArray;
 import static hera.util.TransportUtils.copyFrom;
 import static hera.util.TransportUtils.parseToAer;
+import static hera.util.TransportUtils.parseToBlockHash;
 import static hera.util.TransportUtils.parseToBytesValue;
+import static hera.util.TransportUtils.parseToTxHash;
 import static hera.util.TransportUtils.sha256AndEncodeHexa;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
@@ -34,7 +36,8 @@ public class TransportUtilsTest extends AbstractTestCase {
   @Test
   public void testCopyFromWithBytesValue() {
     final BytesValue filledValue = BytesValue.of(randomUUID().toString().getBytes());
-    final BytesValue emptyValue = BytesValue.EMPTY;;
+    final BytesValue emptyValue = BytesValue.EMPTY;
+    ;
     final BytesValue nullValue = null;
     assertEquals(ByteString.copyFrom(filledValue.getValue()), copyFrom(filledValue));
     assertEquals(ByteString.EMPTY, copyFrom(emptyValue));
@@ -53,7 +56,7 @@ public class TransportUtilsTest extends AbstractTestCase {
   @Test
   public void testCopyFromWithLong() {
     final ByteString expected =
-        ByteString.copyFrom(new byte[] {0x7f, 0x6f, 0x5f, 0x4f, 0x3f, 0x2f, 0x1f, 0x0f});
+        ByteString.copyFrom(new byte[]{0x7f, 0x6f, 0x5f, 0x4f, 0x3f, 0x2f, 0x1f, 0x0f});
     ByteString actual = copyFrom(Long.decode("0x0f1f2f3f4f5f6f7f").longValue());
     assertEquals(expected, actual);
   }
@@ -77,6 +80,20 @@ public class TransportUtilsTest extends AbstractTestCase {
     final Aer expected = Aer.of("100", Unit.GAER);
     final ByteString rawAer = copyFrom(expected);
     assertEquals(expected, parseToAer(rawAer));
+  }
+
+  @Test
+  public void testParseToTxHash() {
+    final BytesValue expected = BytesValue.of(randomUUID().toString().getBytes());
+    final ByteString byteString = copyFrom(expected);
+    assertEquals(expected, parseToTxHash(byteString).getBytesValue());
+  }
+
+  @Test
+  public void testParseToBlockHash() {
+    final BytesValue expected = BytesValue.of(randomUUID().toString().getBytes());
+    final ByteString byteString = copyFrom(expected);
+    assertEquals(expected, parseToBlockHash(byteString).getBytesValue());
   }
 
   @Test

@@ -15,7 +15,6 @@ import hera.ContextStorage;
 import hera.EmptyContext;
 import hera.Invocation;
 import hera.Requester;
-import hera.WriteSynchronizedContextStorage;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.BytesValue;
 import hera.api.model.ChainIdHash;
@@ -32,11 +31,8 @@ import org.mockito.ArgumentMatchers;
 
 public class BlockchainTemplateTest extends AbstractTestCase {
 
-  protected final ContextStorage<Context> contextStorage = new WriteSynchronizedContextStorage<>();
-
-  {
-    contextStorage.put(EmptyContext.getInstance());
-  }
+  protected final ContextStorage<Context> contextStorage = new UnmodifiableContextStorage(
+      EmptyContext.getInstance());
 
   @Test
   public void testGetChainIdHash() throws Exception {

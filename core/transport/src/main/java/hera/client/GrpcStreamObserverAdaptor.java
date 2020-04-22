@@ -12,6 +12,7 @@ import hera.exception.TransportExceptionConverter;
 import hera.transport.ModelConverter;
 import hera.util.ExceptionConverter;
 import lombok.AccessLevel;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 
@@ -24,10 +25,13 @@ class GrpcStreamObserverAdaptor<RpcModelT, DomainModelT>
   protected final ExceptionConverter<HerajException> exceptionConverter =
       new TransportExceptionConverter();
 
+  @NonNull
   protected final io.grpc.Context.CancellableContext context;
 
+  @NonNull
   protected final hera.api.model.StreamObserver<DomainModelT> delegate;
 
+  @NonNull
   protected final ModelConverter<DomainModelT, RpcModelT> converter;
 
   @Override
@@ -40,7 +44,7 @@ class GrpcStreamObserverAdaptor<RpcModelT, DomainModelT>
   @Override
   public void onError(final Throwable t) {
     final HerajException converted = exceptionConverter.convert(t);
-    logger.error("Streaming failed by {}", converted.toString());
+    logger.debug("Streaming failed by {}", converted.toString());
     if (converted instanceof ConnectionException) {
       logger.debug("Stop subscription by connection error");
       context.cancel(converted);

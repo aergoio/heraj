@@ -23,15 +23,15 @@ import org.slf4j.Logger;
 @ToString
 class InvalidChainIdHashHandler extends ComparableFailoverHandler {
 
-  @Getter
-  protected final int priority = 1;
-
   @ToString.Exclude
   protected final transient Logger logger = getLogger(getClass());
 
   // not final for mock
   @ToString.Exclude
   protected BlockchainMethods blockchainMethods = new BlockchainMethods();
+
+  @Getter
+  protected final int priority = 1;
 
   InvalidChainIdHashHandler() {
 
@@ -53,9 +53,10 @@ class InvalidChainIdHashHandler extends ComparableFailoverHandler {
       }
 
       final Context current = ContextHolder.current();
+      logger.trace("Context: {}", current);
       final ChainIdHashHolder chainIdHashHolder = current.get(GRPC_VALUE_CHAIN_ID_HASH_HOLDER);
       if (null == chainIdHashHolder) {
-        throw new HerajException("No chain id hash holder");
+        throw new HerajException("No chain id hash holder in context");
       }
 
       final RequestMethod<BlockchainStatus> requestMethod = blockchainMethods.getBlockchainStatus();

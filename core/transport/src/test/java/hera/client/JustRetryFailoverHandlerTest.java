@@ -23,7 +23,8 @@ public class JustRetryFailoverHandlerTest extends AbstractTestCase {
   @Test
   public void testHandle() {
     // given
-    final int count = 3;
+    final int count = 5;
+    final int stop = 2;
     final JustRetryFailoverHandler justRetryFailoverHandler = new JustRetryFailoverHandler(count,
         Time.of(100L, TimeUnit.MILLISECONDS));
     final AtomicInteger countDown = new AtomicInteger(count);
@@ -36,7 +37,7 @@ public class JustRetryFailoverHandlerTest extends AbstractTestCase {
       @Override
       protected Object runInternal(List<Object> parameters) throws Exception {
         countDown.decrementAndGet();
-        if (1 == countDown.get()) {
+        if (stop == countDown.get()) {
           return expected;
         }
 
@@ -49,7 +50,7 @@ public class JustRetryFailoverHandlerTest extends AbstractTestCase {
     final Response<Object> handled = justRetryFailoverHandler
         .handle(new TestInvocation<>(requestMethod), response);
     assertEquals(expected, handled.getValue());
-    assertEquals(1, countDown.get());
+    assertEquals(stop, countDown.get());
   }
 
   @Test

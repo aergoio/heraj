@@ -5,6 +5,7 @@
 package hera.client;
 
 import static hera.util.ValidationUtils.assertNotNull;
+import static java.util.Collections.unmodifiableList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.FailoverHandler;
@@ -27,7 +28,7 @@ class FailoverHandlerChain implements FailoverHandler {
     final List<ComparableFailoverHandler> sorted = new LinkedList<>(failoverHandlers);
     Collections.sort(sorted);
     logger.trace("Sorted failover handlers : {}", sorted);
-    this.failoverHandlers = Collections.unmodifiableList(sorted);
+    this.failoverHandlers = unmodifiableList(sorted);
   }
 
   @Override

@@ -6,6 +6,8 @@ package hera.transport;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.function.Function1;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractFunction;
@@ -16,6 +18,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import types.Blockchain;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class ContractInterfaceConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -26,11 +30,11 @@ public class ContractInterfaceConverterFactory {
   protected final Function1<ContractInterface,
       Blockchain.ABI> domainConverter = new Function1<ContractInterface, Blockchain.ABI>() {
 
-        @Override
-        public Blockchain.ABI apply(final ContractInterface domainContractInterface) {
-          throw new UnsupportedOperationException();
-        }
-      };
+    @Override
+    public Blockchain.ABI apply(final ContractInterface domainContractInterface) {
+      throw new UnsupportedOperationException();
+    }
+  };
 
   protected final Function1<Blockchain.ABI, ContractInterface> rpcConverter =
       new Function1<Blockchain.ABI, ContractInterface>() {
@@ -69,7 +73,7 @@ public class ContractInterfaceConverterFactory {
       };
 
   public ModelConverter<ContractInterface, Blockchain.ABI> create() {
-    return new ModelConverter<ContractInterface, Blockchain.ABI>(domainConverter, rpcConverter);
+    return new ModelConverter<>(domainConverter, rpcConverter);
   }
 
 }

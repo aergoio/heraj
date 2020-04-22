@@ -8,6 +8,8 @@ import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.function.Function1;
 import hera.api.model.AccountAddress;
 import hera.api.model.EventFilter;
@@ -20,6 +22,8 @@ import org.slf4j.Logger;
 import types.Blockchain;
 import types.Blockchain.FilterInfo;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 public class EventFilterConverterFactory {
 
   protected final transient Logger logger = getLogger(getClass());
@@ -68,7 +72,7 @@ public class EventFilterConverterFactory {
       };
 
   public ModelConverter<EventFilter, Blockchain.FilterInfo> create() {
-    return new ModelConverter<EventFilter, Blockchain.FilterInfo>(domainConverter,
+    return new ModelConverter<>(domainConverter,
         rpcConverter);
   }
 

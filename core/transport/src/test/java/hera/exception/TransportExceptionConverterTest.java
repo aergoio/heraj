@@ -18,12 +18,14 @@ public class TransportExceptionConverterTest extends AbstractTestCase {
     final Throwable[] parameters = {
         new HerajException(""),
         new StatusRuntimeException(Status.UNAVAILABLE),
-        new UnsupportedOperationException()
+        new StatusRuntimeException(Status.INTERNAL),
+        new UnsupportedOperationException(),
     };
     final Class<?>[] expected = {
         HerajException.class,
         ConnectionException.class,
-        HerajException.class
+        HerajException.class,
+        HerajException.class,
     };
 
     final TransportExceptionConverter converter = new TransportExceptionConverter();
