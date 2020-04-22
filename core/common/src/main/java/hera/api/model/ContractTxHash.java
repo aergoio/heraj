@@ -10,7 +10,6 @@ import hera.util.Adaptor;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Deprecated
 public class ContractTxHash extends TxHash implements Adaptor, Encodable {
 
   /**

@@ -42,25 +42,35 @@ class AccountTemplate extends AbstractTemplate implements AccountOperation {
 
   @Override
   public TxHash createName(final Account account, final String name, final long nonce) {
-    return createName(account.getKey(), name, nonce);
+    return createNameTx(account.getKey(), name, nonce);
   }
 
   @Override
   public TxHash createName(final Signer signer, final String name, final long nonce) {
-    return request(accountMethods.getCreateName(), Arrays.<Object>asList(signer, name, nonce));
+    return createNameTx(signer, name, nonce);
+  }
+
+  @Override
+  public TxHash createNameTx(final Signer signer, final String name, final long nonce) {
+    return request(accountMethods.getCreateNameTx(), Arrays.asList(signer, name, nonce));
   }
 
   @Override
   public TxHash updateName(final Account owner, final String name, final AccountAddress newOwner,
       final long nonce) {
-    return updateName(owner.getKey(), name, newOwner, nonce);
+    return updateNameTx(owner.getKey(), name, newOwner, nonce);
   }
 
   @Override
   public TxHash updateName(final Signer signer, final String name, final AccountAddress newOwner,
       final long nonce) {
-    return request(accountMethods.getUpdateName(),
-        Arrays.asList(signer, name, newOwner, nonce));
+    return updateNameTx(signer, name, newOwner, nonce);
+  }
+
+  @Override
+  public TxHash updateNameTx(final Signer signer, final String name, final AccountAddress newOwner,
+      final long nonce) {
+    return request(accountMethods.getUpdateNameTx(), Arrays.asList(signer, name, newOwner, nonce));
   }
 
   @Override
@@ -75,22 +85,32 @@ class AccountTemplate extends AbstractTemplate implements AccountOperation {
 
   @Override
   public TxHash stake(final Account account, final Aer amount, final long nonce) {
-    return stake(account.getKey(), amount, nonce);
+    return stakeTx(account.getKey(), amount, nonce);
   }
 
   @Override
   public TxHash stake(final Signer signer, final Aer amount, final long nonce) {
-    return request(accountMethods.getStake(), Arrays.<Object>asList(signer, amount, nonce));
+    return stakeTx(signer, amount, nonce);
+  }
+
+  @Override
+  public TxHash stakeTx(final Signer signer, final Aer amount, final long nonce) {
+    return request(accountMethods.getStakeTx(), Arrays.asList(signer, amount, nonce));
   }
 
   @Override
   public TxHash unstake(final Account account, final Aer amount, final long nonce) {
-    return unstake(account.getKey(), amount, nonce);
+    return unstakeTx(account.getKey(), amount, nonce);
   }
 
   @Override
   public TxHash unstake(final Signer signer, final Aer amount, final long nonce) {
-    return request(accountMethods.getUnstake(), Arrays.<Object>asList(signer, amount, nonce));
+    return unstakeTx(signer, amount, nonce);
+  }
+
+  @Override
+  public TxHash unstakeTx(final Signer signer, final Aer amount, final long nonce) {
+    return request(accountMethods.getUnstakeTx(), Arrays.asList(signer, amount, nonce));
   }
 
   @Override
@@ -101,8 +121,13 @@ class AccountTemplate extends AbstractTemplate implements AccountOperation {
   @Override
   public TxHash vote(final Signer signer, final String voteId, final List<String> candidates,
       final long nonce) {
-    return request(accountMethods.getVote(),
-        Arrays.<Object>asList(signer, voteId, candidates, nonce));
+    return voteTx(signer, voteId, candidates, nonce);
+  }
+
+  @Override
+  public TxHash voteTx(final Signer signer, final String voteId, final List<String> candidates,
+      final long nonce) {
+    return request(accountMethods.getVoteTx(), Arrays.asList(signer, voteId, candidates, nonce));
   }
 
   @Override

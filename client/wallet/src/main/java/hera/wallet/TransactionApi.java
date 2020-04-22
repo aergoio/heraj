@@ -19,6 +19,10 @@ import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import java.util.List;
 
+/**
+ * A transaction related api. No 'Tx' prefix here since {@code TransactionApi} already represent
+ * it's transaction related one.
+ */
 @ApiAudience.Public
 @ApiStability.Unstable
 public interface TransactionApi {
@@ -132,35 +136,13 @@ public interface TransactionApi {
   TxHash commit(Transaction signedTransaction);
 
   /**
-   * Use {@link #deployTx(ContractDefinition, Fee)} instead.
-   *
-   * @param contractDefinition a contract definition
-   * @param fee                a fee
-   * @return a contract transaction hash
-   */
-  @Deprecated
-  ContractTxHash deploy(ContractDefinition contractDefinition, Fee fee);
-
-  /**
    * Deploy smart contract.
    *
    * @param contractDefinition a contract definition
    * @param fee                a fee
    * @return a contract transaction hash
    */
-  TxHash deployTx(ContractDefinition contractDefinition, Fee fee);
-
-  /**
-   * Use {@link #deployTx(ContractDefinition, Fee)} instead.
-   *
-   * @param existingContract   an existing contract address
-   * @param contractDefinition a contract definition to re-deploy
-   * @param fee                a fee
-   * @return a contract transaction hash
-   */
-  @Deprecated
-  ContractTxHash redeploy(ContractAddress existingContract, ContractDefinition contractDefinition,
-      Fee fee);
+  ContractTxHash deploy(ContractDefinition contractDefinition, Fee fee);
 
   /**
    * Re-deploy a deployed smart smart contract. This works enterprise aergo only.
@@ -170,18 +152,8 @@ public interface TransactionApi {
    * @param fee                a fee
    * @return a contract transaction hash
    */
-  TxHash redeployTx(ContractAddress existingContract, ContractDefinition contractDefinition,
+  ContractTxHash redeploy(ContractAddress existingContract, ContractDefinition contractDefinition,
       Fee fee);
-
-  /**
-   * Use {@link #executeTx(ContractInvocation, Fee)} instead.
-   *
-   * @param contractInvocation a contract invocation
-   * @param fee                a fee
-   * @return a contract transaction hash
-   */
-  @Deprecated
-  ContractTxHash execute(ContractInvocation contractInvocation, Fee fee);
 
   /**
    * Execute a smart contract function.
@@ -190,6 +162,6 @@ public interface TransactionApi {
    * @param fee                a fee
    * @return a contract transaction hash
    */
-  TxHash executeTx(ContractInvocation contractInvocation, Fee fee);
+  ContractTxHash execute(ContractInvocation contractInvocation, Fee fee);
 
 }

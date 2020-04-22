@@ -254,11 +254,6 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
 
   @Override
   public ContractTxHash deploy(final ContractDefinition contractDefinition, final Fee fee) {
-    return deployTx(contractDefinition, fee).adapt(ContractTxHash.class);
-  }
-
-  @Override
-  public TxHash deployTx(final ContractDefinition contractDefinition, final Fee fee) {
     try {
       return trier.request(getSigner(), new Function2<Signer, Long, TxHash>() {
 
@@ -276,21 +271,15 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
   @Override
   public ContractTxHash redeploy(final ContractAddress existingContract,
       final ContractDefinition contractDefinition, final Fee fee) {
-    return redeployTx(existingContract, contractDefinition, fee).adapt(ContractTxHash.class);
-  }
-
-  @Override
-  public TxHash redeployTx(final ContractAddress existingContract,
-      final ContractDefinition contractDefinition, final Fee fee) {
     try {
       return trier.request(getSigner(), new Function2<Signer, Long, TxHash>() {
 
         @Override
-        public TxHash apply(Signer signer, Long t) {
-          return getClient().getContractOperation().redeploy(getSigner(), existingContract,
+        public ContractTxHash apply(Signer signer, Long t) {
+          return getClient().getContractOperation().redeployTx(getSigner(), existingContract,
               contractDefinition, t, fee);
         }
-      });
+      }).adapt(ContractTxHash.class);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -298,20 +287,15 @@ public class TransactionApiImpl implements TransactionApi, ClientInjectable {
 
   @Override
   public ContractTxHash execute(final ContractInvocation contractInvocation, final Fee fee) {
-    return executeTx(contractInvocation, fee).adapt(ContractTxHash.class);
-  }
-
-  @Override
-  public TxHash executeTx(final ContractInvocation contractInvocation, final Fee fee) {
     try {
       return trier.request(getSigner(), new Function2<Signer, Long, TxHash>() {
 
         @Override
-        public TxHash apply(Signer signer, Long t) {
-          return getClient().getContractOperation().execute(getSigner(), contractInvocation, t,
+        public ContractTxHash apply(Signer signer, Long t) {
+          return getClient().getContractOperation().executeTx(getSigner(), contractInvocation, t,
               fee);
         }
-      });
+      }).adapt(ContractTxHash.class);
     } catch (Exception e) {
       throw converter.convert(e);
     }

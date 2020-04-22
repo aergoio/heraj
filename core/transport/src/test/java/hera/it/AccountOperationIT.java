@@ -15,9 +15,7 @@ import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.Fee;
 import hera.api.model.Peer;
-import hera.api.model.RawTransaction;
 import hera.api.model.StakeInfo;
-import hera.api.model.Transaction;
 import hera.api.transaction.NonceProvider;
 import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
@@ -67,7 +65,7 @@ public class AccountOperationIT extends AbstractIT {
   public void shouldCreateName() {
     // when
     final String name = randomName();
-    aergoClient.getAccountOperation().createName(key, name,
+    aergoClient.getAccountOperation().createNameTx(key, name,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
     waitForNextBlockToGenerate();
 
@@ -81,7 +79,7 @@ public class AccountOperationIT extends AbstractIT {
     try {
       // when
       final String name = randomName();
-      aergoClient.getAccountOperation().createName(key, name, 0L);
+      aergoClient.getAccountOperation().createNameTx(key, name, 0L);
       fail();
     } catch (CommitException e) {
       // then
@@ -93,13 +91,13 @@ public class AccountOperationIT extends AbstractIT {
   public void shouldUpdateName() {
     // given
     final String name = randomName();
-    aergoClient.getAccountOperation().createName(key, name,
+    aergoClient.getAccountOperation().createNameTx(key, name,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
     waitForNextBlockToGenerate();
 
     // when
     final AccountAddress newOwner = new AergoKeyGenerator().create().getAddress();
-    aergoClient.getAccountOperation().updateName(key, name, newOwner,
+    aergoClient.getAccountOperation().updateNameTx(key, name, newOwner,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
     waitForNextBlockToGenerate();
 
@@ -112,7 +110,7 @@ public class AccountOperationIT extends AbstractIT {
   public void shouldUpdateNameFailOnInvalidName() {
     // given
     final String name = randomName();
-    aergoClient.getAccountOperation().createName(key, name,
+    aergoClient.getAccountOperation().createNameTx(key, name,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
     waitForNextBlockToGenerate();
 
@@ -120,7 +118,7 @@ public class AccountOperationIT extends AbstractIT {
       // when
       final AccountAddress newOwner = new AergoKeyGenerator().create().getAddress();
       final String invalidName = randomName();
-      aergoClient.getAccountOperation().updateName(key, invalidName, newOwner,
+      aergoClient.getAccountOperation().updateNameTx(key, invalidName, newOwner,
           nonceProvider.incrementAndGetNonce(key.getAddress()));
       fail();
     } catch (CommitException e) {
@@ -132,14 +130,14 @@ public class AccountOperationIT extends AbstractIT {
   public void shouldUpdateNameFailOnInvalidNonce() {
     // given
     final String name = randomName();
-    aergoClient.getAccountOperation().createName(key, name,
+    aergoClient.getAccountOperation().createNameTx(key, name,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
     waitForNextBlockToGenerate();
 
     try {
       // when
       final AccountAddress newOwner = new AergoKeyGenerator().create().getAddress();
-      aergoClient.getAccountOperation().updateName(key, name, newOwner, 0L);
+      aergoClient.getAccountOperation().updateNameTx(key, name, newOwner, 0L);
       fail();
     } catch (CommitException e) {
       // then
@@ -163,7 +161,7 @@ public class AccountOperationIT extends AbstractIT {
     final AccountState beforeState = aergoClient.getAccountOperation().getState(key.getAddress());
     final Aer minimumAmount =
         aergoClient.getBlockchainOperation().getChainInfo().getMinimumStakingAmount();
-    aergoClient.getAccountOperation().stake(key, minimumAmount,
+    aergoClient.getAccountOperation().stakeTx(key, minimumAmount,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
     waitForNextBlockToGenerate();
 
@@ -182,7 +180,7 @@ public class AccountOperationIT extends AbstractIT {
       // when
       final Aer minimumAmount =
           aergoClient.getBlockchainOperation().getChainInfo().getMinimumStakingAmount();
-      aergoClient.getAccountOperation().stake(key, minimumAmount.subtract(Aer.ONE),
+      aergoClient.getAccountOperation().stakeTx(key, minimumAmount.subtract(Aer.ONE),
           nonceProvider.incrementAndGetNonce(key.getAddress()));
       fail();
     } catch (CommitException e) {
@@ -197,7 +195,7 @@ public class AccountOperationIT extends AbstractIT {
       final AergoKey key = new AergoKeyGenerator().create();
       final Aer minimumAmount =
           aergoClient.getBlockchainOperation().getChainInfo().getMinimumStakingAmount();
-      aergoClient.getAccountOperation().stake(key, minimumAmount,
+      aergoClient.getAccountOperation().stakeTx(key, minimumAmount,
           nonceProvider.incrementAndGetNonce(key.getAddress()));
       fail();
     } catch (CommitException e) {
@@ -212,7 +210,7 @@ public class AccountOperationIT extends AbstractIT {
       // when
       final Aer minimumAmount =
           aergoClient.getBlockchainOperation().getChainInfo().getMinimumStakingAmount();
-      aergoClient.getAccountOperation().stake(key, minimumAmount, 0L);
+      aergoClient.getAccountOperation().stakeTx(key, minimumAmount, 0L);
       fail();
     } catch (CommitException e) {
       // then
@@ -225,13 +223,13 @@ public class AccountOperationIT extends AbstractIT {
     // given
     final Aer minimumAmount =
         aergoClient.getBlockchainOperation().getChainInfo().getMinimumStakingAmount();
-    aergoClient.getAccountOperation().stake(key, minimumAmount,
+    aergoClient.getAccountOperation().stakeTx(key, minimumAmount,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
     waitForNextBlockToGenerate();
 
     // when
     try {
-      aergoClient.getAccountOperation().unstake(key, minimumAmount,
+      aergoClient.getAccountOperation().unstakeTx(key, minimumAmount,
           nonceProvider.incrementAndGetNonce(key.getAddress()));
     } catch (Exception e) {
       // then : not enough time has passed to unstake
@@ -243,13 +241,13 @@ public class AccountOperationIT extends AbstractIT {
     // given
     final Aer minimumAmount =
         aergoClient.getBlockchainOperation().getChainInfo().getMinimumStakingAmount();
-    aergoClient.getAccountOperation().stake(key, minimumAmount,
+    aergoClient.getAccountOperation().stakeTx(key, minimumAmount,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
     waitForNextBlockToGenerate();
 
     // when
     try {
-      aergoClient.getAccountOperation().unstake(key, minimumAmount, 0L);
+      aergoClient.getAccountOperation().unstakeTx(key, minimumAmount, 0L);
     } catch (CommitException e) {
       // then
       assertEquals(CommitException.CommitStatus.NONCE_TOO_LOW, e.getCommitStatus());
@@ -261,7 +259,7 @@ public class AccountOperationIT extends AbstractIT {
     // given
     final Aer minimumAmount =
         aergoClient.getBlockchainOperation().getChainInfo().getMinimumStakingAmount();
-    aergoClient.getAccountOperation().stake(key, minimumAmount,
+    aergoClient.getAccountOperation().stakeTx(key, minimumAmount,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
     waitForNextBlockToGenerate();
 
@@ -269,7 +267,7 @@ public class AccountOperationIT extends AbstractIT {
     final List<Peer> peers = aergoClient.getBlockchainOperation().listPeers(true, true);
     final List<String> expected = new ArrayList<>();
     expected.add(peers.get(0).getPeerId());
-    aergoClient.getAccountOperation().vote(key, "voteBP", expected,
+    aergoClient.getAccountOperation().voteTx(key, "voteBP", expected,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
     waitForNextBlockToGenerate();
 
@@ -287,7 +285,7 @@ public class AccountOperationIT extends AbstractIT {
       final List<Peer> peers = aergoClient.getBlockchainOperation().listPeers(true, true);
       final List<String> candidates = new ArrayList<>();
       candidates.add(peers.get(0).getPeerId());
-      aergoClient.getAccountOperation().vote(key, "voteBP", candidates,
+      aergoClient.getAccountOperation().voteTx(key, "voteBP", candidates,
           nonceProvider.incrementAndGetNonce(key.getAddress()));
       fail();
     } catch (CommitException e) {

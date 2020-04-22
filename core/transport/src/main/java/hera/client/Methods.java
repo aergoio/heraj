@@ -7,18 +7,21 @@ package hera.client;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 
+/**
+ * Heraj methods. Naming rule : heraj.{operation}.xx.yy = OPERATION_XX_YY.
+ */
 @ApiAudience.Public
 @ApiStability.Unstable
 public abstract class Methods {
 
   public static final String ACCOUNT_STATE = "heraj.account.state";
-  public static final String ACCOUNT_CREATENAME = "heraj.account.createname";
-  public static final String ACCOUNT_UPDATENAME = "heraj.account.updatename";
+  public static final String ACCOUNT_CREATENAMETX = "heraj.account.createnametx";
+  public static final String ACCOUNT_UPDATENAMETX = "heraj.account.updatenametx";
   public static final String ACCOUNT_NAMEOWNER = "heraj.account.nameowner";
-  public static final String ACCOUNT_STAKE = "heraj.account.stake";
-  public static final String ACCOUNT_UNSTAKE = "heraj.account.unstake";
+  public static final String ACCOUNT_STAKETX = "heraj.account.staketx";
+  public static final String ACCOUNT_UNSTAKETX = "heraj.account.unstaketx";
   public static final String ACCOUNT_STAKEINFO = "heraj.account.stakeinfo";
-  public static final String ACCOUNT_VOTE = "heraj.account.vote";
+  public static final String ACCOUNT_VOTETX = "heraj.account.votetx";
   public static final String ACCOUNT_LIST_ELECTED = "heraj.account.list.elected";
   public static final String ACCOUNT_VOTESOF = "heraj.account.votesof";
 
@@ -56,11 +59,11 @@ public abstract class Methods {
   public static final String TRANSACTION_COMMIT = "heraj.transaction.commit";
   public static final String TRANSACTION_SENDTX = "heraj.transaction.sendtx";
 
-  public static final String CONTRACT_RECEIPT = "heraj.contract.receipt";
-  public static final String CONTRACT_DEPLOY = "heraj.contract.deploy";
-  public static final String CONTRACT_REDEPLOY = "heraj.contract.redeploy";
+  public static final String CONTRACT_TXRECEIPT = "heraj.contract.txreceipt";
+  public static final String CONTRACT_DEPLOYTX = "heraj.contract.deploytx";
+  public static final String CONTRACT_REDEPLOYTX = "heraj.contract.redeploytx";
   public static final String CONTRACT_INTERFACE = "heraj.contract.interface";
-  public static final String CONTRACT_EXECUTE = "heraj.contract.execute";
+  public static final String CONTRACT_EXECUTETX = "heraj.contract.executetx";
   public static final String CONTRACT_QUERY = "heraj.contract.query";
   public static final String CONTRACT_LIST_EVENT = "heraj.contract.list.event";
   public static final String CONTRACT_SUBSCRIBE_EVENT = "heraj.contract.subscribe.event";

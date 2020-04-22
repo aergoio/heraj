@@ -287,10 +287,10 @@ public class ContractIT extends AbstractWalletApiIT {
         .encodedContract(payload)
         .constructorArgs(args)
         .build();
-    final TxHash deployTxHash = walletApi.transactionApi().deployTx(definition, fee);
+    final TxHash deployHash = walletApi.transactionApi().deploy(definition, fee);
     waitForNextBlockToGenerate();
 
-    final ContractTxReceipt receipt = walletApi.queryApi().getContractTxReceipt(deployTxHash);
+    final ContractTxReceipt receipt = walletApi.queryApi().getContractTxReceipt(deployHash);
     assertNotEquals("ERROR", receipt.getStatus());
     final ContractAddress contractAddress = receipt.getContractAddress();
     final ContractInterface contractInterface =
@@ -305,7 +305,7 @@ public class ContractIT extends AbstractWalletApiIT {
         .function(funcName)
         .args(args)
         .build();
-    final TxHash execTxHash = walletApi.transactionApi().executeTx(execution, fee);
+    final TxHash execTxHash = walletApi.transactionApi().execute(execution, fee);
     waitForNextBlockToGenerate();
     final ContractTxReceipt receipt = walletApi.queryApi().getContractTxReceipt(execTxHash);
     assertNotEquals("ERROR", receipt.getStatus());

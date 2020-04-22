@@ -63,7 +63,7 @@ public class AccountTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testCreateName() throws Exception {
+  public void testCreateNameTx() throws Exception {
     // given
     final AccountTemplate accountTemplate = new AccountTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
@@ -74,12 +74,12 @@ public class AccountTemplateTest extends AbstractTestCase {
 
     // then
     final Signer signer = new AergoKeyGenerator().create();
-    final TxHash actual = accountTemplate.createName(signer, randomUUID().toString(), 1L);
+    final TxHash actual = accountTemplate.createNameTx(signer, randomUUID().toString(), 1L);
     assertEquals(expected, actual);
   }
 
   @Test
-  public void testUpdateName() throws Exception {
+  public void testUpdateNameTx() throws Exception {
     // given
     final AccountTemplate accountTemplate = new AccountTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
@@ -91,7 +91,7 @@ public class AccountTemplateTest extends AbstractTestCase {
     // then
     final Signer signer = new AergoKeyGenerator().create();
     final TxHash actual = accountTemplate
-        .updateName(signer, randomUUID().toString(), AccountAddress.EMPTY, 1L);
+        .updateNameTx(signer, randomUUID().toString(), AccountAddress.EMPTY, 1L);
     assertEquals(expected, actual);
   }
 
@@ -111,7 +111,7 @@ public class AccountTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testStake() throws Exception {
+  public void testStakeTx() throws Exception {
     // given
     final AccountTemplate accountTemplate = new AccountTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
@@ -122,12 +122,12 @@ public class AccountTemplateTest extends AbstractTestCase {
 
     // then
     final Signer signer = new AergoKeyGenerator().create();
-    final TxHash actual = accountTemplate.stake(signer, Aer.AERGO_ONE, 1L);
+    final TxHash actual = accountTemplate.stakeTx(signer, Aer.AERGO_ONE, 1L);
     assertEquals(expected, actual);
   }
 
   @Test
-  public void testUnstake() throws Exception {
+  public void testUnstakeTx() throws Exception {
     // given
     final AccountTemplate accountTemplate = new AccountTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
@@ -138,7 +138,7 @@ public class AccountTemplateTest extends AbstractTestCase {
 
     // then
     final Signer signer = new AergoKeyGenerator().create();
-    final TxHash actual = accountTemplate.unstake(signer, Aer.AERGO_ONE, 1L);
+    final TxHash actual = accountTemplate.unstakeTx(signer, Aer.AERGO_ONE, 1L);
     assertEquals(expected, actual);
   }
 
@@ -158,7 +158,7 @@ public class AccountTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testVote() throws Exception {
+  public void testVoteTx() throws Exception {
     // given
     final AccountTemplate accountTemplate = new AccountTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
@@ -170,7 +170,7 @@ public class AccountTemplateTest extends AbstractTestCase {
     // then
     final Signer signer = new AergoKeyGenerator().create();
     final TxHash actual = accountTemplate
-        .vote(signer, randomUUID().toString(), Collections.<String>emptyList(), 1L);
+        .voteTx(signer, randomUUID().toString(), Collections.<String>emptyList(), 1L);
     assertEquals(expected, actual);
   }
 

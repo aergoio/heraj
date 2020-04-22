@@ -62,7 +62,7 @@ class ContractTemplate extends AbstractTemplate implements ContractOperation {
   }
 
   @Override
-  public TxHash deployTx(final Signer signer, final ContractDefinition contractDefinition,
+  public ContractTxHash deployTx(final Signer signer, final ContractDefinition contractDefinition,
       final long nonce, final Fee fee) {
     return request(contractMethods.getDeployTx(),
         Arrays.<Object>asList(signer, contractDefinition, nonce, fee));
@@ -76,7 +76,7 @@ class ContractTemplate extends AbstractTemplate implements ContractOperation {
   }
 
   @Override
-  public TxHash redeployTx(final Signer signer, final ContractAddress existingContract,
+  public ContractTxHash redeployTx(final Signer signer, final ContractAddress existingContract,
       final ContractDefinition contractDefinition, final long nonce, final Fee fee) {
     return request(contractMethods.getRedeployTx(),
         Arrays.asList(signer, existingContract, contractDefinition, nonce, fee));
@@ -106,7 +106,7 @@ class ContractTemplate extends AbstractTemplate implements ContractOperation {
   }
 
   @Override
-  public TxHash executeTx(final Signer signer, final ContractInvocation contractInvocation,
+  public ContractTxHash executeTx(final Signer signer, final ContractInvocation contractInvocation,
       final long nonce, final Fee fee) {
     return request(contractMethods.getExecuteTx(),
         Arrays.asList(signer, contractInvocation, nonce, fee));

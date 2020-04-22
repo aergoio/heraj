@@ -95,7 +95,7 @@ public interface ContractOperation {
    * @param fee                a transaction fee
    * @return contract definition transaction hash
    */
-  TxHash deployTx(Signer signer, ContractDefinition contractDefinition, long nonce,
+  ContractTxHash deployTx(Signer signer, ContractDefinition contractDefinition, long nonce,
       Fee fee);
 
   /**
@@ -123,7 +123,7 @@ public interface ContractOperation {
    * @param fee                a transaction fee
    * @return contract definition transaction hash
    */
-  TxHash redeployTx(Signer signer, ContractAddress existingContract,
+  ContractTxHash redeployTx(Signer signer, ContractAddress existingContract,
       ContractDefinition contractDefinition, long nonce, Fee fee);
 
   /**
@@ -180,7 +180,7 @@ public interface ContractOperation {
    * @param fee                transaction fee
    * @return contract execution transaction hash
    */
-  TxHash executeTx(Signer signer, ContractInvocation contractInvocation, long nonce,
+  ContractTxHash executeTx(Signer signer, ContractInvocation contractInvocation, long nonce,
       Fee fee);
 
   /**

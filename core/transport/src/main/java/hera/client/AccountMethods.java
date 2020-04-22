@@ -4,15 +4,15 @@
 
 package hera.client;
 
-import static hera.client.Methods.ACCOUNT_CREATENAME;
+import static hera.client.Methods.ACCOUNT_CREATENAMETX;
 import static hera.client.Methods.ACCOUNT_LIST_ELECTED;
 import static hera.client.Methods.ACCOUNT_NAMEOWNER;
-import static hera.client.Methods.ACCOUNT_STAKE;
+import static hera.client.Methods.ACCOUNT_STAKETX;
 import static hera.client.Methods.ACCOUNT_STAKEINFO;
 import static hera.client.Methods.ACCOUNT_STATE;
-import static hera.client.Methods.ACCOUNT_UNSTAKE;
-import static hera.client.Methods.ACCOUNT_UPDATENAME;
-import static hera.client.Methods.ACCOUNT_VOTE;
+import static hera.client.Methods.ACCOUNT_UNSTAKETX;
+import static hera.client.Methods.ACCOUNT_UPDATENAMETX;
+import static hera.client.Methods.ACCOUNT_VOTETX;
 import static hera.client.Methods.ACCOUNT_VOTESOF;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -100,10 +100,10 @@ class AccountMethods extends AbstractMethods {
   };
 
   @Getter
-  protected final RequestMethod<TxHash> createName = new RequestMethod<TxHash>() {
+  protected final RequestMethod<TxHash> createNameTx = new RequestMethod<TxHash>() {
 
     @Getter
-    protected final String name = ACCOUNT_CREATENAME;
+    protected final String name = ACCOUNT_CREATENAMETX;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -131,10 +131,10 @@ class AccountMethods extends AbstractMethods {
   };
 
   @Getter
-  protected final RequestMethod<TxHash> updateName = new RequestMethod<TxHash>() {
+  protected final RequestMethod<TxHash> updateNameTx = new RequestMethod<TxHash>() {
 
     @Getter
-    protected final String name = ACCOUNT_UPDATENAME;
+    protected final String name = ACCOUNT_UPDATENAMETX;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -200,10 +200,10 @@ class AccountMethods extends AbstractMethods {
   };
 
   @Getter
-  protected final RequestMethod<TxHash> stake = new RequestMethod<TxHash>() {
+  protected final RequestMethod<TxHash> stakeTx = new RequestMethod<TxHash>() {
 
     @Getter
-    protected final String name = ACCOUNT_STAKE;
+    protected final String name = ACCOUNT_STAKETX;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -232,10 +232,10 @@ class AccountMethods extends AbstractMethods {
   };
 
   @Getter
-  protected final RequestMethod<TxHash> unstake = new RequestMethod<TxHash>() {
+  protected final RequestMethod<TxHash> unstakeTx = new RequestMethod<TxHash>() {
 
     @Getter
-    protected final String name = ACCOUNT_UNSTAKE;
+    protected final String name = ACCOUNT_UNSTAKETX;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -296,10 +296,10 @@ class AccountMethods extends AbstractMethods {
   };
 
   @Getter
-  protected final RequestMethod<TxHash> vote = new RequestMethod<TxHash>() {
+  protected final RequestMethod<TxHash> voteTx = new RequestMethod<TxHash>() {
 
     @Getter
-    protected final String name = ACCOUNT_VOTE;
+    protected final String name = ACCOUNT_VOTETX;
 
     @Override
     protected void validate(final List<Object> parameters) {

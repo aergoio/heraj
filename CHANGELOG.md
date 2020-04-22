@@ -12,7 +12,6 @@
   - Split TxReceipt from ContractTxReceipt
 - Changes
   - Replace subscribeNewBlockXXX with subscribeBlockXXX
-  - Deprecate ContractTxHash
 
 ## v1.4.0 (Mar 10, 2020)
 
