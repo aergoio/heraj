@@ -24,7 +24,6 @@ import hera.api.model.Aer;
 import hera.api.model.BigNumber;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
-import hera.api.model.ContractFunction;
 import hera.api.model.ContractInvocation;
 import hera.exception.HerajException;
 import java.util.ArrayList;
@@ -48,7 +47,7 @@ public class ContractInvocationPayloadConverter implements PayloadConverter<Cont
   @Override
   public BytesValue convertToPayload(final ContractInvocation contractInvocation) {
     logger.debug("Convert to payload from {}", contractInvocation);
-    final String name = contractInvocation.getFunction().getName();
+    final String name = contractInvocation.getFunctionName();
     final List<Object> args = contractInvocation.getArgs();
     final Map<String, Object> map = new HashMap<>();
     map.put("Name", name);
@@ -65,10 +64,10 @@ public class ContractInvocationPayloadConverter implements PayloadConverter<Cont
       final JsonNode nameNode = jsonNode.findValue("Name");
       final JsonNode argsNode = jsonNode.findValue("Args");
 
-      final ContractFunction function = parseToContractFunction(nameNode);
+      final String functionName = nameNode.asText();
       final List<Object> args = parseToList(argsNode);
       final ContractInvocation recovered = ContractInvocation.newBuilder()
-          .function(function)
+          .functionName(functionName)
           .args(args)
           .address(ContractAddress.EMPTY)
           .amount(Aer.EMPTY)
@@ -77,11 +76,6 @@ public class ContractInvocationPayloadConverter implements PayloadConverter<Cont
     } catch (Exception e) {
       throw new HerajException(e);
     }
-  }
-
-  protected ContractFunction parseToContractFunction(final JsonNode jsonNode) {
-    final String functionName = jsonNode.asText();
-    return new ContractFunction(functionName);
   }
 
   protected List<Object> parseToList(final JsonNode jsonNode) {

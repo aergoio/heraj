@@ -76,7 +76,7 @@ public abstract class RequestMethod<T> {
     final Object parameter = parameters.get(index);
     if (!clazz.isInstance(parameter)) {
       throw new IllegalArgumentException(String
-          .format("Parameter at index %d is not %s (expected: %s)%n", index, clazz,
+          .format("Parameter at index %d is invalid (expected: %s, actual: %s)%n", index, clazz,
               parameter.getClass()));
     }
   }

@@ -4,15 +4,16 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
-import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.emptyList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import java.util.List;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.ToString;
 
 @ApiAudience.Public
@@ -23,31 +24,31 @@ import lombok.ToString;
 public class ContractInvocation implements Payload {
 
   @Getter
-  protected final ContractFunction function;
-
-  @Getter
-  protected final List<Object> args;
-
-  @Getter
+  @NonNull
   protected final ContractAddress address;
 
+  // not used
   @Getter
-  protected final Aer amount;
+  @NonNull
+  @Default
+  protected final ContractFunction function = ContractFunction.EMPTY;
 
   @Getter
-  protected final boolean delegateFee;
+  @NonNull
+  protected final String functionName;
 
-  ContractInvocation(final ContractFunction contractFunction, final List<Object> args,
-      final ContractAddress contractAddress, final Aer amount, final boolean delegateFee) {
-    assertNotNull(contractFunction, "Contract function must not null");
-    assertNotNull(args, "Contract function args must not null");
-    assertNotNull(contractAddress, "Contract address must not null");
-    assertNotNull(amount, "Amount must not null");
-    this.address = contractAddress;
-    this.function = contractFunction;
-    this.args = unmodifiableList(args);
-    this.amount = amount;
-    this.delegateFee = delegateFee;
-  }
+  @Getter
+  @NonNull
+  @Default
+  protected final List<Object> args = emptyList();
+
+  @Getter
+  @NonNull
+  @Default
+  protected final Aer amount = Aer.EMPTY;
+
+  @Getter
+  @Default
+  protected final boolean delegateFee = false;
 
 }

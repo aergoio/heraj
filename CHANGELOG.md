@@ -10,6 +10,7 @@
   - Improvement context structure
   - Add sendTx api
   - Split TxReceipt from ContractTxReceipt
+  - Add functionName to ContractInvocation
 - Changes
   - Replace subscribeNewBlockXXX with subscribeBlockXXX
 

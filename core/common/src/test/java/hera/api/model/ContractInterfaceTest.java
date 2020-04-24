@@ -34,13 +34,19 @@ public class ContractInterfaceTest {
     final ContractInterface contractInterface =
         new ContractInterface(address, version, language, functions, stateVariables);
 
-    final Object[] args = new Object[] {randomUUID().toString(), randomUUID().toString()};
-    final ContractInvocation expected =
-        new ContractInvocation(function, asList(args), address, Aer.ZERO, true);
+    final Object[] args = new Object[]{randomUUID().toString(), randomUUID().toString()};
+    final ContractInvocation expected = ContractInvocation
+        .newBuilder()
+        .address(address)
+        .functionName(functionName)
+        .args(asList(args))
+        .amount(Aer.EMPTY)
+        .delegateFee(true)
+        .build();
     final ContractInvocation actual = contractInterface.newInvocationBuilder()
         .function(functionName)
         .args(args)
-        .amount(Aer.ZERO)
+        .amount(Aer.EMPTY)
         .delegateFee(true)
         .build();
     assertEquals(expected, actual);
@@ -56,11 +62,10 @@ public class ContractInterfaceTest {
     functions.add(function);
     final List<StateVariable> stateVariables = new ArrayList<StateVariable>();
 
-
     final ContractInterface contractInterface =
         new ContractInterface(address, version, language, functions, stateVariables);
 
-    final Object[] args = new Object[] {randomUUID().toString(), randomUUID().toString()};
+    final Object[] args = new Object[]{randomUUID().toString(), randomUUID().toString()};
     try {
       contractInterface.newInvocationBuilder()
           .function(randomUUID().toString())

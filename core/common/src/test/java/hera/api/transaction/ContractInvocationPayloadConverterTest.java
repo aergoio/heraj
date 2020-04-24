@@ -25,7 +25,6 @@ public class ContractInvocationPayloadConverterTest extends AbstractTestCase {
   @Test
   public void testConvertBetween() {
     // when
-    final ContractFunction function = new ContractFunction(randomUUID().toString());
     final Map<String, Object> map = new HashMap<>();
     map.put(randomUUID().toString(), randomUUID().toString());
     final List<Object> args = asList(randomUUID().toString(),
@@ -38,7 +37,7 @@ public class ContractInvocationPayloadConverterTest extends AbstractTestCase {
 
     final PayloadConverter<ContractInvocation> converter = new ContractInvocationPayloadConverter();
     final ContractInvocation expected = ContractInvocation.newBuilder()
-        .function(function)
+        .functionName(randomUUID().toString())
         .args(args)
         .address(ContractAddress.EMPTY)
         .amount(Aer.EMPTY)

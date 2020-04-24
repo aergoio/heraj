@@ -41,12 +41,12 @@ public class ContractInterface {
 
   /**
    * ContractInterface constructor.
-   * 
+   *
    * @param contractAddress a contract address
-   * @param version a contract version
-   * @param language a contract language
-   * @param functions a contract functions to invoke
-   * @param stateVariables a contract state variables
+   * @param version         a contract version
+   * @param language        a contract language
+   * @param functions       a contract functions to invoke
+   * @param stateVariables  a contract state variables
    */
   @ApiAudience.Private
   public ContractInterface(final ContractAddress contractAddress, final String version,
@@ -149,8 +149,13 @@ public class ContractInterface {
 
     @Override
     public hera.api.model.ContractInvocation build() {
-      return new ContractInvocation(function, asList(args), contractInterface.getAddress(), amount,
-          delegateFee);
+      return ContractInvocation.newBuilder()
+          .address(contractInterface.getAddress())
+          .functionName(function.getName())
+          .args(asList(args))
+          .amount(amount)
+          .delegateFee(delegateFee)
+          .build();
     }
 
   }

@@ -21,6 +21,9 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class ContractFunction {
 
+  static final ContractFunction EMPTY = new ContractFunction("", Collections.<String>emptyList(),
+      false, false, false);
+
   @Getter
   protected final String name;
 
@@ -41,7 +44,7 @@ public class ContractFunction {
    *
    * @param name a function name
    */
-  @ApiAudience.Private
+  @Deprecated
   public ContractFunction(final String name) {
     this(name, Collections.<String>emptyList());
   }
@@ -49,10 +52,10 @@ public class ContractFunction {
   /**
    * ContractFunction constructor.
    *
-   * @param name a function name
+   * @param name          a function name
    * @param argumentNames an argument names
    */
-  @ApiAudience.Private
+  @Deprecated
   public ContractFunction(final String name, final List<String> argumentNames) {
     this(name, argumentNames, false, false, false);
   }
@@ -60,27 +63,19 @@ public class ContractFunction {
   /**
    * ContractFunction constructor.
    *
-   * @param name a function name
-   * @param payable whether a function is payable or not
-   * @param view whether a function is view or not
+   * @param name          a function name
+   * @param payable       whether a function is payable or not
+   * @param view          whether a function is view or not
    * @param feeDelegation whether a function can delegate fee or not
    */
-  @ApiAudience.Private
+  @Deprecated
   public ContractFunction(final String name, final boolean payable, final boolean view,
       final boolean feeDelegation) {
     this(name, Collections.<String>emptyList(), payable, view, feeDelegation);
   }
 
-  /**
-   * ContractFunction constructor.
-   *
-   * @param name a function name
-   * @param argumentNames an argument names
-   * @param payable whether a function is payable or not
-   * @param view whether a function is view or not
-   * @param feeDelegation whether a function can delegate fee or not
-   */
   @ApiAudience.Private
+  @ApiStability.Unstable
   public ContractFunction(final String name, final List<String> argumentNames,
       final boolean payable, final boolean view, final boolean feeDelegation) {
     assertNotNull(name, "Function name must not null");
