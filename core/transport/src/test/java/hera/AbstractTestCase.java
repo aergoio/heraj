@@ -9,7 +9,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 import hera.api.model.AccountAddress;
 import hera.api.model.ContractAddress;
 import hera.key.AergoKeyGenerator;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,15 +39,15 @@ public abstract class AbstractTestCase {
   public void setUp() {
   }
 
-  protected void runOnOtherThread(final Callable<Object> callable) throws Throwable {
+  protected void runOnOtherThread(final Runnable runnable) {
     try {
       final ExecutorService executorService = Executors.newSingleThreadExecutor();
-      final Future<?> future = executorService.submit(callable);
+      final Future<?> future = executorService.submit(runnable);
       future.get();
     } catch (InterruptedException e) {
-      throw e;
+      throw new IllegalStateException(e);
     } catch (ExecutionException e) {
-      throw e.getCause();
+      throw new IllegalStateException(e.getCause());
     }
   }
 

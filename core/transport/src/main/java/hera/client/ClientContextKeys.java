@@ -26,8 +26,7 @@ abstract class ClientContextKeys {
       .of("GRPC_CONNECTION_NEGOTIATION", SecurityConfigurationStrategy.class);
 
   @SuppressWarnings("rawtypes")
-  public static final Key<ClientProvider> GRPC_CLIENT_PROVIDER = Key
-      .of("GRPC_CLIENT_PROVIDER", ClientProvider.class);
+  public static final Key<GrpcClient> GRPC_CLIENT = Key.of("GRPC_CLIENT", GrpcClient.class);
 
 
 

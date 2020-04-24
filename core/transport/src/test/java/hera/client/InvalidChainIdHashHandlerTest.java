@@ -29,9 +29,9 @@ public class InvalidChainIdHashHandlerTest extends AbstractTestCase {
 
   @Test
   public void testHandleWithNextRequestSuccess() throws Throwable {
-    runOnOtherThread(new Callable<Object>() {
+    runOnOtherThread(new Runnable() {
       @Override
-      public Object call() throws Exception {
+      public void run() {
         try {
           // given
           final Context context = EmptyContext.getInstance()
@@ -56,7 +56,6 @@ public class InvalidChainIdHashHandlerTest extends AbstractTestCase {
           final Response<Object> response = Response.fail(error);
           final Response<Object> handled = failoverHandler.handle(invocation, response);
           assertEquals(expected, handled.getValue());
-          return null;
         } finally {
           ContextHolder.remove();
         }
@@ -66,9 +65,9 @@ public class InvalidChainIdHashHandlerTest extends AbstractTestCase {
 
   @Test
   public void testHandleWithNextRequestFailure() throws Throwable {
-    runOnOtherThread(new Callable<Object>() {
+    runOnOtherThread(new Runnable() {
       @Override
-      public Object call() throws Exception {
+      public void run() {
         try {
           // given
           final Context context = EmptyContext.getInstance()
@@ -93,7 +92,6 @@ public class InvalidChainIdHashHandlerTest extends AbstractTestCase {
           final Response<Object> response = Response.fail(error);
           final Response<Object> handled = failoverHandler.handle(invocation, response);
           assertEquals(expected, handled.getError());
-          return null;
         } finally {
           ContextHolder.remove();
         }

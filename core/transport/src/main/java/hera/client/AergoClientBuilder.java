@@ -4,7 +4,7 @@
 
 package hera.client;
 
-import static hera.client.ClientContextKeys.GRPC_CLIENT_PROVIDER;
+import static hera.client.ClientContextKeys.GRPC_CLIENT;
 import static hera.client.ClientContextKeys.GRPC_CONNECTION_ENDPOINT;
 import static hera.client.ClientContextKeys.GRPC_CONNECTION_NEGOTIATION;
 import static hera.client.ClientContextKeys.GRPC_CONNECTION_STRATEGY;
@@ -144,9 +144,8 @@ public class AergoClientBuilder implements ClientConfiguer<AergoClientBuilder> {
     final FailoverHandlerChain failoverHandlerChain = new FailoverHandlerChain(failoverHandlers);
     context = context.withValue(GRPC_FAILOVER_HANDLER_CHAIN, failoverHandlerChain);
 
-    // init client provider
-    final ClientProvider<GrpcClient> clientProvider = new GrpcClientProvider();
-    context = context.withValue(GRPC_CLIENT_PROVIDER, clientProvider);
+    // init grpc client
+    context = context.withValue(GRPC_CLIENT, new GrpcClient());
 
     return context;
   }

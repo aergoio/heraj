@@ -24,7 +24,6 @@ import hera.Requester;
 import hera.Response;
 import hera.strategy.InvocationStrategy;
 import java.util.List;
-import java.util.concurrent.Callable;
 import org.junit.Test;
 
 public class DecoratingRequesterTest extends AbstractTestCase {
@@ -111,9 +110,9 @@ public class DecoratingRequesterTest extends AbstractTestCase {
 
   @Test
   public void testSuccessRequestOnContext() throws Throwable {
-    runOnOtherThread(new Callable<Object>() {
+    runOnOtherThread(new Runnable() {
       @Override
-      public Object call() throws Exception {
+      public void run() {
         try {
           ContextHolder.attach(context);
           final Requester requester = new DecoratingRequester();
@@ -131,7 +130,8 @@ public class DecoratingRequesterTest extends AbstractTestCase {
             }
           }));
           assertEquals(expected, actual);
-          return null;
+        } catch (Exception e) {
+          throw new IllegalStateException(e);
         } finally {
           ContextHolder.remove();
         }
@@ -143,9 +143,9 @@ public class DecoratingRequesterTest extends AbstractTestCase {
   public void testFailureRequestOnContext() throws Exception {
     final Exception expected = new IllegalStateException();
     try {
-      runOnOtherThread(new Callable<Object>() {
+      runOnOtherThread(new Runnable() {
         @Override
-        public Object call() throws Exception {
+        public void run() {
           try {
             ContextHolder.attach(context);
             final Requester requester = new DecoratingRequester();
@@ -163,7 +163,8 @@ public class DecoratingRequesterTest extends AbstractTestCase {
                   }
                 }));
             fail("Should be throw error");
-            return null;
+          } catch (Exception e) {
+            throw new IllegalStateException(e);
           } finally {
             ContextHolder.remove();
           }

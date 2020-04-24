@@ -1,10 +1,11 @@
+
 /*
  * @copyright defined in LICENSE.txt
  */
 
 package hera.client;
 
-import static hera.client.ClientContextKeys.GRPC_CLIENT_PROVIDER;
+import static hera.client.ClientContextKeys.GRPC_CLIENT;
 import static hera.client.ClientContextKeys.GRPC_VALUE_CHAIN_ID_HASH_HOLDER;
 import static hera.util.ValidationUtils.assertNotNull;
 
@@ -72,11 +73,11 @@ class AergoClientImpl implements AergoClient {
   public void close() {
     try {
       final Context context = contextStorage.get();
-      final ClientProvider<?> clientProvider = context.get(GRPC_CLIENT_PROVIDER);
-      if (null == clientProvider) {
-        throw new HerajException("No client provider");
+      final GrpcClient grpcClient = context.get(GRPC_CLIENT);
+      if (null == grpcClient) {
+        throw new HerajException("No grpc client");
       }
-      clientProvider.close();
+      grpcClient.close();
     } catch (HerajException e) {
       throw e;
     } catch (Exception e) {

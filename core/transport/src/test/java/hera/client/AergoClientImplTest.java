@@ -4,7 +4,7 @@
 
 package hera.client;
 
-import static hera.client.ClientContextKeys.GRPC_CLIENT_PROVIDER;
+import static hera.client.ClientContextKeys.GRPC_CLIENT;
 import static hera.client.ClientContextKeys.GRPC_VALUE_CHAIN_ID_HASH_HOLDER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -49,8 +49,7 @@ public class AergoClientImplTest extends AbstractTestCase {
 
   @Test
   public void testClose() {
-    final Context context = EmptyContext.getInstance()
-        .withValue(GRPC_CLIENT_PROVIDER, new GrpcClientProvider());
+    final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, new GrpcClient());
     final ContextStorage<Context> contextStorage = new UnmodifiableContextStorage(context);
     final AergoClientImpl aergoClient = new AergoClientImpl(contextStorage);
     aergoClient.close();
