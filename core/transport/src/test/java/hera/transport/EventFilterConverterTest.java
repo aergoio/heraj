@@ -19,7 +19,7 @@ public class EventFilterConverterTest extends AbstractTestCase {
     final ModelConverter<EventFilter, Blockchain.FilterInfo> converter =
         new EventFilterConverterFactory().create();
 
-    final EventFilter domainEventFilter = EventFilter.newBuilder(contractAddress)
+    final EventFilter domainEventFilter = EventFilter.newBuilder(anyContractAddress)
         .build();
     final Blockchain.FilterInfo converted = converter.convertToRpcModel(domainEventFilter);
     assertNotNull(converted);

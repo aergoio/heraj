@@ -19,7 +19,7 @@ public class AccountConverterTest extends AbstractTestCase {
     final ModelConverter<Account, AccountOuterClass.Account> converter =
         new AccountConverterFactory().create();
 
-    final Account domainAccount = new AccountFactory().create(accountAddress);
+    final Account domainAccount = new AccountFactory().create(anyContractAddress);
 
     final AccountOuterClass.Account rpcAccount = converter.convertToRpcModel(domainAccount);
     final Account actualDomainAccount = converter.convertToDomainModel(rpcAccount);

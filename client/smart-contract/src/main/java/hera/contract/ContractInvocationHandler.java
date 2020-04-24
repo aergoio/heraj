@@ -4,6 +4,7 @@ import static hera.util.ValidationUtils.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.ContractAddress;
+import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
@@ -45,7 +46,7 @@ class ContractInvocationHandler implements InvocationHandler {
         method.invoke(this.contractInvocator, args);
         return null;
       } else {
-        logger.debug("Contract Invocation with  invocator: {}", this.contractInvocator);
+        logger.debug("Contract Invocation with invocator: {}", this.contractInvocator);
         return this.contractInvocator.invoke(method, args);
       }
     } catch (HerajException e) {
@@ -85,6 +86,7 @@ class ContractInvocationHandler implements InvocationHandler {
       final WalletApi walletApi = getWalletApi();
 
       final ContractInterface contractInterface = getContractInterface();
+      final ContractFunction function = contractInterface.findFunction(method.getName());
       final ContractInvocation contractInvocation = contractInterface.newInvocationBuilder()
           .function(method.getName())
           .args(args)
@@ -92,7 +94,7 @@ class ContractInvocationHandler implements InvocationHandler {
 
       Object ret = null;
       if (Void.TYPE.equals(method.getReturnType())) {
-        if (contractInvocation.getFunction().isView()) {
+        if (function.isView()) {
           throw new HerajException(
               "Unable to execute with function registered with abi.register_view()");
         }
@@ -101,7 +103,7 @@ class ContractInvocationHandler implements InvocationHandler {
         final Fee fee = getFee();
         walletApi.transactionApi().execute(contractInvocation, fee);
       } else {
-        if (!contractInvocation.getFunction().isView()) {
+        if (!function.isView()) {
           throw new HerajException(
               "Unable to query with function registered with abi.register()");
         }

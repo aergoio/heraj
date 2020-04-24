@@ -28,8 +28,8 @@ public class TransactionInBlockConverterTest extends AbstractTestCase {
         new TransactionInBlockConverterFactory().create();
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .chainIdHash(new ChainIdHash(of(randomUUID().toString().getBytes())))
-        .from(accountAddress)
-        .to(accountAddress)
+        .from(anyAccountAddress)
+        .to(anyAccountAddress)
         .amount("0.001", Unit.AERGO)
         .nonce(1L)
         .fee(Fee.of(5))

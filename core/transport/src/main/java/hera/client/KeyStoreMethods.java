@@ -145,7 +145,7 @@ class KeyStoreMethods extends AbstractMethods {
             .unlockAccount(rpcAuthentication);
         return null != rpcAccount.getAddress();
       } catch (Exception e) {
-        return false;
+        throw e;
       }
     }
   };
@@ -179,7 +179,7 @@ class KeyStoreMethods extends AbstractMethods {
             .lockAccount(rpcAuthentication);
         return null != rpcAccount.getAddress();
       } catch (Exception e) {
-        return false;
+        throw e;
       }
     }
 

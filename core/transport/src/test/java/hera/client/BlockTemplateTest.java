@@ -16,9 +16,7 @@ import hera.EmptyContext;
 import hera.Invocation;
 import hera.Requester;
 import hera.api.model.Block;
-import hera.api.model.BlockHash;
 import hera.api.model.BlockMetadata;
-import hera.api.model.BytesValue;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import java.util.List;
@@ -41,7 +39,7 @@ public class BlockTemplateTest extends AbstractTestCase {
     blockTemplate.requester = mockRequester;
 
     // then
-    final BlockMetadata actual = blockTemplate.getBlockMetadata(BlockHash.of(BytesValue.EMPTY));
+    final BlockMetadata actual = blockTemplate.getBlockMetadata(anyBlockHash);
     assertEquals(expected, actual);
   }
 
@@ -56,7 +54,7 @@ public class BlockTemplateTest extends AbstractTestCase {
     blockTemplate.requester = mockRequester;
 
     // then
-    final BlockMetadata actual = blockTemplate.getBlockMetadata(30L);
+    final BlockMetadata actual = blockTemplate.getBlockMetadata(anyHeight);
     assertEquals(expected, actual);
   }
 
@@ -71,8 +69,7 @@ public class BlockTemplateTest extends AbstractTestCase {
     blockTemplate.requester = mockRequester;
 
     // then
-    final List<BlockMetadata> actual = blockTemplate
-        .listBlockMetadatas(BlockHash.of(BytesValue.EMPTY), 10);
+    final List<BlockMetadata> actual = blockTemplate.listBlockMetadatas(anyBlockHash, anySize);
     assertEquals(expected, actual);
   }
 
@@ -87,7 +84,7 @@ public class BlockTemplateTest extends AbstractTestCase {
     blockTemplate.requester = mockRequester;
 
     // then
-    final List<BlockMetadata> actual = blockTemplate.listBlockMetadatas(30L, 10);
+    final List<BlockMetadata> actual = blockTemplate.listBlockMetadatas(anyHeight, anySize);
     assertEquals(expected, actual);
   }
 
@@ -102,7 +99,7 @@ public class BlockTemplateTest extends AbstractTestCase {
     blockTemplate.requester = mockRequester;
 
     // then
-    final Block actual = blockTemplate.getBlock(BlockHash.of(BytesValue.EMPTY));
+    final Block actual = blockTemplate.getBlock(anyBlockHash);
     assertEquals(expected, actual);
   }
 
@@ -117,7 +114,7 @@ public class BlockTemplateTest extends AbstractTestCase {
     blockTemplate.requester = mockRequester;
 
     // then
-    final Block actual = blockTemplate.getBlock(30L);
+    final Block actual = blockTemplate.getBlock(anyHeight);
     assertEquals(expected, actual);
   }
 
@@ -131,24 +128,24 @@ public class BlockTemplateTest extends AbstractTestCase {
     blockTemplate.requester = mockRequester;
 
     // then
-    final Subscription<BlockMetadata> actual = blockTemplate
-        .subscribeBlockMetadata(new StreamObserver<BlockMetadata>() {
-          @Override
-          public void onNext(BlockMetadata value) {
+    final StreamObserver<BlockMetadata> observer = new StreamObserver<BlockMetadata>() {
+      @Override
+      public void onNext(BlockMetadata value) {
 
-          }
+      }
 
-          @Override
-          public void onError(Throwable t) {
+      @Override
+      public void onError(Throwable t) {
 
-          }
+      }
 
-          @Override
-          public void onCompleted() {
+      @Override
+      public void onCompleted() {
 
-          }
-        });
-    assertEquals(expected, actual);
+      }
+    };
+    assertEquals(expected, blockTemplate.subscribeBlockMetadata(observer));
+    assertEquals(expected, blockTemplate.subscribeNewBlockMetadata(observer));
   }
 
   @Test
@@ -161,24 +158,24 @@ public class BlockTemplateTest extends AbstractTestCase {
     blockTemplate.requester = mockRequester;
 
     // then
-    final Subscription<Block> actual = blockTemplate
-        .subscribeBlock(new StreamObserver<Block>() {
-          @Override
-          public void onNext(Block value) {
+    final StreamObserver<Block> observer = new StreamObserver<Block>() {
+      @Override
+      public void onNext(Block value) {
 
-          }
+      }
 
-          @Override
-          public void onError(Throwable t) {
+      @Override
+      public void onError(Throwable t) {
 
-          }
+      }
 
-          @Override
-          public void onCompleted() {
+      @Override
+      public void onCompleted() {
 
-          }
-        });
-    assertEquals(expected, actual);
+      }
+    };
+    assertEquals(expected, blockTemplate.subscribeBlock(observer));
+    assertEquals(expected, blockTemplate.subscribeNewBlock(observer));
   }
 
 }

@@ -19,8 +19,7 @@ public class AuthenticationConverterTest extends AbstractTestCase {
     final ModelConverter<Authentication, Rpc.Personal> converter =
         new AuthenticationConverterFactory().create();
 
-    final Rpc.Personal rpcAuthentication =
-        converter.convertToRpcModel(Authentication.of(accountAddress, randomUUID().toString()));
+    final Rpc.Personal rpcAuthentication = converter.convertToRpcModel(anyAuthentication);
 
     assertNotNull(rpcAuthentication);
   }

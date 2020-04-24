@@ -7,13 +7,13 @@ package hera.client;
 import static hera.client.Methods.ACCOUNT_CREATENAMETX;
 import static hera.client.Methods.ACCOUNT_LIST_ELECTED;
 import static hera.client.Methods.ACCOUNT_NAMEOWNER;
-import static hera.client.Methods.ACCOUNT_STAKETX;
 import static hera.client.Methods.ACCOUNT_STAKEINFO;
+import static hera.client.Methods.ACCOUNT_STAKETX;
 import static hera.client.Methods.ACCOUNT_STATE;
 import static hera.client.Methods.ACCOUNT_UNSTAKETX;
 import static hera.client.Methods.ACCOUNT_UPDATENAMETX;
-import static hera.client.Methods.ACCOUNT_VOTETX;
 import static hera.client.Methods.ACCOUNT_VOTESOF;
+import static hera.client.Methods.ACCOUNT_VOTETX;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.protobuf.ByteString;

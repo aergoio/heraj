@@ -15,22 +15,18 @@ import hera.ContextStorage;
 import hera.EmptyContext;
 import hera.Invocation;
 import hera.Requester;
+import hera.api.model.Account;
+import hera.api.model.AccountFactory;
 import hera.api.model.BytesValue;
-import hera.api.model.ContractAddress;
-import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInterface;
-import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
-import hera.api.model.Fee;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
-import hera.api.model.TxHash;
 import hera.key.AergoKeyGenerator;
-import hera.key.Signer;
 import java.util.List;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
@@ -51,9 +47,8 @@ public class ContractTemplateTest extends AbstractTestCase {
     contractTemplate.requester = mockRequester;
 
     // then
-    final ContractTxReceipt actual = contractTemplate
-        .getContractTxReceipt(TxHash.of(BytesValue.EMPTY));
-    assertEquals(expected, actual);
+    assertEquals(expected, contractTemplate.getContractTxReceipt(anyTxHash));
+    assertEquals(expected, contractTemplate.getReceipt(anyContractTxHash));
   }
 
   @Test
@@ -67,10 +62,11 @@ public class ContractTemplateTest extends AbstractTestCase {
     contractTemplate.requester = mockRequester;
 
     // then
-    final Signer signer = new AergoKeyGenerator().create();
-    final TxHash actual = contractTemplate
-        .deployTx(signer, mock(ContractDefinition.class), 1L, Fee.ZERO);
-    assertEquals(expected, actual);
+    final Account deprecatedOne = new AccountFactory().create(new AergoKeyGenerator().create());
+    assertEquals(expected, contractTemplate.deploy(deprecatedOne, anyDefinition, anyNonce));
+    assertEquals(expected, contractTemplate.deploy(deprecatedOne, anyDefinition, anyNonce, anyFee));
+    assertEquals(expected, contractTemplate.deploy(anySigner, anyDefinition, anyNonce, anyFee));
+    assertEquals(expected, contractTemplate.deployTx(anySigner, anyDefinition, anyNonce, anyFee));
   }
 
   @Test
@@ -84,10 +80,10 @@ public class ContractTemplateTest extends AbstractTestCase {
     contractTemplate.requester = mockRequester;
 
     // then
-    final Signer signer = new AergoKeyGenerator().create();
-    final TxHash actual = contractTemplate
-        .redeployTx(signer, ContractAddress.EMPTY, mock(ContractDefinition.class), 1L, Fee.ZERO);
-    assertEquals(expected, actual);
+    assertEquals(expected, contractTemplate
+        .redeploy(anySigner, anyContractAddress, anyDefinition, anyNonce, anyFee));
+    assertEquals(expected, contractTemplate
+        .redeployTx(anySigner, anyContractAddress, anyDefinition, anyNonce, anyFee));
   }
 
   @Test
@@ -101,7 +97,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     contractTemplate.requester = mockRequester;
 
     // then
-    final ContractInterface actual = contractTemplate.getContractInterface(ContractAddress.EMPTY);
+    final ContractInterface actual = contractTemplate.getContractInterface(anyContractAddress);
     assertEquals(expected, actual);
   }
 
@@ -116,10 +112,12 @@ public class ContractTemplateTest extends AbstractTestCase {
     contractTemplate.requester = mockRequester;
 
     // then
-    final Signer signer = new AergoKeyGenerator().create();
-    final TxHash actual = contractTemplate
-        .executeTx(signer, mock(ContractInvocation.class), 1L, Fee.ZERO);
-    assertEquals(expected, actual);
+    final Account deprecatedOne = new AccountFactory().create(new AergoKeyGenerator().create());
+    assertEquals(expected, contractTemplate.execute(deprecatedOne, anyInvocation, anyNonce));
+    assertEquals(expected,
+        contractTemplate.execute(deprecatedOne, anyInvocation, anyNonce, anyFee));
+    assertEquals(expected, contractTemplate.execute(anySigner, anyInvocation, anyNonce, anyFee));
+    assertEquals(expected, contractTemplate.executeTx(anySigner, anyInvocation, anyNonce, anyFee));
   }
 
   @Test
@@ -133,7 +131,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     contractTemplate.requester = mockRequester;
 
     // then
-    final ContractResult actual = contractTemplate.query(mock(ContractInvocation.class));
+    final ContractResult actual = contractTemplate.query(anyInvocation);
     assertEquals(expected, actual);
   }
 
@@ -148,7 +146,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     contractTemplate.requester = mockRequester;
 
     // then
-    final EventFilter eventFilter = EventFilter.newBuilder(ContractAddress.EMPTY).build();
+    final EventFilter eventFilter = EventFilter.newBuilder(anyContractAddress).build();
     final List<Event> actual = contractTemplate.listEvents(eventFilter);
     assertEquals(expected, actual);
   }
@@ -164,7 +162,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     contractTemplate.requester = mockRequester;
 
     // then
-    final EventFilter eventFilter = EventFilter.newBuilder(ContractAddress.EMPTY).build();
+    final EventFilter eventFilter = EventFilter.newBuilder(anyContractAddress).build();
     final Subscription<Event> actual = contractTemplate.subscribeEvent(eventFilter,
         new StreamObserver<Event>() {
           @Override

@@ -4,6 +4,7 @@
 
 package hera.client;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -34,20 +35,6 @@ public class TransactionTemplateTest extends AbstractTestCase {
   protected final ContextStorage<Context> contextStorage = new UnmodifiableContextStorage(
       EmptyContext.getInstance());
 
-  protected Transaction anyTransaction;
-
-  {
-    final AergoKey signer = new AergoKeyGenerator().create();
-    final RawTransaction rawTransaction = RawTransaction
-        .newBuilder(ChainIdHash.of(BytesValue.EMPTY))
-        .from(signer.getAddress())
-        .to(signer.getAddress())
-        .amount(Aer.ZERO)
-        .nonce(1L)
-        .build();
-    anyTransaction = signer.sign(rawTransaction);
-  }
-
   @Test
   public void testGetTransaction() throws Exception {
     // given
@@ -59,7 +46,7 @@ public class TransactionTemplateTest extends AbstractTestCase {
     transactionTemplate.requester = mockRequester;
 
     // then
-    final Transaction actual = transactionTemplate.getTransaction(TxHash.of(BytesValue.EMPTY));
+    final Transaction actual = transactionTemplate.getTransaction(anyTxHash);
     assertEquals(expected, actual);
   }
 
@@ -74,7 +61,7 @@ public class TransactionTemplateTest extends AbstractTestCase {
     transactionTemplate.requester = mockRequester;
 
     // then
-    final TxReceipt actual = transactionTemplate.getTxReceipt(TxHash.of(BytesValue.EMPTY));
+    final TxReceipt actual = transactionTemplate.getTxReceipt(anyTxHash);
     assertEquals(expected, actual);
   }
 
@@ -104,9 +91,8 @@ public class TransactionTemplateTest extends AbstractTestCase {
     transactionTemplate.requester = mockRequester;
 
     // then
-    final Signer signer = new AergoKeyGenerator().create();
-    final AccountAddress to = AccountAddress.EMPTY;
-    final TxHash actual = transactionTemplate.sendTx(signer, to, Aer.AERGO_ONE, 10L, Fee.ZERO);
+    final TxHash actual = transactionTemplate
+        .sendTx(anySigner, anyAccountAddress, anyAmount, anyNonce, anyFee);
     assertEquals(expected, actual);
   }
 

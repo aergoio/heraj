@@ -20,7 +20,7 @@ public class EventConverterTest extends AbstractTestCase {
     final ModelConverter<Event, Blockchain.Event> converter = new EventConverterFactory().create();
 
     final Blockchain.Event rpcEvent = Blockchain.Event.newBuilder()
-        .setContractAddress(copyFrom(accountAddress.getBytesValue()))
+        .setContractAddress(copyFrom(anyContractAddress.getBytesValue()))
         .setJsonArgs("[]")
         .build();
     final Event converted = converter.convertToDomainModel(rpcEvent);

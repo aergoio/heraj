@@ -9,9 +9,9 @@ import static hera.client.Methods.CONTRACT_EXECUTETX;
 import static hera.client.Methods.CONTRACT_INTERFACE;
 import static hera.client.Methods.CONTRACT_LIST_EVENT;
 import static hera.client.Methods.CONTRACT_QUERY;
-import static hera.client.Methods.CONTRACT_TXRECEIPT;
 import static hera.client.Methods.CONTRACT_REDEPLOYTX;
 import static hera.client.Methods.CONTRACT_SUBSCRIBE_EVENT;
+import static hera.client.Methods.CONTRACT_TXRECEIPT;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
 

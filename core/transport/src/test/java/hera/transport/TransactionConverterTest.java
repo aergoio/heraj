@@ -27,8 +27,8 @@ public class TransactionConverterTest extends AbstractTestCase {
 
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .chainIdHash(new ChainIdHash(of(randomUUID().toString().getBytes())))
-        .from(accountAddress)
-        .to(accountAddress)
+        .from(anyAccountAddress)
+        .to(anyAccountAddress)
         .amount("10000", Unit.GAER)
         .nonce(1L)
         .fee(Fee.of(5))

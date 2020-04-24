@@ -142,37 +142,33 @@ public class DecoratingRequesterTest extends AbstractTestCase {
   @Test
   public void testFailureRequestOnContext() throws Exception {
     final Exception expected = new IllegalStateException();
-    try {
-      runOnOtherThread(new Runnable() {
-        @Override
-        public void run() {
-          try {
-            ContextHolder.attach(context);
-            final Requester requester = new DecoratingRequester();
-            final String name = randomUUID().toString();
-            final String ret = requester
-                .request(new TestInvocation<>(new RequestMethod<String>() {
-                  @Override
-                  public String getName() {
-                    return name;
-                  }
+    runOnOtherThread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          ContextHolder.attach(context);
+          final Requester requester = new DecoratingRequester();
+          final String name = randomUUID().toString();
+          final String ret = requester
+              .request(new TestInvocation<>(new RequestMethod<String>() {
+                @Override
+                public String getName() {
+                  return name;
+                }
 
-                  @Override
-                  protected String runInternal(final List<Object> parameters) throws Exception {
-                    throw expected;
-                  }
-                }));
-            fail("Should be throw error");
-          } catch (Exception e) {
-            throw new IllegalStateException(e);
-          } finally {
-            ContextHolder.remove();
-          }
+                @Override
+                protected String runInternal(final List<Object> parameters) throws Exception {
+                  throw expected;
+                }
+              }));
+          fail("Should be throw error");
+        } catch (Exception actual) {
+          assertEquals(expected, actual);
+        } finally {
+          ContextHolder.remove();
         }
-      });
-    } catch (Throwable actual) {
-      assertEquals(expected, actual);
-    }
+      }
+    });
   }
 
 }

@@ -205,6 +205,7 @@ class BlockchainMethods extends AbstractMethods {
       validateType(parameters, 0, List.class);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected ServerInfo runInternal(final List<Object> parameters) throws Exception {
       final List<String> keys = (List<String>) parameters.get(0);

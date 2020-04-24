@@ -5,7 +5,6 @@
 package hera.client;
 
 import static java.util.Collections.emptyList;
-import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -32,8 +31,6 @@ import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
-import hera.key.Signer;
-import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
@@ -54,8 +51,9 @@ public class AccountTemplateTest extends AbstractTestCase {
     accountTemplate.requester = mockRequester;
 
     // then
-    final AccountState actual = accountTemplate.getState(AccountAddress.EMPTY);
-    assertEquals(expected, actual);
+    final Account deprecatedOne = new AccountFactory().create(new AergoKeyGenerator().create());
+    assertEquals(expected, accountTemplate.getState(deprecatedOne));
+    assertEquals(expected, accountTemplate.getState(anyAccountAddress));
   }
 
   @Test
@@ -69,9 +67,10 @@ public class AccountTemplateTest extends AbstractTestCase {
     accountTemplate.requester = mockRequester;
 
     // then
-    final Signer signer = new AergoKeyGenerator().create();
-    final TxHash actual = accountTemplate.createNameTx(signer, randomUUID().toString(), 1L);
-    assertEquals(expected, actual);
+    final Account deprecatedOne = new AccountFactory().create(new AergoKeyGenerator().create());
+    assertEquals(expected, accountTemplate.createName(deprecatedOne, anyName, anyNonce));
+    assertEquals(expected, accountTemplate.createName(anySigner, anyName, anyNonce));
+    assertEquals(expected, accountTemplate.createNameTx(anySigner, anyName, anyNonce));
   }
 
   @Test
@@ -85,10 +84,13 @@ public class AccountTemplateTest extends AbstractTestCase {
     accountTemplate.requester = mockRequester;
 
     // then
-    final Signer signer = new AergoKeyGenerator().create();
-    final TxHash actual = accountTemplate
-        .updateNameTx(signer, randomUUID().toString(), AccountAddress.EMPTY, 1L);
-    assertEquals(expected, actual);
+    final Account deprecatedOne = new AccountFactory().create(new AergoKeyGenerator().create());
+    assertEquals(expected,
+        accountTemplate.updateName(deprecatedOne, anyName, anyAccountAddress, anyNonce));
+    assertEquals(expected,
+        accountTemplate.updateName(anySigner, anyName, anyAccountAddress, anyNonce));
+    assertEquals(expected,
+        accountTemplate.updateNameTx(anySigner, anyName, anyAccountAddress, anyNonce));
   }
 
   @Test
@@ -102,7 +104,7 @@ public class AccountTemplateTest extends AbstractTestCase {
     accountTemplate.requester = mockRequester;
 
     // then
-    final AccountAddress actual = accountTemplate.getNameOwner(randomUUID().toString());
+    final AccountAddress actual = accountTemplate.getNameOwner(anyName);
     assertEquals(expected, actual);
   }
 
@@ -117,9 +119,10 @@ public class AccountTemplateTest extends AbstractTestCase {
     accountTemplate.requester = mockRequester;
 
     // then
-    final Signer signer = new AergoKeyGenerator().create();
-    final TxHash actual = accountTemplate.stakeTx(signer, Aer.AERGO_ONE, 1L);
-    assertEquals(expected, actual);
+    final Account deprecatedOne = new AccountFactory().create(new AergoKeyGenerator().create());
+    assertEquals(expected, accountTemplate.stake(deprecatedOne, anyAmount, anyNonce));
+    assertEquals(expected, accountTemplate.stake(anySigner, anyAmount, anyNonce));
+    assertEquals(expected, accountTemplate.stakeTx(anySigner, anyAmount, anyNonce));
   }
 
   @Test
@@ -133,9 +136,10 @@ public class AccountTemplateTest extends AbstractTestCase {
     accountTemplate.requester = mockRequester;
 
     // then
-    final Signer signer = new AergoKeyGenerator().create();
-    final TxHash actual = accountTemplate.unstakeTx(signer, Aer.AERGO_ONE, 1L);
-    assertEquals(expected, actual);
+    final Account deprecatedOne = new AccountFactory().create(new AergoKeyGenerator().create());
+    assertEquals(expected, accountTemplate.unstake(deprecatedOne, anyAmount, anyNonce));
+    assertEquals(expected, accountTemplate.unstake(anySigner, anyAmount, anyNonce));
+    assertEquals(expected, accountTemplate.unstakeTx(anySigner, anyAmount, anyNonce));
   }
 
   @Test
@@ -149,7 +153,7 @@ public class AccountTemplateTest extends AbstractTestCase {
     accountTemplate.requester = mockRequester;
 
     // then
-    final StakeInfo actual = accountTemplate.getStakingInfo(AccountAddress.EMPTY);
+    final StakeInfo actual = accountTemplate.getStakingInfo(anyAccountAddress);
     assertEquals(expected, actual);
   }
 
@@ -164,10 +168,10 @@ public class AccountTemplateTest extends AbstractTestCase {
     accountTemplate.requester = mockRequester;
 
     // then
-    final Signer signer = new AergoKeyGenerator().create();
-    final TxHash actual = accountTemplate
-        .voteTx(signer, randomUUID().toString(), Collections.<String>emptyList(), 1L);
-    assertEquals(expected, actual);
+    assertEquals(expected, accountTemplate
+        .voteTx(anySigner, anyVoteId, anyCandidates, anyNonce));
+    assertEquals(expected, accountTemplate
+        .vote(anySigner, anyVoteId, anyCandidates, anyNonce));
   }
 
   @Test
@@ -181,7 +185,7 @@ public class AccountTemplateTest extends AbstractTestCase {
     accountTemplate.requester = mockRequester;
 
     // then
-    final AccountTotalVote actual = accountTemplate.getVotesOf(AccountAddress.EMPTY);
+    final AccountTotalVote actual = accountTemplate.getVotesOf(anyAccountAddress);
     assertEquals(expected, actual);
   }
 
@@ -196,7 +200,7 @@ public class AccountTemplateTest extends AbstractTestCase {
     accountTemplate.requester = mockRequester;
 
     // then
-    final List<ElectedCandidate> actual = accountTemplate.listElected(randomUUID().toString(), 20);
+    final List<ElectedCandidate> actual = accountTemplate.listElected(anyVoteId, 20);
     assertEquals(expected, actual);
   }
 
