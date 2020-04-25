@@ -22,6 +22,8 @@ import java.util.List;
 /**
  * A transaction related api. No 'Tx' prefix here since {@code TransactionApi} already represent
  * it's transaction related one.
+ *
+ * @author taeiklim
  */
 @ApiAudience.Public
 @ApiStability.Unstable
@@ -145,7 +147,7 @@ public interface TransactionApi {
   ContractTxHash deploy(ContractDefinition contractDefinition, Fee fee);
 
   /**
-   * Re-deploy a deployed smart smart contract. This works enterprise aergo only.
+   * Re-deploy a deployed smart smart contract. It works private mode only.
    *
    * @param existingContract   an existing contract address
    * @param contractDefinition a contract definition to re-deploy

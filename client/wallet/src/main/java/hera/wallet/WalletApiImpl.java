@@ -16,60 +16,57 @@ import hera.api.model.Transaction;
 import hera.client.AergoClient;
 import hera.exception.HerajException;
 import hera.exception.InvalidAuthenticationException;
-import hera.exception.WalletExceptionConverter;
 import hera.key.Signer;
 import hera.keystore.KeyStore;
-import hera.model.TryCountAndInterval;
-import hera.util.ExceptionConverter;
 import hera.util.Sha256Utils;
-import hera.wallet.internal.ClientInjectable;
-import hera.wallet.internal.QueryApiImpl;
-import hera.wallet.internal.TransactionApiImpl;
-import lombok.Getter;
+import lombok.EqualsAndHashCode;
 
-public class WalletApiImpl implements WalletApi {
-
-  protected final ExceptionConverter<HerajException> converter = new WalletExceptionConverter();
+@EqualsAndHashCode
+class WalletApiImpl extends AbstractApi implements WalletApi, Signer, ClientProvider {
 
   protected final KeyStore keyStore;
 
   protected final TransactionApi transactionApi;
 
-  protected final QueryApi queryApi = new QueryApiImpl();
+  protected final QueryApi queryApi;
 
-  protected AergoClient aergoClient = null;
+  protected volatile AergoClient aergoClient;
 
-  protected Signer signer = null;
-  protected String authMac = null;
-  @Getter
-  protected AccountAddress principal = null;
+  protected final Object lock = new Object();
+  protected Signer signer;
+  protected String authMac;
 
   WalletApiImpl(final KeyStore keyStore, final TryCountAndInterval tryCountAndInterval) {
-    assertNotNull(keyStore);
-    assertNotNull(tryCountAndInterval);
+    assertNotNull(keyStore, "Keystore must not null");
+    assertNotNull(tryCountAndInterval, "TryCountAndInterval must not null");
     this.keyStore = keyStore;
-    this.transactionApi = new TransactionApiImpl(tryCountAndInterval, this);
+    this.transactionApi = new TransactionApiImpl(this, this, tryCountAndInterval);
+    this.queryApi = new QueryApiImpl(this);
   }
 
   @Override
   public void bind(final AergoClient aergoClient) {
-    assertNotNull(aergoClient);
+    assertNotNull(aergoClient, "AergoClient must not null");
     this.aergoClient = aergoClient;
-    if (transactionApi instanceof ClientInjectable) {
-      ((ClientInjectable) transactionApi).setClient(aergoClient);
-    }
-    if (queryApi instanceof ClientInjectable) {
-      ((ClientInjectable) queryApi).setClient(aergoClient);
-    }
   }
 
   @Override
-  public synchronized boolean unlock(final Authentication authentication) {
+  public AergoClient getClient() {
+    return this.aergoClient;
+  }
+
+  @Override
+  public boolean unlock(final Authentication authentication) {
     try {
       assertNotNull(authentication, "Authentication must not null");
-      this.signer = keyStore.load(authentication);
-      this.authMac = digest(authentication);
-      this.principal = signer.getPrincipal();
+      synchronized (lock) {
+        if (null != this.authMac) {
+          throw new HerajException("Lock already unlocked one");
+        }
+
+        this.signer = keyStore.load(authentication);
+        this.authMac = digest(authentication);
+      }
       return true;
     } catch (InvalidAuthenticationException e) {
       return false;
@@ -79,16 +76,18 @@ public class WalletApiImpl implements WalletApi {
   }
 
   @Override
-  public synchronized boolean lock(final Authentication authentication) {
+  public boolean lock(final Authentication authentication) {
     try {
       assertNotNull(authentication, "Authentication must not null");
       final String digested = digest(authentication);
-      if (null == this.authMac || false == this.authMac.equals(digested)) {
-        return false;
-      }
+      synchronized (lock) {
+        if (!digested.equals(this.authMac)) {
+          return false;
+        }
 
-      this.signer = null;
-      this.authMac = null;
+        this.signer = null;
+        this.authMac = null;
+      }
       return true;
     } catch (Exception e) {
       throw converter.convert(e);
@@ -106,7 +105,7 @@ public class WalletApiImpl implements WalletApi {
 
   @Override
   public TransactionApi transactionApi() {
-    if (null == this.aergoClient) {
+    if (null == getClient()) {
       throw new HerajException("Bind client first by 'WalletApi.bind(aergoClient)'");
     }
     return this.transactionApi;
@@ -114,7 +113,7 @@ public class WalletApiImpl implements WalletApi {
 
   @Override
   public QueryApi queryApi() {
-    if (null == this.aergoClient) {
+    if (null == getClient()) {
       throw new HerajException("Bind client first by 'WalletApi.bind(aergoClient)'");
     }
     return this.queryApi;
@@ -127,7 +126,6 @@ public class WalletApiImpl implements WalletApi {
       if (!getPrincipal().equals(rawTransaction.getSender())) {
         throw new HerajException("Sender of the rawTransaction should equals with unlocked one");
       }
-
       return getSigner().sign(rawTransaction);
     } catch (Exception e) {
       throw converter.convert(e);
@@ -156,9 +154,13 @@ public class WalletApiImpl implements WalletApi {
 
   @Override
   public String toString() {
-    final AccountAddress current = getPrincipal();
-    return String.format("WalletApi(keyStore=%s, pricipal=%s)", keyStore.getClass().getName(),
-        null == current ? null : current.getEncoded());
+    return String.format("WalletApi(keyStore=%s, principal=%s)", keyStore.getClass().getName(),
+        getPrincipal());
+  }
+
+  @Override
+  public AccountAddress getPrincipal() {
+    return null != this.signer ? getSigner().getPrincipal() : null;
   }
 
   protected Signer getSigner() {

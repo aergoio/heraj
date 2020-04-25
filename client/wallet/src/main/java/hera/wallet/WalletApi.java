@@ -6,7 +6,6 @@ package hera.wallet;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
-import hera.api.model.AccountAddress;
 import hera.api.model.Authentication;
 import hera.client.AergoClient;
 import hera.key.Signer;
@@ -20,13 +19,6 @@ import hera.key.Signer;
 @ApiAudience.Public
 @ApiStability.Unstable
 public interface WalletApi extends Signer {
-
-  /**
-   * Get an principal of current wallet. null if not binded.
-   *
-   * @return an principal of current wallet. null if not binded
-   */
-  AccountAddress getPrincipal();
 
   /**
    * Bind an aergo client to use.

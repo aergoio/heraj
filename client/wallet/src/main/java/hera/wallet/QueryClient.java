@@ -35,6 +35,7 @@ import hera.api.model.TxHash;
 import java.io.Closeable;
 import java.util.List;
 
+@Deprecated
 public interface QueryClient extends Closeable {
 
   /**
@@ -64,7 +65,7 @@ public interface QueryClient extends Closeable {
   /**
    * Get owner of an account name at block number {@code blockNumber}.
    *
-   * @param name an name of account
+   * @param name        an name of account
    * @param blockNumber a block number
    * @return an account address binded with name
    */
@@ -97,7 +98,7 @@ public interface QueryClient extends Closeable {
   /**
    * Get elected candidates per {@code voteId} for current round.
    *
-   * @param voteId a vote id
+   * @param voteId    a vote id
    * @param showCount a show count
    * @return elected block producer list
    */
@@ -217,7 +218,7 @@ public interface QueryClient extends Closeable {
    * Get block metadatas of {@code size} backward starting from block for provided hash.
    *
    * @param blockHash block hash
-   * @param size block list size whose upper bound is 1000
+   * @param size      block list size whose upper bound is 1000
    * @return block list
    */
   List<BlockMetadata> listBlockMetadatas(BlockHash blockHash, int size);
@@ -226,7 +227,7 @@ public interface QueryClient extends Closeable {
    * Get block metadatas of {@code size} backward starting from block for provided height.
    *
    * @param height block's height
-   * @param size block list size whose upper bound is 1000
+   * @param size   block list size whose upper bound is 1000
    * @return block list
    */
   List<BlockMetadata> listBlockMetadatas(long height, int size);
@@ -307,7 +308,7 @@ public interface QueryClient extends Closeable {
   /**
    * Subscribe event corresponding with event filter.
    *
-   * @param filter an event filter
+   * @param filter   an event filter
    * @param observer a stream observer which is invoked on event
    * @return a subscription
    */

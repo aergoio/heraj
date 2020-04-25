@@ -57,7 +57,7 @@ public class CreateNameTransactionBuilder implements
   @Override
   public WithChainIdHashAndSenderAndName name(final String name) {
     assertNotNull(name);
-    return name(new Name(name));
+    return name(Name.of(name));
   }
 
   @Override

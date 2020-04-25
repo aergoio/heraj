@@ -128,7 +128,7 @@ public class TransactionOperationIT extends AbstractIT {
   public void shouldSendAergoByNameSender() {
     // given
     final String name = randomName();
-    aergoClient.getAccountOperation().createName(key, name,
+    aergoClient.getAccountOperation().createNameTx(key, name,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
     waitForNextBlockToGenerate();
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
@@ -164,7 +164,7 @@ public class TransactionOperationIT extends AbstractIT {
     final AergoKey recipient = new AergoKeyGenerator().create();
     fund(recipient.getAddress());
     final String name = randomName();
-    aergoClient.getAccountOperation().createName(recipient, name,
+    aergoClient.getAccountOperation().createNameTx(recipient, name,
         nonceProvider.incrementAndGetNonce(recipient.getAddress()));
     waitForNextBlockToGenerate();
     final Aer amount = Aer.AERGO_ONE;

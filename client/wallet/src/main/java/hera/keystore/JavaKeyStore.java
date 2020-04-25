@@ -6,7 +6,6 @@ package hera.keystore;
 
 import static hera.util.ValidationUtils.assertNotNull;
 import static java.util.Collections.list;
-import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
@@ -41,13 +40,10 @@ import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.util.Arrays;
-import org.slf4j.Logger;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public class JavaKeyStore implements KeyStore {
-
-  protected final transient Logger logger = getLogger(getClass());
+public class JavaKeyStore extends AbstractKeyStore implements KeyStore {
 
   protected final Object lock = new Object();
   protected final java.security.Provider bcProvider = new BouncyCastleProvider();
@@ -60,13 +56,9 @@ public class JavaKeyStore implements KeyStore {
    * @throws HerajException on keystore error
    */
   public JavaKeyStore(final java.security.KeyStore delegate) {
-    try {
-      assertNotNull(delegate);
-      logger.debug("Create JKS with delegate: {}", delegate);
-      this.delegate = delegate;
-    } catch (Exception e) {
-      throw new HerajException(e);
-    }
+    assertNotNull(delegate, "java.security.KeyStore must not null");
+    logger.debug("Create JavaKeyStore with delegate: {}", delegate);
+    this.delegate = delegate;
   }
 
   /**
@@ -102,11 +94,11 @@ public class JavaKeyStore implements KeyStore {
   public JavaKeyStore(final String type, final InputStream inputStream, final char[] password) {
     try {
       assertNotNull(type, "Keystore type must not null");
-      logger.debug("Create JKS with type: {}", type);
+      logger.debug("Create JavaKeyStore with type: {}", type);
       this.delegate = java.security.KeyStore.getInstance(type);
       this.delegate.load(inputStream, password);
     } catch (Exception e) {
-      throw new HerajException(e);
+      throw converter.convert(e);
     }
   }
 
@@ -129,22 +121,22 @@ public class JavaKeyStore implements KeyStore {
       this.delegate = java.security.KeyStore.getInstance(type, provider);
       this.delegate.load(inputStream, password);
     } catch (Exception e) {
-      throw new HerajException(e);
+      throw converter.convert(e);
     }
   }
 
   @Override
   public void save(final Authentication authentication, final AergoKey key) {
     try {
-      assertNotNull(authentication, "Save authentication must not null");
-      assertNotNull(key, "Save key must not null");
-      logger.debug("Save with authentication: {}, key: {}", KeyStoreConstants.CREDENTIALS,
-          key.getAddress());
+      assertNotNull(authentication, "Authentication must not null");
+      assertNotNull(key, "Key must not null");
+      logger.debug("Save with authentication: {}, key: {}", authentication, key.getAddress());
 
       synchronized (lock) {
         if (isExists(authentication)) {
           throw new InvalidAuthenticationException("Invalid authentication");
         }
+
         final String alias = authentication.getIdentity().getValue();
         final java.security.PrivateKey privateKey = key.getPrivateKey();
         final char[] rawPassword = authentication.getPassword().toCharArray();
@@ -152,10 +144,8 @@ public class JavaKeyStore implements KeyStore {
         final Certificate[] certChain = new Certificate[]{cert};
         this.delegate.setKeyEntry(alias, privateKey, rawPassword, certChain);
       }
-    } catch (InvalidAuthenticationException e) {
-      throw e;
     } catch (Exception e) {
-      throw new HerajException(e);
+      throw converter.convert(e);
     }
   }
 
@@ -183,75 +173,70 @@ public class JavaKeyStore implements KeyStore {
   @Override
   public Signer load(final Authentication authentication) {
     try {
-      assertNotNull(authentication, "Load authentication must not null");
-      logger.debug("Load with authentication: {}", KeyStoreConstants.CREDENTIALS);
+      assertNotNull(authentication, "Authentication must not null");
+      logger.debug("Load with authentication: {}", authentication);
 
-      java.security.Key rawKey = null;
+      java.security.Key rawKey;
       synchronized (lock) {
-        if (false == isExists(authentication)) {
+        if (!isExists(authentication)) {
           throw new InvalidAuthenticationException("Invalid authentication");
         }
+
         rawKey = loadRawKey(authentication);
       }
 
       final AergoKey aergoKey = convertPrivateKey(rawKey);
       logger.trace("Loaded key: {}", aergoKey);
       return aergoKey;
-    } catch (InvalidAuthenticationException e) {
-      throw e;
     } catch (Exception e) {
-      throw new HerajException(e);
+      throw converter.convert(e);
     }
   }
 
   @Override
   public void remove(final Authentication authentication) {
     try {
-      assertNotNull(authentication, "Remove authentication must not null");
-      logger.debug("Remove with authentication: {}", KeyStoreConstants.CREDENTIALS);
+      assertNotNull(authentication, "Authentication must not null");
+      logger.debug("Remove with authentication: {}", authentication);
 
       synchronized (lock) {
-        if (false == isExists(authentication)) {
+        if (!isExists(authentication)) {
           throw new InvalidAuthenticationException("Invalid authentication");
         }
         final Identity identity = authentication.getIdentity();
         this.delegate.deleteEntry(identity.getValue());
       }
-    } catch (InvalidAuthenticationException e) {
-      throw e;
     } catch (Exception e) {
-      throw new HerajException(e);
+      throw converter.convert(e);
     }
   }
 
   @Override
   public EncryptedPrivateKey export(final Authentication authentication, final String password) {
     try {
-      assertNotNull(authentication, "Export authentication must not null");
-      assertNotNull(password, "Export password must not null");
-      logger.debug("Export with authentication: {}, password: {}", KeyStoreConstants.CREDENTIALS,
-          KeyStoreConstants.CREDENTIALS);
+      assertNotNull(authentication, "Authentication must not null");
+      assertNotNull(password, "Password must not null");
+      logger.debug("Export with authentication: {}, password: ***", authentication);
 
-      java.security.Key rawKey = null;
+      java.security.Key rawKey;
       synchronized (lock) {
-        if (false == isExists(authentication)) {
+        if (!isExists(authentication)) {
           throw new InvalidAuthenticationException("Invalid authentication");
         }
+
         rawKey = loadRawKey(authentication);
       }
       final AergoKey decrypted = convertPrivateKey(rawKey);
       return decrypted.export(password);
-    } catch (InvalidAuthenticationException e) {
-      throw e;
     } catch (Exception e) {
-      throw new HerajException(e);
+      throw converter.convert(e);
     }
   }
 
   @Override
   public List<Identity> listIdentities() {
     try {
-      List<String> aliases = null;
+      List<String> aliases;
       synchronized (lock) {
         aliases = list(this.delegate.aliases());
         logger.trace("Aliases: {}", aliases);
@@ -259,29 +244,29 @@ public class JavaKeyStore implements KeyStore {
 
       final List<Identity> identities = new ArrayList<>();
       for (final String alias : aliases) {
-        identities.add(new KeyAlias(alias));
+        identities.add(KeyAlias.of(alias));
       }
-      logger.debug("Identities: {}", identities);
       return identities;
     } catch (Exception e) {
-      throw new HerajException(e);
+      throw converter.convert(e);
     }
   }
 
   @Override
   public void store(final String path, final char[] password) {
+    assertNotNull(path, "Store path must not null");
+    assertNotNull(password, "Store password must not null");
     try (final FileOutputStream os = new FileOutputStream(path)) {
       logger.debug("Save JKS to path: {}", path);
       synchronized (lock) {
         this.delegate.store(os, password);
       }
     } catch (Exception e) {
-      throw new HerajException(e);
+      throw converter.convert(e);
     }
   }
 
-  protected boolean isExists(final Authentication authentication)
-      throws KeyStoreException, NoSuchAlgorithmException {
+  protected boolean isExists(final Authentication authentication) throws Exception {
     final String alias = authentication.getIdentity().getValue();
     if (this.delegate.containsAlias(alias)) {
       return true;
@@ -289,14 +274,11 @@ public class JavaKeyStore implements KeyStore {
 
     try {
       final java.security.Key rawKey = loadRawKey(authentication);
-      if (null != rawKey) {
-        return true;
-      }
-      return false;
+      return null != rawKey;
     } catch (UnrecoverableKeyException e) {
       // decrypt failure
       return false;
-    } catch (NoSuchAlgorithmException e) {
+    } catch (Exception e) {
       throw e;
     }
   }
@@ -311,7 +293,7 @@ public class JavaKeyStore implements KeyStore {
   }
 
   protected AergoKey convertPrivateKey(final java.security.Key privateKey) throws Exception {
-    BigInteger d = null;
+    BigInteger d;
     if (privateKey instanceof java.security.interfaces.ECPrivateKey) {
       d = ((java.security.interfaces.ECPrivateKey) privateKey).getS();
     } else if (privateKey instanceof org.bouncycastle.jce.interfaces.ECPrivateKey) {

@@ -24,8 +24,11 @@ public abstract class RequestMethod<T> {
    * Get name of method.
    *
    * @return an name
+   * @throws UnsupportedOperationException if name is not defined
    */
-  public abstract String getName();
+  public String getName() {
+    throw new UnsupportedOperationException("Name is not defined");
+  }
 
   /**
    * Invoke current method.

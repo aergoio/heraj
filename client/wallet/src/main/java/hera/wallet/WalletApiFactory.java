@@ -10,13 +10,12 @@ import static hera.util.ValidationUtils.assertTrue;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Time;
-import hera.model.TryCountAndInterval;
 
 @ApiAudience.Public
 @ApiStability.Unstable
 public class WalletApiFactory {
 
-  public static final int DEFAULT_RETRY_COUNT = 2;
+  public static final int DEFAULT_RETRY_COUNT = 1;
 
   public static final long DEFAULT_RETRY_INTERVAL = 100L;
 

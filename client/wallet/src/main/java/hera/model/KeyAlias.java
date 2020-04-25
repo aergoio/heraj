@@ -22,7 +22,11 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class KeyAlias implements Identity {
 
-  protected static final Pattern ALIAS_PATTERN = Pattern.compile("[a-zA-Z0-9]+");
+  protected static final Pattern ALIAS_PATTERN;
+
+  static {
+    ALIAS_PATTERN = Pattern.compile("[a-zA-Z0-9]+");
+  }
 
   public static KeyAlias of(final String value) {
     return new KeyAlias(value);
@@ -45,6 +49,5 @@ public class KeyAlias implements Identity {
     }
     this.value = value;
   }
-
 
 }

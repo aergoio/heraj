@@ -37,6 +37,11 @@ import hera.api.model.TxHash;
 import hera.api.model.TxReceipt;
 import java.util.List;
 
+/**
+ * A query related apis.
+ *
+ * @author taeiklim
+ */
 @ApiAudience.Public
 @ApiStability.Unstable
 public interface QueryApi {

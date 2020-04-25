@@ -61,7 +61,7 @@ import org.slf4j.Logger;
  * @author taeiklim
  */
 @AllArgsConstructor
-public class LegacyWallet implements Wallet {
+class LegacyWallet implements Wallet {
 
   protected final transient Logger logger = getLogger(getClass());
 
@@ -292,12 +292,12 @@ public class LegacyWallet implements Wallet {
   @Override
   public Subscription<BlockMetadata> subscribeNewBlockMetadata(
       StreamObserver<BlockMetadata> observer) {
-    return delegate.queryApi().subscribeNewBlockMetadata(observer);
+    return delegate.queryApi().subscribeBlockMetadata(observer);
   }
 
   @Override
   public Subscription<Block> subscribeNewBlock(StreamObserver<Block> observer) {
-    return delegate.queryApi().subscribeNewBlock(observer);
+    return delegate.queryApi().subscribeBlock(observer);
   }
 
   @Override
@@ -307,7 +307,7 @@ public class LegacyWallet implements Wallet {
 
   @Override
   public ContractTxReceipt getReceipt(ContractTxHash contractTxHash) {
-    return delegate.queryApi().getContractTxReceipt(contractTxHash);
+    return delegate.queryApi().getContractTxReceipt(contractTxHash.adapt(TxHash.class));
   }
 
   @Override

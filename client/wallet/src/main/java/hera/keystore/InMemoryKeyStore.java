@@ -27,9 +27,7 @@ import org.slf4j.Logger;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public class InMemoryKeyStore implements KeyStore {
-
-  protected final transient Logger logger = getLogger(getClass());
+public class InMemoryKeyStore extends AbstractKeyStore implements KeyStore {
 
   protected final Object lock = new Object();
   protected final Set<Identity> storedIdentities = new HashSet<>();
@@ -38,10 +36,9 @@ public class InMemoryKeyStore implements KeyStore {
   @Override
   public void save(final Authentication authentication, final AergoKey key) {
     try {
-      assertNotNull(authentication, "Save authentication must not null");
+      assertNotNull(authentication, "Authentication must not null");
       assertNotNull(key, "Save key must not null");
-      logger.debug("Save with authentication: {}, key: {}", KeyStoreConstants.CREDENTIALS,
-          key.getAddress());
+      logger.debug("Save with authentication: {}, key: {}", authentication, key.getAddress());
 
       final String digested = digest(authentication);
       synchronized (lock) {
@@ -51,30 +48,30 @@ public class InMemoryKeyStore implements KeyStore {
         if (this.hashedAuth2Encrypted.containsKey(digested)) {
           throw new InvalidAuthenticationException("Invalid authentication");
         }
+
         final EncryptedPrivateKey encrypted = key.export(authentication.getPassword());
         logger.trace("Encrypted key: {}", encrypted);
         this.storedIdentities.add(authentication.getIdentity());
         this.hashedAuth2Encrypted.put(digested, encrypted);
       }
-    } catch (final HerajException e) {
-      throw e;
-    } catch (final Exception e) {
-      throw new HerajException(e);
+    } catch (Exception e) {
+      throw converter.convert(e);
     }
   }
 
   @Override
   public Signer load(final Authentication authentication) {
     try {
-      assertNotNull(authentication, "Load authentication must not null");
-      logger.debug("Load with authentication: {}", KeyStoreConstants.CREDENTIALS);
+      assertNotNull(authentication, "Authentication must not null");
+      logger.debug("Load with authentication: {}", authentication);
 
       final String digested = digest(authentication);
-      EncryptedPrivateKey encrypted = null;
+      EncryptedPrivateKey encrypted;
       synchronized (lock) {
-        if (false == this.hashedAuth2Encrypted.containsKey(digested)) {
+        if (!this.hashedAuth2Encrypted.containsKey(digested)) {
           throw new InvalidAuthenticationException("Invalid authentication");
         }
+
         encrypted = this.hashedAuth2Encrypted.get(digested);
         logger.trace("Encrypted: {}", encrypted);
       }
@@ -82,59 +79,53 @@ public class InMemoryKeyStore implements KeyStore {
       final AergoKey decrypted = AergoKey.of(encrypted, authentication.getPassword());
       logger.trace("Decrypted address: {}", decrypted.getAddress());
       return decrypted;
-    } catch (final HerajException e) {
-      throw e;
-    } catch (final Exception e) {
-      throw new HerajException(e);
+    } catch (Exception e) {
+      throw converter.convert(e);
     }
   }
 
   @Override
   public void remove(final Authentication authentication) {
     try {
-      assertNotNull(authentication, "Remove authentication must not null");
-      logger.debug("Remove with authentication: {}", KeyStoreConstants.CREDENTIALS);
+      assertNotNull(authentication, "Authentication must not null");
+      logger.debug("Remove with authentication: {}", authentication);
 
       final String digested = digest(authentication);
       synchronized (lock) {
-        if (false == this.hashedAuth2Encrypted.containsKey(digested)) {
+        if (!this.hashedAuth2Encrypted.containsKey(digested)) {
           throw new InvalidAuthenticationException("Invalid authentication");
         }
+
         final Identity identity = authentication.getIdentity();
         this.storedIdentities.remove(identity);
         this.hashedAuth2Encrypted.remove(digested);
       }
-    } catch (final HerajException e) {
-      throw e;
-    } catch (final Exception e) {
-      throw new HerajException(e);
+    } catch (Exception e) {
+      throw converter.convert(e);
     }
   }
 
   @Override
   public EncryptedPrivateKey export(final Authentication authentication, final String password) {
     try {
-      assertNotNull(authentication, "Export authentication must not null");
-      assertNotNull(password, "Export password must not null");
-      logger.debug("Export with authentication: {}, password: {}", KeyStoreConstants.CREDENTIALS,
-          KeyStoreConstants.CREDENTIALS);
+      assertNotNull(authentication, "Authentication must not null");
+      assertNotNull(password, "Password must not null");
+      logger.debug("Export with authentication: {}, password: ***", authentication);
 
       final String digested = digest(authentication);
-
-      EncryptedPrivateKey encrypted = null;
+      EncryptedPrivateKey encrypted;
       synchronized (lock) {
-        if (false == this.hashedAuth2Encrypted.containsKey(digested)) {
+        if (!this.hashedAuth2Encrypted.containsKey(digested)) {
           throw new InvalidAuthenticationException("Invalid authentication");
         }
+
         encrypted = this.hashedAuth2Encrypted.get(digested);
       }
 
       final AergoKey decrypted = AergoKey.of(encrypted, authentication.getPassword());
       return decrypted.export(password);
-    } catch (final HerajException e) {
-      throw e;
-    } catch (final Exception e) {
-      throw new HerajException(e);
+    } catch (Exception e) {
+      throw converter.convert(e);
     }
   }
 
@@ -145,10 +136,9 @@ public class InMemoryKeyStore implements KeyStore {
       synchronized (lock) {
         identities = new ArrayList<>(this.storedIdentities);
       }
-      logger.debug("Identities: {}", identities);
       return identities;
-    } catch (final Exception e) {
-      throw new HerajException(e);
+    } catch (Exception e) {
+      throw converter.convert(e);
     }
   }
 

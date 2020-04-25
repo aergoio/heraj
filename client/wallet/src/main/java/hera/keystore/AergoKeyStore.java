@@ -5,17 +5,18 @@
 package hera.keystore;
 
 import static hera.util.ValidationUtils.assertNotNull;
-import static org.slf4j.LoggerFactory.getLogger;
+import static java.util.Arrays.asList;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Identity;
 import hera.api.model.KeyFormat;
 import hera.exception.HerajException;
 import hera.exception.InvalidAuthenticationException;
-import hera.exception.InvalidKeyStoreFormatException;
 import hera.key.AergoKey;
 import hera.key.KeyCipherStrategy;
 import hera.key.KeyFormatV1Strategy;
@@ -27,26 +28,32 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
-import org.slf4j.Logger;
 
-public class AergoKeyStore implements KeyStore {
+@ApiAudience.Public
+@ApiStability.Unstable
+public class AergoKeyStore extends AbstractKeyStore implements KeyStore {
 
-  protected static final String STORAGE_DIR = "keystore";
-  protected static final String FIELD_VERSION = "ks_version";
-  protected static final String KEYSTORE_POSTFIX = "keystore.txt";
-  protected static final String KEYSTORE_SPLITER = "__";
-  protected static final String KEYSTORE_TEMPLATE = "%s" + KEYSTORE_SPLITER
-      + KEYSTORE_POSTFIX; // address__${postfix}
-  protected static final Pattern STORE_REGEX = Pattern.compile("[a-zA-Z0-9]+__keystore\\.txt$");
+  protected static final String STORAGE_DIR;
+  protected static final String FIELD_VERSION;
+  protected static final String KEYSTORE_POSTFIX;
+  protected static final String KEYSTORE_SPLITER;
+  protected static final String KEYSTORE_TEMPLATE;
+  protected static final Pattern STORE_REGEX;
 
-  protected final transient Logger logger = getLogger(getClass());
+  static {
+    STORAGE_DIR = "keystore";
+    FIELD_VERSION = "ks_version";
+    KEYSTORE_POSTFIX = "keystore.txt";
+    KEYSTORE_SPLITER = "__";
+    KEYSTORE_TEMPLATE = "%s" + KEYSTORE_SPLITER + KEYSTORE_POSTFIX; // address__${postfix}
+    STORE_REGEX = Pattern.compile("[a-zA-Z0-9]+__keystore\\.txt$");
+  }
 
   protected final Object lock = new Object();
   protected final ObjectMapper mapper = new ObjectMapper();
@@ -54,7 +61,7 @@ public class AergoKeyStore implements KeyStore {
 
   protected final File root;
   protected final String encryptVersion;
-  protected final HashMap<String, KeyCipherStrategy> version2Format;
+  protected final Map<String, KeyCipherStrategy<KeyFormat>> version2Format;
 
   /**
    * Create aergo keystore with root directory {@code keyStoreDir}.
@@ -72,36 +79,39 @@ public class AergoKeyStore implements KeyStore {
    * @param keyFormatVersion a keyformat version
    */
   public AergoKeyStore(final String root, final String keyFormatVersion) {
-    assertNotNull(root, "KeyStore rootpath must not null");
-    assertNotNull(keyFormatVersion, "KeyStore keyformat version must not null");
-    logger.debug("Create Aergo KeyStore to {} with version: {}", root, keyFormatVersion);
+    try {
+      assertNotNull(root, "KeyStore rootpath must not null");
+      assertNotNull(keyFormatVersion, "KeyStore keyformat version must not null");
+      logger.debug("Create Aergo KeyStore to {} with version: {}", root, keyFormatVersion);
 
-    final File file = new File(root + "/" + STORAGE_DIR);
-    if (file.exists() && file.isFile()) {
-      throw new HerajException("Keystore target is a file");
-    }
-    if (!file.exists()) {
-      final boolean mkdirSuccess = file.mkdirs();
-      if (!mkdirSuccess) {
-        throw new HerajException("Unable to make directory: " + root);
+      final File file = new File(root + "/" + STORAGE_DIR);
+      if (file.exists() && file.isFile()) {
+        throw new HerajException("Keystore target is a file");
       }
-      logger.debug("Create directory: {}", root);
-    }
-    this.root = file;
-    this.encryptVersion = keyFormatVersion;
+      if (!file.exists()) {
+        final boolean mkdirSuccess = file.mkdirs();
+        if (!mkdirSuccess) {
+          throw new HerajException("Unable to make directory: " + root);
+        }
+        logger.debug("Create directory: {}", root);
+      }
+      this.root = file;
+      this.encryptVersion = keyFormatVersion;
 
-    final HashMap<String, KeyCipherStrategy> version2Format = new HashMap<>();
-    version2Format.put("1", new KeyFormatV1Strategy());
-    this.version2Format = version2Format;
+      final Map<String, KeyCipherStrategy<KeyFormat>> version2Format = new HashMap<>();
+      version2Format.put("1", new KeyFormatV1Strategy());
+      this.version2Format = version2Format;
+    } catch (Exception e) {
+      throw converter.convert(e);
+    }
   }
 
   @Override
   public void save(final Authentication authentication, final AergoKey key) {
     try {
-      assertNotNull(authentication, "Save authentication must not null");
-      assertNotNull(key, "Save target key must not null");
-      logger.debug("Save with authentication: {}, key: {}", KeyStoreConstants.CREDENTIALS,
-          key.getAddress());
+      assertNotNull(authentication, "Authentication must not null");
+      assertNotNull(key, "Key must not null");
+      logger.debug("Save with authentication: {}, key: {}", authentication, key);
 
       synchronized (lock) {
         final String identity = authentication.getIdentity().getValue();
@@ -119,33 +129,29 @@ public class AergoKeyStore implements KeyStore {
           os.write(keyFormat.getBytesValue().getValue());
         }
       }
-    } catch (HerajException e) {
-      throw e;
     } catch (Exception e) {
-      throw new HerajException(e);
+      throw converter.convert(e);
     }
   }
 
   @Override
   public Signer load(final Authentication authentication) {
     try {
-      assertNotNull(authentication, "Load authentication must not null");
-      logger.debug("Load with authentication: {}", KeyStoreConstants.CREDENTIALS);
+      assertNotNull(authentication, "Authentication must not null");
+      logger.debug("Load with authentication: {}", authentication);
 
       synchronized (lock) {
         return loadAergoKey(authentication);
       }
-    } catch (HerajException e) {
-      throw e;
     } catch (Exception e) {
-      throw new HerajException(e);
+      throw converter.convert(e);
     }
   }
 
   @Override
   public void remove(final Authentication authentication) {
     try {
-      assertNotNull(authentication, "Remove authentication must not null");
+      assertNotNull(authentication, "Authentication must not null");
       logger.debug("Remove with authentication: {}", authentication);
 
       synchronized (lock) {
@@ -155,14 +161,12 @@ public class AergoKeyStore implements KeyStore {
           final File file = loadKeyFile(authentication.getIdentity().getValue());
           final boolean deleted = file.delete();
           if (!deleted) {
-            throw new IllegalStateException("Keystore file not deleted for unknown reason");
+            throw new HerajException("Keystore file not deleted for unknown reason");
           }
         }
       }
-    } catch (HerajException e) {
-      throw e;
     } catch (Exception e) {
-      throw new HerajException(e);
+      throw converter.convert(e);
     }
   }
 
@@ -170,22 +174,18 @@ public class AergoKeyStore implements KeyStore {
   public EncryptedPrivateKey export(final Authentication authentication,
       final String password) {
     try {
-      assertNotNull(authentication, "Export authentication must not null");
-      assertNotNull(password, "Export password must not null");
-      logger.debug("Export with authentication: {}, password: {}", KeyStoreConstants.CREDENTIALS,
-          KeyStoreConstants.CREDENTIALS);
+      assertNotNull(authentication, "Authentication must not null");
+      assertNotNull(password, "Password must not null");
+      logger.debug("Export with authentication: {}, password: ***", authentication);
 
       final AergoKey decrypted = loadAergoKey(authentication);
-      logger.trace("Address to export: {}", decrypted.getAddress());
       return decrypted.export(password);
-    } catch (HerajException e) {
-      throw e;
     } catch (Exception e) {
-      throw new HerajException(e);
+      throw converter.convert(e);
     }
   }
 
-  protected AergoKey loadAergoKey(final Authentication authentication) throws IOException {
+  protected AergoKey loadAergoKey(final Authentication authentication) throws Exception {
     final String identity = authentication.getIdentity().getValue();
     if (!hasIdentity(identity)) {
       throw new InvalidAuthenticationException();
@@ -198,17 +198,13 @@ public class AergoKeyStore implements KeyStore {
     final JsonNode jsonNode = mapper.reader().readTree(keyFormat.getBytesValue().getInputStream());
     final JsonNode jsonVersion = jsonNode.get(FIELD_VERSION);
     if (null == jsonVersion) {
-      throw new InvalidKeyStoreFormatException(
-          "No " + FIELD_VERSION + " field");
+      throw new HerajException("No " + FIELD_VERSION + " field");
     }
 
     final String version = jsonVersion.asText();
     logger.trace("Version: {}", version);
     final KeyCipherStrategy<KeyFormat> strategy = this.version2Format.get(version);
-    final String password = authentication.getPassword();
-    final AergoKey decrypted = strategy.decrypt(keyFormat, password);
-
-    return decrypted;
+    return strategy.decrypt(keyFormat, authentication.getPassword());
   }
 
   @Override
@@ -217,12 +213,11 @@ public class AergoKeyStore implements KeyStore {
       final List<Identity> identities = new ArrayList<>();
       for (final String keyPath : listMatchingFiles()) {
         final String identity = keyPath.split(KEYSTORE_SPLITER)[0];
-        identities.add(new KeyAlias(identity));
+        identities.add(KeyAlias.of(identity));
       }
-      logger.debug("Identities: {}", identities);
       return identities;
     } catch (Exception e) {
-      throw new HerajException(e);
+      throw converter.convert(e);
     }
   }
 
@@ -237,7 +232,11 @@ public class AergoKeyStore implements KeyStore {
 
   protected List<String> listMatchingFiles() {
     logger.trace("Matcher: {}", STORE_REGEX);
-    final List<String> matchingList = Arrays.asList(this.root.list(filenameFilter));
+    final String[] list = this.root.list(filenameFilter);
+    if (null == list) {
+      throw new HerajException("Unknown error");
+    }
+    final List<String> matchingList = asList(list);
     logger.trace("Matching files: {}", matchingList);
     return matchingList;
   }
@@ -251,9 +250,15 @@ public class AergoKeyStore implements KeyStore {
         return name.equals(filename);
       }
     });
-    if (0 == files.length) {
-      throw new IllegalArgumentException("No such identity " + identity);
+
+    if (null == files) {
+      throw new HerajException("Unknown error");
     }
+
+    if (0 == files.length) {
+      throw new HerajException("No such identity " + identity);
+    }
+
     return files[0];
   }
 

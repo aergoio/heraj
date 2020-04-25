@@ -6,6 +6,7 @@ package hera.wallet;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -17,7 +18,9 @@ import hera.api.model.Aer;
 import hera.api.model.Authentication;
 import hera.api.model.BytesValue;
 import hera.api.model.ChainIdHash;
+import hera.api.model.Hash;
 import hera.api.model.RawTransaction;
+import hera.api.model.Signature;
 import hera.api.model.Time;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
@@ -27,14 +30,13 @@ import hera.key.AergoKeyGenerator;
 import hera.keystore.InMemoryKeyStore;
 import hera.keystore.KeyStore;
 import hera.model.KeyAlias;
-import hera.model.TryCountAndInterval;
+import hera.util.Sha256Utils;
 import org.junit.Test;
 
 public class WalletApiImplTest extends AbstractTestCase {
 
-  protected final Authentication valid =
-      Authentication
-          .of(new KeyAlias(randomUUID().toString().replaceAll("-", "")), randomUUID().toString());
+  protected final Authentication valid = Authentication
+      .of(KeyAlias.of(randomUUID().toString().replace("-", "")), randomUUID().toString());
   protected final AergoKey storedKey = new AergoKeyGenerator().create();
 
   protected WalletApi supplyWalletApi() {
@@ -96,14 +98,18 @@ public class WalletApiImplTest extends AbstractTestCase {
   }
 
   @Test
-  public void shouldUnlockTwiceSuccess() {
-    // when
-    final WalletApi walletApi = supplyWalletApi();
-    walletApi.bind(mock(AergoClient.class));
-
-    // then
-    assertTrue(walletApi.unlock(valid));
-    assertTrue(walletApi.unlock(valid));
+  public void shouldUnlockTwiceFail() {
+    try {
+      // given
+      final WalletApi walletApi = supplyWalletApi();
+      walletApi.bind(mock(AergoClient.class));
+      walletApi.unlock(valid);
+      // when
+      walletApi.unlock(valid);
+      fail();
+    } catch (Exception e) {
+      // then
+    }
   }
 
   @Test
@@ -115,7 +121,7 @@ public class WalletApiImplTest extends AbstractTestCase {
         Authentication.of(new KeyAlias("invalid"), randomUUID().toString());
 
     // then
-    assertTrue(false == walletApi.unlock(invalid));
+    assertFalse(walletApi.unlock(invalid));
   }
 
   @Test
@@ -136,7 +142,7 @@ public class WalletApiImplTest extends AbstractTestCase {
     walletApi.lock(valid);
 
     // then
-    assertTrue(false == walletApi.lock(valid));
+    assertFalse(walletApi.lock(valid));
   }
 
   @Test
@@ -148,7 +154,7 @@ public class WalletApiImplTest extends AbstractTestCase {
     // then
     final Authentication invalid =
         Authentication.of(new KeyAlias("invalid"), randomUUID().toString());
-    assertTrue(false == walletApi.lock(invalid));
+    assertFalse(walletApi.lock(invalid));
   }
 
   @Test
@@ -241,6 +247,32 @@ public class WalletApiImplTest extends AbstractTestCase {
     } catch (HerajException e) {
       // good we expected this
     }
+  }
+
+  @Test
+  public void testSignMessageOnPlaintext() {
+    // when
+    final WalletApi walletApi = supplyWalletApi();
+    walletApi.bind(mock(AergoClient.class));
+    walletApi.unlock(valid);
+
+    // then
+    final Signature signature = walletApi
+        .signMessage(BytesValue.of(randomUUID().toString().getBytes()));
+    assertNotNull(signature);
+  }
+
+  @Test
+  public void testSignMessageOnHash() {
+    // when
+    final WalletApi walletApi = supplyWalletApi();
+    walletApi.bind(mock(AergoClient.class));
+    walletApi.unlock(valid);
+
+    // then
+    final byte[] digested = Sha256Utils.digest(randomUUID().toString().getBytes());
+    final Signature signature = walletApi.signMessage(Hash.of(BytesValue.of(digested)));
+    assertNotNull(signature);
   }
 
 }

@@ -2,7 +2,9 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.wallet.internal;
+package hera.wallet;
+
+import static hera.util.ValidationUtils.assertNotNull;
 
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
@@ -34,23 +36,16 @@ import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.TxReceipt;
 import hera.client.AergoClient;
-import hera.exception.HerajException;
-import hera.exception.WalletExceptionConverter;
-import hera.util.ExceptionConverter;
-import hera.wallet.QueryApi;
 import java.util.List;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.Setter;
 
-@NoArgsConstructor
-public class QueryApiImpl implements QueryApi, ClientInjectable {
+class QueryApiImpl extends AbstractApi implements QueryApi {
 
-  @Setter
-  @NonNull
-  protected AergoClient client;
+  protected final ClientProvider clientProvider;
 
-  protected final ExceptionConverter<HerajException> converter = new WalletExceptionConverter();
+  QueryApiImpl(final ClientProvider clientProvider) {
+    assertNotNull(clientProvider, "ClientProvider must not null");
+    this.clientProvider = clientProvider;
+  }
 
   @Override
   public AccountState getAccountState(final AccountAddress accountAddress) {
@@ -189,7 +184,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
 
 
   @Override
-  public List<Peer> listPeers(boolean showHidden, boolean showSelf) {
+  public List<Peer> listPeers(final boolean showHidden, final boolean showSelf) {
     try {
       return getClient().getBlockchainOperation().listPeers(showHidden, showSelf);
     } catch (Exception e) {
@@ -293,7 +288,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   public Subscription<BlockMetadata> subscribeBlockMetadata(
       final StreamObserver<BlockMetadata> observer) {
     try {
-      return getClient().getBlockOperation().subscribeNewBlockMetadata(observer);
+      return getClient().getBlockOperation().subscribeBlockMetadata(observer);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -302,7 +297,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   @Override
   public Subscription<Block> subscribeBlock(final StreamObserver<Block> observer) {
     try {
-      return getClient().getBlockOperation().subscribeNewBlock(observer);
+      return getClient().getBlockOperation().subscribeBlock(observer);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -378,10 +373,7 @@ public class QueryApiImpl implements QueryApi, ClientInjectable {
   }
 
   protected AergoClient getClient() {
-    if (null == this.client) {
-      throw new HerajException("Aergo client isn't binded yet");
-    }
-    return this.client;
+    return this.clientProvider.getClient();
   }
 
 }

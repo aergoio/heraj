@@ -4,8 +4,10 @@
 
 package hera.keystore;
 
+import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -17,8 +19,7 @@ import hera.exception.InvalidAuthenticationException;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.model.KeyAlias;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
 import org.junit.Test;
 
 public class KeyStoreTest extends AbstractTestCase {
@@ -26,12 +27,12 @@ public class KeyStoreTest extends AbstractTestCase {
   protected final String keyStoreRoot =
       System.getProperty("java.io.tmpdir") + "/" + randomUUID().toString();
 
-  protected Collection<KeyStore> keyStores() {
-    return Arrays.asList(new KeyStore[] {
+  protected List<? extends KeyStore> keyStores() {
+    return asList(
         new InMemoryKeyStore(),
         new AergoKeyStore(keyStoreRoot),
         new JavaKeyStore("PKCS12", null, null)
-    });
+    );
   }
 
   protected KeyAlias supplyAlias() {
@@ -55,20 +56,20 @@ public class KeyStoreTest extends AbstractTestCase {
   @Test
   public void shouldSaveThrowErrorOnSameAlias() {
     for (final KeyStore keyStore : keyStores()) {
-      // when
+      // given
       final KeyAlias alias = supplyAlias();
       final Authentication authentication = Authentication.of(alias, randomUUID().toString());
       final AergoKey key = new AergoKeyGenerator().create();
       keyStore.save(authentication, key);
 
-      // then
       try {
+        // when
         final AergoKey newKey = new AergoKeyGenerator().create();
         final Authentication sameAlias = Authentication.of(alias, randomUUID().toString());
         keyStore.save(sameAlias, newKey);
         fail();
       } catch (InvalidAuthenticationException e) {
-        // good we expected this
+        // then
       }
     }
   }
@@ -76,19 +77,19 @@ public class KeyStoreTest extends AbstractTestCase {
   @Test
   public void shouldSaveThrowErrorOnSameAuthentication() {
     for (final KeyStore keyStore : keyStores()) {
-      // when
+      // given
       final KeyAlias alias = supplyAlias();
       final Authentication authentication = Authentication.of(alias, randomUUID().toString());
       final AergoKey key = new AergoKeyGenerator().create();
       keyStore.save(authentication, key);
 
-      // then
       try {
+        // when
         final AergoKey newKey = new AergoKeyGenerator().create();
         keyStore.save(authentication, newKey);
         fail();
       } catch (InvalidAuthenticationException e) {
-        // good we expected this
+        // then
       }
     }
   }
@@ -110,16 +111,14 @@ public class KeyStoreTest extends AbstractTestCase {
   @Test
   public void shouldLoadThrowErrorOnInvalidAuthentication() {
     for (final KeyStore keyStore : keyStores()) {
-      // when
-      final KeyAlias alias = supplyAlias();
-      final Authentication invalid = Authentication.of(alias, randomUUID().toString());
-
-      // then
       try {
+        // when
+        final KeyAlias alias = supplyAlias();
+        final Authentication invalid = Authentication.of(alias, randomUUID().toString());
         keyStore.load(invalid);
         fail();
       } catch (InvalidAuthenticationException e) {
-        // good we expected this
+        // then
       }
     }
   }
@@ -135,23 +134,22 @@ public class KeyStoreTest extends AbstractTestCase {
 
       // then
       keyStore.remove(authentication);
-      assertTrue(false == keyStore.listIdentities().contains(alias));
+      assertFalse(keyStore.listIdentities().contains(alias));
     }
   }
 
   @Test
   public void shouldRemoveThrowErrorOnInvalidAuthentication() {
-    // when
-    final KeyStore keyStore = new AergoKeyStore(keyStoreRoot);
-    final KeyAlias alias = supplyAlias();
-    final Authentication invalid = Authentication.of(alias, randomUUID().toString());
-
-    // then
-    try {
-      keyStore.remove(invalid);
-      fail();
-    } catch (InvalidAuthenticationException e) {
-      // good we expected this
+    for (final KeyStore keyStore : keyStores()) {
+      try {
+        // when
+        final KeyAlias alias = supplyAlias();
+        final Authentication invalid = Authentication.of(alias, randomUUID().toString());
+        keyStore.remove(invalid);
+        fail();
+      } catch (InvalidAuthenticationException e) {
+        // then
+      }
     }
   }
 
@@ -175,16 +173,14 @@ public class KeyStoreTest extends AbstractTestCase {
   @Test
   public void shouldExportThrowErrorOnInvalidAuthentication() {
     for (final KeyStore keyStore : keyStores()) {
-      // when
-      final KeyAlias alias = supplyAlias();
-      final Authentication invalid = Authentication.of(alias, randomUUID().toString());
-
-      // then
       try {
+        // when
+        final KeyAlias alias = supplyAlias();
+        final Authentication invalid = Authentication.of(alias, randomUUID().toString());
         keyStore.export(invalid, randomUUID().toString());
         fail();
       } catch (InvalidAuthenticationException e) {
-        // good we expected this
+        // then
       }
     }
   }

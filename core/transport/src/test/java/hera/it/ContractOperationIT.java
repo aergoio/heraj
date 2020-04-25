@@ -145,7 +145,7 @@ public class ContractOperationIT extends AbstractIT {
       final ContractDefinition definition = ContractDefinition.newBuilder()
           .encodedContract(payloadMap.get("simple_payload"))
           .build();
-      aergoClient.getContractOperation().deploy(key, definition, 0L, fee);
+      aergoClient.getContractOperation().deployTx(key, definition, 0L, fee);
       fail();
     } catch (Exception e) {
       // then
@@ -434,7 +434,7 @@ public class ContractOperationIT extends AbstractIT {
           .function("set")
           .args(executeKey, executeIntVal, executeStringVal)
           .build();
-      aergoClient.getContractOperation().execute(key, execution, 0L, fee);
+      aergoClient.getContractOperation().executeTx(key, execution, 0L, fee);
       fail();
     } catch (Exception e) {
       // then
