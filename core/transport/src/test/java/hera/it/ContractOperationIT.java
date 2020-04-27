@@ -16,6 +16,7 @@ import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.BigNumber;
+import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractFunction;
@@ -100,7 +101,8 @@ public class ContractOperationIT extends AbstractIT {
     nonceProvider.bindNonce(state);
     aergoClient.getTransactionOperation()
         .sendTx(rich, key.getAddress(), Aer.of("10000", Unit.AERGO),
-            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY);
+            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY,
+            BytesValue.EMPTY);
     waitForNextBlockToGenerate();
   }
 

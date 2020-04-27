@@ -57,7 +57,8 @@ public abstract class Methods {
   static final String TRANSACTION_IN_BLOCK = "heraj.transaction.in.block";
   public static final String TRANSACTION_TXRECEIPT = "heraj.transaction.txreceipt";
   public static final String TRANSACTION_COMMIT = "heraj.transaction.commit";
-  public static final String TRANSACTION_SENDTX = "heraj.transaction.sendtx";
+  public static final String TRANSACTION_SENDTX_BY_ADDRESS = "heraj.transaction.sendtx.by.address";
+  public static final String TRANSACTION_SENDTX_BY_NAME = "heraj.transaction.sendtx.by.name";
 
   public static final String CONTRACT_TXRECEIPT = "heraj.contract.txreceipt";
   public static final String CONTRACT_DEPLOYTX = "heraj.contract.deploytx";

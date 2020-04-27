@@ -15,6 +15,7 @@ import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
 import hera.api.model.BytesValue;
 import hera.api.model.Fee;
+import hera.api.model.Name;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.TxReceipt;
@@ -69,7 +70,8 @@ public class SendIT extends AbstractWalletApiIT {
     nonceProvider.bindNonce(state);
     aergoClient.getTransactionOperation()
         .sendTx(rich, key.getAddress(), Aer.of("10000", Unit.AERGO),
-            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY);
+            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY,
+            BytesValue.EMPTY);
     waitForNextBlockToGenerate();
   }
 
@@ -79,7 +81,7 @@ public class SendIT extends AbstractWalletApiIT {
     walletApi.unlock(authentication);
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
     final Aer amount = Aer.GIGA_ONE;
-    final BytesValue payload = BytesValue.of(randomName().toString().getBytes());
+    final BytesValue payload = BytesValue.of(randomUUID().toString().getBytes());
     final TxHash txHash = walletApi.transactionApi().send(recipient, amount, fee, payload);
     waitForNextBlockToGenerate();
 
@@ -99,7 +101,7 @@ public class SendIT extends AbstractWalletApiIT {
     // when
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
     final Aer amount = Aer.GIGA_ONE;
-    final BytesValue payload = BytesValue.of(randomName().toString().getBytes());
+    final BytesValue payload = BytesValue.of(randomUUID().toString().getBytes());
 
     // then
     try {
@@ -114,7 +116,7 @@ public class SendIT extends AbstractWalletApiIT {
   public void shouldSendAergoWithName() {
     // given
     walletApi.unlock(authentication);
-    final String name = randomName();
+    final Name name = randomName();
     walletApi.transactionApi().createName(name);
     waitForNextBlockToGenerate();
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
@@ -144,7 +146,7 @@ public class SendIT extends AbstractWalletApiIT {
   public void shouldSendAergoWithNameFailOnLocked() {
     // given
     walletApi.unlock(authentication);
-    final String name = randomName();
+    final Name name = randomName();
     walletApi.transactionApi().createName(name);
     waitForNextBlockToGenerate();
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();

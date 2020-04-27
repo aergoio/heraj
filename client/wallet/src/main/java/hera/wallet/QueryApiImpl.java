@@ -25,6 +25,7 @@ import hera.api.model.ContractTxReceipt;
 import hera.api.model.ElectedCandidate;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
+import hera.api.model.Name;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
@@ -58,6 +59,11 @@ class QueryApiImpl extends AbstractApi implements QueryApi {
 
   @Override
   public AccountAddress getNameOwner(final String name) {
+    return getNameOwner(Name.of(name));
+  }
+
+  @Override
+  public AccountAddress getNameOwner(final Name name) {
     try {
       return getClient().getAccountOperation().getNameOwner(name);
     } catch (Exception e) {
@@ -67,6 +73,11 @@ class QueryApiImpl extends AbstractApi implements QueryApi {
 
   @Override
   public AccountAddress getNameOwner(final String name, final long blockNumber) {
+    return getNameOwner(Name.of(name), blockNumber);
+  }
+
+  @Override
+  public AccountAddress getNameOwner(final Name name, final long blockNumber) {
     try {
       return getClient().getAccountOperation().getNameOwner(name, blockNumber);
     } catch (Exception e) {

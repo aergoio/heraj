@@ -12,6 +12,7 @@ import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
+import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInterface;
@@ -78,10 +79,12 @@ public class LegacyContractIT extends AbstractLegacyWalletIT {
     final NonceProvider nonceProvider = new SimpleNonceProvider();
     final AccountState state = aergoClient.getAccountOperation().getState(rich.getAddress());
     logger.debug("Rich state: {}", state);
-    nonceProvider.bindNonce(state);;
+    nonceProvider.bindNonce(state);
+    ;
     aergoClient.getTransactionOperation()
         .sendTx(rich, key.getAddress(), Aer.of("10000", Unit.AERGO),
-            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY);
+            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY,
+            BytesValue.EMPTY);
     waitForNextBlockToGenerate();
   }
 
@@ -220,10 +223,12 @@ public class LegacyContractIT extends AbstractLegacyWalletIT {
       }
 
       @Override
-      public void onError(Throwable t) {}
+      public void onError(Throwable t) {
+      }
 
       @Override
-      public void onCompleted() {}
+      public void onCompleted() {
+      }
     });
     for (int i = 0; i < eventCount; ++i) {
       execute(wallet, contractInterface);

@@ -196,7 +196,7 @@ public class TransactionMethodsTest extends AbstractTestCase {
   }
 
   @Test
-  public void testSendTx() {
+  public void testSendTxByAddress() {
     runOnOtherThread(new Runnable() {
       @Override
       public void run() {
@@ -222,8 +222,48 @@ public class TransactionMethodsTest extends AbstractTestCase {
           // then
           final TransactionMethods transactionMethods = new TransactionMethods();
           final List<Object> parameters = Arrays.<Object>asList(anySigner, anyAccountAddress,
-              anyAmount, anyNonce, anyFee);
-          final TxHash txHash = transactionMethods.getSendTx()
+              anyAmount, anyNonce, anyFee, anyPayload);
+          final TxHash txHash = transactionMethods.getSendTxByAddress()
+              .invoke(parameters);
+          assertNotNull(txHash);
+        } catch (Exception e) {
+          throw new IllegalStateException(e);
+        } finally {
+          ContextHolder.remove();
+        }
+      }
+    });
+  }
+
+  @Test
+  public void testSendTxByName() {
+    runOnOtherThread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          // given
+          final AergoRPCServiceBlockingStub mockBlockingStub = mock(
+              AergoRPCServiceBlockingStub.class);
+          when(mockBlockingStub.commitTX(any(Blockchain.TxList.class)))
+              .thenReturn(Rpc.CommitResultList.newBuilder()
+                  .addResults(Rpc.CommitResult.newBuilder()
+                      .setError(CommitStatus.TX_OK)
+                      .build())
+                  .build());
+          final GrpcClient mockClient = mock(GrpcClient.class);
+          when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
+          final ChainIdHashHolder chainIdHashHolder = new ChainIdHashHolder();
+          chainIdHashHolder.put(anyChainIdHash);
+          final Context context = EmptyContext.getInstance()
+              .withValue(GRPC_CLIENT, mockClient)
+              .withValue(GRPC_VALUE_CHAIN_ID_HASH_HOLDER, chainIdHashHolder);
+          ContextHolder.attach(context);
+
+          // then
+          final TransactionMethods transactionMethods = new TransactionMethods();
+          final List<Object> parameters = Arrays.<Object>asList(anySigner, anyName,
+              anyAmount, anyNonce, anyFee, anyPayload);
+          final TxHash txHash = transactionMethods.getSendTxByName()
               .invoke(parameters);
           assertNotNull(txHash);
         } catch (Exception e) {
@@ -236,4 +276,3 @@ public class TransactionMethodsTest extends AbstractTestCase {
   }
 
 }
-

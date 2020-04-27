@@ -8,7 +8,8 @@ import static hera.api.model.BytesValue.of;
 import static hera.client.Methods.TRANSACTION_COMMIT;
 import static hera.client.Methods.TRANSACTION_IN_BLOCK;
 import static hera.client.Methods.TRANSACTION_IN_MEMPOOL;
-import static hera.client.Methods.TRANSACTION_SENDTX;
+import static hera.client.Methods.TRANSACTION_SENDTX_BY_ADDRESS;
+import static hera.client.Methods.TRANSACTION_SENDTX_BY_NAME;
 import static hera.client.Methods.TRANSACTION_TXRECEIPT;
 import static hera.util.TransportUtils.copyFrom;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -16,7 +17,9 @@ import static org.slf4j.LoggerFactory.getLogger;
 import hera.RequestMethod;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
+import hera.api.model.BytesValue;
 import hera.api.model.Fee;
+import hera.api.model.Name;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
@@ -163,10 +166,10 @@ class TransactionMethods extends AbstractMethods {
   };
 
   @Getter
-  private final RequestMethod<TxHash> sendTx = new RequestMethod<TxHash>() {
+  private final RequestMethod<TxHash> sendTxByAddress = new RequestMethod<TxHash>() {
 
     @Getter
-    protected final String name = TRANSACTION_SENDTX;
+    protected final String name = TRANSACTION_SENDTX_BY_ADDRESS;
 
     @Override
     protected void validate(final List<Object> parameters) {
@@ -175,6 +178,7 @@ class TransactionMethods extends AbstractMethods {
       validateType(parameters, 2, Aer.class);
       validateType(parameters, 3, Long.class);
       validateType(parameters, 4, Fee.class);
+      validateType(parameters, 5, BytesValue.class);
     }
 
     @Override
@@ -184,9 +188,11 @@ class TransactionMethods extends AbstractMethods {
       final Aer amount = (Aer) parameters.get(2);
       final long nonce = (long) parameters.get(3);
       final Fee fee = (Fee) parameters.get(4);
+      final BytesValue payload = (BytesValue) parameters.get(5);
       logger.debug(
-          "Commit transaction with signer: {}, recipient: {}, amount: {}, nonce: {}, fee: {}",
-          signer, recipient, amount, nonce, fee);
+          "Commit transaction with signer: {}, recipient: {},"
+              + "amount: {}, nonce: {}, fee: {}, payload: {}",
+          signer, recipient, amount, nonce, fee, payload);
 
       final RawTransaction rawTransaction = new PlainTransactionBuilder()
           .chainIdHash(getChainIdHash())
@@ -195,6 +201,51 @@ class TransactionMethods extends AbstractMethods {
           .amount(amount)
           .nonce(nonce)
           .fee(fee)
+          .payload(payload)
+          .build();
+      final Transaction signed = signer.sign(rawTransaction);
+      return getCommit().invoke(Arrays.<Object>asList(signed));
+    }
+
+  };
+
+  @Getter
+  private final RequestMethod<TxHash> sendTxByName = new RequestMethod<TxHash>() {
+
+    @Getter
+    protected final String name = TRANSACTION_SENDTX_BY_NAME;
+
+    @Override
+    protected void validate(final List<Object> parameters) {
+      validateType(parameters, 0, Signer.class);
+      validateType(parameters, 1, Name.class);
+      validateType(parameters, 2, Aer.class);
+      validateType(parameters, 3, Long.class);
+      validateType(parameters, 4, Fee.class);
+      validateType(parameters, 5, BytesValue.class);
+    }
+
+    @Override
+    protected TxHash runInternal(final List<Object> parameters) throws Exception {
+      final Signer signer = (Signer) parameters.get(0);
+      final Name recipient = (Name) parameters.get(1);
+      final Aer amount = (Aer) parameters.get(2);
+      final long nonce = (long) parameters.get(3);
+      final Fee fee = (Fee) parameters.get(4);
+      final BytesValue payload = (BytesValue) parameters.get(5);
+      logger.debug(
+          "Commit transaction with signer: {}, recipient: {},"
+              + "amount: {}, nonce: {}, fee: {}, payload: {}",
+          signer, recipient, amount, nonce, fee, payload);
+
+      final RawTransaction rawTransaction = new PlainTransactionBuilder()
+          .chainIdHash(getChainIdHash())
+          .from(signer.getPrincipal())
+          .to(recipient)
+          .amount(amount)
+          .nonce(nonce)
+          .fee(fee)
+          .payload(payload)
           .build();
       final Transaction signed = signer.sign(rawTransaction);
       return getCommit().invoke(Arrays.<Object>asList(signed));

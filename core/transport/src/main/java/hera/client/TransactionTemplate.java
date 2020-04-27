@@ -12,7 +12,9 @@ import hera.RequestMethod;
 import hera.api.TransactionOperation;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
+import hera.api.model.BytesValue;
 import hera.api.model.Fee;
+import hera.api.model.Name;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.TxReceipt;
@@ -66,9 +68,16 @@ class TransactionTemplate extends AbstractTemplate implements TransactionOperati
 
   @Override
   public TxHash sendTx(final Signer signer, final AccountAddress recipient, final Aer amount,
-      final long nonce, final Fee fee) {
-    return request(transactionMethods.getSendTx(),
-        Arrays.asList(signer, recipient, amount, nonce, fee));
+      final long nonce, final Fee fee, final BytesValue payload) {
+    return request(transactionMethods.getSendTxByAddress(),
+        Arrays.asList(signer, recipient, amount, nonce, fee, payload));
+  }
+
+  @Override
+  public TxHash sendTx(final Signer signer, final Name recipient, final Aer amount,
+      final long nonce, final Fee fee, final BytesValue payload) {
+    return request(transactionMethods.getSendTxByName(),
+        Arrays.asList(signer, recipient, amount, nonce, fee, payload));
   }
 
 }

@@ -12,6 +12,7 @@ import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
+import hera.api.model.Name;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
@@ -32,6 +33,11 @@ class TransactionApiImpl extends AbstractApi implements TransactionApi {
 
   @Override
   public TxHash createName(final String name) {
+    return createName(Name.of(name));
+  }
+
+  @Override
+  public TxHash createName(final Name name) {
     try {
       return txRequester.request(getSigner(), new TxRequestFunction() {
 
@@ -47,6 +53,11 @@ class TransactionApiImpl extends AbstractApi implements TransactionApi {
 
   @Override
   public TxHash updateName(final String name, final AccountAddress newOwner) {
+    return updateName(Name.of(name), newOwner);
+  }
+
+  @Override
+  public TxHash updateName(final Name name, final AccountAddress newOwner) {
     try {
       return txRequester.request(getSigner(), new TxRequestFunction() {
 
@@ -112,37 +123,6 @@ class TransactionApiImpl extends AbstractApi implements TransactionApi {
   }
 
   @Override
-  public TxHash send(String recipient, Aer amount, Fee fee) {
-    return send(recipient, amount, fee, BytesValue.EMPTY);
-  }
-
-  @Override
-  public TxHash send(final String recipient, final Aer amount, final Fee fee,
-      final BytesValue payload) {
-    try {
-      return txRequester.request(getSigner(), new TxRequestFunction() {
-
-        @Override
-        public TxHash apply(Signer signer, Long t) {
-          final RawTransaction rawTransaction = RawTransaction.newBuilder()
-              .chainIdHash(getClient().getCachedChainIdHash())
-              .from(signer.getPrincipal())
-              .to(recipient)
-              .amount(amount)
-              .nonce(t)
-              .fee(fee)
-              .payload(payload)
-              .build();
-          final Transaction signed = signer.sign(rawTransaction);
-          return getClient().getTransactionOperation().commit(signed);
-        }
-      });
-    } catch (Exception e) {
-      throw converter.convert(e);
-    }
-  }
-
-  @Override
   public TxHash send(AccountAddress recipient, Aer amount, Fee fee) {
     return send(recipient, amount, fee, BytesValue.EMPTY);
   }
@@ -155,16 +135,41 @@ class TransactionApiImpl extends AbstractApi implements TransactionApi {
 
         @Override
         public TxHash apply(Signer signer, Long t) {
-          final RawTransaction rawTransaction = RawTransaction.newBuilder()
-              .chainIdHash(getClient().getCachedChainIdHash())
-              .from(signer.getPrincipal())
-              .to(recipient)
-              .amount(amount)
-              .nonce(t)
-              .fee(fee)
-              .payload(payload)
-              .build();
-          return getClient().getTransactionOperation().commit(signer.sign(rawTransaction));
+          return getClient().getTransactionOperation()
+              .sendTx(signer, recipient, amount, t, fee, payload);
+        }
+      });
+    } catch (Exception e) {
+      throw converter.convert(e);
+    }
+  }
+
+  @Override
+  public TxHash send(final String recipient, final Aer amount, final Fee fee) {
+    return send(Name.of(recipient), amount, fee, BytesValue.EMPTY);
+  }
+
+  @Override
+  public TxHash send(final String recipient, final Aer amount, final Fee fee,
+      final BytesValue payload) {
+    return send(Name.of(recipient), amount, fee, payload);
+  }
+
+  @Override
+  public TxHash send(final Name recipient, final Aer amount, final Fee fee) {
+    return send(recipient, amount, fee, BytesValue.EMPTY);
+  }
+
+  @Override
+  public TxHash send(final Name recipient, final Aer amount, final Fee fee,
+      final BytesValue payload) {
+    try {
+      return txRequester.request(getSigner(), new TxRequestFunction() {
+
+        @Override
+        public TxHash apply(Signer signer, Long t) {
+          return getClient().getTransactionOperation()
+              .sendTx(signer, recipient, amount, t, fee, payload);
         }
       });
     } catch (Exception e) {

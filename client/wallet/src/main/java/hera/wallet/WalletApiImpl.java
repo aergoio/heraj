@@ -31,7 +31,7 @@ class WalletApiImpl extends AbstractApi implements WalletApi, Signer, ClientProv
   protected volatile AergoClient aergoClient;
 
   protected final Object lock = new Object();
-  protected Signer signer;
+  protected Signer delegate;
   protected String authMac;
 
   WalletApiImpl(final KeyStore keyStore, final TryCountAndInterval tryCountAndInterval) {
@@ -59,12 +59,14 @@ class WalletApiImpl extends AbstractApi implements WalletApi, Signer, ClientProv
   public boolean unlock(final Authentication authentication) {
     try {
       assertNotNull(authentication, "Authentication must not null");
+      logger.debug("Unlock with {}", authentication);
+
       synchronized (lock) {
         if (null != this.authMac) {
           throw new HerajException("Lock already unlocked one");
         }
 
-        this.signer = keyStore.load(authentication);
+        this.delegate = keyStore.load(authentication);
         this.authMac = digest(authentication);
       }
       return true;
@@ -79,13 +81,15 @@ class WalletApiImpl extends AbstractApi implements WalletApi, Signer, ClientProv
   public boolean lock(final Authentication authentication) {
     try {
       assertNotNull(authentication, "Authentication must not null");
+      logger.debug("Lock with {}", authentication);
+
       final String digested = digest(authentication);
       synchronized (lock) {
         if (!digested.equals(this.authMac)) {
           return false;
         }
 
-        this.signer = null;
+        this.delegate = null;
         this.authMac = null;
       }
       return true;
@@ -155,19 +159,22 @@ class WalletApiImpl extends AbstractApi implements WalletApi, Signer, ClientProv
   @Override
   public String toString() {
     return String.format("WalletApi(keyStore=%s, principal=%s)", keyStore.getClass().getName(),
-        getPrincipal());
+        null != this.delegate ? this.delegate.getPrincipal() : null);
   }
 
   @Override
   public AccountAddress getPrincipal() {
-    return null != this.signer ? getSigner().getPrincipal() : null;
+    if (null == this.delegate) {
+      throw new HerajException("Unlock account first");
+    }
+    return getSigner().getPrincipal();
   }
 
   protected Signer getSigner() {
-    if (null == this.signer) {
+    if (null == this.delegate) {
       throw new HerajException("Unlock account first");
     }
-    return this.signer;
+    return this.delegate;
   }
 
 }

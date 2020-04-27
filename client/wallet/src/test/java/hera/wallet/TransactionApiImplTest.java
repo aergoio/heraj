@@ -4,6 +4,7 @@
 
 package hera.wallet;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -23,6 +24,7 @@ import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
+import hera.api.model.Name;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.client.AergoClient;
@@ -45,7 +47,7 @@ public class TransactionApiImplTest extends AbstractTestCase {
   public void testCreateName() {
     // given
     final AccountOperation mockOperation = mock(AccountOperation.class);
-    when(mockOperation.createNameTx(any(Signer.class), anyString(), anyLong()))
+    when(mockOperation.createNameTx(any(Signer.class), any(Name.class), anyLong()))
         .thenReturn(TxHash.of(BytesValue.EMPTY));
     final AergoClient mockClient = mock(AergoClient.class);
     when(mockClient.getAccountOperation()).thenReturn(mockOperation);
@@ -56,8 +58,8 @@ public class TransactionApiImplTest extends AbstractTestCase {
     final AergoKey signer = new AergoKeyGenerator().create();
     final TransactionApi transactionApi = new TransactionApiImpl(mockClientProvider, signer,
         txRequester);
-    final TxHash txHash = transactionApi.createName(anyName);
-    assertNotNull(txHash);
+    assertNotNull(transactionApi.createName(randomUUID().toString()));
+    assertNotNull(transactionApi.createName(anyName));
   }
 
   @Test
@@ -65,7 +67,7 @@ public class TransactionApiImplTest extends AbstractTestCase {
     // given
     final AccountOperation mockOperation = mock(AccountOperation.class);
     when(mockOperation
-        .updateNameTx(any(Signer.class), anyString(), any(AccountAddress.class), anyLong()))
+        .updateNameTx(any(Signer.class), any(Name.class), any(AccountAddress.class), anyLong()))
         .thenReturn(TxHash.of(BytesValue.EMPTY));
     final AergoClient mockClient = mock(AergoClient.class);
     when(mockClient.getAccountOperation()).thenReturn(mockOperation);
@@ -76,8 +78,8 @@ public class TransactionApiImplTest extends AbstractTestCase {
     final AergoKey signer = new AergoKeyGenerator().create();
     final TransactionApi transactionApi = new TransactionApiImpl(mockClientProvider, signer,
         txRequester);
-    final TxHash txHash = transactionApi.updateName(anyName, anyAccountAddress);
-    assertNotNull(txHash);
+    assertNotNull(transactionApi.updateName(randomUUID().toString(), anyAccountAddress));
+    assertNotNull(transactionApi.updateName(anyName, anyAccountAddress));
   }
 
   @Test
@@ -156,6 +158,50 @@ public class TransactionApiImplTest extends AbstractTestCase {
         txRequester);
     final TxHash txHash = transactionApi.vote(anyVoteId, anyCandidates);
     assertNotNull(txHash);
+  }
+
+  @Test
+  public void testSendWithAddress() {
+    // given
+    final TransactionOperation mockOperation = mock(TransactionOperation.class);
+    when(mockOperation
+        .sendTx(any(Signer.class), any(AccountAddress.class), any(Aer.class), anyLong(),
+            any(Fee.class), any(BytesValue.class)))
+        .thenReturn(TxHash.of(BytesValue.EMPTY));
+    final AergoClient mockClient = mock(AergoClient.class);
+    when(mockClient.getTransactionOperation()).thenReturn(mockOperation);
+    final ClientProvider mockClientProvider = mock(ClientProvider.class);
+    when(mockClientProvider.getClient()).thenReturn(mockClient);
+
+    // then
+    final AergoKey signer = new AergoKeyGenerator().create();
+    final TransactionApi transactionApi = new TransactionApiImpl(mockClientProvider, signer,
+        txRequester);
+    assertNotNull(transactionApi.send(anyAccountAddress, anyAmount, anyFee));
+    assertNotNull(transactionApi.send(anyAccountAddress, anyAmount, anyFee, anyPayload));
+  }
+
+  @Test
+  public void testSendWithName() {
+    // given
+    final TransactionOperation mockOperation = mock(TransactionOperation.class);
+    when(mockOperation
+        .sendTx(any(Signer.class), any(Name.class), any(Aer.class), anyLong(),
+            any(Fee.class), any(BytesValue.class)))
+        .thenReturn(TxHash.of(BytesValue.EMPTY));
+    final AergoClient mockClient = mock(AergoClient.class);
+    when(mockClient.getTransactionOperation()).thenReturn(mockOperation);
+    final ClientProvider mockClientProvider = mock(ClientProvider.class);
+    when(mockClientProvider.getClient()).thenReturn(mockClient);
+
+    // then
+    final AergoKey signer = new AergoKeyGenerator().create();
+    final TransactionApi transactionApi = new TransactionApiImpl(mockClientProvider, signer,
+        txRequester);
+    assertNotNull(transactionApi.send(randomUUID().toString(), anyAmount, anyFee));
+    assertNotNull(transactionApi.send(randomUUID().toString(), anyAmount, anyFee, anyPayload));
+    assertNotNull(transactionApi.send(anyName, anyAmount, anyFee));
+    assertNotNull(transactionApi.send(anyName, anyAmount, anyFee, anyPayload));
   }
 
   @Test

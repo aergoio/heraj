@@ -4,6 +4,7 @@
 
 package hera.wallet;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,6 +40,7 @@ import hera.api.model.ContractTxReceipt;
 import hera.api.model.ElectedCandidate;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
+import hera.api.model.Name;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
@@ -78,7 +80,7 @@ public class QueryApiImplTest extends AbstractTestCase {
   public void testGetNameOwner() {
     // given
     final AccountOperation mockOperation = mock(AccountOperation.class);
-    when(mockOperation.getNameOwner(anyString()))
+    when(mockOperation.getNameOwner(any(Name.class)))
         .thenReturn(AccountAddress.EMPTY);
     final AergoClient mockClient = mock(AergoClient.class);
     when(mockClient.getAccountOperation()).thenReturn(mockOperation);
@@ -87,15 +89,15 @@ public class QueryApiImplTest extends AbstractTestCase {
 
     // then
     final QueryApi queryApi = new QueryApiImpl(mockClientProvider);
-    final AccountAddress accountAddress = queryApi.getNameOwner(anyName);
-    assertNotNull(accountAddress);
+    assertNotNull(queryApi.getNameOwner(randomUUID().toString()));
+    assertNotNull(queryApi.getNameOwner(anyName));
   }
 
   @Test
   public void testGetNameOwnerAtHeight() {
     // given
     final AccountOperation mockOperation = mock(AccountOperation.class);
-    when(mockOperation.getNameOwner(anyString(), anyLong()))
+    when(mockOperation.getNameOwner(any(Name.class), anyLong()))
         .thenReturn(AccountAddress.EMPTY);
     final AergoClient mockClient = mock(AergoClient.class);
     when(mockClient.getAccountOperation()).thenReturn(mockOperation);
@@ -104,8 +106,8 @@ public class QueryApiImplTest extends AbstractTestCase {
 
     // then
     final QueryApi queryApi = new QueryApiImpl(mockClientProvider);
-    final AccountAddress accountAddress = queryApi.getNameOwner(anyName, anyHeight);
-    assertNotNull(accountAddress);
+    assertNotNull(queryApi.getNameOwner(randomUUID().toString(), anyHeight));
+    assertNotNull(queryApi.getNameOwner(anyName, anyHeight));
   }
 
   @Test

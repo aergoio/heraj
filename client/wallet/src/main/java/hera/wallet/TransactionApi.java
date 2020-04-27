@@ -14,6 +14,7 @@ import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
+import hera.api.model.Name;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
@@ -30,12 +31,31 @@ import java.util.List;
 public interface TransactionApi {
 
   /**
+   * Use {@link #createName(Name)} instead.
+   *
+   * @param name an new name
+   * @return a create name transaction hash
+   */
+  @Deprecated
+  TxHash createName(String name);
+
+  /**
    * Create name info of a current account.
    *
    * @param name an new name
    * @return a create name transaction hash
    */
-  TxHash createName(String name);
+  TxHash createName(Name name);
+
+  /**
+   * Use {@link #updateName(Name, AccountAddress)} instead.
+   *
+   * @param name     an already binded name
+   * @param newOwner an new owner of name
+   * @return a update name transaction hash
+   */
+  @Deprecated
+  TxHash updateName(String name, AccountAddress newOwner);
 
   /**
    * Update name info of to an new owner.
@@ -44,7 +64,7 @@ public interface TransactionApi {
    * @param newOwner an new owner of name
    * @return a update name transaction hash
    */
-  TxHash updateName(String name, AccountAddress newOwner);
+  TxHash updateName(Name name, AccountAddress newOwner);
 
   /**
    * Staking an account with amount of a current account.
@@ -82,27 +102,6 @@ public interface TransactionApi {
   /**
    * Send <b>aer</b> with {@code fee}.
    *
-   * @param recipient a recipient name
-   * @param amount    an amount
-   * @param fee       a fee
-   * @return a send transaction hash
-   */
-  TxHash send(String recipient, Aer amount, Fee fee);
-
-  /**
-   * Send <b>aer</b> with {@code fee} and {@code payload}.
-   *
-   * @param recipient a recipient name
-   * @param amount    an amount
-   * @param fee       a fee
-   * @param payload   a payload
-   * @return a send transaction hash
-   */
-  TxHash send(String recipient, Aer amount, Fee fee, BytesValue payload);
-
-  /**
-   * Send <b>aer</b> with {@code fee}.
-   *
    * @param recipient a recipient
    * @param amount    an amount
    * @param fee       a fee
@@ -120,6 +119,50 @@ public interface TransactionApi {
    * @return a send transaction hash
    */
   TxHash send(AccountAddress recipient, Aer amount, Fee fee, BytesValue payload);
+
+  /**
+   * Use {@link #send(Name, Aer, Fee)} instead.
+   *
+   * @param recipient a recipient name
+   * @param amount    an amount
+   * @param fee       a fee
+   * @return a send transaction hash
+   */
+  @Deprecated
+  TxHash send(String recipient, Aer amount, Fee fee);
+
+  /**
+   * Use {@link #send(Name, Aer, Fee)} instead.
+   *
+   * @param recipient a recipient name
+   * @param amount    an amount
+   * @param fee       a fee
+   * @param payload   a payload
+   * @return a send transaction hash
+   */
+  @Deprecated
+  TxHash send(String recipient, Aer amount, Fee fee, BytesValue payload);
+
+  /**
+   * Send <b>aer</b> with {@code fee}.
+   *
+   * @param recipient a recipient name
+   * @param amount    an amount
+   * @param fee       a fee
+   * @return a send transaction hash
+   */
+  TxHash send(Name recipient, Aer amount, Fee fee);
+
+  /**
+   * Send <b>aer</b> with {@code fee} and {@code payload}.
+   *
+   * @param recipient a recipient name
+   * @param amount    an amount
+   * @param fee       a fee
+   * @param payload   a payload
+   * @return a send transaction hash
+   */
+  TxHash send(Name recipient, Aer amount, Fee fee, BytesValue payload);
 
   /**
    * Sign and commit transaction.

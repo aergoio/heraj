@@ -13,6 +13,7 @@ import hera.api.model.AccountState;
 import hera.api.model.AccountTotalVote;
 import hera.api.model.Aer;
 import hera.api.model.ElectedCandidate;
+import hera.api.model.Name;
 import hera.api.model.RawTransaction;
 import hera.api.model.StakeInfo;
 import hera.api.model.Transaction;
@@ -42,44 +43,54 @@ class AccountTemplate extends AbstractTemplate implements AccountOperation {
 
   @Override
   public TxHash createName(final Account account, final String name, final long nonce) {
-    return createNameTx(account.getKey(), name, nonce);
+    return createNameTx(account.getKey(), Name.of(name), nonce);
   }
 
   @Override
   public TxHash createName(final Signer signer, final String name, final long nonce) {
-    return createNameTx(signer, name, nonce);
+    return createNameTx(signer, Name.of(name), nonce);
   }
 
   @Override
-  public TxHash createNameTx(final Signer signer, final String name, final long nonce) {
+  public TxHash createNameTx(final Signer signer, final Name name, final long nonce) {
     return request(accountMethods.getCreateNameTx(), Arrays.asList(signer, name, nonce));
   }
 
   @Override
   public TxHash updateName(final Account owner, final String name, final AccountAddress newOwner,
       final long nonce) {
-    return updateNameTx(owner.getKey(), name, newOwner, nonce);
+    return updateNameTx(owner.getKey(), Name.of(name), newOwner, nonce);
   }
 
   @Override
   public TxHash updateName(final Signer signer, final String name, final AccountAddress newOwner,
       final long nonce) {
-    return updateNameTx(signer, name, newOwner, nonce);
+    return updateNameTx(signer, Name.of(name), newOwner, nonce);
   }
 
   @Override
-  public TxHash updateNameTx(final Signer signer, final String name, final AccountAddress newOwner,
+  public TxHash updateNameTx(final Signer signer, final Name name, final AccountAddress newOwner,
       final long nonce) {
     return request(accountMethods.getUpdateNameTx(), Arrays.asList(signer, name, newOwner, nonce));
   }
 
   @Override
   public AccountAddress getNameOwner(final String name) {
-    return getNameOwner(name, 0);
+    return getNameOwner(Name.of(name));
+  }
+
+  @Override
+  public AccountAddress getNameOwner(final Name name) {
+    return getNameOwner(name, 0L);
   }
 
   @Override
   public AccountAddress getNameOwner(final String name, final long blockNumber) {
+    return getNameOwner(Name.of(name), blockNumber);
+  }
+
+  @Override
+  public AccountAddress getNameOwner(final Name name, long blockNumber) {
     return request(accountMethods.getNameOwner(), Arrays.<Object>asList(name, blockNumber));
   }
 

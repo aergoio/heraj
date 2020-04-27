@@ -25,6 +25,7 @@ import hera.api.model.ContractTxReceipt;
 import hera.api.model.ElectedCandidate;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
+import hera.api.model.Name;
 import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
@@ -55,12 +56,31 @@ public interface QueryApi {
   AccountState getAccountState(AccountAddress accountAddress);
 
   /**
+   * Use {@link #getNameOwner(Name)} instead.
+   *
+   * @param name an name of account
+   * @return an account address binded with name
+   */
+  @Deprecated
+  AccountAddress getNameOwner(String name);
+
+  /**
    * Get owner of an account name.
    *
    * @param name an name of account
    * @return an account address binded with name
    */
-  AccountAddress getNameOwner(String name);
+  AccountAddress getNameOwner(Name name);
+
+  /**
+   * Use {@link #getNameOwner(Name, long)} instead.
+   *
+   * @param name        an name of account
+   * @param blockNumber a block number
+   * @return an account address binded with name
+   */
+  @Deprecated
+  AccountAddress getNameOwner(String name, long blockNumber);
 
   /**
    * Get owner of an account name at block number {@code blockNumber}.
@@ -69,7 +89,7 @@ public interface QueryApi {
    * @param blockNumber a block number
    * @return an account address binded with name
    */
-  AccountAddress getNameOwner(String name, long blockNumber);
+  AccountAddress getNameOwner(Name name, long blockNumber);
 
   /**
    * Get staking information of {@code accountAddress}.
@@ -105,7 +125,7 @@ public interface QueryApi {
   AccountTotalVote getVotesOf(AccountAddress accountAddress);
 
   /**
-   * Get account list on a server key store.
+   * Get account list on a server key store. It will be removed.
    *
    * @return account list
    */

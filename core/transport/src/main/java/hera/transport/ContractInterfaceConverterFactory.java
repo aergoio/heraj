@@ -27,14 +27,14 @@ public class ContractInterfaceConverterFactory {
   protected final ModelConverter<StateVariable, Blockchain.StateVar> stateVariableConverter =
       new StateVariableConverterFactory().create();
 
-  protected final Function1<ContractInterface,
-      Blockchain.ABI> domainConverter = new Function1<ContractInterface, Blockchain.ABI>() {
+  protected final Function1<ContractInterface, Blockchain.ABI> domainConverter =
+      new Function1<ContractInterface, Blockchain.ABI>() {
 
-    @Override
-    public Blockchain.ABI apply(final ContractInterface domainContractInterface) {
-      throw new UnsupportedOperationException();
-    }
-  };
+        @Override
+        public Blockchain.ABI apply(final ContractInterface domainContractInterface) {
+          throw new UnsupportedOperationException();
+        }
+      };
 
   protected final Function1<Blockchain.ABI, ContractInterface> rpcConverter =
       new Function1<Blockchain.ABI, ContractInterface>() {

@@ -13,7 +13,9 @@ import hera.api.model.AccountState;
 import hera.api.model.AccountTotalVote;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
+import hera.api.model.BytesValue;
 import hera.api.model.Fee;
+import hera.api.model.Name;
 import hera.api.model.Peer;
 import hera.api.model.StakeInfo;
 import hera.api.transaction.NonceProvider;
@@ -57,14 +59,15 @@ public class AccountOperationIT extends AbstractIT {
     nonceProvider.bindNonce(state);
     aergoClient.getTransactionOperation()
         .sendTx(rich, key.getAddress(), Aer.of("10000", Unit.AERGO),
-            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY);
+            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY,
+            BytesValue.EMPTY);
     waitForNextBlockToGenerate();
   }
 
   @Test
   public void shouldCreateName() {
     // when
-    final String name = randomName();
+    final Name name = randomName();
     aergoClient.getAccountOperation().createNameTx(key, name,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
     waitForNextBlockToGenerate();
@@ -78,7 +81,7 @@ public class AccountOperationIT extends AbstractIT {
   public void shouldCreateNameFailOnInvalidNonce() {
     try {
       // when
-      final String name = randomName();
+      final Name name = randomName();
       aergoClient.getAccountOperation().createNameTx(key, name, 0L);
       fail();
     } catch (CommitException e) {
@@ -90,7 +93,7 @@ public class AccountOperationIT extends AbstractIT {
   @Test
   public void shouldUpdateName() {
     // given
-    final String name = randomName();
+    final Name name = randomName();
     aergoClient.getAccountOperation().createNameTx(key, name,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
     waitForNextBlockToGenerate();
@@ -109,7 +112,7 @@ public class AccountOperationIT extends AbstractIT {
   @Test
   public void shouldUpdateNameFailOnInvalidName() {
     // given
-    final String name = randomName();
+    final Name name = randomName();
     aergoClient.getAccountOperation().createNameTx(key, name,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
     waitForNextBlockToGenerate();
@@ -117,7 +120,7 @@ public class AccountOperationIT extends AbstractIT {
     try {
       // when
       final AccountAddress newOwner = new AergoKeyGenerator().create().getAddress();
-      final String invalidName = randomName();
+      final Name invalidName = randomName();
       aergoClient.getAccountOperation().updateNameTx(key, invalidName, newOwner,
           nonceProvider.incrementAndGetNonce(key.getAddress()));
       fail();
@@ -129,7 +132,7 @@ public class AccountOperationIT extends AbstractIT {
   @Test
   public void shouldUpdateNameFailOnInvalidNonce() {
     // given
-    final String name = randomName();
+    final Name name = randomName();
     aergoClient.getAccountOperation().createNameTx(key, name,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
     waitForNextBlockToGenerate();
@@ -148,7 +151,7 @@ public class AccountOperationIT extends AbstractIT {
   @Test
   public void shouldReturnNullOnNameWithoutOwner() {
     // when
-    final String name = randomName();
+    final Name name = randomName();
     final AccountAddress nameOwner = aergoClient.getAccountOperation().getNameOwner(name);
 
     // then

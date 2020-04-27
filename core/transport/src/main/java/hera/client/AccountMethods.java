@@ -24,6 +24,7 @@ import hera.api.model.AccountTotalVote;
 import hera.api.model.Aer;
 import hera.api.model.BytesValue;
 import hera.api.model.ElectedCandidate;
+import hera.api.model.Name;
 import hera.api.model.RawTransaction;
 import hera.api.model.StakeInfo;
 import hera.api.model.Transaction;
@@ -108,14 +109,14 @@ class AccountMethods extends AbstractMethods {
     @Override
     protected void validate(final List<Object> parameters) {
       validateType(parameters, 0, Signer.class);
-      validateType(parameters, 1, String.class);
+      validateType(parameters, 1, Name.class);
       validateType(parameters, 2, Long.class);
     }
 
     @Override
     protected TxHash runInternal(final List<Object> parameters) throws Exception {
       final Signer signer = (Signer) parameters.get(0);
-      final String name = (String) parameters.get(1);
+      final Name name = (Name) parameters.get(1);
       final long nonce = (long) parameters.get(2);
       logger.debug("Create account name with signer: {}, name: {}, nonce: {}", signer, name, nonce);
 
@@ -139,7 +140,7 @@ class AccountMethods extends AbstractMethods {
     @Override
     protected void validate(final List<Object> parameters) {
       validateType(parameters, 0, Signer.class);
-      validateType(parameters, 1, String.class);
+      validateType(parameters, 1, Name.class);
       validateType(parameters, 2, AccountAddress.class);
       validateType(parameters, 3, Long.class);
     }
@@ -147,7 +148,7 @@ class AccountMethods extends AbstractMethods {
     @Override
     protected TxHash runInternal(final List<Object> parameters) throws Exception {
       final Signer signer = (Signer) parameters.get(0);
-      final String name = (String) parameters.get(1);
+      final Name name = (Name) parameters.get(1);
       final AccountAddress newOwner = (AccountAddress) parameters.get(2);
       final long nonce = (long) parameters.get(3);
       logger.debug("Update account name with signer: {}, name: {}, newOwner: {}, nonce: {}", signer,
@@ -174,19 +175,19 @@ class AccountMethods extends AbstractMethods {
 
     @Override
     protected void validate(final List<Object> parameters) {
-      validateType(parameters, 0, String.class);
+      validateType(parameters, 0, Name.class);
       validateType(parameters, 1, Long.class);
       validateValue(((Long) parameters.get(1)) >= 0, "Block number must >= 0");
     }
 
     @Override
     protected AccountAddress runInternal(final List<Object> parameters) throws Exception {
-      final String name = (String) parameters.get(0);
+      final Name name = (Name) parameters.get(0);
       final long blockNumber = (long) parameters.get(1);
       logger.debug("Get name owner with name: {}, blockNumber: {}", name, blockNumber);
 
       final Rpc.Name rpcName = Rpc.Name.newBuilder()
-          .setName(name)
+          .setName(name.getValue())
           .setBlockNo(blockNumber)
           .build();
       logger.trace("AergoService getNameInfo arg: {}", rpcName);

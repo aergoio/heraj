@@ -12,6 +12,7 @@ import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
+import hera.api.model.BytesValue;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
@@ -55,10 +56,12 @@ public class LegacySendIT extends AbstractLegacyWalletIT {
     final NonceProvider nonceProvider = new SimpleNonceProvider();
     final AccountState state = aergoClient.getAccountOperation().getState(rich.getAddress());
     logger.debug("Rich state: {}", state);
-    nonceProvider.bindNonce(state);;
+    nonceProvider.bindNonce(state);
+    ;
     aergoClient.getTransactionOperation()
         .sendTx(rich, key.getAddress(), Aer.of("10000", Unit.AERGO),
-            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY);
+            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY,
+            BytesValue.EMPTY);
     waitForNextBlockToGenerate();
   }
 
@@ -84,37 +87,6 @@ public class LegacySendIT extends AbstractLegacyWalletIT {
 
       // then
       assertNotNull(wallet.getTransaction(hash));
-    } finally {
-      wallet.lock(auth);
-    }
-  }
-
-  @Test
-  public void shouldCommitWithInvalidNonceSuccess() throws Exception {
-    // given
-    final String password = randomUUID().toString();
-    wallet.saveKey(key, password);
-    final Authentication auth = Authentication.of(key.getAddress(), password);
-    wallet.unlock(auth);
-    final long preCachedNonce = wallet.getRecentlyUsedNonce();
-    final AccountState preState = wallet.getAccountState();
-
-    try {
-      // when
-      final AergoKey recipient = new AergoKeyGenerator().create();
-      final RawTransaction rawTransaction = RawTransaction.newBuilder(wallet.getCachedChainIdHash())
-          .from(key.getAddress())
-          .to(recipient.getAddress())
-          .amount(Aer.of("100", Unit.AER))
-          .nonce(0L) // wrong
-          .build();
-      final TxHash hash = wallet.commit(rawTransaction);
-      waitForNextBlockToGenerate();
-      assertNotNull(wallet.getTransaction(hash));
-
-      final long postCachedNonce = wallet.getRecentlyUsedNonce();
-      final AccountState postState = wallet.getAccountState();
-      validatePreAndPostState(preState, preCachedNonce, postState, postCachedNonce, 1);
     } finally {
       wallet.lock(auth);
     }

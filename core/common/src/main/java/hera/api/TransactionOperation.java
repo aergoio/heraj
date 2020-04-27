@@ -8,7 +8,9 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.Aer;
+import hera.api.model.BytesValue;
 import hera.api.model.Fee;
+import hera.api.model.Name;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.TxReceipt;
@@ -55,8 +57,24 @@ public interface TransactionOperation {
    * @param amount    an amount to send
    * @param nonce     an nonce used in making transaction
    * @param fee       transaction fee
+   * @param payload   a payload
    * @return transaction hash
    */
-  TxHash sendTx(Signer signer, AccountAddress recipient, Aer amount, long nonce, Fee fee);
+  TxHash sendTx(Signer signer, AccountAddress recipient, Aer amount, long nonce,
+      Fee fee, BytesValue payload);
+
+  /**
+   * Send aergo.
+   *
+   * @param signer    a signer to send aergo
+   * @param recipient a recipient to get aergo
+   * @param amount    an amount to send
+   * @param nonce     an nonce used in making transaction
+   * @param fee       transaction fee
+   * @param payload   a payload
+   * @return transaction hash
+   */
+  TxHash sendTx(Signer signer, Name recipient, Aer amount, long nonce,
+      Fee fee, BytesValue payload);
 
 }

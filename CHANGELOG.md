@@ -11,6 +11,7 @@
   - Add sendTx api
   - Split TxReceipt from ContractTxReceipt
   - Add functionName to ContractInvocation
+  - Add Name object related apis
 - Changes
   - Replace subscribeNewBlockXXX with subscribeBlockXXX
 

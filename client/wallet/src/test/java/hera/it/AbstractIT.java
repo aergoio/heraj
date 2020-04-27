@@ -7,6 +7,7 @@ package hera.it;
 import static java.util.UUID.randomUUID;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.api.model.Name;
 import hera.util.ThreadUtils;
 import java.io.InputStream;
 import org.slf4j.Logger;
@@ -25,8 +26,8 @@ public abstract class AbstractIT {
     ThreadUtils.trySleep(2200L);
   }
 
-  protected String randomName() {
-    return randomUUID().toString().substring(0, 12).replace('-', 'a');
+  protected Name randomName() {
+    return Name.of(randomUUID().toString().substring(0, 12).replace('-', 'a'));
   }
 
 }

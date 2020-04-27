@@ -60,7 +60,8 @@ public class KeyStoreOperationIT extends AbstractIT {
     nonceProvider.bindNonce(state);
     aergoClient.getTransactionOperation()
         .sendTx(rich, key.getAddress(), Aer.of("10000", Unit.AERGO),
-            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY);
+            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY,
+            BytesValue.EMPTY);
     waitForNextBlockToGenerate();
   }
 
@@ -118,7 +119,7 @@ public class KeyStoreOperationIT extends AbstractIT {
     boolean unlockResult = aergoClient.getKeyStoreOperation().unlock(authentication);
 
     // then
-    assertTrue(false == unlockResult);
+    assertTrue(!unlockResult);
   }
 
   @Test
@@ -149,7 +150,7 @@ public class KeyStoreOperationIT extends AbstractIT {
     final boolean lockResult = aergoClient.getKeyStoreOperation().lock(invalid);
 
     // then
-    assertTrue(false == lockResult);
+    assertTrue(!lockResult);
   }
 
   @Test
@@ -163,6 +164,7 @@ public class KeyStoreOperationIT extends AbstractIT {
     final EncryptedPrivateKey exported = aergoClient.getKeyStoreOperation().exportKey(auth);
 
     // then
+
     final AergoKey decrypted = AergoKey.of(exported, password);
     assertEquals(decrypted.getAddress(), created);
   }

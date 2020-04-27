@@ -14,6 +14,7 @@ import hera.api.model.AccountTotalVote;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
+import hera.api.model.BytesValue;
 import hera.api.model.ElectedCandidate;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
@@ -59,10 +60,12 @@ public class LegacyStakeVoteIT extends AbstractLegacyWalletIT {
     final NonceProvider nonceProvider = new SimpleNonceProvider();
     final AccountState state = aergoClient.getAccountOperation().getState(rich.getAddress());
     logger.debug("Rich state: {}", state);
-    nonceProvider.bindNonce(state);;
+    nonceProvider.bindNonce(state);
+    ;
     aergoClient.getTransactionOperation()
         .sendTx(rich, key.getAddress(), Aer.of("10000", Unit.AERGO),
-            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY);
+            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY,
+            BytesValue.EMPTY);
     waitForNextBlockToGenerate();
   }
 

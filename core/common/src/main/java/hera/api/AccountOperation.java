@@ -12,6 +12,7 @@ import hera.api.model.AccountState;
 import hera.api.model.AccountTotalVote;
 import hera.api.model.Aer;
 import hera.api.model.ElectedCandidate;
+import hera.api.model.Name;
 import hera.api.model.RawTransaction;
 import hera.api.model.StakeInfo;
 import hera.api.model.Transaction;
@@ -47,7 +48,7 @@ public interface AccountOperation {
   AccountState getState(AccountAddress address);
 
   /**
-   * Use {@link #createNameTx(Signer, String, long)} instead.
+   * Use {@link #createNameTx(Signer, Name, long)} instead.
    *
    * @param account an account
    * @param name    an new name
@@ -58,7 +59,7 @@ public interface AccountOperation {
   TxHash createName(Account account, String name, long nonce);
 
   /**
-   * Use {@link #createNameTx(Signer, String, long)} instead.
+   * Use {@link #createNameTx(Signer, Name, long)} instead.
    *
    * @param signer a signer
    * @param name   an new name
@@ -76,10 +77,10 @@ public interface AccountOperation {
    * @param nonce  an nonce which is used in a transaction
    * @return a create name transaction hash
    */
-  TxHash createNameTx(Signer signer, String name, long nonce);
+  TxHash createNameTx(Signer signer, Name name, long nonce);
 
   /**
-   * Use {@link #updateNameTx(Signer, String, AccountAddress, long)} instead.
+   * Use {@link #updateNameTx(Signer, Name, AccountAddress, long)} instead.
    *
    * @param owner    an account
    * @param name     an already binded name
@@ -91,7 +92,7 @@ public interface AccountOperation {
   TxHash updateName(Account owner, String name, AccountAddress newOwner, long nonce);
 
   /**
-   * Use {@link #updateNameTx(Signer, String, AccountAddress, long)} instead.
+   * Use {@link #updateNameTx(Signer, Name, AccountAddress, long)} instead.
    *
    * @param signer   a signer
    * @param name     an already binded name
@@ -111,7 +112,16 @@ public interface AccountOperation {
    * @param nonce    an nonce which is used in a transaction
    * @return a update name transaction hash
    */
-  TxHash updateNameTx(Signer signer, String name, AccountAddress newOwner, long nonce);
+  TxHash updateNameTx(Signer signer, Name name, AccountAddress newOwner, long nonce);
+
+  /**
+   * Use {@link #getNameOwner} instead.
+   *
+   * @param name an name of account
+   * @return an account address binded with name. null if it has no owner
+   */
+  @Deprecated
+  AccountAddress getNameOwner(String name);
 
   /**
    * Get owner of an account name.
@@ -119,7 +129,17 @@ public interface AccountOperation {
    * @param name an name of account
    * @return an account address binded with name. null if it has no owner
    */
-  AccountAddress getNameOwner(String name);
+  AccountAddress getNameOwner(Name name);
+
+  /**
+   * Use {@link #getNameOwner(Name, long)} instead.
+   *
+   * @param name        an name of account
+   * @param blockNumber a block number
+   * @return an account address binded with name. null if it has no owner
+   */
+  @Deprecated
+  AccountAddress getNameOwner(String name, long blockNumber);
 
   /**
    * Get owner of an account name at block {@code blockNumber}.
@@ -128,7 +148,7 @@ public interface AccountOperation {
    * @param blockNumber a block number
    * @return an account address binded with name. null if it has no owner
    */
-  AccountAddress getNameOwner(String name, long blockNumber);
+  AccountAddress getNameOwner(Name name, long blockNumber);
 
   /**
    * Use {@link #stakeTx(Signer, Aer, long)} instead.

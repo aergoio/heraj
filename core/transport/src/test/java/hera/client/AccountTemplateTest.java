@@ -5,6 +5,7 @@
 package hera.client;
 
 import static java.util.Collections.emptyList;
+import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -68,8 +69,10 @@ public class AccountTemplateTest extends AbstractTestCase {
 
     // then
     final Account deprecatedOne = new AccountFactory().create(new AergoKeyGenerator().create());
-    assertEquals(expected, accountTemplate.createName(deprecatedOne, anyName, anyNonce));
-    assertEquals(expected, accountTemplate.createName(anySigner, anyName, anyNonce));
+    assertEquals(expected,
+        accountTemplate.createName(deprecatedOne, randomUUID().toString(), anyNonce));
+    assertEquals(expected,
+        accountTemplate.createName(anySigner, randomUUID().toString(), anyNonce));
     assertEquals(expected, accountTemplate.createNameTx(anySigner, anyName, anyNonce));
   }
 
@@ -85,10 +88,10 @@ public class AccountTemplateTest extends AbstractTestCase {
 
     // then
     final Account deprecatedOne = new AccountFactory().create(new AergoKeyGenerator().create());
-    assertEquals(expected,
-        accountTemplate.updateName(deprecatedOne, anyName, anyAccountAddress, anyNonce));
-    assertEquals(expected,
-        accountTemplate.updateName(anySigner, anyName, anyAccountAddress, anyNonce));
+    assertEquals(expected, accountTemplate
+        .updateName(deprecatedOne, randomUUID().toString(), anyAccountAddress, anyNonce));
+    assertEquals(expected, accountTemplate
+        .updateName(anySigner, randomUUID().toString(), anyAccountAddress, anyNonce));
     assertEquals(expected,
         accountTemplate.updateNameTx(anySigner, anyName, anyAccountAddress, anyNonce));
   }
@@ -104,8 +107,23 @@ public class AccountTemplateTest extends AbstractTestCase {
     accountTemplate.requester = mockRequester;
 
     // then
-    final AccountAddress actual = accountTemplate.getNameOwner(anyName);
-    assertEquals(expected, actual);
+    assertEquals(expected, accountTemplate.getNameOwner(randomUUID().toString()));
+    assertEquals(expected, accountTemplate.getNameOwner(anyName));
+  }
+
+  @Test
+  public void testGetNameOwnerWithHeight() throws Exception {
+    // given
+    final AccountTemplate accountTemplate = new AccountTemplate(contextStorage);
+    final Requester mockRequester = mock(Requester.class);
+    final AccountAddress expected = AccountAddress.EMPTY;
+    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+        .thenReturn(expected);
+    accountTemplate.requester = mockRequester;
+
+    // then
+    assertEquals(expected, accountTemplate.getNameOwner(randomUUID().toString(), anyHeight));
+    assertEquals(expected, accountTemplate.getNameOwner(anyName, anyHeight));
   }
 
   @Test

@@ -14,6 +14,7 @@ import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
+import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInterface;
@@ -94,7 +95,8 @@ public class ContractIT extends AbstractWalletApiIT {
     nonceProvider.bindNonce(state);
     aergoClient.getTransactionOperation()
         .sendTx(rich, key.getAddress(), Aer.of("10000", Unit.AERGO),
-            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY);
+            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY,
+            BytesValue.EMPTY);
     waitForNextBlockToGenerate();
   }
 
@@ -269,7 +271,7 @@ public class ContractIT extends AbstractWalletApiIT {
       final Pair<Integer, String> value =
           new Pair<>(randomUUID().hashCode(), randomUUID().toString());
       final Pair<String, Pair<Integer, String>> keyAndValue =
-          new Pair<>(randomName().toString(), value);
+          new Pair<>(randomUUID().toString(), value);
       execArgs.add(keyAndValue);
     }
     return execArgs;
@@ -278,9 +280,7 @@ public class ContractIT extends AbstractWalletApiIT {
   protected Pair<String, Pair<Integer, String>> recoverArgs(List<Object> rawArgs) {
     final Pair<Integer, String> recoveredValue =
         new Pair<>((Integer) rawArgs.get(1), (String) rawArgs.get(2));
-    final Pair<String, Pair<Integer, String>> recoveredKeyAndValue =
-        new Pair<>((String) rawArgs.get(0), recoveredValue);
-    return recoveredKeyAndValue;
+    return new Pair<>((String) rawArgs.get(0), recoveredValue);
   }
 
   protected ContractInterface deploy(final String payload, final Fee fee, final Object... args) {

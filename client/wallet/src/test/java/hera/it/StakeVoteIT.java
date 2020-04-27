@@ -13,6 +13,7 @@ import hera.api.model.AccountTotalVote;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
+import hera.api.model.BytesValue;
 import hera.api.model.Fee;
 import hera.api.model.Peer;
 import hera.api.model.RawTransaction;
@@ -69,7 +70,8 @@ public class StakeVoteIT extends AbstractWalletApiIT {
     nonceProvider.bindNonce(state);
     aergoClient.getTransactionOperation()
         .sendTx(rich, key.getAddress(), Aer.of("10000", Unit.AERGO),
-            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY);
+            nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY,
+            BytesValue.EMPTY);
     waitForNextBlockToGenerate();
   }
 

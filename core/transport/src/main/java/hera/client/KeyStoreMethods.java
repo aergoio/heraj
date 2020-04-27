@@ -32,6 +32,7 @@ import hera.transport.AuthenticationConverterFactory;
 import hera.transport.EncryptedPrivateKeyConverterFactory;
 import hera.transport.ModelConverter;
 import hera.transport.TransactionConverterFactory;
+import io.grpc.StatusRuntimeException;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -144,10 +145,16 @@ class KeyStoreMethods extends AbstractMethods {
         final AccountOuterClass.Account rpcAccount = getBlockingStub()
             .unlockAccount(rpcAuthentication);
         return null != rpcAccount.getAddress();
-      } catch (Exception e) {
-        throw e;
+      } catch (StatusRuntimeException e) {
+        // TODO: keystore operations will be removed.
+        System.out.println(e.getMessage());
+        if (!e.getMessage().contains("address or password is incorrect")) {
+          throw e;
+        }
+        return false;
       }
     }
+
   };
 
   @Getter
@@ -178,8 +185,12 @@ class KeyStoreMethods extends AbstractMethods {
         final AccountOuterClass.Account rpcAccount = getBlockingStub()
             .lockAccount(rpcAuthentication);
         return null != rpcAccount.getAddress();
-      } catch (Exception e) {
-        throw e;
+      } catch (StatusRuntimeException e) {
+        // TODO: keystore operations will be removed.
+        if (!e.getMessage().contains("address or password is incorrect")) {
+          throw e;
+        }
+        return false;
       }
     }
 

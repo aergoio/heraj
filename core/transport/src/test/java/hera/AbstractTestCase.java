@@ -21,6 +21,7 @@ import hera.api.model.ContractTxHash;
 import hera.api.model.EventFilter;
 import hera.api.model.Fee;
 import hera.api.model.Identity;
+import hera.api.model.Name;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
@@ -64,7 +65,7 @@ public abstract class AbstractTestCase {
   protected final RawTransaction anyRawTransaction;
   protected final Transaction anyTransaction;
 
-  protected final String anyName = randomUUID().toString();
+  protected final Name anyName = Name.of(randomUUID().toString());
 
   protected final String anyVoteId = randomUUID().toString();
   protected final List<String> anyCandidates = asList(randomUUID().toString(),
