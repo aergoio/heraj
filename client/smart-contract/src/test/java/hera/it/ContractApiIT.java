@@ -14,8 +14,8 @@ import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
+import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
-import hera.api.model.TxHash;
 import hera.api.transaction.NonceProvider;
 import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
@@ -89,7 +89,7 @@ public class ContractApiIT extends AbstractIT {
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payload)
         .build();
-    final TxHash deployTxHash = walletApi.transactionApi().deploy(definition, fee);
+    final ContractTxHash deployTxHash = walletApi.transactionApi().deploy(definition, fee);
     waitForNextBlockToGenerate();
     this.contractAddress = walletApi.queryApi().getContractTxReceipt(deployTxHash).getContractAddress();
   }

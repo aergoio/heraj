@@ -18,7 +18,10 @@ import hera.api.model.TxHash;
 import hera.client.AergoClient;
 import hera.key.Signer;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class TransactionApiImpl extends AbstractApi implements TransactionApi {
 
   protected final ClientProvider clientProvider;
@@ -26,13 +29,6 @@ class TransactionApiImpl extends AbstractApi implements TransactionApi {
   protected final Signer signer;
 
   protected final TxRequester txRequester;
-
-  TransactionApiImpl(final ClientProvider clientProvider, final Signer signer,
-      final TryCountAndInterval tryCountAndInterval) {
-    this.clientProvider = clientProvider;
-    this.signer = signer;
-    this.txRequester = new NonceRefreshingTxRequester(clientProvider, tryCountAndInterval);
-  }
 
   @Override
   public TxHash createName(final String name) {

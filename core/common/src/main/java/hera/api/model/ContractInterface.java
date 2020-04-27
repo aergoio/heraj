@@ -4,14 +4,16 @@
 
 package hera.api.model;
 
-import static hera.util.ValidationUtils.assertNotNull;
 import static java.util.Arrays.asList;
-import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.emptyList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.exception.HerajException;
+import hera.util.StringUtils;
 import java.util.List;
+import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -22,47 +24,28 @@ import lombok.ToString;
 @ApiStability.Unstable
 @ToString
 @EqualsAndHashCode
+@Builder(builderMethodName = "newBuilder")
 public class ContractInterface {
 
   @Getter
-  protected final ContractAddress address;
+  @Default
+  protected final ContractAddress address = ContractAddress.EMPTY;
 
   @Getter
-  protected final String version;
+  @Default
+  protected final String version = StringUtils.EMPTY_STRING;
 
   @Getter
-  protected final String language;
+  @Default
+  protected final String language = StringUtils.EMPTY_STRING;
 
   @Getter
-  protected final List<ContractFunction> functions;
+  @Default
+  protected final List<ContractFunction> functions = emptyList();
 
   @Getter
-  protected final List<StateVariable> stateVariables;
-
-  /**
-   * ContractInterface constructor.
-   *
-   * @param contractAddress a contract address
-   * @param version         a contract version
-   * @param language        a contract language
-   * @param functions       a contract functions to invoke
-   * @param stateVariables  a contract state variables
-   */
-  @ApiAudience.Private
-  public ContractInterface(final ContractAddress contractAddress, final String version,
-      final String language, final List<ContractFunction> functions,
-      final List<StateVariable> stateVariables) {
-    assertNotNull(contractAddress, "Contract address must not null");
-    assertNotNull(version, "Version must not null");
-    assertNotNull(language, "Language must not null");
-    assertNotNull(functions, "Functions must not null");
-    assertNotNull(stateVariables, "State variables must not null");
-    this.address = contractAddress;
-    this.version = version;
-    this.language = language;
-    this.functions = unmodifiableList(functions);
-    this.stateVariables = unmodifiableList(stateVariables);
-  }
+  @Default
+  protected final List<StateVariable> stateVariables = emptyList();
 
   /**
    * Find a contract function with the given function name.

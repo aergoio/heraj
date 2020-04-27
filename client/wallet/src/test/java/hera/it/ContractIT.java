@@ -19,6 +19,7 @@ import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
+import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
@@ -287,7 +288,7 @@ public class ContractIT extends AbstractWalletApiIT {
         .encodedContract(payload)
         .constructorArgs(args)
         .build();
-    final TxHash deployHash = walletApi.transactionApi().deploy(definition, fee);
+    final ContractTxHash deployHash = walletApi.transactionApi().deploy(definition, fee);
     waitForNextBlockToGenerate();
 
     final ContractTxReceipt receipt = walletApi.queryApi().getContractTxReceipt(deployHash);
@@ -305,7 +306,7 @@ public class ContractIT extends AbstractWalletApiIT {
         .function(funcName)
         .args(args)
         .build();
-    final TxHash execTxHash = walletApi.transactionApi().execute(execution, fee);
+    final ContractTxHash execTxHash = walletApi.transactionApi().execute(execution, fee);
     waitForNextBlockToGenerate();
     final ContractTxReceipt receipt = walletApi.queryApi().getContractTxReceipt(execTxHash);
     assertNotEquals("ERROR", receipt.getStatus());

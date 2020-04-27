@@ -33,7 +33,7 @@ import java.util.List;
 public interface ContractOperation {
 
   /**
-   * Use {@link #getContractTxReceipt(TxHash)} instead.
+   * Use {@link #getContractTxReceipt(ContractTxHash)} instead.
    *
    * @param contractTxHash a contract transaction hash
    * @return a receipt of transaction
@@ -47,7 +47,7 @@ public interface ContractOperation {
    * @param txHash a contract transaction hash
    * @return a receipt of transaction
    */
-  ContractTxReceipt getContractTxReceipt(TxHash txHash);
+  ContractTxReceipt getContractTxReceipt(ContractTxHash txHash);
 
   /**
    * Use {@link #deployTx(Signer, ContractDefinition, long, Fee)} instead.

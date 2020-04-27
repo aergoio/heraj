@@ -92,12 +92,12 @@ class ContractMethods extends AbstractMethods {
 
         @Override
         protected void validate(final List<Object> parameters) {
-          validateType(parameters, 0, TxHash.class);
+          validateType(parameters, 0, ContractTxHash.class);
         }
 
         @Override
         protected ContractTxReceipt runInternal(final List<Object> parameters) throws Exception {
-          final TxHash txHash = (TxHash) parameters.get(0);
+          final ContractTxHash txHash = (ContractTxHash) parameters.get(0);
           logger.debug("Get receipt with txHash: {}", txHash);
 
           final Rpc.SingleBytes rpcDeployTxHash = Rpc.SingleBytes.newBuilder()
@@ -212,9 +212,13 @@ class ContractMethods extends AbstractMethods {
           final Blockchain.ABI rpcAbi = getBlockingStub().getABI(rpcContractAddress);
           final ContractInterface withoutAddress =
               contractInterfaceConverter.convertToDomainModel(rpcAbi);
-          return new ContractInterface(contractAddress, withoutAddress.getVersion(),
-              withoutAddress.getLanguage(), withoutAddress.getFunctions(),
-              withoutAddress.getStateVariables());
+          return ContractInterface.newBuilder()
+              .address(contractAddress)
+              .version(withoutAddress.getVersion())
+              .language(withoutAddress.getLanguage())
+              .functions(withoutAddress.getFunctions())
+              .stateVariables(withoutAddress.getStateVariables())
+              .build();
         }
 
       };

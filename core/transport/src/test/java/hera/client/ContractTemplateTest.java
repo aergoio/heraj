@@ -47,8 +47,8 @@ public class ContractTemplateTest extends AbstractTestCase {
     contractTemplate.requester = mockRequester;
 
     // then
-    assertEquals(expected, contractTemplate.getContractTxReceipt(anyTxHash));
     assertEquals(expected, contractTemplate.getReceipt(anyContractTxHash));
+    assertEquals(expected, contractTemplate.getContractTxReceipt(anyContractTxHash));
   }
 
   @Test

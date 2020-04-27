@@ -35,11 +35,11 @@ class ContractTemplate extends AbstractTemplate implements ContractOperation {
 
   @Override
   public ContractTxReceipt getReceipt(final ContractTxHash contractTxHash) {
-    return getContractTxReceipt(contractTxHash.adapt(TxHash.class));
+    return getContractTxReceipt(contractTxHash);
   }
 
   @Override
-  public ContractTxReceipt getContractTxReceipt(final TxHash txHash) {
+  public ContractTxReceipt getContractTxReceipt(final ContractTxHash txHash) {
     return request(contractMethods.getContractTxReceipt(), Arrays.<Object>asList(txHash));
   }
 

@@ -323,13 +323,8 @@ class QueryApiImpl extends AbstractApi implements QueryApi {
 
   @Override
   public ContractTxReceipt getContractTxReceipt(final ContractTxHash contractTxHash) {
-    return getContractTxReceipt(contractTxHash.adapt(TxHash.class));
-  }
-
-  @Override
-  public ContractTxReceipt getContractTxReceipt(final TxHash txHash) {
     try {
-      return getClient().getContractOperation().getContractTxReceipt(txHash);
+      return getClient().getContractOperation().getContractTxReceipt(contractTxHash);
     } catch (Exception e) {
       throw converter.convert(e);
     }

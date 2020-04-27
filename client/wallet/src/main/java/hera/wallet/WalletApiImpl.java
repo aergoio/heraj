@@ -19,9 +19,7 @@ import hera.exception.InvalidAuthenticationException;
 import hera.key.Signer;
 import hera.keystore.KeyStore;
 import hera.util.Sha256Utils;
-import lombok.EqualsAndHashCode;
 
-@EqualsAndHashCode
 class WalletApiImpl extends AbstractApi implements WalletApi, Signer, ClientProvider {
 
   protected final KeyStore keyStore;
@@ -40,7 +38,9 @@ class WalletApiImpl extends AbstractApi implements WalletApi, Signer, ClientProv
     assertNotNull(keyStore, "Keystore must not null");
     assertNotNull(tryCountAndInterval, "TryCountAndInterval must not null");
     this.keyStore = keyStore;
-    this.transactionApi = new TransactionApiImpl(this, this, tryCountAndInterval);
+    final TxRequester txRequester = new NonceRefreshingTxRequester(this,
+        tryCountAndInterval);
+    this.transactionApi = new TransactionApiImpl(this, this, txRequester);
     this.queryApi = new QueryApiImpl(this);
   }
 

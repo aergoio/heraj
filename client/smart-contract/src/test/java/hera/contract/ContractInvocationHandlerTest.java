@@ -130,13 +130,18 @@ public class ContractInvocationHandlerTest extends AbstractTestCase {
   }
 
   protected ContractInterface supplyContractInterface() {
-    final List<ContractFunction> contractFunctions = new ArrayList<ContractFunction>();
-    contractFunctions.add(new ContractFunction("execute", asList("arg")));
-    contractFunctions.add(new ContractFunction("query", false, true, false));
+    final List<ContractFunction> contractFunctions = asList(
+        new ContractFunction("execute", asList("arg")),
+        new ContractFunction("query", false, true, false)
+    );
     final List<StateVariable> stateVariables = new ArrayList<>();
-    final ContractInterface contractInterface =
-        new ContractInterface(contractAddress, "1.0", "lua", contractFunctions, stateVariables);
-    return contractInterface;
+    return ContractInterface.newBuilder()
+        .address(contractAddress)
+        .version("1.0")
+        .language("lua")
+        .functions(contractFunctions)
+        .stateVariables(stateVariables)
+        .build();
   }
 
 }

@@ -30,9 +30,13 @@ public class ContractInterfaceTest {
     final List<ContractFunction> functions = new ArrayList<ContractFunction>();
     functions.add(function);
     final List<StateVariable> stateVariables = new ArrayList<StateVariable>();
-
-    final ContractInterface contractInterface =
-        new ContractInterface(address, version, language, functions, stateVariables);
+    final ContractInterface contractInterface = ContractInterface.newBuilder()
+        .address(address)
+        .version(version)
+        .language(language)
+        .functions(functions)
+        .stateVariables(stateVariables)
+        .build();
 
     final Object[] args = new Object[]{randomUUID().toString(), randomUUID().toString()};
     final ContractInvocation expected = ContractInvocation
@@ -61,9 +65,13 @@ public class ContractInterfaceTest {
     final List<ContractFunction> functions = new ArrayList<ContractFunction>();
     functions.add(function);
     final List<StateVariable> stateVariables = new ArrayList<StateVariable>();
-
-    final ContractInterface contractInterface =
-        new ContractInterface(address, version, language, functions, stateVariables);
+    final ContractInterface contractInterface = ContractInterface.newBuilder()
+        .address(address)
+        .version(version)
+        .language(language)
+        .functions(functions)
+        .stateVariables(stateVariables)
+        .build();
 
     final Object[] args = new Object[]{randomUUID().toString(), randomUUID().toString()};
     try {
@@ -86,8 +94,13 @@ public class ContractInterfaceTest {
     final List<ContractFunction> functions = new ArrayList<ContractFunction>();
     functions.add(function);
     final List<StateVariable> stateVariables = new ArrayList<StateVariable>();
-    final ContractInterface contractInterface =
-        new ContractInterface(address, version, language, functions, stateVariables);
+    final ContractInterface contractInterface = ContractInterface.newBuilder()
+        .address(address)
+        .version(version)
+        .language(language)
+        .functions(functions)
+        .stateVariables(stateVariables)
+        .build();
 
     final ContractInvocation invocation = contractInterface.newInvocationBuilder()
         .function(functionName)
@@ -107,8 +120,13 @@ public class ContractInterfaceTest {
     final List<ContractFunction> functions = new ArrayList<ContractFunction>();
     functions.add(function);
     final List<StateVariable> stateVariables = new ArrayList<StateVariable>();
-    final ContractInterface contractInterface =
-        new ContractInterface(address, version, language, functions, stateVariables);
+    final ContractInterface contractInterface = ContractInterface.newBuilder()
+        .address(address)
+        .version(version)
+        .language(language)
+        .functions(functions)
+        .stateVariables(stateVariables)
+        .build();
 
     try {
       contractInterface.newInvocationBuilder()
@@ -131,8 +149,13 @@ public class ContractInterfaceTest {
     final List<ContractFunction> functions = new ArrayList<ContractFunction>();
     functions.add(function);
     final List<StateVariable> stateVariables = new ArrayList<StateVariable>();
-    final ContractInterface contractInterface =
-        new ContractInterface(address, version, language, functions, stateVariables);
+    final ContractInterface contractInterface = ContractInterface.newBuilder()
+        .address(address)
+        .version(version)
+        .language(language)
+        .functions(functions)
+        .stateVariables(stateVariables)
+        .build();
 
     final ContractInvocation invocation = contractInterface.newInvocationBuilder()
         .function(functionName)

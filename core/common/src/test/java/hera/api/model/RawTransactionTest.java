@@ -110,9 +110,14 @@ public class RawTransactionTest extends AbstractTestCase {
     final ContractFunction get = new ContractFunction("get", false, true, false);
     final List<ContractFunction> functions = asList(set, get);
     final List<StateVariable> stateVariables = emptyList();
-    final ContractInterface contractInterface =
-        new ContractInterface(address, version, language, functions, stateVariables);
-    return contractInterface;
+    return ContractInterface
+        .newBuilder()
+        .address(address)
+        .version(version)
+        .language(language)
+        .functions(functions)
+        .stateVariables(stateVariables)
+        .build();
   }
 
   @Test

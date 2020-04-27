@@ -52,7 +52,7 @@ public class ContractMethodsTest extends AbstractTestCase {
 
           // then
           final ContractMethods contractMethods = new ContractMethods();
-          final List<Object> parameters = Arrays.<Object>asList(anyTxHash);
+          final List<Object> parameters = Arrays.<Object>asList(anyContractTxHash);
           final ContractTxReceipt contractTxReceipt = contractMethods.getContractTxReceipt()
               .invoke(parameters);
           assertNotNull(contractTxReceipt);

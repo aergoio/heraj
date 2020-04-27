@@ -109,6 +109,7 @@ public interface QueryApi {
    *
    * @return account list
    */
+  @Deprecated
   List<AccountAddress> listServerKeyStoreAccounts();
 
   /**
@@ -294,21 +295,12 @@ public interface QueryApi {
   TxReceipt getTxReceipt(TxHash txHash);
 
   /**
-   * Use {@link #getContractTxReceipt(TxHash)} instead.
+   * Get contract tx receipt.
    *
    * @param contractTxHash a contract transaction hash
    * @return receipt of transaction
    */
-  @Deprecated
   ContractTxReceipt getContractTxReceipt(ContractTxHash contractTxHash);
-
-  /**
-   * Get contract tx receipt.
-   *
-   * @param txHash a contract transaction hash
-   * @return a receipt of transaction
-   */
-  ContractTxReceipt getContractTxReceipt(TxHash txHash);
 
   /**
    * Get smart contract interface corresponding to contract address.
@@ -341,7 +333,6 @@ public interface QueryApi {
    * @param observer a stream observer which is invoked on event
    * @return a subscription
    */
-  Subscription<Event> subscribeEvent(EventFilter filter,
-      hera.api.model.StreamObserver<Event> observer);
+  Subscription<Event> subscribeEvent(EventFilter filter, StreamObserver<Event> observer);
 
 }

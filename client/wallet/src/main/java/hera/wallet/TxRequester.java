@@ -9,6 +9,6 @@ import hera.key.Signer;
 
 interface TxRequester {
 
-  TxHash request(Signer signer, TxRequestFunction requester);
+  TxHash request(Signer signer, TxRequestFunction requestFunction) throws Exception;
 
 }

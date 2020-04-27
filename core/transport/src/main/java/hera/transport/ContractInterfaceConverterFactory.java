@@ -61,12 +61,14 @@ public class ContractInterfaceConverterFactory {
             domainStateVariables.add(stateVariableConverter.convertToDomainModel(rpcStateVariable));
           }
 
-          final ContractInterface domainContractInterface =
-              new ContractInterface(ContractAddress.EMPTY,
-                  rpcContractInterface.getVersion(),
-                  rpcContractInterface.getLanguage(),
-                  domainFunctions,
-                  domainStateVariables);
+          final ContractInterface domainContractInterface = ContractInterface
+              .newBuilder()
+              .address(ContractAddress.EMPTY)
+              .version(rpcContractInterface.getVersion())
+              .language(rpcContractInterface.getLanguage())
+              .functions(domainFunctions)
+              .stateVariables(domainStateVariables)
+              .build();
           logger.trace("Domain contract interface converted: {}", domainContractInterface);
           return domainContractInterface;
         }

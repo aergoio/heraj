@@ -9,7 +9,6 @@ import hera.api.model.TxHash;
 import hera.api.transaction.NonceProvider;
 import hera.api.transaction.SimpleNonceProvider;
 import hera.exception.CommitException;
-import hera.exception.HerajException;
 import hera.key.Signer;
 import hera.util.ThreadUtils;
 import lombok.NonNull;
@@ -30,22 +29,23 @@ class NonceRefreshingTxRequester implements TxRequester {
   protected final NonceProvider nonceProvider = new SimpleNonceProvider();
 
   @Override
-  public TxHash request(final Signer signer, final TxRequestFunction requester) {
+  public TxHash request(final Signer signer, final TxRequestFunction requestFunction)
+      throws Exception {
     assertNotNull(signer, "Signer must not null");
-    assertNotNull(requester, "Requester must not null");
-    logger.debug("Transaction try with signer: {}, requester: {}", signer,
-        requester);
+    assertNotNull(requestFunction, "RequestFunction must not null");
+    logger.debug("Transaction try with signer: {}, requestFunction: {}", signer,
+        requestFunction);
 
     TxHash txHash = null;
-    HerajException error = null;
+    Exception error = null;
 
     final long sleepInterval = tryCountAndInterval.getInterval().toMilliseconds();
     int count = tryCountAndInterval.getCount();
     while (0 <= count && null == txHash) {
       final long nonce = nonceProvider.incrementAndGetNonce(signer.getPrincipal());
       try {
-        txHash = requester.apply(signer, nonce);
-      } catch (HerajException e) {
+        txHash = requestFunction.apply(signer, nonce);
+      } catch (Exception e) {
         error = e;
         if (isNonceRelatedException(e)) {
           final CommitException commitException = (CommitException) e;
@@ -64,10 +64,11 @@ class NonceRefreshingTxRequester implements TxRequester {
     if (null == txHash && null != error) {
       throw error;
     }
+
     return txHash;
   }
 
-  protected boolean isNonceRelatedException(final HerajException e) {
+  protected boolean isNonceRelatedException(final Exception e) {
     if (!(e instanceof CommitException)) {
       return false;
     }
