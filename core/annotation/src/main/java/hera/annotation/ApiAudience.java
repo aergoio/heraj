@@ -16,12 +16,12 @@ public class ApiAudience {
    */
   @Documented
   @Retention(RetentionPolicy.RUNTIME)
-  public @interface Public {};
+  public @interface Public {}
 
   /**
    * Intended for use only within hera itself.
    */
   @Documented
   @Retention(RetentionPolicy.RUNTIME)
-  public @interface Private {};
+  public @interface Private {}
 }

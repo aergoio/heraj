@@ -8,7 +8,7 @@ Follow [successful git branch model](https://nvie.com/posts/a-successful-git-bra
 
 1. `git branch release/vx.x.x && git checkout release/vx.x.x`
 2. Check protobuf version tag to target aergo version and update it if necessary.
-3. Check annotations.
+3. Check annotations and `package-info.java`.
 4. Update `CHANGELOG.MD`, docs directory.
 5. Change aergo version of test (in `./test/aergo.properties`) and integration test with it.
 6. Update version to x.x.x in `gradle.properties`, `README.md` && `git commit -m "Prepare for vx.x.x" && git push origin`.
