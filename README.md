@@ -77,19 +77,6 @@ dependencies {
 }
 ```
 
-## Modules
-
-The repository contains next:
-
-* core/annotation
-* core/util
-* core/common
-* core/protobuf
-* core/transport
-* client/wallet
-* client/smart-contract
-* examples
-
 # Integration
 
 TBD
@@ -176,12 +163,6 @@ We provides next in https://aergoio.github.io/heraj
 
 * JavaDoc
 * Test Coverage
-
-## How to build documents
-
-```console
-$ ./build.sh docs
-```
 
 # Contribution
 
