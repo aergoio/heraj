@@ -66,7 +66,7 @@ class ContractInvocationHandler implements InvocationHandler {
     return false;
   }
 
-  private class ContractInvocator implements ContractInvocationPreparable {
+  private static class ContractInvocator implements ContractInvocationPreparable {
 
     protected final transient Logger logger = getLogger(getClass());
 

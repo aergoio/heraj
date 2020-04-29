@@ -44,6 +44,7 @@ public class EventConverterFactory {
   protected final Function1<Blockchain.Event, Event> rpcConverter =
       new Function1<Blockchain.Event, Event>() {
 
+        @SuppressWarnings("unchecked")
         @Override
         public Event apply(Blockchain.Event rpcEvent) {
           logger.trace("Rpc event: {}", rpcEvent);
