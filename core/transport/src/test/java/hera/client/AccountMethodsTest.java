@@ -47,7 +47,7 @@ public class AccountMethodsTest extends AbstractTestCase {
               AergoRPCServiceBlockingStub.class);
           when(mockBlockingStub.getState(any(Rpc.SingleBytes.class)))
               .thenReturn(Blockchain.State.newBuilder().build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -80,7 +80,7 @@ public class AccountMethodsTest extends AbstractTestCase {
               .thenReturn(Rpc.CommitResultList.newBuilder()
                   .addResults(Rpc.CommitResult.newBuilder().build())
                   .build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final ChainIdHashHolder chainIdHashHolder = new ChainIdHashHolder();
           chainIdHashHolder.put(anyChainIdHash);
@@ -117,7 +117,7 @@ public class AccountMethodsTest extends AbstractTestCase {
               .thenReturn(Rpc.CommitResultList.newBuilder()
                   .addResults(Rpc.CommitResult.newBuilder().build())
                   .build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final ChainIdHashHolder chainIdHashHolder = new ChainIdHashHolder();
           chainIdHashHolder.put(anyChainIdHash);
@@ -157,7 +157,7 @@ public class AccountMethodsTest extends AbstractTestCase {
               .thenReturn(Rpc.NameInfo.newBuilder()
                   .setOwner(converter.convertToRpcModel(anyAccountAddress))
                   .build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance()
               .withValue(GRPC_CLIENT, mockClient);
@@ -191,7 +191,7 @@ public class AccountMethodsTest extends AbstractTestCase {
               .thenReturn(Rpc.CommitResultList.newBuilder()
                   .addResults(Rpc.CommitResult.newBuilder().build())
                   .build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final ChainIdHashHolder chainIdHashHolder = new ChainIdHashHolder();
           chainIdHashHolder.put(anyChainIdHash);
@@ -228,7 +228,7 @@ public class AccountMethodsTest extends AbstractTestCase {
               .thenReturn(Rpc.CommitResultList.newBuilder()
                   .addResults(Rpc.CommitResult.newBuilder().build())
                   .build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final ChainIdHashHolder chainIdHashHolder = new ChainIdHashHolder();
           chainIdHashHolder.put(anyChainIdHash);
@@ -263,7 +263,7 @@ public class AccountMethodsTest extends AbstractTestCase {
               AergoRPCServiceBlockingStub.class);
           when(mockBlockingStub.getStaking(any(Rpc.AccountAddress.class)))
               .thenReturn(Rpc.Staking.newBuilder().build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance()
               .withValue(GRPC_CLIENT, mockClient);
@@ -297,7 +297,7 @@ public class AccountMethodsTest extends AbstractTestCase {
               .thenReturn(Rpc.CommitResultList.newBuilder()
                   .addResults(Rpc.CommitResult.newBuilder().build())
                   .build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final ChainIdHashHolder chainIdHashHolder = new ChainIdHashHolder();
           chainIdHashHolder.put(anyChainIdHash);
@@ -335,7 +335,7 @@ public class AccountMethodsTest extends AbstractTestCase {
               .thenReturn(Rpc.VoteList.newBuilder()
                   .addVotes(Rpc.Vote.newBuilder().build())
                   .build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance()
               .withValue(GRPC_CLIENT, mockClient);
@@ -367,7 +367,7 @@ public class AccountMethodsTest extends AbstractTestCase {
               AergoRPCServiceBlockingStub.class);
           when(mockBlockingStub.getAccountVotes(any(Rpc.AccountAddress.class)))
               .thenReturn(Rpc.AccountVoteInfo.newBuilder().build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance()
               .withValue(GRPC_CLIENT, mockClient);

@@ -54,7 +54,7 @@ public class KeyStoreMethodsTest extends AbstractTestCase {
                       .setAddress(converter.convertToRpcModel(anyAccountAddress))
                       .build())
                   .build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -89,7 +89,7 @@ public class KeyStoreMethodsTest extends AbstractTestCase {
               .thenReturn(AccountOuterClass.Account.newBuilder()
                   .setAddress(converter.convertToRpcModel(anyAccountAddress))
                   .build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -124,7 +124,7 @@ public class KeyStoreMethodsTest extends AbstractTestCase {
               .thenReturn(AccountOuterClass.Account.newBuilder()
                   .setAddress(converter.convertToRpcModel(anyAccountAddress))
                   .build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -159,7 +159,7 @@ public class KeyStoreMethodsTest extends AbstractTestCase {
               .thenReturn(AccountOuterClass.Account.newBuilder()
                   .setAddress(converter.convertToRpcModel(anyAccountAddress))
                   .build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -190,7 +190,7 @@ public class KeyStoreMethodsTest extends AbstractTestCase {
               AergoRPCServiceBlockingStub.class);
           when(mockBlockingStub.signTX(any(Blockchain.Tx.class)))
               .thenReturn(Blockchain.Tx.newBuilder().build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -225,7 +225,7 @@ public class KeyStoreMethodsTest extends AbstractTestCase {
               .thenReturn(AccountOuterClass.Account.newBuilder()
                   .setAddress(converter.convertToRpcModel(anyAccountAddress))
                   .build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -259,7 +259,7 @@ public class KeyStoreMethodsTest extends AbstractTestCase {
               new AccountAddressConverterFactory().create();
           when(mockBlockingStub.exportAccount(any(Rpc.Personal.class)))
               .thenReturn(Rpc.SingleBytes.newBuilder().build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -292,7 +292,7 @@ public class KeyStoreMethodsTest extends AbstractTestCase {
               .thenReturn(Rpc.CommitResult.newBuilder()
                   .setError(CommitStatus.TX_OK)
                   .build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final ChainIdHashHolder chainIdHashHolder = new ChainIdHashHolder();
           chainIdHashHolder.put(anyChainIdHash);

@@ -16,12 +16,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.junit.Test;
 
-public class GrpcClientTest extends AbstractTestCase {
+public class GrpcClientImplTest extends AbstractTestCase {
 
   @Test
   public void shouldGetReturnSingleInstanceOnConcurrentRun() throws Exception {
     // given
-    final GrpcClient grpcClient = new GrpcClient();
+    final GrpcClientImpl grpcClient = new GrpcClientImpl();
     final int nThreads = Runtime.getRuntime().availableProcessors();
     final ExecutorService executorService = Executors.newFixedThreadPool(2 * nThreads);
 
@@ -55,7 +55,7 @@ public class GrpcClientTest extends AbstractTestCase {
 
   @Test
   public void testClose() {
-    final GrpcClient grpcClient = new GrpcClient();
+    final GrpcClientImpl grpcClient = new GrpcClientImpl();
     grpcClient.close();
   }
 

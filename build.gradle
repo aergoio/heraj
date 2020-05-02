@@ -338,7 +338,6 @@ task alljacoco(type: JacocoReport) {
   dependsOn = javaProjects.test
   sourceDirectories = files(javaProjects.sourceSets.main.allSource.srcDirs)
   classDirectories =  files(javaProjects.sourceSets.main.output.classesDir)
-  def executionDataPath = []
   executionData = files((javaProjects.findAll { p ->
     def coverageFileLocation = "$p.buildDir/jacoco/test.exec"
     new File(coverageFileLocation).exists()

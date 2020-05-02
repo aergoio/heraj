@@ -145,7 +145,7 @@ public class AergoClientBuilder implements ClientConfiguer<AergoClientBuilder> {
     context = context.withValue(GRPC_FAILOVER_HANDLER_CHAIN, failoverHandlerChain);
 
     // init grpc client
-    context = context.withValue(GRPC_CLIENT, new GrpcClient());
+    context = context.withValue(GRPC_CLIENT, new GrpcClientImpl());
 
     return context;
   }

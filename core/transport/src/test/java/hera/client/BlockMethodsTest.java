@@ -41,7 +41,7 @@ public class BlockMethodsTest extends AbstractTestCase {
               AergoRPCServiceBlockingStub.class);
           when(mockBlockingStub.getBlockMetadata(any(Rpc.SingleBytes.class)))
               .thenReturn(Rpc.BlockMetadata.newBuilder().build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -72,7 +72,7 @@ public class BlockMethodsTest extends AbstractTestCase {
               AergoRPCServiceBlockingStub.class);
           when(mockBlockingStub.getBlockMetadata(any(Rpc.SingleBytes.class)))
               .thenReturn(Rpc.BlockMetadata.newBuilder().build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -105,7 +105,7 @@ public class BlockMethodsTest extends AbstractTestCase {
               .thenReturn(Rpc.BlockMetadataList.newBuilder()
                   .addBlocks(Rpc.BlockMetadata.newBuilder().build())
                   .build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -138,7 +138,7 @@ public class BlockMethodsTest extends AbstractTestCase {
               .thenReturn(Rpc.BlockMetadataList.newBuilder()
                   .addBlocks(Rpc.BlockMetadata.newBuilder().build())
                   .build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -169,7 +169,7 @@ public class BlockMethodsTest extends AbstractTestCase {
               AergoRPCServiceBlockingStub.class);
           when(mockBlockingStub.getBlock(any(Rpc.SingleBytes.class)))
               .thenReturn(Blockchain.Block.newBuilder().build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -200,7 +200,7 @@ public class BlockMethodsTest extends AbstractTestCase {
               AergoRPCServiceBlockingStub.class);
           when(mockBlockingStub.getBlock(any(Rpc.SingleBytes.class)))
               .thenReturn(Blockchain.Block.newBuilder().build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -228,7 +228,7 @@ public class BlockMethodsTest extends AbstractTestCase {
         try {
           // given
           final AergoRPCServiceStub mockStreamStub = mock(AergoRPCServiceStub.class);
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getStreamStub()).thenReturn(mockStreamStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -272,7 +272,7 @@ public class BlockMethodsTest extends AbstractTestCase {
         try {
           // given
           final AergoRPCServiceStub mockStreamStub = mock(AergoRPCServiceStub.class);
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getStreamStub()).thenReturn(mockStreamStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);

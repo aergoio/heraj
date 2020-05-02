@@ -45,7 +45,7 @@ public class BlockchainMethodsTest extends AbstractTestCase {
               AergoRPCServiceBlockingStub.class);
           when(mockBlockingStub.blockchain(any(Rpc.Empty.class)))
               .thenReturn(Rpc.BlockchainStatus.newBuilder().build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -76,7 +76,7 @@ public class BlockchainMethodsTest extends AbstractTestCase {
               AergoRPCServiceBlockingStub.class);
           when(mockBlockingStub.getChainInfo(any(Rpc.Empty.class)))
               .thenReturn(Rpc.ChainInfo.newBuilder().build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -107,7 +107,7 @@ public class BlockchainMethodsTest extends AbstractTestCase {
               AergoRPCServiceBlockingStub.class);
           when(mockBlockingStub.chainStat(any(Rpc.Empty.class)))
               .thenReturn(Rpc.ChainStats.newBuilder().build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -140,7 +140,7 @@ public class BlockchainMethodsTest extends AbstractTestCase {
               .thenReturn(Rpc.PeerList.newBuilder()
                   .addPeers(Rpc.Peer.newBuilder().build())
                   .build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -173,7 +173,7 @@ public class BlockchainMethodsTest extends AbstractTestCase {
               .thenReturn(Metric.Metrics.newBuilder()
                   .addPeers(Metric.PeerMetric.newBuilder().build())
                   .build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -204,7 +204,7 @@ public class BlockchainMethodsTest extends AbstractTestCase {
               AergoRPCServiceBlockingStub.class);
           when(mockBlockingStub.getServerInfo(any(Rpc.KeyParams.class)))
               .thenReturn(Rpc.ServerInfo.newBuilder().build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -235,7 +235,7 @@ public class BlockchainMethodsTest extends AbstractTestCase {
               AergoRPCServiceBlockingStub.class);
           when(mockBlockingStub.nodeState(any(Rpc.NodeReq.class)))
               .thenReturn(Rpc.SingleBytes.newBuilder().build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);

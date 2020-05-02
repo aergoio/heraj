@@ -49,7 +49,7 @@ public class AergoClientImplTest extends AbstractTestCase {
 
   @Test
   public void testClose() {
-    final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, new GrpcClient());
+    final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, new GrpcClientImpl());
     final ContextStorage<Context> contextStorage = new UnmodifiableContextStorage(context);
     final AergoClientImpl aergoClient = new AergoClientImpl(contextStorage);
     aergoClient.close();

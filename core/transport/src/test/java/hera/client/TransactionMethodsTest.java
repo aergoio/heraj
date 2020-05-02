@@ -43,7 +43,7 @@ public class TransactionMethodsTest extends AbstractTestCase {
               AergoRPCServiceBlockingStub.class);
           when(mockBlockingStub.getTX(any(Rpc.SingleBytes.class)))
               .thenReturn(Blockchain.Tx.newBuilder().build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -74,7 +74,7 @@ public class TransactionMethodsTest extends AbstractTestCase {
               AergoRPCServiceBlockingStub.class);
           when(mockBlockingStub.getBlockTX(any(Rpc.SingleBytes.class)))
               .thenReturn(Blockchain.TxInBlock.newBuilder().build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -105,7 +105,7 @@ public class TransactionMethodsTest extends AbstractTestCase {
               AergoRPCServiceBlockingStub.class);
           when(mockBlockingStub.getReceipt(any(Rpc.SingleBytes.class)))
               .thenReturn(Blockchain.Receipt.newBuilder().build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -140,7 +140,7 @@ public class TransactionMethodsTest extends AbstractTestCase {
                       .setError(CommitStatus.TX_NONCE_TOO_LOW)
                       .build())
                   .build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -175,7 +175,7 @@ public class TransactionMethodsTest extends AbstractTestCase {
                       .setError(CommitStatus.TX_OK)
                       .build())
                   .build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
           ContextHolder.attach(context);
@@ -210,7 +210,7 @@ public class TransactionMethodsTest extends AbstractTestCase {
                       .setError(CommitStatus.TX_OK)
                       .build())
                   .build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final ChainIdHashHolder chainIdHashHolder = new ChainIdHashHolder();
           chainIdHashHolder.put(anyChainIdHash);
@@ -250,7 +250,7 @@ public class TransactionMethodsTest extends AbstractTestCase {
                       .setError(CommitStatus.TX_OK)
                       .build())
                   .build());
-          final GrpcClient mockClient = mock(GrpcClient.class);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
           when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
           final ChainIdHashHolder chainIdHashHolder = new ChainIdHashHolder();
           chainIdHashHolder.put(anyChainIdHash);
