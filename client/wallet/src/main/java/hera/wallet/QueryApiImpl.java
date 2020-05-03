@@ -352,6 +352,11 @@ class QueryApiImpl extends AbstractApi implements QueryApi {
 
   @Override
   public ContractResult query(final ContractInvocation contractInvocation) {
+    return queryContract(contractInvocation);
+  }
+
+  @Override
+  public ContractResult queryContract(ContractInvocation contractInvocation) {
     try {
       return getClient().getContractOperation().query(contractInvocation);
     } catch (Exception e) {

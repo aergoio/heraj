@@ -5,10 +5,12 @@
 package hera.wallet;
 
 import hera.api.model.TxHash;
+import hera.client.AergoClient;
 import hera.key.Signer;
 
 interface TxRequester {
 
-  TxHash request(Signer signer, TxRequestFunction requestFunction) throws Exception;
+  TxHash request(AergoClient aergoClient, Signer signer, TxRequestFunction requestFunction)
+      throws Exception;
 
 }

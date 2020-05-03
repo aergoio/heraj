@@ -13,6 +13,7 @@ import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.Authentication;
 import hera.api.model.BytesValue;
+import hera.api.model.ChainIdHash;
 import hera.api.model.Fee;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
@@ -57,7 +58,6 @@ public class LegacySendIT extends AbstractLegacyWalletIT {
     final AccountState state = aergoClient.getAccountOperation().getState(rich.getAddress());
     logger.debug("Rich state: {}", state);
     nonceProvider.bindNonce(state);
-    ;
     aergoClient.getTransactionOperation()
         .sendTx(rich, key.getAddress(), Aer.of("10000", Unit.AERGO),
             nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY,
@@ -74,6 +74,7 @@ public class LegacySendIT extends AbstractLegacyWalletIT {
     wallet.unlock(auth);
     try {
       // when
+      wallet.cacheChainIdHash();
       final AergoKey recipient = new AergoKeyGenerator().create();
       final RawTransaction rawTransaction = RawTransaction.newBuilder(wallet.getCachedChainIdHash())
           .from(key.getAddress())

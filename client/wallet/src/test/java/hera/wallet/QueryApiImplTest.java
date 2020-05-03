@@ -604,7 +604,7 @@ public class QueryApiImplTest extends AbstractTestCase {
   }
 
   @Test
-  public void testQuery() {
+  public void testQueryContract() {
     // given
     final ContractOperation mockOperation = mock(ContractOperation.class);
     when(mockOperation.query(any(ContractInvocation.class)))
@@ -616,8 +616,8 @@ public class QueryApiImplTest extends AbstractTestCase {
 
     // then
     final QueryApi queryApi = new QueryApiImpl(mockClientProvider);
-    final ContractResult contractResult = queryApi.query(anyInvocation);
-    assertNotNull(contractResult);
+    assertNotNull(queryApi.query(anyInvocation));
+    assertNotNull(queryApi.queryContract(anyInvocation));
   }
 
   @Test

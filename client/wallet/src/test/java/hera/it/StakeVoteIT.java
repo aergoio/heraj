@@ -16,8 +16,6 @@ import hera.api.model.Authentication;
 import hera.api.model.BytesValue;
 import hera.api.model.Fee;
 import hera.api.model.Peer;
-import hera.api.model.RawTransaction;
-import hera.api.model.Transaction;
 import hera.api.transaction.NonceProvider;
 import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
@@ -40,7 +38,6 @@ public class StakeVoteIT extends AbstractWalletApiIT {
 
   protected final AergoKey rich = AergoKey
       .of("47iTNDNk1S1HgQw4tJkMHBoHQwEkrwd7kbKpZ7ziX5r9jiCcZkeYkTRcuM4ZHbFBovzcgTD2Q", "1234");
-  protected WalletApi walletApi;
   protected Authentication authentication;
 
   @BeforeClass
@@ -56,9 +53,6 @@ public class StakeVoteIT extends AbstractWalletApiIT {
 
   @Before
   public void setUp() {
-    walletApi = new WalletApiFactory().create(keyStore);
-    walletApi.bind(aergoClient);
-
     final AergoKey key = new AergoKeyGenerator().create();
     final KeyAlias alias = new KeyAlias(randomUUID().toString().replace("-", ""));
     authentication = Authentication.of(alias, randomUUID().toString());
@@ -78,20 +72,23 @@ public class StakeVoteIT extends AbstractWalletApiIT {
   @Test
   public void shouldStakeAndVoteToCurrentBp() {
     // when
+    final WalletApi walletApi = new WalletApiFactory().create(keyStore);
     walletApi.unlock(authentication);
-    final Aer minimum = walletApi.queryApi().getChainInfo().getMinimumStakingAmount();
-    walletApi.transactionApi().stake(minimum);
+    final Aer minimum = walletApi.with(aergoClient).query().getChainInfo()
+        .getMinimumStakingAmount();
+    walletApi.with(aergoClient).transaction().stake(minimum);
     waitForNextBlockToGenerate();
 
     // then
-    final List<Peer> peers = walletApi.queryApi().listPeers(false, true);
+    final List<Peer> peers = walletApi.with(aergoClient).query().listPeers(false, true);
     final List<String> candidates = new ArrayList<>();
     final String candidate = peers.get(0).getPeerId();
     candidates.add(candidate);
-    walletApi.transactionApi().voteBp(candidates);
+    walletApi.with(aergoClient).transaction().voteBp(candidates);
     waitForNextBlockToGenerate();
 
-    final AccountTotalVote voteInfo = walletApi.queryApi().getVotesOf(walletApi.getPrincipal());
+    final AccountTotalVote voteInfo = walletApi.with(aergoClient).query()
+        .getVotesOf(walletApi.getPrincipal());
     assertTrue(voteInfo.getVoteInfos().get(0).getCandidateIds().contains(candidate));
   }
 
@@ -99,9 +96,11 @@ public class StakeVoteIT extends AbstractWalletApiIT {
   public void shouldStakeFailOnLessThanMinimumAmount() {
     // when
     try {
+      final WalletApi walletApi = new WalletApiFactory().create(keyStore);
       walletApi.unlock(authentication);
-      final Aer minimum = walletApi.queryApi().getChainInfo().getMinimumStakingAmount();
-      walletApi.transactionApi().stake(minimum.subtract(Aer.ONE));
+      final Aer minimum = walletApi.with(aergoClient).query().getChainInfo()
+          .getMinimumStakingAmount();
+      walletApi.with(aergoClient).transaction().stake(minimum.subtract(Aer.ONE));
       fail();
     } catch (HerajException e) {
       // good we expected this
@@ -112,7 +111,8 @@ public class StakeVoteIT extends AbstractWalletApiIT {
   public void shouldStakeFailOnLocked() {
     // when
     try {
-      walletApi.transactionApi().stake(Aer.of("10000", Unit.AERGO));
+      final WalletApi walletApi = new WalletApiFactory().create(keyStore);
+      walletApi.with(aergoClient).transaction().stake(Aer.of("10000", Unit.AERGO));
       fail();
     } catch (HerajException e) {
       // good we expected this
@@ -122,19 +122,21 @@ public class StakeVoteIT extends AbstractWalletApiIT {
   @Test
   public void shouldVoteFailOnLocked() {
     // when
+    final WalletApi walletApi = new WalletApiFactory().create(keyStore);
     walletApi.unlock(authentication);
-    final Aer minimum = walletApi.queryApi().getChainInfo().getMinimumStakingAmount();
-    walletApi.transactionApi().stake(minimum);
+    final Aer minimum = walletApi.with(aergoClient).query().getChainInfo()
+        .getMinimumStakingAmount();
+    walletApi.with(aergoClient).transaction().stake(minimum);
     waitForNextBlockToGenerate();
-    final List<Peer> peers = walletApi.queryApi().listPeers(false, true);
+    final List<Peer> peers = walletApi.with(aergoClient).query().listPeers(false, true);
     final List<String> candidates = new ArrayList<>();
     final String candidate = peers.get(0).getPeerId();
     candidates.add(candidate);
-    walletApi.lock(authentication);
+    walletApi.lock();
 
     // then
     try {
-      walletApi.transactionApi().voteBp(candidates);
+      walletApi.with(aergoClient).transaction().voteBp(candidates);
       fail();
     } catch (Exception e) {
       // good we expected this

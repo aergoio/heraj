@@ -38,7 +38,8 @@ public class TransactionApiImplTest extends AbstractTestCase {
 
   protected final TxRequester txRequester = new TxRequester() {
     @Override
-    public TxHash request(Signer signer, TxRequestFunction requestFunction) throws Exception {
+    public TxHash request(AergoClient aergoClient, Signer signer, TxRequestFunction requestFunction)
+        throws Exception {
       return requestFunction.apply(signer, 1L);
     }
   };

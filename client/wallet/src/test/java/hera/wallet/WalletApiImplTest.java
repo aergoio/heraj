@@ -65,33 +65,32 @@ public class WalletApiImplTest extends AbstractTestCase {
 
   @Test
   public void testBind() {
-    // when
-    final WalletApi walletApi = supplyWalletApi();
-
-    // then
-    final AergoClient aergoClient = new AergoClientBuilder().build();
-    walletApi.bind(aergoClient);
+    try {
+      // when
+      final WalletApi walletApi = supplyWalletApi();
+      final AergoClient aergoClient = new AergoClientBuilder().build();
+      walletApi.bind(aergoClient);
+      fail();
+    } catch (UnsupportedOperationException e) {
+      // then
+    }
   }
 
   @Test
-  public void shouldBindThrowErrorOnNull() {
+  public void testWithClient() {
     // when
     final WalletApi walletApi = supplyWalletApi();
-
-    // then
-    try {
-      walletApi.bind(null);
-      fail();
-    } catch (Throwable e) {
-      // good we expected this
-    }
+    final AergoClient aergoClient = new AergoClientBuilder().build();
+    final PreparedWalletApi preparedWalletApi = walletApi.with(aergoClient);
+    assertNotNull(preparedWalletApi);
+    assertNotNull(preparedWalletApi.transaction());
+    assertNotNull(preparedWalletApi.query());
   }
 
   @Test
   public void testUnlock() {
     // when
     final WalletApi walletApi = supplyWalletApi();
-    walletApi.bind(mock(AergoClient.class));
 
     // then
     assertTrue(walletApi.unlock(valid));
@@ -102,7 +101,6 @@ public class WalletApiImplTest extends AbstractTestCase {
     try {
       // given
       final WalletApi walletApi = supplyWalletApi();
-      walletApi.bind(mock(AergoClient.class));
       walletApi.unlock(valid);
       // when
       walletApi.unlock(valid);
@@ -116,7 +114,6 @@ public class WalletApiImplTest extends AbstractTestCase {
   public void shouldUnlockFailOnInvalidOne() {
     // when
     final WalletApi walletApi = supplyWalletApi();
-    walletApi.bind(mock(AergoClient.class));
     final Authentication invalid =
         Authentication.of(new KeyAlias("invalid"), randomUUID().toString());
 
@@ -135,53 +132,22 @@ public class WalletApiImplTest extends AbstractTestCase {
   }
 
   @Test
-  public void shouldLockFailOnLockedOne() {
-    // when
-    final WalletApi walletApi = supplyWalletApi();
-    walletApi.unlock(valid);
-    walletApi.lock(valid);
-
-    // then
-    assertFalse(walletApi.lock(valid));
-  }
-
-  @Test
-  public void shouldLockFailOnInvalid() {
-    // when
-    final WalletApi walletApi = supplyWalletApi();
-    walletApi.unlock(valid);
-
-    // then
-    final Authentication invalid =
-        Authentication.of(new KeyAlias("invalid"), randomUUID().toString());
-    assertFalse(walletApi.lock(invalid));
-  }
-
-  @Test
   public void testGetApi() {
-    final WalletApi walletApi = supplyWalletApi();
-    walletApi.bind(mock(AergoClient.class));
-    assertNotNull(walletApi.transactionApi());
-    assertNotNull(walletApi.queryApi());
-  }
-
-  @Test
-  public void shouldGetApiThrowExceptionOnClientNotBinded() {
     // when
     final WalletApi walletApi = supplyWalletApi();
 
-    // then
     try {
       walletApi.transactionApi();
-    } catch (HerajException e) {
-      // good we expected this
+      fail();
+    } catch (UnsupportedOperationException e) {
+      // then
     }
 
-    // and then
     try {
       walletApi.queryApi();
-    } catch (HerajException e) {
-      // good we expected this
+      fail();
+    } catch (UnsupportedOperationException e) {
+      // then
     }
   }
 
@@ -189,7 +155,6 @@ public class WalletApiImplTest extends AbstractTestCase {
   public void testSign() {
     // when
     final WalletApi walletApi = supplyWalletApi();
-    walletApi.bind(mock(AergoClient.class));
     walletApi.unlock(valid);
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .chainIdHash(ChainIdHash.of(BytesValue.of(randomUUID().toString().getBytes())))
@@ -207,7 +172,6 @@ public class WalletApiImplTest extends AbstractTestCase {
   public void shouldSignFailOnDifferentSender() {
     // when
     final WalletApi walletApi = supplyWalletApi();
-    walletApi.bind(mock(AergoClient.class));
     walletApi.unlock(valid);
     final AergoKey newOne = new AergoKeyGenerator().create();
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
@@ -231,7 +195,6 @@ public class WalletApiImplTest extends AbstractTestCase {
   public void shouldSignThrowErrorOnLockedOne() {
     // when
     final WalletApi walletApi = supplyWalletApi();
-    walletApi.bind(mock(AergoClient.class));
     final RawTransaction rawTransaction = RawTransaction.newBuilder()
         .chainIdHash(ChainIdHash.of(BytesValue.of(randomUUID().toString().getBytes())))
         .from(storedKey.getAddress())
@@ -253,7 +216,6 @@ public class WalletApiImplTest extends AbstractTestCase {
   public void testSignMessageOnPlaintext() {
     // when
     final WalletApi walletApi = supplyWalletApi();
-    walletApi.bind(mock(AergoClient.class));
     walletApi.unlock(valid);
 
     // then
@@ -266,7 +228,6 @@ public class WalletApiImplTest extends AbstractTestCase {
   public void testSignMessageOnHash() {
     // when
     final WalletApi walletApi = supplyWalletApi();
-    walletApi.bind(mock(AergoClient.class));
     walletApi.unlock(valid);
 
     // then

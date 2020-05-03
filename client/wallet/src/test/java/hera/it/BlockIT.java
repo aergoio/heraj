@@ -12,8 +12,6 @@ import hera.api.model.BlockMetadata;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
-import hera.api.transaction.NonceProvider;
-import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
 import hera.key.AergoKey;
 import hera.wallet.WalletApi;
@@ -34,7 +32,6 @@ public class BlockIT extends AbstractWalletApiIT {
 
   protected final AergoKey rich = AergoKey
       .of("47ZhS5rhhGvgt6CqhMiTEPEjfeKS91dhRDNYesdvDhMYtNPu1YL9dqKu9cWxr8D3W3MPAg62m", "1234");
-  protected WalletApi walletApi;
 
   @BeforeClass
   public static void before() {
@@ -49,38 +46,46 @@ public class BlockIT extends AbstractWalletApiIT {
 
   @Before
   public void setUp() {
-    walletApi = new WalletApiFactory().create(keyStore);
-    walletApi.bind(aergoClient);
   }
 
   @Test
   public void shouldGetBlockInfoByBestInfo() {
     // when
-    final BlockchainStatus blockchainStatus = walletApi.queryApi().getBlockchainStatus();
+    final WalletApi walletApi = new WalletApiFactory().create(keyStore);
+    final BlockchainStatus blockchainStatus = walletApi.with(aergoClient).query()
+        .getBlockchainStatus();
 
     // then
     final BlockMetadata metaByHash =
-        walletApi.queryApi().getBlockMetadata(blockchainStatus.getBestBlockHash());
+        walletApi.with(aergoClient).query()
+            .getBlockMetadata(blockchainStatus.getBestBlockHash());
     final BlockMetadata metaByHeight =
-        walletApi.queryApi().getBlockMetadata(blockchainStatus.getBestHeight());
+        walletApi.with(aergoClient).query()
+            .getBlockMetadata(blockchainStatus.getBestHeight());
     assertEquals(metaByHash, metaByHeight);
 
     // and then
-    final Block blockByHash = walletApi.queryApi().getBlock(blockchainStatus.getBestBlockHash());
-    final Block blockByHeight = walletApi.queryApi().getBlock(blockchainStatus.getBestHeight());
+    final Block blockByHash = walletApi.with(aergoClient).query()
+        .getBlock(blockchainStatus.getBestBlockHash());
+    final Block blockByHeight = walletApi.with(aergoClient).query()
+        .getBlock(blockchainStatus.getBestHeight());
     assertEquals(blockByHash, blockByHeight);
   }
 
   @Test
   public void shouldListBlocksByBestInfo() {
     // when
-    final BlockchainStatus blockchainStatus = walletApi.queryApi().getBlockchainStatus();
+    final WalletApi walletApi = new WalletApiFactory().create(keyStore);
+    final BlockchainStatus blockchainStatus = walletApi.with(aergoClient).query()
+        .getBlockchainStatus();
 
     // then
     final List<BlockMetadata> metasByHash =
-        walletApi.queryApi().listBlockMetadatas(blockchainStatus.getBestBlockHash(), 10);
+        walletApi.with(aergoClient).query()
+            .listBlockMetadatas(blockchainStatus.getBestBlockHash(), 10);
     final List<BlockMetadata> metasByHeight =
-        walletApi.queryApi().listBlockMetadatas(blockchainStatus.getBestHeight(), 10);
+        walletApi.with(aergoClient).query()
+            .listBlockMetadatas(blockchainStatus.getBestHeight(), 10);
     assertEquals(metasByHash, metasByHeight);
   }
 
@@ -106,8 +111,9 @@ public class BlockIT extends AbstractWalletApiIT {
     };
 
     // then
+    final WalletApi walletApi = new WalletApiFactory().create(keyStore);
     final Subscription<BlockMetadata> subscription =
-        walletApi.queryApi().subscribeBlockMetadata(callback);
+        walletApi.with(aergoClient).query().subscribeBlockMetadata(callback);
     latch.await();
     assertEquals(0L, latch.getCount());
 
@@ -143,7 +149,9 @@ public class BlockIT extends AbstractWalletApiIT {
     };
 
     // then
-    final Subscription<Block> subscription = walletApi.queryApi().subscribeBlock(callback);
+    final WalletApi walletApi = new WalletApiFactory().create(keyStore);
+    final Subscription<Block> subscription = walletApi.with(aergoClient).query()
+        .subscribeBlock(callback);
     Thread.sleep(5000L);
     synchronized (lock) {
       assertEquals(atomicInteger.get(), blockNumber2Block.size());

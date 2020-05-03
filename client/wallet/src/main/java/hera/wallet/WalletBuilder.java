@@ -118,12 +118,13 @@ public class WalletBuilder implements ClientConfiguer<WalletBuilder> {
     }
 
     final KeyStore keyStore = new InMemoryKeyStore();
-    WalletApiImpl delegate = (WalletApiImpl) new WalletApiFactory()
+    final WalletApiImpl delegate = (WalletApiImpl) new WalletApiFactory()
         .create(keyStore, nonceRefreshTryInterval.getCount(),
             nonceRefreshTryInterval.getInterval().toMilliseconds());
-    delegate.bind(aergoClient);
+    final PreparedWalletApiImpl preparedWalletApi = (PreparedWalletApiImpl) delegate
+        .with(aergoClient);
 
-    return new LegacyWallet(walletType, delegate);
+    return new LegacyWallet(walletType, delegate, preparedWalletApi);
   }
 
 }

@@ -335,8 +335,18 @@ public interface QueryApi {
    *
    * @param contractInvocation a contract invocation
    * @return a contract result
+   * @deprecated use {@link #queryContract(ContractInvocation)} instead.
    */
+  @Deprecated
   ContractResult query(ContractInvocation contractInvocation);
+
+  /**
+   * Query the smart contract state by calling smart contract function.
+   *
+   * @param contractInvocation a contract invocation
+   * @return a contract result
+   */
+  ContractResult queryContract(ContractInvocation contractInvocation);
 
   /**
    * List events corresponding with event filter.

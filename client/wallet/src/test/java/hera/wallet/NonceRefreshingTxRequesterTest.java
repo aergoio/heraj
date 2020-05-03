@@ -18,6 +18,7 @@ import hera.api.model.AccountState;
 import hera.api.model.BytesValue;
 import hera.api.model.Time;
 import hera.api.model.TxHash;
+import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
 import hera.exception.CommitException;
 import hera.key.AergoKey;
@@ -31,18 +32,18 @@ public class NonceRefreshingTxRequesterTest extends AbstractTestCase {
 
   @Test
   public void testRequest() throws Exception {
-    final ClientProvider clientProvider = mock(ClientProvider.class);
     final TryCountAndInterval tryCountAndInterval = TryCountAndInterval.of(3, Time.of(100L));
-    final TxRequester txRequester = new NonceRefreshingTxRequester(clientProvider,
-        tryCountAndInterval);
+    final TxRequester txRequester = new NonceRefreshingTxRequester(tryCountAndInterval,
+        new SimpleNonceProvider());
     final AergoKey signer = new AergoKeyGenerator().create();
     final TxHash expected = TxHash.of(BytesValue.of(randomUUID().toString().getBytes()));
-    final TxHash actual = txRequester.request(signer, new TxRequestFunction() {
-      @Override
-      public TxHash apply(Signer signer, Long aLong) {
-        return expected;
-      }
-    });
+    final TxHash actual = txRequester
+        .request(mock(AergoClient.class), signer, new TxRequestFunction() {
+          @Override
+          public TxHash apply(Signer signer, Long aLong) {
+            return expected;
+          }
+        });
     assertEquals(expected, actual);
   }
 
@@ -54,15 +55,13 @@ public class NonceRefreshingTxRequesterTest extends AbstractTestCase {
         .thenReturn(AccountState.newBuilder().build());
     final AergoClient mockClient = mock(AergoClient.class);
     when(mockClient.getAccountOperation()).thenReturn(mockAccountOperation);
-    final ClientProvider clientProvider = mock(ClientProvider.class);
-    when(clientProvider.getClient()).thenReturn(mockClient);
 
     // then
     final int count = 3;
     final AtomicInteger countDown = new AtomicInteger(count);
     final TryCountAndInterval tryCountAndInterval = TryCountAndInterval.of(count, Time.of(100L));
-    final TxRequester txRequester = new NonceRefreshingTxRequester(clientProvider,
-        tryCountAndInterval);
+    final TxRequester txRequester = new NonceRefreshingTxRequester(tryCountAndInterval,
+        new SimpleNonceProvider());
     final AergoKey signer = new AergoKeyGenerator().create();
     final TxHash expected = TxHash.of(BytesValue.of(randomUUID().toString().getBytes()));
     final TxRequestFunction requestFunction = new TxRequestFunction() {
@@ -75,7 +74,7 @@ public class NonceRefreshingTxRequesterTest extends AbstractTestCase {
         throw new CommitException(types.Rpc.CommitStatus.TX_HAS_SAME_NONCE, "");
       }
     };
-    final TxHash actual = txRequester.request(signer, requestFunction);
+    final TxHash actual = txRequester.request(mockClient, signer, requestFunction);
     assertEquals(expected, actual);
   }
 
@@ -87,11 +86,9 @@ public class NonceRefreshingTxRequesterTest extends AbstractTestCase {
         .thenReturn(AccountState.newBuilder().build());
     final AergoClient mockClient = mock(AergoClient.class);
     when(mockClient.getAccountOperation()).thenReturn(mockAccountOperation);
-    final ClientProvider clientProvider = mock(ClientProvider.class);
-    when(clientProvider.getClient()).thenReturn(mockClient);
     final TryCountAndInterval tryCountAndInterval = TryCountAndInterval.of(3, Time.of(100L));
-    final TxRequester txRequester = new NonceRefreshingTxRequester(clientProvider,
-        tryCountAndInterval);
+    final TxRequester txRequester = new NonceRefreshingTxRequester(tryCountAndInterval,
+        new SimpleNonceProvider());
     final AergoKey signer = new AergoKeyGenerator().create();
     final CommitException expected = new CommitException(CommitStatus.TX_HAS_SAME_NONCE, "Error");
     final TxRequestFunction requestFunction = new TxRequestFunction() {
@@ -102,7 +99,7 @@ public class NonceRefreshingTxRequesterTest extends AbstractTestCase {
     };
 
     try {
-      txRequester.request(signer, requestFunction);
+      txRequester.request(mockClient, signer, requestFunction);
       fail("Should throw CommitException");
     } catch (Exception actual) {
       // then
@@ -113,10 +110,9 @@ public class NonceRefreshingTxRequesterTest extends AbstractTestCase {
   @Test
   public void shouldRequestFailOnNotNonceRelatedError() {
     // given
-    final ClientProvider clientProvider = mock(ClientProvider.class);
     final TryCountAndInterval tryCountAndInterval = TryCountAndInterval.of(3, Time.of(100L));
-    final TxRequester txRequester = new NonceRefreshingTxRequester(clientProvider,
-        tryCountAndInterval);
+    final TxRequester txRequester = new NonceRefreshingTxRequester(tryCountAndInterval,
+        new SimpleNonceProvider());
     final AergoKey signer = new AergoKeyGenerator().create();
     final UnsupportedOperationException expected = new UnsupportedOperationException(
         "Not nonce-related error");
@@ -128,7 +124,7 @@ public class NonceRefreshingTxRequesterTest extends AbstractTestCase {
     };
 
     try {
-      txRequester.request(signer, requestFunction);
+      txRequester.request(mock(AergoClient.class), signer, requestFunction);
       fail("Should throw UnsupportedOperationException");
     } catch (Exception actual) {
       // then

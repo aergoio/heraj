@@ -24,8 +24,18 @@ public interface WalletApi extends Signer {
    * Bind an aergo client to use.
    *
    * @param aergoClient an aergo client
+   * @deprecated use {@link #with(AergoClient)} instead.
    */
+  @Deprecated
   void bind(AergoClient aergoClient);
+
+  /**
+   * Prepare aergo client to use.
+   *
+   * @param aergoClient an aergo client to use
+   * @return WalletApiWithClient
+   */
+  PreparedWalletApi with(AergoClient aergoClient);
 
   /**
    * Unlock an account and bind it to wallet api.
@@ -40,21 +50,34 @@ public interface WalletApi extends Signer {
    *
    * @param authentication an authentication to lock account binded to wallet api
    * @return a lock result
+   * @deprecated use {@link #lock()} instead.
    */
+  @Deprecated
   boolean lock(Authentication authentication);
+
+  /**
+   * Lock an account.
+   *
+   * @return a lock result
+   */
+  boolean lock();
 
   /**
    * Get transaction api.
    *
    * @return a transaction api
+   * @deprecated use {@link #with(AergoClient)} instead.
    */
+  @Deprecated
   TransactionApi transactionApi();
 
   /**
    * Get query api.
    *
    * @return a query api
+   * @deprecated use {@link #with(AergoClient)} instead.
    */
+  @Deprecated
   QueryApi queryApi();
 
 }

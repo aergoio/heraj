@@ -15,8 +15,6 @@ import hera.api.model.NodeStatus;
 import hera.api.model.Peer;
 import hera.api.model.PeerMetric;
 import hera.api.model.ServerInfo;
-import hera.api.transaction.NonceProvider;
-import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
 import hera.key.AergoKey;
 import hera.wallet.WalletApi;
@@ -34,7 +32,6 @@ public class ChainIT extends AbstractWalletApiIT {
 
   protected final AergoKey rich = AergoKey
       .of("483wcRWd1SbvATUXv7rMpoa9wg14bj35sPyzj3noSNf3NDHs5ABLhLFguJLF4jsfxi9KFJamT", "1234");
-  protected WalletApi walletApi;
 
   @BeforeClass
   public static void before() {
@@ -49,29 +46,31 @@ public class ChainIT extends AbstractWalletApiIT {
 
   @Before
   public void setUp() {
-    walletApi = new WalletApiFactory().create(keyStore);
-    walletApi.bind(aergoClient);
   }
 
   @Test
   public void testQueryChainInfos() {
-    final ChainIdHash chainIdHash = walletApi.queryApi().getChainIdHash();
-    final BlockchainStatus blockchainStatus = walletApi.queryApi().getBlockchainStatus();
+    final WalletApi walletApi = new WalletApiFactory().create(keyStore);
+    final ChainIdHash chainIdHash = walletApi.with(aergoClient).query().getChainIdHash();
+    final BlockchainStatus blockchainStatus = walletApi.with(aergoClient).query()
+        .getBlockchainStatus();
     assertNotNull(chainIdHash);
     assertEquals(blockchainStatus.getChainIdHash(), chainIdHash);
 
-    final ChainInfo chainInfo = walletApi.queryApi().getChainInfo();
-    final ChainStats chainStats = walletApi.queryApi().getChainStats();
+    final ChainInfo chainInfo = walletApi.with(aergoClient).query().getChainInfo();
+    final ChainStats chainStats = walletApi.with(aergoClient).query().getChainStats();
     assertNotNull(chainInfo);
     assertNotNull(chainStats);
 
-    final List<Peer> peers = walletApi.queryApi().listPeers();
-    final List<PeerMetric> peerMetrics = walletApi.queryApi().listPeerMetrics();
+    final List<Peer> peers = walletApi.with(aergoClient).query().listPeers();
+    final List<PeerMetric> peerMetrics = walletApi.with(aergoClient).query()
+        .listPeerMetrics();
     assertNotNull(peers);
     assertNotNull(peerMetrics);
 
-    final ServerInfo serverInfo = walletApi.queryApi().getServerInfo(new ArrayList<String>());
-    final NodeStatus nodeStatus = walletApi.queryApi().getNodeStatus();
+    final ServerInfo serverInfo = walletApi.with(aergoClient).query()
+        .getServerInfo(new ArrayList<String>());
+    final NodeStatus nodeStatus = walletApi.with(aergoClient).query().getNodeStatus();
     assertNotNull(serverInfo);
     assertNotNull(nodeStatus);
   }

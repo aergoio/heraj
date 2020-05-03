@@ -7,7 +7,7 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.TxHash;
 import hera.api.transaction.NonceProvider;
-import hera.api.transaction.SimpleNonceProvider;
+import hera.client.AergoClient;
 import hera.exception.CommitException;
 import hera.key.Signer;
 import hera.util.ThreadUtils;
@@ -21,16 +21,15 @@ class NonceRefreshingTxRequester implements TxRequester {
   protected final transient Logger logger = getLogger(getClass());
 
   @NonNull
-  protected final ClientProvider clientProvider;
-
-  @NonNull
   protected final TryCountAndInterval tryCountAndInterval;
 
-  protected final NonceProvider nonceProvider = new SimpleNonceProvider();
+  @NonNull
+  protected final NonceProvider nonceProvider;
 
   @Override
-  public TxHash request(final Signer signer, final TxRequestFunction requestFunction)
-      throws Exception {
+  public TxHash request(final AergoClient aergoClient, final Signer signer,
+      final TxRequestFunction requestFunction) throws Exception {
+    assertNotNull(aergoClient, "AergoClient must not null");
     assertNotNull(signer, "Signer must not null");
     assertNotNull(requestFunction, "RequestFunction must not null");
     logger.debug("Transaction try with signer: {}, requestFunction: {}", signer,
@@ -51,7 +50,7 @@ class NonceRefreshingTxRequester implements TxRequester {
           final CommitException commitException = (CommitException) e;
           logger.debug("Request failed with {}. Refresh it (try left: {})",
               commitException.getCommitStatus(), count);
-          syncNonce(signer.getPrincipal());
+          syncNonce(aergoClient, signer.getPrincipal());
         } else {
           throw e;
         }
@@ -78,8 +77,8 @@ class NonceRefreshingTxRequester implements TxRequester {
         || cause.getCommitStatus() == CommitException.CommitStatus.TX_HAS_SAME_NONCE;
   }
 
-  protected void syncNonce(final AccountAddress address) {
-    final AccountState state = clientProvider.getClient().getAccountOperation().getState(address);
+  protected void syncNonce(final AergoClient aergoClient, final AccountAddress address) {
+    final AccountState state = aergoClient.getAccountOperation().getState(address);
     logger.debug("Fetched nonce for {} is {}", address, state.getNonce());
     nonceProvider.bindNonce(state);
   }

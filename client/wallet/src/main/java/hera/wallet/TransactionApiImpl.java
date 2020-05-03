@@ -39,7 +39,7 @@ class TransactionApiImpl extends AbstractApi implements TransactionApi {
   @Override
   public TxHash createName(final Name name) {
     try {
-      return txRequester.request(getSigner(), new TxRequestFunction() {
+      return txRequester.request(getClient(), getSigner(), new TxRequestFunction() {
 
         @Override
         public TxHash apply(Signer signer, Long t) {
@@ -59,7 +59,7 @@ class TransactionApiImpl extends AbstractApi implements TransactionApi {
   @Override
   public TxHash updateName(final Name name, final AccountAddress newOwner) {
     try {
-      return txRequester.request(getSigner(), new TxRequestFunction() {
+      return txRequester.request(getClient(), getSigner(), new TxRequestFunction() {
 
         @Override
         public TxHash apply(Signer signer, Long t) {
@@ -74,7 +74,7 @@ class TransactionApiImpl extends AbstractApi implements TransactionApi {
   @Override
   public TxHash stake(final Aer amount) {
     try {
-      return txRequester.request(getSigner(), new TxRequestFunction() {
+      return txRequester.request(getClient(), getSigner(), new TxRequestFunction() {
 
         @Override
         public TxHash apply(Signer signer, Long t) {
@@ -89,7 +89,7 @@ class TransactionApiImpl extends AbstractApi implements TransactionApi {
   @Override
   public TxHash unstake(final Aer amount) {
     try {
-      return txRequester.request(getSigner(), new TxRequestFunction() {
+      return txRequester.request(getClient(), getSigner(), new TxRequestFunction() {
 
         @Override
         public TxHash apply(Signer signer, Long t) {
@@ -110,7 +110,7 @@ class TransactionApiImpl extends AbstractApi implements TransactionApi {
   @Override
   public TxHash vote(final String voteId, final List<String> candidates) {
     try {
-      return txRequester.request(getSigner(), new TxRequestFunction() {
+      return txRequester.request(getClient(), getSigner(), new TxRequestFunction() {
 
         @Override
         public TxHash apply(Signer signer, Long t) {
@@ -131,7 +131,7 @@ class TransactionApiImpl extends AbstractApi implements TransactionApi {
   public TxHash send(final AccountAddress recipient, final Aer amount, final Fee fee,
       final BytesValue payload) {
     try {
-      return txRequester.request(getSigner(), new TxRequestFunction() {
+      return txRequester.request(getClient(), getSigner(), new TxRequestFunction() {
 
         @Override
         public TxHash apply(Signer signer, Long t) {
@@ -164,7 +164,7 @@ class TransactionApiImpl extends AbstractApi implements TransactionApi {
   public TxHash send(final Name recipient, final Aer amount, final Fee fee,
       final BytesValue payload) {
     try {
-      return txRequester.request(getSigner(), new TxRequestFunction() {
+      return txRequester.request(getClient(), getSigner(), new TxRequestFunction() {
 
         @Override
         public TxHash apply(Signer signer, Long t) {
@@ -180,7 +180,7 @@ class TransactionApiImpl extends AbstractApi implements TransactionApi {
   @Override
   public TxHash commit(final RawTransaction rawTransaction) {
     try {
-      return txRequester.request(getSigner(), new TxRequestFunction() {
+      return txRequester.request(getClient(), getSigner(), new TxRequestFunction() {
 
         @Override
         public TxHash apply(Signer signer, Long t) {
@@ -195,7 +195,7 @@ class TransactionApiImpl extends AbstractApi implements TransactionApi {
   @Override
   public TxHash commit(final Transaction signedTransaction) {
     try {
-      return txRequester.request(getSigner(), new TxRequestFunction() {
+      return txRequester.request(getClient(), getSigner(), new TxRequestFunction() {
 
         @Override
         public TxHash apply(Signer signer, Long t) {
@@ -210,7 +210,7 @@ class TransactionApiImpl extends AbstractApi implements TransactionApi {
   @Override
   public ContractTxHash deploy(final ContractDefinition contractDefinition, final Fee fee) {
     try {
-      return txRequester.request(getSigner(), new TxRequestFunction() {
+      return txRequester.request(getClient(), getSigner(), new TxRequestFunction() {
 
         @Override
         public TxHash apply(Signer signer, Long t) {
@@ -227,7 +227,7 @@ class TransactionApiImpl extends AbstractApi implements TransactionApi {
   public ContractTxHash redeploy(final ContractAddress existingContract,
       final ContractDefinition contractDefinition, final Fee fee) {
     try {
-      return txRequester.request(getSigner(), new TxRequestFunction() {
+      return txRequester.request(getClient(), getSigner(), new TxRequestFunction() {
 
         @Override
         public ContractTxHash apply(Signer signer, Long t) {
@@ -243,7 +243,7 @@ class TransactionApiImpl extends AbstractApi implements TransactionApi {
   @Override
   public ContractTxHash execute(final ContractInvocation contractInvocation, final Fee fee) {
     try {
-      return txRequester.request(getSigner(), new TxRequestFunction() {
+      return txRequester.request(getClient(), getSigner(), new TxRequestFunction() {
 
         @Override
         public ContractTxHash apply(Signer signer, Long t) {

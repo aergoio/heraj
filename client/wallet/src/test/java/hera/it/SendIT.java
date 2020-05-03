@@ -40,7 +40,6 @@ public class SendIT extends AbstractWalletApiIT {
   protected final Fee fee = Fee.ZERO;
   protected final AergoKey rich = AergoKey
       .of("47ExozzhsfEEVp2yhvNGxZxGLXPccRSdBydQeuJ5tmUpBij2M9gTSg2AESV83mGXGvu2U8bPR", "1234");
-  protected WalletApi walletApi;
   protected Authentication authentication;
 
   @BeforeClass
@@ -56,9 +55,6 @@ public class SendIT extends AbstractWalletApiIT {
 
   @Before
   public void setUp() {
-    walletApi = new WalletApiFactory().create(keyStore);
-    walletApi.bind(aergoClient);
-
     final AergoKey key = new AergoKeyGenerator().create();
     final KeyAlias alias = new KeyAlias(randomUUID().toString().replace("-", ""));
     authentication = Authentication.of(alias, randomUUID().toString());
@@ -78,19 +74,23 @@ public class SendIT extends AbstractWalletApiIT {
   @Test
   public void shouldSendAergo() {
     // when
+    final WalletApi walletApi = new WalletApiFactory().create(keyStore);
     walletApi.unlock(authentication);
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
     final Aer amount = Aer.GIGA_ONE;
     final BytesValue payload = BytesValue.of(randomUUID().toString().getBytes());
-    final TxHash txHash = walletApi.transactionApi().send(recipient, amount, fee, payload);
+    final TxHash txHash = walletApi.with(aergoClient).transaction()
+        .send(recipient, amount, fee, payload);
     waitForNextBlockToGenerate();
 
     // then
-    final AccountState actual = walletApi.queryApi().getAccountState(recipient);
+    final AccountState actual = walletApi.with(aergoClient).query()
+        .getAccountState(recipient);
     assertEquals(amount, actual.getBalance());
-    final Transaction transaction = walletApi.queryApi().getTransaction(txHash);
+    final Transaction transaction = walletApi.with(aergoClient).query()
+        .getTransaction(txHash);
     assertEquals(payload, transaction.getPayload());
-    final TxReceipt txReceipt = walletApi.queryApi().getTxReceipt(txHash);
+    final TxReceipt txReceipt = walletApi.with(aergoClient).query().getTxReceipt(txHash);
     assertEquals(recipient, txReceipt.getAccountAddress());
     assertEquals("SUCCESS", txReceipt.getStatus());
     assertEquals(txHash, txReceipt.getTxHash());
@@ -99,13 +99,14 @@ public class SendIT extends AbstractWalletApiIT {
   @Test
   public void shouldSendAergoFailOnLocked() {
     // when
+    final WalletApi walletApi = new WalletApiFactory().create(keyStore);
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
     final Aer amount = Aer.GIGA_ONE;
     final BytesValue payload = BytesValue.of(randomUUID().toString().getBytes());
 
     // then
     try {
-      walletApi.transactionApi().send(recipient, amount, fee, payload);
+      walletApi.with(aergoClient).transaction().send(recipient, amount, fee, payload);
       fail();
     } catch (HerajException e) {
       // good we expected this
@@ -115,28 +116,32 @@ public class SendIT extends AbstractWalletApiIT {
   @Test
   public void shouldSendAergoWithName() {
     // given
+    final WalletApi walletApi = new WalletApiFactory().create(keyStore);
     walletApi.unlock(authentication);
     final Name name = randomName();
-    walletApi.transactionApi().createName(name);
+    walletApi.with(aergoClient).transaction().createName(name);
     waitForNextBlockToGenerate();
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
-    walletApi.transactionApi().updateName(name, recipient);
+    walletApi.with(aergoClient).transaction().updateName(name, recipient);
     waitForNextBlockToGenerate();
-    walletApi.lock(authentication);
+    walletApi.lock();
 
     // when
     walletApi.unlock(authentication);
     final Aer amount = Aer.GIGA_ONE;
     final BytesValue payload = BytesValue.of(randomName().toString().getBytes());
-    final TxHash txHash = walletApi.transactionApi().send(name, amount, fee, payload);
+    final TxHash txHash = walletApi.with(aergoClient).transaction()
+        .send(name, amount, fee, payload);
     waitForNextBlockToGenerate();
 
     // then
-    final AccountState actual = walletApi.queryApi().getAccountState(recipient);
+    final AccountState actual = walletApi.with(aergoClient).query()
+        .getAccountState(recipient);
     assertEquals(amount, actual.getBalance());
-    final Transaction transaction = walletApi.queryApi().getTransaction(txHash);
+    final Transaction transaction = walletApi.with(aergoClient).query()
+        .getTransaction(txHash);
     assertEquals(payload, transaction.getPayload());
-    final TxReceipt txReceipt = walletApi.queryApi().getTxReceipt(txHash);
+    final TxReceipt txReceipt = walletApi.with(aergoClient).query().getTxReceipt(txHash);
     assertEquals(recipient, txReceipt.getAccountAddress());
     assertEquals("SUCCESS", txReceipt.getStatus());
     assertEquals(txHash, txReceipt.getTxHash());
@@ -145,14 +150,15 @@ public class SendIT extends AbstractWalletApiIT {
   @Test
   public void shouldSendAergoWithNameFailOnLocked() {
     // given
+    final WalletApi walletApi = new WalletApiFactory().create(keyStore);
     walletApi.unlock(authentication);
     final Name name = randomName();
-    walletApi.transactionApi().createName(name);
+    walletApi.with(aergoClient).transaction().createName(name);
     waitForNextBlockToGenerate();
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
-    walletApi.transactionApi().updateName(name, recipient);
+    walletApi.with(aergoClient).transaction().updateName(name, recipient);
     waitForNextBlockToGenerate();
-    walletApi.lock(authentication);
+    walletApi.lock();
 
     // when
     final Aer amount = Aer.GIGA_ONE;
@@ -160,7 +166,7 @@ public class SendIT extends AbstractWalletApiIT {
 
     // then
     try {
-      walletApi.transactionApi().send(name, amount, fee, payload);
+      walletApi.with(aergoClient).transaction().send(name, amount, fee, payload);
       fail();
     } catch (HerajException e) {
       // good we expected this

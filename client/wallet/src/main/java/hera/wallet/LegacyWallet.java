@@ -72,17 +72,17 @@ class LegacyWallet implements Wallet {
       new WalletExceptionConverter();
 
   protected final WalletType type;
-
-  protected WalletApiImpl walletApi;
+  protected WalletApiImpl walletApiImpl;
+  protected PreparedWalletApiImpl preparedWalletApiImpl;
 
   @Override
   public Account getAccount() {
-    return new AccountFactory().create(walletApi.getPrincipal(), walletApi);
+    return new AccountFactory().create(walletApiImpl.getPrincipal(), walletApiImpl);
   }
 
   @Override
   public AccountTotalVote getVotes() {
-    return walletApi.queryApi().getVotesOf(walletApi.getPrincipal());
+    return preparedWalletApiImpl.query().getVotesOf(walletApiImpl.getPrincipal());
   }
 
   @Override
@@ -98,9 +98,10 @@ class LegacyWallet implements Wallet {
   @Override
   public void bindKeyStore(KeyStore keyStore) {
     if (this.type.equals(WalletType.Secure)) {
-      final WalletApiImpl origin = (WalletApiImpl) this.walletApi;
-      this.walletApi = (WalletApiImpl) new WalletApiFactory().create(new JavaKeyStore(keyStore));
-      this.walletApi.bind(origin.aergoClient);
+      this.walletApiImpl = (WalletApiImpl) new WalletApiFactory()
+          .create(new JavaKeyStore(keyStore));
+      this.preparedWalletApiImpl = (PreparedWalletApiImpl) this.walletApiImpl
+          .with(this.preparedWalletApiImpl.aergoClient);
     }
   }
 
@@ -111,27 +112,26 @@ class LegacyWallet implements Wallet {
 
   @Override
   public void saveKey(AergoKey key, Identity identity, String password) {
-    walletApi.keyStore.save(Authentication.of(identity, password), key);
+    walletApiImpl.keyStore.save(Authentication.of(identity, password), key);
   }
 
   @Override
   public String exportKey(Authentication authentication) {
-    return walletApi.keyStore.export(authentication, authentication.getPassword())
+    return walletApiImpl.keyStore.export(authentication, authentication.getPassword())
         .getEncoded();
   }
 
   @Override
   public List<Identity> listKeyStoreIdentities() {
-    return walletApi.keyStore.listIdentities();
+    return walletApiImpl.keyStore.listIdentities();
   }
 
   @Override
   public boolean unlock(Authentication authentication) {
     try {
       assertNotNull(authentication, "Authentication must not null");
-      synchronized (walletApi.lock) {
-        walletApi.delegate = walletApi.keyStore.load(authentication);
-        walletApi.authMac = walletApi.digest(authentication);
+      synchronized (walletApiImpl.lock) {
+        walletApiImpl.delegate = walletApiImpl.keyStore.load(authentication);
       }
       return true;
     } catch (InvalidAuthenticationException e) {
@@ -144,17 +144,7 @@ class LegacyWallet implements Wallet {
   @Override
   public boolean lock(Authentication authentication) {
     try {
-      assertNotNull(authentication, "Authentication must not null");
-      final String digested = walletApi.digest(authentication);
-      synchronized (walletApi.lock) {
-        if (!digested.equals(walletApi.authMac)) {
-          return false;
-        }
-
-        walletApi.delegate = null;
-        walletApi.authMac = null;
-      }
-      return true;
+      return walletApiImpl.lock();
     } catch (Exception e) {
       throw exceptionConverter.convert(e);
     }
@@ -163,7 +153,6 @@ class LegacyWallet implements Wallet {
   @Override
   public void storeKeyStore(String path, String password) {
     try {
-      final WalletApiImpl walletApiImpl = (WalletApiImpl) walletApi;
       if (walletApiImpl.keyStore instanceof JavaKeyStore) {
         walletApiImpl.keyStore.store(path, password.toCharArray());
       }
@@ -174,206 +163,205 @@ class LegacyWallet implements Wallet {
 
   @Override
   public AccountState getAccountState() {
-    return walletApi.queryApi().getAccountState(walletApi.getPrincipal());
+    return preparedWalletApiImpl.query().getAccountState(walletApiImpl.getPrincipal());
   }
 
   @Override
   public AccountState getAccountState(Account account) {
-    return walletApi.queryApi().getAccountState(account.getAddress());
+    return preparedWalletApiImpl.query().getAccountState(account.getAddress());
   }
 
   @Override
   public AccountState getAccountState(AccountAddress accountAddress) {
-    return walletApi.queryApi().getAccountState(accountAddress);
+    return preparedWalletApiImpl.query().getAccountState(accountAddress);
   }
 
   @Override
   public AccountAddress getNameOwner(String name) {
-    return walletApi.queryApi().getNameOwner(name);
+    return preparedWalletApiImpl.query().getNameOwner(name);
   }
 
   @Override
   public AccountAddress getNameOwner(String name, long blockNumber) {
-    return walletApi.queryApi().getNameOwner(name, blockNumber);
+    return preparedWalletApiImpl.query().getNameOwner(name, blockNumber);
   }
 
   @Override
   public StakeInfo getStakingInfo() {
-    return walletApi.queryApi().getStakingInfo(walletApi.getPrincipal());
+    return preparedWalletApiImpl.query().getStakingInfo(walletApiImpl.getPrincipal());
   }
 
   @Override
   public StakeInfo getStakingInfo(Account account) {
-    return walletApi.queryApi().getStakingInfo(account.getAddress());
+    return preparedWalletApiImpl.query().getStakingInfo(account.getAddress());
   }
 
   @Override
   public StakeInfo getStakingInfo(AccountAddress accountAddress) {
-    return walletApi.queryApi().getStakingInfo(accountAddress);
+    return preparedWalletApiImpl.query().getStakingInfo(accountAddress);
   }
 
   @Override
   public List<ElectedCandidate> listElectedBps(int showCount) {
-    return walletApi.queryApi().listElectedBps(showCount);
+    return preparedWalletApiImpl.query().listElectedBps(showCount);
   }
 
   @Override
   public List<ElectedCandidate> listElected(String voteId, int showCount) {
-    return walletApi.queryApi().listElected(voteId, showCount);
+    return preparedWalletApiImpl.query().listElected(voteId, showCount);
   }
 
   @Override
   public AccountTotalVote getVotesOf(Account account) {
-    return walletApi.queryApi().getVotesOf(account.getAddress());
+    return preparedWalletApiImpl.query().getVotesOf(account.getAddress());
   }
 
   @Override
   public AccountTotalVote getVotesOf(AccountAddress accountAddress) {
-    return walletApi.queryApi().getVotesOf(accountAddress);
+    return preparedWalletApiImpl.query().getVotesOf(accountAddress);
   }
 
   @Override
   public List<AccountAddress> listServerKeyStoreAccounts() {
-    return walletApi.queryApi().listServerKeyStoreAccounts();
+    return preparedWalletApiImpl.query().listServerKeyStoreAccounts();
   }
 
   @Override
   public BlockHash getBestBlockHash() {
-    return walletApi.queryApi().getBestBlockHash();
+    return preparedWalletApiImpl.query().getBestBlockHash();
   }
 
   @Override
   public long getBestBlockHeight() {
-    return walletApi.queryApi().getBestBlockHeight();
+    return preparedWalletApiImpl.query().getBestBlockHeight();
   }
 
   @Override
   public ChainIdHash getChainIdHash() {
-    return walletApi.queryApi().getChainIdHash();
+    return preparedWalletApiImpl.query().getChainIdHash();
   }
 
   @Override
   public BlockchainStatus getBlockchainStatus() {
-    return walletApi.queryApi().getBlockchainStatus();
+    return preparedWalletApiImpl.query().getBlockchainStatus();
   }
 
   @Override
   public ChainInfo getChainInfo() {
-    return walletApi.queryApi().getChainInfo();
+    return preparedWalletApiImpl.query().getChainInfo();
   }
 
   @Override
   public ChainStats getChainStats() {
-    return walletApi.queryApi().getChainStats();
+    return preparedWalletApiImpl.query().getChainStats();
   }
 
   @Override
   public List<Peer> listNodePeers() {
-    return walletApi.queryApi().listPeers();
+    return preparedWalletApiImpl.query().listPeers();
   }
 
   @Override
   public List<PeerMetric> listPeerMetrics() {
-    return walletApi.queryApi().listPeerMetrics();
+    return preparedWalletApiImpl.query().listPeerMetrics();
   }
 
   @Override
   public ServerInfo getServerInfo(List<String> categories) {
-    return walletApi.queryApi().getServerInfo(categories);
+    return preparedWalletApiImpl.query().getServerInfo(categories);
   }
 
   @Override
   public NodeStatus getNodeStatus() {
-    return walletApi.queryApi().getNodeStatus();
+    return preparedWalletApiImpl.query().getNodeStatus();
   }
 
   @Override
   public BlockMetadata getBlockMetadata(BlockHash blockHash) {
-    return walletApi.queryApi().getBlockMetadata(blockHash);
+    return preparedWalletApiImpl.query().getBlockMetadata(blockHash);
   }
 
   @Override
   public BlockMetadata getBlockMetadata(long height) {
-    return walletApi.queryApi().getBlockMetadata(height);
+    return preparedWalletApiImpl.query().getBlockMetadata(height);
   }
 
   @Override
   public List<BlockMetadata> listBlockMetadatas(BlockHash blockHash, int size) {
-    return walletApi.queryApi().listBlockMetadatas(blockHash, size);
+    return preparedWalletApiImpl.query().listBlockMetadatas(blockHash, size);
   }
 
   @Override
   public List<BlockMetadata> listBlockMetadatas(long height, int size) {
-    return walletApi.queryApi().listBlockMetadatas(height, size);
+    return preparedWalletApiImpl.query().listBlockMetadatas(height, size);
   }
 
   @Override
   public Block getBlock(BlockHash blockHash) {
-    return walletApi.queryApi().getBlock(blockHash);
+    return preparedWalletApiImpl.query().getBlock(blockHash);
   }
 
   @Override
   public Block getBlock(long height) {
-    return walletApi.queryApi().getBlock(height);
+    return preparedWalletApiImpl.query().getBlock(height);
   }
 
   @Override
   public Subscription<BlockMetadata> subscribeNewBlockMetadata(
       StreamObserver<BlockMetadata> observer) {
-    return walletApi.queryApi().subscribeBlockMetadata(observer);
+    return preparedWalletApiImpl.query().subscribeBlockMetadata(observer);
   }
 
   @Override
   public Subscription<Block> subscribeNewBlock(StreamObserver<Block> observer) {
-    return walletApi.queryApi().subscribeBlock(observer);
+    return preparedWalletApiImpl.query().subscribeBlock(observer);
   }
 
   @Override
   public Transaction getTransaction(TxHash txHash) {
-    return walletApi.queryApi().getTransaction(txHash);
+    return preparedWalletApiImpl.query().getTransaction(txHash);
   }
 
   @Override
   public ContractTxReceipt getReceipt(ContractTxHash contractTxHash) {
-    return walletApi.queryApi().getContractTxReceipt(contractTxHash);
+    return preparedWalletApiImpl.query().getContractTxReceipt(contractTxHash);
   }
 
   @Override
   public ContractInterface getContractInterface(ContractAddress contractAddress) {
-    return walletApi.queryApi().getContractInterface(contractAddress);
+    return preparedWalletApiImpl.query().getContractInterface(contractAddress);
   }
 
   @Override
   public ContractResult query(ContractInvocation contractInvocation) {
-    return walletApi.queryApi().query(contractInvocation);
+    return preparedWalletApiImpl.query().queryContract(contractInvocation);
   }
 
   @Override
   public List<Event> listEvents(EventFilter filter) {
-    return walletApi.queryApi().listEvents(filter);
+    return preparedWalletApiImpl.query().listEvents(filter);
   }
 
   @Override
   public Subscription<Event> subscribeEvent(EventFilter filter, StreamObserver<Event> observer) {
-    return walletApi.queryApi().subscribeEvent(filter, observer);
+    return preparedWalletApiImpl.query().subscribeEvent(filter, observer);
   }
 
   @Override
   public ChainIdHash getCachedChainIdHash() {
-    final WalletApiImpl walletApiImpl = (WalletApiImpl) walletApi;
-    return walletApiImpl.aergoClient.getCachedChainIdHash();
+    return this.preparedWalletApiImpl.aergoClient.getCachedChainIdHash();
   }
 
   @Override
   public void cacheChainIdHash() {
-    final WalletApiImpl walletApiImpl = (WalletApiImpl) walletApi;
-    walletApiImpl.aergoClient.cacheChainIdHash(getChainIdHash());
+    final ChainIdHash chainIdHash = this.preparedWalletApiImpl.aergoClient.getBlockchainOperation()
+        .getChainIdHash();
+    this.preparedWalletApiImpl.aergoClient.cacheChainIdHash(chainIdHash);
   }
 
   @Override
   public void cacheChainIdHash(ChainIdHash chainIdHash) {
-    final WalletApiImpl walletApiImpl = (WalletApiImpl) walletApi;
-    walletApiImpl.aergoClient.cacheChainIdHash(chainIdHash);
+    this.preparedWalletApiImpl.aergoClient.cacheChainIdHash(chainIdHash);
   }
 
   @Override
@@ -384,7 +372,7 @@ class LegacyWallet implements Wallet {
 
   @Override
   public Transaction sign(RawTransaction rawTransaction) {
-    return walletApi.sign(rawTransaction);
+    return walletApiImpl.sign(rawTransaction);
   }
 
   @Override
@@ -400,108 +388,107 @@ class LegacyWallet implements Wallet {
 
   @Override
   public TxHash createName(String name) {
-    return walletApi.transactionApi().createName(Name.of(name));
+    return preparedWalletApiImpl.transaction().createName(Name.of(name));
   }
 
   @Override
   public TxHash updateName(String name, AccountAddress newOwner) {
-    return walletApi.transactionApi().updateName(Name.of(name), newOwner);
+    return preparedWalletApiImpl.transaction().updateName(Name.of(name), newOwner);
   }
 
   @Override
   public TxHash stake(Aer amount) {
-    return walletApi.transactionApi().stake(amount);
+    return preparedWalletApiImpl.transaction().stake(amount);
   }
 
   @Override
   public TxHash unstake(Aer amount) {
-    return walletApi.transactionApi().stake(amount);
+    return preparedWalletApiImpl.transaction().stake(amount);
   }
 
   @Override
   public TxHash voteBp(List<String> candidates) {
-    return walletApi.transactionApi().voteBp(candidates);
+    return preparedWalletApiImpl.transaction().voteBp(candidates);
   }
 
   @Override
   public TxHash vote(String voteId, List<String> candidates) {
-    return walletApi.transactionApi().vote(voteId, candidates);
+    return preparedWalletApiImpl.transaction().vote(voteId, candidates);
   }
 
   @Override
   public TxHash send(String recipient, Aer amount) {
-    return walletApi.transactionApi().send(recipient, amount, Fee.ZERO);
+    return preparedWalletApiImpl.transaction().send(recipient, amount, Fee.ZERO);
   }
 
   @Override
   public TxHash send(String recipient, Aer amount, Fee fee) {
-    return walletApi.transactionApi().send(recipient, amount, fee);
+    return preparedWalletApiImpl.transaction().send(recipient, amount, fee);
   }
 
   @Override
   public TxHash send(String recipient, Aer amount, BytesValue payload) {
-    return walletApi.transactionApi().send(recipient, amount, Fee.ZERO, payload);
+    return preparedWalletApiImpl.transaction().send(recipient, amount, Fee.ZERO, payload);
   }
 
   @Override
   public TxHash send(String recipient, Aer amount, Fee fee, BytesValue payload) {
-    return walletApi.transactionApi().send(recipient, amount, fee, payload);
+    return preparedWalletApiImpl.transaction().send(recipient, amount, fee, payload);
   }
 
   @Override
   public TxHash send(AccountAddress recipient, Aer amount) {
-    return walletApi.transactionApi().send(recipient, amount, Fee.ZERO);
+    return preparedWalletApiImpl.transaction().send(recipient, amount, Fee.ZERO);
   }
 
   @Override
   public TxHash send(AccountAddress recipient, Aer amount, Fee fee) {
-    return walletApi.transactionApi().send(recipient, amount, fee);
+    return preparedWalletApiImpl.transaction().send(recipient, amount, fee);
   }
 
   @Override
   public TxHash send(AccountAddress recipient, Aer amount, BytesValue payload) {
-    return walletApi.transactionApi().send(recipient, amount, Fee.ZERO, payload);
+    return preparedWalletApiImpl.transaction().send(recipient, amount, Fee.ZERO, payload);
   }
 
   @Override
   public TxHash send(AccountAddress recipient, Aer amount, Fee fee, BytesValue payload) {
-    return walletApi.transactionApi().send(recipient, amount, fee, payload);
+    return preparedWalletApiImpl.transaction().send(recipient, amount, fee, payload);
   }
 
   @Override
   public TxHash commit(RawTransaction rawTransaction) {
-    return walletApi.transactionApi().commit(rawTransaction);
+    return preparedWalletApiImpl.transaction().commit(rawTransaction);
   }
 
   @Override
   public TxHash commit(Transaction signedTransaction) {
-    return walletApi.transactionApi().commit(signedTransaction);
+    return preparedWalletApiImpl.transaction().commit(signedTransaction);
   }
 
   @Override
   public ContractTxHash deploy(ContractDefinition contractDefinition) {
-    return walletApi.transactionApi().deploy(contractDefinition, Fee.ZERO);
+    return preparedWalletApiImpl.transaction().deploy(contractDefinition, Fee.ZERO);
   }
 
   @Override
   public ContractTxHash deploy(ContractDefinition contractDefinition, Fee fee) {
-    return walletApi.transactionApi().deploy(contractDefinition, fee);
+    return preparedWalletApiImpl.transaction().deploy(contractDefinition, fee);
   }
 
   @Override
   public ContractTxHash execute(ContractInvocation contractInvocation) {
-    return walletApi.transactionApi().execute(contractInvocation, Fee.ZERO);
+    return preparedWalletApiImpl.transaction().execute(contractInvocation, Fee.ZERO);
   }
 
   @Override
   public ContractTxHash execute(ContractInvocation contractInvocation, Fee fee) {
-    return walletApi.transactionApi().execute(contractInvocation, fee);
+    return preparedWalletApiImpl.transaction().execute(contractInvocation, fee);
   }
 
   @Override
   public void close() {
-    final WalletApiImpl walletApiImpl = (WalletApiImpl) walletApi;
-    walletApiImpl.aergoClient.close();
+    preparedWalletApiImpl.aergoClient.close();
   }
 
 }
