@@ -75,6 +75,8 @@ public class ContractInterface {
 
   public interface ContractInvocationWithReady extends hera.util.Builder<ContractInvocation> {
 
+    ContractInvocationWithReady args(List<Object> args);
+
     ContractInvocationWithReady args(Object... args);
 
     ContractInvocationWithReady amount(Aer amount);
@@ -91,7 +93,7 @@ public class ContractInterface {
 
     protected ContractFunction function;
 
-    protected Object[] args = new Object[0];
+    protected List<Object> args = emptyList();
 
     protected Aer amount = Aer.EMPTY;
 
@@ -109,6 +111,14 @@ public class ContractInterface {
 
     @Override
     public ContractInvocationWithReady args(final Object... args) {
+      if (null != args) {
+        this.args = asList(args);
+      }
+      return this;
+    }
+
+    @Override
+    public ContractInvocationWithReady args(final List<Object> args) {
       if (null != args) {
         this.args = args;
       }
@@ -135,7 +145,7 @@ public class ContractInterface {
       return ContractInvocation.newBuilder()
           .address(contractInterface.getAddress())
           .functionName(function.getName())
-          .args(asList(args))
+          .args(args)
           .amount(amount)
           .delegateFee(delegateFee)
           .build();

@@ -2,17 +2,16 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.wallet;
+package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
 import static hera.util.ValidationUtils.assertTrue;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import hera.api.model.Time;
 import lombok.Getter;
 import org.slf4j.Logger;
 
-class TryCountAndInterval {
+public class TryCountAndInterval {
 
   protected final Logger logger = getLogger(getClass());
 

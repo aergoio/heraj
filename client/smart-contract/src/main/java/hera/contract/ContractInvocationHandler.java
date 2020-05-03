@@ -1,6 +1,12 @@
+/*
+ * @copyright defined in LICENSE.txt
+ */
+
 package hera.contract;
 
 import static hera.util.ValidationUtils.assertNotNull;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.api.model.ContractAddress;
@@ -9,144 +15,165 @@ import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
 import hera.api.model.Fee;
+import hera.api.model.TxHash;
+import hera.client.AergoClient;
+import hera.client.TxRequestFunction;
+import hera.client.TxRequester;
 import hera.exception.HerajException;
-import hera.util.StringUtils;
-import hera.wallet.WalletApi;
+import hera.key.Signer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.AccessLevel;
 import lombok.NonNull;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 
-class ContractInvocationHandler implements InvocationHandler {
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+class ContractInvocationHandler implements InvocationHandler, ClientPrepareable, SignerPreparable {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected final ContractInvocator contractInvocator = new ContractInvocator();
+  // fixme: no other way to keep client and signer?
+  protected final ThreadLocal<AergoClient> clientCabinet = new ThreadLocal<>();
+  protected final ThreadLocal<Signer> signerCabinet = new ThreadLocal<>();
 
-  ContractInvocationHandler(final ContractAddress contractAddress) {
-    assertNotNull(contractAddress);
-    this.contractInvocator.setContractAddress(contractAddress);
+  @NonNull
+  protected final ContractAddress contractAddress;
+  @NonNull
+  protected final TxRequester txRequester;
+
+  protected final Object lock = new Object();
+  protected volatile ContractInterface cached;
+
+  @Override
+  public void prepareClient(final AergoClient aergoClient) {
+    assertNotNull(aergoClient, "AergoClient must not null");
+    logger.trace("Prepare client: {}", aergoClient);
+    this.clientCabinet.set(aergoClient);
+  }
+
+  @Override
+  public void prepareSigner(final Signer signer) {
+    assertNotNull(signer, "Signer must not null");
+    logger.trace("Prepare signer: {}", signer);
+    this.signerCabinet.set(signer);
   }
 
   @Override
   public Object invoke(final Object proxy, final Method method, final Object[] args)
       throws Throwable {
     try {
-      logger.debug("Method: {}", method);
-      if (!method.getDeclaringClass().isInterface()) {
-        return method.invoke(this, args);
-      }
-
-      logger.debug("Proxy: {}, Method: {}, Args: {}", proxy, method,
-          (args == null) ? null : StringUtils.join(args, ","));
-
-      if (isPrepareMethod(method)) {
-        logger.debug("Contract Invocation prepare: {}", method);
-        method.invoke(this.contractInvocator, args);
-        return null;
-      } else {
-        logger.debug("Contract Invocation with invocator: {}", this.contractInvocator);
-        return this.contractInvocator.invoke(method, args);
-      }
-    } catch (HerajException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new HerajException(e);
-    }
-  }
-
-  protected boolean isPrepareMethod(final Method method) {
-    final Method[] methods = ContractInvocationPreparable.class.getDeclaredMethods();
-    for (final Method prepareMethod : methods) {
-      if (prepareMethod.getName().equals(method.getName())) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private static class ContractInvocator implements ContractInvocationPreparable {
-
-    protected final transient Logger logger = getLogger(getClass());
-
-    protected ContractAddress contractAddress;
-
-    @NonNull
-    @Setter
-    protected WalletApi walletApi;
-
-    @NonNull
-    @Setter
-    protected Fee fee;
-
-    protected volatile ContractInterface cachedContractInterface;
-
-    public Object invoke(final Method method, final Object[] args) throws Throwable {
-      final WalletApi walletApi = getWalletApi();
+      logger.debug("Proxy: {}, Method: {}, Args: {}", proxy.getClass(), method.getName(),
+          (args == null) ? null : asList(args));
 
       final ContractInterface contractInterface = getContractInterface();
       final ContractFunction function = contractInterface.findFunction(method.getName());
       final ContractInvocation contractInvocation = contractInterface.newInvocationBuilder()
           .function(method.getName())
-          .args(args)
+          .args(filterFee(args))
           .build();
+      logger.debug("Generated invocation: {}", contractInvocation);
 
-      Object ret = null;
-      if (Void.TYPE.equals(method.getReturnType())) {
+      Object ret;
+      final Class<?> returnType = method.getReturnType();
+      if (Void.TYPE.equals(returnType) || TxHash.class.equals(returnType)) {
+        logger.debug("Return type present.. treat as contract execution");
         if (function.isView()) {
           throw new HerajException(
               "Unable to execute with function registered with abi.register_view()");
         }
 
-        logger.debug("Contract execution: {}", contractInvocation);
-        final Fee fee = getFee();
-        walletApi.transactionApi().execute(contractInvocation, fee);
-      } else {
+        final Fee fee = parseFee(args);
+        ret = txRequester.request(getClient(), getSigner(), new TxRequestFunction() {
+          @Override
+          public TxHash apply(final Signer signer, final Long nonce) {
+            return getClient().getContractOperation()
+                .executeTx(signer, contractInvocation, nonce, fee);
+          }
+        });
+      } else {  // query
+        logger.debug("Return type present.. treat as contract query");
         if (!function.isView()) {
           throw new HerajException(
               "Unable to query with function registered with abi.register()");
         }
 
-        logger.debug("Contract query: {}", contractInvocation);
-        final ContractResult result = walletApi.queryApi().query(contractInvocation);
-        ret = result.bind(method.getReturnType());
+        final ContractResult result = getClient().getContractOperation().query(contractInvocation);
+        ret = result.bind(returnType);
       }
-
       return ret;
+    } catch (HerajException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HerajException(e);
+    } finally {
+      flushCabinet();
     }
+  }
 
-    protected void setContractAddress(final ContractAddress contractAddress) {
-      assertNotNull(contractAddress);
-      // flush cached contract address when new contract address is set
-      this.cachedContractInterface = null;
-      this.contractAddress = contractAddress;
-    }
-
-    protected ContractAddress getContractAddress() {
-      assertNotNull(this.contractAddress);
-      return this.contractAddress;
-    }
-
-    protected WalletApi getWalletApi() {
-      assertNotNull(this.walletApi);
-      return this.walletApi;
-    }
-
-    protected Fee getFee() {
-      assertNotNull(this.fee);
-      return this.fee;
-    }
-
-    protected ContractInterface getContractInterface() {
-      if (null == this.cachedContractInterface) {
-        final ContractAddress contractAddress = getContractAddress();
-        final WalletApi walletApi = getWalletApi();
-        this.cachedContractInterface = walletApi.queryApi().getContractInterface(contractAddress);
+  protected ContractInterface getContractInterface() {
+    if (null == this.cached) {
+      synchronized (lock) {
+        if (null == this.cached) {
+          this.cached = getClient().getContractOperation()
+              .getContractInterface(this.contractAddress);
+        }
       }
-      return this.cachedContractInterface;
+    }
+    return this.cached;
+  }
+
+  protected List<Object> filterFee(final Object[] args) {
+    if (null == args) {
+      return emptyList();
     }
 
+    final List<Object> filtered = new ArrayList<>();
+    for (final Object arg : args) {
+      if (!(arg instanceof Fee)) {
+        filtered.add(arg);
+      }
+    }
+    return filtered;
+  }
+
+  protected Fee parseFee(final Object[] args) {
+    if (null == args) {
+      return Fee.INFINITY;
+    }
+
+    Fee fee = Fee.INFINITY;
+    for (final Object arg : args) {
+      if (arg instanceof Fee) {
+        fee = (Fee) arg;
+      }
+    }
+    return fee;
+  }
+
+  protected AergoClient getClient() {
+    final AergoClient client = this.clientCabinet.get();
+    if (null == client) {
+      throw new HerajException("Prepared client is null");
+    }
+    return client;
+  }
+
+  protected Signer getSigner() {
+    final Signer signer = this.signerCabinet.get();
+    if (null == signer) {
+      throw new HerajException("Prepared signer is null");
+    }
+    return signer;
+  }
+
+  protected void flushCabinet() {
+    logger.trace("Flush prepared");
+    clientCabinet.remove();
+    signerCabinet.remove();
   }
 
 }
+

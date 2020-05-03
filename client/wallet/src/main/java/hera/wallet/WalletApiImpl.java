@@ -13,9 +13,12 @@ import hera.api.model.Hash;
 import hera.api.model.RawTransaction;
 import hera.api.model.Signature;
 import hera.api.model.Transaction;
+import hera.api.model.TryCountAndInterval;
 import hera.api.transaction.NonceProvider;
 import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
+import hera.client.NonceRefreshingTxRequester;
+import hera.client.TxRequester;
 import hera.exception.HerajException;
 import hera.exception.InvalidAuthenticationException;
 import hera.key.Signer;
@@ -45,6 +48,7 @@ class WalletApiImpl extends AbstractApi implements WalletApi, Signer {
 
   @Override
   public PreparedWalletApi with(final AergoClient aergoClient) {
+    assertNotNull(aergoClient, "AergoClient must not null");
     return new PreparedWalletApiImpl(aergoClient, this, this.txRequester);
   }
 

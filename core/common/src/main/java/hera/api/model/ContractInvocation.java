@@ -31,6 +31,7 @@ public class ContractInvocation implements Payload {
   @Getter
   @NonNull
   @Default
+  @ToString.Exclude
   protected final ContractFunction function = ContractFunction.EMPTY;
 
   @Getter

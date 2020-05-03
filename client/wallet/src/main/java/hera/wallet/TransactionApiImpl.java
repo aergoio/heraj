@@ -17,6 +17,8 @@ import hera.api.model.RawTransaction;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.client.AergoClient;
+import hera.client.TxRequestFunction;
+import hera.client.TxRequester;
 import hera.key.Signer;
 import java.util.List;
 import lombok.AccessLevel;

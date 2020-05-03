@@ -10,6 +10,7 @@ import static hera.util.ValidationUtils.assertTrue;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Time;
+import hera.api.model.TryCountAndInterval;
 
 @ApiAudience.Public
 @ApiStability.Unstable

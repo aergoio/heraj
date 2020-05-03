@@ -5,6 +5,7 @@
 package hera.wallet;
 
 import hera.client.AergoClient;
+import hera.client.TxRequester;
 import hera.key.Signer;
 
 class PreparedWalletApiImpl implements PreparedWalletApi, ClientProvider {

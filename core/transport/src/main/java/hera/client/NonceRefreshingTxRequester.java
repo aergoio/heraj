@@ -1,13 +1,15 @@
-package hera.wallet;
+package hera.client;
 
 import static hera.util.ValidationUtils.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
+import hera.api.model.TryCountAndInterval;
 import hera.api.model.TxHash;
 import hera.api.transaction.NonceProvider;
-import hera.client.AergoClient;
 import hera.exception.CommitException;
 import hera.key.Signer;
 import hera.util.ThreadUtils;
@@ -15,8 +17,10 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 
+@ApiAudience.Private
+@ApiStability.Unstable
 @RequiredArgsConstructor
-class NonceRefreshingTxRequester implements TxRequester {
+public class NonceRefreshingTxRequester implements TxRequester {
 
   protected final transient Logger logger = getLogger(getClass());
 

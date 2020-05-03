@@ -28,6 +28,8 @@ import hera.api.model.Name;
 import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.client.AergoClient;
+import hera.client.TxRequestFunction;
+import hera.client.TxRequester;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
 import hera.key.Signer;

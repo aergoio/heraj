@@ -2,7 +2,7 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.wallet;
+package hera.client;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
@@ -17,9 +17,9 @@ import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.BytesValue;
 import hera.api.model.Time;
+import hera.api.model.TryCountAndInterval;
 import hera.api.model.TxHash;
 import hera.api.transaction.SimpleNonceProvider;
-import hera.client.AergoClient;
 import hera.exception.CommitException;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;

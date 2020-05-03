@@ -12,9 +12,9 @@
   - Split TxReceipt from ContractTxReceipt
   - Add functionName to ContractInvocation
   - Add Name object related apis
-  - Clarify WalletApi
 - Changes
   - Replace subscribeNewBlockXXX with subscribeBlockXXX
+  - Clarify WalletApi, ContractApi
 
 ## v1.4.0 (Mar 10, 2020)
 

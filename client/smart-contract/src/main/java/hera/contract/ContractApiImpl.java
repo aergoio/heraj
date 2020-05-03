@@ -6,37 +6,38 @@ package hera.contract;
 
 import static hera.util.ValidationUtils.assertNotNull;
 
-import hera.api.model.Fee;
-import hera.contract.ContractApi.ContractApiWithWalletApi;
-import hera.wallet.WalletApi;
+import hera.client.AergoClient;
+import hera.key.Signer;
+import lombok.AccessLevel;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
-class ContractApiImpl<ContractT>
-    implements ContractApi<ContractT>, ContractApiWithWalletApi<ContractT> {
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+class ContractApiImpl<ContractT> implements ContractApi<ContractT>, PreparedContractApi<ContractT> {
 
-  protected ContractT contract;
+  @NonNull
+  protected final ContractT proxyInstance;
 
-  public ContractApiImpl(final ContractT contract) {
-    assertNotNull(contract);
-    this.contract = contract;
-  }
+  @NonNull
+  protected final ContractInvocationHandler proxyInvocationHandler;
 
   @Override
-  public ContractApiWithWalletApi<ContractT> walletApi(final WalletApi walletApi) {
-    assertNotNull(walletApi);
-    ((ContractInvocationPreparable) contract).setWalletApi(walletApi);
+  public PreparedContractApi<ContractT> with(final AergoClient aergoClient) {
+    assertNotNull(aergoClient, "AergoClient must not null");
+    proxyInvocationHandler.prepareClient(aergoClient);
     return this;
   }
 
   @Override
-  public ContractT fee(final Fee fee) {
-    assertNotNull(fee);
-    ((ContractInvocationPreparable) contract).setFee(fee);
-    return this.contract;
+  public ContractT execution(Signer signer) {
+    assertNotNull(signer, "Signer must not null");
+    proxyInvocationHandler.prepareSigner(signer);
+    return proxyInstance;
   }
 
   @Override
-  public ContractT noFee() {
-    return this.contract;
+  public ContractT query() {
+    return proxyInstance;
   }
 
 }
