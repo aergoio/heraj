@@ -128,7 +128,8 @@ public class WalletApiImplTest extends AbstractTestCase {
     walletApi.unlock(valid);
 
     // then
-    assertTrue(walletApi.lock(valid));
+    assertTrue(walletApi.lock());
+    assertFalse(walletApi.lock());
   }
 
   @Test
@@ -170,45 +171,43 @@ public class WalletApiImplTest extends AbstractTestCase {
 
   @Test
   public void shouldSignFailOnDifferentSender() {
-    // when
+    // given
     final WalletApi walletApi = supplyWalletApi();
     walletApi.unlock(valid);
-    final AergoKey newOne = new AergoKeyGenerator().create();
-    final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .chainIdHash(ChainIdHash.of(BytesValue.of(randomUUID().toString().getBytes())))
-        .from(newOne.getAddress())
-        .to(randomUUID().toString())
-        .amount(Aer.ZERO)
-        .nonce(1L)
-        .build();
 
-    // then
     try {
+      // when
+      final AergoKey newOne = new AergoKeyGenerator().create();
+      final RawTransaction rawTransaction = RawTransaction.newBuilder()
+          .chainIdHash(ChainIdHash.of(BytesValue.of(randomUUID().toString().getBytes())))
+          .from(newOne.getAddress())
+          .to(randomUUID().toString())
+          .amount(Aer.ZERO)
+          .nonce(1L)
+          .build();
       walletApi.sign(rawTransaction);
       fail();
     } catch (Exception e) {
-      // good we expected this
+      // then
     }
   }
 
   @Test
   public void shouldSignThrowErrorOnLockedOne() {
-    // when
-    final WalletApi walletApi = supplyWalletApi();
-    final RawTransaction rawTransaction = RawTransaction.newBuilder()
-        .chainIdHash(ChainIdHash.of(BytesValue.of(randomUUID().toString().getBytes())))
-        .from(storedKey.getAddress())
-        .to(randomUUID().toString())
-        .amount(Aer.ZERO)
-        .nonce(1L)
-        .build();
-
-    // then
     try {
+      // when
+      final WalletApi walletApi = supplyWalletApi();
+      final RawTransaction rawTransaction = RawTransaction.newBuilder()
+          .chainIdHash(ChainIdHash.of(BytesValue.of(randomUUID().toString().getBytes())))
+          .from(storedKey.getAddress())
+          .to(randomUUID().toString())
+          .amount(Aer.ZERO)
+          .nonce(1L)
+          .build();
       walletApi.sign(rawTransaction);
       fail();
     } catch (HerajException e) {
-      // good we expected this
+      // then
     }
   }
 
@@ -225,6 +224,18 @@ public class WalletApiImplTest extends AbstractTestCase {
   }
 
   @Test
+  public void shouldSignMessageOnPlaintextThrowErrorOnLocked() {
+    try {
+      // when
+      final WalletApi walletApi = supplyWalletApi();
+      walletApi.signMessage(BytesValue.of(randomUUID().toString().getBytes()));
+      fail();
+    } catch (Exception e) {
+      // then
+    }
+  }
+
+  @Test
   public void testSignMessageOnHash() {
     // when
     final WalletApi walletApi = supplyWalletApi();
@@ -234,6 +245,19 @@ public class WalletApiImplTest extends AbstractTestCase {
     final byte[] digested = Sha256Utils.digest(randomUUID().toString().getBytes());
     final Signature signature = walletApi.signMessage(Hash.of(BytesValue.of(digested)));
     assertNotNull(signature);
+  }
+
+  @Test
+  public void shouldSignMessageOnHashThrowErrorOnLocked() {
+    try {
+      // when
+      final WalletApi walletApi = supplyWalletApi();
+      final byte[] digested = Sha256Utils.digest(randomUUID().toString().getBytes());
+      walletApi.signMessage(Hash.of(BytesValue.of(digested)));
+      fail();
+    } catch (Exception e) {
+      // then
+    }
   }
 
 }

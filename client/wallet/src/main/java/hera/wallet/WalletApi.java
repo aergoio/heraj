@@ -33,7 +33,7 @@ public interface WalletApi extends Signer {
    * Prepare aergo client to use.
    *
    * @param aergoClient an aergo client to use
-   * @return WalletApiWithClient
+   * @return a prepared wallet api
    */
   PreparedWalletApi with(AergoClient aergoClient);
 

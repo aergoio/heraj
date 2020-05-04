@@ -9,6 +9,7 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
@@ -50,6 +51,7 @@ public class ContractApiIT extends AbstractIT {
   protected final AergoKey rich = AergoKey
       .of("47ExozzhsfEEVp2yhvNGxZxGLXPccRSdBydQeuJ5tmUpBij2M9gTSg2AESV83mGXGvu2U8bPR", "1234");
   protected AergoKey key;
+  protected NonceProvider nonceProvider = new SimpleNonceProvider();
   protected ContractAddress contractAddress;
 
   @BeforeClass
@@ -68,7 +70,6 @@ public class ContractApiIT extends AbstractIT {
     // fill aergo to key
     key = new AergoKeyGenerator().create();
 
-    final NonceProvider nonceProvider = new SimpleNonceProvider();
     final AccountState state = aergoClient.getAccountOperation().getState(rich.getAddress());
     logger.debug("Rich state: {}", state);
     nonceProvider.bindNonce(state);

@@ -12,6 +12,12 @@ import hera.client.AergoClient;
 @ApiStability.Unstable
 public interface ContractApi<ContractT> {
 
+  /**
+   * Use {@code aergoClient} for contract interaction.
+   *
+   * @param aergoClient an aergoClient to use
+   * @return a prepared contract api
+   */
   PreparedContractApi<ContractT> with(AergoClient aergoClient);
 
 }

@@ -27,7 +27,7 @@ import hera.keystore.KeyStore;
 class WalletApiImpl extends AbstractApi implements WalletApi, Signer {
 
   protected final KeyStore keyStore;
-  protected final NonceProvider nonceProvider;
+  protected final NonceProvider nonceProvider;  // to get nonce from a single base
   protected final TxRequester txRequester;
 
   protected final Object lock = new Object();
@@ -113,7 +113,7 @@ class WalletApiImpl extends AbstractApi implements WalletApi, Signer {
       if (!getPrincipal().equals(rawTransaction.getSender())) {
         throw new HerajException("Sender of the rawTransaction should equals with unlocked one");
       }
-      return getSigner().sign(rawTransaction);
+      return getPreparedSigner().sign(rawTransaction);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -123,7 +123,7 @@ class WalletApiImpl extends AbstractApi implements WalletApi, Signer {
   public Signature signMessage(final BytesValue message) {
     try {
       assertNotNull(message, "Message must not null");
-      return getSigner().signMessage(message);
+      return getPreparedSigner().signMessage(message);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -133,7 +133,7 @@ class WalletApiImpl extends AbstractApi implements WalletApi, Signer {
   public Signature signMessage(final Hash hashedMessage) {
     try {
       assertNotNull(hashedMessage, "Hashed message must not null");
-      return getSigner().signMessage(hashedMessage);
+      return getPreparedSigner().signMessage(hashedMessage);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -142,18 +142,15 @@ class WalletApiImpl extends AbstractApi implements WalletApi, Signer {
   @Override
   public String toString() {
     return String.format("WalletApi(keyStore=%s, principal=%s)", keyStore.getClass().getName(),
-        null != this.delegate ? this.delegate.getPrincipal() : null);
+        getPrincipal());
   }
 
   @Override
   public AccountAddress getPrincipal() {
-    if (null == this.delegate) {
-      throw new HerajException("Unlock account first");
-    }
-    return getSigner().getPrincipal();
+    return null == this.delegate ? null : this.delegate.getPrincipal();
   }
 
-  protected Signer getSigner() {
+  protected Signer getPreparedSigner() {
     if (null == this.delegate) {
       throw new HerajException("Unlock account first");
     }

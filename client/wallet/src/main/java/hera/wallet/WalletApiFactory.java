@@ -5,7 +5,6 @@
 package hera.wallet;
 
 import static hera.util.ValidationUtils.assertNotNull;
-import static hera.util.ValidationUtils.assertTrue;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
@@ -16,19 +15,17 @@ import hera.api.model.TryCountAndInterval;
 @ApiStability.Unstable
 public class WalletApiFactory {
 
-  public static final int DEFAULT_RETRY_COUNT = 1;
-
-  public static final long DEFAULT_RETRY_INTERVAL = 100L;
+  public static final TryCountAndInterval DEFAULT_TRY_COUNT_AND_INTERVAL = TryCountAndInterval
+      .of(3, Time.of(100L));
 
   /**
-   * Create a wallet instance with retryCont as {@value #DEFAULT_RETRY_COUNT} and retry interval as
-   * {@value #DEFAULT_RETRY_INTERVAL} milliseconds.
+   * Create a wallet instance with {@link #DEFAULT_TRY_COUNT_AND_INTERVAL}.
    *
    * @param keyStore an keystore instance
    * @return a wallet instance
    */
   public WalletApi create(final hera.keystore.KeyStore keyStore) {
-    return create(keyStore, DEFAULT_RETRY_COUNT, DEFAULT_RETRY_INTERVAL);
+    return create(keyStore, DEFAULT_TRY_COUNT_AND_INTERVAL);
   }
 
   /**
@@ -41,10 +38,21 @@ public class WalletApiFactory {
    */
   public WalletApi create(final hera.keystore.KeyStore keyStore, final int retryCount,
       final long retryInterval) {
-    assertNotNull(keyStore);
-    assertTrue(1 <= retryCount);
-    assertTrue(0 < retryInterval);
-    return new WalletApiImpl(keyStore, TryCountAndInterval.of(retryCount, Time.of(retryInterval)));
+    return create(keyStore, TryCountAndInterval.of(retryCount, Time.of(retryInterval)));
+  }
+
+  /**
+   * Create a wallet instance.
+   *
+   * @param keyStore            an keystore instance
+   * @param tryCountAndInterval a retry count and interval on nonce failure
+   * @return a wallet instance
+   */
+  public WalletApi create(final hera.keystore.KeyStore keyStore,
+      final TryCountAndInterval tryCountAndInterval) {
+    assertNotNull(keyStore, "Keystore must not null");
+    assertNotNull(tryCountAndInterval, "TryCountAndInterval must not null");
+    return new WalletApiImpl(keyStore, tryCountAndInterval);
   }
 
 }

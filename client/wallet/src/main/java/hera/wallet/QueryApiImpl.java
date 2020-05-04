@@ -4,8 +4,6 @@
 
 package hera.wallet;
 
-import static hera.util.ValidationUtils.assertNotNull;
-
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.AccountTotalVote;
@@ -38,15 +36,15 @@ import hera.api.model.TxHash;
 import hera.api.model.TxReceipt;
 import hera.client.AergoClient;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class QueryApiImpl extends AbstractApi implements QueryApi {
 
+  @NonNull
   protected final ClientProvider clientProvider;
-
-  QueryApiImpl(final ClientProvider clientProvider) {
-    assertNotNull(clientProvider, "ClientProvider must not null");
-    this.clientProvider = clientProvider;
-  }
 
   @Override
   public AccountState getAccountState(final AccountAddress accountAddress) {

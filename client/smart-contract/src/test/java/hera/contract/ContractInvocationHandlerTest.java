@@ -7,6 +7,7 @@ package hera.contract;
 import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -58,6 +59,59 @@ public class ContractInvocationHandlerTest extends AbstractTestCase {
         TxRequester.class));
     final Signer signer = new AergoKeyGenerator().create();
     invocationHandler.prepareSigner(signer);
+  }
+
+  @Test
+  public void shouldThrowErrorOnNoClient() throws Exception {
+    // given
+    final ContractOperation mockContractOperation = mock(ContractOperation.class);
+    final ContractInterface contractInterface = supplyContractInterface();
+    when(mockContractOperation.getContractInterface(any(ContractAddress.class)))
+        .thenReturn(contractInterface);
+    final AergoClient mockClient = mock(AergoClient.class);
+    when(mockClient.getContractOperation()).thenReturn(mockContractOperation);
+    final TxRequester mockTxRequester = mock(TxRequester.class);
+    final ContractInvocationHandler invocationHandler = new ContractInvocationHandler(
+        contractAddress, mockTxRequester);
+
+    try {
+      // when
+      final ContractTest proxy = (ContractTest) Proxy.newProxyInstance(classLoader,
+          new Class<?>[]{ContractTest.class}, invocationHandler);
+      final Signer signer = new AergoKeyGenerator().create();
+      invocationHandler.prepareSigner(signer);
+      proxy.executeVoid();
+      fail();
+    } catch (Exception e) {
+      // then
+      assertTrue(e.getMessage().contains("is null"));
+    }
+  }
+
+  @Test
+  public void shouldThrowErrorOnNoSigner() throws Exception {
+    // given
+    final ContractOperation mockContractOperation = mock(ContractOperation.class);
+    final ContractInterface contractInterface = supplyContractInterface();
+    when(mockContractOperation.getContractInterface(any(ContractAddress.class)))
+        .thenReturn(contractInterface);
+    final AergoClient mockClient = mock(AergoClient.class);
+    when(mockClient.getContractOperation()).thenReturn(mockContractOperation);
+    final TxRequester mockTxRequester = mock(TxRequester.class);
+    final ContractInvocationHandler invocationHandler = new ContractInvocationHandler(
+        contractAddress, mockTxRequester);
+
+    try {
+      // when
+      final ContractTest proxy = (ContractTest) Proxy.newProxyInstance(classLoader,
+          new Class<?>[]{ContractTest.class}, invocationHandler);
+      invocationHandler.prepareClient(mockClient);
+      proxy.executeVoid();
+      fail();
+    } catch (Exception e) {
+      // then
+      assertTrue(e.getMessage().contains("is null"));
+    }
   }
 
   @Test

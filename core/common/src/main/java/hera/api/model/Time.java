@@ -50,7 +50,7 @@ public class Time {
   private Time(final long value, final TimeUnit unit) {
     assertTrue(0 <= value, "Value must >= 0");
     assertNotNull(unit, "Unit must not null");
-    this.value = value < 0 ? 0 : value;
+    this.value = value;
     this.unit = unit;
   }
 

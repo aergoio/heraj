@@ -22,15 +22,17 @@ import hera.client.TxRequester;
 import hera.key.Signer;
 import java.util.List;
 import lombok.AccessLevel;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class TransactionApiImpl extends AbstractApi implements TransactionApi {
 
+  @NonNull
   protected final ClientProvider clientProvider;
-
+  @NonNull
   protected final Signer signer;
-
+  @NonNull
   protected final TxRequester txRequester;
 
   @Override

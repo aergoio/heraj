@@ -70,22 +70,22 @@ class ContractInvocationHandler implements InvocationHandler, ClientPrepareable,
 
       final ContractInterface contractInterface = getContractInterface();
       final ContractFunction function = contractInterface.findFunction(method.getName());
+      final List<Object> feeFiltered = filterFee(args);
       final ContractInvocation contractInvocation = contractInterface.newInvocationBuilder()
           .function(method.getName())
-          .args(filterFee(args))
+          .args(feeFiltered)
           .build();
-      logger.debug("Generated invocation: {}", contractInvocation);
 
       Object ret;
       final Class<?> returnType = method.getReturnType();
-      if (Void.TYPE.equals(returnType) || TxHash.class.equals(returnType)) {
-        logger.debug("Return type present.. treat as contract execution");
+      if (isContractExecution(returnType)) {
         if (function.isView()) {
           throw new HerajException(
               "Unable to execute with function registered with abi.register_view()");
         }
 
         final Fee fee = parseFee(args);
+        logger.debug("Contract execution: {}, fee: {}", contractInvocation, fee);
         ret = txRequester.request(getClient(), getSigner(), new TxRequestFunction() {
           @Override
           public TxHash apply(final Signer signer, final Long nonce) {
@@ -93,13 +93,13 @@ class ContractInvocationHandler implements InvocationHandler, ClientPrepareable,
                 .executeTx(signer, contractInvocation, nonce, fee);
           }
         });
-      } else {  // query
-        logger.debug("Return type present.. treat as contract query");
+      } else {
         if (!function.isView()) {
           throw new HerajException(
               "Unable to query with function registered with abi.register()");
         }
 
+        logger.debug("Contract query: {}", contractInvocation);
         final ContractResult result = getClient().getContractOperation().query(contractInvocation);
         ret = result.bind(returnType);
       }
@@ -111,6 +111,10 @@ class ContractInvocationHandler implements InvocationHandler, ClientPrepareable,
     } finally {
       flushCabinet();
     }
+  }
+
+  protected boolean isContractExecution(final Class<?> returnType) {
+    return Void.TYPE.equals(returnType) || TxHash.class.equals(returnType);
   }
 
   protected ContractInterface getContractInterface() {

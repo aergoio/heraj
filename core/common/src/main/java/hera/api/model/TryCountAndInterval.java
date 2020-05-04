@@ -6,14 +6,18 @@ package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
 import static hera.util.ValidationUtils.assertTrue;
-import static org.slf4j.LoggerFactory.getLogger;
 
+import hera.annotation.ApiAudience;
+import hera.annotation.ApiStability;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.slf4j.Logger;
+import lombok.ToString;
 
+@ApiAudience.Public
+@ApiStability.Unstable
+@ToString
+@EqualsAndHashCode
 public class TryCountAndInterval {
-
-  protected final Logger logger = getLogger(getClass());
 
   /**
    * Create TryCountAndInterval instance.
@@ -33,8 +37,9 @@ public class TryCountAndInterval {
   protected final Time interval;
 
   private TryCountAndInterval(final int tryCount, final Time interval) {
-    assertTrue(tryCount >= 0, "Try count must be >= 0");
-    assertNotNull(interval, "Interval hash must not null");
+    assertTrue(1 <= tryCount, "Try count must >= 1");
+    assertNotNull(interval, "Interval must not null");
+    assertTrue(0 < interval.getValue(), "Interval value must > 0");
     this.count = tryCount;
     this.interval = interval;
   }

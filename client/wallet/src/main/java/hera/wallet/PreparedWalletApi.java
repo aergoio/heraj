@@ -7,8 +7,18 @@ import hera.annotation.ApiStability;
 @ApiStability.Unstable
 public interface PreparedWalletApi {
 
+  /**
+   * Get transaction api.
+   *
+   * @return a transaction api
+   */
   TransactionApi transaction();
 
+  /**
+   * Get query api.
+   *
+   * @return a query api
+   */
   QueryApi query();
 
 }
