@@ -20,7 +20,6 @@ import hera.api.model.ContractAddress;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
-import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.ElectedCandidate;
 import hera.api.model.Event;
@@ -320,7 +319,7 @@ public interface QueryApi {
    * @param contractTxHash a contract transaction hash
    * @return receipt of transaction
    */
-  ContractTxReceipt getContractTxReceipt(ContractTxHash contractTxHash);
+  ContractTxReceipt getContractTxReceipt(TxHash contractTxHash);
 
   /**
    * Get smart contract interface corresponding to contract address.

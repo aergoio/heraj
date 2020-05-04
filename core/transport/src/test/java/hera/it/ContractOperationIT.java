@@ -23,7 +23,6 @@ import hera.api.model.ContractFunction;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
-import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
@@ -834,7 +833,7 @@ public class ContractOperationIT extends AbstractIT {
 
   protected ContractTxReceipt deploy(final Signer signer,
       final ContractDefinition definition) {
-    final ContractTxHash contractTxHash = aergoClient.getContractOperation().deployTx(signer,
+    final TxHash contractTxHash = aergoClient.getContractOperation().deployTx(signer,
         definition, nonceProvider.incrementAndGetNonce(signer.getPrincipal()), fee);
 
     waitForNextBlockToGenerate();
@@ -853,7 +852,7 @@ public class ContractOperationIT extends AbstractIT {
 
   protected ContractTxReceipt redeploy(final Signer signer, final ContractAddress contractAddress,
       final ContractDefinition definition) {
-    final ContractTxHash contractTxHash =
+    final TxHash contractTxHash =
         aergoClient.getContractOperation().redeployTx(signer, contractAddress, definition,
             nonceProvider.incrementAndGetNonce(signer.getPrincipal()), fee);
 
@@ -870,7 +869,7 @@ public class ContractOperationIT extends AbstractIT {
   }
 
   protected ContractTxReceipt execute(final Signer signer, final ContractInvocation execution) {
-    final ContractTxHash contractTxHash = aergoClient.getContractOperation().executeTx(signer,
+    final TxHash contractTxHash = aergoClient.getContractOperation().executeTx(signer,
         execution, nonceProvider.incrementAndGetNonce(signer.getPrincipal()), fee);
 
     waitForNextBlockToGenerate();

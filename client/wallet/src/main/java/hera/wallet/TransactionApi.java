@@ -12,7 +12,6 @@ import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInvocation;
-import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
 import hera.api.model.Name;
 import hera.api.model.RawTransaction;
@@ -187,7 +186,7 @@ public interface TransactionApi {
    * @param fee                a fee
    * @return a contract transaction hash
    */
-  ContractTxHash deploy(ContractDefinition contractDefinition, Fee fee);
+  TxHash deploy(ContractDefinition contractDefinition, Fee fee);
 
   /**
    * Re-deploy a deployed smart smart contract. It works private mode only.
@@ -197,7 +196,7 @@ public interface TransactionApi {
    * @param fee                a fee
    * @return a contract transaction hash
    */
-  ContractTxHash redeploy(ContractAddress existingContract, ContractDefinition contractDefinition,
+  TxHash redeploy(ContractAddress existingContract, ContractDefinition contractDefinition,
       Fee fee);
 
   /**
@@ -207,6 +206,6 @@ public interface TransactionApi {
    * @param fee                a fee
    * @return a contract transaction hash
    */
-  ContractTxHash execute(ContractInvocation contractInvocation, Fee fee);
+  TxHash execute(ContractInvocation contractInvocation, Fee fee);
 
 }

@@ -33,7 +33,7 @@ import java.util.List;
 public interface ContractOperation {
 
   /**
-   * Use {@link #getContractTxReceipt(ContractTxHash)} instead.
+   * Use {@link #getContractTxReceipt(TxHash)} instead.
    *
    * @param contractTxHash a contract transaction hash
    * @return a receipt of transaction
@@ -47,7 +47,7 @@ public interface ContractOperation {
    * @param txHash a contract transaction hash
    * @return a receipt of transaction
    */
-  ContractTxReceipt getContractTxReceipt(ContractTxHash txHash);
+  ContractTxReceipt getContractTxReceipt(TxHash txHash);
 
   /**
    * Use {@link #deployTx(Signer, ContractDefinition, long, Fee)} instead.
@@ -95,7 +95,7 @@ public interface ContractOperation {
    * @param fee                a transaction fee
    * @return contract definition transaction hash
    */
-  ContractTxHash deployTx(Signer signer, ContractDefinition contractDefinition, long nonce,
+  TxHash deployTx(Signer signer, ContractDefinition contractDefinition, long nonce,
       Fee fee);
 
   /**
@@ -123,7 +123,7 @@ public interface ContractOperation {
    * @param fee                a transaction fee
    * @return contract definition transaction hash
    */
-  ContractTxHash redeployTx(Signer signer, ContractAddress existingContract,
+  TxHash redeployTx(Signer signer, ContractAddress existingContract,
       ContractDefinition contractDefinition, long nonce, Fee fee);
 
   /**
@@ -180,7 +180,7 @@ public interface ContractOperation {
    * @param fee                transaction fee
    * @return contract execution transaction hash
    */
-  ContractTxHash executeTx(Signer signer, ContractInvocation contractInvocation, long nonce,
+  TxHash executeTx(Signer signer, ContractInvocation contractInvocation, long nonce,
       Fee fee);
 
   /**

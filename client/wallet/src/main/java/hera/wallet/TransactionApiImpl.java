@@ -10,7 +10,6 @@ import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInvocation;
-import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
 import hera.api.model.Name;
 import hera.api.model.RawTransaction;
@@ -212,7 +211,7 @@ class TransactionApiImpl extends AbstractApi implements TransactionApi {
   }
 
   @Override
-  public ContractTxHash deploy(final ContractDefinition contractDefinition, final Fee fee) {
+  public TxHash deploy(final ContractDefinition contractDefinition, final Fee fee) {
     try {
       return txRequester.request(getClient(), getSigner(), new TxRequestFunction() {
 
@@ -221,39 +220,39 @@ class TransactionApiImpl extends AbstractApi implements TransactionApi {
           return getClient().getContractOperation().deployTx(signer, contractDefinition, t,
               fee);
         }
-      }).adapt(ContractTxHash.class);
+      });
     } catch (Exception e) {
       throw converter.convert(e);
     }
   }
 
   @Override
-  public ContractTxHash redeploy(final ContractAddress existingContract,
+  public TxHash redeploy(final ContractAddress existingContract,
       final ContractDefinition contractDefinition, final Fee fee) {
     try {
       return txRequester.request(getClient(), getSigner(), new TxRequestFunction() {
 
         @Override
-        public ContractTxHash apply(Signer signer, Long t) {
+        public TxHash apply(Signer signer, Long t) {
           return getClient().getContractOperation()
               .redeployTx(signer, existingContract, contractDefinition, t, fee);
         }
-      }).adapt(ContractTxHash.class);
+      });
     } catch (Exception e) {
       throw converter.convert(e);
     }
   }
 
   @Override
-  public ContractTxHash execute(final ContractInvocation contractInvocation, final Fee fee) {
+  public TxHash execute(final ContractInvocation contractInvocation, final Fee fee) {
     try {
       return txRequester.request(getClient(), getSigner(), new TxRequestFunction() {
 
         @Override
-        public ContractTxHash apply(Signer signer, Long t) {
+        public TxHash apply(Signer signer, Long t) {
           return getClient().getContractOperation().executeTx(signer, contractInvocation, t, fee);
         }
-      }).adapt(ContractTxHash.class);
+      });
     } catch (Exception e) {
       throw converter.convert(e);
     }

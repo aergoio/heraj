@@ -20,13 +20,13 @@ import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
-import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Event;
 import hera.api.model.EventFilter;
 import hera.api.model.Fee;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
+import hera.api.model.TxHash;
 import hera.api.transaction.NonceProvider;
 import hera.api.transaction.SimpleNonceProvider;
 import hera.client.AergoClient;
@@ -294,7 +294,7 @@ public class ContractIT extends AbstractWalletApiIT {
         .encodedContract(payload)
         .constructorArgs(args)
         .build();
-    final ContractTxHash deployHash = walletApi.with(aergoClient).transaction()
+    final TxHash deployHash = walletApi.with(aergoClient).transaction()
         .deploy(definition, fee);
     waitForNextBlockToGenerate();
 
@@ -315,7 +315,7 @@ public class ContractIT extends AbstractWalletApiIT {
         .function(funcName)
         .args(args)
         .build();
-    final ContractTxHash execTxHash = walletApi.with(aergoClient).transaction()
+    final TxHash execTxHash = walletApi.with(aergoClient).transaction()
         .execute(execution, fee);
     waitForNextBlockToGenerate();
     final ContractTxReceipt receipt = walletApi.with(aergoClient).query()

@@ -18,7 +18,6 @@ import hera.api.model.ContractAddress;
 import hera.api.model.ContractInterface;
 import hera.api.model.ContractInvocation;
 import hera.api.model.ContractResult;
-import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.ElectedCandidate;
 import hera.api.model.Event;
@@ -331,7 +330,7 @@ class QueryApiImpl extends AbstractApi implements QueryApi {
   }
 
   @Override
-  public ContractTxReceipt getContractTxReceipt(final ContractTxHash contractTxHash) {
+  public ContractTxReceipt getContractTxReceipt(final TxHash contractTxHash) {
     try {
       return getClient().getContractOperation().getContractTxReceipt(contractTxHash);
     } catch (Exception e) {

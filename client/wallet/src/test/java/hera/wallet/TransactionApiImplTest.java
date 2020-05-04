@@ -22,7 +22,6 @@ import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
 import hera.api.model.ContractInvocation;
-import hera.api.model.ContractTxHash;
 import hera.api.model.Fee;
 import hera.api.model.Name;
 import hera.api.model.Transaction;
@@ -251,7 +250,7 @@ public class TransactionApiImplTest extends AbstractTestCase {
     final ContractOperation mockOperation = mock(ContractOperation.class);
     when(mockOperation
         .deployTx(any(Signer.class), any(ContractDefinition.class), anyLong(), any(Fee.class)))
-        .thenReturn(ContractTxHash.of(BytesValue.EMPTY));
+        .thenReturn(TxHash.of(BytesValue.EMPTY));
     final AergoClient mockClient = mock(AergoClient.class);
     when(mockClient.getContractOperation()).thenReturn(mockOperation);
     final ClientProvider mockClientProvider = mock(ClientProvider.class);
@@ -261,7 +260,7 @@ public class TransactionApiImplTest extends AbstractTestCase {
     final AergoKey signer = new AergoKeyGenerator().create();
     final TransactionApi transactionApi = new TransactionApiImpl(mockClientProvider, signer,
         txRequester);
-    final ContractTxHash contractTxHash = transactionApi.deploy(anyDefinition, anyFee);
+    final TxHash contractTxHash = transactionApi.deploy(anyDefinition, anyFee);
     assertNotNull(contractTxHash);
   }
 
@@ -272,7 +271,7 @@ public class TransactionApiImplTest extends AbstractTestCase {
     when(mockOperation
         .redeployTx(any(Signer.class), any(ContractAddress.class), any(ContractDefinition.class),
             anyLong(), any(Fee.class)))
-        .thenReturn(ContractTxHash.of(BytesValue.EMPTY));
+        .thenReturn(TxHash.of(BytesValue.EMPTY));
     final AergoClient mockClient = mock(AergoClient.class);
     when(mockClient.getContractOperation()).thenReturn(mockOperation);
     final ClientProvider mockClientProvider = mock(ClientProvider.class);
@@ -282,7 +281,7 @@ public class TransactionApiImplTest extends AbstractTestCase {
     final AergoKey signer = new AergoKeyGenerator().create();
     final TransactionApi transactionApi = new TransactionApiImpl(mockClientProvider, signer,
         txRequester);
-    final ContractTxHash contractTxHash = transactionApi
+    final TxHash contractTxHash = transactionApi
         .redeploy(anyContractAddress, anyDefinition, anyFee);
     assertNotNull(contractTxHash);
   }
@@ -293,7 +292,7 @@ public class TransactionApiImplTest extends AbstractTestCase {
     final ContractOperation mockOperation = mock(ContractOperation.class);
     when(mockOperation
         .executeTx(any(Signer.class), any(ContractInvocation.class), anyLong(), any(Fee.class)))
-        .thenReturn(ContractTxHash.of(BytesValue.EMPTY));
+        .thenReturn(TxHash.of(BytesValue.EMPTY));
     final AergoClient mockClient = mock(AergoClient.class);
     when(mockClient.getContractOperation()).thenReturn(mockOperation);
     final ClientProvider mockClientProvider = mock(ClientProvider.class);
@@ -303,7 +302,7 @@ public class TransactionApiImplTest extends AbstractTestCase {
     final AergoKey signer = new AergoKeyGenerator().create();
     final TransactionApi transactionApi = new TransactionApiImpl(mockClientProvider, signer,
         txRequester);
-    final ContractTxHash contractTxHash = transactionApi.execute(anyInvocation, anyFee);
+    final TxHash contractTxHash = transactionApi.execute(anyInvocation, anyFee);
     assertNotNull(contractTxHash);
   }
 

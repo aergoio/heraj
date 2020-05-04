@@ -9,14 +9,12 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 import hera.api.model.Aer;
 import hera.api.model.Aer.Unit;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
 import hera.api.model.ContractDefinition;
-import hera.api.model.ContractTxHash;
 import hera.api.model.ContractTxReceipt;
 import hera.api.model.Fee;
 import hera.api.model.Transaction;
@@ -84,7 +82,7 @@ public class ContractApiIT extends AbstractIT {
     final ContractDefinition definition = ContractDefinition.newBuilder()
         .encodedContract(payload)
         .build();
-    final ContractTxHash deployTxHash = aergoClient.getContractOperation()
+    final TxHash deployTxHash = aergoClient.getContractOperation()
         .deployTx(rich, definition, nonceProvider.incrementAndGetNonce(rich.getPrincipal()),
             Fee.INFINITY);
     waitForNextBlockToGenerate();
@@ -146,7 +144,7 @@ public class ContractApiIT extends AbstractIT {
 
     // then
     final ContractTxReceipt contractTxReceipt = aergoClient.getContractOperation()
-        .getContractTxReceipt(txHash.adapt(ContractTxHash.class));
+        .getContractTxReceipt(txHash);
     assertEquals(contractAddress, contractTxReceipt.getContractAddress());
   }
 

@@ -468,22 +468,26 @@ class LegacyWallet implements Wallet {
 
   @Override
   public ContractTxHash deploy(ContractDefinition contractDefinition) {
-    return preparedWalletApiImpl.transaction().deploy(contractDefinition, Fee.ZERO);
+    return preparedWalletApiImpl.transaction().deploy(contractDefinition, Fee.ZERO)
+        .adapt(ContractTxHash.class);
   }
 
   @Override
   public ContractTxHash deploy(ContractDefinition contractDefinition, Fee fee) {
-    return preparedWalletApiImpl.transaction().deploy(contractDefinition, fee);
+    return preparedWalletApiImpl.transaction().deploy(contractDefinition, fee)
+        .adapt(ContractTxHash.class);
   }
 
   @Override
   public ContractTxHash execute(ContractInvocation contractInvocation) {
-    return preparedWalletApiImpl.transaction().execute(contractInvocation, Fee.ZERO);
+    return preparedWalletApiImpl.transaction().execute(contractInvocation, Fee.ZERO)
+        .adapt(ContractTxHash.class);
   }
 
   @Override
   public ContractTxHash execute(ContractInvocation contractInvocation, Fee fee) {
-    return preparedWalletApiImpl.transaction().execute(contractInvocation, fee);
+    return preparedWalletApiImpl.transaction().execute(contractInvocation, fee)
+        .adapt(ContractTxHash.class);
   }
 
   @Override
