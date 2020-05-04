@@ -11,7 +11,7 @@ import hera.api.model.AccountAddress;
 import java.security.PublicKey;
 import org.junit.Test;
 
-public class AddressResolverTest extends AbstractTestCase {
+public class AccountAddressSpecTest extends AbstractTestCase {
 
   @Test
   public void testDeriveAndRecover() throws Exception {

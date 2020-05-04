@@ -77,57 +77,45 @@ dependencies {
 }
 ```
 
-# Integration
+## Build from source
 
-TBD
+### Prerequisites
 
-# Build
+- [JDK8](https://openjdk.java.net/projects/jdk8/)
 
-## Prerequisites
-
-### JDK
-
-* [JDK8](https://openjdk.java.net/projects/jdk8/)
-
-## Clone
+### Clone
 
 ```console
 $ git clone --recurse-submodule https://github.com/aergoio/heraj.git
 ```
 
-## Build and package
+### Submodule
 
-* Initialize submodule (if not initialized)
+Initialize submodule (if not initialized)
 
 ```console
 $ git submodule init
 ```
 
-* Update submodule
+Update submodule
 
 ```console
 $ git submodule update
 ```
 
-* Clean
+### Build
 
-```console
-$ ./build.sh clean
-```
-
-* Run gradle
-
-```console
-$ ./build.sh gradle
-```
-
-* Install to maven local
-
-```console
-$ ./build.sh install
-```
-
-# Test
+- Clean: `./gradlew clean`
+- Generate protobuf based files: `./gradlew :core:protobuf:build`
+- Lint: `./gradlew lint`
+- Test: `./gradlew test`
+  - Coverage (including test): `./gradlew coverage` (individual), `./gradlew allcoverage` (all)
+  - Integration Test: `./test/run-it.sh`
+  - Benchmark Test: `./gradlew {target_project}:jmh`
+- Docs: `./gradlew javadoc` (individual), `./gradlew alljavadoc` (all)
+- Build (also lint, test): `./gradlew build`
+  - Shadow Jar: `./gradle shadowJar` (generated in `./assembly/build/libs`)
+- Install to local: `./gradlew install`
 
 ## Kind of test
 
@@ -143,33 +131,12 @@ They are classes with 'IT' suffix meaning integration test.
 
 They are classes with 'Benchmark' suffix, which using jmh.
 
-## Run tests
-
-### Unit test
-
-```console
-$ ./build.sh test
-```
-
-### Integration test
-
-```console
-$ ./build.sh it
-```
-
-# Documentation
-
-We provides next in https://aergoio.github.io/heraj
-
-* JavaDoc
-* Test Coverage
-
-# Contribution
+## Contribution
 
 Guidelines for any code contributions:
 
 1. Any changes should be accompanied by tests. It's guaranteed by travis ci.
 2. Code coverage should be maintained. Any requests dropping down code coverage significantly will be not confirmed.
 3. All contributions must be licensed MIT and all files must have a copy of statement indicating where license is (can be copied from an existing file).
-4. All java files should be formatted according to [Google's Java style guide](http://google.github.io/styleguide/javaguide.html). You can use checkstyle plugin for [eclipse](https://checkstyle.org/eclipse-cs/#!/) or [IntelliJ](https://plugins.jetbrains.com/plugin/1065-checkstyle-idea). And you can check by running `./build.sh gradle`
+4. All java files should be formatted according to [Google's Java style guide](http://google.github.io/styleguide/javaguide.html). You can use checkstyle plugin for [eclipse](https://checkstyle.org/eclipse-cs/#!/) or [IntelliJ](https://plugins.jetbrains.com/plugin/1065-checkstyle-idea). And you can check by running `./gradlew lint`
 5. Please squash all commits for a change into a single commit (this can be done using git rebase -i). Make sure to have a meaningful commit message for the change.

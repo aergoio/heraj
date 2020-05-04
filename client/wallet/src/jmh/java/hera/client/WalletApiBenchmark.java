@@ -25,10 +25,9 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
-import org.openjdk.jmh.annotations.Threads;
 
 @BenchmarkMode(Mode.Throughput)
-public class WalletBenchmark {
+public class WalletApiBenchmark {
 
   @State(Scope.Thread)
   public static class User {
@@ -49,22 +48,21 @@ public class WalletBenchmark {
       client = new AergoClientBuilder().withEndpoint("localhost:7845").build();
 
       walletApi = new WalletApiFactory().create(keyStore);
-      walletApi.bind(client);
       walletApi.unlock(auth);
     }
 
     public void send() {
-      walletApi.transactionApi().send(recipient, Aer.ONE, Fee.EMPTY);
+      walletApi.with(client).transaction().send(recipient, Aer.ONE, Fee.EMPTY);
     }
 
     @TearDown(Level.Trial)
     public synchronized void tearDown() throws IOException {
       client.close();
     }
+
   }
 
   @Benchmark
-  @Threads(1)
   public void send(final User user) {
     user.send();
   }

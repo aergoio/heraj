@@ -10,60 +10,16 @@ buildscript {
     google()
     mavenCentral()
   }
+
   dependencies {
     classpath "me.champeau.gradle:jmh-gradle-plugin:${jmhVersion}"
-    classpath "gradle.plugin.io.morethan.jmhreport:gradle-jmh-report:${jmhReportVersion}"
-    classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:${licenseVersion}"
     classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:${bintrayVersion}"
-    classpath "com.github.jengelman.gradle.plugins:shadow:${shadowVersion}"
   }
 }
 
-repositories {
-  mavenLocal()
-  maven {
-    url "http://dist.wso2.org/maven2"
-  }
-  mavenCentral()
-  jcenter()
-}
-
-def javaProjects = [
-  project('core:annotation'),
-  project('core:util'),
-  project('core:common'),
-  project('core:protobuf'),
-  project('core:transport'),
-  project('client:wallet'),
-  project('client:smart-contract')
-]
-
-def jmhProjects = [
-  project('core:common'),
-  project('core:transport'),
-  project('client:wallet')
-]
-
-configure(javaProjects) {
-  // base
+allprojects {
   apply plugin: 'java-library'
-  apply plugin: 'jacoco'
-  apply plugin: 'checkstyle'
-  apply plugin: 'com.github.hierynomus.license-report'
-
-  // ide
   apply plugin: 'idea'
-  apply plugin: 'eclipse'
-
-  // publish
-  apply plugin: 'com.jfrog.bintray'
-  apply plugin: 'maven-publish'
-  apply plugin: 'com.github.johnrengelman.shadow'
-
-  def projectBaseName = 'heraj-' + project.name
-
-  sourceCompatibility = sourceJavaVersion
-  targetCompatibility = targetJavaVersion
 
   repositories {
     mavenLocal()
@@ -74,77 +30,33 @@ configure(javaProjects) {
     jcenter()
   }
 
-  eclipseJdt.doLast( {
-    ant.propertyfile(file: ".settings/org.eclipse.core.resources.prefs") {
-      ant.entry(key: "eclipse.preferences.version", value: "1")
-      ant.entry(key: "encoding/<project>", value: "utf8")
-    }
-  } )
 
-  idea {
-    module {
-      outputDir file('build/classes/java/main')
-      testOutputDir file('build/classes/java/test')
+  /* java-library */
+
+  compileJava.options.encoding = "UTF-8"
+  compileTestJava.options.encoding = "UTF-8"
+
+  sourceCompatibility = sourceJavaVersion
+  targetCompatibility = targetJavaVersion
+
+  task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier = 'sources'
+  }
+
+  javadoc {
+    if (JavaVersion.current().isJava9Compatible()) {
+      options.addBooleanOption('html5', true)
     }
   }
 
-  compileJava.options.encoding = 'UTF-8'
-  compileTestJava.options.encoding = 'UTF-8'
-
-  dependencies {
-    compileOnly "org.projectlombok:lombok:${lombokVersion}"
-    implementation "org.slf4j:slf4j-api:${slf4jVersion}"
-
-    runtime "ch.qos.logback:logback-classic:${logbackVersion}"
-
-    testImplementation "org.projectlombok:lombok:${lombokVersion}"
-    testImplementation "junit:junit:${junitVersion}"
-    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
-    testImplementation ("org.powermock:powermock-api-mockito2:${powerMockVersion}") {
-      exclude group: 'org.mockito', module: 'mockito-core'
-    }
-    testImplementation "org.powermock:powermock-module-junit4:${powerMockVersion}"
+  task javadocJar(type: Jar) {
+    from javadoc
+    classifier = 'javadoc'
   }
-
-
-  // test
-
-  project.ext.jacocoOfflineSourceSets = [ 'main' ]
-  task instrument(dependsOn: [classes, project.configurations.jacocoAnt]) {
-    inputs.files classes.outputs.files
-    File outputDir = new File(project.buildDir, 'instrumentedClasses')
-    outputs.dir outputDir
-    doFirst {
-      project.delete(outputDir)
-      ant.taskdef(
-          resource: 'org/jacoco/ant/antlib.xml',
-          classpath: project.configurations.jacocoAnt.asPath,
-          uri: 'jacoco'
-      )
-      def instrumented = false
-      jacocoOfflineSourceSets.each { sourceSetName ->
-        if (file(sourceSets[sourceSetName].output.classesDir).exists()) {
-          def instrumentedClassedDir = "${outputDir}/${sourceSetName}"
-          ant.'jacoco:instrument'(destdir: instrumentedClassedDir) {
-            fileset(dir: sourceSets[sourceSetName].output.classesDir, includes: '**/*.class')
-          }
-          //Replace the classes dir in the test classpath with the instrumented one
-          sourceSets.test.runtimeClasspath -= files(sourceSets[sourceSetName].output.classesDir)
-          sourceSets.test.runtimeClasspath += files(instrumentedClassedDir)
-          instrumented = true
-        }
-      }
-      if (instrumented) {
-        //Disable class verification based on https://github.com/jayway/powermock/issues/375
-        test.jvmArgs += '-noverify'
-      }
-    }
-  }
-
-  test.dependsOn instrument
 
   test {
-    if(JavaVersion.current().isJava9Compatible()) {
+    if (JavaVersion.current().isJava9Compatible()) {
       jvmArgs('--add-opens', 'java.base/java.lang=ALL-UNNAMED')
       jvmArgs('--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED')
       jvmArgs('--add-opens', 'java.base/java.lang.invoke=ALL-UNNAMED')
@@ -162,8 +74,8 @@ configure(javaProjects) {
     exclude '**/*IT.class'
   }
 
-  task integrationTest (type: Test) {
-    if(JavaVersion.current().isJava10Compatible()) {
+  task integrationTest(type: Test) {
+    if (JavaVersion.current().isJava10Compatible()) {
       jvmArgs('--add-opens', 'java.base/java.lang=ALL-UNNAMED')
       jvmArgs('--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED')
       jvmArgs('--add-opens', 'java.base/java.lang.invoke=ALL-UNNAMED')
@@ -181,15 +93,80 @@ configure(javaProjects) {
     include '**/*IT.class'
   }
 
+
+  /* idea */
+
+  idea {
+    module {
+      outputDir file('build/classes/java/main')
+      testOutputDir file('build/classes/java/test')
+    }
+  }
+
+}
+
+def javaLibraryProjects = [
+    project('core:annotation'),
+    project('core:util'),
+    project('core:common'),
+    project('core:protobuf'),
+    project('core:transport'),
+    project('client:wallet'),
+    project('client:smart-contract')
+]
+
+configure(javaLibraryProjects) {
+  apply plugin: 'jacoco'                  // coverage
+  apply plugin: 'checkstyle'              // lint
+  apply plugin: 'com.jfrog.bintray'       // jcenter
+  apply plugin: 'maven-publish'           // maven
+  apply plugin: "me.champeau.gradle.jmh"  // micro bmt
+
+  def projectBaseName = 'heraj-' + project.name
+
+  dependencies {
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    implementation "org.slf4j:slf4j-api:${slf4jVersion}"
+    runtime "ch.qos.logback:logback-classic:${logbackVersion}"
+
+    testImplementation "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testImplementation "junit:junit:${junitVersion}"
+    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
+    testImplementation("org.powermock:powermock-api-mockito2:${powerMockVersion}") {
+      exclude group: 'org.mockito', module: 'mockito-core'
+    }
+    testImplementation "org.powermock:powermock-module-junit4:${powerMockVersion}"
+  }
+
+
+  /* checkstyle */
+
+  checkstyle {
+    toolVersion checkstyleVersion
+    sourceSets = [project.sourceSets.main]
+    configFile = file("${project.rootProject.projectDir}/styles.xml")
+  }
+
+  task lint {
+    dependsOn check
+  }
+
+
+  /* jacoco */
+
   jacoco {
-    toolVersion = "0.8.2"
+    toolVersion jacocoVersion
   }
 
   jacocoTestReport {
+    dependsOn test
     group = "Reporting"
     additionalSourceDirs = files(sourceSets.main.allSource.srcDirs)
     sourceDirectories = files(sourceSets.main.allSource.srcDirs)
-    classDirectories = files(sourceSets.main.output.classesDir)
+    classDirectories = files(sourceSets.main.output.classesDirs)
     reports {
       xml.enabled true
       html.enabled true
@@ -197,52 +174,44 @@ configure(javaProjects) {
     }
   }
 
-
-  // lint
-
-  checkstyle {
-    sourceSets = [project.sourceSets.main]
-
-    configFile = file("${rootProject.projectDir}/styles.xml")
-    reportsDir = file("${buildDir}/checkstyle-reports")
-    configurations {
-      checkstyle
-    }
-    checkstyleMain {
-      reportsDir = checkstyle.reportsDir
-    }
-    dependencies{
-      checkstyle "com.puppycrawl.tools:checkstyle:${checkstyleVersion}"
-      checkstyle "com.github.sevntu-checkstyle:sevntu-checks:${sevntuChecksVersion}"
-    }
+  task coverage {
+    dependsOn jacocoTestReport
   }
 
 
-  // publish
+  /* bintray */
 
   jar {
     archivesBaseName = projectBaseName
   }
 
-  task install {
-    dependsOn publishToMavenLocal
+  bintray {
+    user = System.getProperty("bintrayUser")
+    key = System.getProperty("bintrayKey")
+    pkg {
+      userOrg = 'aergoio'
+      repo = 'maven'
+      name = projectBaseName
+      licenses = ['MIT']
+      websiteUrl = 'https://github.com/aergoio/heraj'
+      vcsUrl = 'https://github.com/aergoio/heraj'
+      version {
+        name = project.version
+        vcsTag = project.version
+      }
+    }
+    publications = ['maven']
   }
 
-  task sourceJar(type: Jar) {
-    from sourceSets.main.allJava
-    classifier = 'sources'
-  }
-
-  javadoc {
-    if(JavaVersion.current().isJava9Compatible()) {
-      options.addBooleanOption('html5', true)
+  // uploading SNAPSHOT is not supported
+  if (!version.toString().contains("SNAPSHOT")) {
+    task deploy {
+      dependsOn bintrayUpload
     }
   }
 
-  task javadocJar(type: Jar) {
-    from javadoc
-    classifier = 'javadoc'
-  }
+
+  /* maven-publish */
 
   publishing {
     publications {
@@ -258,111 +227,65 @@ configure(javaProjects) {
     }
   }
 
-  bintray {
-    user = System.getProperty("bintrayUser")
-    key = System.getProperty("bintrayKey")
-    pkg {
-      userOrg = 'aergoio'
-      repo = 'maven'
-      name = 'heraj-' + project.name
-      licenses = ['MIT']
-      websiteUrl = 'https://github.com/aergoio/heraj'
-      vcsUrl = 'https://github.com/aergoio/heraj'
-      version {
-        name = project.version
-        vcsTag = project.version
-      }
-    }
-    publications = ['maven']
+  task install {
+    dependsOn publishToMavenLocal
   }
 
-  shadowJar {
-    def shadowPostFix = 'fat'
-    baseName = projectBaseName + "-${shadowPostFix}"
-    classifier = null
-  }
 
-}
-
-configure(jmhProjects) {
-  apply plugin: "me.champeau.gradle.jmh"
-  apply plugin: "io.morethan.jmhreport"
-
-  eclipse {
-    classpath {
-      plusConfigurations.add(configurations.jmhCompile)
-      defaultOutputDir = file('build/classes-jmh-ide')
-    }
-  }
-
-  sourceSets {
-    jmh {
-      compileClasspath += sourceSets.main.output + sourceSets.test.output + sourceSets.main.compileClasspath
-      runtimeClasspath += configurations.jmh + sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
-    }
-  }
-
-  dependencies {
-    jmhCompile project
-    jmhCompile 'org.openjdk.jmh:jmh-core:1.21'
-    jmhCompile 'org.openjdk.jmh:jmh-generator-annprocess:1.21'
-
-    jmhRuntime 'org.slf4j:jul-to-slf4j:1.7.25'
-  }
+  /* jmh */
 
   jmh {
-    duplicateClassesStrategy = 'warn'
-    resultFormat = 'JSON'
-    benchmarkMode = ['thrpt']
-    timeUnit = 's'
     include += '.*Benchmark'
-    // threads = 8
     fork = 2
+    benchmarkMode = ['thrpt']
+    resultFormat = 'JSON'
+    timeUnit = 's'
+    threads = 2 * Runtime.runtime.availableProcessors()
+    jmhVersion = '1.21'
+    duplicateClassesStrategy = 'warn'
   }
-  jmhReport {
-    jmhResultPath = project.file('build/reports/jmh/results.json')
-    jmhReportOutput = project.file('build/reports/jmh')
-  }
+
 }
 
-apply plugin: 'java'
-apply plugin: 'jacoco'
 
-sourceCompatibility = sourceJavaVersion
-targetCompatibility = targetJavaVersion
+// root project
+project(":") {
+  apply plugin: 'jacoco'         // coverage
 
-jacoco {
-  toolVersion = "0.8.2"
-}
-task alljacoco(type: JacocoReport) {
-  dependsOn = javaProjects.test
-  sourceDirectories = files(javaProjects.sourceSets.main.allSource.srcDirs)
-  classDirectories =  files(javaProjects.sourceSets.main.output.classesDir)
-  executionData = files((javaProjects.findAll { p ->
-    def coverageFileLocation = "$p.buildDir/jacoco/test.exec"
-    new File(coverageFileLocation).exists()
-  }).jacocoTestReport.executionData)
-  reports {
-    html.enabled = true
-    xml.enabled = true
-    xml.destination file("${buildDir}/reports/jacoco/report.xml")
-    csv.enabled = false
+  task allcoverage(type: JacocoReport) {
+    def targetProjects = javaLibraryProjects.findAll {
+      it.name != 'annotation' && it.name != 'protobuf'
+    }
+    dependsOn = targetProjects.coverage
+    sourceDirectories = files(targetProjects.sourceSets.main.allSource.srcDirs)
+    classDirectories = files(targetProjects.sourceSets.main.output.classesDirs)
+    executionData = files(targetProjects.jacocoTestReport.executionData)
+    reports {
+      html.enabled = true
+      xml.enabled = true
+      xml.destination file("${buildDir}/reports/jacoco/report.xml")
+      csv.enabled = false
+    }
+    afterEvaluate {
+      classDirectories = files(classDirectories.files.collect {
+        fileTree(dir: it, exclude: ['types/**'])
+      })
+    }
   }
-  afterEvaluate {
-    classDirectories = files(classDirectories.files.collect {
-      fileTree(dir: it, exclude: ['types/**'])
-    })
-  }
-}
 
-task alljavadoc(type: Javadoc) {
-  source javaProjects.findAll{ it.name != 'protobuf' }.collect { it.sourceSets.main.allJava }
-  classpath = files(javaProjects.collect { it.sourceSets.main.compileClasspath })
-  destinationDir = file("${buildDir}/docs/javadoc")
-  if (JavaVersion.current().isJava8Compatible()) {
-    options.addStringOption('Xwerror', '-quiet')
+  task alljavadoc(type: Javadoc) {
+    def targetProjects = javaLibraryProjects.findAll {
+      it.name != 'protobuf'
+    }
+    source targetProjects.collect { it.sourceSets.main.allJava }
+    classpath = files(targetProjects.collect { it.sourceSets.main.compileClasspath })
+    destinationDir = file("${buildDir}/docs/javadoc")
+    if (JavaVersion.current().isJava8Compatible()) {
+      options.addStringOption('Xwerror', '-quiet')
+    }
+    if (JavaVersion.current().isJava9Compatible()) {
+      options.addBooleanOption('html5', true)
+    }
   }
-  if (JavaVersion.current().isJava9Compatible()) {
-    options.addBooleanOption('html5', true)
-  }
+
 }

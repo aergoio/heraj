@@ -25,15 +25,15 @@ cache:
 install: true
 
 script:
-  - ./build.sh gradle it
-  - ./gradlew build jacocoTestReport
+  - ./gradlew clean build
+  - ./test/run-it.sh
+  - ./gradlew alljacoco
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 
 after_failure:
   - docker logs aergo.node
-
-after_success:
-  - ./gradlew alljacoco
-  - bash <(curl -s https://codecov.io/bash)
 
 notifications:
   email: false

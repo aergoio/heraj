@@ -8,8 +8,6 @@ dependencies {
   api project(":core:protobuf")
   api project(":core:common")
 
-  implementation "com.google.guava:guava:${guavaVersion}-android"
-
   implementation "io.grpc:grpc-okhttp:${grpcVersion}"
   implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
   implementation "io.grpc:grpc-protobuf:${grpcVersion}"

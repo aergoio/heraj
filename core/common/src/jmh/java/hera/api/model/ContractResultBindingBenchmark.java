@@ -2,13 +2,9 @@
  * @copyright defined in LICENSE.txt
  */
 
-package hera.client;
+package hera.api.model;
 
-import hera.api.model.BytesValue;
-import hera.api.model.ContractResult;
 import java.io.IOException;
-import lombok.Getter;
-import lombok.Setter;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Level;
@@ -22,13 +18,26 @@ public class ContractResultBindingBenchmark {
 
   public static class Data {
 
-    @Getter
-    @Setter
     protected int intVal;
 
-    @Getter
-    @Setter
     protected String stringVal;
+
+    public int getIntVal() {
+      return intVal;
+    }
+
+    public void setIntVal(int intVal) {
+      this.intVal = intVal;
+    }
+
+    public String getStringVal() {
+      return stringVal;
+    }
+
+    public void setStringVal(String stringVal) {
+      this.stringVal = stringVal;
+    }
+
   }
 
   @State(Scope.Thread)
@@ -39,11 +48,11 @@ public class ContractResultBindingBenchmark {
     @Setup(Level.Trial)
     public synchronized void setUp() {
       final String rawData = "{\"intVal\":-1858492432,\"stringVal\":\"I am string\"}";
-      this.rawResult = new BytesValue(rawData.getBytes());
+      this.rawResult = BytesValue.of(rawData.getBytes());
     }
 
-    public void bind() throws IOException {
-      ContractResult.of(rawResult).bind(Data.class);
+    public Data bind() throws IOException {
+      return ContractResult.of(rawResult).bind(Data.class);
     }
 
   }

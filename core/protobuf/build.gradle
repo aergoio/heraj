@@ -8,10 +8,22 @@ buildscript {
   repositories {
     mavenCentral()
   }
+
   dependencies {
     // ASSUMES GRADLE 2.12 OR HIGHER. Use plugin version 0.7.5 with earlier
     // gradle versions
     classpath "com.google.protobuf:protobuf-gradle-plugin:${protobufVersion}"
+  }
+}
+
+dependencies {
+  implementation ("io.grpc:grpc-protobuf:${grpcVersion}")
+  implementation ("io.grpc:grpc-stub:${grpcVersion}")
+
+  if (JavaVersion.current().isJava9Compatible()) {
+    // Workaround for @javax.annotation.Generated
+    // see: https://github.com/grpc/grpc-java/issues/3633
+    compile "javax.annotation:javax.annotation-api:${javaxAnnotationApiVersion}"
   }
 }
 
@@ -33,19 +45,6 @@ protobuf {
   }
 }
 
-dependencies {
-  implementation ("io.grpc:grpc-protobuf:${grpcVersion}")
-  implementation ("io.grpc:grpc-stub:${grpcVersion}")
-
-  if (JavaVersion.current().isJava9Compatible()) {
-    // Workaround for @javax.annotation.Generated
-    // see: https://github.com/grpc/grpc-java/issues/3633
-    compile "javax.annotation:javax.annotation-api:${javaxAnnotationApiVersion}"
-  }
-}
-
-tasks.withType(Javadoc).all { enabled = false }
-
 sourceSets {
   main {
     java {
@@ -53,6 +52,10 @@ sourceSets {
     }
   }
 }
+
+// FIXME: custom disable options, it don't like it
+
+tasks.withType(Javadoc).all { enabled = false }
 
 checkstyle {
   sourceSets = []

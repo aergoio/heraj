@@ -2,21 +2,48 @@
  * @copyright defined in LICENSE.txt
  */
 
-apply plugin: 'distribution'
-uploadArchives.enabled = false
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+    google()
+    mavenCentral()
+  }
 
-dependencies {
-  compile 'ch.qos.logback:logback-classic:1.2.3'
+  dependencies {
+    classpath "com.github.jengelman.gradle.plugins:shadow:${shadowJarVersion}"
+  }
 }
 
-distributions {
-  main {
-    baseName = 'hera'
-    contents {
-      from { 'src' }
-      into('lib') {
-        from configurations.runtime
-      }
-    }
+apply plugin: 'com.github.johnrengelman.shadow'
+
+dependencies {
+  api project(':core:annotation')
+  api project(':core:util')
+  api project(':core:common')
+  api project(':core:protobuf')
+  api project(':core:transport')
+  api project(':client:wallet')
+  api project(':client:smart-contract')
+}
+
+shadowJar {
+  baseName = project.rootProject.name
+  classifier = 'all'
+
+  // remove all classes of dependencies that are not used by the project
+  minimize()
+
+  // relocate to avoid conflicts with library user
+  def prefix = 'hera.shaded'
+  relocate "org.slf4j", "${prefix}.org.slf4j"
+  relocate "com.google", "${prefix}.com.google"
+  relocate "ch.qos.logback", "${prefix}.ch.qos.logback"
+  relocate "org.bouncycastle", "${prefix}.org.bouncycastle"
+  relocate "com.fasterxml", "${prefix}.com.fasterxml"
+
+  doLast {
+    println "Shadow jar is generated in '${project.buildDir}/libs'"
   }
 }

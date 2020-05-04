@@ -18,12 +18,12 @@ Follow [successful git branch model](https://nvie.com/posts/a-successful-git-bra
 # make sure bintray info(systemProp.bintrayUser, systemProp.bintrayKey)
 # is ready on ~/.gradle/gradle.properties
 # after deploy it, login to bintray and click publish button
-> ./build.sh deploy
+> ./gradlew deploy
 ```
-9. Upload heraj-x.x.x.zip, heraj-x.x.x.tar.gz, fat jar files to releases.
+9. Upload heraj-x.x.x-all.jar file to releases.
 ```sh
-# Making heraj-x.x.x.zip and heraj-x.x.x.tar.gz and fat jar files
-> ./build.sh pack && ./build.sh fat
+# Making heraj-x.x.x-all.jar
+> ./gradlew clean shadowJar
 ```
 10. `git checkout develop && git merge release/vx.x.x && git checkout master && git merge release/vx.x.x`
 11. Update version to x.x.x-SNAPSHOT in gradle.properties and `git commit -m "Start new version" && git push origin"`

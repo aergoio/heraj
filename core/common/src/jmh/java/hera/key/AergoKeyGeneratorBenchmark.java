@@ -15,7 +15,7 @@ public class AergoKeyGeneratorBenchmark {
   }
 
   @Benchmark
-  public void sign(BenchmarkContext context) {
+  public void generate(final BenchmarkContext context) {
     context.generator.create();
   }
 

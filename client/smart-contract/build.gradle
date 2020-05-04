@@ -3,5 +3,5 @@
  */
 
 dependencies {
-  api project(":client:wallet")
+  api project(":core:transport")
 }
