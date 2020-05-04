@@ -31,7 +31,7 @@ class WalletApiImpl extends AbstractApi implements WalletApi, Signer {
   protected final TxRequester txRequester;
 
   protected final Object lock = new Object();
-  protected Signer delegate;
+  protected final ProxySigner proxySigner = new ProxySigner();
 
   WalletApiImpl(final KeyStore keyStore, final TryCountAndInterval tryCountAndInterval) {
     assertNotNull(keyStore, "Keystore must not null");
@@ -49,7 +49,7 @@ class WalletApiImpl extends AbstractApi implements WalletApi, Signer {
   @Override
   public PreparedWalletApi with(final AergoClient aergoClient) {
     assertNotNull(aergoClient, "AergoClient must not null");
-    return new PreparedWalletApiImpl(aergoClient, this, this.txRequester);
+    return new PreparedWalletApiImpl(aergoClient, this.proxySigner, this.txRequester);
   }
 
   @Override
@@ -59,11 +59,11 @@ class WalletApiImpl extends AbstractApi implements WalletApi, Signer {
       logger.debug("Unlock with {}", authentication);
 
       synchronized (lock) {
-        if (isUnlocked()) {
+        if (this.proxySigner.isUnlocked()) {
           throw new HerajException("Lock already unlocked one");
         }
 
-        this.delegate = keyStore.load(authentication);
+        this.proxySigner.setUnlocked(keyStore.load(authentication));
       }
       return true;
     } catch (InvalidAuthenticationException e) {
@@ -84,11 +84,11 @@ class WalletApiImpl extends AbstractApi implements WalletApi, Signer {
       logger.debug("Lock wallet api");
 
       synchronized (lock) {
-        if (!isUnlocked()) {
+        if (!this.proxySigner.isUnlocked()) {
           return false;
         }
 
-        this.delegate = null;
+        this.proxySigner.lock();
       }
       return true;
     } catch (Exception e) {
@@ -109,11 +109,7 @@ class WalletApiImpl extends AbstractApi implements WalletApi, Signer {
   @Override
   public Transaction sign(final RawTransaction rawTransaction) {
     try {
-      assertNotNull(rawTransaction, "Raw transaction must not null");
-      if (!getPrincipal().equals(rawTransaction.getSender())) {
-        throw new HerajException("Sender of the rawTransaction should equals with unlocked one");
-      }
-      return getPreparedSigner().sign(rawTransaction);
+      return this.proxySigner.sign(rawTransaction);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -122,8 +118,7 @@ class WalletApiImpl extends AbstractApi implements WalletApi, Signer {
   @Override
   public Signature signMessage(final BytesValue message) {
     try {
-      assertNotNull(message, "Message must not null");
-      return getPreparedSigner().signMessage(message);
+      return this.proxySigner.signMessage(message);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -132,8 +127,7 @@ class WalletApiImpl extends AbstractApi implements WalletApi, Signer {
   @Override
   public Signature signMessage(final Hash hashedMessage) {
     try {
-      assertNotNull(hashedMessage, "Hashed message must not null");
-      return getPreparedSigner().signMessage(hashedMessage);
+      return this.proxySigner.signMessage(hashedMessage);
     } catch (Exception e) {
       throw converter.convert(e);
     }
@@ -147,18 +141,7 @@ class WalletApiImpl extends AbstractApi implements WalletApi, Signer {
 
   @Override
   public AccountAddress getPrincipal() {
-    return null == this.delegate ? null : this.delegate.getPrincipal();
-  }
-
-  protected Signer getPreparedSigner() {
-    if (null == this.delegate) {
-      throw new HerajException("Unlock account first");
-    }
-    return this.delegate;
-  }
-
-  protected boolean isUnlocked() {
-    return this.delegate != null;
+    return this.proxySigner.isUnlocked() ? this.proxySigner.getUnlocked().getPrincipal() : null;
   }
 
 }

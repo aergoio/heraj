@@ -131,7 +131,7 @@ class LegacyWallet implements Wallet {
     try {
       assertNotNull(authentication, "Authentication must not null");
       synchronized (walletApiImpl.lock) {
-        walletApiImpl.delegate = walletApiImpl.keyStore.load(authentication);
+        walletApiImpl.proxySigner.setUnlocked(walletApiImpl.keyStore.load(authentication));
       }
       return true;
     } catch (InvalidAuthenticationException e) {

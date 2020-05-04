@@ -37,11 +37,11 @@ public class WalletApiImplTest extends AbstractTestCase {
 
   protected final Authentication valid = Authentication
       .of(KeyAlias.of(randomUUID().toString().replace("-", "")), randomUUID().toString());
-  protected final AergoKey storedKey = new AergoKeyGenerator().create();
+  protected final AergoKey key = new AergoKeyGenerator().create();
 
   protected WalletApi supplyWalletApi() {
     final KeyStore keyStore = new InMemoryKeyStore();
-    keyStore.save(valid, storedKey);
+    keyStore.save(valid, key);
     final TryCountAndInterval tryCountAndInterval = TryCountAndInterval.of(3, Time.of(1000L));
     return new WalletApiImpl(keyStore, tryCountAndInterval);
   }
@@ -153,7 +153,7 @@ public class WalletApiImplTest extends AbstractTestCase {
   }
 
   @Test
-  public void testSign() {
+  public void testSignRawTransaction() {
     // when
     final WalletApi walletApi = supplyWalletApi();
     walletApi.unlock(valid);
@@ -170,7 +170,7 @@ public class WalletApiImplTest extends AbstractTestCase {
   }
 
   @Test
-  public void shouldSignFailOnDifferentSender() {
+  public void shouldSignRawTransactionFailOnDifferentSender() {
     // given
     final WalletApi walletApi = supplyWalletApi();
     walletApi.unlock(valid);
@@ -199,7 +199,7 @@ public class WalletApiImplTest extends AbstractTestCase {
       final WalletApi walletApi = supplyWalletApi();
       final RawTransaction rawTransaction = RawTransaction.newBuilder()
           .chainIdHash(ChainIdHash.of(BytesValue.of(randomUUID().toString().getBytes())))
-          .from(storedKey.getAddress())
+          .from(key.getAddress())
           .to(randomUUID().toString())
           .amount(Aer.ZERO)
           .nonce(1L)
