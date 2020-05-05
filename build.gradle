@@ -161,8 +161,8 @@ configure(javaLibraryProjects) {
     toolVersion jacocoVersion
   }
 
+  // need test task before executing
   jacocoTestReport {
-    dependsOn test
     group = "Reporting"
     additionalSourceDirs = files(sourceSets.main.allSource.srcDirs)
     sourceDirectories = files(sourceSets.main.allSource.srcDirs)

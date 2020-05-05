@@ -25,9 +25,8 @@ cache:
 install: true
 
 script:
-  - ./gradlew clean build
   - ./test/run-it.sh
-  - ./gradlew alljacoco
+  - ./gradlew clean build allcoverage
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

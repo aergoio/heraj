@@ -109,12 +109,12 @@ $ git submodule update
 - Generate protobuf based files: `./gradlew :core:protobuf:build`
 - Lint: `./gradlew lint`
 - Test: `./gradlew test`
-  - Coverage (including test): `./gradlew coverage` (individual), `./gradlew allcoverage` (all)
+  - Coverage (need test task): `./gradlew test coverage` (individual), `./gradlew test allcoverage` (all)
   - Integration Test: `./test/run-it.sh`
   - Benchmark Test: `./gradlew {target_project}:jmh`
 - Docs: `./gradlew javadoc` (individual), `./gradlew alljavadoc` (all)
 - Build (also lint, test): `./gradlew build`
-  - Shadow Jar: `./gradle shadowJar` (generated in `./assembly/build/libs`)
+- Shadow Jar: `./gradle shadowJar` (generated in `./assembly/build/libs`)
 - Install to local: `./gradlew install`
 
 ## Kind of test
