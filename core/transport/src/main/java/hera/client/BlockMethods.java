@@ -13,6 +13,7 @@ import static hera.client.Methods.BLOCK_METADATA_BY_HEIGHT;
 import static hera.client.Methods.BLOCK_SUBSCRIBE_BLOCK;
 import static hera.client.Methods.BLOCK_SUBSCRIBE_BLOCKMETADATA;
 import static hera.util.TransportUtils.copyFrom;
+import static java.util.Collections.emptyList;
 
 import hera.RequestMethod;
 import hera.api.model.Block;
@@ -24,6 +25,8 @@ import hera.transport.BlockConverterFactory;
 import hera.transport.BlockMetadataConverterFactory;
 import hera.transport.ModelConverter;
 import io.grpc.Context;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import java.util.LinkedList;
 import java.util.List;
 import lombok.Getter;
@@ -55,13 +58,21 @@ class BlockMethods extends AbstractMethods {
           final BlockHash blockHash = (BlockHash) parameters.get(0);
           logger.debug("Get block metadata with hash: {}", blockHash);
 
-          final Rpc.SingleBytes rpcHash = Rpc.SingleBytes.newBuilder()
+          final Rpc.SingleBytes rpcBlockHash = Rpc.SingleBytes.newBuilder()
               .setValue(copyFrom(blockHash.getBytesValue()))
               .build();
-          logger.trace("AergoService getBlockMetadata arg: {}", rpcHash);
+          logger.trace("AergoService getBlockMetadata arg: {}", rpcBlockHash);
 
-          final Rpc.BlockMetadata rpcBlockMetadata = getBlockingStub().getBlockMetadata(rpcHash);
-          return blockMetadataConverter.convertToDomainModel(rpcBlockMetadata);
+          try {
+            final Rpc.BlockMetadata rpcBlockMetadata = getBlockingStub()
+                .getBlockMetadata(rpcBlockHash);
+            return blockMetadataConverter.convertToDomainModel(rpcBlockMetadata);
+          } catch (StatusRuntimeException e) {
+            if (!e.getMessage().contains("not found")) {
+              throw e;
+            }
+            return null;
+          }
         }
       };
 
@@ -88,8 +99,16 @@ class BlockMethods extends AbstractMethods {
               .build();
           logger.trace("AergoService getBlockMetadata arg: {}", rpcHeight);
 
-          final Rpc.BlockMetadata rpcBlockMetadata = getBlockingStub().getBlockMetadata(rpcHeight);
-          return blockMetadataConverter.convertToDomainModel(rpcBlockMetadata);
+          try {
+            final Rpc.BlockMetadata rpcBlockMetadata = getBlockingStub()
+                .getBlockMetadata(rpcHeight);
+            return blockMetadataConverter.convertToDomainModel(rpcBlockMetadata);
+          } catch (StatusRuntimeException e) {
+            if (!e.getMessage().contains("not found")) {
+              throw e;
+            }
+            return null;
+          }
         }
 
       };
@@ -120,14 +139,22 @@ class BlockMethods extends AbstractMethods {
               .build();
           logger.trace("AergoService listBlockMetadata arg: {}", rpcHashAndSize);
 
-          final Rpc.BlockMetadataList rpcMetadatas = getBlockingStub()
-              .listBlockMetadata(rpcHashAndSize);
-          final List<BlockMetadata> blockMetadatas = new LinkedList<>();
-          for (final Rpc.BlockMetadata rpcBlockMetadata : rpcMetadatas.getBlocksList()) {
-            blockMetadatas.add(blockMetadataConverter.convertToDomainModel(rpcBlockMetadata));
+          try {
+            final Rpc.BlockMetadataList rpcMetadatas = getBlockingStub()
+                .listBlockMetadata(rpcHashAndSize);
+            final List<BlockMetadata> blockMetadatas = new LinkedList<>();
+            for (final Rpc.BlockMetadata rpcBlockMetadata : rpcMetadatas.getBlocksList()) {
+              blockMetadatas.add(blockMetadataConverter.convertToDomainModel(rpcBlockMetadata));
+            }
+            return blockMetadatas;
+          } catch (StatusRuntimeException e) {
+            if (!e.getMessage().contains("not found")) {
+              throw e;
+            }
+            return emptyList();
           }
-          return blockMetadatas;
         }
+
       };
 
   @Getter
@@ -157,13 +184,21 @@ class BlockMethods extends AbstractMethods {
               .build();
           logger.trace("AergoService listBlockMetadata arg: {}", rpcHeightAndSize);
 
-          final Rpc.BlockMetadataList rpcMetadatas = getBlockingStub()
-              .listBlockMetadata(rpcHeightAndSize);
-          final List<BlockMetadata> blockHeaders = new LinkedList<>();
-          for (final Rpc.BlockMetadata rpcBlockMetadata : rpcMetadatas.getBlocksList()) {
-            blockHeaders.add(blockMetadataConverter.convertToDomainModel(rpcBlockMetadata));
+          try {
+            final Rpc.BlockMetadataList rpcMetadatas = getBlockingStub()
+                .listBlockMetadata(rpcHeightAndSize);
+            final List<BlockMetadata> blockHeaders = new LinkedList<>();
+            for (final Rpc.BlockMetadata rpcBlockMetadata : rpcMetadatas.getBlocksList()) {
+              blockHeaders.add(blockMetadataConverter.convertToDomainModel(rpcBlockMetadata));
+            }
+            return blockHeaders;
+          } catch (StatusRuntimeException e) {
+            if (!e.getMessage().contains("not found")) {
+              throw e;
+            }
+            return emptyList();
           }
-          return blockHeaders;
+
         }
       };
 
@@ -183,13 +218,20 @@ class BlockMethods extends AbstractMethods {
       final BlockHash blockHash = (BlockHash) parameters.get(0);
       logger.debug("Get block with hash: {}", blockHash);
 
-      final Rpc.SingleBytes rpcHeight = Rpc.SingleBytes.newBuilder()
+      final Rpc.SingleBytes rpcBlockHash = Rpc.SingleBytes.newBuilder()
           .setValue(copyFrom(blockHash.getBytesValue()))
           .build();
-      logger.trace("AergoService getBlock arg: {}", rpcHeight);
+      logger.trace("AergoService getBlock arg: {}", rpcBlockHash);
 
-      final Blockchain.Block rpcBlock = getBlockingStub().getBlock(rpcHeight);
-      return blockConverter.convertToDomainModel(rpcBlock);
+      try {
+        final Blockchain.Block rpcBlock = getBlockingStub().getBlock(rpcBlockHash);
+        return blockConverter.convertToDomainModel(rpcBlock);
+      } catch (StatusRuntimeException e) {
+        if (!e.getMessage().contains("not found")) {
+          throw e;
+        }
+        return null;
+      }
     }
 
   };
@@ -216,8 +258,15 @@ class BlockMethods extends AbstractMethods {
           .build();
       logger.trace("AergoService getBlock arg: {}", rpcHeight);
 
-      final Blockchain.Block rpcBlock = getBlockingStub().getBlock(rpcHeight);
-      return blockConverter.convertToDomainModel(rpcBlock);
+      try {
+        final Blockchain.Block rpcBlock = getBlockingStub().getBlock(rpcHeight);
+        return blockConverter.convertToDomainModel(rpcBlock);
+      } catch (StatusRuntimeException e) {
+        if (!e.getMessage().contains("not found")) {
+          throw e;
+        }
+        return null;
+      }
     }
 
   };

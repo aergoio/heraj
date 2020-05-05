@@ -35,15 +35,12 @@ class TransactionTemplate extends AbstractTemplate implements TransactionOperati
 
         @Override
         protected Transaction runInternal(final List<Object> parameters) throws Exception {
-          try {
-            return transactionMethods.getTransactionInBlock().invoke(parameters);
-          } catch (Exception noTxInBlock) {
-            try {
-              return transactionMethods.getTransactionInMemPool().invoke(parameters);
-            } catch (Exception noTx) {
-              throw noTx;
-            }
+          final Transaction inBlock = transactionMethods.getTransactionInBlock().invoke(parameters);
+          if (null != inBlock) {
+            return inBlock;
           }
+
+          return transactionMethods.getTransactionInMemPool().invoke(parameters);
         }
       };
 

@@ -64,7 +64,7 @@ public interface QueryApi {
   AccountAddress getNameOwner(String name);
 
   /**
-   * Get owner of an account name.
+   * Get owner of name at current block.
    *
    * @param name an name of account
    * @return an account address binded with name
@@ -82,7 +82,7 @@ public interface QueryApi {
   AccountAddress getNameOwner(String name, long blockNumber);
 
   /**
-   * Get owner of an account name at block number {@code blockNumber}.
+   * Get owner of name at specific block.
    *
    * @param name        an name of account
    * @param blockNumber a block number
@@ -215,7 +215,7 @@ public interface QueryApi {
    * Get block metadata by hash.
    *
    * @param blockHash block hash
-   * @return block
+   * @return block. null if no matching one.
    */
   BlockMetadata getBlockMetadata(BlockHash blockHash);
 
@@ -223,7 +223,7 @@ public interface QueryApi {
    * Get block metadata by height.
    *
    * @param height block's height
-   * @return block
+   * @return block. null if no matching one.
    */
   BlockMetadata getBlockMetadata(long height);
 
@@ -232,7 +232,7 @@ public interface QueryApi {
    *
    * @param blockHash block hash
    * @param size      block list size whose upper bound is 1000
-   * @return block list
+   * @return block list. empty list if no matching one.
    */
   List<BlockMetadata> listBlockMetadatas(BlockHash blockHash, int size);
 
@@ -241,7 +241,7 @@ public interface QueryApi {
    *
    * @param height block's height
    * @param size   block list size whose upper bound is 1000
-   * @return block list
+   * @return block list. empty list if no matching one.
    */
   List<BlockMetadata> listBlockMetadatas(long height, int size);
 
@@ -249,7 +249,7 @@ public interface QueryApi {
    * Get block by hash.
    *
    * @param blockHash block hash
-   * @return block
+   * @return block. null if no matching one.
    */
   Block getBlock(BlockHash blockHash);
 
@@ -257,7 +257,7 @@ public interface QueryApi {
    * Get block by height.
    *
    * @param height block's height
-   * @return block
+   * @return block. null if no matching one.
    */
   Block getBlock(long height);
 
@@ -301,7 +301,7 @@ public interface QueryApi {
    * Get transaction.
    *
    * @param txHash transaction's hash
-   * @return transaction
+   * @return transaction. null if no matching one.
    */
   Transaction getTransaction(TxHash txHash);
 
@@ -309,7 +309,7 @@ public interface QueryApi {
    * Get tx receipt.
    *
    * @param txHash a contract transaction hash
-   * @return a receipt of transaction
+   * @return a receipt of transaction. null if no matching one.
    */
   TxReceipt getTxReceipt(TxHash txHash);
 
@@ -317,7 +317,7 @@ public interface QueryApi {
    * Get contract tx receipt.
    *
    * @param contractTxHash a contract transaction hash
-   * @return receipt of transaction
+   * @return receipt of transaction. null if no matching one.
    */
   ContractTxReceipt getContractTxReceipt(TxHash contractTxHash);
 
@@ -325,7 +325,7 @@ public interface QueryApi {
    * Get smart contract interface corresponding to contract address.
    *
    * @param contractAddress a contract address
-   * @return a contract interface
+   * @return a contract interface. null if no matching one.
    */
   ContractInterface getContractInterface(ContractAddress contractAddress);
 
@@ -351,7 +351,7 @@ public interface QueryApi {
    * List events corresponding with event filter.
    *
    * @param filter an event filter
-   * @return event list
+   * @return event list. empty list if no matching one.
    */
   List<Event> listEvents(EventFilter filter);
 

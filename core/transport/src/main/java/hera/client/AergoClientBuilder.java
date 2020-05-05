@@ -43,8 +43,8 @@ public class AergoClientBuilder implements ClientConfiguer<AergoClientBuilder> {
 
   protected final transient Logger logger = getLogger(getClass());
 
-  protected Map<Object, Object> key2Value = new HashMap<>();
-  protected List<ComparableFailoverHandler> failoverHandlers = new ArrayList<>();
+  protected final Map<Object, Object> key2Value = new HashMap<>();
+  protected final List<ComparableFailoverHandler> failoverHandlers = new ArrayList<>();
 
   {
     // add built-in holders

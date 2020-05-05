@@ -5,9 +5,10 @@
 package hera.it;
 
 import static hera.api.model.BytesValue.of;
-import static java.lang.System.currentTimeMillis;
+import static java.util.Collections.emptyList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -58,15 +59,13 @@ public class BlockOperationIT extends AbstractIT {
   }
 
   @Test
-  public void shouldFetchBlockMetadataFailOnInvalidHash() {
-    try {
-      // when
-      final BlockHash hash = new BlockHash("8WTYmYgmEGH9UYRYPzGTowS5vhPLumGyb3Pq9UQ3zcRv");
-      aergoClient.getBlockOperation().getBlockMetadata(hash);
-      fail();
-    } catch (Exception e) {
-      // then
-    }
+  public void shouldFetchBlockMetadataReturnNullOnInvalidHash() {
+    // when
+    final BlockHash hash = new BlockHash("8WTYmYgmEGH9UYRYPzGTowS5vhPLumGyb3Pq9UQ3zcRv");
+    final BlockMetadata blockMetadata = aergoClient.getBlockOperation().getBlockMetadata(hash);
+
+    // then
+    assertNull(blockMetadata);
   }
 
   @Test
@@ -82,15 +81,13 @@ public class BlockOperationIT extends AbstractIT {
   }
 
   @Test
-  public void shouldFetchBlockMetadataFailOnInvalidHeight() {
-    try {
-      // when
-      final long height = currentTimeMillis() % 2 == 0 ? Long.MAX_VALUE : -1;
-      aergoClient.getBlockOperation().getBlockMetadata(height);
-      fail();
-    } catch (Exception e) {
-      // then
-    }
+  public void shouldFetchBlockMetadataReturnNullOnInvalidHeight() {
+    // when
+    final long height = Long.MAX_VALUE;
+    final BlockMetadata blockMetadata = aergoClient.getBlockOperation().getBlockMetadata(height);
+
+    // then
+    assertNull(blockMetadata);
   }
 
   @Test
@@ -106,15 +103,13 @@ public class BlockOperationIT extends AbstractIT {
   }
 
   @Test
-  public void shouldFetchBlockFailOnInvalidHash() {
-    try {
-      // when
-      final BlockHash hash = new BlockHash("8WTYmYgmEGH9UYRYPzGTowS5vhPLumGyb3Pq9UQ3zcRv");
-      aergoClient.getBlockOperation().getBlock(hash);
-      fail();
-    } catch (Exception e) {
-      // then
-    }
+  public void shouldFetchBlockReturnNullOnInvalidHash() {
+    // when
+    final BlockHash hash = new BlockHash("8WTYmYgmEGH9UYRYPzGTowS5vhPLumGyb3Pq9UQ3zcRv");
+    final Block block = aergoClient.getBlockOperation().getBlock(hash);
+
+    // then
+    assertNull(block);
   }
 
   @Test
@@ -130,15 +125,13 @@ public class BlockOperationIT extends AbstractIT {
   }
 
   @Test
-  public void shouldFetchBlockFailOnInvalidHeight() {
-    try {
-      // when
-      final long height = currentTimeMillis() % 2 == 0 ? Long.MAX_VALUE : -1;
-      aergoClient.getBlockOperation().getBlock(height);
-      fail();
-    } catch (Exception e) {
-      // then
-    }
+  public void shouldFetchBlockReturnNullOnInvalidHeight() {
+    // when
+    final long height = Long.MAX_VALUE;
+    Block block = aergoClient.getBlockOperation().getBlock(height);
+
+    // then
+    assertNull(block);
   }
 
   @Test
@@ -147,23 +140,22 @@ public class BlockOperationIT extends AbstractIT {
     final BlockchainStatus status = aergoClient.getBlockchainOperation().getBlockchainStatus();
     final BlockHash hash = status.getBestBlockHash();
     final int size = 10;
-    final List<BlockMetadata> metadata =
+    final List<BlockMetadata> metadatas =
         aergoClient.getBlockOperation().listBlockMetadatas(hash, size);
 
     // when
-    assertEquals(size, metadata.size());
+    assertEquals(size, metadatas.size());
   }
 
   @Test
-  public void shouldListBlockMetadataFailOnInvalidHash() {
-    try {
-      // when
-      final BlockHash hash = new BlockHash("8WTYmYgmEGH9UYRYPzGTowS5vhPLumGyb3Pq9UQ3zcRv");
-      aergoClient.getBlockOperation().listBlockMetadatas(hash, 10);
-      fail();
-    } catch (Exception e) {
-      // then
-    }
+  public void shouldListBlockMetadataReturnEmptyListOnInvalidHash() {
+    // when
+    final BlockHash hash = new BlockHash("8WTYmYgmEGH9UYRYPzGTowS5vhPLumGyb3Pq9UQ3zcRv");
+    final List<BlockMetadata> metadatas = aergoClient.getBlockOperation()
+        .listBlockMetadatas(hash, 10);
+
+    // then
+    assertEquals(emptyList(), metadatas);
   }
 
   @Test
@@ -193,15 +185,14 @@ public class BlockOperationIT extends AbstractIT {
   }
 
   @Test
-  public void shouldListBlockMetadataFailOnInvalidHeight() {
-    try {
-      // when
-      final long height = currentTimeMillis() % 2 == 0 ? Long.MAX_VALUE : -1;
-      aergoClient.getBlockOperation().listBlockMetadatas(height, 10);
-      fail();
-    } catch (Exception e) {
-      // then
-    }
+  public void shouldListBlockMetadataReturnEmptyListOnInvalidHeight() {
+    // when
+    final long height = Long.MAX_VALUE;
+    final List<BlockMetadata> metadatas = aergoClient.getBlockOperation()
+        .listBlockMetadatas(height, 10);
+
+    // then
+    assertEquals(emptyList(), metadatas);
   }
 
   @Test

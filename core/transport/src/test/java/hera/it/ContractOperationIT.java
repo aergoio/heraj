@@ -5,10 +5,12 @@
 package hera.it;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -103,6 +105,29 @@ public class ContractOperationIT extends AbstractIT {
             nonceProvider.incrementAndGetNonce(rich.getPrincipal()), Fee.INFINITY,
             BytesValue.EMPTY);
     waitForNextBlockToGenerate();
+  }
+
+  @Test
+  public void shouldGetContractTxReceiptReturnNullOnNotFound() throws Exception {
+    // when
+    final TxHash txHash = TxHash.of("qYGCRdCN98B6rYijR2R6rw2gf65kqk1Mhgyb4r7zj6C");
+    final ContractTxReceipt contractTxReceipt = aergoClient.getContractOperation()
+        .getContractTxReceipt(txHash);
+
+    // then
+    assertNull(contractTxReceipt);
+  }
+
+  @Test
+  public void shouldGetContractInterfaceReturnNullOnNotFound() throws Exception {
+    // when
+    final ContractAddress contractAddress = ContractAddress
+        .of("AmhnEq3xrTEfi1DQcYj1YhzdAggfdcXnNEd7T3GrXZVnNdjnjF2N");
+    final ContractInterface contractInterface = aergoClient.getContractOperation()
+        .getContractInterface(contractAddress);
+
+    // then
+    assertNull(contractInterface);
   }
 
   @Test
@@ -812,6 +837,19 @@ public class ContractOperationIT extends AbstractIT {
     assertEquals(expectedBignum, bignumArgs.getArgs().get(0));
   }
 
+  @Test
+  public void shouldListEventsReturnEmptyListOnNoMatchingAddress() throws Exception {
+    // when
+    final ContractAddress contractAddress = ContractAddress
+        .of("AmhnEq3xrTEfi1DQcYj1YhzdAggfdcXnNEd7T3GrXZVnNdjnjF2N");
+    final EventFilter eventFilter = EventFilter.newBuilder(contractAddress)
+        .recentBlockCount(1000)
+        .build();
+    final List<Event> events = aergoClient.getContractOperation().listEvents(eventFilter);
+
+    // then
+    assertEquals(emptyList(), events);
+  }
 
   @ToString
   protected static class Data {

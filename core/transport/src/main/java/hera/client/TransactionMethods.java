@@ -31,6 +31,7 @@ import hera.transport.ModelConverter;
 import hera.transport.TransactionConverterFactory;
 import hera.transport.TransactionInBlockConverterFactory;
 import hera.transport.TxReceiptConverterFactory;
+import io.grpc.StatusRuntimeException;
 import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
@@ -72,8 +73,15 @@ class TransactionMethods extends AbstractMethods {
           .build();
       logger.trace("AergoService getTX arg: {}", rpcTxHash);
 
-      final Blockchain.Tx rpcTx = getBlockingStub().getTX(rpcTxHash);
-      return transactionConverter.convertToDomainModel(rpcTx);
+      try {
+        final Blockchain.Tx rpcTx = getBlockingStub().getTX(rpcTxHash);
+        return transactionConverter.convertToDomainModel(rpcTx);
+      } catch (StatusRuntimeException e) {
+        if (!e.getMessage().contains("not found")) {
+          throw e;
+        }
+        return null;
+      }
     }
 
   };
@@ -99,8 +107,15 @@ class TransactionMethods extends AbstractMethods {
           .build();
       logger.trace("AergoService getTX arg: {}", rpcTxHash);
 
-      final Blockchain.TxInBlock rpcTxInBlock = getBlockingStub().getBlockTX(rpcTxHash);
-      return transactionInBlockConverter.convertToDomainModel(rpcTxInBlock);
+      try {
+        final Blockchain.TxInBlock rpcTxInBlock = getBlockingStub().getBlockTX(rpcTxHash);
+        return transactionInBlockConverter.convertToDomainModel(rpcTxInBlock);
+      } catch (StatusRuntimeException e) {
+        if (!e.getMessage().contains("not found")) {
+          throw e;
+        }
+        return null;
+      }
     }
 
   };
@@ -126,8 +141,15 @@ class TransactionMethods extends AbstractMethods {
           .build();
       logger.trace("AergoService getTX arg: {}", rpcTxHash);
 
-      final Blockchain.Receipt rpcTxReceipt = getBlockingStub().getReceipt(rpcTxHash);
-      return txReceiptConverter.convertToDomainModel(rpcTxReceipt);
+      try {
+        final Blockchain.Receipt rpcTxReceipt = getBlockingStub().getReceipt(rpcTxHash);
+        return txReceiptConverter.convertToDomainModel(rpcTxReceipt);
+      } catch (StatusRuntimeException e) {
+        if (!e.getMessage().contains("not found")) {
+          throw e;
+        }
+        return null;
+      }
     }
 
   };

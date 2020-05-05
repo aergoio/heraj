@@ -86,6 +86,8 @@ public class ContractDefinition implements Payload {
   public interface ContractDefinitionWithPayloadReady
       extends hera.util.Builder<ContractDefinition> {
 
+    ContractDefinitionWithPayloadReady constructorArgs(List<Object> args);
+
     ContractDefinitionWithPayloadReady constructorArgs(Object... args);
 
     ContractDefinitionWithPayloadReady amount(Aer amount);
@@ -113,8 +115,18 @@ public class ContractDefinition implements Payload {
     }
 
     @Override
+    public ContractDefinitionWithPayloadReady constructorArgs(final List<Object> args) {
+      if (null != args) {
+        this.constructorArgs = args;
+      }
+      return this;
+    }
+
+    @Override
     public ContractDefinitionWithPayloadReady constructorArgs(final Object... args) {
-      this.constructorArgs = asList(args);
+      if (null != args) {
+        this.constructorArgs = asList(args);
+      }
       return this;
     }
 

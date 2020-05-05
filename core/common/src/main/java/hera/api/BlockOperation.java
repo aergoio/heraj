@@ -26,7 +26,7 @@ public interface BlockOperation {
    * Get block meta data by hash.
    *
    * @param blockHash block hash
-   * @return block meta data
+   * @return block meta data. null if no matching one.
    */
   BlockMetadata getBlockMetadata(BlockHash blockHash);
 
@@ -34,7 +34,7 @@ public interface BlockOperation {
    * Get block meta data by height.
    *
    * @param height block's height
-   * @return block meta data
+   * @return block meta data. null if no matching one.
    */
   BlockMetadata getBlockMetadata(long height);
 
@@ -43,7 +43,7 @@ public interface BlockOperation {
    *
    * @param blockHash block hash
    * @param size      block list size whose upper bound is 1000
-   * @return list of block meta data
+   * @return list of block meta data. empty list if no matching one.
    */
   List<BlockMetadata> listBlockMetadatas(BlockHash blockHash, int size);
 
@@ -52,7 +52,7 @@ public interface BlockOperation {
    *
    * @param height block's height
    * @param size   block list size whose upper bound is 1000
-   * @return list of block meta data
+   * @return list of block meta data. empty list if no matching one.
    */
   List<BlockMetadata> listBlockMetadatas(long height, int size);
 
@@ -60,7 +60,7 @@ public interface BlockOperation {
    * Get block by hash.
    *
    * @param blockHash block hash
-   * @return block
+   * @return block. null if no matching one.
    */
   Block getBlock(BlockHash blockHash);
 
@@ -68,7 +68,7 @@ public interface BlockOperation {
    * Get block by height.
    *
    * @param height block's height
-   * @return block
+   * @return block. null if no matching one.
    */
   Block getBlock(long height);
 

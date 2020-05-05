@@ -36,7 +36,7 @@ public interface ContractOperation {
    * Use {@link #getContractTxReceipt(TxHash)} instead.
    *
    * @param contractTxHash a contract transaction hash
-   * @return a receipt of transaction
+   * @return a receipt of transaction. null if no matching one.
    */
   @Deprecated
   ContractTxReceipt getReceipt(ContractTxHash contractTxHash);
@@ -45,7 +45,7 @@ public interface ContractOperation {
    * Get contract tx receipt.
    *
    * @param txHash a contract transaction hash
-   * @return a receipt of transaction
+   * @return a receipt of transaction. null if no matching one.
    */
   ContractTxReceipt getContractTxReceipt(TxHash txHash);
 
@@ -130,7 +130,7 @@ public interface ContractOperation {
    * Get smart contract interface corresponding to contract address.
    *
    * @param contractAddress contract address
-   * @return contract interface
+   * @return contract interface. null if no matching one.
    */
   ContractInterface getContractInterface(ContractAddress contractAddress);
 
@@ -195,7 +195,7 @@ public interface ContractOperation {
    * List events corresponding to an event filter.
    *
    * @param filter an event filter
-   * @return event list
+   * @return event list. empty list if no matching one.
    */
   List<Event> listEvents(EventFilter filter);
 

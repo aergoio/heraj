@@ -5,6 +5,8 @@
 package hera.it;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -80,6 +82,26 @@ public class TransactionOperationIT extends AbstractIT {
   }
 
   @Test
+  public void shouldGetTransactionReturnNullOnNoMatchingOne() {
+    // when
+    final TxHash txHash = TxHash.of("qYGCRdCN98B6rYijR2R6rw2gf65kqk1Mhgyb4r7zj6C");
+    final Transaction transaction = aergoClient.getTransactionOperation().getTransaction(txHash);
+
+    // then
+    assertNull(transaction);
+  }
+
+  @Test
+  public void shouldGetTxReceiptReturnNullOnNoMatchingOne() {
+    // when
+    final TxHash txHash = TxHash.of("qYGCRdCN98B6rYijR2R6rw2gf65kqk1Mhgyb4r7zj6C");
+    final TxReceipt txReceipt = aergoClient.getTransactionOperation().getTxReceipt(txHash);
+
+    // then
+    assertNull(txReceipt);
+  }
+
+  @Test
   public void shouldSendAergoByCommit() {
     // when
     final AccountAddress recipient = new AergoKeyGenerator().create().getAddress();
@@ -122,8 +144,8 @@ public class TransactionOperationIT extends AbstractIT {
     final TxHash txHash = aergoClient.getTransactionOperation().commit(signed);
 
     // then
-    final Transaction notConfirmed = aergoClient.getTransactionOperation().getTransaction(txHash);
-    assertTrue(false == notConfirmed.isConfirmed());
+    final Transaction transaction = aergoClient.getTransactionOperation().getTransaction(txHash);
+    assertFalse(transaction.isConfirmed());
   }
 
   @Test

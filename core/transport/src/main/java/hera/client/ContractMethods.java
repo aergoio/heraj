@@ -47,6 +47,7 @@ import hera.transport.EventConverterFactory;
 import hera.transport.EventFilterConverterFactory;
 import hera.transport.ModelConverter;
 import io.grpc.Context;
+import io.grpc.StatusRuntimeException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -104,9 +105,59 @@ class ContractMethods extends AbstractMethods {
               .build();
           logger.trace("AergoService getReceipt arg: {}", rpcDeployTxHash);
 
-          final Blockchain.Receipt rpcReceipt = getBlockingStub().getReceipt(rpcDeployTxHash);
-          return receiptConverter.convertToDomainModel(rpcReceipt);
+          try {
+            final Blockchain.Receipt rpcReceipt = getBlockingStub().getReceipt(rpcDeployTxHash);
+            return receiptConverter.convertToDomainModel(rpcReceipt);
+          } catch (StatusRuntimeException e) {
+            if (!e.getMessage().contains("not found")) {
+              throw e;
+            }
+            return null;
+          }
         }
+      };
+
+  @Getter
+  protected final RequestMethod<ContractInterface> contractInterface =
+      new RequestMethod<ContractInterface>() {
+
+        @Getter
+        protected final String name = CONTRACT_INTERFACE;
+
+        @Override
+        protected void validate(final List<Object> parameters) {
+          validateType(parameters, 0, ContractAddress.class);
+        }
+
+        @Override
+        protected ContractInterface runInternal(final List<Object> parameters) throws Exception {
+          final ContractAddress contractAddress = (ContractAddress) parameters.get(0);
+          logger.debug("Get contract interface with contract address: {}", contractAddress);
+
+          final Rpc.SingleBytes rpcContractAddress = Rpc.SingleBytes.newBuilder()
+              .setValue(accountAddressConverter.convertToRpcModel(contractAddress))
+              .build();
+          logger.trace("AergoService getABI arg: {}", rpcContractAddress);
+
+          try {
+            final Blockchain.ABI rpcAbi = getBlockingStub().getABI(rpcContractAddress);
+            final ContractInterface withoutAddress =
+                contractInterfaceConverter.convertToDomainModel(rpcAbi);
+            return ContractInterface.newBuilder()
+                .address(contractAddress)
+                .version(withoutAddress.getVersion())
+                .language(withoutAddress.getLanguage())
+                .functions(withoutAddress.getFunctions())
+                .stateVariables(withoutAddress.getStateVariables())
+                .build();
+          } catch (StatusRuntimeException e) {
+            if (!e.getMessage().contains("cannot find contract")) {
+              throw e;
+            }
+            return null;
+          }
+        }
+
       };
 
   @Getter
@@ -183,42 +234,6 @@ class ContractMethods extends AbstractMethods {
       return transactionMethods.getCommit().invoke(Arrays.<Object>asList(signed));
     }
   };
-
-  @Getter
-  protected final RequestMethod<ContractInterface> contractInterface =
-      new RequestMethod<ContractInterface>() {
-
-        @Getter
-        protected final String name = CONTRACT_INTERFACE;
-
-        @Override
-        protected void validate(final List<Object> parameters) {
-          validateType(parameters, 0, ContractAddress.class);
-        }
-
-        @Override
-        protected ContractInterface runInternal(final List<Object> parameters) throws Exception {
-          final ContractAddress contractAddress = (ContractAddress) parameters.get(0);
-          logger.debug("Get contract interface with contract address: {}", contractAddress);
-
-          final Rpc.SingleBytes rpcContractAddress = Rpc.SingleBytes.newBuilder()
-              .setValue(accountAddressConverter.convertToRpcModel(contractAddress))
-              .build();
-          logger.trace("AergoService getABI arg: {}", rpcContractAddress);
-
-          final Blockchain.ABI rpcAbi = getBlockingStub().getABI(rpcContractAddress);
-          final ContractInterface withoutAddress =
-              contractInterfaceConverter.convertToDomainModel(rpcAbi);
-          return ContractInterface.newBuilder()
-              .address(contractAddress)
-              .version(withoutAddress.getVersion())
-              .language(withoutAddress.getLanguage())
-              .functions(withoutAddress.getFunctions())
-              .stateVariables(withoutAddress.getStateVariables())
-              .build();
-        }
-
-      };
 
   @Getter
   protected final RequestMethod<TxHash> executeTx = new RequestMethod<TxHash>() {

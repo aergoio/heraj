@@ -5,6 +5,7 @@
 package hera.it;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
@@ -68,13 +69,23 @@ public class AccountOperationIT extends AbstractIT {
   public void shouldCreateName() {
     // when
     final Name name = randomName();
+    final long preHeight = aergoClient.getBlockchainOperation().getBlockchainStatus()
+        .getBestHeight();
     aergoClient.getAccountOperation().createNameTx(key, name,
         nonceProvider.incrementAndGetNonce(key.getAddress()));
     waitForNextBlockToGenerate();
 
     // then
+    final long currentHeight = aergoClient.getBlockchainOperation().getBlockchainStatus()
+        .getBestHeight();
     final AccountAddress owner = aergoClient.getAccountOperation().getNameOwner(name);
     assertEquals(key.getAddress(), owner);
+    final AccountAddress shouldBeNull = aergoClient.getAccountOperation()
+        .getNameOwner(name, preHeight);
+    assertNull(shouldBeNull);
+    final AccountAddress shouldNotNull = aergoClient.getAccountOperation()
+        .getNameOwner(name, currentHeight);
+    assertNotNull(shouldNotNull);
   }
 
   @Test

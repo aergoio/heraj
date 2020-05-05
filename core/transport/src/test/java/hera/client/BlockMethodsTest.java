@@ -5,7 +5,10 @@
 package hera.client;
 
 import static hera.client.ClientContextKeys.GRPC_CLIENT;
+import static java.util.Collections.emptyList;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -18,6 +21,8 @@ import hera.api.model.Block;
 import hera.api.model.BlockMetadata;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -62,6 +67,38 @@ public class BlockMethodsTest extends AbstractTestCase {
   }
 
   @Test
+  public void shouldBlockMetadataByHashReturnNullOnNotFoundError() {
+    runOnOtherThread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          // given
+          final AergoRPCServiceBlockingStub mockBlockingStub = mock(
+              AergoRPCServiceBlockingStub.class);
+          final StatusRuntimeException error = new StatusRuntimeException(
+              Status.INTERNAL.withDescription("Block not found"));
+          when(mockBlockingStub.getBlockMetadata(any(Rpc.SingleBytes.class))).thenThrow(error);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
+          when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
+          final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
+          ContextHolder.attach(context);
+
+          // then
+          final BlockMethods blockMethods = new BlockMethods();
+          final List<Object> parameters = Arrays.<Object>asList(anyBlockHash);
+          final BlockMetadata blockMetadata = blockMethods.getBlockMetadataByHash()
+              .invoke(parameters);
+          assertNull(blockMetadata);
+        } catch (Exception e) {
+          throw new IllegalStateException(e);
+        } finally {
+          ContextHolder.remove();
+        }
+      }
+    });
+  }
+
+  @Test
   public void testBlockMetadataByHeight() {
     runOnOtherThread(new Runnable() {
       @Override
@@ -83,6 +120,38 @@ public class BlockMethodsTest extends AbstractTestCase {
           final BlockMetadata blockMetadata = blockMethods.getBlockMetadataByHeight()
               .invoke(parameters);
           assertNotNull(blockMetadata);
+        } catch (Exception e) {
+          throw new IllegalStateException(e);
+        } finally {
+          ContextHolder.remove();
+        }
+      }
+    });
+  }
+
+  @Test
+  public void shouldBlockMetadataByHeightReturnNullOnNotFoundError() {
+    runOnOtherThread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          // given
+          final AergoRPCServiceBlockingStub mockBlockingStub = mock(
+              AergoRPCServiceBlockingStub.class);
+          final StatusRuntimeException error = new StatusRuntimeException(
+              Status.INTERNAL.withDescription("Block not found"));
+          when(mockBlockingStub.getBlockMetadata(any(Rpc.SingleBytes.class))).thenThrow(error);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
+          when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
+          final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
+          ContextHolder.attach(context);
+
+          // then
+          final BlockMethods blockMethods = new BlockMethods();
+          final List<Object> parameters = Arrays.<Object>asList(anyHeight);
+          final BlockMetadata blockMetadata = blockMethods.getBlockMetadataByHeight()
+              .invoke(parameters);
+          assertNull(blockMetadata);
         } catch (Exception e) {
           throw new IllegalStateException(e);
         } finally {
@@ -126,6 +195,38 @@ public class BlockMethodsTest extends AbstractTestCase {
   }
 
   @Test
+  public void shouldListBlockMetadatasByHashReturnEmptyListOnNotFoundError() {
+    runOnOtherThread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          // given
+          final AergoRPCServiceBlockingStub mockBlockingStub = mock(
+              AergoRPCServiceBlockingStub.class);
+          final StatusRuntimeException error = new StatusRuntimeException(
+              Status.INTERNAL.withDescription("Block not found"));
+          when(mockBlockingStub.listBlockMetadata(any(Rpc.ListParams.class))).thenThrow(error);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
+          when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
+          final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
+          ContextHolder.attach(context);
+
+          // then
+          final BlockMethods blockMethods = new BlockMethods();
+          final List<Object> parameters = Arrays.<Object>asList(anyBlockHash, anySize);
+          final List<BlockMetadata> blockMetadataList = blockMethods.getListBlockMetadatasByHash()
+              .invoke(parameters);
+          assertEquals(emptyList(), blockMetadataList);
+        } catch (Exception e) {
+          throw new IllegalStateException(e);
+        } finally {
+          ContextHolder.remove();
+        }
+      }
+    });
+  }
+
+  @Test
   public void testListBlockMetadatasByHeight() {
     runOnOtherThread(new Runnable() {
       @Override
@@ -149,6 +250,38 @@ public class BlockMethodsTest extends AbstractTestCase {
           final List<BlockMetadata> blockMetadataList = blockMethods.getListBlockMetadatasByHeight()
               .invoke(parameters);
           assertNotNull(blockMetadataList);
+        } catch (Exception e) {
+          throw new IllegalStateException(e);
+        } finally {
+          ContextHolder.remove();
+        }
+      }
+    });
+  }
+
+  @Test
+  public void shouldListBlockMetadatasByHeightReturnEmptyListOnNotFoundError() {
+    runOnOtherThread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          // given
+          final AergoRPCServiceBlockingStub mockBlockingStub = mock(
+              AergoRPCServiceBlockingStub.class);
+          final StatusRuntimeException error = new StatusRuntimeException(
+              Status.INTERNAL.withDescription("Block not found"));
+          when(mockBlockingStub.listBlockMetadata(any(Rpc.ListParams.class))).thenThrow(error);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
+          when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
+          final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
+          ContextHolder.attach(context);
+
+          // then
+          final BlockMethods blockMethods = new BlockMethods();
+          final List<Object> parameters = Arrays.<Object>asList(anyHeight, anySize);
+          final List<BlockMetadata> blockMetadataList = blockMethods.getListBlockMetadatasByHeight()
+              .invoke(parameters);
+          assertEquals(emptyList(), blockMetadataList);
         } catch (Exception e) {
           throw new IllegalStateException(e);
         } finally {
@@ -190,6 +323,38 @@ public class BlockMethodsTest extends AbstractTestCase {
   }
 
   @Test
+  public void shouldBlockByHashReturnEmptyListOnNotFoundError() {
+    runOnOtherThread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          // given
+          final AergoRPCServiceBlockingStub mockBlockingStub = mock(
+              AergoRPCServiceBlockingStub.class);
+          final StatusRuntimeException error = new StatusRuntimeException(
+              Status.INTERNAL.withDescription("Block not found"));
+          when(mockBlockingStub.getBlock(any(Rpc.SingleBytes.class))).thenThrow(error);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
+          when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
+          final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
+          ContextHolder.attach(context);
+
+          // then
+          final BlockMethods blockMethods = new BlockMethods();
+          final List<Object> parameters = Arrays.<Object>asList(anyBlockHash);
+          final Block block = blockMethods.getBlockByHash()
+              .invoke(parameters);
+          assertNull(block);
+        } catch (Exception e) {
+          throw new IllegalStateException(e);
+        } finally {
+          ContextHolder.remove();
+        }
+      }
+    });
+  }
+
+  @Test
   public void testBlockByHeight() {
     runOnOtherThread(new Runnable() {
       @Override
@@ -211,6 +376,38 @@ public class BlockMethodsTest extends AbstractTestCase {
           final Block block = blockMethods.getBlockByHeight()
               .invoke(parameters);
           assertNotNull(block);
+        } catch (Exception e) {
+          throw new IllegalStateException(e);
+        } finally {
+          ContextHolder.remove();
+        }
+      }
+    });
+  }
+
+  @Test
+  public void shouldBlockByHeightReturnNullOnNotFoundError() {
+    runOnOtherThread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          // given
+          final AergoRPCServiceBlockingStub mockBlockingStub = mock(
+              AergoRPCServiceBlockingStub.class);
+          final StatusRuntimeException error = new StatusRuntimeException(
+              Status.INTERNAL.withDescription("Block not found"));
+          when(mockBlockingStub.getBlock(any(Rpc.SingleBytes.class))).thenThrow(error);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
+          when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
+          final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
+          ContextHolder.attach(context);
+
+          // then
+          final BlockMethods blockMethods = new BlockMethods();
+          final List<Object> parameters = Arrays.<Object>asList(anyHeight);
+          final Block block = blockMethods.getBlockByHeight()
+              .invoke(parameters);
+          assertNull(block);
         } catch (Exception e) {
           throw new IllegalStateException(e);
         } finally {

@@ -7,6 +7,7 @@ package hera.client;
 import static hera.client.ClientContextKeys.GRPC_CLIENT;
 import static hera.client.ClientContextKeys.GRPC_VALUE_CHAIN_ID_HASH_HOLDER;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -19,6 +20,8 @@ import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.model.TxReceipt;
 import hera.exception.CommitException;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -64,6 +67,38 @@ public class TransactionMethodsTest extends AbstractTestCase {
   }
 
   @Test
+  public void shouldTransactionInMemPoolReturnNullOnNotFoundError() {
+    runOnOtherThread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          // given
+          final AergoRPCServiceBlockingStub mockBlockingStub = mock(
+              AergoRPCServiceBlockingStub.class);
+          final StatusRuntimeException error = new StatusRuntimeException(
+              Status.NOT_FOUND.withDescription("not found"));
+          when(mockBlockingStub.getTX(any(Rpc.SingleBytes.class))).thenThrow(error);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
+          when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
+          final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
+          ContextHolder.attach(context);
+
+          // then
+          final TransactionMethods transactionMethods = new TransactionMethods();
+          final List<Object> parameters = Arrays.<Object>asList(anyTxHash);
+          final Transaction transaction = transactionMethods.getTransactionInMemPool()
+              .invoke(parameters);
+          assertNull(transaction);
+        } catch (Exception e) {
+          throw new IllegalStateException(e);
+        } finally {
+          ContextHolder.remove();
+        }
+      }
+    });
+  }
+
+  @Test
   public void testTransactionInBlock() {
     runOnOtherThread(new Runnable() {
       @Override
@@ -95,6 +130,38 @@ public class TransactionMethodsTest extends AbstractTestCase {
   }
 
   @Test
+  public void shouldTransactionInBlockReturnNullOnNotFoundError() {
+    runOnOtherThread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          // given
+          final AergoRPCServiceBlockingStub mockBlockingStub = mock(
+              AergoRPCServiceBlockingStub.class);
+          final StatusRuntimeException error = new StatusRuntimeException(
+              Status.NOT_FOUND.withDescription("not found"));
+          when(mockBlockingStub.getBlockTX(any(Rpc.SingleBytes.class))).thenThrow(error);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
+          when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
+          final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
+          ContextHolder.attach(context);
+
+          // then
+          final TransactionMethods transactionMethods = new TransactionMethods();
+          final List<Object> parameters = Arrays.<Object>asList(anyTxHash);
+          final Transaction transaction = transactionMethods.getTransactionInBlock()
+              .invoke(parameters);
+          assertNull(transaction);
+        } catch (Exception e) {
+          throw new IllegalStateException(e);
+        } finally {
+          ContextHolder.remove();
+        }
+      }
+    });
+  }
+
+  @Test
   public void testTxReceipt() {
     runOnOtherThread(new Runnable() {
       @Override
@@ -116,6 +183,38 @@ public class TransactionMethodsTest extends AbstractTestCase {
           final TxReceipt txReceipt = transactionMethods.getTxReceipt()
               .invoke(parameters);
           assertNotNull(txReceipt);
+        } catch (Exception e) {
+          throw new IllegalStateException(e);
+        } finally {
+          ContextHolder.remove();
+        }
+      }
+    });
+  }
+
+  @Test
+  public void shouldTxReceiptReturnNullOnNotFoundError() {
+    runOnOtherThread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          // given
+          final AergoRPCServiceBlockingStub mockBlockingStub = mock(
+              AergoRPCServiceBlockingStub.class);
+          final StatusRuntimeException error = new StatusRuntimeException(
+              Status.NOT_FOUND.withDescription("not found"));
+          when(mockBlockingStub.getReceipt(any(Rpc.SingleBytes.class))).thenThrow(error);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
+          when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
+          final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
+          ContextHolder.attach(context);
+
+          // then
+          final TransactionMethods transactionMethods = new TransactionMethods();
+          final List<Object> parameters = Arrays.<Object>asList(anyTxHash);
+          final TxReceipt txReceipt = transactionMethods.getTxReceipt()
+              .invoke(parameters);
+          assertNull(txReceipt);
         } catch (Exception e) {
           throw new IllegalStateException(e);
         } finally {

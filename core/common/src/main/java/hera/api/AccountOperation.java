@@ -115,7 +115,7 @@ public interface AccountOperation {
   TxHash updateNameTx(Signer signer, Name name, AccountAddress newOwner, long nonce);
 
   /**
-   * Use {@link #getNameOwner} instead.
+   * Use {@link #getNameOwner(Name)} instead.
    *
    * @param name an name of account
    * @return an account address binded with name. null if it has no owner
@@ -124,7 +124,7 @@ public interface AccountOperation {
   AccountAddress getNameOwner(String name);
 
   /**
-   * Get owner of an account name.
+   * Get owner of name at current block.
    *
    * @param name an name of account
    * @return an account address binded with name. null if it has no owner
@@ -142,7 +142,7 @@ public interface AccountOperation {
   AccountAddress getNameOwner(String name, long blockNumber);
 
   /**
-   * Get owner of an account name at block {@code blockNumber}.
+   * Get owner of name at specific block.
    *
    * @param name        an name of account
    * @param blockNumber a block number

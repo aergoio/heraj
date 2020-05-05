@@ -16,6 +16,7 @@
   - Replace subscribeNewBlockXXX with subscribeBlockXXX
   - Clarify WalletApi, ContractApi
   - Deprecate ContractTxHash
+  - Return null on some query methods
 
 ## v1.4.0 (Mar 10, 2020)
 

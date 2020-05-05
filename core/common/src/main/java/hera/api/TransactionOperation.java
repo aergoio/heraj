@@ -29,7 +29,7 @@ public interface TransactionOperation {
    * Get transaction.
    *
    * @param txHash a transaction hash
-   * @return transaction
+   * @return transaction. null if no matching one.
    */
   Transaction getTransaction(TxHash txHash);
 
@@ -37,7 +37,7 @@ public interface TransactionOperation {
    * Get tx receipt.
    *
    * @param txHash a transaction hash
-   * @return a tx receipt
+   * @return a tx receipt. null if no matching one.
    */
   TxReceipt getTxReceipt(TxHash txHash);
 

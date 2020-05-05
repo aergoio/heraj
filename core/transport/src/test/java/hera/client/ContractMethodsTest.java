@@ -7,6 +7,7 @@ package hera.client;
 import static hera.client.ClientContextKeys.GRPC_CLIENT;
 import static hera.client.ClientContextKeys.GRPC_VALUE_CHAIN_ID_HASH_HOLDER;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -22,6 +23,8 @@ import hera.api.model.Event;
 import hera.api.model.StreamObserver;
 import hera.api.model.Subscription;
 import hera.api.model.TxHash;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -56,6 +59,103 @@ public class ContractMethodsTest extends AbstractTestCase {
           final ContractTxReceipt contractTxReceipt = contractMethods.getContractTxReceipt()
               .invoke(parameters);
           assertNotNull(contractTxReceipt);
+        } catch (Exception e) {
+          throw new IllegalStateException(e);
+        } finally {
+          ContextHolder.remove();
+        }
+      }
+    });
+  }
+
+  @Test
+  public void shouldContractTxReceiptReturnNullOnNotFound() {
+    runOnOtherThread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          // given
+          final AergoRPCServiceBlockingStub mockBlockingStub = mock(
+              AergoRPCServiceBlockingStub.class);
+          final StatusRuntimeException error = new StatusRuntimeException(
+              Status.NOT_FOUND.withDescription("not found"));
+          when(mockBlockingStub.getReceipt(any(Rpc.SingleBytes.class))).thenThrow(error);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
+          when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
+          final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
+          ContextHolder.attach(context);
+
+          // then
+          final ContractMethods contractMethods = new ContractMethods();
+          final List<Object> parameters = Arrays.<Object>asList(anyContractTxHash);
+          final ContractTxReceipt contractTxReceipt = contractMethods.getContractTxReceipt()
+              .invoke(parameters);
+          assertNull(contractTxReceipt);
+        } catch (Exception e) {
+          throw new IllegalStateException(e);
+        } finally {
+          ContextHolder.remove();
+        }
+      }
+    });
+  }
+
+  @Test
+  public void testContractInterface() {
+    runOnOtherThread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          // given
+          final AergoRPCServiceBlockingStub mockBlockingStub = mock(
+              AergoRPCServiceBlockingStub.class);
+          when(mockBlockingStub.getABI(any(Rpc.SingleBytes.class)))
+              .thenReturn(Blockchain.ABI.newBuilder()
+                  .addFunctions(Blockchain.Function.newBuilder().build())
+                  .build());
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
+          when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
+          final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
+          ContextHolder.attach(context);
+
+          // then
+          final ContractMethods contractMethods = new ContractMethods();
+          final List<Object> parameters = Arrays.<Object>asList(anyContractAddress);
+          final ContractInterface contractInterface = contractMethods.getContractInterface()
+              .invoke(parameters);
+          assertNotNull(contractInterface);
+        } catch (Exception e) {
+          throw new IllegalStateException(e);
+        } finally {
+          ContextHolder.remove();
+        }
+      }
+    });
+  }
+
+  @Test
+  public void shouldContractInterfaceReturnNullOnNotFound() {
+    runOnOtherThread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          // given
+          final AergoRPCServiceBlockingStub mockBlockingStub = mock(
+              AergoRPCServiceBlockingStub.class);
+          final StatusRuntimeException error = new StatusRuntimeException(
+              Status.NOT_FOUND.withDescription("cannot find contract"));
+          when(mockBlockingStub.getABI(any(Rpc.SingleBytes.class))).thenThrow(error);
+          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
+          when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
+          final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
+          ContextHolder.attach(context);
+
+          // then
+          final ContractMethods contractMethods = new ContractMethods();
+          final List<Object> parameters = Arrays.<Object>asList(anyContractAddress);
+          final ContractInterface contractInterface = contractMethods.getContractInterface()
+              .invoke(parameters);
+          assertNull(contractInterface);
         } catch (Exception e) {
           throw new IllegalStateException(e);
         } finally {
@@ -132,39 +232,6 @@ public class ContractMethodsTest extends AbstractTestCase {
           final TxHash txHash = contractMethods.getRedeployTx()
               .invoke(parameters);
           assertNotNull(txHash);
-        } catch (Exception e) {
-          throw new IllegalStateException(e);
-        } finally {
-          ContextHolder.remove();
-        }
-      }
-    });
-  }
-
-  @Test
-  public void testContractInterface() {
-    runOnOtherThread(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          // given
-          final AergoRPCServiceBlockingStub mockBlockingStub = mock(
-              AergoRPCServiceBlockingStub.class);
-          when(mockBlockingStub.getABI(any(Rpc.SingleBytes.class)))
-              .thenReturn(Blockchain.ABI.newBuilder()
-                  .addFunctions(Blockchain.Function.newBuilder().build())
-                  .build());
-          final GrpcClientImpl mockClient = mock(GrpcClientImpl.class);
-          when(mockClient.getBlockingStub()).thenReturn(mockBlockingStub);
-          final Context context = EmptyContext.getInstance().withValue(GRPC_CLIENT, mockClient);
-          ContextHolder.attach(context);
-
-          // then
-          final ContractMethods contractMethods = new ContractMethods();
-          final List<Object> parameters = Arrays.<Object>asList(anyContractAddress);
-          final ContractInterface contractInterface = contractMethods.getContractInterface()
-              .invoke(parameters);
-          assertNotNull(contractInterface);
         } catch (Exception e) {
           throw new IllegalStateException(e);
         } finally {

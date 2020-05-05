@@ -11,6 +11,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 
@@ -26,9 +28,9 @@ public class ContractInterfaceTest {
     final ContractAddress address = new ContractAddress(encodedAddress);
     final String version = randomUUID().toString();
     final String language = randomUUID().toString();
-    final ContractFunction function = new ContractFunction(functionName, false, false, true);
-    final List<ContractFunction> functions = new ArrayList<ContractFunction>();
-    functions.add(function);
+    final ContractFunction function = new ContractFunction(functionName,
+        Collections.<String>emptyList(), false, false, true);
+    final List<ContractFunction> functions = asList(function);
     final List<StateVariable> stateVariables = new ArrayList<StateVariable>();
     final ContractInterface contractInterface = ContractInterface.newBuilder()
         .address(address)
@@ -44,6 +46,42 @@ public class ContractInterfaceTest {
         .address(address)
         .functionName(functionName)
         .args(asList(args))
+        .amount(Aer.EMPTY)
+        .delegateFee(true)
+        .build();
+    final ContractInvocation actual = contractInterface.newInvocationBuilder()
+        .function(functionName)
+        .args(args)
+        .amount(Aer.EMPTY)
+        .delegateFee(true)
+        .build();
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testInvocationBuilderOnListArgs() {
+    final ContractAddress address = new ContractAddress(encodedAddress);
+    final String version = randomUUID().toString();
+    final String language = randomUUID().toString();
+    final ContractFunction function = new ContractFunction(functionName,
+        Collections.<String>emptyList(), false, false, true);
+    final List<ContractFunction> functions = asList(function);
+    final List<StateVariable> stateVariables = new ArrayList<StateVariable>();
+    final ContractInterface contractInterface = ContractInterface.newBuilder()
+        .address(address)
+        .version(version)
+        .language(language)
+        .functions(functions)
+        .stateVariables(stateVariables)
+        .build();
+
+    final List<Object> args = Arrays.<Object>asList(randomUUID().toString(),
+        randomUUID().toString());
+    final ContractInvocation expected = ContractInvocation
+        .newBuilder()
+        .address(address)
+        .functionName(functionName)
+        .args(args)
         .amount(Aer.EMPTY)
         .delegateFee(true)
         .build();
