@@ -8,12 +8,15 @@ import static hera.util.ValidationUtils.assertNotNull;
 import static hera.util.ValidationUtils.assertTrue;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import hera.exception.HerajException;
+import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 
 @ApiAudience.Public
@@ -22,9 +25,7 @@ public class SimpleNonceProvider implements NonceProvider {
 
   protected final Logger logger = getLogger(getClass());
 
-  protected final Object lock = new Object();
-
-  protected final Map<AccountAddress, Long> address2Nonce;
+  protected final LoadingCache<AccountAddress, AtomicLong> cache;
 
   /**
    * SimpleNonceProvider constructor. Capacity is set as 1000.
@@ -40,20 +41,15 @@ public class SimpleNonceProvider implements NonceProvider {
    */
   public SimpleNonceProvider(final int capacity) {
     assertTrue(capacity > 0, "Capacity must > 0");
-    this.address2Nonce = new LinkedHashMap<AccountAddress, Long>() {
-
-      private static final long serialVersionUID = 7283839934243345689L;
-
-      @Override
-      protected boolean removeEldestEntry(java.util.Map.Entry<AccountAddress, Long> eldest) {
-        final boolean shouldRemove = size() > capacity;
-        if (shouldRemove) {
-          logger.debug("Capacity is over (size: {}). Remove stale entry: {}", capacity, eldest);
-        }
-        return shouldRemove;
-      }
-
-    };
+    this.cache = CacheBuilder.newBuilder()
+        .concurrencyLevel(Runtime.getRuntime().availableProcessors())
+        .maximumSize(capacity)
+        .build(new CacheLoader<AccountAddress, AtomicLong>() {
+          @Override
+          public AtomicLong load(final AccountAddress key) throws Exception {
+            return new AtomicLong(0);
+          }
+        });
   }
 
   @Override
@@ -66,28 +62,26 @@ public class SimpleNonceProvider implements NonceProvider {
   public void bindNonce(final AccountAddress accountAddress, final long nonce) {
     assertNotNull(accountAddress, "AccountAddress must not null");
     assertTrue(nonce >= 0, "Nonce must > 0");
-    synchronized (lock) {
-      address2Nonce.put(accountAddress, nonce);
-    }
+    this.cache.put(accountAddress, new AtomicLong(nonce));
   }
 
   @Override
   public long incrementAndGetNonce(final AccountAddress accountAddress) {
     assertNotNull(accountAddress, "AccountAddress must not null");
-    synchronized (lock) {
-      final Long lastNonce = address2Nonce.get(accountAddress);
-      final long nextNonce = null == lastNonce ? 1L : lastNonce + 1;
-      address2Nonce.put(accountAddress, nextNonce);
-      return nextNonce;
+    try {
+      return this.cache.get(accountAddress).incrementAndGet();
+    } catch (Exception e) {
+      throw new HerajException(e);
     }
   }
 
   @Override
   public long getLastUsedNonce(final AccountAddress accountAddress) {
     assertNotNull(accountAddress, "AccountAddress must not null");
-    synchronized (lock) {
-      final Long lastNonce = address2Nonce.get(accountAddress);
-      return null == lastNonce ? 0L : lastNonce;
+    try {
+      return this.cache.get(accountAddress).get();
+    } catch (Exception e) {
+      throw new HerajException(e);
     }
   }
 

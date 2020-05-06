@@ -10,10 +10,12 @@ import hera.AbstractTestCase;
 import hera.api.model.AccountAddress;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Future;
 import org.junit.Test;
 
 public class SimpleNonceProviderTest extends AbstractTestCase {
@@ -28,7 +30,7 @@ public class SimpleNonceProviderTest extends AbstractTestCase {
       nonceProvider.bindNonce(key.getAddress(), 3L);
     }
 
-    assertEquals(capacity, nonceProvider.address2Nonce.size());
+    assertEquals(capacity, nonceProvider.cache.size());
   }
 
   @Test
@@ -42,7 +44,7 @@ public class SimpleNonceProviderTest extends AbstractTestCase {
       nonceProvider.bindNonce(address, 3L);
     }
 
-    assertEquals(capacity, nonceProvider.address2Nonce.size());
+    assertEquals(capacity, nonceProvider.cache.size());
     assertEquals(0L, nonceProvider.getLastUsedNonce(stale));
   }
 
@@ -61,14 +63,17 @@ public class SimpleNonceProviderTest extends AbstractTestCase {
 
   @Test
   public void testNonceGetOnMultiThread() throws Exception {
+    // given
     final NonceProvider nonceProvider = new SimpleNonceProvider();
     final AccountAddress identity = new AergoKeyGenerator().create().getAddress();
 
-    final int nThread = 3;
-    final int tryCount = new Random().nextInt(100);
-    final ExecutorService service = Executors.newFixedThreadPool(2);
+    // when
+    final int nThread = 2 * Runtime.getRuntime().availableProcessors();
+    final int tryCount = new Random().nextInt(1000);
+    final ExecutorService service = Executors.newFixedThreadPool(nThread);
+    final List<Future<?>> futures = new ArrayList<>();
     for (int i = 0; i < nThread; ++i) {
-      service.submit(new Runnable() {
+      final Future<?> future = service.submit(new Runnable() {
         @Override
         public void run() {
           for (int j = 0; j < tryCount; ++j) {
@@ -76,9 +81,13 @@ public class SimpleNonceProviderTest extends AbstractTestCase {
           }
         }
       });
+      futures.add(future);
     }
 
-    service.awaitTermination(5000L, TimeUnit.MILLISECONDS);
+    // then
+    for (final Future<?> future : futures) {
+      future.get();
+    }
     assertEquals(tryCount * nThread, nonceProvider.getLastUsedNonce(identity));
   }
 

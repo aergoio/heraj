@@ -6,6 +6,7 @@ dependencies {
   api project(":core:annotation")
   api project(":core:util")
 
+  implementation "com.google.guava:guava:${guavaVersion}-android"
   implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
   implementation "org.bouncycastle:bcprov-jdk15on:${bouncyCastleVersion}"
 }
