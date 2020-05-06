@@ -178,12 +178,12 @@ class LegacyWallet implements Wallet {
 
   @Override
   public AccountAddress getNameOwner(String name) {
-    return preparedWalletApiImpl.query().getNameOwner(name);
+    return preparedWalletApiImpl.query().getNameOwner(Name.of(name));
   }
 
   @Override
   public AccountAddress getNameOwner(String name, long blockNumber) {
-    return preparedWalletApiImpl.query().getNameOwner(name, blockNumber);
+    return preparedWalletApiImpl.query().getNameOwner(Name.of(name), blockNumber);
   }
 
   @Override
@@ -223,7 +223,7 @@ class LegacyWallet implements Wallet {
 
   @Override
   public List<AccountAddress> listServerKeyStoreAccounts() {
-    return preparedWalletApiImpl.query().listServerKeyStoreAccounts();
+    return preparedWalletApiImpl.aergoClient.getKeyStoreOperation().list();
   }
 
   @Override

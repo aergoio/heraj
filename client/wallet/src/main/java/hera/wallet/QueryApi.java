@@ -55,10 +55,11 @@ public interface QueryApi {
   AccountState getAccountState(AccountAddress accountAddress);
 
   /**
-   * Use {@link #getNameOwner(Name)} instead.
+   * Get owner of name at current block.
    *
    * @param name an name of account
    * @return an account address binded with name
+   * @deprecated use {@link #getNameOwner(Name)} instead.
    */
   @Deprecated
   AccountAddress getNameOwner(String name);
@@ -72,11 +73,12 @@ public interface QueryApi {
   AccountAddress getNameOwner(Name name);
 
   /**
-   * Use {@link #getNameOwner(Name, long)} instead.
+   * Get owner of name at specific block.
    *
    * @param name        an name of account
    * @param blockNumber a block number
    * @return an account address binded with name
+   * @deprecated use {@link #getNameOwner(Name, long)} instead.
    */
   @Deprecated
   AccountAddress getNameOwner(String name, long blockNumber);
@@ -122,14 +124,6 @@ public interface QueryApi {
    * @return votes list
    */
   AccountTotalVote getVotesOf(AccountAddress accountAddress);
-
-  /**
-   * Get account list on a server key store. It will be removed.
-   *
-   * @return account list
-   */
-  @Deprecated
-  List<AccountAddress> listServerKeyStoreAccounts();
 
   /**
    * Get best block hash.
@@ -262,10 +256,11 @@ public interface QueryApi {
   Block getBlock(long height);
 
   /**
-   * Use {@link #subscribeBlockMetadata(StreamObserver)} instead.
+   * Subscribe block metadata stream which is triggered everytime new block is generated.
    *
    * @param observer a stream observer which is invoked on new block metadata
    * @return a block subscription
+   * @deprecated use {@link #subscribeBlockMetadata(StreamObserver)} instead.
    */
   @Deprecated
   Subscription<BlockMetadata> subscribeNewBlockMetadata(
@@ -281,10 +276,11 @@ public interface QueryApi {
       hera.api.model.StreamObserver<BlockMetadata> observer);
 
   /**
-   * Use {@link #subscribeBlock(StreamObserver)} instead.
+   * Subscribe block stream which is triggered everytime new block is generated.
    *
    * @param observer a stream observer which is invoked on new block
    * @return a block subscription
+   * @deprecated use {@link #subscribeBlock(StreamObserver)} instead.
    */
   @Deprecated
   Subscription<Block> subscribeNewBlock(hera.api.model.StreamObserver<Block> observer);

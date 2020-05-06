@@ -33,10 +33,11 @@ import java.util.List;
 public interface ContractOperation {
 
   /**
-   * Use {@link #getContractTxReceipt(TxHash)} instead.
+   * Get contract tx receipt.
    *
    * @param contractTxHash a contract transaction hash
    * @return a receipt of transaction. null if no matching one.
+   * @deprecated use {@link #getContractTxReceipt(TxHash)} instead.
    */
   @Deprecated
   ContractTxReceipt getReceipt(ContractTxHash contractTxHash);
@@ -50,37 +51,40 @@ public interface ContractOperation {
   ContractTxReceipt getContractTxReceipt(TxHash txHash);
 
   /**
-   * Use {@link #deployTx(Signer, ContractDefinition, long, Fee)} instead.
+   * Deploy smart contract.
    *
    * @param creator            an creator account
    * @param contractDefinition contract definition
    * @param nonce              an nonce used in making transaction
    * @return contract definition transaction hash
+   * @deprecated use {@link #deployTx(Signer, ContractDefinition, long, Fee)} instead.
    */
   @Deprecated
   ContractTxHash deploy(Account creator, ContractDefinition contractDefinition, long nonce);
 
   /**
-   * Use {@link #deployTx(Signer, ContractDefinition, long, Fee)} instead.
+   * Deploy smart contract.
    *
    * @param creator            an creator account
    * @param contractDefinition contract definition
    * @param nonce              an nonce used in making transaction
    * @param fee                transaction fee
    * @return contract definition transaction hash
+   * @deprecated use {@link #deployTx(Signer, ContractDefinition, long, Fee)} instead.
    */
   @Deprecated
   ContractTxHash deploy(Account creator, ContractDefinition contractDefinition, long nonce,
       Fee fee);
 
   /**
-   * Use {@link #deployTx(Signer, ContractDefinition, long, Fee)} instead.
+   * Deploy smart contract.
    *
    * @param signer             a signer whose principal is smart contract creator.
    * @param contractDefinition a contract definition
    * @param nonce              an nonce used in making transaction
    * @param fee                a transaction fee
    * @return contract definition transaction hash
+   * @deprecated use {@link #deployTx(Signer, ContractDefinition, long, Fee)} instead.
    */
   @Deprecated
   ContractTxHash deploy(Signer signer, ContractDefinition contractDefinition, long nonce,
@@ -99,7 +103,8 @@ public interface ContractOperation {
       Fee fee);
 
   /**
-   * Use {@link #redeployTx(Signer, ContractAddress, ContractDefinition, long, Fee)} instead.
+   * Re-deploy smart contract. A principal of {@code signer} must be creator and {@code
+   * contractAddress} must be existing one.
    *
    * @param signer             a signer whose principal is smart contract creator.
    * @param existingContract   an existing contract address
@@ -107,6 +112,7 @@ public interface ContractOperation {
    * @param nonce              an nonce used in making transaction
    * @param fee                a transaction fee
    * @return contract definition transaction hash
+   * @deprecated use {@link #redeployTx(Signer, ContractAddress, ContractDefinition, long, Fee)}.
    */
   @Deprecated
   ContractTxHash redeploy(Signer signer, ContractAddress existingContract,
@@ -135,37 +141,40 @@ public interface ContractOperation {
   ContractInterface getContractInterface(ContractAddress contractAddress);
 
   /**
-   * Use {@link #executeTx(Signer, ContractInvocation, long, Fee)} instead.
+   * Execute the smart contract.
    *
    * @param executor           an executor account
    * @param contractInvocation {@link ContractInvocation}
    * @param nonce              an nonce used in making transaction
    * @return contract execution transaction hash
+   * @deprecated use {@link #executeTx(Signer, ContractInvocation, long, Fee)} instead.
    */
   @Deprecated
   ContractTxHash execute(Account executor, ContractInvocation contractInvocation, long nonce);
 
   /**
-   * Use {@link #executeTx(Signer, ContractInvocation, long, Fee)} instead.
+   * Execute the smart contract.
    *
    * @param executor           an executor account
    * @param contractInvocation {@link ContractInvocation}
    * @param nonce              an nonce used in making transaction
    * @param fee                transaction fee
    * @return contract execution transaction hash
+   * @deprecated use {@link #executeTx(Signer, ContractInvocation, long, Fee)} instead.
    */
   @Deprecated
   ContractTxHash execute(Account executor, ContractInvocation contractInvocation, long nonce,
       Fee fee);
 
   /**
-   * Use {@link #executeTx(Signer, ContractInvocation, long, Fee)} instead.
+   * Execute the smart contract.
    *
    * @param signer             a signer which will execute smart contract.
    * @param contractInvocation {@link ContractInvocation}
    * @param nonce              an nonce used in making transaction
    * @param fee                transaction fee
    * @return contract execution transaction hash
+   * @deprecated use {@link #executeTx(Signer, ContractInvocation, long, Fee)} instead.
    */
   @Deprecated
   ContractTxHash execute(Signer signer, ContractInvocation contractInvocation, long nonce,

@@ -31,10 +31,11 @@ import java.util.List;
 public interface AccountOperation {
 
   /**
-   * Use {@link AccountOperation#getState(AccountAddress)} instead.
+   * Get account state by address.
    *
    * @param account an account
    * @return an account state
+   * @deprecated use {@link AccountOperation#getState(AccountAddress)} instead.
    */
   @Deprecated
   AccountState getState(Account account);
@@ -48,23 +49,25 @@ public interface AccountOperation {
   AccountState getState(AccountAddress address);
 
   /**
-   * Use {@link #createNameTx(Signer, Name, long)} instead.
+   * Create name info of an account. Created name will be owned by {@code signer}.
    *
    * @param account an account
    * @param name    an new name
    * @param nonce   an nonce which is used in a transaction
    * @return a create name transaction hash
+   * @deprecated use {@link #createNameTx(Signer, Name, long)} instead.
    */
   @Deprecated
   TxHash createName(Account account, String name, long nonce);
 
   /**
-   * Use {@link #createNameTx(Signer, Name, long)} instead.
+   * Create name info of an account. Created name will be owned by {@code signer}.
    *
    * @param signer a signer
    * @param name   an new name
    * @param nonce  an nonce which is used in a transaction
    * @return a create name transaction hash
+   * @deprecated use {@link #createNameTx(Signer, Name, long)} instead.
    */
   @Deprecated
   TxHash createName(Signer signer, String name, long nonce);
@@ -80,25 +83,27 @@ public interface AccountOperation {
   TxHash createNameTx(Signer signer, Name name, long nonce);
 
   /**
-   * Use {@link #updateNameTx(Signer, Name, AccountAddress, long)} instead.
+   * Update name info of an account. An signer must be owner of {@code name}.
    *
    * @param owner    an account
    * @param name     an already binded name
    * @param newOwner an new owner of name
    * @param nonce    an nonce which is used in a transaction
    * @return a update name transaction hash
+   * @deprecated use {@link #updateNameTx(Signer, Name, AccountAddress, long)} instead.
    */
   @Deprecated
   TxHash updateName(Account owner, String name, AccountAddress newOwner, long nonce);
 
   /**
-   * Use {@link #updateNameTx(Signer, Name, AccountAddress, long)} instead.
+   * Update name info of an account. An signer must be owner of {@code name}.
    *
    * @param signer   a signer
    * @param name     an already binded name
    * @param newOwner an new owner of name
    * @param nonce    an nonce which is used in a transaction
    * @return a update name transaction hash
+   * @deprecated use {@link #updateNameTx(Signer, Name, AccountAddress, long)} instead.
    */
   @Deprecated
   TxHash updateName(Signer signer, String name, AccountAddress newOwner, long nonce);
@@ -115,10 +120,11 @@ public interface AccountOperation {
   TxHash updateNameTx(Signer signer, Name name, AccountAddress newOwner, long nonce);
 
   /**
-   * Use {@link #getNameOwner(Name)} instead.
+   * Get owner of name at current block.
    *
    * @param name an name of account
    * @return an account address binded with name. null if it has no owner
+   * @deprecated use {@link #getNameOwner(Name)} instead.
    */
   @Deprecated
   AccountAddress getNameOwner(String name);
@@ -132,11 +138,12 @@ public interface AccountOperation {
   AccountAddress getNameOwner(Name name);
 
   /**
-   * Use {@link #getNameOwner(Name, long)} instead.
+   * Get owner of name at specific block.
    *
    * @param name        an name of account
    * @param blockNumber a block number
    * @return an account address binded with name. null if it has no owner
+   * @deprecated use {@link #getNameOwner(Name, long)} instead.
    */
   @Deprecated
   AccountAddress getNameOwner(String name, long blockNumber);
@@ -151,23 +158,25 @@ public interface AccountOperation {
   AccountAddress getNameOwner(Name name, long blockNumber);
 
   /**
-   * Use {@link #stakeTx(Signer, Aer, long)} instead.
+   * Staking an account with amount. An {@code amount} will be staked by {@code signer}.
    *
    * @param account an account
    * @param amount  an amount to stake
    * @param nonce   an nonce which is used in a transaction
    * @return a staking transaction hash
+   * @deprecated use {@link #stakeTx(Signer, Aer, long)} instead.
    */
   @Deprecated
   TxHash stake(Account account, Aer amount, long nonce);
 
   /**
-   * Use {@link #stakeTx(Signer, Aer, long)} instead.
+   * Staking an account with amount. An {@code amount} will be staked by {@code signer}.
    *
    * @param signer a signer
    * @param amount an amount to stake
    * @param nonce  an nonce which is used in a transaction
    * @return a staking transaction hash
+   * @deprecated use {@link #stakeTx(Signer, Aer, long)} instead.
    */
   @Deprecated
   TxHash stake(Signer signer, Aer amount, long nonce);
@@ -183,23 +192,25 @@ public interface AccountOperation {
   TxHash stakeTx(Signer signer, Aer amount, long nonce);
 
   /**
-   * Use {@link #unstake(Signer, Aer, long)} instead.
+   * Unstaking an account with amount.
    *
    * @param account an account
    * @param amount  an amount to stake
    * @param nonce   an nonce which is used in a transaction
    * @return a staking transaction hash
+   * @deprecated use {@link #unstake(Signer, Aer, long)} instead.
    */
   @Deprecated
   TxHash unstake(Account account, Aer amount, long nonce);
 
   /**
-   * Use {@link #unstake(Signer, Aer, long)} instead.
+   * Unstaking an account with amount.
    *
    * @param signer a signer
    * @param amount an amount to stake
    * @param nonce  an nonce which is used in a transaction
    * @return a staking transaction hash
+   * @deprecated use {@link #unstake(Signer, Aer, long)} instead.
    */
   @Deprecated
   TxHash unstake(Signer signer, Aer amount, long nonce);
@@ -223,13 +234,21 @@ public interface AccountOperation {
   StakeInfo getStakingInfo(AccountAddress accountAddress);
 
   /**
-   * Use {@link #voteTx(Signer, String, List, long)} instead.
+   * Vote to {@code candidates} with corresponding {@code voteId}. Pre-defined vote id is
+   * followings:
+   *
+   *
+   * <ul>
+   * <li>"voteBP"</li>
+   * </ul>
+   * A {@code signer} must have staked aergo.
    *
    * @param signer     a signer
    * @param voteId     a vote id
    * @param candidates a candidates
    * @param nonce      an nonce which is used in a transaction
    * @return voting transaction hash
+   * @deprecated use {@link #voteTx(Signer, String, List, long)} instead.
    */
   @Deprecated
   TxHash vote(Signer signer, String voteId, List<String> candidates, long nonce);

@@ -73,22 +73,14 @@ public interface BlockOperation {
   Block getBlock(long height);
 
   /**
-   * Use {@link #subscribeBlockMetadata(StreamObserver)} instead.
+   * Subscribe block metadata stream which is triggered everytime new block is generated.
    *
    * @param observer a stream observer which is invoked on new block metadata
    * @return a block subscription
+   * @deprecated use {@link #subscribeBlockMetadata(StreamObserver)} instead.
    */
   @Deprecated
   Subscription<BlockMetadata> subscribeNewBlockMetadata(StreamObserver<BlockMetadata> observer);
-
-  /**
-   * Use {@link #subscribeBlock(StreamObserver)} instead.
-   *
-   * @param observer a stream observer which is invoked on new block
-   * @return a block subscription
-   */
-  @Deprecated
-  Subscription<Block> subscribeNewBlock(StreamObserver<Block> observer);
 
   /**
    * Subscribe block metadata stream which is triggered everytime new block is generated.
@@ -97,6 +89,16 @@ public interface BlockOperation {
    * @return a block subscription
    */
   Subscription<BlockMetadata> subscribeBlockMetadata(StreamObserver<BlockMetadata> observer);
+
+  /**
+   * Subscribe block stream which is triggered everytime new block is generated.
+   *
+   * @param observer a stream observer which is invoked on new block
+   * @return a block subscription
+   * @deprecated use {@link #subscribeBlock(StreamObserver)} instead.
+   */
+  @Deprecated
+  Subscription<Block> subscribeNewBlock(StreamObserver<Block> observer);
 
   /**
    * Subscribe block stream which is triggered everytime new block is generated.

@@ -119,15 +119,6 @@ class QueryApiImpl extends AbstractApi implements QueryApi {
   }
 
   @Override
-  public List<AccountAddress> listServerKeyStoreAccounts() {
-    try {
-      return getClient().getKeyStoreOperation().list();
-    } catch (Exception e) {
-      throw converter.convert(e);
-    }
-  }
-
-  @Override
   public BlockHash getBestBlockHash() {
     try {
       return getClient().getBlockchainOperation().getBlockchainStatus().getBestBlockHash();

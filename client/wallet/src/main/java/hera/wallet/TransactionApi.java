@@ -30,10 +30,11 @@ import java.util.List;
 public interface TransactionApi {
 
   /**
-   * Use {@link #createName(Name)} instead.
+   * Create name info of a current account.
    *
    * @param name an new name
    * @return a create name transaction hash
+   * @deprecated use {@link #createName(Name)} instead.
    */
   @Deprecated
   TxHash createName(String name);
@@ -47,11 +48,12 @@ public interface TransactionApi {
   TxHash createName(Name name);
 
   /**
-   * Use {@link #updateName(Name, AccountAddress)} instead.
+   * Update name info of to an new owner.
    *
    * @param name     an already binded name
    * @param newOwner an new owner of name
    * @return a update name transaction hash
+   * @deprecated use {@link #updateName(Name, AccountAddress)} instead.
    */
   @Deprecated
   TxHash updateName(String name, AccountAddress newOwner);
@@ -120,24 +122,26 @@ public interface TransactionApi {
   TxHash send(AccountAddress recipient, Aer amount, Fee fee, BytesValue payload);
 
   /**
-   * Use {@link #send(Name, Aer, Fee)} instead.
+   * Send <b>aer</b> with {@code fee}.
    *
    * @param recipient a recipient name
    * @param amount    an amount
    * @param fee       a fee
    * @return a send transaction hash
+   * @deprecated use {@link #send(Name, Aer, Fee)} instead.
    */
   @Deprecated
   TxHash send(String recipient, Aer amount, Fee fee);
 
   /**
-   * Use {@link #send(Name, Aer, Fee)} instead.
+   * Send <b>aer</b> with {@code fee} and {@code payload}.
    *
    * @param recipient a recipient name
    * @param amount    an amount
    * @param fee       a fee
    * @param payload   a payload
    * @return a send transaction hash
+   * @deprecated use {@link #send(AccountAddress, Aer, Fee, BytesValue)} instead.
    */
   @Deprecated
   TxHash send(String recipient, Aer amount, Fee fee, BytesValue payload);
