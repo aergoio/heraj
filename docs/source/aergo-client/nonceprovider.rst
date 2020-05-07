@@ -1,14 +1,12 @@
 NonceProvider
 =============
 
-NonceProvider is an interface for providing nonce to be used in making transaction.
+NonceProvider is an interface for providing nonce to be used in making transaction. Heraj provides SimpleNonceProvider. It's thread-safe and has capacity to prevent memory leak. It remove least recently used value on adding new nonce value on full capacity.
 
 Create
 ------
 
-Heraj provides **SimpleNonceProvider** holding nonce for each addresses. It is thread-safe.
-It has capacity to prevent memory leak. If capacity is full, adding nonce for an new address will remove nonce for least recently used address. Default capacity is 1000.
-You may your own nonce provider if necessary.
+Create a SimpleNonceProvider.
 
 .. code-block:: java
 
