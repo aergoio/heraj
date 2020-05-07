@@ -13,7 +13,6 @@ import hera.api.model.Aer;
 import hera.api.model.BigNumber;
 import hera.api.model.BytesValue;
 import hera.api.model.ContractAddress;
-import hera.api.model.ContractFunction;
 import hera.api.model.ContractInvocation;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +23,7 @@ public class ContractInvocationPayloadConverterTest extends AbstractTestCase {
 
   @Test
   public void testConvertBetween() {
-    // when
+    // given
     final Map<String, Object> map = new HashMap<>();
     map.put(randomUUID().toString(), randomUUID().toString());
     final List<Object> args = asList(randomUUID().toString(),
@@ -32,18 +31,18 @@ public class ContractInvocationPayloadConverterTest extends AbstractTestCase {
         null,
         3,
         asList(randomUUID().toString(), randomUUID().toString()),
-//        BigNumber.of("3000"),
+        BigNumber.of("3000"),
         map);
 
+    // then
     final PayloadConverter<ContractInvocation> converter = new ContractInvocationPayloadConverter();
     final ContractInvocation expected = ContractInvocation.newBuilder()
+        .address(ContractAddress.EMPTY)
         .functionName(randomUUID().toString())
         .args(args)
-        .address(ContractAddress.EMPTY)
         .amount(Aer.EMPTY)
         .build();
     final BytesValue payload = converter.convertToPayload(expected);
-    System.out.println(new String(payload.getValue()));
     final ContractInvocation actual = converter.parseToModel(payload);
     assertEquals(expected, actual);
   }

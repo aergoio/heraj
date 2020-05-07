@@ -15,6 +15,7 @@ import hera.api.encode.Encoder;
 import hera.exception.HerajException;
 import hera.util.Adaptor;
 import hera.util.BytesValueUtils;
+import hera.util.StringUtils;
 import java.io.StringReader;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -128,9 +129,13 @@ public class AccountAddress implements Identity, Adaptor {
       synchronized (this) {
         if (null == this.encoded) {
           try {
-            final BytesValue withPrefix = BytesValueUtils.append(getBytesValue(), ADDRESS_PREFIX);
-            final Encoder encoder = Encoder.Base58Check;
-            this.encoded = from(encoder.encode(withPrefix.getInputStream()));
+            if (BytesValue.EMPTY.equals(getBytesValue())) {
+              this.encoded = StringUtils.EMPTY_STRING;
+            } else {
+              final BytesValue withPrefix = BytesValueUtils.append(getBytesValue(), ADDRESS_PREFIX);
+              final Encoder encoder = Encoder.Base58Check;
+              this.encoded = from(encoder.encode(withPrefix.getInputStream()));
+            }
           } catch (Exception e) {
             throw new HerajException(e);
           }

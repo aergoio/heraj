@@ -79,4 +79,9 @@ public class AccountAddressTest {
     assertEquals(contractExpected, contractActual);
   }
 
+  @Test
+  public void shouldReturnEmptyStringOnEmptyOne() {
+    assertEquals("", AccountAddress.EMPTY.getEncoded());
+  }
+
 }
