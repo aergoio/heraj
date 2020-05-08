@@ -8,23 +8,30 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import lombok.Builder;
 import lombok.Builder.Default;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Value
+@Getter
+@ToString
+@EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
 public class StakeInfo {
 
-  @NonNull
-  @Default
-  AccountAddress address = AccountAddress.EMPTY;
+  public static final StakeInfo EMPTY = StakeInfo.newBuilder().build();
 
   @NonNull
   @Default
-  Aer amount = Aer.ZERO;
+  protected final AccountAddress address = AccountAddress.EMPTY;
 
-  long blockNumber;
+  @NonNull
+  @Default
+  protected final Aer amount = Aer.ZERO;
+
+  @Default
+  protected final long blockNumber = 0L;
 
 }

@@ -72,7 +72,7 @@ public class StakeTransactionBuilder implements
   @Override
   public RawTransaction build() {
     this.delegate.to(Name.AERGO_SYSTEM);
-    this.delegate.payload(payloadConverter.convertToPayload(new Stake()));
+    this.delegate.payload(payloadConverter.convertToPayload(Stake.newBuilder().build()));
     this.delegate.type(TxType.GOVERNANCE);
     return this.delegate.build();
   }

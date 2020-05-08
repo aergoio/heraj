@@ -6,11 +6,13 @@ package hera.api.model;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.exception.HerajException;
 import hera.util.StringUtils;
+import java.util.Collections;
 import java.util.List;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -22,30 +24,33 @@ import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
+@Getter
 @ToString
 @EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
 public class ContractInterface {
 
-  @Getter
+  @NonNull
   @Default
   protected final ContractAddress address = ContractAddress.EMPTY;
 
-  @Getter
+  @NonNull
   @Default
   protected final String version = StringUtils.EMPTY_STRING;
 
-  @Getter
+  @NonNull
   @Default
   protected final String language = StringUtils.EMPTY_STRING;
 
-  @Getter
+  @NonNull
   @Default
-  protected final List<ContractFunction> functions = emptyList();
+  protected final List<ContractFunction> functions = unmodifiableList(
+      Collections.<ContractFunction>emptyList());
 
-  @Getter
+  @NonNull
   @Default
-  protected final List<StateVariable> stateVariables = emptyList();
+  protected final List<StateVariable> stateVariables = unmodifiableList(
+      Collections.<StateVariable>emptyList());
 
   /**
    * Find a contract function with the given function name.

@@ -8,35 +8,38 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import lombok.Builder;
 import lombok.Builder.Default;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Value
+@Getter
+@ToString
+@EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
 public class Transaction {
 
   @NonNull
-  RawTransaction rawTransaction;
+  protected final RawTransaction rawTransaction;
 
   @NonNull
-  Signature signature;
+  protected final Signature signature;
 
   @NonNull
-  TxHash hash;
+  protected final TxHash hash;
 
   @NonNull
   @Default
-  BlockHash blockHash = BlockHash.of(BytesValue.EMPTY);
+  protected final BlockHash blockHash = BlockHash.EMPTY;
 
   @Default
-  int indexInBlock = 0;
+  protected final int indexInBlock = 0;
 
   @Default
-  boolean confirmed = false;
+  protected final boolean confirmed = false;
 
   @RequiredArgsConstructor
   public enum TxType {

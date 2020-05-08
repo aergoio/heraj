@@ -8,23 +8,30 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import lombok.Builder;
 import lombok.Builder.Default;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Value
+@Getter
+@ToString
+@EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
 public class AccountState {
 
-  @NonNull
-  @Default
-  AccountAddress address = AccountAddress.EMPTY;
-
-  long nonce;
+  public static final AccountState EMPTY = AccountState.newBuilder().build();
 
   @NonNull
   @Default
-  Aer balance = Aer.EMPTY;
+  protected final AccountAddress address = AccountAddress.EMPTY;
+
+  @Default
+  protected final long nonce = 0L;
+
+  @NonNull
+  @Default
+  protected final Aer balance = Aer.EMPTY;
 
 }

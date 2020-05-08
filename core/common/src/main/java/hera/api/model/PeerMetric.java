@@ -6,25 +6,36 @@ package hera.api.model;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.util.StringUtils;
 import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Value
+@Getter
+@ToString
+@EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
 public class PeerMetric {
 
   @NonNull
-  String peerId;
+  @Default
+  protected final String peerId = StringUtils.EMPTY_STRING;
 
-  long sumIn;
+  @Default
+  protected final long sumIn = 0L;
 
-  long averageIn;
+  @Default
+  protected final long averageIn = 0L;
 
-  long sumOut;
+  @Default
+  protected final long sumOut = 0L;
 
-  long averageOut;
+  @Default
+  protected final long averageOut = 0L;
 
 }

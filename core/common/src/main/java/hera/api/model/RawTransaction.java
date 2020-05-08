@@ -32,12 +32,19 @@ import hera.exception.HerajException;
 import hera.util.LittleEndianDataOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Value
+@Getter
+@ToString
+@EqualsAndHashCode
+@RequiredArgsConstructor
 public class RawTransaction {
 
   @ApiAudience.Public
@@ -91,28 +98,27 @@ public class RawTransaction {
   }
 
   @NonNull
-  ChainIdHash chainIdHash;
+  protected final ChainIdHash chainIdHash;
 
   @NonNull
-  AccountAddress sender;
+  protected final AccountAddress sender;
 
   @NonNull
-  AccountAddress recipient;
+  protected final AccountAddress recipient;
 
   @NonNull
-  Aer amount;
+  protected final Aer amount;
 
-  long nonce;
-
-  @NonNull
-  Fee fee;
+  protected final long nonce;
 
   @NonNull
-  BytesValue payload;
+  protected final Fee fee;
 
   @NonNull
-  TxType txType;
+  protected final BytesValue payload;
 
+  @NonNull
+  protected final TxType txType;
 
   // remove those withers when Wither of lombok is stable.
 

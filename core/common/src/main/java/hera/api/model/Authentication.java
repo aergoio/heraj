@@ -8,6 +8,7 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.util.HexUtils;
 import hera.util.Sha256Utils;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 @ApiStability.Unstable
 @EqualsAndHashCode
 @RequiredArgsConstructor
+@Builder(builderMethodName = "newBuilder")
 public class Authentication {
 
   public static Authentication of(final Identity identity, final String password) {

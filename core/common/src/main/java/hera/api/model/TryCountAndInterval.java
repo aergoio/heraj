@@ -15,6 +15,7 @@ import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
+@Getter
 @ToString
 @EqualsAndHashCode
 public class TryCountAndInterval {
@@ -30,10 +31,8 @@ public class TryCountAndInterval {
     return new TryCountAndInterval(tryCount, interval);
   }
 
-  @Getter
   protected final int count;
 
-  @Getter
   protected final Time interval;
 
   private TryCountAndInterval(final int tryCount, final Time interval) {

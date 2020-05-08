@@ -16,7 +16,7 @@ public class StakePayloadConverterTest extends AbstractTestCase {
   @Test
   public void testConvertToPayload() {
     final PayloadConverter<Stake> converter = new StakePayloadConverter();
-    final Stake stake = new Stake();
+    final Stake stake = Stake.newBuilder().build();
     final BytesValue payload = converter.convertToPayload(stake);
     assertNotNull(payload);
   }

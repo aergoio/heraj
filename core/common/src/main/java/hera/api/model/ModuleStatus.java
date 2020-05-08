@@ -5,47 +5,54 @@
 package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
-import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.util.StringUtils;
+import java.util.Collections;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Builder.Default;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Value
+@Getter
+@ToString
+@EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
 public class ModuleStatus {
 
   @NonNull
   @Default
-  String moduleName = StringUtils.EMPTY_STRING;
+  protected final String moduleName = StringUtils.EMPTY_STRING;
 
   @NonNull
   @Default
-  String status = StringUtils.EMPTY_STRING;
+  protected final String status = StringUtils.EMPTY_STRING;
 
-  long processedMessageCount;
+  @Default
+  protected final long processedMessageCount = 0L;
 
-  long queuedMessageCount;
+  @Default
+  protected final long queuedMessageCount = 0L;
 
   @NonNull
   @Default
-  Time latency = Time.of(0L);
+  protected final Time latency = Time.of(0L);
 
   @NonNull
   @Default
-  String error = StringUtils.EMPTY_STRING;
+  protected final String error = StringUtils.EMPTY_STRING;
 
   @NonNull
   @Default
-  Map<String, Object> actor = emptyMap();
+  protected final Map<String, Object> actor = unmodifiableMap(
+      Collections.<String, Object>emptyMap());
 
   ModuleStatus(final String moduleName, final String status, final long processedMessageCount,
       final long queuedMessageCount, final Time latency, final String error,

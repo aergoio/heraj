@@ -12,6 +12,8 @@ import hera.util.Adaptor;
 @ApiStability.Unstable
 public class BlockHash extends Hash implements Adaptor, Encodable {
 
+  public static final BlockHash EMPTY = BlockHash.of(BytesValue.EMPTY);
+
   /**
    * Create {@code BlockHash} with a base58 encoded one.
    *

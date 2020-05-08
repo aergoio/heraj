@@ -17,6 +17,8 @@ import lombok.Getter;
 @ApiStability.Unstable
 public class Hash implements Adaptor, Encodable {
 
+  public static final Hash EMPTY = Hash.of(BytesValue.EMPTY);
+
   /**
    * Create {@code Hash} with a base58 encoded one.
    *

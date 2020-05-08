@@ -8,25 +8,33 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import lombok.Builder;
 import lombok.Builder.Default;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Value
+@Getter
+@ToString
+@EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
 public class BlockMetadata {
 
-  @NonNull
-  @Default
-  BlockHash blockHash = BlockHash.of(BytesValue.EMPTY);
+  public static final BlockMetadata EMPTY = BlockMetadata.newBuilder().build();
 
   @NonNull
   @Default
-  BlockHeader blockHeader = BlockHeader.newBuilder().build();
+  protected final BlockHash blockHash = BlockHash.EMPTY;
 
-  int txCount;
+  @NonNull
+  @Default
+  protected final BlockHeader blockHeader = BlockHeader.EMPTY;
 
-  long blockSize; // in bytes
+  @Default
+  protected final int txCount = 0;
+
+  @Default
+  protected final long blockSize = 0L; // in bytes
 
 }

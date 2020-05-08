@@ -9,27 +9,34 @@ import hera.annotation.ApiStability;
 import hera.util.StringUtils;
 import lombok.Builder;
 import lombok.Builder.Default;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Value
+@Getter
+@ToString
+@EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
 public class BlockchainStatus {
 
-  long bestHeight;
+  public static final BlockchainStatus EMPTY = BlockchainStatus.newBuilder().build();
+
+  @Default
+  protected final long bestHeight = 0L;
 
   @NonNull
   @Default
-  BlockHash bestBlockHash = BlockHash.of(BytesValue.EMPTY);
+  protected final BlockHash bestBlockHash = BlockHash.EMPTY;
 
   @NonNull
   @Default
-  String consensus = StringUtils.EMPTY_STRING;
+  protected final String consensus = StringUtils.EMPTY_STRING;
 
   @NonNull
   @Default
-  ChainIdHash chainIdHash = ChainIdHash.of(BytesValue.EMPTY);
+  protected final ChainIdHash chainIdHash = ChainIdHash.EMPTY;
 
 }

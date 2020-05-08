@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 @EqualsAndHashCode
 public class ContractResult {
 
-  public static final ContractResult EMPTY = new ContractResult(BytesValue.EMPTY);
+  public static final ContractResult EMPTY = ContractResult.of(BytesValue.EMPTY);
 
   protected static final JsonMapper mapper = new AergoJsonMapper();
 
@@ -35,7 +35,7 @@ public class ContractResult {
 
   protected final BytesValue result;
 
-  private ContractResult(final BytesValue result) {
+  ContractResult(final BytesValue result) {
     assertNotNull(result, "Result must not null");
     this.result = result;
   }

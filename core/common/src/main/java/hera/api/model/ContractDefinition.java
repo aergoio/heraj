@@ -20,9 +20,12 @@ import java.io.StringReader;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
+@Getter
+@ToString
 @EqualsAndHashCode
 public class ContractDefinition implements Payload {
 
@@ -32,16 +35,13 @@ public class ContractDefinition implements Payload {
     return new ContractDefinition.Builder();
   }
 
-  @Getter
+  @ToString.Exclude
   protected final BytesValue decodedContract;
 
-  @Getter
   protected final String encodedContract;
 
-  @Getter
   protected final List<Object> constructorArgs;
 
-  @Getter
   protected final Aer amount;
 
   ContractDefinition(final String encodedContract, final List<Object> args,
@@ -70,12 +70,6 @@ public class ContractDefinition implements Payload {
 
   protected boolean hasVersion(final BytesValue bytesValue) {
     return BytesValueUtils.validatePrefix(bytesValue, PAYLOAD_VERSION);
-  }
-
-  @Override
-  public String toString() {
-    return String.format("ContractDefinition(encodedContract=%s, args=%s, amount=%s)",
-        encodedContract, constructorArgs, amount);
   }
 
   public interface ContractDefinitionWithNothing {

@@ -52,7 +52,7 @@ public class NonceRefreshingTxRequesterTest extends AbstractTestCase {
     // given
     final AccountOperation mockAccountOperation = mock(AccountOperation.class);
     when(mockAccountOperation.getState(any(AccountAddress.class)))
-        .thenReturn(AccountState.newBuilder().build());
+        .thenReturn(AccountState.newBuilder().nonce(1L).build());
     final AergoClient mockClient = mock(AergoClient.class);
     when(mockClient.getAccountOperation()).thenReturn(mockAccountOperation);
 
@@ -83,7 +83,7 @@ public class NonceRefreshingTxRequesterTest extends AbstractTestCase {
     // given
     final AccountOperation mockAccountOperation = mock(AccountOperation.class);
     when(mockAccountOperation.getState(any(AccountAddress.class)))
-        .thenReturn(AccountState.newBuilder().build());
+        .thenReturn(AccountState.newBuilder().nonce(1L).build());
     final AergoClient mockClient = mock(AergoClient.class);
     when(mockClient.getAccountOperation()).thenReturn(mockAccountOperation);
     final TryCountAndInterval tryCountAndInterval = TryCountAndInterval.of(3, Time.of(100L));

@@ -12,6 +12,8 @@ import hera.util.Adaptor;
 @ApiStability.Unstable
 public class TxHash extends Hash implements Adaptor, Encodable {
 
+  public static final TxHash EMPTY = TxHash.of(BytesValue.EMPTY);
+
   /**
    * Create {@code TxHash} with a base58 encoded one.
    *

@@ -11,26 +11,29 @@ import hera.annotation.ApiStability;
 import hera.api.model.internal.AccountAddressAdaptor;
 import hera.exception.HerajException;
 import hera.util.Adaptor;
+import hera.util.StringUtils;
 import java.io.UnsupportedEncodingException;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
+@Getter
+@ToString
+@EqualsAndHashCode
 public class Name implements Identity, Adaptor {
 
-  public static final int NAME_LENGTH = 12;
-
-  public static Name AERGO_SYSTEM = new Name("aergo.system");
-  public static Name AERGO_NAME = new Name("aergo.name");
+  public static final Name EMPTY = Name.of(StringUtils.EMPTY_STRING);
+  public static final Name AERGO_SYSTEM = Name.of("aergo.system");
+  public static final Name AERGO_NAME = Name.of("aergo.name");
 
   public static Name of(final String value) {
     return new Name(value);
   }
 
-  @Getter
   protected final BytesValue bytesValue;
 
-  @Getter
   protected final String value;
 
   /**

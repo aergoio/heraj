@@ -14,34 +14,38 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.util.StringUtils;
 import java.util.List;
-import lombok.NonNull;
-import lombok.Value;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Value
+@Getter
+@ToString
+@EqualsAndHashCode
 public class EventFilter {
 
-  public static EventFilterBuilder newBuilder(final ContractAddress contractAddress) {
-    return new EventFilterBuilder(contractAddress);
+  public static EventFilterBuilder newBuilder() {
+    return new EventFilterBuilder();
   }
 
-  @NonNull
-  ContractAddress contractAddress;
+  public static EventFilterBuilder newBuilder(final ContractAddress contractAddress) {
+    return new EventFilterBuilder().contractAddress(contractAddress);
+  }
 
-  @NonNull
-  String eventName;
+  protected final ContractAddress contractAddress;
 
-  @NonNull
-  List<Object> args;
+  protected final String eventName;
 
-  long fromBlockNumber;
+  protected final List<Object> args;
 
-  long toBlockNumber;
+  protected final long fromBlockNumber;
 
-  boolean decending;
+  protected final long toBlockNumber;
 
-  int recentBlockCount;
+  protected final boolean decending;
+
+  protected final int recentBlockCount;
 
   EventFilter(final ContractAddress contractAddress, final String eventName,
       final List<Object> args, long fromBlockNumber, final long toBlockNumber,
@@ -61,25 +65,28 @@ public class EventFilter {
     this.recentBlockCount = recentBlockCount;
   }
 
-  // TODO : change to step builder
   public static class EventFilterBuilder implements hera.util.Builder<EventFilter> {
 
-    protected final ContractAddress contractAddress;
+    protected ContractAddress contractAddress;
 
     protected String eventName = StringUtils.EMPTY_STRING;
 
     protected List<Object> args = emptyList();
 
-    protected long fromBlockNumber;
+    protected long fromBlockNumber = 0L;
 
-    protected long toBlockNumber;
+    protected long toBlockNumber = 0L;
 
-    protected boolean decending;
+    protected boolean decending = false;
 
-    protected int recentBlockCount;
+    protected int recentBlockCount = 0;
 
-    public EventFilterBuilder(final ContractAddress contractAddress) {
+    EventFilterBuilder() {
+    }
+
+    public EventFilterBuilder contractAddress(final ContractAddress contractAddress) {
       this.contractAddress = contractAddress;
+      return this;
     }
 
     public EventFilterBuilder eventName(final String eventName) {

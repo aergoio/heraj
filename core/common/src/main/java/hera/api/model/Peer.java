@@ -10,40 +10,50 @@ import hera.util.StringUtils;
 import java.net.InetAddress;
 import lombok.Builder;
 import lombok.Builder.Default;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Value
+@Getter
+@ToString
+@EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
 public class Peer {
 
   @NonNull
-  InetAddress address;
+  protected final InetAddress address;
 
-  int port;
+  @Default
+  protected final int port = 0;
 
   @NonNull
   @Default
-  String peerId = StringUtils.EMPTY_STRING;
+  protected final String peerId = StringUtils.EMPTY_STRING;
 
-  long bestHeight;
+  @Default
+  protected final long bestHeight = 0L;
 
   @NonNull
   @Default
-  BlockHash bestBlockHash = BlockHash.of(BytesValue.EMPTY);
+  protected final BlockHash bestBlockHash = BlockHash.EMPTY;
 
-  int state;
+  @Default
+  protected final int state = 0;
 
-  boolean hidden;
+  @Default
+  protected final boolean hidden = false;
 
-  long lashCheck;
+  @Default
+  protected final long lashCheck = 0L;
 
-  boolean selfPeer;
+  @Default
+  protected final boolean selfPeer = false;
 
   @NonNull
   @Default
-  String version = StringUtils.EMPTY_STRING;
+  protected final String version = StringUtils.EMPTY_STRING;
 
 }

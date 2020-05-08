@@ -13,17 +13,17 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
 
+@ApiAudience.Public
+@ApiStability.Unstable
+@Getter
 @ToString
 @EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
-@ApiAudience.Public
-@ApiStability.Unstable
 public class Vote implements GovernancePayload, Payload {
 
   @NonNull
   protected final String voteId;
 
-  @Getter
   @NonNull
   protected final List<String> candidates;
 

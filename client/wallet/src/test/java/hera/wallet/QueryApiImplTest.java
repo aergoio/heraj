@@ -5,8 +5,8 @@
 package hera.wallet;
 
 import static java.util.UUID.randomUUID;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -198,9 +198,10 @@ public class QueryApiImplTest extends AbstractTestCase {
   @Test
   public void testGetBestBlockHeight() {
     // given
+    final long expected = 300L;
     final BlockchainOperation mockOperation = mock(BlockchainOperation.class);
     when(mockOperation.getBlockchainStatus())
-        .thenReturn(BlockchainStatus.newBuilder().build());
+        .thenReturn(BlockchainStatus.newBuilder().bestHeight(expected).build());
     final AergoClient mockClient = mock(AergoClient.class);
     when(mockClient.getBlockchainOperation()).thenReturn(mockOperation);
     final ClientProvider mockClientProvider = mock(ClientProvider.class);
@@ -208,8 +209,8 @@ public class QueryApiImplTest extends AbstractTestCase {
 
     // then
     final QueryApi queryApi = new QueryApiImpl(mockClientProvider);
-    final long height = queryApi.getBestBlockHeight();
-    assertTrue(0 <= height);
+    final long actual = queryApi.getBestBlockHeight();
+    assertEquals(expected, actual);
   }
 
   @Test

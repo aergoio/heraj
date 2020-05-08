@@ -9,35 +9,43 @@ import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import hera.util.StringUtils;
 import java.util.Collections;
 import java.util.List;
+import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
+@Getter
 @ToString
 @EqualsAndHashCode
+@Builder(builderMethodName = "newBuilder")
 public class ContractFunction {
 
-  static final ContractFunction EMPTY = new ContractFunction("", Collections.<String>emptyList(),
-      false, false, false);
+  public static final ContractFunction EMPTY = new ContractFunction("",
+      Collections.<String>emptyList(), false, false, false);
 
-  @Getter
-  protected final String name;
+  @NonNull
+  @Default
+  protected final String name = StringUtils.EMPTY_STRING;
 
-  @Getter
-  protected final List<String> argumentNames;
+  @NonNull
+  @Default
+  protected final List<String> argumentNames = unmodifiableList(Collections.<String>emptyList());
 
-  @Getter
-  protected final boolean payable;
+  @Default
+  protected final boolean payable = false;
 
-  @Getter
-  protected final boolean view;
+  @Default
+  protected final boolean view = false;
 
-  @Getter
-  protected final boolean feeDelegation;
+  @Default
+  protected final boolean feeDelegation = false;
 
   /**
    * ContractFunction constructor.

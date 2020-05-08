@@ -16,7 +16,7 @@ public class UnstakePayloadConverterTest extends AbstractTestCase {
   @Test
   public void testConvertToPayload() {
     final PayloadConverter<Unstake> converter = new UnstakePayloadConverter();
-    final Unstake unStake = new Unstake();
+    final Unstake unStake = Unstake.newBuilder().build();
     final BytesValue payload = converter.convertToPayload(unStake);
     assertNotNull(payload);
   }

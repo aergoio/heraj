@@ -5,34 +5,41 @@
 package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import java.util.Collections;
 import java.util.List;
 import lombok.Builder;
 import lombok.Builder.Default;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Value
+@Getter
+@ToString
+@EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
 public class Block {
 
-  @NonNull
-  @Default
-  BlockHash hash = BlockHash.of(BytesValue.EMPTY);
+  public static final Block EMPTY = Block.newBuilder().build();
 
   @NonNull
   @Default
-  BlockHeader blockHeader = BlockHeader.newBuilder().build();
+  protected final BlockHash hash = BlockHash.EMPTY;
 
   @NonNull
   @Default
-  List<Transaction> transactions = emptyList();
+  protected final BlockHeader blockHeader = BlockHeader.newBuilder().build();
+
+  @NonNull
+  @Default
+  protected final List<Transaction> transactions = unmodifiableList(
+      Collections.<Transaction>emptyList());
 
   Block(final BlockHash blockHash, final BlockHeader blockHeader,
       final List<Transaction> transactions) {

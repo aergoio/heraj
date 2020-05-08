@@ -5,6 +5,7 @@
 package hera.api.model;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
@@ -18,37 +19,31 @@ import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
+@Getter
 @ToString
 @EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
 public class ContractInvocation implements Payload {
 
-  @Getter
   @NonNull
   protected final ContractAddress address;
 
-  // not used
-  @Getter
+  @ToString.Exclude
   @NonNull
   @Default
-  @ToString.Exclude
-  protected final ContractFunction function = ContractFunction.EMPTY;
+  protected final ContractFunction function = ContractFunction.EMPTY; // not used
 
-  @Getter
   @NonNull
   protected final String functionName;
 
-  @Getter
   @NonNull
   @Default
-  protected final List<Object> args = emptyList();
+  protected final List<Object> args = unmodifiableList(emptyList());
 
-  @Getter
   @NonNull
   @Default
   protected final Aer amount = Aer.EMPTY;
 
-  @Getter
   @Default
   protected final boolean delegateFee = false;
 

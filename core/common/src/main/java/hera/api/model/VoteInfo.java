@@ -5,31 +5,35 @@
 package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.util.StringUtils;
+import java.util.Collections;
 import java.util.List;
 import lombok.Builder;
 import lombok.Builder.Default;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Value
+@Getter
+@ToString
+@EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
 public class VoteInfo {
 
   @NonNull
   @Default
-  String voteId = StringUtils.EMPTY_STRING;
+  protected final String voteId = StringUtils.EMPTY_STRING;
 
   @NonNull
   @Default
-  List<String> candidateIds = emptyList();
+  protected final List<String> candidateIds = unmodifiableList(Collections.<String>emptyList());
 
   VoteInfo(final String voteId, final List<String> candidates) {
     assertNotNull(voteId, "Vote id must not null");

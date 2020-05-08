@@ -12,21 +12,19 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
 
+@ApiAudience.Public
+@ApiStability.Unstable
+@Getter
 @ToString
 @EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
-@ApiAudience.Public
-@ApiStability.Unstable
 public class UpdateName implements GovernancePayload, Payload {
 
-  @Getter
   protected final String operationName = "v1updateName";
 
-  @Getter
   @NonNull
   protected final Name name;
 
-  @Getter
   @NonNull
   protected final Identity nextOwner;
 

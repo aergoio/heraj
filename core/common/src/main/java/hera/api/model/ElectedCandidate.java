@@ -9,21 +9,25 @@ import hera.annotation.ApiStability;
 import hera.util.StringUtils;
 import lombok.Builder;
 import lombok.Builder.Default;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Value
+@Getter
+@ToString
+@EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
 public class ElectedCandidate {
 
   @NonNull
   @Default
-  String candidateId = StringUtils.EMPTY_STRING;
+  protected final String candidateId = StringUtils.EMPTY_STRING;
 
   @NonNull
   @Default
-  Aer voted = Aer.EMPTY;
+  protected final Aer voted = Aer.EMPTY;
 
 }

@@ -9,59 +9,66 @@ import hera.annotation.ApiStability;
 import hera.util.StringUtils;
 import lombok.Builder;
 import lombok.Builder.Default;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Value
+@Getter
+@ToString
+@EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
 public class TxReceipt {
 
-  @NonNull
-  @Default
-  AccountAddress accountAddress = AccountAddress.EMPTY;
+  public static final TxReceipt EMPTY = TxReceipt.newBuilder().build();
 
   @NonNull
   @Default
-  String status = StringUtils.EMPTY_STRING;
+  protected final AccountAddress accountAddress = AccountAddress.EMPTY;
 
   @NonNull
   @Default
-  String result = StringUtils.EMPTY_STRING;
+  protected final String status = StringUtils.EMPTY_STRING;
 
   @NonNull
   @Default
-  TxHash txHash = TxHash.of(BytesValue.EMPTY);
+  protected final String result = StringUtils.EMPTY_STRING;
 
   @NonNull
   @Default
-  Aer feeUsed = Aer.EMPTY;
+  protected final TxHash txHash = TxHash.of(BytesValue.EMPTY);
 
   @NonNull
   @Default
-  Aer cumulativeFeeUsed = Aer.EMPTY;
-
-  @Default
-  long blockNumber = 0L;
-
-  @Default
-  BlockHash blockHash = BlockHash.of(BytesValue.EMPTY);
-
-  @Default
-  int indexInBlock = 0;
+  protected final Aer feeUsed = Aer.EMPTY;
 
   @NonNull
   @Default
-  AccountAddress sender = AccountAddress.EMPTY;
+  protected final Aer cumulativeFeeUsed = Aer.EMPTY;
+
+  @Default
+  protected final long blockNumber = 0L;
 
   @NonNull
   @Default
-  AccountAddress recipient = AccountAddress.EMPTY;
+  protected final BlockHash blockHash = BlockHash.EMPTY;
 
   @Default
-  boolean feeDelegation = false;
+  protected final int indexInBlock = 0;
+
+  @NonNull
+  @Default
+  protected final AccountAddress sender = AccountAddress.EMPTY;
+
+  @NonNull
+  @Default
+  protected final AccountAddress recipient = AccountAddress.EMPTY;
 
   @Default
-  long gasUsed = 0;
+  protected final boolean feeDelegation = false;
+
+  @Default
+  protected final long gasUsed = 0L;
 }

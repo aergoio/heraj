@@ -4,10 +4,11 @@
 
 package hera.api.model;
 
-import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import java.util.Collections;
 import java.util.List;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -25,17 +26,17 @@ public class ContractTxReceipt {
 
   @NonNull
   @Default
-  protected final TxReceipt txReceipt = TxReceipt.newBuilder().build();
+  protected final TxReceipt txReceipt = TxReceipt.EMPTY;
 
+  @Getter
   @NonNull
   @Default
-  @Getter
   protected final BytesValue bloom = BytesValue.EMPTY;
 
+  @Getter
   @NonNull
   @Default
-  @Getter
-  protected final List<Event> events = emptyList();
+  protected final List<Event> events = unmodifiableList(Collections.<Event>emptyList());
 
   public ContractAddress getContractAddress() {
     return txReceipt.getAccountAddress().adapt(ContractAddress.class);

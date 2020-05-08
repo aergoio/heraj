@@ -11,21 +11,27 @@ import static java.util.Collections.unmodifiableList;
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.util.StringUtils;
+import java.util.Collections;
 import java.util.List;
 import lombok.Builder;
 import lombok.Builder.Default;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 import lombok.Value;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Value
+@Getter
+@EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
 public class NodeStatus {
 
   @NonNull
   @Default
-  List<ModuleStatus> moduleStatus = emptyList();
+  protected final List<ModuleStatus> moduleStatus = unmodifiableList(
+      Collections.<ModuleStatus>emptyList());
 
   NodeStatus(final List<ModuleStatus> moduleStatus) {
     assertNotNull(moduleStatus, "Module status list must not null");
@@ -34,7 +40,7 @@ public class NodeStatus {
 
   @Override
   public String toString() {
-    return String.format("Node status:\n%s", StringUtils.join(moduleStatus, "\n"));
+    return String.format("Node status={\n%s\n}", StringUtils.join(moduleStatus, "  \n"));
   }
 
 }

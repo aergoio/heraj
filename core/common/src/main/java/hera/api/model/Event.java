@@ -14,39 +14,47 @@ import hera.util.StringUtils;
 import java.util.List;
 import lombok.Builder;
 import lombok.Builder.Default;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Value
+@Getter
+@ToString
+@EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
 public class Event {
 
   @NonNull
-  ContractAddress from;
+  @Default
+  protected final ContractAddress from = ContractAddress.EMPTY;
 
   @NonNull
   @Default
-  String name = StringUtils.EMPTY_STRING;
+  protected final String name = StringUtils.EMPTY_STRING;
 
   @NonNull
   @Default
-  List<Object> args = emptyList();
+  protected final List<Object> args = unmodifiableList(emptyList());
 
-  int index;
+  @Default
+  protected final int index = 0;
 
   @NonNull
   @Default
-  TxHash txHash = TxHash.of(BytesValue.EMPTY);
+  protected final TxHash txHash = TxHash.EMPTY;
 
-  int indexInBlock;
+  @Default
+  protected final int indexInBlock = 0;
 
   @NonNull
   @Default
-  BlockHash blockHash = BlockHash.of(BytesValue.EMPTY);
+  protected final BlockHash blockHash = BlockHash.EMPTY;
 
-  long blockNumber;
+  @Default
+  protected final long blockNumber = 0L;
 
   Event(final ContractAddress from, final String name, final List<Object> args,
       final int index, final TxHash txHash, int indexInBlock, final BlockHash blockHash,

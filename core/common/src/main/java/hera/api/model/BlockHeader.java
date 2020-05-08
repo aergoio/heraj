@@ -8,51 +8,60 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import lombok.Builder;
 import lombok.Builder.Default;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Value
+@Getter
+@ToString
+@EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
 public class BlockHeader {
 
-  @NonNull
-  @Default
-  BytesValue chainId = BytesValue.EMPTY;
+  public static final BlockHeader EMPTY = BlockHeader.newBuilder().build();
 
   @NonNull
   @Default
-  BlockHash previousHash = BlockHash.of(BytesValue.EMPTY);
-
-  long blockNumber;
-
-  long timestamp;
+  protected final BytesValue chainId = BytesValue.EMPTY;
 
   @NonNull
   @Default
-  Hash rootHash = Hash.of(BytesValue.EMPTY);
+  protected final BlockHash previousHash = BlockHash.EMPTY;
+
+  @Default
+  protected final long blockNumber = 0L;
+
+  @Default
+  protected final long timestamp = 0L;
 
   @NonNull
   @Default
-  Hash txRootHash = Hash.of(BytesValue.EMPTY);
+  protected final Hash rootHash = Hash.EMPTY;
 
   @NonNull
   @Default
-  Hash receiptRootHash = Hash.of(BytesValue.EMPTY);
-
-  long confirmsCount;
+  protected final Hash txRootHash = Hash.EMPTY;
 
   @NonNull
   @Default
-  BytesValue publicKey = BytesValue.EMPTY;
+  protected final Hash receiptRootHash = Hash.EMPTY;
+
+  @Default
+  protected final long confirmsCount = 0L;
 
   @NonNull
   @Default
-  AccountAddress coinbaseAccount = AccountAddress.EMPTY;
+  protected final BytesValue publicKey = BytesValue.EMPTY;
 
   @NonNull
   @Default
-  Signature sign = Signature.EMPTY;
+  protected final AccountAddress coinbaseAccount = AccountAddress.EMPTY;
+
+  @NonNull
+  @Default
+  protected final Signature sign = Signature.EMPTY;
 
 }

@@ -12,6 +12,8 @@ import hera.util.Adaptor;
 @ApiStability.Unstable
 public class ChainIdHash extends Hash implements Adaptor, Encodable {
 
+  public static final ChainIdHash EMPTY = ChainIdHash.of(BytesValue.EMPTY);
+
   /**
    * Create {@code ChainIdHash} with a base58 encoded one.
    *

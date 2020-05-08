@@ -5,30 +5,36 @@
 package hera.api.model;
 
 import static hera.util.ValidationUtils.assertNotNull;
-import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
+import java.util.Collections;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Builder.Default;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Value
+@Getter
+@ToString
+@EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
 public class ServerInfo {
 
   @NonNull
   @Default
-  Map<String, String> status = emptyMap();
+  protected final Map<String, String> status = unmodifiableMap(
+      Collections.<String, String>emptyMap());
 
   @NonNull
   @Default
-  Map<String, Map<String, String>> config = emptyMap();
+  protected final Map<String, Map<String, String>> config = unmodifiableMap(
+      Collections.<String, Map<String, String>>emptyMap());
 
   ServerInfo(final Map<String, String> status,
       final Map<String, Map<String, String>> config) {

@@ -72,7 +72,7 @@ public class UnstakeTransactionBuilder implements
   @Override
   public RawTransaction build() {
     this.delegate.to(Name.AERGO_SYSTEM);
-    this.delegate.payload(payloadConverter.convertToPayload(new Unstake()));
+    this.delegate.payload(payloadConverter.convertToPayload(Unstake.newBuilder().build()));
     this.delegate.type(TxType.GOVERNANCE);
     return this.delegate.build();
   }

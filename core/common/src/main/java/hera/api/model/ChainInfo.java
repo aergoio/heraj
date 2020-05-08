@@ -8,48 +8,57 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import lombok.Builder;
 import lombok.Builder.Default;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
+import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@Value
+@Getter
+@ToString
+@EqualsAndHashCode
 @Builder(builderMethodName = "newBuilder")
 public class ChainInfo {
 
-  @NonNull
-  @Default
-  ChainId chainId = ChainId.newBuilder().build();
-
-  int blockProducerCount;
-
-  long maxBlockSize; // bytes
+  public static final ChainInfo EMPTY = ChainInfo.newBuilder().build();
 
   @NonNull
   @Default
-  Aer totalTokenAmount = Aer.ZERO;
+  protected final ChainId chainId = ChainId.EMPTY;
+
+  @Default
+  protected final int blockProducerCount = 0;
+
+  @Default
+  protected final long maxBlockSize = 0L; // bytes
 
   @NonNull
   @Default
-  Aer minimumStakingAmount = Aer.ZERO;
+  protected final Aer totalTokenAmount = Aer.ZERO;
 
   @NonNull
   @Default
-  Aer totalStaked = Aer.ZERO;
+  protected final Aer minimumStakingAmount = Aer.ZERO;
 
   @NonNull
   @Default
-  Aer gasPrice = Aer.ZERO;
+  protected final Aer totalStaked = Aer.ZERO;
 
   @NonNull
   @Default
-  Aer namingPrice = Aer.ZERO;
+  protected final Aer gasPrice = Aer.ZERO;
 
   @NonNull
   @Default
-  Aer totalVotingPower = Aer.ZERO;
+  protected final Aer namingPrice = Aer.ZERO;
 
   @NonNull
   @Default
-  Aer votingReward = Aer.ZERO;
+  protected final Aer totalVotingPower = Aer.ZERO;
+
+  @NonNull
+  @Default
+  protected final Aer votingReward = Aer.ZERO;
+
 }
