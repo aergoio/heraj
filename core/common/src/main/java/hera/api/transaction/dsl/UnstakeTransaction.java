@@ -5,7 +5,7 @@ import hera.annotation.ApiStability;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public interface UnStakeTransaction extends AergoTransaction {
+public interface UnstakeTransaction extends AergoTransaction {
 
   interface WithNothing extends NeedChainIdHash<WithChainIdHash> {
 

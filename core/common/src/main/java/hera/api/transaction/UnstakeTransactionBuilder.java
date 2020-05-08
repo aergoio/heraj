@@ -13,25 +13,25 @@ import hera.api.model.Identity;
 import hera.api.model.Name;
 import hera.api.model.RawTransaction;
 import hera.api.model.Transaction.TxType;
-import hera.api.model.UnStake;
-import hera.api.transaction.dsl.UnStakeTransaction;
-import hera.api.transaction.dsl.UnStakeTransaction.WithChainIdHash;
-import hera.api.transaction.dsl.UnStakeTransaction.WithChainIdHashAndSender;
-import hera.api.transaction.dsl.UnStakeTransaction.WithChainIdHashAndSenderAndAmount;
-import hera.api.transaction.dsl.UnStakeTransaction.WithReady;
+import hera.api.model.Unstake;
+import hera.api.transaction.dsl.UnstakeTransaction;
+import hera.api.transaction.dsl.UnstakeTransaction.WithChainIdHash;
+import hera.api.transaction.dsl.UnstakeTransaction.WithChainIdHashAndSender;
+import hera.api.transaction.dsl.UnstakeTransaction.WithChainIdHashAndSenderAndAmount;
+import hera.api.transaction.dsl.UnstakeTransaction.WithReady;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-public class UnStakeTransactionBuilder implements
-    UnStakeTransaction.WithNothing,
-    UnStakeTransaction.WithChainIdHash,
-    UnStakeTransaction.WithChainIdHashAndSender,
-    UnStakeTransaction.WithChainIdHashAndSenderAndAmount,
-    UnStakeTransaction.WithReady {
+public class UnstakeTransactionBuilder implements
+    UnstakeTransaction.WithNothing,
+    UnstakeTransaction.WithChainIdHash,
+    UnstakeTransaction.WithChainIdHashAndSender,
+    UnstakeTransaction.WithChainIdHashAndSenderAndAmount,
+    UnstakeTransaction.WithReady {
 
   protected final PlainTransactionBuilder delegate = new PlainTransactionBuilder();
 
-  protected final PayloadConverter<UnStake> payloadConverter = new UnStakePayloadConverter();
+  protected final PayloadConverter<Unstake> payloadConverter = new UnstakePayloadConverter();
 
   @Override
   public WithChainIdHash chainIdHash(final ChainIdHash chainIdHash) {
@@ -72,7 +72,7 @@ public class UnStakeTransactionBuilder implements
   @Override
   public RawTransaction build() {
     this.delegate.to(Name.AERGO_SYSTEM);
-    this.delegate.payload(payloadConverter.convertToPayload(new UnStake()));
+    this.delegate.payload(payloadConverter.convertToPayload(new Unstake()));
     this.delegate.type(TxType.GOVERNANCE);
     return this.delegate.build();
   }

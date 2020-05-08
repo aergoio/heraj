@@ -16,7 +16,7 @@ import hera.api.transaction.InvokeContractTransactionBuilder;
 import hera.api.transaction.PlainTransactionBuilder;
 import hera.api.transaction.ReDeployContractTransactionBuilder;
 import hera.api.transaction.StakeTransactionBuilder;
-import hera.api.transaction.UnStakeTransactionBuilder;
+import hera.api.transaction.UnstakeTransactionBuilder;
 import hera.api.transaction.UpdateNameTransactionBuilder;
 import hera.api.transaction.VoteTransactionBuilder;
 import hera.api.transaction.dsl.CreateNameTransaction;
@@ -25,7 +25,7 @@ import hera.api.transaction.dsl.InvokeContractTransaction;
 import hera.api.transaction.dsl.PlainTransaction;
 import hera.api.transaction.dsl.ReDeployContractTransaction;
 import hera.api.transaction.dsl.StakeTransaction;
-import hera.api.transaction.dsl.UnStakeTransaction;
+import hera.api.transaction.dsl.UnstakeTransaction;
 import hera.api.transaction.dsl.UpdateNameTransaction;
 import hera.api.transaction.dsl.VoteTransaction;
 import hera.exception.HerajException;
@@ -81,8 +81,8 @@ public class RawTransaction {
   }
 
   @ApiAudience.Public
-  public static UnStakeTransaction.WithNothing newUnstakeTxBuilder() {
-    return new UnStakeTransactionBuilder();
+  public static UnstakeTransaction.WithNothing newUnstakeTxBuilder() {
+    return new UnstakeTransactionBuilder();
   }
 
   @ApiAudience.Public

@@ -31,7 +31,7 @@ import hera.api.model.Transaction;
 import hera.api.model.TxHash;
 import hera.api.transaction.CreateNameTransactionBuilder;
 import hera.api.transaction.StakeTransactionBuilder;
-import hera.api.transaction.UnStakeTransactionBuilder;
+import hera.api.transaction.UnstakeTransactionBuilder;
 import hera.api.transaction.UpdateNameTransactionBuilder;
 import hera.api.transaction.VoteTransactionBuilder;
 import hera.key.Signer;
@@ -253,7 +253,7 @@ class AccountMethods extends AbstractMethods {
       logger.debug("Unstaking account with signer: {}, amount: {}, nonce: {}",
           signer, amount, nonce);
 
-      final RawTransaction rawTransaction = new UnStakeTransactionBuilder()
+      final RawTransaction rawTransaction = new UnstakeTransactionBuilder()
           .chainIdHash(getChainIdHash())
           .from(signer.getPrincipal())
           .amount(amount)
