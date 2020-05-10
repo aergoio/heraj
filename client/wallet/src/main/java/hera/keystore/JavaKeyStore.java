@@ -12,7 +12,6 @@ import hera.annotation.ApiStability;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Identity;
-import hera.exception.HerajException;
 import hera.exception.InvalidAuthenticationException;
 import hera.key.AergoKey;
 import hera.key.Signer;
@@ -41,7 +40,7 @@ import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.util.Arrays;
 
-@ApiAudience.Public
+@ApiAudience.Private
 @ApiStability.Unstable
 public class JavaKeyStore extends AbstractKeyStore implements KeyStore {
 
@@ -53,11 +52,10 @@ public class JavaKeyStore extends AbstractKeyStore implements KeyStore {
    * Create a keystore which uses {@link java.security.KeyStore}.
    *
    * @param delegate a java keystore
-   * @throws HerajException on keystore error
    */
   public JavaKeyStore(final java.security.KeyStore delegate) {
     assertNotNull(delegate, "java.security.KeyStore must not null");
-    logger.debug("Create JavaKeyStore with delegate: {}", delegate);
+    logger.debug("Create a JavaKeyStore with delegate: {}", delegate);
     this.delegate = delegate;
   }
 
@@ -65,8 +63,8 @@ public class JavaKeyStore extends AbstractKeyStore implements KeyStore {
    * Create a keystore which uses {@link java.security.KeyStore}.
    *
    * @param type a keystore type see {@link java.security.KeyStore#getInstance(String)}
-   * @throws HerajException on keystore error
    */
+  @Deprecated
   public JavaKeyStore(final String type) {
     this(type, null, null);
   }
@@ -77,8 +75,8 @@ public class JavaKeyStore extends AbstractKeyStore implements KeyStore {
    * @param type     a keystore type see {@link java.security.KeyStore#getInstance(String,
    *                 java.security.Provider)}
    * @param provider a keystore provider
-   * @throws HerajException on keystore error
    */
+  @Deprecated
   public JavaKeyStore(final String type, final java.security.Provider provider) {
     this(type, provider, null, null);
   }
@@ -89,8 +87,8 @@ public class JavaKeyStore extends AbstractKeyStore implements KeyStore {
    * @param type        a keystore type see {@link java.security.KeyStore#getInstance(String)}
    * @param inputStream an input stream for keystore
    * @param password    a keystore password
-   * @throws HerajException on keystore error
    */
+  @Deprecated
   public JavaKeyStore(final String type, final InputStream inputStream, final char[] password) {
     try {
       assertNotNull(type, "Keystore type must not null");
@@ -110,7 +108,6 @@ public class JavaKeyStore extends AbstractKeyStore implements KeyStore {
    * @param provider    a keystore provider
    * @param inputStream an input stream for keystore
    * @param password    a keystore password
-   * @throws HerajException on keystore error
    */
   public JavaKeyStore(final String type, final java.security.Provider provider,
       final InputStream inputStream, final char[] password) {

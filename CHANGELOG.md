@@ -13,6 +13,7 @@
   - Add functionName to ContractInvocation
   - Add Name object related apis
   - Improve SimpleNonceProvider performance
+  - Add keystore factory
 - Changes
   - Replace subscribeNewBlockXXX with subscribeBlockXXX
   - Clarify WalletApi, ContractApi

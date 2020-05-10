@@ -74,12 +74,6 @@ class BlockchainMethods extends AbstractMethods {
   protected final ModelConverter<AccountAddress, ByteString> accountAddressConverter =
       new AccountAddressConverterFactory().create();
 
-  protected final ModelConverter<ElectedCandidate, Rpc.Vote> electedCandidateConverter =
-      new ElectedCandidateConverterFactory().create();
-
-  protected final ModelConverter<AccountTotalVote, Rpc.AccountVoteInfo> accountTotalVoteConverter =
-      new AccountTotalVoteConverterFactory().create();
-
   @Getter
   protected final RequestMethod<BlockchainStatus> blockchainStatus =
       new RequestMethod<BlockchainStatus>() {

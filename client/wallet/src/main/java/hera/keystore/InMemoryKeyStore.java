@@ -5,14 +5,12 @@
 package hera.keystore;
 
 import static hera.util.ValidationUtils.assertNotNull;
-import static org.slf4j.LoggerFactory.getLogger;
 
 import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.Authentication;
 import hera.api.model.EncryptedPrivateKey;
 import hera.api.model.Identity;
-import hera.exception.HerajException;
 import hera.exception.InvalidAuthenticationException;
 import hera.key.AergoKey;
 import hera.key.Signer;
@@ -23,15 +21,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.slf4j.Logger;
 
-@ApiAudience.Public
+@ApiAudience.Private
 @ApiStability.Unstable
 public class InMemoryKeyStore extends AbstractKeyStore implements KeyStore {
 
   protected final Object lock = new Object();
   protected final Set<Identity> storedIdentities = new HashSet<>();
   protected final Map<String, EncryptedPrivateKey> hashedAuth2Encrypted = new HashMap<>();
+
+  public InMemoryKeyStore() {
+    logger.debug("Create an InMemoryKeyStore");
+  }
 
   @Override
   public void save(final Authentication authentication, final AergoKey key) {

@@ -6,10 +6,8 @@ package hera.it;
 
 import static java.util.UUID.randomUUID;
 
-import hera.keystore.AergoKeyStore;
-import hera.keystore.InMemoryKeyStore;
-import hera.keystore.JavaKeyStore;
 import hera.keystore.KeyStore;
+import hera.keystore.KeyStores;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -23,22 +21,28 @@ public abstract class AbstractWalletApiIT extends AbstractIT {
 
   @Parameters
   public static Collection<Object[]> data() {
-    final List<Object[]> args = new ArrayList<>();
+    try {
+      final List<Object[]> args = new ArrayList<>();
 
-    // in memory
-    final KeyStore inMemoryKeyStore = new InMemoryKeyStore();
-    args.add(new Object[] {inMemoryKeyStore});
+      // in memory
+      final KeyStore inMemoryKeyStore = KeyStores.newInMemoryKeyStore();
+      args.add(new Object[]{inMemoryKeyStore});
 
-    // java kesytore
-    final KeyStore javaKeyStore = new JavaKeyStore("PKCS12");
-    args.add(new Object[] {javaKeyStore});
+      // java keystore
+      final java.security.KeyStore delegate = java.security.KeyStore.getInstance("PKCS12");
+      delegate.load(null, null);
+      final KeyStore javaKeyStore = KeyStores.newJavaKeyStore(delegate);
+      args.add(new Object[]{javaKeyStore});
 
-    // aergo kesytore
-    final String tmpDir = System.getProperty("java.io.tmpdir") + "/" + randomUUID().toString();
-    final KeyStore aergoKeyStore = new AergoKeyStore(tmpDir);
-    args.add(new Object[] {aergoKeyStore});
+      // aergokeystore
+      final String rootDir = System.getProperty("java.io.tmpdir") + "/" + randomUUID().toString();
+      final KeyStore aergoKeyStore = KeyStores.newAergoKeyStore(rootDir);
+      args.add(new Object[]{aergoKeyStore});
 
-    return args;
+      return args;
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
   }
 
   @Parameter(0)

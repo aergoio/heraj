@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-@ApiAudience.Public
+@ApiAudience.Private
 @ApiStability.Unstable
 public class AergoKeyStore extends AbstractKeyStore implements KeyStore {
 
@@ -75,14 +75,15 @@ public class AergoKeyStore extends AbstractKeyStore implements KeyStore {
   /**
    * Create aergo keystore with root directory {@code keyStoreDir}.
    *
-   * @param root             a keystore root directory
-   * @param keyFormatVersion a keyformat version
+   * @param root           a keystore root directory
+   * @param encryptVersion an encryption version
    */
-  public AergoKeyStore(final String root, final String keyFormatVersion) {
+  public AergoKeyStore(final String root, final String encryptVersion) {
     try {
       assertNotNull(root, "KeyStore rootpath must not null");
-      assertNotNull(keyFormatVersion, "KeyStore keyformat version must not null");
-      logger.debug("Create Aergo KeyStore to {} with version: {}", root, keyFormatVersion);
+      assertNotNull(encryptVersion, "KeyStore keyformat version must not null");
+      logger.debug("Create an AergoKeyStore with root directory {} and encrypt version: {}", root,
+          encryptVersion);
 
       final File file = new File(root + "/" + STORAGE_DIR);
       if (file.exists() && file.isFile()) {
@@ -96,7 +97,7 @@ public class AergoKeyStore extends AbstractKeyStore implements KeyStore {
         logger.debug("Create directory: {}", root);
       }
       this.root = file;
-      this.encryptVersion = keyFormatVersion;
+      this.encryptVersion = encryptVersion;
 
       final Map<String, KeyCipherStrategy<KeyFormat>> version2Format = new HashMap<>();
       version2Format.put("1", new KeyFormatV1Strategy());
