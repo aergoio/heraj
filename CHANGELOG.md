@@ -14,6 +14,7 @@
   - Add Name object related apis
   - Improve SimpleNonceProvider performance
   - Add keystore factory
+  - Make toString of KeyAlias print itself
 - Changes
   - Replace subscribeNewBlockXXX with subscribeBlockXXX
   - Clarify WalletApi, ContractApi

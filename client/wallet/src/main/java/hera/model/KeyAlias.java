@@ -14,11 +14,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 
 @ApiAudience.Public
 @ApiStability.Unstable
-@ToString
 @EqualsAndHashCode
 public class KeyAlias implements Identity {
 
@@ -48,6 +46,11 @@ public class KeyAlias implements Identity {
       throw new HerajException("Key alias must be " + ALIAS_PATTERN.toString());
     }
     this.value = value;
+  }
+
+  @Override
+  public String toString() {
+    return this.value;
   }
 
 }
