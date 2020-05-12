@@ -230,8 +230,18 @@ public interface AccountOperation {
    *
    * @param accountAddress an account address to check staking information
    * @return a staking information
+   * @deprecated use {@link #getStakeInfo(AccountAddress)} instead.
    */
+  @Deprecated
   StakeInfo getStakingInfo(AccountAddress accountAddress);
+
+  /**
+   * Get staking information of {@code accountAddress}.
+   *
+   * @param accountAddress an account address to check staking information
+   * @return a staking information
+   */
+  StakeInfo getStakeInfo(AccountAddress accountAddress);
 
   /**
    * Vote to {@code candidates} with corresponding {@code voteId}. Pre-defined vote id is

@@ -84,8 +84,13 @@ class QueryApiImpl extends AbstractApi implements QueryApi {
 
   @Override
   public StakeInfo getStakingInfo(final AccountAddress accountAddress) {
+    return getStakeInfo(accountAddress);
+  }
+
+  @Override
+  public StakeInfo getStakeInfo(AccountAddress accountAddress) {
     try {
-      return getClient().getAccountOperation().getStakingInfo(accountAddress);
+      return getClient().getAccountOperation().getStakeInfo(accountAddress);
     } catch (Exception e) {
       throw converter.convert(e);
     }

@@ -111,10 +111,10 @@ public class QueryApiImplTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetStakingInfo() {
+  public void testGetStakeInfo() {
     // given
     final AccountOperation mockOperation = mock(AccountOperation.class);
-    when(mockOperation.getStakingInfo(any(AccountAddress.class)))
+    when(mockOperation.getStakeInfo(any(AccountAddress.class)))
         .thenReturn(StakeInfo.newBuilder().build());
     final AergoClient mockClient = mock(AergoClient.class);
     when(mockClient.getAccountOperation()).thenReturn(mockOperation);
@@ -123,8 +123,8 @@ public class QueryApiImplTest extends AbstractTestCase {
 
     // then
     final QueryApi queryApi = new QueryApiImpl(mockClientProvider);
-    final StakeInfo stakeInfo = queryApi.getStakingInfo(anyAccountAddress);
-    assertNotNull(stakeInfo);
+    assertNotNull(queryApi.getStakingInfo(anyAccountAddress));
+    assertNotNull(queryApi.getStakeInfo(anyAccountAddress));
   }
 
   @Test

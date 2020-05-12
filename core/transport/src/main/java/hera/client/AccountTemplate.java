@@ -126,6 +126,11 @@ class AccountTemplate extends AbstractTemplate implements AccountOperation {
 
   @Override
   public StakeInfo getStakingInfo(final AccountAddress accountAddress) {
+    return getStakeInfo(accountAddress);
+  }
+
+  @Override
+  public StakeInfo getStakeInfo(AccountAddress accountAddress) {
     return request(accountMethods.getStakeInfo(), Arrays.<Object>asList(accountAddress));
   }
 

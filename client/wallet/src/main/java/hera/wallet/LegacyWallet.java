@@ -188,17 +188,17 @@ class LegacyWallet implements Wallet {
 
   @Override
   public StakeInfo getStakingInfo() {
-    return preparedWalletApiImpl.query().getStakingInfo(walletApiImpl.getPrincipal());
+    return preparedWalletApiImpl.query().getStakeInfo(walletApiImpl.getPrincipal());
   }
 
   @Override
   public StakeInfo getStakingInfo(Account account) {
-    return preparedWalletApiImpl.query().getStakingInfo(account.getAddress());
+    return preparedWalletApiImpl.query().getStakeInfo(account.getAddress());
   }
 
   @Override
   public StakeInfo getStakingInfo(AccountAddress accountAddress) {
-    return preparedWalletApiImpl.query().getStakingInfo(accountAddress);
+    return preparedWalletApiImpl.query().getStakeInfo(accountAddress);
   }
 
   @Override

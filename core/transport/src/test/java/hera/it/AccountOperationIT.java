@@ -181,7 +181,7 @@ public class AccountOperationIT extends AbstractIT {
 
     // then
     final StakeInfo stakingInfo =
-        aergoClient.getAccountOperation().getStakingInfo(key.getAddress());
+        aergoClient.getAccountOperation().getStakeInfo(key.getAddress());
     assertEquals(key.getAddress(), stakingInfo.getAddress());
     assertEquals(minimumAmount, stakingInfo.getAmount());
     final AccountState afterState = aergoClient.getAccountOperation().getState(key.getAddress());

@@ -97,8 +97,18 @@ public interface QueryApi {
    *
    * @param accountAddress an account address to check staking information
    * @return a staking information
+   * @deprecated use {@link #getStakeInfo(AccountAddress)} instead.
    */
+  @Deprecated
   StakeInfo getStakingInfo(AccountAddress accountAddress);
+
+  /**
+   * Get staking information of {@code accountAddress}.
+   *
+   * @param accountAddress an account address to check staking information
+   * @return a staking information
+   */
+  StakeInfo getStakeInfo(AccountAddress accountAddress);
 
   /**
    * Get elected block producers for current round.

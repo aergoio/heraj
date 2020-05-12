@@ -15,6 +15,7 @@
   - Improve SimpleNonceProvider performance
   - Add keystore factory
   - Make toString of KeyAlias print itself
+  - Add getStakeInfo to replace getStakeInfo
 - Changes
   - Replace subscribeNewBlockXXX with subscribeBlockXXX
   - Clarify WalletApi, ContractApi

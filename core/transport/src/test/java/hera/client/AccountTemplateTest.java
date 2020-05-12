@@ -161,7 +161,7 @@ public class AccountTemplateTest extends AbstractTestCase {
   }
 
   @Test
-  public void testGetStakingInfo() throws Exception {
+  public void testGetStakeInfo() throws Exception {
     // given
     final AccountTemplate accountTemplate = new AccountTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
@@ -171,8 +171,8 @@ public class AccountTemplateTest extends AbstractTestCase {
     accountTemplate.requester = mockRequester;
 
     // then
-    final StakeInfo actual = accountTemplate.getStakingInfo(anyAccountAddress);
-    assertEquals(expected, actual);
+    assertEquals(expected, accountTemplate.getStakingInfo(anyAccountAddress));
+    assertEquals(expected, accountTemplate.getStakeInfo(anyAccountAddress));
   }
 
   @Test
