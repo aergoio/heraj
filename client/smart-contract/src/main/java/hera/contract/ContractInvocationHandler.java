@@ -101,7 +101,7 @@ class ContractInvocationHandler implements InvocationHandler, ClientPrepareable,
 
         logger.debug("Contract query: {}", contractInvocation);
         final ContractResult result = getClient().getContractOperation().query(contractInvocation);
-        ret = result.bind(returnType);
+        return returnType.equals(ContractResult.class) ? result : result.bind(returnType);
       }
       return ret;
     } catch (HerajException e) {
