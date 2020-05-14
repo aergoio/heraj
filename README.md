@@ -16,19 +16,31 @@ build with aergo-protobuf [6ce439c7600ae7b167c6c61e66ce2ac38bb2bef9](https://git
 
 ## Compatibility
 
-* Aergo : v2.2.x
-* Java : JDK 7 or higher
-* Android : Android 3.0 (API 11) or higher
+- Aergo : v2.2.x
+- Java : JDK 7 or higher
+- Android : Android 3.0 (API 11) or higher
 
 ## Download
 
 There are 3 kind of library:
 
-* heraj-transport : minimum library including all of the base
-* heraj-wallet : nonce handling wallet library (depends on `heraj-transport`)
-* heraj-smart-contract : simple client to call smart contract with a java interface (depends on `heraj-wallet`)
+- heraj-transport : minimum library including all of the base
+- heraj-wallet : nonce handling wallet library (depends on `heraj-transport`)
+- heraj-smart-contract : simple client to call smart contract with a java interface (depends on `heraj-wallet`)
 
 If you just want a minimum one, use `heraj-transport`. Or need more feature, use `heraj-wallet` or `heraj-smart-contract`.
+
+## Module Structure
+
+- core
+  - annotation : Store annotations used within heraj.
+  - common : Store models used within heraj.
+  - protobuf : Keeps java files generated from *.proto.
+  - transport : Transport module interacting with aergo node using grpc.
+  - util : Utils used within heraj.
+- client
+  - wallet : Provides KeyStore to store aergo key. Provides WalletApi to interacting with KeyStore.
+  - smart-contract : Modules for interface-based smart contract interaction.
 
 ### Maven
 
@@ -110,11 +122,11 @@ $ git submodule update
 - Lint: `./gradlew lint`
 - Test: `./gradlew test`
   - Coverage (need test task): `./gradlew test coverage` (individual), `./gradlew test allcoverage` (all)
-  - Integration Test: `./test/run-it.sh`
+  - Integration Test: `./test/run-it.sh` (need docker running)
   - Benchmark Test: `./gradlew {target_project}:jmh`
 - Docs: `./gradlew javadoc` (individual), `./gradlew alljavadoc` (all)
 - Build (also lint, test): `./gradlew build`
-- Shadow Jar: `./gradle shadowJar` (generated in `./assembly/build/libs`)
+- Shadow Jar: `./gradlew shadowJar` (generated in `./assembly/build/libs`)
 - Install to local: `./gradlew install`
 
 ## Kind of test
