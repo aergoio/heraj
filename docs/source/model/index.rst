@@ -5,4 +5,8 @@ Model
    :maxdepth: 1
 
    aergo-key
-   encoding 
+   encoding
+   transaction
+   contract-definition
+   contract-invocation
+   event-filter

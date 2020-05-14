@@ -71,3 +71,15 @@ heraj    aergo            jdk              android
 1.3.x    2.0.x, 2.1.x     7 or higher      3.0 (API 11) or higher
 1.2.2    1.3.x            7 or higher      3.0 (API 11) or higher
 ======== ================ ================ ========================
+
+Annotations
+-----------
+
+There ares 4 type of annotations.
+
+- @ApiAudience.Public : Intended for use by heraj user. It will not be changed if possible.
+- @ApiAudience.Private : Intended for use only within hera itself. Do not use it.
+- @ApiStability.Stable : Can evolve while retaining compatibility for minor release boundaries.
+- @ApiStability.Unstable : No guarantee is provided as to reliability or stability.
+
+When using heraj, you have keep meaning of those annotations in mind.
