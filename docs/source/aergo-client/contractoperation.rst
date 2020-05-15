@@ -1,91 +1,133 @@
 ContractOperation
 =================
 
-Provides contract related operations.
+Provides contract related operations. For more about writing smart contract, see `Aergo Smart Contract <https://docs.aergo.io/en/latest/smart-contracts/index.html>`_.
 
-Deployment
-----------
+Deploy
+------
 
-`Aergo Smart Contract <https://docs.aergo.io/en/latest/smart-contracts/index.html>`_
+Deploy smart contract. Normally, deployment process is
 
-.. code-block:: java
+deploy -> wait for confirm -> get contract tx receipt -> find a contract address -> get contract interface
 
-  AergoKey key = new AergoKeyGenerator().create();
-    // without args
-  ContractDefinition withoutArgs = ContractDefinition.newBuilder()
-      .encodedContract(
-          "4coHBeUgiMBpiGmZ9McPhAXWt7Ymk8WoTipWvvHrMytjtLqVqwvKo2VqGjFYHLGT2vpvYCcB1AmMLGCbf9BPVE8KSfEqXTvc2TunE2Pp2ZjtErng1odLHttTrg2LBtT5CqWrLwwVEv8Wi8BQjvenrEvrVw3apJoJjGJFWP1eNX9hU7ahAtkMCYXDp3EaD3Vr6tpXwD61N3tvG8ejqQtUnkzNaHGauNUU8PrzXBXsa4a2WUrWAFzxV1e6mwk2tL8aZtzvBGm2LGrcXVaADyomk9a58FNG6YVKwLHwcttnxKi6CWRRe5ueCBZuAxxR1DQWRzCzUs4oEZY7MpEMmMdqgN5QLw4dWQDQfj36a94NpLN9DcbeXesQ8fmFVXZBJzRoZLuQg5DQGNsu5upKAq6fndvpJ3puurDkztYKawToTtDqBjbbAkwUd3FcSHjogeiY6odoxFQvVJcLjpbBwMVboSVsnn3p1XYdUFvZ3KpjJzLd8D3JbozGSoqED1X8Re7NsGJS5JZiYdrzSyPCHjkEd1SN1ssvniFVJBJVZkojTQ1PMgT6P5ZakQC2SEw42t52BdPujr4iVsgkqGKbry3ouXef8wA8c7tJGazqa7dZ2RBKY3Bxerz4LFJsVupF6SKpXnDjJwedHiuhgj1EvZ162SqkUrakk53JUwtdL5QPFG67nLar9ZHro41xc2k3MvH1rouDYpMnRbrHxz2ZkRvyQ75CxryKm1EyT2WEC51L41R8YA8DMhPMVpSUwcYr6zVLvEmvoXL2AGz1QZNyUdzRLeQ9sYqzkkSMkXaMLG3wuLP2nGZjVbKN8f4fssRLA8x2K5jkZW4TTHuZwM4j5bfuRnNp2XH9xUiK8wfiH7W8xr6j")
-      .build();
-  ContractTxHash withoutArgsDeployTxHash = client.getContractOperation()
-      .deploy(key, withoutArgs, 1L, Fee.ZERO);
-
-  // with args
-  ContractDefinition withArgs = ContractDefinition.newBuilder()
-      .encodedContract(
-          "4coHBeUgiMBpiGmZ9McPhAXWt7Ymk8WoTipWvvHrMytjtLqVqwvKo2VqGjFYHLGT2vpvYCcB1AmMLGCbf9BPVE8KSfEqXTvc2TunE2Pp2ZjtErng1odLHttTrg2LBtT5CqWrLwwVEv8Wi8BQjvenrEvrVw3apJoJjGJFWP1eNX9hU7ahAtkMCYXDp3EaD3Vr6tpXwD61N3tvG8ejqQtUnkzNaHGauNUU8PrzXBXsa4a2WUrWAFzxV1e6mwk2tL8aZtzvBGm2LGrcXVaADyomk9a58FNG6YVKwLHwcttnxKi6CWRRe5ueCBZuAxxR1DQWRzCzUs4oEZY7MpEMmMdqgN5QLw4dWQDQfj36a94NpLN9DcbeXesQ8fmFVXZBJzRoZLuQg5DQGNsu5upKAq6fndvpJ3puurDkztYKawToTtDqBjbbAkwUd3FcSHjogeiY6odoxFQvVJcLjpbBwMVboSVsnn3p1XYdUFvZ3KpjJzLd8D3JbozGSoqED1X8Re7NsGJS5JZiYdrzSyPCHjkEd1SN1ssvniFVJBJVZkojTQ1PMgT6P5ZakQC2SEw42t52BdPujr4iVsgkqGKbry3ouXef8wA8c7tJGazqa7dZ2RBKY3Bxerz4LFJsVupF6SKpXnDjJwedHiuhgj1EvZ162SqkUrakk53JUwtdL5QPFG67nLar9ZHro41xc2k3MvH1rouDYpMnRbrHxz2ZkRvyQ75CxryKm1EyT2WEC51L41R8YA8DMhPMVpSUwcYr6zVLvEmvoXL2AGz1QZNyUdzRLeQ9sYqzkkSMkXaMLG3wuLP2nGZjVbKN8f4fssRLA8x2K5jkZW4TTHuZwM4j5bfuRnNp2XH9xUiK8wfiH7W8xr6j")
-      .constructorArgs("key", 123, "test")
-      .build();
-  ContractTxHash withArgsDeployTxHash = client.getContractOperation()
-      .deploy(key, withArgs, 2L, Fee.ZERO);
-
-  // with args and amount
-  ContractDefinition withArgsAndAmount = ContractDefinition.newBuilder()
-      .encodedContract(
-          "4coHBeUgiMBpiGmZ9McPhAXWt7Ymk8WoTipWvvHrMytjtLqVqwvKo2VqGjFYHLGT2vpvYCcB1AmMLGCbf9BPVE8KSfEqXTvc2TunE2Pp2ZjtErng1odLHttTrg2LBtT5CqWrLwwVEv8Wi8BQjvenrEvrVw3apJoJjGJFWP1eNX9hU7ahAtkMCYXDp3EaD3Vr6tpXwD61N3tvG8ejqQtUnkzNaHGauNUU8PrzXBXsa4a2WUrWAFzxV1e6mwk2tL8aZtzvBGm2LGrcXVaADyomk9a58FNG6YVKwLHwcttnxKi6CWRRe5ueCBZuAxxR1DQWRzCzUs4oEZY7MpEMmMdqgN5QLw4dWQDQfj36a94NpLN9DcbeXesQ8fmFVXZBJzRoZLuQg5DQGNsu5upKAq6fndvpJ3puurDkztYKawToTtDqBjbbAkwUd3FcSHjogeiY6odoxFQvVJcLjpbBwMVboSVsnn3p1XYdUFvZ3KpjJzLd8D3JbozGSoqED1X8Re7NsGJS5JZiYdrzSyPCHjkEd1SN1ssvniFVJBJVZkojTQ1PMgT6P5ZakQC2SEw42t52BdPujr4iVsgkqGKbry3ouXef8wA8c7tJGazqa7dZ2RBKY3Bxerz4LFJsVupF6SKpXnDjJwedHiuhgj1EvZ162SqkUrakk53JUwtdL5QPFG67nLar9ZHro41xc2k3MvH1rouDYpMnRbrHxz2ZkRvyQ75CxryKm1EyT2WEC51L41R8YA8DMhPMVpSUwcYr6zVLvEmvoXL2AGz1QZNyUdzRLeQ9sYqzkkSMkXaMLG3wuLP2nGZjVbKN8f4fssRLA8x2K5jkZW4TTHuZwM4j5bfuRnNp2XH9xUiK8wfiH7W8xr6j")
-      .constructorArgs("key", 123, "test")
-      .amount(Aer.AERGO_ONE)
-      .build();
-  ContractTxHash withArgsAndAmountDeployTxHash = client.getContractOperation()
-      .deploy(key, withArgs, 3L, Fee.ZERO);
-
-Get Tx Receipt
---------------
+For more about making contract definition, see :doc:`ContractDefinition <../model/contract-definition>`.
 
 .. code-block:: java
 
-  ContractTxHash txHash = ContractTxHash.of("AVT74R9MVNMDRm9Mg9ZnA8gzxAzeeyAd3bFcGnDK978L");
-  ContractTxReceipt receipt = client.getContractOperation()
-      .getReceipt(txHash);
+  AergoKey signer = richKey;
+
+  // made by aergoluac --compiledContract {some_contract}.lua
+  String encodedContract = contractPayload;
+
+  // make a contract definition
+  ContractDefinition contractDefinition = ContractDefinition.newBuilder()
+      .encodedContract(encodedContract)
+      .build();
+
+  // deploy
+  long nonce = nonceProvider.incrementAndGetNonce(signer.getAddress());
+  TxHash txHash = client.getContractOperation().deployTx(signer, contractDefinition,
+      nonce, Fee.ZERO);
+  System.out.println("Contract deployment tx hash: " + txHash);
+
+  // wait deploy contract to be confirmed
+  Thread.sleep(2200L);
+
+  // get contract tx receipt
+  ContractTxReceipt contractTxReceipt = client.getContractOperation()
+      .getContractTxReceipt(txHash);
+  System.out.println("Contract tx receipt: " + contractTxReceipt);
+
+  // find a contract address
+  ContractAddress contractAddress = contractTxReceipt.getContractAddress();
+
+  // get contract interface
+  ContractInterface contractInterface = client.getContractOperation()
+      .getContractInterface(contractAddress);
+  System.out.println("Contract interface: " + contractInterface);
+
+Re-Deploy
+---------
+
+Re-deploy to an already deployed one. It replaces contract logic while keeping contract state. This operations is available private mode only. For more about making contract definition, see :doc:`ContractDefinition <../model/contract-definition>`.
+
+.. code-block:: java
+
+  // prepare signer
+  AergoKey signer = richKey;
+
+  // made by aergoluac --compiledContract {some_contract}.lua
+  String encodedContract = contractPayload;
+
+  // make a contract definition
+  ContractDefinition newDefinition = ContractDefinition.newBuilder()
+      .encodedContract(encodedContract)
+      .build();
+
+  // redeploy
+  ContractAddress contractAddress = contractAddressKeep;
+  long nonce = nonceProvider.incrementAndGetNonce(signer.getAddress());
+  TxHash txHash = client.getContractOperation()
+      .redeployTx(signer, contractAddress, newDefinition, nonce, Fee.ZERO);
+  System.out.println("Redeploy tx hash: " + txHash);
+
+
+Get Contract Tx Receipt
+-----------------------
+
+Get contract tx receipt. It returns null if no corresponding one.
+
+.. code-block:: java
+
+  TxHash txHash = TxHash.of("EGXNDgjY2vQ6uuP3UF3dNXud54dF4FNVY181kaeQ26H9");
+  ContractTxReceipt contractTxReceipt = client.getContractOperation()
+      .getContractTxReceipt(txHash);
+  System.out.println("ContractTxReceipt: " + contractTxReceipt);
 
 Get Contract Interface
 ----------------------
 
+Get contract interface. It returns null if no corresponding one.
+
 .. code-block:: java
 
-  ContractAddress contractAddress = ContractAddress.of("AmgVbUZiReUVFXdYb4UVMru4ZqyicSsFPqumRx8LfwMKLFk66SNw");
+  ContractAddress contractAddress = ContractAddress
+      .of("AmNrsAqkXhQfE6sGxTutQkf9ekaYowaJFLekEm8qvDr1RB1AnsiM");
   ContractInterface contractInterface = client.getContractOperation()
       .getContractInterface(contractAddress);
+  System.out.println("ContractInterface: " + contractInterface);
 
 Execute
 -------
 
+Execute contract function of already deployed one. For more about making contract invocation, see :doc:`ContractInvocation <../model/contract-invocation>`.
+
 .. code-block:: java
 
-  ContractInterface contractInterface = ...;
-  AergoKey key = new AergoKeyGenerator().create();
-  ContractInvocation execution = contractInterface.newInvocationBuilder()
+  // prepare signer
+  AergoKey signer = richKey;
+
+  // make a contract invocation
+  ContractInterface contractInterface = contractInterfaceKeep;
+  ContractInvocation invocation = contractInterface.newInvocationBuilder()
       .function("set")
       .args("key", 333, "test2")
       .build();
-  ContractTxHash executeTxHash = client.getContractOperation()
-      .execute(key, execution, 4L, Fee.ZERO);
+
+  // execute
+  long nonce = nonceProvider.incrementAndGetNonce(signer.getAddress());
+  TxHash txHash = client.getContractOperation()
+      .executeTx(signer, invocation, nonce, Fee.ZERO);
+  System.out.println("Execute tx hash: " + txHash);
 
 Query
 -----
 
-.. code-block:: java
-
-  ContractInterface contractInterface = ...;
-  ContractInvocation query = contractInterface.newInvocationBuilder()
-      .function("get")
-      .args("key")
-      .build();
-  ContractResult queryResult = client.getContractOperation().query(query);
-  // bind raw result to data class
-  Data data = queryResult.bind(Data.class);
+Get state of contract. It can be binded to an java bean. For more about making contract invocation, see :doc:`ContractInvocation <../model/contract-invocation>`.
 
 .. code-block:: java
 
+  // java bean
   public class Data {
 
     protected int intVal;
@@ -115,43 +157,50 @@ Query
 
   }
 
+.. code-block:: java
+
+  // make a contract invocation
+  ContractInterface contractInterface = contractInterfaceKeep;
+  ContractInvocation query = contractInterface.newInvocationBuilder()
+      .function("get")
+      .args("key")
+      .build();
+
+  // query contract
+  ContractResult queryResult = client.getContractOperation().query(query);
+  Data data = queryResult.bind(Data.class);
+  System.out.println("Raw contract result: " + queryResult); // { "intVal": 123, "stringVal": "test" }
+  System.out.println("Binded data: " + data);
+
 List Event
 ----------
 
+Get event infos at some block. For more about making event filter, see :doc:`EventFilter <../model/event-filter>`.
+
 .. code-block:: java
 
-  // by block number
-  EventFilter blockNumberFilter = EventFilter.newBuilder(contractAddress)
-      .fromBlockNumber(1L)
-      .toBlockNumber(10L)
-      .build();
-  List<Event> eventsByBlockNumber = client.getContractOperation()
-      .listEvents(blockNumberFilter);
-
-  // by name in recent 1000 block
-  EventFilter nameFilter = EventFilter.newBuilder(contractAddress)
-      .eventName("set")
-      .recentBlockCount(1000)
-      .build();
-  List<Event> eventsByName = client.getContractOperation().listEvents(nameFilter);
-
-  // by name and args in recent 1000 block
-  EventFilter nameAndArgsFilter = EventFilter.newBuilder(contractAddress)
+  ContractAddress contractAddress = contractAddressKeep;
+  EventFilter eventFilter = EventFilter.newBuilder(contractAddress)
       .eventName("set")
       .args("key")
       .recentBlockCount(1000)
       .build();
-  List<Event> eventsByNameAndArgs = client.getContractOperation().listEvents(nameFilter);
+  List<Event> events = client.getContractOperation().listEvents(eventFilter);
+  System.out.println("Events: " + events);
 
-Subscribe Event
----------------
+Event Subscription
+------------------
+
+Subscribe new generated event of specific contract. For more about making event filter, see :doc:`EventFilter <../model/event-filter>`.
 
 .. code-block:: java
 
+  // prepare signer
+  AergoKey signer = richKey;
+
   // subscribe event
-  EventFilter eventFilter = EventFilter.newBuilder(contractAddress)
-      .recentBlockCount(1000)
-      .build();
+  ContractAddress contractAddress = contractAddressKeep;
+  EventFilter eventFilter = EventFilter.newBuilder(contractAddress).build();
   Subscription<Event> subscription = client.getContractOperation()
       .subscribeEvent(eventFilter, new StreamObserver<Event>() {
         @Override
@@ -169,27 +218,14 @@ Subscribe Event
       });
 
   // execute
+  ContractInterface contractInterface = contractInterfaceKeep;
   ContractInvocation run = contractInterface.newInvocationBuilder()
       .function("set")
       .args("key", 333, "test2")
       .build();
-  client.getContractOperation().execute(key, run, 5L, Fee.ZERO);
+  long nonce = nonceProvider.incrementAndGetNonce(signer.getAddress());
+  client.getContractOperation().executeTx(signer, run, nonce, Fee.ZERO);
   Thread.sleep(2200L);
 
   // unsubscribe event
   subscription.unsubscribe();
-
-Re-Deployment (private mode only)
----------------------------------
-
-.. code-block:: java
-
-  AergoKey key = new AergoKeyGenerator().create();
-  ContractAddress alreadyDeployed = ContractAddress.of("AmgVbUZiReUVFXdYb4UVMru4ZqyicSsFPqumRx8LfwMKLFk66SNw");
-  ContractDefinition newDefinition = ContractDefinition.newBuilder()
-      .encodedContract(
-          "4coHBeUgiMBpiGmZ9McPhAXWt7Ymk8WoTipWvvHrMytjtLqVqwvKo2VqGjFYHLGT2vpvYCcB1AmMLGCbf9BPVE8KSfEqXTvc2TunE2Pp2ZjtErng1odLHttTrg2LBtT5CqWrLwwVEv8Wi8BQjvenrEvrVw3apJoJjGJFWP1eNX9hU7ahAtkMCYXDp3EaD3Vr6tpXwD61N3tvG8ejqQtUnkzNaHGauNUU8PrzXBXsa4a2WUrWAFzxV1e6mwk2tL8aZtzvBGm2LGrcXVaADyomk9a58FNG6YVKwLHwcttnxKi6CWRRe5ueCBZuAxxR1DQWRzCzUs4oEZY7MpEMmMdqgN5QLw4dWQDQfj36a94NpLN9DcbeXesQ8fmFVXZBJzRoZLuQg5DQGNsu5upKAq6fndvpJ3puurDkztYKawToTtDqBjbbAkwUd3FcSHjogeiY6odoxFQvVJcLjpbBwMVboSVsnn3p1XYdUFvZ3KpjJzLd8D3JbozGSoqED1X8Re7NsGJS5JZiYdrzSyPCHjkEd1SN1ssvniFVJBJVZkojTQ1PMgT6P5ZakQC2SEw42t52BdPujr4iVsgkqGKbry3ouXef8wA8c7tJGazqa7dZ2RBKY3Bxerz4LFJsVupF6SKpXnDjJwedHiuhgj1EvZ162SqkUrakk53JUwtdL5QPFG67nLar9ZHro41xc2k3MvH1rouDYpMnRbrHxz2ZkRvyQ75CxryKm1EyT2WEC51L41R8YA8DMhPMVpSUwcYr6zVLvEmvoXL2AGz1QZNyUdzRLeQ9sYqzkkSMkXaMLG3wuLP2nGZjVbKN8f4fssRLA8x2K5jkZW4TTHuZwM4j5bfuRnNp2XH9xUiK8wfiH7W8xr6j")
-      .build();
-  ContractTxHash redeployTxHash = client.getContractOperation()
-      .redeploy(key, alreadyDeployed, newDefinition, 6L, Fee.ZERO);
-

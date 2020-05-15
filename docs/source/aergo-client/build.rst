@@ -1,52 +1,49 @@
 Build
 =====
 
-You can build aergo client with configurations. A configuration for a same purpose is overridden. That is if you configure for connect strategy like
+You can build aergo client with configurations. A configuration for a same purpose will be overridden.
 
 .. code-block:: java
 
   AergoClient aergoClient = new AergoClientBuilder()
       .withEndpoint("localhost:7845")
-      .withNonBlockingConnect()
-      .withBlockingConnect()
+      .withNonBlockingConnect()  // ignored
+      .withBlockingConnect()     // applied
       .build();
-
-then last one is used (blocking connect in this case).
 
 Endpoint
 --------
 
-You can configure rpc endpoint for aergo. Default is localhost:7845.
+You can configure aergo node endpoint to connect. Default is localhost:7845.
 
 .. code-block:: java
 
-  AergoClient endpointClient = new AergoClientBuilder()
+  // connect to 'localhost:7845'
+  AergoClient aergoClient = new AergoClientBuilder()
       .withEndpoint("localhost:7845")
       .build();
 
 Connect Strategy
 ----------------
 
-Non-Blocking Connect
-^^^^^^^^^^^^^^^^^^^^
+You can configure a strategy to connect.
 
-It uses `Netty`_ internally. This is default strategy.
+Non-Blocking connection uses netty internally.
 
 .. code-block:: java
 
-  AergoClient nettyClient = new AergoClientBuilder()
+  // connect to 'localhost:7845' with non-blocking connect
+  AergoClient aergoClient = new AergoClientBuilder()
       .withEndpoint("localhost:7845")
       .withNonBlockingConnect()
       .build();
 
-Blocking Connect
-^^^^^^^^^^^^^^^^
-
-It uses `OkHttp`_ internally. Recommanded for android usage.
+Blocking connection uses okhttp internally.
 
 .. code-block:: java
 
-  AergoClient okhttpClient = new AergoClientBuilder()
+  // connect to 'localhost:7845' with blocking connect
+  AergoClient aergoClient = new AergoClientBuilder()
       .withEndpoint("localhost:7845")
       .withBlockingConnect()
       .build();
@@ -54,58 +51,61 @@ It uses `OkHttp`_ internally. Recommanded for android usage.
 Connect Type
 ------------
 
-Plain Text
-^^^^^^^^^^
-
-You can connect with plaintext. This is default behavior.
+Connect with plaintext. This is default behavior.
 
 .. code-block:: java
 
-  AergoClient plainTextClient = new AergoClientBuilder()
+  // connect with plain text
+  AergoClient aergoClient = new AergoClientBuilder()
       .withEndpoint("localhost:7845")
       .withPlainText()
       .build();
 
-TLS
-^^^
-
-You can connect with tls. Note that client key must be `PKCS8`_ format.
+Connect with tls. Note that client key must be PKCS8 format.
 
 .. code-block:: java
 
-  AergoClient tlsClient = new AergoClientBuilder()
+  // prepare cert files
+  InputStream serverCert = loadResourceAsStream("/cert/server.crt");
+  InputStream clientCert = loadResourceAsStream("/cert/client.crt");
+  InputStream clientKey = loadResourceAsStream("/cert/client.pem"); // must be pkcs8 format
+
+  // connect with plain text
+  AergoClient aergoClient = new AergoClientBuilder()
       .withEndpoint("localhost:7845")
-      .withTransportSecurity("servername", "${path_to_server_cert}", "${path_to_client_cert}", "${path_to_client_key}")
+      .withTransportSecurity("servername", serverCert, clientCert, clientKey)
       .build();
 
 Retry
 -----
 
-It just retry with a same request on any kind of failure. Default is off.
+You can configure retry count on any kind of failure. It just retry the same request with an interval.
 
 .. code-block:: java
 
-  AergoClient retryClient = new AergoClientBuilder()
+  // retry 3 count with a 1000ms interval
+  AergoClient aergoClient = new AergoClientBuilder()
       .withRetry(3, 1000L, TimeUnit.MILLISECONDS)
       .build();
 
 Timeout
 -------
 
-It enable request timeout. Default is 3 seconds.
+You can configure timeout without any response for each request.
 
 .. code-block:: java
 
-  AergoClient timeoutClient = new AergoClientBuilder()
+  // set timeout as 5000ms for each request.
+  AergoClient aergoClient = new AergoClientBuilder()
       .withTimeout(5000L, TimeUnit.MILLISECONDS)
       .build();
 
 Close
 -----
 
-You have to close the client to prevent memory leak.
+Close an aergo client. You have to close it to prevent memory leak.
 
-With close method.
+You can close aergo client by calling close method.
 
 .. code-block:: java
 
@@ -121,22 +121,14 @@ With close method.
   // close
   aergoClient.close();
 
-With jdk7 try-with-resources pattern.
+Since java 7, you can use try-with-resources block to close aergo client.
 
 .. code-block:: java
 
-  // autoclose
-  try (AergoClient autoClose = new AergoClientBuilder()
+  // try-with-resources block
+  try (AergoClient aergoClient = new AergoClientBuilder()
       .withEndpoint("localhost:7845")
-      .withBlockingConnect()
-      .withTimeout(10000L, TimeUnit.MILLISECONDS)
       .build()) {
 
     // ... do some operations
   }
-
-
-
-.. _Netty: https://netty.io/
-.. _OkHttp: https://square.github.io/okhttp/
-.. _PKCS8: https://en.wikipedia.org/wiki/PKCS_8

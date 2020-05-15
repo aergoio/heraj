@@ -3,165 +3,97 @@ TrasactionOperation
 
 Provides transaction related operations.
 
-Make a transaction
-------------------
+Get Transaction
+---------------
 
-We provide step-builder pattern for transactions.
-
-PlainTransaction
-^^^^^^^^^^^^^^^^
+Get transaction info. It returns null if no corresponding one.
 
 .. code-block:: java
 
-  AergoKey aergoKey = new AergoKeyGenerator().create();
-  RawTransaction plainTransaction = RawTransaction.newBuilder()
-      .chainIdHash(ChainIdHash.of(BytesValue.EMPTY))
-      .from(aergoKey.getAddress())
-      .to(aergoKey.getAddress())
-      .amount(Aer.AERGO_ONE)
-      .nonce(1L)
-      .fee(Fee.ZERO)
-      .payload(BytesValue.of("payload".getBytes()))
-      .build();
+  TxHash txHash = TxHash.of("39vLyMqsg1mTT9mF5NbADgNB2YUiRVsT6SUkDujBZme8");
+  Transaction transaction = client.getTransactionOperation().getTransaction(txHash);
+  System.out.println("Transaction: " + transaction);
 
-DeployContractTransaction
-^^^^^^^^^^^^^^^^^^^^^^^^^
+Get Transaction Receipt
+-----------------------
+
+Get receipt of transaction. It returns null if no corresponding one.
 
 .. code-block:: java
 
-  TODO
+  TxHash txHash = TxHash.of("39vLyMqsg1mTT9mF5NbADgNB2YUiRVsT6SUkDujBZme8");
+  TxReceipt txReceipt = client.getTransactionOperation().getTxReceipt(txHash);
+  System.out.println("Transaction receipt: " + txReceipt);
 
-InvokeContractTransaction
-^^^^^^^^^^^^^^^^^^^^^^^^^
+Commit
+------
 
-.. code-block:: java
-
-  TODO
-
-ReDeployContractTransaction
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-It works on private mode only.
+Commit a signed transaction. For more about making transaction, see :doc:`Transaction <../model/transaction>`.
 
 .. code-block:: java
 
-  TODO
+  // get chain id hash
+  ChainIdHash chainIdHash = client.getBlockchainOperation().getChainIdHash();
 
-CreateNameTransaction
-^^^^^^^^^^^^^^^^^^^^^
+  // prepare signer
+  AergoKey signer = richKey;
 
-.. code-block:: java
-
-  TODO
-
-UpdateNameTransaction
-^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: java
-
-  TODO
-
-StakeTransaction
-^^^^^^^^^^^^^^^^
-
-.. code-block:: java
-
-  TODO
-
-UnStakeTransaction
-^^^^^^^^^^^^^^^^^^
-
-.. code-block:: java
-
-  TODO
-
-VoteTransaction
-^^^^^^^^^^^^^^^
-
-.. code-block:: java
-
-  TODO
-
-Commit Transaction
-------------------
-
-.. code-block:: java
-
-  AergoKey aergoKey = new AergoKeyGenerator().create();
+  // make a transaction
+  long nonce = nonceProvider.incrementAndGetNonce(signer.getAddress());
   RawTransaction rawTransaction = RawTransaction.newBuilder()
-      .chainIdHash(ChainIdHash.of(BytesValue.EMPTY))
-      .from(aergoKey.getAddress())
-      .to(aergoKey.getAddress())
+      .chainIdHash(chainIdHash)
+      .from(signer.getAddress())
+      .to(signer.getAddress())
       .amount(Aer.AERGO_ONE)
-      .nonce(1L)
+      .nonce(nonce)
       .fee(Fee.ZERO)
-      .payload(BytesValue.of("payload".getBytes()))
+      .payload(BytesValue.of("contract_payload".getBytes()))
       .build();
-  Transaction signed = aergoKey.sign(rawTransaction);
-  TxHash commited = client.getTransactionOperation().commit(signed);
 
-Get transaction Info
---------------------
+  // sign raw transaction
+  Transaction transaction = signer.sign(rawTransaction);
 
-Get transaction by hash. It returns transaction in both mempool and state db.
+  // commit signed one
+  TxHash txHash = client.getTransactionOperation().commit(transaction);
+  System.out.println("Commit tx hash: " + txHash);
 
-.. code-block:: java
+Send
+----
 
-  TxHash txHash = TxHash.of("EGXNDgjY2vQ6uuP3UF3dNXud54dF4FNVY181kaeQ26H9");
-  Transaction getResult = client.getTransactionOperation().getTransaction(txHash);
+Make a transaction which sends aergo.
 
-Get Payload Info
-----------------
-
-You can parse specific payload information from transaction.
-
-ContractDefinitionPayload
-^^^^^^^^^^^^^^^^^^^^^^^^^
+By address.
 
 .. code-block:: java
 
-  TODO
+  // prepare signer
+  AergoKey signer = richKey;
 
-ContractInvocationPayload
-^^^^^^^^^^^^^^^^^^^^^^^^^
+  // make a send transaction
+  AccountAddress accountAddress = AccountAddress
+      .of("AmNrsAqkXhQfE6sGxTutQkf9ekaYowaJFLekEm8qvDr1RB1AnsiM");
+  long nonce = nonceProvider.incrementAndGetNonce(signer.getAddress());
+  TxHash txHash = client.getTransactionOperation()
+      .sendTx(signer, accountAddress, Aer.ONE, nonce, Fee.INFINITY, BytesValue.EMPTY);
+  System.out.println("Send tx hash: " + txHash);
 
-.. code-block:: java
-
-  PayloadConverter<ContractInvocation> invocationConverter = new ContractInvocationPayloadConverter();
-  BytesValue payload = ...;
-  ContractInvocation parsedInvocation = invocationConverter.parseToModel(payload);
-
-CreateNamePayload
-^^^^^^^^^^^^^^^^^
-
-.. code-block:: java
-
-  TODO
-
-UpdateNamePayload
-^^^^^^^^^^^^^^^^^
+By name.
 
 .. code-block:: java
 
-  TODO
+  // prepare signer
+  AergoKey signer = richKey;
 
-StakePayload
-^^^^^^^^^^^^
+  // create an name
+  Name name = randomName();
+  long nonce1 = nonceProvider.incrementAndGetNonce(signer.getAddress());
+  client.getAccountOperation().createNameTx(signer, name, nonce1);
 
-.. code-block:: java
+  // sleep
+  Thread.sleep(2000L);
 
-  TODO
-
-UnStakePayload
-^^^^^^^^^^^^^^
-
-.. code-block:: java
-
-  TODO
-
-VotePayload
-^^^^^^^^^^^
-
-.. code-block:: java
-
-  TODO
+  // make a send transaction
+  long nonce2 = nonceProvider.incrementAndGetNonce(signer.getAddress());
+  TxHash txHash = client.getTransactionOperation()
+      .sendTx(signer, name, Aer.ONE, nonce2, Fee.INFINITY, BytesValue.EMPTY);
+  System.out.println("Send tx hash: " + txHash);
