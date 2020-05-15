@@ -3,27 +3,6 @@ BlockOperation
 
 Provides block related operations.
 
-Get Block
----------
-
-Get block. It returns null if no corresponding one.
-
-By Hash.
-
-.. code-block:: java
-
-  BlockHash blockHash = BlockHash.of("DN9TvryaThbJneSpzaXp5ZsS4gE3UMzKfaXC4x8L5qR1");
-  Block block = client.getBlockOperation().getBlock(blockHash);
-  System.out.println("Block by hash: " + block);
-
-By Height.
-
-.. code-block:: java
-
-  long height = 27_066_653L;
-  Block block = client.getBlockOperation().getBlock(height);
-  System.out.println("Block by height: " + block);
-
 Get Block Metadata
 ------------------
 
@@ -70,35 +49,26 @@ By Height.
       .listBlockMetadatas(height, 100);
   System.out.println("Block metadatas by height: " + blockMetadatas);
 
-Block Subscription
-------------------
+Get Block
+---------
 
-Subscribe new generated block.
+Get block. It returns null if no corresponding one.
+
+By Hash.
 
 .. code-block:: java
 
-  // make a subscription
-  Subscription<Block> subscription = client.getBlockOperation()
-      .subscribeBlock(new StreamObserver<Block>() {
-        @Override
-        public void onNext(Block value) {
-          System.out.println("Next block: " + value);
-        }
+  BlockHash blockHash = BlockHash.of("DN9TvryaThbJneSpzaXp5ZsS4gE3UMzKfaXC4x8L5qR1");
+  Block block = client.getBlockOperation().getBlock(blockHash);
+  System.out.println("Block by hash: " + block);
 
-        @Override
-        public void onError(Throwable t) {
-        }
+By Height.
 
-        @Override
-        public void onCompleted() {
-        }
-      });
+.. code-block:: java
 
-  // wait for a while
-  Thread.sleep(2000L);
-
-  // unsubscribe it
-  subscription.unsubscribe();
+  long height = 27_066_653L;
+  Block block = client.getBlockOperation().getBlock(height);
+  System.out.println("Block by height: " + block);
 
 Block Metadata Subscription
 ---------------------------
@@ -118,6 +88,36 @@ Subscribe new generated block metadata.
         @Override
         public void onError(Throwable t) {
 
+        }
+
+        @Override
+        public void onCompleted() {
+        }
+      });
+
+  // wait for a while
+  Thread.sleep(2000L);
+
+  // unsubscribe it
+  subscription.unsubscribe();
+
+Block Subscription
+------------------
+
+Subscribe new generated block.
+
+.. code-block:: java
+
+  // make a subscription
+  Subscription<Block> subscription = client.getBlockOperation()
+      .subscribeBlock(new StreamObserver<Block>() {
+        @Override
+        public void onNext(Block value) {
+          System.out.println("Next block: " + value);
+        }
+
+        @Override
+        public void onError(Throwable t) {
         }
 
         @Override

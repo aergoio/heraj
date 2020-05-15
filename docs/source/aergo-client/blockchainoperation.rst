@@ -43,27 +43,6 @@ Get chain statistics of current node.
   ChainStats chainStats = client.getBlockchainOperation().getChainStats();
   System.out.println("Chain stats: " + chainStats);
 
-Get Node Status
----------------
-
-Get node status of current node.
-
-.. code-block:: java
-
-  NodeStatus nodeStatus = client.getBlockchainOperation().getNodeStatus();
-  System.out.println("Node status: " + nodeStatus);
-
-Get Server Info
----------------
-
-Get server info of current node. Category is not implemented yet.
-
-.. code-block:: java
-
-  List<String> categories = emptyList();
-  ServerInfo serverInfo = client.getBlockchainOperation().getServerInfo(categories);
-  System.out.println("Server info: " + serverInfo);
-
 List Peers
 ----------
 
@@ -92,3 +71,24 @@ List peers metrics of current node.
 
   List<PeerMetric> peerMetrics = client.getBlockchainOperation().listPeerMetrics();
   System.out.println("PeerMetrics: " + peerMetrics);
+
+Get Server Info
+---------------
+
+Get server info of current node. Category is not implemented yet.
+
+.. code-block:: java
+
+  List<String> categories = emptyList();
+  ServerInfo serverInfo = client.getBlockchainOperation().getServerInfo(categories);
+  System.out.println("Server info: " + serverInfo);
+
+Get Node Status
+---------------
+
+Get node status of current node.
+
+.. code-block:: java
+
+  NodeStatus nodeStatus = client.getBlockchainOperation().getNodeStatus();
+  System.out.println("Node status: " + nodeStatus);
