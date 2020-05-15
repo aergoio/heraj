@@ -85,4 +85,9 @@ public class SimpleNonceProvider implements NonceProvider {
     }
   }
 
+  @Override
+  public String toString() {
+    return String.format("SimpleNonceProvider(entries=%s)", cache.asMap());
+  }
+
 }

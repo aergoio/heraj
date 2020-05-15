@@ -134,14 +134,14 @@ class WalletApiImpl extends AbstractApi implements WalletApi, Signer {
   }
 
   @Override
-  public String toString() {
-    return String.format("WalletApi(keyStore=%s, principal=%s)", keyStore.getClass().getName(),
-        getPrincipal());
+  public AccountAddress getPrincipal() {
+    return this.proxySigner.isUnlocked() ? this.proxySigner.getUnlocked().getPrincipal() : null;
   }
 
   @Override
-  public AccountAddress getPrincipal() {
-    return this.proxySigner.isUnlocked() ? this.proxySigner.getUnlocked().getPrincipal() : null;
+  public String toString() {
+    return String.format("WalletApiImpl(keyStore=%s, principal=%s)", keyStore.getClass().getName(),
+        getPrincipal());
   }
 
 }

@@ -6,6 +6,7 @@ package hera.contract;
 
 import static hera.util.ValidationUtils.assertNotNull;
 
+import hera.api.model.ContractAddress;
 import hera.client.AergoClient;
 import hera.key.Signer;
 import lombok.AccessLevel;
@@ -16,7 +17,10 @@ import lombok.RequiredArgsConstructor;
 class ContractApiImpl<ContractT> implements ContractApi<ContractT>, PreparedContractApi<ContractT> {
 
   @NonNull
-  protected final ContractT proxyInstance;
+  protected final ContractAddress contractAddress;
+
+  @NonNull
+  protected final ContractT proxy;
 
   @NonNull
   protected final ContractInvocationHandler proxyInvocationHandler;
@@ -29,15 +33,20 @@ class ContractApiImpl<ContractT> implements ContractApi<ContractT>, PreparedCont
   }
 
   @Override
-  public ContractT execution(Signer signer) {
+  public ContractT execution(final Signer signer) {
     assertNotNull(signer, "Signer must not null");
     proxyInvocationHandler.prepareSigner(signer);
-    return proxyInstance;
+    return proxy;
   }
 
   @Override
   public ContractT query() {
-    return proxyInstance;
+    return proxy;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("ContractApiImpl(contractAddress=%s, proxy=%s)", contractAddress, proxy);
   }
 
 }

@@ -90,9 +90,9 @@ public class ContractApiFactory {
         new SimpleNonceProvider());
     final ContractInvocationHandler handler = new ContractInvocationHandler(contractAddress,
         txRequester);
-    final ContractT contract = (ContractT) Proxy
+    final ContractT proxy = (ContractT) Proxy
         .newProxyInstance(classLoader, new Class<?>[]{type}, handler);
-    return new ContractApiImpl<>(contract, handler);
+    return new ContractApiImpl<>(contractAddress, proxy, handler);
   }
 
 }
