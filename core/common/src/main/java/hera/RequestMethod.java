@@ -150,7 +150,7 @@ public abstract class RequestMethod<T> {
   @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
   @ToString
   @EqualsAndHashCode
-  private static class PlainInvocation<T> implements Invocation<T> {
+  private class PlainInvocation<T> implements Invocation<T> {
 
     @Getter
     protected final RequestMethod<T> requestMethod;

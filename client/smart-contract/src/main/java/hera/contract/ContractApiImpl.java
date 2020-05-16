@@ -46,7 +46,7 @@ class ContractApiImpl<ContractT> implements ContractApi<ContractT>, PreparedCont
 
   @Override
   public String toString() {
-    return String.format("ContractApiImpl(contractAddress=%s, proxy=%s)", contractAddress, proxy);
+    return String.format("ContractApiImpl(contractAddress=%s)", contractAddress);
   }
 
 }
