@@ -1,7 +1,7 @@
 Contract Definition
 ===================
 
-Contract Definition is a model for contract definition written in lua. For more details, see `Programming Guide <https://docs.aergo.io/en/latest/smart-contracts/lua/guide.html>`_.
+Contract Definition is a model for contract definition written in lua. For more about writing lua smart contract, see `Programming Guide <https://docs.aergo.io/en/latest/smart-contracts/lua/guide.html>`_.
 
 Make
 ----
@@ -10,7 +10,7 @@ Without args.
 
 .. code-block:: java
 
-  // made by aergoluac --compiledContract {some_contract}.lua
+  // made by aergoluac --payload {some_contract}.lua
   String encodedContract = contractPayload;
 
   // make a contract definition
@@ -23,7 +23,7 @@ With args.
 
 .. code-block:: java
 
-  // made by aergoluac --compiledContract {some_contract}.lua
+  // made by aergoluac --payload {some_contract}.lua
   String encodedContract = contractPayload;
 
   // make a contract definition
@@ -37,7 +37,7 @@ With args and amount.
 
 .. code-block:: java
 
-  // made by aergoluac --compiledContract {some_contract}.lua
+  // made by aergoluac --payload {some_contract}.lua
   String encodedContract = contractPayload;
 
   // make a contract definition

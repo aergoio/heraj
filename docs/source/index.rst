@@ -13,6 +13,6 @@ Currently, there is heraj, herajs, and herapy. They all implement similar API bu
    introduction/index
    model/index
    aergo-client/index
-   wallet-api/index
-   contract-api/index
+   wallet/index
+   contract/index
    examples/index

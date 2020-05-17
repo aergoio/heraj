@@ -16,7 +16,7 @@ For more about making contract definition, see :doc:`ContractDefinition <../mode
 
   AergoKey signer = richKey;
 
-  // made by aergoluac --compiledContract {some_contract}.lua
+  // made by aergoluac --payload {some_contract}.lua
   String encodedContract = contractPayload;
 
   // make a contract definition
@@ -56,7 +56,7 @@ Re-deploy to an already deployed one. It replaces contract logic while keeping c
   // prepare signer
   AergoKey signer = richKey;
 
-  // made by aergoluac --compiledContract {some_contract}.lua
+  // made by aergoluac --payload {some_contract}.lua
   String encodedContract = contractPayload;
 
   // make a contract definition

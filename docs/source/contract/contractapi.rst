@@ -1,12 +1,42 @@
-Usage
-=====
+Contract Api
+============
 
-ContractApi provides java interface based smart contract call. To use it, you have to deploy smart contract and write corresponding interface for it. ContractApi automatically fill nonce for signer. It commit fails by nonce error, it automatically fetch right nonce and retry with it.
+ContractApi provides java interface based smart contract call. ContractApi automatically fill nonce for signer. It commit fails by nonce error, it automatically fetch right nonce and retry with it.
 
-Make
-----
+Prepare
+-------
 
-Deploy a contract.
+To use contract api, first you have to deploy smart contract. Then, write an interface corresponding to smart contract functions.
+
+Write a smart contract. For more about writing lua smart contract, see `Programming Guide <https://docs.aergo.io/en/latest/smart-contracts/lua/guide.html>`_.
+
+.. code-block:: lua
+
+  function constructor(key, arg1, arg2)
+    if key ~= nil then
+      system.setItem(key, {intVal=arg1, stringVal=arg2})
+    end
+  end
+
+  function set(key, arg1, arg2)
+    contract.event("set", key, arg1, arg2)
+    system.setItem(key, {intVal=arg1, stringVal=arg2})
+  end
+
+  function get(key)
+    return system.getItem(key)
+  end
+
+  function check_delegation()
+    return true
+  end
+
+  abi.register_view(get)
+  abi.register(set)
+  abi.fee_delegation(set)
+  abi.payable(set)
+
+Deploy smart contract.
 
 .. code-block:: java
 
@@ -118,6 +148,11 @@ Write an interface. Interface methods should matches with smart contract functio
           '}';
     }
   }
+
+Make
+----
+
+Given deployed smart contract and an java interface to use it, you can make a contract api for it.
 
 Make a contract api with implicit retry count and interval on nonce failure.
 

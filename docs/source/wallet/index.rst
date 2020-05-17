@@ -1,5 +1,5 @@
-Wallet Api
-==========
+Wallet
+======
 
 .. toctree::
    :maxdepth: 1
