@@ -1,6 +1,6 @@
 # Change Log
 
-## Next
+## v1.4.1 (May 18, 2020)
 
 - Compatibility
   - Aergo : TBD

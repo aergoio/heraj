@@ -10,9 +10,10 @@ Follow [successful git branch model](https://nvie.com/posts/a-successful-git-bra
 2. Check protobuf version tag to target aergo version and update it if necessary.
 3. Check annotations `CHANGELOG.MD` and docs.
 4. Change aergo version of test (in `./test/aergo.properties`) and integration test with it.
-5. Update version to x.x.x in `gradle.properties`, `README.md` && `git commit -m "Prepare for vx.x.x" && git push origin`.
-6. If 5 success in travis ci, `git tag vx.x.x && git push origin vx.x.x`
-7. Upload to bintray central.
+5. Update version to x.x.x in `gradle.properties`, `README.md` and `CHANGELOG.MD`.
+6. `git add . && git commit -m "Prepare for vx.x.x" && git push origin`
+7. If 5 success in travis ci, `git tag vx.x.x && git push origin vx.x.x`
+8. Upload to bintray central.
 
     ```sh
     # make sure bintray info(systemProp.bintrayUser, systemProp.bintrayKey)
@@ -26,13 +27,13 @@ Follow [successful git branch model](https://nvie.com/posts/a-successful-git-bra
     > ./gradlew deploy
     ```
 
-8. Upload heraj-x.x.x-all.jar file to releases.
+9. Upload heraj-x.x.x-all.jar file to releases.
 
     ```sh
     # Making heraj-x.x.x-all.jar
     > ./gradlew clean shadowJar
     ```
 
-9. `git checkout master && git merge release/vx.x.x`
-10. `git checkout develop && git merge release/vx.x.x`
-11. Update version to x.x.x-SNAPSHOT in gradle.properties and `git commit -m "Start new version" && git push origin"`
+10. `git checkout master && git merge release/vx.x.x`
+11. `git checkout develop && git merge release/vx.x.x`
+12. Update version to x.x.x-SNAPSHOT in gradle.properties and `git commit -m "Start new version" && git push origin"`

@@ -10,7 +10,7 @@ This repository, heraj is java implementation for hera.
 
 ## Latest
 
-v1.4.0
+v1.4.1
 
 build with aergo-protobuf [6ce439c7600ae7b167c6c61e66ce2ac38bb2bef9](https://github.com/aergoio/aergo-protobuf/commits/6ce439c7600ae7b167c6c61e66ce2ac38bb2bef9)
 
