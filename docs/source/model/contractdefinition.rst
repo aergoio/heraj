@@ -1,7 +1,7 @@
-Contract Definition
-===================
+ContractDefinition
+==================
 
-Contract Definition is a model for contract definition written in lua. For more about writing lua smart contract, see `Programming Guide <https://docs.aergo.io/en/latest/smart-contracts/lua/guide.html>`_.
+ContractDefinition is a model for contract written in lua. For more about writing lua smart contract, see `Programming Guide <https://docs.aergo.io/en/latest/smart-contracts/lua/guide.html>`_.
 
 Make
 ----

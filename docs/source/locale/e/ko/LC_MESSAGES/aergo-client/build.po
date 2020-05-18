@@ -1,0 +1,103 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, aergo team and contributors
+# This file is distributed under the same license as the heraj package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: heraj \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-05-17 17:03+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: ../../source/aergo-client/build.rst:2
+msgid "Build"
+msgstr ""
+
+#: ../../source/aergo-client/build.rst:4
+msgid ""
+"You can build aergo client with configurations. A configuration for a "
+"same purpose will be overridden."
+msgstr "Aergo client를 builder를 사용해서 설정할 수 있습니다. 같은 목적을 가진 다른 설정은 overridden됩니다."
+
+#: ../../source/aergo-client/build.rst:15
+msgid "Endpoint"
+msgstr ""
+
+#: ../../source/aergo-client/build.rst:17
+msgid ""
+"You can configure aergo node endpoint to connect. Default is "
+"localhost:7845."
+msgstr "연결할 노드의 endpoint를 설정할 수 있습니다. 디폴트는 localhost:7845 입니다."
+
+#: ../../source/aergo-client/build.rst:27
+msgid "Connect Strategy"
+msgstr ""
+
+#: ../../source/aergo-client/build.rst:29
+msgid "You can configure a strategy to connect."
+msgstr "연결 전략을 설정할 수 있습니다."
+
+#: ../../source/aergo-client/build.rst:31
+msgid "Non-Blocking connection uses netty internally."
+msgstr "Non-Blocking 연결은 내부적으로 netty를 사용합니다."
+
+#: ../../source/aergo-client/build.rst:41
+msgid "Blocking connection uses okhttp internally."
+msgstr "Blocking 연결은 내부적ㅈ으로 okhttp를 사용합니다."
+
+#: ../../source/aergo-client/build.rst:52
+msgid "Connect Type"
+msgstr ""
+
+#: ../../source/aergo-client/build.rst:54
+msgid "Connect with plaintext. This is default behavior."
+msgstr "Plaintext로 연결합니다. 별도 동작이 없는 경우 plaintext로 설정됩니다."
+
+#: ../../source/aergo-client/build.rst:64
+msgid "Connect with tls. Note that client key must be PKCS8 format."
+msgstr "Tls로 연결합니다. client key는 pkcs8형식이어야 합니다."
+
+#: ../../source/aergo-client/build.rst:80
+msgid "Retry"
+msgstr ""
+
+#: ../../source/aergo-client/build.rst:82
+msgid ""
+"You can configure retry count on any kind of failure. It just retry the "
+"same request with an interval."
+msgstr ""
+"client로 하는 연산들에 해새 재시도 횟수를 설정할 수 있습니다. "
+"실패할 경우 설정된 기간만큼 기다렸다가 같은 인자로 재시도합니다."
+
+#: ../../source/aergo-client/build.rst:92
+msgid "Timeout"
+msgstr ""
+
+#: ../../source/aergo-client/build.rst:94
+msgid "You can configure timeout without any response for each request."
+msgstr "client로 하는 연산들에 대해 timeout을 설정할 수 있습니다."
+
+#: ../../source/aergo-client/build.rst:104
+msgid "Close"
+msgstr ""
+
+#: ../../source/aergo-client/build.rst:106
+msgid "Close an aergo client. You have to close it to prevent memory leak."
+msgstr "Aergo client를 close합니다. Memory leak을 방지하기 위해서 필요합니다."
+
+#: ../../source/aergo-client/build.rst:108
+msgid "You can close aergo client by calling close method."
+msgstr "close method를 직접 호출함으로써 close할 수 있습니다."
+
+#: ../../source/aergo-client/build.rst:124
+msgid "Since java 7, you can use try-with-resources block to close aergo client."
+msgstr "Java 7 이후 나온 try-with-resources 구문을 사용해서 close 할 수 도 있습니다."
+

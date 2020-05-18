@@ -1,0 +1,99 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, aergo team and contributors
+# This file is distributed under the same license as the heraj package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: heraj \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-05-17 17:03+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: ../../source/aergo-client/blockchainoperation.rst:2
+msgid "BlockchainOperation"
+msgstr ""
+
+#: ../../source/aergo-client/blockchainoperation.rst:4
+msgid "Provides blockchain, node related operations."
+msgstr "Blockchain과 Node에 관계되어 있는 연산을 제공합니다."
+
+#: ../../source/aergo-client/blockchainoperation.rst:7
+msgid "Get Chain Id Hash"
+msgstr ""
+
+#: ../../source/aergo-client/blockchainoperation.rst:9
+msgid "Get chain id hash of current node."
+msgstr "현재 연결되어 있는 node의 chain id hash를 조회합니다."
+
+#: ../../source/aergo-client/blockchainoperation.rst:17
+msgid "Get Blockchain Status"
+msgstr ""
+
+#: ../../source/aergo-client/blockchainoperation.rst:19
+msgid "Get blockchain status of current node."
+msgstr "현재 연결되어 있는 node의 blockchain 상태를 조회합니다."
+
+#: ../../source/aergo-client/blockchainoperation.rst:27
+msgid "Get Chain Info"
+msgstr ""
+
+#: ../../source/aergo-client/blockchainoperation.rst:29
+msgid "Get chain info of current node."
+msgstr "현재 연결되어 있는 node의 chain 정보를 조회합니다."
+
+#: ../../source/aergo-client/blockchainoperation.rst:37
+msgid "Get Chain Stats"
+msgstr ""
+
+#: ../../source/aergo-client/blockchainoperation.rst:39
+msgid "Get chain statistics of current node."
+msgstr "현재 연결되어 있는 node의 chain 상태를 조회합니다."
+
+#: ../../source/aergo-client/blockchainoperation.rst:47
+msgid "List Peers"
+msgstr ""
+
+#: ../../source/aergo-client/blockchainoperation.rst:49
+msgid "List peers of current node."
+msgstr "현재 연결되어 있는 node의 peer정보를 조회합니다."
+
+#: ../../source/aergo-client/blockchainoperation.rst:51
+msgid "Filtering itself and hidden."
+msgstr "자기 자신과 hidden peer를 제외하고 조회합니다."
+
+#: ../../source/aergo-client/blockchainoperation.rst:58
+msgid "Not filtering itself and hidden."
+msgstr "자기 자신과 hidden peer를 제외하지 않고 조회합니다."
+
+#: ../../source/aergo-client/blockchainoperation.rst:66
+msgid "List Peers Metrics"
+msgstr ""
+
+#: ../../source/aergo-client/blockchainoperation.rst:68
+msgid "List peers metrics of current node."
+msgstr "현재 연결되어 있는 node의 peer 상태를 조회합니다."
+
+#: ../../source/aergo-client/blockchainoperation.rst:76
+msgid "Get Server Info"
+msgstr ""
+
+#: ../../source/aergo-client/blockchainoperation.rst:78
+msgid "Get server info of current node. Category is not implemented yet."
+msgstr "현재 연결되어 있는 node의 서버 정보를 조회합니다. Category는 아직 구현되어 있지 않습니다."
+
+#: ../../source/aergo-client/blockchainoperation.rst:87
+msgid "Get Node Status"
+msgstr ""
+
+#: ../../source/aergo-client/blockchainoperation.rst:89
+msgid "Get node status of current node."
+msgstr "현재 연결되어 있는 node자체의 상태를 조회합니다."
+

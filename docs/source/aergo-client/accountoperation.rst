@@ -70,6 +70,8 @@ At current block.
   AccountAddress nameOwner = client.getAccountOperation().getNameOwner(name);
   System.out.println("Nonce owner: " + nameOwner);
 
+At specific block.
+
 .. code-block:: java
 
   // get name owner at block 3

@@ -1,7 +1,9 @@
 Wallet Api
 ==========
 
-WalletApi is an interface to interact with :doc:`KeyStore <./keystore>`. It provides unlocking and locking account. It also provides high-level api using aergo client. WalletApi automatically fill nonce for signer. It commit fails by nonce error, it automatically fetch right nonce and retry with it.
+WalletApi is an interface to interact with :doc:`KeyStore <./keystore>`. It provides unlocking and locking account. It also provides high-level api using aergo client. For TransactionApi, WalletApi automatically fill nonce for signer. It commit fails by nonce error, it automatically fetch right nonce and retry with it.
+
+WalletApi can have only single unlocked account. If you unlock some account and unlock another account using same WalletApi, previous one is automatically locked.
 
 Create
 ------
@@ -66,7 +68,7 @@ By unlocking account, you can use unlocked account when making transaction.
 High Level Api
 --------------
 
-WalletApi provides high level api for interacting with aergo node. To use TransactionApi, you have to unlock some account. Query api doesn't need unlocked one.
+WalletApi provides high level api for interacting with aergo node. To use TransactionApi, you have to unlock some account. QueryApi doesn't need unlocked one.
 
 .. code-block:: java
 

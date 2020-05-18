@@ -1,0 +1,84 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, aergo team and contributors
+# This file is distributed under the same license as the heraj package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: heraj \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-05-18 15:09+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: ../../source/wallet/walletapi.rst:2
+msgid "Wallet Api"
+msgstr ""
+
+#: ../../source/wallet/walletapi.rst:4
+msgid ""
+"WalletApi is an interface to interact with :doc:`KeyStore <./keystore>`. "
+"It provides unlocking and locking account. It also provides high-level "
+"api using aergo client. For TransactionApi, WalletApi automatically fill "
+"nonce for signer. It commit fails by nonce error, it automatically fetch "
+"right nonce and retry with it."
+msgstr ""
+"WalletApi는 :doc:`KeyStore <./keystore>` 와 상호작용하는 기능을 제공합니다. WalletApi를 "
+"사용해서 keystore에 저장되어 있는 key에 대한 unlock, lock을 할 수 있습니다. WalletApi는 또한 "
+"aergo client를 사용하는 high-level api를 제공합니다. TransactionApi의 경우 nonce 실패일 때 "
+"자동으로 최신 nonce를 가져와서 재시도를 합니다."
+
+#: ../../source/wallet/walletapi.rst:6
+msgid ""
+"WalletApi can have only single unlocked account. If you unlock some "
+"account and unlock another account using same WalletApi, previous one is "
+"automatically locked."
+msgstr ""
+"WalletApi는 한번에 하나의 unlock된 계정만 가질 수 있습니다. "
+"만약 한개의 계정을 unlock한 후 다른 계정을 unlock하면 이전의 계정은 자동으로 lock됩니다."
+
+#: ../../source/wallet/walletapi.rst:9
+msgid "Create"
+msgstr ""
+
+#: ../../source/wallet/walletapi.rst:11
+msgid "To create WalletApi, you need KeyStore."
+msgstr "WalletApi를 만들기 위해서는 KeyStore가 필요합니다."
+
+#: ../../source/wallet/walletapi.rst:13
+msgid "With implicit retry count and interval on nonce failure."
+msgstr "nonce 실패 시 재시도 횟수와 간격을 명시적으로 설정해서 생성."
+
+#: ../../source/wallet/walletapi.rst:24
+msgid "With explicit retry count and interval on nonce failure."
+msgstr "nonce 실패 시 재시도 횟수와 간격을 기본 설정으로 해서 생성."
+
+#: ../../source/wallet/walletapi.rst:38
+msgid "Unlock and Lock"
+msgstr ""
+
+#: ../../source/wallet/walletapi.rst:40
+msgid ""
+"By unlocking account, you can use unlocked account when making "
+"transaction."
+msgstr "Unlock을 함으로써 해당 계정으로 transaction을 발생시킬 수 있습니다."
+
+#: ../../source/wallet/walletapi.rst:69
+msgid "High Level Api"
+msgstr ""
+
+#: ../../source/wallet/walletapi.rst:71
+msgid ""
+"WalletApi provides high level api for interacting with aergo node. To use"
+" TransactionApi, you have to unlock some account. QueryApi doesn't need "
+"unlocked one."
+msgstr ""
+"WalletApi는 aergo node와 상호작용 하기 위한 high-level api를 제공합니다. TransactionApi를 "
+"사용하기 위해서는 계정을 unlock해야합니다. QueryApi는 별도의 unlock된 계정이 필요하지 않습니다."
+

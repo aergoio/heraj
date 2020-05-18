@@ -6,7 +6,7 @@ ContractApi provides java interface based smart contract call. ContractApi autom
 Prepare
 -------
 
-To use contract api, first you have to deploy smart contract. Then, write an interface corresponding to smart contract functions.
+To use ContractApi, first you have to deploy smart contract. Then, write an interface corresponding to smart contract functions.
 
 Write a smart contract. For more about writing lua smart contract, see `Programming Guide <https://docs.aergo.io/en/latest/smart-contracts/lua/guide.html>`_.
 
@@ -152,9 +152,9 @@ Write an interface. Interface methods should matches with smart contract functio
 Make
 ----
 
-Given deployed smart contract and an java interface to use it, you can make a contract api for it.
+Given deployed smart contract and an java interface to use it, you can make a ContractApi for it.
 
-Make a contract api with implicit retry count and interval on nonce failure.
+Make a ContractApi with implicit retry count and interval on nonce failure.
 
 .. code-block:: java
 
@@ -164,7 +164,7 @@ Make a contract api with implicit retry count and interval on nonce failure.
       .create(contractAddress, CustomInterface1.class);
   System.out.println("ContractApi: " + contractApi);
 
-Make a contract api with explicit retry count and interval on nonce failure.
+Make a ContractApi with explicit retry count and interval on nonce failure.
 
 .. code-block:: java
 
@@ -178,7 +178,7 @@ Make a contract api with explicit retry count and interval on nonce failure.
 Execute
 -------
 
-With an aergo key.
+With an AergoKey.
 
 .. code-block:: java
 
@@ -195,7 +195,7 @@ With an aergo key.
       .set("key", 123, "test", Fee.INFINITY);
   System.out.println("Execute tx hash: " + executeTxHash);
 
-With a wallet api.
+With a WalletApi.
 
 .. code-block:: java
 

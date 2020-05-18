@@ -1,0 +1,294 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, aergo team and contributors
+# This file is distributed under the same license as the heraj package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: heraj \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-05-18 15:44+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: ../../source/wallet/queryapi.rst:2
+msgid "Query Api"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:4
+msgid ""
+"QueryApi provides high-level api for querying state from aergo node. It "
+"doesn't need unlocked account."
+msgstr "QueryApi는 조회를 위한 high-level api를 제공합니다. 별도의 unlock된 계정이 필요하지 않습니다."
+
+#: ../../source/wallet/queryapi.rst:7
+msgid "Get Account State"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:9
+msgid "Get account state."
+msgstr "계정의 상태 조회."
+
+#: ../../source/wallet/queryapi.rst:21
+msgid "Get Name Owner"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:23
+msgid "Get name owner."
+msgstr "이름의 소유 계정을 조회합니다."
+
+#: ../../source/wallet/queryapi.rst:25
+msgid "At current block."
+msgstr "현재 블록 기준으로 조회합니다."
+
+#: ../../source/wallet/queryapi.rst:34
+msgid "At specific block."
+msgstr "특정 블록 기준으로 조회합니다."
+
+#: ../../source/wallet/queryapi.rst:44
+msgid "Get Stake Info"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:46
+msgid "Get stake info of an account."
+msgstr "계정의 staking 정보를 조회합니다."
+
+#: ../../source/wallet/queryapi.rst:57
+msgid "List Elected Bps"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:59
+msgid "Get elected block producers."
+msgstr "Block producers로 선정된 후보 노드들을 조회합니다."
+
+#: ../../source/wallet/queryapi.rst:68
+msgid "List Elected"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:70
+msgid "Get elected candidates for vote id."
+msgstr "Vote id에 해당되는 투표 결과를 조회합니다."
+
+#: ../../source/wallet/queryapi.rst:80
+msgid "Get Vote Info"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:82
+msgid "Get vote info of an account."
+msgstr "계정의 투표 정보를 조회합니다."
+
+#: ../../source/wallet/queryapi.rst:93
+msgid "Get Best Block Hash"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:95
+msgid "Get best block hash."
+msgstr "현재 node의 최고 블록의 해쉬를 조회합니다."
+
+#: ../../source/wallet/queryapi.rst:104
+msgid "Get Best Block Height"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:106
+msgid "Get best block height."
+msgstr "현재 node의 최고 블록의 높이를 조회합니다."
+
+#: ../../source/wallet/queryapi.rst:115
+msgid "Get Chain Id Hash"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:117
+msgid "Get chain id hash of blockchain."
+msgstr "현재 연결되어 있는 node의 chain id hash를 조회합니다."
+
+#: ../../source/wallet/queryapi.rst:126
+msgid "Get Blockchain Status"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:128
+msgid "Get blockchain status."
+msgstr "현재 연결되어 있는 node의 blockchain 상태를 조회합니다."
+
+#: ../../source/wallet/queryapi.rst:137
+msgid "Get Chain Info"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:139
+msgid "Get chain info of current node."
+msgstr "현재 연결되어 있는 node의 chain 정보를 조회합니다."
+
+#: ../../source/wallet/queryapi.rst:148
+msgid "Get Chain Stats"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:150
+msgid "Get chain statistics of current node."
+msgstr "현재 연결되어 있는 node의 chain 상태를 조회합니다."
+
+#: ../../source/wallet/queryapi.rst:159
+msgid "List Peers"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:161
+msgid "List peers of current node."
+msgstr "현재 연결되어 있는 node의 peer정보를 조회합니다."
+
+#: ../../source/wallet/queryapi.rst:163
+msgid "Filtering hidden peers and itself."
+msgstr "자기 자신과 hidden peer를 제외하고 조회합니다."
+
+#: ../../source/wallet/queryapi.rst:171
+msgid "Not filtering hidden peers and itself."
+msgstr "자기 자신과 hidden peer를 제외하지 않고 조회합니다."
+
+#: ../../source/wallet/queryapi.rst:180
+msgid "List Peer Metrics"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:182
+msgid "List peers metrics of current node."
+msgstr "현재 연결되어 있는 node의 peer 상태를 조회합니다."
+
+#: ../../source/wallet/queryapi.rst:191
+msgid "Get Server Info"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:193
+msgid "Get server info of current node. Category is not implemented yet."
+msgstr "현재 연결되어 있는 node의 서버 정보를 조회합니다. Category는 아직 구현되어 있지 않습니다."
+
+#: ../../source/wallet/queryapi.rst:203
+msgid "Get Node Status"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:205
+msgid "Get node status of current node."
+msgstr "현재 연결되어 있는 node자체의 상태를 조회합니다."
+
+#: ../../source/wallet/queryapi.rst:214
+msgid "Get Block Metadata"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:216
+msgid "Get block metadata. It returns null if no corresponding one."
+msgstr "Block의 메타정보를 조회합니다. 해당되는 정보가 없는 경우 null을 리턴합니다."
+
+#: ../../source/wallet/queryapi.rst:218 ../../source/wallet/queryapi.rst:241
+#: ../../source/wallet/queryapi.rst:266
+msgid "By hash."
+msgstr "해쉬를 사용해서 조회."
+
+#: ../../source/wallet/queryapi.rst:227 ../../source/wallet/queryapi.rst:251
+#: ../../source/wallet/queryapi.rst:275
+msgid "By height."
+msgstr "높이를 사용해서 조회."
+
+#: ../../source/wallet/queryapi.rst:237
+msgid "List Block Metadata"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:239
+msgid "Get block metadatas. Size maximum is 1000."
+msgstr "Block의 메타정보들을 조회합니다. 한번에 조회할 수 있는 최고 크기는 1000입니다."
+
+#: ../../source/wallet/queryapi.rst:262
+msgid "Get Block"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:264
+msgid "Get block. It returns null if no corresponding one."
+msgstr "Block정보를 조회합니다. 해당되는 정보가 없을 경우 null을 리턴합니다."
+
+#: ../../source/wallet/queryapi.rst:285
+msgid "Block Metadata Subscription"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:287
+msgid "Subscribe new generated block metadata."
+msgstr "새롭게 생성된 Block 메타정보를 구독합니다."
+
+#: ../../source/wallet/queryapi.rst:316
+msgid "Block Subscription"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:318
+msgid "Subscribe new generated block."
+msgstr "새롭게 생성된 Block 정보를 구독합니다."
+
+#: ../../source/wallet/queryapi.rst:346
+msgid "Get Transaction"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:348
+msgid "Get transaction info. It returns null if no corresponding one."
+msgstr "Transaction 정보를 조회합니다. 해당되는 정보가 없을 경우 null을 리턴합니다."
+
+#: ../../source/wallet/queryapi.rst:358
+msgid "Get Transaction Receipt"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:360
+msgid "Get receipt of transaction. It returns null if no corresponding one."
+msgstr "Transaction의 영수증을 조회합니다. 해당되는 정보가 없을 경우 null을 리턴합니다."
+
+#: ../../source/wallet/queryapi.rst:370
+msgid "Get Contract Tx Receipt"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:372
+msgid "Get contract tx receipt. It returns null if no corresponding one."
+msgstr "contract tx에 대한 영수증을 조회합니다. 해당되는 정보가 없을 경우 null을 리턴합니다."
+
+#: ../../source/wallet/queryapi.rst:383
+msgid "Get Contract Interface"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:385
+msgid "Get contract interface. It returns null if no corresponding one."
+msgstr "contract에 대한 interface를 조회합니다. 해당되는 정보가 없을 경우 null을 리턴합니다."
+
+#: ../../source/wallet/queryapi.rst:397
+msgid "Query Contract"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:399
+msgid ""
+"Get state of contract. It can be binded to an java bean. For more about "
+"making contract invocation, see :doc:`ContractInvocation "
+"<../model/contractinvocation>`."
+msgstr ""
+"배포되어 있는 contract의 상태를 조회합니다. "
+"Contract invocation에 대해 더 자세히 알고 싶으시면 다음의 문서를 참고하세요 "
+":doc:`ContractInvocation <../model/contractinvocation>`."
+
+#: ../../source/wallet/queryapi.rst:417
+msgid "List Event"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:419
+msgid ""
+"Get event infos at some block. For more about making event filter, see "
+":doc:`EventFilter <../model/eventfilter>`."
+msgstr ""
+"특정 block에 발생한 event정보를 조회합니다. "
+"Event filter에 대해 더 자세히 알고 싶으시면 다음의 문서를 참고하세요 "
+":doc:`EventFilter <../model/eventfilter>`."
+
+#: ../../source/wallet/queryapi.rst:434
+msgid "Event Subscription"
+msgstr ""
+
+#: ../../source/wallet/queryapi.rst:436
+msgid ""
+"Subscribe new generated event of specific contract. For more about making"
+" event filter, see :doc:`EventFilter <../model/eventfilter>`."
+msgstr ""
+"새롭게 발행하는 event정보를 구독합니다. "
+"Event filter에 대해 더 자세히 알고 싶으시면 다음의 문서를 참고하세요 "
+":doc:`EventFilter <../model/eventfilter>`."

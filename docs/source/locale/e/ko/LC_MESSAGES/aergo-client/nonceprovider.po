@@ -1,0 +1,88 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, aergo team and contributors
+# This file is distributed under the same license as the heraj package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: heraj \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-05-17 17:03+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: ../../source/aergo-client/nonceprovider.rst:2
+msgid "NonceProvider"
+msgstr ""
+
+#: ../../source/aergo-client/nonceprovider.rst:4
+msgid ""
+"NonceProvider is an interface for providing nonce to be used in making "
+"transaction. Heraj provides SimpleNonceProvider. It's thread-safe and has"
+" capacity to prevent memory leak. It remove least recently used value on "
+"adding new nonce value on full capacity."
+msgstr ""
+"NonceProvider는 nonce를 저장하고 새로 사용할 값을 제공해주는 interface입니다. "
+"Heraj는 thread-safe하고 memmory leak을 방지하는 기능을 "
+"가지고 있는 SimpleNonceProvider를 제공합니다. "
+"SimpleNonceProvider는 용량이 가득찼을 때 새로운 값이 들어오는 경우 "
+"가장 오래 전에 사용된 주소에 해당하는 값을 삭제합니다."
+
+#: ../../source/aergo-client/nonceprovider.rst:7
+msgid "Create"
+msgstr ""
+
+#: ../../source/aergo-client/nonceprovider.rst:9
+msgid "Create a SimpleNonceProvider."
+msgstr "SimpleNonceProvider를 생성합니다."
+
+#: ../../source/aergo-client/nonceprovider.rst:11
+msgid "With explicit capacity."
+msgstr "저장 용량을 지정해서 생성합니다."
+
+#: ../../source/aergo-client/nonceprovider.rst:18
+msgid "With implicit capacity."
+msgstr "저장 용량을 지정하지 않고 생성합니다."
+
+#: ../../source/aergo-client/nonceprovider.rst:26
+msgid "Bind"
+msgstr ""
+
+#: ../../source/aergo-client/nonceprovider.rst:28
+msgid ""
+"Bind nonce for an address. If capacity is full, least recently used "
+"address will be removed."
+msgstr ""
+"계정의 주소에 해당하는 nonce를 설정합니다. "
+"용량이 가득찬 경우 가장 오래 전에 사용된 주소에 해당하는 정보가 삭제됩니다."
+
+#: ../../source/aergo-client/nonceprovider.rst:30
+msgid "For address."
+msgstr "주소를 가지고 설정합니다."
+
+#: ../../source/aergo-client/nonceprovider.rst:40
+msgid "Using account state. It binds nonce for corresponding state."
+msgstr "계정 상태를 가지고 설정합니다. 계정의 상태에 들어있는 주소로 설정됩니다."
+
+#: ../../source/aergo-client/nonceprovider.rst:51
+msgid "Use"
+msgstr ""
+
+#: ../../source/aergo-client/nonceprovider.rst:53
+msgid "Increment and get nonce. It's thread-safe."
+msgstr "nonce를 증가시키고 새롭게 사용할 값을 리턴합니다. 이 연산은 thread-safe합니다."
+
+#: ../../source/aergo-client/nonceprovider.rst:62
+msgid "Get last used nonce."
+msgstr "가장 최근에 사용된 nonce값을 리턴합니다."
+
+#: ../../source/aergo-client/nonceprovider.rst:72
+msgid "Example"
+msgstr ""
+

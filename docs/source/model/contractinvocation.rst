@@ -1,7 +1,7 @@
-Contract Invocation
-===================
+ContractInvocation
+==================
 
-Contract Invocation is a model for smart contract invocation. It can be both execution or query. You need a ContractInterface to make an new ContractInvocation.
+ContractInvocation is a model for smart contract invocation. It can be both execution or query. You need a ContractInterface to make an new ContractInvocation.
 
 Make
 ----

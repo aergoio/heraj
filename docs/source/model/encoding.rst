@@ -1,17 +1,17 @@
 Encoding
 ========
 
-Heraj provides encoding/decoding for bytesvalue. Supported type is
+Heraj provides encoding/decoding for BytesValue. Supported type is
 
 - Hex
 - Base58
-- Base58 With Checksum
+- Base58 with Checksum
 - Base64
 
 Encode
 ------
 
-To hex.
+To Hex.
 
 .. code-block:: java
 
@@ -19,7 +19,7 @@ To hex.
   String encoded = bytesValue.getEncoded(Encoder.Hex);
   System.out.println(encoded)
 
-To base58.
+To Base58.
 
 .. code-block:: java
 
@@ -27,7 +27,7 @@ To base58.
   String encoded = bytesValue.getEncoded(Encoder.Base58);
   System.out.println(encoded);
 
-To base58 with checksum.
+To Base58 with Checksum.
 
 .. code-block:: java
 
@@ -35,7 +35,7 @@ To base58 with checksum.
   String encoded = bytesValue.getEncoded(Encoder.Base58Check);
   System.out.println(encoded);
 
-To base64.
+To Base64.
 
 .. code-block:: java
 
@@ -46,7 +46,7 @@ To base64.
 Decode
 ------
 
-From hex.
+From Hex.
 
 .. code-block:: java
 
@@ -54,7 +54,7 @@ From hex.
   BytesValue bytesValue = BytesValue.of(encoded, Decoder.Hex);
   System.out.println(bytesValue);
 
-From base58.
+From Base58.
 
 .. code-block:: java
 
@@ -62,7 +62,7 @@ From base58.
   BytesValue bytesValue = BytesValue.of(encoded, Decoder.Base58);
   System.out.println(bytesValue);
 
-From base58 with checksum.
+From Base58 with Checksum.
 
 .. code-block:: java
 
@@ -70,7 +70,7 @@ From base58 with checksum.
   BytesValue bytesValue = BytesValue.of(encoded, Decoder.Base58Check);
   System.out.println(bytesValue);
 
-From base64.
+From Base64.
 
 .. code-block:: java
 
@@ -82,7 +82,7 @@ From base64.
 Example
 -------
 
-Read signature in base64.
+Read signature in Base64.
 
 .. code-block:: java
 

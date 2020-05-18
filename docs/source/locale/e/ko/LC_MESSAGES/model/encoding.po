@@ -1,0 +1,91 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, aergo team and contributors
+# This file is distributed under the same license as the heraj package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: heraj \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-05-17 17:03+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: ../../source/model/encoding.rst:2
+msgid "Encoding"
+msgstr ""
+
+#: ../../source/model/encoding.rst:4
+msgid "Heraj provides encoding/decoding for BytesValue. Supported type is"
+msgstr "Heraj는 BytesValue에 대한 encoding/decoding을 제공합니다. 제공되는 타입은 다음과 같습니다."
+
+#: ../../source/model/encoding.rst:6
+msgid "Hex"
+msgstr ""
+
+#: ../../source/model/encoding.rst:7
+msgid "Base58"
+msgstr ""
+
+#: ../../source/model/encoding.rst:8
+msgid "Base58 with Checksum"
+msgstr ""
+
+#: ../../source/model/encoding.rst:9
+msgid "Base64"
+msgstr ""
+
+#: ../../source/model/encoding.rst:12
+msgid "Encode"
+msgstr ""
+
+#: ../../source/model/encoding.rst:14
+msgid "To Hex."
+msgstr "Hex로 encoding."
+
+#: ../../source/model/encoding.rst:22
+msgid "To Base58."
+msgstr "Base58로 encoding."
+
+#: ../../source/model/encoding.rst:30
+msgid "To Base58 with Checksum."
+msgstr "Base58 with Checksum으로 encoding."
+
+#: ../../source/model/encoding.rst:38
+msgid "To Base64."
+msgstr "Base64로 encoding."
+
+#: ../../source/model/encoding.rst:47
+msgid "Decode"
+msgstr ""
+
+#: ../../source/model/encoding.rst:49
+msgid "From Hex."
+msgstr "Hex형식의 문자열을 decoding."
+
+#: ../../source/model/encoding.rst:57
+msgid "From Base58."
+msgstr "Base58형식의 문자열을 decoding."
+
+#: ../../source/model/encoding.rst:65
+msgid "From Base58 with Checksum."
+msgstr "Base58 with Checksum형식의 문자열을 decoding."
+
+#: ../../source/model/encoding.rst:73
+msgid "From Base64."
+msgstr "Base64형식의 문자열을 decoding."
+
+#: ../../source/model/encoding.rst:83
+msgid "Example"
+msgstr ""
+
+#: ../../source/model/encoding.rst:85
+msgid "Read signature in Base64."
+msgstr "Base64로 인코딩된 서명을 읽음."
+

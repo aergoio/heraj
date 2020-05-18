@@ -1,0 +1,114 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, aergo team and contributors
+# This file is distributed under the same license as the heraj package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: heraj \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-05-18 13:52+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: ../../source/aergo-client/accountoperation.rst:2
+msgid "AccountOperation"
+msgstr ""
+
+#: ../../source/aergo-client/accountoperation.rst:4
+msgid "Provides account related operations."
+msgstr "계정과 관련되어 있는 연산들을 제공합니다."
+
+#: ../../source/aergo-client/accountoperation.rst:7
+msgid "Get Account State"
+msgstr ""
+
+#: ../../source/aergo-client/accountoperation.rst:9
+msgid "Get state of account."
+msgstr "계정의 상태 조회."
+
+#: ../../source/aergo-client/accountoperation.rst:19
+msgid "Create Name"
+msgstr ""
+
+#: ../../source/aergo-client/accountoperation.rst:21
+msgid "Create name which owns by a transaction signer."
+msgstr "Transaction을 서명한 계정의 소유가 되는 이름을 생성."
+
+#: ../../source/aergo-client/accountoperation.rst:35
+msgid "Update Name"
+msgstr ""
+
+#: ../../source/aergo-client/accountoperation.rst:37
+msgid "Update name owner to new account. It should be done by origin name owner."
+msgstr "이미 생성되어 있는 이름의 소유권을 다른 계정으로 넘김. 이 연산은 원래 소유자만 할 수 있습니다."
+
+#: ../../source/aergo-client/accountoperation.rst:60
+msgid "Get Name Owner"
+msgstr ""
+
+#: ../../source/aergo-client/accountoperation.rst:62
+msgid "Get name owner."
+msgstr "이름의 소유 계정을 조회합니다."
+
+#: ../../source/aergo-client/accountoperation.rst:64
+msgid "At current block."
+msgstr "현재 블록 기준으로 조회합니다."
+
+#: ../../source/aergo-client/accountoperation.rst:73
+msgid "At specific block."
+msgstr "특정 블록 기준으로 조회합니다."
+
+#: ../../source/aergo-client/accountoperation.rst:83
+msgid "Stake"
+msgstr ""
+
+#: ../../source/aergo-client/accountoperation.rst:85
+msgid "Stake an aergo."
+msgstr "Aergo를 staking합니다."
+
+#: ../../source/aergo-client/accountoperation.rst:99
+msgid "Unstake"
+msgstr ""
+
+#: ../../source/aergo-client/accountoperation.rst:101
+msgid "UnStake an aergo."
+msgstr "Staking되어 있는 Aergo를 UnStaking합니다."
+
+#: ../../source/aergo-client/accountoperation.rst:115
+msgid "Get Stake Info"
+msgstr ""
+
+#: ../../source/aergo-client/accountoperation.rst:117
+msgid "Get stake info of an account."
+msgstr "계정의 staking 정보를 조회합니다."
+
+#: ../../source/aergo-client/accountoperation.rst:127
+msgid "Vote"
+msgstr ""
+
+#: ../../source/aergo-client/accountoperation.rst:129
+msgid "Vote candidate to a vote id."
+msgstr "Vote id에 해당되는 candidate에 투표합니다."
+
+#: ../../source/aergo-client/accountoperation.rst:143
+msgid "Get Vote of Account"
+msgstr ""
+
+#: ../../source/aergo-client/accountoperation.rst:145
+msgid "Get vote info of an account."
+msgstr "계정의 투표 정보를 조회합니다."
+
+#: ../../source/aergo-client/accountoperation.rst:155
+msgid "Get Vote Result"
+msgstr ""
+
+#: ../../source/aergo-client/accountoperation.rst:157
+msgid "Get vote result for vote id."
+msgstr "Vote id에 해당되는 투표 결과를 조회합니다."

@@ -1,0 +1,90 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, aergo team and contributors
+# This file is distributed under the same license as the heraj package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: heraj \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-05-17 17:03+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: ../../source/model/transaction.rst:2
+msgid "Transaction"
+msgstr ""
+
+#: ../../source/model/transaction.rst:4
+msgid ""
+"Transaction is a atomic unit of blockchain. Almost all operation is done "
+"on transaction."
+msgstr ""
+"Transaction은 blockchain의 가장 작은 단위입니다. 거의 모든 연산이 transaction을 통해서 이루어집니다."
+
+#: ../../source/model/transaction.rst:7
+msgid "Make a transaction"
+msgstr ""
+
+#: ../../source/model/transaction.rst:9
+msgid "Heraj provides dsl for making aergo transaction."
+msgstr "Heraj는 aergo transaction을 만들기 위한 dsl을 제공합니다."
+
+#: ../../source/model/transaction.rst:12
+msgid "Plain Transaction"
+msgstr ""
+
+#: ../../source/model/transaction.rst:32
+msgid "Deploy Contract Transaction"
+msgstr ""
+
+#: ../../source/model/transaction.rst:58
+msgid "Invoke Contract Transaction"
+msgstr ""
+
+#: ../../source/model/transaction.rst:84
+msgid "Redeploy Contract"
+msgstr ""
+
+#: ../../source/model/transaction.rst:112
+msgid "Create Name"
+msgstr ""
+
+#: ../../source/model/transaction.rst:129
+msgid "Update Name"
+msgstr ""
+
+#: ../../source/model/transaction.rst:147
+msgid "Stake"
+msgstr ""
+
+#: ../../source/model/transaction.rst:164
+msgid "Unstake"
+msgstr ""
+
+#: ../../source/model/transaction.rst:181
+msgid "Vote"
+msgstr ""
+
+#: ../../source/model/transaction.rst:199
+msgid "Parse Payload to Model"
+msgstr ""
+
+#: ../../source/model/transaction.rst:201
+msgid ""
+"Heraj also provides utilis for parsing payload to heraj model. Currnetly "
+"ContractInvocation is supported only."
+msgstr ""
+"Heraj는 특정 연산을 발생시키기 위한 transaction의 payload형식을 parsing하는 유틸을 제공합니다. "
+"현재는 ContractInvocation만 지원됩니다."
+
+#: ../../source/model/transaction.rst:204
+msgid "Contract Invocation"
+msgstr ""
+

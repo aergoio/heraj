@@ -1,0 +1,41 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, aergo team and contributors
+# This file is distributed under the same license as the heraj package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: heraj \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-05-17 17:03+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: ../../source/index.rst:9
+msgid "User Documentation"
+msgstr ""
+
+#: ../../source/index.rst:2
+msgid "Welcome to heraj's documentation!"
+msgstr "heraj 메뉴얼에 오신 것을 환영합니다!"
+
+#: ../../source/index.rst:4
+msgid ""
+"Heraj is the Java implementation of hera. What's hera? Hera is a goddess "
+"from ancient Greek mythology who protects the `Argo "
+"<https://en.wikipedia.org/wiki/Argo>`_ ship. We use the name hera for all"
+" the aergo clients. Currently, there is heraj, herajs, and herapy. They "
+"all implement similar API but with language-specific different styles."
+msgstr ""
+"Heraj는 heraj의 Java 구현체입니다. Hera는 고대 그리스 신화에서 "
+"`Argo <https://en.wikipedia.org/wiki/Argo>`_ 배의 축복을 빌어준 여신입니다. "
+"Aergo project에서는 client에 대해 hera 접두사를 사용합니다. "
+"현재는 heraj, herajs, herapy가 있습니다. "
+"각 client들은 비슷한 api를 각기 언어에 맞는 형식으로 제공합니다."
+

@@ -1,0 +1,115 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, aergo team and contributors
+# This file is distributed under the same license as the heraj package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: heraj \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-05-17 17:03+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: ../../source/contract/contractapi.rst:2
+msgid "Contract Api"
+msgstr ""
+
+#: ../../source/contract/contractapi.rst:4
+msgid ""
+"ContractApi provides java interface based smart contract call. "
+"ContractApi automatically fill nonce for signer. It commit fails by nonce"
+" error, it automatically fetch right nonce and retry with it."
+msgstr ""
+"ContractApi는 java interface로 contract call을 할 수 있는 기능을 제공합니다. "
+"실행 할 때 ContractApi는 자동으로 nonce를 채워줍니다. "
+"nonce에러로 실패할 경우 올바른 nonce를 조회한 후 그 nonce로 재시도합니다."
+
+#: ../../source/contract/contractapi.rst:7
+msgid "Prepare"
+msgstr ""
+
+#: ../../source/contract/contractapi.rst:9
+msgid ""
+"To use ContractApi, first you have to deploy smart contract. Then, write"
+" an interface corresponding to smart contract functions."
+msgstr ""
+"ContractApi를 사용하기 위해서, 우선 smart contract를 배포해야 합니다. "
+"그 후 smart contract의 함수에 해당하는 interface를 작성하면 됩니다."
+
+#: ../../source/contract/contractapi.rst:11
+msgid ""
+"Write a smart contract. For more about writing lua smart contract, see "
+"`Programming Guide <https://docs.aergo.io/en/latest/smart-"
+"contracts/lua/guide.html>`_."
+msgstr ""
+"smart contract를 작성합니다. "
+"작성 방법에 대해 더 자세히 알고 싶으시면 다음의 문서를 참고하시면 됩니다 "
+"`Programming Guide <https://docs.aergo.io/en/latest/smart-"
+"contracts/lua/guide.html>`_."
+
+#: ../../source/contract/contractapi.rst:39
+msgid "Deploy smart contract."
+msgstr "smart contract를 배포합니다."
+
+#: ../../source/contract/contractapi.rst:66
+msgid ""
+"Write an interface. Interface methods should matches with smart contract "
+"functions."
+msgstr "interface를 작성합니다. method 이름은 smart contract의 함수와 일치해야 합니다."
+
+#: ../../source/contract/contractapi.rst:153
+msgid "Make"
+msgstr ""
+
+#: ../../source/contract/contractapi.rst:155
+msgid ""
+"Given deployed smart contract and an java interface to use it, you can "
+"make a ContractApi for it."
+msgstr ""
+"배포된 smart contract와 해당되는 interface를 사용하면 ContractApi를 만들 수 있습니다."
+
+#: ../../source/contract/contractapi.rst:157
+msgid ""
+"Make a ContractApi with implicit retry count and interval on nonce "
+"failure."
+msgstr ""
+"nonce 실패 시 재시도 횟수와 간격을 명시적으로 설정해서 생성."
+
+#: ../../source/contract/contractapi.rst:167
+msgid ""
+"Make a ContractApi with explicit retry count and interval on nonce "
+"failure."
+msgstr ""
+"nonce 실패 시 재시도 횟수와 간격을 기본 설정으로 해서 생성."
+
+#: ../../source/contract/contractapi.rst:179
+msgid "Execute"
+msgstr ""
+
+#: ../../source/contract/contractapi.rst:181
+msgid "With an AergoKey."
+msgstr "AergoKey를 사용해서 실행."
+
+#: ../../source/contract/contractapi.rst:198
+msgid "With a WalletApi."
+msgstr "WalletApi를 사용해서 실행."
+
+#: ../../source/contract/contractapi.rst:215
+msgid "Query"
+msgstr ""
+
+#: ../../source/contract/contractapi.rst:217
+msgid "With a model binded."
+msgstr "Binging할 model을 사용해서 실행."
+
+#: ../../source/contract/contractapi.rst:230
+msgid "Without binded model."
+msgstr "Binging할 model을 사용하지 않고 실행."
+

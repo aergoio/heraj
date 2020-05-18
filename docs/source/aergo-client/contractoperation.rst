@@ -10,7 +10,7 @@ Deploy smart contract. Normally, deployment process is
 
 deploy -> wait for confirm -> get contract tx receipt -> find a contract address -> get contract interface
 
-For more about making contract definition, see :doc:`ContractDefinition <../model/contract-definition>`.
+For more about making contract definition, see :doc:`ContractDefinition <../model/contractdefinition>`.
 
 .. code-block:: java
 
@@ -49,7 +49,7 @@ For more about making contract definition, see :doc:`ContractDefinition <../mode
 Re-Deploy
 ---------
 
-Re-deploy to an already deployed one. It replaces contract logic while keeping contract state. This operations is available private mode only. For more about making contract definition, see :doc:`ContractDefinition <../model/contract-definition>`.
+Re-deploy to an already deployed one. It replaces contract logic while keeping contract state. This operations is available private mode only. For more about making contract definition, see :doc:`ContractDefinition <../model/contractdefinition>`.
 
 .. code-block:: java
 
@@ -100,7 +100,7 @@ Get contract interface. It returns null if no corresponding one.
 Execute
 -------
 
-Execute contract function of already deployed one. For more about making contract invocation, see :doc:`ContractInvocation <../model/contract-invocation>`.
+Execute contract function of already deployed one. For more about making contract invocation, see :doc:`ContractInvocation <../model/contractinvocation>`.
 
 .. code-block:: java
 
@@ -123,7 +123,7 @@ Execute contract function of already deployed one. For more about making contrac
 Query
 -----
 
-Get state of contract. It can be binded to an java bean. For more about making contract invocation, see :doc:`ContractInvocation <../model/contract-invocation>`.
+Get state of contract. It can be binded to an java bean. For more about making contract invocation, see :doc:`ContractInvocation <../model/contractinvocation>`.
 
 .. code-block:: java
 
@@ -175,7 +175,7 @@ Get state of contract. It can be binded to an java bean. For more about making c
 List Event
 ----------
 
-Get event infos at some block. For more about making event filter, see :doc:`EventFilter <../model/event-filter>`.
+Get event infos at some block. For more about making event filter, see :doc:`EventFilter <../model/eventfilter>`.
 
 .. code-block:: java
 
@@ -191,7 +191,7 @@ Get event infos at some block. For more about making event filter, see :doc:`Eve
 Event Subscription
 ------------------
 
-Subscribe new generated event of specific contract. For more about making event filter, see :doc:`EventFilter <../model/event-filter>`.
+Subscribe new generated event of specific contract. For more about making event filter, see :doc:`EventFilter <../model/eventfilter>`.
 
 .. code-block:: java
 

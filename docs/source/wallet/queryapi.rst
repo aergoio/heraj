@@ -20,7 +20,7 @@ Get account state.
 Get Name Owner
 --------------
 
-Get name owner at specific block.
+Get name owner.
 
 At current block.
 
@@ -238,16 +238,6 @@ List Block Metadata
 
 Get block metadatas. Size maximum is 1000.
 
-By Hash.
-
-.. code-block:: java
-
-  // block metadatas by from hash to previous 100 block
-  BlockHash blockHash = BlockHash.of("DN9TvryaThbJneSpzaXp5ZsS4gE3UMzKfaXC4x8L5qR1");
-  List<BlockMetadata> blockMetadatas = client.getBlockOperation()
-      .listBlockMetadatas(blockHash, 100);
-  System.out.println("Block metadatas by hash: " + blockMetadatas);
-
 By hash.
 
 .. code-block:: java
@@ -406,7 +396,7 @@ Get contract interface. It returns null if no corresponding one.
 Query Contract
 --------------
 
-Get state of contract. It can be binded to an java bean. For more about making contract invocation, see :doc:`ContractInvocation <../model/contract-invocation>`.
+Get state of contract. It can be binded to an java bean. For more about making contract invocation, see :doc:`ContractInvocation <../model/contractinvocation>`.
 
 .. code-block:: java
 
@@ -426,7 +416,7 @@ Get state of contract. It can be binded to an java bean. For more about making c
 List Event
 ----------
 
-Get event infos at some block. For more about making event filter, see :doc:`EventFilter <../model/event-filter>`.
+Get event infos at some block. For more about making event filter, see :doc:`EventFilter <../model/eventfilter>`.
 
 .. code-block:: java
 
@@ -443,7 +433,7 @@ Get event infos at some block. For more about making event filter, see :doc:`Eve
 Event Subscription
 ------------------
 
-Subscribe new generated event of specific contract. For more about making event filter, see :doc:`EventFilter <../model/event-filter>`.
+Subscribe new generated event of specific contract. For more about making event filter, see :doc:`EventFilter <../model/eventfilter>`.
 
 .. code-block:: java
 

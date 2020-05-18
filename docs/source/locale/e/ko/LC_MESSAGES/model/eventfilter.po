@@ -1,0 +1,47 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, aergo team and contributors
+# This file is distributed under the same license as the heraj package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: heraj \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-05-17 17:03+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: ../../source/model/event-filter.rst:2
+msgid "EventFilter"
+msgstr ""
+
+#: ../../source/model/event-filter.rst:4
+msgid ""
+"Aergo smart contract has event. It can be occured in specific block. "
+"Heraj provides api for querying event with a filtering."
+msgstr ""
+"Aergo smart contract에는 각 블록에 발생여부가 등록되는 event가 있습니다. "
+"Heraj는 이러한 이벤트를 filter를 사용해서 조회하는 기능을 제공합니다."
+
+#: ../../source/model/event-filter.rst:7
+msgid "Make"
+msgstr ""
+
+#: ../../source/model/event-filter.rst:9
+msgid "With block bumber."
+msgstr "Block number filter 설정."
+
+#: ../../source/model/event-filter.rst:22
+msgid "Of recent block."
+msgstr "최근 block filter 설정."
+
+#: ../../source/model/event-filter.rst:35
+msgid "By event name and args."
+msgstr "Event 이름과 인자로 filter 설정."
+

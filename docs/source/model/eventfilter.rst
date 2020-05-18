@@ -1,5 +1,5 @@
-Event Filter
-============
+EventFilter
+===========
 
 Aergo smart contract has event. It can be occured in specific block. Heraj provides api for querying event with a filtering.
 

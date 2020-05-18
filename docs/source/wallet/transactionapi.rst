@@ -103,7 +103,7 @@ Send
 
 Send aergo with unlocked one.
 
-Send without contract_payload to address.
+Send without payload to address.
 
 .. code-block:: java
 
@@ -120,7 +120,7 @@ Send without contract_payload to address.
   // lock an account
   walletApi.lock();
 
-Send with contract_payload to address.
+Send with payload to address.
 
 .. code-block:: java
 
@@ -138,7 +138,7 @@ Send with contract_payload to address.
   // lock an account
   walletApi.lock();
 
-Send without contract_payload to name.
+Send without payload to name.
 
 .. code-block:: java
 
@@ -160,7 +160,7 @@ Send without contract_payload to name.
   // lock an account
   walletApi.lock();
 
-Send with contract_payload to name.
+Send with payload to name.
 
 .. code-block:: java
 
@@ -242,7 +242,7 @@ Commit signed transaction.
 Deploy
 ------
 
-Deploy with unlocked one. For more about making contract definition, see :doc:`ContractDefinition <../model/contract-definition>`.
+Deploy with unlocked one. For more about making contract definition, see :doc:`ContractDefinition <../model/contractdefinition>`.
 
 .. code-block:: java
 
@@ -279,7 +279,7 @@ Deploy with unlocked one. For more about making contract definition, see :doc:`C
 Re-Deploy
 ---------
 
-Redeploy with unlocked one. This operations is valid for private node only. For more about making contract definition, see :doc:`ContractDefinition <../model/contract-definition>`.
+Redeploy with unlocked one. This operations is valid for private node only. For more about making contract definition, see :doc:`ContractDefinition <../model/contractdefinition>`.
 
 .. code-block:: java
 
@@ -306,7 +306,7 @@ Redeploy with unlocked one. This operations is valid for private node only. For 
 Execute
 -------
 
-Deploy with unlocked one. For more about making contract invocation, see :doc:`ContractInvocation <../model/contract-invocation>`.
+Deploy with unlocked one. For more about making contract invocation, see :doc:`ContractInvocation <../model/contractinvocation>`.
 
 .. code-block:: java
 

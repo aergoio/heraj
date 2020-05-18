@@ -1,0 +1,146 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, aergo team and contributors
+# This file is distributed under the same license as the heraj package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: heraj \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-05-18 13:21+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: ../../source/wallet/transactionapi.rst:2
+msgid "Transaction Api"
+msgstr ""
+
+#: ../../source/wallet/transactionapi.rst:4
+msgid ""
+"TransactionApi provides high-level api for making transaction. It uses "
+"unlocked account when making transaction."
+msgstr ""
+"TransactionApi는 transaction생성을 위한 high-level api를 제공합니다. "
+"transaction생성을 위해서는 unlock된 계정이 필요합니다."
+
+#: ../../source/wallet/transactionapi.rst:7
+msgid "Create Name"
+msgstr ""
+
+#: ../../source/wallet/transactionapi.rst:9
+msgid "Create name with unlocked one."
+msgstr "Unlock된 계정으로 이름 생성을 할 수 있습니다."
+
+#: ../../source/wallet/transactionapi.rst:24
+msgid "Update Name"
+msgstr ""
+
+#: ../../source/wallet/transactionapi.rst:26
+msgid "Update name with unlocked one."
+msgstr "Unlock된 계정으로 이름 소유권 전송을 할 수 있습니다."
+
+#: ../../source/wallet/transactionapi.rst:50
+msgid "Stake"
+msgstr ""
+
+#: ../../source/wallet/transactionapi.rst:52
+msgid "Stake with unlocked one."
+msgstr "Unlock된 계정으로 staking을 할 수 있습니다."
+
+#: ../../source/wallet/transactionapi.rst:67
+msgid "Unstake"
+msgstr ""
+
+#: ../../source/wallet/transactionapi.rst:69
+msgid "Unstake with unlocked one."
+msgstr "Unlock된 계정으로 unstaking을 할 수 있습니다."
+
+#: ../../source/wallet/transactionapi.rst:84
+msgid "Vote"
+msgstr ""
+
+#: ../../source/wallet/transactionapi.rst:86
+msgid "Vote with unlocked one."
+msgstr "Unlock된 계정으로 투표를 할 수 있습니다."
+
+#: ../../source/wallet/transactionapi.rst:102
+msgid "Send"
+msgstr ""
+
+#: ../../source/wallet/transactionapi.rst:104
+msgid "Send aergo with unlocked one."
+msgstr "Unlock된 계정으로 aergo 전송을 할 수 있습니다."
+
+#: ../../source/wallet/transactionapi.rst:106
+msgid "Send without payload to address."
+msgstr "Payload없이 주소를 통해 전송."
+
+#: ../../source/wallet/transactionapi.rst:123
+msgid "Send with payload to address."
+msgstr "Payload와 함께 주소를 통해 전송."
+
+#: ../../source/wallet/transactionapi.rst:141
+msgid "Send without payload to name."
+msgstr "Payload없이 이름을 통해 전송."
+
+#: ../../source/wallet/transactionapi.rst:163
+msgid "Send with payload to name."
+msgstr "Payload와 함께 이름을 통해 전송."
+
+#: ../../source/wallet/transactionapi.rst:187
+msgid "Commit"
+msgstr ""
+
+#: ../../source/wallet/transactionapi.rst:189
+msgid "Sign with unlocked one and commit it."
+msgstr "Unlock된 계정으로 서명을 한 후 commit을 할 수 있습니다."
+
+#: ../../source/wallet/transactionapi.rst:215
+msgid "Commit signed transaction."
+msgstr "서명된 transaction으로 commit을 할 수 있습니다."
+
+#: ../../source/wallet/transactionapi.rst:243
+msgid "Deploy"
+msgstr ""
+
+#: ../../source/wallet/transactionapi.rst:245
+msgid ""
+"Deploy with unlocked one. For more about making contract definition, see "
+":doc:`ContractDefinition <../model/contractdefinition>`."
+msgstr ""
+"Unlock된 계정으로 contract 배포를 할 수 있습니다."
+"contract definition에 대해 더 자세히 알고 싶으시면 다음의 문서를 참고하세요 "
+":doc:`ContractDefinition <../model/contractdefinition>`."
+
+#: ../../source/wallet/transactionapi.rst:280
+msgid "Re-Deploy"
+msgstr ""
+
+#: ../../source/wallet/transactionapi.rst:282
+msgid ""
+"Redeploy with unlocked one. This operations is valid for private node "
+"only. For more about making contract definition, see "
+":doc:`ContractDefinition <../model/contractdefinition>`."
+msgstr ""
+"Unlock된 계정으로 contract 재배포를 할 수 있습니다."
+"contract definition에 대해 더 자세히 알고 싶으시면 다음의 문서를 참고하세요 "
+":doc:`ContractDefinition <../model/contractdefinition>`."
+
+#: ../../source/wallet/transactionapi.rst:307
+msgid "Execute"
+msgstr ""
+
+#: ../../source/wallet/transactionapi.rst:309
+msgid ""
+"Deploy with unlocked one. For more about making contract invocation, see "
+":doc:`ContractInvocation <../model/contractinvocation>`."
+msgstr ""
+"Unlock된 계정으로 contract 실행을 할 수 있습니다."
+"contract invocation에 대해 더 자세히 알고 싶으시면 다음의 문서를 참고하세요 "
+":doc:`ContractInvocation <../model/contractinvocation>`."

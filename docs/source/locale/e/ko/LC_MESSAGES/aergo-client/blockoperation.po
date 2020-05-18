@@ -1,0 +1,79 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, aergo team and contributors
+# This file is distributed under the same license as the heraj package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: heraj \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-05-17 17:03+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: ../../source/aergo-client/blockoperation.rst:2
+msgid "BlockOperation"
+msgstr ""
+
+#: ../../source/aergo-client/blockoperation.rst:4
+msgid "Provides block related operations."
+msgstr "Block 자체에 연관되어 있는 연산들을 제공합니다."
+
+#: ../../source/aergo-client/blockoperation.rst:7
+msgid "Get Block Metadata"
+msgstr ""
+
+#: ../../source/aergo-client/blockoperation.rst:9
+msgid "Get block metadata. It returns null if no corresponding one."
+msgstr "Block의 메타정보를 조회합니다. 해당되는 정보가 없는 경우 null을 리턴합니다."
+
+#: ../../source/aergo-client/blockoperation.rst:11
+#: ../../source/aergo-client/blockoperation.rst:32
+#: ../../source/aergo-client/blockoperation.rst:57
+msgid "By Hash."
+msgstr "해쉬를 사용해서 조회."
+
+#: ../../source/aergo-client/blockoperation.rst:19
+#: ../../source/aergo-client/blockoperation.rst:42
+#: ../../source/aergo-client/blockoperation.rst:65
+msgid "By Height."
+msgstr "높이를 사용해서 조회."
+
+#: ../../source/aergo-client/blockoperation.rst:28
+msgid "List Block Metadata"
+msgstr ""
+
+#: ../../source/aergo-client/blockoperation.rst:30
+msgid "Get block metadatas. Size maximum is 1000."
+msgstr "Block의 메타정보들을 조회합니다. 한번에 조회할 수 있는 최고 크기는 1000입니다."
+
+#: ../../source/aergo-client/blockoperation.rst:53
+msgid "Get Block"
+msgstr ""
+
+#: ../../source/aergo-client/blockoperation.rst:55
+msgid "Get block. It returns null if no corresponding one."
+msgstr "Block정보를 조회합니다. 해당되는 정보가 없을 경우 null을 리턴합니다."
+
+#: ../../source/aergo-client/blockoperation.rst:74
+msgid "Block Metadata Subscription"
+msgstr ""
+
+#: ../../source/aergo-client/blockoperation.rst:76
+msgid "Subscribe new generated block metadata."
+msgstr "새롭게 생성된 Block 메타정보를 구독합니다."
+
+#: ../../source/aergo-client/blockoperation.rst:105
+msgid "Block Subscription"
+msgstr ""
+
+#: ../../source/aergo-client/blockoperation.rst:107
+msgid "Subscribe new generated block."
+msgstr "새롭게 생성된 Block 정보를 구독합니다."
+

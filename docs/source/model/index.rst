@@ -4,9 +4,9 @@ Model
 .. toctree::
    :maxdepth: 1
 
-   aergo-key
+   aergokey
    encoding
    transaction
-   contract-definition
-   contract-invocation
-   event-filter
+   contractdefinition
+   contractinvocation
+   eventfilter

@@ -62,7 +62,7 @@ Gradle
 Compatibility
 -------------
 
-Heraj can be used in jdk 7 or higher. But jdk 8 is recommanded.
+Heraj can be used in jdk7 or higher. But jdk8 is recommanded.
 
 ======== ================ ================ ========================
 heraj    aergo            jdk              android

@@ -1,12 +1,12 @@
-Aergo Key
-=========
+AergoKey
+========
 
-AergoKey is a core of account. It holds private key for an address. It can also sign transaction and message.
+AergoKey is a core of account. It holds private key for an address.
 
 New
 ---
 
-You can make an new aergo key using AergoKeyGenerator.
+You can make an new AergoKey using AergoKeyGenerator.
 
 .. code-block:: java
 
@@ -16,7 +16,7 @@ You can make an new aergo key using AergoKeyGenerator.
 Export
 ------
 
-You can export aergo key in a different format.
+You can export AergoKey in a different format.
 
 Export as wallet import format.
 
@@ -37,7 +37,7 @@ Export as keyformat.
 Import
 ------
 
-You can import aergo key from a different format.
+You can import AergoKey from a different format.
 
 Import with wif.
 
@@ -61,7 +61,7 @@ Import with keyformat.
 Sign and Verify
 ---------------
 
-You can sign message with an aergo key. Heraj also provides utils to verify it.
+You can sign transaction and message with an AergoKey. Heraj also provides utils to verify it.
 
 On transaction.
 
@@ -85,7 +85,7 @@ On transaction.
   boolean result = verifier.verify(transaction);
   System.out.println("Verify result: " + result);
 
-On plain message.
+On plain message. It hashes plain message and signs it.
 
 .. code-block:: java
 
@@ -102,7 +102,7 @@ On plain message.
   boolean result = verifier.verify(aergoKey.getAddress(), plainMessage, signature);
   System.out.println("Verify result: " + result);
 
-On hashed message.
+On hashed message. It signs directly without any hashing.
 
 .. code-block:: java
 

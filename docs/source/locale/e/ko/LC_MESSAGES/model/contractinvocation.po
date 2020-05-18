@@ -1,0 +1,53 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, aergo team and contributors
+# This file is distributed under the same license as the heraj package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: heraj \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-05-17 17:03+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: ../../source/model/contract-invocation.rst:2
+msgid "ContractInvocation"
+msgstr ""
+
+#: ../../source/model/contract-invocation.rst:4
+msgid ""
+"ContractInvocation is a model for smart contract invocation. It can be "
+"both execution or query. You need a ContractInterface to make an new "
+"ContractInvocation."
+msgstr ""
+"ContractInvocation은 smart contract 실행에 대한 model입니다. "
+"이것은 컨트랙트 실행 또는 상태 조회가 될 수 있습니다. "
+"ContractInvocation을 만들기 위해서는 ContractInterface가 필요합니다."
+
+#: ../../source/model/contract-invocation.rst:7
+msgid "Make"
+msgstr ""
+
+#: ../../source/model/contract-invocation.rst:9
+msgid "Without args."
+msgstr "인자 없이."
+
+#: ../../source/model/contract-invocation.rst:20
+msgid "With args."
+msgstr "실행 인자를 설정하고."
+
+#: ../../source/model/contract-invocation.rst:32
+msgid "With args and amount."
+msgstr "실행 인자와 송금할 아르고를 설정하고."
+
+#: ../../source/model/contract-invocation.rst:45
+msgid "With args and fee delegation."
+msgstr "실행 인자와 fee delegation을 설정하고."
+
