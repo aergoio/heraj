@@ -41,7 +41,7 @@ allprojects {
 
   task sourceJar(type: Jar) {
     from sourceSets.main.allJava
-    classifier = 'sources'
+    getArchiveClassifier().set('sources')
   }
 
   javadoc {
@@ -52,7 +52,7 @@ allprojects {
 
   task javadocJar(type: Jar) {
     from javadoc
-    classifier = 'javadoc'
+    getArchiveClassifier().set('javadoc')
   }
 
   test {
@@ -164,9 +164,9 @@ configure(javaLibraryProjects) {
   // need test task before executing
   jacocoTestReport {
     group = "Reporting"
-    additionalSourceDirs = files(sourceSets.main.allSource.srcDirs)
-    sourceDirectories = files(sourceSets.main.allSource.srcDirs)
-    classDirectories = files(sourceSets.main.output.classesDirs)
+    getAdditionalSourceDirs().setFrom(sourceSets.main.allSource.srcDirs)
+    getSourceDirectories().setFrom(sourceSets.main.allSource.srcDirs)
+    getClassDirectories().setFrom(sourceSets.main.output.classesDirs)
     reports {
       xml.enabled true
       html.enabled true
@@ -257,9 +257,9 @@ project(":") {
       it.name != 'annotation' && it.name != 'protobuf'
     }
     dependsOn = targetProjects.coverage
-    sourceDirectories = files(targetProjects.sourceSets.main.allSource.srcDirs)
-    classDirectories = files(targetProjects.sourceSets.main.output.classesDirs)
-    executionData = files(targetProjects.jacocoTestReport.executionData)
+    getSourceDirectories().setFrom(targetProjects.sourceSets.main.allSource.srcDirs)
+    getClassDirectories().setFrom(targetProjects.sourceSets.main.output.classesDirs)
+    getExecutionData().setFrom(targetProjects.jacocoTestReport.executionData)
     reports {
       html.enabled = true
       xml.enabled = true
@@ -267,7 +267,7 @@ project(":") {
       csv.enabled = false
     }
     afterEvaluate {
-      classDirectories = files(classDirectories.files.collect {
+      getClassDirectories().setFrom(classDirectories.files.collect {
         fileTree(dir: it, exclude: ['types/**'])
       })
     }
