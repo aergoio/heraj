@@ -91,4 +91,8 @@ public class SimpleNonceProviderTest extends AbstractTestCase {
     assertEquals(tryCount * nThread, nonceProvider.getLastUsedNonce(identity));
   }
 
+  @Test
+  public void testReleaseNonce() {
+
+  }
 }

@@ -9,6 +9,9 @@ import hera.annotation.ApiStability;
 import hera.api.model.AccountAddress;
 import hera.api.model.AccountState;
 
+/**
+ * Provides nonce of accounts.
+ */
 @ApiAudience.Public
 @ApiStability.Unstable
 public interface NonceProvider {
@@ -49,5 +52,14 @@ public interface NonceProvider {
    * @return an nonce
    */
   long getLastUsedNonce(AccountAddress accountAddress);
+
+  /**
+   * Clear cached nonce bound to {@code accountAddress}. Returning low nonce is generally safe, since the caller
+   * can detect exception easily and then sync nonce and retry the committing tx.
+   * The operation must be thread-safe.
+   *
+   * @param accountAddress an account address
+   */
+  void releaseNonce(AccountAddress accountAddress);
 
 }
