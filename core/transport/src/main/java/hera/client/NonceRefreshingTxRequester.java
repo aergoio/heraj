@@ -11,6 +11,7 @@ import hera.api.model.TryCountAndInterval;
 import hera.api.model.TxHash;
 import hera.api.transaction.NonceProvider;
 import hera.exception.CommitException;
+import hera.exception.ConnectionException;
 import hera.key.Signer;
 import hera.util.ThreadUtils;
 import lombok.NonNull;
@@ -56,6 +57,8 @@ public class NonceRefreshingTxRequester implements TxRequester {
               commitException.getCommitStatus(), count);
           syncNonce(aergoClient, signer.getPrincipal());
         } else {
+          // need to rollback nonce since tx may not sent to aergo node.
+          syncNonce(aergoClient, signer.getPrincipal());
           throw e;
         }
 
@@ -81,10 +84,20 @@ public class NonceRefreshingTxRequester implements TxRequester {
         || cause.getCommitStatus() == CommitException.CommitStatus.TX_HAS_SAME_NONCE;
   }
 
+  protected boolean isConnectionRelatedException(final Exception e) {
+    return e instanceof ConnectionException;
+  }
+
   protected void syncNonce(final AergoClient aergoClient, final AccountAddress address) {
-    final AccountState state = aergoClient.getAccountOperation().getState(address);
-    logger.debug("Fetched nonce for {} is {}", address, state.getNonce());
-    nonceProvider.bindNonce(state);
+    AccountState state;
+    try {
+      state = aergoClient.getAccountOperation().getState(address);
+      logger.debug("Fetched nonce for {} is {}", address, state.getNonce());
+      nonceProvider.bindNonce(state);
+    } catch (ConnectionException e) {
+      // clear nonce of address, since low nonce can be re synced in next call
+      nonceProvider.releaseNonce(address);
+    }
   }
 
 }

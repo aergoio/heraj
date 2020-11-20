@@ -86,6 +86,16 @@ public class SimpleNonceProvider implements NonceProvider {
   }
 
   @Override
+  public void releaseNonce(AccountAddress accountAddress) {
+    assertNotNull(accountAddress, "AccountAddress must not null");
+    try {
+      this.cache.invalidate(accountAddress);
+    } catch (Exception e) {
+      throw new HerajException(e);
+    }
+  }
+
+  @Override
   public String toString() {
     return String.format("SimpleNonceProvider(entries=%s)", cache.asMap());
   }
