@@ -98,6 +98,12 @@ allprojects {
     }
   }
 
+  task copyDependencies(type: Copy) {
+    into "$buildDir/dependencies"
+    //    from configurations.runtime
+    from configurations.runtimeClasspath
+  }
+
 }
 
 def javaLibraryProjects = [
