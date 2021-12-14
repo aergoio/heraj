@@ -34,7 +34,7 @@ public class BlockTemplateTest extends AbstractTestCase {
     final BlockTemplate blockTemplate = new BlockTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final BlockMetadata expected = BlockMetadata.newBuilder().build();
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<BlockMetadata>>any()))
         .thenReturn(expected);
     blockTemplate.requester = mockRequester;
 
@@ -49,7 +49,7 @@ public class BlockTemplateTest extends AbstractTestCase {
     final BlockTemplate blockTemplate = new BlockTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final BlockMetadata expected = BlockMetadata.newBuilder().build();
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<BlockMetadata>>any()))
         .thenReturn(expected);
     blockTemplate.requester = mockRequester;
 
@@ -64,7 +64,7 @@ public class BlockTemplateTest extends AbstractTestCase {
     final BlockTemplate blockTemplate = new BlockTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final List<BlockMetadata> expected = emptyList();
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<List>>any()))
         .thenReturn(expected);
     blockTemplate.requester = mockRequester;
 
@@ -79,7 +79,7 @@ public class BlockTemplateTest extends AbstractTestCase {
     final BlockTemplate blockTemplate = new BlockTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final List<BlockMetadata> expected = emptyList();
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<List>>any()))
         .thenReturn(expected);
     blockTemplate.requester = mockRequester;
 
@@ -94,7 +94,7 @@ public class BlockTemplateTest extends AbstractTestCase {
     final BlockTemplate blockTemplate = new BlockTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final Block expected = Block.newBuilder().build();
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<Block>>any()))
         .thenReturn(expected);
     blockTemplate.requester = mockRequester;
 
@@ -109,7 +109,7 @@ public class BlockTemplateTest extends AbstractTestCase {
     final BlockTemplate blockTemplate = new BlockTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final Block expected = Block.newBuilder().build();
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<Block>>any()))
         .thenReturn(expected);
     blockTemplate.requester = mockRequester;
 
@@ -124,7 +124,7 @@ public class BlockTemplateTest extends AbstractTestCase {
     final BlockTemplate blockTemplate = new BlockTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final Subscription<?> expected = mock(Subscription.class);
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any())).thenReturn(expected);
+    when(mockRequester.request(ArgumentMatchers.<Invocation<Subscription>>any())).thenReturn(expected);
     blockTemplate.requester = mockRequester;
 
     // then
@@ -154,7 +154,7 @@ public class BlockTemplateTest extends AbstractTestCase {
     final BlockTemplate blockTemplate = new BlockTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final Subscription<?> expected = mock(Subscription.class);
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any())).thenReturn(expected);
+    when(mockRequester.request(ArgumentMatchers.<Invocation<Subscription>>any())).thenReturn(expected);
     blockTemplate.requester = mockRequester;
 
     // then

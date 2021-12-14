@@ -35,7 +35,7 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
     final KeyStoreTemplate keystoreTemplate = new KeyStoreTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final List<AccountAddress> expected = emptyList();
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<List>>any()))
         .thenReturn(expected);
     keystoreTemplate.requester = mockRequester;
 
@@ -50,7 +50,7 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
     final KeyStoreTemplate keystoreTemplate = new KeyStoreTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final AccountAddress expected = AccountAddress.EMPTY;
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<AccountAddress>>any()))
         .thenReturn(expected);
     keystoreTemplate.requester = mockRequester;
 
@@ -65,7 +65,7 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
     final KeyStoreTemplate keystoreTemplate = new KeyStoreTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final boolean expected = false;
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<Boolean>>any()))
         .thenReturn(expected);
     keystoreTemplate.requester = mockRequester;
 
@@ -80,7 +80,7 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
     final KeyStoreTemplate keystoreTemplate = new KeyStoreTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final boolean expected = false;
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<Boolean>>any()))
         .thenReturn(expected);
     keystoreTemplate.requester = mockRequester;
 
@@ -95,7 +95,7 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
     final KeyStoreTemplate keystoreTemplate = new KeyStoreTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final Transaction expected = anyTransaction;
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<Transaction>>any()))
         .thenReturn(expected);
     keystoreTemplate.requester = mockRequester;
 
@@ -110,7 +110,7 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
     final KeyStoreTemplate keystoreTemplate = new KeyStoreTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final AccountAddress expected = AccountAddress.EMPTY;
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<AccountAddress>>any()))
         .thenReturn(expected);
     keystoreTemplate.requester = mockRequester;
 
@@ -126,7 +126,7 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
     final KeyStoreTemplate keystoreTemplate = new KeyStoreTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final EncryptedPrivateKey expected = EncryptedPrivateKey.EMPTY;
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<EncryptedPrivateKey>>any()))
         .thenReturn(expected);
     keystoreTemplate.requester = mockRequester;
 
@@ -141,7 +141,7 @@ public class KeyStoreTemplateTest extends AbstractTestCase {
     final KeyStoreTemplate keystoreTemplate = new KeyStoreTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final TxHash expected = TxHash.of(BytesValue.EMPTY);
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<TxHash>>any()))
         .thenReturn(expected);
     keystoreTemplate.requester = mockRequester;
 

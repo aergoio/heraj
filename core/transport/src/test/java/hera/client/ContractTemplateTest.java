@@ -42,7 +42,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     final ContractTemplate contractTemplate = new ContractTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final ContractTxReceipt expected = ContractTxReceipt.newBuilder().build();
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<ContractTxReceipt>>any()))
         .thenReturn(expected);
     contractTemplate.requester = mockRequester;
 
@@ -57,7 +57,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     final ContractTemplate contractTemplate = new ContractTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final ContractTxHash expected = ContractTxHash.of(BytesValue.EMPTY);
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<ContractTxHash>>any()))
         .thenReturn(expected);
     contractTemplate.requester = mockRequester;
 
@@ -75,7 +75,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     final ContractTemplate contractTemplate = new ContractTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final ContractTxHash expected = ContractTxHash.of(BytesValue.EMPTY);
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<ContractTxHash>>any()))
         .thenReturn(expected);
     contractTemplate.requester = mockRequester;
 
@@ -92,7 +92,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     final ContractTemplate contractTemplate = new ContractTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final ContractInterface expected = mock(ContractInterface.class);
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<ContractInterface>>any()))
         .thenReturn(expected);
     contractTemplate.requester = mockRequester;
 
@@ -107,7 +107,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     final ContractTemplate contractTemplate = new ContractTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final ContractTxHash expected = ContractTxHash.of(BytesValue.EMPTY);
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<ContractTxHash>>any()))
         .thenReturn(expected);
     contractTemplate.requester = mockRequester;
 
@@ -126,7 +126,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     final ContractTemplate contractTemplate = new ContractTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final ContractResult expected = ContractResult.EMPTY;
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<ContractResult>>any()))
         .thenReturn(expected);
     contractTemplate.requester = mockRequester;
 
@@ -141,7 +141,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     final ContractTemplate contractTemplate = new ContractTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final List<Event> expected = emptyList();
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<List>>any()))
         .thenReturn(expected);
     contractTemplate.requester = mockRequester;
 
@@ -157,7 +157,7 @@ public class ContractTemplateTest extends AbstractTestCase {
     final ContractTemplate contractTemplate = new ContractTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final Subscription<Event> expected = mock(Subscription.class);
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<Subscription>>any()))
         .thenReturn(expected);
     contractTemplate.requester = mockRequester;
 

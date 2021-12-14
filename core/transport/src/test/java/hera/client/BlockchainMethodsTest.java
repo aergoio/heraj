@@ -11,10 +11,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import hera.AbstractTestCase;
-import hera.Context;
-import hera.ContextHolder;
-import hera.EmptyContext;
+import hera.*;
 import hera.api.model.BlockchainStatus;
 import hera.api.model.ChainInfo;
 import hera.api.model.ChainStats;
@@ -24,6 +21,9 @@ import hera.api.model.PeerMetric;
 import hera.api.model.ServerInfo;
 import java.util.Arrays;
 import java.util.List;
+
+import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import types.AergoRPCServiceGrpc.AergoRPCServiceBlockingStub;
@@ -33,6 +33,11 @@ import types.Rpc;
 
 @PrepareForTest({AergoRPCServiceBlockingStub.class, AergoRPCServiceStub.class})
 public class BlockchainMethodsTest extends AbstractTestCase {
+  @BeforeClass
+  public static void beforeClass() throws Exception {
+    // powermock cannot mock java.security packages in jdk17 due to stricter security policies
+    Assume.assumeTrue(TestUtils.getVersion() < 17 );
+  }
 
   @Test
   public void testBlockchainStatus() {

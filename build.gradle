@@ -12,8 +12,7 @@ buildscript {
   }
 
   dependencies {
-    classpath "me.champeau.gradle:jmh-gradle-plugin:${jmhVersion}"
-    classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:${bintrayVersion}"
+    classpath "me.champeau.gradle:jmh-gradle-plugin:${jmhPluginVersion}"
   }
 }
 
@@ -23,11 +22,7 @@ allprojects {
 
   repositories {
     mavenLocal()
-    maven {
-      url "http://dist.wso2.org/maven2"
-    }
     mavenCentral()
-    jcenter()
   }
 
 
@@ -118,7 +113,6 @@ def javaLibraryProjects = [
 configure(javaLibraryProjects) {
   apply plugin: 'jacoco'                  // coverage
   apply plugin: 'checkstyle'              // lint
-  apply plugin: 'com.jfrog.bintray'       // jcenter
   apply plugin: 'maven-publish'           // maven
   apply plugin: "me.champeau.gradle.jmh"  // micro bmt
 
@@ -129,7 +123,7 @@ configure(javaLibraryProjects) {
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
     implementation "org.slf4j:slf4j-api:${slf4jVersion}"
-    runtime "ch.qos.logback:logback-classic:${logbackVersion}"
+    runtimeOnly "ch.qos.logback:logback-classic:${logbackVersion}"
 
     testImplementation "org.projectlombok:lombok:${lombokVersion}"
     testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
@@ -185,30 +179,30 @@ configure(javaLibraryProjects) {
     archivesBaseName = projectBaseName
   }
 
-  bintray {
-    user = System.getProperty("bintrayUser")
-    key = System.getProperty("bintrayKey")
-    pkg {
-      userOrg = 'aergoio'
-      repo = 'maven'
-      name = projectBaseName
-      licenses = ['MIT']
-      websiteUrl = 'https://github.com/aergoio/heraj'
-      vcsUrl = 'https://github.com/aergoio/heraj'
-      version {
-        name = project.version
-        vcsTag = project.version
-      }
-    }
-    publications = ['maven']
-  }
-
-  // uploading SNAPSHOT is not supported
-  if (!version.toString().contains("SNAPSHOT")) {
-    task deploy {
-      dependsOn bintrayUpload
-    }
-  }
+//  bintray {
+//    user = System.getProperty("bintrayUser")
+//    key = System.getProperty("bintrayKey")
+//    pkg {
+//      userOrg = 'aergoio'
+//      repo = 'maven'
+//      name = projectBaseName
+//      licenses = ['MIT']
+//      websiteUrl = 'https://github.com/aergoio/heraj'
+//      vcsUrl = 'https://github.com/aergoio/heraj'
+//      version {
+//        name = project.version
+//        vcsTag = project.version
+//      }
+//    }
+//    publications = ['maven']
+//  }
+//
+//  // uploading SNAPSHOT is not supported
+//  if (!version.toString().contains("SNAPSHOT")) {
+//    task deploy {
+//      dependsOn bintrayUpload
+//    }
+//  }
 
 
   /* maven-publish */

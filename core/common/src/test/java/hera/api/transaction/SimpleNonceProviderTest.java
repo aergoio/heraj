@@ -7,6 +7,7 @@ package hera.api.transaction;
 import static org.junit.Assert.assertEquals;
 
 import hera.AbstractTestCase;
+import hera.TestUtils;
 import hera.api.model.AccountAddress;
 import hera.key.AergoKey;
 import hera.key.AergoKeyGenerator;
@@ -16,9 +17,17 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
+import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class SimpleNonceProviderTest extends AbstractTestCase {
+  @BeforeClass
+  public static void beforeClass() throws Exception {
+    // powermock cannot mock java.security packages in jdk17 due to stricter security policies
+    Assume.assumeTrue(TestUtils.getVersion() < 17 );
+  }
 
   @Test
   public void testLimitCapacity() {
@@ -63,6 +72,9 @@ public class SimpleNonceProviderTest extends AbstractTestCase {
 
   @Test
   public void testNonceGetOnMultiThread() throws Exception {
+    // powermock cannot mock java.security packages in jdk17 due to stricter security policies
+    Assume.assumeTrue(TestUtils.getVersion() < 17 );
+
     // given
     final NonceProvider nonceProvider = new SimpleNonceProvider();
     final AccountAddress identity = new AergoKeyGenerator().create().getAddress();

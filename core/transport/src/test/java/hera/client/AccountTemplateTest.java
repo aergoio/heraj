@@ -47,7 +47,7 @@ public class AccountTemplateTest extends AbstractTestCase {
     final AccountTemplate accountTemplate = new AccountTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final AccountState expected = AccountState.newBuilder().build();
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<AccountState>>any()))
         .thenReturn(expected);
     accountTemplate.requester = mockRequester;
 
@@ -63,7 +63,7 @@ public class AccountTemplateTest extends AbstractTestCase {
     final AccountTemplate accountTemplate = new AccountTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final TxHash expected = TxHash.of(BytesValue.EMPTY);
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<TxHash>>any()))
         .thenReturn(expected);
     accountTemplate.requester = mockRequester;
 
@@ -82,7 +82,7 @@ public class AccountTemplateTest extends AbstractTestCase {
     final AccountTemplate accountTemplate = new AccountTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final TxHash expected = TxHash.of(BytesValue.EMPTY);
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<TxHash>>any()))
         .thenReturn(expected);
     accountTemplate.requester = mockRequester;
 
@@ -102,7 +102,7 @@ public class AccountTemplateTest extends AbstractTestCase {
     final AccountTemplate accountTemplate = new AccountTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final AccountAddress expected = AccountAddress.EMPTY;
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<AccountAddress>>any()))
         .thenReturn(expected);
     accountTemplate.requester = mockRequester;
 
@@ -117,7 +117,7 @@ public class AccountTemplateTest extends AbstractTestCase {
     final AccountTemplate accountTemplate = new AccountTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final AccountAddress expected = AccountAddress.EMPTY;
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<AccountAddress>>any()))
         .thenReturn(expected);
     accountTemplate.requester = mockRequester;
 
@@ -132,7 +132,7 @@ public class AccountTemplateTest extends AbstractTestCase {
     final AccountTemplate accountTemplate = new AccountTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final TxHash expected = TxHash.of(BytesValue.EMPTY);
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<TxHash>>any()))
         .thenReturn(expected);
     accountTemplate.requester = mockRequester;
 
@@ -149,7 +149,7 @@ public class AccountTemplateTest extends AbstractTestCase {
     final AccountTemplate accountTemplate = new AccountTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final TxHash expected = TxHash.of(BytesValue.EMPTY);
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<TxHash>>any()))
         .thenReturn(expected);
     accountTemplate.requester = mockRequester;
 
@@ -166,7 +166,7 @@ public class AccountTemplateTest extends AbstractTestCase {
     final AccountTemplate accountTemplate = new AccountTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final StakeInfo expected = StakeInfo.newBuilder().build();
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<StakeInfo>>any()))
         .thenReturn(expected);
     accountTemplate.requester = mockRequester;
 
@@ -181,7 +181,7 @@ public class AccountTemplateTest extends AbstractTestCase {
     final AccountTemplate accountTemplate = new AccountTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final TxHash expected = TxHash.of(BytesValue.EMPTY);
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<TxHash>>any()))
         .thenReturn(expected);
     accountTemplate.requester = mockRequester;
 
@@ -198,7 +198,7 @@ public class AccountTemplateTest extends AbstractTestCase {
     final AccountTemplate accountTemplate = new AccountTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final AccountTotalVote expected = AccountTotalVote.newBuilder().build();
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<AccountTotalVote>>any()))
         .thenReturn(expected);
     accountTemplate.requester = mockRequester;
 
@@ -213,7 +213,7 @@ public class AccountTemplateTest extends AbstractTestCase {
     final AccountTemplate accountTemplate = new AccountTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final List<ElectedCandidate> expected = emptyList();
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<List>>any()))
         .thenReturn(expected);
     accountTemplate.requester = mockRequester;
 

@@ -14,9 +14,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
+import hera.TestUtils;
+import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class GrpcClientImplTest extends AbstractTestCase {
+  @BeforeClass
+  public static void beforeClass() throws Exception {
+    // powermock cannot mock java.security packages in jdk17 due to stricter security policies
+    Assume.assumeTrue(TestUtils.getVersion() < 17 );
+  }
 
   @Test
   public void shouldGetReturnSingleInstanceOnConcurrentRun() throws Exception {

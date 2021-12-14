@@ -43,7 +43,7 @@ public class BlockchainTemplateTest extends AbstractTestCase {
     final BlockchainStatus blockchainStatus = BlockchainStatus.newBuilder()
         .chainIdHash(expected)
         .build();
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<BlockchainStatus>>any()))
         .thenReturn(blockchainStatus);
     blockchainTemplate.requester = mockRequester;
 
@@ -58,7 +58,7 @@ public class BlockchainTemplateTest extends AbstractTestCase {
     final BlockchainTemplate blockchainTemplate = new BlockchainTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final BlockchainStatus expected = BlockchainStatus.newBuilder().build();
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<BlockchainStatus>>any()))
         .thenReturn(expected);
     blockchainTemplate.requester = mockRequester;
 
@@ -73,7 +73,7 @@ public class BlockchainTemplateTest extends AbstractTestCase {
     final BlockchainTemplate blockchainTemplate = new BlockchainTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final ChainInfo expected = ChainInfo.newBuilder().build();
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<ChainInfo>>any()))
         .thenReturn(expected);
     blockchainTemplate.requester = mockRequester;
 
@@ -88,7 +88,7 @@ public class BlockchainTemplateTest extends AbstractTestCase {
     final BlockchainTemplate blockchainTemplate = new BlockchainTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final ChainStats expected = ChainStats.newBuilder().build();
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<ChainStats>>any()))
         .thenReturn(expected);
     blockchainTemplate.requester = mockRequester;
 
@@ -103,7 +103,7 @@ public class BlockchainTemplateTest extends AbstractTestCase {
     final BlockchainTemplate blockchainTemplate = new BlockchainTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final List<Peer> expected = emptyList();
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<List>>any()))
         .thenReturn(expected);
     blockchainTemplate.requester = mockRequester;
 
@@ -118,7 +118,7 @@ public class BlockchainTemplateTest extends AbstractTestCase {
     final BlockchainTemplate blockchainTemplate = new BlockchainTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final List<PeerMetric> expected = emptyList();
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<List>>any()))
         .thenReturn(expected);
     blockchainTemplate.requester = mockRequester;
 
@@ -133,7 +133,7 @@ public class BlockchainTemplateTest extends AbstractTestCase {
     final BlockchainTemplate blockchainTemplate = new BlockchainTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final ServerInfo expected = ServerInfo.newBuilder().build();
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<ServerInfo>>any()))
         .thenReturn(expected);
     blockchainTemplate.requester = mockRequester;
 
@@ -148,7 +148,7 @@ public class BlockchainTemplateTest extends AbstractTestCase {
     final BlockchainTemplate blockchainTemplate = new BlockchainTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final NodeStatus expected = NodeStatus.newBuilder().build();
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<NodeStatus>>any()))
         .thenReturn(expected);
     blockchainTemplate.requester = mockRequester;
 

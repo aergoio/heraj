@@ -17,7 +17,7 @@ build with aergo-protobuf [6ce439c7600ae7b167c6c61e66ce2ac38bb2bef9](https://git
 ## Compatibility
 
 - Aergo : v2.2.x
-- Java : JDK 7 or higher
+- Java : JDK 8 or higher
 - Android : Android 3.0 (API 11) or higher
 
 ## Download

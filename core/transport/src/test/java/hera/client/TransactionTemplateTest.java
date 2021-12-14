@@ -33,7 +33,7 @@ public class TransactionTemplateTest extends AbstractTestCase {
     final TransactionTemplate transactionTemplate = new TransactionTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final Transaction expected = anyTransaction;
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<Transaction>>any()))
         .thenReturn(expected);
     transactionTemplate.requester = mockRequester;
 
@@ -48,7 +48,7 @@ public class TransactionTemplateTest extends AbstractTestCase {
     final TransactionTemplate transactionTemplate = new TransactionTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final TxReceipt expected = TxReceipt.newBuilder().build();
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<TxReceipt>>any()))
         .thenReturn(expected);
     transactionTemplate.requester = mockRequester;
 
@@ -63,7 +63,7 @@ public class TransactionTemplateTest extends AbstractTestCase {
     final TransactionTemplate transactionTemplate = new TransactionTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final TxHash expected = TxHash.of(BytesValue.EMPTY);
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<TxHash>>any()))
         .thenReturn(expected);
     transactionTemplate.requester = mockRequester;
 
@@ -78,7 +78,7 @@ public class TransactionTemplateTest extends AbstractTestCase {
     final TransactionTemplate transactionTemplate = new TransactionTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final TxHash expected = TxHash.of(BytesValue.EMPTY);
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<TxHash>>any()))
         .thenReturn(expected);
     transactionTemplate.requester = mockRequester;
 
@@ -94,7 +94,7 @@ public class TransactionTemplateTest extends AbstractTestCase {
     final TransactionTemplate transactionTemplate = new TransactionTemplate(contextStorage);
     final Requester mockRequester = mock(Requester.class);
     final TxHash expected = TxHash.of(BytesValue.EMPTY);
-    when(mockRequester.request(ArgumentMatchers.<Invocation<?>>any()))
+    when(mockRequester.request(ArgumentMatchers.<Invocation<TxHash>>any()))
         .thenReturn(expected);
     transactionTemplate.requester = mockRequester;
 
