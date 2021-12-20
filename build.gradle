@@ -120,6 +120,7 @@ configure(javaLibraryProjects) {
   apply plugin: 'jacoco'                  // coverage
   apply plugin: 'checkstyle'              // lint
   apply plugin: 'maven-publish'           // maven
+  apply plugin: 'signing'                 //
   apply plugin: "me.champeau.gradle.jmh"  // micro bmt
 
   def projectBaseName = 'heraj-' + project.name
@@ -225,6 +226,13 @@ configure(javaLibraryProjects) {
         artifact javadocJar
       }
     }
+
+    repositories {
+      maven {
+        name = "sonatypeOSSRH"
+        url = layout.buildDirectory.dir("repo")
+      }
+    }
   }
 
   task install {
@@ -288,4 +296,77 @@ project(":") {
     }
   }
 
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+      repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      pom.project {
+        name 'HeraJ'
+        packaging 'jar'
+        // optionally artifactId can be defined here
+        description 'A java SDK for accessing blockchain Aergo.'
+        url 'https://github.com/aergoio/heraj'
+
+        scm {
+          connection 'scm:git:https://github.com/aergoio/heraj.git'
+          developerConnection 'scm:git:https://github.com/aergoio/heraj.git'
+          url 'https://github.com/aergoio/heraj'
+        }
+
+        licenses {
+          license {
+            name 'MIT'
+            url 'https://github.com/aergoio/heraj/blob/develop/LICENSE.txt'
+          }
+        }
+
+        developers {
+          developer {
+            id 'acktsap'
+            name 'Taeik Lim'
+            email 'sibera21@gmail.com'
+          }
+          developer {
+            id 'bylee'
+            name 'bonyong lee'
+            email 'bylee78@gmail.com'
+          }
+          developer {
+            id 'hayarobi'
+            name 'Hayarobi Park'
+            email 'hayarobipark@gmail.com'
+          }
+        }
+      }
+    }
+  }
 }
