@@ -1,5 +1,17 @@
 # Change Log
 
+## v1.5.0 (Dec 29, 2021)
+
+- Compatibility
+  - Aergo : v2.2.x
+  - Protobuf : [v2.2.0](https://github.com/aergoio/aergo-protobuf/tree/v2.2.0)
+- Fixes & Improvements
+  - Fix the problem that subsequent transactions become orphaned when a transaction was failed.
+  - Improved build compatibility to JDK11 and JDK17
+- Changes
+  - Migrate to Sonatype OSSRH from Bintray Jcenter.
+  - JDK requirements change: JDK8 or higher.
+
 ## v1.4.1 (May 18, 2020)
 
 - Compatibility
