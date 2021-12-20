@@ -3,17 +3,21 @@
  */
 
 buildscript {
-  repositories {
-    maven {
-      url "https://plugins.gradle.org/m2/"
-    }
-    google()
-    mavenCentral()
-  }
+//  repositories {
+//    maven {
+//      url "https://plugins.gradle.org/m2/"
+//    }
+//    google()
+//    mavenCentral()
+//  }
 
-  dependencies {
-    classpath "me.champeau.gradle:jmh-gradle-plugin:${jmhPluginVersion}"
-  }
+//  dependencies {
+//    classpath "me.champeau.gradle:jmh-gradle-plugin:${jmhPluginVersion}"
+//  }
+}
+
+plugins {
+  id "me.champeau.jmh" version "0.6.6"  // micro bmt
 }
 
 allprojects {
@@ -119,8 +123,6 @@ def javaLibraryProjects = [
 configure(javaLibraryProjects) {
   apply plugin: 'jacoco'                  // coverage
   apply plugin: 'checkstyle'              // lint
-  apply plugin: 'maven-publish'           // maven
-  apply plugin: "me.champeau.gradle.jmh"  // micro bmt
 
   def projectBaseName = 'heraj-' + project.name
 
@@ -179,8 +181,6 @@ configure(javaLibraryProjects) {
   }
 
 
-  /* bintray */
-
   jar {
     archivesBaseName = projectBaseName
   }
@@ -211,38 +211,22 @@ configure(javaLibraryProjects) {
 //  }
 
 
-  /* maven-publish */
 
-  publishing {
-    publications {
-      maven(MavenPublication) {
-        groupId = project.group
-        artifactId = projectBaseName
-        version = project.version
-
-        from components.java
-        artifact sourceJar
-        artifact javadocJar
-      }
-    }
-  }
-
-  task install {
-    dependsOn publishToMavenLocal
-  }
+//  task install {
+//    dependsOn publishToMavenLocal
+//  }
 
 
   /* jmh */
 
   jmh {
-    include += '.*Benchmark'
     fork = 2
     benchmarkMode = ['thrpt']
     resultFormat = 'JSON'
     timeUnit = 's'
     threads = 2 * Runtime.runtime.availableProcessors()
-    jmhVersion = '1.21'
-    duplicateClassesStrategy = 'warn'
+//    jmhVersion = '1.21'
+    duplicateClassesStrategy = org.gradle.api.file.DuplicatesStrategy.WARN
   }
 
 }
@@ -251,6 +235,8 @@ configure(javaLibraryProjects) {
 // root project
 project(":") {
   apply plugin: 'jacoco'         // coverage
+  apply plugin: 'maven-publish'           // maven
+  apply plugin: 'signing'                 //
 
   task allcoverage(type: JacocoReport) {
     def targetProjects = javaLibraryProjects.findAll {
@@ -287,5 +273,93 @@ project(":") {
       options.addBooleanOption('html5', true)
     }
   }
+  /* maven-publish */
+  publishing {
+    publications {
+      maven(MavenPublication) {
+        groupId = project.group
+//        artifactId = projectBaseName
+        version = project.version
+
+        from components.java
+        artifact sourceJar
+        artifact javadocJar
+      }
+
+      mavenJava(MavenPublication) {
+        pom {
+          name = 'HeraJ'
+          packaging = 'jar'
+          // optionally artifactId can be defined here
+          description = 'A java SDK for accessing blockchain Aergo.'
+          url = 'https://github.com/aergoio/heraj'
+
+          scm {
+            connection = 'scm:git:https://github.com/aergoio/heraj.git'
+            developerConnection = 'scm:git:https://github.com/aergoio/heraj.git'
+            url = 'https://github.com/aergoio/heraj'
+          }
+
+          licenses {
+            license {
+              name ='MIT'
+              url = 'https://github.com/aergoio/heraj/blob/develop/LICENSE.txt'
+            }
+          }
+
+          developers {
+            developer {
+              id = 'hayarobi'
+              name = 'Hayarobi Park'
+              email = 'hayarobipark@gmail.com'
+            }
+            developer {
+              id = 'acktsap'
+              name = 'Taeik Lim'
+              email = 'sibera21@gmail.com'
+            }
+            developer {
+              id = 'bylee'
+              name = 'bonyong lee'
+              email = 'bylee78@gmail.com'
+            }
+          }
+        }
+      }
+
+    }
+
+    repositories {
+      maven {
+        def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+        def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+        url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+
+//        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+//        repository(releasesRepoUrl) {
+//          authentication(userName: ossrhUsername, password: ossrhPassword)
+//        }
+//
+//        snapshotRepository(snapshotsRepoUrl) {
+//          authentication(userName: ossrhUsername, password: ossrhPassword)
+//        }
+
+      }
+    }
+
+  }
+
+  signing {
+      sign publishing.publications.mavenJava
+  }
+
+
+  javadoc {
+      if(JavaVersion.current().isJava9Compatible()) {
+          options.addBooleanOption('html5', true)
+      }
+  }
+
 
 }

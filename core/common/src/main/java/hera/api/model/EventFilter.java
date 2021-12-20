@@ -39,8 +39,14 @@ public class EventFilter {
 
   protected final List<Object> args;
 
+  /**
+   * the lower side of block number. inclusive
+   */
   protected final long fromBlockNumber;
 
+  /**
+   * the higher side of block number. inclusive
+   */
   protected final long toBlockNumber;
 
   protected final boolean decending;
