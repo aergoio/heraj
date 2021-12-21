@@ -335,13 +335,13 @@ project(":") {
 
 //        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-        repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
-          authentication(userName: ossrhUsername, password: ossrhPassword)
-        }
-
-        snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
-          authentication(userName: ossrhUsername, password: ossrhPassword)
-        }
+//        repository(releasesRepoUrl) {
+//          authentication(userName: ossrhUsername, password: ossrhPassword)
+//        }
+//
+//        snapshotRepository(snapshotsRepoUrl) {
+//          authentication(userName: ossrhUsername, password: ossrhPassword)
+//        }
 
       }
     }
@@ -361,18 +361,3 @@ project(":") {
 
 
 }
-
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
-    from javadoc
-}
-
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-artifacts {
-    archives javadocJar, sourcesJar
-}
-
