@@ -13,23 +13,68 @@ buildscript {
 
   dependencies {
     classpath "me.champeau.gradle:jmh-gradle-plugin:${jmhVersion}"
-    classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:${bintrayVersion}"
   }
 }
 
 allprojects {
   apply plugin: 'java-library'
   apply plugin: 'idea'
+  apply plugin: 'maven'
+  apply plugin: 'signing'
 
   repositories {
     mavenLocal()
-    maven {
-      url "http://dist.wso2.org/maven2"
-    }
     mavenCentral()
-    jcenter()
   }
 
+  signing {
+    sign configurations.archives
+  }
+
+  uploadArchives {
+    repositories {
+      mavenDeployer {
+        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+        repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+          authentication(userName: ossrhUsername, password: ossrhPassword)
+        }
+
+        snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+          authentication(userName: ossrhUsername, password: ossrhPassword)
+        }
+
+        pom.project {
+          name 'heraj'
+          packaging 'jar'
+          // optionally artifactId can be defined here
+          description 'A SDK aergo blockchain.'
+          url 'https://github.com/aergoio/heraj'
+
+          scm {
+            connection 'scm:git@github.com:aergoio/heraj.git'
+            developerConnection 'scm:git@github.com:aergoio/heraj.git'
+            url 'https://github.com/aergoio/heraj.git'
+          }
+
+          licenses {
+            license {
+              name 'MIT License'
+              url "http://www.opensource.org/licenses/MIT"
+            }
+          }
+
+          developers {
+            developer {
+              id 'sg31park'
+              name 'Sanggil Park'
+              email 'sg31park@blocko.io'
+            }
+          }
+        }
+      }
+    }
+  }
 
   /* java-library */
 
@@ -118,7 +163,6 @@ def javaLibraryProjects = [
 configure(javaLibraryProjects) {
   apply plugin: 'jacoco'                  // coverage
   apply plugin: 'checkstyle'              // lint
-  apply plugin: 'com.jfrog.bintray'       // jcenter
   apply plugin: 'maven-publish'           // maven
   apply plugin: "me.champeau.gradle.jmh"  // micro bmt
 
@@ -185,31 +229,6 @@ configure(javaLibraryProjects) {
     archivesBaseName = projectBaseName
   }
 
-  bintray {
-    user = System.getProperty("bintrayUser")
-    key = System.getProperty("bintrayKey")
-    pkg {
-      userOrg = 'aergoio'
-      repo = 'maven'
-      name = projectBaseName
-      licenses = ['MIT']
-      websiteUrl = 'https://github.com/aergoio/heraj'
-      vcsUrl = 'https://github.com/aergoio/heraj'
-      version {
-        name = project.version
-        vcsTag = project.version
-      }
-    }
-    publications = ['maven']
-  }
-
-  // uploading SNAPSHOT is not supported
-  if (!version.toString().contains("SNAPSHOT")) {
-    task deploy {
-      dependsOn bintrayUpload
-    }
-  }
-
 
   /* maven-publish */
 
@@ -227,9 +246,6 @@ configure(javaLibraryProjects) {
     }
   }
 
-  task install {
-    dependsOn publishToMavenLocal
-  }
 
 
   /* jmh */

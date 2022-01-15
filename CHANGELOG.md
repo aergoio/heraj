@@ -1,5 +1,10 @@
 # Change Log
 
+## v1.4.2 (Jan 21, 2022)
+
+- Changes
+  - Migrate public repository to maven central
+
 ## v1.4.1 (May 18, 2020)
 
 - Compatibility
