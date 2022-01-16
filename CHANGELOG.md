@@ -1,9 +1,14 @@
 # Change Log
 
-## v1.4.2 (Jan 21, 2022)
+## v1.4.2 (Jan 18, 2022)
 
+- Compatibility
+  - Aergo : v2.2.x
+  - Protobuf : [v2.2.0](https://github.com/aergoio/aergo-protobuf/tree/v2.2.0)
 - Changes
-  - Migrate public repository to maven central
+  - Migrate public repository to Maven central via sonatype OSSRH
+  - Fix build compatibility on JDK11 or on Apple Silicon
+
 
 ## v1.4.1 (May 18, 2020)
 
