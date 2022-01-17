@@ -100,6 +100,11 @@ allprojects {
     classifier = 'javadoc'
   }
 
+  artifacts {
+    archives sourceJar
+    archives javadocJar
+  }
+
   test {
     if (JavaVersion.current().isJava9Compatible()) {
       jvmArgs('--add-opens', 'java.base/java.lang=ALL-UNNAMED')
@@ -223,15 +228,12 @@ configure(javaLibraryProjects) {
   }
 
 
-  /* bintray */
-
   jar {
     archivesBaseName = projectBaseName
   }
 
 
   /* maven-publish */
-
   publishing {
     publications {
       maven(MavenPublication) {
