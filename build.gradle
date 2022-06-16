@@ -13,7 +13,6 @@ buildscript {
 
 //  dependencies {
 //    classpath "me.champeau.gradle:jmh-gradle-plugin:${jmhPluginVersion}"
-//  }
 }
 
 plugins {
@@ -52,6 +51,11 @@ allprojects {
   task javadocJar(type: Jar) {
     from javadoc
     getArchiveClassifier().set('javadoc')
+  }
+
+  artifacts {
+    archives sourceJar
+    archives javadocJar
   }
 
   test {
@@ -185,36 +189,7 @@ configure(javaLibraryProjects) {
     archivesBaseName = projectBaseName
   }
 
-//  bintray {
-//    user = System.getProperty("bintrayUser")
-//    key = System.getProperty("bintrayKey")
-//    pkg {
-//      userOrg = 'aergoio'
-//      repo = 'maven'
-//      name = projectBaseName
-//      licenses = ['MIT']
-//      websiteUrl = 'https://github.com/aergoio/heraj'
-//      vcsUrl = 'https://github.com/aergoio/heraj'
-//      version {
-//        name = project.version
-//        vcsTag = project.version
-//      }
-//    }
-//    publications = ['maven']
-//  }
-//
-//  // uploading SNAPSHOT is not supported
-//  if (!version.toString().contains("SNAPSHOT")) {
-//    task deploy {
-//      dependsOn bintrayUpload
-//    }
-//  }
 
-
-
-//  task install {
-//    dependsOn publishToMavenLocal
-//  }
 
 
   /* jmh */
@@ -273,6 +248,7 @@ project(":") {
       options.addBooleanOption('html5', true)
     }
   }
+
   /* maven-publish */
   publishing {
     publications {
@@ -288,7 +264,7 @@ project(":") {
 
       mavenJava(MavenPublication) {
         pom {
-          name = 'HeraJ'
+          name = 'heraj'
           packaging = 'jar'
           // optionally artifactId can be defined here
           description = 'A java SDK for accessing blockchain Aergo.'
@@ -334,17 +310,10 @@ project(":") {
         def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
         def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
         url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-
-//        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-//        repository(releasesRepoUrl) {
-//          authentication(userName: ossrhUsername, password: ossrhPassword)
-//        }
-//
-//        snapshotRepository(snapshotsRepoUrl) {
-//          authentication(userName: ossrhUsername, password: ossrhPassword)
-//        }
-
+        credentials {
+            username = project.hasProperty('ossrhUsername') ? ossrhUsername : "Unknown user"
+            password = project.hasProperty('ossrhPassword') ? ossrhPassword : "Unknown password"
+        }
       }
     }
 
@@ -353,7 +322,9 @@ project(":") {
   signing {
       sign publishing.publications.mavenJava
   }
-
+//  tasks.withType(Sign) {
+//      onlyIf { isReleaseVersion }
+//  }
 
   javadoc {
       if(JavaVersion.current().isJava9Compatible()) {

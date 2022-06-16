@@ -10,7 +10,7 @@ This repository, heraj is java implementation for hera.
 
 ## Latest
 
-v1.4.1
+v1.4.2
 
 build with aergo-protobuf [6ce439c7600ae7b167c6c61e66ce2ac38bb2bef9](https://github.com/aergoio/aergo-protobuf/commits/6ce439c7600ae7b167c6c61e66ce2ac38bb2bef9)
 
@@ -45,12 +45,6 @@ If you just want a minimum one, use `heraj-transport`. Or need more feature, use
 ### Maven
 
 ```sh
-<repositories>
-  <repository>
-    <id>jcenter</id>
-    <url>https://jcenter.bintray.com</url>
-  </repository>
-</repositories>
 
 ...
 
@@ -76,10 +70,6 @@ If you just want a minimum one, use `heraj-transport`. Or need more feature, use
 ### Gradle
 
 ```sh
-repositories {
-  jcenter()
-}
-
 ...
 
 dependencies {
@@ -127,7 +117,7 @@ $ git submodule update
 - Docs: `./gradlew javadoc` (individual), `./gradlew alljavadoc` (all)
 - Build (also lint, test): `./gradlew build`
 - Shadow Jar: `./gradlew shadowJar` (generated in `./assembly/build/libs`)
-- Install to local: `./gradlew install`
+- Install to local: `./gradlew publishToMavenLocal`
 
 ## Kind of test
 
