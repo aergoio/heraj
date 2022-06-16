@@ -2,18 +2,10 @@
  * @copyright defined in LICENSE.txt
  */
 
-apply plugin: 'com.google.protobuf'
-
-buildscript {
-  repositories {
-    mavenCentral()
-  }
-
-  dependencies {
-    // ASSUMES GRADLE 2.12 OR HIGHER. Use plugin version 0.7.5 with earlier
-    // gradle versions
-    classpath "com.google.protobuf:protobuf-gradle-plugin:${protobufVersion}"
-  }
+plugins {
+  id 'io.aergo.heraj.java-library-conventions'
+  id "me.champeau.jmh" version "${jmhPluginVersion}" // micro bmt
+  id 'com.google.protobuf' version "${protobufVersion}"
 }
 
 dependencies {

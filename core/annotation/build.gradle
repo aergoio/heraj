@@ -1,3 +1,7 @@
 /*
  * @copyright defined in LICENSE.txt
  */
+plugins {
+  id 'io.aergo.heraj.java-library-conventions'
+  id "me.champeau.jmh" version "${jmhPluginVersion}" // micro bmt
+}

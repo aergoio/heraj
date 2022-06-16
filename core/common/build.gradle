@@ -1,12 +1,16 @@
 /*
  * @copyright defined in LICENSE.txt
  */
+plugins {
+  id 'io.aergo.heraj.java-library-conventions'
+  id "me.champeau.jmh" version "${jmhPluginVersion}" // micro bmt
+}
 
 dependencies {
   api project(":core:annotation")
   api project(":core:util")
 
-  implementation "com.google.guava:guava:${guavaVersion}-android"
+  implementation "com.google.guava:guava"
   implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
   implementation "org.bouncycastle:bcprov-jdk15on:${bouncyCastleVersion}"
 }
