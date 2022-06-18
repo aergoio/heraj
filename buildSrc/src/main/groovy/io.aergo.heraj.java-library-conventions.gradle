@@ -15,44 +15,6 @@ plugins {
     id "me.champeau.jmh"  // micro bmt
 }
 
-// FIXME 이 태스크는 별도의 자바독 모듈을 만들어서 처리하는 것이 좋을 듯 하다.
-//task allcoverage(type: JacocoReport) {
-//  def targetProjects = javaLibraryProjects.findAll {
-//    it.name != 'annotation' && it.name != 'protobuf'
-//  }
-//  dependsOn = targetProjects.coverage
-//  getSourceDirectories().setFrom(targetProjects.sourceSets.main.allSource.srcDirs)
-//  getClassDirectories().setFrom(targetProjects.sourceSets.main.output.classesDirs)
-//  getExecutionData().setFrom(targetProjects.jacocoTestReport.executionData)
-//  reports {
-//    html.enabled = true
-//    xml.enabled = true
-//    xml.destination file("${buildDir}/reports/jacoco/report.xml")
-//    csv.enabled = false
-//  }
-//  afterEvaluate {
-//    getClassDirectories().setFrom(classDirectories.files.collect {
-//      fileTree(dir: it, exclude: ['types/**'])
-//    })
-//  }
-//}
-
-// FIXME 이 태스크는 별도의 자바독 모듈을 만들어서 처리하는 것이 좋을 듯 하다.
-//task alljavadoc(type: Javadoc) {
-//  def targetProjects = javaLibraryProjects.findAll {
-//    it.name != 'protobuf'
-//  }
-//  source targetProjects.collect { it.sourceSets.main.allJava }
-//  classpath = files(targetProjects.collect { it.sourceSets.main.compileClasspath })
-//  destinationDir = file("${buildDir}/docs/javadoc")
-//  if (JavaVersion.current().isJava8Compatible()) {
-//    options.addStringOption('Xwerror', '-quiet')
-//  }
-//  if (JavaVersion.current().isJava9Compatible()) {
-//    options.addBooleanOption('html5', true)
-//  }
-//}
-
 def projectBaseName = 'heraj-' + project.name
 
 /* maven-publish */
