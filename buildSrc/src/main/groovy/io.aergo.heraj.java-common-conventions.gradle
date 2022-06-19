@@ -67,11 +67,6 @@ dependencies {
     }
 }
 
-tasks.named('test') {
-    // Use junit platform for unit tests.
-    useJUnitPlatform()
-}
-
 
 repositories {
   mavenLocal()
@@ -106,44 +101,6 @@ task javadocJar(type: Jar) {
 artifacts {
   archives sourceJar
   archives javadocJar
-}
-
-test {
-  if (JavaVersion.current().isJava9Compatible()) {
-    jvmArgs('--add-opens', 'java.base/java.lang=ALL-UNNAMED')
-    jvmArgs('--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED')
-    jvmArgs('--add-opens', 'java.base/java.lang.invoke=ALL-UNNAMED')
-    jvmArgs('--add-opens', 'java.base/java.math=ALL-UNNAMED')
-    jvmArgs('--add-opens', 'java.base/java.net=ALL-UNNAMED')
-    jvmArgs('--add-opens', 'java.base/java.nio=ALL-UNNAMED')
-    jvmArgs('--add-opens', 'java.base/java.util=ALL-UNNAMED')
-    jvmArgs('--add-opens', 'java.base/java.util.stream=ALL-UNNAMED')
-    jvmArgs('--add-opens', 'java.base/java.io=ALL-UNNAMED')
-    jvmArgs('--add-opens', 'java.xml/jdk.xml.internal=ALL-UNNAMED')
-  }
-
-  maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors())
-  exclude '**/*Tests.class'
-  exclude '**/*IT.class'
-}
-
-task integrationTest(type: Test) {
-  if (JavaVersion.current().isJava10Compatible()) {
-    jvmArgs('--add-opens', 'java.base/java.lang=ALL-UNNAMED')
-    jvmArgs('--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED')
-    jvmArgs('--add-opens', 'java.base/java.lang.invoke=ALL-UNNAMED')
-    jvmArgs('--add-opens', 'java.base/java.math=ALL-UNNAMED')
-    jvmArgs('--add-opens', 'java.base/java.net=ALL-UNNAMED')
-    jvmArgs('--add-opens', 'java.base/java.nio=ALL-UNNAMED')
-    jvmArgs('--add-opens', 'java.base/java.util=ALL-UNNAMED')
-    jvmArgs('--add-opens', 'java.base/java.util.stream=ALL-UNNAMED')
-    jvmArgs('--add-opens', 'java.base/java.io=ALL-UNNAMED')
-    jvmArgs('--add-opens', 'java.xml/jdk.xml.internal=ALL-UNNAMED')
-  }
-
-  // note that every *IT class must have own wallet
-  maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors())
-  include '**/*IT.class'
 }
 
 

@@ -17,18 +17,48 @@ plugins {
 
 def projectBaseName = 'heraj-' + project.name
 
+// test configuration
+test {
+  if (java.toolchain.languageVersion.get().canCompileOrRun(JavaLanguageVersion.of("9"))) {
+    jvmArgs('--add-opens', 'java.base/java.lang=ALL-UNNAMED')
+    jvmArgs('--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED')
+    jvmArgs('--add-opens', 'java.base/java.lang.invoke=ALL-UNNAMED')
+    jvmArgs('--add-opens', 'java.base/java.math=ALL-UNNAMED')
+    jvmArgs('--add-opens', 'java.base/java.net=ALL-UNNAMED')
+    jvmArgs('--add-opens', 'java.base/java.nio=ALL-UNNAMED')
+    jvmArgs('--add-opens', 'java.base/java.util=ALL-UNNAMED')
+    jvmArgs('--add-opens', 'java.base/java.util.stream=ALL-UNNAMED')
+    jvmArgs('--add-opens', 'java.base/java.io=ALL-UNNAMED')
+    jvmArgs('--add-opens', 'java.xml/jdk.xml.internal=ALL-UNNAMED')
+  }
+
+  maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors())
+  exclude '**/*Tests.class'
+  exclude '**/*IT.class'
+}
+
+task integrationTest(type: Test) {
+  if (java.toolchain.languageVersion.get().canCompileOrRun(JavaLanguageVersion.of("10"))) {
+    jvmArgs('--add-opens', 'java.base/java.lang=ALL-UNNAMED')
+    jvmArgs('--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED')
+    jvmArgs('--add-opens', 'java.base/java.lang.invoke=ALL-UNNAMED')
+    jvmArgs('--add-opens', 'java.base/java.math=ALL-UNNAMED')
+    jvmArgs('--add-opens', 'java.base/java.net=ALL-UNNAMED')
+    jvmArgs('--add-opens', 'java.base/java.nio=ALL-UNNAMED')
+    jvmArgs('--add-opens', 'java.base/java.util=ALL-UNNAMED')
+    jvmArgs('--add-opens', 'java.base/java.util.stream=ALL-UNNAMED')
+    jvmArgs('--add-opens', 'java.base/java.io=ALL-UNNAMED')
+    jvmArgs('--add-opens', 'java.xml/jdk.xml.internal=ALL-UNNAMED')
+  }
+
+  // note that every *IT class must have own wallet
+  maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors())
+  include '**/*IT.class'
+}
+
 /* maven-publish */
 publishing {
   publications {
-//    maven(MavenPublication) {
-//      groupId = project.group
-//      artifactId = projectBaseName
-//      version = project.version
-//
-//      from components.java
-//      artifact sourceJar
-//      artifact javadocJar
-//    }
 
     mavenJava(MavenPublication) {
       pom {
@@ -142,13 +172,15 @@ jacoco {
 // need test task before executing
 jacocoTestReport {
   group = "Reporting"
+  dependsOn test // tests are required to run before generating the report
+
   getAdditionalSourceDirs().setFrom(sourceSets.main.allSource.srcDirs)
   getSourceDirectories().setFrom(sourceSets.main.allSource.srcDirs)
   getClassDirectories().setFrom(sourceSets.main.output.classesDirs)
   reports {
-    xml.enabled true
-    html.enabled true
-    csv.enabled false
+    xml.required = true
+    html.required = true
+    csv.enabled = false
   }
 }
 
