@@ -13,6 +13,7 @@ plugins {
     id 'maven-publish'           // maven
     id 'signing'                 //
     id "me.champeau.jmh"  // micro bmt
+    id "io.freefair.lombok"
 }
 
 def projectBaseName = 'heraj-' + project.name
