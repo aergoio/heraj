@@ -9,6 +9,7 @@ Gemfile.lock
 !.travis.yml
 !.gitignore
 !.gitmodules
+!.github
 **/bin/
 
 # docs
