@@ -1,0 +1,34 @@
+plugins {
+    id 'base'
+    id 'jacoco-report-aggregation'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    jacocoAggregation([
+            project(':client:smart-contract'),
+            project(':client:wallet')
+    ])
+}
+
+reporting {
+    reports {
+        testCodeCoverageReport(JacocoCoverageReport) { // <.>
+            testType = TestSuiteType.UNIT_TEST
+
+            def classDirectories = reportTask.get().classDirectories
+            classDirectories.setFrom(
+                    classDirectories.files.collect {
+                        fileTree(dir: it, exclude: ['types/**'])
+                    })
+        }
+    }
+}
+
+
+tasks.named('check') {
+    dependsOn tasks.named('testCodeCoverageReport', JacocoReport) // <.>
+}

@@ -8,7 +8,7 @@ plugins {
 
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
-    id 'jacoco'         // coverage
+    id 'jacoco'       // coverage
     id 'checkstyle'
     id 'maven-publish'           // maven
     id 'signing'                 //
@@ -19,6 +19,7 @@ def projectBaseName = 'heraj-' + project.name
 
 // test configuration
 test {
+
   if (java.toolchain.languageVersion.get().canCompileOrRun(JavaLanguageVersion.of("9"))) {
     jvmArgs('--add-opens', 'java.base/java.lang=ALL-UNNAMED')
     jvmArgs('--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED')
@@ -180,6 +181,12 @@ jacocoTestReport {
   reports {
     xml.required = true
     html.required = true
+  }
+
+  afterEvaluate {
+      classDirectories.setFrom(files(classDirectories.files.collect {
+          fileTree(dir: it, exclude: ['**/types/**'])
+      }))
   }
 }
 

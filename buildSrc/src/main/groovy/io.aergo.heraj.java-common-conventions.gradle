@@ -27,10 +27,6 @@ tasks.withType(JavaCompile) {
 }
 
 
-// versions of commonly dependent libraries. NOTE: versions of libraries is decleared in gradle.properties
-ext {
-}
-
 /* idea */
 idea {
   module {
@@ -45,7 +41,7 @@ dependencies {
         // Define dependency versions as constraints
         implementation 'org.apache.commons:commons-text:1.9'
 
-        implementation "com.google.guava:guava:${guavaVersion}-android"
+        implementation "com.google.guava:guava:${guavaVersion}"
 
         compileOnly "org.projectlombok:lombok:${lombokVersion}"
         annotationProcessor "org.projectlombok:lombok:${lombokVersion}"

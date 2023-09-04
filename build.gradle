@@ -4,6 +4,7 @@
 plugins {
   id 'io.aergo.heraj.java-common-conventions'
   id 'jacoco'
+//  id 'jacoco-report-aggregation'
 }
 
 def javaLibraryProjects = [
@@ -15,10 +16,6 @@ def javaLibraryProjects = [
     project('client:wallet'),
     project('client:smart-contract')
 ]
-subprojects {
-  apply plugin: 'java'
-}
-
 
 // root project
 project(":") {
@@ -29,26 +26,11 @@ project(":") {
   javadoc.enabled = false
   sourceJar.enabled = false
 
-  task allcoverage(type: JacocoReport) {
-    def targetProjects = javaLibraryProjects.findAll {
-      it.name != 'annotation' && it.name != 'protobuf'
+    tasks.register('allcoverage') {
+        dependsOn ':report:testCodeCoverageReport'
+        group = 'verification'
+        description = 'Runs the testCodeCoverageReport task in the report submodule.'
     }
-    dependsOn = targetProjects.collect{it.getTasksByName('coverage',false)}
-    getSourceDirectories().setFrom(targetProjects.sourceSets.main.allSource.srcDirs)
-    getClassDirectories().setFrom(targetProjects.sourceSets.main.output.classesDirs)
-    getExecutionData().setFrom(targetProjects.collect{it.getTasksByName('jacocoTestReport', false).executionData})
-    reports {
-      html.required = true
-      xml.required = true
-      xml.destination file("${buildDir}/reports/jacoco/report.xml")
-      csv.required = false
-    }
-    afterEvaluate {
-      getClassDirectories().setFrom(classDirectories.files.collect {
-        fileTree(dir: it, exclude: ['types/**'])
-      })
-    }
-  }
 
   task alljavadoc(type: Javadoc, group: 'Documentation') {
     def targetProjects = javaLibraryProjects.findAll {

@@ -2,6 +2,9 @@
  * @copyright defined in LICENSE.txt
  */
 pluginManagement {
+    plugins {
+        id 'jacoco'
+    }
 }
 
 rootProject.name = 'heraj'
@@ -14,3 +17,5 @@ include 'core:transport'
 include 'client:wallet'
 include 'client:smart-contract'
 include 'assembly'
+include 'report'
+

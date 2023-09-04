@@ -40,7 +40,6 @@ protobuf {
 }
 
 // FIXME: custom disable options, it don't like it
-
 tasks.withType(Javadoc).all { enabled = false }
 
 checkstyle {
