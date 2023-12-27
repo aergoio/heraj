@@ -11,22 +11,18 @@ plugins {
 dependencies {
   implementation ("io.grpc:grpc-protobuf:${grpcVersion}")
   implementation ("io.grpc:grpc-stub:${grpcVersion}")
+  implementation ("com.google.protobuf:protobuf-java:${protocVersion}")
+  runtimeOnly "io.grpc:grpc-netty-shaded:${grpcVersion}"
 
   if (JavaVersion.current().isJava9Compatible()) {
     // Workaround for @javax.annotation.Generated
-    // see: https://github.com/grpc/grpc-java/issues/3633
-    implementation "javax.annotation:javax.annotation-api:${javaxAnnotationApiVersion}"
+    // see: https://github.com/grpc/grpc-java/issues/3633 and https://github.com/grpc/grpc-java
+    compileOnly 'org.apache.tomcat:annotations-api:6.0.53' // necessary for Java 9+
   }
 }
 
 protobuf {
   protoc {
-//      // for apple m1, please add protoc_platform=osx-x86_64 in $HOME/.gradle/gradle.properties
-//      if (project.hasProperty('protoc_platform')) {
-//          artifact = "com.google.protobuf:protoc:${protocVersion}:${protoc_platform}"
-//      } else {
-//          artifact = "com.google.protobuf:protoc:${protocVersion}"
-//      }
     artifact = "com.google.protobuf:protoc:${protocVersion}"
   }
   plugins {
@@ -39,14 +35,6 @@ protobuf {
       grpc {
         outputSubDir = 'java'
       }
-    }
-  }
-}
-
-sourceSets {
-  main {
-    java {
-      srcDirs "${projectDir}/build/generated/source/proto/main/java"
     }
   }
 }

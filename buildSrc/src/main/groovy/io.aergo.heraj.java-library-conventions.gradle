@@ -180,7 +180,6 @@ jacocoTestReport {
   reports {
     xml.required = true
     html.required = true
-    csv.enabled = false
   }
 }
 
