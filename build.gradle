@@ -7,13 +7,13 @@ plugins {
 }
 
 def javaLibraryProjects = [
-    project('core:annotation'),
-    project('core:util'),
-    project('core:common'),
-    project('core:protobuf'),
-    project('core:transport'),
-    project('client:wallet'),
-    project('client:smart-contract')
+        project('core:annotation'),
+        project('core:util'),
+        project('core:common'),
+        project('core:protobuf'),
+        project('core:transport'),
+        project('client:wallet'),
+        project('client:smart-contract')
 ]
 subprojects {
   apply plugin: 'java'
@@ -33,10 +33,10 @@ project(":") {
     def targetProjects = javaLibraryProjects.findAll {
       it.name != 'annotation' && it.name != 'protobuf'
     }
-    dependsOn = targetProjects.collect{it.getTasksByName('coverage',false)}
+    dependsOn = targetProjects.collect { it.getTasksByName('coverage', false) }
     getSourceDirectories().setFrom(targetProjects.sourceSets.main.allSource.srcDirs)
     getClassDirectories().setFrom(targetProjects.sourceSets.main.output.classesDirs)
-    getExecutionData().setFrom(targetProjects.collect{it.getTasksByName('jacocoTestReport', false).executionData})
+    getExecutionData().setFrom(targetProjects.collect { it.getTasksByName('jacocoTestReport', false).executionData })
     reports {
       html.required = true
       xml.required = true
@@ -54,7 +54,7 @@ project(":") {
     def targetProjects = javaLibraryProjects.findAll {
       it.name != 'protobuf'
     }
-    source targetProjects.collect {it.sourceSets.main.allJava }
+    source targetProjects.collect { it.sourceSets.main.allJava }
     classpath = files(targetProjects.collect { it.sourceSets.main.compileClasspath })
     destinationDir = file("${buildDir}/docs/javadoc")
     if (java.toolchain.languageVersion.get().canCompileOrRun(JavaLanguageVersion.of("8"))) {
@@ -62,4 +62,92 @@ project(":") {
     }
   }
 
+}
+
+// 디롬북 설정 시작
+subprojects {
+  // 디롬북 제외할 프로젝트 목록
+  def excludedProjects = ['core', 'client', 'assembly', 'protobuf']
+
+  if (project.name !in excludedProjects) {
+
+    configurations.compileOnly.setCanBeResolved(true)
+
+    task delombok {
+      // 원본 자바 소스 경로
+      def srcJava = 'src/main/java'
+      // 디롬복한 자바 소스 경로
+      def srcDelomboked = 'build/src-delomboked'
+
+      inputs.files files(srcJava)
+      outputs.dir file(srcDelomboked)
+
+      // 디롬복
+      doLast {
+        println 'configurations: ' + configurations
+        def compileOnly = files(configurations.compileOnly)
+        def sumTree = compileOnly + fileTree(dir: 'bin')
+        ant.taskdef(name: 'delombok', classname: 'lombok.delombok.ant.Tasks$Delombok', classpath: compileOnly.asPath)
+        ant.delombok(from: srcJava, to: srcDelomboked, classpath: sumTree.asPath)
+      }
+    }
+
+    // lombok -> delombok[.java]
+    task compileDelombokedJava(type: JavaCompile) {
+      source = fileTree('src-delomboked')
+      classpath = files(configurations.implementation)
+      destinationDir = file('build/classes/java/main')
+    }
+
+    // delombok[.java] -> delombok[.class] compile
+    task compileDelombok(type: JavaCompile) {
+      source = fileTree('build/src-delomboked/main/java')
+      classpath = sourceSets.main.compileClasspath
+      destinationDir = file('build/src-delomboked/main/classes')
+    }
+
+    // delombok[.class] classes 폴더로 이동
+    task copyDelombokClass(type: Copy) {
+      from 'build/src-delomboked/main/classes'
+      into 'build/classes/java/main'
+    }
+
+    // source.jar 만들기전에 디롬복된 자바 소스를 src에 복사
+    task preSourceJar {
+
+      doLast {
+        println 'start ' + project.name + ' preSourceJar'
+        copy {
+          from 'src/main/java'
+          into 'build/original-source'
+        }
+
+        copy {
+          from 'build/src-delomboked'
+          into 'src/main/java'
+        }
+
+        println 'end ' + project.name + ' preSourceJar'
+      }
+    }
+
+    // source.jar 만든 후 원본 스소를 src에 원복
+    task afterSourceJar {
+      doLast {
+        println 'start ' + project.name + ' afterSourceJar'
+        copy {
+          from 'build/original-source'
+          into 'src/main/java'
+        }
+
+        println 'end ' + project.name + ' afterSourceJar'
+      }
+    }
+
+    tasks.compileDelombok.dependsOn delombok
+    tasks.copyDelombokClass.dependsOn compileDelombok
+    tasks.jar.dependsOn copyDelombokClass
+    sourceJar.dependsOn preSourceJar
+    sourceJar.finalizedBy(afterSourceJar)
+  }
 }
