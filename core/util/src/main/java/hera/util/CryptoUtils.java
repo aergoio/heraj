@@ -7,7 +7,8 @@ package hera.util;
 import static java.lang.System.arraycopy;
 
 import com.google.common.io.BaseEncoding;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -21,12 +22,13 @@ import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.engines.AESEngine;
 import org.bouncycastle.crypto.modes.GCMBlockCipher;
+import org.bouncycastle.crypto.modes.GCMModeCipher;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
 
 public class CryptoUtils {
 
-  public static final String CIPHER_CHARSET = "UTF-8";
+  public static final Charset CIPHER_CHARSET = StandardCharsets.UTF_8;
   public static final String CIPHER_NAME = "AES/ECB/PKCS5Padding";
   protected static final String DEFAULT_PASSWORD = "tn595hil2n9kolh9";
 
@@ -40,7 +42,7 @@ public class CryptoUtils {
       random = SecureRandom.getInstance("SHA1PRNG");
       sha = MessageDigest.getInstance("SHA-1");
       md5 = MessageDigest.getInstance("MD5");
-      keySpec = new SecretKeySpec(DEFAULT_PASSWORD.getBytes("UTF-8"), "AES");
+      keySpec = new SecretKeySpec(DEFAULT_PASSWORD.getBytes(StandardCharsets.UTF_8), "AES");
     } catch (final Throwable th) {
       throw new IllegalStateException(th);
     }
@@ -99,12 +101,9 @@ public class CryptoUtils {
   public static String encryptToAes128EcbWithBase64(final String source, final String password)
       throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
       IllegalBlockSizeException, BadPaddingException {
-    try {
-      SecretKeySpec secretKeySpec = new SecretKeySpec(password.getBytes("UTF-8"), "AES");
-      return encryptToAes128EcbWithBase64(source.getBytes(CIPHER_CHARSET), secretKeySpec);
-    } catch (final UnsupportedEncodingException e) {
-      throw new IllegalStateException(e);
-    }
+    SecretKeySpec secretKeySpec = new SecretKeySpec(
+        password.getBytes(StandardCharsets.UTF_8), "AES");
+    return encryptToAes128EcbWithBase64(source.getBytes(CIPHER_CHARSET), secretKeySpec);
   }
 
   /**
@@ -142,7 +141,7 @@ public class CryptoUtils {
    */
   public static byte[] encryptToAesGcm(final byte[] message, final byte[] password,
       final byte[] nonce) throws IllegalStateException, InvalidCipherTextException {
-    final GCMBlockCipher cipher = new GCMBlockCipher(new AESEngine());
+    final GCMModeCipher cipher = GCMBlockCipher.newInstance(AESEngine.newInstance());
     CipherParameters ivAndKey = new ParametersWithIV(new KeyParameter(password), nonce);
     cipher.init(true, ivAndKey);
     final byte[] outBuf = new byte[cipher.getOutputSize(message.length)];
@@ -184,12 +183,9 @@ public class CryptoUtils {
   public static byte[] decryptFromAes128EcbWithBase64(final String source, final String password)
       throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
       IllegalBlockSizeException, BadPaddingException {
-    try {
-      SecretKeySpec secretKeySpec = new SecretKeySpec(password.getBytes("UTF-8"), "AES");
-      return decryptFromAes128EcbWithBase64(source, secretKeySpec);
-    } catch (UnsupportedEncodingException e) {
-      throw new IllegalStateException(e);
-    }
+
+    SecretKeySpec secretKeySpec = new SecretKeySpec(password.getBytes(StandardCharsets.UTF_8), "AES");
+    return decryptFromAes128EcbWithBase64(source, secretKeySpec);
   }
 
   /**
@@ -228,7 +224,7 @@ public class CryptoUtils {
    */
   public static byte[] decryptFromAesGcm(final byte[] source, final byte[] password,
       final byte[] nonce) throws IllegalStateException, InvalidCipherTextException {
-    final GCMBlockCipher cppher = new GCMBlockCipher(new AESEngine());
+    final GCMModeCipher cppher = GCMBlockCipher.newInstance(AESEngine.newInstance());
     CipherParameters ivAndKey = new ParametersWithIV(new KeyParameter(password), nonce);
     cppher.init(false, ivAndKey);
     final byte[] outBuf = new byte[cppher.getOutputSize(source.length)];

@@ -4,6 +4,9 @@
 
 package hera.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static java.lang.String.format;
 import static java.lang.System.identityHashCode;
 
@@ -12,6 +15,8 @@ import java.net.UnknownHostException;
 import java.security.SecureRandom;
 
 public class ObjectUtils {
+  private static final Logger logger = LoggerFactory.getLogger(ObjectUtils.class);
+
   private static final SecureRandom SEEDER = new SecureRandom();
   private static String hexServerIP = null;
 
@@ -37,7 +42,7 @@ public class ObjectUtils {
   }
 
   /**
-   * Genrate global unique identifier for {@code obj}.
+   * Generate global unique identifier for {@code obj}.
    *
    * @param obj object to use for generation
    * @return guid generated guid
@@ -48,12 +53,12 @@ public class ObjectUtils {
 
     // time value
     long timeNow = System.currentTimeMillis();
-    int timeLow = (int) timeNow & 0xFFFFFFFF;
+    int timeLow = (int) timeNow;
     guid.append(hex(timeLow));
 
     // server IP
     if (null == hexServerIP) {
-      InetAddress localInetAddress = null;
+      InetAddress localInetAddress;
       try {
         // get the inet address
         localInetAddress = InetAddress.getLocalHost();
@@ -61,7 +66,8 @@ public class ObjectUtils {
         try {
           localInetAddress = InetAddress.getByName("localhost");
         } catch (final UnknownHostException e) {
-          e.printStackTrace();
+          // Failing to get address of localhost means the system is insane.
+          logger.warn("failed to get localhost address ", e);
           return null;
         }
       }
@@ -77,7 +83,7 @@ public class ObjectUtils {
     guid.append(hex(identityHashCode(obj)));
 
     // pseudo random
-    int node = -1;
+    int node;
     synchronized (SEEDER) {
       node = SEEDER.nextInt();
     }
@@ -112,9 +118,9 @@ public class ObjectUtils {
    *
    * @param <T> object type
    * @param o1 first object to compare
-   * @param o2 second object to compre
+   * @param o2 second object to compare
    *
-   * @return reulst of comparision
+   * @return result of comparison
    *
    * @see Comparable
    */
@@ -142,6 +148,7 @@ public class ObjectUtils {
    *
    * @return found object
    */
+  @SafeVarargs
   public static <K> K nvl(
       final K... objs) {
     if (null == objs) {

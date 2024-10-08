@@ -5,8 +5,7 @@
 package hera.wallet;
 
 import static java.util.UUID.randomUUID;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -74,6 +73,27 @@ public class QueryApiImplTest extends AbstractTestCase {
     final QueryApi queryApi = new QueryApiImpl(mockClientProvider);
     final AccountState accountState = queryApi.getAccountState(anyAccountAddress);
     assertNotNull(accountState);
+  }
+
+  @Test
+  public void testGetAccountStateException() {
+    // given
+    final AccountOperation mockOperation = mock(AccountOperation.class);
+    when(mockOperation.getState(any(AccountAddress.class)))
+        .thenThrow(new RuntimeException("invalid state"));
+    final AergoClient mockClient = mock(AergoClient.class);
+    when(mockClient.getAccountOperation()).thenReturn(mockOperation);
+    final ClientProvider mockClientProvider = mock(ClientProvider.class);
+    when(mockClientProvider.getClient()).thenReturn(mockClient);
+
+    // then
+    final QueryApi queryApi = new QueryApiImpl(mockClientProvider);
+    try {
+      final AccountState accountState = queryApi.getAccountState(anyAccountAddress);
+      fail("must throw exception");
+    } catch (RuntimeException e) {
+      assertEquals("java.lang.RuntimeException: invalid state", e.getMessage());
+    }
   }
 
   @Test
