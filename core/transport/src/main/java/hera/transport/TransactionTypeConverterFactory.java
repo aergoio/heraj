@@ -41,6 +41,8 @@ public class TransactionTypeConverterFactory {
               return Blockchain.TxType.CALL;
             case DEPLOY:
               return Blockchain.TxType.DEPLOY;
+            case MULTICALL:
+              return Blockchain.TxType.MULTICALL;
             default:
               return Blockchain.TxType.UNRECOGNIZED;
           }
@@ -68,6 +70,8 @@ public class TransactionTypeConverterFactory {
               return Transaction.TxType.CALL;
             case DEPLOY:
               return Transaction.TxType.DEPLOY;
+            case MULTICALL:
+              return Transaction.TxType.MULTICALL;
             default:
               return Transaction.TxType.UNRECOGNIZED;
           }

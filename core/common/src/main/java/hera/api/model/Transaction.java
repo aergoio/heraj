@@ -55,7 +55,8 @@ public class Transaction {
     FEE_DELEGATION(3),
     TRANSFER(4),
     CALL(5),
-    DEPLOY(6);
+    DEPLOY(6),
+    MULTICALL(7);
 
     @Getter
     private final int intValue;
