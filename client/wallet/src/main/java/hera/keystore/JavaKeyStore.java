@@ -40,6 +40,10 @@ import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.util.Arrays;
 
+/**
+ * Javakeystore is a key repository based on java.security.Keystore supported by Java standard implementation.
+ * This class is mainly used for reading JKS or PKCS#12 formatted key files.
+ */
 @ApiAudience.Private
 @ApiStability.Unstable
 public class JavaKeyStore extends AbstractKeyStore implements KeyStore {
@@ -131,7 +135,7 @@ public class JavaKeyStore extends AbstractKeyStore implements KeyStore {
 
       synchronized (lock) {
         if (isExists(authentication)) {
-          throw new InvalidAuthenticationException("Invalid authentication");
+          throw new InvalidAuthenticationException("Identity already exists");
         }
 
         final String alias = authentication.getIdentity().getValue();

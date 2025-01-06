@@ -29,7 +29,7 @@ public class EncryptedPrivateKey implements Encrypted {
   /**
    * Create {@code EncryptedPrivateKey} with a base58 with checksum encoded value.
    *
-   * @param encoded a base58 with checksum encoded encoded value
+   * @param encoded a base58 with checksum encoded value
    * @return created {@link EncryptedPrivateKey}
    */
   public static EncryptedPrivateKey of(final String encoded) {

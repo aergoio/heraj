@@ -35,6 +35,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+/**
+ * AergoKeyStore is an implementation that access the keystore used by AERGO's official CLI.
+ * Each key is saved as an individual file under the directory set in the keystore.
+ *
+ */
 @ApiAudience.Private
 @ApiStability.Unstable
 public class AergoKeyStore extends AbstractKeyStore implements KeyStore {
@@ -73,28 +78,28 @@ public class AergoKeyStore extends AbstractKeyStore implements KeyStore {
   }
 
   /**
-   * Create aergo keystore with root directory {@code keyStoreDir}.
+   * Create aergo keystore with rootDirectory directory {@code keyStoreDir}.
    *
-   * @param root           a keystore root directory
+   * @param rootDirectory           a keystore root directory
    * @param encryptVersion an encryption version
    */
-  public AergoKeyStore(final String root, final String encryptVersion) {
+  public AergoKeyStore(final String rootDirectory, final String encryptVersion) {
     try {
-      assertNotNull(root, "KeyStore rootpath must not null");
+      assertNotNull(rootDirectory, "KeyStore rootpath must not null");
       assertNotNull(encryptVersion, "KeyStore keyformat version must not null");
-      logger.debug("Create an AergoKeyStore with root directory {} and encrypt version: {}", root,
+      logger.debug("Create an AergoKeyStore with rootDirectory directory {} and encrypt version: {}", rootDirectory,
           encryptVersion);
 
-      final File file = new File(root + "/" + STORAGE_DIR);
+      final File file = new File(rootDirectory + "/" + STORAGE_DIR);
       if (file.exists() && file.isFile()) {
         throw new HerajException("Keystore target is a file");
       }
       if (!file.exists()) {
         final boolean mkdirSuccess = file.mkdirs();
         if (!mkdirSuccess) {
-          throw new HerajException("Unable to make directory: " + root);
+          throw new HerajException("Unable to make directory: " + rootDirectory);
         }
-        logger.debug("Create directory: {}", root);
+        logger.debug("Create directory: {}", rootDirectory);
       }
       this.root = file;
       this.encryptVersion = encryptVersion;
@@ -117,7 +122,7 @@ public class AergoKeyStore extends AbstractKeyStore implements KeyStore {
       synchronized (lock) {
         final String identity = authentication.getIdentity().getValue();
         if (hasIdentity(identity)) {
-          throw new InvalidAuthenticationException();
+          throw new InvalidAuthenticationException("Identity already exists");
         }
 
         final String path = this.root.getAbsolutePath() + "/" + deriveFilename(identity);
