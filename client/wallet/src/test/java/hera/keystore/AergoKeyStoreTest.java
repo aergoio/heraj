@@ -5,6 +5,7 @@
 package hera.keystore;
 
 import static java.util.UUID.randomUUID;
+import static org.junit.Assert.*;
 
 import hera.AbstractTestCase;
 import java.io.File;
@@ -35,16 +36,22 @@ public class AergoKeyStoreTest extends AbstractTestCase {
     new File(keyStoreRoot).mkdirs();
   }
 
+
   @Test
   public void testSave() {
     final AergoKeyStore keyStore = new AergoKeyStore(keyStoreRoot);
-    AergoKey sampleKey = AergoKey.of(KEY1_PK, PASSWORD);
-    Authentication sampleAuth = Authentication.of(AccountAddress.of(KEY1_ADDRESS), PASSWORD);
-    // directory is empty. so it can save
-    keyStore.save(sampleAuth, sampleKey);
-
+    AergoKey sampleKey1 = AergoKey.of(KEY1_PK, PASSWORD);
+    AccountAddress idKey1 = AccountAddress.of(KEY1_ADDRESS);
     AergoKey sampleKey2 = AergoKey.of(KEY2_PK, PASSWORD);
-    Authentication sampleAuth2 = Authentication.of(AccountAddress.of(KEY2_ADDRESS), PASSWORD);
+    AccountAddress idKey2 = AccountAddress.of(KEY2_ADDRESS);
+
+    Authentication sampleAuth1 = Authentication.of(idKey1, PASSWORD);
+    // directory is empty. so it can save
+    assertFalse(keyStore.contains(idKey1));
+    keyStore.save(sampleAuth1, sampleKey1);
+    assertTrue(keyStore.contains(idKey1));
+
+    Authentication sampleAuth2 = Authentication.of(idKey2, PASSWORD);
     // directory is empty. so it can save
     keyStore.save(sampleAuth2, sampleKey2);
 

@@ -67,6 +67,13 @@ public interface KeyStore {
   List<Identity> listIdentities();
 
   /**
+   * Return whether it contains the key.
+   * @param identity
+   * @return
+   */
+  boolean contains(Identity identity);
+
+  /**
    * Store keystore to the {@code path} with {@code password}.
    *
    * @param path     a path to store keystore

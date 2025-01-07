@@ -66,6 +66,11 @@ public class InMemoryKeyStore extends AbstractKeyStore implements KeyStore {
 
   @Override
   public Signer load(final Authentication authentication) {
+    return loadAergoKey(authentication);
+  }
+
+  @Override
+  protected AergoKey loadAergoKey(final Authentication authentication) {
     try {
       assertNotNull(authentication, "Authentication must not null");
       logger.debug("Load with authentication: {}", authentication);
@@ -144,6 +149,13 @@ public class InMemoryKeyStore extends AbstractKeyStore implements KeyStore {
       return identities;
     } catch (Exception e) {
       throw converter.convert(e);
+    }
+  }
+
+  @Override
+  public boolean contains(Identity identity) {
+    synchronized (lock) {
+      return this.storedIdentities.contains(identity);
     }
   }
 

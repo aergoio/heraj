@@ -22,13 +22,8 @@ import hera.key.KeyCipherStrategy;
 import hera.key.KeyFormatV1Strategy;
 import hera.key.Signer;
 import hera.model.KeyAlias;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.OutputStream;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -191,26 +186,30 @@ public class AergoKeyStore extends AbstractKeyStore implements KeyStore {
     }
   }
 
-  protected AergoKey loadAergoKey(final Authentication authentication) throws Exception {
+  protected AergoKey loadAergoKey(final Authentication authentication) {
     final String identity = authentication.getIdentity().getValue();
     if (!hasIdentity(identity)) {
       throw new InvalidAuthenticationException();
     }
 
-    final File file = loadKeyFile(identity);
-    final KeyFormat keyFormat = KeyFormat.of(new BufferedInputStream(new FileInputStream(file)));
-    logger.trace("Loaded key file: {}", keyFormat);
+    try {
+      final File file = loadKeyFile(identity);
+      final KeyFormat keyFormat = KeyFormat.of(new BufferedInputStream(new FileInputStream(file)));
+      logger.trace("Loaded key file: {}", keyFormat);
 
-    final JsonNode jsonNode = mapper.reader().readTree(keyFormat.getBytesValue().getInputStream());
-    final JsonNode jsonVersion = jsonNode.get(FIELD_VERSION);
-    if (null == jsonVersion) {
-      throw new HerajException("No " + FIELD_VERSION + " field");
+      final JsonNode jsonNode = mapper.reader().readTree(keyFormat.getBytesValue().getInputStream());
+      final JsonNode jsonVersion = jsonNode.get(FIELD_VERSION);
+      if (null == jsonVersion) {
+        throw new HerajException("No " + FIELD_VERSION + " field");
+      }
+
+      final String version = jsonVersion.asText();
+      logger.trace("Version: {}", version);
+      final KeyCipherStrategy<KeyFormat> strategy = this.version2Format.get(version);
+      return strategy.decrypt(keyFormat, authentication.getPassword());
+    } catch (IOException e) {
+      throw converter.convert(e);
     }
-
-    final String version = jsonVersion.asText();
-    logger.trace("Version: {}", version);
-    final KeyCipherStrategy<KeyFormat> strategy = this.version2Format.get(version);
-    return strategy.decrypt(keyFormat, authentication.getPassword());
   }
 
   @Override
@@ -225,6 +224,11 @@ public class AergoKeyStore extends AbstractKeyStore implements KeyStore {
     } catch (Exception e) {
       throw converter.convert(e);
     }
+  }
+
+  @Override
+  public boolean contains(Identity identity) {
+    return hasIdentity(identity.getValue());
   }
 
   @Override

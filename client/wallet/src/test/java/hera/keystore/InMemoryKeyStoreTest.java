@@ -58,7 +58,6 @@ public class InMemoryKeyStoreTest extends AbstractTestCase {
     keyStore.store(randomUUID().toString(), randomUUID().toString().toCharArray());
   }
 
-
   @Test
   public void testSaveOnExistingKeys() {
     InMemoryKeyStore prevKeystore = new InMemoryKeyStore();
@@ -90,4 +89,16 @@ public class InMemoryKeyStoreTest extends AbstractTestCase {
     keyStore.store(randomUUID().toString(), randomUUID().toString().toCharArray());
   }
 
+  @Test
+  public void testRemove() {
+    final InMemoryKeyStore keyStore = new InMemoryKeyStore();
+    AergoKey sampleKey = AergoKey.of(KEY1_PK, PASSWORD);
+    AccountAddress idKey1 = AccountAddress.of(KEY1_ADDRESS);
+    Authentication sampleAuth = Authentication.of(idKey1, PASSWORD);
+    // directory is empty. so it can save
+    keyStore.save(sampleAuth, sampleKey);
+    assertTrue(keyStore.contains(idKey1));
+    keyStore.remove(sampleAuth);
+    assertFalse(keyStore.contains(idKey1));
+  }
 }
