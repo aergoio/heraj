@@ -2,46 +2,49 @@
  * @copyright defined in LICENSE.txt
  */
 plugins {
-  id 'io.aergo.heraj.java-common-conventions'
-  id 'jacoco'
-//  id 'jacoco-report-aggregation'
+    id 'io.aergo.heraj.java-common-conventions'
+    id 'jacoco'
+    id 'jacoco-report-aggregation'
 }
 
 def javaLibraryProjects = [
-    project('core:annotation'),
-    project('core:util'),
-    project('core:common'),
-    project('core:protobuf'),
-    project('core:transport'),
-    project('client:wallet'),
-    project('client:smart-contract')
+        project('core:annotation'),
+        project('core:util'),
+        project('core:common'),
+        project('core:transport'),
+        project('core:protobuf'),
+        project('client:wallet'),
+        project('client:smart-contract')
 ]
 
 // root project
 project(":") {
-  // root project is for aggregated javadocs and coverage report only
-  jar.enabled = false
-  javadoc.enabled = false
-  javadocJar.enabled = false
-  javadoc.enabled = false
-  sourceJar.enabled = false
+    // root project is for aggregated javadocs and coverage report only
+    jar.enabled = false
+    javadoc.enabled = false
+    javadocJar.enabled = false
+    javadoc.enabled = false
+    sourceJar.enabled = false
 
     tasks.register('allcoverage') {
-        dependsOn ':report:testCodeCoverageReport'
+        dependsOn 'testCodeCoverageReport'
         group = 'verification'
         description = 'Runs the testCodeCoverageReport task in the report submodule.'
     }
 
-  task alljavadoc(type: Javadoc, group: 'Documentation') {
-    def targetProjects = javaLibraryProjects.findAll {
-      it.name != 'protobuf'
+    tasks.register("alljavadoc", Javadoc) {
+        group = "Documentation"
+        description = "Generate combined Javadoc for all modules"
+        def targetProjects = javaLibraryProjects.findAll {
+            it.name != 'protobuf'
+        }
+        source targetProjects.collect {it.sourceSets.main.allJava }
+        classpath = files(targetProjects.collect { it.sourceSets.main.compileClasspath })
+        destinationDir = file("${layout.buildDirectory.get()}/docs/javadoc")
+
+        if (java.toolchain.languageVersion.get().canCompileOrRun(JavaLanguageVersion.of("8"))) {
+            options.addStringOption('Xwerror', '-quiet')
+        }
     }
-    source targetProjects.collect {it.sourceSets.main.allJava }
-    classpath = files(targetProjects.collect { it.sourceSets.main.compileClasspath })
-    destinationDir = file("${buildDir}/docs/javadoc")
-    if (java.toolchain.languageVersion.get().canCompileOrRun(JavaLanguageVersion.of("8"))) {
-      options.addStringOption('Xwerror', '-quiet')
-    }
-  }
 
 }

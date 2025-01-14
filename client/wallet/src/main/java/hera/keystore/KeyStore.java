@@ -68,8 +68,8 @@ public interface KeyStore {
 
   /**
    * Return whether it contains the key.
-   * @param identity
-   * @return
+   * @param identity identity of key
+   * @return whether the key exists in this keystore
    */
   boolean contains(Identity identity);
 

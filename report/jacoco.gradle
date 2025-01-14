@@ -1,0 +1,36 @@
+import java.util.stream.Collectors
+
+var excludeFromCoverage = new ArrayList<String>()
+file('exclude_coverage.txt').withInputStream(){
+    it -> excludeFromCoverage.addAll(new BufferedReader(new InputStreamReader(it))
+            .lines()
+            .parallel()
+            .map(s -> s.substring(7).strip())
+            .collect(Collectors.toList()))
+}
+
+project(':') {
+    apply plugin: 'jacoco-report-aggregation'
+
+    testCodeCoverageReport {
+        getClassDirectories().setFrom(files(
+                javaLibraryProjects
+                        .collect {
+                            it.fileTree(dir: "${it.layout.buildDirectory}/classes/java/main", exclude:
+                                    excludeFromCoverage.stream()
+                                            .map(s -> s + ".class")
+                                            .collect(Collectors.toList()))
+                        })
+        )
+    }
+
+    var allProjectsExcludeJacoco = allProjects.stream()
+            .filter(p -> !p.getDisplayName().contains('jacoco')
+                    && !p.getDisplayName().contains('root project'))
+            .collect(Collectors.toList())
+
+    dependencies {
+        implementation allProjectsExcludeJacoco
+    }
+
+}

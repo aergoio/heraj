@@ -39,8 +39,13 @@ protobuf {
   }
 }
 
+// protobuf doesn't have unit test and so does jacocoReport
+tasks.named('jacocoTestReport') {
+  enabled = false
+}
+
 // FIXME: custom disable options, it don't like it
-tasks.withType(Javadoc).all { enabled = false }
+tasks.withType(Javadoc).all {enabled = false }
 
 checkstyle {
   sourceSets = []

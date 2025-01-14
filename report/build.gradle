@@ -28,7 +28,6 @@ reporting {
     }
 }
 
-
-tasks.named('check') {
-    dependsOn tasks.named('testCodeCoverageReport', JacocoReport) // <.>
+tasks.named('testCodeCoverageReport', JacocoReport) {
+//    dependsOn test
 }

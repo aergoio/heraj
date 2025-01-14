@@ -18,4 +18,5 @@ include 'client:wallet'
 include 'client:smart-contract'
 include 'assembly'
 include 'report'
+include 'sdk'
 

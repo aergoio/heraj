@@ -57,8 +57,8 @@ dependencies {
         // logging
         implementation "org.slf4j:slf4j-api:${slf4jVersion}"
         runtimeOnly "org.slf4j:jcl-over-slf4j:${slf4jVersion}"
-        runtimeOnly "ch.qos.logback:logback-core:${logbackVersion}"
-        runtimeOnly "ch.qos.logback:logback-classic:${logbackVersion}"
+        testRuntimeOnly "ch.qos.logback:logback-core:${logbackVersion}"
+        testRuntimeOnly "ch.qos.logback:logback-classic:${logbackVersion}"
 
     }
 }
@@ -110,7 +110,7 @@ idea {
 }
 
 task copyDependencies(type: Copy) {
-  into "$buildDir/dependencies"
+  into "${getLayout().getBuildDirectory()}/dependencies"
   //    from configurations.runtime
   from configurations.runtimeClasspath
 }

@@ -1,0 +1,20 @@
+plugins {
+    id "io.aergo.heraj.java-library-conventions"
+    id "me.champeau.jmh" version "${jmhPluginVersion}" // micro bmt
+}
+
+group = "io.aergo"
+version = "1.5.0-SNAPSHOT"
+
+dependencies {
+    // 집계 대상 모듈들을 모두 포함
+    implementation project(":core:annotation")
+    api project(":core:util")
+    api project(":core:common")
+    api project(":core:transport")
+    api project(":client:wallet")
+    api project(":client:smart-contract")
+
+    testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+}

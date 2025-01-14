@@ -33,7 +33,7 @@ jobs:
             -   name: Build with Gradle
                 uses: gradle/actions/setup-gradle@v3
                 with:
-                    arguments: build allcoverage
+                    arguments: build testCodeCoverageReport
 
             # run unit test with code coverage report if action is triggered by push of master branch
             # since Code Climate only evaluate code coverages of default branch.
