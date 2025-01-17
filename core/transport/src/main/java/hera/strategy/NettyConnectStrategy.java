@@ -18,9 +18,16 @@ public class NettyConnectStrategy implements ConnectStrategy<NettyChannelBuilder
 
   @Override
   public NettyChannelBuilder connect(final HostnameAndPort hostnameAndPort) {
-    return NettyChannelBuilder.forAddress(hostnameAndPort.getHostname(), hostnameAndPort.getPort())
-        .keepAliveTime(300L, TimeUnit.SECONDS)
-        .keepAliveWithoutCalls(true);
+    return connect(hostnameAndPort, null);
   }
 
+  @Override
+  public NettyChannelBuilder connect(HostnameAndPort hostnameAndPort, Long keepAliveTime) {
+    NettyChannelBuilder builder = NettyChannelBuilder.
+        forAddress(hostnameAndPort.getHostname(), hostnameAndPort.getPort());
+    if (keepAliveTime != null) {
+      builder = builder.keepAliveTime(keepAliveTime, TimeUnit.SECONDS).keepAliveWithoutCalls(true);
+    }
+    return builder;
+  }
 }

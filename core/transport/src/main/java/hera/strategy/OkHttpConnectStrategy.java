@@ -8,8 +8,9 @@ import hera.annotation.ApiAudience;
 import hera.annotation.ApiStability;
 import hera.api.model.HostnameAndPort;
 import io.grpc.okhttp.OkHttpChannelBuilder;
-import java.util.concurrent.TimeUnit;
 import lombok.ToString;
+
+import java.util.concurrent.TimeUnit;
 
 @ApiAudience.Private
 @ApiStability.Unstable
@@ -18,9 +19,16 @@ public class OkHttpConnectStrategy implements ConnectStrategy<OkHttpChannelBuild
 
   @Override
   public OkHttpChannelBuilder connect(final HostnameAndPort hostnameAndPort) {
-    return OkHttpChannelBuilder.forAddress(hostnameAndPort.getHostname(), hostnameAndPort.getPort())
-        .keepAliveTime(300L, TimeUnit.SECONDS)
-        .keepAliveWithoutCalls(true);
+    return connect(hostnameAndPort, null);
   }
 
+  @Override
+  public OkHttpChannelBuilder connect(HostnameAndPort hostnameAndPort, Long keepAliveTime) {
+    OkHttpChannelBuilder builder = OkHttpChannelBuilder.
+        forAddress(hostnameAndPort.getHostname(), hostnameAndPort.getPort());
+    if (keepAliveTime != null) {
+      builder = builder.keepAliveTime(keepAliveTime, TimeUnit.SECONDS).keepAliveWithoutCalls(true);
+    }
+    return builder;
+  }
 }
