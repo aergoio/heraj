@@ -13,7 +13,6 @@ buildscript {
 
   dependencies {
     classpath "me.champeau.gradle:jmh-gradle-plugin:${jmhVersion}"
-    classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:${bintrayVersion}"
   }
 }
 
@@ -23,11 +22,7 @@ allprojects {
 
   repositories {
     mavenLocal()
-    maven {
-      url "http://dist.wso2.org/maven2"
-    }
     mavenCentral()
-    jcenter()
   }
 
 
@@ -118,7 +113,6 @@ def javaLibraryProjects = [
 configure(javaLibraryProjects) {
   apply plugin: 'jacoco'                  // coverage
   apply plugin: 'checkstyle'              // lint
-  apply plugin: 'com.jfrog.bintray'       // jcenter
   apply plugin: 'maven-publish'           // maven
   apply plugin: "me.champeau.gradle.jmh"  // micro bmt
 
@@ -184,32 +178,6 @@ configure(javaLibraryProjects) {
   jar {
     archivesBaseName = projectBaseName
   }
-
-  bintray {
-    user = System.getProperty("bintrayUser")
-    key = System.getProperty("bintrayKey")
-    pkg {
-      userOrg = 'aergoio'
-      repo = 'maven'
-      name = projectBaseName
-      licenses = ['MIT']
-      websiteUrl = 'https://github.com/aergoio/heraj'
-      vcsUrl = 'https://github.com/aergoio/heraj'
-      version {
-        name = project.version
-        vcsTag = project.version
-      }
-    }
-    publications = ['maven']
-  }
-
-  // uploading SNAPSHOT is not supported
-  if (!version.toString().contains("SNAPSHOT")) {
-    task deploy {
-      dependsOn bintrayUpload
-    }
-  }
-
 
   /* maven-publish */
 
